@@ -5,6 +5,7 @@ import { SCALE, pointFor, angleFor } from './coordinates.mjs';
 import { snapshotVelocity } from './motion.mjs';
 import { createRenderProgress } from './render-progress.mjs';
 import { createTowerFinale } from './finale.mjs';
+import { observedGuardianPassage, createTowerGuardianPassage } from './guardian-passage.mjs';
 // A tiny 3D attack lane follows only a REAL enemy telegraph. The curved ribbon
 // traces the same cylindrical projection as authoritative horizontal shots and
 // keeps its world-space origin at the firing actor, never at a guessed target.
@@ -729,6 +730,8 @@ export function createTowerScene(canvas, settings = {}) {
   // resurrect an actor or alter the authoritative 20Hz simulation.
   let finale = createTowerFinale(THREE);
   scene.add(finale.group);
+  let passage = createTowerGuardianPassage(THREE);
+  scene.add(passage.group);
   const enemies = new Map(), pickups = new Map(), projectiles = new Map();
   const sharedGeometry = new Set(), sharedMaterials = new Set();
   const ownGeometry = geometry => { sharedGeometry.add(geometry); return geometry; };
@@ -892,15 +895,16 @@ export function createTowerScene(canvas, settings = {}) {
     releaseEnvironment();
     reflectionFirstFrame = true;
     clearActors();
-    scene.remove(world.group, climber.group, finale.group);
-    world.dispose(); climber.dispose(); finale.dispose();
+    scene.remove(world.group, climber.group, finale.group, passage.group);
+    world.dispose(); climber.dispose(); finale.dispose(); passage.dispose();
     skyGeometry.dispose(); skyMaterial.dispose();
     for (const geometry of sharedGeometry) geometry.dispose();
     for (const material of sharedMaterials) material.dispose();
     sun.shadow.dispose(); sun.shadow.map = null; sun.shadow.mapPass = null;
     world = createTowerWorld(); climber = createClimber(); finale = createTowerFinale(THREE);
+    passage = createTowerGuardianPassage(THREE);
     climber.group.name = 'ExpeditionClimber';
-    scene.add(world.group, climber.group, finale.group);
+    scene.add(world.group, climber.group, finale.group, passage.group);
     initialized = false;
     if (snapshot) updateEntities(snapshot);
   }
@@ -996,7 +1000,7 @@ export function createTowerScene(canvas, settings = {}) {
     lastRevision = revision;
     renderProgress.expectFrame(performance.now());
     const newRun = snapshot && next.runToken !== snapshot.runToken;
-    if (newRun) { clearActors(); initialized = false; previous = null; landingMoment=-Infinity; landingRun=null; landingHalo.visible=false; }
+    if (newRun) { clearActors(); passage.clear(); initialized = false; previous = null; landingMoment=-Infinity; landingRun=null; landingHalo.visible=false; }
     if (snapshot && baseY !== next.chunkBaseY) {
       const shift = (baseY - next.chunkBaseY) / SCALE;
       climber.group.position.y += shift; camera.position.y += shift; lookAt.y += shift;
@@ -1005,6 +1009,15 @@ export function createTowerScene(canvas, settings = {}) {
     }
     previous = newRun ? null : snapshot;
     snapshot = next; baseY = next.chunkBaseY;
+    // A decisive guardian hit can also advance the REAL fixed-step floor.
+    // The previous gate is discarded with its old world; preserve only a short
+    // non-colliding bronze passage memory, witnessed in adjacent real source
+    // snapshots. Never infer a victory from animation time, a new run or a
+    // missing guardian. The new floor's autonomous physics stay untouched.
+    const clearedGuardian = observedGuardianPassage(previous, next);
+    if (previous && previous.floor !== next.floor) passage.clear();
+    if (clearedGuardian) passage.begin(next, pointFor(next.player.x,
+      next.player.y - next.player.halfHeight, next.chunkBaseY, next.worldWidth, 21.55));
     // A landing is observable only across consecutive source snapshots in the
     // same real run/floor. Skipped long intervals and decorative ledge poses
     // cannot invent a contact or shake the camera.
@@ -1116,6 +1129,7 @@ export function createTowerScene(canvas, settings = {}) {
     }, dt, elapsed, options);
     ledgeContactEvidence = ledgeTarget ? measureLedgeFingertip(climber.group, ledgeTarget, targetPlatform.id) : null;
     finale.update(snapshot, climber.group.position, elapsed, options);
+    passage.update(dt, options);
     attackArc.visible = !!p.attacking && p.health > 0;
     if (attackArc.visible && positionStrikeCue(attackArc, climber.group, camera)) {
       attackArc.rotateZ(p.facing > 0 ? -.8 : Math.PI - .8);
@@ -1243,6 +1257,14 @@ export function createTowerScene(canvas, settings = {}) {
     } else {
       focus.copy(followComposition.focus); destination.copy(followComposition.position); targetY = followComposition.focus.y;
     }
+    // An authentic guardian clearance leaves a floor-local architectural
+    // passage behind the climber while the follow camera acknowledges the
+    // ascent. Do not alter overview or reduced-motion camera conventions.
+    const releaseWeight = options.stale || options.reducedMotion ? 0 : passage.cameraWeight();
+    if (!overview && releaseWeight > 0) {
+      destination.y += releaseWeight * 1.4;
+      focus.y += releaseWeight * .65;
+    }
     // Reveal the height of the actual terminal position, not a fabricated
     // victory pose: the result/intermission phase owns this quiet camera crane.
     // Reduced motion freezes the treatment to a stable, wider composition.
@@ -1368,7 +1390,7 @@ export function createTowerScene(canvas, settings = {}) {
       lighting: { environmentReady: !!reflectionTarget, environmentState: disposed ? 'disposed' : reflectionDirty ? 'pending' : reflectionTarget ? 'ready' : 'direct', environmentBuilds: reflectionBuilds,
         environmentFailures: reflectionFailures, environmentLastError: reflectionLastError,
         environmentSize: reflectionTarget ? [reflectionTarget.width, reflectionTarget.height] : [0, 0], shadowLights: 1, shadowMapSize: sun.shadow.mapSize.x },
-      world: world.diagnostics(), finale: finale.diagnostics(), cameraPosition: camera.position.toArray(), climberPosition: climber.group.position.toArray() };
+      world: world.diagnostics(), finale: finale.diagnostics(), passage: passage.diagnostics(), cameraPosition: camera.position.toArray(), climberPosition: climber.group.position.toArray() };
   }
   function dispose() {
     if (disposed) return;
@@ -1380,7 +1402,7 @@ export function createTowerScene(canvas, settings = {}) {
     canvas.removeEventListener('pointerup', pointerUp); canvas.removeEventListener('pointercancel', pointerUp); canvas.removeEventListener('wheel', wheel);
     releaseEnvironment();
     sun.shadow.dispose(); sun.shadow.map = null; sun.shadow.mapPass = null;
-    clearActors(); climber.dispose(); world.dispose(); finale.dispose();
+    clearActors(); climber.dispose(); world.dispose(); finale.dispose(); passage.dispose();
     skyGeometry.dispose(); skyMaterial.dispose();
     for (const geometry of sharedGeometry) geometry.dispose();
     for (const material of sharedMaterials) material.dispose();
