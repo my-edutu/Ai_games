@@ -43,7 +43,10 @@ test('analytic two-link solution preserves actual arm and fingertip lengths',()=
 });
 test('real scene passes source-truth deck top into character bones without new authority',()=>{
   assert.match(scene,/const ledgeContact = ledgeContactPoint\(snapshot, targetPlatform\)/);
-  assert.match(scene,/ledgeTarget: ledgeContact \? pointFor\(ledgeContact\.x, ledgeContact\.y,/);
+  // G37 hoists the same real platform point so both the rig and contact
+  // diagnostic read exactly one immutable target; test the mapping and its use.
+  assert.match(scene,/const ledgeTarget = ledgeContact \? pointFor\(ledgeContact\.x, ledgeContact\.y,/);
+  assert.match(scene,/\n\s+ledgeTarget,\n/);
   assert.match(cast,/body\.worldToLocal\(ledgeWorld\)/);
   assert.match(cast,/arm\.lower\.quaternion\.setFromUnitVectors\(fingertipRest,ledgeAim\)/);
 });
