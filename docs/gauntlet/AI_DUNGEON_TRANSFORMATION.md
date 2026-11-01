@@ -1,0 +1,45 @@
+# AI Dungeon — Transformation Gauntlet (active operating charter)
+
+**Effective:** 1 November 2026. **Game:** Game 9, AI Dungeon — Endless Adventure. **Repository:** `my-edutu/Ai_games`, existing **draft PR #49** on `feat/ai-dungeon-3d-gauntlet-foundation`.
+
+## The decision
+
+**A Gauntlet succeeds only if the real game looks, feels AND plays substantially better.** Passing tests, adding a few polygons, shifting colours, changing a panel, fixing a minor bug, increasing a test count or shipping another tiny commit are necessary engineering work when useful, but are **not** accepted transformations. Stop treating each incremental commit as a completed Gauntlet round.
+
+Keep one active transformation **milestone** across as many implementation sessions and commits as required. Report ongoing work candidly without granting an experience win. Do not reset the comparison baseline after each incremental commit. Commit cohesive verified steps to the same draft PR, but do not publish “transformed” until this charter's independent acceptance gate passes.
+
+## Locked starting point
+
+- **Baseline implementation:** `281735d0910c6b2443648af976003d50412ee324` (current Game 9 PR head at adoption).
+- **Authentic baseline evidence:** [exact-head GitHub Chromium UI screenshots and gameplay videos, workflow 41302939553, artifact 13081734898](https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898). This contains real 1440×832 desktop and world-only frames, mobile screen captures and browser gameplay video; it does **not** yet constitute the full representative scenario reel.
+- **Present quality diagnosis, not fabricated measurement:** the inspected baseline visibly has repeated grid-stone walls, boxy miniature-style party/enemy silhouettes, overlapping combat bodies and bright accents, and a limited sense of cinematic staging. It does have genuine Three.js rendering, textured rigs, and a readable spectator shell. No independent blind preferences, GPU p95/p99, integrated scenario acceptance or full Diablo IV parity are established.
+- **External direction:** authentic Diablo IV dungeon gameplay is the primary look/legibility benchmark; No Rest for the Wicked supports sculptural art direction; Path of Exile 2 supports combat motion and spell readability. Link actual comparison clips; do not copy protected assets.
+- **Baseline must stay fixed** for this transformation milestone. A later baseline requires a documented new milestone after the current one is accepted or explicitly abandoned, not an automatic reset.
+
+## Transformation target: an unmistakable vertical-slice leap
+
+Choose and integrate the right techniques; do not force a particular renderer, decomposition or count of loops. The target is a coherent **autonomous adventure** that a person can watch for several minutes and immediately recognize as markedly better, with differentiated heroes/enemies, clearly readable attacks and hits, convincing boss threats, varied designed rooms, atmosphere, useful audio and a simple spectator UI.
+
+**Looks — original 3D art, not decorative patches.** Characters have distinctive, proportionate anatomy/silhouettes, detailed armor and gear, readable role/faction separation, convincing authored or procedural rig motion, varied materially rich environments, restrained cinematic lighting, sound spatial composition and good depth. Camera and visual effects reveal rather than hide them. Desktop and mobile must remain readable.
+
+**Feels — movement and impact.** Idle/travel/attacks/casts/hurts/death and transitions flow naturally; weight, anticipation, follow-through, contact, sound, camera response and effects align with what actually happened. Evaluate **motion clips**, not just frozen pixels. Avoid generic looping effects and fake combat embellishments.
+
+**Plays — a real journey, not a pretty tech demo.** The autonomous party navigates purposefully; combat decisions have coherent tactical consequences and pacing, enemies and bosses pose visible distinct threats, loot and advancement alter subsequent choices, encounters build tension and resolve clearly, and defeat/restart remains understandable. The evaluator watches the same actual deterministic game and stateful progress, not a rehearsed non-interactive animation.
+
+### Milestone selection and implementation
+
+Lead agent selects the **highest experiential gap** and defines one ambitious playable outcome (for example, a coherent boss expedition with transformed hero/enemy animation, environment, combat/audio and HUD). Split the outcome into independently buildable/reviewable pieces, but **the milestone remains OPEN until integrated**. Prefer a connected art/gameplay/UX transformation over a succession of unrelated mini-tweaks. Builders and fresh-context critics should operate separately where actual subagent tools exist. If worker/ultracode tools are unavailable, be explicit and do not invent an external verdict.
+
+## Acceptance: game-level evidence, not a CI score
+
+Before acceptance, capture real BEFORE and AFTER gameplay from representative **traversal → active combat → boss encounter → floor transition → defeat/restart** with the actual AI authority, plus **mobile**. Match seed, camera angle, view size, floor and combat density where applicable; show actual motion and audio, not generated mockups. Use short clips and matched stills, with URLs/SHA and provenance.
+
+A fresh-context independent panel of **at least 3 critics** should blindly judge whether the integrated AFTER version is materially better than pinned BEFORE on each of **LOOKS, FEELS and PLAYS**, reviewing multiple scenarios. **Pass each pillar only with a clear majority** and no serious regression in any core experience. Critic reports must identify the largest remaining gap, not merely praise new code. Direct comparison to the external AAA references informs direction; do not claim surpassing Diablo IV without actual reference-matched evidence.
+
+**Safety gates are separate and mandatory:** reproducible replay/seed/campaign, source/security/license checks, functional browser suite, visibility/accessibility/mobile sanity, bounded resources and measured gameplay/frame-time regression checks. Green CI is required for merge readiness but never by itself counts as a transformation. If only tests pass, label **IN PROGRESS / NOT TRANSFORMED**. If motion footage, independent critics or meaningful gameplay assessment is absent, label **UNVERIFIED / NOT TRANSFORMED**. Do not fabricate an A/B win, percentage of AAA parity, or production certification.
+
+## Durable handoff and reporting
+
+Preserve a machine-readable `transformation` object in `public/ai-dungeon/gauntlet-history.json`. Its **baseline SHA and artifact must never drift** while this milestone is open. The local `/dungeon/gauntlet` progress page presents the milestone verdict **before** old test counts/round history, three separate experience pillars, the pinned baseline and proof gaps. Per-commit or per-session technical records stay in the legacy `rounds` ledger and are **implementation events, not wins**.
+
+Each automation run should resume the same milestone: what is now playable, what the real before/after evidence shows, what the critics rejected, and the next transformation-driving build. A run can report code progress without announcing success. Status vocabulary: `NOT_TRANSFORMED`, `IN_PROGRESS`, and `TRANSFORMED_VERIFIED` (last permitted only after this charter's evidence). Preserve user control: do not merge or deploy without a separate instruction, and do not claim indefinite work beyond the active scheduled automation.

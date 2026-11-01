@@ -2106,5 +2106,63 @@
       },
       "nextLargestGap": "Provenance-cleared anatomically realistic hero/enemy GLBs, readable rig-driven weapon-to-target contact, independent matched live gameplay critic and hardware GPU p95/p99 / multi-hour memory soak. Leave PR #49 draft."
     }
-  ]
+  ],
+  "transformation": {
+    "schemaVersion": 1,
+    "milestoneId": "DUNGEON-TRANSFORMATION-01",
+    "title": "From Prototype to Believable 3D Adventure",
+    "adoptedOn": "2026-11-01",
+    "status": "IN_PROGRESS",
+    "verdict": "NOT_TRANSFORMED",
+    "baseline": {
+      "sha": "281735d0910c6b2443648af976003d50412ee324",
+      "locked": true,
+      "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
+      "evidence": "Authentic desktop/world-only/mobile Chromium screenshots and real browser session clips from this exact SHA. Full narrative encounter reel and unbiased critics are not yet present.",
+      "sceneSeed": "dungeon-ui-round17",
+      "source": "exact-head Chromium visual-review workflow"
+    },
+    "pillarTargets": {
+      "looks": "Clearly differentiated, believable characters and materially rich coherent dungeon scenes with readable cinematic composition on desktop and mobile.",
+      "feels": "Fluid anticipation, travel, attack/contact, casting, hit, defeat and camera/audio feedback apparent in real motion clips.",
+      "plays": "Purposeful autonomous navigation, tactically legible fights and boss mechanics, meaningful loot/progression, understandable defeat/restart with engaging pacing."
+    },
+    "pillars": {
+      "looks": {
+        "status": "UNVERIFIED",
+        "criticsPreferAfter": 0,
+        "criticsTotal": 0
+      },
+      "feels": {
+        "status": "UNVERIFIED",
+        "criticsPreferAfter": 0,
+        "criticsTotal": 0
+      },
+      "plays": {
+        "status": "UNVERIFIED",
+        "criticsPreferAfter": 0,
+        "criticsTotal": 0
+      }
+    },
+    "evidence": {
+      "actualContinuousScenarioReel": "NOT_RUN",
+      "matchedBeforeAfter": "NOT_RUN",
+      "mobileBeforeAfter": "NOT_RUN",
+      "independentCriticPanel": {
+        "status": "NOT_RUN",
+        "criticCount": 0,
+        "looksMajority": false,
+        "feelsMajority": false,
+        "playsMajority": false
+      },
+      "safetyChecks": "NOT_ASSESSED",
+      "matchedExternalReference": "NOT_RUN"
+    },
+    "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
+    "biggestRemainingGap": "Toy-like character anatomy and overlapping silhouettes; tiled dungeon architecture, limited contact/choreography, cinematic direction and meaningful encounter pacing.",
+    "currentWork": "Transformation planning and baseline review; no accepted integrated candidate yet.",
+    "candidateCommit": null,
+    "candidateArtifactUrl": null,
+    "acceptedAt": null
+  }
 }

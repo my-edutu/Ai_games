@@ -94,5 +94,9 @@ test('development progress page has permitted styling and the approved benchmark
  expect(await page.locator('.grid').evaluate(el=>getComputedStyle(el).display)).toBe('grid');
  await expect(page.locator('body')).toContainText('Diablo IV');
  await expect(page.locator('body')).toContainText('NOT AAA CERTIFIED');
+ await expect(page.locator('#transformation-status')).toContainText(/NOT TRANSFORMED|TRANSFORMED & VERIFIED/);
+ await expect(page.locator('#transform-baseline')).toContainText('281735d');
+ for(const pillar of ['looks','feels','plays'])await expect(page.locator('#transform-'+pillar)).toHaveText(/UNVERIFIED|AFTER PREFERRED|REJECTED/);
+ await expect(page.locator('#transform-evidence')).not.toBeEmpty();
  await page.screenshot({path:'artifacts/dungeon-immersive-progress.png',fullPage:true});
 });
