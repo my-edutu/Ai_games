@@ -1,7 +1,7 @@
 {
   "updated": "2026-11-01",
-  "verdict": "Gauntlet 38 exterior-approach implementation committed after genuine RED tests; exact-source GPU/IK and head-clearance verification PENDING. Prior G37 silhouette FAIL; Gauntlet 90 NOT ACHIEVED.",
-  "nextGap": "Check real-source G38 desktop/portrait GPU and measured fingertip+helmet clearance against G37 tick 298; inspect continuous ascent for lateral popping. If IK loses contact or body still intersects opaque stone, fix before new art. Independent Jusant/ASTRO BOT, device FPS, accessibility and soak remain OPEN.",
+  "verdict": "Gauntlet 38 authentic-source RED→GREEN 9/9 logical + 2/2 GPU captures PASS; held-frame head penetration corrected (scoped visual improvement), but lower-deck foot silhouette and smooth-transition gate OPEN. Source-bound Motion capture integrity PASS; commercial Gauntlet 90 NOT ACHIEVED.",
+  "nextGap": "Target G38's new portrait apparent lower-deck foot support and possible radial snap at ledge entry/landing. Record an exact ledge-approach sequence with consecutive GPU frames around tick 298 and source-bound foot/hand silhouette; no held still establishes complete motion. Independently compare with Jusant/ASTRO BOT, then address sustained device FPS, accessibility and soak.",
   "capture": "/tower/gauntlet/evidence/14-foundry-follow.webp",
   "captureLabel": "Actual tick 118 · compact HUD and clearer hostile equipment",
   "iterations": [
@@ -284,8 +284,8 @@
       "number": "38",
       "date": "2026-11-01",
       "title": "Guide the rising robot outside the solid one-way rim",
-      "finding": "G37 authentic GPU images show the helmet/torso intersecting the upper slab despite exact fingertip IK. Added an early, smooth presentation-only exterior radial approach (to radius 28.05), aimed the hand at the authentic deck's outer walking lip (27.1), and instrumented actual helmet-to-rim clearance. Authority, seeded physics and snapshot checksums remain unchanged. Pending exact-source GPU inspection; not a declared visual pass.",
-      "checks": "Strict RED: test-only commit bcbf2bf, dedicated Tower Ledge CI 41261387676 FAILED as expected at new source-binding/approach assertions; prior seven relevant tests passed. GREEN source, original 3D browser silhouette, build and motion verification PENDING. Independent critic tunnel NOT_FOUND; self-review pending. Gauntlet 90 NOT ACHIEVED."
+      "finding": "Prior G37 tick-298 screenshot showed robot helmet embedded in opaque deck despite mathematically exact fingertip. Implemented presentation-only exterior climbing corridor radius 25→28.05, started before helmet contact, with the same authoritative platform's outer lip radius 27.1. G38 exact-checksum screenshots show the entire helmet and torso visibly outside the upper stone instead of crossing it; desktop hand aligns to outer lip, while portrait feet can appear planted on the lower platform despite airborne authority. This is a scoped improvement, not believable complete climbing.",
+      "checks": "RED test-only bcbf2bf: Tower Ledge run 41261387676 FAIL as intended (7 existing pass, 2 new fail). GREEN source 2d4d174: run 41261516413 PASS (9/9 Node/Three, 2/2 Chromium), artifact 13065209266 source-sha confirmed, real tick298 checksum13941b9e unchanged from G37, target=actual outer deck (r27.1), measured fingertip error 4.1e-15, conservative helmet rim clearance +0.17045 world units both views, zero page/GL errors. Inspected both actual 960x600 and 390x844 PNGs, but feet may visually touch the lower deck in portrait. Tower Landing 41261516336, Combat 41261516315, Guardian 41261516327, Realism 41261516314 and Motion 41261516325 all SUCCESS. Motion artifact 13065940151 source-bound, 68.56s desktop/46.04s portrait; sampled distinct canvas images and zero errors; submitted-frame p95 2347.7ms/1157.9ms (software renderer, NOT device FPS). No consecutive tick298 motion proof, independent critic unavailable (tunnel NOT_FOUND); commercial/complete-motion/stability gates OPEN. Broad catalogue CI 41261520387 running when checked. Gauntlet 90 NOT ACHIEVED."
     }
   ],
   "captures": [
