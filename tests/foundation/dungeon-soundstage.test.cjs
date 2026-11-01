@@ -75,7 +75,7 @@ test('live 3D viewer loads original soundstage behind explicit opt-in and routes
  assert.ok(app.includes("import {createDungeonSoundstage} from '/dungeon/soundstage.js'"));
  assert.ok(app.includes('soundstage?.acceptSnapshot(s)'));
  assert.ok(app.includes('soundstage?.stats()'));
- assert.ok(app.includes('soundstage.enable()'));
+ assert.ok(app.includes('soundstage?.enable()'),'opt-in sound must fail closed when device initialization is unavailable');
  assert.ok(server.includes("['/dungeon/soundstage.js','soundstage.js']"));
  assert.ok(server.includes("['/dungeon/soundstage-plan.js','soundstage-plan.js']"));
 });
