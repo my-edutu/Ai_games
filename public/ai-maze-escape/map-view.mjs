@@ -15,7 +15,11 @@ export function publicEncounterFrameWeight(attentionStrength, cameraMode, result
   const alert = clamp(attentionStrength, 0, 1);
   if (cameraMode === 'follow') return alert * .22; // preserve known normal framing
   const portrait = Number.isFinite(aspect) && aspect > 0 && aspect < .9;
-  return portrait ? Math.min(.22, alert * .28) : Math.min(.5, alert * .9);
+  // Native 390px production evidence showed one truly disclosed guardian entirely
+  // outside the picture despite a visible warning. Detail is an actor-pair view:
+  // share its bounded aim almost evenly for a genuine close opponent, retaining
+  // slightly more of Pip on phones. Follow, terminal and hidden-state rules stay.
+  return portrait ? Math.min(.48, alert * .85) : Math.min(.5, alert * .9);
 }
 
 

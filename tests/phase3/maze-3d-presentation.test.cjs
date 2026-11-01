@@ -330,8 +330,10 @@ test('disclosed guardian detail framing shares the real screen without inventing
   const disclosed=.56065;
   assert.ok(weight(disclosed,'detail',false,1280/900)>.45,
     'desktop Detail follows the genuinely observed opponent rather than forcing hero-only aim');
-  assert.ok(weight(disclosed,'detail',false,390/844)<.2,
-    'native phone retains more hero emphasis and does not pretend both fit at a desktop scale');
+  assert.ok(weight(disclosed,'detail',false,390/844)>.45,
+    'real native-phone guardian was clipped under the earlier 0.22 cap; active Detail must stage both actors');
+  assert.ok(weight(disclosed,'detail',false,390/844)<=.48,
+    'phone retains a modest Pip bias and never moves beyond the observed actor pair');
   assert.ok(weight(disclosed,'detail',false,1280/900)<=.5,
     'public actor focus cannot pass the midpoint into an enemy-only shot');
   assert.equal(weight(disclosed,'follow',false,1280/900),disclosed*.22,

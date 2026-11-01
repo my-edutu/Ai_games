@@ -133,8 +133,12 @@ test('a real close public encounter frames both autonomous actors and saves date
     },
     caveat:'Native mobile screenshot can expose clipping or unreadability; no Nintendo parity, independent preference or hardware GPU claim.',
   },null,2));
-  // Preserve the original desktop objective/lock captures. Any phone-specific
-  // encounter clipping is recorded above rather than inventing another pose.
+  // This is a *rendered character* gate, not an animation or fixed-bar verdict.
+  // The source-bound screenshot and SHA manifest are written before asserting,
+  // so a failure keeps the authentic clipping evidence for the visual critic.
+  expect(portraitEncounter.explorerInFrame, 'Native Detail must retain the real explorer').toBe(true);
+  expect(portraitEncounter.wardensInFrame, 'Native Detail warning must show at least one truly disclosed 3D guardian').toBeGreaterThanOrEqual(1);
+  // Preserve the original desktop objective/lock captures; never move actors.
   await page.setViewportSize({width:1280,height:900});
 
   // Separate authentic screenshot gate for an actionable *known* landmark.
