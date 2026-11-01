@@ -26,7 +26,7 @@ const gpuArgs=['--enable-webgl','--use-gl=angle','--use-angle=swiftshader',
  '--enable-precise-memory-info'];
 
 const evidence={
- version:'g091-matched-lived-workday-v1',
+ version:'g099-matched-workday-market-handoff-v2',
  baselineSha:BASE,candidateSha:null,baselineBlob:null,candidateBlob:null,
  renderer:'UNVERIFIED',status:'INCOMPLETE',workdayTicks:null,
  camera:{wide,labor,grown,marketView},viewport,
@@ -38,7 +38,7 @@ const evidence={
   'Neither screenshot differences nor this evidence imply independent critic endorsement.',
   'Video files include honest initialization pre-roll; no postprocessed or fabricated frames.',
   'Supplemental candidate live-worker shots are not equivalent to a matched A/B and cannot substitute for blinded review.',
-  'G098 delivery clips are candidate-only experiential probes, not a matched G088 delivery scenario (G088 lacks this mechanic).'
+  'G098 courier and G099 unloading clips are candidate-only supplementary proof, not matched G088 scenes (G088 lacks logistics).'
  ]
 };
 const mkdir=(name)=>fs.mkdirSync(path.join(DIR,name),{recursive:true});
@@ -180,6 +180,39 @@ async function stage(label,html,browser,matchedTicks){
    result.delivery={carrier:delivery.carrier,proof,sceneFile:'g098-actual-delivery.png',
     checksum:delivery.checksum,matchedPair:false};
    await page.evaluate(()=>window.__tinyKingdom.stopWorkdayWatch());
+   const handoff=await page.evaluate(()=>{
+    const g=window.__tinyKingdom;
+    for(let i=0;i<26000;i++){
+     g.step(1/30);
+     const unloading=g.getMarketHandoffs()[0];
+     if(unloading&&unloading.progress<.18)
+      return {extraTicks:i+1,carrier:unloading,checksum:g.exportSnapshot().checksum,
+       inTransit:g.getMarketSupplyView().inTransit[unloading.resource],
+       prematureReceipt:g.getDeliveryReceipts().some(r=>r.id===unloading.id)};
+    }
+    throw Error('G099: no true live unloading observed within 26000 ticks');
+   });
+   assert(handoff.inTransit>0&&!handoff.prematureReceipt,
+    'G099 handoff must precede the real goods receipt');
+   result.handoffTicks=result.deliveryTicks+handoff.extraTicks;
+   const handoffCamera={focus:[0,10.2],yaw:.62,pitch:.28,zoom:10.6};
+   await page.evaluate(camera=>{
+    const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
+    g.setCamera(camera);g.setHudMode('full');
+    if(JSON.stringify(g.exportSnapshot())!==before)
+     throw Error('Unloading camera mutated authoritative game');
+   },handoffCamera);
+   await page.waitForTimeout(850);
+   await page.screenshot({path:path.join(DIR,label+'/g099-market-unloading.png'),timeout:90000});
+   await page.setViewportSize({width:390,height:844});
+   await page.waitForTimeout(380);
+   await page.screenshot({path:path.join(DIR,label+'/g099-market-unloading-mobile.png'),timeout:90000});
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),
+    false,'G099 mobile handoff document overflow');
+   await page.setViewportSize(viewport);
+   result.handoff={carrier:handoff.carrier,sceneFile:'g099-market-unloading.png',
+    mobileFile:'g099-market-unloading-mobile.png',checksum:handoff.checksum,
+    inTransit:handoff.inTransit,matchedPair:false};
   }
   await page.evaluate(()=>window.__tinyKingdom.reset());
   await advanceTicks(page,120*24*30);
@@ -318,6 +351,14 @@ async function motion(browser,html,snapshot,label,live=false,camera=labor,delive
    'G098 delivery filmed state differs from genuine witnessed source state');
   evidence.videos.candidateDelivery=await motion(browser,candidate,dSnapshot,
    'candidate-delivery',false,marketView,true);
+  // Uncut browser footage starts from the deterministically replayed,
+  // physically unloading citizen and remains actual interactive gameplay.
+  const hSnapshot=await regenerateSnapshot(browser,candidate,c.result.handoffTicks);
+  assert.equal(hSnapshot.checksum,c.result.handoff.checksum,
+   'G099 filmed handoff differs from authoritative staged citizen action');
+  evidence.videos.candidateHandoff=await motion(browser,candidate,hSnapshot,
+   'candidate-market-unloading',false,
+   {focus:[0,10.2],yaw:.62,pitch:.28,zoom:10.6});
   evidence.status='SCENARIOS_CAPTURED_NOT_BLIND_REVIEWED';
   assert.deepEqual(evidence.errors,[],'Uncaught browser/console errors');
  }catch(error){
