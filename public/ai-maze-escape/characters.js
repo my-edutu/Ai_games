@@ -335,8 +335,12 @@ export function createExplorer(options = {}) {
 
 export function createWarden(options = {}) {
   const r=rig('Thornback · ancient garden warden', options), {group,material,ball,tube,ring,rounded,pivot,bar}=r;
-  const shell=material('#244f4e',.52,.37), plates=material('#417568',.48,.4), bronze=material('#a07a44',.7,.4);
-  const dark=material('#1e2c30',.48,.6), claw=material('#d0bb85',.55,.35);
+  // The old jade-on-jade shell disappeared against the adjacent garden
+  // parapets in real 390px encounter footage. Give Thornback a consistent
+  // slate-violet carapace, warm copper shoulder plates and brass face. These
+  // remain physical shared materials, not screen-facing warning sprites.
+  const shell=material('#4d4364',.52,.38), plates=material('#a17b5b',.48,.43), bronze=material('#bd8b51',.7,.4);
+  const dark=material('#292e40',.48,.6), claw=material('#e1c997',.55,.35);
   const red=material('#ff8650',.2,.27,{emissive:'#ff401a',emissiveIntensity:1.1});
   const body=pivot(group,'armored body',[0,.79,-.035]);
   ball(body,dark,[0,0,0],[.53,.33,.6]);
