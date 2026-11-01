@@ -437,12 +437,11 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
       contactGuardian.angle, guardianCorners);
     sightlines.push(contactGuardian);
   }
-  // The actual gate and capstan share the boss's screen budget; including
-  // their true world-space corners in perspective fitting prevents a perfect
-  // hero/guardian shot that entirely crops the causal HP-powered mechanism.
-  // The clear-sightline test remains actor-only: this recessed structure is
-  // intentionally inside the tower's walkable annulus, not a fake collider.
-  if (gatePoints.length) points.push(...gatePoints);
+  // Gate points are evidence and an optional composition preference, never
+  // hard perspective bounds. A recessed capstan can be far across the tower:
+  // forcing it into every phone shot shrinks both combat actors below the
+  // protected readable silhouette and may push the camera into the core.
+  // Prioritize a complete hero + guardian; reveal the gate when it fits.
   const subject = contactGuardian || routeLanding || threat;
   const direction = subject ? (Math.sign(body.x - subject.x) || 1) : 1;
   function solve(lean) {
@@ -500,10 +499,13 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
   // preserving the climber and an unobstructed actor sightline. No new GPU work,
   // cinematic time scale, camera cut or authoritative gameplay change.
   if (contactGuardian) {
-    const quality = view => (view.clear ? 100 : 0) +
-      (view.guardianFramed ? 38 : 0) + (view.gateFramed ? 16 : 0) +
-      (view.heroFraction >= .15 ? 18 : 0) +
-      Math.min(.24, view.heroFraction) * 16 - Math.abs(view.lean) * 1.6;
+    // NEVER trade the player or attacker's silhouette for an attractive
+    // but unsafe wide shot of a distant mechanism. A true visible gate wins
+    // only among cameras with both actors framed and a clear tower sightline.
+    const quality = view => (!view.clear || !view.guardianFramed || view.heroFraction < .15)
+      ? -1000 + view.heroFraction
+      : 150 + (view.gateFramed ? 16 : 0) +
+        Math.min(.24, view.heroFraction) * 16 - Math.abs(view.lean) * 1.6;
     let bestQuality = quality(best);
     for (const amount of [0, .22, .45, .7, .95, 1.13, -.22, -.45, -.7]) {
       const candidate = solve(direction * amount), candidateQuality = quality(candidate);
