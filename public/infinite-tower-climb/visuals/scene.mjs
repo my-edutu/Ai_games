@@ -13,6 +13,35 @@ function followClimberContact(position, target, blend, state) {
   return position;
 }
 
+// Bound presentation-only inward radial retreat to elapsed authoritative ticks.
+// Outward clearance still follows the actual ledge immediately.
+function createTowerRadialTransition() {
+  let identity='',lastTick=-1,lastChecksum='',radius=25,desired=25;
+  function reset(){identity='';lastTick=-1;lastChecksum='';radius=25;desired=25;}
+  function sample(snapshot,nextRadius){
+    if(!snapshot?.player||!Number.isInteger(snapshot.tick)||snapshot.tick<0||
+       !Number.isInteger(snapshot.floor)||!snapshot.runToken||!Number.isFinite(nextRadius)){
+      reset();return 25;
+    }
+    const key=`${snapshot.runToken}:${snapshot.floor}`;
+    const wanted=Math.max(25,Math.min(28.05,nextRadius));
+    const checksum=snapshot.publicChecksum||'';
+    if(key!==identity||snapshot.tick<lastTick||
+      (snapshot.tick===lastTick&&checksum!==lastChecksum)){
+      identity=key;lastTick=snapshot.tick;lastChecksum=checksum;
+      radius=desired=wanted;return radius;
+    }
+    if(snapshot.tick>lastTick){
+      const ticks=snapshot.tick-lastTick;
+      radius=wanted>=radius?wanted:Math.max(wanted,radius-ticks*.55);
+      lastTick=snapshot.tick;lastChecksum=checksum;
+    }
+    desired=wanted;return radius;
+  }
+  function diagnostics(){return{desired,presented:radius,tick:lastTick};}
+  return{sample,reset,diagnostics};
+}
+
 // The hand's rigid meshes are batched onto the right-elbow bone. Transform its
 // authored wrist point after posing so the cosmetic strike follows real motion.
 function positionStrikeCue(arc, rig, camera) {
