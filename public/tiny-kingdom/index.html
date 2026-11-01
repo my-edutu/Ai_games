@@ -318,7 +318,9 @@ body[data-workday="live"] #workday-activity{display:block;bottom:107px;
 #workday-progress{display:none;position:fixed;bottom:88px;left:50%;
  transform:translateX(-50%);width:min(80vw,410px);height:7px;z-index:10;
  appearance:none;-webkit-appearance:none;border:0;border-radius:12px;background:#0c312c}
-body[data-workday="live"] #workday-progress{display:block}
+body[data-workday="live"] #workday-progress,
+body[data-workday="delivery"] #workday-progress{display:block}
+body[data-workday="delivery"] #workday-activity{display:block}
 #workday-progress::-webkit-progress-bar{background:#0c312c;border-radius:12px}
 #workday-progress::-webkit-progress-value{background:#e5bb77;border-radius:12px}
 #workday-progress::-moz-progress-bar{background:#e5bb77;border-radius:12px}
@@ -330,46 +332,46 @@ body[data-workday="live"] #workday-progress{display:block}
 /* G094 workday observation: put a real worker ahead of the HUD.
    Keep every command available while removing the oversized three-level
    masthead. The live work and resource quantities stay truthful. */
-body[data-workday="live"] .top{top:8px;left:12px;right:12px}
-body[data-workday="live"] .brand{padding:5px 10px;gap:7px;border-radius:10px}
-body[data-workday="live"] .seal{width:32px;height:32px;border-radius:8px;font-size:19px}
-body[data-workday="live"] .name{font-size:17px;line-height:1.15}
-body[data-workday="live"] .overline,
-body[data-workday="live"] .subtitle{display:none}
-body[data-workday="live"] .pill{padding:8px 10px;gap:6px;font-size:10px}
-body[data-workday="live"] .world-tour{top:64px;max-width:calc(100vw - 18px);padding:5px 8px}
-body[data-workday="live"] #world-ribbon{
+:is(body[data-workday="live"],body[data-workday="delivery"]) .top{top:8px;left:12px;right:12px}
+:is(body[data-workday="live"],body[data-workday="delivery"]) .brand{padding:5px 10px;gap:7px;border-radius:10px}
+:is(body[data-workday="live"],body[data-workday="delivery"]) .seal{width:32px;height:32px;border-radius:8px;font-size:19px}
+:is(body[data-workday="live"],body[data-workday="delivery"]) .name{font-size:17px;line-height:1.15}
+:is(body[data-workday="live"],body[data-workday="delivery"]) .overline,
+:is(body[data-workday="live"],body[data-workday="delivery"]) .subtitle{display:none}
+:is(body[data-workday="live"],body[data-workday="delivery"]) .pill{padding:8px 10px;gap:6px;font-size:10px}
+:is(body[data-workday="live"],body[data-workday="delivery"]) .world-tour{top:64px;max-width:calc(100vw - 18px);padding:5px 8px}
+:is(body[data-workday="live"],body[data-workday="delivery"]) #world-ribbon{
  top:auto;bottom:146px;left:50%;right:auto;transform:translateX(-50%);
  padding:7px 10px;gap:8px;flex-wrap:nowrap;
  max-width:calc(100vw - 18px);width:max-content;border-radius:12px}
-body[data-workday="live"] #world-ribbon .world-identity,
-body[data-workday="live"] #world-ribbon #world-story{display:none}
-body[data-workday="live"] #world-ribbon .world-measure strong{font-size:16px}
-body[data-workday="live"] #world-open-command{padding:8px 10px}
-body[data-workday="live"] #workday-activity{
+:is(body[data-workday="live"],body[data-workday="delivery"]) #world-ribbon .world-identity,
+:is(body[data-workday="live"],body[data-workday="delivery"]) #world-ribbon #world-story{display:none}
+:is(body[data-workday="live"],body[data-workday="delivery"]) #world-ribbon .world-measure strong{font-size:16px}
+:is(body[data-workday="live"],body[data-workday="delivery"]) #world-open-command{padding:8px 10px}
+:is(body[data-workday="live"],body[data-workday="delivery"]) #workday-activity{
  bottom:102px;max-width:calc(100vw - 28px);white-space:normal}
 @media(max-width:520px){
- body[data-workday="live"] .top{top:6px;left:7px;right:7px}
- body[data-workday="live"] .brand{padding:4px 6px}
- body[data-workday="live"] .name{font-size:14px}
- body[data-workday="live"] .pill{max-width:145px;font-size:9px;padding:5px 7px}
- body[data-workday="live"] .world-tour{
+ :is(body[data-workday="live"],body[data-workday="delivery"]) .top{top:6px;left:7px;right:7px}
+ :is(body[data-workday="live"],body[data-workday="delivery"]) .brand{padding:4px 6px}
+ :is(body[data-workday="live"],body[data-workday="delivery"]) .name{font-size:14px}
+ :is(body[data-workday="live"],body[data-workday="delivery"]) .pill{max-width:145px;font-size:9px;padding:5px 7px}
+ :is(body[data-workday="live"],body[data-workday="delivery"]) .world-tour{
   top:57px;left:7px;right:7px;transform:none;width:auto;
   overflow-x:auto;justify-content:flex-start;gap:3px;padding:4px}
- body[data-workday="live"] .tour-btn{min-height:34px;font-size:10px;padding:6px 9px}
- body[data-workday="live"] #world-ribbon{
+ :is(body[data-workday="live"],body[data-workday="delivery"]) .tour-btn{min-height:34px;font-size:10px;padding:6px 9px}
+ :is(body[data-workday="live"],body[data-workday="delivery"]) #world-ribbon{
   top:auto;bottom:162px;left:50%;right:auto;
   transform:translateX(-50%);width:calc(100vw - 14px);
   justify-content:space-evenly;gap:4px;flex-wrap:nowrap;padding:6px}
- body[data-workday="live"] #world-ribbon .world-measure{gap:2px}
- body[data-workday="live"] #world-ribbon .world-measure strong{font-size:14px}
- body[data-workday="live"] #world-ribbon .world-measure small{font-size:8px}
- body[data-workday="live"] #world-open-command{padding:6px;font-size:9px}
- body[data-workday="live"] #workday-activity{
+ :is(body[data-workday="live"],body[data-workday="delivery"]) #world-ribbon .world-measure{gap:2px}
+ :is(body[data-workday="live"],body[data-workday="delivery"]) #world-ribbon .world-measure strong{font-size:14px}
+ :is(body[data-workday="live"],body[data-workday="delivery"]) #world-ribbon .world-measure small{font-size:8px}
+ :is(body[data-workday="live"],body[data-workday="delivery"]) #world-open-command{padding:6px;font-size:9px}
+ :is(body[data-workday="live"],body[data-workday="delivery"]) #workday-activity{
   bottom:99px;font-size:11px;max-width:calc(100vw - 20px)}
 }
 @media(prefers-reduced-motion:reduce){
- body[data-workday="live"] .world-tour{scroll-behavior:auto}
+ :is(body[data-workday="live"],body[data-workday="delivery"]) .world-tour{scroll-behavior:auto}
 }
 </style></head><body>
 <canvas id="world" aria-label="Live 3D simulation of a medieval valley with autonomous villagers"></canvas><div class="vignette"></div>
@@ -3693,12 +3695,22 @@ const workdayEvents=[];
 const deliveryReceipts=[];
 const DELIVERY_MARKET=Object.freeze({food:Object.freeze([-1.0,10.2]),wood:Object.freeze([.85,10.2])});
 const DELIVERY_EVERY_N_JOBS=8;
+function routeRemainingDistance(p){
+ if(!p.delivery)return 0;
+ const route=p.path?.length?p.path:[p.delivery.destination];
+ let total=0,prev=[p.x,p.z];
+ for(const waypoint of route){
+  total+=Math.hypot(waypoint[0]-prev[0],waypoint[1]-prev[1]);
+  prev=waypoint;
+ }
+ return total;
+}
 function getActiveDeliveries(){
  return people.filter(p=>p.delivery).map(p=>({
   citizen:p.name,job:p.job,x:p.x,z:p.z,activity:p.activity,
   resource:p.delivery.resource,amount:p.delivery.amount,
   destination:p.delivery.destination.slice(),origin:p.delivery.origin.slice(),
-  started:p.delivery.started,id:p.delivery.id
+  remaining:routeRemainingDistance(p),started:p.delivery.started,id:p.delivery.id
  }));
 }
 function getDeliveryReceipts(){return deliveryReceipts.slice()}
@@ -3706,6 +3718,8 @@ function routeLoadedWorker(p){
  const dest=p.delivery.destination;
  p.target=dest.slice();p.activity='Traveling with '+p.delivery.resource+' to market';
  routeCitizen(p);
+ if(!p.delivery.routeLength&&p.path?.length)
+  p.delivery.routeLength=Math.max(1,routeRemainingDistance(p));
 }
 function startActualDelivery(p){
  // The work event was recorded by work() AFTER stock was actually awarded.
@@ -3742,8 +3756,11 @@ function completeActualDelivery(p){
  const notice=document.getElementById('workday-activity');
  if(document.body.dataset.workday==='delivery'&&
   people[selectedCitizen]?.name===p.name)
-  notice.textContent=p.name+' · unloaded '+d.amount+' '+d.resource+
+  {notice.textContent=p.name+' · unloaded '+d.amount+' '+d.resource+
    ' at the market · returning to work';
+   const meter=document.getElementById('workday-progress');
+   meter.value=100;meter.setAttribute('aria-valuetext','Delivered at the market');
+  }
  return true;
 }
 let workdaySequence=0,workdaySelected=-1;
@@ -3753,7 +3770,8 @@ function clearLiveWorkdayState(){
  const control=document.getElementById('workday-live');
  if(control)control.setAttribute('aria-pressed','false');
  const progress=document.getElementById('workday-progress');
- if(progress)progress.value=0;
+ if(progress){progress.value=0;progress.setAttribute('aria-label',
+  "Progress through the selected villager's actual working shift")}
 }
 const workdayRenderStats={sceneMarkers:0,animatedTools:0,activeWorksites:0,activeTriangles:0};
 function workdayDelta(before){
@@ -4015,7 +4033,8 @@ function validateSnapshot(snapshot){
     !['food','wood'].includes(p.delivery.resource)||
     !validScalar(p.delivery.amount,.001,1e5)||
     !validPoint(p.delivery.origin)||!validPoint(p.delivery.destination)||
-    !validScalar(p.delivery.started,0,s.t)))||
+    !validScalar(p.delivery.started,0,s.t)||
+    (p.delivery.routeLength!==undefined&&!validScalar(p.delivery.routeLength,0,500))))||
    !(p.friend===null||validText(p.friend,40))||!p.bonds||typeof p.bonds!=='object'||Array.isArray(p.bonds))return false;
    const bonds=Object.entries(p.bonds);return bonds.length<=28&&bonds.every(([k,v])=>validText(k,40)&&validScalar(v,0,1e8));
  }))throw Error('Save contains invalid citizens');
@@ -4202,11 +4221,26 @@ function watchLatestWork(){
 // Selection, progress, camera and HUD never award resources or consume RNG.
 // Player-directable observation of ACTUAL stocked couriers; spectator controls
 // never change production, route, RNG, population or saved-state checksum.
+function updateDeliveryHUD(){
+ if(document.body.dataset.workday!=='delivery')return;
+ const p=people[selectedCitizen];
+ if(!p?.delivery)return;
+ const distance=routeRemainingDistance(p);
+ const total=Math.max(distance,p.delivery.routeLength||distance,1);
+ const percent=Math.min(99,Math.max(0,Math.round((1-distance/total)*100)));
+ const meter=document.getElementById('workday-progress');
+ meter.value=percent;
+ meter.setAttribute('aria-label','Progress carrying real goods to the village market');
+ meter.setAttribute('aria-valuetext',Math.ceil(distance)+' world metres remaining to market');
+ const label=p.name+' · carrying '+p.delivery.amount+' '+p.delivery.resource+
+  ' to market · '+(Math.ceil(distance/3)*3)+'m remaining';
+ const status=document.getElementById('workday-activity');
+ if(status.textContent!==label)status.textContent=label;
+}
 function watchDelivery(){
  const eligible=people.map((p,i)=>({person:p,index:i})).filter(row=>row.person.delivery);
  if(!eligible.length){
-  document.getElementById('workday-activity').textContent=
-   'No loaded courier yet · villagers are working and gathering supplies';
+  showToast('No loaded courier yet · villagers are producing supplies');
   return null;
  }
  const after=eligible.find(row=>row.index>selectedCitizen);
@@ -4216,10 +4250,7 @@ function watchDelivery(){
  document.body.dataset.workday='delivery';
  document.getElementById('workday-watch').setAttribute('aria-pressed','false');
  document.getElementById('workday-live').setAttribute('aria-pressed','false');
- setCommandView('world');updateUI();
- document.getElementById('workday-activity').textContent=
-  p.name+' · carrying '+p.delivery.amount+' '+p.delivery.resource+
-  ' from '+p.job+' work to the village market';
+ setCommandView('world');updateUI();updateDeliveryHUD();
  return cloneData(p.delivery);
 }
 function watchLiveWorkday(){
@@ -4436,7 +4467,7 @@ function render(now){requestAnimationFrame(render);
   }else{yaw=nextYaw;pitch=nextPitch;zoom=nextZoom}
   lastFollowShot=plan;
  }
-}if(liveWorkday)updateLiveWorkdayUI();if(cinematic)yaw+=dt*.05;const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(window.devicePixelRatio||1,1.6)*renderQuality().scale;if(canvas.width!==Math.floor(w*dpr)||canvas.height!==Math.floor(h*dpr)){canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);gl.viewport(0,0,canvas.width,canvas.height)}gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);drawAtmosphere(atmosphere);const frameStaticStart=performance.now();
+}if(liveWorkday)updateLiveWorkdayUI();else updateDeliveryHUD();if(cinematic)yaw+=dt*.05;const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(window.devicePixelRatio||1,1.6)*renderQuality().scale;if(canvas.width!==Math.floor(w*dpr)||canvas.height!==Math.floor(h*dpr)){canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);gl.viewport(0,0,canvas.width,canvas.height)}gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);drawAtmosphere(atmosphere);const frameStaticStart=performance.now();
 // Cache seasonal ground geometry: camera and citizens cannot change it.
 // Winter snow affects colour; ordinary rain does not.
 const groundClimate=climateAt(state.t);
