@@ -87,9 +87,18 @@ function climbApproachRadius(snapshot, platform) {
     || player.x - player.halfWidth * 1.5 > platform.x + platform.width) return 25;
   const height = player.halfHeight * 2;
   const aboveFeet = platform.y + platform.height - (player.y - player.halfHeight);
-  if (aboveFeet > height * 1.65 || aboveFeet < -height * .4) return 25;
-  const approach = Math.max(0, Math.min(1, (height * 1.65 - aboveFeet) / (height * .65)));
-  return 25 + 3.05 * approach;
+  // On the way up, stay outside the solid rim until the boots clear its
+  // walking surface. Once above it, ease the presentation root *back* inside
+  // over more than one authoritative tick. Previously the -.4-height cutoff
+  // jumped directly from radius 28.05 to 25 at the real tick 301->302.
+  if (aboveFeet > height * 1.65 || aboveFeet < -height * 1.25) return 25;
+  if (aboveFeet >= 0) {
+    const approach = Math.max(0, Math.min(1, (height * 1.65 - aboveFeet) / (height * .65)));
+    return 25 + 3.05 * approach;
+  }
+  const cleared = Math.min(1, -aboveFeet / (height * 1.25));
+  const retreat = cleared * cleared * (3 - 2 * cleared);
+  return 25 + 3.05 * (1 - retreat);
 }
 
 // An armored guardian can stand under the final one-way cap with less vertical

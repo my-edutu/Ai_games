@@ -78,7 +78,9 @@ function realAscentSequence(view) {
         advance(session);
         history.push(session.controller.frame(view.w,view.h,{reducedMotion:true,muted:true}));
       }
-      const offsets=[-16,-8,-2,-1,0,1,2,6,12,20];
+      // Close the G40 evidence gap: sample EVERY authoritative step as the
+      // climber crosses the deck (ticks 300-306), not only endpoints.
+      const offsets=[-16,-8,-2,-1,0,1,2,3,4,5,6,7,8,10,12,20];
       if(anchor<16)throw Error('Real ledge encounter lacks 16 preceding ticks');
       const frames=offsets.map(offset=>({offset,frame:history[anchor+offset]}));
       const runToken=frames[0].frame.snapshot.runToken;
@@ -137,7 +139,21 @@ for(const view of [{name:'desktop',w:960,h:600},{name:'portrait',w:390,h:844}]){
       gates:{tickIntegrity:'PASS',pixelMotion:'OPEN',visualDepth:'OPEN',deviceFPS:'OPEN'}
     },null,2));
     expect(errors,'do not hide page errors').toEqual([]);
-    expect(observations).toHaveLength(10);
+    expect(observations).toHaveLength(16);
+    const afterGrip=new Map(observations.map(item=>[item.tick,item]));
+    const contact=sequence.contactTick;
+    const rim=afterGrip.get(contact+2)?.ledgeProjection?.rootRadius;
+    expect(rim,'real visible root must stay outside solid deck at the crossing').toBeGreaterThan(27.95);
+    let largestRetreat=0;
+    for(let tick=contact+3;tick<=contact+8;tick++){
+      const previous=afterGrip.get(tick-1)?.ledgeProjection?.rootRadius;
+      const current=afterGrip.get(tick)?.ledgeProjection?.rootRadius;
+      expect(previous,'must measure actual previous GPU pose at tick '+(tick-1)).toBeGreaterThan(0);
+      expect(current,'must measure actual present GPU pose at tick '+tick).toBeGreaterThan(0);
+      largestRetreat=Math.max(largestRetreat,Math.abs(current-previous));
+    }
+    expect(largestRetreat,'actual adjacent WebGL poses cannot snap more than 1.35 world units radially').toBeLessThan(1.35);
+    expect(afterGrip.get(contact+10)?.ledgeProjection?.rootRadius,'return to walking band before descent').toBeLessThan(25.15);
     expect(observations.every(o=>o.rendererSubmittedTick===o.tick),'actual rendered tick must match source').toBe(true);
     expect(observations.every(o=>o.errorsAtFrame===0),'no shader or rendering errors').toBe(true);
     expect(observations.every(o=>o.ledgeProjection?.ankles?.length===2),
