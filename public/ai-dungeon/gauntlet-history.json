@@ -2193,7 +2193,7 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "Head 7bc74b5 CI 41350370585 failed two new tests because forged-armor.js palette expression had syntax error (730/732). Corrected in next commit; result pending. Authority foundation at that head 181/181 plus progress 19/19 passed but real browser cannot be considered successful for that head.",
+      "safetyChecks": "Prior exact-head 433a78f: Dungeon foundation workflow 41350895379 SUCCESS, visual review 41350895323 SUCCESS, catalogue CI 41350895406 FAILED three Tiny Kingdom browser assertions (expected procedural-060 vs actual procedural-063, river optic substring count), not AI Dungeon-specific. New 280302c exact-head checks scheduled but UNVERIFIED. Code is spectator-only and unchanged authority RNG/saves; actual source tests and render still must pass.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "PENDING_EXACT_HEAD_CHROMIUM_CAPTURE",
       "soundstageBrowser": "PENDING_EXACT_HEAD_CHROMIUM_RUN",
@@ -2201,12 +2201,12 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "PREVIOUS_REAL_BROWSER_FAILED_61PX_VS_90PX_CANDIDATE_UNVERIFIED",
-      "latestCandidateWorkflow": "PENDING_AFTER_FORGED_PALETTE_SYNTAX_CORRECTION"
+      "latestCandidateWorkflow": "CODE_280302cc82f21458e00578445cbba51cd1c3a55a_QUEUED_DUNGEON_41355198272_VISUAL_41355198267_CATALOGUE_41355198263"
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Actual LOOKS/FEELS/PLAYS superiority of full 3D expedition still not demonstrated: original stylized rigs may remain toy-like even with forged shells; convincing motion/contact/footwork, finished visual environments, full desktop/mobile continuous audio, matched locked-baseline comparisons, performance tails and >=3 independent critics are absent.",
-    "currentWork": "One integrated forged anatomy and PBR role-identity candidate spans actual skinned parties and enemies, boss combat, existing Warden court and cinematic lens; pure geometry/material checks and genuine desktop/mobile Warden capture tests authored, not yet evaluated.",
-    "candidateCommit": "cb4553280a438233c23cd2ba29df33ffd4ef9b27",
+    "biggestRemainingGap": "Actual movie-like protagonist/enemy anatomy, weighted strike/recovery, Warden camera/scene clarity and complete organic multi-stage adventure still fall well short of Diablo IV / No Rest for the Wicked / Path of Exile 2 quality references. This code's before/after render, motion, audio, tactile combat clarity, mobile FPS, matched blind critique and true continuous defeat/restart all remain UNVERIFIED.",
+    "currentWork": "Integrated truthful contact passage in playable Warden expedition: original extruded forged-blade mesh replaces floating torus; genuine imported GLB right-hand joint anchors sweep when safely in-cell, real HP-loss snapshots alone cause bounded body-height 3D metal/stone spall; projectiles that miss or are blocked no longer fabricate hit flashes. Existing autonomous party, boss, camera, soundstage, floor and restart mechanics retained; outcome and visual quality remain unverified pending captured real WebGL and audio.",
+    "candidateCommit": "280302cc82f21458e00578445cbba51cd1c3a55a",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -2466,6 +2466,30 @@
         "experienceVerdict": "IN_PROGRESS / NOT TRANSFORMED",
         "next": "Inspect true desktop/mobile 3D forged armor, fix occlusion and skeleton fit, integrate weighted motion/foot and weapon contact into playable Warden expedition, record matched full audiovisual scenario vs locked baseline with independent critics.",
         "validation": "Exact preceding source 7bc74b5 GitHub catalogue CI 41350370585 found genuine new module ESM syntax error 'Unexpected token )' (730/732 tests). Palette constructor normalized in this code correction; fresh exact-head foundation, WebGL desktop/mobile and catalogue CI all UNVERIFIED. Previous module was not a successful verified game build."
+      },
+      {
+        "id": "M1-TRUTHFUL-RIGGED-CONTACT-20261101",
+        "date": "2026-11-01",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "codeCommit": "280302cc82f21458e00578445cbba51cd1c3a55a",
+        "sourceHeadAtStart": "433a78ffe3ecf9fc0fa76a905e22da9cd6a5ee0e",
+        "objective": "Repair disconnected weapon arcs and fake projectile impact; attach a sculpted metallic 3D sweep to genuine animated melee rig anatomy and make confirmed damage distinguishable from merely launched/missed attacks in real autonomous Warden combat.",
+        "integratedImplementation": "New locally generated finite forged taper geometry and single-geometry damage shards, real imported GLB right hand early-swing origin (bounded to visible authorised cell, offline fallback), frame-order correction after rig animation, true public HP deltas drive body-height hit burst while projectile arrival/hurt pose never fake injury, max 24 impact entities and existing disposal.",
+        "changedFiles": [
+          "public/ai-dungeon/contact-performance.js",
+          "public/ai-dungeon/combat-director.js",
+          "public/ai-dungeon/model-assets.js",
+          "public/ai-dungeon/app.js",
+          "scripts/serve-dungeon-stream.cjs",
+          "tests/foundation/dungeon-contact-performance.test.cjs"
+        ],
+        "authorityImpact": "NONE; read-only public snapshots, no combat legality, AI, damage, seeded RNG, persistence or network effects. No proprietary art, new binary assets or external runtime dependencies.",
+        "safety": "Node/Three shape and HP-delta tests committed but not yet executed; exact-head dedicated Dungeon 41355198272, visual 41355198267, full catalogue 41355198263 scheduled. Earlier catalogue unrelated Tiny Kingdom failures remain open.",
+        "actualBeforeAfter": "BASELINE unchanged at 41302939553 artifact 13081734898. No AFTER screenshot/video reviewed for this new code; no video-audio/p95/seed comparison.",
+        "independentCritics": "UNVERIFIED: workspace/subagent tunnel unavailable. No blind LOOKS/FEELS/PLAYS majority.",
+        "experienceVerdict": "IN PROGRESS — NOT TRANSFORMED",
+        "next": "Inspect 280302c exact-head 1440 desktop and phone gameplay, verify sustained Warden contact and movement in motion/audio, fix any physical blade orientation or hands drifting/clipping, build organic traversal→combat→boss→floor→defeat/restart capture and demand >=3 independent blind critics vs locked baseline. Then attack still-stylized full-body shapes and materials."
       }
     ]
   }
