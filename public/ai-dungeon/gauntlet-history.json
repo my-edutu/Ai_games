@@ -2201,11 +2201,11 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "PREVIOUS_REAL_BROWSER_FAILED_61PX_VS_90PX_CANDIDATE_UNVERIFIED",
-      "latestCandidateWorkflow": "PENDING_HEAD_WORKFLOW_AFTER_WARDEN_CHAPTER_PUSH"
+      "latestCandidateWorkflow": "PENDING_EXACT_HEAD_GITHUB_ACTIONS_AFTER_FORGED_ANATOMY"
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Actual 3D characters still look miniature and low-detail relative to reference. This candidate's live motion/audio, replay safety and real browser captures are UNVERIFIED; matched desktop/mobile full journey footage, GPU frame tails and >=3 independent blind Looks/Feels/Plays critics are missing.",
-    "currentWork": "M1 real occupied-cell physical squad footwork now also enforces genuine living-body line-of-fire obstruction for party and hostile casters; damage and VFX cannot show arrows through frontliners. Smart hazard avoidance retains real trap damage when exposure is unavoidable. Real 3D choreography is still awaiting before-after video inspection.",
+    "biggestRemainingGap": "Actual LOOKS/FEELS/PLAYS superiority of full 3D expedition still not demonstrated: original stylized rigs may remain toy-like even with forged shells; convincing motion/contact/footwork, finished visual environments, full desktop/mobile continuous audio, matched locked-baseline comparisons, performance tails and >=3 independent critics are absent.",
+    "currentWork": "Candidate forged-anatomy integration now changes actual rendered skinned heroes and Warden, preserving original AI, rig animation and boss chapter. Previously failing real boss camera check updated to match cinematic director. New WebGL captures and quality remain unverified.",
     "candidateCommit": "cb4553280a438233c23cd2ba29df33ffd4ef9b27",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
@@ -2442,6 +2442,28 @@
         "observedRed": "Exact-head authority 41342618680: 177/181 passed; four named failures diagnosed. Full 480-turn real occupancy invariant PASSED in that run; this next candidate NOT tested.",
         "experienceVerdict": "IN_PROGRESS / NOT TRANSFORMED",
         "next": "Inspect exact-head fresh gameplay AI, true Warden court and animation in real desktop/mobile video, then full baseline-aligned audio clips and independent critics."
+      },
+      {
+        "id": "M1-SCULPTED-FORGED-CHARACTERS-20261101",
+        "date": "2026-11-01",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "sourceHeadAtStart": "bac807b99bb93e4a326fb10b39103b9dc7319626",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "objective": "Give the real three-hero Warden expedition and six enemy/faction roles cohesive original forged anatomy replacing toy-spherical supplemental armor while retaining animation, combat truth and bounded draws.",
+        "code": [
+          "public/ai-dungeon/forged-armor.js",
+          "public/ai-dungeon/model-assets.js",
+          "scripts/serve-dungeon-stream.cjs",
+          "tests/foundation/dungeon-forged-armor.test.cjs",
+          "tests/browser/dungeon-forged-armor.spec.cjs",
+          "tests/browser/dungeon-interface.spec.cjs"
+        ],
+        "implementation": "Six class-specific swept sculpted plate shells with tapered greaves, bracers, masks, pauldrons, waist taper, ridged/keel surface; genuine GLB bones and current source animation unchanged, static geometry merged by material; desktop and mobile real Warden scenario capture checks.",
+        "existingBrowserEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/41345498189/artifacts/13099625942",
+        "knownPreviousCI": "41345498189 and 41345498166 each had exactly one failing stale boss camera blend expectation (2.2 vs 3.28); source expectation corrected with true cinema shot origin.",
+        "verification": "NEW EXACT HEAD TESTS/CAPTURES/MOTION/AUDIO/PERFORMANCE/BLIND CRITICS UNVERIFIED; local browser/subagent tunnel unavailable",
+        "experienceVerdict": "IN_PROGRESS / NOT TRANSFORMED",
+        "next": "Inspect true desktop/mobile 3D forged armor, fix occlusion and skeleton fit, integrate weighted motion/foot and weapon contact into playable Warden expedition, record matched full audiovisual scenario vs locked baseline with independent critics."
       }
     ]
   }
