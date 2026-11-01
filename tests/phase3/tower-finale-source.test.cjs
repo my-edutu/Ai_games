@@ -27,7 +27,10 @@ test('real terminal and intermission render a bounded, spatial, source-gated 3D 
     assert.deepEqual(effect.group.position.toArray(),[8,30,-4]);
     assert.equal(effect.diagnostics().runToken,'auth-a');
     assert.equal(effect.diagnostics().lifecycle,'result');
-    assert.equal(effect.group.children.length,3);
+    assert.equal(effect.group.children.length,4);
+    assert.equal(effect.diagnostics().stones,12);
+    assert.equal(effect.diagnostics().resultKind,'game');
+    assert.equal(effect.diagnostics().resultReason,'timer-expired');
     assert.equal(effect.diagnostics().fragments,28);
     effect.update(state('intermission','auth-a',900,{reason:'timer-expired',kind:'loss'}),origin,3);
     assert.equal(effect.diagnostics().lifecycle,'intermission');
@@ -54,7 +57,30 @@ test('reduced motion is stable, finite and frees all graphics resources on recov
     assert.ok(Array.from(object.instanceMatrix.array).every(Number.isFinite));
   }
   effect.dispose();effect.dispose();
-  assert.equal(disposals.length,3,'all three geometries disposed exactly once');
+  assert.equal(disposals.length,4,'all four geometries disposed exactly once');
   assert.equal(effect.diagnostics().disposed,true);
   assert.equal(effect.group.children.length,0);
+});
+
+test('a real loss, technical interruption and operator stop have distinct source-driven physical outcomes', async () => {
+  const [THREE, { createTowerFinale }] = await loaded;
+  const effect = createTowerFinale(THREE);
+  const origin = new THREE.Vector3(hero.x, hero.y, hero.z);
+  try {
+    effect.update(state('result','loss-1',100,{kind:'game',reason:'fall'}),origin,0);
+    const fallenColor = effect.group.children[0].material.color.getHex();
+    assert.equal(effect.diagnostics().resultReason,'fall');
+    assert.equal(effect.group.children[1].geometry.type,'TorusGeometry');
+    effect.update(state('intermission','loss-1',100,{kind:'game',reason:'fall'}),origin,2.4);
+    assert.ok(effect.group.children[1].position.y < 2.9, 'the crown visibly collapses, not a victory halo');
+    effect.update(state('result','technical-2',50,{kind:'technical',reason:'integrity-quarantine'}),origin,3);
+    assert.equal(effect.diagnostics().resultKind,'technical');
+    assert.notEqual(effect.group.children[0].material.color.getHex(),fallenColor);
+    const technicalColor=effect.group.children[0].material.color.getHex();
+    effect.update(state('result','operator-3',10,{kind:'operator',reason:'operator-abort'}),origin,5);
+    assert.notEqual(effect.group.children[0].material.color.getHex(),technicalColor);
+    effect.update(state('result','untrusted',10,{kind:'unsupported',reason:'fake-win'}),origin,6);
+    assert.equal(effect.group.visible,false,'only supported genuine source result kinds activate');
+    assert.equal(effect.diagnostics().runToken,null);
+  } finally {effect.dispose();}
 });

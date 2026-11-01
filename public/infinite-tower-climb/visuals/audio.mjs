@@ -92,7 +92,11 @@ export function createTowerAudio() {
   function accept(frame) {
     if (!frame?.snapshot || disposed) return;
     const snapshot = frame.snapshot;
-    if (snapshot.runToken !== token) { heard.clear(); last = null; lastFloor = null; lastIntent = ''; lastLifecycle = 'running'; stride = 0; token = snapshot.runToken; }
+    if (snapshot.runToken !== token) {
+      const verifiedRestart = !!token && ['result', 'intermission'].includes(lastLifecycle);
+      heard.clear(); last = null; lastFloor = null; lastIntent = ''; lastLifecycle = 'running'; stride = 0; token = snapshot.runToken;
+      if (verifiedRestart) tone(205, 365, .21, 'sine', .052);
+    }
     for (const voice of frame.audio?.voices || []) if (!heard.has(voice.id)) {
       heard.add(voice.id); cue(voice.cue);
       if (heard.size > 128) heard.delete(heard.values().next().value);
@@ -103,7 +107,16 @@ export function createTowerAudio() {
     const lifecycle = snapshot.lifecycle || 'running';
     if (enabled && lastLifecycle === 'running' && snapshot.result
       && ['result', 'intermission'].includes(lifecycle)) {
-      tone(270, 94, .46, 'sine', .072);
+      // A real failure settles downward; technical/operator interruptions use
+      // subdued non-victory tones. These are optional, sourced, and bounded.
+      if (snapshot.result.kind === 'game') {
+        texture(180, .25, .08);
+        tone(174, 62, .48, 'triangle', .078);
+      } else if (snapshot.result.kind === 'technical') {
+        tone(350, 215, .42, 'sine', .053);
+      } else {
+        tone(300, 176, .34, 'sine', .047);
+      }
       if (bed) bed.gain.setTargetAtTime(.010, context.currentTime, .25);
       if (windGain) windGain.gain.setTargetAtTime(.006, context.currentTime, .28);
     }
