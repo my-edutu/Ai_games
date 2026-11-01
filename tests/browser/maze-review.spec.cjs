@@ -203,6 +203,9 @@ test('a real close public encounter frames both autonomous actors and saves date
     expect(gateDiagnostic.cameraHalfHeight, 'The visible key/socket encounter earns a genuinely closer shot').toBeLessThan(4.62);
     expect(gateDiagnostic.cameraHalfHeight).toBeGreaterThan(4.48);
     expect(gateDiagnostic.cameraAimLift, 'The observed keyed gate gets space above its real crown').toBeGreaterThan(1.08);
+    expect(gateDiagnostic.cameraOffset.x, 'Desktop keyed shot must not drift').toBeCloseTo(20, 1);
+    expect(gateDiagnostic.cameraOffset.y).toBeCloseTo(21, 1);
+    expect(gateDiagnostic.cameraOffset.z).toBeCloseTo(14, 1);
     const physical = gateDiagnostic.physicalKeyLock;
     expect(physical, 'The actual modeled blade tip and matching public lock must both be measured').toBeTruthy();
     expect(physical.bladeTip.inFrame).toBe(true);
@@ -249,6 +252,9 @@ test('a real close public encounter frames both autonomous actors and saves date
     expect(gatePortraitDiagnostic.cameraHalfHeight, 'A true key/lock interaction is now larger at 390px').toBeLessThan(4.76);
     expect(gatePortraitDiagnostic.cameraHalfHeight).toBeGreaterThan(4.64);
     expect(gatePortraitDiagnostic.cameraAimLift, 'Native portrait restores upper public architecture without widening the shot').toBeGreaterThan(1.30);
+    expect(gatePortraitDiagnostic.cameraOffset.x, 'Key/lock uses the near-face portrait camera').toBeCloseTo(14, 1);
+    expect(gatePortraitDiagnostic.cameraOffset.y, 'Key/lock portrait should be less top-down').toBeCloseTo(16, 1);
+    expect(gatePortraitDiagnostic.cameraOffset.z, 'Near-face gate lock stays visible').toBeCloseTo(22, 1);
     const physical = gatePortraitDiagnostic.physicalKeyLock;
     expect(physical, 'Native 390px image must have measurable real 3D key-to-socket geometry').toBeTruthy();
     expect(physical.bladeTip.inFrame).toBe(true);

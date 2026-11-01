@@ -44,6 +44,9 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   // A near closed gate can cover Pip from the normal +Z-heavy isometric view.
   // A mild +X-side view keeps the same raised diorama and visible front seal.
   const sealedGateCameraOffset = new THREE.Vector3(20, 21, 14);
+  // A near-face, lower portrait view of a publicly known matching CLOSED lock;
+  // it changes no scene authority, object position, route or desktop shot.
+  const keyedGatePortraitCameraOffset = new THREE.Vector3(14, 16, 22);
   const cameraOffset = followCameraOffset.clone();
   const world = createMazeWorld({ balanced });
   scene.add(world.group);
@@ -437,7 +440,9 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     camera.updateProjectionMatrix();
     // Rotate only the visual camera toward the side of a disclosed obstruction.
     // Smooth it back after leaving; never alter the simulation or private map.
-    cameraOffset.lerp(nearObservedGate ? sealedGateCameraOffset : followCameraOffset, blend);
+    cameraOffset.lerp(nearObservedGate
+      ? (keyLockCloseup && aspect < .9 ? keyedGatePortraitCameraOffset : sealedGateCameraOffset)
+      : followCameraOffset, blend);
     camera.position.copy(cameraTarget).add(cameraOffset); camera.lookAt(cameraTarget);
     const background = settings.highContrast ? '#50665f' : '#b2c6b6';
     scene.background.set(background); scene.fog.color.set(background);
