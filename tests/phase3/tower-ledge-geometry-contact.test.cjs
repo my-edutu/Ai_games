@@ -577,3 +577,45 @@ test('genuine first-tick deck departure uncoils the load-bearing boot visibly wi
       'the unloaded leg must remain distinct instead of faking a two-foot jump');
   }
 });
+
+test('deck toe-off keeps the loaded knee extended through two genuine climbing snapshots, then clears',async t=>{
+  const threeURL=pathToFileURL(path.join(path.dirname(require.resolve('three')),'three.module.js')).href;
+  const adjusted=cast.replace("from '/tower/vendor/three.module.js'","from '"+threeURL+"'");
+  assert.notEqual(adjusted,cast);
+  const {createClimber}=await import('data:text/javascript;base64,'+Buffer.from(adjusted).toString('base64'));
+  const surface={platformId:'f1:p1',y:6,innerRadius:22.4,outerRadius:27.18};
+  const samples=[
+    {tick:301,rootY:6.9,vy:9000,progress:.78,minExtension:.22},
+    {tick:302,rootY:7.68,vy:7800,progress:.967,minExtension:.13},
+    {tick:303,rootY:8.34,vy:6600,progress:1,minExtension:0},
+  ];
+  // Compare the shipped skinned bones at consecutive *source* states.
+  // A held t301 pose is not proof of the following airborne toe-off.
+  for(const viewAzimuth of [-Math.PI/4,Math.PI/4])for(const sample of samples){
+    const supported=createClimber(),wrongDeck=createClimber(),noSurface=createClimber();
+    t.after(()=>{supported.dispose();wrongDeck.dispose();noSurface.dispose();});
+    for(const rig of [supported,wrongDeck,noSurface])rig.group.position.set(0,sample.rootY,25);
+    const snapshot={state:'airborne',vx:3200,vy:sample.vy,facing:1,health:5,attacking:false,
+      runToken:'source-climb',tick:sample.tick,ledgePlatformId:'f1:p1',
+      ledgeMantle:{progress:sample.progress,weight:1}};
+    const opts={reducedMotion:true,viewAzimuth};
+    supported.animate({...snapshot,ledgeSurface:surface},1/60,sample.tick/60,opts);
+    wrongDeck.animate({...snapshot,ledgeSurface:{...surface,platformId:'other-deck'}},1/60,sample.tick/60,opts);
+    noSurface.animate(snapshot,1/60,sample.tick/60,opts);
+    const knee=rig=>rig.group.getObjectByName('1-knee').rotation.x;
+    const extension=knee(wrongDeck)-knee(supported);
+    if(sample.minExtension){
+      assert.ok(extension>sample.minExtension,
+        'authentic t'+sample.tick+' needs its own readable physical push-off knee; actual '+extension);
+    }else{
+      assert.ok(Math.abs(extension)<1e-8,'the pose must fully retire after clearing the real deck');
+    }
+    assert.ok(Math.abs(knee(wrongDeck)-knee(noSurface))<1e-8,
+      'an unrelated or missing platform cannot invent a leg push');
+    assert.ok(Math.abs(supported.group.getObjectByName('-1-knee').rotation.x
+      -wrongDeck.group.getObjectByName('-1-knee').rotation.x)<1e-8,
+      'keep the unloaded leg independent of the planted support boot');
+    assert.deepEqual(supported.group.position.toArray(),[0,sample.rootY,25],
+      'never move the autonomous root to fake a landing');
+  }
+});
