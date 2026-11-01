@@ -877,6 +877,13 @@ export function createTowerWorld(){
       const crest=mesh(doorway,geometry('guardian-gate-keystone',()=>new THREE.OctahedronGeometry(.52,0)),
         materials.warning,[0,4.72,.54],[1,.78,.36]);
       crest.name='ObservedGuardianLockCrest';
+      // One physically attached luminous conduit travels from the lock to
+      // the cap's walking lane as genuine guardian HP drops. The player can
+      // read the combat-to-gate relationship even when the doors are behind
+      // the guardian: one reusable bevelled mesh, no light, shadow, collider
+      // or extra HUD. At full HP this is only a short inset socket.
+      const conduit=block(doorway,materials.mint,[0,.07,.34],[.18,.06,.18]);
+      conduit.name='GuardianEncounterConduit';
       // Paired counterweights drop as the actual guardian takes damage:
       // original, non-colliding architectural silhouettes beyond the cap.
       // No shadow multiplication, animation timers or fabricated door events.
@@ -893,7 +900,7 @@ export function createTowerWorld(){
       frame.traverse(object=>{if(object.isMesh){
         object.userData.ambientDetail=true;object.castShadow=false;object.receiveShadow=false;
       }});
-      guardianGate={frame,wings,crest,counterweights,progress:null,unlocked:false};
+      guardianGate={frame,wings,crest,counterweights,conduit,progress:null,unlocked:false};
     }
     let capMaterials = [];
     if(p.id.endsWith(':cap')){
@@ -1048,6 +1055,11 @@ export function createTowerWorld(){
             carriage.rotation.z=side*gate.progress*.07;
           }
           gate.crest.scale.x=1+gate.progress*.2;
+          // The path advances with the HP-driven lock, never invented clearance.
+          // It ends inside the real deck's outer rim and has no collider.
+          gate.conduit.scale.z=.18+gate.progress*4.52;
+          gate.conduit.scale.x=.18+gate.progress*.12;
+          gate.conduit.position.z=.25+gate.conduit.scale.z*.5;
           gate.crest.material=unlocked?materials.mint:materials.warning;
           gate.crest.rotation.z=gate.progress*Math.PI*.5;
         }
@@ -1086,7 +1098,7 @@ export function createTowerWorld(){
     }
     occludedGuardianCaps=faded;
   }
-  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,ambientParticles:particles?.visible?48:0,floor:lastSnapshot?.floor??null,theme,quality,disposed,guardianGates:[...platforms.entries()].filter(([,p])=>p.guardianGate).map(([id,p])=>({id,unlocked:p.guardianGate.unlocked,opening:p.guardianGate.progress})),occludedGuardianCaps,ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
+  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,ambientParticles:particles?.visible?48:0,floor:lastSnapshot?.floor??null,theme,quality,disposed,guardianGates:[...platforms.entries()].filter(([,p])=>p.guardianGate).map(([id,p])=>({id,unlocked:p.guardianGate.unlocked,opening:p.guardianGate.progress,conduitReach:p.guardianGate.conduit.scale.z})),occludedGuardianCaps,ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;clearFloor();for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
   return{group,update,revealGuardianSightlines,dispose,diagnostics};
 }
