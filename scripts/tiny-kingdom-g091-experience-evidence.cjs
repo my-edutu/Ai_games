@@ -26,7 +26,7 @@ const gpuArgs=['--enable-webgl','--use-gl=angle','--use-angle=swiftshader',
  '--enable-precise-memory-info'];
 
 const evidence={
- version:'g099-matched-workday-market-handoff-v2',
+ version:'g100-courier-director-real-player-follow-v3',
  baselineSha:BASE,candidateSha:null,baselineBlob:null,candidateBlob:null,
  renderer:'UNVERIFIED',status:'INCOMPLETE',workdayTicks:null,
  camera:{wide,labor,grown,marketView},viewport,
@@ -195,13 +195,19 @@ async function stage(label,html,browser,matchedTicks){
    assert(handoff.inTransit>0&&!handoff.prematureReceipt,
     'G099 handoff must precede the real goods receipt');
    result.handoffTicks=result.deliveryTicks+handoff.extraTicks;
-   const handoffCamera={focus:[0,10.2],yaw:.62,pitch:.28,zoom:10.6};
-   await page.evaluate(camera=>{
+   const handoffShot=await page.evaluate(()=>{
     const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
-    g.setCamera(camera);g.setHudMode('full');
+    g.setHudMode('full');
+    const followed=g.watchDelivery(),shot=g.getCitizenCameraPlan();
     if(JSON.stringify(g.exportSnapshot())!==before)
-     throw Error('Unloading camera mutated authoritative game');
-   },handoffCamera);
+     throw Error('Unloading director mutated authoritative game');
+    if(!followed||!shot||shot.blockers>0||g.getCamera().zoom>=9)
+     throw Error('Actual unloading citizen is obstructed or not framed closely');
+    return {selected:g.getSelectedCitizen(),camera:g.getCamera(),shot,
+     status:document.getElementById('workday-activity').textContent};
+   });
+   assert.equal(handoffShot.selected,handoff.carrier.citizen,
+    'Recorded handoff camera must follow the real unloading citizen');
    await page.waitForTimeout(850);
    await page.screenshot({path:path.join(DIR,label+'/g099-market-unloading.png'),timeout:90000});
    await page.setViewportSize({width:390,height:844});
@@ -212,7 +218,7 @@ async function stage(label,html,browser,matchedTicks){
    await page.setViewportSize(viewport);
    result.handoff={carrier:handoff.carrier,sceneFile:'g099-market-unloading.png',
     mobileFile:'g099-market-unloading-mobile.png',checksum:handoff.checksum,
-    inTransit:handoff.inTransit,matchedPair:false};
+    camera:handoffShot,realPlayerFollow:true,inTransit:handoff.inTransit,matchedPair:false};
   }
   await page.evaluate(()=>window.__tinyKingdom.reset());
   await advanceTicks(page,120*24*30);
@@ -358,7 +364,7 @@ async function motion(browser,html,snapshot,label,live=false,camera=labor,delive
    'G099 filmed handoff differs from authoritative staged citizen action');
   evidence.videos.candidateHandoff=await motion(browser,candidate,hSnapshot,
    'candidate-market-unloading',false,
-   {focus:[0,10.2],yaw:.62,pitch:.28,zoom:10.6});
+   {focus:[0,10.2],yaw:.62,pitch:.28,zoom:10.6},true);
   evidence.status='SCENARIOS_CAPTURED_NOT_BLIND_REVIEWED';
   assert.deepEqual(evidence.errors,[],'Uncaught browser/console errors');
  }catch(error){
