@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-01T07:01:36Z",
+  "updatedAt": "2026-11-01T07:46:21Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass33 exact-source focused Maze CI 41282144620 SUCCEEDED and original production artifact 13073920601 was independently SHA-256 checked at 1280×900 and native 390×844. Desktop is byte-identical to pass32; portrait moves disclosed terrain into view but pushes the closed gate left and STILL clips right arch. Physical glove-key-lock contact remains unreadable at 390px; the frozen Captain Toad bar NOT PASSED. Separate full-repo CI 41282144550 failed 3 unrelated Tiny Kingdom checks (104 browser passed). No independent blind critic, Ultracode or hardware GPU FPS; workspace tunnel disconnected."
+    "summary": "Pass34 physical keyhole source candidate staged on existing draft PR #53 after authentic pass33 native screenshots still showed a tiny unreadable glove/key/lock relation and Captain Toad still won. Only the actual publicly disclosed CLOSED gate's socket geometry changes; exact-head CI, new source-bound native/desktop PNGs, detached visual critic and blind benchmark verdict PENDING. Shared-workspace tunnel disconnected; no Ultracode or hardware GPU FPS. Prior pass33 focused CI succeeded; full CI had three unrelated Tiny Kingdom browser failures."
   },
   "captures": [
     {
@@ -130,7 +130,8 @@
     "Pass31 authentic rendered evidence: source 1a2650b, CI artifact 13068690719, original production seed13 tick21 still-closed door-2, desktop and native 390x844 images independently SHA-256 matched their JSON manifests. Slight local physical grip/ridge detail remains unreadable as a glove→key→lock action at native scale; Nintendo bar still NOT passed. Exact-head CI built, passed 528 Node, four stream self-tests, nondeterminism and all 15 Maze browser checks, then was cancelled in later Tiny Kingdom browser suite. No independent critic or representative hardware-FPS result; see glove-contact-pass-31-review-gate.md.",
     "Pass32 source-only camera framing candidate: use +1.34 mobile / +1.12 desktop vertical aim solely for genuinely disclosed closed gate with carried exact matching key, preserving prior half-height and other cameras. Browser evidence asserts increased public keyed aim and records it in real screenshot manifests without changing existing thresholds. Genuine source-head images, independent blind review and complete CI still PENDING; see public-arch-framing-pass-32-review-gate.md.",
     "Pass32 authentic desktop/390×844 screenshots were checked byte-for-byte against original dated SHA-256 manifests; desktop upper arch gains a little space, but portrait still clips the right arch and the key/lock remains tiny. Game 2 benchmark is not won. Pass33 targets only a modest camera shift toward already disclosed portrait stage, with strict source tests and a dedicated Maze visual CI gate; no pass33 image acceptance yet.",
-    "Pass33 source-head focused Maze visual workflow succeeded with dated original six-scenario browser PNGs and sidecar SHA-256 manifests. Same-seed/tick closed gate desktop is unchanged from pass32; portrait stage camera shift is visibly insufficient because the closed gate moves toward the left edge, arch still crops and key/lock action remains unreadable. Full CI failed unrelated Tiny Kingdom checks, not Maze. Details in known-stage-portrait-pass-33-review-gate.md."
+    "Pass33 source-head focused Maze visual workflow succeeded with dated original six-scenario browser PNGs and sidecar SHA-256 manifests. Same-seed/tick closed gate desktop is unchanged from pass32; portrait stage camera shift is visibly insufficient because the closed gate moves toward the left edge, arch still crops and key/lock action remains unreadable. Full CI failed unrelated Tiny Kingdom checks, not Maze. Details in known-stage-portrait-pass-33-review-gate.md.",
+    "Pass34 models a larger camera-facing physical socket using existing shared shapes, a joined dark crown and throat, and public-inventory-only gold/mint rim. Test contracts strengthened for both gate orientations and no false open; this source candidate is NOT visual evidence. Dated render review gate: physical-lock-pass-34-review-gate.md."
   ],
   "nextGaps": [
     "Pass34 highest-impact independently judgeable interaction slice: physically legible glove, held key shaft and actual still-closed publicly disclosed black lock at native 390px; never depict a fictional unlock or reveal unknown paths. Use same-seed original production screenshots, structural tests and fresh-context image criticism when the workspace is available.",
@@ -376,6 +377,13 @@
       "verdict": "Focused Maze CI SUCCESS, full repository CI FAILED unrelated Tiny Kingdom; portrait visual target NOT ACCEPTED; fixed Nintendo Captain Toad NOT PASSED",
       "date": "2026-11-01T07:01:36Z",
       "summary": "Source 6276330, focused successful Actions 41282144620 artifact 13073920601. True seed maze-visual-reference-13 tick21, genuinely closed public door-2 and exact matching carried key. Verified desktop captured 06:47:36.437Z SHA a0e468045c0a4386db1e5302e0d9f3252c7f7a6b4ba759661bfdcdf8f685207a, identical to pass32. Native 390x844 06:47:39.643Z SHA dd9579d04f7b96a9abf353999ec5c55294d0ec2d531c27e5d3c03c108355f10c. Portrait reveals marginally more public stage but gate shifts left, right arch still cuts and glove/key/socket action is unclear; no independent blind victory. Full CI 41282144550 failed 3 unrelated Tiny Kingdom browser checks (104 pass); all Maze checks in focused CI passed. CPU SwiftShader is not hardware FPS."
+    },
+    {
+      "title": "Pass34 physical keyhole and connected dark recess — source-only candidate",
+      "reviewer": "Source/contract builder; detached render critic blocked by disconnected shared-workspace tunnel",
+      "verdict": "Actual pass34 native screenshots and independent Nintendo comparison PENDING; fixed bar NOT PASSED",
+      "date": "2026-11-01T07:46:21Z",
+      "summary": "Authentic pass33 screenshots at seed maze-visual-reference-13 tick21 show the real socket too small to establish glove/shaft/lock contact. Pass34 alters only modeled gate-side lock hardware for a bolder joined keyhole at native size. Must verify exact-head focused CI and date/hash-bound original desktop and 390×844 real frames, then separately compare blind with unchanged pass33 and official reference. No false unlock, private state, controller, route, camera, thresholds or renderer budget modification; CPU SwiftShader != hardware GPU."
     }
   ],
   "verification": [
@@ -598,6 +606,13 @@
       "detail": "Exact source 6276330, focused Actions 41282144620 and genuine artifact 13073920601. 2026-11-01 06:47 UTC desktop 1280x900 SHA a0e468045c0a4386db1e5302e0d9f3252c7f7a6b4ba759661bfdcdf8f685207a and mobile 390x844 SHA dd9579d04f7b96a9abf353999ec5c55294d0ec2d531c27e5d3c03c108355f10c each matched original JSON manifests; same seed/tick actually closed door. Lead visual review rejects native arch crop and tiny glove-key-lock; no fresh independent critic or real GPU benchmark. Full CI 41282144550 had three Tiny Kingdom failures, 104 browser checks passed.",
       "sourceCommit": "6276330948362c1f809165a08caf9ac6c481199b",
       "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41282144620/artifacts/13073920601"
+    },
+    {
+      "name": "Pass34 source/test contract and native-render gate",
+      "status": "Source candidate staged; exact-head focused CI, actual dated original captures and independent visual critic PENDING; benchmark OPEN",
+      "detail": "Public closed physical gate: larger single rim/inset and joined dark crown+throat; still mint only for exact carried publicly known key. Stricter tests for physical continuity/scale/depth/cardinal orientations and true open/unknown states. Pass33 original source-head native artifact 13073920601 remains the last verified baseline. Workspace tunnel unavailable, no independent critic or Ultracode. Test success would not prove Nintendo parity.",
+      "sourceCommit": "pending-atomic-commit",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/pull/53"
     }
   ],
   "references": [

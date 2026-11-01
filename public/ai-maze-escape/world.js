@@ -438,9 +438,16 @@ export function createMazeWorld(options = {}) {
       mesh(lock, bevel, gold, 0, .9, .55, .75, .72, .14);
       mesh(lock, bevel, darkMetal, 0, .9, .65, .61, .59, .14);
       const socketTint = carried ? glow : gold;
-      mesh(lock, ring, socketTint, 0, 1.02, .76, .23, .23, .12);
-      mesh(lock, bevel, socketTint, 0, .78, .76, .13, .27, .10);
-      mesh(lock, bevel, darkMetal, 0, .79, .825, .05, .16, .035);
+      // A camera-facing, physically recessed keyhole with a single continuous
+      // dark crown/throat silhouette. The old tiny pinhole vanished at 390px.
+      // All parts use existing shared geometry/materials; no additional light,
+      // per-frame allocation, false unlock or secret-state lookup is involved.
+      mesh(lock, ring, socketTint, 0, 1.035, .79, .32, .32, .14);
+      mesh(lock, bevel, socketTint, 0, .8, .79, .22, .36, .12);
+      const crown = mesh(lock, sphere, darkMetal, 0, 1.035, .89, .155, .16, .055);
+      crown.name = 'Recessed keyhole crown';
+      const throat = mesh(lock, bevel, darkMetal, 0, .805, .89, .105, .31, .055);
+      throat.name = 'Recessed keyhole throat';
       // The raised crest shows the same carved key motif only once this exact
       // key is disclosed. A mint lock is a match, never a passable passage.
       if (carried || observed) {

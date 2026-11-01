@@ -89,7 +89,17 @@ test('a publicly observed locked gate has an unmistakable seal and an open gate 
   const lock = bars.getObjectByName('Physical recessed keyhole');
   assert.ok(lock, 'the gate must have a modeled physical socket, not just a floating key crest');
   assert.equal(lock.userData.keyState, 'unknown', 'an undisclosed key cannot appear to be carried');
-  assert.equal(lock.children.length, 6, 'the face is a layered frame, inset and keyhole');
+  assert.equal(lock.children.length, 7, 'the face retains layered hardware and a two-part physical keyhole');
+  const crown = lock.getObjectByName('Recessed keyhole crown');
+  const throat = lock.getObjectByName('Recessed keyhole throat');
+  assert.ok(crown?.isMesh && throat?.isMesh, 'the actual socket has a modeled round crown and continuous throat');
+  assert.equal(crown.material, throat.material, 'the recessed keyhole has one dark, connected silhouette');
+  assert.ok(crown.scale.x >= .15 && throat.scale.y >= .30,
+    'both portions remain legible at gameplay scale rather than returning to a tiny pinhole');
+  assert.ok(crown.position.z > .82 && throat.position.z > .82,
+    'the actual recessed opening is front-facing, ahead of the sealed bars');
+  assert.ok(crown.position.y - crown.scale.y <= throat.position.y + throat.scale.y / 2,
+    'the crown and throat must visibly meet instead of reading as detached dots');
   assert.ok(lock.position.x >= .5 && lock.position.z >= .14,
     'the accessible socket sits on the camera-facing side stile, away from the crossed barrier');
   const keyholeRing = lock.children.find(part => part.geometry?.type === 'TorusGeometry');
@@ -125,8 +135,11 @@ test('a publicly observed locked gate has an unmistakable seal and an open gate 
   const carriedLock = world.group.getObjectByName('Physical recessed keyhole');
   assert.equal(carriedLock.userData.keyState, 'carried');
   const socketRing = carriedLock.children.find(child => child.geometry?.type === 'TorusGeometry');
-  assert.ok(socketRing && socketRing.material.emissive.g > .4,
-    'only the correctly carried matching key turns the physical keyhole mint');
+  assert.ok(socketRing && socketRing.material.emissive.g > .4 && socketRing.scale.x >= .3,
+    'only the correctly carried matching key turns a physically larger keyhole rim mint');
+  assert.equal(carriedLock.getObjectByName('Recessed keyhole crown').material,
+    carriedLock.getObjectByName('Recessed keyhole throat').material,
+    'matching-key highlight cannot fill the dark physical opening or suggest an open passage');
   assert.ok(world.group.getObjectByName('Closed crossed barrier'),
     'possessing the key must NEVER withdraw a gate that authority still reports closed');
   world.update({...carriedKey, inventory: []});
@@ -144,6 +157,8 @@ test('a publicly observed locked gate has an unmistakable seal and an open gate 
   const vertical = world.group.getObjectByName('Disclosed sealed gate');
   assert.ok(vertical, 'the other gate orientation stays source-disclosed and modeled');
   assert.ok(vertical.getObjectByName('Closed crossed barrier').children.every(child => child.position.z > .2));
+  assert.ok(vertical.getObjectByName('Recessed keyhole crown') && vertical.getObjectByName('Recessed keyhole throat'),
+    'both cardinal gate orientations retain the same modeled keyhole');
 
   world.update({...closed, doors: [{...door, open: true}]});
   assert.equal(world.group.getObjectByName('Disclosed sealed gate'), undefined);
