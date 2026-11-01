@@ -224,3 +224,60 @@ test('authentic fingertip contact keeps the curled boot silhouette when a mantle
   assert.ok(elbow.localToWorld(new THREE.Vector3(0,-.802,.108)).distanceTo(goal)<1e-5,
     'protect the measured real fingertip contact as well as the knees');
 });
+
+test('real upper-rim fingertip releases into a continuous shoulder arc, then relinquishes the hold',async t=>{
+  const threeURL=pathToFileURL(path.join(path.dirname(require.resolve('three')),'three.module.js')).href;
+  const adjusted=cast.replace("from '/tower/vendor/three.module.js'","from '"+threeURL+"'");
+  assert.notEqual(adjusted,cast);
+  const [{createClimber},THREE]=await Promise.all([
+    import('data:text/javascript;base64,'+Buffer.from(adjusted).toString('base64')),import(threeURL)
+  ]);
+  // The G42 exact-tick screenshot has authentic fingertip contact at 298,
+  // followed by an *airborne* release at 299; a camera-facing mantle arm must
+  // not teleport the real gripping forearm between those adjacent states.
+  for(const viewAzimuth of [Math.PI/4,-Math.PI/4]){
+    const rig=createClimber(),neutral=createClimber();
+    t.after(()=>{rig.dispose();neutral.dispose();});
+    for(const r of [rig,neutral]){
+      r.group.position.set(3,7,-4);r.group.rotation.y=.35;r.group.scale.setScalar(1.13);
+      r.group.updateMatrixWorld(true);
+    }
+    const goal=rig.group.localToWorld(new THREE.Vector3(.56,2.33,.22));
+    const air={state:'airborne',vx:2300,vy:6000,facing:1,health:5,attacking:false,
+      runToken:'real-ledger-run',ledgePlatformId:'f1:p1'};
+    const options={reducedMotion:true,viewAzimuth};
+    const held={...air,tick:298,ledgeTarget:{x:goal.x,y:goal.y,z:goal.z},
+      ledgeMantle:{progress:.21,weight:1}};
+    rig.animate(held,1/60,1,options);
+    const elbow=rig.group.getObjectByName('1-elbow'),upper=elbow?.parent;
+    assert.ok(elbow?.isBone&&upper?.isBone,'compare the actual gripping arm bones');
+    elbow.updateWorldMatrix(true,false);
+    assert.ok(elbow.localToWorld(new THREE.Vector3(0,-.802,.108)).distanceTo(goal)<1e-5,
+      'first-frame true deck contact must still be exact');
+    const gripUpper=upper.quaternion.clone(),gripForearm=elbow.quaternion.clone();
+    const root=rig.group.position.clone();
+    const released={...air,tick:299,ledgeTarget:null,ledgeMantle:{progress:.34,weight:1}};
+    rig.animate(released,1/60,1+1/60,options);
+    assert.ok(upper.quaternion.angleTo(gripUpper)<.27,
+      'first contact-to-flight tick must not snap the gripping shoulder: '+viewAzimuth);
+    assert.ok(elbow.quaternion.angleTo(gripForearm)<.27,
+      'first contact-to-flight tick must not snap the gripping forearm: '+viewAzimuth);
+    assert.ok(rig.group.position.equals(root),'only pose may transition, never authoritative root');
+    const clear={...air,tick:303,ledgeTarget:null,ledgeMantle:{progress:.88,weight:1}};
+    rig.animate(clear,1/60,1+5/60,options);
+    neutral.animate(clear,1/60,1+5/60,options);
+    const recovered=rig.group.getObjectByName('1-elbow'),reference=neutral.group.getObjectByName('1-elbow');
+    assert.ok(recovered.parent.quaternion.angleTo(reference.parent.quaternion)<1e-5,
+      'arm must fully return to the source-defined free-flight mantle after clearance');
+    assert.ok(recovered.quaternion.angleTo(reference.quaternion)<1e-5,
+      'forearm must fully return to the source-defined free-flight mantle');
+    // A renderer still showing an old grip must never attach it to a new run.
+    rig.animate(held,1/60,2,options);
+    const newRun={...released,runToken:'different-run'};
+    rig.animate(newRun,1/60,2+1/60,options);
+    neutral.animate(newRun,1/60,2+1/60,options);
+    assert.ok(rig.group.getObjectByName('1-elbow').parent.quaternion.angleTo(
+      neutral.group.getObjectByName('1-elbow').parent.quaternion)<1e-5,
+      'stale hand contact must not survive an authoritative run-token change');
+  }
+});
