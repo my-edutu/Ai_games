@@ -10,6 +10,7 @@ const mapping:Record<string,{cue:string;text:string;priority:number;ttl:number}>
   'melee-hit':{cue:'melee-hit',text:'Strike landed',priority:7,ttl:23},
   'shield-block':{cue:'shield-block',text:'Shield absorbed hit',priority:9,ttl:38},
   'projectile-hit':{cue:'melee-hit',text:'Projectile connected',priority:7,ttl:24},
+  'projectile-fired':{cue:'projectile-fire',text:'Shot fired',priority:5,ttl:16},
   'pickup-collected':{cue:'pickup',text:'Resource collected',priority:4,ttl:20}
 };
 export class TowerAudioDirector{
