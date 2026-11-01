@@ -272,7 +272,7 @@ export function createExplorer(options = {}) {
       // Counter-turn the connected wrist as the shoulder aims at the known lock.
       // Keep the actual glove/key face visible rather than twisting its bow
       // behind the sealed gate's foreground masonry. No hidden-state input.
-      arms[i].elbow.rotation.y=i===0?-keyYaw*.9:0;
+      arms[i].elbow.rotation.y=i===0&&keyYaw!==0?-keyYaw*.9:0;
       eyes[i].position.x=(i===0?-1:1)*.145+Math.max(-.024,Math.min(.024,(lookYaw+keyYaw)*.032+(s.reduced?0:(Math.max(-.016,Math.min(.016,turn*.045))+.006*rest)*(1-alert))));
       eyes[i].scale.y=s.lose?.32:s.danger>.45||alert>.4?1.13:(s.reduced?1:Math.pow(Math.max(0,Math.cos(s.time*.83)),60)>.88?.12:1);
     }
