@@ -369,6 +369,14 @@ export function createWarden(options = {}) {
     rounded(lining,ember,[shellHalf.side*.07,0,0],[.25,.065,.66],.02);
     lining.visible=false;
     shellHalf.lining=lining;
+    // The old underside was completely hidden by the raised shell from the
+    // actual +X/+Z gameplay camera. A small physically attached glowing lip
+    // crosses its *top inside edge*, so the real split reads at 1280px.
+    // It remains a real piece of the hinge, never a billboard or fake actor.
+    const seam=pivot(shellHalf.wing,`opened elytron ember seam ${shellHalf.side}`,[shellHalf.side*.095,.292,-.03]);
+    rounded(seam,ember,[shellHalf.side*.045,.025,0],[.105,.048,.78],.018);
+    seam.visible=false;
+    shellHalf.seam=seam;
   }
   const warningSpines=pivot(body,'activated warden spines',[0,.48,-.13]);
   for (const side of [-1,0,1]) {
@@ -428,9 +436,14 @@ export function createWarden(options = {}) {
       // A neutral/terminal pose must reset to +0 on both sides. Negative
       // zero can survive a signed-angle multiplication and break strict
       // replay/teardown invariants even when the rendered pose looks flat.
-      shellHalf.wing.rotation.z=alert>0?shellHalf.side*alert*.68:0;
-      shellHalf.wing.rotation.y=alert>0?-shellHalf.side*alert*.23:0;
+      // The previous 0.68-rad/full-strength opening barely changed the
+      // source-verified warden silhouette. Separate the halves farther, then
+      // expose a physically attached dorsal seam while the threat is public.
+      shellHalf.wing.rotation.z=alert>0?shellHalf.side*Math.min(1.12,alert*1.18):0;
+      shellHalf.wing.rotation.y=alert>0?-shellHalf.side*alert*.45:0;
+      shellHalf.wing.rotation.x=alert>0?-alert*.12:0;
       shellHalf.lining.visible=alert>.24;
+      shellHalf.seam.visible=alert>.24;
     }
     stride=approach(stride,s.moving?1:0,12,s.delta); gait+=s.delta*(10+s.danger*3)*stride;
     body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018);
