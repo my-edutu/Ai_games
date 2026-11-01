@@ -1,0 +1,16 @@
+# Game 2 — Pass49 original disclosed-exit tide rose: visual acceptance gate (2026-11-01)
+
+**Source candidate, not a verified rendered improvement. Nintendo Captain Toad remains the fixed, unmet bar.**
+
+## Largest gap / smallest judgeable slice
+The authentic prior [Pass48 observed-landmark screenshot](https://github.com/my-edutu/Ai_games/actions/runs/41317658301/artifacts/13087861877) shows the observed exit beside Pip, but its summit is a tiny mint blur with a generic arch silhouette. The fixed [official Nintendo Captain Toad image](https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/) establishes a world where a physical prize has an unmistakable large sculptural silhouette. This pass changes **only** the disclosed exit's real 3D upper crown: a warm eight-rayed stone-and-bronze tide rose with a glowing jade core, as a world-owned 3D object facing the existing isometric camera. It replaces the former two tiny diamond bars rather than stacking another screen-space marker. The geometry, materials, light, physics, animation loop and navigation authority are reused.
+
+There is no exit if the public sanitized snapshot lacks a disclosed exit cell. A known index whose cell is not public cannot place a marker; no hidden information, route, door state or extra action is created. The crest never implies an AI plan or safe route. The body and portal remain real 3D and responsive to reduced motion via the existing crystal animation.
+
+## Independent verification required
+1. Exact-head focused GitHub CI must pass new 3D resource/public-boundary regressions, the real stream host and the existing production-browser capture. Download original seven PNGs and UTC JSON sidecars and independently recompute each PNG SHA-256 and `world.js` source hash.
+2. Review **actual full-size** `observed-landmark.png` (1280×900), `encounter-public.png` and both true 390×844 portrait scenes against the prior [Pass48 original archive](https://github.com/my-edutu/Ai_games/actions/runs/41317658301/artifacts/13087861877). The observed landmark must show a clearly distinct physical prize, without clipping, blocking Pip or misleading a path. Report whether it is actually within the capture; a source code diff is not a visual verdict.
+3. A **separate fresh-context critic**, ideally blinded to source chronology, must compare the rendered result directly with **the two SHA-frozen official Nintendo gameplay frames** in `reference-manifest.json`. Supporting Luigi's Mansion 3 and ASTRO BOT are only secondary comparators. Reject any claim of fixed-bar victory unless that critic actually sees the genuine images and independently prefers the candidate on stage, character and action quality.
+4. Confirm original public deterministic navigation, no per-frame object creation, resource stability under reveal/withdrawal, reduced-motion behavior and no misleading hidden exit. Software SwiftShader under heavy shared CPU throttling does **not** establish hardware GPU FPS.
+
+The shared workspace reported `Tunnel-client has not been seen for 300 seconds`; no detached builder/critic workers or Ultracode were available when composing this candidate. The lead must **not** substitute a self-critique for a blind independent win. Draft PR #53 is not to be merged or deployed.

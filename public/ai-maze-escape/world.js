@@ -523,11 +523,25 @@ export function createMazeWorld(options = {}) {
     const veil = mesh(p, portalDisc, portalVeil, 0, 1.18, -.53, .65, .84, 1);
     veil.castShadow = false; veil.receiveShadow = false;
     const halo = mesh(p, ring, glow, 0, 1.18, -.51, .68, .86, .68);
-    // A radiant diamond crown distinguishes the exit from all ruined arches.
-    for (const sign of [-1, 1]) mesh(p, bevel, glow, sign * .22, 2.62, -.54, .12, .48, .13, 0, 0, sign * -.65);
+    // The tide rose is a large, camera-facing *physical* exit landmark, not a
+    // route promise: exitProp is called only for a publicly discovered exit.
+    // Eight ivory/gold radial stones contrast with the oval key bow and the
+    // jade ruins. Reuse the existing resource pool; nothing is built per frame.
+    const tideRose = new THREE.Group();
+    tideRose.name = 'Disclosed exit tide rose';
+    tideRose.position.set(0, 3.03, -.30);
+    p.add(tideRose);
+    mesh(tideRose, ring, darkMetal, 0, 0, -.09, .57, .57, .57);
+    mesh(tideRose, ring, gold, 0, 0, .015, .45, .45, .45);
+    for (let j = 0; j < 8; j++) {
+      const angle = j * TAU / 8;
+      mesh(tideRose, bevel, j % 2 ? gold : lightStone,
+        Math.sin(angle) * .69, Math.cos(angle) * .69, .035,
+        .13, .25, .13, 0, 0, -angle);
+    }
+    const gem = mesh(tideRose, sphere, glow, 0, 0, .12, .22, .29, .16);
     animations.push({ type: 'halo', object: halo, baseY: 1.18, phase: cell });
-    const gem = mesh(p, sphere, glow, 0, 2.79, -.54, .25, .34, .25);
-    animations.push({ type: 'crystal', object: gem, baseY: 2.79, phase: cell });
+    animations.push({ type: 'crystal', object: gem, baseY: 0, phase: cell });
   }
   function rebuildObjects(s) {
     publicClosedSockets.clear();

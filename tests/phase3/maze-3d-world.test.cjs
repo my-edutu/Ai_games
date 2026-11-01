@@ -214,3 +214,40 @@ test('a publicly observed locked gate has an unmistakable seal and an open gate 
   assert.equal(JSON.stringify(closed), original, 'presentation must never mutate public state');
   world.dispose();
 });
+
+
+test('the original tide-rose crown belongs only to a genuinely disclosed exit', async () => {
+  const {createMazeWorld} = await modulePromise;
+  for (const balanced of [true, false]) {
+    const world = createMazeWorld({balanced});
+    const base = fixture([{cell:24, neighbors:[]}]);
+    const discovered = {...base, exitCell:24};
+    const unchanged = JSON.stringify(discovered);
+    const initialResources = world.stats();
+    world.update(base);
+    assert.equal(world.group.getObjectByName('Disclosed exit tide rose'), undefined,
+      'no golden destination sign before the exit is publicly known');
+    world.update(discovered);
+    const portal = world.group.getObjectByName('Disclosed exit portal');
+    const crown = portal?.getObjectByName('Disclosed exit tide rose');
+    assert.ok(crown?.isGroup, 'the discovered destination owns the modeled crown');
+    assert.equal(crown.children.length, 11, 'eight physical rays, two rims and a core');
+    assert.equal(crown.children.filter(part => part.geometry?.type === 'ExtrudeGeometry').length, 8,
+      'rays are real shared beveled 3D stone, not a screen-facing text or HUD glyph');
+    assert.ok(crown.position.y > 2.8 && crown.position.z > -.54,
+      'the clockwork landmark rises above the disclosed arch on the camera-facing side');
+    assert.equal(world.stats().geometryCount, initialResources.geometryCount);
+    assert.equal(world.stats().materialCount, initialResources.materialCount);
+    assert.equal(JSON.stringify(discovered), unchanged,
+      'decorations must never change the public game state');
+    world.update({...discovered, exitCell:null});
+    assert.equal(world.group.getObjectByName('Disclosed exit tide rose'), undefined,
+      'reset/withdrawn public exit removes the entire marker');
+    world.update({...discovered, cells:[{cell:25, neighbors:[]}]});
+    assert.equal(world.group.getObjectByName('Disclosed exit tide rose'), undefined,
+      'knowing an exit index without observing its actual cell cannot render it');
+    world.dispose();
+    assert.equal(world.stats().geometryCount, 0);
+    assert.equal(world.stats().materialCount, 0);
+  }
+});
