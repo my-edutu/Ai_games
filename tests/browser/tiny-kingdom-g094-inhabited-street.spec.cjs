@@ -55,7 +55,7 @@ test('G094 inhabited working street is unobstructed, readable and truth-preservi
  expect(mobile.ribbon.top).toBeGreaterThan(390);
  expect(mobile.ribbon.right).toBeLessThanOrEqual(393);
  expect(mobile.ribbon.left).toBeGreaterThanOrEqual(-3);
- expect(mobile.ribbon.bottom).toBeLessThan(mobile.status.top);
+ expect(mobile.ribbon.bottom+8).toBeLessThan(mobile.status.top);
  expect(mobile.realCitizen).toBe(live.view.citizen);
  expect(mobile.glError).toBe(0);
  // The actual camera and HUD can be operated without awarding materials.
