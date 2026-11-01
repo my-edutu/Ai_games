@@ -427,7 +427,12 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // protected. On a real nearby sealed-gate frame, close in enough that
       // the Pip/barrier relationship reads without HUD text, with a wider
       // portrait margin so the known arch remains visible.
-      targetHeight = cameraMode === 'detail' ? 4.6 : height < 340 ? 5.4
+      // Authentic native Pass45 had Thornback's center in frame but clipped
+      // the right-hand shell/legs. Only an actually disclosed portrait Detail
+      // encounter gets a wider pair shot; solo/other cameras retain scale.
+      targetHeight = cameraMode === 'detail'
+        ? (aspect < .9 && closestThreat?.strength > 0 ? 5.7 : 4.6)
+        : height < 340 ? 5.4
         : nearObservedGate ? (keyLockCloseup ? (aspect < .9 ? 4.70 : 4.55) : (aspect < .9 ? 5.42 : 5.05))
         : aspect < .9 ? 6.2 : nearObservedGoal ? 6.25 : 7.3;
     }
@@ -453,10 +458,15 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       const projected = explorer.group.position.clone().add(new THREE.Vector3(0, .8, 0)).project(camera);
       // Public presentation-only screen-space evidence: a threat is not
       // visually staged just because its HUD warning is present.
-      const wardensInFrame = [...wardens.values()].filter(({ model }) => {
-        const p = model.group.position.clone().add(new THREE.Vector3(0, .75, 0)).project(camera);
-        return Math.abs(p.x) < .95 && Math.abs(p.y) < .95 && p.z > -1 && p.z < 1;
-      }).length;
+      const projectedWardens = [...wardens.values()].map(({ model }) =>
+        model.group.position.clone().add(new THREE.Vector3(0, .75, 0)).project(camera));
+      const depthVisible = p => p.z > -1 && p.z < 1;
+      const wardensInFrame = projectedWardens.filter(p =>
+        Math.abs(p.x) < .95 && Math.abs(p.y) < .95 && depthVisible(p)).length;
+      // An opponent center barely inside the edge can still have clipped legs.
+      // Preserve an independently measurable margin at native portrait size.
+      const wardensWithMargin = projectedWardens.filter(p =>
+        Math.abs(p.x) < .7 && Math.abs(p.y) < .8 && depthVisible(p)).length;
       // Capture evidence must prove the actual modeled key/gate is in the
       // camera, not just a HUD caption. Only observed public props qualify.
       const knownCells = new Set(s.cells.map(cell => cell.cell));
@@ -522,7 +532,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         frameP50Ms: sorted[Math.floor(sorted.length * .5)] || 0,
         frameP95Ms: sorted[Math.floor(sorted.length * .95)] || 0,
         routeQueue: cells.length, world: stats, contextLost: false,
-        disclosedThreats: wardens.size, wardensInFrame, encounterAttention: closestThreat?.strength ?? 0,
+        disclosedThreats: wardens.size, wardensInFrame, wardensWithMargin,
+        encounterAttention: closestThreat?.strength ?? 0,
         keysInFrame, closedGatesInFrame,
         carriedKeyGateGesture: keyGateCue?.strength??0,
         keyLockCloseup, cameraAimLift, physicalKeyLock,

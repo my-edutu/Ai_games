@@ -127,6 +127,9 @@ test('a real close public encounter frames both autonomous actors and saves date
       characterCount:portraitEncounter.characterCount,
       disclosedThreats:portraitEncounter.disclosedThreats,
       wardensInFrame:portraitEncounter.wardensInFrame,
+      wardensWithMargin:portraitEncounter.wardensWithMargin,
+      cameraHalfHeight:portraitEncounter.cameraHalfHeight,
+      explorerProjection:portraitEncounter.explorerProjection,
       encounterAttention:portraitEncounter.encounterAttention,
       explorerInFrame:portraitEncounter.explorerInFrame,
       frameP50Ms:portraitEncounter.frameP50Ms,
@@ -138,6 +141,9 @@ test('a real close public encounter frames both autonomous actors and saves date
   // so a failure keeps the authentic clipping evidence for the visual critic.
   expect(portraitEncounter.explorerInFrame, 'Native Detail must retain the real explorer').toBe(true);
   expect(portraitEncounter.wardensInFrame, 'Native Detail warning must show at least one truly disclosed 3D guardian').toBeGreaterThanOrEqual(1);
+  // Pass45 center-only visibility passed despite a cropped right-hand shell.
+  expect(portraitEncounter.wardensWithMargin, 'Native warden center must have room for the full model').toBeGreaterThanOrEqual(1);
+  expect(Math.abs(portraitEncounter.explorerProjection.x), 'Native encounter must retain a visible Pip margin').toBeLessThan(.7);
   // Preserve the original desktop objective/lock captures; never move actors.
   await page.setViewportSize({width:1280,height:900});
 
