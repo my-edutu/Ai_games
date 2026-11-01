@@ -53,3 +53,24 @@ test('actual base walls use the original albedo and low bump depth through one i
  assert.match(scene,/instance\(fracturedWall,stone,walls/,'the sculpted wall surface must retain the same bounded original masonry albedo and bump map');
  assert.ok(server.includes("['/dungeon/wall-masonry-plan.js','wall-masonry-plan.js']"));
 });
+
+test('sunken crypt stone albedo is warm weathered limestone rather than monochrome blue slate',async()=>{
+ const {makeWallMasonryPixels}=await load();
+ const sample=(floor,x=17,y=16)=>{
+  const pixels=makeWallMasonryPixels(floor,128),i=(y*128+x)*4;
+  return [...pixels.slice(i,i+3)];
+ };
+ const crypt=sample(1),ember=sample(2),obsidian=sample(3),hollow=sample(4);
+ assert.ok(crypt[0]-crypt[1]>=12&&crypt[1]-crypt[2]>=12,
+  'crypt masonry must retain an earthy warm-red > green > blue color separation');
+ assert.ok(crypt[0]-crypt[2]>=30,'crypt wall highlight must not read as cobalt/teal');
+ assert.ok(ember[0]>ember[2]+18,'ember retains a distinct fired sandstone palette');
+ assert.ok(obsidian[2]>obsidian[0]+20,'obsidian deliberately remains blue for biome contrast');
+ assert.ok(hollow[2]>hollow[1]+20,'hollow retains violet rather than sharing crypt palette');
+ assert.notDeepEqual(crypt,ember);
+ const scene=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ assert.match(scene,/stone\.color\.set\(theme\.wallTint\)/);
+ assert.match(scene,/floorMat\.color\.set\(theme\.floorTint\)/);
+ assert.match(scene,/stoneEdge\.color\.set\(theme\.trimTint\)/);
+ assert.match(scene,/stoneGrade:\{/,'the real WebGL scene must expose actual applied materials for browser proof');
+});
