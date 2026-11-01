@@ -85,7 +85,7 @@ body[data-high-contrast="true"] #broadcast #hud .mission-block,body[data-high-co
  #broadcast .masthead .brand-mark{width:17px;height:21px}
  #broadcast .masthead .wordmark h1{font-size:16px;letter-spacing:-.5px}
  #broadcast .masthead .presentation-controls{gap:4px}
- #broadcast .masthead .control-button{width:40px;min-width:40px;height:44px;min-height:44px;padding:9px}
+ #broadcast .masthead .control-button{width:44px;min-width:44px;height:44px;min-height:44px;padding:9px}
  #broadcast #status-strip{top:calc(63px + env(safe-area-inset-top,0px));left:11px;font-size:8px;padding:7px 9px;max-width:50vw}
  #broadcast #hud .mission-block{top:calc(109px + env(safe-area-inset-top,0px));left:11px;max-width:58vw;padding:9px 10px}
  #broadcast #hud .mission-block h2{font-size:19px}
@@ -109,9 +109,9 @@ body[data-high-contrast="true"] #broadcast #hud .mission-block,body[data-high-co
  #broadcast #graphics-status{bottom:calc(109px + env(safe-area-inset-bottom,0px))}
 }
 @media(max-width:360px){
- #broadcast .masthead .wordmark h1{font-size:14px}
+ #broadcast .masthead .wordmark h1{font-size:12px}
  #broadcast .masthead .brand-mark{display:none}
- #broadcast .masthead .control-button{width:40px;min-width:40px;height:42px;min-height:42px;padding:8px}
+ #broadcast .masthead .control-button{width:44px;min-width:44px;height:44px;min-height:44px;padding:8px}
  #broadcast #hud .mission-block{max-width:57vw}
  #broadcast #hud .mission-block h2{font-size:17px}
  #broadcast #hud .intent-card{max-width:55vw}
