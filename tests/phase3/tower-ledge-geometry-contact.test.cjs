@@ -542,3 +542,38 @@ test('the trailing boot cannot pierce the real upper deck during a one-foot heel
       'a different platform must not change the trailing boot');
   }
 });
+
+
+test('genuine first-tick deck departure uncoils the load-bearing boot visibly without faking a second landing',async t=>{
+  const threeURL=pathToFileURL(path.join(path.dirname(require.resolve('three')),'three.module.js')).href;
+  const adjusted=cast.replace("from '/tower/vendor/three.module.js'","from '"+threeURL+"'");
+  assert.notEqual(adjusted,cast);
+  const {createClimber}=await import('data:text/javascript;base64,'+Buffer.from(adjusted).toString('base64'));
+  const surface={platformId:'f1:p1',y:6,innerRadius:22.4,outerRadius:27.18};
+  const rising={state:'airborne',vx:3200,vy:9000,facing:1,health:5,attacking:false,
+    runToken:'source-run',tick:301,ledgePlatformId:'f1:p1',
+    ledgeMantle:{progress:.78,weight:1}};
+  for(const viewAzimuth of [-Math.PI/4,Math.PI/4]){
+    const real=createClimber(),wrongDeck=createClimber(),noSurface=createClimber();
+    t.after(()=>{real.dispose();wrongDeck.dispose();noSurface.dispose();});
+    for(const rig of [real,wrongDeck,noSurface])rig.group.position.set(0,6.9,25);
+    const opts={reducedMotion:true,viewAzimuth};
+    real.animate({...rising,ledgeSurface:surface},1/60,1,opts);
+    wrongDeck.animate({...rising,ledgeSurface:{...surface,platformId:'unrelated'}},1/60,1,opts);
+    noSurface.animate(rising,1/60,1,opts);
+    const knee=rig=>{
+      const bone=rig.group.getObjectByName('1-knee');
+      assert.ok(bone?.isBone,'measure the physical load-bearing knee, not a screenshot guess');
+      return bone.rotation.x;
+    };
+    assert.ok(knee(wrongDeck)-knee(real)>.22,
+      'actual deck departure must extend the loaded knee instead of just shifting the torso');
+    assert.ok(Math.abs(knee(wrongDeck)-knee(noSurface))<1e-8,
+      'unrelated or absent decks cannot generate a cosmetic push-off');
+    assert.deepEqual(real.group.position.toArray(),[0,6.9,25],
+      'no pose adjustment can move the authoritative character root');
+    assert.equal(real.group.getObjectByName('-1-knee').rotation.x,
+      wrongDeck.group.getObjectByName('-1-knee').rotation.x,
+      'the unloaded leg must remain distinct instead of faking a two-foot jump');
+  }
+});
