@@ -1223,7 +1223,7 @@ function cottageSideFacades(x,z,scale,variant){
 // households remain present with original material classes and readable roofs;
 // collision and civilization authority continue to use the full city list.
 const VILLAGE_LOD_LIMIT=8;
-const villageVisualLod={detailedHomes:0,compactHomes:0,detailedCitizens:0,compactCitizens:0,compactRoofTiles:0,compactFramedWindows:0,compactGableBraces:0,compactSideWindows:0,compactSideTimberQuads:0,compactStaggeredCourses:0,compactFacingCount:0,compactTurnedCitizens:0,compactFacingVertexError:0};
+const villageVisualLod={detailedHomes:0,compactHomes:0,detailedCitizens:0,compactCitizens:0,compactRoofTiles:0,compactFramedWindows:0,compactGableBraces:0,compactSideWindows:0,compactSideTimberQuads:0,compactStaggeredCourses:0,compactFacingCount:0,compactTurnedCitizens:0,compactFacingVertexError:0,compactDormers:0,compactDormerTriangles:0};
 function detailedHomeSet(){
  if(city.length<=12)return new Set(city.map((_,i)=>i));
  return new Set(city.map(([x,z],i)=>({i,d:x*x+z*z}))
@@ -1340,6 +1340,52 @@ function compactHouse(x,z,variant){
    }
   }
  });
+ // G087: only alternate compact roofs carry one real gabled dormer.
+ // The small, fully modeled roof break gives grown streets a varied ridge
+ // silhouette without promoting twenty-five homes to expensive detail LOD.
+ // Pure presentation: house positions, variants, RNG, AI and collision stay put.
+ if(variant%2===1){
+  const dormerStart=data.length,wall=variant%4===1?-1:1;
+  const frontX=x+wall*halfW*.80,rearX=x+wall*halfW*.28;
+  const frontBase=eave+1.13*.20+.018,rearBase=eave+1.13*.72+.018;
+  const midZ=z+(variant%3-1)*d*.12;
+  const lowZ=midZ-.35,highZ=midZ+.35;
+  const lip=eave+.98,crown=eave+1.46;
+  const panel=(xx,low,high,za,zb,col)=>{
+   if(wall>0)quad([xx,low,za],[xx,high,za],[xx,high,zb],[xx,low,zb],col);
+   else quad([xx,low,zb],[xx,high,zb],[xx,high,za],[xx,low,za],col);
+  };
+  materialScope(MATERIAL.PLASTER,()=>{
+   panel(frontX,frontBase,lip,lowZ,highZ,plaster);
+   if(wall>0)tri([frontX,lip,highZ],[frontX,lip,lowZ],[frontX,crown,midZ],plaster);
+   else tri([frontX,lip,lowZ],[frontX,lip,highZ],[frontX,crown,midZ],plaster);
+   for(const zz of [lowZ,highZ]){
+    const a=[frontX,frontBase,zz],b=[rearX,rearBase,zz],
+     c=[rearX,lip,zz],d0=[frontX,lip,zz];
+    quad(a,b,c,d0,plaster);quad(d0,c,b,a,plaster);
+   }
+  });
+  materialScope(MATERIAL.ROOF,()=>{
+   for(const sideZ of [-1,1]){
+    const nearX=frontX+wall*.10,farX=rearX-wall*.07;
+    const a=[nearX,lip+.035,midZ+sideZ*.42];
+    const b=[nearX,crown+.035,midZ],c=[farX,crown+.035,midZ];
+    const d0=[farX,lip+.035,midZ+sideZ*.42];
+    quad(a,b,c,d0,roof);quad(d0,c,b,a,roof);
+   }
+  });
+  const frame=rgb(0x7a573e),trim=rgb(0xc5a67f);
+  materialScope(MATERIAL.WOOD,()=>{
+   panel(frontX+wall*.026,eave+.47,eave+.91,midZ-.225,midZ+.225,frame);
+   panel(frontX+wall*.065,eave+.49,eave+.89,midZ-.023,midZ+.023,trim);
+   panel(frontX+wall*.068,eave+.475,eave+.515,midZ-.25,midZ+.25,trim);
+  });
+  materialScope(MATERIAL.WINDOW_GLOW,()=>{
+   panel(frontX+wall*.049,eave+.51,eave+.875,midZ-.18,midZ+.18,rgb(0x56717a));
+  });
+  villageVisualLod.compactDormers++;
+  villageVisualLod.compactDormerTriangles+=(data.length-dormerStart)/30;
+ }
  // The short stone flue is a real silhouette above the roof pitch.
  // This is still LOD geometry: it adds 24 triangles, not detailed masonry.
  const chimneyX=x+(variant%2?-.23:.23)*w;
@@ -3203,7 +3249,7 @@ currentMaterial=MATERIAL.FOLIAGE;
 currentMaterial=MATERIAL.STONE;
  const fullHomes=detailedHomeSet();
 villageVisualLod.detailedHomes=0;villageVisualLod.compactHomes=0;
-villageVisualLod.compactRoofTiles=0;villageVisualLod.compactFramedWindows=0;villageVisualLod.compactGableBraces=0;villageVisualLod.compactSideWindows=0;villageVisualLod.compactSideTimberQuads=0;villageVisualLod.compactStaggeredCourses=0;
+villageVisualLod.compactRoofTiles=0;villageVisualLod.compactFramedWindows=0;villageVisualLod.compactGableBraces=0;villageVisualLod.compactSideWindows=0;villageVisualLod.compactSideTimberQuads=0;villageVisualLod.compactStaggeredCourses=0;villageVisualLod.compactDormers=0;villageVisualLod.compactDormerTriangles=0;
 for(let i=0;i<city.length;i++){
  const [x,z,k]=city[i];
  if(fullHomes.has(i)){
