@@ -15,12 +15,33 @@ import { cameraComposition } from './camera.mjs';
  */
 export function syncContactShadowInstances(contacts, transform, paths) {
   const capacity = contacts.instanceMatrix.count;
+  // BEGIN R49 CONTACT POSE BASELINE
+  // Compare Float32 GPU matrix payloads before marking any upload; all
+  // original setMatrixAt calls still run to preserve exact visible transforms.
+  const previousCount = contacts.count;
+  const existingMatrices = contacts.instanceMatrix.array;
+  let poseChanged = false;
+  // END R49 CONTACT POSE BASELINE
   contacts.count = 0;
   for (const path of paths) {
     for (const point of path) {
       if (contacts.count === capacity) break;
       transform.position.set(point.x + 0.07, 0.022, point.z + 0.08);
       transform.updateMatrix();
+      // BEGIN R49 CONTACT POSE COMPARE
+      // The instance buffer stores float32, not the Object3D's float64
+      // matrix. Compare what Three actually uploads, including portal shards.
+      if (!poseChanged) {
+        const offset = contacts.count * 16;
+        const elements = transform.matrix.elements;
+        for (let i = 0; i < 16; i++) {
+          if (existingMatrices[offset + i] !== Math.fround(elements[i])) {
+            poseChanged = true;
+            break;
+          }
+        }
+      }
+      // END R49 CONTACT POSE COMPARE
       contacts.setMatrixAt(contacts.count++, transform.matrix);
     }
     if (contacts.count === capacity) break;
@@ -28,6 +49,11 @@ export function syncContactShadowInstances(contacts, transform, paths) {
   // Zero visible instances require no GPU upload. The first later non-empty
   // pose refreshes the whole visible prefix and all portal fragments.
   if (contacts.count === 0) return 0;
+  // BEGIN R49 CONTACT POSE UPLOAD GATE
+  // Stable public/reduced-motion poses need neither a version bump nor a
+  // duplicate GPU upload. Changes in length force the used prefix through.
+  if (!poseChanged && contacts.count === previousCount) return 0;
+  // END R49 CONTACT POSE UPLOAD GATE
   const attribute = contacts.instanceMatrix;
   attribute.clearUpdateRanges();
   attribute.addUpdateRange(0, contacts.count * 16);
