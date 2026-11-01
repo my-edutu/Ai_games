@@ -1,15 +1,23 @@
-# Game 3 — continuing the Gauntlet
+# Infinite Tower Climb — Transformation-First Gauntlet
 
-Run from the repository root. Read the current [review record](../../docs/reviews/2026-10-30-tower-3d-gauntlet.md) and `/tower/gauntlet` before choosing the next improvement. Preserve evidence from failed attempts.
+**Binding design:** [Transformation acceptance](../../docs/superpowers/specs/2026-11-01-infinite-tower-transformation-gauntlet-design.md). This replaces the former micro-improvement success model. The engineering journal, CI checks and existing phase records remain useful, but are not the score.
 
-## Lead-agent prompt
+## The lead-agent prompt
 
-Make Infinite Tower Climb a complete, compelling 3D game: fully developed original characters, animation, scenes, sound and a coherent autonomous experience. Beat the official [ASTRO BOT — Rising Heat gameplay](https://gmedia.playstation.com/is/content/SIEPDC/global_pdc/en/games/pdps/a/as/astro-bot/dlc/video/astro-bot-dlc-05-rising-heat-en-29oct24.mp4) on character finish, visible action, material separation, environmental depth and clarity of the next move. Use [Jusant](https://dont-nod.com/en/games/jusant/) for scale and atmosphere, and [Fall Guys](https://store.epicgames.com/en-US/p/fall-guys) for obstacle readability.
+Make Infinite Tower Climb a genuinely more spectacular, convincing, enjoyable **complete 3D game**, not merely a passing build. Preserve the autonomous climbing fantasy and deterministic gameplay. Judge the **running game** against frozen footage of its previous playable build and official [ASTRO BOT — Rising Heat gameplay](https://gmedia.playstation.com/is/content/SIEPDC/global_pdc/en/games/pdps/a/as/astro-bot/dlc/video/astro-bot-dlc-05-rising-heat-en-29oct24.mp4), with [Jusant](https://dont-nod.com/en/games/jusant/) for climbing weight/scale and [Returnal: Tower of Sisyphus](https://www.playstation.com/en-us/games/returnal/) for high-end action presentation. Don't copy their assets.
 
-Choose the approach. Divide the goal into the smallest independently improvable, independently judgeable pieces. For every important piece, fan out a builder and a separate critic with fresh context. Use subagents and ultracode when available; disclose unavailable capabilities.
+Choose the approach and overhaul whole *playable experiences*—character/world fidelity, movement and camera weight, encounters, progression, sound and a near-invisible HUD. Delegate separate builder and harsh critic subagents with fresh contexts, using ultracode if available. Each critic must inspect actual normal-speed gameplay, compare anonymous A/B footage of identical scenes and identify the biggest **systemic experience gap** to rebuild. Repeat without a fixed round count until the whole game is demonstrably transformed or the user stops.
 
-Critics must inspect the real output, compare directly with the bar, use randomized blind A/B when feasible, identify the biggest remaining gap and send it back to a builder. Inspect actual motion and complete run transitions, not only screenshots or state logs. Keep looping until our output wins or the user stops the run. Missing evidence and ties do not count as wins.
+**Acceptance is not a green CI run or one corrected animation.** Show matching baseline/candidate footage for everyday ascent, high-stakes action and a real outcome/restart. Require at least four of five independent blind critics to prefer the new game on **LOOKS**, **FEELS** and **PLAYS**, separately, with no serious gameplay or performance regressions. Missing recordings, critics, genuine playthroughs or hardware results mean **NOT EVALUATED**, not PASS.
 
-Maintain the simple live progress page at `/tower/gauntlet`: real before/after captures, critic verdicts, fixes and the next gap. Keep each iteration reviewable in git. Preserve the game's authority, replay and public-snapshot contracts.
+Keep `/tower/gauntlet` a simple **experience transformation** page: old vs new real-game evidence, three pillar verdicts, current major transformation, strongest remaining weakness, and secondary engineering history. Keep in-game text minimal. Preserve code integrity, replay safety and truthful operational evidence. **Do not convert minor commits into Gauntlet milestones.**
 
-The progress page is a live journal of agent work; its refresh timer does not independently launch agents or continue a run after the coding session ends.
+## Working agreement
+
+- **Freeze one baseline per transformation.** Do not quietly reset it after patches; pin source SHA, seed, viewport and capture settings.
+- **Work in substantial playable vertical slices.** Use red/green tests and small commits internally, but don't report a new Gauntlet win until viewers would recognize a radically improved game.
+- **Inspect source-bound real gameplay.** A still or an isolated model render cannot validate animation, feel, or fun. Pair full-motion footage and an end-to-end run with independent criticism.
+- **Safety gates are vetoes, never positive quality points.** Tests, accessibility, deterministic replay, GPU performance, privacy, restart and production controls must hold.
+- **Continue the same transformation across scheduled runs.** Report work-in-progress honestly, do not invent independent critics, and do not merge, force-push or deploy without authorization.
+
+The progress page's refresh timer only displays published evidence; it does not run agents or background code.
