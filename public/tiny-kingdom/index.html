@@ -370,6 +370,11 @@ body[data-workday="delivery"] #workday-activity{display:block}
  :is(body[data-workday="live"],body[data-workday="delivery"]) #workday-activity{
   bottom:99px;font-size:11px;max-width:calc(100vw - 20px)}
 }
+/* G100 documentary observation. In real work/delivery modes a compact set
+   of player actions frames the citizen instead of 8 oversized scenery tabs.
+   Village remains the single visible exit to the normal scenic navigation. */
+:is(body[data-workday="live"],body[data-workday="delivery"]) .world-tour [data-scenic]:not([data-scenic="valley"]){display:none}
+body[data-workday="delivery"] #delivery-follow{background:#e8cf9e;color:#183530}
 @media(prefers-reduced-motion:reduce){
  :is(body[data-workday="live"],body[data-workday="delivery"]) .world-tour{scroll-behavior:auto}
 }
@@ -4219,7 +4224,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw){
  // Work remains the visual protagonist: inspect multiple *physical* camera
  // positions, not just orbit angles, and reject roofs between lens and hands.
  const target=[citizen.x,terrain(citizen.x,citizen.z)+1.02,citizen.z],
-  roofs=followCameraRoofs(),working=Boolean(liveWorkday),
+  roofs=followCameraRoofs(),working=Boolean(liveWorkday||(document.body.dataset.workday==='delivery'&&citizen.delivery)),
   normalPitch=working?.24:.76,normalZoom=working?6.2:12.8;
  const candidate=(angle,pitch=normalPitch,zoom=normalZoom)=>{
   const radius=Math.cos(pitch)*zoom,elevation=Math.sin(pitch)*zoom;
@@ -4353,11 +4358,17 @@ function watchDelivery(){
   showToast('No loaded courier yet · villagers are producing supplies');
   return null;
  }
+ // The true handoff is the story: prioritize a citizen actively unloading,
+ // then cycle other bona-fide couriers. Never synthesize a delivery for film.
+ const unloading=eligible.filter(row=>isMarketUnloading(row.person));
  const after=eligible.find(row=>row.index>selectedCitizen);
- const selected=after||eligible[0],p=selected.person;
+ const selected=unloading[0]||after||eligible[0],p=selected.person;
  if(liveWorkday)stopWorkdayWatch();
- selectedCitizen=selected.index;setCitizenFollow(true);updateFollowCamera();
+ selectedCitizen=selected.index;
+ // Set the observation mode BEFORE computing lens geometry. The old order
+ // used the distant survey camera and left actual unloading off-screen.
  document.body.dataset.workday='delivery';
+ setCitizenFollow(true);updateFollowCamera();
  document.getElementById('workday-watch').setAttribute('aria-pressed','false');
  document.getElementById('workday-live').setAttribute('aria-pressed','false');
  setCommandView('world');updateUI();updateDeliveryHUD();
@@ -4546,11 +4557,12 @@ function render(now){requestAnimationFrame(render);
  frameGateTime=now;framesDrawn++;const frameProfileStart=performance.now();
  const dt=Math.min(.18,(now-(timer||now))/1000);timer=now;const atmosphere=skyConditions(state.t);gl.clearColor(...atmosphere.fog,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);if(!frozen){accumulator+=dt*speed*1.35;let ticks=0;while(accumulator>=FIXED_STEP&&ticks++<64){step(FIXED_STEP);accumulator-=FIXED_STEP}if(ticks>=64)accumulator=0;}if(follow){
  const citizen=people[Math.min(selectedCitizen,people.length-1)];
- const reduceMotion=liveWorkday&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
- const ease=reduceMotion?1:liveWorkday?.28:.18;
+ const observingAction=Boolean(liveWorkday||(document.body.dataset.workday==='delivery'&&citizen.delivery));
+ const reduceMotion=observingAction&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const ease=reduceMotion?1:observingAction?.28:.18;
  focusPoint[0]+=(citizen.x-focusPoint[0])*ease;
  focusPoint[1]+=(citizen.z-focusPoint[1])*ease;
- if(liveWorkday){
+ if(observingAction){
   const plan=planCitizenCamera(citizen,yaw);
   const turn=Math.atan2(Math.sin(plan.yaw-yaw),Math.cos(plan.yaw-yaw));
   // At software frame rates, slow easing can leave the worker fully hidden
