@@ -25,18 +25,31 @@ const frameSeries=()=>{
   }
   return observations;
 };
-test('authentic tick-adjacent ascent retracts smoothly across the real upper deck instead of inward teleport',()=>{
+test('authentic upper-rim crossing retracts the visual root into the genuine walking-band after helmet clearance',()=>{
   const entries=frameSeries(),byTick=new Map(entries.map(o=>[o.tick,o]));
   assert.equal(byTick.get(298).checksum,'13941b9e','pin the same real first ledge contact as G40 GPU evidence');
   for(let t=300;t<=308;t++){
     assert.equal(byTick.get(t).state,'airborne');
     assert.equal(byTick.get(t).platform,'f1:p1');
   }
-  assert.ok(byTick.get(300).radius>27.95,'visible root must clear the opaque exterior rim at takeoff');
+  // At real tick 298 the helmet still intersects deck height: keep the
+  // body beyond the physical 27.18 rim while the fingertip holds it.
+  assert.ok(byTick.get(298).radius>27.95,'actual gripped crown must not enter opaque stone');
+  // At tick 300 the player's true *soles* meet that slab's collision top,
+  // but the old radius 28.05 keeps BOTH boots suspended beyond its edge.
+  // Bring the rig root inside the actual 22.4..27.18 walking band only as soles
+  // clear its height, then push off again at tick 301. An actual posed toe
+  // still requires GPU contact review; radius alone proves only placement.
+  assert.ok(byTick.get(299).radius>27.2 && byTick.get(299).radius<28.04,
+    'start weight transfer only after the real fingertip has cleared');
+  assert.ok(byTick.get(300).radius>=26.95 && byTick.get(300).radius<=27.18,
+    'true tick-300 visual root must enter the source-derived upper deck band');
+  assert.ok(byTick.get(301).radius<byTick.get(300).radius,
+    'free-leap extension should move off the rim toward the inside lane');
   const lengths=[];
-  for(let t=301;t<=308;t++) lengths.push(Math.abs(byTick.get(t).radius-byTick.get(t-1).radius));
-  assert.ok(Math.max(...lengths)<1.05,'no >1.05-world-unit one-tick radial snap at the genuine ledge: '+lengths.join(','));
-  for(let t=301;t<=308;t++)assert.ok(byTick.get(t).radius <= byTick.get(t-1).radius+1e-8,
+  for(let t=299;t<=308;t++) lengths.push(Math.abs(byTick.get(t).radius-byTick.get(t-1).radius));
+  assert.ok(Math.max(...lengths)<.85,'no >.85-world-unit one-tick radial snap through actual transition: '+lengths.join(','));
+  for(let t=299;t<=308;t++)assert.ok(byTick.get(t).radius <= byTick.get(t-1).radius+1e-8,
     'release should travel inward progressively while still airborne');
   assert.ok(byTick.get(303).radius>25.3&&byTick.get(303).radius<27.5,'middle of mantle must actually interpolate');
   assert.ok(Math.abs(byTick.get(308).radius-25)<.001,'reach the true 25-radius lane before descent');
@@ -47,10 +60,14 @@ test('release is driven only by immutable actual target height and remains bound
   const player={x:130000,y:434000,halfHeight:14000,halfWidth:9000,vy:10200,
     state:'airborne',health:5,attacking:false};
   const snapshot={player}; const before=JSON.stringify({snapshot,platform});
-  const atLip=approach(snapshot,platform);
+  const atGrip=approach({player:{...player,y:412400}},platform);
+  const atPlant=approach(snapshot,platform);
   const part=approach({player:{...player,y:452000}},platform);
   const clear=approach({player:{...player,y:472400}},platform);
-  assert.ok(atLip>27.95&&part>25&&part<atLip,'release traverses partial radius after feet clear deck');
+  assert.ok(atGrip>27.95&&part>25&&part<atPlant,
+    'release moves from outside the gripped rim, onto the deck and inward before clearing');
+  assert.ok(atPlant>=26.95&&atPlant<=27.18,
+    'at real collision-height crossing the displayed root overlaps solid deck radial band');
   assert.equal(clear,25,'fully clear the platform before the return to normal walking lane');
   assert.equal(approach({player:{...player,state:'standing'}},platform),25);
   assert.equal(approach({player:{...player,vy:-1000}},platform),25);

@@ -87,18 +87,25 @@ function climbApproachRadius(snapshot, platform) {
     || player.x - player.halfWidth * 1.5 > platform.x + platform.width) return 25;
   const height = player.halfHeight * 2;
   const aboveFeet = platform.y + platform.height - (player.y - player.halfHeight);
-  // On the way up, stay outside the solid rim until the boots clear its
-  // walking surface. Once above it, ease the presentation root *back* inside
-  // over more than one authoritative tick. Previously the -.4-height cutoff
-  // jumped directly from radius 28.05 to 25 at the real tick 301->302.
+  // Keep the true fingertip-contact crown outside opaque stone while its
+  // head overlaps the deck. The old approach stayed at radius 28.05 even
+  // *after* the actual boots reached the platform collision top: a floating
+  // step beyond the outer rim in both GPU views. Start the return only once
+  // the helmet is above the slab, and move the visible rig root into the
+  // 22.4..27.18 walking band as the authoritative feet cross its height.
+  // This stages a boot-over-rim opportunity, not proof of sole contact,
+  // a new gameplay collision or
+  // an invented standing state; keep subsequent release bounded and smooth.
   if (aboveFeet > height * 1.65 || aboveFeet < -height * 1.25) return 25;
   if (aboveFeet >= 0) {
     const approach = Math.max(0, Math.min(1, (height * 1.65 - aboveFeet) / (height * .65)));
-    return 25 + 3.05 * approach;
+    const overRim = Math.max(0, Math.min(1, (height * .78 - aboveFeet) / (height * .78)));
+    const weight = overRim * overRim * (3 - 2 * overRim);
+    return 25 + 3.05 * approach - .95 * weight;
   }
   const cleared = Math.min(1, -aboveFeet / (height * 1.25));
   const retreat = cleared * cleared * (3 - 2 * cleared);
-  return 25 + 3.05 * (1 - retreat);
+  return 25 + 2.1 * (1 - retreat);
 }
 
 // Deterministic presentation keyframe driven by the *real* intended platform,
