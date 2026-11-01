@@ -24,6 +24,12 @@ export function planCombatStage(snapshot){
   if(!buckets.has(key))buckets.set(key,[]);
   buckets.get(key).push(u);
  }
+ // The boss owns a genuine large animated silhouette. A lone hero in the
+ // adjacent two tiles stands one short step back INSIDE the same legal cell;
+ // weapon contact still uses these actual visible staged coordinates. This
+ // is optical separation, never authority movement, dodge or attack reach.
+ const warden=snapshot.units.find(u=>u?.kind==='warden'&&u.hp>0&&
+  isGrid(u.x)&&isGrid(u.z)&&snapshot.map[u.z]?.[u.x]==='.');
  for(const group of buckets.values()){
   group.sort((a,b)=>Number(a.faction!=='party')-Number(b.faction!=='party')||
    a.id.localeCompare(b.id,'en'));
@@ -32,9 +38,19 @@ export function planCombatStage(snapshot){
    // Deterministic circular poses; no Math.random, wall time, or per-frame
    // simulation. Every offset fits inside its own tile's footprint.
    const theta=n<2?0:(2*Math.PI*i/n)-Math.PI/2;
-   const dx=Number((Math.cos(theta)*radius).toFixed(4));
-   const dz=Number((Math.sin(theta)*radius).toFixed(4));
+   let dx=Number((Math.cos(theta)*radius).toFixed(4));
+   let dz=Number((Math.sin(theta)*radius).toFixed(4));
    const u=group[i];
+   if(n===1&&u.faction==='party'&&warden&&u.id!==warden.id){
+    const awayX=u.x-warden.x,awayZ=u.z-warden.z;
+    const steps=Math.abs(awayX)+Math.abs(awayZ);
+    if(steps>=1&&steps<=2){
+     const length=Math.hypot(awayX,awayZ);
+     const margin=u.kind==='vanguard'?.22:.18;
+     dx=Number((awayX/length*margin).toFixed(4));
+     dz=Number((awayZ/length*margin).toFixed(4));
+    }
+   }
    placed[u.id]=Object.freeze({x:u.x+dx,z:u.z+dz,dx,dz,crowded:n>1});
   }
  }
