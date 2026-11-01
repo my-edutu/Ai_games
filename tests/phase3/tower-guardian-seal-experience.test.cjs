@@ -85,6 +85,18 @@ test('a genuine living guardian owns a closed, dimensional world-space seal, not
     });
     assert.ok(dynamicMeshes >= 12 && dynamicMeshes <= 26,
       `one bounded gate, source conduit and counterweights (actual meshes: ${dynamicMeshes})`);
+    const masonryBatches = gate.children.filter(child => child.name === 'rigid-material-batch');
+    assert.equal(masonryBatches.length, 2,
+      'guardian portal piers, lintel and rails are consolidated into two shadow-free rigid material draws');
+    for (const batch of masonryBatches) {
+      assert.equal(batch.isMesh, true);
+      assert.equal(batch.castShadow, false);
+      assert.equal(batch.receiveShadow, false);
+    }
+    assert.ok(gate.getObjectByName('GuardianSealWingLeft') &&
+      gate.getObjectByName('GuardianCounterweightRight') &&
+      gate.getObjectByName('GuardianEncounterConduit'),
+      'only inert masonry is batched; all genuine source-driven components stay articulated');
   } finally { world.dispose(); }
 });
 
