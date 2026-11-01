@@ -877,10 +877,23 @@ export function createTowerWorld(){
       const crest=mesh(doorway,geometry('guardian-gate-keystone',()=>new THREE.OctahedronGeometry(.52,0)),
         materials.warning,[0,4.72,.54],[1,.78,.36]);
       crest.name='ObservedGuardianLockCrest';
+      // Paired counterweights drop as the actual guardian takes damage:
+      // original, non-colliding architectural silhouettes beyond the cap.
+      // No shadow multiplication, animation timers or fabricated door events.
+      const counterweights=[];
+      for(const side of [-1,1]){
+        block(doorway,materials.dark,[side*4.3,2.25,-.3],[.34,5.1,.42]).name='GuardianSealCounterweightRail';
+        const carriage=new THREE.Group();
+        carriage.name=side<0?'GuardianCounterweightLeft':'GuardianCounterweightRight';
+        doorway.add(carriage);
+        block(carriage,materials.copper,[side*4.3,3.76,-.02],[.8,1.45,.65]).name='GuardianSealCounterweight';
+        block(carriage,materials.edge,[side*4.3,4.5,.13],[.9,.16,.7]);
+        counterweights.push({side,carriage});
+      }
       frame.traverse(object=>{if(object.isMesh){
         object.userData.ambientDetail=true;object.castShadow=false;object.receiveShadow=false;
       }});
-      guardianGate={frame,wings,crest,progress:null,unlocked:false};
+      guardianGate={frame,wings,crest,counterweights,progress:null,unlocked:false};
     }
     let capMaterials = [];
     if(p.id.endsWith(':cap')){
@@ -1030,6 +1043,11 @@ export function createTowerWorld(){
           }
           gate.unlocked=unlocked;
           for(const {side,wing} of gate.wings)wing.position.x=gate.progress===0?0:side*gate.progress*2.8;
+          for(const {side,carriage} of gate.counterweights){
+            carriage.position.y=-gate.progress*2.35;
+            carriage.rotation.z=side*gate.progress*.07;
+          }
+          gate.crest.scale.x=1+gate.progress*.2;
           gate.crest.material=unlocked?materials.mint:materials.warning;
           gate.crest.rotation.z=gate.progress*Math.PI*.5;
         }

@@ -1264,6 +1264,10 @@ export function createTowerScene(canvas, settings = {}) {
     if (!overview && releaseWeight > 0) {
       destination.y += releaseWeight * 1.4;
       focus.y += releaseWeight * .65;
+      // A source-witnessed glance at the released lock keeps the real climber
+      // in view and never replaces the authoritative camera/floor change.
+      const releaseFocus = passage.focusPoint();
+      if (releaseFocus) focus.lerp(releaseFocus, Math.min(.18, releaseWeight * .15));
     }
     // Reveal the height of the actual terminal position, not a fabricated
     // victory pose: the result/intermission phase owns this quiet camera crane.

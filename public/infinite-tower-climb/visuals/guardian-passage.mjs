@@ -29,9 +29,12 @@ export function createTowerGuardianPassage(THREE) {
   });
   const box = new THREE.BoxGeometry(1, 1, 1);
   const crownGeometry = new THREE.OctahedronGeometry(.48, 0);
+  // On a witnessed decisive guardian hit, a tiny instanced lock fractures.
+  // Decorative fragments never create a collider or change the fixed-step run.
+  const shardGeometry = new THREE.TetrahedronGeometry(.27, 0);
   const openingGeometry = new THREE.TorusGeometry(2.15, .07, 6, 36, Math.PI * 1.75);
   const groundGeometry = new THREE.TorusGeometry(2.8, .045, 4, 36);
-  const ownedGeometry = [box, crownGeometry, openingGeometry, groundGeometry];
+  const ownedGeometry = [box, crownGeometry, openingGeometry, groundGeometry, shardGeometry];
   const ownedMaterials = [stone, bronze, glow];
   const add = (name, geometry, material, position, scale, parent = group) => {
     const object = new THREE.Mesh(geometry, material);
@@ -64,6 +67,34 @@ export function createTowerGuardianPassage(THREE) {
   const ring = add('ClearedPassageGroundWake', groundGeometry, glow,
     [0, .16, .15], [1, 1, 1]);
   ring.rotation.x = Math.PI / 2;
+  const fragments = new THREE.InstancedMesh(shardGeometry, bronze, 8);
+  fragments.name = 'WitnessedLockSplinters';
+  fragments.castShadow = false;
+  fragments.receiveShadow = false;
+  fragments.frustumCulled = false;
+  fragments.visible = false;
+  fragments.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  group.add(fragments);
+  const shardTransform = new THREE.Object3D();
+  const focusPosition = new THREE.Vector3();
+  const clampUnit = v => Math.max(0, Math.min(1, v));
+  function poseFragments(seconds, still) {
+    fragments.visible = !still && seconds < 1.7;
+    if (!fragments.visible) return;
+    const lift = clampUnit(seconds / 1.15), fade = clampUnit((1.7 - seconds) / .65);
+    for (let i = 0; i < 8; i++) {
+      const side = i % 2 ? 1 : -1, tier = Math.floor(i / 2);
+      shardTransform.position.set(side * (.22 + tier * .12 + lift * (.9 + tier * .25)),
+        4.65 + .1 * (tier % 2) + lift * (.45 + tier * .16) - lift * lift * .65,
+        .48 + Math.sin(tier * 2.1) * .12 + lift * .2);
+      shardTransform.rotation.set(lift * (.55 + tier * .2),
+        lift * side * (1.3 + tier * .3), lift * side * 1.9);
+      shardTransform.scale.setScalar(Math.max(.001, .7 * fade * (.8 + tier * .1)));
+      shardTransform.updateMatrix();
+      fragments.setMatrixAt(i, shardTransform.matrix);
+    }
+    fragments.instanceMatrix.needsUpdate = true;
+  }
 
   let runToken = null, floor = null, sourceTick = -1;
   let age = 0, disposed = false;
@@ -71,6 +102,7 @@ export function createTowerGuardianPassage(THREE) {
   const clamp = v => Math.max(0, Math.min(1, v));
   function clear() {
     group.visible = false;
+    fragments.visible = false;
     runToken = null;
     floor = null;
     sourceTick = -1;
@@ -83,6 +115,7 @@ export function createTowerGuardianPassage(THREE) {
       typeof source.runToken !== 'string' || !source.runToken ||
       ![anchor.x, anchor.y, anchor.z, anchor.angle].every(Number.isFinite)) return false;
     group.position.set(anchor.x, anchor.y, anchor.z);
+    focusPosition.set(anchor.x, anchor.y + 2.6, anchor.z);
     group.rotation.y = anchor.angle;
     group.visible = true;
     runToken = source.runToken;
@@ -96,6 +129,7 @@ export function createTowerGuardianPassage(THREE) {
     if (!options.stale) age += Math.min(.5, Math.max(0, Number.isFinite(dt) ? dt : 0));
     if (age >= duration) { clear(); return; }
     const still = options.reducedMotion === true;
+    poseFragments(age, still);
     const opened = still ? 1 : 1 - Math.pow(1 - clamp(age / .95), 3);
     const fade = 1 - .9 * clamp((age - 1.75) / (duration - 1.75));
     for (const { side, wing } of wings) {
@@ -116,10 +150,14 @@ export function createTowerGuardianPassage(THREE) {
   function cameraWeight() {
     return group.visible ? clamp(1 - age / 1.35) : 0;
   }
+  function focusPoint() {
+    return group.visible ? focusPosition : null;
+  }
   function diagnostics() {
     return { sourceBound: true, active: group.visible, runToken,
       floor, sourceTick, ageSeconds: age, durationSeconds: duration,
-      meshes: 12, geometries: ownedGeometry.length, shadows: 0, disposed };
+      meshes: 13, fragmentInstances: 8, fragmentsVisible: fragments.visible,
+      geometries: ownedGeometry.length, shadows: 0, disposed };
   }
   function dispose() {
     if (disposed) return;
@@ -129,5 +167,5 @@ export function createTowerGuardianPassage(THREE) {
     for (const geometry of ownedGeometry) geometry.dispose();
     for (const material of ownedMaterials) material.dispose();
   }
-  return { group, begin, update, clear, cameraWeight, diagnostics, dispose };
+  return { group, begin, update, clear, cameraWeight, focusPoint, diagnostics, dispose };
 }

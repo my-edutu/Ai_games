@@ -170,6 +170,12 @@ export function createTowerAudio() {
         witnessedSameFloorDefeat = true;
       observedGuardians.set(enemy.id,{active:!!enemy.active,health:enemy.health});
     }
+    if(witnessedGuardianPass){
+      // The mechanical release is audible only for a genuine next-floor
+      // guardian transition and remains subordinate to muted playback.
+      texture(190,.26,.07);
+      tone(104,42,.28,'triangle',.055);
+    }
     if(witnessedSameFloorDefeat || witnessedGuardianPass){
       texture(550,.20,.065);
       tone(220,330,.22,'triangle',.064);

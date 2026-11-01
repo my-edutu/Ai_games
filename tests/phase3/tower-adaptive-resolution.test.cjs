@@ -60,6 +60,7 @@ test('the real Tower scene uses adaptive backing resolution without downgrading 
   const coordinates = await import(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/coordinates.mjs')).href);
   const { createRenderProgress } = await import(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/render-progress.mjs')).href);
   const { createTowerFinale } = await import(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/finale.mjs')).href);
+  const { observedGuardianPassage, createTowerGuardianPassage } = await import(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/guardian-passage.mjs')).href);
   let now = 0, duration = 900, scheduled = null, renderer;
   class Renderer {
     constructor() { renderer = this; this.pixelRatios = []; this.shadowMap = {}; this.xr = { enabled: false }; this.info = { render: {}, memory: {}, programs: [] }; }
@@ -69,7 +70,7 @@ test('the real Tower scene uses adaptive backing resolution without downgrading 
   }
   const actor = () => ({ group: new real.Group(), animate() {}, dispose() {} });
   const context = { THREE: { ...real, WebGLRenderer: Renderer, PMREMGenerator: class { fromEquirectangular() { throw new Error('fixture reflection unavailable'); } dispose() {} } },
-    ...coordinates, createRenderProgress, createTowerFinale, snapshotVelocity: () => 0, createClimber: actor, createEnemy: actor,
+    ...coordinates, createRenderProgress, createTowerFinale, observedGuardianPassage, createTowerGuardianPassage, snapshotVelocity: () => 0, createClimber: actor, createEnemy: actor,
     createTowerWorld: () => ({ group: new real.Group(), update() {}, revealGuardianSightlines() {}, diagnostics() { return {}; }, dispose() {} }),
     THEMES: { foundry: { sun: 0xffdfbc, ambient: 0xe8e0d3, fog: 0x99796d } },
     innerWidth: 1920, devicePixelRatio: 1.5, performance: { now: () => now },

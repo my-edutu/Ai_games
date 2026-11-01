@@ -65,7 +65,15 @@ test('the real event creates a separated 3D bronze passage with bounded resource
     assert.equal(left.position.x, -1.46);
     assert.equal(right.position.x, 1.46);
     assert.equal(crest.isMesh, true);
+    const shards=effect.group.getObjectByName('WitnessedLockSplinters');
+    assert.ok(shards?.isInstancedMesh, 'source-bound lock debris uses a single reusable draw');
+    assert.equal(shards.count,8);
+    const first=new THREE.Matrix4(),opened=new THREE.Matrix4();
+    shards.getMatrixAt(0,first);
     effect.update(.5);
+    shards.getMatrixAt(0,opened);
+    assert.notDeepEqual(first.elements,opened.elements,
+      'the physical splinters advance only through witnessed presentation time');
     assert.ok(left.position.x < -3 && right.position.x > 3,
       'genuine floor advance must drive a large, visible mechanical opening');
     assert.equal(effect.diagnostics().sourceTick, next.tick);
@@ -79,9 +87,11 @@ test('the real event creates a separated 3D bronze passage with bounded resource
       assert.equal(object.receiveShadow, false);
       assert.equal(object.userData.collider, undefined);
     });
-    assert.equal(meshCount, 12);
+    assert.equal(meshCount, 13);
+    assert.equal(effect.diagnostics().fragmentInstances, 8);
+    assert.ok(effect.focusPoint()?.y > anchor.y + 2);
     assert.equal(effect.diagnostics().shadows, 0);
-    effect.update(2.5);
+    for(let step=0;step<11;step++)effect.update(.25);
     assert.equal(effect.group.visible, false, 'the passage retires without a run/authority mutation');
     assert.equal(effect.diagnostics().runToken, null);
     assert.equal(effect.cameraWeight(), 0);
@@ -103,6 +113,8 @@ test('stale transport and reduced motion cannot animate fake progress; context r
   const left = effect.group.getObjectByName('ClearedPassageLeftLeaf');
   const x = left.position.x;
   assert.ok(x < -3.4, 'motion preference shows a stable open shape, not a closed/ambiguous gate');
+  assert.equal(effect.group.getObjectByName('WitnessedLockSplinters').visible,false,
+    'reduced motion does not animate flying debris');
   effect.update(.2, { reducedMotion: true });
   assert.equal(left.position.x, x);
   assert.equal(effect.diagnostics().ageSeconds, .30000000000000004);
@@ -112,7 +124,7 @@ test('stale transport and reduced motion cannot animate fake progress; context r
   effect.dispose();
   assert.equal(effect.diagnostics().disposed, true);
   assert.equal(effect.group.children.length, 0);
-  assert.equal(new Set(disposed).size, 4, 'all owned geometries are released');
+  assert.equal(new Set(disposed).size, 5, 'all owned geometries including instanced fragments are released');
 });
 
 test('the actual scene consumes source transitions and owns passage lifecycle on recovery', () => {
