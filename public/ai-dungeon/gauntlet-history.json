@@ -1682,6 +1682,60 @@
         "documentation": "docs/reviews/AI_DUNGEON_GAUNTLET_ROUND_050.md"
       },
       "nextLargestGap": "Inspect genuine art-focused browser screenshots/video, harden any floating/colliding PBR fittings and scene occlusion, then replace stylised source GLBs with original medium/high-poly hero/enemy sculpting and believable weapon-foot contact. Measure draw-call and GPU costs before parity claims."
+    },
+    {
+      "round": 51,
+      "at": "2026-11-01",
+      "commit": "f9658fbfc906c189e794a0547ab060bf6a1495a8",
+      "status": "CUTAWAY UNDER-WALL TEXTURED INFILL AND COMPACT MAIN-WALL RUBBLE CODE VALIDATED; 4 EXPECTED TEST-FIRST RED, 133/133 FOUNDATION, 18/18 PRESENTATION, 61/61 REAL CHROMIUM, 24x900 SEEDED ZERO REPLAY FAILURES; ORIGINAL BLACK CAPS STILL VISIBLE; VISUAL ART BAR NOT MET",
+      "sampleSeeds": 24,
+      "ticksPerSeed": 900,
+      "highestFloor": 9,
+      "determinismFailures": 0,
+      "visualVerdict": "Genuine seed-matched round-50/round-51 raw-WebGL screenshots inspected. Some floor gaps are textured and sightline wall mass is reduced, but multiple dark 1x1 crown tiles remain, overlapping stylized heroes persist, and no blinded independent improvement is proven. Diablo IV reference parity NOT MET.",
+      "evidenceMetrics": {
+        "testFirstExpectedFailuresObserved": 4,
+        "redFoundationExistingPassed": 129,
+        "greenFoundationTests": 133,
+        "greenPresentationTests": 18,
+        "realChromiumTestsPassed": 61,
+        "realChromiumShards": [
+          21,
+          20,
+          20
+        ],
+        "separateVisualBrowserTestsPassed": 10,
+        "floorBacking": "one original stone floor batch, bounded interior solid cells, exact instance metric",
+        "sightlineFootprintTiles": 0.36,
+        "mainWallCutawayHeightMeters": 0.16,
+        "originalSightlineFootprintTiles": 1.015,
+        "newExternalAssets": 0,
+        "authorityChanged": false,
+        "independentFreshCritic": false,
+        "matchedBlindAB": false,
+        "actualHardwareGpuP95": false,
+        "longSoak": false,
+        "productionReady": false
+      },
+      "verification": {
+        "testsCommit": "7c4babd057c735c3f55fc76bdc9876b0630170c6",
+        "testRoutingCommit": "a03490a504d7959c245489a175e9d5b6bdff40cc",
+        "redRun": 41275372784,
+        "redAuthorityJob": 124756431958,
+        "planCommit": "9e7c567ad397a8ae79f4ae5dafef25c352b7a473",
+        "floorCommit": "28af4ac2bd2f0e53bc4c7d9a57c4bf66e18968f7",
+        "wallCommit": "5876781967bf367a5518ee626664eee2535a453b",
+        "routeCommit": "e19348e061b4bfb7245bd8144b370d324c3db6ba",
+        "browserTestCommit": "f9658fbfc906c189e794a0547ab060bf6a1495a8",
+        "exactCodeFoundationRun": 41275555886,
+        "exactCodeVisualRun": 41275555909,
+        "actualScreenshotArtifact": 13071142432,
+        "baselineScreenshotArtifact": 13070201353,
+        "sharedCatalogueCi": "NOT VERIFIED at exact-code checkpoint",
+        "critic": "Author harsh self-review; separate worker/ultracode unavailable",
+        "documentation": "docs/reviews/AI_DUNGEON_GAUNTLET_ROUND_051.md"
+      },
+      "nextLargestGap": "Actual real-WebGL 1x1 black parapet/foreground cap squares persist despite better floor backing; identify source mesh with a real ray/instance probe, fix with independent visual evidence, then address overlapping cartoon anatomy, weapon contact and severe software-raster stalls. Do not merge."
     }
   ]
 }
