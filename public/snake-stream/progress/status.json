@@ -1,14 +1,14 @@
 {
   "updatedAt": "2026-11-01",
-  "status": "R46 SINGLE-PASS CACHE CANDIDATE · R45 CORRECTED 32/34 · STRICT 10/17 FAIL",
-  "detail": "R45 corrected-head focused 41269406971 was 32/34; historical R39 baseline still loaded later R45 serpent on one WebGL arm (now source-isolated); desktop strict actual 10 render submissions in 1016.5ms <17 while 62 RAF callbacks are not renders/display presents. General 41269406922 failed broader browser capture. R46 cache/live same-scene renderer candidate with true WebGL prior/current pixel parity and 2-to-1 API-pass test pending exact-head CI. Reference Snake Pass visual/motion bar, sustained real actual submissions, real-device present FPS, independent critic, soak/R5 OPEN. Draft/unmerged/undeployed.",
+  "status": "R46 REAL WEBGL PIXEL PARITY PASS · 2→1 CACHE API PASSES · STRICT 14/17 FAIL",
+  "detail": "Round46 exact-head focused Actions 41271073291: 31/35. R46 actual Chromium frozen-public overview/detail screenshots byte-identical against exact prior, no GL errors; 2→1 renderer.render API passes per submitted cached frame (not actual FPS or displayed presents). R39 historic test passed. Strict desktop 14 actual submissions in 1006.8ms <17 FAILED despite 61 RAF callbacks. Three additional R38/R43 historical SHA and diagnostic anchor failures corrected in next test-only head; general 41271073375 failed matching three Node checks. No causal FPS improvement or Snake Pass quality win established; real-device output, independent critic, soak/R5 remain open. Draft/unmerged/undeployed.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Historical thumbnail only. R45 actual frozen-public Chromium/WebGL before/after screenshots, two cameras: https://github.com/my-edutu/Ai_games/actions/runs/41268754120/artifacts/13067389468 . Neither synthetic capture nor WebM is display-present FPS.",
   "reviews": [
     {
       "area": "Round 46 · one-pass cached color/depth with original dynamic serpent and water",
-      "verdict": "UNVERIFIED PRODUCTION CANDIDATE · SOURCE SHA + TRUE CHROMIUM A/B STAGED · PRIOR STRICT 10/17 FAIL",
-      "gap": "Verify exact WebGL output equivalence including cached depth/occlusion in overview and detail, unchanged resources, and two-to-one renderer API calls per actual draw. Do not confuse call reduction with submitted/display FPS. Full reference craft, independent critique, sustained gate/device/soak/R5 still open."
+      "verdict": "R46 VERIFIED GENUINE WEBGL PIXEL PARITY BOTH CAMERA MODES; CACHED API PASSES 2→1; FULL CI UNGREEN AND STRICT 14/17 FAIL",
+      "gap": "Second-head verification of corrected R38/R43 archival SHA and diagnostic profiler injection pending. ≥17 actual submits gate failed (14/1006.8ms). GPU performance causality, real device present, independent visual approval, Snake Pass quality and long soak/R5 open."
     },
     {
       "area": "Round 45 · existing original forked tongue responds to nearby public fruit",

@@ -1,5 +1,6 @@
 'use strict';
 const {test,expect}=require('@playwright/test');
+const {restorePreR46}=require('../helpers/snake-r46-cache-archive.cjs');
 const fs=require('node:fs');
 const path=require('node:path');
 const crypto=require('node:crypto');
@@ -41,7 +42,8 @@ function predecessor(source){
   const call=/^.*\/\/ BEGIN R38 CONTACT SUBRANGE\n[\s\S]*?^.*\/\/ END R38 CONTACT SUBRANGE\n/gm;
   expect((previous.match(call)||[]).length).toBe(1);
   previous=previous.replace(call,oldLoop);
-  expect(blob(stripLaterR43(previous))).toBe('14d5f7dc3e344e9850ac325b768928eba9546c60');
+  // R38 historical source SHA excludes newer R46 only; the actual A/B renders retain R46 in BOTH arms.
+  expect(blob(restorePreR46(stripLaterR43(previous)))).toBe('14d5f7dc3e344e9850ac325b768928eba9546c60');
   return previous;
 }
 test('actual Chromium WebGL retains exact shadows and gameplay on smaller grounded contact uploads',async({browser,baseURL})=>{

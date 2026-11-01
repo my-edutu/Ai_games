@@ -1,5 +1,6 @@
 'use strict';
 const {test}=require('node:test');
+const {restorePreR46}=require('../helpers/snake-r46-cache-archive.cjs');
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),crypto=require('node:crypto');
 const sourcePath=path.resolve(__dirname,'../../public/snake-stream/renderer.mjs');
@@ -15,7 +16,7 @@ function predecessor(source){
 }
 test('R43 exact prior renderer and original low-water mip chain remain bounded and reversible',async()=>{
   const source=fs.readFileSync(sourcePath,'utf8'),previous=predecessor(source);
-  assert.equal(blob(previous),'dce31f68dcc0a28b5792a502f6575e7939f6289d','exact prior GitHub renderer blob');
+  assert.equal(blob(restorePreR46(previous)),'dce31f68dcc0a28b5792a502f6575e7939f6289d','exact R43 historical Git blob before later R46');
   const THREE=await import('three');
   const {createWorld}=await import('../../public/snake-stream/world.mjs');
   const context=vm.createContext({});

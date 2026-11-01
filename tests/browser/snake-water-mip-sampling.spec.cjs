@@ -1,5 +1,6 @@
 'use strict';
 const {test,expect}=require('@playwright/test');
+const {restorePreR46}=require('../helpers/snake-r46-cache-archive.cjs');
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 test.use({trace:'off',video:'off',launchOptions:{args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']}});
 const root=path.resolve(__dirname,'../..');
@@ -19,7 +20,8 @@ test('R43 true Chromium WebGL prior/current low-tier original lake, frozen-publi
   test.setTimeout(150000);
   const source=fs.readFileSync(path.join(root,'public/snake-stream/renderer.mjs'),'utf8');
   const old=predecessor(source);
-  expect(blob(old)).toBe('dce31f68dcc0a28b5792a502f6575e7939f6289d');
+  // Verify actual historical R43 blob by removing only later R46; compare both visuals with R46 unchanged.
+  expect(blob(restorePreR46(old))).toBe('dce31f68dcc0a28b5792a502f6575e7939f6289d');
   const frame=JSON.parse(fs.readFileSync(path.join(root,'docs/reviews/snake-gauntlet/round-4-public-frame.json'),'utf8'));
   frame.snapshot.dangerLevel=0; // frozen SYNTHETIC public frame only, not a production override
   const frozen=JSON.stringify(frame),anchor='    const time = timestamp / 1000;';

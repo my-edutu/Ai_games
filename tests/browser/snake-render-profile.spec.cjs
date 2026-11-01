@@ -185,7 +185,9 @@ function buildDiagnosticSource(original, { lockScale = true } = {}) {
     try { return submitRender(...args); }
     finally { window.__snakeRenderProfiler?.recordSubmission(performance.now() - started); }
   };`);
-  source = replaceOnce(source, '      camera.layers.set(DYNAMIC_LAYER);\n      renderer.render(scene, camera);', `      camera.layers.set(DYNAMIC_LAYER);
+  source = replaceOnce(source, '      camera.layers.set(DYNAMIC_LAYER);\n      liveCacheQuad.visible = true;\n      renderer.render(scene, camera);', `      camera.layers.set(DYNAMIC_LAYER);
+      // Diagnostic only: keep original R46 cached quad and depth intact.
+      liveCacheQuad.visible = true;
       const water = world.group.getObjectByName('Flowing water');
       if (window.__snakeProfileDrawMode === 'omit-water' && !water?.isMesh) throw new Error('Diagnostic Flowing water mesh was not found');
       const oldWater = water?.visible, oldSerpent = serpent.group.visible, oldContacts = contacts.visible;

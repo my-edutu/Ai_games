@@ -1,5 +1,6 @@
 'use strict';
 const {test}=require('node:test');
+const {restorePreR46}=require('../helpers/snake-r46-cache-archive.cjs');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
@@ -41,7 +42,7 @@ function predecessor(source){
   const call=/^.*\/\/ BEGIN R38 CONTACT SUBRANGE\n[\s\S]*?^.*\/\/ END R38 CONTACT SUBRANGE\n/gm;
   assert.equal((content.match(call)||[]).length,1);
   content=content.replace(call,oldLoop);
-  assert.equal(blob(stripLaterR43(content)),'14d5f7dc3e344e9850ac325b768928eba9546c60','exact verified predecessor renderer Git blob');
+  assert.equal(blob(restorePreR46(stripLaterR43(content))),'14d5f7dc3e344e9850ac325b768928eba9546c60','exact R38 Git blob before later R46 composition');
   return content;
 }
 test('Round38 actual Three.js contact matrices match the exact predecessor while uploads stay within the used prefix',async()=>{
