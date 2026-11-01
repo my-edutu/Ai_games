@@ -42,7 +42,7 @@ test('real Three.js world uses the under-wall textured batch and compact sightli
  assert.match(env,/import \{planCutawayFloorBacking(?:,planCutawayCapTransform)?\} from '\/dungeon\/cutaway-floor-plan\.js'/);
  assert.match(env,/planCutawayFloorBacking\(map,floor\)/);
  assert.match(env,/cutawayFloorBackings:/);
- assert.match(app,/import \{planCutawayWallTransform\} from '\/dungeon\/cutaway-floor-plan\.js'/);
+ assert.match(app,/import \{planCutawayWallTransform(?:,planCutawayFoundationTransform,planCutawayParapetTransform)?\} from '\/dungeon\/cutaway-floor-plan\.js'/);
  assert.match(app,/planCutawayWallTransform\(reveal,/);
  assert.match(app,/cachedScale\.set\(cutaway\.footprint,cutaway\.height,cutaway\.footprint\)/);
  assert.ok(host.includes("['/dungeon/cutaway-floor-plan.js','cutaway-floor-plan.js']"));
