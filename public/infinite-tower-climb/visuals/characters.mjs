@@ -332,7 +332,7 @@ export function createClimber() {
     for(let i=0;i<2;i++){
       const step=i?counter:gait,leg=legs[i],arm=arms[i];
       leg.upper.rotation.set(step*.66*speed,0,0);leg.lower.rotation.set(Math.max(0,-step)*.85*speed,0,0);leg.foot.rotation.x=-Math.max(0,step)*.2*speed;
-      arm.upper.rotation.set(-step*.6*speed,0,(i?1:-1)*.09);arm.lower.rotation.x=-.18-Math.max(0,step)*.24*speed;
+      arm.upper.rotation.set(-step*.6*speed,0,(i?1:-1)*.09);arm.lower.rotation.set(-.18-Math.max(0,step)*.24*speed,0,0);
     }
     if(!airborne&&!dash&&!hurt&&!dead){
       body.position.y+=reducedMotion?0:Math.abs(gait)*.045*speed;
