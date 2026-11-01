@@ -59,7 +59,13 @@ test('a genuine living guardian owns a closed, dimensional world-space seal, not
     assert.equal(right.position.x, 0);
     assert.ok(crest.isMesh && crest.geometry.attributes.position.count >= 6,
       'the crest is physical faceted geometry, not a flat status decal');
-    assert.ok(gate.position.z < 22.4, 'the door stays behind the collision-aligned traversal band');
+    const inset = named(world.group, 'GuardianGateInset');
+    assert.ok(inset, 'the 3D gate has its own inward architectural mounting');
+    inset.updateWorldMatrix(true, false);
+    const THREE = await import(threeUrl);
+    const anchor = inset.getWorldPosition(new THREE.Vector3());
+    assert.ok(Math.hypot(anchor.x, anchor.z) < 22.4,
+      'the physical gate is inward of the real walkable deck, not a fake collider');
     assert.equal(world.diagnostics().guardianGates[0].unlocked, false);
     assert.equal(JSON.stringify(sourceFrame), before, '3D cannot edit authoritative snapshots');
     let dynamicMeshes = 0;
