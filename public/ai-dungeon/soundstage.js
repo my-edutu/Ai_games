@@ -144,10 +144,24 @@ export function createDungeonSoundstage(ctx){
  function enable(){
   if(disposed||ctx.state!=='running'||!start())return false;
   enabled=true;
+  if(master)automate(master.gain,MASTER_GAIN,.035);
   if(sceneMood){const old=sceneMood;sceneMood=null;setMood(old)}
   return true;
  }
- function disable(){enabled=false;cleanup();}
+ function revokeCapture(){
+  if(!capture)return;
+  try{master?.disconnect(capture)}catch{}
+  try{capture.disconnect?.()}catch{}
+  for(const track of capture.stream?.getAudioTracks?.()||[])try{track.stop?.()}catch{}
+  capture=null;
+ }
+ function disable(){
+  enabled=false;
+  for(const voice of active)stopAndDisconnect(voice);
+  active.length=0;
+  if(master)automate(master.gain,0,.015);
+  revokeCapture();
+ }
  function acceptSnapshot(s){
   if(!s||disposed)return;
   const mood=planSoundMood(s);setMood(mood);
@@ -188,9 +202,7 @@ export function createDungeonSoundstage(ctx){
  }
  function dispose(){
   if(disposed)return;
-  enabled=false;disposed=true;
-  for(const voice of active)stopAndDisconnect(voice);
-  active.length=0;
+  disable();disposed=true;
   for(const bed of beds)try{bed.oscillator.stop()}catch{}
   for(const node of nodes)try{node.disconnect()}catch{}
   nodes.length=beds.length=0;cooldown.clear();previous=null;

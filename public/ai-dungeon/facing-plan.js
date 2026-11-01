@@ -26,7 +26,8 @@ export function planCombatFacing(unit,units,map){
   (other.hp>0||(other.hp===0&&other.action==='hurt'&&other.actionTick===unit.actionTick)))
  .sort((a,b)=>(Math.abs(a.x-unit.x)+Math.abs(a.z-unit.z))-(Math.abs(b.x-unit.x)+Math.abs(b.z-unit.z))||
   String(a.id).localeCompare(String(b.id),'en'));
- const target=opponents[0];
+ // The real target ID forbids staging a hit on a different enemy.
+ const target=typeof unit.targetId==='string'?opponents.find(u=>u.id===unit.targetId):opponents[0];
  if(!target||!occupied(map,target))return null;
  const distance=Math.abs(target.x-unit.x)+Math.abs(target.z-unit.z);
  if(distance<1||distance>range||!clearAxis(map,unit,target))return null;
