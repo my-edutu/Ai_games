@@ -1,4 +1,5 @@
 'use strict';
+const {stripR52Canopy} = require('../helpers/snake-r52-canopy-archive.cjs');
 const {stripR50Stone} = require('../helpers/snake-stone-archive.cjs');
 const { stripR44Fruit } = require('../helpers/snake-fruit-archive.cjs');
 const { restorePreR42Water, applyR42Water } = require('../helpers/snake-water-flow-archive.cjs');
@@ -17,7 +18,7 @@ test('R41 real WebGL original 3D courtyard A/B: same public frame, overview, det
   const a=src.indexOf(begin),b=src.indexOf(end);
   expect(a).toBeGreaterThan(-1);expect(b).toBeGreaterThan(a);
   const old=src.slice(0,a)+src.slice(b+end.length);
-  expect(blob(stripR50Stone(restorePreR42Water(stripR44Fruit(old))))).toBe('6a4c53673b8ef922ce2363f7c899760c06358b5f');
+  expect(blob(stripR52Canopy(stripR50Stone(restorePreR42Water(stripR44Fruit(old)))))).toBe('6a4c53673b8ef922ce2363f7c899760c06358b5f');
   const frame=JSON.parse(fs.readFileSync(path.join(repo,'docs/reviews/snake-gauntlet/round-4-public-frame.json'),'utf8'));
   const immutable=JSON.stringify(frame),captured={};
   for(const mode of ['overview','detail']){

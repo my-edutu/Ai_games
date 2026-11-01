@@ -1,10 +1,15 @@
 {
   "updatedAt": "2026-11-01",
-  "status": "R51 BOUNDED RASTER RESCUE CANDIDATE · R50 EXACT-HEAD 38/39 BROWSER, 15/17 REAL SUBMISSIONS FAIL · PERFORMANCE AND VISUAL BAR OPEN",
-  "detail": "R51 candidate: one post-first-scaling 3-render warmup + 8-submitted-interval median can refine already-low resolution once to existing 0.4 floor only under sustained >48ms pressure; unchanged 17 actual renderer submissions/1s hard gate, queue depth, water, serpent and authority. Source controlled Three/VM tests and true Chromium frozen-public 960x640/portrait screenshot checks pending CI; NO R51 performance or visual win claimed. Parent exact-head R50 focused Actions 41279575228 passed 38/39, strict 15 real draws/1003.0ms vs minimum17, RAF61 not renders or display presents. Runner profile frozen low 0.4 41 draws/1307.7ms is diagnostic, not the live gate. Broad general run 41279575182 was still in progress when inspected. R50 real artifacts 13073320129 and metrics 13072861801. Snake Pass/ASTRO BOT visual bar, critic, physical presents, repeat ≥17, long soak and R5 OPEN; draft, no merge/deploy.",
+  "status": "R52 ORIGINAL CANOPY SHADE CANDIDATE · R51 REAL 39/40 BROWSER · HARD 7/17 SUBMISSIONS FAIL · REFERENCE BAR OPEN",
+  "detail": "New R52 existing-atlas grove shadow craft and historical SHA isolation plus exact-source Node/WebGL source-controlled tests published; R52 actual captures/CI pending, no visual win claimed. R51 head Actions 41281372959 actual Chromium 39/40 including R51 raster evidence, strict default 7 real submissions/1015.9ms < required17, 61 RAF not renderer or device presents; GPU queue pending2, max fence latency3049.9ms despite 0.4 raster. General 41281373002 cancelled. R51 artifacts: image 13074090436, metrics 13074130370, motion 13073423207. Reference Snake Pass and ASTRO BOT craft, reliable real pacing, independent critic, physical presents, long soak and R5 OPEN. PR draft, never merge/deploy.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "R51 new screenshot and performance evidence PENDING. Last inspected R50 real Chromium A/B: subtle 2.77% detail pixel changes, not commercial craft. Strict unchanged live default 15 actual renderer submissions/1003.0ms <17; RAF 61 is not real/display FPS.",
+  "latestCaption": "R52 original grove canopy 3D screenshots PENDING; last verified R51 focused 39/40 real Chromium, only strict live 7/17 real submissions fail. Fixed Snake Pass/ASTRO BOT whole-game quality still LOSE.",
   "reviews": [
+    {
+      "area": "Round 52 · original grove canopy material depth",
+      "verdict": "CANDIDATE · NEW SOURCE CONTROLLED WEBGL AND NODE TESTS PENDING · R51 HEAD 39/40, STRICT 7/17 FAIL",
+      "gap": "One authored existing-atlas broken foliage shade across rear inner courtyard, 1.9-cell perimeter intact, 0 new GPU assets/passes. Must inspect actual 960x640 overview/detail and 390x844 portrait PNGs, contrast and geometry budgets; no win inferred. R51 failed 7 actual renderer submissions/1015.9ms vs unchanged >=17, 61 RAF callbacks are not FPS; performance, full Snake Pass/ASTRO BOT craft, independent critic, physical presents, R5/soak OPEN."
+    },
     {
       "area": "Round 51 · one bounded post-scale throughput rescue",
       "verdict": "CANDIDATE · NO R51 CI OR WEBGL EVIDENCE YET · PARENT R50 STRICT 15/17 FAIL",

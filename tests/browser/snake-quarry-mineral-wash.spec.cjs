@@ -1,4 +1,5 @@
 'use strict';
+const {stripR52Canopy} = require('../helpers/snake-r52-canopy-archive.cjs');
 const {test, expect} = require('@playwright/test');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -17,7 +18,7 @@ test('R50 genuine Chromium/WebGL quarry-patina A/B: identical public game, two c
   test.setTimeout(145000);
   const source = fs.readFileSync(path.join(root,'public/snake-stream/world.mjs'),'utf8');
   const prior = stripR50Stone(source);
-  expect(gitBlob(prior)).toBe('0be8970978500ff369bfd0c132ff42aec4bf913b');
+  expect(gitBlob(stripR52Canopy(prior))).toBe('0be8970978500ff369bfd0c132ff42aec4bf913b');
   const frame = JSON.parse(fs.readFileSync(path.join(root,'docs/reviews/snake-gauntlet/round-4-public-frame.json'),'utf8'));
   const frozen = JSON.stringify(frame);
   const results = [];

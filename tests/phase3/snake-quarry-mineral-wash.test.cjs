@@ -1,4 +1,5 @@
 'use strict';
+const {stripR52Canopy} = require('../helpers/snake-r52-canopy-archive.cjs');
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -15,7 +16,7 @@ function court(world) {
 test('R50 quarry mineral weathering has exact prior source, legible center, unchanged public truth and bounded GPU assets', async () => {
   const source = fs.readFileSync(sourcePath, 'utf8');
   const beforeSource = stripR50Stone(source);
-  assert.equal(blob(beforeSource), '0be8970978500ff369bfd0c132ff42aec4bf913b', 'exact verified original GitHub world blob');
+  assert.equal(blob(stripR52Canopy(beforeSource)), '0be8970978500ff369bfd0c132ff42aec4bf913b', 'exact verified original GitHub world blob');
   assert.equal(reapplyR50Stone(beforeSource, source), source, 'original atlas block is precisely reversible');
   const THREE = await import('three');
   const {createWorld: previousWorld} = await import('data:text/javascript;base64,' + Buffer.from(beforeSource).toString('base64'));

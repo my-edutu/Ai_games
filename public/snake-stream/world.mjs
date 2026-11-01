@@ -297,6 +297,35 @@ export function createWorld(THREE, {width, height}) {
         }
       }
       // END R50 ORIGINAL QUARRY MINERAL WASH
+      // BEGIN R52 GROVE CANOPY SHADE
+      // Original broken tree shade is baked once into the existing courtyard
+      // atlas, not drawn every frame. Interior-only: game cells, landmarks,
+      // public hazards, collectible and portal colors remain visible.
+      const shadeInterior = fade(1.9, 3.1, border);
+      if (shadeInterior > 0) {
+        // Both existing rear groves cast broad, offset botanical shadow pools.
+        // The two centers follow the authored exterior trees, not AI state.
+        const leftX = (gx - 4.1) / 5.1, leftZ = (gz - 3.9) / 4.8;
+        const rightX = (gx - (width - 4)) / 4.8, rightZ = (gz - 3.5) / 4.7;
+        const leftCrown = 1 - fade(.17, 1.58, leftX * leftX + leftZ * leftZ);
+        const rightCrown = 1 - fade(.14, 1.50, rightX * rightX + rightZ * rightZ);
+        const crown = Math.max(leftCrown, rightCrown);
+        if (crown > 0) {
+          const leafBreakup = smoothNoise(gx * 1.24 + 32, gz * 1.13 + 71);
+          const leafCover = fade(.27, .73,
+            cloud * .36 + mineral * .28 + leafBreakup * .36);
+          // The smaller garden may not be completely shaded.
+          const smallBoard = Math.min(1, Math.min(width, height) / 12);
+          const coverage = Math.min(.42,
+            shadeInterior * crown * (.17 + .34 * leafCover) * smallBoard);
+          if (coverage > .002) {
+            data[i] = Math.round(data[i] * (1 - coverage) + 70 * coverage);
+            data[i + 1] = Math.round(data[i + 1] * (1 - coverage) + 99 * coverage);
+            data[i + 2] = Math.round(data[i + 2] * (1 - coverage) + 70 * coverage);
+          }
+        }
+      }
+      // END R52 GROVE CANOPY SHADE
     }
     // Sparse hairline fractures stay subordinate to the broad slab treatment.
     for(let c=0;c<38;c++){

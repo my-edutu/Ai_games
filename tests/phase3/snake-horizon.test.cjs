@@ -1,4 +1,5 @@
 'use strict';
+const {stripR52Canopy} = require('../helpers/snake-r52-canopy-archive.cjs');
 const { stripR44Fruit } = require('../helpers/snake-fruit-archive.cjs');
 const { stripR50Stone } = require('../helpers/snake-stone-archive.cjs');
 const test = require('node:test');
@@ -46,7 +47,7 @@ test('horizon and sculpt preserve the exact historic court baseline and all othe
   const { restorePreR42Water } = require('../helpers/snake-water-flow-archive.cjs');
   // Only archive the five later R42 water-shader edits for this R31/R32
   // historical SHA; the live world below still uses the new shader.
-  const latestWithDrainage = stripR50Stone(restorePreR42Water(stripR44Fruit(fs.readFileSync(path.resolve(__dirname, '../../public/snake-stream/world.mjs'), 'utf8'))));
+  const latestWithDrainage = stripR52Canopy(stripR50Stone(restorePreR42Water(stripR44Fruit(fs.readFileSync(path.resolve(__dirname, '../../public/snake-stream/world.mjs'), 'utf8')))));
   const r41Begin = '      // BEGIN R41 COURTYARD ROOT CHANNELS\n';
   const r41End = '      // END R41 COURTYARD ROOT CHANNELS\n';
   const r41A = latestWithDrainage.indexOf(r41Begin), r41B = latestWithDrainage.indexOf(r41End);
