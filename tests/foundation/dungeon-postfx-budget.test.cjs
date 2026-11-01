@@ -96,3 +96,43 @@ test('running renderer avoids eager FX allocation on known software WebGL but ke
  assert.match(app,/if\(!composer\)initializePostFX\(\)/);
  assert.match(app,/softwareWebGL,/);
 });
+
+
+test('foreground frame-delivery sample keeps bounded, truthful p50/p95/p99 and worst gap',async()=>{
+ const {createFrameIntervalProbe}=await load();
+ const probe=createFrameIntervalProbe(5);
+ for(const t of [0,16,32,48,1048,1064,1080])probe.observe(t);
+ const s=probe.summary();
+ assert.equal(s.sampleCount,5);
+ assert.equal(s.capacity,5);
+ assert.equal(s.p50Ms,16);
+ assert.equal(s.p95Ms,1000);
+ assert.equal(s.p99Ms,1000);
+ assert.equal(s.worstMs,1000);
+ assert.equal(s.slowFramesOver650Ms,1);
+ for(let i=0;i<20;i++)probe.observe(1100+i*16);
+ assert.equal(probe.summary().sampleCount,5,'long streams cannot grow the frame-history allocation');
+ assert.equal(probe.summary().worstMs,16,'old stalls leave the rolling evidence window');
+});
+
+test('frame-delivery telemetry rejects invalid clocks and bounds huge suspension gaps',async()=>{
+ const {createFrameIntervalProbe}=await load();
+ const probe=createFrameIntervalProbe(4);
+ for(const v of [NaN,Infinity,-1])probe.observe(v);
+ assert.equal(probe.summary().sampleCount,0);
+ probe.observe(0);probe.observe(16);probe.resetClock();
+ probe.observe(500000);probe.observe(600001);
+ const s=probe.summary();
+ assert.equal(s.sampleCount,2,'tab visibility reset cannot invent a hidden-tab frame interval');
+ assert.equal(s.worstMs,60000);
+ assert.equal(s.clampedGaps,1);
+ assert.ok(Object.values(s).every(Number.isFinite));
+});
+
+test('running Three.js spectator observes real animation frame delivery and exposes only read-only telemetry',()=>{
+ const app=fs.readFileSync(path.join(__dirname,'../../public/ai-dungeon/app.js'),'utf8');
+ assert.match(app,/createFrameIntervalProbe/);
+ assert.match(app,/frameDeliveryProbe\.observe\(t\)/);
+ assert.match(app,/frameDeliveryProbe\.summary\(\)/);
+ assert.match(app,/frameDelivery:frameDeliveryReport/);
+});

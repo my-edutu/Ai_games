@@ -29,6 +29,13 @@ test('actual 3D autonomous dungeon scene renders and advances',async({page})=>{
  const snapshot=await page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__);
  expect(snapshot.map.length).toBe(19);expect(snapshot.units.length).toBeGreaterThan(3);expect(snapshot.seed).toBeUndefined();
  await expect.poll(async()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.triangles??0),{timeout:15000}).toBeGreaterThan(100);
+ // Real foreground requestAnimationFrame delivery, not a GPU-timer claim or a mock.
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frameDelivery?.sampleCount??0),{timeout:20000}).toBeGreaterThan(5);
+ const delivery=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__.frameDelivery);
+ expect(delivery.p50Ms).toBeLessThanOrEqual(delivery.p95Ms);
+ expect(delivery.p95Ms).toBeLessThanOrEqual(delivery.p99Ms);
+ expect(delivery.p99Ms).toBeLessThanOrEqual(delivery.worstMs);
+ fs.writeFileSync('artifacts/dungeon-raf-interval-evidence.json',JSON.stringify({type:'real-foreground-raf-delivery-not-gpu',...delivery},null,2));
  await page.screenshot({path:'artifacts/dungeon-desktop.png',fullPage:true});
  expect(errors).toEqual([]);
 });
