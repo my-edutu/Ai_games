@@ -42,7 +42,7 @@ test('distant water cells coarsen without touching near-fog samples, horizon, or
       // The shader's waterUv is derived from actual XY, not PlaneGeometry's
       // UVs. Sparse outer quads therefore keep the same live flow frequency.
       assert.match(water.material.vertexShader, /waterUv=position\.xy\*\.018/);
-      assert.match(water.material.fragmentShader, /waterUv\+flow/);
+      assert.match(water.material.fragmentShader, /texture2D\(waterField,waterUv\)/);
       assert.equal(water.rotation.x, -Math.PI / 2);
       assert.equal(water.position.y, -3.62);
       grid.computeBoundingSphere();

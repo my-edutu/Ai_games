@@ -1,4 +1,5 @@
 'use strict';
+const { restorePreR42Water, applyR42Water } = require('../helpers/snake-water-flow-archive.cjs');
 const { test,expect } = require('@playwright/test');
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 test.use({launchOptions:{args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']}});
@@ -16,7 +17,7 @@ test('true WebGL frozen public frame A/B: contained quarry chips versus SHA-veri
   expect(r41A).toBeGreaterThan(-1);
   expect(r41B).toBeGreaterThan(r41A);
   const r41Block = current.slice(r41A, r41B + r41End.length);
-  const historicalSource = current.slice(0, r41A) + current.slice(r41B + r41End.length);
+  const historicalSource = restorePreR42Water(current.slice(0, r41A) + current.slice(r41B + r41End.length));
   // Later R35 foliage tint must not contaminate historic R31/R32 source SHAs,
   // but must remain equally present on both A/B rendered visual candidates.
   const lichenBegin='      // BEGIN R35 PERIMETER LICHEN\n';
@@ -35,7 +36,7 @@ test('true WebGL frozen public frame A/B: contained quarry chips versus SHA-veri
   const gitBlob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0').update(s).digest('hex');
   expect(gitBlob(prior)).toBe('4c50160ffb9c78b822cf2cb8d670e29baf994fea');
   const matchedLichen=historicalSource.slice(lichenA,lichenB+lichenEnd.length);
-  const priorWithLichen=prior.replace('      data[i+3]=255;\n','      data[i+3]=255;\n'+matchedLichen+r41Block);
+  const priorWithLichen=applyR42Water(prior.replace('      data[i+3]=255;\n','      data[i+3]=255;\n'+matchedLichen+r41Block));
   const captures={};
   for(const mode of ['overview','detail']){
     captures[mode]={};

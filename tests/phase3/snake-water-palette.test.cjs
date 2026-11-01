@@ -11,7 +11,7 @@ test('original flowing water bakes the same palette once instead of mixing every
     assert.ok(water?.isMesh, 'the full original water surface remains rendered');
     const shader = water.material.fragmentShader;
     assert.equal((shader.match(/texture2D\s*\(/g) || []).length, 1, 'single filtered water lookup remains');
-    assert.match(shader, /gl_FragColor\s*=\s*texture2D\s*\(\s*waterField\s*,\s*waterUv\s*\+\s*flow\s*\)/,
+    assert.match(shader, /gl_FragColor\s*=\s*texture2D\s*\(\s*waterField\s*,\s*waterUv\s*\)/,
       'GPU shader samples the precomposed RGB color without rebuilding the palette');
     assert.doesNotMatch(shader, /\bmix\s*\(/, 'per-fragment palette blending must be baked at world creation');
     assert.match(water.material.vertexShader, /smoothstep\(fogNear,fogFar,-mvPosition\.z\)/,

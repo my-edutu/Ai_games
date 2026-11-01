@@ -1,4 +1,5 @@
 'use strict';
+const { restorePreR42Water, applyR42Water } = require('../helpers/snake-water-flow-archive.cjs');
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -19,7 +20,7 @@ test('R41 exact-parent source controls bounded original garden root channels, pu
   const a = source.indexOf(begin), b = source.indexOf(end);
   assert.ok(a >= 0 && b > a && source.indexOf(begin, a + 1) < 0, 'single reversible R41 block');
   const previous = source.slice(0, a) + source.slice(b + end.length);
-  assert.equal(blob(previous), '6a4c53673b8ef922ce2363f7c899760c06358b5f', 'exact old GitHub world blob');
+  assert.equal(blob(restorePreR42Water(previous)), '6a4c53673b8ef922ce2363f7c899760c06358b5f', 'exact old GitHub world blob');
   const THREE = await import('three');
   const prior = await import('data:text/javascript;base64,' + Buffer.from(previous).toString('base64'));
   const { createWorld } = await import('../../public/snake-stream/world.mjs');

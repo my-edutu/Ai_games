@@ -598,12 +598,13 @@ export function createWorld(THREE, {width, height}) {
     uniforms:{...THREE.UniformsUtils.clone(THREE.UniformsLib.fog),time:{value:0},waterField:{value:waterMap}},
     fog:true,
     vertexShader:`
+      uniform float time;
       uniform float fogNear;
       uniform float fogFar;
       varying vec2 waterUv;
       varying float waterFogFactor;
       void main(){
-        waterUv=position.xy*.018;
+        waterUv=position.xy*.018+vec2(time*.0014,time*.00065);
         vec4 mvPosition=modelViewMatrix*vec4(position,1.0);
         gl_Position=projectionMatrix*mvPosition;
         // The dense original-water surface resolves the same linear scene
@@ -615,10 +616,8 @@ export function createWorld(THREE, {width, height}) {
       uniform vec3 fogColor;
       varying vec2 waterUv;
       varying float waterFogFactor;
-      uniform float time;
       uniform sampler2D waterField;
       void main(){
-        vec2 flow=vec2(time*.0014,time*.00065);
         // Preserve the existing water palette, opacity, flow, fog color and
         // near/far distances. Only the smoothstep's evaluation moves to the
         // tessellated vertex stage; blending remains in the fragment.
@@ -629,7 +628,7 @@ export function createWorld(THREE, {width, height}) {
           gl_FragColor=vec4(fogColor,1.0);
           return;
         }
-        gl_FragColor=texture2D(waterField,waterUv+flow);
+        gl_FragColor=texture2D(waterField,waterUv);
         gl_FragColor.rgb+=(fogColor-gl_FragColor.rgb)*waterFogFactor;
       }`,
   });materials.add(waterMaterial);

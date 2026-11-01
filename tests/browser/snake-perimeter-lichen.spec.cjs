@@ -1,4 +1,5 @@
 'use strict';
+const { restorePreR42Water, applyR42Water } = require('../helpers/snake-water-flow-archive.cjs');
 const { test, expect } = require('@playwright/test');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -35,7 +36,7 @@ test('real WebGL 3D garden: living perimeter lichen versus verified original cou
   expect(r41A).toBeGreaterThan(-1);
   expect(r41B).toBeGreaterThan(r41A);
   const archivedPrior = prior.slice(0, r41A) + prior.slice(r41B + r41End.length);
-  expect(blobHash(archivedPrior)).toBe('bef069d6333c41aa3355144efa8e3d6457a955fe');
+  expect(blobHash(restorePreR42Water(archivedPrior))).toBe('bef069d6333c41aa3355144efa8e3d6457a955fe');
   const all = {};
   for (const mode of ['overview', 'detail']) {
     all[mode] = {};

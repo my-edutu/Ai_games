@@ -13,12 +13,12 @@ test('fully fogged water uses an opaque early exit, preserving live near water',
     assert.ok(water?.isMesh, 'the full 3D lake must remain');
     const shader = water.material.fragmentShader;
     const early = shader.indexOf('if(waterFogFactor>=1.0)');
-    const texel = shader.indexOf('texture2D(waterField,waterUv+flow)');
+    const texel = shader.indexOf('texture2D(waterField,waterUv)');
     assert.ok(early > 0 && texel > early, 'far fog must return before the expensive filtered water lookup');
     assert.match(shader.slice(early, texel), /gl_FragColor=vec4\(fogColor,1\.0\);\s*return;/);
     assert.match(shader.slice(texel), /gl_FragColor\.rgb\+=\(fogColor-gl_FragColor\.rgb\)\*waterFogFactor/);
     assert.match(water.material.vertexShader, /waterUv=position\.xy\*\.018/);
-    assert.match(water.material.fragmentShader, /time\*\.0014,time\*\.00065/);
+    assert.match(water.material.vertexShader, /time\*\.0014,time\*\.00065/);
     assert.equal(water.material.transparent, false, 'saturated fragments are opaque like the source lake');
     assert.equal(water.material.depthWrite, true, 'do not drop lake occlusion/depth');
     assert.equal(water.material.uniforms.waterField.value.image.data.length, 256 * 256 * 4);
