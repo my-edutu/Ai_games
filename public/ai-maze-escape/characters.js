@@ -379,6 +379,9 @@ export function createWarden(options = {}) {
   // when the camera sees its armored back. Only an observed nearby explorer
   // activates it; the material is cosmetic and never reveals hidden threats.
   const ember=material('#ff9b59',.08,.3,{emissive:'#f25a1c',emissiveIntensity:1.55});
+  // Signature garden-warden anatomy: sea-glass fronds unfurl from the
+  // disclosed beetle's real elytra. Original 3D parts, not screen decals.
+  const frondGlass=material('#8bcfac',.15,.52,{emissive:'#28654c',emissiveIntensity:.3});
   // Ember linings are physical pieces tucked under the opening carapace, not
   // camera-facing sprites. Both remain hidden without public close attention.
   for (const shellHalf of elytra) {
@@ -394,6 +397,25 @@ export function createWarden(options = {}) {
     rounded(seam,ember,[shellHalf.side*.045,.025,0],[.105,.048,.78],.018);
     seam.visible=false;
     shellHalf.seam=seam;
+    // Three individually sculpted rigid leaf-blades flare UP from each
+    // hinge, preserving the beetle's rounded armored body and contact feet.
+    // Their common root is part of the physical wing, not an effect sprite.
+    const crest=pivot(shellHalf.wing,`unfurled sea-glass wing fronds ${shellHalf.side}`,[shellHalf.side*.17,.18,-.07]);
+    for (let blade=0;blade<3;blade++) {
+      const x=shellHalf.side*(.035+blade*.085);
+      const z=(blade-1)*.19;
+      const length=.57+blade*.15;
+      const leaf=rounded(crest,frondGlass,[x,.25+blade*.075,z],[.22,length,.11],.048);
+      leaf.rotation.z=shellHalf.side*(.12+blade*.18);
+      leaf.rotation.x=(blade-1)*.19;
+      // Bronze-colored struts visibly connect each tall blade to the hinge.
+      bar(crest,bronze,[0,0,0],[x,.20+blade*.055,z],.032);
+      const vein=rounded(crest,ember,[x,.26+blade*.075,z+.069],[.041,length*.61,.024],.01);
+      vein.rotation.z=leaf.rotation.z;
+      vein.rotation.x=leaf.rotation.x;
+    }
+    crest.visible=false;
+    shellHalf.fronds=crest;
   }
   const warningSpines=pivot(body,'activated warden spines',[0,.48,-.13]);
   for (const side of [-1,0,1]) {
@@ -498,6 +520,12 @@ export function createWarden(options = {}) {
       shellHalf.wing.rotation.x=alert>0?-alert*.12:0;
       shellHalf.lining.visible=alert>.24;
       shellHalf.seam.visible=alert>.24;
+      // The moving blades mark the original guardian's *visible* uncoiling,
+      // not a new attack or an undisclosed move. Reduced motion leaves one
+      // steady pose; terminal/withdrawn attention hides the complete crest.
+      shellHalf.fronds.visible=alert>.24;
+      shellHalf.fronds.rotation.y=alert>0&&!s.reduced
+        ?shellHalf.side*Math.sin(s.time*1.3)*alert*.075:0;
     }
     stride=approach(stride,s.moving?1:0,12,s.delta); gait+=s.delta*(10+s.danger*3)*stride;
     body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018);
