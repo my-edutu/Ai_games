@@ -1,6 +1,6 @@
 # Pass51 — observed exit tide observatory: rendered acceptance gate (2026-11-01)
 
-**Status: source-only candidate; rendered outcome NOT YET INSPECTED. Fixed Nintendo Captain Toad benchmark NOT PASSED.**
+**Status: authentic source-bound browser gate FAILED twice on mobile guardian framing; exit-observatory render NOT CAPTURED/NOT ACCEPTED. Fixed Nintendo Captain Toad benchmark NOT PASSED.**
 
 ## Genuine baseline
 Pass50b [exact-source focused CI 41326782605](https://github.com/my-edutu/Ai_games/actions/runs/41326782605) and [original eight dated screenshot sidecars](https://github.com/my-edutu/Ai_games/actions/runs/41326782605/artifacts/13091383163) established real 390×844/1280×900 public exit visibility, with foliage localized in true disclosed wall crests. Its screenshot hashes refer to the *previous source* only and cannot prove Pass51.
@@ -15,3 +15,10 @@ The stage's exit still looks like one emblem on an expanse of repeated sandstone
 
 ## Current blocker and integrity
 The shared `/app-projects` command and fresh-worker endpoints both returned `Tunnel-client has not been seen for 300 seconds` on this run, so no fresh detached critic, local browser or Ultracode execution can be claimed. GitHub repository access is available. Current candidate image and screenshot SHA are **not known**, not invented. Keep PR #53 **OPEN DRAFT; do not merge or deploy**. The frozen benchmark remains NOT PASSED.
+
+## Actual Pass51 browser gate and dependency (2026-11-01)
+
+- Exact source [f2254d4](https://github.com/my-edutu/Ai_games/commit/f2254d415711b3c0ab7a1c5b839a90fa0f5728db), focused [browser workflow 41328330211](https://github.com/my-edutu/Ai_games/actions/runs/41328330211) **FAILED twice**, on an already-existing truthful 390×844 guardian full-model margin assertion; the world/character Node checks, build and stream self-test were successful. Not a timeout. Thus this run never reached the exit-observatory screenshot.
+- Its first [real four-file artifact 13092980203](https://github.com/my-edutu/Ai_games/actions/runs/41328330211/artifacts/13092980203) was downloaded, both original PNG SHA values recomputed and matched their UTC manifests. Tick13 desktop 1280×900 **2026-11-01T17:02:22.010Z** SHA `3d7bdd8049a9667f9b1dd90a827e04104a2e33004924c29528bf16866a559263`; native 390×844 **17:02:29.046Z** SHA `9bbd90050bb9886bb47b6dddf819e1fd80d66705d69874a5da4334869175995f`. These images contain a real public guardian, **not** the new exit towers.
+- Native screenshot and metadata show Pip x=-0.65047 NDC, guardian inside frame but `wardensWithMargin=0`, versus prior Pass50b x=-0.58723 and margin=1. A good concurrent compact-HUD change enlarged the 3D stage, which made the fixed-height orthographic camera *horizontally narrower*; this is an authentic actor/scene framing defect. Do not roll back useful extra stage area or relax the existing visibility check.
+- [Pass52 isolated public camera correction and render acceptance gate](./portrait-actor-stage-pass-52-review-gate.md) preserves the prior 4.275-unit native horizontal half-span only for actually disclosed Detail guardian encounters. [Focused candidate CI 41330731751](https://github.com/my-edutu/Ai_games/actions/runs/41330731751) and [separate full CI 41330731720](https://github.com/my-edutu/Ai_games/actions/runs/41330731720) were **QUEUED** when reviewed. This is **not** a Pass51 exit visual verdict. A full set of date/hash-bound post-fix candidate screenshots, independent visual critic and frozen official Nintendo comparison is still mandatory.
