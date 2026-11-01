@@ -59,7 +59,7 @@ test('opt-in guardian audio communicates actual damage and a real guardian-floor
     audio.accept(frame({health:5}));
     assert.equal(pitches.length,n, 'replayed snapshot must not repeat damage');
     audio.accept(frame({floor:9,guardian:false}));
-    assert.ok([220,330,440].every(x=>pitches.includes(x)),
+    assert.ok([104,220,330,440].every(x=>pitches.includes(x)),
       'the actual authority cleared a still-active guardian gate on the floor transition');
     const m = pitches.length;
     audio.accept(frame({floor:9,guardian:false}));
@@ -79,6 +79,7 @@ test('no fabricated gate award across a new run, unrelated floor, or muted playb
     audio.accept(frame());
     audio.accept(frame({runToken:'new-run',floor:9,guardian:false}));
     assert.equal(pitches.filter(x=>x===220).length,0,'restart cannot masquerade as a guardian defeat');
+    assert.equal(pitches.filter(x=>x===104).length,0,'restart cannot fabricate the mechanical release');
     audio.accept(frame({runToken:'new-run',floor:11,guardian:false}));
     assert.equal(pitches.filter(x=>x===220).length,0,'an unrelated floor skip is not a gate kill');
     audio.accept(frame({runToken:'new-run',floor:12,guardian:true,health:8}));
