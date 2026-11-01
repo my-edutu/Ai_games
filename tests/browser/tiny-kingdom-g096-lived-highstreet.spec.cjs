@@ -39,6 +39,22 @@ test('G096 inhabited high street connects actual homes to market without changin
  expect(initial.street.totalTriangles).toBeLessThan(6500);
  expect(initial.triangles).toBeLessThan(160000);
  expect(initial.error).toBe(0);
+ // Real video review found a worker hidden for seconds by market linen roofs.
+ // Camera collision must include the MARKET CANOPIES, newly built shops and
+ // arcade, not only the old town houses. These are presentation probes only.
+ const director=await page.evaluate(()=>{
+  const g=window.__tinyKingdom,snapshot=JSON.stringify(g.exportSnapshot());
+  return {missing:typeof g.getCameraOcclusionModel!=='function',
+   model:g.getCameraOcclusionModel?.(),
+   unchanged:snapshot===JSON.stringify(g.exportSnapshot())};
+ });
+ expect(director.missing).toBe(false);
+ expect(director.unchanged).toBe(true);
+ expect(director.model.stalls).toBe(4);
+ expect(director.model.streetShops).toBe(2);
+ expect(director.model.arcades).toBeGreaterThanOrEqual(1);
+ expect(director.model.villageMarketCanopies).toBeGreaterThanOrEqual(1);
+ expect(director.model.roofTotal).toBeGreaterThan(15);
  const restored=await page.evaluate(()=>{
   const game=window.__tinyKingdom,snapshot=game.exportSnapshot();
   for(let i=0;i<400;i++)game.step(1/30);
