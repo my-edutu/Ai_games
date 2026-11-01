@@ -172,3 +172,51 @@ test('G100 real market courier receives a readable close camera and an unclutter
  expect(expanded.authority).toBe(staged.snapshot);
  expect(errors).toEqual([]);
 });
+
+
+// G103 RED-FIRST, derived from the genuine G100 courier video: the unloading
+// worker was directly beneath the market entrance arcade, so a nominally clear
+// roof-only camera still looked at a heavy foreground beam and columns.
+// Preserve the authentic economy; build an actual visible receiving courtyard.
+test('G103 unobstructed receiving courtyard lets a real unload be the shot, not an arcade post',async({page})=>{
+ test.setTimeout(190000);
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.setViewportSize({width:1024,height:640});
+ await page.setContent(html);
+ await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0);
+ await page.locator('#pause').click();
+ const staging=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;g.reset();
+  let courier=null;
+  for(let i=0;i<40000;i++){g.step(1/30);courier=g.getMarketHandoffs()[0];if(courier)break}
+  return {courier,before:JSON.stringify(g.exportSnapshot()),market:g.getMarketQuarterStats()};
+ });
+ expect(staging.courier).toBeTruthy();
+ // A timber gate over the unloading worker is a framing failure regardless
+ // of an 'unblocked' analytic camera ray. Move the public arcade BEHIND the
+ // receiving yard and physically pave the connected entrance.
+ expect(staging.market.entryArchZ).toBeGreaterThan(staging.courier.destination[1]+2.2);
+ expect(staging.market.entryPathStones).toBeGreaterThanOrEqual(20);
+ await page.locator('#delivery-follow').click();
+ const seen=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;
+  return {camera:g.getCamera(),plan:g.getCitizenCameraPlan(),
+   chosen:g.getSelectedCitizen(),stage:document.body.dataset.workday,
+   after:JSON.stringify(g.exportSnapshot())};
+ });
+ expect(seen.stage).toBe('delivery');
+ expect(seen.chosen).toBe(staging.courier.citizen);
+ expect(seen.plan.blockers).toBe(0);
+ expect(seen.camera.zoom).toBeLessThan(9);
+ // The first view looks *into* the unloading yard, placing the retired gate
+ // behind the worker, rather than filming through its columns from the road.
+ expect(Math.cos(seen.camera.yaw)).toBeLessThan(-.25);
+ expect(Math.hypot(seen.camera.focus[0]-staging.courier.x,
+  seen.camera.focus[1]-staging.courier.z)).toBeLessThan(.15);
+ expect(seen.after).toBe(staging.before);
+ await page.setViewportSize({width:390,height:844});
+ await page.waitForTimeout(100);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+ expect(await page.evaluate(()=>document.querySelector('#world').getContext('webgl')?.getError()??0)).toBe(0);
+ expect(errors).toEqual([]);
+});
