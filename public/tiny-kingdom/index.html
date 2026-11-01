@@ -310,6 +310,23 @@ body[data-command="world"] #command-toggle{background:linear-gradient(145deg,#fc
 body[data-workday="on"] #workday-activity{display:block}
 body[data-hud="cinema"] #workday-activity{display:none!important}
 @media(max-width:520px){#workday-activity{bottom:82px;max-width:calc(100vw - 20px);font-size:10px;padding:7px 9px}}
+/* G092: real working shift, close perspective, no fabricated production. */
+#workday-live{border-color:#99e4c69e;color:#e4fff1;min-width:94px}
+#workday-live[aria-pressed="true"]{background:#b6eec8;color:#193638}
+body[data-workday="live"] #workday-activity{display:block;bottom:107px;
+ border-color:#bbf5cbcc;background:#12372def;max-width:min(88vw,550px)}
+#workday-progress{display:none;position:fixed;bottom:88px;left:50%;
+ transform:translateX(-50%);width:min(80vw,410px);height:7px;z-index:10;
+ appearance:none;-webkit-appearance:none;border:0;border-radius:12px;background:#0c312c}
+body[data-workday="live"] #workday-progress{display:block}
+#workday-progress::-webkit-progress-bar{background:#0c312c;border-radius:12px}
+#workday-progress::-webkit-progress-value{background:#e5bb77;border-radius:12px}
+#workday-progress::-moz-progress-bar{background:#e5bb77;border-radius:12px}
+@media(max-width:520px){
+ body[data-workday="live"] #workday-activity{bottom:97px;max-width:calc(100vw - 20px);font-size:11px;line-height:1.4}
+ #workday-progress{bottom:78px;width:calc(100vw - 74px);height:6px}
+}
+@media(prefers-reduced-motion:reduce){#workday-progress{transition:none}}
 </style></head><body>
 <canvas id="world" aria-label="Live 3D simulation of a medieval valley with autonomous villagers"></canvas><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
@@ -327,8 +344,8 @@ body[data-hud="cinema"] #workday-activity{display:none!important}
 <div class="feed panel"><h2>✦ Stories unfolding</h2><div id="feed"></div></div>
 <div class="hint">DRAG TO ORBIT · SCROLL TO ZOOM<br>EVERY CITIZEN HAS A NAME AND PURPOSE<br><a href="progress.html">VIEW GAUNTLET PROGRESS ↗</a></div>
 <aside class="atlas" aria-label="Interactive kingdom map"><div class="atlas-heading"><span>◈ THE KINGDOM ATLAS</span><b>LIVE</b></div><canvas id="atlas-map" width="460" height="330" aria-label="Map of homes and moving villagers; click to move camera"></canvas><div class="atlas-footer"><span id="atlas-season">✧ SEASONAL LANDSCAPE</span><em>↗ PAN CAMERA</em></div><div class="atlas-legend"><span><i style="background:#ffe29b"></i>Village</span><span><i style="background:#f9fce8"></i>People</span><span><i style="background:#7be5f9"></i>River</span></div></aside><div class="bottom"><button id="pause" class="btn active">Ⅱ Pause</button><span class="divider"></span><button class="btn active" id="speed1">1× Real time</button><button class="btn" id="speed4">4×</button><button class="btn" id="speed16">16×</button><span class="divider"></span><button class="btn" id="focus">◎ Follow villager</button><button class="btn" id="camera">◈ Cinematic</button><button class="btn" id="command-toggle" type="button" aria-pressed="false" aria-controls="world-ribbon" aria-keyshortcuts="U">◉ World view</button><button class="btn" id="hud-toggle" aria-pressed="false">⌗ Clear HUD</button><button class="btn" id="save">↓ Save world</button><button class="btn" id="restore">↑ Restore world</button><button class="btn" id="restart">↻ New world</button></div><div class="toast" id="toast"></div><button id="cinema-exit" type="button" aria-label="Restore game interface">✧ Restore interface · H</button>
-<div class="world-tour" role="group" aria-label="Explore scenic village camera viewpoints"><small>EXPLORE<br>THE VALLEY</small><button class="tour-btn" type="button" id="workday-watch" aria-pressed="false" aria-label="Follow a villager who actually completed work">⚒ Workday</button><button class="tour-btn" data-scenic="valley" aria-pressed="true">✦ Village</button><button class="tour-btn" data-scenic="market" aria-pressed="false">◈ Market</button><button class="tour-btn" data-scenic="mill" aria-pressed="false">✧ Windmill</button><button class="tour-btn" data-scenic="orchard" aria-pressed="false">❀ Orchard</button><button class="tour-btn" data-scenic="farm" aria-pressed="false">✺ Farmland</button><button class="tour-btn" data-scenic="river" aria-pressed="false">≈ Riverside</button><button class="tour-btn" data-scenic="sanctuary" aria-pressed="false">♜ Sanctuary</button></div>
-<div id="workday-activity" role="status" aria-live="polite" aria-atomic="true"></div><div class="realm-signal" id="realm-signal" role="status" aria-live="off"><i></i><b id="realm-title">A LIVING KINGDOM</b><span id="realm-detail">Every villager shapes the valley</span></div>
+<div class="world-tour" role="group" aria-label="Explore scenic village camera viewpoints"><small>EXPLORE<br>THE VALLEY</small><button class="tour-btn" type="button" id="workday-live" aria-pressed="false" aria-label="Watch a villager currently working; select the next live shift">☼ Live shift</button><button class="tour-btn" type="button" id="workday-watch" aria-pressed="false" aria-label="Follow a villager who actually completed work">⚒ Workday</button><button class="tour-btn" data-scenic="valley" aria-pressed="true">✦ Village</button><button class="tour-btn" data-scenic="market" aria-pressed="false">◈ Market</button><button class="tour-btn" data-scenic="mill" aria-pressed="false">✧ Windmill</button><button class="tour-btn" data-scenic="orchard" aria-pressed="false">❀ Orchard</button><button class="tour-btn" data-scenic="farm" aria-pressed="false">✺ Farmland</button><button class="tour-btn" data-scenic="river" aria-pressed="false">≈ Riverside</button><button class="tour-btn" data-scenic="sanctuary" aria-pressed="false">♜ Sanctuary</button></div>
+<div id="workday-activity" role="status" aria-live="polite" aria-atomic="true"></div><progress id="workday-progress" max="100" value="0" aria-label="Progress through the selected villager's actual working shift"></progress><div class="realm-signal" id="realm-signal" role="status" aria-live="off"><i></i><b id="realm-title">A LIVING KINGDOM</b><span id="realm-detail">Every villager shapes the valley</span></div>
 <section id="world-ribbon" role="group" aria-label="World-first kingdom overview">
  <div class="world-identity"><strong>✦ LIVE KINGDOM</strong><small>World-first view · U</small></div>
  <div class="world-measure"><span class="world-glyph">♜</span><strong id="world-population">12</strong><small>People</small></div>
@@ -2926,6 +2943,14 @@ const names=['Alina','Rowan','Edric','Mira','Oren','Selene','Bram','Elowen','Tar
 // None of these objects are saved, hashed, fed into decisions or used as RNG.
 const workdayEvents=[];
 let workdaySequence=0,workdaySelected=-1;
+let liveWorkday=false,liveWorkCursor=-1,liveWorkCommandBefore=null;
+function clearLiveWorkdayState(){
+ liveWorkday=false;liveWorkCursor=-1;liveWorkCommandBefore=null;
+ const control=document.getElementById('workday-live');
+ if(control)control.setAttribute('aria-pressed','false');
+ const progress=document.getElementById('workday-progress');
+ if(progress)progress.value=0;
+}
 const workdayRenderStats={sceneMarkers:0,animatedTools:0,activeWorksites:0,activeTriangles:0};
 function workdayDelta(before){
  return {food:Math.round((state.food-before.food)*1000)/1000,
@@ -2964,11 +2989,33 @@ function getActiveWorksites(){
   remaining:Math.max(0,workDuration(p)-p.workTimer)
  }));
 }
+function getLiveWorkdayView(){
+ const citizen=people[Math.min(selectedCitizen,people.length-1)]||null;
+ const work=citizen&&isWorkingAtSite(citizen)?
+  getActiveWorksites().find(site=>site.citizen===citizen.name):null;
+ const completed=citizen?workdayEvents.find(e=>e.citizen===citizen.name):null;
+ return {active:Boolean(liveWorkday&&work),citizen:citizen?.name||null,
+  job:citizen?.job||null,activity:citizen?.activity||null,
+  progress:work?.progress??0,remaining:work?.remaining??null,
+  lastCompleted:completed?cloneData(completed):null};
+}
+function updateLiveWorkdayUI(){
+ if(!liveWorkday)return;
+ const v=getLiveWorkdayView();
+ document.getElementById('workday-progress').value=Math.round(v.progress*100);
+ const label=v.active?
+  v.citizen+' · '+v.activity+' · '+Math.floor(v.progress*5)*20+'% through shift':
+  v.lastCompleted&&state.t-v.lastCompleted.time<1.5?
+  v.citizen+' · Delivered: '+workdayOutcome(v.lastCompleted):
+  v.citizen+' · '+v.activity+' · travelling or resting';
+ const message=document.getElementById('workday-activity');
+ if(message.textContent!==label)message.textContent=label;
+}
 
 function renderStories(){const feed=document.getElementById('feed');feed.replaceChildren();for(const e of stories.slice(0,4)){const item=document.createElement('div'),label=document.createElement('span');item.className='feeditem';label.textContent='Day '+e.day+' · Kingdom chronicle';item.append(label,document.createTextNode(e.text));feed.appendChild(item)}}
 function uniqueCitizenName(index){const given=names[index%names.length];const generation=Math.floor(index/names.length);return generation?given+' '+(generation===1?'II':String(generation+1)):given}
 function report(s){stories.unshift({day:Math.floor(state.t/24)+1,text:s});stories=stories.slice(0,6);renderStories()}
-function start(){workdayEvents.length=0;workdaySequence=0;workdaySelected=-1;workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');presentationEpoch++;scenicMeshCache=null;scenicMeshKey='';landscapeMeshCache=null;landscapeMeshKey='';seed=83127;accumulator=0;selectedCitizen=0;routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;city.splice(12);state={t:7,food:180,wood:90,gold:42,homes:city.length,buildCount:city.length+2,happiness:78,lastStory:0};people=names.slice(0,12).map((name,i)=>({name,job:jobs[i%jobs.length],trait:['patient','curious','bold','generous','resourceful','loyal'][i%6],x:(rand()-.5)*14,z:(rand()-.5)*11,target:[(rand()-.5)*24,(rand()-.5)*20],phase:rand()*8,friend:null,bonds:{},energy:60+rand()*40,hunger:rand()*20,activity:'Exploring the valley',workTimer:0,friendshipRecorded:false}));for(const p of people){if(!walkable(p.x,p.z)){const spot=navSnap(p.x,p.z);if(spot)[p.x,p.z]=navPoint(...spot)}choose(p)}stories=[];report('The first families arrive in a lush and untamed valley.');report('A new settlement is born beneath the old mountain ridge.');updateUI()}
+function start(){workdayEvents.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');presentationEpoch++;scenicMeshCache=null;scenicMeshKey='';landscapeMeshCache=null;landscapeMeshKey='';seed=83127;accumulator=0;selectedCitizen=0;routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;city.splice(12);state={t:7,food:180,wood:90,gold:42,homes:city.length,buildCount:city.length+2,happiness:78,lastStory:0};people=names.slice(0,12).map((name,i)=>({name,job:jobs[i%jobs.length],trait:['patient','curious','bold','generous','resourceful','loyal'][i%6],x:(rand()-.5)*14,z:(rand()-.5)*11,target:[(rand()-.5)*24,(rand()-.5)*20],phase:rand()*8,friend:null,bonds:{},energy:60+rand()*40,hunger:rand()*20,activity:'Exploring the valley',workTimer:0,friendshipRecorded:false}));for(const p of people){if(!walkable(p.x,p.z)){const spot=navSnap(p.x,p.z);if(spot)[p.x,p.z]=navPoint(...spot)}choose(p)}stories=[];report('The first families arrive in a lush and untamed valley.');report('A new settlement is born beneath the old mountain ridge.');updateUI()}
 // Walkable navigation is separate from decorative geometry. Deterministic bounded A*
 // prevents villagers crossing house interiors or swimming through the river.
 const NAV_LIMIT=40,NAV_BUDGET=3200,NAV_SPACING=1.15;
@@ -3153,7 +3200,7 @@ function validateSnapshot(snapshot){
  }))throw Error('Save contains invalid citizens');
  if(!Array.isArray(q.stories)||q.stories.length>6||!q.stories.every(e=>e&&Number.isInteger(e.day)&&e.day>0&&validText(e.text,240)))throw Error('Save contains invalid chronicles');
 }
-function restoreSnapshot(snapshot){validateSnapshot(snapshot);workdayEvents.length=0;workdaySequence=0;workdaySelected=-1;workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');uiHistory.length=0;scenicMeshCache=null;scenicMeshKey='';landscapeMeshCache=null;landscapeMeshKey='';const q=cloneData(snapshot.payload);selectedCitizen=Math.min(selectedCitizen,q.people.length-1);routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;seed=q.seed>>>0;state=q.state;city.splice(0,city.length,...q.city);people=q.people;stories=q.stories;accumulator=0;renderStories();updateUI();presentationEpoch++;return true}
+function restoreSnapshot(snapshot){validateSnapshot(snapshot);workdayEvents.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');uiHistory.length=0;scenicMeshCache=null;scenicMeshKey='';landscapeMeshCache=null;landscapeMeshKey='';const q=cloneData(snapshot.payload);selectedCitizen=Math.min(selectedCitizen,q.people.length-1);routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;seed=q.seed>>>0;state=q.state;city.splice(0,city.length,...q.city);people=q.people;stories=q.stories;accumulator=0;renderStories();updateUI();presentationEpoch++;return true}
 function saveWorld(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(exportSnapshot()));showToast('World saved — Day '+(Math.floor(state.t/24)+1))}catch(error){showToast('Save unavailable: '+error.message)}}
 function restoreWorld(){try{const stored=localStorage.getItem(SAVE_KEY);if(!stored)throw Error('No stored civilization yet');restoreSnapshot(JSON.parse(stored));showToast('The valley has been restored')}catch(error){showToast(error.message)}}
 function showToast(message){const node=document.getElementById('toast');node.textContent=message;node.style.opacity='1';clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>node.style.opacity='0',3600)}
@@ -3181,7 +3228,9 @@ function followRayBlockers(eye,target,roofs){
  return hit;
 }
 function planCitizenCamera(citizen,preferredYaw=yaw){
- const pitch=.76,zoom=12.8,target=[citizen.x,terrain(citizen.x,citizen.z)+1.02,citizen.z];
+ // A working human must fill the shot; do not leave them tiny in a farm panorama.
+ const pitch=liveWorkday?.52:.76,zoom=liveWorkday?9.7:12.8,
+  target=[citizen.x,terrain(citizen.x,citizen.z)+1.02,citizen.z];
  const radius=Math.cos(pitch)*zoom,elevation=Math.sin(pitch)*zoom,roofs=followCameraRoofs();
  const candidate=angle=>{
   const eye=[target[0]+Math.sin(angle)*radius,target[1]+elevation,target[2]+Math.cos(angle)*radius];
@@ -3241,8 +3290,17 @@ function setReferenceCapture(enabled){
  return requested;
 }
 
-function stopWorkdayWatch(){document.body.dataset.workday='off';document.getElementById('workday-watch').setAttribute('aria-pressed','false');document.getElementById('workday-activity').textContent='';workdaySelected=-1;}
+function stopWorkdayWatch(){
+ const priorCommand=liveWorkday?liveWorkCommandBefore:null;
+ clearLiveWorkdayState();
+ document.body.dataset.workday='off';
+ document.getElementById('workday-watch').setAttribute('aria-pressed','false');
+ document.getElementById('workday-activity').textContent='';
+ workdaySelected=-1;
+ if(priorCommand&&commandView==='world')setCommandView(priorCommand);
+}
 function watchLatestWork(){
+ if(liveWorkday)stopWorkdayWatch();
  const button=document.getElementById('workday-watch');
  const message=document.getElementById('workday-activity');
  const event=workdayEvents.length?
@@ -3263,6 +3321,26 @@ function watchLatestWork(){
  document.body.dataset.workday='on';
  button.setAttribute('aria-pressed','true');
  return event?cloneData(event):null;
+}
+// G092: choose only REAL active work, cycling by stable citizen index.
+// Selection, progress, camera and HUD never award resources or consume RNG.
+function watchLiveWorkday(){
+ const eligible=people.map((p,i)=>({person:p,index:i})).filter(row=>isWorkingAtSite(row.person));
+ const after=liveWorkday?eligible.find(row=>row.index>selectedCitizen):null;
+ const selected=after||eligible[0]||
+  people.map((p,i)=>({person:p,index:i}))
+   .find(row=>row.person.activity.startsWith('Traveling to '));
+ if(!selected)return null;
+ if(!liveWorkday)liveWorkCommandBefore=commandView;
+ liveWorkday=true;liveWorkCursor=selected.index;workdaySelected=-1;
+ selectedCitizen=selected.index;
+ document.body.dataset.workday='live';
+ document.getElementById('workday-live').setAttribute('aria-pressed','true');
+ document.getElementById('workday-watch').setAttribute('aria-pressed','false');
+ setCitizenFollow(true);updateFollowCamera();
+ setCommandView('world');
+ updateUI();updateLiveWorkdayUI();
+ return getLiveWorkdayView();
 }
 
 let commandView='command';
@@ -3294,6 +3372,7 @@ document.body.dataset.command='command';
 button('command-toggle',()=>setCommandView(commandView==='command'?'world':'command'));
 button('world-open-command',()=>setCommandView('command'));
 button('workday-watch',watchLatestWork);
+button('workday-live',watchLiveWorkday);
 button('hud-toggle',()=>setCinematicHud(!cinematicHud));
 button('cinema-exit',()=>setCinematicHud(false));
 document.addEventListener('keydown',e=>{
@@ -3408,7 +3487,7 @@ function render(now){requestAnimationFrame(render);
  const minFrameMs=(swiftGpu||!gpuAvailable)?1000/12:0;
  if(minFrameMs&&frameGateTime&&now-frameGateTime<minFrameMs){framesSkipped++;return}
  frameGateTime=now;framesDrawn++;const frameProfileStart=performance.now();
- const dt=Math.min(.18,(now-(timer||now))/1000);timer=now;const atmosphere=skyConditions(state.t);gl.clearColor(...atmosphere.fog,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);if(!frozen){accumulator+=dt*speed*1.35;let ticks=0;while(accumulator>=FIXED_STEP&&ticks++<64){step(FIXED_STEP);accumulator-=FIXED_STEP}if(ticks>=64)accumulator=0;}if(follow){const citizen=people[Math.min(selectedCitizen,people.length-1)];focusPoint[0]+=(citizen.x-focusPoint[0])*.18;focusPoint[1]+=(citizen.z-focusPoint[1])*.18}if(cinematic)yaw+=dt*.05;const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(window.devicePixelRatio||1,1.6)*renderQuality().scale;if(canvas.width!==Math.floor(w*dpr)||canvas.height!==Math.floor(h*dpr)){canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);gl.viewport(0,0,canvas.width,canvas.height)}gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);drawAtmosphere(atmosphere);const frameStaticStart=performance.now();
+ const dt=Math.min(.18,(now-(timer||now))/1000);timer=now;const atmosphere=skyConditions(state.t);gl.clearColor(...atmosphere.fog,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);if(!frozen){accumulator+=dt*speed*1.35;let ticks=0;while(accumulator>=FIXED_STEP&&ticks++<64){step(FIXED_STEP);accumulator-=FIXED_STEP}if(ticks>=64)accumulator=0;}if(follow){const citizen=people[Math.min(selectedCitizen,people.length-1)];const ease=liveWorkday?.28:.18;focusPoint[0]+=(citizen.x-focusPoint[0])*ease;focusPoint[1]+=(citizen.z-focusPoint[1])*ease}if(liveWorkday)updateLiveWorkdayUI();if(cinematic)yaw+=dt*.05;const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(window.devicePixelRatio||1,1.6)*renderQuality().scale;if(canvas.width!==Math.floor(w*dpr)||canvas.height!==Math.floor(h*dpr)){canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);gl.viewport(0,0,canvas.width,canvas.height)}gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);drawAtmosphere(atmosphere);const frameStaticStart=performance.now();
 // Cache seasonal ground geometry: camera and citizens cannot change it.
 // Winter snow affects colour; ordinary rain does not.
 const groundClimate=climateAt(state.t);
@@ -3596,7 +3675,7 @@ gl.drawArrays(gl.TRIANGLES,0,data.length/10);if((frames++%14)===0){updateUI();dr
  // Only a completed presentation may become the reusable frozen frame.
  lastFrozenFrameKey=frozenViewKey;
 }
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getWorkdayEvents:()=>cloneData(workdayEvents),getWorkdayView,getActiveWorksites,watchLatestWork,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?2:1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0):0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0):null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getForestVisualStats:()=>({
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getWorkdayEvents:()=>cloneData(workdayEvents),getWorkdayView,getActiveWorksites,getLiveWorkdayView,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?2:1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0):0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0):null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getForestVisualStats:()=>({
  sourceTrees:trees.length,
  renderedTrees:forestVisualStats.deciduous+forestVisualStats.conifers,
  conifers:forestVisualStats.conifers,deciduous:forestVisualStats.deciduous,
