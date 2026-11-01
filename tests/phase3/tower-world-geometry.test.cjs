@@ -153,7 +153,7 @@ test('Ruins portal has two physically inset arched gate leaves and subdued archi
 test('tower architecture keeps the complete cylindrical traversal corridor clear', async () => {
   const [THREE, { createTowerWorld, THEMES }] = await loaded;
   const world = createTowerWorld();
-  const ambient = new Set(['distant-atmosphere', 'ambient-clouds', 'ambient-particles']);
+  const ambient = new Set(['distant-atmosphere', 'ambient-clouds', 'ambient-particles', 'tower-vista-atmosphere']);
   try {
     for (const [floor, theme] of Object.keys(THEMES).entries()) {
       const input = fixture(theme, floor, false);
