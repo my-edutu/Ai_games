@@ -2836,6 +2836,69 @@ function forgeSmoke(time){
 }
 
 
+/* G092 continuous occupational theatre: readable, human-scale original
+   physical staging around a citizen genuinely executing their current job.
+   These are tools, bundled goods and work surfaces, NOT extra buildings or
+   invented resource transactions. No seeded RNG or extra persistent state. */
+function appendActiveWorksiteDressing(w,x,y,z,pulse){
+ if(w.job==='forester'){
+  // A real chopper's sawbuck and carried logs. Staggered cylinders are lying
+  // on the wood rack rather than sticking upright like ornamental columns.
+  box(x-.46,y+.03,z+.50,.08,.43,.09,rgb(0x816043));
+  box(x+.42,y+.03,z+.50,.08,.43,.09,rgb(0x816043));
+  for(let i=0;i<3;i++)
+   limbSegment([x-.43,y+.28+i*.105,z+.48],
+    [x+.40,y+.28+i*.105,z+.48],.085,rgb(i%2?0x866443:0x9f7851),6);
+  // Bounded chips accompany only a genuinely active chopping phase.
+  for(let i=0;i<3;i++){
+   const fall=.10+.10*Math.max(0,pulse+i*.18);
+   tri([x+.08+i*.14,y+.36+fall,z+.12],[x+.13+i*.14,y+.33+fall,z+.16],
+    [x+.12+i*.14,y+.27+fall,z+.20],rgb(0xd4b58d));
+  }
+ }else if(w.job==='farmer'){
+  // Harvest sheaves tied together beside actual worked rows.
+  for(let i=0;i<4;i++)
+   cone(x-.34+i*.19,y+.04,z+.49,.065,.31+(i%2)*.10,
+    rgb(i%2?0xc4a258:0xd9b96f),5);
+  box(x+.05,y+.06,z-.46,.49,.20,.35,rgb(0x9d7d50));
+  box(x+.05,y+.24,z-.46,.48,.045,.37,rgb(0xc6aa6e));
+ }else if(w.job==='builder'){
+  // A joiner's half-made timber frame is a workbench, not a fictional home.
+  for(const sx of [-.43,.43]){
+   limbSegment([x+sx,y+.035,z+.48],[x+sx*.64,y+.58,z+.48],
+    .052,rgb(0x765238),5);
+   limbSegment([x+sx*.64,y+.58,z+.48],[x+sx*.18,y+.035,z+.48],
+    .052,rgb(0x816147),5);
+  }
+  box(x,y+.55,z+.48,1.02,.08,.22,rgb(0xbc9561));
+  box(x,y+.34,z+.47,.76,.08,.18,rgb(0x94724c));
+ }else if(w.job==='merchant'){
+  // A small market weighing canopy and grain sacks advertise real trading.
+  box(x-.48,y+.05,z+.50,.065,.93,.075,rgb(0x77563f));
+  box(x+.48,y+.05,z+.50,.065,.93,.075,rgb(0x77563f));
+  quad([x-.57,y+.99,z+.18],[x-.57,y+.99,z+.78],
+   [x+.57,y+.99,z+.78],[x+.57,y+.99,z+.18],rgb(0xb38c57));
+  ellipsoid(x-.28,y+.08,z+.12,.15,.18,.12,rgb(0xd2b98d),6);
+  ellipsoid(x+.28,y+.08,z+.12,.15,.18,.12,rgb(0xcab38e),6);
+ }else if(w.job==='craftsperson'){
+  // Hammered metal is visibly on an anvil, distinct from the carpenter table.
+  box(x-.38,y+.06,z+.47,.48,.28,.36,rgb(0x716c62));
+  box(x-.38,y+.34,z+.47,.66,.10,.32,rgb(0x96958c));
+  box(x-.36,y+.45,z+.47,.32,.055,.14,
+    rgb(pulse>.5?0xd2a16c:0xa78d79));
+  limbSegment([x+.37,y+.06,z+.36],[x+.38,y+.53,z+.37],
+    .045,rgb(0x8c6948),5);
+ }else if(w.job==='gatherer'){
+  // Herb baskets and hand-picked stalks appear only during a real forage.
+  box(x+.10,y+.04,z+.46,.52,.22,.33,rgb(0x886b48));
+  for(let i=0;i<3;i++){
+   limbSegment([x-.20+i*.19,y+.25,z+.45],
+    [x-.22+i*.19,y+.56+(i%2)*.08,z+.44],.022,rgb(0x638456),4);
+   cone(x-.22+i*.19,y+.47,z+.44,.075,.21,rgb(0x6d9860),5);
+  }
+ }
+}
+
 /* G090: genuine work evidence becomes short-lived 3D materials at the actual
    world coordinates of each completed job. This is never fake production. */
 function renderWorkdayTraces(){
@@ -2903,6 +2966,7 @@ function renderWorkdayTraces(){
     box(x,y+.09,z,.48,.20,.38,rgb(0x94734d));
     for(let i=-1;i<=1;i++)cone(x+i*.12,y+.22,z,.07,.24,rgb(0x688354),5);
    }
+   appendActiveWorksiteDressing(w,x,y,z,pulse);
   }
  });
  workdayRenderStats.activeTriangles=(data.length-triangleStart)/30;
