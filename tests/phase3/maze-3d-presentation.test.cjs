@@ -252,6 +252,11 @@ test('matched-key camera prioritizes the real glove/socket pair without inventin
   const desktop = composePublicKeyLockFocus(stage, gate, 1.32);
   assert.ok(portrait.x < ordinaryPortrait.x - .5,
     'the real key/socket pairing moves away from the old left-edge, terrain-biased shot');
+  // Fixed pass32 native frame cropped a public arch on the right: shift the
+  // camera toward genuinely disclosed stage rather than inventing geometry.
+  const pass32PortraitX = stage.x * .22 + gate.x * .49;
+  assert.ok(portrait.x > pass32PortraitX + .25,
+    'portrait keyed-gate composition must recover appreciable public stage room');
   assert.ok(Math.hypot(portrait.x, portrait.z) <= 1.500001,
     'native portrait shift stays bounded so the actor and gate cannot disappear');
   assert.ok(Math.hypot(desktop.x, desktop.z) <= 2.450001,

@@ -253,9 +253,11 @@ export function composePublicSealedGateFocus(stageBias, gateDelta, aspect = 1) {
 export function composePublicKeyLockFocus(stageBias, gateDelta, aspect = 1) {
   const finite = value => Number.isFinite(value) ? value : 0;
   const portrait = aspect < .9;
-  // The ordinary camera pulls strongly toward known coastal floor. When a
-  // real key is held beside its lock, the pair becomes the visual subject.
-  const stageWeight = portrait ? .22 : .52;
+  // At a genuinely known keyed closed gate, native portrait pass32 still
+  // cropped the right-hand public arch and left a broad empty lagoon.
+  // Give more weight to already disclosed walkable terrain without changing
+  // the real gate influence, the camera shift bound, or game authority.
+  const stageWeight = portrait ? .35 : .52;
   const gateWeight = portrait ? .49 : .46;
   const x = finite(stageBias?.x) * stageWeight + finite(gateDelta?.x) * gateWeight;
   const z = finite(stageBias?.z) * stageWeight + finite(gateDelta?.z) * gateWeight;
