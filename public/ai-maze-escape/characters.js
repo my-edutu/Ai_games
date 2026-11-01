@@ -398,7 +398,7 @@ export function createWarden(options = {}) {
     const lens=rounded(head,red,[side*.17,.032,.268],[.205,.095,.035],.025); lens.rotation.z=-side*.13;
     ring(head,bronze,[side*.275,-.05,.13],.057,.014);
   }
-  const jaws=[];
+  const jaws=[], antennae=[];
   for (const side of [-1,1]) {
     const jaw=pivot(head,`mandible ${side}`,[side*.21,-.11,.12]);
     bar(jaw,bronze,[0,0,0],[side*.09,-.1,.22],.045);
@@ -408,6 +408,7 @@ export function createWarden(options = {}) {
     bar(antenna,dark,[0,0,0],[side*.13,.35,.13],.025);
     bar(antenna,bronze,[side*.13,.35,.13],[side*.2,.49,.23],.018);
     ball(antenna,red,[side*.2,.49,.23],[.036,.047,.035]);
+    antennae.push({antenna,side});
   }
   const legs=[];
   for (const side of [-1,1]) for (let i=0;i<3;i++) {
@@ -421,7 +422,16 @@ export function createWarden(options = {}) {
     bar(knee,dark,[0,0,0],[side*.13,-.55,.055],.045);
     bar(knee,claw,[side*.13,-.55,.055],[side*.16,-.7,.15],.035);
     ball(knee,plates,[side*.085,-.32,.033],[.057,.16,.07]);
-    legs.push({hip,knee,side,index:i});
+    // The foremost two legs have real articulated pincer tips. During a
+    // source-disclosed close encounter they brace toward Pip; they never
+    // imply an additional attack, collision, or simulated creature.
+    let pincer=null;
+    if (i===0) {
+      pincer=pivot(knee,`foreleg pincer ${side}`,[side*.13,-.55,.055]);
+      bar(pincer,claw,[0,0,0],[side*.12,-.06,.22],.047);
+      bar(pincer,claw,[side*.12,-.06,.22],[side*.01,-.16,.30],.032);
+    }
+    legs.push({hip,knee,side,index:i,pincer});
   }
   r.finish(); let gait=0, stride=0;
   return {group,dispose:r.dispose,update(options={}) {
@@ -459,10 +469,27 @@ export function createWarden(options = {}) {
       leg.hip.rotation.y=Math.sin(phase)*stride*.24*amount;
       leg.hip.rotation.z=leg.side*Math.max(0,Math.cos(phase))*stride*.15*amount;
       leg.knee.rotation.z=-leg.side*Math.max(0,Math.cos(phase))*stride*.16*amount;
+      leg.hip.rotation.x=leg.index===0?-alert*.32:leg.index===2?alert*.08:0;
+      leg.knee.rotation.x=leg.index===0?alert*.20:0;
+      if (leg.pincer) leg.pincer.rotation.y=leg.side*alert*.42;
     }
+    // An encounter is a physical performance: the already-modeled front
+    // legs plant outward, antennae track the publicly visible explorer and
+    // mandibles flare. Neutral, result and reduced-motion poses stay stable.
+    // No new mesh, material, random draw, network fact or game command runs
+    // in this render loop.
+    head.position.z=.62+alert*.07;
     head.rotation.x=s.win?.16:s.lose?-.13:-.045-s.danger*.065;
     head.rotation.y=Math.sin(s.time*.8)*.08*(1-stride)*amount*(1-alert)+lookYaw;
-    for (let i=0;i<2;i++) jaws[i].rotation.y=(i===0?-1:1)*(.06+s.danger*.13+alert*.16+Math.sin(s.time*3)*.025*amount);
+    for (const {antenna,side} of antennae) {
+      antenna.rotation.z=side*(.08+alert*.40)+(s.reduced?0:Math.sin(s.time*1.7+side)*.04)*(1-alert*.5);
+      antenna.rotation.x=alert*.22+(s.reduced?0:Math.sin(s.time*2.3+side)*.03);
+      antenna.rotation.y=lookYaw*.4;
+    }
+    for (let i=0;i<2;i++) {
+      jaws[i].rotation.y=(i===0?-1:1)*(.06+s.danger*.13+alert*.16+Math.sin(s.time*3)*.025*amount);
+      jaws[i].rotation.z=(i===0?-1:1)*alert*.14;
+    }
     red.emissiveIntensity=s.win?.45:s.lose?1.6:1.1+s.danger*.4+alert*1.25;
   }};
 }
