@@ -72,7 +72,12 @@
  const timer=setInterval(()=>{
   ticks++;
   if(contextLost){ticks=0;return}
-  if(restoredFrameBaseline===null&&window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame>3&&window.__DUNGEON_PUBLIC_STATE__?.tick>0){
+  // The post-restore health probe owns graphics recovery and reports a true
+  // frame/snapshot stall after 12 seconds. The generic cold-start timeout
+  // must not intermittently overwrite that diagnosis with a module failure.
+  // Reset its budget until both actual signals clear the recovery state.
+  if(restoredFrameBaseline!==null){ticks=0;return}
+  if(window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame>3&&window.__DUNGEON_PUBLIC_STATE__?.tick>0){
    clearInterval(timer);document.body.dataset.rendererStatus='ready';if(message)message.hidden=true;return;
   }
   if(ticks*STEP_MS<MAX_WAIT_MS)return;
