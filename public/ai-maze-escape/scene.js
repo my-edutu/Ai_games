@@ -137,6 +137,22 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   const contactMaterial = new THREE.MeshBasicMaterial({ map: contactTexture, transparent: true, depthWrite: false });
   const contact = new THREE.Mesh(contactGeometry, contactMaterial);
   contact.rotation.x = -Math.PI / 2; scene.add(contact);
+  // The CPU-balanced renderer disables hardware shadow maps, so a publicly
+  // disclosed Thornback also needs its own *grounded* soft contact. Reuse Pip's
+  // existing geometry, texture and material, never allocate in a render frame.
+  // This is visual attachment, not a new guardian or a private position cue.
+  const createWardenContact = () => {
+    const shadow = new THREE.Mesh(contactGeometry, contactMaterial);
+    shadow.name = 'Disclosed Thornback contact shadow';
+    shadow.rotation.x = -Math.PI / 2;
+    shadow.scale.set(1.22, .96, 1);
+    scene.add(shadow);
+    return shadow;
+  };
+  const removeWarden = entry => {
+    scene.remove(entry.model.group, entry.contact);
+    entry.model.dispose();
+  };
 
   let settings = { ...initialSettings };
   let frame = null, previous = null, runToken = '', cameraMode = 'follow';
@@ -212,7 +228,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     stageBias = publicStageBias(snapshot);
     const motion = planPublicMotion(previous, snapshot);
     if (runToken !== snapshot.runToken) {
-      for (const entry of wardens.values()) { scene.remove(entry.model.group); entry.model.dispose(); }
+      for (const entry of wardens.values()) removeWarden(entry);
       wardens.clear(); runToken = snapshot.runToken; routeSignature = ''; resetPosition(snapshot);
     } else if (lost || settings.reducedMotion || motion.snap || snapshot.result) {
       resetPosition(snapshot);
@@ -248,11 +264,11 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     }
     const seen = new Set(snapshot.threats.map(threat => threat.id));
     for (const [id, entry] of wardens) {
-      if (!seen.has(id)) { scene.remove(entry.model.group); entry.model.dispose(); wardens.delete(id); }
+      if (!seen.has(id)) { removeWarden(entry); wardens.delete(id); }
     }
     for (const threat of snapshot.threats) {
       let entry = wardens.get(threat.id);
-      if (!entry) { entry = { model: createWarden({ balanced }), cell: threat.cell, cells: [threat.cell], progress: 0, heading: 0 }; wardens.set(threat.id, entry); scene.add(entry.model.group); }
+      if (!entry) { entry = { model: createWarden({ balanced }), contact: createWardenContact(), cell: threat.cell, cells: [threat.cell], progress: 0, heading: 0 }; wardens.set(threat.id, entry); scene.add(entry.model.group); }
       const p = cellPosition(threat.cell, snapshot.width, snapshot.height);
       const old = cellPosition(entry.cell, snapshot.width, snapshot.height);
       if (old.x !== p.x || old.z !== p.z) entry.heading = Math.atan2(p.x - old.x, p.z - old.z);
@@ -307,7 +323,9 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         if (entry.cells.length === 1) entry.progress = 0;
       }
       const threatPose = samplePublicPath(entry.cells.slice(0, 2), entry.progress, s.width, s.height, CELL_SIZE);
-      entry.model.group.position.set(threatPose.x, sampleGroundHeight(threatPose.x, threatPose.z, s), threatPose.z);
+      const threatGround = sampleGroundHeight(threatPose.x, threatPose.z, s);
+      entry.model.group.position.set(threatPose.x, threatGround, threatPose.z);
+      entry.contact.position.set(threatPose.x, threatGround + .019, threatPose.z);
       if (threatPose.moving) entry.heading = threatPose.heading;
       // No hidden threat positions are queried. Wardens exists solely for
       // threats in the sanitized public snapshot, and staging is cosmetic.
@@ -461,6 +479,13 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       const projectedWardens = [...wardens.values()].map(({ model }) =>
         model.group.position.clone().add(new THREE.Vector3(0, .75, 0)).project(camera));
       const depthVisible = p => p.z > -1 && p.z < 1;
+      // Count *actual* contact meshes at real publicly rendered positions,
+      // including in native portrait, not a synthetic screenshot annotation.
+      const wardenGroundedContacts = [...wardens.values()].filter(({ model, contact: shadow }) =>
+        shadow?.parent === scene && shadow.visible
+        && Math.abs(shadow.position.x - model.group.position.x) < .0001
+        && Math.abs(shadow.position.z - model.group.position.z) < .0001
+        && Math.abs(shadow.position.y - model.group.position.y - .019) < .0001).length;
       const wardensInFrame = projectedWardens.filter(p =>
         Math.abs(p.x) < .95 && Math.abs(p.y) < .95 && depthVisible(p)).length;
       // An opponent center barely inside the edge can still have clipped legs.
@@ -533,6 +558,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         frameP95Ms: sorted[Math.floor(sorted.length * .95)] || 0,
         routeQueue: cells.length, world: stats, contextLost: false,
         disclosedThreats: wardens.size, wardensInFrame, wardensWithMargin,
+        wardenContactShadows: [...wardens.values()].filter(entry => entry.contact?.parent === scene).length,
+        wardenGroundedContacts,
         encounterAttention: closestThreat?.strength ?? 0,
         keysInFrame, closedGatesInFrame,
         carriedKeyGateGesture: keyGateCue?.strength??0,
@@ -590,7 +617,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     canvas.removeEventListener('webglcontextlost', contextLost);
     canvas.removeEventListener('webglcontextrestored', contextRestored);
     world.dispose(); explorer.dispose();
-    for (const entry of wardens.values()) entry.model.dispose();
+    for (const entry of wardens.values()) removeWarden(entry);
     wardens.clear(); guide.geometry.dispose(); guideMaterial.dispose(); markerGeometry.dispose(); markerMaterial.dispose();
     arrowGeometry.dispose(); plannedArrowMaterial.dispose(); knownArrowMaterial.dispose();
     keyGoalArrowMaterial.dispose(); exitGoalArrowMaterial.dispose();

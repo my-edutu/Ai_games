@@ -65,6 +65,8 @@ test('a real close public encounter frames both autonomous actors and saves date
   expect(diagnostics.characterCount).toBeGreaterThan(1);
   expect(diagnostics.wardensInFrame, 'At least one disclosed guardian must actually share the camera with Pip').toBeGreaterThan(0);
   expect(diagnostics.encounterAttention).toBeGreaterThan(0);
+  expect(diagnostics.wardenContactShadows, 'Only public guardian actors get shadow meshes').toBe(diagnostics.disclosedThreats);
+  expect(diagnostics.wardenGroundedContacts, 'The shadow must follow the true physical floor beneath each visible guardian').toBe(diagnostics.disclosedThreats);
   expect(diagnostics.explorerInFrame).toBe(true);
   expect(errors).toEqual([]);
 
@@ -91,6 +93,8 @@ test('a real close public encounter frames both autonomous actors and saves date
       characterCount: diagnostics.characterCount,
       disclosedThreats: diagnostics.disclosedThreats,
       wardensInFrame: diagnostics.wardensInFrame,
+      wardenContactShadows: diagnostics.wardenContactShadows,
+      wardenGroundedContacts: diagnostics.wardenGroundedContacts,
       encounterAttention: diagnostics.encounterAttention,
       explorerInFrame: diagnostics.explorerInFrame,
       frameP50Ms: diagnostics.frameP50Ms,
@@ -128,6 +132,8 @@ test('a real close public encounter frames both autonomous actors and saves date
       disclosedThreats:portraitEncounter.disclosedThreats,
       wardensInFrame:portraitEncounter.wardensInFrame,
       wardensWithMargin:portraitEncounter.wardensWithMargin,
+      wardenContactShadows:portraitEncounter.wardenContactShadows,
+      wardenGroundedContacts:portraitEncounter.wardenGroundedContacts,
       cameraHalfHeight:portraitEncounter.cameraHalfHeight,
       explorerProjection:portraitEncounter.explorerProjection,
       encounterAttention:portraitEncounter.encounterAttention,
@@ -141,6 +147,8 @@ test('a real close public encounter frames both autonomous actors and saves date
   // so a failure keeps the authentic clipping evidence for the visual critic.
   expect(portraitEncounter.explorerInFrame, 'Native Detail must retain the real explorer').toBe(true);
   expect(portraitEncounter.wardensInFrame, 'Native Detail warning must show at least one truly disclosed 3D guardian').toBeGreaterThanOrEqual(1);
+  expect(portraitEncounter.wardenContactShadows).toBe(portraitEncounter.disclosedThreats);
+  expect(portraitEncounter.wardenGroundedContacts).toBe(portraitEncounter.disclosedThreats);
   // Pass45 center-only visibility passed despite a cropped right-hand shell.
   expect(portraitEncounter.wardensWithMargin, 'Native warden center must have room for the full model').toBeGreaterThanOrEqual(1);
   expect(Math.abs(portraitEncounter.explorerProjection.x), 'Native encounter must retain a visible Pip margin').toBeLessThan(.7);
