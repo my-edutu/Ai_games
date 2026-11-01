@@ -97,7 +97,7 @@ test('near-ledge scene uses the exterior radial corridor and real outer lip as t
 
 test('real ledge grip curls both boots clear of the lower deck, then releases the pose',async t=>{
   const threeURL=pathToFileURL(path.join(path.dirname(require.resolve('three')),'three.module.js')).href;
-  const adjusted=cast.replace(/from ['"]\\/tower\\/vendor\\/three\\.module\\.js['"]/, "from '"+threeURL+"'");
+  const adjusted=cast.replace("from '/tower/vendor/three.module.js'", "from '"+threeURL+"'");
   assert.notEqual(adjusted,cast);
   const [api,THREE]=await Promise.all([
     import('data:text/javascript;base64,'+Buffer.from(adjusted).toString('base64')),
