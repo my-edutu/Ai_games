@@ -13,6 +13,35 @@ function followClimberContact(position, target, blend, state) {
   return position;
 }
 
+// Bound presentation-only inward radial retreat to elapsed authoritative ticks.
+// Outward clearance still follows the actual ledge immediately.
+function createTowerRadialTransition() {
+  let identity='',lastTick=-1,lastChecksum='',radius=25,desired=25;
+  function reset(){identity='';lastTick=-1;lastChecksum='';radius=25;desired=25;}
+  function sample(snapshot,nextRadius){
+    if(!snapshot?.player||!Number.isInteger(snapshot.tick)||snapshot.tick<0||
+       !Number.isInteger(snapshot.floor)||!snapshot.runToken||!Number.isFinite(nextRadius)){
+      reset();return 25;
+    }
+    const key=`${snapshot.runToken}:${snapshot.floor}`;
+    const wanted=Math.max(25,Math.min(28.05,nextRadius));
+    const checksum=snapshot.publicChecksum||'';
+    if(key!==identity||snapshot.tick<lastTick||
+      (snapshot.tick===lastTick&&checksum!==lastChecksum)){
+      identity=key;lastTick=snapshot.tick;lastChecksum=checksum;
+      radius=desired=wanted;return radius;
+    }
+    if(snapshot.tick>lastTick){
+      const ticks=snapshot.tick-lastTick;
+      radius=wanted>=radius?wanted:Math.max(wanted,radius-ticks*.55);
+      lastTick=snapshot.tick;lastChecksum=checksum;
+    }
+    desired=wanted;return radius;
+  }
+  function diagnostics(){return{desired,presented:radius,tick:lastTick};}
+  return{sample,reset,diagnostics};
+}
+
 // The hand's rigid meshes are batched onto the right-elbow bone. Transform its
 // authored wrist point after posing so the cosmetic strike follows real motion.
 function positionStrikeCue(arc, rig, camera) {
@@ -703,6 +732,7 @@ export function createTowerScene(canvas, settings = {}) {
   let baseY = 0, themeKey = '', cameraAngle = .15, lastRevision = '', orbit = 0, zoom = 1;
   const renderProgress = createRenderProgress();
   const actorTarget = new THREE.Vector3();
+  const radialTransition = createTowerRadialTransition();
   const guardianSightPoints=[];
   const lookAt = new THREE.Vector3();
   let actorYaw = 0;
@@ -900,7 +930,8 @@ export function createTowerScene(canvas, settings = {}) {
     const ledgeTarget = ledgeContact ? pointFor(ledgeContact.x, ledgeContact.y,
       snapshot.chunkBaseY, snapshot.worldWidth, 27.1) : null;
     const approachRadius = climbApproachRadius(snapshot, targetPlatform);
-    const mapped = pointFor(p.x, p.y - p.halfHeight, snapshot.chunkBaseY, snapshot.worldWidth, approachRadius);
+    const presentedRadius = radialTransition.sample(snapshot, approachRadius);
+    const mapped = pointFor(p.x, p.y - p.halfHeight, snapshot.chunkBaseY, snapshot.worldWidth, presentedRadius);
     actorTarget.set(mapped.x, mapped.y, mapped.z);
     const moving = Math.abs(p.vx) > 500;
     const desiredYaw = mapped.angle + (moving || p.state === 'dashing' ? p.facing * Math.PI / 2 : p.facing * .32);
@@ -1115,6 +1146,7 @@ export function createTowerScene(canvas, settings = {}) {
       lighting: { environmentReady: !!reflectionTarget, environmentState: disposed ? 'disposed' : reflectionDirty ? 'pending' : reflectionTarget ? 'ready' : 'direct', environmentBuilds: reflectionBuilds,
         environmentFailures: reflectionFailures, environmentLastError: reflectionLastError,
         environmentSize: reflectionTarget ? [reflectionTarget.width, reflectionTarget.height] : [0, 0], shadowLights: 1, shadowMapSize: sun.shadow.mapSize.x },
+      radialTransition: radialTransition.diagnostics(),
       world: world.diagnostics(), cameraPosition: camera.position.toArray(), climberPosition: climber.group.position.toArray() };
   }
   function dispose() {
@@ -1127,6 +1159,7 @@ export function createTowerScene(canvas, settings = {}) {
     canvas.removeEventListener('pointerup', pointerUp); canvas.removeEventListener('pointercancel', pointerUp); canvas.removeEventListener('wheel', wheel);
     releaseEnvironment();
     sun.shadow.dispose(); sun.shadow.map = null; sun.shadow.mapPass = null;
+    radialTransition.reset();
     clearActors(); climber.dispose(); world.dispose();
     skyGeometry.dispose(); skyMaterial.dispose();
     for (const geometry of sharedGeometry) geometry.dispose();

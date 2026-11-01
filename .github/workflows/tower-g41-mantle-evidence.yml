@@ -1,0 +1,40 @@
+name: Tower Gauntlet 41 Radial Mantle Evidence
+on:
+  push:
+    branches: [feat/tower-gauntlet41-radial-mantle-20261101]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tower-g41-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  mantle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - name: Radial movement and adjacent physics-free view contracts
+        run: node --test tests/phase3/tower-radial-mantle-g41.test.cjs tests/phase3/tower-ground-contact.test.cjs tests/phase3/tower-ledge-geometry-contact.test.cjs tests/phase3/tower-foot-deck-projection.test.cjs
+      - run: npm run tower:stream:self-test
+      - run: npx playwright install --with-deps chromium
+      - name: Capture unmodified authoritative sequence through real WebGL
+        run: npx playwright test --config=playwright.tower.config.cjs tests/browser/tower-radial-mantle-g41.spec.cjs
+        env:
+          TOWER_SOFTWARE_GL: '1'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tower-g41-mantle-${{ github.sha }}
+          path: |
+            artifacts/tower-g41/
+            test-results/
+          retention-days: 7
