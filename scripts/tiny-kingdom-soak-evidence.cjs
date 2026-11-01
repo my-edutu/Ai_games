@@ -141,6 +141,7 @@ const assert=require('node:assert/strict');
     const g=window.__tinyKingdom,gl=document.getElementById('world').getContext('webgl');
     return {geometry:g.getGeometryAudit(),stats:g.renderStats(),
       landscape:g.getLandscapeCacheStats(),
+      scenicVisibility:g.getScenicVisibilityStats(),
       glError:gl.getError(),authority:g.exportSnapshot().checksum};
   });
   evidence.grownScene=grown;
