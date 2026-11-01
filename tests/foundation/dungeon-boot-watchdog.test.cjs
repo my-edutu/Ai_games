@@ -104,3 +104,44 @@ test('a graphics restore without a fresh frame reports the persistent output sta
  h.window.__DUNGEON_RENDER_DIAGNOSTICS__.frame=6;h.advance(1000);
  assert.equal(h.document.body.dataset.rendererStatus,'ready','actual frame and tick progress permit recovery');
 });
+
+
+test('cold startup WebGL restoration retains truthful stalled status past the generic startup deadline',()=>{
+ const h=launch();
+ h.window.__DUNGEON_RENDER_DIAGNOSTICS__.frame=1;
+ h.lose();h.restore();
+ h.advance(13500);
+ assert.equal(h.document.body.dataset.rendererStatus,'stalled','generic startup timer must not overwrite a known post-restore output stall');
+ assert.equal(h.recovery.hidden,false);
+ assert.match(h.recovery.textContent,/render|graphics|3D/i);
+});
+
+test('a late valid frame and tick recover cold-start restoration after its stall deadline',()=>{
+ const h=launch();
+ h.lose();h.restore();
+ h.window.__DUNGEON_PUBLIC_STATE__.tick=2;
+ h.advance(13500);
+ assert.equal(h.document.body.dataset.rendererStatus,'stalled','a healthy tick alone does not prove restored WebGL');
+ h.window.__DUNGEON_RENDER_DIAGNOSTICS__.frame=5;
+ h.window.__DUNGEON_PUBLIC_STATE__.tick=3;
+ h.advance(1000);
+ assert.equal(h.document.body.dataset.rendererStatus,'ready');
+ assert.equal(h.recovery.hidden,true);
+ h.advance(14000);
+ assert.equal(h.document.body.dataset.rendererStatus,'ready','a stale startup timeout must never fire after real recovery');
+});
+
+test('generic startup failure remains actionable when no WebGL loss or restoration was observed',()=>{
+ const h=launch();
+ h.advance(13500);
+ assert.equal(h.document.body.dataset.rendererStatus,'failed');
+ assert.equal(h.recovery.hidden,false);
+});
+
+test('pre-startup WebGL loss remains truthful rather than misclassified as a module startup failure',()=>{
+ const h=launch();
+ h.lose();
+ h.advance(32000);
+ assert.equal(h.document.body.dataset.rendererStatus,'context-lost');
+ assert.equal(h.recovery.hidden,false);
+});
