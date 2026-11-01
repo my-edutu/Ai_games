@@ -434,11 +434,29 @@ void main(){
   // Gauntlet 050 — shader-consistent ecological terrain: layered meadow,
   // wet streambanks, dry hillside exposure, and rainfall-darkened ground.
   // Uses the existing two coherent noise fields, no extra texture fetches.
-  float meadow=noise3(vWorld*vec3(.29,1.1,.29));
-  // G085: retain exact near-field blade noise, fade its aliasing across the
-  // existing 10–38m grass LOD, and skip its eight-hash noise3 evaluation
-  // entirely for far meadow pixels. The broad meadow field stays intact.
-  float detailFade=1.-smoothstep(10.,38.,length(eyePosition.xz-vWorld.xz));
+  // G089 meadow farfield: keep the full original 3D trilinear noise in
+  // foreground. In the distant village/horizon replace its eight expensive
+  // hash corners with four continuous bilinear terrain-plane samples.
+  // The 26–42m smooth blend keeps camera LOD transitions seamless, with
+  // zero effect on simulation geometry, RNG or saved authority.
+  float groundDistance=length(eyePosition.xz-vWorld.xz);
+  float farMeadowMix=smoothstep(26.,42.,groundDistance);
+  float meadow=.5;
+  if(groundDistance<42.) meadow=noise3(vWorld*vec3(.29,1.1,.29));
+  if(farMeadowMix>0.){
+   vec2 meadowUV=vWorld.xz*.29;
+   vec2 cell=floor(meadowUV),fade=fract(meadowUV);
+   fade=fade*fade*(3.-2.*fade);
+   float m00=hash3(vec3(cell,2.));
+   float m10=hash3(vec3(cell+vec2(1.,0.),2.));
+   float m01=hash3(vec3(cell+vec2(0.,1.),2.));
+   float m11=hash3(vec3(cell+vec2(1.,1.),2.));
+   float distantMeadow=mix(mix(m00,m10,fade.x),mix(m01,m11,fade.x),fade.y);
+   meadow=mix(meadow,distantMeadow,farMeadowMix);
+  }
+  // G085: near-field blades retain exact 3D noise. No extra eye-distance
+  // calculation: G089 shares the original 10–38m LOD distance.
+  float detailFade=1.-smoothstep(10.,38.,groundDistance);
   float blades=.5;
   if(detailFade>0.) blades=mix(.5,noise3(vWorld*vec3(5.2,1.4,5.2)),detailFade);
   c*=mix(.82,1.17,meadow)*mix(.92,1.10,blades);
