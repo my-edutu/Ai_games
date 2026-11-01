@@ -2254,7 +2254,7 @@ const MARKET_STALLS=Object.freeze([
  Object.freeze({x:-5.75,z:8.70,face:-1,trade:'herbs',dye:3})
 ]);
 let marketQuarterStats={stalls:0,pavingStones:0,mortarTriangles:0,signboards:0,
- carts:0,coveredArcades:0,canopyPanels:0,totalTriangles:0,cached:false};
+ carts:0,coveredArcades:0,canopyPanels:0,receivingBays:0,totalTriangles:0,cached:false};
 let marketStockTriangles=0;
 function marketCobblestoneSquare(){
  const cx=-1.0,cz=4.9,rx=7.55,rz=7.05;
@@ -2335,6 +2335,35 @@ function marketTimberCart(x,z){
   }
  });
  marketQuarterStats.carts++;
+}
+/* Actual cargo arrivals receive a physical low stone-and-oak platform.
+   Its two work bays are scenery, not new economic buildings or made-up stock. */
+function marketReceivingDock(){
+ for(const bay of [{x:-1.0,z:10.2,trade:'grain'},
+                   {x:.85,z:10.2,trade:'timber'}]){
+  const x=bay.x,z=bay.z,y=terrain(x,z),timber=rgb(0x79583d);
+  materialScope(MATERIAL.STONE,()=>{
+   box(x,y+.04,z+.72,1.45,.14,1.20,rgb(0x8e8372));
+   for(const side of [-1,1])
+    box(x+side*.67,y+.10,z+.72,.15,.20,1.22,rgb(0xa29a86));
+  });
+  materialScope(MATERIAL.WOOD,()=>{
+   box(x,y+.17,z+.72,1.31,.12,.93,rgb(0x926d47));
+   for(let k=0;k<4;k++)
+    box(x-.49+k*.33,y+.25,z+.72,.075,.05,.84,rgb(k%2?0xbd9260:0x65462f));
+   for(const side of [-1,1]){
+    const xx=x+side*.59;
+    box(xx,y+.16,z+1.31,.11,.87,.12,timber);
+    limbSegment([xx,y+.87,z+1.34],[xx-side*.18,y+.60,z+1.09],
+      .045,rgb(0xb38c5e),5);
+   }
+   box(x,y+.96,z+1.34,1.33,.14,.13,timber);
+   for(let k=0;k<4;k++)
+    box(x-.47+k*.32,y+.44,z+1.33,.035,.40,.05,
+      rgb(k%2?0xad8961:0x876747));
+  });
+  marketQuarterStats.receivingBays++;
+ }
 }
 function marketStall(s,index){
  const x=s.x,z=s.z,y=terrain(x,z),w=2.85,d=2.14,face=s.face;
@@ -2418,11 +2447,11 @@ function marketStall(s,index){
 }
 function marketQuarter(){
  marketQuarterStats={stalls:0,pavingStones:0,mortarTriangles:0,signboards:0,
-  carts:0,coveredArcades:0,canopyPanels:0,totalTriangles:0,cached:false};
+  carts:0,coveredArcades:0,canopyPanels:0,receivingBays:0,totalTriangles:0,cached:false};
  const begin=data.length;
  marketCobblestoneSquare();
  for(let i=0;i<MARKET_STALLS.length;i++)marketStall(MARKET_STALLS[i],i);
- marketTimberCart(2.45,9.90);
+ marketTimberCart(2.45,9.90);marketReceivingDock();
  const x=-1.35,z=10.17,y=terrain(x,z),oak=rgb(0x70533e);
  // Market entry arcade gives the street a recognizable vertical silhouette.
  materialScope(MATERIAL.WOOD,()=>{
