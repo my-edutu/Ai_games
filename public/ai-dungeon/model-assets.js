@@ -102,11 +102,29 @@ function addWardenRegalia(actor){
   bone:new THREE.MeshStandardMaterial({color:'#b6ae9b',metalness:.18,roughness:.63}),
   ember:new THREE.MeshStandardMaterial({color:'#c0683f',emissive:'#a73b1d',emissiveIntensity:.62,metalness:.28,roughness:.39})
  };
+ // Chamfered forged plaques remove the toy-like box silhouette without
+ // adding draws or textures. All forms are shared, disposable and remain
+ // strictly cosmetic attachments to the real animated boss skeleton.
+ const plaqueOutline=new THREE.Shape();
+ plaqueOutline.moveTo(-.44,-.50);
+ plaqueOutline.lineTo(.44,-.50);
+ plaqueOutline.lineTo(.50,-.37);
+ plaqueOutline.lineTo(.50,.37);
+ plaqueOutline.lineTo(.35,.50);
+ plaqueOutline.lineTo(-.35,.50);
+ plaqueOutline.lineTo(-.50,.37);
+ plaqueOutline.lineTo(-.50,-.37);
+ plaqueOutline.closePath();
+ const plaque=new THREE.ExtrudeGeometry(plaqueOutline,{
+  depth:.76,steps:1,bevelEnabled:true,bevelThickness:.045,
+  bevelSize:.038,bevelSegments:2,curveSegments:3
+ });
+ plaque.center();
  const base={
-  plate:new THREE.SphereGeometry(.5,12,8),
-  spike:new THREE.ConeGeometry(.5,1,9),
-  gem:new THREE.OctahedronGeometry(.5,0),
-  lamella:new THREE.BoxGeometry(1,1,1)
+  plate:new THREE.SphereGeometry(.5,20,13),
+  spike:new THREE.ConeGeometry(.5,1,11),
+  gem:new THREE.OctahedronGeometry(.5,1),
+  lamella:plaque
  };
  const ownedGeometries=Object.values(base);
  for(const item of plan){
