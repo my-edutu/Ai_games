@@ -87,16 +87,16 @@ test('interactive traps are deterministic and can hurt or be disarmed by autonom
  const restore=DungeonRuntime.restore(game.save());assert.deepEqual(restore.publicState(),game.publicState());
  // A deliberate hold-on-hazard fixture proves damage still works when no
  // sidestep occurs. It does not rewrite authority or bypass the real step.
- const forced=DungeonRuntime.create('trap-occupied-contact-fixture'),q=forced.state;
- const fighter=q.units.find(u=>u.id==='vanguard'),guardian=q.units.find(u=>u.kind==='warden');
- for(const u of q.units)if(u!==fighter&&u!==guardian)u.hp=0;
+ const forced=DungeonRuntime.create('trap-occupied-contact-fixture'),forcedState=forced.state;
+ const fighter=forcedState.units.find(u=>u.id==='vanguard'),guardian=forcedState.units.find(u=>u.kind==='warden');
+ for(const u of forcedState.units)if(u!==fighter&&u!==guardian)u.hp=0;
  guardian.x=2;guardian.z=1;
- const hazard=q.traps[0];hazard.x=fighter.x;hazard.z=fighter.z;hazard.active=true;
+ const hazard=forcedState.traps[0];hazard.x=fighter.x;hazard.z=fighter.z;hazard.active=true;
  const fighterHp=fighter.hp,impact=forced.step();
  assert.ok(fighter.hp<fighterHp);
  assert.equal(hazard.active,false);assert.equal(hazard.cooldown,11);
  assert.ok(impact.events.some(e=>e.kind==='trap'));
- assertDungeonState(q);
+ assertDungeonState(forcedState);
  const other=DungeonRuntime.create('trap-disarm-fixture'),q=other.state,ranger=q.units.find(u=>u.kind==='ranger');
  const qtrap=q.traps[0];ranger.x=qtrap.x;ranger.z=qtrap.z;q.tick=3;
  other.step();

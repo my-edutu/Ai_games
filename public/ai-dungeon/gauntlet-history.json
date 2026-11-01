@@ -2193,7 +2193,7 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "First tactical candidate d291dd2 failed four authority tests (177/181 passing): real trap fixture assumed reckless walking, fixed vanguard-only encounter attribution, new allied-body firing-lane test, and previous hit-roll bound. This integrated correction is pending exact-head build, replay, real WebGL and CI.",
+      "safetyChecks": "Exact-code correction 9de15b30 authority failed before tests because a fixture declared q twice (SyntaxError). Corrected fixture variable on following commit; checks remain UNVERIFIED for that commit until new CI.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "PENDING_EXACT_HEAD_CHROMIUM_CAPTURE",
       "soundstageBrowser": "PENDING_EXACT_HEAD_CHROMIUM_RUN",
