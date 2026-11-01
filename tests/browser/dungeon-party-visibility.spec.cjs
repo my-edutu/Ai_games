@@ -17,6 +17,14 @@ test('real seeded Chromium WebGL reveals near-party masonry but retains distant 
  await page.goto('/dungeon');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.texturedCharacters??0),{timeout:60000}).toBeGreaterThanOrEqual(3);
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.cutawayNearbyWalls??0),{timeout:20000}).toBeGreaterThan(0);
+ // Use the real seeded authority snapshot and actual WebGL frame loop. Once
+ // the camera/party are steady, a repeated image must not reupload unchanged
+ // instanced masonry buffers each rendered frame.
+ await expect.poll(()=>page.evaluate(()=>{
+  const d=window.__DUNGEON_RENDER_DIAGNOSTICS__;
+  return Boolean(d&&d.wallMatrixWrites===0&&d.parapetMatrixWrites===0&&
+   d.dressing?.matrixWrites?.facade===0&&d.dressing?.matrixWrites?.weathered===0);
+ }),{timeout:40000}).toBe(true);
  const diagnostics=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
  expect(diagnostics.cutawayNearbyWalls).toBeGreaterThan(0);
  expect(diagnostics.cutawayNearbyWalls).toBeLessThan(diagnostics.wallProfiles.totalWalls);
@@ -30,6 +38,8 @@ test('real seeded Chromium WebGL reveals near-party masonry but retains distant 
  await test.info().attach('actual-seeded-party-cutaway',{body:Buffer.from(JSON.stringify({
   seed:'visual-room-art-18',tick:state.tick,frame:diagnostics.frame,
   cutawayWalls:diagnostics.cutawayWalls,nearbyWalls:diagnostics.cutawayNearbyWalls,
+  wallMatrixWrites:diagnostics.wallMatrixWrites,parapetMatrixWrites:diagnostics.parapetMatrixWrites,
+  dressingMatrixWrites:diagnostics.dressing?.matrixWrites,
   composition:diagnostics.composition,visibility:diagnostics.visibility,
   render: {drawCalls:diagnostics.drawCalls,triangles:diagnostics.triangles}
  },null,2)),contentType:'application/json'});
