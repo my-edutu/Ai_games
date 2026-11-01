@@ -43,7 +43,15 @@ function refreshSceneCard(){
   if(frame.scene==='recovery'){showCard('RESTORING','Reconnecting to live game');return}
   elements.sceneCard.hidden=true;
 }
-function formatTime(ticks,interval=360){const seconds=Math.ceil(ticks*interval/1000);return `${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`}
+function formatTime(ticks,interval=360){
+  const remaining=Number.isFinite(ticks)?Math.max(0,ticks):0;
+  const step=Number.isFinite(interval)&&interval>0?interval:360;
+  const seconds=Math.ceil(remaining*step/1000);
+  const part=(n)=>String(n).padStart(2,'0');
+  return seconds>=3600
+    ? `${Math.floor(seconds/3600)}:${part(Math.floor(seconds%3600/60))}:${part(seconds%60)}`
+    : `${Math.floor(seconds/60)}:${part(seconds%60)}`;
+}
 const intentLabels={'exploring':'Exploring','returning-key':'Finding key','unlocking-route':'At gate','searching-exit':'Seeking exit','evading-threat':'Evading','revising-map':'Rerouting','fallback':'Exploring','escaped':'Escaped'};
 const goals={'exploring':'Find a passage','returning-key':'Find key','unlocking-route':'Gate ahead','searching-exit':'Find the exit','evading-threat':'Avoid warden','revising-map':'New route','fallback':'Explore','escaped':'Escaped'};
 function viewerCaption(value){
