@@ -2201,11 +2201,11 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "PREVIOUS_REAL_BROWSER_FAILED_61PX_VS_90PX_CANDIDATE_UNVERIFIED",
-      "latestCandidateWorkflow": "PENDING_EXACT_HEAD_GITHUB_ACTIONS_AFTER_FORGED_ANATOMY"
+      "latestCandidateWorkflow": "PENDING_EXACT_HEAD_AFTER_FORGED_ROLE_PALETTES"
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
     "biggestRemainingGap": "Actual LOOKS/FEELS/PLAYS superiority of full 3D expedition still not demonstrated: original stylized rigs may remain toy-like even with forged shells; convincing motion/contact/footwork, finished visual environments, full desktop/mobile continuous audio, matched locked-baseline comparisons, performance tails and >=3 independent critics are absent.",
-    "currentWork": "Candidate forged-anatomy integration now changes actual rendered skinned heroes and Warden, preserving original AI, rig animation and boss chapter. Previously failing real boss camera check updated to match cinematic director. New WebGL captures and quality remain unverified.",
+    "currentWork": "One integrated forged anatomy and PBR role-identity candidate spans actual skinned parties and enemies, boss combat, existing Warden court and cinematic lens; pure geometry/material checks and genuine desktop/mobile Warden capture tests authored, not yet evaluated.",
     "candidateCommit": "cb4553280a438233c23cd2ba29df33ffd4ef9b27",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
@@ -2456,9 +2456,10 @@
           "scripts/serve-dungeon-stream.cjs",
           "tests/foundation/dungeon-forged-armor.test.cjs",
           "tests/browser/dungeon-forged-armor.spec.cjs",
-          "tests/browser/dungeon-interface.spec.cjs"
+          "tests/browser/dungeon-interface.spec.cjs",
+          "Original five-finish role-specific PBR palettes in forged-armor.js"
         ],
-        "implementation": "Six class-specific swept sculpted plate shells with tapered greaves, bracers, masks, pauldrons, waist taper, ridged/keel surface; genuine GLB bones and current source animation unchanged, static geometry merged by material; desktop and mobile real Warden scenario capture checks.",
+        "implementation": "Six class-specific swept sculpted plate shells with tapered greaves, bracers, masks, pauldrons, waist taper, ridged/keel surface; genuine GLB bones and current source animation unchanged, static geometry merged by material; desktop and mobile real Warden scenario capture checks. Material integration assigns original restrained class-separated steel/bronze/leather/textile/bone finishes without extra draw groups; genuine Warden plate has bounded ember tone. No gain claimed without screen comparison.",
         "existingBrowserEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/41345498189/artifacts/13099625942",
         "knownPreviousCI": "41345498189 and 41345498166 each had exactly one failing stale boss camera blend expectation (2.2 vs 3.28); source expectation corrected with true cinema shot origin.",
         "verification": "NEW EXACT HEAD TESTS/CAPTURES/MOTION/AUDIO/PERFORMANCE/BLIND CRITICS UNVERIFIED; local browser/subagent tunnel unavailable",

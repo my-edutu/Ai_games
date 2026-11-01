@@ -45,3 +45,27 @@ test('real skinned GLB characters use sculpted forms without changing authority 
  assert.ok(host.includes("['/dungeon/forged-armor.js','forged-armor.js']"));
  assert.doesNotMatch(pure,/Math\.random|fetch\(|Date\.now|performance\.now|DungeonRuntime|https?:\/\//);
 });
+
+
+test('forged role finishes are unique restrained physical surfaces with no new material groups',async()=>{
+ const {planForgedFinishes}=await load();
+ const seen=new Set();
+ for(const kind of kinds){
+  const materials=planForgedFinishes(kind);
+  assert.ok(Object.isFrozen(materials),kind+' immutable palette');
+  assert.deepEqual(Object.keys(materials).sort(),['steel','bronze','bone','leather','textile'].sort());
+  const signature=Object.values(materials).map(v=>v.color).join(',');
+  assert.ok(!seen.has(signature),kind+' needs its own hero/enemy color hierarchy');
+  seen.add(signature);
+  for(const [name,material] of Object.entries(materials)){
+   assert.ok(Object.isFrozen(material),name);
+   assert.match(material.color,/^#[0-9a-f]{6}$/i);
+   assert.ok(material.roughness>=.25&&material.roughness<=1);
+   assert.ok(material.metalness>=0&&material.metalness<=1);
+  }
+ }
+ assert.equal(planForgedFinishes('missing'),null);
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/planForgedFinishes\(actor\.u\.kind\)/);
+ assert.match(renderer,/Object\.fromEntries\(Object\.entries\(materials\)/);
+});

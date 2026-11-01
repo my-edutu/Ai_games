@@ -82,3 +82,36 @@ export function createForgedArmorForms(THREE,kind){
   tabard:new THREE.BoxGeometry(1,1,.15)
  };
 }
+
+/**
+ * Class-distinct actual PBR finishes across heroes, rivals and the Warden.
+ * The same five material groups remain: no new per-character draw calls.
+ * An enemy's visual allegiance and weapon can be read without an overlaid
+ * nameplate. Source palettes are original and contain no borrowed textures.
+ */
+const COLORS=Object.freeze({
+ vanguard:Object.freeze({steel:'#506879',bronze:'#c79f57',bone:'#c4bca8',leather:'#353e46',textile:'#264568'}),
+ ranger:Object.freeze({steel:'#476968',bronze:'#9a8651',bone:'#adae9b',leather:'#354b3a',textile:'#304d35'}),
+ mystic:Object.freeze({steel:'#73778b',bronze:'#b4a47d',bone:'#ddd6cc',leather:'#4c405d',textile:'#5b4b7d'}),
+ revenant:Object.freeze({steel:'#414950',bronze:'#77624e',bone:'#a79b86',leather:'#252d31',textile:'#303d42'}),
+ cultist:Object.freeze({steel:'#655260',bronze:'#a07372',bone:'#c9a8a0',leather:'#563139',textile:'#643d50'}),
+ warden:Object.freeze({steel:'#514248',bronze:'#cb9952',bone:'#c7a684',leather:'#3b2930',textile:'#583840'})
+});
+const PHYSICAL=Object.freeze({
+ steel:Object.freeze({metalness:.76,roughness:.38}),
+ bronze:Object.freeze({metalness:.68,roughness:.42}),
+ bone:Object.freeze({metalness:.09,roughness:.76}),
+ leather:Object.freeze({metalness:.035,roughness:.85}),
+ textile:Object.freeze({metalness:.01,roughness:.98})
+});
+const MATERIALS=Object.freeze(Object.fromEntries(Object.entries(COLORS).map(([kind,colors])=>
+ [kind,Object.freeze(Object.fromEntries(Object.entries(colors).map(([finish,color])=>
+ [finish,Object.freeze({
+  color,metalness:PHYSICAL[finish].metalness,
+  roughness:PHYSICAL[finish].roughness,
+  ...(kind==='warden'&&finish==='steel'?{emissive:'#3c1b13',emissiveIntensity:.12}:{})
+ })])))])
+)));
+export function planForgedFinishes(kind){
+ return typeof kind==='string'&&Object.hasOwn(MATERIALS,kind)?MATERIALS[kind]:null;
+}

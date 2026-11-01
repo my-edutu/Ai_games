@@ -6,7 +6,7 @@ import {planAuthoredMotion} from '/dungeon/character-motion-plan.js';
 import {planWardenRegalia} from '/dungeon/warden-regalia-plan.js';
 import {planRoleSilhouette} from '/dungeon/role-silhouette-plan.js';
 import {planAnatomicalKit,planAnatomicalDrawGroups} from '/dungeon/anatomical-kit-plan.js';
-import {createForgedArmorForms,planForgedArmor} from '/dungeon/forged-armor.js';
+import {createForgedArmorForms,planForgedArmor,planForgedFinishes} from '/dungeon/forged-armor.js';
 import {planDrapePanels,planDrapeSwing,planDrapeVertexBend,drapePoseKey,DRAPE_ROWS,DRAPE_COLUMNS} from '/dungeon/fabric-drape-plan.js';
 import {rigWeaponParts,selectHandBone,rigGripAnchor,boundedGripOffset,selectUpperArmBone,planRigArmGesture,selectForearmBone,planRigForearmGesture,selectLegBone,advanceRigGait,planRigLegGesture,planRigContactBrace,selectCranialBone,planCranialRatio,restoreCranialProportion,stageCranialProportion,selectCombatTorsoBone,planRigMeleeFollowThrough} from '/dungeon/rig-attachment-plan.js';
 
@@ -184,13 +184,10 @@ function addAnatomicalKit(actor){
  const plan=planAnatomicalKit(actor.u.kind);
  if(!plan.length||!actor.visualPivot)return;
  const group=new THREE.Group();group.name='Original '+actor.u.kind+' anatomical armour';
- const finishes={
-  steel:new THREE.MeshStandardMaterial({color:'#65777d',metalness:.66,roughness:.47}),
-  bronze:new THREE.MeshStandardMaterial({color:'#ac8657',metalness:.57,roughness:.51}),
-  bone:new THREE.MeshStandardMaterial({color:'#b6ac98',metalness:.05,roughness:.86}),
-  leather:new THREE.MeshStandardMaterial({color:'#493e35',metalness:.02,roughness:.91}),
-  textile:new THREE.MeshStandardMaterial({color:'#675c64',metalness:.01,roughness:1,side:THREE.DoubleSide})
- };
+ const materials=planForgedFinishes(actor.u.kind);
+ if(!materials)return;
+ const finishes=Object.fromEntries(Object.entries(materials).map(([name,settings])=>
+  [name,new THREE.MeshStandardMaterial({...settings,...(name==='textile'?{side:THREE.DoubleSide}:{})})]));
  const forms=createForgedArmorForms(THREE,actor.u.kind);
  if(!forms)return;
  actor.sculptedArmorProfile=planForgedArmor(actor.u.kind)?.name??null;
