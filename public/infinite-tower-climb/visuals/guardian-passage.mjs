@@ -76,7 +76,8 @@ export function createTowerGuardianPassage(THREE) {
     sourceTick = -1;
     age = 0;
   }
-  function begin(source, anchor) {
+  function begin(previous, source, anchor) {
+    if (!observedGuardianPassage(previous, source)) return false;
     if (disposed || !source || !anchor || source.lifecycle !== 'running' ||
       !Number.isSafeInteger(source.tick) || !Number.isSafeInteger(source.floor) ||
       typeof source.runToken !== 'string' || !source.runToken ||
