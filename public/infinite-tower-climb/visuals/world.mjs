@@ -994,10 +994,23 @@ export function createTowerWorld(){
         const guardian=(snapshot.enemies||[]).find(enemy=>enemy.kind==='guardian');
         if(guardian){
           const unlocked=!guardian.active;
-          const gate=entry.guardianGate,target=unlocked?1:0;
+          const gate=entry.guardianGate;
+          // Real guardian health is the encounter's visible progression
+          // currency. The source often moves straight from final hit to the
+          // next floor, so a door that reacts ONLY to inactive guardians
+          // would never be seen opening in actual autonomous play.
+          // Incrementally separate the original physical bronze wings as
+          // real hit points fall, reserving full passage for a real defeat.
+          const healthRatio=Number.isFinite(guardian.health)&&
+            Number.isFinite(guardian.maxHealth)&&guardian.maxHealth>0
+            ? THREE.MathUtils.clamp(guardian.health/guardian.maxHealth,0,1):1;
+          const target=unlocked?1:(1-healthRatio)*.72;
           if(gate.progress===null)gate.progress=target;
           else if(!options.stale){
-            const step=Math.min(Math.max(dt,0),.05)*1.65;
+            // Calibrated to real displayed dt: a slow render still catches
+            // up visibly, whereas a fast renderer opens smoothly. No timer
+            // changes tower ticks or asserts a hit before the source does.
+            const step=Math.min(Math.max(dt,0),.25)*1.8;
             gate.progress+=Math.sign(target-gate.progress)*Math.min(Math.abs(target-gate.progress),step);
           }
           gate.unlocked=unlocked;
