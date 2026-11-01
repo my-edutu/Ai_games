@@ -340,14 +340,19 @@ export function createWarden(options = {}) {
   const red=material('#ff8650',.2,.27,{emissive:'#ff401a',emissiveIntensity:1.1});
   const body=pivot(group,'armored body',[0,.79,-.035]);
   ball(body,dark,[0,0,0],[.53,.33,.6]);
-  // Split elytra have a raised central bronze spine and overlapping carved armor bands.
+  // Real articulated left/right shell halves pivot around the dorsal seam.
+  // A disclosed nearby threat can raise them; idle, unseen and terminal poses
+  // close the armor without implying a new game action or hidden enemy state.
+  const elytra=[];
   for (const side of [-1,1]) {
-    ball(body,shell,[side*.215,.13,-.08],[.32,.35,.57]);
+    const wing=pivot(body,`flared elytron ${side}`,[side*.05,.15,-.11]);
+    ball(wing,shell,[side*.165,-.02,.03],[.32,.35,.57]);
     for (let i=0;i<3;i++) {
-      const band=ring(body,bronze,[side*.22,.12,-.32+i*.23],.28,.014);
+      const band=ring(wing,bronze,[side*.17,-.03,-.21+i*.23],.28,.014);
       band.scale.set(1,1.08,1); band.rotation.y=side*.16;
     }
-    for (let i=0;i<3;i++) ball(body,plates,[side*(.32-i*.02),.34,-.34+i*.23],[.135,.065,.09]);
+    for (let i=0;i<3;i++) ball(wing,plates,[side*(.27-i*.02),.19,-.23+i*.23],[.135,.065,.09]);
+    elytra.push({wing,side});
   }
   rounded(body,bronze,[0,.435,-.06],[.055,.045,.78],.022);
   for (let i=0;i<4;i++) {
@@ -357,6 +362,14 @@ export function createWarden(options = {}) {
   // when the camera sees its armored back. Only an observed nearby explorer
   // activates it; the material is cosmetic and never reveals hidden threats.
   const ember=material('#ff9b59',.08,.3,{emissive:'#f25a1c',emissiveIntensity:1.55});
+  // Ember linings are physical pieces tucked under the opening carapace, not
+  // camera-facing sprites. Both remain hidden without public close attention.
+  for (const shellHalf of elytra) {
+    const lining=pivot(shellHalf.wing,`exposed elytron lining ${shellHalf.side}`,[shellHalf.side*.12,-.17,.02]);
+    rounded(lining,ember,[shellHalf.side*.07,0,0],[.25,.065,.66],.02);
+    lining.visible=false;
+    shellHalf.lining=lining;
+  }
   const warningSpines=pivot(body,'activated warden spines',[0,.48,-.13]);
   for (const side of [-1,0,1]) {
     const height=side===0?.32:.21;
@@ -409,6 +422,13 @@ export function createWarden(options = {}) {
     const lookYaw=Math.max(-.58,Math.min(.58,relativeLook))*alert;
     warningSpines.visible=alert>.24;
     warningSpines.scale.y=1+alert*.4+(s.reduced?0:Math.sin(s.time*4.1)*.04);
+    // Two readable shell wings open independently in true close encounters.
+    // Reduced-motion retains a static disclosed-warning silhouette.
+    for (const shellHalf of elytra) {
+      shellHalf.wing.rotation.z=shellHalf.side*alert*.68;
+      shellHalf.wing.rotation.y=-shellHalf.side*alert*.23;
+      shellHalf.lining.visible=alert>.24;
+    }
     stride=approach(stride,s.moving?1:0,12,s.delta); gait+=s.delta*(10+s.danger*3)*stride;
     body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018);
     body.rotation.x=-s.danger*.055-alert*.11;

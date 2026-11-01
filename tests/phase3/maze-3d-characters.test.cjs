@@ -284,3 +284,45 @@ test('modeled held key bow remains face-on to two real cameras while the tooth a
     pip.dispose();
   }
 });
+
+
+test('Thornback opens physical paired shell halves only during a true disclosed encounter', async () => {
+  const {createWarden} = await modulePromise;
+  for (const balanced of [false,true]) {
+    const warden=createWarden({balanced});
+    const sides=[-1,1].map(side=>({
+      side, wing:warden.group.getObjectByName(`flared elytron ${side}`),
+      lining:warden.group.getObjectByName(`exposed elytron lining ${side}`)
+    }));
+    for (const entry of sides) {
+      assert.ok(entry.wing && entry.lining, 'both shell plates and ember linings must be modeled');
+      assert.equal(entry.lining.parent,entry.wing,'real underside remains attached to the opening armor');
+      assert.equal(entry.lining.visible,false,'no secret threat may leak at rest');
+    }
+    for (const reducedMotion of [false,true]) {
+      warden.update({heading:0,attentionHeading:Math.PI/2,attentionStrength:.56065,
+        danger:1,reducedMotion,time:1,delta:.05});
+      for (const entry of sides) {
+        assert.ok(entry.wing.rotation.z*entry.side>.35,'wing must visibly raise away from its dorsal seam');
+        assert.ok(entry.wing.rotation.y*entry.side<-.1,'wing opens in three dimensions');
+        assert.equal(entry.lining.visible,true,'real exposed ember underside follows public close warning');
+      }
+      warden.update({heading:0,attentionStrength:0,reducedMotion,time:2,delta:.05});
+      for (const entry of sides) {
+        assert.equal(entry.wing.rotation.z,0,'unseen threat closes the shell with no stale position');
+        assert.equal(entry.wing.rotation.y,0);
+        assert.equal(entry.lining.visible,false);
+      }
+      for (const result of ['capture','escape']) {
+        warden.update({heading:0,attentionHeading:Math.PI/2,attentionStrength:1,
+          danger:1,result,reducedMotion,time:3,delta:.05});
+        for (const entry of sides) {
+          assert.equal(entry.wing.rotation.z,0,'terminal truth outranks shell threat pose');
+          assert.equal(entry.lining.visible,false);
+        }
+      }
+    }
+    warden.dispose();
+    assert.equal(warden.group.children.length,0);
+  }
+});
