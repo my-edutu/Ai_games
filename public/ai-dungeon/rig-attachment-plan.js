@@ -296,3 +296,55 @@ export function planRigContactBrace(kind,action,elapsed=0,contactDistance=null,r
   }
  };
 }
+
+
+/**
+ * Real skinned-rig follow-through at a validated adjacent melee contact.
+ * Each pose affects only the visual chest and weapon wrist. It cannot alter
+ * the authoritative attack, victim, reach, physics, path or replay checksum.
+ */
+const MELEE_STAGING_REST=Object.freeze({
+ spine:Object.freeze({pitch:0,yaw:0,roll:0}),
+ wrist:Object.freeze({pitch:0,yaw:0,roll:0})
+});
+const MELEE_STAGING_WEIGHT=Object.freeze({vanguard:1,revenant:.79,warden:1.06});
+export function selectCombatTorsoBone(bones){
+ if(!Array.isArray(bones))return null;
+ let found=null,highest=0;
+ for(const bone of bones){
+  if(!bone?.isBone||typeof bone.name!=='string')continue;
+  const name=bone.name.toLowerCase().replace(/[^a-z0-9]/g,'');
+  if(!/(spine|chest|torso)/.test(name)||/(twist|helper|nub|end|neck|head|pelvis|hip|arm|leg)/.test(name))continue;
+  const score=/upperchest/.test(name)?170:
+   /spine(?:2|02|002)/.test(name)?160:
+   /chest/.test(name)?150:
+   /spine(?:1|01|001)/.test(name)?130:105;
+  if(score>highest){found=bone;highest=score;}
+ }
+ return found;
+}
+export function planRigMeleeFollowThrough(kind,action,elapsed=0,contactDistance=null,targetId=null,reducedMotion=false){
+ const weight=Object.hasOwn(MELEE_STAGING_WEIGHT,kind)?MELEE_STAGING_WEIGHT[kind]:0;
+ if(reducedMotion||!weight||action!=='attack'||contactDistance!==1||
+  typeof targetId!=='string'||targetId.trim().length<1||targetId.length>96||
+  !Number.isFinite(elapsed)||elapsed<0||elapsed>=.58)return MELEE_STAGING_REST;
+ const prepare=elapsed<.12?smooth(elapsed/.12):
+  elapsed<.18?1-smooth((elapsed-.12)/.06):0;
+ const drive=elapsed<=.13?0:
+  elapsed<.26?smooth((elapsed-.13)/.13):
+  1-smooth((elapsed-.26)/.32);
+ // Contact crosses the target facing only after the visible wind-up.
+ // Shoulder/elbow clips remain owned by their imported AnimationMixer.
+ return {
+  spine:{
+   pitch:weight*(.09*prepare-.105*drive),
+   yaw:weight*(-.225*prepare+.29*drive),
+   roll:weight*(.065*prepare+.10*drive)
+  },
+  wrist:{
+   pitch:weight*(-.25*prepare+.315*drive),
+   yaw:weight*(.11*prepare-.13*drive),
+   roll:weight*(.10*prepare+.18*drive)
+  }
+ };
+}
