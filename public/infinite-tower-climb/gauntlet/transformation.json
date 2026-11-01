@@ -9,18 +9,18 @@
   },
   "candidate": {
     "sha": null,
-    "title": "Unassessed original 3D guardian HP→physical winch/cables/bronze gate→source-anchored release→terminal/restart",
-    "implementationSha": "84fb5f246531cecd77efebcef0b46fdd55ed15f7",
-    "implementationEvidenceStatus": "IMPLEMENTED, NOT INDEPENDENTLY VISUALLY ASSESSED: 84fb5f2 adds one real guardian-HP-driven bronze capstan and two physically lengthening tension cables tied to the existing gate wings, counterweights and luminous walkway conduit. It fixes a real false-positive shadow caster on post-batched rigid masonry; f1b1418 repairs Float32-level instancing assertions. CI 41348722240 FAILED 1/705 prior source because rigid dark masonry cast unexpected shadows; latest-source CI 41353666750 remains unverified. Real 60+ second candidate source 84fb5f2 motion capture 41353444506 pending inspection, the frozen baseline outcome still FAILS genuine visible result/intermission/restart. Zero independent full-motion critics, zero supported-device frame-time/memory evidence. NO quality PASS."
+    "title": "Unassessed authentic ascent→guardian combat→HP-peeling skinned armor plus HP-driven physical gate/capstan→source-anchored release→outcome/restart",
+    "implementationSha": "3a5c6d9d94ea882026b293cf3d8738477ae7aaab",
+    "implementationEvidenceStatus": "IMPLEMENTED BUT NOT INDEPENDENTLY VISUALLY ASSESSED: 3a5c6d9 makes two original skinned shoulder armor shells peel back persistently with REAL guardian HP, revealing hot original underframes synchronized to the existing gate winch, weights, cables, door and conduit; test 338eec7 inspects actual skinned geometry/replay-safe restores. Previous source 32ee065 safety run 41353900090 SUCCESS, but exact new source safety run 41358291139 PENDING and 60s desktop/portrait real source 3a5c6d9 capture 41358227934 PENDING at record time. Prior 84fb5f2 capture 41353444506 finished 5/6 scoped jobs; frozen baseline outcome still FAILS genuine visible result/intermission/restart. 0 independent full-motion critics; no supported-device frame-time/memory evidence; NOT EVALUATED."
   },
   "currentTransformation": {
-    "title": "Turn one real ascent→guardian encounter→physically connected HP-powered gate→original-cap release→outcome/restart into a cinematic, comprehensible 3D expedition",
-    "state": "SAME INTEGRATED 3D CLIMB→REAL GUARDIAN HP→WINCH + COUNTERWEIGHTS + CAP PASSAGE→SOURCE-ANCHORED RELEASE→RESTART OPEN; NOT EVALUATED",
-    "promise": "Actual deterministic autonomous ascent and guardian combat now move an original source-synchronized 3D mechanical system: bronze doors separate, heavy paired weights descend, matching tension cables lengthen, a linked capstan turns, and a luminous conduit exposes the real cap path. On witnessed same-run guardian floor advance, a short fractured lock release remains physically anchored at the PREVIOUS real cap. Existing hit reaction, camera, sound, end/restart remain part of this one experience. No invented result, new HUD, collider or authority writes; all original meshes floor-owned and shadow-free as needed.",
-    "nextDecision": "Run and inspect normal-speed REAL 60+ second same-seed desktop 960x600/mobile 390x844 ascent, guardian danger and outcome clips at frozen 1731b380 and GAME SOURCE 84fb5f2 (capture run 41353444506). Review video itself, not diagnostics only, to see whether HP-linked winch/cables and original-cap release are legible and whether major visuals and motion regress. Old baseline terminal/intermission/restart remains NOT RECORDED as a complete visible sequence in 41348596654 because a one-tick result can be missed by slow software GL. No change to baseline and no relaxation of integrity gate. New latest-source CI 41353666750 must pass safety before further verdict. Require five fresh independent randomized blind critics per LOOKS/FEELS/PLAYS (at least 4/5 in each), supported hardware p50/p95/p99+memory, real replay/accessibility/recovery evidence.",
+    "title": "Turn the complete real ascent→HP-staged guardian armor and mechanically coupled gate→source-anchored cap release→outcome/restart into a legible cinematic 3D expedition",
+    "state": "SAME INTEGRATED 3D TRANSFORMATION OPEN; SOURCE-DRIVEN GUARDIAN ARMOR+GATE NOW IMPLEMENTED; NOT EVALUATED",
+    "promise": "Real guardian HP now alters the hero's enemy in-world silhouette with two articulated, low shoulder shells opening to reveal the heated original underframe AND independently turns the existing capstan, spools cables, lowers counterweights and opens bronze doors and path conduit. Actual adjacent source observations anchor the earlier cap's lock fracture as the run advances, then genuine results/restart follow. No new collision, damage, AI, RNG, replay, audio default, paid influence, lights, HUD or invented clearance. Bounded at two new rigid skin bones sharing existing material batches.",
+    "nextDecision": "Review source 3a5c6d9d94ea882026b293cf3d8738477ae7aaab normal-speed paired desktop/portrait ascent, danger, outcome clips (capture 41358227934), including the guardian's HP-staged silhouette/physical gate, exact source and seed. Inspect actual video to decide whether characters and gate remain visible together and if the armor changes read as combat progress, not background ornament. Last source CI 41358291139 must complete. Frozen baseline 1731b380 one-tick terminal capture still failed at 41353444506; do NOT relax or move it. Then solicit >=5 independent randomized full-motion critics per LOOKS, FEELS, PLAYS, and measure real supported-device p50/p95/p99 and memory.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "SOURCE-PINNED VISUAL COMPREHENSION STILL UNKNOWN: can real viewers see the guardian's damage physically power the winch, counterweights, lock and conduit, then see the SAME previous-cap release on actual desktop/mobile normal-speed video? A large gap also remains in software-renderer responsiveness and frozen-baseline one-tick terminal visibility. No independent judgments 0/5 LOOKS, 0/5 FEELS, 0/5 PLAYS; supported-device frame-time tails and long-run memory unavailable.",
-    "unverifiedImplementationBranchHead": "f1b14188477455ae764cfcf2b8b54f7817a800e6"
+    "biggestRemainingExperienceGap": "REAL CINEMATIC COMPREHENSION AND PERFORMANCE UNVERIFIED: matching full-motion viewing has not established that the skinned guardian armor, combat, winch, gate and previous-cap release register clearly at desktop and mobile size. Frozen-baseline one-tick outcome is still not captured as a full sequence under slow software GL; independent votes 0/5 across all three pillars; physical device tails/memory unknown. No unearned PASS.",
+    "unverifiedImplementationBranchHead": "338eec7417e281b8d216055c5353232443c59265"
   },
   "scenarios": [
     {
@@ -60,11 +60,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "NOT VERIFIED on this branch's exact gameplay+tests. Historical head a1234f8 safety workflow 41348722240 FAILED 1/705: new batched dark guardian gate casts unintended shadows after global rebuild pass. Gameplay 84fb5f2 explicitly restores ambient/shadow-free tags AFTER batching; f1b1418 uses Float32 precision for instanced cable assertions. Follow-up workflow 41353666750 queued when checked. CI is a safety veto, never a quality win.",
-    "replay": "PENDING head-specific replay/authority campaign; only source-bound 3D presentation and focused tests changed. Deterministic fixed-step rules, state, AI, RNG, health/doors semantics and replay payloads untouched.",
-    "accessibility": "NOT VERIFIED by assistive/mobile human evaluation. Source change uses actual mechanical wheel and lengthening cables as shape/motion cues rather than only color; reduced-motion preserves real health-proportional cable length, but freezes gratuitous winch spin. Audio remains opt-in and muted in automated capture.",
-    "performance": "NO supported-hardware p50/p95/p99, GPU/CPU, memory or soak evidence. The guardian-only wheel has two original rigid material batches and two live cords in one InstancedMesh draw; all non-colliding gate descendants now explicitly shadow-free after batching. Actual render and memory improvement are NOT CLAIMED. CI Chromium software GL tails are not device FPS.",
-    "stability": "PENDING head-specific browser recovery, long-run soak, genuine full-motion capture and legacy replay checks. Unique real guardian cap owns one extra InstancedMesh; floor clear, quality change and full restart use existing floor lifecycle; no unbounded geometry/audio allocators added."
+    "ci": "Prior exact head 32ee0653 success in workflow 41353900090. New game 3a5c6d9 and live real-rig test 338eec7 triggered quality workflow 41358291139, still running when recorded. SUCCESS on old source cannot certify new source; CI is safety veto only.",
+    "replay": "PENDING source-head replay campaign; the new shoulder bones only consume immutable render snapshots and do not alter fixed-step AI, combat, health, seed, RNG, checksum or public replay payload. Tests exercise source immutability and reversible HP poses.",
+    "accessibility": "NOT INDEPENDENTLY VERIFIED. Two physical shoulder shells separate as real HP falls, with underframe shape and material contrast as non-color-only cues; reduced-motion reveals source-true static opened pose without oscillation. Critical HUD and opt-in audio unchanged; mobile human readability remains open.",
+    "performance": "NO supported-device p50/p95/p99 or sustained memory measurements. New guardian-only armor uses 2 additional bones within <=16 and existing <=7 skinned material batches; original gate still uses batched rigid masonry and one cable InstancedMesh. Source budgets are tests, not measured device performance; slow CI software GL interval statistics are not true device FPS.",
+    "stability": "PENDING new-head browser recovery, long soak and visual smoke. Rigid armor joints and underframe are owned/disposed by existing character workshop. Quality switching and new runs rebuild the model from source; HP recovery reverses the hinges. No asynchronous effects, listeners or per-hit spawns."
   },
   "unresolvedCriticalIssues": null,
   "benchmark": {
@@ -78,7 +78,7 @@
     "workflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41323028658",
     "sourceSha": "471dfea0e2e9e58cdcea648b4bae4d09917ca98a",
     "assessed": "NOT EVALUATED",
-    "scope": "Historical 41348596654: candidate dd66c00f ascent/danger/outcome, baseline ascent/danger scoped capture integrity PASS; FROZEN baseline outcome FAILED genuine visible result→intermission→restart despite multiple real token changes. New complete 60s desktop/mobile candidate SOURCE 84fb5f2 through workflow 41353444506 was IN PROGRESS at record time; current source has not been independently assessed. No favorable votes and no actual supported-device frame-time metric.",
+    "scope": "Historical run 41353444506: baseline and candidate ascent/danger and candidate outcome had scoped recording-integrity success; FROZEN baseline outcome failed visible complete terminal/intermission/restart in desktop and portrait at software GL ~0.5s p50 submission gaps. New actual-source 3a5c6d9 capture 41358227934 pending; cannot mark scenario videos assessed, nor change baseline or mint votes.",
     "jobs": {
       "ascent": {
         "baseline": {
@@ -111,10 +111,10 @@
         }
       }
     },
-    "newImplementationSha": "84fb5f246531cecd77efebcef0b46fdd55ed15f7",
+    "newImplementationSha": "3a5c6d9d94ea882026b293cf3d8738477ae7aaab",
     "newImplementationRecorded": false,
-    "reviewPath": "docs/reviews/2026-11-01-tower-pr68-hp-driven-capstan-continuation.md",
-    "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41353444506",
-    "followupStatus": "REAL game capture run 41353444506 for code 84fb5f2 was in progress when checked. Historical baseline outcome case remains failed; last completed exact-source CI at a1234f8 failed guardian-gate shadow regression; f1b1418 tests and 84fb5f2 gameplay fix committed but latest-source CI 41353666750 had no verified conclusion. No current-source full-motion viewing, critiques or hardware profiling."
+    "reviewPath": "docs/reviews/2026-11-01-tower-pr68-guardian-armor-attrition-continuation.md",
+    "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41358227934",
+    "followupStatus": "Real candidate 3a5c6d9 normal-speed desktop/portrait source capture RUNNING when recorded, must inspect actual videos and integrity; previous 84fb5f2 run 41353444506 had 5/6 PASS but baseline outcome failure. Latest exact-source test 41358291139 pending; no independent reviewers or real hardware performance numbers."
   }
 }
