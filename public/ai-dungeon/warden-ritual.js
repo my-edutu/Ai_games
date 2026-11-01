@@ -2,7 +2,7 @@ import * as THREE from '/dungeon/vendor/three.module.js';
 // Read-only original Warden ritual art. All beams, rings and shatter effects
 // derive exclusively from the real public boss/defender/simulation state.
 const UP=new THREE.Vector3(0,1,0),LIMIT=3,MAX_RANGE=7,SHATTER_TIME=1.05,MAX_WARNING_TILES=48;
-export function createWardenRitual(world,exit,{reducedMotion=false}={}){
+export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={}){
  const group=new THREE.Group();group.name='Living Warden ritual court';
  group.position.set(exit.x-9,0,exit.z-9);world.add(group);
  const stone=new THREE.MeshStandardMaterial({color:'#43404a',roughness:.86,metalness:.12});
@@ -37,6 +37,105 @@ export function createWardenRitual(world,exit,{reducedMotion=false}={}){
   slab.rotation.y=-angle;
   const cut=put(group,inciseGeo,metal,x,.047,z);
   cut.rotation.y=-angle;
+ }
+
+ // M1 Warden chapter: an original low, sculptural, traversable stone roundel.
+ // All ornament lies below boots; gameplay collision and dangerous floor cells
+ // remain solely the authority's. Batched original relief, no proprietary art.
+ const courtSlabCount=28,cutCount=18,archMax=4;
+ const reliefStone=new THREE.MeshStandardMaterial({color:'#4a4649',roughness:.95,metalness:.04});
+ const reliefRim=new THREE.MeshStandardMaterial({color:'#876e53',roughness:.74,metalness:.30});
+ const reliefVein=new THREE.MeshStandardMaterial({color:'#57747a',emissive:'#273e43',
+  emissiveIntensity:.20,roughness:.55,metalness:.34,transparent:true,opacity:.64});
+ const wedge=new THREE.Shape();
+ wedge.moveTo(-.20,-.37);wedge.lineTo(.22,-.32);wedge.lineTo(.26,-.18);
+ wedge.lineTo(.19,.32);wedge.lineTo(-.23,.40);wedge.lineTo(-.27,.14);wedge.closePath();
+ const wedgeGeo=new THREE.ExtrudeGeometry(wedge,{depth:.055,steps:1,bevelEnabled:true,
+  bevelThickness:.012,bevelSize:.012,bevelSegments:1});
+ wedgeGeo.rotateX(-Math.PI/2);
+ const slabs=new THREE.InstancedMesh(wedgeGeo,reliefStone,courtSlabCount);
+ slabs.name='Original radial sculpted Warden court paving';slabs.receiveShadow=true;
+ const monumentTransform=new THREE.Object3D();
+ for(let i=0;i<courtSlabCount;i++){
+  const a=(i+.15*(i%3))*Math.PI*2/courtSlabCount,r=2.33+(i%4-1.5)*.025;
+  monumentTransform.position.set(Math.cos(a)*r,.005,Math.sin(a)*r);
+  monumentTransform.rotation.set(0,-a+Math.PI/2,0);
+  monumentTransform.scale.set(.91+(i%4)*.03,1,.96+(i%3)*.025);
+  monumentTransform.updateMatrix();slabs.setMatrixAt(i,monumentTransform.matrix);
+  const shade=.83+(i%7)*.025;
+  slabs.setColorAt(i,new THREE.Color().setRGB(shade,shade*.985,shade*.965));
+ }
+ slabs.instanceMatrix.needsUpdate=true;if(slabs.instanceColor)slabs.instanceColor.needsUpdate=true;
+ group.add(slabs);
+ // Engraved, NOT high-volume effect geometry: genuine phase hue supports the
+ // already authoritative warning footprint, instead of competing with it.
+ const scoreGeo=new THREE.BoxGeometry(.036,.011,.47);
+ const scoreMarks=new THREE.InstancedMesh(scoreGeo,reliefVein,cutCount);
+ scoreMarks.name='Original phase-responsive engraved score marks';
+ for(let i=0;i<cutCount;i++){
+  const a=i*Math.PI*2/cutCount,r=1.86+(i%2)*.11;
+  monumentTransform.position.set(Math.cos(a)*r,.056,Math.sin(a)*r);
+  monumentTransform.rotation.set(0,-a,0);monumentTransform.scale.set(1,1,1);
+  monumentTransform.updateMatrix();scoreMarks.setMatrixAt(i,monumentTransform.matrix);
+ }
+ scoreMarks.instanceMatrix.needsUpdate=true;group.add(scoreMarks);
+ const outerRelief=new THREE.Mesh(new THREE.TorusGeometry(2.80,.027,5,76),reliefRim);
+ outerRelief.name='Stone roundel bronze-edged broken orbit';outerRelief.rotation.x=-Math.PI/2;
+ outerRelief.position.y=.019;outerRelief.receiveShadow=true;group.add(outerRelief);
+
+ // Gothic buttresses are restricted to EXISTING impassable map wall cells.
+ // No ghost obstacles are drawn on legal AI routes or over contact silhouettes.
+ const wallProps=[],mapSize=Array.isArray(map)?map.length:0;
+ const candidates=[];
+ if(mapSize>=7&&mapSize<=64&&map.every(row=>typeof row==='string'&&row.length===mapSize)){
+  for(let z=0;z<mapSize;z++)for(let x=0;x<mapSize;x++){
+   if(map[z][x]!=='#')continue;
+   const dx=x-exit.x,dz=z-exit.z,dist=Math.hypot(dx,dz);
+   if(dist<3||dist>5.35)continue;
+   const inwardX=x-(Math.abs(dx)>=Math.abs(dz)?Math.sign(dx):0);
+   const inwardZ=z-(Math.abs(dz)>Math.abs(dx)?Math.sign(dz):0);
+   if(map[inwardZ]?.[inwardX]!=='.')continue;
+   candidates.push({dx,dz,score:Math.abs(dist-4.1)+(dz>0?2.5:0)+(Math.abs(dx)<1?.4:0)});
+  }
+ }
+ candidates.sort((a,b)=>a.score-b.score||a.dx-b.dx||a.dz-b.dz);
+ const buttressStone=new THREE.MeshStandardMaterial({color:'#484247',roughness:.95,metalness:.09});
+ const buttressMetal=new THREE.MeshStandardMaterial({color:'#82705b',roughness:.67,metalness:.39});
+ const shaft=new THREE.CylinderGeometry(.22,.33,2.3,7),capGeo=new THREE.CylinderGeometry(.43,.31,.19,7);
+ const archGeo=new THREE.TorusGeometry(.38,.063,5,18,Math.PI);
+ const budGeo=new THREE.DodecahedronGeometry(.17,0);
+ const makeWallMesh=(parent,geometry,material,x,y,z)=>{
+  const mesh=new THREE.Mesh(geometry,material);
+  mesh.position.set(x,y,z);mesh.castShadow=false;mesh.receiveShadow=true;
+  parent.add(mesh);return mesh;
+ };
+ for(const c of candidates){
+  if(wallProps.length>=archMax)break;
+  if(wallProps.some(p=>Math.hypot(p.position.x-c.dx,p.position.z-c.dz)<1.8))continue;
+  const buttress=new THREE.Group();buttress.name='Warden cathedral wall buttress';
+  buttress.position.set(c.dx,0,c.dz);
+  makeWallMesh(buttress,shaft,buttressStone,0,1.16,0);
+  makeWallMesh(buttress,capGeo,buttressMetal,0,2.26,0);
+  const pointed=makeWallMesh(buttress,archGeo,buttressStone,0,2.48,-.13);
+  pointed.rotation.z=Math.PI;
+  makeWallMesh(buttress,budGeo,buttressMetal,0,2.49,-.14);
+  group.add(buttress);wallProps.push(buttress);
+ }
+ let hiddenWallProps=0;
+ function setSightlines(subjects=[],cameraPosition=null){
+  hiddenWallProps=0;
+  if(!cameraPosition||!Array.isArray(subjects))return;
+  for(const prop of wallProps){
+   const wx=group.position.x+prop.position.x,wz=group.position.z+prop.position.z;
+   // Only hide an ornamental wall whose near-plane geometry masks a real
+   // party or boss subject from the actual camera. Never cull warning tiles.
+   const front=Math.hypot(cameraPosition.x-wx,cameraPosition.z-wz);
+   const blocks=subjects.some(u=>Number.isFinite(u?.x)&&Number.isFinite(u?.z)&&
+    Math.hypot(u.x-wx,u.z-wz)<2.0&&
+    front+0.2<Math.hypot(cameraPosition.x-u.x,cameraPosition.z-u.z));
+   prop.visible=!blocks;
+   if(blocks)hiddenWallProps++;
+  }
  }
  const rings=[];
  for(const [r,y] of [[1.04,.27],[.86,.85],[.67,1.41]]){
@@ -112,7 +211,7 @@ export function createWardenRitual(world,exit,{reducedMotion=false}={}){
   const newPhase=s.bossPhase||'SENTINEL';
   if(newPhase!==phase){
    const tint={SENTINEL:'#8cbede',RUPTURE:'#f0b381',ECLIPSE:'#caa2fc',VANQUISHED:'#88868a'}[newPhase]||'#8cbede';
-   glyph.color.set(tint);conduit.color.set(tint);phase=newPhase;
+   glyph.color.set(tint);conduit.color.set(tint);reliefVein.color.set(tint);reliefVein.emissive.set(tint);phase=newPhase;
   }
   if(previousWard===true&&!ward&&Number.isInteger(s.tick)&&s.tick>tick)breakAge=0;
   previousWard=ward;tick=Number.isInteger(s.tick)?s.tick:tick;
@@ -134,6 +233,8 @@ export function createWardenRitual(world,exit,{reducedMotion=false}={}){
    reducedMotion?.25:.19+.07*(1+Math.sin(time*6.2))*.5;
   edgeMaterial.opacity=impactAge>0?.72:reducedMotion?.46:.42+.18*(1+Math.sin(time*5.3))*.5;
   glyph.opacity=ward&&!reducedMotion?.63+.10*Math.sin(time*2):.70;
+  reliefVein.emissiveIntensity=warningCount>0?.42:ward?.25:.12;
+  reliefVein.opacity=warningCount>0?.72:.46;
   rings.forEach((ring,i)=>{ring.rotation.z=ward&&!reducedMotion?Math.sin(time*.45+i)*.07:0;});
   if(breakAge<SHATTER_TIME){
    breakAge=Math.min(SHATTER_TIME,breakAge+Math.max(0,Math.min(.05,dt)));
@@ -147,5 +248,5 @@ export function createWardenRitual(world,exit,{reducedMotion=false}={}){
    }
   }else for(const shard of shards)shard.visible=false;
  }
- return {accept,animate,metrics:()=>({visible,shieldActive:ward,phase,activeDefenders:defenders,activeTethers:linkCount,shattering:breakAge<SHATTER_TIME,maxTethers:LIMIT,originalBasaltReliefs:12,warningTiles:warningCount,warningEdgedTiles:warningEdges.count,warningShape,impactActive:impactAge>0})};
+ return {accept,animate,setSightlines,metrics:()=>({sculptedCourtSlabs:courtSlabCount,originalEngravings:cutCount,cathedralWallButtresses:wallProps.length,hiddenWallButtresses:hiddenWallProps,phaseRelief:phase,visible,shieldActive:ward,phase,activeDefenders:defenders,activeTethers:linkCount,shattering:breakAge<SHATTER_TIME,maxTethers:LIMIT,originalBasaltReliefs:12,warningTiles:warningCount,warningEdgedTiles:warningEdges.count,warningShape,impactActive:impactAge>0})};
 }

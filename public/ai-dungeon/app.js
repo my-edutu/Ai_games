@@ -406,7 +406,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
  }
  const shield=new THREE.Mesh(new THREE.TorusGeometry(1.32,.04,8,72),new THREE.MeshBasicMaterial({color:theme.accent,transparent:true,opacity:.24,depthWrite:false,side:THREE.DoubleSide}));shield.rotation.x=-Math.PI/2;shield.position.y=.12;court.add(shield);
  world.add(court);world.userData.court=court;world.userData.courtShield=shield;
- world.userData.wardenRitual=createWardenRitual(world,s.exit,{reducedMotion:reduced});
+ world.userData.wardenRitual=createWardenRitual(world,s.exit,{reducedMotion:reduced,map:s.map});
  // Interactive hazard meshes directly reflect authoritative trap state.
  const hazardMeshes=new Map();
  for(const t of s.traps||[]){
@@ -797,6 +797,7 @@ function animate(t){
  world.userData.cutawaySubjectCount=partySightlines.length;
  world.userData.bossCutawayActive=Boolean(bossDistance&&boss&&partySightlines.some(({x,z})=>x===boss.x-origin&&z===boss.z-origin));
  cutawayWalls(target,partySightlines);world.userData.dressing?.cutaway(partySightlines,camera.position);
+  world.userData.wardenRitual?.setSightlines(partySightlines,camera.position);
  if(world.userData.authoredProps?.group){
   for(const prop of world.userData.authoredProps.group.children){
    prop.visible=!sightlineClearance(prop.position.x,prop.position.z,partySightlines,camera.position,2.4);

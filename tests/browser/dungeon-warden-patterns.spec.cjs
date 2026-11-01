@@ -26,6 +26,11 @@ test('actual desktop and mobile WebGL show real warning tiles and subsequent War
  expect(warningLens?.fov).toBeGreaterThan(48);
  expect(warningLens?.dangerPriority).toBe(true);
  expect(await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wardenRitual?.warningEdgedTiles)).toBeGreaterThan(8);
+ const court=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wardenRitual);
+ expect(court?.sculptedCourtSlabs).toBe(28);
+ expect(court?.originalEngravings).toBe(18);
+ expect(court?.phaseRelief).toBe('RUPTURE');
+ expect(court?.cathedralWallButtresses).toBeGreaterThanOrEqual(0);
  await page.locator('#world').screenshot({path:'artifacts/dungeon-warden-M1-rupture-desktop-WebGL.png',timeout:90000});
  current=game.step();
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick),{timeout:20000}).toBe(current.tick);

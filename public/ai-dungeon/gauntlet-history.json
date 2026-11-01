@@ -2193,7 +2193,7 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "Before the new optical candidate, exact-head GitHub Actions 41325342595: authority and two browser shards PASS, third shard 21/22 with REAL WebGL hero projected height 61px against >90px; full CI 41325342609 CANCELLED, separate visual review 41325342574 PASS. Candidate cb455328 automated suite 41329794154, visual 41329794092 and full CI 41329794086 were QUEUED when checked; never claim green/experience verified without results.",
+      "safetyChecks": "Latest locked-candidate exact-head PR run 41329928121 COMPLETED SUCCESS on dfdd346, four jobs incl. authority and three Chromium shards. Dedicated visual run 41329928002 SUCCESS. Browser-audio test printed 'audiovisual recording UNVERIFIED: empty clip'. New architectural candidate is NOT tested or visually inspected yet; prior runs cannot verify new code.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "PENDING_EXACT_HEAD_CHROMIUM_CAPTURE",
       "soundstageBrowser": "PENDING_EXACT_HEAD_CHROMIUM_RUN",
@@ -2201,11 +2201,11 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "PREVIOUS_REAL_BROWSER_FAILED_61PX_VS_90PX_CANDIDATE_UNVERIFIED",
-      "latestCandidateWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41329794154"
+      "latestCandidateWorkflow": "PENDING_HEAD_WORKFLOW_AFTER_WARDEN_CHAPTER_PUSH"
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Last real exact-head browser capture at f8c08ed exposed a reproducible 61-pixel visible hero at 1440x900 versus a required >90-pixel frame: the autonomous characters still shrink to miniature scale. New optical staging attacks that symptom across authentic combat/travel and danger, but no actual AFTER raster has been inspected yet. Organic desktop/mobile motion+audible journey, substantive imported anatomy/material realism, matched locked BEFORE/AFTER and three blind judges are outstanding.",
-    "currentWork": "Active M1: the actual autonomous expedition now feeds an original seven-shot optical director. Real travel, target contact, Warden approach, threatened floor and descent choose bounded 3D focal height, camera distance, field of view, follow response and existing protagonist key illumination. Faraway party members no longer force a second all-party camera zoom after scene selection. Browser reality and critic preference are NOT yet verified for the new candidate.",
+    "biggestRemainingGap": "No real AFTER capture of the new Warden cathedral exists. Original CC0 KayKit characters remain stylised low-poly with toy-like anatomy and weak convincing physical contact, and the full cathedral floor cannot by itself make AAA parity. Actual matched desktop/mobile continuous traversal/combat/boss/floor/defeat-restart and audible clips, measured frame tails and >=3 fresh blind critics remain absent.",
+    "currentWork": "M1 continues from the original locked 281735d baseline. Source candidate adds a single connected Warden-cathedral scene with original radial 3D carved stone, authority-phase-responsive low engravings, and wall-anchored gothic buttresses that hide when occluding real combatants. Builds upon existing Warden guards/phase combat and cinematic lens, without changing authority. New real browser raster, playable reel and critic preference remain UNVERIFIED.",
     "candidateCommit": "cb4553280a438233c23cd2ba29df33ffd4ef9b27",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
@@ -2389,6 +2389,25 @@
         "safety": "Read-only presentation; no new external asset/licensing or shadow/draw pass; no gameplay, RNG, grid, save/checksum or audience-event change.",
         "experienceVerdict": "IN_PROGRESS / NOT TRANSFORMED; AFTER LOOKS/FEELS/PLAYS UNVERIFIED; 3 independent workers unavailable (workspace tunnel disconnected)",
         "next": "Inspect actual current 1440x900 and 390x844 WebGL 3D captures, compare actor projected pixels and obscured boss warning to pinned 281735d baseline with matched seed, repair any framing regressions, then integrate higher-fidelity hero/anatomy/material quality plus authentic continuous organic boss/floor/restart audiovisual reel and >=3 blind critics."
+      },
+      {
+        "id": "M1-SCULPTURAL-WARDEN-CATHEDRAL-20261101",
+        "date": "2026-11-01",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "dfdd346886d76e214bc073f1a8e30c6db774b4c0",
+        "objective": "Make the actual 7x7 Warden confrontation read as a distinct original sculptural cathedral chamber, not generic repeated brown grid cubes; preserve gameplay route, real phase danger and camera legibility.",
+        "code": [
+          "public/ai-dungeon/warden-ritual.js",
+          "public/ai-dungeon/app.js",
+          "tests/browser/dungeon-warden-patterns.spec.cjs"
+        ],
+        "integratedImplementation": "Twenty-eight beveled original radial stone floor tesserae, eighteen low phase-responsive engraved cuts, broken bronze orbit, and up to four gothic buttresses placed only on blocked map wall cells. True public boss phases update inlays; existing Warden telegraphs remain predominant. Real camera-to-hero sightlines hide ornamental wall silhouettes if occlusive.",
+        "gameplayAuthorityImpact": "NONE: no state/ticks/AI, damage, save, seed or RNG change; floor ornament is scene-only and low-height; wall props only at map '#'.",
+        "existingEvidence": "Actual exact prior head dfdd346 Chromium 41329928121 success, 41329928002 visual success; audio capture emitted empty clip.",
+        "newEvidence": "PENDING browser scenes, paired baseline/staged boss screenshots, motion/audio, frame-time and blind critic judgment.",
+        "experienceVerdict": "IN_PROGRESS / NOT TRANSFORMED",
+        "next": "Review exact-head desktop/mobile screenshots for tile alignment, clipping, glyph hierarchy, camera sightlines and actual boss action; cut or repair any unreadable geometry, then tackle the imported stylized character rigs and complete organic audiovisual journey with blind preference."
       }
     ]
   }
