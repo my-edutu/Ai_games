@@ -2847,6 +2847,48 @@ function renderWorkdayTraces(){
   });
   workdayRenderStats.sceneMarkers++;
  }
+ // G091: physical working props persist through each genuine job timer;
+ // bounded to eight visible sites. This is visual-only geometry — the
+ // authoritative output continues to come from work(), never here.
+ const active=getActiveWorksites().filter(w=>
+  Math.hypot(w.x-focusPoint[0],w.z-focusPoint[1])<25||
+  people[selectedCitizen]?.name===w.citizen
+ ).sort((a,b)=>{
+  const da=(a.x-focusPoint[0])**2+(a.z-focusPoint[1])**2;
+  const db=(b.x-focusPoint[0])**2+(b.z-focusPoint[1])**2;
+  return da-db||a.citizen.localeCompare(b.citizen);
+ }).slice(0,8);
+ workdayRenderStats.activeWorksites=active.length;
+ const triangleStart=data.length;
+ materialScope(MATERIAL.WOOD,()=>{
+  for(const w of active){
+   const x=w.x+.62,z=w.z+.34,y=terrain(x,z)+.035;
+   const pulse=Math.sin((1-w.remaining/workDuration(w))*Math.PI*6);
+   if(w.job==='forester'){
+    cylinder(x,y,z,.22,.38,rgb(0x94683f),7);
+    box(x,y+.32,z,.43,.09,.40,rgb(0x70492f));
+    box(x+.22+pulse*.018,y+.055,z+.20,.12,.08,.26,rgb(0xbd9b67));
+   }else if(w.job==='farmer'){
+    box(x,y+.055,z,.57,.12,.36,rgb(0x866744));
+    for(let i=-1;i<=1;i++)cone(x+i*.16,y+.1,z,.074,.44+Math.abs(pulse)*.03,rgb(0xc9ad64),5);
+   }else if(w.job==='builder'){
+    for(let i=0;i<3;i++)box(x+(i-1)*.23,y+.06+i*.095,z,.45,.12,.28,rgb(0xb2a180));
+    box(x-.28,y+.38,z+.19,.09,.29,.09,rgb(0x816447));
+   }else if(w.job==='merchant'){
+    box(x,y+.08,z,.70,.17,.45,rgb(0x8c684b));
+    box(x-.17,y+.22,z,.25,.25,.30,rgb(0xad8255));
+    box(x+.18,y+.18,z,.22,.17,.27,rgb(0xc59b61));
+   }else if(w.job==='craftsperson'){
+    box(x,y+.09,z,.68,.20,.43,rgb(0x795c4b));
+    box(x,y+.28,z,.36,.17,.26,rgb(0x777b77));
+    box(x+.26,y+.34+pulse*.035,z,.08,.20,.09,rgb(0xb3a180));
+   }else if(w.job==='gatherer'){
+    box(x,y+.09,z,.48,.20,.38,rgb(0x94734d));
+    for(let i=-1;i<=1;i++)cone(x+i*.12,y+.22,z,.07,.24,rgb(0x688354),5);
+   }
+  }
+ });
+ workdayRenderStats.activeTriangles=(data.length-triangleStart)/30;
 }
 // A recent real labor event lets the selected worker carry an animated tool.
 // The rig already moves a wrist against its actual gait phase; attachments use
