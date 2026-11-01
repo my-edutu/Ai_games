@@ -21,7 +21,7 @@ function realHit() {
   const session = createSession('tower-stream-reference', {
     launchFloor: 8, guardianInterval: 8, upgradeInterval: 4,
     maxTicks: 20000, noProgressTicks: 3000, intermissionTicks: 36,
-  });
+  }, 'historical-v1');
   for (let i = 0; i < 269; i++) advance(session);
   const snapshot = session.controller.frame(390, 844, { reducedMotion: true, muted: true }).snapshot;
   assert.equal(snapshot.publicChecksum, 'af60b546', 'pin the real GPU artifact 13044256868 hit at tick 269');
