@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-01T12:09:51Z",
+  "updatedAt": "2026-11-01T12:23:48Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass38 actual original 390x844 shortened key/socket 84.40→65.83 CSS px but Pip vanished behind gate foreground; visually rejected. Pass39 source-verified original native shifted lagoon yet gate moved off left and arch remained cropped; visually rejected and reverted. Pass40 fixed-size painted lagoon source candidate SHA 65b2c24; original WebGL CI 41305146762 queued, so no pass40 visual acceptance. Frozen official Nintendo Captain Toad still wins; separate critic/Ultracode tunnel disconnected; software SwiftShader not hardware GPU FPS."
+    "summary": "Pass38 camera and pass39 stage shift were rejected on six SHA-verified original renders. Pass40 authored lagoon shader source 65b2c24 focused CI 41305146762 succeeded and all six real dated screenshot hashes matched, but native and desktop original images showed ghost-like blurry bright patches; visually REJECTED, texture restored. Pass41 source a988853 adds public-only correct matched key/closed gate message with nine pure helper cases passed; exact-source browser CI 41306288258 queued. Frozen official Nintendo Captain Toad still wins; no independent detached blind critic or representative GPU FPS."
   },
   "captures": [
     {
@@ -137,11 +137,13 @@
     "Pass37 actual 3D octagonal bow faces public rendering camera while keeping the same source-modeled closed socket aim and connected glove; 0.17→0.215 bow radius. Desktop/native diagnostics, geometry tests and characters.js source hash added. New authentic capture and critic pending.",
     "Pass38 genuine portrait-only lowered oblique lock camera (source b3dda36) was independently hash-captured but REJECTED after real image inspection: actual 65.83 CSS px key/socket, character hidden by stone foreground. Camera reverted.",
     "Pass39 public known-stage camera bias .35→.56 was hash-verified (source e7a65a4) but REJECTED: lagoon somewhat reduced while real closed gate driven left and arch still cropped. Bias reverted to .35.",
-    "Pass40 source 65b2c24 keeps original gate/hero frame, adds fixed 128×128 tileable depth/caustic raster to existing lagoon water (no new meshes, textures or authority). JS parsing/source pixel check completed; source-bound CI original dated screenshots QUEUED."
+    "Pass40 source 65b2c24 keeps original gate/hero frame, adds fixed 128×128 tileable depth/caustic raster to existing lagoon water (no new meshes, textures or authority). JS parsing/source pixel check completed; source-bound CI original dated screenshots QUEUED.",
+    "Pass40 source 65b2c24 exact original render verified 6 SHA-256 PNGs from CI 41305146762, but bright caustics became blurry floating spots and visually degraded scene. REJECTED and water restored in pass41.",
+    "Pass41 source a988853 adds truthful public-only known closed gate/matching carried key HUD priority, with exact wrong-key/open/unknown/terminal/distance protections and source-bound browser assertion; real screenshot CI pending."
   ],
   "nextGaps": [
-    "Revisit genuine source-modeled glove/key/socket staging at 390px; original 84.40 CSS px gap and unreadable glove/stone overlap remain. Do not hide Pip or fake insertion/unlock. Test independently judgeable geometry and animation with original native image evidence.",
-    "Preserve actual publicly known arch and island silhouette without shifting real gate/Pip offscreen. Pass38 lower orbit occluded Pip; pass39 heavier stage shift cropped gate. New approaches must be judged on unaltered native screenshot bytes, not screen projection scores.",
+    "Check pass41 original 390x844 and 1280x900 screenshots that the matching-key/closed-gate label is truthful and legible without shrinking the stage; then focus real physical Pip glove/key/socket staging, still 84.40 CSS px apart at the known gate. No fake insertion or AI/door mutation.",
+    "Art direction gap: improve actually disclosed miniatures and hero silhouette in original source-rendered gameplay. Reject any camera orbit that hides Pip (pass38), stage shift that pushes gate offscreen (pass39), or bright blurry pseudo-caustic blobs (pass40). Fixed Nintendo bar still wins.",
     "Establish stronger gameplay-scale Pip/Thornback expression, gate/key/exit differentiation, environmental material variety and a camera view which preserves both the obstacle and the next *disclosed* action.",
     "Run separate fresh-context visual critics and blind A/B against both unchanged SHA-pinned official Nintendo Captain Toad frames; last independent verdict still favors the reference. Do not claim benchmark parity from CI or lead-only visual judgment.",
     "Review actual animated stair/gait/guardian motion, original game audio, accessibility and true GPU performance on less CPU-throttled hardware; SwiftShader frame times do not establish hardware FPS.",
@@ -439,6 +441,13 @@
       "verdict": "REJECTED — stage offset cuts left real gate, right arch still cropped; Nintendo benchmark NOT PASSED",
       "date": "2026-11-01T12:00:50.314Z",
       "summary": "Focused CI 41304281998 SUCCESS, original artifact 13082936380 all 6 PNG SHA hashes valid; native 390x844 SHA 2471e845fc5faaec5abc984f2127435ae971dad33eed9c445b823ec632ac20cb tick21 matching held key door-2 closed. 100015/329160 pixels >12 RGB changed, physical gap unchanged 84.403 CSS px. Composition was reverted."
+    },
+    {
+      "title": "Pass40 original authored lagoon source-rendered mobile and desktop review",
+      "reviewer": "Lead actual 1:1 original WebGL screenshot A/B, separate fresh-context critic unavailable",
+      "verdict": "REJECTED — blurry floating caustic glows distract from gameplay; Nintendo benchmark NOT PASSED",
+      "date": "2026-11-01T12:20:00.872Z",
+      "summary": "Exact-source focused CI 41305146762 SUCCESS, original artifact 13083062508 all six UTC PNG SHA matches. Native SHA a211395d669e258753530a32e752222b7367db93a46ecfe32a43652d14816552; desktop SHA 2b8f2ef2670f8a59a7438926f50f7d54d2c409c4c5adff82a8ae018371ec28b9. Current 390x844 environment shows big diffuse glow blobs, not plausible ripple animation or fine authorial surface; revert in pass41, not a benchmark win."
     }
   ],
   "verification": [
@@ -731,6 +740,20 @@
       "detail": "Source 65b2c24c9d5d7e7e2837e2b9cb86c4b29b6de288, focused CI 41305146762 queued. Existing 128x128x4 texture, no new draw calls/geometry and no authority change. Static pixel simulation 37 green tonal values 105–141; only a real SHA-verified captured scene and fresh visual critic can judge. Whole-repo CI also queued; no pass claim.",
       "sourceCommit": "65b2c24c9d5d7e7e2837e2b9cb86c4b29b6de288",
       "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41305146762"
+    },
+    {
+      "name": "Pass40 authentic original lagoon WebGL visual review",
+      "status": "Focused Maze CI SUCCESS and all six dated SHA-256 PNGs independently verified; original visual output REJECTED",
+      "detail": "Source 65b2c24c9d5d7e7e2837e2b9cb86c4b29b6de288, CI 41305146762, original artifact 13083062508; actual native 2026-11-01T12:20:00.872Z SHA a211395d669e258753530a32e752222b7367db93a46ecfe32a43652d14816552, desktop 12:19:57.618Z SHA 2b8f2ef2670f8a59a7438926f50f7d54d2c409c4c5adff82a8ae018371ec28b9. Water turns into floating blobs; reverted. Source screenshots 30,282/143,133 changed RGB pixels >12 vs pass37; no evidence of aesthetic quality improvement, Nintendo bar still wins.",
+      "sourceCommit": "65b2c24c9d5d7e7e2837e2b9cb86c4b29b6de288",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41305146762/artifacts/13083062508"
+    },
+    {
+      "name": "Pass41 public matching closed gate UI truth source candidate",
+      "status": "Pure source V8 parse and nine positive/negative public-state invariants PASS; exact-source browser/phase3 CI QUEUED; independent rendered quality PENDING",
+      "detail": "Source a98885365a5a1ae393fc21973806ec4fd76bce0f. No hidden door/key/routes ever used. When real near closed-gate matching carried key, main heading explains current stakes; terminal and known-key/exit/danger priority retained. Pure helper tested true match, wrong key, missing key, unknown cell, opened door, remote cell, terminal state, null and invalid cell. GitHub focused CI 41306288258 queued; no screenshot/whole-repo success claimed. Restores pre-pass40 water material exactly.",
+      "sourceCommit": "a98885365a5a1ae393fc21973806ec4fd76bce0f",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41306288258"
     }
   ],
   "references": [
