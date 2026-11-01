@@ -6,6 +6,7 @@ on:
       - public/infinite-tower-climb/visuals/**
       - tests/browser/tower-ledge-contact.spec.cjs
       - tests/phase3/tower-ledge-contact-evidence.test.cjs
+      - tests/phase3/tower-foot-deck-projection.test.cjs
       - tests/phase3/tower-ledge-geometry-contact.test.cjs
       - .github/workflows/tower-ledge-evidence.yml
   workflow_dispatch:
@@ -29,7 +30,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - name: Real-skeleton and platform eligibility regressions
-        run: node --test tests/phase3/tower-ledge-contact-evidence.test.cjs tests/phase3/tower-ledge-geometry-contact.test.cjs
+        run: node --test tests/phase3/tower-ledge-contact-evidence.test.cjs tests/phase3/tower-ledge-geometry-contact.test.cjs tests/phase3/tower-foot-deck-projection.test.cjs
       - run: npx playwright install --with-deps chromium
       - name: Capture original real ascent at desktop and portrait
         run: |
