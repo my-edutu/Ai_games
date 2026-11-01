@@ -375,6 +375,17 @@ body[data-workday="delivery"] #workday-activity{display:block}
    Village remains the single visible exit to the normal scenic navigation. */
 :is(body[data-workday="live"],body[data-workday="delivery"]) .world-tour [data-scenic]:not([data-scenic="valley"]){display:none}
 body[data-workday="delivery"] #delivery-follow{background:#e8cf9e;color:#183530}
+/* G102: unclutter the actual camera shot. Four task-relevant commands remain
+   one row on a 390px screen; the full original controls (speed, save, restore,
+   cinema, quality) are one accessible Command Desk action away. */
+:is(body[data-workday="live"],body[data-workday="delivery"])[data-command="world"] .bottom{
+ width:max-content;max-width:calc(100vw - 16px);gap:4px;
+ flex-wrap:nowrap;padding:6px 8px;border-radius:13px}
+:is(body[data-workday="live"],body[data-workday="delivery"])[data-command="world"] .bottom > :not(#pause):not(#speed1):not(#focus):not(#command-toggle){display:none}
+@media(max-width:520px){
+ :is(body[data-workday="live"],body[data-workday="delivery"])[data-command="world"] .bottom .btn{
+  font-size:10px;padding:8px 9px}
+}
 @media(prefers-reduced-motion:reduce){
  :is(body[data-workday="live"],body[data-workday="delivery"]) .world-tour{scroll-behavior:auto}
 }
