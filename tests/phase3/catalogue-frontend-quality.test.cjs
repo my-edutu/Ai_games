@@ -6,7 +6,7 @@ const path=require('node:path');
 
 const surfaces=[
   ['Autonomous Snake','public/snake-stream'],
-  ['AI Maze Escape','public/ai-maze-escape',3],
+  ['AI Maze Escape','public/ai-maze-escape',4],
   ['Infinite Tower Climb','public/infinite-tower-climb'],
   ['AI Ant Colony','public/ai-ant-colony'],
 ];
@@ -20,6 +20,12 @@ for(const [name,dir,revision=2] of surfaces){
     const css=baseCss+'\n'+fs.readFileSync(uxPath,'utf8');
     assert.match(html,new RegExp(`data-ux-revision="${revision}"`),'frontend revision marker');
     assert.match(html,/ux-v2\.css/,'frontend loads the UX layer');
+    if(name==='AI Maze Escape') {
+      assert.match(html,/gameplay-hud\.css/,'game-first visual layer is explicitly loaded');
+      assert.equal(fs.existsSync(path.join(dir,'gameplay-hud.css')),true,'game-first visual layer exists');
+      const server=fs.readFileSync('scripts/serve-maze-stream.cjs','utf8');
+      assert.match(server,/['\"]gameplay-hud\.css['\"]/, 'maze stream explicitly serves the game-first visual layer');
+    }
     assert.match(css,/--color-bg\s*:/,'semantic background token');
     assert.match(css,/--color-surface\s*:/,'semantic surface token');
     assert.match(css,/--color-progress\s*:/,'semantic progress token');
