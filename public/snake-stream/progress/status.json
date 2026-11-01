@@ -1,14 +1,19 @@
 {
   "updatedAt": "2026-11-01",
-  "status": "ROUND43 LOW-TIER WATER MIP CANDIDATE · WEBGL & STRICT PERFORMANCE CI PENDING",
-  "detail": "Corrected R42 focused 41261335960 passed 29/31; 11 actual submitted WebGL frames/1000.4ms versus unchanged minimum17 FAIL, whereas earlier 41260891124 passed once at 17/17 (not sustained). Prop-cache routed removal poll race fixed by waiting for actual visible world before asserting same exact rebuild count. R43 only adjusts original 256² water map minFilter in low tier; no new pixels, textures, meshes or cues, balanced tier intact. New exact prior-renderer source-hash Node and true frozen-public Chromium/WebGL dual-view captures required; candidate NOT verified as speedup or visual improvement. Snake Pass whole-game still LOSE. Independent critic/tunnel offline, real display-present FPS, soak and R5 open. Draft, unmerged, undeployed.",
+  "status": "ROUND44 ORIGINAL HARVEST FRUIT · MODEL AND WEBGL CANDIDATE, STRICT FRAME GATE STILL OPEN",
+  "detail": "Exact R43 source 1ce763a focused Chromium 41262769648 passed 31/32; the unchanged desktop gate FAILED with 7 actual submitted WebGL frames/1008.6ms vs >=17 (61 RAF callbacks are not renders/display presents). General 41262769566 passed build/Node/host/authority/operations but browser failed. R44 sculpts and reduces existing original fruit body while preserving full-size gold floor marker, resources, deterministic authoritative gameplay, portal/hazard/food/captions/reduced-motion/recovery. New exact Git blob node & dual-view real WebGL synthetic A/B CI PENDING: no R44 win claimed. Whole-game Snake Pass still LOSE; independent reviewer offline, device display-present FPS, soak/R5 OPEN. Draft, unmerged, undeployed.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Historical thumbnail only, not the new R39. Actual new R39 WebGL synthetic screenshot/trace artifact (not live FPS or independent critique): https://github.com/my-edutu/Ai_games/actions/runs/41249642441/artifacts/13061195617 . Companion motion: https://github.com/my-edutu/Ai_games/actions/runs/41249642441/artifacts/13060793905 .",
   "reviews": [
     {
+      "area": "Round 44 · original five-lobed harvest fruit and character-relative scale",
+      "verdict": "CANDIDATE · NEW SHA-CONTROLLED MODEL & REAL WEBGL CAPTURES PENDING; PRIOR STRICT 7/17 FAILED",
+      "gap": "Verify smaller fruit still legible in overview/portrait, detailed sculpt does not facet, same graphics/authority/cue budgets and ≥17 actual rendered submissions. Whole-game Snake Pass/ASTRO BOT LOSE; independent critic, device-present FPS, soak/R5 OPEN."
+    },
+    {
       "area": "Round 43 · bounded original water mip filter in low tier",
-      "verdict": "CANDIDATE · EXACT SOURCE NODE/WEBGL A/B/≥17 ACTUAL SUBMISSIONS PENDING",
-      "gap": "Nearest mip could shimmer/band. Need captured before/after screenshots, live continuous video and actual CI draw gate. Balanced tier remains original. Whole-game Snake Pass art/motion LOSE, independent review/display-present device cadence/soak/R5 open."
+      "verdict": "R43 FOCUSED CHROMIUM 31/32 PASS; STRICT 7 ACTUAL OF 17 FAIL",
+      "gap": "R43 low-water one-mip A/B verified but 7 actual submits/1008.6ms <17; no causal performance benefit. Separate R44 candidate pending. Independent critic, actual device presents/soak/R5 open."
     },
     {
       "area": "Round 42 · original lake shader WebGL verification",

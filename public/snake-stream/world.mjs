@@ -686,6 +686,36 @@ export function createWorld(THREE, {width, height}) {
   const fruitStem=new THREE.Mesh(stem,wood);fruitStem.position.y=.88;fruitStem.scale.set(.04,.17,.04);fruit.add(fruitStem);
   const fruitRing=new THREE.Mesh(ring,gold);fruitRing.rotation.x=-Math.PI/2;fruitRing.position.y=.06;fruitRing.scale.set(1.2,1.2,1.2);fruit.add(fruitRing);
   const crown=new THREE.Mesh(geometry(new THREE.OctahedronGeometry(.13)),gold);crown.position.y=1.19;fruit.add(crown);
+  // BEGIN R44 HARVEST FRUIT REPROFILE
+  // Original authored mesh with unchanged topology: subtle five-lobed
+  // shoulders and a recessed stem instead of a large spherical reward.
+  // This is presentation only; no public food coordinate changes.
+  const harvestVertices=sphere.getAttribute('position');
+  for(let i=0;i<harvestVertices.count;i++){
+    const x=harvestVertices.getX(i), y=harvestVertices.getY(i), z=harvestVertices.getZ(i);
+    const shoulder=.10*Math.exp(-Math.pow((y-.35)/.55,2));
+    const taper=.12*Math.max(0,(-y-.10)/.90);
+    const lobes=.04*Math.cos(5*Math.atan2(z,x))*Math.max(0,y)**2;
+    const radius=.94+shoulder-taper+lobes;
+    const dimple=Math.max(0,(y-.68)/.32);
+    const foot=Math.max(0,(-y-.82)/.18);
+    harvestVertices.setXYZ(i,x*radius,y-.085*dimple*dimple+.02*foot*foot,z*radius);
+  }
+  harvestVertices.needsUpdate=true;
+  sphere.computeVertexNormals();
+  sphere.computeBoundingSphere();
+  fruit.name='Public harvest fruit';
+  fruitBody.name='Sculpted five-lobed fruit';
+  fruitBody.scale.set(.305,.345,.305);
+  fruitBody.position.y=.43;
+  for(const part of fruit.children){
+    if(part.geometry===leaf){part.position.y=.77;part.scale.set(.38,.39,.38);}
+  }
+  fruitStem.position.y=.80;
+  fruitStem.scale.set(.035,.14,.035);
+  crown.position.y=.99;
+  // Keep the gold cell-location ring at its original scale and position.
+  // END R44 HARVEST FRUIT REPROFILE
   // Obstacles and portals do not animate between public topology changes.
   // Trap countdowns and activation remain independent of this cached subset.
   const stablePools=[obstacles,obstacleCaps,portalRings,portalInner,portalBases,portalGlyph];
