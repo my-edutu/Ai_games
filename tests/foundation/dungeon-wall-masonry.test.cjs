@@ -50,6 +50,6 @@ test('actual base walls use the original albedo and low bump depth through one i
  assert.match(scene,/stone\.bumpScale=\.04/);
  assert.match(scene,/wallMasonryTexture\?\.dispose\(\)/);
  assert.match(scene,/wallMasonry:\{/);
- assert.match(scene,/instance\(geo\.cube,stone,walls/);
+ assert.match(scene,/instance\(fracturedWall,stone,walls/,'the sculpted wall surface must retain the same bounded original masonry albedo and bump map');
  assert.ok(server.includes("['/dungeon/wall-masonry-plan.js','wall-masonry-plan.js']"));
 });
