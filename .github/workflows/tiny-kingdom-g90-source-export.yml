@@ -1,0 +1,31 @@
+name: Tiny Kingdom G90 isolated source checkpoint
+on:
+  push:
+    branches: [feat/tiny-kingdom-g90-authored-assets-20261101]
+    paths: ['.github/workflows/tiny-kingdom-g90-source-export.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-checkpoint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Package exact checked-out source and pinned identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence/g90
+          git rev-parse HEAD > evidence/g90/commit.txt
+          git rev-parse HEAD^{tree} > evidence/g90/tree.txt
+          git archive --format=tar HEAD | gzip > evidence/g90/repo.tar.gz
+          sha256sum evidence/g90/repo.tar.gz > evidence/g90/archive.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: g90-source-${{ github.sha }}
+          path: evidence/g90/
+          retention-days: 7
+          if-no-files-found: error
