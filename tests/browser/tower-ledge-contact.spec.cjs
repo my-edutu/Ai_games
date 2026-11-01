@@ -53,5 +53,12 @@ for(const view of [{name:'desktop',w:960,h:600},{name:'portrait',w:390,h:844}]){
     expect(d.ledgeContact?.errorWorld,'rendered fingertip must reach the real deck').toBeLessThan(.02);
     expect(d.ledgeContact?.target).toHaveLength(3);
     expect(d.ledgeContact?.fingertip).toHaveLength(3);
+    // The previous G37 GPU still passed fingertip IK while the *helmet*
+    // visibly cut through stone. Reject a contact frame unless the actual
+    // world-space head envelope is exterior to the real platform front rim.
+    expect(d.ledgeContact?.helmetWorld).toHaveLength(3);
+    expect(d.ledgeContact?.helmetClearanceWorld,'helmet must not intersect the deck rim').toBeGreaterThan(0);
+    expect(Math.hypot(d.climberPosition[0],d.climberPosition[2]),
+      'live visible root must follow the exterior corridor').toBeGreaterThan(27.95);
   });
 }

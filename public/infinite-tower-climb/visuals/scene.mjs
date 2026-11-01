@@ -69,6 +69,29 @@ function ledgeContactPoint(snapshot, platform) {
   return { x: touchX, y: top };
 }
 
+// One-way 2D ascents otherwise put the visible helmet THROUGH an opaque
+// annular deck. Keep physics, feet height and every authoritative x/y tick
+// unchanged: guide only the 3D presentation through an exterior climbing lane
+// before the crown reaches the slab, then let normal grounded follow return
+// the robot onto the deck. The corridor starts early to avoid a one-frame pop.
+function climbApproachRadius(snapshot, platform) {
+  const player = snapshot?.player;
+  if (!platform || !player || player.state !== 'airborne' || player.vy <= 0
+    || player.health <= 0 || player.attacking) return 25;
+  const values = [player.x, player.y, player.halfHeight, player.halfWidth,
+    platform.x, platform.y, platform.width, platform.height];
+  if (!values.every(Number.isFinite) || player.halfHeight <= 0
+    || player.halfWidth <= 0 || platform.width <= 0) return 25;
+  // A remote deck at the same height must never pull the climber off its lane.
+  if (player.x + player.halfWidth * 1.5 < platform.x
+    || player.x - player.halfWidth * 1.5 > platform.x + platform.width) return 25;
+  const height = player.halfHeight * 2;
+  const aboveFeet = platform.y + platform.height - (player.y - player.halfHeight);
+  if (aboveFeet > height * 1.65 || aboveFeet < -height * .4) return 25;
+  const approach = Math.max(0, Math.min(1, (height * 1.65 - aboveFeet) / (height * .65)));
+  return 25 + 3.05 * approach;
+}
+
 // An armored guardian can stand under the final one-way cap with less vertical
 // space than its full visible crest. Let only the presentation rig tuck its head;
 // the cap, hitboxes, authored height, replay and public state remain unchanged.
@@ -84,8 +107,17 @@ function measureLedgeFingertip(climberGroup, target, platformId) {
   if (!elbow) return { platformId, target: worldTarget.toArray(), fingertip: null, errorWorld: null, reason: 'missing-elbow' };
   elbow.updateWorldMatrix(true, false);
   const fingertip = elbow.localToWorld(new THREE.Vector3(0, -.802, .108));
+  const helmet = climberGroup.getObjectByName('expressive-helmet');
+  helmet?.updateWorldMatrix(true, false);
+  const helmetWorld = helmet ? helmet.localToWorld(new THREE.Vector3()) : null;
+  // Conservative 0.7-unit armor envelope, measured against the real 27.18
+  // radius of the deck's front rim. Geometry diagnostics are NOT visual proof.
+  const helmetClearanceWorld = helmetWorld
+    ? Math.hypot(helmetWorld.x, helmetWorld.z) - 27.18 - .7 * climberGroup.scale.x
+    : null;
   return { platformId, target: worldTarget.toArray(), fingertip: fingertip.toArray(),
-    errorWorld: fingertip.distanceTo(worldTarget), reason: null };
+    errorWorld: fingertip.distanceTo(worldTarget), helmetWorld: helmetWorld?.toArray() || null,
+    helmetClearanceWorld, reason: null };
 }
 
 function guardianCanopyClearance(snapshot, enemy) {
@@ -809,8 +841,9 @@ export function createTowerScene(canvas, settings = {}) {
     const targetPlatform = intendedLanding(snapshot);
     const ledgeContact = ledgeContactPoint(snapshot, targetPlatform);
     const ledgeTarget = ledgeContact ? pointFor(ledgeContact.x, ledgeContact.y,
-      snapshot.chunkBaseY, snapshot.worldWidth, 25) : null;
-    const mapped = pointFor(p.x, p.y - p.halfHeight, snapshot.chunkBaseY, snapshot.worldWidth);
+      snapshot.chunkBaseY, snapshot.worldWidth, 27.1) : null;
+    const approachRadius = climbApproachRadius(snapshot, targetPlatform);
+    const mapped = pointFor(p.x, p.y - p.halfHeight, snapshot.chunkBaseY, snapshot.worldWidth, approachRadius);
     actorTarget.set(mapped.x, mapped.y, mapped.z);
     const moving = Math.abs(p.vx) > 500;
     const desiredYaw = mapped.angle + (moving || p.state === 'dashing' ? p.facing * Math.PI / 2 : p.facing * .32);
