@@ -47,3 +47,31 @@ test('real Three.js world uses the under-wall textured batch and compact sightli
  assert.match(app,/cachedScale\.set\(cutaway\.footprint,cutaway\.height,cutaway\.footprint\)/);
  assert.ok(host.includes("['/dungeon/cutaway-floor-plan.js','cutaway-floor-plan.js']"));
 });
+
+
+test('wall capstones follow the same sightline and near-party clearance as their parent stone facades',async()=>{
+ const {planCutawayCapTransform}=await load();
+ const cap=Object.freeze([2.511,2.42,-3.511,.72,.115,.09]);
+ assert.deepEqual(planCutawayCapTransform('none',cap),[2.511,2.42,-3.511,.72,.115,.09]);
+ assert.deepEqual(planCutawayCapTransform('sightline',cap),[2.511,.015,-3.511,.001,.001,.001]);
+ assert.deepEqual(planCutawayCapTransform('nearby',cap),[2.511,.015,-3.511,.001,.001,.001]);
+ assert.deepEqual(cap,[2.511,2.42,-3.511,.72,.115,.09],'camera operations never mutate wall source');
+ for(const invalid of [null,[],[0,1,2],[0,0,0,0,1,1],[Infinity,1,1,1,1,1],[0,-1,0,1,1,1],[65,1,0,1,1,1]])
+  assert.equal(planCutawayCapTransform('none',invalid),null,'malformed or unbounded capstones must be rejected');
+ assert.equal(planCutawayCapTransform('unrecognized',cap),null,'unknown visibility is not silently treated as a normal wall');
+ const source=fs.readFileSync(planFile,'utf8');
+ assert.doesNotMatch(source,/Math\.random|Date\.|performance\.|fetch\(|requestAnimationFrame|DungeonRuntime/);
+});
+
+test('real Three.js capstone batch maps every cap to its parent exposed face and avoids repeated GPU uploads',()=>{
+ const env=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
+ assert.match(env,/columnCapParents\.push\(wallFaces\.length-1\)/);
+ assert.match(env,/const columnCapMesh=batched\(/);
+ assert.match(env,/shouldUploadCutawayBand\(capBands,/);
+ assert.match(env,/planCutawayCapTransform\(/);
+ assert.match(env,/columnCapMesh\.setMatrixAt\(/);
+ assert.match(env,/if\(capMatrixWrites\)columnCapMesh\.instanceMatrix\.needsUpdate=true/);
+ assert.match(env,/clearedCapstones:/);
+ assert.match(env,/columnCapstones:/);
+ assert.match(env,/capstone:capMatrixWrites/);
+});
