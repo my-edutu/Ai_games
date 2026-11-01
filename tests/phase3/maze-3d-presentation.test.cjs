@@ -279,6 +279,10 @@ test('portrait encounter camera grows actual actors only within genuine public f
     'invalid public coordinates can never corrupt the camera');
   assert.equal(frame(aspect,base,1,hero,guardian,null),base,
     'no inferred unseen camera anchor is permitted');
+  assert.equal(frame(aspect,base,1,hero,guardian,focus,{x:40,z:0}),base,
+    'a genuine pair remains fully visible while the public camera is still easing from an older target');
+  assert.equal(frame(aspect,base,1,hero,guardian,focus,{x:NaN,z:0}),base,
+    'non-finite preceding camera target fails safely without cropping');
   assert.equal(frame(aspect,base,1,hero,guardian,focus),close,
     'the same public state produces a deterministic and repeatable shot');
   assert.equal(JSON.stringify({hero,guardian,focus}),before,
