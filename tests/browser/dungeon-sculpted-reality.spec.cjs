@@ -18,6 +18,13 @@ test('real 3D dungeon sculpting and anatomical gear render from an unchanged aut
  expect(diag.wallSculpture.wallCount).toBeGreaterThan(40);
  expect(diag.dressing?.cutawayFloorBackings).toBeGreaterThan(0);
  expect(diag.dressing?.cutawayFloorBackings).toBeLessThanOrEqual(4096);
+ // Ornamental parapet crowns must follow their actual parent wall cutaways.
+ expect(diag.dressing?.columnCapstones).toBeGreaterThan(0);
+ expect(diag.dressing?.clearedCapstones).toBeGreaterThan(0);
+ expect(diag.dressing?.clearedCapstones).toBeLessThanOrEqual(diag.dressing?.columnCapstones);
+ await expect.poll(()=>page.evaluate(()=>
+  window.__DUNGEON_RENDER_DIAGNOSTICS__?.dressing?.matrixWrites?.capstone??-1
+ ),{timeout:40000}).toBe(0);
  expect(diag.authored3D.anatomicalDetailParts).toBeGreaterThanOrEqual(30);
  expect(diag.authored3D.anatomicalDetailParts).toBeLessThanOrEqual(144);
  expect(diag.composition.visibleHeroes).toBeGreaterThan(0);
@@ -25,11 +32,11 @@ test('real 3D dungeon sculpting and anatomical gear render from an unchanged aut
  expect(diag.drawCalls).toBeLessThan(1600);
  expect(errors).toEqual([]);
  await page.locator('.arena').evaluate(node=>node.classList.add('world-only-audit'));
- await page.locator('#world').screenshot({path:'artifacts/dungeon-cutaway-infill-round51-world-only.png',timeout:60000});
+ await page.locator('#world').screenshot({path:'artifacts/dungeon-capstone-clearance-round52-world-only.png',timeout:60000});
  await test.info().attach('real-sculpted-3d',{body:Buffer.from(JSON.stringify({
   seed:'visual-room-art-18',tick:snapshot.tick,floor:snapshot.floor,
   source:'real DungeonRuntime publicState; presentation-only extras',
-  walls:diag.wallSculpture,cutaway:{walls:diag.cutawayWalls,floorBackings:diag.dressing.cutawayFloorBackings},gear:diag.authored3D.anatomicalDetailParts,
+  walls:diag.wallSculpture,cutaway:{walls:diag.cutawayWalls,floorBackings:diag.dressing.cutawayFloorBackings,capstones:diag.dressing.columnCapstones,clearedCapstones:diag.dressing.clearedCapstones,capMatrixWrites:diag.dressing.matrixWrites.capstone},gear:diag.authored3D.anatomicalDetailParts,
   composition:diag.composition,visibility:diag.visibility,drawCalls:diag.drawCalls,triangles:diag.triangles
  },null,2)),contentType:'application/json'});
 });
