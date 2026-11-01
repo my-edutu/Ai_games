@@ -495,6 +495,20 @@ export function createClimber() {
         // permit one bounded contact-window correction (22cm max), rather
         // than leaving the leveled boot suspended above the real platform.
         body.position.y-=clamp((deckSoleWorld.y-surface.y)/Math.max(.01,deckWorldScale.y),-.22,.22);
+        // A lead-sole plant must not rotate the *other* boot through the same
+        // solid stone. At genuine t300 its trailing toe was 14cm below Y6
+        // while the newly leveled lead sole was correctly bearing weight.
+        // Correct only a toe genuinely over this deck, without moving its hip,
+        // fabricating a second planted foot or altering authoritative motion.
+        const trailing=legs[1-physicalPushIndex];
+        trailing.foot.updateWorldMatrix(true,false);
+        deckSoleWorld.set(0,-.205,.31);
+        trailing.foot.localToWorld(deckSoleWorld);
+        const trailingRadius=Math.hypot(deckSoleWorld.x,deckSoleWorld.z);
+        if(trailingRadius>=surface.innerRadius&&trailingRadius<=surface.outerRadius
+          &&deckSoleWorld.y<surface.y-.025){
+          trailing.foot.rotation.x=-(body.rotation.x+trailing.upper.rotation.x+trailing.lower.rotation.x);
+        }
         const compression=beforeLoadY-body.position.y;
         if(compression>.03){
           loadedThisFrame=true;

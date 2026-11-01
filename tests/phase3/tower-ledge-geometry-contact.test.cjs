@@ -506,3 +506,39 @@ test('source-matched tick-301 push-off stays visible when the renderer never sub
       'post-deck lift should fully release the cue by the next actual authority tick');
   }
 });
+
+test('the trailing boot cannot pierce the real upper deck during a one-foot heel/toe load',async t=>{
+  const threeURL=pathToFileURL(path.join(path.dirname(require.resolve('three')),'three.module.js')).href;
+  const adjusted=cast.replace("from '/tower/vendor/three.module.js'","from '"+threeURL+"'");
+  const {createClimber}=await import('data:text/javascript;base64,'+Buffer.from(adjusted).toString('base64'));
+  const THREE=await import(threeURL);
+  const source={state:'airborne',vx:3200,vy:10200,facing:1,health:5,attacking:false,
+    runToken:'real-run',tick:300,ledgePlatformId:'f1:p1',ledgeMantle:{progress:.48,weight:1}};
+  const deck={platformId:'f1:p1',y:6,innerRadius:22.4,outerRadius:27.18};
+  for(const viewAzimuth of [-Math.PI/4,Math.PI/4]){
+    const loaded=createClimber(),unloaded=createClimber(),wrongDeck=createClimber();
+    t.after(()=>{loaded.dispose();unloaded.dispose();wrongDeck.dispose();});
+    const opts={reducedMotion:true,viewAzimuth};
+    const sole=(rig,side)=>{
+      const ankle=rig.group.getObjectByName(side+'-ankle');
+      assert.ok(ankle?.isBone,'sample the actual rigid-skinned boot');
+      ankle.updateWorldMatrix(true,false);
+      return [-.17,.07,.31].map(z=>ankle.localToWorld(new THREE.Vector3(0,-.205,z)));
+    };
+    for(const rig of [loaded,unloaded,wrongDeck])rig.group.position.set(0,6,25);
+    unloaded.animate(source,1/60,1,opts);
+    const initialShift=sole(unloaded,1)[1].y-deck.y-.08;
+    for(const rig of [loaded,unloaded,wrongDeck])rig.group.position.y-=initialShift;
+    loaded.animate({...source,ledgeSurface:deck},1/60,1,opts);
+    wrongDeck.animate({...source,ledgeSurface:{...deck,platformId:'other-deck'}},1/60,1,opts);
+    const planted=sole(loaded,1),trailing=sole(loaded,-1);
+    assert.ok(planted.every(p=>Math.abs(p.y-deck.y)<.035),
+      'the lead sole remains bearing at heel, middle and toe');
+    assert.ok(trailing.every(p=>p.y>=deck.y-.025),
+      'the unloaded trailing toe cannot pierce genuine walking stone: '+trailing.map(p=>p.y).join(','));
+    assert.ok(trailing[1].y>planted[1].y+.02,
+      'the second boot remains raised rather than fabricating a simultaneous two-foot landing');
+    assert.ok(Math.abs(sole(wrongDeck,-1)[2].y-sole(unloaded,-1)[2].y)<1e-8,
+      'a different platform must not change the trailing boot');
+  }
+});

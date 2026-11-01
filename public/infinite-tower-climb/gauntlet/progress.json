@@ -1,7 +1,7 @@
 {
   "updated": "2026-11-01",
-  "verdict": "FAIL / OPEN — G48 true heel/toe plant in candidate; remote green and new GPU pending",
-  "nextGap": "Verify exact-G48 Tower Ledge logical/Chromium output, download all new GPU tick-matched PNGs; assess 299→301 heel-to-toe contact continuity in both viewports, then full normal-speed motion and native-device accessibility/FPS/soak",
+  "verdict": "FAIL / OPEN — G49 true trailing-toe clearance passes real-rig tests; exact new-head GPU and independent gates pending",
+  "nextGap": "Download and inspect exact-G49 source-matched desktop/portrait GPU at true upper-deck contact tick300 versus exact-G48; verify trailing toe no longer visibly tunnels, then target continuous mantle motion and independently reviewed Jusant/ASTRO BOT, accessibility, native-device sustained FPS and soak.",
   "capture": "/tower/gauntlet/evidence/14-foundry-follow.webp",
   "captureLabel": "Actual tick 118 · compact HUD and clearer hostile equipment",
   "iterations": [
@@ -356,6 +356,13 @@
       "title": "Level the real upper-deck boot at both heel and toe instead of planting only its center probe",
       "finding": "Before editing read current head/AGENTS/GAUNTLET/review/progress/CI and downloaded G47 Tower Ledge artifact 13077420692 (source b4b4ff8, 32 original WebGL PNGs, 16 authentic ticks × desktop and portrait) plus G46 artifact 13075687420. Inspected actual sequences and pixel-diffed: only tick300 has a contact-specific appearance change (3503 desktop /5351 portrait changed pixels, >8 per channel); t299 and t301–310 remain pixel-identical to G46. New original-rig heel/mid/toe test shows G47 partial foot leveling contacts center but leaves one boot edge 0.1108028 world units above source Y6 deck. Exact red source commit 63d1ed5, Tower Ledge 41291488040 fails 1/22 logical on this substantive defect (npm build PASS). This candidate levels entire genuine lead sole after matching run/platform/airborne/upward/real deck window and permits <=.22 world-scale body compression; root and authoritative data untouched. Actual new GPU/green CI not yet verified.",
       "checks": "RED remote Tower Ledge CI 41291488040: 21/22 focused logical PASS, 1 expected FAIL 'heel/toe ... 6.110802811327302' on G47 source, build PASS, browser skipped due to red. G47 Tower Ledge 41290314293 job SUCCESS (test/4 Chromium source-pinned); downloaded artifact source marker b4b4ff8 and visually inspected 32 desktop/portrait PNGs, 0 recorded frame errors, matched checksums. Candidate source/read-only spec self-review only; new remote G48 CI, normal-speed actual motion and GPU artifact PENDING. Independent worker/critic/Ultracode tunnel NOT_FOUND. Official Jusant/ASTRO BOT blind commercial comparison, accessible UI, native-device sustained FPS, long-run soak FAIL/OPEN. PR #58 DRAFT, no merge/force-push/deploy."
+    },
+    {
+      "number": "49",
+      "date": "2026-11-01",
+      "title": "Stop the unloaded trailing boot from piercing the genuine upper-deck slab",
+      "finding": "Pre-edit downloaded exact G48 b257f3e Tower Ledge WebGL artifact 13078733552 (run 41294596912), source-marker verified; inspected 32 original desktop/portrait ticks 282–318 and compared 32 G47 originals (artifact 13077420692) with identical authoritative checksums. At contact tick300 a source-matched physical Three rig fixture proved the lead heel/mid/toe exactly at real Y6 but the other boot pitched through the deck: rear toe Y5.8608054, 13.92cm under the Y6 stone. The fix levels ONLY the unloaded boot whose actual toe is within the same physical slab band and below its top, after a genuine source/run/platform-matched lead-foot load. No authority/AI/physics/collision, actor root, replay, lights, assets or draw calls changed. Fresh independent critic/Ultracode workspace tunnel NOT_FOUND; explicit SELF-REVIEW only.",
+      "checks": "RED exact b257f3e original rig: 0/1 new trailing-toe regression (heel 6.2132635, middle 6.0370344, toe 5.8608054). GREEN candidate: 1/1; two actual camera azimuths keep lead sole [6,6,6] and trailing sole [6.02259646,6.02259646,6.02259646], no second fake landing or change on wrong platform. Affected 24/24 Node tests, complete Tower phase-3 153/153, npm run build PASS, Tower stream host --self-test ok:true authority/privacy/recovery/restart finalTick600 checksum7725eefc. Parent G48 Tower Ledge 41294596912 SUCCESS with real 4/4 Chromium captures, parent broad catalogue 41294600438 CANCELLED (not passed). Exact new-source GPU/CI PENDING: no visual PASS claimed. Independent Jusant/ASTRO BOT comparison, complete normal-speed climb, accessible UI, intended-device sustained FPS and soak FAIL/OPEN. Draft PR; no merge, deployment or force-push."
     }
   ],
   "captures": [
