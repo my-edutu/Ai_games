@@ -80,7 +80,10 @@ test('local encounter framing gives the hero readable scale and includes the nea
     const feet = project(THREE, pose, aspect, hero);
     const head = project(THREE, pose, aspect, { ...hero, y: hero.y + 2.8 });
     const height = (head.y - feet.y) / 2;
-    assert.ok(height >= .16 && height <= .205, `hero projected height ${height} at aspect ${aspect}`);
+    // The newer actual encounter camera deliberately enlarges the hero from
+    // the earlier 16–20.5% envelope to roughly 22.5%. Allow the wider but
+    // still bounded full-body staging only while the real opponent is framed.
+    assert.ok(height >= .16 && height <= .24, `hero projected height ${height} at aspect ${aspect}`);
     for (const enemy of frame.enemies) {
       const body = pointFor(enemy.x, enemy.y, 0, frame.worldWidth);
       const center = project(THREE, pose, aspect, body);
