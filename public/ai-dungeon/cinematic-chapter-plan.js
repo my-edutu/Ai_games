@@ -13,6 +13,26 @@ const valid=(u,n)=>u&&Number.isInteger(u.x)&&Number.isInteger(u.z)&&u.x>=0&&u.z>
 const distance=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.z-b.z);
 const mean=(a,b)=>({x:(a.x+b.x)/2,z:(a.z+b.z)/2});
 const round=n=>Number(n.toFixed(3));
+/**
+ * Stage a real duel across the screen rather than stacking a giant foreground
+ * Warden over three distant heroes. The fixed 3/4 camera placed boss and party
+ * on the same depth axis in exact-head Chromium frames (artifact 13090029701).
+ * A bounded side-quarter shot separates living combatants in screen space.
+ * Keep a minor forward component so armor depth and weapon arcs remain visible.
+ */
+export function planDuelCameraOffset(hero,foe,height=8.2,radius=6.2){
+ if(!valid(hero,64)||!valid(foe,64))return null;
+ const dx=foe.x-hero.x,dz=foe.z-hero.z;
+ const length=Math.hypot(dx,dz);
+ if(length<.75)return null;
+ const sideX=dz/length,sideZ=-dx/length;
+ const sideSign=sideX+sideZ>=0?1:-1;
+ const norm=Math.hypot(.91,.18);
+ const viewX=(sideX*sideSign*.91+dx/length*.18)/norm;
+ const viewZ=(sideZ*sideSign*.91+dz/length*.18)/norm;
+ const h=clip(height,4.5,15),r=clip(radius,3.8,10.8);
+ return Object.freeze([round(viewX*r),round(h),round(viewZ*r)]);
+}
 export function planCinematicShot(s,encounter=null,{width=1440,height=832,focusedHeroId='vanguard'}={}){
  const n=Array.isArray(s?.map)?s.map.length:0;
  if(n<3||n>64||!Array.isArray(s?.units))return null;
@@ -33,24 +53,24 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
   // A telegraph is strategically more important than a close-up hit.
   // The center remains between the real boss and the closest living hero.
   mode='warden-warning';position=mean(boss,closeBoss);
-  offsets=[6.3,11.2,6.55];lookY=.25;subjects=[boss.id,closeBoss.id];
+  offsets=planDuelCameraOffset(closeBoss,boss,11.0,9.15)||[6.3,11.2,6.55];lookY=.25;subjects=[boss.id,closeBoss.id];
  }else if(realContact){
   const foe=enemies.find(u=>u.id===encounter.targetId);
   const hero=heroes.find(u=>u.id===encounter.actorId);
   mode=foe?.kind==='warden'?'warden-contact':'contact';
   position=mean(hero,foe);
-  offsets=foe?.kind==='warden'?[4.6,7.35,5.05]:[3.65,5.9,4.15];
+  offsets=planDuelCameraOffset(hero,foe,foe?.kind==='warden'?8.15:6.6,foe?.kind==='warden'?7.25:5.85)||[4.6,7.35,5.05];
   lookY=foe?.kind==='warden'?.76:.91;subjects=[hero.id,foe.id];
  }else if(boss&&closeBoss&&distance(closeBoss,boss)<=6){
   mode='warden-approach';position=mean(closeBoss,boss);
-  offsets=[4.4,7.45,5.0];lookY=.70;subjects=[closeBoss.id,boss.id];
+  offsets=planDuelCameraOffset(closeBoss,boss,8.65,7.8)||[4.4,7.45,5.0];lookY=.70;subjects=[closeBoss.id,boss.id];
  }else if(s.phase==='intermission'){
   mode='descent';offsets=[4.6,7.0,5.25];lookY=.68;
  }else if(enemies.length){
   const foe=enemies.slice().sort((a,b)=>distance(a,focus)-distance(b,focus)||a.id.localeCompare(b.id))[0];
   if(distance(foe,focus)<=3){
    mode='skirmish-approach';position=mean(focus,foe);
-   offsets=[4.35,7.05,4.75];lookY=.67;subjects=[focus.id,foe.id];
+   offsets=planDuelCameraOffset(focus,foe,7.25,6.65)||[4.35,7.05,4.75];lookY=.67;subjects=[focus.id,foe.id];
   }
  }
  // Framing is biased toward readable actor height, but gently widens for

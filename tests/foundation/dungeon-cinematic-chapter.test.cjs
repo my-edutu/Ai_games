@@ -40,6 +40,22 @@ test('real targeted contacts get a readable hero-scale shot, with bounded portra
  const malformed=planCinematicShot({map:[],units:[]});
  assert.equal(malformed,null);
 });
+test('a real Warden duel is filmed from the flank so giant foreground boss armor cannot cover the heroes',async()=>{
+ const {planCinematicShot,planDuelCameraOffset}=await planner(),s=scene();
+ const v=s.units.find(u=>u.id==='vanguard'),boss=s.units.find(u=>u.id==='warden');
+ const shot=planCinematicShot(s);
+ assert.equal(shot.mode,'warden-approach');
+ const view=shot.offsets;
+ const direction={x:boss.x-v.x,z:boss.z-v.z};
+ const dot=Math.abs(view[0]*direction.x+view[2]*direction.z);
+ const cross=Math.hypot(view[0],view[2])*Math.hypot(direction.x,direction.z);
+ assert.ok(dot/cross<.4,'the camera axis must not superimpose boss and hero in depth');
+ assert.ok(shot.offsets[1]>=8,'the camera must still expose actual foot telegraphs');
+ assert.equal(planDuelCameraOffset(v,v),null,'coincident units retain fallback stable view');
+ assert.equal(planDuelCameraOffset({x:NaN,z:9},boss),null,'malformed real positions cannot place the camera');
+ const reverse=planDuelCameraOffset(boss,v);
+ assert.ok(reverse.every(Number.isFinite),'deterministic opposite direction shot is finite');
+});
 test('authority-backed boss anticipation is reversible and reduced-motion safe',async()=>{
  const {planWardenCharge,planCinematicShot}=await planner();
  const warning={attackTick:6,cells:[{x:9,z:9}]};
