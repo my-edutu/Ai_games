@@ -2193,7 +2193,7 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "Latest physical tactics candidate has not yet completed exact-SHA TypeScript build, foundation/integration tests, 24x900 deterministic campaign or real-browser desktop/mobile motion/audio. Previous green runs are not proof for this candidate.",
+      "safetyChecks": "First tactical candidate d291dd2 failed four authority tests (177/181 passing): real trap fixture assumed reckless walking, fixed vanguard-only encounter attribution, new allied-body firing-lane test, and previous hit-roll bound. This integrated correction is pending exact-head build, replay, real WebGL and CI.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "PENDING_EXACT_HEAD_CHROMIUM_CAPTURE",
       "soundstageBrowser": "PENDING_EXACT_HEAD_CHROMIUM_RUN",
@@ -2205,7 +2205,7 @@
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
     "biggestRemainingGap": "Actual 3D characters still look miniature and low-detail relative to reference. This candidate's live motion/audio, replay safety and real browser captures are UNVERIFIED; matched desktop/mobile full journey footage, GPU frame tails and >=3 independent blind Looks/Feels/Plays critics are missing.",
-    "currentWork": "M1 continues on the original locked baseline. Authoritative party and enemy footwork now attempts collision-aware role-based routes: genuine ranged lines, real short backline retreats, vanguard protection of threatened support characters, urgent Mystic triage, and actual enemy pursuit. These changes feed unchanged real Three.js skeletal animation, camera and sound; no fake grid offsets or staged results.",
+    "currentWork": "M1 real occupied-cell physical squad footwork now also enforces genuine living-body line-of-fire obstruction for party and hostile casters; damage and VFX cannot show arrows through frontliners. Smart hazard avoidance retains real trap damage when exposure is unavoidable. Real 3D choreography is still awaiting before-after video inspection.",
     "candidateCommit": "cb4553280a438233c23cd2ba29df33ffd4ef9b27",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
@@ -2425,6 +2425,23 @@
         "verification": "UNVERIFIED: exact-commit build, 480-turn occupancy invariant, deterministic seed campaign, authentic desktop/mobile browser footage, frame tails and blind critics not yet completed.",
         "experienceVerdict": "IN_PROGRESS — NOT TRANSFORMED",
         "next": "Inspect actual 3D movement on current PR head, ensure tactical AI completes encounters without stalling; improve original character anatomy and contact, then record full matching real audiovisual journeys and obtain independent critic majority."
+      },
+      {
+        "id": "M1-LIVING-FIRING-LANES-20261101",
+        "date": "2026-11-01",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "d291dd216d34e4ce42e1a6751d7c4d795780f69a",
+        "objective": "Ensure role-based retreat, contact and Warden-frontline action are physically legible; actor bodies must block projectile lanes and hazards must reflect genuine tactical decisions.",
+        "code": [
+          "games/ai-dungeon/src/index.ts",
+          "tests/foundation/dungeon-core.test.cjs",
+          "public/ai-dungeon/impact-choreography-plan.js"
+        ],
+        "implementation": "New bounded living-body obstruction for public grid attacks and cultist casting, kept alongside wall-clear lane and tactical BFS. Updated legacy test semantics to allow real trap avoidance while proving damage on forced exposure, accepts actual party minion interception instead of only Vanguard last-hit, and caps true 3D hit-roll to the existing safe-motion contract.",
+        "observedRed": "Exact-head authority 41342618680: 177/181 passed; four named failures diagnosed. Full 480-turn real occupancy invariant PASSED in that run; this next candidate NOT tested.",
+        "experienceVerdict": "IN_PROGRESS / NOT TRANSFORMED",
+        "next": "Inspect exact-head fresh gameplay AI, true Warden court and animation in real desktop/mobile video, then full baseline-aligned audio clips and independent critics."
       }
     ]
   }

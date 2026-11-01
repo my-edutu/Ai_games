@@ -87,6 +87,20 @@ function clearCombatLane(map:string[],a:{x:number;z:number},b:{x:number;z:number
  for(let i=1;i<dist(a,b);i++)if(!walkable(map,a.x+dx*i,a.z+dz*i))return false;
  return true;
 }
+/** Real line of fire cannot pass through living friends or foes either.
+ * World walls and actor bodies are both authoritative, never VFX guesses.
+ * Its one-dimensional scan is capped by the fixed 19-cell map width.
+ */
+function clearTacticalLane(s:Pick<DungeonState,'map'|'units'>,
+ from:{x:number;z:number},to:{x:number;z:number},sourceId:string){
+ if(!clearCombatLane(s.map,from,to))return false;
+ const distance=dist(from,to),dx=Math.sign(to.x-from.x),dz=Math.sign(to.z-from.z);
+ for(let i=1;i<distance;i++){
+  const x=from.x+dx*i,z=from.z+dz*i;
+  if(s.units.some(u=>u.hp>0&&u.id!==sourceId&&u.x===x&&u.z===z))return false;
+ }
+ return true;
+}
 // Each ranged hero searches no more than 81 candidate tiles with bounded BFS.
 function approachFiringLane(s:DungeonState,hero:Unit,enemy:Unit,range:number){
  if(range<=1)return shortestPath(s.map,hero,enemy);
@@ -144,7 +158,7 @@ export function planTacticalStep(
  const inPosition=(p:TacticalCell)=>{
   const d=dist(p,goal);
   return mode==='exit'?d===0:mode==='escort'?d>=1&&d<=reach:
-   d>=1&&d<=reach&&clearCombatLane(s.map,p,goal);
+   d>=1&&d<=reach&&clearTacticalLane(s,p,goal,actor.id);
  };
  const boss=s.units.find(u=>u.kind==='warden'&&u.hp>0);
  const warning=boss?planWardenStrike(s,boss):null;
@@ -379,7 +393,7 @@ export class DungeonRuntime {
       s.intent=hero.kind==='ranger'?'Wildshadow opening a safe firing lane':'Starweaver protecting the healing lane';
       push(s,'reposition',hero.kind+' disengaged from melee');continue}
     }
-    const target=attackable.find(e=>dist(hero,e)>=1&&dist(hero,e)<=range&&clearCombatLane(s.map,hero,e));
+    const target=attackable.find(e=>dist(hero,e)>=1&&dist(hero,e)<=range&&clearTacticalLane(s,hero,e,hero.id));
    if(target){
     const raw=hero.attack+(s.level-1)*2,damage=damageThroughWardenSeal(s,target,raw);
     target.hp=Math.max(0,target.hp-damage);hero.action=hero.kind==='mystic'?'cast':'attack';hero.targetId=target.id;target.action='hurt';
@@ -462,7 +476,7 @@ export class DungeonRuntime {
      s.intent='Shadow caster disengaging to regain a spell lane';
      if(enemy.cooldown>0)enemy.cooldown--;continue}
    }
-   if(enemy.kind==='cultist'&&distance>1&&distance<=3&&s.tick%4===0){const visible=(enemy.x===nearest.x&&Array.from({length:Math.abs(enemy.z-nearest.z)-1},(_,i)=>Math.min(enemy.z,nearest.z)+i+1).every(z=>walkable(s.map,enemy.x,z)))||(enemy.z===nearest.z&&Array.from({length:Math.abs(enemy.x-nearest.x)-1},(_,i)=>Math.min(enemy.x,nearest.x)+i+1).every(x=>walkable(s.map,x,enemy.z)));if(visible){nearest.hp=Math.max(0,nearest.hp-5-Math.min(8,Math.floor(s.floor/2)));nearest.action='hurt';enemy.action='cast';enemy.targetId=nearest.id;push(s,'danger','Cultist hurled a shadow bolt')}}
+   if(enemy.kind==='cultist'&&distance>1&&distance<=3&&s.tick%4===0){const visible=clearTacticalLane(s,enemy,nearest,enemy.id);if(visible){nearest.hp=Math.max(0,nearest.hp-5-Math.min(8,Math.floor(s.floor/2)));nearest.action='hurt';enemy.action='cast';enemy.targetId=nearest.id;push(s,'danger','Cultist hurled a shadow bolt')}}
    if(distance<=1){if(enemy.cooldown===0){const braced=nearest.action==='guard'||nearest.guardTick===s.tick;const dealt=braced?Math.max(1,Math.ceil(enemy.attack*.4)):enemy.attack;nearest.hp=Math.max(0,nearest.hp-dealt);enemy.cooldown=2;enemy.action='attack';enemy.targetId=nearest.id;nearest.action=braced?'guard':'hurt';if(braced)push(s,'block',nearest.kind+' blocked '+(enemy.attack-dealt)+' melee damage');else push(s,'danger',enemy.kind+' hit '+nearest.kind+' for '+dealt)}}
    else if(distance<=5&&s.tick%2===0){
      const next=planTacticalStep(s,enemy,nearest,'engage');

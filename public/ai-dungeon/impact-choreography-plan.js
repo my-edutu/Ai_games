@@ -46,7 +46,7 @@ export function planDamageReaction(kind,damage,maxHp,age,fatal=false,reducedMoti
    pitch:1.30*fall+.17*impact,roll:direction*.10*fall};
  }
  if(age>=DAMAGE_BEAT_DURATION)return neutral();
- return {x:0,y:-.026*impact,z:.11*impact,pitch:.20*impact,roll:direction*.12*impact};
+ return {x:0,y:-.026*impact,z:.11*impact,pitch:.20*impact,roll:direction*.10*impact};
 }
 /**
  * Direct a short camera hold only when a real HP loss coincides with an

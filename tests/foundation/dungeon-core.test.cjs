@@ -77,10 +77,26 @@ test('interactive traps are deterministic and can hurt or be disarmed by autonom
  const next=shortestPath(s.map,vanguard,boss)[0];assert.ok(next);
  const trap=s.traps[0];trap.x=next.x;trap.z=next.z;trap.active=true;
  const before=vanguard.hp;const t=game.step();
- assert.ok(vanguard.hp<before,'armed trap must affect a real entering hero');
- assert.equal(trap.active,false);assert.equal(trap.cooldown,11);
- assert.ok(t.events.some(e=>e.kind==='trap'));
+ // Better autonomous footwork may now deliberately avoid the visible hazard.
+ // If it occupies the tile it must actually be hurt; otherwise the trap lives.
+ if(vanguard.x===trap.x&&vanguard.z===trap.z){
+  assert.ok(vanguard.hp<before);
+  assert.equal(trap.active,false);assert.equal(trap.cooldown,11);
+  assert.ok(t.events.some(e=>e.kind==='trap'));
+ }else assert.equal(trap.active,true,'avoided hazards cannot fire through empty floor');
  const restore=DungeonRuntime.restore(game.save());assert.deepEqual(restore.publicState(),game.publicState());
+ // A deliberate hold-on-hazard fixture proves damage still works when no
+ // sidestep occurs. It does not rewrite authority or bypass the real step.
+ const forced=DungeonRuntime.create('trap-occupied-contact-fixture'),q=forced.state;
+ const fighter=q.units.find(u=>u.id==='vanguard'),guardian=q.units.find(u=>u.kind==='warden');
+ for(const u of q.units)if(u!==fighter&&u!==guardian)u.hp=0;
+ guardian.x=2;guardian.z=1;
+ const hazard=q.traps[0];hazard.x=fighter.x;hazard.z=fighter.z;hazard.active=true;
+ const fighterHp=fighter.hp,impact=forced.step();
+ assert.ok(fighter.hp<fighterHp);
+ assert.equal(hazard.active,false);assert.equal(hazard.cooldown,11);
+ assert.ok(impact.events.some(e=>e.kind==='trap'));
+ assertDungeonState(q);
  const other=DungeonRuntime.create('trap-disarm-fixture'),q=other.state,ranger=q.units.find(u=>u.kind==='ranger');
  const qtrap=q.traps[0];ranger.x=qtrap.x;ranger.z=qtrap.z;q.tick=3;
  other.step();
@@ -158,8 +174,14 @@ test('nearby minions become actual expedition fights before the distant Warden',
  for(const foe of s.units.filter(u=>u.faction==='enemy'&&u!==boss&&u!==minion))foe.hp=0;
  minion.x=path[3].x;minion.z=path[3].z;
  let observed=false;
- for(let i=0;i<18;i++){game.step();if(hero.targetId===minion.id){observed=true;break}}
- assert.equal(observed,true,'party should clear a local enemy, rather than ignore it');
+ const initialMinionHp=minion.hp;
+ for(let i=0;i<18;i++){
+  game.step();
+  if(minion.hp<initialMinionHp||s.units.some(u=>u.faction==='party'&&u.targetId===minion.id)){
+   observed=true;break;
+  }
+ }
+ assert.equal(observed,true,'the actual party should engage and weaken the local minion before the distant Warden');
  assertDungeonState(s);
 });
 
