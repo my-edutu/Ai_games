@@ -50,44 +50,94 @@ jobs:
           retention-days: 7
   normal-speed-play:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 28
     strategy:
       fail-fast: false
       matrix:
         include:
-          - scenario: climb
+          - source: baseline
+            ref: 1731b380851162741761c5569e2bc152a0869ca9
+            scenario: ascent
             floor: 0
-          - scenario: guardian
+          - source: baseline
+            ref: 1731b380851162741761c5569e2bc152a0869ca9
+            scenario: danger
             floor: 8
+          - source: baseline
+            ref: 1731b380851162741761c5569e2bc152a0869ca9
+            scenario: outcome
+            floor: 0
+          - source: candidate
+            ref: ${{ github.sha }}
+            scenario: ascent
+            floor: 0
+          - source: candidate
+            ref: ${{ github.sha }}
+            scenario: danger
+            floor: 8
+          - source: candidate
+            ref: ${{ github.sha }}
+            scenario: outcome
+            floor: 0
     env:
       TOWER_LAUNCH_FLOOR: ${{ matrix.floor }}
       TOWER_MOTION_SCENARIO: ${{ matrix.scenario }}
+      TOWER_SEED: tower-transformation-capture-v1
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout the actual game source being assessed
+        uses: actions/checkout@v4
         with:
+          ref: ${{ matrix.ref }}
+          path: source
           persist-credentials: false
+      - name: Checkout current evidence harness without replacing baseline game files
+        if: matrix.source == 'baseline'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: current-harness
+          persist-credentials: false
+      - name: Use identical live-host capture method for frozen baseline
+        if: matrix.source == 'baseline'
+        run: |
+          cp current-harness/tests/browser/tower-live-motion.spec.cjs source/tests/browser/tower-live-motion.spec.cjs
+          cp current-harness/scripts/tower-motion-evidence.cjs source/scripts/tower-motion-evidence.cjs
+          cp current-harness/scripts/serve-tower-stream.cjs source/scripts/serve-tower-stream.cjs
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
-      - run: npm ci --no-audit --no-fund
-      - run: npm run build
-      - name: Reject frozen/misrepresented motion captures
+          cache-dependency-path: source/package-lock.json
+      - name: Install source dependencies
+        working-directory: source
+        run: npm ci --no-audit --no-fund
+      - name: Build actual source authority and presentation
+        working-directory: source
+        run: npm run build
+      - name: Prove scoped video integrity before browser capture
+        working-directory: source
         run: node --test tests/phase3/tower-motion-evidence.test.cjs
-      - run: npx playwright install --with-deps chromium
-      - name: Record real normal-speed desktop and phone gameplay
+      - name: Install Chromium
+        working-directory: source
+        run: npx playwright install --with-deps chromium
+      - name: Pin provenance and capture full-motion authentic desktop and phone play
+        working-directory: source
         run: |
           mkdir -p artifacts/tower-motion
           git rev-parse HEAD > artifacts/tower-motion/source-sha.txt
-          npx playwright test --config=playwright.tower.config.cjs tests/browser/tower-live-motion.spec.cjs
+          echo "TOWER_CAPTURE_SOURCE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "${{ github.sha }}" > artifacts/tower-motion/evidence-harness-sha.txt
+      - name: Record at least 60 seconds of normal-speed autonomous WebGL gameplay
+        working-directory: source
+        run: npx playwright test --config=playwright.tower.config.cjs tests/browser/tower-live-motion.spec.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: tower-transformation-motion-${{ matrix.scenario }}-${{ github.sha }}
+          name: tower-motion-${{ matrix.source }}-${{ matrix.scenario }}-${{ github.run_id }}
           path: |
-            artifacts/tower-motion/
-            test-results/
+            source/artifacts/tower-motion/
+            source/test-results/
           retention-days: 7
-# Uploading real GPU evidence is not a LOOKS/FEELS/PLAYS verdict.
-# Frozen-baseline matched clips, >=60s scenarios, independent votes and
-# intended-device frame pacing remain separate and required to grade quality.
+# These captures are source-pinned genuine CI browser footage, not a quality
+# comparison verdict or supported-device performance measurement. Blind
+# randomized reviewers and native-hardware frame-time tails remain mandatory.
