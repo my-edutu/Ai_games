@@ -73,6 +73,16 @@ test('dimension-only tide contours remain non-navigable and stable across privat
   assert.ok(tide?.isInstancedMesh && tide.count === 44,
     'the lagoon has one batched physical water-only current layer');
   assert.equal(tide.castShadow, false);
+  // An unobstructed full-size water screenshot rejected the old large closed
+  // round loops as collectible-like false affordances. Every public-only foam
+  // contour must read as a narrow horizontal water stroke below the stage.
+  const {Matrix4,Vector3,Quaternion} = await import(three);
+  const transform = new Matrix4(), position = new Vector3(), rotation = new Quaternion(), scale = new Vector3();
+  for(let i=0;i<tide.count;i++){
+    tide.getMatrixAt(i,transform); transform.decompose(position,rotation,scale);
+    assert.ok(scale.y < scale.x * .2, 'water marks are slim foam streaks, not collectible-like circular halos');
+    assert.ok(position.y < -1.60 && position.y > -1.68, 'decorative tide marks remain below every stage floor');
+  }
   const matrix = Array.from(tide.instanceMatrix.array);
   const tint = Array.from(tide.instanceColor.array);
   const exposed = fixture([{cell:24,neighbors:[25]}, {cell:25,neighbors:[24]}]);

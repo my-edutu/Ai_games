@@ -94,9 +94,12 @@ export function createMazeWorld(options = {}) {
     const u = x * TAU / 128, v = y * TAU / 128;
     const first = Math.cos(v * 6 + Math.sin(u * 3) * 1.45 + Math.sin(u * 2) * .42);
     const second = Math.cos(u * 5 - v * 3 + Math.sin(v * 2) * 1.17);
-    const pale = Math.pow(Math.max(0, first), 17) * 22
-      + Math.pow(Math.max(0, second), 23) * 12;
-    const body = Math.sin(u * 2 + v) * 5.7 + Math.sin(v * 2 - u * 3) * 3.8;
+    // Keep water gradients below foreground character/goal contrast.
+    // The first full-size screenshot showed bright net-like lines; soften
+    // both families instead of merely passing the source/viewport tests.
+    const pale = Math.pow(Math.max(0, first), 17) * 14
+      + Math.pow(Math.max(0, second), 23) * 7;
+    const body = Math.sin(u * 2 + v) * 4.9 + Math.sin(v * 2 - u * 3) * 3.1;
     const shade = body + pale + (variation(x + y * 128) - .5) * 2.2 - 5;
     const i = (y * 128 + x) * 4;
     waterPixels[i] = Math.round(37 + shade * .71);
@@ -475,7 +478,11 @@ export function createMazeWorld(options = {}) {
       const x = (variation(seed * 7 + 19) * 2 - 1) * spanX;
       const z = (variation(seed * 17 + 101) * 2 - 1) * spanZ;
       const radius = .53 + variation(seed + 29) * .57;
-      tide.setMatrixAt(i, transform(x, -1.629, z, radius, radius * (.78 + variation(seed + 7) * .34), 1, -Math.PI / 2));
+      // Native 1280 WebGL showed full closed circles that looked like
+      // collectible halos. Compress the physical torus into small wave
+      // strokes instead: decorative current, not a fake item/route target.
+      tide.setMatrixAt(i, transform(x, -1.629, z,
+        radius * .73, radius * (.10 + variation(seed + 7) * .06), 1, -Math.PI / 2));
       tide.setColorAt(i, variation(seed + 13) > .47 ? tideLight : tideDark);
     }
     tide.instanceMatrix.needsUpdate = true;
