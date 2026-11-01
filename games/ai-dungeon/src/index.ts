@@ -79,6 +79,21 @@ function approachFiringLane(s:DungeonState,hero:Unit,enemy:Unit,range:number){
   }
  return best?.route??shortestPath(s.map,hero,enemy);
 }
+/**
+ * The oathbound shadow caster can step out of blade range into a legal clear
+ * firing lane instead of blindly exchanging melee blows. Deterministic,
+ * four-neighbour, bounded and entirely sourced from authoritative state.
+ */
+function cultistRetreat(s:DungeonState,caster:Unit,hero:Unit){
+ if(dist(caster,hero)!==1)return null;
+ const escapes=DIRS.map(([dx,dz])=>({x:caster.x+dx,z:caster.z+dz}))
+  .filter(p=>walkable(s.map,p.x,p.z)&&dist(p,hero)>=2&&dist(p,hero)<=3)
+  .filter(p=>!s.units.some(u=>u.hp>0&&u.id!==caster.id&&u.x===p.x&&u.z===p.z))
+  .filter(p=>!s.traps.some(t=>t.active&&!t.disarmed&&t.x===p.x&&t.z===p.z))
+  .map(p=>({p,clear:clearCombatLane(s.map,p,hero)}))
+  .sort((a,b)=>Number(b.clear)-Number(a.clear)||a.p.z-b.p.z||a.p.x-b.p.x);
+ return escapes[0]?.p??null;
+}
 function createFloor(seed:string,floor:number,rng:NamedRng,run:number,previous?:DungeonState):DungeonState {
  const map=Array.from({length:MAP_SIZE},()=>Array(MAP_SIZE).fill('#'));
  const stack=[{x:1,z:1}];map[1][1]='.';
@@ -254,6 +269,15 @@ export class DungeonRuntime {
      if(guarded)push(s,'block',hero.kind+' shielded '+(shock-dealt)+' damage');
     }enemy.action='cast';
     if(affected.length)push(s,'danger','The Warden unleashed an arcane shockwave · '+shock+' damage');
+   }
+   // A real adjacent threat changes a caster's decision. Retreating uses a
+   // legal empty walkable cell and may open a later ranged line of fire.
+   // No teleport, hidden RNG, instant free attack or forced encounter result.
+   if(enemy.kind==='cultist'&&distance===1&&s.tick%3===0){
+    const step=cultistRetreat(s,enemy,nearest);
+    if(step){enemy.x=step.x;enemy.z=step.z;enemy.action='move';
+     s.intent='Shadow caster disengaging to regain a spell lane';
+     if(enemy.cooldown>0)enemy.cooldown--;continue}
    }
    if(enemy.kind==='cultist'&&distance>1&&distance<=3&&s.tick%4===0){const visible=(enemy.x===nearest.x&&Array.from({length:Math.abs(enemy.z-nearest.z)-1},(_,i)=>Math.min(enemy.z,nearest.z)+i+1).every(z=>walkable(s.map,enemy.x,z)))||(enemy.z===nearest.z&&Array.from({length:Math.abs(enemy.x-nearest.x)-1},(_,i)=>Math.min(enemy.x,nearest.x)+i+1).every(x=>walkable(s.map,x,enemy.z)));if(visible){nearest.hp=Math.max(0,nearest.hp-5-Math.min(8,Math.floor(s.floor/2)));nearest.action='hurt';enemy.action='cast';enemy.targetId=nearest.id;push(s,'danger','Cultist hurled a shadow bolt')}}
    if(distance<=1){if(enemy.cooldown===0){const braced=nearest.action==='guard'||nearest.guardTick===s.tick;const dealt=braced?Math.max(1,Math.ceil(enemy.attack*.4)):enemy.attack;nearest.hp=Math.max(0,nearest.hp-dealt);enemy.cooldown=2;enemy.action='attack';enemy.targetId=nearest.id;nearest.action=braced?'guard':'hurt';if(braced)push(s,'block',nearest.kind+' blocked '+(enemy.attack-dealt)+' melee damage');else push(s,'danger',enemy.kind+' hit '+nearest.kind+' for '+dealt)}}

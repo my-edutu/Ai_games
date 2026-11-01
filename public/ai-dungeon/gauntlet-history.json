@@ -2193,7 +2193,7 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "PRIOR_EXACT_HEAD_783b980_CI_FAILED; TWO_IDENTIFIED_TEST_FAILURES_ADDRESSED_IN_UNVERIFIED_CANDIDATE",
+      "safetyChecks": "EXACT-HEAD 60b526e AUTHORITY PASS; BROWSER SHARD 2: 22/23 with truncated rigCranialRatios diagnostic (9 actors/8 ratios); global CI cancelled after build/test. This candidate expands bounded diagnostics and needs full exact-head revalidation.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "PENDING_EXACT_HEAD_CHROMIUM_CAPTURE",
       "soundstageBrowser": "PENDING_EXACT_HEAD_CHROMIUM_RUN",
@@ -2202,8 +2202,8 @@
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898"
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Inspected actual prior desktop/mobile fight captures at SHA 783b980 show a fatal startup veil obscuring active WebGL after seal break; also low-detail toy-like models, cluttered masonry and weak motion. This latest integrated court candidate awaits real captures and a complete organic desktop/mobile encounter; AAA quality and critic preference remain UNVERIFIED.",
-    "currentWork": "Integrated ongoing M1: real nearby oathbound court sentries, original 3D binding plinth/rune/tether/shatter stage tied to living guardianWard, and self-healing late software-WebGL startup. Exact-head playable results NOT VERIFIED.",
+    "biggestRemainingGap": "Authenticated WebGL captures still show miniature character anatomy and crowded combat. This revision specifically addresses stacked actor/contact staging and visible enemy repositioning but has not yet been judged in actual browser footage. Authored realistic anatomy, rich nonrepetitive rooms and full organic scenario reel remain missing.",
+    "currentWork": "M1 remains open: implementing coherent real encounter staging (within-tile body separation and staged true-contact weapon arcs), deterministic cultist disengage/ranged reposition, original low-profile ritual basalt relief and phase tint. Current revision has no verified live scene or blind comparisons.",
     "candidateCommit": "33758dfb775fe457f6315b8b8d2dc8fdfa2d05d4",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
@@ -2283,6 +2283,28 @@
         "verdict": "IN_PROGRESS / NOT TRANSFORMED",
         "blockers": "Workspace/subagent tunnel unreachable; no local Chromium, organic long-run audio clip, matched locked-baseline A/B or 3 blind independent critics",
         "next": "Inspect new real desktop/mobile boss court and motion audio; correct defects, then upgrade actor anatomy, environment/legibility and autonomous pacing with measured hardware performance and independent critique."
+      },
+      {
+        "id": "M1-SPACE-AND-CONTACT-20261101",
+        "date": "2026-11-01",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "sourceHeadAtStart": "60b526edad8b80604bc062217456e3020f376ff0",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "objective": "Readable actual hero formation + honest weapon-to-body contact, original court floor scene and adaptive shadow-caster reposition as one coherent boss-expedition improvement.",
+        "code": [
+          "public/ai-dungeon/combat-staging-plan.js",
+          "public/ai-dungeon/app.js",
+          "public/ai-dungeon/combat-director.js",
+          "games/ai-dungeon/src/index.ts",
+          "public/ai-dungeon/warden-ritual.js",
+          "public/ai-dungeon/model-assets.js",
+          "scripts/serve-dungeon-stream.cjs",
+          "tests/foundation/dungeon-combat-staging.test.cjs",
+          "tests/browser/dungeon-combat-staging.spec.cjs"
+        ],
+        "evidence": "Real prior exact-head run 41315333996 authority PASS but one WebGL rig diagnostic length assertion failed (9 actors / 8 entries); newly authored source and tests await exact-head GitHub browser/replay. No local worker tunnel, local Chromium, audio recording, or blind critics.",
+        "experienceVerdict": "IN_PROGRESS / NOT TRANSFORMED",
+        "next": "Inspect actual desktop/mobile after captures against pinned baseline; run organic traversal→guards→Warden→floor→defeat/restart with motion/audio, measure replay/performance and obtain >=3 independent blind reviews."
       }
     ]
   }

@@ -3,6 +3,7 @@ import {combatCueDelay,MAX_PENDING_COMBAT_CUES} from '/dungeon/combat-cue-plan.j
 import {canStageMeleeArc,planMeleeArcFrame,MELEE_ARC_DURATION} from '/dungeon/melee-arc-plan.js';
 import {isHealingCast,isDisarmCast} from '/dungeon/combat-intent-plan.js';
 import {planVisualContact} from '/dungeon/facing-plan.js';
+import {planCombatStage,stagePoint} from '/dungeon/combat-staging-plan.js';
 import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
 
 /**
@@ -14,34 +15,47 @@ const PROJECTILE_LIMIT=26,IMPACT_LIMIT=24;
 const V3=(x,y,z)=>new THREE.Vector3(x-9,y,z-9);
 const shared={orb:new THREE.IcosahedronGeometry(.13,1),slash:new THREE.TorusGeometry(.45,.057,5,28,Math.PI*1.35),ring:new THREE.RingGeometry(.6,.69,45),spark:new THREE.OctahedronGeometry(.07,0)};
 const color=(kind)=>TINT[kind]||'#83fff0';
+function stagedArcFrame(source,target,from,to,life,reducedMotion){
+ const pose=planMeleeArcFrame(source,target,life,reducedMotion);
+ if(!pose)return null;
+ // Preserve the real adjacent-cell attack as the only legal source of an arc.
+ // Small within-cell actor offsets move the *rendered* blade contact into the
+ // visible body instead of leaving a ghost strike at an empty tile centre.
+ const dx=target.x-source.x,dz=target.z-source.z;
+ const travel=Math.max(0,Math.min(1,(pose.x-source.x)*dx+(pose.z-source.z)*dz));
+ pose.x+=(from.x-source.x)*(1-travel)+(to.x-target.x)*travel;
+ pose.z+=(from.z-source.z)*(1-travel)+(to.z-target.z)*travel;
+ return pose;
+}
 function material(hex,opacity=.95){
  return new THREE.MeshBasicMaterial({color:hex,transparent:true,opacity,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending});
 }
 export function createCombatDirector(scene,{reducedMotion=false}={}){
  const projectiles=[],impacts=[],pendingCues=[],previous=new Map();let floorKey='',shots=0,bursts=0,releasedCues=0,droppedCues=0,healingCues=0,disarmCues=0,contactLockedCues=0,suppressedUnmatchedCues=0,meleeArcs=0;
+ let stagePositions=Object.create(null);
  const cleanup=e=>{scene.remove(e.mesh);e.mesh.material.dispose()};
  function ensureBound(){
   while(projectiles.length>PROJECTILE_LIMIT)cleanup(projectiles.shift());
   while(impacts.length>IMPACT_LIMIT)cleanup(impacts.shift());
  }
- function projectile(source,target,kind,action){
-  const src=V3(source.x,kind==='mystic'?1.37:1.21,source.z),dst=V3(target.x,1.18,target.z);
+ function projectile(source,target,kind,action,from=stagePoint(stagePositions,source),to=stagePoint(stagePositions,target)){
+  const src=V3(from.x,kind==='mystic'?1.37:1.21,from.z),dst=V3(to.x,1.18,to.z);
   // Physical blades sweep through the actual adjacent grid lane, from source
   // toward opponent. An adjacent ranger still fires a real arrow, not a sword.
   // Casts, diagonal guesses and unmatched actions never create melee arcs.
   if(canStageMeleeArc(kind,action,source,target)){
-   const frame=planMeleeArcFrame(source,target,0,reducedMotion);
+   const frame=stagedArcFrame(source,target,from,to,0,reducedMotion);
    const mesh=new THREE.Mesh(shared.slash,material(color(kind),frame.opacity));
    mesh.position.copy(V3(frame.x,frame.y,frame.z));
    mesh.rotation.set(0,frame.yaw,frame.roll);
    mesh.scale.setScalar(frame.scale*(kind==='warden'?1.2:1));
    scene.add(mesh);
    impacts.push({mesh,life:0,duration:MELEE_ARC_DURATION,mode:'slash',
-    source:{x:source.x,z:source.z},target:{x:target.x,z:target.z},kind});
+    source:{x:source.x,z:source.z},target:{x:target.x,z:target.z},from:{x:from.x,z:from.z},to:{x:to.x,z:to.z},kind});
    meleeArcs=Math.min(1000000,meleeArcs+1);bursts++;ensureBound();return;
   }
   const mesh=new THREE.Mesh(shared.orb,material(color(kind),.95));mesh.position.copy(src);mesh.scale.setScalar(kind==='warden'?1.8:kind==='mystic'?1.35:1);
-  scene.add(mesh);projectiles.push({mesh,src,dst,target:{x:target.x,z:target.z},t:0,duration:.18+Math.min(.38,src.distanceTo(dst)*.045),kind});shots++;ensureBound();
+  scene.add(mesh);projectiles.push({mesh,src,dst,target:{x:to.x,z:to.z},t:0,duration:.18+Math.min(.38,src.distanceTo(dst)*.045),kind});shots++;ensureBound();
  }
  // Body-height impact flares replace routine bright floor circles. The actual
  // boss warning/telegraph remains controlled by authoritative app.js state.
@@ -62,7 +76,7 @@ export function createCombatDirector(scene,{reducedMotion=false}={}){
  function releaseCue(cue){
   if(cue.source.kind==='warden'&&cue.source.action==='cast')
    flashAt(cue.source,'#ff653f',true);
-  else if(cue.target)projectile(cue.source,cue.target,cue.source.kind,cue.source.action);
+  else if(cue.target)projectile(cue.source,cue.target,cue.source.kind,cue.source.action,cue.from,cue.to);
   releasedCues++;
  }
  function signalAction(u,s){
@@ -91,7 +105,7 @@ export function createCombatDirector(scene,{reducedMotion=false}={}){
      return;
     }
     if(target)contactLockedCues=Math.min(1000000,contactLockedCues+1);
-    const cue={source:{x:u.x,z:u.z,kind:u.kind,action:u.action},target:target?{x:target.x,z:target.z}:null,age:0,
+    const cue={source:{x:u.x,z:u.z,id:u.id,kind:u.kind,action:u.action},target:target?{x:target.x,z:target.z,id:target.id}:null,from:stagePoint(stagePositions,u),to:target?stagePoint(stagePositions,target):null,age:0,
      delay:combatCueDelay(u.kind,u.action,reducedMotion)};
     if(cue.delay===0){releaseCue(cue);return;}
     if(pendingCues.length>=MAX_PENDING_COMBAT_CUES){pendingCues.shift();droppedCues++;}
@@ -105,6 +119,7 @@ export function createCombatDirector(scene,{reducedMotion=false}={}){
  function accept(s){
   const key=s.run+':'+s.floor;
   if(key!==floorKey){reset();floorKey=key;}
+  stagePositions=planCombatStage(s);
   const current=new Set();
   for(const u of s.units){
    const id=u.id;current.add(id);
@@ -145,7 +160,7 @@ export function createCombatDirector(scene,{reducedMotion=false}={}){
     effect.mesh.material.opacity=.78*(1-t);
     effect.mesh.scale.setScalar(effect.startScale*(.82+.62*t));
    }else if(effect.mode==='slash'){
-    const frame=planMeleeArcFrame(effect.source,effect.target,effect.life,reducedMotion);
+    const frame=stagedArcFrame(effect.source,effect.target,effect.from,effect.to,effect.life,reducedMotion);
     if(frame){
      effect.mesh.position.copy(V3(frame.x,frame.y,frame.z));
      effect.mesh.rotation.set(0,frame.yaw,frame.roll);
@@ -163,7 +178,7 @@ export function createCombatDirector(scene,{reducedMotion=false}={}){
  }
  function reset(){
   for(const p of projectiles)cleanup(p);for(const p of impacts)cleanup(p);
-  projectiles.length=impacts.length=pendingCues.length=0;previous.clear();
+  projectiles.length=impacts.length=pendingCues.length=0;previous.clear();stagePositions=Object.create(null);
  }
  return{accept,animate,reset,stats:()=>({activeProjectiles:projectiles.length,activeImpacts:impacts.length,pendingCues:pendingCues.length,healingCues:healingCues,disarmCues:disarmCues,contactLockedCues:contactLockedCues,suppressedUnmatchedCues:suppressedUnmatchedCues,releasedCues:releasedCues,droppedCues:droppedCues,activeGroundRings:impacts.filter(e=>e.mode==='ring').length,activeHitFlashes:impacts.filter(e=>e.mode==='spark').length,activeMeleeArcs:impacts.filter(e=>e.mode==='slash').length,totalMeleeArcs:meleeArcs,totalShots:shots,totalBursts:bursts}),dispose(){reset();for(const geometry of Object.values(shared))geometry.dispose()}};
 }

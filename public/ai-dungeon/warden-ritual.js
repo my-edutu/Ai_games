@@ -25,6 +25,19 @@ export function createWardenRitual(world,exit,{reducedMotion=false}={}){
   put(pylon,crest,stone,0,1.13,0).rotation.z=i%2?-.06:.06;
   put(pylon,emblem,glyph,0,.73,-.128,.7,.7,.7).rotation.y=Math.PI/2;group.add(pylon);
  }
+ // Original low-profile sculpted basalt court: a visually continuous combat
+ // stage that remains beneath feet. Unlike towering copies of corridor props,
+ // radial relief stones give the Warden chamber its own material grammar without
+ // covering autonomous actors or their real shockwave warning.
+ const slabGeo=new THREE.BoxGeometry(.47,.048,.23),inciseGeo=new THREE.BoxGeometry(.32,.012,.020);
+ const basalt=new THREE.MeshStandardMaterial({color:'#312c37',roughness:.94,metalness:.06});
+ for(let i=0;i<12;i++){
+  const angle=i*Math.PI/6,radius=i%2?1.26:1.34,x=Math.cos(angle)*radius,z=Math.sin(angle)*radius;
+  const slab=put(group,slabGeo,basalt,x,.014,z);
+  slab.rotation.y=-angle;
+  const cut=put(group,inciseGeo,metal,x,.047,z);
+  cut.rotation.y=-angle;
+ }
  const rings=[];
  for(const [r,y] of [[1.04,.27],[.86,.85],[.67,1.41]]){
   const mesh=put(group,new THREE.TorusGeometry(r,.017,6,56),glyph,0,y,0);
@@ -53,7 +66,12 @@ export function createWardenRitual(world,exit,{reducedMotion=false}={}){
   group.position.set(boss.x-half,0,boss.z-half);
   const minions=s.units.filter(u=>u.faction==='enemy'&&u.kind!=='warden'&&u.hp>0);
   minions.sort((a,b)=>Math.abs(a.x-boss.x)+Math.abs(a.z-boss.z)-Math.abs(b.x-boss.x)-Math.abs(b.z-boss.z)||a.id.localeCompare(b.id));
-  defenders=minions.length;ward=Boolean(s.guardianWard);phase=s.bossPhase||'SENTINEL';
+  defenders=minions.length;ward=Boolean(s.guardianWard);
+  const newPhase=s.bossPhase||'SENTINEL';
+  if(newPhase!==phase){
+   const tint={SENTINEL:'#8cbede',RUPTURE:'#f0b381',ECLIPSE:'#caa2fc',VANQUISHED:'#88868a'}[newPhase]||'#8cbede';
+   glyph.color.set(tint);conduit.color.set(tint);phase=newPhase;
+  }
   if(previousWard===true&&!ward&&Number.isInteger(s.tick)&&s.tick>tick)breakAge=0;
   previousWard=ward;tick=Number.isInteger(s.tick)?s.tick:tick;
   for(const ring of rings)ring.visible=ward;
@@ -82,5 +100,5 @@ export function createWardenRitual(world,exit,{reducedMotion=false}={}){
    }
   }else for(const shard of shards)shard.visible=false;
  }
- return {accept,animate,metrics:()=>({visible,shieldActive:ward,phase,activeDefenders:defenders,activeTethers:linkCount,shattering:breakAge<SHATTER_TIME,maxTethers:LIMIT})};
+ return {accept,animate,metrics:()=>({visible,shieldActive:ward,phase,activeDefenders:defenders,activeTethers:linkCount,shattering:breakAge<SHATTER_TIME,maxTethers:LIMIT,originalBasaltReliefs:12})};
 }
