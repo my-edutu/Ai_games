@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-11-01T15:30:06.872Z",
-  "status": "TRANSFORMATION GAUNTLET · T0 matched real browser/motion baseline inspected · T1 first candidate visually REJECTED; cohesive ecology rebuild BUILDING · NOT ACCEPTED",
-  "detail": "b8ae526 focused 41318575013 47/47 browser PASS; eight real matched WebGL PNGs and two authentic 55-second live autoplay films archived, inspected. GitHub runner checked out synthetic PR merge afab6ea, but 11 critical game files separately byte-identical to real b8ae HEAD; new focused/offline workflows now explicit head-SHA checkout. First T1 shoreline visually NOT ENOUGH: huge pale checkerboard, jagged wedge banks, primitive foliage/ruins and tiny serpent still far behind official Snake Pass/ASTRO BOT. Continuing SAME T1 with original 3D connected smooth moss/cliff coloring, smooth bank normals/contours, 1054 folded fronds, 42 boulders, 24 roots (28x16), four batches/one atlas, RED→GREEN 103/103 focused Snake Node and TS build PASS locally. New candidate exact-source eight actual same-frame Chromium PNGs, genuine 55-second movie, full CI/strict render gate and independent critique PENDING. Previous b8ae one strict >=17 PASS with 18 actual renderer submissions/1008.8ms, but actual 777x355 raster at 1920x1080, frame p95 966.7ms and queue max latency 1377.6ms: NO proven smoothness. General 41318575018 CANCELLED. No physical presents, repeat strict head performance or soak. Draft; no merge/deploy.",
+  "updatedAt": "2026-11-01T16:01:16Z",
+  "status": "TRANSFORMATION GAUNTLET · T1 whole-frame forest/arcade candidate BUILDING · old real WebGL visually REJECTED · NOT ACCEPTED",
+  "detail": "True b615 head 41322011097 focused 49/49 WebGL PASS with inspected actual matched stills and authentic 55s movies, but pale board/hero remains below official Snake Pass. Unchanged strict 17 actual submitted full desktop renders/1012.7ms ONE PASS only at 744x340 GPU raster, frame p95 1016.7ms, GPU queue max latency 1432.6ms. New original eight-tree/901-folded-leaf/four-arch/39-vine T1 full-environment candidate adds 5532 garden triangles within four static batches/one atlas. Real old source RED, new geometry Node 2/2 and prior ecology 2/2 PASS; build PASS. New exact-parent eight real Chromium/WebGL screenshots and genuine 55s autoplay pending new exact-head CI and independent whole-scene critical viewing; local browser administrator navigation denied, no bypass. No physical display-present, repeat stable 17 gate or long soak, never merge/deploy.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Latest baseline b8ae real-WebGL T1 screenshots and 55-second movies archived in Actions 41318575013; actual new eco-sculpt WebGL review PENDING. Historic image displayed above is not new current-head proof.",
+  "latestCaption": "On-site historical preview image remains historical; real b615 current-head WebGL images archived in Actions 41322011097. New T1 forest candidate live images pending actual Actions, not falsely represented here.",
   "reviews": [
+    {
+      "area": "Nov 1 full-scene original forest/ruined aqueduct T1",
+      "verdict": "REAL HEAD b615 focused 49/49 WebGL PASS but inspected parent images visually REJECTED; new integrated canopy/arcade Node RED→GREEN only, browser proof/independent critique PENDING",
+      "gap": "New original eight trees/901 canopy leaves/four broken arches/39 vines and +5532 triangles require true-new-head full HD/detail/portrait real screenshot and 55s motion quality review, possibly performance regression. One true 17/17 renderer gate pass at degraded 744x340 raster, frame p95 1016.7ms; hardware device-present p95, repeated ≥17, independent Snake Pass comparison, soak and T2–T4 OPEN."
+    },
     {
       "area": "Nov 1 T0 factual checked 8 real WebGL snapshots and 2 live motion movies; T1 self-reviewed garden ecology rebuild",
       "verdict": "b8ae focused 47/47 REAL CHROMIUM PASS; first T1 scene VISUAL CRITIQUE REJECT; connected ecology candidate LOCAL 103/103 NODE PASS, NEW HEAD WEBGL/55S PENDING; GAUNTLET NOT ACCEPTED",
@@ -848,25 +853,25 @@
     "firstImplementationPlan": "docs/superpowers/plans/2026-11-01-autonomous-snake-transformation.md",
     "acceptance": "An independently evidenced, visibly substantial upgrade of the full running game in environment, character, animation, materials, game feel and sustainable frame delivery; CI is necessary but never sufficient.",
     "overall": "NOT ACCEPTED",
-    "milestone": "T0 matched frozen Chromium and authentic dual live videos inspected (run trajectories differ) / T1 revised ecology/shore/ruin sculpt BUILDING",
+    "milestone": "T0 verified genuine old-head images and autonomous footage; T1 next forest/arcade authored full-scene candidate BUILDING",
     "milestoneStatus": "BUILDING",
     "latestKnownStrictBrowser": {
-      "actualDraws": 18,
-      "elapsedMs": 1008.8,
+      "actualDraws": 17,
+      "elapsedMs": 1012.7,
       "minDraws": 17,
-      "result": "SINGLE PASS ONLY — NOT SMOOTH",
+      "result": "ONE BORDERLINE PASS AT DEGRADED RASTER; NOT SMOOTH",
       "drawingBuffer": {
-        "width": 777,
-        "height": 355
+        "width": 744,
+        "height": 340
       },
-      "frameMsP95": 966.7,
-      "maxGpuQueueLatencyMs": 1377.6,
-      "source": "https://github.com/my-edutu/Ai_games/actions/runs/41318575013"
+      "frameMsP95": 1016.7,
+      "maxGpuQueueLatencyMs": 1432.6,
+      "source": "https://github.com/my-edutu/Ai_games/actions/runs/41322011097"
     },
     "pillars": [
       {
         "name": "Living 3D world",
-        "status": "BUILDING: first four-sector T1 visually self-rejected; revised rounded-rooted-volumetric original ecosystem local RED/GREEN, real scene images pending",
+        "status": "BUILDING: actual b615 forestless eco scene self-rejected, new eight-tree+ruined-arcade candidate awaits real CI image critique",
         "criterion": "Clearly transformed coherent original garden architecture/biomes/scene depth in matching real-game captures."
       },
       {
@@ -876,18 +881,18 @@
       },
       {
         "name": "Materials and lighting",
-        "status": "BUILDING: continuous moss/rock tint and smooth terrain normals locally tested, current-head real WebGL quality pending",
+        "status": "BUILDING: real original weathered coast/foliage + new 3D layered forest/ruins, judged new WebGL result pending",
         "criterion": "Convincing stone, vegetation, water, scales, contact lighting and atmospheric staging across full frames."
       },
       {
         "name": "Play feel and frame delivery",
-        "status": "OPEN: single strict 18/17 actual submission pass, display quality ~777x355, p95 966.7ms and queue latency 1377.6ms, physical present and repeat pending",
+        "status": "OPEN: marginal ONE 17/17 original desktop submission pass at 744x340 raster, p95 frame 1016.7ms; real-device presents/repeated gate/soak missing",
         "criterion": "Readable responsive gameplay/UX, real continuous autonomous video, repeatable >=17 actual browser draws and real-device smoothness evidence."
       }
     ],
     "baselineHead": "108e2e439aab1f3fe4cf49019c1aa9fe5630feb6",
-    "candidate": "Original coherent multi-biome 3D T1 ecology refinement: continuous moss/cliff vertex color, smoothed eroded bank normals, folded fern/reed fronds, 42 rounded stones and 24 root ribbons (28x16), static four mesh batches and 1 weathering map; SHA 2abd364f6666f1324e0294f7760a8e7a1978a71a; locally focused 103/103 and TS build PASS.",
-    "candidateProof": "PREVIOUS T1 b8ae real 8 matching PNGs and two authentic 55s movies inspected, first scene rejected visually; NEW ecology candidate frozen 8 PNG + authentic 55s script exists but CI has not yet executed. Repeat >=17, physical present p95, independent critique and soak OPEN.",
-    "review": "SELF REVIEW / VISUAL REJECT first candidate; new T1 ECOLOGY BUILDING; ACCEPTANCE PENDING"
+    "candidate": "Exact parent b615 living-garden original blob 2abd364f; new eight trees, 901 folded canopy leaflets, four open ruined vaulted arches, 66 stone courses, 39 vine strings; 9454→14986 triangles in 28x16 original four-batch/one-atlas environment; new Node 2/2 and previous ecology 2/2 PASS.",
+    "candidateProof": "Parent b615 Chromium 49/49, eight real matches and genuine 55s videos inspected, quality still below Snake Pass. New same-source eight-shot WebGL test and preserved 55s live autonomous test need actual new-head CI; local browser network administrator blocked and no bypass. Never infer shown improvement or device present from Node tests.",
+    "review": "SELF REVIEW: old T1 visual REJECTED, newer integrated T1 candidate BUILDING, acceptance and fresh independent whole-game critic PENDING."
   }
 }

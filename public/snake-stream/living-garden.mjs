@@ -102,7 +102,8 @@ export function createLivingGarden(THREE, {width,height}) {
     {id:'reeds-east',axis:'z',start:-H-2.9,end:H+3.1,near:W+2.75,far:W+9.3}
   ];
   const features={shoreSections:shorelines.length,plantBlades:0,fernFronds:0,
-    ruinBlocks:0,roundedBoulders:0,rootRibbons:0,waterlineSegments:0};
+    ruinBlocks:0,roundedBoulders:0,rootRibbons:0,waterlineSegments:0,
+    canopyTrees:0,canopyLeaflets:0,arcadeArches:0,arcadeStones:0,hangingVines:0};
   const bankPoint=(s,t,v)=>{
     const warp=(Math.sin(t*.29+v*2.1)*.37+Math.sin(t*.65-1.3)*.13)*v;
     const outer=s.near+(s.far-s.near)*v+warp;
@@ -270,6 +271,135 @@ export function createLivingGarden(THREE, {width,height}) {
       leaf(x,y,z,.55+hash(k,side)*.6,k*.9,k%5);
     }
   }
+  // T1 canopy-and-arcade whole-shot composition: one continuous weathered
+  // forest frame behind the *actual* board, not sprites or foreground UI.
+  // Deterministic original 3D geometry is baked into existing four bands.
+  function woodySegment(ax,ay,az,bx,by,bz,r0,r1,phase){
+    const sides=6,dx=bx-ax,dy=by-ay,dz=bz-az,length=Math.hypot(dx,dy,dz)||1;
+    const right=[dz/length,0,-dx/length];
+    const size=Math.hypot(...right)||1;
+    if(size<.1){right[0]=1;right[2]=0;}else{right[0]/=size;right[2]/=size;}
+    const across=[dy*right[2]/length,(dz*right[0]-dx*right[2])/length,-dy*right[0]/length];
+    const point=(t,i)=>{
+      const a=2*Math.PI*i/sides+phase;
+      const radius=t?r1:r0,cs=Math.cos(a),sn=Math.sin(a);
+      return [ax+dx*t+radius*(right[0]*cs+across[0]*sn),
+        ay+dy*t+radius*(right[1]*cs+across[1]*sn),
+        az+dz*t+radius*(right[2]*cs+across[2]*sn)];
+    };
+    for(let i=0;i<sides;i++)quad('cliff',point(0,i),point(0,(i+1)%sides),
+      point(1,(i+1)%sides),point(1,i),i+phase*13);
+  }
+  function canopyLeaf(x,y,z,a,span,phase){
+    const dx=Math.cos(a),dz=Math.sin(a),side=[-dz,dx];
+    const dip=.23*Math.sin(phase*1.17),w=span*(.24+.08*hash(phase,47));
+    const base=[x,y,z],mid=[x+dx*span*.45,y+dip+.16,z+dz*span*.45];
+    const tip=[x+dx*span,y+dip-.18,z+dz*span];
+    const left=[mid[0]+side[0]*w,mid[1]-.09,mid[2]+side[1]*w];
+    const right=[mid[0]-side[0]*w,mid[1]-.09,mid[2]-side[1]*w];
+    // Folded upper blade, elevated midrib and irregular tip: not planar quads.
+    tri('foliage',base,left,mid,phase);
+    tri('foliage',base,mid,right,phase+1);
+    tri('foliage',left,tip,mid,phase+2);
+    tri('foliage',mid,tip,right,phase+3);
+    features.canopyLeaflets++;
+  }
+  function hangingVine(x,y,z,phase,length){
+    const segments=6,offset=(i)=>{
+      const t=i/segments;
+      return [x+Math.sin(phase+i*.8)*.14*t,y-length*t,z+Math.cos(phase+i*.72)*.17*t];
+    };
+    for(let i=0;i<segments;i++){
+      const a=offset(i),b=offset(i+1),w=.055*(1-i/segments)+.015;
+      quad('foliage',[a[0]-w,a[1],a[2]],[b[0]-w,b[1],b[2]],
+        [b[0]+w,b[1],b[2]],[a[0]+w,a[1],a[2]],phase+i);
+      if(i%2===0){
+        canopyLeaf(a[0],a[1],a[2],phase*1.19+i, .21+.06*hash(i,phase),phase+i*5);
+      }
+    }
+    features.hangingVines++;
+  }
+  function canopyTree(x,z,h,phase){
+    const baseY=-.56,stemTop=baseY+h*.77;
+    woodySegment(x,baseY,z,x+.15*Math.sin(phase),stemTop,z+.12*Math.cos(phase),
+      .34,.15,phase);
+    const crownX=x+.15*Math.sin(phase),crownZ=z+.12*Math.cos(phase);
+    for(let branch=0;branch<7;branch++){
+      const a=branch*Math.PI*2/7+phase*.31;
+      const reach=.84+hash(branch,phase)*.68;
+      const bx=crownX+Math.cos(a)*reach,bz=crownZ+Math.sin(a)*reach;
+      const by=stemTop+.18+(hash(branch+9,phase)-.5)*.55;
+      woodySegment(crownX,stemTop-.23,crownZ,bx,by,bz,.14,.065,phase+branch*.13);
+      for(let leafIndex=0;leafIndex<14;leafIndex++){
+        const spread=leafIndex*2.39996+branch*.41+phase;
+        const rr=.25+hash(leafIndex+5,branch+phase)*.75;
+        const heightOffset=(hash(branch*19+leafIndex,phase+44)-.5)*.72;
+        const span=.54+hash(leafIndex*2,phase+branch)*.48;
+        canopyLeaf(bx+Math.cos(spread)*rr,by+heightOffset,bz+Math.sin(spread)*rr,
+          spread,span,phase*41+branch*14+leafIndex);
+      }
+      if(branch%3===0)hangingVine(bx,by-.23,bz,phase+branch,
+        .8+hash(branch,phase)*.65);
+    }
+    features.canopyTrees++;
+  }
+  // Six rear trees, staggered in depth, frame the authentic gameplay board.
+  // Two near-camera wings make the ocean edge a lush inhabited diorama.
+  const forest=[
+    [-W*.78,-H-9.25,5.35,.2],[-W*.45,-H-10.15,5.65,1.4],
+    [-W*.09,-H-9.45,5.1,2.5],[W*.27,-H-10.4,5.75,3.7],
+    [W*.61,-H-9.75,5.35,4.8],[W*.86,-H-10.5,5.5,5.7],
+    [-W-5.35,H+4.6,4.4,.65],[W+5.5,H+4.35,4.55,2.3]
+  ];
+  for(const [x,z,h,p] of forest)canopyTree(x,z,h,p);
+  // A fractured, vine-rooted four-bay arched aqueduct gives the rear shore
+  // a single recognizable architectural silhouette and a believable history.
+  // The arch tunnels remain OPEN; the fake decorative masonry never sits on
+  // navigable game coordinates or changes a portal/collision.
+  const zArch=-H-8.15,halfBay=Math.min(2.15,Math.max(1.45,W*.135));
+  const bayStep=halfBay*2.25;
+  const pillarXs=Array.from({length:5},(_,i)=>(i-2)*bayStep);
+  for(let i=0;i<pillarXs.length;i++){
+    const x=pillarXs[i];
+    for(let course=0;course<4;course++){
+      const cracked=(i===3&&course===3)?-.28:0;
+      block(x+cracked,-.37+course*.55,zArch,.70,.55,.84,i+course,course*.012);
+      features.arcadeStones++;
+    }
+    if(i%2===0){
+      rootRibbon(x,-.2,zArch+.32,1.15,Math.PI*.46+i*.07,100+i);
+      hangingVine(x,-.04+4*.55,zArch+.3,14+i,.91+i*.13);
+    }
+  }
+  for(let bay=0;bay<4;bay++){
+    const center=(pillarXs[bay]+pillarXs[bay+1])/2;
+    const archRadius=bayStep*.48,outerRadius=archRadius+.35;
+    const steps=12,archZ=zArch;
+    const point=(radius,angle,z)=>[center+Math.cos(angle)*radius,
+      2.05+Math.sin(angle)*radius,z];
+    for(let j=0;j<steps;j++){
+      // Two damaged keystones break an otherwise too-perfect repeated arcade.
+      if((bay===1&&j===4)||(bay===3&&j===7))continue;
+      const a=j*Math.PI/steps,b=(j+1)*Math.PI/steps;
+      const front=archZ+.43,back=archZ-.43;
+      quad('ruin',point(archRadius,a,front),point(outerRadius,a,front),
+        point(outerRadius,b,front),point(archRadius,b,front),bay+j);
+      quad('ruin',point(archRadius,a,back),point(archRadius,b,back),
+        point(outerRadius,b,back),point(outerRadius,a,back),bay+j+1);
+      quad('ruin',point(archRadius,a,front),point(archRadius,b,front),
+        point(archRadius,b,back),point(archRadius,a,back),bay+j+2);
+      quad('ruin',point(outerRadius,a,back),point(outerRadius,b,back),
+        point(outerRadius,b,front),point(outerRadius,a,front),bay+j+3);
+      features.arcadeStones++;
+    }
+    for(let j=0;j<3;j++){
+      const theta=(j+.5)*Math.PI/3,xx=center+Math.cos(theta)*outerRadius;
+      const yy=2.05+Math.sin(theta)*outerRadius;
+      hangingVine(xx,yy,zArch+.42,bay*5+j,
+        .68+hash(bay,j)*.73);
+    }
+    features.arcadeArches++;
+  }
   // A shared-vertex terrain should read as rolling soil, not a topographic
   // collection of separate flat triangles. Smooth only organic bands; ruins
   // deliberately keep their masonry edges and foliage retains folded ridges.
@@ -315,6 +445,9 @@ export function createLivingGarden(THREE, {width,height}) {
       plantBlades:features.plantBlades,fernFronds:features.fernFronds,
       ruinBlocks:features.ruinBlocks,roundedBoulders:features.roundedBoulders,
       rootRibbons:features.rootRibbons,waterlineSegments:features.waterlineSegments,
+      canopyTrees:features.canopyTrees,canopyLeaflets:features.canopyLeaflets,
+      arcadeArches:features.arcadeArches,arcadeStones:features.arcadeStones,
+      hangingVines:features.hangingVines,
       triangles:ownGeometry.reduce((n,g)=>n+g.attributes.position.count/3,0),
       textures:1,disposed};
   }
