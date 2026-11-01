@@ -38,6 +38,8 @@ test('true Chromium WebGL has recognisable locally authored Warden regalia, rend
  expect(diag.webgl).toBe(true);expect(diag.drawCalls).toBeLessThan(1600);
  expect(diag.composition.visibleHeroes).toBeGreaterThan(0);
  expect(diag.composition.bossOnscreen).toBe(true);
+ expect(diag.cinematicShot?.mode).toMatch(/^warden-/);
+ expect(diag.criticalCameraFit?.subjects).toBeGreaterThanOrEqual(4);
  // Round 25: audit the ACTUAL WebGL camera chosen around this genuine Warden encounter.
  // A cinematic offset that leaves the authored dungeon perimeter exposes dead-black space.
  expect(diag.cameraRig?.mode).toBe('cinematic');
@@ -53,11 +55,20 @@ test('true Chromium WebGL has recognisable locally authored Warden regalia, rend
  expect(errors).toEqual([]);
  await page.locator('.arena').evaluate(node=>node.classList.add('world-only-audit'));
  await page.locator('#world').screenshot({path:'artifacts/dungeon-ornament-hierarchy-round29-world-only.png'});
+ // Inspect the SAME real autonomous Warden confrontation in a portrait
+ // viewport; no replacement scene, painted boss or teleported characters.
+ await page.setViewportSize({width:390,height:844});
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.composition?.viewport?.width),{timeout:30000}).toBeGreaterThan(100);
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.composition?.bossOnscreen),{timeout:30000}).toBe(true);
+ const portraitDiag=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ expect(portraitDiag.criticalCameraFit?.unframeable).toBe(false);
+ await page.locator('#world').screenshot({path:'artifacts/dungeon-warden-actual-mobile-framed-WebGL.png'});
  await test.info().attach('actual-warden-encounter',{body:Buffer.from(JSON.stringify({
   seed:'visual-room-art-18',tick:snapshot.tick,floor:snapshot.floor,run:snapshot.run,
   warden:snapshot.units.find(u=>u.kind==='warden')?.id,source:'real DungeonRuntime publicState; no hand-set actors',
   authoredBosses:diag.authored3D.authoredBosses,bossRegaliaParts:diag.authored3D.bossRegaliaParts,
   texturedCharacters:diag.authored3D.texturedCharacters,drawCalls:diag.drawCalls,
-  triangles:diag.triangles,composition:diag.composition,bossCutawayActive:diag.bossCutawayActive,visibility:diag.visibility
+  triangles:diag.triangles,composition:diag.composition,mobileComposition:portraitDiag.composition,
+  cameraFit:diag.criticalCameraFit,mobileCameraFit:portraitDiag.criticalCameraFit,bossCutawayActive:diag.bossCutawayActive,visibility:diag.visibility
  },null,2)),contentType:'application/json'});
 });

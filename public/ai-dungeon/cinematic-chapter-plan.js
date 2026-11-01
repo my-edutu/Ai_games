@@ -60,6 +60,14 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
   // The center remains between the real boss and the closest living hero.
   mode='warden-warning';position=mean(boss,closeBoss);
   offsets=planDuelCameraOffset(closeBoss,boss,11.0,9.15)||[6.3,11.2,6.55];lookY=.25;subjects=[boss.id,closeBoss.id];
+ }else if(boss&&closeBoss&&distance(closeBoss,boss)<=5&&
+  (!realContact||encounter.targetId!==boss.id)){
+  // A remote ranger/cultist contact is genuine, but it must not cut away from
+  // a Warden physically confronting the frontline. Preserve the actual
+  // threatening boss and nearest living defender as the scene's subjects.
+  mode='warden-approach';position=mean(closeBoss,boss);
+  offsets=planDuelCameraOffset(closeBoss,boss,8.65,7.8)||[4.4,7.45,5.0];
+  lookY=.70;subjects=[closeBoss.id,boss.id];
  }else if(realContact){
   const foe=enemies.find(u=>u.id===encounter.targetId)||fallenFoe;
   const hero=heroes.find(u=>u.id===encounter.actorId);
@@ -148,4 +156,37 @@ export function planWardenCharge(warning,tick,reducedMotion=false){
  const charge=clip(.27+(3-remaining)*.22,.27,.93);
  return Object.freeze({lift:round(.042*charge),pitch:round(-.105*charge),
   armRaise:round(-.62*charge),charge:round(charge)});
+}
+
+
+/**
+ * Actual-camera-space Warden subject fitting. After the physical camera has
+ * reached its map boundary, the true skinned boss, frontline hero and live
+ * danger tiles may otherwise fall outside a cinematic close-up. Their real
+ * camera-space coordinates (not simulated/projected opponents) determine a
+ * bounded emergency field of view. No game state, AI, damage, pose or camera
+ * transform is modified here; a caller must measure genuine rendered actors.
+ *
+ * This does not promise visibility when a wall occludes a subject or the
+ * required view is wider than the cap. Those remain explicit diagnostics.
+ */
+export function planCriticalSubjectFit(cameraPoints,aspect,preferredFov=44){
+ const base=Number.isFinite(preferredFov)?clip(preferredFov,35,82):44;
+ const ratio=Number.isFinite(aspect)&&aspect>=.35&&aspect<=3?aspect:null;
+ const maximum=ratio&&ratio<.88?82:76;
+ let needed=base,unframeable=false,measured=0;
+ if(!ratio||!Array.isArray(cameraPoints))return Object.freeze({fov:base,capped:false,unframeable:false,subjects:0});
+ for(const point of cameraPoints.slice(0,40)){
+  if(!point||![point.x,point.y,point.z].every(Number.isFinite))continue;
+  measured++;
+  const depth=-point.z;
+  if(depth<=.2){unframeable=true;needed=maximum+1;continue;}
+  // 82% horizontal and vertical safe zones preserve room for health/status
+  // overlays and imperfect real animated body/head bounds.
+  const vertical=Math.atan2(Math.abs(point.y),depth*.82);
+  const horizontal=Math.atan2(Math.abs(point.x),depth*ratio*.82);
+  needed=Math.max(needed,Math.max(vertical,horizontal)*360/Math.PI);
+ }
+ const capped=needed>maximum+.05;
+ return Object.freeze({fov:round(clip(needed,base,maximum)),capped,unframeable,subjects:measured});
 }
