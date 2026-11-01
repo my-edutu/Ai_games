@@ -107,6 +107,8 @@ async function stage(label,html,browser,matchedTicks){
  const {page,context,contextInfo}=scene;
  try{
   await page.locator('#pause').click();
+  // Force the exact seed/time after pausing, independent of CI frame load time.
+  await page.evaluate(()=>window.__tinyKingdom.reset());
   const result={renderer:contextInfo.quality.renderer,quality:contextInfo.quality};
   result.day1=await cameraAndScreenshot(page,wide,label+'/day1-wide.png');
   await page.evaluate(()=>window.__tinyKingdom.setHudMode('full'));
@@ -126,7 +128,6 @@ async function stage(label,html,browser,matchedTicks){
    await advanceTicks(page,ticks);
   }
   result.labor=await cameraAndScreenshot(page,labor,label+'/workday-close.png');
-  result.workdaySnapshot=await page.evaluate(()=>window.__tinyKingdom.exportSnapshot());
   await page.evaluate(()=>window.__tinyKingdom.reset());
   await advanceTicks(page,120*24*30);
   result.day120=await cameraAndScreenshot(page,grown,label+'/day120-wide.png');
@@ -136,9 +137,7 @@ async function stage(label,html,browser,matchedTicks){
   result.mobile=await cameraAndScreenshot(page,grown,label+'/day120-mobile.png',false);
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);
   assert.equal(overflow,false,label+' 390px horizontal document overflow');
-  delete result.workdaySnapshot;
-  return {result,ticks,workdaySnapshot:await Promise.resolve(null),sceneSnapshot:scene,
-   intermediateSnapshot:null,recordedSnapshot:page};
+  return {result,ticks};
  }finally{
   await context.close();
  }
@@ -208,6 +207,10 @@ async function motion(browser,html,snapshot,label){
   // inside newly recording contexts; no clock stepping during footage.
   const cSnapshot=await regenerateSnapshot(browser,candidate,c.ticks);
   const bSnapshot=await regenerateSnapshot(browser,baseline,c.ticks);
+  assert.equal(cSnapshot.checksum,c.result.labor.snapshotChecksum,
+   'Candidate staged video snapshot must reproduce matched screenshot authority');
+  assert.equal(bSnapshot.checksum,b.result.labor.snapshotChecksum,
+   'Pinned G088 staged video snapshot must reproduce matched screenshot authority');
   evidence.videos.candidate=await motion(browser,candidate,cSnapshot,'candidate-workday');
   evidence.videos.baseline=await motion(browser,baseline,bSnapshot,'baseline-workday');
   evidence.status='SCENARIOS_CAPTURED_NOT_BLIND_REVIEWED';
@@ -225,6 +228,7 @@ async function regenerateSnapshot(browser,html,ticks){
  const {page,context}=await openScene(browser,html,'staging-clip');
  try{
   await page.locator('#pause').click();
+  await page.evaluate(()=>window.__tinyKingdom.reset());
   await advanceTicks(page,ticks);
   return await page.evaluate(()=>window.__tinyKingdom.exportSnapshot());
  }finally{await context.close()}
