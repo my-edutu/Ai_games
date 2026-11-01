@@ -203,6 +203,12 @@ test('a real close public encounter frames both autonomous actors and saves date
     expect(gateDiagnostic.cameraHalfHeight, 'The visible key/socket encounter earns a genuinely closer shot').toBeLessThan(4.62);
     expect(gateDiagnostic.cameraHalfHeight).toBeGreaterThan(4.48);
     expect(gateDiagnostic.cameraAimLift, 'The observed keyed gate gets space above its real crown').toBeGreaterThan(1.08);
+    const physical = gateDiagnostic.physicalKeyLock;
+    expect(physical, 'The actual modeled blade tip and matching public lock must both be measured').toBeTruthy();
+    expect(physical.bladeTip.inFrame).toBe(true);
+    expect(physical.socketCenter.inFrame).toBe(true);
+    expect(Number.isFinite(physical.separationCssPx)).toBe(true);
+    expect(physical.separationCssPx).toBeGreaterThanOrEqual(0);
   } else {
     expect(gateDiagnostic.cameraHalfHeight, 'Other sealed gates retain the previous truthful wide shot').toBeLessThan(5.2);
     expect(gateDiagnostic.cameraHalfHeight).toBeGreaterThan(4.95);
@@ -221,6 +227,7 @@ test('a real close public encounter frames both autonomous actors and saves date
       cameraHalfHeight: gateDiagnostic.cameraHalfHeight,
       keyLockCloseup: gateDiagnostic.keyLockCloseup, cameraAimLift: gateDiagnostic.cameraAimLift,
       carriedKeyGateGesture: gateDiagnostic.carriedKeyGateGesture,
+      physicalKeyLock: gateDiagnostic.physicalKeyLock,
       nearbySealedGate: gateDiagnostic.nearbySealedGate,
       nearbySealedGateProjection: gateDiagnostic.nearbySealedGateProjection,
       explorerProjection: gateDiagnostic.explorerProjection,
@@ -241,6 +248,12 @@ test('a real close public encounter frames both autonomous actors and saves date
     expect(gatePortraitDiagnostic.cameraHalfHeight, 'A true key/lock interaction is now larger at 390px').toBeLessThan(4.76);
     expect(gatePortraitDiagnostic.cameraHalfHeight).toBeGreaterThan(4.64);
     expect(gatePortraitDiagnostic.cameraAimLift, 'Native portrait restores upper public architecture without widening the shot').toBeGreaterThan(1.30);
+    const physical = gatePortraitDiagnostic.physicalKeyLock;
+    expect(physical, 'Native 390px image must have measurable real 3D key-to-socket geometry').toBeTruthy();
+    expect(physical.bladeTip.inFrame).toBe(true);
+    expect(physical.socketCenter.inFrame).toBe(true);
+    expect(Number.isFinite(physical.separationCssPx)).toBe(true);
+    expect(physical.separationCssPx).toBeGreaterThanOrEqual(0);
   } else {
     expect(gatePortraitDiagnostic.cameraHalfHeight, 'A gate without a matched key retains its known environment').toBeLessThan(5.57);
     expect(gatePortraitDiagnostic.cameraHalfHeight).toBeGreaterThan(5.37);
@@ -258,6 +271,7 @@ test('a real close public encounter frames both autonomous actors and saves date
       cameraHalfHeight: gatePortraitDiagnostic.cameraHalfHeight,
       keyLockCloseup: gatePortraitDiagnostic.keyLockCloseup, cameraAimLift: gatePortraitDiagnostic.cameraAimLift,
       carriedKeyGateGesture: gatePortraitDiagnostic.carriedKeyGateGesture,
+      physicalKeyLock: gatePortraitDiagnostic.physicalKeyLock,
       nearbySealedGate: gatePortraitDiagnostic.nearbySealedGate,
       nearbySealedGateProjection: gatePortraitDiagnostic.nearbySealedGateProjection,
       explorerProjection: gatePortraitDiagnostic.explorerProjection,

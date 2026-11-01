@@ -434,6 +434,9 @@ export function createMazeWorld(options = {}) {
       // it cannot disclose the cell beyond the gate or grant passage.
       lock.position.set(.56, .06, .18);
       lock.userData.keyState = carried ? 'carried' : observed ? 'observed' : 'unknown';
+      // Source-bound visual measurement can distinguish this disclosed gate
+      // from other known gates; the edge comes only from public doors.
+      lock.userData.publicDoorEdge = [door.a, door.b];
       mesh(lock, bevel, darkMetal, 0, .9, .43, .88, .85, .18);
       mesh(lock, bevel, gold, 0, .9, .55, .75, .72, .14);
       mesh(lock, bevel, darkMetal, 0, .9, .65, .61, .59, .14);

@@ -468,6 +468,36 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           const height = Math.max(...ends.map(cell => cellHeight(cell, s.width, s.height)));
           return insideCamera((a.x + b.x) / 2, height + .88, (a.z + b.z) / 2);
         })()).length;
+      // Visual acceptance must measure the *real modeled* glove key and its
+      // corresponding still-closed lock, not gate/actor centers or HUD icons.
+      // The matching door edge already belongs to the sanitized public state;
+      // neither hidden geometry nor AI/game authority enters this diagnostic.
+      const physicalKeyLock = keyLockCloseup && nearObservedGate ? (() => {
+        const held = explorer.group.getObjectByName('presented matching key');
+        if (!held?.visible) return null;
+        let socket = null;
+        world.group.traverse(node => {
+          if (socket || node.name !== 'Physical recessed keyhole') return;
+          const edge = node.userData.publicDoorEdge;
+          if (Array.isArray(edge) && edge.length === 2 &&
+              ((edge[0] === nearObservedGate.a && edge[1] === nearObservedGate.b) ||
+               (edge[1] === nearObservedGate.a && edge[0] === nearObservedGate.b))) socket = node;
+        });
+        if (!socket) return null;
+        const project = (node, local) => {
+          const p = node.localToWorld(new THREE.Vector3(...local)).project(camera);
+          return {x: p.x, y: p.y,
+            xCssPx: (p.x + 1) * width / 2, yCssPx: (1 - p.y) * height / 2,
+            inFrame: Math.abs(p.x) < .95 && Math.abs(p.y) < .95 && p.z > -1 && p.z < 1};
+        };
+        // Actual blade tooth tip and actual dark recessed keyhole throat;
+        // this does not imply the closed gate accepts or turns the key.
+        const bladeTip = project(held, [0, -.24, 0]);
+        const socketCenter = project(socket, [0, .92, .89]);
+        return {bladeTip, socketCenter,
+          separationCssPx: Math.hypot(bladeTip.xCssPx - socketCenter.xCssPx,
+            bladeTip.yCssPx - socketCenter.yCssPx)};
+      })() : null;
       window.__MAZE_3D__ = {
         renderer: 'webgl', frames, cameraMode, runToken: s.runToken, tick: s.tick, quality: balanced ? 'balanced' : 'full',
         triangles: renderer.info.render.triangles, drawCalls: renderer.info.render.calls,
@@ -480,7 +510,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         disclosedThreats: wardens.size, wardensInFrame, encounterAttention: closestThreat?.strength ?? 0,
         keysInFrame, closedGatesInFrame,
         carriedKeyGateGesture: keyGateCue?.strength??0,
-        keyLockCloseup, cameraAimLift,
+        keyLockCloseup, cameraAimLift, physicalKeyLock,
         // Camera evidence is derived only from the source-disclosed gate,
         // with projected coordinates in normalized device space [-1,+1].
         nearbySealedGate: nearObservedGate ? {...nearObservedGate} : null,
