@@ -29,9 +29,12 @@ test('G089 preserves every rendered forest tree while recovering >6k real scene 
  expect(baseline.lod.nearTrees+baseline.lod.midTrees+baseline.lod.farTrees)
   .toBe(baseline.lod.renderedTrees);
  expect(baseline.lod.reclaimedTriangles).toBeGreaterThan(7500);
- // Before fix: G088 startup is 159,551 actual drawn triangles.
- // This measures all emitted triangles, not a performance estimate.
- expect(baseline.geometry.totalTriangles).toBeLessThan(153500);
+ // G089 preserved >7.5k actual reclaimed forest triangles. G096 now
+ // adds a whole inhabited high-street precinct to that original forest.
+ // Measure the combined REAL mesh under the 160k global safety limit
+ // with >=1k buffer, rather than freezing a forest-only 153.5k target.
+ // Neither count is a frame-rate or experience-quality result.
+ expect(baseline.geometry.totalTriangles).toBeLessThan(159000);
  expect(baseline.forest.broadleafSpecies.reduce((a,b)=>a+b,0))
   .toBe(baseline.forest.deciduous);
  expect(baseline.forest.broadleafLobes).toBeGreaterThanOrEqual(baseline.forest.deciduous*4);
