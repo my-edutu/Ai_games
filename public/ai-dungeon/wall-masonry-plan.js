@@ -5,7 +5,7 @@
  * still determine the scene's real shading (this is not an emissive shortcut).
  */
 const PALETTES=Object.freeze([
- Object.freeze([111,123,128]), // sunken crypt: weathered slate
+ Object.freeze([139,120,101]), // sunken crypt: ochre-grey weathered limestone; blue remains for the obsidian vault
  Object.freeze([134,109,101]), // ember cathedral: fired sandstone
  Object.freeze([106,120,145]), // obsidian vault: cold mineral blue
  Object.freeze([126,112,145])  // hollow sanctum: violet limestone

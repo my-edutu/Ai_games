@@ -8,7 +8,7 @@ import {planCavernRim} from '/dungeon/cavern-rim-plan.js';
  * Generation is stable for a given floor; matrices are instanced for bounded performance.
  */
 const BIOMES=[
- {name:'SUNKEN CRYPT',glow:'#42f8ce',secondary:'#6dafff',plant:'#45bc9b',bright:'#d5fff7',shadow:'#0a3850'},
+ {name:'SUNKEN CRYPT',glow:'#6cb6a0',secondary:'#c9aa7f',plant:'#64765b',bright:'#e0ccb1',shadow:'#333b37'},
  {name:'EMBER CATHEDRAL',glow:'#ff914e',secondary:'#ffdc75',plant:'#bf5345',bright:'#fff1ca',shadow:'#50223a'},
  {name:'OBSIDIAN VAULT',glow:'#77c9ff',secondary:'#96fff4',plant:'#527add',bright:'#d8f8ff',shadow:'#172c70'},
  {name:'HOLLOW SANCTUM',glow:'#b989ff',secondary:'#ff81d4',plant:'#7856ce',bright:'#ffe6ff',shadow:'#33205b'}

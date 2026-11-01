@@ -8,7 +8,7 @@ import {planPartyWallReveal,createCutawayBandCache,shouldUploadCutawayBand} from
 // All geometry is batched or tightly budgeted so a streaming run can regenerate indefinitely.
 // Decorative biome details.
 const BIOMES=[
- {mortar:'#151b31',stone:'#48566a',edge:'#7486a0',glow:'#47e4d6',banner:'#357ba0',foliage:'#3b7774'},
+ {mortar:'#292721',stone:'#776a59',edge:'#af977a',glow:'#64baa2',banner:'#685947',foliage:'#59654d'},
  {mortar:'#2b1529',stone:'#65515e',edge:'#b98984',glow:'#ff975a',banner:'#af5069',foliage:'#a06a43'},
  {mortar:'#131c35',stone:'#36496b',edge:'#7e9bd1',glow:'#77e3ff',banner:'#4b7db6',foliage:'#497e91'},
  {mortar:'#1d1737',stone:'#62517b',edge:'#ad9cc8',glow:'#ba9bff',banner:'#7e5fc4',foliage:'#62528c'}
@@ -122,8 +122,9 @@ export function enrichEnvironment(world,map,floor){
   const depth=grout?40:grain,i=(y*256+x)*4;pix[i]=depth;pix[i+1]=depth;pix[i+2]=depth;pix[i+3]=255;
  }
  rc.putImageData(image,0,0);const reliefTex=new THREE.CanvasTexture(relief);reliefTex.wrapS=reliefTex.wrapT=THREE.RepeatWrapping;textures.push(reliefTex);
- const floorSurface=new THREE.MeshStandardMaterial({map:floorTex,bumpMap:reliefTex,bumpScale:.07,color:'#e4efff',roughness:.84,metalness:.11});
- const wallSurface=new THREE.MeshStandardMaterial({map:wallTex,bumpMap:reliefTex,bumpScale:.14,color:'#dcecff',roughness:.9,metalness:.07});
+ const cryptGrade=(floor-1)%4===0;
+ const floorSurface=new THREE.MeshStandardMaterial({map:floorTex,bumpMap:reliefTex,bumpScale:.07,color:cryptGrade?'#f3e5d1':'#e4efff',roughness:.84,metalness:.11});
+ const wallSurface=new THREE.MeshStandardMaterial({map:wallTex,bumpMap:reliefTex,bumpScale:.14,color:cryptGrade?'#f0e2cf':'#dcecff',roughness:.9,metalness:.07});
  const chrome=new THREE.MeshStandardMaterial({color:biome.edge,roughness:.38,metalness:.72});
  const brass=new THREE.MeshStandardMaterial({color:'#efbb76',roughness:.33,metalness:.68});
  const jade=new THREE.MeshStandardMaterial({color:biome.glow,emissive:biome.glow,emissiveIntensity:2.0,roughness:.20,metalness:.08});

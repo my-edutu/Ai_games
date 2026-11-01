@@ -4,7 +4,7 @@ import {planFloorRuins} from '/dungeon/floor-ruins-plan.js';
 // Ground-level set dressing. Authentic authority maps remain completely
 // unchanged; these two modest instanced materials never block the AI party.
 const FINISHES=[
- {stone:'#52696c',wet:'#273e45'},
+ {stone:'#786f60',wet:'#353e39'},
  {stone:'#80625b',wet:'#502c34'},
  {stone:'#526485',wet:'#1b3b58'},
  {stone:'#6b5b80',wet:'#352849'}
