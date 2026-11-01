@@ -473,3 +473,74 @@ test('a real close public encounter frames both autonomous actors and saves date
     caveat: 'An actually closed gate; camera framing is not a safe-route promise or independent quality win.',
   }, null, 2));
 });
+
+
+test('authentic 320 portrait and 844 landscape scene screenshots preserve public actor framing', async ({page}) => {
+  // Reuse ONE Chromium page and a genuine unmodified seeded MazeRuntime
+  // frame; no synthetic actors, waypoints, private map or debug-only scene.
+  test.setTimeout(80000);
+  const fs=require('node:fs');
+  const path=require('node:path');
+  const {createHash}=require('node:crypto');
+  const {scenarios}=require('../../scripts/capture-maze-3d.cjs');
+  const sample=scenarios().encounter;
+  expect(sample?.frame?.snapshot?.threats?.length).toBeGreaterThan(0);
+  const publicFrame=sample.frame;
+  const artifacts=path.resolve(__dirname,'../../artifacts/maze-phase3');
+  const source=path.resolve(__dirname,'../../public/ai-maze-escape');
+  fs.mkdirSync(artifacts,{recursive:true});
+  const hash=file=>createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+  const sources=Object.fromEntries(
+    ['index.html','app.js','gameplay-hud.css','map-view.mjs','scene.js','characters.js','world.js']
+      .map(name=>[name,hash(path.join(source,name))]));
+  await page.route('**/maze/state*',route=>route.fulfill({json:publicFrame}));
+  await page.setViewportSize({width:320,height:740});
+  await page.goto(base+'/maze?camera=detail&reducedMotion=1',{waitUntil:'domcontentloaded'});
+  for(const [width,height,filename] of [
+    [320,740,'guardian-320-portrait'],
+    [844,390,'guardian-844-landscape'],
+  ]) {
+    await page.setViewportSize({width,height});
+    const before=await page.evaluate(()=>window.__MAZE_3D__?.frames??0);
+    await page.waitForFunction(({width,height,tick,token,before})=>
+      innerWidth===width && innerHeight===height
+      && window.__MAZE_3D__?.renderer==='webgl'
+      && window.__MAZE_3D__?.frames>Math.max(3,before+1)
+      && window.__MAZE_3D__?.tick===tick
+      && window.__MAZE_3D__?.runToken===token,
+      {width,height,tick:publicFrame.snapshot.tick,token:publicFrame.snapshot.runToken});
+    const diagnostic=await page.evaluate(()=>{
+      const stage=document.getElementById('stage').getBoundingClientRect();
+      const canvas=document.getElementById('maze').getBoundingClientRect();
+      const base=window.__MAZE_3D__;
+      return {renderer:base.renderer,tick:base.tick,runToken:base.runToken,
+        explorerInFrame:base.explorerInFrame,wardensInFrame:base.wardensInFrame,
+        wardensWithMargin:base.wardensWithMargin,explorerProjection:base.explorerProjection,
+        cameraHalfHeight:base.cameraHalfHeight,quality:base.quality,frameP50Ms:base.frameP50Ms,
+        stage:{width:stage.width,height:stage.height},canvas:{width:canvas.width,height:canvas.height},
+        controls:[...document.querySelectorAll('.masthead .control-button')]
+          .filter(el=>getComputedStyle(el).display!=='none')
+          .map(el=>{const r=el.getBoundingClientRect();return {width:r.width,height:r.height,left:r.left,right:r.right}});
+      };
+    });
+    const imagePath=path.join(artifacts,filename+'.png');
+    await page.screenshot({path:imagePath,fullPage:true});
+    fs.writeFileSync(path.join(artifacts,filename+'.json'),JSON.stringify({
+      capturedAt:new Date().toISOString(),source:'Actual seeded MazeRuntime public guardian frame rendered via production WebGL in one real Chromium page; no inserted actors or private state',
+      viewport:{width,height},seed:sample.seed,tick:publicFrame.snapshot.tick,
+      imageSha256:hash(imagePath),sourceSha256:sources,diagnostic,
+      caveat:'CPU-throttled SwiftShader is not hardware GPU FPS or an independent Nintendo visual win.',
+    },null,2));
+    expect(diagnostic.stage.height,'real 3D fills narrow/landscape viewport').toBeGreaterThan(height-10);
+    expect(diagnostic.stage.width).toBeGreaterThan(width-10);
+    expect(diagnostic.canvas.height).toBeGreaterThan(height-10);
+    expect(diagnostic.canvas.width).toBeGreaterThan(width-10);
+    expect(diagnostic.explorerInFrame,'original Pip remains in real frame').toBe(true);
+    expect(diagnostic.wardensInFrame,'truly disclosed Thornback remains visible').toBeGreaterThanOrEqual(1);
+    expect(diagnostic.wardensWithMargin,'full guardian model has room at this native viewport').toBeGreaterThanOrEqual(1);
+    for(const control of diagnostic.controls){
+      expect(control.width,'44px accessible control').toBeGreaterThanOrEqual(44);
+      expect(control.height,'44px accessible control').toBeGreaterThanOrEqual(44);
+    }
+  }
+});
