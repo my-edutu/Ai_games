@@ -1,6 +1,7 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
 import {makeWallMasonryPixels} from '/dungeon/wall-masonry-plan.js';
 import {planFracturedWallStone,planWallStoneVariation} from '/dungeon/fractured-wall-plan.js';
+import {planCutawayWallTransform} from '/dungeon/cutaway-floor-plan.js';
 import {encounterTarget,isSceneAlert,installSpectatorUI} from '/dungeon/spectator-ui.js';
 import {enrichEnvironment} from '/dungeon/environment.js';
 import {planDungeonWallProfiles} from '/dungeon/wall-profile-plan.js';
@@ -134,12 +135,12 @@ function cutawayWalls(target,subjects){
  for(let i=0;i<positions.length;i++){
   const point=positions[i];
   const reveal=planPartyWallReveal(point[0],point[1],subjects,camera.position,2.1);
-  const height=reveal==='sightline'?.16:reveal==='nearby'?.88:(world.userData.wallHeights?.[i]??2.6);
+  const cutaway=planCutawayWallTransform(reveal,world.userData.wallHeights?.[i]??2.6);
   if(reveal!=='none')cut++;
   if(reveal==='nearby')nearbyCut++;
   if(!shouldUploadCutawayBand(wallBands,i,reveal==='sightline'?2:reveal==='nearby'?1:0))continue;
   wallMatrixWrites++;
-  cachedVec.set(point[0],height/2-.03,point[1]);cachedScale.set(1.015,height,1.015);
+  cachedVec.set(point[0],cutaway.height/2-.03,point[1]);cachedScale.set(cutaway.footprint,cutaway.height,cutaway.footprint);
   const weather=planWallStoneVariation(point[0],point[1],state?.floor??1);
   cachedQuat.setFromAxisAngle(wallVertical,weather.yaw);
   cachedMatrix.compose(cachedVec,cachedQuat,cachedScale);mesh.setMatrixAt(i,cachedMatrix);
