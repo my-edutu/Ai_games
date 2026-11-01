@@ -4,8 +4,8 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),crypto=require('node:crypto');
 const {stripR54ShadowStartup}=require('../helpers/snake-r54-shadow-startup-archive.cjs');
 const renderer=fs.readFileSync(path.resolve(__dirname,'../../public/snake-stream/renderer.mjs'),'utf8');
-const blob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\\0').update(s).digest('hex');
-const start='      // BEGIN R54 SHADOW FIRST-PAINT\\n', end='      // END R54 SHADOW FIRST-PAINT\\n';
+const blob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0').update(s).digest('hex');
+const start='      // BEGIN R54 SHADOW FIRST-PAINT\n', end='      // END R54 SHADOW FIRST-PAINT\n';
 function simulate({startupRatio,initialRatio,shadowResolution=2048}){
   const a=renderer.indexOf(start),b=renderer.indexOf(end,a+start.length);
   assert.ok(a>=0&&b>a,'marked production block exists');

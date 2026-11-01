@@ -5,7 +5,7 @@ const {stripR54ShadowStartup}=require('../helpers/snake-r54-shadow-startup-archi
 test.use({trace:'off',video:'off',launchOptions:{args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']}});
 const repo=path.resolve(__dirname,'../..');
 const artifact=name=>{const dir=path.join(repo,'artifacts/phase3');fs.mkdirSync(dir,{recursive:true});return path.join(dir,name);};
-const blob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\\0').update(s).digest('hex');
+const blob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0').update(s).digest('hex');
 test('R54 genuine Chromium/WebGL 1080p shadow-atlas first paint plus native/retina controls',async({browser,baseURL})=>{
   test.setTimeout(220000);
   const current=fs.readFileSync(path.join(repo,'public/snake-stream/renderer.mjs'),'utf8');
@@ -20,7 +20,7 @@ test('R54 genuine Chromium/WebGL 1080p shadow-atlas first paint plus native/reti
     const markers=[
       ['    const time = timestamp / 1000;', '    const time = 0; // synthetic public frame only'],
       ['let scaleAdjusted = false;', 'let scaleAdjusted = true; // synthetic first-paint comparison'],
-      ['    renderer.setSize(width, height, false);', '    window.__snakeR54ShadowAtlasSize = sun.shadow.mapSize.x;\\n    renderer.setSize(width, height, false);'],
+      ['    renderer.setSize(width, height, false);', '    window.__snakeR54ShadowAtlasSize = sun.shadow.mapSize.x;\n    renderer.setSize(width, height, false);'],
     ];
     for(const [find,replacement] of markers){
       expect(source.split(find)).toHaveLength(2);
@@ -84,7 +84,7 @@ test('R54 genuine Chromium/WebGL 1080p shadow-atlas first paint plus native/reti
   fs.writeFileSync(artifact('snake-r54-shadow-atlas-real-webgl.json'),JSON.stringify({
     preR54RendererGitBlob:blob(prior),realChromiumWebGL:true,syntheticFrozenPublic:true,
     untouchedStrictGateMinimum:17,notDevicePresentFps:true,notIndependentVisualApproval:true,rows
-  },null,2)+'\\n');
+  },null,2)+'\n');
   console.log('SNAKE_R54_SHADOW_WEBGL',JSON.stringify({modes:modes.map(m=>m.label),variants:rows.length,
     sourceHashVerified:true,actualWebGL:true,realPacingNotAssessedHere:true}));
 });
