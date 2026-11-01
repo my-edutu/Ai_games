@@ -91,7 +91,7 @@ test('approaching the authentic one-way ledge moves only the visual climber outs
 });
 test('near-ledge scene uses the exterior radial corridor and real outer lip as the reach target',()=>{
   assert.match(scene,/const approachRadius = climbApproachRadius\(snapshot, targetPlatform\)/);
-  assert.match(scene,/pointFor\(p\.x, p\.y - p\.halfHeight, snapshot\.chunkBaseY, snapshot\.worldWidth, approachRadius\)/);
+  assert.match(scene,/pointFor\(p\.x, p\.y - p\.halfHeight, snapshot\.chunkBaseY, snapshot\.worldWidth, presentedRadius\)/);
   assert.match(scene,/const ledgeTarget = ledgeContact \? pointFor\(ledgeContact\.x, ledgeContact\.y,\s*snapshot\.chunkBaseY, snapshot\.worldWidth, 27\.1/);
 });
 
