@@ -54,7 +54,13 @@ test('a genuine living guardian owns a closed, dimensional world-space seal, not
     const left = named(world.group, 'GuardianSealWingLeft');
     const right = named(world.group, 'GuardianSealWingRight');
     const crest = named(world.group, 'ObservedGuardianLockCrest');
+    const conduit = named(world.group, 'GuardianEncounterConduit');
     assert.ok(gate && left && right && crest, 'the real world contains an original 3D door and lock');
+    assert.ok(conduit?.isMesh && !conduit.castShadow && !conduit.receiveShadow,
+      'the real HP conduit is a physical, shadow-free mesh in the guardian cap');
+    assert.ok(Math.abs(conduit.scale.z - .18) < 1e-12,
+      'no damage leaves only an inset lock socket; the path cannot claim a win');
+    assert.equal(conduit.userData.collider, undefined);
     assert.ok(named(world.group,'GuardianCounterweightLeft') && named(world.group,'GuardianCounterweightRight'),
       'the source-powered lock uses real paired 3D counterweights');
     assert.equal(left.position.x, 0);
@@ -77,7 +83,8 @@ test('a genuine living guardian owns a closed, dimensional world-space seal, not
         assert.equal(object.castShadow, false, 'the gate must not multiply shadow-map submissions');
       }
     });
-    assert.ok(dynamicMeshes >= 14 && dynamicMeshes <= 18, 'one bounded original gate and paired counterweights');
+    assert.ok(dynamicMeshes >= 12 && dynamicMeshes <= 26,
+      `one bounded gate, source conduit and counterweights (actual meshes: ${dynamicMeshes})`);
   } finally { world.dispose(); }
 });
 
@@ -91,6 +98,7 @@ test('an authentic guardian defeat opens BOTH world-space doors and its distinct
     const crest = named(world.group, 'ObservedGuardianLockCrest');
     const leftWeight = named(world.group,'GuardianCounterweightLeft');
     const rightWeight = named(world.group,'GuardianCounterweightRight');
+    const conduit = named(world.group,'GuardianEncounterConduit');
     assert.ok(Math.abs(leftWeight.position.y)<1e-12, 'left counterweight starts physically closed');
     assert.ok(Math.abs(rightWeight.position.y)<1e-12, 'right counterweight starts physically closed');
     // The real authority commonly transfers floors on the decisive hit.
@@ -107,6 +115,10 @@ test('an authentic guardian defeat opens BOTH world-space doors and its distinct
       'real guardian HP mechanically lowers the visible counterweights');
     assert.equal(leftWeight.position.y,rightWeight.position.y,
       'the pair cannot disagree on authoritative gate progress');
+    assert.ok(conduit.scale.z > 2.25 && conduit.scale.z < 4.2,
+      'real guardian damage must reveal a growing physical link to the gate');
+    assert.ok(conduit.position.z + conduit.scale.z * .5 + 21.8 < 27.18,
+      'the source-linked conduit must never overshoot the real outer cap rim');
     assert.equal(world.diagnostics().guardianGates[0].unlocked, false,
       'damaging an active enemy cannot claim the guardian gate is cleared');
     assert.equal(JSON.stringify(hurt), beforeHurt);
@@ -119,6 +131,8 @@ test('an authentic guardian defeat opens BOTH world-space doors and its distinct
     assert.ok(leftWeight.position.y < -2.3 && rightWeight.position.y < -2.3,
       'an actual finished guardian fully releases the heavy mechanical weights');
     assert.equal(world.diagnostics().guardianGates[0].unlocked, true);
+    assert.ok(conduit.scale.z > 4.6 && conduit.scale.z < 4.8,
+      'authentic defeated guardians illuminate the full outer-lane passage');
     assert.equal(JSON.stringify(release), before, 'the observed source remains immutable');
     world.update(frame({ active: true }), .05, 2, { quality: 'low' });
     assert.equal(world.diagnostics().guardianGates[0].unlocked, false);
@@ -140,5 +154,7 @@ test('no invented guardian means no gate; high/low switches and a new run restor
     assert.equal(world.diagnostics().guardianGates[0].opening, 0,
       'restart must not retain an earlier victory animation');
     assert.equal(named(world.group, 'GuardianSealWingLeft').position.x, 0);
+    assert.ok(Math.abs(named(world.group, 'GuardianEncounterConduit').scale.z - .18) < 1e-12,
+      'a genuinely new source run starts with a closed progression conduit');
   } finally { world.dispose(); }
 });
