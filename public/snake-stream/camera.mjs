@@ -106,7 +106,17 @@ function avoidForegroundOcclusion(outward, distance, head, food, occluders) {
 // away on phones. Portrait looks across the short side of the same real board.
 export function cameraComposition({ width, height, aspect, mode = 'overview', head = { x: 0, z: 0 }, direction = { x: 0, z: 1 }, food = null, occluders = [] }) {
   const portrait = aspect < 1;
-  let outward = normalize(portrait ? { x: 0.52, y: 0.85, z: 0.02 } : { x: 0.12, y: 0.77, z: 0.67 });
+  // BEGIN R56 PORTRAIT OVERVIEW STAGING
+  // Tall broadcasts give the real board extra vertical screen space by
+  // approaching a more overhead angle, while retaining a perspective 3D view.
+  // Keep follow/detail, public transforms, complete board fit and GPU work intact.
+  // Smooth aspect dependence prevents a camera snap during portrait resizing.
+  const portraitOverviewX = portrait && mode === 'overview'
+    ? 0.20 + 0.32 * Math.max(0, Math.min(1, (aspect - 0.45) / 0.55))
+    : 0.52;
+  let outward = normalize(portrait ? { x: portraitOverviewX, y: 0.85, z: 0.02 }
+    : { x: 0.12, y: 0.77, z: 0.67 });
+  // END R56 PORTRAIT OVERVIEW STAGING
   const target = mode === 'overview' ? { x: 0, y: 0.4, z: 0 } : { x: head.x, y: 0.4, z: head.z };
   let distance;
   if (mode === 'detail') {

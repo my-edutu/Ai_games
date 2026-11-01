@@ -1,14 +1,19 @@
 {
   "updatedAt": "2026-11-01",
-  "status": "R55 REDUCED-MOTION VERTEX TRANSFER CANDIDATE · LATEST GENERAL/FOCUSED BROWSER FAILED · STRICT 10/17 UNMET",
-  "detail": "R55 narrow reduced-motion-only stable public body GPU vertex-transfer gate implemented with five exactly reversible blocks, source-controlled Three.js regression and real Chromium/WebGL overview/detail screenshot checks awaiting new head CI. Previous exact R54 corrected-head focused 41295203321 and general 41295203312 both finished FAILED at browser step (not green); general build/Node passed. Latest published quantified strict full-HD still 10 real renderer submissions/1015.2ms vs unchanged >=17; 61 RAF calls not real draws or device-present FPS. No measured throughput gain or Snake Pass/ASTRO BOT visual parity. New candidate only avoids identical GPU vertex update requests in reduced-motion with stable zero-swallow body; all cues, authority, recovery, portals, animated/live frames preserved. No independent critic, real-device presents, soak or R5. PR draft unmerged undeployed.",
+  "status": "R56 PORTRAIT OVERVIEW STAGING CANDIDATE · R55 CHROMIUM A/B PASS · STRICT 11/17 FAIL",
+  "detail": "R56 original portrait overview camera aspect-based staging candidate: new source-controlled Node perspective coverage regression and real Chromium/WebGL 390x844/368x598 before-after captures await exact-head CI. Only camera moves; public board/serpent/hazards/portals and landscape/follow/detail cameras remain authoritative/unchanged. R55 exact-head focused 41300524852 verified reduced-motion overview/detail Chromium/WebGL A/B PASS, but hard 1920x1080 live desktop 11 actual renderer submissions/1003.0ms against unchanged >=17 FAIL; 61 RAF callbacks are not render/device-present FPS. R55 general 41300524857 CANCELLED not PASS. Original Snake Pass/ASTRO BOT visual quality, independent critic, device-present FPS, soak and R5 OPEN. PR draft, unmerged and undeployed.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "R55 new reduced-motion GPU body-transfer optimization awaits actual same-frame WebGL capture; prior R54 strict live desktop 10/17 actual submissions FAIL, no full visual benchmark win.",
+  "latestCaption": "R56 tall phone portrait 3D board framing awaits exact-source Chromium A/B; R55 reduced-motion visual parity verified but strict live default desktop 11/17 real submissions FAIL.",
   "reviews": [
     {
+      "area": "Round 56 · original portrait overview staging and real WebGL comparison",
+      "verdict": "CANDIDATE · NODE PROJECTION + REAL CHROMIUM BEFORE/AFTER COMMITTED · CI PENDING · STRICT 11/17 STILL FAIL",
+      "gap": "Actual projection must gain >=7% vertical ground coverage at 390x844 and 368x598 across board sizes while preserving every corner, unchanged landscape/detail/follow cameras, all public cues and bounded resources. Source-controlled 4 actual WebGL screenshots and Node regression awaiting CI. Snake Pass/ASTRO BOT, independent critic, normal 1080p >=17 actual submissions, real-device presents, long soak and R5 remain OPEN."
+    },
+    {
       "area": "Round 55 · stable reduced-motion original serpent vertex buffer transfers",
-      "verdict": "CANDIDATE · REAL WEBGL A/B AND NODE REGRESSION COMMITTED · EXACT-HEAD CI PENDING · STRICT 10/17 STILL UNMET",
-      "gap": "Only identical full public body with reducedMotion, zero swallow, stable run/direction/LOD avoids re-marking 3 original body GPU vertex buffers; all real live passes continue. Actual Chromium overview/detail capture and Node original-vs-current payload parity need CI. This is not bus bandwidth or FPS improvement; normal live HD >=17 submissions, independent Snake Pass/ASTRO BOT critique, real-device presents, soak and R5 still OPEN."
+      "verdict": "REAL CHROMIUM REDUCED-MOTION A/B PASS · STRICT DEFAULT DESKTOP 11/17 FAIL · GENERAL CANCELLED",
+      "gap": "R55 real 960x640 reduced-motion overview/detail original/current Chromium/WebGL images pixel-identical, no resource delta or GL error (Actions 41300524852 evidence 13081266596); CPU-requested vertex transfers skipped on frozen body, not measured GPU bus or normal speed. Hard 1920x1080 produced 11 actual renderer submissions/1003.0ms vs unchanged >=17; 61 RAF callbacks are not render/present FPS. General run 41300524857 cancelled. Full visual benchmark, independent critic, device present, soak and R5 OPEN."
     },
     {
       "area": "Round 54 · actual first shadow atlas WebGL comparison / 17-submission gate",
