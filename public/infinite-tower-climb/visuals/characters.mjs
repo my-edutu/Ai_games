@@ -417,8 +417,14 @@ export function createClimber() {
         arms[leadIndex].upper.rotation.x=mix(arms[leadIndex].upper.rotation.x,-1.85+1.28*push,weight);
         arms[leadIndex].lower.rotation.x=mix(arms[leadIndex].lower.rotation.x,-.3+.16*push,weight);
       }
-      arms[otherIndex].upper.rotation.x=mix(arms[otherIndex].upper.rotation.x,-1.1+.52*push,weight);
-      arms[otherIndex].lower.rotation.x=mix(arms[otherIndex].lower.rotation.x,-.75+.28*push,weight);
+      // The camera-facing lead arm can be the opposite of the *physical*
+      // arm selected by the two-link IK solver. While it is gripping, do not
+      // overwrite either forearm: a desktop oblique angle previously displaced
+      // the genuine fingertip 0.111 world units off the real upper rim.
+      if(!genuineLedgeGrip){
+        arms[otherIndex].upper.rotation.x=mix(arms[otherIndex].upper.rotation.x,-1.1+.52*push,weight);
+        arms[otherIndex].lower.rotation.x=mix(arms[otherIndex].lower.rotation.x,-.75+.28*push,weight);
+      }
       for(let i=0;i<2;i++){
         const leg=legs[i],front=i===otherIndex;
         leg.upper.rotation.x=mix(leg.upper.rotation.x,front?-.98+.7*push:-1.12+.85*push,weight);
