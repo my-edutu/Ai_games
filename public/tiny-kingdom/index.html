@@ -1217,7 +1217,7 @@ function cottageSideFacades(x,z,scale,variant){
 // households remain present with original material classes and readable roofs;
 // collision and civilization authority continue to use the full city list.
 const VILLAGE_LOD_LIMIT=8;
-const villageVisualLod={detailedHomes:0,compactHomes:0,detailedCitizens:0,compactCitizens:0,compactRoofTiles:0,compactFramedWindows:0,compactGableBraces:0};
+const villageVisualLod={detailedHomes:0,compactHomes:0,detailedCitizens:0,compactCitizens:0,compactRoofTiles:0,compactFramedWindows:0,compactGableBraces:0,compactSideWindows:0};
 function detailedHomeSet(){
  if(city.length<=12)return new Set(city.map((_,i)=>i));
  return new Set(city.map(([x,z],i)=>({i,d:x*x+z*z}))
@@ -1284,6 +1284,29 @@ function compactHouse(x,z,variant){
     else quad([ax-side*.065,y+.24,zf],[ax,y+.24,zf],
        [bx,y+h*.74,zf],[bx-side*.065,y+h*.74,zf],timber);
     villageVisualLod.compactGableBraces++;
+   }
+  }
+  // G081: the low-poly household's long sides used to be blank plaster.
+  // Four small, framed two-light windows are always visible from either
+  // side of an orbiting camera. Each is four outward-facing planar quads
+  // (8 triangles), rather than a 3D box or full cottage detail pass.
+  // All variation is local to the rendered variant, with no authority RNG.
+  const glass=rgb(variant%2?0x50636a:0x405962);
+  const windowWood=rgb(variant%2?0xb99b76:0xc6ac86);
+  for(const wall of [-1,1]){
+   const sideX=x+wall*(w/2+.017);
+   for(const slot of [-1,1]){
+    const center=z+slot*d*.26;
+    const windowQuad=(y0,y1,z0,z1,col,raise=0)=>{
+     const wx=sideX+wall*raise;
+     if(wall>0)quad([wx,y0,z0],[wx,y1,z0],[wx,y1,z1],[wx,y0,z1],col);
+     else quad([wx,y0,z1],[wx,y1,z1],[wx,y1,z0],[wx,y0,z0],col);
+    };
+    windowQuad(y+.84,y+1.31,center-.22,center+.22,glass);
+    windowQuad(y+1.04,y+1.08,center-.235,center+.235,windowWood,.012);
+    windowQuad(y+.83,y+1.31,center-.025,center+.025,windowWood,.012);
+    windowQuad(y+.80,y+.84,center-.265,center+.265,windowWood,.013);
+    villageVisualLod.compactSideWindows++;
    }
   }
  });
@@ -3121,7 +3144,7 @@ currentMaterial=MATERIAL.FOLIAGE;
 currentMaterial=MATERIAL.STONE;
  const fullHomes=detailedHomeSet();
 villageVisualLod.detailedHomes=0;villageVisualLod.compactHomes=0;
-villageVisualLod.compactRoofTiles=0;villageVisualLod.compactFramedWindows=0;villageVisualLod.compactGableBraces=0;
+villageVisualLod.compactRoofTiles=0;villageVisualLod.compactFramedWindows=0;villageVisualLod.compactGableBraces=0;villageVisualLod.compactSideWindows=0;
 for(let i=0;i<city.length;i++){
  const [x,z,k]=city[i];
  if(fullHomes.has(i)){
