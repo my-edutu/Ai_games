@@ -1,7 +1,7 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
 import {addDungeonWindows} from '/dungeon/architecture.js';
 import {planStoneRelief} from '/dungeon/stone-relief-plan.js';
-import {planCutawayFloorBacking} from '/dungeon/cutaway-floor-plan.js';
+import {planCutawayFloorBacking,planCutawayCapTransform} from '/dungeon/cutaway-floor-plan.js';
 import {planPartyWallReveal,createCutawayBandCache,shouldUploadCutawayBand} from '/dungeon/party-visibility-plan.js';
 
 // Purely cosmetic, reproducible procedural dressing. This code never touches game authority.
@@ -144,7 +144,7 @@ export function enrichEnvironment(world,map,floor){
  const bannerTexture=new THREE.CanvasTexture(bannerCanvas);bannerTexture.colorSpace=THREE.SRGBColorSpace;textures.push(bannerTexture);
  const cloth=new THREE.MeshStandardMaterial({map:bannerTexture,color:biome.banner,roughness:.87,side:THREE.DoubleSide});
  materials.push(floorSurface,wallSurface,chrome,brass,jade,moss,cloth);geometries.push(box,blade,ring);
- const floorDetails=[],wallFaces=[],columnCap=[],mossPatches=[],runeInlays=[],rubble=[],brazierBases=[],vases=[];
+ const floorDetails=[],wallFaces=[],columnCap=[],columnCapParents=[],mossPatches=[],runeInlays=[],rubble=[],brazierBases=[],vases=[];
  const rugs=[],rugCandidates=[];
  const pillars=[],banners=[],statues=[],worldAnchors=[],foregroundGroups=[];
  const open=(x,z)=>x>=0&&z>=0&&x<N&&z<N&&map[z][x]==='.';
@@ -167,7 +167,7 @@ export function enrichEnvironment(world,map,floor){
   for(const face of faces){if(!open(x+face.dx,z+face.dz))continue;
    const ax=px+face.dx*.511,az=pz+face.dz*.511;
    wallFaces.push([ax,1.22,az,face.dz!==0?.88:.024,2.31,face.dx!==0?.88:.024,0,face.dx,face.dz]);
-   if(h%5===0)columnCap.push([ax,2.42,az,face.dz!==0?.72:.09,.115,face.dx!==0?.72:.09]);
+   if(h%5===0){columnCap.push([ax,2.42,az,face.dz!==0?.72:.09,.115,face.dx!==0?.72:.09]);columnCapParents.push(wallFaces.length-1);}
    if(h%21===0){pillars.push([ax,az,face.yaw,h]);}
    if(h%31===0){banners.push([ax,az,face.yaw,h]);}
   }
@@ -219,7 +219,7 @@ export function enrichEnvironment(world,map,floor){
   }
   if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;
  }
- batched(world,box,chrome,columnCap,{floor});
+ const columnCapMesh=batched(world,box,chrome,columnCap,{floor});
  batched(world,box,moss,mossPatches,{floor});
  batched(world,box,jade,runeInlays,{floor});
  batched(world,box,wallSurface,rubble,{variation:true,floor});
@@ -260,7 +260,8 @@ export function enrichEnvironment(world,map,floor){
  const totalDecor=floorDetails.length+wallFaces.length+columnCap.length+mossPatches.length+runeInlays.length+rubble.length+pillarsCount+bannersCount+ruins;
  // Same 3D visibility policy as the base walls: rich wall cladding must not hide the AI.
  const facadeBands=createCutawayBandCache(wallFaces.length);
- const sceneMetrics={clearedForeground:0,clearedWeatheredPieces:0,matrixWrites:{facade:0,weathered:0}};
+ const capBands=createCutawayBandCache(columnCap.length);
+ const sceneMetrics={clearedForeground:0,clearedWeatheredPieces:0,clearedCapstones:0,matrixWrites:{facade:0,weathered:0,capstone:0}};
  const matrix=new THREE.Matrix4(),p=new THREE.Vector3(),q=new THREE.Quaternion(),scale=new THREE.Vector3();
  const yAxis=new THREE.Vector3(0,1,0),blockedFaces=new Uint8Array(wallFaces.length);
  function cutaway(subjects,camera){
@@ -305,6 +306,25 @@ export function enrichEnvironment(world,map,floor){
    if(copingMesh)copingMesh.instanceMatrix.needsUpdate=true;
    q.identity();
   }
+  // Decorative crowns follow their exact parent exposed face, not their own
+  // independent visibility policy. Full-width caps previously floated over
+  // sightline-cleared walls and obscured the actual living party.
+  let clearedCapstones=0,capMatrixWrites=0;
+  if(columnCapMesh){
+   for(let i=0;i<columnCap.length;i++){
+    const blocked=blockedFaces[columnCapParents[i]]===1;
+    if(blocked)clearedCapstones++;
+    if(!shouldUploadCutawayBand(capBands,i,blocked?2:0))continue;
+    const transform=planCutawayCapTransform(blocked?'sightline':'none',columnCap[i]);
+    if(!transform)continue;
+    p.set(transform[0],transform[1],transform[2]);q.identity();
+    scale.set(transform[3],transform[4],transform[5]);
+    matrix.compose(p,q,scale);columnCapMesh.setMatrixAt(i,matrix);capMatrixWrites++;
+   }
+   if(capMatrixWrites)columnCapMesh.instanceMatrix.needsUpdate=true;
+  }
+  sceneMetrics.clearedCapstones=clearedCapstones;
+  sceneMetrics.matrixWrites.capstone=capMatrixWrites;
   sceneMetrics.clearedWeatheredPieces=weatheringCleared;
   sceneMetrics.matrixWrites.facade=facadeMatrixWrites;
   sceneMetrics.matrixWrites.weathered=weatheredMatrixWrites;
@@ -316,6 +336,6 @@ export function enrichEnvironment(world,map,floor){
  }
 
  const animate=time=>{for(const p of flames){const t=time*5+p.phase,scale=1+Math.sin(t)*.13;p.fire.scale.y=scale;p.inner.scale.setScalar(.91+Math.sin(t+1.3)*.14)}};
- return {animate,cutaway,occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{biome:floor,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,wovenRugs:rugs.length,cutawayFloorBackings:backing.length,texturedSurfaces:floorDetails.length+wallFaces.length,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
+ return {animate,cutaway,occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{biome:floor,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,wovenRugs:rugs.length,cutawayFloorBackings:backing.length,columnCapstones:columnCap.length,texturedSurfaces:floorDetails.length+wallFaces.length,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
 }
 
