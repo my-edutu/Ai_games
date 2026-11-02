@@ -412,6 +412,11 @@ test('world-only screenshot audits actual WebGL light, chroma and hero visibilit
  fs.writeFileSync('artifacts/dungeon-scene-visual-metrics.json',JSON.stringify(evidence,null,2));
  expect(evidence.composition.visibleHeroes).toBeGreaterThan(0);
  expect(evidence.dressing?.archWindows??0).toBeGreaterThan(0);
+ // These are genuine WebGL-scene placements, not HUD adornments. A visually
+ // empty dungeon must not pass merely because characters are ray-visible.
+ expect(evidence.dressing?.torches??0).toBeGreaterThan(0);
+ expect(evidence.dressing?.weatheredSpalls??0).toBeGreaterThanOrEqual(12);
+ expect(evidence.dressing?.brokenCopingStones??0).toBeGreaterThanOrEqual(3);
  expect(evidence.litFraction).toBeGreaterThan(.08);
  expect(evidence.meanLuminance).toBeGreaterThan(10);
 });
