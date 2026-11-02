@@ -7637,7 +7637,8 @@ const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,focusHeight=follow
  ]:workTarget;
  let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,cameraTarget,[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);const radiance=lightingProfile(state.t);gl.uniform1f(uniforms.sunStrength,radiance.solar);gl.uniform1f(uniforms.ambientBlend,radiance.ambientBlend);gl.uniform1f(uniforms.worldTime,state.t);gl.uniform1f(uniforms.weatherWetness,climateMaterialProfile(state.t).precipitation);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));const activeLight=observedWorkLightProfile();gl.uniform3f(uniforms.workLightPosition,activeLight.x,activeLight.y,activeLight.z);gl.uniform1f(uniforms.workLightStrength,activeLight.strength);
 const farmContact=getHarvestInteractionAudit();
-gl.uniform4f(uniforms.harvestContact,...farmContact.contact);
+// Canvas2D fallback implements only the original uniform1f/3f shims.
+if(gpuAvailable)gl.uniform4f(uniforms.harvestContact,...farmContact.contact);
 lastFrameTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.length+data.length:data.length)/30;
 if(gpuAvailable){
  const planes=sceneFrustumPlanes(m);
