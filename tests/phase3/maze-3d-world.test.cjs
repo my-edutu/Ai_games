@@ -332,6 +332,8 @@ test('sculpted shore gardens remain restricted to known outer cells, with fixed 
     world.update(onlyInterior);
     assert.equal(world.stats().coastalGardens, 0,
       'an observed room amid undisclosed cells must not plant invented shorelines');
+    assert.equal(world.stats().coastCanopies, 0,
+      'unknown inner neighbors cannot silently grow coastal treetops');
     const before = JSON.stringify(wholeNorth);
     world.update(wholeNorth);
     const seen = world.stats();
@@ -339,6 +341,9 @@ test('sculpted shore gardens remain restricted to known outer cells, with fixed 
       'all sculpted terrain must still be limited to genuinely disclosed rooms');
     assert.ok(seen.coastalGardens > 0 && seen.coastalGardens <= 14,
       'coastal clusters are substantial yet limited to edges of known real cells');
+    assert.ok(seen.coastCanopies >= 1 && seen.coastCanopies <= seen.coastalGardens,
+      'original tall canopies are a bounded subset of genuine public sea-facing planters');
+    const oldCanopyCount = seen.coastCanopies;
     const foliage = world.group.children[1].children.find(child =>
       child.isInstancedMesh && child.material.name === 'Disclosed perimeter hanging fronds');
     assert.ok(foliage?.isInstancedMesh, 'perimeter foliage must use actual shared 3D geometry');
@@ -353,20 +358,27 @@ test('sculpted shore gardens remain restricted to known outer cells, with fixed 
     world.animate(101, {reducedMotion:true});
     assert.equal(world.stats().coastalGardens, seen.coastalGardens,
       'animation never creates new shoreline geometry');
+    assert.equal(world.stats().coastCanopies, oldCanopyCount,
+      'render-time motion never grows trees or reallocates canopy geometry');
     world.update(onlyInterior);
     assert.equal(world.stats().coastalGardens, 0,
       'known fringe is withdrawn when the disclosed snapshot no longer includes it');
+    assert.equal(world.stats().coastCanopies, 0,
+      'discovered shoreline withdrawal removes the actual high canopy as well');
     const remaining = world.group.children[1].children.find(child =>
       child.isInstancedMesh && child.material.name === 'Disclosed perimeter hanging fronds');
     assert.equal(remaining?.count || 0, world.stats().wallGardens * 4,
       'no stale external-coast blades survive a public withdrawal; actual known solid walls may retain their own plants');
     world.update({...wholeNorth,runToken:'separate-run'});
     assert.ok(world.stats().coastalGardens > 0, 'new runs rebuild only their own disclosed coast');
+    assert.equal(world.stats().coastCanopies, oldCanopyCount,
+      'the public cell-only far shore is deterministic across runs, not seeded by hidden maze state');
     world.dispose();
     assert.equal(world.stats().geometryCount,0);
     assert.equal(world.stats().materialCount,0);
     assert.equal(world.stats().coastalGardens,0);
     assert.equal(world.stats().wallGardens,0);
+    assert.equal(world.stats().coastCanopies,0);
   }
 });
 
