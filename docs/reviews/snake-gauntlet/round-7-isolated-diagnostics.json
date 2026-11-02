@@ -1,0 +1,246 @@
+{
+  "commit": "5dc8556d71cbfa63706b4ef4f72b97fbff07db81",
+  "run": "https://github.com/my-edutu/Ai_games/actions/runs/41124915455",
+  "records": [
+    {
+      "animation": {
+        "frames": 6,
+        "elapsedMs": 1070.5999999999822,
+        "maxGapMs": 266.6999999999998,
+        "averageFps": 5.6043340183075845,
+        "actualDraws": 6
+      },
+      "presentation": {
+        "renderer": "webgl",
+        "frameCount": 27,
+        "quality": "low",
+        "cameraMode": "overview",
+        "pixelRatio": 0.424244785296301,
+        "drawingBuffer": {
+          "width": 781,
+          "height": 357
+        },
+        "renderScale": {
+          "adjusted": true,
+          "sampleFrameMs": 183.3499999999999,
+          "targetFrameMs": 33
+        },
+        "drawCalls": 49,
+        "triangles": 9684,
+        "geometries": 43,
+        "textures": 15,
+        "frameMs": {
+          "p50": 166.7000000000005,
+          "p95": 1116.6999999999998,
+          "p99": 1233.3999999999999
+        },
+        "staticCache": {
+          "supported": true,
+          "active": true,
+          "hits": 24,
+          "builds": 3,
+          "width": 781,
+          "height": 357,
+          "samples": 4
+        },
+        "world": {
+          "staticInstances": 6270,
+          "staticMeshes": 13,
+          "drawObjects": 39,
+          "geometries": 36,
+          "materials": 22,
+          "textures": 4,
+          "obstacles": 0,
+          "hazards": 5,
+          "portalEnds": 4,
+          "disposed": false
+        },
+        "serpent": {
+          "geometries": 21,
+          "materials": 12,
+          "textures": 4,
+          "bodyRings": 111,
+          "bodyVertices": 999,
+          "detail": "low",
+          "bodyTriangles": 1744,
+          "paths": 2,
+          "maxBodyRings": 8192,
+          "truncated": false,
+          "disposed": false,
+          "bufferBytes": 9437184
+        },
+        "reducedMotion": false,
+        "cleanFeed": false,
+        "connected": true,
+        "audio": {
+          "muted": true,
+          "voices": 0,
+          "ambience": 0,
+          "context": "not-started"
+        }
+      }
+    },
+    {
+      "diagnosticOnly": true,
+      "fixedPixelRatio": 0.4,
+      "dynamicShadowReception": true,
+      "cadence": {
+        "frames": 10,
+        "elapsedMs": 1068.4999999999882,
+        "maxGapMs": 233.30000000000018,
+        "averageFps": 9.358914365933655,
+        "actualDraws": 10
+      },
+      "state": {
+        "renderer": "webgl",
+        "frameCount": 30,
+        "quality": "low",
+        "cameraMode": "overview",
+        "pixelRatio": 0.4,
+        "drawingBuffer": {
+          "width": 736,
+          "height": 336
+        },
+        "renderScale": {
+          "adjusted": true,
+          "sampleFrameMs": 100.00000000000009,
+          "targetFrameMs": 33
+        },
+        "drawCalls": 49,
+        "triangles": 9716,
+        "geometries": 45,
+        "textures": 15,
+        "frameMs": {
+          "p50": 99.99999999999964,
+          "p95": 566.5999999999998,
+          "p99": 1116.6999999999998
+        },
+        "staticCache": {
+          "supported": true,
+          "active": true,
+          "hits": 27,
+          "builds": 3,
+          "width": 736,
+          "height": 336,
+          "samples": 4
+        },
+        "world": {
+          "staticInstances": 6270,
+          "staticMeshes": 13,
+          "drawObjects": 39,
+          "geometries": 36,
+          "materials": 22,
+          "textures": 4,
+          "obstacles": 0,
+          "hazards": 5,
+          "portalEnds": 4,
+          "disposed": false
+        },
+        "serpent": {
+          "geometries": 21,
+          "materials": 12,
+          "textures": 4,
+          "bodyRings": 112,
+          "bodyVertices": 1008,
+          "detail": "low",
+          "bodyTriangles": 1776,
+          "paths": 1,
+          "maxBodyRings": 8192,
+          "truncated": false,
+          "disposed": false,
+          "bufferBytes": 9437184
+        },
+        "reducedMotion": false,
+        "cleanFeed": false,
+        "connected": true,
+        "audio": {
+          "muted": true,
+          "voices": 0,
+          "ambience": 0,
+          "context": "not-started"
+        }
+      }
+    },
+    {
+      "diagnosticOnly": true,
+      "fixedPixelRatio": 0.4,
+      "dynamicShadowReception": false,
+      "cadence": {
+        "frames": 10,
+        "elapsedMs": 1068.5999999999767,
+        "maxGapMs": 250,
+        "averageFps": 9.358038555119052,
+        "actualDraws": 10
+      },
+      "state": {
+        "renderer": "webgl",
+        "frameCount": 30,
+        "quality": "low",
+        "cameraMode": "overview",
+        "pixelRatio": 0.4,
+        "drawingBuffer": {
+          "width": 736,
+          "height": 336
+        },
+        "renderScale": {
+          "adjusted": true,
+          "sampleFrameMs": 116.5999999999996,
+          "targetFrameMs": 33
+        },
+        "drawCalls": 49,
+        "triangles": 9716,
+        "geometries": 45,
+        "textures": 15,
+        "frameMs": {
+          "p50": 99.89999999999988,
+          "p95": 533.4000000000003,
+          "p99": 1116.6000000000001
+        },
+        "staticCache": {
+          "supported": true,
+          "active": true,
+          "hits": 27,
+          "builds": 3,
+          "width": 736,
+          "height": 336,
+          "samples": 4
+        },
+        "world": {
+          "staticInstances": 6270,
+          "staticMeshes": 13,
+          "drawObjects": 39,
+          "geometries": 36,
+          "materials": 22,
+          "textures": 4,
+          "obstacles": 0,
+          "hazards": 5,
+          "portalEnds": 4,
+          "disposed": false
+        },
+        "serpent": {
+          "geometries": 21,
+          "materials": 12,
+          "textures": 4,
+          "bodyRings": 112,
+          "bodyVertices": 1008,
+          "detail": "low",
+          "bodyTriangles": 1776,
+          "paths": 1,
+          "maxBodyRings": 8192,
+          "truncated": false,
+          "disposed": false,
+          "bufferBytes": 9437184
+        },
+        "reducedMotion": false,
+        "cleanFeed": false,
+        "connected": true,
+        "audio": {
+          "muted": true,
+          "voices": 0,
+          "ambience": 0,
+          "context": "not-started"
+        }
+      }
+    }
+  ]
+}

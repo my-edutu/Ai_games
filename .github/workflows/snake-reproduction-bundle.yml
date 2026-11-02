@@ -1,0 +1,47 @@
+name: Snake offline reproduction bundle
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/snake-reproduction-bundle.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reproduce:
+    if: github.event_name == 'workflow_dispatch' || github.head_ref == 'feat/autonomous-snake-3d-gauntlet'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # Archive the real feature head, never the synthetic GitHub PR merge.
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Verify exact source provenance
+        if: github.event_name == 'pull_request'
+        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - name: Install only the locked public toolchain
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Package tracked source and dependencies without credentials or working state
+        shell: bash
+        run: |
+          mkdir -p /tmp/snake-reproduction
+          git rev-parse HEAD > /tmp/snake-reproduction/source-commit.txt
+          git archive --format=tar.gz HEAD > /tmp/snake-reproduction/source.tar.gz
+          tar -czf /tmp/snake-reproduction/node_modules.tar.gz node_modules
+          cd /tmp/snake-reproduction
+          sha256sum source.tar.gz node_modules.tar.gz > SHA256SUMS
+      - uses: actions/upload-artifact@v7
+        with:
+          name: snake-offline-reproduction
+          path: /tmp/snake-reproduction
+          if-no-files-found: error
+          retention-days: 3

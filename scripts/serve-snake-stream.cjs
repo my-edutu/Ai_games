@@ -49,7 +49,7 @@ function advance(session) {
 }
 
 function assetPaths() {
-  return ['index.html', 'styles.css', 'ux-v2.css', 'app.js'].map(name => path.join(PUBLIC_ROOT, name));
+  return ['index.html', 'styles.css', 'ux-v2.css', 'viewer-overlays.css', 'app.js', 'renderer.mjs', 'living-garden.mjs', 'motion.mjs', 'camera.mjs', 'world.mjs', 'serpent.mjs', 'fallback.mjs', 'audio.mjs', 'view-copy.mjs', 'overview.mjs'].map(name => path.join(PUBLIC_ROOT, name));
 }
 
 function isSnapshotPrivacySafe(snapshot, seed) {
@@ -140,7 +140,12 @@ function selfTest() {
 function contentType(file) {
   if (file.endsWith('.html')) return 'text/html; charset=utf-8';
   if (file.endsWith('.css')) return 'text/css; charset=utf-8';
-  if (file.endsWith('.js')) return 'text/javascript; charset=utf-8';
+  if (file.endsWith('.js') || file.endsWith('.mjs')) return 'text/javascript; charset=utf-8';
+  if (file.endsWith('.json')) return 'application/json; charset=utf-8';
+  if (file.endsWith('.jpg')) return 'image/jpeg';
+  if (file.endsWith('.png')) return 'image/png';
+  if (file.endsWith('.webm')) return 'video/webm';
+  if (file.endsWith('.mp4')) return 'video/mp4';
   return 'application/octet-stream';
 }
 
@@ -165,8 +170,8 @@ function sendFile(response, file) {
   response.writeHead(200, {
     'content-type': contentType(file),
     'content-length': body.length,
-    'cache-control': file.endsWith('.html') ? 'no-store' : 'public, max-age=300',
-    'content-security-policy': "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; media-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors *",
+    'cache-control': /\.(html|js|mjs|json)$/.test(file) ? 'no-store' : 'public, max-age=300',
+    'content-security-policy': "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; media-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors *",
     'referrer-policy': 'no-referrer',
     'x-content-type-options': 'nosniff',
   });
@@ -217,12 +222,36 @@ function serve() {
       return;
     }
 
+    const vendor = {
+      '/vendor/three.module.js': 'three.module.js',
+      '/vendor/three.core.js': 'three.core.js',
+    }[requestUrl.pathname];
+    if (vendor) { sendFile(response, path.join(ROOT, 'node_modules', 'three', 'build', vendor)); return; }
+    const evidence = /^\/progress\/evidence\/([a-z0-9-]+\.(?:jpg|png|webm|mp4))$/.exec(requestUrl.pathname);
+    if (evidence) { sendFile(response, path.join(PUBLIC_ROOT, 'progress', 'evidence', evidence[1])); return; }
+
     const fileByRoute = {
       '/': 'index.html',
       '/index.html': 'index.html',
       '/styles.css': 'styles.css',
       '/ux-v2.css': 'ux-v2.css',
       '/app.js': 'app.js',
+      '/renderer.mjs': 'renderer.mjs',
+      '/living-garden.mjs': 'living-garden.mjs',
+      '/motion.mjs': 'motion.mjs',
+      '/camera.mjs': 'camera.mjs',
+      '/world.mjs': 'world.mjs',
+      '/serpent.mjs': 'serpent.mjs',
+      '/fallback.mjs': 'fallback.mjs',
+      '/audio.mjs': 'audio.mjs',
+      '/view-copy.mjs': 'view-copy.mjs',
+      '/overview.mjs': 'overview.mjs',
+      '/viewer-overlays.css': 'viewer-overlays.css',
+      '/progress': 'progress/index.html',
+      '/progress/': 'progress/index.html',
+      '/progress/styles.css': 'progress/styles.css',
+      '/progress/app.js': 'progress/app.js',
+      '/progress/status.json': 'progress/status.json',
     };
     const fileName = fileByRoute[requestUrl.pathname];
     if (!fileName) {

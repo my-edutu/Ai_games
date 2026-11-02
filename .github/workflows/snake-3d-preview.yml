@@ -1,0 +1,70 @@
+name: Snake 3D preview verification
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'public/snake-stream/**'
+      - 'games/autonomous-snake/**'
+      - 'scripts/serve-snake-stream.cjs'
+      - 'tests/browser/snake*.spec.cjs'
+      - 'playwright.snake.config.cjs'
+      - '.github/workflows/snake-3d-preview.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  snake-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      # PR merge refs are synthetic and can contain concurrent main changes.
+      # Real scene evidence must execute the EXACT immutable PR head.
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Verify exact source provenance
+        if: github.event_name == 'pull_request'
+        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - name: Install the pinned game toolchain
+        run: npm ci --no-audit --no-fund
+      - name: Build the authoritative runtime
+        run: npm run build
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify Snake rendering, lifecycle, recovery and frame pacing
+        run: npx playwright test --config=playwright.snake.config.cjs
+      - name: Retain actual captures, metrics and failure traces
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: snake-3d-preview-evidence
+          path: |
+            artifacts/phase3
+            !artifacts/phase3/*.webm
+            test-results
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Retain motion evidence separately
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: snake-3d-motion-evidence
+          path: artifacts/phase3/*.webm
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Retain small diagnostic metrics independently
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: snake-3d-metrics
+          path: artifacts/phase3/*.json
+          if-no-files-found: warn
+          retention-days: 30

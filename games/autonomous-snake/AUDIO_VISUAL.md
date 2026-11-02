@@ -1,11 +1,19 @@
 # Autonomous Snake — Audio and Visual Direction
 
-**Status:** Approved design  
+**Status:** Approved design; 3D presentation undergoing Gauntlet review
 **Creative aim:** Make spatial intelligence, growth, danger, and near-complete board conquest readable at a glance without turning every food pickup into maximum spectacle.
 
 ## Art Direction
 
-The reference release uses a premium 2D luminous-grid style with crisp geometry, restrained depth, and themeable materials. The snake is always the dominant moving silhouette.
+The current feature-branch presentation uses an original 3D verdant-ruins garden: weathered pale stone above turquoise water, warm sun, layered vegetation and a jade-and-gold serpent. The snake is the dominant moving silhouette, while the exact board, fruit, hazards and portal endpoints remain legible. Snake Pass's official runtime media is the inspectable character/scene quality bar; ASTRO BOT is secondary environmental inspiration. References are not game assets.
+
+### Implemented presentation
+
+The pinned local Three.js renderer consumes immutable public snapshots. The character has a continuous tapered body, custom skull, cream jaw, scale textures, eyes, brows and semantic expressions, with preallocated close/distant geometry. Motion never draws a bridge across a portal or interpolates a prior run into a restart. Overview, follow and character cameras retain a clickable full-board mini-map when zoomed in. The portrait camera changes viewing direction to fit the board vertically.
+
+The garden includes original stone terraces, arch, trees, foliage, water, waterfalls, fruit and snapshot-driven hazard/portal props. Static scenery uses baked material batches. The responsive shell presents length/goal, occupancy, record and readable strategy, plus loading, result, intermission and recovery. Optional sound is synthesized locally and starts muted; reduced motion and clean feed are available. The live `/progress` page records actual captures, critic verdicts and verification.
+
+These implemented features do not imply that every long-term audiovisual behavior below has been completed or that the commercial comparison has been won. The active evidence and gaps are recorded in `docs/reviews/SNAKE_GAUNTLET_LEDGER.md`.
 
 ### Shape Language
 
@@ -95,7 +103,7 @@ Game-specific evidence will set exact numbers on reference hardware. The design 
 
 ## Audio Identity
 
-The snake sounds synthetic-organic: precise movement ticks, soft body motion, clear food impacts, spacious danger telegraphs, and an adaptive electronic score that becomes more rhythmically constrained as occupancy rises.
+The current client provides original synthesized collection, milestone, danger and result cues over quiet tonal ambience, with eight transient voices and two ambience oscillators. Browser gesture gating, mute and disposal are implemented. The longer-term audio direction below remains a design target: precise movement ticks, soft body motion, spacious telegraphs and a score responding to occupancy.
 
 ### Music States
 
@@ -136,6 +144,20 @@ Voice limits, cooldowns, deduplication, ducking, and true-peak protection are ma
 ## Asset Governance
 
 Every sprite, texture, shader, font licence, music track, stem, ambience, and SFX entry records provenance, licence, version, size/memory, preload/stream policy, fallback, accessibility variant, and replacement owner. Placeholder or unlicensed assets cannot enter the R4 build.
+
+### Current asset provenance
+
+| Asset | Source and ownership | Loading and fallback |
+|---|---|---|
+| Snake meshes, pigment, scale relief and roughness | Original procedural code in `public/snake-stream/serpent.mjs`; no downloaded model or texture | Built once, preallocated geometry tiers; live 2D fallback |
+| Garden geometry, stone/moss textures and water shader | Original procedural code in `public/snake-stream/world.mjs`; local cosmetic random stream | Built for board dimensions, disposed on replacement |
+| Contact shadow | Original radial texture in the renderer | Fixed texture and instance buffer |
+| Sound cues and ambience | Original Web Audio synthesis in `audio.mjs`; no sampled recordings | User gesture only, bounded voices, starts muted |
+| Identity mark and interface | Original inline SVG and CSS; installed system font stacks | No remote font or icon request |
+| Rendering engine | Existing pinned `three@0.186.0` dependency | Two explicit locally served module paths; no CDN |
+| Comparison media | Links to official Snake Pass and ASTRO BOT pages | Inspection references only; not packaged as playable assets |
+
+Actual screenshots under `public/snake-stream/progress/evidence` are development evidence, not textures used to fake the game view. Commercial-quality, performance and production readiness claims require their separate evidence gates.
 
 ## Evidence Gate
 
