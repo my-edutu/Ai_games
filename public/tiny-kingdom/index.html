@@ -6114,52 +6114,115 @@ function cameraShotFraming(shot,roofs,citizen){
   ...projectedWorkdayOccluders(eye,target,citizen)};
 }
 function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
- const target=[citizen.x,terrain(citizen.x,citizen.z)+1.02,citizen.z],
-  roofs=followCameraRoofs(),
-  working=Boolean(forceWorkday||liveWorkday||(document.body.dataset.workday==='delivery'&&citizen.delivery)),
-  unloading=Boolean(document.body.dataset.workday==='delivery'&&citizen.delivery?.stage==='unloading'),
-  // G109: live labor fills more of the frame; courier bay lens unchanged.
-  normalPitch=working?(actionCameraPitch??(liveWorkday?.20:.24)):.76,
-  normalZoom=working?(actionCameraZoom??(liveWorkday?4.85:6.2)):12.8;
+ const realWork=isWorkingAtSite(citizen);
+ const working=Boolean(forceWorkday||liveWorkday||
+  (document.body.dataset.workday==='delivery'&&citizen.delivery));
+ const unloading=Boolean(document.body.dataset.workday==='delivery'&&
+  citizen.delivery?.stage==='unloading');
+ const facing=realWork?builderStageAngle(citizen):null;
+ // Work is physically forward and below eye level: centre on the real bench
+ // and actor, not empty air a metre above the task. Ordinary Follow is intact.
+ const target=[citizen.x+(working&&realWork?Math.sin(facing)*.19:0),
+  terrain(citizen.x,citizen.z)+(working&&realWork?.94:1.02),
+  citizen.z+(working&&realWork?Math.cos(facing)*.19:0)];
+ const roofs=followCameraRoofs();
+ const normalPitch=working?(actionCameraPitch??(liveWorkday?.20:.24)):.76;
+ const normalZoom=working?(actionCameraZoom??(liveWorkday?4.85:6.2)):12.8;
  const candidate=(angle,pitch=normalPitch,zoom=normalZoom)=>{
   const radius=Math.cos(pitch)*zoom,elevation=Math.sin(pitch)*zoom;
-  const eye=[target[0]+Math.sin(angle)*radius,target[1]+elevation,target[2]+Math.cos(angle)*radius];
-  return {yaw:angle,pitch,zoom,eye,target,blockers:followRayBlockers(eye,target,roofs)};
+  const eye=[citizen.x+Math.sin(angle)*radius,target[1]+elevation,
+   citizen.z+Math.cos(angle)*radius];
+  return {yaw:angle,pitch,zoom,eye,target,
+   blockers:followRayBlockers(eye,target,roofs)};
  };
  const original=candidate(preferredYaw);
- const offsets=[0,Math.PI/8,-Math.PI/8,Math.PI/4,-Math.PI/4,
-  3*Math.PI/8,-3*Math.PI/8,Math.PI/2,-Math.PI/2,
-  5*Math.PI/8,-5*Math.PI/8,3*Math.PI/4,-3*Math.PI/4,Math.PI];
+ const offsets=[0,Math.PI/10,-Math.PI/10,Math.PI/5,-Math.PI/5,
+  Math.PI/3,-Math.PI/3,Math.PI/2,-Math.PI/2,
+  2*Math.PI/3,-2*Math.PI/3,Math.PI];
+ // G132 used the old survey yaw to generate every camera possibility; in a
+ // dense grown village that produced an almost perfectly REAR-facing builder.
+ // In documentary work mode search the REAL work-facing orbit first.
+ const base=working&&realWork?facing:preferredYaw;
+ const angles=offsets.map(offset=>base+offset);
+ if(working&&realWork)angles.push(preferredYaw);
  const pitches=working?(actionCameraPitch===null?[.18,.24,.31,.42]:
-  [normalPitch,Math.max(.16,normalPitch-.08),Math.min(.55,normalPitch+.08)]):[.76];
+  [normalPitch,Math.max(.16,normalPitch-.08),
+   Math.min(.55,normalPitch+.08)]):[.76];
  const zooms=working?[normalZoom,Math.max(4.5,normalZoom-.7),
   Math.max(4.5,normalZoom-1.7),Math.min(13,normalZoom+1.1),
   Math.min(13,normalZoom+2.3)]:[12.8];
  const possibilities=[];
- for(const p of pitches)for(const z of zooms)for(const offset of offsets){
-  const shot=candidate(preferredYaw+offset,p,z);
-  const oppositeYard=unloading&&Math.cos(shot.yaw)>-.25?250:0;
-  const coarse=shot.blockers*1000+oppositeYard+Math.abs(offset)*1.25+
-   Math.abs(z-normalZoom)*.35+Math.abs(p-normalPitch)*3;
-  possibilities.push({shot,coarse});
+ for(const p of pitches)for(const z of zooms)for(const angle of angles){
+  const shot=candidate(angle,p,z);
+  const alignment=realWork?Math.cos(angle-facing):0;
+  const delta=Math.atan2(Math.sin(angle-preferredYaw),
+   Math.cos(angle-preferredYaw));
+  const oppositeYard=unloading&&Math.cos(angle)>-.25?250:0;
+  const rearPenalty=working&&realWork?
+   Math.max(0,.20-alignment)*110:0;
+  const coarse=shot.blockers*1000+oppositeYard+rearPenalty+
+   Math.abs(delta)*.9+Math.abs(z-normalZoom)*.35+
+   Math.abs(p-normalPitch)*3;
+  possibilities.push({shot,coarse,alignment});
  }
- // First find reasonable centre rays, then perform the bounded full-body
- // composition assessment on only 48 candidates. No simulation RNG used.
  possibilities.sort((a,b)=>a.coarse-b.coarse);
  let best=null,bestScore=Infinity,bestFraming=null;
- for(const {shot,coarse} of possibilities.slice(0,48)){
+ let frontBest=null,frontScore=Infinity,frontFraming=null;
+ let clearFrontCandidates=0;
+ // Bound expensive roof/crowd/hand testing at 56 options. Real work-facing
+ // candidates can now reach the evaluation pass; that is NOT true of G132.
+ for(const {shot,coarse,alignment} of possibilities.slice(0,56)){
   const framing=cameraShotFraming(shot,roofs,citizen);
   const score=coarse+framing.blockedBodyRays*110+
-   framing.blockedNeighbourhoodRays*12+framing.cameraProximityWarnings*42+
+   framing.blockedNeighbourhoodRays*12+
+   framing.cameraProximityWarnings*42+
    framing.projectedBystanders*170+framing.projectedPosts*55+
    framing.projectedWorksitePosts*100+framing.frameCrowdBurden*65+
-   (forceWorkday&&isWorkingAtSite(citizen)?
-    Math.max(0,.24-Math.cos(shot.yaw-builderStageAngle(citizen)))*240:0);
+   framing.handBlockers*(working&&realWork?175:15);
   if(score<bestScore){best=shot;bestScore=score;bestFraming=framing;}
+  const clearFront=working&&realWork&&alignment>.12&&
+   shot.blockers===0&&framing.handBlockers<=1&&
+   framing.blockedBodyRays<=2&&framing.projectedBystanders===0&&
+   framing.projectedWorksitePosts===0&&
+   framing.cameraProximityWarnings===0;
+  if(clearFront){
+   clearFrontCandidates++;
+   if(score<frontScore){frontBest=shot;frontScore=score;
+    frontFraming=framing;}
+  }
  }
- return {...best,...bestFraming,compositionScore:bestScore,
-  facingAlignment:Math.cos(best.yaw-builderStageAngle(citizen)),
+ const chosen=frontBest||best,framing=frontBest?frontFraming:bestFraming;
+ return {...chosen,...framing,
+  compositionScore:frontBest?frontScore:bestScore,
+  facingAlignment:realWork?Math.cos(chosen.yaw-facing):null,
+  clearFrontCandidates,workFacing:facing,
   originalBlockers:original.blockers};
+}
+// A real worker typically stays at the SAME workstation for multiple frames.
+// Don't pay for 56 fresh grown-town roof/crowd/hand surveys every software
+// frame. A small render-only cache expires within 1.1 seconds and invalidates
+// for moving actors, growing town and spectators manually turning the lens.
+let liveShotPlanCache=null,liveShotPlanBuilds=0,liveShotPlanReuses=0;
+function observedWorkdayCameraPlan(citizen,preferredYaw){
+ if(!liveWorkday||!isWorkingAtSite(citizen)){
+  liveShotPlanCache=null;
+  return planCitizenCamera(citizen,preferredYaw);
+ }
+ const now=performance.now(),cache=liveShotPlanCache;
+ const turn=cache?Math.abs(Math.atan2(
+  Math.sin(preferredYaw-cache.shot.yaw),
+  Math.cos(preferredYaw-cache.shot.yaw))):Infinity;
+ if(cache&&cache.citizen===citizen.name&&
+  cache.citySize===city.length&&cache.job===citizen.job&&
+  now-cache.at<1100&&
+  Math.hypot(citizen.x-cache.x,citizen.z-cache.z)<.25&&turn<1.2){
+  liveShotPlanReuses++;return cache.shot;
+ }
+ const shot=planCitizenCamera(citizen,preferredYaw,true);
+ liveShotPlanBuilds++;
+ liveShotPlanCache={citizen:citizen.name,job:citizen.job,
+  citySize:city.length,x:citizen.x,z:citizen.z,at:now,shot};
+ return shot;
 }
 function updateFollowCamera(preferredYaw=previousFollowCamera?.yaw??yaw){
  const person=people[Math.min(selectedCitizen,people.length-1)];if(!person)return;
