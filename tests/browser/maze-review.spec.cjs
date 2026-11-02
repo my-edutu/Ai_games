@@ -600,6 +600,11 @@ test('a real close public encounter frames both autonomous actors and saves date
   const pickupDesktopDiagnostic=await page.evaluate(()=>window.__MAZE_3D__);
   const pickupImage=path.join(dir,'witnessed-key-pickup-1280.png');
   await page.screenshot({path:pickupImage,fullPage:true});
+  const pickupAfterDesktopScreenshot=await page.evaluate(()=>window.__MAZE_3D__);
+  expect(pickupAfterDesktopScreenshot.witnessedKeyPickupVisual,
+    'the genuine physical key event must remain visible in the ACTUAL desktop PNG, not just before capture').toBe(true);
+  expect(pickupAfterDesktopScreenshot.pickupShardsInFrame,
+    'the actual desktop screenshot must still have in-frame modeled shards').toBeGreaterThanOrEqual(6);
   fs.writeFileSync(path.join(dir,'witnessed-key-pickup-1280.json'),JSON.stringify({
     capturedAt:new Date().toISOString(),
     source:'Exact original production public before/after key pickup from same seeded MazeRuntime; source-bound actual WebGL physical glints',
@@ -611,6 +616,7 @@ test('a real close public encounter frames both autonomous actors and saves date
       witnessedKeyPickupVisual:pickupDesktopDiagnostic.witnessedKeyPickupVisual,
       pickupShardsInFrame:pickupDesktopDiagnostic.pickupShardsInFrame,
       explorerModelFullyInFrame:pickupDesktopDiagnostic.explorerModelFullyInFrame,
+      afterScreenshotShardsInFrame:pickupAfterDesktopScreenshot.pickupShardsInFrame,
       quality:pickupDesktopDiagnostic.quality},
     caveat:'Source-bound physical WebGL release; image visual quality and Nintendo parity require direct, independent critic.'
   },null,2));
@@ -630,6 +636,11 @@ test('a real close public encounter frames both autonomous actors and saves date
   const pickupPortraitDiagnostic=await page.evaluate(()=>window.__MAZE_3D__);
   const pickupPortrait=path.join(dir,'witnessed-key-pickup-390.png');
   await page.screenshot({path:pickupPortrait,fullPage:true});
+  const pickupAfterPortraitScreenshot=await page.evaluate(()=>window.__MAZE_3D__);
+  expect(pickupAfterPortraitScreenshot.witnessedKeyPickupVisual,
+    'the full-resolution mobile PNG itself must still contain a genuinely witnessed 3D pickup').toBe(true);
+  expect(pickupAfterPortraitScreenshot.pickupShardsInFrame,
+    'native portrait shards must remain in-frame after the real screenshot').toBeGreaterThanOrEqual(6);
   fs.writeFileSync(path.join(dir,'witnessed-key-pickup-390.json'),JSON.stringify({
     capturedAt:new Date().toISOString(),
     source:'Same authentic publicly witnessed pickup, source-bound full-resolution 390x844 WebGL, warm production camera',
@@ -639,6 +650,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     sourceSha256:pickupHashes,
     diagnostic:{pickupShardsInFrame:pickupPortraitDiagnostic.pickupShardsInFrame,
       explorerModelFullyInFrame:pickupPortraitDiagnostic.explorerModelFullyInFrame,
+      afterScreenshotShardsInFrame:pickupAfterPortraitScreenshot.pickupShardsInFrame,
       cameraMode:pickupPortraitDiagnostic.cameraMode,
       quality:pickupPortraitDiagnostic.quality},
     caveat:'Original native WebGL screenshot, not a final artistic benchmark or GPU timing result.'

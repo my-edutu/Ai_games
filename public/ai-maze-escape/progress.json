@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-02T09:15:21.516Z",
+  "updatedAt": "2026-11-02T10:43:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass67 candidate (2026-11-02): original real 1280x900 Pass66b mid-lift screenshot SHA-verified but appeared visually empty despite one live moving gate; changed actual lift pose from premature cubic ease-out to accelerating physical rise and strengthened post-PNG mesh-height acceptance. New exact-head WebGL render, independent critic and Nintendo comparison remain pending. No merge or deployment."
+    "summary": "Pass70b same-head original 20 WebGL screenshot PNG SHA-256s independently verified after rejecting an oversized floating boulder and repairing the offshore tidal spires. Genuine native 320/390/844/1280 game-first views preserve model framing and small HUD, but fixed Nintendo Captain Toad reference remains better. Pass71 adds public-authenticated physical key pickup glints with a CPU-stall-safe visual clock; exact new-source desktop/portrait image and full CI are pending, and no independent blind critic available. No merge or deployment."
   },
   "captures": [
     {
@@ -181,7 +181,9 @@
     "Pass66b real-image rejection: the 100ms-per-frame gate still vanished during authentic WebGL screenshot; the stricter visual gate now demands modeled motion remain visible after capture and uses a 35ms/frame cosmetic cap without touching AI.",
     "Pass67 source candidate: source-authentic mid-lift had nearly invisible grille; revised original counterweight-driven lift to retain readable physical metal at the actual capture moment. A stricter full PNG gate requires modeled moving bars >30% height after capture; original image review and Nintendo comparison pending.",
     "Pass68 candidate fbd8d83: Pip now physically looks at and salutes an authenticated same-run public gate opening with its real 3D head, torso, lantern arm and scarf, preserving guardian/terminal/key priority, reduced-motion stable pose, AI authority, source privacy and low-text full-bleed HUD. New-source WebGL images and full CI must verify before acceptance.",
-    "Pass67 genuine image gate CHECKED: exact-source visual 41398112611 SUCCESS, 20/20 original dated full-size WebGL PNG hashes match. Actual native gate mid-lift at age .595 s retains 0.5100 3D grille height and visible bars; unchanged threshold >0.30 passes. Pass66b same camera/timing comparison changes 0.56% of pixels >12 RGB. Local improvement only, Nintendo still wins; no independent/subagent/Ultracode verdict."
+    "Pass67 genuine image gate CHECKED: exact-source visual 41398112611 SUCCESS, 20/20 original dated full-size WebGL PNG hashes match. Actual native gate mid-lift at age .595 s retains 0.5100 3D grille height and visible bars; unchanged threshold >0.30 passes. Pass66b same camera/timing comparison changes 0.56% of pixels >12 RGB. Local improvement only, Nintendo still wins; no independent/subagent/Ultracode verdict.",
+    "Pass70b actual original visual accepted locally only as a repaired silhouette: focused 41423111002 SUCCESS, 20/20 native PNG SHA-256 records recomputed, the rejected floating round stone/lichen cap replaced by low angular water-anchored spires; fixed Nintendo benchmark still wins.",
+    "Pass71 source candidate 5e2bf7e + f32030a: an actual same-run disclosed/inventoried key collection now triggers eight prebuilt original 3D glass-release shards at the public former key cell. Separate deterministic/privacy rules tests and new authentic desktop/portrait Playwright event-PNG + physical-framing acceptance, no extra HUD prose, authority change or offscreen invented key. Await newest exact-source capture."
   ],
   "nextGaps": [
     "Pass69b latest native source-bound HUD visual gate: inspect 41418158177 original 320/390/844/1280 real WebGL screenshots and dates/hashes, confirm WARDEN NEARBY aligns with Avoid warden / Keep clear, caption Thornback is nearby only for a real public encounter, no UI overflow/character crop and no fake AI action. New screenshots, not Pass69 world-only images, must prove this.",
@@ -190,7 +192,8 @@
     "Keep low-text full-viewport actual 3D HUD: actionable goal, time, keys, discovery, public danger and current AI movement, true event captions, 44px one-handed controls, on-demand accessible Map/Details/Settings, mobile portrait/landscape, high contrast, reduced motion, clean feed, reconnect/fallback, keyboard focus and exact source/privacy.",
     "Restore fresh-context independent builder/critic subagents and Ultracode when shared workspace tunnel works; require actual full-resolution fixed-Nintendo comparison, blind same-seed A/B when feasible, no benchmark win until independently supported. CPU-throttled SwiftShader is not hardware GPU FPS.",
     "Inspect separate full-monorepo CI against the exact latest PR source; focused 41358029925 passes 46/46 + original screenshot 10/10; do not silently infer all CI green. Continue draft PR #53 without merge or deployment.",
-    "Pass59 real direct critic: current fully framed native 320 guardian pair is still too small for distinctive physical scene acting, and 3D level identity is below the unchanged Nintendo fixed bar. Improve genuinely public actor pair/encounter staging and authored world landmarks without clipping or HUD prose. Inspect full-monorepo CI for exact newest test-only af1a3b5 head; previous full CI failed an obsolete escape-text expectation, corrected without weakening canvas/privacy checks."
+    "Pass59 real direct critic: current fully framed native 320 guardian pair is still too small for distinctive physical scene acting, and 3D level identity is below the unchanged Nintendo fixed bar. Improve genuinely public actor pair/encounter staging and authored world landmarks without clipping or HUD prose. Inspect full-monorepo CI for exact newest test-only af1a3b5 head; previous full CI failed an obsolete escape-text expectation, corrected without weakening canvas/privacy checks.",
+    "Pass71: independently inspect the 1280x900 and 390x844 authentic source-logged key release PNGs, confirm true after-capture glint geometry, privacy and hero/full stage framing, reject tiny or obscured action; then enlarge distinctive authentic environment/actor storytelling while avoiding HUD text. CPU-stall cosmetic clock is not GPU performance."
   ],
   "reviews": [
     {
@@ -673,6 +676,13 @@
       "verdict": "Reference wins",
       "date": "2026-10-30T18:57:29.362181+00:00",
       "summary": "The scene still reads as a repetitive flat maze board. Improve architectural hierarchy, focal landmarks, garden scale and material richness. The fixed bar has not been lowered."
+    },
+    {
+      "title": "Pass71 original 3D key release source gate",
+      "reviewer": "Lead source/visual critic (independent worker unavailable)",
+      "verdict": "Pending exact-head native image; Nintendo reference wins",
+      "date": "2026-11-02T10:43:00.000Z",
+      "summary": "After direct Pass70b 320px/1280px original-image review, anchored water rock repair is acceptable but world identity and physical action remain weak. Pass71 only animates a witnessed disclosed collected/inventoried key. Source and Playwright screenshot gates are authored, but new images, post-capture evidence, independent A/B and Nintendo parity remain unverified."
     }
   ],
   "verification": [
@@ -1174,6 +1184,13 @@
       "name": "Historical fourth-pass focused source checks",
       "status": "16 of 16 passed",
       "detail": "Four catalogue UI contract checks, two character checks, two world checks and eight public-snapshot/motion checks passed on the latest source. Whitespace validation is clean."
+    },
+    {
+      "name": "Pass70b verified original image baseline, Pass71 not yet visually accepted",
+      "status": "Pass70b source-bound browser workflow succeeded; Pass71 exact-head visual and full CI pending",
+      "sourceCommit": "59cacd38d0fbde1bfef87772cdb5d554cf2b30d5",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41423111002",
+      "detail": "Independent hash recomputation matched all 20 original dated PNGs, including 18 individual sidecars and two additional gate-transition frames, artifact 13130469457. Actual native full-viewport 320/390/844/1280 and actor/44px HUD diagnostics were inspected. The new Pass71 requires its own 1280/390 original witnessed-key screenshots, post-capture physical-shard visibility, SHA evidence, full CI and external fresh critic; do not borrow these older pictures."
     }
   ],
   "references": [
