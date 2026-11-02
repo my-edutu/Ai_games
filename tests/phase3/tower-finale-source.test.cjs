@@ -119,3 +119,31 @@ test('the final sculpture witnesses cleared floors without inventing progress, a
     assert.equal(effect.diagnostics().progressedFloors,0, 'terminal data does not leak into restart');
   } finally { effect.dispose(); }
 });
+
+
+test('real recorded health-loss memorial uses physically shaded debris, not bright unlit pink scribbles', async () => {
+  const [THREE, { createTowerFinale }] = await loaded;
+  const stage = createTowerFinale(THREE);
+  const origin = new THREE.Vector3(hero.x,hero.y,hero.z);
+  try {
+    stage.update(state('intermission','observed-loss',336,{kind:'game',reason:'health-depleted'}),
+      origin,3,{reducedMotion:false});
+    assert.equal(stage.group.visible,true);
+    for(const name of ['ObservedTerminalGroundWave','ObservedFallenExpeditionCrown',
+        'ObservedShatteredRoute','ObservedInterruptedAscent']) {
+      const object=stage.group.getObjectByName(name);
+      assert.equal(object.material.type,'MeshStandardMaterial',
+        name+' should receive real biome lights and tone mapping, unlike the observed bright pink unlit debris');
+      assert.equal(object.material.toneMapped,true);
+      assert.equal(object.material.depthTest,true);
+      assert.equal(object.material.depthWrite,false);
+      assert.ok(object.material.metalness<=.42 && object.material.roughness>=.52);
+    }
+    const stone=stage.group.getObjectByName('ObservedInterruptedAscent');
+    assert.ok(stone.geometry.parameters.height<=1.05,
+      'the recorded death scene should contain compact broken stone, not a forest of long pink cylinders');
+    assert.equal(stage.diagnostics().stones,12);
+    assert.equal(stage.diagnostics().fragments,28);
+    assert.equal(stage.diagnostics().resultReason,'health-depleted');
+  } finally {stage.dispose();}
+});
