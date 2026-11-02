@@ -136,3 +136,19 @@ test('T1 uninterrupted actual seeded autonomous 55-second gameplay with real new
     if(video)await video.saveAs(out('snake-t1-courtyard-genuine-55s.webm'));
   }
 });
+
+test('T1 real courtyard module is delivered and imported over the existing same-origin browser route', async ({ page }) => {
+  const response = await page.request.get('/courtyard-ecology.mjs');
+  expect(response.status()).toBe(200);
+  expect(response.headers()['content-type']).toMatch(/^text\/javascript/);
+  const source = await response.text();
+  expect(source).toContain('export function createCourtyardEcology');
+  await page.goto('/');
+  const exported = await page.evaluate(async () => {
+    const authoredModule = await import('/courtyard-ecology.mjs');
+    return typeof authoredModule.createCourtyardEcology;
+  });
+  expect(exported).toBe('function');
+  await expect(page.locator('#game')).toHaveAttribute('data-renderer', 'webgl');
+  expect((await page.evaluate(() => window.__snakePresentation?.stats()?.renderer))).toBe('webgl');
+});

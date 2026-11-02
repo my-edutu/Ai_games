@@ -29,7 +29,8 @@ async function makeHarness(search = '', dimensions = {width:1000,height:600}) {
     THREE: { ...Three, WebGLRenderer: NoGpuRenderer },
     // The timing VM replaces GPU scene creation with a bounded stub. Include
     // T1's presentation-only garden; this harness measures no physical GPU.
-    createWorld: factory, createSerpent: factory, createLivingGarden: factory, buildMotion, cameraComposition,
+    createWorld: factory, createSerpent: factory, createLivingGarden: factory,
+    createCourtyardEcology: factory, buildMotion, cameraComposition,
     window: { devicePixelRatio: 1 }, location: { search }, URLSearchParams,
     ResizeObserver: class { observe() {} disconnect() {} },
   });

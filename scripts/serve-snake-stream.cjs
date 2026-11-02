@@ -49,7 +49,7 @@ function advance(session) {
 }
 
 function assetPaths() {
-  return ['index.html', 'styles.css', 'ux-v2.css', 'viewer-overlays.css', 'app.js', 'renderer.mjs', 'living-garden.mjs', 'motion.mjs', 'camera.mjs', 'world.mjs', 'serpent.mjs', 'fallback.mjs', 'audio.mjs', 'view-copy.mjs', 'overview.mjs'].map(name => path.join(PUBLIC_ROOT, name));
+  return ['index.html', 'styles.css', 'ux-v2.css', 'viewer-overlays.css', 'app.js', 'renderer.mjs', 'living-garden.mjs', 'courtyard-ecology.mjs', 'motion.mjs', 'camera.mjs', 'world.mjs', 'serpent.mjs', 'fallback.mjs', 'audio.mjs', 'view-copy.mjs', 'overview.mjs'].map(name => path.join(PUBLIC_ROOT, name));
 }
 
 function isSnapshotPrivacySafe(snapshot, seed) {
@@ -238,6 +238,7 @@ function serve() {
       '/app.js': 'app.js',
       '/renderer.mjs': 'renderer.mjs',
       '/living-garden.mjs': 'living-garden.mjs',
+      '/courtyard-ecology.mjs': 'courtyard-ecology.mjs',
       '/motion.mjs': 'motion.mjs',
       '/camera.mjs': 'camera.mjs',
       '/world.mjs': 'world.mjs',

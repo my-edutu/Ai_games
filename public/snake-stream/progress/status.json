@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-11-02T09:34:12.000Z",
-  "status": "T0/T1 BUILDING — last inspected complete game SELF-REJECTED. Exact a939 focused Chromium 41411192893 FAILED 63/64: strict original complete-desktop 7 actual WebGL render submissions in 1010.4ms vs >=17, GPU raster 736x336, p95 frame gap 1700ms. Real 55s gameplay + source screenshots preserved, not a reference win. Integrated original on-court physical braided moss/lichen candidate prepared but true new-source visual and performance acceptance pending. DRAFT PR #52, no merge/deployment.",
-  "detail": "T1 source candidate: added deterministic shallow physical moss catchments across real playable court and rooted-lichen islands; attached to existing static garden cache via source-reversible renderer blocks, preserving immutable fixed-step seeded gameplay, all public food/hazard/portal cues, accessibility, 13 original world and 4 original living-garden batches, strict >=17 full-desktop unchanged. New focused Node test and actual eight-view WebGL + authentic unedited 55s game film test authored, not executed locally because workspace tunnel NOT_FOUND. Baseline real Actions 41411192893 7/17 FAIL and 63/64; general CI 41411192881 CANCELLED. Need real new-head browser/Node GREEN, whole-scene and motion critique, useful-raster genuine render/present pacing and independent whole-game acceptance. This is NOT a Gauntlet victory.",
+  "updatedAt": "2026-11-02T10:16:14.000Z",
+  "status": "T0/T1 BUILDING / NEW T1 WEBGL RECOVERY CANDIDATE, NOT ACCEPTED. Exact prior head 0865217 had 60/66 Chromium browser failures (Canvas fallback) and 8/624 Node failures (timing VM undefined dependency). Missing explicit server ESM route and no-GPU test stub corrected as candidate; new-head execution, WebGL after shots/55s film and strict >=17 original one-second gate are UNVERIFIED. Last valid original WebGL full scene SELF-REJECTED vs Snake Pass; no merge/deploy.",
+  "detail": "Critical P1: the physically modelled courtyard-ecology ES module was imported by the renderer but missing from the restricted stream host routes and readiness list; after source integration the entire new WebGL experience fell back to Canvas. Recovery change adds only the authorized same-origin module route, asset readiness and no-GPU timing harness dependency, and hard regression tests. Genuine T1 world/hero transformation, unchanged full-render submission performance, physically displayed p95, 55-second motion and independent critique are still required. This source candidate is not a benchmark win.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Historic image below is NOT a current-head production render. Exact a939 real current-baseline 8-view WebGL artifact 13126553296, unscripted motion artifact 13126792918, diagnostics 13126693669. New physical courtyard ecology candidate must be judged only on its actual yet-to-run new-head images and film.",
   "reviews": [
+    {
+      "area": "November 2 exact 0865217416e completed P1 production 3D module-load regression and correction candidate",
+      "verdict": "Actual current-head focused Chromium Actions 41424227069 FAILED 60/66 browser checks: the after-scene used the safety Canvas fallback, not WebGL. Host whitelist lacks route for newly imported courtyard-ecology.mjs. General CI 41424227056 FAILED 8/624 Node checks because the GPU-free render-timing VM strips imports without an ecology stub. The correction adds allowed module routing/readiness and a timing-only stub with regression tests. No new-head GREEN or authentic after-scene evidence claimed.",
+      "gap": "Strict original >=17 genuine full-desktop 1s gate never produced a valid result on this fallback head; old a939 7/17 is historical only. New-head actual WebGL after views, 45–90s uncut gameplay, focused/full CI, repeated useful-raster full-scene render submissions, physical-device present p95, long-soak and independent whole-game Snake Pass/ASTRO BOT review all OPEN. T1 BUILDING/SELF-REJECTED, T2–T4 OPEN, NEVER merge/deploy."
+    },
     {
       "area": "November 2 exact a939 complete real browser and broad physical moss-courtyard T1 source candidate",
       "verdict": "BASELINE SELF-REJECTED / T1 BUILDING. Authentic 41411192893: 63/64 browser, strict original 7 genuine complete 1s desktop renders /1010.4ms vs >=17 FAIL, GPU 736x336, p95 frame gap 1700ms, 61 RAF callbacks not render submissions. General 41411192881 CANCELLED. Source candidate integrates on-court three broad shallow braided physical moss/lichen landforms in ONE static-baked mesh with protected central clearing, but NO new-head executed test or visually accepted frames yet.",
@@ -936,21 +941,7 @@
     "overall": "NOT ACCEPTED",
     "milestone": "T1 BUILDING: actual unchanged complete-game runtime 9d3 (docs SHA a939) still visually self-rejected. 41411192893 strict original 7/17 genuine desktop submissions FAIL at 736x336, p95 1700ms. Integrated on-court physical ecology candidate source and Node/Chromium tests prepared, visually/performance unverified. T2-T4 and independent review pending.",
     "milestoneStatus": "BUILDING",
-    "latestKnownStrictBrowser": {
-      "actualDraws": 7,
-      "elapsedMs": 1010.4,
-      "minDraws": 17,
-      "result": "FAIL, original unchanged 1s gate; RAF callbacks=61 NOT true WebGL submissions/real presents",
-      "drawingBuffer": {
-        "width": 736,
-        "height": 336
-      },
-      "pixelRatio": 0.4,
-      "frameMsP95": 1700,
-      "maxGpuQueueLatencyMs": 2621.4,
-      "source": "https://github.com/my-edutu/Ai_games/actions/runs/41411192893",
-      "runConclusion": "COMPLETED FAILURE 63/64 real focused Chromium; authentic current-source screenshots/video and metrics retained."
-    },
+    "latestKnownStrictBrowser": "Latest valid real 3D strict sample was a939 prior 7/17 / 1010.4ms at 736x336, p95 gap 1700ms; on exact 0865217 fallback head original gate did NOT reach valid WebGL measurement. No new numeric FPS is inferred.",
     "pillars": [
       {
         "name": "Living 3D world",
@@ -975,7 +966,7 @@
     ],
     "baselineHead": "108e2e439aab1f3fe4cf49019c1aa9fe5630feb6",
     "candidate": "T1 broad physically authored on-court three-braid moss/lichen continuous material + local irregular low 3D relief, one added STATIC cache mesh with original 13 world and 4 garden batches unmodified. PR candidate is not accepted; prior exact game runtime 9d3 remains whole-game SELF-REJECTED.",
-    "candidateProof": "Historical exact game runtime a939 docs head Actions 41411192893: real source-matched eight-view WebGL and unmodified 55s films, 63/64 browser, unchanged mandatory gate FAIL 7 genuine full-scene desktop submissions/1010.4ms vs >=17; existing original art self-rejected. NEW candidate evidence pending executed CI. Never infer visual acceptance from geometry counts.",
-    "review": "SELF REVIEW: original exact-source whole-game imagery and motion rejected against official Snake Pass; latest source candidate not yet evaluated in real current-head browser. Independent review NOT available. Keep T1 BUILDING. Physical device display p95, full soak, T2 expressive hero, T3 UX and T4 smoothness OPEN."
+    "candidateProof": "Exact preceding 0865217 Actions browser 41424227069 60/66 FAIL Canvas fallback; general CI 41424227056 616/624 PASS, 8 no-GPU missing factory FAIL. Authorized ESM route + harness regression recovery source candidate pending new-head GREEN. No current-head WebGL/strict FPS or whole-game acceptance.",
+    "review": "T1 full-game SELF REJECTED, recovery candidate still BUILDING / ACCEPTANCE PENDING. Browser 3D unavailable on preceding head. No source-change claim of improved visual/motion quality, useful-raster or displayed FPS. T2–T4, soak and independent whole-game review OPEN."
   }
 }
