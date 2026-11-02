@@ -16,7 +16,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   const balanced = software && initialSettings.quality !== 'high';
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.13;
+  renderer.toneMappingExposure = 1.085; // maintain ceramic and warm lantern contrast
   renderer.shadowMap.enabled = !balanced;
   renderer.shadowMap.type = THREE.PCFShadowMap;
   const scene = new THREE.Scene();
@@ -49,9 +49,9 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   const world = createMazeWorld({ balanced });
   scene.add(world.group);
 
-  const sky = new THREE.HemisphereLight('#fff3df', '#355e5c', 1.65);
+  const sky = new THREE.HemisphereLight('#fff3df', '#355e5c', 1.42);
   scene.add(sky);
-  const sun = new THREE.DirectionalLight('#fff0da', 3.2);
+  const sun = new THREE.DirectionalLight('#fff0da', 2.90);
   sun.position.set(-13, 24, 9);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
@@ -61,7 +61,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   sun.shadow.bias = -.00035; sun.shadow.normalBias = .035;
   sun.shadow.radius = 3;
   scene.add(sun, sun.target);
-  const rim = new THREE.DirectionalLight('#a9dfd0', .85);
+  const rim = new THREE.DirectionalLight('#a9dfd0', 1.04);
   rim.position.set(8, 5, -20); scene.add(rim);
   const lanternLight = new THREE.PointLight('#ffcb79', 2.1, 4, 2);
   scene.add(lanternLight);

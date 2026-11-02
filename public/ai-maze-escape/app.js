@@ -13,7 +13,7 @@ const query=new URLSearchParams(location.search);
 const motionPreference=matchMedia('(prefers-reduced-motion: reduce)');
 const settings={quality:query.get('quality')==='high'?'high':'auto',reducedMotion:query.get('reducedMotion')==='1'||motionPreference.matches,highContrast:query.get('highContrast')==='1',muted:true,cleanFeed:query.get('cleanFeed')==='1'};
 const audio=createMazeAudio();
-let frame=null, scene=null, fallbackCanvas=null, pollTimer=0, recoveryTimer=0, requestController=null, stopped=false, raf=0, rendererState='loading',cameraMode=query.get('camera')==='overview'?'overview':query.get('camera')==='detail'?'detail':'follow', lastCaption='', lastRunToken='', failedPolls=0, initialising=false, pickupMilestone=null;
+let frame=null, scene=null, fallbackCanvas=null, pollTimer=0, recoveryTimer=0, requestController=null, stopped=false, raf=0, rendererState='loading',cameraMode=query.get('camera')==='overview'?'overview':query.get('camera')==='detail'?'detail':'follow', lastCaption='', lastRunToken='', captionSource='', captionUntil=0, wasInDanger=false, failedPolls=0, initialising=false, pickupMilestone=null;
 
 function press(id,value,label){const button=byId(id);if(!button)return;button.setAttribute('aria-pressed',String(value));if(label){button.setAttribute('aria-label',label);button.title=label}}
 function applySettings(){
@@ -93,6 +93,7 @@ function update(value){
   // encounter must outrank a non-urgent landmark without pretending the AI
   // switched actions: intentMode still reports the genuine current AI intent.
   const exposedDanger=!ended && (value.scene==='danger'||snapshot.intent.mode==='evading-threat');
+  elements.broadcast.dataset.urgency=String(exposedDanger);
   byId('run-phase').textContent=ended?(escaped?'JOURNEY COMPLETE':'ATTEMPT ENDED'):value.scene==='danger'?'WARDEN NEARBY':'LIVE EXPLORATION';
   const landmark=publicObjective(snapshot);
   // Plain-language HUD truth for an already OBSERVED matching-key gate.
@@ -113,17 +114,29 @@ function update(value){
   elements.inventory.setAttribute('aria-label',`${snapshot.inventory.length} ${snapshot.inventory.length===1?'key':'keys'} collected`);
   elements.profile.textContent=`${snapshot.profile} · Expedition ${snapshot.level}`;
   elements.integrity.textContent=snapshot.authorityChecksum?'Live view connected':'Connecting';
-  if(lastRunToken!==snapshot.runToken){lastRunToken=snapshot.runToken;lastCaption='New maze'}
+  // A real event earns a short caption, not a permanent dashboard ticker.
+  // Repeated snapshot polling must neither replay old audio nor revive it
+  // every 180ms. This cosmetic presentation never changes agent authority.
+  let eventCaption=null;
+  if(lastRunToken!==snapshot.runToken){
+    lastRunToken=snapshot.runToken;captionSource='';
+    eventCaption='New maze';
+  }
   const captions=value.audio?.captions??[];
-  if(captions.length)lastCaption=viewerCaption(captions.at(-1));
-  // Browser evidence caught a real recurrence bug: the SAME old gate-audio
-  // caption is repeated by every poll, overriding a one-time danger entry.
-  // While a publicly disclosed warden is truly on-screen, urgent source-state
-  // caption must win over stale event history. Do not make up an AI decision.
-  if(value.scene==='danger' && Array.isArray(snapshot.threats)
-    && snapshot.threats.length) lastCaption='Thornback is nearby.';
-  // An unchanged live-region string must not be re-announced every poll.
-  if(elements.caption.textContent!==lastCaption)elements.caption.textContent=lastCaption;
+  const sourceCaption=captions.length?String(captions.at(-1)):'';
+  if(sourceCaption && sourceCaption!==captionSource){
+    captionSource=sourceCaption;
+    eventCaption=viewerCaption(sourceCaption);
+  }
+  if(exposedDanger && !wasInDanger && Array.isArray(snapshot.threats)
+    && snapshot.threats.length) eventCaption='Thornback is nearby.';
+  wasInDanger=exposedDanger;
+  if(eventCaption){
+    lastCaption=eventCaption;
+    captionUntil=performance.now()+5400;
+    if(elements.caption.textContent!==lastCaption)elements.caption.textContent=lastCaption;
+  }
+  byId('captions').dataset.eventActive=String(performance.now()<captionUntil);
   elements.broadcast.dataset.scene=value.scene;
   try{scene?.update(value)}catch(error){stopGraphics(error)}
   audio.update(value);

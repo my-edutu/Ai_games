@@ -1,5 +1,12 @@
 # SDD ledger — plan: docs/superpowers/plans/2026-10-30-ai-maze-escape-3d.md
 
+## Pass76 — physical tidal garden architecture + game-first HUD (2026-11-02)
+
+- **Original physical source candidate, NOT a Nintendo win:** sculpt double-sided ceramic relief exclusively on publicly disclosed solid-wall masonry, rooted 3D tide banners, modeled public observatory roofline/hanging cloth, plus cascades physically attached to the fixed public-board perimeter and entering the lagoon. All existing shared geometries/materials with instanced drawing; no private map/route/actor, no newly navigable water, no hidden key or autonomous rule changes. Public presentation counters expose real constructed pieces.
+- **Live immersive HUD:** full-viewport actual 3D unchanged; high-contrast compact goal/time/keys/discovery, no generic idle LIVE EXPLORATION banner, real danger and reconnect visible, real-event-only 5.4-second captions instead of stale permanently replayed text, Map/Details/Settings on demand, original 44px action targets, reduced-motion/clean-feed/keyboard preserved. Specifically rebase and preserve concurrent Pass74 real key milestone and Pass75 key dais/scene camera offset.
+- **Source safety/tests and unpassed visual bar:** new exact-Three public-only construction/determinism/privacy/resource test; all existing full-resolution 320×740, 390×844, 844×390, 1280×900 source/physical actor silhouette/viewport/occlusion and private-state checks MUST PASS unchanged. Lighting/exposure candidate must be reviewed in real native screenshots against the [fixed official Nintendo Captain Toad gameplay bar](https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/). The preceding Pass72 22/22 original dated PNGs are hash verified and inspected as BEFORE only; Nintendo still wins. Subagents/Ultracode blocked by workspace tunnel; CPU-throttled SwiftShader != real GPU metrics. No merge/deploy.
+
+
 ## Pass72 — witnessed 3D shrine transformation and persistent world consequence (2026-11-02)
 
 - **Built, not visually crowned:** [commit e8f695a](https://github.com/my-edutu/Ai_games/commit/e8f695a8334ab065badd3ab6da4d2b444e9881a6) makes a genuinely known collected key leave an authored empty stone shrine, instead of removing its physical origin. Four original actual 3D jade petals hinge open over the same stall-safe presentation clock as the previously implemented true public key-release shards and Pip lantern response. Settled collected-state shrine never suggests a second collectible or traversable floor.

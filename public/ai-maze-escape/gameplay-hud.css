@@ -131,3 +131,116 @@ body[data-high-contrast="true"] #broadcast #hud .mission-block,body[data-high-co
  #broadcast #hud #intent-details .intent-explanation{max-height:calc(100dvh - 108px)}
 }
 @media(prefers-reduced-motion:reduce){#broadcast .masthead .control-button{transition:none}}
+
+
+/* Game 2 — Tidal Garden stage direction, not another dashboard skin.
+   The actual WebGL canvas remains edge-to-edge at every viewport. All
+   semantic text and accessible controls remain present; non-event captions
+   are visually absent so player/guardian acting is never covered by prose. */
+#broadcast[data-ux-revision="4"] #stage:after{
+  background:linear-gradient(to bottom,rgba(5,26,28,.22) 0%,rgba(5,26,28,0) 19%,transparent 76%,rgba(2,25,25,.22) 100%);
+}
+#broadcast[data-ux-revision="4"] .masthead .wordmark h1{
+  font-family:ui-sans-serif,system-ui,sans-serif;font-weight:850;letter-spacing:-.65px;
+  color:#fff8e3;text-shadow:0 2px 8px rgba(0,20,22,.62);
+}
+#broadcast[data-ux-revision="4"] .masthead .wordmark h1 em{
+  color:#f8d980;font-style:normal;font-weight:500;
+}
+#broadcast[data-ux-revision="4"] .masthead .control-button{
+  border-color:rgba(240,234,196,.35);border-radius:13px;
+  background:rgba(5,34,37,.91);box-shadow:0 5px 15px rgba(2,22,25,.26);
+  backdrop-filter:none;
+}
+#broadcast[data-ux-revision="4"] .masthead .control-button:is(:hover,:focus-visible){
+  background:#205d59;border-color:#ffe4a3;outline-offset:3px;
+}
+#broadcast[data-ux-revision="4"] #status-strip{
+  background:#1e3938;border-color:rgba(243,210,150,.42);
+  color:#f8eccc;backdrop-filter:none;
+}
+/* Calm gameplay does not require a second status headline. Genuine danger,
+   errors and reconnect states keep their visible warning. */
+#broadcast[data-ux-revision="4"][data-urgency="false"] #status-strip{
+  opacity:0;visibility:hidden;
+}
+#broadcast[data-ux-revision="4"][data-scene="recovery"] #status-strip,
+#broadcast[data-ux-revision="4"][data-scene="result"] #status-strip,
+#broadcast[data-ux-revision="4"][data-scene="intermission"] #status-strip{
+  opacity:1;visibility:visible;
+}
+#broadcast[data-ux-revision="4"][data-urgency="true"] #status-strip{
+  background:rgba(91,31,25,.94);border-color:#ffb37c;color:#fff0df;
+}
+#broadcast[data-ux-revision="4"] #hud .mission-block{
+  top:calc(70px + env(safe-area-inset-top,0px));
+  max-width:min(225px,53vw);padding:10px 13px 11px;
+  border-radius:10px 14px 14px 10px;border:1px solid rgba(241,214,160,.50);
+  border-left:3px solid #edc76f;background:rgba(10,40,39,.89);
+  box-shadow:0 7px 22px rgba(2,29,30,.20);backdrop-filter:none;
+}
+#broadcast[data-ux-revision="4"][data-urgency="true"] #hud .mission-block{
+  top:calc(107px + env(safe-area-inset-top,0px));
+  border-left-color:#ff815b;background:rgba(72,28,26,.91);
+}
+#broadcast[data-ux-revision="4"] #hud .mission-block h2{
+  font:800 clamp(18px,2.4vw,26px)/1.12 ui-sans-serif,system-ui,sans-serif;
+  letter-spacing:-.7px;color:#fffaed;
+}
+#broadcast[data-ux-revision="4"] #hud .mission-block .eyebrow{
+  color:#f7d88f;letter-spacing:1.24px;font-size:9px;
+}
+#broadcast[data-ux-revision="4"] #hud #objective{
+  color:#deede5;font-weight:500;
+}
+#broadcast[data-ux-revision="4"] #hud .metric-grid .time-metric,
+#broadcast[data-ux-revision="4"] #hud .discovery-summary,
+#broadcast[data-ux-revision="4"] #hud .inventory-card{
+  border-color:rgba(233,224,190,.4);border-radius:11px;
+  background:rgba(5,39,42,.92);backdrop-filter:none;
+  box-shadow:0 4px 15px rgba(0,20,24,.18);
+}
+#broadcast[data-ux-revision="4"] #hud #time{color:#ffe0a0}
+#broadcast[data-ux-revision="4"] #hud .progress-track{height:4px;background:#79ada082}
+#broadcast[data-ux-revision="4"] #hud .progress-track span{background:#a9eed6}
+#broadcast[data-ux-revision="4"] #hud .intent-card,
+#broadcast[data-ux-revision="4"] #map-panel{
+  background:rgba(6,39,41,.90);border-color:#d1dec370;
+  border-radius:12px;box-shadow:0 4px 16px rgba(1,18,19,.26);
+  backdrop-filter:none;
+}
+#broadcast[data-ux-revision="4"] #hud .intent-heading strong{color:#f3f8ed}
+#broadcast[data-ux-revision="4"] #captions{
+  transition:opacity .18s ease,visibility .18s ease;
+  background:rgba(8,42,43,.95);backdrop-filter:none;
+  border:1px solid rgba(233,228,203,.4);border-radius:10px;
+}
+#broadcast[data-ux-revision="4"] #captions:not([data-event-active="true"]){
+  opacity:0;visibility:hidden;pointer-events:none;
+}
+#broadcast[data-ux-revision="4"] :is(.control-button,summary,button,a):focus-visible{
+  outline:3px solid #ffe59d;outline-offset:3px;
+}
+@media(max-width:640px){
+  #broadcast[data-ux-revision="4"] #hud .mission-block{
+    top:calc(68px + env(safe-area-inset-top,0px));
+    max-width:58vw;padding:9px 10px;
+  }
+  #broadcast[data-ux-revision="4"][data-urgency="true"] #hud .mission-block{
+    top:calc(109px + env(safe-area-inset-top,0px));
+  }
+  #broadcast[data-ux-revision="4"] #hud .mission-block h2{
+    font-size:clamp(16px,4.6vw,20px);
+  }
+}
+@media(max-height:460px) and (orientation:landscape){
+  #broadcast[data-ux-revision="4"] #hud .mission-block{
+    top:62px;max-width:38vw;padding:6px 10px;
+  }
+  #broadcast[data-ux-revision="4"][data-urgency="true"] #hud .mission-block{
+    top:84px;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #broadcast[data-ux-revision="4"] #captions{transition:none}
+}
