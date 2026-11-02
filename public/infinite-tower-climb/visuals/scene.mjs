@@ -152,6 +152,45 @@ function towerCameraActorSafetyRate(rate, ndcX, ndcY, aspect) {
   return Math.min(18, rate + pressure * 10);
 }
 
+// Emergency stage direction is only a FALLBACK for a real, projected actor
+// leaving the picture or becoming hidden by the solid cylindrical core.
+// Keep the previous readable route/guardian composition whenever it is safe:
+// this responds to a measured view failure, not a guessed future AI action.
+// A bounded exterior orbit plus annular gaze avoids fake teleporting, a cut,
+// scene-wide hiding/transparency, allocations or extra GPU submissions.
+function recoverTowerActorView(position, gaze, actor, ndcX, ndcY, ndcZ, aspect, dt, orbitTarget) {
+  if (![ndcX, ndcY, ndcZ, aspect, dt, position.x, position.z,
+    gaze.x, gaze.z, actor.x, actor.y, actor.z].every(Number.isFinite)
+    || aspect <= 0 || dt <= 0) return 0;
+  const safeX = aspect < .85 ? .72 : .80;
+  const projectedPressure = Math.max(
+    Math.abs(ndcX) / safeX - 1, Math.abs(ndcY) / .78 - 1,
+    ndcZ < -1 || ndcZ > 1 ? 1 : 0, 0);
+  const occluded = !towerCoreSightlineClear(position, actor, 23.5);
+  const pressure = Math.max(projectedPressure, occluded ? 1 : 0);
+  if (pressure <= 0) return 0;
+  const boundedDt = Math.min(dt, .05), severity = Math.min(3, pressure);
+  const response = Math.min(.28,
+    (1 - Math.exp(-boundedDt * (3 + severity * 8))) * Math.min(1, .4 + severity));
+  const actorAngle = Math.atan2(actor.x, actor.z);
+  const cameraAngle = Math.atan2(position.x, position.z);
+  const cameraArc = Math.atan2(
+    Math.sin(actorAngle - cameraAngle), Math.cos(actorAngle - cameraAngle));
+  const cameraStep = Math.min(.16, boundedDt * 6.5);
+  const orbitBlend = Math.min(response, cameraStep / Math.max(.001, Math.abs(cameraArc)));
+  const radius = Math.max(27.35, Math.hypot(position.x, position.z));
+  orbitTarget.set(Math.sin(actorAngle) * radius, position.y,
+    Math.cos(actorAngle) * radius);
+  followTowerCamera(position, orbitTarget, orbitBlend);
+  const focusAngle = Math.atan2(gaze.x, gaze.z);
+  const focusArc = Math.atan2(
+    Math.sin(actorAngle - focusAngle), Math.cos(actorAngle - focusAngle));
+  const focusStep = Math.min(.16, boundedDt * 7);
+  followTowerFocus(gaze, actor,
+    Math.min(response, focusStep / Math.max(.001, Math.abs(focusArc))));
+  return orbitBlend;
+}
+
 // Wide jumps must keep the camera's chosen stage on the exterior cylinder.
 // Cartesian midpoint focus can stare straight into opaque stone. Only the
 // real visible actor, live route and observed threat select these coordinates.
@@ -1038,6 +1077,9 @@ export function createTowerScene(canvas, settings = {}) {
   let baseY = 0, themeKey = '', cameraAngle = .15, lastRevision = '', orbit = 0, zoom = 1;
   const renderProgress = createRenderProgress();
   const actorTarget = new THREE.Vector3();
+  const actorFramePoint = new THREE.Vector3();
+  const actorOrbitTarget = new THREE.Vector3();
+  let actorRescueFraction = 0;
   const guardianSightPoints=[];
   const lookAt = new THREE.Vector3();
   let actorYaw = 0;
@@ -1200,7 +1242,7 @@ export function createTowerScene(canvas, settings = {}) {
     lastRevision = revision;
     renderProgress.expectFrame(performance.now());
     const newRun = snapshot && next.runToken !== snapshot.runToken;
-    if (newRun) { clearActors(); passage.clear(); initialized = false; previous = null; landingMoment=-Infinity; landingRun=null; landingHalo.visible=false; }
+    if (newRun) { clearActors(); passage.clear(); initialized = false; previous = null; landingMoment=-Infinity; landingRun=null; landingHalo.visible=false; actorRescueFraction = 0; }
     if (snapshot && baseY !== next.chunkBaseY) {
       const shift = (baseY - next.chunkBaseY) / SCALE;
       climber.group.position.y += shift; camera.position.y += shift; lookAt.y += shift;
@@ -1512,6 +1554,23 @@ export function createTowerScene(canvas, settings = {}) {
       followTowerCamera(camera.position, destination, cameraBlend);
       followTowerFocus(lookAt, focus, cameraBlend);
     }
+    // When the smoothed camera still genuinely loses the visible climber,
+    // recover on the EXTERIOR tower arc rather than letting several seconds
+    // of portrait climbing happen offscreen. The composer remains the primary
+    // director; this can only intervene in a running, live, non-reduced-motion
+    // frame, and never alters a replay, result, HUD or simulation snapshot.
+    actorRescueFraction = 0;
+    if (!overview && initialized && !options.reducedMotion && !options.stale
+      && snapshot.lifecycle === 'running' && p.health > 0) {
+      camera.lookAt(lookAt);
+      camera.updateMatrixWorld(true);
+      actorFramePoint.copy(climber.group.position);
+      actorFramePoint.y += p.halfHeight / SCALE;
+      scratch.copy(actorFramePoint).project(camera);
+      actorRescueFraction = recoverTowerActorView(camera.position, lookAt,
+        actorFramePoint, scratch.x, scratch.y, scratch.z,
+        camera.aspect, dt, actorOrbitTarget);
+    }
     if(!options.reducedMotion && !options.stale && options.camera==='follow'&&contactProgress>0)
       camera.position.y+=(contactHero?-.24:.18)*Math.sin((1-contactProgress)*Math.PI);
     if(!options.reducedMotion && options.camera==='follow' && landingHalo.visible)
@@ -1613,6 +1672,9 @@ export function createTowerScene(canvas, settings = {}) {
       inPicture: !!actorNdc && actorNdc.every(Number.isFinite)
         && Math.abs(actorNdc[0]) <= 1 && Math.abs(actorNdc[1]) <= 1
         && actorNdc[2] >= -1 && actorNdc[2] <= 1,
+      coreClear: !!actorProjection && towerCoreSightlineClear(camera.position,
+        climber.group.position, 23.5),
+      emergencyOrbitBlend: Number(actorRescueFraction.toFixed(4)),
       inSafeFrame: !!actorNdc && actorNdc.every(Number.isFinite)
         && Math.abs(actorNdc[0]) <= .78 && Math.abs(actorNdc[1]) <= .78
         && actorNdc[2] >= -1 && actorNdc[2] <= 1,
