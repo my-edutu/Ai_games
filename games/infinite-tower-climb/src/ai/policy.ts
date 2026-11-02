@@ -11,18 +11,70 @@ function launchX(current:TowerPlatform,target:TowerPlatform,halfWidth:number){co
 // Physics remains authoritative: this is a deterministic feedback controller
 // using only present observed position/velocity and the current public deck.
 // It neither forecasts the deck, mutates state nor affects historical-v1.
+// Landing on an active hazard is not a successful landing. Partition the
+// CURRENT observed collision-safe deck lane around hazards whose present
+// vertical bounds intersect an ordinary landed body. We neither infer future
+// hazard phases nor invent a predicted moving-platform position.
+function observedLandingCorridor(state:TowerState,obs:TowerObservation,target:TowerObservation['platforms'][number]){
+  const p=obs.player,halfWidth=state.player.halfWidth;
+  const margin=Math.max(halfWidth+4000,Math.min(18000,Math.floor(target.width/8)));
+  const left=target.x+margin,right=target.x+target.width-margin;
+  const unclutteredX=left<=right?Math.max(left,Math.min(right,p.position.x)):target.x+target.width/2;
+  if(left>=right)return {landingX:unclutteredX,hazardRoute:false};
+  const top=target.y+target.height;
+  let lanes=[{left,right}];
+  for(const hazard of obs.hazards){
+    if(!hazard.active||hazard.y>=top+2*state.player.halfHeight||
+      hazard.y+hazard.height<=top)continue;
+    // Include the actual body's horizontal collision width and a small
+    // clearance. A lane too narrow for believable steering is discarded.
+    const blockedLeft=hazard.x-halfWidth-2500;
+    const blockedRight=hazard.x+hazard.width+halfWidth+2500;
+    const remainder:typeof lanes=[];
+    for(const lane of lanes){
+      if(blockedRight<=lane.left||blockedLeft>=lane.right){remainder.push(lane);continue}
+      const l=Math.min(lane.right,blockedLeft);
+      const r=Math.max(lane.left,blockedRight);
+      if(l-lane.left>=10000)remainder.push({left:lane.left,right:l});
+      if(lane.right-r>=10000)remainder.push({left:r,right:lane.right});
+    }
+    lanes=remainder;
+    if(!lanes.length)break;
+  }
+  // When no genuinely safe lane exists, do not fabricate one. The ordinary
+  // physical deck remains the target and upstream hazard evasion still acts.
+  if(!lanes.length)return {landingX:unclutteredX,hazardRoute:false};
+  let best=lanes[0],bestX=Math.max(best.left,Math.min(best.right,p.position.x));
+  for(const lane of lanes.slice(1)){
+    const x=Math.max(lane.left,Math.min(lane.right,p.position.x));
+    const distance=Math.abs(x-p.position.x),bestDistance=Math.abs(bestX-p.position.x);
+    if(distance<bestDistance||(distance===bestDistance&&
+      lane.right-lane.left>best.right-best.left)){best=lane;bestX=x}
+  }
+  return {landingX:bestX,hazardRoute:bestX!==unclutteredX};
+}
+// A boost is a committed source-authentic traversal move, not a teleport.
+// Physics applies a dash in the player's FACING direction on the same step.
+// Force that direction only if the observed safe corridor is truly distant,
+// the climber is still rising, has sufficient real stamina and isn't braking
+// against an opposite velocity. Otherwise ordinary air steering owns the step.
+function observedSafeAirBoost(state:TowerState,obs:TowerObservation,landing:{
+  move:TowerAction['move'];landingX:number}):TowerAction['move']{
+  const p=obs.player;
+  if(p.velocity.y<=0||p.dashCooldown!==0||p.stamina<state.build.dashCost)return 0;
+  const delta=landing.landingX-p.position.x;
+  const direction:TowerAction['move']=delta>0?1:delta<0?-1:0;
+  const minimumGap=Math.max(165000,state.config.dashSpeed*2+state.player.halfWidth+10000);
+  if(direction===0||Math.abs(delta)<=minimumGap||
+    p.velocity.x*direction<0||(landing.move!==0&&landing.move!==direction))return 0;
+  return direction;
+}
 function observedLandingSteering(state:TowerState,obs:TowerObservation,target:TowerObservation['platforms'][number]){
   const p=obs.player;
   const acceleration=Math.max(1,Math.round(state.config.moveAcceleration*state.build.airControlPermille/1000));
   const velocity=p.velocity.x;
-  // Collision is earned anywhere inside the actual current deck's usable lane.
-  // Do not accelerate toward its decorative midpoint after the body is already
-  // over a safe landing corridor; bleed off speed before the finite edge.
-  const margin=Math.max(state.player.halfWidth+4000,Math.min(18000,Math.floor(target.width/8)));
-  const left=target.x+margin,right=target.x+target.width-margin;
-  const landingX=left<=right?Math.max(left,Math.min(right,p.position.x)):
-    target.x+target.width/2;
-  const delta=landingX-p.position.x;
+  const lane=observedLandingCorridor(state,obs,target);
+  const delta=lane.landingX-p.position.x;
   const safeBand=Math.max(1500,acceleration);
   const desiredVelocity=Math.sign(delta)*Math.min(state.config.maxRunSpeed,
     Math.round(Math.sqrt(2*acceleration*Math.abs(delta))));
@@ -32,7 +84,7 @@ function observedLandingSteering(state:TowerState,obs:TowerObservation,target:To
       ? 0 : speedError>0?1:-1;
   const settling=move!==0&&velocity!==0&&move===-Math.sign(velocity)
     &&Math.abs(velocity)>acceleration;
-  return {move,settling};
+  return {move,settling,...lane};
 }
 // Tactical grounded launch now works with the SAME observed control authority
 // as air braking. It slows down *before* a real takeoff point rather than
@@ -211,12 +263,16 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
   if(detectTowerStuck(observation.recentHeights)){const direction:TowerAction['move']=observation.tick%2===0?1:-1;return{action:action(direction,{jump:observation.player.grounded,dash:!observation.player.grounded&&observation.player.dashCooldown===0}),intent:{mode:'recovering',summary:'Breaking a repeated height cycle',confidence:.82,fallbackUsed:true}}}
   let target=currentPlatform(observation,state.ai.targetPlatformId);if(observation.player.grounded){target=nextTowerPlatform(observation,state.config,observation.player.groundedPlatformId)}else if(!target)target=nextTowerPlatform(observation,state.config,observation.player.groundedPlatformId);
   if(!target)return{action:action(),intent:{mode:'waiting',summary:'Waiting for a valid route node',confidence:.6,fallbackUsed:false}};
-  const center=target.x+target.width/2;if(!observation.player.grounded){const delta=center-observation.player.position.x,dash=Math.abs(delta)>165000&&observation.player.dashCooldown===0&&observation.player.velocity.y>0;
+  const center=target.x+target.width/2;if(!observation.player.grounded){const delta=center-observation.player.position.x;
     const landing=tactical?observedLandingSteering(state,observation,target):null;
-    const move=landing?.move??moveSign(delta);
+    const boost=tactical&&landing?observedSafeAirBoost(state,observation,landing):0;
+    const dash=tactical?boost!==0:Math.abs(delta)>165000&&observation.player.dashCooldown===0&&observation.player.velocity.y>0;
+    const move=boost!==0?boost:(landing?.move??moveSign(delta));
     const settling=!dash&&!!landing?.settling;
     return{action:action(move,{dash}),intent:{mode:settling?'settling-landing':'air-control',
-      summary:settling?(target.kind==='moving'?'Braking to meet the moving deck':'Braking for a controlled landing'):'Steering toward the next landing',
+      summary:dash&&tactical?'Boosting toward a distant safe landing':
+        settling?(target.kind==='moving'?'Braking to meet the moving deck':'Braking for a controlled landing'):
+        landing?.hazardRoute?'Steering for a clear landing lane':'Steering toward the next landing',
       confidence:.9,fallbackUsed:false,targetPlatformId:target.id}}}
   const support=currentPlatform(observation,observation.player.groundedPlatformId);if(!support)return{action:action(),intent:{mode:'waiting',summary:'Confirming ground support',confidence:.7,fallbackUsed:false,targetPlatformId:target.id}};if(tactical){const launch=observedLaunchSteering(state,observation,support,target);return{action:action(launch.move,{jump:launch.jump}),intent:{mode:launch.settling?'settling-launch':launch.jump?'jumping':'aligning',summary:launch.settling?'Braking into a controlled takeoff':launch.jump?'Jumping from a supported launch point':'Preparing the next safe leap',confidence:.94,fallbackUsed:false,targetPlatformId:target.id}}}const desired=launchX(support,target,state.config.playerHalfWidth),delta=desired-observation.player.position.x;if(Math.abs(delta)>12000)return{action:action(moveSign(delta)),intent:{mode:'aligning',summary:'Aligning with the launch point',confidence:.93,fallbackUsed:false,targetPlatformId:target.id}};return{action:action(moveSign(center-observation.player.position.x),{jump:true}),intent:{mode:'jumping',summary:'Committing to the next platform',confidence:.95,fallbackUsed:false,targetPlatformId:target.id}}
 }
