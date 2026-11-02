@@ -314,7 +314,7 @@ export function createTowerWorld(){
     }
     for(const e of hazards.values()){
       batchRigid(e.live,new Set(e.spin?[e.spin]:[]));
-      batchRigid(e.root,new Set([e.live,e.indicator,e.pressure]));
+      batchRigid(e.root,new Set([e.live,e.indicator]));
     }
     batchRigid(floorGroup,boundaries);
     // Original unique source buffers are no longer needed after rigid merging.
@@ -973,7 +973,7 @@ export function createTowerWorld(){
       traveler=new THREE.Group();traveler.name='SourceObservedMovingDeckCrank';
       traveler.position.set(0,h-1.4,27.46);
       const rim=mesh(traveler,geometry('observed-moving-crank-rim',
-        ()=>new THREE.TorusGeometry(.72,.13,6,20)),materials.mint);
+        ()=>new THREE.TorusGeometry(.72,.13,6,20)),materials.copper);
       rim.castShadow=false;rim.receiveShadow=false;
       for(let spoke=0;spoke<2;spoke++){
         const arm=block(traveler,materials.copper,[0,0,.07],
@@ -992,7 +992,28 @@ export function createTowerWorld(){
     // The warning plinth sits below the lethal collider; only active geometry occupies its exact height.
     block(root,materials.dark,[0,-.22,0],[w,.42,2.9]);
     for(const sign of [-1,1])block(root,materials.warning,[sign*(w*.5-.1),-.1,.3],[.2,.2,3]);
-    const indicator=block(root,materials.mint,[0,-.12,1.54],[w*.7,.09,.08]);
+    // Reuse the existing indicator DRAW for eight extruded pressure teeth.
+    // The low inactive comb is a safety-colored trim; actual source
+    // activation raises its 3D silhouette with ZERO new draw submissions,
+    // geometry allocations per tick, collision surfaces or screen HUD.
+    const profile=new THREE.Shape(),step=w*.70/8,left=-w*.35;
+    profile.moveTo(left,0);
+    for(let index=0;index<8;index++){
+      const x=left+index*step;
+      profile.lineTo(x,.075);
+      profile.lineTo(x+step*.24,.075);
+      profile.lineTo(x+step*.39,.92);
+      profile.lineTo(x+step*.61,.92);
+      profile.lineTo(x+step*.79,.075);
+      profile.lineTo(x+step,.075);
+    }
+    profile.lineTo(left+w*.70,0);
+    profile.closePath();
+    const indicator=mesh(root,own(new THREE.ExtrudeGeometry(profile,
+      {depth:.12,bevelEnabled:false,steps:1})),materials.mint,[0,-.12,1.54]);
+    indicator.name='SourceObservedHazardPressureComb';
+    indicator.scale.y=.10;
+    indicator.castShadow=false;indicator.receiveShadow=false;
     let spin=null;
     if(h.kind==='spikes'){
       const teeth=[];for(let i=0;i<Math.max(3,Math.round(w/.48));i++)for(const z of [-.65,.55])teeth.push({p:[-w*.5+.25+i*w/Math.max(3,Math.round(w/.48)),height*.5,z],s:[.25,height,.25]});instanced(live,cone(),materials.edge,teeth);
@@ -1018,19 +1039,10 @@ export function createTowerWorld(){
       for(let i=0;i<4;i++){const a=i/4*TAU;block(root,materials.edge,[Math.cos(a)*w*.37,-.01,Math.sin(a)],[.35,.3,.35],[0,a,.4]);}
     }
     conformDanger(live,w,height,spin);
-    // A near real hazard must read as an active machine, not just a colored
-    // bar. These eight narrow exterior pressure fins share one instanced
-    // draw and are deliberately NOT additional collider geometry.
-    const pressure=new THREE.InstancedMesh(cone(),materials.warning,8);
-    pressure.name='SourceObservedHazardPressureFins';
-    pressure.count=0;pressure.visible=false;
-    pressure.castShadow=false;pressure.receiveShadow=false;
-    pressure.frustumCulled=false;
-    pressure.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-    root.add(pressure);
-    hazards.set(h.id,{root,live,indicator,spin,pressure,
-      pressurePose:new THREE.Object3D(),span:w,
-      kind:h.kind,active:false,height});
+    // Active source hazard now physically raises the existing single
+    // indicator mesh. The comb has eight real extruded prongs, not an
+    // additional draw or a decorative collision surface.
+    hazards.set(h.id,{root,live,indicator,spin,kind:h.kind,active:false,height});
   }
   function clearFloor(){
     if(floorGroup){group.remove(floorGroup);floorGroup.traverse(o=>{if(o.isInstancedMesh)o.dispose();});}
@@ -1072,7 +1084,7 @@ export function createTowerWorld(){
     // lighting without multiplying shadow-map draws.
     floorGroup.traverse(o=>{if(o.isMesh){o.castShadow=!o.userData.ambientDetail&&(!!o.userData.structural||o.material===materials.stone||o.material===materials.dark);if(o.material===materials.distant)o.receiveShadow=false;}});
     for(const h of hazards.values())h.root.traverse(o=>{
-      if(o.isMesh && o!==h.pressure)o.castShadow=true;
+      if(o.isMesh && o!==h.indicator)o.castShadow=true;
     });
     finishBatches();
     key=`${snapshot.runToken}:${snapshot.floor}:${snapshot.theme}:${quality}`;
@@ -1176,23 +1188,8 @@ export function createTowerWorld(){
       if(e.spin&&!options.reducedMotion&&!options.stale)e.spin.rotation.z=time*.35;
       const active=!!h.active && !options.stale &&
         snapshot.lifecycle!=='result' && snapshot.lifecycle!=='intermission';
-      e.pressure.visible=active;e.pressure.count=active?8:0;
-      if(active){
-        // Fixed-step source ticks animate a bounded graphic response; the
-        // reduced-motion silhouette stays informative without pulsing.
-        const height=Math.max(.55,Math.min(3,h.height/SCALE));
-        const tick=Number.isSafeInteger(snapshot.tick)?snapshot.tick:0;
-        for(let i=0;i<8;i++){
-          const phase=options.reducedMotion?1:1+.09*Math.sin(tick*.26+i*.7);
-          e.pressurePose.position.set(-e.span*.43+(i+.5)*e.span*.86/8,
-            height*.49,1.53);
-          e.pressurePose.rotation.set(0,0,i%2===0?.14:-.14);
-          e.pressurePose.scale.set(Math.min(.24,e.span/35),height*.77*phase,.22);
-          e.pressurePose.updateMatrix();
-          e.pressure.setMatrixAt(i,e.pressurePose.matrix);
-        }
-        e.pressure.instanceMatrix.needsUpdate=true;
-      }
+      e.indicator.scale.y=active ? Math.max(.55,Math.min(3,h.height/SCALE)) : .10;
+      e.indicator.userData.activePressureTeeth=active?8:0;
     }
     if(!options.reducedMotion){for(const r of rotors)r.o.rotation[r.axis||'z']+=Math.min(dt,.05)*r.speed;for(const f of floaters)f.o.position.y=f.y+Math.sin(time*f.speed+f.phase)*.23;}
     if(particles){particles.visible=quality!=='low';if(!options.reducedMotion&&quality!=='low'){
@@ -1226,7 +1223,7 @@ export function createTowerWorld(){
     }
     occludedGuardianCaps=faded;
   }
-  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,activeHazardPressureFins:[...hazards.values()].reduce((n,h)=>n+(h.pressure.visible?h.pressure.count:0),0),observedMovingDeckCranks:[...platforms.values()].filter(p=>p.traveler).length,ambientParticles:particles?.visible?48:0,floor:lastSnapshot?.floor??null,theme,quality,disposed,guardianGates:[...platforms.entries()].filter(([,p])=>p.guardianGate).map(([id,p])=>({id,unlocked:p.guardianGate.unlocked,opening:p.guardianGate.progress,conduitReach:p.guardianGate.conduit.scale.z,anchorX:p.guardianGate.anchorX})),occludedGuardianCaps,ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
+  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,activeHazardPressureFins:[...hazards.values()].reduce((n,h)=>n+(h.indicator.userData.activePressureTeeth||0),0),observedMovingDeckCranks:[...platforms.values()].filter(p=>p.traveler).length,ambientParticles:particles?.visible?48:0,floor:lastSnapshot?.floor??null,theme,quality,disposed,guardianGates:[...platforms.entries()].filter(([,p])=>p.guardianGate).map(([id,p])=>({id,unlocked:p.guardianGate.unlocked,opening:p.guardianGate.progress,conduitReach:p.guardianGate.conduit.scale.z,anchorX:p.guardianGate.anchorX})),occludedGuardianCaps,ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;clearFloor();for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
   return{group,update,revealGuardianSightlines,dispose,diagnostics};
 }

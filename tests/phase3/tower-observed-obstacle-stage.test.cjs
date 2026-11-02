@@ -34,22 +34,22 @@ test('active physical danger survives mute/reduced motion but not stale snapshot
   try{
     const off=snapshot({active:false}),frozen=JSON.stringify(off);
     world.update(off,.05,5,{quality:'low'});
-    const fins=world.group.getObjectByName('SourceObservedHazardPressureFins');
-    assert.ok(fins?.isInstancedMesh);
-    assert.equal(fins.visible,false);assert.equal(fins.count,0);
+    const fins=world.group.getObjectByName('SourceObservedHazardPressureComb');
+    assert.ok(fins?.isMesh && !fins.isInstancedMesh);
+    assert.equal(fins.userData.activePressureTeeth,0);
+    assert.equal(fins.scale.y,.10);
     world.update(snapshot({tick:101}),.05,5.05,{quality:'low'});
-    assert.equal(fins.visible,true);assert.equal(fins.count,8);
+    assert.equal(fins.userData.activePressureTeeth,8);
+    assert.ok(fins.scale.y>.55);
     assert.equal(fins.castShadow,false);assert.equal(fins.receiveShadow,false);
     assert.equal(fins.userData.collider,undefined);
     assert.equal(world.diagnostics().activeHazardPressureFins,8);
-    const a=new THREE.Matrix4(),b=new THREE.Matrix4();
     world.update(snapshot({tick:102}),.05,5.1,{quality:'low',reducedMotion:true});
-    fins.getMatrixAt(0,a);
+    const height=fins.scale.y;
     world.update(snapshot({tick:103}),.05,5.15,{quality:'low',reducedMotion:true});
-    fins.getMatrixAt(0,b);
-    assert.deepEqual(a.elements,b.elements);
+    assert.equal(fins.scale.y,height);
     world.update(snapshot({tick:104}),.05,5.2,{quality:'low',stale:true});
-    assert.equal(fins.visible,false);
+    assert.equal(fins.userData.activePressureTeeth,0);
     assert.equal(JSON.stringify(off),frozen);
   }finally{world.dispose();}
 });
