@@ -2,7 +2,7 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
 const root=path.resolve(__dirname,'../..');
-test('T1 10 rooted macro beds occupy actual cross-board 3D space without losing the original resource, landmark and cue gates',async()=>{
+test('T1 10 rooted catchments form fine embedded two-strand cross-board 3D seams without losing the original resource, landmark and cue gates',async()=>{
   const THREE=await import('three');
   const {createCourtyardEcology}=await import('../../public/snake-stream/courtyard-ecology.mjs');
   for(const [width,height] of [[8,8],[28,16],[40,24]]){
@@ -12,7 +12,7 @@ test('T1 10 rooted macro beds occupy actual cross-board 3D space without losing 
       const stats=stage.stats();
       assert.equal(stats.mosaicBedCount,10);
       assert.ok(stats.reclaimedMosaicTriangles>200&&stats.reclaimedMosaicTriangles<800,
-        'large bounded true garden composition, not a shader pixel delta');
+        'bounded many-segment natural branches, not opaque stage blankets');
       assert.ok(stats.triangles>stats.reclaimedMosaicTriangles+200&&stats.triangles<3100,
         'keep unmodified original full-geometry budget');
       assert.equal(stats.meshCount,1,'still one statically cached stage mesh');
@@ -28,6 +28,12 @@ test('T1 10 rooted macro beds occupy actual cross-board 3D space without losing 
         assert.deepEqual(mesh.geometry.getAttribute(key).array,again.geometry.getAttribute(key).array,
           'repeatable stable '+key+' without hidden state or random calls');
       const pos=mesh.geometry.getAttribute('position');
+      const normals=mesh.geometry.getAttribute('normal');
+      const rootStart=3*(stats.braidedSurfaceTriangles+stats.islandSurfaceTriangles);
+      let litRoots=0;
+      for(let v=rootStart;v<normals.count;v++)if(normals.getY(v)>.1)litRoots++;
+      assert.ok(litRoots>stats.reclaimedMosaicTriangles,
+        'new physically rooted moss paths face the real sunlit camera, not invisible downward faces');
       assert.equal(pos.count,stats.triangles*3);
       const sectors=new Set();
       const oldTriangles=stats.braidedSurfaceTriangles+stats.islandSurfaceTriangles;
@@ -60,5 +66,7 @@ test('T1 cinematic world masonry remains governed by unchanged strict Chromium a
   assert.match(source,/expect\(animation\.actualDraws\)\.toBeGreaterThanOrEqual\(17\)/);
   const script=fs.readFileSync(path.join(root,'public/snake-stream/courtyard-ecology.mjs'),'utf8');
   assert.match(script,/BEGIN T1 WHOLE-COURT RECLAIMED MOSAIC BEDS/);
-  assert.match(script,/triangle\(a,b,c,'mosaic',tint\)/);
+  assert.match(script,/triangle\(a\[1\],a\[0\],b\[0\],'mosaic',salt\)/);
+  assert.match(script,/const rootStrands = 2, rootSegments = 15/);
+  assert.doesNotMatch(script,/mosaicTriangle\(centre,inner\[step/,'old opaque fan carpets must not return');
 });

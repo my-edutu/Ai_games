@@ -4,21 +4,22 @@
  * Original quarry cells, collision, hazards, portal/fruit locations and the
  * existing stone map are never moved, concealed by walls, or mutated.
  *
- * Three braided moss catchments and rooted lichen islands replace the previous
- * entirely regular field silhouette. The single prebuilt STATIC vertex-colour
- * mesh adds no live-frame update, texture, WebGL pass, or random stream.
+ * Low roots and meandering moss seams stay embedded in the original quarry
+ * instead of hiding the actual playable stone under opaque triangular sheets.
+ * One static vertex-colour mesh: no live-frame update, texture, extra pass,
+ * server route, gameplay change or unlicensed resource.
  */
 export function createCourtyardEcology(THREE, { width, height }) {
   if (!Number.isInteger(width) || !Number.isInteger(height) ||
       width < 2 || height < 2) throw new Error('Courtyard ecology requires a valid public board size');
   const W = width / 2, H = height / 2;
   const group = new THREE.Group();
-  group.name = 'Braided moss / root-grown courtyard';
+  group.name = 'Embedded living roots / weathered limestone courtyard';
   const position = [], colour = [];
   const palette = [
-    new THREE.Color(0x3b6650), new THREE.Color(0x638b5b),
-    new THREE.Color(0x90a569), new THREE.Color(0x687a56),
-    new THREE.Color(0x938d6c), new THREE.Color(0x4c7262)
+    new THREE.Color(0x244732), new THREE.Color(0x335c41),
+    new THREE.Color(0x4f744a), new THREE.Color(0x5b7850),
+    new THREE.Color(0x63765a), new THREE.Color(0x375b54)
   ];
   const clamp = (n, low, high) => Math.max(low, Math.min(high, n));
   const noise = (x, z) => {
@@ -54,7 +55,10 @@ export function createCourtyardEcology(THREE, { width, height }) {
     else islandTriangles++;
   }
   const samples = Math.min(64, Math.max(16, Math.ceil(width * 1.8)));
-  const cross = 6, halfSpan = Math.max(.74, Math.min(H * .18, 1.14 + H * .055));
+  // The old ~three-cell-wide opaque ribbons eclipsed actual stone/cues in
+  // every overview screenshot. Fine, irregular capillaries show *within*
+  // the original paving and preserve its mineral/grazing-light response.
+  const cross = 6, halfSpan = Math.max(.25, Math.min(H * .075, .42 + H * .028));
   for (let channel = 0; channel < 3; channel++) {
     const phase = channel * 2.31;
     const rows = [];
@@ -63,7 +67,8 @@ export function createCourtyardEcology(THREE, { width, height }) {
       const flow = Math.sin(x * .23 + phase) * Math.min(1.05, H * .13)
         + Math.sin(x * .47 + phase * .67) * Math.min(.36, H * .06);
       const centre = (channel - 1) * (H - .9) * .53 + flow;
-      const widthAt = halfSpan * (.79 + .18 * Math.sin(x * .31 - phase)
+      const edgeTaper = Math.min(1, Math.max(.09, Math.sin(Math.PI * i / samples) * 1.4));
+      const widthAt = halfSpan * edgeTaper * (.78 + .20 * Math.sin(x * .31 - phase)
         + .12 * Math.sin(x * .69 + 1.5 * phase));
       const row = [];
       for (let j = 0; j <= cross; j++) {
@@ -100,47 +105,47 @@ export function createCourtyardEcology(THREE, { width, height }) {
     }
   }
   // BEGIN T1 WHOLE-COURT RECLAIMED MOSAIC BEDS
-  // Ten off-centre ecological catchments reshape the dark tiled field in the
-  // actual running 3D world, linking the established braided roots to broad
-  // low-limestone and moss deposits. This is one STATIC, original, baked mesh:
-  // zero extra materials, texture fetches, per-frame animation or render passes.
-  // The public cell centers, sunlight landmark, collisions, portals, food and
-  // hazards remain untouched. The small y profile is below their visible cues.
+  // Ten broad-scale ecological sites remain in the *actual traversable game*.
+  // Old radial fan polygons formed opaque, angular pale blankets that destroyed
+  // the previously authored dark quarry. Replace them with two rooted, tapering
+  // filament branches per site; their entire geometry is static and shares
+  // this same mesh/material with the three long established root systems.
+  // Low grounded moss reads as growth WITHIN dressed stone; public cues,
+  // real cells and the central sunny gameplay landmark are not moved.
   const mosaicBeds = [
     [-.76,-.65,.15,.24],[-.35,-.78,.20,.20],[.10,-.77,.20,.22],
     [.65,-.70,.18,.23],[-.78,-.05,.19,.25],[.80,.08,.18,.25],
     [-.73,.70,.21,.20],[-.31,.77,.19,.19],[.18,.75,.19,.21],
     [.68,.64,.19,.23]
   ];
-  function mosaicTriangle(a,b,c,tint) {
-    // An additional centroid check prevents large, low polygon fans from
-    // crossing the protected centre even when their corners are all clear.
-    const centre=[(a[0]+b[0]+c[0])/3,0,(a[2]+b[2]+c[2])/3];
-    if(landmark(centre)) return;
-    triangle(a,b,c,'mosaic',tint);
-  }
-  for(let bed=0;bed<mosaicBeds.length;bed++){
-    const [ux,uz,sx,sz]=mosaicBeds[bed];
-    const x=ux*W,z=uz*H;
-    const rx=Math.max(.78,width*sx),rz=Math.max(.72,height*sz);
-    const phase=bed*1.43,steps=24,inner=[],outer=[];
-    const centre=[x,.0119,z];
-    for(let step=0;step<=steps;step++){
-      const theta=step/steps*Math.PI*2;
-      const ripple=.83+.13*Math.sin(theta*3+phase)
-        +.09*Math.cos(theta*5-phase)
-        +.08*(noise(bed*3+step*.27,13+bed)-.5);
-      const dx=Math.cos(theta)*rx*ripple,dz=Math.sin(theta)*rz*ripple;
-      inner.push([x+dx*.49,.0122,z+dz*.49]);
-      outer.push([x+dx,.0115,z+dz]);
-    }
-    for(let step=0;step<steps;step++){
-      const tint=bed*.31+step*.014;
-      // Counter-clockwise fan with upward normals, then a continuous,
-      // naturally crenellated margin. There is no second overlapping plane.
-      mosaicTriangle(centre,inner[step+1],inner[step],tint);
-      mosaicTriangle(inner[step],outer[step+1],outer[step],tint);
-      mosaicTriangle(inner[step],inner[step+1],outer[step+1],tint);
+  const rootStrands = 2, rootSegments = 15;
+  for (let bed = 0; bed < mosaicBeds.length; bed++) {
+    const [ux, uz, sx, sz] = mosaicBeds[bed];
+    const centreX = ux * W, centreZ = uz * H;
+    for (let strand = 0; strand < rootStrands; strand++) {
+      const angle = (strand ? 1.96 : -1.28) + bed * .51;
+      const reachX = Math.max(.70, width * sx * .55);
+      const reachZ = Math.max(.65, height * sz * .65);
+      const rows=[];
+      for (let step=0;step<=rootSegments;step++) {
+        const t=step/rootSegments;
+        const sway=Math.sin(t*6.6+bed*1.83+strand*2.1)*.19*t
+          +Math.sin(t*12.4-bed*.69)*.06*t;
+        const x=centreX+Math.cos(angle)*reachX*t-Math.sin(angle)*sway;
+        const z=centreZ+Math.sin(angle)*reachZ*t+Math.cos(angle)*sway;
+        const tangent=angle+.15*Math.sin(t*7+bed*.67);
+        const thickness=(.09+.21*Math.sin(t*Math.PI)**.7)*(.86+.14*noise(bed+step*.13,strand+12));
+        const nx=-Math.sin(tangent),nz=Math.cos(tangent);
+        rows.push([
+          [x+nx*thickness,.0131+Math.sin(t*5+bed)*.001,z+nz*thickness],
+          [x-nx*thickness,.0131+Math.sin(t*5+bed)*.001,z-nz*thickness]
+        ]);
+      }
+      for(let step=0;step<rootSegments;step++){
+        const a=rows[step],b=rows[step+1],salt=bed*.31+strand*.24;
+        triangle(a[1],a[0],b[0],'mosaic',salt);
+        triangle(a[1],b[0],b[1],'mosaic',salt);
+      }
     }
   }
   // END T1 WHOLE-COURT RECLAIMED MOSAIC BEDS
@@ -153,7 +158,7 @@ export function createCourtyardEcology(THREE, { width, height }) {
     color: 0xffffff, vertexColors: true, roughness: .98, metalness: 0
   });
   const mesh = new THREE.Mesh(geometry, material);
-  mesh.name = 'Grounded continuous moss catchments';
+  mesh.name = 'Embedded roots with organic clearings';
   mesh.userData.staticWorld = true;
   mesh.castShadow = false;
   mesh.receiveShadow = true;
