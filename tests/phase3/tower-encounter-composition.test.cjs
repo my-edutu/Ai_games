@@ -29,8 +29,8 @@ const loaded = (async () => {
   const castSource = fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/characters.mjs'), 'utf8')
     .replace("'/tower/vendor/three.module.js'", JSON.stringify(localURL('node_modules/three/build/three.module.js')));
   fs.writeFileSync(path.join(scratch, 'characters.mjs'), castSource);
-  const { createEnemy } = await import(pathToFileURL(path.join(scratch, 'characters.mjs')).href);
-  return { THREE, ...coordinates, context, createTowerWorld, createEnemy };
+  const { createEnemy, createClimber } = await import(pathToFileURL(path.join(scratch, 'characters.mjs')).href);
+  return { THREE, ...coordinates, context, createTowerWorld, createEnemy, createClimber };
 })();
 
 function snapshot(overrides = {}) {
@@ -359,4 +359,29 @@ test('authentic expedition ending is an exterior, phone-safe world-space composi
         'portrait/desktop ending must not crop the authentic body or earned floor rungs: '+ndc.toArray());
     }
   }
+});
+
+test('the real skinned climber kneels for a nonlethal game ending, halts upright on interruption, and resets cleanly', async () => {
+  const { createClimber } = await loaded;
+  const hero=createClimber();
+  try {
+    const body=hero.group.getObjectByName('articulated-body');
+    const leftLeg=hero.group.getObjectByName('-1-hip');
+    assert.ok(body?.isBone && leftLeg?.isBone);
+    const running={ runToken:'source-live',state:'standing',vx:0,vy:0,
+      health:4,maxHealth:5,facing:1,attacking:false };
+    hero.animate(running,.05,0,{reducedMotion:true});
+    const liveY=body.position.y;
+    hero.animate({...running,terminalKind:'game',terminalReason:'timer-expired'},.05,1,{reducedMotion:true});
+    assert.ok(body.rotation.x>.32 && leftLeg.rotation.x<-.8,
+      'nonlethal game terminal visibly settles into an exhausted surveyor kneel');
+    assert.ok(body.position.y<liveY-.20);
+    hero.animate({...running,runToken:'technical-run',terminalKind:'technical',
+      terminalReason:'integrity-quarantine'},.05,2,{reducedMotion:true});
+    assert.ok(body.rotation.x<.08 && leftLeg.rotation.x>-.2,
+      'a technical outage is not falsely animated as defeat');
+    hero.animate({...running,runToken:'restart',terminalKind:null},.05,3,{reducedMotion:true});
+    assert.ok(Math.abs(body.position.y-liveY)<.001 && Math.abs(body.rotation.x)<.001,
+      'true restart retires the previous outcome pose completely');
+  } finally {hero.dispose();}
 });
