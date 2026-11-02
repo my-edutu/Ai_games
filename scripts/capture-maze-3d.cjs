@@ -63,7 +63,7 @@ if (require.main === module) (async () => {
   const reports = [];
   const manifestFile = path.join(directory, 'manifest.json');
   const prior = fs.existsSync(manifestFile) ? JSON.parse(fs.readFileSync(manifestFile, 'utf8')).reports : [];
-  const sourceFiles = Object.fromEntries(['index.html','app.js','scene.js','world.js','characters.js','map-view.mjs','styles.css','ux-v2.css'].map(name => [name, createHash('sha256').update(fs.readFileSync(path.resolve(__dirname, '../public/ai-maze-escape', name))).digest('hex')]));
+  const sourceFiles = Object.fromEntries(['index.html','app.js','scene.js','world.js','gate-moment.mjs','characters.js','map-view.mjs','styles.css','ux-v2.css'].map(name => [name, createHash('sha256').update(fs.readFileSync(path.resolve(__dirname, '../public/ai-maze-escape', name))).digest('hex')]));
   function record(report) {
     reports.push({...report, sourceFiles});
     const latest = new Map(prior.map(item => [item.name, item]));
