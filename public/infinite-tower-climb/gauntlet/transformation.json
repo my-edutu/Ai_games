@@ -396,7 +396,14 @@
       },
       "supportedDeviceFrameTimes": "NOT MEASURED",
       "biggestExperienceRisk": "Contact footprint may be occluded or cluttered in actual scenes; requires matched full-motion visual criticism, including portrait framing and complete baseline outcome.",
-      "status": "NOT EVALUATED"
+      "status": "NOT EVALUATED",
+      "priorGuardrailsAtSource6939005": {
+        "ci": "NOT VERIFIED AT EXACT HEAD ea520548: source modules V8-compiled and narrow mocked behavior exercises passed; six code/test commits have been committed to PR68 since d85f0cd, but no post-change GitHub Actions runs were returned at inspection. Entire Node/Three.js browser suite and CI check verdict unavailable. Green test count cannot prove transformation.",
+        "replay": "NOT RE-VERIFIED AT CURRENT SOURCE. New motion echoes consume only two consecutive observed immutable positions from the exact same live run, source tick and platform ID; a gap >8 ticks, mismatch, stale stream, enemy danger or terminal state clears history. Audio responds only to the existing actual intent, never influences seeded simulation or world state. Deterministic replay/integration must still be run at exact source.",
+        "accessibility": "NOT FULLY VERIFIED. The observed moving-deck echoes are entirely absent for reduced-motion viewers, while the existing fixed platform choice markers remain stable. Choice audio is opt-in and respects mute; no new on-screen prose, flicker, or mandatory sound input. Contrast/phone legibility in genuine gameplay, audio comprehension, and screen-reader alternatives require independent review.",
+        "performance": "NOT MEASURED ON SUPPORTED DEVICE. The source-selected route renders <=12 preexisting arrow instances in one draw and at most six source-observed moving-deck echoes in a second instanced draw, without shadows, new lights or runtime geometry allocation. Source-only bounds are not supported-device p50/p95/p99 frame-time, memory or quality evidence.",
+        "stability": "NOT VERIFIED AT EXACT HEAD ea520548. One source-owned motion-echo geometry/material and reused instances explicitly dispose on context loss/restart. Mode, stale, target mismatch, tick gap, result/intermission and run transitions clear history; opt-in audio is bounded by existing voice cap. Browser recovery, actual full game, current CI and device stability must be tested. No merge/deploy."
+      }
     }
   }
 }
