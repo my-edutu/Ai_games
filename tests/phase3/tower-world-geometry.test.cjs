@@ -195,7 +195,7 @@ test('rendered platform tops match current authoritative bounds including moving
       const snapshot = fixture(theme, floor);
       world.update(snapshot, .016, 0, {}); check(snapshot);
       const counts = world.diagnostics();
-      assert.ok(counts.meshes + counts.shadowCasterMeshes <= 100, `${theme}: representative world submission budget exceeded`);
+      assert.ok(counts.meshes + counts.shadowCasterMeshes <= 100, `${theme}: representative world submission budget exceeded (${counts.meshes} material draws + ${counts.shadowCasterMeshes} shadow draws)`);
       const moved = freeze({ ...snapshot, platforms: snapshot.platforms.map(platform => platform.kind === 'moving'
         ? { ...platform, x: platform.x + 17000, y: platform.y + 2300 } : platform) });
       world.update(moved, .016, 1, {}); check(moved);
