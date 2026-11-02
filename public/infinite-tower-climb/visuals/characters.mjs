@@ -681,6 +681,27 @@ export function createClimber() {
       }
       for(let i=0;i<2;i++)arms[i].upper.rotation.z+=(i?1:-1)*.22*plant;
     }
+    // A genuinely occupied moving carriage can displace laterally beneath
+    // the real standing robot. Counter-lean the torso, stabilize the helmet
+    // and bend BOTH weight-bearing knees for a short source-tick response.
+    // This lives on the same articulated skeleton as the grip/landing cycle:
+    // no second locomotion animation, graphics draw, fake deck or AI steering.
+    // Combat/defensive poses and reduced-motion preference always take priority.
+    const deckRide=state.platformRide;
+    const balance=!reducedMotion&&!dead&&!hurt&&!defending&&!attacking
+      &&!terminalKind&&state.state==='standing'&&deckRide?.grounded
+      &&Number.isFinite(deckRide.lean)?clamp(deckRide.lean,-1,1):0;
+    if(Math.abs(balance)>.001){
+      body.rotation.z-=balance*.17;
+      head.rotation.z+=balance*.105;
+      body.position.y-=Math.abs(balance)*.045;
+      for(let i=0;i<2;i++){
+        legs[i].upper.rotation.z+=balance*.095;
+        legs[i].lower.rotation.x+=Math.abs(balance)*.11;
+        arms[i].upper.rotation.z-=balance*.12;
+        arms[i].lower.rotation.x-=Math.abs(balance)*.085;
+      }
+    }
     // Optional target deltas are host-provided snapshot facts; the pose never
     // infers a landing or changes a simulation position.
     if(Number.isFinite(state.targetDy)&&!hurt&&!dead){
