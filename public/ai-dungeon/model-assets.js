@@ -7,7 +7,7 @@ import {planWardenRegalia} from '/dungeon/warden-regalia-plan.js';
 import {planWardenRegaliaMotion} from '/dungeon/warden-chapter-plan.js';
 import {planRoleSilhouette} from '/dungeon/role-silhouette-plan.js';
 import {planAnatomicalKit,planAnatomicalDrawGroups} from '/dungeon/anatomical-kit-plan.js';
-import {createForgedArmorForms,planForgedArmor,planForgedFinishes} from '/dungeon/forged-armor.js';
+import {createForgedArmorForms,planForgedArmor,planForgedFinishes,planAuthoredBodyShape} from '/dungeon/forged-armor.js';
 import {planDrapePanels,planDrapeSwing,planDrapeVertexBend,drapePoseKey,DRAPE_ROWS,DRAPE_COLUMNS} from '/dungeon/fabric-drape-plan.js';
 import {rigWeaponParts,selectHandBone,rigGripAnchor,boundedGripOffset,selectUpperArmBone,planRigArmGesture,selectForearmBone,planRigForearmGesture,selectLegBone,advanceRigGait,planRigLegGesture,planRigContactBrace,selectCranialBone,planCranialRatio,restoreCranialProportion,stageCranialProportion,selectCombatTorsoBone,planRigMeleeFollowThrough} from '/dungeon/rig-attachment-plan.js';
 
@@ -75,20 +75,36 @@ function chooseClip(available,action){
  for(const regex of prefer){const found=available.find(clip=>regex.test(clip.name));if(found)return found}
  return available.find(c=>/idle/i.test(c.name))||available[0]||null;
 }
-function configure(mesh,warden,owned){
+function configure(mesh,kind,owned){
+ // A unified desaturated PBR source layer stops glowing KayKit base colours
+ // from fighting the role-specific forged cuirass and animated leather.
+ // Clone every shared GLB material, never tint the cached master or another
+ // character's map. Embedded, already-vetted textures remain attached.
+ const role=planForgedFinishes(kind);
+ const textile=new THREE.Color(role?.textile?.color||'#68717a');
+ const boss=kind==='warden';
  mesh.traverse(obj=>{
   if(!obj.isMesh)return;
   obj.castShadow=true;obj.receiveShadow=true;obj.userData.sharedAssetGeometry=true;
-  if(warden){
-   const input=Array.isArray(obj.material)?obj.material:[obj.material];
-   const tinted=input.map(mat=>{
-    const copy=mat.clone();
-    if(copy.color)copy.color.lerp(new THREE.Color('#f3ab70'),.29);
-    if('emissive' in copy){copy.emissive.lerp(new THREE.Color('#c63b24'),.18);copy.emissiveIntensity=Math.max(copy.emissiveIntensity||0,.15)}
-    owned.push(copy);return copy;
-   });
-   obj.material=Array.isArray(obj.material)?tinted:tinted[0];
-  }
+  const source=Array.isArray(obj.material)?obj.material:[obj.material];
+  const fitted=source.map(mat=>{
+   if(!mat)return mat;
+   const copy=mat.clone();
+   if(copy.color){
+    // Material.color multiplies the original texture: do not replace maps.
+    copy.color.lerp(textile,boss?.13:.09);
+    if(boss)copy.color.lerp(new THREE.Color('#e4b18b'),.15);
+   }
+   if('roughness' in copy)copy.roughness=Math.min(1,Math.max(.58,copy.roughness??.8));
+   if('metalness' in copy)copy.metalness=Math.min(.47,Math.max(0,copy.metalness??0));
+   if(boss&&copy.emissive){
+    copy.emissive.lerp(new THREE.Color('#a74d2e'),.14);
+    copy.emissiveIntensity=Math.min(.28,Math.max(copy.emissiveIntensity||0,.10));
+   }
+   owned.push(copy);
+   return copy;
+  });
+  obj.material=Array.isArray(obj.material)?fitted:fitted[0];
  });
 }
 // Original scene-only regalia distinguishes the true textured boss from its
@@ -548,7 +564,7 @@ function attachCharacter(actor){
  const request=load(asset).then(gltf=>{
   if(!gltf||actor.detached||actor.u.id!==id)return false;
   const instance=cloneSkeleton(gltf.scene),owned=[],isBoss=actor.u.kind==='warden';
-  configure(instance,isBoss,owned);
+  configure(instance,actor.u.kind,owned);
   // Fit artist source units to dungeon scale and centre the feet on the floor.
   instance.updateMatrixWorld(true);
   const bounds=new THREE.Box3().setFromObject(instance),size=new THREE.Vector3(),center=new THREE.Vector3();
@@ -556,8 +572,11 @@ function attachCharacter(actor){
   if(Number.isFinite(size.y)&&size.y>.05&&size.y<1000){
    const targetHeight=isBoss?2.05:1.82;
    const sourceScale=Math.max(.08,Math.min(12,targetHeight/size.y));
-   instance.scale.setScalar(sourceScale);
-   instance.position.set(-center.x*sourceScale,-bounds.min.y*sourceScale,-center.z*sourceScale);
+   const body=planAuthoredBodyShape(actor.u.kind);
+   const fitX=sourceScale*(body?.width??1),fitZ=sourceScale*(body?.depth??1);
+   // Keep the real artist feet on the ground; do not scale authoritative grid.
+   instance.scale.set(fitX,sourceScale,fitZ);
+   instance.position.set(-center.x*fitX,-bounds.min.y*sourceScale,-center.z*fitZ);
   }
   const pivot=new THREE.Group();(actor.impactPivot||actor.root).add(pivot);pivot.add(instance);
   actor.visualPivot=pivot;actor.motionPeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.anatomicalParts=0;actor.anatomicalJointParts=0;actor.anatomicalDetailMeshes=0;actor.anatomicalStaticMergedParts=0;actor.sculptedArmorProfile=null;actor.sculptedArmorVertices=0;actor.rigBoundAccessoryParts=0;actor.rigHandBoneName=null;actor.rigHandBone=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigCranial=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.wardenChargeShoulderPeak=0;actor.wardenCharge=null;actor.rigForearms=[];actor.rigForearmPeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;actor.rigMeleeBones=[];actor.rigMeleePeak=0;actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.draperyPoseKey=null;actor.draperyFramesSkipped=0;actor.draperyNormalRebuilds=0;actor.draperyVertexUploads=0;

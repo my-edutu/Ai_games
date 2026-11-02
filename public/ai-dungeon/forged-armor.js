@@ -12,7 +12,22 @@ const PROFILES=Object.freeze({
  cultist:Object.freeze({name:'penitent',shoulders:.87,waist:.91,hem:1.13,keel:.052,flutes:9}),
  warden:Object.freeze({name:'oathbreaker',shoulders:1.30,waist:.96,hem:1.19,keel:.11,flutes:10})
 });
-export function planForgedArmor(kind){
+// This refits the *source* licensed GLB silhouette, not a collision capsule.
+ // The vertical 1.82m heroic read is preserved; less squat X/Z dimensions
+ // and distinct martial/caster builds support genuine adult body proportions.
+ // Only the cloned presentation model is changed; world cells and reach stay put.
+ const BODY_SHAPES=Object.freeze({
+  vanguard:Object.freeze({width:.93,depth:.91}),
+  ranger:Object.freeze({width:.84,depth:.86}),
+  mystic:Object.freeze({width:.87,depth:.88}),
+  revenant:Object.freeze({width:.87,depth:.87}),
+  cultist:Object.freeze({width:.85,depth:.86}),
+  warden:Object.freeze({width:.96,depth:.95})
+ });
+ export function planAuthoredBodyShape(kind){
+  return typeof kind==='string'&&Object.hasOwn(BODY_SHAPES,kind)?BODY_SHAPES[kind]:null;
+ }
+ export function planForgedArmor(kind){
  return typeof kind==='string'&&Object.hasOwn(PROFILES,kind)?PROFILES[kind]:null;
 }
 const PROFILES_Y=Object.freeze({

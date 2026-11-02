@@ -32,6 +32,23 @@ test('six original role-contoured forged armor shells are real finite indexed me
  assert.equal(createForgedArmorForms(THREE,'missing'),null);
 });
 
+test('adult source GLB silhouette refit is bounded and role-specific',async()=>{
+ const {planAuthoredBodyShape}=await load();
+ const widths=new Set();
+ for(const kind of kinds){
+  const shape=planAuthoredBodyShape(kind);
+  assert.ok(Object.isFrozen(shape));
+  assert.ok(shape.width>=.83&&shape.width<=.97);
+  assert.ok(shape.depth>=.83&&shape.depth<=.97);
+  widths.add(shape.width);
+ }
+ assert.ok(widths.size>=4);
+ assert.equal(planAuthoredBodyShape('unknown'),null);
+ const source=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(source,/instance\.scale\.set\(fitX,sourceScale,fitZ\)/);
+ assert.match(source,/configure\(instance,actor\.u\.kind,owned\)/);
+ assert.match(source,/copy\.color\.lerp\(textile/);
+});
 test('real skinned GLB characters use sculpted forms without changing authority or hand/leg articulation',()=>{
  const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  const host=fs.readFileSync(path.join(root,'scripts/serve-dungeon-stream.cjs'),'utf8');
