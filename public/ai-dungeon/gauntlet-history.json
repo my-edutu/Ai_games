@@ -2193,7 +2193,7 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "New test-first CI on test commit bd504c1 showed two expected RED cases (new Warden API absent; opening sound absent); 766/768 catalogue tests passed before implementation. Integrated authority + cue code is committed at cba4a05; exact-head build, replay, browser, full CI and performance NOT YET VERIFIED. Never treat source/tests alone as accepted transformation.",
+      "safetyChecks": "Exact-head authority, deterministic replay, browser, catalogue, mobile, performance and security checks for candidate f1a72c861eb688e025038142d10dd3f3fcaf73d6 were QUEUED/IN PROGRESS at checkpoint; no pass claimed. Prior 4c7ef99 had failed browser shard and immersive test because dungeon-ui-round17 did not reach defeat/intermission within 2500 ticks. Shared CI also reported Tiny Kingdom failures. Candidate survival pacing remains UNVERIFIED.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED — original WebAudio + real canvas recording attempted by new browser fixture, not yet captured or personally inspected.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2204,9 +2204,9 @@
       "latestCandidateWorkflow": "Implementation cba4a054: autonomous catalogue https://github.com/my-edutu/Ai_games/actions/runs/41417245543 ; Dungeon Foundation https://github.com/my-edutu/Ai_games/actions/runs/41417245591 ; real Chromium review https://github.com/my-edutu/Ai_games/actions/runs/41417245401 . In progress at recording. Follow-on browser recovery fixture is a NEW evidence gate; its results are not yet known."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "The running game has not yet shown a substantial, independently established full-journey improvement: imported actors remain miniature-like and the stone world can remain repetitive, while counterattack timing, meaningful enemy choices, contact/audio, mobile clarity and actual continuous multi-floor adventure require genuine video review. No matched pinned 281735d M1 BEFORE/AFTER, calibrated performance, original audible full reel or 3-critic looks/feels/plays majority. IN PROGRESS — NOT TRANSFORMED.",
-    "currentWork": "Real AI Warden shockwaves now open a two-authority-turn EXPOSED counterattack: hero agents prioritize legal boss lanes even with minions, deal 40% more raw damage, and exploit the boss's actual melee-free recovery. A genuine recovered boss returns to normal threats; saved replay records the window. The same public state drives 3D rig stagger, cathedral relief, restrained spotlight, boss HUD and original opt-in audio. The new browser fixture records actual desktop/mobile counterplay and attempts a real audio+WebGL clip.",
-    "candidateCommit": "cba4a05432f26c50e9f1a71548b26555ccfa7993",
+    "biggestRemainingGap": "No matched pinned baseline and no uninterrupted real desktop/mobile traversal→combat→Warden→floor transition→defeat/restart audiovisual footage. A real previous Chromium run failed end-state because a fixed 2500-tick seed never reached intermission. Miniature-like characters and recurrent stone occlusion remain. Hardware performance, audible recording and 3 independent blind LOOKS/FEELS/PLAYS majorities are missing. IN_PROGRESS / NOT_TRANSFORMED.",
+    "currentWork": "Integrated tactical shadow-cultist duel at commit f1a72c861eb688e025038142d10dd3f3fcaf73d6: a real ranged caster charges one locked legal floor cell, visibly warns, gives AI heroes a legal dodge or defensive brace, and can be interrupted by true damage before its next-turn HP result. Cultist/revenant melee threat grows boundedly with depth. One instanced Three.js marker batch, captions and original opt-in audio share the state. Continuing M1, not an experience win.",
+    "candidateCommit": "f1a72c861eb688e025038142d10dd3f3fcaf73d6",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -2773,6 +2773,27 @@
         "critics": "NOT_RUN; no independent fresh builder/critic workspace; unanimous or majority A/B UNVERIFIED",
         "safety": "Saved optional bounded authoritative clock; no RNG or new map/teleport; legal damage, guard, boss strike, deterministic replay and animation authority retained. New play balance and secure/CI/browser/performance gates pending, no merge or deployment.",
         "next": "Inspect new real desktop/mobile WebGL Warden impact+exposed clip for visible counterplay, true contact, audible cues and missed warnings; repair regressions. Record fully organic continuous traversal→combat→boss→floor→defeat/restart, compare pinned baseline and three external references, measure FPS/loudness/accessibility, and require 3 independent blind LOOKS/FEELS/PLAYS votes before acceptance."
+      },
+      {
+        "id": "M1-TACTICAL-SHADOW-HEX-20261102",
+        "date": "2026-11-02",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "4c7ef99a36cda2da4f657d6e34e13f5926c03eea",
+        "codeCommit": "f1a72c861eb688e025038142d10dd3f3fcaf73d6",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "objective": "Replace instant untelegraphed cultist bolts with an interruptible true spatial duel, autonomous dodge/brace, honest damage, real 3D floor warning, sound/captions and rising depth pressure.",
+        "implementation": "Cultist commits a saved next-turn legal impact cell targeting a clear-lane support hero; party can sidestep or brace, and a real hit cancels channel before damage. One GPU-instanced original ground ring batch marks the actual target cell, and original opt-in audio/alerts announce real events. Added authority and desktop/mobile browser contracts. No copyrighted art, RNG stream or non-authoritative hit.",
+        "files": [
+          "games/ai-dungeon/src/index.ts",
+          "public/ai-dungeon/app.js",
+          "public/ai-dungeon/soundstage-plan.js",
+          "tests/foundation/dungeon-core.test.cjs",
+          "tests/browser/dungeon-interface.spec.cjs"
+        ],
+        "evidence": "Exact-head CI and real WebGL tests queued/in progress; no inspected new clips, audible recording, independent critic, benchmark A/B or acceptance evidence.",
+        "experienceVerdict": "IN_PROGRESS / NOT_TRANSFORMED",
+        "knownBlocker": "Prior browser test at 4c7ef99 failed because fixed seed did not reach defeat/intermission by 2500 ticks; natural campaign mortality remains a substantive PLAY concern.",
+        "next": "Inspect genuine real-world WebGL hex markers desktop/mobile, tune AI danger and natural end-state, measure replay/performance; continue full body/arena transformation; capture continuous matched expedition with audio and obtain >=3 independent blind critics."
       }
     ]
   }
