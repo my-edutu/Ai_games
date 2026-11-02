@@ -1688,8 +1688,17 @@ export function createTowerScene(canvas, settings = {}) {
     // X-ray overlay, route prediction or collider change. The visor is read
     // from its actual solved skinned world transform after animation.
     if (!options.stale && snapshot.lifecycle === 'running' && p.health > 0) {
-      const visor = climber.group.getObjectByName('expressive-helmet');
-      if (visor) guardianSightPoints.push(visor.getWorldPosition(climberCapSightPoint));
+      const cap = snapshot.platforms.find(deck => deck.id === `f${snapshot.floor}:cap`);
+      // Only inspect the relevant crown crossing. Otherwise the ordinary
+      // endless ascent must not pay a repeated cap raycast for a distant hero
+      // or make out-of-view masonry unnecessarily translucent.
+      const crownY = cap && cap.y + cap.height;
+      const nearCrown = Number.isFinite(crownY) &&
+        Math.abs(p.y + p.halfHeight - crownY) <= 65000;
+      if (nearCrown) {
+        const visor = climber.group.getObjectByName('expressive-helmet');
+        if (visor) guardianSightPoints.push(visor.getWorldPosition(climberCapSightPoint));
+      }
     }
     for (const entry of enemies.values()) {
       const e = entry.state;
