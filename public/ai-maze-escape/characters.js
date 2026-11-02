@@ -268,13 +268,18 @@ export function createExplorer(options = {}) {
     // a witnessed gate opening or terminal truth. No teleport/AI authority.
     const pickupCelebrate=!s.win&&!s.lose&&alert<.1&&keyReach<.1
       &&gateCelebrate<.1 ? Math.max(0,Math.min(1,finite(options.pickupStrength))) : 0;
-    heldKey.visible=keyReach>.2;
+    // The SAME physical key also appears briefly when the public runtime
+    // actually records its collection and matching inventory. A pickup is
+    // witnessed, never predicted from a goal or unrevealed key position.
+    // Genuine guardian, gate and terminal performance still take precedence.
+    heldKey.visible=keyReach>.2||pickupCelebrate>.08;
     // Raise the already modeled key into Pip's silhouette, above the foreground
     // gate post; counter-rotate the held prop so its bow stays above its teeth.
     // No new information, simulation action or frame-time allocation is used.
     // Clear any prior quaternion aim when returning to neutral or guardian.
-    heldKey.rotation.set(keyReach*2.7,0,s.reduced?0:Math.sin(s.time*2.2)*.045*keyReach);
-    heldKey.scale.setScalar(1+keyReach*.25);
+    heldKey.rotation.set(keyReach*2.7+pickupCelebrate*2.35,0,
+      s.reduced?0:Math.sin(s.time*2.2)*.045*Math.max(keyReach,pickupCelebrate));
+    heldKey.scale.setScalar(1+keyReach*.25+pickupCelebrate*.18);
     // Shape, not color or blinking alone, communicates a real nearby warden.
     // Reduced-motion keeps the same static visual cue.
     alertFlare.visible=alert>.24;
@@ -301,12 +306,12 @@ export function createExplorer(options = {}) {
       legs[i].hip.rotation.x=step*sign*.62-alert*.22;
       legs[i].hip.rotation.z=alert>0?-sign*alert*.3:0;
       legs[i].knee.rotation.x=Math.max(0,-step*sign)*.58+alert*.3+pickupCelebrate*.14;
-      arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0)-alert*(i===1?1.55:.95)-(i===0?keyReach*2.3:0)-gateCelebrate*(i===1?1.35:.48)-pickupCelebrate*(i===1?1.43:.70);
+      arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0)-alert*(i===1?1.55:.95)-(i===0?keyReach*2.3:0)-gateCelebrate*(i===1?1.35:.48)-pickupCelebrate*(i===1?1.43:1.20);
       // Aim the raised physical glove toward the publicly disclosed lock,
       // not just upward. Reduced-motion uses the same stable static pose.
       // A terminal result or nearby guardian suppresses keyYaw entirely.
       arms[i].shoulder.rotation.y=i===0?keyYaw*1.1:0;
-      arms[i].shoulder.rotation.z=(i===0?-1:1)*(s.win?.95:i===1?.34:.15)+(i===0?keyYaw*.25:0)+(i===0?-1:1)*alert*.65+gateCelebrate*(i===1?.36:-.21);
+      arms[i].shoulder.rotation.z=(i===0?-1:1)*(s.win?.95:i===1?.34:.15)+(i===0?keyYaw*.25:0)+(i===0?-1:1)*alert*.65+gateCelebrate*(i===1?.36:-.21)-(i===0?pickupCelebrate*.46:0);
       arms[i].elbow.rotation.x=-.16-(i===1?.22:0)-(s.danger*.3)-(i===0?keyReach*.7:0)-alert*(i===1?.38:.24)-gateCelebrate*(i===1?.3:.12)-pickupCelebrate*(i===1?.23:.18);
       // Counter-turn the connected wrist as the shoulder aims at the known lock.
       // Keep the actual glove/key face visible rather than twisting its bow
