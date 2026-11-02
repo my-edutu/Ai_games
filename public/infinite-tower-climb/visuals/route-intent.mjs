@@ -71,7 +71,8 @@ export function createTowerRouteIntent(THREE) {
       Number.isSafeInteger(snapshot.tick) && typeof snapshot.runToken === 'string' &&
       snapshot.runToken.length > 0 && player?.health > 0 && !player.attacking &&
       ['aligning', 'jumping', 'air-control'].includes(mode) &&
-      platform && typeof platform.id === 'string' && platform.width > 0 &&
+      platform && typeof platform.id === 'string' &&
+      platform.id === snapshot.intent?.targetPlatformId && platform.width > 0 &&
       Number.isFinite(snapshot.worldWidth) && snapshot.worldWidth > 0 &&
       Number.isFinite(snapshot.chunkBaseY) &&
       [player.x, player.y, platform.x, platform.y, platform.height, platform.width]
