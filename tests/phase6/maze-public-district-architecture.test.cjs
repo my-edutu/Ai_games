@@ -19,7 +19,7 @@ async function loadRealWorld() {
   try {
     fs.mkdirSync(path.join(temp, 'vendor'));
     fs.writeFileSync(path.join(temp, 'package.json'), '{"type":"module"}');
-    for (const file of ['world.js', 'gate-moment.mjs'])
+    for (const file of ['world.js', 'gate-moment.mjs', 'map-view.mjs'])
       fs.copyFileSync(path.join(source, file), path.join(temp, file));
     for (const file of ['three.module.js', 'three.core.js'])
       fs.copyFileSync(path.join(vendor, file), path.join(temp, 'vendor', file));
