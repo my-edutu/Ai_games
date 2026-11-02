@@ -1,4 +1,5 @@
 import * as THREE from './vendor/three.module.js';
+import { GATE_RETRACTION_SECONDS, observedGateOpenings, gateRetractionPose } from './gate-moment.mjs';
 
 export const CELL_SIZE = 2.4;
 export function cellPosition(cell, width, height) {
@@ -52,6 +53,10 @@ export function createMazeWorld(options = {}) {
   const geometries = new Set(), materials = new Set(), textures = new Set();
   // Only truly modeled public closed-door sockets; invalidated with visible objects.
   const publicClosedSockets = new Map();
+  // An open gate only moves if this SAME run publicly showed its CLOSED state
+  // first. These are presentation-only timestamps, never gate authority.
+  const gateOpeningAt = new Map(), retractingGates = new Map();
+  let presentationTime = 0;
   const doorEdgeId = (a,b) => `${Math.min(a,b)}:${Math.max(a,b)}`;
   const geometry = (g) => { geometries.add(g); return g; };
   const material = (color, extras = {}) => {
@@ -585,7 +590,12 @@ export function createMazeWorld(options = {}) {
     mesh(p, bevel, darkJade, 0, 1.68, 0, 1.5, .08, .35);
     const gate = new THREE.Group(); gate.name = 'Withdrawable gate bars'; p.add(gate);
     // The raised gate is withdrawn into the lintel, leaving a fully clear opening.
-    gate.visible = !door.open;
+    const edgeId = doorEdgeId(door.a, door.b);
+    const start = gateOpeningAt.get(edgeId);
+    const retracting = door.open && Number.isFinite(start)
+      && presentationTime - start < GATE_RETRACTION_SECONDS;
+    gate.visible = !door.open || retracting;
+    if (retracting) retractingGates.set(edgeId, gate);
     for (let j = 0; j < 5; j++) mesh(gate, cylinder, darkMetal, -.64 + j * .32, .79, 0, .035, 1.45, .035);
     for (const y of [.22, 1.37]) mesh(gate, bevel, darkMetal, 0, y, 0, 1.6, .1, .12);
     if (!door.open) {
@@ -759,7 +769,7 @@ export function createMazeWorld(options = {}) {
     animations.push({ type: 'crystal', object: gem, baseY: 0, phase: cell });
   }
   function rebuildObjects(s) {
-    publicClosedSockets.clear();
+    publicClosedSockets.clear(); retractingGates.clear();
     clear(objects); animations = [];
     for (const key of s.keys) keyProp(key, s);
     for (const door of s.doors) doorProp(door, s);
@@ -783,13 +793,23 @@ export function createMazeWorld(options = {}) {
   }
   function update(s) {
     if (disposed || !s) return;
+    // No invented unlock from a previously unseen, already-open door.
+    // Only an exact public closed→open transition within one live run qualifies.
+    if (snapshot && snapshot.runToken === s.runToken) {
+      for (const door of observedGateOpenings(snapshot, s))
+        gateOpeningAt.set(doorEdgeId(door.a, door.b), presentationTime);
+    }
+    const currentOpen = new Set((s.doors || []).filter(door => door.open)
+      .map(door => doorEdgeId(door.a, door.b)));
+    for (const edge of gateOpeningAt.keys())
+      if (!currentOpen.has(edge)) gateOpeningAt.delete(edge);
     snapshot = s;
     if (runToken !== s.runToken) {
       // An empty but valid disclosed run produces an empty terrain key. A
       // sentinel distinct from that key is mandatory after a run change:
       // otherwise old renderedCells diagnostics can survive with no meshes.
       runToken = s.runToken; terrainSignature = null; objectSignature = ''; backdropSignature = ''; lastVisibility = '';
-      clear(terrain); clear(objects); clear(backdrop); publicClosedSockets.clear();
+      clear(terrain); clear(objects); clear(backdrop); publicClosedSockets.clear(); gateOpeningAt.clear(); retractingGates.clear();
       batches = []; animations = []; ripples = []; renderedCells = []; stairEdges = [];
       coastalGardens = 0; wallGardens = 0; tidalObservatories = 0;
     }
@@ -812,7 +832,21 @@ export function createMazeWorld(options = {}) {
   function animate(time, options = {}) {
     if (disposed) return;
     const t = Number.isFinite(time) ? time : 0;
+    presentationTime = t;
     const reduced = !!options.reducedMotion;
+    // Carved bronze portcullises physically withdraw into their own lintel.
+    // The passage was already opened by the real engine; this is cosmetic.
+    // Animation is held on the same 3D gate between source polling updates.
+    for (const [edge, gate] of retractingGates) {
+      const pose = gateRetractionPose(t - gateOpeningAt.get(edge), reduced);
+      gate.visible = pose.visible;
+      gate.position.y = pose.raise;
+      gate.scale.y = pose.scaleY;
+      if (!pose.visible) {
+        retractingGates.delete(edge);
+        gateOpeningAt.delete(edge);
+      }
+    }
     waterTexture.offset.set(reduced ? 0 : t * .0012, reduced ? 0 : t * .0006);
     if (highContrast !== !!options.highContrast) { highContrast = !!options.highContrast; if (snapshot) refreshVisibility(snapshot, true); }
     for (const a of animations) {
@@ -825,7 +859,7 @@ export function createMazeWorld(options = {}) {
   }
   function dispose() {
     if (disposed) return; disposed = true;
-    clear(terrain); clear(objects); clear(backdrop); publicClosedSockets.clear();
+    clear(terrain); clear(objects); clear(backdrop); publicClosedSockets.clear(); gateOpeningAt.clear(); retractingGates.clear();
     for (const g of geometries) g.dispose();
     for (const m of materials) m.dispose();
     for (const t of textures) t.dispose(); textures.clear();
@@ -834,7 +868,7 @@ export function createMazeWorld(options = {}) {
   function stats() {
     let meshes = 0, instances = 0;
     group.traverse(item => { if (item.isMesh) meshes++; if (item.isInstancedMesh) instances += item.count; });
-    return { renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), coastalGardens, wallGardens, tidalObservatories, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
+    return { renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), coastalGardens, wallGardens, tidalObservatories, retractingPublicGates: retractingGates.size, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
   }
   return { group, update, animate, dispose, stats, matchingPublicSocket };
 }
