@@ -26,7 +26,7 @@ const gpuArgs=['--enable-webgl','--use-gl=angle','--use-angle=swiftshader',
  '--enable-precise-memory-info'];
 
 const evidence={
- version:'g115-grounded-worker-encounter-v1',
+ version:'g116-crowd-visible-worker-street-v1',
  baselineSha:BASE,candidateSha:null,baselineBlob:null,candidateBlob:null,
  renderer:'UNVERIFIED',status:'INCOMPLETE',workdayTicks:null,
  camera:{wide,labor,grown,marketView},viewport,
@@ -274,7 +274,10 @@ async function stage(label,html,browser,matchedTicks){
    });
    assert(workerVisit.encounter.moved&&workerVisit.encounter.realCitizen&&
     workerVisit.encounter.lineOfSight&&workerVisit.view.visibility.openSky,
-    'G115 visitor could not see an actual citizen at an outdoor viewpoint');
+    'G116 visitor could not see an actual citizen at an outdoor viewpoint');
+   assert(workerVisit.encounter.crowdIntrusions===0&&
+    workerVisit.encounter.closestBystander>=2.4,
+    'G116 actual street worker shot is blocked by another citizen');
    assert(workerVisit.authorityUnchanged,'G115 visitor changed authoritative world');
    await page.waitForTimeout(650);
    await page.screenshot({path:path.join(DIR,label+'/street-worker-encounter-wide.png'),timeout:90000});
@@ -397,8 +400,9 @@ async function streetMotion(browser,html,snapshot){
    const result=g.visitStreetWorker();
    return {...result,authorityUnchanged:prior===JSON.stringify(g.exportSnapshot())};
   });
-  assert(encounter.moved&&encounter.authorityUnchanged,
-   'G115 filmed encounter must target a real person without mutating authority');
+  assert(encounter.moved&&encounter.authorityUnchanged&&
+   encounter.crowdIntrusions===0&&encounter.closestBystander>=2.4,
+   'G116 filmed worker must be real, visible past bystanders and read-only');
   await page.waitForTimeout(1350);
   await page.mouse.move(450,270);
   await page.mouse.down();
