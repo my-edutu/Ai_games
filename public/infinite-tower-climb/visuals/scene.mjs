@@ -136,6 +136,22 @@ function towerCameraRate(current, target, guardianStaged, overview) {
   return Math.min(13.5, 5.2 + angularError * 5.2 + radialError * 2.4);
 }
 
+// The observed real-play portrait capture can briefly place the actual hero
+// 1.2–2 NDC widths outside the image during dash/floor transitions. A fixed
+// leisurely follow rate is cinematic only while the climber is still visible.
+// Adapt BOTH the exterior-orbit camera and its annular gaze to the previous
+// rendered frame's real climber screen position. No predictive physics,
+// screen-space fake actor, authoritative clock or additional GPU passes.
+// Quiet when the actor is centered; hard-capped to avoid violent camera whips.
+function towerCameraActorSafetyRate(rate, ndcX, ndcY, aspect) {
+  if (![rate, ndcX, ndcY, aspect].every(Number.isFinite) || aspect <= 0)
+    return rate;
+  const horizontal = aspect < .85 ? .7 : .8;
+  const pressure = Math.max(0, Math.abs(ndcX) / horizontal - .75,
+    Math.abs(ndcY) / .78 - .75);
+  return Math.min(18, rate + pressure * 10);
+}
+
 // Evidence-only approximate core occlusion for the inset bronze lock. A point
 // can project inside the phone viewport while sitting behind the tower; do not
 // award it a camera-composition preference or a visible-gate diagnostic then.
@@ -1461,8 +1477,20 @@ export function createTowerScene(canvas, settings = {}) {
     // Follow source-observed guardian action a little faster than exploration:
     // a real HP change should not be over before the camera catches its actor.
     // All motion remains bounded and presentation-only; reduced motion is still.
-    const cameraRate = towerCameraRate(camera.position, destination,
+    let cameraRate = towerCameraRate(camera.position, destination,
       !overview && !!followComposition?.guardianStaged, overview);
+    if (!overview && !options.reducedMotion && initialized) {
+      // Project the real current climber into the camera image from the
+      // previous submitted pose. This catches a fast dash, launch or new-floor
+      // traversal BEFORE ordinary slow interpolation loses the hero at the
+      // portrait edge. Preserve the outside-core orbit and gaze together.
+      camera.updateMatrixWorld(true);
+      scratch.copy(climber.group.position);
+      scratch.y += p.halfHeight / SCALE;
+      scratch.project(camera);
+      cameraRate = towerCameraActorSafetyRate(cameraRate,
+        scratch.x, scratch.y, camera.aspect);
+    }
     const cameraBlend = options.reducedMotion ? 1 : 1 - Math.exp(-dt * cameraRate);
     if (!initialized) { camera.position.copy(destination); lookAt.copy(focus); initialized = true; }
     else {
