@@ -404,6 +404,19 @@ export function createWarden(options = {}) {
     }
     const tip=rounded(carapace,bronze,[0,.09,-.43],[.21,.12,.16],.038);
     tip.rotation.y=side*.14;
+    // Large permanent tideblade crest, designed against real 390px Follow
+    // captures rather than invisible micro-scutes. A swept ivory blade and
+    // copper inlay are rooted in EACH real hinged elytron: no billboard,
+    // warning-state dependency, extra enemy or dynamic object allocation.
+    // Their rising profile carries the silhouette above dark stone parapets.
+    const tideblade=pivot(wing,`fixed sculpted warden tideblade ${side}`,[side*.27,.30,.10]);
+    const blade=rounded(tideblade,claw,[side*.12,.23,.08],[.29,.69,.36],.076);
+    blade.rotation.z=-side*.24;
+    blade.rotation.x=-.14;
+    const inset=rounded(tideblade,plates,[side*.17,.25,.29],[.15,.43,.065],.038);
+    inset.rotation.z=blade.rotation.z;
+    const base=rounded(tideblade,bronze,[side*.03,-.01,.03],[.36,.12,.40],.045);
+    base.rotation.z=-side*.10;
     elytra.push({wing,side});
   }
   rounded(body,bronze,[0,.435,-.06],[.055,.045,.78],.022);
