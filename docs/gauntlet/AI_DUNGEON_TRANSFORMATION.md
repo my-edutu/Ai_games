@@ -230,3 +230,14 @@ The protected baseline remains `281735d0910c6b2443648af976003d50412ee324`. This 
 ### Execution receipt, 2 November 2026
 
 Exact GitHub Actions workspace source revision `9b47b6d3170dd076ba06fc13868bc11a1acc3199` was extracted and executed locally, not inferred from merely queued CI. TypeScript compilation **PASS**, and **203/203** Dungeon foundation tests **PASS**. A real Chromium/Playwright attempt could not navigate the local dungeon because this environment's **managed browser policy blocks 127.0.0.1** (`ERR_BLOCKED_BY_ADMINISTRATOR`); it is therefore **NOT** a successful browser render or screenshot. A missed browser-test discovery error was found: the dungeon Playwright config explicitly enumerates specs and omitted the new natural terminal test. Add `dungeon-endgame-epilogue.spec.cjs` to that manifest, without weakening WebGL safety options, so the remote GitHub Actions runner can exercise the real desktop/mobile scene. Await that run's genuine artifacts before revising any visual verdict. **M1 remains IN PROGRESS, NOT TRANSFORMED**.
+
+
+## 2026-11-02 M1: authentic skinned defeat and material physicality (NOT TRANSFORMED)
+
+Unchanged, immutable M1 baseline: 281735d0910c6b2443648af976003d50412ee324.
+Same open draft PR #49 only. Candidate code/tests: a20bf79e0f55dd5a1acd543411c0a1ecff86a284.
+This implementation is part of the existing M1 goal, not a new round or acceptance.
+
+The prior real screenshot showed character anatomy and weight far below the references; existing fatal motion tipped the complete body like a block. True HP-zero now drives original skeletal joints on six cloned licensed character classes: shoulders, forearms, upper/lower legs and (where genuinely present) spine. The real terminal intermission holds bodies in a grounded static pose, including reduced-motion. All rotations are reversed before imported keyframes, preserving combat, nav, RNG and replay. Original embossed steel, bronze, bone, leather and cloth maps improve the actual grouped and limb-bound PBR armor using only five shared 96px textures; no per-frame allocations or proprietary content.
+
+Tests are committed. Actual new-head desktop and mobile browser results, visual comparisons, continuous motion/audio, frame pacing and independent blind votes are NOT VERIFIED. The workspace tunnel was inaccessible, so no independent critics were run; never invent a win. Exact candidate foundation, visual and catalogue Action jobs were queued when checked. Next: inspect those authentic WebGL assets, fix bone clipping and real close-camera visual failures, record complete same-seed traverse/combat/Warden/portal/floor/defeat/restart on desktop and phone with audio, then secure fresh-context critic majority in looks, feels and plays over pinned baseline.

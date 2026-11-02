@@ -2201,13 +2201,13 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Inspected exact prior-head genuine 1440x832 original WebGL world-only artifact https://github.com/my-edutu/Ai_games/actions/runs/41398888784/artifacts/13120803208 . Three living heroes in view, no active enemies in that one sample; their circular toy heads overlap alongside bulky masonry. This is genuine prior-head rendering, NOT a matched M1 baseline or a win for the unrendered new candidate.",
-      "latestCandidateWorkflow": "9b47b6d3 CI Actions: Dungeon 41446711872 queued, Visual 41446711770 in progress, catalogue 41446711890 queued. 203/203 local Dungeon foundation passed, exact-head browser capture still UNVERIFIED. Current config patch ensures real terminal browser fixture is discovered on subsequent CI runs."
+      "latestCandidateWorkflow": "Source/test candidate a20bf79e0f55dd5a1acd543411c0a1ecff86a284; Dungeon Foundation https://github.com/my-edutu/Ai_games/actions/runs/41450643700, Visual https://github.com/my-edutu/Ai_games/actions/runs/41450643798, Catalogue CI https://github.com/my-edutu/Ai_games/actions/runs/41450643931 queued as of initial check 2026-11-02. No matched visual or audiovisual candidate pass verified."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Running original 3D anatomy, motion, real contact/lighting quality and continuous story capture may still be far from Diablo IV/No Rest for the Wicked/Path of Exile 2. No matched unchanged 281735d BEFORE vs exact candidate AFTER, coherent desktop/mobile audio motion, hardware p95, or fresh blind three-critic looks/feels/plays majority. New physical last stand and boss director are code-implemented only, UNVERIFIED in real WebGL.",
-    "currentWork": "M1 continuing integrated confrontation-to-aftermath source implementation: genuine Warden recovery → near-field counterattack director, actual cleared exit journey framing, Warden zero-HP 3D/audio victory punctuation, and a truthful fallen-skinned-party defeat tableaux preserved through authoritative intermission. Prior natural 16th-floor portal occupancy deadlock repair retained. NO accepted visual or gameplay quality victory; exact-head natural desktop/mobile WebGL and CI still to be inspected.",
-    "candidateCommit": "d648c7127a11826940677ea70f94763ae003b4ef",
-    "candidateArtifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41438793069/artifacts/13140305057",
+    "biggestRemainingGap": "No independently judged, matched full-sequence browser motion/audio proves a substantial playable transformation. Prior live character anatomy and crowding still missed the Diablo IV / No Rest for the Wicked / PoE2 bars; new skinned bone movement, boss cinematography and material quality must be inspected on real device-size renders.",
+    "currentWork": "M1 real-character physicalization implemented: HP-zero GLB joint articulation, true static last stand and five original shared forged microtextures. Exact candidate browser footage, continuous AV comparison and blind external critics are UNVERIFIED.",
+    "candidateCommit": "a20bf79e0f55dd5a1acd543411c0a1ecff86a284",
+    "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
       {
@@ -2939,6 +2939,36 @@
         "status": "IN_PROGRESS / NOT_TRANSFORMED",
         "biggestRemainingGap": "Full-body anatomy, original detailed architectural staging, motion/contact finesse, consistent frame pacing and a true filmed all-scene adventure are still not proven against the Diablo IV / No Rest for the Wicked / Path of Exile 2 references.",
         "next": "Run browser fixture from now-correct explicit Playwright suite; retrieve actual 1440x832 and 390x844 scenes, inspect original 3D fallen poses and readability, repair any crop or performance issues, then capture coherent gameplay film and blind A/B."
+      },
+      {
+        "id": "M1-SKINNED-3D-DEFEAT-FORGED-MICROSURFACE-20261102",
+        "date": "2026-11-02",
+        "status": "IN_PROGRESS / IMPLEMENTED_UNVERIFIED",
+        "milestone": "Original M1 continuous vertical-slice transformation, no new gauntlet round",
+        "sourceHeadAtStart": "e2206ced4feaf06ef154bcfdf1b1a2390a502fe5",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "codeCommits": [
+          "e8641e0bc7354b837009db17b258f2ba1baffe85",
+          "982c189490bb3023f5d79f71be7449f1493a8d62"
+        ],
+        "testCommit": "a20bf79e0f55dd5a1acd543411c0a1ecff86a284",
+        "largestChosenGap": "Real 3D character anatomy and weight still read like rigid toy figurines; prior full-body impact was only a tilted root, and armor was flat under cinematic close-up.",
+        "implemented": [
+          "Deterministic presentation-only HP-zero skeletal fall now bends genuine cloned GLB shoulders, elbows, knees, feet and available spine over a bounded real frame envelope.",
+          "A genuine all-party-dead intermission holds a static 3D skinned last-stand pose; reduced-motion keeps the readable terminal silhouette without animating the fall.",
+          "The new quaternions join existing reversible joint overlays after the source AnimationMixer; no AI/HP/pathfinding/collision/RNG/replay write.",
+          "Original shared 96x96 embossed PBR texture patterns for five steel, bronze, bone, leather and textile materials are applied to actual grouped and bone-attached armor, without new meshes, runtime network or per-frame texture allocation.",
+          "Foundation tests and existing natural 2500-step desktop/phone Chromium terminal capture now demand a real loaded skinned fallen body; test outcomes still to verify."
+        ],
+        "verified": "Only GitHub source commits and authored tests verified. Candidate browser, matched baseline A/B, continuous audiovisual sequence, GPU p95, independent critics NOT RUN/UNVERIFIED.",
+        "browserChecks": "Dungeon Foundation Actions 41450643700, Visual 41450643798, Catalogue CI 41450643931 were queued when queried; do not treat a queued test as a pass.",
+        "critics": {
+          "status": "NOT_RUN",
+          "votes": 0,
+          "reason": "Coding workspace tunnel disconnected; no independent critic execution available."
+        },
+        "statusGate": "IN_PROGRESS / NOT_TRANSFORMED",
+        "next": "Inspect exact-head real Chromium desktop+390px portrait and audio/scene recording, repair posed anatomy and performance where needed, then film seeded traverse/combat/Warden/floor/descent/defeat/restart, compare pinned baseline and independently blind-vote looks/feels/plays."
       }
     ]
   }
