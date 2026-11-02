@@ -2193,20 +2193,20 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "Local source snapshot at 81a761: npm run dungeon:test PASSED 188/188 after new integrated changes (previous expected RED observed in focused tests); Node syntax and TypeScript build passed. No full exact-new-head Chromium, catalogue, security, GPU p95, audio clip or independent art verdict yet. Previous exact-head dedicated Chromium and visual workflow 41398888784/41398888789 succeeded before this change; catalogue CI 41398888788 failed. Authority engine, RNG and persistent format are unchanged.",
+      "safetyChecks": "New test-first CI on test commit bd504c1 showed two expected RED cases (new Warden API absent; opening sound absent); 766/768 catalogue tests passed before implementation. Integrated authority + cue code is committed at cba4a05; exact-head build, replay, browser, full CI and performance NOT YET VERIFIED. Never treat source/tests alone as accepted transformation.",
       "matchedExternalReference": "NOT_RUN",
-      "originalAudioMotionClip": "UNVERIFIED_NO_ORIGINAL_CAPTURE",
-      "soundstageBrowser": "UNVERIFIED_FOR_NEW_WARDEN",
+      "originalAudioMotionClip": "UNVERIFIED — original WebAudio + real canvas recording attempted by new browser fixture, not yet captured or personally inspected.",
+      "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
       "audioLoudnessAndClipping": "NOT_MEASURED",
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Inspected exact prior-head genuine 1440x832 original WebGL world-only artifact https://github.com/my-edutu/Ai_games/actions/runs/41398888784/artifacts/13120803208 . Three living heroes in view, no active enemies in that one sample; their circular toy heads overlap alongside bulky masonry. This is genuine prior-head rendering, NOT a matched M1 baseline or a win for the unrendered new candidate.",
-      "latestCandidateWorkflow": "Candidate build staged after previous successful Chromium workflow 41398888784. New exact-head Actions will be inspected following lease-safe push; do NOT imply completed checks or rendered AFTER."
+      "latestCandidateWorkflow": "Implementation cba4a054: autonomous catalogue https://github.com/my-edutu/Ai_games/actions/runs/41417245543 ; Dungeon Foundation https://github.com/my-edutu/Ai_games/actions/runs/41417245591 ; real Chromium review https://github.com/my-edutu/Ai_games/actions/runs/41417245401 . In progress at recording. Follow-on browser recovery fixture is a NEW evidence gate; its results are not yet known."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Genuine 2 November 1440x832 Chromium scene at 81a761 still reveals toy-like oversized crania, three co-located actors obscuring one another, crowded cubical masonry and limited contact clarity. This implementation addresses the first two together, but exact new-head desktop/mobile motion/audio, scene continuity and blind matched reference comparisons are NOT YET observed. Cohesive full-body anatomy, active fight/Warden framing and architecture still require substantial work. IN PROGRESS — NOT TRANSFORMED.",
-    "currentWork": "Current playable M1 candidate integrates the actual skinned source characters with narrower adult-head profiles and a camera-facing physical within-tile formation for up to three overlapping heroes/enemies. CombatDirector shares exactly the same real camera and authority snapshot as the actor renderer so blade sweeps and damage remain attached to visible targets. Earlier four-act Gothic walls, contiguous original floor and Warden progression remain; no RNG, AI, target reach, save/replay, additional models or audio changes.",
-    "candidateCommit": "5e7fb58c9441fabc91123d7675d5a8cc77bc6bc5",
+    "biggestRemainingGap": "The running game has not yet shown a substantial, independently established full-journey improvement: imported actors remain miniature-like and the stone world can remain repetitive, while counterattack timing, meaningful enemy choices, contact/audio, mobile clarity and actual continuous multi-floor adventure require genuine video review. No matched pinned 281735d M1 BEFORE/AFTER, calibrated performance, original audible full reel or 3-critic looks/feels/plays majority. IN PROGRESS — NOT TRANSFORMED.",
+    "currentWork": "Real AI Warden shockwaves now open a two-authority-turn EXPOSED counterattack: hero agents prioritize legal boss lanes even with minions, deal 40% more raw damage, and exploit the boss's actual melee-free recovery. A genuine recovered boss returns to normal threats; saved replay records the window. The same public state drives 3D rig stagger, cathedral relief, restrained spotlight, boss HUD and original opt-in audio. The new browser fixture records actual desktop/mobile counterplay and attempts a real audio+WebGL clip.",
+    "candidateCommit": "cba4a05432f26c50e9f1a71548b26555ccfa7993",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -2746,6 +2746,33 @@
         "safety": "Read-only spectator pose. No AI/map/damage/attack reach/seed/save/replay change; held avatar centres remain inside their authentic tile. Reduced motion retains imported mixer and original safe static head fit.",
         "critics": "NOT_RUN (developer worker tunnel unavailable); blind majority UNVERIFIED",
         "next": "Inspect exact-head real desktop/mobile moving spawn, contact, boss and action silhouettes; check head-gear clipping, stage jostle, hand-to-blade alignment, wall clearance, FPS. Repair any regressions; integrate original full-body art and richer encounter feedback, then capture actual matched all-scene audiovisual adventure and require three fresh independent blind LOOKS/FEELS/PLAYS majorities."
+      },
+      {
+        "id": "M1-AUTHORITY-WARDEN-COUNTERWINDOW-20261102",
+        "date": "2026-11-02",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "0db0c22a6580ad4bfc8a5bf753e0431c4b043e2f",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "objective": "Replace the passive Warden cast-and-attack cadence with a genuine telegraphed area strike followed by two vulnerable recovery decisions, coherent tactical party exploitation and synchronized readable 3D/optional audio evidence.",
+        "implementation": "The actual deterministic Warden's real shockwave opens a two-turn saved recovery clock only after its binding seal breaks. Legal hero attack lanes counter for +40% base damage, guardian melee/pursuit pauses without faking HP/contact or slowing the simulation, and enemy summons remain genuine threats. UI boss phase, cloned CC0 shoulder/torso pose, original cathedral lighting/engravings and original browser-generated opt-in sound all consume that same public authority event. Existing authored 3D playable game, procedural four-act dungeon, seeds and immutable M1 baseline remain.",
+        "files": [
+          "games/ai-dungeon/src/index.ts",
+          "public/ai-dungeon/app.js",
+          "public/ai-dungeon/model-assets.js",
+          "public/ai-dungeon/warden-ritual.js",
+          "public/ai-dungeon/soundstage-plan.js",
+          "public/ai-dungeon/soundstage.js",
+          "public/ai-dungeon/styles.css",
+          "tests/foundation/dungeon-warden-seal.test.cjs",
+          "tests/foundation/dungeon-soundstage.test.cjs",
+          "tests/browser/dungeon-warden-recovery.spec.cjs"
+        ],
+        "priorRealScreenshot": "https://github.com/my-edutu/Ai_games/actions/runs/41398888784/artifacts/13120803208",
+        "localValidation": "No live local browser or offline coding workspace available. TEST-FIRST RED OBSERVED on 41416954299: 766/768 passed with expected missing recovery API and missing opening event; code now committed and new exact-head checks pending. No result invented.",
+        "experienceVerdict": "IN_PROGRESS / NOT_TRANSFORMED",
+        "critics": "NOT_RUN; no independent fresh builder/critic workspace; unanimous or majority A/B UNVERIFIED",
+        "safety": "Saved optional bounded authoritative clock; no RNG or new map/teleport; legal damage, guard, boss strike, deterministic replay and animation authority retained. New play balance and secure/CI/browser/performance gates pending, no merge or deployment.",
+        "next": "Inspect new real desktop/mobile WebGL Warden impact+exposed clip for visible counterplay, true contact, audible cues and missed warnings; repair regressions. Record fully organic continuous traversal→combat→boss→floor→defeat/restart, compare pinned baseline and three external references, measure FPS/loudness/accessibility, and require 3 independent blind LOOKS/FEELS/PLAYS votes before acceptance."
       }
     ]
   }
