@@ -26,8 +26,8 @@ export function planVaultedWallBays(map,floor,exit,{maxBays=MAX_BAYS}={}){
   if(map[z][x]!=='#'||Number.isInteger(exit?.x)&&Number.isInteger(exit?.z)&&
     Math.abs(exit.x-x)+Math.abs(exit.z-z)<=4)continue;
   const fronts=DIRS.filter(d=>map[z+d.dz][x+d.dx]==='.');
-  if(fronts.length!==1)continue;
-  const key=hash(x,z,floor),front=fronts[0];
+  if(!fronts.length)continue;
+  const key=hash(x,z,floor),front=fronts[key%fronts.length];
   candidates.push({gridX:x,gridZ:z,x:x-half,z:z-half,yaw:front.yaw,
     faceX:front.dx,faceZ:front.dz,style:key%4,key});
  }
