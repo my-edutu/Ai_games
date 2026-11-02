@@ -5495,7 +5495,8 @@ function chooseFilmableWorker(rows,excluded=-1){
   const clear=shot.blockers===0&&shot.handBlockers<=1&&
    shot.foregroundCitizenBlockers===0&&
    shot.foregroundSceneCover<.20&&front>.12;
-  const score=(clear?3000:0)+front*600-
+  const score=(clear?3000:0)+front*600+
+   Math.min(.42,shot.projectedWorkerHeightFraction)*2200-
    shot.foregroundSceneCover*2100-
    shot.handBlockers*180-shot.blockers*900-
    shot.blockedBodyRays*90-shot.cameraProximityWarnings*45-
@@ -6630,6 +6631,27 @@ function cameraShotFraming(shot,roofs,citizen,knownHands=null){
   foregroundSceneVolumes:shot.foregroundSceneVolumes,
   ...projectedWorkdayOccluders(eye,target,citizen,handTargets)};
 }
+// G147: the G146 moving-gameplay critic saw a distant farmer lost in the
+// cropfield despite clear rays, correct facing and no foreground roof.
+// Measure authentic *projected on-screen body height* from the same 3D lens,
+// not a guessed distance or a screenshot diff. This is a camera-only metric.
+function projectedWorkerBodyFraction(eye,target,citizen){
+ const ray=[target[0]-eye[0],target[1]-eye[1],target[2]-eye[2]];
+ const length=Math.hypot(...ray)||1,forward=ray.map(v=>v/length);
+ const flat=Math.hypot(forward[0],forward[2])||1;
+ const vertical=[-forward[0]*forward[1]/flat,flat,
+  -forward[2]*forward[1]/flat],ground=terrain(citizen.x,citizen.z);
+ const screenY=height=>{
+  const delta=[citizen.x-eye[0],ground+height-eye[1],citizen.z-eye[2]];
+  const depth=delta.reduce((sum,n,i)=>sum+n*forward[i],0);
+  if(depth<=.15)return null;
+  return delta.reduce((sum,n,i)=>sum+n*vertical[i],0)/
+   (depth*Math.tan(Math.PI/6.4));
+ };
+ const head=screenY(1.47),feet=screenY(.10);
+ if(head===null||feet===null)return 0;
+ return Math.max(0,Math.min(1,Math.abs(head-feet)/2));
+}
 function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const realWork=isWorkingAtSite(citizen);
  const working=Boolean(forceWorkday||liveWorkday||
@@ -6660,6 +6682,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   const scenic=working?foregroundSceneProjection(eye,target,roofs):
    {cover:0,largest:0,volumes:0};
   return {yaw:angle,pitch,zoom,eye,target,
+   projectedWorkerHeightFraction:projectedWorkerBodyFraction(eye,target,citizen),
    foregroundSceneCover:scenic.cover,foregroundSceneLargest:scenic.largest,
    foregroundSceneVolumes:scenic.volumes,
    blockers:followRayBlockers(eye,target,roofs)};
@@ -6696,7 +6719,13 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   // before the expensive architecture/composition review, rather than
   // spending its capped budget on 56 equivalent roof-clear crowd views.
   const crowd=portraitLens?physicalCitizenForegroundBlockers(shot.eye,citizen,hands):0;
+  // G147: a front-facing worker occupying 10% of the screen still cannot
+  // communicate their visible labor. Prefer actual human-scale coverage
+  // across the full orbit (without accepting roof or hand occlusion).
+  const sizePenalty=working&&realWork?
+   Math.max(0,(portraitLens?.27:.29)-shot.projectedWorkerHeightFraction)*5200:0;
   const coarse=shot.blockers*1000+oppositeYard+rearPenalty+crowd*325+
+   sizePenalty+
    shot.foregroundSceneCover*(portraitLens?2400:working?1500:0)+
    Math.abs(delta)*.9+Math.abs(z-normalZoom)*.35+
    Math.abs(p-normalPitch)*3;
@@ -6847,6 +6876,9 @@ function workdayCameraCompositionAudit(){
   workFacingMode:sceneCover.cover>=.14?'obstructed':
    lastFollowShot?.workFacingMode||'unverified',
   foregroundSceneCover:sceneCover.cover,
+  // The ACTUAL current eye and aim, not a planned camera target.
+  projectedWorkerHeightFraction:projectedWorkerBodyFraction(eye,aim,person),
+  plannedProjectedWorkerHeightFraction:lastFollowShot?.projectedWorkerHeightFraction??null,
   foregroundSceneLargest:sceneCover.largest,
   foregroundSceneVolumes:sceneCover.volumes,
   plannedForegroundSceneCover:lastFollowShot?.foregroundSceneCover??null,
