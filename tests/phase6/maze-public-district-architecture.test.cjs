@@ -196,3 +196,43 @@ test('original blocked-tile windcatcher is physical, deterministic and never rev
     cleanup();
   }
 });
+
+test('real disclosed solid-wall windcatchers render without a blocked-cell fixture or private route', async () => {
+  const { world: module, cleanup } = await loadRealWorld();
+  const knownCell = {
+    cell: 22, neighbors: [], blocked: false, trap: false,
+    checkpoint: false, clue: false,
+  };
+  const base = {
+    runToken: 'disclosed-wall-windcatcher', tick: 1,
+    width: 7, height: 7, cells: [knownCell], visibleCells: [22],
+    keys: [], doors: [], inventory: [], exitCell: null,
+  };
+  const live = module.createMazeWorld({ balanced: true });
+  const replay = module.createMazeWorld({ balanced: true });
+  try {
+    live.update(base);
+    assert.equal(live.stats().windcatcherTowers, 0,
+      'the model must not need an artificial blocked-cell tile to appear');
+    assert.ok(live.stats().wallWindcatchers > 0,
+      'genuinely disclosed impassable public wall must support a physical windcatcher');
+    assert.ok(live.stats().instances > 20);
+    assert.ok(live.stats().geometryCount <= 16);
+    assert.ok(live.stats().materialCount <= 26);
+    assert.ok(live.stats().textureCount <= 3);
+    replay.update({ ...base, tick: 500, runToken: 'same-public-different-run' });
+    assert.equal(replay.stats().wallWindcatchers, live.stats().wallWindcatchers,
+      'public construction cannot infer a hidden route from time or run seed');
+    assert.equal(replay.stats().instances, live.stats().instances,
+      'the same disclosed wall requires deterministic physical construction');
+    assert.deepEqual(base.cells, [knownCell]);
+    live.update({ ...base, runToken: 'fresh-unknown-run', cells: [], visibleCells: [] });
+    assert.equal(live.stats().wallWindcatchers, 0,
+      'a fresh run must clear previous disclosed wall architecture');
+    assert.deepEqual(live.stats().renderedCells, []);
+  } finally {
+    live.dispose();
+    replay.dispose();
+    cleanup();
+  }
+});
