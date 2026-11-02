@@ -488,6 +488,28 @@ export function createClimber() {
         }
       }
     }
+    // The autonomous pilot's NEW source-observed deceleration is a physical
+    // counterbalance, not a decorative loop. When the actual tactical policy
+    // reverses thrust to settle onto an observed deck, the skinned body rolls
+    // against its real lateral momentum, opens its free arm and prepares both
+    // boots for contact. Genuine grip IK, combat, injury and terminal poses
+    // outrank this layer; a missing/stale source immediately clears it.
+    // Reduced-motion keeps a quieter, static mechanical stance.
+    if(airborne&&state.intentMode==='settling-landing'&&!defending
+      &&!attacking&&!hurt&&!dead&&!stale&&!state.ledgeTarget){
+      const momentum=clamp(Math.abs(vx)/9000,0,1);
+      const lean=(reducedMotion?.35:1)*momentum;
+      const travel=Math.sign(vx)||(state.facing??1);
+      body.rotation.z+=travel*.18*lean;
+      body.rotation.x+=.10*lean;
+      head.rotation.z-=travel*.11*lean;
+      for(let i=0;i<2;i++){
+        arms[i].upper.rotation.x=mix(arms[i].upper.rotation.x,-.94,.38*lean);
+        arms[i].upper.rotation.z+=(i?1:-1)*.20*lean;
+        legs[i].upper.rotation.x=mix(legs[i].upper.rotation.x,-.52,.28*lean);
+        legs[i].lower.rotation.x=mix(legs[i].lower.rotation.x,.86,.23*lean);
+      }
+    }
     // The platformer's physics remains unchanged. Only a nearby genuine deck
     // can pull the raised fingertip into physical contact during an ascent.
     const touch=state.ledgeTarget;
