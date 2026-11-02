@@ -39,9 +39,12 @@ export function planLegibleWallMass(map,floor,vaultedSites=[]){
  return profiles.map(p=>{
   if(vaults.has(p.z*n+p.x))return 1.16;
   const value=hash(p.x,p.z,floor);
+  // Stage real traversed rooms as a low-ruin foreground against distant
+  // continuous masonry. Visual heights never change solid grid occupancy.
   if(!p.exposedFaces)return 1.76+(value%3)*.08;
-  // A few buttresses are retained as genuine high environmental landmarks.
-  if(value%13===0)return 2.10;
-  return [1.27,1.39,1.48,1.56][value%4];
+  if(value%19===0)return 1.90; // rare full-height buttress landmarks
+  // Lower junction walls to expose real attacks, foot contact and floor tells.
+  return p.exposedFaces>=2?[.84,.94,1.03,1.12][value%4]:
+   [1.04,1.13,1.22,1.30][value%4];
  });
 }

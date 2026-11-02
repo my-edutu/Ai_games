@@ -11,7 +11,7 @@ import {planVaultedWallBays} from '/dungeon/vaulted-wall-plan.js';
 import {createVaultedWallGallery} from '/dungeon/vaulted-wall-gallery.js';
 import {planEncounterSightlines} from '/dungeon/encounter-sightlines.js';
 import {planEncounterFrame} from '/dungeon/encounter-frame-plan.js';
-import {planCinematicShot,planReadableExpeditionLens,planCriticalSubjectFit,planWardenCharge,planOathguardPose,planBossDuelSightline} from '/dungeon/cinematic-chapter-plan.js';
+import {planCinematicShot,planReadableExpeditionLens,planCriticalSubjectFit,planWardenCharge,planOathguardPose,planBossDuelSightline,planPartyVistaSightline} from '/dungeon/cinematic-chapter-plan.js';
 import {planPartyWallReveal,createCutawayBandCache,shouldUploadCutawayBand} from '/dungeon/party-visibility-plan.js';
 import {planBoundaryCamera} from '/dungeon/camera-boundary-plan.js';
 import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
@@ -461,7 +461,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
  world.userData.archRibGeometry=archRibGeometry;
  let archCount=0;
  for(let z=2;z<size-2;z++)for(let x=2;x<size-2;x++){
-   if(archCount>=8||s.map[z][x]!=='.'||fracture(x,z)%19!==0)continue;
+   if(archCount>=4||s.map[z][x]!=='.'||fracture(x,z)%19!==0)continue;
    const horizontal=s.map[z][x-1]==='.'&&s.map[z][x+1]==='.';
    const vertical=s.map[z-1][x]==='.'&&s.map[z+1][x]==='.';
    if(!horizontal&&!vertical)continue;
@@ -482,7 +482,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
  // Ruined altars and relic vaults are used sparingly to preserve navigational readability.
  const openCells=floors.filter(([x,,z])=>(Math.abs(x)+Math.abs(z))>3&&Math.abs(x)+Math.abs(z)<22);
  let placed=0;
- for(const [px,,pz] of openCells){if(placed>=10)break;const k=fracture(px+offset,pz+offset);
+ for(const [px,,pz] of openCells){if(placed>=5)break;const k=fracture(px+offset,pz+offset);
   if(k%47!==0)continue;placed++;
   const shrine=new THREE.Group();shrine.position.set(px,.02,pz);
   make(geo.cylinder,stoneEdge,shrine,0,.13,0,.24,.24,.24);
@@ -1015,7 +1015,12 @@ function animate(t){
  // telegraph coverage and all authoritative grid positions.
  const duelCamera=cameraType==='cinematic'&&cinematicShot?
   planBossDuelSightline(state,cinematicShot,look,offsets,{width:w,height:h,fov:cinematicLens?.fov??48,visualActors:actors}):null;
- const plannedCamera=duelCamera??authoredCamera;
+ // Keep multiple actual party bodies visible through a physical orbit when
+ // no genuine Warden warning or boss duel owns the current camera.
+ const vistaCamera=cameraType==='cinematic'&&!duelCamera&&cinematicShot?
+  planPartyVistaSightline(state,look,offsets,{width:w,height:h,
+   fov:cinematicLens?.fov??48,visualActors:actors,reducedMotion:reduced}):null;
+ const plannedCamera=duelCamera??vistaCamera??authoredCamera;
  // One lens update, no extra GPU passes. Measured actor scale takes priority
  // over distant party coverage; imminent real hazards trigger a wide overview.
  const wantedFov=cinematicLens?.fov??50;

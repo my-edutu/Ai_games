@@ -12,7 +12,7 @@ test('wall galleries are original, deterministic, impassable and spaced apart',a
  for(const floor of [1,2,3,4,11]){
   const a=planVaultedWallBays(map,floor,exit);
   assert.deepEqual(a,planVaultedWallBays(map,floor,exit));
-  assert.ok(a.length>2&&a.length<=72,'multiple vaulted facades, bounded');
+  assert.ok(a.length>2&&a.length<=32,'four distinct acts without a forest of camera-obscuring arches');
   for(const site of a){
    assert.equal(map[site.gridZ][site.gridX],'#');
    assert.equal(map[site.gridZ+site.faceZ][site.gridX+site.faceX],'.');

@@ -53,9 +53,11 @@ test('camera-readable, varied real-3D room walls retain the unchanged solid auth
  const heights=planLegibleWallMass(map,4,vaulted);
  assert.equal(heights.length,profiles.length);
  assert.equal(map.join('\n'),original);
- assert.ok(heights.every(h=>Number.isFinite(h)&&h>=1.16&&h<=2.10),'masonry occupies bounded original wall tiles');
+ assert.ok(heights.every(h=>Number.isFinite(h)&&h>=.84&&h<=1.92),'ruin silhouettes stay bounded in the original solid tiles');
  assert.ok(heights.filter((h,i)=>profiles[i].exposedFaces&&h<=1.56).length>candidates.length*.66,
-  'most corridor walls are now materially lower, avoiding crowding the actor silhouettes');
+  'most corridor walls form low, readable ruins around authentic actors');
+ assert.ok(heights.filter((h,i)=>profiles[i].exposedFaces>=2&&h<1.16).length>3,
+  'multiple real room junctions reveal floor contact and separate the party from masonry');
  assert.ok(heights.some(h=>h>=1.76),'distant backing masonry still encloses rooms');
  for(const site of vaulted){
   const index=profiles.findIndex(p=>p.x===site.gridX&&p.z===site.gridZ);

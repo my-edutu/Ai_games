@@ -422,3 +422,73 @@ export function planBossDuelSightline(s,shot,look,offsets,{width=1440,height=832
   })
  });
 }
+
+/**
+ * Visual-only expedition party vista. The exact living party and their true
+ * within-cell staged positions are evaluated from the authoritative snapshot.
+ * Select a physically bounded camera flank that separates THREE real actors
+ * in screen space, rather than filming them as overlapping toy silhouettes.
+ * No navigation, attack, collision, RNG, model teleport or replay changes.
+ * Boss duels, imminent danger, reduced-motion and the last stand are excluded.
+ */
+export function planPartyVistaSightline(s,look,offsets,{width=1440,height=832,fov=48,visualActors=null,reducedMotion=false}={}){
+ const n=Array.isArray(s?.map)?s.map.length:0;
+ if(reducedMotion||n<9||n>63||n%2!==1||!Array.isArray(s?.units)||
+  s.phase==='intermission'||s.bossWarning||!look||
+  !Number.isFinite(look.x)||!Number.isFinite(look.z)||
+  !Array.isArray(offsets)||offsets.length!==3||!offsets.every(Number.isFinite))return null;
+ const heroes=s.units.filter(u=>u?.faction==='party'&&u.hp>0&&valid(u,n)).slice(0,4);
+ if(heroes.length<2||heroes.some(u=>distance(u,heroes[0])>4))return null;
+ if(s.units.some(u=>u?.kind==='warden'&&u.hp>0&&valid(u,n)&&
+  heroes.some(h=>distance(h,u)<=5)))return null;
+ const half=(n-1)/2,limit=half-.65,aspect=clip(width/Math.max(1,height),.35,3.2);
+ const tan=Math.tan(clip(fov,35,82)*Math.PI/360)*aspect;
+ const radius=clip(Math.hypot(offsets[0],offsets[2]),4.2,11.2);
+ const cameraHeight=clip(offsets[1],4.2,15),originalAngle=Math.atan2(offsets[2],offsets[0]);
+ const positioned=heroes.map(u=>{
+  const grid={x:u.x-half,z:u.z-half},at=visualActors?.get?.(u.id)?.at;
+  return Number.isFinite(at?.x)&&Number.isFinite(at?.z)&&Math.hypot(at.x-grid.x,at.z-grid.z)<=.445?
+   {id:u.id,x:at.x,z:at.z}:{id:u.id,...grid};
+ });
+ let baseline=null,best=null;
+ for(let step=-8;step<=8;step++){
+  const angle=originalAngle+step*Math.PI/36;
+  const rawX=look.x+radius*Math.cos(angle),rawZ=look.z+radius*Math.sin(angle);
+  const cx=clip(rawX,-limit,limit),cz=clip(rawZ,-limit,limit);
+  const fx=look.x-cx,fz=look.z-cz,forwardLength=Math.hypot(fx,fz);
+  if(forwardLength<2.4)continue;
+  const forwardX=fx/forwardLength,forwardZ=fz/forwardLength;
+  const rightX=-forwardZ,rightZ=forwardX;
+  const projected=[];let crop=0,invalid=false;
+  for(const hero of positioned){
+   const dx=hero.x-cx,dz=hero.z-cz,depth=dx*forwardX+dz*forwardZ;
+   if(depth<2.1){invalid=true;break;}
+   const screen=(dx*rightX+dz*rightZ)/depth;
+   crop+=Math.max(0,Math.abs(screen)+.38/depth-tan*.88);
+   projected.push({screen,depth});
+  }
+  if(invalid)continue;
+  let smallest=Infinity,spread=0;
+  for(let i=0;i<projected.length;i++)for(let j=i+1;j<projected.length;j++){
+   const gap=Math.abs(projected[i].screen-projected[j].screen)-
+    .31/projected[i].depth-.31/projected[j].depth;
+   smallest=Math.min(smallest,gap);spread+=Math.max(-.1,gap);
+  }
+  const clippedBoundary=Math.hypot(rawX-cx,rawZ-cz);
+  const score=smallest*36+spread*2-crop*60-clippedBoundary*.34-Math.abs(step)*.052;
+  const candidate={score,step,position:{x:cx,y:cameraHeight,z:cz},minimumSilhouetteGap:smallest,crop};
+  if(step===0)baseline=candidate;
+  if(!best||score>best.score+1e-7)best=candidate;
+ }
+ // Retain the existing cinematic shot unless a distinctly clearer flank
+ // wins. This threshold prevents unstable per-frame camera hunting.
+ if(!best||best.step===0||!baseline||best.score-baseline.score<.36)return null;
+ return Object.freeze({
+  position:Object.freeze(best.position),turn:Object.freeze({x:0,z:0}),
+  look:Object.freeze({x:look.x,z:look.z}),boundaryLimit:limit,
+  sightline:Object.freeze({mode:'party-vista',subjectIds:Object.freeze(positioned.map(p=>p.id)),
+   angleStep:best.step,candidateCount:17,baselineScore:round(baseline.score),
+   improvedScore:round(best.score),minimumSilhouetteGap:round(best.minimumSilhouetteGap),
+   cropped:best.crop>.001})
+ });
+}

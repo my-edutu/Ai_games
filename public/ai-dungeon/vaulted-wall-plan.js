@@ -4,7 +4,7 @@
  * Instead of decorating random distant blocks, the original Gothic bays form
  * readable acts around the path the autonomous party can actually traverse.
  */
-const MAX_BAYS=72;
+const MAX_BAYS=32;
 const DIRS=Object.freeze([
  {dx:0,dz:1,yaw:0},{dx:1,dz:0,yaw:Math.PI/2},
  {dx:0,dz:-1,yaw:Math.PI},{dx:-1,dz:0,yaw:-Math.PI/2}
