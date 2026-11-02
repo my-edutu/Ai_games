@@ -4461,7 +4461,7 @@ function forgeSmoke(time){
 // G127: open joinery composition. The growing frame belongs to the LEFT-rear
 // of the real builder, not centred across their hands/face in a street view.
 // The compact bench remains within reach of the same occupational IK pose.
-const WORKSITE_BUILDER_STAGE=Object.freeze({frameRear:-1.25,frameSide:-.98,benchFront:.56,benchSide:.13,benchHeight:.59});
+const WORKSITE_BUILDER_STAGE=Object.freeze({frameRear:-1.85,frameSide:-1.62,benchFront:.56,benchSide:.13,benchHeight:.59});
 // G123: one physically coherent local frame for EVERY trade, not just the
 // carpenter. The origin is the real actor; local +Z is their working direction.
 // This layout does not create work, move agents or alter authoritative state.
@@ -4486,6 +4486,23 @@ function workerLocalWorksite(w){
 function builderStageAngle(person){
  const aim=occupationalPerformance(person).focus;
  return Math.atan2(aim[0]-person.x,aim[1]-person.z);
+}
+// G135: witness physical animated IK hands, with the same rotation/lean used
+// by the real villager mesh. Render-only; no fake worker, stock or simulation.
+function documentaryWorkHandTargets(person){
+ if(!isWorkingAtSite(person))return [];
+ const i=Math.max(0,people.indexOf(person)),scale=.92+(i%5)*.045;
+ const rig=citizenRigPose(person),angle=builderStageAngle(person);
+ const co=Math.cos(angle),si=Math.sin(angle),base=terrain(person.x,person.z);
+ return rig.arms.map(arm=>{
+  const [localX,originalY,originalZ]=arm.wrist;
+  const rise=Math.max(0,Math.min(1.55,originalY-.44));
+  const localZ=originalZ+rise*rig.acting.lean;
+  const localY=originalY-rig.acting.crouch*Math.min(1,rise/.65);
+  return [person.x+(co*localX+si*localZ)*scale,
+   base+localY*scale,
+   person.z+(-si*localX+co*localZ)*scale];
+ });
 }
 function rotateWorksiteVertices(first,originX,originZ,angle){
  // Rotate BOTH points and normals by the very same worker-facing transform
@@ -6085,9 +6102,15 @@ function cameraShotFraming(shot,roofs,citizen){
    dz=Math.max(0,Math.abs(eye[2]-roof.z)-roof.rz);
   if(Math.hypot(dx,dz)<.95)cameraProximityWarnings++;
  }
+ // G132 looked clear on a head ray while timber concealed the working hands.
+ // Probe both actual IK wrists through the grown-city roof obstruction field.
+ const handTargets=citizen?documentaryWorkHandTargets(citizen):[];
+ const handBlockers=handTargets.reduce((n,point)=>
+  n+Number(followRayBlockers(eye,point,roofs)>0),0);
  return {bodyRays:body.length,blockedBodyRays,
   bodyVisibleFraction:(body.length-blockedBodyRays)/body.length,
   blockedNeighbourhoodRays:countBlocked(surroundings),cameraProximityWarnings,
+  handBlockers,handTargetsInspected:handTargets.length,
   ...projectedWorkdayOccluders(eye,target,citizen)};
 }
 function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
