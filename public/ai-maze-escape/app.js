@@ -36,6 +36,11 @@ function refreshSceneCard(){
   byId('graphics-status').hidden=!graphicsUnavailable;
   byId('graphics-message').textContent=rendererState==='recovering'?'Restoring 3D · the live map continues':'Live map · 3D is unavailable';
   const snapshot=frame?.snapshot;
+  // Public connection state, not a guessed gameplay event. Live danger is
+  // already represented by one actionable mission chip; don't duplicate it
+  // as a second banner over the actual 3D stage on narrow phones.
+  elements.broadcast.dataset.connection=failedPolls?'reconnecting':graphicsUnavailable
+    ?'graphics-degraded':snapshot?'live':'connecting';
   if(frame?.scene==='result'){
     const outcome=snapshot?.result?.reason;
     showCard(outcome==='escape'?'ESCAPED':outcome==='capture'?'CAUGHT':outcome==='timer-expired'?'TIME UP':'RUN OVER',outcome==='escape'?'Pip made it out.':'Next maze loading');return
