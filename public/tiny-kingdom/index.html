@@ -1289,6 +1289,47 @@ let data=[];let scenicMeshCache=null,scenicMeshKey='',scenicMeshRebuilds=0,sceni
 // from the construction-dependent houses. One bounded copy avoids recreating
 // tens of thousands of scenic triangles when autonomous builders add a home.
 let landscapeMeshCache=null,landscapeMeshKey='',landscapeMeshRebuilds=0,landscapeMeshReuses=0,landscapeMeshTriangles=0;
+// G133: bounded resident, presentation-only civic geometry. New cottages must
+// not regenerate the unchanged guildhall, bridge, market, farm and high street.
+// The first twelve lots are part of the key because imported valid snapshots
+// may relocate those yards. The cache never enters authority or replay data.
+const CIVIC_CACHE_MAX_ENTRIES=2,CIVIC_CACHE_FLOAT_BUDGET=3500000;
+const civicSceneryCache=new Map();
+let civicCacheBuilds=0,civicCacheReuses=0,civicCacheEvictions=0,civicActiveKey='';
+function civicCacheStats(){
+ let cachedFloats=0;
+ for(const entry of civicSceneryCache.values())cachedFloats+=entry.vertices.length;
+ return {activeKey:civicActiveKey,entries:civicSceneryCache.size,
+  cachedEntries:[...civicSceneryCache.keys()],cachedFloats,
+  floatBudget:CIVIC_CACHE_FLOAT_BUDGET,maxEntries:CIVIC_CACHE_MAX_ENTRIES,
+  builds:civicCacheBuilds,reuses:civicCacheReuses,evictions:civicCacheEvictions,
+  activeTriangles:(civicSceneryCache.get(civicActiveKey)?.vertices.length||0)/30};
+}
+function appendCivicCachedVertices(vertices){
+ // Avoid one huge spread/apply call (argument overflow) and keep output order.
+ for(let i=0;i<vertices.length;i+=8192)
+  data.push(...vertices.slice(i,i+8192));
+}
+function restoreCivicStats(stats){
+ guildhallVisualStats={...stats.guildhall};
+ farmScene={...stats.farm};
+ Object.assign(craftCounters,stats.craft);
+ marketQuarterStats={...stats.market};
+ highStreetStats={...stats.highStreet};
+ currentMaterial=stats.finalMaterial;
+}
+function rememberCivicScenery(key,vertices,stats){
+ if(vertices.length%30!==0)throw Error('Civic mesh is not a complete triangle stream');
+ if(vertices.length>CIVIC_CACHE_FLOAT_BUDGET)return;
+ civicSceneryCache.delete(key);
+ civicSceneryCache.set(key,{vertices,stats});
+ while(civicSceneryCache.size>CIVIC_CACHE_MAX_ENTRIES||
+  civicCacheStats().cachedFloats>CIVIC_CACHE_FLOAT_BUDGET){
+  const oldest=civicSceneryCache.keys().next().value;
+  civicSceneryCache.delete(oldest);civicCacheEvictions++;
+ }
+}
+
 // G124: preserve immutable, season-specific forest/river/terrain meshes and
 // their actual GPU VBOs across the recurring 36-day year. Previously every
 // spring/summer/autumn/winter revisit rebuilt hundreds of thousands of static
@@ -6625,11 +6666,28 @@ for(let i=0;i<city.length;i++){
  }
  medievalStreetMorphology(x,z,k,i,compact);
 }
+const civicKey=nextTerrainKey+':'+(gpuAvailable?'shader-light':daylightStage)+
+ ':lots:'+city.slice(0,12).map(lot=>lot.join(',')).join(';');
+civicActiveKey=civicKey;
+const residentCivic=civicSceneryCache.get(civicKey);
+if(residentCivic){
+ appendCivicCachedVertices(residentCivic.vertices);
+ restoreCivicStats(residentCivic.stats);
+ civicCacheReuses++;
+ civicSceneryCache.delete(civicKey);civicSceneryCache.set(civicKey,residentCivic);
+}else{
+ civicCacheBuilds++;
+ const civicStart=data.length;
 hall(0,-1); // Guildhall owns its roof, gables, windows and porch; no cottage overlay.
 // The worked spaces have identifiable props and readable boundaries.
 farmstead();fenceLine(16,-2,6);fenceLine(16,4,6);fenceLine(16,-2,4,true);fenceLine(25,-2,4,true);
 riverBridge();hillsideSanctuary();forgeWorkshop();market(0,5);marketQuarter();inhabitedHighStreet();well(-15,4);villageGarden(12,11);villageGarden(-17,-3);guildBanner(-2,3);guildBanner(5,-2);lantern(-5,-7,1.7);lantern(6,9,1.45);lantern(2,6,1.7);lantern(-14,6,1.45);for(let i=0;i<7;i++)stoneBoulder(-23+(i*1.8),5+Math.sin(i*3)*1.3,.65+(i%3)*.18);
 for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,1,.45,.64,rgb(0x7d5d45))}
+ rememberCivicScenery(civicKey,data.slice(civicStart),{
+  guildhall:{...guildhallVisualStats},farm:{...farmScene},
+  craft:{...craftCounters},market:{...marketQuarterStats},
+  highStreet:{...highStreetStats},finalMaterial:currentMaterial});
+}
  // Season-only decoration belongs in the scenery VBO. Preserve the foliage
  // material assigned by the original dynamic festival call.
  materialScope(MATERIAL.FOLIAGE,appendSeasonalFestivalToScenery);
@@ -6731,7 +6789,7 @@ requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON
  totalCulledTriangles:scenicVisibilityStats.totalCulledTriangles,
  totalDrawCalls:scenicVisibilityStats.totalDrawCalls,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable}),getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,renderQuality,setRenderQuality,getFrameProfile,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable}),getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,renderQuality,setRenderQuality,getFrameProfile,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
  if(streetWalk)setStreetWalk(false);
 if(follow)setCitizenFollow(false);cinematic=false;document.getElementById('camera').classList.remove('active');
 yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2&&o.focus.every(Number.isFinite))focusPoint=o.focus.slice(0,2)}};
