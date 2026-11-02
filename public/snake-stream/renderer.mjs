@@ -1,6 +1,9 @@
 import * as THREE from '/vendor/three.module.js';
 // BEGIN T1 LIVING GARDEN IMPORT
 import { createLivingGarden } from './living-garden.mjs';
+// BEGIN T1 COURTYARD ECOLOGY IMPORT
+import { createCourtyardEcology } from './courtyard-ecology.mjs';
+// END T1 COURTYARD ECOLOGY IMPORT
 // END T1 LIVING GARDEN IMPORT
 import { createWorld } from './world.mjs';
 import { createSerpent } from './serpent.mjs';
@@ -169,6 +172,9 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   contactTransform.rotation.x = -Math.PI / 2;
   // BEGIN T1 LIVING GARDEN STATE
   let livingGarden = null;
+  // BEGIN T1 COURTYARD ECOLOGY STATE
+  let courtyardEcology = null;
+  // END T1 COURTYARD ECOLOGY STATE
   // END T1 LIVING GARDEN STATE
   let world;
   let dimensions = '';
@@ -495,12 +501,19 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     if (key !== dimensions) {
       // BEGIN T1 LIVING GARDEN RENEWAL
       if (livingGarden) { livingGarden.dispose(); livingGarden = null; }
+      // BEGIN T1 COURTYARD ECOLOGY RENEWAL
+      if (courtyardEcology) { courtyardEcology.dispose(); courtyardEcology = null; }
+      // END T1 COURTYARD ECOLOGY RENEWAL
       // END T1 LIVING GARDEN RENEWAL
       if (world) { scene.remove(world.group); world.dispose(); }
       world = createWorld(THREE, { width: snapshot.width, height: snapshot.height });
       // BEGIN T1 LIVING GARDEN ATTACH
       livingGarden = createLivingGarden(THREE, { width: snapshot.width, height: snapshot.height });
       world.group.add(livingGarden.group);
+      // BEGIN T1 COURTYARD ECOLOGY ATTACH
+      courtyardEcology = createCourtyardEcology(THREE, { width: snapshot.width, height: snapshot.height });
+      world.group.add(courtyardEcology.group);
+      // END T1 COURTYARD ECOLOGY ATTACH
       // END T1 LIVING GARDEN ATTACH
       // BEGIN R43 WATER SAMPLING INIT
       if (quality === 'low') configureLowQualityWaterSampling(world, THREE);
@@ -602,6 +615,9 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
         width: staticTarget?.width || 0, height: staticTarget?.height || 0, samples: cacheSamples },
       // BEGIN T1 LIVING GARDEN STATS
       livingGarden: livingGarden?.stats?.(),
+      // BEGIN T1 COURTYARD ECOLOGY STATS
+      courtyardEcology: courtyardEcology?.stats?.(),
+      // END T1 COURTYARD ECOLOGY STATS
       // END T1 LIVING GARDEN STATS
       world: world?.stats?.(), serpent: serpent.stats?.(),
     };
@@ -627,6 +643,10 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     // BEGIN T1 LIVING GARDEN RELEASE
     livingGarden?.dispose();
     livingGarden = null;
+    // BEGIN T1 COURTYARD ECOLOGY RELEASE
+    courtyardEcology?.dispose();
+    courtyardEcology = null;
+    // END T1 COURTYARD ECOLOGY RELEASE
     // END T1 LIVING GARDEN RELEASE
     world?.dispose();
     serpent.dispose();

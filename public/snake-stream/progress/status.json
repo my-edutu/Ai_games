@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-11-02T07:58:26.000Z",
-  "status": "T0/T1 BUILDING — whole-game T1 SELF-REJECTED. Current docs head ef7ce164, unchanged runtime 9d3: authentic same-source Chromium 41403962296 passed 63/64 but original 1-second full-desktop strict render gate FAILED 8 genuine submissions/1002.2ms vs >=17, GPU 736x336, p95 frame gap 1516.6ms. General CI CANCELLED browser, no device-present FPS, independent visual acceptance or long soak. DRAFT PR #52 not merged/deployed.",
-  "detail": "Actual 41403962296 retained eight source-matched WebGL images (13123768083), real unmodified 55s autonomy videos (13123758184), and JSON metrics (13123907657). Same art as visually rejected 9d3; do not claim a new transformative frame. At reduced 736x336, diagnostic-only full-app GPU timer query p95 20.84ms; separate minimal 19.92ms vs omit-water 12.86ms and omit-serpent/contact 13.05ms: suggest costly live dynamic paths, NOT additive, original 1s submissions or device display FPS. Original strict gate untouched. Local isolated development workspace tunnel unavailable (NOT_FOUND); no new production patch or RED-to-GREEN tests this review. Continue same T1 whole courtyard/environment/hero integrated GPU rearchitecture without reducing cues or quality; T2/T3/T4 remain open.",
+  "updatedAt": "2026-11-02T09:34:12.000Z",
+  "status": "T0/T1 BUILDING — last inspected complete game SELF-REJECTED. Exact a939 focused Chromium 41411192893 FAILED 63/64: strict original complete-desktop 7 actual WebGL render submissions in 1010.4ms vs >=17, GPU raster 736x336, p95 frame gap 1700ms. Real 55s gameplay + source screenshots preserved, not a reference win. Integrated original on-court physical braided moss/lichen candidate prepared but true new-source visual and performance acceptance pending. DRAFT PR #52, no merge/deployment.",
+  "detail": "T1 source candidate: added deterministic shallow physical moss catchments across real playable court and rooted-lichen islands; attached to existing static garden cache via source-reversible renderer blocks, preserving immutable fixed-step seeded gameplay, all public food/hazard/portal cues, accessibility, 13 original world and 4 original living-garden batches, strict >=17 full-desktop unchanged. New focused Node test and actual eight-view WebGL + authentic unedited 55s game film test authored, not executed locally because workspace tunnel NOT_FOUND. Baseline real Actions 41411192893 7/17 FAIL and 63/64; general CI 41411192881 CANCELLED. Need real new-head browser/Node GREEN, whole-scene and motion critique, useful-raster genuine render/present pacing and independent whole-game acceptance. This is NOT a Gauntlet victory.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Newest real same-runtime 9d3 WebGL and 55-second gameplay were retained on exact docs head ef7ce164 Actions 41403962296 (artifacts 13123768083 and 13123758184). Existing static local image is historic, not this run. T1 still self-rejected.",
+  "latestCaption": "Historic image below is NOT a current-head production render. Exact a939 real current-baseline 8-view WebGL artifact 13126553296, unscripted motion artifact 13126792918, diagnostics 13126693669. New physical courtyard ecology candidate must be judged only on its actual yet-to-run new-head images and film.",
   "reviews": [
+    {
+      "area": "November 2 exact a939 complete real browser and broad physical moss-courtyard T1 source candidate",
+      "verdict": "BASELINE SELF-REJECTED / T1 BUILDING. Authentic 41411192893: 63/64 browser, strict original 7 genuine complete 1s desktop renders /1010.4ms vs >=17 FAIL, GPU 736x336, p95 frame gap 1700ms, 61 RAF callbacks not render submissions. General 41411192881 CANCELLED. Source candidate integrates on-court three broad shallow braided physical moss/lichen landforms in ONE static-baked mesh with protected central clearing, but NO new-head executed test or visually accepted frames yet.",
+      "gap": "New-head real 8-view same-public-frame Chromium/WebGL before/after and genuine unscripted 55s film, full Node/browser GREEN/RED execution, strict unmodified useful-raster >=17 repeat, hardware displayed FPS/p95/soak, expressive joined serpent and camera/HUD/audio, independent Snake Pass + ASTRO BOT whole-game critic. Workspace tunnel disconnected; no local RED/GREEN. Never merge or deploy."
+    },
     {
       "area": "Nov 2 current exact ef7ce164 63/64 real browser + original desktop gate 8/17 and dynamic GPU path diagnostics",
       "verdict": "T1 SELF-REJECTED / BUILDING; authentic Actions 41403962296 63 browser passed, unchanged original 1s strict gate FAILED 8/17 actual full-scene renders over 1002.2ms; 61 RAF is not renders, drawing buffer 736x336, frame gap p95 1516.6ms. Current runtime same 9d3; Node/build stages of general CI passed but browser run CANCELLED. Partial-workload query p95 full 20.84ms, omit water 12.86ms, omit serpent+contact 13.05ms at reduced raster only; no smoothness claim.",
@@ -929,27 +934,27 @@
     "firstImplementationPlan": "docs/superpowers/plans/2026-11-01-autonomous-snake-transformation.md",
     "acceptance": "An independently evidenced, visibly substantial upgrade of the full running game in environment, character, animation, materials, game feel and sustainable frame delivery; CI is necessary but never sufficient.",
     "overall": "NOT ACCEPTED",
-    "milestone": "T1 BUILDING / WHOLE-FRAME SELF-REJECTED after inspecting 8 exact-source real WebGL images and 2 unscripted 55s games on runtime head 9d3. Recut coast and court look different but NOT materially transformed vs Snake Pass. Original unchanged strict >=17 render gate FAILED 11 in 1007.4ms at 736x336. T2–T4 and independent review pending.",
+    "milestone": "T1 BUILDING: actual unchanged complete-game runtime 9d3 (docs SHA a939) still visually self-rejected. 41411192893 strict original 7/17 genuine desktop submissions FAIL at 736x336, p95 1700ms. Integrated on-court physical ecology candidate source and Node/Chromium tests prepared, visually/performance unverified. T2-T4 and independent review pending.",
     "milestoneStatus": "BUILDING",
     "latestKnownStrictBrowser": {
-      "actualDraws": 11,
-      "elapsedMs": 1007.4,
+      "actualDraws": 7,
+      "elapsedMs": 1010.4,
       "minDraws": 17,
-      "result": "FAIL: unchanged original 1-second full desktop 17 genuine WebGL submissions gate measured only 11. 61 RAF callbacks are not renders, real-device presents or FPS.",
+      "result": "FAIL, original unchanged 1s gate; RAF callbacks=61 NOT true WebGL submissions/real presents",
       "drawingBuffer": {
         "width": 736,
         "height": 336
       },
       "pixelRatio": 0.4,
-      "frameMsP95": 1433.2,
-      "maxGpuQueueLatencyMs": 2205.4,
-      "source": "https://github.com/my-edutu/Ai_games/actions/runs/41395259363",
-      "runConclusion": "COMPLETED FAILURE: 63/64 focused Chromium tests; authentic before/after image and 55s video artifacts preserved."
+      "frameMsP95": 1700,
+      "maxGpuQueueLatencyMs": 2621.4,
+      "source": "https://github.com/my-edutu/Ai_games/actions/runs/41411192893",
+      "runConclusion": "COMPLETED FAILURE 63/64 real focused Chromium; authentic current-source screenshots/video and metrics retained."
     },
     "pillars": [
       {
         "name": "Living 3D world",
-        "status": "T1 BUILDING/SELF-REJECTED on head 9d3 real 8-view WebGL: huge regular 28x16 tiled court still dominates; promontory geometry/biome tint insufficient. Integrated physically authored full-court ecology required.",
+        "status": "T1 BUILDING/SELF-REJECTED on last actual runtime; added original low physical braided on-court ecologies for whole-frame change, but new-head real WebGL visual review not yet complete.",
         "criterion": "Clearly transformed coherent original garden architecture/biomes/scene depth in matching real-game captures."
       },
       {
@@ -959,18 +964,18 @@
       },
       {
         "name": "Materials and lighting",
-        "status": "T1 BUILDING/SELF-REJECTED: physical cliff chroma and geologic profile updates real but ground still reads flat checkerboard and lacks convincing original environmental integration.",
+        "status": "T1 source CANDIDATE, visual/repeat performance NOT ACCEPTED: 3D low moss/lichen relief across real stone court, original material/geometry and cues preserved. Must inspect new real WebGL, not infer from source.",
         "criterion": "Convincing stone, vegetation, water, scales, contact lighting and atmospheric staging across full frames."
       },
       {
         "name": "Play feel and frame delivery",
-        "status": "BLOCKED: exact 9d3 original strict desktop 1s gate FAILED 11 genuinely submitted WebGL frames/1007.4ms vs >=17; GPU buffer 736x336, p95 frame-gap 1433.2ms, max GPU queue latency 2205.4ms. No real-device presents/p95/soak.",
+        "status": "P0 STOP-SHIP: current authentic exact-source original mandatory 1s desktop performance 7/17 genuine render submissions FAILED (1010.4ms, GPU 736x336, frame gap p95 1700ms, GPU queue latency 2621ms). No useful-resolution actual physical device present FPS/p95 nor long soak. Strict test unchanged.",
         "criterion": "Readable responsive gameplay/UX, real continuous autonomous video, repeatable >=17 actual browser draws and real-device smoothness evidence."
       }
     ],
     "baselineHead": "108e2e439aab1f3fe4cf49019c1aa9fe5630feb6",
-    "candidate": "Exact inspected runtime source 9d3 coast-to-court material and 8 stratified escarpment physical treatment; source candidate SELF-REJECTED from authentic whole-scene view. No new production patch published in this review.",
-    "candidateProof": "Actions 41395259363: 8 same-public-frame real Chromium/WebGL captures source-verified against e228 predecessor; two genuine unscripted live host 55s recordings; focused browser 63/64, original strict desktop 11/17 FAIL. General CI 41395259356 browser CANCELLED. Independent whole-game critique absent.",
-    "review": "SELF REVIEW = REJECTED: actual new 9d3 960 desktop/detail, 390 portrait, 1920 full HD and sampled genuine 55s motion remain huge regular courtyard and small striped tube. Snake Pass primary, ASTRO BOT secondary quality not met; no independent fresh-context critic available."
+    "candidate": "T1 broad physically authored on-court three-braid moss/lichen continuous material + local irregular low 3D relief, one added STATIC cache mesh with original 13 world and 4 garden batches unmodified. PR candidate is not accepted; prior exact game runtime 9d3 remains whole-game SELF-REJECTED.",
+    "candidateProof": "Historical exact game runtime a939 docs head Actions 41411192893: real source-matched eight-view WebGL and unmodified 55s films, 63/64 browser, unchanged mandatory gate FAIL 7 genuine full-scene desktop submissions/1010.4ms vs >=17; existing original art self-rejected. NEW candidate evidence pending executed CI. Never infer visual acceptance from geometry counts.",
+    "review": "SELF REVIEW: original exact-source whole-game imagery and motion rejected against official Snake Pass; latest source candidate not yet evaluated in real current-head browser. Independent review NOT available. Keep T1 BUILDING. Physical device display p95, full soak, T2 expressive hero, T3 UX and T4 smoothness OPEN."
   }
 }
