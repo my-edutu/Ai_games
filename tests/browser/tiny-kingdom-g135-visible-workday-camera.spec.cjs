@@ -24,8 +24,9 @@ test('G135 active workday is framed from the physical working front with readabl
   const view=g.watchLiveWorkday(),shot=g.getWorkdayCompositionAudit();
   const repeat=g.getWorkdayCompositionAudit();
   const camera=g.getCitizenCameraPlan();
+  const construction=g.getBuilderStageAudit();
   const after=JSON.stringify(g.exportSnapshot());
-  return {view,shot,repeat,camera,counts:g.metrics(),
+  return {view,shot,repeat,camera,construction,counts:g.metrics(),
    readOnly:before===after,render:g.renderStats(),gl:
     document.querySelector('#world').getContext('webgl')?.getError()??-1};
  });
@@ -53,6 +54,18 @@ test('G135 active workday is framed from the physical working front with readabl
   expect(result.shot.handBlockers).toBeLessThanOrEqual(1);
  }
  expect(result.shot.staticWorldHidden).toBe(false);
+ // G138: the carpenter's real continuous work progress builds an observable
+ // physically articulated cottage frame, including joined pitched rafters
+ // and placed wall panels at the authentic late phase, without affecting
+ // rules/save state. It is NOT a pre-rendered unrelated animation.
+ if(result.shot.job==='builder'){
+  const site=result.construction.find(x=>x.citizen===result.shot.actor);
+  expect(site).toBeTruthy();
+  expect(site.assembly?.source).toBe('actual-autonomous-shift');
+  expect(site.assembly?.frameHeight).toBeGreaterThan(.4);
+  if(site.progress>=.55)expect(site.assembly.roofRafters).toBe(2);
+  if(site.progress>=.70)expect(site.assembly.infillPanels).toBeGreaterThan(0);
+ }
  expect(result.camera).toBeTruthy();
  expect(result.gl).toBe(0);
  // Browser render runs on its NEXT animation frame after 86,400 synchronous
