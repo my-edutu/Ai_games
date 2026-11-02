@@ -1,7 +1,7 @@
 import * as THREE from './vendor/three.module.js';
 import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE } from './world.js';
-import { planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance } from './map-view.mjs';
+import { planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicGateOpeningCameraCue } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -155,7 +155,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   };
 
   let settings = { ...initialSettings };
-  let frame = null, previous = null, runToken = '', cameraMode = 'follow';
+  let frame = null, previous = null, runToken = '', cameraMode = 'follow', recentPublicOpening = null;
   let cells = [], segmentProgress = 0, heading = Math.PI / 4, halfHeight = 9;
   let lastNow = 0, elapsed = 0, frames = 0, lastDiagnostic = 0, lost = false, disposed = false;
   let width = 0, height = 0, routeSignature = '', geometryPeak = 0;
@@ -232,9 +232,12 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     const snapshot = value.snapshot;
     stageBias = publicStageBias(snapshot);
     const motion = planPublicMotion(previous, snapshot);
+    // Only an actually observed, same-run CLOSED -> OPEN public door can
+    // earn a short cinematic camera beat. The renderer cannot grant passage.
+    const openingCue = publicGateOpeningCameraCue(previous, snapshot);
     if (runToken !== snapshot.runToken) {
       for (const entry of wardens.values()) removeWarden(entry);
-      wardens.clear(); runToken = snapshot.runToken; routeSignature = ''; resetPosition(snapshot);
+      wardens.clear(); runToken = snapshot.runToken; routeSignature = ''; recentPublicOpening = null; resetPosition(snapshot);
     } else if (lost || settings.reducedMotion || motion.snap || snapshot.result) {
       resetPosition(snapshot);
     } else if (motion.cells.length > 1) {
@@ -243,6 +246,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       else { cells = [...motion.cells]; segmentProgress = 0; }
       if (cells.length > 32) resetPosition(snapshot);
     }
+    if (openingCue) recentPublicOpening = {...openingCue, runToken:snapshot.runToken, start:elapsed};
     previous = snapshot;
     world.update(snapshot);
     updateRoutes(snapshot);
@@ -380,8 +384,22 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     guide.material.opacity = settings.highContrast ? .95 : .65;
 
     const aspect = width / Math.max(1, height);
+    // The previous close-up used to immediately snap back to a wide water
+    // shot as soon as the real gate opened. Keep the SAME disclosed arch and
+    // Pip readable briefly while its actual bronze grille withdraws.
+    // No secret door, solver plan, invented unlock or manual camera input.
+    const openingGateBeat = cameraMode === 'follow' && !settings.reducedMotion && !result
+      && !closestThreat?.strength && recentPublicOpening?.runToken === s.runToken
+      && elapsed >= recentPublicOpening.start
+      && elapsed - recentPublicOpening.start <= 1.35
+      && s.doors.some(door => door.open &&
+        ((door.a === recentPublicOpening.a && door.b === recentPublicOpening.b)
+          || (door.b === recentPublicOpening.a && door.a === recentPublicOpening.b)))
+      ? recentPublicOpening : null;
     let targetHeight;
     let nearObservedGate = null;
+    let cameraGate = null;
+    let openingKeyedBeat = false;
     let keyLockCloseup = false;
     let cameraAimLift = 0;
     if (cameraMode === 'overview') {
@@ -402,22 +420,25 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // empty water. Rebalance toward the *known nearby stage* but keep Pip
       // visible, and avoid fighting the threat-encounter framing.
       const nearObservedGoal = cameraMode === 'follow' && !result
-        && objectiveCue && objectiveCue.steps <= 2 && !closestThreat?.strength;
+        && objectiveCue && objectiveCue.steps <= 2 && !closestThreat?.strength
+        && !openingGateBeat;
       if (cameraMode === 'follow' && !result && !closestThreat?.strength) {
         // The visual obstruction is never promoted to a movement objective:
         // it is only a currently rendered, source-disclosed *closed* gate.
         nearObservedGate = !nearObservedGoal ? publicNearbySealedGate(s) : null;
+        cameraGate = openingGateBeat || nearObservedGate;
+        openingKeyedBeat = !!openingGateBeat?.keyed;
         let focus;
-        if (nearObservedGate) {
-          const a = cellPosition(nearObservedGate.a, s.width, s.height);
-          const b = cellPosition(nearObservedGate.b, s.width, s.height);
+        if (cameraGate) {
+          const a = cellPosition(cameraGate.a, s.width, s.height);
+          const b = cellPosition(cameraGate.b, s.width, s.height);
           // A *real* carried matching key earns a tighter encounter camera.
           // Ordinary known closed gates retain the wider stage-first framing.
-          keyLockCloseup = keyGateCue?.strength > .2
+          keyLockCloseup = !openingGateBeat && keyGateCue?.strength > .2
             && ((nearObservedGate.a === keyGateCue.a && nearObservedGate.b === keyGateCue.b)
               || (nearObservedGate.a === keyGateCue.b && nearObservedGate.b === keyGateCue.a));
           const gateDelta = {x: (a.x + b.x) / 2 - pose.x, z: (a.z + b.z) / 2 - pose.z};
-          focus = keyLockCloseup
+          focus = keyLockCloseup || openingKeyedBeat
             ? composePublicKeyLockFocus(stageBias, gateDelta, aspect)
             : composePublicSealedGateFocus(stageBias, gateDelta, aspect);
         } else {
@@ -438,8 +459,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         // keyed encounter's camera. Give that real sealed-gate shot headroom
         // without exposing new cells, changing the zoom or affecting normal
         // navigation, guardian, overview and terminal views.
-        if (nearObservedGate) {
-          cameraAimLift = keyLockCloseup ? (aspect < .9 ? 1.34 : 1.12) : .36;
+        if (cameraGate) {
+          cameraAimLift = keyLockCloseup || openingKeyedBeat ? (aspect < .9 ? 1.34 : 1.12) : .36;
           desiredTarget.y += cameraAimLift;
         }
       }
@@ -456,7 +477,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       targetHeight = cameraMode === 'detail'
         ? publicDetailEncounterHalfHeight(aspect, closestThreat?.strength)
         : height < 340 ? 5.4
-        : nearObservedGate ? (keyLockCloseup ? (aspect < .9 ? 4.70 : 4.55) : (aspect < .9 ? 5.42 : 5.05))
+        : cameraGate ? ((keyLockCloseup || openingKeyedBeat) ? (aspect < .9 ? 4.70 : 4.55) : (aspect < .9 ? 5.42 : 5.05))
         : aspect < .9 ? 6.2 : nearObservedGoal ? 6.25 : 7.3;
       // A live full-viewport portrait is narrower in WORLD units than the
       // old in-page canvas. Preserve the already-disclosed pair/terrain span
@@ -488,7 +509,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     camera.updateProjectionMatrix();
     // Rotate only the visual camera toward the side of a disclosed obstruction.
     // Smooth it back after leaving; never alter the simulation or private map.
-    cameraOffset.lerp(nearObservedGate ? sealedGateCameraOffset : followCameraOffset, blend);
+    cameraOffset.lerp(cameraGate ? sealedGateCameraOffset : followCameraOffset, blend);
     camera.position.copy(cameraTarget).add(cameraOffset); camera.lookAt(cameraTarget);
     const background = settings.highContrast ? '#50665f' : '#b2c6b6';
     scene.background.set(background); scene.fog.color.set(background);
@@ -624,6 +645,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         keysInFrame, closedGatesInFrame,
         carriedKeyGateGesture: keyGateCue?.strength??0,
         keyLockCloseup, cameraAimLift, physicalKeyLock,
+        publicOpeningCameraBeat: openingGateBeat ? {a:openingGateBeat.a,b:openingGateBeat.b,
+          keyed:openingKeyedBeat,ageSeconds:elapsed-openingGateBeat.start} : null,
         // Camera evidence is derived only from the source-disclosed gate,
         // with projected coordinates in normalized device space [-1,+1].
         nearbySealedGate: nearObservedGate ? {...nearObservedGate} : null,
@@ -688,7 +711,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     wayfindingCues = [];
     contactGeometry.dispose(); contactMaterial.dispose(); contactTexture.dispose();
     sun.shadow.map?.dispose(); environmentTexture?.dispose(); renderer.dispose(); scene.clear();
-    cells = []; frameTimes.length = 0; frame = null; previous = null; stageBias = {x: 0, z: 0};
+    cells = []; frameTimes.length = 0; frame = null; previous = null; recentPublicOpening = null; stageBias = {x: 0, z: 0};
   }
   return { update, render, resize, setSettings, setCameraMode, dispose };
 }
