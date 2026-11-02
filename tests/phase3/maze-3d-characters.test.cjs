@@ -562,8 +562,8 @@ test('Pip physically acknowledges only a witnessed public pickup with stable pri
       'the celebratory key must remain a real wrist-held 3D object, not a screen sprite');
     assert.ok(left.rotation.x < -1.15 && left.rotation.z < -.5,
       'Pip lifts and opens its left arm to make the original collected key legible');
-    assert.ok(key.rotation.x > 2 && key.scale.x > 1.1,
-      'the existing key is physically raised and enlarged without adding GPU resources');
+    assert.ok(key.rotation.x > 2.4 && key.scale.x > 1.55,
+      'the genuinely collected connected key must be visibly turned and large enough for native mobile');
     assert.deepEqual(pip.group.position.toArray(),[0,0,0],'presentation never changes engine actor position');
     const staticPose=[body.position.y,head.rotation.x,left.rotation.x,right.rotation.x,scarf.rotation.x];
     pip.update({...cue,time:700});
