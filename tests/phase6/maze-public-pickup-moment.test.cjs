@@ -58,8 +58,8 @@ test('public key feedback stays coupled to actual frame-limited 3D pickup, not C
   // Release is deliberately fast, while the actual in-world shards stay visible
   // over a separate authored dwell and late fade. The old single-phase regex
   // rejected that genuine production visual improvement in whole-repo CI.
-  assert.match(three,/Math\\.min\\(1,pickupAge\\/PUBLIC_PICKUP_RELEASE_SECONDS\\)/);
-  assert.match(three,/clamp\\(\\(PUBLIC_PICKUP_VISUAL_SECONDS-pickupAge\\)\\/\\.55,0,1\\)/);
+  assert.match(three,/Math\.min\(1,pickupAge\/PUBLIC_PICKUP_RELEASE_SECONDS\)/);
+  assert.match(three,/clamp\(\(PUBLIC_PICKUP_VISUAL_SECONDS-pickupAge\)\/\.55,0,1\)/);
   assert.equal(PUBLIC_PICKUP_RELEASE_SECONDS,.82,
     '3D shards must still visibly release promptly');
   assert.ok(PUBLIC_PICKUP_VISUAL_SECONDS>PUBLIC_PICKUP_RELEASE_SECONDS+.8,
