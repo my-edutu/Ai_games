@@ -840,6 +840,72 @@ export function createMazeWorld(options = {}) {
       prop.computeBoundingSphere();
       backdrop.add(prop);
     }
+    // Two broken tide-watch spires give the FAR public coastline an original
+    // recognizable silhouette instead of featureless lagoon. They are visibly
+    // submerged, unreachable, unlit historical ruins — NOT a second exit,
+    // treasure, explorable island, route clue or newly disclosed maze cell.
+    // Their fixed positions use ONLY public board dimensions, including when
+    // no interior cells are known. The camera sees them behind the -X/-Z
+    // seaward edge; neither simulation nor hidden geography is consulted.
+    // Shared meshes/materials are instanced in four batches (not 50 draw calls).
+    const offshore = new THREE.Group();
+    offshore.name = 'Dimension-only submerged broken tide-watch spires';
+    const offshoreParts = new Map();
+    const offshorePart = (geo, mat, x, y, z, sx, sy, sz, rx=0, ry=0, rz=0) => {
+      const key = geo.id + ':' + mat.id;
+      if (!offshoreParts.has(key)) offshoreParts.set(key, {geo, mat, matrices: []});
+      offshoreParts.get(key).matrices.push(transform(x,y,z,sx,sy,sz,rx,ry,rz).clone());
+    };
+    for (const [i, site] of [
+      {x:-extentX-2.15,z:-extentZ-2.85,scale:1},
+      {x:-extentX-3.75,z:-extentZ-1.65,scale:.76}
+    ].entries()) {
+      const {x,z,scale:k} = site, lean = i===0 ? -.16 : .21;
+      // The feet and fractured coral-shaped footings are submerged below the
+      // fixed lagoon surface (-1.7); there is no walkable surface or bridge.
+      offshorePart(cone, deepStone, x, -1.38, z, 1.05*k, .89*k, .91*k, 0, .3+i);
+      offshorePart(cone, darkJade, x-.29*k, -1.51, z+.30*k,
+        .58*k, .53*k, .50*k, .13, i*.8, -.24);
+      offshorePart(cone, stone, x+.39*k, -1.55, z-.17*k,
+        .41*k, .38*k, .50*k, -.19, i, .20);
+      // A visibly broken lighthouse-like vertical shaft has contrasting
+      // ceramic courses and deeply stepped crown, not a coin-shaped beacon.
+      const shaftX=x+lean*k;
+      offshorePart(cylinder, jade, shaftX, -.44, z, .43*k, 2.15*k, .43*k, 0, .18);
+      offshorePart(cylinder, lightStone, shaftX, .33*k, z,
+        .49*k, .16*k, .49*k);
+      offshorePart(cylinder, deepStone, shaftX, -.69*k, z,
+        .47*k, .19*k, .47*k);
+      offshorePart(cylinder, stone, shaftX, .62*k, z,
+        .52*k, .18*k, .52*k);
+      offshorePart(bevel, deepStone, shaftX, .82*k, z,
+        1.11*k, .26*k, .96*k, .08*i, .15*i);
+      // Offset, broken roof slabs and one heavy surviving sculpted crest:
+      // readable world-building at native scale without a fake goal symbol.
+      offshorePart(bevel, seaGlass, shaftX-.33*k, 1.04*k, z-.05*k,
+        .72*k, .17*k, .96*k, 0, 0, -.29);
+      offshorePart(bevel, lightStone, shaftX+.29*k, 1.0*k, z+.08*k,
+        .58*k, .16*k, .73*k, 0, .13, .37);
+      offshorePart(cone, darkJade, shaftX-.12*k, 1.36*k, z-.18*k,
+        .24*k, .56*k, .22*k, .09*i, 0, -.20);
+      // Wind-battered carved side struts attach to the visible shaft; no
+      // animation-clock, private event or collectible-like emissive color.
+      for (const side of [-1,1]) {
+        offshorePart(bevel, clay, shaftX+side*.34*k, -.04*k, z+.20*k,
+          .14*k, .99*k, .14*k, 0, side*.16, side*.11);
+        offshorePart(bevel, lightStone, shaftX+side*.33*k, -.50*k, z+.26*k,
+          .23*k, .13*k, .19*k);
+      }
+    }
+    for (const {geo,mat,matrices} of offshoreParts.values()) {
+      const batch = new THREE.InstancedMesh(geo,mat,matrices.length);
+      batch.castShadow = false; batch.receiveShadow = false;
+      matrices.forEach((pose,i)=>batch.setMatrixAt(i,pose));
+      batch.instanceMatrix.needsUpdate = true;
+      batch.computeBoundingSphere();
+      offshore.add(batch);
+    }
+    backdrop.add(offshore);
   }
   const propGroup = (cell, s) => {
     const p = new THREE.Group(), point = cellPosition(cell, s.width, s.height);
