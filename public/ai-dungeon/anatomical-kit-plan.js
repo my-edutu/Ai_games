@@ -18,7 +18,7 @@ function make(kind,p){
   part(kind+'-forged-cuirass','cuirass',p.chest,0,1.19,-.29,.73*w,.67,.27),
   part(kind+'-upper-breastplate','cuirass',p.detail,0,1.32,-.40,.31*w,.32,.10),
   part(kind+'-neck-gorget','collar',p.detail,0,1.50,-.19,.53*w,.23,.27),
-  part(kind+'-face-guard','mask',p.face,0,1.68,-.26,.32*p.head,.27,.13),
+  part(kind+'-face-guard','mask',p.face,0,1.68,-.26,.32*p.head,.27,.13,0,'head'),
   part(kind+'-left-shoulder','pauldron',p.chest,-.42,1.38,-.08,.36*w,.28,.35,-.12),
   part(kind+'-right-shoulder','pauldron',p.chest,.42,1.38,-.08,.36*w,.28,.35,.12),
   part(kind+'-left-bracer','vambrace',p.arm,-.43,1.03,-.10,.30,.47,.30,-.12,'leftForearm'),
