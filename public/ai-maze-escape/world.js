@@ -588,7 +588,11 @@ export function createMazeWorld(options = {}) {
     // Two instanced meshes reuse existing geometry/materials and never grow
     // with the public discovery history or allocate during animation frames.
     const islets = 16;
-    const reefRock = new THREE.InstancedMesh(sphere, deepStone, islets * 3);
+    // The first original 320px/1280px WebGL review rejected oversized
+    // round "potato" boulders and detached green caps behind the guardian
+    // arch. Low, irregular tidal cones now BREAK the water line rather than
+    // pretending to be hovering, walkable islands or collectible markers.
+    const reefRock = new THREE.InstancedMesh(cone, deepStone, islets * 3);
     const reefLichen = new THREE.InstancedMesh(sphere, darkJade, islets);
     reefRock.name = 'Dimension-only offshore broken rock silhouettes';
     reefLichen.name = 'Dimension-only offshore lichen caps';
@@ -607,18 +611,20 @@ export function createMazeWorld(options = {}) {
       for (let j = 0; j < 3; j++) {
         const angle = j * 2.399 + variation(seed + 3) * TAU;
         const spread = j === 0 ? 0 : .48 + variation(seed + j * 5) * .35;
-        const height = j === 0 ? .95 + variation(seed + 4) * .25
-          : .47 + variation(seed + j * 9) * .21;
+        const height = j === 0 ? 1.12 + variation(seed + 4) * .40
+          : .55 + variation(seed + j * 9) * .24;
         reefRock.setMatrixAt(i * 3 + j, transform(
           cx + Math.cos(angle) * spread,
-          j === 0 ? -.92 : -1.27,
+          j === 0 ? -1.30 : -1.49,
           cz + Math.sin(angle) * spread,
-          j === 0 ? 1.05 : .67, height, j === 0 ? 1.12 : .72,
-          0, angle * .32, j === 0 ? .09 : -.12));
+          j === 0 ? .60 : .37, height, j === 0 ? .68 : .41,
+          j === 0 ? .10 : -.12, angle * .32, j === 0 ? .08 : -.16));
       }
+      // Marine algae must stay attached to the partly submerged base, not
+      // float on the summit as a bright gameplay-like target.
       reefLichen.setMatrixAt(i, transform(
-        cx + .10, -.04, cz - .08,
-        .40 + variation(seed + 9) * .18, .23, .45, 0, variation(seed + 12) * TAU));
+        cx + .10, -1.53, cz - .08,
+        .24 + variation(seed + 9) * .10, .12, .29, 0, variation(seed + 12) * TAU));
     }
     for (const prop of [reefRock, reefLichen]) {
       prop.instanceMatrix.needsUpdate = true;

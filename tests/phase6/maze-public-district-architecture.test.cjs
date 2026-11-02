@@ -112,6 +112,12 @@ test('offshore rock silhouettes depend only on public board size, never undisclo
       assert.ok(node.instanceMatrix.array.length === node.count * 16);
       for (let i = 0; i < node.count; i++) {
         const data = node.instanceMatrix.array;
+        if (node.name === 'Dimension-only offshore broken rock silhouettes')
+          assert.equal(node.geometry.type, 'ConeGeometry',
+            'reef silhouette must remain an irregular tidal spire, not a floating round boulder');
+        if (node.name === 'Dimension-only offshore lichen caps')
+          assert.ok(data[i * 16 + 13] < -1.35,
+            'lichen must be grounded at the submerged rock base, not a floating item');
         const x = data[i * 16 + 12], z = data[i * 16 + 14];
         // Each rock is beyond the guaranteed public board; NEVER a possible
         // missing cell, bridge, door, collectible or navigation hint.
