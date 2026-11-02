@@ -2193,22 +2193,22 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "PENDING new exact-head browser/visual/CI and replay: JS source sculpture invariants checked, not equivalent to running-game acceptance",
+      "safetyChecks": "PENDING exact candidate-head authority/browser/CI/replay checks after 23eac4f; pure camera planner locally evaluated with a real-map-style synthetic 3-hero arrangement (not running-game evidence). Previous 8d603100/a6e3163f source passed three true Chromium shards and authority workflow 41534599981; catalogue workflow 41534600021 cancelled. No current-head green claim.",
       "matchedExternalReference": "NOT_RUN",
-      "originalAudioMotionClip": "UNVERIFIED full original audio: predecessor Chromium artifact 13165920178 includes a 48.84-second VP8 test recording with no identified audio track; this is NOT the full traversal→combat→Warden→floor→defeat/restart reel.",
+      "originalAudioMotionClip": "UNVERIFIED full real original audio plus continuous traversal/combat/Warden/floor/defeat/restart on desktop and mobile. Prior Chromium videos are screen tracks and do not constitute authenticated audio proof.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
       "audioLoudnessAndClipping": "NOT_MEASURED",
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "PREDECESSOR e474553 real Chromium 1440x832 Warden exposure and 390x844 contact: https://github.com/my-edutu/Ai_games/actions/runs/41490449531/artifacts/13165920178 . Inspected: the actual Vanguard is present but partially masked by the overlarge Warden; floating Warden nameplate overlaps the fixed boss health strip, especially on phone; masonry is cubic. Matched immutable baseline A/B remains UNVERIFIED. New code SHA 89a7e575 AFTER not yet captured. New source M1 hero-escape candidate a951f64 is unverified visually; older predecessor snapshot is not an A/B result.",
-      "latestCandidateWorkflow": "Source head a951f64bf4305199f9bc4948cc39b32d31220868: fresh GitHub exact-head Dungeon 41516898744 and visual 41516898738 queued; previous 7e18 workflow cancelled by syntax-fix push. Static V8 syntax parsing of six affected JS/test modules passed; pure legal-dodge/false-event/reduced-motion shape executed. No Node build, exact-head browser runtime screenshot, motion clip/audio or hardware measurements yet. Do not claim a CI pass, motion quality or accepted A/B.",
+      "latestCandidateWorkflow": "2026-11-02 source 23eac4f: dedicated Dungeon 41543430489, visual 41543430645 and catalogue 41543430544 initiated; status unconfirmed at ledger write. Do not claim exact-head green without confirmed outcomes.",
       "currentPredecessorWebgl": "Exact-head 63c7859beab07697275ce3b3aec4a4e11369a1b3, browser workflow 41526201988, artifact 13181360029 (real desktop world-only, Warden and mobile screenshots plus video.webm) and 13180476954 (world-only screenshot and quantitative metrics), inspected 2026-11-02. Authentic 1440x832 Warden recovery shows a crowded arena and toy-like giant boss; no matched immutable baseline A/B conducted.",
-      "newCandidateSceneReview": "UNVERIFIED: no browser-captured 8d603100e25a568e05a694ab305731cf745ed736 exact-head gameplay inspected; GitHub visual review and dungeon workflows queued after source commit."
+      "newCandidateSceneReview": "UNVERIFIED new head 23eac4f after open-ruin party sightline change. Predecessor a6e3163f authentic 1440x832 world-only: https://github.com/my-edutu/Ai_games/actions/runs/41534599981/artifacts/13183999092. Actual 3 heroes visibly crowded among heavy stone architecture; genuine visual audit 116414 triangles, 3/3 ray-unoccluded, minHeroPixels 210, not a quality score. New source exact-head browser/visual pending."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Real recent 3D WebGL shows toy-like protagonist/enemy proportions, heavy architectural silhouettes and inconsistent weapon contact. Code now changes physical wall geometry and encounter clearance, but no new-head screenshot/video or blind judges have proved any experiential improvement. Complete traversal→combat→boss→floor→defeat/restart audio/motion and performance across desktop and mobile remain unverified.",
-    "currentWork": "Same unfinished M1. On 2026-11-02 the source game was physically re-sculpted at code commit 8d603100e25a568e05a694ab305731cf745ed736: battered five-course masonry now replaces repeated flat-sided wall volumes, an open ogival gallery replaces block corridor lintels, visually redundant parapets/columns/banners are culled, and real scene-state cutaways expose protagonist-vs-boss contact. A follow-on resource-lifecycle fix owns/disposes the new shared corridor rib once per floor. The 63c7859 predecessor screenshots/videos were actually inspected; new-head visual benefit, gameplay motions, mobile, audio, performance and blind A/B remain UNVERIFIED.",
-    "candidateCommit": "8d603100e25a568e05a694ab305731cf745ed736",
+    "biggestRemainingGap": "Latest authentic 1440x832 WebGL scene (2026-11-02) depicts cramped, toy-like KayKit silhouettes, foreground stone volume and repeated Gothic props even though 3/3 heroes pass ray-visible diagnostics. The new genuine party silhouette camera and physically lower junction stonework address real staging; an exact new-head browser capture, mobility and character art quality remain unjudged. Continuous original audio/motion, mobile frame-time, independent blind comparison and full autonomous-game tactical assessment are still missing.",
+    "currentWork": "ONE UNFINISHED M1 transformation, source candidate 23eac4f426d074ff8e1ee4ebf564c50476fc6665. The actual dungeon now renders broad low-ruin junctions and retains taller distant buttress landmarks without changing any impassable game cells; physically reduces repeated arch bays, raised shrine props and foreground corridor ribs. A new 17-flank camera study projects the real living heroes' within-cell staged rigs, seeks visibly separated party silhouettes and rejects marginal or clipped candidates; Warden duels, explicit danger and reduced-motion keep previous framing. No AAA/quality or performance win accepted until real desktop/mobile footage and independent blind looks/feels/plays judging.",
+    "candidateCommit": "23eac4f426d074ff8e1ee4ebf564c50476fc6665",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
     "implementationEvents": [
@@ -3266,6 +3266,29 @@
         "validation": "Source module geometry checked in JS for 62 vertices / 120 triangles, bounded per-cell dimensions and valid indices; new-head visual, browser motion, replay and CI are PENDING, as are acoustic capture and blind critic panel. No A/B quality win.",
         "experienceVerdict": "IN_PROGRESS / NOT_TRANSFORMED",
         "next": "Inspect exact-head running desktop/mobile combat, defeat and world-only frames, verify silhouette separation and legibility vs locked baseline using same seed, fix newly visible geometry/camera occlusion, then improve character anatomical animation and contact if still toy-like. Collect continuous full-scenario audiovisual proof and >=3 independent blind critics."
+      },
+      {
+        "id": "M1-OPEN-RUIN-VISTA-20261102",
+        "date": "2026-11-02",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "codeCommit": "23eac4f426d074ff8e1ee4ebf564c50476fc6665",
+        "sourceHeadAtStart": "a6e3163f1aaf74e9845703d8c52063a9f89b4856",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "objective": "Replace the claustrophobic toy-diorama party shot with actual cinematic negative space through physically lower exposed ruin walls, a restrained four-chapter Gothic landmark budget and a candidate-orbit camera that finds separated true living hero silhouettes while safeguarding boss and danger staging.",
+        "code": [
+          "public/ai-dungeon/cinematic-chapter-plan.js",
+          "public/ai-dungeon/wall-profile-plan.js",
+          "public/ai-dungeon/vaulted-wall-plan.js",
+          "public/ai-dungeon/app.js",
+          "tests/foundation/dungeon-party-vista.test.cjs",
+          "tests/foundation/dungeon-wall-profiles.test.cjs",
+          "tests/foundation/dungeon-vaulted-gallery.test.cjs"
+        ],
+        "predecessorRealBrowser": "https://github.com/my-edutu/Ai_games/actions/runs/41534599981/artifacts/13183999092",
+        "predecessorObservation": "Genuine 1440x832 software WebGL frame: 3/3 hero ray-visible yet overlapping, heavy raised masonry dominates action; 116414 triangles, min 210px projected hero height; not matched baseline A/B.",
+        "newBrowser": "UNVERIFIED",
+        "lookFeelPlay": "UNVERIFIED; keep M1 open and PR draft",
+        "next": "Inspect source head actual desktop/phone world-only plus genuine Warden and party combat motion; verify camera does not swing unexpectedly, mobile and accessibility still work, and party contact/telegraphs are readable. Fix actual defects, collect a full audible run with matched immutable baseline and 3 independent blinded critics before any transformation claim."
       }
     ]
   }
