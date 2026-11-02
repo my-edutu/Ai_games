@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updated": "2026-11-01",
+  "updated": "2026-11-02",
   "mode": "transformation-first",
   "baseline": {
     "sha": "1731b380851162741761c5569e2bc152a0869ca9",
@@ -9,18 +9,18 @@
   },
   "candidate": {
     "sha": null,
-    "title": "Unassessed authentic ascent→guardian combat→HP-peeling skinned armor plus HP-driven physical gate/capstan→source-anchored release→outcome/restart",
-    "implementationSha": "3a5c6d9d94ea882026b293cf3d8738477ae7aaab",
-    "implementationEvidenceStatus": "IMPLEMENTED BUT NOT INDEPENDENTLY VISUALLY ASSESSED: 3a5c6d9 makes two original skinned shoulder armor shells peel back persistently with REAL guardian HP, revealing hot original underframes synchronized to the existing gate winch, weights, cables, door and conduit; test 338eec7 inspects actual skinned geometry/replay-safe restores. Previous source 32ee065 safety run 41353900090 SUCCESS, but exact new source safety run 41358291139 PENDING and 60s desktop/portrait real source 3a5c6d9 capture 41358227934 PENDING at record time. Prior 84fb5f2 capture 41353444506 finished 5/6 scoped jobs; frozen baseline outcome still FAILS genuine visible result/intermission/restart. 0 independent full-motion critics; no supported-device frame-time/memory evidence; NOT EVALUATED."
+    "title": "Unassessed real ascent→guardian HP-peeling armor and source-anchored close-stage mechanical gate/capstan→same-anchor release→outcome/restart",
+    "implementationSha": "6ede6fe34ccab584cd113b828ec69af7b405e312",
+    "implementationEvidenceStatus": "IMPLEMENTED, NOT EVALUATED: game commit 6ede6fe anchors the real 3D guardian HP-driven gate next to the stable authoritative final approach platform instead of the cap's distant midpoint. Scene camera, world gate, runtime gate projection, and witnessed same-tick floor-clear passage consume the same read-only source anchor. Test correction 93c2b83 and implementation review 63d9066 are engineering evidence only. Previous b3cb8ed quality workflow 41363629518 SUCCESS; new 93c2b83 quality workflow 41365134332 IN PROGRESS at inspection. New 6ede6fe normal-speed source-pinned capture 41365006570 IN PROGRESS at inspection. Frozen-baseline outcome/restart still fails complete visible terminal sequence in earlier runs. No new actual video inspected from this source, 0 independent critics, no supported-device frame-time/memory evidence: NOT EVALUATED."
   },
   "currentTransformation": {
-    "title": "Turn the complete real ascent→HP-staged guardian armor and mechanically coupled gate→source-anchored cap release→outcome/restart into a legible cinematic 3D expedition",
-    "state": "SAME INTEGRATED 3D TRANSFORMATION OPEN; SOURCE-DRIVEN GUARDIAN ARMOR+GATE NOW IMPLEMENTED; NOT EVALUATED",
-    "promise": "Real guardian HP now alters the hero's enemy in-world silhouette with two articulated, low shoulder shells opening to reveal the heated original underframe AND independently turns the existing capstan, spools cables, lowers counterweights and opens bronze doors and path conduit. Actual adjacent source observations anchor the earlier cap's lock fracture as the run advances, then genuine results/restart follow. No new collision, damage, AI, RNG, replay, audio default, paid influence, lights, HUD or invented clearance. Bounded at two new rigid skin bones sharing existing material batches.",
-    "nextDecision": "Keep this ONE integrated slice open; next prioritize guardian+hero+gate scene composition and credible combat on normal-speed desktop/mobile 3D footage over further ornament. Inspect HP milestones/camera framing at matched game-state, not merely same capture seconds, then source-pin new >60s videos for three scenarios. Baseline 1731b380 stays frozen; baseline outcome still fails true terminal visibility. Recruit >=5 genuine independent randomized blind full-motion critics each for LOOKS/FEELS/PLAYS (>=4/5 candidate), and gather actual supported hardware frame-time p50/p95/p99, memory, accessibility/replay/recovery. No quality PASS without them.",
+    "title": "One continuous authentic climb→guardian attack and visible HP-driven armor/capstan/doors→same-source floor-clearance→real outcome/restart",
+    "state": "SAME TRANSFORMATION OPEN; STAGED REAL GUARDIAN APPROACH/GATE/CAMERA SLICE IMPLEMENTED; NOT EVALUATED",
+    "promise": "One fixed authoritative lower approach platform that originally supports the guardian now anchors the decorative 3D HP-operated bronze gate at the same angular position used by the following camera and cleared-passage memory. The climber can meaningfully fight an HP-peeling armored guardian near the visibly working source-driven winch, cables, counterweights, opening leaves and conduit. No simulated actor, platform, collision, attack, run tick, AI, RNG, checksum, replay, HUD or winning condition is altered; no additional world gate meshes or lights are created. The physical cap deck retains exact authoritative geometry. This is an implementation hypothesis requiring real continuous video, not a verified experiential improvement.",
+    "nextDecision": "Inspect new real normal-speed 6ede6fe footage at desktop and portrait viewports, aligning events by tick/guardian HP and inspecting the smoothed camera's guardianInFrame, gateInFrame and real video itself. Fix any newly revealed crop/occlusion/physical-scale regression, then produce all matched baseline/candidate 60+ seconds per ascent/danger/outcome (including frozen baseline visible terminal/restart). Acquire >=5 independent fresh-context blind video critics with >=4/5 candidate preference per LOOKS, FEELS, PLAYS. Gather representative supported-device p50/p95/p99 frame times and memory plus accessibility, replay and recovery. Keep unchanged baseline 1731b380. No quality PASS without evidence.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "REAL GAMEPLAY CLIP SAMPLES NOW IDENTIFY A SYSTEMIC CAMERA/SPECTATOR PROBLEM: the guardian's REAL HP drains while its armor, physical capstan/gate and final release are often off-screen in portrait, and desktop video favors a large decorative gear over encounter causality. New candidate 3a5c clips exist, but same-seed footage is not yet event-aligned. Frozen baseline one-tick outcome remains unobserved as a full result/intermission/restart. 0/5 independent votes in LOOKS, FEELS, PLAYS and no supported-device tails/memory. Quality NOT EVALUATED.",
-    "unverifiedImplementationBranchHead": "338eec7417e281b8d216055c5353232443c59265"
+    "biggestRemainingExperienceGap": "THE SOURCE-STAGED GATE HAS NOT BEEN OBSERVED IN THE NEW FULL-MOTION VIDEO YET: earlier portrait HP loss happened while guardian and distant central gate were off-screen. Need verified readable actor+HP-operated mechanism+release composition at actual 20Hz play and stable phone frame-time tails. Frozen baseline complete outcome/restart remains unobserved in composited video. 0/5 independent blind LOOKS/FEELS/PLAYS votes and no supported-device performance or full experience review: NOT EVALUATED.",
+    "unverifiedImplementationBranchHead": "63d9066ff1835cb36a5774e4022f4cf79a968381"
   },
   "scenarios": [
     {
@@ -60,11 +60,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Source+test+review head 476ee56b quality-contract run 41358620915 completed SUCCESS (build, full repository logic, Tower authority, browser progress page). This is a safety result, NEVER a quality score. The following evidence-only commit still requires its own CI; do not infer results.",
-    "replay": "PENDING source-head replay campaign; the new shoulder bones only consume immutable render snapshots and do not alter fixed-step AI, combat, health, seed, RNG, checksum or public replay payload. Tests exercise source immutability and reversible HP poses.",
-    "accessibility": "NOT INDEPENDENTLY VERIFIED. Two physical shoulder shells separate as real HP falls, with underframe shape and material contrast as non-color-only cues; reduced-motion reveals source-true static opened pose without oscillation. Critical HUD and opt-in audio unchanged; mobile human readability remains open.",
-    "performance": "NO supported-device p50/p95/p99 FPS-equivalent frame-time tails and memory. Captured CI software-renderer (software GL) submission gaps can exceed 1s at p95, not meaningful device FPS. New 2 guardian armor bones remain in existing skin batches; no genuine hardware profile.",
-    "stability": "Real 60s+ candidate/baseline captures completed on CI with five of six scenario jobs scoped PASS, frozen baseline outcome FAILED. Updated real source's latest head full logic/Tower integrity 41358620915 was successful. Device/browser recovery, long soak and independent game-state-matched video review remain unverified."
+    "ci": "Previous source b3cb8ed passed technical contract run 41363629518; exact updated game+source test 6ede6fe quality run 41365006572 was in progress then cancelled by subsequent commit; current source+tests 93c2b83 workflow 41365134332 PENDING/IN PROGRESS at inspection. Neither is a quality verdict. Do not claim latest CI pass before observed.",
+    "replay": "PENDING exact-head replay campaign. The gate anchor is computed purely from read-only cap + previously generated real lower-approach platform + guardian feet elevation, independent of patrol X/health. Source truth remains fixed-step; no authority changes. Dedicated test covers stable location through patrol, HP and graphics rehydration; full deterministic replay still not independently verified.",
+    "accessibility": "NOT INDEPENDENTLY VERIFIED. Close-stage gateway supplies non-color-only opening doors, counterweights, armor shape; camera still protects both actor silhouettes. Reduced-motion remains source-true static gate states. Need real portrait video and accessible cue evaluation.",
+    "performance": "NOT MEASURED ON SUPPORTED DEVICES. The new gate simply rotates existing original masonry to a different fixed azimuth; no new GPU draw/light or dynamic collider. Software GL submission gaps are not actual supported-phone FPS. Obtain frame-time p50/p95/p99 and memory over full scenes before any claim.",
+    "stability": "Latest source-pinned normal-speed 6ede6fe real-game capture run 41365006570 IN PROGRESS at inspection; previous b3cb8ed run 41363629664 had six successful scoped recording jobs but FAILED frozen-baseline full outcome/restart capture. New structural tests for fixed source anchor and source-linked passage were committed; run status unresolved. Actual hardware context recovery, soak and unedited video review missing."
   },
   "unresolvedCriticalIssues": null,
   "benchmark": {
@@ -149,9 +149,9 @@
     },
     "newImplementationSha": "3a5c6d9d94ea882026b293cf3d8738477ae7aaab",
     "newImplementationRecorded": true,
-    "reviewPath": "docs/reviews/2026-11-01-tower-pr68-guardian-armor-attrition-continuation.md",
-    "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41358227934",
-    "followupStatus": "COMPLETED FAILURE due to frozen-baseline outcome both desktop/portrait, while five of six scoped baseline/candidate scenario capture jobs PASS. Source 3a5c6d9 recordings have been downloaded and sampled in both layouts, but no genuinely independent full-motion comparison or device test. The new source-specific full logic + Tower quality contract was SUCCESS on head 476ee56 in run 41358620915, before this evidence-only revision.",
+    "reviewPath": "docs/reviews/2026-11-02-tower-pr68-guardian-approach-causal-framing.md",
+    "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41365006570",
+    "followupStatus": "New real-game candidate game implementation 6ede6fe source-pinned 60+ seconds desktop 960x600 and portrait 390x844 capture in progress at inspection; old 41363629664 b3cb8ed completed six of seven scoped jobs, baseline outcome/restart failed; previous 41358227934 clips already documented. No new video's full-motion reviewed and no blind critics. Source 6ede6fe differs from its followup 93c2b83 only by test correction and subsequent documentation.",
     "matchedCaptureSettings": {
       "seed": "tower-transformation-capture-v1",
       "sourceBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
@@ -183,7 +183,7 @@
         "The frozen baseline outcome misses the visible result/intermission/restart despite real run changes. Do not hide the failure or alter frozen SHA.",
         "CI software GL renderer submitted-frame intervals are very slow; they are NOT true supported-device FPS; no performance pass."
       ],
-      "keyGap": "SPECTATOR LEGIBILITY: show genuine guardian damage, physical armor/gate response and source-anchored clearance in the same understandable world composition, particularly portrait; verify real motion at matching game-state before independent judgments."
+      "keyGap": "Before staging change genuine guardian HP/physical gate often absent in portrait crop; newly source-coordinated 3D stage/camera/passsage awaits footage. Keep critic scores 0/5 and unresolved full baseline outcome."
     }
   }
 }
