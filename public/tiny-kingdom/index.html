@@ -4115,6 +4115,13 @@ function appendActiveWorksiteDressing(w,x,y,z,pulse){
     rgb(i%2?0xc4a258:0xd9b96f),5);
   box(x+.05,y+.06,z-.46,.49,.20,.35,rgb(0x9d7d50));
   box(x+.05,y+.24,z-.46,.48,.045,.37,rgb(0xc6aa6e));
+  // Grain bunches accumulate VISUALLY along this true harvest shift.
+  // They are work-in-progress, not credited food until work() resolves.
+  for(let i=0;i<Math.floor(cue.progress*4);i++){
+   const sx=x-.25+i*.17;
+   cone(sx,y+.07,z-.47,.095,.37,rgb(i%2?0xceb067:0xdfc482),6);
+   box(sx,y+.26,z-.47,.18,.045,.15,rgb(0x947044));
+  }
  }else if(w.job==='builder'){
   // Actual builder progress raises a temporary timber assembly; never a fake house.
   const rise=cue.frameRise,oak=rgb(0xc19b62);
@@ -4140,14 +4147,30 @@ function appendActiveWorksiteDressing(w,x,y,z,pulse){
    [x+.57,y+.99,z+.78],[x+.57,y+.99,z+.18],rgb(0xb38c57));
   ellipsoid(x-.28,y+.08,z+.12,.15,.18,.12,rgb(0xd2b98d),6);
   ellipsoid(x+.28,y+.08,z+.12,.15,.18,.12,rgb(0xcab38e),6);
+  // A working balance with moving physical pans; no invented transactions.
+  const balance=cue.phase-.5,fulcrum=y+.98;
+  limbSegment([x-.40,fulcrum+balance*.09,z+.48],
+   [x+.40,fulcrum-balance*.09,z+.48],.037,rgb(0x6f5037),5);
+  for(const side of [-1,1]){
+   const px=x+side*.36,py=fulcrum-side*balance*.08;
+   limbSegment([px,py,z+.48],[px,py-.31,z+.48],.011,rgb(0xe0c185),5);
+   box(px,py-.32,z+.48,.27,.045,.25,rgb(0xb28a5e));
+  }
  }else if(w.job==='craftsperson'){
   // Hammered metal is visibly on an anvil, distinct from the carpenter table.
   box(x-.38,y+.06,z+.47,.48,.28,.36,rgb(0x716c62));
   box(x-.38,y+.34,z+.47,.66,.10,.32,rgb(0x96958c));
   box(x-.36,y+.45,z+.47,.32,.055,.14,
-    rgb(pulse>.5?0xd2a16c:0xa78d79));
+    rgb(cue.impactStrength>.4?0xf1ba70:0xa78d79));
   limbSegment([x+.37,y+.06,z+.36],[x+.38,y+.53,z+.37],
     .045,rgb(0x8c6948),5);
+  // The metal and three tiny physical embers respond to the genuine hammer.
+  // Zero unbounded particles, timers, shader passes or random streams.
+  if(cue.impactStrength>.08)for(let i=0;i<3;i++){
+   const sx=x-.42+i*.11,sy=y+.48+cue.impactStrength*(.08+i*.045);
+   tri([sx,sy,z+.48],[sx+.035,sy+.08,z+.47],
+    [sx+.045,sy-.01,z+.49],rgb(i%2?0xffdc9d:0xf5a661));
+  }
  }else if(w.job==='gatherer'){
   // Herb baskets and hand-picked stalks appear only during a real forage.
   box(x+.10,y+.04,z+.46,.52,.22,.33,rgb(0x886b48));
@@ -4156,6 +4179,11 @@ function appendActiveWorksiteDressing(w,x,y,z,pulse){
     [x-.22+i*.19,y+.56+(i%2)*.08,z+.44],.022,rgb(0x638456),4);
    cone(x-.22+i*.19,y+.47,z+.44,.075,.21,rgb(0x6d9860),5);
   }
+  // Woven bundle visibly fills as the actual collecting timer advances.
+  const fill=Math.floor(cue.progress*3);
+  for(let i=0;i<fill;i++)
+   cone(x+.10+(i-1)*.12,y+.24,z+.44,.07,.25,
+    rgb(i%2?0x779557:0x93b36a),5);
  }
 }
 
