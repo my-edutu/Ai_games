@@ -878,7 +878,7 @@
     {
       "name": "Pass85 authentic 22/22 native PNG hashes VERIFIED but public canopy perceptual test FAILED; Pass86 new source pending",
       "status": "Focused original world source 41488815563 SUCCESS / artifact 13164790389; 22/22 exact original sha; 320/844/1280 Follow image change 0; Pass85 aesthetic REJECTED, official Nintendo bar NOT PASSED; Pass86 focused and full CI QUEUED",
-      "detail": "Pass85 original PNG sidecar date range 2026-11-02 17:16:11.904Z–17:20:36.960Z; world.js SHA256 2abd584c59505eac6d3277eafbd990703ac992b1d88e99388ca4e4c64ddfe5e5. 320/844/1280 100% pixel-identical to Pass84 baseline; native 390 halfHeight 8.9978506 versus 9.3922051 due CPU camera settling. Real Pip and Thornback in-frame, 44px controls, key/gate capture original. Pass86 actual source/model test 7a8bfbf, WebGL 41490882690 pending.",
+      "detail": "Pass85 original PNG sidecar date range 2026-11-02 17:16:11.904Z–17:20:36.960Z; world.js SHA256 2abd584c59505eac6d3277eafbd990703ac992b1d88e99388ca4e4c64ddfe5e5. 320/844/1280 pixel-identical to the Pass84 baseline at all three native sizes; native 390 halfHeight 8.9978506 versus 9.3922051 due CPU camera settling. Real Pip and Thornback in-frame, 44px controls, key/gate capture original. Pass86 actual source/model test 7a8bfbf, WebGL 41490882690 pending.",
       "evidenceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41488815563/artifacts/13164790389",
       "checkedAt": "2026-11-02T17:28:34.789Z"
     },
