@@ -1150,8 +1150,29 @@ export function createTowerWorld(){
             entry.motionSourceTick=snapshot.tick;
           }
         }
+        // A real climber can load the SOURCE deck beneath the same moving
+        // carriage. Check the actual feet/top and horizontal collision
+        // overlap, not its selected future route. The piston remains a visual
+        // follower; it never feeds back into platform physics or AI.
+        const rider=snapshot.player;
+        const feet=rider?.y-rider?.halfHeight;
+        const physicallyLoaded=!options.stale && rider?.health>0 &&
+          rider?.state==='standing' &&
+          Number.isFinite(feet) && Number.isFinite(rider?.x) &&
+          Number.isFinite(rider?.halfWidth) && rider.halfWidth>0 &&
+          Math.abs(feet-(p.y+p.height))<=2500 &&
+          rider.x+rider.halfWidth>=p.x &&
+          rider.x-rider.halfWidth<=p.x+p.width;
+        // A grounded contact changes the piston only on a fresh source tick.
+        // The 0.22-unit stroke is subtle enough for stillness on a phone,
+        // with a tangible compressed end state even if motion is reduced.
         if(!options.stale && Number.isSafeInteger(snapshot.tick) && snapshot.tick>=0
           && (entry.sourceTick===null || snapshot.tick>entry.sourceTick)){
+          const travel=entry.actuator.userData.restY-entry.actuator.position.y;
+          const contact=physicallyLoaded ? .22 : 0;
+          entry.actuator.position.y=entry.actuator.userData.restY-
+            Math.min(.42,Math.max(contact,options.reducedMotion ? 0 : travel));
+          entry.actuator.userData.loaded=physicallyLoaded;
           entry.sourceTick=snapshot.tick;entry.sourceX=p.x;
         }
       }

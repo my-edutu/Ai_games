@@ -18,7 +18,7 @@ fs.writeFileSync(file,fs.readFileSync(path.join(root,'public/infinite-tower-clim
   .replace("'./coordinates.mjs'",JSON.stringify(coordUrl))
   .replace("'./world-surface.mjs'",JSON.stringify(surfaceUrl)));
 const loaded=Promise.all([import(threeUrl),import(pathToFileURL(file).href)]);
-function snapshot({tick=100,runToken='runA',floor=3,active=true,deckX=160000}={}){
+function snapshot({tick=100,runToken='runA',floor=3,active=true,deckX=160000,rider=false}={}){
   const base=floor*360000;
   return Object.freeze({
     lifecycle:'running',tick,runToken,floor,theme:'storm',
@@ -26,7 +26,8 @@ function snapshot({tick=100,runToken='runA',floor=3,active=true,deckX=160000}={}
     platforms:[{id:'moving',kind:'moving',x:deckX,y:base+120000,width:100000,height:10000}],
     hazards:[{id:'risk',kind:'lightning',x:230000,y:base+118000,
       width:32000,height:9000,active}],
-    enemies:[],player:{x:245000,y:base+135000,health:5},
+    enemies:[],player:{x:245000,y:rider?base+148000:base+135000,health:5,
+      halfWidth:9000,halfHeight:18000,state:rider?'standing':'airborne'},
   });
 }
 test('active physical danger survives mute/reduced motion but not stale snapshots',async()=>{
@@ -75,6 +76,14 @@ test('real moving deck drives visual machinery without replay/time invention',as
     world.update(snapshot({tick:23,deckX:166000}),.05,1.15,{quality:'low',stale:true});
     assert.deepEqual([crank.rotation.z,countergear.rotation.z,piston.position.y,piston.rotation.z],observed);
     assert.equal(world.diagnostics().observedMovingDeckDriveLastTick,21);
+    // Real sole contact, not a suggested route, loads the carriage. Verify
+    // pressure visibly deepens only when feet are at the genuine moving top.
+    world.update(snapshot({tick:24,deckX:166000,rider:true}),.05,1.2,{quality:'low'});
+    assert.equal(piston.userData.loaded,true);
+    assert.ok(piston.position.y<restingY-.2);
+    world.update(snapshot({tick:25,deckX:166000,rider:false}),.05,1.25,{quality:'low',reducedMotion:true});
+    assert.equal(piston.userData.loaded,false);
+    assert.equal(piston.position.y,restingY);
     world.update(snapshot({tick:3,deckX:100000}),.05,0,{quality:'low'});
     assert.equal(crank.rotation.z,0);
     assert.equal(countergear.rotation.z,0);
