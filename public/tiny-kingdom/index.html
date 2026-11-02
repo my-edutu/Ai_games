@@ -5219,15 +5219,23 @@ function planStreetWorkerEncounter(excludeName=null){
     const distanceToVisitor=Math.hypot(point[0]-streetPosition[0],
      point[1]-streetPosition[1]);
     const screen=projectedWorkdayOccluders(eye,target,citizen);
+    // The actual joiner looks toward a physical joint. A side/back shot
+    // turns labor into an unreadable crowd. Favour looking along their
+    // work-facing direction while allowing occlusion to override it.
+    const workFacing=builderStageAngle(citizen);
+    const facingAlignment=Math.cos(bearing-workFacing);
     const score=importance+visibility.forwardMetres*1.25-
-     distanceToVisitor*.16-radius*.55-
-     screen.projectedBystanders*16-screen.projectedPosts*6;
+     distanceToVisitor*.16-Math.abs(radius-5.1)*1.9-
+     screen.projectedBystanders*16-screen.projectedPosts*6-
+     screen.frameCrowdBurden*22+
+     (activeWork?15:2.5)*facingAlignment;
     const candidate={citizen,position:point,yaw:yawToCitizen,score,
       metres:radius,visibility,activeWork,cropBlockedSamples:crop.blockedSamples,
       fieldSamples:crop.fieldSamples,crowdIntrusions:crowd.crowdIntrusions,
       closestBystander:crowd.closestBystander,
       projectedBystanders:screen.projectedBystanders,
-      projectedPosts:screen.projectedPosts};
+      projectedPosts:screen.projectedPosts,frameCrowdBurden:screen.frameCrowdBurden,
+      facingAlignment};
     if(!best||score>best.score)best=candidate;
     if(citizen.name!==excludeName&&(!bestOther||score>bestOther.score))
      bestOther=candidate;
@@ -5263,7 +5271,8 @@ function visitStreetWorker(){
   fieldSamples:plan.fieldSamples,crowdIntrusions:plan.crowdIntrusions,
   closestBystander:plan.closestBystander,
   projectedBystanders:plan.projectedBystanders,
-  projectedPosts:plan.projectedPosts};
+  projectedPosts:plan.projectedPosts,frameCrowdBurden:plan.frameCrowdBurden,
+  facingAlignment:plan.facingAlignment};
 }
 function setStreetWalk(enabled){
  const next=Boolean(enabled);
@@ -5454,9 +5463,23 @@ function projectedWorkdayOccluders(eye,target,subject){
   return Math.abs(lateral)<.53/depth+width/along&&
    Math.abs(vertical)<.95/depth+height/along;
  };
- let projectedBystanders=0,projectedPosts=0;
+ // A bystander need not cross the single face ray to fill a third of the
+ // viewport. Score their apparent foreground occupancy across the actual
+ // human-height lens, without hiding or teleporting any real citizen.
+ let projectedBystanders=0,projectedPosts=0,frameCrowdBurden=0;
  for(const other of people){
   if(other===subject)continue;
+  const ox=other.x-eye[0],oy=terrain(other.x,other.z)+1.01-eye[1],
+   oz=other.z-eye[2];
+  const along=ox*forward[0]+oy*forward[1]+oz*forward[2];
+  if(along>.4&&along<depth+.45){
+   const lateral=Math.abs((ox*right[0]+oz*right[2])/along);
+   const vertical=Math.abs((ox*up[0]+oy*up[1]+oz*up[2])/along);
+   if(lateral<.95&&vertical<.87){
+    frameCrowdBurden+=(1-lateral/.95)*(1-vertical/.87)*
+     Math.min(1.65,3.4/along);
+   }
+  }
   if(projected(other.x,terrain(other.x,other.z)+1.01,other.z,.35,.78))
    projectedBystanders++;
  }
@@ -5466,7 +5489,7 @@ function projectedWorkdayOccluders(eye,target,subject){
  for(const [x,z] of [[-15,4],[-5,-7],[6,9],[2,6],[-14,6]]){
   if(projected(x,terrain(x,z)+.95,z,.16,.70))projectedPosts++;
  }
- return {projectedBystanders,projectedPosts};
+ return {projectedBystanders,projectedPosts,frameCrowdBurden:Math.round(frameCrowdBurden*100)/100};
 }
 function cameraShotFraming(shot,roofs,citizen){
  const target=shot.target,eye=shot.eye;
@@ -5527,7 +5550,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw){
   const framing=cameraShotFraming(shot,roofs,citizen);
   const score=coarse+framing.blockedBodyRays*110+
    framing.blockedNeighbourhoodRays*12+framing.cameraProximityWarnings*42+
-   framing.projectedBystanders*170+framing.projectedPosts*55;
+   framing.projectedBystanders*170+framing.projectedPosts*55+
+   framing.frameCrowdBurden*65;
   if(score<bestScore){best=shot;bestScore=score;bestFraming=framing;}
  }
  return {...best,...bestFraming,compositionScore:bestScore,
