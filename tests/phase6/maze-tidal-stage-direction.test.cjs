@@ -109,3 +109,43 @@ test('publicly blocked cells gain three deterministic physical ruin silhouettes 
     assert.equal(stage.stats().shellBasins,0,'no hidden island or courtyard is rendered before discovery');
   }finally{stage.dispose();identical.dispose();cleanup()}
 });
+
+
+test('offshore watch ruins are real dimension-only instanced 3D, never a leaked public maze extension',async()=>{
+  const {m,cleanup}=await realWorld();
+  const stage=m.createMazeWorld({balanced:true});
+  const again=m.createMazeWorld({balanced:true});
+  const empty=publicSnapshot(false);
+  try {
+    stage.update(empty);
+    const name='Dimension-only submerged broken tide-watch spires';
+    const inspect=(world)=>{
+      const monument=world.group.getObjectByName(name);
+      assert.ok(monument,'actual waterline architecture should be attached to the Three scene');
+      assert.ok(monument.children.length>=4,'distinct material/geometry silhouettes are physical GPU batches');
+      const positions=[];
+      for (const child of monument.children) {
+        assert.ok(child.isInstancedMesh,'each offshore part must share an instanced production mesh');
+        assert.ok(child.count>=1,'no unbounded or empty draw call');
+        for (let i=0;i<child.count;i++) {
+          const offset=i*16, values=child.instanceMatrix.array;
+          positions.push([values[offset+12],values[offset+13],values[offset+14]]);
+        }
+      }
+      return positions.sort((a,b)=>a[0]-b[0]||a[2]-b[2]||a[1]-b[1]);
+    };
+    const initial=inspect(stage);
+    assert.ok(initial.length>=24,'two developed ruins require more than decorative flat sprites');
+    const extent=empty.width*2.4/2;
+    assert.ok(initial.every(([x,y,z])=>Number.isFinite(x)&&Number.isFinite(y)&&Number.isFinite(z)
+      &&x < -extent-1 &&z < -extent-1),
+    'all actual offshore fragments remain detached beyond the playable public board');
+    assert.deepEqual(stage.stats().renderedCells,[],'offshore history may not reveal unknown cells');
+    again.update({...empty,runToken:'different-private-seed',unpublishedMazeSeed:'secret',
+      privateWardenNextCell:18,hiddenMazeRoute:[7,18,24],secretExitCell:21});
+    assert.deepEqual(inspect(again),initial,'private maze state cannot position scenic ruins');
+    stage.update({...empty,runToken:'new-run',cells:[],visibleCells:[]});
+    assert.deepEqual(inspect(stage),initial,'new runs do not leak old land or change public-dimension sea');
+    assert.deepEqual(stage.stats().renderedCells,[]);
+  }finally{stage.dispose();again.dispose();cleanup()}
+});
