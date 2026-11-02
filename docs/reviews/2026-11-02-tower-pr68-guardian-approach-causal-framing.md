@@ -1,0 +1,28 @@
+# Infinite Tower Climb — real guardian approach / gate / camera continuity
+
+**2 November 2026 · draft [PR #68](https://github.com/my-edutu/Ai_games/pull/68) · same open transformation.**
+**Quality verdict: NOT EVALUATED.** Baseline stays `1731b380851162741761c5569e2bc152a0869ca9`; no moving goalposts.
+
+## Actual experiential problem
+
+Earlier source-pinned normal-speed [desktop and portrait captures](https://github.com/my-edutu/Ai_games/actions/runs/41358227934) show authentic guardian HP losses while the visible picture emphasizes the climber and the tower wall; the HP-driven physical gate and winch often sit outside the portrait crop. The previous attempt to force the *cap midpoint* into camera perspective made the true actor silhouettes smaller and failed camera assertions, so merely zooming out would regress the play experience. The last source `b3cb8ed` restored readable guardian framing, but the distant gate remained an explicit unresolved gap.
+
+**Causal design change:** stage the same existing original 3D gate adjacent to the real guardian's *fixed approach platform* instead of at the midpoint of the much wider final cap. A viewer should be able to see the bodily opponent and HP-operated door, cables and counterweights in a single locally coherent moment. The gate remains *decorative*, physically inset to the tower, with no new collider, checkpoint, obstacle, winning condition, AI rule, hit point, camera HUD, texture, light or extra draw. The authoritative cap and its collision-aligned 3D deck do not move.
+
+## Source-controlled implementation and test
+
+- [`6ede6fe`](https://github.com/my-edutu/Ai_games/commit/6ede6fe34ccab584cd113b828ec69af7b405e312): `guardianGateAnchorX` locates the source's actual final platform on which the guardian originally stands via its **feet elevation**, then clamps one stable gate azimuth to the authoritative cap width. If approach provenance is absent or invalid, it falls back to the previous cap midpoint. The anchor is insensitive to guardian patrol X or HP loss. `world.mjs` rotates the decorative masonry, doors, cable/capstan and conduit together; `scene.mjs` uses the *same anchor* for the actual encounter camera, real WebGL diagnostic projection, and post-defeat clearance memory placed on the **old floor**, avoiding any teleport to the new player. Gameplay authority and replay snapshots are read-only.
+- `tower-guardian-seal-experience.test.cjs`: checks source-owned cap geometry vs independent decorative portal, stable anchor across patrol/HP and graphics-tier rebuild, and immutable source snapshots. `tower-guardian-portrait-story.test.cjs` checks the camera and world use one computed lock coordinate. These checks are structural safety, **not** perceived game-quality votes.
+- [`93c2b83`](https://github.com/my-edutu/Ai_games/commit/93c2b8327626be3aec7c741f6faefd36f2960148): aligns the pre-existing passage lifecycle assertion with the now source-derived anchor; prevents falsely requiring the abandoned cap-midpoint variable.
+
+## Verification, visible evidence and blocking acceptance
+
+At the last source inspection, [the earlier pre-change `b3cb8ed` quality workflow](https://github.com/my-edutu/Ai_games/actions/runs/41363629518) **passed**. Its [actual gameplay workflow](https://github.com/my-edutu/Ai_games/actions/runs/41363629664) completed six of seven scoped jobs, while the frozen-baseline complete outcome/intermission/restart job failed again. Neither workflow certifies this new source or any LOOKS/FEELS/PLAYS outcome.
+
+The [new source-pinned gameplay capture](https://github.com/my-edutu/Ai_games/actions/runs/41365006570) for `6ede6fe` was **in progress** at inspection, including normal-speed desktop 960×600 and portrait 390×844, identical seed and low tier. The latest [technical quality workflow](https://github.com/my-edutu/Ai_games/actions/runs/41365134332) for `93c2b83` was pending/in progress, **not declared passed**. The implementation is not visually assessed from that source yet. Continuous footage must establish that both actors and the HP-powered gate share the *actual smoothed camera* during guardian HP transitions; source geometry and a green CI run cannot prove it.
+
+Blind randomized fresh-context full-motion critics: **0/5** independently recorded in LOOKS, FEELS and PLAYS; separate agents/browser workspace tunnel inaccessible (NOT_FOUND). Supported desktop/phone frame-time p50/p95/p99, GPU-presented performance, memory, accessibility and recovery on intended hardware: **not measured**. The frozen baseline's 50ms terminal state continues to make complete visible outcome/restart capture fail; changing the frozen baseline is forbidden. The evidence assessor must continue to show **NOT EVALUATED**.
+
+## Next whole-slice decision
+
+Inspect the actual `6ede6fe` normal-speed source-pinned desktop/portrait videos and event-aligned `observedCamera` HP samples, not only geometric tests. If the gate, authentic guardian damage, character weight and cap release do not read together at phone size, redesign the *entire encounter scene composition* again. Preserve actual route, obstacle exposure and guardian silhouettes. Acquire valid matched all-three-scene comparison, independent blind >=4/5 candidate preference in each LOOKS/FEELS/PLAYS, replay/accessibility/recovery and supported-device tail data before an experience verdict. No merge, deployment or force push; PR58 remains untouched. Rollback this gate staging and camera anchor together if real footage shows an improvement regression.
