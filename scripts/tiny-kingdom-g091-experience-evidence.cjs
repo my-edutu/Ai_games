@@ -358,12 +358,12 @@ async function motion(browser,html,snapshot,label,live=false,camera=labor,delive
     'Delivery recording must follow an actually loaded, navigating citizen');
   }
   // Genuine unpaused 3D simulation and real camera pointer interactions.
-  const start=await page.evaluate(()=>({quality:window.__tinyKingdom.renderQuality(),
+  const start=await page.evaluate(isLive=>({quality:window.__tinyKingdom.renderQuality(),
    snapshot:window.__tinyKingdom.exportSnapshot(),
    delivery:typeof window.__tinyKingdom.getActiveDeliveries==='function'?window.__tinyKingdom.getActiveDeliveries():[],
    active:typeof window.__tinyKingdom.getLiveWorkdayView==='function'?
     window.__tinyKingdom.getLiveWorkdayView():null,
-   realCamera:live?window.__tinyKingdom.getWorkdayCompositionAudit():null}));
+   realCamera:isLive?window.__tinyKingdom.getWorkdayCompositionAudit():null}),live);
   const wallStart=Date.now();
   await page.waitForTimeout(2500);
   await page.mouse.move(480,330);
@@ -373,11 +373,11 @@ async function motion(browser,html,snapshot,label,live=false,camera=labor,delive
   await page.waitForTimeout(2200);
   await page.mouse.wheel(0,-65);
   await page.waitForTimeout(2500);
-  const end=await page.evaluate(()=>({quality:window.__tinyKingdom.renderQuality(),
+  const end=await page.evaluate(isLive=>({quality:window.__tinyKingdom.renderQuality(),
    snapshot:window.__tinyKingdom.exportSnapshot(),
    camera:window.__tinyKingdom.getCamera(),
-   realCamera:live?window.__tinyKingdom.getWorkdayCompositionAudit():null,
-   glError:document.getElementById('world').getContext('webgl')?.getError()??-1}));
+   realCamera:isLive?window.__tinyKingdom.getWorkdayCompositionAudit():null,
+   glError:document.getElementById('world').getContext('webgl')?.getError()??-1}),live);
   assert.equal(end.glError,0,label+' GL error in filmed interaction');
   const seconds=(Date.now()-wallStart)/1000;
   return {renderer:contextInfo.quality.renderer,seconds,frames:end.quality.framesDrawn-start.quality.framesDrawn,
