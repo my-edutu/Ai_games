@@ -292,6 +292,27 @@ test('a real close public encounter frames both autonomous actors and saves date
     });
     const narrowPath=path.join(dir,narrowName+'.png');
     await page.screenshot({path:narrowPath,fullPage:true});
+    // The genuine tick-13 warden screenshots previously showed a WARDEN
+    // NEARBY alarm with a conflicting generic Find a passage mission. Test
+    // actual full-screen, live-source HUD truth, not a DOM-only mock.
+    if (narrowWidth === 320) {
+      const liveDangerHud = await page.evaluate(() => ({
+        scene: document.getElementById('run-phase').textContent.trim(),
+        title: document.getElementById('goal-title').textContent.trim(),
+        action: document.getElementById('objective').textContent.trim(),
+        intent: document.getElementById('intent-mode').textContent.trim(),
+        actualIntent: window.__MAZE_PUBLIC_STATE__?.intent?.mode,
+        publicThreats: window.__MAZE_PUBLIC_STATE__?.threats?.length || 0,
+      }));
+      expect(liveDangerHud.publicThreats,
+        'urgent message must correspond to a real disclosed guardian').toBeGreaterThan(0);
+      expect(liveDangerHud.scene).toBe('WARDEN NEARBY');
+      expect(liveDangerHud.title,'native active goal must not contradict the true danger').toBe('Avoid warden');
+      expect(liveDangerHud.action,'one short immediate action rather than prose').toBe('Keep clear');
+      if (liveDangerHud.actualIntent === 'exploring')
+        expect(liveDangerHud.intent,
+          'danger goal must not falsely claim the autonomous AI switched to evading').toBe('Exploring');
+    }
     fs.writeFileSync(path.join(dir,narrowName+'.json'),JSON.stringify({
       capturedAt:new Date().toISOString(),
       source:'Real production MazeRuntime publicly disclosed guardian frame, existing warm WebGL Chromium page; no invented actor or hidden map',
