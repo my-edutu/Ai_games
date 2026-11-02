@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-02T11:16:21.956Z",
+  "updatedAt": "2026-11-02T11:27:20.367Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass72 source-authorized real 3D key pickup now leaves a four-leaf physical opening stone shrine. New exact-source visual workflow 41434264524 passed 57/57 real-Three/model checks + 5/5 Playwright tests; original PNGs in artifact 13135657912 still not individually viewed/hash-verified due disconnected shared workspace. Whole CI 41434264333 found 2 temporary test-fixture ESM dependency failures (562/564 passed); actual loader fixed in dcb26968; rerun 41435283563 pending. Frozen official Nintendo Captain Toad visual benchmark remains unachieved. No merge/deploy."
+    "summary": "Pass72 original source e8f695a focused WebGL CI 41434264524 SUCCESS: downloaded artifact 13135657912 and independently verified all 22/22 real dated PNG SHA-256 hashes, including genuine key collection 1280x900 2026-11-02T11:11:06.935Z and 390x844 11:11:17.790Z. Actual full-resolution screenshot review rejects generic wide-small Pip/key moment against frozen official Nintendo Captain Toad reference. Pass73 original four-blade stone shrine + same-run publicly witnessed pickup camera candidate cf76242 committed with physical/accessibility tests; focused CI 41436436849 and full CI 41436436905 queued, no newer render or independent aesthetic win. Shared worker/Ultracode tunnel disconnected, SwiftShader CPU != GPU FPS, PR draft unmerged/undeployed."
   },
   "captures": [
     {
@@ -185,10 +185,11 @@
     "Pass68 candidate fbd8d83: Pip now physically looks at and salutes an authenticated same-run public gate opening with its real 3D head, torso, lantern arm and scarf, preserving guardian/terminal/key priority, reduced-motion stable pose, AI authority, source privacy and low-text full-bleed HUD. New-source WebGL images and full CI must verify before acceptance.",
     "Pass67 genuine image gate CHECKED: exact-source visual 41398112611 SUCCESS, 20/20 original dated full-size WebGL PNG hashes match. Actual native gate mid-lift at age .595 s retains 0.5100 3D grille height and visible bars; unchanged threshold >0.30 passes. Pass66b same camera/timing comparison changes 0.56% of pixels >12 RGB. Local improvement only, Nintendo still wins; no independent/subagent/Ultracode verdict.",
     "Pass70b actual original visual accepted locally only as a repaired silhouette: focused 41423111002 SUCCESS, 20/20 native PNG SHA-256 records recomputed, the rejected floating round stone/lichen cap replaced by low angular water-anchored spires; fixed Nintendo benchmark still wins.",
-    "Pass71 source candidate 5e2bf7e + f32030a: an actual same-run disclosed/inventoried key collection now triggers eight prebuilt original 3D glass-release shards at the public former key cell. Separate deterministic/privacy rules tests and new authentic desktop/portrait Playwright event-PNG + physical-framing acceptance, no extra HUD prose, authority change or offscreen invented key. Await newest exact-source capture."
+    "Pass71 source candidate 5e2bf7e + f32030a: an actual same-run disclosed/inventoried key collection now triggers eight prebuilt original 3D glass-release shards at the public former key cell. Separate deterministic/privacy rules tests and new authentic desktop/portrait Playwright event-PNG + physical-framing acceptance, no extra HUD prose, authority change or offscreen invented key. Await newest exact-source capture.",
+    "Pass73 original modeled key shrine petals expanded to four connected 3D ivory/jade/sea-glass pieces each and a brief source-authorized real-collection Follow camera that stages Pip and collected-key pedestal together at larger scale. No new hidden information/game authority/HUD prose; strict existing 320/390/844/1280, 44px and full-model gates intact. New source CI and actual-image acceptance PENDING."
   ],
   "nextGaps": [
-    "Pass72 visual gate: retrieve original source-bound 41434264524 Playwright 1280x900 and 390x844 key pickup screenshot plus all 320/390/844/1280 actor/HUD/framing captures, recompute all dated PNG hashes and inspect actual hinged stone shrine + shards in native screen space against frozen Nintendo images. If the shrine or actor is hidden or unreadable, reject and repair the real geometry/camera rather than relaxing privacy or in-frame thresholds.",
+    "Pass73 exact-source visual gate: inspect focused CI 41436436849 and authentic dated 1280x900/390x844 witnessed pickup PNGs, recompute all hashes, require real camera beat (no fabricated key) and full modeled Pip, visibly larger stone shrine and reachable uncluttered action. Reject occlusion/cropped native actors or a visually irrelevant zoom; do not lower assertions. Full CI 41436436905 separate.",
     "Pass69b latest native source-bound HUD visual gate: inspect 41418158177 original 320/390/844/1280 real WebGL screenshots and dates/hashes, confirm WARDEN NEARBY aligns with Avoid warden / Keep clear, caption Thornback is nearby only for a real public encounter, no UI overflow/character crop and no fake AI action. New screenshots, not Pass69 world-only images, must prove this.",
     "Pass62 native real-Follow full silhouette crop has been corrected and accepted only for **physical framing** (strict actual 390/320 source screenshot, 14/14 hashes). Next biggest fixed-Nintendo gap is physically authored interactive gameplay storytelling: distinct living scene landmarks, actor/guardian/environment reactions, polished original character motion and clear visual cause/effect. Require independent source-matched image critique when workspace tunnel recovers; do not substitute more dashboard text, loosen cropping thresholds or declare Nintendo win.",
     "Major authored world/scene gap: replace repeating flat court and lagoon negative space with visually distinct original coherent playable locations, real material masses, discoverable goal staging and multi-beat physical reactions without inventing private passages, false traversable geometry or new abilities. Direct new native screenshot critic must judge each independently.",
@@ -693,6 +694,13 @@
       "verdict": "Pending exact-head native image; Nintendo reference wins",
       "date": "2026-11-02T10:43:00.000Z",
       "summary": "After direct Pass70b 320px/1280px original-image review, anchored water rock repair is acceptable but world identity and physical action remain weak. Pass71 only animates a witnessed disclosed collected/inventoried key. Source and Playwright screenshot gates are authored, but new images, post-capture evidence, independent A/B and Nintendo parity remain unverified."
+    },
+    {
+      "title": "Pass73 source-authorized key pickup camera and four-piece 3D shrine petals",
+      "reviewer": "Lead full-resolution Pass72 original images; independent fresh-context visual critic unavailable",
+      "verdict": "Baseline Pass72 shot rejected as too wide/small; Pass73 new composition/model candidate, visual acceptance pending; Nintendo still wins",
+      "date": "2026-11-02T11:27:20.375Z",
+      "summary": "Viewed authentic Pass72 1280x900 and 390x844 unaltered key pickup screenshots and 320 Follow guardian full-model shot; verified all 22 original dated PNG hashes. The authored physical key event is legitimate but tiny against the level. New Pass73 materially increases 3D stone petal mass and uses only an authenticated nearby collected public key to stage a closer hero/reward shot without displacing guardian/gate/reduced-motion, altering AI or adding generic HUD. Await exact-source newly rendered PNGs and separate fresh-context critique. Fixed official Nintendo comparison bar remains not achieved."
     }
   ],
   "verification": [
@@ -1215,6 +1223,13 @@
       "sourceCommit": "59cacd38d0fbde1bfef87772cdb5d554cf2b30d5",
       "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41423111002",
       "detail": "Independent hash recomputation matched all 20 original dated PNGs, including 18 individual sidecars and two additional gate-transition frames, artifact 13130469457. Actual native full-viewport 320/390/844/1280 and actor/44px HUD diagnostics were inspected. The new Pass71 requires its own 1280/390 original witnessed-key screenshots, post-capture physical-shard visibility, SHA evidence, full CI and external fresh critic; do not borrow these older pictures."
+    },
+    {
+      "name": "Pass72 verified unedited native key moment and Pass73 source candidate",
+      "status": "Pass72 22/22 original PNG SHA-256 hashes verified; Pass73 exact-source screenshot/CI and detached independent critic PENDING",
+      "detail": "Original production source e8f695a, GitHub focused CI 41434264524 SUCCESS, original artifact 13135657912. Real 1280x900 public key pickup 2026-11-02T11:11:06.935Z SHA 2f3edfc4c322bb68603c4b96bf2fa7afa469b99b8b8f3f08be47903e1badf416; real native 390x844 11:11:17.790Z SHA 1fbe6bc1a616dbd51f8651ca9ac2ce05ed8e4e71b3c4b43ab9d4f4b007d1a04e. Other 20 original image hashes also match their dated manifests, including two extra gate images recorded by the true transition manifest. Actual 390 Pip and small petals occupy too few screen pixels: new candidate cf76242 enlarges sculpted physical petals and adds safe public-only near-hero collection camera. Focused 41436436849 and full 41436436905 queued; neither declared passing; no Nintendo win or GPU FPS.",
+      "sourceCommit": "cf76242431da8a269e5b491d644566e4cc210bfd",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41436436849"
     }
   ],
   "references": [
