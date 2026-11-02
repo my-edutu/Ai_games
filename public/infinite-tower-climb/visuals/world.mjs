@@ -1168,10 +1168,15 @@ export function createTowerWorld(){
         // with a tangible compressed end state even if motion is reduced.
         if(!options.stale && Number.isSafeInteger(snapshot.tick) && snapshot.tick>=0
           && (entry.sourceTick===null || snapshot.tick>entry.sourceTick)){
-          const travel=entry.actuator.userData.restY-entry.actuator.position.y;
+          const freshDrive=!options.reducedMotion &&
+            entry.motionSourceTick===snapshot.tick;
+          const travel=freshDrive
+            ? Math.max(0,entry.actuator.userData.restY-entry.actuator.position.y):0;
           const contact=physicallyLoaded ? .22 : 0;
+          // A previous tick's suspension stroke cannot remain as a ghost
+          // load once the real deck stops or the climber leaves it.
           entry.actuator.position.y=entry.actuator.userData.restY-
-            Math.min(.42,Math.max(contact,options.reducedMotion ? 0 : travel));
+            Math.min(.42,Math.max(contact,travel));
           entry.actuator.userData.loaded=physicallyLoaded;
           entry.sourceTick=snapshot.tick;entry.sourceX=p.x;
         }
