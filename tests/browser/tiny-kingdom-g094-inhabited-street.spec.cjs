@@ -43,6 +43,8 @@ test('G094 inhabited working street is unobstructed, readable and truth-preservi
   const bounds=s=>{const r=document.querySelector(s).getBoundingClientRect();
    return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,width:r.width}};
   return {tour:bounds('.world-tour'),ribbon:bounds('#world-ribbon'),
+    ribbonHidden:getComputedStyle(document.querySelector('#world-ribbon')).display==='none',
+    activityVisible:getComputedStyle(document.querySelector('#workday-activity')).display!=='none',
     header:bounds('.brand'),status:bounds('#workday-activity'),
     documentWidth:document.documentElement.scrollWidth,
     viewport:innerWidth,topHudHidden:getComputedStyle(document.querySelector('.top')).display==='none',realCitizen:g.getLiveWorkdayView().citizen,
@@ -56,10 +58,14 @@ test('G094 inhabited working street is unobstructed, readable and truth-preservi
  expect(mobile.tour.top).toBeGreaterThanOrEqual(8);
  expect(mobile.tour.top).toBeLessThanOrEqual(40);
  expect(mobile.tour.bottom).toBeLessThan(145);
- expect(mobile.ribbon.top).toBeGreaterThan(390);
- expect(mobile.ribbon.right).toBeLessThanOrEqual(393);
- expect(mobile.ribbon.left).toBeGreaterThanOrEqual(-3);
- expect(mobile.ribbon.bottom+8).toBeLessThan(mobile.status.top);
+ // G119 deliberately HUNTS visible action instead of obscuring it with a
+ // duplicate economy ribbon. Assert it is truly absent, while the genuine
+ // work activity and navigation remain visible and reachable at 390px.
+ expect(mobile.ribbonHidden).toBe(true);
+ expect(mobile.ribbon.width).toBe(0);
+ expect(mobile.activityVisible).toBe(true);
+ expect(mobile.status.top).toBeGreaterThan(390);
+ expect(mobile.status.bottom).toBeLessThanOrEqual(844);
  expect(mobile.realCitizen).toBe(live.view.citizen);
  expect(mobile.glError).toBe(0);
  // The actual camera and HUD can be operated without awarding materials.
