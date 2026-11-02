@@ -7,13 +7,22 @@ const { assessTowerMotion } = require('../../scripts/tower-motion-evidence.cjs')
 
 // No intercepted snapshots, replay scrubbing, virtual time, time acceleration or
 // post-processed poses: this visits the live, seeded 20 Hz expedition host.
-// Video records composited browser output; it does not establish real-device FPS.
-test.use({ video: 'on' });
+// VIDEO TRUTH: the viewport must be configured at CONTEXT CREATION, not changed
+// after Playwright allocated its default 800x450 recorder. Prior portrait WebM
+// had the real 390x844 game squeezed into a tiny upper-left inset surrounded
+// by grey. Native layout video is mandatory for meaningful blind full-motion
+// mobile criticism; it is still NOT a supported-device FPS measurement.
 const viewports = [
   { name: 'desktop', width: 960, height: 600 },
   { name: 'portrait', width: 390, height: 844 },
 ];
-for (const viewport of viewports) test('normal-speed Tower motion ' + viewport.name, async ({ page }, testInfo) => {
+for (const viewport of viewports) {
+  test.describe('source-pinned ' + viewport.name + ' native recording', () => {
+    test.use({
+      viewport: { width: viewport.width, height: viewport.height },
+      video: { mode: 'on', size: { width: viewport.width, height: viewport.height } },
+    });
+    test('normal-speed Tower motion ' + viewport.name, async ({ page }, testInfo) => {
   test.setTimeout(240000);
   const scenario = process.env.TOWER_MOTION_SCENARIO || 'ascent';
   const dir = path.resolve('artifacts', 'tower-motion', scenario, viewport.name);
@@ -21,7 +30,7 @@ for (const viewport of viewports) test('normal-speed Tower motion ' + viewport.n
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
-  await page.setViewportSize({ width: viewport.width, height: viewport.height });
+  expect(page.viewportSize()).toEqual({ width: viewport.width, height: viewport.height });
   await page.goto('/tower?quality=low&reducedMotion=0&muted=1', { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => {
     const d = window.__TOWER_RENDER_DIAGNOSTICS__?.();
@@ -87,6 +96,8 @@ for (const viewport of viewports) test('normal-speed Tower motion ' + viewport.n
     seed: process.env.TOWER_SEED || 'tower-stream-reference',
     scenario, launchFloor: process.env.TOWER_LAUNCH_FLOOR || '0',
     viewport, graphicsTier: 'low', reducedMotion: false, soundEnabled: false,
+    videoGeometry: { width: viewport.width, height: viewport.height,
+      fixture: 'playwright-context-created-with-native-viewport-and-recording-size' },
     actualWallSeconds: assessment.wallMs / 1000, minimumRequiredSeconds: 60,
     outcomeCapture: scenario === 'outcome' ? { maxTicks: 900, noProgressTicks: 850, intermissionTicks: 36 } : null,
     capturedAt: new Date().toISOString(), observations, assessment, errors,
@@ -102,4 +113,6 @@ for (const viewport of viewports) test('normal-speed Tower motion ' + viewport.n
   expect(errors, 'real browser and WebGL errors must remain visible').toEqual([]);
   expect(assessment.blockers, 'capture integrity: ' + JSON.stringify(assessment)).toEqual([]);
   expect(assessment.scopedPass).toBe(true);
-});
+    });
+  });
+}
