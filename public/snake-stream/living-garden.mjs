@@ -573,6 +573,29 @@ export function createLivingGarden(THREE, {width,height}) {
         }
       }
     }
+    // BEGIN T1 CONNECTED COASTAL RIDGES
+    // Treat the eight already-authored rocky landforms as four continuous
+    // shore-long geological systems rather than eight isolated circular cones.
+    // Reuse their exact packed vertices and all existing stone/moss faces:
+    // zero new triangles, draw calls, shaders, textures or gameplay surfaces.
+    const along=shore.axis==='x'?0:2;
+    const shoreLength=shore.end-shore.start;
+    const elongation=Math.min(5,shoreLength*.26/(radius*.90));
+    for(const [layer,start] of [['cliff',originalCliffStart],['moss',originalMossStart]]){
+      const points=bands.get(layer).p;
+      for(let i=start;i<points.length;i+=3){
+        const rise=points[i+1]-bank[1];
+        const local=points[i+along]-bank[along];
+        // The broad lowest course links neighboring outcrops while the
+        // upper irregular crown remains distinct, readable ruined geology.
+        const support=rise<.38?1:rise<.83?.95:rise<1.38?.84:.49;
+        const strataFold=.065*Math.sin(local*.91+phase*1.71)
+          +.037*Math.sin(local*1.62-phase*.63);
+        points[i+along]=bank[along]+local*elongation*support;
+        if(rise>.35)points[i+1]+=strataFold*support;
+      }
+    }
+    // END T1 CONNECTED COASTAL RIDGES
     // END T1 BROKEN SHORE SHELF STAGING
     // END T1 TERRACED MASS REPROFILE
     // Vegetation sits on the same authored mass and leans OUTWARD, away
