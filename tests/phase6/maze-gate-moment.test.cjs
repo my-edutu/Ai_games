@@ -37,3 +37,39 @@ test('render-only portcullis retracts upwards, completes and respects reduced mo
   assert.equal(gateRetractionPose(NaN).visible, false);
   assert.deepEqual(gateRetractionPose(.2), gateRetractionPose(.2));
 });
+
+
+test('real-opening camera beat is nearby, same-run, public-only and never invented', async () => {
+  const { publicGateOpeningCameraCue } = await import('../../public/ai-maze-escape/map-view.mjs');
+  const old = Object.freeze({
+    runToken: 'real-public', tick: 7, width: 17, height: 11,
+    currentCell: 77, inventory: ['bronze-key'],
+    doors: Object.freeze([{a:77,b:94,open:false,requiredKeyId:'bronze-key'}])
+  });
+  const newer = Object.freeze({
+    runToken:'real-public', tick:8, width:17, height:11,
+    currentCell:77, cells:Object.freeze([{cell:77,blocked:false},{cell:94,blocked:false}]),
+    doors:Object.freeze([{a:94,b:77,open:true,requiredKeyId:'bronze-key'}])
+  });
+  const cue = publicGateOpeningCameraCue(old,newer);
+  assert.deepEqual(cue,{a:94,b:77,steps:0,keyed:true});
+  assert.deepEqual(publicGateOpeningCameraCue(old,newer),cue,'camera cue is deterministic');
+  assert.equal(publicGateOpeningCameraCue(null,newer),null);
+  assert.equal(publicGateOpeningCameraCue(old,{...newer,runToken:'another-run'}),null);
+  assert.equal(publicGateOpeningCameraCue(old,{...newer,tick:7}),null);
+  assert.equal(publicGateOpeningCameraCue(old,{...newer,result:{reason:'escape'}}),null);
+  assert.equal(publicGateOpeningCameraCue({...old,result:{reason:'capture'}},newer),null);
+  assert.equal(publicGateOpeningCameraCue({...old,doors:[]},newer),null,
+    'first disclosure already-open is never an authored unlock event');
+  assert.equal(publicGateOpeningCameraCue(old,{...newer,doors:[{a:94,b:77,open:false}]}),null);
+  assert.equal(publicGateOpeningCameraCue(old,{...newer,currentCell:70,cells:[{cell:70,blocked:false}]}),null,
+    'no remote or unknown gate camera cut');
+  assert.equal(publicGateOpeningCameraCue(old,{...newer,cells:[]}),null);
+  assert.equal(publicGateOpeningCameraCue(old,{...newer,doors:[{a:77,b:96,open:true}]}),null,
+    'diagonal or non-neighbor edges are not camera cues');
+  assert.deepEqual(publicGateOpeningCameraCue({...old,inventory:[]},newer),
+    {...cue,keyed:false},'an uncarried key never produces a key closeup');
+  assert.equal(cue.privatePath,undefined);
+  assert.equal(old.doors[0].open,false,'cosmetic beat does not unlock anything');
+  assert.equal(newer.doors[0].open,true,'authoritative already-open state is not modified');
+});
