@@ -16,7 +16,7 @@ const UP = Object.freeze([0, 1, 0]);
 // clearance contract as the tactical pilot, no future positions/phases.
 function witnessedLandingX(snapshot, deck) {
   const center = deck.x + deck.width * .5;
-  const mode = snapshot?.intent?.mode;
+  const mode = snapshot?.intent?.mode?.replace(/^oracle-/, '');
   const summary = snapshot?.intent?.summary;
   const sourceAirLane = (mode === 'air-control' &&
     (summary === 'Steering for a clear landing lane' ||
