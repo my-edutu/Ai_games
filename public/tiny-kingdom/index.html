@@ -6287,6 +6287,27 @@ ctx.strokeStyle='#dbbe8b';ctx.lineWidth=5;for(const points of [[[-16,-7],[-8,-4]
 const center=map(...focusPoint);ctx.strokeStyle='#bffffb';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(center[0]-8,center[1]);ctx.lineTo(center[0]+8,center[1]);ctx.moveTo(center[0],center[1]-8);ctx.lineTo(center[0],center[1]+8);ctx.stroke();const season=climateAt(state.t);document.getElementById('atlas-season').textContent='✧ '+season.seasonName.toUpperCase()+' · '+season.weather.toUpperCase()}
 document.getElementById('atlas-map').addEventListener('pointerdown',e=>{if(follow)setCitizenFollow(false);const rect=e.currentTarget.getBoundingClientRect();focusPoint=[Math.max(-40,Math.min(40,((e.clientX-rect.left)/rect.width)*86-43)),Math.max(-40,Math.min(40,((e.clientY-rect.top)/rect.height)*86-43))];follow=false;cinematic=false;document.getElementById('focus').classList.remove('active');document.getElementById('camera').classList.remove('active');drawAtlas()});
 
+// G131: camera-aware HUMAN geometry budget. The G130 Day-120 evidence shows
+// that close workers still need facial/hand detail, but 8 full rigs at a
+// 25-metre settlement overview cost CPU triangles that cannot be discerned.
+// This only changes *presentation*: every genuine citizen remains in the
+// scene, in navigation, in save/replay and in the same seeded authority state.
+let citizenDetailPolicy={mode:'initial',budget:VILLAGE_LOD_LIMIT,anchorIncluded:true,shown:0,population:0};
+function selectVisibleCitizenDetail(){
+ const n=people.length;
+ if(n<=12)return {indices:new Set(people.map((_,i)=>i)),mode:'all',budget:n,anchorIndex:Math.min(selectedCitizen,n-1)};
+ const mode=streetWalk?'street':follow?'follow':zoom>=18?'overview':zoom>=13?'mid':'close';
+ const budget=mode==='overview'?3:mode==='street'?5:mode==='mid'?5:VILLAGE_LOD_LIMIT;
+ const point=streetWalk?streetPosition:focusPoint;
+ const ordered=people.map((p,i)=>({i,d:(p.x-point[0])**2+(p.z-point[1])**2}))
+  .sort((a,b)=>a.d-b.d||a.i-b.i);
+ const nearby=ordered.slice(0,budget).map(row=>row.i);
+ const activeIndex=streetWalk&&streetEncounterName?
+  people.findIndex(p=>p.name===streetEncounterName):-1;
+ const anchorIndex=activeIndex>=0?activeIndex:Math.min(selectedCitizen,n-1);
+ if(anchorIndex>=0&&!nearby.includes(anchorIndex))nearby[nearby.length-1]=anchorIndex;
+ return {indices:new Set(nearby),mode,budget,anchorIndex};
+}
 function render(now){requestAnimationFrame(render);
  // The 159k-triangle scene was rebuilt/redrawn up to 12 times per second even
  // after Pause in Canvas2D and SwiftShader, starving camera-button input in CI.
@@ -6506,10 +6527,10 @@ renderObservedWorkLight(observedWorkLightProfile());
 currentMaterial=MATERIAL.FOLIAGE;
 windmill(-27,-18,state.t);forgeSmoke(state.t);activeChimneys=0;smokePuffs=0;smokeTriangles=0;smokeMaxRadius=0;{const smokeFull=detailedHomeSet();for(let i=0;i<city.length;i++){const [x,z,k]=city[i];chimneySmoke(x,z,k,state.t,1,!smokeFull.has(i));}}villageFestival();
 currentMaterial=MATERIAL.WOOD;
- const nearPeople=people.length<=12?new Set(people.map((_,i)=>i)):
- new Set(people.map((p,i)=>({i,d:(p.x-focusPoint[0])**2+(p.z-focusPoint[1])**2}))
-  .sort((a,b)=>a.d-b.d||a.i-b.i).slice(0,VILLAGE_LOD_LIMIT).map(row=>row.i));
-nearPeople.add(Math.min(selectedCitizen,people.length-1));
+ const detailPlan=selectVisibleCitizenDetail(),nearPeople=detailPlan.indices;
+citizenDetailPolicy={mode:detailPlan.mode,budget:detailPlan.budget,
+ anchorIncluded:detailPlan.anchorIndex<0||nearPeople.has(detailPlan.anchorIndex),
+ shown:nearPeople.size,population:people.length};
 villageVisualLod.detailedCitizens=0;villageVisualLod.compactCitizens=0;
 villageVisualLod.compactFacingCount=0;villageVisualLod.compactTurnedCitizens=0;villageVisualLod.compactFacingVertexError=0;
 for(let i=0;i<people.length;i++){
@@ -6580,7 +6601,7 @@ requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON
  totalCulledTriangles:scenicVisibilityStats.totalCulledTriangles,
  totalDrawCalls:scenicVisibilityStats.totalDrawCalls,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable}),getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,renderQuality,setRenderQuality,getFrameProfile,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable}),getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,renderQuality,setRenderQuality,getFrameProfile,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
  if(streetWalk)setStreetWalk(false);
 if(follow)setCitizenFollow(false);cinematic=false;document.getElementById('camera').classList.remove('active');
 yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2&&o.focus.every(Number.isFinite))focusPoint=o.focus.slice(0,2)}};
