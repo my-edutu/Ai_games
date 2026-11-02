@@ -324,6 +324,48 @@ test('portrait encounter camera grows actual actors only within genuine public f
     'renderer composition never mutates authoritative or public snapshot positions');
 });
 
+test('real wide Follow guardian pair gets a larger but strictly physically safe stage', async () => {
+  const {publicLandscapeGuardianHalfHeight: frame} = await load();
+  const hero={x:-2,z:0}, guardian={x:2,z:0}, focus={x:0,z:0};
+  const state=JSON.stringify({hero,guardian,focus});
+  const base=7.3, alert=.56;
+  const desktop=frame(1280/900,base,alert,hero,guardian,focus);
+  const landscape=frame(844/390,base,alert,hero,guardian,focus);
+  assert.ok(desktop<base*.85 && desktop>=base*.78,
+    'an actual public desktop encounter gives Pip/Thornback visible scale, not tiny HUD-dependent figures');
+  assert.equal(desktop,landscape,
+    'the same genuine close encounter has deterministic physical stage scale on either wide screen');
+  const projected=p=>((p.x-focus.x)*18-(p.z-focus.z)*15)/Math.hypot(18,15);
+  for(const aspect of [1280/900,844/390]){
+    const h=frame(aspect,base,alert,hero,guardian,focus);
+    assert.ok(Math.max(Math.abs(projected(hero))+1.10,
+      Math.abs(projected(guardian))+1.80) <= h*aspect*.94,
+      'whole explorer and full armored guardian, not just centers, retain actual native margins');
+    assert.equal(frame(aspect,base,0,hero,guardian,focus),base,
+      'no public danger means no invented close encounter camera');
+    assert.equal(frame(aspect,base,alert,hero,{x:70,z:0},focus),base,
+      'a far-apart physical pair cannot be cropped to falsely enlarge one actor');
+    assert.equal(frame(aspect,base,alert,hero,guardian,focus,{x:40,z:0}),base,
+      'a changing camera honors BOTH real silhouette bounds during interpolation');
+    assert.equal(frame(aspect,base,alert,hero,guardian,focus),h,
+      'source-identical public state produces identical camera scale');
+  }
+  assert.equal(frame(320/740,base,1,hero,guardian,focus),base,
+    'strict previously verified 320px portrait in-frame guardian and Pip gates stay untouched');
+  assert.equal(frame(390/844,base,1,hero,guardian,focus),base,
+    'native 390 portrait still uses its own physically verified pair framing');
+  assert.equal(frame(1280/900,base,1,hero,guardian,{x:NaN,z:0}),base);
+  assert.equal(frame(1280/900,base,1,hero,guardian,null),base);
+  assert.equal(frame(1280/900,base,1,hero,guardian,focus,{x:Infinity,z:0}),base);
+  assert.equal(JSON.stringify({hero,guardian,focus}),state,
+    'camera presentation cannot edit any public knowledge or simulation position');
+  const renderer=fs.readFileSync(path.resolve(__dirname,
+    '../../public/ai-maze-escape/scene.js'),'utf8');
+  assert.ok(renderer.includes("aspect >= 1.1 && !settings.reducedMotion && !cameraGate")
+    && renderer.includes('targetHeight = publicLandscapeGuardianHalfHeight('),
+    'production Follow renderer invokes this only for a real wide public pair, never reduced motion or a gate');
+});
+
 test('matched-key camera prioritizes the real glove/socket pair without inventing a path or non-finite target', async () => {
   const {composePublicSealedGateFocus, composePublicKeyLockFocus} = await load();
   const stage = {x: 2.75, z: -1};
