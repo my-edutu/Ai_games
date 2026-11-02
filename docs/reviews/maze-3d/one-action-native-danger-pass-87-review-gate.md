@@ -1,5 +1,7 @@
 # Pass87 — one actionable danger chip, strict real-WebGL acceptance, Pass86 CI repair (2026-11-02 UTC)
 
+> **Later authentic-source verdict (same date):** [focused Pass87 41493926530](https://github.com/my-edutu/Ai_games/actions/runs/41493926530) SUCCESS, all 22 original native PNG SHA-256 hashes independently verified; true 320/844 one-line danger chip and whole actors in-frame. **Pass87 HUD-only improvement accepted; Nintendo benchmark still NOT MET.** Actual 844/1280 scene pixels below y=185 remain identical to Pass85 because the previous Follow screenshot suite inherited `reducedMotion=1` and bypassed Pass86 wide-camera. [Full Pass88 corrected real-motion screenshot gate](./actual-one-action-and-motion-enabled-wide-pass-88-gate.md). Pass88 source CI pending. The initial pending section below is preserved as a chronological source-gate record.
+
 **Fixed visual bar:** [Nintendo Captain Toad: Treasure Tracker official gameplay](https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/); supporting benchmarks Luigi's Mansion 3 and ASTRO BOT. **The original 3D Maze Escape does not yet beat this bar.** Do not treat unit-test counts, CSS changes, software SwiftShader timing or a passing source check as a visual win.
 
 ## Genuine earlier-screen criticism — Pass85 accepted evidence, transformation rejected
