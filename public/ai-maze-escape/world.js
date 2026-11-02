@@ -832,6 +832,27 @@ export function createMazeWorld(options = {}) {
     dais.position.set(KEY_SHRINE_OFFSET.x, 0, KEY_SHRINE_OFFSET.z);
     p.add(dais);
     pedestal(dais, darkJade, .43);
+    // A broad original shell reliquary behind the *actually discovered* key
+    // gives this treasure a physical place. It is non-emissive architecture:
+    // not a second collectible, false gate, secret passage or gameplay cue.
+    // The sculpted rear footprint remains entirely inside its public tile.
+    const reliquary = new THREE.Group();
+    reliquary.name = 'Public tide-shell reliquary crown';
+    reliquary.position.set(-.12, 0, -.50);
+    dais.add(reliquary);
+    mesh(reliquary, bevel, deepStone, 0, .29, 0, 1.42, .21, .32);
+    mesh(reliquary, bevel, jade, 0, .44, -.04, 1.21, .13, .23);
+    for (let i = -2; i <= 2; i++) {
+      const edge = Math.abs(i);
+      const lobe = mesh(reliquary, sphere, i === 0 ? lightStone : seaGlass,
+        i * .245, .99 - edge * .055, -.055,
+        .255, .73 - edge * .11, .145, 0, 0, -i * .15);
+      lobe.name = 'Physical reliquary lobe ' + (i + 2);
+      const rib = mesh(reliquary, bevel, i === 0 ? darkJade : inlay,
+        i * .215, .99 - edge * .055, .072,
+        .068, 1.04 - edge * .18, .067, 0, 0, -i * .13);
+      rib.name = 'Carved reliquary rib ' + (i + 2);
+    }
     const witnessed = key.collected && typeof key.id === 'string' && keyPickupAt.has(key.id);
     // Four original carved, articulated petals open from the collected cell.
     // Their source-disclosed footprint never becomes a route or new reward.
