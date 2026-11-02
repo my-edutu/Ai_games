@@ -12,6 +12,15 @@ export function createTowerFinale(THREE) {
   });
   const ringMaterial = makeMaterial(.64), crownMaterial = makeMaterial(.42);
   const shardMaterial = makeMaterial(.88), stoneMaterial = makeMaterial(.48);
+  // A quiet architectural scorecard for actually CLEARED source floors. Eight
+  // bronze/ceramic rungs cap the draw budget; short dormant stubs never suggest
+  // that a future floor was beaten. This is not a reward, prize or extra HUD.
+  const rungMaterial = new THREE.MeshStandardMaterial({
+    color: 0xffffff, metalness: .52, roughness: .4,
+    depthTest: true, depthWrite: true,
+  });
+  const earnedRung = new THREE.Color(0xa2ddca);
+  const dormantRung = new THREE.Color(0x44505a);
   const ringGeometry = new THREE.TorusGeometry(2.65, .087, 6, 52);
   const crownGeometry = new THREE.TorusGeometry(1.72, .067, 6, 44, Math.PI * 1.64);
   const fragmentGeometry = new THREE.TetrahedronGeometry(.19, 0);
@@ -34,9 +43,16 @@ export function createTowerFinale(THREE) {
     instances.castShadow = false;
     instances.receiveShadow = false;
   }
-  group.add(ground, crown, fragments, stones);
+  const rungs = new THREE.InstancedMesh(stoneGeometry, rungMaterial, 8);
+  rungs.name = 'ObservedClearedFloorRungs';
+  rungs.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  rungs.frustumCulled = false;
+  rungs.castShadow = false;
+  rungs.receiveShadow = false;
+  group.add(ground, crown, fragments, stones, rungs);
   const transform = new THREE.Object3D();
   let run = null, phase = 'running', sourceTick = -1, startedAt = 0;
+  let progressedFloors = -1;
   let kind = null, reason = null, disposed = false;
   const tau = 2 * Math.PI;
   const clamp = value => Math.max(0, Math.min(1, value));
@@ -57,7 +73,7 @@ export function createTowerFinale(THREE) {
       && ['game', 'technical', 'operator'].includes(snapshot.result.kind);
     if (!valid) {
       group.visible = false; run = null; phase = 'running'; sourceTick = -1;
-      kind = null; reason = null;
+      kind = null; reason = null; progressedFloors = 0;
       return;
     }
     if (run !== snapshot.runToken) { run = snapshot.runToken; startedAt = elapsed; }
@@ -66,6 +82,27 @@ export function createTowerFinale(THREE) {
     kind = snapshot.result.kind;
     reason = snapshot.result.reason;
     group.visible = true;
+    const floorCount = Number.isSafeInteger(snapshot.progress?.floorsCleared)
+      ? Math.max(0, Math.min(rungs.count, snapshot.progress.floorsCleared)) : 0;
+    if (floorCount !== progressedFloors) {
+      // Source-driven once per observed milestone. All instance transforms
+      // stay LOCAL to the real terminal actor position through scene shifts.
+      for (let i = 0; i < rungs.count; i++) {
+        const bearing = tau * i / rungs.count + .2;
+        const achieved = i < floorCount;
+        const scaleY = achieved ? 1.2 + i * .11 : .15;
+        transform.position.set(Math.cos(bearing) * 4.65,
+          .12 + scaleY * .55, Math.sin(bearing) * 4.65);
+        transform.rotation.set(0, -bearing, 0);
+        transform.scale.set(.82, scaleY, .82);
+        transform.updateMatrix();
+        rungs.setMatrixAt(i, transform.matrix);
+        rungs.setColorAt(i, achieved ? earnedRung : dormantRung);
+      }
+      rungs.instanceMatrix.needsUpdate = true;
+      if (rungs.instanceColor) rungs.instanceColor.needsUpdate = true;
+      progressedFloors = floorCount;
+    }
     // A real fall may end below a walkway. Remain at that exact actor position,
     // rather than projecting an unearned landing or teleporting to a safe deck.
     group.position.copy(hero);
@@ -118,7 +155,8 @@ export function createTowerFinale(THREE) {
       runToken: group.visible ? run : null, tick: sourceTick,
       resultKind: group.visible ? kind : null,
       resultReason: group.visible ? reason : null,
-      meshes: 4, fragments: fragments.count, stones: stones.count,
+      meshes: 5, fragments: fragments.count, stones: stones.count,
+      progressMarkers: rungs.count, progressedFloors: Math.max(0, progressedFloors),
       geometryOwned: 4, disposed };
   }
   function dispose() {
@@ -127,7 +165,7 @@ export function createTowerFinale(THREE) {
     group.visible = false;
     group.clear();
     for (const geometry of [ringGeometry, crownGeometry, fragmentGeometry, stoneGeometry]) geometry.dispose();
-    for (const material of [ringMaterial, crownMaterial, shardMaterial, stoneMaterial]) material.dispose();
+    for (const material of [ringMaterial, crownMaterial, shardMaterial, stoneMaterial, rungMaterial]) material.dispose();
   }
   return { group, update, diagnostics, dispose };
 }
