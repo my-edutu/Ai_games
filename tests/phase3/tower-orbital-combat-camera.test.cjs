@@ -1,0 +1,116 @@
+'use strict';
+// Source-bound engineering regression for the real Three follow camera.
+// This does not substitute for real normal-speed desktop/portrait video.
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+const { pathToFileURL } = require('node:url');
+const ROOT = path.resolve(__dirname, '../..');
+const loaded = (async () => {
+  const THREE = await import(pathToFileURL(path.join(ROOT, 'node_modules/three/build/three.module.js')).href);
+  const coordinates = await import(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/coordinates.mjs')).href);
+  const context = { THREE, ...coordinates };
+  const source = fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/scene.mjs'), 'utf8')
+    .replace(/^import .*;\n/gm, '').replace('export function createTowerScene', 'function createTowerScene');
+  vm.runInNewContext(source, context);
+  return { THREE, ...coordinates, context };
+})();
+
+test('transitioning between opposite valid 3D viewpoints orbits the tower rather than clipping through its core', async () => {
+  const { THREE, context } = await loaded;
+  const current = new THREE.Vector3(-62, 12, 16);
+  const target = new THREE.Vector3(62, 26, 16);
+  const original = target.clone();
+  const samples = [];
+  for (let i = 0; i < 36; i++) {
+    const beforeAngle = Math.atan2(current.x, current.z);
+    assert.equal(context.followTowerCamera(current, target, .14), current,
+      'reuses the existing camera vector with no per-frame instance');
+    const radius = Math.hypot(current.x, current.z);
+    samples.push(radius);
+    assert.ok(radius >= 27.35 - 1e-8, 'every rendered intermediate view stays outside the real tower deck');
+    const afterAngle = Math.atan2(current.x, current.z);
+    const step = Math.abs(Math.atan2(Math.sin(afterAngle - beforeAngle), Math.cos(afterAngle - beforeAngle)));
+    assert.ok(step < .4, 'smoothing may not whip across a half turn in one presentation frame');
+  }
+  assert.ok(Math.abs(current.x - target.x) < 1 && Math.abs(current.z - target.z) < 1,
+    'the camera reaches the designed combat view, not an unrelated orbit');
+  assert.ok(Math.abs(current.y - target.y) < .1);
+  assert.ok(Math.min(...samples) > 27.34);
+  assert.ok(current.distanceTo(target) < 1.1);
+  assert.ok(target.equals(original), 'following may never mutate its target pose');
+});
+
+test('seam crossing uses the short angular arc and reduced-motion camera can settle immediately', async () => {
+  const { THREE, context } = await loaded;
+  const r = 55, toVec = a => new THREE.Vector3(Math.sin(a) * r, 18, Math.cos(a) * r);
+  const current = toVec(Math.PI - .04);
+  const target = toVec(-Math.PI + .04);
+  context.followTowerCamera(current, target, .5);
+  assert.ok(current.z < -54 && Math.abs(current.x) < 1,
+    'the +-pi crossing stays near the exterior back of the tower');
+  context.followTowerCamera(current, target, 1);
+  assert.ok(current.distanceTo(target) < 1e-8, 'instant/reduced-motion settling preserves the chosen final view');
+});
+
+test('real guardian contact increases catch-up while routine ascent keeps the calmer cinematic speed', async () => {
+  const { THREE, context } = await loaded;
+  const current = new THREE.Vector3(-60, 21, 20), target = new THREE.Vector3(60, 23, 20);
+  assert.equal(context.towerCameraRate(current, target, false, false), 3.5);
+  assert.equal(context.towerCameraRate(current, target, true, true), 3.5);
+  const urgent = context.towerCameraRate(current, target, true, false);
+  assert.ok(urgent > 5.2 && urgent <= 13.5);
+  const close = context.towerCameraRate(target, target, true, false);
+  assert.ok(close >= 5.2 && close < urgent, 'the camera settles rather than continuously whipping during combat');
+});
+
+test('projected gate cannot earn a visible-viewpoint preference while a tower-core segment blocks it', async () => {
+  const { context } = await loaded;
+  const gate = { x: 0, y: 5, z: 21.8 };
+  assert.equal(context.towerCoreSightlineClear({ x: 0, y: 8, z: 65 }, gate), true);
+  assert.equal(context.towerCoreSightlineClear({ x: 65, y: 8, z: 0 }, gate), false,
+    'a narrow phone crop alone is not proof of an unobscured recessed lock');
+  assert.equal(context.towerCoreSightlineClear({ x: 0, y: 8, z: 65 }, { x: 0, y: 5, z: 25 }, 23.5), true);
+  assert.equal(context.towerCoreSightlineClear({ x: 65, y: 8, z: 0 }, { x: 0, y: 5, z: 25 }, 23.5), false);
+});
+
+test('real historical guardian contact can recover toward its true source-driven combat frame in both aspect ratios', async () => {
+  const { THREE, pointFor, context } = await loaded;
+  const { createSession, advance } = require('../../scripts/serve-tower-stream.cjs');
+  const session = createSession('tower-stream-reference', {
+    launchFloor: 8, guardianInterval: 8, upgradeInterval: 4,
+    maxTicks: 20000, noProgressTicks: 3000, intermissionTicks: 36,
+  }, 'historical-v1');
+  for (let i = 0; i < 269; i++) advance(session);
+  const frame = session.controller.frame(390, 844, { reducedMotion: true, muted: true }).snapshot;
+  assert.equal(frame.publicChecksum, 'af60b546');
+  const guardian = frame.enemies.find(enemy => enemy.active && enemy.kind === 'guardian');
+  const original = JSON.stringify(frame);
+  for (const aspect of [390 / 844, 960 / 600]) {
+    const hero = pointFor(frame.player.x, frame.player.y - frame.player.halfHeight,
+      frame.chunkBaseY, frame.worldWidth);
+    const desired = context.composeFollowView(frame, hero, aspect);
+    assert.equal(desired.guardianFramed, true, 'the actual source guardian has a valid destination composition');
+    const r = Math.hypot(desired.position.x, desired.position.z);
+    const azimuth = Math.atan2(desired.position.x, desired.position.z) - 1.1;
+    const current = new THREE.Vector3(Math.sin(azimuth) * r, desired.position.y, Math.cos(azimuth) * r);
+    for (let i = 0; i < 32; i++) {
+      const rate = context.towerCameraRate(current, desired.position, true, false);
+      context.followTowerCamera(current, new THREE.Vector3(
+        desired.position.x, desired.position.y, desired.position.z), 1 - Math.exp(-rate / 60));
+      assert.ok(Math.hypot(current.x, current.z) >= 27.35 - 1e-8);
+    }
+    const camera = new THREE.PerspectiveCamera(42, aspect, .2, 1200);
+    camera.position.copy(current);
+    camera.lookAt(desired.focus.x, desired.focus.y, desired.focus.z);
+    camera.updateMatrixWorld(true);
+    const center = pointFor(guardian.x, guardian.y, frame.chunkBaseY, frame.worldWidth);
+    const onScreen = new THREE.Vector3(center.x, center.y, center.z).project(camera);
+    assert.ok(Math.abs(onScreen.x) < .9 && Math.abs(onScreen.y) < .85 &&
+      onScreen.z > -1 && onScreen.z < 1,
+    'the source-observed antagonist returns to the portrait/desktop picture without a cut');
+  }
+  assert.equal(JSON.stringify(frame), original, 'camera cannot mutate replay/public game state');
+});
