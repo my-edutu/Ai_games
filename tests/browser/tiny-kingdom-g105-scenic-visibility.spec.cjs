@@ -41,8 +41,11 @@ test('G105 scene visibility saves actual static WebGL triangles without hiding t
   expect(check.chunks.totalSubmittedTriangles).toBeLessThan(initial.geometry.static.triangles);
   expect(check.glError).toBe(0);
  }
- await page.setViewportSize({width:390,height:844});
+ // The previous order sampled the frame counter AFTER resize, allowing
+ // a legitimately completed frozen mobile frame to be mistaken for "no render".
+ // Watch the count before resizing so the test proves the real resize draw.
  const prev=await page.evaluate(()=>window.__tinyKingdom.getFrameProfile().totalFrames);
+ await page.setViewportSize({width:390,height:844});
  await page.waitForFunction(before=>window.__tinyKingdom.getFrameProfile().totalFrames>before,prev,{timeout:30000});
  const mobile=await page.evaluate(()=>({
   snapshot:JSON.stringify(window.__tinyKingdom.exportSnapshot()),
