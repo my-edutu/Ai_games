@@ -28,10 +28,11 @@ const CUES=Object.freeze({
  disarm:    {hz:550,end:880,length:.25,peak:.065,type:'sine'},
  guard:     {hz:285,end:173,length:.16,peak:.057,type:'triangle'},
  block:     {hz:350,end:145,length:.15,peak:.075,type:'triangle'},
- evade:     {hz:450,end:690,length:.14,peak:.048,type:'sine'}
+ evade:     {hz:450,end:690,length:.14,peak:.048,type:'sine'},
+ footstep:  {hz:112,end:54,length:.10,peak:.041,type:'triangle'}
 });
 const PER_KIND_COOLDOWN=Object.freeze({
- weapon:.065,impact:.065,warning:.25,boss:.22,reward:.20,guard:.13
+ weapon:.065,impact:.065,warning:.25,boss:.22,reward:.20,guard:.13,footstep:.16
 });
 const safe=(v,min,max,fallback)=>Number.isFinite(v)?Math.max(min,Math.min(max,v)):fallback;
 const stopAndDisconnect=voice=>{
@@ -178,6 +179,8 @@ export function createDungeonSoundstage(ctx){
   if(enabled)for(const cue of cues)emit(cue);
  }
  function cueWelcome(){return emit({kind:'renewal',priority:5})}
+ // Invoked by physically planted rendered steps, never by invented AI events.
+ function footstep(){return emit({kind:'footstep',priority:1})}
  // A real browser can record actual oscillator output and combine it with
  // the real WebGL canvas. This creates no external upload or audio source,
  // and is unavailable until an explicit spectator opt-in.
@@ -208,5 +211,5 @@ export function createDungeonSoundstage(ctx){
   for(const node of nodes)try{node.disconnect()}catch{}
   nodes.length=beds.length=0;cooldown.clear();previous=null;
  }
- return {enable,disable,acceptSnapshot,cueWelcome,captureStream,stats,dispose};
+ return {enable,disable,acceptSnapshot,cueWelcome,footstep,captureStream,stats,dispose};
 }
