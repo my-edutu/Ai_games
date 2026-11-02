@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updated": "2026-11-02",
+  "updated": "2026-11-03",
   "mode": "transformation-first",
   "baseline": {
     "sha": "1731b380851162741761c5569e2bc152a0869ca9",
@@ -9,19 +9,19 @@
   },
   "candidate": {
     "sha": null,
-    "title": "One open complete 3D ascent → guardian → authentic ending transformation: physics-aware grounded launch and safe-lane air braking now connect source AI, original skinned movement and world-space route cues; quality NOT EVALUATED",
-    "implementationSha": "a8e4c0e2044cf11274155933c15a2af32f870cc3",
-    "implementationEvidenceStatus": "NOT EVALUATED. Code source a8e4c0e adds source-observed grounded takeoff braking, edge-safe jumps, physically attainable air braking toward current landing lane rather than cosmetic deck midpoint, a genuine settling-launch intent and body counterbalance. Frozen historical-v1 and fixed-step physics are unchanged. Exact-source safety workflow 41539002447 succeeded (veto only); new real-game candidate/baseline capture 41539002427 was pending at inspection. Earlier capture 41529987284 succeeded for PREVIOUS gameplay source 798a1ce, not this source. No real full-motion before/after for a8e4c0e reviewed, no independent critics (0/5 each LOOKS/FEELS/PLAYS), no physical hardware frame-time/memory or accessibility acceptance. Live browser/worker tunnel NOT_FOUND >300s."
+    "title": "Same whole playable 3D ascent → guardian → outcome transformation, extended with actual hazard-clear landing corridors and physically directed air boosts. Experience NOT EVALUATED.",
+    "implementationSha": "4be8130cd8a8d49dfca36b56069bff92169b1b48",
+    "implementationEvidenceStatus": "NOT EVALUATED. Current implementation 4be8130 extends the existing source-observed launch→air control→landing loop with present ACTIVE hazard clearance around a landing player's body and an airborne boost that requires genuine stamina/cooldown, is directed toward the observed deck's safe lane on the SAME authoritative step, and refuses unsafe/opposing-speed or near-platform dashes; historical-v1 unchanged. Source-specific tests committed at b8d9833. No new-source CI conclusion or normal-speed video yet, no independent blind critics (0/5 each LOOKS/FEELS/PLAYS), no supported-device frame-time, memory or accessibility evidence. The previously pending 41539002427 real desktop/portrait nine-job capture has now COMPLETED SUCCESS, but records PREVIOUS source a8e4c0e only; builder sampled actual WebM and trace, not independent full-motion matched-state judgment."
   },
   "currentTransformation": {
     "title": "Same continuous playable 3D climb → visible real AI route decision and touchdown → high-stakes guardian machinery → source-authentic ending/restart",
     "state": "SAME WHOLE-GAME TRANSFORMATION OPEN — AI climbing and moving carriage, source-HP skinned explorer, live guardian armor/gate and true outcome; REAL FULL-MOTION QUALITY NOT EVALUATED",
     "promise": "The actual Three.js game continues to link authoritative ascent, original skinned character, true guardian attacks/armor and HP-driven machinery, and source-witnessed gate passage. A real ended run now additionally changes the climber's skinned physical pose by actual result kind (nonlethal kneel vs stopped upright vs genuine death), frames an eight-instance source-earned-floor stone memorial on the exterior of the physical tower, and uses its existing source-directed lights and outside-core camera on desktop and portrait. No synthetic victories, enemy kills, routes, collisions, clocks, snapshots, replay authority or in-game HUD elements were added. This is source implementation, not visually verified gameplay improvement. Current AI-chosen platform route also gets one original, depth-tested exterior marker batch that yields to actual combat/windup and clears across terminal/recovery; it does not predict a physics trajectory or guarantee success. This is still source implementation rather than independently demonstrated experience improvement. A new physical deck-depth cue now follows only the present overlapping source platform under the climber's real feet: grounded shadow tightens, an airborne footprint softens and spreads with true vertical clearance, and actual moving decks update without any predicted landing. It remains invisible on death, stale source and terminal/restart. It uses one depth-tested procedural quad, no new game rules or HUD, and awaits real-video inspection. In the same high-stakes slice the live guardian's true HP and telegraph are now tied to an original, depth-tested 3D heavy bronze circuit reaching the existing source cap gate. Both rails physically widen with genuine guardian damage, complementing its skinned armor, motion, camera and HP-operated gate. No future action, fake hit, new collider or extra HUD is created; real continuous viewer experience still unreviewed. This continuation adds a bounded two-anchor exterior 3D damage impact echo only after a TRUE same-run, advancing-tick guardian health decrease; 12 shared-geometry depth-tested fragments at live guardian and real cap retract with the existing source HP mechanical lock and audio. Six fixed-step ticks limit persistence, and repeated data, stale/terminal/restart and reduced-motion snapshots cannot fabricate visible hits. This is unreviewed scene implementation, not a claimed experience score. The next integrated gameplay-source continuation differentiates genuine HP-operated teeth by releasing each of four source-mechanical pairs from oxidized bronze to exposed inner alloy, without increasing draw calls or claiming victory. It also corrects the real portrait offscreen-camera emergency response from evidence of NDC x=-1.2967, preserving normal centered camera motion, reduced-motion, fixed-step authority and external core clearance. Neither amendment is an independently demonstrated 3D gameplay transformation.",
-    "nextDecision": "Review native normal-speed same-seed desktop and portrait source-aligned recordings from workflow 41539002427 once available; inspect launch/fall/landing success across everyday and moving decks, guardian readability and authentic outcome/restart, compare frozen 1731b380 baseline, and repair any real regressions. Keep the same vertical slice and require five genuine fresh-context blind reviewers each for LOOKS, FEELS and PLAYS (4/5 each), supported-device p50/p95/p99 frame-time, memory, replay restoration and accessibility. No user-authorized merge/deploy.",
+    "nextDecision": "Review newly completed 41539002427 previous-source native WebM, match by actual floor/tick/target and critic-watch complete cycles. Obtain exact new 4be8130 source normal-speed footage and check hazard landings/boost direction across actual gameplay before modifying camera. Separate critics must see full-motion A/B blind. Do not promote scores for tests or videos alone.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "NOT EVALUATED: Real airborne/deck landing was previously at risk of overshoot, and grounded speed was unchecked at takeoff. The candidate now closes that coherent launch → air-control → landing loop in actual tactical AI and skinned rig, but end-to-end floor progress, observed guardian encounter, and visible complete ending have not been independently compared against frozen baseline for the exact new source. The most important risk is whether earlier grounded slowing reduces overshoot without stalling ascents or shortening necessary leaps on narrow/moving platforms. Exact-source CI 41539002447 SUCCESS is a safety veto only, not an experience vote. Source-matched 60s+ mobile/desktop clips and 5 independent blind critics for each of LOOKS/FEELS/PLAYS are absent, all three vote totals 0/5; supported-device frame-time tails/memory, replay restoration and accessibility missing. Critic/browser tunnel offline. SAME TRANSFORMATION OPEN.",
-    "unverifiedImplementationBranchHead": "a8e4c0e2044cf11274155933c15a2af32f870cc3",
-    "currentVerticalSlice": "SAME WHOLE-GAME TRANSFORMATION OPEN: Real 3D ascent, moving decks, guardian armor and lock, physical finale/restart. Added a connected SOURCE-AUTHENTIC launch → flight → landing experience: a grounded tactical controller now modulates speed using actual velocity, current supporting deck and live selected destination, coasts under existing strong ground friction, and takes a legal jump instead of running off a support edge at the next deterministic physics step. Midair control targets the currently OBSERVED collision-safe landing corridor, rather than chasing the platform midpoint after the climber is already over it; braking uses bounded acceleration and existing accepted actions. Its genuine 'settling-launch' intent continues the depth-tested source route markers/opt-in audio and makes the SAME original skinned climber lower its knees and brace before takeoff; existing 'settling-landing' counters airborne momentum. No new enemy/player state, authority, RNG, future-moving-platform predictions, HUD, assets or draw calls. Combat/hurt, stale state and reduced motion have pose priority; historical-v1 remains untouched. Unreviewed exact-source normal-speed footage and independent quality verdict pending; NOT EVALUATED."
+    "biggestRemainingExperienceGap": "NOT EVALUATED. Real candidate source a8e4c0e now has nine completed recorded desktop/portrait source-pinned scenarios (workflow 41539002427), but they do not validate newly committed 4be8130. Builder sampling of OLD-source candidate danger found 0/13 real guardian gate-in-frame portrait observations and 5/13 guardian-in-frame (not a critic score). Candidate ascent portrait had 4/69 unsafe-actor-frame observations. The main experience risk is whether real air boosts and hazard-safe landings improve watchable sustained ascent without creating lateral oscillation or short jumps, AND whether mobile guardian/cap machinery can be seen together. Need state-aligned ≥60s matching before/after, five truly independent blind randomized reviewers per LOOKS/FEELS/PLAYS (currently 0/5 each), supported device p50/p95/p99/memory, replay and accessibility. Worker/browser tunnel NOT_FOUND >300s; same initiative stays open.",
+    "unverifiedImplementationBranchHead": "b8d9833a01cb915d604dadf8e18be27322abaa79",
+    "currentVerticalSlice": "SAME WHOLE-GAME PLAYABLE TRANSFORMATION OPEN. The live deterministic pilot has integrated actual grounded launch braking, observed air landing control, original skinned counterbalance, depth-tested route cues, live combat/guardian HP mechanical gate and authentic end/restart. This continuation closes a cross-system air traversal loophole: a dash previously used stale facing while lateral steering independently aimed toward the next platform and could dash AWAY from it. New tactical boosting follows current clear lane only while rising, affordable and physically justified, setting its authoritative same-step facing direction; current active hazard geometry partitions the observed deck into genuinely clear body-width landing corridors. No predicted future platform motion, new physics, HUD or replay hidden information. This is source work pending new real footage/critic proof, not a quality PASS."
   },
   "scenarios": [
     {
@@ -61,11 +61,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Exact game implementation a8e4c0e safety workflow https://github.com/my-edutu/Ai_games/actions/runs/41539002447 COMPLETED SUCCESS on 2026-11-02: build, transformation verdict contract, repository logic, Tower authority, Chromium progress-page desktop/phone checks. Previous 84ba20f quality 41530370192 also SUCCESS. First provisional b63256a build FAILED, fixed observed source-body width usage at a8e4c0e; this failure is NOT a quality score. CI is only a safety veto, never a LOOKS/FEELS/PLAYS improvement.",
-    "replay": "Historical-v1 unchanged. Both tactical takeoff and air feedback now use present immutable observation, current state/config bounds, deterministic arithmetic and ordinary physics-accepted actions, with no RNG or future platform knowledge. Candidate changes tactical decisions, so prior action-stream output need not match the old candidate. Exact source Tower authority CI 41539002447 PASS; independent multi-seed gameplay trajectory, checkpoint restoration, external replay and prolonged recovery verification remain pending.",
-    "accessibility": "New genuine 'settling-launch' and 'settling-landing' modes remain in existing accessible AI intent/summary and original world-space route markers/opt-in replan audio. Grounded and airborne skinned counterbalance respects combat/hurt, stale snapshots and quieter reduced motion. No exact-source mobile screen-reader or independent motion sensitivity/accessibility review.",
-    "performance": "Controller remains O(1) and reads only present public bounds/speed; same skinned bones/instanced destination marker and optional audio route, no extra materials, geometry, lights or draw submissions. Supported-device frame-time p50/p95/p99 and memory not measured; no FPS claim.",
-    "stability": "Source-bound successful safety workflow 41539002447 includes repository logic and Tower authority, but no independent exact-source full-motion or physical-device validation. Earlier normal-speed capture 41529987284 completed for 798a1ce; NEW exact-source 41539002427 is pending. Source-aligned moving-deck/guardian/outcome videos, reliable landings across seeds, restart/replay recovery and independent blind critique outstanding. Worker/browser tunnel NOT_FOUND >300s; 0/5 all pillars."
+    "ci": "Prior EXACT implementation a8e4c0e CI 41539002447 passed build and safety only. NEW code 4be8130 and test b8d9833 have not been verified by completed exact-head CI at this inspection. GitHub Actions push workflow expected but no completed report obtained; never infer a pass.",
+    "replay": "Historical-v1 remains unchanged. Tactical updates use present public active hazard geometry, observed deck bounds/velocity, real stamina and cooldown, deterministic arithmetic and existing fixed-step accepted move/dash inputs. No hidden oracle, randomness or game-state change. New source b8d9833 actual authoritative replay and checkpoint/restoration evidence not independently evaluated.",
+    "accessibility": "No new HUD controls or warnings, new airborne intent summary is contained in the existing accessible AI route status. Real skinned pose, reduced motion and stale source protections remain as implemented, but exact new-source assistive-technology/mobile audit is missing.",
+    "performance": "Current flight controller adds bounded per-tick scan of public current-floor hazards; no extra meshes, lights, draw calls or canvas passes. Supported-device frame-time p50/p95/p99 and memory NOT MEASURED; any smoothness or FPS claim prohibited.",
+    "stability": "Real native source a8e4c0e gameplay recording workflow 41539002427 COMPLETED SUCCESS all 9 jobs including baseline/candidate ascent, danger, moving decks, outcome and candidate ledge. Builder-only WebM frame sampling with corresponding motion.json; source state mismatches mean NOT independently state-aligned video A/B. New source 4be8130 has NO video or current CI result yet. Independent fresh-context critic workspace tunnel NOT_FOUND >300s. No accepted runtime reliability or supported-device pass."
   },
   "unresolvedCriticalIssues": null,
   "benchmark": {
@@ -148,11 +148,11 @@
         }
       }
     },
-    "newImplementationSha": "702e716a243e2e0af963c7be4da0dfa68e9ad892",
-    "newImplementationRecorded": "Source c87f265 raised exterior guardian-to-cap gantry and source HP-retractable cap lock teeth not yet watched in current-source normal-speed WebM. Workflow 41433172141 in progress at first inspection. Historical real 41430788717 produced 6/7 scoped jobs but frozen baseline outcome failed. No genuine blind A/B or supported device results.",
+    "newImplementationSha": "4be8130cd8a8d49dfca36b56069bff92169b1b48",
+    "newImplementationRecorded": "NOT CAPTURED: current gameplay source 4be8130. Completed nine-job workflow 41539002427 recorded earlier a8e4c0e only; no new 4be8130 normal-speed real-game playback or independent blind comparison.",
     "reviewPath": "docs/reviews/2026-11-02-tower-pr68-actual-danger-motion-camera-hp-lock-review.md",
     "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41507327429",
-    "followupStatus": "Earlier source capture histories remain archived in job entries. Current whole-transformation gameplay source a8e4c0e capture https://github.com/my-edutu/Ai_games/actions/runs/41539002427 PENDING; do not confuse old artifact success with current matched quality validation. Five independent human/agent blind LOOKS, FEELS, PLAYS judgments absent; hardware measurements absent.",
+    "followupStatus": "Updated 2026-11-03: 41539002427 completed 9/9 source-pinned native videos for OLD a8e4c0e; current flight code 4be8130 and tests b8d9833 NOT captured/independently compared. No supported-device performance or blind reviewers; 0/5 all pillars.",
     "matchedCaptureSettings": {
       "seed": "tower-transformation-capture-v1",
       "sourceBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
@@ -188,14 +188,44 @@
     },
     "latestUnreviewedRun": {
       "workflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41539002427",
-      "gameplaySourceSha": "a8e4c0e2044cf11274155933c15a2af32f870cc3",
-      "exactCurrentImplementationSha": "a8e4c0e2044cf11274155933c15a2af32f870cc3",
-      "status": "PENDING at inspection: new source-pinned actual desktop/portrait native-motion gameplay capture for whole continuous launch, air landing, guardian and result cycle. Prior 41529987284 succeeded at older source 798a1ce and cannot validate this one. No real video of this exact source watched or independent randomized blind A/B. Baseline SHA frozen.",
-      "exactHeadCiRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41539002447",
-      "latestCompletedPriorCi": "https://github.com/my-edutu/Ai_games/actions/runs/41530370192",
-      "genuineIndependentLookVotes": 0,
-      "genuineIndependentFeelVotes": 0,
-      "genuineIndependentPlayVotes": 0
+      "status": "COMPLETED: 9/9 source-pinned real-video capture jobs successful, not a quality or critic PASS",
+      "capturedCandidateImplementationSha": "a8e4c0e2044cf11274155933c15a2af32f870cc3",
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "newUnrecordedImplementationSha": "4be8130cd8a8d49dfca36b56069bff92169b1b48",
+      "newTestCommitSha": "b8d9833a01cb915d604dadf8e18be27322abaa79",
+      "artifactIds": {
+        "baselineAscent": 13186770768,
+        "candidateAscent": 13185771981,
+        "baselineDanger": 13186346588,
+        "candidateDanger": 13185981337,
+        "baselineMoving": 13185497640,
+        "candidateMoving": 13185567305,
+        "baselineOutcome": 13187345005,
+        "candidateOutcome": 13186741440,
+        "authenticLedge": 13185497640
+      },
+      "artifactIntegrity": "All capture workflow jobs completed success; native desktop/portrait full-motion ZIPs contain WebM plus source motion/trace, but state-matched clips have not received blind evaluation. Actual complete replay of full outcome videos not independently viewed. Historical source candidate does not include new flight changes.",
+      "frameSampling": {
+        "sampleType": "Builder-side sampled native actual 20Hz game recordings and motion JSON, NOT independent blind full-motion A/B",
+        "candidateAscentDesktopSeconds": 108.11,
+        "candidateAscentPortraitSeconds": 90.109,
+        "candidateAscentActorOffscreenDesktop": 0,
+        "candidateAscentActorOffscreenPortrait": 0,
+        "candidateAscentUnsafeActorPortrait": 4,
+        "candidateDangerDesktopSeconds": 150.629,
+        "candidateDangerPortraitSeconds": 126.759,
+        "candidateDangerGuardianFramedPortrait": "5/13 source guardian active observations",
+        "candidateDangerGateFramedPortrait": "0/13 source guardian active observations",
+        "limitation": "Observations are sparse samples, not continuous raster occlusion proof; same wall time across candidate/baseline is often different game state."
+      },
+      "exactNewSourceHeadCi": "NOT VERIFIED",
+      "supportedDeviceFrameTimeMemory": "NOT MEASURED",
+      "independentVotes": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "criticBrowserBlocker": "NOT_FOUND: Tunnel-client has not been seen for 300 seconds"
     },
     "cameraImplementation": {
       "sourceCommit": "071a6d06f852b477f422e536296956a21db9c31f",
