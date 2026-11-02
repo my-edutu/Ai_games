@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-02T05:45:28.822Z",
+  "updatedAt": "2026-11-02T05:50:21.504Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass66 (2026-11-02): re-reviewed 19/19 authentic Pass65 SHA-256 source-bound WebGL images. Although the real same-run CLOSED to OPEN door is proven, the settled AFTER shot showed zero moving gates, so the pulleys were not visually verified. Gate-only rendered-frame pacing plus an exact-source mid-lift screenshot test now challenge this gap. Autonomous rules, public knowledge, full-viewport compact HUD, 44px mobile controls and accessibility remain unchanged. New images and independent Nintendo comparison pending. Not passed; no merge/deployment."
+    "summary": "Pass66b (2026-11-02): strict real mid-lift capture correctly failed on source-bound run 41395889285: even though an authentic public gate opened, the screenshot showed its already-empty arch and post-screenshot diagnostics reported zero moving gates. We preserved the failure criterion and revised only cosmetic gate visual pacing from 100ms to 35ms per delivered WebGL frame; normal 60fps and engine/AI/clock remain unchanged. New exact-source visual validation and independent Nintendo critique pending; bar NOT passed, no merge/deploy."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass66b real-image rejection: the 100ms-per-frame gate still vanished during authentic WebGL screenshot; the stricter visual gate now demands modeled motion remain visible after capture and uses a 35ms/frame cosmetic cap without touching AI.",
     "Pass66 source candidate holds genuine unlocked-gate grille, pulley and counterweight physical choreography across throttled WebGL frames; real SHA-bound mid-lift screenshot and independent quality judgment are required before accepting.",
     "The flat map is now a real 3D sandstone garden with three terrace heights, visible stairs on disclosed legal passages, original articulated Pip and Thornback models, keys, gates, traps and an exit portal.",
     "Follow, Detail and Overview cameras, a public-data map, optional original audio, captions, reduced motion, high contrast and clean feed are integrated.",
