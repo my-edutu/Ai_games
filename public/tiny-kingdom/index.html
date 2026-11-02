@@ -5348,7 +5348,11 @@ function planStreetWorkerEncounter(excludeName=null){
   Math.hypot(a.x-streetPosition[0],a.z-streetPosition[1])-
    Math.hypot(b.x-streetPosition[0],b.z-streetPosition[1])||
   a.name.localeCompare(b.name));
- let best=null,bestOther=null;
+ // G126: a mature Day-120 recorded work encounter showed the BACK of a
+ // builder despite genuinely clear front-facing candidates. Keep candidate
+ // selection deterministic and never move or hide a citizen. Front views must
+ // satisfy every previous roof, crop, crowd and street-clearance gate first.
+ let best=null,bestOther=null,bestFront=null,bestFrontOther=null,frontCandidateCount=0;
  for(const citizen of sorted){
   for(const radius of [3,3.6,4.2,5.4,6.6,7.8]){
    for(let j=0;j<12;j++){
@@ -5391,13 +5395,24 @@ function planStreetWorkerEncounter(excludeName=null){
       projectedBystanders:screen.projectedBystanders,
       projectedPosts:screen.projectedPosts,frameCrowdBurden:screen.frameCrowdBurden,
       facingAlignment};
+    const frontFacing=activeWork&&facingAlignment>.12;
+    candidate.frontFacing=frontFacing;
     if(!best||score>best.score)best=candidate;
     if(citizen.name!==excludeName&&(!bestOther||score>bestOther.score))
      bestOther=candidate;
+    if(frontFacing){
+     if(!bestFront||score>bestFront.score)bestFront=candidate;
+     if(citizen.name!==excludeName){
+      frontCandidateCount++;
+      if(!bestFrontOther||score>bestFrontOther.score)bestFrontOther=candidate;
+     }
+    }
    }
   }
  }
- return bestOther||best;
+ const chosen=bestFrontOther||bestOther||bestFront||best;
+ return chosen?{...chosen,frontCandidateCount,
+  frontPreferred:Boolean(chosen.frontFacing&&frontCandidateCount>0)}:null;
 }
 function visitStreetWorker(){
  if(!streetWalk)return {moved:false,reason:'Street view is not active'};
@@ -5427,7 +5442,8 @@ function visitStreetWorker(){
   closestBystander:plan.closestBystander,
   projectedBystanders:plan.projectedBystanders,
   projectedPosts:plan.projectedPosts,frameCrowdBurden:plan.frameCrowdBurden,
-  facingAlignment:plan.facingAlignment};
+  facingAlignment:plan.facingAlignment,frontCandidateCount:plan.frontCandidateCount,
+  frontPreferred:plan.frontPreferred};
 }
 function setStreetWalk(enabled){
  const next=Boolean(enabled);
