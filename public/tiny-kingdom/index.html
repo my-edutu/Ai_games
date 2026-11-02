@@ -3113,7 +3113,31 @@ function faceNormalField(profile){
   });
  });
 }
-function sculptedFace(x,y,z,size,skin,hair,profile){
+// G148: facial acting is driven by real occupation, phase and energy.
+// It is an authored expression of authoritative animation, not fake moods,
+// hidden agents, extra simulation events or an RNG draw.
+function citizenFacialActing(p,index){
+ const active=isWorkingAtSite(p)||isMarketUnloading(p);
+ const pulse=active?occupationalPerformance(p).beat:0;
+ const effort=active?Math.min(1,.36+.55*pulse):0;
+ const energy=Number.isFinite(p.energy)?p.energy:70;
+ const tiredness=Math.max(0,Math.min(1,(70-energy)/70));
+ const cycle=((state.t*4.2+index*1.73)%9+9)%9;
+ const blink=Math.max(0,1-Math.abs(cycle-3.1)/.15);
+ return {effort,blink,
+  squint:Math.min(1,effort*.43+tiredness*.22),
+  mouthOpen:Math.min(1,effort*.62)};
+}
+function getCitizenActingAudit(name=people[selectedCitizen]?.name){
+ const index=people.findIndex(p=>p.name===name);
+ if(index<0)return {source:'real-citizen-occupational-animation',
+  citizen:name||null,active:false,face:null};
+ const p=people[index];
+ return {source:'real-citizen-occupational-animation',citizen:p.name,
+  active:isWorkingAtSite(p)||isMarketUnloading(p),job:p.job,
+  activity:p.activity,phase:p.phase,face:citizenFacialActing(p,index)};
+}
+function sculptedFace(x,y,z,size,skin,hair,profile,acting={effort:0,blink:0,squint:0,mouthOpen:0}){
  const previousMaterial=currentMaterial;currentMaterial=MATERIAL.GENERAL;
  const n=profile.segments,rings=profile.rings,normals=faceNormalField(profile);
  const vertex=(j,i)=>{
@@ -3137,6 +3161,7 @@ function sculptedFace(x,y,z,size,skin,hair,profile){
  for(let i=0;i<n;i++)emitFace(apex,vertex(rings.length-1,i),
   vertex(rings.length-1,i+1),skin);
  const eyeWhite=rgb(0xc9bba9),iris=rgb(0x49493e),mouth=rgb(0x845c51);
+ const eyelid=Math.max(.10,1-.85*acting.blink-.22*acting.squint);
  for(const side of [-1,1]){
   // Ears have inner folds; eyes sit on the front (+Z) facial plane.
   ellipsoid(x+side*.209*size,y+1.432*size,z-.012*size,
@@ -3144,11 +3169,16 @@ function sculptedFace(x,y,z,size,skin,hair,profile){
   ellipsoid(x+side*.246*size,y+1.438*size,z+.018*size,
    .015*size,.043*size,.018*size,skin.map(v=>v*.82),6);
   const eyeX=x+side*profile.eyeSpacing*size;
-  ellipsoid(eyeX,y+1.492*size,z+.177*size,.040*size,.024*size,.014*size,eyeWhite,7);
-  ellipsoid(eyeX,y+1.49*size,z+.188*size,.016*size,.018*size,.009*size,iris,7);
-  ellipsoid(eyeX,y+1.491*size,z+.195*size,.006*size,.009*size,.005*size,rgb(0x211e1b),6);
-  limbSegment([eyeX-side*.043*size,y+1.548*size,z+.165*size],
-   [eyeX+side*.043*size,y+1.558*size,z+.155*size],.012*size,hair,6);
+  ellipsoid(eyeX,y+1.492*size,z+.177*size,
+   .040*size,.024*eyelid*size,.014*size,eyeWhite,7);
+  ellipsoid(eyeX,y+1.49*size,z+.188*size,
+   .016*size,.018*eyelid*size,.009*size,iris,7);
+  ellipsoid(eyeX,y+1.491*size,z+.195*size,
+   .006*size,.009*eyelid*size,.005*size,rgb(0x211e1b),6);
+  const brow=.024*acting.effort-.014*acting.squint;
+  limbSegment([eyeX-side*.043*size,y+(1.548+brow)*size,z+.165*size],
+   [eyeX+side*.043*size,y+(1.558+brow)*size,z+.155*size],
+   .012*size,hair,6);
  }
  // Bridge and projecting cartilage, paired nostrils, lips and rounded chin.
  limbSegment([x,y+1.515*size,z+.174*size],
@@ -3157,8 +3187,15 @@ function sculptedFace(x,y,z,size,skin,hair,profile){
   .039*size,.033*size,.033*size,skin,8);
  for(const side of [-1,1])ellipsoid(x+side*.030*size,y+1.35*size,
   z+(.200+profile.noseProjection*.39)*size,.008*size,.007*size,.007*size,mouth,6);
- limbSegment([x-.060*size,y+1.291*size,z+.161*size],
-  [x+.060*size,y+1.291*size,z+.161*size],.009*size,mouth,7);
+ // Resting mouths remain closed; real physical effort makes a bounded
+ // parted-lip expression synchronized with the existing work beat.
+ if(acting.mouthOpen>.06)
+  ellipsoid(x,y+1.282*size,z+.169*size,
+   .041*size,(.008+.035*acting.mouthOpen)*size,.014*size,
+   rgb(0x513b38),6);
+ limbSegment([x-.060*size,y+(1.294+.008*acting.mouthOpen)*size,z+.171*size],
+  [x+.060*size,y+(1.294+.008*acting.mouthOpen)*size,z+.171*size],
+  .009*size,mouth,7);
  ellipsoid(x,y+1.263*size,z+.133*size,.073*size,.036*size,.033*size,skin,7);
  if(profile.beard){
   ellipsoid(x,y+1.225*size,z+.113*size,.105*size,.055*size,.047*size,hair,7);
@@ -3268,7 +3305,8 @@ for(let sideIndex=0;sideIndex<2;sideIndex++){
 // Sculpted neck and head with a real facial front (positive Z).
 const headMeshStart=data.length;
 cylinder(x,y+1.16*size,z,.12*size,.15*size,skin,8);
-sculptedFace(x,y,z,size,skin,hair,faceProfile(p,idx));
+sculptedFace(x,y,z,size,skin,hair,faceProfile(p,idx),
+ citizenFacialActing(p,idx));
 ellipsoid(x,y+1.67*size,z-.035*size,.235*size,.115*size,.185*size,hair,8);
 rescaleCitizenHead(headMeshStart,data.length,x,y,z,size);
 // Gauntlet 019: character-by-character authored visual identity, independent
