@@ -701,21 +701,27 @@ test('a real close public encounter frames both autonomous actors and saves date
   const midGateImage=path.join(dir,'public-gate-mid-lift-1280.png');
   await page.screenshot({path:midGateImage,fullPage:true});
   const midGateAfterScreenshot=await page.evaluate(()=>window.__MAZE_3D__);
-  expect(midGateAfterScreenshot.world.retractingPublicGates,
-    'the actual screenshot must still contain moving 3D gate hardware').toBeGreaterThan(0);
-  expect(midGateAfterScreenshot.publicOpeningCameraBeat,
-    'the original open gate must still be the gameplay camera subject').toBeTruthy();
+  // Persist the authentic failed frame's source hash and diagnostic too.
+  // A rejection must be inspectable, not vanish with the failed assertion.
   fs.writeFileSync(path.join(dir,'public-gate-mid-lift-1280.json'),JSON.stringify({
     capturedAt:new Date().toISOString(),seed:opening.after.seed,
     source:'Genuine same-run production CLOSED to OPEN WebGL mid-lift; no fake actor, door, or clock override',
     viewport:{width:1280,height:900},beforeTick:beforeGate.tick,afterTick:afterGate.tick,
     publicDoor:opening.door,imageSha256:hash(midGateImage),sourceSha256:openingHashes,
     beforeCapture:{ageSeconds:midGateDiagnostic.publicOpeningCameraBeat.ageSeconds,
+      frames:midGateDiagnostic.frames,
       retractingPublicGates:midGateDiagnostic.world.retractingPublicGates},
-    afterCapture:{ageSeconds:midGateAfterScreenshot.publicOpeningCameraBeat.ageSeconds,
+    afterCapture:{ageSeconds:midGateAfterScreenshot.publicOpeningCameraBeat?.ageSeconds??null,
+      frames:midGateAfterScreenshot.frames,
       retractingPublicGates:midGateAfterScreenshot.world.retractingPublicGates},
+    verdict:(midGateAfterScreenshot.world.retractingPublicGates>0
+      &&!!midGateAfterScreenshot.publicOpeningCameraBeat)?'candidate':'rejected',
     caveat:'Original source WebGL, SwiftShader CPU-throttled; not a Nintendo quality or hardware GPU win.'
   },null,2));
+  expect(midGateAfterScreenshot.world.retractingPublicGates,
+    'the actual screenshot must still contain moving 3D gate hardware').toBeGreaterThan(0);
+  expect(midGateAfterScreenshot.publicOpeningCameraBeat,
+    'the original open gate must still be the gameplay camera subject').toBeTruthy();
   const afterGateDiagnostic=await page.evaluate(()=>window.__MAZE_3D__);
   const openingAfterImage=path.join(dir,'public-gate-after-1280.png');
   await page.screenshot({path:openingAfterImage,fullPage:true});
