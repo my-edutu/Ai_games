@@ -5761,8 +5761,10 @@ function visitStreetWorker(){
  // Frame the genuine wrists and workbench, not a rear close-up or a roof.
  const eyeHeight=terrain(...streetPosition)+streetEyeHeight;
  const workingHeight=plan.targetY??terrain(plan.citizen.x,plan.citizen.z)+1.18;
- streetTilt=Math.max(-.55,Math.min(.35,
-  Math.atan2(workingHeight-eyeHeight,plan.metres)));
+ // A raised workday lens must really point down at the worker's tools.
+ // G132's old -.55 clamp aimed a taller camera over the real action.
+ streetTilt=Math.max(streetPerspective==='workday'?-1.18:-.55,
+  Math.min(.35,Math.atan2(workingHeight-eyeHeight,plan.metres)));
  streetEncounterName=plan.citizen.name;streetBlocked=0;
  const nextButton=document.getElementById('street-meet-worker');
  nextButton.textContent='Next worker';
@@ -5828,7 +5830,7 @@ function advanceStreetWalk(dt){
  if(magnitude>0&&t>0){
   // Returning to walking must never leave a free-flying workday camera.
   if(streetPerspective==='workday'){
-   streetEyeHeight=STREET_EYE;streetPerspective='street';
+   streetEyeHeight=STREET_EYE;streetPerspective='street';streetTilt=0;
    if(!streetSafe(...streetPosition)){
     const open=streetArrival();
     if(open){streetPosition=open.position;streetYaw=open.angle;}
@@ -5871,7 +5873,8 @@ document.addEventListener('click',e=>{
 canvas.addEventListener('pointermove',e=>{
  if(!streetWalk||!dragging)return;
  streetYaw+=(e.clientX-lastX)*.005;
- streetTilt=Math.max(-.55,Math.min(.55,streetTilt-(e.clientY-lastY)*.004));
+ streetTilt=Math.max(streetPerspective==='workday'?-1.18:-.55,
+  Math.min(.55,streetTilt-(e.clientY-lastY)*.004));
 },true);
 canvas.addEventListener('wheel',e=>{if(streetWalk){e.preventDefault();e.stopImmediatePropagation();}},{capture:true,passive:false});
 
@@ -6663,7 +6666,11 @@ for(let i=0;i<people.length;i++){
 currentMaterial=MATERIAL.GENERAL;weatherParticles(atmosphere);const frameSubmitStart=performance.now();
 const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,focusHeight=follow?terrain(focusPoint[0],focusPoint[1])+1.02:.25;
  const eye=streetWalk?[streetPosition[0],terrain(...streetPosition)+streetEyeHeight,streetPosition[1]]:[focusPoint[0]+Math.sin(yaw)*rad,elevation+focusHeight,focusPoint[1]+Math.cos(yaw)*rad];
- const cameraTarget=streetWalk?[eye[0]+Math.sin(streetYaw)*8,eye[1]+Math.sin(streetTilt)*8,eye[2]+Math.cos(streetYaw)*8]:[focusPoint[0],focusHeight,focusPoint[1]];
+ const cameraTarget=streetWalk?[
+  eye[0]+Math.sin(streetYaw)*Math.cos(streetTilt)*8,
+  eye[1]+Math.sin(streetTilt)*8,
+  eye[2]+Math.cos(streetYaw)*Math.cos(streetTilt)*8
+ ]:[focusPoint[0],focusHeight,focusPoint[1]];
  let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,cameraTarget,[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);const radiance=lightingProfile(state.t);gl.uniform1f(uniforms.sunStrength,radiance.solar);gl.uniform1f(uniforms.ambientBlend,radiance.ambientBlend);gl.uniform1f(uniforms.worldTime,state.t);gl.uniform1f(uniforms.weatherWetness,climateMaterialProfile(state.t).precipitation);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));const activeLight=observedWorkLightProfile();gl.uniform3f(uniforms.workLightPosition,activeLight.x,activeLight.y,activeLight.z);gl.uniform1f(uniforms.workLightStrength,activeLight.strength);lastFrameTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.length+data.length:data.length)/30;
 if(gpuAvailable){
  const planes=sceneFrustumPlanes(m);
