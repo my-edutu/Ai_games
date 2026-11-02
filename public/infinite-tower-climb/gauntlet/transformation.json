@@ -9,18 +9,18 @@
   },
   "candidate": {
     "sha": null,
-    "title": "Unassessed real ascent→guardian HP-peeling armor and source-anchored close-stage mechanical gate/capstan→same-anchor release→outcome/restart",
-    "implementationSha": "6ede6fe34ccab584cd113b828ec69af7b405e312",
-    "implementationEvidenceStatus": "IMPLEMENTED, NOT EVALUATED: game commit 6ede6fe anchors the real 3D guardian HP-driven gate next to the stable authoritative final approach platform instead of the cap's distant midpoint. Scene camera, world gate, runtime gate projection, and witnessed same-tick floor-clear passage consume the same read-only source anchor. Test correction 93c2b83 and implementation review 63d9066 are engineering evidence only. Previous b3cb8ed quality workflow 41363629518 SUCCESS; new 93c2b83 quality workflow 41365134332 IN PROGRESS at inspection. New 6ede6fe normal-speed source-pinned capture 41365006570 IN PROGRESS at inspection. Frozen-baseline outcome/restart still fails complete visible terminal sequence in earlier runs. No new actual video inspected from this source, 0 independent critics, no supported-device frame-time/memory evidence: NOT EVALUATED."
+    "title": "Unassessed actual ascent→source HP-peeling guardian→stage-aligned capstan/gate→source-witnessed release→outcome/restart with core-safe, target-tracking 3D follow camera",
+    "implementationSha": "071a6d06f852b477f422e536296956a21db9c31f",
+    "implementationEvidenceStatus": "IMPLEMENTED, NOT EVALUATED: real scene 453773c now orbits its 3D camera outside the tower core instead of cutting through the opaque center when acquiring an authentic guardian, accelerates source-observed encounter catch-up within a cap, and avoids awarding visibility to gates blocked by the tower core. Real scene 071a6d0 also tracks the focus on the cylindrical stage. New source-only regression probes ace3675/0c86436 and review ee53fcb are engineering evidence, not assessed video. Earlier exact-source technical CI 9626a07 succeeded (run 41365391127); current 0c86436 CI 41367460977 IN PROGRESS at inspection. New real source-pinned 453773c/071a6d0 gameplay captures 41367212445 and 41367442477 PENDING/QUEUED at inspection, clips UNINSPECTED. The last completed pre-camera 6ede6fe capture 41365006570 recorded 6 of 7 jobs; frozen baseline visible terminal/restart failed desktop+portrait. No independent blind video critics and no supported-device hardware measurements. NOT EVALUATED."
   },
   "currentTransformation": {
-    "title": "One continuous authentic climb→guardian attack and visible HP-driven armor/capstan/doors→same-source floor-clearance→real outcome/restart",
-    "state": "SAME TRANSFORMATION OPEN; STAGED REAL GUARDIAN APPROACH/GATE/CAMERA SLICE IMPLEMENTED; NOT EVALUATED",
-    "promise": "One fixed authoritative lower approach platform that originally supports the guardian now anchors the decorative 3D HP-operated bronze gate at the same angular position used by the following camera and cleared-passage memory. The climber can meaningfully fight an HP-peeling armored guardian near the visibly working source-driven winch, cables, counterweights, opening leaves and conduit. No simulated actor, platform, collision, attack, run tick, AI, RNG, checksum, replay, HUD or winning condition is altered; no additional world gate meshes or lights are created. The physical cap deck retains exact authoritative geometry. This is an implementation hypothesis requiring real continuous video, not a verified experiential improvement.",
-    "nextDecision": "Inspect new real normal-speed 6ede6fe footage at desktop and portrait viewports, aligning events by tick/guardian HP and inspecting the smoothed camera's guardianInFrame, gateInFrame and real video itself. Fix any newly revealed crop/occlusion/physical-scale regression, then produce all matched baseline/candidate 60+ seconds per ascent/danger/outcome (including frozen baseline visible terminal/restart). Acquire >=5 independent fresh-context blind video critics with >=4/5 candidate preference per LOOKS, FEELS, PLAYS. Gather representative supported-device p50/p95/p99 frame times and memory plus accessibility, replay and recovery. Keep unchanged baseline 1731b380. No quality PASS without evidence.",
+    "title": "One continuous authentic climb→real guardian HP-driven armor/capstan/gate→source-witnessed clearance→real outcome/restart, framed by a core-safe orbiting game camera",
+    "state": "SAME TRANSFORMATION OPEN; ACTUAL STAGE/ACTOR/GATE + CORE-SAFE CAMERA SLICE IMPLEMENTED; FULL-MOTION QUALITY NOT EVALUATED",
+    "promise": "The real climber, damaged guardian, mechanically opening bronze architecture and witnessed same-floor gate release are still linked to unchanged authoritative snapshots. During the live view's movement between valid tower-side compositions, camera and gaze now transition along the cylindrical exterior rather than straight through the solid core; a source-backed guardian encounter receives bounded catch-up, while a recessed gate blocked by the core does not score as visually framed. No actor, collider, attack, simulation tick, agent decision, seed, replay, checksum, win condition, quality tier, HUD, sound or GPU draw is changed. This is one pending full-motion experience hypothesis, NOT an assessed quality improvement.",
+    "nextDecision": "Inspect the queued source-pinned 453773c and 071a6d0 NORMAL-SPEED desktop/portrait real gameplay recordings and match guardian HP changes to actual composite frames and smoothed camera NDC/approximate core sightline. Audit angular camera travel/gaze for oscillations, occluded guardian, real gate progress, route visibility and accessible cues. Preserve frozen 1731b380 baseline; the baseline outcome still lacks full visible terminal/intermission/restart, so obtain a legitimate comparable clip without silently editing baseline game. Only promote after source-pinned >=60s ascent/danger/outcome pairs, 5 independent fresh-context blind real-video critics giving >=4/5 candidate preference EACH LOOKS, FEELS, PLAYS, plus supported hardware p50/p95/p99/memory, accessibility, replay, stability and CI safety vetoes.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "THE SOURCE-STAGED GATE HAS NOT BEEN OBSERVED IN THE NEW FULL-MOTION VIDEO YET: earlier portrait HP loss happened while guardian and distant central gate were off-screen. Need verified readable actor+HP-operated mechanism+release composition at actual 20Hz play and stable phone frame-time tails. Frozen baseline complete outcome/restart remains unobserved in composited video. 0/5 independent blind LOOKS/FEELS/PLAYS votes and no supported-device performance or full experience review: NOT EVALUATED.",
-    "unverifiedImplementationBranchHead": "63d9066ff1835cb36a5774e4022f4cf79a968381"
+    "biggestRemainingExperienceGap": "UNOBSERVED FULL-MOTION CAUSAL BOSS COMPOSITION AFTER REAL CORE-SAFE CAMERA WORK: earlier portrait video shows actual guardian HP loss while boss/gate are cropped; neither new source-pinned camera clip is inspected. The baseline complete visible outcome/intermission/restart still fails capture even though authoritative run tokens advance. No genuine independent LOOKS/FEELS/PLAYS votes (0/5 each), no supported-phone GPU frame-time tails/memory or independent whole-play verdict. NOT EVALUATED.",
+    "unverifiedImplementationBranchHead": "ee53fcbdfcefc392961edca8b0548c08d7258a1e"
   },
   "scenarios": [
     {
@@ -60,11 +60,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Previous source b3cb8ed passed technical contract run 41363629518; exact updated game+source test 6ede6fe quality run 41365006572 was in progress then cancelled by subsequent commit; current source+tests 93c2b83 workflow 41365134332 PENDING/IN PROGRESS at inspection. Neither is a quality verdict. Do not claim latest CI pass before observed.",
-    "replay": "PENDING exact-head replay campaign. The gate anchor is computed purely from read-only cap + previously generated real lower-approach platform + guardian feet elevation, independent of patrol X/health. Source truth remains fixed-step; no authority changes. Dedicated test covers stable location through patrol, HP and graphics rehydration; full deterministic replay still not independently verified.",
-    "accessibility": "NOT INDEPENDENTLY VERIFIED. Close-stage gateway supplies non-color-only opening doors, counterweights, armor shape; camera still protects both actor silhouettes. Reduced-motion remains source-true static gate states. Need real portrait video and accessible cue evaluation.",
-    "performance": "NOT MEASURED ON SUPPORTED DEVICES. The new gate simply rotates existing original masonry to a different fixed azimuth; no new GPU draw/light or dynamic collider. Software GL submission gaps are not actual supported-phone FPS. Obtain frame-time p50/p95/p99 and memory over full scenes before any claim.",
-    "stability": "Latest source-pinned normal-speed 6ede6fe real-game capture run 41365006570 IN PROGRESS at inspection; previous b3cb8ed run 41363629664 had six successful scoped recording jobs but FAILED frozen-baseline full outcome/restart capture. New structural tests for fixed source anchor and source-linked passage were committed; run status unresolved. Actual hardware context recovery, soak and unedited video review missing."
+    "ci": "Last verified technical CI: 9626a070 workflow 41365391127 SUCCESS (technical-only). New source+tests 0c86436 run 41367460977 was IN PROGRESS at inspection, and evidence-review commits will trigger new technical checks. Do not infer exact-head CI PASS or transform-quality PASS.",
+    "replay": "NOT INDEPENDENTLY VERIFIED for exact current source. Camera/focus movement and core LOS consume existing immutable public snapshots only; they cannot mutate run ticks, AI, authoritative physics, seeded RNG, replay hashes or floor passage. Historic snapshot tick-269 geometric tests committed but not a complete exact-head replay campaign.",
+    "accessibility": "NOT INDEPENDENTLY VERIFIED. Reduced-motion mode still snaps immediately to the selected source camera/focus, no new flashing/word HUD/required sound. Open normal-speed portrait guardian/route/compressed footage review including color-safe cue comprehension and moving-camera discomfort.",
+    "performance": "NOT MEASURED ON SUPPORTED DEVICES. Core-safe camera and focus reuse existing vectors; analytic LOS adds no draw, light, texture, geometry, shader or raycast. Need real mobile/desktop p50/p95/p99 frame-time and memory throughout ascent/guardian/outcome. Software GL submission intervals cannot imply supported-device FPS.",
+    "stability": "Last completed old-source 6ede6fe live gameplay run 41365006570 has six successful scoped recording jobs, while frozen-baseline complete visible outcome/restart failed twice. Source 453773c/071a6d0 capture workflows 41367212445 and 41367442477 PENDING/QUEUED at inspection, not independently reviewed. Exact-head WebGL recovery, restart robustness and sustained stability unverified; do not advance quality acceptance."
   },
   "unresolvedCriticalIssues": null,
   "benchmark": {
@@ -147,11 +147,11 @@
         }
       }
     },
-    "newImplementationSha": "3a5c6d9d94ea882026b293cf3d8738477ae7aaab",
-    "newImplementationRecorded": true,
-    "reviewPath": "docs/reviews/2026-11-02-tower-pr68-guardian-approach-causal-framing.md",
-    "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41365006570",
-    "followupStatus": "New real-game candidate game implementation 6ede6fe source-pinned 60+ seconds desktop 960x600 and portrait 390x844 capture in progress at inspection; old 41363629664 b3cb8ed completed six of seven scoped jobs, baseline outcome/restart failed; previous 41358227934 clips already documented. No new video's full-motion reviewed and no blind critics. Source 6ede6fe differs from its followup 93c2b83 only by test correction and subsequent documentation.",
+    "newImplementationSha": "071a6d06f852b477f422e536296956a21db9c31f",
+    "newImplementationRecorded": "NOT YET VERIFIED: source-pinned normal-speed 453773c workflow 41367212445 queued and 071a6d0 workflow 41367442477 pending at final inspection; no new video inspected by this run.",
+    "reviewPath": "docs/reviews/2026-11-02-tower-pr68-core-safe-guardian-camera-continuation.md",
+    "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41367442477",
+    "followupStatus": "PENDING/QUEUED; requires full video inspection; prior baseline outcome failure remains unresolved.",
     "matchedCaptureSettings": {
       "seed": "tower-transformation-capture-v1",
       "sourceBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
@@ -184,6 +184,37 @@
         "CI software GL renderer submitted-frame intervals are very slow; they are NOT true supported-device FPS; no performance pass."
       ],
       "keyGap": "Before staging change genuine guardian HP/physical gate often absent in portrait crop; newly source-coordinated 3D stage/camera/passsage awaits footage. Keep critic scores 0/5 and unresolved full baseline outcome."
+    },
+    "latestUnreviewedRun": {
+      "workflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41365006570",
+      "sourceSha": "6ede6fe34ccab584cd113b828ec69af7b405e312",
+      "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "status": "COMPLETED / 6 OF 7 JOBS SCOPED SUCCESS; BASELINE OUTCOME FAILED; NOT EVALUATED",
+      "scope": "Real normal-speed Chromium source-pinned desktop 960x600 and portrait 390x844, low, same seed tower-transformation-capture-v1. Baseline/candidate ascent and danger captured; candidate outcome captured; baseline outcome fails complete-terminal-intermission-restart-not-observed at both widths, despite three run-token transitions in samples. Success covers only scoped recording integrity. Builder did NOT visually inspect this latest source's full videos in this execution.",
+      "artifacts": {
+        "baselineAscent": 13107067501,
+        "baselineDanger": 13106718313,
+        "baselineOutcomeFailed": 13106369497,
+        "candidateAscent": 13106529085,
+        "candidateDanger": 13106444244,
+        "candidateOutcome": 13107320736
+      },
+      "limitation": "All clips predate the current core-safe camera; NOT assessed blind A/B evidence or source SHA of the latest implementation."
+    },
+    "cameraImplementation": {
+      "sourceCommit": "071a6d06f852b477f422e536296956a21db9c31f",
+      "contractTestCommit": "0c86436c220581b2e287c0ecb7ff402192b7ae0c",
+      "qualityWorkflowUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41367460977",
+      "qualityWorkflowAtInspection": "IN PROGRESS, technical guardrail only",
+      "motionCaptureUrls": [
+        "https://github.com/my-edutu/Ai_games/actions/runs/41367212445",
+        "https://github.com/my-edutu/Ai_games/actions/runs/41367442477"
+      ],
+      "genuineIndependentLookVotes": 0,
+      "genuineIndependentFeelVotes": 0,
+      "genuineIndependentPlayVotes": 0,
+      "reviewerBrowserBlocker": "Independent-worker/browser workspace tool unavailable: NOT_FOUND tunnel client offline >300 seconds; no independent judgments invented",
+      "status": "NOT EVALUATED"
     }
   }
 }
