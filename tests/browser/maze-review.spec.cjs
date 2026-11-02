@@ -128,7 +128,10 @@ test('a real close public encounter frames both autonomous actors and saves date
   // The original 14 authentic native WebGL captures already consume ~130s
   // on heavily CPU-throttled shared SwiftShader CI. Five NEW real before/after
   // screenshots require more WALL-CLOCK time, not weaker in-frame/privacy gates.
-  test.setTimeout(320000);
+  // The real wide-screen camera must settle through rendered frames after
+  // the authentic accessibility motion toggle; extra SwiftShader wall time
+  // is not a graphics/art or gameplay acceptance concession.
+  test.setTimeout(480000);
   const fs = require('node:fs');
   const path = require('node:path');
   const { createHash } = require('node:crypto');
@@ -383,6 +386,22 @@ test('a real close public encounter frames both autonomous actors and saves date
     [844,390,'guardian-follow-844-landscape'],
     [1280,900,'guardian-follow-1280-desktop'],
   ]) {
+    // Original Pass87 captures retained the test's initial reducedMotion=1
+    // query even after selecting Follow, so the new Pass86 genuine wide
+    // encounter camera was BYPASSED. The verified 844/1280 image therefore
+    // remained at exact 7.3 half-height despite passing all source checks.
+    // Keep previously protected 320/390 reduced-motion framing, then switch
+    // using the REAL accessible setting (not an injected renderer property)
+    // before judging the physical wide-camera candidate. One warm browser.
+    if(followWidth===844) {
+      await page.setViewportSize({width:844,height:390});
+      await page.locator('#settings-panel > summary').click();
+      await page.locator('#motion-toggle').click();
+      await expect(page.locator('body')).toHaveAttribute('data-reduced-motion','false');
+      await page.locator('#settings-panel > summary').click();
+    }
+    if(followWidth>=844)
+      await expect(page.locator('body')).toHaveAttribute('data-reduced-motion','false');
     const before=await page.evaluate(()=>window.__MAZE_3D__?.frames??0);
     await page.setViewportSize({width:followWidth,height:followHeight});
     await page.waitForFunction(({width,height,tick,token,before})=>{
@@ -390,7 +409,10 @@ test('a real close public encounter frames both autonomous actors and saves date
       return innerWidth===width && innerHeight===height
         && d?.renderer==='webgl' && d?.cameraMode==='follow'
         && d?.frames>before+1 && Math.abs(d.cameraAspect-width/height)<.01
-        && d.tick===tick && d.runToken===token;
+        && d.tick===tick && d.runToken===token
+        // A native wide screenshot without a genuinely closer, safely
+        // settled 3D camera is inconclusive and MUST NOT pass as Pass86.
+        && (width<844 || d.cameraHalfHeight<=6.6);
     },{width:followWidth,height:followHeight,tick:frame.snapshot.tick,
       token:frame.snapshot.runToken,before});
     const diagnostic=await page.evaluate(()=>{
@@ -426,6 +448,9 @@ test('a real close public encounter frames both autonomous actors and saves date
       diagnostic,
       caveat:'True Follow camera, not the earlier Detail mode screenshots; visual Nintendo parity and hardware GPU FPS still require separate review.',
     },null,2));
+    if(followWidth>=844)
+      expect(diagnostic.cameraHalfHeight,
+        'real wide Follow screenshot must render a physically closer Pip/guardian pair, not unchanged 7.3 art').toBeLessThanOrEqual(6.6);
     expect(diagnostic.explorerInFrame,'Follow camera keeps genuine Pip visible').toBe(true);
     expect(diagnostic.wardensWithMargin,'original Follow guardian center margin remains intact').toBeGreaterThanOrEqual(1);
     expect(diagnostic.guardianModelsFullyInFrame,
