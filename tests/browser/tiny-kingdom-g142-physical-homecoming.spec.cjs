@@ -15,7 +15,8 @@ test('G142 residents reach their genuine homes, light only inhabited cottages, a
  await page.locator('#pause').click();
  const dusk=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
-  for(let i=0;i<15*30;i++)g.step(1/30);
+  const here=g.getDailyRhythmAudit().hour,ahead=(22-here+24)%24,steps=Math.max(1,Math.ceil(ahead*30));
+  for(let i=0;i<steps;i++)g.step(ahead/steps);
   const snapshot=JSON.stringify(g.exportSnapshot());
   const view=g.watchHomecoming();
   return {view,snapshot,after:JSON.stringify(g.exportSnapshot()),rhythm:g.getDailyRhythmAudit()};
@@ -28,7 +29,8 @@ test('G142 residents reach their genuine homes, light only inhabited cottages, a
  expect(await page.locator('#homecoming-follow').getAttribute('aria-pressed')).toBe('true');
  const overnight=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
-  for(let i=0;i<6*30;i++)g.step(1/30);
+  const here=g.getDailyRhythmAudit().hour,ahead=(4-here+24)%24,steps=Math.max(1,Math.ceil(ahead*30));
+  for(let i=0;i<steps;i++)g.step(ahead/steps);
   const households=g.getOccupiedHouseholds(),rhythm=g.getDailyRhythmAudit();
   return {households,rhythm,nav:g.getNavigation(),snapshot:JSON.stringify(g.exportSnapshot())};
  });
