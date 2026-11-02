@@ -514,11 +514,13 @@ function stageRigArmsAfterMixer(actor,since,reducedMotion){
  const warningLift=actor.u.kind==='warden'&&actor.u.hp>0&&!reducedMotion&&
   Number.isFinite(actor.wardenCharge?.armRaise)?
   Math.max(-.64,Math.min(0,actor.wardenCharge.armRaise)):0;
+ const stagger=actor.u.kind==='warden'&&actor.u.hp>0&&!reducedMotion&&
+  Number.isInteger(actor.wardenRecovery?.remaining)&&actor.wardenRecovery.remaining>0?.13:0;
  actor.wardenChargeShoulderPeak=Math.max(actor.wardenChargeShoulderPeak||0,Math.abs(warningLift));
  for(const mount of actor.rigUpperArms||[]){
   const joint=pose[mount.side],extra=actor.performanceBeat?.arms?.[mount.side]||RIG_ZERO;
   mount.next.setFromEuler(mount.euler.set(
-   Math.max(-.62,Math.min(.62,joint.pitch+warningLift+extra.pitch)),0,
+   Math.max(-.62,Math.min(.62,joint.pitch+warningLift+stagger+extra.pitch)),0,
    Math.max(-.38,Math.min(.38,joint.roll+extra.roll)),'XYZ'));
   mount.bone.quaternion.multiply(mount.next);
   mount.last.copy(mount.next);

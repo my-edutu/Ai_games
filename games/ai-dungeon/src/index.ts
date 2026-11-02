@@ -5,7 +5,7 @@ export const DUNGEON_VERSION='0.4.0';
 export const MAP_SIZE=19;
 export type UnitKind='vanguard'|'ranger'|'mystic'|'revenant'|'cultist'|'warden';
 export type Faction='party'|'enemy';
-export interface Unit {id:string;kind:UnitKind;faction:Faction;x:number;z:number;hp:number;maxHp:number;attack:number;cooldown:number;action?:'idle'|'move'|'attack'|'cast'|'hurt'|'guard';actionTick?:number;guardTick?:number;targetId?:string}
+export interface Unit {id:string;kind:UnitKind;faction:Faction;x:number;z:number;hp:number;maxHp:number;attack:number;cooldown:number;action?:'idle'|'move'|'attack'|'cast'|'hurt'|'guard';actionTick?:number;guardTick?:number;targetId?:string;recoveryUntilTick?:number}
 export interface DungeonEvent {tick:number;kind:string;text:string}
 export interface DungeonTrap{id:string;x:number;z:number;kind:'ember'|'arcane';active:boolean;cooldown:number;disarmed:boolean;triggers:number}
 export interface DungeonState {schemaVersion:1;tick:number;floor:number;run:number;phase:'exploring'|'intermission';intermission:number;theme:string;map:string[];exit:{x:number;z:number};units:Unit[];relics:{x:number;z:number}[];traps:DungeonTrap[];kills:number;gold:number;level:number;intent:string;events:DungeonEvent[]}
@@ -25,6 +25,18 @@ export function damageThroughWardenSeal(s:DungeonState,target:Unit,raw:number):n
  if(target.kind!=='warden')return raw;
  if(wardenSealActive(s))return Math.max(1,Math.ceil(raw*.24));
  return wardenPhase(target)==='SENTINEL'?Math.max(1,Math.ceil(raw*.7)):raw;
+}
+/** The real unsealed Warden rests for two tactical turns after a shockwave.
+ * This optional saved field is written only by the genuine combat step; no
+ * cinematic timer, guessed target, or generated recovery event grants damage.
+ */
+export const WARDEN_COUNTER_MULTIPLIER=1.4;
+export function planWardenRecovery(s:Pick<DungeonState,'tick'|'units'>,boss?:Unit){
+ const until=boss?.recoveryUntilTick;
+ if(!boss||boss.kind!=='warden'||boss.hp<=0||!Number.isSafeInteger(s?.tick)||
+  typeof until!=='number'||!Number.isSafeInteger(until)||until<s.tick||until>s.tick+2||
+  wardenSealActive(s))return null;
+ return {remaining:until-s.tick+1,damageMultiplier:WARDEN_COUNTER_MULTIPLIER};
 }
 
 /** The exact deterministic floor tiles struck by the Warden's next attack.
@@ -317,7 +329,8 @@ export function assertDungeonState(s:DungeonState){
  if(s.schemaVersion!==1||s.map.length!==MAP_SIZE||s.map.some(r=>r.length!==MAP_SIZE))throw Error('Invalid dungeon map');
  if(!walkable(s.map,1,1)||!walkable(s.map,s.exit.x,s.exit.z)||shortestPath(s.map,{x:1,z:1},s.exit).length===0)throw Error('Dungeon exit unreachable');
  const ids=new Set<string>();
- for(const u of s.units){if(ids.has(u.id)||!walkable(s.map,u.x,u.z)||!Number.isInteger(u.hp)||u.hp<0||u.hp>u.maxHp)throw Error('Invalid unit '+u.id);ids.add(u.id)}
+ for(const u of s.units){if(ids.has(u.id)||!walkable(s.map,u.x,u.z)||!Number.isInteger(u.hp)||u.hp<0||u.hp>u.maxHp)throw Error('Invalid unit '+u.id);ids.add(u.id);
+  if(u.recoveryUntilTick!==undefined&&(u.kind!=='warden'||!Number.isSafeInteger(u.recoveryUntilTick)||u.recoveryUntilTick<s.tick||u.recoveryUntilTick>s.tick+2))throw Error('Invalid Warden recovery clock');}
  if(s.units.length>18||s.relics.length>6||s.traps.length>5||s.events.length>9)throw Error('Bounded state exceeded');
  for(const trap of s.traps){if(!walkable(s.map,trap.x,trap.z)||trap.cooldown<0||!Number.isInteger(trap.triggers)||trap.triggers<0||trap.triggers>10000)throw Error('Invalid dungeon trap '+trap.id)}
 }
@@ -329,7 +342,8 @@ export class DungeonRuntime {
  static restore(save:DungeonSave){if(save.version!==DUNGEON_VERSION||save.signature!==checksum({seed:save.seed,rng:save.rng,state:save.state}))throw Error('Dungeon snapshot checksum mismatch');return new DungeonRuntime(save.seed,NamedRng.restore(save.rng),clone(save.state))}
  save():DungeonSave {const state=clone(this.state),rng=this.rng.snapshot();return {version:DUNGEON_VERSION,seed:this.seed,rng,state,signature:checksum({seed:this.seed,rng,state})}}
  step(){
-  const s=this.state;const warden=s.units.find(u=>u.kind==='warden');const previousWardenPhase=wardenPhase(warden),wardAtStart=wardenSealActive(s);s.tick++;for(const unit of s.units){unit.action='idle';unit.actionTick=s.tick;delete unit.targetId}
+  const s=this.state;const warden=s.units.find(u=>u.kind==='warden');const previousWardenPhase=wardenPhase(warden),wardAtStart=wardenSealActive(s);s.tick++;for(const unit of s.units){unit.action='idle';unit.actionTick=s.tick;delete unit.targetId;
+   if(unit.kind==='warden'&&unit.recoveryUntilTick!==undefined&&unit.recoveryUntilTick<s.tick)delete unit.recoveryUntilTick;}
   if(s.phase==='intermission'){if(--s.intermission<=0){const run=s.run+1;this.state=createFloor(this.seed,1,this.rng,run);push(this.state,'restart','A new expedition enters the dungeon.')}return this.publicState()}
   const party=s.units.filter(u=>u.faction==='party'&&u.hp>0),foes=s.units.filter(u=>u.faction==='enemy'&&u.hp>0),leader=party[0];
   if(!leader){s.phase='intermission';s.intermission=14;push(s,'defeat','The expedition was lost. A new run begins shortly.');return this.publicState()}
@@ -375,7 +389,10 @@ export class DungeonRuntime {
    const defenders=enemies.filter(u=>u.kind!=='warden');
    // The expedition deliberately clears the binding guards before its guardian duel.
    // Incidental boss contact still has a real, bounded damage outcome and cannot stall a corridor.
-   const attackable=defenders.length?defenders:enemies;
+   const recoveringWarden=enemies.find(e=>e.kind==='warden'&&planWardenRecovery(s,e));
+   // Real counterplay: attack the genuinely exposed guardian before minions,
+   // but only when a legal unobstructed firing/weapon lane exists.
+   const attackable=recoveringWarden?[recoveringWarden,...defenders]:defenders.length?defenders:enemies;
    const range=hero.kind==='vanguard'?1:hero.kind==='ranger'?4:3;
    if(hero.kind==='mystic'){
     const urgent=party.some(u=>u.hp>0&&u.hp<=u.maxHp*.35);
@@ -395,9 +412,12 @@ export class DungeonRuntime {
     }
     const target=attackable.find(e=>dist(hero,e)>=1&&dist(hero,e)<=range&&clearTacticalLane(s,hero,e,hero.id));
    if(target){
-    const raw=hero.attack+(s.level-1)*2,damage=damageThroughWardenSeal(s,target,raw);
+    const recovery=target.kind==='warden'?planWardenRecovery(s,target):null;
+    const baseDamage=hero.attack+(s.level-1)*2;
+    const raw=recovery?Math.ceil(baseDamage*recovery.damageMultiplier):baseDamage;
+    const damage=damageThroughWardenSeal(s,target,raw);
     target.hp=Math.max(0,target.hp-damage);hero.action=hero.kind==='mystic'?'cast':'attack';hero.targetId=target.id;target.action='hurt';
-    s.intent=hero.kind==='mystic'?'Arcane support engaging hostiles':hero.kind==='ranger'?'Ranger providing covering fire':'Vanguard holding the front line';
+    s.intent=recovery?'The expedition counters the exposed Warden':hero.kind==='mystic'?'Arcane support engaging hostiles':hero.kind==='ranger'?'Ranger providing covering fire':'Vanguard holding the front line';
     if(target.hp===0){s.kills++;s.gold+=12;s.level=1+Math.floor(s.kills/5);push(s,'kill',(target.kind==='warden'?'WARDEN DEFEATED':'Enemy defeated')+' · +12 gold')}
     else if(s.tick%4===0)push(s,'combat',hero.kind+' struck '+target.kind+' for '+damage);
     continue;
@@ -411,7 +431,7 @@ export class DungeonRuntime {
     const minion=protectorTarget??defenders.find(e=>dist(hero,e)<=5||dist(leader,e)<=4)??defenders[0];
    const boss=enemies.find(e=>e.kind==='warden');
    const nearbyBoss=boss&&dist(hero,boss)<=5?boss:null;
-   const engagement=minion||(hero===leader?boss:nearbyBoss);
+   const engagement=recoveringWarden||minion||(hero===leader?boss:nearbyBoss);
    if(hero!==leader&&!engagement){
     const next=planTacticalStep(s,hero,leader,'escort');
     if(next){hero.x=next.x;hero.z=next.z;hero.action='move';
@@ -423,7 +443,7 @@ export class DungeonRuntime {
    const next=planTacticalStep(s,hero,engagement??s.exit,engagement?'engage':'exit');
    if(next){
     hero.x=next.x;hero.z=next.z;hero.action='move';
-    s.intent=hero.kind==='vanguard'?(minion?'Intercepting '+minion.kind:engagement?'Confronting the Warden':'Claiming the portal'):
+    s.intent=recoveringWarden?'Closing on the Warden counterattack':hero.kind==='vanguard'?(minion?'Intercepting '+minion.kind:engagement?'Confronting the Warden':'Claiming the portal'):
      hero.kind==='ranger'?'Wildshadow seeking an open shot':'Starweaver taking a safe spell lane';
    }
   }
@@ -442,6 +462,9 @@ export class DungeonRuntime {
    const bossPhase=enemy.kind==='warden'?wardenPhase(enemy):'SENTINEL';
    const interval=bossPhase==='ECLIPSE'?4:6,attackTick=s.tick%interval,warningTick=interval-2;
    if(enemy.kind==='warden'){
+    // His real post-impact recovery is a tactical opportunity, not a fake
+    // VFX stagger: no boss melee, pursuit, or repeat cast during these turns.
+    if(planWardenRecovery(s,enemy))continue;
     const strike=planWardenStrike(s,enemy);
     if(strike&&distance<=5&&attackTick===warningTick)
      push(s,'telegraph','WARDEN '+strike.shape.replaceAll('_',' ')+' — leave the marked stone or brace');
@@ -456,6 +479,10 @@ export class DungeonRuntime {
       if(guarded)push(s,'block',hero.kind+' shielded '+(shock-dealt)+' damage');
      }
      enemy.action='cast';
+     if(!wardenSealActive(s)){
+      enemy.recoveryUntilTick=s.tick+2;
+      push(s,'opening','WARDEN EXPOSED — the party can counter the recovering guardian');
+     }
      push(s,affected.length?'danger':'evade','The Warden '+strike.shape.replaceAll('_',' ').toLowerCase()+
       ' shockwave struck '+affected.length+' hero'+(affected.length===1?'':'es'));
      if(enemy.cooldown>0)enemy.cooldown--;
@@ -521,6 +548,6 @@ export class DungeonRuntime {
   const boss=s.units.find(u=>u.kind==='warden'&&u.hp>0);
   const strike=boss?planWardenStrike(s,boss):null;
   const bossWarning=strike?.warning&&s.units.some(u=>u.faction==='party'&&u.hp>0&&dist(u,boss!)<=5)?strike:null;
-  return {version:DUNGEON_VERSION,tick:s.tick,run:s.run,floor:s.floor,theme:s.theme,phase:s.phase,bossPhase:wardenPhase(s.units.find(u=>u.kind==='warden')),guardianWard:wardenSealActive(s),bossWarning,defendersRemaining:s.units.filter(u=>u.faction==='enemy'&&u.kind!=='warden'&&u.hp>0).length,intermission:s.intermission,map:s.map,exit:s.exit,units:s.units.map(u=>({...u})),relics:s.relics.map(r=>({...r})),traps:s.traps.map(t=>({...t})),kills:s.kills,gold:s.gold,level:s.level,intent:s.intent,events:s.events.map(e=>({...e})),checksum:checksum({tick:s.tick,run:s.run,floor:s.floor,units:s.units,relics:s.relics,traps:s.traps,gold:s.gold})};
+  return {version:DUNGEON_VERSION,tick:s.tick,run:s.run,floor:s.floor,theme:s.theme,phase:s.phase,bossPhase:wardenPhase(s.units.find(u=>u.kind==='warden')),guardianWard:wardenSealActive(s),bossWarning,bossRecovery:boss?planWardenRecovery(s,boss):null,defendersRemaining:s.units.filter(u=>u.faction==='enemy'&&u.kind!=='warden'&&u.hp>0).length,intermission:s.intermission,map:s.map,exit:s.exit,units:s.units.map(u=>({...u})),relics:s.relics.map(r=>({...r})),traps:s.traps.map(t=>({...t})),kills:s.kills,gold:s.gold,level:s.level,intent:s.intent,events:s.events.map(e=>({...e})),checksum:checksum({tick:s.tick,run:s.run,floor:s.floor,units:s.units,relics:s.relics,traps:s.traps,gold:s.gold})};
  }
 }

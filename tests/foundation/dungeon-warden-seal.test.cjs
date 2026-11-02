@@ -94,8 +94,12 @@ test('real Warden shockwave opens a two-turn playable counterattack, with determ
  assert.equal(boss.action,'hurt','a struck exposed boss must remain visibly injured');
  const checkpoint=game.save(),restored=DungeonRuntime.restore(checkpoint);
  assert.deepEqual(restored.publicState(),game.publicState());
- assert.equal(game.step().bossRecovery?.remaining,1,'the second real recovery turn remains exposed');
- assert.equal(game.step().bossRecovery,null,'the next turn clears the vulnerability and resets the boss');
+ const next=game.step(),replayNext=restored.step();
+ assert.equal(next.bossRecovery?.remaining,1,'the second real recovery turn remains exposed');
+ assert.equal(next.checksum,replayNext.checksum);
+ const recovered=game.step(),replayRecovered=restored.step();
+ assert.equal(recovered.bossRecovery,null,'the next turn clears the vulnerability and resets the boss');
+ assert.equal(recovered.checksum,replayRecovered.checksum);
  for(let i=0;i<25;i++)assert.equal(game.step().checksum,restored.step().checksum,
   'the restored actual campaign follows the same sequence');
  assertDungeonState(game.state);

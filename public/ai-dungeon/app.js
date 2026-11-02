@@ -562,7 +562,9 @@ function renderDashboard(s){
  $('depth-fill').style.width=Math.max(8,Math.min(100,100-(remaining/(s.units.filter(u=>u.faction==='enemy').length||1)*92)))+'%';
  const bossStrip=$('boss-strip');bossStrip.hidden=!nearBoss;
  if(boss){const percent=Math.max(0,Math.round(boss.hp/boss.maxHp*100));$('boss-hp').textContent=percent+'%';$('boss-bar').style.width=percent+'%';
-  const phase=s.bossPhase||'SENTINEL';$('boss-phase').textContent=s.bossWarning?'DODGE '+s.bossWarning.shape.replaceAll('_',' ')+' · '+(s.bossWarning.attackTick-s.tick):s.guardianWard?'SEALED · '+phase:phase;bossStrip.dataset.phase=phase;bossStrip.dataset.warded=String(Boolean(s.guardianWard));
+  const phase=s.bossPhase||'SENTINEL',exposed=Number.isInteger(s.bossRecovery?.remaining)&&s.bossRecovery.remaining>0;
+  $('boss-phase').textContent=s.bossWarning?'DODGE '+s.bossWarning.shape.replaceAll('_',' ')+' · '+(s.bossWarning.attackTick-s.tick):exposed?'EXPOSED · COUNTER +40% DAMAGE':s.guardianWard?'SEALED · '+phase:phase;
+  bossStrip.dataset.phase=phase;bossStrip.dataset.warded=String(Boolean(s.guardianWard));bossStrip.dataset.recovery=String(exposed);
   const attackInterval=phase==='ECLIPSE'?4:6;
   bossStrip.dataset.warning=String(Boolean(s.bossWarning));
  }
@@ -629,7 +631,8 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
   const damage=damageById.get(u.id);
   if(damage)a.damageBeat={...damage,age:0};
   else if(u.hp>0&&a.damageBeat?.fatal)a.damageBeat=null;
-  if(a.u.actionTick!==u.actionTick||a.u.action!==u.action){a.actionStarted=timeNow();a.visualActionAge=0;}a.u=u;a.wardenPhase=u.kind==='warden'?s.bossPhase:null;a.combatFacing=planCombatFacing(u,s.units,s.map);const staged=stagePoint(stagePositions,u);a.at.set(staged.x-9,0,staged.z-9);if(sceneChanged)a.root.position.copy(a.at);a.root.visible=u.hp>0||Boolean(a.damageBeat?.fatal&&a.damageBeat.age<DEATH_BEAT_DURATION);if(a.telegraph){
+  if(a.u.actionTick!==u.actionTick||a.u.action!==u.action){a.actionStarted=timeNow();a.visualActionAge=0;}a.u=u;a.wardenPhase=u.kind==='warden'?s.bossPhase:null;
+  a.wardenRecovery=u.kind==='warden'?s.bossRecovery:null;a.combatFacing=planCombatFacing(u,s.units,s.map);const staged=stagePoint(stagePositions,u);a.at.set(staged.x-9,0,staged.z-9);if(sceneChanged)a.root.position.copy(a.at);a.root.visible=u.hp>0||Boolean(a.damageBeat?.fatal&&a.damageBeat.age<DEATH_BEAT_DURATION);if(a.telegraph){
    const interval=s.bossPhase==='ECLIPSE'?4:6;
    a.telegraph.visible=u.hp>0&&Boolean(s.bossWarning);
    a.telegraph.material.color.set(s.bossPhase==='ECLIPSE'?'#c97aff':s.bossPhase==='RUPTURE'?'#ff9f62':'#ff7049');
@@ -644,8 +647,8 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
  }
  const warden=s.units.find(u=>u.kind==='warden'&&u.hp>0);
  if(warden){wardenSpot.position.set(warden.x-9,2.2,warden.z-9);
-  wardenSpot.color.set(s.guardianWard?'#89b9ff':s.bossPhase==='ECLIPSE'?'#ba72ff':s.bossPhase==='RUPTURE'?'#ff7b68':'#ffcc84');
-  wardenSpot.intensity=s.bossPhase==='ECLIPSE'?3.2:s.bossPhase==='RUPTURE'?2.9:2.1;
+  wardenSpot.color.set(s.bossRecovery?.remaining?'#d2ae86':s.guardianWard?'#89b9ff':s.bossPhase==='ECLIPSE'?'#ba72ff':s.bossPhase==='RUPTURE'?'#ff7b68':'#ffcc84');
+  wardenSpot.intensity=s.bossRecovery?.remaining?1.9:s.bossPhase==='ECLIPSE'?3.2:s.bossPhase==='RUPTURE'?2.9:2.1;
  }else wardenSpot.intensity=0;
  for(const trap of s.traps||[]){const marker=world.userData.hazardMeshes?.get(trap.id);if(marker){marker.userData.active=trap.active;marker.userData.charge.visible=trap.active;marker.userData.ring.visible=!trap.disarmed;marker.scale.setScalar(trap.disarmed?.67:1)}}
  directCamera(s);
@@ -796,7 +799,8 @@ function animate(t){
   // animations stay intact and take precedence when the real attack lands.
   if(a.u.kind==='warden'&&a.u.hp>0){
    const anticipation=a.wardenCharge;
-   if(a.authored&&a.visualPivot){a.visualPivot.position.y+=anticipation.lift;a.visualPivot.rotation.x+=anticipation.pitch;}
+   if(a.authored&&a.visualPivot){a.visualPivot.position.y+=anticipation.lift;a.visualPivot.rotation.x+=anticipation.pitch;
+    if(a.wardenRecovery?.remaining&&!reduced){a.visualPivot.position.y-=.05;a.visualPivot.rotation.x+=.09;}}
    else {a.body.rotation.x+=anticipation.pitch;a.leftArm.rotation.x+=anticipation.armRaise;a.rightArm.rotation.x+=anticipation.armRaise;}
   }
   const visualYaw=a.combatFacing?.yaw??(moving?planMovementFacing(a.root.position.x,a.root.position.z,a.at.x,a.at.z):null);

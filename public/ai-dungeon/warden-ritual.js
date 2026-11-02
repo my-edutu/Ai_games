@@ -193,7 +193,7 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
  warningEdges.count=0;warningEdges.visible=false;warningEdges.frustumCulled=false;group.add(warningEdges);
  const marker=new THREE.Object3D();
  let warningCount=0,warningShape='none',impactAge=0,lastCastTick=-1;
- let ward=false,previousWard=null,tick=-1,breakAge=SHATTER_TIME;
+ let ward=false,previousWard=null,tick=-1,breakAge=SHATTER_TIME,exposed=false;
  let visible=false,defenders=0,linkCount=0,phase='SENTINEL';
  let chapterTarget=planWardenCourtChapter({guardianWard:true}),chapterOpenness=0,chapterRendered=-1,chapterTransitions=0;
  const from=new THREE.Vector3(),to=new THREE.Vector3(),delta=new THREE.Vector3();
@@ -201,7 +201,7 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
   if(!Array.isArray(s?.units))return;
   const boss=s.units.find(u=>u.kind==='warden'&&u.hp>0);
   visible=Boolean(boss);group.visible=visible;
-  if(!boss){chapterTarget=planWardenCourtChapter({phase:'VANQUISHED',hp:0,maxHp:1});ward=false;defenders=linkCount=warningCount=0;warningTiles.count=warningEdges.count=0;warningTiles.visible=warningEdges.visible=false;for(const link of links)link.visible=false;return;}
+  if(!boss){chapterTarget=planWardenCourtChapter({phase:'VANQUISHED',hp:0,maxHp:1});ward=false;exposed=false;defenders=linkCount=warningCount=0;warningTiles.count=warningEdges.count=0;warningTiles.visible=warningEdges.visible=false;for(const link of links)link.visible=false;return;}
   const half=(Array.isArray(s.map)?s.map.length-1:18)/2;
   group.position.set(boss.x-half,0,boss.z-half);
   const warning=s.bossWarning;
@@ -231,6 +231,7 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
   const minions=s.units.filter(u=>u.faction==='enemy'&&u.kind!=='warden'&&u.hp>0);
   minions.sort((a,b)=>Math.abs(a.x-boss.x)+Math.abs(a.z-boss.z)-Math.abs(b.x-boss.x)-Math.abs(b.z-boss.z)||a.id.localeCompare(b.id));
   defenders=minions.length;ward=Boolean(s.guardianWard);
+  exposed=Number.isInteger(s.bossRecovery?.remaining)&&s.bossRecovery.remaining>0;
   const newPhase=s.bossPhase||'SENTINEL';
   if(newPhase!==phase){
    const tint={SENTINEL:'#8cbede',RUPTURE:'#f0b381',ECLIPSE:'#caa2fc',VANQUISHED:'#88868a'}[newPhase]||'#8cbede';
@@ -294,8 +295,8 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
    reducedMotion?.25:.19+.07*(1+Math.sin(time*6.2))*.5;
   edgeMaterial.opacity=impactAge>0?.72:reducedMotion?.46:.42+.18*(1+Math.sin(time*5.3))*.5;
   glyph.opacity=ward&&!reducedMotion?.63+.10*Math.sin(time*2):.70;
-  reliefVein.emissiveIntensity=warningCount>0?.42:ward?.25:.12;
-  reliefVein.opacity=warningCount>0?.72:.46;
+  reliefVein.emissiveIntensity=exposed?.55:warningCount>0?.42:ward?.25:.12;
+  reliefVein.opacity=exposed?.77:warningCount>0?.72:.46;
   rings.forEach((ring,i)=>{ring.rotation.z=ward&&!reducedMotion?Math.sin(time*.45+i)*.07:0;});
   if(breakAge<SHATTER_TIME){
    breakAge=Math.min(SHATTER_TIME,breakAge+Math.max(0,Math.min(.05,dt)));
@@ -309,5 +310,5 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
    }
   }else for(const shard of shards)shard.visible=false;
  }
- return {accept,animate,setSightlines,metrics:()=>({sculptedCourtSlabs:courtSlabCount,originalEngravings:cutCount,cathedralWallButtresses:wallProps.length,phaseFractureSegments:faultVoidMesh.visible?WARDEN_RIFT_SEGMENTS:0,chapterOpenness:Math.round(chapterOpenness*1000)/1000,chapterTransitions,hiddenWallButtresses:hiddenWallProps,fixedCeremonialPlinths:plinths.length,hiddenPlinths,retractedPlinths:plinths.filter(p=>p.position.y<-.55).length,phaseRelief:phase,visible,shieldActive:ward,phase,activeDefenders:defenders,activeTethers:linkCount,shattering:breakAge<SHATTER_TIME,maxTethers:LIMIT,originalBasaltReliefs:12,warningTiles:warningCount,warningEdgedTiles:warningEdges.count,warningShape,impactActive:impactAge>0})};
+ return {accept,animate,setSightlines,metrics:()=>({sculptedCourtSlabs:courtSlabCount,originalEngravings:cutCount,cathedralWallButtresses:wallProps.length,phaseFractureSegments:faultVoidMesh.visible?WARDEN_RIFT_SEGMENTS:0,chapterOpenness:Math.round(chapterOpenness*1000)/1000,chapterTransitions,hiddenWallButtresses:hiddenWallProps,fixedCeremonialPlinths:plinths.length,hiddenPlinths,retractedPlinths:plinths.filter(p=>p.position.y<-.55).length,phaseRelief:phase,visible,shieldActive:ward,exposedCounterWindow:exposed,phase,activeDefenders:defenders,activeTethers:linkCount,shattering:breakAge<SHATTER_TIME,maxTethers:LIMIT,originalBasaltReliefs:12,warningTiles:warningCount,warningEdgedTiles:warningEdges.count,warningShape,impactActive:impactAge>0})};
 }
