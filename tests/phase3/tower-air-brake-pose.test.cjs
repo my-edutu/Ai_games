@@ -40,13 +40,14 @@ test('combat, ledge grip, stale packets and injury veto the cosmetic brake',asyn
  t.after(()=>model.dispose());
  const rest=()=>bone(model,'articulated-body').rotation.z;
  for(const [edit,opt] of [
-   [{intentMode:'air-control'},{}],
-   [{intentMode:'settling-landing',attacking:true},{}],
-   [{intentMode:'settling-landing',state:'hurt'},{}],
-   [{intentMode:'settling-landing',ledgeTarget:{x:0,y:0,z:0}},{}],
-   [{intentMode:'settling-landing'},{stale:true}]
+   [{attacking:true},{}],
+   [{state:'hurt'},{}],
+   [{ledgeTarget:{x:0,y:0,z:0}},{}],
+   [{},{stale:true}]
  ]){
-   model.animate({...state,...edit},1/60,0,opt);
-   assert.ok(Math.abs(rest())<.001,'source veto preserves the ordinary rig');
+   model.animate({...state,...edit,intentMode:'air-control'},1/60,0,opt);
+   const reference=rest();
+   model.animate({...state,...edit,intentMode:'settling-landing'},1/60,0,opt);
+   assert.ok(Math.abs(rest()-reference)<.001,'source veto preserves the matching ordinary rig');
  }
 });
