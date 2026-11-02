@@ -118,3 +118,41 @@ test('portrait guardian remains in frame throughout observed charge and evasive 
     }
   }
 });
+
+
+test('camera shot continuity retains a safe prior guardian lens but never hides danger', async () => {
+  const { context } = await loaded;
+  const score = shot => shot.score;
+  const best = { lean: .7, score: 102, clear: true, guardianFramed: true, heroFraction: .19 };
+  const prior = { lean: .22, score: 101.1, clear: true, guardianFramed: true, heroFraction: .21 };
+  assert.equal(context.retainGuardianCameraShot(best, prior, score), prior,
+    'a small aesthetic score swing cannot whip a safe established guardian shot');
+  assert.equal(context.retainGuardianCameraShot(best, { ...prior, clear: false }, score), best,
+    'core-occluded guardian must never be retained for continuity');
+  assert.equal(context.retainGuardianCameraShot(best, { ...prior, guardianFramed: false }, score), best,
+    'the real guardian silhouette outranks smoothing');
+  assert.equal(context.retainGuardianCameraShot(best, { ...prior, heroFraction: .12 }, score), best,
+    'readable climber height is mandatory even on a narrow portrait');
+  assert.equal(context.retainGuardianCameraShot({ ...best, score: 106 }, prior, score).lean, .7,
+    'a genuine large visibility/composition win must override prior framing');
+  assert.equal(context.retainGuardianCameraShot(best, null, score), best);
+});
+
+test('actual guardian encounter can retain its prior safe exterior shot across duplicate snapshots', async () => {
+  const { pointFor, context } = await loaded;
+  const { snapshot } = realHit();
+  const hero = pointFor(snapshot.player.x, snapshot.player.y - snapshot.player.halfHeight,
+    snapshot.chunkBaseY, snapshot.worldWidth);
+  const before = JSON.stringify(snapshot);
+  for (const aspect of [390 / 844, 960 / 600]) {
+    const first = context.composeFollowView(snapshot, hero, aspect);
+    const repeated = context.composeFollowView(snapshot, hero, aspect, 0, 1, first.lean);
+    assert.equal(repeated.clear, true);
+    assert.equal(repeated.guardianFramed, true);
+    assert.ok(repeated.heroFraction >= .15);
+    assert.ok(Math.abs(repeated.lean - first.lean) < .001,
+      'identical source action cannot change the selected source-safe guardian lens');
+  }
+  assert.equal(JSON.stringify(snapshot), before,
+    'camera continuity may neither modify a source frame nor advance gameplay');
+});
