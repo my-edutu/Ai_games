@@ -67,6 +67,9 @@ test('G135 active workday is framed from the physical working front with readabl
  expect(mobile.width).toBeLessThanOrEqual(390);
  expect(mobile.actor).toBe(result.shot.actor);
  expect(mobile.gl).toBe(0);
+ // Mobile defaults to an uncluttered world. The U shortcut intentionally
+ // opens the accessible full command panel before the next-worker control.
+ await page.keyboard.press('u');
  await page.locator('#workday-live').click();
  expect(await page.evaluate(()=>window.__tinyKingdom.getCamera().follow)).toBe(true);
  expect(errors).toEqual([]);
