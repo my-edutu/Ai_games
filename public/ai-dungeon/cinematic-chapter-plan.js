@@ -48,8 +48,19 @@ export function planOathguardPose(s){
 export function planCinematicShot(s,encounter=null,{width=1440,height=832,focusedHeroId='vanguard'}={}){
  const n=Array.isArray(s?.map)?s.map.length:0;
  if(n<3||n>64||!Array.isArray(s?.units))return null;
- const heroes=s.units.filter(u=>u.faction==='party'&&u.hp>0&&valid(u,n)).slice(0,4);
- if(!heroes.length)return null;
+ const allHeroes=s.units.filter(u=>u.faction==='party'&&valid(u,n)).slice(0,4);
+ const heroes=allHeroes.filter(u=>u.hp>0);
+ // The genuine total-party defeat deserves a physical 3D last stand, not an
+ // empty camera while the result overlay hides the final battle.
+ if(!heroes.length){
+  if(s.phase!=='intermission'||!allHeroes.length||!allHeroes.every(u=>u.hp===0))return null;
+  const last=allHeroes.slice().sort((a,b)=>(b.actionTick??-1)-(a.actionTick??-1)||
+   a.id.localeCompare(b.id))[0];
+  return Object.freeze({mode:'last-stand',x:last.x,z:last.z,lookY:.24,
+   offsets:Object.freeze([4.35,5.25,4.75]),
+   subjects:Object.freeze(allHeroes.map(u=>u.id)),spread:0,
+   oathguard:null,warning:false,remainingTurns:null});
+ }
  const focus=heroes.find(u=>u.id===focusedHeroId)||heroes[0];
  const enemies=s.units.filter(u=>u.faction==='enemy'&&u.hp>0&&valid(u,n)).slice(0,64);
  const boss=enemies.find(u=>u.kind==='warden');
@@ -92,6 +103,14 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
   offsets=planDuelCameraOffset(guard,ally,7.75,6.35)||[4.4,7.75,4.7];
   lookY=.84;subjects=[guard.id,ally.id];
  }else if(boss&&closeBoss&&distance(closeBoss,boss)<=5&&
+  Number.isInteger(s.bossRecovery?.remaining)&&s.bossRecovery.remaining>0&&
+  !s.guardianWard&&(!realContact||encounter.targetId!==boss.id)){
+  // The same genuinely vulnerable Warden window that governs counter damage
+  // moves the physical camera down from a wide warning to a readable duel.
+  mode='warden-exposed';position=mean(closeBoss,boss);
+  offsets=planDuelCameraOffset(closeBoss,boss,7.4,6.5)||[4.4,7.4,4.6];
+  lookY=.84;subjects=[closeBoss.id,boss.id];
+ }else if(boss&&closeBoss&&distance(closeBoss,boss)<=5&&
   (!realContact||encounter.targetId!==boss.id)){
   // A remote ranger/cultist contact is genuine, but it must not cut away from
   // a Warden physically confronting the frontline. Preserve the actual
@@ -111,6 +130,14 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
   offsets=planDuelCameraOffset(closeBoss,boss,8.65,7.8)||[4.4,7.45,5.0];lookY=.70;subjects=[closeBoss.id,boss.id];
  }else if(s.phase==='intermission'){
   mode='descent';offsets=[4.6,7.0,5.25];lookY=.68;
+ }else if(!enemies.length&&s.phase==='exploring'&&
+  Number.isInteger(s.exit?.x)&&Number.isInteger(s.exit?.z)&&
+  s.map[s.exit.z]?.[s.exit.x]==='.'&&distance(focus,s.exit)<=4){
+  // Show the living expedition approaching the actual legally-cleared portal,
+  // not a fabricated victory shot or a marker without spatial context.
+  mode='portal-descent';position=mean(focus,s.exit);
+  offsets=planDuelCameraOffset(focus,s.exit,6.8,6.25)||[4.3,6.8,4.5];
+  lookY=.52;subjects=[focus.id];
  }else if(enemies.length){
   const foe=enemies.slice().sort((a,b)=>distance(a,focus)-distance(b,focus)||a.id.localeCompare(b.id))[0];
   if(distance(foe,focus)<=3){
@@ -152,9 +179,12 @@ const DIRECTOR_LENS=Object.freeze({
  'warden-contact': Object.freeze({radius:6.55,height:7.65,fov:44,aim:.85,follow:7.5,key:1.12}),
  'oathguard-cover':Object.freeze({radius:5.7,height:6.9,fov:44,aim:.86,follow:7.4,key:1.20}),
  'warden-approach':Object.freeze({radius:7.35,height:8.35,fov:44,aim:.77,follow:6.2,key:1.09}),
+ 'warden-exposed':Object.freeze({radius:5.95,height:6.75,fov:42,aim:.88,follow:7.8,key:1.16}),
  'warden-warning': Object.freeze({radius:9.05,height:10.55,fov:51,aim:.35,follow:10.0,key:.92}),
  'breach-warning': Object.freeze({radius:6.55,height:7.5,fov:46,aim:.45,follow:8.0,key:1.04}),
- descent:          Object.freeze({radius:5.4,height:6.45,fov:45,aim:.65,follow:4.8,key:.91})
+ descent:          Object.freeze({radius:5.4,height:6.45,fov:45,aim:.65,follow:4.8,key:.91}),
+ 'portal-descent': Object.freeze({radius:5.65,height:6.40,fov:43,aim:.59,follow:5.2,key:1.08}),
+ 'last-stand':     Object.freeze({radius:4.65,height:5.30,fov:45,aim:.24,follow:3.3,key:.76})
 });
 export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMotion=false}={}){
  if(!shot||!Object.hasOwn(DIRECTOR_LENS,shot.mode)||!Array.isArray(shot.offsets)||

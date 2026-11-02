@@ -49,6 +49,16 @@ export function planDamageReaction(kind,damage,maxHp,age,fatal=false,reducedMoti
  return {x:0,y:-.026*impact,z:.11*impact,pitch:.20*impact,roll:direction*.10*impact};
 }
 /**
+ * Keep an actual defeated party as a quiet static 3D aftermath throughout its
+ * authoritative intermission. The pose also remains legible with reduced
+ * motion. No game HP, AI or collision is changed by this visual-only function.
+ */
+export function planDefeatTableauPose(unit,phase){
+ if(phase!=='intermission'||unit?.faction!=='party'||unit.hp!==0)return neutral();
+ const lean=unit.kind==='ranger'?-.12:unit.kind==='mystic'?.12:0;
+ return Object.freeze({x:0,y:-.26,z:.13,pitch:1.29,roll:lean});
+}
+/**
  * Direct a short camera hold only when a real HP loss coincides with an
  * explicit, same-tick authority targetId and valid cardinal attack lane.
  * A plausible attacker is never inferred from proximity alone.

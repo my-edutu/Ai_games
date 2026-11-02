@@ -71,3 +71,16 @@ test('the actual live renderer has an inherited 3D damage pivot, collapsing dead
  const code=fs.readFileSync(source,'utf8');
  assert.doesNotMatch(code,/Math\.random|performance\.now|requestAnimationFrame|fetch\(/);
 });
+
+test('only a real total-party loss produces grounded static physical bodies during intermission',async()=>{
+ const {planDefeatTableauPose}=await plan();
+ const dead={id:'vanguard',kind:'vanguard',faction:'party',hp:0};
+ const neutral={x:0,y:0,z:0,pitch:0,roll:0};
+ const pose=planDefeatTableauPose(dead,'intermission');
+ assert.ok(pose.pitch>1.2&&pose.y<-.2);
+ assert.deepEqual(planDefeatTableauPose({...dead,hp:1},'intermission'),neutral);
+ assert.deepEqual(planDefeatTableauPose({...dead,faction:'enemy'},'intermission'),neutral);
+ assert.deepEqual(planDefeatTableauPose(dead,'exploring'),neutral);
+ for(const kind of ['vanguard','ranger','mystic'])
+  assert.ok(Object.values(planDefeatTableauPose({...dead,kind},'intermission')).every(Number.isFinite));
+});

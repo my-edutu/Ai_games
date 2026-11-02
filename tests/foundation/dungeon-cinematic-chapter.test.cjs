@@ -216,3 +216,38 @@ test('real Oathguard cover gets a close two-hero shot; history, remote ally, and
  s.bossWarning={attackTick:s.tick+1,cells:[{x:10,z:9}],shape:'NOVA',axis:'EAST_WEST'};
  assert.equal(planCinematicShot(s).mode,'warden-warning');
 });
+
+test('real Warden exposure, cleared portal and total-party intermission form an honest filmable arc',async()=>{
+ const {planCinematicShot,planReadableExpeditionLens}=await planner(),s=scene();
+ s.bossRecovery={remaining:2,untilTick:s.tick+2};s.guardianWard=false;
+ const original=JSON.stringify(s),opened=planCinematicShot(s);
+ assert.equal(opened.mode,'warden-exposed');
+ assert.deepEqual(opened.subjects,['ranger','warden']);
+ assert.ok(planReadableExpeditionLens(opened).offsets[1]<8.35);
+ assert.equal(JSON.stringify(s),original,'camera must never mutate game authority');
+ s.bossWarning={attackTick:s.tick+1,cells:[{x:10,z:9}],shape:'NOVA'};
+ assert.equal(planCinematicShot(s).mode,'warden-warning','true danger takes priority');
+ delete s.bossWarning;delete s.bossRecovery;
+ for(const e of s.units.filter(u=>u.faction==='enemy'))e.hp=0;
+ s.exit={x:10,z:9};
+ assert.equal(planCinematicShot(s).mode,'portal-descent');
+ s.units.find(u=>u.id==='cultist').hp=10;
+ assert.notEqual(planCinematicShot(s).mode,'portal-descent','living hostiles block fake exit');
+ for(const e of s.units.filter(u=>u.faction==='enemy'))e.hp=0;
+ for(const h of s.units.filter(u=>u.faction==='party')){h.hp=0;h.action='hurt';h.actionTick=s.tick;}
+ s.phase='intermission';
+ const end=planCinematicShot(s,null,{width:390,height:844});
+ assert.equal(end.mode,'last-stand');assert.equal(end.subjects.length,3);
+ assert.equal(end.warning,false);
+ assert.ok(planReadableExpeditionLens(end,{width:390,height:844}).portrait);
+ s.phase='exploring';
+ assert.equal(planCinematicShot(s),null,'an unverified wipe cannot fake a terminal scene');
+});
+test('defeat film grammar is wired to the physical renderer and accessible result, not an invented cinematic',()=>{
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ const css=fs.readFileSync(path.join(root,'public/ai-dungeon/styles.css'),'utf8');
+ assert.match(app,/planDefeatTableauPose\(a\.u,state\.phase\)/);
+ assert.match(app,/lastStandBodies:/);
+ assert.match(app,/document\.body\.dataset\.epilogue/);
+ assert.match(css,/body\[data-epilogue=true\] \.run-result/);
+});
