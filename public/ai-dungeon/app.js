@@ -639,6 +639,7 @@ function renderDashboard(s){
  const remaining=s.units.filter(u=>u.faction==='enemy'&&u.hp>0).length;
  $('depth-fill').style.width=Math.max(8,Math.min(100,100-(remaining/(s.units.filter(u=>u.faction==='enemy').length||1)*92)))+'%';
  const bossStrip=$('boss-strip');bossStrip.hidden=!nearBoss;
+ document.body.dataset.wardenFocus=nearBoss?'true':'false';
  if(boss){const percent=Math.max(0,Math.round(boss.hp/boss.maxHp*100));$('boss-hp').textContent=percent+'%';$('boss-bar').style.width=percent+'%';
   const phase=s.bossPhase||'SENTINEL',exposed=Number.isInteger(s.bossRecovery?.remaining)&&s.bossRecovery.remaining>0;
   $('boss-phase').textContent=s.bossWarning?'DODGE '+s.bossWarning.shape.replaceAll('_',' ')+' · '+(s.bossWarning.attackTick-s.tick):exposed?'EXPOSED · COUNTER +40% DAMAGE':s.guardianWard?'SEALED · '+phase:phase;
