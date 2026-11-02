@@ -2207,7 +2207,7 @@
     "biggestRemainingGap": "Inspected genuine 1440x832 Chromium exposed Warden still concealing most of the sole living Vanguard; repetitive masonry fills much of scene. This is predecessor evidence, NOT matched immutable baseline A/B.",
     "currentWork": "Inspect new real desktop/mobile exposed counter/telegraph, correct visual overlap and frame starvation; film organic seeded traverse→combat→Warden→floor→defeat/restart with original WebAudio, performance and three independent masked looks/feels/plays critics; keep draft unmerged.",
     "candidateCommit": "fe40fca06cdeac273f766dd04d653b654a9e6326",
-    "candidateArtifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41477900576/artifacts/13160601700",
+    "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
       {
@@ -3118,7 +3118,9 @@
         "performance": "UNVERIFIED mobile FPS/p95/p99 and continuous scene.",
         "gate": "IN_PROGRESS / NOT_TRANSFORMED",
         "next": "Inspect new real desktop/mobile exposed counter/telegraph, correct visual overlap and frame starvation; film organic seeded traverse→combat→Warden→floor→defeat/restart with original WebAudio, performance and three independent masked looks/feels/plays critics; keep draft unmerged.",
-        "stagedSourceCommit": "fe40fca06cdeac273f766dd04d653b654a9e6326"
+        "stagedSourceCommit": "fe40fca06cdeac273f766dd04d653b654a9e6326",
+        "realAfterArtifact": null,
+        "authenticPriorBrowserLabel": "PREDECESSOR only; this is not candidate AFTER"
       }
     ]
   }
