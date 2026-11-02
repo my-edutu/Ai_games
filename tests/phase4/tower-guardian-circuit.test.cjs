@@ -77,3 +77,39 @@ test('health and true windup drive real bounded 3D rail geometry; stale, termina
   effect.update(first);
   assert.equal(effect.group.visible, false);
 });
+
+test('guardian-to-cap gantry stays outside tower core and physically retracts source HP lock bolts', async () => {
+  const { createTowerGuardianCircuit } = await modulePromise;
+  const effect = createTowerGuardianCircuit(THREE);
+  const initial = snapshot({ enemies: [{ ...snapshot().enemies[0], health: 8 }] });
+  effect.update(initial);
+  const rails = effect.group.getObjectByName('GuardianLockTwinBronzeRails');
+  const bolts = effect.group.getObjectByName('GuardianCapSourceLockBolts');
+  assert.ok(bolts, 'real guardian gate must have an architectural lock at its actual cap anchor');
+  assert.equal(bolts.count, 8);
+  assert.equal(bolts.material.depthTest, true);
+  const matrix = new THREE.Matrix4();
+  rails.getMatrixAt(10, matrix);
+  const middle = new THREE.Vector3().setFromMatrixPosition(matrix);
+  assert.ok(Math.hypot(middle.x, middle.z) > 29,
+    'the physical conduit must arch OUTSIDE the occluding cylindrical stage, not disappear into masonry');
+  bolts.getMatrixAt(0, matrix);
+  const closed = new THREE.Vector3().setFromMatrixPosition(matrix);
+  assert.ok(Math.hypot(closed.x, closed.z) > 27.25,
+    'cap bolts must stand outside the opaque tower core');
+  const damaged = snapshot({
+    tick: 45,
+    enemies: [{ ...initial.enemies[0], health: 2 }],
+  });
+  effect.update(damaged);
+  bolts.getMatrixAt(0, matrix);
+  const opened = new THREE.Vector3().setFromMatrixPosition(matrix);
+  assert.ok(opened.distanceTo(closed) > .6,
+    'true guardian HP loss must visibly retract the mechanical lock');
+  assert.equal(effect.diagnostics().lockBolts, 8);
+  assert.equal(effect.diagnostics().maxExtraDraws, 5);
+  effect.update(damaged, { stale: true });
+  assert.equal(bolts.count, 0, 'stale streams cannot retain authoritative-looking lock teeth');
+  effect.dispose();
+  assert.equal(effect.group.children.length, 0);
+});
