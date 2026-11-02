@@ -294,7 +294,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[]){
  const sceneMetrics={clearedForeground:0,clearedWeatheredPieces:0,clearedCapstones:0,matrixWrites:{facade:0,weathered:0,capstone:0}};
  const matrix=new THREE.Matrix4(),p=new THREE.Vector3(),q=new THREE.Quaternion(),scale=new THREE.Vector3();
  const yAxis=new THREE.Vector3(0,1,0),blockedFaces=new Uint8Array(wallFaces.length);
- function cutaway(subjects,camera){
+ function cutaway(subjects,camera,wallPad=2.1){
   if(!facadeMesh)return;
   // World cladding, banners, stained-glass windows and statuary share the
   // multi-hero camera clearance, instead of tracking only the focus actor.
@@ -302,7 +302,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[]){
   const obscures=(x,z,pad)=>planPartyWallReveal(x,z,eyes,camera,pad)!=='none';
   let cleared=0,facadeMatrixWrites=0,weatheredChanged=false;q.identity();
   for(let i=0;i<wallFaces.length;i++){
-   const f=wallFaces[i],reveal=planPartyWallReveal(f[0],f[2],eyes,camera,2.1);
+   const f=wallFaces[i],reveal=planPartyWallReveal(f[0],f[2],eyes,camera,wallPad);
    const blocked=reveal!=='none';
    const blockedBand=Number(blocked);
    if(blockedFaces[i]!==blockedBand){weatheredChanged=true;blockedFaces[i]=blockedBand;}
@@ -359,7 +359,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[]){
   sceneMetrics.matrixWrites.facade=facadeMatrixWrites;
   sceneMetrics.matrixWrites.weathered=weatheredMatrixWrites;
   for(const group of foregroundGroups){
-   const blocked=obscures(group.position.x,group.position.z,2.1);
+   const blocked=obscures(group.position.x,group.position.z,wallPad);
    group.visible=!blocked;if(blocked)cleared++;
   }
   sceneMetrics.clearedForeground=cleared;
