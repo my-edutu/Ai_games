@@ -2,12 +2,40 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { pathToFileURL } = require('node:url');
+
+// The browser resolves /maze/vendor/*.js from its explicit HTTP asset routes.
+// Node's focused suite has no public/vendor directory, so load the IDENTICAL
+// authored world and exact installed Three build from a disposable ESM tree.
+// Do not rewrite game source, stub Three, or relax the geometric assertions.
+async function loadRealWorld() {
+  const root = path.resolve(__dirname, '../..');
+  const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'maze-physical-world-'));
+  const source = path.join(root, 'public/ai-maze-escape');
+  const vendor = path.join(root, 'node_modules/three/build');
+  try {
+    fs.mkdirSync(path.join(temp, 'vendor'));
+    fs.writeFileSync(path.join(temp, 'package.json'), '{"type":"module"}');
+    for (const file of ['world.js', 'gate-moment.mjs'])
+      fs.copyFileSync(path.join(source, file), path.join(temp, file));
+    for (const file of ['three.module.js', 'three.core.js'])
+      fs.copyFileSync(path.join(vendor, file), path.join(temp, 'vendor', file));
+    const world = await import(pathToFileURL(path.join(temp, 'world.js')).href);
+    return { world, cleanup: () => fs.rmSync(temp, { recursive: true, force: true }) };
+  } catch (error) {
+    fs.rmSync(temp, { recursive: true, force: true });
+    throw error;
+  }
+}
 
 // Source-bound 3D geometry acceptance. These districts must be physical,
 // instanced masonry built exclusively from already-disclosed coordinates.
 test('public terraces have distinct sculpted clay/tide masonry without hidden construction', async () => {
-  const { createMazeWorld, cellHeight } =
-    await import('../../public/ai-maze-escape/world.js');
+  const { world: module, cleanup } = await loadRealWorld();
+  const { createMazeWorld, cellHeight } = module;
   const width = 3, height = 9;
   const known = [1, 10, 19].map(cell => ({
     cell, neighbors: [], blocked: false, trap: false,
@@ -57,5 +85,6 @@ test('public terraces have distinct sculpted clay/tide masonry without hidden co
   } finally {
     world.dispose();
     empty.dispose();
+    cleanup();
   }
 });
