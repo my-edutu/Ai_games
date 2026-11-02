@@ -10,17 +10,17 @@
   "candidate": {
     "sha": null,
     "title": "Same open 3D ascent → source-directed landing/real combat → HP-operated guardian gate → result/intermission/restart; actual game quality unassessed",
-    "implementationSha": "c87f265a5aec98b8a048ff526a85b0a8635ee2b1",
-    "implementationEvidenceStatus": "ACTUAL GAME SOURCE only (not independent quality): exterior arched guardian-to-cap bronze linkage now stays outside opaque tower core; eight original instanced cap bolts physically retract on real guardian HP loss. Source-owned, bounded depth-tested architecture; no gameplay/replay/HUD change. Historical technical safety pass 41430973762 at prior 5d9466 only. Current exact gameplay source c87f265 technical workflow 41433172074 PENDING and normal-speed native desktop/portrait recording 41433172141 IN PROGRESS at inspection; frozen baseline outcome 41430788717 FAILED both viewports. 0/5 real blind reviews in each LOOKS/FEELS/PLAYS, no supported-device p50/p95/p99/memory. NOT EVALUATED."
+    "implementationSha": "e24830807b31e272122222811d7000c59c6ba062",
+    "implementationEvidenceStatus": "UNVERIFIED ACTUAL GAME SOURCE: the camera now focuses on the SAME source-HP-driven exterior cap lock geometry used by the live 3D bolt renderer, not a recessed inner-cap target that could hide the visual payoff. Tests for physical lock/camera source congruence added through head 578b3fc6babdf0e11ce1fb6664c25db26c72539a. Normal-speed desktop/portrait source-pinned clips https://github.com/my-edutu/Ai_games/actions/runs/41437316222 pending at inspection; frozen baseline outcome remains incomplete. Independent blind LOOKS/FEELS/PLAYS 0/5 each; supported-device frame-time p50/p95/p99 and memory not collected. NOT EVALUATED."
   },
   "currentTransformation": {
     "title": "Same continuous playable 3D climb → visible real AI route decision and touchdown → high-stakes guardian machinery → source-authentic ending/restart",
-    "state": "SAME TRANSFORMATION OPEN — EXTERIOR GUARDIAN/CAP CAUSAL MECHANISM + EXISTING ASCENT/ENDING; LOOKS/FEELS/PLAYS NOT EVALUATED",
+    "state": "SAME TRANSFORMATION OPEN — REAL GUARDIAN HP AND EXTERIOR CAP LOCK SHARE 3D CAMERA COMPOSITION; LOOKS / FEELS / PLAYS NOT EVALUATED",
     "promise": "The actual Three.js game continues to link authoritative ascent, original skinned character, true guardian attacks/armor and HP-driven machinery, and source-witnessed gate passage. A real ended run now additionally changes the climber's skinned physical pose by actual result kind (nonlethal kneel vs stopped upright vs genuine death), frames an eight-instance source-earned-floor stone memorial on the exterior of the physical tower, and uses its existing source-directed lights and outside-core camera on desktop and portrait. No synthetic victories, enemy kills, routes, collisions, clocks, snapshots, replay authority or in-game HUD elements were added. This is source implementation, not visually verified gameplay improvement. Current AI-chosen platform route also gets one original, depth-tested exterior marker batch that yields to actual combat/windup and clears across terminal/recovery; it does not predict a physics trajectory or guarantee success. This is still source implementation rather than independently demonstrated experience improvement. A new physical deck-depth cue now follows only the present overlapping source platform under the climber's real feet: grounded shadow tightens, an airborne footprint softens and spreads with true vertical clearance, and actual moving decks update without any predicted landing. It remains invisible on death, stale source and terminal/restart. It uses one depth-tested procedural quad, no new game rules or HUD, and awaits real-video inspection. In the same high-stakes slice the live guardian's true HP and telegraph are now tied to an original, depth-tested 3D heavy bronze circuit reaching the existing source cap gate. Both rails physically widen with genuine guardian damage, complementing its skinned armor, motion, camera and HP-operated gate. No future action, fake hit, new collider or extra HUD is created; real continuous viewer experience still unreviewed.",
-    "nextDecision": "Inspect real WebM and motion/source-trace artifacts from current source gameplay run https://github.com/my-edutu/Ai_games/actions/runs/41433172141 (c87f265) against frozen baseline 1731b380851162741761c5569e2bc152a0869ca9; compare matching seed+viewport+quality AND source event tick/floor/guardian HP (same clock second alone isn't matched play). Check whether elevated arch, eight source HP-retracting lock bolts, skinned guardian/climber, cap and camera are concurrently visible at 960x600 and 390x844 with uninterrupted normal-speed >=60s per everyday ascent, danger and complete outcome/restart. The baseline's result remains one 50ms fixed tick; do not fake a frame, freeze, stretch time or alter baseline. Check exact-head safety 41433172074, fix any CI veto. Obtain five independent blinded full-motion judgments EACH of LOOKS/FEELS/PLAYS (>=4/5 candidate preference), real supported-device frame-time p50/p95/p99 and memory, accessibility, replay and restoration. Worker/browser connector offline (NOT_FOUND >300s); never invent votes.",
+    "nextDecision": "Inspect exact game source e24830807b31e272122222811d7000c59c6ba062 full-motion normal-speed native desktop/portrait capture 41437316222 and compare to frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 with state/event-aligned guardian HP and route contexts; do not mistake source camera diagnostics for raster evidence. Check source lock, guardian/climber silhouettes and cap simultaneously, correct any visual crop, shadow, route or feel regression. Complete authentic 50ms frozen terminal/intermission/restart remains unresolved. Obtain 5 independent blind full-motion reviews of each pillar (4/5 preference required), and hardware frame-time tails, memory, replay, accessibility/recovery before any verdict. Exact-head technical workflow 41437696799 queued; safety not experience.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Actual old phone/desktop clips show real HP attrition and guardian action but did not reliably show mechanical cap relationship. New outward-arched real-world bronze link plus eight HP-retracting lock clamps must be checked in exact-source 60+s normal-speed desktop and portrait footage for legibility, occlusion, actor crop and performance. Frozen baseline real result lasts ~50ms and both outcome recordings 41430788717 still fail complete VISIBLE terminal/intermission/restart; source trace isn't raster proof. Scenarios not source-event-aligned for fair A/B; genuine blind independent critiques 0/5 each LOOKS/FEELS/PLAYS. Supported-device p50/p95/p99, memory, exact c87f265 CI, accessibility/replay/recovery outstanding. NOT EVALUATED.",
-    "unverifiedImplementationBranchHead": "c1b275cc1ee0b3d261577d0a1b32f81c4135abc6"
+    "biggestRemainingExperienceGap": "The actual guardian's HP-connected exterior lock was positioned at radius 27.78 while the combat camera focused on a recessed radius-21.8 cap; this source mismatch is now removed in live game code, but a full-motion current-SHA video has NOT proved both protagonist, antagonist and the unlocking gate read in one convincing mobile encounter. Frozen baseline complete visible outcome/restart remains missing because its result lasts 50ms. Blind critics remain 0/5 per pillar; source-event aligned A/B, hardware tails and device memory outstanding; NOT EVALUATED.",
+    "unverifiedImplementationBranchHead": "578b3fc6babdf0e11ce1fb6664c25db26c72539a"
   },
   "scenarios": [
     {
@@ -60,11 +60,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Historical actual source 64456fe safety CI 41429699176 FAILED 4/737 due three VM missing factory imports and stale assertion; fixtures repaired 94e87d7. Technical workflow 41430973762 PASSED prior head 5d9466. Current changed gameplay source c87f265 exact-source workflow 41433172074 PENDING at last inspection; MUST pass before any safety promotion, and technical success never awards experience quality.",
-    "replay": "NOT VERIFIED on newest gameplay source c87f265: source-pin live browser evidence, real supported-device checks required. Historical CI not an experience pass.",
-    "accessibility": "NOT VERIFIED on newest gameplay source c87f265: source-pin live browser evidence, real supported-device checks required. Historical CI not an experience pass.",
-    "performance": "NOT VERIFIED on newest gameplay source c87f265: source-pin live browser evidence, real supported-device p50/p95/p99 frame-time and memory required. Historical CI not an experience pass.",
-    "stability": "NOT VERIFIED on newest gameplay source c87f265: source-pin live browser evidence, real supported-device checks required. Historical CI not an experience pass."
+    "ci": "Current exact-head safety 578b3fc6babdf0e11ce1fb6664c25db26c72539a workflow https://github.com/my-edutu/Ai_games/actions/runs/41437696799 QUEUED at inspection. Previous 53482efa safety workflow 41435668838 SUCCESS, on earlier gameplay, not this patch. A technical PASS never awards experience quality.",
+    "replay": "NOT VERIFIED at current playable source e24830807b31e272122222811d7000c59c6ba062; no passing current exact-head full-game evidence, and technical checks cannot award Gauntlet quality.",
+    "accessibility": "NOT VERIFIED at current playable source e24830807b31e272122222811d7000c59c6ba062; no passing current exact-head full-game evidence, and technical checks cannot award Gauntlet quality.",
+    "performance": "NOT VERIFIED at current playable source e24830807b31e272122222811d7000c59c6ba062; no passing current exact-head full-game evidence, and technical checks cannot award Gauntlet quality. Supported-device p50/p95/p99 frame times and memory not measured.",
+    "stability": "NOT VERIFIED at current playable source e24830807b31e272122222811d7000c59c6ba062; no passing current exact-head full-game evidence, and technical checks cannot award Gauntlet quality."
   },
   "unresolvedCriticalIssues": null,
   "benchmark": {
@@ -147,11 +147,11 @@
         }
       }
     },
-    "newImplementationSha": "c87f265a5aec98b8a048ff526a85b0a8635ee2b1",
+    "newImplementationSha": "e24830807b31e272122222811d7000c59c6ba062",
     "newImplementationRecorded": "Source c87f265 raised exterior guardian-to-cap gantry and source HP-retractable cap lock teeth not yet watched in current-source normal-speed WebM. Workflow 41433172141 in progress at first inspection. Historical real 41430788717 produced 6/7 scoped jobs but frozen baseline outcome failed. No genuine blind A/B or supported device results.",
     "reviewPath": "docs/reviews/2026-11-02-tower-pr68-exterior-guardian-gantry-continuation.md",
-    "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41433172141",
-    "followupStatus": "PENDING EXACT GAME SOURCE c87f265 960x600 and 390x844 normal-speed real clips, mobile composition and guardian source-event match. Frozen baseline 50ms visible result+restart not yet captured. Independent worker/browser unavailable; quality NOT EVALUATED.",
+    "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41437316222",
+    "followupStatus": "PENDING real normal-speed native 960x600 and 390x844 video at source e24830807b31e272122222811d7000c59c6ba062 for baseline/candidate ascent/danger/outcome; not inspected, not a score. Earlier 41435146045 (source 8c860058) was 6/7 scoped recording jobs and failed frozen-baseline outcome. Latest safety 41437696799 queued. Independent browser/critic worker tunnel unavailable; NO votes or supported-device measurements.",
     "matchedCaptureSettings": {
       "seed": "tower-transformation-capture-v1",
       "sourceBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
@@ -438,6 +438,44 @@
       },
       "supportedHardware": "NOT MEASURED p50/p95/p99, memory; source CI renderer intervals are not device FPS.",
       "reviewerBlocker": "NOT_FOUND workspace tunnel disconnected >300 seconds; no browser or fresh-context blind agent access.",
+      "quality": "NOT EVALUATED"
+    },
+    "latestExteriorLockCamera": {
+      "playableSourceSha": "e24830807b31e272122222811d7000c59c6ba062",
+      "safetyHeadAtInspection": "578b3fc6babdf0e11ce1fb6664c25db26c72539a",
+      "branch": "feat/tower-transformation-gauntlet-20261101",
+      "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "change": "Physical renderer and source-observed combat camera now share one actual HP-driven exterior cap-lock stage including original eight bronze bolt transforms; source antagonist ID matches camera contact, no hidden inner 21.8-radius cap passed as visibly framed, existing hero/guardian silhouette veto retained. Diagnostics now state actual exterior lock location/release without claiming raster visibility.",
+      "realFullMotionCapture": {
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/41437316222",
+        "status": "QUEUED/PENDING at inspection: no watched or independent normal-speed candidate video"
+      },
+      "olderCapture": {
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/41435146045",
+        "candidateSourceSha": "8c8600580418dafe31808daf570fff5c709e46eb",
+        "outcome": "6/7 scoped jobs passed; frozen-baseline result/intermission/restart failed desktop and portrait despite 3-4 source run transitions"
+      },
+      "candidateClips": {
+        "ascent": null,
+        "danger": null,
+        "outcome": null
+      },
+      "independentVotes": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "supportedDevice": {
+        "frameTimeP50": null,
+        "frameTimeP95": null,
+        "frameTimeP99": null,
+        "memory": null
+      },
+      "exactHeadSafety": {
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/41437696799",
+        "status": "QUEUED when inspected; do not infer pass"
+      },
+      "independentWorkerBlocker": "NOT_FOUND: tunnel-client offline >300s; live browser and critic subagents unavailable",
       "quality": "NOT EVALUATED"
     }
   }
