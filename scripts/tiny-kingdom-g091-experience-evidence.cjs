@@ -26,7 +26,7 @@ const gpuArgs=['--enable-webgl','--use-gl=angle','--use-angle=swiftshader',
  '--enable-precise-memory-info'];
 
 const evidence={
- version:'g146-film-real-visible-workers-and-screen-coverage-v1',
+ version:'g149-matched-dawn-day-night-physical-market-life-v1',
  baselineSha:BASE,candidateSha:null,baselineBlob:null,candidateBlob:null,
  renderer:'UNVERIFIED',status:'INCOMPLETE',workdayTicks:null,
  camera:{wide,labor,grown,marketView},viewport,
@@ -241,6 +241,12 @@ async function stage(label,html,browser,matchedTicks){
   await advanceTicks(page,120*24*30+5*30);
   result.day120=await cameraAndScreenshot(page,grown,label+'/day120-wide.png');
   result.marketDay120=await cameraAndScreenshot(page,marketView,label+'/market-day120.png');
+  result.marketDaytime=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   return typeof g.getMarketOperatingAudit==='function'?g.getMarketOperatingAudit():null;
+  });
+  if(label==='candidate')
+   assert(result.marketDaytime?.openFraction>.99,'G149 real midday market shutters did not open');
   await page.evaluate(()=>window.__tinyKingdom.setHudMode('full'));
   await page.setViewportSize({width:390,height:844});
   await page.waitForTimeout(1000);
@@ -349,6 +355,13 @@ async function stage(label,html,browser,matchedTicks){
   // This captures the baseline's overnight work next to the candidate's
   // genuine household homecoming without hiding or replacing any villager.
   await advanceTicks(page,11*30);
+  result.marketNight=await cameraAndScreenshot(page,marketView,label+'/day120-market-night-mobile.png',true);
+  result.marketNightAudit=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   return typeof g.getMarketOperatingAudit==='function'?g.getMarketOperatingAudit():null;
+  });
+  if(label==='candidate')
+   assert(result.marketNightAudit?.openFraction<.01,'G149 genuine nighttime shops stayed physically open');
   result.night=await cameraAndScreenshot(page,grown,label+'/day120-night-mobile.png',false);
   result.nightSociety=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
@@ -369,6 +382,7 @@ async function stage(label,html,browser,matchedTicks){
   // inspect actually occupied windows, not mistake commuters for hearths.
   await advanceTicks(page,5*30);
   result.overnight=await cameraAndScreenshot(page,grown,label+'/day120-overnight-04-mobile.png',false);
+  result.marketOvernight=await cameraAndScreenshot(page,marketView,label+'/day120-market-overnight-04-mobile.png',true);
   result.overnightSociety=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
    return typeof g.getDailyRhythmAudit==='function'?{
@@ -625,6 +639,8 @@ async function streetMotion(browser,html,snapshot){
    'Day120 A/B must use identical simulated time');
   assert.equal(c.result.night.simulatedHour,b.result.night.simulatedHour,
    'Night homecoming A/B must use identical simulated time and seed');
+  assert.equal(c.result.marketNight.simulatedHour,b.result.marketNight.simulatedHour,
+   'G149 matched night market view must use identical hour and seed');
   assert.equal(c.result.overnight.simulatedHour,b.result.overnight.simulatedHour,
    '04:00 occupied-home A/B must use identical real simulation time');
   // Real, unedited matched-hour gameplay. Recreate read-only staged snapshots
@@ -648,6 +664,10 @@ async function streetMotion(browser,html,snapshot){
    // real pointer orbit/zoom. No screenshots or mock animation substituted.
    evidence.videos.candidateMarket=await motion(browser,candidate,cSnapshot,'candidate-market',false,marketView);
    evidence.videos.baselineMarket=await motion(browser,baseline,bSnapshot,'baseline-market',false,marketView);
+   evidence.videos.candidateNightMarket=await motion(browser,candidate,c.homecomingSnapshot,
+    'candidate-market-night',false,marketView);
+   evidence.videos.baselineNightMarket=await motion(browser,baseline,b.homecomingSnapshot,
+    'baseline-market-night',false,marketView);
   // Real, continuous gameplay from a reproducible physical delivery state,
   // without faking agents, fast-forwarding within footage, or matching an
   // unavailable G088 delivery mechanic.
