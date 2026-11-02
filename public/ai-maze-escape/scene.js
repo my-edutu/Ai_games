@@ -2,7 +2,7 @@ import * as THREE from './vendor/three.module.js';
 import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
-import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicLandscapeGuardianHalfHeight, publicGateOpeningCameraCue } from './map-view.mjs';
+import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicGateOpeningCameraCue } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -46,6 +46,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   // A mild +X-side view keeps the same raised diorama and visible front seal.
   const sealedGateCameraOffset = new THREE.Vector3(20, 21, 14);
   const cameraOffset = followCameraOffset.clone();
+  const portraitCameraOffset = followCameraOffset.clone(); // reuse; never allocate in a render frame
   const world = createMazeWorld({ balanced });
   scene.add(world.group);
 
@@ -477,6 +478,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     let openingKeyedBeat = false;
     let keyLockCloseup = false;
     let cameraAimLift = 0;
+    let portraitEncounterOrbit = 0;
     if (cameraMode === 'overview') {
       const positions = s.cells.map(cell => cellPosition(cell.cell, s.width, s.height));
       const minX = Math.min(...positions.map(p => p.x)), maxX = Math.max(...positions.map(p => p.x));
@@ -567,12 +569,17 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           // The real 390px WebGL Follow image exposed a clipped Thornback sail:
           // a guardian eye in view is not a complete model. Center the two
           // AUTHORED outlines before deciding the safe shared camera span.
+          portraitEncounterOrbit=publicPortraitGuardianOrbitAngle(
+            aspect,closestThreat.strength,pose,closestThreat,settings.reducedMotion);
+          const sine=Math.sin(portraitEncounterOrbit), cosine=Math.cos(portraitEncounterOrbit);
+          portraitCameraOffset.set(15*cosine-18*sine,21,15*sine+18*cosine);
           const balance=publicPortraitGuardianBalance(
-            aspect,closestThreat.strength,pose,closestThreat,desiredTarget);
+            aspect,closestThreat.strength,pose,closestThreat,desiredTarget,portraitCameraOffset);
           desiredTarget.x+=balance.x;
           desiredTarget.z+=balance.z;
           targetHeight = publicPortraitGuardianHalfHeight(
-            aspect,targetHeight,closestThreat.strength,pose,closestThreat,desiredTarget,cameraTarget);
+            aspect,targetHeight,closestThreat.strength,pose,closestThreat,
+            desiredTarget,cameraTarget,portraitCameraOffset,cameraOffset);
           // The strict portrait outline gate is unchanged. Only actual
           // wide-screen close public encounters earn a more legible physical
           // actor-pair shot instead of little figures in excess sea. The new
@@ -620,7 +627,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     camera.updateProjectionMatrix();
     // Rotate only the visual camera toward the side of a disclosed obstruction.
     // Smooth it back after leaving; never alter the simulation or private map.
-    cameraOffset.lerp(cameraGate ? sealedGateCameraOffset : followCameraOffset, blend);
+    cameraOffset.lerp(cameraGate ? sealedGateCameraOffset
+      : portraitEncounterOrbit ? portraitCameraOffset : followCameraOffset, blend);
     camera.position.copy(cameraTarget).add(cameraOffset); camera.lookAt(cameraTarget);
     const background = settings.highContrast ? '#50665f' : '#b2c6b6';
     scene.background.set(background); scene.fog.color.set(background);
@@ -779,6 +787,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         // with projected coordinates in normalized device space [-1,+1].
         nearbySealedGate: nearObservedGate ? {...nearObservedGate} : null,
         cameraHalfHeight: halfHeight,
+        cameraOrbitRadians: Math.atan2(Math.sin(Math.atan2(cameraOffset.z,cameraOffset.x)-Math.atan2(18,15)),
+          Math.cos(Math.atan2(cameraOffset.z,cameraOffset.x)-Math.atan2(18,15))),
         pickupCameraBeat, pickupCameraTargetHalfHeight: pickupCameraBeat ? targetHeight : null,
         cameraAspect: aspect, cameraHorizontalHalfSpan: halfHeight * aspect,
         cameraOffset: {x: cameraOffset.x, y: cameraOffset.y, z: cameraOffset.z},

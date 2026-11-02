@@ -93,31 +93,62 @@ export function publicFullBleedFollowHalfHeight(aspect, selectedHalfHeight) {
  * The correction only pans the FOLLOW camera; it never moves game objects,
  * reveals private topology, or directs either autonomous character.
  */
-export function publicPortraitGuardianBalance(aspect, attention, hero, guardian, focus) {
+/**
+ * A disclosed, nearby hero/guardian pair may be staged from a slightly
+ * different physical azimuth on a motion-enabled portrait. Look along the
+ * *already public* actor separation, never hidden topology or a future route.
+ * Limit rotation to 0.55 rad, preserve the usual shot for reduced motion,
+ * unknown threats, all landscapes, Detail/Overview and terminal results.
+ * Pure and allocation-free: each public snapshot yields the same angle.
+ */
+export function publicPortraitGuardianOrbitAngle(aspect, attention, hero, guardian, reducedMotion=false) {
+  if (reducedMotion || !(Number.isFinite(aspect)&&aspect>=.35&&aspect<.60)
+    || !(Number.isFinite(attention)&&attention>.30)
+    || ![hero?.x,hero?.z,guardian?.x,guardian?.z].every(Number.isFinite))
+    return 0;
+  const dx=guardian.x-hero.x, dz=guardian.z-hero.z;
+  if (Math.hypot(dx,dz)<.3) return 0;
+  const baseline=Math.atan2(18,15);
+  const bearing=Math.atan2(dz,dx);
+  let turn=Math.atan2(Math.sin(bearing-baseline),Math.cos(bearing-baseline));
+  // Facing either end of the public actor axis minimizes their lateral span;
+  // use the nearest orientation, never a sudden half-turn.
+  if (turn>Math.PI/2) turn-=Math.PI;
+  if (turn< -Math.PI/2) turn+=Math.PI;
+  return clamp(turn*clamp((attention-.30)/.26,0,1),-.55,.55);
+}
+
+export function publicPortraitGuardianBalance(aspect, attention, hero, guardian, focus, view={x:15,z:18}) {
   const neutral={x:0,z:0};
   if (!(Number.isFinite(aspect) && aspect>=.35 && aspect<.60)
     || !(Number.isFinite(attention) && attention>0)
-    || ![hero?.x,hero?.z,guardian?.x,guardian?.z,focus?.x,focus?.z].every(Number.isFinite))
+    || ![hero?.x,hero?.z,guardian?.x,guardian?.z,focus?.x,focus?.z,view?.x,view?.z].every(Number.isFinite))
     return neutral;
-  const length=Math.hypot(18,15);
-  const screenX=p=>((p.x-focus.x)*18-(p.z-focus.z)*15)/length;
+  const length=Math.hypot(view.x,view.z);
+  if (!(length>0)) return neutral;
+  const screenX=p=>((p.x-focus.x)*view.z-(p.z-focus.z)*view.x)/length;
   const heroCenter=screenX(hero), guardianCenter=screenX(guardian);
   // Authored physical envelope reserves: helmet/scarf 1.10, shell/claws/sails 1.80.
   // A pure midpoint left the actual native 390px guardian sail cropped at 1.004 NDC.
   const min=Math.min(heroCenter-1.10,guardianCenter-1.80);
   const max=Math.max(heroCenter+1.10,guardianCenter+1.80);
   const shift=clamp((min+max)*.5,-.55,.55);
-  return {x:shift*18/length,z:-shift*15/length};
+  return {x:shift*view.z/length,z:-shift*view.x/length};
 }
 
-export function publicPortraitGuardianHalfHeight(aspect, fullBleedHeight, attention, hero, guardian, focus, previousFocus=focus) {
+export function publicPortraitGuardianHalfHeight(aspect, fullBleedHeight, attention, hero, guardian,
+  focus, previousFocus=focus, view={x:15,z:18}, previousView=view) {
   const base=Number.isFinite(fullBleedHeight)&&fullBleedHeight>0?fullBleedHeight:7.3;
   if (!(Number.isFinite(aspect)&&aspect>=.35&&aspect<.60)
     || !(Number.isFinite(attention)&&attention>0)
-    || ![hero?.x,hero?.z,guardian?.x,guardian?.z,focus?.x,focus?.z,previousFocus?.x,previousFocus?.z].every(Number.isFinite))
+    || ![hero?.x,hero?.z,guardian?.x,guardian?.z,focus?.x,focus?.z,
+      previousFocus?.x,previousFocus?.z,view?.x,view?.z,
+      previousView?.x,previousView?.z].every(Number.isFinite))
     return base;
-  const viewRightLength=Math.hypot(18,15);
-  const screenX=(p,target)=>((p.x-target.x)*18-(p.z-target.z)*15)/viewRightLength;
+  if (!(Math.hypot(view.x,view.z)>0 && Math.hypot(previousView.x,previousView.z)>0))
+    return base;
+  const screenX=(p,target,offset)=>((p.x-target.x)*offset.z-(p.z-target.z)*offset.x)
+    /Math.hypot(offset.x,offset.z);
   // The actual camera focus eases toward the new public target. The entire
   // transition lies between these two targets: protecting BOTH endpoints
   // prevents an otherwise valid pair shot from cropping a real guardian
@@ -126,12 +157,16 @@ export function publicPortraitGuardianHalfHeight(aspect, fullBleedHeight, attent
   // The guardian's articulated silhouette is wider than Pip's; .94 NDC
   // leaves actual visible clearance rather than touching the viewport edge.
   // Check BOTH ends of camera easing so a formerly centered shot stays safe.
-  const pairExtent=target=>Math.max(
-    Math.abs(screenX(hero,target))+1.10,
-    Math.abs(screenX(guardian,target))+1.80);
+  const pairExtent=(target,offset)=>Math.max(
+    Math.abs(screenX(hero,target,offset))+1.10,
+    Math.abs(screenX(guardian,target,offset))+1.80);
+  // Protect both actor outlines at BOTH camera aim and azimuth endpoints.
+  // Even during rotation no model may be sacrificed to manufacture scale.
   const physicallySafeHeight=Math.max(
-    pairExtent(focus),pairExtent(previousFocus))/(aspect*.94);
-  const maximumZoom=base*(1-.16*clamp(attention,0,1));
+    pairExtent(focus,view),pairExtent(previousFocus,view),
+    pairExtent(focus,previousView),pairExtent(previousFocus,previousView))/(aspect*.94);
+  const orbiting=Math.abs(Math.atan2(view.z,view.x)-Math.atan2(18,15))>.02;
+  const maximumZoom=base*(1-(orbiting?.38:.16)*clamp(attention,0,1));
   return Math.min(base,Math.max(maximumZoom,physicallySafeHeight));
 }
 

@@ -326,6 +326,49 @@ test('portrait encounter camera grows actual actors only within genuine public f
     'renderer composition never mutates authoritative or public snapshot positions');
 });
 
+test('motion-enabled portrait orbits only a real public guardian pair while strictly fitting both physical models', async () => {
+  const {publicPortraitGuardianOrbitAngle: orbit, publicPortraitGuardianBalance: balance,
+    publicPortraitGuardianHalfHeight: fit}=await load();
+  const hero={x:-2,z:0}, guardian={x:2,z:0}, focus={x:0,z:0};
+  const state=JSON.stringify({hero,guardian,focus}), aspect=390/844, attention=.56, base=9.39;
+  const angle=orbit(aspect,attention,hero,guardian,false);
+  assert.ok(Math.abs(angle)>.3 && Math.abs(angle)<=.55,
+    'real public close encounter receives a bounded authored view rotation');
+  const view={x:15*Math.cos(angle)-18*Math.sin(angle),
+    z:15*Math.sin(angle)+18*Math.cos(angle)};
+  const neutral={x:15,z:18};
+  const projection=(p,offset)=>((p.x-focus.x)*offset.z-(p.z-focus.z)*offset.x)
+    /Math.hypot(offset.x,offset.z);
+  assert.ok(Math.abs(projection(guardian,view)-projection(hero,view))
+    <Math.abs(projection(guardian,neutral)-projection(hero,neutral))*.83,
+    'new genuine camera orientation reduces the two actors lateral separation');
+  const shift=balance(aspect,attention,hero,guardian,focus,view);
+  assert.ok(Number.isFinite(shift.x)&&Number.isFinite(shift.z),
+    'the real portrait focus is finite at the adjusted public camera heading');
+  const safe=fit(aspect,base,attention,hero,guardian,focus,focus,view,view);
+  const old=fit(aspect,base,attention,hero,guardian,focus,focus,neutral,neutral);
+  assert.ok(safe<old*.92,
+    'closer portrait pair actually increases native actor size, not just source complexity');
+  assert.ok(Math.max(Math.abs(projection(hero,view))+1.10,
+    Math.abs(projection(guardian,view))+1.80)<=safe*aspect*.94+1e-9,
+  'both fully modeled physical silhouettes still have positive frame margin');
+  const easing=fit(aspect,base,attention,hero,guardian,focus,focus,view,neutral);
+  assert.ok(easing>=safe && easing*aspect*.94>=Math.max(
+    Math.abs(projection(hero,neutral))+1.10,
+    Math.abs(projection(guardian,neutral))+1.80),
+  'camera rotation protects both old and new outlines at both transition endpoints');
+  for(const [a,level,first,other,motion] of [
+    [aspect,0,hero,guardian,false], [aspect,.56,hero,null,false],
+    [aspect,.56,hero,guardian,true], [844/390,.56,hero,guardian,false],
+    [aspect,.56,{x:NaN,z:0},guardian,false]])
+    assert.equal(orbit(a,level,first,other,motion),0,
+      'unknown, disabled, reduced-motion, landscape and invalid data cannot rotate the camera');
+  assert.equal(orbit(aspect,attention,hero,guardian,false),angle,
+    'the view remains reproducible from public facts alone');
+  assert.equal(JSON.stringify({hero,guardian,focus}),state,
+    'camera cannot mutate public simulation data');
+});
+
 test('real wide Follow guardian pair gets a larger but strictly physically safe stage', async () => {
   const {publicLandscapeGuardianHalfHeight: frame} = await load();
   const hero={x:-2,z:0}, guardian={x:2,z:0}, focus={x:0,z:0};

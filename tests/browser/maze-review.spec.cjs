@@ -471,6 +471,56 @@ test('a real close public encounter frames both autonomous actors and saves date
     }
   }
 
+  // An additional REAL 390px motion-enabled Follow frame judges portrait
+  // actor scale and occlusion, while the earlier 320/390 reduced-motion PNGs
+  // remain mandatory. Reuse the existing warm Chromium/WebGL process.
+  await expect(page.locator('body')).toHaveAttribute('data-reduced-motion','false');
+  const beforeOrbitFrames=await page.evaluate(()=>window.__MAZE_3D__?.frames??0);
+  await page.setViewportSize({width:390,height:844});
+  await page.waitForFunction(({before,tick,token})=>{
+    const d=window.__MAZE_3D__;
+    return innerWidth===390 && innerHeight===844
+      && d?.renderer==='webgl' && d?.cameraMode==='follow'
+      && d.tick===tick && d.runToken===token && d.frames>before+3
+      && d.cameraHalfHeight<8.65 && Math.abs(d.cameraOrbitRadians)>.20;
+  },{before:beforeOrbitFrames,tick:frame.snapshot.tick,token:frame.snapshot.runToken});
+  const orbitDiagnostic=await page.evaluate(()=>{
+    const d=window.__MAZE_3D__, stage=document.querySelector('#stage').getBoundingClientRect(),
+      canvas=document.querySelector('#maze').getBoundingClientRect();
+    return {renderer:d.renderer,cameraMode:d.cameraMode,
+      cameraHalfHeight:d.cameraHalfHeight,cameraOrbitRadians:d.cameraOrbitRadians,
+      guardianModelsFullyInFrame:d.guardianModelsFullyInFrame,
+      wardensInFrame:d.wardensInFrame,guardianPhysicalBounds:d.guardianPhysicalBounds,
+      explorerModelFullyInFrame:d.explorerModelFullyInFrame,
+      explorerPhysicalBounds:d.explorerPhysicalBounds,
+      disclosedThreats:d.disclosedThreats,stage:{width:stage.width,height:stage.height},
+      canvas:{width:canvas.width,height:canvas.height}};
+  });
+  const portraitOrbitPath=path.join(dir,'guardian-follow-390-motion-portrait.png');
+  await page.screenshot({path:portraitOrbitPath,fullPage:true});
+  fs.writeFileSync(path.join(dir,'guardian-follow-390-motion-portrait.json'),JSON.stringify({
+    capturedAt:new Date().toISOString(),
+    source:'Same true tick-13 guardian/Pip pair; real motion-enabled Follow camera, original Chromium/WebGL and production full-viewport HUD',
+    seed:encounter.seed,tick:frame.snapshot.tick,
+    viewport:{width:390,height:844},
+    imageSha256:hash(portraitOrbitPath),sourceSha256:nativeSourceHashes,
+    diagnostic:orbitDiagnostic,
+    caveat:'A physically rotated original 3D capture, not a mockup or independent Nintendo quality verdict.',
+  },null,2));
+  expect(orbitDiagnostic.disclosedThreats,'real public guardian, never a fabricated actor').toBeGreaterThanOrEqual(1);
+  expect(orbitDiagnostic.guardianModelsFullyInFrame,'the full guardian shell, claws and sails remain in motion-enabled portrait').toBe(orbitDiagnostic.wardensInFrame);
+  expect(orbitDiagnostic.explorerModelFullyInFrame,'Pip helmet, arms and feet remain visible in the tighter true camera').toBe(true);
+  for (const bounds of [...orbitDiagnostic.guardianPhysicalBounds,orbitDiagnostic.explorerPhysicalBounds]) {
+    expect(bounds.left,'no left-edge model cropping').toBeGreaterThan(-.94);
+    expect(bounds.right,'no right-edge model cropping').toBeLessThan(.94);
+    expect(bounds.top,'no upper guardian or hero cropping').toBeLessThan(.94);
+    expect(bounds.bottom,'no lower guardian or hero cropping').toBeGreaterThan(-.94);
+  }
+  expect(orbitDiagnostic.stage.width).toBeGreaterThan(380);
+  expect(orbitDiagnostic.stage.height).toBeGreaterThan(834);
+  expect(orbitDiagnostic.canvas.width).toBeGreaterThan(380);
+  expect(orbitDiagnostic.canvas.height).toBeGreaterThan(834);
+
   // Preserve the original desktop objective/lock captures; never move actors.
   await page.setViewportSize({width:1280,height:900});
 
