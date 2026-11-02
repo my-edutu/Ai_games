@@ -2201,12 +2201,12 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "PREVIOUS_61PX_FRAME_KNOWN_CURRENT_WARDEN_AFTER_NOT_MEASURED",
-      "latestCandidateWorkflow": "PHYSICAL_WARDEN_CHAPTER_COMMITTED_NEW_HEAD_BROWSER_UNVERIFIED"
+      "latestCandidateWorkflow": "AFTER_CONTACT_SCENE_9248799_WORKFLOW_RUNNING; exact prior e972444 Dungeon Foundation 41365087550 and visual review 41365087489 passed, but full catalogue 41365087588 failed three unrelated Tiny Kingdom browser expectations. Neither prior pass nor new implementation is accepted as an experiential win."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Stylized chibi-scale characters and repetitive surrounding masonry still fall far behind authentic action-RPG references. New 3D phase chapter screenshot/motion/audio are UNVERIFIED, as are full desktop/mobile traversal-to-restart clips, hardware p95, independent critic preference, matched BEFORE/AFTER, and direct benchmark alignment.",
-    "currentWork": "M1 physical Warden chapter candidate: authentic guard and real phase/HP now drive 28 fixed court stones opening into 18 two-batch original shallow fissures; the same boss phase and true telegraph articulate original helmet, pauldrons and heart fittings on the existing skinned GLB rig. Pending new live browser review, no transformation accepted.",
-    "candidateCommit": "8a7c3ae4083868fac2ef47f27314010f3c983a7a",
+    "biggestRemainingGap": "Genuine pre-change Chromium melee video and stills show stacked toy-proportion bodies crowded behind high rectangular walls. New live contact framing, mobile appearance and motion/audio not inspected; a complete natural autonomous run (traversal/combat/boss/next floor/defeat/restart), sustained frame measures and three blinded independent looks/feels/plays critics are still missing.",
+    "currentWork": "One open M1 transformation continues. True adjacent autonomous melee now directs weight transfer in the imported skinned GLB; active wall-clear hostile targets join the existing hero/Warden camera sightlines; physically lowered foreground masonry exposes combatants while distant room boundaries stay intact. Actual new browser outcome and blind AFTER-vs-locked-BEFORE experience verdict remain UNVERIFIED.",
+    "candidateCommit": "9248799ed1b7c6d96d0330b875ec67deecfaf846",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -2545,6 +2545,33 @@
         "experienceVerdict": "IN_PROGRESS / NOT TRANSFORMED",
         "verification": "EXACT-HEAD_REAL_BROWSER_AUDIO_MOTION_PERFORMANCE_CRITICS_UNVERIFIED",
         "next": "Inspect new real Warden phase desktop/mobile captures; fix geometry, warning visibility and contact occlusion; then deliver complete organic audiovisual scene and masked majority comparisons against pinned baseline."
+      },
+      {
+        "id": "M1-LIVE-COMBAT-CLEARANCE-20261102",
+        "date": "2026-11-02",
+        "sourceHeadAtStart": "e972444615483f9a87ab799e91eb94098ff6dcc2",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "codeCommit": "9248799ed1b7c6d96d0330b875ec67deecfaf846",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "objective": "Make existing real autonomous melee legible as a physical interaction through imported rig weight, camera-aware walls and enemy contact sightlines, rather than additive decoration.",
+        "integratedImplementation": "On current authorised one-cell skinned attacks, stage bounded original anticipation/forward drive/recovery in the rig visual pivot, aligned with true target and existing weapon hand/HP-based effects. Include only current living target along cardinal wall-clear attack lane as cutaway subject. Lower surrounding (not distant) opaque masonry and façade near the fighting party, retaining map/obstacles, original materials and camera clearance. Original CC0 assets, no external content.",
+        "changedFiles": [
+          "public/ai-dungeon/encounter-sightlines.js",
+          "public/ai-dungeon/cutaway-floor-plan.js",
+          "public/ai-dungeon/environment.js",
+          "public/ai-dungeon/character-motion-plan.js",
+          "public/ai-dungeon/model-assets.js",
+          "tests/foundation/dungeon-encounter-sightlines.test.cjs",
+          "tests/foundation/dungeon-party-visibility.test.cjs",
+          "tests/foundation/dungeon-authored-motion.test.cjs"
+        ],
+        "priorActualBrowser": "https://github.com/my-edutu/Ai_games/actions/runs/41365087550/artifacts/13107550021",
+        "previousAuthority": "https://github.com/my-edutu/Ai_games/actions/runs/41365087550",
+        "exactHeadVerification": "PENDING: new exact-head 9248799 Dungeon Foundation 41370371781, visual 41370371735 and full CI 41370371803; no new gameplay verdict or device/clip claim.",
+        "independentCritics": "NOT_RUN: worker tunnel disconnected. Zero blinded independent ratings.",
+        "originalAudioMotion": "UNVERIFIED for new code; previous source playback depicts melee without sound validation.",
+        "experienceVerdict": "IN_PROGRESS / NOT_TRANSFORMED",
+        "next": "Inspect 9248799 authentic desktop/mobile combat motion and threat framing for regressions; repair clipping/occlusion, build full real staged vertical journey and audio replay against immutable 281735d; secure 3 fresh blinded critics and measure CPU/GPU/phone performance without skipping CI/replay."
       }
     ]
   }
