@@ -45,12 +45,16 @@ test('G094 inhabited working street is unobstructed, readable and truth-preservi
   return {tour:bounds('.world-tour'),ribbon:bounds('#world-ribbon'),
     header:bounds('.brand'),status:bounds('#workday-activity'),
     documentWidth:document.documentElement.scrollWidth,
-    viewport:innerWidth,realCitizen:g.getLiveWorkdayView().citizen,
+    viewport:innerWidth,topHudHidden:getComputedStyle(document.querySelector('.top')).display==='none',realCitizen:g.getLiveWorkdayView().citizen,
     before:JSON.stringify(g.exportSnapshot()),
     glError:document.querySelector('#world').getContext('webgl')?.getError()??0};
  });
  expect(mobile.documentWidth).toBeLessThanOrEqual(390);
- expect(mobile.tour.top).toBeGreaterThanOrEqual(40);
+ // The workday documentary deliberately hides the oversized masthead; its
+ // navigation occupies the newly free top row instead of pushing into action.
+ expect(mobile.topHudHidden).toBe(true);
+ expect(mobile.tour.top).toBeGreaterThanOrEqual(8);
+ expect(mobile.tour.top).toBeLessThanOrEqual(40);
  expect(mobile.tour.bottom).toBeLessThan(145);
  expect(mobile.ribbon.top).toBeGreaterThan(390);
  expect(mobile.ribbon.right).toBeLessThanOrEqual(393);
