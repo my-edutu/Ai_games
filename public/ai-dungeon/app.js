@@ -17,6 +17,7 @@ import {planBoundaryCamera} from '/dungeon/camera-boundary-plan.js';
 import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
 import {planExpeditionStep,advanceExpeditionFootfall} from '/dungeon/expedition-locomotion-plan.js';
 import {planAuthorityDamageBeats,planDamageReaction,planDefeatTableauPose,planImpactCameraHold,DAMAGE_BEAT_DURATION,DEATH_BEAT_DURATION} from '/dungeon/impact-choreography-plan.js';
+import {planAuthorityEvasions,EVASION_BEAT_DURATION} from '/dungeon/evasion-performance-plan.js';
 import {planPostFXBudget,adaptPostFXPixelCap,postFXStallAction,isSoftwareWebGLRenderer,createFrameIntervalProbe,planDirectRenderBudget,adaptDirectRenderPixelCap} from '/dungeon/postfx-budget.js';
 import {planCombatFacing,planMovementFacing,approachCharacterYaw,shortestYawDelta} from '/dungeon/facing-plan.js';
 import {enrichCharacter} from '/dungeon/characters.js';
@@ -690,7 +691,7 @@ function renderDashboard(s){
  drawMinimap(s);
 }
 
-function update(s){const previousState=state,damageBeats=planAuthorityDamageBeats(previousState,s),firstSnapshot=!received,sceneChanged=worldFloor!==s.run+'-'+s.floor;combatOverlay.record(s,timeNow());state=s;received=true;errorAt=0;
+function update(s){const previousState=state,damageBeats=planAuthorityDamageBeats(previousState,s),evasionBeats=planAuthorityEvasions(previousState,s),firstSnapshot=!received,sceneChanged=worldFloor!==s.run+'-'+s.floor;combatOverlay.record(s,timeNow());state=s;received=true;errorAt=0;
  const oldVanguard=previousState?.units?.find(u=>u.id==='vanguard');
  const newVanguard=s.units?.find(u=>u.id==='vanguard');
  if(previousState?.run===s.run&&previousState?.floor===s.floor&&s.tick>previousState.tick&&
@@ -725,6 +726,7 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
  }
  if(breaches.length){breachDiamond.instanceMatrix.needsUpdate=true;breachSlash.instanceMatrix.needsUpdate=true;}
  const damageById=new Map(damageBeats.map(beat=>[beat.id,beat]));
+ const evadeById=new Map(evasionBeats.map(beat=>[beat.id,beat]));
  if(damageBeats.length){
   observedDamageBeats=Math.min(1000000,observedDamageBeats+damageBeats.length);
   observedFatalBeats=Math.min(1000000,observedFatalBeats+damageBeats.filter(beat=>beat.fatal).length);
@@ -739,6 +741,8 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
   const damage=damageById.get(u.id);
   if(damage)a.damageBeat={...damage,age:0};
   else if(u.hp>0&&a.damageBeat?.fatal)a.damageBeat=null;
+  if(evadeById.has(u.id))a.evasionBeat={...evadeById.get(u.id),age:0};
+  else if(sceneChanged||u.hp<=0)a.evasionBeat=null;
   if(a.u.actionTick!==u.actionTick||a.u.action!==u.action){a.actionStarted=timeNow();a.visualActionAge=0;}a.u=u;a.wardenPhase=u.kind==='warden'?s.bossPhase:null;
   a.wardenRecovery=u.kind==='warden'?s.bossRecovery:null;a.combatFacing=planCombatFacing(u,s.units,s.map);const staged=stagePoint(stagePositions,u);a.at.set(staged.x-9,0,staged.z-9);if(sceneChanged)a.root.position.copy(a.at);a.root.visible=u.hp>0||Boolean(a.damageBeat?.fatal&&a.damageBeat.age<DEATH_BEAT_DURATION)||
    Boolean(s.phase==='intermission'&&u.faction==='party'&&u.hp===0);if(a.telegraph){
@@ -748,6 +752,7 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
   }}
  combatDirector.accept(s,camera.position);
  combatDirector.recordDamage(damageBeats);
+ combatDirector.recordEvasions(evasionBeats);
  world.userData.wardenRitual?.accept(s);
  soundstage?.acceptSnapshot(s);
  if(world.userData.courtShield){
@@ -886,6 +891,8 @@ function animate(t){
   const oneShot=['attack','cast','hurt'].includes(a.u.action);
   const since=oneShot?(a.visualActionAge??0):time-(a.actionStarted??time);
   if(oneShot)a.visualActionAge=advancePresentationActionAge(since,dt);
+  if(a.evasionBeat){a.evasionBeat.age=advancePresentationActionAge(a.evasionBeat.age,dt);
+   if(a.evasionBeat.age>=EVASION_BEAT_DURATION)a.evasionBeat=null;}
   const phase=Math.max(0,Math.min(1,since/.32));
   if(a.u.action==='attack'&&since<.32){a.rightArm.rotation.x=-1.5*Math.sin(phase*Math.PI);a.body.rotation.z=.16*Math.sin(phase*Math.PI)}
   else if(a.u.action==='cast'&&since<.45){a.rightArm.rotation.x=-1.55*Math.sin(Math.min(1,since/.45)*Math.PI);a.leftArm.rotation.x=-.85;a.body.rotation.z=0}

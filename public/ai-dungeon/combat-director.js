@@ -14,7 +14,7 @@ import {createBladeRibbonGeometry,createImpactSpallGeometry,planTrueDamageCue} f
 const TINT={vanguard:'#62cbff',ranger:'#a5ff95',mystic:'#be8aff',revenant:'#ff9659',cultist:'#ff70b3',warden:'#ffbd57'};
 const PROJECTILE_LIMIT=26,IMPACT_LIMIT=24;
 const V3=(x,y,z)=>new THREE.Vector3(x-9,y,z-9);
-const shared={orb:new THREE.IcosahedronGeometry(.13,1),slash:createBladeRibbonGeometry(THREE),spall:createImpactSpallGeometry(THREE),ring:new THREE.RingGeometry(.6,.69,45),spark:new THREE.OctahedronGeometry(.07,0)};
+const shared={orb:new THREE.IcosahedronGeometry(.13,1),slash:createBladeRibbonGeometry(THREE),spall:createImpactSpallGeometry(THREE),dust:new THREE.SphereGeometry(.5,8,5),ring:new THREE.RingGeometry(.6,.69,45),spark:new THREE.OctahedronGeometry(.07,0)};
 const color=(kind)=>TINT[kind]||'#83fff0';
 const handPosition=new THREE.Vector3();
 function stagedArcFrame(source,target,from,to,life,reducedMotion,actorById=null){
@@ -47,7 +47,7 @@ function material(hex,opacity=.95){
 }
 export function createCombatDirector(scene,{reducedMotion=false,actorById=null}={}){
  const projectiles=[],impacts=[],pendingCues=[],previous=new Map();let floorKey='',shots=0,bursts=0,releasedCues=0,droppedCues=0,healingCues=0,disarmCues=0,contactLockedCues=0,suppressedUnmatchedCues=0,meleeArcs=0;
- let stagePositions=Object.create(null),trueDamageCues=0,suppressedDamageCues=0;
+ let stagePositions=Object.create(null),trueDamageCues=0,suppressedDamageCues=0,trueEvadeCues=0;
  const cleanup=e=>{scene.remove(e.mesh);e.mesh.material.dispose()};
  function ensureBound(){
   while(projectiles.length>PROJECTILE_LIMIT)cleanup(projectiles.shift());
@@ -156,6 +156,20 @@ export function createCombatDirector(scene,{reducedMotion=false,actorById=null}=
    trueDamageCues=Math.min(1000000,trueDamageCues+1);ensureBound();
   }
  }
+ // Physical touchdown grit belongs only to a witnessed one-cell escape.
+ function recordEvasions(beats){
+  if(!Array.isArray(beats))return;
+  for(const beat of beats.slice(0,3)){
+   if(!Number.isInteger(beat?.from?.x)||!Number.isInteger(beat?.from?.z)||
+    !Number.isInteger(beat.dx)||!Number.isInteger(beat.dz)||Math.abs(beat.dx)+Math.abs(beat.dz)!==1)continue;
+   const mesh=new THREE.Mesh(shared.dust,new THREE.MeshStandardMaterial({color:'#81796e',
+    roughness:1,metalness:0,transparent:true,opacity:.28,depthWrite:false}));
+   mesh.position.copy(V3(beat.from.x,.09,beat.from.z));mesh.scale.set(.31,.09,.22);
+   scene.add(mesh);impacts.push({mesh,life:0,duration:.42,mode:'evade-dust',dx:beat.dx,dz:beat.dz});
+   trueEvadeCues=Math.min(1000000,trueEvadeCues+1);
+  }
+  ensureBound();
+ }
  function animate(dt){
   dt=Number.isFinite(dt)?Math.min(.05,Math.max(0,dt)):0;
   // Follow the same bounded rendered-frame clock used by authored weapon
@@ -183,7 +197,12 @@ export function createCombatDirector(scene,{reducedMotion=false,actorById=null}=
    const effect=impacts[i];effect.life+=dt;
    if(effect.life>=effect.duration){cleanup(effect);impacts.splice(i,1);continue;}
    const t=effect.life/effect.duration;
-   if(effect.mode==='spark'){
+   if(effect.mode==='evade-dust'){
+    effect.mesh.material.opacity=.28*(1-t)*(1-t);
+    effect.mesh.position.x+=effect.dx*.18*dt/effect.duration;
+    effect.mesh.position.z+=effect.dz*.18*dt/effect.duration;
+    effect.mesh.scale.set(.31+t*.28,.09+t*.04,.22+t*.19);
+   }else if(effect.mode==='spark'){
     effect.mesh.material.opacity=.78*(1-t);
     effect.mesh.scale.setScalar(effect.startScale*(.82+.62*t));
    }else if(effect.mode==='true-hit'){
@@ -210,5 +229,5 @@ export function createCombatDirector(scene,{reducedMotion=false,actorById=null}=
   for(const p of projectiles)cleanup(p);for(const p of impacts)cleanup(p);
   projectiles.length=impacts.length=pendingCues.length=0;previous.clear();stagePositions=Object.create(null);
  }
- return{accept,recordDamage,animate,reset,stats:()=>({trueDamageCues,suppressedDamageCues,activeProjectiles:projectiles.length,activeImpacts:impacts.length,pendingCues:pendingCues.length,healingCues:healingCues,disarmCues:disarmCues,contactLockedCues:contactLockedCues,suppressedUnmatchedCues:suppressedUnmatchedCues,releasedCues:releasedCues,droppedCues:droppedCues,activeGroundRings:impacts.filter(e=>e.mode==='ring').length,activeHitFlashes:impacts.filter(e=>e.mode==='spark').length,activeMeleeArcs:impacts.filter(e=>e.mode==='slash').length,totalMeleeArcs:meleeArcs,totalShots:shots,totalBursts:bursts}),dispose(){reset();for(const geometry of Object.values(shared))geometry.dispose()}};
+ return{accept,recordDamage,recordEvasions,animate,reset,stats:()=>({trueEvadeCues,activeEvadeDust:impacts.filter(e=>e.mode==='evade-dust').length,trueDamageCues,suppressedDamageCues,activeProjectiles:projectiles.length,activeImpacts:impacts.length,pendingCues:pendingCues.length,healingCues:healingCues,disarmCues:disarmCues,contactLockedCues:contactLockedCues,suppressedUnmatchedCues:suppressedUnmatchedCues,releasedCues:releasedCues,droppedCues:droppedCues,activeGroundRings:impacts.filter(e=>e.mode==='ring').length,activeHitFlashes:impacts.filter(e=>e.mode==='spark').length,activeMeleeArcs:impacts.filter(e=>e.mode==='slash').length,totalMeleeArcs:meleeArcs,totalShots:shots,totalBursts:bursts}),dispose(){reset();for(const geometry of Object.values(shared))geometry.dispose()}};
 }
