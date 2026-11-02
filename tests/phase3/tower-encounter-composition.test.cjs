@@ -342,6 +342,12 @@ test('authentic expedition ending is an exterior, phone-safe world-space composi
   const hero = new THREE.Vector3(19.4,31.2,18.1);
   for(const aspect of [960/600,390/844]){
     const shot = context.composeTowerTerminalShot(hero,aspect,1,0);
+    const fromPriorTightZoom = context.composeTowerTerminalShot(hero,aspect,.8,0);
+    assert.ok(fromPriorTightZoom.position.distanceTo(shot.position)<.001,
+      'prior close-up landing zoom cannot crop a true result and earned-floor memorial');
+    const zoomedOut = context.composeTowerTerminalShot(hero,aspect,1.35,0);
+    assert.ok(zoomedOut.position.distanceTo(hero)>shot.position.distanceTo(hero),
+      'voluntary zoom-out remains possible without moving the authentic terminal source');
     const camera = new THREE.PerspectiveCamera(42,aspect,.2,1200);
     camera.position.copy(shot.position);
     camera.lookAt(shot.focus);
