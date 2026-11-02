@@ -414,8 +414,22 @@ export function createWarden(options = {}) {
       vein.rotation.z=leaf.rotation.z;
       vein.rotation.x=leaf.rotation.x;
     }
+    // A larger, independently hinged tide sail gives the botanical armor a
+    // readable high silhouette in the real 320px encounter. Its root and two
+    // copper spars are physically connected to the same existing wing hinge;
+    // this is neither a floating warning decal nor an extra simulated actor.
+    // It only appears with the already public close encounter, and does not
+    // alter threat movement, collision, gameplay authority or private state.
+    const tideSail=pivot(crest,`articulated tidal sail ${shellHalf.side}`,[shellHalf.side*.13,.08,-.18]);
+    const sailBlade=rounded(tideSail,frondGlass,[shellHalf.side*.13,.55,-.045],[.33,1.06,.12],.055);
+    sailBlade.rotation.z=shellHalf.side*.18;
+    const sailRidge=rounded(tideSail,bronze,[shellHalf.side*.12,.48,.03],[.065,.89,.045],.018);
+    sailRidge.rotation.z=shellHalf.side*.18;
+    bar(tideSail,bronze,[0,0,0],[shellHalf.side*.12,.40,-.045],.045);
+    bar(tideSail,ember,[shellHalf.side*.12,.22,.05],[shellHalf.side*.22,.79,.04],.024);
     crest.visible=false;
     shellHalf.fronds=crest;
+    shellHalf.tideSail=tideSail;
   }
   const warningSpines=pivot(body,'activated warden spines',[0,.48,-.13]);
   for (const side of [-1,0,1]) {
@@ -526,6 +540,11 @@ export function createWarden(options = {}) {
       shellHalf.fronds.visible=alert>.24;
       shellHalf.fronds.rotation.y=alert>0&&!s.reduced
         ?shellHalf.side*Math.sin(s.time*1.3)*alert*.075:0;
+      // Real hinge flex is slow and capped, with no new frame allocations.
+      // Reduced motion holds the disclosed pose; withdrawal/terminal restores
+      // exact +0, never leaving a ghost danger cue in the hidden maze.
+      shellHalf.tideSail.rotation.z=alert>0
+        ?shellHalf.side*(.16+alert*.25+(s.reduced?0:Math.sin(s.time*1.2)*.035*alert)):0;
     }
     stride=approach(stride,s.moving?1:0,12,s.delta); gait+=s.delta*(10+s.danger*3)*stride;
     body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018);
