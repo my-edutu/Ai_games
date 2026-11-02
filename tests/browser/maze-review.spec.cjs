@@ -125,7 +125,10 @@ test('a real close public encounter frames both autonomous actors and saves date
   // on GitHub-hosted CPU SwiftShader. Keep every native capture rather than
   // mistaking renderer contention for a source/visual failure at 60 seconds.
   // Hardware GPU performance is a separate acceptance requirement.
-  test.setTimeout(150000);
+  // The original 14 authentic native WebGL captures already consume ~130s
+  // on heavily CPU-throttled shared SwiftShader CI. Five NEW real before/after
+  // screenshots require more WALL-CLOCK time, not weaker in-frame/privacy gates.
+  test.setTimeout(260000);
   const fs = require('node:fs');
   const path = require('node:path');
   const { createHash } = require('node:crypto');
@@ -687,7 +690,7 @@ test('a real close public encounter frames both autonomous actors and saves date
   activeFrame=opening.after.frame;
   await page.waitForFunction(({token,tick})=>window.__MAZE_3D__?.renderer==='webgl'
     && window.__MAZE_3D__?.runToken===token && window.__MAZE_3D__?.tick===tick,
-    {token:afterGate.runToken,tick:afterGate.tick},{timeout:15000});
+    {token:afterGate.runToken,tick:afterGate.tick},{timeout:30000});
   const afterGateDiagnostic=await page.evaluate(()=>window.__MAZE_3D__);
   const openingAfterImage=path.join(dir,'public-gate-after-1280.png');
   await page.screenshot({path:openingAfterImage,fullPage:true});
