@@ -26,7 +26,7 @@ const gpuArgs=['--enable-webgl','--use-gl=angle','--use-angle=swiftshader',
  '--enable-precise-memory-info'];
 
 const evidence={
- version:'g117-crop-clear-sequential-worksite-v1',
+ version:'g135-real-documentary-ik-workday-v1',
  baselineSha:BASE,candidateSha:null,baselineBlob:null,candidateBlob:null,
  renderer:'UNVERIFIED',status:'INCOMPLETE',workdayTicks:null,
  camera:{wide,labor,grown,marketView},viewport,
@@ -140,7 +140,7 @@ async function stage(label,html,browser,matchedTicks){
     const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
     g.setHudMode('full');
     const view=g.watchLiveWorkday();
-    return {view,camera:g.getCamera(),
+    return {view,camera:g.getCamera(),composition:g.getWorkdayCompositionAudit(),
       authoritative:before===JSON.stringify(g.exportSnapshot())};
    });
    assert(shot.authoritative,'Live worker camera changed authoritative world');
@@ -150,6 +150,8 @@ async function stage(label,html,browser,matchedTicks){
    await page.screenshot({path:path.join(DIR,label+'/live-shift-close.png'),timeout:90000});
    result.liveShift={worker:shot.view.citizen,job:shot.view.job,
      activity:shot.view.activity,progress:shot.view.progress,camera:shot.camera,
+     composition:shot.composition,visibleWorkWitness:shot.composition.handBlockers<=1&&
+      shot.composition.faceAlignment>.12,
      authoritativeUnchanged:true,matchedPair:false};
    await page.evaluate(()=>window.__tinyKingdom.stopWorkdayWatch());
   }
@@ -233,7 +235,7 @@ async function stage(label,html,browser,matchedTicks){
    const mobileLive=await page.evaluate(()=>{
     const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
     const view=g.watchLiveWorkday();
-    return {view,camera:g.getCamera(),
+    return {view,camera:g.getCamera(),composition:g.getWorkdayCompositionAudit(),
      snapshotUnchanged:before===JSON.stringify(g.exportSnapshot())};
    });
    assert(mobileLive.view?.active,'Mobile live shift was not actual ongoing work');
@@ -241,7 +243,9 @@ async function stage(label,html,browser,matchedTicks){
    await page.waitForTimeout(850);
    await page.screenshot({path:path.join(DIR,label+'/day120-live-mobile.png'),timeout:90000});
    result.mobileLiveShift={worker:mobileLive.view.citizen,job:mobileLive.view.job,
-    camera:mobileLive.camera,matchedPair:false};
+    camera:mobileLive.camera,composition:mobileLive.composition,
+     visibleWorkWitness:mobileLive.composition.handBlockers<=1&&
+      mobileLive.composition.faceAlignment>.12,matchedPair:false};
   }
   // G113: honest supplementary first-person capture of the SAME 120-day
   // simulation. G088 never had this visitor mode: NOT a matched visual PASS.
@@ -358,7 +362,8 @@ async function motion(browser,html,snapshot,label,live=false,camera=labor,delive
    snapshot:window.__tinyKingdom.exportSnapshot(),
    delivery:typeof window.__tinyKingdom.getActiveDeliveries==='function'?window.__tinyKingdom.getActiveDeliveries():[],
    active:typeof window.__tinyKingdom.getLiveWorkdayView==='function'?
-    window.__tinyKingdom.getLiveWorkdayView():null}));
+    window.__tinyKingdom.getLiveWorkdayView():null,
+   realCamera:live?window.__tinyKingdom.getWorkdayCompositionAudit():null}));
   const wallStart=Date.now();
   await page.waitForTimeout(2500);
   await page.mouse.move(480,330);
@@ -371,6 +376,7 @@ async function motion(browser,html,snapshot,label,live=false,camera=labor,delive
   const end=await page.evaluate(()=>({quality:window.__tinyKingdom.renderQuality(),
    snapshot:window.__tinyKingdom.exportSnapshot(),
    camera:window.__tinyKingdom.getCamera(),
+   realCamera:live?window.__tinyKingdom.getWorkdayCompositionAudit():null,
    glError:document.getElementById('world').getContext('webgl')?.getError()??-1}));
   assert.equal(end.glError,0,label+' GL error in filmed interaction');
   const seconds=(Date.now()-wallStart)/1000;
@@ -378,7 +384,9 @@ async function motion(browser,html,snapshot,label,live=false,camera=labor,delive
    observedFps:(end.quality.framesDrawn-start.quality.framesDrawn)/seconds,
    initialChecksum:start.snapshot.checksum,finalChecksum:end.snapshot.checksum,
    cameraAfter:end.camera,videoFile:label+'.webm',
-   realLiveWorker:live?start.active:null,realDelivery:delivery?start.delivery:null,matchedPair:!live&&!delivery,
+   realLiveWorker:live?start.active:null,
+   realCameraSamples:live?{start:start.realCamera,end:end.realCamera}:null,
+   realDelivery:delivery?start.delivery:null,matchedPair:!live&&!delivery,
    isSoftware:true,uninterruptedRealTime:true,scriptedUserCameraInput:true};
  }finally{
   await context.close();
