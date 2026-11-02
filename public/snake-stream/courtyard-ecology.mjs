@@ -79,7 +79,7 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
       // sqrt(.5²+.5²) cells away and keeps its original material/cue contrast.
       const rootX = Math.round(gx), rootZ = Math.round(gz);
       const rooted = fernSites?.[rootZ * (width + 1) + rootX] ?
-        (1 - smooth(.09, .38, Math.hypot(gx - rootX, gz - rootZ))) : 0;
+        (1 - smooth(.10, .53, Math.hypot(gx - rootX, gz - rootZ))) : 0;
       const targetR = 144 + 23 * heart + silt - marsh * 43 - rooted * 43;
       const targetG = 144 + 15 * heart + silt * .70 - marsh * 23 - rooted * 22;
       const targetB = 120 + 12 * heart + silt * .68 - marsh * 38 - rooted * 29;
@@ -92,14 +92,38 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
       const tileX = gx - Math.floor(gx), tileZ = gz - Math.floor(gz);
       const mortar = 1 - smooth(.012, .067, Math.min(tileX, 1-tileX, tileZ, 1-tileZ));
       const grain = localDetail - mortar * 13;
+      // A readable original ancient limestone sundial becomes the static
+      // garden's central place marker. Unlike the real blue portals it has
+      // no ring mesh, emissive highlight, collision or player outcome. The
+      // incised mineral courses are broken/weathered and inherit genuine
+      // paving joints; actual food/hazard/portal meshes remain in front.
+      // This stage-space decoration is physically on the SAME stone atlas.
+      const dx=gx-width*.5,dz=(gz-height*.5)*1.10;
+      const radius=Math.hypot(dx,dz),theta=Math.atan2(dz,dx);
+      const erosion=.08*Math.sin(theta*9.7+mineral*3.2)
+        +.046*Math.sin(theta*16.4+watershed*5.8);
+      const crackle=.75+.25*Math.sin(theta*19.3+mineral*13.8);
+      const outer=1-smooth(.045,.19,Math.abs(radius-(3.07+erosion)));
+      const middle=1-smooth(.05,.17,Math.abs(radius-(2.10-erosion*.54)));
+      const inner=1-smooth(.052,.16,Math.abs(radius-(.91+erosion*.36)));
+      const spokeAngle=Math.abs(Math.sin(theta*4));
+      const spokes=(1-smooth(.026,.102,spokeAngle))
+        *smooth(1.08,1.42,radius)*(1-smooth(2.57,2.91,radius));
+      const sunstoneWear=smooth(.19,.49,crackle)
+        *(outer*.72+middle*.47+inner*.64+spokes*.31)
+        *smooth(.06,.35,radius);
+      const sunstoneLimestone=(1-smooth(2.8,3.65,radius))*(1-sunstoneWear*.23);
       const keep = .24 + nearEdge * .05; // no hard overlay or sharp mask edge
-      data[i]   = Math.max(0, Math.min(255, Math.round(oldR * keep + (targetR + grain) * (1-keep))));
-      data[i+1] = Math.max(0, Math.min(255, Math.round(oldG * keep + (targetG + grain) * (1-keep))));
-      data[i+2] = Math.max(0, Math.min(255, Math.round(oldB * keep + (targetB + grain) * (1-keep))));
+      data[i]   = Math.max(0, Math.min(255, Math.round(oldR * keep +
+        (targetR + grain + sunstoneLimestone*5.2 - sunstoneWear*26) * (1-keep))));
+      data[i+1] = Math.max(0, Math.min(255, Math.round(oldG * keep +
+        (targetG + grain + sunstoneLimestone*4.1 - sunstoneWear*27) * (1-keep))));
+      data[i+2] = Math.max(0, Math.min(255, Math.round(oldB * keep +
+        (targetB + grain + sunstoneLimestone*1.1 - sunstoneWear*20) * (1-keep))));
     }
   }
   map.needsUpdate = true; // one replacement on scene creation; never per tick
-  return { regraded: true, pixels: W * H, textureAdded: 0 };
+  return { regraded: true, pixels: W * H, textureAdded: 0, sunstoneEtching: true };
 }
 
 export function createCourtyardEcology(THREE, { width, height, world = null }) {
@@ -114,6 +138,14 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
     new THREE.Color(0x4f744a), new THREE.Color(0x5b7850),
     new THREE.Color(0x63765a), new THREE.Color(0x375b54)
   ];
+  // T1 full-courtyard visual direction: unlike flat embedded roots, distinct
+  // three-course marsh vegetation has glossy sunward blades and darker bases.
+  // Both are vertex colors in the existing single static material/mesh, not
+  // extra geometry, light passes, shaders, textures or gameplay obstacles.
+  const fernPalette = [
+    new THREE.Color(0x264d37), new THREE.Color(0x427747),
+    new THREE.Color(0x71a45b), new THREE.Color(0xa2c870)
+  ];
   const clamp = (n, low, high) => Math.max(low, Math.min(high, n));
   const noise = (x, z) => {
     const v = Math.sin(x * 127.1 + z * 311.7) * 43758.5453;
@@ -126,12 +158,18 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
     const u = x / Math.max(.45, width * .16), v = z / Math.max(.45, height * .20);
     return u * u + v * v < 1;
   };
-  function vertex(point, salt) {
+  function vertex(point, salt, flora = false) {
     position.push(point[0], point[1], point[2]);
     const shadow = noise(point[0] * .62 + 19, point[2] * .64 + 41);
     const mineral = noise(point[0] * .21 + 73, point[2] * .18 + 17);
-    const shade = clamp(.24 + shadow * 3.5 + mineral * 1.35 + salt * .12, 0, palette.length - 1.001);
-    const a = palette[Math.floor(shade)], b = palette[Math.ceil(shade)];
+    const swatches = flora ? fernPalette : palette;
+    // Organic, purposefully readable light/dark variation follows each
+    // actual physical leaf elevation, not a repeating artificial stone mask.
+    const shade = flora
+      ? clamp(.46 + point[1] * 12.4 + shadow * .39 + mineral * .23,
+        0, swatches.length - 1.001)
+      : clamp(.24 + shadow * 3.5 + mineral * 1.35 + salt * .12, 0, palette.length - 1.001);
+    const a = swatches[Math.floor(shade)], b = swatches[Math.ceil(shade)];
     const mix = shade - Math.floor(shade);
     colour.push(a.r * (1 - mix) + b.r * mix,
       a.g * (1 - mix) + b.g * mix,
@@ -261,38 +299,60 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
     const margin = .20;
     if ([[-margin,-margin],[margin,margin],[-margin,margin],[margin,-margin]]
       .some(([dx,dz]) => landmark([x+dx,0,z+dz]))) continue;
-    fernCandidates.push({ix,iz,x,z,rank:noise(ix*.71+13,iz*.53+27)});
+    // Three connected coastal rain-cut gullies (no false water/obstacles).
+    // Old uniform random clumps read as imperceptible specks in 1080p.
+    // Grouping the SAME strictly bounded 130 originals into winding valleys
+    // creates visible foreground-to-distance scene rhythm and open limestone
+    // negative space, with no new draw/triangle count or authoritative path.
+    const nx=x/W,nz=z/H;
+    const courses=[-.57,.02,.59];
+    let nearest=Infinity,course=0;
+    for(let i=0;i<courses.length;i++){
+      const centre=courses[i]+.20*Math.sin(nx*3.7+i*1.67)
+        +.07*Math.sin(nx*8.3-i*.91);
+      const distance=Math.abs(nz-centre);
+      if(distance<nearest){nearest=distance;course=i;}
+    }
+    const rank=nearest + .105*noise(ix*.71+13,iz*.53+27);
+    fernCandidates.push({ix,iz,x,z,rank,course,nearest});
   }
   // Original full-board resource budget is strictly <3100 triangles for
   // 8x8, 28x16 AND 40x24, and remains identical on repeat public snapshots.
   const availableClumps = Math.min(130, Math.max(0,Math.floor((3090 - position.length / 9) / 6)));
   fernCandidates.sort((a,b) => a.rank - b.rank || a.iz - b.iz || a.ix - b.ix);
   let interstitialFernClumps = 0, interstitialFernTriangles = 0, fernCanopyHeight = 0;
+  const fernCourseAnchors = [];
+  let fernBiomeRootedSites = 0;
   for (const site of fernCandidates) {
     if (interstitialFernClumps >= availableClumps) break;
-    const {ix,iz,x,z} = site, leaves=[];
-    const phase = noise(ix+17, iz+43) * Math.PI * 2;
+    const {ix,iz,x,z,course,nearest} = site, leaves=[];
+    // Fronds lean across the corresponding coherent river-cut garden course,
+    // rather than each tuft facing a fresh random compass direction.
+    const phase = (course * 1.19 + Math.PI*.26)
+      + (noise(ix+17,iz+43)-.5)*.67;
     for (let blade=0; blade<3; blade++) {
       const angle=phase+blade*2*Math.PI/3;
-      const reach=.105+.034*noise(ix+blade*4,iz+blade+3);
-      const tipRise=.055+.026*noise(ix+8+blade,iz+21);
-      const sideRise=.097+.047*noise(ix+42,iz+blade+8);
+      const reach=.193+.043*noise(ix+blade*4,iz+blade+3);
+      const tipRise=.089+.026*noise(ix+8+blade,iz+21);
+      const sideRise=.141+.035*noise(ix+42,iz+blade+8);
       const nx=Math.cos(angle), nz=Math.sin(angle);
       const px=-nz, pz=nx;
       const root=[x,.014,z];
       const tip=[x+nx*reach,tipRise,z+nz*reach];
-      const left=[x+nx*reach*.54+px*.031,sideRise,z+nz*reach*.54+pz*.031];
-      const right=[x+nx*reach*.54-px*.031,sideRise*.94,z+nz*reach*.54-pz*.031];
+      const left=[x+nx*reach*.54+px*.044,sideRise,z+nz*reach*.54+pz*.044];
+      const right=[x+nx*reach*.54-px*.044,sideRise*.94,z+nz*reach*.54-pz*.044];
       leaves.push([root,left,tip],[root,tip,right]);
     }
     if (!leaves.flat().every(p => Math.abs(p[0])<=W-.68 &&
         Math.abs(p[2])<=H-.68 && !landmark(p) && !nearPublicCell(p))) continue;
     for (const [a,b,c] of leaves) {
-      vertex(a,-1.7);vertex(b,-1.4);vertex(c,-1.8);
+      vertex(a,-1.7,true);vertex(b,-1.4,true);vertex(c,-1.8,true);
       interstitialFernTriangles++;
       fernCanopyHeight=Math.max(fernCanopyHeight,a[1],b[1],c[1]);
     }
     fernSites[iz*(width+1)+ix] = 1;
+    fernCourseAnchors.push({x,z});
+    if(nearest<.31)fernBiomeRootedSites++;
     interstitialFernClumps++;
   }
   // Existing world-owned stone atlas receives matching rooted mineral stains
@@ -319,6 +379,7 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
     braidedSurfaceTriangles: braidTriangles, islandSurfaceTriangles: islandTriangles,
     reclaimedMosaicTriangles: mosaicTriangles, mosaicBedCount: mosaicBeds.length,
     interstitialFernClumps, interstitialFernTriangles, fernCanopyHeight,
+    fernBiomeCourses: 3, fernBiomeRootedSites, fernCourseAnchors,
     deterministicFromBoard: true, publicCellsMoved: 0, stoneAtlas: restoredStone, disposed
   });
   return {
