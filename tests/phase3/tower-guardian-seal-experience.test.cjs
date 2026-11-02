@@ -202,3 +202,49 @@ test('no invented guardian means no gate; high/low switches and a new run restor
       'new run must not retain a preceding guardian capstan turn');
   } finally { world.dispose(); }
 });
+
+// The guardian stands on the final lower approach platform, not at the
+// midpoint of the much wider cap. Stage its actual mechanical lock where
+// a viewer can see the opponent and causal gate in one local encounter.
+// This is a presentation layout check, never a visual-quality PASS.
+test('guardian approach anchors one stationary physical gate without relocating the actual cap or checkpoint', async () => {
+  const { createTowerWorld } = await loaded;
+  const { guardianGateAnchorX, angleFor } = await import(coordsUrl);
+  const world = createTowerWorld();
+  try {
+    const sourceFrame = frame(), base = sourceFrame.floor * 360000;
+    sourceFrame.platforms.unshift({
+      id: `f${sourceFrame.floor}:p6`, kind: 'oneway', x: 45000,
+      y: base + 300000, width: 120000, height: 10000,
+    });
+    sourceFrame.enemies[0] = { ...sourceFrame.enemies[0],
+      x: 105000, y: base + 328000, halfHeight: 18000 };
+    const cap = sourceFrame.platforms.find(platform => platform.id.endsWith(':cap'));
+    const original = JSON.stringify(sourceFrame);
+    const x = guardianGateAnchorX(sourceFrame, cap);
+    assert.equal(x, cap.x + 40000,
+      'the fixed encounter approach places the lock within the real cap bounds');
+    assert.ok(x < cap.x + cap.width / 2 - 40000,
+      'do not leave the guardian-facing lock at a distant cap midpoint');
+    world.update(sourceFrame, .016, 0, { quality: 'low' });
+    const gate = named(world.group, 'AuthoritativeGuardianGate');
+    const deck = named(world.group, `platform:f${sourceFrame.floor}:cap`);
+    assert.ok(gate && deck, 'distinct world-space gateway and authoritative cap exist');
+    assert.ok(Math.abs(gate.rotation.y - angleFor(x, sourceFrame.worldWidth)) < 1e-9,
+      'real 3D lock angle is tied to the deterministic guardian approach');
+    assert.ok(Math.abs(deck.rotation.y - angleFor(cap.x + cap.width / 2, sourceFrame.worldWidth)) < 1e-9,
+      'unchanged collision-aligned deck remains centered on its actual source coordinates');
+    assert.equal(world.diagnostics().guardianGates[0].anchorX, x);
+    const patrol = { ...sourceFrame, enemies: [{ ...sourceFrame.enemies[0], x: 145000, health: 3 }] };
+    assert.equal(guardianGateAnchorX(patrol, cap), x,
+      'enemy movement and damage never drag the stone architecture around');
+    world.update(patrol, .05, .05, { quality: 'low' });
+    assert.ok(Math.abs(gate.rotation.y - angleFor(x, sourceFrame.worldWidth)) < 1e-9);
+    world.update(patrol, .05, .10, { quality: 'high', reducedMotion: true });
+    assert.equal(world.diagnostics().guardianGates[0].anchorX, x,
+      'quality rebuild and still-motion presentation reconstruct the same authentic gate');
+    assert.equal(JSON.stringify(sourceFrame), original, 'camera/world may not mutate replay snapshots');
+    assert.equal(guardianGateAnchorX(frame(), cap), cap.x + cap.width / 2,
+      'legacy source with no approach evidence retains its original safe gate center');
+  } finally { world.dispose(); }
+});

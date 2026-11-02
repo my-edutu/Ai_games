@@ -1,7 +1,7 @@
 import * as THREE from '/tower/vendor/three.module.js';
 import { createTowerWorld, THEMES } from './world.mjs';
 import { createClimber, createEnemy } from './characters.mjs';
-import { SCALE, pointFor, angleFor } from './coordinates.mjs';
+import { SCALE, pointFor, angleFor, guardianGateAnchorX } from './coordinates.mjs';
 import { snapshotVelocity } from './motion.mjs';
 import { createRenderProgress } from './render-progress.mjs';
 import { createTowerFinale } from './finale.mjs';
@@ -366,9 +366,10 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
   // observed guardian cap. No predicted clearance or unearned cutscene.
   const cap = contactGuardian && snapshot.platforms?.find(platform =>
     typeof platform.id === 'string' && platform.id.endsWith(':cap') &&
-    Math.abs(platform.x + platform.width * .5 - contactGuardian.sourceX) < 100000 &&
+    Math.abs(guardianGateAnchorX(snapshot, platform) - contactGuardian.sourceX) < 100000 &&
     Math.abs(platform.y + platform.height - contactGuardian.sourceY) < 80000);
-  const gate = cap ? pointFor(cap.x + cap.width * .5, cap.y + cap.height,
+  const gateAnchorX = cap ? guardianGateAnchorX(snapshot, cap) : null;
+  const gate = cap ? pointFor(gateAnchorX, cap.y + cap.height,
     snapshot.chunkBaseY, snapshot.worldWidth, 21.8) : null;
   const gatePoints = gate ? [
     { ...gate, y: gate.y + 2.5 }, { ...gate, y: gate.y + 5.2 },
@@ -479,7 +480,7 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
     const gateFramed = gatePoints.length > 0 &&
       gatePoints.every(point => visible(point, .93, .86));
     return { focus: center, position, distance, landing, targetId: target?.id || null, lean, clear,
-      guardianStaged: !!contactGuardian, guardianFramed, gateFramed,
+      guardianStaged: !!contactGuardian, guardianFramed, gateFramed, gateAnchorX,
       heroFraction: height * level / (2 * tangent * (distance - bodyDepth)) };
   }
   let best = solve(0);
@@ -1107,18 +1108,17 @@ export function createTowerScene(canvas, settings = {}) {
     // missing guardian. The new floor's autonomous physics stay untouched.
     const clearedGuardian = observedGuardianPassage(previous, next);
     if (previous && previous.floor !== next.floor) passage.clear();
-    // The old source-driven lock really existed at the PREVIOUS floor's
-    // cap, not at the current climber position. Keep its center, floor
-    // elevation and orientation through the chunk-base switch; placing it
-    // at the new avatar used to teleport the entire stone gateway after a
-    // kill, severing the physical connection between combat and ascent.
+    // The old source-driven lock existed at the PREVIOUS floor's fixed
+    // guardian-approach anchor on its actual cap, not the new climber or
+    // an arbitrary center. Preserve that exact world location through the
+    // floor switch so the cleared gate remains physically continuous.
     const guardianCap = clearedGuardian && previous.platforms?.find(platform =>
       platform.id === `f${previous.floor}:cap` && Number.isFinite(platform.x) &&
       Number.isFinite(platform.width) && platform.width > 0 &&
       Number.isFinite(platform.y) && Number.isFinite(platform.height));
     if (guardianCap && Number.isFinite(next.worldWidth) && next.worldWidth > 0) {
-      const capCenter = guardianCap.x + guardianCap.width * .5;
-      passage.begin(previous, next, pointFor(capCenter,
+      const gateAnchorX = guardianGateAnchorX(previous, guardianCap);
+      passage.begin(previous, next, pointFor(gateAnchorX,
         guardianCap.y + guardianCap.height, next.chunkBaseY, next.worldWidth, 21.8));
     }
     // A landing is observable only across consecutive source snapshots in the
@@ -1492,7 +1492,7 @@ export function createTowerScene(canvas, settings = {}) {
         snapshot.chunkBaseY, snapshot.worldWidth);
       const cap = snapshot.platforms?.find(platform =>
         typeof platform.id === 'string' && platform.id.endsWith(':cap'));
-      const gate = cap ? pointFor(cap.x + cap.width * .5, cap.y + cap.height,
+      const gate = cap ? pointFor(guardianGateAnchorX(snapshot, cap), cap.y + cap.height,
         snapshot.chunkBaseY, snapshot.worldWidth, 21.8) : null;
       const guardianCenter = ndc(guardian);
       const gateCenter = gate ? ndc({ ...gate, y: gate.y + 2.5 }) : null;

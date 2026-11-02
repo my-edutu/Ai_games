@@ -62,8 +62,11 @@ test('source-observed wounded guardian, actual cap and climber share a stable po
       guardian.x, guardian.y + guardian.halfHeight);
     assert.ok(Math.abs(crown.x) < .85 && Math.abs(crown.y) < .78,
       'the real guardian crown must remain inside the screen');
+    const actualGateX = context.guardianGateAnchorX(frame, cap);
+    assert.equal(view.gateAnchorX, actualGateX,
+      'the combat camera must frame the same fixed guardian-approach lock as the world');
     const lock = project(THREE, pointFor, frame, view, aspect,
-      cap.x + cap.width / 2, cap.y + cap.height + 25000, 21.8);
+      actualGateX, cap.y + cap.height + 25000, 21.8);
     assert.ok([lock.x, lock.y, lock.z].every(Number.isFinite),
       'gate diagnostics use a real finite source-bound cap projection');
     if (view.gateFramed) {
