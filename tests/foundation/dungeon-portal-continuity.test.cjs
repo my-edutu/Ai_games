@@ -32,7 +32,7 @@ test('portal cannot advance with living hostiles, or when no surviving hero stan
  assert.equal(safe.step().floor,1,'unoccupied portal cannot advance');
 });
 test('an entirely autonomous real campaign naturally traverses, fights, kills the Warden, descends, loses and restarts',()=>{
- const game=DungeonRuntime.create('dungeon-ui-round17'),mirror=DungeonRuntime.restore(game.save());
+ const game=DungeonRuntime.create('gauntlet-corpus-v1-0'),mirror=DungeonRuntime.restore(game.save());
  const seen=new Set();let highest=1,lastFloor=1,lastRun=1,firstDefeat=null,firstRestart=null;
  for(let i=0;i<2500;i++){
   const current=game.step(),duplicate=mirror.step();

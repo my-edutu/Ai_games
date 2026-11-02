@@ -30,20 +30,29 @@ test('public data is bounded and privacy safe under stress',()=>{
  assert.ok(view.run>=1&&view.floor>=1);
 });
 
-test('boss charges a visible warning before applying area damage',()=>{
+test('boss announces the real three-beat footprint and hits only heroes still on marked stone',()=>{
  const game=DungeonRuntime.create('boss-telegraph-fixture');
  const s=game.state,boss=s.units.find(u=>u.kind==='warden'),hero=s.units.find(u=>u.id==='vanguard');
  const path=shortestPath(s.map,{x:1,z:1},s.exit);
  assert.ok(boss&&hero&&path.length>2);
- const adjacent=path[path.length-2];hero.x=adjacent.x;hero.z=adjacent.z;s.tick=3;
- game.step();
- const warning=game.state.events.find(e=>e.kind==='telegraph'&&e.tick===4);
- assert.ok(warning,'warning must be visible two ticks before the attack');
- const health=hero.hp;
- game.step();game.step();
- const blasts=game.state.events.filter(e=>e.kind==='danger'&&e.text.includes('shockwave'));
- assert.ok(blasts.length>=1,'the warning must resolve to a real, rule-governed boss attack');
- assert.ok(hero.hp<health,'the attack must have an observable consequence');
+ const adjacent=path[path.length-2];hero.x=adjacent.x;hero.z=adjacent.z;s.tick=2;
+ const first=game.step(),warning=first.events.find(e=>e.kind==='telegraph'&&e.tick===3);
+ assert.ok(warning,'the 3-step nova must warn at the start of its real escape horizon');
+ assert.equal(first.bossWarning?.turnsUntilImpact,3);
+ const footprint=first.bossWarning.cells.map(p=>p.x+','+p.z).sort();
+ for(let remaining=2;remaining>=1;remaining--){
+  const next=game.step();
+  assert.equal(next.bossWarning?.turnsUntilImpact,remaining);
+  assert.deepEqual(next.bossWarning.cells.map(p=>p.x+','+p.z).sort(),footprint,
+   'the real warned tiles must not slide under autonomous feet');
+ }
+ const hp=hero.hp,impact=game.step();
+ const strike=impact.events.find(e=>/The Warden nova shockwave struck/.test(e.text));
+ assert.ok(strike,'a warning must resolve to the real authority-controlled nova');
+ const marked=footprint.includes(hero.x+','+hero.z);
+ if(marked)assert.ok(hero.hp<hp||hero.guardTick===s.tick,'remaining on a marked tile has a real cost');
+ else assert.equal(hero.hp,hp,'a successful legal three-beat dodge must avoid nova damage');
+ assertDungeonState(s);
 });
 test('autonomous unit actions are exposed as bounded, public animation semantics',()=>{
  const game=DungeonRuntime.create('character-motion-probe');
