@@ -184,6 +184,22 @@ body[data-high-contrast="true"] #broadcast #hud .mission-block,body[data-high-co
   top:calc(70px + env(safe-area-inset-top,0px));
   border-left-color:#ff815b;background:rgba(72,28,26,.91);
 }
+/* Single-action danger chip: native full-resolution 320/390/844 captures
+   showed a three-line danger dashboard obscuring real Pip/Thornback action.
+   The visible chip now carries just the truthful imperative. Keep both extra
+   labels in the accessible DOM; never hide the real urgent goal, time, keys,
+   discovery, live AI intent, real-event captions or 44px controls. */
+#broadcast[data-ux-revision="4"][data-urgency="true"] #hud .mission-block{
+  padding:9px 11px;
+}
+#broadcast[data-ux-revision="4"][data-urgency="true"] #hud .mission-block .eyebrow,
+#broadcast[data-ux-revision="4"][data-urgency="true"] #hud #objective{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip-path:inset(50%);white-space:nowrap;
+}
+#broadcast[data-ux-revision="4"][data-urgency="true"] #hud .mission-block h2{
+  margin:0;line-height:1.2;
+}
 #broadcast[data-ux-revision="4"] #hud .mission-block h2{
   font:800 clamp(18px,2.4vw,26px)/1.12 ui-sans-serif,system-ui,sans-serif;
   letter-spacing:-.7px;color:#fffaed;
