@@ -1,7 +1,7 @@
 import * as THREE from './vendor/three.module.js';
 import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE } from './world.js';
-import { planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicPortraitGuardianHalfHeight } from './map-view.mjs';
+import { planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -467,9 +467,17 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         // sacrifices all actor readability to the old in-page horizontal span.
         // Derive the safe tighter shot from BOTH actual public 3D positions.
         // This never affects sealed-gate, hidden, terminal or landscape views.
-        if (!result && closestThreat?.strength)
+        if (!result && closestThreat?.strength) {
+          // The real 390px WebGL Follow image exposed a clipped Thornback sail:
+          // a guardian eye in view is not a complete model. Center the two
+          // AUTHORED outlines before deciding the safe shared camera span.
+          const balance=publicPortraitGuardianBalance(
+            aspect,closestThreat.strength,pose,closestThreat,desiredTarget);
+          desiredTarget.x+=balance.x;
+          desiredTarget.z+=balance.z;
           targetHeight = publicPortraitGuardianHalfHeight(
             aspect,targetHeight,closestThreat.strength,pose,closestThreat,desiredTarget,cameraTarget);
+        }
       }
     }
     const blend = settings.reducedMotion ? 1 : 1 - Math.exp(-delta * 4.5);

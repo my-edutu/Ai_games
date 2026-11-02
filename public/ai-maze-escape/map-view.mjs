@@ -59,6 +59,30 @@ export function publicFullBleedFollowHalfHeight(aspect, selectedHalfHeight) {
  * the edge. The 15:18 camera heading is the actual unrotated Follow isometric
  * offset in scene.js; sealed-gate views deliberately never call this helper.
  */
+/**
+ * Center the real, publicly disclosed portrait pair by their approximate
+ * physical silhouettes, not their eye/actor centers. Thornback's claws and
+ * sails occupy a wider screen envelope than Pip's arms and scarf.
+ * The correction only pans the FOLLOW camera; it never moves game objects,
+ * reveals private topology, or directs either autonomous character.
+ */
+export function publicPortraitGuardianBalance(aspect, attention, hero, guardian, focus) {
+  const neutral={x:0,z:0};
+  if (!(Number.isFinite(aspect) && aspect>=.35 && aspect<.60)
+    || !(Number.isFinite(attention) && attention>0)
+    || ![hero?.x,hero?.z,guardian?.x,guardian?.z,focus?.x,focus?.z].every(Number.isFinite))
+    return neutral;
+  const length=Math.hypot(18,15);
+  const screenX=p=>((p.x-focus.x)*18-(p.z-focus.z)*15)/length;
+  const heroCenter=screenX(hero), guardianCenter=screenX(guardian);
+  // Authored physical envelope reserves: helmet/scarf 1.10, shell/claws/sails 1.80.
+  // A pure midpoint left the actual native 390px guardian sail cropped at 1.004 NDC.
+  const min=Math.min(heroCenter-1.10,guardianCenter-1.80);
+  const max=Math.max(heroCenter+1.10,guardianCenter+1.80);
+  const shift=clamp((min+max)*.5,-.55,.55);
+  return {x:shift*18/length,z:-shift*15/length};
+}
+
 export function publicPortraitGuardianHalfHeight(aspect, fullBleedHeight, attention, hero, guardian, focus, previousFocus=focus) {
   const base=Number.isFinite(fullBleedHeight)&&fullBleedHeight>0?fullBleedHeight:7.3;
   if (!(Number.isFinite(aspect)&&aspect>=.35&&aspect<.60)
@@ -71,11 +95,15 @@ export function publicPortraitGuardianHalfHeight(aspect, fullBleedHeight, attent
   // transition lies between these two targets: protecting BOTH endpoints
   // prevents an otherwise valid pair shot from cropping a real guardian
   // during the easing itself, not just when the camera finally settles.
-  // A 1.35-unit radius surrounds true claws and unfolded armor, not eye centers.
-  const physicalPairHalfSpan=Math.max(
-    Math.abs(screenX(hero,focus)),Math.abs(screenX(guardian,focus)),
-    Math.abs(screenX(hero,previousFocus)),Math.abs(screenX(guardian,previousFocus)))+1.35;
-  const physicallySafeHeight=physicalPairHalfSpan/aspect;
+  // Preserve genuine 3D extents, not merely the two projected eye centers.
+  // The guardian's articulated silhouette is wider than Pip's; .94 NDC
+  // leaves actual visible clearance rather than touching the viewport edge.
+  // Check BOTH ends of camera easing so a formerly centered shot stays safe.
+  const pairExtent=target=>Math.max(
+    Math.abs(screenX(hero,target))+1.10,
+    Math.abs(screenX(guardian,target))+1.80);
+  const physicallySafeHeight=Math.max(
+    pairExtent(focus),pairExtent(previousFocus))/(aspect*.94);
   const maximumZoom=base*(1-.16*clamp(attention,0,1));
   return Math.min(base,Math.max(maximumZoom,physicallySafeHeight));
 }

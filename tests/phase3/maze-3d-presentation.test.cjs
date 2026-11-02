@@ -258,6 +258,41 @@ test('full-bleed portrait follow camera preserves actual previously visible hori
   assert.ok(f(.01,4.7) <= 4.7*2.2,'pathological tiny canvas cannot explode the camera zoom');
 });
 
+
+test('a native Follow portrait shares frame by the physical actor outlines, not only centers', async () => {
+  const {publicPortraitGuardianBalance: balance,publicPortraitGuardianHalfHeight: height}=await load();
+  const hero={x:-3,z:0}, guardian={x:3,z:0}, focus={x:0,z:0};
+  const aspect=390/844, strength=1, base=10;
+  const before=JSON.stringify({hero,guardian,focus});
+  const correction=balance(aspect,strength,hero,guardian,focus);
+  const right={x:18/Math.hypot(18,15),z:-15/Math.hypot(18,15)};
+  const shift=correction.x*right.x+correction.z*right.z;
+  assert.ok(shift>.20 && shift<=.55+1e-12,
+    'larger actual Thornback sails and claws shift the shared aim slightly toward the guardian');
+  assert.ok(Math.abs(correction.x*right.z-correction.z*right.x)<1e-12,
+    'only screen-right aim changes, never the camera elevation or game simulation');
+  const aim={x:focus.x+correction.x,z:focus.z+correction.z};
+  const fullHeight=height(aspect,base,strength,hero,guardian,aim,aim);
+  const screenX=p=>((p.x-aim.x)*18-(p.z-aim.z)*15)/Math.hypot(18,15);
+  const edge=Math.max(Math.abs(screenX(hero))+1.10,Math.abs(screenX(guardian))+1.80);
+  assert.ok(edge <= fullHeight*aspect*.94+1e-9,
+    'the genuine hero and larger guardian silhouettes both have in-frame clearance');
+  assert.ok(fullHeight<base && fullHeight>=base*.84,
+    'balanced real physical framing may remain legible without inventing actor scale');
+  for(const invalid of [null,{x:NaN,z:0},{x:Infinity,z:1}])
+    assert.deepEqual(balance(aspect,strength,hero,guardian,invalid),{x:0,z:0},
+      'missing or invalid public focus never moves a camera');
+  assert.deepEqual(balance(aspect,0,hero,guardian,focus),{x:0,z:0},
+    'an undisclosed/withdrawn guardian cannot trigger a camera response');
+  assert.deepEqual(balance(844/390,strength,hero,guardian,focus),{x:0,z:0},
+    'landscape retains its verified authored shot');
+  assert.deepEqual(balance(.34,strength,hero,guardian,focus),{x:0,z:0},
+    'pathologically narrow view does not fabricate a focus');
+  assert.deepEqual(balance(aspect,strength,hero,{x:NaN,z:0},focus),{x:0,z:0});
+  assert.equal(JSON.stringify({hero,guardian,focus}),before,
+    'no authoritative or public input position is ever mutated');
+});
+
 test('portrait encounter camera grows actual actors only within genuine public full-model bounds', async () => {
   const {publicPortraitGuardianHalfHeight: frame}=await load();
   const hero={x:-1,z:0}, guardian={x:1,z:0}, focus={x:0,z:0};
