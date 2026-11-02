@@ -1,0 +1,48 @@
+name: AI Maze Escape Visual Evidence
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'public/ai-maze-escape/**'
+      - 'games/ai-maze-escape/**'
+      - 'tests/browser/maze-review.spec.cjs'
+      - 'tests/phase3/maze-*.test.cjs'
+      - 'scripts/capture-maze-3d.cjs'
+      - '.github/workflows/maze-visual-evidence.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  maze-visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - name: Checkout exact PR source
+        uses: actions/checkout@v6
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Build and test real Maze 3D presentation
+        run: npm run test:maze:phase3
+      - name: Verify live Maze stream host
+        run: npm run maze:stream:self-test
+      - name: Install Chromium once
+        run: npx playwright install --with-deps chromium
+      - name: Capture source-bound Maze browser evidence
+        run: npx playwright test tests/browser/maze-review.spec.cjs --workers=1 --reporter=list
+      - name: Preserve dated actual screenshots and source hashes
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ai-maze-escape-focused-visual-evidence
+          path: artifacts/maze-phase3
+          if-no-files-found: warn
+          retention-days: 30

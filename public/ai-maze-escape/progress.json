@@ -1,0 +1,1172 @@
+{
+  "version": 1,
+  "updatedAt": "2026-11-02T04:08:59.852Z",
+  "benchmark": {
+    "status": "Not yet passed",
+    "summary": "Pass65 (2026-11-02): original gate counterweight wheel-and-stone mechanisms now physically animate only during a genuine observed same-run opening; settled OPEN and reduced-motion states modeled, no extra HUD text, game authority or private knowledge. Focused source/Three and strict same-tick protection tests committed. Pass64 real before/after 19/19 dated PNG evidence remains the baseline; earlier camera-beat exact-source CI succeeded but its original images were not directly inspected this run. New counterweight WebGL artifacts, a fresh independent critic/blind A/B and official Nintendo quality verdict remain pending. Fixed Nintendo Captain Toad benchmark NOT passed; no merge or deployment."
+  },
+  "captures": [
+    {
+      "title": "Where we began",
+      "src": "/maze/evidence/baseline-desktop.png",
+      "capturedAt": null,
+      "alt": "Original flat maze before the 3D rebuild",
+      "note": "The original live presentation, retained for comparison."
+    },
+    {
+      "title": "First 3D integration",
+      "src": "/maze/evidence/round-01-desktop.png",
+      "capturedAt": null,
+      "alt": "First integrated 3D maze view",
+      "note": "The initial real output. The first critic identified flat repetitive architecture and an obstructing recovery overlay."
+    },
+    {
+      "title": "The second environment pass",
+      "src": "/maze/evidence/round-02-desktop.png",
+      "capturedAt": "2026-10-30T18:58:22.779Z",
+      "alt": "Second 3D garden pass with original explorer and ruins",
+      "note": "Actual production public frame. Critics still favour the reference: repetitive water, shallow composition and weak character contrast are being revised."
+    },
+    {
+      "title": "A closer look at the explorer",
+      "src": "/maze/evidence/round-02-character.png",
+      "capturedAt": "2026-10-30T18:58:36.461Z",
+      "alt": "Original robot explorer in the running game",
+      "note": "The character critic requested a stronger teal silhouette, simpler face hierarchy and visible animation evidence."
+    },
+    {
+      "title": "Terraced garden · third pass",
+      "src": "/maze/evidence/round-03-desktop.png",
+      "capturedAt": "2026-10-30T19:21:46.689Z",
+      "alt": "Actual terraced 3D garden in the normal follow camera",
+      "note": "Three terrace heights, disclosed stairs and deeper architecture now read as a miniature place. The independent critic still prefers the reference."
+    },
+    {
+      "title": "Pip · third-pass detail",
+      "src": "/maze/evidence/round-03-character-detail.png",
+      "capturedAt": "2026-10-30T19:21:53.406Z",
+      "alt": "Original equipped robot explorer in the terraced maze",
+      "note": "The inspected explorer has readable modeled equipment and volume. The later coral accent, larger eyes and directional gaze are not shown in this capture."
+    },
+    {
+      "title": "Thornback · real encounter",
+      "src": "/maze/evidence/round-03-danger.png",
+      "capturedAt": "2026-10-30T19:22:11.403Z",
+      "alt": "Original armored beetle threat and explorer in an actual disclosed encounter",
+      "note": "A real production public frame shows both characters. The later bronze mask and clearer eyes await a new capture."
+    },
+    {
+      "title": "Portrait · third pass",
+      "src": "/maze/evidence/round-03-mobile-portrait.png",
+      "capturedAt": "2026-10-30T19:21:57.514Z",
+      "alt": "Third-pass maze presentation on a portrait mobile viewport",
+      "note": "The critic requested more room for the world. The new collapsible Map and Path notes controls are implemented after this capture and await browser review."
+    },
+    {
+      "title": "Fourth pass · current garden",
+      "src": "/maze/evidence/round-04-desktop.png",
+      "capturedAt": "2026-10-30T20:30:36.152Z",
+      "alt": "Current real 3D garden with clearer keys, quieter decoration and Map on demand",
+      "note": "The fresh scene critic narrowly preferred this version in a blind A/B with the prior pass. The fixed Captain Toad reference still wins."
+    },
+    {
+      "title": "Pip · clearer face and equipment",
+      "src": "/maze/evidence/round-04-character-detail.png",
+      "capturedAt": "2026-10-30T20:31:01.882Z",
+      "alt": "Current robot explorer with clearer eyes and coral cloth accents",
+      "note": "A real close view of the latest original character model. Motion and expression quality still need direct animation review."
+    },
+    {
+      "title": "Thornback · current encounter",
+      "src": "/maze/evidence/round-04-danger.png",
+      "capturedAt": "2026-10-30T20:31:29.367Z",
+      "alt": "Current original beetle warden and explorer in a real threat encounter",
+      "note": "A real disclosed encounter with both current characters. The critic wants a visible reaction and clearer relationship between guardian, explorer and route."
+    },
+    {
+      "title": "Portrait · blind A/B winner",
+      "src": "/maze/evidence/round-04-mobile-portrait.png",
+      "capturedAt": "2026-10-30T20:29:03.500Z",
+      "alt": "Latest portrait game layout with a larger 3D scene and compact status controls",
+      "note": "A fresh critic preferred this version without knowing which was newer. It remains below the fixed Captain Toad quality bar."
+    }
+  ],
+  "changes": [
+    "The flat map is now a real 3D sandstone garden with three terrace heights, visible stairs on disclosed legal passages, original articulated Pip and Thornback models, keys, gates, traps and an exit portal.",
+    "Follow, Detail and Overview cameras, a public-data map, optional original audio, captions, reduced motion, high contrast and clean feed are integrated.",
+    "Graphics loss reveals a live map, offers a retry and returns to the current public position after restoration. Real results remain visible in map mode; reconnecting is now explicit during terminal states.",
+    "Cumulative steps and discovered area reflect the public snapshot. Character feet, route marks, lights and camera targets follow the same stair heights.",
+    "Pip now has a coral scarf and bedroll, clearer eyes and directional gaze; Thornback has a broader bronze face and brighter eyes. Fresh actual portrait, desktop, detail and encounter captures are recorded.",
+    "Keys have a thicker silhouette and readable sway; the exit has a mint opening and diamond crown. Quieter trim, grouped planting and shoreline contacts are implemented. The mobile critic still wants stronger objective contrast and clearer local intent.",
+    "Map and Path notes expand on demand, while the goal and immediate intent stay visible. Natural captions replace internal object IDs, and the camera label says Detail. Browser checks verify disclosure drawing, Escape/focus and terminal reconnect; a fresh blind critic preferred the compact mobile layout.",
+    "A fifth-pass encounter-staging candidate now gives Pip threat-directed head, gaze and lantern poses, and Thornback anticipatory mask/mandible poses, using only disclosed nearby threats. Fresh render and independent critique are still pending.",
+    "Sixth pass: real production snapshots now select an actually close, already-disclosed Thornback/Pip encounter; actual browser evidence records both actors on screen, source/image SHA-256 hashes and seed/tick. An amplified public-threat-only head/gaze/lantern/mask response is tested without changing deterministic game authority.",
+    "Seventh pass: two original model-level silhouette cues now make nearby already-disclosed guardian encounters clearer, using Pip's gold/coral exclamation signal and Thornback's raised glowing spines. Real current-source CI captures prove both actors share the frame; terminal and undisclosed-threat states suppress the cues without changing AI/game authority.",
+    "Eighth pass: a reuse-only pool of in-world ivory direction arrows marks genuinely known, reciprocally legal neighboring corridors; teal is reserved for a current disclosed AI-plan step. Closed gate edges and stale/nonreciprocal plans are suppressed, while the misleading gold threat halo is now a triangular warning signal. This changes only presentation; current-source CI and authentic dated evidence were captured.",
+    "Ninth and tenth passes: a known, connected public key/exit now gets a distinctive in-world beacon and a separate first-step floor arrow (amber for key, mint for exit), while turquoise continues to denote only the disclosed AI plan. Tests exclude closed gates, blocked/nonreciprocal/unknown cells, hidden goals and terminal states. One native 1280×900 current-source image authenticates the known exit cue; visual bar remains unpassed.",
+    "Eleventh pass: a known exit's modeled arch is no longer crowded by a redundant hovering beacon; its low ground marker and truthful first-step glyph remain. Nearby already-observed objectives receive closer follow framing without altering AI state. Real dated 1280×900 evidence shows a larger Pip but also a less balanced water/stage composition, now the next visual gap.",
+    "Twelfth pass: the follow camera now keeps some nearby disclosed stage context while still pointing toward an already observed reachable landmark, with a single 2.5-world-unit cap when the goal is close. Original 3D geometry, public-only route semantics, character expressions and deterministic rules remain unchanged; browser evidence is pending.",
+    "Thirteenth pass: disclosed closed doors gain original coral crossed physical barriers and larger lock plates while opened/undisclosed doors render no warning obstruction. Public-knowledge tests and real key/sealed-gate camera evidence were added; four genuine same-seed screenshots have dated verified SHA-256 manifests in GitHub CI artifact 13030701894. This is not benchmark parity.",
+    "Fourteenth pass: the original disclosed closed gate's coral crossed brace and gold lock now sit on the camera-facing side of its physical bars, for both door orientations; open or undisclosed barriers remain absent. Exact-source CI passed 523 Node and 25 browser checks. Real same-seed/tick21 1280×900 screenshot at 2026-10-31T05:04:37.546Z (SHA256 3ef0814c04f38a2465687b7feded50c6d8b7dc24c3da6ed2278de74f356ef668) shows the X clearly but gate is small at the far left and Pip partly obscured. Nintendo remains stronger; no independent critic or GPU performance claim.",
+    "Fifteenth/sixteenth passes: near disclosed closed gates receive a bounded public-only follow-camera composition and a restrained side angle so Pip is less obscured by the gate lintel; open or undisclosed doors cannot cause this framing. Native 1280×900 and 390×844 browser evidence includes actual seeded closed-gate and key states with SHA-256. Final source ff31870 passed 524 Node and 25 browser tests. Review: docs/reviews/maze-3d/gate-framing-pass-15-16-review.md; genuine artifact: https://github.com/my-edutu/Ai_games/actions/runs/41175973975/artifacts/13033176303. Nintendo benchmark not passed.",
+    "Seventeenth pass: a genuine publicly disclosed sealed-gate camera shot now uses a closer bounded view (desktop half-height 5.65, portrait 5.8 rather than 6.55/6.2), with real gate and Pip retained on screen. Browser-source regression tests and same-seed/tick 1280×900 and 390×844 dated, hash-matched images verify the candidate. Successful source CI 41180638308: 524 Node and 25 browser checks; review docs/reviews/maze-3d/gate-scale-pass-17-review.md. The Nintendo benchmark remains unpassed.",
+    "Pass 18: real closed-door camera prioritizes already-public terrain rather than blank lagoon; source 4b74885, CI 41184813290 green 524 Node/25 browser, genuine seed13 tick21 desktop/portrait screenshot hashes in artifact 13037025673, direct image inspection. Desktop waterlike mask 53.059% to 46.457% (not aesthetic score). Portrait nearly unchanged and Pip/gate still left of center. Review: docs/reviews/maze-3d/gate-stage-pass-18-review.md. Nintendo NOT passed.",
+    "Pass 19: source-only public sealed-gate composition rebalances stage and truly known closed gate in the follow camera, with original bounds and deterministic rules unchanged. CI 41189735556 passed 524 Node and 25 Playwright checks and emitted real seed13/tick21 1280×900 desktop and 390×844 portrait gate shots (SHA-pinned in artifact 13038422543). Subjects shifted modestly right; some blank lagoon returned. Review docs/reviews/maze-3d/gate-composition-pass-19-review.md. Fixed Nintendo quality bar NOT PASSED; no independent fresh critic, Ultracode or hardware-FPS conclusion.",
+    "Passes 20–21: the follow-camera view of a real public, actually sealed gate moves closer on desktop/portrait while preserving source-only authority. Pass 20 made Pip and crossed lock larger but cropped the arch; pass 21 raises the actual camera target 0.36 to restore the arch. Final source CI 41193675854 passed all 524 Node and 25 browser checks and produced real dated 1280×900/390×844 captures (artifact 13039268530, SHA-pinned in gate-framing-pass-20-21-review.md). Fixed Captain Toad bar NOT PASSED; independent critics/Ultracode unavailable.",
+    "Pass 22 source-verified: a physically modeled matching octagonal key emblem appears above a genuinely sealed gate only for the exact already-disclosed key or public inventory; a mint crest indicates key carried, while the crossed barrier persists until authority opens. Real same-seed/tick21 1280×900 and 390×844 production browser captures from CI 41197086460 inspected and SHA-pinned (artifact 13040969661), exact-source CI 41197217318 passed 524 Node/25 browser checks. The visual bar is still unpassed.",
+    "Pass 23: an exact public carried-key match and actually near sealed gate triggers Pip's real original modeled glove key and head/torso/arm gesture, with reduced-motion, guardian and terminal precedence. Initial no-key NaN defect failed 2 tests and was corrected. New genuine desktop+portrait production captures and full 526 Node/25 browser CI passed. Key remains partly occluded at native scale; benchmark unpassed.",
+    "Pass 24: Pip's real left-glove key now rises beside the helmet and faces upright instead of being hidden behind the sealed-gate masonry, while the exact public matching-key requirement and deterministic simulation remain untouched. Exact-source 526 Node/25 browser CI succeeded; actual native desktop+portrait PNGs independently hash-matched artifact 13043996998. Both improve key silhouette but Nintendo benchmark remains unpassed; see key-visibility-pass-24-review.md.",
+    "Pass 25 source candidate (not yet screenshot-verified): a physically recessed gold/mint keyhole uses only disclosed exact-key inventory while its coral crossed bars obey authoritative closed/open state. Pip's existing matching-key gesture now shows a two-tone modeled bow and warm blade with a dark glove grip, not a floating uniform mint loop. Regressions added for socket states, 3D material silhouette and open-door absence. See lock-grip-pass-25-review.md; exact-source CI 41210379937 was queued; Nintendo benchmark NOT passed.",
+    "Pass 25 rendered evidence: downloaded authentic Actions 41210379937 Maze artifact 13046850726, verified real public seed maze-visual-reference-13 tick21 observed closed door-2 desktop/portrait PNG SHA-256, directly inspected new keyhole and glove-key detail, and compared exact same-frame pass24. Visual quality still below fixed Captain Toad; browser CI red (Maze 600ms unchanged tick plus 3 Tiny Kingdom regression expectations). Documented details in lock-grip-pass-25-review.md, no gameplay authority or deterministic changes.",
+    "Pass 26 source candidate: move a genuinely public, still-closed gate's recessed 3D socket from center of the crossed seal to its camera-facing right stile and enlarge its physical ring/frame. Changes are only scene geometry (world.js), with a new exact-location/size regression (maze-3d-world.test.cjs). CI 41218924644 and native real screenshot review are pending; no new capture or benchmark win claimed. See lock-stile-pass-26-review-gate.md.",
+    "Pass 26 genuine render review: extracted CI artifact 13050431503 and independently recomputed dated desktop/portrait PNG hashes (seed13 tick21, blocked door-2), compared pixel-for-pixel against authentic pass25. Right-stile lock is marginally clearer/closer but glove→socket causality remains too small at 390px; fixed Captain Toad bar not passed. Both code/review-head CI runs cancelled after image generation, therefore not green. Full evidence: docs/reviews/maze-3d/lock-stile-pass-26-review-gate.md.",
+    "Pass 27 source candidate: an exactly carried public matching key beside its truly closed disclosed gate now selects a more intimate camera frame (portrait half-height 4.70; desktop 4.55) and shifts its focus toward Pip and the actual lock, retaining finite bounds, threat precedence and truthful barrier. New map-view composition contract and source-bound browser diagnostics keep Pip and gate in-frame without relaxing original margins. Render screenshots/independent critic and exact-head CI are pending, not a Nintendo benchmark pass. See docs/reviews/maze-3d/key-lock-framing-pass-27-review-gate.md.",
+    "Pass27 original actual rendered screenshot review: true seed13 tick21 public still-closed gate desktop and native 390×844 captured 18:45:44/48 UTC on October 31, 2026; screenshot SHA-256 hashes independently match the Actions artifact 13054098156 manifests. The genuine key/lock presentation is larger and more centered than pass26, yet upper arch clips and native physical action remains ambiguous. Lead still favors Captain Toad; pass27 CI was cancelled after evidence. Pass28 staged source changes only keyed follow-camera vertical aim to protect arch; real renders pending.",
+    "Pass 28 genuine matching-key follow-camera lift was evaluated on same-seed real desktop and 390×844 browser captures. Hash-verified screenshots show slightly better desktop arch clearance but persistent small glove-to-socket interaction, right-edge portrait arch clipping and empty lagoon; benchmark open, full CI cancelled. No gameplay changes in the evidence update.",
+    "Pass29 source-only physical-arm gesture candidate: Pip's existing key-carrying left shoulder rotates in Y/Z toward the exact disclosed nearby closed-gate bearing, bounded by the same public-key cue, with neutral/guardian/terminal and reduced-motion precedence. Test ccf0689; source 5c37549. No authority, hidden map, camera, mesh creation or gate-open changes; actual pass29 source-bound render and full CI remain pending and must be separately compared with pass28 and pinned Nintendo Captain Toad images.",
+    "Pass29 true-source desktop and portrait PNG SHA-verified; directional shoulder turns key bow partly behind gate masonry, so visual acceptance failed. Pass30 source 1a6fe8a counter-turns actual connected left elbow, tests f1da826 cover both directions and public-state resets; no authority or hidden-information change.",
+    "Pass30 true-source render verification: downloaded exact-head artifact 13064406479; recomputed unmodified desktop/portrait screenshot hashes from production seed maze-visual-reference-13 tick21 genuinely closed door-2. Connected modeled wrist lifts mint bow out from the stone relative to pass29, but glove-to-shaft-to-stile-lock contact is still unreadable at native mobile and the Nintendo bar wins. Exact source CI 41257731828 has 104 browser passes and three Tiny Kingdom failures; no Maze browser failure, but overall red.",
+    "Pass31 source-only candidate: actual glove-parented mint/gold key receives a connected front metal shank and dark finger clamps, pivot slightly closer to wrist. Structural tests cover both character LODs and preserve prior key/guardian/terminal assertions. Native 390x844 and desktop same-seed new images NOT yet captured or evaluated; latest pass30 Nintendo reference still wins. No hidden authority or deterministic gameplay changes, no merge or deployment.",
+    "Pass31 authentic rendered evidence: source 1a2650b, CI artifact 13068690719, original production seed13 tick21 still-closed door-2, desktop and native 390x844 images independently SHA-256 matched their JSON manifests. Slight local physical grip/ridge detail remains unreadable as a glove→key→lock action at native scale; Nintendo bar still NOT passed. Exact-head CI built, passed 528 Node, four stream self-tests, nondeterminism and all 15 Maze browser checks, then was cancelled in later Tiny Kingdom browser suite. No independent critic or representative hardware-FPS result; see glove-contact-pass-31-review-gate.md.",
+    "Pass32 source-only camera framing candidate: use +1.34 mobile / +1.12 desktop vertical aim solely for genuinely disclosed closed gate with carried exact matching key, preserving prior half-height and other cameras. Browser evidence asserts increased public keyed aim and records it in real screenshot manifests without changing existing thresholds. Genuine source-head images, independent blind review and complete CI still PENDING; see public-arch-framing-pass-32-review-gate.md.",
+    "Pass32 authentic desktop/390×844 screenshots were checked byte-for-byte against original dated SHA-256 manifests; desktop upper arch gains a little space, but portrait still clips the right arch and the key/lock remains tiny. Game 2 benchmark is not won. Pass33 targets only a modest camera shift toward already disclosed portrait stage, with strict source tests and a dedicated Maze visual CI gate; no pass33 image acceptance yet.",
+    "Pass33 source-head focused Maze visual workflow succeeded with dated original six-scenario browser PNGs and sidecar SHA-256 manifests. Same-seed/tick closed gate desktop is unchanged from pass32; portrait stage camera shift is visibly insufficient because the closed gate moves toward the left edge, arch still crops and key/lock action remains unreadable. Full CI failed unrelated Tiny Kingdom checks, not Maze. Details in known-stage-portrait-pass-33-review-gate.md.",
+    "Pass34 models a larger camera-facing physical socket using existing shared shapes, a joined dark crown and throat, and public-inventory-only gold/mint rim. Test contracts strengthened for both gate orientations and no false open; this source candidate is NOT visual evidence. Dated render review gate: physical-lock-pass-34-review-gate.md.",
+    "Pass35 measurement candidate: existing real 3D blade tip and matching still-closed, publicly disclosed gate socket receive source-derived projected CSS positions and separation, captured by original desktop/native browser manifests; gameplay/visual meshes/AI/camera unchanged until authentic screenshot critique.",
+    "Pass36 physically source-aimed glove-held key tooth toward only matching public carried-key CLOSED socket (no fake insertion/authority). 6 hash-verified same-seed/tick original browser screenshots; native projection 84.40 CSS px vs pass35 92.09. Still no accepted visual gain at native size.",
+    "Pass37 actual 3D octagonal bow faces public rendering camera while keeping the same source-modeled closed socket aim and connected glove; 0.17→0.215 bow radius. Desktop/native diagnostics, geometry tests and characters.js source hash added. New authentic capture and critic pending.",
+    "Pass38 genuine portrait-only lowered oblique lock camera (source b3dda36) was independently hash-captured but REJECTED after real image inspection: actual 65.83 CSS px key/socket, character hidden by stone foreground. Camera reverted.",
+    "Pass39 public known-stage camera bias .35→.56 was hash-verified (source e7a65a4) but REJECTED: lagoon somewhat reduced while real closed gate driven left and arch still cropped. Bias reverted to .35.",
+    "Pass40 source 65b2c24 keeps original gate/hero frame, adds fixed 128×128 tileable depth/caustic raster to existing lagoon water (no new meshes, textures or authority). JS parsing/source pixel check completed; source-bound CI original dated screenshots QUEUED.",
+    "Pass40 source 65b2c24 exact original render verified 6 SHA-256 PNGs from CI 41305146762, but bright caustics became blurry floating spots and visually degraded scene. REJECTED and water restored in pass41.",
+    "Pass41 a988853 true matching-carried-key/actually-closed-gate HUD is now verified by original dated CI 41306288258 and real 390x844 native screenshot (SHA 82e815c3...). It reports sealed status, never a fictitious unlock. Crowded gate and cropped architecture remain.",
+    "Pass42 genuinely rendered 1280px source image and Lead critic rejected visual advance; after strict neutral -0 fix the new shell had only a 0.1494% localized pixel change vs Pass41. Pass43 physically increased shell split and wing-attached top ember fissure; original native 1280x900 exact-source encounter PNG reviewed and still rejected: visually almost identical dark oval. Pass44 stages public guardian/explorer Detail camera framing and new source-bound 390px encounter evidence, with no authority/AI changes.",
+    "Pass45: actual source-tick13 public guardian Detail camera now keeps Pip and Thornback on-screen at native 390px (one warden in frame with margin; explorer x NDC −0.5872). Exact original seven PNGs hash-verified from CI artifact 13086937045. A lead critic accepts only local two-actor staging; fixed Nintendo benchmark remains stronger.",
+    "Pass46: share the existing soft 64×64 alpha contact texture/geometry under every currently public Thornback, tracking real sampled floor without allocating per render frame, and clearing when undisclosed or reset. Exact-source CI 41316521507 succeeded and produced 7 original hash-matched PNGs (artifact 13086859828); desktop/mobile original-frame pixel changes remain a small 0.358%/0.434% near the warden. Functional contact accepted; perceptual scene-quality gain REJECTED at native size.",
+    "Pass47: replace warden jade-on-jade color mass with distinct original slate-violet armor, copper plates and warm brass/ivory body details. Authentic seed13 tick13 1280×900 and 390×844 output (CI 41317053428, artifact 13087783365) shows a clearly separable carapace and face vs teal ruin; 0.584% desktop/0.725% mobile pixels change >12 RGB, only around warden. Lead accepts local color separation, NOT Captain Toad parity or blind independent win.",
+    "Pass48: removed 3D ivory uncommitted-neighbor floor arrow halo from the true autonomous presentation, while preserving raw publicWayfinding and in-world public planned-route cyan plus observed-reachable key/exit amber/mint. Real seed13 tick13 native and desktop images from exact-source successful CI 41317658301/artifact 13087861877 7/7 original SHA-matched. At 390px an actual four-arrow control-like cluster vanished behind Pip; other known-key/gate frames retain truthful disclosed goal props. No game-state/AI path decision changes. Lead accepts local UI/scene clarity, NOT Nintendo parity.",
+    "Pass49: committed original eight-ray ivory/bronze modeled tide-rose exit crown, visible only when public exit cell is truly disclosed, no deterministic/hidden boundary change. Exact source a12cb46 focused browser CI 41322128665 SUCCESS; original artifact 13089920665 7/7 UTC PNG hashes independently matched. Actual observed exit tick26 desktop crown gains clear unique material silhouette vs Pass48; local 2941/1152000 RGB pixels changed >12; six unrelated frames are byte-identical. Lead accepts narrow landmark improvement, NOT Nintendo win or separate fresh blind verdict. Native 390px exit imagery still needed.",
+    "Pass49b source-only proof gate: real native 390x844 public exit/hero same-seed/tick screenshot inserted into existing Chromium browser evidence, with dated PNG/JSON source hash and no new fake world state. Require eight actual hash-verified source-head screenshots and native critic before accepting; full fixed Nintendo bar remains NOT PASSED.",
+    "Pass49b verified real 390x844 observed-exit production image in exact source focused CI 41322991290, artifact 13089099965. Original 2026-11-01 15:49:52.572Z tick26 SHA e3aaf8766221e6e257755d126ff4d45437981d0b4bd6b054d3d826815919aefc, 8/8 actual image hashes independently match dated source JSON. Lead full-native-frame inspection sees both Pip and disclosed exit within frame but upper-right architecture cropped. Nintendo benchmark NOT PASSED; CPU-software timing is not real GPU FPS.",
+    "Pass50 initial ONLY-global-border hanging-garden candidate d8b8333 / test ce0c3187: exact-source focused CI 41326153770 SUCCESS, artifact 13091302169, 8/8 actual original PNG SHA-256 verified. Same-seed/tick native exit and warden screenshots change 0 RGB pixels >12; desktop exit only 2; local visual advance REJECTED because public border foliage is outside typical partial-knowledge camera. Functional test success is not a visual win.",
+    "Pass50 correction 07d4c8c lifts original reusable green foliage batches to actual disclosed SOLID interior wall crests, never undecided passages, and preserves global true-border planter. Source 62a5349 privacy+resource tests distinguish known wall and undecided neighbor. Original failed intermediate CI 41326502880 tested old assertion (48 instanced blades vs 24 global-only expected) and is not treated as a product render verdict. Exact-source follow-up visual CI 41326551467 was in progress; independent critic, NVIDIA/other real hardware performance and fixed Nintendo acceptance remain open.",
+    "Pass50b authentic source-bound render: wall-crest candidate 07d4c8c with public-only tests 62a5349, focused CI 41326782605 SUCCESS, original artifact 13091383163 eight PNGs and eight dated source JSON sidecars independently SHA-verified. Real 390x844 exit 2026-11-01T16:33:46.827Z SHA 966e27239deac26ed78c4267f46c798af120435d48e05a94ab5f0f7887d98375. Original native same-state A/B vs Pass49b shows foliage visible on actually disclosed solid wall crests (9045/329160 changed >12RGB); lead accepts local more intentional green stage, no independent reference win or hardware FPS.",
+    "Pass50b engineering: intermediate browser CI 41326551467 failed on 60s total test timeout during 8th native screenshot, after 7/7 original dated PNGs had been source/SHA checked; it is not a green run. Identical gameplay source CI 41326782605 produced all 8/8 SHA matched original captures successfully. Only evidence test timeout extended to 100s on source fcc03df due CPU-throttled software SwiftShader, not a change to game performance or visual bar.",
+    "Pass51 source candidate: publicly disclosed exit gains two rear-set physically modeled jade/ivory/bronze tide-observatory towers with lit caps and a low bronze tide-dial floor inlay, using only pre-existing world geometry and materials. No new authority, hidden knowledge, navigation platform or per-frame objects; original dated native screenshots, CI and independent fresh-context Nintendo critique PENDING. Do not confuse Pass50b evidence with this candidate.",
+    "Pass51 authentic real WebGL gate FAILED twice at native tick13 guardian margin. Archived downloaded original four-file CI artifact 13092980203, independently recomputed both image SHA256 digests. One real public guardian stays center-visible but loses full-model margin after a genuinely taller portrait game-first stage changed the orthographic aspect; not a test timeout or hidden state.",
+    "Pass52 public Detail framing source candidate: preserve original actor-pair horizontal 4.275-world-unit half-span on taller native game stage without reverting HUD, moving actors, revealing hidden map or changing deterministic authority. Camera helper, integration and Node tests committed; next exact-source browser and independent review pending.",
+    "Pass52 real pre-overhaul 8/8 original SHA-verified browser captures show guardian camera fix recovers actual native warden margin, but retain excessive bottom-game text. Genuine exit and gate stage sources recovered for fixed-bar comparison.",
+    "User requested gameplay-first source: new gameplay-hud.css + index.html UI revision4 make native WebGL full-bleed; compact labels/chips and public-only AI/goal/time/keys/discovery; on-demand Map, Path Details and Settings; remove quoted footer/compass/large bottom paragraphs, preserve captions/recovery/accessibility.",
+    "Pass52c Follow camera source c79d585 protects prior horizontal public-world span across taller full-screen 390x844 stage; exact source browser test/dated screenshot candidate pending. No authority, route, hidden knowledge, AI state or collision change.",
+    "Pass53 actual fullscreen repair: Maze server public asset whitelist now serves gameplay-hud.css (HTTP 200) instead of old HUD grid 404; shared quality contract expects real revision4; every camera/sound/fullscreen/settings touch control >=44px at 390/320, with no removed public-state or real visual assertions. Exact-source eight original WebGL screenshot hashes revalidated.",
+    "Pass53 evidence expansion: real 320x740 portrait + 844x390 landscape true production guardian WebGL capture gates, each with UTC SHA-256 and CSS/app/scene source hashes, real full-model margin and controls; source committed, exact-head CI pending.",
+    "Pass54 disclosed 3D mineral court rebuild: shared instanced clay/sea-glass paving, varied 3x3 districts and symmetrical low relief; actual source 991fd76. Separate 38f660b test parser fix, warm real-viewport 320/844 screenshot capture 364ca36, and first-real-frame cold UI gate 00578f0. Exact latest source CI pending; no independent benchmark win.",
+    "Pass55 SOURCE CANDIDATE 44ec1a1: tileable two-family caustic water pigment and 44 shared-resource instance-batched semi-transparent surface contours at a constant depth below the public game stage, keyed solely to public dimensions. New test guards unchanged background across hidden/revealed state, run reset, resources, no invented floors and no render-frame allocations. Focused CI 41341337582/real dated captures pending. Previous 00578f0 focused SUCCESS with 10/10 independently verified dated WebGL PNG hashes; official Nintendo art bar still NOT PASSED.",
+    "Pass56 original Thornback public encounter: added connected modeled foreleg pincers and articulated bracing, 3-axis antenna tracking, mask advance and mandible reaction for genuinely disclosed threat only; strict balanced/full and static reduced-motion resources test; fixed signed-zero reset in source, not test. Trimmed generic on-screen subtitle to 'Explore' without concealing an accessible objective. Commits cc8b2c7, 409c671, 7ef441d, 171b8ff.",
+    "Pass57 source-only physical hero performance: Pip now truly bends articulated knees, recoils/crouches, turns face, braces both arms/lantern and trails scarf toward a source-disclosed guardian, with no gameplay authority changes and static reduced-motion. Strict test found actual signed-zero reset defect, corrected in game source. Focused exact-source CI 41351065043 successful with 10/10 authentic native WebGL SHA matching and true 320/390 guardian margin. Nintendo fixed bar still NOT PASSED.",
+    "Pass58: actual original physical Thornback warning performance now has a connected split central spine and two hinged sea-glass botanical frond fans attached to its real elytra, each with modeled bronze struts and amber veins. First gold-ring iteration was visually rejected as a misleading fake collectible. Revised real guardian now visibly unfurls only on genuinely disclosed close encounter, remains static under reduced motion and clears on terminal/withdrawn public state, with no new AI command, hidden map leak, rendering-frame mesh allocations or game-first HUD text.",
+    "Pass59: original source-disclosed three-tier court world styling keeps distinct physical high ivory/clay guardian court, mid red-clay/ivory and lower green/stone tidal district, plus shallow engraved safe lower edges. The first ivory-heavy palette was rejected in real native WebGL screenshots; corrected two-step builder response restores focal contrast. World-source full/balanced regressions prove per-level actual 3D instance geometry, safe public-only effects, resource bounds, replay/teardown. No navigation, hidden layout or AI authority changes.",
+    "Pass60 candidate: an actual known Pip/Thornback encounter on true full-bleed 320/390 portrait can bring the same real physical 3D actors up to 16% closer with safe projected model margin from public positions only; no fake scaling, path/AI authority or prose HUD changes. New exact-source Node/Playwright screenshot CI is pending; do not assert image improvement yet.",
+    "Pass60 safety revision: true public camera target easing is included in the physically safe guardian framing; candidate refuses tighter zoom if either the incoming public aim or actual prior camera target would crop a real character. Authored source 74959de/1d57917, strict test 3cfd2e. Current exact-source real CI 41361748745 queued.",
+    "Pass61: rejected prior portrait camera candidate on real source-bound pixel evidence (10/10 PNGs identical to Pass59); strengthened actual disclosed guardian-pair portrait Follow center with bounded 46% focus, preserving 1.35-world-unit silhouette and movement/hidden-state safety. Fresh source-native screenshots and independent Nintendo critique are required before visual acceptance.",
+    "Pass61 evidence correction: prior identical real screenshots all used Detail mode and therefore could not test Follow-only camera. Real native 320/390/844/1280 WebGL Follow images now captured on actual camera toggle in 41365657664 artifact 13106559848; 14/14 screenshot SHA-256 verified; guardian and Pip remain in-frame without reducing test thresholds. Nintendo still wins. No older same-mode Follow A/B exists yet.",
+    "Pass62: exact-source failed 390x844 native Follow screenshot caught genuinely clipped physical guardian sail (right NDC 1.00389). Source e0be79c now balances real public Pip and larger articulated Thornback silhouette, not just eye centers, and preserves a stricter .94 clearance through eased camera targeting. Actual fixed WebGL 390/320/844/1280 screenshots all retain full models, full stage and 44px controls; no new HUD prose, no altered hidden-state rules.",
+    "Pass63: original on-screen physical gate retraction is triggered exclusively by a same-run public closed→open transition, unlike false cinematic unlocks for undiscovered or merely held keys. Real bronze bars lift into their actual lintel for <=0.85s or clear immediately in reduced motion; still awaits event-specific rendered image acceptance. Corrected old test ESM loader 62a8605 and a TRUE game runtime server 404 for transitive /maze/gate-moment.mjs in 586df83, with explicit public module HTTP MIME gate and source-bound evidence manifests. No new HUD prose or private AI state; official Nintendo bar still wins.",
+    "Pass64: true same-run public edge 77–94 CLOSED tick7→OPEN tick8 from genuine MazeRuntime sequence, not injected. Exact-source focused CI 41384708930 passed and artifact 13114419838 original dated 1280/390/320/844 screenshots independently SHA256 19/19 match. Real after-closeup camera pulls into wide scene and weakens action. Source 4378c5f/05f2cd2 introduces public-only observed nearby gate camera beat up to 1.35s; source 04db3a6 adds no-fake-event/mismatched-key/privacy tests. New source WebGL CI 41385344155 and whole CI 41385344162 require verification before a visual claim.",
+    "Pass65: both physically disclosed gate jambs now carry original 3D pulley wheels, spokes, cable and descending stone weights synchronized to an actual public 0.85s portcullis lift; fully settled open gates and reduced motion use the open pose. Reused resources, WeakMap rather than serializable userData, real Three object/pose tests, and same-tick phantom public opening prevention. Source-bound native renders and independent critique pending; no more HUD paragraphs."
+  ],
+  "nextGaps": [
+    "Pass65 original render review: retrieve real exact-code source-bound 19 native full-resolution WebGL screenshots (1280×900 true gate BEFORE/AFTER, 390×844, 320×740, 844×390, plus existing guardian/goal shots); independently verify image/source SHA sidecars, inspect actual pulley/stone motion or settled opened pose, hero and full guardian geometry margins, 44px targets and low-text full-bleed stage. Critic must reject barely legible mechanics, cropped geometry, cluttered key-like cues or a weak immediate wide after-camera against the fixed Nintendo Captain Toad imagery. No artificial mid-lift screenshot, false visual win or hardware GPU claim.",
+    "Pass62 native real-Follow full silhouette crop has been corrected and accepted only for **physical framing** (strict actual 390/320 source screenshot, 14/14 hashes). Next biggest fixed-Nintendo gap is physically authored interactive gameplay storytelling: distinct living scene landmarks, actor/guardian/environment reactions, polished original character motion and clear visual cause/effect. Require independent source-matched image critique when workspace tunnel recovers; do not substitute more dashboard text, loosen cropping thresholds or declare Nintendo win.",
+    "Major authored world/scene gap: replace repeating flat court and lagoon negative space with visually distinct original coherent playable locations, real material masses, discoverable goal staging and multi-beat physical reactions without inventing private passages, false traversable geometry or new abilities. Direct new native screenshot critic must judge each independently.",
+    "Keep low-text full-viewport actual 3D HUD: actionable goal, time, keys, discovery, public danger and current AI movement, true event captions, 44px one-handed controls, on-demand accessible Map/Details/Settings, mobile portrait/landscape, high contrast, reduced motion, clean feed, reconnect/fallback, keyboard focus and exact source/privacy.",
+    "Restore fresh-context independent builder/critic subagents and Ultracode when shared workspace tunnel works; require actual full-resolution fixed-Nintendo comparison, blind same-seed A/B when feasible, no benchmark win until independently supported. CPU-throttled SwiftShader is not hardware GPU FPS.",
+    "Inspect separate full-monorepo CI against the exact latest PR source; focused 41358029925 passes 46/46 + original screenshot 10/10; do not silently infer all CI green. Continue draft PR #53 without merge or deployment.",
+    "Pass59 real direct critic: current fully framed native 320 guardian pair is still too small for distinctive physical scene acting, and 3D level identity is below the unchanged Nintendo fixed bar. Improve genuinely public actor pair/encounter staging and authored world landmarks without clipping or HUD prose. Inspect full-monorepo CI for exact newest test-only af1a3b5 head; previous full CI failed an obsolete escape-text expectation, corrected without weakening canvas/privacy checks."
+  ],
+  "reviews": [
+    {
+      "title": "Environment comparison · first pass",
+      "reviewer": "Independent environment critic",
+      "verdict": "Reference wins",
+      "date": "2026-10-30T18:57:29.362181+00:00",
+      "summary": "The scene still reads as a repetitive flat maze board. Improve architectural hierarchy, focal landmarks, garden scale and material richness. The fixed bar has not been lowered."
+    },
+    {
+      "title": "Environment comparison · second pass",
+      "reviewer": "Fresh environment critic",
+      "verdict": "Reference wins",
+      "summary": "The candidate remains a shallow corridor network. Substantial architecture, quieter water, stronger material separation and grouped foliage are the highest-value changes."
+    },
+    {
+      "title": "Character comparison · first pass",
+      "reviewer": "Fresh character critic",
+      "verdict": "Reference wins",
+      "summary": "The 3D explorer has a distinct identity, but the amber/ivory body merges into sandstone at gameplay scale. Broader colour masses, simpler facial detail and clearer pose are needed; warden and motion evidence pending."
+    },
+    {
+      "title": "Integrated terraced scene · third pass",
+      "reviewer": "Fresh independent visual critic 3",
+      "verdict": "Reference wins",
+      "date": "2026-10-30",
+      "summary": "Real 3D world and developed explorer/beetle characters are supported by the inspected captures. Captain Toad still wins on landmark composition, connected materials, expression and use of screen space. The comparison was explicitly unblinded because the reference is recognizable; the later fourth-pass changes have not been judged."
+    },
+    {
+      "title": "Portrait composition · blind A/B",
+      "reviewer": "Fresh independent mobile critic 4",
+      "verdict": "Latest version wins A/B; reference still wins",
+      "date": "2026-10-30T20:29:03.500Z",
+      "summary": "The critic selected anonymous B, the fourth pass, before seeing version identity: more scene height, larger explorer, clearer objective and less persistent interface. Remaining gaps are distinctive local staging, expressive action, key contrast and an explicit relationship between the current goal and collected inventory."
+    },
+    {
+      "title": "Current world and characters · blind A/B",
+      "reviewer": "Fresh independent scene critic 4",
+      "verdict": "Latest version wins narrowly; reference still wins",
+      "date": "2026-10-30T20:37:17.909199+00:00",
+      "summary": "Anonymous A, the fourth pass, has a clearer key, explorer face, quieter planting and more natural captions. The guardian encounter is nearly tied with the prior version. The fixed reference still leads in expressive encounter staging, distinctive landmarks and character/material separation."
+    },
+    {
+      "title": "Fifth-pass CI capture — initial artifact inspection (not independent)",
+      "reviewer": "Lead inspection of actual CI screenshots; fresh-context critic not available",
+      "verdict": "No new fixed-bar verdict; encounter staging remains open",
+      "date": "2026-10-30T21:30:00Z",
+      "summary": "The current-source 1920×1080 and 1280×720 views show an original terraced garden, Pip, a disclosed beetle guardian and a stage route, but the actors are widely separated. These frames do not show proximity-triggered attention or an actionable encounter moment. Prior independent fourth-pass critics still prefer the official Nintendo reference. A separate blind A/B critic is required."
+    },
+    {
+      "title": "Sixth-pass real close-encounter comparison — lead inspection only",
+      "reviewer": "Lead direct inspection of actual source-bound CI captures; fresh-context independent critic unavailable",
+      "verdict": "Actual near encounter visible; not enough expressiveness to pass Captain Toad bar",
+      "date": "2026-10-30T22:33:29Z",
+      "summary": "Aligned production run maze-visual-reference-13 at tick 13 and public 2.236-cell separation: both Pip and Thornback fit inside the actual camera. Increasing disclosure-only reaction strength 0.28033 to 0.56065 changes only about 1.24% of the 1280x900 image pixels, concentrated around the actors. At gameplay size the characters and intervening walls are visible but the threat response, escape decision and refuge/route are not independently obvious. This is not a fresh-context critic or a blind verdict. The latest real capture is in GitHub CI artifact 13018455473; source and image hashes are in docs/reviews/maze-3d/encounter-pass-06-review.md."
+    },
+    {
+      "title": "Seventh-pass authentic actor-silhouette encounter — lead inspection only",
+      "reviewer": "Lead inspection of two actual same-seed, same-tick CI 1280×900 screenshots; separate fresh-context critic unavailable",
+      "verdict": "Readable reaction cues added; reference still wins; independent A/B and route/refuge gates OPEN",
+      "date": "2026-10-30T23:00:59.792Z",
+      "summary": "Production screenshot SHA-256 6da5918ded4c87e74905cb44020dcc211cc7169bb4c1644f0ab014022d2c5bb0 shows Pip's new gold/coral overhead rune and Thornback's raised glowing spines from public disclosed state; 1.115% of exact-aligned pixels change versus sixth pass. The actor encounter is more readable, but an uninstructed viewer still cannot identify an actionable safe route/refuge from the image. This is lead observation only, not a blind independent verdict. Actual dated browser artifact: https://github.com/my-edutu/Ai_games/actions/runs/41141142748/artifacts/13018794986. Room still CPU-throttled for software graphics; no hardware FPS evidence."
+    },
+    {
+      "title": "Eighth-pass authentic corridor/guardian screenshot — lead review, not blind independent critic",
+      "reviewer": "Lead inspected two authentic same-production-frame PNGs; independent critic and Ultracode unavailable",
+      "verdict": "Known local passages more legible; no confirmed safe route; Nintendo reference still wins",
+      "date": "2026-10-31T00:35:43.336Z",
+      "summary": "Actual CI source 5762284, same seed maze-visual-reference-13/tick 13, two public actors in frame. Pip now has a triangular warning sign and three pale local known-corridor arrows; no single planned teal choice or safe refuge is demonstrated. Same-frame pass7/pass8 RGB changed 0.3273% of pixels, which does not imply perceptual parity. Actual screenshot SHA-256 7e811af06d90c87a0d0f7c3f79bc156d758d44f886907e4b8caad0a9b522f379; CI artifact https://github.com/my-edutu/Ai_games/actions/runs/41150638243/artifacts/13022687590 . An independent blind verdict and hardware FPS remain unverified."
+    },
+    {
+      "title": "Tenth-pass known-landmark wayfinding — real output, lead inspection only",
+      "reviewer": "Lead inspected two authentic same-production-frame 1280×900 screenshots; fresh-context independent visual critics unavailable",
+      "verdict": "Lawful known-exit floor cue visible, crowded exit/hero hierarchy; Nintendo fixed bar NOT PASSED",
+      "date": "2026-10-31T01:45:30.284Z",
+      "summary": "Observed production seed maze-visual-reference-13 tick26, exit cell69 one disclosed passage away. New mint glyph is visible, independently distinct from optional turquoise AI plan, but the portal/beacon overlap and very small hero still weaken frame hierarchy. PNG SHA-256 ca2faf27d9abc369a68af0a42ec05f28b195b286929969fadb6da154d3f3829e. Previous same-seed frame SHA-256 54ef5abe89fef5a6d7a1ba524d42518ecd247b1f3e67cf71593abd2bd9bb8ff4. Artifact https://github.com/my-edutu/Ai_games/actions/runs/41156437915/artifacts/13025591289. 0.2687% aligned pixel delta is NOT a perceptual quality score. No blind A/B nor hardware performance evidence."
+    },
+    {
+      "title": "Eleventh-pass real exit and closer Pip — lead native-size inspection",
+      "reviewer": "Lead inspected same-seed/tick genuine CI browser frames; independent critic tunnel unavailable",
+      "verdict": "Portal/hero clarity improved, world composition still weaker than Nintendo; benchmark NOT PASSED",
+      "date": "2026-10-31T02:07:46.806Z",
+      "summary": "Actual 1280×900 browser output source 12d32cb, public seed maze-visual-reference-13 tick26, source-bound PNG SHA-256 4f00eca791ef87e343008e4f781e809c58342220a511254d371521d6fb549998; current artifact https://github.com/my-edutu/Ai_games/actions/runs/41157967040/artifacts/13026233263. Floating extra gem/ring no longer crowds exit, explorer larger. But greater empty water and stage crop remain. This is not a blind fresh-context critic win."
+    },
+    {
+      "title": "Thirteenth-pass key and sealed-gate source-bound 3D screenshots — lead visual review, independent verdict outstanding",
+      "reviewer": "Lead inspected actual native-size CI images; fresh independent subagents and Ultracode unavailable (shared workspace tunnel)",
+      "verdict": "Known golden key legible; sealed-gate cross visible but small and obliquely staged; fixed Captain Toad reference still wins",
+      "date": "2026-10-31T04:49:08.171Z",
+      "summary": "Actual 1280×900 browser PNGs from production seed maze-visual-reference-13: key tick16 SHA256 6cdc984a165b036c20fc090f5abc0d7aad5d2a610fb616bf691c1394a1434b55; sealed gate tick21 SHA256 157d9127446bd49abbda53a2f0183309596a50e5b36d5fb6727dfccf26088613. Both source-bound to gameplay commit c072f0a, real key/gate projected on screen, no fake props. CI artifact https://github.com/my-edutu/Ai_games/actions/runs/41169676492/artifacts/13030701894. Lead compared to existing fixed Nintendo screenshots; no independent A/B win or hardware-FPS evidence."
+    },
+    {
+      "title": "Fourteenth-pass actual disclosed sealed gate — lead native-size inspection; independent A/B pending",
+      "reviewer": "Lead reviewed same-frame real browser PNG; shared workspace fresh-context critics and Ultracode unavailable",
+      "verdict": "Foreground X and lock more readable; fixed Captain Toad bar NOT PASSED",
+      "date": "2026-10-31T05:04:37.546Z",
+      "summary": "Unaltered production seed maze-visual-reference-13 tick21 closed door-2: new 1280×900 PNG SHA256 3ef0814c04f38a2465687b7feded50c6d8b7dc24c3da6ed2278de74f356ef668; previous same-frame PNG SHA256 157d9127446bd49abbda53a2f0183309596a50e5b36d5fb6727dfccf26088613. Artifact https://github.com/my-edutu/Ai_games/actions/runs/41170583499/artifacts/13031426025 holds dated PNG and source manifest. Lead observed improved foreground coral X / gold lock, but Pip remains partly obscured and gate left-edge/small. No independent blind A/B. CPU-throttled software timing not hardware FPS."
+    },
+    {
+      "title": "Sixteenth-pass authentic desktop/portrait public gate comparison — lead review only",
+      "reviewer": "Lead native-resolution inspection of source-bound CI images; independent critic unavailable",
+      "verdict": "Local Pip/gate separation improved; fixed Captain Toad bar NOT PASSED",
+      "date": "2026-10-31T06:24:43.717Z",
+      "summary": "Exact source ff31870 / CI 41175973975 passed 524/524 Node and 25/25 browser tests. Real same-seed tick21 desktop gate PNG SHA256 e7620535601d1405d738b0521a2e5783cafbb70be23d208672a60955e75c0ed9; portrait gate 075450e0201219402109b94fde9f155abc64de1fa1cdc1fa4be79c7be2c3e16e. Pip and the blocked gate share the frame more legibly after restrained side camera rotation, but world-space intent and stage composition remain weak. No independent blind Nintendo comparison or representative hardware FPS; workspace tunnel unavailable."
+    },
+    {
+      "title": "Seventeenth pass · real sealed-gate camera-scale review",
+      "reviewer": "Lead inspection of authentic browser images; fresh-context independent critics unavailable",
+      "verdict": "Real enlarged two-subject shot; fixed Nintendo reference still wins",
+      "date": "2026-10-31T07:34:19.878Z",
+      "summary": "Source-tested CI 41180638308 passed 524 Node and 25 browser checks. Real source-bound seed maze-visual-reference-13, tick21 gate: desktop 2026-10-31T07:34:16.528Z SHA256 6572c9ac86e9b3348999a6dc47c4e1e5a0bdffe4613cefb77e32f45f4cf610e3; portrait 2026-10-31T07:34:19.878Z SHA256 9cd7c40bd8c6aca309aa7ad7544e66fef2707aa7dc6eae97a9362107a37d8157. Images from GitHub artifact 13034534406; no invented props. Both actors and obstruction better scaled, but water remains extensive and next action is unclear; no independent blind A/B. CPU-throttled software graphics is not hardware FPS evidence."
+    },
+    {
+      "title": "Pass 18 · actual source-verified coastal sealed-gate reframe",
+      "reviewer": "Lead inspection of native-size actual WebGL screenshots; independent fresh-context critic unavailable",
+      "verdict": "Local known-stage occupancy improved; original pinned Captain Toad benchmark still wins",
+      "date": "2026-10-31T08:37:13.673Z",
+      "summary": "Source commit 4b74885 passed CI 41184813290: 524/524 Node, 25/25 browser. Actual same production seed tick21 door-2 desktop PNG hash cea444431f35ff409c32b67aefe447c4231fca9aad73dfa3722d601d8f16c9b6 and portrait 3cca0e4f13367a5b8ec4c5fb1622c7419c841016aeebf662fc347d5c402ed058 matched artifact 13037025673. Visually less empty left lagoon, but subjects leftward and physical action unclear. No independent A/B or hardware GPU FPS."
+    },
+    {
+      "title": "Pass 19 · authentic sealed-gate camera and coastal-stage trade-off",
+      "reviewer": "Lead native-image comparison and SHA-256 verification of real browser PNGs; independent critic unavailable",
+      "verdict": "Small Pip/gate recentering observed with some water-occupancy regression; fixed Captain Toad bar NOT PASSED",
+      "date": "2026-10-31T09:49:42.604Z",
+      "summary": "Source 396ceb6/test 384f7b2 exact-source CI 41189735556 passed 524/524 Node and 25/25 browser. Real seed maze-visual-reference-13 tick21 closed door-2 desktop 09:49:38.913Z PNG sha256 3b1fe041889964c3699f7ecb2d5622c52ba17437a2764a73c0de220c1b2627e3; portrait 09:49:42.604Z sha256 02549d09399f24c55ef5bab262103065e1ea5fb589ad6b7fa70fd7957bb075ac, verified against original CI artifact 13038422543. Screen x gate/Pip desktop -0.45917/-0.32761→-0.38868/-0.25713; portrait -0.48518/-0.24304→-0.45710/-0.21496. Crude desktop waterlike proxy increased 46.413%→47.064%; objective clarity still below Nintendo. No fresh independent blind A/B, Ultracode or representative hardware FPS."
+    },
+    {
+      "title": "Passes 20–21 · genuine close-gate staging and arch restoration",
+      "reviewer": "Lead direct native-image critique; independent fresh-context critic unavailable because workspace tunnel disconnected",
+      "verdict": "Larger Pip/gate, restored arch but more water; Nintendo Captain Toad fixed bar NOT PASSED",
+      "date": "2026-10-31T10:44:16.172Z",
+      "summary": "Original actual public seed maze-visual-reference-13 tick21 disclosed sealed door-2. Pass20 CI 41192941034 source 9130a35 passed 524/524 Node,25/25 browser; pass21 CI 41193675854 source 2d3e08d passed same. Final genuine artifact 13039268530: desktop 10:44:14.289Z SHA 175dbe92880684723408b93a717c681095099b546c79b9fc66cfc05d923b9d9e, portrait 10:44:16.172Z SHA 49579cd2af952d74ea1da6f50ed4f6779ca1ebc06afe9f246182fcb1a7c99f18, both verified original PNG. More arch and same larger game-scale hero/barrier but left-biased and large lagoon. Source-bound review docs/reviews/maze-3d/gate-framing-pass-20-21-review.md; no independent A/B or hardware FPS."
+    },
+    {
+      "title": "Pass 22 · observed key crest and still-sealed gate",
+      "reviewer": "Lead inspection of genuine CI capture (NOT independent)",
+      "verdict": "Key crest visibly improved; fixed Nintendo reference still wins",
+      "date": "2026-10-31T11:35:56.592Z",
+      "summary": "Genuine same-seed/tick21 desktop and portrait renders in CI artifact 13040969661 show an extra mint key emblem above a real closed gate, with unchanged camera projections and verified screenshot/source hashes. Pip/lock action remains ambiguous and Nintendo wins. A separate fresh blind critic was unavailable due disconnected workspace."
+    },
+    {
+      "title": "Pass 23 · real rendered key-in-glove reaction at closed gate",
+      "reviewer": "Lead direct original screenshot inspection; separate fresh-context critic unavailable",
+      "verdict": "Physical head/arm reaction now visible; key occluded, fixed Captain Toad reference still wins",
+      "date": "2026-10-31T12:04:55.569Z",
+      "summary": "Genuine 1280×900 and 390×844 seed maze-visual-reference-13 tick21 still-closed door-2 screenshots are hashed in CI artifact 13041484155. Pip turns toward lock, but key partially hides behind close masonry, native-scale portrait cannot express key-to-lock cause; no independent A/B or representative GPU measurement. CI passed after fixing neutral-gaze NaN."
+    },
+    {
+      "title": "Pass 24 genuine carried-key height and occlusion review",
+      "reviewer": "Lead actual-image review; independent critic unavailable",
+      "verdict": "Source improvement; fixed reference still wins",
+      "date": "2026-10-31",
+      "summary": "The already-carried key is now visibly raised above the gate post on authentic same-seed desktop and portrait WebGL captures (artifact 13043996998; SHA-verified). Hand/lock storytelling and miniature stage composition remain weaker than Captain Toad. This is not independent A/B or a quality win."
+    },
+    {
+      "title": "Pass 25 exact-source 3D keyhole/keyblade, native desktop and portrait",
+      "reviewer": "Lead inspected original source-bound browser images; separate fresh-context critic unavailable",
+      "verdict": "Local lock/key detail improved, entire scene remains below fixed Captain Toad; no independent blind A/B or CI pass",
+      "date": "2026-10-31T14:38:41.987Z",
+      "summary": "Authentic original PNGs from Actions artifact 13046850726, seed maze-visual-reference-13 tick21 and known blocked door-2: desktop 1280x900 14:38:39.941Z SHA 223fe47e9d443a6d83a0860746433f2d1bd2638318327ed600117541f46586f4; portrait 390x844 14:38:41.987Z SHA 99ef106b256cbc347887de25c755c38a22b95e8123208ce98a383e6b53dc2401. Compared exact pass24 original screenshots. New physical lock/key colors are present but tiny hand/slot interaction and empty water still fail Nintendo bar. Browser suite 103/107 due one Maze cadence and three unrelated Tiny Kingdom source-expectation failures."
+    },
+    {
+      "title": "Pass 26 right-stile recessed lock candidate — image evidence required",
+      "reviewer": "Lead source-only review; fresh-context image critic unavailable",
+      "verdict": "Pending authentic pass-26 render; fixed benchmark still NOT PASSED",
+      "date": "2026-10-31T16:22:05.013Z",
+      "summary": "Source fd2f0f7 moves the 3D lock to the camera-facing stile and enlarges the socket, preserving authority. Contract test 2e1443c added. Exact-head CI 41218924644 still in progress; no actual post-change screenshot exists yet in this review. Last inspected authentic desktop/portrait reference remains pass 25 (Actions artifact 13046850726), where key/lock relation was tiny. CI 41212489803 on previous head failed only three separate Tiny Kingdom expectation checks, with 104 browser checks passed. Independent critics/Ultracode unavailable via workspace tunnel; cannot judge new visual quality or hardware GPU FPS."
+    },
+    {
+      "title": "Pass 26 native visual verification · lead review",
+      "reviewer": "Lead-side actual-render inspection (not an independent critic)",
+      "verdict": "Reference wins",
+      "date": "2026-10-31T17:14:00Z",
+      "summary": "Verified genuine SHA-matched desktop and 390×844 portrait seed13/tick21 captures from artifact 13050431503. Lock shifts modestly toward Pip but at native mobile scale physical key/lock interaction is still too small and scene dominated by lagoon. CI runs cancelled after capture; no independent A/B victory or hardware FPS claim."
+    },
+    {
+      "title": "Pass 27 public-only matched-key camera: source review gate",
+      "reviewer": "Lead implementation and source-contract review; independent fresh-context image critic unavailable",
+      "verdict": "Real rendered candidate NOT YET INSPECTED; fixed Nintendo benchmark remains NOT PASSED",
+      "date": "2026-10-31T18:38:15.708Z",
+      "summary": "Source map-view/scene camera commits 83b14f8 and b303f2b stage only the actual exact matching carried-key and publicly closed-gate encounter; focused/strict browser regression commits 08333c6 and 46d5f02. Correctness and photo quality are not inferred from source or assertions. Previous original pass26 artifact 13050431503 is the latest inspected evidence. Exact-source browser images, image hashes, full CI and independent A/B review remain pending. Tunnel disconnected; SwiftShader CPU contention is not GPU FPS."
+    },
+    {
+      "title": "Pass 27 real desktop / portrait key–lock composition",
+      "reviewer": "Lead-side actual-render inspection only; no separate independent critic available",
+      "verdict": "Genuine pass27 framing improvement over pass26, but fixed Captain Toad reference wins",
+      "date": "2026-10-31T18:45:48.161Z",
+      "summary": "Original Actions artifact 13054098156 downloaded and SHA-256-verified both real 1280×900 and 390×844 public seed13 tick21 still-closed door-2 captures. Larger/more centered Pip and lock, but sandstone arch clipped and real glove-to-recess act remains tiny at native size; open lagoon persists. Pass27 full CI cancelled after screenshot capture. No independent blind A/B/Ultracode or representative GPU-FPS verdict."
+    },
+    {
+      "title": "Pass 29 glove-bearing source candidate — render acceptance required",
+      "reviewer": "Lead source review only; fresh-context visual and engineering critics unavailable",
+      "verdict": "NOT VISUALLY VERIFIED; fixed Nintendo reference still wins latest real pass28 output",
+      "date": "2026-10-31T21:51:25Z",
+      "summary": "The existing public matched carried-key cue now yaws/sweeps Pip's modeled left shoulder toward the real disclosed sealed lock, test/source commits ccf0689/5c37549. No new screenshots or full CI result verified; latest authentic pass28 native portrait/desktop images still lose to Nintendo. Remote workspace/subagent tunnel disconnected; separate critic and Ultracode unavailable; CPU SwiftShader is not hardware FPS."
+    },
+    {
+      "title": "Pass29 genuine native render and pass30 connected-wrist candidate",
+      "reviewer": "Lead screenshot review; fresh independent visual critic unavailable",
+      "verdict": "Pass29 visual regression in key visibility; reference wins; pass30 source-only",
+      "date": "2026-10-31T23:12:44.325Z",
+      "summary": "Pass29 seed maze-visual-reference-13 tick21 closed door-2 original artifact 13059797608: desktop 2026-10-31T22:04:18.531Z SHA f0e6361da42e73f11d57150af5305a0a488931abd5e5c2a511c167bd37a00694; 390x844 portrait at 22:04:21.583Z SHA 00eb1308fd182c07d86f87c13fc6a0ccd6b582520e36b2f7930d8dea622ebc87. Original hashes matched JSON. Bow worsens under wall in pass29 vs pass28; no visual win. Pass30 true wrist compensation source f1da826 awaiting images and fresh critic."
+    },
+    {
+      "title": "Pass30 actual-source connected-wrist render versus pass29",
+      "reviewer": "Lead native original-screenshot inspection only; independent fresh-context critic blocked",
+      "verdict": "Local mint-bow visibility improved; still NOT a convincing native key-to-lock interaction, Captain Toad benchmark wins",
+      "date": "2026-11-01T00:44:20.684Z",
+      "summary": "Original CI artifact 13064406479 same seed/tick 21 genuinely blocked door-2. Desktop original 2026-11-01T00:44:18.834Z SHA f73f83514eb2e19eb271452d76eb82faae018a7f46f2ac19f65d425457fcb226; native portrait 00:44:20.684Z SHA 760c0a0487662020e4ea5a8538eea97153baf3bc2c6e58eb211ef2d8c4140306, independently matched with JSON. Pass29→30 changed 0.1456%/0.2628% RGB pixels >12; key bow less buried but shaft/glove/recess relation still unclear, portrait arch clipped and lagoon excessive. Exact-head CI failed Tiny Kingdom G057/G058/G063 (104/107 browser), no Maze browser fail. No independent A/B/Ultracode/hardware-FPS claim."
+    },
+    {
+      "title": "Pass31 glove-to-key continuity source candidate — image gate open",
+      "reviewer": "Lead source/design review; separate fresh-context critic unavailable while shared workspace disconnected",
+      "verdict": "NOT RENDERED or independently approved; pass30 still loses to fixed Captain Toad reference",
+      "date": "2026-11-01T02:47:37Z",
+      "summary": "Same held 3D key remains parented to real connected left glove with a warm-metal ridge and dark finger clamps. Real, dated pass31 source-head desktop and 390x844 captures, SHA manifests, native-size blind A/B and independent Nintendo visual criticism still required. Pass30 artifact 13064406479 is the last real image; CPU SwiftShader is not a GPU FPS result."
+    },
+    {
+      "title": "Pass31 original production images compared to pass30 at identical sealed-gate public state",
+      "reviewer": "Lead original-PNG and native-size inspection; independent fresh-context critic unavailable",
+      "verdict": "Small visible geometry edit; key-to-lock contact still unclear; fixed Captain Toad bar NOT PASSED",
+      "date": "2026-11-01T04:32:00.133Z",
+      "summary": "Source gameplay 1a2650b CI 41266880874 artifact 13068690719, same seed maze-visual-reference-13 tick21 still-closed publicly known door-2 as pass30. Verified desktop 2026-11-01T02:59:45.833Z original PNG SHA256 62125cad82e9752771238de7455f781401a0e3ca00aa4ca6f54d382c48b0b5fe and native 390x844 02:59:49.096Z SHA256 af9e00cf005735ee0aa074f5035a5f09638e8943527227cdc6b31914cc02df28 against manifests. Slight new modeled grip detail in close crop, not a clear key-to-real-keyhole line at actual size; arch crop, empty lagoon unchanged. 528/528 Node and all 15 executed Maze browser checks passed, but workflow cancelled later during other-game suite, so not overall green. No fresh independent blind critic, hardware FPS or Nintendo parity."
+    },
+    {
+      "title": "Pass32 restored public upper-arch shot — visual acceptance pending",
+      "reviewer": "Builder source review; separate fresh-context critic unavailable (workspace tunnel disconnected)",
+      "verdict": "Source candidate only: no pass32 image or Nintendo benchmark win",
+      "date": "2026-11-01T05:39:11Z",
+      "summary": "Last actual source-bound pass31 portrait remains visually rejected. Pass32 changes keyed-gate-only camera aim, leaves existing zoom, hidden-knowledge boundaries and all ordinary/guardian/terminal cameras untouched; adds browser diagnostics and keeps existing framing tests. Require original dated native-size screenshots plus independent comparison before visual acceptance."
+    },
+    {
+      "title": "Pass33 original portrait-stage camera: real rendered verdict and dedicated Maze CI",
+      "reviewer": "Lead, original PNG/manifest byte verification and native image A/B; fresh-context critic unavailable due disconnected shared-workspace tunnel",
+      "verdict": "Focused Maze CI SUCCESS, full repository CI FAILED unrelated Tiny Kingdom; portrait visual target NOT ACCEPTED; fixed Nintendo Captain Toad NOT PASSED",
+      "date": "2026-11-01T07:01:36Z",
+      "summary": "Source 6276330, focused successful Actions 41282144620 artifact 13073920601. True seed maze-visual-reference-13 tick21, genuinely closed public door-2 and exact matching carried key. Verified desktop captured 06:47:36.437Z SHA a0e468045c0a4386db1e5302e0d9f3252c7f7a6b4ba759661bfdcdf8f685207a, identical to pass32. Native 390x844 06:47:39.643Z SHA dd9579d04f7b96a9abf353999ec5c55294d0ec2d531c27e5d3c03c108355f10c. Portrait reveals marginally more public stage but gate shifts left, right arch still cuts and glove/key/socket action is unclear; no independent blind victory. Full CI 41282144550 failed 3 unrelated Tiny Kingdom browser checks (104 pass); all Maze checks in focused CI passed. CPU SwiftShader is not hardware FPS."
+    },
+    {
+      "title": "Pass34 physical keyhole and connected dark recess — source-only candidate",
+      "reviewer": "Source/contract builder; detached render critic blocked by disconnected shared-workspace tunnel",
+      "verdict": "Actual pass34 native screenshots and independent Nintendo comparison PENDING; fixed bar NOT PASSED",
+      "date": "2026-11-01T07:46:21Z",
+      "summary": "Authentic pass33 screenshots at seed maze-visual-reference-13 tick21 show the real socket too small to establish glove/shaft/lock contact. Pass34 alters only modeled gate-side lock hardware for a bolder joined keyhole at native size. Must verify exact-head focused CI and date/hash-bound original desktop and 390×844 real frames, then separately compare blind with unchanged pass33 and official reference. No false unlock, private state, controller, route, camera, thresholds or renderer budget modification; CPU SwiftShader != hardware GPU."
+    },
+    {
+      "title": "Pass34 original keyed-gate native portrait vs pass33 and fixed Nintendo",
+      "reviewer": "Lead inspecting genuine PNGs at native size; independent fresh-context critic blocked by disconnected workspace",
+      "verdict": "Incremental keyhole readability, but reference still wins; no independent blind A/B",
+      "date": "2026-11-01T09:29:31.586Z",
+      "summary": "Pass34 changed only real gate socket (676 of 329160 native pixels). The recessed dark crown+throat are more defined in a crop, but the modeled glove and blade remain physically ambiguous beside the closed lock at 390px. Upper-right arch still clips; large empty lagoon remains. Actual screenshot hashes and exact seed/tick are in the committed review."
+    },
+    {
+      "title": "Pass35 physical key/socket pixel separation — pending real render",
+      "reviewer": "Source and browser test builder; independent critic unavailable",
+      "verdict": "No new visual verdict until original exact-head PNGs with projected real mesh coordinates are inspected",
+      "date": "2026-11-01T09:32:27.281Z",
+      "summary": "Uses genuine source mesh positions and exact already disclosed door pair, never hidden stage or simulated unlock. Pass34 last real screenshot still loses to the fixed Nintendo reference."
+    },
+    {
+      "title": "Pass35 native source-mesh screen-space separated physical key and lock",
+      "reviewer": "Lead reviewing authentic SHA-verified native original; detached independent visual critic unavailable",
+      "verdict": "92.09 CSS px physical key/socket separation at native 390px; original Captain Toad remains benchmark winner",
+      "date": "2026-11-01T09:36:28.132Z",
+      "summary": "Screen projections now measure real held key tooth and matched physical lock, not the HUD. Native screenshot remains exactly pass34 pixels. It depicts a key presentation near a closed gate, NOT key insertion/contact. Next improve truthful gesture and evaluate independently."
+    },
+    {
+      "title": "Pass36 original key-direction native A/B and fixed-bar gate",
+      "reviewer": "Lead visual review of SHA-verified dated original browser screenshots; separate detached critic not available",
+      "verdict": "Geometric separation decreased, but still no readable physical key-to-lock action; Nintendo benchmark NOT PASSED",
+      "date": "2026-11-01T10:18:23.019Z",
+      "summary": "Original 390x844 pass35/36 native same-seed tick21 images differ only 1,071 RGB pixels (0.3254%). Partially obstructed mint bow/glove, clipped arch, oversized lagoon. No independent A/B nor hardware-FPS claim."
+    },
+    {
+      "title": "Pass37 authentic original desktop/native visual review vs pass36 and fixed Nintendo bar",
+      "reviewer": "Lead direct inspection of independently SHA-verified original browser PNGs; separate fresh-context critic unavailable",
+      "verdict": "Modestly improved modeled bow-facing score; physical key/socket gap unchanged; Nintendo benchmark NOT PASSED",
+      "date": "2026-11-01T11:42:16.051Z",
+      "summary": "Original 390x844 pass37 vs pass36 differs by 843/329160 RGB pixels >12, only near Pip/key; desktop differs by 1635/1152000. Real bow-facing model score=1 in both viewports, but key still appears entangled with helmet/gate masonry and actual gap remains 84.4031px native. Cropped public arch and excessive lagoon unchanged. No detached blind critic or representative GPU result."
+    },
+    {
+      "title": "Pass38 actual source-rendered lower-angle portrait keygate review",
+      "reviewer": "Lead source-image A/B; fresh detached visual critic unavailable",
+      "verdict": "REJECTED — actual gap shorter but Pip hidden behind physical gate; Nintendo benchmark NOT PASSED",
+      "date": "2026-11-01T11:52:44.669Z",
+      "summary": "Focused CI 41303723468 SUCCESS, original artifact 13081404669 all 6 SHA hashes valid. Real seed maze-visual-reference-13 tick21 CLOSED door-2 matching held key. Native SHA 14b892894bfcd13f9be8b4086dd36caba025f46bbc2171fbcad4ee57c4a4d496. 65.83 CSS px gap misleading because avatar behind physical masonry; no visually accepted improvement."
+    },
+    {
+      "title": "Pass39 original source-rendered public-stage portrait review",
+      "reviewer": "Lead actual screenshot comparison pass37 vs pass39; no new external independent critic",
+      "verdict": "REJECTED — stage offset cuts left real gate, right arch still cropped; Nintendo benchmark NOT PASSED",
+      "date": "2026-11-01T12:00:50.314Z",
+      "summary": "Focused CI 41304281998 SUCCESS, original artifact 13082936380 all 6 PNG SHA hashes valid; native 390x844 SHA 2471e845fc5faaec5abc984f2127435ae971dad33eed9c445b823ec632ac20cb tick21 matching held key door-2 closed. 100015/329160 pixels >12 RGB changed, physical gap unchanged 84.403 CSS px. Composition was reverted."
+    },
+    {
+      "title": "Pass40 original authored lagoon source-rendered mobile and desktop review",
+      "reviewer": "Lead actual 1:1 original WebGL screenshot A/B, separate fresh-context critic unavailable",
+      "verdict": "REJECTED — blurry floating caustic glows distract from gameplay; Nintendo benchmark NOT PASSED",
+      "date": "2026-11-01T12:20:00.872Z",
+      "summary": "Exact-source focused CI 41305146762 SUCCESS, original artifact 13083062508 all six UTC PNG SHA matches. Native SHA a211395d669e258753530a32e752222b7367db93a46ecfe32a43652d14816552; desktop SHA 2b8f2ef2670f8a59a7438926f50f7d54d2c409c4c5adff82a8ae018371ec28b9. Current 390x844 environment shows big diffuse glow blobs, not plausible ripple animation or fine authorial surface; revert in pass41, not a benchmark win."
+    },
+    {
+      "title": "Pass41 original public gate HUD portrait review",
+      "reviewer": "Lead original 390×844 source-bound screenshot review; detached independent critic unavailable",
+      "verdict": "Truthful HUD rendered; 3D key-to-closed-lock gesture/arch composition still below frozen Nintendo bar",
+      "date": "2026-11-01T12:36:34.576Z",
+      "summary": "GitHub focused CI 41306288258 SUCCESS; original artifact 13083881661 six source-bound SHA-verified PNGs. Actual sealed-gate portrait: maze-visual-reference-13 tick21 still-closed door-2 with matching carried key, SHA256 82e815c3ba7cb8cb75c9d43276f14ae422e1355f884d61e4e2022bd3bcecdfeb. Visible bottom HUD reads 'KNOWN SEALED GATE / Matching key in hand' without a fake unlock. Actor partially occluded by real gate, upper arch clipped and turquoise lagoon disproportionate; not Nintendo parity."
+    },
+    {
+      "title": "Pass42 authentic hinged shell comparison, rejected at full gameplay size",
+      "reviewer": "Lead same-seed genuine 1280×900 source screenshot A/B; no fresh separate critic or blind A/B",
+      "verdict": "REJECTED as visual advance — shell still visually a single dark oval and ember underside hidden; Nintendo benchmark NOT PASSED",
+      "date": "2026-11-01T13:28:43.117Z",
+      "summary": "Pass42 initial focused run 41307179276 FAILED on strict -0 vs +0 test, then source db4032f neutral normalization. Corrected focused CI 41311276320 SUCCESS; artifact 13085960259 six dated original PNG hashes independently matched. Actual public seed maze-visual-reference-13 tick13, 2.236-cell disclosed warden, both characters in frame. Encounter 1280x900 SHA256 46fafb3d7c93319bc16f7ffbc7beef0dcf8f764d434941db7afe95193f862d32. Compared pass41 image SHA 7e811af..., only 1721/1152000 pixels >12 RGB changed, localized x849-943/y259-327. Stronger 3D wing opening and visible seams staged separately for Pass43. No 390px guardian screenshot in this artifact, no hardware GPU evidence."
+    },
+    {
+      "title": "Pass43 exact-head physical warden fissure renderer: source-bound visual rejection",
+      "reviewer": "Lead full original 1280×900 same-seed/tick rendered screenshot comparison; fresh detached critic inaccessible",
+      "verdict": "REJECTED — physically hinged brighter seams still do not distinguish the guardian silhouette at original gameplay size; Nintendo bar NOT PASSED",
+      "date": "2026-11-01T13:42:05.132Z",
+      "summary": "Focused CI 41311802088 SUCCESS, original artifact 13085956393 six SHA-256 PNGs match dated source manifests. Real public seed maze-visual-reference-13 tick13, 2.236-cell known warden, encounter PNG SHA 27ccade231bb1071362dfde290f9687393336860587639dc06194ae8fdeb916a. Direct unscaled previous Pass42 comparison: 1839/1152000 pixels (0.15964%) change >12 RGB, x850–943/y259–327 only. Visually upper-right warden remains dark oval distant from center-left Pip. No independent critic, native warden 390px, or Nintendo A/B win."
+    },
+    {
+      "title": "Pass45 true source guardian staging — lead native desktop/portrait inspection",
+      "reviewer": "Lead original-image reviewer; separate fresh-context critic unavailable",
+      "verdict": "Local two-actor framing improves; Nintendo fixed bar still wins",
+      "date": "2026-11-01T14:16:02Z",
+      "summary": "Exact SHA-matched seed13 tick13 source images captured 14:15:17.356 UTC desktop and 14:15:24.271 UTC native mobile; both actors in frame with margin. Pass43 comparison changes 47.852% of desktop pixels from camera staging, not art-quality proof. See guardian-detail-pass-45-original-render.md."
+    },
+    {
+      "title": "Pass46 grounded public warden — actual renderer verdict",
+      "reviewer": "Lead source-bound full-size visual reviewer; independent critic unavailable",
+      "verdict": "Functional shadow attachment supported, visual progress rejected",
+      "date": "2026-11-01T14:32:07Z",
+      "summary": "Focused CI 41316521507 PASS, artifact 13086859828 seven actual PNGs independently hash matched. Real tick13, distance2.236, desktop 14:31:20.629Z SHA a6582770..., portrait 14:31:27.515Z SHA 55ba4bb6.... Both diagnostics prove one grounded shadow for one disclosed guardian. Only 0.3576% desktop/0.4341% portrait pixels visibly change near beetle; at unscaled gameplay size the shadow is too subtle to establish qualitative improvement. Not a Nintendo win."
+    },
+    {
+      "title": "Pass47 Warden original palette — actual renderer verdict",
+      "reviewer": "Lead source-bound full-size visual reviewer; independent critic unavailable",
+      "verdict": "Distinctive local shell contrast improves; Nintendo fixed bar not passed",
+      "date": "2026-11-01T14:38:26Z",
+      "summary": "Exact-head focused CI 41317053428 SUCCESS, seven actual original screenshots and original sidecar hashes matched, real public seed13 tick13. Desktop 14:37:38.236Z SHA 239f4fbe..., portrait 14:37:45.173Z SHA d1722041.... Actual full-frame inspection shows violet/copper armored warden no longer merges with jade wall, but the confrontation, repeated stone and heavy UI remain below fixed Captain Toad. 0.584% desktop/0.725% native changed pixels are localization, not an aesthetic score. No fresh blind critic verdict."
+    },
+    {
+      "title": "Pass48 true autonomous floor-wayfinding cleanup — lead source-native image verdict",
+      "reviewer": "Lead full-size actual-image critic; independent blind fresh-context critic unavailable",
+      "verdict": "Uncommitted floor-arrow clutter removed, local gameplay-stage clarity improved; Nintendo bar still wins",
+      "date": "2026-11-01T14:45:39Z",
+      "summary": "Exact-source focused CI 41317658301 SUCCESS; original artifact 13087861877 contains seven original seeded screenshots and UTC SHA sidecars, all 7 independently matched. Native 390×844 encounter 14:45:08.099Z SHA 1dc8dc94..., desktop 1280×900 14:45:03.407Z SHA 5f76752c.... Unscaled visual A/B with Pass47 shows four generic ivory arrows gone near Pip; 0.1735% native/0.1366% desktop pixels changed >12, localized to that action space; camera position and two public characters unchanged. The real agent's public planned/goal arrows remain eligible but no invented or generic unsafe suggestions are rendered. The same fixed Captain Toad reference still has much stronger authored landmarks and environment/character cohesion."
+    },
+    {
+      "title": "Pass49 verified original 3D public exit tide rose — lead full-frame review",
+      "reviewer": "Lead inspecting real source-bound 1280×900 original PNG against previous pass; detached fresh blind critic unavailable",
+      "verdict": "Local authored landmark readability improved; original Nintendo Captain Toad fixed bar NOT PASSED",
+      "date": "2026-11-01T15:44:36.232Z",
+      "summary": "Exact-source CI 41322128665 succeeded; downloaded original artifact 13089920665, all 7/7 original UTC PNG hashes match sidecars. Observed public exit seed maze-visual-reference-13 tick26 captured 2026-11-01T15:38:33.894Z SHA 39a86cabe761bfadedf54b15151ee28f63e5582b8904be7570be148db932d7c8. 2941/1152000 desktop RGB pixels changed >12 around physical crest vs Pass48; six other same-scenario PNGs identical. No 390px exit screenshot and no independent blind critic. Environment still far below Nintendo authored scene/character/action standard."
+    },
+    {
+      "title": "Pass49b source-verified native observed exit — real browser review",
+      "reviewer": "Lead inspecting original 390×844 production PNG and same-seed desktop; fresh independent critic unavailable",
+      "verdict": "Pip and real observed exit in frame; fixed Nintendo benchmark still wins",
+      "date": "2026-11-01T15:50:20Z",
+      "summary": "Exact-source browser CI 41322991290 SUCCESS, original eight screenshot artifact 13089099965 downloaded and all 8/8 PNG SHA-256 values recomputed equal original UTC JSON sidecars. Real production seed maze-visual-reference-13 tick26 public exit cell69, native captured 2026-11-01T15:49:52.572Z SHA e3aaf8766221e6e257755d126ff4d45437981d0b4bd6b054d3d826815919aefc. Phone native original image visually shows physical goal and Pip, but art direction, environment, action, stage and text remain below official Nintendo bar; no blind independent win."
+    },
+    {
+      "title": "Pass50 original global-border garden — exact-source negative rendered review",
+      "reviewer": "Lead same-seed original PNG comparison; separate fresh-context critic inaccessible",
+      "verdict": "REJECTED: visible art impact effectively zero; corrected candidate pending",
+      "date": "2026-11-01T16:25:33Z",
+      "summary": "Focused exact-source CI 41326153770 SUCCESS, original artifact 13091302169 eight PNGs dated 2026-11-01 16:24-16:25 UTC, 8/8 SHA-256 recomputed exact matches. Native 390x844 observed exit and guardian and desktop guardian change zero pixels >12 RGB; desktop exit changes 2/1,152,000. Real border planters barely touch those camera views. Return largest gap to builder: plant confirmed public wall crests 07d4c8c and require real candidate source-bound browser review, not static source/test confidence. Frozen Nintendo bar remains not passed."
+    },
+    {
+      "title": "Pass50b real full native/diorama evidence — corrected public living-wall treatment",
+      "reviewer": "Lead same-seed full-size image A/B; detached fresh-context critic unavailable",
+      "verdict": "Local grounded wall-greenery composition accepted; fixed Nintendo Captain Toad benchmark NOT PASSED",
+      "date": "2026-11-01T16:34:09.418Z",
+      "summary": "Focused CI 41326782605 SUCCESS source gameplay wall 07d4c8c + public tests 62a5349, artifact 13091383163; all 8/8 UTC original WebGL screenshot SHA-256 digests independently verified against each sidecar. Native 390x844 real observed exit 16:33:46.827Z SHA 966e27239deac26ed78c4267f46c798af120435d48e05a94ab5f0f7887d98375, desktop 16:33:42.747Z SHA d2625b17f45c20f9f11d797fe9e0f537434a31800f4e5c78e1f14afacce80f91; source world.js SHA a17a8d37f641fe4129b0ee88315887333e12b2046eb656ed24c7e7a02c66b575. Real candidate vs Pass49b changes 2.748% native / 2.541% desktop observed exit RGB pixels >12, mainly sculpted green wall crests, not a perceptual score; Pip/goal retained. Fixed official Nintendo scene art and game-first interface still win. Separate critic and hardware GPU performance unavailable."
+    },
+    {
+      "title": "Pass51 two-tower exit tide observatory — source candidate visual gate",
+      "reviewer": "Separate-context critic requested; shared workspace tunnel not connected",
+      "verdict": "NOT REVIEWED: actual candidate WebGL screenshots, dated SHA-256 evidence and independent fixed-reference comparison pending; Nintendo benchmark NOT PASSED",
+      "date": "2026-11-01",
+      "summary": "A public-exit-only, geometry-reusing pair of modeled tower silhouettes and recessed floor dial has been added to the real scene, with world contract assertions for visibility, placement and resource identity. Source-only candidate. Do not reuse Pass50b screenshot hashes as Pass51 evidence; authentic current-source rendered proof, blind comparison and detached critic still required. Shared workspace agents and Ultracode unavailable."
+    },
+    {
+      "title": "Pass51 authentic native guardian frame regressed after game-first portrait stage expansion",
+      "reviewer": "Lead inspection of original first-attempt screenshot and SHA-matched metadata; no detached blind critic",
+      "verdict": "REJECTED: genuine 390px guardian lost full-model camera margin; Pass51 exit observatory and Nintendo bar NOT REVIEWED/NOT PASSED",
+      "date": "2026-11-01T17:02:29.046Z",
+      "summary": "Exact f2254d4 focused visual workflow 41328330211 failed twice on portrait wardensWithMargin=0, vs true Pass50b margin=1. 390x844 production seed13 tick13 real SHA 9bbd90050bb9886bb47b6dddf819e1fd80d66705d69874a5da4334869175995f; 1280x900 SHA 3d7bdd8049a9667f9b1dd90a827e04104a2e33004924c29528bf16866a559263. Both original PNG hashes independently matched sidecar. Portrait hero NDC x -0.65047 (Pass50b -0.58723) with same orthographic halfheight 5.7; taller CSS stage narrowed horizontal world span. Renderer produced screenshot, so this is not a SwiftShader timeout; visual critic says margin and action staging still inferior to Nintendo."
+    },
+    {
+      "title": "Game 2 old-HUD source screenshot verification; new full-bleed HUD candidate",
+      "reviewer": "Lead direct inspection of eight genuine prior-source SHA-verified screenshots; detached fresh-context critic unavailable",
+      "verdict": "Pre-overhaul source fix RESTORED real actor margin; text-heavy old HUD visually rejected; full-bleed new UI UNREVIEWED; Nintendo bar NOT PASSED",
+      "date": "2026-11-01T17:30:36.407Z",
+      "summary": "Source 72db1c8 exact focused CI 41330731751 success, 8/8 authentic dated source/PNG SHA match, genuine native encounter tick13 SHA 87caf98efbe1b4fc43d4802d453a01aad127633f1a9a9de7affb9cb22de9792f and wardensWithMargin=1. Known public exit and closed key gate photographed. Native UI old static prose still fills bottom 200+ pixels. New source 8204955/c79d585 must be re-rendered, no independent A/B yet."
+    },
+    {
+      "title": "Pass53 genuine fullscreen playable canvas versus old text-filled screen",
+      "reviewer": "Lead direct original native PNG/SHA inspection against frozen official Nintendo bar; fresh-context detached critic unavailable",
+      "verdict": "ACCEPT strictly the fullscreen gameplay viewport + 44px controls integration improvement; fixed Nintendo CHARACTER/WORLD benchmark NOT PASSED",
+      "date": "2026-11-01T18:48:49.018Z",
+      "summary": "Actual source 8c6c0fc focused CI 41338238380 SUCCESS, original 8-image artifact 13095889245 individually recomputed SHA-256 equality 8/8. Genuine 390×844 guardian tick13 at 2026-11-01T18:47:49.152Z SHA 7ff84cb52e8ab10c5a2ec49cf5ceaed3c76bca543ea2b400f3c2f6f1bbf1c858; live 1280×900 exit tick26 at 18:48:03.361Z SHA 98e9c9034653440d2553d06b349ba5374e3a8facf566e5d92d0bfb52895e78bc; native exit SHA aacedb914cdc8ab75ab575f0da536e899ad4ec78ce8fd6f9902220b7553667c7, native closed gate SHA c32800ad6aefa5612bc9a7516f22dbfb4131fec8ad5ebaad1df9624abdbe9269. Full-bleed 3D and honest actors visible, no bottom prose panel, but repetitive tile/water/weak action vs official image. Prior 41332320990 genuinely failed stage 590.77px due stylesheet HTTP 404 and captured old UI; not software renderer fault. Neither lead subjective acceptance nor CI is independent benchmark win."
+    },
+    {
+      "title": "Pass54 original mineral court plus four genuinely rendered public guardian orientations",
+      "reviewer": "Unblinded lead directly inspected original hash-verified WebGL source screenshots; independent fresh-context critic unavailable",
+      "verdict": "ACCEPT bounded original floor material/style variety and factual full-model mobile/landscape render evidence. NOT a fixed Nintendo benchmark or complete game win; exact latest CI pending.",
+      "date": "2026-11-01T19:03:42.952Z",
+      "summary": "Source 991fd76 adds deterministic public-only mineral relief, 364ca36 produces 10/10 matched original UTC image hashes. True 320x740 actor margin1 and 844x390 margin1 with WebGL at same tick13 and corresponding screen sizes; original 390 and 1280 verified. Main stage cold DOM test ran before real render and failed seeing scene-title; fixed in 00578f0, exact source CI pending. Game still loses to verified real Nintendo reference: huge empty water, repeated architecture and weaker character acting. No fake state, independent critic or GPU FPS claim."
+    },
+    {
+      "title": "Pass56 original physical guardian and sparse live HUD, directly inspected true WebGL native images",
+      "reviewer": "Unblinded lead directly compared 10 original source-hash-verified PNGs to previous Pass55 and fixed Nintendo; separate fresh-context critic unavailable",
+      "verdict": "Limited modeled foreclaw/antenna/stance and low-text HUD improvement; official Captain Toad visual/action/story benchmark NOT PASSED, no independent blind win",
+      "date": "2026-11-01T20:30:30.637Z",
+      "summary": "Focused exact 171b8ff CI 41346985539 SUCCESS; verified all ten 2026-11-01T20:29–20:30Z original screenshot SHA256 hashes; actual desktop guardian SHA cfa6cfacd7ead693f3acfb925dbc4c5ef46ed07a92d0d45b7994ad8947ced5f7, 390 guardian SHA ba3ef923ef98489c1f4f88dc949db371131aeb3405ede1fbb5928ed4c339aa10, 320 guardian SHA 04047e7a8e65f3f75230fb48af71a5b34b195fed3dca70ccff3c6cc5b89af1cc, 844 guardian SHA e962b72b1a50b443101c36ecf4771bd68767026a448612591ee954bbf3840f7e. Same-seed changed >12RGB 0.558%,1.090%,1.751%,1.125%; key/exit/gate visuals unchanged; physical motion still small and tiny at native 320. Existing 44px, full-screen and native full-witness tests all passed. No fresh detached critic, no hardware FPS claim; continue substantial authored moments."
+    },
+    {
+      "title": "Pass57 exact-source original Pip braced encounter visual critique",
+      "reviewer": "Direct unblinded lead inspection of genuine full-resolution Playwright WebGL; separate fresh-context critic unavailable",
+      "verdict": "Narrow physical performance gain accepted, original Nintendo Captain Toad art/action benchmark NOT PASSED",
+      "date": "2026-11-01T21:18:02.774Z",
+      "summary": "Game source 0507aaf focused 41351065043 SUCCESS; artifact 13100499184 verified 10/10 original PNG SHA256 and dated source JSON. Real 2026-11-01 21:16:39.960Z 1280x900 guardian SHA 2d7a205df0f648c8415107938337e386895991af141be53bb9a85d20c35a6544; 21:16:47.859Z 390 guardian SHA 616312b6b0d773c6e678ed90cded5ea7a814f8c54d4a612a9374bd30446e2520; 21:16:53.196Z 320 guardian SHA fb5e4fe51c93a2e86099a2ae6e77110c7d92fea52af99fd562be0ccab9e9c885; 21:16:58.780Z 844 landscape SHA 67c2091ce20bb0b8db118f9853d3177ca61429862629cbb3cf0b0c57112b504d. Original same-seed >12 RGB changed 0.7687%/0.6289%/0.5887%/0.5396%; six unrelated gate/key/exit shots 0%. Native guardian full-model 320/390 margin, four 44px controls, accessible game-first HUD. Nintendo still superior."
+    },
+    {
+      "title": "Pass58 original Thornback botanical elytra, actual source-bound full-resolution critique",
+      "reviewer": "Direct unblinded lead of 10 unaltered 1280/390/320/844 original WebGL PNGs; independent fresh-context critic and Ultracode unavailable through disconnected workspace",
+      "verdict": "Local original connected guardian performance accepted as small art improvement only; user-fixed Nintendo Captain Toad scene/action/scale benchmark NOT PASSED",
+      "date": "2026-11-01T22:42:51.967Z",
+      "summary": "First ring candidate rejected as false pickup cue, replaced with physically sculpted spine and attached unfurling sea-glass wings. Focused exact-game-source CI 41358029925 SUCCESS; artifact 13104131633 10/10 original UTC PNG SHA256 recomputed and matched; native hero/guardian in-frame and 44px HUD preserved. Actual 320 guardian source screenshot SHA c5727ac4503c163adc60ba1f818ea9e0b53a7061e4876525bcf4f88dd6407125, 1280 SHA 0e9610e1a2523d2fba08cc48f72ff31aa7f900f6674da23996023a41bf24b55c. Actual full-size same-seed image diff vs Pass57 only 0.3011% native 320 and 0.3836% desktop pixels >12 RGB. Still too small at 320; no claimed blind comparison, no hardware GPU FPS."
+    },
+    {
+      "title": "Pass59 original terraced courts — first WebGL image rejected then corrected",
+      "reviewer": "Direct unblinded lead of 10 original dated full-resolution 1280/390/320/844 Playwright WebGL frames; separate independent critic/Ultracode unavailable from disconnected tunnel",
+      "verdict": "Original guardian clay contrast restored and modest source-disclosed world geometry gain; fixed Nintendo Captain Toad visual benchmark NOT PASSED",
+      "date": "2026-11-01T23:06:47.199Z",
+      "summary": "Pass59 original first candidate 22af496 CI 41359259606 SUCCESS but actual 320/1280 native screenshots showed loss of terracotta visual hierarchy, rejected. Corrected source 9293164 exact-source visual CI 41359791341 SUCCESS, artifact 13105020624 10/10 original UTC image SHA-256 independently matched. True 320 hero/warden margin and 44px actions remain. Same-seed Pass58 final 320 changes only 0.402% >12RGB, no parity. Old Pass58 full CI 41358518064 FAILED stale expectation for escape in objective; new test-only af1a3b5 asserts exact real concise public goal/objective contract and preserves viewport/privacy checks, its full CI pending. CPU-throttled SwiftShader no hardware FPS inference."
+    },
+    {
+      "title": "Pass60 bounded public portrait actor camera — source candidate awaiting real visual comparison",
+      "reviewer": "Direct lead inspected prior-source 10 original PNGs; independent fresh-context image critic and Ultracode unavailable through disconnected tunnel",
+      "verdict": "PREVIOUS baseline 10/10 hashes independently verified; NEW candidate NOT yet image-verified and fixed Nintendo bar NOT PASSED",
+      "date": "2026-11-01T23:20:13.007Z",
+      "summary": "Source ef7e107/f147639/f660946 public-known-pair camera + strict pure test. Authentic Pass59 original artifact 13105020624 PNG SHA 10/10 independently recomputed from original UTC JSON; 320 real source prior image 51edceae6a103a900b548d459df5a96ea2607172cce39aed25566e82d4805bbf. Latest focused 41361199276 and full 41361199243 initially queued. New 320/390/844/1280 original WebGL evidence must be retrieved and compared before accepting. Source gate docs/reviews/maze-3d/public-pair-portrait-pass-60-review-gate.md. Follow-up source 3cfd2e adds true prior camera-target transition margin; newest actual WebGL CI 41361748745, full CI 41361748708 both initially queued."
+    },
+    {
+      "title": "Pass62: reject actual Thornback Follow crop; corrected full-model native camera evidence",
+      "reviewer": "Direct lead inspection of original source-bound 390/320/844/1280 WebGL PNGs and Nintendo imagery; fresh-context critic/Ultracode unavailable (shared workspace disconnected)",
+      "verdict": "Genuine clipped guardian corrected without weakening physical checks; fixed Nintendo Captain Toad benchmark still WINS",
+      "date": "2026-11-02T01:44:12.000Z",
+      "summary": "Pre-fix original real 390 Follow guardian physical envelope right NDC +1.00389 (off screen), verified after strict test in failed 41372537936. New e0be79c focused 41373765475 SUCCESS with original artifact 13110228983: 14/14 recomputed original PNG SHA match dated sidecars. Native 390 guardian right +.83552 and Pip left -.86996; native 320 real two-character view, 44px HUD, 844 landscape/1280 desktop also pass full-model frame. Same-seed/Follow before-after 55.45% pixels >12RGB, genuine camera change not additional game storytelling. Nintendo still wins character/world/action quality. Full monorepo 41373765388 separate, no blind A/B or independent win."
+    },
+    {
+      "title": "Pass63 — physical public gate transition, real module-serving defect and source candidate gate",
+      "reviewer": "Lead source/code critic; independent fresh-context art critic and Ultracode unavailable due disconnected workspace",
+      "verdict": "Source candidate after genuine 404 fix; no fresh original WebGL gate-event image, no independent win; Nintendo still wins",
+      "date": "2026-11-02T02:26:24.499Z",
+      "summary": "Observed same-run public closed→open game door triggers 3D gate mesh withdrawing; reduced-motion, replay-safe event parser and physical Three world tests. First focused 41376639991 failed ESM test harness (62a8605 fixed); second focused 41376912552 had passing Node but browser timeout because new module was NOT served, an actual product issue, fixed via PUBLIC_ASSETS allowlist and 200/JS MIME regression 586df83. Follow-up focused 41377400273/full 41377400294 initially queued. Prior Pass62 original native 14 PNGs remain baseline, NOT Pass63. Need current-source actual native captures of real unlock movement and independent Nintendo visual comparison before acceptance."
+    },
+    {
+      "title": "Pass64 physical gate opens for real, but action camera loses the closeup",
+      "reviewer": "Direct unblinded lead inspected original dated WebGL 1280/390/320/844 before/after; independent critics and Ultracode unavailable due disconnected workspace",
+      "verdict": "19/19 true original PNG SHA-256 VERIFIED; wide after-shot action REJECTED; public-only camera-beat source candidate pending real render; Nintendo bar NOT PASSED",
+      "date": "2026-11-02T03:48:00.000Z",
+      "summary": "Same-run production gate 77–94 tick7 CLOSED→tick8 OPEN is authentic and immediately opens physical passage. Native before/after images expose an unnecessarily wide generic after camera, not Nintendo-grade narrated action. Camera-beat source 4378c5f/05f2cd2 and strict test 04db3a6 preserve real observed public knowledge only; focused 41385344155 and full 41385344162 pending outcome. No fabricated hidden door, reduced-motion forced cinematic, new dashboard prose, independent preference win, hardware GPU result, merge or deploy."
+    },
+    {
+      "title": "Pass65 mechanical 3D gate — model implemented, visual acceptance open",
+      "reviewer": "Lead code review only; independent fresh-context rendered-image critic, blind A/B and Ultracode blocked by disconnected shared workspace",
+      "verdict": "Original animated counterweight source + focused tests committed; authentic source-bound WebGL inspection pending; Nintendo benchmark NOT PASSED",
+      "date": "2026-11-02T04:08:59.852Z",
+      "summary": "Two disclosed gate jambs acquire original physical pulley rings, visible offset spokes, cables and hanging weights. On genuine public opening, wheels rotate and weights descend as bronze grille lifts, with settled-open and reduced-motion completion and no new geometry/material classes. Existing privacy, full-bleed HUD, physical 320/390 actor margin, and 44px assertions left strict. No current-source full-resolution screenshot independently inspected this run, so no ungrounded visual upgrade claim. Review docs/reviews/maze-3d/gate-counterweight-pass-65-review-gate.md."
+    }
+  ],
+  "verification": [
+    {
+      "name": "Historical fourth-pass focused source checks",
+      "status": "16 of 16 passed",
+      "detail": "Four catalogue UI contract checks, two character checks, two world checks and eight public-snapshot/motion checks passed on the latest source. Whitespace validation is clean."
+    },
+    {
+      "name": "Current stream host self-test",
+      "status": "Passed",
+      "detail": "The fresh self-test confirms served browser assets, bounded source, sanitized snapshots, stable deterministic authority, verified recovery and an observed restart."
+    },
+    {
+      "name": "Historical fifth-pass completed browser suite",
+      "status": "24 of 24 passed, including Game 2",
+      "detail": "The complete browser suite passed on fifth-pass source 7d7671c; prior 474b657's 24/24 success is historical. This confirms app operation but does not independently assess encounter staging.",
+      "sourceCommit": "7d7671ccdd56d77ae05e7a7c2fa05e997348c81a",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41130491285"
+    },
+    {
+      "name": "Current disclosures and reconnect browser check",
+      "status": "Passed",
+      "detail": "The real browser verified a drawn discovered map, expandable Path notes, Escape with focus restoration, and a visible reconnect status that preserves the actual terminal result. The check ran with WebGL unavailable to exercise the live-map recovery path; this is not a fresh 3D performance result."
+    },
+    {
+      "name": "Independent compact-layout repair verification",
+      "status": "Passed after two repairs",
+      "detail": "A fresh reviewer reproduced a clipped Map focus ring and landscape Path notes overlapping captions. The repaired upward popup fits both ordinary and longer production copy at 844×390; the real keyboard focus ring was visibly inspected. All eight dated journal images decoded in the same browser."
+    },
+    {
+      "name": "Historical fifth-pass full catalogue regression",
+      "status": "516 of 516 passed; complete CI successful",
+      "detail": "Source checkpoint 7d7671c passed the build, all 516 unit tests, four stream-host self-tests, nondeterminism scan, evidence generation, and 24/24 browser checks. This is functional validation, not a visual benchmark win.",
+      "sourceCommit": "7d7671ccdd56d77ae05e7a7c2fa05e997348c81a",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41130491285"
+    },
+    {
+      "name": "Independent visual comparison",
+      "status": "Fourth mobile pass wins version comparison; reference still wins",
+      "detail": "Fresh mobile and scene critics chose the fourth pass in anonymous version comparisons, while both retained the Captain Toad reference as the overall winner. The guardian encounter remains a priority. Stills do not establish motion, audio or hardware performance."
+    },
+    {
+      "name": "Rendering performance",
+      "status": "Open; actual software graphics remain slow",
+      "detail": "Four current balanced captures succeeded after the long local suite ended, with measured median frame times around 1.1–2.0 seconds on this contended software host. The current full-quality render reached its frame check but screenshot capture exceeded30 seconds. Hardware frame rate remains unmeasured. Experimental compositor flags are now opt-in; no speed gain is claimed."
+    },
+    {
+      "name": "Saved implementation checkpoint",
+      "status": "Draft PR #53",
+      "detail": "The 3D implementation and the fourth-pass character, world and mobile refinements are on feat/maze-3d-gauntlet for review in draft PR #53. The visual benchmark remains open."
+    },
+    {
+      "name": "Gauntlet continuation",
+      "status": "Active; eleventh-pass evidence captured",
+      "detail": "Repeated continuation has reached eleventh-pass candidate 12d32cb, with genuine dated CI artifact and an open fixed visual benchmark. No independent win or authorized deployment; next visual slice is the stage/water balance."
+    },
+    {
+      "name": "Fixed comparison-image provenance",
+      "status": "2 of 2 official images verified",
+      "detail": "The exact Nintendo gallery URLs, request header, dimensions, byte lengths and SHA-256 hashes are pinned in reference-manifest.json. Both fresh downloads matched the already-reviewed images byte for byte; future comparisons use this same bar."
+    },
+    {
+      "name": "Fifth-pass encounter pose source candidate",
+      "status": "516/516 unit and 24/24 browser checks passed; independent visual critique pending",
+      "detail": "All Autonomous Games CI stages passed on gameplay commit 7d7671c, including the new head/lantern/warden pose regression and 24 browser tests. A dated GitHub browser artifact was also inspected, but its wide separation between explorer and guardian does not demonstrate the new close-range response. No fifth-pass independent blind A/B, fixed-reference win, or hardware-performance result.",
+      "sourceCommit": "7d7671ccdd56d77ae05e7a7c2fa05e997348c81a",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41130491285"
+    },
+    {
+      "name": "Fifth-pass real browser artifact — inspected, not independent critique",
+      "status": "3 current-source images inspected; encounter acceptance still open",
+      "detail": "GitHub browser capture artifact 13013835284 contains desktop (1920×1080), clean feed (1280×720), and landscape (844×390) images from CI on 2026-10-30 around 21:28–21:29 UTC. The captured wide view shows Pip and a distinct Thornback on the same disclosed garden stage but far apart; the guardian interaction, reaction pose, and connected refuge are not legible enough to close the encounter gate. Pinned hashes and review limits: docs/reviews/maze-3d/ci-artifact-05.md.",
+      "sourceCommit": "7d7671ccdd56d77ae05e7a7c2fa05e997348c81a",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41130491285/artifacts/13013835284"
+    },
+    {
+      "name": "Sixth-pass authentic close encounter — production browser proof",
+      "status": "516/516 unit, 25/25 browser passed; reference still wins; independent A/B pending",
+      "detail": "Source 2c2ae6937b31dec46bf4cf2f841e0a4e8f2c19ad passed all Autonomous Games CI stages on 2026-10-30, including public-only actual near-warden camera test, and emitted a dated 1280x900 browser PNG plus source-bound SHA-256 manifest. The screenshot captures both real actors, no synthetic entities. The new pose response is stronger but not obviously expressive enough at gameplay scale; latest independent fourth-pass reference verdict remains Captain Toad wins. Software CI frame time is not representative hardware FPS; the independent workspace/Ultracode tunnel is unavailable.",
+      "sourceCommit": "2c2ae6937b31dec46bf4cf2f841e0a4e8f2c19ad",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41138125715/artifacts/13018455473"
+    },
+    {
+      "name": "Seventh-pass real 3D guardian screenshot and full CI checkpoint",
+      "status": "517/517 Node tests, 25/25 browser checks; reference not passed; independent critic unavailable",
+      "detail": "Gameplay commit 5bf3a024815c8bee6a494ebec6706b60c8863425 passed Autonomous Games CI 41141142748, and three Eko companion workflows. The dated 2026-10-30 23:00:59.792 UTC authentic 1280×900 browser PNG from seed maze-visual-reference-13/tick13 has two observed public actors in frame, shows new native-scale threat cues, and its SHA-256 is 6da5918ded4c87e74905cb44020dcc211cc7169bb4c1644f0ab014022d2c5bb0. Current screenshot and manifest are in artifact 13018794986; neither image nor reviewer verdict is fabricated. No separate subagents, Ultracode, blind critic or real hardware FPS measurement were available; route/refuge and Nintendo quality gates remain open.",
+      "sourceCommit": "5bf3a024815c8bee6a494ebec6706b60c8863425",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41141142748/artifacts/13018794986"
+    },
+    {
+      "name": "Eighth-pass current-source real capture, locked-door legal corridor and full CI",
+      "status": "518/518 Node; 25/25 browser passed. Lead image inspected; benchmark NOT passed",
+      "detail": "Gameplay commits 8519543 and 5762284 add public-only floor arrows and triangular warning, then exclude closed doors from waypoint and dashed legal-route visuals. CI on final gameplay SHA 5762284 succeeded Oct 31 2026; real seed maze-visual-reference-13/tick13 screenshot captured 2026-10-31T00:35:43.336Z, source and image SHA-256 preserved in docs/reviews/maze-3d/encounter-pass-08-review.md and CI artifact 13022687590. Critic subagents/Ultracode unavailable; images do not establish independent Nintendo bar victory or hardware FPS.",
+      "sourceCommit": "576228474471fa2f4295a98ec152f7d4b68c5c06",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41150638243"
+    },
+    {
+      "name": "Tenth-pass public-goal floor cue and current dated render; CI contains one timing failure",
+      "status": "521/521 Node passed; 24/25 browser; 600ms unchanged-tick assertion failed; benchmark NOT passed",
+      "detail": "Gameplay commits 31e4114, f057935, 735d835 add only known legal public first-step goal cues, distinct from AI intent and safety guarantees. Current genuine 1280×900 screenshot 2026-10-31T01:45:30.284Z seed maze-visual-reference-13 tick26 confirmed source hashes and image SHA-256 ca2faf27d9abc369a68af0a42ec05f28b195b286929969fadb6da154d3f3829e in https://github.com/my-edutu/Ai_games/actions/runs/41156437915/artifacts/13025591289. Full CI https://github.com/my-edutu/Ai_games/actions/runs/41156437915 passed 521 Node, build, deterministic host/self tests, 24 browser checks but FAILED desktop tick changed-in-600ms test (155 unchanged); do not call CI wholly green. Shared workspace/subagents/Ultracode unavailable; existing Nintendo comparison still favors Nintendo; no hardware FPS claim.",
+      "sourceCommit": "735d8352fcd2f36694b21670c4d41ac57f6faa0e",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41156437915"
+    },
+    {
+      "name": "Eleventh-pass current-source build and native observed-exit screenshot",
+      "status": "521/521 Node and 25/25 browser checks passed; Nintendo bar not passed",
+      "detail": "Gameplay source 12d32cb CI completed successfully with all technical checks and a real 1280×900 production public frame dated 2026-10-31T02:07:46.806Z. Exit visibility and hero scale improved, while the scene shifts too far right. Genuine screenshot SHA-256 4f00eca791ef87e343008e4f781e809c58342220a511254d371521d6fb549998; no independent A/B or hardware FPS.",
+      "sourceCommit": "12d32cbec9c089608ac77b6df73dbe7914cc180f",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41157967040/artifacts/13026233263"
+    },
+    {
+      "name": "Thirteenth-pass sealed-gate/known-key genuine browser evidence",
+      "status": "523/523 Node and 25/25 browser checks passed; visual Nintendo bar NOT passed",
+      "detail": "Gameplay source c072f0a passed all Autonomous Games CI jobs, including new observed/open/unknown gate resource and privacy regression and actual 1280x900 key and sealed-gate dated PNGs. Key source cell37 tick16 and gate door-2 tick21 were selected from unaltered real public frames, inspected and their PNG SHA256 verified. Gate still too small/edge-staged; no fresh independent critic. Software CI rendering samples are not hardware performance.",
+      "sourceCommit": "c072f0a95204010cb178d9193bb2aedba231c7f4",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41169676492"
+    },
+    {
+      "name": "Fourteenth-pass same-source sealed-gate contract, browser evidence and CI",
+      "status": "523/523 Node; 25/25 browser tests passed; Nintendo bar NOT PASSED",
+      "detail": "Source e309c66 passed Autonomous Games CI, build, all stream self-tests and determinism scan. Genuine observed closed door-2 at seed maze-visual-reference-13 tick21 captured 2026-10-31T05:04:37.546Z, new PNG SHA256 3ef0814c04f38a2465687b7feded50c6d8b7dc24c3da6ed2278de74f356ef668. Foreground lock and seal visibly improved; independent art critique unavailable and no hardware GPU FPS.",
+      "sourceCommit": "e309c6657ee2d17040440c82643ecc3ea42ce9c1",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41170583499"
+    },
+    {
+      "name": "Pass-18 exact-source public-only known-stage camera and genuine browser",
+      "status": "CI 524/524 Node and 25/25 browser passed; Nintendo bar NOT passed",
+      "detail": "Gameplay source 4b74885 passed full CI 41184813290: build, 4 host self-tests, deterministic scan and real browser screenshots. Source-bound production seed maze-visual-reference-13 tick21 closed door-2 desktop SHA cea444431f35ff409c32b67aefe447c4231fca9aad73dfa3722d601d8f16c9b6 (2026-10-31T08:37:09.971Z), portrait SHA 3cca0e4f13367a5b8ec4c5fb1622c7419c841016aeebf662fc347d5c402ed058 (08:37:13.673Z). No independent benchmark victory or hardware GPU FPS.",
+      "sourceCommit": "4b7488523cceebe052187095fdeb65b1c7218cf3",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41184813290"
+    },
+    {
+      "name": "Pass-19 authentic sealed-gate camera and exact-source CI",
+      "status": "CI PASSED 524/524 Node and 25/25 browser; native desktop/portrait PNGs SHA-verified; Nintendo bar NOT PASSED",
+      "detail": "Source gameplay 396ceb6, focused test 384f7b2, CI 41189735556 success including build/host self-tests/determinism. Genuine seed13/tick21 disclosed closed door-2 screenshot artifact 13038422543: desktop at 09:49:38.913Z image SHA 3b1fe041889964c3699f7ecb2d5622c52ba17437a2764a73c0de220c1b2627e3, portrait 09:49:42.604Z image SHA 02549d09399f24c55ef5bab262103065e1ea5fb589ad6b7fa70fd7957bb075ac, decoded and verified. Small shift of subjects toward center with more waterlike pixels, not sufficient for visual benchmark. Fresh independent critics/Ultracode blocked by disconnected shared workspace; software SwiftShader timings are not representative hardware FPS.",
+      "sourceCommit": "384f7b25917d08bc8abf7e2daa5c1b730bfb07a6",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41189735556/artifacts/13038422543"
+    },
+    {
+      "name": "Pass 20–21 exact-source functional CI and original public seeded screenshots",
+      "status": "CI 41192941034 and 41193675854 PASSED 524/524 Node and 25/25 browser, build, deterministic and stream; fixed Nintendo visual bar NOT PASSED",
+      "detail": "Pass20 camera commit 9130a35, pass21 arch aim commit 2d3e08d. Genuine seed13/tick21 disclosed closed gate pass21 original browser PNG hashes desktop 175dbe92880684723408b93a717c681095099b546c79b9fc66cfc05d923b9d9e at 2026-10-31T10:44:14.289Z; portrait 49579cd2af952d74ea1da6f50ed4f6779ca1ebc06afe9f246182fcb1a7c99f18 at 10:44:16.172Z. Both match the actual artifact manifest. Independent critic/Ultracode unavailable; CI CPU software frame times are not GPU hardware FPS.",
+      "sourceCommit": "2d3e08da44c87ecefe9f29ed4a6558957559c5ba",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41193675854/artifacts/13039268530"
+    },
+    {
+      "name": "Pass 23 real carried-key gesture at genuinely closed gate, exact CI and source-bound screenshots",
+      "status": "526/526 Node and 25/25 browser PASSED; visual Captain Toad bar NOT PASSED; no independent critic",
+      "detail": "Key source 1e8948d, fix aaf96f3. Initial source CI 41198794677 FAILED 2 Node due NaN neutral gaze; exact fixed candidate CI 41199011079 passed all builds, deterministic/host checks and browser captures. Actual seed maze-visual-reference-13 tick21 closed door-2 1280x900 at 2026-10-31T12:04:51.888Z SHA 80209adb5eec1a7b99755c4ae73513e151dc8c776e0eceece69f278e8eebab38 and 390x844 at 12:04:55.569Z SHA a95676e71b8273f7088e95fb13b9b2cff9929c16e6f8223cd643ca1aeb726c64; source/PNG hashes in artifact 13041484155. Lead native-image critique finds partial arm/key occlusion, very small portrait reaction, and left-biased empty water. Nintendo wins. Tunnel unavailable for fresh independent subagents/Ultracode; SwiftShader timing not GPU FPS.",
+      "sourceCommit": "aaf96f36268149b1d74611e5dfd90b381540242d",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41199011079/artifacts/13041484155"
+    },
+    {
+      "name": "Pass 25 authentic render capture, red browser CI truthfully recorded",
+      "status": "Actions 41210379937 FAILED overall: build, 526/526 Node, stream self-tests, deterministic scan passed; browser 103/107 (one Maze 600ms tick stalled + three Tiny Kingdom drift checks); visual bar NOT PASSED",
+      "detail": "Original actual Maze browser artifact 13046850726, observed closed door-2 real public seed maze-visual-reference-13 tick21, desktop captured 2026-10-31T14:38:39.941Z PNG SHA256 223fe47e9d443a6d83a0860746433f2d1bd2638318327ed600117541f46586f4 and portrait 14:38:41.987Z SHA256 99ef106b256cbc347887de25c755c38a22b95e8123208ce98a383e6b53dc2401; hashes recomputed from ZIP and match JSON. Strict pass24→25 differences 0.354% desktop and 0.603% portrait, localized to key/lock; only local detail improved, fixed Captain Toad still wins. CI shared CPU contention makes 600ms tick failure inconclusive as product diagnosis, not a pass. Three Tiny Kingdom failures are separate shader/river tests. Fresh critic/Ultracode unavailable due workspace tunnel; software renderer not hardware GPU FPS.",
+      "sourceCommit": "aff967baa6fe90c5e71722cac50163b82b0df378",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41210379937/artifacts/13046850726"
+    },
+    {
+      "name": "Pass 26 staged closed-gate keyhole source and view regression",
+      "status": "Source and test commits present; exact-head CI 41218924644 IN PROGRESS; genuine new captures NOT yet inspected; Nintendo bar NOT PASSED",
+      "detail": "World source commit fd2f0f7, focused 3D socket test 2e1443c. No gameplay authority, public-key disclosure, deterministic behavior, hidden traversal or gate-open semantics changed. Prior pass25 genuine screenshot artifact 13046850726 remains latest inspected render; independent critic unavailable.",
+      "sourceCommit": "2e1443cb5ce1a87d55ef6e2252bead8092969b85",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41218924644"
+    },
+    {
+      "name": "Pass 27 native key-lock camera source and exact-source CI review gate",
+      "status": "Source and tests committed; exact-head full CI RUNNING/NOT VERIFIED; new actual images not yet examined; fixed Nintendo visual bar NOT PASSED",
+      "detail": "Commits map-view 83b14f8, scene b303f2b, deterministic focus contract 08333c6, source-bound browser checks 46d5f02. Reuses real public carried-key and observed sealed-gate without opening the obstacle or publishing hidden maps. At last source read, Autonomous Games CI run 41230286651 was in progress. Await exact-head build/Node/browser/host and dated SHA-256-verified production seed/tick desktop and portrait screenshots; do not claim success from tests. Fresh subagents/Ultracode unavailable via disconnected workspace; no hardware GPU FPS claim.",
+      "sourceCommit": "46d5f022a0ff42b71356ad4fbcd9585b2d2f86d2",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41230286651"
+    },
+    {
+      "name": "Pass 27 real browser-image review + pass28 source-only arch correction",
+      "status": "Pass27 actual desktop/portrait artifact verified; prior CI 41230389838 and 41230286651 CANCELLED, not green; fixed Nintendo bar NOT PASSED. Pass28 source 84e1dd7 exact-head CI/render PENDING.",
+      "detail": "Original production seed maze-visual-reference-13 tick21 genuinely closed door-2. Pass27 desktop 2026-10-31T18:45:44.784Z SHA256 22945f73afd22dce543f7ccaa1f815bfefd2f1f4483c97666d9a74a84bbe7afe and 390x844 18:45:48.161Z SHA256 057437b5ab323b72158b6abd42912417ac414c510f8ac03f25f3009930688d76. Exact source manifest matching key in public inventory, camera closeup and blocked door. Portrait hero/gate more prominent but upper arch clipped and gesture still ambiguous; Captain Toad remains bar winner. Next source-only vertical camera aim +.46 to +.80 for real matching public gate. No source-bound new render, independent critic or GPU performance result claimed.",
+      "sourceCommit": "84e1dd74a47753b5d60b173c18c5d20643d36ef9",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41234490759"
+    },
+    {
+      "name": "Pass 29 physical glove bearing toward public matching sealed lock — exact source CI/render open",
+      "status": "Source and test commits on draft branch; CI run 41245527570 IN PROGRESS at first check; no rendered screenshot inspected; fixed benchmark NOT PASSED",
+      "detail": "Source 5c37549 changes only articulated left shoulder Y/Z aiming, based on finite bounded keyYaw from publicCarriedGateCue; test-first ccf0689 covers bearing direction, proportionate reach, missing cue, guardian/terminal priority and both model LODs. No private map, simulation, door opening, resource or camera change. Full CI, real dated and hash-checked production desktop/portrait screenshots, fresh separate visual critics and blind comparison pending. Last verified pass28 PNG artifact 13055687573 still loses to Nintendo. Shared workspace tunnel unavailable, Ultracode inaccessible, no representative GPU FPS claim.",
+      "sourceCommit": "5c37549f8752eaf5bd9620b271d69b043162ebd1",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41245527570"
+    },
+    {
+      "name": "Pass29 source-bound images verified; pass30 CI/art gate open",
+      "status": "Pass29 genuine original PNG hashes match manifests; visually rejected; CI 104 pass / 3 Tiny Kingdom fail; pass30 unverified",
+      "detail": "Pass29 source head 542ebb8 CI 41245936937 issued source/tick-aligned 1280x900 screenshot at 2026-10-31T22:04:18.531Z SHA f0e6361da42e73f11d57150af5305a0a488931abd5e5c2a511c167bd37a00694 and 390x844 portrait 22:04:21.583Z SHA 00eb1308fd182c07d86f87c13fc6a0ccd6b582520e36b2f7930d8dea622ebc87. Original byte hashes matched manifests. Lead A/B vs pass28 found bow partly hidden. CI overall failed due Tiny Kingdom G057/058/063 assertions, not Maze browser; no bar win. Pass30 connected wrist source 1a6fe8a and test f1da826 need fresh captures/independent critics. SwiftShader CPU timing not hardware FPS.",
+      "sourceCommit": "f1da82677df3aa6448f6f5e2121eada145142368",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41245936937/artifacts/13059797608"
+    },
+    {
+      "name": "Pass30 authentic rendered image acceptance — localized improvement but benchmark NOT PASSED",
+      "status": "CI 41257731828 FAILED full browser suite 104 pass / 3 Tiny Kingdom G057/G058/G063 fail; original desktop/native images SHA-verified; no separate critic",
+      "detail": "Exact gameplay source 51e1e43d3d3565aaf1fa93e5f31c8a91db8b88b7, seed maze-visual-reference-13, tick 21, genuinely closed door-2 + exact public carried matching key. Original image desktop 2026-11-01T00:44:18.834Z SHA f73f83514eb2e19eb271452d76eb82faae018a7f46f2ac19f65d425457fcb226; native 390x844 portrait 00:44:20.684Z SHA 760c0a0487662020e4ea5a8538eea97153baf3bc2c6e58eb211ef2d8c4140306; recomputed original bytes equal adjacent manifests from artifact 13064406479. Key bow more visible than pass29 but glove/blade/lock still ambiguous, right arch clipped, lagoon overlarge. Reference Captain Toad still wins; no independent blind critic. Build/Node/host/determinism/evidence passed, overall red due three separate Tiny Kingdom browser checks. Shared CPU SwiftShader ≠ GPU FPS; workspace/agents/Ultracode missing.",
+      "sourceCommit": "51e1e43d3d3565aaf1fa93e5f31c8a91db8b88b7",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41257731828/artifacts/13064406479"
+    },
+    {
+      "name": "Pass31 source-head real sealed-gate capture and partial CI",
+      "status": "528/528 Node, all 15 executed Maze browser checks pass; workflow CANCELLED, visual bar NOT PASSED",
+      "detail": "Original exact-seed/tick21 physically closed-door browser artifact 13068690719 was hash-verified: desktop 2026-11-01T02:59:45.833Z SHA 62125cad82e9752771238de7455f781401a0e3ca00aa4ca6f54d382c48b0b5fe and portrait 02:59:49.096Z SHA af9e00cf005735ee0aa074f5035a5f09638e8943527227cdc6b31914cc02df28. Small grip geometry not legible at 390px against distant real socket; fixed Nintendo still wins. CI cancelled during Tiny Kingdom after all executed Maze browser checks passed. Independent fresh critics and Ultracode unavailable, shared software-renderer timing not hardware FPS.",
+      "sourceCommit": "1a2650bec83e0487117d479597e0c7a21088be2f",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41266880874/artifacts/13068690719"
+    },
+    {
+      "name": "Pass32 original public-arch framing source gate",
+      "status": "Source candidate committed for CI; original pass32 screenshots and fresh independent visual critic NOT YET VERIFIED; Nintendo bar OPEN",
+      "detail": "Keyed gate camera only: 1.34 portrait and 1.12 desktop camera aim with unchanged half-height and all existing browser margins. No authority changes or false held-key insertion. Prior authentic pass31 artifact 13068690719 remains comparison baseline; CPU-throttled software renderer != hardware GPU FPS. Shared workspace subagents and Ultracode unavailable.",
+      "sourceCommit": "pending-atomic-commit",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/pull/53"
+    },
+    {
+      "name": "Pass33 exact-source dedicated Maze visual verification and review",
+      "status": "Focused Maze CI succeeded; genuine hashes verified; visual benchmark REJECTED; whole-repo CI failed unrelated Tiny Kingdom",
+      "detail": "Exact source 6276330, focused Actions 41282144620 and genuine artifact 13073920601. 2026-11-01 06:47 UTC desktop 1280x900 SHA a0e468045c0a4386db1e5302e0d9f3252c7f7a6b4ba759661bfdcdf8f685207a and mobile 390x844 SHA dd9579d04f7b96a9abf353999ec5c55294d0ec2d531c27e5d3c03c108355f10c each matched original JSON manifests; same seed/tick actually closed door. Lead visual review rejects native arch crop and tiny glove-key-lock; no fresh independent critic or real GPU benchmark. Full CI 41282144550 had three Tiny Kingdom failures, 104 browser checks passed.",
+      "sourceCommit": "6276330948362c1f809165a08caf9ac6c481199b",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41282144620/artifacts/13073920601"
+    },
+    {
+      "name": "Pass34 source/test contract and native-render gate",
+      "status": "Source candidate staged; exact-head focused CI, actual dated original captures and independent visual critic PENDING; benchmark OPEN",
+      "detail": "Public closed physical gate: larger single rim/inset and joined dark crown+throat; still mint only for exact carried publicly known key. Stricter tests for physical continuity/scale/depth/cardinal orientations and true open/unknown states. Pass33 original source-head native artifact 13073920601 remains the last verified baseline. Workspace tunnel unavailable, no independent critic or Ultracode. Test success would not prove Nintendo parity.",
+      "sourceCommit": "pending-atomic-commit",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/pull/53"
+    },
+    {
+      "name": "Pass34 original native render source-bound review",
+      "status": "Focused Maze SUCCESS; 528 Node and 15 Maze browser pass, full CI FAILED on three Tiny Kingdom checks; original desktop/portrait PNG hashes verified; visual benchmark REJECTED",
+      "detail": "Exact head 8875f37 seed maze-visual-reference-13 tick21 genuinely CLOSED door-2. Desktop 2026-11-01T07:51:27.672Z SHA 95dba46e393e875f6b50c96d091e01d98909a7b0c15e44b850b1bf8736a5254f; native 390x844 2026-11-01T07:51:30.861Z SHA f2f6974a941db20016214637daca843c53e322d1aece7ea06e423ea863707d95. Only 676 pixels differ from pass33 in socket region; glove/key/socket still visually separated. Full 41286349088 has three Tiny Kingdom browser failures; all executed Maze checks passed. Fresh independent critic/Ultracode blocked by tunnel; SwiftShader not hardware FPS.",
+      "sourceCommit": "8875f37f8c7eeed180925220db36b544896a762a",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41286349080/artifacts/13075272968"
+    },
+    {
+      "name": "Pass35 real key-tip to physical socket projection source gate",
+      "status": "Source and browser assertions candidate only; exact-head CI, original dated image manifest values and independent critic PENDING; benchmark NOT PASSED",
+      "detail": "Actual source-modeled key tooth point and exact public edge matching socket are measured in CSS px through the real camera at sparse debug interval; tests check finite in-frame projections at desktop and 390px but do not assert a visual victory or modify gameplay/camera. Workspace agents and Ultracode unavailable; CPU-throttled SwiftShader not GPU FPS.",
+      "sourceCommit": "pending-atomic-commit",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/pull/53"
+    },
+    {
+      "name": "Pass35 authentic source-mesh key/socket CSS projection measurement",
+      "status": "Focused exact-head Maze CI success and original PNG hashes verified; 92.09px native separation proves ambiguous action remains; full catalogue CI in progress; benchmark NOT PASSED",
+      "detail": "Source 191c9d0, seed maze-visual-reference-13 tick21, actual still-closed door-2 exact publicly carried key. Desktop 2026-11-01T09:33:56.470Z SHA 95dba46e393e875f6b50c96d091e01d98909a7b0c15e44b850b1bf8736a5254f, mesh tip (372.30,343.73), socket (279.45,436.11), separation 130.98 CSS px. Portrait 2026-11-01T09:33:58.236Z SHA f2f6974a941db20016214637daca843c53e322d1aece7ea06e423ea863707d95, tip (137.44,262.87), socket (72.16,327.82), separation 92.09 CSS px. All six PNGs byte-identical to pass34. No visual win from diagnostics, no fresh independent critic/Ultracode due tunnel; SwiftShader CPU rendering not GPU FPS.",
+      "sourceCommit": "191c9d0a464c6163e1afde83cee6bc21ea9d2954",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41293601655/artifacts/13078870708"
+    },
+    {
+      "name": "Pass36 verified original modeled key/lock directional native screenshots",
+      "status": "Exact-head focused Maze CI SUCCESS; six original PNG SHA-256 matches; native 84.40px gap vs pass35 92.09px; fixed Nintendo benchmark NOT PASSED; full CI in progress at check",
+      "detail": "Focused run 41296776902 original artifact 13079133302, 2026-11-01 10:18:23.019Z native 390x844 SHA b4463aae66167f625019ea7b8ba45dee7231741a61d768ed6ba4faefce4c7aca, actual blade tip 121.79,259.55 vs closed socket 72.16,327.82 -> 84.4031 CSS px. Desktop 10:18:19.711Z SHA 1d337b0360bcfb7c137988ec0f3058a954b7be4a7969cca46e5131121891d77c -> 120.0479px. Same production seed maze-visual-reference-13 tick21, closed door-2 matching carried key; six hashes verified. Native pixels diff 1,071 (0.3254%) vs pass35. Still not contact or readable action; Nintendo bar stronger. Independent critics/Ultracode disconnected, SwiftShader not GPU FPS.",
+      "sourceCommit": "62ed60716e9446156fff2af30faf859ca872622f",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41296776902/artifacts/13079133302"
+    },
+    {
+      "name": "Pass37 real key bow camera-facing source candidate",
+      "status": "Source and checks staged on draft branch; exact-head CI, original dated PNGs and separate critic PENDING; Nintendo benchmark NOT PASSED",
+      "detail": "Presentation-only roll around real key shaft, no fake physical insertion, hero move, AI/private-state/door change. Two LOD and opposite camera bearings checked by newly added source test; runtime browser camera-facing value and source manifest hash added. Pass36 full CI 41296776884 cancelled; focused Maze 41296776902 succeeded. Workspace agents/Ultracode disconnected; SwiftShader timing not hardware GPU FPS.",
+      "sourceCommit": "pending-atomic-commit",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/pull/53"
+    },
+    {
+      "name": "Pass37 authentic captured WebGL evidence and visual rejection",
+      "status": "Focused Maze CI SUCCESS and all 6 original PNG SHA-256 hashes verified; source-model bow face score 1 but visual benchmark NOT PASSED; full catalogue CI still in progress at review",
+      "detail": "Exact source e776c3962a162fd1459eb6b4bed635c9f48db424, focused CI 41302938093 artifact 13081353692, true public maze-visual-reference-13 tick21 closed door-2 matching key. Native 390x844 captured 2026-11-01T11:42:16.051Z SHA eb2a0bf851b88afd08d77077e197177ea6b25607c47b3b7c294ad76cb11cd52c, 843 changed pixels >12 vs pass36, physical key/socket 84.4031 CSS px unchanged. Desktop 1280x900 11:42:13.605Z SHA 78cd6b96e304d162ccb6456b85ba8083b63126bce0c22fc09a03b72aa2f634e8, 1635 pixels changed >12, 120.0479px unchanged. All six PNG hashes match original dated manifests, which now hash characters.js. Other 4 scenes byte-identical. Lead rejects visual parity, independent critic/Ultracode unavailable due tunnel; CPU-throttled SwiftShader not GPU FPS. Whole-repo CI 41302938095 in progress.",
+      "sourceCommit": "e776c3962a162fd1459eb6b4bed635c9f48db424",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41302938093/artifacts/13081353692"
+    },
+    {
+      "name": "Pass38 authentic original WebGL closeup visual evidence",
+      "status": "Focused Maze CI SUCCESS, six actual screenshot SHA-256 valid, image quality REJECTED",
+      "detail": "Source b3dda36ab0fcfa9697818b7943a47c73d0bc6624, CI 41303723468, artifact 13081404669; actual original native 2026-11-01T11:52:44.669Z SHA 14b892894bfcd13f9be8b4086dd36caba025f46bbc2171fbcad4ee57c4a4d496. Pixel change 43.9%, projected 65.83px tooth/socket, Pip occluded, Nintendo fixed bar wins. No independent critic/GPU claim.",
+      "sourceCommit": "b3dda36ab0fcfa9697818b7943a47c73d0bc6624",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41303723468/artifacts/13081404669"
+    },
+    {
+      "name": "Pass39 authentic source-staged original WebGL comparison",
+      "status": "Focused Maze CI SUCCESS, six actual screenshot SHA-256 valid, image quality REJECTED",
+      "detail": "Source e7a65a4a78f4b359dbc84118930614ebf36d211f, CI 41304281998, artifact 13082936380; real 390x844 2026-11-01T12:00:50.314Z SHA 2471e845fc5faaec5abc984f2127435ae971dad33eed9c445b823ec632ac20cb, gate driven left, arch still cropped; reverted. Nintendo still wins.",
+      "sourceCommit": "e7a65a4a78f4b359dbc84118930614ebf36d211f",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41304281998/artifacts/13082936380"
+    },
+    {
+      "name": "Pass40 fixed-raster authored lagoon source candidate",
+      "status": "Source-only JS parse/tonal resource check completed; source-bound full simulator/browser original WebGL CI QUEUED; visual acceptance PENDING; Nintendo NOT PASSED",
+      "detail": "Source 65b2c24c9d5d7e7e2837e2b9cb86c4b29b6de288, focused CI 41305146762 queued. Existing 128x128x4 texture, no new draw calls/geometry and no authority change. Static pixel simulation 37 green tonal values 105–141; only a real SHA-verified captured scene and fresh visual critic can judge. Whole-repo CI also queued; no pass claim.",
+      "sourceCommit": "65b2c24c9d5d7e7e2837e2b9cb86c4b29b6de288",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41305146762"
+    },
+    {
+      "name": "Pass40 authentic original lagoon WebGL visual review",
+      "status": "Focused Maze CI SUCCESS and all six dated SHA-256 PNGs independently verified; original visual output REJECTED",
+      "detail": "Source 65b2c24c9d5d7e7e2837e2b9cb86c4b29b6de288, CI 41305146762, original artifact 13083062508; actual native 2026-11-01T12:20:00.872Z SHA a211395d669e258753530a32e752222b7367db93a46ecfe32a43652d14816552, desktop 12:19:57.618Z SHA 2b8f2ef2670f8a59a7438926f50f7d54d2c409c4c5adff82a8ae018371ec28b9. Water turns into floating blobs; reverted. Source screenshots 30,282/143,133 changed RGB pixels >12 vs pass37; no evidence of aesthetic quality improvement, Nintendo bar still wins.",
+      "sourceCommit": "65b2c24c9d5d7e7e2837e2b9cb86c4b29b6de288",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41305146762/artifacts/13083062508"
+    },
+    {
+      "name": "Pass41 public matching closed gate UI truth source candidate",
+      "status": "Source-bound production browser focused CI SUCCESS; verified real dated native 390×844 closed-gate HUD screenshot; fixed visual bar NOT PASSED",
+      "detail": "Real focused CI 41306288258 artifact 13083881661 six original PNG SHA verified; native closed-gate screenshot 2026-11-01T12:36:34.576Z SHA256 82e815c3ba7cb8cb75c9d43276f14ae422e1355f884d61e4e2022bd3bcecdfeb, authentic production public matching key still-sealed door. Exact prior source a988853, no authority fabricated. Nintendo scene quality remains superior.",
+      "sourceCommit": "a98885365a5a1ae393fc21973806ec4fd76bce0f",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41306288258"
+    },
+    {
+      "name": "Pass42 public-threat hinged armor source candidate",
+      "status": "Source-bound CI screenshot and Node test SUCCESS only after negative-zero neutral fix; authentic lead visual comparison REJECTED, benchmark NOT PASSED",
+      "detail": "Initial focused CI 41307179276 FAILED strict -0/+0 test. Source db4032f explicitly normalizes both hinged-shell rest angles. Focused run 41311276320 SUCCESS, original artifact 13085960259 six PNG SHA verified including 1280x900 public tick13 warden 2026-11-01T13:28:43.117Z SHA256 46fafb3d7c93319bc16f7ffbc7beef0dcf8f764d434941db7afe95193f862d32. Lead real screenshot comparison against original pass41 rejected tiny dark-shell difference; no independent blind verdict.",
+      "sourceCommit": "db4032f5fd31bc8e4e61ef71721de08072a942ae",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41311276320"
+    },
+    {
+      "name": "Pass43 stronger physically hinged dorsal shell/seam source candidate",
+      "status": "Focused production browser CI SUCCESS; six genuine original screenshots SHA verified; lead actual visual review REJECTED, benchmark NOT PASSED",
+      "detail": "Source d6fa8ae41d669f19dcbbe95b9697c4a42bf52632; GitHub focused CI 41311802088 SUCCESS, original artifact 13085956393, six PNG SHA matches. 1280x900 real source tick13 image 2026-11-01T13:42:05.132Z SHA 27ccade231bb1071362dfde290f9687393336860587639dc06194ae8fdeb916a. Native-scale unblinded A/B only 1839/1152000 pixels >12 RGB; shell still one indistinct dark oval with masked ember seam. Fresh subagent/Ultracode unavailable, no fixed benchmark win.",
+      "sourceCommit": "d6fa8ae41d669f19dcbbe95b9697c4a42bf52632",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41311802088"
+    },
+    {
+      "name": "Pass44 bounded public-only Detail camera actor framing and same-tick mobile warden capture",
+      "status": "Source-only candidate, regression committed; exact-source original seven-image CI and independent visual comparison PENDING",
+      "detail": "Camera pure helper 24723cec0298090e505a6fd17164a6878f76e590, integration 446426dab007015bc65d22e276c45b409275b973, test 5a5b4ad7b5394b2b5376cb20bd23d1b3913670ce, source-bound native portrait evidence test b53c19e8a857bb40ff0fd2d445cdaf850b9d68bc further frame stabilization 541c49cb9eb5eb6e470c52d8fe89cd474dc5b15f. Uses only actually disclosed warden strength and position, preserves Follow mode and source-derived terminal/portrait constraints; no fabricated movement or hidden authority. Source CI 41313000370 queued at last check. No claim of actual Pass44 screenshot or benchmark win.",
+      "sourceCommit": "541c49cb9eb5eb6e470c52d8fe89cd474dc5b15f",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41313000370"
+    },
+    {
+      "name": "Pass49 authenticated source-bound rendered exit tide rose",
+      "status": "Focused Maze CI SUCCESS; seven genuine original dated SHA-verifiable PNGs matched; lead local landmark improvement ONLY, benchmark NOT PASSED",
+      "detail": "Exact source a12cb46, CI 41322128665, artifact 13089920665. Actual original public tick26 exit image captured 2026-11-01T15:38:33.894Z SHA 39a86cabe761bfadedf54b15151ee28f63e5582b8904be7570be148db932d7c8; world.js SHA 743474a6451e5c346c7f14bfb799d798b13ea0afafd7a29ece4e9574b8b75aa2. All 7 screenshot hashes independently recomputed; 2941 of 1152000 pixels >12 differ in x465–542/y333–415 only, six other source-stage PNGs exactly identical. Lead accepts local crest distinction but Nintendo still wins; independent blind critic, native exit and hardware GPU review unavailable. Full CI evaluated separately.",
+      "sourceCommit": "a12cb46bfbecec9a2e3a83edce1a300ac07ca153",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41322128665/artifacts/13089920665"
+    },
+    {
+      "name": "Pass49b exact-source true 390px public exit capture candidate",
+      "status": "PENDING newly triggered exact-source focused browser CI, original eight SHA-verified images and actual unscaled mobile critique",
+      "detail": "Same real public exit snapshot as the Pass49 1280x900 observed-landmark frame, browser resized to 390x844 and two new WebGL frame presentations, source-bound original PNG+UTC hash manifest. Explicitly gate hero and exit both in native frame. Source-only, no image yet. Do not treat as mobile success.",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/pull/53"
+    },
+    {
+      "name": "Pass49b native discovered exit proven against actual source",
+      "status": "Focused visual CI succeeded; eight original dated PNG hashes matched; Nintendo reference still wins",
+      "detail": "Source fba1016 focused CI 41322991290, artifact 13089099965, genuine seed13 tick26 390×844 exit 2026-11-01T15:49:52.572Z SHA e3aaf876... 1280×900 SHA 39a86c.... Actual WebGL evidence, not mock; no independent critic and no hardware FPS.",
+      "sourceCommit": "fba1016f795e70edb059856bc3b68153504836b0",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41322991290"
+    },
+    {
+      "name": "Pass50 border-only greenhouse original image review",
+      "status": "Focused source CI succeeded, visual change REJECTED; revised wall-crest proof pending",
+      "detail": "Builder d8b8333 source-focused CI 41326153770 SUCCESS, original artifact 13091302169 eight authentic dated SHA matched PNGs; same-seed mobile real gameplay renders unchanged >12 RGB; desktop exit 2/1,152,000 pixels >12. Rejected as aesthetically negligible. Revised builder 07d4c8c and tests 62a5349 now target only truly known blocked wall faces; full visual gate open.",
+      "sourceCommit": "ce0c3187d49f3132e04e90ffdd4a84c7666f29cb",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41326153770"
+    },
+    {
+      "name": "Pass50b full real 3D corridor and exit screenshot acceptance",
+      "status": "Focused production source CI 41326782605 succeeded; all 8 dated PNG SHA matched, lead accepts local greens not fixed Nintendo bar",
+      "detail": "Eight unaltered MazeRuntime public production frames and same Chromium/viewport sizes. Native observed-exit 390x844 at 2026-11-01T16:33:46.827Z SHA 966e27239deac26..., real exit and Pip both in frame; desktop exit SHA d2625b17..., source world.js SHA a17a8d37.... Blind separate-context critic and real GPU benchmarks not available. Earlier same-source test CI 41326551467 failed 60s during last 8th capture under throttled SwiftShader; later full artifact verifies gameplay source, not performance.",
+      "sourceCommit": "66ae7ac4848d7fd52b2daeffc5ac551707ba113e",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41326782605"
+    },
+    {
+      "name": "Pass51 original public guardian capture and visual CI regression",
+      "status": "Focused browser CI FAILED twice on authentic native warden margin; original 2/2 retrieved PNG SHA digests verified; benchmark NOT PASSED",
+      "detail": "Source f2254d4, action 41328330211 first artifact 13092980203. Genuine production seed maze-visual-reference-13 tick13 warden 2.236 cells from Pip. Native 17:02:29.046Z SHA 9bbd90050bb9886bb47b6dddf819e1fd80d66705d69874a5da4334869175995f; desktop 17:02:22.010Z SHA 3d7bdd8049a9667f9b1dd90a827e04104a2e33004924c29528bf16866a559263. This aborted before exit screenshot, so no Pass51 observatory acceptance or detached blind vote.",
+      "sourceCommit": "f2254d415711b3c0ab7a1c5b839a90fa0f5728db",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41328330211/artifacts/13092980203"
+    },
+    {
+      "name": "Pass52 native actor-pair camera horizontal-span source candidate",
+      "status": "Pure helper, wiring and source regression committed; original exact-head browser output and separate critic PENDING; fixed bar NOT PASSED",
+      "detail": "Source 45ef35b/0bd7c2f/72db1c8. Public-only Detail portrait horizontal half-span retained >=4.275 world units through height max(5.7,4.275/aspect), real actor locations never modified. New focused browser run 41330731751 and separate full CI 41330731720 queued. Await dated source-bound actual screenshots including original Pass51 exit candidate, SHA checks and independent Nintendo A/B. No software SwiftShader GPU FPS claim.",
+      "sourceCommit": "72db1c86ba43b8bf4219757e69e1992f82d88f1b",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41330731751"
+    },
+    {
+      "name": "Pass52 prior-source original actor staging images verified",
+      "status": "Focused CI SUCCESS and all eight original WebGL PNG byte hashes matched; native warden margin repaired, old HUD still too verbose; fixed Nintendo NOT PASSED",
+      "detail": "Exact source 72db1c86ba43b8bf4219757e69e1992f82d88f1b, CI 41330731751 artifact 13093871833. 390x844 portrait genuine source seed maze-visual-reference-13 tick13 captured 2026-11-01T17:30:02.248Z SHA 87caf98efbe1b4fc43d4802d453a01aad127633f1a9a9de7affb9cb22de9792f, wardenWithMargin=1. Real exit tick26 SHA 89daeda8dabc43802c55ebe5b9c9e7b98a4bc273ed9c20417616ea47816b9f5a and gate tick21 SHA 9ab05aa567a46843a18b77cdbe7efc1aaa10559f6a016a269626f5b3260cad39. Headless WebGL screenshots are not hardware GPU FPS or independent Nintendo parity.",
+      "sourceCommit": "72db1c86ba43b8bf4219757e69e1992f82d88f1b",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41330731751/artifacts/13093871833"
+    },
+    {
+      "name": "Game-first full-bleed source and Follow camera integration",
+      "status": "Game-first CSS/HTML/client/Playwright source committed; JS parse checks completed; exact-head original screenshots and full/focused CI QUEUED; no visual quality claim",
+      "detail": "UI source 8204955c92f6fc8bcc8b619a8e3041081672cd6d with gameplay-hud.css added. Follow full-stage camera c79d58592be6595145e0ddda81ddec37cc27049a, deterministic public-only horizontal span helper/tests. Focused 41331768833 and full 41331768927 queued at last check. Independent blind A/B and fresh-context subagents/Ultracode unavailable through disconnected shared tunnel; record real dated PNG and test status before any win.",
+      "sourceCommit": "c79d58592be6595145e0ddda81ddec37cc27049a",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41331768833"
+    },
+    {
+      "name": "Pass53 authentic game-first full-viewport integration visually verified",
+      "status": "Source 8c6c0fc exact-focused Playwright CI SUCCESS; 8/8 original SHA-256 dated production WebGL PNGs matched; native 320/landscape DOM source assertions passed; fixed Nintendo visual bar NOT PASSED",
+      "detail": "Missing style route repaired 040f2a3, catalogue revision4 contract c1d86a6, real 44px mobile controls 01e17d7, layout/HTTP tests 8c6c0fc. Native real guardian tick13 18:47:49.152Z SHA 7ff84cb52e8ab10c5a2ec49cf5ceaed3c76bca543ea2b400f3c2f6f1bbf1c858. Genuine observed exit 1280×900 18:48:03.361Z SHA 98e9c9034653440d2553d06b349ba5374e3a8facf566e5d92d0bfb52895e78bc. Real public-only scenes; native 390×844 sealed gate camera halfheight 7.119897. Original 8/8 verified from artifact 13095889245. Whole CI 41338238386 separate, still running at evidence checkpoint. Detached critics/Ultracode tunnel unavailable, SwiftShader not hardware GPU.",
+      "sourceCommit": "8c6c0fc31db2908a82d0247b5ea10eb0d92f886d",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41338238380/artifacts/13095889245"
+    },
+    {
+      "name": "Pass53 real 320 portrait and 844 landscape guardian source evidence candidate",
+      "status": "Source 53f9d5c committed; exact-head focused CI 41338755766 and full CI 41338755795 queued; actual image/critic outcome PENDING",
+      "detail": "Separate genuine production public guardian tick13 exact-source Playwright browser test now captures original 320×740 and 844×390 unaltered WebGL screenshots, UTC sidecars, per-source hashes, real full-model guardian/hero margin, fullscreen and 44px controls. Must inspect authentic new images and hash sidecars on current source. Never lower cropping or performance/renderer gate.",
+      "sourceCommit": "53f9d5c98d5118a116f0a2b1dbf894e4f18aaf5d",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41338755766"
+    },
+    {
+      "name": "Pass54 actual native 320/390/844/1280 mineral-court screenshots SHA verified",
+      "status": "10/10 actual source 364ca36 UTC screenshot PNGs match SHA-256 manifests; original 320/844 actor margins pass and world floor variant visible; focused CI 41339617142 failed an early DOM loading-card assertion; strict 00578f0 source correction CI pending; no independent Nintendo visual win",
+      "detail": "Verified real artifact 13096592149: 320x740 real guardian at 2026-11-01T19:02:53.985Z SHA 405f639ff7af596d5c19112afe94d2009c8f62f306e238b8be41dcdb9b0ffd9f and 844x390 at 19:02:57.841Z SHA 3a1cff48274fd0a61fec630585c864a2e28f774ac9f07c7b3660515f5f2b1723, renderer webgl, tick13, real actor both inFrame with margin 1; native 390 and desktop same genuine source. A separate 320 cold second browser timed out at 80s in CPU-throttled shared environment. 00578f0 preserves strict visual gates and awaits actual render before measuring. Fixed Nintendo quality benchmark still higher.",
+      "sourceCommit": "364ca360e03d1e8c09d2b0b2cf9c94c71b6878a4",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41339617142/artifacts/13096592149"
+    },
+    {
+      "name": "Pass54 current real first-frame WebGL correction and authentic 4-viewport images",
+      "status": "Focused visual CI 41339985008 SUCCESS; 10/10 original PNG SHA-256 independently matched original UTC manifests; NOT an independent Nintendo art win",
+      "detail": "Original artifact 13096719428 from source 00578f0, dated 2026-11-01T19:14–19:15Z. Native 320x740 and 844x390 actual tick13 Pip/Thornback and 390x844/1280x900 authentic source-bound key/exit/gate. Real source corrects cold first-WebGL center-stage test; no visual crop/quality threshold weakened. Current Pass55 water source was committed AFTER these images.",
+      "sourceCommit": "00578f0797fae5027fcaa0901df9c2de8ef8523d",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41339985008/artifacts/13096719428"
+    },
+    {
+      "name": "Pass55 dimension-only lagoon original visual source candidate",
+      "status": "SOURCE ONLY: changed world.js/test at 44ec1a1; exact-source rendered critique and full tests PENDING; Nintendo fixed quality benchmark NOT PASSED",
+      "detail": "One low batched 44-ring water-current layer and distinct crossed caustic tileable raster using only public board dimensions. No new navigation floor, private topology, AI state, render-frame allocation or new geometry/material/texture resources. Validate exact 320/390/844/1280 original WebGL with source/date/hash sidecars, compare to successful Pass54 and Nintendo and ensure no ring clutter/false path signals. Independent fresh-context critics and Ultracode unavailable with tunnel disconnected.",
+      "sourceCommit": "44ec1a1e8176b0c3f6fb8db2e9404ae5d9c0749b",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41341337582"
+    },
+    {
+      "name": "Pass56 exact-source real browser proof — 4 actual sizes, complete 10-image artifact",
+      "status": "Focused CI 41346985539 SUCCESS; 10/10 original full-size WebGL PNG SHA256 matches UTC/source sidecars; full monorepo CI separate",
+      "detail": "Original capture 2026-11-01 20:29:10–20:30:30 UTC, artifact 13100011178 from exact 171b8ff game source. Tick13 true public Pip and Thornback at 1280x900 / 390x844 / 320x740 / 844x390, guardian in-frame with margin at 320 and 390, 44px controls, real full-viewport WebGL; known key, exit and sealed gate also captured. Identical gameplay source after docs checkpoint. Pass55 source 41342477180 was a distinct successful 10/10 SHA-verified predecessor, not a Pass56 image.",
+      "sourceCommit": "171b8ff31379dd31df322c1db041a1548cedf42d",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41346985539/artifacts/13100011178"
+    },
+    {
+      "name": "Pass57 true source-bound original full-size WebGL 10-image and 4-viewport guardian proof",
+      "status": "Focused CI 41351065043 SUCCESS: 46/46 strict Node, stream and Playwright; original PNG SHA 10/10; independent Nintendo benchmark NOT PASSED",
+      "detail": "Actual artifact 13100499184 for game SHA 0507aaf1. Original source-bound UTC PNG 1280x900/390x844/320x740/844x390 true tick13 guardian, both actors in frame including 320/390 full-model margin, 44px controls, no stage crop and public-state only. Strict initial 41350933895 failed signed -0 neutral pose, corrected in game source without weakening tests; full monorepo 41351065041 separate. Original hashes documented in docs/reviews/maze-3d/pip-braced-guardian-pass-57-review-gate.md.",
+      "sourceCommit": "0507aaf1cfa7363ca97ea6af61a5385934fc55ad",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41351065043/artifacts/13100499184"
+    },
+    {
+      "name": "Pass58 source-bound botanical warden exact renderer 10 original images and strict UI",
+      "status": "Focused exact-game-source CI 41358029925 SUCCESS; 46/46 focused Node, live host, real native Playwright WebGL; 10/10 original PNG SHA256 matched; fixed Nintendo benchmark NOT PASSED",
+      "detail": "Artifacts 13104131633 for 96f6c2934a3efb5fbce4118f063097ec8eeacf9e source. Dated current original tick13 at 1280x900, 390x844, 320x740, 844x390 and six real key/exit/gate states. True native 320/844 WebGL have 1 source-witnessed warden with margin, Pip in frame and 44px controls. Two earlier source tests failed brittle assertions of normal-motion vs reduced and pre-batching geometry class; corrected without relaxing public state or visual acceptance. Source image hashes and real review at docs/reviews/maze-3d/thornback-botanical-bloom-pass-58-review-gate.md. New screenshots not yet added to live gallery because no repository-hosted image asset was published. Separate monorepo CI status must be checked.",
+      "sourceCommit": "96f6c2934a3efb5fbce4118f063097ec8eeacf9e",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41358029925/artifacts/13104131633"
+    },
+    {
+      "name": "Pass59 corrected 3D terrace courts native WebGL + full-stream HUD assertion",
+      "status": "CI 41359791341 focused SUCCESS, actual 10/10 dated original WebGL PNG SHA256 independently matched; original Nintendo benchmark NOT PASSED; newest full monorepo CI af1a3b5 pending",
+      "detail": "Original artifact 13105020624 contains real seed13 tick13 guardian at 1280x900 390x844 320x740 and 844x390 (actual 320 SHA 51edceae6a103a900b548d459df5a96ea2607172cce39aed25566e82d4805bbf); genuine key/exit/gate states. WebGL canvas fills 320, 844; public warden full margin and 44x44 touch buttons. Source-only world 9293164, visually rejected candidate 22af496 and corrected. Full monorepo previous 41358518064 failed outdated escape-objective text; current test-only af1a3b5 repaired exact goal+objective state contract without deleting privacy, frame, focus or viewport guards. Separate full CI not certified; review docs/reviews/maze-3d/terrace-courts-pass-59-review-gate.md.",
+      "sourceCommit": "9293164463c3a6716ad3e20e1a3f26861d198994",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41359791341/artifacts/13105020624"
+    },
+    {
+      "name": "Pass60 source-only known guardian portrait safe camera (NOT yet screenshot-accepted)",
+      "status": "Strengthened exact source 3cfd2e121793b7dfeb8f55c0a05baf497b338976; strict new transitional model-margin test committed; focused 41361748745 and full 41361748708 initially QUEUED; no new screenshot verdict",
+      "detail": "Public observed 3D Pip/Thornback only; projected left/right actor radius reserve, max16% zoom, neutral hidden/no threat and terminal, no change to HUD or existing acceptance. Last verified exact original Pass59 ten PNG/UTC sidecars artifact 13105020624 recomputed 10/10. Worker/Ultracode tunnel unavailable. Inspect 320/390/844/1280 native new screenshot source/hashes and real model framing without relaxing test margins. No hardware GPU speed inference or Nintendo win. Follow-up explicitly guards both old/current and new/source-public camera targets across easing; far focus zoom refused. Exact-source CI now 41361748745; older 41361199276 is prior source and must not be passed off as the latest.",
+      "sourceCommit": "3cfd2e121793b7dfeb8f55c0a05baf497b338976",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41361748745"
+    },
+    {
+      "name": "Pass62 physical-full-model Following camera, original native WebGL images",
+      "status": "Focused 41373765475 SUCCESS; 14/14 original dated screenshot SHA256 independently matched; Nintendo not passed, whole CI 41373765388 separate in progress",
+      "detail": "Rejected current 0b681b0 old native Follow screenshot: real guardian physical silhouette x-right 1.0038925 NDC at 390x844 despite central placement. Fixed e0be79c real public mesh-aware camera center and conservative separate actor width reserves. New genuine seed13 tick13 390 portrait at 2026-11-02T01:43:01.144Z PNG SHA f5a7a208e681688c32ac4c6502ceaea97d12c90152ce807fe7e32128be2f0dff; guardian right .83552, Pip left -.86996, all inside .95 while 44px controls and full stage remain. 320 portrait also passes, 844 landscape and 1280 desktop unchanged mode and pass. No weakening test/hidden-state/authority. Lead image inspection only; disconnected fresh critic/Ultracode, CPU-throttled SwiftShader, no Nintendo win.",
+      "sourceCommit": "e0be79c1e830bbd3a51fb987efc014025241e3a2",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41373765475/artifacts/13110228983"
+    },
+    {
+      "name": "Pass63 real public gate opening and transitive module serving",
+      "status": "SOURCE CANDIDATE; initial focused failures diagnosed, corrected source CI 41377400273 QUEUED / full 41377400294 QUEUED; no current-source WebGL artifact or art win",
+      "detail": "Commit 43734cf introduces physical public-only gate retraction with reduced-motion; new phase6 policy and phase3 actual Three mesh tests. Initial focused 41376639991 failed old data: ESM resolver, repaired 62a8605. Follow-up focused 41376912552 passed all phase tests but live browser could not render due new file absent from PUBLIC_ASSETS allowlist (real 404 defect); corrected 586df83 with explicit route/MIME browser gate, transitive asset SHA included in all original PNG manifests and headless script. New exact-source running evidence and event-specific rendered screenshots outstanding. Previous 14 Pass62 PNGs are true old source, not visual proof of newly added moment; native 320/390 in-frame, 44px, privacy thresholds unchanged. No independent critic/Ultracode; fixed Nintendo bar not reached; no merge/deploy.",
+      "sourceCommit": "586df8385160056f84fd336d036e081fc7ce90ae",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41377400273"
+    },
+    {
+      "name": "Pass64 exact-source true opened-gate before/after 19-image WebGL verification",
+      "status": "Focused 41384708930 SUCCESS; 19/19 original UTC/source-bound WebGL PNG SHA256 independently verified. After camera action REJECTED; Nintendo still wins. New public camera beat source 04db3a6 unverified, CI 41385344155 and full 41385344162 pending.",
+      "detail": "Real authoritative source sequence maze-visual-reference-3, public door 77–94, tick 7 CLOSED to tick 8 OPEN; 1280 before SHA 81d1ecc2cf88bb4ac1352a3c453c7fde4f4b95b7ba1d752cc05eb8e66ba375a8, after SHA b1321c3ecaafc76d4ec2369a85a7e7ac67458180016bc95840f9ef97262d66a6; opened native 390 SHA 0e830670488061cae0e22c2657913f934e855003940e0a7192517ed5e0ffba2b, 320 SHA fc4dcae0ce83174e46640e1c40ce5f23af39d0a496d5468d180e226596ebe3cf, 844 SHA f81669276bbc241fdc38502e36dc82c3ca0c34716e43f714f6ea7943194de775. Original real game-first HUD, viewport, 44px, native actor margins retained; after camera moved far from public gate, event looks weak, world.retractingPublicGates=0 in AFTER diagnostic so no mid-lift proof. First new test hit prior 150-second combined screenshot time, corrected wall clock only. Independent subagents and Ultracode unavailable disconnected tunnel, CPU SwiftShader not hardware GPU; docs/reviews/maze-3d/public-gate-real-transition-pass-64-review-gate.md.",
+      "sourceCommit": "b019a3f2d01059276a54aa88e6bca31cf1725a76",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41384708930/artifacts/13114419838"
+    },
+    {
+      "name": "Pass65 modeled pulley mechanism and source-bound native render pending",
+      "status": "SOURCE CANDIDATE: 3D and deterministic public policy tests added; new-source CI/artifact review pending, Nintendo fixed bar NOT PASSED",
+      "detail": "Commits 161b1c4 (authored 3D counterweights), 2fbfcf5 (real Three model/reduced-motion tests), 556eccc and ee1f8db (strict ascending public tick protection), 4ec52f0 (Three userData safety). Previous camera-beat exact source 41385653505 SUCCESS but original PNG artifact 13115595802 not directly opened this run; not proof of new source. Test current source after these commits and independently check all dated full-resolution original 1280, 390, 320, 844 screenshots against Nintendo. Workspace tunnel disconnected, no subagents/Ultracode, no hardware GPU reading, no merge/deploy.",
+      "sourceCommit": "4ec52f0ab884ac80821c225c1044b8fedc70472d",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41386656404"
+    }
+  ],
+  "references": [
+    {
+      "title": "Captain Toad: Treasure Tracker — primary reference",
+      "url": "https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/"
+    },
+    {
+      "title": "Luigi’s Mansion 3 — supporting reference",
+      "url": "https://www.nintendo.com/us/store/products/luigis-mansion-3-switch/"
+    },
+    {
+      "title": "ASTRO BOT — supporting reference",
+      "url": "https://www.playstation.com/en-us/games/astro-bot/"
+    },
+    {
+      "title": "Fixed comparison image · sandstone scene",
+      "url": "https://assets.nintendo.com/image/upload/q_auto/f_auto/dpr_2.0/store/software/switch/70010000002722/72a7b70a3161a757d40571a9264444e307bdcd83a851978510ed8fa31e762a6d"
+    },
+    {
+      "title": "Fixed comparison image · water and explorer scene",
+      "url": "https://assets.nintendo.com/image/upload/q_auto/f_auto/dpr_2.0/store/software/switch/70010000002722/bc357ae2086f43bbcaf6cef34a8caad0ddfcd739d0ea25db236a0a4b71bc81a8"
+    }
+  ]
+}
