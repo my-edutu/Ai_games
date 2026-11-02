@@ -521,7 +521,8 @@ function stageRigLegsAfterMixer(actor,since,reducedMotion){
  const current=actor.root?.position,previous=actor.rigGaitPosition;
  const travel=current&&previous?Math.hypot(current.x-previous.x,current.z-previous.z):0;
  if(current&&previous)previous.copy(current);
- const gait=advanceRigGait(actor.rigGaitPhase,actor.rigGaitWeight,travel,
+ const gait=advanceRigGait(actor.rigGaitPhase,actor.rigGaitWeight,
+  actor.locomotionTeleport?Infinity:Math.min(travel,.30),
   reducedMotion||actor.u.hp<=0);
  actor.rigGaitPhase=gait.phase;actor.rigGaitWeight=gait.weight;
  const pose=planRigLegGesture(gait.phase,gait.weight,reducedMotion||actor.u.hp<=0);
@@ -627,7 +628,9 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
    reducedMotion:reducedMotion||actor.u.hp<=0
   });
   actor.visualPivot.position.set(pose.x+contact.x,pose.y+contact.y,pose.z+contact.z);
-  actor.visualPivot.rotation.set(pose.pitch+contact.pitch,contact.yaw,pose.roll+contact.roll);
+  // Real visible travel adds a restrained forward weight shift atop the
+  // imported animation, without moving attack hitboxes or the authority grid.
+  actor.visualPivot.rotation.set(pose.pitch+contact.pitch+(actor.locomotionTilt||0),contact.yaw,pose.roll+contact.roll);
   actor.contactBodyPeakMeters=Math.max(actor.contactBodyPeakMeters||0,Math.hypot(contact.x,contact.y,contact.z));
   actor.motionPeak=Math.max(actor.motionPeak||0,Math.abs(pose.x+contact.x),
    Math.abs(pose.y+contact.y),Math.abs(pose.z+contact.z));
