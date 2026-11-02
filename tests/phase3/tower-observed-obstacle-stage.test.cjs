@@ -58,19 +58,31 @@ test('real moving deck drives visual machinery without replay/time invention',as
   try{
     world.update(snapshot({tick:20}),.05,1,{quality:'low'});
     const crank=world.group.getObjectByName('SourceObservedMovingDeckCrank');
-    assert.ok(crank?.isGroup);assert.equal(crank.rotation.z,0);
+    const countergear=world.group.getObjectByName('SourceObservedMovingDeckCountergear');
+    const piston=world.group.getObjectByName('SourceObservedMovingDeckLoadPiston');
+    assert.ok(crank?.isGroup && countergear?.isGroup && piston?.isGroup);
+    assert.equal(crank.rotation.z,0);
+    assert.equal(countergear.rotation.z,0);
+    const restingY=piston.position.y;
     world.update(snapshot({tick:21,deckX:162000}),.05,1.05,{quality:'low'});
     assert.ok(crank.rotation.z>0);
-    const observed=crank.rotation.z;
+    assert.ok(countergear.rotation.z<0,'real gear transfer counter-rotates');
+    assert.ok(piston.position.y<restingY,'observed movement compresses piston');
+    const observed=[crank.rotation.z,countergear.rotation.z,piston.position.y,piston.rotation.z];
     world.update(snapshot({tick:21,deckX:162000}),4,90,{quality:'low'});
-    assert.equal(crank.rotation.z,observed);
+    assert.deepEqual([crank.rotation.z,countergear.rotation.z,piston.position.y,piston.rotation.z],observed);
     world.update(snapshot({tick:22,deckX:164000}),.05,1.1,{quality:'low',reducedMotion:true});
-    assert.equal(crank.rotation.z,observed);
     world.update(snapshot({tick:23,deckX:166000}),.05,1.15,{quality:'low',stale:true});
-    assert.equal(crank.rotation.z,observed);
+    assert.deepEqual([crank.rotation.z,countergear.rotation.z,piston.position.y,piston.rotation.z],observed);
+    assert.equal(world.diagnostics().observedMovingDeckDriveLastTick,21);
     world.update(snapshot({tick:3,deckX:100000}),.05,0,{quality:'low'});
     assert.equal(crank.rotation.z,0);
+    assert.equal(countergear.rotation.z,0);
+    assert.equal(piston.rotation.z,0);
+    assert.equal(piston.position.y,restingY);
     assert.equal(world.diagnostics().observedMovingDeckCranks,1);
+    assert.equal(world.diagnostics().observedMovingDeckDriveStages,1);
+    assert.equal(world.diagnostics().observedMovingDeckDriveLastTick,-1);
   }finally{world.dispose();}
 });
 test('opt-in nearby hazard cue requires inactive-to-active same-run source evidence',async()=>{

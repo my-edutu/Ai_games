@@ -310,7 +310,9 @@ export function createTowerWorld(){
     for(const p of platforms.values()){
       // Keep the rotating source-observed crank apart from static deck merging.
       if(p.traveler)batchRigid(p.traveler);
-      batchRigid(p.root,new Set(p.traveler?[p.traveler]:[]));
+      if(p.countergear)batchRigid(p.countergear);
+      if(p.actuator)batchRigid(p.actuator);
+      batchRigid(p.root,new Set([p.traveler,p.countergear,p.actuator].filter(Boolean)));
     }
     for(const e of hazards.values()){
       batchRigid(e.live,new Set(e.spin?[e.spin]:[]));
@@ -968,7 +970,7 @@ export function createTowerWorld(){
     root.traverse(o=>{if(o.isMesh&&o.material===bodyMaterial)o.userData.structural=true;});
     // Give a genuinely moving autonomous landing a mechanical, world-space
     // cue. Position belongs to the source platform; the crank never drives it.
-    let traveler=null;
+    let traveler=null,countergear=null,actuator=null;
     if(p.kind==='moving'){
       traveler=new THREE.Group();traveler.name='SourceObservedMovingDeckCrank';
       traveler.position.set(0,h-1.4,27.46);
@@ -980,10 +982,34 @@ export function createTowerWorld(){
           [1.22,.13,.16],[0,0,spoke*Math.PI/2]);
         arm.castShadow=false;arm.receiveShadow=false;
       }
-      root.add(traveler);
+      // The second exposed gear and hydraulic load transfer make this a
+      // visibly weight-bearing carriage, not a colored moving rectangle.
+      // Both stages respond ONLY to observed authoritative deck displacement.
+      // Nothing predicts a collider, platform destination or player landing.
+      countergear=new THREE.Group();
+      countergear.name='SourceObservedMovingDeckCountergear';
+      countergear.position.set(1.52,h-1.4,27.46);
+      mesh(countergear,geometry('observed-moving-countergear-rim',
+        ()=>new THREE.TorusGeometry(.66,.11,6,20)),materials.edge);
+      for(let spoke=0;spoke<2;spoke++)
+        block(countergear,materials.edge,[0,0,.065],[1.04,.12,.16],
+          [0,0,spoke*Math.PI/2]);
+      actuator=new THREE.Group();
+      actuator.name='SourceObservedMovingDeckLoadPiston';
+      actuator.position.set(-1.95,h-1.6,27.54);
+      actuator.userData.restY=actuator.position.y;
+      casting(actuator,materials.copper,[0,-.24,0],[.35,.88,.42]);
+      casting(actuator,materials.mint,[0,.26,.075],[.16,.42,.2]);
+      for(const drive of [traveler,countergear,actuator])
+        drive.traverse(object=>{if(object.isMesh){
+          object.userData.ambientDetail=true;
+          object.castShadow=false;object.receiveShadow=false;
+        }});
+      root.add(traveler,countergear,actuator);
     }
     platforms.set(p.id,{root,angle,width:p.width,height:p.height,
-      capMaterials,guardianGate,traveler,sourceX:null,sourceTick:null});return root;
+      capMaterials,guardianGate,traveler,countergear,actuator,
+      motionSourceTick:null,sourceX:null,sourceTick:null});return root;
   }
   function buildHazard(h,width){
     const root=new THREE.Group();root.name=`hazard:${h.id}`;floorGroup.add(root);
@@ -1100,15 +1126,29 @@ export function createTowerWorld(){
         // wheel. No wall clock, projected position or simulated velocity.
         if(Number.isSafeInteger(snapshot.tick) && Number.isSafeInteger(entry.sourceTick)
           && snapshot.tick<entry.sourceTick){
-          entry.traveler.rotation.z=0;entry.sourceX=null;entry.sourceTick=null;
+          entry.traveler.rotation.z=0;
+          entry.countergear.rotation.z=0;
+          entry.actuator.rotation.z=0;
+          entry.actuator.position.y=entry.actuator.userData.restY;
+          entry.motionSourceTick=null;
+          entry.sourceX=null;entry.sourceTick=null;
         }
         if(!options.stale && !options.reducedMotion &&
           Number.isSafeInteger(snapshot.tick) && Number.isSafeInteger(entry.sourceTick)
           && snapshot.tick>entry.sourceTick && snapshot.tick-entry.sourceTick<=8
           && Number.isFinite(entry.sourceX) && Number.isFinite(p.x)){
           const turn=(p.x-entry.sourceX)/SCALE/.72;
-          if(Number.isFinite(turn) && Math.abs(turn)<=4)
+          if(Number.isFinite(turn) && Math.abs(turn)<=4){
+            // A genuine displacement turns opposing gears and compresses a
+            // carriage piston. At a duplicate tick, stale source or reduced
+            // motion preference these mechanics cannot advance independently.
             entry.traveler.rotation.z+=turn;
+            entry.countergear.rotation.z-=turn*.72/.66;
+            entry.actuator.rotation.z=THREE.MathUtils.clamp(turn*.065,-.22,.22);
+            entry.actuator.position.y=entry.actuator.userData.restY-
+              Math.min(.32,Math.abs(turn)*.105);
+            entry.motionSourceTick=snapshot.tick;
+          }
         }
         if(!options.stale && Number.isSafeInteger(snapshot.tick) && snapshot.tick>=0
           && (entry.sourceTick===null || snapshot.tick>entry.sourceTick)){
@@ -1223,7 +1263,7 @@ export function createTowerWorld(){
     }
     occludedGuardianCaps=faded;
   }
-  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,activeHazardPressureFins:[...hazards.values()].reduce((n,h)=>n+(h.indicator.userData.activePressureTeeth||0),0),observedMovingDeckCranks:[...platforms.values()].filter(p=>p.traveler).length,ambientParticles:particles?.visible?48:0,floor:lastSnapshot?.floor??null,theme,quality,disposed,guardianGates:[...platforms.entries()].filter(([,p])=>p.guardianGate).map(([id,p])=>({id,unlocked:p.guardianGate.unlocked,opening:p.guardianGate.progress,conduitReach:p.guardianGate.conduit.scale.z,anchorX:p.guardianGate.anchorX})),occludedGuardianCaps,ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
+  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,activeHazardPressureFins:[...hazards.values()].reduce((n,h)=>n+(h.indicator.userData.activePressureTeeth||0),0),observedMovingDeckCranks:[...platforms.values()].filter(p=>p.traveler).length,observedMovingDeckDriveStages:[...platforms.values()].filter(p=>p.countergear&&p.actuator).length,observedMovingDeckDriveLastTick:[...platforms.values()].reduce((latest,p)=>Math.max(latest,p.motionSourceTick??-1),-1),ambientParticles:particles?.visible?48:0,floor:lastSnapshot?.floor??null,theme,quality,disposed,guardianGates:[...platforms.entries()].filter(([,p])=>p.guardianGate).map(([id,p])=>({id,unlocked:p.guardianGate.unlocked,opening:p.guardianGate.progress,conduitReach:p.guardianGate.conduit.scale.z,anchorX:p.guardianGate.anchorX})),occludedGuardianCaps,ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;clearFloor();for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
   return{group,update,revealGuardianSightlines,dispose,diagnostics};
 }
