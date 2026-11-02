@@ -12,7 +12,7 @@ const THEMES=Object.freeze([
  {stone:'#71849b',shadow:'#151e2b',metal:'#91b6c6'},
  {stone:'#8a779e',shadow:'#22182e',metal:'#ba9aca'}
 ]);
-const faces=[],UP=new THREE.Vector3(0,1,0);
+const UP=new THREE.Vector3(0,1,0);
 function geometry(builder){
  const vertices=[],indices=[];
  const solid=(points,back,front)=>{
@@ -43,6 +43,10 @@ function stonework(){
    slab(x,2.07,.30,.155,.33,.494);
    slab(x,1.03,.27,.135,.32,.49);
    slab(x,2.29,.30,.13,.35,.485);
+   // A thick diagonal buttress with an empty lancet window provides a real
+   // silhouette, not a rectangular cube with a texture pretending to arch.
+   beam(side*.47,.86,side*.47,1.89,.095,.348,.504);
+   beam(side*.47,1.89,side*.31,2.23,.078,.36,.507);
    // Two true three-dimensional diagonals form a pointed arched silhouette.
    beam(side*.39,2.16,side*.205,2.49,.147,.33,.49);
    beam(side*.205,2.49,0,2.62,.125,.34,.49);
@@ -50,6 +54,8 @@ function stonework(){
   }
   slab(0,.83,.90,.11,.32,.48);
   slab(0,2.63,.19,.13,.34,.503);
+  // Keystones emphasize the nave rhythm from the actual overhead camera.
+  solid([[-.11,2.52],[.11,2.52],[.15,2.70],[0,2.78],[-.15,2.70]],.355,.535);
  });
 }
 function shadowRecess(){
@@ -69,7 +75,7 @@ function heraldry(){
  });
 }
 export function createVaultedWallGallery(world,sites,wallIndices,floor){
- const count=Math.min(32,Array.isArray(sites)?sites.length:0);
+ const count=Math.min(72,Array.isArray(sites)?sites.length:0);
  const theme=THEMES[((floor-1)%4+4)%4];
  const geometries=[stonework(),shadowRecess(),heraldry()];
  const materials=[
@@ -97,7 +103,12 @@ export function createVaultedWallGallery(world,sites,wallIndices,floor){
    const site=sites[i];
    vector.set(site.x,0,site.z);
    quaternion.setFromAxisAngle(UP,site.yaw);
-   scale.setScalar(band===0?1:.00001);
+   // The real room-facing site recipe gives alternating narrow pillars,
+   // dominant nave vaults and shorter broken side chapels. All original art
+   // remains inside the blocked parent tile and obeys identical cutaways.
+   const style=site.style&3;
+   const sx=[.91,1,.94,.87][style],sy=[1,.86,1.06,.90][style];
+   scale.set(band===0?sx:.00001,band===0?sy:.00001,band===0?.94:.00001);
    matrix.compose(vector,quaternion,scale);
    for(const mesh of meshes)mesh.setMatrixAt(i,matrix);
   }
@@ -108,7 +119,7 @@ export function createVaultedWallGallery(world,sites,wallIndices,floor){
  return{
   cutaway,
   metrics:()=>({bays:count,stoneBatches:meshes.length,hiddenForSightlines:hidden,matrixWrites:uploads,
-   architecture:'original pointed vaults, fluted piers and reliefs',visualOnly:true,collisionEffects:0}),
+   architecture:'alternating pointed-arch nave, ruined side chapels, fluted piers and keystones',visualOnly:true,collisionEffects:0}),
   dispose(){
    for(const mesh of meshes){world.remove(mesh);mesh.dispose()}
    for(const g of geometries)g.dispose();

@@ -28,12 +28,10 @@ function make(kind,p){
   part(kind+'-right-shoulder','pauldron',p.chest,.42,1.38,-.08,.36*w,.28,.35,.12),
   part(kind+'-left-bracer','vambrace',p.arm,-.43,1.03,-.10,.30,.47,.30,-.12,'leftForearm'),
   part(kind+'-right-bracer','vambrace',p.arm,.43,1.03,-.10,.30,.47,.30,.12,'rightForearm'),
-  part(kind+'-left-shin','greave',p.lower,-.17,.36,-.13,.29,.46,.29,0,'leftLowerLeg'),
-  part(kind+'-right-shin','greave',p.lower,.17,.36,-.13,.29,.46,.29,0,'rightLowerLeg'),
+  part(kind+'-left-shin','greave',p.lower,-.17,.39,-.13,.29,.54,.29,0,'leftLowerLeg'),
+  part(kind+'-right-shin','greave',p.lower,.17,.39,-.13,.29,.54,.29,0,'rightLowerLeg'),
   part(kind+'-hip-mail','fauld',p.chest,0,.79,-.12,.64*w,.36,.46),
-  part(kind+'-hanging-tabard','tabard',p.face,0,.52,-.33,.39*w,.52*robe,.17),
-  part(kind+'-left-patella','pauldron',p.detail,-.18,.61,-.22,.27,.17,.19),
-  part(kind+'-right-patella','pauldron',p.detail,.18,.61,-.22,.27,.17,.19)
+  part(kind+'-hanging-tabard','tabard',p.face,0,.52,-.33,.39*w,.52*robe,.17)
  ];
  if(kind==='revenant'||kind==='warden'){
   items.push(part(kind+'-exposed-first-rib','rib','bone',0,1.43,-.40,.63,.31,.13));

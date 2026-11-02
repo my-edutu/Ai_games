@@ -4,7 +4,7 @@
  * Selection is spatially distributed, never consumes gameplay RNG, and avoids
  * the exit court so a genuine boss warning remains readable.
  */
-const MAX_BAYS=32;
+const MAX_BAYS=72;
 const DIRS=Object.freeze([
  {dx:0,dz:1,yaw:0},{dx:1,dz:0,yaw:Math.PI/2},
  {dx:0,dz:-1,yaw:Math.PI},{dx:-1,dz:0,yaw:-Math.PI/2}
@@ -35,7 +35,9 @@ export function planVaultedWallBays(map,floor,exit,{maxBays=MAX_BAYS}={}){
  const result=[];
  for(const candidate of candidates){
   if(result.length>=cap)break;
-  if(result.some(p=>Math.abs(p.gridX-candidate.gridX)+Math.abs(p.gridZ-candidate.gridZ)<3))continue;
+  // Alternating bay rhythm on long corridors; no two immediate neighbours
+  // share a bulky shaft, and walking cells remain exactly as authored.
+  if(result.some(p=>Math.abs(p.gridX-candidate.gridX)+Math.abs(p.gridZ-candidate.gridZ)<2))continue;
   const {key,...site}=candidate;
   result.push(Object.freeze(site));
  }

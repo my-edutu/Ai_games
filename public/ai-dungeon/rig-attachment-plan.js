@@ -187,8 +187,8 @@ export function advanceRigGait(phase=0,weight=0,travelMeters=0,reducedMotion=fal
   return {phase:0,weight:0};
  const p=Number.isFinite(phase)?((phase%TAU)+TAU)%TAU:0;
  const w=clampWeight(weight);
- if(travelMeters<=.0015)return {phase:p,weight:Math.max(0,w-.14)};
- return {phase:(p+Math.min(travelMeters,.24)*TAU/1.05)%TAU,weight:Math.min(1,w+.24)};
+ if(travelMeters<=.0015)return {phase:p,weight:Math.max(0,w-.18)};
+ return {phase:(p+Math.min(travelMeters,.24)*TAU/1.05)%TAU,weight:Math.min(1,w+.58)};
 }
 const LEG_REST=Object.freeze({
  left:Object.freeze({upper:0,lower:0,foot:0}),
@@ -202,8 +202,8 @@ export function planRigLegGesture(phase=0,weight=0,reducedMotion=false){
  if(w===0)return LEG_REST;
  const left=Math.sin(p)*w,right=-left;
  return {
-  left:{upper:.235*left,lower:.165*Math.max(0,-left),foot:-.075*left},
-  right:{upper:.235*right,lower:.165*Math.max(0,-right),foot:-.075*right}
+  left:{upper:.255*left,lower:.180*Math.max(0,-left),foot:-.095*left},
+  right:{upper:.255*right,lower:.180*Math.max(0,-right),foot:-.095*right}
  };
 }
 

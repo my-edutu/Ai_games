@@ -107,7 +107,11 @@ function buildStatue(world,x,z,metal,stone,glow,variant){
  for(const side of [-1,1]){const horn=make(new THREE.ConeGeometry(.11,.48,7),stone,side*.14,1.96,-.02);horn.rotation.z=-side*.28}
  world.add(group);return group;
 }
-export function enrichEnvironment(world,map,floor){
+export function enrichEnvironment(world,map,floor,vaultedSites=[]){
+ // The arch cannot be a solid cube with a pretty ornament. Every selected
+ // impassable tile uses a physically low facade as the Gothic gallery takes
+ // over its upper volume. Source map, collision and AI stay completely intact.
+ const vaultedTiles=new Set(Array.isArray(vaultedSites)?vaultedSites.map(site=>site.gridZ*map.length+site.gridX):[]);
  const N=map.length,O=(N-1)/2,biome=BIOMES[(floor-1)%BIOMES.length];
  const geometries=[],materials=[],textures=[],flames=[];
  const box=new THREE.BoxGeometry(1,1,1),blade=new THREE.OctahedronGeometry(1,0),ring=new THREE.TorusGeometry(.36,.055,8,24);
@@ -167,8 +171,9 @@ export function enrichEnvironment(world,map,floor){
   const faces=[{dx:1,dz:0,yaw:Math.PI/2},{dx:-1,dz:0,yaw:Math.PI/2},{dx:0,dz:1,yaw:0},{dx:0,dz:-1,yaw:0}];
   for(const face of faces){if(!open(x+face.dx,z+face.dz))continue;
    const ax=px+face.dx*.511,az=pz+face.dz*.511;
-   wallFaces.push([ax,1.22,az,face.dz!==0?.88:.024,2.31,face.dx!==0?.88:.024,0,face.dx,face.dz]);
-   if(h%5===0){columnCap.push([ax,2.42,az,face.dz!==0?.72:.09,.115,face.dx!==0?.72:.09]);columnCapParents.push(wallFaces.length-1);}
+   const gallery=vaultedTiles.has(z*N+x);
+   wallFaces.push([ax,gallery?.52:1.22,az,face.dz!==0?.88:.024,gallery?1.04:2.31,face.dx!==0?.88:.024,0,face.dx,face.dz]);
+   if(!gallery&&h%5===0){columnCap.push([ax,2.42,az,face.dz!==0?.72:.09,.115,face.dx!==0?.72:.09]);columnCapParents.push(wallFaces.length-1);}
    if(h%21===0){pillars.push([ax,az,face.yaw,h]);}
    if(h%31===0){banners.push([ax,az,face.yaw,h]);}
   }
@@ -256,7 +261,7 @@ export function enrichEnvironment(world,map,floor){
   const halo=new THREE.Mesh(ring,jade);halo.position.set(x,1.58,z);halo.rotation.x=Math.PI/2;world.add(halo);foregroundGroups.push(halo);
  }
  // Architectural accents share this floor's resource budget and the same camera cutaway.
- const archWindows=addDungeonWindows(world,wallFaces,floor,biome,materials,geometries,textures,foregroundGroups);
+ const archWindows=addDungeonWindows(world,wallFaces.filter(face=>face[4]>2),floor,biome,materials,geometries,textures,foregroundGroups);
  const pillarsCount=pillars.length,bannersCount=banners.length,ruins=worldAnchors.length;
  const totalDecor=floorDetails.length+wallFaces.length+columnCap.length+mossPatches.length+runeInlays.length+rubble.length+pillarsCount+bannersCount+ruins;
  // Same 3D visibility policy as the base walls: rich wall cladding must not hide the AI.
@@ -338,6 +343,6 @@ export function enrichEnvironment(world,map,floor){
  }
 
  const animate=time=>{for(const p of flames){const t=time*5+p.phase,scale=1+Math.sin(t)*.13;p.fire.scale.y=scale;p.inner.scale.setScalar(.91+Math.sin(t+1.3)*.14)}};
- return {animate,cutaway,occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{biome:floor,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,wovenRugs:rugs.length,cutawayFloorBackings:backing.length,columnCapstones:columnCap.length,texturedSurfaces:floorDetails.length+wallFaces.length,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
+ return {animate,cutaway,occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{biome:floor,vaultedFacadeOpenings:wallFaces.filter(f=>f[4]<1.2).length,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,wovenRugs:rugs.length,cutawayFloorBackings:backing.length,columnCapstones:columnCap.length,texturedSurfaces:floorDetails.length+wallFaces.length,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
 }
 

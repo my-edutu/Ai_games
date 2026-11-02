@@ -16,9 +16,10 @@ test('real autonomous dungeon builds readable original vaulted wall breaks on de
  const d=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
  expect(d.webgl).toBe(true);
  expect(d.vaultedGallery?.bays).toBeGreaterThan(0);
- expect(d.vaultedGallery?.bays).toBeLessThanOrEqual(32);
+ expect(d.vaultedGallery?.bays).toBeLessThanOrEqual(72);
  expect(d.vaultedGallery?.stoneBatches).toBe(3);
  expect(d.vaultedGallery?.collisionEffects).toBe(0);
+ expect(d.dressing?.vaultedFacadeOpenings).toBeGreaterThanOrEqual(d.vaultedGallery.bays);
  expect(d.visibility.unoccludedHeroes).toBeGreaterThan(0);
  expect(d.drawCalls).toBeLessThan(1600);
  expect(errors).toEqual([]);

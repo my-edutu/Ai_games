@@ -328,6 +328,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
  // Replace selected repeated wall-box tops with sculpted pointed vaults;
  // the entire authority map stays solid and collision/pathfinding unchanged.
  const vaultedSites=planVaultedWallBays(s.map,s.floor,s.exit);
+ const vaultedTileKeys=new Set(vaultedSites.map(site=>site.gridZ*size+site.gridX));
  const vaultedWallIndices=vaultedSites.map(site=>wallIndexByTile[site.gridZ*size+site.gridX]);
  for(const wallIndex of vaultedWallIndices)if(wallIndex>=0)wallHeights[wallIndex]=Math.min(wallHeights[wallIndex],1.16);
  const instance=(geometry,material,data,scale,heights=null)=>{const mesh=new THREE.InstancedMesh(geometry,material,data.length);const matrix=new THREE.Matrix4(),position=new THREE.Vector3(),quaternion=new THREE.Quaternion(),scaling=new THREE.Vector3(...scale);for(let i=0;i<data.length;i++){position.set(...data[i]);if(heights){position.y=heights[i]/2-.03;scaling.y=heights[i];const weather=planWallStoneVariation(data[i][0],data[i][2],s.floor);quaternion.setFromAxisAngle(wallVertical,weather.yaw);mesh.setColorAt(i,new THREE.Color().setRGB(weather.shade,weather.shade,weather.shade));}matrix.compose(position,quaternion,scaling);mesh.setMatrixAt(i,matrix)}mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;mesh.castShadow=!reduced;mesh.receiveShadow=true;world.add(mesh)};
@@ -345,9 +346,9 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
  for(let z=1;z<size-1;z++)for(let x=1;x<size-1;x++){
   const wx=x-offset,wz=z-offset,f=fracture(x,z);
   if(s.map[z][x]==='#'){
-   if(f%3===0)topBricks.push([wx,(wallHeightAt.get(z*size+x)??2.6)-.07,wz]);
+   if(f%3===0&&!vaultedTileKeys.has(z*size+x))topBricks.push([wx,(wallHeightAt.get(z*size+x)??2.6)-.07,wz]);
    if(f%4===0){footBricks.push([wx,.1,wz]);foundationBrickWallIndices.push(wallIndexByTile[z*size+x]);}
-   if(s.map[z-1][x]==='.'&&f%7===0)caps.push([wx,(wallHeightAt.get(z*size+x)??2.6)+.03,wz-.34]);
+   if(s.map[z-1][x]==='.'&&f%7===0&&!vaultedTileKeys.has(z*size+x))caps.push([wx,(wallHeightAt.get(z*size+x)??2.6)+.03,wz-.34]);
   }else{
    if(f%4===0)stonePavers.push([wx,-.005,wz]);
    if(f%17===0)runes.push([wx,.008,wz]);
@@ -430,7 +431,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
   hazard.userData={charge,ring,active:t.active};world.add(hazard);hazardMeshes.set(t.id,hazard);
  }
  world.userData.hazardMeshes=hazardMeshes;
- world.userData.dressing=enrichEnvironment(world,s.map,s.floor);
+ world.userData.dressing=enrichEnvironment(world,s.map,s.floor,vaultedSites);
  world.userData.atmosphere=createBiomeAtmosphere(world,s.map,s.floor,s.exit);
  world.userData.livingWorld=createLivingWorld(world,s.map,s.floor);
  world.userData.authoredProps=putEnvironment(world,worldFloor,s.map);

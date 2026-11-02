@@ -12,14 +12,14 @@ test('wall galleries are original, deterministic, impassable and spaced apart',a
  for(const floor of [1,2,3,4,11]){
   const a=planVaultedWallBays(map,floor,exit);
   assert.deepEqual(a,planVaultedWallBays(map,floor,exit));
-  assert.ok(a.length>2&&a.length<=32,'multiple vaulted facades, bounded');
+  assert.ok(a.length>2&&a.length<=72,'multiple vaulted facades, bounded');
   for(const site of a){
    assert.equal(map[site.gridZ][site.gridX],'#');
    assert.equal(map[site.gridZ+site.faceZ][site.gridX+site.faceX],'.');
    assert.ok(Math.abs(site.gridX-exit.x)+Math.abs(site.gridZ-exit.z)>4);
    assert.ok([0,Math.PI/2,Math.PI,-Math.PI/2].includes(site.yaw));
    assert.ok(Math.abs(site.x)<=9&&Math.abs(site.z)<=9);
-   assert.equal(a.filter(b=>Math.abs(b.gridX-site.gridX)+Math.abs(b.gridZ-site.gridZ)<3).length,1);
+   assert.equal(a.filter(b=>Math.abs(b.gridX-site.gridX)+Math.abs(b.gridZ-site.gridZ)<2).length,1);
   }
  }
  assert.deepEqual(planVaultedWallBays(map,1,exit,{maxBays:0}),[]);
@@ -40,9 +40,14 @@ test('actual WebGL receives original vaulted-bay 3D batches and cutaway',()=>{
  assert.match(app,/planVaultedWallBays\(s\.map,s\.floor,s\.exit\)/);
  assert.match(app,/createVaultedWallGallery\(world,vaultedSites,vaultedWallIndices,s\.floor\)/);
  assert.match(app,/world\.userData\.vaultedGallery\?\.cutaway\(wallBands\)/);
+ assert.match(app,/enrichEnvironment\(world,s\.map,s\.floor,vaultedSites\)/);
+ const dressing=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
+ assert.match(dressing,/vaultedFacadeOpenings:/);
+ assert.match(dressing,/gallery\?1\.04:2\.31/);
  assert.match(app,/vaultedGallery:world\.userData\.vaultedGallery\?\.metrics\(\)/);
  assert.match(visuals,/new THREE\.InstancedMesh/);
- assert.match(visuals,/band===0\?1:\.00001/);
+ assert.match(visuals,/band===0\?sx:\.00001/);
+ assert.match(visuals,/band===0\?sy:\.00001/);
  for(const name of ['vaulted-wall-plan.js','vaulted-wall-gallery.js'])
   assert.ok(host.includes("['/dungeon/"+name+"','"+name+"']"));
 });

@@ -3,7 +3,7 @@
  * Read-only Three.js placement recipes; neither tiles/collision nor AI changes.
  * Original sculpted stones have no external assets or random/time dependencies.
  */
-const MAX_SPALLS=96,MAX_COPING=48;
+const MAX_SPALLS=54,MAX_COPING=32;
 const empty=()=>({spalls:[],coping:[]});
 const budget=(v,max)=>v===undefined?max:Number.isInteger(v)?Math.max(0,Math.min(max,v)):0;
 export function planStoneRelief(faces,floor,limits={}){
@@ -14,7 +14,9 @@ export function planStoneRelief(faces,floor,limits={}){
  if(!maxSpalls&&!maxCoping)return {spalls,coping};
  for(let faceIndex=0;faceIndex<faces.length&&(spalls.length<maxSpalls||coping.length<maxCoping);faceIndex++){
   const f=faces[faceIndex];
-  if(!Array.isArray(f)||f.length<9||![f[0],f[2],f[7],f[8]].every(Number.isFinite))continue;
+  if(!Array.isArray(f)||f.length<9||![f[0],f[2],f[4],f[7],f[8]].every(Number.isFinite)||f[4]<1.2)continue;
+  // Vaulted bays have actual empty upper volume: never hang a stone chip
+  // suspended in that negative space instead of on masonry.
   const dx=f[7],dz=f[8];
   if(Math.abs(dx)+Math.abs(dz)!==1||Math.abs(f[0])>10||Math.abs(f[2])>10)continue;
   // Integer coordinate mix makes the surface breakup deterministic across
@@ -28,10 +30,10 @@ export function planStoneRelief(faces,floor,limits={}){
   if(spalls.length<maxSpalls&&h%5!==0){
    spalls.push({
     faceIndex,x:f[0]+dx*front+dz*along,
-    y:.40+((h>>>9)%7)*.255,
+    y:.60+((h>>>9)%7)*.19,
     z:f[2]+dz*front+dx*along,
-    sx:.29+((h>>>15)%7)*.038,sy:.20+((h>>>19)%5)*.052,
-    sz:.125+((h>>>25)%3)*.02,yaw,shade
+    sx:.15+((h>>>15)%7)*.022,sy:.13+((h>>>19)%5)*.029,
+    sz:.080+((h>>>25)%3)*.014,yaw,shade
    });
   }
   if(coping.length<maxCoping&&h%3===0){
