@@ -31,7 +31,7 @@ test('T1 10 rooted catchments form fine embedded two-strand cross-board 3D seams
       const normals=mesh.geometry.getAttribute('normal');
       const rootStart=3*(stats.braidedSurfaceTriangles+stats.islandSurfaceTriangles);
       let litRoots=0;
-      for(let v=rootStart;v<normals.count;v++)if(normals.getY(v)>.1)litRoots++;
+      for(let v=rootStart;v<3*(stats.braidedSurfaceTriangles+stats.islandSurfaceTriangles+stats.reclaimedMosaicTriangles);v++)if(normals.getY(v)>.1)litRoots++;
       assert.ok(litRoots>stats.reclaimedMosaicTriangles,
         'new physically rooted moss paths face the real sunlit camera, not invisible downward faces');
       assert.equal(pos.count,stats.triangles*3);
@@ -42,8 +42,11 @@ test('T1 10 rooted catchments form fine embedded two-strand cross-board 3D seams
         assert.ok(Number.isFinite(x)&&Number.isFinite(y)&&Number.isFinite(z));
         assert.ok(Math.abs(x)<=width/2-.67999&&Math.abs(z)<=height/2-.67999,
           'garden below the original genuine board coping');
-        assert.ok(y>=.011&&y<=.021,
-          'all decor below genuine head, belly, contact shadow and collision/event cues');
+        if(i<3*(stats.braidedSurfaceTriangles+stats.islandSurfaceTriangles+stats.reclaimedMosaicTriangles))
+          assert.ok(y>=.011&&y<=.021,
+            'all ORIGINAL low relief below genuine head, belly and contact shadows');
+        else assert.ok(y>=.011&&y<=.185,
+          'raised foliage stays interstitial and below gameplay-cue clearance');
         const u=x/Math.max(.45,width*.16),v=z/Math.max(.45,height*.20);
         assert.ok(u*u+v*v>=.9999,'keep central sunlit gameplay marker uncovered');
         if(i>=oldTriangles*3){

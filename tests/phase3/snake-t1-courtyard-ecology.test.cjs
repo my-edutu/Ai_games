@@ -61,12 +61,15 @@ test('T1 real continuous stage moss is deterministic 3D, visually distributed an
           copy.geometry.getAttribute(name).array,'deterministic authored '+name);
       const sectors=new Set();
       let centre=0;
+      const oldVertices=3*(stats.braidedSurfaceTriangles+stats.islandSurfaceTriangles+stats.reclaimedMosaicTriangles);
       for(let i=0;i<positions.count;i++){
         const x=positions.getX(i),y=positions.getY(i),z=positions.getZ(i);
         assert.ok(Number.isFinite(x)&&Number.isFinite(y)&&Number.isFinite(z));
         assert.ok(Math.abs(x)<=width/2-.67999&&Math.abs(z)<=height/2-.67999,
           'all decorative relief entirely inside playable scene and coping');
-        assert.ok(y>=.011&&y<=.021,'above original stone but below existing contact shadow, body and cues');
+        if(i<oldVertices)assert.ok(y>=.011&&y<=.021,
+          'retain every original low-relief triangle beneath contact shadow/body/cues');
+        else assert.ok(y>=.011&&y<=.185,'new interstitial foliage bounded below playable occupancy clearance');
         const du=x/(width*.16),dv=z/(height*.20);
         assert.ok(du*du+dv*dv>=.9999,'central landmark remains visibly unobscured');
         if(x< -width*.20)sectors.add('west');

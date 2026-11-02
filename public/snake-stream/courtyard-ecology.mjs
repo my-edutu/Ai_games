@@ -17,7 +17,7 @@
  * shader or live-frame cost is added. The original world exclusively owns
  * that texture and disposes it on dimension/context replacement.
  */
-function restoreCourtyardStoneAtlas(world, width, height) {
+function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
   if (!world?.group?.traverse) return { regraded: false, pixels: 0 };
   let map = null;
   world.group.traverse(object => {
@@ -74,9 +74,15 @@ function restoreCourtyardStoneAtlas(world, width, height) {
       // clearing, rather than a single dark radial stain or literal green path.
       const marsh = smooth(.43, .69, watershed * .57 + mineral * .28 + nearEdge * .23);
       const silt = (mineral - .5) * 21 + (watershed - .5) * 13;
-      const targetR = 144 + 23 * heart + silt - marsh * 43;
-      const targetG = 144 + 15 * heart + silt * .70 - marsh * 23;
-      const targetB = 120 + 12 * heart + silt * .68 - marsh * 38;
+      // Interstitial fern roots and their mineral staining occupy *corners*
+      // between actual cell centres. A real food/hazard/portal centre lies
+      // sqrt(.5²+.5²) cells away and keeps its original material/cue contrast.
+      const rootX = Math.round(gx), rootZ = Math.round(gz);
+      const rooted = fernSites?.[rootZ * (width + 1) + rootX] ?
+        (1 - smooth(.09, .38, Math.hypot(gx - rootX, gz - rootZ))) : 0;
+      const targetR = 144 + 23 * heart + silt - marsh * 43 - rooted * 43;
+      const targetG = 144 + 15 * heart + silt * .70 - marsh * 23 - rooted * 22;
+      const targetB = 120 + 12 * heart + silt * .68 - marsh * 38 - rooted * 29;
       // Retain directional raking-light/mortar contrast from ORIGINAL pixels.
       // Lift only the muddy compression range, without bleaching real ruin
       // greenery or painting over portal/fruit/hazard geometry.
@@ -102,7 +108,6 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
   const W = width / 2, H = height / 2;
   const group = new THREE.Group();
   group.name = 'Reclaimed stone / embedded living-root courtyard';
-  const restoredStone = restoreCourtyardStoneAtlas(world, width, height);
   const position = [], colour = [];
   const palette = [
     new THREE.Color(0x244732), new THREE.Color(0x335c41),
@@ -237,13 +242,70 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
     }
   }
   // END T1 WHOLE-COURT RECLAIMED MOSAIC BEDS
+  // BEGIN T1 INTERSTITIAL LIVING UNDERSTORY
+  // The playable board used to be a featureless giant rectangular floor.
+  // Instead of adding live draw calls or placing fake obstacles in cell paths,
+  // grow hundreds of ORIGINAL sculpted three-leaf fern silhouettes at the
+  // interstices of the existing quarry paving. This is part of the SAME single
+  // immutable static geometry, safely outside the centre of every real cell.
+  const fernSites = new Uint8Array((width + 1) * (height + 1));
+  const fernCandidates = [];
+  const nearPublicCell = ([x, , z]) => {
+    const cx = Math.round(x + W - .5) + .5 - W;
+    const cz = Math.round(z + H - .5) + .5 - H;
+    return Math.hypot(x - cx, z - cz) <= .44;
+  };
+  for (let iz = 1; iz < height; iz++) for (let ix = 1; ix < width; ix++) {
+    const x = ix - W, z = iz - H;
+    if (Math.abs(x) > W - .88 || Math.abs(z) > H - .88) continue;
+    const margin = .20;
+    if ([[-margin,-margin],[margin,margin],[-margin,margin],[margin,-margin]]
+      .some(([dx,dz]) => landmark([x+dx,0,z+dz]))) continue;
+    fernCandidates.push({ix,iz,x,z,rank:noise(ix*.71+13,iz*.53+27)});
+  }
+  // Original full-board resource budget is strictly <3100 triangles for
+  // 8x8, 28x16 AND 40x24, and remains identical on repeat public snapshots.
+  const availableClumps = Math.min(130, Math.max(0,Math.floor((3090 - position.length / 9) / 6)));
+  fernCandidates.sort((a,b) => a.rank - b.rank || a.iz - b.iz || a.ix - b.ix);
+  let interstitialFernClumps = 0, interstitialFernTriangles = 0, fernCanopyHeight = 0;
+  for (const site of fernCandidates) {
+    if (interstitialFernClumps >= availableClumps) break;
+    const {ix,iz,x,z} = site, leaves=[];
+    const phase = noise(ix+17, iz+43) * Math.PI * 2;
+    for (let blade=0; blade<3; blade++) {
+      const angle=phase+blade*2*Math.PI/3;
+      const reach=.105+.034*noise(ix+blade*4,iz+blade+3);
+      const tipRise=.055+.026*noise(ix+8+blade,iz+21);
+      const sideRise=.097+.047*noise(ix+42,iz+blade+8);
+      const nx=Math.cos(angle), nz=Math.sin(angle);
+      const px=-nz, pz=nx;
+      const root=[x,.014,z];
+      const tip=[x+nx*reach,tipRise,z+nz*reach];
+      const left=[x+nx*reach*.54+px*.031,sideRise,z+nz*reach*.54+pz*.031];
+      const right=[x+nx*reach*.54-px*.031,sideRise*.94,z+nz*reach*.54-pz*.031];
+      leaves.push([root,left,tip],[root,tip,right]);
+    }
+    if (!leaves.flat().every(p => Math.abs(p[0])<=W-.68 &&
+        Math.abs(p[2])<=H-.68 && !landmark(p) && !nearPublicCell(p))) continue;
+    for (const [a,b,c] of leaves) {
+      vertex(a,-1.7);vertex(b,-1.4);vertex(c,-1.8);
+      interstitialFernTriangles++;
+      fernCanopyHeight=Math.max(fernCanopyHeight,a[1],b[1],c[1]);
+    }
+    fernSites[iz*(width+1)+ix] = 1;
+    interstitialFernClumps++;
+  }
+  // Existing world-owned stone atlas receives matching rooted mineral stains
+  // once on scene construction; never a new GPU texture, shader or live pass.
+  const restoredStone = restoreCourtyardStoneAtlas(world,width,height,fernSites);
+  // END T1 INTERSTITIAL LIVING UNDERSTORY
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(position, 3));
   geometry.setAttribute('color', new THREE.Float32BufferAttribute(colour, 3));
   geometry.computeVertexNormals();
   geometry.computeBoundingSphere();
   const material = new THREE.MeshStandardMaterial({
-    color: 0xffffff, vertexColors: true, roughness: .98, metalness: 0
+    color: 0xffffff, vertexColors: true, roughness: .98, metalness: 0, side: THREE.DoubleSide
   });
   const mesh = new THREE.Mesh(geometry, material);
   mesh.name = 'Embedded roots with organic clearings';
@@ -256,6 +318,7 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
     meshCount: disposed ? 0 : 1, textures: 0, triangles: position.length / 9,
     braidedSurfaceTriangles: braidTriangles, islandSurfaceTriangles: islandTriangles,
     reclaimedMosaicTriangles: mosaicTriangles, mosaicBedCount: mosaicBeds.length,
+    interstitialFernClumps, interstitialFernTriangles, fernCanopyHeight,
     deterministicFromBoard: true, publicCellsMoved: 0, stoneAtlas: restoredStone, disposed
   });
   return {
