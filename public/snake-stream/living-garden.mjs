@@ -478,6 +478,35 @@ export function createLivingGarden(THREE, {width,height}) {
       features.waterGardenBeds++;
     }
   }
+  // BEGIN T1 FOUR-SHORE LITTORAL GROVE COMPOSITION
+  // The existing true water-lily bays become continuous rooted coastal groves:
+  // 72 sculpted original fern crowns, each with five folded leaflets, and
+  // twelve heavy anchoring stones. The same FOUR static batches own them;
+  // no false playable cells, new GPU passes/materials/shadows or per-frame work.
+  features.littoralGroveClumps=0;
+  features.littoralGroveBoulders=0;
+  for(const shore of shorelines)for(let bed=0;bed<6;bed++){
+    const t=shore.start+(shore.end-shore.start)*(bed+.5)/6;
+    const p=bankPoint(shore,t,.38+.10*hash(shore.id.length,bed+43));
+    const out=Math.sign(shore.far-shore.near);
+    for(let cluster=0;cluster<3;cluster++){
+      const along=(cluster-1)*.58+(hash(bed*7+cluster,shore.id.length)-.5)*.16;
+      const normal=out*(cluster-1)*.17;
+      const x=p[0]+(shore.axis==='x'?along:normal);
+      const z=p[2]+(shore.axis==='x'?normal:along);
+      const rise=1.35+.44*hash(bed*13+cluster,shore.id.length+7);
+      leaf(x,p[1]+.03,z,rise,t*.18+cluster*1.9+shore.id.length,
+        bed*3+cluster,'fern');
+      features.littoralGroveClumps++;
+    }
+    if((bed+shore.id.length)%2===0){
+      const bx=p[0]+(shore.axis==='x'?.28:out*.28);
+      const bz=p[2]+(shore.axis==='x'?out*.28:.28);
+      boulder(bx,p[1]-.38,bz,.42,.74,bed*.6+shore.id.length*.13);
+      features.littoralGroveBoulders++;
+    }
+  }
+  // END T1 FOUR-SHORE LITTORAL GROVE COMPOSITION
   // The distant wetland cannot be credible if its formerly high-key uniform
   // grass remains neon lime. Regrade the existing physically lit batches,
   // preserving each original vertex color, topology and material count.
@@ -761,6 +790,8 @@ export function createLivingGarden(THREE, {width,height}) {
       // BEGIN T1 WATER GARDEN STATS
       waterGardenBeds:features.waterGardenBeds,waterGardenPads:features.waterGardenPads,
       waterGardenBlooms:features.waterGardenBlooms,waterGardenRushes:features.waterGardenRushes,
+      littoralGroveClumps:features.littoralGroveClumps,
+      littoralGroveBoulders:features.littoralGroveBoulders,
       // END T1 WATER GARDEN STATS
       triangles:ownGeometry.reduce((n,g)=>n+g.attributes.position.count/3,0),
       textures:1,disposed};

@@ -1,5 +1,16 @@
 # Autonomous Snake — Transformation Gauntlet (supersedes micro-improvement cycles)
 
+## November 3 — actual P0 recovery VERIFIED, all-scene strict rendering FAIL, coherent T1 four-shore candidate BUILDING
+
+**Live original DRAFT PR #52 head read:** b127138cdd32bf5089755cf7d43903ade3f062b8. Actual [current-head Chromium Actions 41530641203](https://github.com/my-edutu/Ai_games/actions/runs/41530641203) P0 cinematic route 200 and six genuine Chromium/WebGL cinematic captures plus two authentic 55-second autonomous host films **passed**, but entire workflow **CANCELLED**. Genuine one-second original complete-desktop gate **8 actual submissions/1002.6ms, FAIL required 17** at 736×336; [general CI 41530640978](https://github.com/my-edutu/Ai_games/actions/runs/41530640978) **10 actual submissions/1003.5ms, FAIL** at same low raster, and cancelled. Neither ~61 RAF callbacks, diagnostic partial-water removals nor nominal video framerate represents actual full scene render submission or physical display-present FPS. P0 repair is VERIFIED but holistic performance still materially blocked.
+
+Downloaded and inspected exact-head genuine overview/detail/portrait/1080p pictures and authentic ~55s films. **SELF-REJECTED against official Snake Pass primary**: giant orthogonal paved rectangle still dominates, real hero looks undersized/mechanical in overview; existing greenery appears peripheral. T1 remains **BUILDING**.
+
+New **integrated four-shore original littoral 3D garden candidate** strengthens environment at once across the whole actual coastline: 72 rooted five-folded fern crowns (360 articulated native fronds) and 12 rounded grounded boulders among 24 original waterside beds, joining existing lilies/reeds/banks/ruins/river/forest. Strictly cached in the original four static material/vertex-color batches with a single owned texture; +1860 physical 3D triangles (<22000) and zero additional draw, runtime pass, dynamic shadow, public-cell obstruction, authority mutation, asset licence or source dependency. Frozen exact real b127 module and new RED-baseline/GREEN-candidate Node assertions, 8 source-exact real Chromium/WebGL before/after screenshot tests, authentic 55-second unmodified host motion test prepared.
+
+**Acceptance NOT GRANTED**: new tests and same-head imagery/motion/performance not yet executed; if real whole-frame gain isn't substantial, reject and continue T1. T2 full serpent acting, T3 truthful cinema, T4 full-frame >=17 repeated one-second samples, physical display-present FPS/p95, soak, recovery and independent whole-game critics remain open. DRAFT PR only, no merge/deploy.
+
+
 **Decision date:** 2026-11-01  
 **Scope:** existing draft PR #52, `feat/autonomous-snake-3d-gauntlet`. Keep unmerged and undeployed.  
 **Fixed creative comparison:** real gameplay of **Snake Pass** (primary) and **ASTRO BOT** (secondary scene-art reference). These references are for quality judgement only; all game assets must be original.
