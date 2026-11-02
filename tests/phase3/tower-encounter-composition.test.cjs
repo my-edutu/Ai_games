@@ -336,3 +336,27 @@ test('guardian crown contour detects the actual desktop cap interruption, not on
     assert.equal(JSON.stringify(frame), original, 'camera visibility cannot mutate gameplay authority');
   } finally { guardian.dispose(); world.dispose(); }
 });
+
+test('authentic expedition ending is an exterior, phone-safe world-space composition', async () => {
+  const { THREE, context } = await loaded;
+  const hero = new THREE.Vector3(19.4,31.2,18.1);
+  for(const aspect of [960/600,390/844]){
+    const shot = context.composeTowerTerminalShot(hero,aspect,1,0);
+    const camera = new THREE.PerspectiveCamera(42,aspect,.2,1200);
+    camera.position.copy(shot.position);
+    camera.lookAt(shot.focus);
+    camera.updateMatrixWorld(true);
+    assert.ok(Math.hypot(camera.position.x,camera.position.z)>27.35,
+      'the terminal crane never passes through solid tower masonry');
+    assert.equal(context.towerCoreSightlineClear(camera.position,hero,23.5),true);
+    for(const point of [hero,hero.clone().add(new THREE.Vector3(0,4.8,0)),
+      ...Array.from({length:8},(_,i)=>{
+        const angle=i*Math.PI/4;
+        return hero.clone().add(new THREE.Vector3(Math.cos(angle)*4.65,1.2,Math.sin(angle)*4.65));
+      })]){
+      const ndc=point.clone().project(camera);
+      assert.ok(Math.abs(ndc.x)<.93 && Math.abs(ndc.y)<.86 && ndc.z>-1 && ndc.z<1,
+        'portrait/desktop ending must not crop the authentic body or earned floor rungs: '+ndc.toArray());
+    }
+  }
+});
