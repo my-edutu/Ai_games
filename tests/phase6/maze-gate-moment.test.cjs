@@ -17,6 +17,8 @@ test('only a real public same-run closed-to-open door creates a gate moment', as
   assert.deepEqual(observedGateOpenings(null, after), []);
   assert.deepEqual(observedGateOpenings(before, {...after, runToken: 'new-run'}), []);
   assert.deepEqual(observedGateOpenings(before, {...after, tick: 11}), []);
+  assert.deepEqual(observedGateOpenings(before, {...after, tick: 12}), [],
+    'two contradictory snapshots at the same engine tick cannot trigger cosmetic opening action');
   assert.deepEqual(observedGateOpenings(before, {...after, result: {reason:'escape'}}), []);
   assert.deepEqual(observedGateOpenings(before, {...after, doors: [{a:7,b:8,open:false}]}), []);
   assert.deepEqual(observedGateOpenings(before, {...after, doors: [{a:7,b:8,open:true}, {a:-1,b:5,open:true}]}), [{a:7,b:8}]);
