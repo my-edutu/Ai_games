@@ -60,6 +60,21 @@ for (const viewport of viewports) {
         observedRouteIntent: d.routeIntent || null,
         observedGuardianCircuit: d.guardianCircuit || null,
         observedAtmosphere: d.atmosphere || null,
+        // In the real generated source, moving platforms occur at floor
+        // 1, 4, 7, 10... (p3). The matched supplementary floor-7 video
+        // makes the actual autonomous ride and cosmetic carriage inspectable.
+        // This is observational metadata, NOT a substitute for live WebM.
+        sourceMovingDecks: (s?.platforms || []).filter(p => p.kind === 'moving')
+          .map(p => ({ id:p.id, x:p.x, y:p.y, width:p.width, height:p.height })),
+        observedMovingCarriage: d?.world ? {
+          cranks: d.world.observedMovingDeckCranks ?? null,
+          driveStages: d.world.observedMovingDeckDriveStages ?? null,
+          lastDriveTick: d.world.observedMovingDeckDriveLastTick ?? null,
+          positions: (d.world.platformTransforms || [])
+            .filter(p => (s?.platforms || []).some(source =>
+              source.kind === 'moving' && source.id === p.id))
+            .map(p => ({ id:p.id, x:p.x, y:p.y })),
+        } : null,
         // Exact presented-camera world projection at the time of a genuine
         // source HP observation. Unlike a source-only geometry fixture, this
         // records whether the guardian and gate are actually inside the
@@ -118,6 +133,19 @@ for (const viewport of viewports) {
   if (trace) fs.writeFileSync(path.join(dir, 'source-trace.json'),
     JSON.stringify(trace, null, 2));
   const sourceTicks = Array.isArray(trace?.ticks) ? trace.ticks : [];
+  const sourceMovingSamples = observations.filter(o => o.sourceMovingDecks?.length);
+  const observedMovingPositions = sourceMovingSamples.flatMap(o =>
+    o.sourceMovingDecks.map(platform =>
+      String(o.runToken) + ':' + platform.id + ':' + platform.x + ':' + platform.y));
+  const sourceMovingSummary = {
+    sourceFramesWithMovingDeck: sourceMovingSamples.length,
+    distinctSourcePositions: new Set(observedMovingPositions).size,
+    physicallyDrivenSceneSamples: observations.filter(o =>
+      (o.observedMovingCarriage?.driveStages ?? 0) > 0 &&
+      Number.isSafeInteger(o.observedMovingCarriage?.lastDriveTick) &&
+      o.observedMovingCarriage.lastDriveTick >= 0).length,
+    note: 'Source/scene diagnostics only. Actual loaded deck, moving geometry, foot contact and comparative motion require watching untouched native WebM; no device FPS or blind score.',
+  };
   const sourcePhaseSummary = {
     available: !!trace, method: trace?.method || null,
     resultTicks: sourceTicks.filter(t => t.lifecycle === 'result').length,
@@ -141,7 +169,7 @@ for (const viewport of viewports) {
     sampledActorOffscreen: observations.filter(item => item.observedActor?.inPicture === false).length,
     sampledActorUnsafe: observations.filter(item => item.observedActor?.inSafeFrame === false).length,
     capturedAt: new Date().toISOString(), observations, assessment,
-    sourcePhaseSummary, errors,
+    sourcePhaseSummary, sourceMovingSummary, errors,
     independentReview: false,
     gates: { captureIntegrity: assessment.scopedPass ? 'PASS' : 'FAIL',
       completeMotion: 'OPEN: manually review unedited normal-speed video for climbing, guardian danger, true result and restart',

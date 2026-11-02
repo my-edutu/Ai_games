@@ -69,6 +69,13 @@ jobs:
             ref: 1731b380851162741761c5569e2bc152a0869ca9
             scenario: outcome
             floor: 0
+          # Supplemental paired source-authentic motion on floor 7, where
+          # generated platform p3 actually moves. This is NOT a replacement
+          # for the required ascent/guardian/outcome acceptance matrix.
+          - source: baseline
+            ref: 1731b380851162741761c5569e2bc152a0869ca9
+            scenario: moving
+            floor: 7
           - source: candidate
             ref: ${{ github.sha }}
             scenario: ascent
@@ -81,6 +88,10 @@ jobs:
             ref: ${{ github.sha }}
             scenario: outcome
             floor: 0
+          - source: candidate
+            ref: ${{ github.sha }}
+            scenario: moving
+            floor: 7
     env:
       TOWER_LAUNCH_FLOOR: ${{ matrix.floor }}
       TOWER_MOTION_SCENARIO: ${{ matrix.scenario }}
