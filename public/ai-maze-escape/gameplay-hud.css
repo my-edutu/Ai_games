@@ -258,3 +258,21 @@ body[data-high-contrast="true"] #broadcast #hud .mission-block,body[data-high-co
     top:calc(110px + env(safe-area-inset-top,0px));
   }
 }
+
+
+/* High-contrast preference always outranks the normal gameplay art direction.
+   Keep labels, timer, captions and every 44px control perceivable. */
+body[data-high-contrast="true"] #broadcast[data-ux-revision="4"] #hud .mission-block,
+body[data-high-contrast="true"] #broadcast[data-ux-revision="4"] #hud .metric-grid .time-metric,
+body[data-high-contrast="true"] #broadcast[data-ux-revision="4"] #hud .discovery-summary,
+body[data-high-contrast="true"] #broadcast[data-ux-revision="4"] #hud .inventory-card,
+body[data-high-contrast="true"] #broadcast[data-ux-revision="4"] #hud .intent-card,
+body[data-high-contrast="true"] #broadcast[data-ux-revision="4"] #captions,
+body[data-high-contrast="true"] #broadcast[data-ux-revision="4"] #map-panel,
+body[data-high-contrast="true"] #broadcast[data-ux-revision="4"] .masthead .control-button{
+  background:#061913;border-color:#ffefb0;color:#fff;box-shadow:0 0 0 1px #ffefb0;
+}
+body[data-high-contrast="true"] #broadcast[data-ux-revision="4"] #hud :is(#time,#inventory,#objective),
+body[data-high-contrast="true"] #broadcast[data-ux-revision="4"] #captions #caption{
+  color:#fff;
+}
