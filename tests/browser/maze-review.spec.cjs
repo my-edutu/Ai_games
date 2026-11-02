@@ -272,7 +272,12 @@ test('a real close public encounter frames both autonomous actors and saves date
       const d=window.__MAZE_3D__;
       return {renderer:d.renderer,tick:d.tick,runToken:d.runToken,
         explorerInFrame:d.explorerInFrame,wardensInFrame:d.wardensInFrame,
-        wardensWithMargin:d.wardensWithMargin,cameraHalfHeight:d.cameraHalfHeight,
+        wardensWithMargin:d.wardensWithMargin,
+        guardianModelsFullyInFrame:d.guardianModelsFullyInFrame,
+        guardianPhysicalBounds:d.guardianPhysicalBounds,
+        explorerModelFullyInFrame:d.explorerModelFullyInFrame,
+        explorerPhysicalBounds:d.explorerPhysicalBounds,
+        cameraHalfHeight:d.cameraHalfHeight,
         cameraAspect:d.cameraAspect,explorerProjection:d.explorerProjection,
         stage:{width:stage.width,height:stage.height},
         canvas:{width:canvas.width,height:canvas.height},
@@ -299,7 +304,12 @@ test('a real close public encounter frames both autonomous actors and saves date
     expect(narrowDiagnostic.canvas.height).toBeGreaterThan(narrowHeight-10);
     expect(narrowDiagnostic.explorerInFrame,'genuine Pip remains framed').toBe(true);
     expect(narrowDiagnostic.wardensInFrame,'disclosed guardian is genuinely visible').toBeGreaterThanOrEqual(1);
-    expect(narrowDiagnostic.wardensWithMargin,'actual full Thornback model remains inside frame').toBeGreaterThanOrEqual(1);
+    expect(narrowDiagnostic.wardensWithMargin,'existing public guardian center margin remains intact').toBeGreaterThanOrEqual(1);
+    expect(narrowDiagnostic.guardianModelsFullyInFrame,
+      'REAL visible Thorback shell, limbs and botanical sails must all remain uncropped at native resolution')
+      .toBe(narrowDiagnostic.wardensInFrame);
+    expect(narrowDiagnostic.explorerModelFullyInFrame,
+      'Pip physical extremities, not just its center, remain on the native screen').toBe(true);
     for(const control of narrowDiagnostic.controls){
       expect(control.width,'narrow touch target width').toBeGreaterThanOrEqual(44);
       expect(control.height,'narrow touch target height').toBeGreaterThanOrEqual(44);
@@ -341,6 +351,10 @@ test('a real close public encounter frames both autonomous actors and saves date
         tick:d.tick,disclosedThreats:d.disclosedThreats,
         encounterAttention:d.encounterAttention,
         wardensInFrame:d.wardensInFrame,wardensWithMargin:d.wardensWithMargin,
+        guardianModelsFullyInFrame:d.guardianModelsFullyInFrame,
+        guardianPhysicalBounds:d.guardianPhysicalBounds,
+        explorerModelFullyInFrame:d.explorerModelFullyInFrame,
+        explorerPhysicalBounds:d.explorerPhysicalBounds,
         explorerInFrame:d.explorerInFrame,explorerProjection:d.explorerProjection,
         cameraHalfHeight:d.cameraHalfHeight,cameraAspect:d.cameraAspect,
         stage:{width:stage.width,height:stage.height},
@@ -363,7 +377,12 @@ test('a real close public encounter frames both autonomous actors and saves date
       caveat:'True Follow camera, not the earlier Detail mode screenshots; visual Nintendo parity and hardware GPU FPS still require separate review.',
     },null,2));
     expect(diagnostic.explorerInFrame,'Follow camera keeps genuine Pip visible').toBe(true);
-    expect(diagnostic.wardensWithMargin,'Follow camera keeps full Thornback physical silhouette in frame').toBeGreaterThanOrEqual(1);
+    expect(diagnostic.wardensWithMargin,'original Follow guardian center margin remains intact').toBeGreaterThanOrEqual(1);
+    expect(diagnostic.guardianModelsFullyInFrame,
+      'actual rendered full-model Thornback geometry must fit, not merely the guardian center')
+      .toBe(diagnostic.wardensInFrame);
+    expect(diagnostic.explorerModelFullyInFrame,
+      'real Pip helmet, arms, scarf and feet all fit the Follow viewport').toBe(true);
     expect(Math.abs(diagnostic.explorerProjection.x),'Pip retains a native Follow horizontal margin').toBeLessThan(.7);
     expect(diagnostic.stage.width).toBeGreaterThan(followWidth-10);
     expect(diagnostic.stage.height).toBeGreaterThan(followHeight-10);
