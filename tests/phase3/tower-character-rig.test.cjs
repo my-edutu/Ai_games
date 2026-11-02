@@ -80,7 +80,9 @@ function loadFollowView() {
   if (!followView) followView = (async () => {
     const [, THREE] = await loadCharacters();
     const coordinates = await import(pathToFileURL(path.join(path.dirname(characterFile), 'coordinates.mjs')).href);
-    const context = { THREE, ...coordinates };
+    const guardianCircuit = await import(pathToFileURL(path.join(
+      path.dirname(characterFile), 'guardian-circuit.mjs')).href);
+    const context = { THREE, ...coordinates, ...guardianCircuit };
     vm.runInNewContext(fs.readFileSync(path.join(path.dirname(characterFile), 'scene.mjs'), 'utf8')
       .replace(/^import .*;\n/gm, '')
       .replace('export function createTowerScene', 'function createTowerScene'), context);

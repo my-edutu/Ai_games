@@ -89,7 +89,7 @@ test('guardian-to-cap gantry stays outside tower core and physically retracts so
   effect.update(initial);
   const rails = effect.group.getObjectByName('GuardianLockTwinBronzeRails');
   const bolts = effect.group.getObjectByName('GuardianCapSourceLockBolts');
-  const { observedGuardianCircuit, observedGuardianLockStage } = await modulePromise;
+  const { observedGuardianLockStage } = await modulePromise;
   const source = observedGuardianCircuit(initial);
   const lockStage = observedGuardianLockStage(source);
   assert.ok(lockStage && lockStage.sourceTick === initial.tick);
@@ -133,9 +133,41 @@ test('guardian-to-cap gantry stays outside tower core and physically retracts so
   assert.ok(opened.distanceTo(closed) > .6,
     'true guardian HP loss must visibly retract the mechanical lock');
   assert.equal(effect.diagnostics().lockBolts, 8);
-  assert.equal(effect.diagnostics().maxExtraDraws, 5);
+  assert.equal(effect.diagnostics().maxExtraDraws, 6);
   effect.update(damaged, { stale: true });
   assert.equal(bolts.count, 0, 'stale streams cannot retain authoritative-looking lock teeth');
   effect.dispose();
   assert.equal(effect.group.children.length, 0);
+});
+
+test('true guardian HP changes produce short exterior impact echoes with no restart or stale ghosts', async () => {
+  const { createTowerGuardianCircuit } = await modulePromise;
+  const effect = createTowerGuardianCircuit(THREE);
+  const initial = snapshot({ tick: 42, enemies: [{ ...snapshot().enemies[0], health: 8 }] });
+  effect.update(initial);
+  const shards = effect.group.getObjectByName('GuardianObservedHealthLossFragments');
+  assert.ok(shards && shards.material.depthTest && !shards.material.depthWrite);
+  assert.equal(shards.count, 0, 'first observed guardian cannot create a fabricated hit');
+  const injured = snapshot({ tick: 43, enemies: [{ ...initial.enemies[0], health: 6 }] });
+  effect.update(injured);
+  assert.equal(effect.diagnostics().observedHealthLossTick, 43);
+  assert.equal(shards.count, 12, 'a real health decrease makes a bounded, depth-tested two-anchor echo');
+  const before = new THREE.Matrix4();
+  shards.getMatrixAt(0, before);
+  effect.update(injured);
+  const repeated = new THREE.Matrix4();
+  shards.getMatrixAt(0, repeated);
+  assert.deepEqual(repeated.toArray(), before.toArray(),
+    'same authoritative tick cannot replay a visual impact');
+  effect.update({ ...injured, tick: 50 });
+  assert.equal(shards.count, 0, 'bounded tick age retires the effect');
+  effect.update({ ...injured, tick: 1, runToken: 'fresh-run' });
+  assert.equal(shards.count, 0, 'run change may not carry old hits');
+  effect.update({ ...injured, tick: 2, runToken: 'fresh-run',
+    enemies: [{ ...injured.enemies[0], health: 4 }] }, { reducedMotion: true });
+  assert.equal(shards.count, 0, 'reduced motion retains mechanical state without particles');
+  effect.update(injured, { stale: true });
+  assert.equal(shards.count, 0, 'stale snapshots cannot claim a current hit');
+  effect.dispose();
+  assert.equal(effect.group.children.length, 0, 'GPU graph releases all visual parts');
 });

@@ -9,7 +9,9 @@ const ROOT = path.resolve(__dirname, '../..');
 const loaded = (async () => {
   const THREE = await import(pathToFileURL(path.join(ROOT, 'node_modules/three/build/three.module.js')).href);
   const coordinates = await import(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/coordinates.mjs')).href);
-  const context = { THREE, ...coordinates };
+  const guardianCircuit = await import(pathToFileURL(path.join(ROOT,
+    'public/infinite-tower-climb/visuals/guardian-circuit.mjs')).href);
+  const context = { THREE, ...coordinates, ...guardianCircuit };
   vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/scene.mjs'), 'utf8')
     .replace(/^import .*;\n/gm, '').replace('export function createTowerScene', 'function createTowerScene'), context);
   return { THREE, ...coordinates, context };

@@ -104,6 +104,23 @@ export function createTowerGuardianCircuit(THREE) {
   conductors.castShadow = false;
   conductors.frustumCulled = false;
   conductors.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  // The bronze lock has a visible physical answer to an OBSERVED health loss.
+  // Two small exterior clouds, anchored to the guardian and gate, illuminate
+  // the existing mechanism without claiming an unseen hit, route or victory.
+  // There is no independent particle clock: age comes from fixed-step ticks.
+  const fractureGeometry = new THREE.TetrahedronGeometry(.24, 0);
+  const fractureMaterial = new THREE.MeshStandardMaterial({
+    color: 0xe8b986, emissive: 0x4f2309, emissiveIntensity: .27,
+    metalness: .46, roughness: .58, transparent: true, opacity: .82,
+    depthTest: true, depthWrite: false,
+  });
+  const fractures = new THREE.InstancedMesh(fractureGeometry, fractureMaterial, 12);
+  fractures.name = 'GuardianObservedHealthLossFragments';
+  fractures.count = 0;
+  fractures.castShadow = false;
+  fractures.receiveShadow = false;
+  fractures.frustumCulled = false;
+  fractures.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   const terminalGeometry = new THREE.TorusGeometry(.82, .09, 6, 24);
   const terminalMaterial = new THREE.MeshStandardMaterial({
     color: 0xb18e65, metalness: .76, roughness: .38,
@@ -113,7 +130,7 @@ export function createTowerGuardianCircuit(THREE) {
   atGuardian.name = 'GuardianLockGuardianAnchor';
   atGate.name = 'GuardianLockCapAnchor';
   atGuardian.castShadow = atGate.castShadow = false;
-  group.add(rails, conductors, atGuardian, atGate, lockBolts);
+  group.add(rails, conductors, atGuardian, atGate, lockBolts, fractures);
   const pose = new THREE.Object3D();
   const start = new THREE.Vector3(), finish = new THREE.Vector3();
   const tangent = new THREE.Vector3();
@@ -121,6 +138,8 @@ export function createTowerGuardianCircuit(THREE) {
   const dark = new THREE.Color(0xffbd75), released = new THREE.Color(0x8ef1d2);
   let source = null, disposed = false;
   let lastKey = '';
+  let previousSource = null, observedDamageTick = -1;
+  let observedDamage = 0, damagedGuardian = '', damagedRun = '', damagedFloor = -1;
   function clear() {
     group.visible = false;
     source = null;
@@ -128,6 +147,11 @@ export function createTowerGuardianCircuit(THREE) {
     rails.count = 0;
     conductors.count = 0;
     lockBolts.count = 0;
+    fractures.count = 0;
+    previousSource = null;
+    observedDamageTick = -1;
+    observedDamage = 0;
+    damagedGuardian = ''; damagedRun = ''; damagedFloor = -1;
   }
   function mapped(item, t, offset = 0) {
     const x = item.fromX + (item.toX - item.fromX) * t;
@@ -148,6 +172,23 @@ export function createTowerGuardianCircuit(THREE) {
     if (disposed) return;
     const next = !options.stale ? observedGuardianCircuit(snapshot) : null;
     if (!next) { clear(); return; }
+    // Only a NEW fixed-step source observation within the same active run
+    // can create a damage impulse. Repeated packets, scene startup, floor
+    // transitions, stream staleness and restart cannot invent impact.
+    if (previousSource &&
+        previousSource.runToken === next.runToken &&
+        previousSource.floor === next.floor &&
+        previousSource.guardianId === next.guardianId &&
+        next.tick > previousSource.tick &&
+        next.tick - previousSource.tick <= 12 &&
+        next.health < previousSource.health) {
+      observedDamageTick = next.tick;
+      observedDamage = Math.min(4, previousSource.health - next.health);
+      damagedRun = next.runToken;
+      damagedGuardian = next.guardianId;
+      damagedFloor = next.floor;
+    }
+    previousSource = next;
     const key = [next.runToken, next.floor, next.tick, next.guardianId,
       next.fromX, next.fromY, next.toX, next.toY, next.health,
       next.telegraph, next.remainingChargeTicks, !!options.reducedMotion].join(':');
@@ -215,6 +256,34 @@ export function createTowerGuardianCircuit(THREE) {
     }
     lockBolts.count = 8;
     lockBolts.instanceMatrix.needsUpdate = true;
+    // A short real-hit echo renders in WORLD space. No wall-clock flash or
+    // random numbers; reduced motion leaves the physical lock itself intact.
+    const age = next.tick - observedDamageTick;
+    const actualDamage = !options.reducedMotion &&
+      damagedRun === next.runToken && damagedFloor === next.floor &&
+      damagedGuardian === next.guardianId && observedDamage > 0 &&
+      age >= 0 && age <= 6;
+    fractures.count = actualDamage ? 12 : 0;
+    if (actualDamage) {
+      const guardianSite = pointFor(next.fromX, next.fromY + 6500,
+        next.baseY, next.width, 27.65);
+      const gateSite = lockStage.center;
+      for (let index = 0; index < fractures.count; index++) {
+        const origin = index < 6 ? guardianSite : gateSite;
+        const bearing = (index % 6) * 2.399963229728653;
+        const distance = .28 + age * .21 + observedDamage * .06;
+        pose.position.set(
+          origin.x + Math.cos(bearing) * distance,
+          origin.y + Math.sin(bearing * 1.7) * distance * .65 + age * .075,
+          origin.z + Math.sin(bearing) * distance);
+        pose.quaternion.setFromAxisAngle(up, bearing + age * .12);
+        pose.scale.setScalar(Math.max(.06, (1 - age / 7) *
+          (.68 + .13 * (index % 3))));
+        pose.updateMatrix();
+        fractures.setMatrixAt(index, pose.matrix);
+      }
+      fractures.instanceMatrix.needsUpdate = true;
+    }
     group.visible = true;
   }
   function diagnostics() {
@@ -229,7 +298,9 @@ export function createTowerGuardianCircuit(THREE) {
       railSegments: group.visible ? rails.count : 0,
       conductorNodes: group.visible ? conductors.count : 0,
       lockBolts: group.visible ? lockBolts.count : 0,
-      maxExtraDraws: 5, shadowCastingMeshes: 0,
+      observedHealthLossTick: observedDamageTick >= 0 ? observedDamageTick : null,
+      healthLossFragments: group.visible ? fractures.count : 0,
+      maxExtraDraws: 6, shadowCastingMeshes: 0,
       metric: 'Decorative linked hardware from real live guardian HP and actual cap anchor; not a new collider or verified raster visibility',
       disposed,
     };
@@ -246,6 +317,8 @@ export function createTowerGuardianCircuit(THREE) {
     conductorMaterial.dispose();
     terminalGeometry.dispose();
     terminalMaterial.dispose();
+    fractureGeometry.dispose();
+    fractureMaterial.dispose();
   }
   return { group, update, clear, diagnostics, dispose };
 }
