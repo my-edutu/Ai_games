@@ -41,7 +41,7 @@ const rest=()=>({strength:0,root:{x:0,y:0,z:0,pitch:0,roll:0},
  legs:{left:{upper:0,lower:0,foot:0},right:{upper:0,lower:0,foot:0}}});
 /** Reversible skinned crouch, side-drive, opposite-foot plant and landing.
  * The camera and original mixer supply yaw; the real hero's outer root
- * already follows DungeonRuntime's lawful move. Visual-only offsets <= .08m.
+ * already follows the authority's legal one-cell move. Visual-only offsets <= .08m.
  */
 export function planEvasionPerformance(kind,age,beat,{reducedMotion=false,yaw=0}={}){
  if(reducedMotion||!Object.hasOwn(KINDS,kind)||beat?.kind!==kind||
