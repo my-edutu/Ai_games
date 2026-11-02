@@ -520,6 +520,7 @@ const fs=`precision mediump float;
 varying vec3 vColor;varying vec3 vWorld;varying vec3 vNormal;varying float vFog;varying float vMaterial;
 uniform vec3 fogColor;uniform highp vec3 sunDirection;uniform highp vec3 eyePosition;uniform highp float worldTime;uniform float weatherWetness;
 uniform sampler2D groundAtlas;uniform float groundAtlasFast;
+uniform sampler2D architectureAtlas;
 float hash3(vec3 p){p=fract(p*.1031);p+=dot(p,p.yxz+33.33);return fract((p.x+p.y)*p.z);}
 float noise3(vec3 p){
  vec3 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);
@@ -743,6 +744,24 @@ void main(){
   c*=mix(.86,1.11,chalkGrain)*mix(.96,1.04,limePores);
   c*=mix(vec3(1.),vec3(.73,.79,.74),runoff);
  }
+ // G128: every real village wall/roof/road now shares one original baked
+ // architectural material language. No new triangles, replacement actors,
+ // replay randomness or camera-dependent texture coordinates. A single
+ // mipmapped material sample augments natural stone, oak, handmade roof clay
+ // and weathered limewash on actual world-facing surfaces.
+ if(vMaterial>2.5&&vMaterial<8.5){
+  float materialSlot=floor(vMaterial-2.5);
+  vec2 surfacePlane=abs(n.y)>.64?vWorld.xz:
+   (abs(n.x)>abs(n.z)?vWorld.zy:vWorld.xy);
+  float repeatScale=vMaterial<3.5?.38:
+   vMaterial<4.5?.22:vMaterial<5.5?.27:
+   vMaterial<6.5?.23:vMaterial<7.5?.21:.16;
+  vec2 tilePos=fract(surfacePlane*repeatScale);
+  vec2 atlasTile=vec2(mod(materialSlot,4.),floor(materialSlot/4.));
+  vec2 atlasUV=(atlasTile+vec2(.014)+tilePos*.972)/vec2(4.,2.);
+  vec3 baked=texture2D(architectureAtlas,atlasUV).rgb;
+  c*=mix(vec3(1.),baked*1.27,.81);
+ }
  c=mix(c,fogColor,vFog);
  vec3 mapped=c/(c+vec3(.34));
  mapped=fastFilmicGamma(mapped);
@@ -766,13 +785,129 @@ const materialFragmentSource=swiftGpu?
 if(swiftGpu&&materialFragmentSource===fs)
  throw Error('Software material tier failed to replace expensive volumetric noise');
 const program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vs));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,materialFragmentSource));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));gl.useProgram(program);
-const uniforms={viewProjection:gl.getUniformLocation(program,'viewProjection'),fogColor:gl.getUniformLocation(program,'fogColor'),sunDirection:gl.getUniformLocation(program,'sunDirection'),sunTint:gl.getUniformLocation(program,'sunTint'),sunStrength:gl.getUniformLocation(program,'sunStrength'),ambientBlend:gl.getUniformLocation(program,'ambientBlend'),worldTime:gl.getUniformLocation(program,'worldTime'),weatherWetness:gl.getUniformLocation(program,'weatherWetness'),eyePosition:gl.getUniformLocation(program,'eyePosition'),groundAtlas:gl.getUniformLocation(program,'groundAtlas'),groundAtlasFast:gl.getUniformLocation(program,'groundAtlasFast'),workLightPosition:gl.getUniformLocation(program,'workLightPosition'),workLightStrength:gl.getUniformLocation(program,'workLightStrength')};const buffer=gl.createBuffer();const staticBuffer=gl.createBuffer();let landscapeBuffer=null;let staticGpuUploads=0,landscapeGpuUploads=0;
+const uniforms={viewProjection:gl.getUniformLocation(program,'viewProjection'),fogColor:gl.getUniformLocation(program,'fogColor'),sunDirection:gl.getUniformLocation(program,'sunDirection'),sunTint:gl.getUniformLocation(program,'sunTint'),sunStrength:gl.getUniformLocation(program,'sunStrength'),ambientBlend:gl.getUniformLocation(program,'ambientBlend'),worldTime:gl.getUniformLocation(program,'worldTime'),weatherWetness:gl.getUniformLocation(program,'weatherWetness'),eyePosition:gl.getUniformLocation(program,'eyePosition'),groundAtlas:gl.getUniformLocation(program,'groundAtlas'),architectureAtlas:gl.getUniformLocation(program,'architectureAtlas'),groundAtlasFast:gl.getUniformLocation(program,'groundAtlasFast'),workLightPosition:gl.getUniformLocation(program,'workLightPosition'),workLightStrength:gl.getUniformLocation(program,'workLightStrength')};const buffer=gl.createBuffer();const staticBuffer=gl.createBuffer();let landscapeBuffer=null;let staticGpuUploads=0,landscapeGpuUploads=0;
 // G067: reuse both driver-side storage and CPU staging for the changing
 // citizen/effects VBO; only grow in bounded 65536-float chunks when needed.
 let dynamicGpuCapacityFloats=0,dynamicGpuAllocations=0,dynamicGpuUploads=0,dynamicGpuStaging=null;
 const stride=40,attributes=[['position',3,0],['normal',3,12],['color',3,24],['materialId',1,36]].map(([name,size,offset])=>({loc:gl.getAttribLocation(program,name),size,offset}));
 function bindGeometry(target){gl.bindBuffer(gl.ARRAY_BUFFER,target);for(const {loc,size,offset} of attributes){if(loc<0)continue;gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,size,gl.FLOAT,false,stride,offset)}}
 bindGeometry(buffer);
+
+// G128: resident original material atlas for ALL actual medieval construction.
+// Pixel patterns are authored here with integer coordinate hashing, not stock
+// textures or model-generated screenshots. A shared trilinear/mipmapped GPU
+// surface palette strengthens the existing authentic stone, timber, clay,
+// plaster, roads and foliage without increasing scene triangles.
+const ARCH_ATLAS_WIDTH=1024,ARCH_ATLAS_HEIGHT=512,ARCH_TILE=256;
+const ARCH_MATERIAL_NAMES=Object.freeze([
+ 'road','foliage','stone','timber','roof','plaster','canopy','metal'
+]);
+let architectureAtlasTexture=null,architectureAtlasUploads=0;
+let architectureAtlasSamples={};
+function archHash(x,y,kind){
+ let v=(Math.imul(x+31,374761393)^Math.imul(y+17,668265263)^
+  Math.imul(kind+1,2246822519))>>>0;
+ v=Math.imul(v^(v>>>13),1274126177)>>>0;
+ return ((v^(v>>>16))>>>0)/4294967295;
+}
+function rebuildArchitectureAtlas(){
+ if(!gpuAvailable)return;
+ const c=document.createElement('canvas');
+ c.width=ARCH_ATLAS_WIDTH;c.height=ARCH_ATLAS_HEIGHT;
+ const ctx=c.getContext('2d'),img=ctx.createImageData(c.width,c.height);
+ const data=img.data,clamp=v=>Math.max(0,Math.min(255,Math.round(v)));
+ const bases=[
+  [187,167,134],[174,193,159],[203,192,176],[189,153,119],
+  [186,153,129],[217,211,199],[171,149,126],[169,162,145]
+ ];
+ for(let kind=0;kind<ARCH_MATERIAL_NAMES.length;kind++){
+  for(let y=0;y<ARCH_TILE;y++)for(let x=0;x<ARCH_TILE;x++){
+   const fx=x/ARCH_TILE,fy=y/ARCH_TILE;
+   const fleck=archHash(x>>1,y>>1,kind)-.5;
+   const broad=archHash(x>>5,y>>5,kind)-.5;
+   const grain=Math.sin(x*.087+y*.51+kind*13.1)*.5;
+   let tone=1+broad*.16+fleck*.11,shade=0;
+   if(kind===0){ // rutted dusty road, subtle flint and packed wheel grit
+    const tracks=Math.abs(Math.sin(fx*20.+Math.sin(fy*9.)*.46));
+    const grit=archHash(x>>2,y>>2,kind);
+    tone+=.09*tracks+.20*(grit>.96?1:0)-.07*grit;
+   }else if(kind===1){ // broken forest canopy, not repeated green discs
+    const leaf=archHash(x>>4,y>>4,kind);
+    tone+=leaf*.19-.10+Math.sin(fx*29.+fy*17.)*.045;
+   }else if(kind===2){ // staggered hand-hewn stone blocks with mortar
+    const row=Math.floor(fy*11),by=fy*11-row;
+    const bx=fx*6.5+(row%2)*.5,across=bx-Math.floor(bx);
+    const edge=Math.min(by,1-by,across,1-across);
+    const cell=archHash(Math.floor(bx),row,kind);
+    tone+=cell*.18-.08;
+    if(edge<.038)shade=-.43;
+    else if(edge<.095)tone+=.12;
+    tone+=.06*Math.sin(x*.37+y*.16);
+   }else if(kind===3){ // oak long-grain, separate hand-cut planks
+    const plank=fx*8,edge=Math.min(plank%1,1-plank%1);
+    const knots=Math.sin(y*.24+x*.09+Math.sin(y*.02)*2.9);
+    tone+=.14*knots+.09*grain;
+    if(edge<.022)shade=-.27;
+   }else if(kind===4){ // irregular fired-clay overlapping roof tiles
+    const row=Math.floor(fy*13),by=fy*13-row;
+    const across=fx*9+(row%2)*.5,ax=across-Math.floor(across);
+    const edge=Math.min(by,1-by,ax,1-ax);
+    tone+=.18*(archHash(Math.floor(across),row,kind)-.5);
+    if(edge<.055)shade=-.31;
+    else if(by>.77)tone+=.09;
+    const patina=archHash(x>>3,y>>3,kind);
+    tone-=patina>.80?.10:0;
+   }else if(kind===5){ // trowelled limewash, vertical rain runoff
+    const wash=Math.sin(fx*18.+Math.sin(fy*15.)*.7);
+    tone+=.07*wash+.09*grain;
+    tone-=.22*Math.max(0,Math.sin(fx*52.+fy*1.5))*
+     Math.max(0,(fy-.42));
+   }else if(kind===6){ // woven linen for surviving market canopy assets
+    tone+=.10*Math.sin(x*.55)*Math.sin(y*.61)+.09*grain;
+   }else{ // forged iron with subdued beaten metal speckle
+    tone+=.11*Math.sin(x*.28+y*.17)+.07*fleck;
+   }
+   const at=((Math.floor(kind/4)*ARCH_TILE+y)*ARCH_ATLAS_WIDTH+
+    (kind%4)*ARCH_TILE+x)*4;
+   const base=bases[kind];
+   data[at]=clamp(base[0]*tone+shade*185);
+   data[at+1]=clamp(base[1]*tone+shade*185);
+   data[at+2]=clamp(base[2]*tone+shade*185);
+   data[at+3]=255;
+  }
+  const sampleX=(kind%4)*ARCH_TILE+93;
+  const sampleY=Math.floor(kind/4)*ARCH_TILE+109;
+  const at=(sampleY*ARCH_ATLAS_WIDTH+sampleX)*4;
+  architectureAtlasSamples[ARCH_MATERIAL_NAMES[kind]]=[
+   data[at],data[at+1],data[at+2]
+  ];
+ }
+ ctx.putImageData(img,0,0);
+ if(!architectureAtlasTexture)architectureAtlasTexture=gl.createTexture();
+ gl.activeTexture(gl.TEXTURE1);
+ gl.bindTexture(gl.TEXTURE_2D,architectureAtlasTexture);
+ gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);
+ gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,c);
+ gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+ gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+ gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+ gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);
+ gl.generateMipmap(gl.TEXTURE_2D);
+ gl.uniform1i(uniforms.architectureAtlas,1);
+ gl.activeTexture(gl.TEXTURE0);architectureAtlasUploads++;
+}
+rebuildArchitectureAtlas();
+function getArchitectureMaterialAudit(){
+ return {resident:Boolean(architectureAtlasTexture),renderer:gpuAvailable?
+  'webgl-original-architectural-atlas':'canvas2d-fallback',
+  width:ARCH_ATLAS_WIDTH,height:ARCH_ATLAS_HEIGHT,
+  tiles:ARCH_MATERIAL_NAMES.length,
+  bytes:ARCH_ATLAS_WIDTH*ARCH_ATLAS_HEIGHT*4,textureUnits:1,
+  uploads:architectureAtlasUploads,hasMipmaps:true,
+  sampledMaterials:ARCH_MATERIAL_NAMES.slice(),
+  samples:Object.fromEntries(Object.entries(architectureAtlasSamples).
+   map(([name,values])=>[name,values.slice()]))};
+}
 
 // G111: one finite, reusable 512px ground-albedo atlas for the SAME real
 // inhabited high street, growing houses and worked farm. The ground is
@@ -6349,7 +6484,7 @@ gl.drawArrays(gl.TRIANGLES,0,data.length/10);if((frames++%14)===0){updateUI();dr
  // Only a completed presentation may become the reusable frozen frame.
  lastFrozenFrameKey=frozenViewKey;
 }
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getCitizenAnatomy,getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getOccupationalPerformance:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData({citizen:people[index].name,job:people[index].job,...occupationalPerformance(people[index])}):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getWorkdayEvents:()=>cloneData(workdayEvents),getStreetCargoWitnesses:()=>cloneData(streetCargoWitnesses()),getActiveDeliveries:()=>cloneData(getActiveDeliveries()),getDeliveryReceipts:()=>cloneData(getDeliveryReceipts()),getMarketHandoffs:()=>cloneData(getMarketHandoffs()),getMarketHandoffRenderStats:()=>({...marketHandoffRenderStats}),watchDelivery,getWorkdayView,getActiveWorksites,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getMarketSupplyView:marketSupplyView,getHighStreetStats:()=>({...highStreetStats}),routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getStreetWalkState,setStreetWalk,advanceStreetWalk,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?2:1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0):0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0):null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getForestVisualStats:()=>({
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getCitizenAnatomy,getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getOccupationalPerformance:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData({citizen:people[index].name,job:people[index].job,...occupationalPerformance(people[index])}):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getWorkdayEvents:()=>cloneData(workdayEvents),getStreetCargoWitnesses:()=>cloneData(streetCargoWitnesses()),getActiveDeliveries:()=>cloneData(getActiveDeliveries()),getDeliveryReceipts:()=>cloneData(getDeliveryReceipts()),getMarketHandoffs:()=>cloneData(getMarketHandoffs()),getMarketHandoffRenderStats:()=>({...marketHandoffRenderStats}),watchDelivery,getWorkdayView,getActiveWorksites,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getMarketSupplyView:marketSupplyView,getHighStreetStats:()=>({...highStreetStats}),routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getStreetWalkState,setStreetWalk,advanceStreetWalk,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?2:1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0):0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0):null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getForestVisualStats:()=>({
  sourceTrees:trees.length,
  renderedTrees:forestVisualStats.deciduous+forestVisualStats.conifers,
  conifers:forestVisualStats.conifers,deciduous:forestVisualStats.deciduous,
