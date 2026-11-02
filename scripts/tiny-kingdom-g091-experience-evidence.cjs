@@ -26,7 +26,7 @@ const gpuArgs=['--enable-webgl','--use-gl=angle','--use-angle=swiftshader',
  '--enable-precise-memory-info'];
 
 const evidence={
- version:'g142-physically-occupied-homes-and-continuous-homecoming-v1',
+ version:'g146-film-real-visible-workers-and-screen-coverage-v1',
  baselineSha:BASE,candidateSha:null,baselineBlob:null,candidateBlob:null,
  renderer:'UNVERIFIED',status:'INCOMPLETE',workdayTicks:null,
  camera:{wide,labor,grown,marketView},viewport,
@@ -149,10 +149,21 @@ async function stage(label,html,browser,matchedTicks){
    assert(shot.camera.zoom<11&&shot.camera.pitch<.66,'Live shot is still aerial');
    await page.waitForTimeout(900);
    await page.screenshot({path:path.join(DIR,label+'/live-shift-close.png'),timeout:90000});
+   // Re-read the ACTUAL rendered-camera composition AFTER easing/camera cut.
+   // G145 footage revealed the old pre-frame clear-hand report was false.
+   const filmed=await page.evaluate(()=>({
+    camera:window.__tinyKingdom.getCamera(),
+    composition:window.__tinyKingdom.getWorkdayCompositionAudit(),
+    selection:window.__tinyKingdom.getLiveWorkDirectorStats().selection
+   }));
    result.liveShift={worker:shot.view.citizen,job:shot.view.job,
-     activity:shot.view.activity,progress:shot.view.progress,camera:shot.camera,
-     composition:shot.composition,visibleWorkWitness:shot.composition.handBlockers<=1&&
-      shot.composition.faceAlignment>.12,
+     activity:shot.view.activity,progress:shot.view.progress,camera:filmed.camera,
+     initialComposition:shot.composition,composition:filmed.composition,
+     selection:filmed.selection,
+     visibleWorkWitness:filmed.composition.handBlockers<=1&&
+      filmed.composition.faceAlignment>.12&&
+      filmed.composition.foregroundSceneCover<.14&&
+      filmed.composition.workFacingMode!=='obstructed',
      authoritativeUnchanged:true,matchedPair:false};
    await page.evaluate(()=>window.__tinyKingdom.stopWorkdayWatch());
   }
@@ -246,10 +257,19 @@ async function stage(label,html,browser,matchedTicks){
    assert(mobileLive.snapshotUnchanged,'Mobile watch mutated authoritative world');
    await page.waitForTimeout(850);
    await page.screenshot({path:path.join(DIR,label+'/day120-live-mobile.png'),timeout:90000});
+   const filmedMobile=await page.evaluate(()=>({
+    camera:window.__tinyKingdom.getCamera(),
+    composition:window.__tinyKingdom.getWorkdayCompositionAudit(),
+    selection:window.__tinyKingdom.getLiveWorkDirectorStats().selection
+   }));
    result.mobileLiveShift={worker:mobileLive.view.citizen,job:mobileLive.view.job,
-    camera:mobileLive.camera,composition:mobileLive.composition,
-     visibleWorkWitness:mobileLive.composition.handBlockers<=1&&
-      mobileLive.composition.faceAlignment>.12,matchedPair:false};
+    camera:filmedMobile.camera,initialComposition:mobileLive.composition,
+    composition:filmedMobile.composition,selection:filmedMobile.selection,
+     visibleWorkWitness:filmedMobile.composition.handBlockers<=1&&
+      filmedMobile.composition.faceAlignment>.12&&
+      filmedMobile.composition.foregroundSceneCover<.14&&
+      filmedMobile.composition.workFacingMode!=='obstructed',
+    matchedPair:false};
   }
   // G113: honest supplementary first-person capture of the SAME 120-day
   // simulation. G088 never had this visitor mode: NOT a matched visual PASS.
