@@ -84,3 +84,39 @@ test('only a real total-party loss produces grounded static physical bodies duri
  for(const kind of ['vanguard','ranger','mystic'])
   assert.ok(Object.values(planDefeatTableauPose({...dead,kind},'intermission')).every(Number.isFinite));
 });
+
+test('imported GLB skeletons only collapse on an actual fatal HP-zero beat or genuine loss',async()=>{
+ const {planSkinnedDefeatPose,DEATH_BEAT_DURATION}=await plan();
+ const neutral=planSkinnedDefeatPose('vanguard',100,.4,true,false,false);
+ assert.equal(neutral.weight,0);
+ assert.deepEqual(planSkinnedDefeatPose('vanguard',0,.4,false,false,false),neutral);
+ assert.deepEqual(planSkinnedDefeatPose('vanguard',0,NaN,true),neutral);
+ assert.equal(planSkinnedDefeatPose('vanguard',0,.07,true).weight,0);
+ const mid=planSkinnedDefeatPose('vanguard',0,.40,true);
+ const fallen=planSkinnedDefeatPose('vanguard',0,.84,true);
+ assert.ok(mid.weight>.25&&mid.weight<.9,'a fall builds over multiple rendered frames');
+ assert.ok(fallen.weight>.95&&fallen.shoulders.right<-.5&&fallen.legs.left.upper>.4);
+ assert.deepEqual(planSkinnedDefeatPose('vanguard',0,DEATH_BEAT_DURATION,true),neutral);
+ for(const kind of ['vanguard','ranger','mystic','revenant','cultist','warden']){
+  const staticLoss=planSkinnedDefeatPose(kind,0,Infinity,false,true,true);
+  assert.equal(staticLoss.weight,1,'a real party loss is still clear with reduced motion');
+  assert.deepEqual(staticLoss,planSkinnedDefeatPose(kind,0,0,false,false,true));
+  for(const side of ['left','right']){
+   assert.ok(Math.abs(staticLoss.shoulders[side])<.65);
+   assert.ok(Math.abs(staticLoss.elbows[side])<.5);
+   for(const joint of ['upper','lower','foot'])
+    assert.ok(Number.isFinite(staticLoss.legs[side][joint]));
+  }
+ }
+});
+test('animated skinned defeat affects real cloned joints and restores their rotation before the next GLB frame',()=>{
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ assert.match(model,/stageSkinnedDefeatAfterMixer\(actor,reducedMotion\)/);
+ assert.match(model,/mount\.bone\.quaternion\.multiply\(mount\.next\)/);
+ assert.match(model,/mount\.last\.multiply\(mount\.next\)/);
+ assert.match(model,/stageRigMeleeAfterMixer\(actor,since,reducedMotion\);[\s\S]*?stageSkinnedDefeatAfterMixer/);
+ assert.match(model,/restoreRigLegsBeforeMixer\(actor\)/);
+ assert.match(model,/skinnedDefeatActors:/);
+ assert.match(app,/a\.defeatIntermission=Boolean\(state\?\.phase==='intermission'/);
+});

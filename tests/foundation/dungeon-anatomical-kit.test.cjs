@@ -71,3 +71,15 @@ test('the actual GLB renderer must merge only static torso detail and dispose ow
  assert.match(renderer,/anatomicalDetailMeshes:/);
  assert.match(renderer,/anatomicalStaticMergedParts:/);
 });
+
+test('five genuine forged armor types use an original bounded shared surface, never external texture calls or excess geometry',()=>{
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/forgedMicrotextureCache=new Map\(\)/);
+ assert.match(model,/const size=96,pixels=new Uint8Array\(size\*size\*4\)/);
+ assert.match(model,/new THREE\.DataTexture\(pixels,size,size/);
+ assert.match(model,/texture\.repeat\.set\(3,3\)/);
+ assert.match(model,/bumpMap:micro,roughnessMap:micro/);
+ assert.match(model,/forgedMicrotextures:/);
+ const source=model.slice(model.indexOf('const forgedMicrotextureCache='),model.indexOf('function addAnatomicalKit(actor)'));
+ assert.doesNotMatch(source,/Math\.random|fetch\(|https?:|requestAnimationFrame|DungeonRuntime/);
+});

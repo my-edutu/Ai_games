@@ -32,6 +32,9 @@ test('organic campaign death remains a legible 3D last stand on real desktop and
   {timeout:90000}).toBe('last-stand');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.lastStandBodies),
   {timeout:45000}).toBe(3);
+ // This MUST inspect actual imported skinned body joints, not just a flat defeat-card image.
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.skinnedDefeatActors??0),
+  {timeout:90000}).toBeGreaterThan(0);
  await expect(page.locator('#run-result')).toBeVisible();
  await page.locator('#world').screenshot({path:'artifacts/dungeon-m1-natural-last-stand-desktop-real.png',timeout:90000});
  await page.setViewportSize({width:390,height:844});
@@ -42,6 +45,7 @@ test('organic campaign death remains a legible 3D last stand on real desktop and
   seed,authoritativeSource:'actual production DungeonRuntime.step() naturally reached loss',
   tick:terminal.tick,run:terminal.run,floor:terminal.floor,distinctFloors:floors.size,
   combatSnapCount:combat,deadHeroCount:3,
+  skinnedDefeatActors:await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.skinnedDefeatActors??0),
   baselineSha:'281735d0910c6b2443648af976003d50412ee324',
   matchedFullBeforeAfter:false,originalAudioMotionCaptured:false,independentCritics:false
  },null,2)),contentType:'application/json'});
