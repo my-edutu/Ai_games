@@ -4807,7 +4807,7 @@ let yaw=.7,pitch=.88,zoom=43,focusPoint=[0,0],dragging=false,lastX,lastY,screenT
    write the economy, AI path, seeded streams, save format or simulation. */
 const STREET_EYE=1.68;
 let streetWalk=false,streetPosition=[4.2,7.7],streetYaw=0,streetTilt=0;
-let streetPrior=null,streetDistance=0,streetBlocked=0;
+let streetPrior=null,streetDistance=0,streetBlocked=0,streetEncounterName=null;
 const streetHeld=new Set();
 // G114: photographed G113 gameplay put the visitor inside a physical textile
 // canopy. Authoritative citizen navigation intentionally ignores decorative
@@ -4884,16 +4884,115 @@ body[data-street="on"][data-command="world"] .bottom > :not(#pause):not(#speed1)
 body[data-street="on"] .world-tour [data-scenic]:not([data-scenic="valley"]){display:none}
 body[data-street="on"] #world{touch-action:none}
 @media(max-width:520px){#street-walk-controls{bottom:74px}#street-walk-controls button{min-width:34px;min-height:39px;padding:5px}}
+/* G115: a human-height scene should be the primary information, not a wall
+   of browser HUD. Primary navigation and truthful world status remain usable;
+   the full existing command desk is always one action away. */
+body[data-street="on"] .top{top:10px;left:10px;right:10px}
+body[data-street="on"] .top .brand{display:none}
+body[data-street="on"] .top .pill{padding:7px 10px;max-width:44vw;font-size:10px;gap:5px;box-shadow:none}
+body[data-street="on"] .world-tour{left:10px;right:auto;top:10px;transform:none;width:max-content;max-width:calc(100vw - 180px);overflow-x:auto;padding:4px 5px;border-radius:10px;gap:3px;scrollbar-width:thin}
+body[data-street="on"] .world-tour .tour-btn{min-height:32px;font-size:10px;padding:6px 8px}
+body[data-street="on"] .world-tour :is(#workday-live,#workday-watch,#delivery-follow){display:none}
+body[data-street="on"] #world-ribbon{top:55px;left:50%;right:auto;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 16px);padding:6px 9px;gap:7px;flex-wrap:nowrap;border-radius:10px}
+body[data-street="on"] #world-ribbon :is(.world-identity,#world-story){display:none}
+body[data-street="on"] #world-ribbon .world-measure strong{font-size:14px}
+body[data-street="on"] #world-ribbon .world-measure small{font-size:9px}
+body[data-street="on"] #world-open-command{padding:6px 8px;font-size:10px}
+body[data-street="on"] .bottom{bottom:12px;padding:5px 7px;gap:4px;border-radius:12px}
+body[data-street="on"] .bottom .btn{padding:7px 9px;font-size:11px}
+body[data-street="on"] #street-walk-controls{bottom:72px}
+body[data-street="on"] #street-walk-controls .street-caption{background:#112c24df;max-width:100%;margin:0 auto 5px;font-size:11px;font-weight:650;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}
+#street-meet-worker{background:#e8c993!important;color:#17382d!important;min-width:84px!important;font:700 10px system-ui!important;padding:6px 8px!important}
+#street-meet-worker:focus-visible{outline:3px solid #ffefa5;outline-offset:2px}
+@media(max-width:520px){
+ body[data-street="on"] .world-tour{max-width:calc(100vw - 172px)}
+ body[data-street="on"] .top .pill{max-width:145px;font-size:9px;white-space:nowrap;overflow:hidden}
+ body[data-street="on"] #world-ribbon{top:55px;gap:4px;padding:5px 6px}
+ body[data-street="on"] #world-ribbon .world-measure:nth-of-type(n+4){display:none}
+ body[data-street="on"] #world-ribbon .world-measure strong{font-size:13px}
+ body[data-street="on"] #world-open-command{padding:5px 7px;font-size:9px}
+ body[data-street="on"] #street-walk-controls{bottom:68px;width:calc(100vw - 12px)}
+ body[data-street="on"] #street-walk-controls .street-keys{justify-content:space-between;gap:2px}
+ body[data-street="on"] #street-walk-controls .street-keys button{min-width:32px;min-height:40px;padding:4px;font-size:14px}
+ body[data-street="on"] #street-walk-controls .street-keys #street-meet-worker{min-width:74px!important;font-size:9px!important;padding:5px!important}
+ body[data-street="on"] #street-walk-controls .street-caption{padding:6px 9px;font-size:10px}
+}
 </style>`);
 document.querySelector('.world-tour').insertAdjacentHTML('afterbegin','<button class="tour-btn" type="button" id="street-walk" aria-pressed="false" aria-keyshortcuts="V" aria-controls="street-walk-controls" aria-label="Walk on foot through the autonomous village">♙ Walk streets</button>');
-document.body.insertAdjacentHTML('beforeend','<div id="street-walk-controls" role="group" aria-label="Village street navigation"><span class="street-caption" id="street-walk-status" role="status" aria-live="off">Village streets · real citizens at work</span><div class="street-keys"><button type="button" data-street-key="arrowleft" aria-label="Look left">↶</button><button type="button" data-street-key="a" aria-label="Step left">←</button><button type="button" data-street-key="w" aria-label="Walk forward">↑</button><button type="button" data-street-key="s" aria-label="Walk backward">↓</button><button type="button" data-street-key="d" aria-label="Step right">→</button><button type="button" data-street-key="arrowright" aria-label="Look right">↷</button><button id="street-walk-exit" type="button">Exit</button></div></div>');
+document.body.insertAdjacentHTML('beforeend','<div id="street-walk-controls" role="group" aria-label="Village street navigation"><span class="street-caption" id="street-walk-status" role="status" aria-live="off">Village streets · real citizens at work</span><div class="street-keys"><button type="button" data-street-key="arrowleft" aria-label="Look left">↶</button><button type="button" data-street-key="a" aria-label="Step left">←</button><button type="button" data-street-key="w" aria-label="Walk forward">↑</button><button type="button" data-street-key="s" aria-label="Walk backward">↓</button><button type="button" data-street-key="d" aria-label="Step right">→</button><button type="button" data-street-key="arrowright" aria-label="Look right">↷</button><button id="street-meet-worker" type="button" aria-label="Meet a real nearby working villager from a clear street viewpoint">Meet worker</button><button id="street-walk-exit" type="button">Exit</button></div></div>');
 document.body.dataset.street='off';
 function streetSafe(x,z){const r=.22;return walkable(x,z)&&walkable(x-r,z-r)&&walkable(x+r,z-r)&&walkable(x-r,z+r)&&walkable(x+r,z+r)&&streetHeadroomBlockers(x,z)===0}
 function getStreetWalkState(){
  const nearest=people.map(p=>({p,d:Math.hypot(p.x-streetPosition[0],p.z-streetPosition[1])})).sort((a,b)=>a.d-b.d||a.p.name.localeCompare(b.p.name))[0];
  return {active:streetWalk,position:streetPosition.slice(),eye:[streetPosition[0],terrain(...streetPosition)+STREET_EYE,streetPosition[1]],height:STREET_EYE,yaw:streetYaw,tilt:streetTilt,visibility:streetVisibility(streetPosition[0],streetPosition[1],streetYaw),distanceTravelled:streetDistance,blockedMoves:streetBlocked,nearestCitizen:nearest?{name:nearest.p.name,activity:nearest.p.activity,job:nearest.p.job,metres:Math.round(nearest.d*10)/10}:null};
 }
-function streetCaption(){if(!streetWalk)return;const n=getStreetWalkState().nearestCitizen;const text=n&&n.metres<9?n.name+' · '+n.activity:'Village streets · follow real workers';const node=document.getElementById('street-walk-status');if(node.textContent!==text)node.textContent=text;}
+function streetCaption(){
+ if(!streetWalk)return;
+ const witness=people.find(p=>p.name===streetEncounterName);
+ const witnessDistance=witness?Math.hypot(witness.x-streetPosition[0],witness.z-streetPosition[1]):Infinity;
+ if(witnessDistance>9)streetEncounterName=null;
+ const n=witnessDistance<=9&&witness?
+  {name:witness.name,job:witness.job,activity:witness.activity,metres:witnessDistance}:
+  getStreetWalkState().nearestCitizen;
+ const text=n&&n.metres<9?n.name+' · '+n.job+' · '+n.activity:
+  'Village streets · meet the people who work here';
+ const node=document.getElementById('street-walk-status');
+ if(node.textContent!==text)node.textContent=text;
+}
+// An encounter is an explicit camera cut to a physically visible REAL worker.
+// No job assignments, movement destinations, production, seed or snapshot state
+// can be changed here. Prefer active labor, then deliveries and real travel.
+function planStreetWorkerEncounter(){
+ const roofs=streetRoofs();
+ const sorted=people.slice().sort((a,b)=>
+  Number(isWorkingAtSite(b))-Number(isWorkingAtSite(a))||
+  Number(Boolean(b.delivery))-Number(Boolean(a.delivery))||
+  Math.hypot(a.x-streetPosition[0],a.z-streetPosition[1])-
+   Math.hypot(b.x-streetPosition[0],b.z-streetPosition[1])||
+  a.name.localeCompare(b.name));
+ let best=null;
+ for(const citizen of sorted){
+  for(const radius of [3.2,4.7,6.2]){
+   for(let j=0;j<8;j++){
+    const bearing=j*Math.PI/4;
+    const point=[citizen.x+Math.sin(bearing)*radius,
+     citizen.z+Math.cos(bearing)*radius];
+    if(!streetSafe(point[0],point[1]))continue;
+    const eye=[point[0],terrain(point[0],point[1])+STREET_EYE,point[1]];
+    const target=[citizen.x,terrain(citizen.x,citizen.z)+1.04,citizen.z];
+    if(followRayBlockers(eye,target,roofs)>0)continue;
+    const yawToCitizen=Math.atan2(citizen.x-point[0],citizen.z-point[1]);
+    const visibility=streetVisibility(point[0],point[1],yawToCitizen);
+    if(!visibility.openSky||visibility.forwardMetres<1.3)continue;
+    const importance=isWorkingAtSite(citizen)?35:
+     citizen.delivery?26:citizen.activity.startsWith('Traveling')?13:2;
+    const distanceToVisitor=Math.hypot(point[0]-streetPosition[0],
+     point[1]-streetPosition[1]);
+    const score=importance+visibility.forwardMetres*1.25-
+     distanceToVisitor*.16-radius*.35;
+    if(!best||score>best.score){
+     best={citizen,position:point,yaw:yawToCitizen,score,
+      metres:radius,visibility,activeWork:isWorkingAtSite(citizen)};
+    }
+   }
+  }
+ }
+ return best;
+}
+function visitStreetWorker(){
+ if(!streetWalk)return {moved:false,reason:'Street view is not active'};
+ const plan=planStreetWorkerEncounter();
+ if(!plan){
+  showToast('No clear outdoor view of a villager at the moment');
+  return {moved:false,reason:'No visible outdoor citizen'};
+ }
+ streetPosition=plan.position.slice();streetYaw=plan.yaw;streetTilt=0;
+ streetEncounterName=plan.citizen.name;streetBlocked=0;
+ focusPoint=streetPosition.slice();streetCaption();presentationEpoch++;
+ return {moved:true,realCitizen:true,citizen:plan.citizen.name,
+  job:plan.citizen.job,activity:plan.citizen.activity,activeWork:plan.activeWork,
+  metres:plan.metres,lineOfSight:true,visibility:plan.visibility};
+}
 function setStreetWalk(enabled){
  const next=Boolean(enabled);
  if(next===streetWalk)return getStreetWalkState();
@@ -4904,10 +5003,10 @@ function setStreetWalk(enabled){
   const arrival=streetArrival();
   if(!arrival){streetPrior=null;showToast('No clear outdoor street route yet');return getStreetWalkState();}
   streetPosition=arrival.position;streetYaw=arrival.angle;streetTilt=0;
-  streetDistance=0;streetBlocked=0;cinematic=false;streetWalk=true;
+  streetDistance=0;streetBlocked=0;streetEncounterName=null;cinematic=false;streetWalk=true;
   setCommandView('world','user');
  }else{
-  streetWalk=false;streetHeld.clear();
+  streetWalk=false;streetHeld.clear();streetEncounterName=null;
   if(streetPrior){yaw=streetPrior.yaw;pitch=streetPrior.pitch;zoom=streetPrior.zoom;focusPoint=streetPrior.focus.slice();}
   streetPrior=null;
  }
@@ -4946,6 +5045,7 @@ function advanceStreetWalk(dt){
 }
 document.getElementById('street-walk').addEventListener('click',()=>setStreetWalk(!streetWalk));
 document.getElementById('street-walk-exit').addEventListener('click',()=>setStreetWalk(false));
+document.getElementById('street-meet-worker').addEventListener('click',visitStreetWorker);
 document.querySelectorAll('#street-walk-controls [data-street-key]').forEach(b=>{
  const key=b.dataset.streetKey;
  b.addEventListener('pointerdown',e=>{e.preventDefault();streetHeld.add(key);if(b.setPointerCapture)b.setPointerCapture(e.pointerId)});
@@ -5708,7 +5808,7 @@ gl.drawArrays(gl.TRIANGLES,0,data.length/10);if((frames++%14)===0){updateUI();dr
  // Only a completed presentation may become the reusable frozen frame.
  lastFrozenFrameKey=frozenViewKey;
 }
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getOccupationalPerformance:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData({citizen:people[index].name,job:people[index].job,...occupationalPerformance(people[index])}):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getWorkdayEvents:()=>cloneData(workdayEvents),getStreetCargoWitnesses:()=>cloneData(streetCargoWitnesses()),getActiveDeliveries:()=>cloneData(getActiveDeliveries()),getDeliveryReceipts:()=>cloneData(getDeliveryReceipts()),getMarketHandoffs:()=>cloneData(getMarketHandoffs()),getMarketHandoffRenderStats:()=>({...marketHandoffRenderStats}),watchDelivery,getWorkdayView,getActiveWorksites,getLiveWorkdayView,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getMarketSupplyView:marketSupplyView,getHighStreetStats:()=>({...highStreetStats}),routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getStreetWalkState,setStreetWalk,advanceStreetWalk,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?2:1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0):0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0):null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getForestVisualStats:()=>({
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getOccupationalPerformance:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData({citizen:people[index].name,job:people[index].job,...occupationalPerformance(people[index])}):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getWorkdayEvents:()=>cloneData(workdayEvents),getStreetCargoWitnesses:()=>cloneData(streetCargoWitnesses()),getActiveDeliveries:()=>cloneData(getActiveDeliveries()),getDeliveryReceipts:()=>cloneData(getDeliveryReceipts()),getMarketHandoffs:()=>cloneData(getMarketHandoffs()),getMarketHandoffRenderStats:()=>({...marketHandoffRenderStats}),watchDelivery,getWorkdayView,getActiveWorksites,getLiveWorkdayView,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getMarketSupplyView:marketSupplyView,getHighStreetStats:()=>({...highStreetStats}),routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getStreetWalkState,setStreetWalk,advanceStreetWalk,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?2:1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0):0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0):null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getForestVisualStats:()=>({
  sourceTrees:trees.length,
  renderedTrees:forestVisualStats.deciduous+forestVisualStats.conifers,
  conifers:forestVisualStats.conifers,deciduous:forestVisualStats.deciduous,
