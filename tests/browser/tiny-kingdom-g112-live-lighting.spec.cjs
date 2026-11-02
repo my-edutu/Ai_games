@@ -40,7 +40,8 @@ test('G112 true after-dark worksite illumination preserves actual citizen author
  expect(observed.day.active).toBe(false);
  expect(observed.day.strength).toBe(0);
  expect(observed.vertex).toContain('workLightPosition');
- expect(observed.fragment).toContain('if(groundAtlasFast>.5){');
+ expect(observed.fragment).toContain('float groundDistance=length(eyePosition.xz-vWorld.xz);');
+ expect(observed.fragment).not.toContain('vec3 film=c/(c+vec3(.34));');
  expect(observed.quality.materialNoise).toMatch(/bilinear-software|trilinear/);
  expect(observed.glError).toBe(0);
  await page.setViewportSize({width:390,height:844});
