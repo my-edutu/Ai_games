@@ -33,13 +33,16 @@ test('native game-first stage occupies the screen without concealing public cont
     const rect = id => {
       const el=document.getElementById(id),r=el.getBoundingClientRect();
       const style=getComputedStyle(el);
-      return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,width:r.width,height:r.height,display:style.display,visibility:style.visibility};
+      return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,width:r.width,height:r.height,display:style.display,visibility:style.visibility,ariaHidden:el.getAttribute('aria-hidden')};
     };
     return {stage:rect('stage'),hud:rect('hud'),captions:rect('captions'),
       goal:rect('goal-title'),objective:rect('objective'),timer:rect('time'),
       progress:rect('progress'),inventory:rect('inventory'),intent:rect('intent-mode'),
       map:rect('map-panel'),camera:rect('camera-toggle'),path:rect('intent-details'),
-      scroll:document.documentElement.scrollWidth,viewport:document.documentElement.clientWidth};
+      scroll:document.documentElement.scrollWidth,viewport:document.documentElement.clientWidth,
+      urgency:document.getElementById('broadcast').dataset.urgency==='true',
+      goalCopy:document.getElementById('goal-title').textContent.trim(),
+      objectiveCopy:document.getElementById('objective').textContent.trim()};
   });
   expect(rects.stage.height, '3D maze occupies almost the entire native game viewport').toBeGreaterThan(810);
   expect(rects.stage.width, '3D maze spans the available phone width').toBeGreaterThan(375);
@@ -47,12 +50,28 @@ test('native game-first stage occupies the screen without concealing public cont
   expect(rects.hud.bottom, 'HUD is bounded by the full-screen stage').toBeLessThanOrEqual(rects.stage.bottom+1);
   expect(rects.captions.bottom,'the active event caption must fit on screen').toBeLessThanOrEqual(844);
   expect(rects.scroll).toBe(rects.viewport);
-  for(const name of ['goal','objective','timer','progress','inventory','intent']) {
+  for(const name of ['goal','timer','progress','inventory','intent']) {
     const r=rects[name];
     expect(r.width, name+' remains visibly represented').toBeGreaterThan(10);
     expect(r.height,name+' remains readable').toBeGreaterThan(8);
     expect(r.display).not.toBe('none');
     expect(r.visibility).not.toBe('hidden');
+  }
+  // Real danger is one visible imperative, not two competing HUD lines.
+  // Keep the secondary context accessible to screen readers while protecting
+  // the native 390px live WebGL viewport. When no danger is published, the
+  // objective must again occupy readable pixels. Neither case may go missing.
+  expect(rects.objective.ariaHidden,'secondary objective remains semantically accessible').not.toBe('true');
+  expect(rects.objective.display).not.toBe('none');
+  expect(rects.objective.visibility).not.toBe('hidden');
+  if(rects.urgency){
+    expect(rects.goalCopy,'the visible urgent action must be explicit').toBe('Avoid warden');
+    expect(rects.objectiveCopy,'the suppressed duplicate retains truthful public context').toBe('Keep clear');
+    expect(rects.objective.width,'urgent secondary prose must not occlude the actors').toBeLessThanOrEqual(2);
+    expect(rects.objective.height,'urgent secondary prose must stay visually compact').toBeLessThanOrEqual(2);
+  }else{
+    expect(rects.objective.width,'non-urgent objective is visibly represented').toBeGreaterThan(10);
+    expect(rects.objective.height,'non-urgent objective remains readable').toBeGreaterThan(8);
   }
   expect(rects.camera.width,'camera remains an accessible touch target').toBeGreaterThanOrEqual(44);
   expect(rects.map.height,'real disclosed map remains independently accessible').toBeGreaterThanOrEqual(40);
