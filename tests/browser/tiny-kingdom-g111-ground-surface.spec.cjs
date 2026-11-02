@@ -41,8 +41,10 @@ test('G111 inhabited ground connects actual roads, homes and fields without alte
   {focus:[0,0],yaw:.85,pitch:.52,zoom:23},
   {focus:[20,1],yaw:1.1,pitch:.38,zoom:13}
  ]){
-  await page.evaluate(c=>window.__tinyKingdom.setCamera(c),camera);
+  // Sample the completed frame BEFORE changing the camera; otherwise a
+  // software-rendered frame can finish between the change and the sample.
   const prev=await page.evaluate(()=>window.__tinyKingdom.getFrameProfile().totalFrames);
+  await page.evaluate(c=>window.__tinyKingdom.setCamera(c),camera);
   await page.waitForFunction(n=>window.__tinyKingdom.getFrameProfile().totalFrames>n,prev,{timeout:30000});
  }
  const after=await page.evaluate(()=>{
@@ -55,8 +57,10 @@ test('G111 inhabited ground connects actual roads, homes and fields without alte
  expect(after.surface.rebuilds).toBe(first.surface.rebuilds);
  expect(after.surface.gpuTextures).toBe(1);
  expect(after.glError).toBe(0);
- await page.setViewportSize({width:390,height:844});
+ // A resize may synchronously finish one expensive frozen frame in SwiftShader.
+ // Capture the old counter first, then still require a new completed frame.
  const prev=await page.evaluate(()=>window.__tinyKingdom.getFrameProfile().totalFrames);
+ await page.setViewportSize({width:390,height:844});
  await page.waitForFunction(n=>window.__tinyKingdom.getFrameProfile().totalFrames>n,prev,{timeout:30000});
  const mobile=await page.evaluate(()=>({
   width:document.documentElement.scrollWidth,
