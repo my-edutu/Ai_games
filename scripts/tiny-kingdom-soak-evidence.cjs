@@ -94,8 +94,15 @@ const assert=require('node:assert/strict');
   for(let day=chunkDays;day<=days;day+=chunkDays){
    last=await runChunk(Math.min(chunkDays,days-day+chunkDays));
    const {metrics,checksum,pathCache,nonFinite,invalidAgents}=last;
+   // G140: sample ONLY real rendered season residency, not simulated
+   // increases in cache-hit counts. A presentation frame follows each
+   // legitimate ten-day authority chunk; its original VBO is auditable.
+   await page.waitForTimeout(140);
+   const resident=await page.evaluate(()=>window.__tinyKingdom.getSettlementResidentStats());
    evidence.checkpoints.push({simulatedDay:day,...metrics,checksum,
-      pathCache,nonFinite,invalidAgents});
+      pathCache,nonFinite,invalidAgents,resident});
+   assert(resident.entries<=resident.maxEntries,'Season town LRU exceeds entry cap');
+   assert(resident.cachedFloats<=resident.floatBudget,'Town mesh LRU exceeds byte cap');
    assert.equal(nonFinite,false,'Non-finite resources or counters at day '+day);
    assert.deepEqual(invalidAgents,[],'Invalid citizen coordinates at day '+day);
    assert(pathCache.entries<=1800,'Route cache exceeded bounded capacity');
@@ -141,6 +148,7 @@ const assert=require('node:assert/strict');
     const g=window.__tinyKingdom,gl=document.getElementById('world').getContext('webgl');
     return {geometry:g.getGeometryAudit(),stats:g.renderStats(),
       landscape:g.getLandscapeCacheStats(),
+      settlementResidency:g.getSettlementResidentStats(),
       scenicVisibility:g.getScenicVisibilityStats(),
       glError:gl.getError(),authority:g.exportSnapshot().checksum};
   });
