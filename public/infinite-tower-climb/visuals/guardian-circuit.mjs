@@ -39,6 +39,33 @@ export function observedGuardianCircuit(snapshot) {
   };
 }
 
+// The camera and decorative lock MUST inspect the SAME exterior source geometry.
+// Older camera composition aimed at the recessed inner gate (radius 21.8),
+// while the actual HP-driven bronze teeth occupy radius 27.78. On a phone
+// those are distinct silhouettes; framing the wrong one hid the payoff.
+// This is a pure observed-state projection; no goal, hit, or route is created.
+export function observedGuardianLockStage(source) {
+  if (!source || !Number.isFinite(source.openedFraction) ||
+      ![source.toX, source.toY, source.baseY, source.width].every(Number.isFinite) ||
+      source.width <= 0) return null;
+  const release = clamp01(source.openedFraction);
+  const bolts = [];
+  for (let index = 0; index < 8; index++) {
+    const side = index % 2 === 0 ? -1 : 1;
+    const tier = Math.floor(index / 2);
+    const span = 10000 + release * (18500 + tier * 1400);
+    const x = Math.max(0, Math.min(source.width, source.toX + side * span));
+    bolts.push(pointFor(x, source.toY + (tier - 1.5) * 7600,
+      source.baseY, source.width, 27.78));
+  }
+  return {
+    sourceTick: source.tick, guardianId: source.guardianId,
+    releaseFraction: release,
+    center: pointFor(source.toX, source.toY, source.baseY, source.width, 27.78),
+    bolts,
+  };
+}
+
 export function createTowerGuardianCircuit(THREE) {
   const group = new THREE.Group();
   group.name = 'SourceObservedGuardianLockCircuit';
@@ -128,6 +155,7 @@ export function createTowerGuardianCircuit(THREE) {
     lastKey = key;
     source = next;
     const opening = next.openedFraction;
+    const lockStage = observedGuardianLockStage(next);
     // Source HP drives a persistent widening, never a made-up kill. Genuine
     // windup briefly tightens the at-guardian fastening; no fake hit pulse.
     const windup = next.telegraph && !options.reducedMotion
@@ -177,12 +205,7 @@ export function createTowerGuardianCircuit(THREE) {
     // seam as the actual guardian loses HP. Every tooth remains at the real
     // decorative gate anchor; it never asserts that a collision door opened.
     for (let index = 0; index < 8; index++) {
-      const side = index % 2 === 0 ? -1 : 1;
-      const tier = Math.floor(index / 2);
-      const span = 10000 + opening * (18500 + tier * 1400);
-      const toothX = Math.max(0, Math.min(next.width, next.toX + side * span));
-      const site = pointFor(toothX,
-        next.toY + (tier - 1.5) * 7600, next.baseY, next.width, 27.78);
+      const site = lockStage.bolts[index];
       pose.position.set(site.x, site.y, site.z);
       pose.quaternion.identity();
       pose.rotation.set(0, site.angle, 0);
