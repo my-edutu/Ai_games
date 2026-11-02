@@ -2204,9 +2204,9 @@
       "latestCandidateWorkflow": "Grounded travel after-code HEAD 873f650277c197358180c116502f01fe180364f4; GitHub browser 41376182493, visual review 41376182459 and integrated CI 41376182450 queued 2026-11-02. No new screenshots/video/critic verification yet. Prior 41370666904 real world-only screenshot inspected: 1440x832, minHeroPixels 172, 3/3 heroes unoccluded, 95,434 triangles, activeEnemies 0 in this sample. This prior still is NOT matched AFTER evidence."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Latest authentic preceding WebGL screenshot (41370666904 artifact 13109465798, 2026-11-02 01:10 UTC) is strikingly box-heavy and toy-proportioned despite three unoccluded heroes (172px minimum in that one snapshot). The new grounded locomotion is code, not an A/B winner. Full running encounter motion/audio desktop/mobile, character realism, distinct environment silhouette, hardware frame timing, complete expedition and 3 blind LOOKS/FEELS/PLAYS critics remain missing.",
-    "currentWork": "M1 remains open. Implemented one integrated grounded-traversal pass on the actual autonomous game: time-based frame-rate-aware 3D actor pursuit of the authoritative grid; reversible animated rig forward weight transfer and distance-paced gait; capped world-fixed, fading matte foot impressions on true rendered movement; opt-in synthesized hero step sound from real visual foot planting. Authority ticks, AI, combat, saves, RNG, source GLB assets and user consent remain unchanged. The AFTER experience is not verified in Chromium.",
-    "candidateCommit": "873f650277c197358180c116502f01fe180364f4",
+    "biggestRemainingGap": "Real desktop/mobile dynamic AFTER WebGL evidence for the new vaulted scene and matched baseline A/B is missing. Earlier genuine frame remains toy-proportioned with overlapping character bodies, and true combat motion/contact, 3 independent blind critics, continuous audiovisual expedition, device p95 and repeatable progression remain unverified.",
+    "currentWork": "M1 original architecture integration: selected authority-solid wall tiles now have shortened weathered plinths and original three-batch pointed Gothic vault recesses, fluted supports and carved metal relief; sightline cutaways follow genuine party/boss combat. A new real Chromium seeded screenshot test is included. Art quality and gameplay transformation have not yet been verified in the running browser.",
+    "candidateCommit": "a7a7c76746b0eead91d1b8c390205c097ab54dfd",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -2596,6 +2596,27 @@
         "blockers": "Shared development/browser/subagent tunnel NOT_FOUND, cannot independently execute browser, audio, worker panel. Matched baseline scenario reel and p95 measurements are missing.",
         "verdict": "IN_PROGRESS / NOT_TRANSFORMED",
         "next": "Read exact-head browser clips and metrics; correct visible foot sliding/print leakage and frame regressions. Next integrated major visual pass should remove rectangular room dominance and replace toy-looking silhouettes with authored proportionate animation; capture full seeded audiovisual adventure and obtain three fresh blind critics."
+      },
+      {
+        "id": "M1-ARCHITECTURAL-VAULTED-COURTS-20261102",
+        "date": "2026-11-02",
+        "sourceHeadAtStart": "ded97d33606d6d5c81d10ed9822f689424aeab96",
+        "codeCommit": "a7a7c76746b0eead91d1b8c390205c097ab54dfd",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "objective": "Replace repetitive full-height block walls along the real seeded dungeon traversal with strong original Gothic three-dimensional voids and stonework, retaining correct boss/hero sightlines and gameplay truth.",
+        "integratedImplementation": "Across all four biomes, deterministic independent wall-face selection creates up to 32 spaced non-walkable vaulted bays: real solid wall masses become low ruined plinths behind fluted piers, pointed stone ribs, recessed dark niches and metal relief. Three pooled instanced draw calls per floor, recycled on regeneration, all cut away with the same genuine party/boss sightline bands as main walls. No art download/third-party asset, no gameplay map/navigation/AI/RNG/combat/save change.",
+        "files": [
+          "public/ai-dungeon/vaulted-wall-plan.js",
+          "public/ai-dungeon/vaulted-wall-gallery.js",
+          "public/ai-dungeon/app.js",
+          "scripts/serve-dungeon-stream.cjs",
+          "tests/foundation/dungeon-vaulted-gallery.test.cjs",
+          "tests/browser/dungeon-vaulted-gallery.spec.cjs",
+          "tests/browser/dungeon.playwright.config.cjs"
+        ],
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "verification": "Source committed through GitHub; fresh exact-head npm/Chromium browser replay CI, genuine rendered desktop/mobile AFTER capture, sound and critic verdict PENDING. The connected coding/browser worker tunnel is unreachable.",
+        "next": "Inspect real `dungeon-vaulted-chamber-original-real-WebGL.png` and desktop/mobile Warden motion at exact head; check reduced brick silhouette, actual arches/visibility, draw calls, performance and contact. Fix artifacts; then conduct full organic audiovisual adventure and blind matched M1 baseline evaluation."
       }
     ]
   }
