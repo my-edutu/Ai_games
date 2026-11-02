@@ -266,3 +266,105 @@ export function planCriticalSubjectFit(cameraPoints,aspect,preferredFov=44){
  const capped=needed>maximum+.05;
  return Object.freeze({fov:round(clip(needed,base,maximum)),capped,unframeable,subjects:measured});
 }
+
+
+/**
+ * Actual Warden encounter sightline director. Sample bounded camera azimuths
+ * against the REAL public hero/boss grid and the playable-map perimeter.
+ *
+ * A fixed "hero-forward" offset can be reversed by boundary clamping and
+ * film the giant Warden over the surviving protagonist. Score the projected
+ * separation of their body-sized silhouettes *after* clamping, require the
+ * living hero to be nearer, keep both inside the real horizontal field of
+ * view, and avoid looking through a wall next to either actor.
+ *
+ * This is optical staging only: no attacks, AI, RNG, grid, or animation
+ * authority changes. The true boss warning deliberately retains the
+ * overhead tactical lens and cannot enter this director.
+ */
+export function planBossDuelSightline(s,shot,look,offsets,{width=1440,height=832,fov=48}={}){
+ const n=Array.isArray(s?.map)?s.map.length:0;
+ if(n<5||n>63||n%2!==1||!Array.isArray(s.units)||
+  !shot||!['warden-exposed','warden-approach','warden-contact'].includes(shot.mode)||
+  !Array.isArray(shot.subjects)||!look||!Number.isFinite(look.x)||!Number.isFinite(look.z)||
+  !Array.isArray(offsets)||offsets.length!==3||!offsets.every(Number.isFinite)||
+  s.bossWarning||shot.warning)return null;
+ const boss=s.units.find(u=>u.kind==='warden'&&u.faction==='enemy'&&u.hp>0&&valid(u,n));
+ const hero=boss&&s.units.find(u=>shot.subjects.includes(u.id)&&u.faction==='party'&&u.hp>0&&valid(u,n));
+ if(!hero||distance(hero,boss)>5)return null;
+ const half=(n-1)/2,limit=half-.65;
+ const xHero=hero.x-half,zHero=hero.z-half,xBoss=boss.x-half,zBoss=boss.z-half;
+ const cameraHeight=clip(offsets[1],4,15),radius=clip(Math.hypot(offsets[0],offsets[2]),3.8,11);
+ const startAngle=Math.atan2(offsets[2],offsets[0]);
+ const aspect=clip(Number.isFinite(width)&&Number.isFinite(height)&&height>0?width/height:1.73,.35,3.2);
+ const horizontalTan=Math.tan(clip(fov,35,82)*Math.PI/360)*aspect;
+ const recovered=shot.mode==='warden-exposed'||(shot.mode==='warden-contact'&&
+  !s.guardianWard&&Number.isSafeInteger(s.bossRecovery?.remaining)&&
+  s.bossRecovery.remaining>=1&&s.bossRecovery.remaining<=6);
+ let best=null;
+ for(let i=0;i<48;i++){
+  // Prefer the existing authored quadrant when two truly visible views tie;
+  // equally sample both flank directions and wrap to the opposite side when
+  // the authoritative arena perimeter blocks that initial viewpoint.
+  const step=i===0?0:(i%2?Math.ceil(i/2):-i/2);
+  const angle=startAngle+step*Math.PI/24;
+  const rawX=look.x+Math.cos(angle)*radius,rawZ=look.z+Math.sin(angle)*radius;
+  const cx=clip(rawX,-limit,limit),cz=clip(rawZ,-limit,limit);
+  const ax=look.x-cx,az=look.z-cz,span=Math.hypot(ax,az);
+  if(span<1.9)continue;
+  const forwardX=ax/span,forwardZ=az/span,screenRightX=-forwardZ,screenRightZ=forwardX;
+  const heroDeltaX=xHero-cx,heroDeltaZ=zHero-cz,bossDeltaX=xBoss-cx,bossDeltaZ=zBoss-cz;
+  const heroDepth=heroDeltaX*forwardX+heroDeltaZ*forwardZ;
+  const bossDepth=bossDeltaX*forwardX+bossDeltaZ*forwardZ;
+  if(heroDepth<2.4||bossDepth<2.4)continue;
+  const heroScreen=(heroDeltaX*screenRightX+heroDeltaZ*screenRightZ)/heroDepth;
+  const bossScreen=(bossDeltaX*screenRightX+bossDeltaZ*screenRightZ)/bossDepth;
+  // Perspective-width proxy: one human shoulder and one much larger armored
+  // boss. A positive free margin predicts two distinguishable bodies.
+  const silhouetteGap=Math.abs(heroScreen-bossScreen)-(.48/heroDepth+.88/bossDepth);
+  const lead=bossDepth-heroDepth;
+  const heroCrop=Math.max(0,Math.abs(heroScreen)+.51/heroDepth-horizontalTan*.89);
+  const bossCrop=Math.max(0,Math.abs(bossScreen)+.91/bossDepth-horizontalTan*.89);
+  // A high camera normally sees over distant stone; only penalize walls
+  // near the body at the end of the camera ray (not cosmetic wall topology).
+  const nearWall=(x,z)=>{
+   let blocks=0;
+   for(let k=6;k<=9;k++){
+    const t=k/10;
+    if(cameraHeight*(1-t)+1.2*t>3.1)continue;
+    const gx=Math.round(cx+(x-cx)*t+half),gz=Math.round(cz+(z-cz)*t+half);
+    if(s.map[gz]?.[gx]==='#')blocks++;
+   }
+   return blocks;
+  };
+  const wallPenalty=nearWall(xHero,zHero)+nearWall(xBoss,zBoss);
+  const edgePenalty=Math.hypot(rawX-cx,rawZ-cz);
+  const closePenalty=Math.max(0,3.8-Math.hypot(heroDeltaX,heroDeltaZ))+
+   Math.max(0,4.0-Math.hypot(bossDeltaX,bossDeltaZ));
+  const score=silhouetteGap*24+Math.min(2,lead)*2.8-
+   Math.max(0,.45-lead)*9-(heroCrop+bossCrop)*55-
+   wallPenalty*.72-edgePenalty*.28-closePenalty*3-
+   Math.abs(step)*.006;
+  if(!best||score>best.score+.00001)
+   best={score,position:{x:cx,y:cameraHeight,z:cz},silhouetteGap,
+    heroDepthLead:lead,projectedSeparation:Math.abs(heroScreen-bossScreen),
+    nearWallBlocks:wallPenalty,heroCrop,bossCrop,angleStep:step};
+ }
+ if(!best)return null;
+ return Object.freeze({
+  look:Object.freeze({x:look.x,z:look.z}),
+  position:Object.freeze(best.position),
+  turn:Object.freeze({x:0,z:0}),
+  boundaryLimit:limit,
+  sightline:Object.freeze({
+   heroId:hero.id,bossId:boss.id,mode:shot.mode,recovered,
+   silhouetteGap:Number(best.silhouetteGap.toFixed(4)),
+   heroDepthLead:Number(best.heroDepthLead.toFixed(4)),
+   projectedSeparation:Number(best.projectedSeparation.toFixed(4)),
+   nearWallBlocks:best.nearWallBlocks,
+   cropped:best.heroCrop>0||best.bossCrop>0,
+   angleStep:best.angleStep,
+   candidateCount:48
+  })
+ });
+}
