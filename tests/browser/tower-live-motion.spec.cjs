@@ -55,6 +55,9 @@ for (const viewport of viewports) {
         guardianActive: (s?.enemies || []).some(e => e.active && e.kind === 'guardian'),
         guardianHealth: (s?.enemies || []).filter(e => e.kind === 'guardian').map(e => ({ active: e.active, health: e.health, maxHealth: e.maxHealth })),
         observedGate: d.world?.guardianGates || [],
+        // Real AI platform intent rendered as depth-tested 3D stones; source
+        // snapshot remains the only authority for route/collision decisions.
+        observedRouteIntent: d.routeIntent || null,
         // Exact presented-camera world projection at the time of a genuine
         // source HP observation. Unlike a source-only geometry fixture, this
         // records whether the guardian and gate are actually inside the
@@ -103,6 +106,26 @@ for (const viewport of viewports) {
   const assessment = assessTowerMotion(observations, {
     minDurationMs: 60000, requireOutcomeRestart: scenario === 'outcome',
   });
+  // The shared CI host can now witness every REAL fixed simulation tick,
+  // including the frozen baseline's 50ms result. This trace is comparison
+  // context and source provenance, NOT proof the image was actually rendered
+  // or captured in the unedited normal-speed WebM.
+  const traceResponse = await page.request.get('/tower/capture-trace',
+    { timeout: 5000 }).catch(() => null);
+  const trace = traceResponse?.ok() ? await traceResponse.json() : null;
+  if (trace) fs.writeFileSync(path.join(dir, 'source-trace.json'),
+    JSON.stringify(trace, null, 2));
+  const sourceTicks = Array.isArray(trace?.ticks) ? trace.ticks : [];
+  const sourcePhaseSummary = {
+    available: !!trace, method: trace?.method || null,
+    resultTicks: sourceTicks.filter(t => t.lifecycle === 'result').length,
+    intermissionTicks: sourceTicks.filter(t => t.lifecycle === 'intermission').length,
+    sourceRunTransitions: sourceTicks.reduce((count, item, index) =>
+      count + (index && sourceTicks[index - 1].runToken !== item.runToken ? 1 : 0), 0),
+    sampledVisualResult: observations.some(item => item.scene === 'result'),
+    sampledVisualIntermission: observations.some(item => item.scene === 'intermission'),
+    note: 'Source snapshots are not composited video frames; missing baseline result in normal-speed video remains a blocker.',
+  };
   fs.writeFileSync(path.join(dir, 'motion.json'), JSON.stringify({
     method: 'Real live unmodified host at nominal 20 authoritative ticks/s; browser video and distinct WebGL canvas captures; CI software renderer, not intended device',
     sourceSha: process.env.TOWER_CAPTURE_SOURCE_SHA || process.env.GITHUB_SHA || null,
@@ -115,7 +138,8 @@ for (const viewport of viewports) {
     outcomeCapture: scenario === 'outcome' ? { maxTicks: 900, noProgressTicks: 850, intermissionTicks: 36 } : null,
     sampledActorOffscreen: observations.filter(item => item.observedActor?.inPicture === false).length,
     sampledActorUnsafe: observations.filter(item => item.observedActor?.inSafeFrame === false).length,
-    capturedAt: new Date().toISOString(), observations, assessment, errors,
+    capturedAt: new Date().toISOString(), observations, assessment,
+    sourcePhaseSummary, errors,
     independentReview: false,
     gates: { captureIntegrity: assessment.scopedPass ? 'PASS' : 'FAIL',
       completeMotion: 'OPEN: manually review unedited normal-speed video for climbing, guardian danger, true result and restart',
