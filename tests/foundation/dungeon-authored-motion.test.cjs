@@ -76,7 +76,7 @@ test('the real authored GLB renderer stages the rig through an isolated pivot, n
  const assets=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
  const server=fs.readFileSync(path.join(root,'scripts/serve-dungeon-stream.cjs'),'utf8');
- assert.match(assets,/import \{planAuthoredMotion\} from '\/dungeon\/character-motion-plan\.js'/);
+ assert.match(assets,/import \{planAuthoredMotion,planContactBodyLanguage\} from '\/dungeon\/character-motion-plan\.js'/);
  assert.match(assets,/actor\.visualPivot/);
  assert.match(assets,/planAuthoredMotion\(actor\.u\.kind,actor\.u\.action/);
  assert.match(app,/updateActor\(a,dt,since,reduced\)/);
