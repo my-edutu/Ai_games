@@ -2151,7 +2151,7 @@
     "title": "From Prototype to Believable 3D Adventure",
     "adoptedOn": "2026-11-01",
     "status": "IN_PROGRESS",
-    "verdict": "NOT_TRANSFORMED",
+    "verdict": "IN PROGRESS — NOT TRANSFORMED; actual new-head comparison UNVERIFIED",
     "baseline": {
       "sha": "281735d0910c6b2443648af976003d50412ee324",
       "locked": true,
@@ -2204,10 +2204,10 @@
       "latestCandidateWorkflow": "Source amendment at 20f0a84: https://github.com/my-edutu/Ai_games/actions/runs/41477810184 (real browser queued); https://github.com/my-edutu/Ai_games/actions/runs/41477810132 (visual queued); https://github.com/my-edutu/Ai_games/actions/runs/41477810344 (CI queued). Exact final-ledger-head validations still pending."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Authentic Chromium Warden exposure at source SHA 618869427 still shows boss back/armor occluding the only living Vanguard and true counter opportunity; current physical-recovery/camera/mobile remediation not yet captured or independently judged. Repetitive blocky masonry and miniature-like character anatomy still far below genuine Diablo IV/No Rest for the Wicked/PoE 2. No complete authenticated AV journey, p95/p99 mobile frame pacing or blind 3-critic consensus.",
-    "currentWork": "Same one M1 vertical slice: authentic Warden opening now co-stages a 0.38m within-legal-tile boss recovery, physical hero-facing lens, more legible genuine skinned guard collapse, and mobile optional map relocated below the battle canvas; the original warnings retain wide floor-telegraph safety. 37/37 specialized focused checks, full configured Dungeon 210/210 and TS compilation pass locally, but real new-head presentation and audiovisual gameplay remain unverified.",
-    "candidateCommit": "20f0a84b0b79e1d2cafada240c9dfc9bfeb46e49",
-    "candidateArtifactUrl": null,
+    "biggestRemainingGap": "Inspected genuine 1440x832 Chromium exposed Warden still concealing most of the sole living Vanguard; repetitive masonry fills much of scene. This is predecessor evidence, NOT matched immutable baseline A/B.",
+    "currentWork": "Inspect new real desktop/mobile exposed counter/telegraph, correct visual overlap and frame starvation; film organic seeded traverse→combat→Warden→floor→defeat/restart with original WebAudio, performance and three independent masked looks/feels/plays critics; keep draft unmerged.",
+    "candidateCommit": "89ed5682817845789af539f3e60b159a6a3a7489",
+    "candidateArtifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41477900576/artifacts/13160601700",
     "acceptedAt": null,
     "implementationEvents": [
       {
@@ -3085,6 +3085,38 @@
         ],
         "next": "Inspect genuine after-head browser warning and exposed screenshots/clips; correct actual hero occlusion/clipping and phone map or labels if still present. Continue original world/character depth and record full same-seed coherent desktop/mobile with audio and independent blind critics. No merge.",
         "integrityAmendment": "A Warden-contact over-shoulder recovery camera is permitted only under genuine unwarded, unwarned, bounded 1..6 turn saved recovery; guardian seal and warning retain original angle. Specialized cinematic tests 18/18 pass locally. Browser/audio not yet verified."
+      },
+      {
+        "id": "m1-real-silhouette-camera-2026-11-02",
+        "date": "2026-11-02",
+        "milestone": "SAME M1, NOT A NEW ROUND",
+        "status": "IN_PROGRESS / IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "baselineCapture": "https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
+        "previousHead": "8c603262d609245663fb46944dd9707396217d1c",
+        "actualPriorBrowser": "https://github.com/my-edutu/Ai_games/actions/runs/41477900576/artifacts/13160601700",
+        "observedGap": "Inspected genuine 1440x832 Chromium exposed Warden still concealing most of the sole living Vanguard; repetitive masonry fills much of scene. This is predecessor evidence, NOT matched immutable baseline A/B.",
+        "codeCommit": "89ed5682817845789af539f3e60b159a6a3a7489",
+        "implemented": [
+          "48-bearing physically bounded true protagonist/Warden perspective-silhouette camera planner scores actual hero-front depth, screen overlap, crop, stone near either body, angle continuity after map-edge clamp.",
+          "Only genuine living Warden contact/exposure/approach uses the new optical orbit; real lethal telegraphs keep original tactical lens.",
+          "WebGL diagnostics expose the true chosen physical sightline for actual Chromium inspection.",
+          "Manual follow and director controls immediately report their true state, independent of expensive pending CPU WebGL redraws.",
+          "Live-browser Warden recovery test now asserts actual hero depth lead and physical screen separation."
+        ],
+        "checks": "UNVERIFIED at this exact head; GitHub browser and visual actions queued. Prior head visual SUCCESS, dedicated browser authority/shards 1/2 SUCCESS, shard 3 24 PASS / 1 FAIL from stale manual-follow diagnostic, catalogue CI CANCELLED.",
+        "realAfterBrowser": "UNVERIFIED. Need inspect source SHA 89ed or subsequent ledger-only exact head desktop and mobile Warden visual and movement.",
+        "motionAudio": "UNVERIFIED; prior source browser recorded NO FRAMES despite opt-in attempt.",
+        "independentCritics": {
+          "status": "NOT_RUN",
+          "looks": "UNVERIFIED",
+          "feels": "UNVERIFIED",
+          "plays": "UNVERIFIED",
+          "count": 0
+        },
+        "performance": "UNVERIFIED mobile FPS/p95/p99 and continuous scene.",
+        "gate": "IN_PROGRESS / NOT_TRANSFORMED",
+        "next": "Inspect new real desktop/mobile exposed counter/telegraph, correct visual overlap and frame starvation; film organic seeded traverse→combat→Warden→floor→defeat/restart with original WebAudio, performance and three independent masked looks/feels/plays critics; keep draft unmerged."
       }
     ]
   }

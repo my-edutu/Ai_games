@@ -86,6 +86,15 @@ test('true Warden shockwave opens visible desktop/mobile tactical counterplay an
  });
  expect(duelStage.mode).toBe('warden-exposed');
  expect(duelStage.nearSide).toBeLessThan(-.2);
+ // Judge the physical view AFTER wall-bounded orbit, not merely a source
+ // offset that may be reversed at the dungeon perimeter.
+ const physicalSightline=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.duelSightline);
+ expect(physicalSightline?.heroId).toBe('vanguard');
+ expect(physicalSightline?.mode).toBe('warden-exposed');
+ expect(physicalSightline?.heroDepthLead).toBeGreaterThan(0);
+ expect(physicalSightline?.projectedSeparation).toBeGreaterThan(0);
+ await test.info().attach('real-Warden-physical-camera-sightline',{
+  body:Buffer.from(JSON.stringify(physicalSightline)),contentType:'application/json'});
  await test.info().attach('real-Warden-hero-forward-counter-stage',{
   body:Buffer.from(JSON.stringify(duelStage)),contentType:'application/json'});
  await page.locator('#world').screenshot({path:'artifacts/dungeon-m1-counter-open-real-desktop.png',timeout:90000});
