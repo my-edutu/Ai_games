@@ -2,6 +2,8 @@
 // only after both states were actually disclosed by the same authoritative run.
 // Never examine undiscovered topology, private AI plans or required hidden keys.
 export const GATE_RETRACTION_SECONDS = 0.85;
+// The genuine witnessed key burst and its compact HUD share one visual lifespan.
+export const PUBLIC_PICKUP_VISUAL_SECONDS = 0.82;
 // Visual-only pacing: if software graphics stalls, don't skip the physical lift.
 // Authoritative time, AI, countdown and route motion remain untouched.
 export const MAX_GATE_VISUAL_FRAME_SECONDS = 0.035;

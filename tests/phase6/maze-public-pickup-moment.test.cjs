@@ -41,3 +41,29 @@ test('simultaneous disclosed pickups choose same authentic source ID regardless 
   assert.deepEqual(cue(before,after),{id:'amber',cell:24});
   assert.deepEqual(cue({...before,keys:[...keys].reverse()},{...after,keys:[...collected].reverse()}),{id:'amber',cell:24});
 });
+// A real browser failure (2026-11-02, focused CI 41439120617) revealed
+// KEY FOUND expired on wall time while its 3D shards were still being rendered.
+// Preserve exact same-run source truth and make both displays share one clock.
+test('public key feedback stays coupled to actual frame-limited 3D pickup, not CPU wall stalls',async()=>{
+  const fs=require('node:fs');
+  const {advanceGateVisualClock,MAX_GATE_VISUAL_FRAME_SECONDS,PUBLIC_PICKUP_VISUAL_SECONDS}=await import(
+    pathToFileURL(path.resolve(__dirname,'../../public/ai-maze-escape/gate-moment.mjs')).href);
+  const app=fs.readFileSync(path.resolve(__dirname,'../../public/ai-maze-escape/app.js'),'utf8');
+  const three=fs.readFileSync(path.resolve(__dirname,'../../public/ai-maze-escape/scene.js'),'utf8');
+  assert.match(app,/hudVisualTime=advanceGateVisualClock\(hudVisualTime,wallDelta\)/);
+  assert.match(app,/until:hudVisualTime\+PUBLIC_PICKUP_VISUAL_SECONDS/);
+  assert.match(app,/hudVisualTime<pickupMilestone\.until/);
+  assert.doesNotMatch(app,/performance\.now\(\)<pickupMilestone\.until/);
+  assert.match(three,/pickupAge < PUBLIC_PICKUP_VISUAL_SECONDS/);
+  assert.match(three,/pickupAge\/PUBLIC_PICKUP_VISUAL_SECONDS/);
+  assert.ok(PUBLIC_PICKUP_VISUAL_SECONDS>MAX_GATE_VISUAL_FRAME_SECONDS*10);
+  let time=advanceGateVisualClock(0,12);
+  assert.equal(time,MAX_GATE_VISUAL_FRAME_SECONDS,
+    'a 12s software stall is not 12s of visible animated key fragments');
+  for(let i=0;i<14;i++)time=advanceGateVisualClock(time,12);
+  assert.ok(time<PUBLIC_PICKUP_VISUAL_SECONDS,
+    'key feedback and physical shards must both survive 15 deliberately slow frames');
+  for(let i=0;i<14;i++)time=advanceGateVisualClock(time,12);
+  assert.ok(time>=PUBLIC_PICKUP_VISUAL_SECONDS,
+    'the real pickup beat must expire after enough rendered frames');
+});

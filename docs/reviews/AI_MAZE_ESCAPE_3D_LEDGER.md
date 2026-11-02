@@ -1,5 +1,12 @@
 # SDD ledger — plan: docs/superpowers/plans/2026-10-30-ai-maze-escape-3d.md
 
+## Pass77 — repair real WebGL KEY FOUND desynchronization without weaker acceptance (2026-11-02)
+
+- **Observed exact-source failure:** [Pass76 genuine source-bound visual job 41439120617](https://github.com/my-edutu/Ai_games/actions/runs/41439120617) failed **actual 1280×900** Playwright at `#goal-label`: expected `KEY FOUND`, received `Current goal`, after the actual same-run physical key event diagnostic was active. The HUD's 2.2-second wall-clock milestone ran out during CPU-throttled SwiftShader rendering while the physical 3D shards use a capped render-frame visual clock. This mismatch is a product presentation defect under slow frames; it is not a license to relax Playwright screenshot, source/privacy or model-crop tests.
+- **Builder candidate:** share the existing pure `advanceGateVisualClock` and one exact `PUBLIC_PICKUP_VISUAL_SECONDS=0.82` constant between the original 3D shards and the small actionable key goal chip, preserving terminal/danger/closed-gate priority, same-run/inventory disclosure, no extra UI, no simulation/agent modifications. A dedicated source/clock regression now exercises multiple deliberately stalled visual frames.
+- **Pending mandatory critic:** re-run full exact-source five-test WebGL captured evidence, check **both 1280 and native 390** genuine pickup screenshots and original SHA sidecars, all 320/390/844/1280 stage/actor/44px/privacy gates, whole CI and a direct fixed [Nintendo Captain Toad](./maze-3d/reference-manifest.json) unscaled comparison. No proof from test counts alone; visual benchmark **NOT PASSED**. Fresh detached subagents/Ultracode inaccessible due disconnected shared workspace. No merge or deploy. [Review gate](./maze-3d/render-clock-key-hud-pass-77-review-gate.md).
+
+
 ## Pass76 — physical tidal garden architecture + game-first HUD (2026-11-02)
 
 - **Original physical source candidate, NOT a Nintendo win:** sculpt double-sided ceramic relief exclusively on publicly disclosed solid-wall masonry, rooted 3D tide banners, modeled public observatory roofline/hanging cloth, plus cascades physically attached to the fixed public-board perimeter and entering the lagoon. All existing shared geometries/materials with instanced drawing; no private map/route/actor, no newly navigable water, no hidden key or autonomous rule changes. Public presentation counters expose real constructed pieces.

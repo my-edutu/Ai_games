@@ -1,7 +1,7 @@
 import * as THREE from './vendor/three.module.js';
 import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
-import { advanceGateVisualClock } from './gate-moment.mjs';
+import { advanceGateVisualClock, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicGateOpeningCameraCue } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
@@ -409,9 +409,9 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // release, so character and shards cannot disagree under CPU throttling.
     const pickupAge = recentPublicPickup?.runToken === s.runToken
       ? gateVisualTime - recentPublicPickup.start : Infinity;
-    const showPickup = !result && pickupAge >= 0 && pickupAge < .82;
+    const showPickup = !result && pickupAge >= 0 && pickupAge < PUBLIC_PICKUP_VISUAL_SECONDS;
     const pickupStrength = showPickup
-      ? (settings.reducedMotion ? 1 : clamp(1-pickupAge/.82,0,1)) : 0;
+      ? (settings.reducedMotion ? 1 : clamp(1-pickupAge/PUBLIC_PICKUP_VISUAL_SECONDS,0,1)) : 0;
     explorer.update({
       time:elapsed,delta,moving:pose.moving&&!result,heading,
       attentionHeading:closestThreat?Math.atan2(closestThreat.x-pose.x,closestThreat.z-pose.z):undefined,
@@ -434,7 +434,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       pickupBurst.position.set(p.x + KEY_SHRINE_OFFSET.x,
         cellHeight(recentPublicPickup.cell,s.width,s.height)+1.75,
         p.z + KEY_SHRINE_OFFSET.z);
-      const progress = settings.reducedMotion ? .38 : Math.min(1,pickupAge/.82);
+      const progress = settings.reducedMotion ? .38 : Math.min(1,pickupAge/PUBLIC_PICKUP_VISUAL_SECONDS);
       for (let i=0;i<pickupShards.length;i++) {
         const angle=i*Math.PI/4+.18,radial=.43+progress*(.36+(i%2)*.11);
         const shard=pickupShards[i];
@@ -571,7 +571,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     }
     // The ordinary full-stage follow frame makes the genuinely witnessed
     // collected key and Pip tiny against a large empty water surround.
-    // For <.82 s, a real same-run public pickup may briefly stage their
+    // During the real public key's visual lifespan, a nearby pickup may stage their
     // physical 3D interaction as one closer shot. It is subordinate to the
     // actual public guardian, gate, terminal/recovery and manual camera.
     // An unobserved key or a fabricated stale event can NEVER request this.

@@ -1,11 +1,12 @@
 import { computePublicView, drawMinimap, publicObjective, publicHeldGateStatus, publicKeyCollectionMoment } from './map-view.mjs';
 import { createMazeAudio } from './audio.js';
+import { advanceGateVisualClock, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 
 const MAX_TRAIL=240;
 const POLL_DELAY_MS=180;
 const POLL_TIMEOUT_MS=6000;
 // Short, single-chip game feedback, never a new panel or autonomous AI order.
-const KEY_MILESTONE_MS=2200;
+// The physical shards and HUD must use the SAME render-frame-limited clock.
 let canvas=document.getElementById('maze');
 const byId=id=>document.getElementById(id);
 const elements={broadcast:byId('broadcast'),hud:byId('hud'),tick:byId('tick'),steps:byId('steps'),time:byId('time'),keys:byId('keys'),progress:byId('progress'),progressFill:byId('progress-fill'),intentMode:byId('intent-mode'),intentCopy:byId('intent-copy'),confidence:byId('confidence-fill'),inventory:byId('inventory'),caption:byId('caption'),profile:byId('profile'),integrity:byId('integrity'),sceneCard:byId('scene-card'),sceneTitle:byId('scene-title'),sceneMessage:byId('scene-message'),minimap:byId('minimap')};
@@ -14,6 +15,7 @@ const motionPreference=matchMedia('(prefers-reduced-motion: reduce)');
 const settings={quality:query.get('quality')==='high'?'high':'auto',reducedMotion:query.get('reducedMotion')==='1'||motionPreference.matches,highContrast:query.get('highContrast')==='1',muted:true,cleanFeed:query.get('cleanFeed')==='1'};
 const audio=createMazeAudio();
 let frame=null, scene=null, fallbackCanvas=null, pollTimer=0, recoveryTimer=0, requestController=null, stopped=false, raf=0, rendererState='loading',cameraMode=query.get('camera')==='overview'?'overview':query.get('camera')==='detail'?'detail':'follow', lastCaption='', lastRunToken='', captionSource='', captionUntil=0, wasInDanger=false, failedPolls=0, initialising=false, pickupMilestone=null;
+let hudVisualTime=0, lastHudRenderNow=0;
 
 function press(id,value,label){const button=byId(id);if(!button)return;button.setAttribute('aria-pressed',String(value));if(label){button.setAttribute('aria-label',label);button.title=label}}
 function applySettings(){
@@ -73,7 +75,7 @@ function update(value){
   const observedPickup=publicKeyCollectionMoment(frame?.snapshot,snapshot);
   if(pickupMilestone && (pickupMilestone.runToken!==snapshot.runToken || snapshot.result))pickupMilestone=null;
   if(observedPickup && snapshot.lifecycle==='running')
-    pickupMilestone={runToken:snapshot.runToken,until:performance.now()+KEY_MILESTONE_MS};
+    pickupMilestone={runToken:snapshot.runToken,until:hudVisualTime+PUBLIC_PICKUP_VISUAL_SECONDS};
   frame=value;
   window.__MAZE_PUBLIC_STATE__=snapshot;
   window.__MAZE_VIEW__=computePublicView(snapshot,value.camera,cameraMode==='overview');
@@ -103,7 +105,7 @@ function update(value){
   // collectible celebration; AI intent continues to report its real plan.
   const freshKey=!ended && !exposedDanger && !keyedSealedGate
     && pickupMilestone?.runToken===snapshot.runToken
-    && performance.now()<pickupMilestone.until;
+    && hudVisualTime<pickupMilestone.until;
   byId('goal-label').textContent=ended?'Journey result':exposedDanger?'Immediate danger':keyedSealedGate?'Known sealed gate':freshKey?'KEY FOUND':landmark?'Discovered landmark':'Current goal';
   byId('goal-title').textContent=ended?(escaped?'Escaped':'Run ended'):exposedDanger?'Avoid warden':keyedSealedGate?'Key for gate':freshKey?'Key collected':landmark?(landmark.kind==='key'?'Key spotted':'Exit spotted'):goals[snapshot.intent.mode]||'Find the exit';
   byId('intent-label').textContent=ended?'Result':'Pip';
@@ -188,7 +190,17 @@ async function poll(){
   }catch(error){if(!stopped){console.warn('Maze public view update failed:',error.name,error.message);failedPolls++;elements.integrity.textContent='Reconnecting';refreshSceneCard()}}
   finally{clearTimeout(timeout);requestController=null;if(!stopped)pollTimer=setTimeout(poll,POLL_DELAY_MS)}
 }
-function animate(now){if(stopped)return;try{scene?.render(now)}catch(error){stopGraphics(error)}raf=requestAnimationFrame(animate)}
+function animate(now){
+  if(stopped)return;
+  // Match scene.js's physical-shard clock: under a CPU/SwiftShader stall,
+  // presentation cannot expire while the 3D event is still being drawn.
+  // This affects neither the authoritative tick nor the agent's movement.
+  const wallDelta=Math.max(0,lastHudRenderNow?(now-lastHudRenderNow)/1000:.016);
+  lastHudRenderNow=now;
+  hudVisualTime=advanceGateVisualClock(hudVisualTime,wallDelta);
+  try{scene?.render(now)}catch(error){stopGraphics(error)}
+  raf=requestAnimationFrame(animate);
+}
 function setCamera(mode){cameraMode=mode;scene?.setCameraMode(mode);press('camera-toggle',mode!=='follow',mode==='follow'?'Switch to overview camera':mode==='overview'?'Switch to detail camera':'Follow the explorer');const label=byId('camera-toggle')?.querySelector('.button-label');if(label)label.textContent=mode==='follow'?'Follow':mode==='overview'?'Overview':'Detail';if(frame)window.__MAZE_VIEW__=computePublicView(frame.snapshot,frame.camera,mode==='overview')}
 byId('camera-toggle')?.addEventListener('click',()=>setCamera(cameraMode==='follow'?'overview':cameraMode==='overview'?'detail':'follow'));
 byId('sound-toggle')?.addEventListener('click',async event=>{const button=event.currentTarget;if(button.disabled)return;button.disabled=true;try{const enable=settings.muted;await audio.setEnabled(enable);settings.muted=!enable;applySettings()}catch{settings.muted=true;elements.caption.textContent='Sound could not start. The adventure is still fully captioned.';applySettings()}finally{button.disabled=false}});
