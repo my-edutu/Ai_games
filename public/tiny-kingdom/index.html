@@ -4201,7 +4201,10 @@ function forgeSmoke(time){
  * remains in reach and below eye height during the genuine work timer. */
 // G121: the work table is placed in front of the actual joiner's planted
 // body; the tall frame is behind. All spatial distances below are worker-local.
-const WORKSITE_BUILDER_STAGE=Object.freeze({frameRear:-1.08,benchFront:.59,benchHeight:.69});
+// G127: open joinery composition. The growing frame belongs to the LEFT-rear
+// of the real builder, not centred across their hands/face in a street view.
+// The compact bench remains within reach of the same occupational IK pose.
+const WORKSITE_BUILDER_STAGE=Object.freeze({frameRear:-1.25,frameSide:-.98,benchFront:.56,benchSide:.13,benchHeight:.59});
 // G123: one physically coherent local frame for EVERY trade, not just the
 // carpenter. The origin is the real actor; local +Z is their working direction.
 // This layout does not create work, move agents or alter authoritative state.
@@ -4247,14 +4250,15 @@ function getBuilderStageAudit(){
   const actor=people.find(p=>p.name===w.citizen);
   const i=people.indexOf(actor),scale=.92+(i%5)*.045;
   const angle=builderStageAngle(actor),co=Math.cos(angle),si=Math.sin(angle);
-  const point=z=>[w.x+si*z,w.z+co*z];
-  const bench=point(WORKSITE_BUILDER_STAGE.benchFront);
-  const frame=point(WORKSITE_BUILDER_STAGE.frameRear);
+  const point=(localX,localZ)=>[w.x+co*localX+si*localZ,
+   w.z-si*localX+co*localZ];
+  const bench=point(WORKSITE_BUILDER_STAGE.benchSide,WORKSITE_BUILDER_STAGE.benchFront);
+  const frame=point(WORKSITE_BUILDER_STAGE.frameSide,WORKSITE_BUILDER_STAGE.frameRear);
   const lens=WORKSITE_BUILDER_STAGE.benchFront;
   const acting=occupationalPerformance(actor);
   const malletZ=.62*scale+Math.max(0,.88*scale-.44*scale)*acting.lean;
   const malletY=.88*scale-acting.crouch*Math.min(1,(.88-.44)/.65);
-  const contactGap=Math.hypot(.19*scale-.03,
+  const contactGap=Math.hypot(.19*scale-(WORKSITE_BUILDER_STAGE.benchSide+.03),
    malletZ-(lens-.06),
    malletY-(WORKSITE_BUILDER_STAGE.benchHeight+.195));
   const forward=[si,co],toBench=[bench[0]-w.x,bench[1]-w.z];
@@ -4264,6 +4268,8 @@ function getBuilderStageAudit(){
     Math.max(.001,Math.hypot(...toBench)),
    benchDistance:Math.hypot(...toBench),
    frameBehind:-(forward[0]*(frame[0]-w.x)+forward[1]*(frame[1]-w.z)),
+   frameSide:WORKSITE_BUILDER_STAGE.frameSide,
+   benchSide:WORKSITE_BUILDER_STAGE.benchSide,
    benchHeight:WORKSITE_BUILDER_STAGE.benchHeight,
    contactGap,progress:w.progress};
  });
@@ -4333,35 +4339,37 @@ function appendActiveWorksiteDressing(w,x,y,z,pulse){
  }else if(w.job==='builder'){
   // G120: frame behind the REAL worker. A previous waist/eye-line crossing
   // obscured the builder in exact-head G119 moving gameplay evidence.
-  const rise=cue.frameRise,oak=rgb(0xc19b62),rear=z+cue.staging.frameRear;
+  // G127: rear-left frame makes a growing structure visible AS CONTEXT,
+  // instead of layering posts directly over a real carpenter's face.
+  const rise=cue.frameRise,oak=rgb(0xc19b62),rear=z+cue.staging.frameRear,
+   frameX=x+cue.staging.frameSide;
   for(const side of [-1,1]){
-   const xx=x+side*.60;
+   const xx=frameX+side*.46;
    limbSegment([xx,y+.04,rear],[xx,y+rise,rear],.065,rgb(0x916742),6);
    limbSegment([xx,y+.05,rear-.24],[xx,y+rise*.73,rear],.036,rgb(0x785238),5);
    limbSegment([xx,y+.05,rear+.24],[xx,y+rise*.73,rear],.036,rgb(0x785238),5);
-   box(xx,y+.08,rear,.24,.12,.55,rgb(0x765336));
+   box(xx,y+.08,rear,.20,.12,.49,rgb(0x765336));
   }
-  box(x,y+rise,rear,1.18,.11,.22,oak);
+  box(frameX,y+rise,rear,.98,.11,.22,oak);
   const hoistY=y+rise+.12+cue.hoistHeight*.20;
-  box(x,hoistY,rear,.66,.10,.17,rgb(0xad8052));
-  limbSegment([x-.26,hoistY+.03,rear],
-   [x-.26,y+rise+.07,rear],.012,rgb(0xcfb589),5);
-  // Waist-height real joinery: visible hammer stroke, planks and tenon
-  // advancing only with the already-running authoritative shift timer.
-  const front=z+cue.staging.benchFront,benchY=y+cue.staging.benchHeight;
+  box(frameX,hoistY,rear,.62,.10,.17,rgb(0xad8052));
+  limbSegment([frameX-.25,hoistY+.03,rear],
+   [frameX-.25,y+rise+.07,rear],.012,rgb(0xcfb589),5);
+  // Lower, narrow forward bench follows the actual joint work; hand, mallet,
+  // tenon and chips are staged at the same world-facing workstation.
+  const front=z+cue.staging.benchFront,benchY=y+cue.staging.benchHeight,
+   benchX=x+cue.staging.benchSide;
   for(const side of [-1,1]){
-   const bx=x+side*.38;
-   limbSegment([bx,y+.02,front],[bx,benchY-.06,front],.065,rgb(0x77553a),5);
+   const bx=benchX+side*.30;
+   limbSegment([bx,y+.02,front],[bx,benchY-.06,front],.057,rgb(0x77553a),5);
   }
-  box(x,benchY,front,.96,.10,.44,rgb(0x946b43));
-  box(x+.03,benchY+.11,front-.06,.47+.25*cue.progress,.085,.18,rgb(0xc09a62));
-  box(x-.18,benchY+.16,front+.07,.075,.12,.19,rgb(0x65442e));
-  // Visible small wood chips at the LOWER hammer stroke. These are not
-  // inventory receipts; the actual builder's work() still owns production.
+  box(benchX,benchY,front,.75,.095,.43,rgb(0x946b43));
+  box(benchX+.02,benchY+.10,front-.06,.38+.24*cue.progress,.07,.16,rgb(0xc09a62));
+  box(benchX-.15,benchY+.15,front+.07,.070,.11,.17,rgb(0x65442e));
   if(cue.phase<.16)for(let i=0;i<2;i++){
-   const dx=i*.12-.04;
-   tri([x+dx,benchY+.205,front],[x+dx+.06,benchY+.23,front+.04],
-    [x+dx+.03,benchY+.18,front+.09],rgb(0xdcc296));
+   const dx=i*.10-.05;
+   tri([benchX+dx,benchY+.195,front],[benchX+dx+.05,benchY+.21,front+.04],
+    [benchX+dx+.02,benchY+.16,front+.09],rgb(0xdcc296));
   }
  }else if(w.job==='merchant'){
   // G123: the town ALREADY owns a canopy; a second meter-high awning
@@ -5386,14 +5394,16 @@ function planStreetWorkerEncounter(excludeName=null){
     const score=importance+visibility.forwardMetres*1.25-
      distanceToVisitor*.16-Math.abs(radius-5.1)*1.9-
      screen.projectedBystanders*16-screen.projectedPosts*6-
-     screen.frameCrowdBurden*22+
+     screen.projectedWorksitePosts*18-screen.frameCrowdBurden*22+
      (activeWork?15:2.5)*facingAlignment;
     const candidate={citizen,position:point,yaw:yawToCitizen,score,
       metres:radius,visibility,activeWork,cropBlockedSamples:crop.blockedSamples,
       fieldSamples:crop.fieldSamples,crowdIntrusions:crowd.crowdIntrusions,
       closestBystander:crowd.closestBystander,
       projectedBystanders:screen.projectedBystanders,
-      projectedPosts:screen.projectedPosts,frameCrowdBurden:screen.frameCrowdBurden,
+      projectedPosts:screen.projectedPosts,
+      projectedWorksitePosts:screen.projectedWorksitePosts,
+      frameCrowdBurden:screen.frameCrowdBurden,
       facingAlignment};
     const frontFacing=activeWork&&facingAlignment>.12;
     candidate.frontFacing=frontFacing;
@@ -5441,7 +5451,9 @@ function visitStreetWorker(){
   fieldSamples:plan.fieldSamples,crowdIntrusions:plan.crowdIntrusions,
   closestBystander:plan.closestBystander,
   projectedBystanders:plan.projectedBystanders,
-  projectedPosts:plan.projectedPosts,frameCrowdBurden:plan.frameCrowdBurden,
+  projectedPosts:plan.projectedPosts,
+  projectedWorksitePosts:plan.projectedWorksitePosts,
+  frameCrowdBurden:plan.frameCrowdBurden,
   facingAlignment:plan.facingAlignment,frontCandidateCount:plan.frontCandidateCount,
   frontPreferred:plan.frontPreferred};
 }
@@ -5660,7 +5672,22 @@ function projectedWorkdayOccluders(eye,target,subject){
  for(const [x,z] of [[-15,4],[-5,-7],[6,9],[2,6],[-14,6]]){
   if(projected(x,terrain(x,z)+.95,z,.16,.70))projectedPosts++;
  }
- return {projectedBystanders,projectedPosts,frameCrowdBurden:Math.round(frameCrowdBurden*100)/100};
+ // G127: account for the ACTUAL builder's rising frame in the close-up
+ // camera composition. A front-facing head is not a readable work scene if a
+ // construction post fills the space between the lens and the working arms.
+ let projectedWorksitePosts=0;
+ if(subject?.job==='builder'&&isWorkingAtSite(subject)){
+  const a=builderStageAngle(subject),co=Math.cos(a),si=Math.sin(a),
+   stage=WORKSITE_BUILDER_STAGE;
+  for(const side of [-1,1]){
+   const lx=stage.frameSide+side*.46,lz=stage.frameRear,
+    wx=subject.x+co*lx+si*lz,
+    wz=subject.z-si*lx+co*lz;
+   if(projected(wx,terrain(wx,wz)+.87,wz,.12,.83))projectedWorksitePosts++;
+  }
+ }
+ return {projectedBystanders,projectedPosts,projectedWorksitePosts,
+  frameCrowdBurden:Math.round(frameCrowdBurden*100)/100};
 }
 function cameraShotFraming(shot,roofs,citizen){
  const target=shot.target,eye=shot.eye;
@@ -5722,7 +5749,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw){
   const score=coarse+framing.blockedBodyRays*110+
    framing.blockedNeighbourhoodRays*12+framing.cameraProximityWarnings*42+
    framing.projectedBystanders*170+framing.projectedPosts*55+
-   framing.frameCrowdBurden*65;
+   framing.projectedWorksitePosts*100+framing.frameCrowdBurden*65;
   if(score<bestScore){best=shot;bestScore=score;bestFraming=framing;}
  }
  return {...best,...bestFraming,compositionScore:bestScore,
