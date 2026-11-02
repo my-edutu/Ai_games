@@ -307,7 +307,8 @@ test('Thornback opens physical paired shell halves only during a true disclosed 
       seam:warden.group.getObjectByName(`opened elytron ember seam ${side}`),
       fronds:warden.group.getObjectByName(`unfurled sea-glass wing fronds ${side}`),
       sail:warden.group.getObjectByName(`articulated tidal sail ${side}`),
-      dorsal:warden.group.getObjectByName(`fixed sculpted warden shell relief ${side}`)
+      dorsal:warden.group.getObjectByName(`fixed sculpted warden shell relief ${side}`),
+      tideblade:warden.group.getObjectByName(`fixed sculpted warden tideblade ${side}`)
     }));
     for (const entry of sides) {
       assert.ok(entry.wing && entry.lining && entry.seam && entry.fronds,
@@ -323,6 +324,21 @@ test('Thornback opens physical paired shell halves only during a true disclosed 
         'real ivory ribs remain contrasting three-dimensional geometry at mobile resolution');
       assert.ok(scutes.some(part=>part.material?.color?.getHexString()==='a17b5b'),
         'warm copper physical keel remains attached to the shell');
+      assert.equal(entry.tideblade?.parent,entry.wing,
+        'both dominant tideblade silhouettes are physically bolted to actual articulated shell halves');
+      const tideParts=entry.tideblade.children.filter(part=>part.isMesh&&part.geometry?.attributes?.position);
+      assert.ok(tideParts.length>=3,
+        'a real non-billboard ivory blade, copper inlay and rooted base must survive rig batching');
+      const pale=tideParts.find(part=>part.material?.color?.getHexString()==='e1c997');
+      const copper=tideParts.find(part=>part.material?.color?.getHexString()==='a17b5b');
+      assert.ok(pale&&copper&&pale.geometry.attributes.position.count>100,
+        'large contrast surfaces must be rendered geometry, not an icon or thin warning ribbon');
+      pale.geometry.computeBoundingBox();
+      const crownHeight=pale.geometry.boundingBox.max.y-pale.geometry.boundingBox.min.y;
+      assert.ok(crownHeight>=.65,
+        'the authored crest must materially exceed old subpixel dorsal scutes at mobile scale');
+      assert.equal(entry.tideblade.visible,true,
+        'the actor silhouette must not depend on private guardian knowledge or an alert state');
       assert.equal(entry.fronds.parent,entry.wing,'every botanical blade is physically hinged to the guardian, not a screen marker');
       assert.equal(entry.sail?.parent,entry.fronds,
         'a large original sail is physically joined to each existing shell hinge, never a floating marker');
