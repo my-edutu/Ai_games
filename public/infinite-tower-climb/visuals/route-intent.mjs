@@ -7,6 +7,63 @@ import { pointFor } from './coordinates.mjs';
 const MAX_MARKERS = 12;
 const MAX_OBSERVED_DECK_ECHOES = 6;
 const UP = Object.freeze([0, 1, 0]);
+
+// The physical source AI now chooses a clear portion of a currently observed
+// landing deck rather than its decorative midpoint. Show that real choice only
+// when the SOURCE intent explicitly declares a clear-lane or committed-boost
+// decision. Historical-v1 and unrelated intent still aim at the source deck
+// center; presentation cannot invent a route. Same finite current hazard/body
+// clearance contract as the tactical pilot, no future positions/phases.
+function witnessedLandingX(snapshot, deck) {
+  const center = deck.x + deck.width * .5;
+  const mode = snapshot?.intent?.mode;
+  const summary = snapshot?.intent?.summary;
+  const sourceAirLane = mode === 'air-control' &&
+    (summary === 'Steering for a clear landing lane' ||
+      summary === 'Boosting toward a distant safe landing');
+  const player = snapshot?.player;
+  if (!sourceAirLane || !Number.isFinite(player?.halfWidth) ||
+      !Number.isFinite(player?.x) || !Number.isFinite(player?.y) ||
+      !Array.isArray(snapshot?.hazards)) return { x: center, sourceAirLane: false };
+  const halfWidth = player.halfWidth;
+  const margin = Math.max(halfWidth + 4000,
+    Math.min(18000, Math.floor(deck.width / 8)));
+  const left = deck.x + margin, right = deck.x + deck.width - margin;
+  if (left >= right) return { x: center, sourceAirLane: false };
+  const top = deck.y + deck.height;
+  let lanes = [{ left, right }];
+  for (const hazard of snapshot.hazards) {
+    if (!hazard.active || ![hazard.x, hazard.y, hazard.width, hazard.height].every(Number.isFinite) ||
+        hazard.y >= top + 2 * (player.halfHeight || 0) ||
+        hazard.y + hazard.height <= top) continue;
+    const blockedLeft = hazard.x - halfWidth - 2500;
+    const blockedRight = hazard.x + hazard.width + halfWidth + 2500;
+    const next = [];
+    for (const lane of lanes) {
+      if (blockedRight <= lane.left || blockedLeft >= lane.right) {
+        next.push(lane); continue;
+      }
+      const l = Math.min(lane.right, blockedLeft);
+      const r = Math.max(lane.left, blockedRight);
+      if (l - lane.left >= 10000) next.push({ left: lane.left, right: l });
+      if (lane.right - r >= 10000) next.push({ left: r, right: lane.right });
+    }
+    lanes = next;
+    if (!lanes.length) break;
+  }
+  if (!lanes.length) return { x: center, sourceAirLane: false };
+  let best = lanes[0], bestX = Math.max(best.left, Math.min(best.right, player.x));
+  for (const lane of lanes.slice(1)) {
+    const x = Math.max(lane.left, Math.min(lane.right, player.x));
+    const distance = Math.abs(x - player.x);
+    const priorDistance = Math.abs(bestX - player.x);
+    if (distance < priorDistance ||
+        (distance === priorDistance && lane.right - lane.left > best.right - best.left)) {
+      best = lane; bestX = x;
+    }
+  }
+  return { x: bestX, sourceAirLane: true };
+}
 export function createTowerRouteIntent(THREE) {
   const geometry = new THREE.ConeGeometry(.28, .74, 4, 1);
   const material = new THREE.MeshBasicMaterial({
@@ -45,6 +102,7 @@ export function createTowerRouteIntent(THREE) {
   const observedDeckPositions = [];
   let observedDeckX = null, observedDeckY = null;
   let observedMovement = 0, observedDeckKind = null;
+  let observedLandingX = null, sourceClearLane = false;
   const forward = new THREE.Vector3();
   const up = new THREE.Vector3(...UP);
   let runToken = null, targetPlatformId = null, sourceTick = -1;
@@ -59,6 +117,8 @@ export function createTowerRouteIntent(THREE) {
     observedDeckY = null;
     observedMovement = 0;
     observedDeckKind = null;
+    observedLandingX = null;
+    sourceClearLane = false;
     observedDeckPositions.length = 0;
     deckEchoes.count = 0;
   }
@@ -79,9 +139,9 @@ export function createTowerRouteIntent(THREE) {
         .every(Number.isFinite) &&
       !snapshot.enemies?.some(enemy => enemy.active && enemy.telegraph);
     if (!valid) { clear(); return; }
-    const center = platform.x + platform.width * .5;
+    const landed = witnessedLandingX(snapshot, platform);
     const elevation = platform.y + platform.height;
-    const deltaX = center - player.x;
+    const deltaX = landed.x - player.x;
     if (Math.abs(deltaX) < 12000 && Math.abs(elevation - player.y) < 12000) {
       clear();
       return;
@@ -112,6 +172,8 @@ export function createTowerRouteIntent(THREE) {
     observedDeckX = platform.x;
     observedDeckY = platform.y;
     observedDeckKind = platform.kind;
+    observedLandingX = landed.x;
+    sourceClearLane = landed.sourceAirLane;
     reduced = stationary;
 
     // Map authoritative x/y onto the OUTSIDE of the cylinder. The rising
@@ -174,6 +236,8 @@ export function createTowerRouteIntent(THREE) {
       markers: group.visible ? markers.count : 0, maximumMarkers: MAX_MARKERS,
       observedMovingDeckEchoes: group.visible ? deckEchoes.count : 0,
       observedDeckDeltaX: group.visible ? observedMovement : 0,
+      observedLandingX: group.visible ? observedLandingX : null,
+      sourceClearLane: group.visible && sourceClearLane,
       echoedSourcePositionsOnly: true, movingDeckKind: observedDeckKind,
       opaqueTowerOccludes: material.depthTest,
       extraDraws: group.visible ? 1 + (deckEchoes.count ? 1 : 0) : 0,
