@@ -2,7 +2,7 @@ import * as THREE from './vendor/three.module.js';
 import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
-import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicGateOpeningCameraCue } from './map-view.mjs';
+import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicLandscapeGuardianHalfHeight, publicGateOpeningCameraCue } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -573,6 +573,15 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           desiredTarget.z+=balance.z;
           targetHeight = publicPortraitGuardianHalfHeight(
             aspect,targetHeight,closestThreat.strength,pose,closestThreat,desiredTarget,cameraTarget);
+          // The strict portrait outline gate is unchanged. Only actual
+          // wide-screen close public encounters earn a more legible physical
+          // actor-pair shot instead of little figures in excess sea. The new
+          // helper refuses to zoom when either outline would be clipped at
+          // either end of camera easing; no AI, collision or route changes.
+          if (aspect >= 1.1 && !settings.reducedMotion && !cameraGate)
+            targetHeight = publicLandscapeGuardianHalfHeight(
+              aspect,targetHeight,closestThreat.strength,pose,closestThreat,
+              desiredTarget,cameraTarget);
         }
       }
     }
