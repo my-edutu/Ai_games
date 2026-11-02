@@ -2193,20 +2193,20 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "Before new code: 2 Nov exact predecessor d8a9da6 authority + browser shards 1/3 and 3/3 PASS; shard 2/3 failed 1 of 23 genuine Chromium tests because zero capstones happened to be sightline-cleared while foundations were cut away. Successful real Chromium visual-review workflow 41387434319 has artifacts 13116820259 and 13116252438, not yet visually judged here. New ce437cc source includes a targeted sparse-capstone assertion correction and route/chapter tests; local standalone Node syntax checks and seeded 19x19 route-site contract succeeded, but exact-new-head full Node, Chromium, security, catalogue, hardware p95 and deterministic replay CI are NOT YET CONFIRMED. These are safety gates, never transformation wins.",
+      "safetyChecks": "Pushed implementation with lease-safe fast-forward and original baseline unchanged. New pure planner compiled/loaded in local isolated Node smoke on legal 19x19 chamber: 289 walkable cells fully covered by 64 multi-cell stone units, four route chapters, largest slab six cells. Local `node --check` on new module and browser/foundation tests passed. Dedicated exact-head Chromium, full catalogue, replay, security, desktop/mobile frame-time and audio capture are NOT YET CONFIRMED. CI/replay remain separate non-negotiable gates, not a transformation win.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED_NO_ORIGINAL_CAPTURE",
       "soundstageBrowser": "UNVERIFIED_FOR_NEW_WARDEN",
       "audioLoudnessAndClipping": "NOT_MEASURED",
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
-      "actualWebglFramingRegression": "One previous genuine 1440x832 scene from 41381475210 was earlier reported cluttered and miniature-like. Pre-change d8a9da6 visual review 41387434319 completed and artifacts exist, but independent visual inspection and matching scenes from ce437cc are still missing. The new route-aware architecture has NOT passed an observed real-gameplay quality comparison.",
-      "latestCandidateWorkflow": "Pre-change foundation https://github.com/my-edutu/Ai_games/actions/runs/41387434428 : authority PASS, browser 1 PASS, browser 3 PASS, browser 2 had one actual capstone expectation failure (22/23 PASS), predecessor visual review https://github.com/my-edutu/Ai_games/actions/runs/41387434319 PASS with genuine artifacts. Exact-new-head ce437cc GitHub CI and browser capture not yet inspected. Do not claim browser or catalogue PASS."
+      "actualWebglFramingRegression": "Personally inspected genuine pre-candidate 2 Nov 2026 1440x832 WebGL capture from run 41393489796, artifact 13118183723. Character models, square stone grid and vaults remain visibly prototype-like; its diagnostics show three visible party members but no active enemy in that observed frame. This pre-candidate is NOT a matched BEFORE/AFTER and cannot prove an active fight. The immutable baseline remains run 41302939553 and artifact 13081734898.",
+      "latestCandidateWorkflow": "New head 5e7fb58 code workflows: Dungeon Foundation run 41395397178, visual review 41395397166, catalogue run 41395397098. All were PENDING/IN_PROGRESS on 2 Nov at handoff, so exact-head completion and rendered AFTER are UNVERIFIED. The predecessor authentic review had a real capture but no independent quality majority."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Exact ce437cc rendered AFTER is still UNVERIFIED: no new coherent real-browser visual/motion comparison proves that the four physical Gothic chapters overcome miniature-like imported characters, confusing combat contact and clutter. Need inspect phone/desktop source WebGL for remaining blocky walls, fake-door illusion, occlusion, animation foot sliding and performance. Audio, sustained traversal→combat→Warden→floor→defeat/restart and blind three-critic LOOKS/FEELS/PLAYS verdicts remain NOT RUN.",
-    "currentWork": "Same open M1 vertical-slice overhaul, code ce437cc: real-seeded-map-only shortest legal expedition route now directs capped impassable wall architecture through four distinct encounter chapters. Four independently sculpted 3D vaulted archetypes replace the single repeated vault mesh: grounded cloister, high double-rib basilica, asymmetric fractured chapel, and boss-approach reliquary oculus. Three material instanced GPU batches per populated profile (maximum 12 instanced draws per floor), 72-site cap and unchanged camera-sightline cutaways; no new proprietary media, game RNG, collision, AI, damage, replay or save changes. Source also corrects a camera-specific Chromium assertion that wrongly required a selected cut-away capstone when the vaulted corridor legitimately has none.",
-    "candidateCommit": "ce437cc4cd533d91286e26ff5f0bf115f5e79cb2",
+    "biggestRemainingGap": "IN PROGRESS; not an accepted experiential transformation. The genuine predecessor 1440x832 Chromium WebGL frame still visibly resembles a grid-board dungeon with brightly stylized miniature characters, crowded hero/enemy silhouettes and squared masonry. The new contiguous route-floor candidate has not yet been personally inspected in a real AFTER Chromium image or motion/audio clip, and cannot prove a meaningful LEAP until matched pinned BEFORE/AFTER across traversal, legal active combat, Warden boss, floor transition and defeat/restart (desktop/mobile), measured sustained performance, and >=3 independent blind LOOKS/FEELS/PLAYS critics. Next inspect exact-head 5e7fb58 captures, reject disappearing puddles or warning decals/overlap/clipping, and devote the next integrated visual and gameplay build to believable character/contact/boss choreography.",
+    "currentWork": "Same open M1 vertical-slice candidate at 5e7fb58: actual legal spawn-to-Warden route is now covered by a deterministic multi-cell Gothic flagstone floor, with visually distinct pilgrim, weathered chapel and reliquary stone and physical 1-to-6-cell slabs rather than per-tile checkerboard blocks. True rubble and damp overlays sit above the new physical surface. Three shared instanced GPU material batches maximum; no added dynamic lights, sprites, copied artwork, authority RNG, movement, collision or save-format changes. Original four-chapter vaulted wall environment, skinned actors, Warden battle and autonomous AI remain integrated, not a separate tech demo.",
+    "candidateCommit": "5e7fb58c9441fabc91123d7675d5a8cc77bc6bc5",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -2698,6 +2698,30 @@
         "threeBlindCritics": "UNAVAILABLE — worker/browser tunnel returned NOT_FOUND; no fabricated preferences",
         "verdict": "IN_PROGRESS / NOT_TRANSFORMED",
         "next": "Examine exact-head authentic desktop/mobile Chromium recordings of real route traversal, active opponent attacks and original geometry; assess materials, open-vault silhouette, false doorway illusion, camera and performance, fix regressions. Then prioritize full-body character animation/contact and Warden shot pacing; capture single coherent real traversal→fight→Warden→floor→defeat/restart with audio, match fixed baseline and obtain 3 independent fresh blind critics on all three pillars. Keep draft unmerged."
+      },
+      {
+        "id": "M1-CONTIGUOUS-ROUTE-LED-STONEWORK-20261102",
+        "date": "2026-11-02",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "codeCommit": "5e7fb58c9441fabc91123d7675d5a8cc77bc6bc5",
+        "sourceHeadAtStart": "564744528f8cf21b9e612e1c5a299c9627850c9f",
+        "objective": "Overhaul the single dominant square-grid visual surface across actual traversal, skirmish and Warden approach without introducing fake walkable stone: one continuous route-directed physical Gothic floor with real varied stone slabs and companion moisture/debris layer.",
+        "implementation": [
+          "public/ai-dungeon/expedition-stonework-plan.js",
+          "public/ai-dungeon/expedition-stonework.js",
+          "public/ai-dungeon/app.js",
+          "public/ai-dungeon/floor-ruins.js",
+          "scripts/serve-dungeon-stream.cjs",
+          "tests/foundation/dungeon-expedition-stonework.test.cjs",
+          "tests/browser/dungeon-expedition-stonework.spec.cjs"
+        ],
+        "environment": "Deterministic public-grid shortest legal route to actual guardian exit; 1–6-cell sculpted slabs fully cover legal walkable floor. Three bounded instanced PBR batches with differentiated natural stone; original elevated rubble/puddles; no gameplay collision, new lights, third-party assets or dynamic frame work.",
+        "localEvidence": "node --check of 4 new source/test files passed; pure 19x19 full-chamber planner 289/289 legal tiles covered via 64 physical slabs, four route chapters, max six source cells per slab. Genuine preceding pre-candidate Chromium screenshot reviewed: square-tiled toy-like architecture persists. No matched candidate render yet.",
+        "ci": "At handoff exact 5e7fb58 Dungeon Foundation 41395397178, visual review 41395397166, global CI 41395397098 queued or in progress, no pass claim.",
+        "experienceVerdict": "IN_PROGRESS / NOT_TRANSFORMED",
+        "referenceParity": "UNVERIFIED",
+        "next": "Inspect real browser desktop/mobile new stone/character encounters for coherent stone geometry, actual floor/water/hazard contact and draw budget; fix artefacts; then integrate realistic skeletal contact and boss confrontation with sustained same-seed motion/audio evidence; three fresh blind critics required."
       }
     ]
   }
