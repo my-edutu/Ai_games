@@ -308,6 +308,75 @@ test('a real close public encounter frames both autonomous actors and saves date
     }
   }
 
+  // Explicitly inspect the ACTUAL default Follow camera. All earlier
+  // guardian shots above use ?camera=detail: they cannot validate any Follow
+  // camera work, no matter how many identical PNG hashes the CI archives.
+  // Reuse this SAME genuine tick-13 production pair and warm WebGL browser;
+  // switch via the real accessible control, never by injecting an actor.
+  const beforeFollowFrames=await page.evaluate(()=>window.__MAZE_3D__?.frames??0);
+  await page.locator('#camera-toggle').click(); // detail -> follow
+  await page.waitForFunction(before=>window.__MAZE_3D__?.cameraMode==='follow'
+    && window.__MAZE_3D__?.frames>before,beforeFollowFrames);
+  for(const [followWidth,followHeight,followName] of [
+    [390,844,'guardian-follow-390-portrait'],
+    [320,740,'guardian-follow-320-portrait'],
+    [844,390,'guardian-follow-844-landscape'],
+    [1280,900,'guardian-follow-1280-desktop'],
+  ]) {
+    const before=await page.evaluate(()=>window.__MAZE_3D__?.frames??0);
+    await page.setViewportSize({width:followWidth,height:followHeight});
+    await page.waitForFunction(({width,height,tick,token,before})=>{
+      const d=window.__MAZE_3D__;
+      return innerWidth===width && innerHeight===height
+        && d?.renderer==='webgl' && d?.cameraMode==='follow'
+        && d?.frames>before+1 && Math.abs(d.cameraAspect-width/height)<.01
+        && d.tick===tick && d.runToken===token;
+    },{width:followWidth,height:followHeight,tick:frame.snapshot.tick,
+      token:frame.snapshot.runToken,before});
+    const diagnostic=await page.evaluate(()=>{
+      const d=window.__MAZE_3D__;
+      const stage=document.getElementById('stage').getBoundingClientRect();
+      const canvas=document.getElementById('maze').getBoundingClientRect();
+      return {renderer:d.renderer,cameraMode:d.cameraMode,runToken:d.runToken,
+        tick:d.tick,disclosedThreats:d.disclosedThreats,
+        encounterAttention:d.encounterAttention,
+        wardensInFrame:d.wardensInFrame,wardensWithMargin:d.wardensWithMargin,
+        explorerInFrame:d.explorerInFrame,explorerProjection:d.explorerProjection,
+        cameraHalfHeight:d.cameraHalfHeight,cameraAspect:d.cameraAspect,
+        stage:{width:stage.width,height:stage.height},
+        canvas:{width:canvas.width,height:canvas.height},
+        controls:[...document.querySelectorAll('.masthead .control-button')]
+          .filter(el=>getComputedStyle(el).display!=='none')
+          .map(el=>{const r=el.getBoundingClientRect();
+            return {width:r.width,height:r.height,left:r.left,right:r.right};})
+      };
+    });
+    const imagePath=path.join(dir,followName+'.png');
+    await page.screenshot({path:imagePath,fullPage:true});
+    fs.writeFileSync(path.join(dir,followName+'.json'),JSON.stringify({
+      capturedAt:new Date().toISOString(),
+      source:'Genuine seeded public tick-13 guardian/Pip pair; Follow camera selected by the actual on-screen user control in the existing warm WebGL page',
+      seed:encounter.seed,tick:frame.snapshot.tick,
+      viewport:{width:followWidth,height:followHeight},
+      imageSha256:hash(imagePath),sourceSha256:nativeSourceHashes,
+      diagnostic,
+      caveat:'True Follow camera, not the earlier Detail mode screenshots; visual Nintendo parity and hardware GPU FPS still require separate review.',
+    },null,2));
+    expect(diagnostic.explorerInFrame,'Follow camera keeps genuine Pip visible').toBe(true);
+    expect(diagnostic.wardensWithMargin,'Follow camera keeps full Thornback physical silhouette in frame').toBeGreaterThanOrEqual(1);
+    expect(Math.abs(diagnostic.explorerProjection.x),'Pip retains a native Follow horizontal margin').toBeLessThan(.7);
+    expect(diagnostic.stage.width).toBeGreaterThan(followWidth-10);
+    expect(diagnostic.stage.height).toBeGreaterThan(followHeight-10);
+    expect(diagnostic.canvas.width).toBeGreaterThan(followWidth-10);
+    expect(diagnostic.canvas.height).toBeGreaterThan(followHeight-10);
+    for(const control of diagnostic.controls){
+      expect(control.width,'real Follow control width').toBeGreaterThanOrEqual(44);
+      expect(control.height,'real Follow control height').toBeGreaterThanOrEqual(44);
+      expect(control.left).toBeGreaterThanOrEqual(-1);
+      expect(control.right).toBeLessThanOrEqual(followWidth+1);
+    }
+  }
+
   // Preserve the original desktop objective/lock captures; never move actors.
   await page.setViewportSize({width:1280,height:900});
 
