@@ -215,6 +215,7 @@ function addAnatomicalKit(actor){
  actor.sculptedArmorProfile=planForgedArmor(actor.u.kind)?.name??null;
  actor.sculptedArmorVertices=Object.values(forms).reduce((sum,geometry)=>sum+(geometry.getAttribute('position')?.count||0),0);
  const joints={
+  head:actor.rigCranial?.bone,
   leftForearm:actor.rigForearms?.find(item=>item.side==='left')?.bone,
   rightForearm:actor.rigForearms?.find(item=>item.side==='right')?.bone,
   leftLowerLeg:actor.rigGaitBones?.find(item=>item.side==='left'&&item.part==='lower')?.bone,
