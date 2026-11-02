@@ -72,6 +72,31 @@ test('opt-in AI replanning audio follows real distinct selected decks and never 
     assert.equal(oscillators, 5, 'a missing platform is not an audible destination');
     audio.accept(frame(7, 'a', { runToken: 'expedition-8' }));
     assert.equal(oscillators, 5, 'a different run cannot reuse old choice history');
+    // The actual 3D carriage's soft metallic touchdown is not a fake AI
+    // destination cue: it requires the present source feet to be on a moving
+    // collider after a same-floor airborne -> standing transition.
+    const foot={ x:160000,y:148000,halfWidth:9000,halfHeight:18000,
+      vy:-1200,vx:0,health:4,score:0,attacking:false };
+    const liveDeck={id:'actual-mover',kind:'moving',x:140000,y:120000,width:100000,height:10000};
+    const descent=frame(8,'a',{runToken:'expedition-9',platforms:[liveDeck],
+      intent:{mode:'waiting'},player:{...foot,state:'airborne'}});
+    const input=JSON.stringify(descent);
+    audio.accept(descent);
+    assert.equal(JSON.stringify(descent),input,'contact cue consumes an immutable source snapshot');
+    assert.equal(oscillators,5,'airborne actor has not made contact');
+    audio.accept(frame(9,'a',{runToken:'expedition-9',platforms:[liveDeck],
+      intent:{mode:'waiting'},player:{...foot,state:'standing'}}));
+    assert.equal(oscillators,7,'actual moving-platform landing adds one quiet metal note to genuine touchdown');
+    audio.accept(frame(9,'a',{runToken:'expedition-9',platforms:[liveDeck],
+      intent:{mode:'waiting'},player:{...foot,state:'standing'}}));
+    assert.equal(oscillators,7,'duplicate standing observation creates no phantom impact');
+    audio.accept(frame(10,'a',{runToken:'expedition-9',platforms:[liveDeck],
+      intent:{mode:'waiting'},player:{...foot,state:'airborne'}}));
+    const beforeFixed=oscillators;
+    audio.accept(frame(11,'a',{runToken:'expedition-9',
+      platforms:[{...liveDeck,kind:'oneway'}],intent:{mode:'waiting'},
+      player:{...foot,state:'standing'}}));
+    assert.equal(oscillators,beforeFixed+1,'an ordinary landing retains its single physical touchdown, not metallic machinery');
     await audio.setEnabled(false);
     audio.accept(frame(8, 'b', { runToken: 'expedition-8' }));
     assert.equal(oscillators, 5, 'viewer mute remains authoritative');
