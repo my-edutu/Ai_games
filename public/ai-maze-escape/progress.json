@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-02T10:43:00.000Z",
+  "updatedAt": "2026-11-02T11:10:11.394Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass70b same-head original 20 WebGL screenshot PNG SHA-256s independently verified after rejecting an oversized floating boulder and repairing the offshore tidal spires. Genuine native 320/390/844/1280 game-first views preserve model framing and small HUD, but fixed Nintendo Captain Toad reference remains better. Pass71 adds public-authenticated physical key pickup glints with a CPU-stall-safe visual clock; exact new-source desktop/portrait image and full CI are pending, and no independent blind critic available. No merge or deployment."
+    "summary": "Pass72 adds source-authenticated physical four-leaf key-shrine opening with a persistent empty stone result beside Pass71 genuine key shards/Pip acting. Focused source/model build stage passed; new-source real WebGL image, SHA and separate monorepo CI are still being checked. Previously verified Pass70b full-resolution 20-PNG baseline is not a Nintendo win. Frozen Captain Toad benchmark remains ahead. No merge or deployment."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass72: source commit e8f695a introduces a genuinely persistent collected-key stone shrine and four modeled jade petals that open only for same-run previously disclosed inventory-confirmed pickup, over the 0.82s stall-safe cosmetic clock; preexisting collectible vanishes and empty carved recess remains. Actual Three tests exercise real hinges, reduced motion, run reset, no false inventory/authority and fixed material resources. Focused 41434264524 and monorepo 41434264333 started; exact current-source native 320/390/844/1280 WebGL images and independent comparison pending, Nintendo bar unmet.",
     "Pass69 live journal visibility: /maze/progress renders the first 30 change rows and 12 review/verification records; historical JSON had stored new findings at the end, hiding this Gauntlet's latest work. Latest-first journal ordering now exposes exact-source dated reviews and blockers immediately, with unchanged public screen privacy and no fake gallery screenshots.",
     "Pass69b: real 320 guardian screenshot revealed contradictory WARDEN NEARBY vs Find a passage/Explore goal and stale opened-gate caption. Current app.js now shows public immediate danger 'Avoid warden / Keep clear' without falsifying actual AI intent; newly disclosed guardian captions once on entry. Exact current-source real WebGL and strict native 320 regression CI 41418158177 pending; no current-HUD visual acceptance claimed.",
     "Pass69: genuine public-known clay and sea-glass wall districts receive two-sided sculpted physical masonry/stone relief in world.js; existing upper ivory court untouched; public cells only, existing 9 geometries/22 materials/2 textures and instanced construction, no secret path/game authority. Exact-world source workflow 41416987434 SUCCESS with 20/20 independently recomputed original dated full-res WebGL image hashes; localized 320 Follow 2.04% image pixels changed >12 RGB vs Pass68, not quality score; fixed Nintendo still wins.",
@@ -186,6 +187,7 @@
     "Pass71 source candidate 5e2bf7e + f32030a: an actual same-run disclosed/inventoried key collection now triggers eight prebuilt original 3D glass-release shards at the public former key cell. Separate deterministic/privacy rules tests and new authentic desktop/portrait Playwright event-PNG + physical-framing acceptance, no extra HUD prose, authority change or offscreen invented key. Await newest exact-source capture."
   ],
   "nextGaps": [
+    "Pass72 visual gate: retrieve original source-bound 41434264524 Playwright 1280x900 and 390x844 key pickup screenshot plus all 320/390/844/1280 actor/HUD/framing captures, recompute all dated PNG hashes and inspect actual hinged stone shrine + shards in native screen space against frozen Nintendo images. If the shrine or actor is hidden or unreadable, reject and repair the real geometry/camera rather than relaxing privacy or in-frame thresholds.",
     "Pass69b latest native source-bound HUD visual gate: inspect 41418158177 original 320/390/844/1280 real WebGL screenshots and dates/hashes, confirm WARDEN NEARBY aligns with Avoid warden / Keep clear, caption Thornback is nearby only for a real public encounter, no UI overflow/character crop and no fake AI action. New screenshots, not Pass69 world-only images, must prove this.",
     "Pass62 native real-Follow full silhouette crop has been corrected and accepted only for **physical framing** (strict actual 390/320 source screenshot, 14/14 hashes). Next biggest fixed-Nintendo gap is physically authored interactive gameplay storytelling: distinct living scene landmarks, actor/guardian/environment reactions, polished original character motion and clear visual cause/effect. Require independent source-matched image critique when workspace tunnel recovers; do not substitute more dashboard text, loosen cropping thresholds or declare Nintendo win.",
     "Major authored world/scene gap: replace repeating flat court and lagoon negative space with visually distinct original coherent playable locations, real material masses, discoverable goal staging and multi-beat physical reactions without inventing private passages, false traversable geometry or new abilities. Direct new native screenshot critic must judge each independently.",
@@ -196,6 +198,13 @@
     "Pass71: independently inspect the 1280x900 and 390x844 authentic source-logged key release PNGs, confirm true after-capture glint geometry, privacy and hero/full stage framing, reject tiny or obscured action; then enlarge distinctive authentic environment/actor storytelling while avoiding HUD text. CPU-stall cosmetic clock is not GPU performance."
   ],
   "reviews": [
+    {
+      "title": "Pass72 witnessed key shrine: four authentic physical petals and permanent world state",
+      "reviewer": "Lead source-level critic only; fresh-context independent rendered-image reviewer and Ultracode unavailable through disconnected shared workspace",
+      "verdict": "Source/model candidate with focused build stage passed; current native PNG and independent critic pending; fixed Nintendo reference wins",
+      "date": "2026-11-02T11:10:11.394Z",
+      "summary": "Source e8f695a retains physically sculpted empty key shrine after a real previously known/inventoried pickup. Four articulated stone petals hinge over bounded cosmetic clock. Real Three assertions cover actual meshes/animation/privacy/reduced-motion/reset/resource budget. Source-bound visual 41434264524 and whole CI 41434264333 require completion; no visual victory inferred from test counts. No merge/deploy."
+    },
     {
       "title": "Pass69 genuine public 3D district sculpture and real guardian-HUD mismatch",
       "reviewer": "Direct unblinded lead inspected original source-bound full-size 320/390/844/1280 WebGL PNGs and compared with prior Pass68; independent detached critic/Ultracode unavailable through disconnected workspace",
@@ -686,6 +695,13 @@
     }
   ],
   "verification": [
+    {
+      "name": "Pass72 source-authenticated 3D key-shrine model and native screenshot gate",
+      "status": "Instantiated real-Three source/model build stage succeeded; focused 41434264524 and whole CI 41434264333 in progress; original new PNGs not independently inspected; Nintendo NOT PASSED",
+      "detail": "Pure publicKeyCollectionMoment before/after gates the 4 actual hinging jade petals; empty shrine persists, no second key. Witness-only gesture, single known cell, stall-safe 0.82s cosmetic clock, reduced-motion immediate settle, no authority/resources/HUD changes. Exact-source browser/WebGL screenshot and independent native render critic must decide. Shared workspace tunnel disconnected.",
+      "sourceCommit": "e8f695a8334ab065badd3ab6da4d2b444e9881a6",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41434264524"
+    },
     {
       "name": "Pass69 public sculpted facade 20-source-bound original WebGL image proof + urgent-HUD source candidate",
       "status": "Authentic world-only focused 41416987434 SUCCESS; independent SHA256 20/20; true native physical guardian + Pip fully in frame. Latest HUD focused 41418158177 pending and full CI 41418158180 separate. Fixed Nintendo benchmark NOT PASSED.",
