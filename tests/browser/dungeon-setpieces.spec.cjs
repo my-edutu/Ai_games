@@ -30,15 +30,19 @@ test('mobile biome artwork loads without losing the hero or overflowing controls
  await page.screenshot({path:'artifacts/dungeon-room18-mobile.png',fullPage:true});
 });
 
-test('round 19 wall masonry has different physical crown heights in a genuine live WebGL scene',async({page,request})=>{
+test('route-led low masonry and tall Gothic landmarks free real character sightlines in live WebGL',async({page,request})=>{
  expect((await request.get('/dungeon/wall-profile-plan.js')).status()).toBe(200);
  const state=sample();await page.route('**/dungeon/state',route=>route.fulfill({json:state}));
  const errors=[];page.on('pageerror',error=>errors.push(error.message));await page.goto('/dungeon');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wallProfiles?.exposedWalls??0),{timeout:30000}).toBeGreaterThan(20);
  const diagnostic=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
  expect(diagnostic.wallProfiles.distinctHeights).toBeGreaterThanOrEqual(3);
- expect(diagnostic.wallProfiles.minHeight).toBeGreaterThanOrEqual(2.5);
- expect(diagnostic.wallProfiles.maxHeight).toBeLessThanOrEqual(3.02);
+ // These are the REAL GPU wall-mass heights, not the older pure 2.5m tower
+ // recipes. The source map stays impassable; actual actors must be in view.
+ expect(diagnostic.wallProfiles.minHeight).toBeGreaterThanOrEqual(1.16);
+ expect(diagnostic.wallProfiles.minHeight).toBeLessThanOrEqual(1.6);
+ expect(diagnostic.wallProfiles.maxHeight).toBeGreaterThanOrEqual(1.76);
+ expect(diagnostic.wallProfiles.maxHeight).toBeLessThanOrEqual(2.10);
  expect(diagnostic.composition.visibleHeroes).toBeGreaterThan(0);
  expect(diagnostic.visibility.unoccludedHeroes).toBeGreaterThan(0);
  expect(errors).toEqual([]);
