@@ -4,7 +4,7 @@ export function createTowerAudio() {
   let enabled = false, token = '', last = null, lastFloor = null, lastIntent = '', lastTargetPlatformId = null, lastLifecycle = 'running', stride = 0, noiseIndex = 0;
   let disposed = false, lastAmbient = 0, enableRequest = 0, enablePending = false;
   const voices = new Set(), heard = new Set(), pads = [];
-  let guardianWindups = new Map(), guardianStates = new Map();
+  let guardianWindups = new Map(), guardianStates = new Map(), hazardStates = new Map();
   async function setEnabled(value) {
     const operation = ++enableRequest;
     if (disposed) return false;
@@ -95,7 +95,7 @@ export function createTowerAudio() {
     const snapshot = frame.snapshot;
     if (snapshot.runToken !== token) {
       const verifiedRestart = !!token && ['result', 'intermission'].includes(lastLifecycle);
-      heard.clear(); last = null; lastFloor = null; lastIntent = ''; lastTargetPlatformId = null; lastLifecycle = 'running'; stride = 0; guardianWindups.clear(); guardianStates.clear(); token = snapshot.runToken;
+      heard.clear(); last = null; lastFloor = null; lastIntent = ''; lastTargetPlatformId = null; lastLifecycle = 'running'; stride = 0; guardianWindups.clear(); guardianStates.clear(); hazardStates.clear(); token = snapshot.runToken;
       if (verifiedRestart) tone(205, 365, .21, 'sine', .052);
     }
     for (const voice of frame.audio?.voices || []) if (!heard.has(voice.id)) {
@@ -133,7 +133,7 @@ export function createTowerAudio() {
       Number.isFinite(lastFloor) && snapshot.floor === lastFloor + 1 &&
       snapshot.lifecycle === 'running' &&
       [...guardianStates.values()].some(value => value.active === true);
-    if (!sameFloor) { guardianWindups.clear(); guardianStates.clear(); }
+    if (!sameFloor) { guardianWindups.clear(); guardianStates.clear(); hazardStates.clear(); }
     // Follow the actual guardian's fixed-step telegraph as the visible maul
     // winds up and its source-projected warning lane narrows. At most one
     // low-level preparation and one final cue per real windup; missing optional
@@ -183,6 +183,28 @@ export function createTowerAudio() {
       tone(440,660,.44,'sine',.045);
     }
     guardianStates=observedGuardians;
+    // A warning requires a witnessed inactive->active hazard transition on
+    // this same floor and a nearby living climber. Never infer threat from a
+    // first observation, floor switch, stale route or future hazard schedule.
+    const observedHazards=new Map();
+    let nearbyHazardRaised=false;
+    if(snapshot.lifecycle==='running')for(const hazard of snapshot.hazards||[]){
+      if(typeof hazard.id!=='string'||!hazard.id)continue;
+      const active=hazard.active===true;
+      const wasActive=sameFloor?hazardStates.get(hazard.id):undefined;
+      if(active && wasActive===false && !nearbyHazardRaised
+        && [hazard.x,hazard.y,hazard.width,actor.x,actor.y].every(Number.isFinite)
+        && Math.abs(hazard.x+hazard.width*.5-actor.x)
+          <=Math.max(48000,hazard.width*1.8)
+        && Math.abs(hazard.y-actor.y)<=80000
+        && actor.health>0)nearbyHazardRaised=true;
+      observedHazards.set(hazard.id,active);
+    }
+    hazardStates=observedHazards;
+    if(nearbyHazardRaised){
+      texture(720,.13,.045);
+      tone(470,190,.18,'triangle',.058);
+    }
     const intent = snapshot.intent?.mode || '';
     // Restrained opt-in cue on real defensive transition, deduped by intent.
     // The matching model pose remains visible when muted.
@@ -258,7 +280,7 @@ export function createTowerAudio() {
     if (disposed) return;
     disposed = true; enabled = false; enablePending = false; enableRequest++;
     for (const voice of voices) { try { voice.stop(); voice.disconnect(); } catch {} }
-    voices.clear(); heard.clear(); guardianWindups.clear(); guardianStates.clear(); pads.length = 0; last = null; lastFloor = null; lastIntent = ''; lastTargetPlatformId = null; lastLifecycle = 'running'; stride = 0;
+    voices.clear(); heard.clear(); guardianWindups.clear(); guardianStates.clear(); hazardStates.clear(); pads.length = 0; last = null; lastFloor = null; lastIntent = ''; lastTargetPlatformId = null; lastLifecycle = 'running'; stride = 0;
     if (context) context.close().catch(() => {});
   }
   return { setEnabled, accept, dispose, diagnostics: () => ({ soundEnabled: enabled, soundPending: enablePending, voices: voices.size, context: context?.state || 'not-started' }) };

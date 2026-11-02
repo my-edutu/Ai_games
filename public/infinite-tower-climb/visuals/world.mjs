@@ -307,10 +307,14 @@ export function createTowerWorld(){
     for(const e of hazards.values())boundaries.add(e.root);
     for(const r of rotors){boundaries.add(r.o);batchRigid(r.o);}
     for(const f of floaters)boundaries.add(f.o);
-    for(const p of platforms.values())batchRigid(p.root);
+    for(const p of platforms.values()){
+      // Keep the rotating source-observed crank apart from static deck merging.
+      if(p.traveler)batchRigid(p.traveler);
+      batchRigid(p.root,new Set(p.traveler?[p.traveler]:[]));
+    }
     for(const e of hazards.values()){
       batchRigid(e.live,new Set(e.spin?[e.spin]:[]));
-      batchRigid(e.root,new Set([e.live,e.indicator]));
+      batchRigid(e.root,new Set([e.live,e.indicator,e.pressure]));
     }
     batchRigid(floorGroup,boundaries);
     // Original unique source buffers are no longer needed after rigid merging.
@@ -962,7 +966,24 @@ export function createTowerWorld(){
       capMaterials=[...owned.values()];
     }
     root.traverse(o=>{if(o.isMesh&&o.material===bodyMaterial)o.userData.structural=true;});
-    platforms.set(p.id,{root,angle,width:p.width,height:p.height,capMaterials,guardianGate});return root;
+    // Give a genuinely moving autonomous landing a mechanical, world-space
+    // cue. Position belongs to the source platform; the crank never drives it.
+    let traveler=null;
+    if(p.kind==='moving'){
+      traveler=new THREE.Group();traveler.name='SourceObservedMovingDeckCrank';
+      traveler.position.set(0,h-1.4,27.46);
+      const rim=mesh(traveler,geometry('observed-moving-crank-rim',
+        ()=>new THREE.TorusGeometry(.72,.13,6,20)),materials.mint);
+      rim.castShadow=false;rim.receiveShadow=false;
+      for(let spoke=0;spoke<2;spoke++){
+        const arm=block(traveler,materials.copper,[0,0,.07],
+          [1.22,.13,.16],[0,0,spoke*Math.PI/2]);
+        arm.castShadow=false;arm.receiveShadow=false;
+      }
+      root.add(traveler);
+    }
+    platforms.set(p.id,{root,angle,width:p.width,height:p.height,
+      capMaterials,guardianGate,traveler,sourceX:null,sourceTick:null});return root;
   }
   function buildHazard(h,width){
     const root=new THREE.Group();root.name=`hazard:${h.id}`;floorGroup.add(root);
@@ -997,7 +1018,19 @@ export function createTowerWorld(){
       for(let i=0;i<4;i++){const a=i/4*TAU;block(root,materials.edge,[Math.cos(a)*w*.37,-.01,Math.sin(a)],[.35,.3,.35],[0,a,.4]);}
     }
     conformDanger(live,w,height,spin);
-    hazards.set(h.id,{root,live,indicator,spin,kind:h.kind,active:false,height});
+    // A near real hazard must read as an active machine, not just a colored
+    // bar. These eight narrow exterior pressure fins share one instanced
+    // draw and are deliberately NOT additional collider geometry.
+    const pressure=new THREE.InstancedMesh(cone(),materials.warning,8);
+    pressure.name='SourceObservedHazardPressureFins';
+    pressure.count=0;pressure.visible=false;
+    pressure.castShadow=false;pressure.receiveShadow=false;
+    pressure.frustumCulled=false;
+    pressure.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    root.add(pressure);
+    hazards.set(h.id,{root,live,indicator,spin,pressure,
+      pressurePose:new THREE.Object3D(),span:w,
+      kind:h.kind,active:false,height});
   }
   function clearFloor(){
     if(floorGroup){group.remove(floorGroup);floorGroup.traverse(o=>{if(o.isInstancedMesh)o.dispose();});}
@@ -1038,7 +1071,9 @@ export function createTowerWorld(){
     // motes, glow strips and remote buildings keep their geometry and receive
     // lighting without multiplying shadow-map draws.
     floorGroup.traverse(o=>{if(o.isMesh){o.castShadow=!o.userData.ambientDetail&&(!!o.userData.structural||o.material===materials.stone||o.material===materials.dark);if(o.material===materials.distant)o.receiveShadow=false;}});
-    for(const h of hazards.values())h.root.traverse(o=>{if(o.isMesh)o.castShadow=true;});
+    for(const h of hazards.values())h.root.traverse(o=>{
+      if(o.isMesh && o!==h.pressure)o.castShadow=true;
+    });
     finishBatches();
     key=`${snapshot.runToken}:${snapshot.floor}:${snapshot.theme}:${quality}`;
   }
@@ -1048,6 +1083,26 @@ export function createTowerWorld(){
     if(key!==`${snapshot.runToken}:${snapshot.floor}:${snapshot.theme}:${requestedQuality}`)rebuild(snapshot,requestedQuality);
     lastSnapshot=snapshot;
     for(const p of snapshot.platforms||[]){const entry=platforms.get(p.id);if(!entry)continue;entry.root.rotation.y=angleFor(p.x+p.width*.5,snapshot.worldWidth);entry.root.position.y=(p.y-snapshot.chunkBaseY)/SCALE;entry.root.userData.authority={x:p.x,y:p.y,width:p.width,height:p.height};
+      if(entry.traveler){
+        // Only consecutive authoritative source observations can turn the
+        // wheel. No wall clock, projected position or simulated velocity.
+        if(Number.isSafeInteger(snapshot.tick) && Number.isSafeInteger(entry.sourceTick)
+          && snapshot.tick<entry.sourceTick){
+          entry.traveler.rotation.z=0;entry.sourceX=null;entry.sourceTick=null;
+        }
+        if(!options.stale && !options.reducedMotion &&
+          Number.isSafeInteger(snapshot.tick) && Number.isSafeInteger(entry.sourceTick)
+          && snapshot.tick>entry.sourceTick && snapshot.tick-entry.sourceTick<=8
+          && Number.isFinite(entry.sourceX) && Number.isFinite(p.x)){
+          const turn=(p.x-entry.sourceX)/SCALE/.72;
+          if(Number.isFinite(turn) && Math.abs(turn)<=4)
+            entry.traveler.rotation.z+=turn;
+        }
+        if(!options.stale && Number.isSafeInteger(snapshot.tick) && snapshot.tick>=0
+          && (entry.sourceTick===null || snapshot.tick>entry.sourceTick)){
+          entry.sourceTick=snapshot.tick;entry.sourceX=p.x;
+        }
+      }
       if(entry.guardianGate){
         // A cap can move or appear at a different height in a replay. Anchor
         // its independent decorative doorway to the exact live cap transform.
@@ -1112,7 +1167,33 @@ export function createTowerWorld(){
         }
       }
     }
-    for(const h of snapshot.hazards||[]){const e=hazards.get(h.id);if(!e)continue;const p=pointFor(h.x+h.width*.5,h.y,snapshot.chunkBaseY,snapshot.worldWidth,25);e.root.position.set(p.x,p.y,p.z);e.root.rotation.y=p.angle;e.live.visible=!!h.active;e.active=!!h.active;e.indicator.material=h.active?materials.warning:materials.mint;if(e.spin&&!options.reducedMotion)e.spin.rotation.z=time*.35;}
+    for(const h of snapshot.hazards||[]){
+      const e=hazards.get(h.id);if(!e)continue;
+      const p=pointFor(h.x+h.width*.5,h.y,snapshot.chunkBaseY,snapshot.worldWidth,25);
+      e.root.position.set(p.x,p.y,p.z);e.root.rotation.y=p.angle;
+      e.live.visible=!!h.active;e.active=!!h.active;
+      e.indicator.material=h.active?materials.warning:materials.mint;
+      if(e.spin&&!options.reducedMotion&&!options.stale)e.spin.rotation.z=time*.35;
+      const active=!!h.active && !options.stale &&
+        snapshot.lifecycle!=='result' && snapshot.lifecycle!=='intermission';
+      e.pressure.visible=active;e.pressure.count=active?8:0;
+      if(active){
+        // Fixed-step source ticks animate a bounded graphic response; the
+        // reduced-motion silhouette stays informative without pulsing.
+        const height=Math.max(.55,Math.min(3,h.height/SCALE));
+        const tick=Number.isSafeInteger(snapshot.tick)?snapshot.tick:0;
+        for(let i=0;i<8;i++){
+          const phase=options.reducedMotion?1:1+.09*Math.sin(tick*.26+i*.7);
+          e.pressurePose.position.set(-e.span*.43+(i+.5)*e.span*.86/8,
+            height*.49,1.53);
+          e.pressurePose.rotation.set(0,0,i%2===0?.14:-.14);
+          e.pressurePose.scale.set(Math.min(.24,e.span/35),height*.77*phase,.22);
+          e.pressurePose.updateMatrix();
+          e.pressure.setMatrixAt(i,e.pressurePose.matrix);
+        }
+        e.pressure.instanceMatrix.needsUpdate=true;
+      }
+    }
     if(!options.reducedMotion){for(const r of rotors)r.o.rotation[r.axis||'z']+=Math.min(dt,.05)*r.speed;for(const f of floaters)f.o.position.y=f.y+Math.sin(time*f.speed+f.phase)*.23;}
     if(particles){particles.visible=quality!=='low';if(!options.reducedMotion&&quality!=='low'){
       const items=particles.userData.items;for(let i=0;i<items.length;i++){const s=items[i];dummy.position.set(s.p[0]+Math.sin(time*.13+i)*.2,s.p[1]+Math.sin(time*.19+i*.5)*.7,s.p[2]);dummy.rotation.set(0,0,0);dummy.scale.set(...s.s);dummy.updateMatrix();particles.setMatrixAt(i,dummy.matrix);}particles.instanceMatrix.needsUpdate=true;
@@ -1145,7 +1226,7 @@ export function createTowerWorld(){
     }
     occludedGuardianCaps=faded;
   }
-  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,ambientParticles:particles?.visible?48:0,floor:lastSnapshot?.floor??null,theme,quality,disposed,guardianGates:[...platforms.entries()].filter(([,p])=>p.guardianGate).map(([id,p])=>({id,unlocked:p.guardianGate.unlocked,opening:p.guardianGate.progress,conduitReach:p.guardianGate.conduit.scale.z,anchorX:p.guardianGate.anchorX})),occludedGuardianCaps,ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
+  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,activeHazardPressureFins:[...hazards.values()].reduce((n,h)=>n+(h.pressure.visible?h.pressure.count:0),0),observedMovingDeckCranks:[...platforms.values()].filter(p=>p.traveler).length,ambientParticles:particles?.visible?48:0,floor:lastSnapshot?.floor??null,theme,quality,disposed,guardianGates:[...platforms.entries()].filter(([,p])=>p.guardianGate).map(([id,p])=>({id,unlocked:p.guardianGate.unlocked,opening:p.guardianGate.progress,conduitReach:p.guardianGate.conduit.scale.z,anchorX:p.guardianGate.anchorX})),occludedGuardianCaps,ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;clearFloor();for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
   return{group,update,revealGuardianSightlines,dispose,diagnostics};
 }
