@@ -2193,7 +2193,7 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "Exact-head authority, deterministic replay, browser, catalogue, mobile, performance and security checks for candidate f1a72c861eb688e025038142d10dd3f3fcaf73d6 were QUEUED/IN PROGRESS at checkpoint; no pass claimed. Prior 4c7ef99 had failed browser shard and immersive test because dungeon-ui-round17 did not reach defeat/intermission within 2500 ticks. Shared CI also reported Tiny Kingdom failures. Candidate survival pacing remains UNVERIFIED.",
+      "safetyChecks": "Verified for gameplay implementation 760b7ad4: GitHub Action 41426292170 authority SUCCESS, 194/194 Dungeon Foundation tests, 19/19 presentation tests, 24 named seeds × 900 ticks with 0 deterministic replay mismatches, highest floor 14, 226 floor advances and 15 natural restarts. Exact-head desktop/mobile Chromium shards, visual review, shared catalogue CI, GPU performance and accessibility still running/unverified at recording. Earlier first feature head f1a72c failed compilation; fixed in 760b7ad4. These are safety outcomes NOT evidence that looks/feels/plays transformed.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED — original WebAudio + real canvas recording attempted by new browser fixture, not yet captured or personally inspected.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2780,7 +2780,7 @@
         "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
         "sourceHeadAtStart": "4c7ef99a36cda2da4f657d6e34e13f5926c03eea",
         "codeCommit": "f1a72c861eb688e025038142d10dd3f3fcaf73d6",
-        "status": "IMPLEMENTED_UNVERIFIED",
+        "status": "AUTHORITY_VERIFIED_EXPERIENCE_UNVERIFIED",
         "objective": "Replace instant untelegraphed cultist bolts with an interruptible true spatial duel, autonomous dodge/brace, honest damage, real 3D floor warning, sound/captions and rising depth pressure.",
         "implementation": "Cultist commits a saved next-turn legal impact cell targeting a clear-lane support hero; party can sidestep or brace, and a real hit cancels channel before damage. One GPU-instanced original ground ring batch marks the actual target cell, and original opt-in audio/alerts announce real events. Added authority and desktop/mobile browser contracts. No copyrighted art, RNG stream or non-authoritative hit.",
         "files": [
@@ -2790,10 +2790,11 @@
           "tests/foundation/dungeon-core.test.cjs",
           "tests/browser/dungeon-interface.spec.cjs"
         ],
-        "evidence": "Exact-head CI and real WebGL tests queued/in progress; no inspected new clips, audible recording, independent critic, benchmark A/B or acceptance evidence.",
+        "evidence": "Code 760b7ad4 authority PASS: 194/194 Dungeon Foundation, 19/19 presentation, 24 seeds × 900 ticks, 0 deterministic divergences, 226 floor advances, 15 genuine restarts, highest floor 14. From GitHub Action 41426292170 authority. Chromium desktop/mobile shards, full catalogue, original audible clip, sustained GPU frames and blind majority unresolved. Compiler type regression in initial f1a72c fixed at 760b7ad4; earlier failed workflow not called green.",
         "experienceVerdict": "IN_PROGRESS / NOT_TRANSFORMED",
         "knownBlocker": "Prior browser test at 4c7ef99 failed because fixed seed did not reach defeat/intermission by 2500 ticks; natural campaign mortality remains a substantive PLAY concern.",
-        "next": "Inspect genuine real-world WebGL hex markers desktop/mobile, tune AI danger and natural end-state, measure replay/performance; continue full body/arena transformation; capture continuous matched expedition with audio and obtain >=3 independent blind critics."
+        "next": "Inspect genuine real-world WebGL hex markers desktop/mobile, tune AI danger and natural end-state, measure replay/performance; continue full body/arena transformation; capture continuous matched expedition with audio and obtain >=3 independent blind critics.",
+        "safetyWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41426292170"
       }
     ]
   }
