@@ -648,7 +648,7 @@ test('physical key shrine origin is exported to the actual browser scene and bou
     'key and spent pedestal remain inside the discovered playable tile');
   const source = fs.readFileSync(path.resolve(__dirname,
     '../../public/ai-maze-escape/scene.js'), 'utf8');
-  assert.match(source, /KEY_SHRINE_OFFSET.*from '\\.\/world\\.js'/,
+  assert.ok(source.includes("KEY_SHRINE_OFFSET } from './world.js'"),
     'actual production renderer must import the concrete world export, not a stale constant');
 });
 
