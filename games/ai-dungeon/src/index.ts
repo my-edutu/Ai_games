@@ -237,6 +237,67 @@ export function planTacticalDisengage(
  return options[0]?.p??null;
 }
 
+
+/** The Vanguard spends one genuine turn to cover an adjacent ally who cannot
+ * sidestep a saved imminent hit. Never force the outcome or alter grid/replay.
+ * No new save fields, seeds, timers, shields or hidden immunity.
+ */
+export function planOathguardIntercept(
+ s:Pick<DungeonState,'map'|'units'|'traps'|'tick'>,guardian:Unit
+):{allyId:string;threat:string}|null{
+ if(!s||!Array.isArray(s.units)||!Array.isArray(s.map)||!Array.isArray(s.traps)||
+  !Number.isSafeInteger(s.tick)||guardian?.kind!=='vanguard'||guardian.faction!=='party'||
+  guardian.hp<=Math.ceil(guardian.maxHp*.27))return null;
+ const marked=new Set<number>(),origins=new Map<number,string>();
+ for(const enemy of s.units){
+  if(enemy.hp<=0||enemy.faction!=='enemy')continue;
+  const mark=enemy.kind==='cultist'&&enemy.channelUntilTick===s.tick?
+   {x:enemy.channelX,z:enemy.channelZ,threat:'SHADOW HEX'}:
+   enemy.kind==='revenant'&&enemy.breachUntilTick===s.tick?
+   {x:enemy.breachX,z:enemy.breachZ,threat:'REVENANT BREACH'}:null;
+  if(mark&&Number.isInteger(mark.x)&&Number.isInteger(mark.z)&&walkable(s.map,mark.x!,mark.z!)){
+   const k=key(mark.x!,mark.z!);marked.add(k);origins.set(k,mark.threat);
+  }
+ }
+ const boss=s.units.find(u=>u.kind==='warden'&&u.hp>0);
+ const strike=boss&&dist(guardian,boss)<=5?planWardenStrike(s,boss):null;
+ if(strike?.attackTick===s.tick)for(const tile of strike.cells){
+  const k=key(tile.x,tile.z);marked.add(k);origins.set(k,'WARDEN '+strike.shape.replaceAll('_',' '));
+ }
+ if(!marked.size||marked.has(key(guardian.x,guardian.z)))return null;
+ const occupied=new Set(s.units.filter(u=>u.hp>0).map(u=>key(u.x,u.z)));
+ const hazardous=new Set(s.traps.filter(t=>t.active&&!t.disarmed).map(t=>key(t.x,t.z)));
+ const allies=s.units.filter(u=>u.faction==='party'&&u.id!==guardian.id&&u.hp>0&&
+  dist(u,guardian)===1&&marked.has(key(u.x,u.z)))
+  .sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp||a.id.localeCompare(b.id));
+ for(const ally of allies){
+  const escape=DIRS.some(([dx,dz])=>{
+   const x=ally.x+dx,z=ally.z+dz,k=key(x,z);
+   return walkable(s.map,x,z)&&!marked.has(k)&&!hazardous.has(k)&&!occupied.has(k);
+  });
+  if(!escape)return {allyId:ally.id,threat:origins.get(key(ally.x,ally.z))||'LOCKED STRIKE'};
+ }
+ return null;
+}
+/** The real Vanguard absorbs some *locked* strike HP loss at a cost. The ally
+ * still takes damage. Ordinary melee cannot silently trigger this protection.
+ */
+function applyOathguardIntercept(s:DungeonState,victim:Unit,dealt:number):number{
+ if(!Number.isSafeInteger(dealt)||dealt<=1||victim.faction!=='party')return dealt;
+ const guardian=s.units.find(u=>u.kind==='vanguard'&&u.faction==='party'&&
+  u.id!==victim.id&&u.hp>0&&u.guardTick===s.tick&&
+  u.targetId===victim.id&&dist(u,victim)===1);
+ if(!guardian)return dealt;
+ const diverted=Math.floor(dealt*.60),cost=Math.max(1,Math.ceil(diverted*.86));
+ if(diverted<=0)return dealt;
+ guardian.hp=Math.max(0,guardian.hp-cost);
+ if(guardian.hp===0)guardian.action='hurt';
+ s.intent='Ashen Vanguard shielding '+victim.kind+' from a locked blow';
+ push(s,'cover','Ashen Vanguard intercepted '+diverted+' damage for '+victim.kind+
+  ' · '+cost+' HP paid');
+ return dealt-diverted;
+}
+
 function createFloor(seed:string,floor:number,rng:NamedRng,run:number,previous?:DungeonState):DungeonState {
  const map=Array.from({length:MAP_SIZE},()=>Array(MAP_SIZE).fill('#'));
  const stack=[{x:1,z:1}];map[1][1]='.';
@@ -399,6 +460,16 @@ export class DungeonRuntime {
    const pendingBreach=s.units.find(u=>u.kind==='revenant'&&u.hp>0&&
     u.breachUntilTick===s.tick&&u.breachTargetId===hero.id&&
     u.breachX===hero.x&&u.breachZ===hero.z);
+   // Real shield decision requires an unavoidable, saved ground threat.
+   if(hero.kind==='vanguard'){
+    const cover=planOathguardIntercept(s,hero);
+    if(cover){
+     hero.guardTick=s.tick;hero.targetId=cover.allyId;hero.action='guard';
+     s.intent='Ashen Vanguard covering '+cover.allyId;
+     push(s,'cover','ASHEN VANGUARD · COVERING '+cover.allyId.toUpperCase()+' FROM '+cover.threat);
+     continue;
+    }
+   }
    if(pendingHex||pendingBreach){
     const aggressor=(pendingBreach??pendingHex)!;
     const dangerName=pendingBreach?'revenant breach':'shadow hex';
@@ -564,7 +635,7 @@ export class DungeonRuntime {
      for(const hero of affected){
       const guarded=hero.guardTick===s.tick;
       const dealt=guarded?Math.max(1,Math.floor(shock*.30)):shock;
-      hero.hp=Math.max(0,hero.hp-dealt);hero.action=guarded?'guard':'hurt';
+      hero.hp=Math.max(0,hero.hp-applyOathguardIntercept(s,hero,dealt));hero.action=guarded?'guard':'hurt';
       if(guarded)push(s,'block',hero.kind+' shielded '+(shock-dealt)+' damage');
      }
      enemy.action='cast';
@@ -594,7 +665,7 @@ export class DungeonRuntime {
       const braced=victim!.guardTick===s.tick;
       const raw=13+Math.min(18,s.floor*2)+Math.ceil(enemy.attack*.3);
       const damage=braced?Math.max(1,Math.ceil(raw*.33)):raw;
-      victim!.hp=Math.max(0,victim!.hp-damage);
+      victim!.hp=Math.max(0,victim!.hp-applyOathguardIntercept(s,victim!,damage));
       victim!.action=braced?'guard':'hurt';
       enemy.action=dist(enemy,victim!)===1?'attack':'cast';
       enemy.targetId=victim!.id;enemy.cooldown=2;
@@ -639,7 +710,7 @@ export class DungeonRuntime {
       const braced=victim!.guardTick===s.tick;
       const strength=8+Math.min(20,Math.ceil(s.floor*1.15));
       const dealt=braced?Math.max(1,Math.ceil(strength*.35)):strength;
-      victim!.hp=Math.max(0,victim!.hp-dealt);
+      victim!.hp=Math.max(0,victim!.hp-applyOathguardIntercept(s,victim!,dealt));
       victim!.action=braced?'guard':'hurt';
       enemy.action='cast';enemy.targetId=victim!.id;
       push(s,braced?'block':'danger',braced?
