@@ -154,6 +154,12 @@ test('G135 active workday is framed from the physical working front with readabl
  // covered by a timber-and-linen market stall despite 0 reported ray hits.
  // Require the actual current camera (not just its intended plan) to project
  // foreground scenic volumes into the 390px frame before calling it readable.
+ // G148 actual frame: native and orchard foliage screened Cador's eyes
+ // despite a nominally clear roof/market diagnostic. The viewport audit
+ // must include REAL tree crowns, not an invented backdrop or hidden forest.
+ expect(Number.isFinite(mobile.shot.foregroundVegetationCover)).toBe(true);
+ expect(Number.isFinite(mobile.plan?.foregroundVegetationCover)).toBe(true);
+ expect(mobile.shot.foregroundVegetationCover).toBeLessThan(.32);
  expect(Number.isFinite(mobile.shot.foregroundSceneCover)).toBe(true);
  expect(Number.isFinite(mobile.plan?.foregroundSceneCover)).toBe(true);
  expect(mobile.shot.foregroundSceneCover).toBeLessThan(.35);
