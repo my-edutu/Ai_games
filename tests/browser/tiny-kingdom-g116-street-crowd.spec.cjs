@@ -22,7 +22,7 @@ test('G116 Day-120 street worker camera avoids close bystander occlusion and mob
  });
  const original=await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()));
  await page.locator('#street-walk').click();
- const encounter=await page.evaluate(()=>{
+ const encounter=await page.evaluate(originalSnapshot=>{
   const g=window.__tinyKingdom;
   const selected=g.visitStreetWorker();
   const view=g.getStreetWalkState();
