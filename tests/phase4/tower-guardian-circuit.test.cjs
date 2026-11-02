@@ -89,9 +89,28 @@ test('guardian-to-cap gantry stays outside tower core and physically retracts so
   effect.update(initial);
   const rails = effect.group.getObjectByName('GuardianLockTwinBronzeRails');
   const bolts = effect.group.getObjectByName('GuardianCapSourceLockBolts');
+  const { observedGuardianCircuit, observedGuardianLockStage } = await modulePromise;
+  const source = observedGuardianCircuit(initial);
+  const lockStage = observedGuardianLockStage(source);
+  assert.ok(lockStage && lockStage.sourceTick === initial.tick);
+  assert.equal(lockStage.guardianId, initial.enemies[0].id);
+  assert.equal(lockStage.bolts.length, 8);
+  assert.ok(Math.hypot(lockStage.center.x, lockStage.center.z) > 27.7,
+    'combat framing must target the EXTERIOR real HP lock, not the recessed inner cap');
+  const originalState = JSON.stringify(initial);
   assert.ok(bolts, 'real guardian gate must have an architectural lock at its actual cap anchor');
   assert.equal(bolts.count, 8);
   assert.equal(bolts.material.depthTest, true);
+  for (let i = 0; i < 8; i++) {
+    const matrix = new THREE.Matrix4();
+    bolts.getMatrixAt(i, matrix);
+    const actual = new THREE.Vector3().setFromMatrixPosition(matrix);
+    const focused = lockStage.bolts[i];
+    assert.ok(actual.distanceTo(new THREE.Vector3(focused.x, focused.y, focused.z)) < 1e-8,
+      'world-space camera lock bound must exactly follow its posed physical bolt');
+  }
+  assert.equal(JSON.stringify(initial), originalState,
+    'both the camera stage and the renderer must consume source without mutating it');
   const conductor = effect.group.getObjectByName('GuardianLockHealthConductor');
   assert.ok(conductor.material.opacity <= .3,
     'initial HP link must be a quiet world-space cue, not an opaque face-covering ribbon');
