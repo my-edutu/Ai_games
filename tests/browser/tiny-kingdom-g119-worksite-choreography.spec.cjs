@@ -36,6 +36,16 @@ test('G119 genuine occupational worksite choreography is bounded and read-only',
   expect(site.phase).toBeLessThanOrEqual(1);
   expect(site.frameRise).toBeGreaterThanOrEqual(.45);
   expect(site.frameRise).toBeLessThanOrEqual(1.55);
+  // G120: a real builder must stand IN FRONT of the raising timber, not
+  // disappear behind a beam at face height. The reachable joinery bench
+  // stays below the worker's chest, with the taller assembly behind them.
+  if(site.job==='builder'){
+   expect(site.staging).toBeTruthy();
+   expect(site.staging.frameRear).toBeLessThan(-0.55);
+   expect(site.staging.benchFront).toBeGreaterThan(0.25);
+   expect(site.staging.benchHeight).toBeGreaterThan(0.50);
+   expect(site.staging.benchHeight).toBeLessThan(0.95);
+  }
  }
  await page.setViewportSize({width:390,height:844});
  const mobile=await page.evaluate(()=>{
