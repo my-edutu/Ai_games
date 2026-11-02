@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-11-02T03:17:00.000Z",
-  "status": "T0/T1 BUILDING: real exact-8fd 8-view Chromium/WebGL and authentic 55s whole-game motion SELF-REJECTED vs Snake Pass; genuine 617/620 Node FAIL; unchanged strict original 1920 gate single 18/17 genuine PASS only at 736x336 GPU/p95 999.9ms, NOT smooth device FPS. New same-T1 material integrity recovery only source-probed; new-head Node/WebGL/55s PENDING. T2 preliminary, T3/T4 OPEN, independent critique PENDING.",
-  "detail": "Exact 8fd full-frame stills/55s film inspected. Giant regular rectangular court and toy-like spotted tube snake still far below Snake Pass. General CI 617/620 has 3 actual atlas material regressions. Correct protected true unwarped landmark, warm sandstone and cool moss across broad existing deterministic physical atlas; source-algorithm 28x16 probes yield zero protected heart changes, amber 18.59%, 15/24 broad sectors. This is NOT visual acceptance or new-head browser/Node GREEN. Strict gate had 18 actual full-desktop WebGL submissions/1001.8ms once at degraded 736x336 raster, p95 999.9ms, queue delay 1502.3ms; neither RAF/video frame rate nor accumulated renders count as display FPS. Physical present, real new-head visuals, soak and independent reviewer remain missing. No merge/deploy.",
+  "updatedAt": "2026-11-02T05:17:12.000Z",
+  "status": "T0/T1 BUILDING — exact-e228 previous head Node 620/620 PASS, but original 20m/30m workflows CANCELLED before full browser completion. Genuine strict 17/17 full-scene submissions only at 736x336 and p95~1000ms, NOT smooth display FPS. New T1 coherent coastal ecology art + source-matched 8-WebGL/2x55s test candidate PENDING execution and independent review. T2 preliminary, T3/T4 OPEN.",
+  "detail": "Physical eight-coast higher stratified mineral/moss silhouette and broad real courtyard biome chroma are source-reversible from e228. Full-scene acceptance withheld until exact new-head real Chromium/WebGL motion, source hashes, unchanged strict 17 desktop gate, useful-resolution device present p95, long-soak and independent reference review.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "8fd actual full-frame WebGL and 55s gameplay SELF-REJECTED (giant regular court and simplistic body). Real 617/620 Node CI FAIL. Original strict 18 genuine desktop submissions/1001.8ms single PASS at GPU 736x336 and frame p95 999.9ms, no displayed smoothness evidence. New original mineral/landmark recovery requires current-head CI.",
   "reviews": [
+    {
+      "area": "2026-11-02 exact-e228 Actions and integrated coast-to-court T1 source candidate",
+      "verdict": "Real preceding e228 Node 620/620 PASS; preview/general CI timed out 20/30min before all real browser tests, so no full-GREEN. Strict actual >=17 complete desktop 1s submits EXACTLY 17 at a severely reduced 736x336 GPU buffer; p95 about 1000ms. Last full-scene personally inspected 8fd visual rejected against official Snake Pass. New stronger chroma and eight-coast 3D escarpment source changes are NOT visually accepted.",
+      "gap": "New exact-source RED→GREEN runtime and 8 real Chromium/WebGL A/B screenshot + paired 55s authentic host recordings need actual same-commit Actions artifacts, independent critic, unchanged strict one-second gate at useful raster, real device display presents/p95, long soak and sustained T2–T4 development. Longer CI timeout is not proof of quality."
+    },
     {
       "area": "2026-11-02 exact 8fd real whole-game benchmark and material-integrity rescue",
       "verdict": "Full visual T1 SELF-REJECTED vs official Snake Pass on true full-game WebGL and 55s unmodified film, independent critic missing. Real general CI FAIL 617/620 with protected-heart/palette/coverage defects; focused browser cancelled after 60 PASS. Strict unchanged 1s original full-desktop gate 18 actual submissions/17 required SINGLE PASS only at 736x336 GPU, p95 999.9ms.",
@@ -913,27 +918,27 @@
     "firstImplementationPlan": "docs/superpowers/plans/2026-11-01-autonomous-snake-transformation.md",
     "acceptance": "An independently evidenced, visibly substantial upgrade of the full running game in environment, character, animation, materials, game feel and sustainable frame delivery; CI is necessary but never sufficient.",
     "overall": "NOT ACCEPTED",
-    "milestone": "T1 whole-game SELF-REJECTED on exact real 8fd WebGL+55s film; original 617/620 CI 3 true T1 material regressions; new corrective material candidate NOT visually accepted",
+    "milestone": "T1 whole-game STILL REJECTED on last inspected exact real 8fd footage; e228 source parent 620/620 Node PASS but full browser jobs timed out at original 20/30m; new physical escarpment/biome integrated environment candidate needs exact current-head real WebGL and 55s before/after review.",
     "milestoneStatus": "BUILDING",
     "latestKnownStrictBrowser": {
-      "actualDraws": 18,
-      "elapsedMs": 1001.8,
+      "actualDraws": 17,
+      "elapsedMs": 1013.4,
       "minDraws": 17,
-      "result": "SINGLE border-pass of unchanged >=17 genuine complete full-desktop 1s WebGL submission gate. NOT smooth/device-present FPS.",
+      "result": "One exact-minimum pass of unchanged mandatory original 1s full-desktop >=17 genuine render submissions. NOT smooth device-present FPS.",
       "drawingBuffer": {
         "width": 736,
         "height": 336
       },
       "pixelRatio": 0.4,
-      "frameMsP95": 999.9,
-      "maxGpuQueueLatencyMs": 1502.3,
-      "source": "https://github.com/my-edutu/Ai_games/actions/runs/41379548435",
-      "runConclusion": "CANCELLED after 60 real browser PASS; images+55s real films and metrics retained"
+      "frameMsP95": 1000,
+      "maxGpuQueueLatencyMs": 1579,
+      "source": "https://github.com/my-edutu/Ai_games/actions/runs/41382551309",
+      "runConclusion": "CANCELLED at old 20-minute job timeout after >=59 browser cases; source-matched stills and genuine 55s videos retained."
     },
     "pillars": [
       {
         "name": "Living 3D world",
-        "status": "BUILDING; exact previous 43a5e04 whole-game scene visually rejected, new original physically linked four-shore terrain source-verified only; new 8 matched WebGL views pending",
+        "status": "T1 BUILDING; new full-scene coast-to-court original 3D sculpt+material candidate awaiting honest real Chromium WebGL/motion inspection; reference acceptance not established",
         "criterion": "Clearly transformed coherent original garden architecture/biomes/scene depth in matching real-game captures."
       },
       {
@@ -943,7 +948,7 @@
       },
       {
         "name": "Materials and lighting",
-        "status": "BUILDING; original stone/moss and physically warped coastal strata need new actual full-frame rendering/light quality verdict",
+        "status": "T1 BUILDING; new full-scene coast-to-court original 3D sculpt+material candidate awaiting honest real Chromium WebGL/motion inspection; reference acceptance not established",
         "criterion": "Convincing stone, vegetation, water, scales, contact lighting and atmospheric staging across full frames."
       },
       {

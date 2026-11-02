@@ -518,6 +518,18 @@ export function createWorld(THREE, {width, height}) {
       data[i]=Math.max(0,Math.round(data[i]-rWear));
       data[i+1]=Math.max(0,Math.round(data[i+1]-gWear));
       data[i+2]=Math.max(0,Math.round(data[i+2]-bWear));
+      // BEGIN T1 COAST-TO-COURT BIOME CHROMA
+      // A landscape-scale material pass: mossed tidal cuttings read as green
+      // lichen, and exposed chalk/ochre reads as warm stone, not dirty grey.
+      // Preserve the previously proven central landmark, old mortar grain,
+      // atlas dimensions, public event markers and strictly subtractive rule.
+      // The same true 3D slab material receives this once; no extra GPU work.
+      const greenCut=watershed*braidedBed*(.38+.62*rootLichen);
+      const warmLedge=watershed*exposedStone*(1-braidedBed*.48);
+      data[i]=Math.max(0,data[i]-Math.round(29*greenCut));
+      data[i+1]=Math.max(0,data[i+1]-Math.round(3*greenCut+9*warmLedge));
+      data[i+2]=Math.max(0,data[i+2]-Math.round(24*greenCut+17*warmLedge));
+      // END T1 COAST-TO-COURT BIOME CHROMA
       // END T1 BRAIDED ESTUARY WHOLE-FIELD
       // END T1 RECLAIMED GARDEN COMPOSITION
       // END T1 SUNLIT SCARRED TERRACES

@@ -621,6 +621,39 @@ export function createLivingGarden(THREE, {width,height}) {
           +.055*Math.sin(alongCourse*1.74-phase*.62));
       }
     }
+    // BEGIN T1 STRATIFIED ESCARPMENT SILHOUETTES
+    // Recut the same eight already-built promontories as asymmetric cliff
+    // escarpments with sun-bleached mineral faces and living mossed crowns.
+    // Only their own preallocated static cliff/moss vertices and colors move.
+    // The stone/water transition stays grounded; no collision, shader,
+    // material, atlas, draw, tree, landmark or triangle budget is added.
+    const cliffPaint=new THREE.Color(0xc8bb9e);
+    const crestPaint=new THREE.Color(0x5e875a);
+    for(const [layer,start] of [['cliff',originalCliffStart],['moss',originalMossStart]]){
+      const band=bands.get(layer),positions=band.p,colors=band.c;
+      const mineral=layer==='cliff'?cliffPaint:crestPaint;
+      for(let k=start;k<positions.length;k+=3){
+        const rise=positions[k+1]-bank[1];
+        if(rise<=.58)continue;
+        const t=clamp((rise-.58)/.92,0,1);
+        const crest=t*t*(3-2*t);
+        const coast=positions[k+along]-bank[along];
+        const breaking=.5+.5*Math.sin(coast*.91+phase*1.73+rise*.44);
+        const echelon=.62+.38*Math.cos(coast*1.48-phase*.64);
+        // The foreground southern lip remains below the northern ridge so
+        // real gameplay stays visible in the existing overview camera.
+        const cameraClear=shore.axis==='x'&&shore.near>0?.64:1;
+        const lift=(.92+.82*breaking+.30*echelon)*crest*cameraClear;
+        positions[k+1]=Math.min(6.7,positions[k+1]+lift);
+        // Do not bring a false path or an occluding promontory inboard.
+        positions[k+across]+=outboard*(.055+.13*breaking)*crest;
+        const paint=crest*(layer==='cliff'?.75:.60);
+        colors[k]=colors[k]*(1-paint)+mineral.r*paint;
+        colors[k+1]=colors[k+1]*(1-paint)+mineral.g*paint;
+        colors[k+2]=colors[k+2]*(1-paint)+mineral.b*paint;
+      }
+    }
+    // END T1 STRATIFIED ESCARPMENT SILHOUETTES
     // END T1 CURVED GEOLOGICAL COAST
     // END T1 CONNECTED COASTAL RIDGES
     // END T1 BROKEN SHORE SHELF STAGING
