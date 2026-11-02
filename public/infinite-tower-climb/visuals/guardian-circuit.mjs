@@ -46,7 +46,7 @@ export function createTowerGuardianCircuit(THREE) {
   // Two independent heavy bronze lines are deliberately distinguished by
   // silhouette. As the real guardian loses HP, the mechanical rails spread
   // apart and the light conductor exposes more of the unlocked mechanism.
-  const railGeometry = new THREE.BoxGeometry(.12, 1, .16);
+  const railGeometry = new THREE.BoxGeometry(.17, 1, .21);
   const railMaterial = new THREE.MeshStandardMaterial({
     color: 0x9a7859, metalness: .73, roughness: .43, depthTest: true,
   });
@@ -56,6 +56,16 @@ export function createTowerGuardianCircuit(THREE) {
   rails.receiveShadow = false;
   rails.frustumCulled = false;
   rails.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  // Eight original, source-HP-driven locking teeth make the cap's release
+  // legible as architecture rather than an abstract health bar. One instanced
+  // draw, actual source cap anchor, no extra shadow/collision/AI state.
+  const boltGeometry = new THREE.BoxGeometry(.49, 1.35, .68);
+  const lockBolts = new THREE.InstancedMesh(boltGeometry, railMaterial, 8);
+  lockBolts.name = 'GuardianCapSourceLockBolts';
+  lockBolts.castShadow = false;
+  lockBolts.receiveShadow = false;
+  lockBolts.frustumCulled = false;
+  lockBolts.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   const conductorGeometry = new THREE.OctahedronGeometry(.22, 0);
   const conductorMaterial = new THREE.MeshBasicMaterial({
     color: 0xffbd75, transparent: true, opacity: .42,
@@ -76,7 +86,7 @@ export function createTowerGuardianCircuit(THREE) {
   atGuardian.name = 'GuardianLockGuardianAnchor';
   atGate.name = 'GuardianLockCapAnchor';
   atGuardian.castShadow = atGate.castShadow = false;
-  group.add(rails, conductors, atGuardian, atGate);
+  group.add(rails, conductors, atGuardian, atGate, lockBolts);
   const pose = new THREE.Object3D();
   const start = new THREE.Vector3(), finish = new THREE.Vector3();
   const tangent = new THREE.Vector3();
@@ -90,14 +100,17 @@ export function createTowerGuardianCircuit(THREE) {
     lastKey = '';
     rails.count = 0;
     conductors.count = 0;
+    lockBolts.count = 0;
   }
   function mapped(item, t, offset = 0) {
     const x = item.fromX + (item.toX - item.fromX) * t;
-    // This restrained physical sag makes a real spanning mechanism. It
-    // doesn't predict a jump, beam attack or imaginary gate animation.
-    const y = item.fromY + (item.toY - item.fromY) * t -
-      Math.sin(Math.PI * t) * 9000 + offset;
-    const radius = 27.75 - 1.35 * t;
+    // An elevated outward gantry carries the real HP-operated connection
+    // ABOVE and OUTSIDE the opaque tower, instead of diving through its core
+    // or hiding below a nearby deck. Curvature is presentation-only and fixed
+    // to the live guardian and source cap, not a predicted player path.
+    const y = item.fromY + (item.toY - item.fromY) * t +
+      Math.sin(Math.PI * t) * 6200 + offset;
+    const radius = 27.85 - .2 * t + 2.75 * Math.sin(Math.PI * t);
     return pointFor(x, y, item.baseY, item.width, radius);
   }
   function update(snapshot, options = {}) {
@@ -156,6 +169,25 @@ export function createTowerGuardianCircuit(THREE) {
     atGate.position.set(b.x, b.y, b.z);
     atGate.rotation.set(0, b.angle, 0);
     atGate.scale.setScalar(1 + opening * .35);
+    // Four paired mechanical clamps visibly withdraw from the cap's central
+    // seam as the actual guardian loses HP. Every tooth remains at the real
+    // decorative gate anchor; it never asserts that a collision door opened.
+    for (let index = 0; index < 8; index++) {
+      const side = index % 2 === 0 ? -1 : 1;
+      const tier = Math.floor(index / 2);
+      const span = 10000 + opening * (18500 + tier * 1400);
+      const toothX = Math.max(0, Math.min(next.width, next.toX + side * span));
+      const site = pointFor(toothX,
+        next.toY + (tier - 1.5) * 6600, next.baseY, next.width, 27.78);
+      pose.position.set(site.x, site.y, site.z);
+      pose.quaternion.identity();
+      pose.rotation.set(0, site.angle, 0);
+      pose.scale.set(1.2 - opening * .15, 1, .92);
+      pose.updateMatrix();
+      lockBolts.setMatrixAt(index, pose.matrix);
+    }
+    lockBolts.count = 8;
+    lockBolts.instanceMatrix.needsUpdate = true;
     group.visible = true;
   }
   function diagnostics() {
@@ -169,7 +201,8 @@ export function createTowerGuardianCircuit(THREE) {
       realCapX: source?.toX ?? null,
       railSegments: group.visible ? rails.count : 0,
       conductorNodes: group.visible ? conductors.count : 0,
-      maxExtraDraws: 4, shadowCastingMeshes: 0,
+      lockBolts: group.visible ? lockBolts.count : 0,
+      maxExtraDraws: 5, shadowCastingMeshes: 0,
       metric: 'Decorative linked hardware from real live guardian HP and actual cap anchor; not a new collider or verified raster visibility',
       disposed,
     };
@@ -180,6 +213,7 @@ export function createTowerGuardianCircuit(THREE) {
     disposed = true;
     group.clear();
     railGeometry.dispose();
+    boltGeometry.dispose();
     railMaterial.dispose();
     conductorGeometry.dispose();
     conductorMaterial.dispose();
