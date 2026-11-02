@@ -46,7 +46,7 @@ test('an opposing horizontal momentum must be reversed before a committed boost'
   const d=decision(s);
   assert.equal(d.action.dash,false);
   assert.equal(d.action.move,1);
-  assert.equal(d.intent.mode,'air-control');
+  assert.equal(d.intent.mode,'settling-landing','countersteering is a genuine controlled-landing action');
 });
 
 test('not enough actual source stamina means no fictitious air boost',()=>{
