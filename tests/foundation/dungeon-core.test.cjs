@@ -242,3 +242,36 @@ test('real autonomous fight and traversal keep every living actor in distinct le
  }
  assert.ok(moved>20&&fought>0,'the squad must continue travelling and actually fighting');
 });
+
+test('real Mystic healing spends finite focus instead of granting infinite emergency saves',()=>{
+ const game=DungeonRuntime.create('mystic-healing-resolve-M1'),s=game.state;
+ const mystic=s.units.find(u=>u.kind==='mystic'),hero=s.units.find(u=>u.id==='vanguard');
+ assert.equal(mystic.focus,5);assert.equal(mystic.maxFocus,5);
+ for(const foe of s.units.filter(u=>u.faction==='enemy'))foe.hp=0;
+ for(let i=0;i<5;i++){
+  s.tick=i*3+2;hero.hp=5;
+  const view=game.step();
+  assert.equal(mystic.focus,4-i,'authentic heals consume finite real focus');
+  assert.ok(view.events.some(e=>e.tick===view.tick&&e.kind==='healing'));
+ }
+ s.tick=17;hero.hp=5;
+ const exhausted=game.step();
+ assert.equal(mystic.focus,0);
+ assert.equal(hero.hp,5,'the sixth emergency cannot secretly heal without focus');
+ assert.ok(!exhausted.events.some(e=>e.tick===exhausted.tick&&e.kind==='healing'));
+ assertDungeonState(s);
+ assert.deepEqual(DungeonRuntime.restore(game.save()).publicState(),game.publicState());
+});
+test('an authentic relic on the living Mystic restores exactly one spent healing focus',()=>{
+ const game=DungeonRuntime.create('mystic-relic-recharge-M1'),s=game.state;
+ const mystic=s.units.find(u=>u.kind==='mystic'),hero=s.units.find(u=>u.id==='vanguard');
+ for(const foe of s.units.filter(u=>u.faction==='enemy'))foe.hp=0;
+ mystic.focus=1;hero.hp=5;s.tick=2;
+ assert.ok(s.relics.length);
+ s.relics[0].x=mystic.x;s.relics[0].z=mystic.z;
+ const view=game.step();
+ assert.equal(mystic.focus,1,'one earned true relic replaces the single healing charge spent this turn');
+ assert.ok(view.events.some(e=>e.tick===view.tick&&e.kind==='healing'));
+ assert.ok(view.events.some(e=>e.tick===view.tick&&e.kind==='loot'));
+ assertDungeonState(s);
+});
