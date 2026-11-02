@@ -537,26 +537,26 @@ void main(){
    vec2 uv=clamp((vWorld.xz+vec2(92.))/184.,vec2(0.),vec2(1.));
    c*=texture2D(groundAtlas,uv).rgb*2.;
    c*=mix(vec3(1.025),vec3(.83,.92,.91),weatherWetness*.35);
-  }else if(vMaterial>1.5&&vMaterial<2.5){
+  }else if (vMaterial>1.5&&vMaterial<2.5){
    float ripple=sin(vWorld.x*2.6+worldTime*.38)*.038;
    c*=vec3(.76+ripple,.89+ripple,.95+ripple);
-  }else if(vMaterial>2.5&&vMaterial<3.5){
+  }else if (vMaterial>2.5&&vMaterial<3.5){
    float grit=fract(sin(dot(floor(vWorld.xz*5.),vec2(12.9898,78.233)))*43758.5);
    c*=.78+.19*grit;
-  }else if(vMaterial>3.5&&vMaterial<4.5){
+  }else if (vMaterial>3.5&&vMaterial<4.5){
    c*=.81+.21*max(n.y,0.);
-  }else if(vMaterial>4.5&&vMaterial<5.5){
+  }else if (vMaterial>4.5&&vMaterial<5.5){
    vec2 masonry=abs(n.y)>.65?vWorld.xz:vWorld.xy;
    masonry*=vec2(1.65,2.25);masonry.x+=.5*mod(floor(masonry.y),2.);
    vec2 joint=min(fract(masonry),1.-fract(masonry));
    c*=mix(.57,1.,smoothstep(.016,.075,min(joint.x,joint.y)));
-  }else if(vMaterial>5.5&&vMaterial<6.5){
+  }else if (vMaterial>5.5&&vMaterial<6.5){
    c*=.89+.13*abs(sin(vWorld.y*31.));
-  }else if(vMaterial>6.5&&vMaterial<7.5){
+  }else if (vMaterial>6.5&&vMaterial<7.5){
    vec2 tile=fract(vWorld.xz*vec2(2.35,3.25));
    vec2 joint=min(tile,1.-tile);
    c*=mix(.63,1.,smoothstep(.016,.075,min(joint.x,joint.y)));
-  }else if(vMaterial>7.5&&vMaterial<8.5){
+  }else if (vMaterial>7.5&&vMaterial<8.5){
    c*=mix(vec3(1.),vec3(.89,.90,.86),weatherWetness*.16);
   }
   c=mix(c,fogColor,vFog);
