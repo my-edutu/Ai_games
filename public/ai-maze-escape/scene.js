@@ -265,7 +265,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       if (cells.length > 32) resetPosition(snapshot);
     }
     if (openingCue) recentPublicOpening = {...openingCue, runToken:snapshot.runToken, start:gateVisualTime};
-    if (pickupCue) recentPublicPickup = {...pickupCue,runToken:snapshot.runToken,start:elapsed};
+    if (pickupCue) recentPublicPickup = {...pickupCue,runToken:snapshot.runToken,start:gateVisualTime};
     previous = snapshot;
     world.update(snapshot);
     updateRoutes(snapshot);
@@ -417,7 +417,9 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // known former room, not a new collectible or purported navigable route.
     // All eight 3D parts are allocated once; no hidden state is inspected.
     const pickupAge = recentPublicPickup?.runToken === s.runToken
-      ? elapsed - recentPublicPickup.start : Infinity;
+      ? gateVisualTime - recentPublicPickup.start : Infinity;
+    // Match the gate's bounded visual-only clock: software-render stalls
+    // must not erase a true public pickup before any actual image sees it.
     const showPickup = !result && pickupAge >= 0 && pickupAge < .82;
     pickupBurst.visible = showPickup;
     if (showPickup) {
@@ -614,6 +616,14 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         .map(({model})=>physicalSilhouette(model.group));
       const guardianModelsFullyInFrame=visibleGuardianSilhouettes.filter(bounds=>bounds?.fullyInFrame).length;
       const explorerSilhouette=physicalSilhouette(explorer.group);
+      // Native WebGL evidence must measure physical 3D pickup fragments,
+      // not infer visibility from inventory/HUD. Only after true public pickup.
+      pickupBurst.updateWorldMatrix(true,true);
+      const pickupShardsInFrame=pickupBurst.visible
+        ? pickupShards.filter(shard=>{
+            const p=shard.getWorldPosition(new THREE.Vector3()).project(camera);
+            return Math.abs(p.x)<.95&&Math.abs(p.y)<.95&&p.z>-1&&p.z<1;
+          }).length : 0;
       const depthVisible = p => p.z > -1 && p.z < 1;
       // Count *actual* contact meshes at real publicly rendered positions,
       // including in native portrait, not a synthetic screenshot annotation.
@@ -701,6 +711,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         wardenGroundedContacts,
         encounterAttention: closestThreat?.strength ?? 0,
         witnessedKeyPickupVisual: pickupBurst.visible,
+        pickupShardsInFrame,
         keysInFrame, closedGatesInFrame,
         carriedKeyGateGesture: keyGateCue?.strength??0,
         keyLockCloseup, cameraAimLift, physicalKeyLock,

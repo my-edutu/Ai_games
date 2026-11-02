@@ -128,7 +128,7 @@ test('a real close public encounter frames both autonomous actors and saves date
   // The original 14 authentic native WebGL captures already consume ~130s
   // on heavily CPU-throttled shared SwiftShader CI. Five NEW real before/after
   // screenshots require more WALL-CLOCK time, not weaker in-frame/privacy gates.
-  test.setTimeout(260000);
+  test.setTimeout(320000);
   const fs = require('node:fs');
   const path = require('node:path');
   const { createHash } = require('node:crypto');
@@ -551,6 +551,103 @@ test('a real close public encounter frames both autonomous actors and saves date
     caveat: 'Portrait composition needs native-size independent review; software-rendered CI is not hardware FPS.',
   }, null, 2));
   await page.setViewportSize({width: 1280, height: 900});
+
+  // A genuine key collection deserves a physical 3D consequence in the
+  // live action, not another inventory-only label. Choose only consecutive,
+  // unmodified production frames from the SAME seeded autonomous run.
+  const { publicKeyCollectionMoment } = await import('../../public/ai-maze-escape/map-view.mjs');
+  const publicPickups=[];
+  for(const sequence of sequences) for(let index=1;index<sequence.length;index++) {
+    const before=sequence[index-1],after=sequence[index];
+    const pickup=publicKeyCollectionMoment(before.frame.snapshot,after.frame.snapshot);
+    if(!pickup || after.frame.snapshot.lifecycle!=='running') continue;
+    const s=after.frame.snapshot;
+    const distance=Math.abs(pickup.cell%s.width-s.currentCell%s.width)
+      +Math.abs(Math.floor(pickup.cell/s.width)-Math.floor(s.currentCell/s.width));
+    publicPickups.push({before,after,pickup,distance,
+      threatCount:s.threats.length});
+  }
+  publicPickups.sort((a,b)=>a.threatCount-b.threatCount||a.distance-b.distance
+    ||a.after.frame.snapshot.tick-b.after.frame.snapshot.tick);
+  const picked=publicPickups[0];
+  expect(picked,'At least one authentic production key must be genuinely collected from a previously public room').toBeTruthy();
+  expect(picked.after.frame.snapshot.inventory,'a physical release requires actual public inventory')
+    .toContain(picked.pickup.id);
+  const previousPickupState=picked.before.frame.snapshot;
+  const nextPickupState=picked.after.frame.snapshot;
+  const pickupHashes=Object.fromEntries(
+    ['index.html','app.js','gameplay-hud.css','scene.js','map-view.mjs','world.js','characters.js','gate-moment.mjs']
+      .map(name=>[name,hash(path.join(sourceDir,name))]));
+  activeFrame=picked.before.frame;
+  await page.setViewportSize({width:1280,height:900});
+  await page.goto(base+'/maze?camera=follow',{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(({tick,token})=>{
+    const d=window.__MAZE_3D__;
+    return d?.renderer==='webgl'&&d.frames>=3&&d.tick===tick&&d.runToken===token;
+  },{tick:previousPickupState.tick,token:previousPickupState.runToken});
+  const pickupBeforeDiagnostic=await page.evaluate(()=>window.__MAZE_3D__);
+  expect(pickupBeforeDiagnostic.witnessedKeyPickupVisual,
+    'a key not yet publicly collected must NOT trigger a false pickup').toBe(false);
+  // Consume the genuinely later production frame through the exact same
+  // in-app state request. No DOM prop insertion, forced engine action,
+  // invented key position or hand-authored screenshot scene.
+  activeFrame=picked.after.frame;
+  await page.waitForFunction(({tick,token})=>{
+    const d=window.__MAZE_3D__;
+    return d?.renderer==='webgl'&&d.tick===tick&&d.runToken===token
+      &&d.witnessedKeyPickupVisual===true &&d.pickupShardsInFrame>=6;
+  },{tick:nextPickupState.tick,token:nextPickupState.runToken});
+  const pickupDesktopDiagnostic=await page.evaluate(()=>window.__MAZE_3D__);
+  const pickupImage=path.join(dir,'witnessed-key-pickup-1280.png');
+  await page.screenshot({path:pickupImage,fullPage:true});
+  fs.writeFileSync(path.join(dir,'witnessed-key-pickup-1280.json'),JSON.stringify({
+    capturedAt:new Date().toISOString(),
+    source:'Exact original production public before/after key pickup from same seeded MazeRuntime; source-bound actual WebGL physical glints',
+    seed:picked.after.seed,publicPickup:picked.pickup,
+    beforeTick:previousPickupState.tick,afterTick:nextPickupState.tick,
+    viewport:{width:1280,height:900},imageSha256:hash(pickupImage),
+    sourceSha256:pickupHashes,
+    diagnostics:{renderer:pickupDesktopDiagnostic.renderer,
+      witnessedKeyPickupVisual:pickupDesktopDiagnostic.witnessedKeyPickupVisual,
+      pickupShardsInFrame:pickupDesktopDiagnostic.pickupShardsInFrame,
+      explorerModelFullyInFrame:pickupDesktopDiagnostic.explorerModelFullyInFrame,
+      quality:pickupDesktopDiagnostic.quality},
+    caveat:'Source-bound physical WebGL release; image visual quality and Nintendo parity require direct, independent critic.'
+  },null,2));
+  expect(pickupDesktopDiagnostic.pickupShardsInFrame,
+    'the captured actual desktop WebGL release must include real model fragments').toBeGreaterThanOrEqual(6);
+  expect(pickupDesktopDiagnostic.explorerModelFullyInFrame).toBe(true);
+  // Reuse the warmed renderer: native portrait must not hide the physical
+  // collected-key release behind dashboard prose or crop the hero.
+  const pickupFrames=await page.evaluate(()=>window.__MAZE_3D__?.frames??0);
+  await page.setViewportSize({width:390,height:844});
+  await page.waitForFunction(({before,tick,token})=>{
+    const d=window.__MAZE_3D__;
+    return innerWidth===390 && innerHeight===844 && d?.renderer==='webgl'
+      &&d.frames>before && d.tick===tick && d.runToken===token
+      &&d.witnessedKeyPickupVisual && d.pickupShardsInFrame>=6;
+  },{before:pickupFrames,tick:nextPickupState.tick,token:nextPickupState.runToken});
+  const pickupPortraitDiagnostic=await page.evaluate(()=>window.__MAZE_3D__);
+  const pickupPortrait=path.join(dir,'witnessed-key-pickup-390.png');
+  await page.screenshot({path:pickupPortrait,fullPage:true});
+  fs.writeFileSync(path.join(dir,'witnessed-key-pickup-390.json'),JSON.stringify({
+    capturedAt:new Date().toISOString(),
+    source:'Same authentic publicly witnessed pickup, source-bound full-resolution 390x844 WebGL, warm production camera',
+    seed:picked.after.seed,publicPickup:picked.pickup,
+    beforeTick:previousPickupState.tick,afterTick:nextPickupState.tick,
+    viewport:{width:390,height:844},imageSha256:hash(pickupPortrait),
+    sourceSha256:pickupHashes,
+    diagnostic:{pickupShardsInFrame:pickupPortraitDiagnostic.pickupShardsInFrame,
+      explorerModelFullyInFrame:pickupPortraitDiagnostic.explorerModelFullyInFrame,
+      cameraMode:pickupPortraitDiagnostic.cameraMode,
+      quality:pickupPortraitDiagnostic.quality},
+    caveat:'Original native WebGL screenshot, not a final artistic benchmark or GPU timing result.'
+  },null,2));
+  expect(pickupPortraitDiagnostic.explorerModelFullyInFrame,
+    'authentic pickup moment must preserve complete original hero model at 390px').toBe(true);
+  expect(pickupPortraitDiagnostic.pickupShardsInFrame,
+    'genuine physical collectible release must be visible in full native portrait').toBeGreaterThanOrEqual(6);
+  await page.setViewportSize({width:1280,height:900});
 
   const sealedSamples = sequences.flat().map(sample => {
     const s = sample.frame.snapshot, known = new Set(s.cells.map(cell => cell.cell));
