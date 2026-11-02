@@ -4,7 +4,7 @@
 export const GATE_RETRACTION_SECONDS = 0.85;
 // Visual-only pacing: if software graphics stalls, don't skip the physical lift.
 // Authoritative time, AI, countdown and route motion remain untouched.
-export const MAX_GATE_VISUAL_FRAME_SECONDS = 0.10;
+export const MAX_GATE_VISUAL_FRAME_SECONDS = 0.035;
 export function advanceGateVisualClock(previous, frameSeconds) {
   if (!Number.isFinite(previous) || previous < 0) return 0;
   if (!Number.isFinite(frameSeconds) || frameSeconds <= 0) return previous;

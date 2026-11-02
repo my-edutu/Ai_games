@@ -5,17 +5,19 @@ const assert = require('node:assert/strict');
 test('visual gate time gives an overloaded renderer multiple truthful opening poses', async () => {
   const {advanceGateVisualClock:advance,MAX_GATE_VISUAL_FRAME_SECONDS:max} =
     await import('../../public/ai-maze-escape/gate-moment.mjs');
-  assert.equal(max, .10);
+  assert.equal(max, .035);
   assert.equal(advance(2,.016),2.016,'normal frames keep real-time animation');
-  assert.equal(advance(2,5),2.1,'one 5-second software-frame stall cannot skip gate motion');
-  assert.equal(advance(2,.2),2.1);
+  assert.ok(Math.abs(advance(2,5)-2.035)<1e-12,'one 5-second software-frame stall cannot skip gate motion');
+  assert.ok(Math.abs(advance(2,.2)-2.035)<1e-12);
   assert.equal(advance(2,-1),2);
   assert.equal(advance(2,Infinity),2);
   assert.equal(advance(NaN,.016),0);
   assert.equal(advance(-1,.016),0);
   let visualTime=0;
-  for(let i=0;i<5;i++) visualTime=advance(visualTime,3);
-  assert.ok(visualTime>0&&visualTime<.85,'five actual frames still present a partially lifted gate');
+  for(let i=0;i<10;i++) visualTime=advance(visualTime,3);
+  assert.ok(visualTime>.30&&visualTime<.40,'ten genuinely delivered WebGL frames preserve an observable middle phase');
+  for(let i=0;i<20;i++) visualTime=advance(visualTime,3);
+  assert.ok(visualTime>.85,'the sequence completes after sufficient rendered frames instead of freezing forever');
   assert.equal(advance(visualTime,0),visualTime,'without frames the model does not advance');
 });
 
