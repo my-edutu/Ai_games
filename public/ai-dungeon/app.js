@@ -621,7 +621,7 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
   const focus=planImpactCameraHold(s,damageBeats);
   if(focus)impactCameraHold={encounter:focus,age:0};
  }
- const stagePositions=planCombatStage(s);
+ const stagePositions=planCombatStage(s,camera.position);
  crowdedStageActors=Object.values(stagePositions).filter(position=>position.crowded).length;
  const seen=new Set(s.units.map(u=>u.id));
  for(const [id,a] of actors)if(!seen.has(id)){disposeActor(a);actors.delete(id)}
@@ -634,7 +634,7 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
    a.telegraph.visible=u.hp>0&&Boolean(s.bossWarning);
    a.telegraph.material.color.set(s.bossPhase==='ECLIPSE'?'#c97aff':s.bossPhase==='RUPTURE'?'#ff9f62':'#ff7049');
   }}
- combatDirector.accept(s);
+ combatDirector.accept(s,camera.position);
  combatDirector.recordDamage(damageBeats);
  world.userData.wardenRitual?.accept(s);
  soundstage?.acceptSnapshot(s);

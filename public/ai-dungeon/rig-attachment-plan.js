@@ -10,9 +10,10 @@ const ROLE_WEAPONS=Object.freeze({
 const EMPTY=Object.freeze([]);
 // The pinned CC0 GLB rigs have deliberately toy-sized heads. Reduce only the
 // genuine cloned cranial joint, not the collision body or the source asset.
-// Ratios are conservative so expressions, helmets and silhouettes stay legible.
+// Adult-scale .61–.66 bounds mitigate the dominant toy crania in actual
+// 1440px Chromium captures. Helmets on the true head joint follow this scale.
 const CRANIAL_RATIOS=Object.freeze({
- vanguard:.75,ranger:.73,mystic:.76,revenant:.71,cultist:.74,warden:.77
+ vanguard:.63,ranger:.61,mystic:.65,revenant:.61,cultist:.64,warden:.66
 });
 export function planCranialRatio(kind){
  return typeof kind==='string'&&Object.hasOwn(CRANIAL_RATIOS,kind)?CRANIAL_RATIOS[kind]:1;
@@ -31,7 +32,7 @@ export function restoreCranialProportion(mount){
 export function stageCranialProportion(mount){
  if(!mount||mount.applied)return false;
  const scale=mount.bone?.scale,ratio=mount.ratio;
- if(!Number.isFinite(ratio)||ratio<.70||ratio>1||
+ if(!Number.isFinite(ratio)||ratio<.60||ratio>1||
   ![scale?.x,scale?.y,scale?.z].every(Number.isFinite)||
   Math.min(scale.x,scale.y,scale.z)<=0||
   Math.max(scale.x,scale.y,scale.z)>100)return false;

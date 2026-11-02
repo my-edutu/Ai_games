@@ -68,9 +68,9 @@ test('real rendered actors and real authority-based combat effects share the sta
  const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
  const combat=fs.readFileSync(path.join(root,'public/ai-dungeon/combat-director.js'),'utf8');
  const host=fs.readFileSync(path.join(root,'scripts/serve-dungeon-stream.cjs'),'utf8');
- assert.match(app,/const stagePositions=planCombatStage\(s\)/);
+ assert.match(app,/const stagePositions=planCombatStage\(s,camera\.position\)/);
  assert.match(app,/stagePoint\(stagePositions,u\)/);
- assert.match(combat,/stagePositions=planCombatStage\(s\)/);
+ assert.match(combat,/stagePositions=planCombatStage\(s,viewPosition\)/);
  assert.match(combat,/stagedArcFrame\(/);
  assert.match(combat,/from:stagePoint\(stagePositions,u\)/);
  assert.ok(host.includes("['/dungeon/combat-staging-plan.js','combat-staging-plan.js']"));
@@ -78,4 +78,32 @@ test('real rendered actors and real authority-based combat effects share the sta
 test('cranial model diagnostics report every genuine actor instead of silently truncating at eight',()=>{
  const source=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(source,/rigCranialRatios:authored\.filter\(.+?\.slice\(0,18\)/);
+});
+
+// One real legal cell can hold the whole party at spawn. The spectator must
+// resolve their silhouettes against the CURRENT camera while all grid data
+// remains identical, and the actual attack effects must share those offsets.
+test('three overlapping real heroes form a legible camera-facing line entirely within one legal tile',async()=>{
+ const {planCombatStage,MAX_STAGE_OFFSET}=await mod();
+ const units=[u('vanguard','vanguard','party'),u('ranger','ranger','party'),u('mystic','mystic','party')];
+ const s={tick:7,map:floor(),units},original=JSON.stringify(s);
+ for(const view of [{x:6,z:8},{x:-6,z:5},{x:0,z:-7}]){
+  const pose=planCombatStage(s,view),line=units.map(unit=>pose[unit.id]);
+  const forward={x:view.x-0,z:view.z-0},length=Math.hypot(forward.x,forward.z);
+  const right={x:forward.z/length,z:-forward.x/length};
+  const projected=line.map(p=>p.dx*right.x+p.dz*right.z).sort((a,b)=>a-b);
+  assert.ok(projected[2]-projected[0]>=.75,"actual camera view must separate crowded silhouettes");
+  assert.ok(projected[1]-projected[0]>=.32&&projected[2]-projected[1]>=.32);
+  for(const p of line){assert.ok(Math.hypot(p.dx,p.dz)<=MAX_STAGE_OFFSET+.0001);assert.ok(Math.abs(p.dx)<.45&&Math.abs(p.dz)<.45);}
+  assert.deepEqual(planCombatStage({...s,units:units.slice().reverse()},view),pose);
+ }
+ assert.equal(JSON.stringify(s),original);
+});
+test('rig characters and truth-locked blade origins consume exactly the same camera-staged public snapshot',()=>{
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ const combat=fs.readFileSync(path.join(root,'public/ai-dungeon/combat-director.js'),'utf8');
+ assert.match(app,/const stagePositions=planCombatStage\(s,camera\.position\)/);
+ assert.match(app,/combatDirector\.accept\(s,camera\.position\)/);
+ assert.match(combat,/function accept\(s,viewPosition=null\)/);
+ assert.match(combat,/stagePositions=planCombatStage\(s,viewPosition\)/);
 });

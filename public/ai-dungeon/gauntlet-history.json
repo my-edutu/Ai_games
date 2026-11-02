@@ -2193,19 +2193,19 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "Pushed implementation with lease-safe fast-forward and original baseline unchanged. New pure planner compiled/loaded in local isolated Node smoke on legal 19x19 chamber: 289 walkable cells fully covered by 64 multi-cell stone units, four route chapters, largest slab six cells. Local `node --check` on new module and browser/foundation tests passed. Dedicated exact-head Chromium, full catalogue, replay, security, desktop/mobile frame-time and audio capture are NOT YET CONFIRMED. CI/replay remain separate non-negotiable gates, not a transformation win.",
+      "safetyChecks": "Local source snapshot at 81a761: npm run dungeon:test PASSED 188/188 after new integrated changes (previous expected RED observed in focused tests); Node syntax and TypeScript build passed. No full exact-new-head Chromium, catalogue, security, GPU p95, audio clip or independent art verdict yet. Previous exact-head dedicated Chromium and visual workflow 41398888784/41398888789 succeeded before this change; catalogue CI 41398888788 failed. Authority engine, RNG and persistent format are unchanged.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED_NO_ORIGINAL_CAPTURE",
       "soundstageBrowser": "UNVERIFIED_FOR_NEW_WARDEN",
       "audioLoudnessAndClipping": "NOT_MEASURED",
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
-      "actualWebglFramingRegression": "Personally inspected genuine pre-candidate 2 Nov 2026 1440x832 WebGL capture from run 41393489796, artifact 13118183723. Character models, square stone grid and vaults remain visibly prototype-like; its diagnostics show three visible party members but no active enemy in that observed frame. This pre-candidate is NOT a matched BEFORE/AFTER and cannot prove an active fight. The immutable baseline remains run 41302939553 and artifact 13081734898.",
-      "latestCandidateWorkflow": "New head 5e7fb58 code workflows: Dungeon Foundation run 41395397178, visual review 41395397166, catalogue run 41395397098. All were PENDING/IN_PROGRESS on 2 Nov at handoff, so exact-head completion and rendered AFTER are UNVERIFIED. The predecessor authentic review had a real capture but no independent quality majority."
+      "actualWebglFramingRegression": "Inspected exact prior-head genuine 1440x832 original WebGL world-only artifact https://github.com/my-edutu/Ai_games/actions/runs/41398888784/artifacts/13120803208 . Three living heroes in view, no active enemies in that one sample; their circular toy heads overlap alongside bulky masonry. This is genuine prior-head rendering, NOT a matched M1 baseline or a win for the unrendered new candidate.",
+      "latestCandidateWorkflow": "Candidate build staged after previous successful Chromium workflow 41398888784. New exact-head Actions will be inspected following lease-safe push; do NOT imply completed checks or rendered AFTER."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "IN PROGRESS; not an accepted experiential transformation. The genuine predecessor 1440x832 Chromium WebGL frame still visibly resembles a grid-board dungeon with brightly stylized miniature characters, crowded hero/enemy silhouettes and squared masonry. The new contiguous route-floor candidate has not yet been personally inspected in a real AFTER Chromium image or motion/audio clip, and cannot prove a meaningful LEAP until matched pinned BEFORE/AFTER across traversal, legal active combat, Warden boss, floor transition and defeat/restart (desktop/mobile), measured sustained performance, and >=3 independent blind LOOKS/FEELS/PLAYS critics. Next inspect exact-head 5e7fb58 captures, reject disappearing puddles or warning decals/overlap/clipping, and devote the next integrated visual and gameplay build to believable character/contact/boss choreography.",
-    "currentWork": "Same open M1 vertical-slice candidate at 5e7fb58: actual legal spawn-to-Warden route is now covered by a deterministic multi-cell Gothic flagstone floor, with visually distinct pilgrim, weathered chapel and reliquary stone and physical 1-to-6-cell slabs rather than per-tile checkerboard blocks. True rubble and damp overlays sit above the new physical surface. Three shared instanced GPU material batches maximum; no added dynamic lights, sprites, copied artwork, authority RNG, movement, collision or save-format changes. Original four-chapter vaulted wall environment, skinned actors, Warden battle and autonomous AI remain integrated, not a separate tech demo.",
+    "biggestRemainingGap": "Genuine 2 November 1440x832 Chromium scene at 81a761 still reveals toy-like oversized crania, three co-located actors obscuring one another, crowded cubical masonry and limited contact clarity. This implementation addresses the first two together, but exact new-head desktop/mobile motion/audio, scene continuity and blind matched reference comparisons are NOT YET observed. Cohesive full-body anatomy, active fight/Warden framing and architecture still require substantial work. IN PROGRESS — NOT TRANSFORMED.",
+    "currentWork": "Current playable M1 candidate integrates the actual skinned source characters with narrower adult-head profiles and a camera-facing physical within-tile formation for up to three overlapping heroes/enemies. CombatDirector shares exactly the same real camera and authority snapshot as the actor renderer so blade sweeps and damage remain attached to visible targets. Earlier four-act Gothic walls, contiguous original floor and Warden progression remain; no RNG, AI, target reach, save/replay, additional models or audio changes.",
     "candidateCommit": "5e7fb58c9441fabc91123d7675d5a8cc77bc6bc5",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
@@ -2722,6 +2722,30 @@
         "experienceVerdict": "IN_PROGRESS / NOT_TRANSFORMED",
         "referenceParity": "UNVERIFIED",
         "next": "Inspect real browser desktop/mobile new stone/character encounters for coherent stone geometry, actual floor/water/hazard contact and draw budget; fix artefacts; then integrate realistic skeletal contact and boss confrontation with sustained same-seed motion/audio evidence; three fresh blind critics required."
+      },
+      {
+        "id": "M1-TRUTH-ALIGNED-ADULT-ENSEMBLE-20261102",
+        "date": "2026-11-02",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "81a761ae5a2f6f2e06961678f48fba937ad8475c",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "objective": "Reshape the genuinely toy-like, co-located hero silhouette from current Chromium and stage each true source rig, its target-locked weapon VFX and camera within one physical legal tile, as one coherent combat ensemble across traversal and Warden approaches.",
+        "implementation": "Six per-role adult cranial bone scale profiles .61-.66, reversible before/after actual GLB AnimationMixer. Actual camera view creates up to three distinct within-grid-cell figure positions with max .44m visual offset; source skinned actors and real-authority physical blade director consume the same camera/snapshot. Older 4-chapter environmental art, combat logic, audio, Warden AI and floor advancement untouched. No new external/proprietary assets or authority changes.",
+        "files": [
+          "public/ai-dungeon/combat-staging-plan.js",
+          "public/ai-dungeon/app.js",
+          "public/ai-dungeon/combat-director.js",
+          "public/ai-dungeon/rig-attachment-plan.js",
+          "tests/foundation/dungeon-combat-staging.test.cjs",
+          "tests/foundation/dungeon-cranial-proportions.test.cjs",
+          "tests/browser/dungeon-rig-attachments.spec.cjs"
+        ],
+        "priorRealScreenshot": "https://github.com/my-edutu/Ai_games/actions/runs/41398888784/artifacts/13120803208",
+        "localValidation": "Two focused RED cases before implementation; then 8/8 combat staging, 5/5 adult cranium and 38/38 rig/armor/motion focused tests passed; complete local Dungeon foundation 188/188 passed, TypeScript build passed. No exact-new-head browser view captured, no independent critic or audio.",
+        "experienceVerdict": "IN_PROGRESS / NOT_TRANSFORMED",
+        "safety": "Read-only spectator pose. No AI/map/damage/attack reach/seed/save/replay change; held avatar centres remain inside their authentic tile. Reduced motion retains imported mixer and original safe static head fit.",
+        "critics": "NOT_RUN (developer worker tunnel unavailable); blind majority UNVERIFIED",
+        "next": "Inspect exact-head real desktop/mobile moving spawn, contact, boss and action silhouettes; check head-gear clipping, stage jostle, hand-to-blade alignment, wall clearance, FPS. Repair any regressions; integrate original full-body art and richer encounter feedback, then capture actual matched all-scene audiovisual adventure and require three fresh independent blind LOOKS/FEELS/PLAYS majorities."
       }
     ]
   }

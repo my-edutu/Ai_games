@@ -7,12 +7,12 @@
  * within the same cell. This NEVER modifies navigation, target legality,
  * attacks, collision, saves, replay, or the authoritative positions.
  */
-export const MAX_STAGE_OFFSET=.275;
+export const MAX_STAGE_OFFSET=.44;
 const MAX_ACTORS=18;
 const isGrid=n=>Number.isInteger(n)&&n>=0&&n<=63;
 const aliveInFrame=(u,s)=>u.hp>0||(u.hp===0&&u.action==='hurt'&&u.actionTick===s.tick);
 
-export function planCombatStage(snapshot){
+export function planCombatStage(snapshot,viewPosition=null){
  const placed=Object.create(null);
  if(!Array.isArray(snapshot?.map)||!Array.isArray(snapshot?.units))return placed;
  const buckets=new Map();
@@ -33,13 +33,30 @@ export function planCombatStage(snapshot){
  for(const group of buckets.values()){
   group.sort((a,b)=>Number(a.faction!=='party')-Number(b.faction!=='party')||
    a.id.localeCompare(b.id,'en'));
-  const n=group.length,radius=n<2?0:Math.min(MAX_STAGE_OFFSET,n===2?.265:.275);
+  const n=group.length,radius=n<2?0:Math.min(.275,n===2?.265:.275);
+  // A real camera sees several heroes at exactly one public grid coordinate
+  // as one toy-like clump. Spread up to three real co-located figures in a
+  // small *screen-horizontal* tableau without changing the authoritative tile.
+  // This shares one frozen snapshot/camera with the physical blade director.
+  const centre=group[0],half=(snapshot.map.length-1)/2;
+  const vx=Number.isFinite(viewPosition?.x)?viewPosition.x-(centre.x-half):NaN;
+  const vz=Number.isFinite(viewPosition?.z)?viewPosition.z-(centre.z-half):NaN;
+  const vLength=Math.hypot(vx,vz),cameraLine=n>=2&&n<=3&&
+   Number.isFinite(vLength)&&vLength>.5;
+  const screenRight=cameraLine?{x:vz/vLength,z:-vx/vLength}:null;
   for(let i=0;i<n;i++){
-   // Deterministic circular poses; no Math.random, wall time, or per-frame
-   // simulation. Every offset fits inside its own tile's footprint.
+   // Keep the old stable circle for no camera, big crowds, and offscreen
+   // staging. Neither clock time nor world occupancy affects the result.
    const theta=n<2?0:(2*Math.PI*i/n)-Math.PI/2;
    let dx=Number((Math.cos(theta)*radius).toFixed(4));
    let dz=Number((Math.sin(theta)*radius).toFixed(4));
+   if(cameraLine){
+    const lateral=(i-(n-1)/2)*(n===3?.405:.60);
+    // A slight depth step prevents literal coincident feet at the middle.
+    const depth=n===3&&i===1?-.085:.035;
+    dx=Number((screenRight.x*lateral+(vx/vLength)*depth).toFixed(4));
+    dz=Number((screenRight.z*lateral+(vz/vLength)*depth).toFixed(4));
+   }
    const u=group[i];
    if(n===1&&u.faction==='party'&&warden&&u.id!==warden.id){
     const awayX=u.x-warden.x,awayZ=u.z-warden.z;

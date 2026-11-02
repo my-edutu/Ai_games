@@ -131,10 +131,10 @@ export function createCombatDirector(scene,{reducedMotion=false,actorById=null}=
    case 'hurt':break; // Actual HP delta, not a pose, now authorises injury VFX.
   }
  }
- function accept(s){
+ function accept(s,viewPosition=null){
   const key=s.run+':'+s.floor;
   if(key!==floorKey){reset();floorKey=key;}
-  stagePositions=planCombatStage(s);
+  stagePositions=planCombatStage(s,viewPosition);
   const current=new Set();
   for(const u of s.units){
    const id=u.id;current.add(id);

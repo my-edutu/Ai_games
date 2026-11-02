@@ -27,7 +27,7 @@ test('each real role has a conservative original adult-head proportion profile w
  const roles=['vanguard','ranger','mystic','revenant','cultist','warden'];
  for(const kind of roles){
   const ratio=planCranialRatio(kind);
-  assert.ok(ratio>=.70&&ratio<=.80,`${kind} head adjustment is bounded`);
+  assert.ok(ratio>=.60&&ratio<=.67,`${kind} head adjustment is bounded`);
   assert.ok(ratio<1,`${kind} eliminates part of oversized low-poly head`);
  }
  for(const bad of [null,undefined,'unknown','',42])assert.equal(planCranialRatio(bad),1);
@@ -66,4 +66,12 @@ test('live imported GLB mixer overlays a reversible cranial adjustment without s
  assert.match(source,/rigCranialActors:/);
  assert.match(source,/rigCranialRatios:/);
  assert.match(source,/actor\.rigCranial=null/);
+});
+
+test('adult-profile refit meaningfully corrects toy-sized crania, rather than only changing paint',async()=>{
+ const {planCranialRatio}=await load();
+ for(const kind of ['vanguard','ranger','mystic','revenant','cultist','warden']){
+  const ratio=planCranialRatio(kind);
+  assert.ok(ratio>=.60&&ratio<=.67,kind+' must have a coherent adult-hero head-to-height target');
+ }
 });
