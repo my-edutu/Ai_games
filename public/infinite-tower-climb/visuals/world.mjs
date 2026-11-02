@@ -76,6 +76,42 @@ export function createRuinsGateLeafGeometry(THREE, side) {
   return geometry;
 }
 
+// One original machined silhouette serves both counter-rotating, source-driven
+// carriage gears. Four open windows leave a real central hub and spoke web;
+// twelve raised teeth make actual observed rotation legible without overlays.
+// The same immutable geometry is shared by both gear instances, not allocated
+// on source ticks or claimed to have any gameplay collider.
+export function createObservedMovingDeckGearGeometry(THREE) {
+  const shape = new THREE.Shape(), teeth = 12, divisions = teeth * 4;
+  for (let i = 0; i < divisions; i++) {
+    const a = i * Math.PI * 2 / divisions;
+    const r = i % 4 === 1 || i % 4 === 2 ? .76 : .65;
+    if (i === 0) shape.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+    else shape.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+  }
+  shape.closePath();
+  for (let quadrant = 0; quadrant < 4; quadrant++) {
+    const center = (quadrant + .5) * Math.PI / 2, half = .30;
+    const hole = new THREE.Path();
+    for (let step = 0; step <= 5; step++) {
+      const a = center - half + 2 * half * step / 5;
+      const x = Math.cos(a) * .52, y = Math.sin(a) * .52;
+      if (step === 0) hole.moveTo(x, y); else hole.lineTo(x, y);
+    }
+    for (let step = 5; step >= 0; step--) {
+      const a = center - half + 2 * half * step / 5;
+      hole.lineTo(Math.cos(a) * .22, Math.sin(a) * .22);
+    }
+    hole.closePath();shape.holes.push(hole);
+  }
+  const gear = new THREE.ExtrudeGeometry(shape, {
+    depth: .19, steps: 1, bevelEnabled: true, bevelSegments: 1,
+    bevelSize: .014, bevelThickness: .025, curveSegments: 4,
+  });
+  gear.translate(0, 0, -.095);
+  return gear;
+}
+
 // Original geologic panorama: large fragmented cliffs at three actual depths,
 // not a screen-space card or cloned scenery from a commercial game. The full
 // ring survives orbit/floor cameras; every point stays beyond the widest
@@ -308,11 +344,12 @@ export function createTowerWorld(){
     for(const r of rotors){boundaries.add(r.o);batchRigid(r.o);}
     for(const f of floaters)boundaries.add(f.o);
     for(const p of platforms.values()){
-      // Keep the rotating source-observed crank apart from static deck merging.
+      // The source-driven gear pair and piston are dynamic INSTANCE batches;
+      // never bake their observed motion into the static platform mesh.
       if(p.traveler)batchRigid(p.traveler);
       if(p.countergear)batchRigid(p.countergear);
       if(p.actuator)batchRigid(p.actuator);
-      batchRigid(p.root,new Set([p.traveler,p.countergear,p.actuator].filter(Boolean)));
+      batchRigid(p.root,new Set([p.traveler,p.countergear,p.actuator,p.gearVisual].filter(Boolean)));
     }
     for(const e of hazards.values()){
       batchRigid(e.live,new Set(e.spin?[e.spin]:[]));
@@ -970,45 +1007,51 @@ export function createTowerWorld(){
     root.traverse(o=>{if(o.isMesh&&o.material===bodyMaterial)o.userData.structural=true;});
     // Give a genuinely moving autonomous landing a mechanical, world-space
     // cue. Position belongs to the source platform; the crank never drives it.
-    let traveler=null,countergear=null,actuator=null;
+    let traveler=null,countergear=null,actuator=null,gearVisual=null;
     if(p.kind==='moving'){
       traveler=new THREE.Group();traveler.name='SourceObservedMovingDeckCrank';
       traveler.position.set(0,h-1.4,27.46);
-      const rim=mesh(traveler,geometry('observed-moving-crank-rim',
-        ()=>new THREE.TorusGeometry(.72,.13,6,20)),materials.copper);
-      rim.castShadow=false;rim.receiveShadow=false;
-      for(let spoke=0;spoke<2;spoke++){
-        const arm=block(traveler,materials.copper,[0,0,.07],
-          [1.22,.13,.16],[0,0,spoke*Math.PI/2]);
-        arm.castShadow=false;arm.receiveShadow=false;
-      }
-      // The second exposed gear and hydraulic load transfer make this a
-      // visibly weight-bearing carriage, not a colored moving rectangle.
-      // Both stages respond ONLY to observed authoritative deck displacement.
-      // Nothing predicts a collider, platform destination or player landing.
       countergear=new THREE.Group();
       countergear.name='SourceObservedMovingDeckCountergear';
       countergear.position.set(1.52,h-1.4,27.46);
-      mesh(countergear,geometry('observed-moving-countergear-rim',
-        ()=>new THREE.TorusGeometry(.66,.11,6,20)),materials.edge);
-      for(let spoke=0;spoke<2;spoke++)
-        block(countergear,materials.edge,[0,0,.065],[1.04,.12,.16],
-          [0,0,spoke*Math.PI/2]);
+      // Two independent physical gears, but ONE bounded submitted material
+      // draw: the same original toothed/spoked mesh is instanced twice.
+      // Rotation comes solely from observed p.x deltas below.
+      gearVisual=new THREE.InstancedMesh(
+        geometry('observed-moving-toothed-gear',()=>createObservedMovingDeckGearGeometry(THREE)),
+        materials.copper,2);
+      gearVisual.name='SourceObservedMovingDeckGearPair';
+      gearVisual.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+      gearVisual.setColorAt(0,new THREE.Color(0xffffff));
+      gearVisual.setColorAt(1,new THREE.Color(0xb1d6e0));
+      gearVisual.frustumCulled=false;
+      gearVisual.userData.ambientDetail=true;
+      gearVisual.castShadow=false;gearVisual.receiveShadow=false;
       actuator=new THREE.Group();
       actuator.name='SourceObservedMovingDeckLoadPiston';
       actuator.position.set(-1.95,h-1.6,27.54);
       actuator.userData.restY=actuator.position.y;
-      casting(actuator,materials.copper,[0,-.24,0],[.35,.88,.42]);
-      casting(actuator,materials.mint,[0,.26,.075],[.16,.42,.2]);
-      for(const drive of [traveler,countergear,actuator])
-        drive.traverse(object=>{if(object.isMesh){
-          object.userData.ambientDetail=true;
-          object.castShadow=false;object.receiveShadow=false;
-        }});
-      root.add(traveler,countergear,actuator);
+      // The fixed sleeve and exposed rod share a second instanced draw,
+      // retaining a source-contact accent without two separate draw calls.
+      const sleeve=new THREE.InstancedMesh(rounded(),materials.copper,2);
+      sleeve.name='SourceObservedMovingDeckPistonParts';
+      sleeve.setColorAt(0,new THREE.Color(0xffffff));
+      sleeve.setColorAt(1,new THREE.Color(0xa3e8ca));
+      for(const [i,part] of [
+        {p:[0,-.24,0],s:[.35,.88,.42]},
+        {p:[0,.26,.075],s:[.16,.42,.2]},
+      ].entries()){
+        dummy.position.set(...part.p);dummy.rotation.set(0,0,0);
+        dummy.scale.set(...part.s);dummy.updateMatrix();
+        sleeve.setMatrixAt(i,dummy.matrix);
+      }
+      sleeve.castShadow=false;sleeve.receiveShadow=false;
+      sleeve.userData.ambientDetail=true;
+      actuator.add(sleeve);
+      root.add(traveler,countergear,actuator,gearVisual);
     }
     platforms.set(p.id,{root,angle,width:p.width,height:p.height,
-      capMaterials,guardianGate,traveler,countergear,actuator,
+      capMaterials,guardianGate,traveler,countergear,actuator,gearVisual,
       motionSourceTick:null,sourceX:null,sourceTick:null});return root;
   }
   function buildHazard(h,width){
@@ -1170,7 +1213,11 @@ export function createTowerWorld(){
           && (entry.sourceTick===null || snapshot.tick>entry.sourceTick)){
           const freshDrive=!options.reducedMotion &&
             entry.motionSourceTick===snapshot.tick;
-          const travel=freshDrive
+          // Reduced-motion changes cannot create an unobserved new stroke;
+          // hold an already witnessed displacement, except an authentic
+          // rider dismount must still release the weighted carriage.
+          const unloaded=entry.actuator.userData.loaded===true && !physicallyLoaded;
+          const travel=freshDrive || (options.reducedMotion && !unloaded)
             ? Math.max(0,entry.actuator.userData.restY-entry.actuator.position.y):0;
           const contact=physicallyLoaded ? .22 : 0;
           // A previous tick's suspension stroke cannot remain as a ghost
@@ -1179,6 +1226,19 @@ export function createTowerWorld(){
             Math.min(.42,Math.max(contact,travel));
           entry.actuator.userData.loaded=physicallyLoaded;
           entry.sourceTick=snapshot.tick;entry.sourceX=p.x;
+        }
+        // One shared instanced draw follows both actual source-bound gear
+        // proxy angles. No extra clock/physics, speculative destination or
+        // per-tick geometry allocation; keep conservative culling disabled.
+        if(entry.gearVisual){
+          for(const [index,gear] of [entry.traveler,entry.countergear].entries()){
+            dummy.position.copy(gear.position);
+            dummy.rotation.set(0,0,gear.rotation.z);
+            const size=index===0?1:.88;
+            dummy.scale.set(size,size,size);dummy.updateMatrix();
+            entry.gearVisual.setMatrixAt(index,dummy.matrix);
+          }
+          entry.gearVisual.instanceMatrix.needsUpdate=true;
         }
       }
       if(entry.guardianGate){
@@ -1289,7 +1349,7 @@ export function createTowerWorld(){
     }
     occludedGuardianCaps=faded;
   }
-  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,activeHazardPressureFins:[...hazards.values()].reduce((n,h)=>n+(h.indicator.userData.activePressureTeeth||0),0),observedMovingDeckCranks:[...platforms.values()].filter(p=>p.traveler).length,observedMovingDeckDriveStages:[...platforms.values()].filter(p=>p.countergear&&p.actuator).length,observedMovingDeckDriveLastTick:[...platforms.values()].reduce((latest,p)=>Math.max(latest,p.motionSourceTick??-1),-1),ambientParticles:particles?.visible?48:0,floor:lastSnapshot?.floor??null,theme,quality,disposed,guardianGates:[...platforms.entries()].filter(([,p])=>p.guardianGate).map(([id,p])=>({id,unlocked:p.guardianGate.unlocked,opening:p.guardianGate.progress,conduitReach:p.guardianGate.conduit.scale.z,anchorX:p.guardianGate.anchorX})),occludedGuardianCaps,ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
+  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,activeHazardPressureFins:[...hazards.values()].reduce((n,h)=>n+(h.indicator.userData.activePressureTeeth||0),0),observedMovingDeckCranks:[...platforms.values()].filter(p=>p.traveler).length,observedMovingDeckDriveStages:[...platforms.values()].filter(p=>p.countergear&&p.actuator).length,observedMovingDeckGearBatches:[...platforms.values()].filter(p=>p.gearVisual?.count===2).length,observedMovingDeckDriveLastTick:[...platforms.values()].reduce((latest,p)=>Math.max(latest,p.motionSourceTick??-1),-1),ambientParticles:particles?.visible?48:0,floor:lastSnapshot?.floor??null,theme,quality,disposed,guardianGates:[...platforms.entries()].filter(([,p])=>p.guardianGate).map(([id,p])=>({id,unlocked:p.guardianGate.unlocked,opening:p.guardianGate.progress,conduitReach:p.guardianGate.conduit.scale.z,anchorX:p.guardianGate.anchorX})),occludedGuardianCaps,ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;clearFloor();for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
   return{group,update,revealGuardianSightlines,dispose,diagnostics};
 }
