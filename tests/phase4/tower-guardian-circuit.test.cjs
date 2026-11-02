@@ -82,12 +82,19 @@ test('guardian-to-cap gantry stays outside tower core and physically retracts so
   const { createTowerGuardianCircuit } = await modulePromise;
   const effect = createTowerGuardianCircuit(THREE);
   const initial = snapshot({ enemies: [{ ...snapshot().enemies[0], health: 8 }] });
+  const { observedGuardianCircuit } = await modulePromise;
+  const anchored = observedGuardianCircuit(initial);
+  assert.ok(anchored.fromY <= initial.enemies[0].y,
+    'physical guardian attachment must not sit across the armored head or maul telegraph');
   effect.update(initial);
   const rails = effect.group.getObjectByName('GuardianLockTwinBronzeRails');
   const bolts = effect.group.getObjectByName('GuardianCapSourceLockBolts');
   assert.ok(bolts, 'real guardian gate must have an architectural lock at its actual cap anchor');
   assert.equal(bolts.count, 8);
   assert.equal(bolts.material.depthTest, true);
+  const conductor = effect.group.getObjectByName('GuardianLockHealthConductor');
+  assert.ok(conductor.material.opacity <= .3,
+    'initial HP link must be a quiet world-space cue, not an opaque face-covering ribbon');
   const matrix = new THREE.Matrix4();
   rails.getMatrixAt(10, matrix);
   const middle = new THREE.Vector3().setFromMatrixPosition(matrix);
