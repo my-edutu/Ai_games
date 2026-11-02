@@ -399,6 +399,61 @@ body[data-workday="live"] .world-tour{top:10px}
  body[data-workday="live"] .world-tour{top:10px;max-width:calc(100vw - 12px)}
  body[data-workday="live"] #workday-activity{max-width:calc(100vw - 16px)}
 }
+
+/* G130: One genuinely playable world-view on a 390px handset. The previous
+   mobile capture spent ~205px on three permanent top bars and another ~75px
+   on two bottom rows. Keep every real action reachable through a horizontal
+   explorer strip and the existing complete Command Desk; never hide people,
+   structures or production. Only the default WORLD overview is compact.
+   Explicit full command, live workday and street-walk retain their own modes. */
+@media(max-width:520px){
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]) .top{
+  top:7px!important;left:8px!important;right:8px!important;justify-content:flex-end}
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]) .top .brand{
+  display:none!important}
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]) .top .pill{
+  width:151px;max-width:151px!important;min-height:42px;
+  padding:5px 7px!important;gap:3px 6px;align-content:center;
+  flex-wrap:wrap;font-size:9px!important;border-radius:11px}
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]) .world-tour{
+  position:fixed;top:8px!important;left:8px!important;right:auto!important;
+  transform:none!important;width:max-content!important;
+  max-width:calc(100vw - 173px)!important;
+  overflow-x:auto;overflow-y:hidden;white-space:nowrap;justify-content:flex-start;
+  gap:3px;padding:3px 5px!important;border-radius:11px;
+  scrollbar-width:thin;overscroll-behavior-x:contain}
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]) .world-tour small{
+  display:none!important}
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]) .world-tour .tour-btn{
+  min-height:34px;padding:5px 8px!important;font-size:10px!important;flex:none}
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]) #world-ribbon{
+  top:60px!important;bottom:auto!important;left:50%!important;right:auto!important;
+  transform:translateX(-50%)!important;
+  width:calc(100vw - 16px)!important;max-width:calc(100vw - 16px)!important;
+  max-height:54px!important;min-height:40px;display:flex!important;
+  justify-content:space-between;align-items:center;flex-wrap:nowrap!important;
+  gap:5px;padding:5px 7px!important;overflow-x:auto;overflow-y:hidden;
+  white-space:nowrap;scrollbar-width:thin;border-radius:11px}
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]) #world-ribbon .world-identity,
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]) #world-story{
+  display:none!important}
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]) #world-ribbon .world-measure{
+  flex:none;gap:2px;align-items:baseline}
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]) #world-ribbon .world-measure strong{font-size:14px}
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]) #world-ribbon .world-measure small{font-size:8px}
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]) #world-open-command{
+  flex:none;white-space:nowrap;min-height:31px;padding:5px 8px;font-size:9px}
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]) .bottom{
+  bottom:7px!important;width:calc(100vw - 14px)!important;
+  max-width:calc(100vw - 14px)!important;height:52px;max-height:52px;
+  padding:4px 5px!important;gap:3px;display:flex;flex-wrap:nowrap!important;
+  justify-content:flex-start;overflow-x:auto;overflow-y:hidden;
+  scrollbar-width:thin;border-radius:11px}
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]) .bottom .btn{
+  flex:none;min-height:35px;padding:7px 8px!important;font-size:10px!important}
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]) .bottom > :not(#pause):not(#speed1):not(#focus):not(#command-toggle):not(#hud-toggle){
+  display:none!important}
+}
 </style></head><body>
 <canvas id="world" aria-label="Live 3D simulation of a medieval valley with autonomous villagers"></canvas><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
