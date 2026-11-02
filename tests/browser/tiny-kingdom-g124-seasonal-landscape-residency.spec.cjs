@@ -11,7 +11,7 @@ test('G124 bounded seasonal landscape residency preserves state and mobile WebGL
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.setViewportSize({width:1024,height:640});
  await page.setContent(html);
- await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().landscapeGpuUploads>0,{timeout:70000});
+ await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().landscapeGpuUploads>0,null,{timeout:70000});
  await page.locator('#pause').click();
  const first=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
