@@ -56,6 +56,9 @@ export function createMazeWorld(options = {}) {
   // An open gate only moves if this SAME run publicly showed its CLOSED state
   // first. These are presentation-only timestamps, never gate authority.
   const gateOpeningAt = new Map(), retractingGates = new Map();
+  // Mesh references stay out of userData so Three.js serialization/cloning
+  // remains safe; obsolete disclosed doors can be collected automatically.
+  const gateDrives = new WeakMap();
   let presentationTime = 0;
   const doorEdgeId = (a,b) => `${Math.min(a,b)}:${Math.max(a,b)}`;
   const geometry = (g) => { geometries.add(g); return g; };
@@ -617,7 +620,7 @@ export function createMazeWorld(options = {}) {
       weight.name = side < 0 ? 'Left hanging gate weight' : 'Right hanging gate weight';
       wheels.push(wheel); weights.push(weight);
     }
-    gate.userData.publicDrive = {wheels, weights};
+    gateDrives.set(gate, {wheels, weights});
     if (door.open && !retracting) {
       // A door first discovered OPEN is shown in its settled open pose. This
       // does not manufacture an opening event or another animated passage.
@@ -874,7 +877,7 @@ export function createMazeWorld(options = {}) {
       // rises, while twin stone weights fall within the two real jambs.
       // No geometry, material or animation clock is allocated per frame.
       const travel = Math.max(0, Math.min(1, pose.raise / 1.55));
-      const drive = gate.userData.publicDrive;
+      const drive = gateDrives.get(gate);
       if (drive) for (let i = 0; i < drive.wheels.length; i++) {
         drive.wheels[i].rotation.z = (i ? 1 : -1) * travel * 1.35;
         drive.weights[i].position.y = .61 - travel * .30;
