@@ -5567,11 +5567,13 @@ function chooseFilmableWorker(rows,excluded=-1){
   const front=shot.facingAlignment??-1;
   const clear=shot.blockers===0&&shot.handBlockers<=1&&
    shot.foregroundCitizenBlockers===0&&
-   shot.foregroundSceneCover<.20&&front>.12&&
+   shot.foregroundSceneCover<.20&&shot.foregroundVegetationCover<.30&&
+   shot.vegetationFaceBlockers===0&&front>.12&&
    shot.projectedWorkerHeightFraction>(canvas.clientWidth<500?.18:.21);
   const score=(clear?3000:0)+front*600+
    Math.min(.42,shot.projectedWorkerHeightFraction)*2200-
    shot.foregroundSceneCover*2100-
+   shot.foregroundVegetationCover*2500-shot.vegetationFaceBlockers*850-
    shot.handBlockers*180-shot.blockers*900-
    shot.blockedBodyRays*90-shot.cameraProximityWarnings*45-
    shot.foregroundCitizenBlockers*300+
@@ -5586,6 +5588,8 @@ function chooseFilmableWorker(rows,excluded=-1){
   actor:best.person.name,job:best.person.job,
   visibleFront:best.clear,faceAlignment:best.shot.facingAlignment,
   foregroundCover:best.shot.foregroundSceneCover,
+  vegetationCover:best.shot.foregroundVegetationCover,
+  vegetationFaceBlockers:best.shot.vegetationFaceBlockers,
   remainingHours:best.remaining,
   honestWork:isWorkingAtSite(best.person)};
  return best;
@@ -6614,6 +6618,65 @@ function foregroundSceneProjection(eye,target,roofs){
  return {cover:Math.round(cover*1000)/1000,
   largest:Math.round(largest*1000)/1000,volumes};
 }
+// G148: real forest and orchard crowns can obscure a portrait face even when
+// a market/building ray is clear. Conservative render-only volumes follow
+// the actual seeded forest and nine original orchard trees. No tree is hidden,
+// created, moved or made to alter authoritative simulation for the camera.
+const workdayCanopyBounds=trees.filter(t=>!farmTreeClearance(t.x,t.z)&&
+ Math.hypot(t.x-SCENIC_SITES.sanctuary.x,t.z-SCENIC_SITES.sanctuary.z)>8)
+ .map(t=>{
+  const broad=Math.sin(t.x*1.71+t.z*3.14)>.12;
+  return {x:t.x,z:t.z,y:terrain(t.x,t.z)+(broad?2.42:2.36)*t.s,
+   rx:(broad?1.64:1.17)*t.s,ry:(broad?1.21:1.41)*t.s,
+   orchard:false};
+ }).concat(Array.from({length:9},(_,i)=>{
+  const x=-28+(i%3)*2.9,z=6+Math.floor(i/3)*3.2;
+  return {x,z,y:terrain(x,z)+2.18,rx:1.13,ry:.76,orchard:true};
+ }));
+function foregroundVegetationProjection(eye,target){
+ const delta=target.map((v,i)=>v-eye[i]),distance=Math.hypot(...delta)||1;
+ const f=delta.map(v=>v/distance),flat=Math.hypot(f[0],f[2])||1;
+ const right=[-f[2]/flat,0,f[0]/flat];
+ const up=[-f[0]*f[1]/flat,flat,-f[2]*f[1]/flat];
+ const aspect=Math.max(.35,canvas.clientWidth/Math.max(1,canvas.clientHeight));
+ const tanHalf=Math.tan(Math.PI/6.4);
+ // Audit the real head above the torso-level camera aim, not a fake actor.
+ const face=[target[0],target[1]+.4,target[2]];
+ const fd=face.map((v,i)=>v-eye[i]);
+ const faceDepth=fd.reduce((n,v,i)=>n+v*f[i],0);
+ const faceX=(fd[0]*right[0]+fd[2]*right[2])/
+  (Math.max(.3,faceDepth)*tanHalf*aspect);
+ const faceY=fd.reduce((n,v,i)=>n+v*up[i],0)/
+  (Math.max(.3,faceDepth)*tanHalf);
+ const winter=climateAt(state.t).season===3;
+ let cover=0,largest=0,volumes=0,faceBlockers=0;
+ for(const crown of workdayCanopyBounds){
+  if(crown.orchard&&winter)continue; // Bare winter orchard is not leafy.
+  const dx=crown.x-eye[0],dy=crown.y-eye[1],dz=crown.z-eye[2];
+  const along=dx*f[0]+dy*f[1]+dz*f[2];
+  if(along>faceDepth+crown.rx*.35)continue; // Crown behind the actor.
+  const inside=Math.hypot(dx/crown.rx,dy/crown.ry,dz/crown.rx)<1.02;
+  if(along<.24&&!inside)continue;
+  const depth=Math.max(.38,along-crown.rx*.22);
+  const cx=(dx*right[0]+dz*right[2])/(depth*tanHalf*aspect);
+  const cy=(dx*up[0]+dy*up[1]+dz*up[2])/(depth*tanHalf);
+  const halfX=crown.rx/(depth*tanHalf*aspect);
+  const halfY=crown.ry/(depth*tanHalf);
+  if(!inside&&(cx+halfX< -1||cx-halfX>1||cy+halfY< -1||cy-halfY>1))
+   continue;
+  const width=inside?2:Math.max(0,Math.min(1,cx+halfX)-Math.max(-1,cx-halfX));
+  const height=inside?2:Math.max(0,Math.min(1,cy+halfY)-Math.max(-1,cy-halfY));
+  // A real leaf crown is sparse, not an opaque rectangle.
+  const area=inside?1:width*height*.49/4;
+  if(area>.001){volumes++;largest=Math.max(largest,area);
+   cover=Math.min(1,cover+area);}
+  if(inside||(along<faceDepth-.08&&
+    Math.abs(faceX-cx)<halfX*.87&&Math.abs(faceY-cy)<halfY*.87))
+   faceBlockers++;
+ }
+ return {cover:Math.round(cover*1000)/1000,
+  largest:Math.round(largest*1000)/1000,volumes,faceBlockers};
+}
 function projectedWorkdayOccluders(eye,target,subject,hands=[]){
  const dx=target[0]-eye[0],dy=target[1]-eye[1],dz=target[2]-eye[2];
  const depth=Math.hypot(dx,dy,dz)||1,forward=[dx/depth,dy/depth,dz/depth];
@@ -6759,6 +6822,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
    projectedWorkerHeightFraction:projectedWorkerBodyFraction(eye,target,citizen),
    foregroundSceneCover:scenic.cover,foregroundSceneLargest:scenic.largest,
    foregroundSceneVolumes:scenic.volumes,
+   foregroundVegetationCover:0,vegetationFaceBlockers:0,
    blockers:followRayBlockers(eye,target,roofs)};
  };
  const original=candidate(preferredYaw);
@@ -6828,6 +6892,12 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   }
  }
  for(const {shot,coarse,alignment} of probes){
+  const canopy=working&&realWork?foregroundVegetationProjection(shot.eye,target):
+   {cover:0,largest:0,volumes:0,faceBlockers:0};
+  shot.foregroundVegetationCover=canopy.cover;
+  shot.foregroundVegetationLargest=canopy.largest;
+  shot.foregroundVegetationVolumes=canopy.volumes;
+  shot.vegetationFaceBlockers=canopy.faceBlockers;
   const framing=cameraShotFraming(shot,roofs,citizen,hands);
   const score=coarse+framing.blockedBodyRays*110+
    framing.blockedNeighbourhoodRays*12+
@@ -6836,13 +6906,15 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
    framing.projectedWorksitePosts*100+framing.frameCrowdBurden*65+
    framing.handBlockers*(working&&realWork?175:15)+
    framing.foregroundCitizenBlockers*(working&&realWork?290:30)+
-   framing.foregroundSceneCover*(portraitLens?1100:working?700:0);
+   framing.foregroundSceneCover*(portraitLens?1100:working?700:0)+
+   canopy.cover*(portraitLens?1650:850)+canopy.faceBlockers*550;
   if(score<bestScore){best=shot;bestScore=score;bestFraming=framing;}
   const clearFront=working&&realWork&&alignment>.12&&
    shot.blockers===0&&framing.handBlockers<=1&&
    framing.blockedBodyRays<=2&&framing.projectedBystanders===0&&
    framing.foregroundCitizenBlockers===0&&
-   framing.foregroundSceneCover<.14&&
+   framing.foregroundSceneCover<.14&&canopy.cover<.22&&
+   canopy.faceBlockers===0&&
    shot.projectedWorkerHeightFraction>(portraitLens?.18:.21)&&
    framing.projectedWorksitePosts===0&&
    framing.cameraProximityWarnings===0;
@@ -6860,7 +6932,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   const readableFront=portraitLens&&working&&realWork&&alignment>.24&&
    shot.blockers===0&&faceClear&&framing.handBlockers===0&&
    framing.foregroundCitizenBlockers===0&&
-   framing.foregroundSceneCover<.18&&
+   framing.foregroundSceneCover<.18&&canopy.cover<.32&&
+   canopy.faceBlockers===0&&
    framing.blockedBodyRays<=3&&framing.cameraProximityWarnings===0&&
    framing.projectedWorksitePosts<=1;
   if(readableFront){
@@ -6941,6 +7014,7 @@ function workdayCameraCompositionAudit(){
   focusPoint[1]+lastFollowShot.target[2]-person.z
  ]:[person.x,terrain(person.x,person.z)+1.02,person.z];
  const sceneCover=foregroundSceneProjection(eye,aim,roofs);
+ const vegetationCover=foregroundVegetationProjection(eye,aim);
  return {source:'real-autonomous-workday',active:true,actor:person.name,
   job:person.job,activity:person.activity,handTargets,
   handBlockers:handTargets.reduce((n,hand)=>
@@ -6948,15 +7022,20 @@ function workdayCameraCompositionAudit(){
   faceAlignment:Math.cos(yaw-face),
   clearFrontCandidates:lastFollowShot?.clearFrontCandidates||0,
   readableFrontCandidates:lastFollowShot?.readableFrontCandidates||0,
-  workFacingMode:sceneCover.cover>=.14?'obstructed':
+  workFacingMode:sceneCover.cover>=.14||vegetationCover.cover>=.32||
+   vegetationCover.faceBlockers>0?'obstructed':
    lastFollowShot?.workFacingMode||'unverified',
   foregroundSceneCover:sceneCover.cover,
+  foregroundVegetationCover:vegetationCover.cover,
+  vegetationFaceBlockers:vegetationCover.faceBlockers,
+  foregroundVegetationVolumes:vegetationCover.volumes,
   // The ACTUAL current eye and aim, not a planned camera target.
   projectedWorkerHeightFraction:projectedWorkerBodyFraction(eye,aim,person),
   plannedProjectedWorkerHeightFraction:lastFollowShot?.projectedWorkerHeightFraction??null,
   foregroundSceneLargest:sceneCover.largest,
   foregroundSceneVolumes:sceneCover.volumes,
   plannedForegroundSceneCover:lastFollowShot?.foregroundSceneCover??null,
+  plannedForegroundVegetationCover:lastFollowShot?.foregroundVegetationCover??null,
   cameraDistance:zoom,eye,staticWorldHidden:false,
   plannedHandBlockers:lastFollowShot?.handBlockers??null,
   foregroundCitizenBlockers:physicalCitizenForegroundBlockers(eye,person,handTargets),
@@ -7399,8 +7478,10 @@ function render(now){requestAnimationFrame(render);
    focusPoint[1]+Math.cos(yaw)*radius];
   const target=[citizen.x,terrain(citizen.x,citizen.z)+1.02,citizen.z];
   const roofs=followCameraRoofs(),obstructed=followRayBlockers(eye,target,roofs)>0;
-  const foregroundBlocked=foregroundSceneProjection(eye,plan.target,roofs).cover>.42;
-  const clearDestination=plan.foregroundSceneCover<.18;
+  const foregroundBlocked=foregroundSceneProjection(eye,plan.target,roofs).cover>.42||
+   foregroundVegetationProjection(eye,plan.target).faceBlockers>0;
+  const clearDestination=plan.foregroundSceneCover<.18&&
+   plan.foregroundVegetationCover<.28&&plan.vegetationFaceBlockers===0;
   const blend=reduceMotion?1:obstructed?.72:foregroundBlocked?.82:
     Math.min(.90,1-Math.exp(-5.5*Math.max(.016,dt)));
   const nextYaw=yaw+turn*blend,nextPitch=pitch+(plan.pitch-pitch)*blend,
@@ -7414,7 +7495,8 @@ function render(now){requestAnimationFrame(render);
   if((obstructed||(foregroundBlocked&&clearDestination))&&
      plan.blockers===0&&
      (followRayBlockers(nextEye,target,roofs)>0||
-      (clearDestination&&foregroundSceneProjection(nextEye,plan.target,roofs).cover>.42))){
+      (clearDestination&&(foregroundSceneProjection(nextEye,plan.target,roofs).cover>.42||
+     foregroundVegetationProjection(nextEye,plan.target).faceBlockers>0)))){
    focusPoint=[citizen.x,citizen.z];
    yaw=plan.yaw;pitch=plan.pitch;zoom=plan.zoom;
   }else{yaw=nextYaw;pitch=nextPitch;zoom=nextZoom}
