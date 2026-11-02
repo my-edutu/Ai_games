@@ -2151,7 +2151,7 @@
     "title": "From Prototype to Believable 3D Adventure",
     "adoptedOn": "2026-11-01",
     "status": "IN_PROGRESS",
-    "verdict": "IN PROGRESS — NOT TRANSFORMED; actual new-head comparison UNVERIFIED",
+    "verdict": "NOT_TRANSFORMED",
     "baseline": {
       "sha": "281735d0910c6b2443648af976003d50412ee324",
       "locked": true,
@@ -2195,18 +2195,18 @@
       },
       "safetyChecks": "PENDING EXACT-HEAD CI AND BROWSER",
       "matchedExternalReference": "NOT_RUN",
-      "originalAudioMotionClip": "UNVERIFIED",
+      "originalAudioMotionClip": "UNVERIFIED full original audio: predecessor Chromium artifact 13165920178 includes a 48.84-second VP8 test recording with no identified audio track; this is NOT the full traversal→combat→Warden→floor→defeat/restart reel.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
       "audioLoudnessAndClipping": "NOT_MEASURED",
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
-      "actualWebglFramingRegression": "PR source head 618869427: genuine desktop/phone Warden exposed/telegraph screenshots https://github.com/my-edutu/Ai_games/actions/runs/41473115150/artifacts/13156846991. Boss hero obstruction confirmed in prior-head before latest repair; after NOT CAPTURED.",
-      "latestCandidateWorkflow": "Source amendment at 20f0a84: https://github.com/my-edutu/Ai_games/actions/runs/41477810184 (real browser queued); https://github.com/my-edutu/Ai_games/actions/runs/41477810132 (visual queued); https://github.com/my-edutu/Ai_games/actions/runs/41477810344 (CI queued). Exact final-ledger-head validations still pending."
+      "actualWebglFramingRegression": "PREDECESSOR e474553 real Chromium 1440x832 Warden exposure and 390x844 contact: https://github.com/my-edutu/Ai_games/actions/runs/41490449531/artifacts/13165920178 . Inspected: the actual Vanguard is present but partially masked by the overlarge Warden; floating Warden nameplate overlaps the fixed boss health strip, especially on phone; masonry is cubic. Matched immutable baseline A/B remains UNVERIFIED. New code SHA 89a7e575 AFTER not yet captured.",
+      "latestCandidateWorkflow": "Current visual candidate source 89a7e575a2a2d712956607647ee9a58c86833b2a: exact-source Actions newly triggered by commit; result and real screenshots NOT VERIFIED at ledger edit. Predecessor e474553 Dungeon browser shards 1,2,3 succeeded; authority 210/210 foundation passed, 19/20 presentation/progress failed due non-enum transformation verdict. Corrected verdict to NOT_TRANSFORMED in this ledger; exact-head recheck pending. Catalogue CI preceding failed Build and test."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Inspected genuine 1440x832 Chromium exposed Warden still concealing most of the sole living Vanguard; repetitive masonry fills much of scene. This is predecessor evidence, NOT matched immutable baseline A/B.",
-    "currentWork": "Inspect new real desktop/mobile exposed counter/telegraph, correct visual overlap and frame starvation; film organic seeded traverse→combat→Warden→floor→defeat/restart with original WebAudio, performance and three independent masked looks/feels/plays critics; keep draft unmerged.",
-    "candidateCommit": "fe40fca06cdeac273f766dd04d653b654a9e6326",
+    "biggestRemainingGap": "Actual 2026-11-02 e474553 desktop/390px phone Chromium counter captured a boss that physically blankets the Vanguard and has a duplicate floating Warden name/HP over the fixed boss strip; blocky room masonry remains below the Diablo IV, No Rest for the Wicked and Path of Exile 2 reference quality. New boss-scale/arena/camera/overlay candidate 89a7e575 has NOT been inspected in actual browser yet.",
+    "currentWork": "Inspect 89a7e575 actual Chromium desktop/phone active contact and exposure against original frozen 281735d, then correct camera clipping, armored contact alignment and overwhelming corridor masonry. Record complete continuous organic autonomous journey, original click-opt-in WebAudio and both device frame distributions; obtain >=3 fresh blind critics; retain unmerged draft PR #49.",
+    "candidateCommit": "89a7e575a2a2d712956607647ee9a58c86833b2a",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -3121,6 +3121,30 @@
         "stagedSourceCommit": "fe40fca06cdeac273f766dd04d653b654a9e6326",
         "realAfterArtifact": null,
         "authenticPriorBrowserLabel": "PREDECESSOR only; this is not candidate AFTER"
+      },
+      {
+        "id": "M1-COHERENT-WARDEN-DUEL-20261102",
+        "date": "2026-11-02",
+        "sourceHeadAtStart": "e4745533f8c2bcb23788039b27f5cc0535ce6a7f",
+        "codeCommit": "89a7e575a2a2d712956607647ee9a58c86833b2a",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "objective": "Replace a visually overpowering Warden encounter with a legible human-vs-boss combat scene, integrating real imported-GLB proportions, bounded original crown/armor, genuine exposed recovery, wider physical arena, hero-first close camera and a single truthful boss HUD.",
+        "source": [
+          "public/ai-dungeon/warden-regalia-plan.js",
+          "public/ai-dungeon/model-assets.js",
+          "public/ai-dungeon/app.js",
+          "public/ai-dungeon/warden-chapter-plan.js",
+          "public/ai-dungeon/warden-ritual.js",
+          "public/ai-dungeon/cinematic-chapter-plan.js",
+          "public/ai-dungeon/combat-overlay.js",
+          "tests/foundation/dungeon-warden-duel-readability.test.cjs"
+        ],
+        "observedPriorRealCapture": "https://github.com/my-edutu/Ai_games/actions/runs/41490449531/artifacts/13165920178",
+        "baselineArtifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
+        "criticalSafety": "Authority 210/210 prior-head foundation passed; 1/20 progress validation failed due non-enumerated verdict. New head replay/CI and WebGL pending. No scoring or independent critic available.",
+        "experienceVerdict": "IN PROGRESS — NOT TRANSFORMED; LOOKS/FEELS/PLAYS UNVERIFIED",
+        "next": "Inspect exact-new-SHA real desktop/mobile camera contact and boss recovery, original click-opt-in recorded soundtrack and key motion; adapt integrated art+combat where quality still fails. Complete authentic continuous session and 3 independent blind masked reviewers."
       }
     ]
   }
