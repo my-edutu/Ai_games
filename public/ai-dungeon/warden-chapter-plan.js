@@ -38,8 +38,12 @@ export function planWardenExposurePose(recovery,guardianWard=false,warning=false
  if(!Number.isSafeInteger(turns)||turns<=0||turns>6||guardianWard||warning)
   return NO_EXPOSURE;
  const weight=clip(.62+Math.min(turns,3)*.075,.62,.845);
- return Object.freeze({weight,dip:.085*weight,torsoPitch:.21*weight,
-  shoulderPitch:.22*weight,shoulderRoll:.19*weight});
+ // A real counter opening reads as a weight-bearing kneel and opened
+ // shoulders instead of a standing giant swallowing the hero silhouette.
+ // The root remains on the legal floor, and reduced-motion holds this static
+ // posture without time-varying sway or fictitious damage.
+ return Object.freeze({weight,dip:.20*weight,torsoPitch:.28*weight,
+  shoulderPitch:.28*weight,shoulderRoll:.27*weight});
 }
 export function planWardenRegaliaMotion(id,phase='SENTINEL',charge=0,reducedMotion=false,exposure=0){
  const stage=Object.hasOwn(phaseOpen,phase)?phaseOpen[phase]:0;
