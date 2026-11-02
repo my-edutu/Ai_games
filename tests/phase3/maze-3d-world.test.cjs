@@ -476,3 +476,54 @@ test('three public terrace districts stay readable as physical, source-bounded c
     assert.equal(world.stats().materialCount,0);
   }
 });
+
+test('a two-cell publicly proven solid arch gains grounded tidal observatory sculpture without revealing unseen walls', async () => {
+  const {createMazeWorld}=await modulePromise;
+  const THREE=await import(three);
+  for(const balanced of [false,true]) {
+    const world=createMazeWorld({balanced}), budget=world.stats();
+    const isolated=fixture([{cell:0,neighbors:[]}]);
+    const paired=fixture([{cell:0,neighbors:[]},{cell:1,neighbors:[]}]);
+    const original=JSON.stringify(paired);
+    const panels=()=>{
+      const terrain=world.group.children[1], matrix=new THREE.Matrix4();
+      const pos=new THREE.Vector3(), rot=new THREE.Quaternion(), scale=new THREE.Vector3();
+      let count=0;
+      for(const batch of terrain.children) {
+        if(!batch.isInstancedMesh || batch.material.name!=='Disclosed sea-glass mosaic')continue;
+        for(let i=0;i<batch.count;i++) {
+          batch.getMatrixAt(i,matrix); matrix.decompose(pos,rot,scale);
+          if(pos.y>5.0 && scale.y>.55)count++;
+        }
+      }
+      return count;
+    };
+    world.update(isolated);
+    assert.equal(world.stats().tidalObservatories,0,
+      'an unseen adjoining wall cannot be fabricated into a broad aqueduct');
+    assert.equal(panels(),0,'no tall sea-glass landmark may appear before the public two-cell wall is established');
+    world.update(paired);
+    assert.equal(world.stats().tidalObservatories,1,
+      'one two-cell public northern solid wall earns one sculpted aqueduct');
+    assert.ok(panels()>=4,
+      'four real sea-glass fins occupy 3D height rather than a HUD overlay or new navigable platform');
+    assert.equal(world.stats().geometryCount,budget.geometryCount);
+    assert.equal(world.stats().materialCount,budget.materialCount);
+    assert.equal(world.stats().textureCount,budget.textureCount);
+    assert.equal(JSON.stringify(paired),original,
+      'artwork must not mutate the source-owned public maze snapshot');
+    world.animate(2,{reducedMotion:false});
+    world.animate(19,{reducedMotion:true});
+    assert.equal(world.stats().tidalObservatories,1,
+      'reduced-motion and runtime animation must not synthesize or change architecture');
+    world.update(isolated);
+    assert.equal(world.stats().tidalObservatories,0,
+      'withdrawing public neighbor knowledge retracts the broad observatory immediately');
+    assert.equal(panels(),0,
+      'no sculpted wide-site 3D fins persist after the neighboring public cell is withdrawn');
+    world.dispose();
+    assert.equal(world.stats().geometryCount,0);
+    assert.equal(world.stats().materialCount,0);
+    assert.equal(world.stats().tidalObservatories,0);
+  }
+});
