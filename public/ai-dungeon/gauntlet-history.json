@@ -2201,12 +2201,12 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "PREVIOUS_61PX_FRAME_KNOWN_CURRENT_WARDEN_AFTER_NOT_MEASURED",
-      "latestCandidateWorkflow": "AFTER_CONTACT_SCENE_9248799_WORKFLOW_RUNNING; exact prior e972444 Dungeon Foundation 41365087550 and visual review 41365087489 passed, but full catalogue 41365087588 failed three unrelated Tiny Kingdom browser expectations. Neither prior pass nor new implementation is accepted as an experiential win."
+      "latestCandidateWorkflow": "Grounded travel after-code HEAD 873f650277c197358180c116502f01fe180364f4; GitHub browser 41376182493, visual review 41376182459 and integrated CI 41376182450 queued 2026-11-02. No new screenshots/video/critic verification yet. Prior 41370666904 real world-only screenshot inspected: 1440x832, minHeroPixels 172, 3/3 heroes unoccluded, 95,434 triangles, activeEnemies 0 in this sample. This prior still is NOT matched AFTER evidence."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Genuine pre-change Chromium melee video and stills show stacked toy-proportion bodies crowded behind high rectangular walls. New live contact framing, mobile appearance and motion/audio not inspected; a complete natural autonomous run (traversal/combat/boss/next floor/defeat/restart), sustained frame measures and three blinded independent looks/feels/plays critics are still missing.",
-    "currentWork": "One open M1 transformation continues. True adjacent autonomous melee now directs weight transfer in the imported skinned GLB; active wall-clear hostile targets join the existing hero/Warden camera sightlines; physically lowered foreground masonry exposes combatants while distant room boundaries stay intact. Actual new browser outcome and blind AFTER-vs-locked-BEFORE experience verdict remain UNVERIFIED.",
-    "candidateCommit": "9248799ed1b7c6d96d0330b875ec67deecfaf846",
+    "biggestRemainingGap": "Latest authentic preceding WebGL screenshot (41370666904 artifact 13109465798, 2026-11-02 01:10 UTC) is strikingly box-heavy and toy-proportioned despite three unoccluded heroes (172px minimum in that one snapshot). The new grounded locomotion is code, not an A/B winner. Full running encounter motion/audio desktop/mobile, character realism, distinct environment silhouette, hardware frame timing, complete expedition and 3 blind LOOKS/FEELS/PLAYS critics remain missing.",
+    "currentWork": "M1 remains open. Implemented one integrated grounded-traversal pass on the actual autonomous game: time-based frame-rate-aware 3D actor pursuit of the authoritative grid; reversible animated rig forward weight transfer and distance-paced gait; capped world-fixed, fading matte foot impressions on true rendered movement; opt-in synthesized hero step sound from real visual foot planting. Authority ticks, AI, combat, saves, RNG, source GLB assets and user consent remain unchanged. The AFTER experience is not verified in Chromium.",
+    "candidateCommit": "873f650277c197358180c116502f01fe180364f4",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -2572,6 +2572,30 @@
         "originalAudioMotion": "UNVERIFIED for new code; previous source playback depicts melee without sound validation.",
         "experienceVerdict": "IN_PROGRESS / NOT_TRANSFORMED",
         "next": "Inspect 9248799 authentic desktop/mobile combat motion and threat framing for regressions; repair clipping/occlusion, build full real staged vertical journey and audio replay against immutable 281735d; secure 3 fresh blinded critics and measure CPU/GPU/phone performance without skipping CI/replay."
+      },
+      {
+        "id": "M1-GROUNDED-EXPEDITION-TRAVERSAL-20261102",
+        "date": "2026-11-02",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "79a257dce9662cd5c1473a6009164c92e285ee6e",
+        "candidateHead": "873f650277c197358180c116502f01fe180364f4",
+        "objective": "Replace skidding 3D traversal between real AI grid decisions with grounded motion and cohesive physical/audio contact, without touching gameplay truth.",
+        "changes": [
+          "public/ai-dungeon/expedition-locomotion-plan.js",
+          "public/ai-dungeon/app.js",
+          "public/ai-dungeon/model-assets.js",
+          "public/ai-dungeon/contact-projection.js",
+          "public/ai-dungeon/soundstage.js",
+          "scripts/serve-dungeon-stream.cjs",
+          "tests/foundation/dungeon-expedition-locomotion.test.cjs"
+        ],
+        "implementation": "Bounded elapsed-time location follower, actual-distance foot plant pacing and explicit teleport suppression, reversible imported-rig weight tilt and capped skeletal gait steps, pooled four-footprint world-space matte trail with scene-change disposal, original opt-in oscillator footfalls for the visibly tracked party leader, live diagnostics. No authority/AI/navigation/save/replay changes, no copyrighted assets.",
+        "priorAuthenticCapture": "https://github.com/my-edutu/Ai_games/actions/runs/41370666904/artifacts/13109465798",
+        "actualVerification": "Code pushed; GitHub exact-head checks queued, runtime AFTER desktop/mobile recording unavailable at checkpoint. Prior genuine screenshot was inspected and remains notably miniature-like; no blind claims.",
+        "blockers": "Shared development/browser/subagent tunnel NOT_FOUND, cannot independently execute browser, audio, worker panel. Matched baseline scenario reel and p95 measurements are missing.",
+        "verdict": "IN_PROGRESS / NOT_TRANSFORMED",
+        "next": "Read exact-head browser clips and metrics; correct visible foot sliding/print leakage and frame regressions. Next integrated major visual pass should remove rectangular room dominance and replace toy-looking silhouettes with authored proportionate animation; capture full seeded audiovisual adventure and obtain three fresh blind critics."
       }
     ]
   }
