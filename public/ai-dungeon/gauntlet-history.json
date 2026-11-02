@@ -2201,12 +2201,12 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "PR source head 618869427: genuine desktop/phone Warden exposed/telegraph screenshots https://github.com/my-edutu/Ai_games/actions/runs/41473115150/artifacts/13156846991. Boss hero obstruction confirmed in prior-head before latest repair; after NOT CAPTURED.",
-      "latestCandidateWorkflow": "PENDING: https://github.com/my-edutu/Ai_games/actions/runs/41477034423 (real browser); https://github.com/my-edutu/Ai_games/actions/runs/41477034386 (visual); full CI https://github.com/my-edutu/Ai_games/actions/runs/41477034354; no outcome inferred."
+      "latestCandidateWorkflow": "Source amendment at 20f0a84: https://github.com/my-edutu/Ai_games/actions/runs/41477810184 (real browser queued); https://github.com/my-edutu/Ai_games/actions/runs/41477810132 (visual queued); https://github.com/my-edutu/Ai_games/actions/runs/41477810344 (CI queued). Exact final-ledger-head validations still pending."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
     "biggestRemainingGap": "Authentic Chromium Warden exposure at source SHA 618869427 still shows boss back/armor occluding the only living Vanguard and true counter opportunity; current physical-recovery/camera/mobile remediation not yet captured or independently judged. Repetitive blocky masonry and miniature-like character anatomy still far below genuine Diablo IV/No Rest for the Wicked/PoE 2. No complete authenticated AV journey, p95/p99 mobile frame pacing or blind 3-critic consensus.",
     "currentWork": "Same one M1 vertical slice: authentic Warden opening now co-stages a 0.38m within-legal-tile boss recovery, physical hero-facing lens, more legible genuine skinned guard collapse, and mobile optional map relocated below the battle canvas; the original warnings retain wide floor-telegraph safety. 37/37 specialized focused checks, full configured Dungeon 210/210 and TS compilation pass locally, but real new-head presentation and audiovisual gameplay remain unverified.",
-    "candidateCommit": "5a268468a5fc6a42a3c16ba6d3ed199f6c06591f",
+    "candidateCommit": "20f0a84b0b79e1d2cafada240c9dfc9bfeb46e49",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -3065,7 +3065,7 @@
           "Skinned boss sag and true shoulder/armor exposure strengthened during real recovery; no invented bonus, kill or frame time.",
           "Mobile optional minimap moved below the 3D world in information rail; genuine boss status prioritizes health readout and hides competing generic objective only during boss focus."
         ],
-        "sourceCodeHead": "5a268468a5fc6a42a3c16ba6d3ed199f6c06591f",
+        "sourceCodeHead": "20f0a84b0b79e1d2cafada240c9dfc9bfeb46e49",
         "localSafety": "37/37 focused staging/cinematic/boss/UI PASS; 210/210 configured Dungeon foundation PASS; TypeScript build PASS; no new-authority or replay schema change. This is not a quality win.",
         "realAfterBrowser": "UNVERIFIED — prior-head browser captures only, exact candidate workflows queued",
         "actualContinuousMotionAudio": "UNVERIFIED; no uninterrupted traversal → combat → real boss → floor → defeat/restart with original sound",
@@ -3083,7 +3083,8 @@
           "Performance/accessibility plus complete CI/security",
           "Three independent blind LOOKS/FEELS/PLAYS critics"
         ],
-        "next": "Inspect genuine after-head browser warning and exposed screenshots/clips; correct actual hero occlusion/clipping and phone map or labels if still present. Continue original world/character depth and record full same-seed coherent desktop/mobile with audio and independent blind critics. No merge."
+        "next": "Inspect genuine after-head browser warning and exposed screenshots/clips; correct actual hero occlusion/clipping and phone map or labels if still present. Continue original world/character depth and record full same-seed coherent desktop/mobile with audio and independent blind critics. No merge.",
+        "integrityAmendment": "A Warden-contact over-shoulder recovery camera is permitted only under genuine unwarded, unwarned, bounded 1..6 turn saved recovery; guardian seal and warning retain original angle. Specialized cinematic tests 18/18 pass locally. Browser/audio not yet verified."
       }
     ]
   }
