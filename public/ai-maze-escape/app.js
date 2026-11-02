@@ -91,7 +91,8 @@ function update(value){
   const discovered=Math.min(100,snapshot.discoveredCells.length*100/(snapshot.width*snapshot.height));
   elements.progress.textContent=`${Math.floor(discovered)}%`;
   elements.progressFill.style.width=`${discovered}%`;
-  elements.intentMode.textContent=intentLabels[snapshot.intent.mode]||snapshot.intent.mode.replaceAll('-',' ');
+  const liveIntentLabel=intentLabels[snapshot.intent.mode]||snapshot.intent.mode.replaceAll('-',' ');
+  elements.intentMode.textContent=liveIntentLabel;
   elements.intentCopy.textContent=snapshot.intent.explanation;
   const ended=value.scene==='result'||value.scene==='intermission';
   const escaped=snapshot.result?.reason==='escape';
@@ -116,6 +117,14 @@ function update(value){
   byId('intent-label').textContent=ended?'Result':'Pip';
   byId('objective').textContent=ended?(escaped?'Exit reached':'Next run soon'):exposedDanger?'Keep clear':landmark?(landmark.steps===0?'At the landmark':`${landmark.steps} known step${landmark.steps===1?'':'s'} away`):keyedSealedGate?'Gate still closed':'Explore';
   if(freshKey)byId('objective').textContent='Keep exploring';
+  // A witnessed key pickup should not show a second visible "Find key" call
+  // directly below "Key collected". Keep the original autonomous strategy
+  // EXACTLY as published, available in Details and the accessible status;
+  // shorten only the temporary visible intent while this REAL pickup plays.
+  if(freshKey && snapshot.intent.mode==='returning-key'){
+    elements.intentMode.textContent='Searching';
+    elements.intentMode.setAttribute('aria-label',`Pip AI: ${liveIntentLabel}`);
+  }else elements.intentMode.removeAttribute('aria-label');
   elements.confidence.style.width=`${Math.round(snapshot.intent.confidence*100)}%`;
   elements.inventory.textContent=String(snapshot.inventory.length);
   elements.inventory.setAttribute('aria-label',`${snapshot.inventory.length} ${snapshot.inventory.length===1?'key':'keys'} collected`);

@@ -649,6 +649,12 @@ test('a real close public encounter frames both autonomous actors and saves date
   await expect(page.locator('#goal-label')).toHaveText('KEY FOUND');
   await expect(page.locator('#goal-title')).toHaveText('Key collected');
   await expect(page.locator('#objective')).toHaveText('Keep exploring');
+  // Source-bound REAL before→after collected-key browser state. The compact
+  // on-screen Pip chip must not contradict the pickup hero beat while the
+  // original authoritative AI mode remains unchanged and accessible.
+  expect(await page.evaluate(()=>window.__MAZE_PUBLIC_STATE__.intent.mode)).toBe('returning-key');
+  await expect(page.locator('#intent-mode')).toHaveText('Searching');
+  await expect(page.locator('#intent-mode')).toHaveAttribute('aria-label','Pip AI: Find key');
   const pickupImage=path.join(dir,'witnessed-key-pickup-1280.png');
   await page.screenshot({path:pickupImage,fullPage:true});
   const pickupAfterDesktopScreenshot=await page.evaluate(()=>window.__MAZE_3D__);
@@ -707,6 +713,12 @@ test('a real close public encounter frames both autonomous actors and saves date
   await expect(page.locator('#goal-label')).toHaveText('KEY FOUND');
   await expect(page.locator('#goal-title')).toHaveText('Key collected');
   await expect(page.locator('#objective')).toHaveText('Keep exploring');
+  // Source-bound REAL before→after collected-key browser state. The compact
+  // on-screen Pip chip must not contradict the pickup hero beat while the
+  // original authoritative AI mode remains unchanged and accessible.
+  expect(await page.evaluate(()=>window.__MAZE_PUBLIC_STATE__.intent.mode)).toBe('returning-key');
+  await expect(page.locator('#intent-mode')).toHaveText('Searching');
+  await expect(page.locator('#intent-mode')).toHaveAttribute('aria-label','Pip AI: Find key');
   const pickupPortrait=path.join(dir,'witnessed-key-pickup-390.png');
   await page.screenshot({path:pickupPortrait,fullPage:true});
   const pickupAfterPortraitScreenshot=await page.evaluate(()=>window.__MAZE_3D__);
