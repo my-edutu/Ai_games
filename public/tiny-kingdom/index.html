@@ -2458,7 +2458,11 @@ function citizenRigPose(p){
    }else if(p.job==='farmer'||p.job==='gatherer'){
     elbow=[side*.31,.72-(primary?.09*beat:0),.16+(primary?.16*beat:.02)];
     wrist=[side*.31,.43-(primary?.10*beat:0),.39+(primary?.25*beat:.05)];
-   }else if(p.job==='builder'||p.job==='craftsperson'){
+   }else if(p.job==='builder'){
+    // Genuine joiner movement reaches toward the physical timber joint.
+    elbow=[side*.24,.86+(primary?.14*beat:.01),.17];
+    wrist=[side*.18,.73+(primary?.28*beat:.04),.45-(primary?.07*beat:0)];
+   }else if(p.job==='craftsperson'){
     elbow=[side*.29,.86+(primary?.17*beat:.01),.08];
     wrist=[side*.28,.66+(primary?.39*beat:.06),.34-(primary?.13*beat:0)];
    }else{
@@ -4083,12 +4087,17 @@ function forgeSmoke(time){
    invented resource transactions. No seeded RNG or extra persistent state. */
 /* G119: physical worksite progression from real autonomous job and timer.
  * This never edits the simulation, awards stock or invents construction. */
+/* G120: staging shared by actual worksite geometry and read-only inspection.
+ * The tall raising frame belongs BEHIND the joiner; their low jointing bench
+ * remains in reach and below eye height during the genuine work timer. */
+const WORKSITE_BUILDER_STAGE=Object.freeze({frameRear:-.88,benchFront:.30,benchHeight:.69});
 function worksiteVisualCue(w){
  const progress=Math.max(0,Math.min(1,w.progress));
  const phase=Math.max(0,Math.min(1,w.impact));
  return {citizen:w.citizen,job:w.job,activity:w.activity,
   progress,phase,frameRise:.45+progress*1.10,
   hoistHeight:.60+.21*phase,impactStrength:Math.max(0,(phase-.65)/.35),
+  staging:w.job==='builder'?{...WORKSITE_BUILDER_STAGE}:null,
   provenance:'actual-autonomous-shift'};
 }
 function getWorksiteChoreography(){return getActiveWorksites().map(worksiteVisualCue)}
@@ -4123,22 +4132,31 @@ function appendActiveWorksiteDressing(w,x,y,z,pulse){
    box(sx,y+.26,z-.47,.18,.045,.15,rgb(0x947044));
   }
  }else if(w.job==='builder'){
-  // Actual builder progress raises a temporary timber assembly; never a fake house.
-  const rise=cue.frameRise,oak=rgb(0xc19b62);
+  // G120: frame behind the REAL worker. A previous waist/eye-line crossing
+  // obscured the builder in exact-head G119 moving gameplay evidence.
+  const rise=cue.frameRise,oak=rgb(0xc19b62),rear=z+cue.staging.frameRear;
   for(const side of [-1,1]){
-   const xx=x+side*.46;
-   limbSegment([xx,y+.04,z+.45],[xx,y+rise,z+.45],.067,rgb(0x916742),6);
-   limbSegment([xx,y+.05,z+.20],[xx,y+rise*.73,z+.45],.04,rgb(0x785238),5);
-   limbSegment([xx,y+.05,z+.70],[xx,y+rise*.73,z+.45],.04,rgb(0x785238),5);
-   box(xx,y+.08,z+.45,.26,.12,.70,rgb(0x765336));
+   const xx=x+.40+side*.52;
+   limbSegment([xx,y+.04,rear],[xx,y+rise,rear],.065,rgb(0x916742),6);
+   limbSegment([xx,y+.05,rear-.24],[xx,y+rise*.73,rear],.036,rgb(0x785238),5);
+   limbSegment([xx,y+.05,rear+.24],[xx,y+rise*.73,rear],.036,rgb(0x785238),5);
+   box(xx,y+.08,rear,.24,.12,.55,rgb(0x765336));
   }
-  box(x,y+rise,z+.45,1.12,.11,.23,oak);
+  box(x+.40,y+rise,rear,1.18,.11,.22,oak);
   const hoistY=y+rise+.12+cue.hoistHeight*.20;
-  box(x+.04,hoistY,z+.42,.68,.105,.19,rgb(0xad8052));
-  limbSegment([x-.17,hoistY+.04,z+.42],
-   [x-.17,y+rise+.07,z+.42],.014,rgb(0xcfb589),5);
-  for(const side of [-1,1])
-   box(x+side*.32,y+.16,z-.16,.42,.11,.25,rgb(0xa77d52));
+  box(x+.44,hoistY,rear,.66,.10,.17,rgb(0xad8052));
+  limbSegment([x+.24,hoistY+.03,rear],
+   [x+.24,y+rise+.07,rear],.012,rgb(0xcfb589),5);
+  // Waist-height real joinery: visible hammer stroke, planks and tenon
+  // advancing only with the already-running authoritative shift timer.
+  const front=z+cue.staging.benchFront,benchY=y+cue.staging.benchHeight;
+  for(const side of [-1,1]){
+   const bx=x+side*.38;
+   limbSegment([bx,y+.02,front],[bx,benchY-.06,front],.065,rgb(0x77553a),5);
+  }
+  box(x,benchY,front,.96,.10,.44,rgb(0x946b43));
+  box(x+.03,benchY+.11,front-.06,.47+.25*cue.progress,.085,.18,rgb(0xc09a62));
+  box(x-.18,benchY+.16,front+.07,.075,.12,.19,rgb(0x65442e));
  }else if(w.job==='merchant'){
   // A small market weighing canopy and grain sacks advertise real trading.
   box(x-.48,y+.05,z+.50,.065,.93,.075,rgb(0x77563f));
@@ -4319,8 +4337,9 @@ function renderWorkdayTraces(){
     box(x,y+.055,z,.57,.12,.36,rgb(0x866744));
     for(let i=-1;i<=1;i++)cone(x+i*.16,y+.1,z,.074,.44+Math.abs(pulse)*.03,rgb(0xc9ad64),5);
    }else if(w.job==='builder'){
-    for(let i=0;i<3;i++)box(x+(i-1)*.23,y+.06+i*.095,z,.45,.12,.28,rgb(0xb2a180));
-    box(x-.28,y+.38,z+.19,.09,.29,.09,rgb(0x816447));
+    // Completed timber stacks queue to the side, never across the face.
+    for(let i=0;i<3;i++)box(x+.78,y+.06+i*.095,z-.48,.45,.12,.28,rgb(0xb2a180));
+    box(x+.52,y+.38,z-.49,.09,.29,.09,rgb(0x816447));
    }else if(w.job==='merchant'){
     box(x,y+.08,z,.70,.17,.45,rgb(0x8c684b));
     box(x-.17,y+.22,z,.25,.25,.30,rgb(0xad8255));
@@ -4446,11 +4465,16 @@ function emitWorkdayHandTool(p,rig,worldJoint,size){
  if(!event&&!isWorkingAtSite(p))return;
  const hand=worldJoint(rig.arms[1].wrist);
  materialScope(MATERIAL.WOOD,()=>{
-  if(p.job==='forester'||p.job==='builder'||p.job==='craftsperson'){
+  if(p.job==='builder'){
+   // Short mallet at the forward joint, not a floating face-high hammer.
+   const beat=rig.acting.beat;
+   const end=[hand[0]+.01*size,hand[1]+(.15+.08*beat)*size,hand[2]+.17*size];
+   limbSegment(hand,end,.023*size,rgb(0x755333),5);
+   box(end[0],end[1],end[2],.29*size,.105*size,.15*size,rgb(0xa78e68));
+  }else if(p.job==='forester'||p.job==='craftsperson'){
    const end=[hand[0]+.15*size,hand[1]+.33*size,hand[2]+.08*size];
    limbSegment(hand,end,.022*size,rgb(0x755333),5);
-   box(end[0],end[1],end[2],.26*size,.10*size,.14*size,
-     rgb(p.job==='builder'?0xa78e68:0x7c8582));
+   box(end[0],end[1],end[2],.26*size,.10*size,.14*size,rgb(0x7c8582));
   }else if(p.job==='farmer'||p.job==='gatherer'){
    const held=[hand[0]+.08*size,hand[1]+.07*size,hand[2]+.12*size];
    box(held[0],held[1],held[2],.26*size,.16*size,.21*size,rgb(0xa47d49));
