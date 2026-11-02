@@ -18,6 +18,12 @@
   .caption p { font-size: 12px; }
   .expedition-state[data-presentation="retained"] { top: calc(var(--edge-top) + 85px); flex-direction: column; }
 }
+/* Preserve the top HUD and the live 3D hero in a narrow phone's central
+   action area. No new bottom overlays or touch targets are introduced. */
+@media (max-width: 480px) and (min-height: 521px) {
+  .result-card { top: calc(var(--edge-top) + 94px); width: min(240px, calc(100vw - 2 * var(--pad))); padding: 11px 14px; }
+  .result-card strong { font-size: 36px; }
+}
 @media (max-width: 360px) {
   :root { --pad: 14px; }
   .primary-metrics { gap: 10px; }
@@ -46,10 +52,10 @@
   .choice-card { padding: 16px 20px; }
   .choice-card h2 { font-size: 15px; margin-bottom: 9px; }
   .upgrade-offer { padding: 8px 0; }
-  .result-card { padding: 18px 22px; }
-  .result-card h2 { font-size: 20px; margin-bottom: 12px; }
-  .result-card strong { font-size: 52px; }
-  .result-card #result-reason { margin-top: 11px; }
+  .result-card { top: calc(var(--edge-top) + 70px); width: min(220px, calc(100vw - 2 * var(--pad))); padding: 9px 12px; }
+  .result-card h2 { font-size: 14px; margin-bottom: 4px; }
+  .result-card strong { font-size: 30px; }
+  .result-card #result-reason { margin: 5px 0 2px; }
 }
 @media (max-height: 520px) and (max-width: 700px) and (orientation: landscape) {
   .expedition-state[data-presentation="retained"] { top: calc(var(--edge-top) + 76px); }

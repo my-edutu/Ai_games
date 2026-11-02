@@ -48,9 +48,33 @@ for (const viewport of viewports) {
     const observation = await page.evaluate(() => {
       const d = window.__TOWER_RENDER_DIAGNOSTICS__();
       const s = window.__TOWER_PUBLIC_STATE__;
+      // The frozen gameplay source exposes the real result for only one 50ms
+      // tick, but its genuine intermission still renders the source result card.
+      // A missed 50ms sample is not missing actual outcome footage. Witness
+      // the real visible DOM using layout, style and topmost hit-testing; the
+      // separate unedited WebM remains mandatory for human video inspection.
+      const resultCard = document.getElementById('result-card');
+      const rect = resultCard?.getBoundingClientRect();
+      const style = resultCard ? getComputedStyle(resultCard) : null;
+      const middleX = rect ? rect.left + rect.width / 2 : -1;
+      const middleY = rect ? rect.top + rect.height / 2 : -1;
+      const topmost = rect && middleX >= 0 && middleY >= 0
+        ? document.elementFromPoint(middleX, middleY) : null;
+      const resultCardVisible = !!rect && !resultCard.hidden &&
+        style.display !== 'none' && style.visibility === 'visible' &&
+        Number(style.opacity) > 0 && rect.width > 80 && rect.height > 45 &&
+        rect.left >= 0 && rect.top >= 0 &&
+        rect.right <= innerWidth && rect.bottom <= innerHeight &&
+        !!topmost && (topmost === resultCard || resultCard.contains(topmost));
       return { atMs: Date.now(), tick: s?.tick, runToken: s?.runToken, checksum: s?.publicChecksum,
         floor: s?.floor, scene: s?.lifecycle, state: s?.player?.state, dangerPermille: s?.dangerPermille,
         sourceResult: s?.result || null, sourceFloorsCleared: s?.progress?.floorsCleared ?? null,
+        observedResultCard: {
+          visible: resultCardVisible, runToken: s?.runToken ?? null,
+          title: document.getElementById('result-title')?.textContent?.trim() || '',
+          height: document.getElementById('result-height')?.textContent?.trim() || '',
+          note: 'Source-matched, topmost DOM-visible authentic result. Unedited video must still be independently watched.',
+        },
         observedFinale: d?.finale || null, observedTerminalCamera: d?.terminalCamera || null,
         guardianActive: (s?.enemies || []).some(e => e.active && e.kind === 'guardian'),
         guardianHealth: (s?.enemies || []).filter(e => e.kind === 'guardian').map(e => ({ active: e.active, health: e.health, maxHealth: e.maxHealth })),
@@ -154,7 +178,10 @@ for (const viewport of viewports) {
       count + (index && sourceTicks[index - 1].runToken !== item.runToken ? 1 : 0), 0),
     sampledVisualResult: observations.some(item => item.scene === 'result'),
     sampledVisualIntermission: observations.some(item => item.scene === 'intermission'),
-    note: 'Source snapshots are not composited video frames; missing baseline result in normal-speed video remains a blocker.',
+    genuineDomResultSamples: observations.filter(item =>
+      item.observedResultCard?.visible && item.sourceResult &&
+      item.observedResultCard.runToken === item.runToken).length,
+    note: 'The source 50ms result may fall between samples while its authentic result card remains visible in intermission. DOM hit-testing does not certify WebM pixels; inspect original footage.',
   };
   fs.writeFileSync(path.join(dir, 'motion.json'), JSON.stringify({
     method: 'Real live unmodified host at nominal 20 authoritative ticks/s; browser video and distinct WebGL canvas captures; CI software renderer, not intended device',

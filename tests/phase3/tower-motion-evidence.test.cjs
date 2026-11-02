@@ -107,13 +107,21 @@ test('full-cycle evidence needs a real result, intermission and changed authorit
     frameMs: { samples: 12 + i, p50: 20, p95: 35, p99: 50 },
     contextLost: false,
     renderErrors: 0,
-    scene: i === 35 ? 'result' : i === 36 || i === 37 ? 'intermission' : 'running',
+    // Frozen real baseline can make the result phase just 50ms, missed by
+    // a 1s browser sampler; the REAL result persists visibly in intermission.
+    scene: i >= 35 && i <= 37 ? 'intermission' : 'running',
+    sourceResult: i >= 35 && i <= 37 ? { kind: 'game', reason: 'health-depleted' } : null,
+    observedResultCard: i >= 35 && i <= 37
+      ? { visible: true, runToken: 'run-a', title: 'Ascent ended', height: '450m' }
+      : { visible: false },
     canvasHash: i % 10 === 0 ? 'canvas-' + i : null,
   }));
   const options = { minDurationMs: 60000, requireOutcomeRestart: true };
   const valid = assessTowerMotion(frames, options);
   assert.equal(valid.scopedPass, true, JSON.stringify(valid.blockers));
   assert.equal(valid.runTransitions, 1);
+  assert.equal(valid.observedOutcomeRestart, true);
+  assert.equal(valid.genuineDomResultSamples, 3);
   // A run-token rollover alone does not prove the terminal-to-intermission
   // sequence appeared in the sampled authentic recording.
   const noIntermission = frames.map(frame => ({ ...frame }));
@@ -122,4 +130,26 @@ test('full-cycle evidence needs a real result, intermission and changed authorit
   const incomplete = assessTowerMotion(noIntermission, options);
   assert.equal(incomplete.scopedPass, false);
   assert.ok(incomplete.blockers.includes('complete-terminal-intermission-restart-not-observed'));
+  const invisible = frames.map(frame => ({
+    ...frame, observedResultCard: frame.observedResultCard?.visible
+      ? { ...frame.observedResultCard, visible: false } : frame.observedResultCard,
+  }));
+  assert.ok(assessTowerMotion(invisible, options).blockers
+    .includes('complete-terminal-intermission-restart-not-observed'));
+  const fabricatedToken = frames.map(frame => ({
+    ...frame, observedResultCard: frame.observedResultCard?.visible
+      ? { ...frame.observedResultCard, runToken: 'other-run' } : frame.observedResultCard,
+  }));
+  assert.ok(assessTowerMotion(fabricatedToken, options).blockers
+    .includes('complete-terminal-intermission-restart-not-observed'));
+  const sourceMissing = frames.map(frame => ({ ...frame, sourceResult: null }));
+  assert.ok(assessTowerMotion(sourceMissing, options).blockers
+    .includes('complete-terminal-intermission-restart-not-observed'));
+  const noRestart = frames.map(frame => ({
+    ...frame, runToken: 'run-a', tick: frame.tick + 1000,
+    observedResultCard: frame.observedResultCard?.visible
+      ? { ...frame.observedResultCard, runToken: 'run-a' } : frame.observedResultCard,
+  }));
+  assert.ok(assessTowerMotion(noRestart, options).blockers
+    .includes('complete-terminal-intermission-restart-not-observed'));
 });

@@ -36,8 +36,32 @@ function assessTowerMotion(samples, options = {}) {
   const checksums = new Set(samples.map(s => s.checksum));
   const canvasHashes = new Set(samples.map(s => s.canvasHash).filter(Boolean));
   if (!(wallMs >= minDurationMs)) blockers.push('capture-too-short');
-  if (requireOutcomeRestart && (!samples.some(s => s.scene === 'result')
-    || !samples.some(s => s.scene === 'intermission') || runTransitions < 1)) {
+  // A frozen run's genuine result phase can be shorter than one rendered
+  // 25fps frame or a 1s diagnostic sample. The actual result and score persist
+  // in the *source-backed intermission card* and are visible in the native
+  // video. Require two DOM-visible real result observations >=500ms apart,
+  // including an intermission, followed by a new AUTHENTIC running token.
+  // Source trace alone never satisfies this rule, nor does run-token rollover.
+  const visibleOutcomeSamples = requireOutcomeRestart ? samples
+    .map((sample, index) => ({ sample, index }))
+    .filter(({ sample }) => ['result', 'intermission'].includes(sample.scene) &&
+      ['game', 'technical', 'operator'].includes(sample.sourceResult?.kind) &&
+      sample.observedResultCard?.visible === true &&
+      sample.observedResultCard.runToken === sample.runToken &&
+      typeof sample.observedResultCard.title === 'string' &&
+      sample.observedResultCard.title.length > 0 &&
+      typeof sample.observedResultCard.height === 'string' &&
+      sample.observedResultCard.height.length > 0) : [];
+  const observedOutcomeRestart = visibleOutcomeSamples.some(first =>
+    visibleOutcomeSamples.some(second =>
+      second.index > first.index && second.sample.runToken === first.sample.runToken &&
+      second.sample.sourceResult.kind === first.sample.sourceResult.kind &&
+      second.sample.sourceResult.reason === first.sample.sourceResult.reason &&
+      second.sample.atMs - first.sample.atMs >= 500 &&
+      (first.sample.scene === 'intermission' || second.sample.scene === 'intermission') &&
+      samples.some((next, index) => index > second.index &&
+        next.runToken !== first.sample.runToken && next.scene === 'running')));
+  if (requireOutcomeRestart && !observedOutcomeRestart) {
     blockers.push('complete-terminal-intermission-restart-not-observed');
   }
   if (!(tickDelta >= 40) || checksums.size < 2) blockers.push('authoritative-ticks-not-advancing');
@@ -46,7 +70,11 @@ function assessTowerMotion(samples, options = {}) {
   if (!Number.isFinite(last.frameMs?.samples) || last.frameMs.samples < 8) blockers.push('renderer-intervals-not-measured');
   if (samples.some(s => s.contextLost || s.renderErrors !== 0)) blockers.push('renderer-error-or-context-loss');
   return { scopedPass: blockers.length === 0, blockers, wallMs, minDurationMs, tickDelta, tickAdvance, runTransitions,
-    transitionEvidence: 'OPEN: sampled restart is not proof of rendered death/intermission/restart', renderedDelta,
+    transitionEvidence: 'OPEN: sampled restart is not proof of rendered death/intermission/restart',
+    genuineDomResultSamples: visibleOutcomeSamples.length,
+    observedOutcomeRestart,
+    outcomeVideoGate: 'OPEN: DOM visibility and valid source phases do not replace inspection of the full-motion original WebM',
+    renderedDelta,
     uniqueChecksums: checksums.size, uniqueCanvasFrames: canvasHashes.size,
     submittedFrameIntervals: last.frameMs ?? null,
     performanceGate: PERFORMANCE_UNVERIFIED };
