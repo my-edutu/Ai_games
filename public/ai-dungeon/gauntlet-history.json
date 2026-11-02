@@ -2204,10 +2204,10 @@
       "latestCandidateWorkflow": "Source head a951f64bf4305199f9bc4948cc39b32d31220868: fresh GitHub exact-head Dungeon 41516898744 and visual 41516898738 queued; previous 7e18 workflow cancelled by syntax-fix push. Static V8 syntax parsing of six affected JS/test modules passed; pure legal-dodge/false-event/reduced-motion shape executed. No Node build, exact-head browser runtime screenshot, motion clip/audio or hardware measurements yet. Do not claim a CI pass, motion quality or accepted A/B."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Authentic rendered hero silhouettes, hit contact, directional foot planting and reaction timing are still too miniature/gamey against Diablo IV and Path of Exile 2; repetitive cubic rooms still trail No Rest for the Wicked. New embodied sidesteps and the Warden NOVA must be seen during real, continuous desktop/mobile runs. Original audio video, locked-baseline same-seed A/B, full boss→floor→defeat/restart continuity, performance and three independent blind looks/feels/plays critics remain UNVERIFIED.",
-    "currentWork": "Same unaccepted M1: grounded autonomous-escape choreography committed in source 7e18e129c144be00eabdcacdf317bac60cf72ac4 and repaired at a951f64bf4305199f9bc4948cc39b32d31220868. A real logged hero dodge now drives one integrated body/root stance, imported GLB shoulders/forearms/thighs/feet/spine, bounded origin-stone dust and existing original opt-in evade sound. No simulation damage, path choice, replay, seeded RNG or hitboxes changed. Pure source syntax checked; exact-head browser/CI moving experience UNVERIFIED. Existing 3-beat Warden warning remains the same M1. PR #49 stays draft and unmerged.",
-    "candidateCommit": "a951f64bf4305199f9bc4948cc39b32d31220868",
-    "candidateArtifactUrl": null,
+    "biggestRemainingGap": "The full living journey still trails Diablo IV, No Rest for the Wicked and Path of Exile 2 in anatomy, action contact, visual art direction and world richness. The current real browser capture reveals a giant Warden hiding fallen characters at the genuine depth-29 ending; code addresses this but new head rendered desktop/mobile motion and original audio, performance, matched locked-baseline A/B and ≥3 blind critics remain UNVERIFIED.",
+    "currentWork": "Same unaccepted M1. Real latest Chromium run 41517264501 documents a depth-29 three-hero defeat where the surviving Warden and architecture mask the actual 3D party, and a portrait stall notice crowds the terminal scene. Integrated code 19ba6388bbb9648ce44dd148a570d43013fde45b now directs a source-truth centroid endgame shot with map-constrained boss-behind-camera staging, actual corpse cutaway through walls/facades/props, endgame key lighting, portrait banner separation and a production evasion VM-harness correction. This is only implemented, NOT experienced/accepted yet.",
+    "candidateCommit": "19ba6388bbb9648ce44dd148a570d43013fde45b",
+    "candidateArtifactUrl": "",
     "acceptedAt": null,
     "implementationEvents": [
       {
@@ -3205,6 +3205,44 @@
         "biggestGap": "Characters and rooms still lack a high-quality coherent AAA/AA world; verify movement and visual legibility before further cosmetic staging.",
         "next": "Watch exact-head 1440x832 and 390x844 authentic dodges, true Warden NOVA, boss counter and full session. Fix any silent missing movement/audio or frame lag. Capture real audiovisual scene→boss→floor→defeat/restart on phone and desktop; matched original-baseline A/B and three blind critics before acceptance.",
         "verdict": "IN PROGRESS — NOT TRANSFORMED; no merge/deploy"
+      },
+      {
+        "id": "M1-AUTHENTIC-FINAL-STAND-STAGING-20261102",
+        "date": "2026-11-02",
+        "milestone": "SAME original M1, no accepted new Gauntlet round",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "baselineArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
+        "sourceHeadAtStart": "b844becdc31560347887199fdd6a0ff50a350ec9",
+        "codeCommit": "ce21a4e9a21bca77629e9aa3d958fbaa58fce9d8",
+        "sourceValidationCorrection": "19ba6388bbb9648ce44dd148a570d43013fde45b",
+        "observedOriginalBrowser": "https://github.com/my-edutu/Ai_games/actions/runs/41517264501/artifacts/13177376309",
+        "observedDesktop": "Authentic 1440x832 natural run-001 depth-29 party wipe: a living oversized Warden and large ornamental geometry dominate the foreground, while genuine collapsed heroes remain tiny and partly obstructed.",
+        "observedMobile": "Authentic 390x844 natural party wipe: an actually displayed stream-stall warning overlays much of the world. Its truthful warning must remain visible, but competing central panels impair the defeated-body tableau.",
+        "integratedImplementation": [
+          "Replace the fixed dead-hero final camera with a 32-bearing map-bounded, source-truth-only tableau optimizing visible fallen-party lateral separation and placing the genuinely surviving hostile Warden farther from the camera than the deceased party.",
+          "Extend the genuine intermission-wall sightline set to at most four actual HP-zero party bodies: masonry, facade, capstones, scroll props and arena garnish now clear visual rays to real bodies instead of targeting only living heroes.",
+          "Grade the same real last-stand stage with broader truthful camera masonry cutaway, stronger grounded party fill and quieter surviving-Warden spotlight; adapt portrait lens to the actual fallen-party spread.",
+          "Retain live network-stall truth but reposition the warning out of the center of the portrait last-stand stage, preserving distinct true run-result card.",
+          "Repair the isolated renderer VM harness to import the production true-event evasion plan instead of crashing on an unavailable ES import. Add planner and true terminal sightline contracts; do not substitute test-green for visuals."
+        ],
+        "previousExactHeadValidation": "The source-head 41517264501 three authentic Chromium browser shards PASSED; its authority job FAILED 4/20 presentation tests due a test VM missing planEvasionPerformance binding; 211/211 dungeon foundation checks passed. Global catalogue CI 41517264567 FAILED 5/817. Those are old-head results, not proof of new candidate.",
+        "currentCandidateWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41525791266",
+        "currentCandidateVisualWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41525791341",
+        "newActualBrowser": "UNVERIFIED — workflows queued at last check; old-head real ending shows defect but no new rendered current-head result exists",
+        "motionAudio": "UNVERIFIED full continuous desktop/mobile descent/restart with captured original audio",
+        "independentCritics": {
+          "status": "NOT_RUN",
+          "count": 0,
+          "looks": "UNVERIFIED",
+          "feels": "UNVERIFIED",
+          "plays": "UNVERIFIED",
+          "majority": false
+        },
+        "performance": "UNVERIFIED p95/p99 desktop and mobile new source head",
+        "acceptance": "IN_PROGRESS — NOT TRANSFORMED",
+        "biggestGap": "Character/anatomy, material finish and boss contact still toy-like relative to external references; verify actual last stand and Warden hero sightline in rendered new-head motion, not isolated source metrics.",
+        "next": "Inspect exact-head natural desktop and mobile finale WebGL and motion for all dead bodies, no giant surviving boss in near foreground, credible world cutaway, reliable phone alert and endgame. Fix visible defects, then record one uninterrupted genuine traversal→combat→boss→floor advance→defeat/restart with WebAudio, same-seed original-baseline A/B, p95 budget and ≥3 fresh blind LOOKS/FEELS/PLAYS critics. Never merge."
       }
     ]
   }
