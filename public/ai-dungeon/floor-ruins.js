@@ -1,6 +1,8 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
 import {planFloorRuins} from '/dungeon/floor-ruins-plan.js';
 
+// Raised rubble and damp overlays now settle on the contiguous flagstone top,
+// rather than disappearing below the new physical multi-cell surface.
 // Ground-level set dressing. Authentic authority maps remain completely
 // unchanged; these two modest instanced materials never block the AI party.
 const FINISHES=[
@@ -16,7 +18,7 @@ const place=(world,geometry,material,items,kind)=>{
  const m=new THREE.Matrix4(),p=new THREE.Vector3(),q=new THREE.Quaternion(),s=new THREE.Vector3();
  const euler=new THREE.Euler(),shade=new THREE.Color();
  for(let i=0;i<items.length;i++){
-  const part=items[i];p.set(part.x,part.y,part.z);
+  const part=items[i];p.set(part.x,part.y+.010,part.z);
   euler.set(0,part.yaw,0);q.setFromEuler(euler);
   s.set(part.sx,kind==='Weathered raised floor pavers'?part.thickness/.14:1,part.sz);
   m.compose(p,q,s);mesh.setMatrixAt(i,m);
@@ -44,7 +46,7 @@ export function createFloorRuins(world,map,floor,exit){
  const slabs=place(world,paverGeometry,paverMaterial,plan.pavers,'Weathered raised floor pavers');
  const pools=place(world,puddleGeometry,wetMaterial,plan.puddles,'Damp stone seepage');
  const metrics={pavers:plan.pavers.length,dampPatches:plan.puddles.length,drawCalls:Number(Boolean(slabs))+Number(Boolean(pools)),
-  geometryVertices:paverGeometry.getAttribute('position').count,maxElevation:.06,collisionEffects:0,biome:plan.pavers[0]?.theme||'none'};
+  geometryVertices:paverGeometry.getAttribute('position').count,maxElevation:.073,collisionEffects:0,biome:plan.pavers[0]?.theme||'none'};
  return{metrics,dispose(){
   for(const mesh of [slabs,pools]){if(!mesh)continue;mesh.parent?.remove(mesh);mesh.dispose()}
   paverGeometry.dispose();puddleGeometry.dispose();paverMaterial.dispose();wetMaterial.dispose();
