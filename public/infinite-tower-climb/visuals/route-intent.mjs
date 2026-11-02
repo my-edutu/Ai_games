@@ -5,6 +5,7 @@ import { pointFor } from './coordinates.mjs';
 // CURRENT platform intention. They cannot promise a landing or change
 // collisions, decision policy, replay or a spectator's controls.
 const MAX_MARKERS = 12;
+const MAX_OBSERVED_DECK_ECHOES = 6;
 const UP = Object.freeze([0, 1, 0]);
 export function createTowerRouteIntent(THREE) {
   const geometry = new THREE.ConeGeometry(.28, .74, 4, 1);
@@ -18,11 +19,32 @@ export function createTowerRouteIntent(THREE) {
   markers.castShadow = false;
   markers.receiveShadow = false;
   markers.frustumCulled = false;
+  // A moving deck is difficult to read on a narrow phone crop. Show only its
+  // already OBSERVED positions as restrained amber stone echoes. Never extrapolate
+  // where it will move, predict collisions, or move the authoritative deck.
+  // All echoes share one instanced draw and disappear for reduced motion.
+  const echoGeometry = new THREE.OctahedronGeometry(.3, 0);
+  const echoMaterial = new THREE.MeshBasicMaterial({
+    color: 0xf4bd80, transparent: true, opacity: .48,
+    depthTest: true, depthWrite: false, toneMapped: false,
+  });
+  const deckEchoes = new THREE.InstancedMesh(
+    echoGeometry, echoMaterial, MAX_OBSERVED_DECK_ECHOES);
+  deckEchoes.name = 'SourceObservedMovingDeckEchoes';
+  deckEchoes.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  deckEchoes.castShadow = false;
+  deckEchoes.receiveShadow = false;
+  deckEchoes.frustumCulled = false;
+  deckEchoes.count = 0;
   const group = new THREE.Group();
   group.name = 'TowerRouteDecisionStones';
   group.visible = false;
-  group.add(markers);
+  group.add(markers, deckEchoes);
   const pose = new THREE.Object3D();
+  const echoPose = new THREE.Object3D();
+  const observedDeckPositions = [];
+  let observedDeckX = null, observedDeckY = null;
+  let observedMovement = 0, observedDeckKind = null;
   const forward = new THREE.Vector3();
   const up = new THREE.Vector3(...UP);
   let runToken = null, targetPlatformId = null, sourceTick = -1;
@@ -33,6 +55,12 @@ export function createTowerRouteIntent(THREE) {
     runToken = null;
     targetPlatformId = null;
     sourceTick = -1;
+    observedDeckX = null;
+    observedDeckY = null;
+    observedMovement = 0;
+    observedDeckKind = null;
+    observedDeckPositions.length = 0;
+    deckEchoes.count = 0;
   }
 
   function update(snapshot, platform, options = {}) {
@@ -60,9 +88,29 @@ export function createTowerRouteIntent(THREE) {
     const stationary = !!options.reducedMotion;
     if (runToken === snapshot.runToken && targetPlatformId === platform.id &&
         sourceTick === snapshot.tick && reduced === stationary) return;
+    const sameDestination = runToken === snapshot.runToken &&
+      targetPlatformId === platform.id && observedDeckKind === platform.kind;
+    const advancing = sameDestination && snapshot.tick > sourceTick &&
+      snapshot.tick - sourceTick <= 8;
+    if (!advancing) observedDeckPositions.length = 0;
+    observedMovement = advancing && observedDeckX !== null
+      ? platform.x - observedDeckX : 0;
+    if (advancing && platform.kind === 'moving' &&
+      Number.isFinite(observedDeckX) && Number.isFinite(observedDeckY) &&
+      Math.abs(observedMovement) >= 650) {
+      // The sample is the PREVIOUS real location, not a predicted landing.
+      observedDeckPositions.push({
+        tick: sourceTick, x: observedDeckX, y: observedDeckY,
+      });
+      while (observedDeckPositions.length > MAX_OBSERVED_DECK_ECHOES)
+        observedDeckPositions.shift();
+    }
     runToken = snapshot.runToken;
     targetPlatformId = platform.id;
     sourceTick = snapshot.tick;
+    observedDeckX = platform.x;
+    observedDeckY = platform.y;
+    observedDeckKind = platform.kind;
     reduced = stationary;
 
     // Map authoritative x/y onto the OUTSIDE of the cylinder. The rising
@@ -94,6 +142,28 @@ export function createTowerRouteIntent(THREE) {
       markers.setMatrixAt(i, pose.matrix);
     }
     markers.instanceMatrix.needsUpdate = true;
+    // The same immutable platform timeline owns all ghost positions. An
+    // interrupted feed, target change, expired sample or disabled motion
+    // cannot leave apparently moving platforms in a new run.
+    deckEchoes.count = 0;
+    if (!stationary && platform.kind === 'moving') {
+      for (const item of observedDeckPositions) {
+        if (snapshot.tick - item.tick > 14) continue;
+        const at = pointFor(item.x + platform.width * .5,
+          item.y + platform.height, snapshot.chunkBaseY,
+          snapshot.worldWidth, 27.12);
+        echoPose.position.set(at.x, at.y + .18, at.z);
+        echoPose.rotation.set(0, at.angle, 0);
+        echoPose.scale.setScalar(.68);
+        echoPose.updateMatrix();
+        deckEchoes.setMatrixAt(deckEchoes.count++, echoPose.matrix);
+      }
+      // Discard stale history even when its visual instance count reaches 0.
+      while (observedDeckPositions.length &&
+        snapshot.tick - observedDeckPositions[0].tick > 14)
+        observedDeckPositions.shift();
+      if (deckEchoes.count) deckEchoes.instanceMatrix.needsUpdate = true;
+    } else observedDeckPositions.length = 0;
     group.visible = true;
   }
 
@@ -101,7 +171,11 @@ export function createTowerRouteIntent(THREE) {
     return { sourceBound: true, visible: group.visible, runToken,
       targetPlatformId, tick: sourceTick,
       markers: group.visible ? markers.count : 0, maximumMarkers: MAX_MARKERS,
-      opaqueTowerOccludes: material.depthTest, extraDraws: group.visible ? 1 : 0,
+      observedMovingDeckEchoes: group.visible ? deckEchoes.count : 0,
+      observedDeckDeltaX: group.visible ? observedMovement : 0,
+      echoedSourcePositionsOnly: true, movingDeckKind: observedDeckKind,
+      opaqueTowerOccludes: material.depthTest,
+      extraDraws: group.visible ? 1 + (deckEchoes.count ? 1 : 0) : 0,
       simulatedFlight: false, disposed };
   }
 
@@ -112,6 +186,8 @@ export function createTowerRouteIntent(THREE) {
     group.clear();
     geometry.dispose();
     material.dispose();
+    echoGeometry.dispose();
+    echoMaterial.dispose();
   }
   return { group, update, diagnostics, dispose };
 }
