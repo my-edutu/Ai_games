@@ -26,14 +26,34 @@ export function planWardenRift(i,open=0){
   yaw:-a+(i%2?-.26:.23),width:o*(.42+(i%3)*.12),
   length:.58+(i%4)*.08});
 }
-export function planWardenRegaliaMotion(id,phase='SENTINEL',charge=0,reducedMotion=false){
+/**
+ * The authoritative Warden's real post-attack recovery is an exposed guard,
+ * not a free perpetual bonus or an invented cutscene. Physically let the
+ * skeleton sag and its pauldrons part; preserve a static readable weak point
+ * under reduced-motion, while actual danger and ward seals take priority.
+ */
+const NO_EXPOSURE=Object.freeze({weight:0,dip:0,torsoPitch:0,shoulderPitch:0,shoulderRoll:0});
+export function planWardenExposurePose(recovery,guardianWard=false,warning=false){
+ const turns=recovery?.remaining;
+ if(!Number.isSafeInteger(turns)||turns<=0||turns>6||guardianWard||warning)
+  return NO_EXPOSURE;
+ const weight=clip(.62+Math.min(turns,3)*.075,.62,.845);
+ return Object.freeze({weight,dip:.085*weight,torsoPitch:.21*weight,
+  shoulderPitch:.22*weight,shoulderRoll:.19*weight});
+}
+export function planWardenRegaliaMotion(id,phase='SENTINEL',charge=0,reducedMotion=false,exposure=0){
  const stage=Object.hasOwn(phaseOpen,phase)?phaseOpen[phase]:0;
- const warning=reducedMotion?0:clip(charge,0,1),side=id?.startsWith('left-')?-1:id?.startsWith('right-')?1:0;
+ const warning=reducedMotion?0:clip(charge,0,1),opened=clip(exposure,0,1);
+ const side=id?.startsWith('left-')?-1:id?.startsWith('right-')?1:0;
  let x=0,y=0,roll=0,scale=1;
  if(id?.includes('pauldron')||id?.includes('talon')){
-  x=side*(stage*.036+warning*.015);roll=side*(stage*.105+warning*.085);
+  x=side*(stage*.036+warning*.015+opened*.15);
+  roll=side*(stage*.105+warning*.085+opened*.18);
+ }else if(id?.startsWith('left-collar')||id?.startsWith('right-collar')){
+  x=side*.065*opened;roll=side*.09*opened;
  }else if(id?.startsWith('back-spine'))roll=(id.endsWith('1')||id.endsWith('2')?-1:1)*(stage*.078+warning*.035);
  else if(id==='crown-finial'){y=-stage*.065;roll=-warning*.09;}
- else if(id==='ember-heart')scale=1+stage*.13+warning*.11;
+ else if(id==='cuirass'){y=-opened*.055;}
+ else if(id==='ember-heart')scale=1+stage*.13+warning*.11+opened*.20;
  return Object.freeze({x,y,roll,scale});
 }

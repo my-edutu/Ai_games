@@ -69,6 +69,25 @@ test('true Warden shockwave opens visible desktop/mobile tactical counterplay an
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wardenRitual?.exposedCounterWindow),{timeout:20000}).toBe(true);
  await expect(page.locator('#boss-phase')).toContainText('EXPOSED');
  await expect(page.locator('#boss-strip')).toHaveAttribute('data-recovery','true');
+ // Real browser reconstruction: the current living defender must occupy the
+ // camera-facing side of the Warden while the actual vulnerable boss lowers
+ // shoulder armour. This does not pretend the screenshot won a blind vote.
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wardenExposure?.weight??0),
+  {timeout:20000}).toBeGreaterThan(.7);
+ const duelStage=await page.evaluate(()=>{
+  const d=window.__DUNGEON_RENDER_DIAGNOSTICS__,s=window.__DUNGEON_PUBLIC_STATE__;
+  const boss=s.units.find(u=>u.kind==='warden'&&u.hp>0);
+  const hero=s.units.filter(u=>u.faction==='party'&&u.hp>0)
+   .sort((a,b)=>(Math.abs(a.x-boss.x)+Math.abs(a.z-boss.z))-
+    (Math.abs(b.x-boss.x)+Math.abs(b.z-boss.z)))[0];
+  const dx=boss.x-hero.x,dz=boss.z-hero.z,o=d.cinematicShot?.offsets||[0,0,0];
+  return {mode:d.cinematicShot?.mode,nearSide:(o[0]*dx+o[2]*dz)/(
+   Math.hypot(o[0],o[2])*Math.hypot(dx,dz)),recovery:d.wardenExposure?.weight};
+ });
+ expect(duelStage.mode).toBe('warden-exposed');
+ expect(duelStage.nearSide).toBeLessThan(-.2);
+ await test.info().attach('real-Warden-hero-forward-counter-stage',{
+  body:Buffer.from(JSON.stringify(duelStage)),contentType:'application/json'});
  await page.locator('#world').screenshot({path:'artifacts/dungeon-m1-counter-open-real-desktop.png',timeout:90000});
  const beforeHp=boss.hp;
  current=game.step();

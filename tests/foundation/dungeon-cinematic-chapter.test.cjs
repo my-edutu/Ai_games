@@ -72,6 +72,33 @@ test('a real Warden duel is filmed from the flank so giant foreground boss armor
  const reverse=planDuelCameraOffset(boss,v);
  assert.ok(reverse.every(Number.isFinite),'deterministic opposite direction shot is finite');
 });
+test('real Warden counter and contact place the living hero in front while real warnings remain tactical',async()=>{
+ const {planCinematicShot,planDuelCameraOffset}=await planner(),s=scene();
+ const hero=s.units.find(u=>u.id==='ranger'),boss=s.units.find(u=>u.id==='warden');
+ const depthRatio=shot=>{
+  const d={x:boss.x-hero.x,z:boss.z-hero.z};
+  return (shot.offsets[0]*d.x+shot.offsets[2]*d.z)/(
+   Math.hypot(shot.offsets[0],shot.offsets[2])*Math.hypot(d.x,d.z));
+ };
+ // The true closest living defender is ranger in this seeded scene.
+ const approach=planCinematicShot(s);
+ assert.equal(approach.mode,'warden-approach');
+ assert.ok(depthRatio(approach)<-.20,'hero, not giant boss shoulder, must face the camera');
+ s.bossRecovery={remaining:3};s.guardianWard=false;
+ const exposed=planCinematicShot(s);
+ assert.equal(exposed.mode,'warden-exposed');
+ assert.ok(depthRatio(exposed)<-.20,'a genuine counter window must show the attacker');
+ const contact=planCinematicShot(s,{mode:'contact',actorId:hero.id,targetId:boss.id,
+  x:(hero.x+boss.x)/2,z:(hero.z+boss.z)/2});
+ assert.equal(contact.mode,'warden-contact');
+ assert.ok(depthRatio(contact)<-.20,'Warden contact must reveal the weapon-side hero');
+ s.bossWarning={attackTick:s.tick+1,cells:[{x:boss.x,z:boss.z}],shape:'NOVA'};
+ const warning=planCinematicShot(s);
+ assert.equal(warning.mode,'warden-warning');
+ assert.equal(warning.warning,true);
+ assert.ok(depthRatio(warning)>0,'the danger overview deliberately keeps an elevated ordinary angle');
+ assert.equal(planDuelCameraOffset(hero,boss,8,6,{heroForeground:true}).every(Number.isFinite),true);
+});
 test('authority-backed boss anticipation is reversible and reduced-motion safe',async()=>{
  const {planWardenCharge,planCinematicShot}=await planner();
  const warning={attackTick:6,cells:[{x:9,z:9}]};

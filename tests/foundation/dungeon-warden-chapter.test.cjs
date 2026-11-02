@@ -31,6 +31,24 @@ test('original boss regalia follows actual phase and warning, never an unbounded
  assert.equal(f('ember-heart','SENTINEL',0,true).scale,1);
  assert.ok(f('crown-finial','ECLIPSE',0).y<0);
 });
+test('true recovery physically opens boss guard, and live warning/ward seal it again',async()=>{
+ const {planWardenExposurePose:exposure,planWardenRegaliaMotion:regalia}=await planner();
+ const open=exposure({remaining:3},false,false);
+ assert.ok(open.weight>.7&&open.shoulderPitch>0&&open.torsoPitch>0);
+ assert.ok(regalia('left-pauldron','SENTINEL',0,false,open.weight).x<
+  regalia('left-pauldron','SENTINEL',0,false,0).x-.05);
+ assert.ok(regalia('right-pauldron','SENTINEL',0,false,open.weight).x>
+  regalia('right-pauldron','SENTINEL',0,false,0).x+.05);
+ assert.ok(regalia('ember-heart','SENTINEL',0,false,open.weight).scale>1.13);
+ assert.equal(exposure({remaining:3},true,false).weight,0,'real guardian ward seals the boss');
+ assert.equal(exposure({remaining:3},false,true).weight,0,'real warning overrides exposed state');
+ assert.equal(exposure(null,false,false).weight,0,'no fabricated weak point');
+ assert.deepEqual(exposure({remaining:3},false,false),open,'no time-based flutter or randomness');
+ const source=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(source,/actor\.wardenExposure\?\.weight/,'real GLB metal armor must open');
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ assert.match(app,/planWardenExposurePose\(state\?\.bossRecovery/);
+});
 test('real Warden rig, world and restricted static route load the same physical chapter',()=>{
  const read=p=>fs.readFileSync(path.join(root,p),'utf8');
  assert.match(read('public/ai-dungeon/warden-ritual.js'),/faultVoidMesh\.setMatrixAt/);
