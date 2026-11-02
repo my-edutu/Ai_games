@@ -4809,6 +4809,67 @@ const STREET_EYE=1.68;
 let streetWalk=false,streetPosition=[4.2,7.7],streetYaw=0,streetTilt=0;
 let streetPrior=null,streetDistance=0,streetBlocked=0;
 const streetHeld=new Set();
+// G114: photographed G113 gameplay put the visitor inside a physical textile
+// canopy. Authoritative citizen navigation intentionally ignores decorative
+// stalls; the human-height CAMERA must not. Cache presentation roof volumes
+// by settlement revision so the extra headroom checks stay bounded.
+let streetRoofRevision=-1,streetRoofCache=[];
+function streetRoofs(){
+ if(streetRoofRevision!==city.length){
+  streetRoofCache=followCameraRoofs();streetRoofRevision=city.length;
+ }
+ return streetRoofCache;
+}
+function streetHeadroomBlockers(x,z,roofs=streetRoofs()){
+ const eye=terrain(x,z)+STREET_EYE;
+ let count=0;
+ for(const roof of roofs){
+  if(Math.abs(x-roof.x)>=roof.rx+.27||Math.abs(z-roof.z)>=roof.rz+.27)continue;
+  const low=roof.bottom??(terrain(roof.x,roof.z)-.22);
+  if(eye+.30>=low&&eye-.25<=roof.top+.08)count++;
+ }
+ return count;
+}
+// Keep a human-sized shoulder away from walls and low fabric roofs, while
+// leaving the villagers' authoritative A* and market deliveries untouched.
+function streetVisibility(x,z,angle){
+ const roofs=streetRoofs(),eye=[x,terrain(x,z)+STREET_EYE,z];
+ const obstructionCount=streetHeadroomBlockers(x,z,roofs);
+ let forwardMetres=0;
+ for(let i=1;i<=18;i++){
+  const distance=i/3,px=x+Math.sin(angle)*distance,pz=z+Math.cos(angle)*distance;
+  if(!streetSafe(px,pz))break;
+  const target=[px,terrain(px,pz)+STREET_EYE-.05,pz];
+  if(followRayBlockers(eye,target,roofs)>0)break;
+  forwardMetres=distance;
+ }
+ return {openSky:obstructionCount===0,obstructionCount,
+  forwardMetres:Math.round(forwardMetres*100)/100};
+}
+function streetArrival(){
+ // Visitor enters on the OPEN town approach, never a solid roof or cloth stall.
+ // Viewpoint and bearing are selected from REAL growing geometry, not RNG.
+ const origins=[[.45,12.15],[-.6,11.45],[-2.5,12.2],[2.45,12.2],
+  [-3.2,10.7],[3.15,10.7],[-7.7,7.2],[7.75,1.2],
+  [-8,1.5],[8,0],[-9,-4],[9,-2],[0,14.5]];
+ const headings=[Math.PI,Math.PI-.28,Math.PI+.28,
+  -Math.PI/2,Math.PI/2,0];
+ let best=null,bestScore=-Infinity;
+ for(const position of origins){
+  if(!streetSafe(...position))continue;
+  for(const angle of headings){
+   const view=streetVisibility(position[0],position[1],angle);
+   if(!view.openSky||view.forwardMetres<3)continue;
+   const goal=[0,5],before=Math.hypot(position[0]-goal[0],position[1]-goal[1]);
+   const after=Math.hypot(position[0]+Math.sin(angle)*5-goal[0],
+    position[1]+Math.cos(angle)*5-goal[1]);
+   const score=view.forwardMetres*3.6+(before-after)*1.7-
+    Math.hypot(position[0],position[1]-10)*.4;
+   if(score>bestScore){bestScore=score;best={position:position.slice(),angle,view};}
+  }
+ }
+ return best;
+}
 document.head.insertAdjacentHTML('beforeend',`<style>
 #street-walk-controls{display:none;position:fixed;bottom:76px;left:50%;transform:translateX(-50%);z-index:25;width:max-content;max-width:calc(100vw - 14px);text-align:center;color:#fff1d1}
 body[data-street="on"] #street-walk-controls{display:block}
@@ -4827,10 +4888,10 @@ body[data-street="on"] #world{touch-action:none}
 document.querySelector('.world-tour').insertAdjacentHTML('afterbegin','<button class="tour-btn" type="button" id="street-walk" aria-pressed="false" aria-keyshortcuts="V" aria-controls="street-walk-controls" aria-label="Walk on foot through the autonomous village">♙ Walk streets</button>');
 document.body.insertAdjacentHTML('beforeend','<div id="street-walk-controls" role="group" aria-label="Village street navigation"><span class="street-caption" id="street-walk-status" role="status" aria-live="off">Village streets · real citizens at work</span><div class="street-keys"><button type="button" data-street-key="arrowleft" aria-label="Look left">↶</button><button type="button" data-street-key="a" aria-label="Step left">←</button><button type="button" data-street-key="w" aria-label="Walk forward">↑</button><button type="button" data-street-key="s" aria-label="Walk backward">↓</button><button type="button" data-street-key="d" aria-label="Step right">→</button><button type="button" data-street-key="arrowright" aria-label="Look right">↷</button><button id="street-walk-exit" type="button">Exit</button></div></div>');
 document.body.dataset.street='off';
-function streetSafe(x,z){const r=.13;return walkable(x,z)&&walkable(x-r,z-r)&&walkable(x+r,z-r)&&walkable(x-r,z+r)&&walkable(x+r,z+r)}
+function streetSafe(x,z){const r=.22;return walkable(x,z)&&walkable(x-r,z-r)&&walkable(x+r,z-r)&&walkable(x-r,z+r)&&walkable(x+r,z+r)&&streetHeadroomBlockers(x,z)===0}
 function getStreetWalkState(){
  const nearest=people.map(p=>({p,d:Math.hypot(p.x-streetPosition[0],p.z-streetPosition[1])})).sort((a,b)=>a.d-b.d||a.p.name.localeCompare(b.p.name))[0];
- return {active:streetWalk,position:streetPosition.slice(),eye:[streetPosition[0],terrain(...streetPosition)+STREET_EYE,streetPosition[1]],height:STREET_EYE,yaw:streetYaw,tilt:streetTilt,distanceTravelled:streetDistance,blockedMoves:streetBlocked,nearestCitizen:nearest?{name:nearest.p.name,activity:nearest.p.activity,job:nearest.p.job,metres:Math.round(nearest.d*10)/10}:null};
+ return {active:streetWalk,position:streetPosition.slice(),eye:[streetPosition[0],terrain(...streetPosition)+STREET_EYE,streetPosition[1]],height:STREET_EYE,yaw:streetYaw,tilt:streetTilt,visibility:streetVisibility(streetPosition[0],streetPosition[1],streetYaw),distanceTravelled:streetDistance,blockedMoves:streetBlocked,nearestCitizen:nearest?{name:nearest.p.name,activity:nearest.p.activity,job:nearest.p.job,metres:Math.round(nearest.d*10)/10}:null};
 }
 function streetCaption(){if(!streetWalk)return;const n=getStreetWalkState().nearestCitizen;const text=n&&n.metres<9?n.name+' · '+n.activity:'Village streets · follow real workers';const node=document.getElementById('street-walk-status');if(node.textContent!==text)node.textContent=text;}
 function setStreetWalk(enabled){
@@ -4840,11 +4901,9 @@ function setStreetWalk(enabled){
   stopWorkdayWatch();
   if(follow)setCitizenFollow(false);
   streetPrior={yaw,pitch,zoom,focus:focusPoint.slice()};
-  const starts=[[4.2,7.7],[5.2,9.4],[-4,9],[7,7],[9,3],[-7,10],[10,-8]];
-  let origin=starts.find(p=>streetSafe(...p));
-  if(!origin){const snap=navSnap(4.2,7.7);if(snap)origin=navPoint(...snap);}
-  if(!origin||!streetSafe(...origin)){streetPrior=null;showToast('No clear town route yet');return getStreetWalkState();}
-  streetPosition=origin.slice();streetYaw=yaw+Math.PI;streetTilt=0;
+  const arrival=streetArrival();
+  if(!arrival){streetPrior=null;showToast('No clear outdoor street route yet');return getStreetWalkState();}
+  streetPosition=arrival.position;streetYaw=arrival.angle;streetTilt=0;
   streetDistance=0;streetBlocked=0;cinematic=false;streetWalk=true;
   setCommandView('world','user');
  }else{
@@ -4860,6 +4919,13 @@ function setStreetWalk(enabled){
 }
 function advanceStreetWalk(dt){
  if(!streetWalk)return getStreetWalkState();
+ // Building growth can occupy an old scenic route without altering the AI.
+ // Relocate only the spectator when a newly built wall encloses the camera.
+ if(!streetSafe(...streetPosition)){
+  const open=streetArrival();
+  if(open){streetPosition=open.position;streetYaw=open.angle;presentationEpoch++;}
+  else {setStreetWalk(false);return getStreetWalkState();}
+ }
  const t=Math.max(0,Math.min(.25,Number.isFinite(dt)?dt:0));
  streetYaw+=(Number(streetHeld.has('arrowright'))-Number(streetHeld.has('arrowleft')))*t*1.55;
  const x=Number(streetHeld.has('d'))-Number(streetHeld.has('a'));
