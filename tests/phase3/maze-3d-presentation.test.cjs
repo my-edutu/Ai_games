@@ -540,6 +540,18 @@ test('native Detail keeps both disclosed actors in the prior verified horizontal
   const taller = publicDetailEncounterHalfHeight(tallerAspect, .56);
   assert.ok(taller > 6.30 && taller < 6.32, 'a taller stage restores the former horizontal world span');
   assert.ok(taller * tallerAspect >= reference * .75 - 1e-12);
+  // Pass95 actual unedited 320x740 WebGL reported the new visible physical
+  // guardian's RIGHT bound +0.95979 NDC, violating the original strict 0.95
+  // full-model gate. Correct camera geometry, never its acceptance threshold.
+  for (const aspect of [320/740,390/844]) {
+    const actual=publicDetailEncounterHalfHeight(aspect,.56);
+    assert.ok(actual*aspect>=4.40-1e-10,
+      'native Detail must reserve real shell-tail room with the whole guardian in frame');
+    assert.ok(actual>4.275/aspect,
+      'new physical anatomy earns world-space camera clearance, not a weaker screenshot test');
+    assert.equal(publicDetailEncounterHalfHeight(aspect,0),4.6,
+      'unknown/withdrawn guardian cannot borrow an active camera correction');
+  }
   assert.equal(publicDetailEncounterHalfHeight(.8, .56), 5.7, 'normal portrait detail retains its prior scale');
   assert.equal(publicDetailEncounterHalfHeight(tallerAspect, 0), 4.6, 'no public guardian cannot create threat framing');
   assert.equal(publicDetailEncounterHalfHeight(tallerAspect, NaN), 4.6, 'invalid attention cannot invent a visible threat');
