@@ -89,3 +89,30 @@ export function planImpactCameraHold(snapshot,beats){
  }
  return null;
 }
+
+/**
+ * Real public HP-zero body collapse on imported GLB joints, entirely
+ * presentation only. A fatal beat physically bends the knees and shoulders;
+ * an already dead, restored party member holds a static natural pose.
+ */
+const FLAT_SKELETON=Object.freeze({
+ weight:0,spine:{pitch:0,roll:0},shoulders:{left:0,right:0},
+ elbows:{left:0,right:0},
+ legs:{left:{upper:0,lower:0,foot:0},right:{upper:0,lower:0,foot:0}}
+});
+export function planSkinnedDefeatPose(kind,hp,age=null,fatal=false,reducedMotion=false){
+ if(!['vanguard','ranger','mystic','revenant','cultist','warden'].includes(kind)||hp!==0)
+  return FLAT_SKELETON;
+ if(fatal===true&&(!Number.isFinite(age)||age<0||age>=DEATH_BEAT_DURATION))
+  return FLAT_SKELETON;
+ const w=reducedMotion||fatal!==true?1:ease((age-.085)/.65);
+ if(w<=0)return FLAT_SKELETON;
+ const caster=kind==='mystic'||kind==='cultist';
+ return Object.freeze({
+  weight:w,spine:{pitch:(kind==='warden'?.27:.21)*w,roll:(caster?-.13:.09)*w},
+  shoulders:{left:(caster?-.59:-.46)*w,right:(caster?-.41:-.57)*w},
+  elbows:{left:.43*w,right:.48*w},
+  legs:{left:{upper:.56*w,lower:-.35*w,foot:.12*w},
+   right:{upper:-.36*w,lower:.54*w,foot:-.12*w}}
+ });
+}
