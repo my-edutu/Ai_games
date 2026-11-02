@@ -13,7 +13,7 @@ const valid=(u,n)=>u&&Number.isInteger(u.x)&&Number.isInteger(u.z)&&u.x>=0&&u.z>
 const distance=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.z-b.z);
 const mean=(a,b)=>({x:(a.x+b.x)/2,z:(a.z+b.z)/2});
 // Bias boss counter framing toward the real surviving hero without moving an actor.
-const heroLed=(hero,boss)=>({x:hero.x*.68+boss.x*.32,z:hero.z*.68+boss.z*.32});
+const heroLed=(hero,boss)=>({x:hero.x*.81+boss.x*.19,z:hero.z*.81+boss.z*.19});
 const round=n=>Number(n.toFixed(3));
 /**
  * Stage a real duel across the screen rather than stacking a giant foreground
@@ -32,7 +32,11 @@ export function planDuelCameraOffset(hero,foe,height=8.2,radius=6.2,{heroForegro
  if(length<.75)return null;
  const sideX=dz/length,sideZ=-dx/length;
  const sideSign=sideX+sideZ>=0?1:-1;
- const forward=heroForeground===true?-.33:.18;
+ // During authentic exposed recovery, the boss is physically much larger
+ // than a lone defender. Look over the HERO's near shoulder, not into the
+ // Warden's back. Other encounters retain the stable flank, while imminent
+ // warning uses a high, wide tactical shot rather than this close camera.
+ const forward=heroForeground==='recovery'?-1.08:heroForeground===true?-.33:.18;
  const norm=Math.hypot(.91,forward);
  const viewX=(sideX*sideSign*.91+dx/length*forward)/norm;
  const viewZ=(sideZ*sideSign*.91+dz/length*forward)/norm;
@@ -114,7 +118,7 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
   // The same genuinely vulnerable Warden window that governs counter damage
   // moves the physical camera down from a wide warning to a readable duel.
   mode='warden-exposed';position=heroLed(closeBoss,boss);
-  offsets=planDuelCameraOffset(closeBoss,boss,7.4,6.5,{heroForeground:true})||[4.4,7.4,4.6];
+  offsets=planDuelCameraOffset(closeBoss,boss,8.25,7.25,{heroForeground:'recovery'})||[4.4,8.25,5.15];
   lookY=.84;subjects=[closeBoss.id,boss.id];
  }else if(boss&&closeBoss&&distance(closeBoss,boss)<=5&&
   (!realContact||encounter.targetId!==boss.id)){
@@ -129,7 +133,7 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
   const hero=heroes.find(u=>u.id===encounter.actorId);
   mode=foe?.kind==='warden'?'warden-contact':'contact';
   position=foe?.kind==='warden'?heroLed(hero,foe):mean(hero,foe);
-  offsets=planDuelCameraOffset(hero,foe,foe?.kind==='warden'?8.15:6.6,foe?.kind==='warden'?7.25:5.85,{heroForeground:foe?.kind==='warden'})||[4.6,7.35,5.05];
+  offsets=planDuelCameraOffset(hero,foe,foe?.kind==='warden'?8.15:6.6,foe?.kind==='warden'?7.25:5.85,{heroForeground:foe?.kind==='warden'&&s.bossRecovery?.remaining?'recovery':foe?.kind==='warden'})||[4.6,7.35,5.05];
   lookY=foe?.kind==='warden'?.76:.91;subjects=[hero.id,foe.id];
  }else if(boss&&closeBoss&&distance(closeBoss,boss)<=6){
   mode='warden-approach';position=heroLed(closeBoss,boss);
@@ -185,7 +189,7 @@ const DIRECTOR_LENS=Object.freeze({
  'warden-contact': Object.freeze({radius:7.20,height:6.85,fov:45,aim:.91,follow:7.5,key:1.15}),
  'oathguard-cover':Object.freeze({radius:5.7,height:6.9,fov:44,aim:.86,follow:7.4,key:1.20}),
  'warden-approach':Object.freeze({radius:7.90,height:7.10,fov:45,aim:.84,follow:6.2,key:1.11}),
- 'warden-exposed':Object.freeze({radius:7.90,height:6.65,fov:45,aim:.96,follow:7.8,key:1.19}),
+ 'warden-exposed':Object.freeze({radius:7.65,height:7.55,fov:48,aim:1.04,follow:7.8,key:1.23}),
  'warden-warning': Object.freeze({radius:9.05,height:10.55,fov:51,aim:.35,follow:10.0,key:.92}),
  'breach-warning': Object.freeze({radius:6.55,height:7.5,fov:46,aim:.45,follow:8.0,key:1.04}),
  descent:          Object.freeze({radius:5.4,height:6.45,fov:45,aim:.65,follow:4.8,key:.91}),
