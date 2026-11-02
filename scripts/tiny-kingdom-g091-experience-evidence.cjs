@@ -26,7 +26,7 @@ const gpuArgs=['--enable-webgl','--use-gl=angle','--use-angle=swiftshader',
  '--enable-precise-memory-info'];
 
 const evidence={
- version:'g135-real-documentary-ik-workday-v1',
+ version:'g141-lived-dawn-workday-night-household-v1',
  baselineSha:BASE,candidateSha:null,baselineBlob:null,candidateBlob:null,
  renderer:'UNVERIFIED',status:'INCOMPLETE',workdayTicks:null,
  camera:{wide,labor,grown,marketView},viewport,
@@ -38,7 +38,8 @@ const evidence={
   'Neither screenshot differences nor this evidence imply independent critic endorsement.',
   'Video files include honest initialization pre-roll; no postprocessed or fabricated frames.',
   'Supplemental candidate live-worker shots are not equivalent to a matched A/B and cannot substitute for blinded review.',
-  'G098 courier, G099 unloading and G113/G115 street interactions are candidate-only supplementary proof, not a matched G088 mechanic (baseline lacks first-person movement).'
+  'G098 courier, G099 unloading and G113/G115 street interactions are candidate-only supplementary proof, not a matched G088 mechanic (baseline lacks first-person movement).',
+  'G141 evening screenshots are matched Day-120 seed/time/mobile views; no independent review or nightly real-time footage yet.'
  ]
 };
 const mkdir=(name)=>fs.mkdirSync(path.join(DIR,name),{recursive:true});
@@ -223,7 +224,10 @@ async function stage(label,html,browser,matchedTicks){
     camera:handoffShot,realPlayerFollow:true,inTransit:handoff.inTransit,matchedPair:false};
   }
   await page.evaluate(()=>window.__tinyKingdom.reset());
-  await advanceTicks(page,120*24*30);
+  // Record the same mature civilization at MIDDAY: true daytime labor now
+  // includes physical commuting, whereas the old 07:00 capture falsely
+  // claimed a complete on-site shift before villagers could walk to work.
+  await advanceTicks(page,120*24*30+5*30);
   result.day120=await cameraAndScreenshot(page,grown,label+'/day120-wide.png');
   result.marketDay120=await cameraAndScreenshot(page,marketView,label+'/market-day120.png');
   await page.evaluate(()=>window.__tinyKingdom.setHudMode('full'));
@@ -320,6 +324,22 @@ async function stage(label,html,browser,matchedTicks){
     mobileFile:'street-worker-next-mobile.png',wideFile:'street-worker-next-wide.png'};
    await page.evaluate(()=>window.__tinyKingdom.setStreetWalk(false));
    await page.setViewportSize({width:390,height:844});
+  }
+  // Matched authentic evening AFTER the exact same 120-day/midday state.
+  // This captures the baseline's overnight work next to the candidate's
+  // genuine household homecoming without hiding or replacing any villager.
+  await advanceTicks(page,11*30);
+  result.night=await cameraAndScreenshot(page,grown,label+'/day120-night-mobile.png',false);
+  result.nightSociety=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   return typeof g.getDailyRhythmAudit==='function'?{
+    ...g.getDailyRhythmAudit(),hearths:g.getOccupiedHearthCount()}:null;
+  });
+  if(label==='candidate'){
+   assert.equal(result.nightSociety?.shift,'night-rest',
+    'Actual Day-120 night actors were still running a daytime work shift');
+   assert(result.nightSociety.counts.resting+result.nightSociety.counts.returning>=20,
+    'Day-120 town lacked genuine household returns after sunset');
   }
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);
   assert.equal(overflow,false,label+' 390px horizontal document overflow');
@@ -500,6 +520,8 @@ async function streetMotion(browser,html,snapshot){
    'Live-workday A/B must be captured at identical simulation time');
   assert.equal(c.result.day120.simulatedHour,b.result.day120.simulatedHour,
    'Day120 A/B must use identical simulated time');
+  assert.equal(c.result.night.simulatedHour,b.result.night.simulatedHour,
+   'Night homecoming A/B must use identical simulated time and seed');
   // Real, unedited matched-hour gameplay. Recreate read-only staged snapshots
   // inside newly recording contexts; no clock stepping during footage.
   const cSnapshot=await regenerateSnapshot(browser,candidate,c.ticks);
