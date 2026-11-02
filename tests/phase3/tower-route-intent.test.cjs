@@ -197,17 +197,22 @@ test('visible 3D route stones point only at the source-declared genuinely clear 
     assert.equal(JSON.stringify(source), original, 'source camera cannot mutate immutable observations');
 
     effect.update({ ...source, tick: 202, intent: { ...source.intent,
+      mode: 'settling-landing', summary: 'Braking into a clear landing lane' } }, deck);
+    assert.equal(effect.diagnostics().observedLandingX, center - 27500,
+      'source-declared braking continues aiming for the SAME physical clear interval');
+
+    effect.update({ ...source, tick: 203, intent: { ...source.intent,
       summary: 'Steering toward the next landing' } }, deck);
     assert.equal(effect.diagnostics().sourceClearLane, false,
       'an ordinary or historical-v1 intent must never be relabeled with a tactical lane');
     assert.equal(effect.diagnostics().observedLandingX, center);
 
-    effect.update({ ...source, tick: 203, hazards: [{ ...hazard, active: false }],
+    effect.update({ ...source, tick: 204, hazards: [{ ...hazard, active: false }],
       intent: { ...source.intent, summary: 'Boosting toward a distant safe landing' } }, deck);
     assert.equal(effect.diagnostics().observedLandingX, center,
       'inactive source hazards cannot invent a detour');
 
-    effect.update({ ...source, tick: 204 }, deck, { stale: true });
+    effect.update({ ...source, tick: 205 }, deck, { stale: true });
     assert.equal(effect.diagnostics().observedLandingX, null);
     assert.equal(effect.diagnostics().markers, 0);
     assert.equal(effect.diagnostics().sourceClearLane, false);
