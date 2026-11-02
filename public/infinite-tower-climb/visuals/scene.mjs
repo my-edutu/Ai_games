@@ -9,6 +9,7 @@ import { observedGuardianPassage, createTowerGuardianPassage } from './guardian-
 import { createTowerRouteIntent } from './route-intent.mjs';
 import { createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage } from './guardian-circuit.mjs';
 import { createTowerAtmosphere } from './atmosphere.mjs';
+import { createObservedMovingDeckRide } from './moving-deck-ride.mjs';
 // A tiny 3D attack lane follows only a REAL enemy telegraph. The curved ribbon
 // traces the same cylindrical projection as authoritative horizontal shots and
 // keeps its world-space origin at the firing actor, never at a guessed target.
@@ -1243,6 +1244,10 @@ export function createTowerScene(canvas, settings = {}) {
   footingShadow.renderOrder = 2;
   scene.add(footingShadow);
   let observedFooting = null;
+  // The same moving deck that drives a source-observed gear/piston now gives
+  // the skinned rider one bounded counterweight pose. Zero extra GPU draws.
+  const movingDeckRide = createObservedMovingDeckRide();
+  let observedRidePose = null;
 
   // Existing source route stays authoritative. One instanced world-space
   // movement echo helps follow a real dash/launch on a small phone viewport.
@@ -1301,6 +1306,7 @@ export function createTowerScene(canvas, settings = {}) {
   const actorOrbitTarget = new THREE.Vector3();
   let actorRescueFraction = 0;
   const guardianSightPoints=[];
+  const climberCapSightPoint = new THREE.Vector3();
   const lookAt = new THREE.Vector3();
   let actorYaw = 0;
   const visibilityChanged = () => {
@@ -1351,6 +1357,7 @@ export function createTowerScene(canvas, settings = {}) {
     particleLife.fill(0);
     motionLedger.reset(); motionEcho.count = 0; motionEcho.visible = false;
     footingShadow.visible = false; observedFooting = null;
+    movingDeckRide.reset(); observedRidePose = null;
     atmosphere.clear();
     echoDrawnTick = -1; observedStageLight.reset();
   }
@@ -1568,6 +1575,7 @@ export function createTowerScene(canvas, settings = {}) {
     // an observed moving platform. The gap softens its shade as the hero rises;
     // no shadow survives a stale packet, dead actor, result or restart.
     observedFooting = !options.stale ? observedTowerFooting(snapshot) : null;
+    observedRidePose = movingDeckRide.sample(snapshot, observedFooting, options);
     footingShadow.visible = !!observedFooting;
     if (observedFooting) {
       const footprint = pointFor(observedFooting.x, observedFooting.top,
@@ -1647,6 +1655,7 @@ export function createTowerScene(canvas, settings = {}) {
       terminalKind: snapshot.lifecycle !== 'running' ? snapshot.result?.kind : null,
       terminalReason: snapshot.lifecycle !== 'running' ? snapshot.result?.reason : null,
       intentMode: snapshot.intent?.mode,
+      platformRide: observedRidePose,
       targetDx: resourceTarget ? resourceTarget.x - p.x : targetPlatform ? targetPlatform.x + targetPlatform.width / 2 - p.x : 0,
       targetDy: resourceTarget ? resourceTarget.y - p.y : targetPlatform ? targetPlatform.y + targetPlatform.height - p.y : 0,
       // Real snapshot platform top, inside the existing radial walking surface.
@@ -1673,6 +1682,15 @@ export function createTowerScene(canvas, settings = {}) {
       if (landingCueKey !== key) { updateLandingCueGeometry(landingCue.geometry, targetPlatform, snapshot); landingCueKey = key; }
     }
     guardianSightPoints.length=0;
+    // A real climber crossing beneath an opaque cap needs the same bounded
+    // architectural sightline protection already provided to the guardian.
+    // This only softens camera-obstructing cap materials; no ghost character,
+    // X-ray overlay, route prediction or collider change. The visor is read
+    // from its actual solved skinned world transform after animation.
+    if (!options.stale && snapshot.lifecycle === 'running' && p.health > 0) {
+      const visor = climber.group.getObjectByName('expressive-helmet');
+      if (visor) guardianSightPoints.push(visor.getWorldPosition(climberCapSightPoint));
+    }
     for (const entry of enemies.values()) {
       const e = entry.state;
       const position = pointFor(e.x, e.y - e.halfHeight, snapshot.chunkBaseY, snapshot.worldWidth);
@@ -2051,6 +2069,11 @@ export function createTowerScene(canvas, settings = {}) {
         footprint: footingShadow.position.toArray(),
         evidence: 'Current source-observed overlapping deck, not predicted landing or actual raster visibility',
       } : null,
+      movingDeckRider: observedRidePose ? { platformId: observedRidePose.platformId,
+        sourceTick: observedRidePose.sourceTick, drivenTick: observedRidePose.lastDrivenTick,
+        sourceDisplacement: observedRidePose.actualDisplacement,
+        visualLean: observedRidePose.lean, physicallyGrounded: observedRidePose.grounded,
+        proof: 'Occupied moving deck and observed source ticks, not hardware visual quality' } : null,
       observedTouchdown: landingHalo.visible ? { runToken: landingRun, floor: landingFloor,
         strength: landingWeight, position: landingHalo.position.toArray() } : null,
       activeTelegraphLanes: [...enemies.values()].filter(entry => entry.threatLane.visible).length,
