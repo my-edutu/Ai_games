@@ -411,7 +411,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       ? gateVisualTime - recentPublicPickup.start : Infinity;
     const showPickup = !result && pickupAge >= 0 && pickupAge < PUBLIC_PICKUP_VISUAL_SECONDS;
     const pickupStrength = showPickup
-      ? (settings.reducedMotion ? 1 : clamp(1-pickupAge/1.25,0,1)) : 0;
+      ? (settings.reducedMotion ? 1 : clamp(1-pickupAge/(PUBLIC_PICKUP_VISUAL_SECONDS-.55),0,1)) : 0;
     explorer.update({
       time:elapsed,delta,moving:pose.moving&&!result,heading,
       attentionHeading:closestThreat?Math.atan2(closestThreat.x-pose.x,closestThreat.z-pose.z):undefined,
