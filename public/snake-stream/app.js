@@ -2,6 +2,7 @@ import { createFallbackRenderer } from './fallback.mjs';
 import { createGardenAudio } from './audio.mjs';
 import { spectatorCopy } from './view-copy.mjs';
 import { createOverview } from './overview.mjs';
+import { selectCinematicShot } from './cinematic-director.mjs';
 
 const MAX_PARTICLES = 240;
 const POLL_MS = 125;
@@ -17,7 +18,7 @@ let polling = true;
 let reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let muted = true;
 let cleanFeed = false;
-let cameraMode = ['follow', 'detail'].includes(params.get('camera')) ? params.get('camera') : 'overview';
+let cameraMode = ['follow', 'detail', 'cinematic'].includes(params.get('camera')) ? params.get('camera') : 'overview';
 let loading = true;
 let reconnecting = false;
 let animationId = 0;
@@ -34,7 +35,9 @@ function syncControls() {
         : control === 'camera' ? cameraMode !== 'overview' : cleanFeed;
     button.setAttribute('aria-pressed', String(active));
   }
-  if ($('view-label')) setText('view-label', cameraMode === 'overview' ? 'Follow snake' : cameraMode === 'follow' ? 'Meet the snake' : 'Garden view');
+  if ($('view-label')) setText('view-label', cameraMode === 'overview' ? 'Follow snake'
+    : cameraMode === 'follow' ? 'Meet the snake'
+      : cameraMode === 'detail' ? 'Garden view' : 'Director view');
   if ($('audio-label')) setText('audio-label', muted ? 'Sound off' : 'Sound on');
   broadcast.dataset.camera = cameraMode;
   if (frame?.snapshot) overview.update(frame.snapshot, cameraMode !== 'overview');
@@ -56,6 +59,13 @@ for (const button of document.querySelectorAll('[data-control]')) {
 }
 document.addEventListener('keydown', event => {
   if (event.key === 'Escape' && cleanFeed) { cleanFeed = false; broadcast.classList.remove('clean-feed'); syncControls(); }
+  // Optional cinematic spectator mode is also accessible without editing a URL.
+  // Keep the established three-button camera cycle and its accessibility tests.
+  if (event.key.toLowerCase() === 'c' && !event.altKey && !event.ctrlKey && !event.metaKey
+      && !event.target?.closest?.('input, textarea, [contenteditable]')) {
+    cameraMode = cameraMode === 'cinematic' ? 'overview' : 'cinematic';
+    syncControls();
+  }
 });
 syncControls();
 
@@ -165,14 +175,19 @@ function draw(timestamp) {
   if (!polling) return;
   if (!document.hidden && renderer && frame && !drawFailed) {
     const alpha = Math.min(1, Math.max(0, (timestamp - receivedAt) / interval));
-    try { renderer.draw(frame, previousFrame, alpha, timestamp, { reducedMotion, cameraMode }); }
+    // A live cinematic composition only selects between EXISTING true WebGL
+    // cameras using the real public simulation step. It cannot modify the game.
+    const activeShot = cameraMode === 'cinematic'
+      ? selectCinematicShot(frame.snapshot, { reducedMotion }) : cameraMode;
+    try { renderer.draw(frame, previousFrame, alpha, timestamp, { reducedMotion, cameraMode: activeShot }); }
     catch (error) { useFallback(error); }
   }
   animationId = requestAnimationFrame(draw);
 }
 
 window.__snakePresentation = Object.freeze({
-  stats: () => ({ ...renderer?.stats(), reducedMotion, cleanFeed, connected: !reconnecting, audio: audio.stats() }),
+  stats: () => ({ ...renderer?.stats(), viewerCameraMode: cameraMode,
+    reducedMotion, cleanFeed, connected: !reconnecting, audio: audio.stats() }),
 });
 window.addEventListener('pagehide', () => {
   polling = false;

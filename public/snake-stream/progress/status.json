@@ -1,7 +1,7 @@
 {
-  "updatedAt": "2026-11-02T19:23:24.000Z",
-  "status": "T0/T1 BUILDING / verified real bd2 source-matched WebGL full frame SELF-REJECTED; general CI original strict 10/17 genuine full-desktop renders FAIL at 736×336; three broad aligned moss/fern biomes source candidate, new-head visual and 55s motion UNVERIFIED. DRAFT NEVER MERGE/DEPLOY.",
-  "detail": "Real bd2 Chromium before/after overview/detail/portrait/1920 and uncut genuine 55-second gameplay passed focused browser tests before Actions cancellation, but huge tiled court and tiny stiff serpent visually remain far behind Snake Pass/ASTRO BOT. Same-T1 source candidate broadens the already-baked owned stone DataTexture's planted catchments aligned to existing actual three 3D fern courses; no extra pass/texture/geometry/AI/cue change. Old strict full 1s >=17 renderer submissions gate unchanged, observed bd2 10/17 FAIL. New-head full-game original strict, WebGL media, hardware delivered/p95, soak, independent whole-game critic all pending.",
+  "updatedAt": "2026-11-02T20:41:00.000Z",
+  "status": "T1 BUILDING / genuine latest 361e072 whole-frame SELF-REJECTED; original 1s full-desktop strict 12/17 real renderer submissions FAIL at 736×336. Integrated optional public-state cinematic whole-game director candidate Node GREEN, exact-new-head Chromium/55s and quality PENDING; DRAFT NEVER MERGE/DEPLOY.",
+  "detail": "74/75 current 361e072 browser checks passed including exact-frozen WebGL stills and two honest 55s real-game videos. First-hand eight views: near-identical giant tiled floor and small snake; 960 mean RGB delta 0.898/255, 1920 0.907/255. Default static overview retained. New optional truthful 160-public-movement-step character/detail/follow/overview editorial mode, no simulation change, performance/render gate unchanged. Physical-device FPS, long soak and independent Snake Pass/ASTRO BOT parity still absent.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "HISTORICAL picture is NOT this new candidate's real WebGL scene. Real exact bd2 before/after 8-view screenshots and 55s motion available in Chromium run 41499013691 artifacts 13170985951, 13169748226. Current broad-grove candidate still requires exact new-head browser proof.",
   "reviews": [
@@ -969,34 +969,34 @@
     "firstImplementationPlan": "docs/superpowers/plans/2026-11-01-autonomous-snake-transformation.md",
     "acceptance": "An independently evidenced, visibly substantial upgrade of the full running game in environment, character, animation, materials, game feel and sustainable frame delivery; CI is necessary but never sufficient.",
     "overall": "NOT ACCEPTED",
-    "milestone": "T1 BUILDING: actual unchanged complete-game runtime 9d3 (docs SHA a939) still visually self-rejected. 41411192893 strict original 7/17 genuine desktop submissions FAIL at 736x336, p95 1700ms. Integrated on-court physical ecology candidate source and Node/Chromium tests prepared, visually/performance unverified. T2-T4 and independent review pending.",
+    "milestone": "T1 BUILDING / existing complete actual native garden SELF-REJECTED visually. Substantial new public-only long-form cinematic spectator composition BUILT with 19/19 affected Node tests and source-true browser evidence tests; NOT yet proven visually or by real video on candidate head. All geometry/animation, 17+ strict performance and T2–T4 acceptance OPEN.",
     "milestoneStatus": "BUILDING",
-    "latestKnownStrictBrowser": "Latest valid real 3D strict sample was a939 prior 7/17 / 1010.4ms at 736x336, p95 gap 1700ms; on exact 0865217 fallback head original gate did NOT reach valid WebGL measurement. No new numeric FPS is inferred.",
+    "latestKnownStrictBrowser": "Exact parent 361e072: focused Chromium 41512966939 74/75; original complete 1920x1080 one-second 12 ACTUAL full-desktop WebGL renderer submissions / 1012.6ms < 17; actual GPU raster 736x336; frame-gap p95 1416.6ms, max GPU queue fence latency 2133ms. RAF callbacks 61 are NOT rendering or physical display presents.",
     "pillars": [
       {
         "name": "Living 3D world",
-        "status": "T1 BUILDING/SELF-REJECTED on last actual runtime; added original low physical braided on-court ecologies for whole-frame change, but new-head real WebGL visual review not yet complete.",
+        "status": "T1 BUILDING/SELF-REJECTED: genuine screenshots from 361e072 parent first-hand reviewed; sparse/flat living-garden vegetation and regular tiled court nearly unchanged. Optional cinematic compositions NOT proof of lush geometry parity.",
         "criterion": "Clearly transformed coherent original garden architecture/biomes/scene depth in matching real-game captures."
       },
       {
         "name": "Hero and animation",
-        "status": "OPEN/SELF-REJECTED on genuine current 55s motion: small repeated gold-banded tube and few expressive motions, no convincing full-length muscular turns/eat/danger/portal choreography. T2 required.",
+        "status": "T2 OPEN: existing intimate true sculpt and turn/danger/eat/portal pose has expressive close-view details but full actual 55s overview character is too small/mechanical. New authored camera direction showcases REAL existing hero, visual acceptance pending.",
         "criterion": "Coherent expressive snake, grounded organic turns, food/hazard/portal/restart motion visible in real play."
       },
       {
         "name": "Materials and lighting",
-        "status": "T1 source CANDIDATE, visual/repeat performance NOT ACCEPTED: 3D low moss/lichen relief across real stone court, original material/geometry and cues preserved. Must inspect new real WebGL, not infer from source.",
+        "status": "T1 SELF-REJECTED: 960/1920 exact public-matched actual WebGL delta average only ~0.9 RGB units /255, still repetitive tiled board. No new geometry win; add 3D depth/material coherence.",
         "criterion": "Convincing stone, vegetation, water, scales, contact lighting and atmospheric staging across full frames."
       },
       {
         "name": "Play feel and frame delivery",
-        "status": "P0 STOP-SHIP: current authentic exact-source original mandatory 1s desktop performance 7/17 genuine render submissions FAILED (1010.4ms, GPU 736x336, frame gap p95 1700ms, GPU queue latency 2621ms). No useful-resolution actual physical device present FPS/p95 nor long soak. Strict test unchanged.",
+        "status": "P0: unchanged real 361e072 12/17 full-desktop complete renderer submissions FAIL in 1012.6ms at 736x336 raster, p95 frame gap 1416.6ms, GPU queue 2133ms. New optional cinematic mode adds no pass but dynamic cameras need source-exact actual footage and performance evidence; no device smoothness.",
         "criterion": "Readable responsive gameplay/UX, real continuous autonomous video, repeatable >=17 actual browser draws and real-device smoothness evidence."
       }
     ],
     "baselineHead": "108e2e439aab1f3fe4cf49019c1aa9fe5630feb6",
-    "candidate": "T1 broad physically authored on-court three-braid moss/lichen continuous material + local irregular low 3D relief, one added STATIC cache mesh with original 13 world and 4 garden batches unmodified. PR candidate is not accepted; prior exact game runtime 9d3 remains whole-game SELF-REJECTED.",
-    "candidateProof": "Exact preceding 0865217 Actions browser 41424227069 60/66 FAIL Canvas fallback; general CI 41424227056 616/624 PASS, 8 no-GPU missing factory FAIL. Authorized ESM route + harness regression recovery source candidate pending new-head GREEN. No current-head WebGL/strict FPS or whole-game acceptance.",
-    "review": "T1 full-game SELF REJECTED, recovery candidate still BUILDING / ACCEPTANCE PENDING. Browser 3D unavailable on preceding head. No source-change claim of improved visual/motion quality, useful-raster or displayed FPS. T2–T4, soak and independent whole-game review OPEN."
+    "candidate": "Optional T1/T3 integrated spectator director: deterministic 160-step genuine public-state camera grammar, real close head/follow/overview, danger/reduced motion/portal breaks force wide; app.js orchestration + pure cinematic-director.mjs, no renderer/world/serpent authoritative changes. TESTS node 19/19; after WebGL/55s pending.",
+    "candidateProof": "Inspected source parent 361e072; real Chromium 41512966939 74/75 and screenshots/videoclips downloaded/inspected, original strict 12/17 FAIL. New pure director RED tests 0/3 => GREEN 3/3, affected Node 19/19 and tsc build. Six exact-frame genuine WebGL and two unmocked 55s real-game cinema tests authored; current-head Actions and independent whole-game verdict PENDING.",
+    "review": "SELF REVIEW / ACCEPTANCE PENDING. Real 361e072 before/after frames almost indistinguishable and current original render gate FAIL. T1 stays BUILDING. Cinematic option is a production candidate, not a passed quality gate; T2–T4, real device presents/soak and independent reference review open."
   }
 }
