@@ -26,7 +26,7 @@ const gpuArgs=['--enable-webgl','--use-gl=angle','--use-angle=swiftshader',
  '--enable-precise-memory-info'];
 
 const evidence={
- version:'g113-street-visitor-grounded-supplement-v1',
+ version:'g115-grounded-worker-encounter-v1',
  baselineSha:BASE,candidateSha:null,baselineBlob:null,candidateBlob:null,
  renderer:'UNVERIFIED',status:'INCOMPLETE',workdayTicks:null,
  camera:{wide,labor,grown,marketView},viewport,
@@ -38,7 +38,7 @@ const evidence={
   'Neither screenshot differences nor this evidence imply independent critic endorsement.',
   'Video files include honest initialization pre-roll; no postprocessed or fabricated frames.',
   'Supplemental candidate live-worker shots are not equivalent to a matched A/B and cannot substitute for blinded review.',
-  'G098 courier, G099 unloading and G113 first-person walk clips are candidate-only supplementary proof, not matched G088 mechanics (baseline lacks logistics and first-person movement).'
+  'G098 courier, G099 unloading and G113/G115 street interactions are candidate-only supplementary proof, not a matched G088 mechanic (baseline lacks first-person movement).'
  ]
 };
 const mkdir=(name)=>fs.mkdirSync(path.join(DIR,name),{recursive:true});
@@ -264,6 +264,28 @@ async function stage(label,html,browser,matchedTicks){
    result.streetWalk={entry:entered,matchedPair:false,realWebGL:true,
     mobileFile:'street-human-height-mobile.png',wideFile:'street-human-height-wide.png',
     authorityUnchanged:true};
+   // G115: photograph a genuine, unobstructed citizen reached via user action.
+   // Candidate-only, not a manufactured matched G088 street-view comparison.
+   const workerVisit=await page.evaluate(()=>{
+    const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
+    const encounter=g.visitStreetWorker();
+    return {encounter,view:g.getStreetWalkState(),
+     authorityUnchanged:before===JSON.stringify(g.exportSnapshot())};
+   });
+   assert(workerVisit.encounter.moved&&workerVisit.encounter.realCitizen&&
+    workerVisit.encounter.lineOfSight&&workerVisit.view.visibility.openSky,
+    'G115 visitor could not see an actual citizen at an outdoor viewpoint');
+   assert(workerVisit.authorityUnchanged,'G115 visitor changed authoritative world');
+   await page.waitForTimeout(650);
+   await page.screenshot({path:path.join(DIR,label+'/street-worker-encounter-wide.png'),timeout:90000});
+   await page.setViewportSize({width:390,height:844});
+   await page.waitForTimeout(700);
+   await page.screenshot({path:path.join(DIR,label+'/street-worker-encounter-mobile.png'),timeout:90000});
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),
+    false,'G115 worker encounter caused horizontal mobile overflow');
+   result.streetEncounter={...workerVisit,matchedPair:false,realWebGL:true,
+    mobileFile:'street-worker-encounter-mobile.png',
+    wideFile:'street-worker-encounter-wide.png'};
    await page.evaluate(()=>window.__tinyKingdom.setStreetWalk(false));
    await page.setViewportSize({width:390,height:844});
   }
@@ -367,6 +389,17 @@ async function streetMotion(browser,html,snapshot){
   await page.keyboard.down('w');
   await page.waitForTimeout(1800);
   await page.keyboard.up('w');
+  // Actual click-mediated encounter occurs within the continuous WebM.
+  // Citizens are real authoritative villagers; only our view is moved.
+  const encounter=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   const prior=JSON.stringify(g.exportSnapshot());
+   const result=g.visitStreetWorker();
+   return {...result,authorityUnchanged:prior===JSON.stringify(g.exportSnapshot())};
+  });
+  assert(encounter.moved&&encounter.authorityUnchanged,
+   'G115 filmed encounter must target a real person without mutating authority');
+  await page.waitForTimeout(1350);
   await page.mouse.move(450,270);
   await page.mouse.down();
   await page.mouse.move(480,260,{steps:5});
@@ -386,7 +419,7 @@ async function streetMotion(browser,html,snapshot){
   const seconds=(Date.now()-wallStart)/1000;
   return {renderer:contextInfo.quality.renderer,seconds,observedFps:(end.frames-start.frames)/seconds,
    distanceTravelled:end.view.distanceTravelled,blockedMoves:end.view.blockedMoves,
-   startView:start.view,endView:end.view,initialChecksum:start.authority.checksum,
+   startView:start.view,endView:end.view,workerEncounter:encounter,initialChecksum:start.authority.checksum,
    finalChecksum:end.authority.checksum,isSoftware:true,
    matchedPair:false,uninterruptedRealTime:true,actualKeyboardAndPointerInput:true,
    videoFile:label+'.webm'};
