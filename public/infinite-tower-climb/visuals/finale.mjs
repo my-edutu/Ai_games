@@ -88,12 +88,15 @@ export function createTowerFinale(THREE) {
       // Source-driven once per observed milestone. All instance transforms
       // stay LOCAL to the real terminal actor position through scene shifts.
       for (let i = 0; i < rungs.count; i++) {
-        const bearing = tau * i / rungs.count + .2;
         const achieved = i < floorCount;
         const scaleY = achieved ? 1.2 + i * .11 : .15;
-        transform.position.set(Math.cos(bearing) * 4.65,
-          .12 + scaleY * .55, Math.sin(bearing) * 4.65);
-        transform.rotation.set(0, -bearing, 0);
+        // Two exterior tiers, four rungs across. A full radial ring put the
+        // far markers INSIDE the opaque stone core when the dying actor stood
+        // on the tower's outer deck; the outcome must remain physically visible.
+        const column = i % 4, tier = Math.floor(i / 4);
+        transform.position.set((column - 1.5) * 2.45,
+          .12 + scaleY * .55, 1.5 + tier * 1.4);
+        transform.rotation.set(0, 0, 0);
         transform.scale.set(.82, scaleY, .82);
         transform.updateMatrix();
         rungs.setMatrixAt(i, transform.matrix);
@@ -106,6 +109,10 @@ export function createTowerFinale(THREE) {
     // A real fall may end below a walkway. Remain at that exact actor position,
     // rather than projecting an unearned landing or teleporting to a safe deck.
     group.position.copy(hero);
+    // +Z is radial OUT when the group is turned toward the real tower angle.
+    // Both milestone rows live outside the collision-aligned core, rather
+    // than burying some of the actual cleared-floor evidence inside masonry.
+    group.rotation.y = Math.atan2(hero.x, hero.z);
     const age = Math.max(0, Math.min(6, elapsed - startedAt));
     const stopped = options.reducedMotion || options.stale;
     const motion = stopped ? 0 : age;
