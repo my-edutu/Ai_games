@@ -63,9 +63,19 @@ export function planCombatStage(snapshot,viewPosition=null){
     const steps=Math.abs(awayX)+Math.abs(awayZ);
     if(steps>=1&&steps<=2){
      const length=Math.hypot(awayX,awayZ);
-     const margin=u.kind==='vanguard'?.22:.18;
-     dx=Number((awayX/length*margin).toFixed(4));
-     dz=Number((awayZ/length*margin).toFixed(4));
+     const margin=u.kind==='vanguard'?.31:.27;
+     // A real camera-facing, screen-horizontal one-foot stance separates the
+     // near defender's armor from the huge Warden shoulder. Never leave the
+     // same grid cell or change damage reach. Both combat and VFX share this.
+     const cameraDistance=Math.hypot(vx,vz);
+     const right=cameraDistance>.5&&Number.isFinite(cameraDistance)?{x:vz/cameraDistance,z:-vx/cameraDistance}:null;
+     const side=right&&right.x*awayX+right.z*awayZ>=0?1:-1;
+     let shiftX=awayX/length*margin+(right?.x??0)*.16*side;
+     let shiftZ=awayZ/length*margin+(right?.z??0)*.16*side;
+     const magnitude=Math.hypot(shiftX,shiftZ);
+     if(magnitude>MAX_STAGE_OFFSET){const factor=MAX_STAGE_OFFSET/magnitude;shiftX*=factor;shiftZ*=factor;}
+     dx=Number(shiftX.toFixed(4));
+     dz=Number(shiftZ.toFixed(4));
     }
    }
    placed[u.id]=Object.freeze({x:u.x+dx,z:u.z+dz,dx,dz,crowded:n>1});
