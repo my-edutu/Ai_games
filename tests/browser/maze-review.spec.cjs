@@ -615,6 +615,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     diagnostics:{renderer:pickupDesktopDiagnostic.renderer,
       witnessedKeyPickupVisual:pickupDesktopDiagnostic.witnessedKeyPickupVisual,
       pickupShardsInFrame:pickupDesktopDiagnostic.pickupShardsInFrame,
+      pickupSpreadCssPx:pickupDesktopDiagnostic.pickupSpreadCssPx,
       explorerModelFullyInFrame:pickupDesktopDiagnostic.explorerModelFullyInFrame,
       afterScreenshotShardsInFrame:pickupAfterDesktopScreenshot.pickupShardsInFrame,
       quality:pickupDesktopDiagnostic.quality},
@@ -623,16 +624,30 @@ test('a real close public encounter frames both autonomous actors and saves date
   expect(pickupDesktopDiagnostic.pickupShardsInFrame,
     'the captured actual desktop WebGL release must include real model fragments').toBeGreaterThanOrEqual(6);
   expect(pickupDesktopDiagnostic.explorerModelFullyInFrame).toBe(true);
-  // Reuse the warmed renderer: native portrait must not hide the physical
-  // collected-key release behind dashboard prose or crop the hero.
-  const pickupFrames=await page.evaluate(()=>window.__MAZE_3D__?.frames??0);
+  expect(pickupAfterDesktopScreenshot.pickupSpreadCssPx,
+    'original 1280 screenshot must show physically SPREAD shards, not all eight hidden in Pip torso').toBeGreaterThan(20);
+  // Pass71 real CPU SwiftShader screenshot rejected: resizing from desktop
+  // MID-event lost the 390px image during lengthy camera/renderer reflow.
+  // Verify the *same* two actual consecutive production snapshots independently
+  // at the native phone viewport, beginning with the real uncollected state.
+  // One warmed browser; no fake key, injected sprite, reset game authority,
+  // hidden scene or weakened physical-framing criterion.
   await page.setViewportSize({width:390,height:844});
-  await page.waitForFunction(({before,tick,token})=>{
+  activeFrame=picked.before.frame;
+  await page.goto(base+'/maze?camera=follow',{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(({tick,token})=>{
     const d=window.__MAZE_3D__;
     return innerWidth===390 && innerHeight===844 && d?.renderer==='webgl'
-      &&d.frames>before && d.tick===tick && d.runToken===token
-      &&d.witnessedKeyPickupVisual && d.pickupShardsInFrame>=6;
-  },{before:pickupFrames,tick:nextPickupState.tick,token:nextPickupState.runToken});
+      &&d.frames>=3 && d.tick===tick && d.runToken===token;
+  },{tick:previousPickupState.tick,token:previousPickupState.runToken});
+  expect((await page.evaluate(()=>window.__MAZE_3D__)).witnessedKeyPickupVisual,
+    'native public BEFORE snapshot must never contain fabricated pickup fragments').toBe(false);
+  activeFrame=picked.after.frame;
+  await page.waitForFunction(({tick,token})=>{
+    const d=window.__MAZE_3D__;
+    return d?.renderer==='webgl' && d.tick===tick && d.runToken===token
+      && d.witnessedKeyPickupVisual && d.pickupShardsInFrame>=6;
+  },{tick:nextPickupState.tick,token:nextPickupState.runToken});
   const pickupPortraitDiagnostic=await page.evaluate(()=>window.__MAZE_3D__);
   const pickupPortrait=path.join(dir,'witnessed-key-pickup-390.png');
   await page.screenshot({path:pickupPortrait,fullPage:true});
@@ -649,6 +664,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     viewport:{width:390,height:844},imageSha256:hash(pickupPortrait),
     sourceSha256:pickupHashes,
     diagnostic:{pickupShardsInFrame:pickupPortraitDiagnostic.pickupShardsInFrame,
+      pickupSpreadCssPx:pickupPortraitDiagnostic.pickupSpreadCssPx,
       explorerModelFullyInFrame:pickupPortraitDiagnostic.explorerModelFullyInFrame,
       afterScreenshotShardsInFrame:pickupAfterPortraitScreenshot.pickupShardsInFrame,
       cameraMode:pickupPortraitDiagnostic.cameraMode,
@@ -659,6 +675,8 @@ test('a real close public encounter frames both autonomous actors and saves date
     'authentic pickup moment must preserve complete original hero model at 390px').toBe(true);
   expect(pickupPortraitDiagnostic.pickupShardsInFrame,
     'genuine physical collectible release must be visible in full native portrait').toBeGreaterThanOrEqual(6);
+  expect(pickupAfterPortraitScreenshot.pickupSpreadCssPx,
+    'actual 390px capture requires a physically wide pickup release, not merely eight in-frame coordinates').toBeGreaterThan(12);
   await page.setViewportSize({width:1280,height:900});
 
   const sealedSamples = sequences.flat().map(sample => {

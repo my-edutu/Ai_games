@@ -70,7 +70,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   scene.add(explorer.group);
   // Reusable modeled glass shards illustrate only a witnessed key pickup.
   // No per-frame GPU resource allocation, billboard, HUD text or new authority.
-  const pickupGeometry = new THREE.OctahedronGeometry(.105,0);
+  const pickupGeometry = new THREE.OctahedronGeometry(.16,0);
   const pickupMaterial = new THREE.MeshBasicMaterial({
     color:'#ffe9ae',transparent:true,opacity:.82,depthWrite:false
   });
@@ -402,38 +402,43 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // True source-modeled public closed lock; never a hidden or guessed gate center.
     const keyTarget=keyGateCue
       ? world.matchingPublicSocket(keyGateCue.a,keyGateCue.b,matchingKeySocket) : null;
+    // Only the physically witnessed key transition may engage Pip's original
+    // rig. Use the same stall-safe public-only visual clock as its 3D glass
+    // release, so character and shards cannot disagree under CPU throttling.
+    const pickupAge = recentPublicPickup?.runToken === s.runToken
+      ? gateVisualTime - recentPublicPickup.start : Infinity;
+    const showPickup = !result && pickupAge >= 0 && pickupAge < .82;
+    const pickupStrength = showPickup
+      ? (settings.reducedMotion ? 1 : clamp(1-pickupAge/.82,0,1)) : 0;
     explorer.update({
       time:elapsed,delta,moving:pose.moving&&!result,heading,
       attentionHeading:closestThreat?Math.atan2(closestThreat.x-pose.x,closestThreat.z-pose.z):undefined,
       attentionStrength:closestThreat?.strength??0,
       keyHeading:keyGateCue?.heading,keyStrength:keyGateCue?.strength??0,
-      gateHeading,gateStrength,
+      gateHeading,gateStrength,pickupStrength,
       keyTarget,
       keyCameraPosition: camera.position,
       danger:s.dangerPermille/1000,result,reducedMotion:settings.reducedMotion,
     });
     world.animate(elapsed, {...settings, gateTime:gateVisualTime});
-    // A real observed collected key leaves a brief physical release at its
-    // known former room, not a new collectible or purported navigable route.
-    // All eight 3D parts are allocated once; no hidden state is inspected.
-    const pickupAge = recentPublicPickup?.runToken === s.runToken
-      ? gateVisualTime - recentPublicPickup.start : Infinity;
-    // Match the gate's bounded visual-only clock: software-render stalls
-    // must not erase a true public pickup before any actual image sees it.
-    const showPickup = !result && pickupAge >= 0 && pickupAge < .82;
+    // The first genuine source-bound desktop PNG was REJECTED: all eight
+    // shards passed in-frame diagnostics but were occluded inside Pip's torso.
+    // Raise and spread physical 3D glass ABOVE the head/lantern, rather than
+    // claiming victory from a projected point count alone. The public key
+    // cell, duration, authority, hidden knowledge and low-text HUD are intact.
     pickupBurst.visible = showPickup;
     if (showPickup) {
       const p = cellPosition(recentPublicPickup.cell,s.width,s.height);
       pickupBurst.position.set(p.x,
-        cellHeight(recentPublicPickup.cell,s.width,s.height)+.60,p.z);
+        cellHeight(recentPublicPickup.cell,s.width,s.height)+1.75,p.z);
       const progress = settings.reducedMotion ? .38 : Math.min(1,pickupAge/.82);
       for (let i=0;i<pickupShards.length;i++) {
-        const angle=i*Math.PI/4+.18,radial=.11+progress*(.46+(i%2)*.12);
+        const angle=i*Math.PI/4+.18,radial=.43+progress*(.36+(i%2)*.11);
         const shard=pickupShards[i];
         shard.position.set(Math.cos(angle)*radial,
-          .10+progress*(.24+(i%3)*.09),Math.sin(angle)*radial);
-        shard.scale.setScalar(settings.reducedMotion ? .63
-          : Math.max(.04,.93-progress*.88));
+          .16+progress*(.20+(i%3)*.06),Math.sin(angle)*radial);
+        shard.scale.setScalar(settings.reducedMotion ? .74
+          : Math.max(.06,1.13-progress*1.03));
         shard.rotation.set(progress*(.30+i*.11),angle,progress*1.2);
       }
     }
@@ -619,11 +624,16 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // Native WebGL evidence must measure physical 3D pickup fragments,
       // not infer visibility from inventory/HUD. Only after true public pickup.
       pickupBurst.updateWorldMatrix(true,true);
-      const pickupShardsInFrame=pickupBurst.visible
-        ? pickupShards.filter(shard=>{
-            const p=shard.getWorldPosition(new THREE.Vector3()).project(camera);
-            return Math.abs(p.x)<.95&&Math.abs(p.y)<.95&&p.z>-1&&p.z<1;
-          }).length : 0;
+      const pickupProjected=pickupBurst.visible
+        ? pickupShards.map(shard=>shard.getWorldPosition(new THREE.Vector3()).project(camera))
+        : [];
+      const pickupShardsInFrame=pickupProjected.filter(p=>
+        Math.abs(p.x)<.95&&Math.abs(p.y)<.95&&p.z>-1&&p.z<1).length;
+      // The rejected 1280 screenshot still counted eight invisible fragments.
+      // Measure projected physical spread as well as mere viewport membership.
+      const pickupSpreadCssPx=pickupProjected.length
+        ? (Math.max(...pickupProjected.map(p=>p.x))
+          -Math.min(...pickupProjected.map(p=>p.x)))*width/2 : 0;
       const depthVisible = p => p.z > -1 && p.z < 1;
       // Count *actual* contact meshes at real publicly rendered positions,
       // including in native portrait, not a synthetic screenshot annotation.
@@ -711,7 +721,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         wardenGroundedContacts,
         encounterAttention: closestThreat?.strength ?? 0,
         witnessedKeyPickupVisual: pickupBurst.visible,
-        pickupShardsInFrame,
+        pickupShardsInFrame,pickupSpreadCssPx,
         keysInFrame, closedGatesInFrame,
         carriedKeyGateGesture: keyGateCue?.strength??0,
         keyLockCloseup, cameraAimLift, physicalKeyLock,
