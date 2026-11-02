@@ -24,3 +24,24 @@ export function planDungeonWallProfiles(map,floor){
  }
  return profiles;
 }
+
+/**
+ * Original low stonework and exceptional high buttresses direct the spectator
+ * eye toward real traversal, combat and boss framing. This changes only
+ * rendered GPU heights: the complete authoritative grid stays solid.
+ */
+export function planLegibleWallMass(map,floor,vaultedSites=[]){
+ const profiles=planDungeonWallProfiles(map,floor);
+ if(!profiles.length)return [];
+ const n=map.length,vaults=new Set(Array.isArray(vaultedSites)?
+  vaultedSites.filter(p=>Number.isInteger(p?.gridX)&&Number.isInteger(p?.gridZ))
+   .map(p=>p.gridZ*n+p.gridX):[]);
+ return profiles.map(p=>{
+  if(vaults.has(p.z*n+p.x))return 1.16;
+  const value=hash(p.x,p.z,floor);
+  if(!p.exposedFaces)return 1.76+(value%3)*.08;
+  // A few buttresses are retained as genuine high environmental landmarks.
+  if(value%13===0)return 2.10;
+  return [1.27,1.39,1.48,1.56][value%4];
+ });
+}

@@ -45,3 +45,28 @@ test('invalid maps and solid masonry do not create unsafe or unbounded ornaments
  assert.equal(solid.length,49);
  assert.ok(solid.every(p=>p.height===2.6&&p.exposedFaces===0));
 });
+
+test('camera-readable, varied real-3D room walls retain the unchanged solid authority grid',async()=>{
+ const {planDungeonWallProfiles,planLegibleWallMass}=await load(),map=sample();
+ const original=map.join('\n'),profiles=planDungeonWallProfiles(map,4);
+ const candidates=profiles.filter(p=>p.exposedFaces>0),vaulted=candidates.slice(0,3).map(p=>({gridX:p.x,gridZ:p.z}));
+ const heights=planLegibleWallMass(map,4,vaulted);
+ assert.equal(heights.length,profiles.length);
+ assert.equal(map.join('\n'),original);
+ assert.ok(heights.every(h=>Number.isFinite(h)&&h>=1.16&&h<=2.10),'masonry occupies bounded original wall tiles');
+ assert.ok(heights.filter((h,i)=>profiles[i].exposedFaces&&h<=1.56).length>candidates.length*.66,
+  'most corridor walls are now materially lower, avoiding crowding the actor silhouettes');
+ assert.ok(heights.some(h=>h>=1.76),'distant backing masonry still encloses rooms');
+ for(const site of vaulted){
+  const index=profiles.findIndex(p=>p.x===site.gridX&&p.z===site.gridZ);
+  assert.equal(heights[index],1.16,'physical vaulted bays retain low stone plinths');
+ }
+ assert.deepEqual(heights,planLegibleWallMass(map,4,vaulted));
+ const app=fs.readFileSync(path.join(__dirname,'../../public/ai-dungeon/app.js'),'utf8');
+ const env=fs.readFileSync(path.join(__dirname,'../../public/ai-dungeon/environment.js'),'utf8');
+ assert.match(app,/planLegibleWallMass\(s\.map,s\.floor,vaultedSites\)/);
+ assert.match(app,/renderHeight:wallHeights\[i\]/);
+ assert.match(env,/claddingHeightByTile\.get\(z\*N\+x\)/);
+ assert.match(env,/faceHeight\+\.065/);
+ assert.doesNotMatch(fs.readFileSync(source,'utf8'),/Math\.random|performance\.now|Date\.|fetch\(|DungeonRuntime/);
+});

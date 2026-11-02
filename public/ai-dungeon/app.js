@@ -4,7 +4,7 @@ import {planFracturedWallStone,planWallStoneVariation} from '/dungeon/fractured-
 import {planCutawayWallTransform,planCutawayFoundationTransform,planCutawayParapetTransform} from '/dungeon/cutaway-floor-plan.js';
 import {encounterTarget,isSceneAlert,installSpectatorUI} from '/dungeon/spectator-ui.js';
 import {enrichEnvironment} from '/dungeon/environment.js';
-import {planDungeonWallProfiles} from '/dungeon/wall-profile-plan.js';
+import {planDungeonWallProfiles,planLegibleWallMass} from '/dungeon/wall-profile-plan.js';
 import {createFloorRuins} from '/dungeon/floor-ruins.js';
 import {planVaultedWallBays} from '/dungeon/vaulted-wall-plan.js';
 import {createVaultedWallGallery} from '/dungeon/vaulted-wall-gallery.js';
@@ -330,19 +330,20 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
  const vaultedSites=planVaultedWallBays(s.map,s.floor,s.exit);
  const vaultedTileKeys=new Set(vaultedSites.map(site=>site.gridZ*size+site.gridX));
  const vaultedWallIndices=vaultedSites.map(site=>wallIndexByTile[site.gridZ*size+site.gridX]);
- for(const wallIndex of vaultedWallIndices)if(wallIndex>=0)wallHeights[wallIndex]=Math.min(wallHeights[wallIndex],1.16);
+ const spectatorMassing=planLegibleWallMass(s.map,s.floor,vaultedSites);
+  for(let i=0;i<wallHeights.length;i++)wallHeights[i]=spectatorMassing[i]??wallHeights[i];
  const instance=(geometry,material,data,scale,heights=null)=>{const mesh=new THREE.InstancedMesh(geometry,material,data.length);const matrix=new THREE.Matrix4(),position=new THREE.Vector3(),quaternion=new THREE.Quaternion(),scaling=new THREE.Vector3(...scale);for(let i=0;i<data.length;i++){position.set(...data[i]);if(heights){position.y=heights[i]/2-.03;scaling.y=heights[i];const weather=planWallStoneVariation(data[i][0],data[i][2],s.floor);quaternion.setFromAxisAngle(wallVertical,weather.yaw);mesh.setColorAt(i,new THREE.Color().setRGB(weather.shade,weather.shade,weather.shade));}matrix.compose(position,quaternion,scaling);mesh.setMatrixAt(i,matrix)}mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;mesh.castShadow=!reduced;mesh.receiveShadow=true;world.add(mesh)};
  instance(geo.cube,floorMat,floors,[.99,.16,.99]);
  world.userData.floorRuins=createFloorRuins(world,s.map,s.floor,s.exit);
  instance(fracturedWall,stone,walls,[1.015,2.6,1.015],wallHeights);
  world.userData.wallSculpture={sculpted:true,variants:4,wallCount:walls.length,stoneTriangles:sculpture.indices.length/3};world.userData.walls=world.children[world.children.length-1];world.userData.wallPositions=walls.map(([x,,z])=>[x,z]);world.userData.wallHeights=wallHeights;world.userData.wallCutawayBands=createCutawayBandCache(walls.length);world.userData.vaultedGallery=createVaultedWallGallery(world,vaultedSites,vaultedWallIndices,s.floor);
-  const exposedProfiles=wallProfiles.filter(profile=>profile.exposedFaces>0);
-  world.userData.wallProfileMetrics={totalWalls:wallProfiles.length,exposedWalls:exposedProfiles.length,distinctHeights:new Set(exposedProfiles.map(profile=>profile.height)).size,minHeight:exposedProfiles.length?Math.min(...exposedProfiles.map(profile=>profile.height)):0,maxHeight:exposedProfiles.length?Math.max(...exposedProfiles.map(profile=>profile.height)):0};
+  const exposedProfiles=wallProfiles.map((profile,i)=>({...profile,renderHeight:wallHeights[i]})).filter(profile=>profile.exposedFaces>0);
+  world.userData.wallProfileMetrics={totalWalls:wallProfiles.length,exposedWalls:exposedProfiles.length,distinctHeights:new Set(exposedProfiles.map(profile=>profile.renderHeight)).size,minHeight:exposedProfiles.length?Math.min(...exposedProfiles.map(profile=>profile.renderHeight)):0,maxHeight:exposedProfiles.length?Math.max(...exposedProfiles.map(profile=>profile.renderHeight)):0};
  instance(geo.cube,stoneEdge,trim,[.86,.02,.86]);
  // Multiple architecturally distinct layers: foundation courses, arches, broken stone tiles and inlaid runes.
  const topBricks=[],footBricks=[],foundationBrickWallIndices=[],runes=[],stonePavers=[],shards=[],caps=[];
  const fracture=(x,z)=>((x*73+z*139+s.floor*41+4096)&1023);
-  const wallHeightAt=new Map(wallProfiles.map(profile=>[profile.z*size+profile.x,profile.height]));
+  const wallHeightAt=new Map(wallProfiles.map((profile,i)=>[profile.z*size+profile.x,wallHeights[i]]));
  for(let z=1;z<size-1;z++)for(let x=1;x<size-1;x++){
   const wx=x-offset,wz=z-offset,f=fracture(x,z);
   if(s.map[z][x]==='#'){

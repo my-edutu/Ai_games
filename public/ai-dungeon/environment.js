@@ -3,6 +3,7 @@ import {addDungeonWindows} from '/dungeon/architecture.js';
 import {planStoneRelief} from '/dungeon/stone-relief-plan.js';
 import {planCutawayFloorBacking,planCutawayCapTransform} from '/dungeon/cutaway-floor-plan.js';
 import {planPartyWallReveal,createCutawayBandCache,shouldUploadCutawayBand} from '/dungeon/party-visibility-plan.js';
+import {planDungeonWallProfiles,planLegibleWallMass} from '/dungeon/wall-profile-plan.js';
 
 // Purely cosmetic, reproducible procedural dressing. This code never touches game authority.
 // All geometry is batched or tightly budgeted so a streaming run can regenerate indefinitely.
@@ -113,6 +114,9 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[]){
  // over its upper volume. Source map, collision and AI stay completely intact.
  const vaultedTiles=new Set(Array.isArray(vaultedSites)?vaultedSites.map(site=>site.gridZ*map.length+site.gridX):[]);
  const N=map.length,O=(N-1)/2,biome=BIOMES[(floor-1)%BIOMES.length];
+ const masonryProfiles=planDungeonWallProfiles(map,floor);
+ const masonryHeights=planLegibleWallMass(map,floor,vaultedSites);
+ const claddingHeightByTile=new Map(masonryProfiles.map((p,i)=>[p.z*N+p.x,masonryHeights[i]]));
  const geometries=[],materials=[],textures=[],flames=[];
  const box=new THREE.BoxGeometry(1,1,1),blade=new THREE.OctahedronGeometry(1,0),ring=new THREE.TorusGeometry(.36,.055,8,24);
  const floorTex=texture(floor,'floor',biome),wallTex=texture(floor,'wall',biome);textures.push(floorTex,wallTex);
@@ -172,8 +176,9 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[]){
   for(const face of faces){if(!open(x+face.dx,z+face.dz))continue;
    const ax=px+face.dx*.511,az=pz+face.dz*.511;
    const gallery=vaultedTiles.has(z*N+x);
-   wallFaces.push([ax,gallery?.52:1.22,az,face.dz!==0?.88:.024,gallery?1.04:2.31,face.dx!==0?.88:.024,0,face.dx,face.dz]);
-   if(!gallery&&h%5===0){columnCap.push([ax,2.42,az,face.dz!==0?.72:.09,.115,face.dx!==0?.72:.09]);columnCapParents.push(wallFaces.length-1);}
+   const faceHeight=gallery?1.04:Math.max(.88,(claddingHeightByTile.get(z*N+x)??1.42)-.045);
+   wallFaces.push([ax,faceHeight*.5,az,face.dz!==0?.88:.024,faceHeight,face.dx!==0?.88:.024,0,face.dx,face.dz]);
+   if(!gallery&&h%5===0){columnCap.push([ax,faceHeight+.065,az,face.dz!==0?.72:.09,.115,face.dx!==0?.72:.09]);columnCapParents.push(wallFaces.length-1);}
    if(h%21===0){pillars.push([ax,az,face.yaw,h]);}
    if(h%31===0){banners.push([ax,az,face.yaw,h]);}
   }
