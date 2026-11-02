@@ -568,8 +568,12 @@ function stageRigForearmsAfterMixer(actor,since,reducedMotion){
  const pose=planRigForearmGesture(actor.u.kind,actor.u.action||'idle',since,
   reducedMotion||actor.u.hp<=0);
  for(const mount of actor.rigForearms){
-  const angle=pose[mount.side]+(actor.performanceBeat?.elbows?.[mount.side]||0);
-  mount.next.setFromEuler(mount.euler.set(Math.max(-.58,Math.min(.58,angle)),0,0,'XYZ'));
+  // One anatomical elbow has a single mechanical envelope. Two truthful
+  // visual cues (authored clip and contact beat) must not accidentally stack
+  // into a rubber-jointed arm or fool the browser diagnostic with a raw sum.
+  const angle=Math.max(-.445,Math.min(.445,
+   pose[mount.side]+(actor.performanceBeat?.elbows?.[mount.side]||0)));
+  mount.next.setFromEuler(mount.euler.set(angle,0,0,'XYZ'));
   mount.bone.quaternion.multiply(mount.next);
   mount.last.copy(mount.next);
   actor.rigForearmPeak=Math.max(actor.rigForearmPeak||0,Math.abs(angle));
