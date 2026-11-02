@@ -1,0 +1,26 @@
+# Infinite Tower Climb — real normal-speed outcome video inspection and physical ending visibility
+
+**2026-11-02 | draft PR #68 | frozen baseline:** `1731b380851162741761c5569e2bc152a0869ca9` | **implementation:** [`4f7e977`](https://github.com/my-edutu/Ai_games/commit/4f7e9770a8588846f90333c03556c69e70e635ed) | **whole-game quality:** NOT EVALUATED
+
+## Original full-motion evidence inspected before edit
+
+Downloaded and decoded the original, unmodified source-pinned [Actions 41507327429](https://github.com/my-edutu/Ai_games/actions/runs/41507327429) outcome archives, baseline artifact [13172376208](https://github.com/my-edutu/Ai_games/actions/runs/41507327429/artifacts/13172376208), and candidate artifact [13171582655](https://github.com/my-edutu/Ai_games/actions/runs/41507327429/artifacts/13171582655). Real WebM video from native 960×600 desktop and 390×844 portrait browser contexts has durations baseline ~147.28s/~135.68s and prior candidate `ff33d32` ~168.68s/~134s. Seed `tower-transformation-capture-v1`, low quality, sound muted, autonomous 20Hz stream; rendering on CI software WebGL, NOT target hardware. Inspecting physical videos does not constitute blind criticism or matched exact source events.
+
+Original baseline **does** show an authentic source-driven "Ascent ended" dialog during several seconds of its real intermission, followed by new autonomous running footage; game source shows `result` for only one ~50ms tick that 1000ms diagnostics miss. Therefore the old `complete-terminal-intermission-restart-not-observed` failure was **partly a capture-assessor false negative**, not evidence that the whole baseline output/restart was absent from the untouched video. Crucially, the original central opaque result card obscures the climber, memorial, tower and visual continuity in BOTH baseline and candidate recordings; real moving/health/guardian presentation was being hidden at the decisive moment.
+
+## Cohesive continuity-of-experience improvement
+
+The actual game's existing result markup, run token, result kind/reason, source height, real 3D summit, source-earned eight memorial markers and restart authority remain untouched. Changed only the responsive end-card composition from viewport-centered opaque dialog to a compact left-anchored broadcast plaque: original text stays accessible and visible on phone/desktop and tiny landscape, but the skinned hero and the terminal physical stage regain central world composition. No mock victory, replay manipulation, modified opponent, new UI cluster, new graphics draw or synthetic intermediate result. This is a coherent continuation of ascent → guardian → injury → actual ending, **not evidence that the complete game is now transformed**.
+
+The source-identical baseline capture script now observes an on-screen, hit-testable, unobscured result DOM card bound to the real `runToken`, real `sourceResult.kind`, real intermission and actual next running run token; it requires at least two visible source-backed result observations ≥500ms apart and verifies source consistency. This permits legitimate intermission-only result footage without editing baseline game, replaying a fake snapshot, or lowering the full-motion quality bar. A result tick existing only in a server trace **cannot** pass. Added focused negatives for absent card, invented token, missing result, missing intermission and missing restart; all still need exact-head CI.
+
+## Safety and open critical evidence
+
+- [New exact-head safety CI 41511922888](https://github.com/my-edutu/Ai_games/actions/runs/41511922888) was running at record time. Prior [ff33d32 CI 41507327501](https://github.com/my-edutu/Ai_games/actions/runs/41507327501) completed successfully, but cannot certify new edits.
+- [New current-source real-game capture 41511922895](https://github.com/my-edutu/Ai_games/actions/runs/41511922895) queued. Its normal-speed desktop and native-portrait clips must actually show the compact plaque and unobstructed skinned physical ending. Earlier ff33d32 footage is **not** a current-source after video.
+- Still require source-event-aligned, frozen-baseline and new-source ≥60s normal-speed **ascent, guardian danger and complete outcome/restart** recordings; current A/B videos at the same wall-clock time are often at different source states and cannot be passed as perfect comparisons.
+- **LOOKS 0/5, FEELS 0/5, PLAYS 0/5** verified independent blind votes; separate critic/browser workspace remained offline (tunnel-client disconnected >300 seconds). No supported-device presented-frame p50/p95/p99, memory, replay/restore audit or verified phone safe-area/hit-test outcomes. Whole-game quality **NOT EVALUATED**.
+
+**Largest current experience gap:** convincing continuity of visually readable climber, real guardian/lock and physical ending throughout uninterrupted mobile/desktop play, judged independently against the frozen baseline. Game avatar is sometimes very small and scenery masks the encounter. Future changes should be driven by real motion criticism, not additive visual patches.
+
+**Integration posture:** frozen SHA unchanged; PR #58 untouched; PR #68 draft, open, unmerged, undeployed. No force-push or schedule change. Continue same transformation, not a new passing Gauntlet round.
