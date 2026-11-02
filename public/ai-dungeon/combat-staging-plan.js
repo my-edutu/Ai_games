@@ -30,6 +30,18 @@ export function planCombatStage(snapshot,viewPosition=null){
  // is optical separation, never authority movement, dodge or attack reach.
  const warden=snapshot.units.find(u=>u?.kind==='warden'&&u.hp>0&&
   isGrid(u.x)&&isGrid(u.z)&&snapshot.map[u.z]?.[u.x]==='.');
+ // The true post-shockwave recovery is an earned opportunity, and the
+ // physically large boss should cede space to the last real defender. A
+ // controlled recoil stays INSIDE its authoritative cell, preserving hitboxes
+ // and the shared combat/VFX staging coordinates; imminent warnings never
+ // displace the boss relative to its dangerous floor marker.
+ const exposed=Boolean(warden&&!snapshot.guardianWard&&!snapshot.bossWarning&&
+  Number.isSafeInteger(snapshot.bossRecovery?.remaining)&&
+  snapshot.bossRecovery.remaining>=1&&snapshot.bossRecovery.remaining<=6);
+ const nearest=exposed?snapshot.units.filter(u=>u?.faction==='party'&&u.hp>0&&
+  isGrid(u.x)&&isGrid(u.z)&&snapshot.map[u.z]?.[u.x]==='.')
+  .sort((a,b)=>(Math.abs(a.x-warden.x)+Math.abs(a.z-warden.z))-
+    (Math.abs(b.x-warden.x)+Math.abs(b.z-warden.z))||a.id.localeCompare(b.id,'en'))[0]:null;
  for(const group of buckets.values()){
   group.sort((a,b)=>Number(a.faction!=='party')-Number(b.faction!=='party')||
    a.id.localeCompare(b.id,'en'));
@@ -58,6 +70,15 @@ export function planCombatStage(snapshot,viewPosition=null){
     dz=Number((screenRight.z*lateral+(vz/vLength)*depth).toFixed(4));
    }
    const u=group[i];
+   if(n===1&&u.id===warden?.id&&nearest){
+    const backX=warden.x-nearest.x,backZ=warden.z-nearest.z;
+    const tiles=Math.abs(backX)+Math.abs(backZ);
+    if(tiles>=1&&tiles<=2){
+     const norm=Math.hypot(backX,backZ);
+     dx=Number((backX/norm*.38).toFixed(4));
+     dz=Number((backZ/norm*.38).toFixed(4));
+    }
+   }
    if(n===1&&u.faction==='party'&&warden&&u.id!==warden.id){
     const awayX=u.x-warden.x,awayZ=u.z-warden.z;
     const steps=Math.abs(awayX)+Math.abs(awayZ);
