@@ -146,6 +146,7 @@ export function createMazeWorld(options = {}) {
   const matrix = new THREE.Matrix4(), rotation = new THREE.Quaternion(), euler = new THREE.Euler(), scale = new THREE.Vector3(), position = new THREE.Vector3();
   let snapshot = null, runToken = null, terrainSignature = '', objectSignature = '', backdropSignature = '', disposed = false;
   let batches = [], animations = [], ripples = [], renderedCells = [], stairEdges = [], coastalGardens = 0, wallGardens = 0, lastVisibility = '', highContrast = false;
+  let tidalObservatories = 0;
   let batchData = new Map();
   const clear = (target) => {
     for (const child of [...target.children]) {
@@ -313,16 +314,44 @@ export function createMazeWorld(options = {}) {
       add(box, darkJade, x + Math.cos(angle) * span, archY, z + .255, wide ? .25 : .14, .2, .025, cell, 0, 0, angle - Math.PI / 2);
     }
     if (wide) {
-      // Broad central crest and hanging bronze medallion give the ruin identity.
-      block(jade, x, 4.2, z, .6, .46, .5, cell);
-      block(lightStone, x, 4.47, z, .86, .15, .64, cell);
-      add(ring, darkMetal, x, 3.65, z + .27, .26, .31, .26, cell);
-      add(box, darkMetal, x, 3.95, z + .27, .035, .36, .035, cell);
+      tidalObservatories++;
+      // A two-cell *known solid-wall* aqueduct becomes a recognisable ruin,
+      // not a floating waypoint. Twin tide-finials and a carved sea-glass
+      // shield live on an actually observed impassable wall, never a route.
+      // No private maze, guessed objective or hidden threat is consulted.
+      for (const side of [-1,1]) {
+        const px=x+side*span;
+        block(deepStone,px,3.08,z,.62,.36,.6,cell);
+        block(jade,px,3.38,z,.47,.33,.48,cell);
+        block(lightStone,px,3.60,z,.68,.14,.63,cell);
+        // The thick finial and its grounded folded ribs read as architecture,
+        // not a glowing collectible or a fake place to traverse.
+        add(cone,darkJade,px,4.01,z,.30,.66,.30,cell);
+        add(box,lightStone,px,3.80,z+.25,.065,.34,.065,cell,0,side*.23);
+        for (const fold of [-1,1]) {
+          const fx=px+side*.22,fz=z-.14+fold*.18;
+          add(bevel,seaGlass,fx,3.48,fz,.22,.68,.14,cell,
+            0,side*.22,fold*.18);
+          add(box,darkMetal,fx,3.18,fz+.09,.035,.28,.035,cell);
+        }
+      }
+      // Original small floating ring was weak and coin-like in native images.
+      // A heavier wall-attached heraldic plaque carries a non-directional
+      // two-wave motif, with a solid crown and no false arrow/goal signage.
+      block(jade,x,4.2,z,.68,.46,.54,cell);
+      block(lightStone,x,4.50,z,.95,.15,.68,cell);
+      block(deepStone,x,3.74,z+.28,.63,.71,.15,cell);
+      block(seaGlass,x,3.74,z+.37,.49,.57,.07,cell);
+      for (const side of [-1,1]) {
+        add(box,lightStone,x+side*.14,3.66,z+.415,.09,.31,.025,cell,
+          0,0,-side*.38);
+        add(box,darkMetal,x+side*.28,3.94,z+.39,.07,.10,.035,cell);
+      }
     }
     for (let j = 0; j < 3; j++) plant(x - span + j * .08, 2.8 - j * .42, z + .17, seed + j * 5, cell, 1.4 - j * .15);
   }
   function rebuildTerrain(s) {
-    clear(terrain); batchData = new Map(); renderedCells = s.cells.map(c => c.cell); stairEdges = []; coastalGardens = 0; wallGardens = 0;
+    clear(terrain); batchData = new Map(); renderedCells = s.cells.map(c => c.cell); stairEdges = []; coastalGardens = 0; wallGardens = 0; tidalObservatories = 0;
     const edges = new Set(), columns = new Set(), landmarkSites = new Map();
     const knownByCell = new Map(s.cells.map(c => [c.cell, c]));
     for (const c of s.cells) {
@@ -762,7 +791,7 @@ export function createMazeWorld(options = {}) {
       runToken = s.runToken; terrainSignature = null; objectSignature = ''; backdropSignature = ''; lastVisibility = '';
       clear(terrain); clear(objects); clear(backdrop); publicClosedSockets.clear();
       batches = []; animations = []; ripples = []; renderedCells = []; stairEdges = [];
-      coastalGardens = 0; wallGardens = 0;
+      coastalGardens = 0; wallGardens = 0; tidalObservatories = 0;
     }
     const backgroundKey = `${s.width}:${s.height}`;
     if (backgroundKey !== backdropSignature) { rebuildBackdrop(s); backdropSignature = backgroundKey; }
@@ -800,12 +829,12 @@ export function createMazeWorld(options = {}) {
     for (const g of geometries) g.dispose();
     for (const m of materials) m.dispose();
     for (const t of textures) t.dispose(); textures.clear();
-    geometries.clear(); materials.clear(); batches = []; animations = []; ripples = []; batchData.clear(); snapshot = null; renderedCells = []; stairEdges = []; coastalGardens = 0; wallGardens = 0; group.clear();
+    geometries.clear(); materials.clear(); batches = []; animations = []; ripples = []; batchData.clear(); snapshot = null; renderedCells = []; stairEdges = []; coastalGardens = 0; wallGardens = 0; tidalObservatories = 0; group.clear();
   }
   function stats() {
     let meshes = 0, instances = 0;
     group.traverse(item => { if (item.isMesh) meshes++; if (item.isInstancedMesh) instances += item.count; });
-    return { renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), coastalGardens, wallGardens, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
+    return { renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), coastalGardens, wallGardens, tidalObservatories, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
   }
   return { group, update, animate, dispose, stats, matchingPublicSocket };
 }
