@@ -60,3 +60,25 @@ test('production renderer instantiates weathered stone twice per floor and clear
  assert.match(scene,/copingMesh\.instanceMatrix\.needsUpdate=true/);
  assert.ok(host.includes("['/dungeon/stone-relief-plan.js','stone-relief-plan.js']"));
 });
+
+test('low-ruin cinematic stonework keeps relief attached and Gothic panes supported by genuine piers',async()=>{
+ const {planStoneRelief}=await load();
+ const faces=Array.from({length:96},(_,i)=>{
+  const height=[1.16,1.31,1.47,1.82,1.94][i%5];
+  return [(i%16)-7+.511,height/2,Math.floor(i/16)-3,.024,height,.88,0,1,0];
+ });
+ const {spalls,coping}=planStoneRelief(faces,4);
+ assert.ok(spalls.length>=12&&spalls.length<=54,'readable real stone chips survive reduced ruin heights');
+ assert.ok(coping.length>=3&&coping.length<=32,'broken crowns remain bounded');
+ for(const chip of spalls){
+  const face=faces[chip.faceIndex];
+  assert.ok(chip.y>=.1&&chip.y<face[4]-.1,'chip is visibly mounted below its original facade top');
+ }
+ for(const crown of coping){
+  const face=faces[crown.faceIndex];
+  assert.ok(Math.abs(crown.y-face[4])<.1,'coping sits directly on its real shortened wall');
+ }
+ const architecture=fs.readFileSync(path.join(root,'public/ai-dungeon/architecture.js'),'utf8');
+ assert.match(architecture,/face\[4\]>=1\.65/,'windows may hang only on genuine tall load-bearing piers');
+ assert.match(architecture,/count<6/,'unique architectural window meshes remain strictly bounded');
+});
