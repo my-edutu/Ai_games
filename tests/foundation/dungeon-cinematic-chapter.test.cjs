@@ -278,3 +278,27 @@ test('defeat film grammar is wired to the physical renderer and accessible resul
  assert.match(app,/document\.body\.dataset\.epilogue/);
  assert.match(css,/body\[data-epilogue=true\] \.run-result/);
 });
+
+test('earned counter shoots past the real survivor shoulder while danger retains a wider honest telegraph',async()=>{
+ const {planCinematicShot,planReadableExpeditionLens}=await planner();
+ const s=scene(),boss=s.units.find(u=>u.id==='warden');
+ const hero=s.units.find(u=>u.id==='ranger');
+ s.bossRecovery={remaining:3};s.guardianWard=false;
+ const before=JSON.stringify(s),opened=planCinematicShot(s,null,{width:1440,height:832});
+ const foreground=(shot)=>{
+  const d={x:boss.x-hero.x,z:boss.z-hero.z};
+  return (shot.offsets[0]*d.x+shot.offsets[2]*d.z)/
+   (Math.hypot(shot.offsets[0],shot.offsets[2])*Math.hypot(d.x,d.z));
+ };
+ assert.equal(opened.mode,'warden-exposed');
+ assert.ok(foreground(opened)<-.70,'actual camera must look from the hero side, not behind the giant boss');
+ const cinematic=planReadableExpeditionLens(opened,{width:1440,height:832});
+ assert.ok(cinematic.lookY>=1.0,'recovery must frame the physical actors above waist level');
+ assert.equal(planReadableExpeditionLens(opened,{width:390,height:844}).portrait,true);
+ assert.equal(JSON.stringify(s),before,'one scene direction cannot change the deterministic RPG');
+ s.bossWarning={attackTick:s.tick+1,shape:'NOVA',cells:[{x:boss.x,z:boss.z}]};
+ const danger=planCinematicShot(s);
+ assert.equal(danger.mode,'warden-warning');
+ assert.ok(danger.offsets[1]>opened.offsets[1]);
+ assert.ok(foreground(danger)>0,'real warning restores tactical angle instead of hiding floor telegraphs');
+});
