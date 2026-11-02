@@ -1,0 +1,213 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-31T10:05:43.365Z",
+  "status": "PASSED - HEADLESS ONLY",
+  "reference": "Diablo IV primary, No Rest for the Wicked and Path of Exile 2 secondary — visual gate NOT ASSESSED",
+  "metrics": {
+    "sample_seeds": 24,
+    "ticks_per_seed": 900,
+    "verified_seed_runs": 24,
+    "determinism_failures": 0,
+    "highest_floor_seen": 9,
+    "total_floor_advances": 401,
+    "total_restarts": 89,
+    "max_seed_elapsed_ms": 318
+  },
+  "failures": [],
+  "runs": [
+    {
+      "seed": "gauntlet-corpus-v1-0",
+      "highestFloor": 8,
+      "deaths": 2,
+      "floorsAdvanced": 17,
+      "kills": 4,
+      "elapsedMs": 318
+    },
+    {
+      "seed": "gauntlet-corpus-v1-1",
+      "highestFloor": 6,
+      "deaths": 4,
+      "floorsAdvanced": 17,
+      "kills": 6,
+      "elapsedMs": 196
+    },
+    {
+      "seed": "gauntlet-corpus-v1-2",
+      "highestFloor": 6,
+      "deaths": 5,
+      "floorsAdvanced": 17,
+      "kills": 11,
+      "elapsedMs": 200
+    },
+    {
+      "seed": "gauntlet-corpus-v1-3",
+      "highestFloor": 6,
+      "deaths": 4,
+      "floorsAdvanced": 19,
+      "kills": 25,
+      "elapsedMs": 179
+    },
+    {
+      "seed": "gauntlet-corpus-v1-4",
+      "highestFloor": 8,
+      "deaths": 3,
+      "floorsAdvanced": 16,
+      "kills": 0,
+      "elapsedMs": 191
+    },
+    {
+      "seed": "gauntlet-corpus-v1-5",
+      "highestFloor": 5,
+      "deaths": 5,
+      "floorsAdvanced": 16,
+      "kills": 0,
+      "elapsedMs": 170
+    },
+    {
+      "seed": "gauntlet-corpus-v1-6",
+      "highestFloor": 6,
+      "deaths": 4,
+      "floorsAdvanced": 17,
+      "kills": 7,
+      "elapsedMs": 164
+    },
+    {
+      "seed": "gauntlet-corpus-v1-7",
+      "highestFloor": 9,
+      "deaths": 2,
+      "floorsAdvanced": 16,
+      "kills": 21,
+      "elapsedMs": 190
+    },
+    {
+      "seed": "gauntlet-corpus-v1-8",
+      "highestFloor": 7,
+      "deaths": 4,
+      "floorsAdvanced": 19,
+      "kills": 6,
+      "elapsedMs": 166
+    },
+    {
+      "seed": "gauntlet-corpus-v1-9",
+      "highestFloor": 9,
+      "deaths": 3,
+      "floorsAdvanced": 16,
+      "kills": 4,
+      "elapsedMs": 176
+    },
+    {
+      "seed": "gauntlet-corpus-v1-10",
+      "highestFloor": 8,
+      "deaths": 4,
+      "floorsAdvanced": 17,
+      "kills": 5,
+      "elapsedMs": 176
+    },
+    {
+      "seed": "gauntlet-corpus-v1-11",
+      "highestFloor": 6,
+      "deaths": 5,
+      "floorsAdvanced": 16,
+      "kills": 11,
+      "elapsedMs": 170
+    },
+    {
+      "seed": "gauntlet-corpus-v1-12",
+      "highestFloor": 8,
+      "deaths": 4,
+      "floorsAdvanced": 18,
+      "kills": 9,
+      "elapsedMs": 176
+    },
+    {
+      "seed": "gauntlet-corpus-v1-13",
+      "highestFloor": 6,
+      "deaths": 3,
+      "floorsAdvanced": 14,
+      "kills": 10,
+      "elapsedMs": 167
+    },
+    {
+      "seed": "gauntlet-corpus-v1-14",
+      "highestFloor": 7,
+      "deaths": 3,
+      "floorsAdvanced": 16,
+      "kills": 4,
+      "elapsedMs": 180
+    },
+    {
+      "seed": "gauntlet-corpus-v1-15",
+      "highestFloor": 5,
+      "deaths": 4,
+      "floorsAdvanced": 18,
+      "kills": 5,
+      "elapsedMs": 162
+    },
+    {
+      "seed": "gauntlet-corpus-v1-16",
+      "highestFloor": 7,
+      "deaths": 3,
+      "floorsAdvanced": 17,
+      "kills": 22,
+      "elapsedMs": 179
+    },
+    {
+      "seed": "gauntlet-corpus-v1-17",
+      "highestFloor": 7,
+      "deaths": 4,
+      "floorsAdvanced": 18,
+      "kills": 5,
+      "elapsedMs": 166
+    },
+    {
+      "seed": "gauntlet-corpus-v1-18",
+      "highestFloor": 6,
+      "deaths": 4,
+      "floorsAdvanced": 17,
+      "kills": 5,
+      "elapsedMs": 158
+    },
+    {
+      "seed": "gauntlet-corpus-v1-19",
+      "highestFloor": 5,
+      "deaths": 4,
+      "floorsAdvanced": 16,
+      "kills": 6,
+      "elapsedMs": 160
+    },
+    {
+      "seed": "gauntlet-corpus-v1-20",
+      "highestFloor": 6,
+      "deaths": 3,
+      "floorsAdvanced": 17,
+      "kills": 6,
+      "elapsedMs": 167
+    },
+    {
+      "seed": "gauntlet-corpus-v1-21",
+      "highestFloor": 7,
+      "deaths": 3,
+      "floorsAdvanced": 17,
+      "kills": 6,
+      "elapsedMs": 173
+    },
+    {
+      "seed": "gauntlet-corpus-v1-22",
+      "highestFloor": 6,
+      "deaths": 4,
+      "floorsAdvanced": 15,
+      "kills": 7,
+      "elapsedMs": 164
+    },
+    {
+      "seed": "gauntlet-corpus-v1-23",
+      "highestFloor": 5,
+      "deaths": 5,
+      "floorsAdvanced": 15,
+      "kills": 5,
+      "elapsedMs": 158
+    }
+  ],
+  "visualVerdict": "NOT ASSESSED",
+  "productionReady": false
+}

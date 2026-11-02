@@ -2,7 +2,9 @@
   "name": "ai-games",
   "version": "0.6.0",
   "private": true,
-  "engines": { "node": ">=22.0.0" },
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "clean": "rm -rf dist",
     "build": "tsc -p tsconfig.json",
@@ -56,8 +58,19 @@
     "tower:stream": "npm run build && node scripts/serve-tower-stream.cjs",
     "tower:stream:self-test": "npm run build && node scripts/serve-tower-stream.cjs --self-test",
     "tower:phase5:chaos": "npm run build && node scripts/run-tower-phase5-chaos.cjs",
-    "tower:phase6:validate": "npm run build && node scripts/run-tower-phase6-validation.cjs"
+    "tower:phase6:validate": "npm run build && node scripts/run-tower-phase6-validation.cjs",
+    "dungeon:stream": "npm run dungeon:assets && npm run build && node scripts/serve-dungeon-stream.cjs",
+    "dungeon:gauntlet": "npm run build && node scripts/run-dungeon-gauntlet.cjs",
+    "dungeon:test": "npm run build && node --test tests/foundation/dungeon-boot-watchdog.test.cjs tests/foundation/dungeon-core.test.cjs tests/foundation/dungeon-setpieces.test.cjs tests/foundation/dungeon-stone-relief.test.cjs tests/foundation/dungeon-floor-ruins.test.cjs tests/foundation/dungeon-wall-profiles.test.cjs tests/foundation/dungeon-wall-masonry.test.cjs tests/foundation/dungeon-party-visibility.test.cjs tests/foundation/dungeon-postfx-budget.test.cjs tests/foundation/dungeon-facing.test.cjs tests/foundation/dungeon-authored-motion.test.cjs tests/foundation/dungeon-authored-ornaments.test.cjs tests/foundation/dungeon-drape-deformation.test.cjs tests/foundation/dungeon-combat-clarity.test.cjs tests/foundation/dungeon-warden-regalia.test.cjs tests/foundation/dungeon-role-silhouettes.test.cjs tests/foundation/dungeon-rig-attachments.test.cjs tests/foundation/dungeon-cranial-proportions.test.cjs tests/foundation/dungeon-encounter-sightlines.test.cjs tests/foundation/dungeon-camera-boundary.test.cjs tests/foundation/dungeon-heal-clarity.test.cjs tests/foundation/dungeon-contact-truth.test.cjs tests/foundation/dungeon-sculpted-wall.test.cjs tests/foundation/dungeon-anatomical-kit.test.cjs tests/foundation/dungeon-cutaway-floor-backing.test.cjs tests/foundation/dungeon-ground-signal.test.cjs tests/foundation/dungeon-soundstage.test.cjs tests/foundation/dungeon-melee-arc.test.cjs tests/foundation/dungeon-melee-follow-through.test.cjs tests/foundation/dungeon-impact-choreography.test.cjs tests/foundation/dungeon-warden-seal.test.cjs",
+    "dungeon:visual": "npm run dungeon:assets && npm run build && playwright test -c tests/browser/dungeon.playwright.config.cjs",
+    "dungeon:assets": "node scripts/fetch-dungeon-assets.cjs",
+    "dungeon:assets:strict": "node scripts/fetch-dungeon-assets.cjs --strict"
   },
-  "dependencies": { "three": "0.186.0" },
-  "devDependencies": { "@playwright/test": "1.55.0", "typescript": "5.8.3" }
+  "dependencies": {
+    "three": "0.186.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.55.0",
+    "typescript": "5.8.3"
+  }
 }

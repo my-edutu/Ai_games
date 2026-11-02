@@ -1,0 +1,51 @@
+name: Dungeon Reproducible Visual Review
+on:
+  pull_request:
+    paths:
+      - 'public/ai-dungeon/**'
+      - 'tests/browser/dungeon*'
+      - '.github/workflows/dungeon-review-workspace.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: dungeon-review-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  workspace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with: {node-version: '22', cache: 'npm'}
+      - run: npm ci
+      - run: npm run build
+      - run: npm run dungeon:assets:strict
+      - name: Record exact source revision
+        run: git rev-parse HEAD > review-source-revision.txt
+      - name: Package only public source and installed dependencies
+        run: tar -czf dungeon-review-workspace.tar.gz AGENTS.md .github skills docs games packages services types fixtures evidence scripts tests public dist node_modules package.json package-lock.json tsconfig.json playwright.config.cjs review-source-revision.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dungeon-review-workspace
+          path: dungeon-review-workspace.tar.gz
+          retention-days: 7
+          if-no-files-found: error
+      - run: npx playwright install --with-deps chromium
+      - name: Exercise actual immersive interface and capture real 3D
+        run: npx playwright test -c tests/browser/dungeon.playwright.config.cjs dungeon-interface.spec.cjs
+        env:
+          DUNGEON_REQUIRE_MODELS: '1'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dungeon-immersive-interface
+          path: |
+            artifacts/dungeon-immersive-*.png
+            test-results/**
+          retention-days: 14
+          if-no-files-found: warn
