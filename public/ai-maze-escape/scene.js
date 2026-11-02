@@ -1,6 +1,7 @@
 import * as THREE from './vendor/three.module.js';
 import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE } from './world.js';
+import { advanceGateVisualClock } from './gate-moment.mjs';
 import { planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicGateOpeningCameraCue } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
@@ -157,7 +158,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   let settings = { ...initialSettings };
   let frame = null, previous = null, runToken = '', cameraMode = 'follow', recentPublicOpening = null;
   let cells = [], segmentProgress = 0, heading = Math.PI / 4, halfHeight = 9;
-  let lastNow = 0, elapsed = 0, frames = 0, lastDiagnostic = 0, lost = false, disposed = false;
+  let lastNow = 0, elapsed = 0, gateVisualTime = 0, frames = 0, lastDiagnostic = 0, lost = false, disposed = false;
   let width = 0, height = 0, routeSignature = '', geometryPeak = 0;
   const frameTimes = [];
 
@@ -246,7 +247,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       else { cells = [...motion.cells]; segmentProgress = 0; }
       if (cells.length > 32) resetPosition(snapshot);
     }
-    if (openingCue) recentPublicOpening = {...openingCue, runToken:snapshot.runToken, start:elapsed};
+    if (openingCue) recentPublicOpening = {...openingCue, runToken:snapshot.runToken, start:gateVisualTime};
     previous = snapshot;
     world.update(snapshot);
     updateRoutes(snapshot);
@@ -310,6 +311,9 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     const motionDelta = Math.min(wallDelta, .8);
     if (lastNow) { frameTimes.push(now - lastNow); if (frameTimes.length > 180) frameTimes.shift(); }
     lastNow = now; elapsed += motionDelta;
+    // This separate clock progresses only with rendered frames, preserving
+    // observable source-authentic gate choreography under GPU/CPU stalls.
+    gateVisualTime = advanceGateVisualClock(gateVisualTime, wallDelta);
     const s = frame.snapshot;
     if (!cells.length) cells = [s.currentCell];
     if (settings.reducedMotion) { cells = [s.currentCell]; segmentProgress = 0; }
@@ -369,7 +373,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       keyCameraPosition: camera.position,
       danger:s.dangerPermille/1000,result,reducedMotion:settings.reducedMotion,
     });
-    world.animate(elapsed, settings);
+    world.animate(elapsed, {...settings, gateTime:gateVisualTime});
     if (objectiveCue) {
       const hover = settings.reducedMotion ? 0 : Math.sin(elapsed * 1.65) * .11;
       beaconGem.position.y = 3.18 + hover;
@@ -390,8 +394,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // No secret door, solver plan, invented unlock or manual camera input.
     const openingGateBeat = cameraMode === 'follow' && !settings.reducedMotion && !result
       && !closestThreat?.strength && recentPublicOpening?.runToken === s.runToken
-      && elapsed >= recentPublicOpening.start
-      && elapsed - recentPublicOpening.start <= 1.35
+      && gateVisualTime >= recentPublicOpening.start
+      && gateVisualTime - recentPublicOpening.start <= 1.35
       && s.doors.some(door => door.open &&
         ((door.a === recentPublicOpening.a && door.b === recentPublicOpening.b)
           || (door.b === recentPublicOpening.a && door.a === recentPublicOpening.b)))
@@ -646,7 +650,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         carriedKeyGateGesture: keyGateCue?.strength??0,
         keyLockCloseup, cameraAimLift, physicalKeyLock,
         publicOpeningCameraBeat: openingGateBeat ? {a:openingGateBeat.a,b:openingGateBeat.b,
-          keyed:openingKeyedBeat,ageSeconds:elapsed-openingGateBeat.start} : null,
+          keyed:openingKeyedBeat,ageSeconds:gateVisualTime-openingGateBeat.start} : null,
         // Camera evidence is derived only from the source-disclosed gate,
         // with projected coordinates in normalized device space [-1,+1].
         nearbySealedGate: nearObservedGate ? {...nearObservedGate} : null,

@@ -863,13 +863,14 @@ export function createMazeWorld(options = {}) {
   function animate(time, options = {}) {
     if (disposed) return;
     const t = Number.isFinite(time) ? time : 0;
-    presentationTime = t;
+    presentationTime = Number.isFinite(options.gateTime) && options.gateTime >= 0
+      ? options.gateTime : t;
     const reduced = !!options.reducedMotion;
     // Carved bronze portcullises physically withdraw into their own lintel.
     // The passage was already opened by the real engine; this is cosmetic.
     // Animation is held on the same 3D gate between source polling updates.
     for (const [edge, gate] of retractingGates) {
-      const pose = gateRetractionPose(t - gateOpeningAt.get(edge), reduced);
+      const pose = gateRetractionPose(presentationTime - gateOpeningAt.get(edge), reduced);
       gate.visible = pose.visible;
       gate.position.y = pose.raise;
       gate.scale.y = pose.scaleY;

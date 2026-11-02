@@ -2,6 +2,15 @@
 // only after both states were actually disclosed by the same authoritative run.
 // Never examine undiscovered topology, private AI plans or required hidden keys.
 export const GATE_RETRACTION_SECONDS = 0.85;
+// Visual-only pacing: if software graphics stalls, don't skip the physical lift.
+// Authoritative time, AI, countdown and route motion remain untouched.
+export const MAX_GATE_VISUAL_FRAME_SECONDS = 0.10;
+export function advanceGateVisualClock(previous, frameSeconds) {
+  if (!Number.isFinite(previous) || previous < 0) return 0;
+  if (!Number.isFinite(frameSeconds) || frameSeconds <= 0) return previous;
+  return previous + Math.min(frameSeconds, MAX_GATE_VISUAL_FRAME_SECONDS);
+}
+
 const key = door => `${Math.min(door.a, door.b)}:${Math.max(door.a, door.b)}`;
 const valid = door => Number.isSafeInteger(door?.a) && Number.isSafeInteger(door?.b)
   && door.a >= 0 && door.b >= 0 && door.a !== door.b && typeof door.open === 'boolean';
