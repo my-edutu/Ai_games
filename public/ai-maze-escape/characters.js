@@ -504,6 +504,26 @@ export function createWarden(options = {}) {
     guard.rotation.z=side*.30;
   }
   signalCore.visible=false;
+  // An original, permanently rooted pair of shell-tail vanes gives the
+  // guardian a readable BACK silhouette in the real +X/+Z camera. The
+  // ordinary dorsal details were effectively invisible at native phone
+  // resolution; these are broad rigid botanical armor, not warning decals.
+  // Their physical hinges fan outward ONLY when this already-disclosed
+  // opponent faces Pip. Nothing about AI, detection or collision changes.
+  const tailRoot=pivot(body,'guardian shell-tail root',[0,.13,-.46]);
+  rounded(tailRoot,bronze,[0,.01,-.045],[.36,.19,.31],.055);
+  const tailVanes=[];
+  for (const side of [-1,1]) {
+    const vane=pivot(tailRoot,`articulated guardian tail vane ${side}`,[side*.15,.05,-.12]);
+    const leaf=rounded(vane,frondGlass,[side*.105,.43,-.15],[.44,.91,.17],.07);
+    leaf.rotation.z=-side*.17;
+    const inner=rounded(vane,claw,[side*.115,.47,-.05],[.15,.67,.055],.025);
+    inner.rotation.z=leaf.rotation.z;
+    bar(vane,bronze,[0,0,0],[side*.12,.43,-.13],.043);
+    const root=rounded(vane,plates,[side*.02,.04,-.04],[.31,.16,.24],.046);
+    root.rotation.z=-side*.09;
+    tailVanes.push({vane,side});
+  }
   const head=pivot(body,'warden mask',[0,.08,.62]);
   // A broad forward bronze mask makes approach direction distinct from the dark elytra.
   ball(head,bronze,[0,0,0],[.37,.245,.27]);
@@ -512,6 +532,21 @@ export function createWarden(options = {}) {
     const brow=rounded(head,claw,[side*.17,.119,.254],[.23,.055,.04],.012); brow.rotation.z=-side*.2;
     const lens=rounded(head,red,[side*.17,.032,.268],[.205,.095,.035],.025); lens.rotation.z=-side*.13;
     ring(head,bronze,[side*.275,-.05,.13],.057,.014);
+  }
+  // A full 3D, hinged lower mask makes an observed confrontation read as
+  // physical acting instead of only a red eye or a line of HUD text.
+  // The dark coral throat is hidden at rest; the bronze jaw and paired
+  // ivory tusks remain connected to the same head through every pose.
+  const openMaw=pivot(head,'guardian disclosed coral throat',[0,-.14,.21]);
+  rounded(openMaw,dark,[0,-.04,.03],[.51,.21,.045],.025);
+  rounded(openMaw,ember,[0,-.035,.065],[.25,.085,.035],.018);
+  openMaw.visible=false;
+  const lowerJaw=pivot(head,'hinged guardian lower mandible',[0,-.12,.12]);
+  rounded(lowerJaw,bronze,[0,-.105,.175],[.69,.21,.35],.06);
+  rounded(lowerJaw,plates,[0,-.153,.355],[.48,.075,.068],.026);
+  for (const side of [-1,1]) {
+    ball(lowerJaw,bronze,[side*.29,-.02,.02],[.085,.09,.09]);
+    bar(lowerJaw,claw,[side*.245,-.08,.30],[side*.19,.045,.43],.06);
   }
   const jaws=[], antennae=[];
   for (const side of [-1,1]) {
@@ -559,6 +594,18 @@ export function createWarden(options = {}) {
     const lookYaw=Math.max(-.58,Math.min(.58,relativeLook))*alert;
     warningSpines.visible=alert>.24;
     warningSpines.scale.y=1+alert*.4+(s.reduced?0:Math.sin(s.time*4.1)*.04);
+    // The public close encounter unfolds the two connected armor fins and
+    // opens the real hinged coral mouth. Full and reduced-motion share
+    // the same deterministic silhouette; terminal/withdrawn truth returns
+    // every hinge to its neutral physical pose with exact positive zero.
+    const encounter=alert>.24?alert:0;
+    for (const {vane,side} of tailVanes) {
+      vane.rotation.z=encounter?side*encounter*.64:0;
+      vane.rotation.y=encounter?-side*encounter*.27:0;
+      vane.rotation.x=encounter?-.12-encounter*.18:0;
+    }
+    lowerJaw.rotation.x=encounter?.22+encounter*.47:0;
+    openMaw.visible=encounter>0;
     // A real physical encounter unveils the internal lantern-heart through
     // the opening shell. Keep the reduced-motion pose steady and clear the
     // entire assembly on terminal/withdrawn public snapshots.
