@@ -2193,7 +2193,7 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "PENDING exact candidate-head authority/browser/CI/replay checks after 23eac4f; pure camera planner locally evaluated with a real-map-style synthetic 3-hero arrangement (not running-game evidence). Previous 8d603100/a6e3163f source passed three true Chromium shards and authority workflow 41534599981; catalogue workflow 41534600021 cancelled. No current-head green claim.",
+      "safetyChecks": "Predecessor source cb359b: authority passed, Dungeon browser 2/3 shards failed meaningful real missing windows/spalls/wall-height regressions, full catalogue CI failed outdated boss/party camera regex. New candidate 9f7cfb pure plan executed and anchored relief invariant checked directly, but exact-new-head CI/browser/replay/security UNVERIFIED. Do not claim green.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED full real original audio plus continuous traversal/combat/Warden/floor/defeat/restart on desktop and mobile. Prior Chromium videos are screen tracks and do not constitute authenticated audio proof.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2201,14 +2201,14 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "PREDECESSOR e474553 real Chromium 1440x832 Warden exposure and 390x844 contact: https://github.com/my-edutu/Ai_games/actions/runs/41490449531/artifacts/13165920178 . Inspected: the actual Vanguard is present but partially masked by the overlarge Warden; floating Warden nameplate overlaps the fixed boss health strip, especially on phone; masonry is cubic. Matched immutable baseline A/B remains UNVERIFIED. New code SHA 89a7e575 AFTER not yet captured. New source M1 hero-escape candidate a951f64 is unverified visually; older predecessor snapshot is not an A/B result.",
-      "latestCandidateWorkflow": "2026-11-02 source 23eac4f: dedicated Dungeon 41543430489, visual 41543430645 and catalogue 41543430544 initiated; status unconfirmed at ledger write. Do not claim exact-head green without confirmed outcomes.",
-      "currentPredecessorWebgl": "Exact-head 63c7859beab07697275ce3b3aec4a4e11369a1b3, browser workflow 41526201988, artifact 13181360029 (real desktop world-only, Warden and mobile screenshots plus video.webm) and 13180476954 (world-only screenshot and quantitative metrics), inspected 2026-11-02. Authentic 1440x832 Warden recovery shows a crowded arena and toy-like giant boss; no matched immutable baseline A/B conducted.",
-      "newCandidateSceneReview": "UNVERIFIED new head 23eac4f after open-ruin party sightline change. Predecessor a6e3163f authentic 1440x832 world-only: https://github.com/my-edutu/Ai_games/actions/runs/41534599981/artifacts/13183999092. Actual 3 heroes visibly crowded among heavy stone architecture; genuine visual audit 116414 triangles, 3/3 ray-unoccluded, minHeroPixels 210, not a quality score. New source exact-head browser/visual pending."
+      "latestCandidateWorkflow": "2026-11-03 code 9f7cfb plus append-only ledger; exact-current browser and CI status UNVERIFIED; check actual GitHub Actions on PR #49 before any claim.",
+      "currentPredecessorWebgl": "Actual predecessor 2026-11-02 source cb359b, GitHub Chromium workflow https://github.com/my-edutu/Ai_games/actions/runs/41543693756, exact world-only screenshot https://github.com/my-edutu/Ai_games/actions/runs/41543693756/artifacts/13187483834. 3/3 ray-unoccluded heroes, minimum 210 px, 113920 triangles, 0 windows, 0 torches, 0 spalls and 0 coping. Dense stone and character silhouette overlap still prominent, NOT a fixed-baseline matched AFTER.",
+      "newCandidateSceneReview": "UNVERIFIED AFTER. Genuine preceding source cb359b 1440x832 world-only https://github.com/my-edutu/Ai_games/actions/runs/41543693756/artifacts/13187483834 records actual 0 archWindows, 0 torches, 0 weatheredSpalls, 0 brokenCopingStones, 3/3 ray-visible but crowded toy-like party. 113920 scene triangles in one frame; not a frame-time or art-quality grade."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Latest authentic 1440x832 WebGL scene (2026-11-02) depicts cramped, toy-like KayKit silhouettes, foreground stone volume and repeated Gothic props even though 3/3 heroes pass ray-visible diagnostics. The new genuine party silhouette camera and physically lower junction stonework address real staging; an exact new-head browser capture, mobility and character art quality remain unjudged. Continuous original audio/motion, mobile frame-time, independent blind comparison and full autonomous-game tactical assessment are still missing.",
-    "currentWork": "ONE UNFINISHED M1 transformation, source candidate 23eac4f426d074ff8e1ee4ebf564c50476fc6665. The actual dungeon now renders broad low-ruin junctions and retains taller distant buttress landmarks without changing any impassable game cells; physically reduces repeated arch bays, raised shrine props and foreground corridor ribs. A new 17-flank camera study projects the real living heroes' within-cell staged rigs, seeks visibly separated party silhouettes and rejects marginal or clipped candidates; Warden duels, explicit danger and reduced-motion keep previous framing. No AAA/quality or performance win accepted until real desktop/mobile footage and independent blind looks/feels/plays judging.",
-    "candidateCommit": "23eac4f426d074ff8e1ee4ebf564c50476fc6665",
+    "biggestRemainingGap": "Actually inspected previous exact-head real WebGL: toy-scale heavily overlapping hero/foe anatomy and blocky repeated dungeon props despite measured 3/3 ray-visible. The same scene lost ALL Gothic stained glass, torches and original weathered stone relief after prior shallow-wall staging. New physically supported architectural scene candidate is not yet seen in running gameplay; genuinely believable adult character rigs, contact, fight pacing and continuous story remain substantially below authentic AAA benchmarks.",
+    "currentWork": "SAME UNFINISHED M1: original low-ruin party stage with real 1.82–1.98m Gothic window piers, no more than six original spatially spaced stained-glass groups, deterministic two-sconce fallback, true on-wall spalls and coping physically following shortened stone edges; preserved coherent 3D sightlines and unchanged original authority. Pure planner evidence only; real AFTER browser quality unverified.",
+    "candidateCommit": "9f7cfbe1adbb0df77df91e3d0312b8ffe302b483",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
     "implementationEvents": [
@@ -3289,6 +3289,28 @@
         "newBrowser": "UNVERIFIED",
         "lookFeelPlay": "UNVERIFIED; keep M1 open and PR draft",
         "next": "Inspect source head actual desktop/phone world-only plus genuine Warden and party combat motion; verify camera does not swing unexpectedly, mobile and accessibility still work, and party contact/telegraphs are readable. Fix actual defects, collect a full audible run with matched immutable baseline and 3 independent blinded critics before any transformation claim."
+      },
+      {
+        "id": "M1-PHYSICAL-GOTHIC-STAGE-20261103",
+        "date": "2026-11-03",
+        "milestone": "SAME M1; NOT A NEW ACCEPTED GAUNTLET ROUND",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "sourceHeadAtStart": "cb359b00bf6a7e629a9370014952972ae26c947a",
+        "sourceCommit": "9f7cfbe1adbb0df77df91e3d0312b8ffe302b483",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "baselineArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
+        "objective": "Restore visually coherent, structurally believable 3D ruin-stage lighting and genuine medieval masonry landmarks after real gameplay lost all stained-glass, sconces and stone-relief, without closing party sightlines or changing authority.",
+        "observedActualPredecessor": "https://github.com/my-edutu/Ai_games/actions/runs/41543693756/artifacts/13187483834",
+        "observedActualPredecessorDeficiencies": "True 1440x832 Chromium has cramped 3/3 ray-visible toy-like party and repeated stone (113920 triangles) but 0 actual arched windows, 0 torches, 0 weathered spalls and 0 coping; 2/3 browser shards and catalogue CI FAILED due real missing decor and outdated static camera assertion.",
+        "implemented": [
+          "Bounded original 1.18–1.36 metre physically low junction walls retain real battle sightlines while single-front 1.82–1.98 metre piers support up to six spaced original Gothic stained-glass window groups.",
+          "Authentic standing wall piers receive two capped, spaced, original warm fire sconces only if seeded level otherwise has no flame; reuse current original WebGL meshes/materials and existing five point lights maximum.",
+          "Existing pooled stone chip / coping geometry now follows true shortened wall height rather than hovering at the former 2.6 metre parapet; no new geometry batches, no collision edits.",
+          "Browser assertions now require actual glowing windows, torches, broken stone and cope; unit contracts verify mapped support and boss-vista camera priority rather than an obsolete snapshot."
+        ],
+        "checks": "Pure deterministic 19x19 map calculated: 160 exposed faces, 12 physically tall single-front piers, 64 short junctions, valid 1.18–1.98 m, same result on repeat. Mixed-height 120-face original stone-relief planner returned 54 anchored spalls and 32 correctly mounted coping stones. Code changed on existing draft branch with normal GitHub fast-forward file writes; full Node/Chromium/CI at candidate head not yet inspected.",
+        "experientialProof": "UNVERIFIED; no genuine running AFTER or matched pinned baseline, no original audio/motion full expedition, no phone p95 and no 3 fresh blind critics.",
+        "next": "Inspect actual browser-captured candidate route and combat, diagnose any dark or floating details or huge character masks, correct physical 3D stage before pushing into more demanding adult-character anatomy/movement and decisive boss/tactical play; capture full original audiovisual session with same-seed locked M1 baseline and >=3 independent masked LOOKS / FEELS / PLAYS judges."
       }
     ]
   }
