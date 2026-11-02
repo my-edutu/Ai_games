@@ -645,13 +645,25 @@ test('authentic public key pickup opens four hinged 3D petals and leaves a perma
   const after={...before,tick:10,keys:[{...key,collected:true}],inventory:[key.id]};
   const unchanged=JSON.stringify(after),budget=world.stats();
   world.update(before);world.animate(40,{gateTime:12});
-  assert.ok(world.group.getObjectByName('Disclosed golden key')?.isGroup);
+  const originalKey=world.group.getObjectByName('Disclosed golden key');
+  assert.ok(originalKey?.isGroup);
+  const beforeDais=originalKey.getObjectByName('In-cell treasure dais');
+  assert.ok(beforeDais?.isGroup);
+  assert.deepEqual([beforeDais.position.x,beforeDais.position.z],[.32,-.30],
+    'the original uncollected key stands on a physical dais inside its disclosed cell');
   world.update(after);
   const shrine=world.group.getObjectByName('Disclosed spent key shrine');
   assert.ok(shrine?.isGroup,'the genuine observed treasure has an authored physical origin');
   assert.equal(world.group.getObjectByName('Disclosed golden key'),undefined,'no false remaining key');
+  const spentDais=shrine.getObjectByName('In-cell treasure dais');
+  assert.ok(spentDais?.isGroup);
+  assert.deepEqual([spentDais.position.x,spentDais.position.z],
+    [beforeDais.position.x,beforeDais.position.z],
+    'real original and collected states remain physically continuous on the same key tile');
+  assert.ok(Math.abs(spentDais.position.x)+.43 < 1.2 && Math.abs(spentDais.position.z)+.43 < 1.2,
+    'the actual pedestal remains within the 2.4 wide tile');
   const leaves=Array.from({length:4},(_,i)=>shrine.getObjectByName('Physical shrine petal '+i));
-  assert.ok(leaves.every(p=>p?.isGroup&&p.children.filter(c=>c.isMesh).length===4),
+  assert.ok(leaves.every(p=>p?.isGroup&&p.parent===spentDais&&p.children.filter(c=>c.isMesh).length===4),
     'four separately carved, lit-by-existing-material stone pieces form every physical hinge');
   assert.ok(leaves.every(p=>p.children.some(c=>c.material?.color?.getHexString()=== 'eed5a0')),
     'each leaf has the existing large ivory rim instead of a tiny floor-only speck');

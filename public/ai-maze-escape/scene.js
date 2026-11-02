@@ -1,6 +1,6 @@
 import * as THREE from './vendor/three.module.js';
 import { createExplorer, createWarden } from './characters.js';
-import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE } from './world.js';
+import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock } from './gate-moment.mjs';
 import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicGateOpeningCameraCue } from './map-view.mjs';
 
@@ -274,7 +274,9 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     objectiveBeacon.visible = Boolean(objectiveCue);
     if (objectiveCue) {
       const pos = cellPosition(objectiveCue.cell, snapshot.width, snapshot.height);
-      objectiveBeacon.position.set(pos.x, cellHeight(objectiveCue.cell, snapshot.width, snapshot.height), pos.z);
+      objectiveBeacon.position.set(pos.x + (objectiveCue.kind === 'key' ? KEY_SHRINE_OFFSET.x : 0),
+        cellHeight(objectiveCue.cell, snapshot.width, snapshot.height),
+        pos.z + (objectiveCue.kind === 'key' ? KEY_SHRINE_OFFSET.z : 0));
       // The discovered exit already has a modeled, glowing diamond arch.
       // Repeating a floating gem/ring over that arch makes its opening illegible.
       // Retain only a low, forward floor cue for the exit; keys keep their
@@ -429,8 +431,9 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     pickupBurst.visible = showPickup;
     if (showPickup) {
       const p = cellPosition(recentPublicPickup.cell,s.width,s.height);
-      pickupBurst.position.set(p.x,
-        cellHeight(recentPublicPickup.cell,s.width,s.height)+1.75,p.z);
+      pickupBurst.position.set(p.x + KEY_SHRINE_OFFSET.x,
+        cellHeight(recentPublicPickup.cell,s.width,s.height)+1.75,
+        p.z + KEY_SHRINE_OFFSET.z);
       const progress = settings.reducedMotion ? .38 : Math.min(1,pickupAge/.82);
       for (let i=0;i<pickupShards.length;i++) {
         const angle=i*Math.PI/4+.18,radial=.43+progress*(.36+(i%2)*.11);
@@ -684,7 +687,9 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       };
       const keysInFrame = s.keys.filter(key => !key.collected && knownCells.has(key.cell)
         && (() => { const p = cellPosition(key.cell, s.width, s.height);
-          return insideCamera(p.x, cellHeight(key.cell, s.width, s.height) + 1.14, p.z); })()).length;
+          return insideCamera(p.x + KEY_SHRINE_OFFSET.x,
+            cellHeight(key.cell, s.width, s.height) + 1.14,
+            p.z + KEY_SHRINE_OFFSET.z); })()).length;
       const closedGatesInFrame = s.doors.filter(door => !door.open
         && (() => {
           const ends = [door.a, door.b].filter(cell => knownCells.has(cell));

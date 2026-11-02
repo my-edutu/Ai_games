@@ -3,6 +3,9 @@ import { GATE_RETRACTION_SECONDS, observedGateOpenings, gateRetractionPose } fro
 import { publicKeyCollectionMoment } from './map-view.mjs';
 
 export const CELL_SIZE = 2.4;
+// Inset within the SAME disclosed key cell; original key and empty after-state
+// use identical physical coordinates, independently of Pip's centered walk.
+export const KEY_SHRINE_OFFSET = Object.freeze({x: .32, z: -.30});
 export function cellPosition(cell, width, height) {
   return { x: (cell % width - (width - 1) / 2) * CELL_SIZE, z: (Math.floor(cell / width) - (height - 1) / 2) * CELL_SIZE };
 }
@@ -650,7 +653,10 @@ export function createMazeWorld(options = {}) {
     if (!s.cells.some(c => c.cell === key.cell)) return;
     const p = propGroup(key.cell, s);
     p.name = key.collected ? 'Disclosed spent key shrine' : 'Disclosed golden key';
-    pedestal(p, darkJade, .43);
+    const dais = new THREE.Group(); dais.name = 'In-cell treasure dais';
+    dais.position.set(KEY_SHRINE_OFFSET.x, 0, KEY_SHRINE_OFFSET.z);
+    p.add(dais);
+    pedestal(dais, darkJade, .43);
     const witnessed = key.collected && typeof key.id === 'string' && keyPickupAt.has(key.id);
     // Four original carved, articulated petals open from the collected cell.
     // Their source-disclosed footprint never becomes a route or new reward.
@@ -660,7 +666,7 @@ export function createMazeWorld(options = {}) {
       petal.position.set(Math.cos(angle) * .26, .38, Math.sin(angle) * .26);
       petal.rotation.y = -angle;
       petal.rotation.z = key.collected && !witnessed ? .78 : 0;
-      p.add(petal);
+      dais.add(petal);
       // An actual opening stone blossom is readable beyond Pip's feet.
       // Four curved-looking stepped, carved 3D blades connect at the real
       // key socket. Broader ivory lips and teal relief use ONLY the existing
@@ -674,21 +680,21 @@ export function createMazeWorld(options = {}) {
     if (key.collected) {
       // A dark, empty, stone-cut recess stays visible. No second key,
       // glowing collectible, secret map cell or gameplay authority appears.
-      mesh(p, ring, deepStone, 0, .25, 0, .27, .27, .27, Math.PI / 2);
-      mesh(p, cylinder, darkMetal, 0, .205, 0, .18, .055, .18);
+      mesh(dais, ring, deepStone, 0, .25, 0, .27, .27, .27, Math.PI / 2);
+      mesh(dais, cylinder, darkMetal, 0, .205, 0, .18, .055, .18);
       return;
     }
-    const keyMesh = new THREE.Group(); keyMesh.position.y = 1.14; keyMesh.scale.setScalar(1.35); keyMesh.rotation.y = .55; p.add(keyMesh);
+    const keyMesh = new THREE.Group(); keyMesh.position.y = 1.14; keyMesh.scale.setScalar(1.35); keyMesh.rotation.y = .55; dais.add(keyMesh);
     // A thick octagonal bow and bold two-tooth shaft survive normal/mobile views.
     mesh(keyMesh, keyBow, keyLight, 0, .29, 0, 1, 1, 1);
     mesh(keyMesh, bevel, keyLight, 0, -.16, 0, .17, .59, .17);
     mesh(keyMesh, bevel, keyLight, .14, -.36, 0, .28, .13, .17);
     mesh(keyMesh, bevel, keyLight, .14, -.15, 0, .28, .13, .17);
-    mesh(p, ring, amber, 0, .245, 0, .48, .48, .48, Math.PI / 2);
+    mesh(dais, ring, amber, 0, .245, 0, .48, .48, .48, Math.PI / 2);
     // Sparse rays belong only to a disclosed collectible, never generic scenery.
     for (let i = 0; i < 4; i++) {
       const a = i * Math.PI / 2;
-      mesh(p, bevel, keyLight, Math.cos(a) * .62, .035, Math.sin(a) * .62, .14, .03, .14, 0, Math.PI / 4);
+      mesh(dais, bevel, keyLight, Math.cos(a) * .62, .035, Math.sin(a) * .62, .14, .03, .14, 0, Math.PI / 4);
     }
     animations.push({ type: 'key', object: keyMesh, baseY: 1.14, phase: key.cell });
   }
