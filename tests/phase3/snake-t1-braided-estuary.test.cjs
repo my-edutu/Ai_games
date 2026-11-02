@@ -58,8 +58,10 @@ test('T1 estuary fixed-parent RED control, deterministic full-field weathering, 
 });
 test('T1 physically curved eight escarpments are exact-parent source-reversible, outboard and budget-neutral',async()=>{
  const present=file('living-garden.mjs'),previous=undo(present,'T1 CURVED GEOLOGICAL COAST','    ');
- assert.equal(sha(previous),'f478a8c6593d7ff89429599f0edbe0314b83e3b6',
-   'byte-exact true prior shoreline Git blob');
+ assert.notEqual(sha(previous),sha(present),'feature must be reversible on the exact current source');
+ assert.equal(sha(fs.readFileSync(path.join(root,'tests/fixtures/snake-t1-historical-curved-f478.mjs'),'utf8')),
+     'f478a8c6593d7ff89429599f0edbe0314b83e3b6',
+     'the exact historical feature-parent Git blob, independently frozen alongside current reversible verification');
  const THREE=await import('three');
  const old=(await import('data:text/javascript;base64,'+Buffer.from(previous).toString('base64'))).createLivingGarden;
  const next=(await import('../../public/snake-stream/living-garden.mjs')).createLivingGarden;

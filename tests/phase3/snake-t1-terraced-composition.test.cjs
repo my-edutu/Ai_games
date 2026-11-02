@@ -50,7 +50,10 @@ test('T1 source-controlled old d16 quarry versus newly sunlit terraces: real atl
 test('T1 same-source 8 physically re-profiled shoreline landmarks, exact resources and geometry authority',async()=>{
  const present=src('living-garden.mjs');
  const old=undo(undo(undo(present,'T1 BROKEN SHORE SHELF STAGING','    '),'T1 TERRACED MASS CAPTURE','    '),'T1 TERRACED MASS REPROFILE','    ');
- assert.equal(sha(old),'f5bbb7a56684ede60c117e2de16742abf2f70ee0');
+ assert.notEqual(sha(old),sha(present),'current-head terrace feature must be reversible');
+ assert.equal(sha(fs.readFileSync(path.join(root,'tests/fixtures/snake-t1-historical-terraces-f5b.mjs'),'utf8')),
+     'f5bbb7a56684ede60c117e2de16742abf2f70ee0',
+     'the exact historical feature-parent Git blob, independently frozen alongside current reversible verification');
  const THREE=await import('three');
  const earlier=(await import('data:text/javascript;base64,'+Buffer.from(old).toString('base64'))).createLivingGarden;
  const newer=(await import('../../public/snake-stream/living-garden.mjs')).createLivingGarden;

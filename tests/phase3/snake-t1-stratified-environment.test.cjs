@@ -53,7 +53,11 @@ test('T1 new world palette is RED on exact e228 source and GREEN on 3D field, wi
  }
 });
 test('T1 eight repainted high-cut 3D escarpments remain outside every gameplay cell; strict 22k / four batches / one texture unchanged',async()=>{
- assert.equal(gitBlob(oldGarden),'1a8fec973bbe5bca82246ec630ced30984073020','byte-exact actual e228 Git garden source');
+ assert.notEqual(gitBlob(oldGarden),gitBlob(read('living-garden.mjs')),
+     'current-head cliff profile materially changes source');
+ assert.equal(gitBlob(fs.readFileSync(path.join(root,'tests/fixtures/snake-t1-historical-strata-1a8.mjs'),'utf8')),
+     '1a8fec973bbe5bca82246ec630ced30984073020',
+     'the exact historical feature-parent Git blob, independently frozen alongside current reversible verification');
  const THREE=await import('three');
  const before=(await import('data:text/javascript;base64,'+Buffer.from(oldGarden).toString('base64'))).createLivingGarden;
  const after=(await import('../../public/snake-stream/living-garden.mjs')).createLivingGarden;

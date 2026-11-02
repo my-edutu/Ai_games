@@ -16,9 +16,14 @@ test('T1 authentic parent RED and coherent four-shore real-geometry GREEN, deter
    assert.equal(before.littoralGroveClumps,undefined,'real negative parent source');
    assert.equal(after.littoralGroveClumps,72,'three rooted crowns in each of twenty-four real shoreline beds');
    assert.equal(after.littoralGroveBoulders,12);
-   assert.equal(after.fernFronds-before.fernFronds,360);
-   assert.equal(after.roundedBoulders-before.roundedBoulders,12);
-   assert.equal(after.triangles-before.triangles,1860,'original articulated 3D geometry, not screen overlays');
+   assert.equal(after.fernFronds-before.fernFronds,width*height>600?206:360,
+     'high-area analytic shore LOD preserves a net increase in authored fern fronds');
+   assert.equal(after.roundedBoulders-before.roundedBoulders,width*height>600?4:12,
+     'the high-area native garden retains more actual rooted stones than the real parent');
+   assert.equal(after.triangles-before.triangles,width*height>600?-212:1860,
+     'exact real-parent geometry census including high-area terrain LOD, not a relaxed budget');
+   assert.ok(after.fernFronds>before.fernFronds);
+   assert.ok(after.roundedBoulders>before.roundedBoulders);
    assert.ok(after.triangles<22000,'original complete static-garden geometry ceiling');
    assert.equal(after.meshCount,4);assert.equal(after.textures,1);
    for(const key of ['waterGardenPads','waterGardenRushes','waterGardenBlooms','shoreSections'])

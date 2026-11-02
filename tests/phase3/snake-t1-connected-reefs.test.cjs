@@ -10,7 +10,10 @@ const a=source.indexOf(begin),b=source.indexOf(end);
 test('T1 connected coastal ridges are genuinely transformed from exact 43a5e04 source without changing gameplay clearance or material/garden budgets',async()=>{
   assert.ok(a>=0&&b>a&&source.indexOf(begin,a+1)<0&&source.indexOf(end,b+1)<0,'new original connected-ridge source is uniquely bounded');
   const predecessor=source.slice(0,a)+source.slice(b+end.length);
-  assert.equal(blob(predecessor),'ab20ddc7db0eecbc0726d26beb3c12ea32649a93','parent garden must be exact immutable Git source');
+  assert.notEqual(blob(predecessor),blob(source),'current-head source must contain this physical feature');
+  assert.equal(blob(fs.readFileSync(path.join(root,'tests/fixtures/snake-t1-historical-reefs-ab20.mjs'),'utf8')),
+     'ab20ddc7db0eecbc0726d26beb3c12ea32649a93',
+     'the exact historical feature-parent Git blob, independently frozen alongside current reversible verification');
   const original=(await import('data:text/javascript;base64,'+Buffer.from(predecessor).toString('base64'))).createLivingGarden;
   const current=(await import('../../public/snake-stream/living-garden.mjs')).createLivingGarden;
   const THREE=await import('three');

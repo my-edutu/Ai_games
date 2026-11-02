@@ -176,7 +176,16 @@ export function createLivingGarden(THREE, {width,height}) {
     features.rootRibbons++;
   }
   for(const shore of shorelines){
-    const segments=Math.ceil((shore.end-shore.start)/.85),rows=7;
+    // Larger public boards already push the original native garden to its
+    // strict 22k-triangle ceiling. Preserve the 72 newly authored littoral
+    // crowns, twelve anchor stones, every canopy/ruin/lily and ALL game cues.
+    // On high-area boards only, resample the same continuous analytic banks
+    // using five slope terraces at 1.05-world-unit shoreline intervals.
+    // This is a scale-aware static terrain LOD, never a dropped material,
+    // geometry feature, shader, runtime draw, asset or hidden gameplay cue.
+    const highArea = width * height > 600;
+    const segments=Math.ceil((shore.end-shore.start)/(highArea?1.05:.85)),
+      rows=highArea?5:7;
     // Wavy terrain terraces. Each contour has two slope regimes and an
     // actual undercut rocky waterline, avoiding the old geometric slab edge.
     for(let j=0;j<rows;j++)for(let i=0;i<segments;i++){

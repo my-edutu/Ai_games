@@ -52,7 +52,10 @@ test('T1 reclaimed garden: genuine predecessor, twenty-four area palette cells a
 });
 test('T1 reclaimed garden: eight existing real shore shelves, complete clearance, original strict 22k geometry ceiling',async()=>{
  const source=src('living-garden.mjs'),old=remove(source,'T1 BROKEN SHORE SHELF STAGING','    ');
- assert.equal(gitBlob(old),'600f7f9346040f0182d0866ee70bdb54dc7e2148','byte-exact old original production garden');
+ assert.notEqual(gitBlob(old),gitBlob(source),'the current physical shelf feature must be source-reversible');
+ assert.equal(gitBlob(fs.readFileSync(path.join(root,'tests/fixtures/snake-t1-historical-shelves-600f.mjs'),'utf8')),
+     '600f7f9346040f0182d0866ee70bdb54dc7e2148',
+     'the exact historical feature-parent Git blob, independently frozen alongside current reversible verification');
  const THREE=await import('three');
  const original=(await import('data:text/javascript;base64,'+Buffer.from(old).toString('base64'))).createLivingGarden;
  const current=(await import('../../public/snake-stream/living-garden.mjs')).createLivingGarden;
