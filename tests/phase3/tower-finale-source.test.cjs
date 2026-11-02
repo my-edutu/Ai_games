@@ -44,9 +44,14 @@ test('reduced motion is stable, finite and frees all graphics resources on recov
   const effect = createTowerFinale(THREE);
   const terminal = state('intermission','auth-a',850,{kind:'technical',reason:'interrupted'});
   const origin = new THREE.Vector3(hero.x,hero.y,hero.z);
-  const disposals=[];
+  const disposals=[], ownedGeometries=new Set();
   effect.group.traverse(object => {
-    if(object.geometry)object.geometry.addEventListener('dispose',()=>disposals.push(object.name));
+    // The final earned-floor rungs reuse the interruption stones' geometry.
+    // Observe each uniquely owned geometry once, not once per mesh observer.
+    if(object.geometry && !ownedGeometries.has(object.geometry)){
+      ownedGeometries.add(object.geometry);
+      object.geometry.addEventListener('dispose',()=>disposals.push(object.geometry.uuid));
+    }
   });
   effect.update(terminal,origin,0,{reducedMotion:true});
   const baseline=Array.from(effect.group.children[2].instanceMatrix.array);
@@ -57,7 +62,9 @@ test('reduced motion is stable, finite and frees all graphics resources on recov
     assert.ok(Array.from(object.instanceMatrix.array).every(Number.isFinite));
   }
   effect.dispose();effect.dispose();
-  assert.equal(disposals.length,4,'all four geometries disposed exactly once');
+  assert.equal(ownedGeometries.size,4,'the terminal stage shares four owned geometries across five meshes');
+  assert.equal(disposals.length,ownedGeometries.size,'all uniquely owned geometries dispose exactly once');
+  assert.equal(new Set(disposals).size,ownedGeometries.size,'no geometry is disposed twice');
   assert.equal(effect.diagnostics().disposed,true);
   assert.equal(effect.group.children.length,0);
 });
