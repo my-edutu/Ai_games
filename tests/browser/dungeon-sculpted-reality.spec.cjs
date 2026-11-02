@@ -16,6 +16,8 @@ test('real 3D dungeon sculpting and anatomical gear render from an unchanged aut
  expect(diag.webgl).toBe(true);
  expect(diag.wallSculpture).toMatchObject({sculpted:true,variants:4});
  expect(diag.wallSculpture.wallCount).toBeGreaterThan(40);
+ expect(diag.wallSculpture.stoneTriangles).toBeGreaterThan(100);
+ expect(diag.wallSculpture.collisionEffects).toBe(0);
  expect(diag.dressing?.cutawayFloorBackings).toBeGreaterThan(0);
  expect(diag.dressing?.cutawayFloorBackings).toBeLessThanOrEqual(4096);
  // Ornamental parapet crowns must follow their actual parent wall cutaways.

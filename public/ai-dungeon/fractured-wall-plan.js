@@ -9,24 +9,40 @@ function hash(x,z,f){
  n=Math.imul(n^(n>>>15),0x846ca68b);
  return(n^(n>>>16))>>>0;
 }
-const OUTLINE=[[-.38,-.5],[.38,-.5],[.5,-.38],[.5,.38],[.38,.5],[-.38,.5],[-.5,.38],[-.5,-.38]];
+// Five shaped stone courses, with twelve unique perimeter facets, replace
+// the repeated straight-sided cubes. The crown, battered waist and concave
+// shoulder receive actual geometry and normals, not only a texture repaint.
+// The art remains entirely INSIDE the existing unwalkable authority grid.
+const OUTLINE=[[-.39,-.48],[-.05,-.49],[.36,-.48],[.48,-.36],
+ [.49,-.06],[.47,.36],[.35,.48],[.03,.49],[-.38,.48],
+ [-.48,.35],[-.49,.04],[-.48,-.36]];
+const COURSES=Object.freeze([-.5,-.28,-.06,.17,.35]);
+const limit=(value,lo,hi)=>Math.max(lo,Math.min(hi,value));
 export function planFracturedWallStone(floor){
  if(!Number.isSafeInteger(floor)||floor<1||floor>10000)return EMPTY();
- const vertices=[],indices=[],uvs=[];
- for(let course=0;course<3;course++)for(let i=0;i<8;i++){
-  const [baseX,baseZ]=OUTLINE[i],n=hash(i,course,floor);
-  const inset=course===0?0:course===1?.017+((n>>>6)%5)*.005:.025+((n>>>8)%7)*.006;
-  const x=baseX-Math.sign(baseX)*inset,z=baseZ-Math.sign(baseZ)*inset;
-  const y=course===0?-.5:course===1?.015+((n>>>10)%5)*.012:.345+(hash(i,7,floor)%15)*.011;
-  vertices.push(x,y,z);uvs.push(i/8,course/2);
+ const vertices=[],indices=[],uvs=[],N=OUTLINE.length;
+ for(let course=0;course<COURSES.length;course++)for(let i=0;i<N;i++){
+  const [bx,bz]=OUTLINE[i],n=hash(i+12*course,course*31,floor);
+  const inset=[0,.018,.048,.032,.040][course]+((n>>>8)%5)*.002;
+  const scar=course===2?((n>>>16)%5)*.003:0;
+  const x=limit(bx-Math.sign(bx)*(inset+scar),-.5,.5);
+  const z=limit(bz-Math.sign(bz)*(inset+scar),-.5,.5);
+  const chip=course===COURSES.length-1?((n>>>3)%14)*.010:
+   course===COURSES.length-2?((n>>>11)%5)*.004:((n>>>13)%4)*.004;
+  const y=limit(COURSES[course]+chip,-.5,.492);
+  vertices.push(x,y,z);uvs.push(i/N,course/(COURSES.length-1));
  }
- const bottomCenter=vertices.length/3;vertices.push(0,-.5,0);uvs.push(.5,.5);
- const topCenter=vertices.length/3;vertices.push(0,.485,0);uvs.push(.5,.5);
- for(let course=0;course<2;course++)for(let i=0;i<8;i++){
-  const next=(i+1)%8,a=course*8+i,b=course*8+next,c=(course+1)*8+i,d=(course+1)*8+next;
+ const floorCenter=vertices.length/3;vertices.push(0,-.5,0);uvs.push(.5,0);
+ const roofCenter=vertices.length/3;vertices.push(0,.432,0);uvs.push(.5,1);
+ for(let ring=0;ring<COURSES.length-1;ring++)for(let i=0;i<N;i++){
+  const next=(i+1)%N,a=ring*N+i,b=ring*N+next,c=(ring+1)*N+i,d=(ring+1)*N+next;
   indices.push(a,c,b,b,c,d);
  }
- for(let i=0;i<8;i++){const j=(i+1)%8;indices.push(topCenter,16+j,16+i,bottomCenter,i,j)}
+ const top=(COURSES.length-1)*N;
+ for(let i=0;i<N;i++){
+  const next=(i+1)%N;
+  indices.push(roofCenter,top+next,top+i,floorCenter,i,next);
+ }
  return{vertices,indices,uvs};
 }
 export function planWallStoneVariation(x,z,floor){

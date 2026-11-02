@@ -15,16 +15,16 @@ const VALID=new Set(['journey','skirmish-approach','contact','warden-contact',
 const STAGES=Object.freeze({
  journey:[2.36,1.48,1.06,1.10,1.00],
  'skirmish-approach':[2.57,1.43,1.07,1.17,1.00],
- contact:[2.73,1.34,1.06,1.25,1.00],
- 'warden-contact':[2.85,1.39,1.08,1.32,1.08],
- 'warden-approach':[2.79,1.49,1.09,1.23,1.00],
- 'warden-exposed':[2.93,1.32,1.07,1.39,1.19],
- 'warden-warning':[2.70,1.64,1.16,1.03,1.15],
+ contact:[3.00,1.34,1.06,1.25,1.00],
+ 'warden-contact':[3.08,1.39,1.08,1.32,1.08],
+ 'warden-approach':[3.03,1.49,1.09,1.23,1.00],
+ 'warden-exposed':[3.10,1.32,1.07,1.39,1.19],
+ 'warden-warning':[3.04,1.64,1.16,1.03,1.15],
  'breach-warning':[2.68,1.59,1.17,1.12,1.00],
  'oathguard-cover':[2.76,1.38,1.06,1.29,1.00],
  descent:[2.33,1.42,1.05,1.10,1.00],
  'portal-descent':[2.50,1.46,1.09,1.19,1.00],
- 'last-stand':[3.05,1.38,1.12,1.22,.52]
+ 'last-stand':[3.10,1.38,1.12,1.22,.52]
 });
 /** Real scene state is the sole source of stage priority. */
 export function planWorldStoryStage(state,shot,{width=1440,reducedMotion=false}={}){

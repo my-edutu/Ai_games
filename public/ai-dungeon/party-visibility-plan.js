@@ -11,7 +11,7 @@ export function planPartyWallReveal(x,z,subjects,camera,pad=2.1){
  const width=Number.isFinite(pad)?Math.min(3.2,Math.max(.4,pad)):2.1;
  // A low cinematic eye sees more foreground masonry; widen only the truly
  // near-actor reveal, preserving intact distant room silhouettes.
- const nearRadius=width>2.2?Math.min(3.14,2.6+(width-2.2)*.65):2.6;
+ const nearRadius=width>=2.7?Math.min(3.54,2.6+(width-2.2)*.92):width>2.2?Math.min(3.14,2.6+(width-2.2)*.65):2.6;
  let nearby=false;
  for(const subject of eyes){
   if(!Number.isFinite(subject?.x)||!Number.isFinite(subject?.z))continue;

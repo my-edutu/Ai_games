@@ -418,7 +418,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
  world.userData.expeditionStonework=createExpeditionStonework(world,s.map,s.floor,s.exit);
  world.userData.floorRuins=createFloorRuins(world,s.map,s.floor,s.exit);
  instance(fracturedWall,stone,walls,[1.015,2.6,1.015],wallHeights);
- world.userData.wallSculpture={sculpted:true,variants:4,wallCount:walls.length,stoneTriangles:sculpture.indices.length/3};world.userData.walls=world.children[world.children.length-1];world.userData.wallPositions=walls.map(([x,,z])=>[x,z]);world.userData.wallHeights=wallHeights;world.userData.wallCutawayBands=createCutawayBandCache(walls.length);world.userData.vaultedGallery=createVaultedWallGallery(world,vaultedSites,vaultedWallIndices,s.floor);
+ world.userData.wallSculpture={sculpted:true,variants:4,wallCount:walls.length,stoneTriangles:sculpture.indices.length/3,profile:'five carved courses with irregular twelve-facet crowns',collisionEffects:0};world.userData.walls=world.children[world.children.length-1];world.userData.wallPositions=walls.map(([x,,z])=>[x,z]);world.userData.wallHeights=wallHeights;world.userData.wallCutawayBands=createCutawayBandCache(walls.length);world.userData.vaultedGallery=createVaultedWallGallery(world,vaultedSites,vaultedWallIndices,s.floor);
   const exposedProfiles=wallProfiles.map((profile,i)=>({...profile,renderHeight:wallHeights[i]})).filter(profile=>profile.exposedFaces>0);
   world.userData.wallProfileMetrics={totalWalls:wallProfiles.length,exposedWalls:exposedProfiles.length,distinctHeights:new Set(exposedProfiles.map(profile=>profile.renderHeight)).size,minHeight:exposedProfiles.length?Math.min(...exposedProfiles.map(profile=>profile.renderHeight)):0,maxHeight:exposedProfiles.length?Math.max(...exposedProfiles.map(profile=>profile.renderHeight)):0};
  instance(geo.cube,stoneEdge,trim,[.86,.02,.86]);
@@ -429,9 +429,9 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
  for(let z=1;z<size-1;z++)for(let x=1;x<size-1;x++){
   const wx=x-offset,wz=z-offset,f=fracture(x,z);
   if(s.map[z][x]==='#'){
-   if(f%3===0&&!vaultedTileKeys.has(z*size+x))topBricks.push([wx,(wallHeightAt.get(z*size+x)??2.6)-.07,wz]);
-   if(f%4===0){footBricks.push([wx,.1,wz]);foundationBrickWallIndices.push(wallIndexByTile[z*size+x]);}
-   if(s.map[z-1][x]==='.'&&f%7===0&&!vaultedTileKeys.has(z*size+x))caps.push([wx,(wallHeightAt.get(z*size+x)??2.6)+.03,wz-.34]);
+   if(f%11===0&&!vaultedTileKeys.has(z*size+x))topBricks.push([wx,(wallHeightAt.get(z*size+x)??2.6)-.07,wz]);
+   if(f%7===0){footBricks.push([wx,.1,wz]);foundationBrickWallIndices.push(wallIndexByTile[z*size+x]);}
+   if(s.map[z-1][x]==='.'&&f%13===0&&!vaultedTileKeys.has(z*size+x))caps.push([wx,(wallHeightAt.get(z*size+x)??2.6)+.03,wz-.34]);
   }else{
    if(f%4===0)stonePavers.push([wx,-.005,wz]);
    if(f%17===0)runes.push([wx,.008,wz]);
@@ -449,20 +449,29 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
  world.userData.foundationCutawayBands=new Uint8Array(footBricks.length);
  garnish(stoneEdge,stonePavers,[.86,.025,.86]);garnish(runeMat,runes,[.52,.009,.10]);
  garnish(ornament,caps,[.30,.23,.35]);garnish(blackStone,shards,[.16,.17,.20]);
- // Decorated arches are constructed only at certain long corridors; avoid hiding characters.
+ // A bounded procession of genuinely sculpted, OPEN pointed ribs replaces
+ // thick block lintels across the real traversable corridor. Sightline
+ // cutaways remove frames ahead of the camera; no collision/grid change.
+ const archRibGeometry=new THREE.TubeGeometry(new THREE.CatmullRomCurve3([
+  new THREE.Vector3(-.43,1.61,0),new THREE.Vector3(-.40,1.82,0),
+  new THREE.Vector3(-.22,2.06,0),new THREE.Vector3(0,2.25,0),
+  new THREE.Vector3(.22,2.06,0),new THREE.Vector3(.40,1.82,0),
+  new THREE.Vector3(.43,1.61,0)
+ ]),28,.067,7,false);
+ let archCount=0;
  for(let z=2;z<size-2;z++)for(let x=2;x<size-2;x++){
-   if(s.map[z][x]!==' .'&&s.map[z][x]!=='.')continue;
-   if(fracture(x,z)%19!==0)continue;
+   if(archCount>=8||s.map[z][x]!=='.'||fracture(x,z)%19!==0)continue;
    const horizontal=s.map[z][x-1]==='.'&&s.map[z][x+1]==='.';
    const vertical=s.map[z-1][x]==='.'&&s.map[z+1][x]==='.';
    if(!horizontal&&!vertical)continue;
    const ax=x-offset,az=z-offset,arch=new THREE.Group();arch.position.set(ax,0,az);
    if(horizontal)arch.rotation.y=Math.PI/2;
-   make(geo.cube,stoneEdge,arch,-.43,.95,0,.16,1.9,.18);
-   make(geo.cube,stoneEdge,arch,.43,.95,0,.16,1.9,.18);
-   make(geo.cube,ornament,arch,0,1.88,0,.98,.22,.20);
-   make(geo.cube,gold,arch,0,2.02,0,.22,.06,.23);
-   world.add(arch);world.userData.foregroundProps.push(arch);
+   make(geo.cylinder,stoneEdge,arch,-.43,.85,0,.090,.83,.095);
+   make(geo.cylinder,stoneEdge,arch,.43,.85,0,.090,.83,.095);
+   const rib=new THREE.Mesh(archRibGeometry,stoneEdge);
+   rib.name='Open processional ogive';rib.castShadow=false;arch.add(rib);
+   make(geo.sphere,gold,arch,0,2.22,0,.09,.12,.09);
+   world.add(arch);world.userData.foregroundProps.push(arch);archCount++;
  }
 
  // Lit path markers, carved stone columns and modest dynamic lighting budget.

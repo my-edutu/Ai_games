@@ -245,7 +245,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[]){
   if(flames.length<5){const torchLight=new THREE.PointLight(warmTorch,2.3,7.2,2);torchLight.position.set(x,2.1,z);world.add(torchLight)}
   flames.push({fire,inner,phase:(h%37)*.33});return group;
  };
- for(const [x,z,yaw,h] of pillars.slice(0,20)){
+ for(const [x,z,yaw,h] of pillars.slice(0,11)){
   const root=new THREE.Group();root.position.set(x,0,z);root.rotation.y=yaw;
   const pillar=new THREE.Mesh(new THREE.CylinderGeometry(.14,.17,2.12,8),chrome);pillar.position.y=1.1;root.add(pillar);
   for(const y of [.14,1.02,1.99]){const collar=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,.14,8),brass);collar.position.y=y;root.add(collar)}
@@ -265,7 +265,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[]){
   }
  }
  // Hanging banners are visual storytelling; they do not affect collision or pathing.
- for(const [x,z,yaw,h] of banners.slice(0,13)){
+ for(const [x,z,yaw,h] of banners.slice(0,7)){
   const root=new THREE.Group();root.position.set(x,0,z);root.rotation.y=yaw;
   const rod=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,.82,7),brass);rod.rotation.z=Math.PI/2;rod.position.y=2.22;root.add(rod);
   const pennant=new THREE.Mesh(new THREE.PlaneGeometry(.56,1.07),cloth);pennant.position.y=1.55;pennant.position.z=.055;root.add(pennant);
@@ -273,7 +273,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[]){
   world.add(root);foregroundGroups.push(root);
  }
  // Bespoke altar islands and guardian statues provide landmarks; caps prevent resource growth.
- for(const [x,z,h] of worldAnchors.slice(0,5)){
+ for(const [x,z,h] of worldAnchors.slice(0,3)){
   foregroundGroups.push(buildStatue(world,x,z,chrome,wallSurface,jade,h));
   const halo=new THREE.Mesh(ring,jade);halo.position.set(x,1.58,z);halo.rotation.x=Math.PI/2;world.add(halo);foregroundGroups.push(halo);
  }
