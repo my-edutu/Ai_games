@@ -35,7 +35,7 @@ test('real Warden rig, world and restricted static route load the same physical 
  const read=p=>fs.readFileSync(path.join(root,p),'utf8');
  assert.match(read('public/ai-dungeon/warden-ritual.js'),/faultVoidMesh\.setMatrixAt/);
  assert.match(read('public/ai-dungeon/model-assets.js'),/planWardenRegaliaMotion/);
- assert.match(read('public/ai-dungeon/app.js'),/a\.wardenPhase=s\.bossPhase/);
+ assert.match(read('public/ai-dungeon/app.js'),/a\.wardenPhase=u\.kind==='warden'\?s\.bossPhase:null/);
  assert.ok(read('scripts/serve-dungeon-stream.cjs').includes("['/dungeon/warden-chapter-plan.js','warden-chapter-plan.js']"));
  assert.doesNotMatch(read('public/ai-dungeon/warden-chapter-plan.js'),/Math\.random|Date\.|fetch\(|DungeonRuntime|localStorage/);
 });
