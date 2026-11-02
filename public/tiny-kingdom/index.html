@@ -4961,10 +4961,34 @@ function streetCrowdVisibility(position,citizen){
  }
  return {closestBystander,crowdIntrusions};
 }
+/* G117 — Readable work, not just roofs or unobstructed people.
+ * Actual G116 Day-120 gameplay put the true harvesting citizen BEHIND an
+ * opaque band of wheat. Test the camera-to-hands ray against real field
+ * footprints and their season-dependent stalk height before choosing a shot.
+ * Crops remain rendered, workers remain autonomous, and no RNG is consumed.
+ * This witness probes worksite legibility without altering any world data. */
+function streetCropSightline(position,citizen){
+ const season=climateAt(state.t).season;
+ const cropTop=season===3?.36:season===0?.89:season===1?1.50:1.38;
+ const a=[position[0],terrain(position[0],position[1])+STREET_EYE,position[1]];
+ const b=[citizen.x,terrain(citizen.x,citizen.z)+.90,citizen.z];
+ let blockedSamples=0,fieldSamples=0;
+ for(let step=1;step<=17;step++){
+  const t=step/18,x=a[0]+(b[0]-a[0])*t,z=a[2]+(b[2]-a[2])*t;
+  if(!FARMSTEAD.fields.some(([x0,x1,z0,z1])=>
+   x>=x0-.13&&x<=x1+.13&&z>=z0-.13&&z<=z1+.13))continue;
+  fieldSamples++;
+  const rayY=a[1]+(b[1]-a[1])*t;
+  if(rayY<terrain(x,z)+cropTop+.05)blockedSamples++;
+ }
+ return {blockedSamples,fieldSamples};
+}
 // An encounter is an explicit camera cut to a physically visible REAL worker.
 // No job assignments, movement destinations, production, seed or snapshot state
 // can be changed here. Prefer active labor, then deliveries and real travel.
-function planStreetWorkerEncounter(){
+// A second interaction reveals another real person's work instead of looping
+// back to the same cinematic screenshot.
+function planStreetWorkerEncounter(excludeName=null){
  const roofs=streetRoofs();
  const sorted=people.slice().sort((a,b)=>
   Number(isWorkingAtSite(b))-Number(isWorkingAtSite(a))||
@@ -4972,14 +4996,18 @@ function planStreetWorkerEncounter(){
   Math.hypot(a.x-streetPosition[0],a.z-streetPosition[1])-
    Math.hypot(b.x-streetPosition[0],b.z-streetPosition[1])||
   a.name.localeCompare(b.name));
- let best=null;
+ let best=null,bestOther=null;
  for(const citizen of sorted){
-  for(const radius of [4.2,5.4,6.6,7.8]){
-   for(let j=0;j<8;j++){
-    const bearing=j*Math.PI/4;
+  for(const radius of [3,3.6,4.2,5.4,6.6,7.8]){
+   for(let j=0;j<12;j++){
+    const bearing=j*Math.PI/6;
     const point=[citizen.x+Math.sin(bearing)*radius,
      citizen.z+Math.cos(bearing)*radius];
     if(!streetSafe(point[0],point[1]))continue;
+    const crop=streetCropSightline(point,citizen);
+    // For genuine field workers this may reject the tempting but misleading
+    // centre-of-wheat view. Never hide the grain to force a pretty screenshot.
+    if(crop.blockedSamples>0)continue;
     const crowd=streetCrowdVisibility(point,citizen);
     if(crowd.closestBystander<2.4||crowd.crowdIntrusions>0)continue;
     const eye=[point[0],terrain(point[0],point[1])+STREET_EYE,point[1]];
@@ -4988,36 +5016,51 @@ function planStreetWorkerEncounter(){
     const yawToCitizen=Math.atan2(citizen.x-point[0],citizen.z-point[1]);
     const visibility=streetVisibility(point[0],point[1],yawToCitizen);
     if(!visibility.openSky||visibility.forwardMetres<1.3)continue;
-    const importance=isWorkingAtSite(citizen)?35:
+    const activeWork=isWorkingAtSite(citizen);
+    const importance=activeWork?35:
      citizen.delivery?26:citizen.activity.startsWith('Traveling')?13:2;
     const distanceToVisitor=Math.hypot(point[0]-streetPosition[0],
      point[1]-streetPosition[1]);
     const score=importance+visibility.forwardMetres*1.25-
-     distanceToVisitor*.16-radius*.35;
-    if(!best||score>best.score){
-     best={citizen,position:point,yaw:yawToCitizen,score,
-      metres:radius,visibility,activeWork:isWorkingAtSite(citizen),
-      crowdIntrusions:crowd.crowdIntrusions,closestBystander:crowd.closestBystander};
-    }
+     distanceToVisitor*.16-radius*.55;
+    const candidate={citizen,position:point,yaw:yawToCitizen,score,
+      metres:radius,visibility,activeWork,cropBlockedSamples:crop.blockedSamples,
+      fieldSamples:crop.fieldSamples,crowdIntrusions:crowd.crowdIntrusions,
+      closestBystander:crowd.closestBystander};
+    if(!best||score>best.score)best=candidate;
+    if(citizen.name!==excludeName&&(!bestOther||score>bestOther.score))
+     bestOther=candidate;
    }
   }
  }
- return best;
+ return bestOther||best;
 }
 function visitStreetWorker(){
  if(!streetWalk)return {moved:false,reason:'Street view is not active'};
- const plan=planStreetWorkerEncounter();
+ const plan=planStreetWorkerEncounter(streetEncounterName);
  if(!plan){
-  showToast('No clear outdoor view of a villager at the moment');
-  return {moved:false,reason:'No visible outdoor citizen'};
+  showToast('No crop-clear outdoor view of a villager at the moment');
+  return {moved:false,reason:'No visually readable outdoor citizen'};
  }
- streetPosition=plan.position.slice();streetYaw=plan.yaw;streetTilt=0;
+ const previousCitizen=streetEncounterName;
+ streetPosition=plan.position.slice();streetYaw=plan.yaw;
+ // Human-height workday framing: aim at the real person's hands and chest,
+ // not level toward the horizon above the actual job.
+ const eyeHeight=terrain(...streetPosition)+STREET_EYE;
+ const workingHeight=terrain(plan.citizen.x,plan.citizen.z)+1.18;
+ streetTilt=Math.max(-.30,Math.min(.22,
+  Math.atan2(workingHeight-eyeHeight,plan.metres)));
  streetEncounterName=plan.citizen.name;streetBlocked=0;
+ const nextButton=document.getElementById('street-meet-worker');
+ nextButton.textContent='Next worker';
+ nextButton.setAttribute('aria-label','Meet the next real village worker from a crop-clear viewpoint');
  focusPoint=streetPosition.slice();streetCaption();presentationEpoch++;
  return {moved:true,realCitizen:true,citizen:plan.citizen.name,
-  job:plan.citizen.job,activity:plan.citizen.activity,activeWork:plan.activeWork,
-  metres:plan.metres,lineOfSight:true,visibility:plan.visibility,
-  crowdIntrusions:plan.crowdIntrusions,closestBystander:plan.closestBystander};
+  previousCitizen,job:plan.citizen.job,activity:plan.citizen.activity,
+  activeWork:plan.activeWork,metres:plan.metres,lineOfSight:true,
+  visibility:plan.visibility,cropBlockedSamples:plan.cropBlockedSamples,
+  fieldSamples:plan.fieldSamples,crowdIntrusions:plan.crowdIntrusions,
+  closestBystander:plan.closestBystander};
 }
 function setStreetWalk(enabled){
  const next=Boolean(enabled);
@@ -5030,9 +5073,13 @@ function setStreetWalk(enabled){
   if(!arrival){streetPrior=null;showToast('No clear outdoor street route yet');return getStreetWalkState();}
   streetPosition=arrival.position;streetYaw=arrival.angle;streetTilt=0;
   streetDistance=0;streetBlocked=0;streetEncounterName=null;cinematic=false;streetWalk=true;
+  const meet=document.getElementById('street-meet-worker');
+  meet.textContent='Meet worker';
+  meet.setAttribute('aria-label','Meet a real nearby working villager from a clear street viewpoint');
   setCommandView('world','user');
  }else{
   streetWalk=false;streetHeld.clear();streetEncounterName=null;
+  document.getElementById('street-meet-worker').textContent='Meet worker';
   if(streetPrior){yaw=streetPrior.yaw;pitch=streetPrior.pitch;zoom=streetPrior.zoom;focusPoint=streetPrior.focus.slice();}
   streetPrior=null;
  }
