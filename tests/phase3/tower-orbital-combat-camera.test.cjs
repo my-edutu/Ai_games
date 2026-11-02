@@ -164,3 +164,15 @@ test('a wide jump blends the actual route focus around the tower rather than thr
   assert.ok(one.z < -24.9 && Math.abs(one.x) < .01, 'seam follows the short arc');
   assert.ok(Math.abs(one.y - 5.5) < 1e-8);
 });
+
+test('existing nearby source-led ascent retains proven camera screen-space composition', async () => {
+  const { context } = await loaded;
+  const stage = { x: 0, y: 7, z: 25 };
+  const waypoint = { x: 8, y: 12, z: 23.5 };
+  context.blendTowerStageFocus(stage, waypoint, .38);
+  assert.ok(Math.abs(stage.x - 3.04) < 1e-9);
+  assert.ok(Math.abs(stage.z - (25 + (23.5 - 25) * .38)) < 1e-9);
+  assert.ok(Math.abs(stage.y - 8.9) < 1e-9);
+  // Prior actual native-camera geometry regression tests protect the nearby
+  // glyph and hero. This pure assertion must not be treated as a visual win.
+});
