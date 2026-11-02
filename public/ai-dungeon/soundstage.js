@@ -19,6 +19,7 @@ const CUES=Object.freeze({
   unseal:    {hz:147,end:587,length:.72,peak:.105,type:'triangle'},
  warning:   {hz:142,end:81,length:.66,peak:.125,type:'sawtooth'},
  boss:      {hz:88,end:51,length:.64,peak:.13,type:'sawtooth'},
+ 'boss-fall':{hz:174,end:330,length:.88,peak:.105,type:'triangle'},
  opening:   {hz:260,end:118,length:.40,peak:.09,type:'triangle'},
  danger:    {hz:118,end:74,length:.43,peak:.10,type:'triangle'},
  breach:    {hz:106,end:42,length:.42,peak:.115,type:'sawtooth'},
@@ -39,7 +40,7 @@ const CUES=Object.freeze({
  footstep:  {hz:112,end:54,length:.10,peak:.041,type:'triangle'}
 });
 const PER_KIND_COOLDOWN=Object.freeze({
- weapon:.065,impact:.065,warning:.25,boss:.22,opening:.35,breach:.20,cover:.24,'cover-impact':.25,reward:.20,guard:.13,footstep:.16
+ weapon:.065,impact:.065,warning:.25,boss:.22,'boss-fall':.7,opening:.35,breach:.20,cover:.24,'cover-impact':.25,reward:.20,guard:.13,footstep:.16
 });
 const safe=(v,min,max,fallback)=>Number.isFinite(v)?Math.max(min,Math.min(max,v)):fallback;
 const stopAndDisconnect=voice=>{

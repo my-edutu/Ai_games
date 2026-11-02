@@ -12,7 +12,7 @@ const EVENT_KIND=Object.freeze({
 });
 const PRIORITY=Object.freeze({
  defeat:6,renewal:5,transition:5,warning:5,unseal:5,boss:4,danger:4,
- opening:4,breach:4,cover:4,'cover-impact':5,impact:3,weapon:3,ranged:3,magic:3,heal:3,kill:3,
+ opening:4,breach:4,cover:4,'cover-impact':5,'boss-fall':5,impact:3,weapon:3,ranged:3,magic:3,heal:3,kill:3,
  reward:2,trap:2,disarm:2,guard:1,block:1,evade:1
 });
 const finite=(n,defaultValue=0)=>Number.isFinite(n)?n:defaultValue;
@@ -68,8 +68,14 @@ export function planSoundCues(previous,snapshot,resolveContact=()=>null){
   for(const e of events){
    if(!e||!Number.isSafeInteger(e.tick)||e.tick<=previous.tick||e.tick>snapshot.tick)continue;
    // A floor label in the recent event log is not itself a new floor.
-   const kind=EVENT_KIND[e.kind];
-   if(kind)push(kind,e.tick);
+   // Only the real authoritative kill of a Warden earns the boss resolution.
+   // Ordinary mobs do not get a false triumph or duplicated kill cue.
+   if(e.kind==='kill'&&typeof e.text==='string'&&e.text.startsWith('WARDEN DEFEATED'))
+    push('boss-fall',e.tick);
+   else {
+    const kind=EVENT_KIND[e.kind];
+    if(kind)push(kind,e.tick);
+   }
    if(e.kind==='cover'&&typeof e.text==='string'&&e.text.startsWith('Ashen Vanguard intercepted ')){
     const older=Array.isArray(previous.units)?previous.units.find(u=>u.id==='vanguard'):null;
     const newer=snapshot.units.find(u=>u.id==='vanguard');

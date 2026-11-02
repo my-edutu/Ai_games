@@ -137,3 +137,17 @@ test('a real current-tick costly cover gets distinct original metal audio, never
  assert.equal(planSoundCues(before,{...after,events:[{...hit,text:'ASHEN VANGUARD · COVERING RANGER'}]}).some(c=>c.kind==='cover-impact'),false);
  assert.deepEqual(planSoundCues(after,after),[]);
 });
+
+test('actual Warden death uniquely earns an original audio resolution, not a generic enemy cue',async()=>{
+ const {planSoundCues}=await plan(),before=snap(24);
+ const boss=snap(25,{events:[{tick:25,kind:'kill',text:'WARDEN DEFEATED · +12 gold'}]});
+ const cues=planSoundCues(before,boss);
+ assert.equal(cues.filter(c=>c.kind==='boss-fall').length,1);
+ assert.equal(cues.some(c=>c.kind==='kill'),false);
+ assert.ok(cues.find(c=>c.kind==='boss-fall').priority>3);
+ assert.deepEqual(planSoundCues(boss,boss),[],'repeated polling never replays a death');
+ const mob=snap(25,{events:[{tick:25,kind:'kill',text:'Enemy defeated · +12 gold'}]});
+ assert.equal(planSoundCues(before,mob).some(c=>c.kind==='boss-fall'),false);
+ const source=fs.readFileSync(path.join(root,'public/ai-dungeon/soundstage.js'),'utf8');
+ assert.match(source,/'boss-fall':\{hz:/);
+});
