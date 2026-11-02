@@ -42,9 +42,14 @@ export function planLegibleWallMass(map,floor,vaultedSites=[]){
   // Stage real traversed rooms as a low-ruin foreground against distant
   // continuous masonry. Visual heights never change solid grid occupancy.
   if(!p.exposedFaces)return 1.76+(value%3)*.08;
-  if(value%19===0)return 1.90; // rare full-height buttress landmarks
-  // Lower junction walls to expose real attacks, foot contact and floor tells.
-  return p.exposedFaces>=2?[.84,.94,1.03,1.12][value%4]:
-   [1.04,1.13,1.22,1.30][value%4];
+  // Intact single-front piers hold genuinely high stained-glass windows,
+  // mounted torches and fractured coping. They establish vertical Gothic rhythm
+  // without re-closing the broad fighting and travel vistas between them.
+  if(p.exposedFaces===1&&value%5===0)return 1.82+(value%3)*.08;
+  // Keep junctions physically low, but high enough for chipped masonry
+  // to remain anchored on real wall material rather than floating in space.
+  // Authority and collision still see exactly the original solid cells.
+  return p.exposedFaces>=2?[1.18,1.24,1.31,1.36][value%4]:
+   [1.29,1.36,1.44,1.52][value%4];
  });
 }
