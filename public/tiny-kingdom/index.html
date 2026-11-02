@@ -5384,6 +5384,9 @@ let yaw=.7,pitch=.88,zoom=43,focusPoint=[0,0],dragging=false,lastX,lastY,screenT
 const STREET_EYE=1.68;
 let streetWalk=false,streetPosition=[4.2,7.7],streetYaw=0,streetTilt=0;
 let streetPrior=null,streetDistance=0,streetBlocked=0,streetEncounterName=null;
+// A workday inspection is a cinematic camera, NOT a teleporting citizen.
+// Walking immediately returns to an honest 1.68m pedestrian eye height.
+let streetEyeHeight=STREET_EYE,streetPerspective='street';
 const streetHeld=new Set();
 // G114: photographed G113 gameplay put the visitor inside a physical textile
 // canopy. Authoritative citizen navigation intentionally ignores decorative
@@ -5501,7 +5504,7 @@ document.body.dataset.street='off';
 function streetSafe(x,z){const r=.22;return walkable(x,z)&&walkable(x-r,z-r)&&walkable(x+r,z-r)&&walkable(x-r,z+r)&&walkable(x+r,z+r)&&streetHeadroomBlockers(x,z)===0}
 function getStreetWalkState(){
  const nearest=people.map(p=>({p,d:Math.hypot(p.x-streetPosition[0],p.z-streetPosition[1])})).sort((a,b)=>a.d-b.d||a.p.name.localeCompare(b.p.name))[0];
- return {active:streetWalk,position:streetPosition.slice(),eye:[streetPosition[0],terrain(...streetPosition)+STREET_EYE,streetPosition[1]],height:STREET_EYE,yaw:streetYaw,tilt:streetTilt,visibility:streetVisibility(streetPosition[0],streetPosition[1],streetYaw),distanceTravelled:streetDistance,blockedMoves:streetBlocked,nearestCitizen:nearest?{name:nearest.p.name,activity:nearest.p.activity,job:nearest.p.job,metres:Math.round(nearest.d*10)/10}:null};
+ return {active:streetWalk,position:streetPosition.slice(),eye:[streetPosition[0],terrain(...streetPosition)+streetEyeHeight,streetPosition[1]],height:streetEyeHeight,perspective:streetPerspective,yaw:streetYaw,tilt:streetTilt,visibility:streetVisibility(streetPosition[0],streetPosition[1],streetYaw),distanceTravelled:streetDistance,blockedMoves:streetBlocked,nearestCitizen:nearest?{name:nearest.p.name,activity:nearest.p.activity,job:nearest.p.job,metres:Math.round(nearest.d*10)/10}:null};
 }
 function streetCaption(){
  if(!streetWalk)return;
@@ -5511,7 +5514,7 @@ function streetCaption(){
  const n=witnessDistance<=9&&witness?
   {name:witness.name,job:witness.job,activity:witness.activity,metres:witnessDistance}:
   getStreetWalkState().nearestCitizen;
- const text=n&&n.metres<9?n.name+' · '+n.job+' · '+n.activity:
+ const text=n&&n.metres<9?(streetPerspective==='workday'?'Workday · ':'')+n.name+' · '+n.job+' · '+n.activity:
   'Village streets · meet the people who work here';
  const node=document.getElementById('street-walk-status');
  if(node.textContent!==text)node.textContent=text;
@@ -5543,10 +5546,10 @@ function streetCrowdVisibility(position,citizen){
  * footprints and their season-dependent stalk height before choosing a shot.
  * Crops remain rendered, workers remain autonomous, and no RNG is consumed.
  * This witness probes worksite legibility without altering any world data. */
-function streetCropSightline(position,citizen){
+function streetCropSightline(position,citizen,eyeHeight=STREET_EYE){
  const season=climateAt(state.t).season;
  const cropTop=season===3?.36:season===0?.89:season===1?1.50:1.38;
- const a=[position[0],terrain(position[0],position[1])+STREET_EYE,position[1]];
+ const a=[position[0],terrain(position[0],position[1])+eyeHeight,position[1]];
  const b=[citizen.x,terrain(citizen.x,citizen.z)+.90,citizen.z];
  let blockedSamples=0,fieldSamples=0;
  for(let step=1;step<=17;step++){
@@ -5564,6 +5567,54 @@ function streetCropSightline(position,citizen){
 // can be changed here. Prefer active labor, then deliveries and real travel.
 // A second interaction reveals another real person's work instead of looping
 // back to the same cinematic screenshot.
+// G132: when a mature town has no pedestrian front view, inspect REAL work
+// from an elevated but roof-clear documentary camera. The worker and all
+// buildings remain physically rendered; no props, paths or economy are faked.
+// Never confuse this cinematic lens with the player's 1.68m walkable route.
+function planDocumentaryWorkerEncounter(sorted,excludeName){
+ let best=null,frontCount=0,considered=0;
+ for(const citizen of sorted){
+  if(!isWorkingAtSite(citizen)||citizen.name===excludeName)continue;
+  if(considered++>=10)break; // bounded workday camera search
+  const shot=planCitizenCamera(citizen,builderStageAngle(citizen),true);
+  if(!shot||shot.blockers!==0||shot.blockedBodyRays>1||
+    shot.cameraProximityWarnings>0||shot.projectedWorksitePosts>0||
+    shot.projectedBystanders>0)continue;
+  const position=[shot.eye[0],shot.eye[2]];
+  // A documentary camera may be taller, but its foot position must not be
+  // inside a real building, cloth canopy or impassable route.
+  if(!streetSafe(...position))continue;
+  const height=shot.eye[1]-terrain(...position);
+  const distance=Math.hypot(citizen.x-position[0],citizen.z-position[1]);
+  if(height<STREET_EYE||height>4.1||distance<1.5||distance>7.9)continue;
+  const angle=Math.atan2(citizen.x-position[0],citizen.z-position[1]);
+  const visibility=streetVisibility(position[0],position[1],angle);
+  if(!visibility.openSky||visibility.forwardMetres<1.3)continue;
+  const crop=streetCropSightline(position,citizen,height);
+  if(crop.blockedSamples)continue;
+  const crowd=streetCrowdVisibility(position,citizen);
+  if(crowd.closestBystander<2.4||crowd.crowdIntrusions)continue;
+  const facingAlignment=Math.cos(shot.yaw-builderStageAngle(citizen));
+  if(facingAlignment<-.35)continue;
+  if(facingAlignment>.12)frontCount++;
+  const visitorDistance=Math.hypot(position[0]-streetPosition[0],
+    position[1]-streetPosition[1]);
+  const score=40+facingAlignment*20-shot.compositionScore*.04-
+    visitorDistance*.10-shot.frameCrowdBurden*25;
+  const choice={citizen,position,yaw:angle,score,metres:distance,
+   visibility,activeWork:true,cropBlockedSamples:crop.blockedSamples,
+   fieldSamples:crop.fieldSamples,crowdIntrusions:crowd.crowdIntrusions,
+   closestBystander:crowd.closestBystander,
+   projectedBystanders:shot.projectedBystanders,
+   projectedPosts:shot.projectedPosts,
+   projectedWorksitePosts:shot.projectedWorksitePosts,
+   frameCrowdBurden:shot.frameCrowdBurden,facingAlignment,
+   frontFacing:facingAlignment>.12,eyeHeight:height,eye:shot.eye.slice(),
+   targetY:shot.target[1],perspective:'workday'};
+  if(!best||score>best.score)best=choice;
+ }
+ return best?{...best,frontCandidateCount:frontCount}:null;
+}
 function planStreetWorkerEncounter(excludeName=null){
  const roofs=streetRoofs();
  const sorted=people.slice().sort((a,b)=>
@@ -5636,9 +5687,23 @@ function planStreetWorkerEncounter(excludeName=null){
    }
   }
  }
- const chosen=bestFrontOther||bestOther||bestFront||best;
- return chosen?{...chosen,frontCandidateCount,
-  frontPreferred:Boolean(chosen.frontFacing&&frontCandidateCount>0)}:null;
+ const streetChoice=bestFrontOther||bestOther||bestFront||best;
+ // No clear front in the real G131 Day-120 city: try a genuinely roof-clear
+ // worksite camera before falling back to another unreadable rear portrait.
+ const documentary=(!bestFrontOther&&
+   (!streetChoice||streetChoice.facingAlignment<-.45||
+    streetChoice.projectedWorksitePosts>0))?
+    planDocumentaryWorkerEncounter(sorted,excludeName):null;
+ const chosen=documentary&&(!streetChoice||
+   documentary.facingAlignment>streetChoice.facingAlignment+.25)?
+   documentary:streetChoice;
+ const visibleFrontCount=frontCandidateCount+(documentary?.frontFacing?1:0);
+ return chosen?{...chosen,frontCandidateCount:visibleFrontCount,
+  frontPreferred:Boolean(chosen.frontFacing&&visibleFrontCount>0),
+  perspective:chosen.perspective||'street',
+  eye:chosen.eye||[chosen.position[0],
+   terrain(...chosen.position)+STREET_EYE,chosen.position[1]],
+  eyeHeight:chosen.eyeHeight||STREET_EYE}:null;
 }
 function visitStreetWorker(){
  if(!streetWalk)return {moved:false,reason:'Street view is not active'};
@@ -5649,11 +5714,12 @@ function visitStreetWorker(){
  }
  const previousCitizen=streetEncounterName;
  streetPosition=plan.position.slice();streetYaw=plan.yaw;
- // Human-height workday framing: aim at the real person's hands and chest,
- // not level toward the horizon above the actual job.
- const eyeHeight=terrain(...streetPosition)+STREET_EYE;
- const workingHeight=terrain(plan.citizen.x,plan.citizen.z)+1.18;
- streetTilt=Math.max(-.30,Math.min(.22,
+ streetEyeHeight=plan.eyeHeight||STREET_EYE;
+ streetPerspective=plan.perspective||'street';
+ // Frame the genuine wrists and workbench, not a rear close-up or a roof.
+ const eyeHeight=terrain(...streetPosition)+streetEyeHeight;
+ const workingHeight=plan.targetY??terrain(plan.citizen.x,plan.citizen.z)+1.18;
+ streetTilt=Math.max(-.55,Math.min(.35,
   Math.atan2(workingHeight-eyeHeight,plan.metres)));
  streetEncounterName=plan.citizen.name;streetBlocked=0;
  const nextButton=document.getElementById('street-meet-worker');
@@ -5671,7 +5737,8 @@ function visitStreetWorker(){
   projectedWorksitePosts:plan.projectedWorksitePosts,
   frameCrowdBurden:plan.frameCrowdBurden,
   facingAlignment:plan.facingAlignment,frontCandidateCount:plan.frontCandidateCount,
-  frontPreferred:plan.frontPreferred};
+  frontPreferred:plan.frontPreferred,perspective:streetPerspective,
+  eye:[streetPosition[0],eyeHeight,streetPosition[1]]};
 }
 function setStreetWalk(enabled){
  const next=Boolean(enabled);
@@ -5684,12 +5751,14 @@ function setStreetWalk(enabled){
   if(!arrival){streetPrior=null;showToast('No clear outdoor street route yet');return getStreetWalkState();}
   streetPosition=arrival.position;streetYaw=arrival.angle;streetTilt=0;
   streetDistance=0;streetBlocked=0;streetEncounterName=null;cinematic=false;streetWalk=true;
+  streetEyeHeight=STREET_EYE;streetPerspective='street';
   const meet=document.getElementById('street-meet-worker');
   meet.textContent='Meet worker';
   meet.setAttribute('aria-label','Meet a real nearby working villager from a clear street viewpoint');
   setCommandView('world','user');
  }else{
   streetWalk=false;streetHeld.clear();streetEncounterName=null;
+  streetEyeHeight=STREET_EYE;streetPerspective='street';
   document.getElementById('street-meet-worker').textContent='Meet worker';
   if(streetPrior){yaw=streetPrior.yaw;pitch=streetPrior.pitch;zoom=streetPrior.zoom;focusPoint=streetPrior.focus.slice();}
   streetPrior=null;
@@ -5704,7 +5773,7 @@ function advanceStreetWalk(dt){
  if(!streetWalk)return getStreetWalkState();
  // Building growth can occupy an old scenic route without altering the AI.
  // Relocate only the spectator when a newly built wall encloses the camera.
- if(!streetSafe(...streetPosition)){
+ if(streetPerspective==='street'&&!streetSafe(...streetPosition)){
   const open=streetArrival();
   if(open){streetPosition=open.position;streetYaw=open.angle;presentationEpoch++;}
   else {setStreetWalk(false);return getStreetWalkState();}
@@ -5715,6 +5784,15 @@ function advanceStreetWalk(dt){
  const z=Number(streetHeld.has('w')||streetHeld.has('arrowup'))-Number(streetHeld.has('s')||streetHeld.has('arrowdown'));
  const magnitude=Math.hypot(x,z);
  if(magnitude>0&&t>0){
+  // Returning to walking must never leave a free-flying workday camera.
+  if(streetPerspective==='workday'){
+   streetEyeHeight=STREET_EYE;streetPerspective='street';
+   if(!streetSafe(...streetPosition)){
+    const open=streetArrival();
+    if(open){streetPosition=open.position;streetYaw=open.angle;}
+    else {setStreetWalk(false);return getStreetWalkState();}
+   }
+  }
   const dx=2.9*t*(Math.sin(streetYaw)*z+Math.cos(streetYaw)*x)/magnitude;
   const dz=2.9*t*(Math.cos(streetYaw)*z-Math.sin(streetYaw)*x)/magnitude;
   // Per-axis guarded translation lets the visitor slide past solid houses.
@@ -5926,10 +6004,10 @@ function cameraShotFraming(shot,roofs,citizen){
   blockedNeighbourhoodRays:countBlocked(surroundings),cameraProximityWarnings,
   ...projectedWorkdayOccluders(eye,target,citizen)};
 }
-function planCitizenCamera(citizen,preferredYaw=yaw){
+function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const target=[citizen.x,terrain(citizen.x,citizen.z)+1.02,citizen.z],
   roofs=followCameraRoofs(),
-  working=Boolean(liveWorkday||(document.body.dataset.workday==='delivery'&&citizen.delivery)),
+  working=Boolean(forceWorkday||liveWorkday||(document.body.dataset.workday==='delivery'&&citizen.delivery)),
   unloading=Boolean(document.body.dataset.workday==='delivery'&&citizen.delivery?.stage==='unloading'),
   // G109: live labor fills more of the frame; courier bay lens unchanged.
   normalPitch=working?(actionCameraPitch??(liveWorkday?.20:.24)):.76,
@@ -5965,10 +6043,13 @@ function planCitizenCamera(citizen,preferredYaw=yaw){
   const score=coarse+framing.blockedBodyRays*110+
    framing.blockedNeighbourhoodRays*12+framing.cameraProximityWarnings*42+
    framing.projectedBystanders*170+framing.projectedPosts*55+
-   framing.projectedWorksitePosts*100+framing.frameCrowdBurden*65;
+   framing.projectedWorksitePosts*100+framing.frameCrowdBurden*65+
+   (forceWorkday&&isWorkingAtSite(citizen)?
+    Math.max(0,.24-Math.cos(shot.yaw-builderStageAngle(citizen)))*240:0);
   if(score<bestScore){best=shot;bestScore=score;bestFraming=framing;}
  }
  return {...best,...bestFraming,compositionScore:bestScore,
+  facingAlignment:Math.cos(best.yaw-builderStageAngle(citizen)),
   originalBlockers:original.blockers};
 }
 function updateFollowCamera(preferredYaw=previousFollowCamera?.yaw??yaw){
@@ -6539,7 +6620,7 @@ for(let i=0;i<people.length;i++){
 }
 currentMaterial=MATERIAL.GENERAL;weatherParticles(atmosphere);const frameSubmitStart=performance.now();
 const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,focusHeight=follow?terrain(focusPoint[0],focusPoint[1])+1.02:.25;
- const eye=streetWalk?[streetPosition[0],terrain(...streetPosition)+STREET_EYE,streetPosition[1]]:[focusPoint[0]+Math.sin(yaw)*rad,elevation+focusHeight,focusPoint[1]+Math.cos(yaw)*rad];
+ const eye=streetWalk?[streetPosition[0],terrain(...streetPosition)+streetEyeHeight,streetPosition[1]]:[focusPoint[0]+Math.sin(yaw)*rad,elevation+focusHeight,focusPoint[1]+Math.cos(yaw)*rad];
  const cameraTarget=streetWalk?[eye[0]+Math.sin(streetYaw)*8,eye[1]+Math.sin(streetTilt)*8,eye[2]+Math.cos(streetYaw)*8]:[focusPoint[0],focusHeight,focusPoint[1]];
  let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,cameraTarget,[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);const radiance=lightingProfile(state.t);gl.uniform1f(uniforms.sunStrength,radiance.solar);gl.uniform1f(uniforms.ambientBlend,radiance.ambientBlend);gl.uniform1f(uniforms.worldTime,state.t);gl.uniform1f(uniforms.weatherWetness,climateMaterialProfile(state.t).precipitation);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));const activeLight=observedWorkLightProfile();gl.uniform3f(uniforms.workLightPosition,activeLight.x,activeLight.y,activeLight.z);gl.uniform1f(uniforms.workLightStrength,activeLight.strength);lastFrameTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.length+data.length:data.length)/30;
 if(gpuAvailable){
