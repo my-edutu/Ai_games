@@ -33,7 +33,12 @@ export function gateRetractionPose(elapsed, reducedMotion = false) {
   if (reducedMotion || !Number.isFinite(elapsed))
     return { visible: false, raise: 1.55, scaleY: 0.005 };
   const progress = Math.max(0, Math.min(1, elapsed / GATE_RETRACTION_SECONDS));
-  const eased = 1 - (1 - progress) ** 3;
+  // A massive counterweight starts under tension, then gathers speed.
+  // Cubic ease-out made the grille visually disappear in the authentic
+  // 0.595s WebGL mid-lift frame even though the model was still animating.
+  // A deliberate accelerating rise retains full-height readable bars at
+  // the actual opening moment, then clears the authoritative open path.
+  const eased = progress * progress;
   return {
     visible: progress < 1,
     raise: 1.55 * eased,

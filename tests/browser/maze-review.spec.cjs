@@ -713,13 +713,16 @@ test('a real close public encounter frames both autonomous actors and saves date
       retractingPublicGates:midGateDiagnostic.world.retractingPublicGates},
     afterCapture:{ageSeconds:midGateAfterScreenshot.publicOpeningCameraBeat?.ageSeconds??null,
       frames:midGateAfterScreenshot.frames,
-      retractingPublicGates:midGateAfterScreenshot.world.retractingPublicGates},
+      retractingPublicGates:midGateAfterScreenshot.world.retractingPublicGates,
+      movingGateMinBarsHeightRatio:midGateAfterScreenshot.world.movingGateMinBarsHeightRatio},
     verdict:(midGateAfterScreenshot.world.retractingPublicGates>0
       &&!!midGateAfterScreenshot.publicOpeningCameraBeat)?'candidate':'rejected',
     caveat:'Original source WebGL, SwiftShader CPU-throttled; not a Nintendo quality or hardware GPU win.'
   },null,2));
   expect(midGateAfterScreenshot.world.retractingPublicGates,
     'the actual screenshot must still contain moving 3D gate hardware').toBeGreaterThan(0);
+  expect(midGateAfterScreenshot.world.movingGateMinBarsHeightRatio,
+    'one active gate is insufficient: the real WebGL screenshot must show materially tall moving 3D bars').toBeGreaterThan(.30);
   expect(midGateAfterScreenshot.publicOpeningCameraBeat,
     'the original open gate must still be the gameplay camera subject').toBeTruthy();
   const afterGateDiagnostic=await page.evaluate(()=>window.__MAZE_3D__);

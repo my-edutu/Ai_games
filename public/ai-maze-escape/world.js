@@ -909,7 +909,13 @@ export function createMazeWorld(options = {}) {
   function stats() {
     let meshes = 0, instances = 0;
     group.traverse(item => { if (item.isMesh) meshes++; if (item.isInstancedMesh) instances += item.count; });
-    return { renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), coastalGardens, wallGardens, tidalObservatories, retractingPublicGates: retractingGates.size, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
+    // Read the ACTUAL 3D grille scale, not just the number of active doors:
+    // a 2%-height gate technically animates but disappears in a gameplay PNG.
+    // Only modeled and publicly disclosed opening hardware is considered.
+    const visibleGateBars = [...retractingGates.values()].filter(gate => gate.visible);
+    const movingGateMinBarsHeightRatio = visibleGateBars.length
+      ? Math.min(...visibleGateBars.map(gate => gate.scale.y)) : 0;
+    return { renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), coastalGardens, wallGardens, tidalObservatories, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
   }
   return { group, update, animate, dispose, stats, matchingPublicSocket };
 }

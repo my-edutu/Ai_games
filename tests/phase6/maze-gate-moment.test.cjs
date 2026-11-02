@@ -52,6 +52,17 @@ test('render-only portcullis retracts upwards, completes and respects reduced mo
   assert.equal(midway.visible, true);
   assert.ok(midway.raise > 0 && midway.raise < 1.55);
   assert.ok(midway.scaleY > 0 && midway.scaleY < 1);
+  // Our source-hashed real 1280px Pass66 screenshot was captured at 0.595s:
+  // the previous cubic ease-out left ~2.7% bars, visually an empty arch.
+  // Preserve a physically legible intermediate grille under the same
+  // genuine game event and unchanged 0.85s completion/accessibility rules.
+  const realScreenshotAge = gateRetractionPose(.595);
+  assert.ok(realScreenshotAge.scaleY > .48,
+    'a real mid-lift capture must retain substantial moving metal');
+  assert.ok(realScreenshotAge.raise < .81,
+    'the counterweighted gate is actually in transit, not almost settled');
+  assert.ok(gateRetractionPose(.3).scaleY > realScreenshotAge.scaleY,
+    'the rising grille must move monotonically without a fake second event');
   assert.equal(end.visible, false);
   assert.equal(gateRetractionPose(GATE_RETRACTION_SECONDS + 5).visible, false);
   assert.equal(gateRetractionPose(.01, true).visible, false);
