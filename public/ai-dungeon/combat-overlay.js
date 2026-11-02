@@ -79,6 +79,11 @@ export function createCombatOverlay(canvas){
   let drawCount=0;
   const living=s.units.filter(u=>u.hp>0),heroes=living.filter(u=>u.faction==='party');
   for(const u of living){
+   // The fixed accessible boss strip already reports this ACTUAL Warden's
+   // identity, HP, ward and phase. A duplicate floating nameplate covered
+   // the boss's crown AND the strike lane on real desktop/mobile captures.
+   // Keep world-anchored names for ordinary foes and the living party.
+   if(u.kind==='warden')continue;
    const a=actors.get(u.id);if(!a||!a.root.visible)continue;
    const range=Math.min(...heroes.map(h=>Math.abs(h.x-u.x)+Math.abs(h.z-u.z)));
    const nearby=u.faction==='party'||range<=6;

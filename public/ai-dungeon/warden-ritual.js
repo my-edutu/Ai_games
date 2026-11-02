@@ -24,10 +24,10 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
  const plinths=[];
  for(let i=0;i<6;i++){
   const angle=i*Math.PI/3+.18,pylon=new THREE.Group();
-  pylon.name='Ritual plinth '+i;pylon.position.set(Math.cos(angle)*1.68,0,Math.sin(angle)*1.68);pylon.rotation.y=-angle;
-  put(pylon,plinth,stone,0,.12,0);put(pylon,column,metal,0,.61,0);
-  put(pylon,crest,stone,0,1.13,0).rotation.z=i%2?-.06:.06;
-  put(pylon,emblem,glyph,0,.73,-.128,.7,.7,.7).rotation.y=Math.PI/2;fixedCourt.add(pylon);plinths.push(pylon);
+  pylon.name='Ritual plinth '+i;pylon.position.set(Math.cos(angle)*2.50,0,Math.sin(angle)*2.50);pylon.rotation.y=-angle;
+  put(pylon,plinth,stone,0,.12,0);put(pylon,column,metal,0,.49,0,1,.72,1);
+  put(pylon,crest,stone,0,.85,0).rotation.z=i%2?-.06:.06;
+  put(pylon,emblem,glyph,0,.53,-.128,.7,.7,.7).rotation.y=Math.PI/2;fixedCourt.add(pylon);plinths.push(pylon);
  }
  // Original low-profile sculpted basalt court: a visually continuous combat
  // stage that remains beneath feet. Unlike towering copies of corridor props,

@@ -6,6 +6,7 @@ import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-mot
 import {planSkinnedDefeatPose} from '/dungeon/impact-choreography-plan.js';
 import {planCombatPerformanceBeat} from '/dungeon/combat-performance-plan.js';
 import {planWardenRegalia} from '/dungeon/warden-regalia-plan.js';
+import {WARDEN_STAGE_PROFILE} from '/dungeon/warden-regalia-plan.js';
 import {planWardenRegaliaMotion} from '/dungeon/warden-chapter-plan.js';
 import {planRoleSilhouette} from '/dungeon/role-silhouette-plan.js';
 import {planAnatomicalKit,planAnatomicalDrawGroups} from '/dungeon/anatomical-kit-plan.js';
@@ -618,7 +619,7 @@ function attachCharacter(actor){
   const bounds=new THREE.Box3().setFromObject(instance),size=new THREE.Vector3(),center=new THREE.Vector3();
   bounds.getSize(size);bounds.getCenter(center);
   if(Number.isFinite(size.y)&&size.y>.05&&size.y<1000){
-   const targetHeight=isBoss?2.05:1.82;
+   const targetHeight=isBoss?WARDEN_STAGE_PROFILE.sourceHeight:1.82;
    const sourceScale=Math.max(.08,Math.min(12,targetHeight/size.y));
    const body=planAuthoredBodyShape(actor.u.kind);
    const fitX=sourceScale*(body?.width??1),fitZ=sourceScale*(body?.depth??1);

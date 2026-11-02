@@ -42,8 +42,8 @@ export function planWardenExposurePose(recovery,guardianWard=false,warning=false
  // shoulders instead of a standing giant swallowing the hero silhouette.
  // The root remains on the legal floor, and reduced-motion holds this static
  // posture without time-varying sway or fictitious damage.
- return Object.freeze({weight,dip:.20*weight,torsoPitch:.28*weight,
-  shoulderPitch:.28*weight,shoulderRoll:.27*weight});
+ return Object.freeze({weight,dip:.27*weight,torsoPitch:.39*weight,
+  shoulderPitch:.34*weight,shoulderRoll:.31*weight});
 }
 export function planWardenRegaliaMotion(id,phase='SENTINEL',charge=0,reducedMotion=false,exposure=0){
  const stage=Object.hasOwn(phaseOpen,phase)?phaseOpen[phase]:0;

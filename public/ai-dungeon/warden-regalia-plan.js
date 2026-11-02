@@ -6,19 +6,25 @@
  * layer supplies detailed anatomy: do not compete with it using inflated orbs.
  * Cosmetic, bounded, seeded-state independent and original; never a hitbox.
  */
+// One shared model-to-world scale for the REAL imported boss, fallback rig,
+// authored crown, telegraph and collision-neutral cinematic staging. Previous
+// 1.55 x 2.05 m created a 3.18 m toy giant hiding the live Vanguard at contact.
+// A 2.67 m imposing enemy still towers over the 1.82 m human protagonists,
+// while allowing a believable paired duel. Pure presentation; no hitboxes.
+export const WARDEN_STAGE_PROFILE=Object.freeze({worldScale:1.16,sourceHeight:2.30});
 const piece=(id,shape,finish,x,y,z,sx,sy,sz,rz=0)=>Object.freeze({id,shape,finish,x,y,z,sx,sy,sz,rz});
 const horn=(id,side)=>Object.freeze({id,shape:'horn',finish:'bone',points:Object.freeze([
  Object.freeze([side*.25,1.69,.05]),
- Object.freeze([side*.41,1.88,.10]),
- Object.freeze([side*.56,2.07,.08]),
- Object.freeze([side*(side<0?.60:.68),2.25,.11])
+ Object.freeze([side*.36,1.88,.11]),
+ Object.freeze([side*.46,2.05,.16]),
+ Object.freeze([side*.52,2.23,.22])
 ])});
 const REGALIA=Object.freeze([
  horn('left-horn',-1),horn('right-horn',1),
  // Shoulder armour stays within the readable human silhouette instead of
  // obscuring adjacent heroes, weapon contact and the Warden's head.
- piece('left-pauldron','plate','iron',-.43,1.45,.015,.47,.27,.42,-.20),
- piece('right-pauldron','plate','iron',.43,1.45,.015,.47,.27,.42,.20),
+ piece('left-pauldron','plate','iron',-.40,1.45,.015,.39,.24,.38,-.20),
+ piece('right-pauldron','plate','iron',.40,1.45,.015,.39,.24,.38,.20),
  piece('left-rim','plate','brass',-.47,1.51,-.165,.32,.09,.29,-.19),
  piece('right-rim','plate','brass',.47,1.51,-.165,.32,.09,.29,.19),
  piece('left-talon','spike','bone',-.59,1.62,.075,.12,.31,.13,-.39),

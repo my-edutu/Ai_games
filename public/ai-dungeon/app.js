@@ -27,6 +27,7 @@ import {planCombatStage,stagePoint,MAX_STAGE_OFFSET} from '/dungeon/combat-stagi
 import {createDungeonSoundstage} from '/dungeon/soundstage.js';
 import {createWardenRitual} from '/dungeon/warden-ritual.js';
 import {planWardenExposurePose} from '/dungeon/warden-chapter-plan.js';
+import {WARDEN_STAGE_PROFILE} from '/dungeon/warden-regalia-plan.js';
 import {planWorldStoryStage} from '/dungeon/world-story-stage-plan.js';
 import {addContactProjection} from '/dungeon/contact-projection.js';
 import {createLivingWorld} from '/dungeon/living-world.js';
@@ -518,7 +519,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
  world.userData.authoredProps=putEnvironment(world,worldFloor,s.map);
 }
 function rig(u){const colors=palette[u.kind],main=mat(colors[0],.5,.4),light=mat(colors[1],.45,.4),accent=mat(colors[2],.55,.3),enemy=u.faction==='enemy',boss=u.kind==='warden';
- const root=new THREE.Group(),impactPivot=new THREE.Group(),body=new THREE.Group();root.add(impactPivot);impactPivot.add(body);const scale=boss?1.55:enemy?1.04:1;root.scale.setScalar(scale);
+ const root=new THREE.Group(),impactPivot=new THREE.Group(),body=new THREE.Group();root.add(impactPivot);impactPivot.add(body);const scale=boss?WARDEN_STAGE_PROFILE.worldScale:enemy?1.04:1;root.scale.setScalar(scale);
  const torso=make(geo.cylinder,main,body,0,1.03,0,.29,.60,.22);torso.rotation.z=enemy ? .08 : 0;
  make(geo.cube,light,body,0,1.20,-.14,.47,.21,.38);
  // Individually recognisable silhouettes: armoured knight, leather ranger, robed spellcaster, and towering boss.
