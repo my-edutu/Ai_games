@@ -61,8 +61,8 @@ test('changing run, floor, deck, actor contact or stream freshness clears the so
     const result = ride.sample(...invalid);
     assert.ok(result === null || result.lean === 0,
       'invalid/restarted state must not preserve obsolete source lean');
-    assert.equal(ride.sample(snapshot(23, 98000), contact).lean, 0,
-      'new live contact starts from rest');
+    assert.equal(ride.sample(snapshot(0, 98000, { runToken: 'new-authentic-run' }), contact).lean, 0,
+      'a genuine fresh run cannot inherit any prior deck posture');
   }
 });
 
