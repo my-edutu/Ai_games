@@ -102,3 +102,19 @@ test('inactive hazards and genuinely blocked decks never invent a clear landing 
   assert.equal(d.intent.mode,'air-control');
   assert.deepEqual(decision(s),d,'the same immutable observation always yields the same action');
 });
+
+test('braking out of real spikes exposes the same clear-lane source intent to 3D route feedback',()=>{
+  const {s,target}=airborne(),center=target.x+target.width/2;
+  const top=target.y+target.height;
+  s.player.position.x=center;s.player.position.y=top+s.player.halfHeight+60000;
+  s.player.velocity={x:9000,y:-5000};s.player.dashCooldown=8;
+  s.chunks[0].hazards=[{id:'active-spikes',kind:'spikes',
+    x:center-16000,y:top,width:32000,height:9000,
+    activeFromTick:0,activeEvery:40,activeFor:40,damage:1}];
+  const d=decision(s);
+  assert.equal(d.action.move,-1);
+  assert.equal(d.action.dash,false);
+  assert.equal(d.intent.mode,'settling-landing');
+  assert.equal(d.intent.summary,'Braking into a clear landing lane');
+  assert.equal(d.intent.targetPlatformId,target.id);
+});
