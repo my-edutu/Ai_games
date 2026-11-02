@@ -13,7 +13,13 @@ export function publicEncounterFrameWeight(attentionStrength, cameraMode, result
   if (result || (cameraMode !== 'follow' && cameraMode !== 'detail')
     || !Number.isFinite(attentionStrength)) return 0;
   const alert = clamp(attentionStrength, 0, 1);
-  if (cameraMode === 'follow') return alert * .22; // preserve known normal framing
+  // The former hero-biased Follow composition left both already-visible
+  // actors tiny on real 320/390 full-screen portraits. Recenter only an actual
+  // close public encounter, at most 46% of the real hero-to-guardian span.
+  // Wider Follow, landscape, hidden, and terminal snapshots stay unchanged.
+  const narrowPortrait = Number.isFinite(aspect) && aspect >= .35 && aspect < .60;
+  if (cameraMode === 'follow')
+    return narrowPortrait ? Math.min(.46, alert * .82) : alert * .22;
   const portrait = Number.isFinite(aspect) && aspect > 0 && aspect < .9;
   // Native 390px production evidence showed one truly disclosed guardian entirely
   // outside the picture despite a visible warning. Detail is an actor-pair view:
