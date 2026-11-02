@@ -20,7 +20,13 @@ function presentation({nestedFailure=false,fixture=null}={}){
  // contract coverage to dungeon-cranial-proportions.test.cjs.
  const noRig=mount=>{assert.equal(mount,undefined);return false};
  const context={THREE:{LoadingManager:Manager,LoopOnce:2200,LoopRepeat:2201},GLTFLoader:Loader,cloneSkeleton:()=>{throw Error('incomplete asset must not be cloned')},restoreCranialProportion:noRig,stageCranialProportion:noRig};
- vm.createContext(context);vm.runInContext(text,context);return context;
+ // Exercise the production, deterministic gesture plan in this engine-less
+ // VM instead of masking a missing renderer dependency with fake stub motion.
+ // The real WebGL integration still runs independently in browser tests.
+ const performance=fs.readFileSync(path.join(ROOT,'public/ai-dungeon/combat-performance-plan.js'),'utf8')
+  .replace(/^export /gm,'');
+ vm.createContext(context);vm.runInContext(performance,context);
+ vm.runInContext(text,context);return context;
 }
 function actor(action='attack',tick=11){
  const calls={reset:0,play:0,crossFade:0,update:0,loops:[]};
