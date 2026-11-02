@@ -2193,7 +2193,7 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "PENDING EXACT-HEAD CI AND BROWSER",
+      "safetyChecks": "PENDING new exact-head browser/visual/CI and replay: JS source sculpture invariants checked, not equivalent to running-game acceptance",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED full original audio: predecessor Chromium artifact 13165920178 includes a 48.84-second VP8 test recording with no identified audio track; this is NOT the full traversal→combat→Warden→floor→defeat/restart reel.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2201,12 +2201,14 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "PREDECESSOR e474553 real Chromium 1440x832 Warden exposure and 390x844 contact: https://github.com/my-edutu/Ai_games/actions/runs/41490449531/artifacts/13165920178 . Inspected: the actual Vanguard is present but partially masked by the overlarge Warden; floating Warden nameplate overlaps the fixed boss health strip, especially on phone; masonry is cubic. Matched immutable baseline A/B remains UNVERIFIED. New code SHA 89a7e575 AFTER not yet captured. New source M1 hero-escape candidate a951f64 is unverified visually; older predecessor snapshot is not an A/B result.",
-      "latestCandidateWorkflow": "Source head a951f64bf4305199f9bc4948cc39b32d31220868: fresh GitHub exact-head Dungeon 41516898744 and visual 41516898738 queued; previous 7e18 workflow cancelled by syntax-fix push. Static V8 syntax parsing of six affected JS/test modules passed; pure legal-dodge/false-event/reduced-motion shape executed. No Node build, exact-head browser runtime screenshot, motion clip/audio or hardware measurements yet. Do not claim a CI pass, motion quality or accepted A/B."
+      "latestCandidateWorkflow": "Source head a951f64bf4305199f9bc4948cc39b32d31220868: fresh GitHub exact-head Dungeon 41516898744 and visual 41516898738 queued; previous 7e18 workflow cancelled by syntax-fix push. Static V8 syntax parsing of six affected JS/test modules passed; pure legal-dodge/false-event/reduced-motion shape executed. No Node build, exact-head browser runtime screenshot, motion clip/audio or hardware measurements yet. Do not claim a CI pass, motion quality or accepted A/B.",
+      "currentPredecessorWebgl": "Exact-head 63c7859beab07697275ce3b3aec4a4e11369a1b3, browser workflow 41526201988, artifact 13181360029 (real desktop world-only, Warden and mobile screenshots plus video.webm) and 13180476954 (world-only screenshot and quantitative metrics), inspected 2026-11-02. Authentic 1440x832 Warden recovery shows a crowded arena and toy-like giant boss; no matched immutable baseline A/B conducted.",
+      "newCandidateSceneReview": "UNVERIFIED: no browser-captured 8d603100e25a568e05a694ab305731cf745ed736 exact-head gameplay inspected; GitHub visual review and dungeon workflows queued after source commit."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "The full living journey still trails Diablo IV, No Rest for the Wicked and Path of Exile 2 in anatomy, action contact, visual art direction and world richness. The current real browser capture reveals a giant Warden hiding fallen characters at the genuine depth-29 ending; code addresses this but new head rendered desktop/mobile motion and original audio, performance, matched locked-baseline A/B and ≥3 blind critics remain UNVERIFIED.",
-    "currentWork": "Same unaccepted M1. Real latest Chromium run 41517264501 documents a depth-29 three-hero defeat where the surviving Warden and architecture mask the actual 3D party, and a portrait stall notice crowds the terminal scene. Integrated code 19ba6388bbb9648ce44dd148a570d43013fde45b now directs a source-truth centroid endgame shot with map-constrained boss-behind-camera staging, actual corpse cutaway through walls/facades/props, endgame key lighting, portrait banner separation and a production evasion VM-harness correction. This is only implemented, NOT experienced/accepted yet.",
-    "candidateCommit": "19ba6388bbb9648ce44dd148a570d43013fde45b",
+    "biggestRemainingGap": "Real recent 3D WebGL shows toy-like protagonist/enemy proportions, heavy architectural silhouettes and inconsistent weapon contact. Code now changes physical wall geometry and encounter clearance, but no new-head screenshot/video or blind judges have proved any experiential improvement. Complete traversal→combat→boss→floor→defeat/restart audio/motion and performance across desktop and mobile remain unverified.",
+    "currentWork": "Same unfinished M1. On 2026-11-02 the source game was physically re-sculpted at code commit 8d603100e25a568e05a694ab305731cf745ed736: battered five-course masonry now replaces repeated flat-sided wall volumes, an open ogival gallery replaces block corridor lintels, visually redundant parapets/columns/banners are culled, and real scene-state cutaways expose protagonist-vs-boss contact. A follow-on resource-lifecycle fix owns/disposes the new shared corridor rib once per floor. The 63c7859 predecessor screenshots/videos were actually inspected; new-head visual benefit, gameplay motions, mobile, audio, performance and blind A/B remain UNVERIFIED.",
+    "candidateCommit": "8d603100e25a568e05a694ab305731cf745ed736",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
     "implementationEvents": [
@@ -3243,6 +3245,27 @@
         "acceptance": "IN_PROGRESS — NOT TRANSFORMED",
         "biggestGap": "Character/anatomy, material finish and boss contact still toy-like relative to external references; verify actual last stand and Warden hero sightline in rendered new-head motion, not isolated source metrics.",
         "next": "Inspect exact-head natural desktop and mobile finale WebGL and motion for all dead bodies, no giant surviving boss in near foreground, credible world cutaway, reliable phone alert and endgame. Fix visible defects, then record one uninterrupted genuine traversal→combat→boss→floor advance→defeat/restart with WebAudio, same-seed original-baseline A/B, p95 budget and ≥3 fresh blind LOOKS/FEELS/PLAYS critics. Never merge."
+      },
+      {
+        "id": "M1-SCULPTED-WORLD-20261102",
+        "date": "2026-11-02",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "codeCommit": "8d603100e25a568e05a694ab305731cf745ed736",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "objective": "Transform the live gameplay space from repeated cubic wall towers and overloaded set dressing into legible sculpted dungeon corridors and a readable Warden arena while preserving autonomous navigation/combat truth.",
+        "code": [
+          "public/ai-dungeon/fractured-wall-plan.js",
+          "public/ai-dungeon/app.js",
+          "public/ai-dungeon/environment.js",
+          "public/ai-dungeon/world-story-stage-plan.js",
+          "public/ai-dungeon/party-visibility-plan.js",
+          "tests/browser/dungeon-sculpted-reality.spec.cjs"
+        ],
+        "integratedImplementation": "Replaced flat 3-course / 8-facet wall instancing with five physically stepped sculpted courses, a twelve-facet battered outer silhouette, carved uneven crowns and closed caps (120 triangles/tile source, still one instanced wall draw). Replaced bulky cubic walkable-corridor lintels with bounded open ogival rib galleries (<=8) and one disposable shared GPU geometry. Reduced repetitive parapet/footing density and crowding banner/pillar props. Widened scene-state-specific foreground wall clearance in real combat, exposed boss recovery, danger and defeat without deleting impassable grid cells. Preserved authentic enemy/hero coordinates, legal pathfinding, hitboxes, AI decisions, fixed tick, snapshots and RNG.",
+        "observedPredecessor": "Real WebGL image from 63c7859beab07697275ce3b3aec4a4e11369a1b3, https://github.com/my-edutu/Ai_games/actions/runs/41526201988/artifacts/13181360029 : player and Warden are toy-like and partially swallowed by large, repetitive masonry props; unedited world-only photograph confirms dense boxy background. This artifact is NOT the locked baseline and NOT a matched A/B.",
+        "validation": "Source module geometry checked in JS for 62 vertices / 120 triangles, bounded per-cell dimensions and valid indices; new-head visual, browser motion, replay and CI are PENDING, as are acoustic capture and blind critic panel. No A/B quality win.",
+        "experienceVerdict": "IN_PROGRESS / NOT_TRANSFORMED",
+        "next": "Inspect exact-head running desktop/mobile combat, defeat and world-only frames, verify silhouette separation and legibility vs locked baseline using same seed, fix newly visible geometry/camera occlusion, then improve character anatomical animation and contact if still toy-like. Collect continuous full-scenario audiovisual proof and >=3 independent blind critics."
       }
     ]
   }

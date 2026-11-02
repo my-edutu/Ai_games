@@ -367,7 +367,7 @@ function disposeActor(a){
  });
  scene.remove(a.root);
 }
-function clearWorld(){combatDirector.reset();world.userData.expeditionStonework?.dispose();world.userData.expeditionStonework=null;world.userData.floorRuins?.dispose();world.userData.floorRuins=null;world.userData.vaultedGallery?.dispose();world.userData.vaultedGallery=null;world.userData.livingWorld?.dispose();world.userData.livingWorld=null;world.userData.atmosphere?.dispose();world.userData.atmosphere=null;world.userData.dressing?.dispose();world.userData.dressing=null;while(world.children.length){const obj=world.children[0];world.remove(obj);obj.traverse(o=>{if(o.geometry&&!o.userData.sharedAssetGeometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material&&!o.userData.sharedAssetGeometry&&!Object.values({stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow}).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats)m.dispose()}})}for(const a of actors.values())disposeActor(a);actors.clear()}
+function clearWorld(){combatDirector.reset();world.userData.archRibGeometry?.dispose();world.userData.archRibGeometry=null;world.userData.expeditionStonework?.dispose();world.userData.expeditionStonework=null;world.userData.floorRuins?.dispose();world.userData.floorRuins=null;world.userData.vaultedGallery?.dispose();world.userData.vaultedGallery=null;world.userData.livingWorld?.dispose();world.userData.livingWorld=null;world.userData.atmosphere?.dispose();world.userData.atmosphere=null;world.userData.dressing?.dispose();world.userData.dressing=null;while(world.children.length){const obj=world.children[0];world.remove(obj);obj.traverse(o=>{if(o.geometry&&!o.userData.sharedAssetGeometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material&&!o.userData.sharedAssetGeometry&&!Object.values({stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow}).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats)m.dispose()}})}for(const a of actors.values())disposeActor(a);actors.clear()}
 function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.sceneKey=worldFloor;world.userData.foregroundProps=[];lastCutawayKey='';
  // The main InstancedMesh wall blocks previously had a near-black flat surface
  // even while the exposed masonry facades were textured. One shared original
@@ -458,6 +458,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
   new THREE.Vector3(.22,2.06,0),new THREE.Vector3(.40,1.82,0),
   new THREE.Vector3(.43,1.61,0)
  ]),28,.067,7,false);
+ world.userData.archRibGeometry=archRibGeometry;
  let archCount=0;
  for(let z=2;z<size-2;z++)for(let x=2;x<size-2;x++){
    if(archCount>=8||s.map[z][x]!=='.'||fracture(x,z)%19!==0)continue;
@@ -469,7 +470,8 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
    make(geo.cylinder,stoneEdge,arch,-.43,.85,0,.090,.83,.095);
    make(geo.cylinder,stoneEdge,arch,.43,.85,0,.090,.83,.095);
    const rib=new THREE.Mesh(archRibGeometry,stoneEdge);
-   rib.name='Open processional ogive';rib.castShadow=false;arch.add(rib);
+   rib.name='Open processional ogive';rib.castShadow=false;
+   rib.userData.sharedAssetGeometry=true;arch.add(rib);
    make(geo.sphere,gold,arch,0,2.22,0,.09,.12,.09);
    world.add(arch);world.userData.foregroundProps.push(arch);archCount++;
  }
