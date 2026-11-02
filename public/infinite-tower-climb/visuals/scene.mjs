@@ -226,6 +226,86 @@ function blendTowerStageFocus(center, subject, weight) {
 // can project inside the phone viewport while sitting behind the tower; do not
 // award it a camera-composition preference or a visible-gate diagnostic then.
 // World meshes may add occlusion, so this is a necessary, not sufficient, test.
+// Reads only fixed-step public snapshots. A single stage cue links real guardian
+// attrition and windup with the skinned climber's camera-side illumination.
+// No invented hits, RNG, authority mutation, extra light or flickering.
+function createObservedTowerLightDirector() {
+  let token = null, floor = null, lastTick = -1, lastHealth = null;
+  let tension = 0, armor = 0, motion = 0, hitGlow = 0;
+  const cue = { threat: 0, armor: 0, motion: 0, guardian: false };
+  function reset() {
+    token = null; floor = null; lastTick = -1; lastHealth = null;
+    tension = 0; armor = 0; motion = 0; hitGlow = 0;
+    cue.threat = 0; cue.armor = 0; cue.motion = 0; cue.guardian = false;
+  }
+  function sample(snapshot, dt, stale = false, reduced = false) {
+    if (!snapshot?.player || !Number.isSafeInteger(snapshot.tick)) {
+      reset(); return cue;
+    }
+    if (token !== snapshot.runToken || floor !== snapshot.floor) {
+      reset(); token = snapshot.runToken; floor = snapshot.floor;
+    }
+    const running = snapshot.lifecycle === 'running' && snapshot.player.health > 0 && !stale;
+    const guardian = running && snapshot.enemies?.find(enemy =>
+      enemy.kind === 'guardian' && enemy.active && enemy.maxHealth > 0);
+    if (snapshot.tick > lastTick) {
+      if (guardian && lastHealth !== null && lastTick >= 0 &&
+        snapshot.tick - lastTick <= 8 && guardian.health < lastHealth) hitGlow = 1;
+      lastHealth = guardian ? guardian.health : null;
+      lastTick = snapshot.tick;
+    }
+    const targetThreat = running ? Math.max(guardian?.telegraph ? 1 : 0,
+      snapshot.dangerPermille >= 800 ? .42 : 0) : 0;
+    const targetArmor = guardian ? Math.max(0, Math.min(1,
+      1 - guardian.health / guardian.maxHealth)) : 0;
+    const moving = running && (snapshot.player.state === 'dashing' ||
+      Math.abs(snapshot.player.vx) > 4500) ? 1 : 0;
+    const seconds = Number.isFinite(dt) ? Math.max(0, Math.min(.08, dt)) : 0;
+    const blend = 1 - Math.exp(-seconds * 3.6);
+    tension += (targetThreat - tension) * blend;
+    armor += (targetArmor - armor) * blend;
+    motion += (moving - motion) * blend;
+    hitGlow = Math.max(0, hitGlow - seconds * 1.8);
+    cue.threat = reduced ? 0 : Math.min(1, tension + hitGlow * .28);
+    cue.armor = Math.max(0, Math.min(1, armor));
+    cue.motion = reduced ? 0 : Math.max(0, Math.min(1, motion));
+    cue.guardian = !!guardian;
+    return cue;
+  }
+  return { sample, reset, cue };
+}
+
+// Only PREVIOUSLY OBSERVED climber positions enter this bounded source ledger.
+// It cannot predict a jump, create a phantom collider or carry a wake into a
+// fresh floor/run. Its render is optional and absent in reduced-motion mode.
+function createObservedTowerMotionLedger() {
+  const samples = [];
+  function reset() { samples.length = 0; }
+  function accept(previous, next) {
+    if (!previous?.player || !next?.player ||
+      previous.runToken !== next.runToken || previous.floor !== next.floor ||
+      next.lifecycle !== 'running' || next.player.health <= 0 ||
+      !Number.isSafeInteger(next.tick) || !Number.isSafeInteger(previous.tick) ||
+      next.tick <= previous.tick || next.tick - previous.tick > 8) {
+      reset(); return;
+    }
+    const dx = next.player.x - previous.player.x, dy = next.player.y - previous.player.y;
+    const moving = next.player.state === 'airborne' || next.player.state === 'dashing' ||
+      previous.player.state === 'airborne' || previous.player.state === 'dashing' ||
+      Math.abs(next.player.vx) > 4500;
+    if (moving && Number.isFinite(dx) && Number.isFinite(dy) &&
+      Number.isFinite(next.player.x) && Number.isFinite(next.player.y) &&
+      Math.abs(dx) + Math.abs(dy) > 700) {
+      if (!samples.length) samples.push({ tick: previous.tick,
+        x: previous.player.x, y: previous.player.y });
+      samples.push({ tick: next.tick, x: next.player.x, y: next.player.y });
+    }
+    while (samples.length && (samples.length > 13 || next.tick - samples[0].tick > 18))
+      samples.shift();
+  }
+  return { samples, reset, accept };
+}
+
 function towerCoreSightlineClear(position, point, coreRadius = 21.6) {
   const dx = point.x - position.x, dz = point.z - position.z;
   const denominator = dx * dx + dz * dz;
@@ -922,6 +1002,8 @@ export function createTowerScene(canvas, settings = {}) {
   const bounce = new THREE.DirectionalLight(0xe28a50, .55);
   bounce.position.set(-18, -20, 32);
   scene.add(rim, rim.target, bounce, bounce.target);
+  const observedStageLight = createObservedTowerLightDirector();
+  const warmRimTint = new THREE.Color(0xffc994);
 
   const skyGeometry = new THREE.SphereGeometry(800, 24, 12);
   const skyMaterial = new THREE.ShaderMaterial({
@@ -1047,6 +1129,22 @@ export function createTowerScene(canvas, settings = {}) {
   landingHalo.visible = false;
   scene.add(landingHalo);
 
+  // Existing source route stays authoritative. One instanced world-space
+  // movement echo helps follow a real dash/launch on a small phone viewport.
+  const motionLedger = createObservedTowerMotionLedger();
+  const motionEcho = new THREE.InstancedMesh(
+    ownGeometry(new THREE.TetrahedronGeometry(.19, 0)),
+    ownMaterial(new THREE.MeshBasicMaterial({ color: 0x9fe2f2,
+      transparent: true, opacity: .6, depthTest: true,
+      depthWrite: false, toneMapped: false })), 13);
+  motionEcho.name = 'ObservedClimberMotionEcho';
+  motionEcho.count = 0; motionEcho.visible = false;
+  motionEcho.frustumCulled = false; motionEcho.castShadow = false;
+  motionEcho.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  scene.add(motionEcho);
+  const echoTransform = new THREE.Object3D();
+  let echoDrawnTick = -1;
+
   const particlePositions = new Float32Array(MAX_PARTICLES * 3);
   const particleColors = new Float32Array(MAX_PARTICLES * 3);
   const particleSizes = new Float32Array(MAX_PARTICLES);
@@ -1136,6 +1234,8 @@ export function createTowerScene(canvas, settings = {}) {
     }
     projectiles.clear();
     particleLife.fill(0);
+    motionLedger.reset(); motionEcho.count = 0; motionEcho.visible = false;
+    echoDrawnTick = -1; observedStageLight.reset();
   }
   function rebuildGraphicsResources() {
     // Dispose while WebGL is still lost: Three's disposal listeners otherwise
@@ -1258,6 +1358,7 @@ export function createTowerScene(canvas, settings = {}) {
     }
     previous = newRun ? null : snapshot;
     snapshot = next; baseY = next.chunkBaseY;
+    motionLedger.accept(previous, next);
     // A decisive guardian hit can also advance the REAL fixed-step floor.
     // The previous gate is discarded with its old world; preserve only a short
     // non-colliding bronze passage memory, witnessed in adjacent real source
@@ -1337,6 +1438,8 @@ export function createTowerScene(canvas, settings = {}) {
     }
     world.update(snapshot, dt, elapsed, options);
     const p = snapshot.player;
+    const lightCue = observedStageLight.sample(snapshot, dt,
+      !!options.stale, !!options.reducedMotion);
     const targetPlatform = intendedLanding(snapshot);
     const ledgeContact = ledgeContactPoint(snapshot, targetPlatform);
     const ledgeTarget = ledgeContact ? pointFor(ledgeContact.x, ledgeContact.y,
@@ -1361,6 +1464,27 @@ export function createTowerScene(canvas, settings = {}) {
     else { followClimberContact(climber.group.position, actorTarget, blend, p.state); actorYaw += Math.atan2(Math.sin(desiredYaw - actorYaw), Math.cos(desiredYaw - actorYaw)) * blend; }
     climber.group.rotation.y = actorYaw;
     climber.group.scale.setScalar(p.halfHeight * 2 / SCALE / 2.8);
+    const echoes = motionLedger.samples;
+    motionEcho.visible = !options.stale && !options.reducedMotion &&
+      snapshot.lifecycle === 'running' && p.health > 0 && echoes.length > 1;
+    if (motionEcho.visible && echoDrawnTick !== snapshot.tick) {
+      let count = 0;
+      for (const item of echoes) {
+        const age = snapshot.tick - item.tick;
+        if (age < 0 || age > 18 || count >= 13) continue;
+        const point = pointFor(item.x, item.y - p.halfHeight,
+          snapshot.chunkBaseY, snapshot.worldWidth, 27.55);
+        echoTransform.position.set(point.x, point.y + .5, point.z);
+        const strength = Math.max(.22, 1 - age / 18);
+        echoTransform.scale.setScalar(.52 + strength * 1.4);
+        echoTransform.rotation.set(0, point.angle, age * .2);
+        echoTransform.updateMatrix();
+        motionEcho.setMatrixAt(count++, echoTransform.matrix);
+      }
+      motionEcho.count = count;
+      motionEcho.instanceMatrix.needsUpdate = count > 0;
+      echoDrawnTick = snapshot.tick;
+    }
     const followComposition = options.camera === 'overview' ? null : composeFollowView(snapshot, climber.group.position, camera.aspect, orbit, zoom);
     const viewPosition = initialized ? camera.position : followComposition?.position || camera.position;
     const viewAngle = Math.atan2(viewPosition.x - climber.group.position.x, viewPosition.z - climber.group.position.z) - actorYaw;
@@ -1588,8 +1712,21 @@ export function createTowerScene(canvas, settings = {}) {
     sky.position.copy(camera.position);
     sun.target.position.set(0, targetY, 0);
     sun.position.set(-40, targetY + 55, 52);
-    rim.target.position.set(0, targetY, 0);
-    rim.position.set(45, targetY + 18, -30);
+    // Existing shadow-free rim follows the real skinned silhouette through
+    // a full exterior orbit; only true HP/windup/motion changes its soft fill.
+    // No new draw, light, shadow map, overlay, or flash frequency.
+    const lighting = LIGHTING[themeKey] || LIGHTING.foundry;
+    sun.intensity = lighting.key * (1 - lightCue.threat * .075);
+    hemi.intensity = lighting.ambient * (1 + lightCue.motion * .055);
+    rim.intensity = lighting.rim * (1 + lightCue.armor * .18 + lightCue.threat * .2);
+    rim.color.set(lighting.fill).lerp(warmRimTint, lightCue.threat * .32);
+    const lightBearing = Math.atan2(camera.position.x, camera.position.z) + 1.12;
+    rim.target.position.set(climber.group.position.x,
+      climber.group.position.y + p.halfHeight / SCALE, climber.group.position.z);
+    rim.position.set(climber.group.position.x + Math.sin(lightBearing) * 46,
+      climber.group.position.y + 21,
+      climber.group.position.z + Math.cos(lightBearing) * 46);
+    bounce.intensity = lighting.ground * (1 + lightCue.threat * .1);
     bounce.target.position.set(0, targetY, 0);
     bounce.position.set(-18, targetY - 22, 32);
   }
@@ -1736,6 +1873,14 @@ export function createTowerScene(canvas, settings = {}) {
       landingBeacon: { visible: landingBeacon.visible, targetId: landingBeacon.userData.targetPlatformId || null,
         position: landingBeacon.position.toArray(), triangles: landingBeacon.geometry.index.count / 3, depthTest: landingBeacon.material.depthTest },
       activeParticles: particleLife.filter(life => life > 0).length,
+      observedMotionEcho: { visible: motionEcho.visible, sourceSamples: motionLedger.samples.length,
+        instances: motionEcho.count, lastSourceTick: echoDrawnTick,
+        extraDraws: motionEcho.visible && motionEcho.count ? 1 : 0 },
+      observedStageLight: { guardian: observedStageLight.cue.guardian,
+        threat: Number(observedStageLight.cue.threat.toFixed(4)),
+        armor: Number(observedStageLight.cue.armor.toFixed(4)),
+        motion: Number(observedStageLight.cue.motion.toFixed(4)),
+        extraShadowLights: 0 },
       observedEnemyImpacts: [...enemies.values()].filter(entry => entry.impact.visible).length,
       observedTouchdown: landingHalo.visible ? { runToken: landingRun, floor: landingFloor,
         strength: landingWeight, position: landingHalo.position.toArray() } : null,
