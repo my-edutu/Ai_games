@@ -328,6 +328,52 @@ export function publicNearbySealedGate(snapshot) {
   return eligible[0] ?? null;
 }
 
+
+/**
+ * Temporary camera-only punctuation for a physically opened known passage.
+ * Both endpoints and the actual before/after door records are from PUBLIC
+ * authoritative snapshots, never the generator, solver or enemy plans.
+ * The gate must have been visibly closed in this SAME run, then opened, with
+ * a genuinely known nearby floor cell. This does NOT unlock the gate.
+ */
+export function publicGateOpeningCameraCue(before, after) {
+  if (!before || !after || typeof before.runToken !== 'string'
+    || before.runToken !== after.runToken || before.result || after.result
+    || !Number.isSafeInteger(before.tick) || !Number.isSafeInteger(after.tick)
+    || after.tick <= before.tick || !Number.isSafeInteger(after.width)
+    || !Number.isSafeInteger(after.height) || after.width < 1 || after.height < 1
+    || !Number.isSafeInteger(after.currentCell) || after.currentCell < 0
+    || after.currentCell >= after.width * after.height
+    || !Array.isArray(before.doors) || !Array.isArray(after.doors)
+    || !Array.isArray(after.cells)) return null;
+  const known = new Set(after.cells.filter(cell => Number.isSafeInteger(cell?.cell)
+    && !cell.blocked).map(cell => cell.cell));
+  if (!known.has(after.currentCell)) return null;
+  const edge = (a,b) => (a < b ? a + ':' + b : b + ':' + a);
+  const valid = door => Number.isSafeInteger(door?.a) && Number.isSafeInteger(door?.b)
+    && door.a >= 0 && door.b >= 0 && door.a !== door.b
+    && door.a < after.width * after.height && door.b < after.width * after.height
+    && Math.abs(door.a % after.width - door.b % after.width)
+      + Math.abs(Math.floor(door.a / after.width) - Math.floor(door.b / after.width)) === 1;
+  const previousClosed = new Map(before.doors.filter(door => valid(door) && door.open === false)
+    .map(door => [edge(door.a,door.b),door]));
+  const distance = cell => Math.abs(cell % after.width - after.currentCell % after.width)
+    + Math.abs(Math.floor(cell / after.width) - Math.floor(after.currentCell / after.width));
+  const candidates = after.doors.filter(door => valid(door) && door.open === true
+    && previousClosed.has(edge(door.a,door.b)))
+    .map(door => {
+      const ends=[door.a,door.b].filter(cell => known.has(cell));
+      const steps=ends.length ? Math.min(...ends.map(distance)) : Infinity;
+      if (steps > 1) return null;
+      const closed=previousClosed.get(edge(door.a,door.b));
+      return {a:door.a,b:door.b,steps,
+        keyed:typeof closed.requiredKeyId==='string' && closed.requiredKeyId.length>0
+          && Array.isArray(before.inventory) && before.inventory.includes(closed.requiredKeyId)};
+    }).filter(Boolean)
+    .sort((a,b)=>a.steps-b.steps||a.a-b.a||a.b-b.b);
+  return candidates[0] ?? null;
+}
+
 /**
  * Let Pip and an actually modeled closed gate share the shot. Since a sealed
  * gate is NOT a legal route, it takes no role in publicObjective/AI guidance.
