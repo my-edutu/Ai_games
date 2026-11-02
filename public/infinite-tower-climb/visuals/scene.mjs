@@ -376,7 +376,7 @@ const seeded = value => { const n = Math.sin(value * 127.13 + 38.37) * 43758.545
 function intendedLanding(snapshot) {
   const player = snapshot.player, mode = snapshot.intent?.mode?.replace(/^oracle-/, '');
   if ((snapshot.lifecycle && snapshot.lifecycle !== 'running') || player.health <= 0
-    || !['aligning', 'jumping', 'air-control'].includes(mode)) return null;
+    || !['aligning', 'jumping', 'air-control', 'settling-landing'].includes(mode)) return null;
   const target = snapshot.platforms.find(platform => platform.id === snapshot.intent.targetPlatformId);
   if (!target || target.width <= 0) return null;
   const feet = player.y - player.halfHeight;

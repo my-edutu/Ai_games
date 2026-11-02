@@ -1,10 +1,31 @@
 import type{TowerAction,TowerPlatform,TowerState}from'../state/types';import{chooseTowerUpgrade}from'../progression/builds';import{nextTowerPlatform}from'./graph';import type{TowerObservation}from'./observation';import{detectTowerStuck}from'./stuck';
-export interface TowerIntent{mode:'choosing-upgrade'|'evading-projectile'|'evading-hazard'|'evading-telegraph'|'bracing-telegraph'|'engaging-enemy'|'recovering'|'collecting-resource'|'aligning'|'jumping'|'air-control'|'waiting';summary:string;confidence:number;fallbackUsed:boolean;targetPlatformId?:string}
+export interface TowerIntent{mode:'choosing-upgrade'|'evading-projectile'|'evading-hazard'|'evading-telegraph'|'bracing-telegraph'|'engaging-enemy'|'recovering'|'collecting-resource'|'aligning'|'jumping'|'air-control'|'settling-landing'|'waiting';summary:string;confidence:number;fallbackUsed:boolean;targetPlatformId?:string}
 export interface TowerDecision{action:TowerAction;intent:TowerIntent}
 function action(move:TowerAction['move']=0,extra:Partial<TowerAction>={}):TowerAction{return{move,jump:false,dash:false,attack:false,ability:false,...extra}}
 function moveSign(delta:number):TowerAction['move']{return Math.abs(delta)<4000?0:delta>0?1:-1}
 function currentPlatform(obs:TowerObservation,id?:string){return id?obs.platforms.find(p=>p.id===id):undefined}
 function launchX(current:TowerPlatform,target:TowerPlatform,halfWidth:number){const safeLeft=current.x+halfWidth+6000,safeRight=current.x+current.width-halfWidth-6000,center=target.x+target.width/2;if(target.x<=current.x+current.width&&target.x+target.width>=current.x)return Math.max(safeLeft,Math.min(safeRight,center));return center<current.x?safeLeft:safeRight}
+
+// Live tactical air steering now aims to ARRIVE with controllable lateral
+// velocity instead of continuously accelerating toward a moving deck's center.
+// Physics remains authoritative: this is a deterministic feedback controller
+// using only present observed position/velocity and the current public deck.
+// It neither forecasts the deck, mutates state nor affects historical-v1.
+function observedLandingSteering(state:TowerState,obs:TowerObservation,target:TowerObservation['platforms'][number]){
+  const p=obs.player,delta=target.x+target.width/2-p.position.x;
+  const acceleration=Math.max(1,Math.round(state.config.moveAcceleration*state.build.airControlPermille/1000));
+  const velocity=p.velocity.x;
+  const safeBand=Math.max(5000,Math.min(18000,Math.floor(target.width/6)));
+  const desiredVelocity=Math.max(-state.config.maxRunSpeed,
+    Math.min(state.config.maxRunSpeed,delta/5));
+  const speedError=desiredVelocity-velocity;
+  const move:TowerAction['move']=Math.abs(delta)<=safeBand&&Math.abs(velocity)<=acceleration
+    ? 0 : Math.abs(speedError)<=Math.max(300,acceleration/2)
+      ? 0 : speedError>0?1:-1;
+  const settling=move!==0&&velocity!==0&&move===-Math.sign(velocity)
+    &&Math.abs(velocity)>acceleration;
+  return {move,settling};
+}
 // Predict the next deterministic ground step against the actual present deck.
 // A danger reaction is not worth stepping off the supporting edge.
 function guardedEvasion(state:TowerState,obs:TowerObservation,wanted:TowerAction['move']):TowerAction['move']{
@@ -140,6 +161,12 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
   if(detectTowerStuck(observation.recentHeights)){const direction:TowerAction['move']=observation.tick%2===0?1:-1;return{action:action(direction,{jump:observation.player.grounded,dash:!observation.player.grounded&&observation.player.dashCooldown===0}),intent:{mode:'recovering',summary:'Breaking a repeated height cycle',confidence:.82,fallbackUsed:true}}}
   let target=currentPlatform(observation,state.ai.targetPlatformId);if(observation.player.grounded){target=nextTowerPlatform(observation,state.config,observation.player.groundedPlatformId)}else if(!target)target=nextTowerPlatform(observation,state.config,observation.player.groundedPlatformId);
   if(!target)return{action:action(),intent:{mode:'waiting',summary:'Waiting for a valid route node',confidence:.6,fallbackUsed:false}};
-  const center=target.x+target.width/2;if(!observation.player.grounded){const move=moveSign(center-observation.player.position.x),dash=Math.abs(center-observation.player.position.x)>165000&&observation.player.dashCooldown===0&&observation.player.velocity.y>0;return{action:action(move,{dash}),intent:{mode:'air-control',summary:'Steering toward the next landing',confidence:.9,fallbackUsed:false,targetPlatformId:target.id}}}
+  const center=target.x+target.width/2;if(!observation.player.grounded){const delta=center-observation.player.position.x,dash=Math.abs(delta)>165000&&observation.player.dashCooldown===0&&observation.player.velocity.y>0;
+    const landing=tactical?observedLandingSteering(state,observation,target):null;
+    const move=landing?.move??moveSign(delta);
+    const settling=!dash&&!!landing?.settling;
+    return{action:action(move,{dash}),intent:{mode:settling?'settling-landing':'air-control',
+      summary:settling?(target.kind==='moving'?'Braking to meet the moving deck':'Braking for a controlled landing'):'Steering toward the next landing',
+      confidence:.9,fallbackUsed:false,targetPlatformId:target.id}}}
   const support=currentPlatform(observation,observation.player.groundedPlatformId);if(!support)return{action:action(),intent:{mode:'waiting',summary:'Confirming ground support',confidence:.7,fallbackUsed:false,targetPlatformId:target.id}};const desired=launchX(support,target,state.config.playerHalfWidth),delta=desired-observation.player.position.x;if(Math.abs(delta)>12000)return{action:action(moveSign(delta)),intent:{mode:'aligning',summary:'Aligning with the launch point',confidence:.93,fallbackUsed:false,targetPlatformId:target.id}};return{action:action(moveSign(center-observation.player.position.x),{jump:true}),intent:{mode:'jumping',summary:'Committing to the next platform',confidence:.95,fallbackUsed:false,targetPlatformId:target.id}}
 }
