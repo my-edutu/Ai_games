@@ -2201,12 +2201,12 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Inspected exact prior-head genuine 1440x832 original WebGL world-only artifact https://github.com/my-edutu/Ai_games/actions/runs/41398888784/artifacts/13120803208 . Three living heroes in view, no active enemies in that one sample; their circular toy heads overlap alongside bulky masonry. This is genuine prior-head rendering, NOT a matched M1 baseline or a win for the unrendered new candidate.",
-      "latestCandidateWorkflow": "2026-11-02 candidate 042d555132b7c4093c1bbde69a76cce0212f8aa2: GitHub [Dungeon Foundation 41435407087](https://github.com/my-edutu/Ai_games/actions/runs/41435407087), [visual 41435407005](https://github.com/my-edutu/Ai_games/actions/runs/41435407005), [full CI 41435407020](https://github.com/my-edutu/Ai_games/actions/runs/41435407020) QUEUED at recording, outcomes UNVERIFIED. Prior head e948586 authority passed but browser shards 1 and 3 FAILED (nonterminal 2500-tick seed, lagged director report), immersive visual FAILED. Maintain locked baseline."
+      "latestCandidateWorkflow": "Code SHA 562b90ed969f663f6297253850596139304b1c91: Dungeon/authority/browser run https://github.com/my-edutu/Ai_games/actions/runs/41438411903, visual review https://github.com/my-edutu/Ai_games/actions/runs/41438411909, catalogue CI https://github.com/my-edutu/Ai_games/actions/runs/41438411826 QUEUED at current handoff; UNVERIFIED. Previous genuine game browser failures (long run no terminal by 2500 ticks and director lag) unresolved."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Prior e948586 exact-head browser did NOT pass: fixed seed 2500 ticks never reached defeat/restart; toggled director UI but render diagnostics lagged. Pinned before/after continuous audiovisual desktop/mobile coverage, realistic character/contact, mobile p95 and 3 fresh blind critics still missing. NOT TRANSFORMED.",
-    "currentWork": "Continuation M1: implemented real revenant shield-break (locked one-turn grid threat, legal multi-hazard dodge/guard, ally interruption and true damage), original batched ground mark, camera and opt-in synthesized audio. Exact-head new Chromium, critics, perf and replay UNVERIFIED.",
-    "candidateCommit": "042d555132b7c4093c1bbde69a76cce0212f8aa2",
+    "biggestRemainingGap": "Actual browser-captured full expedition still lacks convincing human-scale animation, physical contact and credible tactical pacing (including a prior 2500-tick nonterminal seed). New shield must be inspected for real camera alignment and mobile readability. Matched pinned-before/after motion/audio, real-device performance and 3 independent blind LOOKS/FEELS/PLAYS critics are still missing; NOT TRANSFORMED.",
+    "currentWork": "M1 continuation, not a new Gauntlet round: original, authoritative AI Oathguard cover + actual HP cost + bone-sized 3D shield, real UI and opt-in synthesized sound implemented on draft PR #49; not yet rendered/verified in Chromium. Previous 2500-tick nonterminal scenario and director lag remain open.",
+    "candidateCommit": "562b90ed969f663f6297253850596139304b1c91",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -2817,6 +2817,42 @@
         "evidence": "Code authored. Latest prior browser/visual failed; new-head checks, matched motion/audio and independent critics UNVERIFIED.",
         "next": "Inspect real WebGL captured warning and organic long-run ending; fix 2500-tick non-terminal seed and director lag, build full original audiovisual traversal→boss→floor→defeat/restart and blind majority acceptance.",
         "codeCommit": "042d555132b7c4093c1bbde69a76cce0212f8aa2"
+      },
+      {
+        "id": "M1-OATHGUARD-COORDINATED-COVER-20261102",
+        "date": "2026-11-02",
+        "status": "IMPLEMENTED_EXPERIENCE_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "c2b53f19413987a8182d775bc88d71c7f5a7dd32",
+        "authorityCommit": "e587b8efef67820f7c866e18b6062aecdf75769d",
+        "codeCommit": "562b90ed969f663f6297253850596139304b1c91",
+        "objective": "A genuinely cooperative autonomous party risk decision in the existing Warden expedition: the Vanguard trades its own turn and HP to protect a trapped ally from a real incoming locked tile, with visible 3D shield, clear HUD events and original opt-in sound.",
+        "integratedImplementation": [
+          "Authoritative planOathguardIntercept examines live Warden/Revenant/Cultist strike cells, real ally adjacency, danger, occupied cells and trap hazards before volunteering one Vanguard action. Preserves deterministic seeded replay and legal positions.",
+          "Genuine redirected damage for the three existing locked threat types only (boss nova, revenant breach, cultist hex); guardian loses real health, ally retains partial injury. The shield can be defeated and never invents immunities, teleports, projectile hits or RNG.",
+          "One reusable original bronze kite-shield mesh connects real character positions, responsive camera, optional minimal motion, party-card cover state, event caption and opt-in browser-synthesized score."
+        ],
+        "files": [
+          "games/ai-dungeon/src/index.ts",
+          "public/ai-dungeon/app.js",
+          "public/ai-dungeon/soundstage-plan.js",
+          "public/ai-dungeon/soundstage.js",
+          "tests/foundation/dungeon-oathguard.test.cjs",
+          "tests/browser/dungeon-oathguard.spec.cjs",
+          "package.json"
+        ],
+        "localEvidence": "JavaScript syntax checked by source parser on exact code SHA 562b90e for app, soundstage, cue planner and both tests. No executable TypeScript build or local Chromium available: coding-agent workspace tunnel NOT_FOUND. New authority/browser fixtures committed but NOT YET EXECUTED.",
+        "actions": "New exact-head AI Dungeon workflow 41438411903, visual review 41438411909 and catalogue CI 41438411826 were QUEUED at inspection; outcomes UNVERIFIED.",
+        "gameplayObservations": "Real initial locked-state AI cohort can be tested by new deterministic cover, available dodge and dead/remote protector tests; natural 2500-tick nontermination and spectator director lag from prior Chromium review remain open.",
+        "performance": "One additional reusable original mesh and no new lights/postfx/render targets; actual real-device motion/frame p95 and 30-minute endurance remain UNVERIFIED.",
+        "critics": {
+          "independentPanel": "UNAVAILABLE; connected subagent tunnel offline",
+          "looks": "UNVERIFIED",
+          "feels": "UNVERIFIED",
+          "plays": "UNVERIFIED"
+        },
+        "experienceVerdict": "IN_PROGRESS / NOT_TRANSFORMED",
+        "next": "Await exact-head CI/Chromium results, inspect the real desktop/mobile material and genuine AI collision/protection timeline, correct any regression; then build expressive rigged combat and authored arena impact together and capture organic matched baseline traversal→combat→Warden→floor→defeat/restart with real audio. Require three fresh blind critics and measured performance before acceptance."
       }
     ]
   }
