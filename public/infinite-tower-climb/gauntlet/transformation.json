@@ -9,18 +9,18 @@
   },
   "candidate": {
     "sha": null,
-    "title": "Same active 3D ascent→HP-linked guardian/gate→authentic clearance→outcome/restart; unassessed candidate now connects exterior stage focus with actor-aware camera and fixed normal-speed recording",
-    "implementationSha": "7d34b04e5530d23a180670ad33797a455a54296f",
-    "implementationEvidenceStatus": "IMPLEMENTED, NOT EVALUATED: source e85bad7 makes actual long-jump landing and threat camera focus blend on the tower's exterior angular arc, avoiding a Cartesian midpoint that points into opaque stone, while keeping the previous source-driven actor edge catch-up and guardian/gate combat framing. Capture diagnostics now record source-projected real actor crop and camera azimuth for ALL scenarios, not only guardian fights. GitHub real-video workflow 41373794124 for prior native-video source 88b6fa6 FAILED all six scenario jobs before browser execution: Playwright rejects test.use({video}) inside a describe scope. New source c75ee5c replaces it with correctly initialized per-viewport browser.newContext recordVideo, shared by frozen baseline and candidate. Exact-source e85bad7 capture run 41379083377 pending and exact-source safety run 41379083370 in progress at inspection. No new full-motion quality observations, independent blind votes or supported-device measurements. Frozen baseline unchanged. NEW LOAD-BEARING FINDING: exact e85bad7 safety run 41379083370 FAILED two true camera geometry regressions (portrait wide-jump hero shrunk; desktop Ruins landing beacon overlaps upright): 716/718 tests passed, therefore safety VETO. Source 7d34b04 now reserves exterior angular interpolation for exceptional >1.05-radian target separations, retaining previous proven Cartesian focus in nearer routes; source 6555fd5 adds a guard assertion. Current exact-head safety run 41379642193 queued; exact new-camera capture 41379602169 pending. No claims that fix passed or that actual user-experience quality improved."
+    "title": "Same open playable 3D ascent→guardian/gate→result/restart slice; emergency exterior-orbit actor retention now responds to a real offscreen or core-hidden climber, unassessed",
+    "implementationSha": "74fd65b3ca91910186ebc837ece552e76c98da05",
+    "implementationEvidenceStatus": "SOURCE CHANGED / NOT EXPERIENCE EVALUATED. Latest game commit 74fd65b3 adds bounded source-observed actor rescue following normal camera composition, with no new renderer pass, HUD, authority or RNG; source regression tests 08329763. Exact post-change technical workflow not yet verified. Game-source 74fd65b3 normal-speed capture workflow 41383635451 queued at inspection, and no new full-motion review. Earlier camera source 7d34b04 achieved scoped capture in 6/7 jobs but frozen-baseline desktop outcome missed visible terminal/intermission/restart. Independent blind votes zero and supported-device p50/p95/p99+memory missing."
   },
   "currentTransformation": {
-    "title": "Cohesive ascent→guardian 3D armor/gate→causal clearance→outcome/restart, with actor-safe exterior orbit, source-preserving route focus and valid native desktop/phone motion capture",
-    "state": "SAME TRANSFORMATION OPEN; REAL CAMERA GEOMETRY REGRESSION IDENTIFIED AND CONSTRAINED; NATIVE VIDEO CAPTURE UNVERIFIED; QUALITY NOT EVALUATED",
-    "promise": "A truly source-driven climber, guardian armor/gate and witness-bound release remain one real playable 3D experience. Actual route and threat composition now blend toward their authentic coordinates around the same exterior tower annulus rather than through the opaque core; the last rendered actor projection can increase camera-and-gaze catch-up when endangered. The corrected Playwright browser context records genuine 960x600 and 390x844 full-size output without describe-scoped video overrides. Authoritative 20Hz physics, RNG, AI, combat, replay checksums and restart are untouched by these presentation/capture changes. Experience improvement is a testable hypothesis, NOT EVALUATED. Source-based CI exposed two concrete readability regressions from applying annular focus to all routes; 7d34b04 constrains that behavior to genuinely far-side angular separations (>1.05 radians), preserving the proven near-path and landing beacon composition. 6555fd5 adds near-route regression checks. Full exact-head CI and browser footage remain outstanding.",
-    "nextDecision": "First verify exact-head source 6555fd5 technical contract 41379642193 fixes BOTH genuine regressions: portrait wide-jump hero readability and desktop Ruins chevron/upright occlusion. Reject, further constrain or revert route-focus rewrite if either persists. Then inspect native capture 41379602169 at source 7d34b04 (or repeat on current head if relevant) for valid WebM dimensions and >=60s normal-speed mobile/desktop ascent, danger and outcome against the unchanged frozen baseline using the same harness. Compare tick/floor/HP/intent, source actor NDC/route legibility and camera azimuth velocity. Prior frozen-baseline 50ms terminal still lacks visibly complete result/intermission/restart in CI software GL. Never treat tests or geometry as qualitative pass. Obtain five blind independent full-motion critics and supported-device p50/p95/p99+memory, accessibility, replay/recovery before acceptance.",
+    "title": "Same 3D climb→guardian armor/gate→causal passage→full cycle, with portrait-readable actor- and core-safe exterior camera",
+    "state": "SAME TRANSFORMATION OPEN; REAL CLIMBER RECOVERY IMPLEMENTED, SOURCE-PINNED VIDEO AND FULL QUALITY NOT EVALUATED",
+    "promise": "Actual observed camera crop and solid-core line of sight now activate a bounded exterior-orbit and annular-gaze fallback toward the genuinely skinned climber only if standard stage framing becomes unsafe. The normal director continues to prioritize the real route, guardian and HP-driven gate, without cinematic cuts, invented poses or extra in-game HUD. Stale/reduced-motion/overview/result/dead states bypass rescue. No authoritative fixed-step rules, AI, combat, seeds, replay or results were modified. This is a real playable renderer change, NOT a demonstrated full-motion improvement until filmed and independently judged.",
+    "nextDecision": "Review actual new source 74fd65b3 mobile+desktop normal-speed gameplay capture 41383635451 and exact final-head CI; use camera diagnostics actorCamera.ndc, inSafeFrame, coreClear and emergencyOrbitBlend aligned with real floor, tick, guardian health and stage to verify actor return without camera whiplash or hiding the next landing/guardian. Latest baseline-only desktop outcome capture still missing actual full visible result/intermission/restart despite portrait scoped integrity; do NOT alter frozen SHA or fabricate frames. Obtain five genuinely independent blind judges per LOOKS/FEELS/PLAYS, hardware p50/p95/p99+memory, accessibility/replay/recovery before any quality PASS.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "KNOWN P1 CAMERA/ROUTE READABILITY REGRESSION IN UNVERIFIED e85bad7: CI 41379083370 failed portrait wide-jump protagonist scale and desktop Ruins beacon/upright occlusion, 716/718 technical tests passing. New 7d34b04 restores proven normal-route blend and reserves exterior arc for >1.05-radian extreme crossings, but exact-head tests and actual real-motion improvement remain unverified. Prior native capture failed all 6 due Playwright video-in-describe error (repaired c75ee5c). New video and supported hardware still missing, baseline complete outcome still missing, all independent votes 0/5. NOT EVALUATED.",
-    "unverifiedImplementationBranchHead": "6555fd5d4c28ae5ba90f7e15cc3f723063e1ea6d"
+    "biggestRemainingExperienceGap": "Actual source-pinned capture formerly found portrait hero NDC 2.01/1.68/1.25 outside picture; new emergency camera may solve it but no inspected full-motion video exists. Must show that the HERO, next usable deck and wounded guardian stay in frame without nausea or excessive spinning. Frozen-baseline desktop outcome still does not visibly show complete result→intermission→restart; old capture only 6/7 scoped jobs; new native-source run is queued. All 15 independent pillar-vote slots remain empty; actual device frame-time and memory absent. NOT EVALUATED.",
+    "unverifiedImplementationBranchHead": "b4cb5ae5a037cd6fa9fcda2f8ccb1538a7bbfc72"
   },
   "scenarios": [
     {
@@ -60,11 +60,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "SAFETY VETO: exact e85bad7 technical workflow 41379083370 FAILED 2 of 718 tests (portrait wide-jump hero shrunk; Ruins destination beacon overlaps stone upright). New repair 7d34b04 restricts annular focus to extreme angular separations; regression test 6555fd5 protects ordinary stage. New 6555fd5 safety workflow 41379642193 QUEUED at inspection; do not claim green or experience improvement. Earlier 6668251 quality run 41374114366 passed but predates route rewrite. CI is only a veto.",
-    "replay": "NOT INDEPENDENTLY VERIFIED for exact e85bad7. New blendTowerStageFocus consumes cloned scene/authoritative-derived coordinates, changes presentation camera focus only, and never writes snapshots or invokes RNG. 20Hz authority, AI and replay checksums were not edited. Require exact-head replay/invariants and real autonomous play.",
-    "accessibility": "NOT INDEPENDENTLY VERIFIED for exact e85bad7 on target hardware. Reduced-motion camera still immediately settles with no interpolated actor catch-up; review both viewport layouts and visual comfort of exterior shortest-arc focus/fast actor recovery. No extra UI text or color-only critical cue added. Exact earlier wide-jump technical assertion failed; current corrective focus requires real phone/readability/motion review and reduced-motion verification.",
-    "performance": "NOT MEASURED ON SUPPORTED DEVICES. New route focus uses a few arithmetic operations per scene update and actor projection runs only on diagnostics call; no extra WebGL passes or draw meshes added. CI software GL submission intervals from earlier builds do NOT establish presented FPS. Require supported phone/desktop render p50/p95/p99 and memory. Exact source after corrective 7d34b04/6555fd5 still lacks supported-device performance measurements.",
-    "stability": "Technical full-suite on e85bad7 FAILED 2 camera composition tests; fixed hypothesis at 7d34b04+6555fd5, not yet proven by exact-head tests. Prior real video run 41373794124 FAILED all 6 before browser initialization due describe-scoped Playwright video config; c75ee5c repairs per-test browser contexts. New exact-head 6555fd5 CI queued, new 7d34b04 capture pending. Frozen baseline visible complete outcome/restart unresolved."
+    "ci": "Latest VERIFIED prior-head safety contract eeb38ab workflow 41379761430 SUCCESS, including 718-ish source/geometry checks; CI remains a veto only. New camera source 74fd65b3 and focused contract 08329763 have NO completed exact-head safety verdict at inspection: doc-head quality workflow 41383969618 pending; intermediate tests 41383735833 canceled by ongoing commits. Do not infer a pass.",
+    "replay": "NOT INDEPENDENTLY RE-VERIFIED for new 74fd65b3. New helper only reads source-observed climber position and Three camera projection, rotates view; never writes simulation snapshots, ticks, RNG or replay. Require exact-head replay/invariant regression and genuine autonomous full-cycle play.",
+    "accessibility": "NOT VERIFIED ON SUPPORTED DEVICES. Rescue is explicitly bypassed for reduced motion, stale source, overview, terminal/intermission or dead avatar. Need inspect accessible portrait/desktop full motion, comfortable angular velocity, guardian/contact comprehensibility and graphics recovery; no additional UI text or color-only information.",
+    "performance": "NOT MEASURED ON SUPPORTED PHONE OR DESKTOP. One extra camera matrix update/projection only during running follow view, no added geometry, draw pass, particle allocation, mesh or per-frame Vector3 allocations (two scratch vectors reused). CI software WebGL renderer submission intervals are not device-presented FPS. Require hardware frame-time p50/p95/p99 and GPU/heap memory.",
+    "stability": "Prior exact-head quality workflow 41379761430 succeeded before new actor rescue. Source 74fd65b3 real-video run 41383635451 queued, latest contract workflow 41383969618 pending. Shared baseline/candidate native recording works for ascent/guardian; previous run 41379602169 had 6/7 jobs successful, frozen-baseline desktop outcome lacked sampled result/intermission/restart. Context loss, source update, actual long-run motion still need post-change verification."
   },
   "unresolvedCriticalIssues": null,
   "benchmark": {
@@ -147,11 +147,11 @@
         }
       }
     },
-    "newImplementationSha": "7d34b04e5530d23a180670ad33797a455a54296f",
-    "newImplementationRecorded": "NOT VERIFIED. Previous 88b6fa6 native video run 41373794124 had zero valid scenario recordings due Playwright config exception. New source c75ee5c fixes test harness, e85bad7 captures actor camera projection and improves exterior route/threat focus. New exact-source 41379083377 pending; do not count test output or source geometry as user-experience evidence. Exact initial route rewrite source e85bad7 exposed material hero/marker geometry regression and safety workflow failure; corrective source 7d34b04 has no reviewed motion or independent votes.",
-    "reviewPath": "docs/reviews/2026-11-02-tower-pr68-core-safe-guardian-camera-continuation.md",
-    "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41379602169",
-    "followupStatus": "PENDING at inspection; source 7d34b04e5530d23a180670ad33797a455a54296f. Exact current branch head also adds regression test 6555fd5. All baseline and candidate videos, full visible outcome and WebM native dimensions must be actually checked.",
+    "newImplementationSha": "74fd65b3ca91910186ebc837ece552e76c98da05",
+    "newImplementationRecorded": "New 74fd65b3 scene now reacts to actual post-smoothing NDC or core occlusion by moving exterior camera and annular gaze toward the genuine climber, bounded per frame and bypassed on result/reduced-motion. Tests 08329763 source-bound; NOT proven in real new video. Exact game capture 41383635451 queued. No independent motion reviews.",
+    "reviewPath": "docs/reviews/2026-11-02-tower-pr68-actor-retention-source-pinned-continuation.md",
+    "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41383635451",
+    "followupStatus": "QUEUED at last inspection for real game source 74fd65b3. Earlier source 7d34b04 run 41379602169 completed with six of seven recording jobs scoped success; only frozen-baseline desktop outcome failed visible result/intermission/restart. Valid capture scoped checks ≠ full-motion quality evaluation. Exact-head CI queued.",
     "matchedCaptureSettings": {
       "seed": "tower-transformation-capture-v1",
       "sourceBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
@@ -186,26 +186,27 @@
       "keyGap": "Before staging change genuine guardian HP/physical gate often absent in portrait crop; newly source-coordinated 3D stage/camera/passsage awaits footage. Keep critic scores 0/5 and unresolved full baseline outcome."
     },
     "latestUnreviewedRun": {
-      "workflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41365006570",
-      "sourceSha": "6ede6fe34ccab584cd113b828ec69af7b405e312",
+      "workflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41379602169",
+      "sourceSha": "7d34b04e5530d23a180670ad33797a455a54296f",
       "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-      "status": "COMPLETED / 6 OF 7 JOBS SCOPED SUCCESS; BASELINE OUTCOME FAILED; NOT EVALUATED",
-      "scope": "Real normal-speed Chromium source-pinned desktop 960x600 and portrait 390x844, low, same seed tower-transformation-capture-v1. Baseline/candidate ascent and danger captured; candidate outcome captured; baseline outcome fails complete-terminal-intermission-restart-not-observed at both widths, despite three run-token transitions in samples. Success covers only scoped recording integrity. Builder did NOT visually inspect this latest source's full videos in this execution.",
+      "status": "COMPLETED: SIX OF SEVEN JOBS SCOPED SUCCESS; BASELINE DESKTOP OUTCOME FAILED; NOT INDEPENDENTLY EVALUATED",
+      "scope": "Real source-pinned full-motion 20Hz seeded play and native desktop/portrait context. Baseline/candidate ascent and danger + candidate outcome, and authentic ledge job succeeded. Baseline desktop outcome missed actual result/intermission/restart, though portrait scoped check succeeded. No blind full-motion or supported hardware score.",
       "artifacts": {
-        "baselineAscent": 13107067501,
-        "baselineDanger": 13106718313,
-        "baselineOutcomeFailed": 13106369497,
-        "candidateAscent": 13106529085,
-        "candidateDanger": 13106444244,
-        "candidateOutcome": 13107320736
+        "baselineAscent": 13113197951,
+        "baselineDanger": 13113053476,
+        "baselineOutcomePartial": 13113457127,
+        "candidateAscent": 13112823543,
+        "candidateDanger": 13113387347,
+        "candidateOutcome": 13113118356,
+        "ledge": 13113312537
       },
-      "limitation": "All clips predate the current core-safe camera; NOT assessed blind A/B evidence or source SHA of the latest implementation."
+      "limitation": "Not latest game source 74fd65b3; artifact video not independently inspected for quality, source events not aligned and baseline desktop complete outcome missing."
     },
     "cameraImplementation": {
       "sourceCommit": "071a6d06f852b477f422e536296956a21db9c31f",
       "contractTestCommit": "0c86436c220581b2e287c0ecb7ff402192b7ae0c",
       "qualityWorkflowUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41367460977",
-      "qualityWorkflowAtInspection": "IN PROGRESS, technical guardrail only",
+      "qualityWorkflowAtInspection": "Prior eeb38ab technical run 41379761430 SUCCESS (safety only); latest actor-retention exact-head workflow 41383969618 PENDING.",
       "motionCaptureUrls": [
         "https://github.com/my-edutu/Ai_games/actions/runs/41367212445",
         "https://github.com/my-edutu/Ai_games/actions/runs/41367442477"
@@ -213,7 +214,7 @@
       "genuineIndependentLookVotes": 0,
       "genuineIndependentFeelVotes": 0,
       "genuineIndependentPlayVotes": 0,
-      "reviewerBrowserBlocker": "Independent-worker/browser workspace tool unavailable: NOT_FOUND tunnel client offline >300 seconds; no independent judgments invented",
+      "reviewerBrowserBlocker": "Independent-worker/browser workspace tool NOT_FOUND: tunnel client offline >300s, confirmed again 2026-11-02; no blind votes invented",
       "status": "NOT EVALUATED"
     },
     "latestCameraInspection": {
@@ -244,6 +245,16 @@
       "quality": "NOT EVALUATED",
       "regressionRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41379083370",
       "regressionFixCommit": "7d34b04e5530d23a180670ad33797a455a54296f"
+    },
+    "actorRetention": {
+      "sourceCommit": "74fd65b3ca91910186ebc837ece552e76c98da05",
+      "testCommit": "08329763fb4a10e339cd5c04dcd7c5f40274d0f4",
+      "quality": "NOT EVALUATED",
+      "evidenceLink": "https://github.com/my-edutu/Ai_games/actions/runs/41383635451",
+      "implementation": "Pure responsive fallback inside actual 3D scene follows genuine post-smoothing actor NDC and approximate core line of sight, constrained exterior arc and annular gaze; no new GPU passes, no authority changes; skips reduced-motion, overview, stale, outcome/death.",
+      "originalObservedCrop": "Prior native real-play 41367442477: portrait actor NDC x=2.01, 1.68, 1.25 and desktop x=1.31, 1.16. These were actual offscreen geometry and sampled real frames, not a current after-improvement win.",
+      "requiredReview": "Visually watch 60+s candidate and frozen video matched by source tick/floor/intent/guardian HP. Confirm actual moving silhouette and route readability, angular comfort and phone crop; independently blind rate LOOKS FEELS PLAYS. Check exact source replay/accessibility/hardware p50/p95/p99.",
+      "workers": "Independent browser/agent connector returned tunnel offline >300 seconds: no fresh-context critics; 0/5 each pillar."
     }
   }
 }
