@@ -26,7 +26,7 @@ const gpuArgs=['--enable-webgl','--use-gl=angle','--use-angle=swiftshader',
  '--enable-precise-memory-info'];
 
 const evidence={
- version:'g141-lived-dawn-workday-night-household-v1',
+ version:'g142-physically-occupied-homes-and-continuous-homecoming-v1',
  baselineSha:BASE,candidateSha:null,baselineBlob:null,candidateBlob:null,
  renderer:'UNVERIFIED',status:'INCOMPLETE',workdayTicks:null,
  camera:{wide,labor,grown,marketView},viewport,
@@ -39,7 +39,7 @@ const evidence={
   'Video files include honest initialization pre-roll; no postprocessed or fabricated frames.',
   'Supplemental candidate live-worker shots are not equivalent to a matched A/B and cannot substitute for blinded review.',
   'G098 courier, G099 unloading and G113/G115 street interactions are candidate-only supplementary proof, not a matched G088 mechanic (baseline lacks first-person movement).',
-  'G141 evening screenshots are matched Day-120 seed/time/mobile views; no independent review or nightly real-time footage yet.'
+  'G142 compares matched Day-120 evening and 04:00 mobile screenshots; a separate candidate-only genuine homecoming mobile video shows real citizen, camera interaction and night-to-dawn continuity, not a blinded preference verdict.'
  ]
 };
 const mkdir=(name)=>fs.mkdirSync(path.join(DIR,name),{recursive:true});
@@ -341,9 +341,30 @@ async function stage(label,html,browser,matchedTicks){
    assert(result.nightSociety.counts.resting+result.nightSociety.counts.returning>=20,
     'Day-120 town lacked genuine household returns after sunset');
   }
+  // Preserve the EXACT real late-evening authoritative state for uncut
+  // documentary homecoming footage. No synthetic resident or actor stage.
+  const homecomingSnapshot=await page.evaluate(()=>window.__tinyKingdom.exportSnapshot());
+  // The 23:00 still had 26 genuine walkers and only one resident home.
+  // Stage a SECOND identical 04:00 seed/camera mobile image so we can
+  // inspect actually occupied windows, not mistake commuters for hearths.
+  await advanceTicks(page,5*30);
+  result.overnight=await cameraAndScreenshot(page,grown,label+'/day120-overnight-04-mobile.png',false);
+  result.overnightSociety=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   return typeof g.getDailyRhythmAudit==='function'?{
+    ...g.getDailyRhythmAudit(),
+    households:typeof g.getOccupiedHouseholds==='function'?g.getOccupiedHouseholds():null,
+    windowLight:typeof g.getHouseholdLightAudit==='function'?g.getHouseholdLightAudit():null}:null;
+  });
+  if(label==='candidate'){
+   assert(result.overnightSociety?.households?.length>0,
+    'Actual 04:00 Day-120 settlement has no physically reached households');
+   assert(result.overnightSociety?.windowLight?.litHomes>0,
+    'Actual 04:00 Day-120 village has no occupied window lighting');
+  }
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);
   assert.equal(overflow,false,label+' 390px horizontal document overflow');
-  return {result,ticks};
+  return {result,ticks,homecomingSnapshot};
  }finally{
   await context.close();
  }
@@ -416,6 +437,68 @@ async function motion(browser,html,snapshot,label,live=false,camera=labor,delive
 }
 
 
+// G142: continuous real 390px resident follow from the same captured Day-120
+// 23:00 state. The user clicks Homecoming and manually orbits the actual
+// resident. No camera authority, simulation pause, actor spawn or tick jump
+// occurs during the footage; the 04:00 still supplies completed house proof.
+async function homecomingMotion(browser,html,snapshot){
+ const label='candidate-homecoming-mobile';
+ const {context,page,contextInfo}=await openScene(browser,html,label,true,true);
+ const video=page.video();
+ try{
+  await page.evaluate(state=>{
+   const g=window.__tinyKingdom;
+   g.restoreSnapshot(state);
+   g.setCommandView('world');
+  },snapshot);
+  await page.locator('#homecoming-follow').click();
+  const start=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   return {state:g.exportSnapshot(),witness:g.getHomecomingView(),
+    rhythm:g.getDailyRhythmAudit(),renderer:g.renderQuality()};
+  });
+  assert(start.witness.active&&start.witness.inWorld,
+   'Homecoming video was not following a real returning resident');
+  assert.equal(start.rhythm.shift,'night-rest',
+   'Homecoming filming started during a daytime shift');
+  const wallStart=Date.now();
+  await page.waitForTimeout(2200);
+  await page.mouse.move(180,340);
+  await page.mouse.down();
+  await page.mouse.move(220,351,{steps:6});
+  await page.mouse.up();
+  await page.waitForTimeout(2600);
+  await page.mouse.wheel(0,-60);
+  await page.waitForTimeout(4700);
+  const end=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   return {state:g.exportSnapshot(),view:g.getHomecomingView(),
+    rhythm:g.getDailyRhythmAudit(),renderer:g.renderQuality(),
+    households:g.getOccupiedHouseholds(),lights:g.getHouseholdLightAudit(),
+    scrollWidth:document.documentElement.scrollWidth,
+    glError:document.getElementById('world').getContext('webgl')?.getError()??-1};
+  });
+  const seconds=(Date.now()-wallStart)/1000;
+  assert.equal(end.glError,0,'G142 homecoming moving footage GL error');
+  assert(end.scrollWidth<=390,'G142 real resident follow overflows 390px');
+  assert.equal(start.witness.citizen,end.view.citizen,
+   'G142 homecoming camera changed its real selected citizen');
+  return {renderer:contextInfo.quality.renderer,seconds,
+   frames:end.renderer.framesDrawn-start.renderer.framesDrawn,
+   observedFps:(end.renderer.framesDrawn-start.renderer.framesDrawn)/seconds,
+   initialChecksum:start.state.checksum,finalChecksum:end.state.checksum,
+   actor:start.witness.citizen,job:start.witness.job,
+   actualHomeIndex:start.witness.homeIndex,
+   startActivity:start.witness.activity,endActivity:end.view.activity,
+   startedAtNight:true,finalHouseholds:end.households.length,
+   finalLitHomes:end.lights.litHomes,mobileWidth:end.scrollWidth,
+   videoFile:label+'.webm',matchedPair:false,uninterruptedRealTime:true,
+   scriptedUserCameraInput:true,isSoftware:true};
+ }finally{
+  await context.close();
+  fs.renameSync(await video.path(),path.join(DIR,label+'.webm'));
+ }
+}
 /* G113 uncut physical street-walk clip. Human input moves a camera through
  * original actual civilization; no fake citizens, animation, or frame edits. */
 async function streetMotion(browser,html,snapshot){
@@ -522,6 +605,8 @@ async function streetMotion(browser,html,snapshot){
    'Day120 A/B must use identical simulated time');
   assert.equal(c.result.night.simulatedHour,b.result.night.simulatedHour,
    'Night homecoming A/B must use identical simulated time and seed');
+  assert.equal(c.result.overnight.simulatedHour,b.result.overnight.simulatedHour,
+   '04:00 occupied-home A/B must use identical real simulation time');
   // Real, unedited matched-hour gameplay. Recreate read-only staged snapshots
   // inside newly recording contexts; no clock stepping during footage.
   const cSnapshot=await regenerateSnapshot(browser,candidate,c.ticks);
@@ -534,6 +619,11 @@ async function streetMotion(browser,html,snapshot){
   evidence.videos.baseline=await motion(browser,baseline,bSnapshot,'baseline-workday');
   evidence.videos.candidateLive=await motion(browser,candidate,cSnapshot,'candidate-live-shift',true);
   evidence.videos.candidateStreetWalk=await streetMotion(browser,candidate,cSnapshot);
+  // The nighttime pair has identical world time and original simulation
+  // seed; user-directed homecoming is only available to the newer game.
+  evidence.videos.baselineNight=await motion(browser,baseline,b.homecomingSnapshot,
+   'baseline-night-workday',false,grown);
+  evidence.videos.candidateHomecoming=await homecomingMotion(browser,candidate,c.homecomingSnapshot);
    // Full, uncut paired market gameplay with actual citizen simulation and
    // real pointer orbit/zoom. No screenshots or mock animation substituted.
    evidence.videos.candidateMarket=await motion(browser,candidate,cSnapshot,'candidate-market',false,marketView);
