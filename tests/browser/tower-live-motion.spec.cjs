@@ -58,6 +58,7 @@ for (const viewport of viewports) {
         // Real AI platform intent rendered as depth-tested 3D stones; source
         // snapshot remains the only authority for route/collision decisions.
         observedRouteIntent: d.routeIntent || null,
+        observedGuardianCircuit: d.guardianCircuit || null,
         // Exact presented-camera world projection at the time of a genuine
         // source HP observation. Unlike a source-only geometry fixture, this
         // records whether the guardian and gate are actually inside the

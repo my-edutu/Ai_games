@@ -79,7 +79,7 @@ export function createTowerGuardianCircuit(THREE) {
   group.add(rails, conductors, atGuardian, atGate);
   const pose = new THREE.Object3D();
   const start = new THREE.Vector3(), finish = new THREE.Vector3();
-  const middle = new THREE.Vector3(), tangent = new THREE.Vector3();
+  const tangent = new THREE.Vector3();
   const up = new THREE.Vector3(0, 1, 0);
   const dark = new THREE.Color(0xffbd75), released = new THREE.Color(0x8ef1d2);
   let source = null, disposed = false;
@@ -124,9 +124,10 @@ export function createTowerGuardianCircuit(THREE) {
         start.set(first.x, first.y, first.z);
         finish.set(second.x, second.y, second.z);
         tangent.copy(finish).sub(start);
+        const segmentLength = Math.max(.01, tangent.length());
         pose.position.copy(start).add(finish).multiplyScalar(.5);
-        pose.quaternion.setFromUnitVectors(up, tangent.clone().normalize());
-        pose.scale.set(1 + opening * .55, Math.max(.01, tangent.length() * .98), 1);
+        pose.quaternion.setFromUnitVectors(up, tangent.multiplyScalar(1 / segmentLength));
+        pose.scale.set(1 + opening * .55, segmentLength * .98, 1);
         pose.updateMatrix();
         const slot = (side < 0 ? 0 : RAIL_STEPS) + index;
         rails.setMatrixAt(slot, pose.matrix);
