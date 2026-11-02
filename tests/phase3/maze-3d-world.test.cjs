@@ -651,7 +651,12 @@ test('authentic public key pickup opens four hinged 3D petals and leaves a perma
   assert.ok(shrine?.isGroup,'the genuine observed treasure has an authored physical origin');
   assert.equal(world.group.getObjectByName('Disclosed golden key'),undefined,'no false remaining key');
   const leaves=Array.from({length:4},(_,i)=>shrine.getObjectByName('Physical shrine petal '+i));
-  assert.ok(leaves.every(p=>p?.isGroup&&p.children.filter(c=>c.isMesh).length===2));
+  assert.ok(leaves.every(p=>p?.isGroup&&p.children.filter(c=>c.isMesh).length===4),
+    'four separately carved, lit-by-existing-material stone pieces form every physical hinge');
+  assert.ok(leaves.every(p=>p.children.some(c=>c.material?.color?.getHexString()=== 'eed5a0')),
+    'each leaf has the existing large ivory rim instead of a tiny floor-only speck');
+  assert.ok(leaves.every(p=>p.children.some(c=>c.scale.x >= .5)),
+    'the original physical stone blossom has visible major mass, not a pickup HUD glyph');
   assert.ok(leaves.every(p=>p.rotation.z===0),'authentic collection begins with the petals closed');
   world.animate(90,{gateTime:12.3,reducedMotion:false});
   assert.ok(leaves.every(p=>p.rotation.z>.1&&p.rotation.z<.78),

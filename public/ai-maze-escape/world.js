@@ -657,12 +657,18 @@ export function createMazeWorld(options = {}) {
     for (let i = 0; i < 4; i++) {
       const angle = i * Math.PI / 2, petal = new THREE.Group();
       petal.name = 'Physical shrine petal ' + i;
-      petal.position.set(Math.cos(angle) * .22, .34, Math.sin(angle) * .22);
+      petal.position.set(Math.cos(angle) * .26, .38, Math.sin(angle) * .26);
       petal.rotation.y = -angle;
       petal.rotation.z = key.collected && !witnessed ? .78 : 0;
       p.add(petal);
-      mesh(petal, bevel, jade, .20, .03, 0, .43, .14, .24);
-      mesh(petal, bevel, inlay, .29, .11, 0, .13, .06, .14);
+      // An actual opening stone blossom is readable beyond Pip's feet.
+      // Four curved-looking stepped, carved 3D blades connect at the real
+      // key socket. Broader ivory lips and teal relief use ONLY the existing
+      // geometry/material pool, rather than sprites or another collectible.
+      mesh(petal, bevel, jade, .30, .06, 0, .59, .25, .39);
+      mesh(petal, bevel, lightStone, .47, .18, 0, .30, .10, .31);
+      mesh(petal, bevel, inlay, .50, .245, 0, .12, .055, .21);
+      mesh(petal, bevel, darkJade, .66, .09, 0, .10, .12, .28);
       if (witnessed) animations.push({type:'key-shrine', object:petal, keyId:key.id});
     }
     if (key.collected) {

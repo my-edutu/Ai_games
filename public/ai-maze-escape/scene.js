@@ -566,7 +566,34 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         }
       }
     }
-    const blend = settings.reducedMotion ? 1 : 1 - Math.exp(-delta * 4.5);
+    // The ordinary full-stage follow frame makes the genuinely witnessed
+    // collected key and Pip tiny against a large empty water surround.
+    // For <.82 s, a real same-run public pickup may briefly stage their
+    // physical 3D interaction as one closer shot. It is subordinate to the
+    // actual public guardian, gate, terminal/recovery and manual camera.
+    // An unobserved key or a fabricated stale event can NEVER request this.
+    let pickupCameraBeat = false;
+    if (cameraMode === 'follow' && !settings.reducedMotion && !result
+      && !closestThreat?.strength && !cameraGate && showPickup
+      && Array.isArray(s.keys) && Array.isArray(s.inventory)
+      && s.keys.some(key => key.id === recentPublicPickup.id
+        && key.cell === recentPublicPickup.cell && key.collected)
+      && s.inventory.includes(recentPublicPickup.id)
+      && s.cells.some(cell => cell.cell === recentPublicPickup.cell)) {
+      const originalCell = cellPosition(recentPublicPickup.cell,s.width,s.height);
+      if (Math.hypot(pose.x-originalCell.x,pose.z-originalCell.z) <= CELL_SIZE * 1.25) {
+        pickupCameraBeat = true;
+        // Keep a minimum 3.55 world-unit horizontal half-span on narrow phones
+        // while increasing the screen presence of the witnessed story beat.
+        // Never force this tighter view on guardian, gate, overview or reduced
+        // motion. Camera target and zoom are solely presentation state.
+        targetHeight = Math.min(targetHeight, Math.max(5.45,3.55/Math.max(.35,aspect)));
+        desiredTarget.set((pose.x+originalCell.x)*.5,ground+.68,
+          (pose.z+originalCell.z)*.5);
+      }
+    }
+    const blend = settings.reducedMotion ? 1
+      : 1 - Math.exp(-delta * (pickupCameraBeat ? 8 : 4.5));
     cameraTarget.lerp(desiredTarget, blend);
     halfHeight += (targetHeight - halfHeight) * blend;
     camera.left = -halfHeight * aspect; camera.right = halfHeight * aspect;
@@ -731,6 +758,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         // with projected coordinates in normalized device space [-1,+1].
         nearbySealedGate: nearObservedGate ? {...nearObservedGate} : null,
         cameraHalfHeight: halfHeight,
+        pickupCameraBeat, pickupCameraTargetHalfHeight: pickupCameraBeat ? targetHeight : null,
         cameraAspect: aspect, cameraHorizontalHalfSpan: halfHeight * aspect,
         cameraOffset: {x: cameraOffset.x, y: cameraOffset.y, z: cameraOffset.z},
         nearbySealedGateProjection: nearObservedGate ? (() => {
