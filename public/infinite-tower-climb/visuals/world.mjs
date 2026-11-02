@@ -1231,6 +1231,15 @@ export function createTowerWorld(){
         // proxy angles. No extra clock/physics, speculative destination or
         // per-tick geometry allocation; keep conservative culling disabled.
         if(entry.gearVisual){
+          const carriedWeight=entry.actuator.userData.loaded===true;
+          if(entry.gearVisual.userData.loaded!==carriedWeight){
+            // The same authentic deck contact that compresses the piston
+            // lights its real metal teeth; never imply an anticipated ride.
+            entry.gearVisual.setColorAt(0,tint.set(carriedWeight?0xffe8c8:0xffffff));
+            entry.gearVisual.setColorAt(1,tint.set(carriedWeight?0xacf9da:0xb1d6e0));
+            entry.gearVisual.instanceColor.needsUpdate=true;
+            entry.gearVisual.userData.loaded=carriedWeight;
+          }
           for(const [index,gear] of [entry.traveler,entry.countergear].entries()){
             dummy.position.copy(gear.position);
             dummy.rotation.set(0,0,gear.rotation.z);
