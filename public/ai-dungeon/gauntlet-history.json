@@ -2200,13 +2200,13 @@
       "audioLoudnessAndClipping": "NOT_MEASURED",
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
-      "actualWebglFramingRegression": "Inspected exact prior-head genuine 1440x832 original WebGL world-only artifact https://github.com/my-edutu/Ai_games/actions/runs/41398888784/artifacts/13120803208 . Three living heroes in view, no active enemies in that one sample; their circular toy heads overlap alongside bulky masonry. This is genuine prior-head rendering, NOT a matched M1 baseline or a win for the unrendered new candidate.",
-      "latestCandidateWorkflow": "Source/test candidate a20bf79e0f55dd5a1acd543411c0a1ecff86a284; Dungeon Foundation https://github.com/my-edutu/Ai_games/actions/runs/41450643700, Visual https://github.com/my-edutu/Ai_games/actions/runs/41450643798, Catalogue CI https://github.com/my-edutu/Ai_games/actions/runs/41450643931 queued as of initial check 2026-11-02. No matched visual or audiovisual candidate pass verified."
+      "actualWebglFramingRegression": "Personally inspected genuine c36bcbf source-head Warden-exposed desktop browser frame https://github.com/my-edutu/Ai_games/actions/runs/41451177736/artifacts/13145169672 ; the enormous Warden boss shoulder and regalia hide most of the live Vanguard at close range, making the supposed playable counterattack nearly unreadable. Other genuine c36 browser shards 1/2/3 and dedicated visual review 41451177786 succeeded. Exact-head authority and whole catalogue CI FAILED: in skinned-defeat staging a partial stub actor had no root and threw while reading visible. This candidate repairs the missing-root guard, and changes hero-forward camera, true recovery skeleton and boss armor. Exact new e799a851 WebGL AFTER is not yet inspected or judged.",
+      "latestCandidateWorkflow": "New code candidate e799a851b47f0ece1d95a3fc140b97cd3fdd5227 at 2026-11-02. Real previous-source Warden image https://github.com/my-edutu/Ai_games/actions/runs/41451177736/artifacts/13145169672 . Exact-new-code GitHub browser/authority/CI, mobile performance and audiovisual evidence NOT VERIFIED when committed. Previous c36: all 3 browser shards succeeded and dedicated visual workflow succeeded, authority unit tests FAILED 4 missing-root errors; caught and guarded in this candidate. Local 34/34 focused, 206/206 Dungeon foundation and TypeScript build succeeded; attempted repo-wide npm test timed out after 414 passing cases, NOT a full green suite."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "No independently judged, matched full-sequence browser motion/audio proves a substantial playable transformation. Prior live character anatomy and crowding still missed the Diablo IV / No Rest for the Wicked / PoE2 bars; new skinned bone movement, boss cinematography and material quality must be inspected on real device-size renders.",
-    "currentWork": "M1 real-character physicalization implemented: HP-zero GLB joint articulation, true static last stand and five original shared forged microtextures. Exact candidate browser footage, continuous AV comparison and blind external critics are UNVERIFIED.",
-    "candidateCommit": "a20bf79e0f55dd5a1acd543411c0a1ecff86a284",
+    "biggestRemainingGap": "Real prior desktop Warden frame shows giant toy-like boss clipping/obscuring the Vanguard precisely during the autonomous counter window, while full narrative, actual sound and independent benchmark A/B remain missing. Hero-forward cinematic/staggered real skinned guard are implemented but AFTER browser render and performance are NOT VERIFIED; original anatomy and repetitive architecture remain far below AAA reference.",
+    "currentWork": "One continuing M1: hero-forward real Warden approach/contact/recovery camera instead of enemy-foreground occlusion, slightly wider exposure lens, authority-gated physical exposed stance on the real cloned skeletal shoulders/torso and original Warden pauldrons/heart, plus live browser assertions and a safety fix for partial skinned actors. No AI, RNG, hitbox, HP, replay or asset-license changes.",
+    "candidateCommit": "e799a851b47f0ece1d95a3fc140b97cd3fdd5227",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -2969,6 +2969,35 @@
         },
         "statusGate": "IN_PROGRESS / NOT_TRANSFORMED",
         "next": "Inspect exact-head real Chromium desktop+390px portrait and audio/scene recording, repair posed anatomy and performance where needed, then film seeded traverse/combat/Warden/floor/descent/defeat/restart, compare pinned baseline and independently blind-vote looks/feels/plays."
+      },
+      {
+        "id": "M1-HERO-READABLE-WARDEN-COMBAT-CAMERA-20261102",
+        "date": "2026-11-02",
+        "status": "IN_PROGRESS / IMPLEMENTED_UNVERIFIED",
+        "milestone": "SAME unaccepted M1; baseline must remain locked",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "codeCommit": "e799a851b47f0ece1d95a3fc140b97cd3fdd5227",
+        "inspectedSourceHead": "c36bcbf3758bed4581edde0d0b68eefc1b6eb1ea",
+        "realBeforeCapture": "https://github.com/my-edutu/Ai_games/actions/runs/41451177736/artifacts/13145169672",
+        "directObservation": "Genuine desktop Warden recovery frame has huge boss armor obscuring most of the living Vanguard, compromising readability of actual counterattack; this predecessor image is NOT the immutable M1 baseline and is not matched A/B.",
+        "integratedImplementation": [
+          "Public-grid Warden approach, exposed recovery and legal weapon contact now rotate camera behind the living defender (not giant boss); true pending shockwave still receives separate wide tactic-first warning lens.",
+          "Recovery is derived strictly from public bossRecovery.remaining, guardianWard and bossWarning. Legitimately exposed Warden shifts torso, imported rig shoulder joints, opening paired original pauldron/collar and heartplate, with static accessibility under reduced motion; during ward or danger the physical exposure disappears.",
+          "New read-only real WebGL diagnostics and browser receipts check camera hero foreground and boss recovery physical state on desktop, with existing portrait/mobile and actual authority hit capture retained.",
+          "Prevent missing actor.root in partial imported-rig staging from crashing shared presentation; this is a safety repair, not experiential victory."
+        ],
+        "verification": "Local Node exact-source targeted 34/34 PASS; complete Dungeon foundation 206/206 PASS; TypeScript build PASS. Full repo npm test exceeded execution window (last recorded passing test 414), NOT claim full green. Previous source c36 genuine all 3 browser shards PASS, separate browser visual workflow PASS, authority/CI FAIL due missing-root presentation fixture. Exact e799 GitHub browser and AV, p95, accessibility audits UNVERIFIED.",
+        "independentCritics": {
+          "status": "NOT_RUN",
+          "looksVotes": 0,
+          "feelsVotes": 0,
+          "playsVotes": 0,
+          "reason": "coding-agent tunnel unavailable; cannot make up blind preferences"
+        },
+        "safetyStatus": "REMOTE_EXACT_HEAD_PENDING",
+        "visualGate": "NOT_TRANSFORMED",
+        "statusGate": "IN_PROGRESS / NOT_TRANSFORMED",
+        "next": "Inspect true e799 browser capture on 1440px and 390px Warden counter and actual 3D flank; correct missed hero/body occlusion, bone and armor clipping, and any CI regression. Capture full seeded traversal→active combat→Warden→portal/floor→defeat/restart with original sound, p95 frame profile, and ≥3 independent blind LOOKS/FEELS/PLAYS judgments against fixed 281735d0910c6b2443648af976003d50412ee324."
       }
     ]
   }
