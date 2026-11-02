@@ -630,3 +630,63 @@ test('Pip physically acknowledges only a witnessed public pickup with stable pri
     pip.dispose();
   }
 });
+
+test('Thornback has a real hinged tail silhouette and coral gape only for a disclosed close encounter',async()=>{
+  const {createWarden}=await modulePromise;
+  for(const balanced of [false,true]){
+    const warden=createWarden({balanced});
+    const root=warden.group.getObjectByName('guardian shell-tail root');
+    const vanes=[-1,1].map(side=>({side,part:warden.group.getObjectByName(`articulated guardian tail vane ${side}`)}));
+    const jaw=warden.group.getObjectByName('hinged guardian lower mandible');
+    const throat=warden.group.getObjectByName('guardian disclosed coral throat');
+    const head=warden.group.getObjectByName('warden mask');
+    assert.ok(root?.isGroup && jaw?.isGroup && throat?.isGroup && head?.isGroup);
+    assert.equal(root.parent?.name,'armored body','shell-tail is part of the original guardian, not a stage sprite');
+    assert.equal(jaw.parent,head,'the jaw must be physically connected to the articulated face');
+    assert.equal(throat.parent,head,'the real recessed throat moves with the head');
+    assert.equal(throat.visible,false,'neutral gameplay does not signal an undisclosed opponent');
+    for(const {part} of vanes){
+      assert.ok(part?.isGroup && part.parent===root,'paired rigid fans use real shared shell hinges');
+      assert.ok(part.children.some(child=>child.isMesh && child.geometry?.attributes?.position),
+        'each fan must contain genuine three-dimensional armor, not a screen-space glyph');
+    }
+    const resources=()=>{const resources=new Set();warden.group.traverse(node=>{
+      if(node.geometry)resources.add(node.geometry);
+      if(node.material)resources.add(node.material);
+    });return resources;};
+    const originals=resources();
+    const close={heading:0,attentionHeading:Math.PI/2,attentionStrength:.85,danger:1,
+      reducedMotion:true,moving:false,time:20,delta:.05};
+    warden.update(close);
+    assert.equal(throat.visible,true,'only a real source-disclosed encounter reveals the physical mouth');
+    assert.ok(jaw.rotation.x>.55,'the joined bronze jaw must physically open rather than just recolor the eyes');
+    for(const {side,part} of vanes){
+      assert.ok(part.rotation.z*side>.5,'the two tail fins must visibly fan outward');
+      assert.ok(part.rotation.x<-.2,'the attached vanes must tilt into the physical silhouette');
+    }
+    const staticPose=[jaw.rotation.x,...vanes.flatMap(({part})=>part.rotation.toArray())];
+    warden.update({...close,time:1000});
+    assert.deepEqual([jaw.rotation.x,...vanes.flatMap(({part})=>part.rotation.toArray())],staticPose,
+      'reduced-motion performance must be a stable 3D pose, not an inaccessible blink');
+    warden.update({...close,time:1.4,reducedMotion:false});
+    assert.ok(jaw.rotation.x>.55 && throat.visible,'motion-enabled pose also models real mouth opening');
+    for(let frame=0;frame<35;frame++)
+      warden.update({...close,time:frame/30,reducedMotion:false,moving:frame%2===0});
+    assert.deepEqual(resources(),originals,'no per-frame geometry or materials may be allocated');
+    for(const result of [undefined,'capture','escaped']){
+      const noThreat={...close,attentionStrength:result?1:0,result,time:2,reducedMotion:true};
+      warden.update(noThreat);
+      assert.equal(jaw.rotation.x,0,'neutral or terminal state must close the mouth exactly');
+      assert.equal(throat.visible,false,'source truth must clear all stale public warnings');
+      for(const {part} of vanes){
+        assert.equal(part.rotation.x,0,'the tail folds completely without hidden opponent persistence');
+        assert.equal(part.rotation.y,0);
+        assert.equal(part.rotation.z,0);
+      }
+    }
+    assert.deepEqual(warden.group.position.toArray(),[0,0,0],
+      'physical acting never moves the autonomous guardian in the authoritative world');
+    warden.dispose(); warden.dispose();
+    assert.equal(warden.group.children.length,0,'new joints and materials must clean up with the original rig');
+  }
+});
