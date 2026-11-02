@@ -305,12 +305,17 @@ test('Thornback opens physical paired shell halves only during a true disclosed 
       side, wing:warden.group.getObjectByName(`flared elytron ${side}`),
       lining:warden.group.getObjectByName(`exposed elytron lining ${side}`),
       seam:warden.group.getObjectByName(`opened elytron ember seam ${side}`),
-      fronds:warden.group.getObjectByName(`unfurled sea-glass wing fronds ${side}`)
+      fronds:warden.group.getObjectByName(`unfurled sea-glass wing fronds ${side}`),
+      sail:warden.group.getObjectByName(`articulated tidal sail ${side}`)
     }));
     for (const entry of sides) {
       assert.ok(entry.wing && entry.lining && entry.seam && entry.fronds,
         'both shell plates, ember linings, physically attached fronds and seams must be modeled');
       assert.equal(entry.fronds.parent,entry.wing,'every botanical blade is physically hinged to the guardian, not a screen marker');
+      assert.equal(entry.sail?.parent,entry.fronds,
+        'a large original sail is physically joined to each existing shell hinge, never a floating marker');
+      assert.ok(entry.sail.children.filter(part=>part.isMesh).length>=2,
+        'the expanded silhouette is multiple actual connected bronze and sea-glass 3D meshes');
       assert.equal(entry.fronds.visible,false,'no secret warning frond is visible for an undisclosed threat');
       assert.ok(entry.fronds.children.filter(part=>part.isMesh).length>=2,
         'multiple sculpted rigid meshes construct an actual three-dimensional crest');
@@ -343,6 +348,14 @@ test('Thornback opens physical paired shell halves only during a true disclosed 
         assert.equal(entry.lining.visible,true,'real exposed ember underside follows public close warning');
         assert.equal(entry.seam.visible,true,'physically attached ember seam follows the public warning');
         assert.equal(entry.fronds.visible,true,'tall original physical blades bloom in a disclosed encounter');
+        assert.ok(entry.sail.rotation.z*entry.side>.27,
+          'both sculpted tide sails unfold visibly toward the true public explorer encounter');
+        if (reducedMotion) {
+          const stable=entry.sail.rotation.z;
+          warden.update({heading:0,attentionHeading:Math.PI/2,attentionStrength:.56065,
+            danger:1,reducedMotion:true,time:100,delta:.05});
+          assert.equal(entry.sail.rotation.z,stable,'reduced motion retains a still encounter silhouette');
+        }
         if (reducedMotion) assert.equal(entry.fronds.rotation.y,0,
           'the large botanical silhouette stays still for reduced-motion users');
       }
@@ -357,6 +370,7 @@ test('Thornback opens physical paired shell halves only during a true disclosed 
         assert.equal(entry.seam.visible,false);
         assert.equal(entry.fronds.visible,false,'unobserved opponent never leaves a lingering false bloom');
         assert.equal(entry.fronds.rotation.y,0,'neutral pose resets to exact positive zero');
+        assert.equal(entry.sail.rotation.z,0,'withdrawn attention resets the sculpted tide sail to +0');
       }
       for (const result of ['capture','escape']) {
         warden.update({heading:0,attentionHeading:Math.PI/2,attentionStrength:1,
@@ -370,6 +384,7 @@ test('Thornback opens physical paired shell halves only during a true disclosed 
           assert.equal(entry.seam.visible,false);
           assert.equal(entry.fronds.visible,false,'terminal truth cancels the blossom as well as the spines');
           assert.equal(entry.fronds.rotation.y,0,'terminal reset cannot retain hidden attention');
+          assert.equal(entry.sail.rotation.z,0,'a terminal result must retract every extended physical sail');
         }
       }
     }
