@@ -95,7 +95,7 @@ export function createTowerFinale(THREE) {
         // on the tower's outer deck; the outcome must remain physically visible.
         const column = i % 4, tier = Math.floor(i / 4);
         transform.position.set((column - 1.5) * 2.45,
-          .12 + scaleY * .55, 1.5 + tier * 1.4);
+          .12 + scaleY * .95, 1.5 + tier * 1.4);
         transform.rotation.set(0, 0, 0);
         transform.scale.set(.82, scaleY, .82);
         transform.updateMatrix();
