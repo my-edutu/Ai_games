@@ -133,7 +133,7 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
   const hero=heroes.find(u=>u.id===encounter.actorId);
   mode=foe?.kind==='warden'?'warden-contact':'contact';
   position=foe?.kind==='warden'?heroLed(hero,foe):mean(hero,foe);
-  offsets=planDuelCameraOffset(hero,foe,foe?.kind==='warden'?8.15:6.6,foe?.kind==='warden'?7.25:5.85,{heroForeground:foe?.kind==='warden'&&s.bossRecovery?.remaining?'recovery':foe?.kind==='warden'})||[4.6,7.35,5.05];
+  offsets=planDuelCameraOffset(hero,foe,foe?.kind==='warden'?8.15:6.6,foe?.kind==='warden'?7.25:5.85,{heroForeground:foe?.kind==='warden'&&!s.guardianWard&&!s.bossWarning&&Number.isSafeInteger(s.bossRecovery?.remaining)&&s.bossRecovery.remaining>=1&&s.bossRecovery.remaining<=6?'recovery':foe?.kind==='warden'})||[4.6,7.35,5.05];
   lookY=foe?.kind==='warden'?.76:.91;subjects=[hero.id,foe.id];
  }else if(boss&&closeBoss&&distance(closeBoss,boss)<=6){
   mode='warden-approach';position=heroLed(closeBoss,boss);
