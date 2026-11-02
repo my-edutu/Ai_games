@@ -158,10 +158,14 @@ function towerCameraActorSafetyRate(rate, ndcX, ndcY, aspect) {
 function blendTowerStageFocus(center, subject, weight) {
   const amount = clamp(weight, 0, 1);
   const r0 = Math.hypot(center.x, center.z), r1 = Math.hypot(subject.x, subject.z);
-  if (r0 > 1 && r1 > 1) {
-    const start = Math.atan2(center.x, center.z);
-    const end = Math.atan2(subject.x, subject.z);
-    const arc = Math.atan2(Math.sin(end - start), Math.cos(end - start));
+  const start = Math.atan2(center.x, center.z);
+  const end = Math.atan2(subject.x, subject.z);
+  const arc = Math.atan2(Math.sin(end - start), Math.cos(end - start));
+  // Preserve the proven close-route camera: even a small geometric focus
+  // shift can shrink the hero or place its real destination beacon behind
+  // a stone upright. Reserve exterior-arc correction for exceptional
+  // opposite-side routes where a Cartesian chord goes deep into the core.
+  if (r0 > 1 && r1 > 1 && Math.abs(arc) > 1.05) {
     const angle = start + arc * amount, radius = lerp(r0, r1, amount);
     center.x = Math.sin(angle) * radius; center.z = Math.cos(angle) * radius;
   } else {
