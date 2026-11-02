@@ -1004,7 +1004,17 @@ export function createTowerWorld(){
       });
       capMaterials=[...owned.values()];
     }
-    root.traverse(o=>{if(o.isMesh&&o.material===bodyMaterial)o.userData.structural=true;});
+    root.traverse(o=>{
+      if(!o.isMesh)return;
+      if(o.material===bodyMaterial)o.userData.structural=true;
+      // The solid source-aligned walking sector already casts the deck's
+      // authoritative spatial shadow. Recessed dark service trim and the
+      // under-carriage must not each submit a redundant shadow-map draw.
+      // Preserve geometry/material depth in the color pass, and leave true
+      // structural surfaces, hero, hazards and guardian signals untouched.
+      if(o.material===materials.dark&&!o.userData.structural)
+        o.userData.ambientDetail=true;
+    });
     // Give a genuinely moving autonomous landing a mechanical, world-space
     // cue. Position belongs to the source platform; the crank never drives it.
     let traveler=null,countergear=null,actuator=null,gearVisual=null;
