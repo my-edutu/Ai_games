@@ -78,3 +78,34 @@ test('changing a private route cannot create new public scenic openings',async()
       assert.deepEqual(after[key],before[key],key+' changed on hidden-state-only update');
   }finally{world.dispose();cleanup()}
 });
+
+
+test('publicly blocked cells gain three deterministic physical ruin silhouettes without revealing private map state',async()=>{
+  const {m,cleanup}=await realWorld();
+  const stage=m.createMazeWorld({balanced:true});
+  const identical=m.createMazeWorld({balanced:true});
+  const source=publicSnapshot();
+  source.cells.forEach(c=>{c.blocked=c.cell%2===0});
+  const frozen=JSON.parse(JSON.stringify(source));
+  try {
+    stage.update(source);
+    identical.update({...source,secretExitCell:22,hiddenMazeRoute:[2,4,6],
+      privateWardenTarget:0,unpublishedMazeSeed:'must-not-leak'});
+    const a=stage.stats(), b=identical.stats();
+    assert.ok(a.collapsedPavilions>0,'a complete modeled roofless pavilion must appear on truly blocked cells');
+    assert.ok(a.shellBasins>0,'a distinctly modeled tidal shell basin must appear on truly blocked cells');
+    for(const key of ['collapsedPavilions','shellBasins','geometryCount','materialCount',
+      'textureCount','instances','renderedCells'])
+      assert.deepEqual(a[key],b[key],key+' must ignore private route, threat and seed');
+    assert.ok(a.geometryCount<=16 && a.materialCount<=26 && a.textureCount<=3,
+      'the new three-way authored architecture reuses existing GPU resources');
+    assert.deepEqual(source,frozen,'scenery must never change authoritative public data');
+    const unblocked={...source,cells:source.cells.map(c=>({...c,blocked:false}))};
+    stage.update(unblocked);
+    assert.equal(stage.stats().collapsedPavilions,0,'a formerly blocked site may not retain a phantom pavilion');
+    assert.equal(stage.stats().shellBasins,0,'a formerly blocked site may not retain a phantom basin');
+    stage.update({...source,runToken:'next-disclosed-run',cells:[],visibleCells:[]});
+    assert.equal(stage.stats().collapsedPavilions,0,'an undisclosed new run must clear all old ruins');
+    assert.equal(stage.stats().shellBasins,0,'no hidden island or courtyard is rendered before discovery');
+  }finally{stage.dispose();identical.dispose();cleanup()}
+});
