@@ -30,7 +30,7 @@ function presentation({nestedFailure=false,fixture=null}={}){
  // lexical dependencies, rather than stubbing away the latest 3D action.
  const evasion=fs.readFileSync(path.join(ROOT,'public/ai-dungeon/evasion-performance-plan.js'),'utf8')
   .replace(/^export /gm,'');
- context.planEvasionPerformance=vm.runInContext('(function(){\\n'+evasion+'\\nreturn planEvasionPerformance;})()',context);
+ context.planEvasionPerformance=vm.runInContext('(function(){\n'+evasion+'\nreturn planEvasionPerformance;})()',context);
  vm.runInContext(text,context);return context;
 }
 function actor(action='attack',tick=11){
