@@ -232,7 +232,9 @@ function composeTowerTerminalShot(hero, aspect, zoom = 1, orbit = 0) {
   const heroRadius = Math.max(27.35, Math.hypot(hero.x, hero.z));
   const angle = Math.atan2(hero.x, hero.z) + (portrait ? .015 : .08) +
     clamp(orbit, -.5, .5) * .25;
-  const radius = heroRadius + (portrait ? 35 : 29) * clamp(zoom, .8, 1.35);
+  // Preserve the earned 3D memorial's full width if someone zoomed into
+  // a ledge moments before the true result. Zooming out is still respected.
+  const radius = heroRadius + (portrait ? 35 : 29) * clamp(zoom, 1, 1.35);
   const position = new THREE.Vector3(Math.sin(angle) * radius,
     hero.y + (portrait ? 8.2 : 6.5), Math.cos(angle) * radius);
   const focus = new THREE.Vector3(hero.x, hero.y + 2.1, hero.z);
