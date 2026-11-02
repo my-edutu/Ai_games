@@ -2204,9 +2204,9 @@
       "latestCandidateWorkflow": "New code candidate e799a851b47f0ece1d95a3fc140b97cd3fdd5227 at 2026-11-02. Real previous-source Warden image https://github.com/my-edutu/Ai_games/actions/runs/41451177736/artifacts/13145169672 . Exact-new-code GitHub browser/authority/CI, mobile performance and audiovisual evidence NOT VERIFIED when committed. Previous c36: all 3 browser shards succeeded and dedicated visual workflow succeeded, authority unit tests FAILED 4 missing-root errors; caught and guarded in this candidate. Local 34/34 focused, 206/206 Dungeon foundation and TypeScript build succeeded; attempted repo-wide npm test timed out after 414 passing cases, NOT a full green suite."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Real prior desktop Warden frame shows giant toy-like boss clipping/obscuring the Vanguard precisely during the autonomous counter window, while full narrative, actual sound and independent benchmark A/B remain missing. Hero-forward cinematic/staggered real skinned guard are implemented but AFTER browser render and performance are NOT VERIFIED; original anatomy and repetitive architecture remain far below AAA reference.",
-    "currentWork": "One continuing M1: hero-forward real Warden approach/contact/recovery camera instead of enemy-foreground occlusion, slightly wider exposure lens, authority-gated physical exposed stance on the real cloned skeletal shoulders/torso and original Warden pauldrons/heart, plus live browser assertions and a safety fix for partial skinned actors. No AI, RNG, hitbox, HP, replay or asset-license changes.",
-    "candidateCommit": "e799a851b47f0ece1d95a3fc140b97cd3fdd5227",
+    "biggestRemainingGap": "The most recent genuinely rendered Warden counter desktop still at original source head fce31509 shows a toy-like oversized boss occluding most of the living Vanguard, with an overwhelming square masonry foreground. The newly integrated hero-led stage has not yet been observed in a new real browser recording. Complete desktop/mobile audiovisual adventure and independent A/B are still absent.",
+    "currentWork": "ONE continuing M1 milestone: true-state cinematic camera lowers toward encounter-scale third-person adventure, shot centers toward the living defender, camera-facing defender within-cell stance stays ≤0.44m and drives true blades, masonry/facade/foreground culling jointly respects 2.36–3.10m camera clearance, existing lights receive mode-dependent but authority-verified contrast for travel/contact/telegraph/real Warden exposure/restart, skinned elbows stay within 0.445rad applied anatomical envelope. No authority damage, RNG, legal targets, collision, combat outcome or asset provenance changes.",
+    "candidateCommit": "a0a1e049520f2b174674f4992658d11f7af7b091",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -2998,6 +2998,55 @@
         "visualGate": "NOT_TRANSFORMED",
         "statusGate": "IN_PROGRESS / NOT_TRANSFORMED",
         "next": "Inspect true e799 browser capture on 1440px and 390px Warden counter and actual 3D flank; correct missed hero/body occlusion, bone and armor clipping, and any CI regression. Capture full seeded traversal→active combat→Warden→portal/floor→defeat/restart with original sound, p95 frame profile, and ≥3 independent blind LOOKS/FEELS/PLAYS judgments against fixed 281735d0910c6b2443648af976003d50412ee324."
+      },
+      {
+        "id": "M1-TRUTHFUL-INTEGRATED-CINEMATIC-STAGE-20261102",
+        "date": "2026-11-02",
+        "status": "IN_PROGRESS / IMPLEMENTED_UNVERIFIED",
+        "milestone": "SAME pinned unaccepted M1, not a new Gauntlet round",
+        "originalBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "originalBaselineArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
+        "priorSourceHead": "fce31509b9352d4aed9cdeca777eecd03a856f82",
+        "priorBrowserArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41461257225/artifacts/13150626491",
+        "priorRealObservation": "Inspected actual 1440x832 browser Warden EXPOSED screenshot, AI party at 1/3 surviving and boss at 95% HP. Boss physically hides much of the vanguard despite previously implemented hero-facing camera. Real journey screenshot still shows dense cubical stonework, miniature-looking overlapping heroes, no active enemies in sampled still. Previous shard1 browser had failed exactly the real applied forearm diagnostic: 0.4809648 > mandated 0.46 rad.",
+        "integratedImplementation": [
+          "Cinematic shot lead targets the real nearest living Warden defender (68% hero 32% boss), lower-world travel/contact/boss-view cinematography keeps wide real danger telegraphs, and enlarged within-tile front-line stance remains ≤.44m to preserve authoritative locations and truthful VFX contact.",
+          "New single deterministic world-story director, wired to actual render loop and server route, grades existing ambient/moon/hero/party/Warden lights and stage-specific foreground removal using public action, genuine Warden warning/recovery and reduced-motion; false warnings/openings cannot control spotlight.",
+          "Base walls, their weathered façade batches, capstones and foreground props all now obey the same 2.36–3.10m true-camera sightline clearance, rather than letting decoration remain blocking over collapsed walls.",
+          "Cloned skinned elbow applied angle is now truly capped at ±.445rad when authored contact and performance beats overlap; GPU diagnostics report the actual applied value, not an invented nominal angle."
+        ],
+        "localSafety": "210/210 Dungeon Node foundation tests PASS (including four new scene-integrity contracts). Full TypeScript build PASS. 24 authentic replay seeds x900 ticks PASS, 0 divergent checksums, 287 floor advances, 15 restarts, highest depth14. These are NOT quality wins.",
+        "actualAfterBrowser": "UNVERIFIED. The local managed Chromium could not navigate localhost (ERR_BLOCKED_BY_ADMINISTRATOR), and source was instead committed with per-file current-blob SHA guards to the existing draft PR. New-head GitHub Actions and capture/critics to be checked.",
+        "matchedBeforeAfter": "UNVERIFIED. Original immutable browser artifact remains; new stage needs same-seed desktop/phone boss and traversing screenshots/video/audio aligned to source fce and milestone baseline.",
+        "comparativeReference": {
+          "diabloIV": "https://www.youtube.com/watch?v=g3I_WEOOkPU",
+          "noRestForTheWicked": "https://www.pushsquare.com/news/2025/03/no-rest-for-the-wicked-remains-stunning-in-extended-gameplay-update",
+          "pathOfExile2": "https://www.gamespot.com/videos/path-of-exile-2-official-gameplay-walkthrough-2/2300-6455084/",
+          "finding": "Do not infer parity from referenced footage. Current toy-like anatomy and repeated architecture remain well below those world and combat targets."
+        },
+        "criticVerdicts": {
+          "status": "NOT_RUN",
+          "criticCount": 0,
+          "looks": "UNVERIFIED",
+          "feels": "UNVERIFIED",
+          "plays": "UNVERIFIED",
+          "majority": false,
+          "reason": "Independent fresh-context worker service and local browser unavailable, no blind A/B judgement."
+        },
+        "performance": {
+          "source": "Prior fce screenshot + local headless replay; new rendered FPS p95/p99 not measured",
+          "newBrowser": "UNVERIFIED",
+          "newWebGLBudget": "UNVERIFIED",
+          "accessibility": "Reduced-motion state remains opt-in, no confirmed new exact-head screen-reader mobile audit"
+        },
+        "blockers": [
+          "No new exact-head real browser artifact yet",
+          "No fresh-context independent blind critics",
+          "No full continuous descent-defeat-restart audiovisual sequence with same-seed baseline",
+          "Original head-to-head quality gate remains absent"
+        ],
+        "statusGate": "IN_PROGRESS / NOT_TRANSFORMED",
+        "next": "Inspect exact-head GitHub Chromium Warden counter, encounter travel, full-body silhouette and real stage lighting on 1440 desktop and 390 mobile; correct any clipping/occlusion/render regression. Capture actual traversal→active combat→boss→floor transition→death/restart with opt-in WebAudio and p95 CPU/GPU budget; match original pinned SHA, obtain ≥3 independent blind critics on LOOKS/FEELS/PLAYS. Do not merge."
       }
     ]
   }
