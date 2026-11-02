@@ -159,14 +159,15 @@ body[data-high-contrast="true"] #broadcast #hud .mission-block,body[data-high-co
   background:#1e3938;border-color:rgba(243,210,150,.42);
   color:#f8eccc;backdrop-filter:none;
 }
-/* Calm gameplay does not require a second status headline. Genuine danger,
-   errors and reconnect states keep their visible warning. */
-#broadcast[data-ux-revision="4"][data-urgency="false"] #status-strip{
+/* The goal chip already reports a genuinely observed warden. A second red
+   "WARDEN NEARBY" plaque above it obscured actual 320px gameplay.
+   Keep phase text in the semantic DOM, but show a visual status strip only
+   before the first frame or during real reconnect / graphics degradation. */
+#broadcast[data-ux-revision="4"][data-scene] #status-strip{
   opacity:0;visibility:hidden;
 }
-#broadcast[data-ux-revision="4"][data-scene="recovery"] #status-strip,
-#broadcast[data-ux-revision="4"][data-scene="result"] #status-strip,
-#broadcast[data-ux-revision="4"][data-scene="intermission"] #status-strip{
+#broadcast[data-ux-revision="4"][data-connection="reconnecting"] #status-strip,
+#broadcast[data-ux-revision="4"][data-connection="graphics-degraded"] #status-strip{
   opacity:1;visibility:visible;
 }
 #broadcast[data-ux-revision="4"][data-urgency="true"] #status-strip{
@@ -180,7 +181,7 @@ body[data-high-contrast="true"] #broadcast #hud .mission-block,body[data-high-co
   box-shadow:0 7px 22px rgba(2,29,30,.20);backdrop-filter:none;
 }
 #broadcast[data-ux-revision="4"][data-urgency="true"] #hud .mission-block{
-  top:calc(107px + env(safe-area-inset-top,0px));
+  top:calc(70px + env(safe-area-inset-top,0px));
   border-left-color:#ff815b;background:rgba(72,28,26,.91);
 }
 #broadcast[data-ux-revision="4"] #hud .mission-block h2{
@@ -227,7 +228,7 @@ body[data-high-contrast="true"] #broadcast #hud .mission-block,body[data-high-co
     max-width:58vw;padding:9px 10px;
   }
   #broadcast[data-ux-revision="4"][data-urgency="true"] #hud .mission-block{
-    top:calc(109px + env(safe-area-inset-top,0px));
+    top:calc(68px + env(safe-area-inset-top,0px));
   }
   #broadcast[data-ux-revision="4"] #hud .mission-block h2{
     font-size:clamp(16px,4.6vw,20px);
@@ -238,7 +239,7 @@ body[data-high-contrast="true"] #broadcast #hud .mission-block,body[data-high-co
     top:62px;max-width:38vw;padding:6px 10px;
   }
   #broadcast[data-ux-revision="4"][data-urgency="true"] #hud .mission-block{
-    top:84px;
+    top:62px;
   }
 }
 @media(prefers-reduced-motion:reduce){
