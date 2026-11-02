@@ -10,17 +10,17 @@
   "candidate": {
     "sha": null,
     "title": "Same open 3D ascent → source-directed landing/real combat → HP-operated guardian gate → result/intermission/restart; actual game quality unassessed",
-    "implementationSha": "64456fe05f08d4791286b0435d60b4df307a2b20",
-    "implementationEvidenceStatus": "Actual Three.js renderer now adds original source-anchored twin-bronze guardian-to-cap 3D circuit: two instanced rails physically separate as authentic live guardian HP decreases, conductor follows observed health, real windup changes fastening, endpoints attach only to the existing source cap geometry. No gameplay authority, collision, replay or HUD modification. First exact source 64456fe quality CI FAILED 4/737 due three VM fixture factory-scope errors and one stale source-contract regex; repaired in source 94e87d7 but exact-head CI needs independent recheck. Full-motion matched smartphone/desktop proof, complete frozen-baseline outcome/restart, independent blind votes and supported-device p50/p95/p99/memory still missing. NOT EVALUATED."
+    "implementationSha": "c87f265a5aec98b8a048ff526a85b0a8635ee2b1",
+    "implementationEvidenceStatus": "ACTUAL GAME SOURCE only (not independent quality): exterior arched guardian-to-cap bronze linkage now stays outside opaque tower core; eight original instanced cap bolts physically retract on real guardian HP loss. Source-owned, bounded depth-tested architecture; no gameplay/replay/HUD change. Historical technical safety pass 41430973762 at prior 5d9466 only. Current exact gameplay source c87f265 technical workflow 41433172074 PENDING and normal-speed native desktop/portrait recording 41433172141 IN PROGRESS at inspection; frozen baseline outcome 41430788717 FAILED both viewports. 0/5 real blind reviews in each LOOKS/FEELS/PLAYS, no supported-device p50/p95/p99/memory. NOT EVALUATED."
   },
   "currentTransformation": {
     "title": "Same continuous playable 3D climb → visible real AI route decision and touchdown → high-stakes guardian machinery → source-authentic ending/restart",
-    "state": "SAME TRANSFORMATION OPEN — PHYSICAL SOURCE-DRIVEN GUARDIAN/CAP CONNECTION + EXISTING 3D ASCENT/ENDING; QUALITY NOT EVALUATED",
+    "state": "SAME TRANSFORMATION OPEN — EXTERIOR GUARDIAN/CAP CAUSAL MECHANISM + EXISTING ASCENT/ENDING; LOOKS/FEELS/PLAYS NOT EVALUATED",
     "promise": "The actual Three.js game continues to link authoritative ascent, original skinned character, true guardian attacks/armor and HP-driven machinery, and source-witnessed gate passage. A real ended run now additionally changes the climber's skinned physical pose by actual result kind (nonlethal kneel vs stopped upright vs genuine death), frames an eight-instance source-earned-floor stone memorial on the exterior of the physical tower, and uses its existing source-directed lights and outside-core camera on desktop and portrait. No synthetic victories, enemy kills, routes, collisions, clocks, snapshots, replay authority or in-game HUD elements were added. This is source implementation, not visually verified gameplay improvement. Current AI-chosen platform route also gets one original, depth-tested exterior marker batch that yields to actual combat/windup and clears across terminal/recovery; it does not predict a physics trajectory or guarantee success. This is still source implementation rather than independently demonstrated experience improvement. A new physical deck-depth cue now follows only the present overlapping source platform under the climber's real feet: grounded shadow tightens, an airborne footprint softens and spreads with true vertical clearance, and actual moving decks update without any predicted landing. It remains invisible on death, stale source and terminal/restart. It uses one depth-tested procedural quad, no new game rules or HUD, and awaits real-video inspection. In the same high-stakes slice the live guardian's true HP and telegraph are now tied to an original, depth-tested 3D heavy bronze circuit reaching the existing source cap gate. Both rails physically widen with genuine guardian damage, complementing its skinned armor, motion, camera and HP-operated gate. No future action, fake hit, new collider or extra HUD is created; real continuous viewer experience still unreviewed.",
-    "nextDecision": "Inspect native normal-speed ≥60s 960×600 desktop and 390×844 portrait video from https://github.com/my-edutu/Ai_games/actions/runs/41429699306 at exact original game-source 64456fe against frozen 1731b380; source-align scenario events/guardian HP (matching seed/time alone is insufficient), watch for actual rail visibility/occlusion, climber retention, landing readability and guardian-cap relationship. Frozen baseline still has only 50ms result phase and complete visible outcome/restart remains unproven. Check followup CI after 41429699176 failed 4/737 from missing VM imports / outdated lifecycle expectation; new code 94e87d7 fixes fixture scope but has not been certified. Collect five independent randomized blinded critics separately for LOOKS, FEELS, PLAYS; accepted threshold 4/5 EACH. Supported-device frame-time p50/p95/p99, memory, accessibility, replay, recovery remain mandatory. Current independent-worker/browser tunnel is offline; don't fabricate votes.",
+    "nextDecision": "Inspect real WebM and motion/source-trace artifacts from current source gameplay run https://github.com/my-edutu/Ai_games/actions/runs/41433172141 (c87f265) against frozen baseline 1731b380851162741761c5569e2bc152a0869ca9; compare matching seed+viewport+quality AND source event tick/floor/guardian HP (same clock second alone isn't matched play). Check whether elevated arch, eight source HP-retracting lock bolts, skinned guardian/climber, cap and camera are concurrently visible at 960x600 and 390x844 with uninterrupted normal-speed >=60s per everyday ascent, danger and complete outcome/restart. The baseline's result remains one 50ms fixed tick; do not fake a frame, freeze, stretch time or alter baseline. Check exact-head safety 41433172074, fix any CI veto. Obtain five independent blinded full-motion judgments EACH of LOOKS/FEELS/PLAYS (>=4/5 candidate preference), real supported-device frame-time p50/p95/p99 and memory, accessibility, replay and restoration. Worker/browser connector offline (NOT_FOUND >300s); never invent votes.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Still no independently inspected source-aligned continuous baseline/candidate normal-speed 60+s desktop and portrait comparison across full ascent, danger, real outcome/restart; new guardian-to-cap rail readability and occlusion have not been verified in actual raster. Frozen baseline one-tick result visually incomplete. 0 genuine independent blind votes for each of LOOKS/FEELS/PLAYS; no supported-device frame-time tails/memory. Exact source technical CI 41429699176 failed 4/737 due stale VM harness and expectation; repaired but unverified new head. Quality NOT EVALUATED.",
-    "unverifiedImplementationBranchHead": "94e87d726372b6d5f2fa0bf12d2cbe9e501565ea"
+    "biggestRemainingExperienceGap": "Actual old phone/desktop clips show real HP attrition and guardian action but did not reliably show mechanical cap relationship. New outward-arched real-world bronze link plus eight HP-retracting lock clamps must be checked in exact-source 60+s normal-speed desktop and portrait footage for legibility, occlusion, actor crop and performance. Frozen baseline real result lasts ~50ms and both outcome recordings 41430788717 still fail complete VISIBLE terminal/intermission/restart; source trace isn't raster proof. Scenarios not source-event-aligned for fair A/B; genuine blind independent critiques 0/5 each LOOKS/FEELS/PLAYS. Supported-device p50/p95/p99, memory, exact c87f265 CI, accessibility/replay/recovery outstanding. NOT EVALUATED.",
+    "unverifiedImplementationBranchHead": "c1b275cc1ee0b3d261577d0a1b32f81c4135abc6"
   },
   "scenarios": [
     {
@@ -60,11 +60,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "TECHNICAL SAFETY VETO: exact gameplay-source CI 41429699176 on 64456fe FAILED 4/737, including three VM fixture failures 'createTowerGuardianCircuit is not defined' and stale source-regex. Fixture repairs committed 94e87d7; until exact-head CI finishes, no technical PASS. Passing tests never award an experience verdict.",
-    "replay": "NOT VERIFIED AT NEW REAL SCENE SOURCE 64456fe + test-harness fix 94e87d7; needs supported-device/browser source-pinned replay evidence. Prior run results are historical, not a new acceptance.",
-    "accessibility": "NOT VERIFIED AT NEW REAL SCENE SOURCE 64456fe + test-harness fix 94e87d7; needs supported-device/browser source-pinned accessibility evidence. Prior run results are historical, not a new acceptance.",
-    "performance": "NOT VERIFIED AT NEW REAL SCENE SOURCE 64456fe + test-harness fix 94e87d7; needs supported-device/browser source-pinned performance evidence. Prior run results are historical, not a new acceptance.",
-    "stability": "NOT VERIFIED AT NEW REAL SCENE SOURCE 64456fe + test-harness fix 94e87d7; needs supported-device/browser source-pinned stability evidence. Prior run results are historical, not a new acceptance."
+    "ci": "Historical actual source 64456fe safety CI 41429699176 FAILED 4/737 due three VM missing factory imports and stale assertion; fixtures repaired 94e87d7. Technical workflow 41430973762 PASSED prior head 5d9466. Current changed gameplay source c87f265 exact-source workflow 41433172074 PENDING at last inspection; MUST pass before any safety promotion, and technical success never awards experience quality.",
+    "replay": "NOT VERIFIED on newest gameplay source c87f265: source-pin live browser evidence, real supported-device checks required. Historical CI not an experience pass.",
+    "accessibility": "NOT VERIFIED on newest gameplay source c87f265: source-pin live browser evidence, real supported-device checks required. Historical CI not an experience pass.",
+    "performance": "NOT VERIFIED on newest gameplay source c87f265: source-pin live browser evidence, real supported-device p50/p95/p99 frame-time and memory required. Historical CI not an experience pass.",
+    "stability": "NOT VERIFIED on newest gameplay source c87f265: source-pin live browser evidence, real supported-device checks required. Historical CI not an experience pass."
   },
   "unresolvedCriticalIssues": null,
   "benchmark": {
@@ -147,11 +147,11 @@
         }
       }
     },
-    "newImplementationSha": "69390052d461e4d38be7ac8b5bd3170da188e9f1",
-    "newImplementationRecorded": "NOT CAPTURED OR REVIEWED in real current-source WebM: moving selected deck position ghosts and source-backed opt-in route replan audio were implemented in actual game modules. Standalone behavior mocks inspected real module source (not real WebGL audio hardware); previous captured clips at older source 75951122 are NOT current source. Do not claim quality or supported FPS.",
-    "reviewPath": "docs/reviews/2026-11-02-tower-pr68-authentic-3d-terminal-stage.md",
-    "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41384300565",
-    "followupStatus": "Latest full-motion records reviewed earlier were source 75951122, not 6939005. Frozen-baseline outcome still incomplete. Current source native desktop/portrait paired footage, verified video-audio capture, replay/CI and independent reviewer judgments remain outstanding. Live worker/browser tunnel NOT_FOUND >300 seconds on 2026-11-02.",
+    "newImplementationSha": "c87f265a5aec98b8a048ff526a85b0a8635ee2b1",
+    "newImplementationRecorded": "Source c87f265 raised exterior guardian-to-cap gantry and source HP-retractable cap lock teeth not yet watched in current-source normal-speed WebM. Workflow 41433172141 in progress at first inspection. Historical real 41430788717 produced 6/7 scoped jobs but frozen baseline outcome failed. No genuine blind A/B or supported device results.",
+    "reviewPath": "docs/reviews/2026-11-02-tower-pr68-exterior-guardian-gantry-continuation.md",
+    "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41433172141",
+    "followupStatus": "PENDING EXACT GAME SOURCE c87f265 960x600 and 390x844 normal-speed real clips, mobile composition and guardian source-event match. Frozen baseline 50ms visible result+restart not yet captured. Independent worker/browser unavailable; quality NOT EVALUATED.",
     "matchedCaptureSettings": {
       "seed": "tower-transformation-capture-v1",
       "sourceBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
@@ -406,18 +406,38 @@
       }
     },
     "latestGuardianCircuitSlice": {
-      "sourceSha": "64456fe05f08d4791286b0435d60b4df307a2b20",
-      "followupSha": "94e87d726372b6d5f2fa0bf12d2cbe9e501565ea",
+      "sourceSha": "c87f265a5aec98b8a048ff526a85b0a8635ee2b1",
+      "followupSha": "c1b275cc1ee0b3d261577d0a1b32f81c4135abc6",
       "sourceFile": "public/infinite-tower-climb/visuals/guardian-circuit.mjs",
       "sceneIntegration": "public/infinite-tower-climb/visuals/scene.mjs",
-      "sourceBound": "Current active guardian and exact matching source cap; 44 instanced heavy bronze rails, 23 conductor nodes, two endpoints, real guardian HP opening. Clear on absent/stale/terminal/restart, no new shadows, bounded geometry and disposal; no authority changes.",
-      "scopedVerification": "Actual source helper parsed and exercised without browser imports in JS VM: source guardian health 6/8 → .25 release and a source cap anchor; absent guardian → circuit null. Not real WebGL playback or quality proof.",
-      "ciRun": "https://github.com/my-edutu/Ai_games/actions/runs/41429699176",
-      "ciResult": "FAILED 4/737 at prior source 64456fe: 3 VM fixture missing factory and old lifecycle source regex. Fixed in 94e87d7; exact new head CI not yet verified.",
-      "videoRun": "https://github.com/my-edutu/Ai_games/actions/runs/41429699306",
-      "videoStatus": "IN PROGRESS at source inspection; recordings not independently reviewed; frozen baseline outcome historically incomplete.",
+      "sourceBound": "Continues true active guardian/actual source cap gate; raised 44 twin-rail instances outside opaque wall, 23 color-changing conductor nodes, two anchors, eight new source-HP-retracting cap lock teeth, no new shadow/collider/authority. Clears on stale/result/restart, lifecycle-owned disposal, additional bounded instanced draw.",
+      "scopedVerification": "New focused source-grounding test added e4dca887, playable module implementation c87f265; exact live Three.js browser and current-source CI NOT YET VERIFIED. Geometry checks are not LOOKS/FEELS/PLAYS votes.",
+      "ciRun": "https://github.com/my-edutu/Ai_games/actions/runs/41433172074",
+      "ciResult": "PENDING exact gameplay head c87f265; historical previous-head safety workflow 41430973762 PASSED, not evidence of new geometry safety.",
+      "videoRun": "https://github.com/my-edutu/Ai_games/actions/runs/41433172141",
+      "videoStatus": "IN PROGRESS at source inspection, no inspected full-motion new source. Frozen baseline outcome 41430788717 failed in both layouts.",
       "reviewer": "Live browser/worker workspace NOT_FOUND: tunnel-client offline >300s; 0 genuine independent reviews.",
       "hardware": "NOT MEASURED p50/p95/p99 or memory on declared supported devices.",
+      "quality": "NOT EVALUATED"
+    },
+    "latestExteriorGantrySlice": {
+      "sourceSha": "c87f265a5aec98b8a048ff526a85b0a8635ee2b1",
+      "testSha": "e4dca887e68491da2b539fd1a08c22d19b3dc94f",
+      "reviewPath": "docs/reviews/2026-11-02-tower-pr68-exterior-guardian-gantry-continuation.md",
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "actualGame": "Raised depth-tested outward arch follows real active guardian to cap anchor; eight instanced source-health-driven lock teeth retract without inventing a gate collider or hit. Adds one bounded draw to prior guardian circuit; disposed/rebuilt with existing scene owner.",
+      "safetyRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41433172074",
+      "safetyAtInspection": "PENDING; no new-source technical PASS.",
+      "captureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41433172141",
+      "captureAtInspection": "IN PROGRESS; no full-motion blind reviews. Historic frozen baseline outcome failure persists in run 41430788717.",
+      "sourceMatchedClips": "NOT COMPLETE: new source desktop/portrait recordings not yet reviewed or source-event-aligned; no authentic visibly complete baseline outcome/restart.",
+      "independentVotes": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "supportedHardware": "NOT MEASURED p50/p95/p99, memory; source CI renderer intervals are not device FPS.",
+      "reviewerBlocker": "NOT_FOUND workspace tunnel disconnected >300 seconds; no browser or fresh-context blind agent access.",
       "quality": "NOT EVALUATED"
     }
   }
