@@ -159,9 +159,16 @@ function towerCameraActorSafetyRate(rate, ndcX, ndcY, aspect) {
 // A bounded exterior orbit plus annular gaze avoids fake teleporting, a cut,
 // scene-wide hiding/transparency, allocations or extra GPU submissions.
 function recoverTowerActorView(position, gaze, actor, ndcX, ndcY, ndcZ, aspect, dt, orbitTarget) {
-  if (![ndcX, ndcY, ndcZ, aspect, dt, position.x, position.z,
-    gaze.x, gaze.z, actor.x, actor.y, actor.z].every(Number.isFinite)
-    || aspect <= 0 || dt <= 0) return 0;
+  // Hot-path validity checks avoid allocating a temporary array for each
+  // submitted frame. Renderer recovery also rejects non-finite source poses.
+  if (!Number.isFinite(ndcX) || !Number.isFinite(ndcY) ||
+    !Number.isFinite(ndcZ) || !Number.isFinite(aspect) ||
+    !Number.isFinite(dt) || !Number.isFinite(position.x) ||
+    !Number.isFinite(position.y) || !Number.isFinite(position.z) ||
+    !Number.isFinite(gaze.x) || !Number.isFinite(gaze.y) ||
+    !Number.isFinite(gaze.z) || !Number.isFinite(actor.x) ||
+    !Number.isFinite(actor.y) || !Number.isFinite(actor.z) ||
+    aspect <= 0 || dt <= 0) return 0;
   const safeX = aspect < .85 ? .72 : .80;
   const projectedPressure = Math.max(
     Math.abs(ndcX) / safeX - 1, Math.abs(ndcY) / .78 - 1,
