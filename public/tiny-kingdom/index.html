@@ -1385,6 +1385,11 @@ function retainSettlementSeason(key,mesh,ranges,buffer){
  if(!gpuAvailable)return;
  if(mesh.length>SETTLEMENT_SEASON_FLOAT_BUDGET)
   throw Error('G140 settlement residency exceeds the bounded scene budget');
+ const prior=settlementSeasonCache.get(key);
+ if(prior){
+  settlementSeasonCache.delete(key);settlementSeasonFloats-=prior.mesh.length;
+  if(prior.buffer!==buffer){gl.deleteBuffer(prior.buffer);settlementSeasonBufferDisposals++;}
+ }
  const entry={mesh,ranges,buffer,
   lod:{...villageVisualLod,
    compactRoofPaletteCounts:villageVisualLod.compactRoofPaletteCounts.slice()},
