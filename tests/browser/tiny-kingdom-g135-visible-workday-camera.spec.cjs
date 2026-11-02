@@ -75,11 +75,20 @@ test('G135 active workday is framed from the physical working front with readabl
   const g=window.__tinyKingdom;
   return {width:document.documentElement.scrollWidth,
    actor:g.getWorkdayCompositionAudit().actor,
+   shot:g.getWorkdayCompositionAudit(),
+   plan:g.getCitizenCameraPlan(),
    unchanged:JSON.stringify(g.exportSnapshot()),
    gl:document.querySelector('#world').getContext('webgl')?.getError()??-1};
  });
  expect(mobile.width).toBeLessThanOrEqual(390);
  expect(mobile.actor).toBe(result.shot.actor);
+ // G136: the ACTUAL portrait camera must re-survey its physical crowd and
+ // keep foreground neighbours out of the real worker's face/working hands.
+ // No NPC may be moved, hidden or reposed merely to satisfy this readout.
+ expect(mobile.plan?.portraitLens).toBe(true);
+ expect(mobile.shot.viewportAspect).toBeLessThan(.65);
+ expect(mobile.shot.foregroundCitizenBlockers).toBe(0);
+ expect(mobile.shot.plannedForegroundCitizenBlockers).toBe(0);
  expect(mobile.gl).toBe(0);
  // Mobile defaults to an uncluttered world. The U shortcut intentionally
  // opens the accessible full command panel before the next-worker control.
