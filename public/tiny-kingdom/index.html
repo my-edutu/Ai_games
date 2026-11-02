@@ -5494,7 +5494,8 @@ function chooseFilmableWorker(rows,excluded=-1){
   const front=shot.facingAlignment??-1;
   const clear=shot.blockers===0&&shot.handBlockers<=1&&
    shot.foregroundCitizenBlockers===0&&
-   shot.foregroundSceneCover<.20&&front>.12;
+   shot.foregroundSceneCover<.20&&front>.12&&
+   shot.projectedWorkerHeightFraction>(canvas.clientWidth<500?.18:.21);
   const score=(clear?3000:0)+front*600+
    Math.min(.42,shot.projectedWorkerHeightFraction)*2200-
    shot.foregroundSceneCover*2100-
@@ -6769,6 +6770,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
    framing.blockedBodyRays<=2&&framing.projectedBystanders===0&&
    framing.foregroundCitizenBlockers===0&&
    framing.foregroundSceneCover<.14&&
+   shot.projectedWorkerHeightFraction>(portraitLens?.18:.21)&&
    framing.projectedWorksitePosts===0&&
    framing.cameraProximityWarnings===0;
   if(clearFront){
