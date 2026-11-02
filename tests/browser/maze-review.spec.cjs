@@ -642,6 +642,122 @@ test('a real close public encounter frames both autonomous actors and saves date
       quality: gatePortraitDiagnostic.quality},
     caveat: 'An actually closed gate; camera framing is not a safe-route promise or independent quality win.',
   }, null, 2));
+
+  // Pass64: capture the real BEFORE and AFTER of an authoritative gate opening.
+  // Existing static sealed-gate PNGs and unit tests could not establish that
+  // the production WebGL passage ever changes. Never toggle a door in a fixture.
+  const {observedGateOpenings} = await import('../../public/ai-maze-escape/gate-moment.mjs');
+  const publicOpenings=[];
+  for (const sequence of sequences) {
+    for (let index=1;index<sequence.length;index++) {
+      const before=sequence[index-1],after=sequence[index];
+      const next=after.frame.snapshot;
+      if (next.lifecycle!=='running') continue;
+      const known=new Set(next.cells.map(cell=>cell.cell));
+      for(const door of observedGateOpenings(before.frame.snapshot,next)) {
+        if(!known.has(door.a) && !known.has(door.b)) continue;
+        const distance=Math.min(...[door.a,door.b].map(cell=>
+          Math.abs(cell%next.width-next.currentCell%next.width)
+          +Math.abs(Math.floor(cell/next.width)-Math.floor(next.currentCell/next.width))));
+        publicOpenings.push({before,after,door,distance});
+      }
+    }
+  }
+  publicOpenings.sort((a,b)=>a.distance-b.distance||a.after.frame.snapshot.tick-b.after.frame.snapshot.tick);
+  const opening=publicOpenings[0];
+  expect(opening, 'At least one production seeded run must visibly open a gate previously disclosed closed').toBeTruthy();
+  const beforeGate=opening.before.frame.snapshot,afterGate=opening.after.frame.snapshot;
+  expect(observedGateOpenings(beforeGate,afterGate)).toEqual(
+    expect.arrayContaining([opening.door]));
+  const openingHashes=Object.fromEntries(
+    ['index.html','app.js','gameplay-hud.css','scene.js','world.js','gate-moment.mjs','characters.js']
+      .map(name=>[name,hash(path.join(sourceDir,name))]));
+  await page.setViewportSize({width:1280,height:900});
+  activeFrame=opening.before.frame;
+  await page.goto(base+'/maze?camera=follow',{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(({token,tick})=>window.__MAZE_3D__?.renderer==='webgl'
+    && window.__MAZE_3D__?.frames>3 && window.__MAZE_3D__?.runToken===token
+    && window.__MAZE_3D__?.tick===tick,
+    {token:beforeGate.runToken,tick:beforeGate.tick});
+  const beforeGateDiagnostic=await page.evaluate(()=>window.__MAZE_3D__);
+  const openingBeforeImage=path.join(dir,'public-gate-before-1280.png');
+  await page.screenshot({path:openingBeforeImage,fullPage:true});
+  // State polling returns a LATER ORIGINAL frame from the SAME production run.
+  // No invented event, forced game action, hidden door, or DOM prop injection.
+  activeFrame=opening.after.frame;
+  await page.waitForFunction(({token,tick})=>window.__MAZE_3D__?.renderer==='webgl'
+    && window.__MAZE_3D__?.runToken===token && window.__MAZE_3D__?.tick===tick,
+    {token:afterGate.runToken,tick:afterGate.tick},{timeout:15000});
+  const afterGateDiagnostic=await page.evaluate(()=>window.__MAZE_3D__);
+  const openingAfterImage=path.join(dir,'public-gate-after-1280.png');
+  await page.screenshot({path:openingAfterImage,fullPage:true});
+  const openingEvidence={
+    capturedAt:new Date().toISOString(),seed:opening.after.seed,
+    source:'Two consecutive AUTHENTIC public production frames, same authoritative run and browser; a previously observed CLOSED gate is now OPEN',
+    beforeTick:beforeGate.tick,afterTick:afterGate.tick,
+    publicDoor:opening.door,publicDistanceCells:opening.distance,
+    viewport:{width:1280,height:900},
+    beforeImageSha256:hash(openingBeforeImage),afterImageSha256:hash(openingAfterImage),
+    sourceSha256:openingHashes,
+    before:{renderer:beforeGateDiagnostic.renderer,closedGatesInFrame:beforeGateDiagnostic.closedGatesInFrame,
+      explorerInFrame:beforeGateDiagnostic.explorerInFrame},
+    after:{renderer:afterGateDiagnostic.renderer,world:afterGateDiagnostic.world,
+      explorerInFrame:afterGateDiagnostic.explorerInFrame},
+    caveat:'Original production WebGL BEFORE/AFTER only. CPU-throttled capture timing does not prove a mid-lift frame, full Nintendo parity, or GPU speed.'
+  };
+  fs.writeFileSync(path.join(dir,'public-gate-transition-1280.json'),JSON.stringify(openingEvidence,null,2));
+  expect(beforeGateDiagnostic.explorerInFrame).toBe(true);
+  expect(afterGateDiagnostic.explorerInFrame).toBe(true);
+  expect(afterGateDiagnostic.world.renderedCells).toEqual(afterGate.cells.map(cell=>cell.cell));
+  expect(afterGate.doors.some(door=>
+    door.open && ((door.a===opening.door.a&&door.b===opening.door.b)
+      ||(door.a===opening.door.b&&door.b===opening.door.a)))).toBe(true);
+  // Keep the authentic AFTER state and warm renderer at each native viewport.
+  // Capture original uncropped PNGs rather than simulating responsive CSS.
+  for(const [width,height,name] of [
+    [390,844,'public-gate-after-390'],
+    [320,740,'public-gate-after-320'],
+    [844,390,'public-gate-after-844']
+  ]) {
+    const oldFrames=await page.evaluate(()=>window.__MAZE_3D__?.frames??0);
+    await page.setViewportSize({width,height});
+    await page.waitForFunction(({width,height,oldFrames,tick})=>
+      innerWidth===width&&innerHeight===height&&window.__MAZE_3D__?.frames>oldFrames
+      &&Math.abs(window.__MAZE_3D__.cameraAspect-width/height)<.01
+      &&window.__MAZE_3D__?.tick===tick,
+      {width,height,oldFrames,tick:afterGate.tick});
+    const diagnostic=await page.evaluate(()=>{
+      const d=window.__MAZE_3D__,stage=document.getElementById('stage').getBoundingClientRect();
+      const buttons=[...document.querySelectorAll('.masthead .control-button')]
+        .filter(el=>getComputedStyle(el).display!=='none')
+        .map(el=>{const r=el.getBoundingClientRect();return {width:r.width,height:r.height,left:r.left,right:r.right};});
+      return {renderer:d.renderer,tick:d.tick,runToken:d.runToken,world:d.world,
+        explorerInFrame:d.explorerInFrame,explorerModelFullyInFrame:d.explorerModelFullyInFrame,
+        guardianModelsFullyInFrame:d.guardianModelsFullyInFrame,wardensInFrame:d.wardensInFrame,
+        stage:{width:stage.width,height:stage.height},buttons};
+    });
+    const filename=path.join(dir,name+'.png');
+    await page.screenshot({path:filename,fullPage:true});
+    fs.writeFileSync(path.join(dir,name+'.json'),JSON.stringify({
+      capturedAt:new Date().toISOString(),seed:opening.after.seed,
+      source:'Same unaltered authoritative after-open public frame, live WebGL, warm source-bound browser; no new or hidden gate',
+      viewport:{width,height},beforeTick:beforeGate.tick,afterTick:afterGate.tick,
+      publicDoor:opening.door,imageSha256:hash(filename),sourceSha256:openingHashes,
+      diagnostic,caveat:'Actual post-event screenshot, not an artificially frozen mid-animation or a benchmark win.'
+    },null,2));
+    expect(diagnostic.stage.width).toBeGreaterThan(width-10);
+    expect(diagnostic.stage.height).toBeGreaterThan(height-10);
+    expect(diagnostic.explorerInFrame).toBe(true);
+    expect(diagnostic.explorerModelFullyInFrame).toBe(true);
+    expect(diagnostic.guardianModelsFullyInFrame).toBe(diagnostic.wardensInFrame);
+    for(const control of diagnostic.buttons){
+      expect(control.width).toBeGreaterThanOrEqual(44);
+      expect(control.height).toBeGreaterThanOrEqual(44);
+      expect(control.left).toBeGreaterThanOrEqual(-1);
+      expect(control.right).toBeLessThanOrEqual(width+1);
+    }
+  }
+
 });
 
 
