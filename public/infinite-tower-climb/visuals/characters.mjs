@@ -298,9 +298,10 @@ export function createClimber() {
   // HUD, physics, shadow caster, gameplay event or autonomous steering.
   // Both additional bones share the existing rig and its material batches.
   const integrityShells = [-1, 1].map(side => {
-    w.plate(body,.19,.43,.039,fistLight,side*.30,1.48,.338,.02);
-    w.plate(body,.18,.035,.048,copper,side*.30,1.34,.38,.012);
-    w.plate(body,.18,.035,.048,copper,side*.30,1.62,.38,.012);
+    // The existing torso already has a continuous blue under-shell, bright
+    // center telemetry and copper shoulder straps. Hinged leaves expose THAT
+    // authentic underlying material instead of doubling it with geometry:
+    // preserve the measured vertex budget and full 100ms strike silhouette.
     const hinge=w.node(body,`integrity-shell-${side}`,side*.47,1.49,.415);
     w.plate(hinge,.31,.54,.095,p.armor,-side*.16,0,0,.055);
     w.plate(hinge,.035,.39,.032,copper,-side*.11,0,.063,.011);
