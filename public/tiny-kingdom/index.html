@@ -4889,7 +4889,8 @@ body[data-street="on"] #world{touch-action:none}
    the full existing command desk is always one action away. */
 body[data-street="on"] .top{top:10px;left:10px;right:10px}
 body[data-street="on"] .top .brand{display:none}
-body[data-street="on"] .top .pill{padding:7px 10px;max-width:44vw;font-size:10px;gap:5px;box-shadow:none}
+body[data-street="on"] .top .pill{position:fixed;top:10px;right:10px;z-index:12;
+ padding:7px 10px;max-width:210px;font-size:10px;gap:5px;box-shadow:none}
 body[data-street="on"] .world-tour{left:10px;right:auto;top:10px;transform:none;width:max-content;max-width:calc(100vw - 180px);overflow-x:auto;padding:4px 5px;border-radius:10px;gap:3px;scrollbar-width:thin}
 body[data-street="on"] .world-tour .tour-btn{min-height:32px;font-size:10px;padding:6px 8px}
 body[data-street="on"] .world-tour :is(#workday-live,#workday-watch,#delivery-follow){display:none}
@@ -4906,7 +4907,7 @@ body[data-street="on"] #street-walk-controls .street-caption{background:#112c24d
 #street-meet-worker:focus-visible{outline:3px solid #ffefa5;outline-offset:2px}
 @media(max-width:520px){
  body[data-street="on"] .world-tour{max-width:calc(100vw - 172px)}
- body[data-street="on"] .top .pill{max-width:145px;font-size:9px;white-space:nowrap;overflow:hidden}
+ body[data-street="on"] .top .pill{top:10px;right:9px;max-width:145px;font-size:9px;white-space:nowrap;overflow:hidden}
  body[data-street="on"] #world-ribbon{top:55px;gap:4px;padding:5px 6px}
  body[data-street="on"] #world-ribbon .world-measure:nth-of-type(n+4){display:none}
  body[data-street="on"] #world-ribbon .world-measure strong{font-size:13px}
@@ -4939,6 +4940,27 @@ function streetCaption(){
  const node=document.getElementById('street-walk-status');
  if(node.textContent!==text)node.textContent=text;
 }
+// G116: actual G115 Day-120 capture of Edric was visually dominated by
+// Maeve's huge foreground head. Roof-only visibility does not mean a person
+// can be SEEN. Treat actual bystanders as soft sightline occluders and maintain
+// a minimum camera-to-bystander distance. This is read-only presentation math.
+function streetCrowdVisibility(position,citizen){
+ const dx=citizen.x-position[0],dz=citizen.z-position[1];
+ const squared=dx*dx+dz*dz;
+ let closestBystander=Infinity,crowdIntrusions=0;
+ for(const other of people){
+  if(other===citizen)continue;
+  const x=other.x-position[0],z=other.z-position[1];
+  const distance=Math.hypot(x,z);
+  if(distance<closestBystander)closestBystander=distance;
+  const t=(x*dx+z*dz)/Math.max(.01,squared);
+  if(t>.06&&t<.97){
+   const lateral=Math.abs(x*dz-z*dx)/Math.sqrt(Math.max(.01,squared));
+   if(lateral<.85)crowdIntrusions++;
+  }
+ }
+ return {closestBystander,crowdIntrusions};
+}
 // An encounter is an explicit camera cut to a physically visible REAL worker.
 // No job assignments, movement destinations, production, seed or snapshot state
 // can be changed here. Prefer active labor, then deliveries and real travel.
@@ -4952,12 +4974,14 @@ function planStreetWorkerEncounter(){
   a.name.localeCompare(b.name));
  let best=null;
  for(const citizen of sorted){
-  for(const radius of [3.2,4.7,6.2]){
+  for(const radius of [4.2,5.4,6.6,7.8]){
    for(let j=0;j<8;j++){
     const bearing=j*Math.PI/4;
     const point=[citizen.x+Math.sin(bearing)*radius,
      citizen.z+Math.cos(bearing)*radius];
     if(!streetSafe(point[0],point[1]))continue;
+    const crowd=streetCrowdVisibility(point,citizen);
+    if(crowd.closestBystander<2.4||crowd.crowdIntrusions>0)continue;
     const eye=[point[0],terrain(point[0],point[1])+STREET_EYE,point[1]];
     const target=[citizen.x,terrain(citizen.x,citizen.z)+1.04,citizen.z];
     if(followRayBlockers(eye,target,roofs)>0)continue;
@@ -4972,7 +4996,8 @@ function planStreetWorkerEncounter(){
      distanceToVisitor*.16-radius*.35;
     if(!best||score>best.score){
      best={citizen,position:point,yaw:yawToCitizen,score,
-      metres:radius,visibility,activeWork:isWorkingAtSite(citizen)};
+      metres:radius,visibility,activeWork:isWorkingAtSite(citizen),
+      crowdIntrusions:crowd.crowdIntrusions,closestBystander:crowd.closestBystander};
     }
    }
   }
@@ -4991,7 +5016,8 @@ function visitStreetWorker(){
  focusPoint=streetPosition.slice();streetCaption();presentationEpoch++;
  return {moved:true,realCitizen:true,citizen:plan.citizen.name,
   job:plan.citizen.job,activity:plan.citizen.activity,activeWork:plan.activeWork,
-  metres:plan.metres,lineOfSight:true,visibility:plan.visibility};
+  metres:plan.metres,lineOfSight:true,visibility:plan.visibility,
+  crowdIntrusions:plan.crowdIntrusions,closestBystander:plan.closestBystander};
 }
 function setStreetWalk(enabled){
  const next=Boolean(enabled);
