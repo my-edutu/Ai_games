@@ -6086,7 +6086,7 @@ function projectedWorkdayOccluders(eye,target,subject){
  return {projectedBystanders,projectedPosts,projectedWorksitePosts,
   frameCrowdBurden:Math.round(frameCrowdBurden*100)/100};
 }
-function cameraShotFraming(shot,roofs,citizen){
+function cameraShotFraming(shot,roofs,citizen,knownHands=null){
  const target=shot.target,eye=shot.eye;
  const body=[[0,0,0],[-.4,.65,0],[.4,.65,0],
   [-.4,-.64,0],[.4,-.64,0],[0,.82,.2],[0,-.72,-.2]];
@@ -6104,7 +6104,7 @@ function cameraShotFraming(shot,roofs,citizen){
  }
  // G132 looked clear on a head ray while timber concealed the working hands.
  // Probe both actual IK wrists through the grown-city roof obstruction field.
- const handTargets=citizen?documentaryWorkHandTargets(citizen):[];
+ const handTargets=knownHands??(citizen?documentaryWorkHandTargets(citizen):[]);
  const handBlockers=handTargets.reduce((n,point)=>
   n+Number(followRayBlockers(eye,point,roofs)>0),0);
  return {bodyRays:body.length,blockedBodyRays,
@@ -6130,7 +6130,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const normalZoom=working?(actionCameraZoom??(liveWorkday?4.85:6.2)):12.8;
  const candidate=(angle,pitch=normalPitch,zoom=normalZoom)=>{
   const radius=Math.cos(pitch)*zoom,elevation=Math.sin(pitch)*zoom;
-  const eye=[citizen.x+Math.sin(angle)*radius,target[1]+elevation,
+  const eye=[citizen.x+Math.sin(angle)*radius,
+   terrain(citizen.x,citizen.z)+1.02+elevation,
    citizen.z+Math.cos(angle)*radius];
   return {yaw:angle,pitch,zoom,eye,target,
    blockers:followRayBlockers(eye,target,roofs)};
@@ -6151,6 +6152,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const zooms=working?[normalZoom,Math.max(4.5,normalZoom-.7),
   Math.max(4.5,normalZoom-1.7),Math.min(13,normalZoom+1.1),
   Math.min(13,normalZoom+2.3)]:[12.8];
+ const hands=realWork?documentaryWorkHandTargets(citizen):[];
  const possibilities=[];
  for(const p of pitches)for(const z of zooms)for(const angle of angles){
   const shot=candidate(angle,p,z);
@@ -6172,7 +6174,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  // Bound expensive roof/crowd/hand testing at 56 options. Real work-facing
  // candidates can now reach the evaluation pass; that is NOT true of G132.
  for(const {shot,coarse,alignment} of possibilities.slice(0,56)){
-  const framing=cameraShotFraming(shot,roofs,citizen);
+  const framing=cameraShotFraming(shot,roofs,citizen,hands);
   const score=coarse+framing.blockedBodyRays*110+
    framing.blockedNeighbourhoodRays*12+
    framing.cameraProximityWarnings*42+
@@ -6214,6 +6216,7 @@ function observedWorkdayCameraPlan(citizen,preferredYaw){
   Math.cos(preferredYaw-cache.shot.yaw))):Infinity;
  if(cache&&cache.citizen===citizen.name&&
   cache.citySize===city.length&&cache.job===citizen.job&&
+  cache.requestZoom===actionCameraZoom&&cache.requestPitch===actionCameraPitch&&
   now-cache.at<1100&&
   Math.hypot(citizen.x-cache.x,citizen.z-cache.z)<.25&&turn<1.2){
   liveShotPlanReuses++;return cache.shot;
@@ -6221,7 +6224,8 @@ function observedWorkdayCameraPlan(citizen,preferredYaw){
  const shot=planCitizenCamera(citizen,preferredYaw,true);
  liveShotPlanBuilds++;
  liveShotPlanCache={citizen:citizen.name,job:citizen.job,
-  citySize:city.length,x:citizen.x,z:citizen.z,at:now,shot};
+  citySize:city.length,x:citizen.x,z:citizen.z,at:now,
+  requestZoom:actionCameraZoom,requestPitch:actionCameraPitch,shot};
  return shot;
 }
 function updateFollowCamera(preferredYaw=previousFollowCamera?.yaw??yaw){
@@ -6613,7 +6617,8 @@ function render(now){requestAnimationFrame(render);
  const citizen=people[Math.min(selectedCitizen,people.length-1)];
  const observingAction=Boolean(liveWorkday||(document.body.dataset.workday==='delivery'&&citizen.delivery));
  const reduceMotion=observingAction&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
- const ease=reduceMotion?1:observingAction?.28:.18;
+ const ease=reduceMotion?1:observingAction?
+   Math.min(.93,1-Math.exp(-6.5*Math.max(.016,dt))):.18;
  focusPoint[0]+=(citizen.x-focusPoint[0])*ease;
  focusPoint[1]+=(citizen.z-focusPoint[1])*ease;
  if(observingAction){
@@ -6627,7 +6632,8 @@ function render(now){requestAnimationFrame(render);
    focusPoint[1]+Math.cos(yaw)*radius];
   const target=[citizen.x,terrain(citizen.x,citizen.z)+1.02,citizen.z];
   const roofs=followCameraRoofs(),obstructed=followRayBlockers(eye,target,roofs)>0;
-  const blend=reduceMotion?1:obstructed?.68:.23;
+  const blend=reduceMotion?1:obstructed?.72:
+    Math.min(.90,1-Math.exp(-5.5*Math.max(.016,dt)));
   const nextYaw=yaw+turn*blend,nextPitch=pitch+(plan.pitch-pitch)*blend,
    nextZoom=zoom+(plan.zoom-zoom)*blend;
   const nextRadius=Math.cos(nextPitch)*nextZoom;
@@ -6834,11 +6840,21 @@ for(let i=0;i<people.length;i++){
 currentMaterial=MATERIAL.GENERAL;weatherParticles(atmosphere);const frameSubmitStart=performance.now();
 const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,focusHeight=follow?terrain(focusPoint[0],focusPoint[1])+1.02:.25;
  const eye=streetWalk?[streetPosition[0],terrain(...streetPosition)+streetEyeHeight,streetPosition[1]]:[focusPoint[0]+Math.sin(yaw)*rad,elevation+focusHeight,focusPoint[1]+Math.cos(yaw)*rad];
+ // Use the real worker's reachable bench as the actual WebGL view target,
+ // not just as a goal in the orbit planner. Camera movement remains cosmetic.
+ const activeWorker=follow&&(liveWorkday||document.body.dataset.workday==='delivery')&&
+  lastFollowShot&&people[selectedCitizen];
+ const workTarget=activeWorker?[
+  focusPoint[0]+lastFollowShot.target[0]-people[selectedCitizen].x,
+  terrain(focusPoint[0],focusPoint[1])+
+   lastFollowShot.target[1]-terrain(people[selectedCitizen].x,people[selectedCitizen].z),
+  focusPoint[1]+lastFollowShot.target[2]-people[selectedCitizen].z
+ ]:[focusPoint[0],focusHeight,focusPoint[1]];
  const cameraTarget=streetWalk?[
   eye[0]+Math.sin(streetYaw)*Math.cos(streetTilt)*8,
   eye[1]+Math.sin(streetTilt)*8,
   eye[2]+Math.cos(streetYaw)*Math.cos(streetTilt)*8
- ]:[focusPoint[0],focusHeight,focusPoint[1]];
+ ]:workTarget;
  let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,cameraTarget,[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);const radiance=lightingProfile(state.t);gl.uniform1f(uniforms.sunStrength,radiance.solar);gl.uniform1f(uniforms.ambientBlend,radiance.ambientBlend);gl.uniform1f(uniforms.worldTime,state.t);gl.uniform1f(uniforms.weatherWetness,climateMaterialProfile(state.t).precipitation);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));const activeLight=observedWorkLightProfile();gl.uniform3f(uniforms.workLightPosition,activeLight.x,activeLight.y,activeLight.z);gl.uniform1f(uniforms.workLightStrength,activeLight.strength);lastFrameTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.length+data.length:data.length)/30;
 if(gpuAvailable){
  const planes=sceneFrustumPlanes(m);
