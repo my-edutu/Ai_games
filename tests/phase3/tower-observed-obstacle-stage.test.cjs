@@ -55,13 +55,28 @@ test('active physical danger survives mute/reduced motion but not stale snapshot
   }finally{world.dispose();}
 });
 test('real moving deck drives visual machinery without replay/time invention',async()=>{
-  const [, {createTowerWorld}]=await loaded,world=createTowerWorld();
+  const [THREE,{createTowerWorld,createObservedMovingDeckGearGeometry}]=await loaded,world=createTowerWorld();
+  const physicalGear=createObservedMovingDeckGearGeometry(THREE);
+  try{
+    const shape=physicalGear.parameters.shapes;
+    assert.equal(shape.holes.length,4,'four open voids leave a real hub and spoke web');
+    assert.ok(physicalGear.attributes.position.count>100,'machined gear is physical 3D art');
+  }finally{physicalGear.dispose();}
   try{
     world.update(snapshot({tick:20}),.05,1,{quality:'low'});
     const crank=world.group.getObjectByName('SourceObservedMovingDeckCrank');
     const countergear=world.group.getObjectByName('SourceObservedMovingDeckCountergear');
     const piston=world.group.getObjectByName('SourceObservedMovingDeckLoadPiston');
+    const pair=world.group.getObjectByName('SourceObservedMovingDeckGearPair');
+    const pistonParts=world.group.getObjectByName('SourceObservedMovingDeckPistonParts');
     assert.ok(crank?.isGroup && countergear?.isGroup && piston?.isGroup);
+    assert.equal(pair?.isInstancedMesh,true);
+    assert.equal(pair.count,2,'counter-rotating gears share one bounded draw');
+    assert.equal(pistonParts?.isInstancedMesh,true);
+    assert.equal(pistonParts.count,2,'mechanical load sleeve and rod share one draw');
+    assert.equal(pair.castShadow,false);assert.equal(pair.userData.collider,undefined);
+    assert.equal(world.diagnostics().observedMovingDeckGearBatches,1);
+    const firstGear=new THREE.Matrix4();pair.getMatrixAt(0,firstGear);
     assert.equal(crank.rotation.z,0);
     assert.equal(countergear.rotation.z,0);
     const restingY=piston.position.y;
@@ -69,9 +84,13 @@ test('real moving deck drives visual machinery without replay/time invention',as
     assert.ok(crank.rotation.z>0);
     assert.ok(countergear.rotation.z<0,'real gear transfer counter-rotates');
     assert.ok(piston.position.y<restingY,'observed movement compresses piston');
+    const movedGear=new THREE.Matrix4();pair.getMatrixAt(0,movedGear);
+    assert.notDeepEqual(movedGear.elements,firstGear.elements,'actual source motion updates visible instance');
     const observed=[crank.rotation.z,countergear.rotation.z,piston.position.y,piston.rotation.z];
     world.update(snapshot({tick:21,deckX:162000}),4,90,{quality:'low'});
     assert.deepEqual([crank.rotation.z,countergear.rotation.z,piston.position.y,piston.rotation.z],observed);
+    const duplicateGear=new THREE.Matrix4();pair.getMatrixAt(0,duplicateGear);
+    assert.deepEqual(duplicateGear.elements,movedGear.elements,'repeat packets do not spin a visible gear');
     world.update(snapshot({tick:22,deckX:164000}),.05,1.1,{quality:'low',reducedMotion:true});
     world.update(snapshot({tick:23,deckX:166000}),.05,1.15,{quality:'low',stale:true});
     assert.deepEqual([crank.rotation.z,countergear.rotation.z,piston.position.y,piston.rotation.z],observed);
