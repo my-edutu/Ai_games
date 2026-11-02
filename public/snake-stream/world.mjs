@@ -479,6 +479,41 @@ export function createWorld(THREE, {width, height}) {
         previousG*(1-tintStrength)+(targetG+preservedGrain)*tintStrength)));
       data[i+2]=Math.min(priorStoneB,previousB+51,Math.max(0,Math.round(
         previousB*(1-tintStrength)+(targetB+preservedGrain)*tintStrength)));
+      // BEGIN T1 BRAIDED ESTUARY WHOLE-FIELD
+      // A reclaimed tidal garden should not read as one orthogonal tile
+      // spreadsheet. Two connected original mineral-bed catchments meander
+      // ACROSS many real cells. They are pigment only: no raised path, fake
+      // water, crop, gameplay obstacle or shader. Keep the central exposed
+      // limestone landmark sunlit, and make the lichen roots legible at
+      // wide/phone scale without erasing the existing safety/cue contrast.
+      // This uses ONLY values already calculated for the existing atlas.
+      const streamU=gx/width,streamV=gz/height;
+      const creekWarp=(broadLichen-.5)*.13+(softMineral-.5)*.08;
+      const upperBank=.30+.135*Math.sin(streamU*5.8+1.2)+creekWarp;
+      const lowerBank=.74-.125*Math.sin(streamU*5.3-1.0)-creekWarp*.72;
+      const upperChannel=1-fade(.045,.215,Math.abs(streamV-upperBank));
+      const lowerChannel=1-fade(.055,.205,Math.abs(streamV-lowerBank));
+      const braidedBed=Math.max(upperChannel,lowerChannel*.87);
+      const rootLichen=fade(.31,.73,richMoss*.40+seedGroves*.34
+        +(.5+.5*Math.sin(gx*.27-gz*.39+gardenWarp))*.26);
+      const exposedMarl=fade(.38,.79,softMineral*.45+erodedLimestone*.39
+        +(.5+.5*Math.cos(gx*.22+gz*.31+gardenWarp))*.16);
+      // The historic sunlit heart is a useful place/goal landmark. Keep its
+      // real field albedo and every inherited directional relief intact.
+      const outsideHeart=fade(.62,.93,terraceDistance);
+      const watershed=fade(1.18,3.08,border)*outsideHeart;
+      const mossBraid=braidedBed*(.44+.56*rootLichen);
+      const exposedStone=(1-braidedBed*.70)*exposedMarl;
+      const rWear=watershed*(6+27*mossBraid+9*rootLichen+4*exposedStone);
+      const gWear=watershed*(4+8*mossBraid+6*rootLichen+25*exposedStone);
+      const bWear=watershed*(8+22*mossBraid+14*rootLichen+28*exposedStone);
+      // Strictly subtractive post-composition: earlier canopy shadow,
+      // R50 mineral/lichen and the actual food/hazard/portal markers cannot
+      // become brighter or move. No new texture, mesh, GPU pass or cell.
+      data[i]=Math.max(0,Math.round(data[i]-rWear));
+      data[i+1]=Math.max(0,Math.round(data[i+1]-gWear));
+      data[i+2]=Math.max(0,Math.round(data[i+2]-bWear));
+      // END T1 BRAIDED ESTUARY WHOLE-FIELD
       // END T1 RECLAIMED GARDEN COMPOSITION
       // END T1 SUNLIT SCARRED TERRACES
       // END T1 ORGANIC QUARRY FLOOR

@@ -595,6 +595,33 @@ export function createLivingGarden(THREE, {width,height}) {
         if(rise>.35)points[i+1]+=strataFold*support;
       }
     }
+    // BEGIN T1 CURVED GEOLOGICAL COAST
+    // One complete level sequence now follows a wind-and-water-cut coast
+    // instead of two precisely straight linear rock bars per side. Resculpt
+    // ONLY the eight *existing* landforms; hold the entire original triangle,
+    // batching, texture and vegetation footprint. Direction is always
+    // outboard, preserving every playable cell/portal/hazard clearance.
+    const across=along===0?2:0;
+    const outboard=Math.sign(shore.far-shore.near);
+    for(const [layer,start] of [['cliff',originalCliffStart],['moss',originalMossStart]]){
+      const positions=bands.get(layer).p;
+      for(let j=start;j<positions.length;j+=3){
+        const alongCourse=positions[j+along]-bank[along];
+        const rise=Math.max(0,positions[j+1]-bank[1]);
+        const mantle=Math.min(1,rise/.88);
+        const sweeps=.5+.5*Math.sin(alongCourse*.46+phase*1.11);
+        const inlets=.5+.5*Math.sin(alongCourse*.93-phase*.72);
+        const outcut=.085+.255*(sweeps*.72+inlets*.28);
+        positions[j+across]+=outboard*outcut;
+        // Nonuniform cove edges and fractured shelf crests move with the
+        // static actual stone; the lily beds, ruin courses and tree roots
+        // remain anchored in their original deterministic ecosystem.
+        positions[j+along]+=(sweeps-.5)*(.19+.09*mantle);
+        positions[j+1]+=mantle*(.13*Math.sin(alongCourse*.89+phase*.91)
+          +.055*Math.sin(alongCourse*1.74-phase*.62));
+      }
+    }
+    // END T1 CURVED GEOLOGICAL COAST
     // END T1 CONNECTED COASTAL RIDGES
     // END T1 BROKEN SHORE SHELF STAGING
     // END T1 TERRACED MASS REPROFILE
