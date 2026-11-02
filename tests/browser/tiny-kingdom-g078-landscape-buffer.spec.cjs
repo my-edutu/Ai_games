@@ -6,7 +6,11 @@ const html=fs.readFileSync(path.join(__dirname,'../../public/tiny-kingdom/index.
 // G094: verify the independently cached landscape after G089 reclaimed more
 // than 11k distant tree triangles; historic 65k/60k minimums are not invariants.
 test('G078 maintains an independent landscape GPU buffer across actual autonomous cottage construction',async({page})=>{
- expect(html).toMatch(/const landscapeBuffer=gl\.createBuffer\(\)/);
+// G124 now allocates per-season landscape buffers on cache misses rather
+ // than assigning a single permanent buffer at initialization. Verify the
+ // real creation AND residency wiring, then exercise the runtime below.
+ expect(html).toMatch(/landscapeBuffer=gl\.createBuffer\(\)/);
+ expect(html).toMatch(/retainLandscapeSeason\(nextTerrainKey,landscapeMeshCache,landscapeBuffer,landscapeChunkRanges\)/);
  expect(html).toMatch(/drawVisibleStaticChunks\(landscapeBuffer,landscapeChunkRanges,planes\)/);
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.setViewportSize({width:1024,height:640});
