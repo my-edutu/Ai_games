@@ -27,6 +27,7 @@ import {planCombatStage,stagePoint,MAX_STAGE_OFFSET} from '/dungeon/combat-stagi
 import {createDungeonSoundstage} from '/dungeon/soundstage.js';
 import {createWardenRitual} from '/dungeon/warden-ritual.js';
 import {planWardenExposurePose} from '/dungeon/warden-chapter-plan.js';
+import {planWorldStoryStage} from '/dungeon/world-story-stage-plan.js';
 import {addContactProjection} from '/dungeon/contact-projection.js';
 import {createLivingWorld} from '/dungeon/living-world.js';
 import {attachCharacter,updateActor,disposeActorAsset,putEnvironment,stats as assetStats} from '/dungeon/model-assets.js';
@@ -209,7 +210,7 @@ const cachedVec=new THREE.Vector3(),cachedQuat=new THREE.Quaternion(),cachedScal
 function sightlineClearance(x,z,subjects,cameraPosition,pad=2.1){
  return planPartyWallReveal(x,z,subjects,cameraPosition,pad)!=='none';
 }
-function cutawayWalls(target,subjects){
+function cutawayWalls(target,subjects,wallPad=2.1){
  const positions=world.userData.wallPositions,mesh=world.userData.walls;
  if(!mesh||!positions)return;
  // Every frame is intentional: a rounded key previously skipped critical
@@ -218,7 +219,7 @@ function cutawayWalls(target,subjects){
  const wallBands=world.userData.wallCutawayBands;
  for(let i=0;i<positions.length;i++){
   const point=positions[i];
-  const reveal=planPartyWallReveal(point[0],point[1],subjects,camera.position,2.1);
+  const reveal=planPartyWallReveal(point[0],point[1],subjects,camera.position,wallPad);
   const cutaway=planCutawayWallTransform(reveal,world.userData.wallHeights?.[i]??2.6);
   if(reveal!=='none')cut++;
   if(reveal==='nearby')nearbyCut++;
@@ -268,7 +269,7 @@ function cutawayWalls(target,subjects){
  const parapetBands=world.userData.parapetCutawayBands;
  if(parapets&&parapetPositions){
   for(let i=0;i<parapetPositions.length;i++){
-   const [px,pz]=parapetPositions[i],hidden=sightlineClearance(px,pz,subjects,camera.position,2.15);
+   const [px,pz]=parapetPositions[i],hidden=sightlineClearance(px,pz,subjects,camera.position,wallPad);
    if(hidden)clearedParapets++;
    if(!shouldUploadCutawayBand(parapetBands,i,hidden?1:0))continue;
    const parapet=planCutawayParapetTransform(hidden,world.userData.parapetHeights?.[i]??2.53);
@@ -285,7 +286,7 @@ function cutawayWalls(target,subjects){
  world.userData.parapetMatrixWrites=parapetMatrixWrites;
  let removed=0;
  for(const group of world.userData.foregroundProps||[]){
-  const hidden=sightlineClearance(group.position.x,group.position.z,subjects,camera.position,2.1);
+  const hidden=sightlineClearance(group.position.x,group.position.z,subjects,camera.position,wallPad);
   group.visible=!hidden;if(hidden)removed++;
  }
  world.userData.hiddenForegroundProps=removed;
@@ -857,6 +858,7 @@ function animate(t){
  const encounterFrame=autoDirector&&cameraModes[cameraIndex]==='cinematic'?planEncounterFrame(state):null;
  const heldImpact=impactCameraHold?.age<(impactCameraHold?.encounter.mode==='final-blow'?.72:.43)&&!state?.bossWarning?impactCameraHold.encounter:null;
  const cinematicShot=autoDirector&&cameraModes[cameraIndex]==='cinematic'?planCinematicShot(state,heldImpact||encounterFrame,{width:w,height:h,focusedHeroId}):null;
+ const storyStage=planWorldStoryStage(state,cinematicShot,{width:w,reducedMotion:reduced});
  const target=cinematicShot?new THREE.Vector3(cinematicShot.x-9,0,cinematicShot.z-9):encounterFrame?new THREE.Vector3(encounterFrame.x-9,0,encounterFrame.z-9):(leader?.at??new THREE.Vector3(0,0,0));
  for(const a of actors.values()){
   // The displayed body follows genuine authority coordinates at a time-based
@@ -953,7 +955,11 @@ function animate(t){
  if(world.userData.portal&&!reduced)world.userData.portal.rotation.y=time*.26;
  if(world.userData.court&&!reduced)world.userData.court.rotation.y=Math.sin(time*.3)*.035;
  world.userData.wardenRitual?.animate(time,dt);
- if(!reduced&&wardenSpot.intensity>0)wardenSpot.intensity*=.998+.002*Math.sin(time*3.1);
+ // Real boss lighting is recomputed from snapshot, not multiplied each frame:
+ // no long-session energy drift or cosmetic fake exposure.
+ const aliveWarden=state?.units.find(u=>u.kind==='warden'&&u.hp>0);
+ const baseBossGlow=aliveWarden?(state?.bossRecovery?.remaining?1.9:state?.bossPhase==='ECLIPSE'?3.2:state?.bossPhase==='RUPTURE'?2.9:2.1):0;
+ wardenSpot.intensity=baseBossGlow*(storyStage?.bossScale??1)*(reduced?1:1+.018*Math.sin(time*3.1));
  if(!reduced&&world.userData.hazardMeshes)for(const trap of world.userData.hazardMeshes.values()){
   if(trap.userData.active){trap.userData.ring.rotation.z=time*.4;trap.userData.charge.scale.y=.9+Math.sin(time*3+trap.position.x)*.14}
  }
@@ -1036,7 +1042,7 @@ function animate(t){
  const origin=state?.map?.length?(state.map.length-1)/2:9;
  world.userData.cutawaySubjectCount=partySightlines.length;
  world.userData.bossCutawayActive=Boolean(bossDistance&&boss&&partySightlines.some(({x,z})=>x===boss.x-origin&&z===boss.z-origin));
- cutawayWalls(target,partySightlines);world.userData.dressing?.cutaway(partySightlines,camera.position);
+ cutawayWalls(target,partySightlines,storyStage?.wallPad??2.1);world.userData.dressing?.cutaway(partySightlines,camera.position,storyStage?.wallPad??2.1);
   world.userData.wardenRitual?.setSightlines(partySightlines,camera.position);
  if(world.userData.authoredProps?.group){
   for(const prop of world.userData.authoredProps.group.children){
@@ -1046,8 +1052,16 @@ function animate(t){
 
  if(shakeStrength>.008&&!reduced){camera.position.x+=Math.sin(time*57)*shakeStrength;camera.position.y+=Math.cos(time*43)*shakeStrength*.5;}
  partyGlow.position.set(target.x,2,target.z);
- heroKey.position.set((leader?.root.position.x??target.x)+1.35,2.9,(leader?.root.position.z??target.z)+2.05);
+ const heroAt=leader?.root.position??target;
+ const towardX=camera.position.x-heroAt.x,towardZ=camera.position.z-heroAt.z;
+ const nearLength=Math.max(.01,Math.hypot(towardX,towardZ));
+ heroKey.position.set(heroAt.x+towardX/nearLength*.85,2.75,heroAt.z+towardZ/nearLength*.85);
  heroKey.intensity=(leader?.u.action==='cast'?3.6:leader?.u.action==='attack'?3.1:2.65)*(cinematicLens?.keyScale??1);
+ heroKey.intensity*=storyStage?.keyScale??1;
+ ambient.intensity=storyStage?.ambient??1.75;
+ moon.intensity=1.65*(storyStage?.moonScale??1);
+ const litFloor=Number.isSafeInteger(state?.floor)&&state.floor>=1?state.floor:1;
+ partyGlow.intensity=floorThemes[(litFloor-1)%floorThemes.length].partyIntensity*(storyStage?.partyScale??1);
  renderer.info.reset();
  try{if(composer&&postFXEnabled){
   bloomPass.strength=innerWidth<680?.16:.30;
@@ -1084,7 +1098,7 @@ function animate(t){
   }
  }}
  catch(error){console.warn('[DUNGEON] post effect fault, restoring WebGL:',String(error));try{composer?.dispose()}catch{}composer=null;bloomPass=null;postFXStatus='fallback';postFXEnabled=false;fxButton.title='Glow unavailable: direct rendering remains active';fxButton.setAttribute('aria-pressed','false');fxButton.querySelector('span').textContent='DIRECT 3D';renderer.info.reset();renderer.render(scene,camera)}
- combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,cultistTellCount:cultistTell.count,revenantTellCount:breachDiamond.count,oathguardVisible:oathguardAegis.visible,oathguardPhysicalPanels:oathguardAegis.children.filter(o=>o.isMesh).length,oathguardImpactVisible:oathguardImpactRing.visible,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,encounterFrame:encounterFrame??null,cinematicShot:cinematicShot??null,cinematicLens:cinematicLens??null,wardenExposure:[...actors.values()].find(a=>a.u.kind==='warden'&&a.u.hp>0)?.wardenExposure??null,criticalCameraFit,cameraFrameDt:cameraDt,cinematicAim:{x:cameraAim.x,y:cameraAim.y,z:cameraAim.z},cameraRig:{mode:cameraType,desiredPosition:plannedCamera.position,actualPosition:{x:camera.position.x,y:camera.position.y,z:camera.position.z},turn:plannedCamera.turn,boundaryLimit:plannedCamera.boundaryLimit},focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,wallMatrixWrites:world.userData.wallMatrixWrites??0,parapetMatrixWrites:world.userData.parapetMatrixWrites??0,cutawayNearbyWalls:world.userData.cutawayNearbyWalls??0,cutawaySubjects:world.userData.cutawaySubjectCount??0,bossCutawayActive:world.userData.bossCutawayActive??false,cutawayParapets:world.userData.cutawayParapets??0,foundationBricks:world.userData.foundationBrickPositions?.length??0,clearedFoundationBricks:world.userData.clearedFoundationBricks??0,foundationMatrixWrites:world.userData.foundationMatrixWrites??0,wallProfiles:world.userData.wallProfileMetrics??null,wallSculpture:world.userData.wallSculpture??null ,vaultedGallery:world.userData.vaultedGallery?.metrics()??null,stoneGrade:{biome:floorThemes[(state.floor-1)%floorThemes.length].biome,wallTint:stone.color.getHexString(),floorTint:floorMat.color.getHexString(),trimTint:stoneEdge.color.getHexString(),keyFill:moon.color.getHexString(),partyFill:partyGlow.color.getHexString(),partyIntensity:partyGlow.intensity,wallTextureMapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture)},wallMasonry:{size:wallMasonryTexture?.image?.width??0,mapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture),bump:Boolean(wallMasonryTexture&&stone.bumpMap===wallMasonryTexture),bumpScale:stone.bumpScale},floorRuins:world.userData.floorRuins?.metrics??null,expeditionStonework:world.userData.expeditionStonework?.metrics??null,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,postFXBudget,bloomRenderMs,bloomDownshifts,postFXAutoDisabled:bloomAutoDisabled,frameDelivery:frameDeliveryReport,softwareWebGL,directRenderBudget:directBudget,directRenderMs,directDownshifts,heroKeyIntensity:heroKey.intensity,guardianWard:Boolean(state.guardianWard),bossWarning:state.bossWarning?{shape:state.bossWarning.shape,axis:state.bossWarning.axis,attackTick:state.bossWarning.attackTick,cells:state.bossWarning.cells.length}:null,wardenRitual:world.userData.wardenRitual?.metrics()??null,wardBarrierVisible:Boolean(world.userData.courtShield?.visible),defendersRemaining:state.defendersRemaining??0,bossFramed:Boolean(bossDistance),cameraLook:{x:look.x,z:look.z},activeUnits:[...actors.values()].filter(x=>x.root.visible).length,
+ combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,cultistTellCount:cultistTell.count,revenantTellCount:breachDiamond.count,oathguardVisible:oathguardAegis.visible,oathguardPhysicalPanels:oathguardAegis.children.filter(o=>o.isMesh).length,oathguardImpactVisible:oathguardImpactRing.visible,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,encounterFrame:encounterFrame??null,cinematicShot:cinematicShot??null,cinematicLens:cinematicLens??null,storyStage:storyStage??null,wardenExposure:[...actors.values()].find(a=>a.u.kind==='warden'&&a.u.hp>0)?.wardenExposure??null,criticalCameraFit,cameraFrameDt:cameraDt,cinematicAim:{x:cameraAim.x,y:cameraAim.y,z:cameraAim.z},cameraRig:{mode:cameraType,desiredPosition:plannedCamera.position,actualPosition:{x:camera.position.x,y:camera.position.y,z:camera.position.z},turn:plannedCamera.turn,boundaryLimit:plannedCamera.boundaryLimit},focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,wallMatrixWrites:world.userData.wallMatrixWrites??0,parapetMatrixWrites:world.userData.parapetMatrixWrites??0,cutawayNearbyWalls:world.userData.cutawayNearbyWalls??0,cutawaySubjects:world.userData.cutawaySubjectCount??0,bossCutawayActive:world.userData.bossCutawayActive??false,cutawayParapets:world.userData.cutawayParapets??0,foundationBricks:world.userData.foundationBrickPositions?.length??0,clearedFoundationBricks:world.userData.clearedFoundationBricks??0,foundationMatrixWrites:world.userData.foundationMatrixWrites??0,wallProfiles:world.userData.wallProfileMetrics??null,wallSculpture:world.userData.wallSculpture??null ,vaultedGallery:world.userData.vaultedGallery?.metrics()??null,stoneGrade:{biome:floorThemes[(state.floor-1)%floorThemes.length].biome,wallTint:stone.color.getHexString(),floorTint:floorMat.color.getHexString(),trimTint:stoneEdge.color.getHexString(),keyFill:moon.color.getHexString(),partyFill:partyGlow.color.getHexString(),partyIntensity:partyGlow.intensity,wallTextureMapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture)},wallMasonry:{size:wallMasonryTexture?.image?.width??0,mapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture),bump:Boolean(wallMasonryTexture&&stone.bumpMap===wallMasonryTexture),bumpScale:stone.bumpScale},floorRuins:world.userData.floorRuins?.metrics??null,expeditionStonework:world.userData.expeditionStonework?.metrics??null,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,postFXBudget,bloomRenderMs,bloomDownshifts,postFXAutoDisabled:bloomAutoDisabled,frameDelivery:frameDeliveryReport,softwareWebGL,directRenderBudget:directBudget,directRenderMs,directDownshifts,heroKeyIntensity:heroKey.intensity,guardianWard:Boolean(state.guardianWard),bossWarning:state.bossWarning?{shape:state.bossWarning.shape,axis:state.bossWarning.axis,attackTick:state.bossWarning.attackTick,cells:state.bossWarning.cells.length}:null,wardenRitual:world.userData.wardenRitual?.metrics()??null,wardBarrierVisible:Boolean(world.userData.courtShield?.visible),defendersRemaining:state.defendersRemaining??0,bossFramed:Boolean(bossDistance),cameraLook:{x:look.x,z:look.z},activeUnits:[...actors.values()].filter(x=>x.root.visible).length,
  lastStandBodies:[...actors.values()].filter(x=>x.root.visible&&x.u.faction==='party'&&x.u.hp===0&&state.phase==='intermission').length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),combatFacingActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible).length,alignedCombatActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible&&Math.abs(shortestYawDelta(x.root.rotation.y,x.combatFacing.yaw))<.18).length,webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,livingWorld:world.userData.livingWorld?.metrics??null,overlay:combatOverlay.metrics(),soundstage:soundstage?.stats()??null,combatStage:combatDirector.stats(),damageChoreography:{observedDamageBeats,observedFatalBeats,activeReactions:[...actors.values()].filter(a=>a.root.visible&&a.damageBeat&&!a.damageBeat.fatal&&a.damageBeat.age<DAMAGE_BEAT_DURATION).length,visibleFallen:[...actors.values()].filter(a=>a.root.visible&&a.damageBeat?.fatal&&a.damageBeat.age<DEATH_BEAT_DURATION).length,maxFallenPitch:Math.max(0,...[...actors.values()].filter(a=>a.root.visible&&a.damageBeat?.fatal).map(a=>Math.abs(a.impactPivot.rotation.x))),impactCameraHold:heldImpact?.mode??null},combatStaging:{separatedActors:crowdedStageActors,maxOffsetMeters:MAX_STAGE_OFFSET},locomotion:{movingActors:[...actors.values()].filter(a=>(a.locomotionTilt||0)>.001).length,plantedFootfalls:[...actors.values()].reduce((count,a)=>count+(a.footstepIndex||0),0),timeBased:true},groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,groundSignals:(()=>{const states=[...actors.values()].map(x=>x.ground?.getState?.()).filter(Boolean);return{subjects:states.length,shadows:states.filter(x=>x.shadowVisible).length,ritualSigils:states.filter(x=>x.sigilVisible).length,coronas:states.filter(x=>x.coronaVisible).length}})(),authoredMotionPivots:[...actors.values()].filter(x=>x.authored&&x.visualPivot).length,authoredCombatPoseActors:[...actors.values()].filter(x=>x.authored&&['attack','cast','hurt'].includes(x.u.action)).length,authoredMotionMaxOffset:[...actors.values()].reduce((m,x)=>Math.max(m,x.visualPivot?.position.length()||0),0),authoredMotionPeak:[...actors.values()].reduce((m,x)=>Math.max(m,x.motionPeak||0),0),authored3D:assetStats(actors)};
 }
 async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
