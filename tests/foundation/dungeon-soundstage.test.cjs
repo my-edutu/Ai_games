@@ -22,11 +22,12 @@ test('original sound stage uses one finite hierarchy for exploration, danger, gu
 test('actual public combat actions generate priority-gated cues, never guessed contact',async()=>{
  const {planSoundCues}=await plan();
  const before=snap(10,{units:[unit('hero','idle',9),unit('enemy','idle',9,'revenant','enemy')]});
- const after=snap(11,{units:[unit('hero','attack',11),unit('enemy','hurt',11,'revenant','enemy')]});
+ const after=snap(11,{units:[unit('hero','attack',11),{...unit('enemy','hurt',11,'revenant','enemy'),hp:8}]});
  const valid=u=>u.id==='hero'?{targetId:'enemy',distance:1}:null;
  const sound=planSoundCues(before,after,valid);
  assert.deepEqual(sound.filter(c=>c.kind==='weapon').map(c=>c.actorId),['hero']);
  assert.deepEqual(sound.filter(c=>c.kind==='impact').map(c=>c.actorId),['enemy']);
+ assert.equal(planSoundCues(before,snap(11,{units:[unit('hero','attack',11),unit('enemy','hurt',11,'revenant','enemy')]}),valid).some(c=>c.kind==='impact'),false,'a hurt pose without real HP loss cannot play fake impact');
  assert.ok(sound.every(c=>Number.isSafeInteger(c.tick)&&Number.isSafeInteger(c.priority)));
  assert.equal(planSoundCues(before,after,()=>null).some(c=>c.kind==='weapon'),false,'blocked lane cannot synthesize contact');
  assert.deepEqual(planSoundCues(after,after,valid),[],'same authority tick never repeats audio');

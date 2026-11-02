@@ -804,6 +804,7 @@ function animate(t){
  }
  // Pose every live rig before sampling its skinned weapon hand for effects.
  combatDirector.animate(dt);
+ soundstage?.advanceVisualFrame(dt);
  if(world.userData.portal&&!reduced)world.userData.portal.rotation.y=time*.26;
  if(world.userData.court&&!reduced)world.userData.court.rotation.y=Math.sin(time*.3)*.035;
  world.userData.wardenRitual?.animate(time,dt);

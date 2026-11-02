@@ -3,6 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
+import {planCombatPerformanceBeat} from '/dungeon/combat-performance-plan.js';
 import {planWardenRegalia} from '/dungeon/warden-regalia-plan.js';
 import {planWardenRegaliaMotion} from '/dungeon/warden-chapter-plan.js';
 import {planRoleSilhouette} from '/dungeon/role-silhouette-plan.js';
@@ -484,14 +485,18 @@ function restoreRigMeleeBeforeMixer(actor){
   mount.last.identity();
  }
 }
+const RIG_ZERO=Object.freeze({pitch:0,yaw:0,roll:0});
 function stageRigMeleeAfterMixer(actor,since,reducedMotion){
  actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;
  if(!actor.rigMeleeBones?.length)return;
  const pose=planRigMeleeFollowThrough(actor.u.kind,actor.u.action||'idle',since,
   actor.combatFacing?.distance,actor.combatFacing?.targetId,reducedMotion||actor.u.hp<=0);
  for(const mount of actor.rigMeleeBones){
-  const joint=pose[mount.part];
-  mount.next.setFromEuler(mount.euler.set(joint.pitch,joint.yaw,joint.roll,'YXZ'));
+  const joint=pose[mount.part],extra=actor.performanceBeat?.[mount.part]||RIG_ZERO;
+  mount.next.setFromEuler(mount.euler.set(
+   Math.max(-.55,Math.min(.55,joint.pitch+extra.pitch)),
+   Math.max(-.48,Math.min(.48,joint.yaw+extra.yaw)),
+   Math.max(-.46,Math.min(.46,joint.roll+extra.roll)),'YXZ'));
   mount.bone.quaternion.multiply(mount.next);
   mount.last.copy(mount.next);
   actor.rigMeleeCurrentPeak=Math.max(actor.rigMeleeCurrentPeak,
@@ -511,8 +516,10 @@ function stageRigArmsAfterMixer(actor,since,reducedMotion){
   Math.max(-.64,Math.min(0,actor.wardenCharge.armRaise)):0;
  actor.wardenChargeShoulderPeak=Math.max(actor.wardenChargeShoulderPeak||0,Math.abs(warningLift));
  for(const mount of actor.rigUpperArms||[]){
-  const joint=pose[mount.side];
-  mount.next.setFromEuler(mount.euler.set(joint.pitch+warningLift,0,joint.roll,'XYZ'));
+  const joint=pose[mount.side],extra=actor.performanceBeat?.arms?.[mount.side]||RIG_ZERO;
+  mount.next.setFromEuler(mount.euler.set(
+   Math.max(-.62,Math.min(.62,joint.pitch+warningLift+extra.pitch)),0,
+   Math.max(-.38,Math.min(.38,joint.roll+extra.roll)),'XYZ'));
   mount.bone.quaternion.multiply(mount.next);
   mount.last.copy(mount.next);
   actor.rigGesturePeak=Math.max(actor.rigGesturePeak||0,Math.abs(joint.pitch),Math.abs(joint.roll));
@@ -524,8 +531,8 @@ function stageRigForearmsAfterMixer(actor,since,reducedMotion){
  const pose=planRigForearmGesture(actor.u.kind,actor.u.action||'idle',since,
   reducedMotion||actor.u.hp<=0);
  for(const mount of actor.rigForearms){
-  const angle=pose[mount.side];
-  mount.next.setFromEuler(mount.euler.set(angle,0,0,'XYZ'));
+  const angle=pose[mount.side]+(actor.performanceBeat?.elbows?.[mount.side]||0);
+  mount.next.setFromEuler(mount.euler.set(Math.max(-.58,Math.min(.58,angle)),0,0,'XYZ'));
   mount.bone.quaternion.multiply(mount.next);
   mount.last.copy(mount.next);
   actor.rigForearmPeak=Math.max(actor.rigForearmPeak||0,Math.abs(angle));
@@ -634,6 +641,10 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
  restoreRigMeleeBeforeMixer(actor);
  restoreRigCranialBeforeMixer(actor);
  actor.mixer.update(Math.min(.05,Math.max(0,dt)));
+ actor.performanceBeat=planCombatPerformanceBeat(actor.u.kind,actor.u.action||'idle',since,{
+  targetId:actor.combatFacing?.targetId,distance:actor.combatFacing?.distance,
+  alive:actor.u.hp>0,reducedMotion
+ });
  stageRigCranialAfterMixer(actor);
  stageRigArmsAfterMixer(actor,since,reducedMotion);
  stageRigForearmsAfterMixer(actor,since,reducedMotion);
@@ -647,11 +658,13 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
    targetId:actor.combatFacing?.targetId,distance:actor.combatFacing?.distance,
    reducedMotion:reducedMotion||actor.u.hp<=0
   });
-  actor.visualPivot.position.set(pose.x+contact.x,pose.y+contact.y,pose.z+contact.z);
+  const beat=actor.performanceBeat.root;
+  actor.visualPivot.position.set(pose.x+contact.x+beat.x,pose.y+contact.y+beat.y,pose.z+contact.z+beat.z);
   // Real visible travel adds a restrained forward weight shift atop the
   // imported animation, without moving attack hitboxes or the authority grid.
-  actor.visualPivot.rotation.set(pose.pitch+contact.pitch+(actor.locomotionTilt||0),contact.yaw,pose.roll+contact.roll);
-  actor.contactBodyPeakMeters=Math.max(actor.contactBodyPeakMeters||0,Math.hypot(contact.x,contact.y,contact.z));
+  actor.visualPivot.rotation.set(pose.pitch+contact.pitch+beat.pitch+(actor.locomotionTilt||0),contact.yaw,pose.roll+contact.roll+beat.roll);
+  actor.contactBodyPeakMeters=Math.max(actor.contactBodyPeakMeters||0,Math.hypot(contact.x+beat.x,contact.y+beat.y,contact.z+beat.z));
+  actor.performanceBeatPeak=Math.max(actor.performanceBeatPeak||0,actor.performanceBeat.strength);
   actor.motionPeak=Math.max(actor.motionPeak||0,Math.abs(pose.x+contact.x),
    Math.abs(pose.y+contact.y),Math.abs(pose.z+contact.z));
  }

@@ -10,6 +10,8 @@ import {createMaterialFoley} from '/dungeon/material-foley.js';
  */
 const MAX_VOICES=10;
 const MASTER_GAIN=.15;
+const MAX_PENDING_CONTACT=12;
+const VISUAL_CONTACT_DELAYS=Object.freeze({weapon:.185,ranged:.14,magic:.19,impact:.215,kill:.235});
 const CUES=Object.freeze({
  defeat:    {hz:185,end:46,length:1.08,peak:.12,type:'triangle'},
  renewal:   {hz:262,end:440,length:.70,peak:.08,type:'sine'},
@@ -48,7 +50,8 @@ export function createDungeonSoundstage(ctx){
  if(!ctx||typeof ctx.createGain!=='function'||typeof ctx.createOscillator!=='function')return null;
  let started=false,enabled=false,previous=null,sceneMood=null,disposed=false;
  let played=0,suppressed=0,peakVoices=0,sceneChanges=0,lastCue='none';
- const active=[],cooldown=new Map(),beds=[],nodes=[];
+ const active=[],cooldown=new Map(),beds=[],nodes=[],pending=[];
+ let contactCuesPlayed=0,contactCuesDropped=0;
  let master=null,bedBus=null,fxBus=null,capture=null,foley=null;
  const now=()=>safe(ctx.currentTime,0,Number.MAX_SAFE_INTEGER,0);
  function addBed(type){
@@ -162,7 +165,7 @@ export function createDungeonSoundstage(ctx){
   capture=null;
  }
  function disable(){
-  enabled=false;
+  enabled=false;pending.length=0;
   for(const voice of active)stopAndDisconnect(voice);
   active.length=0;
   if(master)automate(master.gain,0,.015);
@@ -170,6 +173,7 @@ export function createDungeonSoundstage(ctx){
  }
  function acceptSnapshot(s){
   if(!s||disposed)return;
+  if(previous&&(previous.run!==s.run||previous.floor!==s.floor))pending.length=0;
   const mood=planSoundMood(s);setMood(mood);
   const cues=planSoundCues(previous,s,(u,current)=>planVisualContact(u,current));
   // Keep only the public fields used by the next comparison; no giant snapshots.
@@ -180,7 +184,30 @@ export function createDungeonSoundstage(ctx){
     faction:u.faction,hp:u.hp,x:u.x,z:u.z
    }))
   };
-  if(enabled)for(const cue of cues)emit(cue);
+  if(enabled)for(const cue of cues){
+   const delay=VISUAL_CONTACT_DELAYS[cue.kind];
+   if(delay&&Number.isSafeInteger(cue.tick)&&cue.tick>=s.tick-3){
+    if(pending.length>=MAX_PENDING_CONTACT){pending.shift();contactCuesDropped++;}
+    pending.push({cue,remaining:delay});
+   }else if(!delay)emit(cue);
+   else contactCuesDropped++;
+  }
+ }
+ // Same bounded visual clock drives imported rig actions and contact audio.
+ function advanceVisualFrame(frameSeconds){
+  if(!enabled||disposed||!started||ctx.state!=='running')return 0;
+  const step=Number.isFinite(frameSeconds)?Math.min(.05,Math.max(0,frameSeconds)):0;
+  if(!step)return 0;
+  for(const item of pending)item.remaining-=step;
+  const due=pending.filter(item=>item.remaining<=0).sort((a,b)=>
+   (b.cue.priority||1)-(a.cue.priority||1)||a.cue.tick-b.cue.tick);
+  let count=0;
+  for(const item of due){
+   const index=pending.indexOf(item);
+   if(index!==-1)pending.splice(index,1);
+   if(emit(item.cue)){contactCuesPlayed++;count++;}
+  }
+  return count;
  }
  function cueWelcome(){return emit({kind:'renewal',priority:5})}
  // Invoked by physically planted rendered steps, never by invented AI events.
@@ -205,7 +232,8 @@ export function createDungeonSoundstage(ctx){
    enabled,started,disposed,voices:active.length,peakVoices,voiceCap:MAX_VOICES,
    cuesPlayed:played,cuesSuppressed:suppressed,sceneChanges,
    mood:sceneMood?.mood??'unavailable',biome:sceneMood?.biome??null,
-   lastCue,masterGain:MASTER_GAIN,foley:foley?.stats()??null,engine:'original-synth-web-audio'
+   lastCue,masterGain:MASTER_GAIN,pendingContactCues:pending.length,contactCuesPlayed,contactCuesDropped,
+   foley:foley?.stats()??null,engine:'original-synth-web-audio'
   };
  }
  function dispose(){
@@ -215,5 +243,5 @@ export function createDungeonSoundstage(ctx){
   for(const node of nodes)try{node.disconnect()}catch{}
   nodes.length=beds.length=0;cooldown.clear();previous=null;
  }
- return {enable,disable,acceptSnapshot,cueWelcome,footstep,captureStream,stats,dispose};
+ return {enable,disable,acceptSnapshot,advanceVisualFrame,cueWelcome,footstep,captureStream,stats,dispose};
 }

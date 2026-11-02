@@ -74,7 +74,7 @@ export function planSoundCues(previous,snapshot,resolveContact=()=>null){
   const old=new Map((Array.isArray(previous.units)?previous.units:[]).slice(0,96)
    .filter(validUnit).map(u=>[u.id,u]));
   for(const u of snapshot.units.slice(0,96)){
-   if(!validUnit(u)||u.hp<=0)continue;
+   if(!validUnit(u)||(u.hp<=0&&u.action!=='hurt'))continue;
    const prior=old.get(u.id);
    if(!prior||prior.actionTick===u.actionTick||u.actionTick<previous.tick||u.actionTick>snapshot.tick)continue;
    switch(u.action){
@@ -93,7 +93,7 @@ export function planSoundCues(previous,snapshot,resolveContact=()=>null){
      if(target?.targetId&&target.distance>=1&&target.distance<=3)push('magic',u.actionTick,u.id);
      break;
     }
-    case 'hurt':push('impact',u.actionTick,u.id);break;
+    case 'hurt':if(Number.isFinite(prior.hp)&&prior.hp>u.hp)push('impact',u.actionTick,u.id);break;
     case 'guard':push('guard',u.actionTick,u.id);break;
    }
   }
