@@ -27,7 +27,7 @@ test('real terminal and intermission render a bounded, spatial, source-gated 3D 
     assert.deepEqual(effect.group.position.toArray(),[8,30,-4]);
     assert.equal(effect.diagnostics().runToken,'auth-a');
     assert.equal(effect.diagnostics().lifecycle,'result');
-    assert.equal(effect.group.children.length,4);
+    assert.equal(effect.group.children.length,5);
     assert.equal(effect.diagnostics().stones,12);
     assert.equal(effect.diagnostics().resultKind,'game');
     assert.equal(effect.diagnostics().resultReason,'fall');
@@ -83,4 +83,32 @@ test('a real loss, technical interruption and operator stop have distinct source
     assert.equal(effect.group.visible,false,'only supported genuine source result kinds activate');
     assert.equal(effect.diagnostics().runToken,null);
   } finally {effect.dispose();}
+});
+
+test('the final sculpture witnesses cleared floors without inventing progress, and resets for a real new run', async () => {
+  const [THREE, { createTowerFinale }] = await loaded;
+  const effect = createTowerFinale(THREE);
+  const origin = new THREE.Vector3(hero.x, hero.y, hero.z);
+  try {
+    const wonFloors = { ...state('result','source-floors',700,{kind:'game',reason:'timer-expired'}),
+      progress: { floorsCleared: 3 } };
+    effect.update(wonFloors,origin,1);
+    const rungs = effect.group.getObjectByName('ObservedClearedFloorRungs');
+    assert.ok(rungs?.isInstancedMesh, 'real height progress has original 3D floor rungs, not HUD text');
+    assert.equal(rungs.count,8, 'low-tier render cost is capped at eight instances');
+    assert.equal(effect.diagnostics().progressedFloors,3);
+    assert.equal(effect.diagnostics().sourceBound,true);
+    const earned = new THREE.Matrix4(), unearned = new THREE.Matrix4();
+    rungs.getMatrixAt(2,earned); rungs.getMatrixAt(3,unearned);
+    const earnedScale = new THREE.Vector3(), dormantScale = new THREE.Vector3();
+    earned.decompose(new THREE.Vector3(),new THREE.Quaternion(),earnedScale);
+    unearned.decompose(new THREE.Vector3(),new THREE.Quaternion(),dormantScale);
+    assert.ok(earnedScale.y > dormantScale.y * 3,
+      'only completed authoritative floors stand tall; unearned rungs remain stubs');
+    effect.update({ ...wonFloors, progress:{ floorsCleared:0 } },origin,1.2);
+    assert.equal(effect.diagnostics().progressedFloors,0, 'no floor credit survives a reset of the real source');
+    effect.update(state('running','new-run',0),origin,2);
+    assert.equal(effect.group.visible,false);
+    assert.equal(effect.diagnostics().progressedFloors,0, 'terminal data does not leak into restart');
+  } finally { effect.dispose(); }
 });
