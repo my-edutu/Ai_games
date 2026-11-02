@@ -386,7 +386,7 @@ export class DungeonRuntime {
     u.channelUntilTick===s.tick&&u.channelTargetId===hero.id&&u.channelX===hero.x&&u.channelZ===hero.z);
    if(pendingHex){
     const lethalBossTiles=warned?.attackTick===s.tick?
-     new Set(warned.cells.map(p=>key(p.x,p.z))):new Set<string>();
+     new Set<number>(warned.cells.map(p=>key(p.x,p.z))):new Set<number>();
     const sidesteps=DIRS.map(([dx,dz])=>({x:hero.x+dx,z:hero.z+dz}))
      .filter(p=>walkable(s.map,p.x,p.z)&&!lethalBossTiles.has(key(p.x,p.z)))
      .filter(p=>!s.units.some(u=>u.hp>0&&u.id!==hero.id&&u.x===p.x&&u.z===p.z))
