@@ -8,6 +8,7 @@ import { createTowerFinale } from './finale.mjs';
 import { observedGuardianPassage, createTowerGuardianPassage } from './guardian-passage.mjs';
 import { createTowerRouteIntent } from './route-intent.mjs';
 import { createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage } from './guardian-circuit.mjs';
+import { createTowerAtmosphere } from './atmosphere.mjs';
 // A tiny 3D attack lane follows only a REAL enemy telegraph. The curved ribbon
 // traces the same cylindrical projection as authoritative horizontal shots and
 // keeps its world-space origin at the firing actor, never at a guessed target.
@@ -1137,6 +1138,10 @@ export function createTowerScene(canvas, settings = {}) {
   scene.add(routeIntent.group);
   let guardianCircuit = createTowerGuardianCircuit(THREE);
   scene.add(guardianCircuit.group);
+  // The biome has real world-depth motes, not UI flakes. One GPU draw,
+  // source-tick animation; hidden during stale/terminal/reduced-motion play.
+  let atmosphere = createTowerAtmosphere(THREE);
+  scene.add(atmosphere.group);
   const enemies = new Map(), pickups = new Map(), projectiles = new Map();
   const sharedGeometry = new Set(), sharedMaterials = new Set();
   const ownGeometry = geometry => { sharedGeometry.add(geometry); return geometry; };
@@ -1346,6 +1351,7 @@ export function createTowerScene(canvas, settings = {}) {
     particleLife.fill(0);
     motionLedger.reset(); motionEcho.count = 0; motionEcho.visible = false;
     footingShadow.visible = false; observedFooting = null;
+    atmosphere.clear();
     echoDrawnTick = -1; observedStageLight.reset();
   }
   function rebuildGraphicsResources() {
@@ -1355,8 +1361,8 @@ export function createTowerScene(canvas, settings = {}) {
     releaseEnvironment();
     reflectionFirstFrame = true;
     clearActors();
-    scene.remove(world.group, climber.group, finale.group, passage.group, routeIntent.group, guardianCircuit.group);
-    world.dispose(); climber.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose(); guardianCircuit.dispose();
+    scene.remove(world.group, climber.group, finale.group, passage.group, routeIntent.group, guardianCircuit.group, atmosphere.group);
+    world.dispose(); climber.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose(); guardianCircuit.dispose(); atmosphere.dispose();
     skyGeometry.dispose(); skyMaterial.dispose();
     for (const geometry of sharedGeometry) geometry.dispose();
     for (const material of sharedMaterials) material.dispose();
@@ -1365,8 +1371,9 @@ export function createTowerScene(canvas, settings = {}) {
     passage = createTowerGuardianPassage(THREE);
     routeIntent = createTowerRouteIntent(THREE);
     guardianCircuit = createTowerGuardianCircuit(THREE);
+    atmosphere = createTowerAtmosphere(THREE);
     climber.group.name = 'ExpeditionClimber';
-    scene.add(world.group, climber.group, finale.group, passage.group, routeIntent.group, guardianCircuit.group);
+    scene.add(world.group, climber.group, finale.group, passage.group, routeIntent.group, guardianCircuit.group, atmosphere.group);
     initialized = false;
     if (snapshot) updateEntities(snapshot);
   }
@@ -1550,6 +1557,9 @@ export function createTowerScene(canvas, settings = {}) {
       }
     }
     world.update(snapshot, dt, elapsed, options);
+    // Architectural depth and motion are shared across all five authored
+    // biomes; the current source tick and character own every weather pose.
+    atmosphere.update(snapshot, options);
     const p = snapshot.player;
     const lightCue = observedStageLight.sample(snapshot, dt,
       !!options.stale, !!options.reducedMotion);
@@ -2051,6 +2061,7 @@ export function createTowerScene(canvas, settings = {}) {
         environmentSize: reflectionTarget ? [reflectionTarget.width, reflectionTarget.height] : [0, 0], shadowLights: 1, shadowMapSize: sun.shadow.mapSize.x },
       world: world.diagnostics(), finale: finale.diagnostics(), passage: passage.diagnostics(),
       routeIntent: routeIntent.diagnostics(), guardianCircuit: guardianCircuit.diagnostics(),
+      atmosphere: atmosphere.diagnostics(),
       terminalCamera: finale.group.visible ? {
         sourceBound: true, lifecycle: snapshot.lifecycle,
         presentedSourceResult: !!snapshot.result,
@@ -2072,7 +2083,7 @@ export function createTowerScene(canvas, settings = {}) {
     canvas.removeEventListener('pointerup', pointerUp); canvas.removeEventListener('pointercancel', pointerUp); canvas.removeEventListener('wheel', wheel);
     releaseEnvironment();
     sun.shadow.dispose(); sun.shadow.map = null; sun.shadow.mapPass = null;
-    clearActors(); climber.dispose(); world.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose(); guardianCircuit.dispose();
+    clearActors(); climber.dispose(); world.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose(); guardianCircuit.dispose(); atmosphere.dispose();
     skyGeometry.dispose(); skyMaterial.dispose();
     for (const geometry of sharedGeometry) geometry.dispose();
     for (const material of sharedMaterials) material.dispose();
