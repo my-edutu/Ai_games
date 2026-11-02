@@ -10,17 +10,17 @@
   "candidate": {
     "sha": null,
     "title": "Same open 3D ascent → source-directed landing/real combat → HP-operated guardian gate → result/intermission/restart; actual game quality unassessed",
-    "implementationSha": "d512e3febe69f69502e1c618073ddd549dda26a9",
-    "implementationEvidenceStatus": "CURRENT PLAYABLE SCENE SOURCE d512e3f: 5–12 depth-tested original exterior route stones now show a real AI-selected platform while aligning/jumping/air-control, and retire immediately for a genuine attack, enemy telegraph, terminal state or stale/restarted feed. Existing physical guardian/gate/terminal sequence remains the SAME unverified transformation. Source-only V8 syntax parsing succeeded; current full Three.js browser gameplay, exact-head CI, original/portrait full-motion viewing, hardware FPS/memory and genuinely independent blind reviews are NOT VERIFIED. Source-only capture trace e7eb822 exposes all real 50ms authority phases but DOES NOT replace visually present video. Frozen baseline 1731b380 unchanged. Quality NOT EVALUATED."
+    "implementationSha": "69390052d461e4d38be7ac8b5bd3170da188e9f1",
+    "implementationEvidenceStatus": "CURRENT PLAYABLE MODULE SOURCE 6939005: actual AI-selected moving platform now leaves at most six strictly SOURCE-HISTORICAL, depth-tested exterior 3D deck position echoes, never a predicted deck location; user-selected audio now makes a single optional quiet note only on a genuine change between present AI-selected platforms, not during attacks, first observation, mute, restart or stale intent. Existing route stones, skinned climber, guardian/capstan, camera and genuine terminal stage remain one continuing transformation. Source module syntactic parsing and standalone V8 behavioral mock assertions for bounded motion and opt-in route audio succeeded; actual complete browser gameplay, current-head CI, normal-speed paired desktop/portrait footage, supported-device frame-time/memory and independent randomized blind judgments are NOT VERIFIED. Frozen baseline and evidence gate remain unchanged, quality NOT EVALUATED."
   },
   "currentTransformation": {
     "title": "Same continuous playable 3D climb → visible real AI route decision and touchdown → high-stakes guardian machinery → source-authentic ending/restart",
-    "state": "SAME TRANSFORMATION OPEN — ROUTE/COMBAT/TERMINAL PLAYABLE SOURCE EXPANDED, QUALITY NOT EVALUATED",
+    "state": "SAME TRANSFORMATION OPEN — SOURCE-OBSERVED MOVING-DECK DECISION AND SOUND ADDED, NO QUALITY PASS",
     "promise": "The actual Three.js game continues to link authoritative ascent, original skinned character, true guardian attacks/armor and HP-driven machinery, and source-witnessed gate passage. A real ended run now additionally changes the climber's skinned physical pose by actual result kind (nonlethal kneel vs stopped upright vs genuine death), frames an eight-instance source-earned-floor stone memorial on the exterior of the physical tower, and uses its existing source-directed lights and outside-core camera on desktop and portrait. No synthetic victories, enemy kills, routes, collisions, clocks, snapshots, replay authority or in-game HUD elements were added. This is source implementation, not visually verified gameplay improvement. Current AI-chosen platform route also gets one original, depth-tested exterior marker batch that yields to actual combat/windup and clears across terminal/recovery; it does not predict a physics trajectory or guarantee success. This is still source implementation rather than independently demonstrated experience improvement.",
-    "nextDecision": "Obtain source-pinned current candidate WebM desktop 960x600 and portrait 390x844 for >60s uninterrupted authentic ascent/route decision, floor-8 guardian danger and result/intermission/restart using the identical frozen baseline seed/low-tier capture harness. Cross-check new source-trace.json for genuine 20Hz source events and the observedRouteIntent camera evidence, but do not accept source trace as proof of video. Watch entire candidate and baseline motion for route-legibility and combat/terminal camera regressions, particularly baseline's one-tick 50ms result. Run full CI and supported-device frame-time/memory, acquire 5 true fresh-context blind randomized votes separately for LOOKS, FEELS, PLAYS requiring 4/5 each. Workspace browser and critic tunnel currently disconnected.",
+    "nextDecision": "Watch genuine complete latest-source 60+ second desktop 960x600 and portrait 390x844 WebM for ascent with moving platforms, actual high-stakes guardian/counterweight/gate, real visible outcome/intermission/restart, matching frozen source 1731b380 and source-state-aligned scenes. Judge whether new actual observed moving-deck position echoes and optional target-change audio clarify AI decisions without cluttering encounters. Run complete exact-head safety/replay/accessibility checks and supported-device frame-time p50/p95/p99/memory. Use five independent fresh-context randomized blind critics on continuous real motion, >=4/5 candidate preferences separately per LOOKS, FEELS and PLAYS. Independent-worker/browser workspace tunnel is currently offline; do not grant votes or change frozen baseline.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Unproven continuous full-motion route/camera/encounter/outcome readability remains the dominant experience gap. The current source-added 3D AI decision trail may clarify destination but could clutter fight scenes or mislead as a guaranteed trajectory: actual video must judge. Frozen baseline 50ms result still lacks a clear visible full outcome/restart clip; source phase traces are not video. Actual phone/desktop clips for new source, true independent blind critics (0/5 for all pillars), supported-device p50/p95/p99 and memory, and exact-source CI verdict are missing. NOT EVALUATED.",
-    "unverifiedImplementationBranchHead": "d512e3febe69f69502e1c618073ddd549dda26a9"
+    "biggestRemainingExperienceGap": "Largest deficit remains unproven real full-motion experience across source-aligned ascent, moving landing, guardian/contact and complete outcome/restart, especially portrait player/camera cropping. New moving-deck echo markers could improve anticipation or add clutter; there is no source-pinned candidate video for this source and no independent review. Frozen baseline's result phase is one true 50ms tick and not demonstrated as a complete visually captured outcome/restart. Desktop/portrait 60s matched clips, honest independent blind critics (0/5 each for LOOKS, FEELS and PLAYS), supported-device p50/p95/p99 plus memory and exact-head CI are missing. NOT EVALUATED.",
+    "unverifiedImplementationBranchHead": "ea520548b30a772cf4141f55e26840cc75e6c5af"
   },
   "scenarios": [
     {
@@ -60,11 +60,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "NOT VERIFIED AT NEW SOURCE d512e3f / CAPTURE HARNESS fae16d8 / EVIDENCE HEAD. V8 syntax parsed for route module, scene and capture source, but workspace disconnected and full Node/Three.js/browser tests unavailable; push-triggered Actions results not yet inspected. Green tests are only a safety veto, not visual quality.",
-    "replay": "NOT RE-VERIFIED AT CURRENT SOURCE. Only the Three.js presentation consumes public read-only AI intent and immutable platform/player snapshots; bounded capture-only trace stores public source tick/phase/HP, not raw authority objects. No simulation, RNG, fixed step, collision, combat, configuration, replay or source result altered. Must still run exact-head replay/integrity tests.",
-    "accessibility": "NOT FULLY VERIFIED. No new in-game text, camera cut, sound or rapid flashing. Depth-tested 3D direction stones remain static in reduced-motion, hide for actual combat and stale/result states, and do not replace the accessible existing route/danger details. Inspect contrast, comprehension and mobile legibility in real motion.",
-    "performance": "NOT MEASURED ON SUPPORTED DEVICE. When the game has a real landing intent the new marker mesh is at most 12 instances / 1 extra draw, with no new shadow light, postprocess, per-frame geometry allocation or simulation work. Browser/phone frame-time p50/p95/p99 and memory still absent; never infer FPS from geometry or CI submissions.",
-    "stability": "NOT RE-VERIFIED AT EXACT CURRENT HEAD. New module is explicitly owned/disposed across WebGL recovery and terminal/restart, and the capture trace is CI-only/bounded to 2200 public source ticks. Old source 75951122 capture run 41384300565 succeeded 6/7 jobs, frozen-baseline outcome failed both viewports. Current-source 60s motion and full test results require new evidence; no quality PASS."
+    "ci": "NOT VERIFIED AT EXACT HEAD ea520548: source modules V8-compiled and narrow mocked behavior exercises passed; six code/test commits have been committed to PR68 since d85f0cd, but no post-change GitHub Actions runs were returned at inspection. Entire Node/Three.js browser suite and CI check verdict unavailable. Green test count cannot prove transformation.",
+    "replay": "NOT RE-VERIFIED AT CURRENT SOURCE. New motion echoes consume only two consecutive observed immutable positions from the exact same live run, source tick and platform ID; a gap >8 ticks, mismatch, stale stream, enemy danger or terminal state clears history. Audio responds only to the existing actual intent, never influences seeded simulation or world state. Deterministic replay/integration must still be run at exact source.",
+    "accessibility": "NOT FULLY VERIFIED. The observed moving-deck echoes are entirely absent for reduced-motion viewers, while the existing fixed platform choice markers remain stable. Choice audio is opt-in and respects mute; no new on-screen prose, flicker, or mandatory sound input. Contrast/phone legibility in genuine gameplay, audio comprehension, and screen-reader alternatives require independent review.",
+    "performance": "NOT MEASURED ON SUPPORTED DEVICE. The source-selected route renders <=12 preexisting arrow instances in one draw and at most six source-observed moving-deck echoes in a second instanced draw, without shadows, new lights or runtime geometry allocation. Source-only bounds are not supported-device p50/p95/p99 frame-time, memory or quality evidence.",
+    "stability": "NOT VERIFIED AT EXACT HEAD ea520548. One source-owned motion-echo geometry/material and reused instances explicitly dispose on context loss/restart. Mode, stale, target mismatch, tick gap, result/intermission and run transitions clear history; opt-in audio is bounded by existing voice cap. Browser recovery, actual full game, current CI and device stability must be tested. No merge/deploy."
   },
   "unresolvedCriticalIssues": null,
   "benchmark": {
@@ -147,11 +147,11 @@
         }
       }
     },
-    "newImplementationSha": "fe42557211e306029c3e9f6461395fa2449cfc0f",
-    "newImplementationRecorded": "Current source-bound 3D physical ending added after observed-motion stage: authentic run result gates a different skinned climber pose, eight source-earned instanced floor rungs, exterior terminal camera and existing light staging. No normal-speed source fe425572 WebM is yet independently watched. No score granted.",
+    "newImplementationSha": "69390052d461e4d38be7ac8b5bd3170da188e9f1",
+    "newImplementationRecorded": "NOT CAPTURED OR REVIEWED in real current-source WebM: moving selected deck position ghosts and source-backed opt-in route replan audio were implemented in actual game modules. Standalone behavior mocks inspected real module source (not real WebGL audio hardware); previous captured clips at older source 75951122 are NOT current source. Do not claim quality or supported FPS.",
     "reviewPath": "docs/reviews/2026-11-02-tower-pr68-authentic-3d-terminal-stage.md",
     "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41384300565",
-    "followupStatus": "Previously 41384300565 completed six/seven scenario jobs at source 75951122, not current source fe425572, with frozen baseline result/intermission/restart missing in both video viewports. New source full-motion/video grading and current technical workflow NOT VERIFIED; workspace tunnel offline.",
+    "followupStatus": "Latest full-motion records reviewed earlier were source 75951122, not 6939005. Frozen-baseline outcome still incomplete. Current source native desktop/portrait paired footage, verified video-audio capture, replay/CI and independent reviewer judgments remain outstanding. Live worker/browser tunnel NOT_FOUND >300 seconds on 2026-11-02.",
     "matchedCaptureSettings": {
       "seed": "tower-transformation-capture-v1",
       "sourceBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
@@ -349,6 +349,32 @@
         "Exact-head complete CI not inspected"
       ],
       "status": "NOT EVALUATED"
+    },
+    "latestMovingDeckDecisionSlice": {
+      "sourceBranch": "feat/tower-transformation-gauntlet-20261101",
+      "actualPlayableSourceSha": "69390052d461e4d38be7ac8b5bd3170da188e9f1",
+      "source3DEchoSha": "542eef1699159b7c282168d7035537d88a1f8659",
+      "testSourceSha": "ea520548b30a772cf4141f55e26840cc75e6c5af",
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "reviewPath": "docs/reviews/2026-11-02-tower-pr68-observed-moving-deck-experience.md",
+      "changes": "Real intended moving deck's past x/y source positions become bounded depth-tested 3D exterior amber echoes (<=6) while the existing actual choice markers identify its current position. Changed AI target IDs, outdated ticks, source stream staleness, guardian telegraphs, real attacks, terminal/restart and reduced motion immediately clear echo history. Only a genuine same-floor replan between two present authoritative platform IDs earns a quiet muted-by-default audio note; no predicted future deck, target, collision, route, RNG or replay changes.",
+      "limitedChecks": "V8 source syntax parsing of both live modules and CJS tests; executed loaded module behavior with small THREE stand-ins and fake opt-in AudioContext. Observed 0->1 historical deck echoes at actual x delta 7500 and immediate clear on ID mismatch; audio pad 3 voices ->1 cue at source target replan, 0 duplicate/telegraph/mute. This is source helper verification only, not actual Three.js full-game replay or video.",
+      "scenarioVideos": {
+        "ascent": null,
+        "danger": null,
+        "outcome": null
+      },
+      "baselineCandidateClips": "NOT AVAILABLE at same latest candidate SHA; earlier videos are from other source SHAs, baseline terminal is incomplete",
+      "blindIndependentVotes": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "supportedDeviceMeasurements": "NOT MEASURED: p50/p95/p99 presented frame time and memory missing",
+      "exactHeadCi": "NOT VERIFIED: no current-head PR workflow runs returned at inspection",
+      "independentWorkers": "NOT_FOUND: workspace tunnel-client not seen >300s; no independent critics or actual browser playback accessible",
+      "largestRemainingGap": "Genuine source-aligned full-motion readability and convincing outcomes on desktop/phone remain unproven; 50ms frozen baseline result and portrait character framing are the strongest unresolved questions",
+      "quality": "NOT EVALUATED"
     }
   }
 }
