@@ -432,6 +432,21 @@ export function createClimber() {
         arms[0].upper.rotation.x=mix(arms[0].upper.rotation.x,-.85,.48);
         arms[0].lower.rotation.x=mix(arms[0].lower.rotation.x,-.75,.45);
       }
+      // The same real pilot that counterbalances an airborne landing now
+      // visibly lowers its center of mass when it brakes for takeoff. No root
+      // translation or authored jump is introduced: source physics owns both.
+      if(state.intentMode==='settling-launch'&&!defending&&!attacking&&!stale&&speed>.05){
+        const lean=clamp(Math.abs(vx)/9000,0,1)*(reducedMotion?.25:1);
+        const travel=Math.sign(vx)||(state.facing??1);
+        body.rotation.z+=travel*.15*lean;
+        head.rotation.z-=travel*.10*lean;
+        body.position.y-=.065*lean;
+        for(let i=0;i<2;i++){
+          legs[i].upper.rotation.x-=.24*lean;
+          legs[i].lower.rotation.x+=.43*lean;
+          arms[i].upper.rotation.x=mix(arms[i].upper.rotation.x,-.55,.3*lean);
+        }
+      }
       // Shield the visor and tuck the knees while the real AI reacts to danger.
       if(defending&&!attacking){
         // A real early charge grounds both boots and raises the forearms.

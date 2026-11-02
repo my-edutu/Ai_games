@@ -63,6 +63,19 @@ test('moving deck uses its current observed position and explicitly names a real
  assert.equal(shifted.action.move,0,'a far, fast approach coasts instead of reversing');
  assert.equal(shifted.intent.targetPlatformId,target.id);
 });
+test('the current platform landing corridor is playable without chasing its midpoint',()=>{
+ const {s}=approaching({offset:30000,vx:0});
+ const d=chooseTowerAction(s,createTowerObservation(s));
+ assert.equal(d.action.move,0,'the actor is already above a real collision-safe portion of this wide deck');
+ assert.equal(d.action.dash,false);
+ assert.equal(d.intent.mode,'air-control');
+});
+test('outside the observed safe landing corridor the climber steers back toward support',()=>{
+ const {s,target}=approaching({offset:125000,vx:0});
+ const d=chooseTowerAction(s,createTowerObservation(s));
+ assert.equal(d.action.move,1);
+ assert.equal(d.intent.targetPlatformId,target.id);
+});
 test('repeated identical observations yield an identical decision and no inferred landing',()=>{
  const {s}=approaching({offset:24000,vx:8000});
  const obs=createTowerObservation(s),first=chooseTowerAction(s,obs);

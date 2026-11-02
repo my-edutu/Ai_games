@@ -244,7 +244,7 @@ export function createTowerAudio() {
     // landing: the authoritative simulation retains sole control. The first
     // observation after floor change, an old packet, combat or a vanished
     // target must never fabricate a selection sound.
-    const routeMode = ['aligning', 'jumping', 'air-control', 'settling-landing'].includes(
+    const routeMode = ['aligning', 'settling-launch', 'jumping', 'air-control', 'settling-landing'].includes(
       intent.replace(/^oracle-/, ''));
     const observedTarget = routeMode && typeof snapshot.intent?.targetPlatformId === 'string'
       ? snapshot.intent.targetPlatformId : null;

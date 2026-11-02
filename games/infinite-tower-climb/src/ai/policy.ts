@@ -1,5 +1,5 @@
 import type{TowerAction,TowerPlatform,TowerState}from'../state/types';import{chooseTowerUpgrade}from'../progression/builds';import{nextTowerPlatform}from'./graph';import type{TowerObservation}from'./observation';import{detectTowerStuck}from'./stuck';
-export interface TowerIntent{mode:'choosing-upgrade'|'evading-projectile'|'evading-hazard'|'evading-telegraph'|'bracing-telegraph'|'engaging-enemy'|'recovering'|'collecting-resource'|'aligning'|'jumping'|'air-control'|'settling-landing'|'waiting';summary:string;confidence:number;fallbackUsed:boolean;targetPlatformId?:string}
+export interface TowerIntent{mode:'choosing-upgrade'|'evading-projectile'|'evading-hazard'|'evading-telegraph'|'bracing-telegraph'|'engaging-enemy'|'recovering'|'collecting-resource'|'aligning'|'jumping'|'air-control'|'settling-landing'|'settling-launch'|'waiting';summary:string;confidence:number;fallbackUsed:boolean;targetPlatformId?:string}
 export interface TowerDecision{action:TowerAction;intent:TowerIntent}
 function action(move:TowerAction['move']=0,extra:Partial<TowerAction>={}):TowerAction{return{move,jump:false,dash:false,attack:false,ability:false,...extra}}
 function moveSign(delta:number):TowerAction['move']{return Math.abs(delta)<4000?0:delta>0?1:-1}
@@ -12,12 +12,20 @@ function launchX(current:TowerPlatform,target:TowerPlatform,halfWidth:number){co
 // using only present observed position/velocity and the current public deck.
 // It neither forecasts the deck, mutates state nor affects historical-v1.
 function observedLandingSteering(state:TowerState,obs:TowerObservation,target:TowerObservation['platforms'][number]){
-  const p=obs.player,delta=target.x+target.width/2-p.position.x;
+  const p=obs.player;
   const acceleration=Math.max(1,Math.round(state.config.moveAcceleration*state.build.airControlPermille/1000));
   const velocity=p.velocity.x;
-  const safeBand=Math.max(5000,Math.min(18000,Math.floor(target.width/6)));
-  const desiredVelocity=Math.max(-state.config.maxRunSpeed,
-    Math.min(state.config.maxRunSpeed,delta/5));
+  // Collision is earned anywhere inside the actual current deck's usable lane.
+  // Do not accelerate toward its decorative midpoint after the body is already
+  // over a safe landing corridor; bleed off speed before the finite edge.
+  const margin=Math.max(p.halfWidth+4000,Math.min(18000,Math.floor(target.width/8)));
+  const left=target.x+margin,right=target.x+target.width-margin;
+  const landingX=left<=right?Math.max(left,Math.min(right,p.position.x)):
+    target.x+target.width/2;
+  const delta=landingX-p.position.x;
+  const safeBand=Math.max(1500,acceleration);
+  const desiredVelocity=Math.sign(delta)*Math.min(state.config.maxRunSpeed,
+    Math.round(Math.sqrt(2*acceleration*Math.abs(delta))));
   const speedError=desiredVelocity-velocity;
   const move:TowerAction['move']=Math.abs(delta)<=safeBand&&Math.abs(velocity)<=acceleration
     ? 0 : Math.abs(speedError)<=Math.max(300,acceleration/2)
@@ -25,6 +33,48 @@ function observedLandingSteering(state:TowerState,obs:TowerObservation,target:To
   const settling=move!==0&&velocity!==0&&move===-Math.sign(velocity)
     &&Math.abs(velocity)>acceleration;
   return {move,settling};
+}
+// Tactical grounded launch now works with the SAME observed control authority
+// as air braking. It slows down *before* a real takeoff point rather than
+// sprinting across it, and jumps rather than walking off a deck at the last
+// safe physics step. Historical-v1 retains the original launch heuristic.
+// No future platform positions, hidden trajectory oracle or new game state.
+function observedLaunchSteering(state:TowerState,obs:TowerObservation,support:TowerObservation['platforms'][number],target:TowerObservation['platforms'][number]){
+  const p=obs.player,c=state.config,desired=launchX(support,target,c.playerHalfWidth);
+  const delta=desired-p.position.x,velocity=p.velocity.x,accel=c.moveAcceleration;
+  const side:TowerAction['move']=target.x>=support.x+support.width?1:
+    target.x+target.width<=support.x?-1:0;
+  const near=Math.abs(delta)<=12000;
+  const adverse=side!==0&&velocity*side<-Math.max(1500,accel);
+  const tooFast=side===0&&Math.abs(velocity)>Math.max(2200,accel*2);
+  if(near&&!adverse&&!tooFast){
+    const toward:TowerAction['move']=side||moveSign(target.x+target.width/2-p.position.x);
+    return {move:toward,jump:true,settling:false};
+  }
+  const desiredSpeed=Math.sign(delta)*Math.min(c.maxRunSpeed,
+    Math.round(Math.sqrt(2*accel*Math.max(0,Math.abs(delta)-12000))));
+  const speedError=desiredSpeed-velocity;
+  let move:TowerAction['move']=Math.abs(speedError)<=Math.max(400,accel/2)?0:
+    speedError>0?1:-1;
+  // Ground friction is stronger than opposite-thrust braking on the current
+  // physics contract. Coast when that is the quickest *actual* deceleration.
+  if(velocity!==0&&Math.sign(velocity)===Math.sign(delta)&&
+    Math.abs(velocity)>Math.abs(desiredSpeed)+accel/2)move=0;
+  if(near&&side===0)move=0;
+  if(near&&side!==0)move=side;
+  const nextVelocity=move===0?velocity-Math.sign(velocity)*Math.min(Math.abs(velocity),c.groundFriction):
+    Math.max(-c.maxRunSpeed,Math.min(c.maxRunSpeed,velocity+move*accel));
+  const margin=p.halfWidth+4000;
+  const nextX=p.position.x+nextVelocity;
+  if(nextX<support.x+margin||nextX>support.x+support.width-margin){
+    // A source-backed, grounded jump is safer than continuing to RUN off the
+    // edge. The subsequent flight remains subject to normal physics/AI.
+    const toward:TowerAction['move']=side||moveSign(target.x+target.width/2-p.position.x);
+    return {move:toward,jump:true,settling:false};
+  }
+  const settling=velocity!==0&&(move===-Math.sign(velocity)||
+    (move===0&&Math.abs(velocity)>Math.abs(desiredSpeed)+accel/2));
+  return {move,jump:false,settling};
 }
 // Predict the next deterministic ground step against the actual present deck.
 // A danger reaction is not worth stepping off the supporting edge.
@@ -168,5 +218,5 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
     return{action:action(move,{dash}),intent:{mode:settling?'settling-landing':'air-control',
       summary:settling?(target.kind==='moving'?'Braking to meet the moving deck':'Braking for a controlled landing'):'Steering toward the next landing',
       confidence:.9,fallbackUsed:false,targetPlatformId:target.id}}}
-  const support=currentPlatform(observation,observation.player.groundedPlatformId);if(!support)return{action:action(),intent:{mode:'waiting',summary:'Confirming ground support',confidence:.7,fallbackUsed:false,targetPlatformId:target.id}};const desired=launchX(support,target,state.config.playerHalfWidth),delta=desired-observation.player.position.x;if(Math.abs(delta)>12000)return{action:action(moveSign(delta)),intent:{mode:'aligning',summary:'Aligning with the launch point',confidence:.93,fallbackUsed:false,targetPlatformId:target.id}};return{action:action(moveSign(center-observation.player.position.x),{jump:true}),intent:{mode:'jumping',summary:'Committing to the next platform',confidence:.95,fallbackUsed:false,targetPlatformId:target.id}}
+  const support=currentPlatform(observation,observation.player.groundedPlatformId);if(!support)return{action:action(),intent:{mode:'waiting',summary:'Confirming ground support',confidence:.7,fallbackUsed:false,targetPlatformId:target.id}};if(tactical){const launch=observedLaunchSteering(state,observation,support,target);return{action:action(launch.move,{jump:launch.jump}),intent:{mode:launch.settling?'settling-launch':launch.jump?'jumping':'aligning',summary:launch.settling?'Braking into a controlled takeoff':launch.jump?'Jumping from a supported launch point':'Preparing the next safe leap',confidence:.94,fallbackUsed:false,targetPlatformId:target.id}}}const desired=launchX(support,target,state.config.playerHalfWidth),delta=desired-observation.player.position.x;if(Math.abs(delta)>12000)return{action:action(moveSign(delta)),intent:{mode:'aligning',summary:'Aligning with the launch point',confidence:.93,fallbackUsed:false,targetPlatformId:target.id}};return{action:action(moveSign(center-observation.player.position.x),{jump:true}),intent:{mode:'jumping',summary:'Committing to the next platform',confidence:.95,fallbackUsed:false,targetPlatformId:target.id}}
 }

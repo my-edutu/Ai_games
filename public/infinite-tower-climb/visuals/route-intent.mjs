@@ -70,7 +70,7 @@ export function createTowerRouteIntent(THREE) {
     const valid = snapshot?.lifecycle === 'running' && !options.stale &&
       Number.isSafeInteger(snapshot.tick) && typeof snapshot.runToken === 'string' &&
       snapshot.runToken.length > 0 && player?.health > 0 && !player.attacking &&
-      ['aligning', 'jumping', 'air-control', 'settling-landing'].includes(mode) &&
+      ['aligning', 'settling-launch', 'jumping', 'air-control', 'settling-landing'].includes(mode) &&
       platform && typeof platform.id === 'string' &&
       platform.id === snapshot.intent?.targetPlatformId && platform.width > 0 &&
       Number.isFinite(snapshot.worldWidth) && snapshot.worldWidth > 0 &&
