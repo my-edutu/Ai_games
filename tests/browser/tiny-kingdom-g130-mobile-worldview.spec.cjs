@@ -30,7 +30,7 @@ test('G130 mobile world view has one compact status row and one action row with 
  expect(facts.documentWidth).toBeLessThanOrEqual(facts.viewport);
  expect(facts.unchanged).toBe(true);
  await page.locator('#world-open-command').click();
- expect(await page.evaluate(()=>document.body.dataset.command)).toBe('full');
+ expect(await page.evaluate(()=>document.body.dataset.command)).toBe('command');
  const commands=await page.evaluate(()=>['#speed4','#save','#restore','#restart'].map(id=>{
   const el=document.querySelector(id);return !!el&&getComputedStyle(el).display!=='none';
  }));
