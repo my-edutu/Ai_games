@@ -258,8 +258,13 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[]){
  // masonry if a seeded room happens to spawn no eligible pillar torch.
  // No NPC, maze wall, RNG, navigation or encounter rule is modified.
  if(!flames.length){
-  const available=wallFaces.filter(face=>face[4]>=1.25);
-  for(let i=4;i<available.length&&flames.length<2;i+=19){
+  // Mount a pair of original flame sconces on genuine standing piers when
+  // low, open ruin junctions leave no pillar-based torches. Deliberately
+  // spread the two anchors across the level, not over the nearest hero.
+  const standing=wallFaces.filter(face=>face[4]>=1.65);
+  const available=standing.length?standing:wallFaces.filter(face=>face[4]>=1.25);
+  const stride=Math.max(1,Math.ceil(available.length/2));
+  for(let i=0;i<available.length&&flames.length<2;i+=stride){
    const face=available[i];
    buildTorch(face[0],face[2],Math.atan2(face[7]||0,face[8]||0),floor*31+i);
   }
