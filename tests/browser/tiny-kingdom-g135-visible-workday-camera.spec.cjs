@@ -46,6 +46,14 @@ test('G135 active workday is framed from the physical working front with readabl
  expect(result.shot.handBlockers).toBeLessThanOrEqual(2);
  expect(result.shot.cameraDistance).toBeGreaterThan(3.6);
  expect(result.shot.cameraDistance).toBeLessThan(11);
+ // G147 RED-first: G146 actual 1024px moving footage frames a farmer behind
+ // the whole cropfield at 7.15m. His body is too small to explain the job
+ // even though front alignment and building rays both pass.
+ // Demand an actual perspective-size measure of the AUTHENTIC selected actor,
+ // not just a clear empty line from the camera to the distant worker.
+ expect(Number.isFinite(result.shot.projectedWorkerHeightFraction)).toBe(true);
+ expect(result.shot.projectedWorkerHeightFraction).toBeGreaterThan(.21);
+ expect(result.shot.projectedWorkerHeightFraction).toBeLessThan(1);
  // G146: the G145 actual Day-120 desktop film showed Oren nearly fully
  // rear-facing (alignment -1) and .592 projected foreground coverage.
  // A technical hand-ray clearance must NOT certify an unreadable shift.
@@ -105,6 +113,9 @@ test('G135 active workday is framed from the physical working front with readabl
  // No NPC may be moved, hidden or reposed merely to satisfy this readout.
  expect(mobile.plan?.portraitLens).toBe(true);
  expect(mobile.shot.viewportAspect).toBeLessThan(.65);
+ // A phone portrait must still contain a recognizably large real worker.
+ expect(Number.isFinite(mobile.shot.projectedWorkerHeightFraction)).toBe(true);
+ expect(mobile.shot.projectedWorkerHeightFraction).toBeGreaterThan(.18);
  expect(mobile.shot.foregroundCitizenBlockers).toBe(0);
  expect(mobile.shot.plannedForegroundCitizenBlockers).toBe(0);
  // G139 RED-first: real G138 390px footage at Day-120 showed Edric with
