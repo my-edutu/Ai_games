@@ -4929,7 +4929,18 @@ function renderMarketHandoffs(){
 /* G112: one after-dark worksite lamp, attached to a genuine active task. */
 let workLightRenderStats={active:0,triangles:0};
 function observedWorkLightProfile(time=state.t){
- const p=people[selectedCitizen],working=Boolean(p&&(isWorkingAtSite(p)||isMarketUnloading(p)));
+ const p=people[selectedCitizen];
+ // The documentary night camera now follows a real moving lantern's
+ // wrist, lighting the physical street around its traveling carrier.
+ // Reuse the original single bounded WebGL light: no extra shadow pass,
+ // fake street fixture, simulated actor or authoritative state change.
+ if(p&&follow&&document.body.dataset.workday==='homecoming'&&carryingCommuterLantern(p)){
+  const [x,y,z]=commuterLanternPoint(p),strength=
+   Math.max(0,Math.min(1,(.67-skyConditions(time).daylight)/.42))*.84;
+  return {active:strength>.015,citizen:p.name,x,y,z,strength,
+   radius:5.5,provenance:'real-commuting-citizen-wrist'};
+ }
+ const working=Boolean(p&&(isWorkingAtSite(p)||isMarketUnloading(p)));
  const observing=Boolean(follow&&(liveWorkday||document.body.dataset.workday==='delivery'));
  const strength=observing&&working?Math.max(0,Math.min(1,(.67-skyConditions(time).daylight)/.42))*.92:0;
  const active=strength>.015;
@@ -4940,7 +4951,9 @@ function observedWorkLightProfile(time=state.t){
 function renderObservedWorkLight(light){
  const before=data.length;
  workLightRenderStats.active=light.active?1:0;
- if(light.active){
+ if(light.active&&light.provenance==='selected-citizen-actual-worksite'){
+  // Moving commuters draw their own wrist lantern in villager(), rather
+  // than mysteriously leaving an independent fixed post in the street.
   const x=light.x,z=light.z,y=terrain(x,z);
   materialScope(MATERIAL.WOOD,()=>{
    cylinder(x,y,z,.052,1.03,rgb(0x63482f),5);
@@ -6861,7 +6874,8 @@ function updateHomecomingUI(){
   return;
  }
  const label=view.citizen+' · '+(view.arrival?
-  'resting inside their occupied cottage':'walking home after an actual shift');
+  'resting inside their occupied cottage':
+  'walking home after an actual shift · carrying a real hand lantern');
  if(status.textContent!==label)status.textContent=label;
 }
 function watchHomecoming(){
