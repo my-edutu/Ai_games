@@ -389,6 +389,21 @@ export function createWarden(options = {}) {
       band.scale.set(1,1.08,1); band.rotation.y=side*.16;
     }
     for (let i=0;i<3;i++) ball(wing,plates,[side*(.27-i*.02),.19,-.23+i*.23],[.135,.065,.09]);
+    // Permanent three-dimensional dorsal scutes solve the dark silhouette
+    // recorded in the authentic 320/390 Follow frames: the garden's dark
+    // purple guardian was recognizable mostly by its transient green fronds.
+    // This bright, physically attached copper/ivory ridgeline identifies
+    // Thornback even at rest, without relying on a HUD, a warning state,
+    // undisclosed attention, or a per-frame object allocation.
+    const carapace=pivot(wing,`fixed sculpted warden shell relief ${side}`,[side*.16,.21,-.02]);
+    const keel=rounded(carapace,plates,[0,.06,0],[.30,.17,.84],.06);
+    keel.rotation.y=side*.12;
+    for (let scute=-1;scute<=1;scute++) {
+      const rib=rounded(carapace,claw,[side*.02,.17,scute*.265],[.30,.075,.12],.025);
+      rib.rotation.y=side*.12;
+    }
+    const tip=rounded(carapace,bronze,[0,.09,-.43],[.21,.12,.16],.038);
+    tip.rotation.y=side*.14;
     elytra.push({wing,side});
   }
   rounded(body,bronze,[0,.435,-.06],[.055,.045,.78],.022);

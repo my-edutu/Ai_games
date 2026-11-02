@@ -306,11 +306,23 @@ test('Thornback opens physical paired shell halves only during a true disclosed 
       lining:warden.group.getObjectByName(`exposed elytron lining ${side}`),
       seam:warden.group.getObjectByName(`opened elytron ember seam ${side}`),
       fronds:warden.group.getObjectByName(`unfurled sea-glass wing fronds ${side}`),
-      sail:warden.group.getObjectByName(`articulated tidal sail ${side}`)
+      sail:warden.group.getObjectByName(`articulated tidal sail ${side}`),
+      dorsal:warden.group.getObjectByName(`fixed sculpted warden shell relief ${side}`)
     }));
     for (const entry of sides) {
       assert.ok(entry.wing && entry.lining && entry.seam && entry.fronds,
         'both shell plates, ember linings, physically attached fronds and seams must be modeled');
+      assert.equal(entry.dorsal?.parent,entry.wing,
+        'large identifiable armor relief must be physically rooted to each genuine hinged elytron');
+      assert.equal(entry.dorsal.visible,true,
+        'Thornback anatomy exists in neutral play, never requiring private/disclosed threat attention');
+      const scutes=entry.dorsal.children.filter(part=>part.isMesh && part.geometry?.attributes?.position);
+      assert.ok(scutes.length>=3,
+        'actual batched ivory, copper and bronze sculptures must break the small dark-shell silhouette');
+      assert.ok(scutes.some(part=>part.material?.color?.getHexString()==='e1c997'),
+        'real ivory ribs remain contrasting three-dimensional geometry at mobile resolution');
+      assert.ok(scutes.some(part=>part.material?.color?.getHexString()==='a17b5b'),
+        'warm copper physical keel remains attached to the shell');
       assert.equal(entry.fronds.parent,entry.wing,'every botanical blade is physically hinged to the guardian, not a screen marker');
       assert.equal(entry.sail?.parent,entry.fronds,
         'a large original sail is physically joined to each existing shell hinge, never a floating marker');
