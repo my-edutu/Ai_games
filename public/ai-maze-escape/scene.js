@@ -496,6 +496,37 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // visually staged just because its HUD warning is present.
       const projectedWardens = [...wardens.values()].map(({ model }) =>
         model.group.position.clone().add(new THREE.Vector3(0, .75, 0)).project(camera));
+      // Source-bound silhouette verification: an actor CENTER in-frame is not
+      // proof its claws, folded legs or alert tide sails are also visible.
+      // Project all eight corners of the visible physical mesh envelope,
+      // including hinged limbs, at this existing sparse diagnostics interval.
+      // No private actor is enumerated; wardens contains public snapshots only.
+      const physicalSilhouette = root => {
+        root.updateWorldMatrix(true, true);
+        const bounds = new THREE.Box3(), piece = new THREE.Box3();
+        root.traverseVisible(node => {
+          if (!node.isMesh || !node.geometry) return;
+          if (!node.geometry.boundingBox) node.geometry.computeBoundingBox();
+          if (!node.geometry.boundingBox) return;
+          bounds.union(piece.copy(node.geometry.boundingBox).applyMatrix4(node.matrixWorld));
+        });
+        if (bounds.isEmpty()) return null;
+        let left=Infinity,right=-Infinity,bottom=Infinity,top=-Infinity,near=Infinity,far=-Infinity;
+        for (const x of [bounds.min.x,bounds.max.x])
+          for (const y of [bounds.min.y,bounds.max.y])
+            for (const z of [bounds.min.z,bounds.max.z]) {
+              const v=new THREE.Vector3(x,y,z).project(camera);
+              left=Math.min(left,v.x); right=Math.max(right,v.x);
+              bottom=Math.min(bottom,v.y); top=Math.max(top,v.y);
+              near=Math.min(near,v.z); far=Math.max(far,v.z);
+            }
+        return {left,right,bottom,top,
+          fullyInFrame:left>=-.95 && right<=.95 && bottom>=-.95 && top<=.95 && near>-1 && far<1};
+      };
+      const visibleGuardianSilhouettes=[...wardens.values()]
+        .map(({model})=>physicalSilhouette(model.group));
+      const guardianModelsFullyInFrame=visibleGuardianSilhouettes.filter(bounds=>bounds?.fullyInFrame).length;
+      const explorerSilhouette=physicalSilhouette(explorer.group);
       const depthVisible = p => p.z > -1 && p.z < 1;
       // Count *actual* contact meshes at real publicly rendered positions,
       // including in native portrait, not a synthetic screenshot annotation.
@@ -576,6 +607,9 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         frameP95Ms: sorted[Math.floor(sorted.length * .95)] || 0,
         routeQueue: cells.length, world: stats, contextLost: false,
         disclosedThreats: wardens.size, wardensInFrame, wardensWithMargin,
+        guardianModelsFullyInFrame, guardianPhysicalBounds:visibleGuardianSilhouettes,
+        explorerModelFullyInFrame:!!explorerSilhouette?.fullyInFrame,
+        explorerPhysicalBounds:explorerSilhouette,
         wardenContactShadows: [...wardens.values()].filter(entry => entry.contact?.parent === scene).length,
         wardenGroundedContacts,
         encounterAttention: closestThreat?.strength ?? 0,
