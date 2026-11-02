@@ -2201,12 +2201,12 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Inspected exact prior-head genuine 1440x832 original WebGL world-only artifact https://github.com/my-edutu/Ai_games/actions/runs/41398888784/artifacts/13120803208 . Three living heroes in view, no active enemies in that one sample; their circular toy heads overlap alongside bulky masonry. This is genuine prior-head rendering, NOT a matched M1 baseline or a win for the unrendered new candidate.",
-      "latestCandidateWorkflow": "Prior e948586 2026-11-02: dedicated Dungeon https://github.com/my-edutu/Ai_games/actions/runs/41426718717 authority success, browser shards 1 and 3 FAILED; visual review https://github.com/my-edutu/Ai_games/actions/runs/41426718735 FAILED. New shield-break exact-head CI and captures not yet inspected."
+      "latestCandidateWorkflow": "2026-11-02 candidate 042d555132b7c4093c1bbde69a76cce0212f8aa2: GitHub [Dungeon Foundation 41435407087](https://github.com/my-edutu/Ai_games/actions/runs/41435407087), [visual 41435407005](https://github.com/my-edutu/Ai_games/actions/runs/41435407005), [full CI 41435407020](https://github.com/my-edutu/Ai_games/actions/runs/41435407020) QUEUED at recording, outcomes UNVERIFIED. Prior head e948586 authority passed but browser shards 1 and 3 FAILED (nonterminal 2500-tick seed, lagged director report), immersive visual FAILED. Maintain locked baseline."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
     "biggestRemainingGap": "Prior e948586 exact-head browser did NOT pass: fixed seed 2500 ticks never reached defeat/restart; toggled director UI but render diagnostics lagged. Pinned before/after continuous audiovisual desktop/mobile coverage, realistic character/contact, mobile p95 and 3 fresh blind critics still missing. NOT TRANSFORMED.",
     "currentWork": "Continuation M1: implemented real revenant shield-break (locked one-turn grid threat, legal multi-hazard dodge/guard, ally interruption and true damage), original batched ground mark, camera and opt-in synthesized audio. Exact-head new Chromium, critics, perf and replay UNVERIFIED.",
-    "candidateCommit": null,
+    "candidateCommit": "042d555132b7c4093c1bbde69a76cce0212f8aa2",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -2815,7 +2815,8 @@
           "tests/browser/dungeon-revenant-breach.spec.cjs"
         ],
         "evidence": "Code authored. Latest prior browser/visual failed; new-head checks, matched motion/audio and independent critics UNVERIFIED.",
-        "next": "Inspect real WebGL captured warning and organic long-run ending; fix 2500-tick non-terminal seed and director lag, build full original audiovisual traversal→boss→floor→defeat/restart and blind majority acceptance."
+        "next": "Inspect real WebGL captured warning and organic long-run ending; fix 2500-tick non-terminal seed and director lag, build full original audiovisual traversal→boss→floor→defeat/restart and blind majority acceptance.",
+        "codeCommit": "042d555132b7c4093c1bbde69a76cce0212f8aa2"
       }
     ]
   }
