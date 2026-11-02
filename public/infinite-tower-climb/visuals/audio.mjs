@@ -5,6 +5,10 @@ export function createTowerAudio() {
   let disposed = false, lastAmbient = 0, enableRequest = 0, enablePending = false;
   const voices = new Set(), heard = new Set(), pads = [];
   let guardianWindups = new Map(), guardianStates = new Map(), hazardStates = new Map();
+  // One opt-in arrival tone for crossing the actual cap-approach threshold.
+  // This is a genuine same-run fixed-step crossing, not a route prediction.
+  let crownDistance = null, crownTick = -1, crownHeard = '';
+
   async function setEnabled(value) {
     const operation = ++enableRequest;
     if (disposed) return false;
@@ -95,7 +99,7 @@ export function createTowerAudio() {
     const snapshot = frame.snapshot;
     if (snapshot.runToken !== token) {
       const verifiedRestart = !!token && ['result', 'intermission'].includes(lastLifecycle);
-      heard.clear(); last = null; lastFloor = null; lastIntent = ''; lastTargetPlatformId = null; lastLifecycle = 'running'; stride = 0; guardianWindups.clear(); guardianStates.clear(); hazardStates.clear(); token = snapshot.runToken;
+      heard.clear(); last = null; lastFloor = null; lastIntent = ''; lastTargetPlatformId = null; lastLifecycle = 'running'; stride = 0; crownDistance = null; crownTick = -1; crownHeard = ''; guardianWindups.clear(); guardianStates.clear(); hazardStates.clear(); token = snapshot.runToken;
       if (verifiedRestart) tone(205, 365, .21, 'sine', .052);
     }
     for (const voice of frame.audio?.voices || []) if (!heard.has(voice.id)) {
@@ -205,6 +209,29 @@ export function createTowerAudio() {
       texture(720,.13,.045);
       tone(470,190,.18,'triangle',.058);
     }
+    // Cap proximity is a real ascent milestone, unlike a planned landing.
+    // A single restrained material tone joins the 3D crown to the climbing
+    // soundscape. Do not replay after a retreat, restart, missing source tick,
+    // loss, stale feed or unobserved first frame. Muted viewers hear nothing.
+    const cap = snapshot.platforms?.find(platform =>
+      platform.id === 'f' + snapshot.floor + ':cap' &&
+      [platform.y, platform.height].every(Number.isFinite) &&
+      platform.height > 0);
+    const distanceToCap = cap && Number.isFinite(actor.y) ?
+      cap.y + cap.height - actor.y : null;
+    if (!sameFloor) { crownDistance = null; crownTick = -1; crownHeard = ''; }
+    const capKey = snapshot.runToken + ':' + snapshot.floor;
+    if (snapshot.lifecycle === 'running' && actor.health > 0 &&
+      crownDistance !== null && distanceToCap !== null &&
+      crownDistance > 90000 && distanceToCap <= 90000 &&
+      distanceToCap >= -90000 && snapshot.tick > crownTick &&
+      snapshot.tick - crownTick <= 8 && crownHeard !== capKey &&
+      !snapshot.enemies?.some(enemy => enemy.active && enemy.telegraph)) {
+      tone(210, 340, .25, 'triangle', .039);
+      crownHeard = capKey;
+    }
+    crownDistance = distanceToCap;
+    crownTick = snapshot.tick;
     const intent = snapshot.intent?.mode || '';
     // Restrained opt-in cue on real defensive transition, deduped by intent.
     // The matching model pose remains visible when muted.
@@ -298,7 +325,7 @@ export function createTowerAudio() {
     if (disposed) return;
     disposed = true; enabled = false; enablePending = false; enableRequest++;
     for (const voice of voices) { try { voice.stop(); voice.disconnect(); } catch {} }
-    voices.clear(); heard.clear(); guardianWindups.clear(); guardianStates.clear(); hazardStates.clear(); pads.length = 0; last = null; lastFloor = null; lastIntent = ''; lastTargetPlatformId = null; lastLifecycle = 'running'; stride = 0;
+    voices.clear(); heard.clear(); guardianWindups.clear(); guardianStates.clear(); hazardStates.clear(); pads.length = 0; last = null; lastFloor = null; lastIntent = ''; lastTargetPlatformId = null; lastLifecycle = 'running'; stride = 0; crownDistance = null; crownTick = -1; crownHeard = '';
     if (context) context.close().catch(() => {});
   }
   return { setEnabled, accept, dispose, diagnostics: () => ({ soundEnabled: enabled, soundPending: enablePending, voices: voices.size, context: context?.state || 'not-started' }) };

@@ -424,6 +424,42 @@ function observedTowerFooting(snapshot) {
   return closest;
 }
 
+// The cap is the TRUE current-floor summit, not the AI's predicted landing.
+// A distant cosmetic beacon must never masquerade as an unlocked gate, a
+// defeated guardian, or a completed floor. This only reads public snapshots.
+function observeTowerCrown(snapshot) {
+  const hero = snapshot?.player;
+  if (snapshot?.lifecycle !== 'running' || !hero || hero.health <= 0 ||
+    !Number.isSafeInteger(snapshot.floor) || !Number.isSafeInteger(snapshot.tick) ||
+    typeof snapshot.runToken !== 'string' || !snapshot.runToken ||
+    !Number.isFinite(snapshot.worldWidth) || snapshot.worldWidth <= 0 ||
+    !Number.isFinite(snapshot.chunkBaseY) || !Number.isFinite(hero.y) ||
+    !Array.isArray(snapshot.platforms)) return null;
+  const cap = snapshot.platforms.find(platform =>
+    platform?.id === 'f' + snapshot.floor + ':cap' &&
+    [platform.x, platform.y, platform.width, platform.height].every(Number.isFinite) &&
+    platform.width > 0 && platform.height > 0);
+  if (!cap) return null;
+  const top = cap.y + cap.height;
+  const distance = (top - hero.y) / SCALE;
+  if (!Number.isFinite(distance) || distance < -9 || distance > 70) return null;
+  const guardian = snapshot.enemies?.find(enemy =>
+    enemy.kind === 'guardian' && enemy.active === true &&
+    typeof enemy.id === 'string' && enemy.id &&
+    Number.isFinite(enemy.health) && Number.isFinite(enemy.maxHealth) &&
+    enemy.maxHealth > 0 && enemy.health > 0 && enemy.health <= enemy.maxHealth);
+  const anchorX = guardian ? guardianGateAnchorX(snapshot, cap)
+    : cap.x + cap.width * .5;
+  if (!Number.isFinite(anchorX)) return null;
+  return {
+    capId: cap.id, anchorX, top, width: snapshot.worldWidth,
+    baseY: snapshot.chunkBaseY, sourceTick: snapshot.tick,
+    distance, guardianId: guardian?.id || null,
+    guardianHealthRatio: guardian ? clamp(guardian.health / guardian.maxHealth, 0, 1) : null,
+    telegraph: guardian?.telegraph === true,
+  };
+}
+
 function ledgeContactPoint(snapshot, platform) {
   const player = snapshot?.player;
   if (!platform || !player || player.state !== 'airborne' || player.vy <= 0 ||
@@ -1147,6 +1183,42 @@ export function createTowerScene(canvas, settings = {}) {
   const sharedGeometry = new Set(), sharedMaterials = new Set();
   const ownGeometry = geometry => { sharedGeometry.add(geometry); return geometry; };
   const ownMaterial = material => { sharedMaterials.add(material); return material; };
+  // Architectural objective for the actual current floor. Unlike the tiny
+  // tactical route arrows, this fixed summit silhouette communicates WHY the
+  // autonomous climber keeps ascending. Its location is the source cap, not
+  // a fabricated platform or promised victory. Two bounded depth-tested draws.
+  const crownStage = new THREE.Group();
+  crownStage.name = 'ObservedCurrentFloorSummitCrown';
+  const crownMetal = ownMaterial(new THREE.MeshStandardMaterial({
+    color: 0xa38b72, emissive: 0x304650, emissiveIntensity: .13,
+    metalness: .68, roughness: .44, depthTest: true, depthWrite: true,
+  }));
+  const crownRing = new THREE.Mesh(
+    ownGeometry(new THREE.TorusGeometry(2.85, .18, 8, 40)), crownMetal);
+  crownRing.name = 'ActualCapNavigationHalo';
+  crownRing.castShadow = false;
+  const crownBeams = new THREE.InstancedMesh(
+    ownGeometry(new THREE.BoxGeometry(.22, 1.26, .31)), crownMetal, 8);
+  crownBeams.name = 'ActualCapNavigationSpokes';
+  crownBeams.castShadow = false;
+  crownBeams.receiveShadow = false;
+  crownBeams.frustumCulled = false;
+  const crownPose = new THREE.Object3D();
+  for (let index = 0; index < 8; index++) {
+    const bearing = index * Math.PI / 4;
+    crownPose.position.set(Math.cos(bearing) * 2.3,
+      Math.sin(bearing) * 2.3, 0);
+    crownPose.rotation.set(0, 0, bearing - Math.PI / 2);
+    crownPose.scale.set(1, 1, 1);
+    crownPose.updateMatrix();
+    crownBeams.setMatrixAt(index, crownPose.matrix);
+  }
+  crownBeams.instanceMatrix.needsUpdate = true;
+  crownStage.add(crownRing, crownBeams);
+  crownStage.visible = false;
+  scene.add(crownStage);
+  let observedCrown = null;
+  const paleCrownMetal = new THREE.Color(0xb4c7c0);
   const gemGeometry = ownGeometry(new THREE.OctahedronGeometry(.42));
   const ringGeometry = ownGeometry(new THREE.TorusGeometry(.65, .035, 6, 24));
   const boltGeometry = ownGeometry(new THREE.SphereGeometry(.21, 10, 7));
@@ -1359,6 +1431,7 @@ export function createTowerScene(canvas, settings = {}) {
     footingShadow.visible = false; observedFooting = null;
     movingDeckRide.reset(); observedRidePose = null;
     atmosphere.clear();
+    crownStage.visible = false; observedCrown = null;
     echoDrawnTick = -1; observedStageLight.reset();
   }
   function rebuildGraphicsResources() {
@@ -1593,6 +1666,25 @@ export function createTowerScene(canvas, settings = {}) {
     // HP-operated real-world lock: one depth-tested architectural twin-rail
     // connection from the live guardian to its existing cap anchor.
     guardianCircuit.update(snapshot, options);
+    // The summit's physical bearing stays pinned to the REAL cap throughout
+    // route replans, moving decks and guardian HP changes. Only observed
+    // combat loss alters its metal; telegraphs dim it for danger readability.
+    observedCrown = !options.stale ? observeTowerCrown(snapshot) : null;
+    crownStage.visible = !!observedCrown;
+    if (observedCrown) {
+      const beacon = pointFor(observedCrown.anchorX,
+        observedCrown.top + 37000, observedCrown.baseY,
+        observedCrown.width, 28.85);
+      crownStage.position.set(beacon.x, beacon.y, beacon.z);
+      crownStage.rotation.y = beacon.angle;
+      crownRing.rotation.z = options.reducedMotion ? 0 :
+        .075 * Math.sin(observedCrown.sourceTick * .033);
+      const actualLoss = observedCrown.guardianHealthRatio === null ? 0 :
+        1 - observedCrown.guardianHealthRatio;
+      crownMetal.color.set(0xa38b72).lerp(paleCrownMetal, actualLoss * .55);
+      crownMetal.emissiveIntensity = observedCrown.telegraph ? .045 :
+        .12 + actualLoss * .16;
+    }
     const ledgeContact = ledgeContactPoint(snapshot, targetPlatform);
     const ledgeTarget = ledgeContact ? pointFor(ledgeContact.x, ledgeContact.y,
       snapshot.chunkBaseY, snapshot.worldWidth, 27.1) : null;
@@ -2094,6 +2186,14 @@ export function createTowerScene(canvas, settings = {}) {
       world: world.diagnostics(), finale: finale.diagnostics(), passage: passage.diagnostics(),
       routeIntent: routeIntent.diagnostics(), guardianCircuit: guardianCircuit.diagnostics(),
       atmosphere: atmosphere.diagnostics(),
+      summitCrown: observedCrown && crownStage.visible ? {
+        capId: observedCrown.capId, sourceTick: observedCrown.sourceTick,
+        guardianId: observedCrown.guardianId,
+        observedGuardianHealthRatio: observedCrown.guardianHealthRatio,
+        realSourceDistance: observedCrown.distance,
+        objectiveNotVictory: true, visible: true, extraDraws: 2,
+        source: 'Current-floor authoritative cap; no fake objective, gate unlock or gameplay effect',
+      } : { visible: false, extraDraws: 0, objectiveNotVictory: true },
       terminalCamera: finale.group.visible ? {
         sourceBound: true, lifecycle: snapshot.lifecycle,
         presentedSourceResult: !!snapshot.result,
