@@ -88,3 +88,57 @@ test('public terraces have distinct sculpted clay/tide masonry without hidden co
     cleanup();
   }
 });
+
+test('offshore rock silhouettes depend only on public board size, never undisclosed routes', async () => {
+  const { world: module, cleanup } = await loadRealWorld();
+  const width = 11, height = 13;
+  const base = {
+    runToken: 'reef-public-dimension', tick: 1, width, height,
+    cells: [], visibleCells: [], doors: [], keys: [], inventory: [], exitCell: null,
+  };
+  const disclosed = {
+    ...base, tick: 2,
+    cells: [{ cell: 14, neighbors: [], blocked: false, trap: false,
+      checkpoint: false, clue: false }],
+    visibleCells: [14],
+  };
+  const emptyWorld = module.createMazeWorld({ balanced: true });
+  const discoveredWorld = module.createMazeWorld({ balanced: true });
+  function originalRockPositions(world) {
+    const rocks = [];
+    world.group.traverse(node => {
+      if (!node.isInstancedMesh ||
+          !node.name.startsWith('Dimension-only offshore')) return;
+      assert.ok(node.instanceMatrix.array.length === node.count * 16);
+      for (let i = 0; i < node.count; i++) {
+        const data = node.instanceMatrix.array;
+        const x = data[i * 16 + 12], z = data[i * 16 + 14];
+        // Each rock is beyond the guaranteed public board; NEVER a possible
+        // missing cell, bridge, door, collectible or navigation hint.
+        assert.ok(
+          Math.abs(x) > width * module.CELL_SIZE / 2 + 3 ||
+          Math.abs(z) > height * module.CELL_SIZE / 2 + 3,
+          'non-navigable scenic rock must not overlap the board'
+        );
+        rocks.push([node.name, x, data[i * 16 + 13], z]);
+      }
+    });
+    return rocks;
+  }
+  try {
+    emptyWorld.update(base);
+    discoveredWorld.update(disclosed);
+    const a = originalRockPositions(emptyWorld);
+    const b = originalRockPositions(discoveredWorld);
+    assert.equal(a.length, 64, 'modeled rocks and lichen share a fixed draw budget');
+    assert.deepEqual(a, b,
+      'hidden cells, discovery count and run tick cannot reveal topology via backdrop');
+    assert.ok(emptyWorld.stats().geometryCount <= 16);
+    assert.ok(emptyWorld.stats().materialCount <= 26);
+    assert.ok(emptyWorld.stats().textureCount <= 3);
+  } finally {
+    emptyWorld.dispose();
+    discoveredWorld.dispose();
+    cleanup();
+  }
+});

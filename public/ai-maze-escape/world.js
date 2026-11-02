@@ -580,6 +580,51 @@ export function createMazeWorld(options = {}) {
     tide.instanceColor.needsUpdate = true;
     tide.computeBoundingSphere();
     backdrop.add(tide);
+    // Off-board tidal rock stacks give the otherwise uniform water an authored
+    // edge and a scale reference. Their silhouettes are irregular, submerged
+    // and explicitly NOT navigable islands, routes, keys, or undiscovered cells.
+    // Only the public BOARD DIMENSIONS are consulted; no seed, cell, door,
+    // threat, objective or hidden-game state can affect their placement.
+    // Two instanced meshes reuse existing geometry/materials and never grow
+    // with the public discovery history or allocate during animation frames.
+    const islets = 16;
+    const reefRock = new THREE.InstancedMesh(sphere, deepStone, islets * 3);
+    const reefLichen = new THREE.InstancedMesh(sphere, darkJade, islets);
+    reefRock.name = 'Dimension-only offshore broken rock silhouettes';
+    reefLichen.name = 'Dimension-only offshore lichen caps';
+    reefRock.castShadow = reefLichen.castShadow = false;
+    reefRock.receiveShadow = reefLichen.receiveShadow = false;
+    const extentX = s.width * CELL_SIZE / 2;
+    const extentZ = s.height * CELL_SIZE / 2;
+    for (let i = 0; i < islets; i++) {
+      const seed = 9011 + i * 193, edge = i % 4;
+      const along = variation(seed + 1) * 1.6 - .8;
+      const offset = 5.1 + variation(seed + 2) * 3.4;
+      const cx = edge === 0 ? -extentX - offset
+        : edge === 1 ? extentX + offset : along * extentX;
+      const cz = edge === 2 ? -extentZ - offset
+        : edge === 3 ? extentZ + offset : along * extentZ;
+      for (let j = 0; j < 3; j++) {
+        const angle = j * 2.399 + variation(seed + 3) * TAU;
+        const spread = j === 0 ? 0 : .48 + variation(seed + j * 5) * .35;
+        const height = j === 0 ? .95 + variation(seed + 4) * .25
+          : .47 + variation(seed + j * 9) * .21;
+        reefRock.setMatrixAt(i * 3 + j, transform(
+          cx + Math.cos(angle) * spread,
+          j === 0 ? -.92 : -1.27,
+          cz + Math.sin(angle) * spread,
+          j === 0 ? 1.05 : .67, height, j === 0 ? 1.12 : .72,
+          0, angle * .32, j === 0 ? .09 : -.12));
+      }
+      reefLichen.setMatrixAt(i, transform(
+        cx + .10, -.04, cz - .08,
+        .40 + variation(seed + 9) * .18, .23, .45, 0, variation(seed + 12) * TAU));
+    }
+    for (const prop of [reefRock, reefLichen]) {
+      prop.instanceMatrix.needsUpdate = true;
+      prop.computeBoundingSphere();
+      backdrop.add(prop);
+    }
   }
   const propGroup = (cell, s) => {
     const p = new THREE.Group(), point = cellPosition(cell, s.width, s.height);
