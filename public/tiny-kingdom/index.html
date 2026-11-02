@@ -5425,6 +5425,30 @@ function streetVisibility(x,z,angle){
  return {openSky:obstructionCount===0,obstructionCount,
   forwardMetres:Math.round(forwardMetres*100)/100};
 }
+// Screen-oriented documentary shots are free cameras, not invalid pedestrian
+// nav cells. Check their true elevated position and ray against the SAME
+// physical architecture used for street-walk collision. Only the observer
+// moves; when walking resumes its eye drops to STREET_EYE.
+function streetEyeVisibility(x,z,angle,height=STREET_EYE){
+ if(height<=STREET_EYE+.01)return streetVisibility(x,z,angle);
+ const roofs=streetRoofs(),y=terrain(x,z)+height,eye=[x,y,z];
+ const embedded=roofs.some(roof=>{
+  const low=roof.bottom??terrain(roof.x,roof.z)-.22;
+  return Math.abs(x-roof.x)<roof.rx+.05&&
+   Math.abs(z-roof.z)<roof.rz+.05&&y>low-.05&&y<roof.top+.16;
+ });
+ if(embedded)return {openSky:false,obstructionCount:1,forwardMetres:0};
+ let forwardMetres=0;
+ for(let i=1;i<=18;i++){
+  const distance=i/3,px=x+Math.sin(angle)*distance,
+   pz=z+Math.cos(angle)*distance,
+   point=[px,terrain(px,pz)+height-.05,pz];
+  if(followRayBlockers(eye,point,roofs)>0)break;
+  forwardMetres=distance;
+ }
+ return {openSky:true,obstructionCount:0,
+  forwardMetres:Math.round(forwardMetres*100)/100};
+}
 function streetArrival(){
  // Visitor enters on the OPEN town approach, never a solid roof or cloth stall.
  // Viewpoint and bearing are selected from REAL growing geometry, not RNG.
@@ -5504,7 +5528,7 @@ document.body.dataset.street='off';
 function streetSafe(x,z){const r=.22;return walkable(x,z)&&walkable(x-r,z-r)&&walkable(x+r,z-r)&&walkable(x-r,z+r)&&walkable(x+r,z+r)&&streetHeadroomBlockers(x,z)===0}
 function getStreetWalkState(){
  const nearest=people.map(p=>({p,d:Math.hypot(p.x-streetPosition[0],p.z-streetPosition[1])})).sort((a,b)=>a.d-b.d||a.p.name.localeCompare(b.p.name))[0];
- return {active:streetWalk,position:streetPosition.slice(),eye:[streetPosition[0],terrain(...streetPosition)+streetEyeHeight,streetPosition[1]],height:streetEyeHeight,perspective:streetPerspective,yaw:streetYaw,tilt:streetTilt,visibility:streetVisibility(streetPosition[0],streetPosition[1],streetYaw),distanceTravelled:streetDistance,blockedMoves:streetBlocked,nearestCitizen:nearest?{name:nearest.p.name,activity:nearest.p.activity,job:nearest.p.job,metres:Math.round(nearest.d*10)/10}:null};
+ return {active:streetWalk,position:streetPosition.slice(),eye:[streetPosition[0],terrain(...streetPosition)+streetEyeHeight,streetPosition[1]],height:streetEyeHeight,perspective:streetPerspective,yaw:streetYaw,tilt:streetTilt,visibility:streetEyeVisibility(streetPosition[0],streetPosition[1],streetYaw,streetEyeHeight),distanceTravelled:streetDistance,blockedMoves:streetBlocked,nearestCitizen:nearest?{name:nearest.p.name,activity:nearest.p.activity,job:nearest.p.job,metres:Math.round(nearest.d*10)/10}:null};
 }
 function streetCaption(){
  if(!streetWalk)return;
@@ -5571,47 +5595,65 @@ function streetCropSightline(position,citizen,eyeHeight=STREET_EYE){
 // from an elevated but roof-clear documentary camera. The worker and all
 // buildings remain physically rendered; no props, paths or economy are faked.
 // Never confuse this cinematic lens with the player's 1.68m walkable route.
+// Follow-up to the real G132 film: the earlier fallback still selected Edric
+// from almost perfectly BEHIND (-0.999758). The first probe considered only
+// one conventional follow-camera placement per actor and required an
+// arbitrary walkable ground cell below an elevated lens. In a dense town,
+// that falsely excluded every genuinely clear forward viewing angle.
+// Search an aerial/street hybrid orbit around the REAL worker instead.
 function planDocumentaryWorkerEncounter(sorted,excludeName){
+ const roofs=streetRoofs(),headings=[0,.40,-.40,.82,-.82,1.18,-1.18],
+  radii=[3.3,4.5,5.8,7.0],heights=[2.6,3.8,5.6];
  let best=null,frontCount=0,considered=0;
  for(const citizen of sorted){
   if(!isWorkingAtSite(citizen)||citizen.name===excludeName)continue;
-  if(considered++>=10)break; // bounded workday camera search
-  const shot=planCitizenCamera(citizen,builderStageAngle(citizen),true);
-  if(!shot||shot.blockers!==0||shot.blockedBodyRays>1||
-    shot.cameraProximityWarnings>0||shot.projectedWorksitePosts>0||
-    shot.projectedBystanders>0)continue;
-  const position=[shot.eye[0],shot.eye[2]];
-  // A documentary camera may be taller, but its foot position must not be
-  // inside a real building, cloth canopy or impassable route.
-  if(!streetSafe(...position))continue;
-  const height=shot.eye[1]-terrain(...position);
-  const distance=Math.hypot(citizen.x-position[0],citizen.z-position[1]);
-  if(height<STREET_EYE||height>4.1||distance<1.5||distance>7.9)continue;
-  const angle=Math.atan2(citizen.x-position[0],citizen.z-position[1]);
-  const visibility=streetVisibility(position[0],position[1],angle);
-  if(!visibility.openSky||visibility.forwardMetres<1.3)continue;
-  const crop=streetCropSightline(position,citizen,height);
-  if(crop.blockedSamples)continue;
-  const crowd=streetCrowdVisibility(position,citizen);
-  if(crowd.closestBystander<2.4||crowd.crowdIntrusions)continue;
-  const facingAlignment=Math.cos(shot.yaw-builderStageAngle(citizen));
-  if(facingAlignment<-.35)continue;
-  if(facingAlignment>.12)frontCount++;
-  const visitorDistance=Math.hypot(position[0]-streetPosition[0],
+  if(considered++>=5)break; // bounded to at most 420 explicit shot probes
+  const front=builderStageAngle(citizen);
+  const target=[citizen.x,terrain(citizen.x,citizen.z)+1.02,citizen.z];
+  for(const offset of headings)for(const radius of radii){
+   const bearing=front+offset,position=[
+    citizen.x+Math.sin(bearing)*radius,
+    citizen.z+Math.cos(bearing)*radius
+   ];
+   const facingAlignment=Math.cos(offset);
+   const yawToCitizen=Math.atan2(citizen.x-position[0],citizen.z-position[1]);
+   const crowd=streetCrowdVisibility(position,citizen);
+   if(crowd.closestBystander<2.4||crowd.crowdIntrusions>0)continue;
+   const visitorDistance=Math.hypot(position[0]-streetPosition[0],
     position[1]-streetPosition[1]);
-  const score=40+facingAlignment*20-shot.compositionScore*.04-
-    visitorDistance*.10-shot.frameCrowdBurden*25;
-  const choice={citizen,position,yaw:angle,score,metres:distance,
-   visibility,activeWork:true,cropBlockedSamples:crop.blockedSamples,
-   fieldSamples:crop.fieldSamples,crowdIntrusions:crowd.crowdIntrusions,
-   closestBystander:crowd.closestBystander,
-   projectedBystanders:shot.projectedBystanders,
-   projectedPosts:shot.projectedPosts,
-   projectedWorksitePosts:shot.projectedWorksitePosts,
-   frameCrowdBurden:shot.frameCrowdBurden,facingAlignment,
-   frontFacing:facingAlignment>.12,eyeHeight:height,eye:shot.eye.slice(),
-   targetY:shot.target[1],perspective:'workday'};
-  if(!best||score>best.score)best=choice;
+   for(const height of heights){
+    const eye=[position[0],terrain(...position)+height,position[1]];
+    // A documentary inspection camera may float over an occupied plaza, but
+    // its REAL eye and body-to-tool ray must stay outside every building.
+    const visibility=streetEyeVisibility(...position,yawToCitizen,height);
+    if(!visibility.openSky||visibility.forwardMetres<.66)continue;
+    if(followRayBlockers(eye,target,roofs)>0)continue;
+    const crop=streetCropSightline(position,citizen,height);
+    if(crop.blockedSamples>0)continue;
+    const framing=cameraShotFraming({eye,target},roofs,citizen);
+    if(framing.blockedBodyRays>2||framing.projectedBystanders>0||
+       framing.projectedWorksitePosts>0||framing.cameraProximityWarnings>0)
+     continue;
+    // Prefer a recognizable face and tool silhouette without inventing
+    // activity. This is rendering-only; authority and jobs stay untouched.
+    const score=48+facingAlignment*35-
+      framing.frameCrowdBurden*20-framing.projectedPosts*12-
+      framing.blockedBodyRays*12-visitorDistance*.12-
+      Math.abs(radius-4.5)*2-Math.abs(height-3.8)*1.3;
+    const choice={citizen,position,yaw:yawToCitizen,score,metres:radius,
+     visibility,activeWork:true,cropBlockedSamples:crop.blockedSamples,
+     fieldSamples:crop.fieldSamples,crowdIntrusions:crowd.crowdIntrusions,
+     closestBystander:crowd.closestBystander,
+     projectedBystanders:framing.projectedBystanders,
+     projectedPosts:framing.projectedPosts,
+     projectedWorksitePosts:framing.projectedWorksitePosts,
+     frameCrowdBurden:framing.frameCrowdBurden,
+     facingAlignment,frontFacing:true,
+     eyeHeight:height,eye,targetY:target[1],perspective:'workday'};
+    if(!best||score>best.score)best=choice;
+    frontCount++;
+   }
+  }
  }
  return best?{...best,frontCandidateCount:frontCount}:null;
 }
