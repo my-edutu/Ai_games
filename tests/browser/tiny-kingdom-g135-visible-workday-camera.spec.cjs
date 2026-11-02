@@ -55,8 +55,22 @@ test('G135 active workday is framed from the physical working front with readabl
  expect(result.shot.staticWorldHidden).toBe(false);
  expect(result.camera).toBeTruthy();
  expect(result.gl).toBe(0);
- expect(result.render.lastFrameTriangles).toBeLessThan(160000);
+ // Browser render runs on its NEXT animation frame after 86,400 synchronous
+ // simulation ticks. The earlier result.render is still the DAY-1 frame and
+ // is not valid grown-town GPU evidence.
+ await page.waitForTimeout(950);
+ const grown=await page.evaluate(()=>{
+  const g=window.__tinyKingdom,geometry=g.getGeometryAudit();
+  return {triangles:geometry.totalTriangles,
+   rendered:g.renderStats().lastFrameTriangles,
+   gl:document.getElementById('world').getContext('webgl')?.getError()??-1};
+ });
+ expect(grown.triangles).toBeGreaterThan(0);
+ expect(grown.triangles).toBeLessThan(160000);
+ expect(grown.rendered).toBeLessThan(160000);
+ expect(grown.gl).toBe(0);
  await page.setViewportSize({width:390,height:844});
+ await page.waitForTimeout(450);
  const mobile=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
   return {width:document.documentElement.scrollWidth,
