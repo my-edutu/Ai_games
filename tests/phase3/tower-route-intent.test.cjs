@@ -172,3 +172,44 @@ test('large gaps between actual source ticks never join unrelated moving-platfor
       'real enemy windup takes priority over route cosmetics');
   } finally { effect.dispose(); }
 });
+
+test('visible 3D route stones point only at the source-declared genuinely clear landing lane', async () => {
+  const [THREE, { createTowerRouteIntent }] = await loaded;
+  const effect = createTowerRouteIntent(THREE);
+  const deck = { ...landing, width: 115000 };
+  const center = deck.x + deck.width / 2, top = deck.y + deck.height;
+  const player = { x: center, y: top + 74000, health: 4, attacking: false,
+    halfWidth: 9000, halfHeight: 14000 };
+  const hazard = { id: 'observed-landing-spikes', kind: 'spikes',
+    x: center - 16000, y: top, width: 32000, height: 9000, active: true };
+  const source = snapshot({ tick: 201, player, hazards: [hazard],
+    intent: { mode: 'air-control', summary: 'Steering for a clear landing lane',
+      targetPlatformId: deck.id } });
+  const original = JSON.stringify(source);
+  try {
+    effect.update(source, deck);
+    const d = effect.diagnostics();
+    assert.equal(d.sourceClearLane, true);
+    assert.equal(d.observedLandingX, center - 27500,
+      'the original instanced 3D stone line must converge on the nearest actual body-clear lane');
+    assert.equal(d.extraDraws, 1, 'lane clarity reuses the original bounded marker batch');
+    assert.equal(d.targetPlatformId, deck.id);
+    assert.equal(JSON.stringify(source), original, 'source camera cannot mutate immutable observations');
+
+    effect.update({ ...source, tick: 202, intent: { ...source.intent,
+      summary: 'Steering toward the next landing' } }, deck);
+    assert.equal(effect.diagnostics().sourceClearLane, false,
+      'an ordinary or historical-v1 intent must never be relabeled with a tactical lane');
+    assert.equal(effect.diagnostics().observedLandingX, center);
+
+    effect.update({ ...source, tick: 203, hazards: [{ ...hazard, active: false }],
+      intent: { ...source.intent, summary: 'Boosting toward a distant safe landing' } }, deck);
+    assert.equal(effect.diagnostics().observedLandingX, center,
+      'inactive source hazards cannot invent a detour');
+
+    effect.update({ ...source, tick: 204 }, deck, { stale: true });
+    assert.equal(effect.diagnostics().observedLandingX, null);
+    assert.equal(effect.diagnostics().markers, 0);
+    assert.equal(effect.diagnostics().sourceClearLane, false);
+  } finally { effect.dispose(); }
+});
