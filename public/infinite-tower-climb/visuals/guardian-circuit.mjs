@@ -33,7 +33,7 @@ export function observedGuardianCircuit(snapshot) {
     telegraph: guardian.telegraph === true,
     remainingChargeTicks: Number.isFinite(guardian.telegraphTicksRemaining)
       ? Math.min(8, Math.max(1, guardian.telegraphTicksRemaining)) : 8,
-    fromX: guardian.x, fromY: guardian.y - guardian.halfHeight + 19500,
+    fromX: guardian.x, fromY: guardian.y - guardian.halfHeight + 9000,
     toX: anchorX, toY: cap.y + cap.height + 20000,
     width: snapshot.worldWidth, baseY: snapshot.chunkBaseY,
   };
@@ -59,16 +59,16 @@ export function createTowerGuardianCircuit(THREE) {
   // Eight original, source-HP-driven locking teeth make the cap's release
   // legible as architecture rather than an abstract health bar. One instanced
   // draw, actual source cap anchor, no extra shadow/collision/AI state.
-  const boltGeometry = new THREE.BoxGeometry(.49, 1.35, .68);
+  const boltGeometry = new THREE.BoxGeometry(.38, .88, .52);
   const lockBolts = new THREE.InstancedMesh(boltGeometry, railMaterial, 8);
   lockBolts.name = 'GuardianCapSourceLockBolts';
   lockBolts.castShadow = false;
   lockBolts.receiveShadow = false;
   lockBolts.frustumCulled = false;
   lockBolts.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-  const conductorGeometry = new THREE.OctahedronGeometry(.22, 0);
+  const conductorGeometry = new THREE.OctahedronGeometry(.13, 0);
   const conductorMaterial = new THREE.MeshBasicMaterial({
-    color: 0xffbd75, transparent: true, opacity: .42,
+    color: 0xffbd75, transparent: true, opacity: .26,
     depthTest: true, depthWrite: false, toneMapped: false,
   });
   const conductors = new THREE.InstancedMesh(
@@ -110,7 +110,11 @@ export function createTowerGuardianCircuit(THREE) {
     // to the live guardian and source cap, not a predicted player path.
     const y = item.fromY + (item.toY - item.fromY) * t +
       Math.sin(Math.PI * t) * 6200 + offset;
-    const radius = 27.85 - .2 * t + 2.75 * Math.sin(Math.PI * t);
+    // Begin INSIDE the guardian's silhouette at ankle height, then lift the
+    // conduit outward over the wall: the glowing rail must not draw across
+    // the enemy's face or hide its real maul telegraph on a phone.
+    const radius = 26.2 + 1.48 * Math.min(1, t / .18) - .03 * t +
+      2.55 * Math.sin(Math.PI * t);
     return pointFor(x, y, item.baseY, item.width, radius);
   }
   function update(snapshot, options = {}) {
@@ -149,13 +153,13 @@ export function createTowerGuardianCircuit(THREE) {
     rails.count = RAIL_STEPS * 2;
     rails.instanceMatrix.needsUpdate = true;
     conductorMaterial.color.copy(dark).lerp(released, opening);
-    conductorMaterial.opacity = .25 + opening * .43;
+    conductorMaterial.opacity = .18 + opening * .25;
     for (let index = 0; index <= RAIL_STEPS; index++) {
       const t = index / RAIL_STEPS, point = mapped(next, t);
       pose.position.set(point.x, point.y, point.z);
       pose.quaternion.identity();
-      const scale = .6 + opening * 1.22 +
-        (!options.reducedMotion && next.telegraph ? .16 * (1 - t) : 0);
+      const scale = .42 + opening * .72 +
+        (!options.reducedMotion && next.telegraph ? .08 * (1 - t) : 0);
       pose.scale.setScalar(scale);
       pose.updateMatrix();
       conductors.setMatrixAt(index, pose.matrix);
@@ -178,11 +182,11 @@ export function createTowerGuardianCircuit(THREE) {
       const span = 10000 + opening * (18500 + tier * 1400);
       const toothX = Math.max(0, Math.min(next.width, next.toX + side * span));
       const site = pointFor(toothX,
-        next.toY + (tier - 1.5) * 6600, next.baseY, next.width, 27.78);
+        next.toY + (tier - 1.5) * 7600, next.baseY, next.width, 27.78);
       pose.position.set(site.x, site.y, site.z);
       pose.quaternion.identity();
       pose.rotation.set(0, site.angle, 0);
-      pose.scale.set(1.2 - opening * .15, 1, .92);
+      pose.scale.set(1.13 - opening * .1, 1, .82);
       pose.updateMatrix();
       lockBolts.setMatrixAt(index, pose.matrix);
     }
