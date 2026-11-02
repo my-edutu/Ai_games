@@ -292,6 +292,10 @@ export function createClimber() {
   const fistLight=w.mat(0x3abdd9,.3,.32,0x2898cb,.12);
   w.plate(arms[1].lower,.24,.075,.04,fistLight,0,-.445,.125,.018);
   let phase=0,attackAge=1,wasAttacking=false,landingAge=1,previousState='standing',reachSide=null,lastPoseTime=null,ledgeLegBlend=0;
+  // A SOURCE result is a different physical ending from a lethal health loss.
+  // Track only when the result was first presented; no saved data, physics
+  // state, new clock, random sampling or invented victory/failure.
+  let terminalRun=null, terminalStartedAt=0;
   // Remember only the last *solved* finger grip, not the AI's intended route.
   // Reusable bone-local quaternions avoid allocations in the render hot path.
   let heldGripRun=null,heldGripPlatform=null,heldGripTick=-1;
@@ -310,6 +314,14 @@ export function createClimber() {
   return w.finish((state,dt,time,{reducedMotion=false,viewAzimuth}={})=>{
     const vx=Number(state.vx??state.velocity?.x)||0,vy=Number(state.vy??state.velocity?.y)||0;
     const speed=clamp(Math.abs(vx)/4300,0,1),dead=state.state==='dead'||state.health===0;
+    const terminalKind=['game','technical','operator'].includes(state.terminalKind)
+      ? state.terminalKind : null;
+    if(terminalKind && (terminalRun!==state.runToken || terminalRun===null)){
+      terminalRun=state.runToken??'unnamed-result'; terminalStartedAt=time;
+    }else if(!terminalKind)terminalRun=null;
+    const terminalWeight=terminalKind
+      ? (reducedMotion?1:THREE.MathUtils.smoothstep(Math.max(0,time-terminalStartedAt),.04,.86))
+      : 0;
     const airborne=state.state==='airborne',dash=state.state==='dashing',hurt=state.state==='hurt';
     // Intent, not visual randomness, drives this bounded defensive silhouette.
     const bracing=state.intentMode==='bracing-telegraph';
@@ -698,6 +710,28 @@ export function createClimber() {
     fistLight.emissiveIntensity=dead?.02:.12+attackWeight*1.4;
     if(hurt){body.rotation.z=-.22;body.rotation.x=-.19;head.rotation.z=.13;for(const arm of arms){arm.upper.rotation.x=-.75;arm.lower.rotation.x=-.6;}}
     if(dead){body.rotation.z=-.85;body.position.y=.04;head.rotation.z=.25;for(let i=0;i<2;i++){arms[i].upper.rotation.z=(i?1:-1)*.48;arms[i].lower.rotation.x=-.35;legs[i].upper.rotation.x=i?.15:-.3;legs[i].lower.rotation.x=.45;}}
+    // A game run that ends with the climber still alive (timer or stagnation)
+    // finishes in a low, weight-bearing surveyor's kneel, NOT a fabricated
+    // death. An operator/technical halt remains an upright, quiet stop.
+    // Root position, collision soles and authoritative state never change.
+    if(terminalWeight>0 && !dead){
+      const gameEnding=terminalKind==='game', weight=terminalWeight;
+      body.position.y=mix(body.position.y,rest-(gameEnding?.25:.05),weight);
+      body.rotation.x=mix(body.rotation.x,gameEnding?.35:.035,weight);
+      body.rotation.z=mix(body.rotation.z,0,weight);
+      head.rotation.x=mix(head.rotation.x,gameEnding?.37:.1,weight);
+      head.rotation.y=mix(head.rotation.y,0,weight);
+      for(let i=0;i<2;i++){
+        const leg=legs[i],arm=arms[i];
+        const left=i===0;
+        leg.upper.rotation.x=mix(leg.upper.rotation.x,gameEnding?(left?-.94:-.48):-.08,weight);
+        leg.lower.rotation.x=mix(leg.lower.rotation.x,gameEnding?(left?1.72:.94):.15,weight);
+        leg.foot.rotation.x=mix(leg.foot.rotation.x,gameEnding?-.18:0,weight);
+        arm.upper.rotation.x=mix(arm.upper.rotation.x,gameEnding?(left?-.92:-.55):-.21,weight);
+        arm.upper.rotation.z=mix(arm.upper.rotation.z,(left?-1:1)*(gameEnding?.1:.035),weight);
+        arm.lower.rotation.x=mix(arm.lower.rotation.x,gameEnding?-.68:-.2,weight);
+      }
+    }
     // Gaze uses the same snapshot destination as the head. It stays inside the
     // visor and resets when no target is supplied; no invented scanning target.
     const gazeX=!dead&&!hurt&&Number.isFinite(state.targetDx)?clamp(state.targetDx/140000,-.042,.042):0;
@@ -709,10 +743,10 @@ export function createClimber() {
       const e=eyes[i],alert=airborne?(vy>0?1.08:1.2):1;
       e.position.x=(i?1:-1)*.225+gazeX;e.position.y=gazeY;
       e.scale.x=dead?1:hurt?1.12:dash?.94:1;
-      e.scale.y=dead?.22:hurt?.48:attackWeight>.05?mix(alert,.58,attackWeight):dash?.64:blink?.12:alert;
+      e.scale.y=dead?.22:terminalKind?mix(alert,.56,terminalWeight):hurt?.48:attackWeight>.05?mix(alert,.58,attackWeight):dash?.64:blink?.12:alert;
       e.rotation.z=dead?-.23:hurt?.15:(i?1:-1)*(attackWeight>.05?.13*attackWeight:airborne?.055:0);
     }
-    eye.emissiveIntensity=dead?.18:hurt?.65:1.6;
+    eye.emissiveIntensity=dead?.18:terminalKind?mix(1.6,.45,terminalWeight):hurt?.65:1.6;
   });
 }
 
