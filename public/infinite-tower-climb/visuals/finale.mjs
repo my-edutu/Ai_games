@@ -5,13 +5,22 @@ export function createTowerFinale(THREE) {
   const group = new THREE.Group();
   group.name = 'ObservedExpeditionFinale';
   group.visible = false;
-  const makeMaterial = (opacity) => new THREE.MeshBasicMaterial({
-    color: 0xe88779, transparent: true, opacity,
+  // Original normal-speed native outcome video (41511922895) revealed a
+  // floating thicket of luminous pink linework around a real health-depleted
+  // climber. Give the same source-earned physical memorial a material identity:
+  // weathered ceramic/metal receiving actual biome illumination, not unlit
+  // emissive debug glyphs that overpower the actual skinned ending. No GPU
+  // pass, light, geometry allocation per frame or collision is introduced.
+  const makeMaterial = (opacity, metalness, roughness) => new THREE.MeshStandardMaterial({
+    color: 0x9b6657, metalness, roughness, transparent: true, opacity,
+    emissive: 0x231716, emissiveIntensity: .1,
     blending: THREE.NormalBlending, side: THREE.DoubleSide,
-    depthTest: true, depthWrite: false, toneMapped: false,
+    depthTest: true, depthWrite: false, toneMapped: true,
   });
-  const ringMaterial = makeMaterial(.64), crownMaterial = makeMaterial(.42);
-  const shardMaterial = makeMaterial(.88), stoneMaterial = makeMaterial(.48);
+  const ringMaterial = makeMaterial(.64, .34, .56);
+  const crownMaterial = makeMaterial(.52, .36, .60);
+  const shardMaterial = makeMaterial(.86, .20, .68);
+  const stoneMaterial = makeMaterial(.88, .08, .84);
   // A quiet architectural scorecard for actually CLEARED source floors. Eight
   // bronze/ceramic rungs cap the draw budget; short dormant stubs never suggest
   // that a future floor was beaten. This is not a reward, prize or extra HUD.
@@ -24,7 +33,9 @@ export function createTowerFinale(THREE) {
   const ringGeometry = new THREE.TorusGeometry(2.65, .087, 6, 52);
   const crownGeometry = new THREE.TorusGeometry(1.72, .067, 6, 44, Math.PI * 1.64);
   const fragmentGeometry = new THREE.TetrahedronGeometry(.19, 0);
-  const stoneGeometry = new THREE.CylinderGeometry(.11, .28, 1.9, 5, 1);
+  // Compact broken capstones, not tall bright sticks masking the corpse and
+  // real hazard. Reuse this geometry for the eight authoritative earned rungs.
+  const stoneGeometry = new THREE.CylinderGeometry(.25, .42, .86, 6, 1);
   const ground = new THREE.Mesh(ringGeometry, ringMaterial);
   ground.name = 'ObservedTerminalGroundWave';
   ground.rotation.x = Math.PI / 2;
@@ -57,12 +68,12 @@ export function createTowerFinale(THREE) {
   const tau = 2 * Math.PI;
   const clamp = value => Math.max(0, Math.min(1, value));
   function colorFor(result) {
-    if (result.kind === 'technical') return 0x77d8d2;
-    if (result.kind === 'operator') return 0xb0a6e8;
-    if (result.reason === 'timer-expired') return 0xffc27a;
-    if (result.reason === 'stagnation') return 0x9eacc1;
-    if (result.reason === 'health-depleted') return 0xf17c97;
-    return 0xf48670;
+    if (result.kind === 'technical') return 0x658f8d;
+    if (result.kind === 'operator') return 0x897f9b;
+    if (result.reason === 'timer-expired') return 0xb89b69;
+    if (result.reason === 'stagnation') return 0x808b96;
+    if (result.reason === 'health-depleted') return 0xaf655c;
+    return 0xb47b65;
   }
   function update(snapshot, hero, elapsed, options = {}) {
     if (disposed) return;
@@ -121,6 +132,9 @@ export function createTowerFinale(THREE) {
     const resultColor = colorFor(snapshot.result);
     for (const material of [ringMaterial, crownMaterial, shardMaterial, stoneMaterial]) {
       material.color.setHex(resultColor);
+      // A very low emission floor preserves outcome colors in dark biomes
+      // without flattening their roughness or bypassing tone mapping.
+      material.emissive.setHex(resultColor).multiplyScalar(.13);
     }
     // The ring expands like a shock wave, never a victory pedestal.
     ground.scale.setScalar(.82 + arrive * .22 + (stopped ? 0 : .16 * clamp(age / 3)));
@@ -137,7 +151,7 @@ export function createTowerFinale(THREE) {
       transform.position.set(Math.cos(angle) * radius, height - decline * .35,
         Math.sin(angle) * radius);
       transform.rotation.set(.1 + Math.sin(angle) * collapse, angle, Math.cos(angle) * collapse);
-      transform.scale.set(.78, .75 + (i % 3) * .2, .78);
+      transform.scale.set(.88, .56 + (i % 3) * .16, .88);
       transform.updateMatrix();
       stones.setMatrixAt(i, transform.matrix);
     }
@@ -150,7 +164,7 @@ export function createTowerFinale(THREE) {
         .64 + rise + (stopped ? 0 : Math.sin(Math.min(age, 2) * 1.3 + i * .7) * .22) - descent,
         Math.sin(angle + motion * .13) * radius);
       transform.rotation.set(i * .15 + motion * .2, angle, i * .12 + motion * .24);
-      transform.scale.setScalar(.55 + .18 * (i % 4));
+      transform.scale.setScalar(.45 + .13 * (i % 4));
       transform.updateMatrix();
       fragments.setMatrixAt(i, transform.matrix);
     }
