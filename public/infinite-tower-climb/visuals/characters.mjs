@@ -291,6 +291,23 @@ export function createClimber() {
   // A dedicated knuckle insert makes the real attack readable without a flash.
   const fistLight=w.mat(0x3abdd9,.3,.32,0x2898cb,.12);
   w.plate(arms[1].lower,.24,.075,.04,fistLight,0,-.445,.125,.018);
+
+  // A physical, persistent source-HP injury language on the ORIGINAL skinned
+  // climber: two hinged ceramic breastplates expose copper and a powered seam
+  // as real health is lost. Healing closes the same leaves; no new collider,
+  // HUD, physics, shadow caster, gameplay event or autonomous steering.
+  // Both additional bones share the existing rig and its material batches.
+  const integrityShells = [-1, 1].map(side => {
+    w.plate(body,.19,.43,.039,fistLight,side*.30,1.48,.338,.02);
+    w.plate(body,.18,.035,.048,copper,side*.30,1.34,.38,.012);
+    w.plate(body,.18,.035,.048,copper,side*.30,1.62,.38,.012);
+    const hinge=w.node(body,`integrity-shell-${side}`,side*.47,1.49,.415);
+    w.plate(hinge,.31,.54,.095,p.armor,-side*.16,0,0,.055);
+    w.plate(hinge,.035,.39,.032,copper,-side*.11,0,.063,.011);
+    return {side,hinge};
+  });
+  let integrityOpen=0, integrityRun=null, integrityFloor=null;
+  let integrityTick=-1, integrityHealth=null, lastDamageAge=1, lastHealAge=1;
   let phase=0,attackAge=1,wasAttacking=false,landingAge=1,previousState='standing',reachSide=null,lastPoseTime=null,ledgeLegBlend=0;
   // A SOURCE result is a different physical ending from a lethal health loss.
   // Track only when the result was first presented; no saved data, physics
@@ -311,7 +328,7 @@ export function createClimber() {
   // The actual plate-bottom of the modeled boot (plate center -.11, height .19).
   // Reuse these probes on the narrow contact frame; no new meshes or effects.
   const deckSoleWorld=new THREE.Vector3(), deckWorldScale=new THREE.Vector3();
-  return w.finish((state,dt,time,{reducedMotion=false,viewAzimuth}={})=>{
+  return w.finish((state,dt,time,{reducedMotion=false,viewAzimuth,stale=false}={})=>{
     const vx=Number(state.vx??state.velocity?.x)||0,vy=Number(state.vy??state.velocity?.y)||0;
     const speed=clamp(Math.abs(vx)/4300,0,1),dead=state.state==='dead'||state.health===0;
     const terminalKind=['game','technical','operator'].includes(state.terminalKind)
@@ -338,6 +355,47 @@ export function createClimber() {
     // its recovery from the presentation clock when the attack flag is gone.
     const poseGap=lastPoseTime===null||time<lastPoseTime?0:time-lastPoseTime;
     lastPoseTime=time;
+
+    // Only immutable public health and consecutive same-run, same-floor SOURCE
+    // ticks may trigger a hit/recovery impulse. First observation, rewind,
+    // timeout, a repeated packet or a different expedition cannot fabricate
+    // a fresh injury. A held low-health frame retains its OPEN physical armor.
+    const currentHealth=Number.isFinite(state.health)?state.health:null;
+    const healthCap=Number.isFinite(state.maxHealth)&&state.maxHealth>0?state.maxHealth:null;
+    const integrityRatio=currentHealth!==null&&healthCap!==null
+      ?clamp(currentHealth/healthCap,0,1):1;
+    const integrityWear=clamp((1-integrityRatio-.08)/.65,0,1);
+    const sourceIdentity=typeof state.runToken==='string'&&state.runToken.length>0
+      &&Number.isSafeInteger(state.floor)&&Number.isSafeInteger(state.tick)
+      &&state.tick>=0;
+    if(sourceIdentity){
+      const newExpedition=integrityRun!==state.runToken||integrityFloor!==state.floor
+        ||state.tick<integrityTick;
+      if(newExpedition){
+        integrityRun=state.runToken;integrityFloor=state.floor;
+        integrityTick=state.tick;integrityHealth=currentHealth;
+        integrityOpen=integrityWear;lastDamageAge=1;lastHealAge=1;
+      }else if(state.tick>integrityTick){
+        const consecutive=state.tick-integrityTick<=8;
+        if(!stale&&consecutive&&integrityHealth!==null&&currentHealth!==null){
+          if(currentHealth<integrityHealth)lastDamageAge=0;
+          else if(currentHealth>integrityHealth)lastHealAge=0;
+        }
+        integrityTick=state.tick;integrityHealth=currentHealth;
+      }
+    }else{
+      integrityRun=null;integrityFloor=null;integrityTick=-1;
+      integrityHealth=null;lastDamageAge=1;lastHealAge=1;
+    }
+    // Cinematic recoil is bounded by presentation age and only accompanies a
+    // witnessed health-edge. Persistent severity always follows SOURCE HP.
+    const cueDt=poseGap>.2?poseGap:dt;
+    lastDamageAge=Math.min(1,lastDamageAge+cueDt);
+    lastHealAge=Math.min(1,lastHealAge+cueDt);
+    const shellBlend=reducedMotion||stale?1:1-Math.exp(-Math.min(.1,dt)*12);
+    integrityOpen=mix(integrityOpen,integrityWear,shellBlend);
+    for(const {side,hinge} of integrityShells)
+      hinge.rotation.set(0,side*integrityOpen*.98,-side*integrityOpen*.14);
     if(attacking&&!wasAttacking)attackAge=0;
     wasAttacking=attacking;
     if(dead||hurt)attackAge=1;
@@ -728,7 +786,31 @@ export function createClimber() {
       body.rotation.x+=.08*attackWeight;
       head.rotation.y-=.12*attackWeight;
     }
-    fistLight.emissiveIntensity=dead?.02:.12+attackWeight*1.4;
+    fistLight.emissiveIntensity=dead?.02:.12+attackWeight*1.4+
+      integrityWear*.40+(reducedMotion||stale?0:(1-THREE.MathUtils.smoothstep(lastHealAge,.03,.4))*.30);
+
+    // Real depletion visibly weights the climber's quiet resting posture;
+    // reduced motion, active danger, strikes and terminal states have priority.
+    const staminaRatio=Number.isFinite(state.stamina)&&
+      Number.isFinite(state.maxStamina)&&state.maxStamina>0
+      ?clamp(state.stamina/state.maxStamina,0,1):1;
+    const exhausted=clamp((.34-staminaRatio)/.34,0,1);
+    if(exhausted>0&&!reducedMotion&&!stale&&!dead&&!hurt&&!dash&&!airborne
+      &&!terminalKind&&!defending&&!attacking){
+      body.position.y-=exhausted*.035;
+      body.rotation.x+=exhausted*.075;
+      head.rotation.x-=exhausted*.045;
+    }
+    const damageRecoil=!reducedMotion&&!stale&&!dead&&!hurt&&!terminalKind
+      &&!defending&&!attacking
+      ?1-THREE.MathUtils.smoothstep(lastDamageAge,.025,.27):0;
+    if(damageRecoil>.001){
+      body.rotation.x-=damageRecoil*.18;
+      head.rotation.x+=damageRecoil*.21;
+      arms[0].upper.rotation.x-=damageRecoil*.20;
+      arms[1].upper.rotation.x-=damageRecoil*.20;
+    }
+
     if(hurt){body.rotation.z=-.22;body.rotation.x=-.19;head.rotation.z=.13;for(const arm of arms){arm.upper.rotation.x=-.75;arm.lower.rotation.x=-.6;}}
     if(dead){body.rotation.z=-.85;body.position.y=.04;head.rotation.z=.25;for(let i=0;i<2;i++){arms[i].upper.rotation.z=(i?1:-1)*.48;arms[i].lower.rotation.x=-.35;legs[i].upper.rotation.x=i?.15:-.3;legs[i].lower.rotation.x=.45;}}
     // A game run that ends with the climber still alive (timer or stagnation)

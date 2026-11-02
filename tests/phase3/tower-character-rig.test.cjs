@@ -501,3 +501,67 @@ test('normal 60Hz landings retain compression then recover without a delayed-fra
   for (let i = 3; i <= 25; i++) model.animate(standing, 1 / 60, i / 60, options);
   assert.ok(Math.abs(knee.rotation.x) < .01, 'regular recovery finishes by the original deadline');
 });
+
+
+test('source-observed climber injury persists in real skinned armor, then heals and restarts without a ghost hit', async t => {
+  const [api, THREE] = await loadCharacters();
+  const model = api.createClimber(); t.after(() => model.dispose());
+  const left = joint(model, 'integrity-shell--1');
+  const right = joint(model, 'integrity-shell-1');
+  const torso = joint(model, 'articulated-body');
+  const originalRoot = rootTransform(model.group);
+  let elapsed = 0;
+  const pose = (tick, health, override = {}, options = {}) => {
+    const authority = Object.freeze({
+      ...standing, runToken: 'climb-a', floor: 5, tick, health, maxHealth: 5,
+      stamina: 100, maxStamina: 100, ...override,
+    });
+    const original = JSON.stringify(authority);
+    model.animate(authority, .05, elapsed, options);
+    elapsed += .05;
+    assert.equal(JSON.stringify(authority), original, 'presentation never alters a public snapshot');
+    return authority;
+  };
+  pose(10, 5);
+  assert.equal(right.rotation.y, 0, 'fresh full-health run starts with sealed armor');
+  const sealedVertices = posedVertices(model, 'integrity-shell-1', THREE);
+  pose(11, 2);
+  assert.ok(torso.rotation.x < -.03, 'only a witnessed health decrease makes the real torso absorb impact');
+  for (let i = 0; i < 12; i++) pose(11, 2);
+  assert.ok(right.rotation.y > .6 && left.rotation.y < -.6,
+    'persistently low source HP exposes both damaged ceramic leaves');
+  const wornVertices = posedVertices(model, 'integrity-shell-1', THREE);
+  assert.ok(wornVertices.some((point, index) => point.distanceTo(sealedVertices[index]) > .06),
+    'source health transforms actual skinned armor geometry, not HUD-only color');
+  assert.ok(Math.abs(torso.rotation.x) < .02, 'duplicate low-HP snapshots never retrigger recoil');
+  pose(12, 5);
+  for (let i = 0; i < 15; i++) pose(12, 5);
+  assert.ok(Math.abs(right.rotation.y) < .005 && Math.abs(left.rotation.y) < .005,
+    'genuine source healing closes the physical armor');
+  pose(1, 5, { runToken: 'climb-b', floor: 0 });
+  assert.equal(right.rotation.y, 0, 'new run resets armor without a phantom injury');
+  pose(2, 1, { runToken: 'climb-b', floor: 0 }, { reducedMotion: true });
+  assert.ok(right.rotation.y > .8 && left.rotation.y < -.8,
+    'reduced-motion view still communicates source HP via a stable physical silhouette');
+  assert.ok(Math.abs(torso.rotation.x) < .02,
+    'reduced-motion mode suppresses the extra impact recoil');
+  assert.deepEqual(rootTransform(model.group), originalRoot, 'authoritative collision root is never animated');
+});
+
+test('source stamina pressure changes quiet physical stance but never creates an autonomous route or changes the root', async t => {
+  const [api] = await loadCharacters();
+  const model = api.createClimber(); t.after(() => model.dispose());
+  const torso = joint(model, 'articulated-body');
+  const root = rootTransform(model.group);
+  model.animate(Object.freeze({ ...standing, stamina: 100, maxStamina: 100 }), .05, 0, {});
+  const restedY = torso.position.y;
+  model.animate(Object.freeze({ ...standing, stamina: 2, maxStamina: 100 }), .05, .05, {});
+  assert.ok(torso.position.y < restedY - .01, 'genuine stamina depletion weighs the actual skinned stance');
+  model.animate(Object.freeze({ ...standing, stamina: 2, maxStamina: 100 }), .05, .1,
+    { reducedMotion: true });
+  assert.equal(torso.position.y, restedY, 'reduced motion keeps a neutral breathing stance');
+  model.animate(Object.freeze({ ...standing, stamina: 2, maxStamina: 100,
+    attacking: true }), .05, .15, {});
+  assert.equal(torso.position.y, restedY, 'real strike has higher animation priority than idle fatigue');
+  assert.deepEqual(rootTransform(model.group), root);
+});

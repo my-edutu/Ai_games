@@ -1758,6 +1758,7 @@ export function createTowerScene(canvas, settings = {}) {
       // Bound the transient contact handoff to this exact authoritative
       // run/platform/tick, so a restart cannot reuse an earlier grip pose.
       runToken: snapshot.runToken,
+      floor: snapshot.floor,
       ledgePlatformId: targetPlatform?.id ?? null,
       tick: snapshot.tick,
     }, dt, elapsed, options);
@@ -2169,6 +2170,13 @@ export function createTowerScene(canvas, settings = {}) {
         grounded: observedFooting.grounded, sourceTick: snapshot.tick,
         footprint: footingShadow.position.toArray(),
         evidence: 'Current source-observed overlapping deck, not predicted landing or actual raster visibility',
+      } : null,
+      climberIntegrity: snapshot?.player ? {
+        sourceTick: snapshot.tick,
+        sourceHealth: snapshot.player.health,
+        maxHealth: snapshot.player.maxHealth,
+        shellAngle: Number((climber.group.getObjectByName('integrity-shell-1')?.rotation.y || 0).toFixed(4)),
+        evidence: 'Articulated original suit opened only by observed source HP; not video-raster or hardware quality',
       } : null,
       movingDeckRider: observedRidePose ? { platformId: observedRidePose.platformId,
         sourceTick: observedRidePose.sourceTick, drivenTick: observedRidePose.lastDrivenTick,
