@@ -25,12 +25,35 @@ test('G135 active workday is framed from the physical working front with readabl
   const repeat=g.getWorkdayCompositionAudit();
   const camera=g.getCitizenCameraPlan();
   const construction=g.getBuilderStageAudit();
+  // G148 RED-first: a real worker now visibly drives facial effort AND the
+  // 3D field responds at the exact living farmer's contact point. No fake
+  // crop credit, authority changes, forced RNG or extra simulated jobs.
+  const farming=g.getHarvestInteractionAudit();
+  const farmers=g.getActiveWorksites().filter(w=>w.job==='farmer');
+  const actorActing=g.getCitizenActingAudit(view?.citizen);
   const after=JSON.stringify(g.exportSnapshot());
-  return {view,shot,repeat,camera,construction,counts:g.metrics(),
+  return {view,shot,repeat,camera,construction,farming,farmers,actorActing,counts:g.metrics(),
    readOnly:before===after,render:g.renderStats(),gl:
     document.querySelector('#world').getContext('webgl')?.getError()??-1};
  });
  expect(result.readOnly).toBe(true);
+ expect(result.farming.source).toBe('real-autonomous-farmer-contact');
+ expect(result.farming.active).toBe(result.farmers.length>0);
+ if(result.farming.active){
+  expect(result.farmers.map(w=>w.citizen)).toContain(result.farming.citizen);
+  expect(result.farming.contact).toHaveLength(4);
+  expect(result.farming.contact.every(Number.isFinite)).toBe(true);
+  expect(result.farming.contact[2]).toBeGreaterThan(0);
+  expect(result.farming.contact[2]).toBeLessThanOrEqual(1);
+ }
+ expect(result.actorActing.source).toBe('real-citizen-occupational-animation');
+ expect(result.actorActing.citizen).toBe(result.view.citizen);
+ expect(result.actorActing.face).toBeTruthy();
+ for(const key of ['effort','blink','squint','mouthOpen']){
+  expect(Number.isFinite(result.actorActing.face[key])).toBe(true);
+  expect(result.actorActing.face[key]).toBeGreaterThanOrEqual(0);
+  expect(result.actorActing.face[key]).toBeLessThanOrEqual(1);
+ }
  expect(result.counts.citizens).toBeGreaterThanOrEqual(28);
  expect(result.counts.buildings).toBeGreaterThanOrEqual(37);
  expect(result.view?.active).toBe(true);
