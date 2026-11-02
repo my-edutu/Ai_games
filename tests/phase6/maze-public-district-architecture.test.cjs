@@ -51,7 +51,13 @@ test('public terraces have distinct sculpted clay/tide masonry without hidden co
   const empty = createMazeWorld({ balanced: true });
   const collected = root => {
     const materials = new Map();
-    root.group.traverse(node => {
+    // The three authored top-level groups are backdrop, public terrain and
+    // disclosed props. Dimension-only far-offshore masonry is a legitimate
+    // scenery batch; it must not be counted as a secret playable clay court.
+    // Keep a strict ZERO modeled-terrain test when no cell is disclosed.
+    const disclosedTerrain = root.group.children[1];
+    assert.ok(disclosedTerrain?.isGroup, 'public terrain must be a distinct Three.js group');
+    disclosedTerrain.traverse(node => {
       if (!node.isInstancedMesh) return;
       const hex = node.material.color.getHexString();
       materials.set(hex, (materials.get(hex) || 0) + node.count);
@@ -139,6 +145,31 @@ test('offshore rock silhouettes depend only on public board size, never undisclo
     assert.equal(a.length, 64, 'modeled rocks and lichen share a fixed draw budget');
     assert.deepEqual(a, b,
       'hidden cells, discovery count and run tick cannot reveal topology via backdrop');
+    // Guard the excluded backdrop independently: physically modeled ruins
+    // must always be outside BOTH public edges and identical for unknown and
+    // revealed cell sets. This catches hidden-route leakages rather than
+    // silencing them by exempting all backdrop geometry from examination.
+    function offshoreSpires(world) {
+      const spires = world.group.getObjectByName('Dimension-only submerged broken tide-watch spires');
+      assert.ok(spires, 'offshore historical structures must be physically authored');
+      const entries = [];
+      spires.traverse(node => {
+        if (!node.isInstancedMesh) return;
+        for (let i = 0; i < node.count; i++) {
+          const data = node.instanceMatrix.array;
+          const x = data[i * 16 + 12], y = data[i * 16 + 13], z = data[i * 16 + 14];
+          assert.ok(x < -width * module.CELL_SIZE / 2 - 1 &&
+            z < -height * module.CELL_SIZE / 2 - 1,
+          'dimension-only spire parts may not appear on undisclosed or navigable tiles');
+          entries.push([node.material.color.getHexString(), x, y, z]);
+        }
+      });
+      return entries.sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+    }
+    const shoreA = offshoreSpires(emptyWorld), shoreB = offshoreSpires(discoveredWorld);
+    assert.ok(shoreA.length >= 20, 'the two original spires are real 3D geometry, not captions');
+    assert.deepEqual(shoreA, shoreB,
+      'offshore geometry may not encode discovery, route, tick or secret cells');
     assert.ok(emptyWorld.stats().geometryCount <= 16);
     assert.ok(emptyWorld.stats().materialCount <= 26);
     assert.ok(emptyWorld.stats().textureCount <= 3);
