@@ -14,7 +14,7 @@ export function planStoneRelief(faces,floor,limits={}){
  if(!maxSpalls&&!maxCoping)return {spalls,coping};
  for(let faceIndex=0;faceIndex<faces.length&&(spalls.length<maxSpalls||coping.length<maxCoping);faceIndex++){
   const f=faces[faceIndex];
-  if(!Array.isArray(f)||f.length<9||![f[0],f[2],f[4],f[7],f[8]].every(Number.isFinite)||f[4]<1.2)continue;
+  if(!Array.isArray(f)||f.length<9||![f[0],f[2],f[4],f[7],f[8]].every(Number.isFinite)||f[4]<1.10)continue;
   // Vaulted bays have actual empty upper volume: never hang a stone chip
   // suspended in that negative space instead of on masonry.
   const dx=f[7],dz=f[8];
@@ -30,16 +30,19 @@ export function planStoneRelief(faces,floor,limits={}){
   if(spalls.length<maxSpalls&&h%5!==0){
    spalls.push({
     faceIndex,x:f[0]+dx*front+dz*along,
-    y:.60+((h>>>9)%7)*.19,
+    y:Math.min(f[4]-.16,.44+((h>>>9)%6)*.11),
     z:f[2]+dz*front+dx*along,
     sx:.15+((h>>>15)%7)*.022,sy:.13+((h>>>19)%5)*.029,
     sz:.080+((h>>>25)%3)*.014,yaw,shade
    });
   }
+  // Capstones sit on the TRUE top of each lowered ruin wall rather than
+  // hovering at the extinct 2.6m tower height. Character/camera cutaways
+  // keep both original pooled GPU batches and their parent-face ownership.
   if(coping.length<maxCoping&&h%3===0){
    coping.push({
     faceIndex,x:f[0]-dx*.018+dz*along,
-    y:2.58+((h>>>10)%4)*.047,
+    y:f[4]+.035,
     z:f[2]-dz*.018+dx*along,
     sx:.35+((h>>>14)%6)*.04,sy:.16+((h>>>20)%4)*.041,
     sz:.15+((h>>>23)%4)*.025,yaw,shade:.78+((h>>>18)%13)*.03
