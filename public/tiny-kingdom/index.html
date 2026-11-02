@@ -4517,6 +4517,17 @@ function rotateWorksiteVertices(first,originX,originZ,angle){
   data[i+5]=-si*nx+co*nz;
  }
 }
+// G138 physically accumulating frame, not a looping prop. Every brace,
+// rafter and infill board is earned by a REAL active builder's work timer;
+// this is only a deterministic render description, never construction credit.
+function builderAssemblyState(progress){
+ const p=Math.max(0,Math.min(1,progress));
+ return {source:'actual-autonomous-shift',frameHeight:.45+p*1.10,
+  roofRafters:p>=.55?2:0,
+  roofSlats:p>=.55?Math.min(5,1+Math.floor((p-.55)*11)):0,
+  infillPanels:p>=.70?Math.min(4,1+Math.floor((p-.70)*12)):0,
+  phase:p<.24?'sill':p<.55?'uprights':p<.70?'roof raising':'wall closing'};
+}
 function getBuilderStageAudit(){
  // Read-only contact geometry for real working builders. This predicts the
  // LOWER mallet stroke; the lifted hammer remains free to animate above it.
@@ -4545,7 +4556,7 @@ function getBuilderStageAudit(){
    frameSide:WORKSITE_BUILDER_STAGE.frameSide,
    benchSide:WORKSITE_BUILDER_STAGE.benchSide,
    benchHeight:WORKSITE_BUILDER_STAGE.benchHeight,
-   contactGap,progress:w.progress};
+   contactGap,progress:w.progress,assembly:builderAssemblyState(w.progress)};
  });
 }
 function worksiteVisualCue(w){
@@ -4611,6 +4622,7 @@ function appendActiveWorksiteDressing(w,x,y,z,pulse){
    box(sx,y+.26,z-.47,.18,.045,.15,rgb(0x947044));
   }
  }else if(w.job==='builder'){
+  const assembly=builderAssemblyState(w.progress);
   // G120: frame behind the REAL worker. A previous waist/eye-line crossing
   // obscured the builder in exact-head G119 moving gameplay evidence.
   // G127: rear-left frame makes a growing structure visible AS CONTEXT,
@@ -4625,6 +4637,29 @@ function appendActiveWorksiteDressing(w,x,y,z,pulse){
    box(xx,y+.08,rear,.20,.12,.49,rgb(0x765336));
   }
   box(frameX,y+rise,rear,.98,.11,.22,oak);
+  // The silhouette of a genuinely rising medieval cottage materializes
+  // only as the actual carpenter finishes their appointed work. Both
+  // gable beams and compact limewashed infill are BEHIND-LEFT of the actor:
+  // they never masquerade as a finished new city house or hide the hands.
+  if(assembly.roofRafters){
+   for(const side of [-1,1])
+    limbSegment([frameX+side*.48,y+rise+.03,rear],
+     [frameX,y+rise+.40,rear],.056,rgb(0xb18a5e),6);
+  }
+  for(let i=0;i<assembly.roofSlats;i++){
+   const offset=(i-2)*.17;
+   const roofY=y+rise+.34-.26*Math.abs(offset)/.51;
+   box(frameX+offset,roofY,rear,.15,.045,.29,
+    rgb(i%2?0x95714d:0xb89567));
+  }
+  for(let i=0;i<assembly.infillPanels;i++){
+   const side=i%2?1:-1,row=Math.floor(i/2);
+   box(frameX+side*.22,y+.33+row*.38,rear+.015,
+    .33,.31,.095,rgb(i%2?0xc4b39c:0xd2c3a9));
+   limbSegment([frameX+side*.22-.17,y+.16+row*.38,rear+.09],
+    [frameX+side*.22+.17,y+.51+row*.38,rear+.09],
+    .017,rgb(0x806345),4);
+  }
   const hoistY=y+rise+.12+cue.hoistHeight*.20;
   box(frameX,hoistY,rear,.62,.10,.17,rgb(0xad8052));
   limbSegment([frameX-.25,hoistY+.03,rear],
