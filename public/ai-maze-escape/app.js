@@ -11,7 +11,7 @@ const query=new URLSearchParams(location.search);
 const motionPreference=matchMedia('(prefers-reduced-motion: reduce)');
 const settings={quality:query.get('quality')==='high'?'high':'auto',reducedMotion:query.get('reducedMotion')==='1'||motionPreference.matches,highContrast:query.get('highContrast')==='1',muted:true,cleanFeed:query.get('cleanFeed')==='1'};
 const audio=createMazeAudio();
-let frame=null, scene=null, fallbackCanvas=null, pollTimer=0, recoveryTimer=0, requestController=null, stopped=false, raf=0, rendererState='loading',cameraMode=query.get('camera')==='overview'?'overview':query.get('camera')==='detail'?'detail':'follow', lastCaption='', lastRunToken='', failedPolls=0, initialising=false;
+let frame=null, scene=null, fallbackCanvas=null, pollTimer=0, recoveryTimer=0, requestController=null, stopped=false, raf=0, rendererState='loading',cameraMode=query.get('camera')==='overview'?'overview':query.get('camera')==='detail'?'detail':'follow', lastCaption='', lastRunToken='', lastPublicScene='', failedPolls=0, initialising=false;
 
 function press(id,value,label){const button=byId(id);if(!button)return;button.setAttribute('aria-pressed',String(value));if(label){button.setAttribute('aria-label',label);button.title=label}}
 function applySettings(){
@@ -98,9 +98,19 @@ function update(value){
   elements.inventory.setAttribute('aria-label',`${snapshot.inventory.length} ${snapshot.inventory.length===1?'key':'keys'} collected`);
   elements.profile.textContent=`${snapshot.profile} · Expedition ${snapshot.level}`;
   elements.integrity.textContent=snapshot.authorityChecksum?'Live view connected':'Connecting';
-  if(lastRunToken!==snapshot.runToken){lastRunToken=snapshot.runToken;lastCaption='New maze'}
+  if(lastRunToken!==snapshot.runToken){
+    lastRunToken=snapshot.runToken;lastCaption='New maze';lastPublicScene='';
+  }
   const captions=value.audio?.captions??[];
   if(captions.length)lastCaption=viewerCaption(captions.at(-1));
+  // In real native encounter footage, an old gate-unlock caption remained
+  // onscreen beneath a newly visible Thornback. Promote the ACTUAL entering
+  // danger event from the same sanitized public scene. This is once-per-entry,
+  // not a frame-spam warning or a claim about an unseen AI target.
+  if(value.scene==='danger' && lastPublicScene!=='danger'
+    && Array.isArray(snapshot.threats) && snapshot.threats.length)
+    lastCaption='Thornback is nearby.';
+  lastPublicScene=value.scene;
   elements.caption.textContent=lastCaption;
   elements.broadcast.dataset.scene=value.scene;
   try{scene?.update(value)}catch(error){stopGraphics(error)}
