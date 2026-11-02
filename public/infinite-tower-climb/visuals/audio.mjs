@@ -242,6 +242,24 @@ export function createTowerAudio() {
       texture(snapshot.theme === 'ruins' ? 370 : 260, .17 + weight * .06, .058 + weight * .055);
       tone(94 - weight * 24, 48, .1 + weight * .055, 'triangle', .052 + weight * .036);
       if (weight > .75) tone(66, 48, .19, 'sine', .034 * weight);
+      // Mechanical touchdown is audible only at the TRUE moving deck top,
+      // after an airborne-to-standing transition in this same live run.
+      // It enriches the existing source-driven gear/piston contact without
+      // another HUD message, fake collision or predictive landing cue.
+      const movingDeckContact=snapshot.lifecycle==='running' && actor.health>0 &&
+        Number.isFinite(actor.x) && Number.isFinite(actor.y) &&
+        Number.isFinite(actor.halfWidth) && actor.halfWidth>0 &&
+        Number.isFinite(actor.halfHeight) && actor.halfHeight>0 &&
+        (snapshot.platforms||[]).some(platform=>platform.kind==='moving' &&
+          [platform.x,platform.y,platform.width,platform.height].every(Number.isFinite) &&
+          platform.width>0 && platform.height>0 &&
+          Math.abs((actor.y-actor.halfHeight)-(platform.y+platform.height))<=2500 &&
+          actor.x+actor.halfWidth>=platform.x &&
+          actor.x-actor.halfWidth<=platform.x+platform.width);
+      if(movingDeckContact){
+        texture(490,.11,.025);
+        tone(176,89,.16,'triangle',.035);
+      }
       stride = 0;
     }
     // Stride is advanced only by actual same-floor authoritative displacement,
