@@ -20,3 +20,14 @@ body[data-epilogue=true] .run-result{left:auto;right:24px;top:auto;bottom:22px;t
 body[data-epilogue=true] .run-result .result-mark{font-size:31px}
 body[data-epilogue=true] .run-result h2{font-size:21px;margin:5px 0 10px}
 @media(max-width:759px){body[data-epilogue=true] .run-result{left:12px;right:12px;bottom:12px;width:auto;max-width:none;padding:11px 16px}body[data-epilogue=true] .run-result h2{font-size:19px}}
+
+/* A phone is a game viewport, not a place to overlay the map on the duel.
+   Keep the user's explicit Map toggle, but put its content in the mobile
+   information flow. Genuine Warden threat supersedes the generic objective. */
+@media(max-width:759px){
+ .map-panel{position:relative!important;top:auto!important;right:auto!important;
+  width:calc(100% - 28px);margin:0 14px 14px;order:1;z-index:auto}
+ .map-panel .map-viewport{width:min(240px,100%);margin-inline:auto}
+ body[data-warden-focus=true] .boss-strip{top:104px}
+ body[data-warden-focus=true] .arena-lower{display:none}
+}
