@@ -4090,7 +4090,54 @@ function forgeSmoke(time){
 /* G120: staging shared by actual worksite geometry and read-only inspection.
  * The tall raising frame belongs BEHIND the joiner; their low jointing bench
  * remains in reach and below eye height during the genuine work timer. */
-const WORKSITE_BUILDER_STAGE=Object.freeze({frameRear:-.88,benchFront:.30,benchHeight:.69});
+// G121: the work table is placed in front of the actual joiner's planted
+// body; the tall frame is behind. All spatial distances below are worker-local.
+const WORKSITE_BUILDER_STAGE=Object.freeze({frameRear:-1.08,benchFront:.59,benchHeight:.69});
+function builderStageAngle(person){
+ const aim=occupationalPerformance(person).focus;
+ return Math.atan2(aim[0]-person.x,aim[1]-person.z);
+}
+function rotateWorksiteVertices(first,originX,originZ,angle){
+ // Rotate BOTH points and normals by the very same worker-facing transform
+ // used by villager(). Never mutate authoritative world locations or jobs.
+ const co=Math.cos(angle),si=Math.sin(angle);
+ for(let i=first;i<data.length;i+=10){
+  const dx=data[i]-originX,dz=data[i+2]-originZ,
+   nx=data[i+3],nz=data[i+5];
+  data[i]=originX+co*dx+si*dz;
+  data[i+2]=originZ-si*dx+co*dz;
+  data[i+3]=co*nx+si*nz;
+  data[i+5]=-si*nx+co*nz;
+ }
+}
+function getBuilderStageAudit(){
+ // Read-only contact geometry for real working builders. This predicts the
+ // LOWER mallet stroke; the lifted hammer remains free to animate above it.
+ return getActiveWorksites().filter(w=>w.job==='builder').map(w=>{
+  const actor=people.find(p=>p.name===w.citizen);
+  const i=people.indexOf(actor),scale=.92+(i%5)*.045;
+  const angle=builderStageAngle(actor),co=Math.cos(angle),si=Math.sin(angle);
+  const point=z=>[w.x+si*z,w.z+co*z];
+  const bench=point(WORKSITE_BUILDER_STAGE.benchFront);
+  const frame=point(WORKSITE_BUILDER_STAGE.frameRear);
+  const lens=WORKSITE_BUILDER_STAGE.benchFront;
+  const acting=occupationalPerformance(actor);
+  const malletZ=.62*scale+Math.max(0,.88*scale-.44*scale)*acting.lean;
+  const malletY=.88*scale-acting.crouch*Math.min(1,(.88-.44)/.65);
+  const contactGap=Math.hypot(.19*scale-.03,
+   malletZ-(lens-.06),
+   malletY-(WORKSITE_BUILDER_STAGE.benchHeight+.195));
+  const forward=[si,co],toBench=[bench[0]-w.x,bench[1]-w.z];
+  return {citizen:w.citizen,job:w.job,source:'actual-autonomous-shift',
+   facingAngle:angle,benchPosition:bench,framePosition:frame,
+   facingAlignment:(forward[0]*toBench[0]+forward[1]*toBench[1])/
+    Math.max(.001,Math.hypot(...toBench)),
+   benchDistance:Math.hypot(...toBench),
+   frameBehind:-(forward[0]*(frame[0]-w.x)+forward[1]*(frame[1]-w.z)),
+   benchHeight:WORKSITE_BUILDER_STAGE.benchHeight,
+   contactGap,progress:w.progress};
+ });
+}
 function worksiteVisualCue(w){
  const progress=Math.max(0,Math.min(1,w.progress));
  const phase=Math.max(0,Math.min(1,w.impact));
@@ -4136,17 +4183,17 @@ function appendActiveWorksiteDressing(w,x,y,z,pulse){
   // obscured the builder in exact-head G119 moving gameplay evidence.
   const rise=cue.frameRise,oak=rgb(0xc19b62),rear=z+cue.staging.frameRear;
   for(const side of [-1,1]){
-   const xx=x+.40+side*.52;
+   const xx=x+side*.60;
    limbSegment([xx,y+.04,rear],[xx,y+rise,rear],.065,rgb(0x916742),6);
    limbSegment([xx,y+.05,rear-.24],[xx,y+rise*.73,rear],.036,rgb(0x785238),5);
    limbSegment([xx,y+.05,rear+.24],[xx,y+rise*.73,rear],.036,rgb(0x785238),5);
    box(xx,y+.08,rear,.24,.12,.55,rgb(0x765336));
   }
-  box(x+.40,y+rise,rear,1.18,.11,.22,oak);
+  box(x,y+rise,rear,1.18,.11,.22,oak);
   const hoistY=y+rise+.12+cue.hoistHeight*.20;
-  box(x+.44,hoistY,rear,.66,.10,.17,rgb(0xad8052));
-  limbSegment([x+.24,hoistY+.03,rear],
-   [x+.24,y+rise+.07,rear],.012,rgb(0xcfb589),5);
+  box(x,hoistY,rear,.66,.10,.17,rgb(0xad8052));
+  limbSegment([x-.26,hoistY+.03,rear],
+   [x-.26,y+rise+.07,rear],.012,rgb(0xcfb589),5);
   // Waist-height real joinery: visible hammer stroke, planks and tenon
   // advancing only with the already-running authoritative shift timer.
   const front=z+cue.staging.benchFront,benchY=y+cue.staging.benchHeight;
@@ -4157,6 +4204,13 @@ function appendActiveWorksiteDressing(w,x,y,z,pulse){
   box(x,benchY,front,.96,.10,.44,rgb(0x946b43));
   box(x+.03,benchY+.11,front-.06,.47+.25*cue.progress,.085,.18,rgb(0xc09a62));
   box(x-.18,benchY+.16,front+.07,.075,.12,.19,rgb(0x65442e));
+  // Visible small wood chips at the LOWER hammer stroke. These are not
+  // inventory receipts; the actual builder's work() still owns production.
+  if(cue.phase<.16)for(let i=0;i<2;i++){
+   const dx=i*.12-.04;
+   tri([x+dx,benchY+.205,front],[x+dx+.06,benchY+.23,front+.04],
+    [x+dx+.03,benchY+.18,front+.09],rgb(0xdcc296));
+  }
  }else if(w.job==='merchant'){
   // A small market weighing canopy and grain sacks advertise real trading.
   box(x-.48,y+.05,z+.50,.065,.93,.075,rgb(0x77563f));
@@ -4325,7 +4379,11 @@ function renderWorkdayTraces(){
  const triangleStart=data.length;
  materialScope(MATERIAL.WOOD,()=>{
   for(const w of active){
-   const x=w.x+.62,z=w.z+.34,y=terrain(x,z)+.035;
+   const isJoiner=w.job==='builder';
+   // A real joiner's stage is built in their LOCAL frame and then rotated
+   // with their facing, not assembled as world-axis props behind their head.
+   const x=w.x+(isJoiner?0:.62),z=w.z+(isJoiner?0:.34);
+   const y=terrain(x,z)+.035,siteStart=data.length;
    // One performance clock drives wrist and prop impacts, so chips, tools
   // and work surfaces react together to the actual worker's bodily action.
   const pulse=w.impact*2-1;
@@ -4353,6 +4411,10 @@ function renderWorkdayTraces(){
     for(let i=-1;i<=1;i++)cone(x+i*.12,y+.22,z,.07,.24,rgb(0x688354),5);
    }
    appendActiveWorksiteDressing(w,x,y,z,pulse);
+   if(isJoiner){
+    const actor=people.find(p=>p.name===w.citizen);
+    if(actor)rotateWorksiteVertices(siteStart,w.x,w.z,builderStageAngle(actor));
+   }
   }
  });
  workdayRenderStats.activeTriangles=(data.length-triangleStart)/30;
@@ -5156,12 +5218,16 @@ function planStreetWorkerEncounter(excludeName=null){
      citizen.delivery?26:citizen.activity.startsWith('Traveling')?13:2;
     const distanceToVisitor=Math.hypot(point[0]-streetPosition[0],
      point[1]-streetPosition[1]);
+    const screen=projectedWorkdayOccluders(eye,target,citizen);
     const score=importance+visibility.forwardMetres*1.25-
-     distanceToVisitor*.16-radius*.55;
+     distanceToVisitor*.16-radius*.55-
+     screen.projectedBystanders*16-screen.projectedPosts*6;
     const candidate={citizen,position:point,yaw:yawToCitizen,score,
       metres:radius,visibility,activeWork,cropBlockedSamples:crop.blockedSamples,
       fieldSamples:crop.fieldSamples,crowdIntrusions:crowd.crowdIntrusions,
-      closestBystander:crowd.closestBystander};
+      closestBystander:crowd.closestBystander,
+      projectedBystanders:screen.projectedBystanders,
+      projectedPosts:screen.projectedPosts};
     if(!best||score>best.score)best=candidate;
     if(citizen.name!==excludeName&&(!bestOther||score>bestOther.score))
      bestOther=candidate;
@@ -5195,7 +5261,9 @@ function visitStreetWorker(){
   activeWork:plan.activeWork,metres:plan.metres,lineOfSight:true,
   visibility:plan.visibility,cropBlockedSamples:plan.cropBlockedSamples,
   fieldSamples:plan.fieldSamples,crowdIntrusions:plan.crowdIntrusions,
-  closestBystander:plan.closestBystander};
+  closestBystander:plan.closestBystander,
+  projectedBystanders:plan.projectedBystanders,
+  projectedPosts:plan.projectedPosts};
 }
 function setStreetWalk(enabled){
  const next=Boolean(enabled);
@@ -5369,7 +5437,38 @@ function followRayBlockers(eye,target,roofs){
 // A clear centre ray is not enough: the foreground roof in the real G105
 // recording covered the worker's hands and most of the scene. Inspect the
 // real actor's silhouette and surrounding court at candidate eye positions.
-function cameraShotFraming(shot,roofs){
+function projectedWorkdayOccluders(eye,target,subject){
+ const dx=target[0]-eye[0],dy=target[1]-eye[1],dz=target[2]-eye[2];
+ const depth=Math.hypot(dx,dy,dz)||1,forward=[dx/depth,dy/depth,dz/depth];
+ const sideLength=Math.hypot(forward[0],forward[2])||1;
+ const right=[-forward[2]/sideLength,0,forward[0]/sideLength];
+ const up=[right[1]*forward[2]-right[2]*forward[1],
+  right[2]*forward[0]-right[0]*forward[2],
+  right[0]*forward[1]-right[1]*forward[0]];
+ const projected=(x,y,z,width,height)=>{
+  const a=x-eye[0],b=y-eye[1],d=z-eye[2],
+   along=a*forward[0]+b*forward[1]+d*forward[2];
+  if(along<.3||along>depth-.24)return false;
+  const lateral=(a*right[0]+b*right[1]+d*right[2])/along;
+  const vertical=(a*up[0]+b*up[1]+d*up[2])/along;
+  return Math.abs(lateral)<.53/depth+width/along&&
+   Math.abs(vertical)<.95/depth+height/along;
+ };
+ let projectedBystanders=0,projectedPosts=0;
+ for(const other of people){
+  if(other===subject)continue;
+  if(projected(other.x,terrain(other.x,other.z)+1.01,other.z,.35,.78))
+   projectedBystanders++;
+ }
+ // Actual occupied roadside posts, lamps and well uprights, never invented
+ // screen-space actors. A small pole may obstruct a hand without intersecting
+ // the narrow camera-to-face line.
+ for(const [x,z] of [[-15,4],[-5,-7],[6,9],[2,6],[-14,6]]){
+  if(projected(x,terrain(x,z)+.95,z,.16,.70))projectedPosts++;
+ }
+ return {projectedBystanders,projectedPosts};
+}
+function cameraShotFraming(shot,roofs,citizen){
  const target=shot.target,eye=shot.eye;
  const body=[[0,0,0],[-.4,.65,0],[.4,.65,0],
   [-.4,-.64,0],[.4,-.64,0],[0,.82,.2],[0,-.72,-.2]];
@@ -5387,7 +5486,8 @@ function cameraShotFraming(shot,roofs){
  }
  return {bodyRays:body.length,blockedBodyRays,
   bodyVisibleFraction:(body.length-blockedBodyRays)/body.length,
-  blockedNeighbourhoodRays:countBlocked(surroundings),cameraProximityWarnings};
+  blockedNeighbourhoodRays:countBlocked(surroundings),cameraProximityWarnings,
+  ...projectedWorkdayOccluders(eye,target,citizen)};
 }
 function planCitizenCamera(citizen,preferredYaw=yaw){
  const target=[citizen.x,terrain(citizen.x,citizen.z)+1.02,citizen.z],
@@ -5424,9 +5524,10 @@ function planCitizenCamera(citizen,preferredYaw=yaw){
  possibilities.sort((a,b)=>a.coarse-b.coarse);
  let best=null,bestScore=Infinity,bestFraming=null;
  for(const {shot,coarse} of possibilities.slice(0,48)){
-  const framing=cameraShotFraming(shot,roofs);
+  const framing=cameraShotFraming(shot,roofs,citizen);
   const score=coarse+framing.blockedBodyRays*110+
-   framing.blockedNeighbourhoodRays*12+framing.cameraProximityWarnings*42;
+   framing.blockedNeighbourhoodRays*12+framing.cameraProximityWarnings*42+
+   framing.projectedBystanders*170+framing.projectedPosts*55;
   if(score<bestScore){best=shot;bestScore=score;bestFraming=framing;}
  }
  return {...best,...bestFraming,compositionScore:bestScore,
@@ -6016,7 +6117,7 @@ gl.drawArrays(gl.TRIANGLES,0,data.length/10);if((frames++%14)===0){updateUI();dr
  // Only a completed presentation may become the reusable frozen frame.
  lastFrozenFrameKey=frozenViewKey;
 }
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getCitizenAnatomy,getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getOccupationalPerformance:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData({citizen:people[index].name,job:people[index].job,...occupationalPerformance(people[index])}):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getWorkdayEvents:()=>cloneData(workdayEvents),getStreetCargoWitnesses:()=>cloneData(streetCargoWitnesses()),getActiveDeliveries:()=>cloneData(getActiveDeliveries()),getDeliveryReceipts:()=>cloneData(getDeliveryReceipts()),getMarketHandoffs:()=>cloneData(getMarketHandoffs()),getMarketHandoffRenderStats:()=>({...marketHandoffRenderStats}),watchDelivery,getWorkdayView,getActiveWorksites,getWorksiteChoreography,getLiveWorkdayView,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getMarketSupplyView:marketSupplyView,getHighStreetStats:()=>({...highStreetStats}),routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getStreetWalkState,setStreetWalk,advanceStreetWalk,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?2:1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0):0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0):null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getForestVisualStats:()=>({
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getCitizenAnatomy,getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getOccupationalPerformance:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData({citizen:people[index].name,job:people[index].job,...occupationalPerformance(people[index])}):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getWorkdayEvents:()=>cloneData(workdayEvents),getStreetCargoWitnesses:()=>cloneData(streetCargoWitnesses()),getActiveDeliveries:()=>cloneData(getActiveDeliveries()),getDeliveryReceipts:()=>cloneData(getDeliveryReceipts()),getMarketHandoffs:()=>cloneData(getMarketHandoffs()),getMarketHandoffRenderStats:()=>({...marketHandoffRenderStats}),watchDelivery,getWorkdayView,getActiveWorksites,getWorksiteChoreography,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getMarketSupplyView:marketSupplyView,getHighStreetStats:()=>({...highStreetStats}),routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getStreetWalkState,setStreetWalk,advanceStreetWalk,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?2:1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0):0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0):null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getForestVisualStats:()=>({
  sourceTrees:trees.length,
  renderedTrees:forestVisualStats.deciduous+forestVisualStats.conifers,
  conifers:forestVisualStats.conifers,deciduous:forestVisualStats.deciduous,
