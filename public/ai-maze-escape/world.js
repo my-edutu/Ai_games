@@ -598,6 +598,34 @@ export function createMazeWorld(options = {}) {
     if (retracting) retractingGates.set(edgeId, gate);
     for (let j = 0; j < 5; j++) mesh(gate, cylinder, darkMetal, -.64 + j * .32, .79, 0, .035, 1.45, .035);
     for (const y of [.22, 1.37]) mesh(gate, bevel, darkMetal, 0, y, 0, 1.6, .1, .12);
+    // Original hand-cranked counterweight hardware gives the already-known
+    // gate a physical cause-and-effect silhouette. The wheels and hanging
+    // stones live on its actual jambs, never over the traversable doorway.
+    // Reuse shared geometry/materials; no false key, passage or game action.
+    const drive = new THREE.Group(); drive.name = 'Disclosed gate pulley mechanism'; p.add(drive);
+    const wheels = [], weights = [];
+    for (const side of [-1, 1]) {
+      const wheel = new THREE.Group();
+      wheel.name = side < 0 ? 'Left gate drive wheel' : 'Right gate drive wheel';
+      wheel.position.set(side * .91, 1.83, .48);
+      drive.add(wheel);
+      mesh(wheel, ring, inlay, 0, 0, 0, .23, .23, .14);
+      // An asymmetric spoke makes the real rotation legible in a still frame.
+      mesh(wheel, bevel, lightStone, .075, 0, .04, .20, .055, .075, 0, 0, .35);
+      mesh(drive, bevel, darkMetal, side * .91, 1.15, .44, .035, 1.07, .06);
+      const weight = mesh(drive, bevel, deepStone, side * .91, .61, .49, .21, .30, .18);
+      weight.name = side < 0 ? 'Left hanging gate weight' : 'Right hanging gate weight';
+      wheels.push(wheel); weights.push(weight);
+    }
+    gate.userData.publicDrive = {wheels, weights};
+    if (door.open && !retracting) {
+      // A door first discovered OPEN is shown in its settled open pose. This
+      // does not manufacture an opening event or another animated passage.
+      for (let i = 0; i < 2; i++) {
+        wheels[i].rotation.z = (i ? 1 : -1) * 1.35;
+        weights[i].position.y = .31;
+      }
+    }
     if (!door.open) {
       // A broad coral X makes a *known closed* passage visibly impassable
       // at the normal isometric camera scale. Nothing is created for open
@@ -842,6 +870,15 @@ export function createMazeWorld(options = {}) {
       gate.visible = pose.visible;
       gate.position.y = pose.raise;
       gate.scale.y = pose.scaleY;
+      // The visibly connected pulleys turn as the physical portcullis
+      // rises, while twin stone weights fall within the two real jambs.
+      // No geometry, material or animation clock is allocated per frame.
+      const travel = Math.max(0, Math.min(1, pose.raise / 1.55));
+      const drive = gate.userData.publicDrive;
+      if (drive) for (let i = 0; i < drive.wheels.length; i++) {
+        drive.wheels[i].rotation.z = (i ? 1 : -1) * travel * 1.35;
+        drive.weights[i].position.y = .61 - travel * .30;
+      }
       if (!pose.visible) {
         retractingGates.delete(edge);
         gateOpeningAt.delete(edge);
