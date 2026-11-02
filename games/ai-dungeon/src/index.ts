@@ -5,7 +5,7 @@ export const DUNGEON_VERSION='0.4.0';
 export const MAP_SIZE=19;
 export type UnitKind='vanguard'|'ranger'|'mystic'|'revenant'|'cultist'|'warden';
 export type Faction='party'|'enemy';
-export interface Unit {id:string;kind:UnitKind;faction:Faction;x:number;z:number;hp:number;maxHp:number;attack:number;cooldown:number;action?:'idle'|'move'|'attack'|'cast'|'hurt'|'guard';actionTick?:number;guardTick?:number;targetId?:string;recoveryUntilTick?:number}
+export interface Unit {id:string;kind:UnitKind;faction:Faction;x:number;z:number;hp:number;maxHp:number;attack:number;cooldown:number;action?:'idle'|'move'|'attack'|'cast'|'hurt'|'guard';actionTick?:number;guardTick?:number;targetId?:string;recoveryUntilTick?:number;focus?:number;maxFocus?:number}
 export interface DungeonEvent {tick:number;kind:string;text:string}
 export interface DungeonTrap{id:string;x:number;z:number;kind:'ember'|'arcane';active:boolean;cooldown:number;disarmed:boolean;triggers:number}
 export interface DungeonState {schemaVersion:1;tick:number;floor:number;run:number;phase:'exploring'|'intermission';intermission:number;theme:string;map:string[];exit:{x:number;z:number};units:Unit[];relics:{x:number;z:number}[];traps:DungeonTrap[];kills:number;gold:number;level:number;intent:string;events:DungeonEvent[]}
@@ -292,7 +292,7 @@ function createFloor(seed:string,floor:number,rng:NamedRng,run:number,previous?:
  const units:Unit[]=[
   {id:'vanguard',kind:'vanguard',faction:'party',x:1,z:1,hp:previous?.units.find(u=>u.id==='vanguard')?.hp??120,maxHp:120,attack:22,cooldown:0},
   {id:'ranger',kind:'ranger',faction:'party',x:2,z:1,hp:previous?.units.find(u=>u.id==='ranger')?.hp??85,maxHp:85,attack:15,cooldown:0},
-  {id:'mystic',kind:'mystic',faction:'party',x:1,z:2,hp:previous?.units.find(u=>u.id==='mystic')?.hp??75,maxHp:75,attack:12,cooldown:0},
+  {id:'mystic',kind:'mystic',faction:'party',x:1,z:2,hp:previous?.units.find(u=>u.id==='mystic')?.hp??75,maxHp:75,attack:12,cooldown:0,focus:5,maxFocus:5},
   {id:'warden-'+floor,kind:'warden',faction:'enemy',x:exit.x,z:exit.z,hp:260+floor*34,maxHp:260+floor*34,attack:16+Math.min(18,floor*2),cooldown:0}
  ];
  // Place enemies on distant navigable tiles, away from the spawn and boss.
@@ -330,7 +330,14 @@ export function assertDungeonState(s:DungeonState){
  if(!walkable(s.map,1,1)||!walkable(s.map,s.exit.x,s.exit.z)||shortestPath(s.map,{x:1,z:1},s.exit).length===0)throw Error('Dungeon exit unreachable');
  const ids=new Set<string>();
  for(const u of s.units){if(ids.has(u.id)||!walkable(s.map,u.x,u.z)||!Number.isInteger(u.hp)||u.hp<0||u.hp>u.maxHp)throw Error('Invalid unit '+u.id);ids.add(u.id);
-  if(u.recoveryUntilTick!==undefined&&(u.kind!=='warden'||!Number.isSafeInteger(u.recoveryUntilTick)||u.recoveryUntilTick<s.tick||u.recoveryUntilTick>s.tick+2))throw Error('Invalid Warden recovery clock');}
+  if(u.recoveryUntilTick!==undefined&&(u.kind!=='warden'||!Number.isSafeInteger(u.recoveryUntilTick)||u.recoveryUntilTick<s.tick||u.recoveryUntilTick>s.tick+2))throw Error('Invalid Warden recovery clock');
+  // Optional fields keep old signed checkpoints readable; new Mystic focus is
+  // a strictly bounded earned resource, never a source of infinite healing.
+  if(u.focus!==undefined||u.maxFocus!==undefined){
+   if(u.kind!=='mystic'||!Number.isSafeInteger(u.focus)||!Number.isSafeInteger(u.maxFocus)||
+    (u.maxFocus??0)<1||(u.maxFocus??0)>6||(u.focus??-1)<0||(u.focus??7)>(u.maxFocus??0))throw Error('Invalid healing focus');
+  }
+ }
  if(s.units.length>18||s.relics.length>6||s.traps.length>5||s.events.length>9)throw Error('Bounded state exceeded');
  for(const trap of s.traps){if(!walkable(s.map,trap.x,trap.z)||trap.cooldown<0||!Number.isInteger(trap.triggers)||trap.triggers<0||trap.triggers>10000)throw Error('Invalid dungeon trap '+trap.id)}
 }
@@ -343,7 +350,11 @@ export class DungeonRuntime {
  save():DungeonSave {const state=clone(this.state),rng=this.rng.snapshot();return {version:DUNGEON_VERSION,seed:this.seed,rng,state,signature:checksum({seed:this.seed,rng,state})}}
  step(){
   const s=this.state;const warden=s.units.find(u=>u.kind==='warden');const previousWardenPhase=wardenPhase(warden),wardAtStart=wardenSealActive(s);s.tick++;for(const unit of s.units){unit.action='idle';unit.actionTick=s.tick;delete unit.targetId;
-   if(unit.kind==='warden'&&unit.recoveryUntilTick!==undefined&&unit.recoveryUntilTick<s.tick)delete unit.recoveryUntilTick;}
+   if(unit.kind==='warden'&&unit.recoveryUntilTick!==undefined&&unit.recoveryUntilTick<s.tick)delete unit.recoveryUntilTick;
+   // Legacy checkpoints omit the optional focus fields, and are restored
+   // deterministically on their first real authority tick, without a bump.
+   if(unit.kind==='mystic'&&unit.focus===undefined&&unit.maxFocus===undefined){unit.focus=5;unit.maxFocus=5;}
+  }
   if(s.phase==='intermission'){if(--s.intermission<=0){const run=s.run+1;this.state=createFloor(this.seed,1,this.rng,run);push(this.state,'restart','A new expedition enters the dungeon.')}return this.publicState()}
   const party=s.units.filter(u=>u.faction==='party'&&u.hp>0),foes=s.units.filter(u=>u.faction==='enemy'&&u.hp>0),leader=party[0];
   if(!leader){s.phase='intermission';s.intermission=14;push(s,'defeat','The expedition was lost. A new run begins shortly.');return this.publicState()}
@@ -396,10 +407,19 @@ export class DungeonRuntime {
    const range=hero.kind==='vanguard'?1:hero.kind==='ranger'?4:3;
    if(hero.kind==='mystic'){
     const urgent=party.some(u=>u.hp>0&&u.hp<=u.maxHp*.35);
-     const wounded=(urgent?s.tick%3===0:s.tick%6===0)?
-      party.filter(u=>u.hp>0&&u.hp<u.maxHp*.7)
-       .sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp||a.id.localeCompare(b.id))[0]:null;
-    if(wounded){wounded.hp=Math.min(wounded.maxHp,wounded.hp+15+s.level);hero.action='cast';s.intent='Starweaver channels restorative magic';push(s,'healing','Starweaver healed '+wounded.kind);continue}
+    const focus=hero.focus??0;
+    // Save scarce healing focus for mortal danger after the first three
+    // charges. Restores only from genuine dungeon relics and new floors.
+    const threshold=focus<=2?.48:.70;
+    const wounded=focus>0&&(urgent?s.tick%3===0:s.tick%6===0)?
+     party.filter(u=>u.hp>0&&u.hp<u.maxHp*threshold)
+      .sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp||a.id.localeCompare(b.id))[0]:null;
+    if(wounded){
+     hero.focus=focus-1;
+     wounded.hp=Math.min(wounded.maxHp,wounded.hp+15+s.level);
+     hero.action='cast';s.intent='Starweaver spends healing focus to restore '+wounded.kind;
+     push(s,'healing','Starweaver healed '+wounded.kind+' · '+hero.focus+' focus left');continue;
+    }
    }
    // Choose the nearest actual visible hostile instead of a wall-blocked nearest one.
    // Genuinely flee adjacent blades before taking a later clear-range shot.
@@ -532,7 +552,10 @@ export class DungeonRuntime {
     hero.hp=Math.max(0,hero.hp-damage);hero.action='hurt';trap.active=false;trap.cooldown=11;trap.triggers++;push(s,'trap',kind+' struck '+hero.kind+' for '+damage+' damage');
    }
    const i=s.relics.findIndex(p=>p.x===hero.x&&p.z===hero.z);
-   if(i!==-1){s.relics.splice(i,1);s.gold+=35;hero.hp=Math.min(hero.maxHp,hero.hp+18);push(s,'loot',hero.kind+' discovered a healing relic · +35 gold')}
+   if(i!==-1){s.relics.splice(i,1);s.gold+=35;hero.hp=Math.min(hero.maxHp,hero.hp+18);
+    const healer=s.units.find(u=>u.kind==='mystic'&&u.hp>0&&Number.isSafeInteger(u.focus));
+    if(healer)healer.focus=Math.min(healer.maxFocus??5,(healer.focus??0)+1);
+    push(s,'loot',hero.kind+' discovered a healing relic · +35 gold · +1 healing focus')}
   }
   const alive=s.units.filter(u=>u.faction==='party'&&u.hp>0);
   if(!alive.length){s.phase='intermission';s.intermission=14;push(s,'defeat','All heroes have fallen. Preparing a new expedition.')}
