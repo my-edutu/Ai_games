@@ -1,0 +1,31 @@
+# Infinite Tower Climb — encounter camera continuity and complete source recordings
+
+**Branch:** `feat/tower-transformation-gauntlet-20261101` · **same open draft PR #68** · **quality: NOT EVALUATED**  
+**Immutable comparison baseline:** `1731b380851162741761c5569e2bc152a0869ca9`.
+
+## Largest experience deficit being pursued
+
+Previous authentic native desktop/portrait videos showed the skinned climber getting small or losing clear shared staging with its guardian and the physical HP-driven lock. The existing `composeFollowView` could select among many safe exterior lenses each 20 Hz source update; small changes in guardian health, projectile and telegraph could change the camera's selected azimuth despite the same real combat continuing. A fast sequence of otherwise individually safe camera targets can feel restless and diminish the legibility of hits. This is a *hypothesized* continuity defect based on the source and earlier reviewed framing problems, **not** a claim that new video already proves a camera whip.
+
+## Actual game change
+
+- In `public/infinite-tower-climb/visuals/scene.mjs`, a reusable, pure shot-retention rule keeps an existing **safe** hero-plus-guardian lens when a new angle's camera-composition score improves by no more than 2.25 units. A stronger physical-gate or visibility improvement wins, so aesthetic continuity cannot hide a newly important event.
+- Hard vetoes on reusing the prior lens: tower-core occlusion; guardian outside the designed bounds; or protagonist less than 15% of the relevant camera fraction. All original gate, threat and route compositional checks remain. In particular, a camera that hides the guardian is never protected because it is familiar.
+- The renderer remembers only the chosen lean for the exact authentic `runToken:floor:guardianId`. It resets on a new encounter, floor, run, stale source, terminal or overview exit. This is presentation state, never authority. No camera cut, extra mesh, texture, render pass, new HUD, prediction or replay-rule mutation.
+- Adds focused rules checks and an authentic historical guardian-hit source test on both desktop and portrait. The latter exercises the real source snapshot at floor 8, tick 269 rather than a decorative mockup. These tests measure algorithm invariants, **not** viewer preference or browser frame quality.
+
+## New real capture evidence: historic blocker resolved, not a quality pass
+
+[GitHub Actions real-game run 41511922895](https://github.com/my-edutu/Ai_games/actions/runs/41511922895), recorded on **2026-11-02**, completed **all nine** jobs successfully: source-identical baseline/candidate normal-speed gameplay in ascent, danger, outcome and moving-deck scenes plus authentic ledge coverage. Each scenario recorded desktop `960x600` and portrait `390x844`, seed `tower-transformation-capture-v1`, low quality and muted sound. The frozen baseline is unchanged; the recorded candidate is exactly `4f7e9770a8588846f90333c03556c69e70e635ed`. The previously missing genuine frozen-baseline outcome now passes the strengthened **DOM-visible, real result → intermission → new run token** integrity check without altering its 50 ms authoritative result phase. Source traces alone are not treated as video.
+
+Source-pinned original artifact archives in the same workflow: baseline ascent `13173179726`, danger `13173446907`, outcome `13173327595`, moving `13174320637`; candidate ascent `13173194827`, danger `13174206672`, outcome `13174306247`, moving `13173317614`; ledge `13174845453`. Each archive includes original running-game native video/diagnostics. Run/job success means **capture-integrity success**, not independent assessment of its composition, pacing or visual quality. A/B clips at identical elapsed wall time can depict different simulation events: source-state alignment is still required.
+
+[Technical safety workflow 41512364546](https://github.com/my-edutu/Ai_games/actions/runs/41512364546) completed successfully for preceding head `c2f14cd`. It is a safety check, not a preference. The newly implemented camera shot-continuity source is `f1255d578d628f327694eca96de5fe0f2f3441bb`; exact-source CI and current gameplay capture [41520244496](https://github.com/my-edutu/Ai_games/actions/runs/41520244496) were pending/running when first inspected.
+
+## Independent critical assessment and stop-ship gates
+
+**LOOKS: 0/5 · FEELS: 0/5 · PLAYS: 0/5.** The independent worker/browser tunnel returned `NOT_FOUND` (client disconnected for over 300 seconds), so no separate fresh-context blind randomized full-motion critics could be recruited. This implementation cannot be given a self-reported preference score. The most important open experience gap is whether the same live climber, readable next deck, source-HP guardian/physical gate and source-authentic ending are a convincing, uninterrupted expedition in *both* native phone and desktop video, with meaningful source-event-matched baseline comparisons.
+
+No supported-device frame-time p50/p95/p99, memory, accessibility, source replay/restoration or long-session stability pass is available for the new shot source. All effects remain presentation-only, and the existing simulation remains authoritative. Any new CI failure is a safety veto. No merge, deployment, force-push, change to PR #58 or baseline reset is authorized.
+
+**Next whole-slice review:** inspect actual source `f1255d` A/B for camera stability and composition across normal ascent and two guardian attacks before making any quality claim; obtain truly independent blind critique on every scenario and supported-device performance/robustness evidence.
