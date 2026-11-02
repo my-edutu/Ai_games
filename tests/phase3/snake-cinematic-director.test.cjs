@@ -52,3 +52,17 @@ test('manual camera modes, original strict real-render 1s gate, and live rendere
   const source=fs.readFileSync(path.join(root,'public/snake-stream/cinematic-director.mjs'),'utf8');
   assert.doesNotMatch(source,/Math\.random\(|setTimeout\(|requestAnimationFrame\(|fetch\(/);
 });
+
+test('P0 regression: the real cinematic ES module is included in both strict host route and self-test asset manifest',()=>{
+  const app=fs.readFileSync(path.join(root,'public/snake-stream/app.js'),'utf8');
+  const server=fs.readFileSync(path.join(root,'scripts/serve-snake-stream.cjs'),'utf8');
+  const director=fs.readFileSync(path.join(root,'public/snake-stream/cinematic-director.mjs'),'utf8');
+  assert.match(app,/^import \{ selectCinematicShot \} from '\.\/cinematic-director\.mjs';/m);
+  assert.match(director,/export function selectCinematicShot\(/);
+  const manifest=server.slice(server.indexOf('function assetPaths()'),server.indexOf('function isSnapshotPrivacySafe('));
+  assert.match(manifest,/'cinematic-director\.mjs'/,'host self-test must reject an incomplete static ES-module graph');
+  assert.match(server,/'\/cinematic-director\.mjs':\s*'cinematic-director\.mjs'/,
+    'otherwise the entire native ES-module app fails to evaluate and never requests /snapshot');
+  assert.match(server,/if \(!fileName\) \{/,'retain explicit route deny-by-default');
+  assert.match(server,/'content-security-policy':/,'retain original strict same-origin CSP');
+});

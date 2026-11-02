@@ -16,6 +16,17 @@ test.use({trace:'off',video:'off',launchOptions:{
   args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']
 }});
 
+
+test('P0 regression: production same-origin host serves the cinematic dependency before any expensive WebGL capture',async({request,baseURL})=>{
+  const moduleResponse=await request.get(`${baseURL}/cinematic-director.mjs`);
+  expect(moduleResponse.status()).toBe(200);
+  expect(moduleResponse.headers()['content-type']).toContain('text/javascript');
+  expect(await moduleResponse.text()).toContain('export function selectCinematicShot');
+  const appResponse=await request.get(`${baseURL}/app.js`);
+  expect(appResponse.status()).toBe(200);
+  expect(await appResponse.text()).toContain("from './cinematic-director.mjs'");
+});
+
 test('T1 integrated real courtyard and expressive serpent: six source-exact true WebGL editorial frames, one frozen legitimate public view',async({browser,baseURL})=>{
   test.setTimeout(330000);
   const {selectCinematicShot}=await import('../../public/snake-stream/cinematic-director.mjs');
