@@ -100,9 +100,13 @@ test('real moving deck drives visual machinery without replay/time invention',as
     world.update(snapshot({tick:24,deckX:166000,rider:true}),.05,1.2,{quality:'low'});
     assert.equal(piston.userData.loaded,true);
     assert.ok(piston.position.y<restingY-.2);
+    const loadedTint=new THREE.Color();pair.getColorAt(1,loadedTint);
+    assert.equal(loadedTint.getHex(),0xacf9da,'only physically loaded source deck brightens the second gear');
     world.update(snapshot({tick:25,deckX:166000,rider:false}),.05,1.25,{quality:'low',reducedMotion:true});
     assert.equal(piston.userData.loaded,false);
     assert.equal(piston.position.y,restingY);
+    const unloadedTint=new THREE.Color();pair.getColorAt(1,unloadedTint);
+    assert.equal(unloadedTint.getHex(),0xb1d6e0,'source rider dismount restores neutral gear color');
     world.update(snapshot({tick:3,deckX:100000}),.05,0,{quality:'low'});
     assert.equal(crank.rotation.z,0);
     assert.equal(countergear.rotation.z,0);
