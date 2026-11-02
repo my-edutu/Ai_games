@@ -31,6 +31,8 @@ test('real three-beat NOVA carves one truthful 3D threat and autonomous heroes p
   const data=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wardenRitual);
   expect(data?.warningTiles).toBeGreaterThan(14);
   expect(data?.warningIncisions).toBe(data.warningTiles);
+   expect(data?.warningBoundaryEdges).toBeGreaterThan(14);
+   expect(data?.warningBoundaryEdges).toBeLessThanOrEqual(data.warningTiles*4);
   const sceneHero=snapshot.units.find(u=>u.id==='vanguard');
   sequence.push({tick:snapshot.tick,hero:{x:sceneHero.x,z:sceneHero.z},warned:data.warningTiles,progress:data.warningTellProgress});
   if(remaining===3||remaining===1)await page.locator('#world').screenshot({path:'artifacts/dungeon-m1-real-nova-'+remaining+'-desktop.png',timeout:100000});

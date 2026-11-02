@@ -302,3 +302,19 @@ test('earned counter shoots past the real survivor shoulder while danger retains
  assert.ok(danger.offsets[1]>opened.offsets[1]);
  assert.ok(foreground(danger)>0,'real warning restores tactical angle instead of hiding floor telegraphs');
 });
+
+
+test('real three-beat Warden signal coils the torso and braces skinned legs without changing the grid',async()=>{
+ const {planWardenCharge}=await planner();
+ const warning={attackTick:6,cells:[{x:9,z:9}]};
+ const a=planWardenCharge(warning,3),b=planWardenCharge(warning,4),c=planWardenCharge(warning,5);
+ assert.ok(a.brace>0&&a.brace<b.brace&&b.brace<c.brace&&c.brace<.25);
+ assert.ok([a,b,c].every(v=>Math.abs(v.coil)<=.2&&v.lift<=0));
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ assert.ok(model.includes('const warningBrace='));
+ assert.ok(model.includes('stageRigLegsAfterMixer'));
+ assert.ok(app.includes('a.visualPivot.rotation.z+=anticipation.coil'));
+ assert.equal(planWardenCharge(warning,5,true).brace,undefined);
+ assert.equal(planWardenCharge(null,5).coil,undefined);
+});

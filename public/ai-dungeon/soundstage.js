@@ -18,6 +18,8 @@ const CUES=Object.freeze({
  transition:{hz:196,end:392,length:.82,peak:.09,type:'sine'},
   unseal:    {hz:147,end:587,length:.72,peak:.105,type:'triangle'},
  warning:   {hz:142,end:81,length:.66,peak:.125,type:'sawtooth'},
+ 'warning-rising':{hz:112,end:74,length:.35,peak:.074,type:'triangle'},
+ 'warning-final':{hz:172,end:62,length:.48,peak:.102,type:'sawtooth'},
  boss:      {hz:88,end:51,length:.64,peak:.13,type:'sawtooth'},
  'boss-fall':{hz:174,end:330,length:.88,peak:.105,type:'triangle'},
  opening:   {hz:260,end:118,length:.40,peak:.09,type:'triangle'},
@@ -40,7 +42,7 @@ const CUES=Object.freeze({
  footstep:  {hz:112,end:54,length:.10,peak:.041,type:'triangle'}
 });
 const PER_KIND_COOLDOWN=Object.freeze({
- weapon:.065,impact:.065,warning:.25,boss:.22,'boss-fall':.7,opening:.35,breach:.20,cover:.24,'cover-impact':.25,reward:.20,guard:.13,footstep:.16
+ weapon:.065,impact:.065,warning:.25,'warning-rising':.18,'warning-final':.18,boss:.22,'boss-fall':.7,opening:.35,breach:.20,cover:.24,'cover-impact':.25,reward:.20,guard:.13,footstep:.16
 });
 const safe=(v,min,max,fallback)=>Number.isFinite(v)?Math.max(min,Math.min(max,v)):fallback;
 const stopAndDisconnect=voice=>{
@@ -187,7 +189,9 @@ export function createDungeonSoundstage(ctx){
    units:(Array.isArray(s.units)?s.units:[]).slice(0,96).map(u=>({
     id:u.id,kind:u.kind,action:u.action,actionTick:u.actionTick,
     faction:u.faction,hp:u.hp,x:u.x,z:u.z
-   }))
+   })),
+   bossWarning:s.bossWarning?{warning:s.bossWarning.warning,shape:s.bossWarning.shape,
+    attackTick:s.bossWarning.attackTick,turnsUntilImpact:s.bossWarning.turnsUntilImpact}:null
   };
   if(enabled)for(const cue of cues){
    const delay=VISUAL_CONTACT_DELAYS[cue.kind];

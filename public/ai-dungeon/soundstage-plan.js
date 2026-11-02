@@ -11,7 +11,7 @@ const EVENT_KIND=Object.freeze({
  guard:'guard',cover:'cover',evade:'evade',block:'block',interrupt:'opening'
 });
 const PRIORITY=Object.freeze({
- defeat:6,renewal:5,transition:5,warning:5,unseal:5,boss:4,danger:4,
+ defeat:6,renewal:5,transition:5,warning:5,'warning-rising':4,'warning-final':5,unseal:5,boss:4,danger:4,
  opening:4,breach:4,cover:4,'cover-impact':5,'boss-fall':5,impact:3,weapon:3,ranged:3,magic:3,heal:3,kill:3,
  reward:2,trap:2,disarm:2,guard:1,block:1,evade:1
 });
@@ -64,6 +64,18 @@ export function planSoundCues(previous,snapshot,resolveContact=()=>null){
  else if(changedFloor)push('transition',snapshot.tick);
  const sameScene=!changedRun&&!changedFloor&&snapshot.tick>previous.tick;
  if(sameScene){
+  // Original rising heartbeat on later TRUE Sentinel NOVA beats; no first
+  // load, synthetic target or stale repeated-poll sound can trigger a cue.
+  const impending=snapshot.bossWarning,previousTell=previous.bossWarning;
+  const livingWarden=snapshot.units.some(u=>u?.kind==='warden'&&u.hp>0);
+  if(livingWarden&&impending?.warning===true&&impending.shape==='NOVA'&&
+    [1,2].includes(impending.turnsUntilImpact)&&
+    Number.isSafeInteger(impending.attackTick)&&
+    impending.attackTick===snapshot.tick+impending.turnsUntilImpact&&
+    Array.isArray(impending.cells)&&impending.cells.length>0&&
+    (!previousTell||previousTell.attackTick!==impending.attackTick||
+      previousTell.turnsUntilImpact>impending.turnsUntilImpact))
+   push(impending.turnsUntilImpact===1?'warning-final':'warning-rising',snapshot.tick);
   const events=Array.isArray(snapshot.events)?snapshot.events.slice(0,256):[];
   for(const e of events){
    if(!e||!Number.isSafeInteger(e.tick)||e.tick<=previous.tick||e.tick>snapshot.tick)continue;

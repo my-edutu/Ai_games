@@ -922,8 +922,10 @@ function animate(t){
    if(a.authored&&a.visualPivot){
     a.visualPivot.position.y+=anticipation.lift-(exposed?.dip??0);
     a.visualPivot.rotation.x+=anticipation.pitch+(exposed?.torsoPitch??0);
+    a.visualPivot.rotation.z+=anticipation.coil??0;
    }else{
     a.body.rotation.x+=anticipation.pitch+(exposed?.torsoPitch??0);
+    a.body.rotation.z+=anticipation.coil??0;
     a.leftArm.rotation.x+=anticipation.armRaise+(exposed?.shoulderPitch??0);
     a.rightArm.rotation.x+=anticipation.armRaise+(exposed?.shoulderPitch??0);
    }

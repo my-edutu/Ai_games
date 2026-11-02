@@ -151,3 +151,20 @@ test('actual Warden death uniquely earns an original audio resolution, not a gen
  const source=fs.readFileSync(path.join(root,'public/ai-dungeon/soundstage.js'),'utf8');
  assert.match(source,/'boss-fall':\{hz:/);
 });
+
+
+test('authentic three-beat Warden NOVA earns rising and final opt-in cues, never phantom sound',async()=>{
+ const {planSoundCues}=await plan();
+ const boss={...unit('boss','guard',3,'warden','enemy'),x:3,z:3};
+ const warned=(tick,remaining)=>snap(tick,{units:[unit('hero'),boss],
+  bossWarning:{shape:'NOVA',warning:true,attackTick:6,turnsUntilImpact:remaining,cells:[{x:3,z:3}]}});
+ const t3=warned(3,3),t2=warned(4,2),t1=warned(5,1);
+ assert.equal(planSoundCues(t3,t2).filter(c=>c.kind==='warning-rising').length,1);
+ assert.equal(planSoundCues(t2,t1).filter(c=>c.kind==='warning-final').length,1);
+ assert.deepEqual(planSoundCues(t1,t1),[],'repeat poll must stay silent');
+ assert.deepEqual(planSoundCues(null,t1),[],'no first-load warning replay');
+ assert.equal(planSoundCues(t3,{...t2,bossWarning:null}).some(c=>c.kind==='warning-rising'),false);
+ assert.equal(planSoundCues(t3,{...t2,units:[unit('hero')]}).some(c=>c.kind==='warning-rising'),false);
+ const bad={...t2,bossWarning:{...t2.bossWarning,attackTick:100}};
+ assert.equal(planSoundCues(t3,bad).some(c=>c.kind==='warning-rising'),false);
+});

@@ -230,8 +230,12 @@ export function planWardenCharge(warning,tick,reducedMotion=false){
  const remaining=warning.attackTick-tick;
  if(remaining<0||remaining>3||!Array.isArray(warning.cells)||!warning.cells.length)return STILL;
  const charge=clip(.27+(3-remaining)*.22,.27,.93);
- return Object.freeze({lift:round(.042*charge),pitch:round(-.105*charge),
-  armRaise:round(-.62*charge),charge:round(charge)});
+ // Genuine 3-beat Warden windup: weight shifts on the same saved legal tile.
+ const beat=remaining>=3?0:remaining===2?1:2;
+ const coil=[-.085,.12,-.16][beat],brace=[.09,.14,.22][beat];
+ return Object.freeze({lift:round(-.035*charge-.02*beat),
+  pitch:round(-.09*charge-.018*beat),armRaise:round(-.62*charge),
+  charge:round(charge),coil:round(coil*charge),brace:round(brace)});
 }
 
 

@@ -596,9 +596,15 @@ function stageRigLegsAfterMixer(actor,since,reducedMotion){
  // unobstructed public facing, and we require exactly one-cell contact.
  const brace=planRigContactBrace(actor.u.kind,actor.u.action||'idle',since,
   actor.combatFacing?.distance,reducedMotion||actor.u.hp<=0);
+ // The actual 3-beat public NOVA plants genuine imported leg bones, without
+ // additional grid steps or persistent changes to the animation mixer.
+ const warningBrace=actor.u.kind==='warden'&&actor.u.hp>0&&!reducedMotion?
+  Math.max(0,Math.min(.24,actor.wardenCharge?.brace??0)):0;
  for(const mount of actor.rigGaitBones){
   const contact=brace[mount.side][mount.part];
-  const angle=Math.max(-.30,Math.min(.30,pose[mount.side][mount.part]+contact));
+  const plant=warningBrace*(mount.part==='upper'?(mount.side==='left'?.72:1):
+   mount.part==='lower'?-1.05:.28);
+  const angle=Math.max(-.30,Math.min(.30,pose[mount.side][mount.part]+contact+plant));
   actor.rigContactBracePeak=Math.max(actor.rigContactBracePeak||0,Math.abs(contact));
   mount.next.setFromEuler(mount.euler.set(angle,0,0,'XYZ'));
   mount.bone.quaternion.multiply(mount.next);
