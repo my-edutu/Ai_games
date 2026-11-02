@@ -11,15 +11,15 @@
     "sha": null,
     "title": "Same open 3D ascent → source-directed landing/real combat → HP-operated guardian gate → result/intermission/restart; actual game quality unassessed",
     "implementationSha": "702e716a243e2e0af963c7be4da0dfa68e9ad892",
-    "implementationEvidenceStatus": "UNVERIFIED PLAYABLE SOURCE 702e716a243e2e0af963c7be4da0dfa68e9ad892: coherent source HP-operated bronze lock now shows progressive per-pair inner alloy and restrained live telegraph tint; observed portrait offscreen actor recovery now responds more urgently only after real NDC crop. Prior source cb70b64 60+ second desktop/portrait guardian video inspected by builder only; new source gameplay video capture 41458093264 IN PROGRESS at review, not viewed. Exact-head CI 41458093650 FAILED one test due THREE.Color lacking distanceTo, test API correction committed with this record; new exact-head verification remains pending. Frozen baseline outcome video failed desktop and phone, blind independent full-motion votes 0/5 LOOKS/FEELS/PLAYS and no real-device performance measurements. NOT EVALUATED."
+    "implementationEvidenceStatus": "UNVERIFIED EXPERIENCE, BUT IMPLEMENTATION SAFETY PASSED: real playable source 702e716a243e2e0af963c7be4da0dfa68e9ad892 (PR #68 documentation/test head 795c0d001a5a1459acd6ac3c5cd9c08a8d230461) uses source HP-dependent 3D bronze-lock release colors and actual projected portrait-offscreen camera recovery. Exact-head CI 41458933700 succeeded 746/746 logic, stream authority and 3 Playwright progress cases; safety hygiene ONLY. Real gameplay 41458093264 generated 6 of 7 source-pinned native desktop/phone scenario jobs; frozen baseline complete outcome failed both, no observed full terminal/intermission/restart footage. Builder reviewed actual old and new danger videos and source NDC diagnostics; source samples not state-matched independent blind ratings. Missing five real blind critics per LOOKS/FEELS/PLAYS and native hardware frame-time/memory. Quality NOT EVALUATED."
   },
   "currentTransformation": {
     "title": "Same continuous playable 3D climb → visible real AI route decision and touchdown → high-stakes guardian machinery → source-authentic ending/restart",
     "state": "SAME TRANSFORMATION OPEN — WHOLE GAME STILL NOT EVALUATED; UPDATED SOURCE-OBSERVED HP LOCK AND PORTRAIT ACTOR RETENTION AWAIT EXACT-SOURCE REAL PLAY",
     "promise": "The actual Three.js game continues to link authoritative ascent, original skinned character, true guardian attacks/armor and HP-driven machinery, and source-witnessed gate passage. A real ended run now additionally changes the climber's skinned physical pose by actual result kind (nonlethal kneel vs stopped upright vs genuine death), frames an eight-instance source-earned-floor stone memorial on the exterior of the physical tower, and uses its existing source-directed lights and outside-core camera on desktop and portrait. No synthetic victories, enemy kills, routes, collisions, clocks, snapshots, replay authority or in-game HUD elements were added. This is source implementation, not visually verified gameplay improvement. Current AI-chosen platform route also gets one original, depth-tested exterior marker batch that yields to actual combat/windup and clears across terminal/recovery; it does not predict a physics trajectory or guarantee success. This is still source implementation rather than independently demonstrated experience improvement. A new physical deck-depth cue now follows only the present overlapping source platform under the climber's real feet: grounded shadow tightens, an airborne footprint softens and spreads with true vertical clearance, and actual moving decks update without any predicted landing. It remains invisible on death, stale source and terminal/restart. It uses one depth-tested procedural quad, no new game rules or HUD, and awaits real-video inspection. In the same high-stakes slice the live guardian's true HP and telegraph are now tied to an original, depth-tested 3D heavy bronze circuit reaching the existing source cap gate. Both rails physically widen with genuine guardian damage, complementing its skinned armor, motion, camera and HP-operated gate. No future action, fake hit, new collider or extra HUD is created; real continuous viewer experience still unreviewed. This continuation adds a bounded two-anchor exterior 3D damage impact echo only after a TRUE same-run, advancing-tick guardian health decrease; 12 shared-geometry depth-tested fragments at live guardian and real cap retract with the existing source HP mechanical lock and audio. Six fixed-step ticks limit persistence, and repeated data, stale/terminal/restart and reduced-motion snapshots cannot fabricate visible hits. This is unreviewed scene implementation, not a claimed experience score. The next integrated gameplay-source continuation differentiates genuine HP-operated teeth by releasing each of four source-mechanical pairs from oxidized bronze to exposed inner alloy, without increasing draw calls or claiming victory. It also corrects the real portrait offscreen-camera emergency response from evidence of NDC x=-1.2967, preserving normal centered camera motion, reduced-motion, fixed-step authority and external core clearance. Neither amendment is an independently demonstrated 3D gameplay transformation.",
-    "nextDecision": "Examine full-length source-pinned matched desktop and portrait baseline/candidate normal-speed footage from new workflow 41458093264 (new source 702e716), including the HP-lock legibility and actor NDC camera rescue; source-only projections and isolated screenshots cannot award LOOKS, FEELS or PLAYS. Frozen baseline outcome at SHA 1731b380 still fails genuine sampled result/intermission before restart in workflow 41445523213. Run corrected next-head CI after 41458093650 failed one THREE.Color test API. Then obtain five independent randomized fresh-context blind full-motion votes per pillar, hardware frame-time tails/memory and replay/accessibility checks. Keep NOT EVALUATED.",
+    "nextDecision": "Blindly inspect the full new 702e716 native normal-speed desktop + portrait video from 41458093264 together with frozen SHA 1731b380 for matching real source states; decide whether guardian HP-colored bronze lock is legible and camera safety does not whip, crop true destination or hide hazards. Solve the frozen baseline's 50ms result/intermission visual capture honestly without modifying that frozen source or interpreting source tick trace as composited frames. Recruit five independent fresh-context randomized blind critics per pillar and collect supported-device tails/memory, a11y, replay and recovery evidence; leave transformation open.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "True, fair matched whole-motion desktop and phone proof of ascent, guardian encounter and complete visible outcome/restart remains missing. Previous 41445523213 baseline outcome failed both viewports despite authentic source rollovers; software-browser frames sometimes miss its 50 ms result. Prior candidate cb70b64 portrait sample x=-1.2967 NDC while airborne; revised actual exterior camera 702e716 has not been reviewed in a new real full-motion capture. Full source-matched independent critics 0/5 each, supported-device GPU frame-time and memory missing; no AAA or quality pass.",
+    "biggestRemainingExperienceGap": "Authentic whole-motion matched source-state A/B across ascent, danger and complete visible outcome/restart remains unverified. The 41458093264 real gameplay workflow produced 6/7 jobs (baseline outcome failed both desktop and portrait even with true run transitions). Portrait old source cb70b64 had 1/69 sampled actor outside NDC; new 702e716 had 0/69 sampled offscreen but segments differ in source states so this does NOT establish general real gameplay quality or a hardware guarantee. No independent blind critic judgments (0/5 each), no supported-device p50/p95/p99 or memory checks, no verified whole-run comparative experience. Keep NOT EVALUATED.",
     "unverifiedImplementationBranchHead": "702e716a243e2e0af963c7be4da0dfa68e9ad892"
   },
   "scenarios": [
@@ -60,7 +60,7 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "UNVERIFIED exact new head. Completed 41458093650 at gameplay source 702e716 FAILED 1 of 745 tests: color API TypeError in new guardian test (THREE.Color.distanceTo does not exist); next commit fixes test using three-component RGB Math.hypot. Previous 41445859286 head 418281 FAILED 1 of 745 from invalid double-vs-float32 instance matrix precision; gameplay source 702e716 fixed tolerance. New head CI pending; no safety PASS nor quality award.",
+    "ci": "SOURCE-SAFETY PASS at PR68 documentation/test head 795c0d001a5a1459acd6ac3c5cd9c08a8d230461: https://github.com/my-edutu/Ai_games/actions/runs/41458933700 completed SUCCESS (746/746 tests, authority self-test, 3 Chromium progress cases). This is safety hygiene, not a quality verdict; subsequent evidence-only commit requires its own checks and cannot claim a new exact-head pass until completed.",
     "replay": "NOT VERIFIED for updated playable source 702e716a243e2e0af963c7be4da0dfa68e9ad892; exact-head corrected CI, complete outcome footage, supported-device frame-time/memory (where applicable), accessibility, replay and recovery gates pending. Safety checks cannot award quality.",
     "accessibility": "NOT VERIFIED for updated playable source 702e716a243e2e0af963c7be4da0dfa68e9ad892; exact-head corrected CI, complete outcome footage, supported-device frame-time/memory (where applicable), accessibility, replay and recovery gates pending. Safety checks cannot award quality.",
     "performance": "NOT VERIFIED for updated playable source 702e716a243e2e0af963c7be4da0dfa68e9ad892; exact-head corrected CI, complete outcome footage, supported-device frame-time/memory (where applicable), accessibility, replay and recovery gates pending. Safety checks cannot award quality.",
@@ -151,7 +151,7 @@
     "newImplementationRecorded": "Source c87f265 raised exterior guardian-to-cap gantry and source HP-retractable cap lock teeth not yet watched in current-source normal-speed WebM. Workflow 41433172141 in progress at first inspection. Historical real 41430788717 produced 6/7 scoped jobs but frozen baseline outcome failed. No genuine blind A/B or supported device results.",
     "reviewPath": "docs/reviews/2026-11-02-tower-pr68-actual-danger-motion-camera-hp-lock-review.md",
     "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41458093264",
-    "followupStatus": "RUNNING at inspection: source-pinned actual 3D WebM baseline/candidate ascent+dangers+outcome, desktop/portrait and ledge evidence initiated on new source 702e716; not yet independently watched. Previous source cb70b64 workflow 41445523213 completed 6/7 recording jobs; frozen-baseline outcome failed for desktop and portrait despite true source rollovers. No all-scenarios matched full-motion A/B verdict.",
+    "followupStatus": "COMPLETED 6/7 SCOPED RECORDING JOBS 41458093264 for new playable source 702e716. Desktop+portrait candidate ascent/danger/outcome and frozen baseline ascent/danger completed, ledge capture succeeded. Frozen baseline outcome failed desktop+portrait because no sampled visible result/intermission before restart; source trace alone not a WebM result. New candidate danger 128.16s desktop /110.68s portrait inspected by builder only. No independent blind preference, not hardware performance.",
     "matchedCaptureSettings": {
       "seed": "tower-transformation-capture-v1",
       "sourceBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
@@ -496,6 +496,83 @@
       "quality": "low",
       "status": "Captured old source genuine >60s danger on both layouts; builder inspected actual video and source-crop separately, but timings of source snapshots and encoded WebM frames do not prove identical gameplay events, and full blind review was not performed. Old portrait actor source projected x=-1.2967 NDC while airborne at a sample; candidate camera correction unverified.",
       "evaluation": "NOT EVALUATED"
+    },
+    "latestSourcePinnedRun": {
+      "workflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41458093264",
+      "candidateSourceSha": "702e716a243e2e0af963c7be4da0dfa68e9ad892",
+      "baselineSourceSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "seed": "tower-transformation-capture-v1",
+      "quality": "low",
+      "desktop": "960x600",
+      "portrait": "390x844",
+      "video": "normal-speed WebM stored in GitHub Actions artifact ZIP, source-pinned to source SHA, desktop and portrait; playback and independent full-motion judgement still required",
+      "guardrailOnly": true,
+      "status": "6/7 jobs succeeded; authentic ledge, baseline/candidate ascent, baseline/candidate danger, candidate outcome passed scoped recording; baseline outcome FAIL: true source result/intermission never witnessed as composited video in desktop or portrait",
+      "jobs": {
+        "ascent": {
+          "baseline": {
+            "artifactId": 13148032410,
+            "url": "https://github.com/my-edutu/Ai_games/actions/runs/41458093264/artifacts/13148032410",
+            "result": "SCOPED_CAPTURE_SUCCESS"
+          },
+          "candidate": {
+            "artifactId": 13147737418,
+            "url": "https://github.com/my-edutu/Ai_games/actions/runs/41458093264/artifacts/13147737418",
+            "result": "SCOPED_CAPTURE_SUCCESS"
+          }
+        },
+        "danger": {
+          "baseline": {
+            "artifactId": 13147893177,
+            "url": "https://github.com/my-edutu/Ai_games/actions/runs/41458093264/artifacts/13147893177",
+            "result": "SCOPED_CAPTURE_SUCCESS"
+          },
+          "candidate": {
+            "artifactId": 13148431176,
+            "url": "https://github.com/my-edutu/Ai_games/actions/runs/41458093264/artifacts/13148431176",
+            "result": "SCOPED_CAPTURE_SUCCESS"
+          }
+        },
+        "outcome": {
+          "baseline": {
+            "artifactId": 13147094213,
+            "url": "https://github.com/my-edutu/Ai_games/actions/runs/41458093264/artifacts/13147094213",
+            "result": "FAILED_VISIBLE_RESULT_INTERMISSION_RESTART"
+          },
+          "candidate": {
+            "artifactId": 13147348097,
+            "url": "https://github.com/my-edutu/Ai_games/actions/runs/41458093264/artifacts/13147348097",
+            "result": "SCOPED_CAPTURE_SUCCESS"
+          }
+        },
+        "ledge": {
+          "artifactId": 13148152537,
+          "url": "https://github.com/my-edutu/Ai_games/actions/runs/41458093264/artifacts/13148152537",
+          "result": "SCOPED_CAPTURE_SUCCESS"
+        }
+      },
+      "independentBlindJudgments": "0/5 on each of LOOKS, FEELS and PLAYS; clips are NOT evidence-graded"
+    },
+    "latestCandidateBuilderReview": {
+      "sourceSha": "702e716a243e2e0af963c7be4da0dfa68e9ad892",
+      "priorSourceSha": "cb70b64fba48b90d203ca937423d36edcd867688",
+      "actualDangerVideosInspected": true,
+      "movieSource": "original live.webm normal-speed video from GitHub Actions, desktop and portrait; builder-only review, not randomized or blind",
+      "actualClipDurationSeconds": {
+        "desktop": 128.16,
+        "portrait": 110.68
+      },
+      "portraitSourceSampleComparison": {
+        "priorOffscreen": 1,
+        "priorObservations": 69,
+        "updatedOffscreen": 0,
+        "updatedObservations": 69,
+        "priorUnsafe": 8,
+        "updatedUnsafe": 4,
+        "warning": "These two live sessions do not hold all simulation states and camera directions identical; this is diagnostic evidence only, not an independent preference or supported-device guarantee."
+      },
+      "independentReview": false,
+      "quality": "NOT EVALUATED"
     }
   }
 }
