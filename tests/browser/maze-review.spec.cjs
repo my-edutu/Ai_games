@@ -300,6 +300,7 @@ test('a real close public encounter frames both autonomous actors and saves date
         scene: document.getElementById('run-phase').textContent.trim(),
         title: document.getElementById('goal-title').textContent.trim(),
         action: document.getElementById('objective').textContent.trim(),
+        caption: document.getElementById('caption').textContent.trim(),
         intent: document.getElementById('intent-mode').textContent.trim(),
         actualIntent: window.__MAZE_PUBLIC_STATE__?.intent?.mode,
         publicThreats: window.__MAZE_PUBLIC_STATE__?.threats?.length || 0,
@@ -309,6 +310,8 @@ test('a real close public encounter frames both autonomous actors and saves date
       expect(liveDangerHud.scene).toBe('WARDEN NEARBY');
       expect(liveDangerHud.title,'native active goal must not contradict the true danger').toBe('Avoid warden');
       expect(liveDangerHud.action,'one short immediate action rather than prose').toBe('Keep clear');
+      expect(liveDangerHud.caption,
+        'entering a real disclosed encounter must supersede stale gate captions').toBe('Thornback is nearby.');
       if (liveDangerHud.actualIntent === 'exploring')
         expect(liveDangerHud.intent,
           'danger goal must not falsely claim the autonomous AI switched to evading').toBe('Exploring');
