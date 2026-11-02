@@ -2201,12 +2201,12 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "PREDECESSOR e474553 real Chromium 1440x832 Warden exposure and 390x844 contact: https://github.com/my-edutu/Ai_games/actions/runs/41490449531/artifacts/13165920178 . Inspected: the actual Vanguard is present but partially masked by the overlarge Warden; floating Warden nameplate overlaps the fixed boss health strip, especially on phone; masonry is cubic. Matched immutable baseline A/B remains UNVERIFIED. New code SHA 89a7e575 AFTER not yet captured.",
-      "latestCandidateWorkflow": "Current visual candidate source 89a7e575a2a2d712956607647ee9a58c86833b2a: exact-source Actions newly triggered by commit; result and real screenshots NOT VERIFIED at ledger edit. Predecessor e474553 Dungeon browser shards 1,2,3 succeeded; authority 210/210 foundation passed, 19/20 presentation/progress failed due non-enum transformation verdict. Corrected verdict to NOT_TRANSFORMED in this ledger; exact-head recheck pending. Catalogue CI preceding failed Build and test."
+      "latestCandidateWorkflow": "Source ff5e09c01eb1477d2ff987f915a487364685318f committed, exact-head tests/browser/video/CI not yet observed; prior 96a workflows 41509134081, 41509134228, 41509134039 were in progress at code checkpoint. Do not assume pass from predecessor."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Actual 2026-11-02 e474553 desktop/390px phone Chromium counter captured a boss that physically blankets the Vanguard and has a duplicate floating Warden name/HP over the fixed boss strip; blocky room masonry remains below the Diablo IV, No Rest for the Wicked and Path of Exile 2 reference quality. New boss-scale/arena/camera/overlay candidate 89a7e575 has NOT been inspected in actual browser yet.",
-    "currentWork": "Inspect 89a7e575 actual Chromium desktop/phone active contact and exposure against original frozen 281735d, then correct camera clipping, armored contact alignment and overwhelming corridor masonry. Record complete continuous organic autonomous journey, original click-opt-in WebAudio and both device frame distributions; obtain >=3 fresh blind critics; retain unmerged draft PR #49.",
-    "candidateCommit": "89a7e575a2a2d712956607647ee9a58c86833b2a",
+    "biggestRemainingGap": "No independent actual running-game proof that the integrated three-beat warning + Warden duel are cinematic, visually legible, immersive and enjoyable across an organic full expedition; simplified CC0 protagonists and blocky masonry still lag authentic Diablo IV / No Rest for the Wicked / Path of Exile 2. Newly committed effects have NOT been captured at exact source head. Real original-audio capture, matched locked-baseline A/B, phone performance, boss/portal/defeat continuity and independent critics remain unverified.",
+    "currentWork": "M1 coherent Warden expedition: actual skinned multi-beat boss warning pose, true-hitbox 3D floor peril perimeter and original opt-in sonic countdown committed at ff5e09c. Need exact-head real desktop/mobile visual and audio inspection plus continuous campaign matched to unchanged 281735d baseline, verified safety/replay, hardware frame timing and >=3 blind critics. PR #49 remains draft/unmerged.",
+    "candidateCommit": "ff5e09c01eb1477d2ff987f915a487364685318f",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -3145,6 +3145,35 @@
         "criticalSafety": "Authority 210/210 prior-head foundation passed; 1/20 progress validation failed due non-enumerated verdict. New head replay/CI and WebGL pending. No scoring or independent critic available.",
         "experienceVerdict": "IN PROGRESS — NOT TRANSFORMED; LOOKS/FEELS/PLAYS UNVERIFIED",
         "next": "Inspect exact-new-SHA real desktop/mobile camera contact and boss recovery, original click-opt-in recorded soundtrack and key motion; adapt integrated art+combat where quality still fails. Complete authentic continuous session and 3 independent blind masked reviewers."
+      },
+      {
+        "id": "M1-THREE-BEAT-WARDEN-PHYSICAL-READABILITY-20261102",
+        "date": "2026-11-02",
+        "milestone": "SAME M1; NOT A NEW ACCEPTED GAUNTLET ROUND",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "sourceHeadAtStart": "96a56b0c57f321c796fd77c16936133521c8ba37",
+        "codeCommit": "ff5e09c01eb1477d2ff987f915a487364685318f",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "originalBaselineCapture": "https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
+        "objective": "Make the SAME genuine three-tick Warden NOVA felt and understood as a physical boss threat: planted skinned leg chains and coiling torso, low 3D stone perimeter drawn only at actual hit tiles, three escalating original opt-in audio beats, and legal autonomous character evasion with no fake damage or movement.",
+        "implemented": [
+          "Escalating 3-beat body-weight transfer on real cloned Warden leg bones with reversible imported AnimationMixer deltas; bounded visual torso coil and unchanged authoritative tile, combat and RNG.",
+          "Single instanced mesh traces boundaries of the exact authority-exposed NOVA/RIFT/ECLIPSE marked stone; 48 capped warned cells, 192 maximum boundary segments, no raycast/gameplay collision edits or added per-tile lights.",
+          "Opt-in original synthesized Warden sound gains genuine rising/final warning beats, deduplicated by public warning tick and actual living boss, with no first-load replay, autoplay, imported tracks or invented impact.",
+          "Focused tests assert three-tick physical charge, deduplicated authority-gated sonic cues, and actual Chromium WebGL boundary segments on desktop/mobile during real autonomous steps."
+        ],
+        "checks": "NEW SHA UNVERIFIED: coding workspace tunnel unavailable. No completed local Node tests, exact-head Chromium screenshots, CI or audio stream inspected for this commit. Earlier 96a browser/CI workflows were in progress when checked; cannot count as this source-head proof.",
+        "realBeforeAfter": "LOCKED BASELINE exists; exact-new-source before/after sequence, mobile and motion+audio NOT CAPTURED/INSPECTED.",
+        "critics": {
+          "status": "NOT_RUN",
+          "count": 0,
+          "looks": "UNVERIFIED",
+          "feels": "UNVERIFIED",
+          "plays": "UNVERIFIED"
+        },
+        "performance": "UNVERIFIED original hardware GPU p95, phone frame pacing, full uninterrupted expedition.",
+        "gate": "IN_PROGRESS / NOT_TRANSFORMED",
+        "next": "Inspect exact commit WebGL desktop/portrait NOVA and Warden contact with original clicked-in audio; measure physical readability and no occlusion. Fix any 3D/performance defects, record an organic continuous traversal→combat→boss→floor→defeat/restart replay and matched locked-baseline videos, obtain 3 independent masked judges, never merge."
       }
     ]
   }
