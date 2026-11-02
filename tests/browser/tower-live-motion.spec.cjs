@@ -59,6 +59,7 @@ for (const viewport of viewports) {
         // snapshot remains the only authority for route/collision decisions.
         observedRouteIntent: d.routeIntent || null,
         observedGuardianCircuit: d.guardianCircuit || null,
+        observedAtmosphere: d.atmosphere || null,
         // Exact presented-camera world projection at the time of a genuine
         // source HP observation. Unlike a source-only geometry fixture, this
         // records whether the guardian and gate are actually inside the
