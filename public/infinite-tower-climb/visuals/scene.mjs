@@ -73,6 +73,58 @@ function followClimberContact(position, target, blend, state) {
   return position;
 }
 
+// Camera motion must follow the OUTSIDE of the cylindrical tower. A Cartesian
+// lerp between valid front-left and front-right viewpoints crosses the solid
+// core, briefly hiding the real climber, guardian and their HP-operated gate.
+// The shortest angular arc keeps the entire transition outside the walkable
+// 27.18-unit outer deck, including overview/follow and floor transitions.
+// This is presentation only and makes no additional render or raycast calls.
+function followTowerCamera(position, target, blend) {
+  const alpha = Math.max(0, Math.min(1, blend));
+  const radius = Math.hypot(position.x, position.z);
+  const targetRadius = Math.hypot(target.x, target.z);
+  if (radius < .001 || targetRadius < .001) {
+    position.copy(target);
+    return position;
+  }
+  const from = Math.atan2(position.x, position.z);
+  const to = Math.atan2(target.x, target.z);
+  const turn = Math.atan2(Math.sin(to - from), Math.cos(to - from));
+  const azimuth = from + turn * alpha;
+  const safeRadius = Math.max(27.35, radius + (targetRadius - radius) * alpha);
+  position.set(Math.sin(azimuth) * safeRadius,
+    position.y + (target.y - position.y) * alpha,
+    Math.cos(azimuth) * safeRadius);
+  return position;
+}
+
+// Genuine guardian contact gets a bounded camera catch-up when the chosen
+// readable viewpoint is around the tower. Ordinary ascent keeps its calmer
+// existing follow rate. Nothing anticipates a combat hit or slows the clock.
+function towerCameraRate(current, target, guardianStaged, overview) {
+  if (!guardianStaged || overview) return 3.5;
+  const currentAngle = Math.atan2(current.x, current.z);
+  const targetAngle = Math.atan2(target.x, target.z);
+  const angularError = Math.abs(Math.atan2(
+    Math.sin(targetAngle - currentAngle), Math.cos(targetAngle - currentAngle)));
+  const radialError = Math.abs(Math.hypot(current.x, current.z) -
+    Math.hypot(target.x, target.z)) / Math.max(27.35, Math.hypot(target.x, target.z));
+  return Math.min(13.5, 5.2 + angularError * 5.2 + radialError * 2.4);
+}
+
+// Evidence-only approximate core occlusion for the inset bronze lock. A point
+// can project inside the phone viewport while sitting behind the tower; do not
+// award it a camera-composition preference or a visible-gate diagnostic then.
+// World meshes may add occlusion, so this is a necessary, not sufficient, test.
+function towerCoreSightlineClear(position, point, coreRadius = 21.6) {
+  const dx = point.x - position.x, dz = point.z - position.z;
+  const denominator = dx * dx + dz * dz;
+  const t = denominator > 1e-8
+    ? Math.max(0, Math.min(1, -(position.x * dx + position.z * dz) / denominator))
+    : 0;
+  return Math.hypot(position.x + t * dx, position.z + t * dz) >= coreRadius;
+}
+
 // The hand's rigid meshes are batched onto the right-elbow bone. Transform its
 // authored wrist point after posing so the cosmetic strike follows real motion.
 function positionStrikeCue(arc, rig, camera) {
@@ -477,10 +529,11 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
     };
     const guardianFramed = guardianCorners.length > 0 &&
       guardianCorners.every(point => visible(point, .84, .75));
-    const gateFramed = gatePoints.length > 0 &&
+    const gateCoreClear = !!gate && towerCoreSightlineClear(position, gate);
+    const gateFramed = gatePoints.length > 0 && gateCoreClear &&
       gatePoints.every(point => visible(point, .93, .86));
     return { focus: center, position, distance, landing, targetId: target?.id || null, lean, clear,
-      guardianStaged: !!contactGuardian, guardianFramed, gateFramed, gateAnchorX,
+      guardianStaged: !!contactGuardian, guardianFramed, gateFramed, gateCoreClear, gateAnchorX,
       heroFraction: height * level / (2 * tangent * (distance - bodyDepth)) };
   }
   let best = solve(0);
@@ -1384,10 +1437,11 @@ export function createTowerScene(canvas, settings = {}) {
     // Follow source-observed guardian action a little faster than exploration:
     // a real HP change should not be over before the camera catches its actor.
     // All motion remains bounded and presentation-only; reduced motion is still.
-    const cameraBlend = options.reducedMotion ? 1 :
-      1 - Math.exp(-dt * (!overview && followComposition?.guardianStaged ? 5.2 : 3.5));
+    const cameraRate = towerCameraRate(camera.position, destination,
+      !overview && !!followComposition?.guardianStaged, overview);
+    const cameraBlend = options.reducedMotion ? 1 : 1 - Math.exp(-dt * cameraRate);
     if (!initialized) { camera.position.copy(destination); lookAt.copy(focus); initialized = true; }
-    else { camera.position.lerp(destination, cameraBlend); lookAt.lerp(focus, cameraBlend); }
+    else { followTowerCamera(camera.position, destination, cameraBlend); lookAt.lerp(focus, cameraBlend); }
     if(!options.reducedMotion && !options.stale && options.camera==='follow'&&contactProgress>0)
       camera.position.y+=(contactHero?-.24:.18)*Math.sin((1-contactProgress)*Math.PI);
     if(!options.reducedMotion && options.camera==='follow' && landingHalo.visible)
@@ -1503,7 +1557,11 @@ export function createTowerScene(canvas, settings = {}) {
         maxHealth: liveGuardian.maxHealth, intent: snapshot.intent?.mode ?? null,
         actorNdc: ndc(actor), guardianNdc: guardianCenter, gateNdc: gateCenter,
         guardianInFrame: visible(guardianCenter), gateInFrame: visible(gateCenter),
-        metric: 'Actual smoothed camera normalised device coordinates, not clip quality or supported-device FPS' };
+        guardianCoreClear: towerCoreSightlineClear(camera.position, guardian, 23.5),
+        gateCoreClear: !!gate && towerCoreSightlineClear(camera.position, gate),
+        gateProjectedAndCoreClear: visible(gateCenter) && !!gate &&
+          towerCoreSightlineClear(camera.position, gate),
+        metric: 'Actual smoothed-camera NDC and approximate core sightline, NOT raster visibility, quality or supported-device FPS' };
     }
     // "frames" remains a compatibility alias for renderer submissions. The
     // accepted snapshot below can be newer than lastSubmitted; neither proves
