@@ -111,6 +111,16 @@ test('G135 active workday is framed from the physical working front with readabl
   expect(mobile.shot.handBlockers).toBe(0);
   expect(mobile.shot.projectedWorksitePosts).toBe(0);
  }
+ // G145 RED-FIRST: the REAL Day-120 portrait capture was almost entirely
+ // covered by a timber-and-linen market stall despite 0 reported ray hits.
+ // Require the actual current camera (not just its intended plan) to project
+ // foreground scenic volumes into the 390px frame before calling it readable.
+ expect(Number.isFinite(mobile.shot.foregroundSceneCover)).toBe(true);
+ expect(Number.isFinite(mobile.plan?.foregroundSceneCover)).toBe(true);
+ expect(mobile.shot.foregroundSceneCover).toBeLessThan(.35);
+ if(mobile.shot.foregroundSceneCover>=.14){
+  expect(mobile.shot.workFacingMode).toBe('obstructed');
+ }
  expect(mobile.gl).toBe(0);
  // Mobile defaults to an uncluttered world. The U shortcut intentionally
  // opens the accessible full command panel before the next-worker control.
