@@ -222,6 +222,23 @@ function blendTowerStageFocus(center, subject, weight) {
   return center;
 }
 
+// A genuine terminal source gets its own physical stage framing: the last
+// CLIMBER position and eight source-earned memorial rungs must fit together
+// on a phone. No victory pose, fake checkpoint, camera cut or HUD narration.
+// Unlike the mid-ascent camera this wide exterior shot cannot look through the
+// solid tower core to a fictional destination. User orbit/zoom still work.
+function composeTowerTerminalShot(hero, aspect, zoom = 1, orbit = 0) {
+  const portrait = aspect < .85;
+  const heroRadius = Math.max(27.35, Math.hypot(hero.x, hero.z));
+  const angle = Math.atan2(hero.x, hero.z) + (portrait ? .015 : .08) +
+    clamp(orbit, -.5, .5) * .25;
+  const radius = heroRadius + (portrait ? 44 : 29) * clamp(zoom, .8, 1.35);
+  const position = new THREE.Vector3(Math.sin(angle) * radius,
+    hero.y + (portrait ? 8.2 : 6.5), Math.cos(angle) * radius);
+  const focus = new THREE.Vector3(hero.x, hero.y + 2.1, hero.z);
+  return { position, focus };
+}
+
 // Evidence-only approximate core occlusion for the inset bronze lock. A point
 // can project inside the phone viewport while sitting behind the tower; do not
 // award it a camera-composition preference or a visible-gate diagnostic then.
@@ -1004,6 +1021,8 @@ export function createTowerScene(canvas, settings = {}) {
   scene.add(rim, rim.target, bounce, bounce.target);
   const observedStageLight = createObservedTowerLightDirector();
   const warmRimTint = new THREE.Color(0xffc994);
+  const interruptedRimTint = new THREE.Color(0x8be7e4);
+  const operatorRimTint = new THREE.Color(0xb4aae9);
 
   const skyGeometry = new THREE.SphereGeometry(800, 24, 12);
   const skyMaterial = new THREE.ShaderMaterial({
@@ -1497,6 +1516,11 @@ export function createTowerScene(canvas, settings = {}) {
         .sort((a, b) => Math.abs(a.x - p.x) - Math.abs(b.x - p.x) || a.id.localeCompare(b.id))[0]
       : null;
     climber.animate({ ...p,
+      // Only a real result is allowed to end a still-living climber's
+      // expedition with a physical kneel or neutral halt. A lethal result
+      // continues to use its existing dead pose; a new run clears both.
+      terminalKind: snapshot.lifecycle !== 'running' ? snapshot.result?.kind : null,
+      terminalReason: snapshot.lifecycle !== 'running' ? snapshot.result?.reason : null,
       intentMode: snapshot.intent?.mode,
       targetDx: resourceTarget ? resourceTarget.x - p.x : targetPlatform ? targetPlatform.x + targetPlatform.width / 2 - p.x : 0,
       targetDy: resourceTarget ? resourceTarget.y - p.y : targetPlatform ? targetPlatform.y + targetPlatform.height - p.y : 0,
@@ -1653,20 +1677,25 @@ export function createTowerScene(canvas, settings = {}) {
       const releaseFocus = passage.focusPoint();
       if (releaseFocus) focus.lerp(releaseFocus, Math.min(.18, releaseWeight * .15));
     }
-    // Reveal the height of the actual terminal position, not a fabricated
-    // victory pose: the result/intermission phase owns this quiet camera crane.
-    // Reduced motion freezes the treatment to a stable, wider composition.
-    if (!overview && snapshot.result && ['result', 'intermission'].includes(snapshot.lifecycle)) {
-      scratch.copy(destination).sub(climber.group.position);
-      destination.addScaledVector(scratch, .22);
-      destination.y += 3.1;
-      focus.y += 1.1;
+    // The authentic result/intermission needs a COMPLETE visual sentence.
+    // Frame the climber + the physical source-earned floor-rung memorial, not
+    // the last stale air-control target. Keep the entire lens on the OUTSIDE
+    // of the solid tower while the 20 Hz authority runs normally.
+    const terminalStaged = !overview && finale.group.visible && !!snapshot.result
+      && ['result', 'intermission'].includes(snapshot.lifecycle);
+    if (terminalStaged) {
+      const shot = composeTowerTerminalShot(climber.group.position,
+        camera.aspect, zoom, orbit);
+      destination.copy(shot.position);
+      focus.copy(shot.focus);
+      targetY = focus.y;
     }
     // Follow source-observed guardian action a little faster than exploration:
     // a real HP change should not be over before the camera catches its actor.
     // All motion remains bounded and presentation-only; reduced motion is still.
     let cameraRate = towerCameraRate(camera.position, destination,
       !overview && !!followComposition?.guardianStaged, overview);
+    if (terminalStaged) cameraRate = Math.max(cameraRate, 6.5);
     if (!overview && !options.reducedMotion && initialized) {
       // Project the real current climber into the camera image from the
       // previous submitted pose. This catches a fast dash, launch or new-floor
@@ -1716,10 +1745,16 @@ export function createTowerScene(canvas, settings = {}) {
     // a full exterior orbit; only true HP/windup/motion changes its soft fill.
     // No new draw, light, shadow map, overlay, or flash frequency.
     const lighting = LIGHTING[themeKey] || LIGHTING.foundry;
-    sun.intensity = lighting.key * (1 - lightCue.threat * .075);
-    hemi.intensity = lighting.ambient * (1 + lightCue.motion * .055);
-    rim.intensity = lighting.rim * (1 + lightCue.armor * .18 + lightCue.threat * .2);
-    rim.color.set(lighting.fill).lerp(warmRimTint, lightCue.threat * .32);
+    // A stopped expedition gets a quiet physical lighting tableau instead of
+    // combat flash or a false victory bloom. Different genuine result KINDS
+    // remain distinguishable from the world, even with the HUD hidden.
+    sun.intensity = lighting.key * (1 - lightCue.threat * .075) * (terminalStaged ? .78 : 1);
+    hemi.intensity = lighting.ambient * (1 + lightCue.motion * .055) * (terminalStaged ? .88 : 1);
+    rim.intensity = lighting.rim * (1 + lightCue.armor * .18 + lightCue.threat * .2) *
+      (terminalStaged ? 1.08 : 1);
+    const endingTint = snapshot.result?.kind === 'technical' ? interruptedRimTint :
+      snapshot.result?.kind === 'operator' ? operatorRimTint : warmRimTint;
+    rim.color.set(lighting.fill).lerp(endingTint, terminalStaged ? .38 : lightCue.threat * .32);
     const lightBearing = Math.atan2(camera.position.x, camera.position.z) + 1.12;
     rim.target.position.set(climber.group.position.x,
       climber.group.position.y + p.halfHeight / SCALE, climber.group.position.z);
@@ -1891,6 +1926,15 @@ export function createTowerScene(canvas, settings = {}) {
         environmentFailures: reflectionFailures, environmentLastError: reflectionLastError,
         environmentSize: reflectionTarget ? [reflectionTarget.width, reflectionTarget.height] : [0, 0], shadowLights: 1, shadowMapSize: sun.shadow.mapSize.x },
       world: world.diagnostics(), finale: finale.diagnostics(), passage: passage.diagnostics(),
+      terminalCamera: finale.group.visible ? {
+        sourceBound: true, lifecycle: snapshot.lifecycle,
+        presentedSourceResult: !!snapshot.result,
+        staged: options.camera !== 'overview',
+        actorInPicture: actorCamera.inPicture,
+        actorCoreClear: actorCamera.coreClear,
+        cameraRadius: Number(Math.hypot(camera.position.x, camera.position.z).toFixed(4)),
+        criterion: 'Actual smoothed source-final camera; source projection only, not verified video visibility',
+      } : null,
       encounterCamera, actorCamera, cameraPosition: camera.position.toArray(), climberPosition: climber.group.position.toArray() };
   }
   function dispose() {
