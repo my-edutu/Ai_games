@@ -543,6 +543,15 @@ test('a real 3D portcullis retracts only after public authority opens its gate',
   const opened = {...closed, tick:10, doors:[{...door,open:true}]};
   const unchanged=JSON.stringify(opened);
   world.update(closed);
+  const closedGate=world.group.getObjectByName('Disclosed sealed gate');
+  const leftWheel=closedGate.getObjectByName('Left gate drive wheel');
+  const rightWheel=closedGate.getObjectByName('Right gate drive wheel');
+  const leftWeight=closedGate.getObjectByName('Left hanging gate weight');
+  const rightWeight=closedGate.getObjectByName('Right hanging gate weight');
+  assert.ok(leftWheel?.isGroup && rightWheel?.isGroup && leftWeight?.isMesh && rightWeight?.isMesh,
+    'a truly disclosed gate has connected, fully modeled counterweight mechanisms on both jambs');
+  assert.equal(leftWheel.rotation.z,0);
+  assert.equal(rightWheel.rotation.z,0);
   world.animate(5,{reducedMotion:false});
   world.update(opened);
   const raisedGate=world.group.getObjectByName('Disclosed open gate');
@@ -553,10 +562,20 @@ test('a real 3D portcullis retracts only after public authority opens its gate',
   assert.ok(grille.position.y>0 && grille.position.y<1.55,
     'actual THREE group withdraws upward into its lintel, not a HUD text flash');
   assert.ok(grille.scale.y>0 && grille.scale.y<1,'the bars compress rather than obstructing the open route');
+  const turningWheel=raisedGate.getObjectByName('Left gate drive wheel');
+  const fallingWeight=raisedGate.getObjectByName('Left hanging gate weight');
+  assert.ok(turningWheel.rotation.z<-.2 && turningWheel.rotation.z> -1.35,
+    'the real pulley turns with the same disclosed opening animation');
+  assert.ok(fallingWeight.position.y<.55 && fallingWeight.position.y>.31,
+    'the counterweight physically descends while the modeled gate lifts');
+  assert.equal(raisedGate.getObjectByName('Right gate drive wheel').rotation.z,-turningWheel.rotation.z,
+    'opposed pulley wheels turn symmetrically, without a hidden control signal');
   assert.equal(world.matchingPublicSocket(24,25,new (await import(three)).Vector3()),null,
     'the cosmetic grille never resurrects the authoritative closed lock');
   world.animate(6,{reducedMotion:false});
   assert.equal(grille.visible,false,'opening animation finishes with a clear visible passage');
+  assert.ok(Math.abs(turningWheel.rotation.z+1.35)<1e-9,'wheel settles at its physical open position');
+  assert.ok(Math.abs(fallingWeight.position.y-.31)<1e-9,'weight settles low without covering the open doorway');
   assert.equal(world.stats().retractingPublicGates,0);
   world.update({...opened,tick:11});
   assert.equal(world.group.getObjectByName('Withdrawable gate bars').visible,false,
@@ -580,6 +599,9 @@ test('reduced motion immediately clears a publicly unlocked 3D gate', async () =
   world.update({...fixture(cells),tick:2,doors:[{...door,open:true}]});
   world.animate(2,{reducedMotion:true});
   assert.equal(world.group.getObjectByName('Withdrawable gate bars').visible,false);
+  assert.equal(world.group.getObjectByName('Left gate drive wheel').rotation.z,-1.35,
+    'reduced motion jumps directly to the opened hardware pose');
+  assert.equal(world.group.getObjectByName('Left hanging gate weight').position.y,.31);
   assert.equal(world.stats().retractingPublicGates,0);
   world.dispose();
 });
