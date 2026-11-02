@@ -12,7 +12,9 @@ const ROOT = path.resolve(__dirname, '../..');
 const loaded = (async () => {
   const THREE = await import(pathToFileURL(path.join(ROOT, 'node_modules/three/build/three.module.js')).href);
   const coordinates = await import(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/coordinates.mjs')).href);
-  const context = { THREE, ...coordinates };
+  const guardianCircuit = await import(pathToFileURL(path.join(ROOT,
+    'public/infinite-tower-climb/visuals/guardian-circuit.mjs')).href);
+  const context = { THREE, ...coordinates, ...guardianCircuit };
   vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/scene.mjs'), 'utf8')
     .replace(/^import .*;\n/gm, '').replace('export function createTowerScene', 'function createTowerScene'), context);
   return { THREE, ...coordinates, context };
@@ -65,10 +67,16 @@ test('source-observed wounded guardian, actual cap and climber share a stable po
     const actualGateX = context.guardianGateAnchorX(frame, cap);
     assert.equal(view.gateAnchorX, actualGateX,
       'the combat camera must frame the same fixed guardian-approach lock as the world');
+    const live = context.observedGuardianCircuit(frame);
+    const physical = context.observedGuardianLockStage(live);
+    assert.equal(physical.guardianId, guardian.id,
+      'the staged gate and combat opponent must come from the same source');
+    assert.ok(Math.hypot(physical.center.x, physical.center.z) > 27.7,
+      'the camera must frame the real EXTERIOR lock, not the hidden inner cap');
     const lock = project(THREE, pointFor, frame, view, aspect,
-      actualGateX, cap.y + cap.height + 25000, 21.8);
+      actualGateX, live.toY, 27.78);
     assert.ok([lock.x, lock.y, lock.z].every(Number.isFinite),
-      'gate diagnostics use a real finite source-bound cap projection');
+      'gate diagnostics use the actual exterior cap lock from this guardian');
     if (view.gateFramed) {
       assert.ok(Math.abs(lock.x) <= .93 && Math.abs(lock.y) <= .86,
         'a claimed visible 3D gate must really project inside the rendered crop');
