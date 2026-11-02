@@ -1,7 +1,7 @@
 // A bounded synthesized soundscape. No audio is started until a viewer enables it.
 export function createTowerAudio() {
   let context = null, master = null, bed = null, wind = null, windFilter = null, windGain = null;
-  let enabled = false, token = '', last = null, lastFloor = null, lastIntent = '', lastLifecycle = 'running', stride = 0, noiseIndex = 0;
+  let enabled = false, token = '', last = null, lastFloor = null, lastIntent = '', lastTargetPlatformId = null, lastLifecycle = 'running', stride = 0, noiseIndex = 0;
   let disposed = false, lastAmbient = 0, enableRequest = 0, enablePending = false;
   const voices = new Set(), heard = new Set(), pads = [];
   let guardianWindups = new Map(), guardianStates = new Map();
@@ -95,7 +95,7 @@ export function createTowerAudio() {
     const snapshot = frame.snapshot;
     if (snapshot.runToken !== token) {
       const verifiedRestart = !!token && ['result', 'intermission'].includes(lastLifecycle);
-      heard.clear(); last = null; lastFloor = null; lastIntent = ''; lastLifecycle = 'running'; stride = 0; guardianWindups.clear(); guardianStates.clear(); token = snapshot.runToken;
+      heard.clear(); last = null; lastFloor = null; lastIntent = ''; lastTargetPlatformId = null; lastLifecycle = 'running'; stride = 0; guardianWindups.clear(); guardianStates.clear(); token = snapshot.runToken;
       if (verifiedRestart) tone(205, 365, .21, 'sine', .052);
     }
     for (const voice of frame.audio?.voices || []) if (!heard.has(voice.id)) {
@@ -190,6 +190,22 @@ export function createTowerAudio() {
       tone(235,360,.22,'triangle',.039);
     if(sameFloor && intent!==lastIntent && ['evading-projectile','evading-hazard','evading-telegraph'].includes(intent))
       tone(440,280,.12,'triangle',.038);
+    // One restrained opt-in tone identifies a genuine mid-floor REPLAN
+    // between different selected destinations. Not a claimed safe route or
+    // landing: the authoritative simulation retains sole control. The first
+    // observation after floor change, an old packet, combat or a vanished
+    // target must never fabricate a selection sound.
+    const routeMode = ['aligning', 'jumping', 'air-control'].includes(
+      intent.replace(/^oracle-/, ''));
+    const observedTarget = routeMode && typeof snapshot.intent?.targetPlatformId === 'string'
+      ? snapshot.intent.targetPlatformId : null;
+    const presentTarget = observedTarget && snapshot.platforms?.some(
+      platform => platform.id === observedTarget) ? observedTarget : null;
+    if (sameFloor && snapshot.lifecycle === 'running' && presentTarget &&
+      lastTargetPlatformId && lastTargetPlatformId !== presentTarget &&
+      !actor.attacking && !(snapshot.enemies || []).some(enemy => enemy.active && enemy.telegraph))
+      tone(420, 575, .13, 'sine', .029);
+    lastTargetPlatformId = presentTarget;
     lastIntent=intent;
     if (last && actor.state === 'airborne' && last.state === 'standing') {
       tone(180, 410, .13, 'sine', .055);
@@ -242,7 +258,7 @@ export function createTowerAudio() {
     if (disposed) return;
     disposed = true; enabled = false; enablePending = false; enableRequest++;
     for (const voice of voices) { try { voice.stop(); voice.disconnect(); } catch {} }
-    voices.clear(); heard.clear(); guardianWindups.clear(); guardianStates.clear(); pads.length = 0; last = null; lastFloor = null; lastIntent = ''; lastLifecycle = 'running'; stride = 0;
+    voices.clear(); heard.clear(); guardianWindups.clear(); guardianStates.clear(); pads.length = 0; last = null; lastFloor = null; lastIntent = ''; lastTargetPlatformId = null; lastLifecycle = 'running'; stride = 0;
     if (context) context.close().catch(() => {});
   }
   return { setEnabled, accept, dispose, diagnostics: () => ({ soundEnabled: enabled, soundPending: enablePending, voices: voices.size, context: context?.state || 'not-started' }) };
