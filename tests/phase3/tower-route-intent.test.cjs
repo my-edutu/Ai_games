@@ -37,7 +37,7 @@ test('real authoritative route selects bounded exterior world markers, not predi
     assert.equal(d.simulatedFlight, false, 'the glyph is a choice, not a promised trajectory');
     assert.equal(d.extraDraws, 1);
     assert.ok(d.markers >= 5 && d.markers <= 12);
-    assert.equal(effect.group.children.length, 1, 'all markers are one instanced draw');
+    assert.equal(effect.group.children.length, 2, 'bounded intent and moving-deck echo batches; no per-stone meshes');
     const stones = effect.group.children[0];
     const matrix = new THREE.Matrix4();
     for (let i = 0; i < d.markers; i++) {
@@ -77,6 +77,10 @@ test('reduced motion has stable instanced positions and graphics resources dispo
   const [THREE, { createTowerRouteIntent }] = await loaded;
   const effect = createTowerRouteIntent(THREE);
   const mesh = effect.group.children[0];
+  const echoes = effect.group.children[1];
+  let echoGeometryDisposed = 0, echoMaterialDisposed = 0;
+  echoes.geometry.addEventListener('dispose', () => echoGeometryDisposed++);
+  echoes.material.addEventListener('dispose', () => echoMaterialDisposed++);
   let geometryDisposed = 0, materialDisposed = 0;
   mesh.geometry.addEventListener('dispose', () => geometryDisposed++);
   mesh.material.addEventListener('dispose', () => materialDisposed++);
@@ -89,6 +93,77 @@ test('reduced motion has stable instanced positions and graphics resources dispo
   effect.dispose();
   assert.equal(geometryDisposed, 1);
   assert.equal(materialDisposed, 1);
+  assert.equal(echoGeometryDisposed, 1);
+  assert.equal(echoMaterialDisposed, 1);
   assert.equal(effect.group.children.length, 0);
   assert.equal(effect.diagnostics().disposed, true);
+});
+
+test('a live moving landing reveals ONLY previously observed source positions, never future deck positions', async () => {
+  const [THREE, { createTowerRouteIntent }] = await loaded;
+  const effect = createTowerRouteIntent(THREE);
+  const moving = { ...landing, kind: 'moving' };
+  try {
+    effect.update(snapshot({ tick: 121 }), moving);
+    assert.equal(effect.diagnostics().observedMovingDeckEchoes, 0,
+      'no past position exists on first source observation');
+    const displaced = { ...moving, x: moving.x + 7500 };
+    effect.update(snapshot({ tick: 122 }), displaced);
+    const state = effect.diagnostics();
+    assert.equal(state.observedMovingDeckEchoes, 1);
+    assert.equal(state.observedDeckDeltaX, 7500);
+    assert.equal(state.echoedSourcePositionsOnly, true);
+    assert.equal(state.extraDraws, 2, 'only one extra instanced batch for all actual historical deck locations');
+    const echo = effect.group.children[1];
+    const matrix = new THREE.Matrix4();
+    echo.getMatrixAt(0, matrix);
+    const position = new THREE.Vector3().setFromMatrixPosition(matrix);
+    const historicCenter = moving.x + moving.width * .5;
+    const historicAngle = (historicCenter / 480000 - .5) * 2.2;
+    assert.ok(Math.abs(position.x - Math.sin(historicAngle) * 27.12) < 1e-5);
+    assert.ok(Math.abs(position.z - Math.cos(historicAngle) * 27.12) < 1e-5);
+    assert.ok(Math.abs(position.y - (moving.y + moving.height) / 10000 - .18) < 1e-5);
+    assert.equal(effect.group.visible, true);
+    // Repeated packets and a zero-displacement tick never fabricate motion.
+    effect.update(snapshot({ tick: 122 }), displaced);
+    assert.equal(effect.diagnostics().observedMovingDeckEchoes, 1);
+    effect.update(snapshot({ tick: 123 }), displaced);
+    assert.equal(effect.diagnostics().observedMovingDeckEchoes, 1);
+    // Changing the autonomous choice clears previous platform history.
+    effect.update(snapshot({ tick: 124 }), { ...displaced, id: 'floor-7:other' });
+    assert.equal(effect.diagnostics().observedMovingDeckEchoes, 0);
+    effect.update(snapshot({ tick: 125 }), { ...displaced, id: 'floor-7:other', x: displaced.x + 7400 },
+      { reducedMotion: true });
+    assert.equal(effect.diagnostics().observedMovingDeckEchoes, 0,
+      'reduced-motion viewers get the stable current objective, not moving ghosts');
+    assert.equal(effect.diagnostics().extraDraws, 1);
+    effect.update(snapshot({ tick: 126, lifecycle: 'intermission' }), displaced);
+    assert.equal(effect.diagnostics().markers, 0);
+    assert.equal(effect.diagnostics().observedMovingDeckEchoes, 0);
+    effect.update(snapshot({ tick: 127 }), displaced, { stale: true });
+    assert.equal(effect.diagnostics().observedMovingDeckEchoes, 0);
+    effect.update(snapshot({ tick: 128, runToken: 'run-8' }), displaced);
+    assert.equal(effect.diagnostics().observedMovingDeckEchoes, 0,
+      'a fresh run cannot inherit old deck motion evidence');
+  } finally { effect.dispose(); }
+});
+
+test('large gaps between actual source ticks never join unrelated moving-platform positions', async () => {
+  const [THREE, { createTowerRouteIntent }] = await loaded;
+  const effect = createTowerRouteIntent(THREE);
+  try {
+    const moving = { ...landing, kind: 'moving' };
+    effect.update(snapshot({ tick: 12 }), moving);
+    effect.update(snapshot({ tick: 15 }), { ...moving, x: moving.x + 3000 });
+    assert.equal(effect.diagnostics().observedMovingDeckEchoes, 1);
+    effect.update(snapshot({ tick: 40 }), { ...moving, x: moving.x + 22000 });
+    assert.equal(effect.diagnostics().observedMovingDeckEchoes, 0,
+      'a disconnected spectator cannot infer intermediate source positions');
+    effect.update(snapshot({ tick: 41 }), { ...moving, x: moving.x + 23000 });
+    assert.equal(effect.diagnostics().observedMovingDeckEchoes, 1);
+    effect.update(snapshot({ tick: 42, enemies: [{ active: true, telegraph: true }] }),
+      { ...moving, x: moving.x + 24000 });
+    assert.equal(effect.diagnostics().observedMovingDeckEchoes, 0,
+      'real enemy windup takes priority over route cosmetics');
+  } finally { effect.dispose(); }
 });
