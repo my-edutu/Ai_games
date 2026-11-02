@@ -83,3 +83,14 @@ test('actual masonry and dressing only write changing GPU instance transforms wh
  assert.match(environment,/if\(weatheredChanged\)/,'shared stone detail must stop redundant GPU uploads');
  assert.match(environment,/matrixWrites:/,'live browser can review true dressing work');
 });
+
+test('camera-facing nearby masonry now reveals full actor weapons but preserves distant room boundaries',async()=>{
+ const text=fs.readFileSync(path.join(root,'public/ai-dungeon/cutaway-floor-plan.js'),'utf8');
+ const {planCutawayWallTransform}=await import('data:text/javascript;base64,'+Buffer.from(text).toString('base64'));
+ assert.ok(planCutawayWallTransform('nearby',2.6).height<=.48);
+ assert.equal(planCutawayWallTransform('sightline',2.6).height,.16);
+ assert.equal(planCutawayWallTransform('none',2.6).height,2.6);
+ const environment=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
+ assert.match(environment,/reveal==='nearby'\?\.42/);
+ assert.match(environment,/reveal==='nearby'\?\.22/);
+});

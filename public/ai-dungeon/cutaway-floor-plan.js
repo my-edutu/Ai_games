@@ -19,7 +19,7 @@ export function planCutawayFloorBacking(map,floor){
 }
 export function planCutawayWallTransform(reveal,originalHeight){
  if(reveal==='sightline')return {height:.16,footprint:.36};
- if(reveal==='nearby')return {height:.88,footprint:1.015};
+ if(reveal==='nearby')return {height:.42,footprint:1.015};
  const height=Number.isFinite(originalHeight)&&originalHeight>=.5&&originalHeight<=4?originalHeight:2.6;
  return {height,footprint:1.015};
 }

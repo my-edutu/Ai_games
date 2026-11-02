@@ -82,3 +82,24 @@ test('the real authored GLB renderer stages the rig through an isolated pivot, n
  assert.match(app,/updateActor\(a,dt,since,reduced\)/);
  assert.ok(server.includes("['/dungeon/character-motion-plan.js','character-motion-plan.js']"));
 });
+
+test('weighted GLB pivot staging makes authentic adjacent strikes anticipate, commit and recover',async()=>{
+ const {planContactBodyLanguage:plan}=await motion();
+ const neutral={x:0,y:0,z:0,pitch:0,yaw:0,roll:0};
+ for(const kind of ['vanguard','revenant','warden']){
+  const current={targetId:'real-foe',distance:1,reducedMotion:false};
+  const wind=plan(kind,'attack',.11,current),strike=plan(kind,'attack',.25,current);
+  assert.ok(wind.z>.005&&wind.pitch>0);
+  assert.ok(strike.z<-.035&&strike.pitch<-.02);
+  assert.deepEqual(plan(kind,'attack',.63,current),neutral);
+  for(const age of [0,.02,.07,.11,.16,.24,.29,.35,.48,.61,.8])
+   assert.ok(Object.values(plan(kind,'attack',age,current)).every(Number.isFinite));
+  assert.ok(Math.abs(strike.z)<.1&&Math.abs(strike.yaw)<.13);
+  for(const missing of [{targetId:null,distance:1},{targetId:'foe',distance:2},{targetId:'foe',distance:1,reducedMotion:true}])
+   assert.deepEqual(plan(kind,'attack',.25,missing),neutral);
+ }
+ assert.deepEqual(plan('ranger','attack',.25,{targetId:'foe',distance:1}),neutral);
+ const assets=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(assets,/planContactBodyLanguage\(actor\.u\.kind/);
+ assert.match(assets,/actor\.visualPivot\.position\.set\(pose\.x\+contact\.x/);
+});

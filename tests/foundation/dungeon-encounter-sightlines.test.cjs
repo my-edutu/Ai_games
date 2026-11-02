@@ -52,3 +52,29 @@ test('the real stream wires the deterministic render-only policy through strict 
  assert.match(app,/planEncounterSightlines\(state,target,Boolean\(bossDistance\)\)/);
  assert.ok(server.includes("['/dungeon/encounter-sightlines.js','encounter-sightlines.js']"));
 });
+
+test('live unobstructed melee shows the real hostile target without enlarging every room',async()=>{
+ const {planEncounterSightlines}=await policy(),s=sample();
+ s.tick=15;s.units[0].action='attack';s.units[0].actionTick=15;s.units[0].targetId='revenant';
+ assert.deepEqual(planEncounterSightlines(s,{x:0,z:0},false),[
+  {x:-1,z:0},{x:0,z:1},{x:-1,z:1}
+ ]);
+ s.units[0].targetId='warden';
+ assert.deepEqual(planEncounterSightlines(s,{x:0,z:0},true),[
+  {x:-1,z:0},{x:0,z:1},{x:1,z:0}
+ ],'warden priority cannot double-count a boss silhouette');
+});
+test('hostile sightline is suppressed for stale actions, dead targets and obstructed or diagonal lanes',async()=>{
+ const {planEncounterSightlines}=await policy(),s=sample();
+ s.tick=30;s.units[0].action='attack';s.units[0].actionTick=30;s.units[0].targetId='revenant';
+ assert.equal(planEncounterSightlines(s,{x:0,z:0},false).length,3);
+ s.units[0].actionTick=20;
+ assert.equal(planEncounterSightlines(s,{x:0,z:0},false).length,2);
+ s.units[0].actionTick=30;s.units[4].hp=0;
+ assert.equal(planEncounterSightlines(s,{x:0,z:0},false).length,2);
+ s.units[4].hp=20;s.units[4].x=8;s.units[4].z=12;
+ s.map=s.map.map((row,z)=>z===11?row.substring(0,8)+'#'+row.substring(9):row);
+ assert.equal(planEncounterSightlines(s,{x:0,z:0},false).length,2);
+ s.units[4].x=10;s.units[4].z=10;
+ assert.equal(planEncounterSightlines(s,{x:0,z:0},false).length,2);
+});

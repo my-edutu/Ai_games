@@ -52,3 +52,32 @@ export function planAuthoredMotion(kind,action,elapsed=0,reducedMotion=false){
  if(action==='idle')return{x:0,y:.007*Math.sin(t*2.2),z:0,pitch:0,roll:0};
  return rest();
 }
+
+/**
+ * The existing animated GLB delivers an extra grounded torso weight-transfer
+ * only when real public authority identifies an adjacent melee target. Local
+ * pivot meters, reversible on recovery; never touches AI, hitboxes or RNG.
+ */
+const CONTACT_ROLES=Object.freeze({
+ vanguard:Object.freeze({reach:.085,side:1,weight:1}),
+ revenant:Object.freeze({reach:.072,side:-1,weight:.88}),
+ warden:Object.freeze({reach:.062,side:0,weight:1.16})
+});
+const noContactPose=()=>({x:0,y:0,z:0,pitch:0,yaw:0,roll:0});
+export function planContactBodyLanguage(kind,action,elapsed=0,contact={}){
+ const profile=CONTACT_ROLES[kind];
+ if(!profile||action!=='attack'||contact?.reducedMotion||
+  typeof contact?.targetId!=='string'||contact.targetId.length<1||
+  contact.targetId.length>128||contact.distance!==1||
+  !Number.isFinite(elapsed)||elapsed<0||elapsed>=.62)return noContactPose();
+ const t=elapsed,prepare=t<.14?ease(t/.14):t<.30?1-ease((t-.14)/.16):0;
+ const follow=t<.14?0:t<.30?ease((t-.14)/.16):1-ease((t-.30)/.32);
+ return {
+  x:profile.side*(prepare*.018+follow*.052),
+  y:-prepare*.018+follow*.014,
+  z:prepare*.026-follow*profile.reach,
+  pitch:prepare*.054-follow*.084*profile.weight,
+  yaw:profile.side*follow*.105,
+  roll:-profile.side*(prepare*.042-follow*.050)
+ };
+}
