@@ -1,0 +1,35 @@
+# Infinite Tower Climb — movement continuity and source-reactive encounter stage
+
+**2026-11-02 · [draft PR #68](https://github.com/my-edutu/Ai_games/pull/68) · SAME TRANSFORMATION OPEN · GAUNTLET QUALITY NOT EVALUATED**
+
+## Inputs reviewed before changing the playable game
+
+Inspected `AGENTS.md`, the approved transformation-first spec, `games/infinite-tower-climb/GAUNTLET.md`, the frozen `transformation.json`, the actual climber, world, guardian/gate, source snapshots, presentation scene, terminal renderer, prior camera corrections, browser capture harness, source-pinned recording jobs and technical workflow logs. Existing PR #68 head at inspection: `34c2bb580c55b48fb09b8d9194cadafce23da5bc`. Parent PR #58 head: `5343c4912b847d21e1a9c4781591e2b877ae1bc7`. Frozen baseline remains **`1731b380851162741761c5569e2bc152a0869ca9`**, never rebased or reset.
+
+[Source-pinned normal-speed recording run 41384300565](https://github.com/my-edutu/Ai_games/actions/runs/41384300565) completed **six of seven recording jobs**: baseline and candidate ascent, baseline and candidate danger, candidate outcome, and authentic ledge. Frozen **baseline** outcome failed **both** native desktop (960×600) and portrait (390×844) scoped observations; result/intermission/restart were not all visibly observed. Both baseline outcome ZIPs were still uploaded. Logs explicitly show genuine run-token transitions but no complete observed phase sequence. This is NOT full outcome evidence. [Exact prior-head safety run 41384300584](https://github.com/my-edutu/Ai_games/actions/runs/41384300584) was **cancelled**, not green.
+
+The reason for recurrent frozen outcome failure is a source-contract mismatch, not merely a bad screenshot: fetched frozen baseline `runtime/run.ts` and `config/schema.ts` lack `resultHoldTicks`; the frozen result phase lasts **one fixed 50 ms tick** before its intermission. The newer source-independent capture host requests a longer hold, but the unmodified frozen runtime does not implement it. Native 100 ms browser polling can miss that actual brief phase. Do **not** claim that a run token change proves a complete visible result, change the frozen game, invent a held result image or silently relax the criterion. A legitimate baseline video method must visibly catch the real short outcome while remaining normal-speed and otherwise matched.
+
+## Cohesive gameplay renderer slice now implemented
+
+Actual playable `public/infinite-tower-climb/visuals/scene.mjs` now connects the real climb, guardian wound stage and camera across a source-driven vertical slice:
+
+- The **observed motion ledger** accepts only preceding and following immutable authority snapshots in the same run/floor with finite positions and a bounded tick gap; it expires after 18 authoritative ticks. On genuinely rapid movement (dash/airborne/high source horizontal velocity), the existing 3D world draws at most **13 non-shadowing depth-tested source-position shards in one instanced draw**. It cannot invent a target, replay path, landing, collider, AI action or physics event. It is hidden for reduced motion, source staleness, terminal/dead states and wiped on restart/floor change.
+- A **camera-attached existing rim lighting director** follows the real skinned climber along the exterior-orbit camera rather than leaving its silhouette backlit during a viewpoint change. Its restrained theme-relative intensity responds continuously to authentic danger, guardian's real telegraph/health, observed damage and real dash. Reduced motion suppresses the short danger lift. It adds **no new light, extra shadow atlas, scene pass, camera cut or HUD**.
+- The already authored mechanical gate, capstan, HP-driven guardian armor, causal passage and camera actor-rescue remain part of the *same* open initiative. These rendering changes complement, not replace, the required whole experience.
+- Real browser recording `tests/browser/tower-live-motion.spec.cjs` logs the motion wake and stage-light cue alongside source tick, actor crop, guardian HP, real viewport and source SHA. Diagnostics are engineering evidence, not visual preference.
+
+Implementation [`edf1a660`](https://github.com/my-edutu/Ai_games/commit/edf1a6606ae0d2e02feb27fd161cddb4570df220), source lifecycle checks [`eb51b3e`](https://github.com/my-edutu/Ai_games/commit/eb51b3e153f7e209aa824b2798361a970261b033), and exact-source capture telemetry [`2fb6960`](https://github.com/my-edutu/Ai_games/commit/2fb6960b35533525bcd776c29b1edd029e6cec89). Independently of tests, the newly committed shipped helper functions were parsed and executed in a fresh isolated JS evaluator against realistic source snapshot values: guardian health 8→6 with telegraph produced smoothed positive danger and attrition cues, genuine tick 1→2 created exactly two historical motion points, and a run-token restart cleared them. This validates helper behavior only, NOT full-screen rendering, autonomous gameplay quality or frame time.
+
+## Unmet transformation acceptance and next whole-experience critic objections
+
+- **LOOKS:** Does phone footage actually show the climber against moving stone/bronze, is new rim lighting restrained rather than bleaching materials, and are guardian + HP-operated gate visibly legible?
+- **FEELS:** Does an observed dash/airborne wake improve motion readability or clutter a rapid camera rotation? Is camera rescue comfortable in full-motion 390×844 footage, with no strobing or "ghost route"?
+- **PLAYS:** Do authentic landing, guardian counterplay, gate release and result/restart read as a single meaningful cause-effect sequence, and do independent viewers prefer the *running* new game?
+- **Quality evidence:** Fresh *matched actual full-motion* baseline/candidate ≥60s in all three scenes on desktop+phone, complete genuine baseline outcome, **five genuinely independent blind randomized judges with 4/5 candidate preference in each pillar**, no significant regressions, exact-head safety tests and named supported-device frame-time p50/p95/p99 plus memory remain missing. Source-pinned scripts are not sufficient in themselves.
+
+A fresh worker check in this execution again returned `NOT_FOUND: Tunnel-client has not been seen for 300 seconds`; no independent/ultracode critic ran and there are **0/5 LOOKS, 0/5 FEELS, 0/5 PLAYS votes**. Actual latest source clips and supported-device measurements are **NOT EVALUATED**. No AAA parity, sustained FPS or whole-game quality win is claimed.
+
+## Safety / ownership / rollback
+
+All changes are presentation-only and consume read-only snapshots; no fixed-step logic, RNG, combat, AI policy, run/replay authority, private data, paid interaction, results or gameplay physics was changed. Extra presentational cost is one optional instanced draw; **no device performance bound has been measured**. Roll back the renderer source commit if real camera/visual footage shows clutter or strobing. Preserve the frozen source baseline, ongoing edits in PR #58 and existing hourly schedule. PR #68 stays draft, unmerged and undeployed. CI remains a veto, not a quality award.
