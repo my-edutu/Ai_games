@@ -63,6 +63,7 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
     const b = lattice[off + latticeW * 2] * (1 - dx) + lattice[off + latticeW * 2 + 2] * dx;
     return a * (1 - dz) + b * dz;
   };
+  let grovePixelCount = 0;
   for (let y = 0; y < H; y++) {
     const v = (y + .5) / H, gz = v * height;
     for (let x = 0; x < W; x++) {
@@ -74,15 +75,33 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
       // clearing, rather than a single dark radial stain or literal green path.
       const marsh = smooth(.43, .69, watershed * .57 + mineral * .28 + nearEdge * .23);
       const silt = (mineral - .5) * 21 + (watershed - .5) * 13;
+      // Large-scale, weathered moss catchments FOLLOW the same three public-
+      // board-only valleys as the actual interstitial 3D fern sites. This is
+      // part of the same owned baked texture: no moving gameplay path, extra
+      // render pass, decal, live shade or external texture. Broad soil-to-
+      // stone transitions rather than a false bright line/collectible.
+      const bankX = (u - .5) * 2, bankZ = (v - .5) * 2;
+      let groveDistance = Infinity;
+      for (let course = 0; course < 3; course++) {
+        const centre = [-.57, .02, .59][course]
+          + .20 * Math.sin(bankX * 3.7 + course * 1.67)
+          + .07 * Math.sin(bankX * 8.3 - course * .91);
+        groveDistance = Math.min(groveDistance, Math.abs(bankZ - centre));
+      }
+      const shoreMoss = 1 - smooth(.085, .285,
+        groveDistance + (mineral - .5) * .11 + (watershed - .5) * .08);
+      const grove = shoreMoss * (.67 + .33 * watershed)
+        * (1 - heart * .86) * smooth(.07, .30, v * (1-v) * 4);
+      if (grove > .37) grovePixelCount++;
       // Interstitial fern roots and their mineral staining occupy *corners*
       // between actual cell centres. A real food/hazard/portal centre lies
       // sqrt(.5²+.5²) cells away and keeps its original material/cue contrast.
       const rootX = Math.round(gx), rootZ = Math.round(gz);
       const rooted = fernSites?.[rootZ * (width + 1) + rootX] ?
         (1 - smooth(.10, .53, Math.hypot(gx - rootX, gz - rootZ))) : 0;
-      const targetR = 144 + 23 * heart + silt - marsh * 43 - rooted * 43;
-      const targetG = 144 + 15 * heart + silt * .70 - marsh * 23 - rooted * 22;
-      const targetB = 120 + 12 * heart + silt * .68 - marsh * 38 - rooted * 29;
+      const targetR = 144 + 23 * heart + silt - marsh * 43 - rooted * 43 - grove * 69;
+      const targetG = 144 + 15 * heart + silt * .70 - marsh * 23 - rooted * 22 + grove * 13;
+      const targetB = 120 + 12 * heart + silt * .68 - marsh * 38 - rooted * 29 - grove * 40;
       // Retain directional raking-light/mortar contrast from ORIGINAL pixels.
       // Lift only the muddy compression range, without bleaching real ruin
       // greenery or painting over portal/fruit/hazard geometry.
@@ -123,7 +142,8 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
     }
   }
   map.needsUpdate = true; // one replacement on scene creation; never per tick
-  return { regraded: true, pixels: W * H, textureAdded: 0, sunstoneEtching: true };
+  return { regraded: true, pixels: W * H, textureAdded: 0, sunstoneEtching: true,
+    groveFraction: grovePixelCount / (W * H) };
 }
 
 export function createCourtyardEcology(THREE, { width, height, world = null }) {
