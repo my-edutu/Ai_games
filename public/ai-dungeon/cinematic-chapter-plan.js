@@ -12,6 +12,8 @@ const clip=(v,lo,hi)=>Math.min(hi,Math.max(lo,v));
 const valid=(u,n)=>u&&Number.isInteger(u.x)&&Number.isInteger(u.z)&&u.x>=0&&u.z>=0&&u.x<n&&u.z<n&&Number.isFinite(u.hp);
 const distance=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.z-b.z);
 const mean=(a,b)=>({x:(a.x+b.x)/2,z:(a.z+b.z)/2});
+// Bias boss counter framing toward the real surviving hero without moving an actor.
+const heroLed=(hero,boss)=>({x:hero.x*.68+boss.x*.32,z:hero.z*.68+boss.z*.32});
 const round=n=>Number(n.toFixed(3));
 /**
  * Stage a real duel across the screen rather than stacking a giant foreground
@@ -111,7 +113,7 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
   !s.guardianWard&&(!realContact||encounter.targetId!==boss.id)){
   // The same genuinely vulnerable Warden window that governs counter damage
   // moves the physical camera down from a wide warning to a readable duel.
-  mode='warden-exposed';position=mean(closeBoss,boss);
+  mode='warden-exposed';position=heroLed(closeBoss,boss);
   offsets=planDuelCameraOffset(closeBoss,boss,7.4,6.5,{heroForeground:true})||[4.4,7.4,4.6];
   lookY=.84;subjects=[closeBoss.id,boss.id];
  }else if(boss&&closeBoss&&distance(closeBoss,boss)<=5&&
@@ -119,18 +121,18 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
   // A remote ranger/cultist contact is genuine, but it must not cut away from
   // a Warden physically confronting the frontline. Preserve the actual
   // threatening boss and nearest living defender as the scene's subjects.
-  mode='warden-approach';position=mean(closeBoss,boss);
+  mode='warden-approach';position=heroLed(closeBoss,boss);
   offsets=planDuelCameraOffset(closeBoss,boss,8.65,7.8,{heroForeground:true})||[4.4,7.45,5.0];
   lookY=.70;subjects=[closeBoss.id,boss.id];
  }else if(realContact){
   const foe=enemies.find(u=>u.id===encounter.targetId)||fallenFoe;
   const hero=heroes.find(u=>u.id===encounter.actorId);
   mode=foe?.kind==='warden'?'warden-contact':'contact';
-  position=mean(hero,foe);
+  position=foe?.kind==='warden'?heroLed(hero,foe):mean(hero,foe);
   offsets=planDuelCameraOffset(hero,foe,foe?.kind==='warden'?8.15:6.6,foe?.kind==='warden'?7.25:5.85,{heroForeground:foe?.kind==='warden'})||[4.6,7.35,5.05];
   lookY=foe?.kind==='warden'?.76:.91;subjects=[hero.id,foe.id];
  }else if(boss&&closeBoss&&distance(closeBoss,boss)<=6){
-  mode='warden-approach';position=mean(closeBoss,boss);
+  mode='warden-approach';position=heroLed(closeBoss,boss);
   offsets=planDuelCameraOffset(closeBoss,boss,8.65,7.8,{heroForeground:true})||[4.4,7.45,5.0];lookY=.70;subjects=[closeBoss.id,boss.id];
  }else if(s.phase==='intermission'){
   mode='descent';offsets=[4.6,7.0,5.25];lookY=.68;
@@ -177,13 +179,13 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
  * No private simulation reads, RNG, hidden outcome or new light/draw pass.
  */
 const DIRECTOR_LENS=Object.freeze({
- journey:          Object.freeze({radius:5.65,height:6.65,fov:43,aim:.69,follow:5.2,key:1.03}),
- 'skirmish-approach':Object.freeze({radius:5.45,height:6.25,fov:43,aim:.78,follow:6.0,key:1.08}),
- contact:          Object.freeze({radius:4.95,height:5.85,fov:41,aim:.91,follow:7.5,key:1.14}),
- 'warden-contact': Object.freeze({radius:6.55,height:7.65,fov:44,aim:.85,follow:7.5,key:1.12}),
+ journey:          Object.freeze({radius:6.25,height:5.15,fov:43,aim:.72,follow:5.2,key:1.08}),
+ 'skirmish-approach':Object.freeze({radius:6.05,height:5.45,fov:41,aim:.81,follow:6.0,key:1.11}),
+ contact:          Object.freeze({radius:5.60,height:5.12,fov:40,aim:.93,follow:7.5,key:1.16}),
+ 'warden-contact': Object.freeze({radius:7.20,height:6.85,fov:45,aim:.91,follow:7.5,key:1.15}),
  'oathguard-cover':Object.freeze({radius:5.7,height:6.9,fov:44,aim:.86,follow:7.4,key:1.20}),
- 'warden-approach':Object.freeze({radius:7.35,height:8.35,fov:44,aim:.77,follow:6.2,key:1.09}),
- 'warden-exposed':Object.freeze({radius:7.15,height:7.45,fov:44,aim:.82,follow:7.8,key:1.16}),
+ 'warden-approach':Object.freeze({radius:7.90,height:7.10,fov:45,aim:.84,follow:6.2,key:1.11}),
+ 'warden-exposed':Object.freeze({radius:7.90,height:6.65,fov:45,aim:.96,follow:7.8,key:1.19}),
  'warden-warning': Object.freeze({radius:9.05,height:10.55,fov:51,aim:.35,follow:10.0,key:.92}),
  'breach-warning': Object.freeze({radius:6.55,height:7.5,fov:46,aim:.45,follow:8.0,key:1.04}),
  descent:          Object.freeze({radius:5.4,height:6.45,fov:45,aim:.65,follow:4.8,key:.91}),
