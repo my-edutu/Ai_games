@@ -50,6 +50,8 @@ for (const viewport of viewports) {
       const s = window.__TOWER_PUBLIC_STATE__;
       return { atMs: Date.now(), tick: s?.tick, runToken: s?.runToken, checksum: s?.publicChecksum,
         floor: s?.floor, scene: s?.lifecycle, state: s?.player?.state, dangerPermille: s?.dangerPermille,
+        sourceResult: s?.result || null, sourceFloorsCleared: s?.progress?.floorsCleared ?? null,
+        observedFinale: d?.finale || null, observedTerminalCamera: d?.terminalCamera || null,
         guardianActive: (s?.enemies || []).some(e => e.active && e.kind === 'guardian'),
         guardianHealth: (s?.enemies || []).filter(e => e.kind === 'guardian').map(e => ({ active: e.active, health: e.health, maxHealth: e.maxHealth })),
         observedGate: d.world?.guardianGates || [],
