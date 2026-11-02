@@ -128,3 +128,24 @@ test('real historical guardian contact can recover toward its true source-driven
   }
   assert.equal(JSON.stringify(frame), original, 'camera cannot mutate replay/public game state');
 });
+
+test('observed real portrait dash and floor transitions accelerate tracking only when climber is leaving the image', async () => {
+  const { context } = await loaded;
+  const rate = 3.5;
+  assert.equal(context.towerCameraActorSafetyRate(rate, .12, .24, 390 / 844), rate,
+    'routine centered ascent preserves cinematic motion');
+  assert.ok(context.towerCameraActorSafetyRate(rate, .69, .3, 390 / 844) > rate,
+    'camera begins to catch up before losing the actual climber');
+  // Source-pinned run 41367442477 measured x=2.01,1.68,1.25 NDC in
+  // authentic phone danger gameplay; do not normalize this off-screen defect.
+  for (const x of [2.01, 1.68, 1.25]) {
+    const urgent = context.towerCameraActorSafetyRate(rate, x, .62, 390 / 844);
+    assert.ok(urgent >= 12 && urgent <= 18,
+      'observed off-screen actor demands fast but bounded exterior recovery');
+  }
+  assert.equal(context.towerCameraActorSafetyRate(6, NaN, .2, .46), 6,
+    'unavailable prior projected frame cannot invent a correction');
+  assert.equal(context.towerCameraActorSafetyRate(6, .2, Infinity, .46), 6);
+  assert.ok(context.towerCameraActorSafetyRate(13.5, .94, .2, .46) <= 18,
+    'real boss contact cannot compound into unbounded camera rotation');
+});
