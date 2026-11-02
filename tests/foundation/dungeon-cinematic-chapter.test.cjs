@@ -318,3 +318,35 @@ test('real three-beat Warden signal coils the torso and braces skinned legs with
  assert.equal(planWardenCharge(warning,5,true).brace,undefined);
  assert.equal(planWardenCharge(null,5).coil,undefined);
 });
+
+test('a true Warden wipe films original fallen bodies ahead of the living enemy rather than his huge back',async()=>{
+ const {planCinematicShot,planLastStandTableau,planReadableExpeditionLens}=await planner(),s=scene();
+ s.phase='intermission';
+ for(const hero of s.units.filter(u=>u.faction==='party'))hero.hp=0;
+ const before=JSON.stringify(s),shot=planCinematicShot(s,null,{width:1440,height:832});
+ const dead=s.units.filter(u=>u.faction==='party');
+ const center={x:dead.reduce((n,u)=>n+u.x,0)/dead.length,z:dead.reduce((n,u)=>n+u.z,0)/dead.length};
+ const cam={x:shot.x+shot.offsets[0],z:shot.z+shot.offsets[2]};
+ const boss=s.units.find(u=>u.kind==='warden');
+ assert.equal(shot.mode,'last-stand');assert.deepEqual(shot.subjects,['vanguard','ranger','mystic']);
+ assert.ok(Math.hypot(cam.x-boss.x,cam.z-boss.z)>Math.hypot(cam.x-center.x,cam.z-center.z)+.4,
+  'actual surviving boss must be behind the aftermath');
+ assert.ok(Math.hypot(cam.x-center.x,cam.z-center.z)>=1.35);
+ const desktop=planReadableExpeditionLens(shot,{width:1440,height:832});
+ const mobile=planReadableExpeditionLens(shot,{width:390,height:844});
+ assert.ok(mobile.portrait&&mobile.offsets[1]>desktop.offsets[1]);
+ assert.ok(desktop.offsets.every(Number.isFinite));
+ assert.equal(JSON.stringify(s),before,'a camera can never modify combat or enemy truth');
+ s.phase='exploring';assert.equal(planLastStandTableau(s,dead),null);
+});
+test('real edge-of-map aftermath preserves bounded camera and no imaginary boss',async()=>{
+ const {planLastStandTableau}=await planner(),s=scene();
+ s.phase='intermission';const dead=s.units.filter(u=>u.faction==='party');
+ for(const [i,u] of dead.entries()){u.hp=0;u.x=1+i;u.z=1;}
+ for(const enemy of s.units.filter(u=>u.faction==='enemy'))enemy.hp=0;
+ const shot=planLastStandTableau(s,dead);
+ assert.equal(shot.mode,'last-stand');
+ assert.ok([shot.x,shot.z,shot.spread,...shot.offsets].every(Number.isFinite));
+ assert.ok(shot.spread>0);
+ assert.equal(planLastStandTableau(s,[]),null);
+});

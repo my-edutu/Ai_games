@@ -31,3 +31,14 @@ body[data-epilogue=true] .run-result h2{font-size:21px;margin:5px 0 10px}
  body[data-warden-focus=true] .boss-strip{top:104px}
  body[data-warden-focus=true] .arena-lower{display:none}
 }
+
+/* A real disconnect is still reported. On genuine defeat the warning no longer
+   takes the center of the portrait battlefield away from the fallen party. */
+@media(max-width:759px){
+ body[data-epilogue=true] .recovery{
+  left:auto;right:12px;top:116px;bottom:auto;transform:none;
+  width:min(192px,49vw);max-width:none;padding:8px 10px;
+  font-size:10px;line-height:1.35;text-align:left;
+ }
+ body[data-epilogue=true] .recovery small{font-size:9px}
+}

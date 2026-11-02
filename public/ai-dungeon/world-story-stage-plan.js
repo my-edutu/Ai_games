@@ -24,7 +24,7 @@ const STAGES=Object.freeze({
  'oathguard-cover':[2.76,1.38,1.06,1.29,1.00],
  descent:[2.33,1.42,1.05,1.10,1.00],
  'portal-descent':[2.50,1.46,1.09,1.19,1.00],
- 'last-stand':[2.60,1.43,1.06,.94,1.00]
+ 'last-stand':[3.05,1.38,1.12,1.22,.52]
 });
 /** Real scene state is the sole source of stage priority. */
 export function planWorldStoryStage(state,shot,{width=1440,reducedMotion=false}={}){

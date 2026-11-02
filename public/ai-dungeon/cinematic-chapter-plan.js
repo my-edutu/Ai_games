@@ -55,6 +55,44 @@ export function planOathguardPose(s){
  return Object.freeze({guardianId:guard.id,allyId:ally.id,
   x:round((guard.x+ally.x)/2),z:round((guard.z+ally.z)/2)});
 }
+/**
+ * A true all-party defeat deserves a physical scene rather than an enormous
+ * surviving boss rendered in front of the fallen heroes. No invented hits,
+ * positions or exits; 32 bounded camera candidates, fixed work per ending.
+ */
+export function planLastStandTableau(s,fallen){
+ const n=Array.isArray(s?.map)?s.map.length:0;
+ if(s?.phase!=='intermission'||n<3||n>64||!Array.isArray(s.units)||
+    !Array.isArray(fallen)||!fallen.length||fallen.length>4||
+    !fallen.every(u=>u?.faction==='party'&&u.hp===0&&valid(u,n)))return null;
+ const cx=fallen.reduce((sum,u)=>sum+u.x,0)/fallen.length;
+ const cz=fallen.reduce((sum,u)=>sum+u.z,0)/fallen.length;
+ const spread=Math.max(0,...fallen.map(u=>Math.hypot(u.x-cx,u.z-cz)));
+ const live=s.units.filter(u=>u?.faction==='enemy'&&u.hp>0&&valid(u,n))
+  .sort((a,b)=>(a.kind==='warden'?0:1)-(b.kind==='warden'?0:1)||
+   Math.hypot(a.x-cx,a.z-cz)-Math.hypot(b.x-cx,b.z-cz)||
+   String(a.id).localeCompare(String(b.id),'en'));
+ const threat=live[0]??null;
+ let best=null;
+ for(let i=0;i<32;i++){
+  const angle=(i+.5)*Math.PI/16;
+  // Judge the shot AFTER clamping camera position to the physical map.
+  const x=clip(cx+Math.cos(angle)*5.2,1.2,n-2.2);
+  const z=clip(cz+Math.sin(angle)*5.2,1.2,n-2.2);
+  const vx=x-cx,vz=z-cz,range=Math.hypot(vx,vz);
+  if(range<1.35)continue;
+  const projection=fallen.map(u=>(u.x-cx)*-vz/range+(u.z-cz)*vx/range);
+  const width=Math.max(...projection)-Math.min(...projection);
+  const foreground=threat?Math.hypot(threat.x-x,threat.z-z)-range:0;
+  const score=foreground*3.4+Math.min(4,width)*.55+range*.15;
+  if(!best||score>best.score)best={vx,vz,score};
+ }
+ if(!best)return null;
+ return Object.freeze({mode:'last-stand',x:round(cx),z:round(cz),lookY:.46,
+  offsets:Object.freeze([round(best.vx),round(5.35+Math.min(.8,spread*.18)),round(best.vz)]),
+  subjects:Object.freeze(fallen.map(u=>u.id)),spread:round(spread),
+  oathguard:null,warning:false,remainingTurns:null});
+}
 export function planCinematicShot(s,encounter=null,{width=1440,height=832,focusedHeroId='vanguard'}={}){
  const n=Array.isArray(s?.map)?s.map.length:0;
  if(n<3||n>64||!Array.isArray(s?.units))return null;
@@ -64,12 +102,7 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
  // empty camera while the result overlay hides the final battle.
  if(!heroes.length){
   if(s.phase!=='intermission'||!allHeroes.length||!allHeroes.every(u=>u.hp===0))return null;
-  const last=allHeroes.slice().sort((a,b)=>(b.actionTick??-1)-(a.actionTick??-1)||
-   a.id.localeCompare(b.id))[0];
-  return Object.freeze({mode:'last-stand',x:last.x,z:last.z,lookY:.24,
-   offsets:Object.freeze([4.35,5.25,4.75]),
-   subjects:Object.freeze(allHeroes.map(u=>u.id)),spread:0,
-   oathguard:null,warning:false,remainingTurns:null});
+  return planLastStandTableau(s,allHeroes);
  }
  const focus=heroes.find(u=>u.id===focusedHeroId)||heroes[0];
  const enemies=s.units.filter(u=>u.faction==='enemy'&&u.hp>0&&valid(u,n)).slice(0,64);
@@ -205,8 +238,10 @@ export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMo
  const aspect=Number.isFinite(width)&&Number.isFinite(height)&&height>0?width/height:1.73;
  const portrait=aspect<.88,warning=shot.mode==='warden-warning'||shot.mode==='breach-warning';
  const stretch=portrait?(warning?1.24:1.10):1;
- const radius=policy.radius*stretch;
- const y=policy.height*(portrait?(warning?1.17:1.07):1);
+ const terminal=shot.mode==='last-stand';
+ const radius=(terminal?clip(policy.radius+Math.max(0,shot.spread||0)*.68,4.65,7.15):policy.radius)*stretch;
+ const y=(policy.height+(terminal?Math.min(.85,Math.max(0,shot.spread||0)*.21):0))*
+  (portrait?(warning?1.17:1.07):1);
  const offsets=Object.freeze([
   round(shot.offsets[0]/horizontal*radius),
   round(y),

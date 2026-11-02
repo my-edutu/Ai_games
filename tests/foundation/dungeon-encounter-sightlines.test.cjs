@@ -78,3 +78,25 @@ test('hostile sightline is suppressed for stale actions, dead targets and obstru
  s.units[4].x=10;s.units[4].z=10;
  assert.equal(planEncounterSightlines(s,{x:0,z:0},false).length,2);
 });
+
+test('authentic terminal wipe reveals all fallen heroes through 3D masonry and scene dressing',async()=>{
+ const {planEncounterSightlines}=await policy(),s=sample();s.phase='intermission';
+ for(const hero of s.units.filter(u=>u.faction==='party'))hero.hp=0;
+ const before=JSON.stringify(s);
+ assert.deepEqual(planEncounterSightlines(s,{x:0,z:0},true),[
+  {x:-1,z:0},{x:0,z:1},{x:3,z:3}
+ ]);
+ assert.equal(JSON.stringify(s),before);
+ s.phase='exploring';
+ assert.deepEqual(planEncounterSightlines(s,{x:0,z:0},true),[{x:0,z:0}]);
+ s.phase='intermission';s.units[1].hp=1;
+ assert.deepEqual(planEncounterSightlines(s,{x:0,z:0},true),[{x:0,z:1},{x:1,z:0}]);
+});
+test('terminal camera cutaway refuses bad corpse cells or an invented missing party',async()=>{
+ const {planEncounterSightlines}=await policy(),s=sample();
+ s.phase='intermission';for(const hero of s.units.filter(u=>u.faction==='party'))hero.hp=0;
+ s.units[0].x=NaN;
+ assert.deepEqual(planEncounterSightlines(s,{x:2,z:1},false),[{x:2,z:1}]);
+ s.units=s.units.filter(u=>u.faction==='enemy');
+ assert.deepEqual(planEncounterSightlines(s,{x:2,z:1},false),[{x:2,z:1}]);
+});

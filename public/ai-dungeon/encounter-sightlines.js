@@ -8,6 +8,15 @@ export function planEncounterSightlines(state,focus,encounter=false){
  const origin=(size-1)/2,units=Array.isArray(state?.units)?state.units:[];
  const subjects=[];
  const valid=u=>u&&u.hp>0&&Number.isFinite(u.x)&&Number.isFinite(u.z)&&u.x>=0&&u.z>=0&&u.x<size&&u.z<size;
+ // Retain camera sightlines to the ACTUAL deceased party throughout a true
+ // intermission wipe. Previously zero living heroes caused the foreground
+ // masonry and boss arena ornament to obscure all fallen 3D bodies.
+ const party=units.filter(u=>u?.faction==='party');
+ if(state?.phase==='intermission'&&party.length>0&&party.every(u=>
+   u.hp===0&&Number.isInteger(u.x)&&Number.isInteger(u.z)&&
+   u.x>=0&&u.z>=0&&u.x<size&&u.z<size)){
+  return party.slice(0,4).map(u=>({x:u.x-origin,z:u.z-origin}));
+ }
  // Four living heroes are the hard bound; camera work never scales with mob count.
  for(const u of units){
   if(u?.faction!=='party'||!valid(u))continue;
