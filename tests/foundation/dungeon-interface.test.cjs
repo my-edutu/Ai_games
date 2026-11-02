@@ -6,3 +6,12 @@ test('boss encounter target converts grid to world coordinates exactly once',asy
 test('no nearby boss leaves the focused position unchanged',async()=>{const {encounterTarget}=await load();assert.deepEqual(encounterTarget({x:2,z:-3},{x:17,z:17},19,false),{x:2,z:-3});assert.deepEqual(encounterTarget({x:2,z:-3},null,19,true),{x:2,z:-3})});
 test('camera projection supports another odd map size without a magic offset',async()=>{const {encounterTarget}=await load();assert.deepEqual(encounterTarget({x:0,z:0},{x:10,z:10},21,true),{x:0,z:0})});
 test('only high-priority events become intrusive scene alerts',async()=>{const {isSceneAlert}=await load();for(const kind of ['loot','kill','guard','disarm','block','evade','combat','healing'])assert.equal(isSceneAlert({kind}),false,kind);for(const kind of ['telegraph','phase','defeat'])assert.equal(isSceneAlert({kind}),true,kind)});
+
+test('phone boss encounter keeps the optional tactical map below the physical world and focus is genuine',()=>{
+ const css=fs.readFileSync(require('node:path').resolve(__dirname,'../../public/ai-dungeon/styles.css'),'utf8');
+ const app=fs.readFileSync(require('node:path').resolve(__dirname,'../../public/ai-dungeon/app.js'),'utf8');
+ assert.match(css,/@media\(max-width:759px\)[\s\S]*?\.map-panel\{position:relative!important/);
+ assert.match(css,/body\[data-warden-focus=true\] \.boss-strip\{top:104px\}/);
+ assert.match(css,/body\[data-warden-focus=true\] \.arena-lower\{display:none\}/);
+ assert.match(app,/document\.body\.dataset\.wardenFocus=nearBoss\?'true':'false'/);
+});
