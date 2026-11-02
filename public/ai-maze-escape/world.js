@@ -1,5 +1,6 @@
 import * as THREE from './vendor/three.module.js';
 import { GATE_RETRACTION_SECONDS, observedGateOpenings, gateRetractionPose } from './gate-moment.mjs';
+import { publicKeyCollectionMoment } from './map-view.mjs';
 
 export const CELL_SIZE = 2.4;
 export function cellPosition(cell, width, height) {
@@ -56,6 +57,8 @@ export function createMazeWorld(options = {}) {
   // An open gate only moves if this SAME run publicly showed its CLOSED state
   // first. These are presentation-only timestamps, never gate authority.
   const gateOpeningAt = new Map(), retractingGates = new Map();
+  // Only previously disclosed, same-run, inventory-confirmed pickups animate.
+  const keyPickupAt = new Map();
   // Mesh references stay out of userData so Three.js serialization/cloning
   // remains safe; obsolete disclosed doors can be collected automatically.
   const gateDrives = new WeakMap();
@@ -642,8 +645,33 @@ export function createMazeWorld(options = {}) {
     mesh(p, cylinder, lightStone, 0, .2, 0, radius + .025, .06, radius + .025);
   };
   function keyProp(key, s) {
-    if (key.collected || !s.cells.some(c => c.cell === key.cell)) return;
-    const p = propGroup(key.cell, s); p.name = 'Disclosed golden key'; pedestal(p, darkJade, .43);
+    // The physical treasure's home remains after collection, instead of
+    // disappearing underneath the glass release. Never draw unknown cells.
+    if (!s.cells.some(c => c.cell === key.cell)) return;
+    const p = propGroup(key.cell, s);
+    p.name = key.collected ? 'Disclosed spent key shrine' : 'Disclosed golden key';
+    pedestal(p, darkJade, .43);
+    const witnessed = key.collected && typeof key.id === 'string' && keyPickupAt.has(key.id);
+    // Four original carved, articulated petals open from the collected cell.
+    // Their source-disclosed footprint never becomes a route or new reward.
+    for (let i = 0; i < 4; i++) {
+      const angle = i * Math.PI / 2, petal = new THREE.Group();
+      petal.name = 'Physical shrine petal ' + i;
+      petal.position.set(Math.cos(angle) * .22, .34, Math.sin(angle) * .22);
+      petal.rotation.y = -angle;
+      petal.rotation.z = key.collected && !witnessed ? .78 : 0;
+      p.add(petal);
+      mesh(petal, bevel, jade, .20, .03, 0, .43, .14, .24);
+      mesh(petal, bevel, inlay, .29, .11, 0, .13, .06, .14);
+      if (witnessed) animations.push({type:'key-shrine', object:petal, keyId:key.id});
+    }
+    if (key.collected) {
+      // A dark, empty, stone-cut recess stays visible. No second key,
+      // glowing collectible, secret map cell or gameplay authority appears.
+      mesh(p, ring, deepStone, 0, .25, 0, .27, .27, .27, Math.PI / 2);
+      mesh(p, cylinder, darkMetal, 0, .205, 0, .18, .055, .18);
+      return;
+    }
     const keyMesh = new THREE.Group(); keyMesh.position.y = 1.14; keyMesh.scale.setScalar(1.35); keyMesh.rotation.y = .55; p.add(keyMesh);
     // A thick octagonal bow and bold two-tooth shaft survive normal/mobile views.
     mesh(keyMesh, keyBow, keyLight, 0, .29, 0, 1, 1, 1);
@@ -910,7 +938,11 @@ export function createMazeWorld(options = {}) {
     if (snapshot && snapshot.runToken === s.runToken) {
       for (const door of observedGateOpenings(snapshot, s))
         gateOpeningAt.set(doorEdgeId(door.a, door.b), presentationTime);
+      const pickup = publicKeyCollectionMoment(snapshot, s);
+      if (pickup) keyPickupAt.set(pickup.id, presentationTime);
     }
+    const collectedIds = new Set((s.keys || []).filter(key => key.collected).map(key => key.id));
+    for (const id of keyPickupAt.keys()) if (!collectedIds.has(id)) keyPickupAt.delete(id);
     const currentOpen = new Set((s.doors || []).filter(door => door.open)
       .map(door => doorEdgeId(door.a, door.b)));
     for (const edge of gateOpeningAt.keys())
@@ -921,7 +953,7 @@ export function createMazeWorld(options = {}) {
       // sentinel distinct from that key is mandatory after a run change:
       // otherwise old renderedCells diagnostics can survive with no meshes.
       runToken = s.runToken; terrainSignature = null; objectSignature = ''; backdropSignature = ''; lastVisibility = '';
-      clear(terrain); clear(objects); clear(backdrop); publicClosedSockets.clear(); gateOpeningAt.clear(); retractingGates.clear();
+      clear(terrain); clear(objects); clear(backdrop); publicClosedSockets.clear(); gateOpeningAt.clear(); retractingGates.clear(); keyPickupAt.clear();
       batches = []; animations = []; ripples = []; renderedCells = []; stairEdges = [];
       coastalGardens = 0; wallGardens = 0; tidalObservatories = 0;
     }
@@ -972,6 +1004,15 @@ export function createMazeWorld(options = {}) {
     waterTexture.offset.set(reduced ? 0 : t * .0012, reduced ? 0 : t * .0006);
     if (highContrast !== !!options.highContrast) { highContrast = !!options.highContrast; if (snapshot) refreshVisibility(snapshot, true); }
     for (const a of animations) {
+      if (a.type === 'key-shrine') {
+        // Separate bounded presentation clock protects observable 3D hinges
+        // under CPU-throttled capture. Simulation ticks remain authoritative.
+        const start = keyPickupAt.get(a.keyId);
+        const age = Number.isFinite(start) ? presentationTime - start : Infinity;
+        const phase = reduced ? 1 : Math.max(0, Math.min(1, age / .82));
+        a.object.rotation.z = .78 * phase * (2 - phase);
+        continue;
+      }
       const wave = reduced ? 0 : Math.sin(t * 1.8 + a.phase) * .045;
       a.object.position.y = a.baseY + wave;
       if (a.type === 'key') a.object.rotation.y = reduced ? .55 : .55 + Math.sin(t * .65 + a.phase) * .2;
@@ -981,7 +1022,7 @@ export function createMazeWorld(options = {}) {
   }
   function dispose() {
     if (disposed) return; disposed = true;
-    clear(terrain); clear(objects); clear(backdrop); publicClosedSockets.clear(); gateOpeningAt.clear(); retractingGates.clear();
+    clear(terrain); clear(objects); clear(backdrop); publicClosedSockets.clear(); gateOpeningAt.clear(); retractingGates.clear(); keyPickupAt.clear();
     for (const g of geometries) g.dispose();
     for (const m of materials) m.dispose();
     for (const t of textures) t.dispose(); textures.clear();

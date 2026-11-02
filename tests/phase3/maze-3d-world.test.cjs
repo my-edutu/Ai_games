@@ -12,9 +12,11 @@ const three = pathToFileURL(path.resolve(__dirname, '../../node_modules/three/bu
 // dependency. Keep its other production ESM dependency explicitly resolvable;
 // a relative specifier cannot resolve against an in-memory data URL.
 const gateMoment = pathToFileURL(path.resolve(__dirname, '../../public/ai-maze-escape/gate-moment.mjs')).href;
+const mapView = pathToFileURL(path.resolve(__dirname, '../../public/ai-maze-escape/map-view.mjs')).href;
 const modulePromise = import(`data:text/javascript;base64,${Buffer.from(source
   .replace("'./vendor/three.module.js'", JSON.stringify(three))
-  .replace("'./gate-moment.mjs'", JSON.stringify(gateMoment))).toString('base64')}`);
+  .replace("'./gate-moment.mjs'", JSON.stringify(gateMoment))
+  .replace("'./map-view.mjs'", JSON.stringify(mapView))).toString('base64')}`);
 const fixture = (cells) => ({ runToken: 'terrace-fixture', width: 7, height: 9, currentCell: 24, cells, visibleCells: cells.map(c => c.cell), discoveredCells: cells.map(c => c.cell), doors: [], keys: [], threats: [], exitCell: null });
 
 test('terrace stairs join disclosed legal passages and never disclose hidden neighbors', async () => {
@@ -632,5 +634,60 @@ test('heavy world-time stalls still show physical mid-lift gate movement at visu
   world.animate(200,{reducedMotion:false,gateTime:10.9});
   assert.equal(grille.visible,false,'physical gate eventually settles at the true open passage');
   assert.equal(world.stats().retractingPublicGates,0);
+  world.dispose();
+});
+
+test('authentic public key pickup opens four hinged 3D petals and leaves a permanent empty shrine', async () => {
+  const {createMazeWorld}=await modulePromise;
+  const world=createMazeWorld({balanced:true});
+  const cells=[{cell:24,neighbors:[]}],key={id:'amber',cell:24,collected:false};
+  const before={...fixture(cells),tick:9,keys:[key],inventory:[]};
+  const after={...before,tick:10,keys:[{...key,collected:true}],inventory:[key.id]};
+  const unchanged=JSON.stringify(after),budget=world.stats();
+  world.update(before);world.animate(40,{gateTime:12});
+  assert.ok(world.group.getObjectByName('Disclosed golden key')?.isGroup);
+  world.update(after);
+  const shrine=world.group.getObjectByName('Disclosed spent key shrine');
+  assert.ok(shrine?.isGroup,'the genuine observed treasure has an authored physical origin');
+  assert.equal(world.group.getObjectByName('Disclosed golden key'),undefined,'no false remaining key');
+  const leaves=Array.from({length:4},(_,i)=>shrine.getObjectByName('Physical shrine petal '+i));
+  assert.ok(leaves.every(p=>p?.isGroup&&p.children.filter(c=>c.isMesh).length===2));
+  assert.ok(leaves.every(p=>p.rotation.z===0),'authentic collection begins with the petals closed');
+  world.animate(90,{gateTime:12.3,reducedMotion:false});
+  assert.ok(leaves.every(p=>p.rotation.z>.1&&p.rotation.z<.78),
+    'each actual stone leaf visibly opens even after a world-clock stall');
+  world.animate(91,{gateTime:13,reducedMotion:false});
+  assert.ok(leaves.every(p=>Math.abs(p.rotation.z-.78)<1e-9));
+  world.update({...after,tick:11});world.animate(94,{gateTime:13.1});
+  assert.ok(leaves.every(p=>Math.abs(p.rotation.z-.78)<1e-9),'repeat tick cannot replay opening');
+  assert.equal(world.stats().geometryCount,budget.geometryCount);
+  assert.equal(world.stats().materialCount,budget.materialCount);
+  assert.equal(world.stats().textureCount,budget.textureCount);
+  assert.equal(JSON.stringify(after),unchanged,'cosmetic world does not mutate the AI or inventory');
+  world.dispose();assert.equal(world.stats().geometryCount,0);
+});
+
+test('missing inventory cannot fake a key opening; new runs hide prior shrines and reduced motion settles', async () => {
+  const {createMazeWorld}=await modulePromise;
+  const world=createMazeWorld({balanced:true});
+  const cells=[{cell:24,neighbors:[]}],key={id:'only-public',cell:24,collected:false};
+  const before={...fixture(cells),tick:3,keys:[key],inventory:[]};
+  world.update(before);world.animate(12,{gateTime:4});
+  world.update({...before,tick:4,keys:[{...key,collected:true}],inventory:[]});
+  const shrine=world.group.getObjectByName('Disclosed spent key shrine');
+  assert.ok(shrine?.isGroup);
+  assert.equal(shrine.getObjectByName('Physical shrine petal 0').rotation.z,.78,
+    'collected public state may show a settled empty shrine but cannot invent an event');
+  world.update({...before,runToken:'new',tick:1,cells:[],visibleCells:[],discoveredCells:[]});
+  assert.equal(world.group.getObjectByName('Disclosed spent key shrine'),undefined,
+    'new run never leaks the last run treasure coordinates');
+  world.update({...before,runToken:'reduced',tick:1});
+  world.animate(20,{gateTime:8,reducedMotion:true});
+  world.update({...before,runToken:'reduced',tick:2,
+    keys:[{...key,collected:true}],inventory:[key.id]});
+  const reduced=world.group.getObjectByName('Disclosed spent key shrine');
+  world.animate(200,{gateTime:8,reducedMotion:true});
+  assert.equal(reduced.getObjectByName('Physical shrine petal 0').rotation.z,.78,
+    'reduced motion immediately restores the completed physical pose');
   world.dispose();
 });
