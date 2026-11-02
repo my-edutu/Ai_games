@@ -41,10 +41,16 @@ export function addDungeonWindows(world,faces,floor,biome,materials,geometries,t
  const peakRib=new THREE.CylinderGeometry(.045,.045,.46,7);
  const corbel=new THREE.BoxGeometry(.20,.16,.26);
  geometries.push(jamb,arch,pane,keystone,sill,pier,finial,tracery,peakRib,corbel);
+ // Only tall *physical* wall piers can carry a Gothic stained-glass window.
+ // Shallow ruin fragments cannot support freestanding panes and finials.
+ // Six original windows are spatial landmarks, not repeated view blockers.
+ const mounted=faces.filter(face=>Array.isArray(face)&&face[4]>=1.65&&
+  Number.isFinite(face[0])&&Number.isFinite(face[2])&&
+  Math.abs(face[0])<=10&&Math.abs(face[2])<=10);
  let count=0;
- // Only visible wall facades are supplied. Selection is stable per floor.
- for(let i=7;i<faces.length&&count<10;i+=23){
-  const face=faces[i],group=new THREE.Group();
+ const stride=Math.max(1,Math.ceil(mounted.length/6));
+ for(let i=0;i<mounted.length&&count<6;i+=stride){
+  const face=mounted[i],group=new THREE.Group();
   group.position.set(face[0],0,face[2]);
   // Face the walkable corridor, not an arbitrary world direction; otherwise
   // the solid wall hides half the panes in actual WebGL screenshots.
