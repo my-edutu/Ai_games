@@ -598,6 +598,9 @@ test('a real close public encounter frames both autonomous actors and saves date
       &&d.witnessedKeyPickupVisual===true &&d.pickupShardsInFrame>=6;
   },{tick:nextPickupState.tick,token:nextPickupState.runToken});
   const pickupDesktopDiagnostic=await page.evaluate(()=>window.__MAZE_3D__);
+  await expect(page.locator('#goal-label')).toHaveText('KEY FOUND');
+  await expect(page.locator('#goal-title')).toHaveText('Key collected');
+  await expect(page.locator('#objective')).toHaveText('Keep exploring');
   const pickupImage=path.join(dir,'witnessed-key-pickup-1280.png');
   await page.screenshot({path:pickupImage,fullPage:true});
   const pickupAfterDesktopScreenshot=await page.evaluate(()=>window.__MAZE_3D__);
@@ -653,6 +656,9 @@ test('a real close public encounter frames both autonomous actors and saves date
       && d.witnessedKeyPickupVisual && d.pickupShardsInFrame>=6;
   },{tick:nextPickupState.tick,token:nextPickupState.runToken});
   const pickupPortraitDiagnostic=await page.evaluate(()=>window.__MAZE_3D__);
+  await expect(page.locator('#goal-label')).toHaveText('KEY FOUND');
+  await expect(page.locator('#goal-title')).toHaveText('Key collected');
+  await expect(page.locator('#objective')).toHaveText('Keep exploring');
   const pickupPortrait=path.join(dir,'witnessed-key-pickup-390.png');
   await page.screenshot({path:pickupPortrait,fullPage:true});
   const pickupAfterPortraitScreenshot=await page.evaluate(()=>window.__MAZE_3D__);

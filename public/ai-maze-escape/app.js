@@ -1,9 +1,11 @@
-import { computePublicView, drawMinimap, publicObjective, publicHeldGateStatus } from './map-view.mjs';
+import { computePublicView, drawMinimap, publicObjective, publicHeldGateStatus, publicKeyCollectionMoment } from './map-view.mjs';
 import { createMazeAudio } from './audio.js';
 
 const MAX_TRAIL=240;
 const POLL_DELAY_MS=180;
 const POLL_TIMEOUT_MS=6000;
+// Short, single-chip game feedback, never a new panel or autonomous AI order.
+const KEY_MILESTONE_MS=2200;
 let canvas=document.getElementById('maze');
 const byId=id=>document.getElementById(id);
 const elements={broadcast:byId('broadcast'),hud:byId('hud'),tick:byId('tick'),steps:byId('steps'),time:byId('time'),keys:byId('keys'),progress:byId('progress'),progressFill:byId('progress-fill'),intentMode:byId('intent-mode'),intentCopy:byId('intent-copy'),confidence:byId('confidence-fill'),inventory:byId('inventory'),caption:byId('caption'),profile:byId('profile'),integrity:byId('integrity'),sceneCard:byId('scene-card'),sceneTitle:byId('scene-title'),sceneMessage:byId('scene-message'),minimap:byId('minimap')};
@@ -11,7 +13,7 @@ const query=new URLSearchParams(location.search);
 const motionPreference=matchMedia('(prefers-reduced-motion: reduce)');
 const settings={quality:query.get('quality')==='high'?'high':'auto',reducedMotion:query.get('reducedMotion')==='1'||motionPreference.matches,highContrast:query.get('highContrast')==='1',muted:true,cleanFeed:query.get('cleanFeed')==='1'};
 const audio=createMazeAudio();
-let frame=null, scene=null, fallbackCanvas=null, pollTimer=0, recoveryTimer=0, requestController=null, stopped=false, raf=0, rendererState='loading',cameraMode=query.get('camera')==='overview'?'overview':query.get('camera')==='detail'?'detail':'follow', lastCaption='', lastRunToken='', failedPolls=0, initialising=false;
+let frame=null, scene=null, fallbackCanvas=null, pollTimer=0, recoveryTimer=0, requestController=null, stopped=false, raf=0, rendererState='loading',cameraMode=query.get('camera')==='overview'?'overview':query.get('camera')==='detail'?'detail':'follow', lastCaption='', lastRunToken='', failedPolls=0, initialising=false, pickupMilestone=null;
 
 function press(id,value,label){const button=byId(id);if(!button)return;button.setAttribute('aria-pressed',String(value));if(label){button.setAttribute('aria-label',label);button.title=label}}
 function applySettings(){
@@ -64,8 +66,15 @@ function viewerCaption(value){
 }
 function update(value){
   if(!value?.snapshot)return;
-  frame=value;
   const snapshot=value.snapshot;
+  // The exact public before→after transition that authorizes Pip's real 3D
+  // key shards also earns a single brief game HUD beat. No hidden state or
+  // authoritative simulation time is involved.
+  const observedPickup=publicKeyCollectionMoment(frame?.snapshot,snapshot);
+  if(pickupMilestone && (pickupMilestone.runToken!==snapshot.runToken || snapshot.result))pickupMilestone=null;
+  if(observedPickup && snapshot.lifecycle==='running')
+    pickupMilestone={runToken:snapshot.runToken,until:performance.now()+KEY_MILESTONE_MS};
+  frame=value;
   window.__MAZE_PUBLIC_STATE__=snapshot;
   window.__MAZE_VIEW__=computePublicView(snapshot,value.camera,cameraMode==='overview');
   elements.tick.textContent=String(snapshot.tick);
@@ -89,10 +98,16 @@ function update(value){
   // Plain-language HUD truth for an already OBSERVED matching-key gate.
   // A real public danger outranks both this gate and any nearby landmark.
   const keyedSealedGate=!ended && !exposedDanger && !landmark && publicHeldGateStatus(snapshot);
-  byId('goal-label').textContent=ended?'Journey result':exposedDanger?'Immediate danger':landmark?'Discovered landmark':keyedSealedGate?'Known sealed gate':'Current goal';
-  byId('goal-title').textContent=ended?(escaped?'Escaped':'Run ended'):exposedDanger?'Avoid warden':landmark?(landmark.kind==='key'?'Key spotted':'Exit spotted'):keyedSealedGate?'Key for gate':goals[snapshot.intent.mode]||'Find the exit';
+  // Danger, termination and a currently matching CLOSED lock outrank a
+  // collectible celebration; AI intent continues to report its real plan.
+  const freshKey=!ended && !exposedDanger && !keyedSealedGate
+    && pickupMilestone?.runToken===snapshot.runToken
+    && performance.now()<pickupMilestone.until;
+  byId('goal-label').textContent=ended?'Journey result':exposedDanger?'Immediate danger':keyedSealedGate?'Known sealed gate':freshKey?'KEY FOUND':landmark?'Discovered landmark':'Current goal';
+  byId('goal-title').textContent=ended?(escaped?'Escaped':'Run ended'):exposedDanger?'Avoid warden':keyedSealedGate?'Key for gate':freshKey?'Key collected':landmark?(landmark.kind==='key'?'Key spotted':'Exit spotted'):goals[snapshot.intent.mode]||'Find the exit';
   byId('intent-label').textContent=ended?'Result':'Pip';
   byId('objective').textContent=ended?(escaped?'Exit reached':'Next run soon'):exposedDanger?'Keep clear':landmark?(landmark.steps===0?'At the landmark':`${landmark.steps} known step${landmark.steps===1?'':'s'} away`):keyedSealedGate?'Gate still closed':'Explore';
+  if(freshKey)byId('objective').textContent='Keep exploring';
   elements.confidence.style.width=`${Math.round(snapshot.intent.confidence*100)}%`;
   elements.inventory.textContent=String(snapshot.inventory.length);
   elements.inventory.setAttribute('aria-label',`${snapshot.inventory.length} ${snapshot.inventory.length===1?'key':'keys'} collected`);
