@@ -78,7 +78,7 @@ test('the real event creates a separated 3D bronze passage with bounded resource
       'genuine floor advance must drive a large, visible mechanical opening');
     assert.equal(effect.diagnostics().sourceTick, next.tick);
     assert.deepEqual(effect.diagnostics().anchorPosition, [anchor.x, anchor.y, anchor.z],
-      'full-motion provenance reports the exact observed cap center and elevation');
+      'full-motion provenance reports the exact source-bound gate anchor and elevation');
     assert.deepEqual(effect.diagnostics().focusPosition, [anchor.x, anchor.y + 2.6, anchor.z]);
     assert.equal(effect.diagnostics().floor, next.floor);
     assert.ok(effect.cameraWeight() > 0 && effect.cameraWeight() < 1);
@@ -135,7 +135,8 @@ test('the actual scene consumes source transitions and owns passage lifecycle on
   assert.match(source, /observedGuardianPassage\(previous, next\)/);
   assert.match(source, /const guardianCap = clearedGuardian && previous\.platforms\?\.find/);
   assert.match(source, /platform\.id === `f\$\{previous\.floor\}:cap`/);
-  assert.match(source, /passage\.begin\(previous, next, pointFor\(capCenter/);
+  assert.match(source, /const gateAnchorX = guardianGateAnchorX\(previous, guardianCap\)/);
+  assert.match(source, /passage\.begin\(previous, next, pointFor\(gateAnchorX/);
   assert.match(source, /guardianCap\.y \+ guardianCap\.height, next\.chunkBaseY/);
   assert.doesNotMatch(source, /passage\.begin\(previous, next, pointFor\(next\.player\.x/);
   // A world-space continuity cue must come from the defeated SOURCE gate,
