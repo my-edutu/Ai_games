@@ -385,6 +385,18 @@ test('disclosed guardian detail framing shares the real screen without inventing
     'public actor focus cannot pass the midpoint into an enemy-only shot');
   assert.equal(weight(disclosed,'follow',false,1280/900),disclosed*.22,
     'ordinary Follow camera keeps the last verified public threat framing');
+  const native320=weight(disclosed,'follow',false,320/740);
+  const native390=weight(disclosed,'follow',false,390/844);
+  assert.ok(native320>.40 && native320<=.46 && native390>.40 && native390<=.46,
+    'a genuine two-actor portrait encounter receives a bounded source-disclosed shared camera focus');
+  assert.equal(weight(disclosed,'follow',false,844/390),disclosed*.22,
+    '844px landscape stays at its verified wider Follow composition');
+  assert.equal(weight(disclosed,'follow',false,.34),disclosed*.22,
+    'pathologically narrow canvas cannot invent a new composition');
+  assert.equal(weight(0,'follow',false,320/740),0,
+    'no current public guardian means no portrait enemy camera motion');
+  assert.equal(weight(disclosed,'follow',true,320/740),0,
+    'terminal outcomes suppress the portrait camera cue');
   for (const mode of ['overview','unknown','detail','follow']) {
     assert.equal(weight(disclosed,mode,true,1280/900),0,
       'actual terminal outcome always outranks any cosmetic guardian camera impulse');
