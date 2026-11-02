@@ -178,14 +178,24 @@ function recoverTowerActorView(position, gaze, actor, ndcX, ndcY, ndcZ, aspect, 
   const occluded = !towerCoreSightlineClear(position, actor, 23.5);
   const pressure = Math.max(projectedPressure, occluded ? 1 : 0);
   if (pressure <= 0) return 0;
-  const boundedDt = Math.min(dt, .05), severity = Math.min(3, pressure);
-  const response = Math.min(.28,
+  // Real source-pinned portrait danger playback (candidate cb70b64, 2026-11-02)
+  // still lost the real airborne climber at x=-1.2967 NDC. Its software
+  // compositor sometimes submits frames >400ms apart; retaining the gentle
+  // inside-frame .28 cap when the actor is ALREADY outside the picture can
+  // leave several seconds of genuine traversal invisible. Escalate only
+  // from a measured out-of-view projection, never from future simulation.
+  const offscreen = Math.abs(ndcX) > 1 || Math.abs(ndcY) > 1 ||
+    ndcZ < -1 || ndcZ > 1;
+  const boundedDt = Math.min(dt, offscreen ? .10 : .05);
+  const severity = Math.min(3, pressure);
+  const response = Math.min(offscreen ? .48 : .28,
     (1 - Math.exp(-boundedDt * (3 + severity * 8))) * Math.min(1, .4 + severity));
   const actorAngle = Math.atan2(actor.x, actor.z);
   const cameraAngle = Math.atan2(position.x, position.z);
   const cameraArc = Math.atan2(
     Math.sin(actorAngle - cameraAngle), Math.cos(actorAngle - cameraAngle));
-  const cameraStep = Math.min(.16, boundedDt * 6.5);
+  const cameraStep = Math.min(offscreen ? .28 : .16,
+    boundedDt * (offscreen ? 9 : 6.5));
   const orbitBlend = Math.min(response, cameraStep / Math.max(.001, Math.abs(cameraArc)));
   const radius = Math.max(27.35, Math.hypot(position.x, position.z));
   orbitTarget.set(Math.sin(actorAngle) * radius, position.y,
@@ -194,7 +204,8 @@ function recoverTowerActorView(position, gaze, actor, ndcX, ndcY, ndcZ, aspect, 
   const focusAngle = Math.atan2(gaze.x, gaze.z);
   const focusArc = Math.atan2(
     Math.sin(actorAngle - focusAngle), Math.cos(actorAngle - focusAngle));
-  const focusStep = Math.min(.16, boundedDt * 7);
+  const focusStep = Math.min(offscreen ? .3 : .16,
+    boundedDt * (offscreen ? 9.5 : 7));
   followTowerFocus(gaze, actor,
     Math.min(response, focusStep / Math.max(.001, Math.abs(focusArc))));
   return orbitBlend;

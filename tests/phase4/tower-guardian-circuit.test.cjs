@@ -106,8 +106,14 @@ test('guardian-to-cap gantry stays outside tower core and physically retracts so
     bolts.getMatrixAt(i, matrix);
     const actual = new THREE.Vector3().setFromMatrixPosition(matrix);
     const focused = lockStage.bolts[i];
-    assert.ok(actual.distanceTo(new THREE.Vector3(focused.x, focused.y, focused.z)) < 1e-8,
-      'world-space camera lock bound must exactly follow its posed physical bolt');
+    // InstancedMesh matrices are Float32 GPU buffers. Comparing a decoded
+    // matrix to Float64 source coordinates at 1e-8 precision creates a false
+    // mismatch at the exterior radius even when the renderer poses EXACTLY
+    // the same source anchor. Check the true GPU-representable coordinate.
+    const gpuCoordinate = new THREE.Vector3(
+      Math.fround(focused.x), Math.fround(focused.y), Math.fround(focused.z));
+    assert.ok(actual.distanceTo(gpuCoordinate) < 1e-7,
+      'world-space camera lock bound must match the physical bolt at GPU precision');
   }
   assert.equal(JSON.stringify(initial), originalState,
     'both the camera stage and the renderer must consume source without mutating it');
@@ -121,6 +127,8 @@ test('guardian-to-cap gantry stays outside tower core and physically retracts so
     'the physical conduit must arch OUTSIDE the occluding cylindrical stage, not disappear into masonry');
   bolts.getMatrixAt(0, matrix);
   const closed = new THREE.Vector3().setFromMatrixPosition(matrix);
+  const lockedTint = new THREE.Color();
+  bolts.getColorAt(0, lockedTint);
   assert.ok(Math.hypot(closed.x, closed.z) > 27.25,
     'cap bolts must stand outside the opaque tower core');
   const damaged = snapshot({
@@ -130,6 +138,14 @@ test('guardian-to-cap gantry stays outside tower core and physically retracts so
   effect.update(damaged);
   bolts.getMatrixAt(0, matrix);
   const opened = new THREE.Vector3().setFromMatrixPosition(matrix);
+  const releasedTint = new THREE.Color();
+  bolts.getColorAt(0, releasedTint);
+  assert.ok(releasedTint.distanceTo(lockedTint) > .12,
+    'real HP loss must expose a visually different inner alloy on the SAME 3D lock');
+  const laterPair = new THREE.Color();
+  bolts.getColorAt(6, laterPair);
+  assert.ok(laterPair.distanceTo(releasedTint) > .12,
+    'a locked pair must not claim guardian HP has already been removed');
   assert.ok(opened.distanceTo(closed) > .6,
     'true guardian HP loss must visibly retract the mechanical lock');
   assert.equal(effect.diagnostics().lockBolts, 8);

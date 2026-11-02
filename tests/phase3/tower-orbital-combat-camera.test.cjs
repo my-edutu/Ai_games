@@ -178,3 +178,26 @@ test('existing nearby source-led ascent retains proven camera screen-space compo
   // Prior actual native-camera geometry regression tests protect the nearby
   // glyph and hero. This pure assertion must not be treated as a visual win.
 });
+
+
+test('actual out-of-frame portrait climber receives a stronger exterior rescue without a camera cut or source mutation', async () => {
+  const { THREE, context } = await loaded;
+  const actor = new THREE.Vector3(2, 15, 27);
+  const initialCamera = new THREE.Vector3(0, 12, 60);
+  const initialGaze = new THREE.Vector3(15, 12, 24);
+  const run = x => {
+    const position = initialCamera.clone(), gaze = initialGaze.clone();
+    const orbitTarget = new THREE.Vector3();
+    const blend = context.recoverTowerActorView(position, gaze, actor,
+      x, -.25, .98, 390 / 844, .17, orbitTarget);
+    return { position, gaze, blend };
+  };
+  const near = run(.89), lost = run(-1.2967);
+  assert.ok(lost.blend > near.blend, 'real offscreen portrait evidence must trigger a stronger, bounded correction');
+  assert.ok(lost.blend <= .48 && near.blend <= .28, 'camera tracking stays bounded on the tower exterior');
+  assert.ok(lost.gaze.distanceTo(actor) < near.gaze.distanceTo(actor),
+    'an offscreen explorer should regain the frame before a leisurely follow');
+  assert.ok(Math.hypot(lost.position.x, lost.position.z) >= 27.35,
+    'rescue must not dive through the opaque masonry');
+  assert.deepEqual(actor.toArray(), [2, 15, 27], 'the presentation has no authority to move the real explorer');
+});

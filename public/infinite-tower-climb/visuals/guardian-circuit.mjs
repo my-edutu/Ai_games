@@ -136,6 +136,13 @@ export function createTowerGuardianCircuit(THREE) {
   const tangent = new THREE.Vector3();
   const up = new THREE.Vector3(0, 1, 0);
   const dark = new THREE.Color(0xffbd75), released = new THREE.Color(0x8ef1d2);
+  // One source-authoritative HP stage drives both the physical clamp pose
+  // and a readable exposed metal finish. All eight teeth share the EXISTING
+  // instanced draw and no material instance is allocated per frame.
+  const clampLocked = new THREE.Color(0x927158);
+  const clampReleased = new THREE.Color(0xb6e2d2);
+  const clampWindup = new THREE.Color(0xe9a06f);
+  const clampTint = new THREE.Color();
   let source = null, disposed = false;
   let lastKey = '';
   let previousSource = null, observedDamageTick = -1;
@@ -253,9 +260,20 @@ export function createTowerGuardianCircuit(THREE) {
       pose.scale.set(1.13 - opening * .1, 1, .82);
       pose.updateMatrix();
       lockBolts.setMatrixAt(index, pose.matrix);
+      // Four paired retaining brackets reveal genuinely removed guardian HP
+      // in order. Before the first observed hit all are aged bronze; as HP
+      // drops the mechanically withdrawn pairs reveal pale inner alloy.
+      // A true telegraph warms ONLY the currently active lock, without an
+      // invented hit or extra GPU light. Reduced motion leaves HP legible.
+      const exposed = clamp01(opening * 4 - Math.floor(index / 2));
+      clampTint.copy(clampLocked).lerp(clampReleased, exposed);
+      if (next.telegraph && !options.reducedMotion)
+        clampTint.lerp(clampWindup, .12);
+      lockBolts.setColorAt(index, clampTint);
     }
     lockBolts.count = 8;
     lockBolts.instanceMatrix.needsUpdate = true;
+    if (lockBolts.instanceColor) lockBolts.instanceColor.needsUpdate = true;
     // A short real-hit echo renders in WORLD space. No wall-clock flash or
     // random numbers; reduced motion leaves the physical lock itself intact.
     const age = next.tick - observedDamageTick;
