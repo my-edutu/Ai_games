@@ -5,6 +5,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('node:path');
+const fs = require('node:fs');
 const { pathToFileURL } = require('node:url');
 const modulePromise = import(pathToFileURL(path.resolve(__dirname,
   '../../public/infinite-tower-climb/visuals/moving-deck-ride.mjs')).href);
@@ -81,4 +82,35 @@ test('reduced motion, unobserved leaps and implausible source displacements neve
   ride.sample(snapshot(30, 100000), contact);
   assert.equal(ride.sample(snapshot(31, 160000), contact).lean, 0,
     'an implausible one-tick deck jump cannot fake inertia');
+});
+
+test('the original skinned robot physically counterbalances an occupied moving deck without changing its root', async () => {
+  const file = path.resolve(__dirname, '../../public/infinite-tower-climb/visuals/characters.mjs');
+  const three = pathToFileURL(path.resolve(__dirname, '../../node_modules/three/build/three.module.js')).href;
+  const raw = fs.readFileSync(file, 'utf8');
+  const adapted = raw.replace("'/tower/vendor/three.module.js'", JSON.stringify(three));
+  assert.notEqual(adapted, raw, 'the test animates the real shipped model');
+  const { createClimber } = await import(`data:text/javascript;base64,${Buffer.from(adapted).toString('base64')}`);
+  const model = createClimber();
+  const pose = { state: 'standing', vx: 0, vy: 0, facing: 1, health: 5,
+    attacking: false, runToken: 'real-rider', tick: 20 };
+  try {
+    const body = model.group.getObjectByName('articulated-body');
+    const helmet = model.group.getObjectByName('expressive-helmet');
+    assert.ok(body?.isBone && helmet?.isBone);
+    model.animate(pose, 1 / 60, 1, { reducedMotion: false });
+    const neutralBody = body.rotation.z;
+    const root = model.group.position.toArray();
+    model.animate({ ...pose, platformRide: { lean: .9, grounded: true } },
+      1 / 60, 1.05, { reducedMotion: false });
+    assert.ok(body.rotation.z < neutralBody - .1, 'real carriage displacement tilts the skinned torso');
+    assert.ok(helmet.rotation.z > .07, 'visor counterbalances, not a floating camera overlay');
+    assert.deepEqual(model.group.position.toArray(), root, 'presentation cannot reposition the simulation root');
+    model.animate({ ...pose, platformRide: { lean: .9, grounded: true } },
+      1 / 60, 1.1, { reducedMotion: true });
+    assert.equal(body.rotation.z, neutralBody, 'accessibility cancels decorative torso lean');
+    model.animate({ ...pose, platformRide: { lean: .9, grounded: true }, attacking: true },
+      1 / 60, 1.2, { reducedMotion: false });
+    assert.equal(body.rotation.z, neutralBody, 'real authoritative combat pose takes priority');
+  } finally { model.dispose(); }
 });
