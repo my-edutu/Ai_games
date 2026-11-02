@@ -7,12 +7,11 @@ const {createTowerObservation}=require('../../dist/games/infinite-tower-climb/sr
 const {chooseTowerAction}=require('../../dist/games/infinite-tower-climb/src/ai/policy.js');
 
 function approaching({offset=20000,vx=9000,moving=false}={}){
- const runtime=TowerRuntime.create({maxTicks:3500,noProgressTicks:1800},'controlled-air-landing');
+ const runtime=TowerRuntime.create({launchFloor:moving?1:0,maxTicks:3500,noProgressTicks:1800},'controlled-air-landing');
  const s=structuredClone(runtime.state);
  const target=s.chunks[0].platforms.find(p=>p.id.endsWith(':p3'));
  assert.ok(target);
- target.kind=moving?'moving':'oneway';
- if(!moving)delete target.motion;
+ assert.equal(target.kind,moving?'moving':'oneway','use the actual generated moving deck');
  const center=target.x+target.width/2;
  s.player.position={x:center-offset,y:target.y+target.height+50000};
  s.player.velocity={x:vx,y:6000};
@@ -61,7 +60,7 @@ test('moving deck uses its current observed position and explicitly names a real
  target.x+=85000;
  const shifted=chooseTowerAction(s,createTowerObservation(s));
  assert.equal(shifted.intent.mode,'air-control');
- assert.equal(shifted.action.move,1);
+ assert.equal(shifted.action.move,0,'a far, fast approach coasts instead of reversing');
  assert.equal(shifted.intent.targetPlatformId,target.id);
 });
 test('repeated identical observations yield an identical decision and no inferred landing',()=>{
