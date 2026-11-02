@@ -25,8 +25,10 @@ Engineering commit references:
 [skinned result pose](https://github.com/my-edutu/Ai_games/commit/0765b967ea22062b7efd4f70d3fab69132557318),
 [camera and light](https://github.com/my-edutu/Ai_games/commit/9eaaad9a48d56929e5d7afa5c9734622efbca3fd),
 [core-safe exterior rung positioning](https://github.com/my-edutu/Ai_games/commit/1e77b82bcc8596086e5cba67db35d26becfadb61),
-[terminal camera size correction](https://github.com/my-edutu/Ai_games/commit/8e26895ed41c52a2612a55abf308cb4a83726be4).
-Most recent implemented scene source SHA **`8e26895ed41c52a2612a55abf308cb4a83726be4`** (document/metadata commits may advance the branch head without changing that rendered source).
+[terminal camera size correction](https://github.com/my-edutu/Ai_games/commit/fe42557211e306029c3e9f6461395fa2449cfc0f).
+Most recent implemented scene source SHA **`fe42557211e306029c3e9f6461395fa2449cfc0f`** (document/metadata commits may advance the branch head without changing that rendered source).
+
+The terminal camera keeps a minimum wide-enough shot even if a viewer had zoomed into a ledge immediately before authentic result/intermission; zooming out remains available. Tests include the previous manual zoom lower bound and current capture logs its actual smoothed camera.
 
 ## Separate source/specification assessment
 
@@ -34,7 +36,7 @@ The extra floor rungs are terminal **presentation**, not a floor award or altern
 
 ## Independent quality and technical blockers
 
-**Gauntlet overall: NOT EVALUATED.** Test additions are committed, JavaScript source parsing was checked, but **complete test suite and exact-head CI were not executed or verified in this execution** because the development workspace tunnel was disconnected (`NOT_FOUND: Tunnel-client has not been seen for 300 seconds`). Native desktop/phone real-gameplay recording of source `8e26895e` has NOT been inspected; neither were any eligible baseline/candidate 60-second matched pairs graded. Five genuine blind randomized reviewers per LOOKS, FEELS and PLAYS were unavailable, leaving each at **0/5 verified candidate votes**. Supported-device p50/p95/p99, memory, replay and accessibility remain unverified. The frozen baseline **must not** be modified, artificially held or described as showing a visible result phase while its 50ms result is missing.
+**Gauntlet overall: NOT EVALUATED.** Test additions are committed, JavaScript source parsing was checked, but **complete test suite and exact-head CI were not executed or verified in this execution** because the development workspace tunnel was disconnected (`NOT_FOUND: Tunnel-client has not been seen for 300 seconds`). Native desktop/phone real-gameplay recording of source `fe425572` has NOT been inspected; neither were any eligible baseline/candidate 60-second matched pairs graded. Five genuine blind randomized reviewers per LOOKS, FEELS and PLAYS were unavailable, leaving each at **0/5 verified candidate votes**. Supported-device p50/p95/p99, memory, replay and accessibility remain unverified. The frozen baseline **must not** be modified, artificially held or described as showing a visible result phase while its 50ms result is missing.
 
 Remaining critical experience questions: Do viewers actually see the source-authentic kneel, physical run-progress rungs and exit to the next genuine run rather than a clipped, occluded or too-wide portrait tableau? Does its slow exterior camera preserve the actor, guardian aftermath and real result, then return smoothly to normal ascent? Does the full-motion source-vs-baseline A/B win each pillar for independent viewers, without undue camera motion or original audio/guardian/route regressions? Video and device results, not code or this self-review, determine that verdict.
 
