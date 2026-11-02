@@ -20,7 +20,9 @@ const loaded = (async () => {
   const castFile = path.join(scratch, 'characters.mjs');
   fs.writeFileSync(castFile, source);
   const { createEnemy } = await import(pathToFileURL(castFile).href);
-  const context = { THREE, ...coordinates };
+  const guardianCircuit = await import(pathToFileURL(path.join(root,
+    'public/infinite-tower-climb/visuals/guardian-circuit.mjs')).href);
+  const context = { THREE, ...coordinates, ...guardianCircuit };
   vm.runInNewContext(fs.readFileSync(path.join(root, 'public/infinite-tower-climb/visuals/scene.mjs'), 'utf8')
     .replace(/^import .*;\n/gm, '').replace('export function createTowerScene', 'function createTowerScene'), context);
   return { THREE, createEnemy, ...coordinates, context };
