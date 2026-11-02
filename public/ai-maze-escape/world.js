@@ -160,7 +160,7 @@ export function createMazeWorld(options = {}) {
   const matrix = new THREE.Matrix4(), rotation = new THREE.Quaternion(), euler = new THREE.Euler(), scale = new THREE.Vector3(), position = new THREE.Vector3();
   let snapshot = null, runToken = null, terrainSignature = '', objectSignature = '', backdropSignature = '', disposed = false;
   let batches = [], animations = [], ripples = [], renderedCells = [], stairEdges = [], coastalGardens = 0, wallGardens = 0, lastVisibility = '', highContrast = false;
-  let tidalObservatories = 0, sculptedMosaicWalls = 0, tidePennants = 0, perimeterCascades = 0, collapsedPavilions = 0, shellBasins = 0;
+  let tidalObservatories = 0, sculptedMosaicWalls = 0, tidePennants = 0, perimeterCascades = 0, collapsedPavilions = 0, shellBasins = 0, windcatcherTowers = 0;
   let batchData = new Map();
   const clear = (target) => {
     for (const child of [...target.children]) {
@@ -451,7 +451,7 @@ export function createMazeWorld(options = {}) {
     for (let j = 0; j < 3; j++) plant(x - span + j * .08, 2.8 - j * .42, z + .17, seed + j * 5, cell, 1.4 - j * .15);
   }
   function rebuildTerrain(s) {
-    clear(terrain); batchData = new Map(); renderedCells = s.cells.map(c => c.cell); stairEdges = []; coastalGardens = 0; wallGardens = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0;
+    clear(terrain); batchData = new Map(); renderedCells = s.cells.map(c => c.cell); stairEdges = []; coastalGardens = 0; wallGardens = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0;
     const edges = new Set(), columns = new Set(), landmarkSites = new Map();
     const knownByCell = new Map(s.cells.map(c => [c.cell, c]));
     for (const c of s.cells) {
@@ -644,7 +644,7 @@ export function createMazeWorld(options = {}) {
           block(deepStone, x, 1.66, z - .28, 1.68, .19, .50, c.cell, -.14);
           block(lightStone, x + .15, 1.83, z - .28, .83, .15, .55, c.cell, -.25);
           block(jade, x - .18, .36, z + .51, .82, .29, .31, c.cell, .26);
-        } else {
+        } else if (relic < .78) {
           shellBasins++;
           // Sunken noninteractive shell basin: stepped ceramic, inset
           // sea-glass and six weighty stone petals. No coin-shaped halo,
@@ -661,6 +661,30 @@ export function createMazeWorld(options = {}) {
               .19, .46, .19, c.cell, 0, angle, .16);
           }
           add(cylinder, deepStone, x, .53, z, .18, .27, .18, c.cell);
+        } else {
+          windcatcherTowers++;
+          // A roofed windcatcher exists ONLY on a truly disclosed blocked cell.
+          // Its stepped shaft, fins and broad sloped roof diversify silhouettes,
+          // without implying a playable room, route, key, gate or objective.
+          // No resources or geometry are allocated during animation frames.
+          block(deepStone, x, .12, z, 1.95, .24, 1.95, c.cell);
+          block(stone, x, .28, z, 1.76, .10, 1.76, c.cell);
+          add(cylinder, jade, x, 1.08, z, .48, 1.55, .48, c.cell);
+          for (const level of [.55, 1.13, 1.75])
+            add(cylinder, lightStone, x, level, z, .53, .12, .53, c.cell);
+          for (const side of [-1, 1]) {
+            block(deepStone, x + side * .62, .86, z, .22, 1.20, .31, c.cell);
+            block(seaGlass, x + side * .65, .97, z + .17, .10, .84, .10, c.cell);
+            block(jade, x, .89, z + side * .57, .36, 1.00, .23, c.cell);
+            add(cone, darkJade, x + side * .57, 1.79, z, .21, .48, .21, c.cell);
+          }
+          block(deepStone, x, 1.95, z, 1.36, .23, 1.32, c.cell);
+          block(lightStone, x, 2.10, z, 1.43, .11, 1.40, c.cell);
+          for (const side of [-1, 1])
+            add(bevel, side < 0 ? seaGlass : stone,
+              x + side * .40, 2.28, z, .73, .17, 1.20,
+              c.cell, 0, 0, -side * .47);
+          add(cone, darkJade, x, 2.66, z, .28, .70, .28, c.cell);
         }
       }
     }
@@ -1081,7 +1105,7 @@ export function createMazeWorld(options = {}) {
       runToken = s.runToken; terrainSignature = null; objectSignature = ''; backdropSignature = ''; lastVisibility = '';
       clear(terrain); clear(objects); clear(backdrop); publicClosedSockets.clear(); gateOpeningAt.clear(); retractingGates.clear(); keyPickupAt.clear();
       batches = []; animations = []; ripples = []; renderedCells = []; stairEdges = [];
-      coastalGardens = 0; wallGardens = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0;
+      coastalGardens = 0; wallGardens = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0;
     }
     const backgroundKey = `${s.width}:${s.height}`;
     if (backgroundKey !== backdropSignature) { rebuildBackdrop(s); backdropSignature = backgroundKey; }
@@ -1152,7 +1176,7 @@ export function createMazeWorld(options = {}) {
     for (const g of geometries) g.dispose();
     for (const m of materials) m.dispose();
     for (const t of textures) t.dispose(); textures.clear();
-    geometries.clear(); materials.clear(); batches = []; animations = []; ripples = []; batchData.clear(); snapshot = null; renderedCells = []; stairEdges = []; coastalGardens = 0; wallGardens = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0; group.clear();
+    geometries.clear(); materials.clear(); batches = []; animations = []; ripples = []; batchData.clear(); snapshot = null; renderedCells = []; stairEdges = []; coastalGardens = 0; wallGardens = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0; group.clear();
   }
   function stats() {
     let meshes = 0, instances = 0;
@@ -1163,7 +1187,7 @@ export function createMazeWorld(options = {}) {
     const visibleGateBars = [...retractingGates.values()].filter(gate => gate.visible);
     const movingGateMinBarsHeightRatio = visibleGateBars.length
       ? Math.min(...visibleGateBars.map(gate => gate.scale.y)) : 0;
-    return { renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), coastalGardens, wallGardens, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
+    return { renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), coastalGardens, wallGardens, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, windcatcherTowers, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
   }
   return { group, update, animate, dispose, stats, matchingPublicSocket };
 }
