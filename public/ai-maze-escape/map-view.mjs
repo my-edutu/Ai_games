@@ -135,6 +135,40 @@ export function publicPortraitGuardianHalfHeight(aspect, fullBleedHeight, attent
   return Math.min(base,Math.max(maximumZoom,physicallySafeHeight));
 }
 
+/**
+ * A real, already-disclosed guardian can dominate the wide gameplay stage
+ * instead of remaining a pin-sized island in open water. Zoom is cosmetic:
+ * preserve the ACTUAL hero/guardian physical extents at both ends of the
+ * easing, including fixed armor/claw reserves. Narrow portrait uses its
+ * separately source-verified camera; sealed gates, results, Overview and
+ * reduced-motion are excluded by scene.js. No AI truth, path or hidden cell.
+ */
+export function publicLandscapeGuardianHalfHeight(aspect, selectedHalfHeight,
+  attention, hero, guardian, focus, previousFocus = focus) {
+  const base = Number.isFinite(selectedHalfHeight) && selectedHalfHeight > 0
+    ? selectedHalfHeight : 7.3;
+  if (!(Number.isFinite(aspect) && aspect >= 1.1)
+    || !(Number.isFinite(attention) && attention > 0)
+    || ![hero?.x,hero?.z,guardian?.x,guardian?.z,
+      focus?.x,focus?.z,previousFocus?.x,previousFocus?.z].every(Number.isFinite))
+    return base;
+  const viewRightLength = Math.hypot(18, 15);
+  const screenX = (p, target) =>
+    ((p.x - target.x) * 18 - (p.z - target.z) * 15) / viewRightLength;
+  // Conservative physical silhouette reserve, not actor centers. This
+  // refuses to zoom when a real pair cannot fit with at least .94 margin.
+  const pairExtent = target => Math.max(
+    Math.abs(screenX(hero, target)) + 1.10,
+    Math.abs(screenX(guardian, target)) + 1.80);
+  const physicallySafe = Math.max(pairExtent(focus),
+    pairExtent(previousFocus)) / (aspect * .94);
+  // More urgent PUBLIC attention earns the bigger stage, bounded so upper
+  // model parts and multiple visible terraces remain within the orthographic
+  // frame. No animation resource or per-frame object is created.
+  const desired = Math.max(base * .78, base * (1 - .35 * clamp(attention, 0, 1)));
+  return Math.min(base, Math.max(desired, physicallySafe));
+}
+
 export function publicDetailEncounterHalfHeight(aspect, disclosedAttention) {
   if (!(Number.isFinite(aspect) && aspect > 0 && aspect < .9)
     || !(Number.isFinite(disclosedAttention) && disclosedAttention > 0)) return 4.6;
