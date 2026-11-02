@@ -252,6 +252,18 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[]){
   world.add(root);foregroundGroups.push(root);
   if(h%3===0&&flames.length<12)buildTorch(x,z,yaw,h);
  }
+ // A crypt without any fire loses depth and encounter landmarks; genuine
+ // Chromium at 1c1a062 recorded ZERO torches as well as ZERO glass windows.
+ // Use two physically mounted, cutaway-aware originals on existing solid
+ // masonry if a seeded room happens to spawn no eligible pillar torch.
+ // No NPC, maze wall, RNG, navigation or encounter rule is modified.
+ if(!flames.length){
+  const available=wallFaces.filter(face=>face[4]>=1.25);
+  for(let i=4;i<available.length&&flames.length<2;i+=19){
+   const face=available[i];
+   buildTorch(face[0],face[2],Math.atan2(face[7]||0,face[8]||0),floor*31+i);
+  }
+ }
  // Hanging banners are visual storytelling; they do not affect collision or pathing.
  for(const [x,z,yaw,h] of banners.slice(0,13)){
   const root=new THREE.Group();root.position.set(x,0,z);root.rotation.y=yaw;
@@ -266,7 +278,13 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[]){
   const halo=new THREE.Mesh(ring,jade);halo.position.set(x,1.58,z);halo.rotation.x=Math.PI/2;world.add(halo);foregroundGroups.push(halo);
  }
  // Architectural accents share this floor's resource budget and the same camera cutaway.
- const archWindows=addDungeonWindows(world,wallFaces.filter(face=>face[4]>2),floor,biome,materials,geometries,textures,foregroundGroups);
+ // High, impassable wall cores already occupy the rest of these tiles.
+ // The old >2m selector silently removed ALL real Gothic windows after
+ // shallow walkable-side cladding was introduced. Mount the same original
+ // stained-glass ensembles on intact non-gallery masonry only, leaving the
+ // genuinely open vaults free of opaque panes and respecting camera cutaway.
+ const windowFaces=wallFaces.filter(face=>face[4]>=1.25);
+ const archWindows=addDungeonWindows(world,windowFaces,floor,biome,materials,geometries,textures,foregroundGroups);
  const pillarsCount=pillars.length,bannersCount=banners.length,ruins=worldAnchors.length;
  const totalDecor=floorDetails.length+wallFaces.length+columnCap.length+mossPatches.length+runeInlays.length+rubble.length+pillarsCount+bannersCount+ruins;
  // Same 3D visibility policy as the base walls: rich wall cladding must not hide the AI.

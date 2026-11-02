@@ -43,7 +43,10 @@ test('actual WebGL receives original vaulted-bay 3D batches and cutaway',()=>{
  assert.match(app,/enrichEnvironment\(world,s\.map,s\.floor,vaultedSites\)/);
  const dressing=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
  assert.match(dressing,/vaultedFacadeOpenings:/);
- assert.match(dressing,/gallery\?1\.04:2\.31/);
+ assert.match(dressing,/const windowFaces=wallFaces\.filter\(face=>face\[4\]>=1\.25\)/,
+  'low but real stone cladding should not delete every Gothic window');
+ assert.match(dressing,/addDungeonWindows\(world,windowFaces,/);
+ assert.match(dressing,/if\(!flames\.length\)/,'seeded halls must retain real light landmarks');
  assert.match(app,/vaultedGallery:world\.userData\.vaultedGallery\?\.metrics\(\)/);
  assert.match(visuals,/new THREE\.InstancedMesh/);
  assert.match(visuals,/band===0\?sx:\.00001/);
