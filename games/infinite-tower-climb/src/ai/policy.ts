@@ -18,7 +18,7 @@ function observedLandingSteering(state:TowerState,obs:TowerObservation,target:To
   // Collision is earned anywhere inside the actual current deck's usable lane.
   // Do not accelerate toward its decorative midpoint after the body is already
   // over a safe landing corridor; bleed off speed before the finite edge.
-  const margin=Math.max(p.halfWidth+4000,Math.min(18000,Math.floor(target.width/8)));
+  const margin=Math.max(state.player.halfWidth+4000,Math.min(18000,Math.floor(target.width/8)));
   const left=target.x+margin,right=target.x+target.width-margin;
   const landingX=left<=right?Math.max(left,Math.min(right,p.position.x)):
     target.x+target.width/2;
@@ -64,7 +64,7 @@ function observedLaunchSteering(state:TowerState,obs:TowerObservation,support:To
   if(near&&side!==0)move=side;
   const nextVelocity=move===0?velocity-Math.sign(velocity)*Math.min(Math.abs(velocity),c.groundFriction):
     Math.max(-c.maxRunSpeed,Math.min(c.maxRunSpeed,velocity+move*accel));
-  const margin=p.halfWidth+4000;
+  const margin=state.player.halfWidth+4000;
   const nextX=p.position.x+nextVelocity;
   if(nextX<support.x+margin||nextX>support.x+support.width-margin){
     // A source-backed, grounded jump is safer than continuing to RUN off the
