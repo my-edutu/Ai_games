@@ -782,7 +782,12 @@ export class DungeonRuntime {
   }
   const alive=s.units.filter(u=>u.faction==='party'&&u.hp>0);
   if(!alive.length){s.phase='intermission';s.intermission=14;push(s,'defeat','All heroes have fallen. Preparing a new expedition.')}
-  else if(!s.units.some(u=>u.faction==='enemy'&&u.hp>0)&&dist(leader,s.exit)===0){
+  else if(!s.units.some(u=>u.faction==='enemy'&&u.hp>0)&&
+   // The portal belongs to the living squad, not only its first member.
+   // A ranger or mystic who genuinely steps onto the cleared exit opens it;
+   // otherwise that ally permanently occupies the only tile the Vanguard
+   // is permitted to enter. No free kills, fabricated teleport or RNG.
+   alive.some(u=>dist(u,s.exit)===0)){
    const nextFloor=s.floor+1;const next=createFloor(this.seed,nextFloor,this.rng,s.run,s);
    next.units.filter(u=>u.faction==='party').forEach(u=>u.hp=Math.min(u.maxHp,u.hp+26));
    this.state=next;push(next,'floor','FLOOR '+nextFloor+' · '+next.theme);

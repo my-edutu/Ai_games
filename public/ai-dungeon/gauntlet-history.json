@@ -2204,8 +2204,8 @@
       "latestCandidateWorkflow": "Code SHA 562b90ed969f663f6297253850596139304b1c91: Dungeon/authority/browser run https://github.com/my-edutu/Ai_games/actions/runs/41438411903, visual review https://github.com/my-edutu/Ai_games/actions/runs/41438411909, catalogue CI https://github.com/my-edutu/Ai_games/actions/runs/41438411826 QUEUED at current handoff; UNVERIFIED. Previous genuine game browser failures (long run no terminal by 2500 ticks and director lag) unresolved."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Professional character/environment animation and organic complete-run liveness remain unverified. Confirmed genuine Chromium run 41438793069: 10/11 UI tests passed; seed dungeon-ui-round17 did not naturally enter intermission after 2,500 authoritative ticks. Distinguish fair long survival from AI deadlock; never fake defeat. Matched pinned before/after motion and real audio, independent critics, mobile frame budgets still missing.",
-    "currentWork": "Single continuing M1 experience: the genuine HP-costing Vanguard protection now directs layered beveled original 3D armour, physical between-actor placement, distinct truthful opt-in synthesized hit sound, two-protagonist camera and one bounded real-damage impact wave. Browser/mobile/source gates not yet rerun at new SHA.",
+    "biggestRemainingGap": "Full desktop/mobile 3D AFTER footage and sound, professional anatomy/lighting/contact and fresh blind critics still unverified. Actual predecessor browser run 41438793069 failed because a genuine portal occupancy liveness bug stalled the campaign; locally repaired and 2,500-tick deterministic test passed. Need exact-head browser confirmation and visual comparison against the immutable locked baseline.",
+    "currentWork": "M1 integrated hero shield/camera/physical impact candidate PLUS an independently diagnosed, actual-game 16th-floor portal deadlock. Root cause proved with executable 2,500-tick campaign: ranger physically occupied exit while Vanguard was adjacent and leader-only win rule prevented progress. Change authoritative clearance to any living ally actually occupying cleared portal. Fixed seed now organically reaches floor 20, real defeat at step 1,471 and multiple subsequent autonomous runs. New browser validation pending.",
     "candidateCommit": "562b90ed969f663f6297253850596139304b1c91",
     "candidateArtifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41438793069/artifacts/13140305057",
     "acceptedAt": null,
@@ -2880,6 +2880,25 @@
         "performance": "UNVERIFIED beyond fixed bounded render objects; no GPU/audio capture",
         "verdict": "IN_PROGRESS / NOT TRANSFORMED",
         "next": "Inspect actual new-head Chromium captures and shadow/clipping, measure real sound/video; instrument natural 2,500-tick campaign to diagnose AI liveness; continue protagonist/environment/combat integration and floor/defeat loop; independently judge identical full-before/after seeds on real desktops and mobile."
+      },
+      {
+        "id": "M1-REAL-PORTAL-CONTINUITY-20261102",
+        "date": "2026-11-02",
+        "status": "LOCAL_ENGINE_AND_REPLAY_VERIFIED_BROWSER_PENDING",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "c339e1b62c6f8a5baaf734d608773c1c3929cf49",
+        "objective": "Restore the real complete autonomous adventure loop instead of suppressing a browser failure: an occupied one-cell portal must advance a cleared party regardless of which surviving hero reaches it first.",
+        "rootCause": "Exact predecessor 935e01 2,500-tick campaign reached floor 16 at tick 1064, killed all 176 encountered foes, then sat at floor16 through tick2500 with 3 healthy heroes. Ranger stood on portal (14,13), Vanguard immediately adjacent (14,12), Mystic adjacent (15,13). Enemy count 0. Rule wrongly required ONLY the Vanguard to enter the sole occupied tile, making legitimate victory impossible.",
+        "codeChange": "Any actually living party hero standing on genuine exit tile, after all enemies are dead, completes descent. Existing signed save, seeded RNG, HP/loot, floor-advance and death mechanics unchanged. No fake damage, timer, forced loss or remote progress.",
+        "executableEvidence": "Locally extracted authentic GitHub Actions exact-head workspace tar (source 935e01), applied this single authority change, compiled with TypeScript 5.8.3 and Node 22, 26/26 core/Oathguard/portal tests pass. Same seed dungeon-ui-round17 now produces natural defeat at step 1471 on floor20 and reaches run3/floor6 by tick2500, with 0 stalled ticks. Two separate corpus seeds also complete repeated natural deaths/restarts, 0 stalls.",
+        "safety": "Two created portal scenarios reject remaining hostiles and empty portal. Replay twin 2500 ticks matches checksum at every tick. No authority-vs-display divergence. Existing CI/real WebGL browser gate still PENDING for new commit.",
+        "pillars": {
+          "looks": "UNVERIFIED",
+          "feels": "UNVERIFIED",
+          "plays": "HEADLESS FIX VERIFIED, FULL EXPERIENCE UNVERIFIED"
+        },
+        "experienceVerdict": "IN_PROGRESS / NOT TRANSFORMED",
+        "next": "Require exact-head browser success on the original natural defeat/restart UI test; inspect forged shield real desktop/mobile screenshots/clip and sound and compare same locked baseline. Then continue dramatic combat staging, body fidelity and camera legibility; independent critics must blind-vote."
       }
     ]
   }
