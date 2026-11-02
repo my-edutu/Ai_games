@@ -160,7 +160,7 @@ export function createMazeWorld(options = {}) {
   const matrix = new THREE.Matrix4(), rotation = new THREE.Quaternion(), euler = new THREE.Euler(), scale = new THREE.Vector3(), position = new THREE.Vector3();
   let snapshot = null, runToken = null, terrainSignature = '', objectSignature = '', backdropSignature = '', disposed = false;
   let batches = [], animations = [], ripples = [], renderedCells = [], stairEdges = [], coastalGardens = 0, wallGardens = 0, lastVisibility = '', highContrast = false;
-  let tidalObservatories = 0, sculptedMosaicWalls = 0, tidePennants = 0, perimeterCascades = 0;
+  let tidalObservatories = 0, sculptedMosaicWalls = 0, tidePennants = 0, perimeterCascades = 0, collapsedPavilions = 0, shellBasins = 0;
   let batchData = new Map();
   const clear = (target) => {
     for (const child of [...target.children]) {
@@ -451,7 +451,7 @@ export function createMazeWorld(options = {}) {
     for (let j = 0; j < 3; j++) plant(x - span + j * .08, 2.8 - j * .42, z + .17, seed + j * 5, cell, 1.4 - j * .15);
   }
   function rebuildTerrain(s) {
-    clear(terrain); batchData = new Map(); renderedCells = s.cells.map(c => c.cell); stairEdges = []; coastalGardens = 0; wallGardens = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0;
+    clear(terrain); batchData = new Map(); renderedCells = s.cells.map(c => c.cell); stairEdges = []; coastalGardens = 0; wallGardens = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0;
     const edges = new Set(), columns = new Set(), landmarkSites = new Map();
     const knownByCell = new Map(s.cells.map(c => [c.cell, c]));
     for (const c of s.cells) {
@@ -621,7 +621,47 @@ export function createMazeWorld(options = {}) {
         }
       }
       if (c.blocked) {
-        for (let j = 0; j < 5; j++) block(j % 2 ? jade : deepStone, x + (variation(c.cell + j) - .5), .22 + j * .11, z + (variation(c.cell + j + 9) - .5), .7, .5, .65, c.cell, j * .7);
+        // Three original silhouettes occupy ONLY publicly disclosed, truly
+        // blocked cells. Never infer a wall from a hidden or missing neighbor;
+        // scenery must not announce secret routes, keys, hazards or AI moves.
+        const relic = variation(c.cell * 23 + 811);
+        if (relic < .35) {
+          for (let j = 0; j < 5; j++) block(j % 2 ? jade : deepStone, x + (variation(c.cell + j) - .5), .22 + j * .11, z + (variation(c.cell + j + 9) - .5), .7, .5, .65, c.cell, j * .7);
+        } else if (relic < .70) {
+          collapsedPavilions++;
+          // Roofless tidal pavilion: connected masonry, two fractured
+          // columns, a heavy leaning cornice and fallen pieces. Every piece
+          // stays inside this known non-traversable 2.4-unit footprint.
+          block(deepStone, x, .10, z, 1.86, .20, 1.82, c.cell);
+          block(seaGlass, x, .23, z, 1.62, .08, 1.52, c.cell);
+          for (const side of [-1, 1]) {
+            block(lightStone, x + side * .63, .40, z - .28, .42, .24, .48, c.cell);
+            add(cylinder, jade, x + side * .63, side < 0 ? 1.02 : .88,
+              z - .28, .16, side < 0 ? 1.02 : .69, .16, c.cell, 0, 0, side * .11);
+            block(stone, x + side * .63, side < 0 ? 1.61 : 1.44,
+              z - .28, .51, .16, .53, c.cell, side * .12);
+          }
+          block(deepStone, x, 1.66, z - .28, 1.68, .19, .50, c.cell, -.14);
+          block(lightStone, x + .15, 1.83, z - .28, .83, .15, .55, c.cell, -.25);
+          block(jade, x - .18, .36, z + .51, .82, .29, .31, c.cell, .26);
+        } else {
+          shellBasins++;
+          // Sunken noninteractive shell basin: stepped ceramic, inset
+          // sea-glass and six weighty stone petals. No coin-shaped halo,
+          // pulsing objective or fake collectible; all meshes are batched.
+          block(deepStone, x, .06, z, 1.75, .12, 1.75, c.cell);
+          add(cylinder, jade, x, .24, z, .81, .28, .81, c.cell);
+          add(cylinder, seaGlass, x, .392, z, .59, .015, .59, c.cell);
+          add(ring, lightStone, x, .40, z, .71, .71, .71, c.cell, Math.PI / 2);
+          for (let petal = 0; petal < 6; petal++) {
+            const angle = petal * TAU / 6;
+            add(cone, petal % 2 ? stone : inlay,
+              x + Math.cos(angle) * .43, .62,
+              z + Math.sin(angle) * .43,
+              .19, .46, .19, c.cell, 0, angle, .16);
+          }
+          add(cylinder, deepStone, x, .53, z, .18, .27, .18, c.cell);
+        }
       }
     }
     finishBatches();
@@ -1112,7 +1152,7 @@ export function createMazeWorld(options = {}) {
     for (const g of geometries) g.dispose();
     for (const m of materials) m.dispose();
     for (const t of textures) t.dispose(); textures.clear();
-    geometries.clear(); materials.clear(); batches = []; animations = []; ripples = []; batchData.clear(); snapshot = null; renderedCells = []; stairEdges = []; coastalGardens = 0; wallGardens = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; group.clear();
+    geometries.clear(); materials.clear(); batches = []; animations = []; ripples = []; batchData.clear(); snapshot = null; renderedCells = []; stairEdges = []; coastalGardens = 0; wallGardens = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0; group.clear();
   }
   function stats() {
     let meshes = 0, instances = 0;
@@ -1123,7 +1163,7 @@ export function createMazeWorld(options = {}) {
     const visibleGateBars = [...retractingGates.values()].filter(gate => gate.visible);
     const movingGateMinBarsHeightRatio = visibleGateBars.length
       ? Math.min(...visibleGateBars.map(gate => gate.scale.y)) : 0;
-    return { renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), coastalGardens, wallGardens, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
+    return { renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), coastalGardens, wallGardens, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
   }
   return { group, update, animate, dispose, stats, matchingPublicSocket };
 }
