@@ -7,7 +7,7 @@ import { createRenderProgress } from './render-progress.mjs';
 import { createTowerFinale } from './finale.mjs';
 import { observedGuardianPassage, createTowerGuardianPassage } from './guardian-passage.mjs';
 import { createTowerRouteIntent } from './route-intent.mjs';
-import { createTowerGuardianCircuit } from './guardian-circuit.mjs';
+import { createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage } from './guardian-circuit.mjs';
 // A tiny 3D attack lane follows only a REAL enemy telegraph. The curved ribbon
 // traces the same cylindrical projection as authoritative horizontal shots and
 // keeps its world-space origin at the firing actor, never at a guessed target.
@@ -648,7 +648,7 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
         contactGuardianDistance = score;
         contactGuardian = { ...pointFor(enemy.x, enemy.y, snapshot.chunkBaseY, snapshot.worldWidth),
           halfWidth: enemy.halfWidth / SCALE, halfHeight: enemy.halfHeight / SCALE,
-          sourceX: enemy.x, sourceY: enemy.y, healthRatio };
+          sourceX: enemy.x, sourceY: enemy.y, guardianId: enemy.id, healthRatio };
       }
     }
     for (const hazard of snapshot.hazards || []) if (hazard.active) consider(hazard.x + hazard.width / 2, hazard.y + hazard.height / 2, hazard.width / 2, hazard.height / 2, 1.2);
@@ -663,20 +663,19 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
   const encounter = !!contactGuardian || (!!threat && (threat.imminentWindup
     || ['engaging-enemy', 'bracing-telegraph', 'evading-telegraph', 'evading-projectile'].includes(snapshot.intent?.mode)));
   const routeLanding = encounter ? null : landing;
-  // The only mechanical gate to frame is the one already placed on the
-  // observed guardian cap. No predicted clearance or unearned cutscene.
-  const cap = contactGuardian && snapshot.platforms?.find(platform =>
-    typeof platform.id === 'string' && platform.id.endsWith(':cap') &&
-    Math.abs(guardianGateAnchorX(snapshot, platform) - contactGuardian.sourceX) < 100000 &&
-    Math.abs(platform.y + platform.height - contactGuardian.sourceY) < 80000);
-  const gateAnchorX = cap ? guardianGateAnchorX(snapshot, cap) : null;
-  const gate = cap ? pointFor(gateAnchorX, cap.y + cap.height,
-    snapshot.chunkBaseY, snapshot.worldWidth, 21.8) : null;
-  const gatePoints = gate ? [
-    { ...gate, y: gate.y + 2.5 }, { ...gate, y: gate.y + 5.2 },
-    ...[-1, 1].map(side => ({ x: gate.x + Math.cos(gate.angle) * side * 3.4,
-      y: gate.y + 2.7, z: gate.z - Math.sin(gate.angle) * side * 3.4 })),
-  ] : [];
+  // Stage the SAME actual exterior bronze cap lock that the renderer poses:
+  // the older inner-cap focus at radius 21.8 could look centered yet hide the
+  // visible HP-retracting teeth at radius 27.78, especially on a phone. The
+  // observed guardian ID must match the opponent this shot is protecting.
+  const guardianCircuitSource = contactGuardian ? observedGuardianCircuit(snapshot) : null;
+  const lockStage = guardianCircuitSource?.guardianId === contactGuardian?.guardianId
+    ? observedGuardianLockStage(guardianCircuitSource) : null;
+  const gateAnchorX = lockStage ? guardianCircuitSource.toX : null;
+  const gate = lockStage?.center || null;
+  // Keep gate width a soft composition preference, never a hard camera bound:
+  // the real climber and attacker's complete silhouettes still take priority.
+  const gatePoints = lockStage
+    ? [lockStage.center, ...lockStage.bolts.slice(2, 6)] : [];
   const center = { ...body };
   if (routeLanding) blendTowerStageFocus(center, landing, .38);
   if (threat) blendTowerStageFocus(center, threat, routeLanding ? .18 : .5);
@@ -769,7 +768,7 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
     };
     const guardianFramed = guardianCorners.length > 0 &&
       guardianCorners.every(point => visible(point, .84, .75));
-    const gateCoreClear = !!gate && towerCoreSightlineClear(position, gate);
+    const gateCoreClear = !!gate && towerCoreSightlineClear(position, gate, 23.5);
     const gateFramed = gatePoints.length > 0 && gateCoreClear &&
       gatePoints.every(point => visible(point, .93, .86));
     return { focus: center, position, distance, landing, targetId: target?.id || null, lean, clear,
@@ -798,7 +797,7 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
     // only among cameras with both actors framed and a clear tower sightline.
     const quality = view => (!view.clear || !view.guardianFramed || view.heroFraction < .15)
       ? -1000 + view.heroFraction
-      : 150 + (view.gateFramed ? 16 : 0) +
+      : 150 + (view.gateFramed ? 16 + guardianCircuitSource.openedFraction * 12 : 0) +
         Math.min(.24, view.heroFraction) * 16 - Math.abs(view.lean) * 1.6;
     let bestQuality = quality(best);
     for (const amount of [0, .22, .45, .7, .95, 1.13, -.22, -.45, -.7]) {
@@ -1978,12 +1977,12 @@ export function createTowerScene(canvas, settings = {}) {
         snapshot.chunkBaseY, snapshot.worldWidth);
       const actor = pointFor(snapshot.player.x, snapshot.player.y,
         snapshot.chunkBaseY, snapshot.worldWidth);
-      const cap = snapshot.platforms?.find(platform =>
-        typeof platform.id === 'string' && platform.id.endsWith(':cap'));
-      const gate = cap ? pointFor(guardianGateAnchorX(snapshot, cap), cap.y + cap.height,
-        snapshot.chunkBaseY, snapshot.worldWidth, 21.8) : null;
+      const circuit = observedGuardianCircuit(snapshot);
+      const lockStage = circuit?.guardianId === liveGuardian.id
+        ? observedGuardianLockStage(circuit) : null;
+      const gate = lockStage?.center || null;
       const guardianCenter = ndc(guardian);
-      const gateCenter = gate ? ndc({ ...gate, y: gate.y + 2.5 }) : null;
+      const gateCenter = gate ? ndc(gate) : null;
       const visible = point => !!point && point.every(Number.isFinite) &&
         Math.abs(point[0]) <= .85 && Math.abs(point[1]) <= .78 &&
         point[2] >= -1 && point[2] <= 1;
@@ -1992,10 +1991,13 @@ export function createTowerScene(canvas, settings = {}) {
         actorNdc: ndc(actor), guardianNdc: guardianCenter, gateNdc: gateCenter,
         guardianInFrame: visible(guardianCenter), gateInFrame: visible(gateCenter),
         guardianCoreClear: towerCoreSightlineClear(camera.position, guardian, 23.5),
-        gateCoreClear: !!gate && towerCoreSightlineClear(camera.position, gate),
+        gateCoreClear: !!gate && towerCoreSightlineClear(camera.position, gate, 23.5),
         gateProjectedAndCoreClear: visible(gateCenter) && !!gate &&
-          towerCoreSightlineClear(camera.position, gate),
-        metric: 'Actual smoothed-camera NDC and approximate core sightline, NOT raster visibility, quality or supported-device FPS' };
+          towerCoreSightlineClear(camera.position, gate, 23.5),
+        gateSource: lockStage ? 'live-exterior-hp-lock' : 'not-present',
+        gateSourceTick: lockStage?.sourceTick ?? null,
+        gateReleaseFraction: lockStage?.releaseFraction ?? null,
+        metric: 'Actual smoothed-camera projection of the LIVE exterior cap teeth, not the inner recessed cap; NDC/core sightline are NOT raster visibility, quality or supported-device FPS' };
     }
     // "frames" remains a compatibility alias for renderer submissions. The
     // accepted snapshot below can be newer than lastSubmitted; neither proves
