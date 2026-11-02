@@ -304,7 +304,30 @@ test('a real close public encounter frames both autonomous actors and saves date
         intent: document.getElementById('intent-mode').textContent.trim(),
         actualIntent: window.__MAZE_PUBLIC_STATE__?.intent?.mode,
         publicThreats: window.__MAZE_PUBLIC_STATE__?.threats?.length || 0,
+        mission: (() => {
+          const el=document.querySelector('#hud .mission-block');
+          const r=el.getBoundingClientRect();
+          const eye=getComputedStyle(el.querySelector('.eyebrow'));
+          const detail=getComputedStyle(document.getElementById('objective'));
+          const title=document.getElementById('goal-title').getBoundingClientRect();
+          return {width:r.width,height:r.height,left:r.left,right:r.right,
+            titleLeft:title.left,titleRight:title.right,
+            labelClipped:eye.clipPath==='inset(50%)',
+            detailClipped:detail.clipPath==='inset(50%)'};
+        })(),
       }));
+      // Real 320px production WebGL: an urgent goal must be one compact
+      // visible action, not another three-line dashboard over moving models.
+      // Keep the nonvisual context readable by assistive technology instead
+      // of removing or falsifying the underlying live text.
+      expect(liveDangerHud.mission.height,
+        'native danger chip must leave real 3D stage unobscured').toBeLessThanOrEqual(52);
+      expect(liveDangerHud.mission.labelClipped).toBe(true);
+      expect(liveDangerHud.mission.detailClipped).toBe(true);
+      expect(liveDangerHud.mission.left).toBeGreaterThanOrEqual(0);
+      expect(liveDangerHud.mission.right).toBeLessThanOrEqual(320);
+      expect(liveDangerHud.mission.titleLeft).toBeGreaterThanOrEqual(liveDangerHud.mission.left);
+      expect(liveDangerHud.mission.titleRight).toBeLessThanOrEqual(liveDangerHud.mission.right);
       expect(liveDangerHud.publicThreats,
         'urgent message must correspond to a real disclosed guardian').toBeGreaterThan(0);
       expect(liveDangerHud.scene).toBe('WARDEN NEARBY');
