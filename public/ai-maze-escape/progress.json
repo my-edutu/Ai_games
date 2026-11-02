@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-02T11:10:11.394Z",
+  "updatedAt": "2026-11-02T11:16:21.956Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass72 adds source-authenticated physical four-leaf key-shrine opening with a persistent empty stone result beside Pass71 genuine key shards/Pip acting. Focused source/model build stage passed; new-source real WebGL image, SHA and separate monorepo CI are still being checked. Previously verified Pass70b full-resolution 20-PNG baseline is not a Nintendo win. Frozen Captain Toad benchmark remains ahead. No merge or deployment."
+    "summary": "Pass72 source-authorized real 3D key pickup now leaves a four-leaf physical opening stone shrine. New exact-source visual workflow 41434264524 passed 57/57 real-Three/model checks + 5/5 Playwright tests; original PNGs in artifact 13135657912 still not individually viewed/hash-verified due disconnected shared workspace. Whole CI 41434264333 found 2 temporary test-fixture ESM dependency failures (562/564 passed); actual loader fixed in dcb26968; rerun 41435283563 pending. Frozen official Nintendo Captain Toad visual benchmark remains unachieved. No merge/deploy."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass72 CI verification: source-bound browser 41434264524 completed SUCCESS (57/57 real-Three/model, 5/5 Playwright WebGL) with 16.4 MB authentic dated screenshot artifact 13135657912. Full monorepo 41434264333 failed 2/564 due independent actual district test fixture missing new map-view.mjs ESM module; fix dcb26968 copies real module without stubs or weakened thresholds, new full 41435283563 pending. Artifact PNGs could not be separately downloaded/verified through connector; visual critic and Nintendo bar still pending.",
     "Pass72: source commit e8f695a introduces a genuinely persistent collected-key stone shrine and four modeled jade petals that open only for same-run previously disclosed inventory-confirmed pickup, over the 0.82s stall-safe cosmetic clock; preexisting collectible vanishes and empty carved recess remains. Actual Three tests exercise real hinges, reduced motion, run reset, no false inventory/authority and fixed material resources. Focused 41434264524 and monorepo 41434264333 started; exact current-source native 320/390/844/1280 WebGL images and independent comparison pending, Nintendo bar unmet.",
     "Pass69 live journal visibility: /maze/progress renders the first 30 change rows and 12 review/verification records; historical JSON had stored new findings at the end, hiding this Gauntlet's latest work. Latest-first journal ordering now exposes exact-source dated reviews and blockers immediately, with unchanged public screen privacy and no fake gallery screenshots.",
     "Pass69b: real 320 guardian screenshot revealed contradictory WARDEN NEARBY vs Find a passage/Explore goal and stale opened-gate caption. Current app.js now shows public immediate danger 'Avoid warden / Keep clear' without falsifying actual AI intent; newly disclosed guardian captions once on entry. Exact current-source real WebGL and strict native 320 regression CI 41418158177 pending; no current-HUD visual acceptance claimed.",
@@ -695,6 +696,13 @@
     }
   ],
   "verification": [
+    {
+      "name": "Pass72 completed source-bound live WebGL and identified/fixed real whole-CI test-loader failure",
+      "status": "Focused 41434264524 SUCCESS 57/57 model + 5/5 Playwright; artifact 13135657912 (original PNG hashes unverified outside CI). Monorepo 41434264333 FAIL 562/564 from omitted ESM fixture; corrected dcb26968. Full 41435283563 pending. Nintendo NOT PASSED.",
+      "detail": "All existing exact source-native game-first, privacy, in-frame, 44px screenshot tests passed. Still cannot directly open dated original PNGs with disconnected workspace. Non-visual CI failed for real temporary ESM fixture missing map-view.mjs, fixed by copying production helper, no assertions loosened.",
+      "sourceCommit": "dcb26968bfa9cc043ff3b7db79892f2ca431bdd9",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41434264524"
+    },
     {
       "name": "Pass72 source-authenticated 3D key-shrine model and native screenshot gate",
       "status": "Instantiated real-Three source/model build stage succeeded; focused 41434264524 and whole CI 41434264333 in progress; original new PNGs not independently inspected; Nintendo NOT PASSED",
