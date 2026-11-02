@@ -232,7 +232,7 @@ function composeTowerTerminalShot(hero, aspect, zoom = 1, orbit = 0) {
   const heroRadius = Math.max(27.35, Math.hypot(hero.x, hero.z));
   const angle = Math.atan2(hero.x, hero.z) + (portrait ? .015 : .08) +
     clamp(orbit, -.5, .5) * .25;
-  const radius = heroRadius + (portrait ? 44 : 29) * clamp(zoom, .8, 1.35);
+  const radius = heroRadius + (portrait ? 35 : 29) * clamp(zoom, .8, 1.35);
   const position = new THREE.Vector3(Math.sin(angle) * radius,
     hero.y + (portrait ? 8.2 : 6.5), Math.cos(angle) * radius);
   const focus = new THREE.Vector3(hero.x, hero.y + 2.1, hero.z);
