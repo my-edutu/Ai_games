@@ -97,9 +97,10 @@ test('opt-in AI replanning audio follows real distinct selected decks and never 
       platforms:[{...liveDeck,kind:'oneway'}],intent:{mode:'waiting'},
       player:{...foot,state:'standing'}}));
     assert.equal(oscillators,beforeFixed+1,'an ordinary landing retains its single physical touchdown, not metallic machinery');
+    const beforeMute=oscillators;
     await audio.setEnabled(false);
-    audio.accept(frame(8, 'b', { runToken: 'expedition-8' }));
-    assert.equal(oscillators, 5, 'viewer mute remains authoritative');
+    audio.accept(frame(12, 'b', { runToken: 'expedition-9' }));
+    assert.equal(oscillators, beforeMute, 'viewer mute remains authoritative');
   } finally {
     audio.dispose();
     if (beforeWindow === undefined) delete global.window;
