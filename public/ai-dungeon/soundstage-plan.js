@@ -12,7 +12,7 @@ const EVENT_KIND=Object.freeze({
 });
 const PRIORITY=Object.freeze({
  defeat:6,renewal:5,transition:5,warning:5,unseal:5,boss:4,danger:4,
- opening:4,breach:4,cover:4,impact:3,weapon:3,ranged:3,magic:3,heal:3,kill:3,
+ opening:4,breach:4,cover:4,'cover-impact':5,impact:3,weapon:3,ranged:3,magic:3,heal:3,kill:3,
  reward:2,trap:2,disarm:2,guard:1,block:1,evade:1
 });
 const finite=(n,defaultValue=0)=>Number.isFinite(n)?n:defaultValue;
@@ -70,6 +70,12 @@ export function planSoundCues(previous,snapshot,resolveContact=()=>null){
    // A floor label in the recent event log is not itself a new floor.
    const kind=EVENT_KIND[e.kind];
    if(kind)push(kind,e.tick);
+   if(e.kind==='cover'&&typeof e.text==='string'&&e.text.startsWith('Ashen Vanguard intercepted ')){
+    const older=Array.isArray(previous.units)?previous.units.find(u=>u.id==='vanguard'):null;
+    const newer=snapshot.units.find(u=>u.id==='vanguard');
+    if(older&&newer&&Number.isFinite(older.hp)&&Number.isFinite(newer.hp)&&older.hp>newer.hp)
+     push('cover-impact',e.tick,'vanguard');
+   }
   }
   const old=new Map((Array.isArray(previous.units)?previous.units:[]).slice(0,96)
    .filter(validUnit).map(u=>[u.id,u]));

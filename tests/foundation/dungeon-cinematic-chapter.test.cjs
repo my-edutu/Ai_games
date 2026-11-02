@@ -194,3 +194,25 @@ test('real Warden warning poses imported shoulders as well as torso, without per
  assert.match(model,/mount\.last\.identity\(\)/);
  assert.match(model,/wardenChargeShoulderPeakRad:/);
 });
+
+test('real Oathguard cover gets a close two-hero shot; history, remote ally, and visual-only guard do not',async()=>{
+ const {planOathguardPose,planCinematicShot,planReadableExpeditionLens}=await planner();
+ const s=scene(),guard=s.units.find(u=>u.id==='vanguard');
+ guard.action='guard';guard.guardTick=s.tick;guard.targetId='ranger';
+ const unchanged=JSON.stringify(s);
+ assert.deepEqual(planOathguardPose(s),{guardianId:'vanguard',allyId:'ranger',x:9.5,z:9});
+ const desktop=planCinematicShot(s,null,{width:1440,height:832});
+ const mobile=planCinematicShot(s,null,{width:390,height:844});
+ assert.equal(desktop.mode,'oathguard-cover');
+ assert.deepEqual(desktop.subjects,['vanguard','ranger']);
+ assert.equal(mobile.mode,'oathguard-cover');
+ assert.equal(planReadableExpeditionLens(mobile,{width:390,height:844}).portrait,true);
+ assert.equal(desktop.warning,false);
+ assert.equal(JSON.stringify(s),unchanged);
+ guard.guardTick=s.tick-1;assert.equal(planOathguardPose(s),null);
+ guard.guardTick=s.tick;s.units.find(u=>u.id==='ranger').x=14;
+ assert.equal(planOathguardPose(s),null);
+ s.units.find(u=>u.id==='ranger').x=10;
+ s.bossWarning={attackTick:s.tick+1,cells:[{x:10,z:9}],shape:'NOVA',axis:'EAST_WEST'};
+ assert.equal(planCinematicShot(s).mode,'warden-warning');
+});

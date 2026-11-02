@@ -33,6 +33,18 @@ export function planDuelCameraOffset(hero,foe,height=8.2,radius=6.2){
  const h=clip(height,4.5,15),r=clip(radius,3.8,10.8);
  return Object.freeze([round(viewX*r),round(h),round(viewZ*r)]);
 }
+/** Real current-turn protective action only; a stale guard or remote companion is never cinematic cover. */
+export function planOathguardPose(s){
+ const n=Array.isArray(s?.map)?s.map.length:0;
+ if(n<3||n>64||!Number.isSafeInteger(s?.tick)||!Array.isArray(s.units))return null;
+ const guard=s.units.find(u=>u?.kind==='vanguard'&&u.faction==='party'&&u.hp>0&&
+  u.action==='guard'&&u.guardTick===s.tick&&typeof u.targetId==='string'&&valid(u,n));
+ const ally=guard&&s.units.find(u=>u.id===guard.targetId&&u.id!==guard.id&&
+  u.faction==='party'&&u.hp>0&&valid(u,n)&&distance(u,guard)===1);
+ if(!ally)return null;
+ return Object.freeze({guardianId:guard.id,allyId:ally.id,
+  x:round((guard.x+ally.x)/2),z:round((guard.z+ally.z)/2)});
+}
 export function planCinematicShot(s,encounter=null,{width=1440,height=832,focusedHeroId='vanguard'}={}){
  const n=Array.isArray(s?.map)?s.map.length:0;
  if(n<3||n>64||!Array.isArray(s?.units))return null;
@@ -55,6 +67,7 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
  // its public snapshot still holds the corpse; it is never a fabricated duel.
  const fallenFoe=encounter?.mode==='final-blow'?
   s.units.find(u=>u.id===encounter.targetId&&u.faction==='enemy'&&u.hp===0&&valid(u,n)):null;
+ const oathguard=planOathguardPose(s);
  const realContact=(encounter?.mode==='contact'||Boolean(fallenFoe))&&
   typeof encounter.actorId==='string'&&typeof encounter.targetId==='string'&&
   heroes.some(h=>h.id===encounter.actorId)&&
@@ -71,6 +84,13 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
   mode='breach-warning';position=mean(source,hero);
   offsets=planDuelCameraOffset(hero,source,8.5,7.05)||[4.8,8.1,5.5];
   lookY=.45;subjects=[source.id,hero.id];
+ }else if(oathguard){
+  // Actual autonomous sacrifice is the story. Imminent Warden danger
+  // takes priority above this close-up to preserve a legible dodge lane.
+  const guard=heroes.find(u=>u.id===oathguard.guardianId),ally=heroes.find(u=>u.id===oathguard.allyId);
+  mode='oathguard-cover';position=mean(guard,ally);
+  offsets=planDuelCameraOffset(guard,ally,7.75,6.35)||[4.4,7.75,4.7];
+  lookY=.84;subjects=[guard.id,ally.id];
  }else if(boss&&closeBoss&&distance(closeBoss,boss)<=5&&
   (!realContact||encounter.targetId!==boss.id)){
   // A remote ranger/cultist contact is genuine, but it must not cut away from
@@ -108,6 +128,7 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
  const zoom=clip(1+margin+portrait,.86,2.3);
  return Object.freeze({
   mode,x:round(position.x),z:round(position.z),lookY,
+  oathguard:oathguard?Object.freeze({guardianId:oathguard.guardianId,allyId:oathguard.allyId}):null,
   offsets:Object.freeze(offsets.map(v=>round(v*zoom))),
   subjects:Object.freeze(subjects),spread:round(spread),
   warning:!!warning||mode==='breach-warning',
@@ -129,6 +150,7 @@ const DIRECTOR_LENS=Object.freeze({
  'skirmish-approach':Object.freeze({radius:5.45,height:6.25,fov:43,aim:.78,follow:6.0,key:1.08}),
  contact:          Object.freeze({radius:4.95,height:5.85,fov:41,aim:.91,follow:7.5,key:1.14}),
  'warden-contact': Object.freeze({radius:6.55,height:7.65,fov:44,aim:.85,follow:7.5,key:1.12}),
+ 'oathguard-cover':Object.freeze({radius:5.7,height:6.9,fov:44,aim:.86,follow:7.4,key:1.20}),
  'warden-approach':Object.freeze({radius:7.35,height:8.35,fov:44,aim:.77,follow:6.2,key:1.09}),
  'warden-warning': Object.freeze({radius:9.05,height:10.55,fov:51,aim:.35,follow:10.0,key:.92}),
  'breach-warning': Object.freeze({radius:6.55,height:7.5,fov:46,aim:.45,follow:8.0,key:1.04}),

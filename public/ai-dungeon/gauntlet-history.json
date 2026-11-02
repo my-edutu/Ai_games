@@ -2204,10 +2204,10 @@
       "latestCandidateWorkflow": "Code SHA 562b90ed969f663f6297253850596139304b1c91: Dungeon/authority/browser run https://github.com/my-edutu/Ai_games/actions/runs/41438411903, visual review https://github.com/my-edutu/Ai_games/actions/runs/41438411909, catalogue CI https://github.com/my-edutu/Ai_games/actions/runs/41438411826 QUEUED at current handoff; UNVERIFIED. Previous genuine game browser failures (long run no terminal by 2500 ticks and director lag) unresolved."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Actual browser-captured full expedition still lacks convincing human-scale animation, physical contact and credible tactical pacing (including a prior 2500-tick nonterminal seed). New shield must be inspected for real camera alignment and mobile readability. Matched pinned-before/after motion/audio, real-device performance and 3 independent blind LOOKS/FEELS/PLAYS critics are still missing; NOT TRANSFORMED.",
-    "currentWork": "M1 continuation, not a new Gauntlet round: original, authoritative AI Oathguard cover + actual HP cost + bone-sized 3D shield, real UI and opt-in synthesized sound implemented on draft PR #49; not yet rendered/verified in Chromium. Previous 2500-tick nonterminal scenario and director lag remain open.",
+    "biggestRemainingGap": "Professional character/environment animation and organic complete-run liveness remain unverified. Confirmed genuine Chromium run 41438793069: 10/11 UI tests passed; seed dungeon-ui-round17 did not naturally enter intermission after 2,500 authoritative ticks. Distinguish fair long survival from AI deadlock; never fake defeat. Matched pinned before/after motion and real audio, independent critics, mobile frame budgets still missing.",
+    "currentWork": "Single continuing M1 experience: the genuine HP-costing Vanguard protection now directs layered beveled original 3D armour, physical between-actor placement, distinct truthful opt-in synthesized hit sound, two-protagonist camera and one bounded real-damage impact wave. Browser/mobile/source gates not yet rerun at new SHA.",
     "candidateCommit": "562b90ed969f663f6297253850596139304b1c91",
-    "candidateArtifactUrl": null,
+    "candidateArtifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41438793069/artifacts/13140305057",
     "acceptedAt": null,
     "implementationEvents": [
       {
@@ -2853,6 +2853,33 @@
         },
         "experienceVerdict": "IN_PROGRESS / NOT_TRANSFORMED",
         "next": "Await exact-head CI/Chromium results, inspect the real desktop/mobile material and genuine AI collision/protection timeline, correct any regression; then build expressive rigged combat and authored arena impact together and capture organic matched baseline traversal→combat→Warden→floor→defeat/restart with real audio. Require three fresh blind critics and measured performance before acceptance."
+      },
+      {
+        "id": "M1-OATHGUARD-PHYSICAL-CINEMATIC-20261102",
+        "date": "2026-11-02",
+        "status": "CODE_IMPLEMENTED_EXPERIENCE_UNVERIFIED",
+        "sourceHeadAtStart": "935e01d28fca97bf43217fae82f39d7fe1993d93",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "objective": "One real cooperative sacrifice across rules, skinned actors, readable 3D armour, directing camera and truthful impact/audio; keep it as an unaccepted slice, not an artificial Gauntlet win.",
+        "integratedWork": [
+          "A fully original patinated forged 3D shield extrusion with beveled bronze perimeter, inset iron plate, central keel, crossed relief ribs, rivets and crest, anchored between current-turn genuinely adjacent moving hero actors instead of a camera-facing flat sprite.",
+          "A truth-checked protective pose and dedicated desktop/mobile two-person director shot that yields to imminent dangerous Warden tiles. No game authority/prediction mutation.",
+          "One bounded and reduced-motion-aware visual impact ring and original synthesized metal sound only when a new genuine cover event coincides with Vanguard HP loss; never a fake interception.",
+          "New pure camera and sound planner tests and direct WebGL desktop physical-mesh/cinematic assertion. No third-party artwork or added GPU lights."
+        ],
+        "existingBrowserEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/41438793069/artifacts/13140305057",
+        "realBrowserFinding": "Existing actual Chromium 41438793069 passed 10/11 checks but the specified 2,500-tick scenario never naturally entered intermission. Cause UNDIAGNOSED; this capture predates the new 3D artwork.",
+        "newBrowserCapture": "NOT YET EXECUTED",
+        "newAudibleMotion": "NOT YET EXECUTED",
+        "critics": {
+          "looks": "UNVERIFIED",
+          "feels": "UNVERIFIED",
+          "plays": "UNVERIFIED",
+          "independent": "UNAVAILABLE: coding agent tunnel offline"
+        },
+        "performance": "UNVERIFIED beyond fixed bounded render objects; no GPU/audio capture",
+        "verdict": "IN_PROGRESS / NOT TRANSFORMED",
+        "next": "Inspect actual new-head Chromium captures and shadow/clipping, measure real sound/video; instrument natural 2,500-tick campaign to diagnose AI liveness; continue protagonist/environment/combat integration and floor/defeat loop; independently judge identical full-before/after seeds on real desktops and mobile."
       }
     ]
   }

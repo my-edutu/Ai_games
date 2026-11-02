@@ -125,3 +125,15 @@ test('Warden opening sound exists only for the real public authority counteratta
  assert.equal(planSoundCues(after,after).length,0,'identical polls cannot replay the opening');
  assert.equal(planSoundCues(null,after).length,0,'first page load must remain quiet');
 });
+
+test('a real current-tick costly cover gets distinct original metal audio, never a fake impact',async()=>{
+ const {planSoundCues}=await plan();
+ const hero=hp=>({id:'vanguard',kind:'vanguard',faction:'party',hp,maxHp:120,action:'guard',actionTick:30,x:1,z:1});
+ const before={tick:30,run:1,floor:1,units:[hero(120)],events:[]};
+ const hit={kind:'cover',tick:31,text:'Ashen Vanguard intercepted 12 damage for ranger · 9 HP paid'};
+ const after={...before,tick:31,units:[hero(111)],events:[hit]};
+ assert.equal(planSoundCues(before,after).filter(c=>c.kind==='cover-impact').length,1);
+ assert.equal(planSoundCues(before,{...after,units:[hero(120)]}).some(c=>c.kind==='cover-impact'),false);
+ assert.equal(planSoundCues(before,{...after,events:[{...hit,text:'ASHEN VANGUARD · COVERING RANGER'}]}).some(c=>c.kind==='cover-impact'),false);
+ assert.deepEqual(planSoundCues(after,after),[]);
+});

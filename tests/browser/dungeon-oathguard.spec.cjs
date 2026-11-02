@@ -14,6 +14,8 @@ test('the real renderer shows one authority-tied Oathguard shield at desktop and
  await page.setViewportSize({width:1440,height:832});await page.goto('/dungeon');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.oathguardVisible??false),{timeout:40000}).toBe(true);
  await expect(page.locator('.hero-card[data-hero-id="vanguard"] .hero-sub b')).toContainText('COVER');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.oathguardPhysicalPanels??0)).toBeGreaterThanOrEqual(8);
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.cinematicShot?.mode)).toBe('oathguard-cover');
  await page.locator('canvas#world').screenshot({path:'artifacts/dungeon-m1-oathguard-desktop.png'});
  await page.setViewportSize({width:390,height:844});
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.oathguardVisible??false),{timeout:40000}).toBe(true);
