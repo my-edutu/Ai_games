@@ -2193,7 +2193,7 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "Verified for gameplay implementation 760b7ad4: GitHub Action 41426292170 authority SUCCESS, 194/194 Dungeon Foundation tests, 19/19 presentation tests, 24 named seeds × 900 ticks with 0 deterministic replay mismatches, highest floor 14, 226 floor advances and 15 natural restarts. Exact-head desktop/mobile Chromium shards, visual review, shared catalogue CI, GPU performance and accessibility still running/unverified at recording. Earlier first feature head f1a72c failed compilation; fixed in 760b7ad4. These are safety outcomes NOT evidence that looks/feels/plays transformed.",
+      "safetyChecks": "Verified for gameplay implementation 760b7ad4: GitHub Action 41426292170 authority SUCCESS, 194/194 Dungeon Foundation tests, 19/19 presentation tests, 24 named seeds × 900 ticks with 0 deterministic replay mismatches, highest floor 14, 226 floor advances and 15 natural restarts. Exact-head desktop/mobile Chromium shards, visual review, shared catalogue CI, GPU performance and accessibility still running/unverified at recording. Earlier first feature head f1a72c failed compilation; fixed in 760b7ad4. These are safety outcomes NOT evidence that looks/feels/plays transformed. Added 2026-11-02: extracted exact GitHub Actions checkout at 9b47b6d3; local npm run build SUCCESS and full npm run dungeon:test 203/203 passed (about 8s). New intended Playwright browser test initially excluded by explicit dungeon testMatch, corrected on same draft branch. Local browser launched but mandatory Chromium enterprise localhost block prevented screenshot; NO local browser visual pass claimed.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED — original WebAudio + real canvas recording attempted by new browser fixture, not yet captured or personally inspected.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2201,7 +2201,7 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Inspected exact prior-head genuine 1440x832 original WebGL world-only artifact https://github.com/my-edutu/Ai_games/actions/runs/41398888784/artifacts/13120803208 . Three living heroes in view, no active enemies in that one sample; their circular toy heads overlap alongside bulky masonry. This is genuine prior-head rendering, NOT a matched M1 baseline or a win for the unrendered new candidate.",
-      "latestCandidateWorkflow": "New integrated code b1923fa4 + d648c712, natural desktop/mobile terminal seed browser fixture authored. Exact-head execution and artifacts PENDING, no pass/visual win claimed. Original locked BEFORE remains 281735d."
+      "latestCandidateWorkflow": "9b47b6d3 CI Actions: Dungeon 41446711872 queued, Visual 41446711770 in progress, catalogue 41446711890 queued. 203/203 local Dungeon foundation passed, exact-head browser capture still UNVERIFIED. Current config patch ensures real terminal browser fixture is discovered on subsequent CI runs."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
     "biggestRemainingGap": "Running original 3D anatomy, motion, real contact/lighting quality and continuous story capture may still be far from Diablo IV/No Rest for the Wicked/Path of Exile 2. No matched unchanged 281735d BEFORE vs exact candidate AFTER, coherent desktop/mobile audio motion, hardware p95, or fresh blind three-critic looks/feels/plays majority. New physical last stand and boss director are code-implemented only, UNVERIFIED in real WebGL.",
@@ -2925,19 +2925,20 @@
           "public/ai-dungeon/soundstage-plan.js",
           "public/ai-dungeon/soundstage.js",
           "public/ai-dungeon/styles.css",
-          "tests/browser/dungeon-endgame-epilogue.spec.cjs"
+          "tests/browser/dungeon-endgame-epilogue.spec.cjs",
+          "tests/browser/dungeon.playwright.config.cjs"
         ],
         "evidence": {
-          "source": "GitHub code committed; exact-head CI, browser images/clips and performance await independent execution",
-          "realWebgl": "NOT YET VERIFIED",
+          "source": "Exact 9b47b6d3 source successfully downloaded from GitHub Actions checkout and independently built with TypeScript; all 203/203 Dungeon foundation tests passed locally on 2026-11-02. Managed local Chromium explicitly blocked localhost navigation (enterprise ERR_BLOCKED_BY_ADMINISTRATOR), so no local true browser capture or visual quality win. New Playwright organic terminal test added to the dungeon-specific explicit testMatch list so it can execute on CI.",
+          "realWebgl": "UNVERIFIED ON NEW HEAD: managed local Chrome policy blocked loopback, exact-head CI Chromium currently queued/running.",
           "matchedBeforeAfter": "NOT VERIFIED",
           "originalAudioClip": "NOT VERIFIED",
           "independentCritics": "NOT RUN: coding workspace tunnel unreachable",
-          "replay": "CI PENDING; existing natural 2500-step portal regression previously tested on previous code"
+          "replay": "Exact 9b47b6d3 `npm run build` and `npm run dungeon:test` passed all 203 tests; genuine browser campaign/replay and complete AV scene are still UNVERIFIED."
         },
         "status": "IN_PROGRESS / NOT_TRANSFORMED",
         "biggestRemainingGap": "Full-body anatomy, original detailed architectural staging, motion/contact finesse, consistent frame pacing and a true filmed all-scene adventure are still not proven against the Diablo IV / No Rest for the Wicked / Path of Exile 2 references.",
-        "next": "Inspect exact new Chromium full-run mobile/desktop actual screenshots, eliminate pose/occlusion/scene issues, test performance and replay, capture continuous traversal→combat→Warden→floor→natural defeat/restart with opt-in original audio, blind-compare against fixed 281735d before with >=3 genuinely independent critics."
+        "next": "Run browser fixture from now-correct explicit Playwright suite; retrieve actual 1440x832 and 390x844 scenes, inspect original 3D fallen poses and readability, repair any crop or performance issues, then capture coherent gameplay film and blind A/B."
       }
     ]
   }
