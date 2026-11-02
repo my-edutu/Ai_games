@@ -458,7 +458,7 @@ function getFrameProfile(){
   totalFrames:frameProfileCount,samples:frameProfileSamples.length,
   latest:frameProfileSamples.length?{...frameProfileSamples[frameProfileSamples.length-1]}:null,stages};
 }
-function renderQuality(){const automated=swiftGpu||!gpuAvailable;return {tier:graphicsTier,renderer:gpuName,scale:qualityOverride??(automated?.65:1),targetFps:automated?12:60,materialNoise:swiftGpu?'projected-bilinear-software':'volumetric-trilinear',framesDrawn,framesSkipped,idleFrames}}
+function renderQuality(){const automated=swiftGpu||!gpuAvailable;return {tier:graphicsTier,renderer:gpuName,scale:qualityOverride??(automated?.65:1),targetFps:automated?12:60,materialNoise:swiftGpu?'projected-bilinear-software':'volumetric-trilinear',architectureTier:swiftGpu?'architectural-atlas-fast':'hardware-layered-original',framesDrawn,framesSkipped,idleFrames}}
 function setRenderQuality(scale){if(!Number.isFinite(scale)||scale<.35||scale>1.5)throw Error('Render scale must be between 0.35 and 1.5');qualityOverride=scale;return renderQuality()}
 
 // Accessible no-WebGL preview for constrained machines. Real browsers use the WebGL path.
@@ -780,10 +780,34 @@ const softwareNoise3=`float noise3(vec3 p){
  float c=hash3(vec3(i+vec2(0.,1.),3.)),d=hash3(vec3(i+vec2(1.,1.),3.));
  return mix(mix(a,b,f.x),mix(c,d,f.x),f.y);
 }`;
+// G129: G128 running Day-120 software evidence drew only 19 frames in 9.591s.
+// The original expensive volumetric ROOF/PLASTER/STONE/WOOD/ROAD/FOLIAGE
+// shaders were still evaluated underneath every new baked albedo sample.
+// On SwiftShader replace that exact six-material region with cheap climate
+// tint and let the resident atlas carry coherent surface detail. Physical GPU
+// retains full procedural microstructure PLUS the original texture. This is
+// a bounded presentation compiler tier, never a second rules simulation.
+function bakedSoftwareArchitecture(source){
+ const first=source.indexOf('}else if(vMaterial>2.5&&vMaterial<3.5){');
+ const last=source.indexOf(' // G128: every real village wall');
+ if(first<0||last<=first)throw Error('G129 material tier layout changed');
+ const fast=` }else if(vMaterial>2.5&&vMaterial<8.5){
+  if(vMaterial<3.5)
+   c*=mix(vec3(1.),vec3(.74,.86,.89),weatherWetness*.61);
+  else if(vMaterial<4.5)c*=vec3(.97,1.05,.97);
+  else if(vMaterial<5.5)c*=vec3(.98,.97,.95);
+  else if(vMaterial<6.5)c*=vec3(1.04,.99,.92);
+  else if(vMaterial<7.5)c*=vec3(1.02,.98,.93);
+  else c*=vec3(1.03,1.02,1.0);
+ }
+`;
+ return source.slice(0,first)+fast+source.slice(last);
+}
 const materialFragmentSource=swiftGpu?
- fs.replace(/float noise3\(vec3 p\)\{[\s\S]*?\n\}/,softwareNoise3):fs;
+ bakedSoftwareArchitecture(
+  fs.replace(/float noise3\(vec3 p\)\{[\s\S]*?\n\}/,softwareNoise3)):fs;
 if(swiftGpu&&materialFragmentSource===fs)
- throw Error('Software material tier failed to replace expensive volumetric noise');
+ throw Error('Software architectural material compilation did not activate');
 const program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vs));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,materialFragmentSource));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));gl.useProgram(program);
 const uniforms={viewProjection:gl.getUniformLocation(program,'viewProjection'),fogColor:gl.getUniformLocation(program,'fogColor'),sunDirection:gl.getUniformLocation(program,'sunDirection'),sunTint:gl.getUniformLocation(program,'sunTint'),sunStrength:gl.getUniformLocation(program,'sunStrength'),ambientBlend:gl.getUniformLocation(program,'ambientBlend'),worldTime:gl.getUniformLocation(program,'worldTime'),weatherWetness:gl.getUniformLocation(program,'weatherWetness'),eyePosition:gl.getUniformLocation(program,'eyePosition'),groundAtlas:gl.getUniformLocation(program,'groundAtlas'),architectureAtlas:gl.getUniformLocation(program,'architectureAtlas'),groundAtlasFast:gl.getUniformLocation(program,'groundAtlasFast'),workLightPosition:gl.getUniformLocation(program,'workLightPosition'),workLightStrength:gl.getUniformLocation(program,'workLightStrength')};const buffer=gl.createBuffer();const staticBuffer=gl.createBuffer();let landscapeBuffer=null;let staticGpuUploads=0,landscapeGpuUploads=0;
 // G067: reuse both driver-side storage and CPU staging for the changing
@@ -904,6 +928,8 @@ function getArchitectureMaterialAudit(){
   tiles:ARCH_MATERIAL_NAMES.length,
   bytes:ARCH_ATLAS_WIDTH*ARCH_ATLAS_HEIGHT*4,textureUnits:1,
   uploads:architectureAtlasUploads,hasMipmaps:true,
+  softwareBakedTier:Boolean(swiftGpu),shaderTier:swiftGpu?
+   'architectural-atlas-fast':'hardware-layered-original',
   sampledMaterials:ARCH_MATERIAL_NAMES.slice(),
   samples:Object.fromEntries(Object.entries(architectureAtlasSamples).
    map(([name,values])=>[name,values.slice()]))};
