@@ -461,28 +461,24 @@ export function createWorld(THREE, {width, height}) {
       const sedimentRidge=.5+.5*Math.sin(gx*.43-gz*.32+gardenWarp*.48);
       const brightLimestone=Math.max(limestonePatch*(1-mossPatch*.49),
         sedimentRidge*.78*(1-mossPatch*.23));
-      const targetR=96+brightLimestone*95+(mineral-.5)*13;
-      const targetG=117+brightLimestone*9+(cloud-.5)*11;
+      const targetR=91+brightLimestone*95+(mineral-.5)*13-richMoss*(1-brightLimestone)*16;
+      const targetG=121+brightLimestone*9+(cloud-.5)*11+richMoss*(1-brightLimestone)*8;
       const targetB=86+brightLimestone*22+(mineral-.5)*11;
       // Preserve sub-cell mortar and grazing-light grain rather than erasing
       // real paving depth. Original pre-weathering bounds stay authoritative.
       const preservedGrain=(value-.78)*22-recess*45-fracture*53;
       const previousR=data[i],previousG=data[i+1],previousB=data[i+2];
-      // Keep earlier carved sandstone (warm) and shaded ferns (cool) distinct.
-      // Shift neutral muddy stone more strongly than already-authored biomes.
-      const hueProtected=previousR>previousG+6||previousG>previousR+23;
-      // For previously warm/fern-rich regions shift the *shared luminance*,
-      // not the original hue split. This preserves recognizable natural
-      // sandstone and green moss instead of repainting one flat new color.
-      const oldLuma=(previousR+previousG+previousB)/3;
-      const newLuma=(targetR+targetG+targetB)/3+preservedGrain;
-      const sharedLift=Math.max(-28,Math.min(51,(newLuma-oldLuma)*tintStrength));
-      data[i]=Math.min(priorStoneR,previousR+51,Math.max(0,Math.round(hueProtected
-        ?previousR+sharedLift:previousR*(1-tintStrength)+(targetR+preservedGrain)*tintStrength)));
-      data[i+1]=Math.min(priorStoneG,previousG+51,Math.max(0,Math.round(hueProtected
-        ?previousG+sharedLift:previousG*(1-tintStrength)+(targetG+preservedGrain)*tintStrength)));
-      data[i+2]=Math.min(priorStoneB,previousB+51,Math.max(0,Math.round(hueProtected
-        ?previousB+sharedLift:previousB*(1-tintStrength)+(targetB+preservedGrain)*tintStrength)));
+      // Monotone material regrade: an earlier canopy shadow or old-quarry
+      // pigment must never become brighter after this weathering layer.
+      // Keeping the per-channel transform monotone also preserves genuine
+      // warm sandstone and cool fern contrast instead of branching on
+      // pixel hues whose threshold can reverse their relative ordering.
+      data[i]=Math.min(priorStoneR,previousR+51,Math.max(0,Math.round(
+        previousR*(1-tintStrength)+(targetR+preservedGrain)*tintStrength)));
+      data[i+1]=Math.min(priorStoneG,previousG+51,Math.max(0,Math.round(
+        previousG*(1-tintStrength)+(targetG+preservedGrain)*tintStrength)));
+      data[i+2]=Math.min(priorStoneB,previousB+51,Math.max(0,Math.round(
+        previousB*(1-tintStrength)+(targetB+preservedGrain)*tintStrength)));
       // END T1 RECLAIMED GARDEN COMPOSITION
       // END T1 SUNLIT SCARRED TERRACES
       // END T1 ORGANIC QUARRY FLOOR

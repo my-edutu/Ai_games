@@ -7,12 +7,21 @@ const begin='    // BEGIN R45 PUBLIC FOOD TONGUE INVESTIGATION\n';
 const end='    // END R45 PUBLIC FOOD TONGUE INVESTIGATION\n';
 // Older SHA controls must not accidentally contain later R48 acting.
 const round48 = /^[ \t]*\/\/ BEGIN R48 [^\n]*\n[\s\S]*?^[ \t]*\/\/ END R48 [^\n]*\n/gm;
+// T2 original pigment is deliberately preserved in both rendered old/new
+// animation arms. Remove only its exact bounded section from historical
+// Git-SHA audits dating before the new botanical skin. Do not alter the
+// archived expected SHA or the historical pose/geometry comparison.
+const t2Skin = /^[ \t]*\/\/ BEGIN T2 BOTANICAL DORSAL PIGMENT\n[\s\S]*?^[ \t]*\/\/ END T2 BOTANICAL DORSAL PIGMENT\n/gm;
+function restorePreT2Skin(source) {
+  if ((source.match(t2Skin) || []).length !== 1) throw new Error('Expected exactly one reversible T2 skin block');
+  return source.replace(t2Skin, '');
+}
 // Only historical source SHA provenance omits R55's five bounded blocks.
 // Real contemporary before/after renders keep all other later character work.
 const round55 = /^[ \t]*\/\/ BEGIN R55 [^\n]*\n[\s\S]*?^[ \t]*\/\/ END R55 [^\n]*\n/gm;
 function restorePreR55(source) {
   if ((source.match(round55) || []).length !== 5) throw new Error('Expected five bounded R55 additions');
-  return source.replace(round55, '');
+  return restorePreT2Skin(source.replace(round55, ''));
 }
 function restorePreR48(source) {
   source = restorePreR55(source);
@@ -28,4 +37,4 @@ function restorePreR45(source) {
   }
   return source.slice(0,first)+originalTongue+source.slice(last+end.length);
 }
-module.exports={restorePreR45,restorePreR48,restorePreR55};
+module.exports={restorePreR45,restorePreR48,restorePreR55,restorePreT2Skin};

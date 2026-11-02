@@ -61,6 +61,32 @@ export function createSerpent(THREE) {
         r += (229 - edge * 16 - r) * saddle;
         g += (181 - edge * 13 - g) * saddle;
         b += (54 - edge * 8 - b) * saddle;
+        // BEGIN T2 BOTANICAL DORSAL PIGMENT
+        // The old entire transverse saddles made the animal resemble a
+        // yellow-striped toy at game distance. Retain the exact existing
+        // original scale relief and two sunlight anchors, but reveal deep
+        // jade between small asymmetrical leaf-shaped dorsal islands.
+        // All pigment is authored once in the same four pre-owned textures.
+        const spineMask = 1 - smooth(.095, .235, Math.abs(around - .25));
+        const leafWarp = .009 * Math.sin(around * 6.283 * 7 + along * 6.283 * 2)
+          + .006 * Math.sin(around * 6.283 * 11 - along * 6.283 * 5);
+        const leafHalfWidth = .045 + .043 * spineMask;
+        const leafCore = 1 - smooth(leafHalfWidth * .62, leafHalfWidth,
+          bandDistance + leafWarp);
+        const preservedGold = isHead
+          ? spineMask * (.25 + .75 * (1 - smooth(.045, .29, Math.abs(along - .76))))
+          : spineMask * leafCore;
+        const darkLeafScale = (1 - underside) * (1 - preservedGold)
+          * (.5 + .5 * Math.sin(along * 6.283 * 13 + around * 6.283 * 9))
+          * (.5 + .5 * Math.cos(around * 6.283 * 17 - along * 6.283 * 3));
+        const jadeR = (50 + mottling * 12 - edge * 16) * backLight;
+        const jadeG = (139 + mottling * 16 - edge * 23) * backLight;
+        const jadeB = (75 + mottling * 10 - edge * 13) * backLight;
+        const leafShadow = darkLeafScale * 12;
+        r = r * preservedGold + (jadeR - leafShadow) * (1 - preservedGold);
+        g = g * preservedGold + (jadeG - leafShadow * .72) * (1 - preservedGold);
+        b = b * preservedGold + (jadeB - leafShadow * .56) * (1 - preservedGold);
+        // END T2 BOTANICAL DORSAL PIGMENT
         r += (238 - r) * sideGold * 0.48;
         g += (193 - g) * sideGold * 0.48;
         b += (85 - b) * sideGold * 0.48;
