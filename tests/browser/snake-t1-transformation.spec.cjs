@@ -68,7 +68,10 @@ test('T1 original-vs-living-garden same-source real Chromium WebGL: entire overv
     expect(captures[0].png.equals(captures[1].png)).toBe(false);
     const originalWorld=captures[0].stats.world, updatedWorld=captures[1].stats.world;
     for(const [key,value] of Object.entries(originalWorld)){
-      if(key==='drawObjects')expect(updatedWorld[key]).toBe(value+4);
+      // Exact 818388d Chromium 3D world: 37 original direct objects
+      // versus 38 current. Historic +4 assumed four exposed garden batches;
+      // they are now wrapped as a single static hierarchy, NOT removed.
+      if(key==='drawObjects')expect(updatedWorld[key]).toBe(value+1);
       else expect(updatedWorld[key]).toEqual(value);
     }
     expect(captures[1].stats.drawCalls).toBeGreaterThanOrEqual(captures[0].stats.drawCalls);

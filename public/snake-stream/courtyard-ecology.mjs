@@ -43,13 +43,14 @@ export function createCourtyardEcology(THREE, { width, height }) {
       a.g * (1 - mix) + b.g * mix,
       a.b * (1 - mix) + b.b * mix);
   }
-  let braidTriangles = 0, islandTriangles = 0;
+  let braidTriangles = 0, islandTriangles = 0, mosaicTriangles = 0;
   function triangle(a, b, c, type, salt = 0) {
     if (![a, b, c].every(safe) || [a, b, c].some(landmark)) return;
     // Overgrowth is a thin presentation skin below the existing contact
     // shadows (y=.022) and the serpent belly, not a new obstacle or route.
     vertex(a, salt); vertex(b, salt); vertex(c, salt);
     if (type === 'braid') braidTriangles++;
+    else if (type === 'mosaic') mosaicTriangles++;
     else islandTriangles++;
   }
   const samples = Math.min(64, Math.max(16, Math.ceil(width * 1.8)));
@@ -98,6 +99,51 @@ export function createCourtyardEcology(THREE, { width, height }) {
       triangle(centre, edgeB, edgeA, 'island', i * .05);
     }
   }
+  // BEGIN T1 WHOLE-COURT RECLAIMED MOSAIC BEDS
+  // Ten off-centre ecological catchments reshape the dark tiled field in the
+  // actual running 3D world, linking the established braided roots to broad
+  // low-limestone and moss deposits. This is one STATIC, original, baked mesh:
+  // zero extra materials, texture fetches, per-frame animation or render passes.
+  // The public cell centers, sunlight landmark, collisions, portals, food and
+  // hazards remain untouched. The small y profile is below their visible cues.
+  const mosaicBeds = [
+    [-.76,-.65,.15,.24],[-.35,-.78,.20,.20],[.10,-.77,.20,.22],
+    [.65,-.70,.18,.23],[-.78,-.05,.19,.25],[.80,.08,.18,.25],
+    [-.73,.70,.21,.20],[-.31,.77,.19,.19],[.18,.75,.19,.21],
+    [.68,.64,.19,.23]
+  ];
+  function mosaicTriangle(a,b,c,tint) {
+    // An additional centroid check prevents large, low polygon fans from
+    // crossing the protected centre even when their corners are all clear.
+    const centre=[(a[0]+b[0]+c[0])/3,0,(a[2]+b[2]+c[2])/3];
+    if(landmark(centre)) return;
+    triangle(a,b,c,'mosaic',tint);
+  }
+  for(let bed=0;bed<mosaicBeds.length;bed++){
+    const [ux,uz,sx,sz]=mosaicBeds[bed];
+    const x=ux*W,z=uz*H;
+    const rx=Math.max(.78,width*sx),rz=Math.max(.72,height*sz);
+    const phase=bed*1.43,steps=24,inner=[],outer=[];
+    const centre=[x,.0119,z];
+    for(let step=0;step<=steps;step++){
+      const theta=step/steps*Math.PI*2;
+      const ripple=.83+.13*Math.sin(theta*3+phase)
+        +.09*Math.cos(theta*5-phase)
+        +.08*(noise(bed*3+step*.27,13+bed)-.5);
+      const dx=Math.cos(theta)*rx*ripple,dz=Math.sin(theta)*rz*ripple;
+      inner.push([x+dx*.49,.0122,z+dz*.49]);
+      outer.push([x+dx,.0115,z+dz]);
+    }
+    for(let step=0;step<steps;step++){
+      const tint=bed*.31+step*.014;
+      // Counter-clockwise fan with upward normals, then a continuous,
+      // naturally crenellated margin. There is no second overlapping plane.
+      mosaicTriangle(centre,inner[step+1],inner[step],tint);
+      mosaicTriangle(inner[step],outer[step+1],outer[step],tint);
+      mosaicTriangle(inner[step],inner[step+1],outer[step+1],tint);
+    }
+  }
+  // END T1 WHOLE-COURT RECLAIMED MOSAIC BEDS
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(position, 3));
   geometry.setAttribute('color', new THREE.Float32BufferAttribute(colour, 3));
@@ -116,6 +162,7 @@ export function createCourtyardEcology(THREE, { width, height }) {
   const stats = () => ({
     meshCount: disposed ? 0 : 1, textures: 0, triangles: position.length / 9,
     braidedSurfaceTriangles: braidTriangles, islandSurfaceTriangles: islandTriangles,
+    reclaimedMosaicTriangles: mosaicTriangles, mosaicBedCount: mosaicBeds.length,
     deterministicFromBoard: true, publicCellsMoved: 0, disposed
   });
   return {
