@@ -494,3 +494,46 @@ test('Pip performs an original planted startle only toward a publicly disclosed 
     pip.dispose(); pip.dispose();
   }
 });
+
+test('Pip models a witnessed gate-opening salute without stale cues, secret authority or allocations', async () => {
+  const {createExplorer}=await modulePromise;
+  for (const balanced of [false,true]) {
+    const pip=createExplorer({balanced});
+    const head=pip.group.getObjectByName('curious head');
+    const torso=pip.group.getObjectByName('breathing torso');
+    const arm=pip.group.getObjectByName('shoulder 1');
+    const scarf=pip.group.getObjectByName('scarf tail');
+    const lantern=pip.group.getObjectByName('swinging lantern');
+    const key=pip.group.getObjectByName('presented matching key');
+    const resources=()=>{const s=new Set();pip.group.traverse(o=>{if(o.geometry)s.add(o.geometry);if(o.material)s.add(o.material)});return s};
+    const original=resources();
+    const cue={heading:0,gateHeading:Math.PI/2,gateStrength:1,reducedMotion:true,delta:.05,time:3,moving:false,danger:0};
+    pip.update(cue);
+    assert.ok(head.rotation.y>.55 && head.rotation.x<-.17,'Pip looks up toward the actually opened passage');
+    assert.ok(arm.rotation.x<-1.3 && torso.position.y>.86,'modeled lantern and torso physically rise');
+    assert.ok(scarf.rotation.x>.2 && lantern.rotation.y>.2,'scarf and lamp participate in the static readable gesture');
+    assert.equal(key.visible,false,'opening a gate is not a new key or repeated key gesture');
+    assert.deepEqual(pip.group.position.toArray(),[0,0,0],'actor authority never moves');
+    const pose=[head.rotation.x,head.rotation.y,arm.rotation.x,torso.position.y,scarf.rotation.x];
+    pip.update({...cue,time:50});
+    assert.deepEqual([head.rotation.x,head.rotation.y,arm.rotation.x,torso.position.y,scarf.rotation.x],pose,
+      'reduced-motion salutes are stable and non-pulsing');
+    pip.update({heading:0,gateStrength:1,reducedMotion:true,delta:.05});
+    assert.equal(torso.position.y,.78,'missing source heading disables a false or stale opening');
+    assert.equal(arm.rotation.x,-.16,'neutral arm returns');
+    assert.equal(scarf.rotation.x,0,'neutral scarf returns');
+    const threat={heading:0,attentionHeading:Math.PI/2,attentionStrength:.8,danger:1,reducedMotion:true,delta:.05};
+    pip.update(threat);
+    const threatPose=[torso.position.y,head.rotation.x,arm.rotation.x,lantern.rotation.y];
+    pip.update({...threat,gateHeading:-Math.PI/2,gateStrength:1});
+    assert.deepEqual([torso.position.y,head.rotation.x,arm.rotation.x,lantern.rotation.y],threatPose,
+      'genuinely disclosed danger suppresses the gate gesture');
+    pip.update({...cue,result:'capture'});
+    assert.equal(head.rotation.x,.28,'terminal source truth overrides celebration');
+    pip.update({...cue,gateStrength:0});
+    assert.equal(torso.position.y,.78,'expired real event clears pose');
+    for(let i=0;i<40;i++)pip.update({...cue,gateStrength:i/40,reducedMotion:false,time:i/24});
+    assert.deepEqual(resources(),original,'animation reuses already modeled geometry and material');
+    pip.dispose();
+  }
+});

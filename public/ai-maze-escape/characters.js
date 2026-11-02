@@ -255,6 +255,14 @@ export function createExplorer(options = {}) {
     const keyYaw=keyReach>0?keyReach*Math.max(-.7,Math.min(.7,
       Math.atan2(Math.sin(options.keyHeading-group.rotation.y),
         Math.cos(options.keyHeading-group.rotation.y)))):0;
+    // Physically salute only the witnessed public gate-opening cue. Guardian,
+    // exact-key gesture and terminal reality always take priority. No new mesh.
+    const gateCelebrate=!s.win&&!s.lose&&alert<.1&&keyReach<.1
+      && Number.isFinite(options.gateHeading)
+      ?Math.max(0,Math.min(1,finite(options.gateStrength))):0;
+    const gateYaw=gateCelebrate>0?gateCelebrate*Math.max(-.7,Math.min(.7,
+      Math.atan2(Math.sin(options.gateHeading-group.rotation.y),
+        Math.cos(options.gateHeading-group.rotation.y)))):0;
     heldKey.visible=keyReach>.2;
     // Raise the already modeled key into Pip's silhouette, above the foreground
     // gate post; counter-rotate the held prop so its bow stays above its teeth.
@@ -273,13 +281,13 @@ export function createExplorer(options = {}) {
     // no run movement, new gameplay ability or undisclosed target is invented.
     // The entire gesture clears as soon as public attention is withdrawn.
     body.position.x=-.025*rest;
-    body.position.y=.78+Math.abs(step)*.035+(s.lose?0:idle*.008)-alert*.11;
-    body.position.z=alert>0?-alert*.105:0;
-    body.rotation.set(s.lose?.22:stride*.065-s.danger*.035-keyReach*.07-alert*.25,
+    body.position.y=.78+Math.abs(step)*.035+(s.lose?0:idle*.008)-alert*.11+gateCelebrate*.09;
+    body.position.z=alert>0?-alert*.105:gateCelebrate*.035;
+    body.rotation.set(s.lose?.22:stride*.065-s.danger*.035-keyReach*.07-alert*.25-gateCelebrate*.12,
       lookYaw*.14+keyYaw*.08,
       .035*rest-step*.05-Math.sign(lookYaw)*alert*.12);
-    head.rotation.set(s.lose?.28:-.04-s.danger*.08+idle*.018+alert*.10-keyReach*.06,
-      (s.reduced?0:Math.max(-.42,Math.min(.42,turn*.7))+(Math.sin(s.time*.73)*.08+.12)*rest)*(1-alert-keyReach*.7)+lookYaw+keyYaw,
+    head.rotation.set(s.lose?.28:-.04-s.danger*.08+idle*.018+alert*.10-keyReach*.06-gateCelebrate*.16,
+      (s.reduced?0:Math.max(-.42,Math.min(.42,turn*.7))+(Math.sin(s.time*.73)*.08+.12)*rest)*(1-alert-keyReach*.7-gateCelebrate*.55)+lookYaw+keyYaw+gateYaw,
       s.win?-.13:s.lose?.07:-.065*rest+step*.035-Math.sign(lookYaw)*alert*.19);
     for (let i=0;i<2;i++) {
       const sign=i===0?1:-1;
@@ -288,18 +296,18 @@ export function createExplorer(options = {}) {
       legs[i].hip.rotation.x=step*sign*.62-alert*.22;
       legs[i].hip.rotation.z=alert>0?-sign*alert*.3:0;
       legs[i].knee.rotation.x=Math.max(0,-step*sign)*.58+alert*.3;
-      arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0)-alert*(i===1?1.55:.95)-(i===0?keyReach*2.3:0);
+      arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0)-alert*(i===1?1.55:.95)-(i===0?keyReach*2.3:0)-gateCelebrate*(i===1?1.35:.48);
       // Aim the raised physical glove toward the publicly disclosed lock,
       // not just upward. Reduced-motion uses the same stable static pose.
       // A terminal result or nearby guardian suppresses keyYaw entirely.
       arms[i].shoulder.rotation.y=i===0?keyYaw*1.1:0;
-      arms[i].shoulder.rotation.z=(i===0?-1:1)*(s.win?.95:i===1?.34:.15)+(i===0?keyYaw*.25:0)+(i===0?-1:1)*alert*.65;
-      arms[i].elbow.rotation.x=-.16-(i===1?.22:0)-(s.danger*.3)-(i===0?keyReach*.7:0)-alert*(i===1?.38:.24);
+      arms[i].shoulder.rotation.z=(i===0?-1:1)*(s.win?.95:i===1?.34:.15)+(i===0?keyYaw*.25:0)+(i===0?-1:1)*alert*.65+gateCelebrate*(i===1?.36:-.21);
+      arms[i].elbow.rotation.x=-.16-(i===1?.22:0)-(s.danger*.3)-(i===0?keyReach*.7:0)-alert*(i===1?.38:.24)-gateCelebrate*(i===1?.3:.12);
       // Counter-turn the connected wrist as the shoulder aims at the known lock.
       // Keep the actual glove/key face visible rather than twisting its bow
       // behind the sealed gate's foreground masonry. No hidden-state input.
       arms[i].elbow.rotation.y=i===0&&keyYaw!==0?-keyYaw*.9:0;
-      eyes[i].position.x=(i===0?-1:1)*.145+Math.max(-.024,Math.min(.024,(lookYaw+keyYaw)*.032+(s.reduced?0:(Math.max(-.016,Math.min(.016,turn*.045))+.006*rest)*(1-alert))));
+      eyes[i].position.x=(i===0?-1:1)*.145+Math.max(-.024,Math.min(.024,(lookYaw+keyYaw+gateYaw)*.032+(s.reduced?0:(Math.max(-.016,Math.min(.016,turn*.045))+.006*rest)*(1-alert))));
       eyes[i].scale.y=s.lose?.32:s.danger>.45||alert>.4?1.13:(s.reduced?1:Math.pow(Math.max(0,Math.cos(s.time*.83)),60)>.88?.12:1);
     }
     // Aim the existing connected tooth at the real closed socket; do NOT
@@ -336,12 +344,12 @@ export function createExplorer(options = {}) {
     if (s.win) body.position.y += amount*Math.max(0,Math.sin(s.time*5))*.075;
     // Scarf reacts to the same public startle, including a static pose when
     // reduced motion is requested; return to neutral without lingering cues.
-    tail.rotation.x=-stride*.28+step*.1-alert*.27;
-    tail.rotation.z=alert*.22;
+    tail.rotation.x=-stride*.28+step*.1-alert*.27+gateCelebrate*.22;
+    tail.rotation.z=alert*.22-gateYaw*.16;
     // Keep the hanging cage upright beneath the outward arm; let it trail the stride.
     lantern.rotation.z=-arms[1].shoulder.rotation.z-step*.17;
     lantern.rotation.x=-(arms[1].shoulder.rotation.x+arms[1].elbow.rotation.x)+step*.18;
-    lantern.rotation.y=lookYaw*.38;
+    lantern.rotation.y=(lookYaw+gateYaw)*.38;
     glow.emissiveIntensity=s.lose?.45:1.45;
   }};
 }

@@ -356,6 +356,26 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         attentionStrength,danger:1,result,reducedMotion:settings.reducedMotion,
       });
     }
+    // Authentic same-run public CLOSED→OPEN testimony drives both Pip's
+    // acting and the camera. An already-open discovery never triggers it.
+    const publicOpeningMoment = !result && !closestThreat?.strength
+      && recentPublicOpening?.runToken === s.runToken
+      && gateVisualTime >= recentPublicOpening.start
+      && gateVisualTime - recentPublicOpening.start <= 1.35
+      && s.doors.some(door => door.open &&
+        ((door.a === recentPublicOpening.a && door.b === recentPublicOpening.b)
+          || (door.b === recentPublicOpening.a && door.a === recentPublicOpening.b)))
+      ? recentPublicOpening : null;
+    // Reduced-motion shows a stable model pose without a camera movement.
+    const openingGateBeat = cameraMode === 'follow' && !settings.reducedMotion
+      ? publicOpeningMoment : null;
+    const openingA = publicOpeningMoment ? cellPosition(publicOpeningMoment.a, s.width, s.height) : null;
+    const openingB = publicOpeningMoment ? cellPosition(publicOpeningMoment.b, s.width, s.height) : null;
+    const gateHeading = openingA && openingB ? Math.atan2(
+      (openingA.x + openingB.x) * .5 - pose.x,
+      (openingA.z + openingB.z) * .5 - pose.z) : undefined;
+    const gateStrength = publicOpeningMoment ? clamp(
+      1 - (gateVisualTime - publicOpeningMoment.start) / 1.35, 0, 1) : 0;
     // A physical key-to-lock presentation is allowed only for a genuinely
     // disclosed *closed* gate and its exact carried key. Public, cosmetic and
     // lower-priority than a real guardian. This cannot move or open anything.
@@ -369,6 +389,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       attentionHeading:closestThreat?Math.atan2(closestThreat.x-pose.x,closestThreat.z-pose.z):undefined,
       attentionStrength:closestThreat?.strength??0,
       keyHeading:keyGateCue?.heading,keyStrength:keyGateCue?.strength??0,
+      gateHeading,gateStrength,
       keyTarget,
       keyCameraPosition: camera.position,
       danger:s.dangerPermille/1000,result,reducedMotion:settings.reducedMotion,
@@ -392,14 +413,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // shot as soon as the real gate opened. Keep the SAME disclosed arch and
     // Pip readable briefly while its actual bronze grille withdraws.
     // No secret door, solver plan, invented unlock or manual camera input.
-    const openingGateBeat = cameraMode === 'follow' && !settings.reducedMotion && !result
-      && !closestThreat?.strength && recentPublicOpening?.runToken === s.runToken
-      && gateVisualTime >= recentPublicOpening.start
-      && gateVisualTime - recentPublicOpening.start <= 1.35
-      && s.doors.some(door => door.open &&
-        ((door.a === recentPublicOpening.a && door.b === recentPublicOpening.b)
-          || (door.b === recentPublicOpening.a && door.a === recentPublicOpening.b)))
-      ? recentPublicOpening : null;
+    // Camera staging reuses the public opening witnessed by Pip.
     let targetHeight;
     let nearObservedGate = null;
     let cameraGate = null;
