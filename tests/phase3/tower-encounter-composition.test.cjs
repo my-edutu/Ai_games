@@ -13,7 +13,9 @@ after(() => fs.rmSync(scratch, { recursive: true, force: true }));
 const loaded = (async () => {
   const THREE = await import(pathToFileURL(path.join(ROOT, 'node_modules/three/build/three.module.js')).href);
   const coordinates = await import(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/coordinates.mjs')).href);
-  const context = { THREE, ...coordinates };
+  const guardianCircuit = await import(pathToFileURL(path.join(ROOT,
+    'public/infinite-tower-climb/visuals/guardian-circuit.mjs')).href);
+  const context = { THREE, ...coordinates, ...guardianCircuit };
   // Evaluate the shipped framing and cue functions with the real projection math.
   // No renderer, browser, alternate scene implementation or authority is started.
   vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/scene.mjs'), 'utf8')
