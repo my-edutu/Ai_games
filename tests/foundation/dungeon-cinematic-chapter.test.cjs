@@ -14,6 +14,21 @@ const scene=()=>({phase:'exploring',map,tick:4,units:[
  {id:'warden',kind:'warden',faction:'enemy',hp:200,x:12,z:9},
  {id:'cultist',kind:'cultist',faction:'enemy',hp:20,x:9,z:8}
 ]});
+test('a saved revenant warning drives real duo camera, danger lens and mobile framing',async()=>{
+ const {planCinematicShot,planReadableExpeditionLens}=await planner(),s=scene();
+ s.units.find(u=>u.id==='warden').hp=0;
+ s.units.push({id:'breacher',kind:'revenant',faction:'enemy',hp:48,x:10,z:9});
+ s.revenantWarnings=[{sourceId:'breacher',targetId:'vanguard',x:9,z:9,impactTick:5}];
+ const before=JSON.stringify(s),shot=planCinematicShot(s);
+ assert.equal(shot.mode,'breach-warning');assert.equal(shot.remainingTurns,1);
+ assert.deepEqual(shot.subjects,['breacher','vanguard']);
+ const desk=planReadableExpeditionLens(shot,{width:1440,height:832});
+ const phone=planReadableExpeditionLens(shot,{width:390,height:844});
+ assert.equal(desk.dangerPriority,true);assert.ok(phone.fov>desk.fov&&phone.offsets[1]>desk.offsets[1]);
+ assert.equal(JSON.stringify(s),before);
+ s.revenantWarnings=[{...s.revenantWarnings[0],targetId:'imagined'}];
+ assert.notEqual(planCinematicShot(s).mode,'breach-warning');
+});
 test('the actual looming Warden warning wins camera priority over a melee strike, safely widening to show danger',async()=>{
  const {planCinematicShot}=await planner(),s=scene();
  const aligned={mode:'contact',actorId:'vanguard',targetId:'cultist',x:9,z:8.5};

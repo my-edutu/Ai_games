@@ -2201,12 +2201,12 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Inspected exact prior-head genuine 1440x832 original WebGL world-only artifact https://github.com/my-edutu/Ai_games/actions/runs/41398888784/artifacts/13120803208 . Three living heroes in view, no active enemies in that one sample; their circular toy heads overlap alongside bulky masonry. This is genuine prior-head rendering, NOT a matched M1 baseline or a win for the unrendered new candidate.",
-      "latestCandidateWorkflow": "Implementation cba4a054: autonomous catalogue https://github.com/my-edutu/Ai_games/actions/runs/41417245543 ; Dungeon Foundation https://github.com/my-edutu/Ai_games/actions/runs/41417245591 ; real Chromium review https://github.com/my-edutu/Ai_games/actions/runs/41417245401 . In progress at recording. Follow-on browser recovery fixture is a NEW evidence gate; its results are not yet known."
+      "latestCandidateWorkflow": "Prior e948586 2026-11-02: dedicated Dungeon https://github.com/my-edutu/Ai_games/actions/runs/41426718717 authority success, browser shards 1 and 3 FAILED; visual review https://github.com/my-edutu/Ai_games/actions/runs/41426718735 FAILED. New shield-break exact-head CI and captures not yet inspected."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "No matched pinned baseline and no uninterrupted real desktop/mobile traversal→combat→Warden→floor transition→defeat/restart audiovisual footage. A real previous Chromium run failed end-state because a fixed 2500-tick seed never reached intermission. Miniature-like characters and recurrent stone occlusion remain. Hardware performance, audible recording and 3 independent blind LOOKS/FEELS/PLAYS majorities are missing. IN_PROGRESS / NOT_TRANSFORMED.",
-    "currentWork": "Integrated tactical shadow-cultist duel at commit f1a72c861eb688e025038142d10dd3f3fcaf73d6: a real ranged caster charges one locked legal floor cell, visibly warns, gives AI heroes a legal dodge or defensive brace, and can be interrupted by true damage before its next-turn HP result. Cultist/revenant melee threat grows boundedly with depth. One instanced Three.js marker batch, captions and original opt-in audio share the state. Continuing M1, not an experience win.",
-    "candidateCommit": "f1a72c861eb688e025038142d10dd3f3fcaf73d6",
+    "biggestRemainingGap": "Prior e948586 exact-head browser did NOT pass: fixed seed 2500 ticks never reached defeat/restart; toggled director UI but render diagnostics lagged. Pinned before/after continuous audiovisual desktop/mobile coverage, realistic character/contact, mobile p95 and 3 fresh blind critics still missing. NOT TRANSFORMED.",
+    "currentWork": "Continuation M1: implemented real revenant shield-break (locked one-turn grid threat, legal multi-hazard dodge/guard, ally interruption and true damage), original batched ground mark, camera and opt-in synthesized audio. Exact-head new Chromium, critics, perf and replay UNVERIFIED.",
+    "candidateCommit": null,
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -2795,6 +2795,27 @@
         "knownBlocker": "Prior browser test at 4c7ef99 failed because fixed seed did not reach defeat/intermission by 2500 ticks; natural campaign mortality remains a substantive PLAY concern.",
         "next": "Inspect genuine real-world WebGL hex markers desktop/mobile, tune AI danger and natural end-state, measure replay/performance; continue full body/arena transformation; capture continuous matched expedition with audio and obtain >=3 independent blind critics.",
         "safetyWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41426292170"
+      },
+      {
+        "id": "M1-REVENANT-BREACH-20261102",
+        "date": "2026-11-02",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "e9485860573cea87c6b2e2c252a2fbdbd5b0c83b",
+        "objective": "Connected real revenant threat, lawful tactical counterplay, original world signal, camera and sound as one boss-expedition enhancement.",
+        "code": [
+          "games/ai-dungeon/src/index.ts",
+          "public/ai-dungeon/app.js",
+          "public/ai-dungeon/cinematic-chapter-plan.js",
+          "public/ai-dungeon/soundstage-plan.js",
+          "public/ai-dungeon/soundstage.js",
+          "public/ai-dungeon/spectator-ui.js",
+          "tests/foundation/dungeon-cinematic-chapter.test.cjs",
+          "tests/foundation/dungeon-revenant-breach.test.cjs",
+          "tests/browser/dungeon-revenant-breach.spec.cjs"
+        ],
+        "evidence": "Code authored. Latest prior browser/visual failed; new-head checks, matched motion/audio and independent critics UNVERIFIED.",
+        "next": "Inspect real WebGL captured warning and organic long-run ending; fix 2500-tick non-terminal seed and director lag, build full original audiovisual traversal→boss→floor→defeat/restart and blind majority acceptance."
       }
     ]
   }

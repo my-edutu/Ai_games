@@ -5,7 +5,7 @@ export const DUNGEON_VERSION='0.4.0';
 export const MAP_SIZE=19;
 export type UnitKind='vanguard'|'ranger'|'mystic'|'revenant'|'cultist'|'warden';
 export type Faction='party'|'enemy';
-export interface Unit {id:string;kind:UnitKind;faction:Faction;x:number;z:number;hp:number;maxHp:number;attack:number;cooldown:number;action?:'idle'|'move'|'attack'|'cast'|'hurt'|'guard';actionTick?:number;guardTick?:number;targetId?:string;recoveryUntilTick?:number;focus?:number;maxFocus?:number;channelUntilTick?:number;channelTargetId?:string;channelX?:number;channelZ?:number}
+export interface Unit {id:string;kind:UnitKind;faction:Faction;x:number;z:number;hp:number;maxHp:number;attack:number;cooldown:number;action?:'idle'|'move'|'attack'|'cast'|'hurt'|'guard';actionTick?:number;guardTick?:number;targetId?:string;recoveryUntilTick?:number;focus?:number;maxFocus?:number;channelUntilTick?:number;channelTargetId?:string;channelX?:number;channelZ?:number;breachUntilTick?:number;breachTargetId?:string;breachX?:number;breachZ?:number}
 export interface DungeonEvent {tick:number;kind:string;text:string}
 export interface DungeonTrap{id:string;x:number;z:number;kind:'ember'|'arcane';active:boolean;cooldown:number;disarmed:boolean;triggers:number}
 export interface DungeonState {schemaVersion:1;tick:number;floor:number;run:number;phase:'exploring'|'intermission';intermission:number;theme:string;map:string[];exit:{x:number;z:number};units:Unit[];relics:{x:number;z:number}[];traps:DungeonTrap[];kills:number;gold:number;level:number;intent:string;events:DungeonEvent[]}
@@ -343,6 +343,15 @@ export function assertDungeonState(s:DungeonState){
       !Number.isSafeInteger(u.channelX)||!Number.isSafeInteger(u.channelZ)||
       !walkable(s.map,u.channelX!,u.channelZ!))throw Error('Invalid cultist shadow hex');
   }
+  // Optional one-turn threat quartet; preserves all older signed saves.
+  const breach=[u.breachUntilTick,u.breachTargetId,u.breachX,u.breachZ];
+  if(breach.some(value=>value!==undefined)){
+   if(u.kind!=='revenant'||breach.some(value=>value===undefined)||
+    !Number.isSafeInteger(u.breachUntilTick)||u.breachUntilTick!<s.tick||
+    u.breachUntilTick!>s.tick+1||typeof u.breachTargetId!=='string'||
+    !Number.isSafeInteger(u.breachX)||!Number.isSafeInteger(u.breachZ)||
+    !walkable(s.map,u.breachX!,u.breachZ!))throw Error('Invalid revenant breach');
+  }
   if(u.focus!==undefined||u.maxFocus!==undefined){
    if(u.kind!=='mystic'||!Number.isSafeInteger(u.focus)||!Number.isSafeInteger(u.maxFocus)||
     (u.maxFocus??0)<1||(u.maxFocus??0)>6||(u.focus??-1)<0||(u.focus??7)>(u.maxFocus??0))throw Error('Invalid healing focus');
@@ -364,6 +373,9 @@ export class DungeonRuntime {
    if(unit.kind==='cultist'&&unit.channelUntilTick!==undefined&&unit.channelUntilTick<s.tick){
     delete unit.channelUntilTick;delete unit.channelTargetId;delete unit.channelX;delete unit.channelZ;
    }
+   if(unit.kind==='revenant'&&unit.breachUntilTick!==undefined&&unit.breachUntilTick<s.tick){
+    delete unit.breachUntilTick;delete unit.breachTargetId;delete unit.breachX;delete unit.breachZ;
+   }
    // Legacy checkpoints omit the optional focus fields, and are restored
    // deterministically on their first real authority tick, without a bump.
    if(unit.kind==='mystic'&&unit.focus===undefined&&unit.maxFocus===undefined){unit.focus=5;unit.maxFocus=5;}
@@ -384,21 +396,34 @@ export class DungeonRuntime {
    // guards and the real hit is reduced. No camera-only dodge or instant aim.
    const pendingHex=s.units.find(u=>u.kind==='cultist'&&u.hp>0&&
     u.channelUntilTick===s.tick&&u.channelTargetId===hero.id&&u.channelX===hero.x&&u.channelZ===hero.z);
-   if(pendingHex){
-    const lethalBossTiles=warned?.attackTick===s.tick?
+   const pendingBreach=s.units.find(u=>u.kind==='revenant'&&u.hp>0&&
+    u.breachUntilTick===s.tick&&u.breachTargetId===hero.id&&
+    u.breachX===hero.x&&u.breachZ===hero.z);
+   if(pendingHex||pendingBreach){
+    const aggressor=(pendingBreach??pendingHex)!;
+    const dangerName=pendingBreach?'revenant breach':'shadow hex';
+    const locked=warned?.attackTick===s.tick?
      new Set<number>(warned.cells.map(p=>key(p.x,p.z))):new Set<number>();
+    // One lawful sidestep must avoid every simultaneously advertised hit tile.
+    for(const foe of s.units.filter(u=>u.hp>0)){
+     if(foe.kind==='cultist'&&foe.channelUntilTick===s.tick)
+      locked.add(key(foe.channelX!,foe.channelZ!));
+     if(foe.kind==='revenant'&&foe.breachUntilTick===s.tick)
+      locked.add(key(foe.breachX!,foe.breachZ!));
+    }
     const sidesteps=DIRS.map(([dx,dz])=>({x:hero.x+dx,z:hero.z+dz}))
-     .filter(p=>walkable(s.map,p.x,p.z)&&!lethalBossTiles.has(key(p.x,p.z)))
+     .filter(p=>walkable(s.map,p.x,p.z)&&!locked.has(key(p.x,p.z)))
      .filter(p=>!s.units.some(u=>u.hp>0&&u.id!==hero.id&&u.x===p.x&&u.z===p.z))
      .filter(p=>!s.traps.some(t=>t.active&&!t.disarmed&&t.x===p.x&&t.z===p.z))
-     .sort((a,b)=>dist(b,pendingHex)-dist(a,pendingHex)||a.z-b.z||a.x-b.x);
+     .sort((a,b)=>dist(b,aggressor)-dist(a,aggressor)||a.z-b.z||a.x-b.x);
     if(sidesteps.length){
      hero.x=sidesteps[0].x;hero.z=sidesteps[0].z;hero.action='move';
-     s.intent=hero.kind+' evading a locked shadow hex';
-     push(s,'evade',hero.kind+' slipped away from the marked shadow hex');continue;
+     s.intent=hero.kind+' evading a locked '+dangerName;
+     push(s,'evade',hero.kind+' slipped away from the marked '+dangerName);continue;
     }
-    hero.guardTick=s.tick;hero.action='guard';s.intent=hero.kind+' bracing against a shadow hex';
-    push(s,'guard',hero.kind+' guarded the locked shadow hex');continue;
+    hero.guardTick=s.tick;hero.action='guard';
+    s.intent=hero.kind+' bracing against a '+dangerName;
+    push(s,'guard',hero.kind+' guarded the locked '+dangerName);continue;
    }
    if(warned?.warning&&warned.attackTick===s.tick+1&&
       warned.cells.some(p=>p.x===hero.x&&p.z===hero.z)){
@@ -472,10 +497,15 @@ export class DungeonRuntime {
     const damage=damageThroughWardenSeal(s,target,raw);
     target.hp=Math.max(0,target.hp-damage);hero.action=hero.kind==='mystic'?'cast':'attack';hero.targetId=target.id;target.action='hurt';
     s.intent=recovery?'The expedition counters the exposed Warden':hero.kind==='mystic'?'Arcane support engaging hostiles':hero.kind==='ranger'?'Ranger providing covering fire':'Vanguard holding the front line';
-    if(target.kind==='cultist'&&target.channelUntilTick!==undefined){
+    if(target.kind==='cultist'&&target.channelUntilTick!==undefined&&damage>0){
      delete target.channelUntilTick;delete target.channelTargetId;
      delete target.channelX;delete target.channelZ;
      push(s,'interrupt',hero.kind+' interrupted the cultist hex with a real hit');
+    }
+    if(target.kind==='revenant'&&target.breachUntilTick!==undefined&&damage>0){
+     delete target.breachUntilTick;delete target.breachTargetId;
+     delete target.breachX;delete target.breachZ;
+     push(s,'interrupt',hero.kind+' interrupted the revenant breach with a real hit');
     }
     if(target.hp===0){s.kills++;s.gold+=12;s.level=1+Math.floor(s.kills/5);push(s,'kill',(target.kind==='warden'?'WARDEN DEFEATED':'Enemy defeated')+' · +12 gold')}
     else if(s.tick%4===0)push(s,'combat',hero.kind+' struck '+target.kind+' for '+damage);
@@ -551,6 +581,47 @@ export class DungeonRuntime {
     // the party while players are responding to already-visible floor marks.
     if(strike?.warning&&attackTick===interval-1){
      enemy.action='guard';if(enemy.cooldown>0)enemy.cooldown--;continue;
+    }
+   }
+   // A fallen sentinel creates an interruptible, deterministic shield-break.
+   // Wind-up and hit use the same saved legal ground tile, not a fake animation.
+   if(enemy.kind==='revenant'){
+    if(enemy.breachUntilTick===s.tick){
+     const victim=party.find(u=>u.id===enemy.breachTargetId&&u.hp>0);
+     const locked=Boolean(victim&&victim.x===enemy.breachX&&victim.z===enemy.breachZ);
+     const hit=Boolean(locked&&dist(enemy,victim!)<=2&&clearTacticalLane(s,enemy,victim!,enemy.id));
+     if(hit){
+      const braced=victim!.guardTick===s.tick;
+      const raw=13+Math.min(18,s.floor*2)+Math.ceil(enemy.attack*.3);
+      const damage=braced?Math.max(1,Math.ceil(raw*.33)):raw;
+      victim!.hp=Math.max(0,victim!.hp-damage);
+      victim!.action=braced?'guard':'hurt';
+      enemy.action=dist(enemy,victim!)===1?'attack':'cast';
+      enemy.targetId=victim!.id;enemy.cooldown=2;
+      push(s,'breach',braced?
+       victim!.kind+' held the revenant shield-break · '+damage+' damage':
+       'Revenant shield-break struck '+victim!.kind+' for '+damage+' damage');
+     }else{
+      enemy.action='guard';push(s,'evade','The revenant shield-break struck empty stone');
+     }
+     delete enemy.breachUntilTick;delete enemy.breachTargetId;
+     delete enemy.breachX;delete enemy.breachZ;
+     if(enemy.cooldown>0)enemy.cooldown--;
+     continue;
+    }
+    if(s.tick%5===0&&enemy.cooldown===0){
+     const prey=party.filter(u=>u.hp>0&&dist(enemy,u)>=1&&dist(enemy,u)<=2&&
+      clearTacticalLane(s,enemy,u,enemy.id))
+      .sort((a,b)=>Number(b.kind==='vanguard')-Number(a.kind==='vanguard')||
+       a.hp/a.maxHp-b.hp/b.maxHp||a.id.localeCompare(b.id))[0];
+     if(prey){
+      enemy.breachUntilTick=s.tick+1;enemy.breachTargetId=prey.id;
+      enemy.breachX=prey.x;enemy.breachZ=prey.z;
+      enemy.action='guard';enemy.targetId=prey.id;
+      s.intent='Fallen sentinel charging a shield-break against '+prey.kind;
+      push(s,'telegraph','REVENANT BREACH — '+prey.kind.toUpperCase()+' MARKED · EVADE OR GUARD');
+      continue;
+     }
     }
    }
    // A real adjacent threat changes a caster's decision. Retreating uses a
@@ -652,6 +723,6 @@ export class DungeonRuntime {
   const boss=s.units.find(u=>u.kind==='warden'&&u.hp>0);
   const strike=boss?planWardenStrike(s,boss):null;
   const bossWarning=strike?.warning&&s.units.some(u=>u.faction==='party'&&u.hp>0&&dist(u,boss!)<=5)?strike:null;
-  return {version:DUNGEON_VERSION,tick:s.tick,run:s.run,floor:s.floor,theme:s.theme,phase:s.phase,bossPhase:wardenPhase(s.units.find(u=>u.kind==='warden')),guardianWard:wardenSealActive(s),cultistWarnings:s.units.filter(u=>u.kind==='cultist'&&u.hp>0&&u.channelUntilTick!==undefined&&u.channelUntilTick>s.tick).slice(0,6).map(u=>({sourceId:u.id,targetId:u.channelTargetId,x:u.channelX,z:u.channelZ,impactTick:u.channelUntilTick})),bossWarning,bossRecovery:boss?planWardenRecovery(s,boss):null,defendersRemaining:s.units.filter(u=>u.faction==='enemy'&&u.kind!=='warden'&&u.hp>0).length,intermission:s.intermission,map:s.map,exit:s.exit,units:s.units.map(u=>({...u})),relics:s.relics.map(r=>({...r})),traps:s.traps.map(t=>({...t})),kills:s.kills,gold:s.gold,level:s.level,intent:s.intent,events:s.events.map(e=>({...e})),checksum:checksum({tick:s.tick,run:s.run,floor:s.floor,units:s.units,relics:s.relics,traps:s.traps,gold:s.gold})};
+  return {version:DUNGEON_VERSION,tick:s.tick,run:s.run,floor:s.floor,theme:s.theme,phase:s.phase,bossPhase:wardenPhase(s.units.find(u=>u.kind==='warden')),guardianWard:wardenSealActive(s),cultistWarnings:s.units.filter(u=>u.kind==='cultist'&&u.hp>0&&u.channelUntilTick!==undefined&&u.channelUntilTick>s.tick).slice(0,6).map(u=>({sourceId:u.id,targetId:u.channelTargetId,x:u.channelX,z:u.channelZ,impactTick:u.channelUntilTick})),revenantWarnings:s.units.filter(u=>u.kind==='revenant'&&u.hp>0&&u.breachUntilTick!==undefined&&u.breachUntilTick>s.tick).slice(0,8).map(u=>({sourceId:u.id,targetId:u.breachTargetId,x:u.breachX,z:u.breachZ,impactTick:u.breachUntilTick})),bossWarning,bossRecovery:boss?planWardenRecovery(s,boss):null,defendersRemaining:s.units.filter(u=>u.faction==='enemy'&&u.kind!=='warden'&&u.hp>0).length,intermission:s.intermission,map:s.map,exit:s.exit,units:s.units.map(u=>({...u})),relics:s.relics.map(r=>({...r})),traps:s.traps.map(t=>({...t})),kills:s.kills,gold:s.gold,level:s.level,intent:s.intent,events:s.events.map(e=>({...e})),checksum:checksum({tick:s.tick,run:s.run,floor:s.floor,units:s.units,relics:s.relics,traps:s.traps,gold:s.gold})};
  }
 }

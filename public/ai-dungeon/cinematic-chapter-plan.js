@@ -45,6 +45,12 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
  const warning=!!boss&&s.bossWarning&&Number.isSafeInteger(s.bossWarning.attackTick)&&
   s.bossWarning.attackTick>=s.tick&&s.bossWarning.attackTick<=s.tick+3&&
   Array.isArray(s.bossWarning.cells)&&s.bossWarning.cells.length>0;
+ const revenantWarning=Array.isArray(s.revenantWarnings)?s.revenantWarnings.slice(0,8)
+  .map(mark=>({mark,source:enemies.find(u=>u.id===mark.sourceId&&u.kind==='revenant'),
+   hero:heroes.find(u=>u.id===mark.targetId)}))
+  .find(e=>e.source&&e.hero&&Number.isSafeInteger(e.mark.impactTick)&&
+   e.mark.impactTick>s.tick&&e.mark.impactTick<=s.tick+1&&
+   e.hero.x===e.mark.x&&e.hero.z===e.mark.z):null;
  // A verified final blow keeps an authentic dead enemy in frame only while
  // its public snapshot still holds the corpse; it is never a fabricated duel.
  const fallenFoe=encounter?.mode==='final-blow'?
@@ -60,6 +66,11 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
   // The center remains between the real boss and the closest living hero.
   mode='warden-warning';position=mean(boss,closeBoss);
   offsets=planDuelCameraOffset(closeBoss,boss,11.0,9.15)||[6.3,11.2,6.55];lookY=.25;subjects=[boss.id,closeBoss.id];
+ }else if(revenantWarning&&(!boss||distance(closeBoss,boss)>5)){
+  const {source,hero}=revenantWarning;
+  mode='breach-warning';position=mean(source,hero);
+  offsets=planDuelCameraOffset(hero,source,8.5,7.05)||[4.8,8.1,5.5];
+  lookY=.45;subjects=[source.id,hero.id];
  }else if(boss&&closeBoss&&distance(closeBoss,boss)<=5&&
   (!realContact||encounter.targetId!==boss.id)){
   // A remote ranger/cultist contact is genuine, but it must not cut away from
@@ -99,7 +110,9 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
   mode,x:round(position.x),z:round(position.z),lookY,
   offsets:Object.freeze(offsets.map(v=>round(v*zoom))),
   subjects:Object.freeze(subjects),spread:round(spread),
-  warning:!!warning,remainingTurns:warning?s.bossWarning.attackTick-s.tick:null
+  warning:!!warning||mode==='breach-warning',
+  remainingTurns:warning?s.bossWarning.attackTick-s.tick:
+   mode==='breach-warning'?revenantWarning.mark.impactTick-s.tick:null
  });
 }
 
@@ -118,6 +131,7 @@ const DIRECTOR_LENS=Object.freeze({
  'warden-contact': Object.freeze({radius:6.55,height:7.65,fov:44,aim:.85,follow:7.5,key:1.12}),
  'warden-approach':Object.freeze({radius:7.35,height:8.35,fov:44,aim:.77,follow:6.2,key:1.09}),
  'warden-warning': Object.freeze({radius:9.05,height:10.55,fov:51,aim:.35,follow:10.0,key:.92}),
+ 'breach-warning': Object.freeze({radius:6.55,height:7.5,fov:46,aim:.45,follow:8.0,key:1.04}),
  descent:          Object.freeze({radius:5.4,height:6.45,fov:45,aim:.65,follow:4.8,key:.91})
 });
 export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMotion=false}={}){
@@ -127,7 +141,7 @@ export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMo
  const horizontal=Math.hypot(shot.offsets[0],shot.offsets[2]);
  if(horizontal<.05)return null;
  const aspect=Number.isFinite(width)&&Number.isFinite(height)&&height>0?width/height:1.73;
- const portrait=aspect<.88,warning=shot.mode==='warden-warning';
+ const portrait=aspect<.88,warning=shot.mode==='warden-warning'||shot.mode==='breach-warning';
  const stretch=portrait?(warning?1.24:1.10):1;
  const radius=policy.radius*stretch;
  const y=policy.height*(portrait?(warning?1.17:1.07):1);

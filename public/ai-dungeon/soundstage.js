@@ -21,6 +21,7 @@ const CUES=Object.freeze({
  boss:      {hz:88,end:51,length:.64,peak:.13,type:'sawtooth'},
  opening:   {hz:260,end:118,length:.40,peak:.09,type:'triangle'},
  danger:    {hz:118,end:74,length:.43,peak:.10,type:'triangle'},
+ breach:    {hz:106,end:42,length:.42,peak:.115,type:'sawtooth'},
  impact:    {hz:124,end:46,length:.17,peak:.145,type:'triangle'},
  weapon:    {hz:198,end:66,length:.23,peak:.12,type:'sawtooth'},
  ranged:    {hz:330,end:131,length:.16,peak:.085,type:'triangle'},
@@ -36,7 +37,7 @@ const CUES=Object.freeze({
  footstep:  {hz:112,end:54,length:.10,peak:.041,type:'triangle'}
 });
 const PER_KIND_COOLDOWN=Object.freeze({
- weapon:.065,impact:.065,warning:.25,boss:.22,opening:.35,reward:.20,guard:.13,footstep:.16
+ weapon:.065,impact:.065,warning:.25,boss:.22,opening:.35,breach:.20,reward:.20,guard:.13,footstep:.16
 });
 const safe=(v,min,max,fallback)=>Number.isFinite(v)?Math.max(min,Math.min(max,v)):fallback;
 const stopAndDisconnect=voice=>{
