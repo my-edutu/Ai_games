@@ -2,7 +2,7 @@
 const path=require('node:path');
 const {defineConfig}=require('@playwright/test');
 module.exports=defineConfig({
- testDir:'.',testMatch:['dungeon-stream.spec.cjs','dungeon-materials.spec.cjs','dungeon-interface.spec.cjs','dungeon-setpieces.spec.cjs','dungeon-facing.spec.cjs','dungeon-authored-motion.spec.cjs','dungeon-warden-regalia.spec.cjs','dungeon-role-silhouettes.spec.cjs','dungeon-sculpted-reality.spec.cjs','dungeon-fabric-drape.spec.cjs','dungeon-rig-attachments.spec.cjs','dungeon-floor-ruins.spec.cjs','dungeon-party-visibility.spec.cjs','dungeon-heal-clarity.spec.cjs','dungeon-ground-signal.spec.cjs','dungeon-soundstage.spec.cjs','dungeon-melee-travel.spec.cjs','dungeon-warden-seal.spec.cjs','dungeon-impact-choreography.spec.cjs'],
+ testDir:'.',testMatch:['dungeon-stream.spec.cjs','dungeon-materials.spec.cjs','dungeon-interface.spec.cjs','dungeon-setpieces.spec.cjs','dungeon-facing.spec.cjs','dungeon-authored-motion.spec.cjs','dungeon-warden-regalia.spec.cjs','dungeon-role-silhouettes.spec.cjs','dungeon-sculpted-reality.spec.cjs','dungeon-vaulted-gallery.spec.cjs','dungeon-fabric-drape.spec.cjs','dungeon-rig-attachments.spec.cjs','dungeon-floor-ruins.spec.cjs','dungeon-party-visibility.spec.cjs','dungeon-heal-clarity.spec.cjs','dungeon-ground-signal.spec.cjs','dungeon-soundstage.spec.cjs','dungeon-melee-travel.spec.cjs','dungeon-warden-seal.spec.cjs','dungeon-impact-choreography.spec.cjs'],
  // One renderer per runner; fullyParallel distributes individual tests across CI shards.
  workers:1,fullyParallel:true,
  // Shared software WebGL runners can spend 40-60s on live scene/screenshot setup;
