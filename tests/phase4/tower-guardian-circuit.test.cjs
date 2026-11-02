@@ -140,11 +140,12 @@ test('guardian-to-cap gantry stays outside tower core and physically retracts so
   const opened = new THREE.Vector3().setFromMatrixPosition(matrix);
   const releasedTint = new THREE.Color();
   bolts.getColorAt(0, releasedTint);
-  assert.ok(releasedTint.distanceTo(lockedTint) > .12,
+  const tintDifference = (a, b) => Math.hypot(a.r - b.r, a.g - b.g, a.b - b.b);
+  assert.ok(tintDifference(releasedTint, lockedTint) > .12,
     'real HP loss must expose a visually different inner alloy on the SAME 3D lock');
   const laterPair = new THREE.Color();
   bolts.getColorAt(6, laterPair);
-  assert.ok(laterPair.distanceTo(releasedTint) > .12,
+  assert.ok(tintDifference(laterPair, releasedTint) > .12,
     'a locked pair must not claim guardian HP has already been removed');
   assert.ok(opened.distanceTo(closed) > .6,
     'true guardian HP loss must visibly retract the mechanical lock');
