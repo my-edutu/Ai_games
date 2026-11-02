@@ -84,8 +84,10 @@ test('real opt-in audio stops active voices on mute and revokes capture, not gam
  const original=fs.readFileSync(path.join(root,'public/ai-dungeon/soundstage.js'),'utf8');
  const planUrl='data:text/javascript;base64,'+Buffer.from(fs.readFileSync(file,'utf8')).toString('base64');
  const faceUrl='data:text/javascript;base64,'+Buffer.from(fs.readFileSync(path.join(root,'public/ai-dungeon/facing-plan.js'),'utf8')).toString('base64');
+ const foleyUrl='data:text/javascript;base64,'+Buffer.from(fs.readFileSync(path.join(root,'public/ai-dungeon/material-foley.js'),'utf8')).toString('base64');
  const code=original.replace("'/dungeon/soundstage-plan.js'","'"+planUrl+"'")
-  .replace("'/dungeon/facing-plan.js'","'"+faceUrl+"'");
+  .replace("'/dungeon/facing-plan.js'","'"+faceUrl+"'")
+  .replace("'/dungeon/material-foley.js'","'"+foleyUrl+"'");
  const {createDungeonSoundstage}=await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));
  const param=()=>({
   value:0,setValueAtTime(){},exponentialRampToValueAtTime(){},setTargetAtTime(){},cancelScheduledValues(){}
