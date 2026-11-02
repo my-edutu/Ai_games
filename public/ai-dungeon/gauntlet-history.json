@@ -2193,20 +2193,20 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "Local extracted exact source 8a7c3ae from source files, focused scripts for earlier candidate: 10/10 Warden silhouette/staging tests PASS; following integrated rig-warning locally patched source 36/36 chapter/authored motion/rig attachment tests PASS. Exact-head GitHub CI, browser and replay/security remain pending, not evidence of game transformation. Earlier candidate visual review run 41360109116 success and authentic desktop/mobile images; dedicated foundation run 41360109111 cancelled during active candidate pushes, catalogue CI 41360109138 was in_progress at inspection. Local headless browser was blocked by administrator ERR_BLOCKED_BY_ADMINISTRATOR, not a game failure or browser pass.",
+      "safetyChecks": "Local extracted source at exact code 6a41641 passed 186/186 dedicated Dungeon Foundation tests, including rig, art, gameplay and deterministic contracts. npm run build TypeScript success; full-catalogue npm test incomplete on local timeout after 376 tests (no pass claim). PRE-change 7abca3 Chromium review passed, but 2/3 Foundation browser shards failed legitimate gait/art density assertions. New candidate full browser, replay, security, p95 and mobile exact-head pending, see workflow URLs. NOT an experience acceptance.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED_NO_ORIGINAL_CAPTURE",
       "soundstageBrowser": "UNVERIFIED_FOR_NEW_WARDEN",
       "audioLoudnessAndClipping": "NOT_MEASURED",
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
-      "actualWebglFramingRegression": "Inspected authentic previous candidate b1b79fc Chromium world-only 1440x832 before proportional refit: 3/3 heroes unobscured, minimum height 172px, 101338 triangles, 9 textured character rigs, no active enemy in sampled scene. Cartoon silhouettes and cubical walls remain; comparison to locked baseline not matched. New commit d73f953 Chromium rendering, audio and combat UNVERIFIED.",
-      "latestCandidateWorkflow": "Live code commit d73f9537560519a82d91e950afbc3cac54b27660: Dungeon Foundation https://github.com/my-edutu/Ai_games/actions/runs/41381101528 (authority success; 3 browser shards in progress at ledger handoff), visual review https://github.com/my-edutu/Ai_games/actions/runs/41381101571 in progress, CI https://github.com/my-edutu/Ai_games/actions/runs/41381101543 in progress. Earlier b1b79fc browser shard 2 failed 1/23 on inconsistent cranial ratio assertion; genuine observed ratios .71-.77 contradicted old browser requirement .78-.91, corrected to source/foundation range .70-.80. This is a check correction, not proof of transformation."
+      "actualWebglFramingRegression": "Inspected true 1440x832 prior head 7abca3 screenshot from GitHub visual run 41381475210, artifact 13113249841 and original locked 281735d artifact 13081734898. Both show strong stylization and dense cubical corridors with crowded source GLB heroes; scenes are not same seed/camera, and new 6a41641 has NO verified AFTER rendered frame yet. Visual transformation claim withheld.",
+      "latestCandidateWorkflow": "New 6a41641 exact-head checks queued when checked: Dungeon Foundation https://github.com/my-edutu/Ai_games/actions/runs/41387155242 ; visual https://github.com/my-edutu/Ai_games/actions/runs/41387155630 ; catalogue https://github.com/my-edutu/Ai_games/actions/runs/41387155161 . PRE-change 7abca3 authority succeeded and visual review succeeded (41381475210); Foundation 41381475296 had two legitimate Chromium failures: actual rigGaitPeakRad 0.05589 below 0.07 motion gate, and 156 rigid/skeletal armor pieces >144 bound. Those motivated real connected 3D fixes, not assertions relaxed. Local extracted candidate passed 186/186 focused dungeon foundation and node TypeScript build; full catalogue npm test did not finish during available local execution; local Chromium navigation was ERR_BLOCKED_BY_ADMINISTRATOR, not a runtime game failure/pass."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Characters remain visibly miniature/cartoon-like in latest inspected PRE-refit real WebGL footage; new physical silhouette/helmet style, actual combat contact and boss coherence in moving desktop/mobile Chromium footage are UNVERIFIED. Organic real traversal-to-restart audiovisual recordings, matched locked-baseline A/B, sustained performance and three blind critics are outstanding.",
-    "currentWork": "M1 proportionate authored-cast refit committed on same draft branch: six bounded role-specific source-GLB body shapes preserve adult height while narrowing bulky toy-like bodies; the cloned CC0 character textures receive a restrained, character-role PBR material fit; original three-layer forged brow, visor and faceplate move with real cranial bones. All changes are presentation-only and preserve the authoritative autonomous adventure. Await authentic Chromium desktop/mobile inspection and independent experience judgement.",
-    "candidateCommit": "d73f9537560519a82d91e950afbc3cac54b27660",
+    "biggestRemainingGap": "Original baseline and pre-change latest real Chromium still show a cluttered cube-heavy world and miniature-looking crowded heroes. The new physically open masonry/character gait candidate has not yet been captured in post-commit browser motion. Need to inspect actual rendered frame for open vaulted sightlines, contact/feet/facial clipping and compressed/mobile performance, then transform remaining character topology and boss fight with continuous real original-audio footage. Blind three-critic matched LOOKS/FEELS/PLAYS remains NOT RUN.",
+    "currentWork": "Continued M1 as an integrated running-scene candidate at 6a41641: 27 or more spatially separated original pointed Gothic nave bays on representative 19x19 DungeonRuntime floors, replacing selected solid opaque wall tops, 2.31m facade cubes, floating crowns and unattached stone fragments with true negative-space architecture while preserving the original solid authority map and camera cutaway bands. Alternating narrower/ruined chapels, structural buttresses, engraved keystones all stay inside impassable tile footprints and render in existing three InstancedMesh batches. The actual licensed GLB party now uses stronger distance-driven reversible thigh/knee/ankle motion after real movement, and rigid floating knee medallions were removed in favour of longer true lower-leg-bound greaves. Read-only art, no game AI/combat/RNG/save/schema or new copyrighted assets.",
+    "candidateCommit": "6a41641a8250b8aa3982a40391c38a2151873e47",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -2645,6 +2645,33 @@
         "experienceVerdict": "IN_PROGRESS / NOT_TRANSFORMED",
         "criticVerdicts": "UNVERIFIED — connected critic/subagent workspace tunnel unavailable",
         "next": "Inspect exact-head desktop/mobile genuine WebGL authored silhouette and helmet alignment, avoid camera clipping and test 3D depth, movement and attack contact; collect real audio/motion across traversal→guard combat→Warden→floor→defeat/restart with performance and matched pinned-baseline clips, then blind 3-critic looks/feels/plays assessment."
+      },
+      {
+        "id": "M1-OPEN-VAULTED-EXPEDITION-20261102",
+        "date": "2026-11-02",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "sourceHeadAtStart": "7abca3aefa92d33265743884fa026a1e59c3d40d",
+        "codeCommit": "6a41641a8250b8aa3982a40391c38a2151873e47",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "objective": "Turn cubical top-heavy dungeon traversal and overlapping miniature actor silhouettes into an architecturally open, responsive and physically grounded playable continuous expedition, rather than adding independent ornaments or green tests.",
+        "integratedImplementation": "Original wall gallery now places up to 72 deterministic spatially separated, sculpted pointed/ruined Gothic bays; physical opaque masonry plus world-cladding and flying crowns are cut to real ground-level plinths only at chosen otherwise solid authority cells. Three original instanced stone/shadow/relief batches now show differentiated site height and buttresses/keystones; windows and weathering obey same actual wall/visibility/negative-space. Real GLB leg gait responds more decisively to the true public coordinate travel with bounded reversible additive joint arcs, reduced-motion/teleport protections, articulated shin armor and removal of 2 rigid floating kneecaps per role. Reduced/attached fractured spalls clear world clutter. No changes to navigation map, autonomous AI, combat, damage, RNG, replay, save format, assets, licensing or physics.",
+        "files": [
+          "public/ai-dungeon/vaulted-wall-plan.js",
+          "public/ai-dungeon/vaulted-wall-gallery.js",
+          "public/ai-dungeon/environment.js",
+          "public/ai-dungeon/app.js",
+          "public/ai-dungeon/stone-relief-plan.js",
+          "public/ai-dungeon/rig-attachment-plan.js",
+          "public/ai-dungeon/anatomical-kit-plan.js",
+          "tests/foundation/dungeon-vaulted-gallery.test.cjs",
+          "tests/browser/dungeon-vaulted-gallery.spec.cjs"
+        ],
+        "preChangeRealEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/41381475210/artifacts/13113249841",
+        "actualBeforeAfter": "NO MATCHED BEFORE/AFTER FOR CODE HEAD: real before photos inspected, exact new head Chromium and mobile footage not yet available.",
+        "testing": "Local npm run dungeon:test 186/186 passed; TypeScript build passed; Node foundation architecture/rig/armor/stone tests passed 28/28. Local Chromium ERR_BLOCKED_BY_ADMINISTRATOR prevents acceptance. Source-head CI queued 41387155242/41387155630/41387155161.",
+        "currentCritics": "Three independent fresh-context critics/ultracode unavailable; LOOKS/FEELS/PLAYS remain UNVERIFIED.",
+        "verdict": "IN_PROGRESS / NOT_TRANSFORMED",
+        "next": "Inspect genuine new desktop/mobile 3D world-only and active melee/boss captures for open-arch occupancy, floor collision illusion, character foot sliding/greave attachments, camera obstructions and GPU draw overhead. Fix actual artifacts; then record organic traversal→real combat→Warden→floor advance→defeat/restart with audible original audio on phone and desktop, match pinned baseline seed/scene, obtain 3 independent blind critics across all three pillars. Keep draft/unmerged."
       }
     ]
   }
