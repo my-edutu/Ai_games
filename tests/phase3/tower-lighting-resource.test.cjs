@@ -14,6 +14,7 @@ async function main() {
   const { createRenderProgress } = await import(pathToFileURL(`${root}/public/infinite-tower-climb/visuals/render-progress.mjs`).href);
   const { createTowerFinale } = await import(pathToFileURL(`${root}/public/infinite-tower-climb/visuals/finale.mjs`).href);
   const { createTowerRouteIntent } = await import(pathToFileURL(`${root}/public/infinite-tower-climb/visuals/route-intent.mjs`).href);
+  const { createTowerAtmosphere } = await import(pathToFileURL(`${root}/public/infinite-tower-climb/visuals/atmosphere.mjs`).href);
   const { createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage } = await import(pathToFileURL(`${root}/public/infinite-tower-climb/visuals/guardian-circuit.mjs`).href);
   const { observedGuardianPassage, createTowerGuardianPassage } = await import(pathToFileURL(`${root}/public/infinite-tower-climb/visuals/guardian-passage.mjs`).href);
   const source = fs.readFileSync(`${root}/public/infinite-tower-climb/visuals/scene.mjs`, 'utf8');
@@ -56,7 +57,7 @@ async function main() {
     // must satisfy the real scene's camera-to-cap visibility interface too.
     const world = () => ({ group: new real.Group(), update() {}, revealGuardianSightlines() {}, dispose() {}, diagnostics: () => ({}) });
     const context = {
-      THREE, createRenderProgress, createTowerFinale, createTowerRouteIntent, createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianPassage, createTowerGuardianPassage, createTowerWorld: world, createClimber: actor, createEnemy: actor,
+      THREE, createRenderProgress, createTowerFinale, createTowerRouteIntent, createTowerAtmosphere, createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianPassage, createTowerGuardianPassage, createTowerWorld: world, createClimber: actor, createEnemy: actor,
       THEMES: { foundry: { sun: 0xffdfbc, ambient: 0xe8e0d3, fog: 0x99796d } },
       SCALE: 10000, pointFor: (x, y, base) => ({ x: 0, y: (y-base)/10000, z: 25, angle: 0 }), angleFor: () => 0, snapshotVelocity: () => 0,
       innerWidth: 640, devicePixelRatio: 1, document,
