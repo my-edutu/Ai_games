@@ -8,7 +8,13 @@ const { MazeRuntime } = require('../../dist/games/ai-maze-escape/src/runtime/run
 const { buildMazeRenderSnapshot } = require('../../dist/games/ai-maze-escape/src/presentation/snapshot.js');
 const source = fs.readFileSync(path.resolve(__dirname, '../../public/ai-maze-escape/world.js'), 'utf8');
 const three = pathToFileURL(path.resolve(__dirname, '../../node_modules/three/build/three.module.js')).href;
-const modulePromise = import(`data:text/javascript;base64,${Buffer.from(source.replace("'./vendor/three.module.js'", JSON.stringify(three))).toString('base64')}`);
+// The world module is exercised through a data URL to redirect its real Three
+// dependency. Keep its other production ESM dependency explicitly resolvable;
+// a relative specifier cannot resolve against an in-memory data URL.
+const gateMoment = pathToFileURL(path.resolve(__dirname, '../../public/ai-maze-escape/gate-moment.mjs')).href;
+const modulePromise = import(`data:text/javascript;base64,${Buffer.from(source
+  .replace("'./vendor/three.module.js'", JSON.stringify(three))
+  .replace("'./gate-moment.mjs'", JSON.stringify(gateMoment))).toString('base64')}`);
 const fixture = (cells) => ({ runToken: 'terrace-fixture', width: 7, height: 9, currentCell: 24, cells, visibleCells: cells.map(c => c.cell), discoveredCells: cells.map(c => c.cell), doors: [], keys: [], threats: [], exitCell: null });
 
 test('terrace stairs join disclosed legal passages and never disclose hidden neighbors', async () => {
@@ -526,4 +532,54 @@ test('a two-cell publicly proven solid arch gains grounded tidal observatory scu
     assert.equal(world.stats().materialCount,0);
     assert.equal(world.stats().tidalObservatories,0);
   }
+});
+
+test('a real 3D portcullis retracts only after public authority opens its gate', async () => {
+  const {createMazeWorld} = await modulePromise;
+  const world = createMazeWorld({balanced:true});
+  const publicCells = [{cell:24,neighbors:[25]}, {cell:25,neighbors:[24]}];
+  const door = {id:'observed',a:24,b:25,open:false,requiredKeyId:'known-key'};
+  const closed = {...fixture(publicCells), tick:9, doors:[door]};
+  const opened = {...closed, tick:10, doors:[{...door,open:true}]};
+  const unchanged=JSON.stringify(opened);
+  world.update(closed);
+  world.animate(5,{reducedMotion:false});
+  world.update(opened);
+  const raisedGate=world.group.getObjectByName('Disclosed open gate');
+  const grille=raisedGate.getObjectByName('Withdrawable gate bars');
+  assert.equal(grille.visible,true,'real disclosed closed-to-open event begins with a visible physical grille');
+  assert.equal(world.stats().retractingPublicGates,1);
+  world.animate(5.4,{reducedMotion:false});
+  assert.ok(grille.position.y>0 && grille.position.y<1.55,
+    'actual THREE group withdraws upward into its lintel, not a HUD text flash');
+  assert.ok(grille.scale.y>0 && grille.scale.y<1,'the bars compress rather than obstructing the open route');
+  assert.equal(world.matchingPublicSocket(24,25,new (await import(three)).Vector3()),null,
+    'the cosmetic grille never resurrects the authoritative closed lock');
+  world.animate(6,{reducedMotion:false});
+  assert.equal(grille.visible,false,'opening animation finishes with a clear visible passage');
+  assert.equal(world.stats().retractingPublicGates,0);
+  world.update({...opened,tick:11});
+  assert.equal(world.group.getObjectByName('Withdrawable gate bars').visible,false,
+    'repeated already-open snapshots do not invent another opening');
+  world.update({...opened,runToken:'different-run',tick:0});
+  assert.equal(world.group.getObjectByName('Withdrawable gate bars').visible,false,
+    'a run starting with an already-open door has no false unlock scene');
+  assert.equal(JSON.stringify(opened),unchanged,'3D choreography cannot mutate the public state');
+  world.dispose();
+  assert.equal(world.stats().geometryCount,0);
+  assert.equal(world.stats().materialCount,0);
+});
+
+test('reduced motion immediately clears a publicly unlocked 3D gate', async () => {
+  const {createMazeWorld}=await modulePromise;
+  const world=createMazeWorld({balanced:true});
+  const door={id:'gate',a:24,b:25,open:false};
+  const cells=[{cell:24,neighbors:[25]},{cell:25,neighbors:[24]}];
+  world.update({...fixture(cells),tick:1,doors:[door]});
+  world.animate(2,{reducedMotion:true});
+  world.update({...fixture(cells),tick:2,doors:[{...door,open:true}]});
+  world.animate(2,{reducedMotion:true});
+  assert.equal(world.group.getObjectByName('Withdrawable gate bars').visible,false);
+  assert.equal(world.stats().retractingPublicGates,0);
+  world.dispose();
 });
