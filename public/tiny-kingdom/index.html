@@ -6026,7 +6026,38 @@ function followRayBlockers(eye,target,roofs){
 // A clear centre ray is not enough: the foreground roof in the real G105
 // recording covered the worker's hands and most of the scene. Inspect the
 // real actor's silhouette and surrounding court at candidate eye positions.
-function projectedWorkdayOccluders(eye,target,subject){
+// G136: real citizens can cross a carpenter's face or hands in portrait.
+// Trace each physical head, torso and IK wrist ray against other actual
+// citizen volumes. No impostors, hiding, AI mutations or per-frame particles.
+function physicalCitizenForegroundBlockers(eye,subject,hands=[]){
+ if(!subject)return 0;
+ const ground=terrain(subject.x,subject.z);
+ const targets=[[subject.x,ground+1.34,subject.z],
+  [subject.x,ground+.82,subject.z],...hands];
+ let obscured=0;
+ for(const target of targets){
+  const ray=target.map((v,i)=>v-eye[i]);
+  const squared=ray.reduce((sum,v)=>sum+v*v,0);
+  if(squared<.001)continue;
+  let blocked=false;
+  for(const other of people){
+   if(other===subject||
+      Math.hypot(other.x-subject.x,other.z-subject.z)>8)continue;
+   const y=terrain(other.x,other.z);
+   for(const height of [.57,1.19]){
+    const point=[other.x,y+height,other.z];
+    const progress=ray.reduce((sum,v,i)=>sum+(point[i]-eye[i])*v,0)/squared;
+    if(progress<=.05||progress>=.94)continue;
+    const distance=Math.hypot(...point.map((v,i)=>v-eye[i]-ray[i]*progress));
+    if(distance<.39){blocked=true;break}
+   }
+   if(blocked)break;
+  }
+  if(blocked)obscured++;
+ }
+ return obscured;
+}
+function projectedWorkdayOccluders(eye,target,subject,hands=[]){
  const dx=target[0]-eye[0],dy=target[1]-eye[1],dz=target[2]-eye[2];
  const depth=Math.hypot(dx,dy,dz)||1,forward=[dx/depth,dy/depth,dz/depth];
  const sideLength=Math.hypot(forward[0],forward[2])||1;
@@ -6084,6 +6115,7 @@ function projectedWorkdayOccluders(eye,target,subject){
   }
  }
  return {projectedBystanders,projectedPosts,projectedWorksitePosts,
+  foregroundCitizenBlockers:physicalCitizenForegroundBlockers(eye,subject,hands),
   frameCrowdBurden:Math.round(frameCrowdBurden*100)/100};
 }
 function cameraShotFraming(shot,roofs,citizen,knownHands=null){
@@ -6111,7 +6143,7 @@ function cameraShotFraming(shot,roofs,citizen,knownHands=null){
   bodyVisibleFraction:(body.length-blockedBodyRays)/body.length,
   blockedNeighbourhoodRays:countBlocked(surroundings),cameraProximityWarnings,
   handBlockers,handTargetsInspected:handTargets.length,
-  ...projectedWorkdayOccluders(eye,target,citizen)};
+  ...projectedWorkdayOccluders(eye,target,citizen,handTargets)};
 }
 function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const realWork=isWorkingAtSite(citizen);
@@ -6126,8 +6158,12 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   terrain(citizen.x,citizen.z)+(working&&realWork?.94:1.02),
   citizen.z+(working&&realWork?Math.cos(facing)*.19:0)];
  const roofs=followCameraRoofs();
- const normalPitch=working?(actionCameraPitch??(liveWorkday?.20:.24)):.76;
- const normalZoom=working?(actionCameraZoom??(liveWorkday?4.85:6.2)):12.8;
+ // The portrait lens is a genuine different field of view, not a CSS crop
+ // of the desktop worksite camera. Frame both worker and real surroundings.
+ const portraitLens=Boolean(working&&realWork&&canvas.clientWidth>0&&
+  canvas.clientWidth<500);
+ const normalPitch=working?(actionCameraPitch??(liveWorkday?(portraitLens?.27:.20):.24)):.76;
+ const normalZoom=working?(actionCameraZoom??(liveWorkday?(portraitLens?6.05:4.85):6.2)):12.8;
  const candidate=(angle,pitch=normalPitch,zoom=normalZoom)=>{
   const radius=Math.cos(pitch)*zoom,elevation=Math.sin(pitch)*zoom;
   const eye=[citizen.x+Math.sin(angle)*radius,
@@ -6180,11 +6216,13 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
    framing.cameraProximityWarnings*42+
    framing.projectedBystanders*170+framing.projectedPosts*55+
    framing.projectedWorksitePosts*100+framing.frameCrowdBurden*65+
-   framing.handBlockers*(working&&realWork?175:15);
+   framing.handBlockers*(working&&realWork?175:15)+
+   framing.foregroundCitizenBlockers*(working&&realWork?290:30);
   if(score<bestScore){best=shot;bestScore=score;bestFraming=framing;}
   const clearFront=working&&realWork&&alignment>.12&&
    shot.blockers===0&&framing.handBlockers<=1&&
    framing.blockedBodyRays<=2&&framing.projectedBystanders===0&&
+   framing.foregroundCitizenBlockers===0&&
    framing.projectedWorksitePosts===0&&
    framing.cameraProximityWarnings===0;
   if(clearFront){
@@ -6197,7 +6235,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  return {...chosen,...framing,
   compositionScore:frontBest?frontScore:bestScore,
   facingAlignment:realWork?Math.cos(chosen.yaw-facing):null,
-  clearFrontCandidates,workFacing:facing,
+  clearFrontCandidates,workFacing:facing,portraitLens,
+  viewportAspect:canvas.clientWidth/Math.max(1,canvas.clientHeight),
   originalBlockers:original.blockers};
 }
 // A real worker typically stays at the SAME workstation for multiple frames.
@@ -6217,6 +6256,7 @@ function observedWorkdayCameraPlan(citizen,preferredYaw){
  if(cache&&cache.citizen===citizen.name&&
   cache.citySize===city.length&&cache.job===citizen.job&&
   cache.requestZoom===actionCameraZoom&&cache.requestPitch===actionCameraPitch&&
+  cache.viewWidth===canvas.clientWidth&&cache.viewHeight===canvas.clientHeight&&
   now-cache.at<1100&&
   Math.hypot(citizen.x-cache.x,citizen.z-cache.z)<.25&&turn<1.2){
   liveShotPlanReuses++;return cache.shot;
@@ -6225,6 +6265,7 @@ function observedWorkdayCameraPlan(citizen,preferredYaw){
  liveShotPlanBuilds++;
  liveShotPlanCache={citizen:citizen.name,job:citizen.job,
   citySize:city.length,x:citizen.x,z:citizen.z,at:now,
+  viewWidth:canvas.clientWidth,viewHeight:canvas.clientHeight,
   requestZoom:actionCameraZoom,requestPitch:actionCameraPitch,shot};
  return shot;
 }
@@ -6254,6 +6295,9 @@ function workdayCameraCompositionAudit(){
   clearFrontCandidates:lastFollowShot?.clearFrontCandidates||0,
   cameraDistance:zoom,eye,staticWorldHidden:false,
   plannedHandBlockers:lastFollowShot?.handBlockers??null,
+  foregroundCitizenBlockers:physicalCitizenForegroundBlockers(eye,person,handTargets),
+  plannedForegroundCitizenBlockers:lastFollowShot?.foregroundCitizenBlockers??null,
+  viewportAspect:canvas.clientWidth/Math.max(1,canvas.clientHeight),
   projectedWorksitePosts:lastFollowShot?.projectedWorksitePosts??null,
   cameraSurveyBuilds:liveShotPlanBuilds,
   cameraSurveyReuses:liveShotPlanReuses};
