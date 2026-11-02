@@ -1,5 +1,6 @@
 import {planSoundCues,planSoundMood} from '/dungeon/soundstage-plan.js';
 import {planVisualContact} from '/dungeon/facing-plan.js';
+import {createMaterialFoley} from '/dungeon/material-foley.js';
 
 /**
  * Original browser-generated dungeon sound design. All music and effects are
@@ -41,13 +42,14 @@ const stopAndDisconnect=voice=>{
  try{voice.osc.stop()}catch{}
  try{voice.osc.disconnect()}catch{}
  try{voice.gain.disconnect()}catch{}
+ try{voice.foley?.stop()}catch{}
 };
 export function createDungeonSoundstage(ctx){
  if(!ctx||typeof ctx.createGain!=='function'||typeof ctx.createOscillator!=='function')return null;
  let started=false,enabled=false,previous=null,sceneMood=null,disposed=false;
  let played=0,suppressed=0,peakVoices=0,sceneChanges=0,lastCue='none';
  const active=[],cooldown=new Map(),beds=[],nodes=[];
- let master=null,bedBus=null,fxBus=null,capture=null;
+ let master=null,bedBus=null,fxBus=null,capture=null,foley=null;
  const now=()=>safe(ctx.currentTime,0,Number.MAX_SAFE_INTEGER,0);
  function addBed(type){
   const oscillator=ctx.createOscillator(),gain=ctx.createGain();
@@ -62,6 +64,7 @@ export function createDungeonSoundstage(ctx){
    bedBus=ctx.createGain();bedBus.gain.value=.65;
    fxBus=ctx.createGain();fxBus.gain.value=.85;
    bedBus.connect(master);fxBus.connect(master);master.connect(ctx.destination);
+   foley=createMaterialFoley(ctx);
    nodes.push(master,bedBus,fxBus);
    addBed('sine');addBed('triangle');
    started=true;return true;
@@ -121,7 +124,8 @@ export function createDungeonSoundstage(ctx){
    gain.gain.exponentialRampToValueAtTime(profile.peak,t+.012);
    gain.gain.exponentialRampToValueAtTime(.0001,t+profile.length);
    osc.connect(gain);gain.connect(fxBus);
-   const voice={osc,gain,stopAt:t+profile.length+.04,priority:cue.priority||1,done:false};
+   const voice={osc,gain,foley:foley?.emit(cue.kind,t,fxBus,cue.tick)||null,
+    stopAt:t+profile.length+.04,priority:cue.priority||1,done:false};
    osc.onended=()=>{stopAndDisconnect(voice)};
    osc.start(t);osc.stop(voice.stopAt);
    active.push(voice);cooldown.set(key,t);
@@ -201,7 +205,7 @@ export function createDungeonSoundstage(ctx){
    enabled,started,disposed,voices:active.length,peakVoices,voiceCap:MAX_VOICES,
    cuesPlayed:played,cuesSuppressed:suppressed,sceneChanges,
    mood:sceneMood?.mood??'unavailable',biome:sceneMood?.biome??null,
-   lastCue,masterGain:MASTER_GAIN,engine:'original-synth-web-audio'
+   lastCue,masterGain:MASTER_GAIN,foley:foley?.stats()??null,engine:'original-synth-web-audio'
   };
  }
  function dispose(){
