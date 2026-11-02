@@ -26,7 +26,7 @@ const gpuArgs=['--enable-webgl','--use-gl=angle','--use-angle=swiftshader',
  '--enable-precise-memory-info'];
 
 const evidence={
- version:'g100-courier-director-real-player-follow-v3',
+ version:'g113-street-visitor-grounded-supplement-v1',
  baselineSha:BASE,candidateSha:null,baselineBlob:null,candidateBlob:null,
  renderer:'UNVERIFIED',status:'INCOMPLETE',workdayTicks:null,
  camera:{wide,labor,grown,marketView},viewport,
@@ -38,7 +38,7 @@ const evidence={
   'Neither screenshot differences nor this evidence imply independent critic endorsement.',
   'Video files include honest initialization pre-roll; no postprocessed or fabricated frames.',
   'Supplemental candidate live-worker shots are not equivalent to a matched A/B and cannot substitute for blinded review.',
-  'G098 courier and G099 unloading clips are candidate-only supplementary proof, not matched G088 scenes (G088 lacks logistics).'
+  'G098 courier, G099 unloading and G113 first-person walk clips are candidate-only supplementary proof, not matched G088 mechanics (baseline lacks logistics and first-person movement).'
  ]
 };
 const mkdir=(name)=>fs.mkdirSync(path.join(DIR,name),{recursive:true});
@@ -243,6 +243,30 @@ async function stage(label,html,browser,matchedTicks){
    result.mobileLiveShift={worker:mobileLive.view.citizen,job:mobileLive.view.job,
     camera:mobileLive.camera,matchedPair:false};
   }
+  // G113: honest supplementary first-person capture of the SAME 120-day
+  // simulation. G088 never had this visitor mode: NOT a matched visual PASS.
+  if(label==='candidate'){
+   const before=await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()));
+   const entered=await page.evaluate(()=>{
+    const g=window.__tinyKingdom;
+    return g.setStreetWalk(true);
+   });
+   assert(entered.active&&entered.height>1.4,'No navigable physical street camera');
+   await page.waitForTimeout(1000);
+   await page.screenshot({path:path.join(DIR,label+'/street-human-height-mobile.png'),timeout:90000});
+   const overflowMobile=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);
+   assert.equal(overflowMobile,false,'G113 390px street UI overflow');
+   await page.setViewportSize(viewport);
+   await page.waitForTimeout(900);
+   await page.screenshot({path:path.join(DIR,label+'/street-human-height-wide.png'),timeout:90000});
+   const after=await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()));
+   assert.equal(before,after,'Street scene changed authoritative world');
+   result.streetWalk={entry:entered,matchedPair:false,realWebGL:true,
+    mobileFile:'street-human-height-mobile.png',wideFile:'street-human-height-wide.png',
+    authorityUnchanged:true};
+   await page.evaluate(()=>window.__tinyKingdom.setStreetWalk(false));
+   await page.setViewportSize({width:390,height:844});
+  }
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);
   assert.equal(overflow,false,label+' 390px horizontal document overflow');
   return {result,ticks};
@@ -313,6 +337,65 @@ async function motion(browser,html,snapshot,label,live=false,camera=labor,delive
  }
 }
 
+
+/* G113 uncut physical street-walk clip. Human input moves a camera through
+ * original actual civilization; no fake citizens, animation, or frame edits. */
+async function streetMotion(browser,html,snapshot){
+ const label='candidate-street-walk';
+ const {context,page,contextInfo}=await openScene(browser,html,label,true);
+ const video=page.video();
+ try{
+  await page.evaluate(saved=>{
+   const g=window.__tinyKingdom;
+   g.restoreSnapshot(saved);
+   g.setCommandView('world');
+  },snapshot);
+  await page.locator('#street-walk').click();
+  const start=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   return {view:g.getStreetWalkState(),authority:g.exportSnapshot(),
+    frames:g.renderQuality().framesDrawn};
+  });
+  assert(start.view.active,'G113 did not enter a real human-height world');
+  const wallStart=Date.now();
+  await page.keyboard.down('w');
+  await page.waitForTimeout(2300);
+  await page.keyboard.up('w');
+  await page.keyboard.down('ArrowRight');
+  await page.waitForTimeout(1050);
+  await page.keyboard.up('ArrowRight');
+  await page.keyboard.down('w');
+  await page.waitForTimeout(1800);
+  await page.keyboard.up('w');
+  await page.mouse.move(450,270);
+  await page.mouse.down();
+  await page.mouse.move(480,260,{steps:5});
+  await page.mouse.up();
+  await page.waitForTimeout(1400);
+  const end=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   return {view:g.getStreetWalkState(),authority:g.exportSnapshot(),
+    frames:g.renderQuality().framesDrawn,
+    glError:document.querySelector('#world').getContext('webgl')?.getError()??-1};
+  });
+  assert.equal(end.glError,0,'G113 live walking produced WebGL errors');
+  assert(end.view.active,'G113 street camera stopped in clip');
+  assert(end.view.distanceTravelled>0,'G113 recording did not actually move through village');
+  assert(end.authority.payload.state.t>start.authority.payload.state.t,
+   'G113 recording must contain genuine ongoing autonomous world motion');
+  const seconds=(Date.now()-wallStart)/1000;
+  return {renderer:contextInfo.quality.renderer,seconds,observedFps:(end.frames-start.frames)/seconds,
+   distanceTravelled:end.view.distanceTravelled,blockedMoves:end.view.blockedMoves,
+   startView:start.view,endView:end.view,initialChecksum:start.authority.checksum,
+   finalChecksum:end.authority.checksum,isSoftware:true,
+   matchedPair:false,uninterruptedRealTime:true,actualKeyboardAndPointerInput:true,
+   videoFile:label+'.webm'};
+ }finally{
+  await context.close();
+  fs.renameSync(await video.path(),path.join(DIR,label+'.webm'));
+ }
+}
+
 (async()=>{
  fs.mkdirSync(DIR,{recursive:true});
  for(const label of ['baseline','candidate'])mkdir(label);
@@ -345,6 +428,7 @@ async function motion(browser,html,snapshot,label,live=false,camera=labor,delive
   evidence.videos.candidate=await motion(browser,candidate,cSnapshot,'candidate-workday');
   evidence.videos.baseline=await motion(browser,baseline,bSnapshot,'baseline-workday');
   evidence.videos.candidateLive=await motion(browser,candidate,cSnapshot,'candidate-live-shift',true);
+  evidence.videos.candidateStreetWalk=await streetMotion(browser,candidate,cSnapshot);
    // Full, uncut paired market gameplay with actual citizen simulation and
    // real pointer orbit/zoom. No screenshots or mock animation substituted.
    evidence.videos.candidateMarket=await motion(browser,candidate,cSnapshot,'candidate-market',false,marketView);
