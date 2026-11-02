@@ -46,7 +46,7 @@ test('simultaneous disclosed pickups choose same authentic source ID regardless 
 // Preserve exact same-run source truth and make both displays share one clock.
 test('public key feedback stays coupled to actual frame-limited 3D pickup, not CPU wall stalls',async()=>{
   const fs=require('node:fs');
-  const {advanceGateVisualClock,MAX_GATE_VISUAL_FRAME_SECONDS,PUBLIC_PICKUP_VISUAL_SECONDS}=await import(
+  const {advanceGateVisualClock,MAX_GATE_VISUAL_FRAME_SECONDS,PUBLIC_PICKUP_VISUAL_SECONDS,PUBLIC_PICKUP_RELEASE_SECONDS}=await import(
     pathToFileURL(path.resolve(__dirname,'../../public/ai-maze-escape/gate-moment.mjs')).href);
   const app=fs.readFileSync(path.resolve(__dirname,'../../public/ai-maze-escape/app.js'),'utf8');
   const three=fs.readFileSync(path.resolve(__dirname,'../../public/ai-maze-escape/scene.js'),'utf8');
@@ -56,6 +56,10 @@ test('public key feedback stays coupled to actual frame-limited 3D pickup, not C
   assert.doesNotMatch(app,/performance\.now\(\)<pickupMilestone\.until/);
   assert.match(three,/pickupAge < PUBLIC_PICKUP_VISUAL_SECONDS/);
   assert.match(three,/pickupAge\/PUBLIC_PICKUP_VISUAL_SECONDS/);
+  assert.equal(PUBLIC_PICKUP_RELEASE_SECONDS,.82,
+    '3D shards must still visibly release promptly');
+  assert.ok(PUBLIC_PICKUP_VISUAL_SECONDS>PUBLIC_PICKUP_RELEASE_SECONDS+.8,
+    'the physical 3D burst must persist across a human-readable action beat');
   assert.ok(PUBLIC_PICKUP_VISUAL_SECONDS>MAX_GATE_VISUAL_FRAME_SECONDS*10);
   let time=advanceGateVisualClock(0,12);
   assert.equal(time,MAX_GATE_VISUAL_FRAME_SECONDS,
@@ -64,6 +68,20 @@ test('public key feedback stays coupled to actual frame-limited 3D pickup, not C
   assert.ok(time<PUBLIC_PICKUP_VISUAL_SECONDS,
     'key feedback and physical shards must both survive 15 deliberately slow frames');
   for(let i=0;i<14;i++)time=advanceGateVisualClock(time,12);
+  assert.ok(time<PUBLIC_PICKUP_VISUAL_SECONDS,
+    'a screenshot must not consume the actual rendered key action instantly');
+  for(let i=0;i<55;i++)time=advanceGateVisualClock(time,12);
   assert.ok(time>=PUBLIC_PICKUP_VISUAL_SECONDS,
-    'the real pickup beat must expire after enough rendered frames');
+    'the actual public pickup beat must still expire after enough rendered frames');
+});
+
+test('actual 3D key fragments retain in-world readable dwell and then fade without extra geometry',()=>{
+  const fs=require('node:fs');
+  const scene=fs.readFileSync(path.resolve(__dirname,'../../public/ai-maze-escape/scene.js'),'utf8');
+  assert.match(scene,/pickupAge\s*<\s*PUBLIC_PICKUP_VISUAL_SECONDS/);
+  assert.match(scene,/pickupAge\/PUBLIC_PICKUP_RELEASE_SECONDS/);
+  assert.match(scene,/PUBLIC_PICKUP_VISUAL_SECONDS-pickupAge\)\/\.55/);
+  assert.match(scene,/Math\.max\(\.06,\(1\.13-progress\*\.33\)\*fade\)/);
+  assert.match(scene,/settings\.reducedMotion\s*\?\s*\.74/);
+  assert.match(scene,/new THREE\.OctahedronGeometry\(\.16,0\)/);
 });

@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-02T12:28:14.336Z",
+  "updatedAt": "2026-11-02T12:35:14.829Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass77 repairs a real focused WebGL 1280px key-pickup HUD mismatch: 2.2s wall-clock goal elapsed under CPU-throttled render before genuine 3D .82s visual shards finished; shared frame-capped clock and same 0.82s visual lifetime now source-guarded. Re-run exact-source real native screenshot/CI and inspect SHA/images before accepting. Nintendo still wins overall; detached critic unavailable; no merge/deploy. | Pass76 original sculpted tidal stage and genuine low-text gameplay HUD code candidate: public-only modeled ceramic relief, anchored tide pennants, observatory roofline and public board-water cascades, directional light; redundant idle status removed, real event-only captions and dangerous encounter highlight. Existing concurrent Pass74 milestone and Pass75 inset key dais preserved. Current exact-source WebGL and whole CI pending. Verified previous Pass72 original 22/22 PNGs and native 1280/390 images: Nintendo Captain Toad still wins, no independent blind victory. Subagent/Ultracode shared tunnel disconnected. No merge/deploy. | Concurrent prior ledger preserved: Pass73 genuine source cf76242 focused visual workflow 41436436849 SUCCESS: 57/57 real world/model checks + 5/5 Playwright. Downloaded artifact 13137435844; independently verified 22/22 original dated SHA-256 PNGs (20 individual UTC sidecars, two gate images via original transition manifest). Genuine desktop key pickup at 2026-11-02T11:29:01.365Z SHA 9191b9b40d143db952be222bf2974be657a029598d97cf914c1ca6616c6c97e5 and 390x844 11:29:13.209Z SHA 66593f7f02211b2b208d13f895d68ab43588a6b06e9820a7e8c78"
+    "summary": "Pass77b root-cause second real WebGL visual failure: first clock alignment fixed KEY FOUND, but original 1280 after-screenshot still had NO visible physical 3D key shards under CPU-throttled render. Real 8-shard release now spreads in .82 rendered seconds, holds a readable original 2.4s witnessed action beat, fades last .55s, UI shares exactly that visual lifetime; strict after-screenshot checks retained, pending new CI. Nintendo still wins, no detached critic; no merge/deploy. | Pass77 repairs a real focused WebGL 1280px key-pickup HUD mismatch: 2.2s wall-clock goal elapsed under CPU-throttled render before genuine 3D .82s visual shards finished; shared frame-capped clock and same 0.82s visual lifetime now source-guarded. Re-run exact-source real native screenshot/CI and inspect SHA/images before accepting. Nintendo still wins overall; detached critic unavailable; no merge/deploy. | Pass76 original sculpted tidal stage and genuine low-text gameplay HUD code candidate: public-only modeled ceramic relief, anchored tide pennants, observatory roofline and public board-water cascades, directional light; redundant idle status removed, real event-only captions and dangerous encounter highlight. Existing concurrent Pass74 milestone and Pass75 inset key dais preserved. Current exact-source WebGL and whole CI pending. Verified previous Pass72 original 22/22 PNGs and native 1280/390 images: Nintendo Captain Toad still wins, no independent blind victory. Subagent/Ultracode shared tunnel disconnected. No merge/deploy. | Concurrent prior ledger preserved: Pass73 genuine source cf76242 focused visual workflow 41436436849 SUCCESS: 57/57 real world/model checks + 5/5 Playwright. Downloaded artifact 13137435844; independently verified 22/22 original dated SHA-256 PNGs (20 individual UTC sidecars, two gate images via original transition manifest). Genuine desktop key pickup at 2026-11-02T11:29:01.365Z SHA 9191b9b40d143db952be222bf2974be657a029598d97cf914c1ca6616c6c97e5 and 390x844 11:29:13.209Z SHA 66593f7f02211b2b208d13f895d68ab43588a6b06e9820a7e8c78"
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass77b authored physical-action dwell (2026-11-02): exact-source focused 41445025939 fixed KEY FOUND but real after-PNG shard assertion FAILED; do not loosen. Original 8 in-world same-run visible shards spread within .82 rendered seconds, stay physically readable through 2.4 rendered seconds, fade .55; Pip's authentic key acting relaxes over 1.25. Shared compact HUD lifetime. New Node source/clock tests. Current original 1280/390 true post-screenshot, 320/390/844/1280 and all unit/CI pending; Nintendo still ahead.",
     "Pass77 source candidate (2026-11-02): repaired exact observed live physical pickup vs HUD timer desynchronization using the same stall-capped per-render visual clock and 0.82-second key burst. Real failure focused 41439120617 showed Current goal when genuine 3D shards still active. Added a stalled-frames regression. Previous 320/390/844/1280 screenshot gates and privacy remain unchanged. Current-source browser/hash/whole CI pending; fixed Nintendo quality bar not met.",
     "Pass76 physical game-first stage/UX candidate (2026-11-02): real disclosed blocked-wall ceramic relief, physically anchored 3D pennants and stronger observatory architecture, public-board-only waterfall strands, retuned existing lights. Actual 3D canvas full-viewport, minimized goal/time/key/discovery HUD, idle status removed unless source urgency/recovery, source-only transient closed-caption events, 44px Map/Details/Settings/high contrast/reduced motion. Existing true key milestone and original in-cell key dais remain. New real-Three privacy/geometry test. Full source-bound WebGL 320/390/844/1280 and CI required; Nintendo benchmark not won.",
     "Pass72 CI verification: source-bound browser 41434264524 completed SUCCESS (57/57 real-Three/model, 5/5 Playwright WebGL) with 16.4 MB authentic dated screenshot artifact 13135657912. Full monorepo 41434264333 failed 2/564 due independent actual district test fixture missing new map-view.mjs ESM module; fix dcb26968 copies real module without stubs or weakened thresholds, new full 41435283563 pending. Artifact PNGs could not be separately downloaded/verified through connector; visual critic and Nintendo bar still pending.",
@@ -205,6 +206,13 @@
     "Pass71: independently inspect the 1280x900 and 390x844 authentic source-logged key release PNGs, confirm true after-capture glint geometry, privacy and hero/full stage framing, reject tiny or obscured action; then enlarge distinctive authentic environment/actor storytelling while avoiding HUD text. CPU-stall cosmetic clock is not GPU performance."
   ],
   "reviews": [
+    {
+      "title": "Pass77b physical key pickup visual hold after failed actual screenshot",
+      "reviewer": "Lead checked exact-source second WebGL failure log and original 12-image Pass76 fully SHA verified source capture; fresh critic disconnected",
+      "verdict": "Legible authentic full 3D pickup dwell candidate; current-source post-screenshot and Nintendo criteria pending",
+      "date": "2026-11-02T12:35:14.829Z",
+      "summary": "Pass77 initial fix got expected KEY FOUND but real original PNG capture still outlived .82 visual shards. Keep strict post-screenshot visible shard assertion; animate a physically visible 8-shard bloom with .82s release, 2.4s render-clock total and .55 fade, synchronized with low-text HUD. Fixed Nintendo still visually superior."
+    },
     {
       "title": "Pass77 real-key pickup HUD and physical moment synchronization",
       "reviewer": "Lead read true Pass76 failed Playwright log and current-source code; fresh independent visual critic unavailable",
@@ -744,6 +752,13 @@
     }
   ],
   "verification": [
+    {
+      "name": "Pass77b native after-PNG physical shards and compact key goal",
+      "status": "Source candidate, fresh exact-source real Playwright and whole CI required",
+      "detail": "First focused visual 41445025939 fixed prior HUD KEY FOUND mismatch but failed strict post-screenshot physical 8-shard visibility on genuine 1280 WebGL. Longer authentic action/physical dwell protects legibility without changing screenshot assertions, public knowledge or authority. Must inspect actual 1280/390 original captured PNG + SHA and verify 320/390/844 frames; independent Nintendo bar open.",
+      "sourceCommit": "pending",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41445025939"
+    },
     {
       "name": "Pass77 exact-source physical pickup/HUD lifetime and current native screenshots",
       "status": "Source candidate; Node/WebGL browser and whole monorepo CI PENDING",

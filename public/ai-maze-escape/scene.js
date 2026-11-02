@@ -1,7 +1,7 @@
 import * as THREE from './vendor/three.module.js';
 import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
-import { advanceGateVisualClock, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
+import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicGateOpeningCameraCue } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
@@ -411,7 +411,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       ? gateVisualTime - recentPublicPickup.start : Infinity;
     const showPickup = !result && pickupAge >= 0 && pickupAge < PUBLIC_PICKUP_VISUAL_SECONDS;
     const pickupStrength = showPickup
-      ? (settings.reducedMotion ? 1 : clamp(1-pickupAge/PUBLIC_PICKUP_VISUAL_SECONDS,0,1)) : 0;
+      ? (settings.reducedMotion ? 1 : clamp(1-pickupAge/1.25,0,1)) : 0;
     explorer.update({
       time:elapsed,delta,moving:pose.moving&&!result,heading,
       attentionHeading:closestThreat?Math.atan2(closestThreat.x-pose.x,closestThreat.z-pose.z):undefined,
@@ -423,26 +423,33 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       danger:s.dangerPermille/1000,result,reducedMotion:settings.reducedMotion,
     });
     world.animate(elapsed, {...settings, gateTime:gateVisualTime});
-    // The first genuine source-bound desktop PNG was REJECTED: all eight
-    // shards passed in-frame diagnostics but were occluded inside Pip's torso.
-    // Raise and spread physical 3D glass ABOVE the head/lantern, rather than
-    // claiming victory from a projected point count alone. The public key
-    // cell, duration, authority, hidden knowledge and low-text HUD are intact.
+    // A physical release needs visible dwell, not a one-frame flash. Real CI
+    // 41445025939 verified KEY FOUND but failed the *after screenshot* shard
+    // presence because .82 s of visual time elapsed during CPU-rendered PNG.
+    // Spread over .82 s, HOLD an intelligible burst, then fade over .55 s.
+    // Genuine same-run public key, its physical cell, AI and route are unchanged.
     pickupBurst.visible = showPickup;
     if (showPickup) {
       const p = cellPosition(recentPublicPickup.cell,s.width,s.height);
       pickupBurst.position.set(p.x + KEY_SHRINE_OFFSET.x,
         cellHeight(recentPublicPickup.cell,s.width,s.height)+1.75,
         p.z + KEY_SHRINE_OFFSET.z);
-      const progress = settings.reducedMotion ? .38 : Math.min(1,pickupAge/PUBLIC_PICKUP_VISUAL_SECONDS);
+      const progress = settings.reducedMotion ? .38
+        : Math.min(1,pickupAge/PUBLIC_PICKUP_RELEASE_SECONDS);
+      const fade = settings.reducedMotion ? 1
+        : clamp((PUBLIC_PICKUP_VISUAL_SECONDS-pickupAge)/.55,0,1);
+      const shimmer = settings.reducedMotion ? 0
+        : Math.sin(pickupAge*5.6)*.035;
       for (let i=0;i<pickupShards.length;i++) {
         const angle=i*Math.PI/4+.18,radial=.43+progress*(.36+(i%2)*.11);
         const shard=pickupShards[i];
         shard.position.set(Math.cos(angle)*radial,
-          .16+progress*(.20+(i%3)*.06),Math.sin(angle)*radial);
+          .16+progress*(.20+(i%3)*.06)+shimmer,Math.sin(angle)*radial);
         shard.scale.setScalar(settings.reducedMotion ? .74
-          : Math.max(.06,1.13-progress*1.03));
-        shard.rotation.set(progress*(.30+i*.11),angle,progress*1.2);
+          : Math.max(.06,(1.13-progress*.33)*fade));
+        shard.rotation.set(progress*(.30+i*.11)
+          +Math.max(0,pickupAge-PUBLIC_PICKUP_RELEASE_SECONDS)*.16,
+          angle,progress*1.2);
       }
     }
     if (objectiveCue) {

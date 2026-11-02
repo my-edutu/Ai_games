@@ -3,7 +3,10 @@
 // Never examine undiscovered topology, private AI plans or required hidden keys.
 export const GATE_RETRACTION_SECONDS = 0.85;
 // The genuine witnessed key burst and its compact HUD share one visual lifespan.
-export const PUBLIC_PICKUP_VISUAL_SECONDS = 0.82;
+// A readable release + linger: physical shards spread promptly, remain
+// perceivable long enough for the real autonomous action to register, then fade.
+export const PUBLIC_PICKUP_RELEASE_SECONDS = 0.82;
+export const PUBLIC_PICKUP_VISUAL_SECONDS = 2.4;
 // Visual-only pacing: if software graphics stalls, don't skip the physical lift.
 // Authoritative time, AI, countdown and route motion remain untouched.
 export const MAX_GATE_VISUAL_FRAME_SECONDS = 0.035;
