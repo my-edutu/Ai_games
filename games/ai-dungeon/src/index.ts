@@ -5,7 +5,7 @@ export const DUNGEON_VERSION='0.4.0';
 export const MAP_SIZE=19;
 export type UnitKind='vanguard'|'ranger'|'mystic'|'revenant'|'cultist'|'warden';
 export type Faction='party'|'enemy';
-export interface Unit {id:string;kind:UnitKind;faction:Faction;x:number;z:number;hp:number;maxHp:number;attack:number;cooldown:number;action?:'idle'|'move'|'attack'|'cast'|'hurt'|'guard';actionTick?:number;guardTick?:number;targetId?:string;recoveryUntilTick?:number;focus?:number;maxFocus?:number}
+export interface Unit {id:string;kind:UnitKind;faction:Faction;x:number;z:number;hp:number;maxHp:number;attack:number;cooldown:number;action?:'idle'|'move'|'attack'|'cast'|'hurt'|'guard';actionTick?:number;guardTick?:number;targetId?:string;recoveryUntilTick?:number;focus?:number;maxFocus?:number;channelUntilTick?:number;channelTargetId?:string;channelX?:number;channelZ?:number}
 export interface DungeonEvent {tick:number;kind:string;text:string}
 export interface DungeonTrap{id:string;x:number;z:number;kind:'ember'|'arcane';active:boolean;cooldown:number;disarmed:boolean;triggers:number}
 export interface DungeonState {schemaVersion:1;tick:number;floor:number;run:number;phase:'exploring'|'intermission';intermission:number;theme:string;map:string[];exit:{x:number;z:number};units:Unit[];relics:{x:number;z:number}[];traps:DungeonTrap[];kills:number;gold:number;level:number;intent:string;events:DungeonEvent[]}
@@ -301,7 +301,7 @@ function createFloor(seed:string,floor:number,rng:NamedRng,run:number,previous?:
   const index=rng.nextInt('encounters:'+floor+':'+run,eligible.length),p=eligible.splice(index,1)[0],k=key(p.x,p.z);
   if(occupied.has(k))continue;occupied.add(k);
   const kind:UnitKind=i%3===0?'cultist':'revenant',hp=kind==='cultist'?36+floor*3:44+floor*4;
-  units.push({id:'enemy-'+floor+'-'+i,kind,faction:'enemy',x:p.x,z:p.z,hp,maxHp:hp,attack:kind==='cultist'?8:10,cooldown:0});
+  units.push({id:'enemy-'+floor+'-'+i,kind,faction:'enemy',x:p.x,z:p.z,hp,maxHp:hp,attack:kind==='cultist'?8+Math.min(10,Math.floor(floor/2)):10+Math.min(14,Math.floor(floor/2)),cooldown:0});
  }
  // Living oathbound defenders make the sealed boss fight a close, readable
  // challenge. These seeded, legal units are real AI opponents, not fake VFX.
@@ -333,6 +333,16 @@ export function assertDungeonState(s:DungeonState){
   if(u.recoveryUntilTick!==undefined&&(u.kind!=='warden'||!Number.isSafeInteger(u.recoveryUntilTick)||u.recoveryUntilTick<s.tick||u.recoveryUntilTick>s.tick+2))throw Error('Invalid Warden recovery clock');
   // Optional fields keep old signed checkpoints readable; new Mystic focus is
   // a strictly bounded earned resource, never a source of infinite healing.
+  // The shadow bolt is a saved, spatially locked two-turn threat, not an
+  // instant ranged hit or a spectator-only warning. Old checkpoints omit it.
+  const hexFields=[u.channelUntilTick,u.channelTargetId,u.channelX,u.channelZ];
+  if(hexFields.some(value=>value!==undefined)){
+   if(u.kind!=='cultist'||hexFields.some(value=>value===undefined)||
+      !Number.isSafeInteger(u.channelUntilTick)||u.channelUntilTick!<s.tick||
+      u.channelUntilTick!>s.tick+1||typeof u.channelTargetId!=='string'||
+      !Number.isSafeInteger(u.channelX)||!Number.isSafeInteger(u.channelZ)||
+      !walkable(s.map,u.channelX!,u.channelZ!))throw Error('Invalid cultist shadow hex');
+  }
   if(u.focus!==undefined||u.maxFocus!==undefined){
    if(u.kind!=='mystic'||!Number.isSafeInteger(u.focus)||!Number.isSafeInteger(u.maxFocus)||
     (u.maxFocus??0)<1||(u.maxFocus??0)>6||(u.focus??-1)<0||(u.focus??7)>(u.maxFocus??0))throw Error('Invalid healing focus');
@@ -351,6 +361,9 @@ export class DungeonRuntime {
  step(){
   const s=this.state;const warden=s.units.find(u=>u.kind==='warden');const previousWardenPhase=wardenPhase(warden),wardAtStart=wardenSealActive(s);s.tick++;for(const unit of s.units){unit.action='idle';unit.actionTick=s.tick;delete unit.targetId;
    if(unit.kind==='warden'&&unit.recoveryUntilTick!==undefined&&unit.recoveryUntilTick<s.tick)delete unit.recoveryUntilTick;
+   if(unit.kind==='cultist'&&unit.channelUntilTick!==undefined&&unit.channelUntilTick<s.tick){
+    delete unit.channelUntilTick;delete unit.channelTargetId;delete unit.channelX;delete unit.channelZ;
+   }
    // Legacy checkpoints omit the optional focus fields, and are restored
    // deterministically on their first real authority tick, without a bump.
    if(unit.kind==='mystic'&&unit.focus===undefined&&unit.maxFocus===undefined){unit.focus=5;unit.maxFocus=5;}
@@ -366,6 +379,27 @@ export class DungeonRuntime {
    // brace for the actual impact. Retain the tactical attack lane when possible.
    const warden=s.units.find(u=>u.kind==='warden'&&u.hp>0);
    const warned=warden?planWardenStrike(s,warden):null;
+   // An actual cultist has charged a projectile against this *recorded tile*.
+   // Dodging uses one lawful free grid cell; otherwise the hero deliberately
+   // guards and the real hit is reduced. No camera-only dodge or instant aim.
+   const pendingHex=s.units.find(u=>u.kind==='cultist'&&u.hp>0&&
+    u.channelUntilTick===s.tick&&u.channelTargetId===hero.id&&u.channelX===hero.x&&u.channelZ===hero.z);
+   if(pendingHex){
+    const lethalBossTiles=warned?.attackTick===s.tick?
+     new Set(warned.cells.map(p=>key(p.x,p.z))):new Set<string>();
+    const sidesteps=DIRS.map(([dx,dz])=>({x:hero.x+dx,z:hero.z+dz}))
+     .filter(p=>walkable(s.map,p.x,p.z)&&!lethalBossTiles.has(key(p.x,p.z)))
+     .filter(p=>!s.units.some(u=>u.hp>0&&u.id!==hero.id&&u.x===p.x&&u.z===p.z))
+     .filter(p=>!s.traps.some(t=>t.active&&!t.disarmed&&t.x===p.x&&t.z===p.z))
+     .sort((a,b)=>dist(b,pendingHex)-dist(a,pendingHex)||a.z-b.z||a.x-b.x);
+    if(sidesteps.length){
+     hero.x=sidesteps[0].x;hero.z=sidesteps[0].z;hero.action='move';
+     s.intent=hero.kind+' evading a locked shadow hex';
+     push(s,'evade',hero.kind+' slipped away from the marked shadow hex');continue;
+    }
+    hero.guardTick=s.tick;hero.action='guard';s.intent=hero.kind+' bracing against a shadow hex';
+    push(s,'guard',hero.kind+' guarded the locked shadow hex');continue;
+   }
    if(warned?.warning&&warned.attackTick===s.tick+1&&
       warned.cells.some(p=>p.x===hero.x&&p.z===hero.z)){
     const marked=new Set(warned.cells.map(p=>key(p.x,p.z)));
@@ -438,6 +472,11 @@ export class DungeonRuntime {
     const damage=damageThroughWardenSeal(s,target,raw);
     target.hp=Math.max(0,target.hp-damage);hero.action=hero.kind==='mystic'?'cast':'attack';hero.targetId=target.id;target.action='hurt';
     s.intent=recovery?'The expedition counters the exposed Warden':hero.kind==='mystic'?'Arcane support engaging hostiles':hero.kind==='ranger'?'Ranger providing covering fire':'Vanguard holding the front line';
+    if(target.kind==='cultist'&&target.channelUntilTick!==undefined){
+     delete target.channelUntilTick;delete target.channelTargetId;
+     delete target.channelX;delete target.channelZ;
+     push(s,'interrupt',hero.kind+' interrupted the cultist hex with a real hit');
+    }
     if(target.hp===0){s.kills++;s.gold+=12;s.level=1+Math.floor(s.kills/5);push(s,'kill',(target.kind==='warden'?'WARDEN DEFEATED':'Enemy defeated')+' · +12 gold')}
     else if(s.tick%4===0)push(s,'combat',hero.kind+' struck '+target.kind+' for '+damage);
     continue;
@@ -517,13 +556,55 @@ export class DungeonRuntime {
    // A real adjacent threat changes a caster's decision. Retreating uses a
    // legal empty walkable cell and may open a later ranged line of fire.
    // No teleport, hidden RNG, instant free attack or forced encounter result.
+   // Shadow-caster duel: wind up in sight, lock the original legal impact
+   // cell, let the party dodge/guard/interrupt, then resolve real HP damage.
+   // The event, 3D floor tell and original audio use the same saved warning.
+   if(enemy.kind==='cultist'){
+    if(enemy.channelUntilTick===s.tick){
+     const victim=party.find(u=>u.id===enemy.channelTargetId&&u.hp>0);
+     const atMarkedCell=Boolean(victim&&victim.x===enemy.channelX&&victim.z===enemy.channelZ);
+     const clear=Boolean(atMarkedCell&&clearTacticalLane(s,enemy,victim!,enemy.id));
+     if(clear){
+      const braced=victim!.guardTick===s.tick;
+      const strength=8+Math.min(20,Math.ceil(s.floor*1.15));
+      const dealt=braced?Math.max(1,Math.ceil(strength*.35)):strength;
+      victim!.hp=Math.max(0,victim!.hp-dealt);
+      victim!.action=braced?'guard':'hurt';
+      enemy.action='cast';enemy.targetId=victim!.id;
+      push(s,braced?'block':'danger',braced?
+       victim!.kind+' resisted the shadow hex · '+dealt+' damage':
+       'Shadow hex struck '+victim!.kind+' for '+dealt+' damage');
+     }else{
+      enemy.action='cast';
+      push(s,'evade','The cultist shadow hex struck empty stone');
+     }
+     delete enemy.channelUntilTick;delete enemy.channelTargetId;
+     delete enemy.channelX;delete enemy.channelZ;
+     if(enemy.cooldown>0)enemy.cooldown--;
+     continue;
+    }
+    if(s.tick%4===0){
+     const prey=party.filter(u=>u.hp>0&&dist(enemy,u)>=2&&dist(enemy,u)<=3&&
+      clearTacticalLane(s,enemy,u,enemy.id))
+      .sort((a,b)=>Number(b.kind==='mystic')-Number(a.kind==='mystic')||
+       a.hp/a.maxHp-b.hp/b.maxHp||a.id.localeCompare(b.id))[0];
+     if(prey){
+      enemy.channelUntilTick=s.tick+1;enemy.channelTargetId=prey.id;
+      enemy.channelX=prey.x;enemy.channelZ=prey.z;
+      enemy.action='guard';enemy.targetId=prey.id;
+      s.intent='Cultist ritual marking '+prey.kind+' for a shadow hex';
+      push(s,'telegraph','SHADOW HEX — '+prey.kind.toUpperCase()+' MARKED · DODGE OR GUARD');
+      if(enemy.cooldown>0)enemy.cooldown--;
+      continue;
+     }
+    }
+   }
    if(enemy.kind==='cultist'&&distance===1&&s.tick%3===0){
     const step=cultistRetreat(s,enemy,nearest);
     if(step){enemy.x=step.x;enemy.z=step.z;enemy.action='move';
      s.intent='Shadow caster disengaging to regain a spell lane';
      if(enemy.cooldown>0)enemy.cooldown--;continue}
    }
-   if(enemy.kind==='cultist'&&distance>1&&distance<=3&&s.tick%4===0){const visible=clearTacticalLane(s,enemy,nearest,enemy.id);if(visible){nearest.hp=Math.max(0,nearest.hp-5-Math.min(8,Math.floor(s.floor/2)));nearest.action='hurt';enemy.action='cast';enemy.targetId=nearest.id;push(s,'danger','Cultist hurled a shadow bolt')}}
    if(distance<=1){if(enemy.cooldown===0){const braced=nearest.action==='guard'||nearest.guardTick===s.tick;const dealt=braced?Math.max(1,Math.ceil(enemy.attack*.4)):enemy.attack;nearest.hp=Math.max(0,nearest.hp-dealt);enemy.cooldown=2;enemy.action='attack';enemy.targetId=nearest.id;nearest.action=braced?'guard':'hurt';if(braced)push(s,'block',nearest.kind+' blocked '+(enemy.attack-dealt)+' melee damage');else push(s,'danger',enemy.kind+' hit '+nearest.kind+' for '+dealt)}}
    else if(distance<=5&&s.tick%2===0){
      const next=planTacticalStep(s,enemy,nearest,'engage');
@@ -571,6 +652,6 @@ export class DungeonRuntime {
   const boss=s.units.find(u=>u.kind==='warden'&&u.hp>0);
   const strike=boss?planWardenStrike(s,boss):null;
   const bossWarning=strike?.warning&&s.units.some(u=>u.faction==='party'&&u.hp>0&&dist(u,boss!)<=5)?strike:null;
-  return {version:DUNGEON_VERSION,tick:s.tick,run:s.run,floor:s.floor,theme:s.theme,phase:s.phase,bossPhase:wardenPhase(s.units.find(u=>u.kind==='warden')),guardianWard:wardenSealActive(s),bossWarning,bossRecovery:boss?planWardenRecovery(s,boss):null,defendersRemaining:s.units.filter(u=>u.faction==='enemy'&&u.kind!=='warden'&&u.hp>0).length,intermission:s.intermission,map:s.map,exit:s.exit,units:s.units.map(u=>({...u})),relics:s.relics.map(r=>({...r})),traps:s.traps.map(t=>({...t})),kills:s.kills,gold:s.gold,level:s.level,intent:s.intent,events:s.events.map(e=>({...e})),checksum:checksum({tick:s.tick,run:s.run,floor:s.floor,units:s.units,relics:s.relics,traps:s.traps,gold:s.gold})};
+  return {version:DUNGEON_VERSION,tick:s.tick,run:s.run,floor:s.floor,theme:s.theme,phase:s.phase,bossPhase:wardenPhase(s.units.find(u=>u.kind==='warden')),guardianWard:wardenSealActive(s),cultistWarnings:s.units.filter(u=>u.kind==='cultist'&&u.hp>0&&u.channelUntilTick!==undefined&&u.channelUntilTick>s.tick).slice(0,6).map(u=>({sourceId:u.id,targetId:u.channelTargetId,x:u.channelX,z:u.channelZ,impactTick:u.channelUntilTick})),bossWarning,bossRecovery:boss?planWardenRecovery(s,boss):null,defendersRemaining:s.units.filter(u=>u.faction==='enemy'&&u.kind!=='warden'&&u.hp>0).length,intermission:s.intermission,map:s.map,exit:s.exit,units:s.units.map(u=>({...u})),relics:s.relics.map(r=>({...r})),traps:s.traps.map(t=>({...t})),kills:s.kills,gold:s.gold,level:s.level,intent:s.intent,events:s.events.map(e=>({...e})),checksum:checksum({tick:s.tick,run:s.run,floor:s.floor,units:s.units,relics:s.relics,traps:s.traps,gold:s.gold})};
  }
 }

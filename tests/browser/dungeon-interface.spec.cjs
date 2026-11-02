@@ -104,3 +104,21 @@ test('development progress page has permitted styling and the approved benchmark
  await expect(page.locator('#transform-evidence')).not.toBeEmpty();
  await page.screenshot({path:'artifacts/dungeon-immersive-progress.png',fullPage:true});
 });
+
+
+test('a live shadow-caster warning is a true WebGL floor marker on desktop and mobile',async({page})=>{
+ const game=DungeonRuntime.create('shadow-hex-capture'),s=game.state;
+ const caster=s.units.find(u=>u.kind==='cultist'),mystic=s.units.find(u=>u.kind==='mystic');
+ for(const foe of s.units.filter(u=>u.faction==='enemy'&&u!==caster))foe.hp=0;
+ caster.x=s.exit.x;caster.z=s.exit.z;
+ mystic.x=s.exit.x+2;mystic.z=s.exit.z;s.tick=3;
+ const snapshot=game.step();
+ expect(snapshot.cultistWarnings.length).toBe(1);
+ await page.route('**/dungeon/state',route=>route.fulfill({json:snapshot}));
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.cultistTellCount??0),{timeout:30000}).toBe(1);
+ await page.screenshot({path:'artifacts/dungeon-shadow-hex-desktop.png'});
+ await page.setViewportSize({width:390,height:844});
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.cultistTellCount??0)).toBe(1);
+ await page.screenshot({path:'artifacts/dungeon-shadow-hex-mobile.png',fullPage:true});
+});

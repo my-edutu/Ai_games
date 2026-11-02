@@ -275,3 +275,45 @@ test('an authentic relic on the living Mystic restores exactly one spent healing
  assert.ok(view.events.some(e=>e.tick===view.tick&&e.kind==='loot'));
  assertDungeonState(s);
 });
+
+
+test('shadow cultists mark a real tile and a threatened support hero autonomously sidesteps before damage',()=>{
+ const game=DungeonRuntime.create('shadow-hex-counterplay'),s=game.state;
+ const caster=s.units.find(u=>u.kind==='cultist'),mystic=s.units.find(u=>u.kind==='mystic');
+ assert.ok(caster&&mystic);
+ for(const foe of s.units.filter(u=>u.faction==='enemy'&&u!==caster))foe.hp=0;
+ caster.x=s.exit.x;caster.z=s.exit.z;
+ mystic.x=s.exit.x+2;mystic.z=s.exit.z;
+ s.tick=3;
+ const mark=game.step().cultistWarnings;
+ assert.equal(mark.length,1,'a live caster must commit a real impact tile');
+ assert.equal(mark[0].targetId,mystic.id);
+ assert.equal(mark[0].x,mystic.x);assert.equal(mark[0].z,mystic.z);
+ assert.ok(s.events.some(e=>e.kind==='telegraph'&&e.text.includes('SHADOW HEX')));
+ const saved=game.save(),copy=DungeonRuntime.restore(saved);
+ const beforeHp=mystic.hp;
+ game.step();copy.step();
+ assert.deepEqual(game.save(),copy.save(),'reaction, impact and replay must match exactly');
+ assert.ok(mystic.x!==mark[0].x||mystic.z!==mark[0].z,'support agent must leave marked ground when a legal safe tile exists');
+ assert.equal(mystic.hp,beforeHp,'real dodges must prevent the locked hit');
+ assert.ok(s.events.some(e=>e.kind==='evade'&&e.text.includes('shadow hex')));
+ assert.equal(game.publicState().cultistWarnings.length,0);
+ assertDungeonState(s);
+});
+test('a genuine party attack interrupts a channelled shadow hex before it can resolve',()=>{
+ const game=DungeonRuntime.create('shadow-hex-interrupt'),s=game.state;
+ const caster=s.units.find(u=>u.kind==='cultist'),mystic=s.units.find(u=>u.kind==='mystic');
+ const vanguard=s.units.find(u=>u.kind==='vanguard');
+ for(const foe of s.units.filter(u=>u.faction==='enemy'&&u!==caster))foe.hp=0;
+ caster.x=s.exit.x;caster.z=s.exit.z;
+ mystic.x=s.exit.x+2;mystic.z=s.exit.z;
+ s.tick=3;game.step();
+ assert.ok(caster.channelUntilTick!==undefined);
+ caster.hp=5;vanguard.x=caster.x-1;vanguard.z=caster.z;
+ const beforeHp=mystic.hp;game.step();
+ assert.equal(caster.hp,0);
+ assert.equal(caster.channelUntilTick,undefined);
+ assert.ok(s.events.some(e=>e.kind==='interrupt'),'real melee contact must cancel the pending attack');
+ assert.equal(mystic.hp,beforeHp,'an interrupted cultist cannot deal phantom damage');
+ assertDungeonState(s);
+});

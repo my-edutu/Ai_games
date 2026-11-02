@@ -8,7 +8,7 @@ const BASE_HZ=Object.freeze([55.0,65.41,58.27,49.0]);
 const EVENT_KIND=Object.freeze({
  telegraph:'warning',opening:'opening',danger:'danger',defeat:'defeat',loot:'reward',
  healing:'heal',kill:'kill',trap:'trap',disarm:'disarm',unseal:'unseal',
- guard:'guard',evade:'evade',block:'block'
+ guard:'guard',evade:'evade',block:'block',interrupt:'opening'
 });
 const PRIORITY=Object.freeze({
  defeat:6,renewal:5,transition:5,warning:5,unseal:5,boss:4,danger:4,
