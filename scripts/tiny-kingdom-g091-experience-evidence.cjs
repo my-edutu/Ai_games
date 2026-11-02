@@ -26,7 +26,7 @@ const gpuArgs=['--enable-webgl','--use-gl=angle','--use-angle=swiftshader',
  '--enable-precise-memory-info'];
 
 const evidence={
- version:'g116-crowd-visible-worker-street-v1',
+ version:'g117-crop-clear-sequential-worksite-v1',
  baselineSha:BASE,candidateSha:null,baselineBlob:null,candidateBlob:null,
  renderer:'UNVERIFIED',status:'INCOMPLETE',workdayTicks:null,
  camera:{wide,labor,grown,marketView},viewport,
@@ -278,6 +278,8 @@ async function stage(label,html,browser,matchedTicks){
    assert(workerVisit.encounter.crowdIntrusions===0&&
     workerVisit.encounter.closestBystander>=2.4,
     'G116 actual street worker shot is blocked by another citizen');
+   assert(workerVisit.encounter.cropBlockedSamples===0,
+    'G117 worksite scene contains real foreground wheat hiding hands and tools');
    assert(workerVisit.authorityUnchanged,'G115 visitor changed authoritative world');
    await page.waitForTimeout(650);
    await page.screenshot({path:path.join(DIR,label+'/street-worker-encounter-wide.png'),timeout:90000});
@@ -289,6 +291,29 @@ async function stage(label,html,browser,matchedTicks){
    result.streetEncounter={...workerVisit,matchedPair:false,realWebGL:true,
     mobileFile:'street-worker-encounter-mobile.png',
     wideFile:'street-worker-encounter-wide.png'};
+   // G117: photograph a SECOND autonomous job in the same paused, populated
+   // society. No scripted worker, scripted labor or removed crops.
+   await page.setViewportSize({width:1024,height:640});
+   const secondVisit=await page.evaluate(()=>{
+    const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
+    const encounter=g.visitStreetWorker();
+    return {encounter,view:g.getStreetWalkState(),
+     authorityUnchanged:before===JSON.stringify(g.exportSnapshot())};
+   });
+   assert(secondVisit.encounter.moved&&secondVisit.authorityUnchanged&&
+    secondVisit.encounter.citizen!==workerVisit.encounter.citizen&&
+    secondVisit.encounter.crowdIntrusions===0&&
+    secondVisit.encounter.cropBlockedSamples===0,
+    'G117 second workday cinematic fails real-person, crop, crowd or authority gate');
+   await page.waitForTimeout(650);
+   await page.screenshot({path:path.join(DIR,label+'/street-worker-next-wide.png'),timeout:90000});
+   await page.setViewportSize({width:390,height:844});
+   await page.waitForTimeout(700);
+   await page.screenshot({path:path.join(DIR,label+'/street-worker-next-mobile.png'),timeout:90000});
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),
+    false,'G117 second worker mobile HUD overflow');
+   result.streetEncounterSecond={...secondVisit,matchedPair:false,realWebGL:true,
+    mobileFile:'street-worker-next-mobile.png',wideFile:'street-worker-next-wide.png'};
    await page.evaluate(()=>window.__tinyKingdom.setStreetWalk(false));
    await page.setViewportSize({width:390,height:844});
   }
@@ -403,7 +428,20 @@ async function streetMotion(browser,html,snapshot){
   assert(encounter.moved&&encounter.authorityUnchanged&&
    encounter.crowdIntrusions===0&&encounter.closestBystander>=2.4,
    'G116 filmed worker must be real, visible past bystanders and read-only');
+  assert(encounter.cropBlockedSamples===0,
+   'G117 filmed worker remains hidden by an actual wheat field');
   await page.waitForTimeout(1350);
+  const nextEncounter=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   const prior=JSON.stringify(g.exportSnapshot());
+   const result=g.visitStreetWorker();
+   return {...result,authorityUnchanged:prior===JSON.stringify(g.exportSnapshot())};
+  });
+  assert(nextEncounter.moved&&nextEncounter.authorityUnchanged&&
+   nextEncounter.citizen!==encounter.citizen&&
+   nextEncounter.cropBlockedSamples===0&&nextEncounter.crowdIntrusions===0,
+   'G117 continuous footage did not meet a distinct unobscured real citizen');
+  await page.waitForTimeout(1150);
   await page.mouse.move(450,270);
   await page.mouse.down();
   await page.mouse.move(480,260,{steps:5});
