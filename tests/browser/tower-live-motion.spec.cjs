@@ -17,13 +17,19 @@ const viewports = [
   { name: 'portrait', width: 390, height: 844 },
 ];
 for (const viewport of viewports) {
-  test.describe('source-pinned ' + viewport.name + ' native recording', () => {
-    test.use({
-      viewport: { width: viewport.width, height: viewport.height },
-      video: { mode: 'on', size: { width: viewport.width, height: viewport.height } },
-    });
-    test('normal-speed Tower motion ' + viewport.name, async ({ page }, testInfo) => {
+  test('normal-speed Tower motion ' + viewport.name, async ({ browser }, testInfo) => {
   test.setTimeout(240000);
+  // Playwright forbids a describe-scoped video override because it changes
+  // worker isolation. Create a dedicated context per viewport instead, with
+  // recorder dimensions declared BEFORE the first page exists. This same
+  // source-independent test runs against the frozen baseline and candidate.
+  const nativeVideoDir = testInfo.outputPath('native-video');
+  fs.mkdirSync(nativeVideoDir, { recursive: true });
+  const context = await browser.newContext({
+    viewport: { width: viewport.width, height: viewport.height },
+    recordVideo: { dir: nativeVideoDir, size: { width: viewport.width, height: viewport.height } },
+  });
+  const page = await context.newPage();
   const scenario = process.env.TOWER_MOTION_SCENARIO || 'ascent';
   const dir = path.resolve('artifacts', 'tower-motion', scenario, viewport.name);
   fs.mkdirSync(dir, { recursive: true });
@@ -109,10 +115,10 @@ for (const viewport of viewports) {
   }, null, 2));
   const video = page.video();
   await page.close();
+  await context.close();
   if (video) await video.saveAs(path.join(dir, 'live.webm'));
   expect(errors, 'real browser and WebGL errors must remain visible').toEqual([]);
   expect(assessment.blockers, 'capture integrity: ' + JSON.stringify(assessment)).toEqual([]);
   expect(assessment.scopedPass).toBe(true);
-    });
   });
 }
