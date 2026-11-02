@@ -93,6 +93,7 @@ test('true Warden shockwave opens visible desktop/mobile tactical counterplay an
  expect(physicalSightline?.mode).toBe('warden-exposed');
  expect(physicalSightline?.heroDepthLead).toBeGreaterThan(0);
  expect(physicalSightline?.projectedSeparation).toBeGreaterThan(0);
+ expect(physicalSightline?.renderedActorStaging).toBe(true);
  await test.info().attach('real-Warden-physical-camera-sightline',{
   body:Buffer.from(JSON.stringify(physicalSightline)),contentType:'application/json'});
  await test.info().attach('real-Warden-hero-forward-counter-stage',{

@@ -57,3 +57,25 @@ test('the mobile encounter solver remains bounded and honest without introducing
  assert.match(app,/duelSightline:duelCamera\?\.sightline\?\?null/);
  assert.match(app,/__DUNGEON_RENDER_DIAGNOSTICS__\.autoDirector=autoDirector/);
 });
+
+
+test('actual within-cell modeled positions improve camera choice, not a hypothetical grid-only silhouette',async()=>{
+ const {planBossDuelSightline}=await planner(),s=scene();
+ const shot={mode:'warden-exposed',subjects:['vanguard','warden']};
+ const view={x:4.1,z:0},offsets=[6.5,7.55,3.6],lens={width:1440,height:832,fov:48};
+ const grid=planBossDuelSightline(s,shot,view,offsets,lens);
+ const actual=new Map([
+  ['vanguard',{at:{x:3.69,z:0}}],
+  ['warden',{at:{x:5.38,z:0}}]
+ ]);
+ const posed=planBossDuelSightline(s,shot,view,offsets,{...lens,visualActors:actual});
+ assert.ok(posed.sightline.renderedActorStaging);
+ assert.ok(posed.sightline.heroDepthLead>0);
+ assert.ok(posed.sightline.silhouetteGap>grid.sightline.silhouetteGap,
+  'the real, legally staged foreground duel should gain screen-space breathing room');
+ assert.equal(s.units[0].x,13);assert.equal(s.units[1].x,14);
+ const fake=new Map([['vanguard',{at:{x:99,z:99}}],['warden',{at:{x:NaN,z:0}}]]);
+ const ignored=planBossDuelSightline(s,shot,view,offsets,{...lens,visualActors:fake});
+ assert.equal(ignored.sightline.renderedActorStaging,false,
+  'bad, stale or off-cell cosmetics cannot influence physical camera decisions');
+});

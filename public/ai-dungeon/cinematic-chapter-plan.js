@@ -282,7 +282,7 @@ export function planCriticalSubjectFit(cameraPoints,aspect,preferredFov=44){
  * authority changes. The true boss warning deliberately retains the
  * overhead tactical lens and cannot enter this director.
  */
-export function planBossDuelSightline(s,shot,look,offsets,{width=1440,height=832,fov=48}={}){
+export function planBossDuelSightline(s,shot,look,offsets,{width=1440,height=832,fov=48,visualActors=null}={}){
  const n=Array.isArray(s?.map)?s.map.length:0;
  if(n<5||n>63||n%2!==1||!Array.isArray(s.units)||
   !shot||!['warden-exposed','warden-approach','warden-contact'].includes(shot.mode)||
@@ -293,7 +293,19 @@ export function planBossDuelSightline(s,shot,look,offsets,{width=1440,height=832
  const hero=boss&&s.units.find(u=>shot.subjects.includes(u.id)&&u.faction==='party'&&u.hp>0&&valid(u,n));
  if(!hero||distance(hero,boss)>5)return null;
  const half=(n-1)/2,limit=half-.65;
- const xHero=hero.x-half,zHero=hero.z-half,xBoss=boss.x-half,zBoss=boss.z-half;
+ // The actual visible models can stand up to 0.44 metres within their
+ // authoritative cells. Use their REAL staged actor coordinates when valid:
+ // otherwise a photographically important near-miss can be mistaken for a
+ // fully overlapping duel. This is read-only, never a new dodge or hitbox.
+ const stagedPoint=unit=>{
+  const gridX=unit.x-half,gridZ=unit.z-half;
+  const point=visualActors?.get?.(unit.id)?.at;
+  return Number.isFinite(point?.x)&&Number.isFinite(point?.z)&&
+   Math.hypot(point.x-gridX,point.z-gridZ)<=.445?
+   {x:point.x,z:point.z,staged:true}:{x:gridX,z:gridZ,staged:false};
+ };
+ const stagedHero=stagedPoint(hero),stagedBoss=stagedPoint(boss);
+ const xHero=stagedHero.x,zHero=stagedHero.z,xBoss=stagedBoss.x,zBoss=stagedBoss.z;
  const cameraHeight=clip(offsets[1],4,15),radius=clip(Math.hypot(offsets[0],offsets[2]),3.8,11);
  const startAngle=Math.atan2(offsets[2],offsets[0]);
  const aspect=clip(Number.isFinite(width)&&Number.isFinite(height)&&height>0?width/height:1.73,.35,3.2);
@@ -341,8 +353,11 @@ export function planBossDuelSightline(s,shot,look,offsets,{width=1440,height=832
   const edgePenalty=Math.hypot(rawX-cx,rawZ-cz);
   const closePenalty=Math.max(0,3.8-Math.hypot(heroDeltaX,heroDeltaZ))+
    Math.max(0,4.0-Math.hypot(bossDeltaX,bossDeltaZ));
-  const score=silhouetteGap*24+Math.min(2,lead)*2.8-
-   Math.max(0,.45-lead)*9-(heroCrop+bossCrop)*55-
+  // A giant pauldron hiding a real defending hero is a worse composition
+  // than a slightly less front-biased genuine flank. Visual separation must
+  // dominate once both actors are physically on the camera-facing side.
+  const score=silhouetteGap*34+Math.min(.9,lead)*1.9-
+   Math.max(0,.18-lead)*16-(heroCrop+bossCrop)*55-
    wallPenalty*.72-edgePenalty*.28-closePenalty*3-
    Math.abs(step)*.006;
   if(!best||score>best.score+.00001)
@@ -357,7 +372,7 @@ export function planBossDuelSightline(s,shot,look,offsets,{width=1440,height=832
   turn:Object.freeze({x:0,z:0}),
   boundaryLimit:limit,
   sightline:Object.freeze({
-   heroId:hero.id,bossId:boss.id,mode:shot.mode,recovered,
+   heroId:hero.id,bossId:boss.id,mode:shot.mode,recovered,renderedActorStaging:stagedHero.staged&&stagedBoss.staged,
    silhouetteGap:Number(best.silhouetteGap.toFixed(4)),
    heroDepthLead:Number(best.heroDepthLead.toFixed(4)),
    projectedSeparation:Number(best.projectedSeparation.toFixed(4)),

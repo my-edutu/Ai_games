@@ -993,7 +993,7 @@ function animate(t){
  // true hero/boss silhouettes and usable arena space, preserving real
  // telegraph coverage and all authoritative grid positions.
  const duelCamera=cameraType==='cinematic'&&cinematicShot?
-  planBossDuelSightline(state,cinematicShot,look,offsets,{width:w,height:h,fov:cinematicLens?.fov??48}):null;
+  planBossDuelSightline(state,cinematicShot,look,offsets,{width:w,height:h,fov:cinematicLens?.fov??48,visualActors:actors}):null;
  const plannedCamera=duelCamera??authoredCamera;
  // One lens update, no extra GPU passes. Measured actor scale takes priority
  // over distant party coverage; imminent real hazards trigger a wide overview.
