@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-02T04:08:59.852Z",
+  "updatedAt": "2026-11-02T05:45:28.822Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass65 (2026-11-02): original gate counterweight wheel-and-stone mechanisms now physically animate only during a genuine observed same-run opening; settled OPEN and reduced-motion states modeled, no extra HUD text, game authority or private knowledge. Focused source/Three and strict same-tick protection tests committed. Pass64 real before/after 19/19 dated PNG evidence remains the baseline; earlier camera-beat exact-source CI succeeded but its original images were not directly inspected this run. New counterweight WebGL artifacts, a fresh independent critic/blind A/B and official Nintendo quality verdict remain pending. Fixed Nintendo Captain Toad benchmark NOT passed; no merge or deployment."
+    "summary": "Pass66 (2026-11-02): re-reviewed 19/19 authentic Pass65 SHA-256 source-bound WebGL images. Although the real same-run CLOSED to OPEN door is proven, the settled AFTER shot showed zero moving gates, so the pulleys were not visually verified. Gate-only rendered-frame pacing plus an exact-source mid-lift screenshot test now challenge this gap. Autonomous rules, public knowledge, full-viewport compact HUD, 44px mobile controls and accessibility remain unchanged. New images and independent Nintendo comparison pending. Not passed; no merge/deployment."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass66 source candidate holds genuine unlocked-gate grille, pulley and counterweight physical choreography across throttled WebGL frames; real SHA-bound mid-lift screenshot and independent quality judgment are required before accepting.",
     "The flat map is now a real 3D sandstone garden with three terrace heights, visible stairs on disclosed legal passages, original articulated Pip and Thornback models, keys, gates, traps and an exit portal.",
     "Follow, Detail and Overview cameras, a public-data map, optional original audio, captions, reduced motion, high contrast and clean feed are integrated.",
     "Graphics loss reveals a live map, offers a retry and returns to the current public position after restoration. Real results remain visible in map mode; reconnecting is now explicit during terminal states.",
