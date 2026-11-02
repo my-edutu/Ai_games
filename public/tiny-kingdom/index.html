@@ -5485,7 +5485,17 @@ function routeCitizen(p){const route=routeBetween(p.x,p.z,...p.target);p.path=ro
  // follow stable citizen identity and current settlement layout.
  function citizenHomeDestination(p){
   const index=Math.max(0,people.indexOf(p));
-  const home=city[index%city.length];
+  // Local households near each real trade are essential: the original
+  // valley is 40 units wide, and an all-village commute can consume an
+  // entire day. Prefer the three closest EXISTING dwellings to the trade.
+  const jobsites={farmer:[18,1],forester:[-21,12],builder:[7,-4],
+   merchant:[0,5],craftsperson:[-4,4],gatherer:[-8,7]};
+  const jobsite=jobsites[p.job]||[0,0];
+  const peer=people.slice(0,index).filter(person=>person.job===p.job).length;
+  const closest=city.map((home,i)=>({home,i,
+   distance:(home[0]-jobsite[0])**2+(home[1]-jobsite[1])**2}))
+   .sort((a,b)=>a.distance-b.distance||a.i-b.i);
+  const home=closest[peer%Math.min(3,closest.length)].home;
   const [hx,hz,k]=home;
   const candidates=[[hx,hz+2.75+k*.18],[hx,hz-2.75-k*.18],
    [hx+3.05,hz],[hx-3.05,hz]];
@@ -5529,10 +5539,14 @@ function step(dt){presentationEpoch++;
  // Delivery in progress retains its exact real receipt and idempotent route.
  if(priorShift!==onShift){for(const p of people)if(!p.delivery)choose(p);
   updateUI();}
- for(let i=0;i<people.length;i++){const p=people[i],dx=p.target[0]-p.x,dz=p.target[1]-p.z,dist=Math.hypot(dx,dz);p.phase+=dt*2.2;p.workTimer+=dt;p.hunger=Math.min(100,p.hunger+dt*.14);
+ for(let i=0;i<people.length;i++){const p=people[i],dx=p.target[0]-p.x,dz=p.target[1]-p.z,dist=Math.hypot(dx,dz);// Real commuting feet cycle in time with actual faster road locomotion;
+ // hands retain the deliberate measured work beat when at a station.
+const onRoad=p.activity==='Returning home at dusk'||p.activity.startsWith('Traveling to ');
+p.phase+=dt*2.2*(onRoad?2.65:1);p.workTimer+=dt;p.hunger=Math.min(100,p.hunger+dt*.14);
 const wp=p.path&&p.path.length?p.path[0]:p.target,wx=wp[0]-p.x,wz=wp[1]-p.z,remaining=Math.hypot(wx,wz);
 if(remaining>.24){const homeward=!onShift&&p.activity==='Returning home at dusk';
-const move=Math.min(remaining,dt*((homeward?1.75:.75)+i%4*.09));const nx=p.x+wx/remaining*move,nz=p.z+wz/remaining*move;if(move<=.04?walkable(nx,nz):clearSegment([p.x,p.z],[nx,nz])){p.x=nx;p.z=nz;p.energy=Math.max(0,p.energy-dt*.10)}else if(p.workTimer>1){routeCitizen(p);p.workTimer=0}}
+const workbound=onShift&&p.activity.startsWith('Traveling to ');
+const move=Math.min(remaining,dt*((homeward?2.25:workbound?2.35:.75)+i%4*.09));const nx=p.x+wx/remaining*move,nz=p.z+wz/remaining*move;if(move<=.04?walkable(nx,nz):clearSegment([p.x,p.z],[nx,nz])){p.x=nx;p.z=nz;p.energy=Math.max(0,p.energy-dt*.10)}else if(p.workTimer>1){routeCitizen(p);p.workTimer=0}}
 else if(p.path&&p.path.length){p.path.shift()}
 else if(p.activity==='Waiting for a safe route'){
  // A blocked villager cannot deliver goods from a destination never reached.
