@@ -6182,12 +6182,13 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const base=working&&realWork?facing:preferredYaw;
  const angles=offsets.map(offset=>base+offset);
  if(working&&realWork)angles.push(preferredYaw);
- const pitches=working?(actionCameraPitch===null?[.18,.24,.31,.42]:
+ const pitches=working?(actionCameraPitch===null?(portraitLens?[.12,.19,.26,.34,.42]:[.18,.24,.31,.42]):
   [normalPitch,Math.max(.16,normalPitch-.08),
    Math.min(.55,normalPitch+.08)]):[.76];
- const zooms=working?[normalZoom,Math.max(4.5,normalZoom-.7),
+ const zooms=working?(portraitLens&&actionCameraZoom===null?
+  [normalZoom,3.8,4.25,4.85,5.35,7.1]:[normalZoom,Math.max(4.5,normalZoom-.7),
   Math.max(4.5,normalZoom-1.7),Math.min(13,normalZoom+1.1),
-  Math.min(13,normalZoom+2.3)]:[12.8];
+  Math.min(13,normalZoom+2.3)]):[12.8];
  const hands=realWork?documentaryWorkHandTargets(citizen):[];
  const possibilities=[];
  for(const p of pitches)for(const z of zooms)for(const angle of angles){
@@ -6198,7 +6199,12 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   const oppositeYard=unloading&&Math.cos(angle)>-.25?250:0;
   const rearPenalty=working&&realWork?
    Math.max(0,.20-alignment)*110:0;
-  const coarse=shot.blockers*1000+oppositeYard+rearPenalty+
+  // G137 real mobile footage still lost a wrist behind passing citizens.
+  // Rank ALL affordable raw eye positions by actual citizen-to-IK rays
+  // before the expensive architecture/composition review, rather than
+  // spending its capped budget on 56 equivalent roof-clear crowd views.
+  const crowd=portraitLens?physicalCitizenForegroundBlockers(shot.eye,citizen,hands):0;
+  const coarse=shot.blockers*1000+oppositeYard+rearPenalty+crowd*325+
    Math.abs(delta)*.9+Math.abs(z-normalZoom)*.35+
    Math.abs(p-normalPitch)*3;
   possibilities.push({shot,coarse,alignment});
@@ -6209,7 +6215,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  let clearFrontCandidates=0;
  // Bound expensive roof/crowd/hand testing at 56 options. Real work-facing
  // candidates can now reach the evaluation pass; that is NOT true of G132.
- for(const {shot,coarse,alignment} of possibilities.slice(0,56)){
+ for(const {shot,coarse,alignment} of possibilities.slice(0,portraitLens?78:56)){
   const framing=cameraShotFraming(shot,roofs,citizen,hands);
   const score=coarse+framing.blockedBodyRays*110+
    framing.blockedNeighbourhoodRays*12+
