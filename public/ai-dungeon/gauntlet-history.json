@@ -2206,7 +2206,7 @@
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
     "biggestRemainingGap": "Inspected genuine 1440x832 Chromium exposed Warden still concealing most of the sole living Vanguard; repetitive masonry fills much of scene. This is predecessor evidence, NOT matched immutable baseline A/B.",
     "currentWork": "Inspect new real desktop/mobile exposed counter/telegraph, correct visual overlap and frame starvation; film organic seeded traverse→combat→Warden→floor→defeat/restart with original WebAudio, performance and three independent masked looks/feels/plays critics; keep draft unmerged.",
-    "candidateCommit": "89ed5682817845789af539f3e60b159a6a3a7489",
+    "candidateCommit": "fe40fca06cdeac273f766dd04d653b654a9e6326",
     "candidateArtifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41477900576/artifacts/13160601700",
     "acceptedAt": null,
     "implementationEvents": [
@@ -3102,10 +3102,11 @@
           "Only genuine living Warden contact/exposure/approach uses the new optical orbit; real lethal telegraphs keep original tactical lens.",
           "WebGL diagnostics expose the true chosen physical sightline for actual Chromium inspection.",
           "Manual follow and director controls immediately report their true state, independent of expensive pending CPU WebGL redraws.",
-          "Live-browser Warden recovery test now asserts actual hero depth lead and physical screen separation."
+          "Live-browser Warden recovery test now asserts actual hero depth lead and physical screen separation.",
+          "Second integrated step in source fe40fca: choose cinematic orbit against ACTUAL currently staged Three.js actor.at positions (not only logical tile centers), verifying both actors remain <=.445m from their legitimate public grid cells; optimize projected actor overlap ahead of a large boss-depth bias, preserving signed opponent angles and original warnings. Optical measurements now reflect genuine legal in-cell VFX/character staging, no synthetic dodge or hit."
         ],
-        "checks": "UNVERIFIED at this exact head; GitHub browser and visual actions queued. Prior head visual SUCCESS, dedicated browser authority/shards 1/2 SUCCESS, shard 3 24 PASS / 1 FAIL from stale manual-follow diagnostic, catalogue CI CANCELLED.",
-        "realAfterBrowser": "UNVERIFIED. Need inspect source SHA 89ed or subsequent ledger-only exact head desktop and mobile Warden visual and movement.",
+        "checks": "UNVERIFIED at fe40; new fourth planner contract exercises live staged positions and stale off-cell rejection. GitHub complete new-head browser + CI pending, no acceptance claim.",
+        "realAfterBrowser": "UNVERIFIED: exact fe40 source and later ledger-only head real browser/render/replay capture still pending.",
         "motionAudio": "UNVERIFIED; prior source browser recorded NO FRAMES despite opt-in attempt.",
         "independentCritics": {
           "status": "NOT_RUN",
@@ -3116,7 +3117,8 @@
         },
         "performance": "UNVERIFIED mobile FPS/p95/p99 and continuous scene.",
         "gate": "IN_PROGRESS / NOT_TRANSFORMED",
-        "next": "Inspect new real desktop/mobile exposed counter/telegraph, correct visual overlap and frame starvation; film organic seeded traverse→combat→Warden→floor→defeat/restart with original WebAudio, performance and three independent masked looks/feels/plays critics; keep draft unmerged."
+        "next": "Inspect new real desktop/mobile exposed counter/telegraph, correct visual overlap and frame starvation; film organic seeded traverse→combat→Warden→floor→defeat/restart with original WebAudio, performance and three independent masked looks/feels/plays critics; keep draft unmerged.",
+        "stagedSourceCommit": "fe40fca06cdeac273f766dd04d653b654a9e6326"
       }
     ]
   }
