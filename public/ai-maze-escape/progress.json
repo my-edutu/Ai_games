@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-02T06:08:32.445Z",
+  "updatedAt": "2026-11-02T06:50:40.048Z",
   "benchmark": {
     "status": "Not yet passed",
     "summary": "Pass67 candidate (2026-11-02): original real 1280x900 Pass66b mid-lift screenshot SHA-verified but appeared visually empty despite one live moving gate; changed actual lift pose from premature cubic ease-out to accelerating physical rise and strengthened post-PNG mesh-height acceptance. New exact-head WebGL render, independent critic and Nintendo comparison remain pending. No merge or deployment."
@@ -92,6 +92,8 @@
     }
   ],
   "changes": [
+    "Pass67 genuine image gate CHECKED: exact-source visual 41398112611 SUCCESS, 20/20 original dated full-size WebGL PNG hashes match. Actual native gate mid-lift at age .595 s retains 0.5100 3D grille height and visible bars; unchanged threshold >0.30 passes. Pass66b same camera/timing comparison changes 0.56% of pixels >12 RGB. Local improvement only, Nintendo still wins; no independent/subagent/Ultracode verdict.",
+    "Pass68 candidate fbd8d83: Pip now physically looks at and salutes an authenticated same-run public gate opening with its real 3D head, torso, lantern arm and scarf, preserving guardian/terminal/key priority, reduced-motion stable pose, AI authority, source privacy and low-text full-bleed HUD. New-source WebGL images and full CI must verify before acceptance.",
     "Pass67 source candidate: source-authentic mid-lift had nearly invisible grille; revised original counterweight-driven lift to retain readable physical metal at the actual capture moment. A stricter full PNG gate requires modeled moving bars >30% height after capture; original image review and Nintendo comparison pending.",
     "Pass66b real-image rejection: the 100ms-per-frame gate still vanished during authentic WebGL screenshot; the stricter visual gate now demands modeled motion remain visible after capture and uses a 35ms/frame cosmetic cap without touching AI.",
     "Pass66 source candidate holds genuine unlocked-gate grille, pulley and counterweight physical choreography across throttled WebGL frames; real SHA-bound mid-lift screenshot and independent quality judgment are required before accepting.",
@@ -179,7 +181,7 @@
     "Pass65: both physically disclosed gate jambs now carry original 3D pulley wheels, spokes, cable and descending stone weights synchronized to an actual public 0.85s portcullis lift; fully settled open gates and reduced motion use the open pose. Reused resources, WeakMap rather than serializable userData, real Three object/pose tests, and same-tick phantom public opening prevention. Source-bound native renders and independent critique pending; no more HUD paragraphs."
   ],
   "nextGaps": [
-    "Pass65 original render review: retrieve real exact-code source-bound 19 native full-resolution WebGL screenshots (1280×900 true gate BEFORE/AFTER, 390×844, 320×740, 844×390, plus existing guardian/goal shots); independently verify image/source SHA sidecars, inspect actual pulley/stone motion or settled opened pose, hero and full guardian geometry margins, 44px targets and low-text full-bleed stage. Critic must reject barely legible mechanics, cropped geometry, cluttered key-like cues or a weak immediate wide after-camera against the fixed Nintendo Captain Toad imagery. No artificial mid-lift screenshot, false visual win or hardware GPU claim.",
+    "Pass68 source candidate: inspect new exact-source workflow 41402238325 original dated 1280x900 PUBLIC gate BEFORE/MID/AFTER plus native 320/390/844 guardian shots, independently SHA match and reject if Pip's physical lantern salute at the real mid-lift is too tiny/cropped/obscured despite passing model tests. Full CI 41402238216 separate; no independent fixed-Nintendo win and no hardware GPU inference.",
     "Pass62 native real-Follow full silhouette crop has been corrected and accepted only for **physical framing** (strict actual 390/320 source screenshot, 14/14 hashes). Next biggest fixed-Nintendo gap is physically authored interactive gameplay storytelling: distinct living scene landmarks, actor/guardian/environment reactions, polished original character motion and clear visual cause/effect. Require independent source-matched image critique when workspace tunnel recovers; do not substitute more dashboard text, loosen cropping thresholds or declare Nintendo win.",
     "Major authored world/scene gap: replace repeating flat court and lagoon negative space with visually distinct original coherent playable locations, real material masses, discoverable goal staging and multi-beat physical reactions without inventing private passages, false traversable geometry or new abilities. Direct new native screenshot critic must judge each independently.",
     "Keep low-text full-viewport actual 3D HUD: actionable goal, time, keys, discovery, public danger and current AI movement, true event captions, 44px one-handed controls, on-demand accessible Map/Details/Settings, mobile portrait/landscape, high contrast, reduced motion, clean feed, reconnect/fallback, keyboard focus and exact source/privacy.",
@@ -1148,6 +1150,13 @@
       "detail": "Commits 161b1c4 (authored 3D counterweights), 2fbfcf5 (real Three model/reduced-motion tests), 556eccc and ee1f8db (strict ascending public tick protection), 4ec52f0 (Three userData safety). Previous camera-beat exact source 41385653505 SUCCESS but original PNG artifact 13115595802 not directly opened this run; not proof of new source. Test current source after these commits and independently check all dated full-resolution original 1280, 390, 320, 844 screenshots against Nintendo. Workspace tunnel disconnected, no subagents/Ultracode, no hardware GPU reading, no merge/deploy.",
       "sourceCommit": "4ec52f0ab884ac80821c225c1044b8fedc70472d",
       "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41386656404"
+    },
+    {
+      "name": "Pass67 true gate + Pass68 physical actor public source gate",
+      "status": "Pass67 focused real WebGL SUCCESS and 20/20 original PNG hashes independently matched; Pass68 code/test committed, latest CI PENDING",
+      "detail": "Pass67 SHA ce1b034 current-source original 1280x900 public mid-lift age .595s genuinely shows 0.51 scaled bars in open arch, native 320/390 Follow full physical actor envelope, original 844 landscape/1280 desktop, 44px and low-text canvas. Pass68 fbd8d83 adds actual public-opening Pip lantern salute with fresh pose, authority/privacy/reduced-motion regression. Do not use Pass67 screenshots to certify new Pass68 acting; reference still wins; fresh critic/Ultracode disconnected.",
+      "sourceCommit": "fbd8d83d7b63434cbb7c568ede32ae09944a235d",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41402238325"
     }
   ],
   "references": [
