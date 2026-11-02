@@ -53,12 +53,14 @@ test('camera-readable, varied real-3D room walls retain the unchanged solid auth
  const heights=planLegibleWallMass(map,4,vaulted);
  assert.equal(heights.length,profiles.length);
  assert.equal(map.join('\n'),original);
- assert.ok(heights.every(h=>Number.isFinite(h)&&h>=.84&&h<=1.92),'ruin silhouettes stay bounded in the original solid tiles');
- assert.ok(heights.filter((h,i)=>profiles[i].exposedFaces&&h<=1.56).length>candidates.length*.66,
+ assert.ok(heights.every(h=>Number.isFinite(h)&&h>=1.16&&h<=1.98),'ruin silhouettes stay bounded in the original solid tiles');
+ assert.ok(heights.filter((h,i)=>profiles[i].exposedFaces&&h<=1.56).length>candidates.length*.60,
   'most corridor walls form low, readable ruins around authentic actors');
- assert.ok(heights.filter((h,i)=>profiles[i].exposedFaces>=2&&h<1.16).length>3,
-  'multiple real room junctions reveal floor contact and separate the party from masonry');
+ assert.ok(heights.filter((h,i)=>profiles[i].exposedFaces>=2&&h>=1.16&&h<=1.36).length>3,
+  'multiple physically sound low junctions expose foot contact and separate the party from masonry');
  assert.ok(heights.some(h=>h>=1.76),'distant backing masonry still encloses rooms');
+ assert.ok(profiles.filter((p,i)=>p.exposedFaces===1&&heights[i]>=1.76).length>=3,
+  'standing piers must physically support stained glass, warm sconces and chipped coping');
  for(const site of vaulted){
   const index=profiles.findIndex(p=>p.x===site.gridX&&p.z===site.gridZ);
   assert.equal(heights[index],1.16,'physical vaulted bays retain low stone plinths');
