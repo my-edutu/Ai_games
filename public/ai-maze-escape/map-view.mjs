@@ -1,3 +1,30 @@
+/**
+ * Only a previously disclosed key actually collected in the SAME public run
+ * and present in the authoritative public inventory can trigger visual art.
+ * No private topology, future prediction or synthetic pickup is allowed.
+ */
+export function publicKeyCollectionMoment(before, after) {
+  if (!before || !after || typeof before.runToken !== 'string'
+    || before.runToken !== after.runToken || before.result || after.result
+    || !Number.isInteger(before.tick) || !Number.isInteger(after.tick)
+    || after.tick <= before.tick || before.width !== after.width
+    || before.height !== after.height || !Array.isArray(before.keys)
+    || !Array.isArray(after.keys) || !Array.isArray(before.cells)
+    || !Array.isArray(after.inventory)) return null;
+  const knownBefore = new Set(before.cells.map(cell => cell?.cell));
+  const afterById = new Map(after.keys.map(key => [key.id, key]));
+  const real = before.keys.filter(key =>
+    typeof key?.id === 'string' && !!key.id
+    && Number.isInteger(key.cell) && key.cell >= 0
+    && key.cell < before.width * before.height
+    && knownBefore.has(key.cell) && key.collected === false
+    && afterById.get(key.id)?.collected === true
+    && afterById.get(key.id)?.cell === key.cell
+    && after.inventory.includes(key.id));
+  if (!real.length) return null;
+  real.sort((a,b) => a.id.localeCompare(b.id));
+  return {id:real[0].id,cell:real[0].cell};
+}
 export const MAX_TRAIL = 240;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 

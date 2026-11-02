@@ -2,7 +2,7 @@ import * as THREE from './vendor/three.module.js';
 import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE } from './world.js';
 import { advanceGateVisualClock } from './gate-moment.mjs';
-import { planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicGateOpeningCameraCue } from './map-view.mjs';
+import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicGateOpeningCameraCue } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -68,6 +68,22 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
 
   const explorer = createExplorer({ balanced });
   scene.add(explorer.group);
+  // Reusable modeled glass shards illustrate only a witnessed key pickup.
+  // No per-frame GPU resource allocation, billboard, HUD text or new authority.
+  const pickupGeometry = new THREE.OctahedronGeometry(.105,0);
+  const pickupMaterial = new THREE.MeshBasicMaterial({
+    color:'#ffe9ae',transparent:true,opacity:.82,depthWrite:false
+  });
+  const pickupBurst = new THREE.Group();
+  pickupBurst.name = 'Witnessed public key pickup glass release';
+  pickupBurst.visible = false;
+  const pickupShards = Array.from({length:8}, (_,i) => {
+    const shard=new THREE.Mesh(pickupGeometry,pickupMaterial);
+    shard.name='Physical picked-up glass shard '+i;
+    pickupBurst.add(shard);
+    return shard;
+  });
+  scene.add(pickupBurst);
   const matchingKeySocket=new THREE.Vector3();
   const wardens = new Map();
   const guideMaterial = new THREE.LineDashedMaterial({ color: '#ffdd92', transparent: true, opacity: .62, dashSize: .14, gapSize: .13, depthWrite: false });
@@ -156,7 +172,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   };
 
   let settings = { ...initialSettings };
-  let frame = null, previous = null, runToken = '', cameraMode = 'follow', recentPublicOpening = null;
+  let frame = null, previous = null, runToken = '', cameraMode = 'follow', recentPublicOpening = null, recentPublicPickup = null;
   let cells = [], segmentProgress = 0, heading = Math.PI / 4, halfHeight = 9;
   let lastNow = 0, elapsed = 0, gateVisualTime = 0, frames = 0, lastDiagnostic = 0, lost = false, disposed = false;
   let width = 0, height = 0, routeSignature = '', geometryPeak = 0;
@@ -236,9 +252,10 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // Only an actually observed, same-run CLOSED -> OPEN public door can
     // earn a short cinematic camera beat. The renderer cannot grant passage.
     const openingCue = publicGateOpeningCameraCue(previous, snapshot);
+    const pickupCue = publicKeyCollectionMoment(previous, snapshot);
     if (runToken !== snapshot.runToken) {
       for (const entry of wardens.values()) removeWarden(entry);
-      wardens.clear(); runToken = snapshot.runToken; routeSignature = ''; recentPublicOpening = null; resetPosition(snapshot);
+      wardens.clear(); runToken = snapshot.runToken; routeSignature = ''; recentPublicOpening = null; recentPublicPickup = null; pickupBurst.visible = false; resetPosition(snapshot);
     } else if (lost || settings.reducedMotion || motion.snap || snapshot.result) {
       resetPosition(snapshot);
     } else if (motion.cells.length > 1) {
@@ -248,6 +265,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       if (cells.length > 32) resetPosition(snapshot);
     }
     if (openingCue) recentPublicOpening = {...openingCue, runToken:snapshot.runToken, start:gateVisualTime};
+    if (pickupCue) recentPublicPickup = {...pickupCue,runToken:snapshot.runToken,start:elapsed};
     previous = snapshot;
     world.update(snapshot);
     updateRoutes(snapshot);
@@ -395,6 +413,28 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       danger:s.dangerPermille/1000,result,reducedMotion:settings.reducedMotion,
     });
     world.animate(elapsed, {...settings, gateTime:gateVisualTime});
+    // A real observed collected key leaves a brief physical release at its
+    // known former room, not a new collectible or purported navigable route.
+    // All eight 3D parts are allocated once; no hidden state is inspected.
+    const pickupAge = recentPublicPickup?.runToken === s.runToken
+      ? elapsed - recentPublicPickup.start : Infinity;
+    const showPickup = !result && pickupAge >= 0 && pickupAge < .82;
+    pickupBurst.visible = showPickup;
+    if (showPickup) {
+      const p = cellPosition(recentPublicPickup.cell,s.width,s.height);
+      pickupBurst.position.set(p.x,
+        cellHeight(recentPublicPickup.cell,s.width,s.height)+.60,p.z);
+      const progress = settings.reducedMotion ? .38 : Math.min(1,pickupAge/.82);
+      for (let i=0;i<pickupShards.length;i++) {
+        const angle=i*Math.PI/4+.18,radial=.11+progress*(.46+(i%2)*.12);
+        const shard=pickupShards[i];
+        shard.position.set(Math.cos(angle)*radial,
+          .10+progress*(.24+(i%3)*.09),Math.sin(angle)*radial);
+        shard.scale.setScalar(settings.reducedMotion ? .63
+          : Math.max(.04,.93-progress*.88));
+        shard.rotation.set(progress*(.30+i*.11),angle,progress*1.2);
+      }
+    }
     if (objectiveCue) {
       const hover = settings.reducedMotion ? 0 : Math.sin(elapsed * 1.65) * .11;
       beaconGem.position.y = 3.18 + hover;
@@ -660,6 +700,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         wardenContactShadows: [...wardens.values()].filter(entry => entry.contact?.parent === scene).length,
         wardenGroundedContacts,
         encounterAttention: closestThreat?.strength ?? 0,
+        witnessedKeyPickupVisual: pickupBurst.visible,
         keysInFrame, closedGatesInFrame,
         carriedKeyGateGesture: keyGateCue?.strength??0,
         keyLockCloseup, cameraAimLift, physicalKeyLock,
@@ -719,6 +760,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     canvas.removeEventListener('webglcontextlost', contextLost);
     canvas.removeEventListener('webglcontextrestored', contextRestored);
     world.dispose(); explorer.dispose();
+    scene.remove(pickupBurst); pickupGeometry.dispose(); pickupMaterial.dispose(); pickupBurst.clear();
     for (const entry of wardens.values()) removeWarden(entry);
     wardens.clear(); guide.geometry.dispose(); guideMaterial.dispose(); markerGeometry.dispose(); markerMaterial.dispose();
     arrowGeometry.dispose(); plannedArrowMaterial.dispose(); knownArrowMaterial.dispose();
@@ -729,7 +771,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     wayfindingCues = [];
     contactGeometry.dispose(); contactMaterial.dispose(); contactTexture.dispose();
     sun.shadow.map?.dispose(); environmentTexture?.dispose(); renderer.dispose(); scene.clear();
-    cells = []; frameTimes.length = 0; frame = null; previous = null; recentPublicOpening = null; stageBias = {x: 0, z: 0};
+    cells = []; frameTimes.length = 0; frame = null; previous = null; recentPublicOpening = null; recentPublicPickup = null; stageBias = {x: 0, z: 0};
   }
   return { update, render, resize, setSettings, setCameraMode, dispose };
 }
