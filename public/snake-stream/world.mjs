@@ -500,13 +500,18 @@ export function createWorld(THREE, {width, height}) {
         +(.5+.5*Math.cos(gx*.22+gz*.31+gardenWarp))*.16);
       // The historic sunlit heart is a useful place/goal landmark. Keep its
       // real field albedo and every inherited directional relief intact.
-      const outsideHeart=fade(.62,.93,terraceDistance);
-      const watershed=fade(1.18,3.08,border)*outsideHeart;
+      // Protect the true sunlit landmark in unwarped board coordinates.
+      // The old noisy terrace-distance field shifted eroded pigment onto it.
+      const landmarkDistance=Math.hypot((streamU-.52)/.36,(streamV-.50)/.38);
+      const outsideHeart=fade(.48,.79,landmarkDistance);
+      const watershed=fade(.62,2.60,border)*outsideHeart;
+      // Differentiated cool moss creeks and warm exposed sandstone beds:
+      // material-only weathering, never fake geometry or gameplay water.
       const mossBraid=braidedBed*(.44+.56*rootLichen);
       const exposedStone=(1-braidedBed*.70)*exposedMarl;
-      const rWear=watershed*(6+27*mossBraid+9*rootLichen+4*exposedStone);
-      const gWear=watershed*(4+8*mossBraid+6*rootLichen+25*exposedStone);
-      const bWear=watershed*(8+22*mossBraid+14*rootLichen+28*exposedStone);
+      const rWear=watershed*(12+19*mossBraid+7*rootLichen+2*exposedStone);
+      const gWear=watershed*(15+8*mossBraid+7*rootLichen+42*exposedStone);
+      const bWear=watershed*(17+20*mossBraid+13*rootLichen+39*exposedStone);
       // Strictly subtractive post-composition: earlier canopy shadow,
       // R50 mineral/lichen and the actual food/hazard/portal markers cannot
       // become brighter or move. No new texture, mesh, GPU pass or cell.

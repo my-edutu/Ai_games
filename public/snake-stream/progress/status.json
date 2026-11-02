@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-11-02T02:44:59.000Z",
-  "status": "T0/T1 BUILDING; aa7 exact-parent Chromium cancelled after ≥51 browser cases; strict old 1920×1080 gate FAILED 10 genuine full-scene WebGL submits /1015.7ms (<17) at 736×336, frame p95 1750ms; authentic 55s host video and eight same-source stills logged, full-scene NEW braided candidate still unverified; T2 preliminary, T3/T4 open, SELF REVIEW / ACCEPTANCE PENDING",
-  "detail": "Verified live DRAFT #52 predecessor aa7bb05 and governing spec/override, ledger/current actions. New full-world T1 source candidate artistically connects two genuine traversable garden mineral/moss catchments and curves all eight already-authored 3D shoreline landforms without any game geometry/cues, authority, resource, geometry count or strict-gate relaxation. New exact-parent Node source tests, eight true Chromium/WebGL matched screenshots and inherited real 55-second play are unverified until exact-head GitHub Actions. Previous 43a5 source full scene self-rejected vs official Snake Pass; strict desktop failed 10 genuine submitted renders of required 17 at 736x336 and p95 1700ms. Current aa7 exact-head actions were still running during work, no extrapolated conclusion. Physical-device present fps/p95, long-soak, full suite and fresh independent critique unavailable. T1 remains BUILDING, never merge/deploy. Verified actual aa7 parent Actions 41377380218 subsequently CANCELLED after >=51 Playwright cases; 8-source-image comparison and 55.02s legitimate autonomous footage completed, actual 1920 gate FAILED 10/17 in 1015.7ms, 736x336 buffer, p95 1750ms and max queue pending 2644.3ms. Artifacts 13112512136, 13112850218, metrics 13112860175. New latest source AFTER changes are not yet CI-validated; only parent logs examined, no independent review or new-head visual acceptance.",
+  "updatedAt": "2026-11-02T03:17:00.000Z",
+  "status": "T0/T1 BUILDING: real exact-8fd 8-view Chromium/WebGL and authentic 55s whole-game motion SELF-REJECTED vs Snake Pass; genuine 617/620 Node FAIL; unchanged strict original 1920 gate single 18/17 genuine PASS only at 736x336 GPU/p95 999.9ms, NOT smooth device FPS. New same-T1 material integrity recovery only source-probed; new-head Node/WebGL/55s PENDING. T2 preliminary, T3/T4 OPEN, independent critique PENDING.",
+  "detail": "Exact 8fd full-frame stills/55s film inspected. Giant regular rectangular court and toy-like spotted tube snake still far below Snake Pass. General CI 617/620 has 3 actual atlas material regressions. Correct protected true unwarped landmark, warm sandstone and cool moss across broad existing deterministic physical atlas; source-algorithm 28x16 probes yield zero protected heart changes, amber 18.59%, 15/24 broad sectors. This is NOT visual acceptance or new-head browser/Node GREEN. Strict gate had 18 actual full-desktop WebGL submissions/1001.8ms once at degraded 736x336 raster, p95 999.9ms, queue delay 1502.3ms; neither RAF/video frame rate nor accumulated renders count as display FPS. Physical present, real new-head visuals, soak and independent reviewer remain missing. No merge/deploy.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Strict aa7 current-parent real Chromium 1920 gate FAIL: only 10 genuine complete WebGL submissions of required ≥17 in 1015.7ms, GPU buffer 736×336, frame p95 1750ms. Eight authentic exact-source captures/55.02s game recorded, current parent run CANCELLED; braided candidate not yet tested, no scene-quality victory.",
+  "latestCaption": "8fd actual full-frame WebGL and 55s gameplay SELF-REJECTED (giant regular court and simplistic body). Real 617/620 Node CI FAIL. Original strict 18 genuine desktop submissions/1001.8ms single PASS at GPU 736x336 and frame p95 999.9ms, no displayed smoothness evidence. New original mineral/landmark recovery requires current-head CI.",
   "reviews": [
+    {
+      "area": "2026-11-02 exact 8fd real whole-game benchmark and material-integrity rescue",
+      "verdict": "Full visual T1 SELF-REJECTED vs official Snake Pass on true full-game WebGL and 55s unmodified film, independent critic missing. Real general CI FAIL 617/620 with protected-heart/palette/coverage defects; focused browser cancelled after 60 PASS. Strict unchanged 1s original full-desktop gate 18 actual submissions/17 required SINGLE PASS only at 736x336 GPU, p95 999.9ms.",
+      "gap": "Bound-preserving existing braided material rescue direct original atlas checks zero landmark deltas, 18.59% warm and 15/24 broad regions; new-head Node tests and authentic full WebGL/motion still PENDING. Huge repeating floor, simplified serpent, coherent animation, useful-raster hardware displayed FPS/p95, long soak and independent whole-game acceptance all OPEN."
+    },
     {
       "area": "November 2 verified aa7 prior Actions full-scene render stop-ship",
       "verdict": "Actual Chromium run 41377380218 CANCELLED after >=51 browser test cases including real eight linked-reef before/after screenshots and unmodified 55.02s stream; ORIGINAL strict desktop WebGL gate FAIL 10/17 true full-scene submissions over 1015.7ms, GPU raster 736x336 and frame p95 1750ms; no software-rendering or device-present acceptance",
@@ -908,22 +913,22 @@
     "firstImplementationPlan": "docs/superpowers/plans/2026-11-01-autonomous-snake-transformation.md",
     "acceptance": "An independently evidenced, visibly substantial upgrade of the full running game in environment, character, animation, materials, game feel and sustainable frame delivery; CI is necessary but never sufficient.",
     "overall": "NOT ACCEPTED",
-    "milestone": "T1 connected four-coast REAL 3D ridge geometry candidate BUILDING; previous exact 43a5e04 whole-frame SELF-REJECTED, unchanged strict 10/17 genuine render submissions FAILED at 736x336 GPU and p95 1700ms; new-head 8 views and real 55s film PENDING",
+    "milestone": "T1 whole-game SELF-REJECTED on exact real 8fd WebGL+55s film; original 617/620 CI 3 true T1 material regressions; new corrective material candidate NOT visually accepted",
     "milestoneStatus": "BUILDING",
     "latestKnownStrictBrowser": {
-      "actualDraws": 10,
-      "elapsedMs": 1004.1,
+      "actualDraws": 18,
+      "elapsedMs": 1001.8,
       "minDraws": 17,
-      "result": "FAILED original unchanged full-desktop 1s gate: only 10 genuine whole-scene submissions vs mandatory >=17; RAF ~61 callbacks, videos, GPU fences and partial probes are not rendered/device presented frames",
+      "result": "SINGLE border-pass of unchanged >=17 genuine complete full-desktop 1s WebGL submission gate. NOT smooth/device-present FPS.",
       "drawingBuffer": {
         "width": 736,
         "height": 336
       },
       "pixelRatio": 0.4,
-      "frameMsP95": 1700,
-      "maxGpuQueueLatencyMs": 2576,
-      "source": "https://github.com/my-edutu/Ai_games/actions/runs/41372528524",
-      "runConclusion": "CANCELLED after 52 genuine browser checks PASSED; not a complete CI pass"
+      "frameMsP95": 999.9,
+      "maxGpuQueueLatencyMs": 1502.3,
+      "source": "https://github.com/my-edutu/Ai_games/actions/runs/41379548435",
+      "runConclusion": "CANCELLED after 60 real browser PASS; images+55s real films and metrics retained"
     },
     "pillars": [
       {
@@ -948,8 +953,8 @@
       }
     ],
     "baselineHead": "108e2e439aab1f3fe4cf49019c1aa9fe5630feb6",
-    "candidate": "Eight original cliff/moss rocky coast masses now longitudinally warped into four physically linked geological ridge systems; no added GPU triangles/draws/batches/assets, no gameplay surface shift. Exact original garden blob recovered by removing single new source block.",
-    "candidateProof": "Original exact Git blob ab20ddc7db0eecbc0726d26beb3c12ea32649a93; candidate f478a8c6593d7ff89429599f0edbe0314b83e3b6. Genuine source-first RED then GREEN, local 6/6 affected Node GREEN and TypeScript build PASS; whole Snake Node suite incomplete after 90 passing. Local Chromium navigation blocked by administrator, policy respected. Authored source-verified eight WebGL screenshots and actual 55s host gameplay, pending new-head Actions.",
-    "review": "SELF REVIEW: inspected exact prior 43a5e04 real 960 overview and hero detail; the large tiled court, detached little cliffs and articulated-yet-assembled snake fall substantially below official Snake Pass and ASTRO BOT. New current-head image/motion/true 17+ strict/device p95/independent reviews pending; no milestone win."
+    "candidate": "Existing deterministic atlas only: protect true center and preserve original warm sandstone vs cool lichen connected strata; no new assets/pass/geometry/authority.",
+    "candidateProof": "Exact old-head real Node CI 3 RED. Direct source atlas on 8x8,28x16,40x24: 0 protected center changes, 18.59% ochre, 15/24 6x4 regions, monotone subtractive channel. NO new head Node/Chromium visual/performance acceptance.",
+    "review": "SELF REVIEW / ACCEPTANCE PENDING: actual 8fd full scene, portrait/detail/1920 views and 55s motion still enormous square tiled court and toy-like serpent below Snake Pass; independent review absent."
   }
 }
