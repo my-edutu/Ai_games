@@ -16,17 +16,21 @@ test('G141 genuine workday gives way to navigable household homecoming, rest and
  await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0,null,{timeout:75000});
  await page.locator('#pause').click();
  const inspection=await page.evaluate(()=>{
-  const g=window.__tinyKingdom,stepHours=n=>{for(let i=0;i<n*30;i++)g.step(1/30)};
+  const g=window.__tinyKingdom,advanceToHour=hour=>{
+   const start=g.getDailyRhythmAudit().hour,remaining=(hour-start+24)%24;
+   const steps=Math.max(1,Math.ceil(remaining*30));
+   for(let i=0;i<steps;i++)g.step(remaining/steps);
+  };
   const dawn=g.getDailyRhythmAudit(),dawnCounts=g.metrics();
-  stepHours(15); // from 07:00 to 22:00, a true physical dusk crossing
+  advanceToHour(22); // exact local hour, independent of slow browser startup
   const dusk=g.getDailyRhythmAudit(),duskNav=g.getNavigation();
-  stepHours(6);  // 04:00, after actual bounded route-following overnight
+  advanceToHour(4); // 04:00, after actual bounded route-following overnight
   const night=g.getDailyRhythmAudit(),nightNav=g.getNavigation();
   const sleepState=g.exportSnapshot(),sleepJson=JSON.stringify(sleepState);
-  stepHours(8); // genuine next-morning work, not an actor spawned for display
+  advanceToHour(12); // next genuine midday shift, not scripted workers
   const morning=g.getDailyRhythmAudit(),morningNav=g.getNavigation();
   const morningJson=JSON.stringify(g.exportSnapshot());
-  g.restoreSnapshot(sleepState);stepHours(8);
+  g.restoreSnapshot(sleepState);advanceToHour(12);
   return {dawn,dusk,night,morning,dawnCounts,duskNav,nightNav,morningNav,
    sleepJson,morningJson,replayJson:JSON.stringify(g.exportSnapshot()),
    gl:document.getElementById('world').getContext('webgl')?.getError()??-1};
