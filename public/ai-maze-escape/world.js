@@ -590,6 +590,23 @@ export function createMazeWorld(options = {}) {
         add(cylinder, deepStone, x, .017, z, .25, .022, .25, c.cell);
         add(cylinder, lightStone, x, .034, z, .13, .012, .13, c.cell);
       }
+      // Public ceramic shell-fan relief is an ORIGINAL, on-stage material cue,
+      // not distant lagoon scenery. Every mark is a real, upward-facing Three
+      // surface on an already disclosed ordinary floor; no secret route, safe
+      // prediction, new collectible or autonomous instruction is consulted.
+      // Broad asymmetric scallops interrupt the repetitive paving visible in
+      // real 320/390/844/1280 WebGL frames. Reuse the existing petal geometry
+      // and mineral materials in the same GPU batches, with no extra draw
+      // resources or render-frame allocations. Never cover known hazards,
+      // treasure hardware or a checkpoint with a look-alike objective symbol.
+      if (!c.blocked && !c.trap && !c.checkpoint && !c.clue
+          && variation(c.cell * 71 + 138) > .36) {
+        const shellPigment = tier === 2 ? seaGlass : tier === 1 ? lightStone : stone;
+        for (let petal = 0; petal < 5; petal++) {
+          add(leafGeometry, shellPigment, x, .024, z, .82, .77, 1,
+            c.cell, -Math.PI / 2, 0, (petal * TAU / 5) + .18);
+        }
+      }
       // Low inset corner tiles, cracks, and occasional flecks never block a path.
       for (let j = 0; j < 2; j++) {
         const sign = j ? 1 : -1;
