@@ -1,6 +1,8 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const load = () => import('../../public/ai-maze-escape/map-view.mjs');
 
 test('the public step count remains cumulative after the visible trail is capped', () => {
