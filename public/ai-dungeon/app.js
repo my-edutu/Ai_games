@@ -891,7 +891,7 @@ function animate(t){
   // Imported Warden shoulders and torso share one genuine public warning.
   // Once the real telegraph clears, the rig pose returns to the mixer output.
   a.wardenCharge=a.u.kind==='warden'&&a.u.hp>0?planWardenCharge(state?.bossWarning,state?.tick,reduced):null;
-  if(!a.authored)a.detail?.update(time,a.u.action||'idle');a.ground?.update(time,a.u.action||'idle',a.u.hp>0);updateActor(a,dt,since,reduced);
+  if(!a.authored)a.detail?.update(time,a.u.action||'idle');a.ground?.update(time,a.u.action||'idle',a.u.hp>0);a.defeatIntermission=Boolean(state?.phase==='intermission'&&a.u.faction==='party'&&a.u.hp===0);updateActor(a,dt,since,reduced);
   // One shared read-only pivot brings the complete skinned rig, armour,
   // accessories and the procedural fallback through the SAME real hit beat.
   if(state?.phase==='intermission'&&a.u.faction==='party'&&a.u.hp===0){

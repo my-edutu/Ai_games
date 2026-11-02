@@ -100,12 +100,13 @@ const FLAT_SKELETON=Object.freeze({
  elbows:{left:0,right:0},
  legs:{left:{upper:0,lower:0,foot:0},right:{upper:0,lower:0,foot:0}}
 });
-export function planSkinnedDefeatPose(kind,hp,age=null,fatal=false,reducedMotion=false){
+export function planSkinnedDefeatPose(kind,hp,age=null,fatal=false,reducedMotion=false,intermission=false){
  if(!['vanguard','ranger','mystic','revenant','cultist','warden'].includes(kind)||hp!==0)
   return FLAT_SKELETON;
- if(fatal===true&&(!Number.isFinite(age)||age<0||age>=DEATH_BEAT_DURATION))
+ if(!fatal&&!intermission)return FLAT_SKELETON;
+ if(fatal===true&&!intermission&&(!Number.isFinite(age)||age<0||age>=DEATH_BEAT_DURATION))
   return FLAT_SKELETON;
- const w=reducedMotion||fatal!==true?1:ease((age-.085)/.65);
+ const w=reducedMotion||intermission?1:ease((age-.085)/.65);
  if(w<=0)return FLAT_SKELETON;
  const caster=kind==='mystic'||kind==='cultist';
  return Object.freeze({

@@ -3,6 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
+import {planSkinnedDefeatPose} from '/dungeon/impact-choreography-plan.js';
 import {planCombatPerformanceBeat} from '/dungeon/combat-performance-plan.js';
 import {planWardenRegalia} from '/dungeon/warden-regalia-plan.js';
 import {planWardenRegaliaMotion} from '/dungeon/warden-chapter-plan.js';
@@ -219,14 +220,48 @@ function addRoleSilhouette(actor){
  * SkeletonUtils-cloned skinned model. Bracers/greaves follow real limb bones;
  * no changes to authoritative combat, navigation, hitboxes or tick timing.
  */
+
+// This atlas is created once, shared across all original character armor and
+// never rebuilt per tick/floor. Five original 96px embossed textures; no
+// external assets, new geometry or extra draw calls.
+const forgedMicrotextureCache=new Map();
+function originalForgedMicrotexture(finish){
+ if(!['steel','bronze','leather','bone','textile'].includes(finish))return null;
+ if(forgedMicrotextureCache.has(finish))return forgedMicrotextureCache.get(finish);
+ const size=96,pixels=new Uint8Array(size*size*4),salt={steel:1,bronze:2,leather:3,bone:4,textile:5}[finish];
+ for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+  let h=Math.imul(x+salt*31,374761393)^Math.imul(y+salt*17,668265263);
+  h=Math.imul(h^(h>>>13),1274126177);
+  const n=((h^(h>>>16))>>>0)/4294967295;
+  const grain=finish==='steel'||finish==='bronze'
+   ?.50+.20*Math.sin(x*1.14)*Math.cos(y*1.26)+.13*Math.sin((x+y*.3)*.55)+.12*(n-.5):
+   finish==='leather'?.46+.22*Math.sin(x*1.92)*Math.sin(y*1.73)+.28*(n-.5):
+   finish==='bone'?.53+.17*Math.sin(y*.93+Math.sin(x*.14)*2)+.15*(n-.5):
+   .51+.15*Math.cos(x*1.38)-.16*Math.cos(y*1.34)+.10*(n-.5);
+  const value=Math.round(Math.max(.13,Math.min(.87,grain))*255),i=(y*size+x)*4;
+  pixels[i]=pixels[i+1]=pixels[i+2]=value;pixels[i+3]=255;
+ }
+ const texture=new THREE.DataTexture(pixels,size,size,THREE.RGBAFormat,THREE.UnsignedByteType);
+ texture.name='Original forged '+finish+' relief';
+ texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.repeat.set(3,3);
+ texture.minFilter=THREE.LinearMipmapLinearFilter;texture.magFilter=THREE.LinearFilter;
+ texture.generateMipmaps=true;texture.anisotropy=2;texture.needsUpdate=true;
+ forgedMicrotextureCache.set(finish,texture);return texture;
+}
+
 function addAnatomicalKit(actor){
  const plan=planAnatomicalKit(actor.u.kind);
  if(!plan.length||!actor.visualPivot)return;
  const group=new THREE.Group();group.name='Original '+actor.u.kind+' anatomical armour';
  const materials=planForgedFinishes(actor.u.kind);
  if(!materials)return;
- const finishes=Object.fromEntries(Object.entries(materials).map(([name,settings])=>
-  [name,new THREE.MeshStandardMaterial({...settings,...(name==='textile'?{side:THREE.DoubleSide}:{})})]));
+ const finishes=Object.fromEntries(Object.entries(materials).map(([name,settings])=>{
+  const micro=originalForgedMicrotexture(name);
+  return [name,new THREE.MeshStandardMaterial({...settings,
+   ...(name==='textile'?{side:THREE.DoubleSide}:{}),
+   ...(micro?{bumpMap:micro,roughnessMap:micro,bumpScale:name==='textile'?.022:name==='bone'?.027:.041}:{})
+  })];
+ }));
  const forms=createForgedArmorForms(THREE,actor.u.kind);
  if(!forms)return;
  actor.sculptedArmorProfile=planForgedArmor(actor.u.kind)?.name??null;
@@ -634,6 +669,32 @@ function stageWardenChapterRegalia(actor,reducedMotion){
   p.mesh.scale.set(p.sx*morph.scale,p.sy*morph.scale,p.sz*morph.scale);
  }
 }
+/**
+ * Keep the genuine GLB animator and all existing living attack/gait layers.
+ * A true HP-zero body alone gains shoulder, elbow, knee and torso collapse.
+ * The per-bone overlay is multiplied into the existing reversible 'last'
+ * quaternion; restoreRigArms/Legs/Melee undo it before the next mixer frame.
+ */
+function stageSkinnedDefeatAfterMixer(actor,reducedMotion){
+ actor.skinnedDefeatWeight=0;
+ if(!actor.authored||actor.root.visible===false)return;
+ const pose=planSkinnedDefeatPose(actor.u.kind,actor.u.hp,actor.damageBeat?.age??null,
+  Boolean(actor.damageBeat?.fatal),reducedMotion,Boolean(actor.defeatIntermission));
+ if(pose.weight<=0)return;
+ actor.skinnedDefeatWeight=pose.weight;
+ const apply=(mount,pitch,roll=0)=>{
+  mount.next.setFromEuler(mount.euler.set(pitch,0,roll,'XYZ'));
+  mount.bone.quaternion.multiply(mount.next);
+  mount.last.multiply(mount.next);
+ };
+ for(const mount of actor.rigUpperArms||[])
+  apply(mount,pose.shoulders[mount.side],mount.side==='left'?-pose.weight*.24:pose.weight*.19);
+ for(const mount of actor.rigForearms||[])apply(mount,pose.elbows[mount.side]);
+ for(const mount of actor.rigGaitBones||[])apply(mount,pose.legs[mount.side][mount.part]);
+ for(const mount of actor.rigMeleeBones||[])if(mount.part==='spine')
+  apply(mount,pose.spine.pitch,pose.spine.roll);
+}
+
 function updateActor(actor,dt,since=0,reducedMotion=false){
  if(!actor.authored||!actor.mixer)return;
  changeAction(actor,actor.u.action||'idle');
@@ -652,6 +713,7 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
  stageRigForearmsAfterMixer(actor,since,reducedMotion);
  stageRigLegsAfterMixer(actor,since,reducedMotion);
  stageRigMeleeAfterMixer(actor,since,reducedMotion);
+  stageSkinnedDefeatAfterMixer(actor,reducedMotion);
  stageWardenChapterRegalia(actor,reducedMotion);
  if(actor.visualPivot){
   const pose=planAuthoredMotion(actor.u.kind,actor.u.action||'idle',since,reducedMotion);
@@ -749,6 +811,6 @@ function stats(actors){
  const all=[...actors.values()],authored=all.filter(a=>a.authored);
  return{contactBodyPeakMeters:Math.max(0,...authored.map(a=>a.contactBodyPeakMeters||0)),authoredBosses:authored.filter(a=>a.u.kind==='warden').length,bossRegaliaParts:all.reduce((n,a)=>n+(a.regaliaParts||0),0),roleSilhouetteActors:authored.filter(a=>(a.roleSilhouetteParts||0)>0).length,roleSilhouetteParts:all.reduce((n,a)=>n+(a.roleSilhouetteParts||0),0),anatomicalDetailActors:authored.filter(a=>(a.anatomicalParts||0)>0).length,sculptedArmorActors:authored.filter(a=>a.sculptedArmorProfile).length,sculptedArmorVertices:authored.reduce((sum,a)=>sum+(a.sculptedArmorVertices||0),0),sculptedArmorProfiles:[...new Set(authored.map(a=>a.sculptedArmorProfile).filter(Boolean))].sort(),anatomicalDetailParts:all.reduce((n,a)=>n+(a.anatomicalParts||0),0),anatomicalJointFittings:all.reduce((n,a)=>n+(a.anatomicalJointParts||0),0),anatomicalDetailMeshes:all.reduce((n,a)=>n+(a.anatomicalDetailMeshes||0),0),anatomicalStaticMergedParts:all.reduce((n,a)=>n+(a.anatomicalStaticMergedParts||0),0),draperyActors:authored.filter(a=>(a.draperyPanels?.length||0)>0).length,draperyPanels:all.reduce((n,a)=>n+(a.draperyPanels?.length||0),0),draperyTriangles:all.reduce((n,a)=>n+(a.draperyTriangles||0),0),draperyFramesSkipped:all.reduce((n,a)=>n+(a.draperyFramesSkipped||0),0),draperyNormalRebuilds:all.reduce((n,a)=>n+(a.draperyNormalRebuilds||0),0),draperyVertexUploads:all.reduce((n,a)=>n+(a.draperyVertexUploads||0),0),draperyPeakDeformationMeters:Math.max(0,...all.map(a=>a.draperyPeakDeformationMeters||0)),rigCranialActors:authored.filter(a=>a.rigCranial?.applied).length,rigCranialRatios:authored.filter(a=>a.rigCranial?.applied).map(a=>({kind:a.u.kind,ratio:a.rigCranial.ratio})).slice(0,18),rigGestureBones:authored.reduce((n,a)=>n+(a.rigUpperArms?.length||0),0),rigGesturePeakRad:Math.max(0,...authored.map(a=>a.rigGesturePeak||0)),wardenChargeShoulderPeakRad:Math.max(0,...authored.filter(a=>a.u.kind==='warden').map(a=>a.wardenChargeShoulderPeak||0)),rigForearmBones:authored.reduce((n,a)=>n+(a.rigForearms?.length||0),0),rigForearmPeakRad:Math.max(0,...authored.map(a=>a.rigForearmPeak||0)),rigGaitBones:authored.reduce((n,a)=>n+(a.rigGaitBones?.length||0),0),rigGaitPeakRad:Math.max(0,...authored.map(a=>a.rigGaitPeak||0)),rigContactBraceActors:authored.filter(a=>(a.rigContactBracePeak||0)>.09).length,rigContactBracePeakRad:Math.max(0,...authored.map(a=>a.rigContactBracePeak||0)),rigMeleeBones:authored.reduce((n,a)=>n+(a.rigMeleeBones?.length||0),0),rigMeleePeakRad:Math.max(0,...authored.map(a=>a.rigMeleePeak||0)),rigMeleeCurrentPeakRad:Math.max(0,...authored.map(a=>a.rigMeleeCurrentPeak||0)),rigMeleeActiveActors:authored.filter(a=>a.rigMeleeActive).length,rigMeleeBoneNames:authored.flatMap(a=>(a.rigMeleeBones||[]).map(m=>m.part+':'+m.bone.name)).slice(0,12),rigBoundAccessoryActors:authored.filter(a=>(a.rigBoundAccessoryParts||0)>0).length,rigBoundAccessoryParts:all.reduce((n,a)=>n+(a.rigBoundAccessoryParts||0),0),
  hiddenFallbackOrnamentActors:authored.filter(a=>(a.detail?.hiddenProceduralOrnamentCount||0)>0).length,
- hiddenFallbackOrnamentMeshes:authored.reduce((n,a)=>n+(a.detail?.hiddenProceduralOrnamentCount||0),0),rigGripAlignedActors:authored.filter(a=>a.rigGripAligned).length,rigGripMaxShiftMeters:Math.max(0,...authored.map(a=>a.rigGripShiftMeters||0)),rigGripCandidates:authored.filter(a=>a.rigGripCandidateMeters!==null).map(a=>({kind:a.u.kind,meters:a.rigGripCandidateMeters})).slice(0,3),rigHandBoneNames:authored.filter(a=>a.rigHandBoneName).map(a=>a.rigHandBoneName).slice(0,8),authoredCharacters:authored.length,proceduralFallbacks:all.length-authored.length,uniqueAssets:cache.size,missingAssets:failures.size,incompleteAssets:incompleteAssets.size,texturedCharacters:authored.filter(a=>a.textureReadiness?.decodedColorMaps>0).length,decodedColorMaps:authored.reduce((n,a)=>n+(a.textureReadiness?.decodedColorMaps||0),0)};
+ hiddenFallbackOrnamentMeshes:authored.reduce((n,a)=>n+(a.detail?.hiddenProceduralOrnamentCount||0),0),rigGripAlignedActors:authored.filter(a=>a.rigGripAligned).length,rigGripMaxShiftMeters:Math.max(0,...authored.map(a=>a.rigGripShiftMeters||0)),rigGripCandidates:authored.filter(a=>a.rigGripCandidateMeters!==null).map(a=>({kind:a.u.kind,meters:a.rigGripCandidateMeters})).slice(0,3),rigHandBoneNames:authored.filter(a=>a.rigHandBoneName).map(a=>a.rigHandBoneName).slice(0,8),skinnedDefeatActors:authored.filter(a=>a.skinnedDefeatWeight>.02).length,forgedMicrotextures:forgedMicrotextureCache.size,authoredCharacters:authored.length,proceduralFallbacks:all.length-authored.length,uniqueAssets:cache.size,missingAssets:failures.size,incompleteAssets:incompleteAssets.size,texturedCharacters:authored.filter(a=>a.textureReadiness?.decodedColorMaps>0).length,decodedColorMaps:authored.reduce((n,a)=>n+(a.textureReadiness?.decodedColorMaps||0),0)};
 }
 export {attachCharacter,updateActor,disposeActorAsset,putEnvironment,stats};
