@@ -655,10 +655,23 @@ function sampleGuardianCrownSightlines(head, reuse) {
   return reuse;
 }
 
+// Keep a previously source-safe guardian shot unless the challenger delivers
+// a material gain. Without this, tiny HP/telegraph changes can select a new
+// orbit every fixed tick and make the fight feel like a roaming debug camera.
+// A blocked core, cropped guardian or tiny protagonist is NEVER retained.
+// Presentation only: no state/AI/physics, extra mesh or renderer submission.
+function retainGuardianCameraShot(best, previous, quality) {
+  if (!previous || !previous.clear || !previous.guardianFramed ||
+    !Number.isFinite(previous.heroFraction) || previous.heroFraction < .15) return best;
+  const priorScore = quality(previous), bestScore = quality(best);
+  return Number.isFinite(priorScore) && Number.isFinite(bestScore) &&
+    priorScore >= bestScore - 2.25 ? previous : best;
+}
+
 // Fit a small local encounter, preserving the hero's 18%-high baseline whenever
 // the actual route fits. A long portrait crossing may require a wider view;
 // that tradeoff is preferable to cropping the real destination or opponent.
-function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
+function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previousGuardianLean = null) {
   const player = snapshot.player, height = player.halfHeight * 2 / SCALE;
   const heroAngle = angleFor(player.x, snapshot.worldWidth);
   const body = { x: hero.x, y: hero.y + height * .52, z: hero.z };
@@ -854,6 +867,12 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
       if (candidateQuality <= bestQuality + .01) continue;
       best = candidate;
       bestQuality = candidateQuality;
+    }
+    // Re-evaluate only the previous SOURCE encounter lens, not every historic
+    // camera pose. A marginal quality difference cannot force a phone
+    // orbit reversal, but genuine cropped action or an opened gate can.
+    if (Number.isFinite(previousGuardianLean) && Math.abs(previousGuardianLean) <= 1.2) {
+      best = retainGuardianCameraShot(best, solve(previousGuardianLean), quality);
     }
   }
   return best;
@@ -1368,6 +1387,9 @@ export function createTowerScene(canvas, settings = {}) {
   }
 
   let snapshot = null, previous = null, initialized = false, frameHandle = 0;
+  // The chosen combat lens belongs to one real guardian on one source floor.
+  // Reset across encounter exits, floor changes, restarts and stale transport.
+  let guardianShotKey = null, guardianShotLean = null;
   let elapsed = 0, lastTime = 0, renderErrors = 0, contextLost = false, disposed = false;
   let contactUntil=0,contactHero=false,contactEnemyId=null;
   let landingMoment=-Infinity,landingRun=null,landingFloor=null,landingWeight=0;
@@ -1729,7 +1751,20 @@ export function createTowerScene(canvas, settings = {}) {
       motionEcho.instanceMatrix.needsUpdate = count > 0;
       echoDrawnTick = snapshot.tick;
     }
-    const followComposition = options.camera === 'overview' ? null : composeFollowView(snapshot, climber.group.position, camera.aspect, orbit, zoom);
+    const sourceGuardian = !options.stale && snapshot.lifecycle === 'running' &&
+      p.health > 0 ? snapshot.enemies?.find(enemy =>
+        enemy.kind === 'guardian' && enemy.active) : null;
+    const nextGuardianShotKey = sourceGuardian
+      ? `${snapshot.runToken}:${snapshot.floor}:${sourceGuardian.id}` : null;
+    if (nextGuardianShotKey !== guardianShotKey) {
+      guardianShotKey = nextGuardianShotKey;
+      guardianShotLean = null;
+    }
+    const followComposition = options.camera === 'overview' ? null :
+      composeFollowView(snapshot, climber.group.position, camera.aspect,
+        orbit, zoom, guardianShotLean);
+    guardianShotLean = !options.stale && followComposition?.guardianStaged
+      ? followComposition.lean : null;
     const viewPosition = initialized ? camera.position : followComposition?.position || camera.position;
     const viewAngle = Math.atan2(viewPosition.x - climber.group.position.x, viewPosition.z - climber.group.position.z) - actorYaw;
     options.viewAzimuth = Math.atan2(Math.sin(viewAngle), Math.cos(viewAngle));
