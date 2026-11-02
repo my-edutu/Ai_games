@@ -6383,17 +6383,18 @@ function followCameraRoofs(){
  for(const stall of MARKET_STALLS){
   const base=terrain(stall.x,stall.z);
   roofs.push({x:stall.x,z:stall.z,rx:1.56,rz:1.18,
-   bottom:base+1.68,top:base+2.78,kind:'market-stall'});
+   bottom:base+1.68,top:base+2.78,visualBottom:base+.12,
+   kind:'market-stall'});
  }
  const my=terrain(0,5);
  roofs.push({x:0,z:5,rx:1.6,rz:1.02,bottom:my+1.51,top:my+2.31,
-  kind:'village-market'});
+  visualBottom:my+.12,kind:'village-market'});
  const ay=terrain(MARKET_ENTRY_ARCH.x,MARKET_ENTRY_ARCH.z);
  roofs.push({x:MARKET_ENTRY_ARCH.x,z:MARKET_ENTRY_ARCH.z,rx:2.4,rz:.31,
   bottom:ay+2.62,top:ay+3.36,kind:'arcade'});
  for(const [x,z] of [[-14.65,-3.35],[14.15,8.25]])
   roofs.push({x,z,rx:1.85,rz:1.64,top:terrain(x,z)+3.34,
-   kind:'street-shop'});
+   visualBottom:terrain(x,z)-.02,kind:'street-shop'});
  return roofs;
 }
 function cameraOcclusionModel(){
@@ -6462,6 +6463,45 @@ function physicalCitizenForegroundBlockers(eye,subject,hands=[]){
   if(blocked)obscured++;
  }
  return obscured;
+}
+// G145: perspective-frame coverage of REAL foreground market objects.
+// In actual Day-120 mobile footage a stall filled the screen while a clear
+// single face/hand ray was incorrectly accepted as a readable worker view.
+// Presentation only: this cannot affect seeded simulation or save/replay.
+function foregroundSceneProjection(eye,target,roofs){
+ const delta=target.map((v,i)=>v-eye[i]),len=Math.hypot(...delta)||1;
+ const f=delta.map(v=>v/len),flat=Math.hypot(f[0],f[2])||1;
+ const right=[-f[2]/flat,0,f[0]/flat];
+ const up=[right[1]*f[2]-right[2]*f[1],
+  right[2]*f[0]-right[0]*f[2],right[0]*f[1]-right[1]*f[0]];
+ const aspect=Math.max(.35,canvas.clientWidth/Math.max(1,canvas.clientHeight));
+ const tanHalf=Math.tan(Math.PI/6.4);
+ let cover=0,largest=0,volumes=0;
+ for(const roof of roofs){
+  if(!['market-stall','village-market','arcade','street-shop'].includes(roof.kind))continue;
+  const bottom=roof.visualBottom??roof.bottom??(terrain(roof.x,roof.z)-.1);
+  let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+  let behind=0,visible=0;
+  for(const sx of [-1,1])for(const y of [bottom,roof.top])for(const sz of [-1,1]){
+   const v=[roof.x+sx*roof.rx-eye[0],y-eye[1],roof.z+sz*roof.rz-eye[2]];
+   const d=v[0]*f[0]+v[1]*f[1]+v[2]*f[2];
+   if(d<=.20){behind++;continue;}
+   const px=(v[0]*right[0]+v[2]*right[2])/(d*tanHalf*aspect);
+   const py=(v[0]*up[0]+v[1]*up[1]+v[2]*up[2])/(d*tanHalf);
+   minX=Math.min(minX,px);maxX=Math.max(maxX,px);
+   minY=Math.min(minY,py);maxY=Math.max(maxY,py);visible++;
+  }
+  if(!visible)continue;
+  if(behind){minX=Math.min(minX,-1);maxX=Math.max(maxX,1);
+   minY=Math.min(minY,-1);maxY=Math.max(maxY,1);}
+  const width=Math.max(0,Math.min(1,maxX)-Math.max(-1,minX));
+  const height=Math.max(0,Math.min(1,maxY)-Math.max(-1,minY));
+  const area=width*height/4;
+  if(area>.001){volumes++;largest=Math.max(largest,area);
+   cover=Math.min(1,cover+area*.88);}
+ }
+ return {cover:Math.round(cover*1000)/1000,
+  largest:Math.round(largest*1000)/1000,volumes};
 }
 function projectedWorkdayOccluders(eye,target,subject,hands=[]){
  const dx=target[0]-eye[0],dy=target[1]-eye[1],dz=target[2]-eye[2];
@@ -6549,6 +6589,9 @@ function cameraShotFraming(shot,roofs,citizen,knownHands=null){
   bodyVisibleFraction:(body.length-blockedBodyRays)/body.length,
   blockedNeighbourhoodRays:countBlocked(surroundings),cameraProximityWarnings,
   handBlockers,handTargetsInspected:handTargets.length,
+  foregroundSceneCover:shot.foregroundSceneCover,
+  foregroundSceneLargest:shot.foregroundSceneLargest,
+  foregroundSceneVolumes:shot.foregroundSceneVolumes,
   ...projectedWorkdayOccluders(eye,target,citizen,handTargets)};
 }
 function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
@@ -6578,7 +6621,11 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   const eye=[citizen.x+Math.sin(angle)*radius,
    terrain(citizen.x,citizen.z)+1.02+elevation,
    citizen.z+Math.cos(angle)*radius];
+  const scenic=working?foregroundSceneProjection(eye,target,roofs):
+   {cover:0,largest:0,volumes:0};
   return {yaw:angle,pitch,zoom,eye,target,
+   foregroundSceneCover:scenic.cover,foregroundSceneLargest:scenic.largest,
+   foregroundSceneVolumes:scenic.volumes,
    blockers:followRayBlockers(eye,target,roofs)};
  };
  const original=candidate(preferredYaw);
@@ -6614,6 +6661,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   // spending its capped budget on 56 equivalent roof-clear crowd views.
   const crowd=portraitLens?physicalCitizenForegroundBlockers(shot.eye,citizen,hands):0;
   const coarse=shot.blockers*1000+oppositeYard+rearPenalty+crowd*325+
+   shot.foregroundSceneCover*(portraitLens?2400:working?1500:0)+
    Math.abs(delta)*.9+Math.abs(z-normalZoom)*.35+
    Math.abs(p-normalPitch)*3;
   possibilities.push({shot,coarse,alignment});
@@ -6648,12 +6696,14 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
    framing.projectedBystanders*170+framing.projectedPosts*55+
    framing.projectedWorksitePosts*100+framing.frameCrowdBurden*65+
    framing.handBlockers*(working&&realWork?175:15)+
-   framing.foregroundCitizenBlockers*(working&&realWork?290:30);
+   framing.foregroundCitizenBlockers*(working&&realWork?290:30)+
+   framing.foregroundSceneCover*(portraitLens?1100:working?700:0);
   if(score<bestScore){best=shot;bestScore=score;bestFraming=framing;}
   const clearFront=working&&realWork&&alignment>.12&&
    shot.blockers===0&&framing.handBlockers<=1&&
    framing.blockedBodyRays<=2&&framing.projectedBystanders===0&&
    framing.foregroundCitizenBlockers===0&&
+   framing.foregroundSceneCover<.14&&
    framing.projectedWorksitePosts===0&&
    framing.cameraProximityWarnings===0;
   if(clearFront){
@@ -6670,6 +6720,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   const readableFront=portraitLens&&working&&realWork&&alignment>.24&&
    shot.blockers===0&&faceClear&&framing.handBlockers===0&&
    framing.foregroundCitizenBlockers===0&&
+   framing.foregroundSceneCover<.18&&
    framing.blockedBodyRays<=3&&framing.cameraProximityWarnings===0&&
    framing.projectedWorksitePosts<=1;
   if(readableFront){
@@ -6744,6 +6795,12 @@ function workdayCameraCompositionAudit(){
   terrain(focusPoint[0],focusPoint[1])+1.02+Math.sin(pitch)*zoom,
   focusPoint[1]+Math.cos(yaw)*radius];
  const handTargets=documentaryWorkHandTargets(person),roofs=followCameraRoofs();
+ const aim=lastFollowShot?[
+  focusPoint[0]+lastFollowShot.target[0]-person.x,
+  terrain(focusPoint[0],focusPoint[1])+lastFollowShot.target[1]-terrain(person.x,person.z),
+  focusPoint[1]+lastFollowShot.target[2]-person.z
+ ]:[person.x,terrain(person.x,person.z)+1.02,person.z];
+ const sceneCover=foregroundSceneProjection(eye,aim,roofs);
  return {source:'real-autonomous-workday',active:true,actor:person.name,
   job:person.job,activity:person.activity,handTargets,
   handBlockers:handTargets.reduce((n,hand)=>
@@ -6751,7 +6808,12 @@ function workdayCameraCompositionAudit(){
   faceAlignment:Math.cos(yaw-face),
   clearFrontCandidates:lastFollowShot?.clearFrontCandidates||0,
   readableFrontCandidates:lastFollowShot?.readableFrontCandidates||0,
-  workFacingMode:lastFollowShot?.workFacingMode||'unverified',
+  workFacingMode:sceneCover.cover>=.14?'obstructed':
+   lastFollowShot?.workFacingMode||'unverified',
+  foregroundSceneCover:sceneCover.cover,
+  foregroundSceneLargest:sceneCover.largest,
+  foregroundSceneVolumes:sceneCover.volumes,
+  plannedForegroundSceneCover:lastFollowShot?.foregroundSceneCover??null,
   cameraDistance:zoom,eye,staticWorldHidden:false,
   plannedHandBlockers:lastFollowShot?.handBlockers??null,
   foregroundCitizenBlockers:physicalCitizenForegroundBlockers(eye,person,handTargets),
@@ -7188,7 +7250,9 @@ function render(now){requestAnimationFrame(render);
    focusPoint[1]+Math.cos(yaw)*radius];
   const target=[citizen.x,terrain(citizen.x,citizen.z)+1.02,citizen.z];
   const roofs=followCameraRoofs(),obstructed=followRayBlockers(eye,target,roofs)>0;
-  const blend=reduceMotion?1:obstructed?.72:
+  const foregroundBlocked=foregroundSceneProjection(eye,plan.target,roofs).cover>.42;
+  const clearDestination=plan.foregroundSceneCover<.18;
+  const blend=reduceMotion?1:obstructed?.72:foregroundBlocked?.82:
     Math.min(.90,1-Math.exp(-5.5*Math.max(.016,dt)));
   const nextYaw=yaw+turn*blend,nextPitch=pitch+(plan.pitch-pitch)*blend,
    nextZoom=zoom+(plan.zoom-zoom)*blend;
@@ -7198,8 +7262,10 @@ function render(now){requestAnimationFrame(render);
    focusPoint[1]+Math.cos(nextYaw)*nextRadius];
   // The slow camera eased through a wall for several real seconds at 3 FPS.
   // Prefer an immediate clear picture over an extended blind transition.
-  if(obstructed&&plan.blockers===0&&
-     followRayBlockers(nextEye,target,roofs)>0){
+  if((obstructed||(foregroundBlocked&&clearDestination))&&
+     plan.blockers===0&&
+     (followRayBlockers(nextEye,target,roofs)>0||
+      (clearDestination&&foregroundSceneProjection(nextEye,plan.target,roofs).cover>.42))){
    focusPoint=[citizen.x,citizen.z];
    yaw=plan.yaw;pitch=plan.pitch;zoom=plan.zoom;
   }else{yaw=nextYaw;pitch=nextPitch;zoom=nextZoom}
