@@ -207,7 +207,15 @@ export function publicLandscapeGuardianHalfHeight(aspect, selectedHalfHeight,
 export function publicDetailEncounterHalfHeight(aspect, disclosedAttention) {
   if (!(Number.isFinite(aspect) && aspect > 0 && aspect < .9)
     || !(Number.isFinite(disclosedAttention) && disclosedAttention > 0)) return 4.6;
-  return Math.max(5.7, 4.275 / aspect);
+  // The new real hinged tail vanes are wider than the original unarmed
+  // guardian mask. Exact-source WebGL at 320x740 measured the complete
+  // physical rig right edge at +0.9598 NDC: the strict +0.95 in-frame gate
+  // CORRECTLY rejected that crop, even though the actor center was visible.
+  // Give a genuinely disclosed ultra-narrow Detail encounter extra *world*
+  // span (4.40 vs 4.275), never relax image/tests or scale down the models.
+  // Broader portrait and landscape keep their already verified staging.
+  const horizontalReserve = aspect < .6 ? 4.40 : 4.275;
+  return Math.max(5.7, horizontalReserve / aspect);
 }
 
 /** Camera bounds come exclusively from public knowledge. */
