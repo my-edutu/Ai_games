@@ -23,8 +23,10 @@ test('G143 physical homecoming shows striding real villagers carrying bounded ha
   const poses=rhythm.citizens.map((p,i)=>({
    name:p.name,activity:p.activity,pose:g.getRigPose(i)
   })).filter(p=>p.activity==='Returning home at dusk');
+  const home=g.watchHomecoming();
   return {rhythm,lanterns,poses,before,after:JSON.stringify(g.exportSnapshot()),
-   home:g.watchHomecoming(),camera:g.getCamera()};
+   home,light:g.getObservedWorkLightProfile(),camera:g.getCamera(),
+   shot:g.getCitizenCameraPlan()};
  });
  expect(dusk.rhythm.shift).toBe('night-rest');
  expect(dusk.rhythm.counts.returning).toBeGreaterThan(0);
@@ -46,6 +48,13 @@ test('G143 physical homecoming shows striding real villagers carrying bounded ha
   expect(c.homeIndex).toBeLessThan(dusk.rhythm.householdCount);
  }
  expect(dusk.home?.inWorld).toBe(true);
+ const observed=dusk.lanterns.carriers.find(c=>c.citizen===dusk.home.citizen);
+ expect(observed).toBeTruthy();
+ expect(dusk.light.provenance).toBe('real-commuting-citizen-wrist');
+ expect(dusk.light.active).toBe(true);
+ expect(Math.hypot(dusk.light.x-observed.lightPoint[0],
+  dusk.light.y-observed.lightPoint[1],dusk.light.z-observed.lightPoint[2])).toBeLessThan(.00001);
+ expect(dusk.shot?.walkingFacingAlignment).not.toBeNull();
  await page.waitForFunction(()=>window.__tinyKingdom.getHomecomingLanternRenderStats().carriers>0,
   null,{timeout:60000});
  const drawn=await page.evaluate(()=>{
