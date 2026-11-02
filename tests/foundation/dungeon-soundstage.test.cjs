@@ -116,3 +116,12 @@ test('real opt-in audio stops active voices on mute and revokes capture, not gam
  assert.ok(stopped>=1);
  stage.dispose();assert.equal(stage.stats().disposed,true);
 });
+
+test('Warden opening sound exists only for the real public authority counterattack event',async()=>{
+ const {planSoundCues}=await plan();
+ const before=snap(6),after=snap(7,{events:[{tick:7,kind:'opening',text:'counter Warden'}]});
+ const cues=planSoundCues(before,after);
+ assert.equal(cues.filter(c=>c.kind==='opening').length,1);
+ assert.equal(planSoundCues(after,after).length,0,'identical polls cannot replay the opening');
+ assert.equal(planSoundCues(null,after).length,0,'first page load must remain quiet');
+});

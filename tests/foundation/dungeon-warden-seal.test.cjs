@@ -73,3 +73,30 @@ test('authoritative ward, focused pursuit and real presentation are wired withou
  assert.equal(typeof game.publicState().guardianWard,'boolean');
  assert.ok(Number.isInteger(game.publicState().defendersRemaining));
 });
+
+test('real Warden shockwave opens a two-turn playable counterattack, with deterministic restore',()=>{
+ const {planWardenRecovery}=require('../../dist/games/ai-dungeon/src/index.js');
+ const game=DungeonRuntime.create('warden-counterwindow-M1'),s=game.state;
+ const boss=s.units.find(u=>u.kind==='warden'),hero=s.units.find(u=>u.id==='vanguard');
+ for(const unit of s.units)if(unit.faction==='enemy'&&unit!==boss||unit.faction==='party'&&unit!==hero)unit.hp=0;
+ hero.x=boss.x+1;hero.z=boss.z;s.tick=5;
+ assert.equal(wardenSealActive(s),false);
+ assert.equal(planWardenRecovery(s,boss),null);
+ const strike=game.step();
+ assert.equal(strike.tick,6);
+ assert.equal(strike.bossRecovery?.remaining,3,'the actual Warden impact starts its exposed recovery');
+ assert.ok(strike.events.some(e=>e.kind==='opening'&&e.tick===6));
+ const health=boss.hp;
+ const counter=game.step();
+ const raw=hero.attack+(s.level-1)*2;
+ assert.equal(health-boss.hp,damageThroughWardenSeal(s,boss,Math.ceil(raw*1.4)));
+ assert.equal(counter.bossRecovery?.remaining,2,'the first counterattack is still a genuine Warden recovery turn');
+ assert.equal(boss.action,'hurt','a struck exposed boss must remain visibly injured');
+ const checkpoint=game.save(),restored=DungeonRuntime.restore(checkpoint);
+ assert.deepEqual(restored.publicState(),game.publicState());
+ assert.equal(game.step().bossRecovery?.remaining,1,'the second real recovery turn remains exposed');
+ assert.equal(game.step().bossRecovery,null,'the next turn clears the vulnerability and resets the boss');
+ for(let i=0;i<25;i++)assert.equal(game.step().checksum,restored.step().checksum,
+  'the restored actual campaign follows the same sequence');
+ assertDungeonState(game.state);
+});
