@@ -637,6 +637,21 @@ test('heavy world-time stalls still show physical mid-lift gate movement at visu
   world.dispose();
 });
 
+test('physical key shrine origin is exported to the actual browser scene and bounded to its public cell', async () => {
+  const { KEY_SHRINE_OFFSET, CELL_SIZE } = await modulePromise;
+  assert.deepEqual(KEY_SHRINE_OFFSET, {x: .32, z: -.30},
+    'browser world and physical pickup must share the same exact model origin');
+  assert.ok(Object.isFrozen(KEY_SHRINE_OFFSET),
+    'a stable presentation constant cannot be mutated by public game frames');
+  assert.ok(Math.abs(KEY_SHRINE_OFFSET.x) + .43 < CELL_SIZE / 2
+    && Math.abs(KEY_SHRINE_OFFSET.z) + .43 < CELL_SIZE / 2,
+    'key and spent pedestal remain inside the discovered playable tile');
+  const source = fs.readFileSync(path.resolve(__dirname,
+    '../../public/ai-maze-escape/scene.js'), 'utf8');
+  assert.match(source, /KEY_SHRINE_OFFSET.*from '\\.\/world\\.js'/,
+    'actual production renderer must import the concrete world export, not a stale constant');
+});
+
 test('authentic public key pickup opens four hinged 3D petals and leaves a permanent empty shrine', async () => {
   const {createMazeWorld}=await modulePromise;
   const world=createMazeWorld({balanced:true});

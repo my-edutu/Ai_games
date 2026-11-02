@@ -3,6 +3,9 @@ import { GATE_RETRACTION_SECONDS, observedGateOpenings, gateRetractionPose } fro
 import { publicKeyCollectionMoment } from './map-view.mjs';
 
 export const CELL_SIZE = 2.4;
+// Same previously observed key cell for original treasure, collected empty
+// shrine, objective pin and physical shard burst. Decorative only, no route.
+export const KEY_SHRINE_OFFSET = Object.freeze({x: .32, z: -.30});
 export function cellPosition(cell, width, height) {
   return { x: (cell % width - (width - 1) / 2) * CELL_SIZE, z: (Math.floor(cell / width) - (height - 1) / 2) * CELL_SIZE };
 }
