@@ -59,6 +59,10 @@ for (const viewport of viewports) {
         // continuous desktop/portrait video camera crop.
         observedCamera: d.encounterCamera || null,
         observedActor: d.actorCamera || null,
+        // Captured alongside genuine source tick/HP and camera crop; telemetry
+        // is not a substitute for watching the unmodified full-motion video.
+        observedMotionEcho: d.observedMotionEcho || null,
+        observedStageLight: d.observedStageLight || null,
         observedPassage: d.passage?.active ? { runToken: d.passage.runToken, floor: d.passage.floor,
           sourceTick: d.passage.sourceTick, ageSeconds: d.passage.ageSeconds,
            anchorPosition: d.passage.anchorPosition,
