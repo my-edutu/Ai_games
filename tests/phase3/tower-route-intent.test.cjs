@@ -114,6 +114,11 @@ test('a live moving landing reveals ONLY previously observed source positions, n
     assert.equal(state.observedDeckDeltaX, 7500);
     assert.equal(state.echoedSourcePositionsOnly, true);
     assert.equal(state.extraDraws, 2, 'only one extra instanced batch for all actual historical deck locations');
+    effect.update(snapshot({ tick: 123, intent: { mode: 'aligning', targetPlatformId: 'floor-7:forged' } }), displaced);
+    assert.equal(effect.group.visible, false,
+      'presentational options cannot label another platform as the AI-selected target');
+    effect.update(snapshot({ tick: 121 }), moving);
+    effect.update(snapshot({ tick: 122 }), displaced);
     const echo = effect.group.children[1];
     const matrix = new THREE.Matrix4();
     echo.getMatrixAt(0, matrix);
@@ -130,9 +135,9 @@ test('a live moving landing reveals ONLY previously observed source positions, n
     effect.update(snapshot({ tick: 123 }), displaced);
     assert.equal(effect.diagnostics().observedMovingDeckEchoes, 1);
     // Changing the autonomous choice clears previous platform history.
-    effect.update(snapshot({ tick: 124 }), { ...displaced, id: 'floor-7:other' });
+    effect.update(snapshot({ tick: 124, intent: { mode: 'aligning', targetPlatformId: 'floor-7:other' } }), { ...displaced, id: 'floor-7:other' });
     assert.equal(effect.diagnostics().observedMovingDeckEchoes, 0);
-    effect.update(snapshot({ tick: 125 }), { ...displaced, id: 'floor-7:other', x: displaced.x + 7400 },
+    effect.update(snapshot({ tick: 125, intent: { mode: 'aligning', targetPlatformId: 'floor-7:other' } }), { ...displaced, id: 'floor-7:other', x: displaced.x + 7400 },
       { reducedMotion: true });
     assert.equal(effect.diagnostics().observedMovingDeckEchoes, 0,
       'reduced-motion viewers get the stable current objective, not moving ghosts');
