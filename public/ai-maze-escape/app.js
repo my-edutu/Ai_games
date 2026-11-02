@@ -79,16 +79,20 @@ function update(value){
   elements.intentCopy.textContent=snapshot.intent.explanation;
   const ended=value.scene==='result'||value.scene==='intermission';
   const escaped=snapshot.result?.reason==='escape';
+  // Native real-WebGL guardian captures showed WARDEN NEARBY above the stale
+  // generic Find a passage / Explore mission. An actually disclosed urgent
+  // encounter must outrank a non-urgent landmark without pretending the AI
+  // switched actions: intentMode still reports the genuine current AI intent.
+  const exposedDanger=!ended && (value.scene==='danger'||snapshot.intent.mode==='evading-threat');
   byId('run-phase').textContent=ended?(escaped?'JOURNEY COMPLETE':'ATTEMPT ENDED'):value.scene==='danger'?'WARDEN NEARBY':'LIVE EXPLORATION';
   const landmark=publicObjective(snapshot);
   // Plain-language HUD truth for an already OBSERVED matching-key gate.
-  // An active danger or reachable public landmark always outranks this cue.
-  const keyedSealedGate=!ended && !landmark && value.scene!=='danger'
-    && snapshot.intent.mode!=='evading-threat' && publicHeldGateStatus(snapshot);
-  byId('goal-label').textContent=ended?'Journey result':landmark?'Discovered landmark':keyedSealedGate?'Known sealed gate':'Current goal';
-  byId('goal-title').textContent=ended?(escaped?'Escaped':'Run ended'):landmark?(landmark.kind==='key'?'Key spotted':'Exit spotted'):keyedSealedGate?'Key for gate':goals[snapshot.intent.mode]||'Find the exit';
+  // A real public danger outranks both this gate and any nearby landmark.
+  const keyedSealedGate=!ended && !exposedDanger && !landmark && publicHeldGateStatus(snapshot);
+  byId('goal-label').textContent=ended?'Journey result':exposedDanger?'Immediate danger':landmark?'Discovered landmark':keyedSealedGate?'Known sealed gate':'Current goal';
+  byId('goal-title').textContent=ended?(escaped?'Escaped':'Run ended'):exposedDanger?'Avoid warden':landmark?(landmark.kind==='key'?'Key spotted':'Exit spotted'):keyedSealedGate?'Key for gate':goals[snapshot.intent.mode]||'Find the exit';
   byId('intent-label').textContent=ended?'Result':'Pip';
-  byId('objective').textContent=ended?(escaped?'Exit reached':'Next run soon'):landmark?(landmark.steps===0?'At the landmark':`${landmark.steps} known step${landmark.steps===1?'':'s'} away`):keyedSealedGate?'Gate still closed':'Explore';
+  byId('objective').textContent=ended?(escaped?'Exit reached':'Next run soon'):exposedDanger?'Keep clear':landmark?(landmark.steps===0?'At the landmark':`${landmark.steps} known step${landmark.steps===1?'':'s'} away`):keyedSealedGate?'Gate still closed':'Explore';
   elements.confidence.style.width=`${Math.round(snapshot.intent.confidence*100)}%`;
   elements.inventory.textContent=String(snapshot.inventory.length);
   elements.inventory.setAttribute('aria-label',`${snapshot.inventory.length} ${snapshot.inventory.length===1?'key':'keys'} collected`);
