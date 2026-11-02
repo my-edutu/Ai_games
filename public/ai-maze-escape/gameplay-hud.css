@@ -244,3 +244,17 @@ body[data-high-contrast="true"] #broadcast #hud .mission-block,body[data-high-co
 @media(prefers-reduced-motion:reduce){
   #broadcast[data-ux-revision="4"] #captions{transition:none}
 }
+
+
+/* At the true 320px native portrait viewport, a left objective and the
+   right-side countdown may otherwise occupy the same top row. Keep the
+   truthful urgent label and its physical actor framing completely readable. */
+@media(max-width:360px) and (min-height:461px){
+  #broadcast[data-ux-revision="4"] #hud .mission-block{
+    top:calc(110px + env(safe-area-inset-top,0px));
+    max-width:min(180px,60vw);
+  }
+  #broadcast[data-ux-revision="4"][data-urgency="true"] #hud .mission-block{
+    top:calc(110px + env(safe-area-inset-top,0px));
+  }
+}
