@@ -6,6 +6,7 @@ import { snapshotVelocity } from './motion.mjs';
 import { createRenderProgress } from './render-progress.mjs';
 import { createTowerFinale } from './finale.mjs';
 import { observedGuardianPassage, createTowerGuardianPassage } from './guardian-passage.mjs';
+import { createTowerRouteIntent } from './route-intent.mjs';
 // A tiny 3D attack lane follows only a REAL enemy telegraph. The curved ribbon
 // traces the same cylindrical projection as authoritative horizontal shots and
 // keeps its world-space origin at the firing actor, never at a guessed target.
@@ -1081,6 +1082,10 @@ export function createTowerScene(canvas, settings = {}) {
   scene.add(finale.group);
   let passage = createTowerGuardianPassage(THREE);
   scene.add(passage.group);
+  // Source-backed 3D AI intention: a single bounded draw in the real world,
+  // retired during combat, terminal states, restart and graphics recovery.
+  let routeIntent = createTowerRouteIntent(THREE);
+  scene.add(routeIntent.group);
   const enemies = new Map(), pickups = new Map(), projectiles = new Map();
   const sharedGeometry = new Set(), sharedMaterials = new Set();
   const ownGeometry = geometry => { sharedGeometry.add(geometry); return geometry; };
@@ -1265,16 +1270,17 @@ export function createTowerScene(canvas, settings = {}) {
     releaseEnvironment();
     reflectionFirstFrame = true;
     clearActors();
-    scene.remove(world.group, climber.group, finale.group, passage.group);
-    world.dispose(); climber.dispose(); finale.dispose(); passage.dispose();
+    scene.remove(world.group, climber.group, finale.group, passage.group, routeIntent.group);
+    world.dispose(); climber.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose();
     skyGeometry.dispose(); skyMaterial.dispose();
     for (const geometry of sharedGeometry) geometry.dispose();
     for (const material of sharedMaterials) material.dispose();
     sun.shadow.dispose(); sun.shadow.map = null; sun.shadow.mapPass = null;
     world = createTowerWorld(); climber = createClimber(); finale = createTowerFinale(THREE);
     passage = createTowerGuardianPassage(THREE);
+    routeIntent = createTowerRouteIntent(THREE);
     climber.group.name = 'ExpeditionClimber';
-    scene.add(world.group, climber.group, finale.group, passage.group);
+    scene.add(world.group, climber.group, finale.group, passage.group, routeIntent.group);
     initialized = false;
     if (snapshot) updateEntities(snapshot);
   }
@@ -1462,6 +1468,9 @@ export function createTowerScene(canvas, settings = {}) {
     const lightCue = observedStageLight.sample(snapshot, dt,
       !!options.stale, !!options.reducedMotion);
     const targetPlatform = intendedLanding(snapshot);
+    // The AI's actual next landing is the only route we visualize. Hide
+    // intention while true enemy windups demand full viewer attention.
+    routeIntent.update(snapshot, targetPlatform, options);
     const ledgeContact = ledgeContactPoint(snapshot, targetPlatform);
     const ledgeTarget = ledgeContact ? pointFor(ledgeContact.x, ledgeContact.y,
       snapshot.chunkBaseY, snapshot.worldWidth, 27.1) : null;
@@ -1928,6 +1937,7 @@ export function createTowerScene(canvas, settings = {}) {
         environmentFailures: reflectionFailures, environmentLastError: reflectionLastError,
         environmentSize: reflectionTarget ? [reflectionTarget.width, reflectionTarget.height] : [0, 0], shadowLights: 1, shadowMapSize: sun.shadow.mapSize.x },
       world: world.diagnostics(), finale: finale.diagnostics(), passage: passage.diagnostics(),
+      routeIntent: routeIntent.diagnostics(),
       terminalCamera: finale.group.visible ? {
         sourceBound: true, lifecycle: snapshot.lifecycle,
         presentedSourceResult: !!snapshot.result,
@@ -1949,7 +1959,7 @@ export function createTowerScene(canvas, settings = {}) {
     canvas.removeEventListener('pointerup', pointerUp); canvas.removeEventListener('pointercancel', pointerUp); canvas.removeEventListener('wheel', wheel);
     releaseEnvironment();
     sun.shadow.dispose(); sun.shadow.map = null; sun.shadow.mapPass = null;
-    clearActors(); climber.dispose(); world.dispose(); finale.dispose(); passage.dispose();
+    clearActors(); climber.dispose(); world.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose();
     skyGeometry.dispose(); skyMaterial.dispose();
     for (const geometry of sharedGeometry) geometry.dispose();
     for (const material of sharedMaterials) material.dispose();
