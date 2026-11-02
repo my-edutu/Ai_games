@@ -688,9 +688,34 @@ test('a real close public encounter frames both autonomous actors and saves date
   // State polling returns a LATER ORIGINAL frame from the SAME production run.
   // No invented event, forced game action, hidden door, or DOM prop injection.
   activeFrame=opening.after.frame;
-  await page.waitForFunction(({token,tick})=>window.__MAZE_3D__?.renderer==='webgl'
-    && window.__MAZE_3D__?.runToken===token && window.__MAZE_3D__?.tick===tick,
-    {token:afterGate.runToken,tick:afterGate.tick},{timeout:30000});
+  // A settled AFTER still proves the authority event, not actual lifted hardware.
+  // Require a real rendered intermediate frame with the source-driven camera.
+  await page.waitForFunction(({token,tick})=>{
+    const d=window.__MAZE_3D__;
+    return d?.renderer==='webgl'&&d.runToken===token&&d.tick===tick
+      &&d.world?.retractingPublicGates>0
+      &&d.publicOpeningCameraBeat?.ageSeconds>=0
+      &&d.publicOpeningCameraBeat.ageSeconds<.85;
+  },{token:afterGate.runToken,tick:afterGate.tick},{timeout:30000});
+  const midGateDiagnostic=await page.evaluate(()=>window.__MAZE_3D__);
+  const midGateImage=path.join(dir,'public-gate-mid-lift-1280.png');
+  await page.screenshot({path:midGateImage,fullPage:true});
+  const midGateAfterScreenshot=await page.evaluate(()=>window.__MAZE_3D__);
+  expect(midGateAfterScreenshot.world.retractingPublicGates,
+    'the actual screenshot must still contain moving 3D gate hardware').toBeGreaterThan(0);
+  expect(midGateAfterScreenshot.publicOpeningCameraBeat,
+    'the original open gate must still be the gameplay camera subject').toBeTruthy();
+  fs.writeFileSync(path.join(dir,'public-gate-mid-lift-1280.json'),JSON.stringify({
+    capturedAt:new Date().toISOString(),seed:opening.after.seed,
+    source:'Genuine same-run production CLOSED to OPEN WebGL mid-lift; no fake actor, door, or clock override',
+    viewport:{width:1280,height:900},beforeTick:beforeGate.tick,afterTick:afterGate.tick,
+    publicDoor:opening.door,imageSha256:hash(midGateImage),sourceSha256:openingHashes,
+    beforeCapture:{ageSeconds:midGateDiagnostic.publicOpeningCameraBeat.ageSeconds,
+      retractingPublicGates:midGateDiagnostic.world.retractingPublicGates},
+    afterCapture:{ageSeconds:midGateAfterScreenshot.publicOpeningCameraBeat.ageSeconds,
+      retractingPublicGates:midGateAfterScreenshot.world.retractingPublicGates},
+    caveat:'Original source WebGL, SwiftShader CPU-throttled; not a Nintendo quality or hardware GPU win.'
+  },null,2));
   const afterGateDiagnostic=await page.evaluate(()=>window.__MAZE_3D__);
   const openingAfterImage=path.join(dir,'public-gate-after-1280.png');
   await page.screenshot({path:openingAfterImage,fullPage:true});
@@ -700,7 +725,8 @@ test('a real close public encounter frames both autonomous actors and saves date
     beforeTick:beforeGate.tick,afterTick:afterGate.tick,
     publicDoor:opening.door,publicDistanceCells:opening.distance,
     viewport:{width:1280,height:900},
-    beforeImageSha256:hash(openingBeforeImage),afterImageSha256:hash(openingAfterImage),
+    beforeImageSha256:hash(openingBeforeImage),midLiftImageSha256:hash(midGateImage),
+    afterImageSha256:hash(openingAfterImage),
     sourceSha256:openingHashes,
     before:{renderer:beforeGateDiagnostic.renderer,closedGatesInFrame:beforeGateDiagnostic.closedGatesInFrame,
       explorerInFrame:beforeGateDiagnostic.explorerInFrame},

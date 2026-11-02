@@ -605,3 +605,32 @@ test('reduced motion immediately clears a publicly unlocked 3D gate', async () =
   assert.equal(world.stats().retractingPublicGates,0);
   world.dispose();
 });
+
+test('heavy world-time stalls still show physical mid-lift gate movement at visual time', async () => {
+  const {createMazeWorld}=await modulePromise;
+  const world=createMazeWorld({balanced:true});
+  const cells=[{cell:24,neighbors:[25]},{cell:25,neighbors:[24]}];
+  const door={id:'real-gate',a:24,b:25,open:false};
+  const closed={...fixture(cells),tick:10,doors:[door]};
+  const opened={...closed,tick:11,doors:[{...door,open:true}]};
+  const original=JSON.stringify(opened);
+  world.update(closed);
+  world.animate(80,{reducedMotion:false,gateTime:10});
+  const resources=world.stats();
+  world.update(opened);
+  const gate=world.group.getObjectByName('Disclosed open gate');
+  const grille=gate.getObjectByName('Withdrawable gate bars');
+  world.animate(140,{reducedMotion:false,gateTime:10.2});
+  assert.equal(grille.visible,true,'a frame gap does not skip all authored physical lifting');
+  assert.ok(grille.position.y>0&&grille.position.y<1.55);
+  assert.ok(gate.getObjectByName('Left gate drive wheel').rotation.z<0);
+  assert.ok(gate.getObjectByName('Left hanging gate weight').position.y<.61);
+  assert.equal(world.stats().retractingPublicGates,1);
+  assert.equal(world.stats().geometryCount,resources.geometryCount);
+  assert.equal(world.stats().materialCount,resources.materialCount);
+  assert.equal(JSON.stringify(opened),original,'presentation never edits public authority');
+  world.animate(200,{reducedMotion:false,gateTime:10.9});
+  assert.equal(grille.visible,false,'physical gate eventually settles at the true open passage');
+  assert.equal(world.stats().retractingPublicGates,0);
+  world.dispose();
+});
