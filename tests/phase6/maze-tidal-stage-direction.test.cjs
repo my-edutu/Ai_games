@@ -149,3 +149,57 @@ test('offshore watch ruins are real dimension-only instanced 3D, never a leaked 
     assert.deepEqual(stage.stats().renderedCells,[]);
   }finally{stage.dispose();again.dispose();cleanup()}
 });
+
+test('on-camera shell-fan tesserae are real disclosed-floor geometry and never encode hidden routes',async()=>{
+  const {m,cleanup}=await realWorld();
+  const floor=m.createMazeWorld({balanced:true});
+  const privateTwin=m.createMazeWorld({balanced:true});
+  const empty=m.createMazeWorld({balanced:true});
+  const snapshot=publicSnapshot(), original=JSON.stringify(snapshot);
+  const colors=new Set(['5d968e','eed5a0','cead72']);
+  function fans(world) {
+    // Only the actual revealed board. The dimension-only lagoon and private
+    // state are excluded rather than silently blessed as known geometry.
+    const terrain=world.group.children[1], poses=[];
+    terrain.traverse(node=>{
+      if(!node.isInstancedMesh || node.geometry.type!=='ShapeGeometry'
+        || !colors.has(node.material.color.getHexString()))return;
+      for(let i=0;i<node.count;i++){
+        const values=node.instanceMatrix.array, offset=i*16;
+        poses.push([node.material.color.getHexString(),
+          values[offset+12],values[offset+13],values[offset+14]]);
+      }
+    });
+    return poses.sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)));
+  }
+  try {
+    empty.update({...snapshot,cells:[],visibleCells:[]});
+    assert.deepEqual(fans(empty),[],'unseen tiles cannot gain a shell-fan floor');
+    floor.update(snapshot);
+    privateTwin.update({...snapshot,hiddenMazeRoute:[7,12,20],
+      privateWardenTarget:4,secretExitCell:24,unpublishedMazeSeed:'do-not-render'});
+    const a=fans(floor), b=fans(privateTwin);
+    assert.ok(a.length>=25,'authored relief must cover actual camera-facing known terrain');
+    assert.equal(a.length%5,0,'each shell is five real connected surface petals');
+    assert.ok(new Set(a.map(entry=>entry[0])).size>=2,
+      'public height districts must have materially different shell motifs');
+    const knownCenters=new Set(snapshot.cells.map(c=>{
+      const p=m.cellPosition(c.cell,snapshot.width,snapshot.height);
+      const height=m.cellHeight(c.cell,snapshot.width,snapshot.height);
+      return [p.x,p.z,height+.024].map(v=>v.toFixed(3)).join(':');
+    }));
+    for(const [,x,y,z] of a)
+      assert.ok(knownCenters.has([x,z,y].map(v=>v.toFixed(3)).join(':')),
+        'a physical shell must be at the center of an already public tile');
+    assert.deepEqual(b,a,'unpublished map, threat and seed cannot affect appearance');
+    assert.deepEqual(JSON.stringify(snapshot),original,'world must not mutate game data');
+    const budget=floor.stats();
+    assert.ok(budget.geometryCount<=16 && budget.materialCount<=26
+      && budget.textureCount<=3,'reuse existing production GPU resources');
+    floor.animate(100,{reducedMotion:true});
+    floor.animate(101,{reducedMotion:false});
+    assert.deepEqual(fans(floor),a,'no per-frame decorative geometry changes');
+    floor.update({...snapshot,runToken:'next-run',cells:[],visibleCells:[]});
+    assert.deepEqual(fans(floor),[],'shells clear when a new run has no public map');
+  }finally{floor.dispose();privateTwin.dispose();empty.dispose();cleanup()}
+});
