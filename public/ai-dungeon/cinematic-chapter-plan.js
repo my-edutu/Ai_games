@@ -189,7 +189,7 @@ const DIRECTOR_LENS=Object.freeze({
  'warden-contact': Object.freeze({radius:6.75,height:6.45,fov:44,aim:.88,follow:7.5,key:1.15}),
  'oathguard-cover':Object.freeze({radius:5.7,height:6.9,fov:44,aim:.86,follow:7.4,key:1.20}),
  'warden-approach':Object.freeze({radius:7.90,height:7.10,fov:45,aim:.84,follow:6.2,key:1.11}),
- 'warden-exposed':Object.freeze({radius:6.85,height:6.65,fov:46,aim:.94,follow:7.6,key:1.23}),
+ 'warden-exposed':Object.freeze({radius:6.85,height:6.65,fov:46,aim:1.08,follow:7.6,key:1.23}),
  'warden-warning': Object.freeze({radius:9.05,height:10.55,fov:51,aim:.35,follow:10.0,key:.92}),
  'breach-warning': Object.freeze({radius:6.55,height:7.5,fov:46,aim:.45,follow:8.0,key:1.04}),
  descent:          Object.freeze({radius:5.4,height:6.45,fov:45,aim:.65,follow:4.8,key:.91}),

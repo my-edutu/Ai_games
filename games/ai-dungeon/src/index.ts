@@ -1,7 +1,7 @@
 import {NamedRng, type RngSnapshot} from '../../../packages/seeded-rng/src/index';
 import {checksum} from '../../../packages/replay/src/index';
 
-export const DUNGEON_VERSION='0.4.0';
+export const DUNGEON_VERSION='0.5.0';
 export const MAP_SIZE=19;
 export type UnitKind='vanguard'|'ranger'|'mystic'|'revenant'|'cultist'|'warden';
 export type Faction='party'|'enemy';
@@ -45,7 +45,7 @@ export function planWardenRecovery(s:Pick<DungeonState,'tick'|'units'>,boss?:Uni
  * new save field, RNG stream, or external service.
  */
 export type WardenStrikeShape='NOVA'|'RIFT_CROSS'|'ECLIPSE_SWEEP';
-export interface WardenStrike {phase:WardenPhase;shape:WardenStrikeShape;axis:'NORTH_SOUTH'|'EAST_WEST';attackTick:number;warning:boolean;cells:{x:number;z:number}[]}
+export interface WardenStrike {phase:WardenPhase;shape:WardenStrikeShape;axis:'NORTH_SOUTH'|'EAST_WEST';attackTick:number;turnsUntilImpact:number;warning:boolean;cells:{x:number;z:number}[]}
 export function planWardenStrike(s:Pick<DungeonState,'map'|'tick'>,boss:Unit):WardenStrike|null{
  if(boss.kind!=='warden'||boss.hp<=0)return null;
  const phase=wardenPhase(boss),interval=phase==='ECLIPSE'?4:6;
@@ -61,7 +61,60 @@ export function planWardenStrike(s:Pick<DungeonState,'map'|'tick'>,boss:Unit):Wa
    axis==='NORTH_SOUTH'?dx===0:dz===0;
   if(marked)cells.push({x,z});
  }
- return {phase,shape,axis,attackTick,warning:s.tick%interval>=interval-2,cells};
+ const turnsUntilImpact=attackTick-s.tick;
+ // The wide Sentinel nova takes three *real* movement beats to escape from melee.
+ // Narrow rifts and sweeps retain two beats. The boss cannot relocate the
+ // footprint during this warning interval. All tiles remain authoritative.
+ const warningTurns=shape==='NOVA'?3:2;
+ return {phase,shape,axis,attackTick,turnsUntilImpact,
+  warning:turnsUntilImpact>0&&turnsUntilImpact<=warningTurns,cells};
+}
+
+/**
+ * A Warden threat is not fair counterplay when a melee hero receives only
+ * one step to clear a three-tile nova. This bounded, deterministic search
+ * chooses the first lawful step of a complete path to an ACTUALLY safe tile
+ * before the recorded impact. It never grants extra moves, invulnerability,
+ * stamina or a synthetic target. Real occupied cells, walls and traps stop it.
+ * A null result means the hero must guard if impact is imminent.
+ */
+export function planWardenEvasionStep(
+ s:Pick<DungeonState,'map'|'units'|'traps'|'tick'>,hero:Unit,strike:WardenStrike
+):{x:number;z:number}|null{
+ if(!s||!hero||hero.hp<=0||hero.faction!=='party'||!strike?.warning||
+  !Array.isArray(s.map)||!Array.isArray(s.units)||!Array.isArray(s.traps)||
+  !Number.isSafeInteger(s.tick)||!Number.isSafeInteger(strike.attackTick))return null;
+ const remaining=strike.attackTick-s.tick;
+ if(remaining<1||remaining>3||!walkable(s.map,hero.x,hero.z))return null;
+ const marked=new Set(strike.cells.map(p=>key(p.x,p.z)));
+ if(!marked.has(key(hero.x,hero.z)))return null;
+ const occupied=new Set(s.units.filter(u=>u.hp>0&&u.id!==hero.id).map(u=>key(u.x,u.z)));
+ const traps=new Set(s.traps.filter(t=>t.active&&!t.disarmed).map(t=>key(t.x,t.z)));
+ // Breadth-first search finds the shortest genuine turn sequence, and stable
+ // row/column tie-breaks make every restored run choose the same legal feet.
+ const nodes=[{x:hero.x,z:hero.z,steps:0,first:null as {x:number;z:number}|null}];
+ const seen=new Set<number>([key(hero.x,hero.z)]);
+ const candidates:{first:{x:number;z:number};steps:number;final:{x:number;z:number}}[]=[];
+ for(let i=0;i<nodes.length;i++){
+  const node=nodes[i];
+  if(node.steps>0&&!marked.has(key(node.x,node.z))&&node.first)
+   candidates.push({first:node.first,steps:node.steps,final:{x:node.x,z:node.z}});
+  if(node.steps===remaining)continue;
+  for(const [dx,dz] of DIRS){
+   const x=node.x+dx,z=node.z+dz,k=key(x,z);
+   if(seen.has(k)||!walkable(s.map,x,z)||occupied.has(k)||traps.has(k))continue;
+   seen.add(k);nodes.push({x,z,steps:node.steps+1,first:node.first??{x,z}});
+  }
+ }
+ if(!candidates.length)return null;
+ // Preserve the post-dodge counter opportunity: favour proximity to the
+ // genuine boss once safely outside the attack, not an arbitrary retreat.
+ const boss=s.units.find(u=>u.kind==='warden'&&u.hp>0);
+ candidates.sort((a,b)=>a.steps-b.steps||
+  (boss?dist(a.final,boss)-dist(b.final,boss):0)||
+  a.final.z-b.final.z||a.final.x-b.final.x||
+  a.first.z-b.first.z||a.first.x-b.first.x);
+ return candidates[0].first;
 }
 
 const THEMES=['THE SUNKEN CRYPT','THE EMBER CATHEDRAL','THE OBSIDIAN VAULT','THE HOLLOW SANCTUM'];
@@ -496,25 +549,30 @@ export class DungeonRuntime {
     s.intent=hero.kind+' bracing against a '+dangerName;
     push(s,'guard',hero.kind+' guarded the locked '+dangerName);continue;
    }
-   if(warned?.warning&&warned.attackTick===s.tick+1&&
-      warned.cells.some(p=>p.x===hero.x&&p.z===hero.z)){
-    const marked=new Set(warned.cells.map(p=>key(p.x,p.z)));
-    const escapes=DIRS.map(([dx,dz])=>({x:hero.x+dx,z:hero.z+dz}))
-     .filter(p=>walkable(s.map,p.x,p.z)&&!marked.has(key(p.x,p.z)))
-     .filter(p=>!s.units.some(u=>u.hp>0&&u.id!==hero.id&&u.x===p.x&&u.z===p.z))
-     .map(p=>({p,risk:s.traps.some(t=>t.active&&!t.disarmed&&t.x===p.x&&t.z===p.z)?20:0,
-      flank:Math.abs(dist(p,warden!)-2)}))
-     .sort((a,b)=>a.risk-b.risk||a.flank-b.flank||a.p.z-b.p.z||a.p.x-b.p.x);
-    if(escapes.length){
-     hero.x=escapes[0].p.x;hero.z=escapes[0].p.z;hero.action='move';
-     s.intent='Dodging the marked '+warned.shape.toLowerCase().replaceAll('_',' ');
-     push(s,'evade',hero.kind+' cleared the '+warned.shape.toLowerCase().replaceAll('_',' ')+' strike');continue;
+   // The original attack footprint is revealed three beats before the
+   // broad Sentinel nova. Search through *actual* free stone tiles so each
+   // autonomous fighter can take a legal path while the Warden anchors his
+   // cast. A blocked escape remains a real guard, never a ghost dodge.
+   if(warned?.warning&&warned.cells.some(p=>p.x===hero.x&&p.z===hero.z)){
+    // A healthy Vanguard can deliberately hold the actual frontline while
+    // endangered allies retreat. This spends true action economy and absorbs
+    // real (guard-reduced) damage: no free perfect dodge and no fake taunt.
+    // A lone survivor or wounded tank values self-preservation instead.
+    const frontline=hero.kind==='vanguard'&&hero.hp>=Math.ceil(hero.maxHp*.52)&&
+     s.units.some(u=>u.faction==='party'&&u.hp>0&&u.id!==hero.id&&dist(hero,u)<=3);
+    const escape=frontline?null:planWardenEvasionStep(s,hero,warned);
+    if(escape){
+     hero.x=escape.x;hero.z=escape.z;hero.action='move';
+     s.intent=hero.kind+' retreating from the '+warned.shape.toLowerCase().replaceAll('_',' ');
+     push(s,'evade',hero.kind+' moved toward clear stone before the Warden strike');continue;
     }
-    hero.guardTick=s.tick+1;hero.action='guard';
-    s.intent='Bracing for the marked '+warned.shape.toLowerCase().replaceAll('_',' ');
-    push(s,'guard',hero.kind+' braced against the oncoming attack');continue;
+    if(warned.turnsUntilImpact===1||frontline){
+     hero.guardTick=s.tick+1;hero.action='guard';
+     s.intent='Bracing for the marked '+warned.shape.toLowerCase().replaceAll('_',' ');
+     push(s,'guard',hero.kind+' braced against the oncoming attack');continue;
+    }
    }
-   // A successful dodge is a *decision across two ticks*, not a one-tick
+   // A successful dodge is a *decision across multiple ticks*, not a one-tick
    // sidestep followed by immediately walking back into the advertised blast.
    // Stay on the safely marked flank while the impact resolves. We do not
    // invent another move, teleport, or damage result in presentation.
@@ -626,7 +684,7 @@ export class DungeonRuntime {
     // VFX stagger: no boss melee, pursuit, or repeat cast during these turns.
     if(planWardenRecovery(s,enemy))continue;
     const strike=planWardenStrike(s,enemy);
-    if(strike&&distance<=5&&attackTick===warningTick)
+    if(strike&&distance<=5&&strike.turnsUntilImpact===(strike.shape==='NOVA'?3:2))
      push(s,'telegraph','WARDEN '+strike.shape.replaceAll('_',' ')+' — leave the marked stone or brace');
     if(strike&&distance<=5&&attackTick===0){
      const marked=new Set(strike.cells.map(p=>key(p.x,p.z)));
@@ -650,7 +708,7 @@ export class DungeonRuntime {
     }
     // Wind-up must anchor the boss rather than sliding its hit zone underneath
     // the party while players are responding to already-visible floor marks.
-    if(strike?.warning&&attackTick===interval-1){
+    if(strike?.warning){
      enemy.action='guard';if(enemy.cooldown>0)enemy.cooldown--;continue;
     }
    }
