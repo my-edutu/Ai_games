@@ -107,3 +107,22 @@ test('rig characters and truth-locked blade origins consume exactly the same cam
  assert.match(combat,/function accept\(s,viewPosition=null\)/);
  assert.match(combat,/stagePositions=planCombatStage\(s,viewPosition\)/);
 });
+
+test('earned Warden recovery opens a real two-body counter lane without moving either legal grid position',async()=>{
+ const {planCombatStage,MAX_STAGE_OFFSET}=await mod();
+ const boss=u('warden','warden','enemy',4,3,200);
+ const vanguard=u('vanguard','vanguard','party',3,3,100);
+ const s={tick:7,map:floor(),units:[boss,vanguard],bossRecovery:{remaining:3},guardianWard:false,bossWarning:null};
+ const original=JSON.stringify(s),open=planCombatStage(s,{x:2,z:4});
+ assert.ok(open.warden.dx>.35,'the vulnerable boss should visibly recoil away from a real melee hero');
+ assert.ok(open.vanguard.dx<-.18,'the hero still occupies a clearly readable near-side legal cell');
+ assert.ok(open.warden.x-open.vanguard.x>1.55,'the true counter opens a visually readable physical lane');
+ assert.ok(Object.values(open).every(p=>Math.hypot(p.dx,p.dz)<=MAX_STAGE_OFFSET+.001));
+ assert.equal(JSON.stringify(s),original,'recoil must not change game state, RNG, hp, collision or attacks');
+ assert.equal(planCombatStage({...s,bossWarning:{attackTick:8,cells:[{x:3,z:3}]}}).warden.dx,0,
+  'imminent real lethal warning must keep boss centered on its actual marked tile');
+ assert.equal(planCombatStage({...s,guardianWard:true}).warden.dx,0,'sealed Warden cannot recoil');
+ assert.equal(planCombatStage({...s,bossRecovery:{remaining:0}}).warden.dx,0,'no fake recoveries');
+ assert.equal(planCombatStage({...s,bossRecovery:{remaining:7}}).warden.dx,0,'out-of-range recovery is invalid');
+ assert.equal(planCombatStage({...s,units:[boss]}).warden.dx,0,'a boss with no living hero cannot move for the camera');
+});
