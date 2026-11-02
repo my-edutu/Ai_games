@@ -9,18 +9,18 @@
   },
   "candidate": {
     "sha": null,
-    "title": "Same open playable 3D ascent→guardian/gate→result/restart slice; emergency exterior-orbit actor retention now responds to a real offscreen or core-hidden climber, unassessed",
-    "implementationSha": "759511220fd8ead37538aea3cf766ee3ee86d720",
-    "implementationEvidenceStatus": "SOURCE CHANGED / NOT EXPERIENCE EVALUATED. Game commit 74fd65b3 adds bounded source-observed actor rescue following normal camera composition, with no new renderer pass, HUD, authority or RNG; source regression tests 08329763; follow-up 75951122 replaces temporary per-frame Number.isFinite array allocation with explicit finite scalar guards, leaving visible camera motion otherwise unchanged. Exact post-change technical workflow not yet verified. Game-source 75951122 normal-speed capture workflow 41384300565 queued, with prior 74fd65b3 workflow 41383635451 in progress at inspection, and no new full-motion review. Earlier camera source 7d34b04 achieved scoped capture in 6/7 jobs but frozen-baseline desktop outcome missed visible terminal/intermission/restart. Independent blind votes zero and supported-device p50/p95/p99+memory missing."
+    "title": "Same open 3D ascent → real guardian/capstan gate → causal passage → true outcome/restart, now with source-observed motion echoes and dynamic existing character lighting; full quality unassessed",
+    "implementationSha": "edf1a6606ae0d2e02feb27fd161cddb4570df220",
+    "implementationEvidenceStatus": "SOURCE COMMITTED / EXPERIENCE NOT EVALUATED. Real playable scene now connects actor-camera rescue, source-verified locomotion wake, existing climber rim light, guardian telegraph/HP lighting and physical gate passage. Shipped helper was executed in isolation for source lifecycle only, not viewed as real motion. Native 60s 75951122 predecessor capture run 41384300565 completed 6/7 jobs; frozen baseline outcome failed BOTH desktop and portrait because it did not sample actual result/intermission/restart. Exact previous-head CI run 41384300584 CANCELLED; newest source exact-head safety and full video NOT verified. Blind critics 0/5 each; hardware p50/p95/p99+memory absent."
   },
   "currentTransformation": {
-    "title": "Same 3D climb→guardian armor/gate→causal passage→full cycle, with portrait-readable actor- and core-safe exterior camera",
-    "state": "SAME TRANSFORMATION OPEN; REAL CLIMBER RECOVERY IMPLEMENTED, SOURCE-PINNED VIDEO AND FULL QUALITY NOT EVALUATED",
-    "promise": "Actual observed camera crop and solid-core line of sight now activate a bounded exterior-orbit and annular-gaze fallback toward the genuinely skinned climber only if standard stage framing becomes unsafe. The normal director continues to prioritize the real route, guardian and HP-driven gate, without cinematic cuts, invented poses or extra in-game HUD. Stale/reduced-motion/overview/result/dead states bypass rescue. No authoritative fixed-step rules, AI, combat, seeds, replay or results were modified. This is a real playable renderer change, NOT a demonstrated full-motion improvement until filmed and independently judged.",
-    "nextDecision": "Review actual new source 75951122 mobile+desktop normal-speed gameplay capture 41384300565 (plus previous 74fd65b3 capture 41383635451) and exact final-head CI; use camera diagnostics actorCamera.ndc, inSafeFrame, coreClear and emergencyOrbitBlend aligned with real floor, tick, guardian health and stage to verify actor return without camera whiplash or hiding the next landing/guardian. Latest baseline-only desktop outcome capture still missing actual full visible result/intermission/restart despite portrait scoped integrity; do NOT alter frozen SHA or fabricate frames. Obtain five genuinely independent blind judges per LOOKS/FEELS/PLAYS, hardware p50/p95/p99+memory, accessibility/replay/recovery before any quality PASS.",
+    "title": "Same 3D climb → skinned movement and camera → genuine guardian damage/armor/gate → visible complete outcome/restart; actor-light/motion source-coherent stage",
+    "state": "SAME TRANSFORMATION OPEN — ACTUAL GAME CHANGED; FULL-MOTION AND INDEPENDENT QUALITY NOT EVALUATED",
+    "promise": "The real playable Three scene now adds one depth-tested source-only 13-instance motion wake for real rapid jumps/dashes and moves an existing shadow-free rim light with the skinned climber; authentic guardian telegraph and health attrition moderately stage biome-matched lighting. All remain connected to the existing camera rescue, HP-driven armor/mechanical gate and outcome, with no invented route/AI outcomes, no new shadows/light passes/HUD or authority/replay mutations. These are experience improvements to test, NOT full-motion quality wins.",
+    "nextDecision": "Inspect full normal-speed desktop+390x844 recordings for ACTUAL new game source edf1a660 and compare matched source ticks, route landings, actor safe-frame, guardian HP/telegraph, gate release and authentic restart. Check visual clutter from observed world-space wake, lens/scene readability from actor-following rim and danger light, and no camera oscillation. Frozen result phase lacks resultHoldTicks and lasts just one tick (~50ms), which newer source-independent capture-host setting does not change on frozen runtime; devise a normal-speed source-faithful recorder that genuinely shows full baseline terminal/intermission/restart, without editing frozen source or faking a held result. Exact-head safety CI, five independent blind whole-motion critics each for LOOKS/FEELS/PLAYS, supported-device p50/p95/p99 and memory, replay/accessibility/recovery needed before quality PASS.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Actual source-pinned capture formerly found portrait hero NDC 2.01/1.68/1.25 outside picture; new emergency camera may solve it but no inspected full-motion video exists. Must show that the HERO, next usable deck and wounded guardian stay in frame without nausea or excessive spinning. Frozen-baseline desktop outcome still does not visibly show complete result→intermission→restart; old capture only 6/7 scoped jobs; new native-source run is queued. All 15 independent pillar-vote slots remain empty; actual device frame-time and memory absent. NOT EVALUATED.",
-    "unverifiedImplementationBranchHead": "759511220fd8ead37538aea3cf766ee3ee86d720"
+    "biggestRemainingExperienceGap": "Whole playable real-motion perception remains unverified: old portrait footage saw offscreen climber (actor NDC 2.01,1.68,1.25) and guardian/HP gate hard to see; the new camera rescue plus source-driven wake and character light may fix legibility but the newest source has no independently reviewed full-motion footage. Frozen outcome on native desktop AND portrait still fails actual visible result→intermission→restart; baseline result lasts one fixed source tick. No blind reviewers (0/5 each pillar) or supported-device frame-time/memory. NOT EVALUATED.",
+    "unverifiedImplementationBranchHead": "2fb6960b35533525bcd776c29b1edd029e6cec89"
   },
   "scenarios": [
     {
@@ -60,11 +60,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Latest verified older game-source quality workflow 41379761430 SUCCEEDED (safety only) on eeb38ab. Exact actor-retention+no-hot-path-allocation source 75951122 is not yet verified; its workflow 41384300584 queued. Latest previous documentary head 03451b9 workflow 41384079914 in progress at inspection and may be canceled by source update. Technical CI can veto but never award LOOKS/FEELS/PLAYS.",
-    "replay": "NOT INDEPENDENTLY RE-VERIFIED for new 75951122. New helper only reads source-observed climber position and Three camera projection, rotates view; never writes simulation snapshots, ticks, RNG or replay. Require exact-head replay/invariant regression and genuine autonomous full-cycle play.",
-    "accessibility": "NOT VERIFIED ON SUPPORTED DEVICES. Rescue is explicitly bypassed for reduced motion, stale source, overview, terminal/intermission or dead avatar. Need inspect accessible portrait/desktop full motion, comfortable angular velocity, guardian/contact comprehensibility and graphics recovery; no additional UI text or color-only information.",
-    "performance": "NOT MEASURED ON SUPPORTED PHONE OR DESKTOP. Bounded live-camera rescue uses explicit finite scalar guards and two reused Three vectors, with one extra camera matrix update/projection only during running follow view, no added geometry, draw pass, particle allocation, mesh or per-frame Vector3 allocations (two scratch vectors reused). CI software WebGL renderer submission intervals are not device-presented FPS. Require hardware frame-time p50/p95/p99 and GPU/heap memory.",
-    "stability": "Prior technically verified eeb38ab source quality 41379761430 passed. New real camera branch 75951122 quality workflow 41384300584 and source-pinned 41384300565 visual capture pending; older 74fd65b3 visual capture 41383635451 in progress. No accepted post-change real-motion results or hardware p50/p95/p99. Frozen baseline desktop outcome remains incomplete in prior run 41379602169."
+    "ci": "NOT VERIFIED EXACT CURRENT SOURCE. Previous source 75951122 quality workflow 41384300584 was CANCELLED. Existing older green workflows are engineering safety only, never a quality pass. New source/tests commit edf1a660/eb51b3e/2fb6960 require exact-head checks.",
+    "replay": "NOT INDEPENDENTLY RE-VERIFIED ON NEW SOURCE. Source-only motion ledger uses consecutive immutable tick/floor/run positions; stage lighting reads public enemy health/telegraph/player movement, no authority, RNG, AI, combat, replay or results writes. New smoke assertions exercised helper transitions; full exact-head replay and invariants pending.",
+    "accessibility": "NOT VERIFIED ON SUPPORTED DEVICES. Observed movement echo is disabled for reduced motion, stale/terminal/dead state; transient danger light suppressed in reduced motion, no new HUD text or color-only gameplay state; actual phone visual comfort and accessible controls require human review.",
+    "performance": "NOT MEASURED ON SUPPORTED HARDWARE. Observed source-only wake adds at most one optional non-shadowing instanced 13-element draw. Existing shadow-free rim is repositioned (no extra lights/shadow passes). Exact device render frame-time p50/p95/p99 and memory still missing; GitHub Actions software WebGL submitted intervals are not sustained device FPS.",
+    "stability": "NOT VERIFIED EXACT HEAD. Prior source-pinned capture run 41384300565 had 6/7 job successes, frozen-baseline outcome failed both desktop and portrait. New playable renderer source edf1a660 and capture harness 2fb6960 are not yet independently filmed or exact-head CI approved; no production/merge/deploy."
   },
   "unresolvedCriticalIssues": null,
   "benchmark": {
@@ -255,6 +255,37 @@
       "originalObservedCrop": "Prior native real-play 41367442477: portrait actor NDC x=2.01, 1.68, 1.25 and desktop x=1.31, 1.16. These were actual offscreen geometry and sampled real frames, not a current after-improvement win.",
       "requiredReview": "Visually watch 60+s candidate and frozen video matched by source tick/floor/intent/guardian HP. Confirm actual moving silhouette and route readability, angular comfort and phone crop; independently blind rate LOOKS FEELS PLAYS. Check exact source replay/accessibility/hardware p50/p95/p99.",
       "workers": "Independent browser/agent connector returned tunnel offline >300 seconds: no fresh-context critics; 0/5 each pillar."
+    },
+    "observedMotionStage": {
+      "gameImplementationSha": "edf1a6606ae0d2e02feb27fd161cddb4570df220",
+      "sourceTestSha": "eb51b3e153f7e209aa824b2798361a970261b033",
+      "browserEvidenceInstrumentationSha": "2fb6960b35533525bcd776c29b1edd029e6cec89",
+      "reviewPath": "docs/reviews/2026-11-02-tower-pr68-observed-motion-stage-continuation.md",
+      "sourceCodeTest": "Shipped pure scene helper parsed/executed independently with real-shaped immutable snapshots: 8→6 guardian HP plus telegraph produced positive smoothed light threat+armor; 1→2 actual tick positions produced 2 wake points; new run cleared both. This is helper verification only, NOT browser/full-game/video quality.",
+      "captureRun": "https://github.com/my-edutu/Ai_games/actions/runs/41384300565",
+      "capturedCandidateSha": "759511220fd8ead37538aea3cf766ee3ee86d720",
+      "capturedBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "scope": "COMPLETED 6/7: baseline/candidate ascent and danger, candidate outcome, authentic ledge; baseline outcome fails both desktop and portrait due no complete visible terminal/intermission/restart, despite real run-token changes. Captures predate new source-only wake/lighting.",
+      "sourceArtifacts": {
+        "baselineAscent": 13114692530,
+        "baselineDanger": 13115210891,
+        "baselineOutcomePartial": 13114398317,
+        "candidateAscent": 13114921403,
+        "candidateDanger": 13114858103,
+        "candidateOutcome": 13114629141,
+        "ledge": 13115375061
+      },
+      "frozenBaselineOutcomeCause": "Verified frozen runtime/run.ts and config/schema.ts omit resultHoldTicks; result phase lasts only one authoritative 50ms tick. New source-independent capture host attempts longer resultHoldTicks but frozen runtime ignores it; ordinary 100ms polling may miss the real terminal phase. Cannot fabricate or silently alter baseline.",
+      "exactPriorSourceCI": "https://github.com/my-edutu/Ai_games/actions/runs/41384300584 — CANCELLED, not pass",
+      "latestSourceVideoStatus": "NOT EVALUATED: no new native desktop/portrait full-motion WebM assessed for source edf1a660",
+      "independentVotes": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "performance": "NOT MEASURED ON SUPPORTED DEVICE: no frame-time p50/p95/p99, no memory",
+      "independentWorkerBlocker": "NOT_FOUND: Tunnel-client has not been seen for 300 seconds on 2026-11-02; no blind reviewers available",
+      "gauntletStatus": "NOT EVALUATED"
     }
   }
 }
