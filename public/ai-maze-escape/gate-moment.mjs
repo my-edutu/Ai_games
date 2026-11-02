@@ -10,7 +10,7 @@ export function observedGateOpenings(before, after) {
   if (!before || !after || typeof before.runToken !== 'string'
     || before.runToken !== after.runToken || before.result || after.result
     || !Number.isSafeInteger(before.tick) || !Number.isSafeInteger(after.tick)
-    || after.tick < before.tick || !Array.isArray(before.doors)
+    || after.tick <= before.tick || !Array.isArray(before.doors)
     || !Array.isArray(after.doors)) return [];
   const previous = new Map(before.doors.filter(valid).map(door => [key(door), door.open]));
   return after.doors.filter(door => valid(door) && door.open === true
