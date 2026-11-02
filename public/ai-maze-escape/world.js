@@ -250,15 +250,45 @@ export function createMazeWorld(options = {}) {
   function wall(x, z, horizontal, id, cell) {
     const h = .91 + variation(id + 22) * .12;
     const length = CELL_SIZE - .13, thickness = .31;
+    // Make all three *known* altitude districts readable in actual 3D wall
+    // silhouettes, not only via tiny floor-tile color changes. Public
+    // coordinates alone select the facade; no undisclosed neighbor, route,
+    // AI state or collectible can influence this architectural language.
+    const tier = cellHeight(cell, snapshot.width, snapshot.height);
+    const tidalCourt = tier < .7, clayCourt = tier >= .7 && tier < 2.1;
+    const facade = tidalCourt ? seaGlass : clayCourt ? clay : stone;
+    const relief = tidalCourt ? inlay : clayCourt ? lightStone : jade;
     const point = (u, y, v) => ({ x: x + (horizontal ? u : v), y, z: z + (horizontal ? v : u) });
     const slab = (mat, u, y, v, a, b, c) => { const p = point(u, y, v); block(mat, p.x, p.y, p.z, horizontal ? a : c, b, horizontal ? c : a, cell); };
     slab(deepStone, 0, .09, 0, length + .08, .18, .46);
     for (let row = 0; row < 3; row++) {
       const count = row % 2 ? 4 : 3, w = length / count;
-      for (let j = 0; j < count; j++) slab(variation(id + j * 7 + row * 19) > .75 ? jade : stone, -length / 2 + w * (j + .5), .19 + row * .235 + .11, 0, w - .025, .22, thickness);
+      for (let j = 0; j < count; j++) {
+        const coursedStone = variation(id + j * 7 + row * 19) > .82 ? jade
+          : row === 1 || (row === 0 && variation(id + j * 13) > .48) ? facade : stone;
+        slab(coursedStone, -length / 2 + w * (j + .5),
+          .19 + row * .235 + .11, 0, w - .025, .22, thickness);
+      }
     }
     slab(darkJade, 0, h - .11, 0, length + .02, .13, .36);
     slab(lightStone, 0, h, 0, length + .1, .13, .43);
+    if (tidalCourt || clayCourt) {
+      // Stone-set panels and three rooted ribs on BOTH faces of an actual
+      // impassable public wall. This is substantial modeled district relief,
+      // never a false doorway, arrow, reachable platform or screen effect.
+      // Every part reuses existing batched geometry/material resources.
+      for (const side of [-1, 1]) {
+        slab(facade, 0, .47, side * .18, 1.79, .39, .04);
+        for (const offset of [-.63, 0, .63]) {
+          const p = point(offset, .47, side * .215);
+          add(box, relief, p.x, p.y, p.z,
+            horizontal ? .075 : .05, .31, horizontal ? .05 : .075, cell);
+          const foot = point(offset, .27, side * .215);
+          add(box, deepStone, foot.x, foot.y, foot.z,
+            horizontal ? .17 : .065, .045, horizontal ? .065 : .17, cell);
+        }
+      }
+    }
     // Repeated relief diamonds and a jade frieze read as authored masonry.
     for (let j = 0; j < 5; j++) {
       const u = -.85 + j * .425;
