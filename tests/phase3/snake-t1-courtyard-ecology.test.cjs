@@ -100,3 +100,31 @@ test('T1 real continuous stage moss is deterministic 3D, visually distributed an
     }
   }
 });
+
+// T1 whole-court exposure gate: the original b649 stacked material masks
+// compressed the central courtyard into a nearly black basin. The new world
+// must regrade the actual existing DataTexture once with no new GPU object.
+test('T1 baked world stone restores lit mineral stage without changing original material/geometry/cues',async()=>{
+  const THREE=await import('three');
+  const {createWorld}=await import('../../public/snake-stream/world.mjs');
+  const {createCourtyardEcology}=await import('../../public/snake-stream/courtyard-ecology.mjs');
+  for(const [width,height] of [[8,8],[28,16],[40,24]]){
+    const world=createWorld(THREE,{width,height}),copy=createWorld(THREE,{width,height});
+    const locate=w=>{let found;w.group.traverse(o=>{const image=o.material?.map?.image;if(image?.width===1024&&image?.height===512)found=o.material.map;});assert.ok(found);return found;};
+    const field=locate(world),duplicate=locate(copy),before=Uint8Array.from(field.image.data);
+    const version=field.version,originalStats=world.stats();
+    const a=createCourtyardEcology(THREE,{width,height,world});
+    const b=createCourtyardEcology(THREE,{width,height,world:copy});
+    try{
+      assert.deepEqual(field.image.data,duplicate.image.data,'public board yields exact deterministic pigments');
+      assert.equal(a.stats().stoneAtlas?.regraded,true,'no silent failure to find the true stone atlas');
+      assert.equal(a.stats().stoneAtlas.pixels,524288);
+      assert.equal(a.stats().stoneAtlas.textureAdded,0);
+      assert.equal(field.version,version+1,'regrade is uploaded only once on world construction');
+      assert.deepEqual(world.stats(),originalStats,'no asset material/mesh/texture count removed or added');
+      const mean=d=>{let sum=0,n=0;for(let y=128;y<384;y+=4)for(let x=256;x<768;x+=4){const i=(y*1024+x)*4;sum+=d[i]*.3+d[i+1]*.55+d[i+2]*.15;n++;}return sum/n;};
+      assert.ok(mean(field.image.data)>mean(before)+25,'warm heart has real exposure, not a black hole');
+      assert.equal(a.stats().publicCellsMoved,0);
+    }finally{a.dispose();b.dispose();world.dispose();copy.dispose();}
+  }
+});

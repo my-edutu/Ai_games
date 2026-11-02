@@ -511,7 +511,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       livingGarden = createLivingGarden(THREE, { width: snapshot.width, height: snapshot.height });
       world.group.add(livingGarden.group);
       // BEGIN T1 COURTYARD ECOLOGY ATTACH
-      courtyardEcology = createCourtyardEcology(THREE, { width: snapshot.width, height: snapshot.height });
+      courtyardEcology = createCourtyardEcology(THREE, { width: snapshot.width, height: snapshot.height, world });
       world.group.add(courtyardEcology.group);
       // END T1 COURTYARD ECOLOGY ATTACH
       // END T1 LIVING GARDEN ATTACH

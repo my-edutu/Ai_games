@@ -9,12 +9,100 @@
  * One static vertex-colour mesh: no live-frame update, texture, extra pass,
  * server route, gameplay change or unlicensed resource.
  */
-export function createCourtyardEcology(THREE, { width, height }) {
+/**
+ * T1 under-slab restoration. The previous seven overlaid subtractive atlas
+ * treatments stacked into a near-black hole under the serpent. Regrade ONLY
+ * the existing once-baked, 1024x512 public stone atlas, keeping its actual
+ * mortar and grazing-light grain; no texture, material, mesh, game-cell,
+ * shader or live-frame cost is added. The original world exclusively owns
+ * that texture and disposes it on dimension/context replacement.
+ */
+function restoreCourtyardStoneAtlas(world, width, height) {
+  if (!world?.group?.traverse) return { regraded: false, pixels: 0 };
+  let map = null;
+  world.group.traverse(object => {
+    if (map || !object.isMesh) return;
+    const material = object.material;
+    const materials = Array.isArray(material) ? material : [material];
+    for (const m of materials) {
+      const candidate = m?.map;
+      const img = candidate?.image;
+      if (img?.width === 1024 && img?.height === 512 &&
+          img.data instanceof Uint8Array && img.data.length === 1024 * 512 * 4) {
+        map = candidate;
+        break;
+      }
+    }
+  });
+  if (!map) return { regraded: false, pixels: 0 };
+  const data = map.image.data, W = 1024, H = 512;
+  const clamp01 = x => Math.max(0, Math.min(1, x));
+  const smooth = (a, b, v) => { const t = clamp01((v - a) / (b - a)); return t * t * (3 - 2 * t); };
+  const hash = (x, z) => { const v = Math.sin(x * 127.1 + z * 311.7) * 43758.5453; return v - Math.floor(v); };
+  const n2 = (x, z) => {
+    const ix = Math.floor(x), iz = Math.floor(z), fx = x - ix, fz = z - iz;
+    const tx = fx * fx * (3 - 2 * fx), tz = fz * fz * (3 - 2 * fz);
+    return (hash(ix, iz) * (1 - tx) + hash(ix + 1, iz) * tx) * (1 - tz)
+      + (hash(ix, iz + 1) * (1 - tx) + hash(ix + 1, iz + 1) * tx) * tz;
+  };
+  // A tiny fixed lattice avoids repeating expensive noise per 3D cell and
+  // ensures the same board dimensions produce byte-identical world surfaces.
+  const latticeW = 34, latticeH = 26;
+  const lattice = new Float32Array(latticeW * latticeH * 2);
+  for (let z = 0; z < latticeH; z++) for (let x = 0; x < latticeW; x++) {
+    const i = 2 * (z * latticeW + x);
+    lattice[i] = n2(x * .41 + 17 + width * .07, z * .46 + 29 + height * .03);
+    lattice[i + 1] = n2(x * .19 + 41, z * .23 + 53);
+  }
+  const sample = (x, z, channel) => {
+    const fx = x * (latticeW - 1), fz = z * (latticeH - 1);
+    const ix = Math.min(latticeW - 2, Math.floor(fx));
+    const iz = Math.min(latticeH - 2, Math.floor(fz));
+    const dx = fx - ix, dz = fz - iz, off = 2 * (iz * latticeW + ix) + channel;
+    const a = lattice[off] * (1 - dx) + lattice[off + 2] * dx;
+    const b = lattice[off + latticeW * 2] * (1 - dx) + lattice[off + latticeW * 2 + 2] * dx;
+    return a * (1 - dz) + b * dz;
+  };
+  for (let y = 0; y < H; y++) {
+    const v = (y + .5) / H, gz = v * height;
+    for (let x = 0; x < W; x++) {
+      const u = (x + .5) / W, gx = u * width, i = (y * W + x) * 4;
+      const nearEdge = 1 - smooth(.035, .19, Math.min(u, 1-u, v, 1-v));
+      const mineral = sample(u, v, 0), watershed = sample(u, v, 1);
+      const heart = 1 - smooth(.35, .86, Math.hypot((u - .52) / .46, (v - .51) / .48));
+      // Three irregular mossed edges embrace a legible warm central stone
+      // clearing, rather than a single dark radial stain or literal green path.
+      const marsh = smooth(.43, .69, watershed * .57 + mineral * .28 + nearEdge * .23);
+      const silt = (mineral - .5) * 21 + (watershed - .5) * 13;
+      const targetR = 144 + 23 * heart + silt - marsh * 43;
+      const targetG = 144 + 15 * heart + silt * .70 - marsh * 23;
+      const targetB = 120 + 12 * heart + silt * .68 - marsh * 38;
+      // Retain directional raking-light/mortar contrast from ORIGINAL pixels.
+      // Lift only the muddy compression range, without bleaching real ruin
+      // greenery or painting over portal/fruit/hazard geometry.
+      const oldR = data[i], oldG = data[i+1], oldB = data[i+2];
+      const oldLuma = (oldR * .30 + oldG * .55 + oldB * .15);
+      const localDetail = Math.max(-18, Math.min(18, (oldLuma - 95) * .16));
+      const tileX = gx - Math.floor(gx), tileZ = gz - Math.floor(gz);
+      const mortar = 1 - smooth(.012, .067, Math.min(tileX, 1-tileX, tileZ, 1-tileZ));
+      const grain = localDetail - mortar * 13;
+      const keep = .24 + nearEdge * .05; // no hard overlay or sharp mask edge
+      data[i]   = Math.max(0, Math.min(255, Math.round(oldR * keep + (targetR + grain) * (1-keep))));
+      data[i+1] = Math.max(0, Math.min(255, Math.round(oldG * keep + (targetG + grain) * (1-keep))));
+      data[i+2] = Math.max(0, Math.min(255, Math.round(oldB * keep + (targetB + grain) * (1-keep))));
+    }
+  }
+  map.needsUpdate = true; // one replacement on scene creation; never per tick
+  return { regraded: true, pixels: W * H, textureAdded: 0 };
+}
+
+export function createCourtyardEcology(THREE, { width, height, world = null }) {
   if (!Number.isInteger(width) || !Number.isInteger(height) ||
       width < 2 || height < 2) throw new Error('Courtyard ecology requires a valid public board size');
   const W = width / 2, H = height / 2;
   const group = new THREE.Group();
-  group.name = 'Embedded living roots / weathered limestone courtyard';
+  group.name = 'Reclaimed stone / embedded living-root courtyard';
+  const restoredStone = restoreCourtyardStoneAtlas(world, width, height);
   const position = [], colour = [];
   const palette = [
     new THREE.Color(0x244732), new THREE.Color(0x335c41),
@@ -168,7 +256,7 @@ export function createCourtyardEcology(THREE, { width, height }) {
     meshCount: disposed ? 0 : 1, textures: 0, triangles: position.length / 9,
     braidedSurfaceTriangles: braidTriangles, islandSurfaceTriangles: islandTriangles,
     reclaimedMosaicTriangles: mosaicTriangles, mosaicBedCount: mosaicBeds.length,
-    deterministicFromBoard: true, publicCellsMoved: 0, disposed
+    deterministicFromBoard: true, publicCellsMoved: 0, stoneAtlas: restoredStone, disposed
   });
   return {
     group, stats,

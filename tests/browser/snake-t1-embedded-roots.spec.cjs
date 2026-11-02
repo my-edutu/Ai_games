@@ -4,10 +4,10 @@ const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypt
 const root=path.resolve(__dirname,'../..');
 const output=filename=>{const p=path.join(root,'artifacts/phase3');fs.mkdirSync(p,{recursive:true});return path.join(p,filename);};
 const src=fs.readFileSync(path.join(root,'public/snake-stream/courtyard-ecology.mjs'),'utf8');
-const predecessor=fs.readFileSync(path.join(root,'docs/reviews/snake-gauntlet/baselines/9ac476b-courtyard-ecology.mjs'),'utf8');
+const predecessor=fs.readFileSync(path.join(root,'docs/reviews/snake-gauntlet/baselines/b649cb8-courtyard-ecology.mjs'),'utf8');
 const blob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0'+s).digest('hex');
 const sha256=x=>crypto.createHash('sha256').update(x).digest('hex');
-const oldBlob='416e7ef2c63c3f7a32a93883484c2dddb837db76';
+const oldBlob='e9a418d775308200c13bafc97bbaaa8019582af8';
 test.use({trace:'off',video:'off',launchOptions:{executablePath:process.env.SNAKE_SYSTEM_CHROMIUM||undefined,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']}});
 
 test('T1 source-exact WebGL eight-view before/after: replace opaque stage sheets with physical rooted ecology while keeping gameplay truthful',async({browser,baseURL})=>{
@@ -23,7 +23,7 @@ test('T1 source-exact WebGL eight-view before/after: replace opaque stage sheets
     ['desktop','overview',{width:1920,height:1080}]
   ]){
     const pair=[];
-    for(const [revision,older] of [['baseline-9ac',true],['reclaimed-after',false]]){
+    for(const [revision,older] of [['baseline-b649',true],['reclaimed-after',false]]){
       const page=await browser.newPage({viewport,reducedMotion:'reduce'}),errors=[];
       page.on('pageerror',e=>errors.push(e.message));
       try{
@@ -44,6 +44,11 @@ test('T1 source-exact WebGL eight-view before/after: replace opaque stage sheets
         expect(state.stats.world.hazards).toBeGreaterThan(0);
         expect(state.stats.serpent.bodyRings).toBeGreaterThan(2);
         expect(state.stats.courtyardEcology.meshCount).toBe(1);
+        if(!older) {
+          expect(state.stats.courtyardEcology.stoneAtlas.regraded).toBe(true);
+          expect(state.stats.courtyardEcology.stoneAtlas.pixels).toBe(524288);
+          expect(state.stats.courtyardEcology.stoneAtlas.textureAdded).toBe(0);
+        }
         expect(state.gl).toBe(0);expect(errors).toEqual([]);
         expect(state.caption.length).toBeGreaterThan(8);
         expect(state.primary).toContain('LENGTH');
@@ -69,7 +74,7 @@ test('T1 source-exact WebGL eight-view before/after: replace opaque stage sheets
   }
   expect(JSON.stringify(frame)).toBe(frozen);
   fs.writeFileSync(output('snake-t1-roots-exact-source-comparison.json'),JSON.stringify({
-    fixedPreviousHead:'9ac476b912622fd810b0959f58fe12e26fa3c8f6',sourcePreviousBlob:oldBlob,
+    fixedPreviousHead:'b649cb8a653d99497882edec3293dcafe6fe039c',sourcePreviousBlob:oldBlob,
     currentSourceBlob:blob(src),renderedImages:records.length,immutablePublicFrame:sha256(frozen),
     deterministicPresentationOnly:true,wholeGameVisualAcceptance:'SELF REVIEW / ACCEPTANCE PENDING',
     independentReviewer:'NOT AVAILABLE',strict17RendererSubmissionGate:'UNCHANGED SEPARATE TEST',records
