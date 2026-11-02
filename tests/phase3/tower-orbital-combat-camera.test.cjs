@@ -43,6 +43,20 @@ test('transitioning between opposite valid 3D viewpoints orbits the tower rather
   assert.ok(target.equals(original), 'following may never mutate its target pose');
 });
 
+test('the actual focus target tracks the cylindrical action stage instead of looking through the tower center', async () => {
+  const { THREE, context } = await loaded;
+  const from = new THREE.Vector3(-24, 14, 8);
+  const to = new THREE.Vector3(24, 20, 8);
+  const original = to.clone();
+  assert.equal(context.followTowerFocus(from, to, .5), from);
+  assert.ok(Math.hypot(from.x, from.z) > 25,
+    'a combat or traversal focus change must not interpolate across the solid core');
+  assert.ok(Math.abs(from.y - 17) < 1e-9);
+  context.followTowerFocus(from, to, 1);
+  assert.ok(from.distanceTo(to) < 1e-9, 'the source-selected camera focus remains exact');
+  assert.ok(to.equals(original), 'the presentation target is immutable');
+});
+
 test('seam crossing uses the short angular arc and reduced-motion camera can settle immediately', async () => {
   const { THREE, context } = await loaded;
   const r = 55, toVec = a => new THREE.Vector3(Math.sin(a) * r, 18, Math.cos(a) * r);
