@@ -46,7 +46,12 @@ test('G135 active workday is framed from the physical working front with readabl
  expect(result.shot.handBlockers).toBeLessThanOrEqual(2);
  expect(result.shot.cameraDistance).toBeGreaterThan(3.6);
  expect(result.shot.cameraDistance).toBeLessThan(11);
- expect(result.shot.faceAlignment).toBeGreaterThan(-.45);
+ // G146: the G145 actual Day-120 desktop film showed Oren nearly fully
+ // rear-facing (alignment -1) and .592 projected foreground coverage.
+ // A technical hand-ray clearance must NOT certify an unreadable shift.
+ expect(result.shot.faceAlignment).toBeGreaterThan(.12);
+ expect(result.shot.foregroundSceneCover).toBeLessThan(.20);
+ expect(result.shot.workFacingMode).not.toBe('obstructed');
  // A front workday view must not be rejected solely due to the old
  // spectator heading or invisible centre-ray-only "visibility" proxies.
  if(result.shot.clearFrontCandidates>0){
@@ -127,5 +132,17 @@ test('G135 active workday is framed from the physical working front with readabl
  await page.keyboard.press('u');
  await page.locator('#workday-live').click();
  expect(await page.evaluate(()=>window.__tinyKingdom.getCamera().follow)).toBe(true);
+ // The 390px next-worker control must choose ANOTHER authentic active
+ // worker whose visible workplace is not swallowed by a market foreground.
+ const next=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;
+  return {work:g.getLiveWorkdayView(),shot:g.getWorkdayCompositionAudit(),
+   real:g.getActiveWorksites().map(w=>w.citizen)};
+ });
+ expect(next.work.active).toBe(true);
+ expect(next.real).toContain(next.work.citizen);
+ expect(next.shot.faceAlignment).toBeGreaterThan(.12);
+ expect(next.shot.foregroundSceneCover).toBeLessThan(.20);
+ expect(next.shot.workFacingMode).not.toBe('obstructed');
  expect(errors).toEqual([]);
 });
