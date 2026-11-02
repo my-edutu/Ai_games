@@ -557,7 +557,13 @@ test('Pip physically acknowledges only a witnessed public pickup with stable pri
     assert.ok(left.rotation.x<-.6 && right.rotation.x<-1.4,
       'existing hand and lantern physically celebrate real key pickup');
     assert.ok(scarf.rotation.x>.2,'physical scarf follows the original pose');
-    assert.equal(key.visible,false,'actual pickup is not a new magical spare key prop');
+    assert.equal(key.visible,true,'the witnessed inventoried key is physically displayed in the connected glove');
+    assert.equal(key.parent,pip.group.getObjectByName('glove'),
+      'the celebratory key must remain a real wrist-held 3D object, not a screen sprite');
+    assert.ok(left.rotation.x < -1.15 && left.rotation.z < -.5,
+      'Pip lifts and opens its left arm to make the original collected key legible');
+    assert.ok(key.rotation.x > 2 && key.scale.x > 1.1,
+      'the existing key is physically raised and enlarged without adding GPU resources');
     assert.deepEqual(pip.group.position.toArray(),[0,0,0],'presentation never changes engine actor position');
     const staticPose=[body.position.y,head.rotation.x,left.rotation.x,right.rotation.x,scarf.rotation.x];
     pip.update({...cue,time:700});
@@ -566,24 +572,29 @@ test('Pip physically acknowledges only a witnessed public pickup with stable pri
     pip.update({...cue,pickupStrength:0});
     assert.equal(body.position.y,.78,'clearing the public moment clears physical celebratory lift');
     assert.equal(scarf.rotation.x,0,'no ghost scarves after cue expiry');
+    assert.equal(key.visible,false,'expired source event must remove the collected-key pose');
     const trueThreat={...cue,attentionHeading:Math.PI/2,attentionStrength:1,danger:1,pickupStrength:1};
     pip.update(trueThreat);
     const threatPose=[body.position.y,head.rotation.x,right.rotation.x];
     pip.update({...trueThreat,pickupStrength:0});
     assert.deepEqual([body.position.y,head.rotation.x,right.rotation.x],threatPose,
       'a genuinely disclosed warden always overrides pickup delight');
+    assert.equal(key.visible,false,'real nearby warden suppresses the pickup key');
     pip.update({...cue,keyHeading:Math.PI/2,keyStrength:1});
     const trueLockPose=[body.position.y,left.rotation.x,right.rotation.x];
     pip.update({...cue,keyHeading:Math.PI/2,keyStrength:1,pickupStrength:0});
     assert.deepEqual([body.position.y,left.rotation.x,right.rotation.x],trueLockPose,
       'an actually carried matching lock takes priority');
+    assert.equal(key.visible,true,'the real matching closed-gate model remains authoritative');
     pip.update({...cue,gateHeading:Math.PI/2,gateStrength:1});
     const gatePose=[body.position.y,head.rotation.x,right.rotation.x];
     pip.update({...cue,gateHeading:Math.PI/2,gateStrength:1,pickupStrength:0});
     assert.deepEqual([body.position.y,head.rotation.x,right.rotation.x],gatePose,
       'actual gate opening remains a higher-priority physical event');
+    assert.equal(key.visible,false,'a witnessed gate opening is not an additional key pickup');
     pip.update({...cue,result:'capture'});
     assert.equal(head.rotation.x,.28,'actual terminal failure never celebrates a pickup');
+    assert.equal(key.visible,false,'terminal reality hides the pickup model');
     pip.update({...cue,pickupStrength:NaN});
     assert.equal(body.position.y,.78,'invalid source intensity never corrupts pose');
     for(let i=0;i<32;i++)pip.update({...cue,pickupStrength:i/32,time:i/30,reducedMotion:false});
