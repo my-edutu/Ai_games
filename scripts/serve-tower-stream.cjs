@@ -21,7 +21,27 @@ function advance(session) {
   session.runtime.step();
   // This live host consumes events once. Its public replay ring is bounded separately.
   const events = session.runtime.drainEvents();
-  return session.controller.accept(createTowerRenderSnapshot(session.runtime.state, { includeWindupTicks: session.runtime.policy !== 'historical-v1' }), events);
+  const publicSnapshot = createTowerRenderSnapshot(session.runtime.state, {
+    includeWindupTicks: session.runtime.policy !== 'historical-v1',
+  });
+  // CI evidence-only observation of EACH real 50ms simulation step. The
+  // frozen baseline may show its result for just one tick, faster than the
+  // spectator polls. Recording a public source phase does not pretend it was
+  // painted into a WebM frame. No rule, clock, seed or private state changes.
+  if (session.captureTrace) {
+    session.captureTrace.push({
+      atMs: Date.now(), tick: publicSnapshot.tick,
+      runToken: publicSnapshot.runToken, floor: publicSnapshot.floor,
+      lifecycle: publicSnapshot.lifecycle,
+      result: publicSnapshot.result || null,
+      checksum: publicSnapshot.publicChecksum,
+      guardian: publicSnapshot.enemies.filter(e => e.active && e.kind === 'guardian')
+        .map(e => ({ health: e.health, maxHealth: e.maxHealth })),
+      routeTarget: publicSnapshot.intent.targetPlatformId || null,
+    });
+    if (session.captureTrace.length > 2200) session.captureTrace.shift();
+  }
+  return session.controller.accept(publicSnapshot, events);
 }
 function privacySafe(snapshot, seed) {
   return !['seed', 'runId', 'config', 'chunks'].some(key => key in snapshot) && !JSON.stringify(snapshot).includes(seed);
@@ -103,6 +123,11 @@ function publicFrame(session, url) {
 }
 function createTowerStreamServer(options = {}) {
   const session = createSession(options.seed || 'tower-stream-reference', { ...STREAM_CONFIG, ...options.config }, options.policy || 'autonomous');
+  // CI-only, bounded, source-authentic diagnostics. Never expose production
+  // telemetry, unfiltered authority objects or the capture seed.
+  const captureEnabled = process.env.CI === 'true' &&
+    ['ascent', 'danger', 'outcome'].includes(process.env.TOWER_MOTION_SCENARIO);
+  if (captureEnabled) session.captureTrace = [];
   let lastStepAt = Date.now(), simulationFault = false;
   const interval = setInterval(() => {
     try {
@@ -124,6 +149,11 @@ function createTowerStreamServer(options = {}) {
     if (url.pathname === '/tower/state') { sendJson(res, 200, publicFrame(session, url)); return; }
     if (url.pathname === '/tower/health') { sendJson(res, simulationFault ? 503 : 200, { status: simulationFault ? 'degraded' : 'healthy', lastStepAgeMs: Math.max(0, Date.now() - lastStepAt), scene: session.controller.frame().scene }); return; }
     if (url.pathname === '/tower/replay') { sendJson(res, 200, { frames: session.controller.replayWindow(120) }); return; }
+    if (url.pathname === '/tower/capture-trace' && captureEnabled) {
+      sendJson(res, 200, { method: 'public immutable snapshots after each real fixed-step tick',
+        notVideoEvidence: true, ticks: session.captureTrace.slice() });
+      return;
+    }
     if (url.pathname === '/favicon.ico') { res.writeHead(204); res.end(); return; }
     sendFile(req, res, resolvePublicAsset(url.pathname));
   });
