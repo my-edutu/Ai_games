@@ -372,6 +372,44 @@ function intendedLanding(snapshot) {
   return onTarget ? null : target;
 }
 
+
+/**
+ * Source-observed contact depth for the actual 3D climber. A platform is only
+ * eligible when it exists NOW underneath the player's true fixed-step feet.
+ * Never extrapolate a deck's movement or make an AI-selected destination look
+ * like a secured landing. This is a render-only depth cue.
+ */
+function observedTowerFooting(snapshot) {
+  const player = snapshot?.player;
+  if (snapshot?.lifecycle !== 'running' || !player || player.health <= 0
+    || !Array.isArray(snapshot.platforms) || !Number.isFinite(snapshot.worldWidth)
+    || snapshot.worldWidth <= 0 || !Number.isFinite(player.x)
+    || !Number.isFinite(player.y) || !Number.isFinite(player.halfHeight)
+    || player.halfHeight <= 0) return null;
+  const feet = player.y - player.halfHeight;
+  const halfWidth = Number.isFinite(player.halfWidth) && player.halfWidth > 0
+    ? player.halfWidth : 9000;
+  let closest = null, clearance = Infinity;
+  for (const platform of snapshot.platforms) {
+    if (!platform || typeof platform.id !== 'string'
+      || ![platform.x, platform.y, platform.width, platform.height].every(Number.isFinite)
+      || platform.width <= 0 || platform.height <= 0
+      || player.x + halfWidth < platform.x
+      || player.x - halfWidth > platform.x + platform.width) continue;
+    const top = platform.y + platform.height;
+    const gap = feet - top;
+    // Decks above the feet, more than 18 world units below, or outside the
+    // actual overlap cannot own a shadow. Small standing contact tolerances
+    // account for fixed-point support and moving deck quantization.
+    if (gap < -1800 || gap > 180000 || Math.max(0, gap) >= clearance) continue;
+    clearance = Math.max(0, gap);
+    closest = { platformId: platform.id, x: Math.max(platform.x,
+      Math.min(player.x, platform.x + platform.width)), top,
+      clearance, grounded: player.state === 'standing' && gap <= 2500 };
+  }
+  return closest;
+}
+
 function ledgeContactPoint(snapshot, platform) {
   const player = snapshot?.player;
   if (!platform || !player || player.state !== 'airborne' || player.vy <= 0 ||
@@ -1155,6 +1193,39 @@ export function createTowerScene(canvas, settings = {}) {
   landingHalo.visible = false;
   scene.add(landingHalo);
 
+  // One original shader-only deck footprint provides a consistent physical
+  // depth reference through regular jumping, moving decks and guardian action.
+  // Unlike route markers, it shows only a real PRESENT surface beneath feet;
+  // it never claims a predicted landing or adds HUD text.
+  const footingShadow = new THREE.Mesh(
+    ownGeometry(new THREE.PlaneGeometry(1, 1)),
+    ownMaterial(new THREE.ShaderMaterial({
+      uniforms: { uOpacity: { value: 0 } },
+      transparent: true, depthTest: true, depthWrite: false,
+      side: THREE.DoubleSide, toneMapped: false,
+      polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
+      vertexShader: 'varying vec2 vUvLocal; void main(){vUvLocal=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+      fragmentShader: `varying vec2 vUvLocal; uniform float uOpacity;
+        void main(){
+          float radius=length((vUvLocal-vec2(.5))*2.);
+          float shade=1.-smoothstep(.04,.98,radius);
+          float edge=exp(-pow((radius-.76)*7.,2.));
+          if(radius>1.)discard;
+          vec3 ink=mix(vec3(.014,.024,.035),vec3(.26,.49,.53),edge*.32);
+          gl_FragColor=vec4(ink,uOpacity*(shade*.78+edge*.20));
+          #include <colorspace_fragment>
+        }`,
+    })),
+  );
+  footingShadow.name = 'ObservedPhysicalDeckFooting';
+  footingShadow.rotation.x = -Math.PI / 2;
+  footingShadow.visible = false;
+  footingShadow.castShadow = false;
+  footingShadow.frustumCulled = false;
+  footingShadow.renderOrder = 2;
+  scene.add(footingShadow);
+  let observedFooting = null;
+
   // Existing source route stays authoritative. One instanced world-space
   // movement echo helps follow a real dash/launch on a small phone viewport.
   const motionLedger = createObservedTowerMotionLedger();
@@ -1261,6 +1332,7 @@ export function createTowerScene(canvas, settings = {}) {
     projectiles.clear();
     particleLife.fill(0);
     motionLedger.reset(); motionEcho.count = 0; motionEcho.visible = false;
+    footingShadow.visible = false; observedFooting = null;
     echoDrawnTick = -1; observedStageLight.reset();
   }
   function rebuildGraphicsResources() {
@@ -1376,7 +1448,7 @@ export function createTowerScene(canvas, settings = {}) {
     lastRevision = revision;
     renderProgress.expectFrame(performance.now());
     const newRun = snapshot && next.runToken !== snapshot.runToken;
-    if (newRun) { clearActors(); passage.clear(); initialized = false; previous = null; landingMoment=-Infinity; landingRun=null; landingHalo.visible=false; actorRescueFraction = 0; }
+    if (newRun) { clearActors(); passage.clear(); initialized = false; previous = null; landingMoment=-Infinity; landingRun=null; landingHalo.visible=false; footingShadow.visible=false; observedFooting=null; actorRescueFraction = 0; }
     if (snapshot && baseY !== next.chunkBaseY) {
       const shift = (baseY - next.chunkBaseY) / SCALE;
       climber.group.position.y += shift; camera.position.y += shift; lookAt.y += shift;
@@ -1468,6 +1540,21 @@ export function createTowerScene(canvas, settings = {}) {
     const lightCue = observedStageLight.sample(snapshot, dt,
       !!options.stale, !!options.reducedMotion);
     const targetPlatform = intendedLanding(snapshot);
+    // The rendered footprint is an actual beneath-feet SOURCE deck, including
+    // an observed moving platform. The gap softens its shade as the hero rises;
+    // no shadow survives a stale packet, dead actor, result or restart.
+    observedFooting = !options.stale ? observedTowerFooting(snapshot) : null;
+    footingShadow.visible = !!observedFooting;
+    if (observedFooting) {
+      const footprint = pointFor(observedFooting.x, observedFooting.top,
+        snapshot.chunkBaseY, snapshot.worldWidth, 26.8);
+      const airGap = observedFooting.clearance / SCALE;
+      footingShadow.position.set(footprint.x, footprint.y + .07, footprint.z);
+      const spread = Math.min(2.4, airGap * .095);
+      footingShadow.scale.set(2.1 + spread, 1.3 + spread * .55, 1);
+      footingShadow.material.uniforms.uOpacity.value = observedFooting.grounded
+        ? .44 : Math.max(.06, .34 * (1 - Math.min(1, airGap / 18)));
+    }
     // The AI's actual next landing is the only route we visualize. Hide
     // intention while true enemy windups demand full viewer attention.
     routeIntent.update(snapshot, targetPlatform, options);
@@ -1928,6 +2015,12 @@ export function createTowerScene(canvas, settings = {}) {
         motion: Number(observedStageLight.cue.motion.toFixed(4)),
         extraShadowLights: 0 },
       observedEnemyImpacts: [...enemies.values()].filter(entry => entry.impact.visible).length,
+      physicalFooting: observedFooting && footingShadow.visible ? {
+        platformId: observedFooting.platformId, clearance: observedFooting.clearance,
+        grounded: observedFooting.grounded, sourceTick: snapshot.tick,
+        footprint: footingShadow.position.toArray(),
+        evidence: 'Current source-observed overlapping deck, not predicted landing or actual raster visibility',
+      } : null,
       observedTouchdown: landingHalo.visible ? { runToken: landingRun, floor: landingFloor,
         strength: landingWeight, position: landingHalo.position.toArray() } : null,
       activeTelegraphLanes: [...enemies.values()].filter(entry => entry.threatLane.visible).length,
