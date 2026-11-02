@@ -22,7 +22,11 @@ test('G140 seasoned growing town reuses bounded physical settlement VBOs without
  expect(first.resident.entries).toBe(1);
  expect(first.resident.hits).toBe(0);
  const rows=[];
- for(let chunk=0;chunk<12;chunk++){
+ // Through Day 120 the legitimate builders are still constructing houses;
+ // the original game caps the town at 35 homes. Exercise another six genuine
+ // ten-day seasons AFTER that cap, so a season/topology key really can recur.
+ // Do not fake a climate, freeze a citizen, or patch any saved-world state.
+ for(let chunk=0;chunk<18;chunk++){
   const frame=await page.evaluate(()=>window.__tinyKingdom.getFrameProfile().totalFrames);
   await page.evaluate(()=>{
    const g=window.__tinyKingdom;
@@ -36,7 +40,7 @@ test('G140 seasoned growing town reuses bounded physical settlement VBOs without
     ...s,gl:document.querySelector('#world').getContext('webgl')?.getError()??-1};
   }));
  }
- expect(rows.at(-1).day).toBeGreaterThanOrEqual(120);
+ expect(rows.at(-1).day).toBeGreaterThanOrEqual(180);
  for(const row of rows){
   expect(row.entries).toBeGreaterThanOrEqual(1);
   expect(row.entries).toBeLessThanOrEqual(row.maxEntries);
