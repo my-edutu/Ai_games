@@ -148,3 +148,51 @@ test('offshore rock silhouettes depend only on public board size, never undisclo
     cleanup();
   }
 });
+
+test('original blocked-tile windcatcher is physical, deterministic and never reveals an undisclosed cell', async () => {
+  const { world: module, cleanup } = await loadRealWorld();
+  const publicCell = {
+    cell: 22, neighbors: [], blocked: true, trap: false,
+    checkpoint: false, clue: false,
+  };
+  // Cell 22 is a deterministic windcatcher candidate; it has no secret
+  // relation to a goal, private map, navigation policy or run seed.
+  const known = {
+    runToken: 'disclosed-windcatcher-a', tick: 1, width: 7, height: 7,
+    cells: [publicCell], visibleCells: [22],
+    doors: [], keys: [], inventory: [], exitCell: null,
+  };
+  const unknown = { ...known, cells: [], visibleCells: [] };
+  const revealed = module.createMazeWorld({ balanced: true });
+  const baseline = module.createMazeWorld({ balanced: true });
+  const replay = module.createMazeWorld({ balanced: true });
+  try {
+    baseline.update(unknown);
+    assert.equal(baseline.stats().windcatcherTowers, 0,
+      'an undisclosed blocked tile must never be represented by a tower');
+    revealed.update(known);
+    replay.update({ ...known, runToken: 'disclosed-windcatcher-b', tick: 902 });
+    assert.deepEqual(revealed.stats().renderedCells, [22]);
+    assert.equal(revealed.stats().windcatcherTowers, 1,
+      'the public blocked cell must carry one genuinely modeled silhouette');
+    assert.equal(replay.stats().windcatcherTowers, 1);
+    assert.equal(revealed.stats().instances, replay.stats().instances,
+      'physical model distribution must not depend on tick or run token');
+    assert.ok(revealed.stats().instances > baseline.stats().instances + 20,
+      'the new landmark must be physical batched 3D, not a HUD label');
+    assert.ok(revealed.stats().geometryCount <= 16);
+    assert.ok(revealed.stats().materialCount <= 26);
+    assert.ok(revealed.stats().textureCount <= 3);
+    assert.deepEqual(known.cells, [publicCell],
+      'world construction must not mutate the disclosed source');
+    revealed.update({ ...unknown, runToken: 'disclosed-windcatcher-next' });
+    assert.deepEqual(revealed.stats().renderedCells, []);
+    assert.equal(revealed.stats().windcatcherTowers, 0,
+      'new runs may not inherit a previous run\'s discovered scenery');
+  } finally {
+    revealed.dispose();
+    baseline.dispose();
+    replay.dispose();
+    cleanup();
+  }
+});
