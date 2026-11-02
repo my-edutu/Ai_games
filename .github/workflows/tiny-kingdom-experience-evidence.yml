@@ -1,0 +1,43 @@
+name: Tiny Kingdom Matched Experience A-B Evidence
+
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'tests/browser/tiny-kingdom-g091-active-labor.spec.cjs'
+      - 'scripts/tiny-kingdom-g091-experience-evidence.cjs'
+      - '.github/workflows/tiny-kingdom-experience-evidence.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  matched-experience:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Use the exact PR HEAD, not GitHub's ephemeral synthetic merge ref.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          # The G088 baseline must be inspected from its pinned exact source.
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Matched G088 vs candidate real-WebGL screenshots and continuous game recordings
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: node scripts/tiny-kingdom-g091-experience-evidence.cjs
+      - name: Preserve real evidence and failure diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-g091-experience-ab
+          path: artifacts/tiny-kingdom-experience/
+          if-no-files-found: warn
+          retention-days: 14
