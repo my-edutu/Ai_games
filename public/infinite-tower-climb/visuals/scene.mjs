@@ -98,6 +98,30 @@ function followTowerCamera(position, target, blend) {
   return position;
 }
 
+// The aim target moves along the same cylindrical stage as the camera. A
+// Cartesian midpoint between actors across a wide tower arc can stare through
+// the empty/opaque core even when the camera itself stays outside. Keep the
+// look-at point on its real source-derived annular route, with no artificial
+// focus offset or anticipation; the endpoint remains the exact chosen pose.
+function followTowerFocus(position, target, blend) {
+  const alpha = Math.max(0, Math.min(1, blend));
+  const radius = Math.hypot(position.x, position.z);
+  const targetRadius = Math.hypot(target.x, target.z);
+  if (radius < .001 || targetRadius < .001) {
+    position.copy(target);
+    return position;
+  }
+  const from = Math.atan2(position.x, position.z);
+  const to = Math.atan2(target.x, target.z);
+  const turn = Math.atan2(Math.sin(to - from), Math.cos(to - from));
+  const azimuth = from + turn * alpha;
+  const blendedRadius = radius + (targetRadius - radius) * alpha;
+  position.set(Math.sin(azimuth) * blendedRadius,
+    position.y + (target.y - position.y) * alpha,
+    Math.cos(azimuth) * blendedRadius);
+  return position;
+}
+
 // Genuine guardian contact gets a bounded camera catch-up when the chosen
 // readable viewpoint is around the tower. Ordinary ascent keeps its calmer
 // existing follow rate. Nothing anticipates a combat hit or slows the clock.
@@ -1441,7 +1465,10 @@ export function createTowerScene(canvas, settings = {}) {
       !overview && !!followComposition?.guardianStaged, overview);
     const cameraBlend = options.reducedMotion ? 1 : 1 - Math.exp(-dt * cameraRate);
     if (!initialized) { camera.position.copy(destination); lookAt.copy(focus); initialized = true; }
-    else { followTowerCamera(camera.position, destination, cameraBlend); lookAt.lerp(focus, cameraBlend); }
+    else {
+      followTowerCamera(camera.position, destination, cameraBlend);
+      followTowerFocus(lookAt, focus, cameraBlend);
+    }
     if(!options.reducedMotion && !options.stale && options.camera==='follow'&&contactProgress>0)
       camera.position.y+=(contactHero?-.24:.18)*Math.sin((1-contactProgress)*Math.PI);
     if(!options.reducedMotion && options.camera==='follow' && landingHalo.visible)
