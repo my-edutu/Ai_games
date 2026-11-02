@@ -47,7 +47,31 @@ test('actual WebGL receives original vaulted-bay 3D batches and cutaway',()=>{
  assert.match(app,/vaultedGallery:world\.userData\.vaultedGallery\?\.metrics\(\)/);
  assert.match(visuals,/new THREE\.InstancedMesh/);
  assert.match(visuals,/band===0\?sx:\.00001/);
- assert.match(visuals,/band===0\?sy:\.00001/);
+ assert.match(visuals,/band===0\?sy\*stageHeight:\.00001/);
  for(const name of ['vaulted-wall-plan.js','vaulted-wall-gallery.js'])
   assert.ok(host.includes("['/dungeon/"+name+"','"+name+"']"));
+});
+test('a true traversable route guides four distinct vaulted architectural acts without altering the map',async()=>{
+ const {planVaultedWallBays}=await load();
+ const n=19,map=Array.from({length:n},(_,z)=>Array.from({length:n},(_,x)=>
+  z===0||z===n-1||x===0||x===n-1?'#':z%4===0&&x%3!==0?'#':'.').join(''));
+ const original=map.join('\n'),sites=planVaultedWallBays(map,1,{x:16,z:16});
+ assert.ok(sites.length>=16,'substantial routed corridor architecture');
+ assert.ok(new Set(sites.map(s=>s.chapter)).size>=3,'several narrative chapters exist');
+ assert.ok(new Set(sites.map(s=>s.style)).size>=3,'physically distinct Gothic shapes are populated');
+ assert.ok(sites.filter(s=>s.routeDistance===0).length>=5,'actual legal expedition path receives strongly weighted bay sites');
+ for(const site of sites){
+  assert.ok(Number.isInteger(site.chapter)&&site.chapter>=0&&site.chapter<=3);
+  assert.ok(Number.isInteger(site.style)&&site.style>=0&&site.style<=3);
+  assert.ok(Number.isInteger(site.routeDistance)&&site.routeDistance>=0);
+  assert.equal(map[site.gridZ][site.gridX],'#');
+ }
+ assert.equal(map.join('\n'),original,'visual art may never carve an authority wall');
+ const art=fs.readFileSync(path.join(root,'public/ai-dungeon/vaulted-wall-gallery.js'),'utf8');
+ assert.match(art,/style===1/);
+ assert.match(art,/style===2/);
+ assert.match(art,/style===3/);
+ assert.match(art,/new THREE\.InstancedMesh/);
+ assert.match(art,/architecturalProfiles:/);
+ assert.doesNotMatch(art,/Math\.random|DungeonRuntime|fetch\(|performance\.now/);
 });
