@@ -575,7 +575,7 @@ function stageRigForearmsAfterMixer(actor,since,reducedMotion){
   // visual cues (authored clip and contact beat) must not accidentally stack
   // into a rubber-jointed arm or fool the browser diagnostic with a raw sum.
   const angle=Math.max(-.445,Math.min(.445,
-   pose[mount.side]+(actor.performanceBeat?.elbows?.[mount.side]||0)+(actor.evasionFrame?.elbows?.[mount.side]??0))));
+   pose[mount.side]+(actor.performanceBeat?.elbows?.[mount.side]||0)+(actor.evasionFrame?.elbows?.[mount.side]??0)));
   mount.next.setFromEuler(mount.euler.set(angle,0,0,'XYZ'));
   mount.bone.quaternion.multiply(mount.next);
   mount.last.copy(mount.next);
