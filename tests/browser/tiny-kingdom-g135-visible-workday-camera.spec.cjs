@@ -102,6 +102,15 @@ test('G135 active workday is framed from the physical working front with readabl
  expect(mobile.shot.viewportAspect).toBeLessThan(.65);
  expect(mobile.shot.foregroundCitizenBlockers).toBe(0);
  expect(mobile.shot.plannedForegroundCitizenBlockers).toBe(0);
+ // G139 RED-first: real G138 390px footage at Day-120 showed Edric with
+ // an almost perfect SIDE view (faceAlignment ~= 0), despite clear hands.
+ // A smartphone spectator must be able to see the authentic worker's front
+ // and hands together; occupancy counters alone do not prove visibility.
+ if(mobile.shot.job==='builder'){
+  expect(mobile.shot.faceAlignment).toBeGreaterThan(.24);
+  expect(mobile.shot.handBlockers).toBe(0);
+  expect(mobile.shot.projectedWorksitePosts).toBe(0);
+ }
  expect(mobile.gl).toBe(0);
  // Mobile defaults to an uncluttered world. The U shortcut intentionally
  // opens the accessible full command panel before the next-worker control.
