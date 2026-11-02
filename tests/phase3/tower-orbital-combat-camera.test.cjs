@@ -149,3 +149,18 @@ test('observed real portrait dash and floor transitions accelerate tracking only
   assert.ok(context.towerCameraActorSafetyRate(13.5, .94, .2, .46) <= 18,
     'real boss contact cannot compound into unbounded camera rotation');
 });
+
+test('a wide jump blends the actual route focus around the tower rather than through its opaque core', async () => {
+  const { context } = await loaded;
+  const center = { x: -24, y: 10, z: 8 }, destination = { x: 24, y: 14, z: 8 };
+  const untouched = { ...destination };
+  assert.equal(context.blendTowerStageFocus(center, destination, .5), center);
+  assert.ok(Math.hypot(center.x, center.z) > 25, 'wide ascent keeps the focus on the exterior stone');
+  assert.ok(Math.abs(center.y - 12) < 1e-8);
+  assert.deepEqual(destination, untouched, 'source waypoint must remain immutable');
+  const one = { x: Math.sin(Math.PI - .04) * 25, y: 4, z: Math.cos(Math.PI - .04) * 25 };
+  const two = { x: Math.sin(-Math.PI + .04) * 25, y: 7, z: Math.cos(-Math.PI + .04) * 25 };
+  context.blendTowerStageFocus(one, two, .5);
+  assert.ok(one.z < -24.9 && Math.abs(one.x) < .01, 'seam follows the short arc');
+  assert.ok(Math.abs(one.y - 5.5) < 1e-8);
+});

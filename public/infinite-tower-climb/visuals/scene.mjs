@@ -152,6 +152,26 @@ function towerCameraActorSafetyRate(rate, ndcX, ndcY, aspect) {
   return Math.min(18, rate + pressure * 10);
 }
 
+// Wide jumps must keep the camera's chosen stage on the exterior cylinder.
+// Cartesian midpoint focus can stare straight into opaque stone. Only the
+// real visible actor, live route and observed threat select these coordinates.
+function blendTowerStageFocus(center, subject, weight) {
+  const amount = clamp(weight, 0, 1);
+  const r0 = Math.hypot(center.x, center.z), r1 = Math.hypot(subject.x, subject.z);
+  if (r0 > 1 && r1 > 1) {
+    const start = Math.atan2(center.x, center.z);
+    const end = Math.atan2(subject.x, subject.z);
+    const arc = Math.atan2(Math.sin(end - start), Math.cos(end - start));
+    const angle = start + arc * amount, radius = lerp(r0, r1, amount);
+    center.x = Math.sin(angle) * radius; center.z = Math.cos(angle) * radius;
+  } else {
+    center.x = lerp(center.x, subject.x, amount);
+    center.z = lerp(center.z, subject.z, amount);
+  }
+  center.y = lerp(center.y, subject.y, amount);
+  return center;
+}
+
 // Evidence-only approximate core occlusion for the inset bronze lock. A point
 // can project inside the phone viewport while sitting behind the tower; do not
 // award it a camera-composition preference or a visible-gate diagnostic then.
@@ -469,17 +489,8 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
       y: gate.y + 2.7, z: gate.z - Math.sin(gate.angle) * side * 3.4 })),
   ] : [];
   const center = { ...body };
-  if (routeLanding) {
-    center.x = lerp(center.x, landing.x, .38);
-    center.y = lerp(center.y, landing.y, .38);
-    center.z = lerp(center.z, landing.z, .38);
-  }
-  if (threat) {
-    const weight = routeLanding ? .18 : .5;
-    center.x = lerp(center.x, threat.x, weight);
-    center.y = lerp(center.y, threat.y, weight);
-    center.z = lerp(center.z, threat.z, weight);
-  }
+  if (routeLanding) blendTowerStageFocus(center, landing, .38);
+  if (threat) blendTowerStageFocus(center, threat, routeLanding ? .18 : .5);
   if (contactGuardian && !threat?.guardian) {
     // Preserve an incoming shot's tactical influence without letting it
     // replace the damage-taking guardian with a projectile-only composition.
@@ -1586,6 +1597,24 @@ export function createTowerScene(canvas, settings = {}) {
   function diagnostics() {
     const { frameMs, ...submissionProgress } = renderProgress.diagnostics(performance.now());
     const liveGuardian = snapshot?.enemies?.find(enemy => enemy.kind === 'guardian' && enemy.active);
+    // Observe the real hero across ALL floors, not only when a guardian exists.
+    // NDC proves screen bounds at this sample, not actual video raster visibility.
+    camera.updateMatrixWorld(true);
+    const actorProjection = snapshot?.player ? climber.group.position.clone() : null;
+    if (actorProjection) actorProjection.y += snapshot.player.halfHeight / SCALE;
+    if (actorProjection) actorProjection.project(camera);
+    const actorNdc = actorProjection ? [actorProjection.x, actorProjection.y, actorProjection.z]
+      .map(value => Number(value.toFixed(4))) : null;
+    const actorCamera = { ndc: actorNdc,
+      inPicture: !!actorNdc && actorNdc.every(Number.isFinite)
+        && Math.abs(actorNdc[0]) <= 1 && Math.abs(actorNdc[1]) <= 1
+        && actorNdc[2] >= -1 && actorNdc[2] <= 1,
+      inSafeFrame: !!actorNdc && actorNdc.every(Number.isFinite)
+        && Math.abs(actorNdc[0]) <= .78 && Math.abs(actorNdc[1]) <= .78
+        && actorNdc[2] >= -1 && actorNdc[2] <= 1,
+      cameraAzimuth: Number(Math.atan2(camera.position.x, camera.position.z).toFixed(4)),
+      focusRadius: Number(Math.hypot(lookAt.x, lookAt.z).toFixed(4)),
+      metric: 'Actual smoothed camera source projection, NOT video-raster visibility or supported-device FPS' };
     let encounterCamera = null;
     if (liveGuardian && snapshot?.worldWidth > 0) {
       // Observed camera pixels, not the unsmoothed ideal plan. Capture scripts
@@ -1644,7 +1673,7 @@ export function createTowerScene(canvas, settings = {}) {
         environmentFailures: reflectionFailures, environmentLastError: reflectionLastError,
         environmentSize: reflectionTarget ? [reflectionTarget.width, reflectionTarget.height] : [0, 0], shadowLights: 1, shadowMapSize: sun.shadow.mapSize.x },
       world: world.diagnostics(), finale: finale.diagnostics(), passage: passage.diagnostics(),
-      encounterCamera, cameraPosition: camera.position.toArray(), climberPosition: climber.group.position.toArray() };
+      encounterCamera, actorCamera, cameraPosition: camera.position.toArray(), climberPosition: climber.group.position.toArray() };
   }
   function dispose() {
     if (disposed) return;

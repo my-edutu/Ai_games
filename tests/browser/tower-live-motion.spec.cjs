@@ -58,6 +58,7 @@ for (const viewport of viewports) {
         // records whether the guardian and gate are actually inside the
         // continuous desktop/portrait video camera crop.
         observedCamera: d.encounterCamera || null,
+        observedActor: d.actorCamera || null,
         observedPassage: d.passage?.active ? { runToken: d.passage.runToken, floor: d.passage.floor,
           sourceTick: d.passage.sourceTick, ageSeconds: d.passage.ageSeconds,
            anchorPosition: d.passage.anchorPosition,
@@ -106,6 +107,8 @@ for (const viewport of viewports) {
       fixture: 'playwright-context-created-with-native-viewport-and-recording-size' },
     actualWallSeconds: assessment.wallMs / 1000, minimumRequiredSeconds: 60,
     outcomeCapture: scenario === 'outcome' ? { maxTicks: 900, noProgressTicks: 850, intermissionTicks: 36 } : null,
+    sampledActorOffscreen: observations.filter(item => item.observedActor?.inPicture === false).length,
+    sampledActorUnsafe: observations.filter(item => item.observedActor?.inSafeFrame === false).length,
     capturedAt: new Date().toISOString(), observations, assessment, errors,
     independentReview: false,
     gates: { captureIntegrity: assessment.scopedPass ? 'PASS' : 'FAIL',
