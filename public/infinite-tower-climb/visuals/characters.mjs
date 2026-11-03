@@ -870,7 +870,7 @@ export function createClimber() {
     const pulseAge=Number.isFinite(state.earnedPulseAge) &&
       state.earnedPulseAge>=0 ? state.earnedPulseAge : Infinity;
     const pulseLive=pulseAge<.30&&!dead&&!hurt&&!stale&&!terminalKind;
-    const pulseWeight=pulseLive&&!attacking&&!dash&&!reducedMotion
+    const pulseWeight=pulseLive&&!attacking&&!dash&&!state.ledgeTarget&&!reducedMotion
       ?1-THREE.MathUtils.smoothstep(pulseAge,.035,.30):0;
     if(pulseWeight>.001){
       const arm=arms[1],guard=arms[0];
