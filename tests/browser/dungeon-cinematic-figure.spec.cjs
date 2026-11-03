@@ -1,0 +1,18 @@
+'use strict';
+const {test,expect}=require('@playwright/test');
+const fs=require('node:fs');fs.mkdirSync('artifacts',{recursive:true});
+test('actual Chromium renders original 3D cinematic figures at desktop and mobile sizes',async({page})=>{
+ test.setTimeout(150000);const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ await page.setViewportSize({width:1440,height:832});await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.authoredCharacters??0),{timeout:45000}).toBeGreaterThanOrEqual(3);
+ const desktop=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D);
+ expect(desktop.cinematicMeshes).toBeLessThanOrEqual(240);
+ expect(desktop.cinematicSourceHidden).toBe(desktop.cinematicFigures);
+ await page.locator('#world').screenshot({path:'artifacts/dungeon-m1-cinematic-figures-desktop.png',timeout:60000});
+ await page.setViewportSize({width:390,height:844});
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame??0),{timeout:30000}).toBeGreaterThan(3);
+ const mobile=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D);
+ expect(mobile.cinematicFigures).toBe(desktop.cinematicFigures);
+ await page.locator('#world').screenshot({path:'artifacts/dungeon-m1-cinematic-figures-mobile.png',timeout:60000});
+ expect(errors).toEqual([]);
+});
