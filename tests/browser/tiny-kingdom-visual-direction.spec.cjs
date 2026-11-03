@@ -28,7 +28,8 @@ test('Tiny Kingdom art direction: warm/cool atmosphere, readable 390px UI, real 
   const g=window.__tinyKingdom;
   const before=JSON.stringify(g.exportSnapshot());
   const day=g.getSkyPalette(12),night=g.getSkyPalette(23);
-  return {day,night,ink:getComputedStyle(document.documentElement).getPropertyValue('--tk-art-ink').trim(),
+  const dawn=g.getLightingProfile(7),dusk=g.getLightingProfile(18.4),noon=g.getLightingProfile(12);
+  return {day,night,dawn,dusk,noon,ink:getComputedStyle(document.documentElement).getPropertyValue('--tk-art-ink').trim(),
    paper:getComputedStyle(document.documentElement).getPropertyValue('--tk-art-paper').trim(),
    worldFilter:getComputedStyle(document.getElementById('world')).filter,
    overflow:document.documentElement.scrollWidth-innerWidth,
@@ -39,6 +40,9 @@ test('Tiny Kingdom art direction: warm/cool atmosphere, readable 390px UI, real 
  });
  expect(evidence.paper).toBe('#f4ebd8');
  expect(evidence.ink).toBe('#1d2928');
+ expect(evidence.dawn.ambientBlend).toBeGreaterThan(.59);
+ expect(evidence.dusk.ambientBlend).toBeGreaterThan(.35);
+ expect(evidence.noon.ambientBlend).toBeGreaterThan(evidence.dawn.ambientBlend);
  expect(evidence.day.zenith[2]).toBeLessThan(.71);
  expect(evidence.day.zenith[2]).toBeGreaterThan(evidence.night.zenith[2]);
  expect(evidence.worldFilter).toBe('none');
