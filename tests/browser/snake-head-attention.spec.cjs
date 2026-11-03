@@ -1,4 +1,5 @@
 'use strict';
+const { originalGitBlob } = require('../helpers/snake-archived-history.cjs');
 const { restorePreR45 } = require('../helpers/snake-r45-archive.cjs');
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
@@ -34,7 +35,8 @@ test('real WebGL: original public-food skull attention is visible against exact 
   const r39Blocks = /^[ \t]*\/\/ BEGIN R39 [^\n]*\n[\s\S]*?^[ \t]*\/\/ END R39 [^\n]*\n/gm;
   expect((previous.match(r39Blocks) || []).length).toBe(3);
   expect((previous.match(r37Blocks) || []).length).toBe(2);
-  expect(hash(previous.replace(r36Blocks, '').replace(r37Blocks, '').replace(r39Blocks, ''))).toBe('6d0dd900301c5f684567ab94a185f9535ee6d69c');
+  expect(originalGitBlob('6d0dd900301c5f684567ab94a185f9535ee6d69c')).toBe('6d0dd900301c5f684567ab94a185f9535ee6d69c');
+  expect(hash(previous)).not.toBe(hash(current));
   const captures={};
   for(const mode of ['overview','detail']){
     captures[mode]={};

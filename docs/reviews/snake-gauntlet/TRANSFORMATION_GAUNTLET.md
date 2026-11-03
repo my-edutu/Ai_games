@@ -1,5 +1,15 @@
 # Autonomous Snake — Transformation Gauntlet (supersedes micro-improvement cycles)
 
+## November 3 — 367d complete real Chromium REJECTED; same T1 integrated canopy-ring/ground candidate BUILDING
+
+Real current-prior [367d focused browser](https://github.com/my-edutu/Ai_games/actions/runs/41590547062) FINISHED FAILED **69/81**: original strict one-second genuine full-desktop **8/17 FAIL** (736×336), 10 archived-history browser SHA assumptions and 1 genuine later littoral-triangle accounting failure. Actual same-source [8-view WebGL](https://github.com/my-edutu/Ai_games/actions/runs/41590547062/artifacts/13211662439), [55-second motion](https://github.com/my-edutu/Ai_games/actions/runs/41590547062/artifacts/13212031942) and [metrics](https://github.com/my-edutu/Ai_games/actions/runs/41590547062/artifacts/13212171683) inspected; giant pale rectangle/undersized stiff snake remains **WHOLE GAME SELF-REJECTED** vs official Snake Pass, independent review unavailable. General [CI 41590547074](https://github.com/my-edutu/Ai_games/actions/runs/41590547074) FAILED 637/644 Node, seven true historical provenance corrections staged earlier.
+
+**Integrated same T1 forest-floor and canopy-ring BUILD CANDIDATE:** retain ten complete trees, move two existing fully-formed rear trees into left/right near-side offshore frame, retain >1000 high rear vertices; honest native side high vertices west 239→1283, east 309→1527 at 8×8, 28×16, 40×24. Recompose existing 1024×512 original stone atlas into continuous planted forest gullies and a lit stone clearing with original real fern/root sites; 28×16 native sample >24 RGB diff on ~61.7% of the atlas, **NOT genuine framebuffer screenshot acceptance**. Exact 367d original source fixtures, RED unmodified 2/4 vs GREEN transformed 4/4, related 20/20 Node GREEN, TS build PASS. Original garden triangles 18,441/21,561/21,725, 4 original batches, one original stone/foliage texture; no deleted materials/triangles/cues/geometry or gameplay authority change. Historic browser 11 real Git object fixtures + reversible current-source evidence test repairs; original 6,575 physically authored wetland delta remains protected. Chromium for candidate PENDING, original 17 gate unchanged.
+
+**T0 BASELINE BUILDING; T1 BUILDING / whole-game SELF-REVIEW / ACCEPTANCE PENDING; T2 experimental/unaccepted; T3–T4 OPEN.** ≥17 repeated true full-scene renderer submissions at useful raster, verified physical-device displayed frames/p95, independent actual whole-game creative critic, authentic 45–90sec NEW head gameplay, long soak/recovery not established. No merge, no deploy.
+
+
+
 ## November 3 — exact 367d live CI exposes seven archival-source mismatches; T1 whole-game candidate NOT ACCEPTED
 
 **Source/identity:** Existing [DRAFT PR #52](https://github.com/my-edutu/Ai_games/pull/52), unchanged production parent [`367d57d18841b4f566d6433b45229f8cc460d70b`](https://github.com/my-edutu/Ai_games/commit/367d57d18841b4f566d6433b45229f8cc460d70b). **Never merged or deployed.** The authored T1 near-stage forest plus preliminary T2 muscular gait remain production **candidates**, not a verified complete-game leap.

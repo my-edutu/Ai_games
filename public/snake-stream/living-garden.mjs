@@ -358,12 +358,19 @@ export function createLivingGarden(THREE, {width,height}) {
   // same exact 3D triangle/texture budget; root and canopy bounds remain well
   // outside every authentic active game cell. A nearer, broken arcade now
   // reads against the layered rear canopy instead of disappearing in the sea.
-  // Six rear trees, staggered in depth, frame the authentic gameplay board.
-  // Two near-camera wings make the ocean edge a lush inhabited diorama.
+  // NOVEMBER 3 T1 HORIZON-TO-FOREGROUND CANOPY RING. The two outer
+  // members of the rear forest formerly piled onto the same distant strip
+  // as the four inner trees, leaving the long western/eastern board flanks
+  // naked. Re-root those two *existing complete trees* at the middle of the
+  // actual offshore western/eastern relief, while retaining four staggered
+  // ruins-backed crowns, the two original near-stage wing trees and the two
+  // original foreground trees. Ten fully authored living crowns now bracket
+  // near, mid and far depth, never over any authoritative cell or portal.
+  // No canopy leaf, vine, triangle, material, pass, texture or draw removed.
   const forest=[
-    [-W*.79,-H-8.65,6.15,.2],[-W*.47,-H-9.2,6.5,1.4],
+    [-W-7.6,-H*.25,6.15,.2],[-W*.47,-H-9.2,6.5,1.4],
     [-W*.11,-H-8.55,6.3,2.5],[W*.27,-H-9.1,6.65,3.7],
-    [W*.61,-H-8.4,6.3,4.8],[W*.85,-H-9.1,6.45,5.7],
+    [W*.61,-H-8.4,6.3,4.8],[W+7.75,-H*.15,6.45,5.7],
     [-W-7.1,H+6.1,5.4,.65],[W+7.3,H+5.95,5.6,2.3]
   ];
   for(const [x,z,h,p] of forest)canopyTree(x,z,h,p);

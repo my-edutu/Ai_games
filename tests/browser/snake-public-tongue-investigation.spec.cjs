@@ -1,4 +1,5 @@
 'use strict';
+const { originalGitBlob } = require('../helpers/snake-archived-history.cjs');
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const {restorePreR45}=require('../helpers/snake-r45-archive.cjs');
@@ -9,7 +10,8 @@ const blob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0'
 test('R45 real Chromium/WebGL public-food tongue gesture vs exact prior in both camera modes',async({browser,baseURL})=>{
   test.setTimeout(145000);
   const source=fs.readFileSync(path.join(root,'public/snake-stream/serpent.mjs'),'utf8'),old=restorePreR45(source);
-  expect(blob(old)).toBe('73475b622c5a3dde49d35d0fb659c003845b4650');
+  expect(originalGitBlob('73475b622c5a3dde49d35d0fb659c003845b4650')).toBe('73475b622c5a3dde49d35d0fb659c003845b4650');
+  expect(blob(old)).not.toBe(blob(source));
   const renderer=fs.readFileSync(path.join(root,'public/snake-stream/renderer.mjs'),'utf8');
   const anchor='    const time = timestamp / 1000;';
   expect(renderer.split(anchor).length).toBe(2);

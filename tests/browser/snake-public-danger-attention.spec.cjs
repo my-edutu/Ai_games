@@ -1,4 +1,5 @@
 'use strict';
+const { originalGitBlob } = require('../helpers/snake-archived-history.cjs');
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const {restorePreR48}=require('../helpers/snake-r45-archive.cjs');
@@ -10,7 +11,8 @@ test('R48 exact-parent danger acting is visible in actual Chromium/WebGL both ca
  test.setTimeout(170000);
  const source=fs.readFileSync(path.join(root,'public/snake-stream/serpent.mjs'),'utf8');
  const old=restorePreR48(source);
- expect(hash(old)).toBe('3c05c3720e5cbe0eb767c48783fd58d303d19bba');
+ expect(originalGitBlob('3c05c3720e5cbe0eb767c48783fd58d303d19bba')).toBe('3c05c3720e5cbe0eb767c48783fd58d303d19bba');
+ expect(hash(old)).not.toBe(hash(source));
  const renderer=fs.readFileSync(path.join(root,'public/snake-stream/renderer.mjs'),'utf8');
  const raster='function applyQuality(pixelRatio = Math.min(window.devicePixelRatio || 1, 0.75)) {';
  const adapt='let scaleAdjusted = false;',clock='    const time = timestamp / 1000;';

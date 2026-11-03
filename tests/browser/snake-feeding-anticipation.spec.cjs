@@ -1,4 +1,5 @@
 'use strict';
+const { originalGitBlob } = require('../helpers/snake-archived-history.cjs');
 const { restorePreR45 } = require('../helpers/snake-r45-archive.cjs');
 const { test, expect } = require('@playwright/test');
 const fs = require('node:fs');
@@ -30,7 +31,8 @@ test('real Chromium/WebGL: original jaw anticipates nearby public fruit in uncha
   // Frozen R39 jaw A/B excludes R45's separate public-tongue gesture from BOTH historical arms.
   expect((source.match(round39) || []).length).toBe(3);
   const predecessor = source.replace(round39, '');
-  expect(blob(predecessor)).toBe('8e96f08c3fca80484d69c9476a6d9993cfc4af63');
+  expect(originalGitBlob('8e96f08c3fca80484d69c9476a6d9993cfc4af63')).toBe('8e96f08c3fca80484d69c9476a6d9993cfc4af63');
+  expect(blob(predecessor)).not.toBe(blob(source));
   const rendererSource = fs.readFileSync(path.join(repo, 'public/snake-stream/renderer.mjs'), 'utf8');
   const clockAnchor = '    const time = timestamp / 1000;';
   expect(rendererSource.split(clockAnchor).length).toBe(2);

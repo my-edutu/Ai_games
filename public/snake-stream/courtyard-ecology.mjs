@@ -88,20 +88,37 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
           + .07 * Math.sin(bankX * 8.3 - course * .91);
         groveDistance = Math.min(groveDistance, Math.abs(bankZ - centre));
       }
-      const shoreMoss = 1 - smooth(.085, .285,
-        groveDistance + (mineral - .5) * .11 + (watershed - .5) * .08);
-      const grove = shoreMoss * (.67 + .33 * watershed)
-        * (1 - heart * .86) * smooth(.07, .30, v * (1-v) * 4);
+      // NOV 3 T1 REWOVEN GARDEN FLOOR: the forest actually reaches INTO the
+      // playable old stone plaza. A wide, continuous verdant catchment follows
+      // the same THREE real planted gullies, with warmer mineral islands and
+      // lower-root shade. This is baked once into the EXISTING owned stone
+      // texture, not a second mesh, tile, light, water surface or dynamic pass.
+      // Preserve the ancient central limestone clearing and all live markers.
+      const shoreMoss = 1 - smooth(.085, .295,
+        groveDistance + (mineral - .5) * .15 + (watershed - .5) * .105);
+      const grove = shoreMoss * (.79 + .21 * watershed)
+        * (1 - heart * .88) * smooth(.055, .25, v * (1-v) * 4);
       if (grove > .37) grovePixelCount++;
+      // Natural limestone islands break the forest floor; several overlapping
+      // scales make coherent planting beds instead of three painted stripes.
+      // Value contrast is retained at the exact real public cell centres.
+      const edgeUnderstory = nearEdge * (.43 + .25 * mineral);
+      const planted = clamp01(grove * 1.12 + marsh * .23 + edgeUnderstory * .38);
+      const canopyShade = smooth(.20, .89, planted) * (1 - heart * .83);
+      const openStone = heart * (1 - canopyShade);
+      const mineralLace = (.45 + .55 * Math.sin(gx * .79 + Math.sin(gz * .38) * 2.1))
+        * (.35 + .65 * watershed) * canopyShade;
       // Interstitial fern roots and their mineral staining occupy *corners*
-      // between actual cell centres. A real food/hazard/portal centre lies
-      // sqrt(.5²+.5²) cells away and keeps its original material/cue contrast.
+      // between actual cell centres, not fruit, hazard or portal positions.
       const rootX = Math.round(gx), rootZ = Math.round(gz);
       const rooted = fernSites?.[rootZ * (width + 1) + rootX] ?
         (1 - smooth(.10, .53, Math.hypot(gx - rootX, gz - rootZ))) : 0;
-      const targetR = 144 + 23 * heart + silt - marsh * 43 - rooted * 43 - grove * 69;
-      const targetG = 144 + 15 * heart + silt * .70 - marsh * 23 - rooted * 22 + grove * 13;
-      const targetB = 120 + 12 * heart + silt * .68 - marsh * 38 - rooted * 29 - grove * 40;
+      const targetR = 204 + 16 * openStone + silt * .62
+        - canopyShade * 110 - rooted * 29 - mineralLace * 10;
+      const targetG = 184 + 11 * openStone + silt * .48
+        - canopyShade * 50 - rooted * 14 + mineralLace * 6;
+      const targetB = 155 + 8 * openStone + silt * .42
+        - canopyShade * 78 - rooted * 21 - mineralLace * 9;
       // Retain directional raking-light/mortar contrast from ORIGINAL pixels.
       // Lift only the muddy compression range, without bleaching real ruin
       // greenery or painting over portal/fruit/hazard geometry.
@@ -132,7 +149,9 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
         *(outer*.72+middle*.47+inner*.64+spokes*.31)
         *smooth(.06,.35,radius);
       const sunstoneLimestone=(1-smooth(2.8,3.65,radius))*(1-sunstoneWear*.23);
-      const keep = .24 + nearEdge * .05; // no hard overlay or sharp mask edge
+      // Preserve original mortar, original micro-grain and natural material
+      // noise; the cultivated centre retains more of the real old flagstone.
+      const keep = .16 + openStone * .10 + (1 - canopyShade) * .045;
       data[i]   = Math.max(0, Math.min(255, Math.round(oldR * keep +
         (targetR + grain + sunstoneLimestone*5.2 - sunstoneWear*26) * (1-keep))));
       data[i+1] = Math.max(0, Math.min(255, Math.round(oldG * keep +

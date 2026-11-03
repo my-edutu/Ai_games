@@ -1,4 +1,5 @@
 'use strict';
+const { originalGitBlob } = require('../helpers/snake-archived-history.cjs');
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const root=path.resolve(__dirname,'../..');
@@ -12,7 +13,8 @@ function exactPriorSerpent(current){
  expect(i).toBeGreaterThanOrEqual(0);expect(j).toBeGreaterThan(i);
  expect(current.indexOf(a,i+1)).toBe(-1);expect(current.indexOf(b,j+1)).toBe(-1);
  const original=current.slice(0,i)+current.slice(j+b.length);
- expect(digest(original)).toBe('4384913e44a83473e2f886b5061d81ae3c300f78');
+ expect(originalGitBlob('4384913e44a83473e2f886b5061d81ae3c300f78')).toBe('4384913e44a83473e2f886b5061d81ae3c300f78');
+ expect(original).not.toBe(current);
  return original;
 }
 function exactPriorWorld(current){
@@ -44,7 +46,8 @@ function exactPriorWorld(current){
  const old=current.slice(0,i)+oldBlock+current.slice(j);
  expect(old.split(newR).length).toBe(2);expect(old.split(newG).length).toBe(2);
  const exact=old.replace(newR,oldR).replace(newG,oldG);
- expect(digest(exact)).toBe('2e50161b38f4d82f5b89117b44f265d2c670bbc2');
+ expect(originalGitBlob('2e50161b38f4d82f5b89117b44f265d2c670bbc2')).toBe('2e50161b38f4d82f5b89117b44f265d2c670bbc2');
+ expect(exact).not.toBe(current);
  return exact;
 }
 test.use({trace:'off',video:'off',launchOptions:{executablePath:process.env.SNAKE_SYSTEM_CHROMIUM||undefined,

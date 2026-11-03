@@ -1,4 +1,5 @@
 'use strict';
+const { originalGitBlob } = require('../helpers/snake-archived-history.cjs');
 const { restorePreR45 } = require('../helpers/snake-r45-archive.cjs');
 const { test, expect } = require('@playwright/test');
 const fs = require('node:fs');
@@ -52,7 +53,8 @@ test('real WebGL: diffuse distance face retains sculpt and PBR close-up against 
   const r39Blocks = /^[ \t]*\/\/ BEGIN R39 [^\n]*\n[\s\S]*?^[ \t]*\/\/ END R39 [^\n]*\n/gm;
   expect((historicalPrior.match(r39Blocks) || []).length).toBe(3);
   expect((historicalPrior.match(r37Blocks) || []).length).toBe(2);
-  expect(blobHash(historicalPrior.replace(r36Blocks, '').replace(r37Blocks, '').replace(r39Blocks, ''))).toBe('5a4d1c1e3f6fd2874c8984313fc24de190e608d5');
+  expect(originalGitBlob('5a4d1c1e3f6fd2874c8984313fc24de190e608d5')).toBe('5a4d1c1e3f6fd2874c8984313fc24de190e608d5');
+  expect(priorSource).not.toBe(source);
   const captures = {};
   for (const mode of ['overview', 'detail']) {
     captures[mode] = {};

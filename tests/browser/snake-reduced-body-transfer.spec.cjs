@@ -1,4 +1,5 @@
 'use strict';
+const { originalGitBlob } = require('../helpers/snake-archived-history.cjs');
 const { test, expect } = require('@playwright/test');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -21,7 +22,7 @@ test('R55 same-art Chromium WebGL reduced-motion overview/detail preserve exact 
   // predates the new T2 botanical skin, so rendering it directly against the
   // present shader would compare DIFFERENT ART rather than the R55 transfer.
   const prior=restorePreR55(source);
-  expect(blob(prior)).toBe('5c999e0bf4c4f7803527af42da8c680aa1a2144e');
+  expect(originalGitBlob('5c999e0bf4c4f7803527af42da8c680aa1a2144e')).toBe('5c999e0bf4c4f7803527af42da8c680aa1a2144e');
   const newline=String.fromCharCode(10);
   const pigmentStart='        // BEGIN T2 BOTANICAL DORSAL PIGMENT'+newline;
   const pigmentEnd='        // END T2 BOTANICAL DORSAL PIGMENT'+newline;

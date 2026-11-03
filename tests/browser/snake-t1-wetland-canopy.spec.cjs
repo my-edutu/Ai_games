@@ -77,7 +77,13 @@ test('T1 exact-head riparian water garden: actual full-scene, portrait, detail a
   expect(pair[1].png.equals(pair[0].png)).toBe(false);
   expect(pair[1].stats.drawCalls).toBe(pair[0].stats.drawCalls);
   expect(pair[1].stats.world).toEqual(pair[0].stats.world);
-  expect(pair[1].stats.livingGarden.triangles-pair[0].stats.livingGarden.triangles).toBe(2784+pair[1].stats.livingGarden.amphitheatreTriangles);
+  // The later original 72 sculpted littoral crowns + 12 stones are 1,860
+  // genuine physical triangles beyond original wetland and amphitheatre.
+  // Preserve EVERY original artifact and the unchanged 22,000 budget.
+  expect(pair[1].stats.livingGarden.littoralGroveClumps).toBe(72);
+  expect(pair[1].stats.livingGarden.littoralGroveBoulders).toBe(12);
+  expect(pair[1].stats.livingGarden.triangles-pair[0].stats.livingGarden.triangles).toBe(2784+pair[1].stats.livingGarden.amphitheatreTriangles+1860);
+  expect(pair[1].stats.livingGarden.triangles).toBeLessThan(22000);
   for(const key of ['geometries','materials','textures','bodyRings','bodyVertices','bodyTriangles','paths',
    'maxBodyRings','bufferBytes','truncated'])
    expect(pair[1].stats.serpent[key]).toBe(pair[0].stats.serpent[key]);

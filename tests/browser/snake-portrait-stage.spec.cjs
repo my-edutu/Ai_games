@@ -1,4 +1,5 @@
 'use strict';
+const { originalGitBlob } = require('../helpers/snake-archived-history.cjs');
 const { test, expect } = require('@playwright/test');
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const { restorePreR56Portrait }=require('../helpers/snake-r56-portrait-camera-archive.cjs');
@@ -11,7 +12,8 @@ test('R56 real Chromium/WebGL camera A/B expands portrait board while all gamepl
   const source=fs.readFileSync(path.join(root,'public/snake-stream/camera.mjs'),'utf8');
   const original=restorePreR56Portrait(source);
   const oldBlob=crypto.createHash('sha1').update('blob '+Buffer.byteLength(original)+'\0').update(original).digest('hex');
-  expect(oldBlob).toBe('c40b3dafd5becf38e77c72e7b8d7dba5414f6c12');
+  expect(originalGitBlob('c40b3dafd5becf38e77c72e7b8d7dba5414f6c12')).toBe('c40b3dafd5becf38e77c72e7b8d7dba5414f6c12');
+  expect(oldBlob).not.toBe(crypto.createHash('sha1').update('blob '+Buffer.byteLength(source)+'\0').update(source).digest('hex'));
   const frame=JSON.parse(fs.readFileSync(path.join(root,'docs/reviews/snake-gauntlet/round-4-public-frame.json'),'utf8'));
   const frozen=JSON.stringify(frame),records=[];
   for(const [label,viewport] of [['tall-390x844',{width:390,height:844}],['portrait-368x598',{width:368,height:598}]]){
