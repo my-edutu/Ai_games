@@ -823,6 +823,23 @@ export function createClimber() {
       legs[0].lower.rotation.x += .12 * brace;
       legs[1].lower.rotation.x += .12 * brace;
     }
+    // An adjacent source-authenticated guardian floor clearance lends the
+    // actual climber a brief weight-transfer response as the OPEN exterior
+    // gate recedes behind it. This is not a victory celebration or game
+    // command. The same original skinned rig stays in the current movement,
+    // while injury, attacks, dash, terminal and reduced-motion take priority.
+    const releasedGate = !dead && !hurt && !stale && !terminalKind &&
+      !defending && !attacking && !dash && !reducedMotion &&
+      Number.isFinite(state.guardianReleaseWeight)
+        ? clamp(state.guardianReleaseWeight,0,1) : 0;
+    if (releasedGate > 0) {
+      body.rotation.x += .11 * releasedGate;
+      head.rotation.x -= .10 * releasedGate;
+      arms[0].upper.rotation.x -= .24 * releasedGate;
+      arms[1].upper.rotation.x += .07 * releasedGate;
+      legs[0].lower.rotation.x += .08 * releasedGate;
+      legs[1].lower.rotation.x += .08 * releasedGate;
+    }
     if(dash){body.rotation.x=.65;head.rotation.x=-.4;for(let i=0;i<2;i++){
       arms[i].upper.rotation.x=1.15;arms[i].lower.rotation.x=-.6;legs[i].upper.rotation.x=i?.5:-.75;legs[i].lower.rotation.x=i?.95:.25;
     }}

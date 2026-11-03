@@ -130,6 +130,25 @@ test('stale transport and reduced motion cannot animate fake progress; context r
   assert.equal(new Set(disposed).size, 5, 'all owned geometries including instanced fragments are released');
 });
 
+test('the authentic guardian release stays aligned with the exposed source HP lock and skinned handoff', () => {
+  const scene = fs.readFileSync(path.join(root, 'public/infinite-tower-climb/visuals/scene.mjs'), 'utf8');
+  const circuit = fs.readFileSync(path.join(root, 'public/infinite-tower-climb/visuals/guardian-circuit.mjs'), 'utf8');
+  const rig = fs.readFileSync(path.join(root, 'public/infinite-tower-climb/visuals/characters.mjs'), 'utf8');
+  const gate = fs.readFileSync(path.join(root, 'public/infinite-tower-climb/visuals/guardian-passage.mjs'), 'utf8');
+  assert.match(circuit, /source\.toY, source\.baseY, source\.width, 27\.78\)/,
+    'the real guardian HP lock already occupies the outer tower surface');
+  assert.match(scene, /passage\.begin\(previous, next, pointFor\(gateAnchorX,[\s\S]*?next\.chunkBaseY, next\.worldWidth, 27\.78\)\)/,
+    'earned gate passage must persist at the same physical exterior lock, not inside opaque core');
+  assert.match(scene, /guardianReleaseWeight: !options\.stale[\s\S]*?passage\.cameraWeight\(\)/,
+    'only the source-witnessed passage provides the climber release weight');
+  assert.match(rig, /const releasedGate = !dead && !hurt && !stale && !terminalKind &&[\s\S]*?!reducedMotion &&[\s\S]*?state\.guardianReleaseWeight/,
+    'injury, combat, terminal and reduced motion must all veto the gate handoff pose');
+  assert.match(gate, /wing\.rotation\.y = -side \* opened \* \.27/,
+    'the earned bronze leaves must turn outward while they physically retract');
+  assert.doesNotMatch(scene, /guardianCircuitSource\?\.guardianId === contactGuardian\?\.guardianId/,
+    'absent guardian and absent circuit must not compare as matching IDs');
+});
+
 test('the actual scene consumes source transitions and owns passage lifecycle on recovery', () => {
   const source = fs.readFileSync(path.join(root, 'public/infinite-tower-climb/visuals/scene.mjs'), 'utf8');
   assert.match(source, /observedGuardianPassage\(previous, next\)/);

@@ -825,7 +825,10 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
     ? observedGuardianLockStage(guardianCircuitSource) : null;
   const gateAnchorX = lockStage ? guardianCircuitSource.toX : null;
   const gate = lockStage?.center || null;
-  const relay = guardianCircuitSource?.guardianId === contactGuardian?.guardianId
+  // A missing guardian MUST NOT be treated as an ID match (undefined ===
+  // undefined). Ordinary climbs must never attempt a release-camera read.
+  const relay = guardianCircuitSource &&
+    guardianCircuitSource.guardianId === contactGuardian?.guardianId
     ? observedGuardianRelayStage(guardianCircuitSource)?.center || null : null;
   // Keep gate width a soft composition preference, never a hard camera bound:
   // the real climber and attacker's complete silhouettes still take priority.
@@ -1703,8 +1706,11 @@ export function createTowerScene(canvas, settings = {}) {
       Number.isFinite(platform.y) && Number.isFinite(platform.height));
     if (guardianCap && Number.isFinite(next.worldWidth) && next.worldWidth > 0) {
       const gateAnchorX = guardianGateAnchorX(previous, guardianCap);
+      // The old HP lock was exposed on the EXTERIOR at radius 27.78. The
+      // witnessed opening must inhabit that SAME 3D site, not be buried at
+      // the old inner-cap radius 21.8 behind opaque tower masonry.
       passage.begin(previous, next, pointFor(gateAnchorX,
-        guardianCap.y + guardianCap.height, next.chunkBaseY, next.worldWidth, 21.8));
+        guardianCap.y + guardianCap.height, next.chunkBaseY, next.worldWidth, 27.78));
     }
     // A landing is observable only across consecutive source snapshots in the
     // same real run/floor. Skipped long intervals and decorative ledge poses
@@ -1907,6 +1913,11 @@ export function createTowerScene(canvas, settings = {}) {
       terminalReason: snapshot.lifecycle !== 'running' ? snapshot.result?.reason : null,
       intentMode: snapshot.intent?.mode,
       platformRide: observedRidePose,
+      // The same authentic floor-advance gate memory can weight the skinned
+      // ascent handoff. No invented win: only the adjacent source guardian
+      // passage exposes a nonzero weight, then retires on its own.
+      guardianReleaseWeight: !options.stale && snapshot.lifecycle === 'running' &&
+        p.health > 0 ? passage.cameraWeight() : 0,
       incomingGuardianCharge: witnessedShot
         ? clamp((8 - guardianWarning.remainingChargeTicks) / 7, 0, 1) : null,
       incomingGuardianSide: witnessedShot ? Math.sign(sourceGuardian.x - p.x) : 0,

@@ -137,6 +137,11 @@ export function createTowerGuardianPassage(THREE) {
       // separated leaves are a short, non-colliding passage memory.
       wing.position.x = side * (1.46 + opened * 2.05);
       wing.position.z = -.08 * opened;
+      // The two original bronze leaves turn outward as the real cleared
+      // lock withdraws. Reduced motion displays the fully open still shape;
+      // the authoritative platform/collision geometry never changes.
+      wing.rotation.y = -side * opened * .27;
+      wing.rotation.z = side * opened * .025;
     }
     emblem.rotation.z = still ? 0 : opened * Math.PI * .55;
     emblem.position.y = 4.75 + (still ? 0 : opened * .26);
