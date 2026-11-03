@@ -1032,7 +1032,11 @@ function animate(t){
  else camera.position.lerp(cam,reduced?1:Math.min(1,cameraDt*(cinematicLens?.following??4.6)));
  // Body-height aiming makes armor and weapon contact legible, with eased
  // transitions across real scene states instead of neck-snapping camera cuts.
- const desiredAim=new THREE.Vector3(look.x,cinematicLens?.lookY??cinematicShot?.lookY??0,look.z);
+ // The group-vista director can centre the true party without moving any
+ // authoritative character. Optical aim follows the same bounded shot as
+ // the chosen camera orbit, avoiding the former off-screen companions.
+ const viewedAim=plannedCamera.look??look;
+ const desiredAim=new THREE.Vector3(viewedAim.x,cinematicLens?.lookY??cinematicShot?.lookY??0,viewedAim.z);
  if(!camera.userData.aimInitialized){cameraAim.copy(desiredAim);camera.userData.aimInitialized=true;}
  else cameraAim.lerp(desiredAim,reduced?1:Math.min(1,cameraDt*5.5));
  camera.lookAt(cameraAim);
