@@ -185,7 +185,10 @@ test('real airborne guardian pulse shares a physical lens with the committed lan
     assert.ok(pose.clear && pose.guardianFramed,
       'live guardian collision silhouette must remain on a clear exterior shot');
     assert.ok(pose.heroFraction >= .14,
-      'do not trade a legible airborne climber for a distant spectacle');
+      'do not trade a legible airborne climber for a distant spectacle; ' +
+      JSON.stringify({ aspect, fraction: pose.heroFraction,
+        clear: pose.clear, guardian: pose.guardianFramed,
+        landing: pose.landingFramed, relaxed: pose.duelLandingSoftened }));
     assert.equal(typeof pose.landingFramed, 'boolean',
       'source-committed landing visibility must be reported instead of presumed');
     if (pose.duelLandingSoftened) {

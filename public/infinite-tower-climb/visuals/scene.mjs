@@ -1012,6 +1012,7 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
   // If an authentic aerial boss exchange spans a huge cap, we may relax
   // ONLY those bounds, not the climber/guardian collision silhouettes.
   const landingPointStart = points.length;
+  const landingSightlineStart = sightlines.length;
   if (routeLanding) {
     if (observedAid && !target) {
       // Recovery's hard bound is the REAL pickup, not a fabricated platform
@@ -1045,6 +1046,7 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
     }
   }
   const landingPointEnd = points.length;
+  const landingSightlineEnd = sightlines.length;
   if (threat && (!contactGuardian || !threat.guardian)) {
     includeBody(threat, threat.halfWidth, threat.halfHeight, threat.angle);
     sightlines.push(threat);
@@ -1084,7 +1086,13 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
     }
     distance = Math.max(12, distance) * zoom;
     const position = { x: center.x + out.x * distance, y: center.y + out.y * distance, z: center.z + out.z * distance };
-    const clear = sightlines.every(point => {
+    const clear = sightlines.every((point, index) => {
+      // Retain solid-core sightlines to both present, living actors. A huge
+      // off-axis cap footprint is only a SOFT objective during a witnessed
+      // airborne fight; testing every distant edge as a hard line-of-sight
+      // would veto all close two-body rescues even when the actors are clear.
+      if (!hardLandingFit && index >= landingSightlineStart &&
+          index < landingSightlineEnd) return true;
       const dx = point.x - position.x, dz = point.z - position.z;
       const t = clamp(-(position.x * dx + position.z * dz) / Math.max(.001, dx * dx + dz * dz), 0, 1);
       return Math.hypot(position.x + dx * t, position.z + dz * t) >= 23.5;
