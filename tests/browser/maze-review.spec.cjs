@@ -826,10 +826,19 @@ test('a real close public encounter frames both autonomous actors and saves date
     'the actual portrait pickup must be closer while retaining a safe physical stage').toBeLessThan(8);
   expect(pickupPortraitDiagnostic.pickupCameraTargetHalfHeight,
     'the real full-viewport 390px pickup must make its physical key-theatre readable, with source-bound safe camera').toBeLessThan(7.3);
+  // Pass99 native art critique rejected the ~7.27-half-height genuine key
+  // frame as too wide. This new cinematic MUST actually be more prominent in
+  // the rendered WebGL image; source constants or green Node tests do not win.
+  expect(pickupPortraitDiagnostic.pickupCameraTargetHalfHeight,
+    'the witnessed 390px physical story camera should frame Pip and original theatre materially closer').toBeLessThan(6.0);
+  expect(pickupPortraitDiagnostic.cameraHalfHeight,
+    'actual native 390px WebGL needs to arrive at the stronger shot, not merely request it').toBeLessThan(7.0);
   expect(pickupPortraitDiagnostic.pickupShardsInFrame,
     'genuine physical collectible release must be visible in full native portrait').toBeGreaterThanOrEqual(6);
   expect(pickupAfterPortraitScreenshot.pickupSpreadCssPx,
     'actual 390px capture requires a physically wide pickup release, not merely eight in-frame coordinates').toBeGreaterThan(12);
+  expect(pickupAfterPortraitScreenshot.pickupSpreadCssPx,
+    'native story-shot glass fragments must be significantly more readable than Pass99 56.7px').toBeGreaterThan(60);
   await page.setViewportSize({width:1280,height:900});
 
   const sealedSamples = sequences.flat().map(sample => {
