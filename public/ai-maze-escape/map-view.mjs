@@ -102,7 +102,15 @@ export function publicCompactExplorationHalfHeight(aspect, selectedHalfHeight, s
        +Math.abs(Math.floor(n/snapshot.width)-Math.floor(snapshot.currentCell/snapshot.width))===1;
   });
   if (!connected) return base;
-  if (aspect>=1.22) return Math.min(base,6.35);
+  // Pass126: native 1280×900 renders still place Pip and the authored
+  // fossil interaction inside a comparatively small ocean island. Give
+  // ordinary, reciprocally disclosed desktop exploration a closer real
+  // *camera*, not larger props or a cropped fake screenshot. The short
+  // 844×390 landscape must keep its former taller safe stage; portrait,
+  // gate, guardian and terminal framing retain their own controls.
+  // This does not use a route plan, unknown neighbor or private cell.
+  if (aspect>=1.22 && aspect<=1.75) return Math.min(base,5.85);
+  if (aspect>1.75) return Math.min(base,6.35);
   if (aspect<.60) return Math.min(base,8.05);
   return base;
 }
