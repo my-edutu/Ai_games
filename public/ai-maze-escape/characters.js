@@ -268,6 +268,21 @@ export function createExplorer(options = {}) {
     // a witnessed gate opening or terminal truth. No teleport/AI authority.
     const pickupCelebrate=!s.win&&!s.lose&&alert<.1&&keyReach<.1
       &&gateCelebrate<.1 ? Math.max(0,Math.min(1,finite(options.pickupStrength))) : 0;
+    // The real collected-key portrait showed a raised hand but only Pip's
+    // profile: the main eye/face remained lost against the stone theatre.
+    // Turn only the ORIGINAL connected torso and head toward the existing
+    // render camera during this witnessed reward. The actor's route heading,
+    // authoritative position, goal and discovery remain source-owned.
+    // A warden, matching lock, gate or terminal event suppresses the turn.
+    const pickupViewer=options.keyCameraPosition;
+    const pickupViewerYaw=pickupCelebrate>.08 && pickupViewer
+      && Number.isFinite(pickupViewer.x) && Number.isFinite(pickupViewer.z)
+      ? Math.atan2(pickupViewer.x-group.position.x,
+        pickupViewer.z-group.position.z) : NaN;
+    const pickupFaceTurn=Number.isFinite(pickupViewerYaw)
+      ? Math.max(-1.05,Math.min(1.05,Math.atan2(
+        Math.sin(pickupViewerYaw-group.rotation.y),
+        Math.cos(pickupViewerYaw-group.rotation.y))))*pickupCelebrate : 0;
     // The SAME physical key also appears briefly when the public runtime
     // actually records its collection and matching inventory. A pickup is
     // witnessed, never predicted from a goal or unrevealed key position.
@@ -302,10 +317,10 @@ export function createExplorer(options = {}) {
     body.position.y=.78+Math.abs(step)*.035+(s.lose?0:idle*.008)-alert*.11+gateCelebrate*.09+pickupCelebrate*.23;
     body.position.z=alert>0?-alert*.105:gateCelebrate*.035;
     body.rotation.set(s.lose?.22:stride*.065-s.danger*.035-keyReach*.07-alert*.25-gateCelebrate*.12-pickupCelebrate*.13,
-      lookYaw*.14+keyYaw*.08,
+      lookYaw*.14+keyYaw*.08+pickupFaceTurn*.28,
       .035*rest-step*.05-Math.sign(lookYaw)*alert*.12);
     head.rotation.set(s.lose?.28:-.04-s.danger*.08+idle*.018+alert*.10-keyReach*.06-gateCelebrate*.16-pickupCelebrate*.18,
-      (s.reduced?0:Math.max(-.42,Math.min(.42,turn*.7))+(Math.sin(s.time*.73)*.08+.12)*rest)*(1-alert-keyReach*.7-gateCelebrate*.55)+lookYaw+keyYaw+gateYaw,
+      (s.reduced?0:Math.max(-.42,Math.min(.42,turn*.7))+(Math.sin(s.time*.73)*.08+.12)*rest)*(1-alert-keyReach*.7-gateCelebrate*.55)+lookYaw+keyYaw+gateYaw+pickupFaceTurn*.72,
       s.win?-.13:s.lose?.07:-.065*rest+step*.035-Math.sign(lookYaw)*alert*.19);
     for (let i=0;i<2;i++) {
       const sign=i===0?1:-1;
