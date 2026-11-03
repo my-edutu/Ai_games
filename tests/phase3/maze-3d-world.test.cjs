@@ -49,6 +49,57 @@ test('terrace stairs join disclosed legal passages and never disclose hidden nei
 });
 
 
+test('tideglass balustrades trace only reciprocal disclosed playable stairs', async () => {
+  const {createMazeWorld, cellPosition, cellHeight, CELL_SIZE} = await modulePromise;
+  const {Matrix4,Vector3,Quaternion} = await import(three);
+  const low = {cell:24,neighbors:[17]}, high = {cell:17,neighbors:[24]};
+  const linked = fixture([low,high]), unchanged = JSON.stringify(linked);
+  const world = createMazeWorld({balanced:true}), budget = world.stats();
+  world.update(linked);
+  assert.equal(world.stats().stairBalustrades,1,
+    'one actual known ascending passage creates one paired stair balustrade');
+  assert.deepEqual(world.stats().stairEdges,[[24,17]]);
+
+  // Inspect the REAL Three.js instanced beam transforms, not a descriptive
+  // counter or a mocked floor. The two raised grips must sit beyond the
+  // walkable 1.56-wide centerline, on opposite sides of the known stair.
+  const a=cellPosition(low.cell,linked.width,linked.height);
+  const b=cellPosition(high.cell,linked.width,linked.height);
+  const dz=Math.sign(b.z-a.z), rise=cellHeight(high.cell,7,9)-cellHeight(low.cell,7,9);
+  const railZ=a.z+dz*(.08+(CELL_SIZE/2-.08)/2);
+  const railY=cellHeight(low.cell,7,9)+.70+rise/2;
+  const found=[];
+  const matrix=new Matrix4(),p=new Vector3(),q=new Quaternion(),scale=new Vector3();
+  for(const batch of world.group.children[1].children) {
+    if(!batch.isInstancedMesh) continue;
+    for(let i=0;i<batch.count;i++){
+      batch.getMatrixAt(i,matrix);
+      matrix.decompose(p,q,scale);
+      if(Math.abs(p.z-railZ)<.0001 && Math.abs(p.y-railY)<.0001
+          && Math.abs(Math.abs(p.x-a.x)-.99)<.0001
+          && scale.z>1.2 && scale.x<.2) found.push(Math.sign(p.x-a.x));
+    }
+  }
+  assert.deepEqual(found.sort((a,b)=>a-b),[-1,1],
+    'both full-length sloping 3D handrails exist, beyond each edge of Pip’s legal footpath');
+  assert.equal(JSON.stringify(linked),unchanged,'architecture never mutates public or engine state');
+  assert.equal(world.stats().geometryCount,budget.geometryCount);
+  assert.equal(world.stats().materialCount,budget.materialCount);
+  assert.equal(world.stats().textureCount,budget.textureCount);
+
+  world.update(fixture([low]));
+  assert.equal(world.stats().stairBalustrades,0,
+    'an undisclosed high neighbor never produces a hinting rail');
+  world.update(fixture([{...low,neighbors:[]},{...high,neighbors:[]}]));
+  assert.equal(world.stats().stairBalustrades,0,'known but unlinked cells do not fabricate bridges');
+  world.update({...linked,runToken:'new-run'});
+  assert.equal(world.stats().stairBalustrades,1,'a new real run can rebuild disclosed paths deterministically');
+  world.dispose();
+  assert.equal(world.stats().stairBalustrades,0);
+  assert.equal(world.stats().geometryCount,0);
+  assert.equal(world.stats().materialCount,0);
+});
+
 test('lagoon surface is a single deterministic bounded tileable visual resource', async () => {
   const {createMazeWorld} = await modulePromise;
   const world = createMazeWorld({balanced: true});
