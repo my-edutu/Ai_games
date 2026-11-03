@@ -91,6 +91,36 @@ export function planImpactCameraHold(snapshot,beats){
 }
 
 /**
+ * A genuine positive HP change drives imported skinned bone recoil. The same
+ * real event already owns VFX/audio/camera; guessed targets and 'hurt' alone
+ * never create injury. Local angles are reversible, authority remains intact.
+ */
+const SKINNED_HIT_REST=Object.freeze({
+ weight:0,spine:Object.freeze({pitch:0,roll:0}),
+ shoulders:Object.freeze({left:0,right:0}),elbows:Object.freeze({left:0,right:0}),
+ legs:Object.freeze({left:Object.freeze({upper:0,lower:0,foot:0}),
+ right:Object.freeze({upper:0,lower:0,foot:0})})
+});
+const HIT_ROLES=Object.freeze(['vanguard','ranger','mystic','revenant','cultist','warden']);
+export function planSkinnedHitResponse(kind,damage,maxHp,age,fatal=false,reducedMotion=false){
+ if(!HIT_ROLES.includes(kind)||fatal||reducedMotion||
+ !Number.isFinite(damage)||damage<=0||!Number.isFinite(maxHp)||maxHp<=0||
+ !Number.isFinite(age)||age<0||age>=DAMAGE_BEAT_DURATION)return SKINNED_HIT_REST;
+ const onset=ease(age/.09),release=1-ease((age-.20)/.35);
+ const weight=clip(.36+2.2*damage/maxHp,.36,1)*(kind==='warden'?.76:1)*onset*release;
+ if(weight<=0)return SKINNED_HIT_REST;
+ const caster=kind==='ranger'||kind==='mystic'||kind==='cultist';
+ const side=kind==='cultist'||kind==='revenant'||kind==='warden'?-1:1,w=weight;
+ return Object.freeze({
+ weight:w,spine:{pitch:(caster?.21:.28)*w,roll:.19*side*w},
+ shoulders:{left:(caster?-.25:-.36)*w,right:(caster?-.39:-.30)*w},
+ elbows:{left:.29*w,right:.25*w},
+ legs:{left:{upper:.26*w,lower:-.23*w,foot:.09*w},
+ right:{upper:-.21*w,lower:.18*w,foot:-.07*w}}
+ });
+}
+
+/**
  * Real public HP-zero body collapse on imported GLB joints, entirely
  * presentation only. A fatal beat physically bends the knees and shoulders;
  * an already dead, restored party member holds a static natural pose.

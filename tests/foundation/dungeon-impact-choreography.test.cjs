@@ -120,3 +120,38 @@ test('animated skinned defeat affects real cloned joints and restores their rota
  assert.match(model,/skinnedDefeatActors:/);
  assert.match(app,/a\.defeatIntermission=Boolean\(state\?\.phase==='intermission'/);
 });
+
+
+test('real nonfatal HP loss gives full-party cloned skeleton physical recoil',async()=>{
+ const {planSkinnedHitResponse,DAMAGE_BEAT_DURATION}=await plan();
+ for(const kind of ['vanguard','ranger','mystic','revenant','cultist','warden']){
+  const quiet=planSkinnedHitResponse(kind,0,100,.16);
+  assert.equal(quiet.weight,0);
+  assert.deepEqual(planSkinnedHitResponse(kind,38,100,.16,true),quiet);
+  assert.deepEqual(planSkinnedHitResponse(kind,38,100,.16,false,true),quiet);
+  assert.deepEqual(planSkinnedHitResponse(kind,38,100,DAMAGE_BEAT_DURATION),quiet);
+  for(const age of [-2,NaN,0,.07,.15,.29,.48,.55,Infinity]){
+   const p=planSkinnedHitResponse(kind,38,100,age);
+   assert.ok(p.weight>=0&&p.weight<=1);
+   assert.ok(Math.abs(p.spine.pitch)<=.38&&Math.abs(p.spine.roll)<=.25);
+   for(const joint of ['shoulders','elbows'])for(const side of ['left','right'])
+    assert.ok(Number.isFinite(p[joint][side])&&Math.abs(p[joint][side])<=.6);
+   for(const side of ['left','right'])for(const part of ['upper','lower','foot'])
+    assert.ok(Number.isFinite(p.legs[side][part])&&Math.abs(p.legs[side][part])<=.6);
+  }
+  const hit=planSkinnedHitResponse(kind,38,100,.15);
+  assert.ok(hit.weight>.3&&Math.abs(hit.shoulders.left)>.12&&Math.abs(hit.legs.left.upper)>.08);
+ }
+ assert.ok(planSkinnedHitResponse('warden',30,100,.16).weight<
+  planSkinnedHitResponse('vanguard',30,100,.16).weight);
+});
+test('true damage attaches to bone overlay without stacking on imported mixer',()=>{
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/planSkinnedHitResponse/);
+ assert.match(model,/stageSkinnedHitAfterMixer\(actor,reducedMotion\)/);
+ assert.match(model,/stageRigMeleeAfterMixer\(actor,since,reducedMotion\);[\s\S]*?stageSkinnedHitAfterMixer\(actor,reducedMotion\);[\s\S]*?stageSkinnedDefeatAfterMixer/);
+ assert.match(model,/beat\?\.damage/);
+ assert.match(model,/mount\.last\.multiply\(mount\.next\)/);
+ assert.match(model,/const chest=selectCombatTorsoBone\(bones\)/);
+ assert.match(model,/skinnedHitActors:/);
+});

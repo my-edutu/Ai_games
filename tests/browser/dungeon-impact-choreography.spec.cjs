@@ -54,3 +54,45 @@ test('actual WebGL damage and final blow visibly change actor body pose, then cl
    ritual:actual.wardenRitual,drawCalls:actual.drawCalls,triangles:actual.triangles}
  },null,2)),contentType:'application/json'});
 });
+
+
+/** Natural seeded autonomous HP loss; no manufactured strike or health change. */
+test('real nonfatal contact animates skinned bones on desktop and portrait WebGL',async({page,request})=>{
+ test.setTimeout(210000);
+ const seed='visual-room-art-18',game=DungeonRuntime.create(seed);
+ let before=game.publicState(),after=null,victim=null;
+ for(let i=0;i<1400;i++){
+  const next=game.step();
+  if(next.run===before.run&&next.floor===before.floor){
+   victim=next.units.find(u=>u.hp>0&&before.units.some(old=>old.id===u.id&&old.hp>u.hp));
+   if(victim){after=next;break;}
+  }
+  before=next;
+ }
+ expect(victim,'natural nonfatal damage from DungeonRuntime').toBeTruthy();
+ let served=before;const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ await page.route('**/dungeon/state',route=>route.fulfill({json:served}));
+ expect((await request.get('/dungeon/impact-choreography-plan.js')).status()).toBe(200);
+ for(const [name,width,height] of [['desktop',1440,832],['mobile',390,844]]){
+  await page.setViewportSize({width,height});
+  await page.goto('/dungeon');
+  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.texturedCharacters??0),
+   {timeout:65000}).toBeGreaterThanOrEqual(3);
+  await page.locator('.arena').evaluate(el=>el.classList.add('world-only-audit'));
+  await page.locator('#world').screenshot({path:'artifacts/dungeon-real-hit-'+name+'-before.png',timeout:90000});
+  served=after;
+  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.damageChoreography?.observedDamageBeats??0),
+   {timeout:30000}).toBeGreaterThanOrEqual(1);
+  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.skinnedHitPeak??0),
+   {timeout:65000}).toBeGreaterThan(.2);
+  const d=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+  await page.locator('#world').screenshot({path:'artifacts/dungeon-real-hit-'+name+'-after.png',timeout:90000});
+  await test.info().attach('real-skinned-hit-'+name,{
+   body:Buffer.from(JSON.stringify({seed,victim:victim.id,beforeTick:before.tick,afterTick:after.tick,
+    skinnedHitPeak:d.authored3D.skinnedHitPeak,skinnedHitActors:d.authored3D.skinnedHitActors,
+    drawCalls:d.drawCalls,composition:d.composition,frameDelivery:d.frameDelivery},null,2)),
+   contentType:'application/json'});
+  served=before;
+ }
+ expect(errors).toEqual([]);
+});

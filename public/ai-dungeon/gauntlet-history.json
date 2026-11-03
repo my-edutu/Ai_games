@@ -2206,9 +2206,9 @@
       "newCandidateSceneReview": "UNVERIFIED new exact-head screenshot/audio/long motion. Source-head 4cc8abd desktop and portrait world-only screenshots inspected; candidate capture not yet available."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Current predecessor genuine Chromium desktop/mobile shows tall cluttered Gothic masonry and ornamental weapons pushing genuine characters toward edge/behind foreground, with a miniature/toy-like party despite imported skinned models. Candidate camera/cutaway attempt remains unverified in moving WebGL. Authentic AAA gap in character proportions/attack contact/environment readability and meaningful tactical pacing remains substantial.",
-    "currentWork": "SAME UNFINISHED M1: grounded 3D group-first cinematic party shot with actual living-party centre, grid-bound foreground occlusion scoring, and shared short-range camera-facing masonry cutaway. Original combat and audio maintained. Actual new-head browser experience and complete acceptance remain unverified.",
-    "candidateCommit": "721afccef49f1dc099f6550b38212ec10cce620e",
+    "biggestRemainingGap": "Inspected authentic exact-predecessor desktop/portrait Chromium: toy-like imported character proportions and overlapping small party amid chunky oversized masonry; on portrait, Ranger is partly clipped at the left. Real contact/motion quality remains far below Diablo IV, PoE2 and No Rest for the Wicked. New candidate has no independently observed moving AFTER footage yet.",
+    "currentWork": "SAME OPEN M1: real nonfatal HP-loss skinned-combat response on the original textured GLB characters. Genuine damage now drives shoulders, elbow, chest, braced thighs/knees and recovery; imported animations, true VFX, sound and camera stay integrated. Local equivalent 218/218 focused safety tests pass; exact-head browser capture remains UNVERIFIED.",
+    "candidateCommit": "",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
     "implementationEvents": [
@@ -3343,6 +3343,34 @@
         "experienceVerdict": "IN_PROGRESS — NOT TRANSFORMED",
         "biggestGap": "Real characters remain toy-like with oversized, crowded prop silhouettes and their genuine combat still falls far short of Diablo IV/PoE2 contact clarity. First verify that the proposed group-first camera and local foreground cutaway actually work and do not produce excessive opening of distant wall geometry.",
         "next": "Inspect exact-head 1440x832/390x844 real browser world-only and active Warden video; if centroid still crops mobile party or architecture crowds characters, implement a broader coherent art/camera/actor stage, not another isolated cosmetic. Complete same-seed matched BEFORE/AFTER traversal, real combat, Warden, floor transition, defeat/restart, audio and 3 independent blind LOOKS/FEELS/PLAYS critics. Keep PR draft/unmerged."
+      },
+      {
+        "id": "M1-TRUE-HP-SKINNED-COMBAT-20261103",
+        "date": "2026-11-03",
+        "milestone": "SAME unfinished M1; this commit is not a new accepted Gauntlet round",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "sourceHeadAtStart": "ca73cd5d97c4768d2a3a79bc7dd9ca865b13d332",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "baselineArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
+        "predecessorActualBrowser": "https://github.com/my-edutu/Ai_games/actions/runs/41557262830/artifacts/13195133729",
+        "observed": "Real 1440x832 world-only screenshot reveals colliding toy-like party, big spalled blocks and ceremonial props. Real 390x844 portrait game screenshot crops a companion partly outside play area; previous camera and environment attempts have not solved overall art quality.",
+        "objective": "Transform game-authentic damage/counter contact into readable full-body bone-driven combat performance of all six cloned CC0 GLB character classes, sharing existing true hit VFX, original opt-in Foley and combat shot.",
+        "integratedSource": [
+          "Only positive HP deltas witnessed from consecutive legal DungeonRuntime public states trigger new physical recoil on native skinned shoulders, elbows, chest, thighs, knees and ankles, with bounded 90ms onset and 350ms release and a differentiated heavyweight Warden.",
+          "True imported chest bones are now animated for Ranger/Mystic/Cultist as well as melee fighters; right-hand weapon follow-through remains melee-only. Every new gesture composes into reversible per-bone quaternions after the actual AnimationMixer, not into navigation/collision.",
+          "Fatal HP-zero collapse wins over nonfatal recoil, and reduced-motion suppresses new cosmetic joints. Existing soundstage, spall VFX, camera and legal AI/damage decisions remain connected to actual HP/attack events; no additional protected assets, simulation RNG, saves, API or gameplay consequences.",
+          "Extended source-truth tests and a real native Chromium desktop/portrait nonfatal seed scenario; the latter requires actual browser execution and matching screenshots/video before art claims."
+        ],
+        "validation": "Local reconstructed source and equivalent modifications: Node compile and 218/218 foundation tests passed, including two initially failing new feature checks. Local Chromium navigations returned ERR_BLOCKED_BY_ADMINISTRATOR (host limitation), not game evidence. New exact-head CI/browser/performance have not yet run; no A/B win or new media is claimed.",
+        "experiential": "IN PROGRESS — NOT TRANSFORMED; LOOKS, FEELS, PLAYS UNVERIFIED",
+        "critics": {
+          "count": 0,
+          "looks": "UNVERIFIED",
+          "feels": "UNVERIFIED",
+          "plays": "UNVERIFIED"
+        },
+        "performance": "UNVERIFIED desktop/phone p95 GPU, audio timing, endurance",
+        "next": "Inspect exact-head authentic video and before/after 1440x832 and portrait injury frames for full-body recoil, weapon sync and clipping. Fix the largest observed render defect, then expand original adult proportions/world composition and tactical encounter quality. Record continuous organic travel→combat→boss→floor→defeat/restart with live sound, compare against locked baseline and obtain 3 independent masked critics. Never merge."
       }
     ]
   }
