@@ -345,8 +345,14 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
     const away:TowerAction['move']=charging.position.x>observation.player.position.x?-1:1;
     const retreat:TowerAction['move']=proximity<state.config.attackReach*.7?away:0;
     const move=guardedEvasion(state,observation,retreat);
-    return{action:action(move),intent:{mode:'bracing-telegraph',
-      summary:move!==0?'Bracing while making room for incoming fire':`Bracing for ${charging.kind} fire`,
+    // The eight-tick REAL charge allows an earned, source-fired counter-shot.
+    // Retreat and grounded edge safety still outrank offense: never shoot
+    // backwards after an evasive step, invent a parry, or inspect future RNG.
+    const counterShot=pulseReady(state,observation,charging)&&
+      (move===0||move===observation.player.facing);
+    return{action:action(move,{ability:counterShot}),intent:{mode:'bracing-telegraph',
+      summary:counterShot?'Bracing and counter-firing earned pulse':
+        move!==0?'Bracing while making room for incoming fire':`Bracing for ${charging.kind} fire`,
       confidence:.95,fallbackUsed:false}};
   }
   const emergencyRecovery=tactical?observedEmergencyHealthRetreat(state,observation):undefined;
