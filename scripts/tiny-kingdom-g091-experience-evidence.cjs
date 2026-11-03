@@ -114,7 +114,7 @@ async function physicalMarketVisitShot(page,file){
   return {visit:g.visitMarket(),street:g.getStreetWalkState()};
  });
  assert(witness.visit.active&&witness.visit.safe&&witness.street.active,
-  file+' could not enter a real safe market viewpoint');
+  file+' could not enter a real safe market viewpoint; plan: '+JSON.stringify(witness.visit.diagnostics||null));
  assert(witness.visit.stallDistance<10,file+' camera too distant from the stall');
  await page.waitForTimeout(1100);
  const after=await page.evaluate(()=>{
