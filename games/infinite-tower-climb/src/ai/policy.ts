@@ -394,7 +394,7 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
           confidence:.96,fallbackUsed:false}};
     }
   }
-  const enemy=nearbyEnemy(observation,state.config.attackReach+state.build.attackReachBonus);
+  // In the air, preserving the real landing decision outranks chasing a body.\n  // The flight controller may still attack a reachable enemy without changing steering.\n  const enemy=tactical&&!observation.player.grounded?undefined:\n    nearbyEnemy(observation,state.config.attackReach+state.build.attackReachBonus);
   if(enemy){
     const facing=moveSign(enemy.position.x-observation.player.position.x);
     const inStrikePocket=tactical&&Math.abs(enemy.position.x-observation.player.position.x)<state.config.attackReach*.7
@@ -445,8 +445,27 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
     const move=boost!==0?boost:(landing?.move??moveSign(delta));
     const recovery=tactical&&landing&&!dash?observedEarnedAirRecovery(state,observation,target,landing.landingX):false;
     const settling=!dash&&!recovery&&!!landing?.settling;
-    return{action:action(move,{dash,jump:recovery}),intent:{mode:settling?'settling-landing':'air-control',
-      summary:recovery?'Using earned air recovery to reach observed landing':
+    // Source-authentic airborne combat happens *alongside* the already chosen
+    // landing movement. It can never retarget, stop, accelerate or postpone the
+    // actual climb. Guard against a false shot if physics turns the climber
+    // away during the same tick; no future enemy/landing position is predicted.
+    const p=observation.player, facing:TowerAction['move']=move||p.facing;
+    const airborneEnemy=tactical&&!dash&&!recovery&&p.health>0
+      ?observation.enemies.filter(e=>e.active&&
+        Math.abs(e.position.y-p.position.y)<=state.player.halfHeight+e.halfHeight+10000&&
+        (e.position.x-p.position.x)*facing>=0&&
+        Math.abs(e.position.x-p.position.x)<=210000)
+        .sort((a,b)=>Math.abs(a.position.x-p.position.x)-Math.abs(b.position.x-p.position.x)
+          ||a.id.localeCompare(b.id))[0]
+      :undefined;
+    const inAirMelee=!!airborneEnemy&&p.attackCooldown===0&&
+      Math.abs(airborneEnemy.position.x-p.position.x)<=
+        state.config.attackReach+state.build.attackReachBonus;
+    const inAirPulse=!!airborneEnemy&&p.facing===facing&&
+      pulseReady(state,observation,airborneEnemy);
+    return{action:action(move,{dash,jump:recovery,attack:inAirMelee,ability:inAirPulse}),
+      intent:{mode:settling?'settling-landing':'air-control',
+      summary:inAirPulse?'Steering to a safe landing while firing earned pulse':\n        inAirMelee?'Steering to a safe landing while striking a real enemy':\n        recovery?'Using earned air recovery to reach observed landing':
         dash&&tactical?'Boosting toward a distant safe landing':
         settling?(landing?.hazardRoute?'Braking into a clear landing lane':target.kind==='moving'?'Braking to meet the moving deck':'Braking for a controlled landing'):
         landing?.hazardRoute?'Steering for a clear landing lane':'Steering toward the next landing',
