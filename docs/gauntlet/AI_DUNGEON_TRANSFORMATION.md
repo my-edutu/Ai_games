@@ -535,3 +535,13 @@ or adjusting the rig, get the complete real game traverse→battle→boss→floo
 transition→defeat/restart reel with sound, and compare against the fixed baseline
 and three external genre-quality reference bars with a fresh >=3 blind panel.
 **IN PROGRESS — NOT TRANSFORMED. PR remains draft and unmerged.**
+
+## Active M1 — original Gothic nave rooms driven by the real playable map (3 November 2026)
+
+**Source commit:** [`3b29f697`](https://github.com/my-edutu/Ai_games/commit/3b29f6971356255d0142c95530c9fe7a7a0bb181) on the same open draft PR #49. Baseline `281735d0910c6b2443648af976003d50412ee324` and [authentic locked Chromium evidence](https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898) are UNCHANGED.
+
+This connected visual world intervention targets flatly repeated cubical masonry and identical rooms seen in prior genuine browser evidence. The source now finds up to three physically *existing* walkable 3×3 rooms per real deterministic dungeon floor, creates original curved and beveled Gothic apertures on authentic impassable wall faces, original radiating stone reliefs on walkable floor, restrained biome-specific materials and buttresses. Four GPU instance batches bound cost. Real current Warden threat and phase alter low-energy glow without fabricating encounters; true hero-camera sightlines retract decorative facades rather than hide combat. No changed map, collision, autonomy, damage, RNG, saves, replay, external music or proprietary art. Reduced motion does not require flicker.
+
+**Evidence integrity:** tests and new desktop/mobile real Chromium screenshot receipts were authored and committed, but the new exact-head browser output, measured p95 frame, live original audio and authentic motion were NOT verified when this receipt was authored. The code has not passed the independent matched baseline A/B gate. Prior true world captures still look toy-like and block-crowded; these candidate naves do not by themselves prove a substantially better adventure. The full uninterrupted natural traversal → active combat → Warden → floor transition → defeat/restart audiovisual evidence, a consistent locked-before matched-after comparison and >=3 fresh blind LOOKS/FEELS/PLAYS majority votes are outstanding.
+
+**Verdict: IN PROGRESS — NOT TRANSFORMED.** Next: inspect actual new-code desktop/mobile WebGL capture and concurrent Warden Court footage, remediate visible defects/performance, then expand/verify full natural gameplay chapter and compare blind against the unchanged milestone baseline and original Diablo IV, No Rest for the Wicked and Path of Exile 2 reference gameplay. Never merge or deploy PR #49 without explicit instruction.
