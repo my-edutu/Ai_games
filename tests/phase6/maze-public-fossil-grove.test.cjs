@@ -64,7 +64,7 @@ test('authored fossil garden is real high-relief 3D and cannot reveal unknown bl
     const origin=module.cellPosition(3,7,7);
     const cones=fossilCones(world,THREE,origin);
     assert.equal(cones.length,2,'real tall rooted ribs must be identifiable in shipped instanced Three matrices');
-    assert.ok(cones.every(c=>Math.abs(c.y-1.05)<1e-5&&Math.abs(c.height-1.16)<1e-5),
+    assert.ok(cones.every(c=>Math.abs(c.y-(1.05+module.cellHeight(3,7,7)))<1e-5&&Math.abs(c.height-1.16)<1e-5),
       'fossil grove must be actual substantial 3D sculpting, not a tile decal');
     assert.equal(world.stats().instances,again.stats().instances,
       'same disclosed public cell must build identical geometry regardless of run identity/tick');
@@ -89,7 +89,7 @@ test('physically adjacent disclosed gate trims fossil skyline without clipping s
     assert.equal(world.stats().tideFossilGroves,1);
     const ribs=fossilCones(world,THREE,module.cellPosition(3,7,7));
     assert.equal(ribs.length,2);
-    assert.ok(ribs.every(r=>Math.abs(r.y-.8)<1e-5&&Math.abs(r.height-.70)<1e-5),
+    assert.ok(ribs.every(r=>Math.abs(r.y-(.8+module.cellHeight(3,7,7)))<1e-5&&Math.abs(r.height-.70)<1e-5),
       'near a truly disclosed gate the same sculpted real ribs must reduce actual projected height');
     assert.equal(world.stats().renderedCells.length,3);
     const open={...snapshot,tick:2,doors:[{...snapshot.doors[0],open:true}]};
