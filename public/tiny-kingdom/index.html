@@ -6205,15 +6205,18 @@ function marketVisitArchitecture(pos,door,stall){
   if(roof.kind==='market-stall'&&Math.abs(roof.x-stall.x)<.01&&
      Math.abs(roof.z-stall.z)<.01)continue;
   blockers.push(roof);
+  const center=[roof.x,((roof.visualBottom??roof.bottom??terrain(roof.x,roof.z)-.22)+roof.top)/2,roof.z];
+  const along=center.reduce((sum,v,i)=>sum+(v-eye[i])*forward[i],0);
+  // The 390px A/B gate cares about WHAT THE CAMERA ACTUALLY SEES.
+  // Buildings behind the viewer are not foreground walls, and rejecting
+  // their harmless proximity had previously eliminated every valid market
+  // viewpoint despite leaving an open street visible in front.
+  if(along<-.1||along>span+1.5)continue;
   const wall=Math.hypot(
    Math.max(0,Math.abs(pos[0]-roof.x)-roof.rx),
    Math.max(0,Math.abs(pos[1]-roof.z)-roof.rz));
   if(['home','hall','craft-district','granary','street-shop'].includes(roof.kind))
    nearestWallDistance=Math.min(nearestWallDistance,wall);
-  const center=[roof.x,((roof.visualBottom??roof.bottom??terrain(roof.x,roof.z)-.22)+roof.top)/2,roof.z];
-  const along=center.reduce((sum,v,i)=>sum+(v-eye[i])*forward[i],0);
-  // Behind-camera or beyond-subject houses cannot bury the market frontage.
-  if(along<-.1||along>span+1.5)continue;
   const bottom=roof.visualBottom??roof.bottom??terrain(roof.x,roof.z)-.22;
   let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity,behind=0,visible=0;
   for(const sx of [-1,1])for(const y of [bottom,roof.top])for(const sz of [-1,1]){
