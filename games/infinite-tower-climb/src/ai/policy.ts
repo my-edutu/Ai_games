@@ -311,9 +311,19 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
       const dx=guardian.position.x-observation.player.position.x;
       const facing:TowerAction['move']=dx>=0?1:-1;
       const inReach=Math.abs(dx)<=reach-4000;
-      const move:TowerAction['move']=inReach?(observation.player.facing===facing?0:facing):facing;
-      return{action:action(move,{attack:inReach&&observation.player.attackCooldown===0,ability:tactical&&inReach&&pulseReady(state,observation,guardian)}),
-        intent:{mode:'engaging-enemy',summary:inReach?'Fighting the guardian at the gate':'Closing on the guardian at the gate',confidence:.96,fallbackUsed:false}};
+      const wanted:TowerAction['move']=inReach?(observation.player.facing===facing?0:facing):facing;
+      // The guardian can patrol beyond the cap's physical edge. The tactical
+      // AI must not walk off observed support merely to reach an opponent;
+      // ground physics turns facing BEFORE resolving a melee hit, so never
+      // spend an attack/ability cooldown after an inward safety correction.
+      const move=tactical?guardedEvasion(state,observation,wanted):wanted;
+      const strikeFacing=move===0?observation.player.facing:move;
+      const facingGuardian=!tactical||strikeFacing===facing;
+      return{action:action(move,{attack:inReach&&observation.player.attackCooldown===0&&facingGuardian,
+        ability:tactical&&inReach&&facingGuardian&&pulseReady(state,observation,guardian)}),
+        intent:{mode:'engaging-enemy',summary:inReach?'Fighting the guardian at the gate':
+          tactical&&move!==wanted?'Holding safe footing during the guardian duel':'Closing on the guardian at the gate',
+          confidence:.96,fallbackUsed:false}};
     }
   }
   const enemy=nearbyEnemy(observation,state.config.attackReach+state.build.attackReachBonus);
@@ -321,9 +331,15 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
     const facing=moveSign(enemy.position.x-observation.player.position.x);
     const inStrikePocket=tactical&&Math.abs(enemy.position.x-observation.player.position.x)<state.config.attackReach*.7
       &&observation.player.facing===facing;
-    return{action:action(inStrikePocket?0:facing,{attack:observation.player.attackCooldown===0,
-      ability:tactical&&pulseReady(state,observation,enemy)}),
-      intent:{mode:'engaging-enemy',summary:`Engaging ${enemy.kind}`,confidence:.94,fallbackUsed:false}};
+    const wanted:TowerAction['move']=inStrikePocket?0:facing;
+    const move=tactical?guardedEvasion(state,observation,wanted):wanted;
+    const actualFacing=move===0?observation.player.facing:move;
+    const safeStrike=!tactical||actualFacing===(enemy.position.x>=observation.player.position.x?1:-1);
+    return{action:action(move,{attack:observation.player.attackCooldown===0&&safeStrike,
+      ability:tactical&&safeStrike&&pulseReady(state,observation,enemy)}),
+      intent:{mode:'engaging-enemy',summary:tactical&&move!==wanted?
+        `Keeping safe footing against ${enemy.kind}`:`Engaging ${enemy.kind}`,
+        confidence:.94,fallbackUsed:false}};
   }
   const recoveryPickup=tactical?reachableHealthOnSupport(state,observation):undefined;
   if(recoveryPickup){
