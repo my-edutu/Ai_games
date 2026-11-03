@@ -162,6 +162,9 @@ export function createMazeWorld(options = {}) {
   let batches = [], animations = [], ripples = [], renderedCells = [], stairEdges = [], stairBalustrades = 0, coastalGardens = 0, wallGardens = 0, lastVisibility = '', highContrast = false;
   let coastCanopies = 0, tidalObservatories = 0, sculptedMosaicWalls = 0, tidePennants = 0, perimeterCascades = 0, collapsedPavilions = 0, shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0, gateForecourtParapets = 0, gateCourtRosettes = 0;
   let tideFossilGroves = 0, tideFossilAlcoves = 0;
+  // Authored, disclosed wall-side fossils react only to the PUBLIC explorer pose.
+  // These are live Three groups, not hidden route markers or a new game system.
+  let fossilSails = [], publicHeroX = 0, publicHeroZ = 0;
   let batchData = new Map();
   const clear = (target) => {
     for (const child of [...target.children]) {
@@ -417,6 +420,28 @@ export function createMazeWorld(options = {}) {
       add(box,clay,rx-dx*.035,.875,rz-dz*.035,
         .115,.065,.125,cell,0,side*.14,side*.16);
     }
+    // Pass122: A pair of genuine, hinged fossil sails responds when Pip
+    // physically approaches this already known, impassable wall edge.
+    // It is NOT a switch, goal, mapped passage, clue or enemy sensor. These
+    // substantial carved Three meshes are anchored behind the walkable
+    // center, use existing shared resources and never change simulation.
+    const baseY=cellHeight(cell,snapshot.width,snapshot.height);
+    for (const side of [-1,1]) {
+      const sail=new THREE.Group();
+      sail.name='Disclosed fossil listening sail '+cell+' '+side;
+      sail.position.set(bx+tx*side*.33+dx*.13,baseY+.25,bz+tz*side*.33+dz*.13);
+      terrain.add(sail);
+      mesh(sail,bevel,deepStone,0,.07,0,.25,.22,.25);
+      mesh(sail,bevel,lightStone,0,.51,0,
+        dz ? .37 : .16,.82,dz ? .16 : .37,
+        0,0,side*.10);
+      mesh(sail,bevel,seaGlass,dx*.024,.55,dz*.024,
+        dz ? .25 : .065,.52,dz ? .065 : .25,
+        0,0,side*.10);
+      mesh(sail,sphere,clay,0,.94,0,.11,.09,.11);
+      fossilSails.push({object:sail,cell,side,dx,x:sail.position.x,z:sail.position.z,
+        phase:cell*.37+side});
+    }
   }
   function wall(x, z, horizontal, id, cell) {
     const h = .91 + variation(id + 22) * .12;
@@ -653,7 +678,7 @@ export function createMazeWorld(options = {}) {
     for (let j = 0; j < 3; j++) plant(x - span + j * .08, 2.8 - j * .42, z + .17, seed + j * 5, cell, 1.4 - j * .15);
   }
   function rebuildTerrain(s) {
-    clear(terrain); batchData = new Map(); renderedCells = s.cells.map(c => c.cell); stairEdges = []; stairBalustrades = 0; tideFossilGroves = 0; tideFossilAlcoves = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0; gateForecourtParapets = 0; gateCourtRosettes = 0;
+    clear(terrain); fossilSails = []; batchData = new Map(); renderedCells = s.cells.map(c => c.cell); stairEdges = []; stairBalustrades = 0; tideFossilGroves = 0; tideFossilAlcoves = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0; gateForecourtParapets = 0; gateCourtRosettes = 0;
     const edges = new Set(), columns = new Set(), landmarkSites = new Map();
     const knownByCell = new Map(s.cells.map(c => [c.cell, c]));
     // The public snapshot is the ONLY source of foreground cutaway geometry.
@@ -1594,13 +1619,17 @@ export function createMazeWorld(options = {}) {
     for (const edge of gateOpeningAt.keys())
       if (!currentOpen.has(edge)) gateOpeningAt.delete(edge);
     snapshot = s;
+    // Read ONLY the published explorer cell. True smooth interpolation, when
+    // available, is supplied by scene.js as a cosmetic render-frame input.
+    const publicPosition=cellPosition(s.currentCell,s.width,s.height);
+    publicHeroX=publicPosition.x; publicHeroZ=publicPosition.z;
     if (runToken !== s.runToken) {
       // An empty but valid disclosed run produces an empty terrain key. A
       // sentinel distinct from that key is mandatory after a run change:
       // otherwise old renderedCells diagnostics can survive with no meshes.
       runToken = s.runToken; terrainSignature = null; objectSignature = ''; backdropSignature = ''; lastVisibility = '';
       clear(terrain); clear(objects); clear(backdrop); publicClosedSockets.clear(); gateOpeningAt.clear(); retractingGates.clear(); keyPickupAt.clear();
-      batches = []; animations = []; ripples = []; renderedCells = []; stairEdges = []; stairBalustrades = 0;
+      batches = []; animations = []; ripples = []; fossilSails = []; renderedCells = []; stairEdges = []; stairBalustrades = 0;
       tideFossilGroves = 0; tideFossilAlcoves = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0;
     }
     const backgroundKey = `${s.width}:${s.height}`;
@@ -1671,6 +1700,21 @@ export function createMazeWorld(options = {}) {
         gateOpeningAt.delete(edge);
       }
     }
+    // Ambient living masonry gives a disclosed alcove a small physical
+    // relationship with Pip. Proximity is measured against the REAL public
+    // presentation pose; it cannot infer an undiscovered neighbor or change
+    // any navigation, hazards, doors, inventory or AI state. Reduced-motion
+    // settles the hinges completely, including when the actor moves.
+    const hero=options.explorerPosition;
+    const hx=hero?.isVector3 && Number.isFinite(hero.x) ? hero.x : publicHeroX;
+    const hz=hero?.isVector3 && Number.isFinite(hero.z) ? hero.z : publicHeroZ;
+    for (const relic of fossilSails) {
+      const near=Math.max(0,1-Math.hypot(hx-relic.x,hz-relic.z)/3.2);
+      const angle=reduced ? .07
+        : .07+.24*near+Math.sin(t*1.4+relic.phase)*.028;
+      if (relic.dx) relic.object.rotation.x=relic.side*angle;
+      else relic.object.rotation.z=relic.side*angle;
+    }
     waterTexture.offset.set(reduced ? 0 : t * .0012, reduced ? 0 : t * .0006);
     if (highContrast !== !!options.highContrast) { highContrast = !!options.highContrast; if (snapshot) refreshVisibility(snapshot, true); }
     for (const a of animations) {
@@ -1701,7 +1745,7 @@ export function createMazeWorld(options = {}) {
     for (const g of geometries) g.dispose();
     for (const m of materials) m.dispose();
     for (const t of textures) t.dispose(); textures.clear();
-    geometries.clear(); materials.clear(); batches = []; animations = []; ripples = []; batchData.clear(); snapshot = null; renderedCells = []; stairEdges = []; stairBalustrades = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0; gateForecourtParapets = 0; gateCourtRosettes = 0; tideFossilGroves = 0; tideFossilAlcoves = 0; group.clear();
+    geometries.clear(); materials.clear(); batches = []; animations = []; ripples = []; fossilSails = []; batchData.clear(); snapshot = null; renderedCells = []; stairEdges = []; stairBalustrades = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0; gateForecourtParapets = 0; gateCourtRosettes = 0; tideFossilGroves = 0; tideFossilAlcoves = 0; group.clear();
   }
   function stats() {
     let meshes = 0, instances = 0;
@@ -1712,7 +1756,7 @@ export function createMazeWorld(options = {}) {
     const visibleGateBars = [...retractingGates.values()].filter(gate => gate.visible);
     const movingGateMinBarsHeightRatio = visibleGateBars.length
       ? Math.min(...visibleGateBars.map(gate => gate.scale.y)) : 0;
-    return { renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), stairBalustrades, tideFossilGroves, tideFossilAlcoves, coastalGardens, wallGardens, coastCanopies, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, windcatcherTowers, wallWindcatchers, gateForecourtParapets, gateCourtRosettes, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
+    return { renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), stairBalustrades, tideFossilGroves, tideFossilAlcoves, responsiveFossilSails: fossilSails.length, coastalGardens, wallGardens, coastCanopies, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, windcatcherTowers, wallWindcatchers, gateForecourtParapets, gateCourtRosettes, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
   }
   return { group, update, animate, dispose, stats, matchingPublicSocket };
 }
