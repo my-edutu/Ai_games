@@ -62,7 +62,9 @@ test('undisclosed, diagonal, isolated, blocked or hazard tiles never receive fic
    [[{...door,a:77,b:95}],known,0],
    [[door],[cell(77),cell(94)],0],
    [[door],[{...cell(77,[76]),trap:true},cell(76,[77]),cell(94,[95]),cell(95,[94])],1],
-   [[door],[{...cell(77,[76]),blocked:true},cell(76,[77]),cell(94,[95]),cell(95,[94])],0]
+   [[door],[{...cell(77,[76]),blocked:true},cell(76,[77]),cell(94,[95]),cell(95,[94])],0],
+   [[door],[cell(77,[76]),{...cell(76,[77]),blocked:true},cell(94,[95]),{...cell(95,[94]),blocked:true}],0],
+   [[door],[cell(77,[62]),cell(62),cell(94,[79]),cell(79)],0]
   ]){
    world.update(frame(doors,cells));
    assert.equal(world.stats().gateCourtRosettes,expected);
