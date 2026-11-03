@@ -66,6 +66,46 @@ function witnessedLandingX(snapshot, deck) {
   }
   return { x: bestX, sourceAirLane: true };
 }
+// Recovery is a real autonomous choice, not a second jump or promised heal.
+// Reuse the existing bounded 3D stones for the CURRENT supporting deck and
+// a CURRENT collectible. Never point spectators toward an old/blocked pickup.
+function witnessedHealthPickup(snapshot, support) {
+  const p = snapshot?.player, intent = snapshot?.intent;
+  if (!support || !p || intent?.mode?.replace(/^oracle-/, '') !== 'collecting-resource' ||
+    intent.targetPlatformId !== support.id ||
+    !['Retreating along clear footing for an observed health pickup',
+      'Securing nearby health before the next climb'].includes(intent.summary) ||
+    !Number.isFinite(p.maxHealth) || p.health >= p.maxHealth ||
+    ![p.x, p.y, p.halfWidth, p.halfHeight, support.x, support.y,
+      support.width, support.height].every(Number.isFinite) ||
+    p.halfWidth <= 0 || p.halfHeight <= 0 || support.width <= 0 ||
+    Math.abs(p.y - p.halfHeight - support.y - support.height) > 3000 ||
+    !Array.isArray(snapshot.pickups)) return null;
+  const margin = p.halfWidth + 4000;
+  const low = support.x + margin, high = support.x + support.width - margin;
+  if(low >= high) return null;
+  const options = snapshot.pickups.filter(item =>
+    item?.kind === 'health' && typeof item.id === 'string' &&
+    [item.x, item.y].every(Number.isFinite) &&
+    item.x >= low && item.x <= high &&
+    Math.abs(item.y - p.y) <= p.halfHeight + 8000 &&
+    Math.abs(item.x - p.x) > p.halfWidth + 8000)
+    .sort((a,b) => Math.abs(a.x-p.x)-Math.abs(b.x-p.x) ||
+      a.id.localeCompare(b.id));
+  for(const item of options) {
+    const lowX = Math.min(p.x,item.x)-p.halfWidth;
+    const highX = Math.max(p.x,item.x)+p.halfWidth;
+    const lowY = p.y-p.halfHeight, highY = p.y+p.halfHeight;
+    const hazard = snapshot.hazards?.some(h=>h?.active &&
+      h.x < highX && h.x+h.width > lowX &&
+      h.y < highY && h.y+h.height > lowY);
+    const enemy = snapshot.enemies?.some(e=>e?.active &&
+      Math.abs(e.y-p.y) < p.halfHeight+e.halfHeight+10000 &&
+      e.x+e.halfWidth+4000 > lowX && e.x-e.halfWidth-4000 < highX);
+    if(!hazard && !enemy) return item;
+  }
+  return null;
+}
 export function createTowerRouteIntent(THREE) {
   const geometry = new THREE.ConeGeometry(.28, .74, 4, 1);
   const material = new THREE.MeshBasicMaterial({
@@ -105,6 +145,7 @@ export function createTowerRouteIntent(THREE) {
   let observedDeckX = null, observedDeckY = null;
   let observedMovement = 0, observedDeckKind = null;
   let observedLandingX = null, sourceClearLane = false;
+  let sourceHealthPickupId = null;
   const forward = new THREE.Vector3();
   const up = new THREE.Vector3(...UP);
   let runToken = null, targetPlatformId = null, sourceTick = -1;
@@ -121,6 +162,7 @@ export function createTowerRouteIntent(THREE) {
     observedDeckKind = null;
     observedLandingX = null;
     sourceClearLane = false;
+    sourceHealthPickupId = null;
     observedDeckPositions.length = 0;
     deckEchoes.count = 0;
   }
@@ -129,10 +171,12 @@ export function createTowerRouteIntent(THREE) {
     if (disposed) return;
     const player = snapshot?.player;
     const mode = snapshot?.intent?.mode?.replace(/^oracle-/, '');
+    const recoveryPickup = witnessedHealthPickup(snapshot, platform);
     const valid = snapshot?.lifecycle === 'running' && !options.stale &&
       Number.isSafeInteger(snapshot.tick) && typeof snapshot.runToken === 'string' &&
       snapshot.runToken.length > 0 && player?.health > 0 && !player.attacking &&
-      ['aligning', 'settling-launch', 'jumping', 'air-control', 'settling-landing'].includes(mode) &&
+      (['aligning', 'settling-launch', 'jumping', 'air-control', 'settling-landing'].includes(mode) ||
+        (mode === 'collecting-resource' && !!recoveryPickup)) &&
       platform && typeof platform.id === 'string' &&
       platform.id === snapshot.intent?.targetPlatformId && platform.width > 0 &&
       Number.isFinite(snapshot.worldWidth) && snapshot.worldWidth > 0 &&
@@ -141,8 +185,9 @@ export function createTowerRouteIntent(THREE) {
         .every(Number.isFinite) &&
       !snapshot.enemies?.some(enemy => enemy.active && enemy.telegraph);
     if (!valid) { clear(); return; }
-    const landed = witnessedLandingX(snapshot, platform);
-    const elevation = platform.y + platform.height;
+    const landed = recoveryPickup
+      ? { x: recoveryPickup.x, sourceAirLane: false } : witnessedLandingX(snapshot, platform);
+    const elevation = recoveryPickup ? recoveryPickup.y : platform.y + platform.height;
     const deltaX = landed.x - player.x;
     if (Math.abs(deltaX) < 12000 && Math.abs(elevation - player.y) < 12000) {
       clear();
@@ -176,6 +221,8 @@ export function createTowerRouteIntent(THREE) {
     observedDeckKind = platform.kind;
     observedLandingX = landed.x;
     sourceClearLane = landed.sourceAirLane;
+    sourceHealthPickupId = recoveryPickup?.id || null;
+    material.color.setHex(recoveryPickup ? 0xa7df9b : 0x9cefe5);
     reduced = stationary;
 
     // Map authoritative x/y onto the OUTSIDE of the cylinder. The rising
@@ -191,7 +238,7 @@ export function createTowerRouteIntent(THREE) {
       function site(fraction) {
         const x = player.x + deltaX * fraction;
         const y = player.y + (elevation - player.y) * fraction +
-          Math.sin(Math.PI * fraction) * 12000;
+          Math.sin(Math.PI * fraction) * (recoveryPickup ? 1700 : 12000);
         return pointFor(x, y, snapshot.chunkBaseY, snapshot.worldWidth, 27.55);
       }
       const here = site(t), there = site(nextT);
@@ -240,6 +287,7 @@ export function createTowerRouteIntent(THREE) {
       observedDeckDeltaX: group.visible ? observedMovement : 0,
       observedLandingX: group.visible ? observedLandingX : null,
       sourceClearLane: group.visible && sourceClearLane,
+      sourceHealthPickupId: group.visible ? sourceHealthPickupId : null,
       echoedSourcePositionsOnly: true, movingDeckKind: observedDeckKind,
       opaqueTowerOccludes: material.depthTest,
       extraDraws: group.visible ? 1 + (deckEchoes.count ? 1 : 0) : 0,
