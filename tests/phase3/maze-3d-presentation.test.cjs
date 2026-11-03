@@ -29,6 +29,40 @@ function snapshot(route, extras = {}) {
   };
 }
 
+test('real desktop public exploration close framing is reciprocal, staged, and never reused for narrow guardians', async () => {
+  const {publicCompactExplorationHalfHeight: close}=await load();
+  const disclosed={
+    width:7,height:7,currentCell:8,runToken:'public-fossil',
+    cells:[
+      {cell:7,blocked:false,neighbors:[8]},
+      {cell:8,blocked:false,neighbors:[7,9]},
+      {cell:9,blocked:false,neighbors:[8]},
+      {cell:15,blocked:false,neighbors:[]},
+      {cell:16,blocked:false,neighbors:[]},
+    ],
+  };
+  assert.equal(close(1280/900,7.3,disclosed),5.85,
+    'desktop Follow shows a truly disclosed 3D stage, not an ocean-wide postcard');
+  assert.equal(close(844/390,7.3,disclosed),6.35,
+    'short landscape preserves the previously framed stage and controls');
+  assert.equal(close(390/844,9.1,disclosed),8.05,
+    'portrait has the original actor-safe horizontal stage span');
+  assert.equal(close(1280/900,7.3,{...disclosed,currentCell:15}),7.3,
+    'disconnected public terrain must never earn a cinematic closeup');
+  const oneWay=structuredClone(disclosed);
+  oneWay.cells[0].neighbors=[];
+  assert.equal(close(1280/900,7.3,oneWay),5.85,
+    'one unreciprocated side cannot erase other genuinely reciprocal public links');
+  oneWay.cells[2].neighbors=[];
+  assert.equal(close(1280/900,7.3,oneWay),7.3,
+    'without any reciprocal published edge, retain the full-safe stage');
+  const hidden=structuredClone(disclosed);
+  hidden.cells[0].blocked=true;
+  hidden.cells[2].blocked=true;
+  assert.equal(close(1280/900,7.3,hidden),7.3,
+    'public blocked terrain never qualifies as a reachable stage');
+});
+
 test('skipped public ticks animate the observed turn instead of cutting through walls', async () => {
   const { planPublicMotion, samplePublicPath } = await load();
   const motion = planPublicMotion(snapshot([0, 1]), snapshot([0, 1, 8, 9]));
