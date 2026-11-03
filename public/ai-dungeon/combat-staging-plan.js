@@ -121,6 +121,52 @@ export function planCombatStage(snapshot,viewPosition=null){
    placed[u.id]=Object.freeze({x:u.x+dx,z:u.z+dz,dx,dz,crowded:n>1});
   }
  }
+ // An adjacent legal cell is NOT necessarily a visually separate character:
+ // from the actual quarter-view camera, a diagonal encounter can project two
+ // distinct heroes/enemies onto the same narrow silhouette. Make a modest,
+ // reversible, camera-horizontal lane for only REAL adjacent opposite-faction
+ // opponents; never alter their physical cells, contact targets or turn order.
+ // A living Warden has a separately authored warning/duel composition and is
+ // deliberately excluded from this general skirmish staging.
+ if(!warden&&Number.isFinite(viewPosition?.x)&&Number.isFinite(viewPosition?.z)){
+  const living=snapshot.units.slice(0,MAX_ACTORS)
+   .filter(u=>u&&placed[u.id]&&u.hp>0&&u.kind!=='warden');
+  const allies=living.filter(u=>u.faction==='party').sort((a,b)=>a.id.localeCompare(b.id,'en'));
+  const foes=living.filter(u=>u.faction==='enemy').sort((a,b)=>a.id.localeCompare(b.id,'en'));
+  const half=(snapshot.map.length-1)/2;
+  const pairs=[];
+  for(const hero of allies)for(const foe of foes){
+   const cells=Math.hypot(hero.x-foe.x,hero.z-foe.z);
+   if(cells<.9||cells>1.5)continue;
+   const cx=(hero.x+foe.x)/2-half,cz=(hero.z+foe.z)/2-half;
+   const vx=viewPosition.x-cx,vz=viewPosition.z-cz,length=Math.hypot(vx,vz);
+   if(length<=.75)continue;
+   pairs.push({hero,foe,rx:vz/length,rz:-vx/length});
+  }
+  const reposition=(u,side,rx,rz,amount)=>{
+   const previous=placed[u.id];
+   let dx=previous.dx+rx*side*amount,dz=previous.dz+rz*side*amount;
+   // Radial as well as per-axis clamping keeps the skinned feet inside the
+   // same legally occupied tile with a small clearance from its boundaries.
+   const radial=Math.hypot(dx,dz),factor=radial>.435?.435/radial:1;
+   dx=Number((dx*factor).toFixed(4));dz=Number((dz*factor).toFixed(4));
+   placed[u.id]=Object.freeze({
+    x:u.x+dx,z:u.z+dz,dx,dz,crowded:true
+   });
+  };
+  // Two tiny bounded passes settle a camera-screen collision without a
+  // per-frame allocator, stateful interpolation or a made-up gameplay move.
+  for(let pass=0;pass<2;pass++)for(const {hero,foe,rx,rz} of pairs){
+   const a=placed[hero.id],b=placed[foe.id];
+   const projected=(b.x-a.x)*rx+(b.z-a.z)*rz;
+   if(Math.abs(projected)>=.58)continue;
+   const sign=Math.abs(projected)>.0001?Math.sign(projected):
+    hero.id.localeCompare(foe.id,'en')<0?1:-1;
+   const nudge=Math.min(.23,(.58-Math.abs(projected))*.48);
+   reposition(hero,-sign,rx,rz,nudge);
+   reposition(foe,sign,rx,rz,nudge);
+  }
+ }
  return placed;
 }
 export function stagePoint(positions,unit){
