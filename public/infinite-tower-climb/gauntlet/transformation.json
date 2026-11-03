@@ -11,18 +11,18 @@
     "sha": null,
     "title": "SAME unfinished playable 3D ascent → real ground/air combat, projectile-led guardian camera and physical HP gate → genuine outcome/restart; NOT EVALUATED",
     "implementationSha": "6f40263f349fff5219ad89673e1ba3096f609d05",
-    "implementationEvidenceStatus": "NOT EVALUATED. Source-pinned native desktop/portrait real WebM capture at prior playable source 558924dce3f2bfefa09d577859ab21e95ee41292 completed 9/9 GitHub Actions jobs on 2026-11-03 (run 41671295721). Original frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 unchanged. Authentic prior-source candidate sampled portrait actor outside 78% safe frame: ascent 0, guardian danger 0, outcome 3; baseline matching outcome 0. Normal-speed scenario clips exceed 60 seconds but independent runs differ in floor/HP/outcome timing: no equivalent-event A/B and NO independent full-motion blind comparison. Latest source 6f40263f adds physical AI collision-lane decisions and two-step, measured portrait rescue; it is NOT YET captured/independently evaluated. Source 5589 CI run 41671717107 passed as technical safety ONLY; exact-new-source run 41677992306 is in progress at update. LOOKS 0/5, FEELS 0/5, PLAYS 0/5. Native-device frame-time p50/p95/p99 and memory NOT MEASURED."
+    "implementationEvidenceStatus": "NOT EVALUATED. New exact-source candidate 6f40263f349fff5219ad89673e1ba3096f609d05 full normal-speed genuine gameplay capture (https://github.com/my-edutu/Ai_games/actions/runs/41677992168) COMPLETED SUCCESS: all nine jobs, frozen baseline vs candidate ascent/danger/moving/outcome in desktop 960x600 + portrait 390x844. Builder inspected downloaded current-source candidate OUTCOME motion data and actual WebM evidence path only; native 390x844 has 2/69 sampled actor safe-frame breaches (x 0.8152 and -0.7987 NDC; 0 offscreen), desktop 0 unsafe; prior source 558924dc outcome had 3 sampled unsafe but distinct run/HP/time windows, NOT causal superiority proof. Unreviewed current-source actual full video pairs and event alignment, physical-device frame times, independent blind LOOKS 0/5 FEELS 0/5 PLAYS 0/5: QUALITY NOT EVALUATED. Previous technical workflow for source 6f40263f built and passed whole-repo logic and tower authority before downstream CI cancellation by a docs update; final exact-head CI pending; no quality PASS."
   },
   "currentTransformation": {
     "title": "SAME open 3D Tower expedition: autonomous safe ascent → live ranged/guardian duel → real HP-gated passage → earned outcome/restart, now protecting actual portrait action framing",
-    "state": "OPEN — source-5589 real baseline/candidate desktop/phone 9/9 capture jobs SUCCESS, real source camera test revealed three unsafe portrait outcome samples; physical threat correctness and guarded portrait follow-through implemented at 6f40263f. No whole-game quality verdict.",
+    "state": "OPEN — current gameplay source 6f40263f authentic 9/9 baseline/candidate gameplay capture jobs SUCCESS; current portrait outcome remains 2/69 safe-margin violations despite real exterior actor recovery. Whole-game quality NOT EVALUATED; same transformation initiative retained.",
     "promise": "The SAME complete playable ascent → encounter/guardian HP-gate → authentic result/restart slice remains open. Live autonomous tactics now ignore horizontal shots and enemy telegraphs demonstrably outside their actual source collision-height lane and avoid repeated off-height melee chases, while preserving historical replay policy. A source-observed short two-step measured portrait camera continuation attempts to keep the 3D climber within frame, with measured improvement/core-clear tests and complete rollback on failure. The simulator, deterministic authority, HUD and user-accessible opt-in audio are not altered by the camera.",
-    "nextDecision": "Check exact-source 6f40263f CI https://github.com/my-edutu/Ai_games/actions/runs/41677992306 and source-pinned full gameplay https://github.com/my-edutu/Ai_games/actions/runs/41677992168; fix regressions if any. Inspect native portrait outcome under same seed plus ascent and real guardian action and determine whether 3 unsafe ±0.78 actor observations at prior 558924dc vanish. Source-align equivalent phase/floor/health/run-event windows; baseline outcome short result hold remains a comparison limitation. Acquire fresh independent blinded full-motion looks/feels/plays judgments (>=4/5 EACH), native supported hardware frame-time p50/p95/p99, memory, accessibility and replay. Do not change frozen baseline, merge or deploy.",
+    "nextDecision": "Source 6f40263f real video run 41677992168 now SUCCESS 9/9. Watch actual 60+s source-pinned before/after desktop and native portrait ascent/danger/outcome video, not sampled screenshots; align equivalent actual floor/guardian health/terminal event windows and audit 2/69 remaining unsafe portrait outcome samples (NDC x .8152 and -.7987). Finish final exact HEAD technical workflow; obtain FIVE truly independent blind full-motion critics >=4/5 candidate in EACH LOOKS/FEELS/PLAYS; supported native-device p50/p95/p99 FPS-frame time, memory, accessibility/replay/robustness. No moving baseline, merging, deploying or force-pushing.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "The prior new-source portrait outcome (558924dc) still had 3 unsafe, visible 3D protagonist NDC positions beyond ±0.78 (0 baseline), though ascent and guardian-danger samples were 0 unsafe after the first stage. Two-step 6f40263f frame correction and cross-height tactical AI are now UNFILMED. Different fixed-seed gameplay runs depict different floors, HP and times, preventing fair same-event full-motion blind grading. Guardian, actor and physical gate may still compete for portrait screen area. Independent full-motion critics 0/5 each; device FPS and memory NOT MEASURED.",
+    "biggestRemainingExperienceGap": "CURRENT source 6f40263f completed 9/9 real-play capture jobs, but 390x844 outcome still has 2 of 69 source observations outside ±0.78 safe actor margin (x +.8152 / -.7987), though 0 sampled fully off-screen; old 558924dc outcome 3 unsafe in a different run and baseline 558924dc outcome 0. Actual full-motion guardian, actor and HP gate stage quality and matched-event comparisons remain unreviewed. Independent critiques 0/5 per pillar; supported-device performance absent.",
     "unverifiedImplementationBranchHead": "6f40263f349fff5219ad89673e1ba3096f609d05",
     "currentVerticalSlice": "Same committed, still-open real 3D Tower ascent→live projectile/guardian combat→physical gate→source outcome/restart: continuation now spans grounded/airborne Pulse Shot, hostile collision-lane-aware tactics, actual observed terminal/restart and guarded exterior 3D camera. Baseline frozen, recent source 5589 footage inspected builder-side only; new 6f code awaiting recorded exercise and independent assessment.",
-    "biggestGap": "Complete actual source-6f gameplay and state-matched baseline comparison not yet watched; prior source-5589 outcome still has 3 unsafe portrait actor samples, five independent blind reviewers and native-device performance unavailable because independent worker/browser tunnel reports NOT_FOUND >300 s. CI is only a veto."
+    "biggestGap": "Current candidate 6f40263f now source-filmed 9/9, but source-event-matched full-motion blind evaluation still absent and 2 native portrait outcome actor safe-margin breaches remain. Independent worker/browser tunnel NOT_FOUND >300 seconds, so 0/5 looks/feels/plays. Supported device p50/p95/p99/memory NOT MEASURED; full exact-head CI pending."
   },
   "scenarios": [
     {
@@ -62,11 +62,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Prior playable 558924dc safety contract workflow 41671717107 COMPLETED SUCCESS (CI technical safety only). Source 558924dc authentic capture 41671295721 9/9 jobs SUCCESS (recording integrity only). New 6f40263f CI 41677992306 IN PROGRESS at audit; new source gameplay capture 41677992168 IN PROGRESS; neither passed at inspection. The source snapshot workflow 41677992114 QUEUED.",
+    "ci": "New source 6f40263f real-play capture 41677992168 COMPLETED SUCCESS 9/9 (not quality). Source 6f40263f contract run 41677992306 built, transformation verdict gate, full repository logic and Tower authority PASS before Install Chromium CANCELLED by next documentation commit. Final metadata-only HEAD safety workflow on 94d3cea 41678862342 was queued, now superseded by the latest evidence note. It is NOT a verified full CI pass. CI is a veto, never an experience score.",
     "replay": "Live tactical-only projectile/telegraph threat aperture and vertical melee reach changed at 6f40263f. Frozen historical-v1 guards dispatch unchanged incomingProjectile and nearbyEnemy decisions under tactical:false. Source-mutation/replay and deterministic regression tests committed but exact-head CI still IN PROGRESS; no replay certification claimed.",
-    "accessibility": "No new in-game HUD or sound. Two-step portrait rescue remains live follow-only, never overview/terminal/stale/reduced-motion. Prior-source 390×844 558924dc ascent/danger unsafe actor samples 0/0, outcome 3 and baseline outcome 0 (sparse source-pinned frames). New-source native framing, native input/contrast and accessibility NOT EVALUATED.",
+    "accessibility": "No new HUD/sound. Native-source 6f40263f 390×844 outcome motion.json shows 2/69 unsafe actor projections (0 offscreen); source-5589 outcome had 3, source-5589 frozen baseline outcome had 0. Videos are separate deterministic executions and cannot be scored head-to-head by frame counts alone. Final native usability/accessibility evaluation open.",
     "performance": "No extra 3D geometry/draw submissions in new patch; extra bounded source-geometry collision filtering and two measured camera projections when a real live portrait actor is already outside the 78% safe margin. No target hardware benchmarks, frame-time p50/p95/p99 or memory. CI software renderer NOT device FPS. OPEN.",
-    "stability": "New source-projected two-substep camera keeps bounded exterior angular swing, rejects nonimproving/occluded/offscreen actor, and resets the full trial camera/gaze on failure. Real enemy reactions limited to observed source collision lanes, fixed-step deterministic only. New exact-source crash/recovery/soak and gameplay validation pending."
+    "stability": "9/9 real-game evidence jobs succeeded at source 6f40263f (recording integrity only); two observed portrait outcome margins remain breached, although no sampled actor offscreen in outcome. Source code and focused authoritative logic tests completed in source-6f prior workflow before Chromium-cancelled downstream; full exact-head safety and real device verification still pending."
   },
   "unresolvedCriticalIssues": null,
   "benchmark": {
@@ -77,10 +77,10 @@
   },
   "policy": "Requires matched real gameplay in all three scenes and 4/5 independent blind critics preferring new game in LOOKS, FEELS and PLAYS; technical checks are vetoes, not quality wins.",
   "captureEvidence": {
-    "workflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41671295721",
-    "sourceSha": "558924dce3f2bfefa09d577859ab21e95ee41292",
-    "assessed": "NOT EVALUATED: inspected downloaded native-source WebM FRAME SAMPLES and motion traces, not a genuinely fresh independent, blind, full-motion rating. No state-aligned A/B event windows, post-6f actual clips or supported-device performance.",
-    "scope": "2026-11-03 current reviewed builder-side real source archive 41671295721: 9/9 authentic GitHub Actions capture jobs completed SUCCESS with original frozen baseline and previous candidate source 558924dc in low quality, reducedMotion:false, sound disabled, native 960×600 desktop + 390×844 portrait, same seed and capture conditions; 60+ seconds each. Actual source gameplay windows diverge; independent 5-critic assessor remains NOT EVALUATED. Newer 6f40263f currently uncaptured.",
+    "workflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41677992168",
+    "sourceSha": "6f40263f349fff5219ad89673e1ba3096f609d05",
+    "assessed": "NOT EVALUATED: new 6f40263f current-source 9/9 real WebM capture jobs completed, but only builder-side current outcome motion and previous-source sampled video reviewed. No fresh independent blind continuous-film A/B, no event-matched equivalent situations and no native-device FPS/memory.",
+    "scope": "2026-11-03 current source 6f40263f9: 9/9 genuine normal-speed desktop/native phone source-pinned capture jobs SUCCESS, frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 unchanged. Current-source candidate outcome desktop 129.408 seconds, portrait 102.908, portrait actor unsafe 2 of 69 sampled observations and offscreen 0; candidate vs baseline different real gameplay windows; quality NOT EVALUATED.",
     "jobs": {
       "ascent": {
         "baseline": {
@@ -1396,8 +1396,8 @@
       },
       "qualityVerdict": "NOT EVALUATED"
     },
-    "latestUncapturedGameImplementationSha": "ab585d02d857bc9732f59ac62eac6e4c8748ebdd",
-    "latestUncapturedExperienceStatus": "NOT EVALUATED: code ab585d adds source-witnessed genuine midair Pulse Shot articulated recoil and preserved landing steering, but no current source video, event-matched frozen-baseline A/B, 5 blind votes each pillar, real device tail/memory measurements. Shared browser/worker tunnel returned NOT_FOUND >300s.",
+    "latestUncapturedGameImplementationSha": null,
+    "latestUncapturedExperienceStatus": "Source 6f40263f actual gameplay captured and native 390x844 outcome motion samples inspected; still NOT EVALUATED against full blind matched videos, independent judgments, hardware and latest exact-head CI.",
     "latestGuardianCounterfire20261103": {
       "actualSourceSha": "31c11b34686b3c8914d8c9eca50cd37725bfe501",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
@@ -1554,7 +1554,43 @@
       "supportedDeviceMetrics": "NOT MEASURED",
       "independentCriticBlocker": "NOT_FOUND: Tunnel-client has not been seen for 300 seconds",
       "biggestGap": "Authentic prior-source 558924dc portrait outcome safe-frame crop and unfilmed 6f correction; source events not yet matched, no fresh blind critics nor native hardware.",
-      "outcome": "NOT EVALUATED"
+      "outcome": "NOT EVALUATED",
+      "newSourceCaptured": {
+        "workflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41677992168",
+        "status": "SUCCESS capture jobs 9/9; QUALITY NOT EVALUATED",
+        "candidateSourceSha": "6f40263f349fff5219ad89673e1ba3096f609d05",
+        "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+        "jobCount": 9,
+        "successfulJobs": 9,
+        "artifacts": {
+          "baselineAscent": 13252870356,
+          "candidateAscent": 13251397756,
+          "baselineDanger": 13251043005,
+          "candidateDanger": 13251332821,
+          "baselineMoving": 13250742993,
+          "candidateMoving": 13251447704,
+          "baselineOutcome": 13250963146,
+          "candidateOutcome": 13252375778,
+          "authenticLedge": 13251637906
+        },
+        "candidateOutcome": {
+          "desktopWallSeconds": 129.408,
+          "portraitWallSeconds": 102.908,
+          "desktopUnsafeActorSamples": 0,
+          "portraitUnsafeActorSamples": 2,
+          "portraitTotalObservations": 69,
+          "portraitOffscreenActorSamples": 0,
+          "portraitUnsafeNdcX": [
+            0.8152,
+            -0.7987
+          ],
+          "genuineSourceOutcomeRestartObserved": true,
+          "verifiedFullMotionOutcomeVisually": false,
+          "comparisonLimitation": "Independent runs differ in run/floor/HP/time, so raw unsafe counts across candidates do not establish causal change; source truth only."
+        },
+        "technicalSafety": "Full repo logic and Tower authority passed on source-6f CI job before downstream Chromium cancellation following documentation update; not full CI success.",
+        "quality": "NOT EVALUATED"
+      }
     }
   }
 }
