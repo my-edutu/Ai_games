@@ -478,6 +478,29 @@ export function publicGateOpeningCameraCue(before, after) {
   return candidates[0] ?? null;
 }
 
+
+/**
+ * Stage only a real public CLOSED-to-OPEN gate along its disclosed passage.
+ * This is an alternate physical camera azimuth, NOT another objective or an
+ * inferred corridor. No allocations in the render loop, no simulation access.
+ */
+export function setPublicGateOpeningStageOffset(target, cue, width) {
+  if (!target || typeof target.set !== 'function'
+    || !Number.isSafeInteger(width) || width < 2
+    || !Number.isSafeInteger(cue?.a) || !Number.isSafeInteger(cue?.b)
+    || cue.a < 0 || cue.b < 0 || cue.a === cue.b) return false;
+  const across = Math.floor(cue.a / width) === Math.floor(cue.b / width)
+    && Math.abs(cue.a - cue.b) === 1;
+  const along = cue.a % width === cue.b % width
+    && Math.abs(cue.a - cue.b) === width;
+  if (!across && !along) return false;
+  // Stay in the existing +X/+Z quadrant to avoid reversing camera continuity.
+  // These offsets stage the *original* moving portcullis, not synthetic action.
+  if (along) target.set(6, 21, 25);
+  else target.set(25, 21, 6);
+  return true;
+}
+
 /**
  * Let Pip and an actually modeled closed gate share the shot. Since a sealed
  * gate is NOT a legal route, it takes no role in publicObjective/AI guidance.

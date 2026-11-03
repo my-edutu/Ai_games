@@ -3,7 +3,7 @@ import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicGateOpeningCameraCue } from './map-view.mjs';
+import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -46,6 +46,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   // A near closed gate can cover Pip from the normal +Z-heavy isometric view.
   // A mild +X-side view keeps the same raised diorama and visible front seal.
   const sealedGateCameraOffset = new THREE.Vector3(20, 21, 14);
+  // Only authentic public gate openings may use this additional camera azimuth.
+  const openingGateCameraOffset = sealedGateCameraOffset.clone();
   const cameraOffset = followCameraOffset.clone();
   const portraitCameraOffset = followCameraOffset.clone(); // reuse; never allocate in a render frame
   // A lower, closer ORIGINAL 3D story angle is reserved solely for a truly
@@ -396,6 +398,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // Reduced-motion shows a stable model pose without a camera movement.
     const openingGateBeat = cameraMode === 'follow' && !settings.reducedMotion
       ? publicOpeningMoment : null;
+    const openingStageView = !!openingGateBeat
+      && setPublicGateOpeningStageOffset(openingGateCameraOffset, openingGateBeat, s.width);
     const openingA = publicOpeningMoment ? cellPosition(publicOpeningMoment.a, s.width, s.height) : null;
     const openingB = publicOpeningMoment ? cellPosition(publicOpeningMoment.b, s.width, s.height) : null;
     const gateHeading = openingA && openingB ? Math.atan2(
@@ -657,7 +661,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     camera.updateProjectionMatrix();
     // Rotate only the visual camera toward the side of a disclosed obstruction.
     // Smooth it back after leaving; never alter the simulation or private map.
-    cameraOffset.lerp(cameraGate ? sealedGateCameraOffset
+    cameraOffset.lerp(openingStageView ? openingGateCameraOffset
+      : cameraGate ? sealedGateCameraOffset
       : portraitEncounterOrbit ? portraitCameraOffset
       : pickupCameraBeat ? pickupCameraOffset : followCameraOffset, blend);
     camera.position.copy(cameraTarget).add(cameraOffset); camera.lookAt(cameraTarget);

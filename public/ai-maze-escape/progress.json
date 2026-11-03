@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-03T08:55:00.000Z",
+  "updatedAt": "2026-11-03T09:41:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass105 focused real WebGL 41600127825 SUCCESS and genuine artifact 13213359067 downloaded. Independently verified all 23/23 original full-resolution PNG SHA-256 values against 21 dated sidecars plus two additional true 1280 gate transition manifest refs; zero mismatch. Original 390x844 witnessed key 08:05:15.172Z SHA 8c20df7400a9cf1613355dcd2bd75371a880db57cadd6783d92381ef5c4fb4c8, 8 shards 66.13px, 0.95895 camera-facing, actual 5.77 half-height, complete Pip, compact real HUD. Authentic 320 Follow Thornback 08:02:37.813Z SHA e1b0e36cf2b4f63c334b012eba482c413039788b8393a6b3867799b5729adb60 right +0.87494 under +0.95 bound; whole 44px controls. Genuine CLOSED to OPEN gate three-frame 1280 verified. Source-bound visual critique: full game screen repaired and functional, but Pip/key overlap and stage still below Nintendo. Pass106 9b6a172 candidate adds two large gate-attached 3D folding tide-wings with real Three regression; new-source WebGL 41607572370 and monorepo 41607572330 unverified at this checkpoint. Shared tunnel disconnected; no independent fresh-context subagent or Ultracode. SwiftShader CPU timing not GPU FPS. Fixed Nintendo benchmark NOT MET; PR #53 draft/unmerged/undeployed."
+    "summary": "Pass106 exact-source focused WebGL 41607572370 SUCCESS; original artifact 13218030744 23/23 full-resolution PNG SHA-256 matched UTC capture metadata/real gate three-frame manifest. Pass105 original 13213359067 independently 23/23 matched. Real 1280 MID opening 2026-11-03T09:06:37.665Z SHA 2120d4fbd1346fc9bd993631b14496494b3ae21e23cb53406cf60e64c63a9b2d; true gate lift .5100. Direct image critique: new hinged 3D wings genuine but original sideways sealed-gate camera occludes Pip's body behind jamb; fixed Nintendo benchmark NOT MET. New Pass107 public-only gate-axis camera source/regression pending original source-bound WebGL/CI. Native portrait 320 guardian and 390 witnessed key/low-text HUD kept intact, all visual acceptance thresholds unchanged. Whole Pass106 CI cancelled, not green. Shared coding tunnel disconnected, no independent agents/Ultracode or verified blind art win. CPU-throttled SwiftShader timing is not GPU FPS; PR #53 draft, unmerged, undeployed."
   },
   "captures": [
     {
@@ -799,6 +799,14 @@
     }
   ],
   "references": [
+    {
+      "title": "Pass106 original 23/23 real native screenshots verified, action occlusion evidence",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/41607572370/artifacts/13218030744"
+    },
+    {
+      "title": "Pass107 dated original screenshot critique and source camera pending approval",
+      "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-107-authentic-gate-camera-2026-11-03.md"
+    },
     {
       "title": "Pass105 23 full-resolution source-bound WebGL PNG archive with UTC SHA manifests",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/41600127825/artifacts/13213359067"
