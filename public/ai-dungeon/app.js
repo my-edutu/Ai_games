@@ -11,6 +11,7 @@ import {planVaultedWallBays} from '/dungeon/vaulted-wall-plan.js';
 import {createVaultedWallGallery} from '/dungeon/vaulted-wall-gallery.js';
 import {planEncounterSightlines} from '/dungeon/encounter-sightlines.js';
 import {planCombatSightlineExtension} from '/dungeon/encounter-sightlines.js';
+import {planEncounterLighting} from '/dungeon/encounter-lighting-plan.js';
 import {planEncounterFrame} from '/dungeon/encounter-frame-plan.js';
 import {planCinematicShot,planReadableExpeditionLens,planCriticalSubjectFit,planWardenCharge,planOathguardPose,planBossDuelSightline,planPartyVistaSightline} from '/dungeon/cinematic-chapter-plan.js';
 import {planPartyWallReveal,createCutawayBandCache,shouldUploadCutawayBand} from '/dungeon/party-visibility-plan.js';
@@ -189,6 +190,7 @@ const partyGlow=new THREE.PointLight('#50e9ff',1.65,7.7,2);partyGlow.position.se
 // A warm photographic key light follows the real viewed character, preserving
 // the character silhouette inside the dark vault without increasing global bloom.
 const heroKey=new THREE.PointLight('#ffdfbc',2.65,6.8,2);heroKey.position.set(1,2.6,2);heroKey.castShadow=false;scene.add(heroKey);
+const lightStep=new THREE.Vector3();
 const ground=new THREE.Mesh(new THREE.PlaneGeometry(150,150),new THREE.MeshStandardMaterial({color:'#080e17',roughness:1}));ground.rotation.x=-Math.PI/2;ground.position.y=-.17;scene.add(ground);
 const actors=new Map(),world=new THREE.Group();scene.add(world);
 let crowdedStageActors=0,lastStagePositions=Object.create(null);
@@ -341,7 +343,7 @@ function cue(event,s){
  }
 }
 let state=null,worldFloor='',received=false,lastTick=-1,errorAt=0;
-let impactCameraHold=null,observedDamageBeats=0,observedFatalBeats=0;
+let impactCameraHold=null,lightInjury=null,observedDamageBeats=0,observedFatalBeats=0;
 const palette={vanguard:['#4a87a8','#bed8df','#eab967'],ranger:['#527c58','#bdd19f','#d2b178'],mystic:['#65508f','#c2abf0','#76d8e0'],revenant:['#54656e','#b3c4bd','#dfb76f'],cultist:['#743e4c','#b18a89','#f0636b'],warden:['#483552','#c79a62','#ec7f42']};
 const mat=(color,metalness=.1,roughness=.75)=>new THREE.MeshStandardMaterial({color,metalness,roughness});
 const stone=mat('#26303d',.1,.95),stoneEdge=mat('#404957',.15,.88),floorMat=mat('#28313b',.05,.95),gold=mat('#c9a366',.7,.33),black=mat('#111724',.2,.8);
@@ -729,7 +731,7 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
  if(!selected){const survivor=s.units.find(u=>u.faction==='party'&&u.hp>0);if(survivor)focusedHeroId=survivor.id;}
  spectatorUI.render(s);
  for(const e of s.events){const id=s.run+':'+e.tick+':'+e.kind+':'+e.text;if(!seenEventIds.has(id)){seenEventIds.add(id);if(seenEventIds.size>150)seenEventIds.delete(seenEventIds.values().next().value);if(!firstSnapshot){cue(e,s);notifyDungeon(e)}}}
- if(sceneChanged){impactCameraHold=null;buildWorld(s);camera.userData.dungeonInitialized=false;camera.userData.aimInitialized=false;lastRayAuditAt=-Infinity;}
+ if(sceneChanged){impactCameraHold=null;lightInjury=null;buildWorld(s);camera.userData.dungeonInitialized=false;camera.userData.aimInitialized=false;lastRayAuditAt=-Infinity;}
  // The same authoritative impact coordinates are used by the dodge AI,
  // spectators and optional warning audio. Static rings remain visible under
  // reduced-motion preferences; there is no added dynamic light or extra draw per actor.
@@ -752,6 +754,8 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
  const damageById=new Map(damageBeats.map(beat=>[beat.id,beat]));
  const evadeById=new Map(evasionBeats.map(beat=>[beat.id,beat]));
  if(damageBeats.length){
+  const woundedHero=damageBeats.find(beat=>beat.faction==='party');
+  if(woundedHero)lightInjury={beat:woundedHero,age:0};
   observedDamageBeats=Math.min(1000000,observedDamageBeats+damageBeats.length);
   observedFatalBeats=Math.min(1000000,observedFatalBeats+damageBeats.filter(beat=>beat.fatal).length);
   const focus=planImpactCameraHold(s,damageBeats);
@@ -870,6 +874,7 @@ function animate(t){
  // the actual current boss and heroes in one bounded camera update.
  const cameraDt=Math.min(.24,frameInterval);
  if(impactCameraHold)impactCameraHold.age=advancePresentationActionAge(impactCameraHold.age,dt);
+ if(lightInjury){lightInjury.age=advancePresentationActionAge(lightInjury.age,dt);if(lightInjury.age>=.36)lightInjury=null;}
  for(let i=effects.length-1;i>=0;i--){const e=effects[i];e.life+=dt;
   if(e.life>=e.duration){scene.remove(e.mesh);e.mesh.material.dispose();effects.splice(i,1);continue}
   const progression=e.life/e.duration;e.mesh.scale.setScalar((e.large?.2:.13)+progression*(e.large?1.1:.80));e.mesh.material.opacity=.60*(1-progression);
@@ -890,6 +895,7 @@ function animate(t){
  const encounterFrame=autoDirector&&cameraModes[cameraIndex]==='cinematic'?planEncounterFrame(state):null;
  const heldImpact=impactCameraHold?.age<(impactCameraHold?.encounter.mode==='final-blow'?.72:.43)&&!state?.bossWarning?impactCameraHold.encounter:null;
  const cinematicShot=autoDirector&&cameraModes[cameraIndex]==='cinematic'?planCinematicShot(state,heldImpact||encounterFrame,{width:w,height:h,focusedHeroId}):null;
+ const encounterLighting=cinematicShot?planEncounterLighting(state,cinematicShot,{damageBeat:lightInjury?.beat,reducedMotion:reduced}):null;
  const storyStage=planWorldStoryStage(state,cinematicShot,{width:w,reducedMotion:reduced});
  const target=cinematicShot?new THREE.Vector3(cinematicShot.x-9,0,cinematicShot.z-9):encounterFrame?new THREE.Vector3(encounterFrame.x-9,0,encounterFrame.z-9):(leader?.at??new THREE.Vector3(0,0,0));
  for(const a of actors.values()){
@@ -1115,6 +1121,30 @@ function animate(t){
  moon.intensity=1.65*(storyStage?.moonScale??1);
  const litFloor=Number.isSafeInteger(state?.floor)&&state.floor>=1?state.floor:1;
  partyGlow.intensity=floorThemes[(litFloor-1)%floorThemes.length].partyIntensity*(storyStage?.partyScale??1);
+ // Build legible real hero-versus-hostile volumetric silhouettes with THREE
+ // existing light sources. All lighting follows the same genuine camera shot,
+ // no fabricated contact cues, new point lights, shadows or render passes.
+ if(encounterLighting?.mode==='duel'){
+  const lightFollow=reduced?1:Math.min(1,cameraDt*8);
+  const key=encounterLighting.heroKey,fill=encounterLighting.opponentFill;
+  heroKey.position.lerp(lightStep.set(key.x,key.y,key.z),lightFollow);
+  heroKey.intensity=key.intensity*(cinematicLens?.keyScale??1)*(storyStage?.keyScale??1)*
+   (1+(encounterLighting.injury?.strength??0));
+  heroKey.distance=key.distance;
+  partyGlow.position.lerp(lightStep.set(fill.x,fill.y,fill.z),lightFollow);
+  partyGlow.intensity=fill.intensity*(storyStage?.partyScale??1);
+  partyGlow.distance=fill.distance;
+  if(!aliveWarden&&encounterLighting.bossLight){
+   const threat=encounterLighting.bossLight;
+   wardenSpot.position.lerp(lightStep.set(threat.x,threat.y,threat.z),lightFollow);
+   wardenSpot.intensity=threat.intensity;
+   wardenSpot.distance=threat.distance;
+   wardenSpot.color.set('#ad7766');
+  }
+ }else{
+  heroKey.distance=6.8;partyGlow.distance=7.7;
+  if(!aliveWarden){wardenSpot.intensity=0;wardenSpot.distance=9.5;}
+ }
  renderer.info.reset();
  try{if(composer&&postFXEnabled){
   bloomPass.strength=innerWidth<680?.16:.30;
