@@ -80,6 +80,10 @@ test('Tiny Kingdom 1024px command desk stays one row without clipping actual act
  const errors=[];page.on('pageerror',error=>errors.push(error.message));
  await page.setViewportSize({width:1024,height:640});await page.setContent(html);
  await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0,null,{timeout:90000});
+ // W03 opens in the actual world, not the full old command desk. Exercise the
+ // user's accessible Command desk action before asserting its complete rail.
+ await page.locator('#world-open-command').click();
+ await expect(page.locator('#command-toggle')).toHaveAttribute('aria-pressed','false');
  const measured=await page.evaluate(()=>{
    const desk=document.querySelector('.bottom');
    const before={height:desk.getBoundingClientRect().height,
