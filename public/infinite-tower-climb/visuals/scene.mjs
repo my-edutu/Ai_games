@@ -1139,9 +1139,34 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
     center.x = lerp(body.x, contactGuardian.x, .48);
     center.y = lerp(body.y, contactGuardian.y, .48);
     center.z = lerp(body.z, contactGuardian.z, .48);
-    const rescue = solve(0, false);
-    if (rescue.clear && rescue.guardianFramed &&
-        rescue.heroFraction > best.heroFraction + .018) {
+    // A head-on close-up can be blocked by the solid tower even when an
+    // oblique shot has both real combatants and their landing in view.
+    // Previously we tried only lean=0 for the relaxed landing footprint and
+    // then returned to the impossibly wide cap panorama. Search a bounded
+    // pair of exterior shoulders while preserving every guardian silhouette
+    // corner and both actor-to-camera core sightlines.
+    const aerialLeans = Number.isFinite(previousGuardianLean) &&
+      Math.abs(previousGuardianLean) <= 1.2
+      ? [previousGuardianLean, 0, .22, -.22, .45, -.45, .7, -.7, .95, -.95, 1.13, -1.13]
+      : [0, .22, -.22, .45, -.45, .7, -.7, .95, -.95, 1.13, -1.13];
+    let rescue = null;
+    let rescueScore = -Infinity;
+    for (const amount of aerialLeans) {
+      const candidate = solve(amount, false);
+      if (!candidate.clear || !candidate.guardianFramed ||
+          !Number.isFinite(candidate.heroFraction)) continue;
+      // The living climber is the primary subject. A true visible touchdown
+      // and observed attack lane decide otherwise similar views; the small
+      // shoulder penalty discourages a nervous every-tick orbit reversal.
+      const score = candidate.heroFraction * 10 +
+        (candidate.landingFramed ? .09 : 0) +
+        (candidate.shotFramed ? .035 : 0) - Math.abs(amount) * .012;
+      if (score > rescueScore + .001) {
+        rescue = candidate;
+        rescueScore = score;
+      }
+    }
+    if (rescue && rescue.heroFraction > best.heroFraction + .006) {
       best = rescue;
       hardLandingFit = false;
     } else Object.assign(center, normalCenter);
