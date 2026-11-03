@@ -550,7 +550,11 @@ let presentationEpoch=0,lastFrozenFrameKey=null,idleFrames=0;
 // walking through a paused real market; a view change redraws the same VBO
 // with a different projection instead of rebuilding/uploading every citizen.
 // Never freeze geometry while authority advances or any LOD membership changes.
-const CAMERA_DYNAMIC_FLOAT_BUDGET=800000;
+// The exact G160 Day-1 390px WebGL draw emitted 868,410 dynamic floats.
+// Keep the single-entry resident mesh bounded while admitting real Day-1
+// workers and props (not a proxy or hidden population). At most 7.68 MiB
+// if held as a JS number array; it is cleared on authority step/reset/restore.
+const CAMERA_DYNAMIC_FLOAT_BUDGET=960000;
 let cameraDynamicCache=null,cameraDynamicKey='',cameraDynamicBuilds=0,
  cameraDynamicReuses=0,cameraDynamicSkippedUploads=0;
 function getCameraDynamicCacheStats(){
