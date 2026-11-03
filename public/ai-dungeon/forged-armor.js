@@ -17,12 +17,12 @@ const PROFILES=Object.freeze({
  // and distinct martial/caster builds support genuine adult body proportions.
  // Only the cloned presentation model is changed; world cells and reach stay put.
  const BODY_SHAPES=Object.freeze({
-  vanguard:Object.freeze({width:.93,depth:.91}),
-  ranger:Object.freeze({width:.84,depth:.86}),
-  mystic:Object.freeze({width:.87,depth:.88}),
-  revenant:Object.freeze({width:.87,depth:.87}),
-  cultist:Object.freeze({width:.85,depth:.86}),
-  warden:Object.freeze({width:.96,depth:.95})
+  vanguard:Object.freeze({width:.87,depth:.88}),
+  ranger:Object.freeze({width:.81,depth:.83}),
+  mystic:Object.freeze({width:.83,depth:.84}),
+  revenant:Object.freeze({width:.84,depth:.84}),
+  cultist:Object.freeze({width:.82,depth:.82}),
+  warden:Object.freeze({width:.92,depth:.91})
  });
  export function planAuthoredBodyShape(kind){
   return typeof kind==='string'&&Object.hasOwn(BODY_SHAPES,kind)?BODY_SHAPES[kind]:null;

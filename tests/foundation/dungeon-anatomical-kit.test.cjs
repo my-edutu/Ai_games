@@ -8,7 +8,9 @@ test('six actual rig types get distinct original, layered anatomical gear instea
  const {planAnatomicalKit}=await load();const signatures=new Set();
  for(const kind of kinds){
   const recipe=planAnatomicalKit(kind);
-  assert.ok(recipe.length>=10&&recipe.length<=18,kind+' bounded sculpted gear');
+  assert.ok(recipe.length>=10&&recipe.length<=14,kind+' bounded readable gear');
+  assert.ok(!recipe.some(p=>/helmet-brow|visor-shadow|-(?:left|right)-shoulder$/.test(p.id)),
+   kind+' redundant rigid masks and shoulder shells must not hide native anatomy');
   assert.equal(new Set(recipe.map(p=>p.id)).size,recipe.length);
   assert.ok(recipe.some(p=>p.shape==='cuirass'||p.shape==='rib'),kind+' sculpted anatomy');
   assert.ok(recipe.some(p=>p.shape==='vambrace'||p.shape==='greave'),kind+' defined articulated limbs');

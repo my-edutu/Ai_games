@@ -26,6 +26,10 @@ function presentation({nestedFailure=false,fixture=null}={}){
  const performance=fs.readFileSync(path.join(ROOT,'public/ai-dungeon/combat-performance-plan.js'),'utf8')
   .replace(/^export /gm,'');
  vm.createContext(context);vm.runInContext(performance,context);
+ // This VM removes ES imports: evaluate the genuine pure bearing planner
+ // rather than hiding or inventing missing dependencies for live actor poses.
+ const bearing=fs.readFileSync(path.join(ROOT,'public/ai-dungeon/rig-attachment-plan.js'),'utf8').replace(/^export /gm,'');
+ context.planRigBearing=vm.runInContext('(function(){\n'+bearing+'\nreturn planRigBearing;})()',context);
  // The isolated VM removes ES imports: run the REAL evasion planner with its
  // lexical dependencies, rather than stubbing away the latest 3D action.
  const evasion=fs.readFileSync(path.join(ROOT,'public/ai-dungeon/evasion-performance-plan.js'),'utf8')

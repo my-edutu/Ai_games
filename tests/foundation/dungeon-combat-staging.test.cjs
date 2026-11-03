@@ -55,13 +55,13 @@ test('living Warden confrontations produce an original readable inside-cell duel
 });
 
 test('invalid, blocked and oversized snapshots cannot create off-grid or unbounded visual actors',async()=>{
- const {planCombatStage}=await mod();
+ const {planCombatStage,MAX_STAGE_OFFSET}=await mod();
  const blocked=floor();blocked[3]='...#...';
  const units=Array.from({length:28},(_,i)=>u('actor-'+i,'revenant','enemy',3,3));
  assert.equal(Object.keys(planCombatStage({tick:7,map:blocked,units})).length,0);
  const valid=planCombatStage({tick:7,map:floor(),units});
  assert.ok(Object.keys(valid).length<=18);
- for(const p of Object.values(valid))assert.ok(Math.abs(p.dx)<=.2751&&Math.abs(p.dz)<=.2751);
+ for(const p of Object.values(valid))assert.ok(Math.hypot(p.dx,p.dz)<=MAX_STAGE_OFFSET+.0001);
  assert.equal(Object.keys(planCombatStage(null)).length,0);
 });
 test('real rendered actors and real authority-based combat effects share the staging plan',()=>{
@@ -125,4 +125,21 @@ test('earned Warden recovery opens a real two-body counter lane without moving e
  assert.equal(planCombatStage({...s,bossRecovery:{remaining:0}}).warden.dx,0,'no fake recoveries');
  assert.equal(planCombatStage({...s,bossRecovery:{remaining:7}}).warden.dx,0,'out-of-range recovery is invalid');
  assert.equal(planCombatStage({...s,units:[boss]}).warden.dx,0,'a boss with no living hero cannot move for the camera');
+});
+
+test('four and six legal co-located combatants separate into reproducible camera-oriented ensembles',async()=>{
+ const {planCombatStage,MAX_STAGE_OFFSET}=await mod();
+ for(const count of [4,6]){
+  const units=Array.from({length:count},(_,i)=>u('co'+i,i%2?'cultist':'vanguard',i%2?'enemy':'party',3,3));
+  const state={tick:7,map:floor(),units},before=JSON.stringify(state);
+  const front=planCombatStage(state,{x:6,z:4}),side=planCombatStage(state,{x:4,z:6});
+  assert.deepEqual(front,planCombatStage({...state,units:units.slice().reverse()},{x:6,z:4}));
+  assert.notDeepEqual(front,side);
+  const points=Object.values(front);
+  assert.ok(points.every(p=>p.crowded&&Math.hypot(p.dx,p.dz)<=MAX_STAGE_OFFSET+.0001));
+  assert.ok(points.every(p=>Math.hypot(p.dx,p.dz)>=.34),'no central toy-like overlap');
+  for(let i=0;i<points.length;i++)for(let j=i+1;j<points.length;j++)
+   assert.ok(Math.hypot(points[i].x-points[j].x,points[i].z-points[j].z)>.22);
+  assert.equal(JSON.stringify(state),before,'no authoritative collision or attack change');
+ }
 });

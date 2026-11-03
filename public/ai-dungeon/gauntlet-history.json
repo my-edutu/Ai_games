@@ -2193,7 +2193,7 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "Latest native body presence source needs exact-head Node, replay, Chromium, CI, accessibility and frame-time verification; earlier source-head tests are not evidence for this head.",
+      "safetyChecks": "Old exact head 708e797 Dungeon/CI FAILED (VM missing real planRigBearing; 156 >144 anatomical meshes). Candidate head current CI/replay/browser/accessibility/performance UNVERIFIED.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2202,12 +2202,12 @@
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Predecessor 4cc8abd actual 1440x832 and 390x844 browser frames show companions cropped/packed against an overly dense foreground. No scientifically matched AFTER observation yet.",
       "latestCandidateWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41570415510",
-      "currentPredecessorWebgl": "https://github.com/my-edutu/Ai_games/actions/runs/41547733443/artifacts/13189299945",
+      "currentPredecessorWebgl": "https://github.com/my-edutu/Ai_games/actions/runs/41582184616/artifacts/13207290223",
       "newCandidateSceneReview": "UNVERIFIED new exact-head screenshot/audio/long motion. Source-head 4cc8abd desktop and portrait world-only screenshots inspected; candidate capture not yet available."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Stylized oversized heads, overcrowded character silhouettes and muted combat contact; exact-head true audiovisual playback, matched baseline and independent critics remain missing.",
-    "currentWork": "Integrated six class skinned thigh/waist armor and real HP/action/nearby foe-driven reversible original head/chest/pelvis animation; continuing one M1 candidate, no live new-head acceptance.",
+    "biggestRemainingGap": "Toy-like original model anatomy, crowding and combat contact weight versus AAA references; genuine new-head audiovisual A/B and 3 independent critics still outstanding.",
+    "currentWork": "Single M1 continues: source-visible reduction of redundant six-class armor and camera-stable real crowd staging while preserving all authoritative combat decisions. NOT TRANSFORMED.",
     "candidateCommit": "",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
@@ -3454,6 +3454,28 @@
         "verification": "Source syntactic checks only; real Chromium, CI/replay, hardware performance, audiovisual full scenario, matched baseline, independent 3-critic majority UNVERIFIED because workspace/browser tunnel disconnected.",
         "largestGap": "Current real desktop/mobile art still looks crowded and miniature; new after must be judged live, not assumed improved.",
         "next": "Capture exact-head real motion and fix limb/hip clipping, then continue substantial integrated character/world/boss pacing while recording original full traversal→combat→Warden→floor→defeat/restart with audio and blind judging."
+      },
+      {
+        "id": "M1-COHERENT-CROWD-ART-20261103",
+        "date": "2026-11-03",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "sourceHeadAtStart": "708e7974946e4e97597e04310013170b2c8afef6",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "objective": "Rebuild legibility of genuine simultaneous 3D melee by removing duplicated rigid armor and staging real co-located actors at distinct scene poses without altering their authority.",
+        "realPredecessorWebgl": "https://github.com/my-edutu/Ai_games/actions/runs/41582184616/artifacts/13207290223",
+        "realPredecessorBossMobile": "https://github.com/my-edutu/Ai_games/actions/runs/41582184616/artifacts/13206064704",
+        "implementation": "Slim six-class original skinned shell and face; remove four overlapping hard masks/shoulder meshes per rig; larger ≤.425m camera-aimed visual ring for 4+ real units sharing a cell and aligned with real contact effects. All combat/rules/replay immutable.",
+        "observedPredecessorSafety": "708e797 dedicated Dungeon workflow FAILED: presentation VM 16/20 due missing real planRigBearing, browser shard 2 25/26 due 156 > 144 anatomical-detail budget; overall catalogue CI FAILED. Candidate fixes genuine harness dependency and removes actual redundant mesh parts, but exact-head results not yet known.",
+        "performance": "UNVERIFIED real draw calls and frame p95/p99. Reduced mesh inventory by source construction only.",
+        "independentCritics": {
+          "count": 0,
+          "looks": "UNVERIFIED",
+          "feels": "UNVERIFIED",
+          "plays": "UNVERIFIED"
+        },
+        "motionAudio": "UNVERIFIED full continuous original desktop/mobile game recording",
+        "verdict": "IN_PROGRESS / NOT_TRANSFORMED",
+        "next": "Inspect actual new head in moving WebGL; if sound/contact and character silhouettes still weak, continue high-quality provenance-cleared anatomical/animation overhaul. Capture true full scenario and blind baseline judgments. Draft/unmerged."
       }
     ]
   }
