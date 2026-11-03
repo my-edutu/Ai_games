@@ -6623,13 +6623,18 @@ function streetCaption(){
    if(status.textContent!==text)status.textContent=text;
    return;
   }
-  const caption='Market · '+(marketVisitFocus?.stall?.trade||'village')+' stall · '+
-   (open?'open':'closed')+' · '+
+  // Preserve the canonical market status contract across desktop/mobile.
+  // The specific real stall remains available in accessible metadata.
+  const caption='Market '+(open?'open':'closed')+' · '+
    actual.activeMerchantNames.length+' merchants · '+
    Math.round(actual.resources.food)+' food · '+
    Math.round(actual.resources.wood)+' timber';
   const status=document.getElementById('street-walk-status');
   status.setAttribute('aria-live','polite');
+  status.dataset.stallTrade=marketVisitFocus?.stall?.trade||'';
+  document.getElementById('market-visit').setAttribute('aria-label',
+   'Viewing '+(marketVisitFocus?.stall?.trade||'village')+
+   ' market stall · '+(open?'trading open':'trading closed'));
   if(status.textContent!==caption)status.textContent=caption;
   return;
  }
