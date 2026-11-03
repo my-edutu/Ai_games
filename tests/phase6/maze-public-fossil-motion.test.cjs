@@ -74,7 +74,8 @@ test('unsafe/disclosed source semantics and unknown fields cannot fabricate foss
      published({cells:[c(10,[11],{trap:true})]}),
      published({cells:[c(10,[11],{blocked:true})]}),
      published({cells:[c(10,[11])],keys:[{id:'treasure',cell:10,collected:false}]}),
-     published({cells:[c(10,[11])],doors:[{a:10,b:11,open:false}]}),
+     published({cells:[c(10,[11]),c(11,[10])],visibleCells:[10,11],
+       doors:[{a:10,b:11,open:false}]}),
    ]){
      world.update(state);
      assert.equal(world.stats().responsiveFossilSails,0,
