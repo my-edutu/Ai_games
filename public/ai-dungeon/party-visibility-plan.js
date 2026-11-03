@@ -18,6 +18,13 @@ export function planPartyWallReveal(x,z,subjects,camera,pad=2.1){
   const dx=x-subject.x,dz=z-subject.z;
   const radial=dx*dx+dz*dz;
   if(radial<=nearRadius*nearRadius)nearby=true;
+  // Keep real animated bodies readable from every cinematic angle. Physical
+  // walls immediately surrounding a REAL hero (or legal combat pair) become
+  // shallow foundations rather than chest-high blocks bisecting their limbs.
+  // Unmarked scenery, distant Gothic enclosures and the solid grid stay intact.
+  const actingRadius=subject.combatRecess===true?2.55:
+   subject.silhouetteRecess===true?2.05:0;
+  if(actingRadius>0&&radial<=actingRadius*actingRadius)return 'sightline';
   const vx=camera.x-subject.x,vz=camera.z-subject.z;
   const distance=Math.hypot(vx,vz);
   if(distance<.001)continue;

@@ -216,9 +216,9 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
  * No private simulation reads, RNG, hidden outcome or new light/draw pass.
  */
 const DIRECTOR_LENS=Object.freeze({
- journey:          Object.freeze({radius:6.25,height:5.15,fov:43,aim:.72,follow:5.2,key:1.08}),
- 'skirmish-approach':Object.freeze({radius:6.05,height:5.45,fov:41,aim:.81,follow:6.0,key:1.11}),
- contact:          Object.freeze({radius:5.60,height:5.12,fov:40,aim:.93,follow:7.5,key:1.16}),
+ journey:          Object.freeze({radius:5.38,height:4.62,fov:43,aim:.72,follow:5.2,key:1.08}),
+ 'skirmish-approach':Object.freeze({radius:5.28,height:4.87,fov:41,aim:.81,follow:6.0,key:1.11}),
+ contact:          Object.freeze({radius:4.96,height:4.70,fov:40,aim:.93,follow:7.5,key:1.16}),
  'warden-contact': Object.freeze({radius:6.75,height:6.45,fov:44,aim:.88,follow:7.5,key:1.15}),
  'oathguard-cover':Object.freeze({radius:5.7,height:6.9,fov:44,aim:.86,follow:7.4,key:1.20}),
  'warden-approach':Object.freeze({radius:7.90,height:7.10,fov:45,aim:.84,follow:6.2,key:1.11}),
