@@ -63,9 +63,19 @@ export function createTowerAtmosphere(THREE) {
     const heroAngle = angleFor(snapshot.player.x, snapshot.worldWidth);
     const heroHeight = (snapshot.player.y - snapshot.chunkBaseY) / SCALE;
     const guardianWarning = snapshot.enemies?.some(enemy => enemy.active && enemy.telegraph) === true;
+    // A physically layered weather stream responds to witnessed health and
+    // velocity instead of floating at a constant, game-independent tempo.
+    // No new draw pass, random source, collider, HUD or fictional danger.
+    const cap = snapshot.player.maxHealth;
+    const ratio = valid(cap) && cap > 0 && valid(snapshot.player.health) ?
+      Math.max(0, Math.min(1, snapshot.player.health / cap)) : 1;
+    const pressure = Math.max(0, Math.min(1, (.55 - ratio) / .35));
+    const lateral = valid(snapshot.player.vx) ?
+      Math.max(-1, Math.min(1, snapshot.player.vx / 10000)) : 0;
     // Actual combat takes priority: subtle ambient volume stays behind the
     // important characters rather than hiding a guardian windup in phone view.
-    material.opacity = style.opacity * (guardianWarning ? .30 : .65);
+    material.opacity = style.opacity * (guardianWarning ? .30 : .65) *
+      (1 - .32 * pressure);
     if (currentTheme !== snapshot.theme) {
       tone.set(style.tint);
       for (let i = 0; i < MAX_MOTES; i++) {
@@ -80,15 +90,20 @@ export function createTowerAtmosphere(THREE) {
       // All source/playback variability comes from source floor/tick/position.
       // A ring of subtly independent shafts creates visible parallax on orbit.
       const seed = i * 19.17 + snapshot.floor * 11.73;
-      const bearing = heroAngle + (hash(seed + 2) - .5) * 2.15;
-      const angle = bearing + frame * style.slant * .008;
-      const radius = 31.0 + hash(seed + 5) * 19;
-      const height = positiveMod(hash(seed + 9) * 46 + frame * style.rise, 46) - 23;
+      const bearing = heroAngle + (hash(seed + 2) - .5) * (2.15 - .38 * pressure);
+      const angle = bearing + frame * style.slant * .008 +
+        lateral * .055 * (i % 2 ? 1 : .65);
+      // Separate near/far exterior layers create camera-orbit parallax. Even
+      // at critical health the nearest weather is outside the climb radius.
+      const radius = (i % 3 === 0 ? 30.2 + hash(seed + 5) * 9 :
+        39 + hash(seed + 5) * 13) - pressure * .9;
+      const height = positiveMod(hash(seed + 9) * 46 +
+        frame * (style.rise + lateral * .17), 46) - 23;
       const diameter = style.width * (.55 + hash(seed + 12) * 1.05);
       const length = style.height * (.52 + hash(seed + 18));
       dummy.position.set(Math.sin(angle) * radius, heroHeight + height,
         Math.cos(angle) * radius);
-      dummy.rotation.set(style.slant * .15, bearing, -style.slant * .18);
+      dummy.rotation.set(style.slant * .15, bearing, -style.slant * .18 - lateral * .09);
       dummy.scale.set(diameter, length, diameter);
       dummy.updateMatrix();
       motes.setMatrixAt(i, dummy.matrix);

@@ -1,3 +1,22 @@
+// Only adjacent, same-run/floor fixed-step HP crossings can earn optional
+// critical-health or relief audio. No inferred pickup, result or restart.
+export function observedSurvivalChange(previous, next) {
+  if (!previous || !next || previous.lifecycle !== 'running' ||
+    next.lifecycle !== 'running' || !next.runToken ||
+    previous.runToken !== next.runToken ||
+    !Number.isSafeInteger(previous.floor) || previous.floor !== next.floor ||
+    !Number.isSafeInteger(previous.tick) || !Number.isSafeInteger(next.tick) ||
+    next.tick <= previous.tick || next.tick - previous.tick > 8) return null;
+  const p = previous.player, n = next.player;
+  if (!p || !n || ![p.health, p.maxHealth, n.health, n.maxHealth].every(Number.isFinite) ||
+    p.maxHealth <= 0 || n.maxHealth !== p.maxHealth || p.health <= 0 ||
+    n.health <= 0 || n.health > n.maxHealth) return null;
+  const critical = .35 * n.maxHealth;
+  if (p.health > critical && n.health <= critical) return 'critical';
+  if (p.health <= critical && n.health > critical) return 'recovered';
+  return null;
+}
+
 // A bounded synthesized soundscape. No audio is started until a viewer enables it.
 export function createTowerAudio() {
   let context = null, master = null, bed = null, wind = null, windFilter = null, windGain = null;
@@ -5,6 +24,7 @@ export function createTowerAudio() {
   let disposed = false, lastAmbient = 0, enableRequest = 0, enablePending = false;
   const voices = new Set(), heard = new Set(), pads = [];
   let guardianWindups = new Map(), guardianStates = new Map(), hazardStates = new Map();
+  let lastSurvivalSnapshot = null;
   // One opt-in arrival tone for crossing the actual cap-approach threshold.
   // This is a genuine same-run fixed-step crossing, not a route prediction.
   let crownDistance = null, crownTick = -1, crownHeard = '';
@@ -99,7 +119,7 @@ export function createTowerAudio() {
     const snapshot = frame.snapshot;
     if (snapshot.runToken !== token) {
       const verifiedRestart = !!token && ['result', 'intermission'].includes(lastLifecycle);
-      heard.clear(); last = null; lastFloor = null; lastIntent = ''; lastTargetPlatformId = null; lastLifecycle = 'running'; stride = 0; crownDistance = null; crownTick = -1; crownHeard = ''; guardianWindups.clear(); guardianStates.clear(); hazardStates.clear(); token = snapshot.runToken;
+      heard.clear(); last = null; lastFloor = null; lastIntent = ''; lastTargetPlatformId = null; lastLifecycle = 'running'; stride = 0; crownDistance = null; crownTick = -1; crownHeard = ''; guardianWindups.clear(); guardianStates.clear(); hazardStates.clear(); lastSurvivalSnapshot = null; token = snapshot.runToken;
       if (verifiedRestart) tone(205, 365, .21, 'sine', .052);
     }
     for (const voice of frame.audio?.voices || []) if (!heard.has(voice.id)) {
@@ -127,6 +147,17 @@ export function createTowerAudio() {
     }
     lastLifecycle = lifecycle;
     const actor = snapshot.player;
+    // The real AI rescue detour, opening skinned armor and health transfer
+    // now have one opt-in acoustic pressure/release arc; no fake heal sounds.
+    const survivalChange = observedSurvivalChange(lastSurvivalSnapshot, snapshot);
+    if (survivalChange === 'critical') {
+      texture(150, .19, .048);
+      tone(145, 97, .31, 'triangle', .06);
+    } else if (survivalChange === 'recovered') {
+      tone(260, 380, .22, 'sine', .045);
+      tone(390, 510, .29, 'sine', .03);
+    }
+    lastSurvivalSnapshot = snapshot;
     const sameFloor = last && lastFloor === snapshot.floor;
     // A genuine guardian floor can advance on the SAME fixed tick as the
     // decisive hit. There may never be a visible inactive-guardian snapshot.
@@ -323,8 +354,13 @@ export function createTowerAudio() {
       lastAmbient = context.currentTime;
       const mood = frame.audio?.musicState || 'ascent';
       const intensity = mood === 'guardian' ? .052 : mood === 'danger' ? .042 : mood === 'result' ? .012 : .025;
-      bed.gain.setTargetAtTime(intensity, context.currentTime, .65);
-      if(windGain)windGain.gain.setTargetAtTime(mood === 'guardian' ? .022 : mood === 'danger' ? .016 : .008, context.currentTime, .75);
+      const healthRatio = Number.isFinite(actor?.maxHealth) && actor.maxHealth > 0 &&
+        Number.isFinite(actor.health) ? Math.max(0, Math.min(1, actor.health / actor.maxHealth)) : 1;
+      const pressure = Math.max(0, Math.min(1, (.55 - healthRatio) / .35));
+      bed.gain.setTargetAtTime(intensity * (1 - .25 * pressure), context.currentTime, .65);
+      if(windGain)windGain.gain.setTargetAtTime(
+        (mood === 'guardian' ? .022 : mood === 'danger' ? .016 : .008) +
+        pressure * .006, context.currentTime, .75);
       const pitches = { foundry: 55, ruins: 65.41, storm: 61.74, clockwork: 82.41, void: 49 };
       const root = pitches[snapshot.theme] || 55;
       for (let index = 0; index < pads.length; index++) {
@@ -338,7 +374,7 @@ export function createTowerAudio() {
     if (disposed) return;
     disposed = true; enabled = false; enablePending = false; enableRequest++;
     for (const voice of voices) { try { voice.stop(); voice.disconnect(); } catch {} }
-    voices.clear(); heard.clear(); guardianWindups.clear(); guardianStates.clear(); hazardStates.clear(); pads.length = 0; last = null; lastFloor = null; lastIntent = ''; lastTargetPlatformId = null; lastLifecycle = 'running'; stride = 0; crownDistance = null; crownTick = -1; crownHeard = '';
+    voices.clear(); heard.clear(); guardianWindups.clear(); guardianStates.clear(); hazardStates.clear(); lastSurvivalSnapshot = null; pads.length = 0; last = null; lastFloor = null; lastIntent = ''; lastTargetPlatformId = null; lastLifecycle = 'running'; stride = 0; crownDistance = null; crownTick = -1; crownHeard = '';
     if (context) context.close().catch(() => {});
   }
   return { setEnabled, accept, dispose, diagnostics: () => ({ soundEnabled: enabled, soundPending: enablePending, voices: voices.size, context: context?.state || 'not-started' }) };
