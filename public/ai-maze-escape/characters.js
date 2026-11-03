@@ -338,7 +338,7 @@ export function createExplorer(options = {}) {
       legs[i].hip.rotation.x=step*sign*.62-alert*.22;
       legs[i].hip.rotation.z=alert>0?-sign*alert*.3:-sign*gatePerformance*.14;
       legs[i].knee.rotation.x=Math.max(0,-step*sign)*.58+alert*.3+gatePerformance*.21+pickupCelebrate*.14;
-      arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0)-alert*(i===1?1.55:.95)-(i===0?keyReach*2.3:0)-gateCelebrate*(i===1?1.35:.48)-gatePerformance*(i===1?.34:.54)-pickupCelebrate*(i===1?1.43:1.38);
+      arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0)-alert*(i===1?1.55:.95)-(i===0?keyReach*2.3:0)-gateCelebrate*(i===1?1.35:.64)-gatePerformance*(i===1?.34:.54)-pickupCelebrate*(i===1?1.43:1.38);
       // Aim the raised physical glove toward the publicly disclosed lock,
       // not just upward. Reduced-motion uses the same stable static pose.
       // A terminal result or nearby guardian suppresses keyYaw entirely.
