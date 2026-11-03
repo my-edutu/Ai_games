@@ -638,6 +638,10 @@ export function createMazeWorld(options = {}) {
                 // Narrow jade side cheeks make the stair an intentional connector.
                 for (const sign of [-1, 1]) add(box, jade, x + dx * distance + dz * sign * .84, top / 2, z + dz * distance + dx * sign * .84, dz ? .12 : STAIR_RUN / STAIR_COUNT, top + .06, dx ? .12 : STAIR_RUN / STAIR_COUNT, c.cell);
               }
+              // Never dress a one-way or inconsistent partial disclosure as
+              // a confirmed connected stair. The existing public steps remain
+              // unchanged; only this new authored landmark requires reciprocity.
+              if (knownByCell.get(n).neighbors.includes(c.cell)) {
               // A genuinely connected public elevation change now reads as a
               // playable tideglass stair, not eight anonymous floating blocks.
               // Twin low side balustrades join the actual sculpted steps; their
@@ -669,6 +673,7 @@ export function createMazeWorld(options = {}) {
                   add(box, deepStone, px, climb + .34, pz, .18, .68, .18, c.cell);
                   add(box, lightStone, px, climb + .69, pz, .25, .12, .25, c.cell);
                 }
+              }
               }
             }
           }
