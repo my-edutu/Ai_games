@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-03T08:00:00.000Z",
+  "updatedAt": "2026-11-03T08:55:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass105 browser failure root cause verified: exact-source Pass103/104 focused WebGL workflows 41590979922/41592753200 both FAILED and produced NO new screenshot artifacts. Pass103 introduced story-camera import but production server omitted pickup-story-camera.mjs from its explicit public asset routes, giving browser 404 before first WebGL frame. Corrected allowlist at 3b8dd1e, added real HTTP MIME/import acceptance at 2d3cc0d. Fresh source 320/390/844/1280 original PNG and visual approval PENDING, not a Nintendo bar win. Shared graphics tunnel, independent art critics and Ultracode unavailable. PR remains draft/unmerged/undeployed. Last ACTUALLY verified native images remain Pass102 23/23. 2026-11-03 Pass102b exact latest-source original focused WebGL 41582181683 SUCCESS; extracted original 17.21MB artifact 13205954041; independently rehashed 23/23 complete native 320/390/844/1280 PNGs against all UTC-dated JSON and real 1280 3-frame gate references, no mismatches. Actual 390x844 collected key 05:11:36.442Z SHA a51193c2f681fe39f35d5d98d39506b48e0f294f563bdaa093240199cdf7e465, 8 physical shards spread 65.845 CSS px, fully in-frame real Pip, true target 5.66995 and rendered half-height 6.00760, low-text truthful HUD, 44px controls. Real 320 guardian Follow SHA e1b0e36cf2b4f63c334b012eba482c413039788b8393a6b3867799b5729adb60 right NDC +0.8382 under unmodified +0.95 actor bound, no crop. Lead visually compared same-seed actual original Pass101 vs Pass102 at 390 (2.3663% >12/255 pixels changed) and 1280 (1.0247%), NOT quality scores. Real Pip face/eyes a little more visible around existing physical held key, but theatre/key partially masks acting and world design/action still far short of Nintendo Captain Toad gameplay. Local acting correction accepted only; full benchmark NOT MET and no independent blind A/B. Whole CI 41582181774 still in progress at source audit; focused WebGL source passed. Fresh-context subagents/Ultracode blocked by disconnected workspace tunnel; SwiftShader CPU timing not hardware GPU FPS. PR #53 DRAFT, not merged/deployed."
+    "summary": "Pass105 focused real WebGL 41600127825 SUCCESS and genuine artifact 13213359067 downloaded. Independently verified all 23/23 original full-resolution PNG SHA-256 values against 21 dated sidecars plus two additional true 1280 gate transition manifest refs; zero mismatch. Original 390x844 witnessed key 08:05:15.172Z SHA 8c20df7400a9cf1613355dcd2bd75371a880db57cadd6783d92381ef5c4fb4c8, 8 shards 66.13px, 0.95895 camera-facing, actual 5.77 half-height, complete Pip, compact real HUD. Authentic 320 Follow Thornback 08:02:37.813Z SHA e1b0e36cf2b4f63c334b012eba482c413039788b8393a6b3867799b5729adb60 right +0.87494 under +0.95 bound; whole 44px controls. Genuine CLOSED to OPEN gate three-frame 1280 verified. Source-bound visual critique: full game screen repaired and functional, but Pip/key overlap and stage still below Nintendo. Pass106 9b6a172 candidate adds two large gate-attached 3D folding tide-wings with real Three regression; new-source WebGL 41607572370 and monorepo 41607572330 unverified at this checkpoint. Shared tunnel disconnected; no independent fresh-context subagent or Ultracode. SwiftShader CPU timing not GPU FPS. Fixed Nintendo benchmark NOT MET; PR #53 draft/unmerged/undeployed."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass106 2026-11-03: Independently recovered and rehashed 23/23 ACTUAL Pass105 original native 320/390/844/1280 WebGL PNGs from focused workflow 41600127825 artifact 13213359067; repaired browser now truly draws full 3D. Lead art critic still rejects Nintendo quality from actual images: tiny ordinary figures, overlapping Pip/key and repeated court silhouette. Built new original gate physical performance 9b6a172: two seven-mesh tideglass wings hinged outside the truthful gate centerline, mirroring real publicly witnessed CLOSED→OPEN portcullis; initially-open doors static, unknown doors absent; no new HUD, private source, AI actions, collision, materials or geometry classes. New production Three regression test added. Pass106 new-source browser image acceptance pending; not a win.",
     "Pass105 2026-11-03 UTC: inspected current PR head and GitHub Actions job logs, found genuine blank playable 3D screen: Pass103 focused 41590979922 and Pass104 focused 41592753200 FAILED 30-second and 480-second Playwright WebGL-frame waits, with NO screenshot artifact. Root cause: production HTTP public asset allowlist missed new transitive pickup-story-camera.mjs import; scene dynamic import 404, fallback map shown. Fixed actual production allowlist in 3b8dd1e; separate browser critic 2d3cc0d now checks 200 JavaScript module and scene import via live HTTP. Previous strict native visibility, HUD and privacy thresholds unchanged. New-source CI and real images still pending, benchmark NOT MET. See docs/reviews/maze-3d/pass-105-transitive-module-browser-blank-stage-repair-2026-11-03.md.",
     "Pass104 2026-11-03T06:53:15.782Z: fixed production known-public-cell terrain cache invalidation for trap/checkpoint/clue flags, preventing stale decorative shell relief under genuinely newly disclosed hazards. Added separate authentic Three.js unit regression for physical instances, deterministic restoration, no leaked cells/mutated snapshots and reset. No native screenshots or new-source CI approval yet; previous Pass103 WebGL runs 41590979922 and 41590554584 still queued, whole 41590554441 in progress as checked. Shared workspace/subagents/Ultracode disconnected; official Nintendo quality benchmark not met; PR #53 draft, unmerged/undeployed. Review docs/reviews/maze-3d/pass-104-public-terrain-semantic-rebuild-2026-11-03.md.",
     "Pass103: original observed-heading three-quarter 3D pickup camera committed; current-source 390 WebGL screenshot, actual face angle and 320/390/844/1280 occlusion evidence PENDING. Existing Nintendo comparison still rejects overall quality. No independent fresh-context critic; workspace tunnel unavailable. No merge/deploy. Source commits 4f60287, d9dedff, 2ca9505, 1dbe1ed, d2644a6; original captured source/test thresholds unchanged and native 390 facing >0.78 added. Exact-source focused WebGL run 41590554584 and whole-repository CI 41590554441 queued at source checkpoint. Full cited review docs/reviews/maze-3d/pass-103-real-pip-facing-key-camera-source-gate-2026-11-03.md.",
@@ -198,6 +199,7 @@
     "Fourteenth pass: the original disclosed closed gate's coral crossed brace and gold lock now sit on the camera-facing side of its physical bars, for both door orientations; open or undisclosed barriers remain absent. Exact-source CI passed 523 Node and 25 browser checks. Real same-seed/tick21 1280×900 screenshot at 2026-10-31T05:04:37.546Z (SHA256 3ef0814c04f38a2465687b7feded50c6d8b7dc24c3da6ed2278de74f356ef668) shows the X clearly but gate is small at the far left and Pip partly obscured. Nintendo remains stronger; no independent critic or GPU performance claim."
   ],
   "nextGaps": [
+    "Pass106: verify CI and retrieve original source-bound full-size 1280 BEFORE/MID/AFTER and 320/390/844 entire-actor gate images for physical wing animation; recompute 23/23 PNG SHA pairs, compare real source-matched screenshot and actual Nintendo reference without cropping. Reject tiny, misleading or actor-obscuring wings. Continue bigger distinctive authored playable areas, connected characters, public autonomous behavior and strict low-text HUD. No false win from passing source tests.",
     "Pass103 review gate: retrieve original source-bound native 320x740, 390x844, 844x390, 1280x900 PNGs and dated SHA manifests from current focused WebGL CI; compare actual 390 pickup physical Pip two-eye/face silhouette and separated connected key, theatre overlap and strong 3D action vs Pass102 original AND official Nintendo Captain Toad gameplay. Keep strict <6 target, <7 rendered, >0.78 real Pip-facing camera, >=6 physical shards and >60px spread, guardian full-body, compact 44px HUD/privacy/reduced motion/fallback. Fix any REAL clipping or occlusion in physical world/camera, not weakened tests. After visual gate, major distinctive authored interactive regions/character acting remain.",
     "Pass102 new-source visual judge: retrieve original full-resolution 320/390/844/1280 WebGL PNGs and dated SHA manifests from exact code head; inspect whether original physical Pip's eyes/face are readable beside its actual key on witnessed collection. Strict <6 portrait target, <7 actual and real eight shards plus full Pip/Thornback/HUD control framing must be met without threshold changes. Compare against genuine Pass101 full native 390 image and fixed Nintendo screenshots; no win from test counts or pixel-change alone. If the real face is still obscured, redesign original 3D action/silhouette and world on-camera.",
     "Pass101: inspect exact new-source unaltered, full-res 320/390/844/1280 WebGL screenshots from focused 41579316624, all SHA/dated JSON and actual 1280 3-frame gate. Compare same seed Pass100 and Pass101 visible Pip FACE versus the large physical wrist-held key without changing genuine event, 44px controls, low-text HUD, guardian strict 320 crop, 8 true pickup shards, reduced-motion, public-source privacy, fallback/reconnect or keyboard. If the wrist prop still blocks acting, re-stage actual 3D key/hand, not text or test thresholds; full global Nintendo comparison only after original real image critic.",
@@ -213,6 +215,13 @@
     "Pass91: inspect current-source 320/390/844/1280, witnessed key and moving gate WebGL originals; independently verify dated SHA source identities, strict viewport/model bounds and real HUD coverage; compare same-seed motion settings to Pass90 Nintendo/old screen; reject if tide-watch spires are off-camera, false goals or obstruct actual 3D action. Full whole-CI, detached fresh-context critic and Ultracode outstanding."
   ],
   "reviews": [
+    {
+      "title": "Pass106 source-bound genuine gate choreography and Pass105 real native critic",
+      "reviewer": "Lead actual-full-resolution WebGL art inspection; separate fresh-context critic not available (disconnected workspace)",
+      "verdict": "Pass105 browser/PNG audit VERIFIED 23/23; Pass106 new wing art PENDING native image; fixed Nintendo bar NOT MET",
+      "date": "2026-11-03T08:55:00.000Z",
+      "summary": "Recovered actual Pass105 native screenshots 320/390/844/1280 with 21 individual UTC PNG SHA pairs plus two actual 1280 gate manifest references, all 23/23 matched. Real 390 collection Pip/key overlap remains; guardian full-body clear. Pass106 adds two full-sized physical hinges rotating with genuinely opened disclosed gate; original Three contract added, new source CI visual pending. No independent blind critic, no merge/deploy."
+    },
     {
       "title": "Pass103 public witnessed camera angle — source committed, real full-resolution criticism pending",
       "reviewer": "Lead source/test review; independent original-image critic unavailable (disconnected shared workspace)",
@@ -503,6 +512,13 @@
   ],
   "verification": [
     {
+      "name": "Pass105 original full-resolution WebGL 23/23 rehashed; Pass106 source-bound gate-wing images pending",
+      "status": "Pass105 focused workflow 41600127825 SUCCESS: original artifact 13213359067 exact-source 23/23 PNGs against UTC dated sidecars + three-frame gate manifest, zero mismatches. Pass106 new focused 41607572370 and whole CI 41607572330 in progress at review.",
+      "detail": "Real 320×740 guardian FULL model (right NDC .87494 within unchanged .95); 390×844 authentic collected key 08:05:15.172Z with eight shards, 66.13px spread, actual camera 5.77 and real face angle .95895. Static scene Nintendo bar rejected. New physical tide-wing gate requires fresh full-size screenshot critic; no independent agents.",
+      "sourceCommit": "9b6a172484d71165431eefa8a1ca1deecc1a0c4d",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41600127825/artifacts/13213359067"
+    },
+    {
       "name": "Pass103 source/authentic original image acceptance pending",
       "status": "Source files and stricter native browser acceptance committed; exact-source WebGL run 41590554584 and whole CI 41590554441 queued at initial checkpoint. No new original PNG hashes verified; benchmark remains failed.",
       "detail": "Pass103: original observed-heading three-quarter 3D pickup camera committed; current-source 390 WebGL screenshot, actual face angle and 320/390/844/1280 occlusion evidence PENDING. Existing Nintendo comparison still rejects overall quality. No independent fresh-context critic; workspace tunnel unavailable. No merge/deploy.",
@@ -783,6 +799,14 @@
     }
   ],
   "references": [
+    {
+      "title": "Pass105 23 full-resolution source-bound WebGL PNG archive with UTC SHA manifests",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/41600127825/artifacts/13213359067"
+    },
+    {
+      "title": "Pass106 dated actual Pass105 native critique and new physical gate art candidate",
+      "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-106-verified-pass105-native-and-physical-gate-wings-2026-11-03.md"
+    },
     {
       "title": "Pass103 original character-facing camera — source critic / native evidence pending",
       "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-103-real-pip-facing-key-camera-source-gate-2026-11-03.md"
