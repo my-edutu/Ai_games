@@ -592,6 +592,8 @@ test('Pip physically acknowledges only a witnessed public pickup with stable pri
       'Pip lifts and opens its left arm to make the original collected key legible');
     assert.ok(key.rotation.x > 2.4 && key.scale.x > 1.55,
       'the genuinely collected connected key must be visibly turned and large enough for native mobile');
+    assert.ok(key.position.x < -.24 && key.position.y > .02 && key.position.z > .16,
+      'during witnessed reward, the same connected key is lifted outward from Pip’s face rather than covering it');
     assert.deepEqual(pip.group.position.toArray(),[0,0,0],'presentation never changes engine actor position');
     const staticPose=[body.position.y,head.rotation.x,left.rotation.x,right.rotation.x,scarf.rotation.x];
     pip.update({...cue,time:700});
@@ -601,6 +603,8 @@ test('Pip physically acknowledges only a witnessed public pickup with stable pri
     assert.equal(body.position.y,.78,'clearing the public moment clears physical celebratory lift');
     assert.equal(scarf.rotation.x,0,'no ghost scarves after cue expiry');
     assert.equal(key.visible,false,'expired source event must remove the collected-key pose');
+    assert.ok(Math.abs(key.position.x)<1e-9 && Math.abs(key.position.y+.075)<1e-9 && Math.abs(key.position.z-.14)<1e-9,
+      'event expiry returns the attached key to its authentic locked-gate grip without stale offset');
     const trueThreat={...cue,attentionHeading:Math.PI/2,attentionStrength:1,danger:1,pickupStrength:1};
     pip.update(trueThreat);
     const threatPose=[body.position.y,head.rotation.x,right.rotation.x];
