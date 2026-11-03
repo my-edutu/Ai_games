@@ -16,6 +16,7 @@ test('real wide-entrance and true body-contact fallback render consistently on d
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.authoredCharacters),{timeout:60000}).toBeGreaterThanOrEqual(5);
  const desktop=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
  expect(desktop.combatStaging?.separatedActors).toBe(0);
+ expect(desktop.openWardenGate).toBe(true);
  expect(desktop.composition.visibleHeroes).toBe(3);
  expect(desktop.triangles).toBeGreaterThan(1000);
  await page.locator('#world').screenshot({path:'artifacts/dungeon-wide-entrance-m1-desktop-real-WebGL.png',timeout:90000});
