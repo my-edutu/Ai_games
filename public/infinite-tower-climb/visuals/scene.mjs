@@ -1824,7 +1824,11 @@ export function createTowerScene(canvas, settings = {}) {
     }
     // The AI's actual next landing is the only route we visualize. Hide
     // intention while true enemy windups demand full viewer attention.
-    routeIntent.update(snapshot, targetPlatform, options);
+    // Resource recovery uses the CURRENT supporting deck, not a future
+    // landing. The normal landing beacon remains hidden during this choice.
+    const recoverySupport = snapshot.intent?.mode?.replace(/^oracle-/, '') === 'collecting-resource'
+      ? snapshot.platforms?.find(deck => deck.id === snapshot.intent?.targetPlatformId) : null;
+    routeIntent.update(snapshot, recoverySupport || targetPlatform, options);
     // HP-operated real-world lock: one depth-tested architectural twin-rail
     // connection from the live guardian to its existing cap anchor.
     guardianCircuit.update(snapshot, options);
