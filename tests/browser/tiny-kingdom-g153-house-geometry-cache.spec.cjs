@@ -50,7 +50,9 @@ test('G153 grown autonomous town reuses bounded per-lot geometry across seasons 
   const g=window.__tinyKingdom;
   const lod=g.getVillageVisualLod(),street=g.getStreetMorphologyStats(),
    facade=g.getCottageFacadeStats();
-  return {triangleCount:g.getGeometryAudit().totalTriangles,
+  return {staticTriangles:g.getGeometryAudit().static.triangles,
+   citizens:g.metrics().citizens,
+   visualCitizens:lod.detailedCitizens+lod.compactCitizens,
    homes:lod.homes,detailedHomes:lod.detailedHomes,compactHomes:lod.compactHomes,
    roofTiles:lod.compactRoofTiles,street,facade};
  });
@@ -72,11 +74,19 @@ test('G153 grown autonomous town reuses bounded per-lot geometry across seasons 
  await page.waitForFunction(()=>window.__tinyKingdom.getHouseGeometryCacheAudit().entries>0,null,{timeout:90000});
  const truthAfterRestore=await page.evaluate(()=>{
   const g=window.__tinyKingdom,lod=g.getVillageVisualLod();
-  return {triangleCount:g.getGeometryAudit().totalTriangles,
+  return {staticTriangles:g.getGeometryAudit().static.triangles,
+   citizens:g.metrics().citizens,
+   visualCitizens:lod.detailedCitizens+lod.compactCitizens,
    homes:lod.homes,detailedHomes:lod.detailedHomes,compactHomes:lod.compactHomes,
    roofTiles:lod.compactRoofTiles,street:g.getStreetMorphologyStats(),
    facade:g.getCottageFacadeStats()};
  });
+ // Dynamic geometry includes render-tier/viewport-dependent citizen and
+ // atmospheric detail: exact triangle totals need NOT match desktop vs 390px.
+ // The unchanged real static town, all houses/counters and every authentic
+ // displayed citizen MUST survive restore, however.
+ expect(truthBeforeRestore.citizens).toBe(28);
+ expect(truthAfterRestore.visualCitizens).toBe(truthAfterRestore.citizens);
  expect(truthAfterRestore).toEqual(truthBeforeRestore);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=390)).toBe(true);
  expect(errors).toEqual([]);
