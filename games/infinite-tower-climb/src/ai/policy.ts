@@ -394,7 +394,10 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
           confidence:.96,fallbackUsed:false}};
     }
   }
-  // In the air, preserving the real landing decision outranks chasing a body.\n  // The flight controller may still attack a reachable enemy without changing steering.\n  const enemy=tactical&&!observation.player.grounded?undefined:\n    nearbyEnemy(observation,state.config.attackReach+state.build.attackReachBonus);
+  // In the air, preserving the real landing decision outranks chasing a body.
+  // The flight controller may still attack a reachable enemy without changing steering.
+  const enemy=tactical&&!observation.player.grounded?undefined:
+    nearbyEnemy(observation,state.config.attackReach+state.build.attackReachBonus);
   if(enemy){
     const facing=moveSign(enemy.position.x-observation.player.position.x);
     const inStrikePocket=tactical&&Math.abs(enemy.position.x-observation.player.position.x)<state.config.attackReach*.7
@@ -465,7 +468,9 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
       pulseReady(state,observation,airborneEnemy);
     return{action:action(move,{dash,jump:recovery,attack:inAirMelee,ability:inAirPulse}),
       intent:{mode:settling?'settling-landing':'air-control',
-      summary:inAirPulse?'Steering to a safe landing while firing earned pulse':\n        inAirMelee?'Steering to a safe landing while striking a real enemy':\n        recovery?'Using earned air recovery to reach observed landing':
+      summary:inAirPulse?'Steering to a safe landing while firing earned pulse':
+        inAirMelee?'Steering to a safe landing while striking a real enemy':
+        recovery?'Using earned air recovery to reach observed landing':
         dash&&tactical?'Boosting toward a distant safe landing':
         settling?(landing?.hazardRoute?'Braking into a clear landing lane':target.kind==='moving'?'Braking to meet the moving deck':'Braking for a controlled landing'):
         landing?.hazardRoute?'Steering for a clear landing lane':'Steering toward the next landing',
