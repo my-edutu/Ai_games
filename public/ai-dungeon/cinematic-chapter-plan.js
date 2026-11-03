@@ -450,12 +450,23 @@ export function planPartyVistaSightline(s,look,offsets,{width=1440,height=832,fo
   return Number.isFinite(at?.x)&&Number.isFinite(at?.z)&&Math.hypot(at.x-grid.x,at.z-grid.z)<=.445?
    {id:u.id,x:at.x,z:at.z}:{id:u.id,...grid};
  });
+ // Actual desktop/mobile gameplay previously anchored the shot to one hero
+ // while the other two played beyond the near edge. Keep the real leader,
+ // but pull the cinematic optical axis toward the *living* group centre.
+ // The shift is capped: a wandering hero cannot make everybody miniature.
+ const centre={x:positioned.reduce((sum,p)=>sum+p.x,0)/positioned.length,
+  z:positioned.reduce((sum,p)=>sum+p.z,0)/positioned.length};
+ const axisX=centre.x-look.x,axisZ=centre.z-look.z;
+ const axisLength=Math.hypot(axisX,axisZ),axisWeight=axisLength>1.65?1.65/axisLength:1;
+ const aim={x:clip(look.x+axisX*.68*axisWeight,-limit,limit),
+  z:clip(look.z+axisZ*.68*axisWeight,-limit,limit)};
+ const aimShift=Math.hypot(aim.x-look.x,aim.z-look.z);
  let baseline=null,best=null;
  for(let step=-8;step<=8;step++){
   const angle=originalAngle+step*Math.PI/36;
-  const rawX=look.x+radius*Math.cos(angle),rawZ=look.z+radius*Math.sin(angle);
+  const rawX=aim.x+radius*Math.cos(angle),rawZ=aim.z+radius*Math.sin(angle);
   const cx=clip(rawX,-limit,limit),cz=clip(rawZ,-limit,limit);
-  const fx=look.x-cx,fz=look.z-cz,forwardLength=Math.hypot(fx,fz);
+  const fx=aim.x-cx,fz=aim.z-cz,forwardLength=Math.hypot(fx,fz);
   if(forwardLength<2.4)continue;
   const forwardX=fx/forwardLength,forwardZ=fz/forwardLength;
   const rightX=-forwardZ,rightZ=forwardX;
@@ -474,21 +485,39 @@ export function planPartyVistaSightline(s,look,offsets,{width=1440,height=832,fo
     .31/projected[i].depth-.31/projected[j].depth;
    smallest=Math.min(smallest,gap);spread+=Math.max(-.1,gap);
   }
+  // Score real, impassable source masonry between eye and characters, not
+  // a fake animation or unobserved hero. Near-subject walls are already
+  // collapsed by the shared cutaway; farther obstruction should influence
+  // which genuine 3D side of the chamber the camera occupies.
+  let foregroundWalls=0;
+  for(const hero of positioned){
+   let lastCell=-1;
+   for(let sample=1;sample<=18;sample++){
+    const fraction=sample/20;
+    const px=hero.x+(cx-hero.x)*fraction,pz=hero.z+(cz-hero.z)*fraction;
+    if(Math.hypot(px-hero.x,pz-hero.z)<=2.9)continue;
+    const gridX=Math.round(px+half),gridZ=Math.round(pz+half),cell=gridZ*n+gridX;
+    if(gridX<0||gridZ<0||gridX>=n||gridZ>=n||cell===lastCell)continue;
+    lastCell=cell;
+    if(s.map[gridZ]?.[gridX]==='#')foregroundWalls++;
+   }
+  }
   const clippedBoundary=Math.hypot(rawX-cx,rawZ-cz);
-  const score=smallest*36+spread*2-crop*60-clippedBoundary*.34-Math.abs(step)*.052;
-  const candidate={score,step,position:{x:cx,y:cameraHeight,z:cz},minimumSilhouetteGap:smallest,crop};
+  const score=smallest*36+spread*2-crop*60-clippedBoundary*.34-Math.abs(step)*.052-
+   foregroundWalls*2.15;
+  const candidate={score,step,position:{x:cx,y:cameraHeight,z:cz},minimumSilhouetteGap:smallest,crop,foregroundWalls};
   if(step===0)baseline=candidate;
   if(!best||score>best.score+1e-7)best=candidate;
  }
  // Retain the existing cinematic shot unless a distinctly clearer flank
  // wins. This threshold prevents unstable per-frame camera hunting.
- if(!best||best.step===0||!baseline||best.score-baseline.score<.36)return null;
+ if(!best||!baseline||((best.step===0||best.score-baseline.score<.36)&&aimShift<.24))return null;
  return Object.freeze({
   position:Object.freeze(best.position),turn:Object.freeze({x:0,z:0}),
-  look:Object.freeze({x:look.x,z:look.z}),boundaryLimit:limit,
+  look:Object.freeze({x:aim.x,z:aim.z}),boundaryLimit:limit,
   sightline:Object.freeze({mode:'party-vista',subjectIds:Object.freeze(positioned.map(p=>p.id)),
    angleStep:best.step,candidateCount:17,baselineScore:round(baseline.score),
    improvedScore:round(best.score),minimumSilhouetteGap:round(best.minimumSilhouetteGap),
-   cropped:best.crop>.001})
+   cropped:best.crop>.001,foregroundWalls:best.foregroundWalls,groupAimShift:round(aimShift)})
  });
 }
