@@ -71,6 +71,25 @@ export function planFigureJointCoverage(joints){
  const missing=CRITICAL_FIGURE_JOINTS.filter(key=>joints?.[key]?.isBone!==true);
  return Object.freeze({valid:missing.length===0,count:CRITICAL_FIGURE_JOINTS.length-missing.length,missing:Object.freeze(missing)});
 }
+const MIRRORED_PARTS=Object.freeze(['shoulder','upper-arm','bracer','thigh','shin','boot']);
+/**
+ * Share one GPU draw per articulated left/right material pair without
+ * welding two independently moving native skeleton joints together.
+ * Source joints remain the absolute animation source of truth.
+ */
+export function planCinematicPairedParts(kind){
+ const recipe=planCinematicFigure(kind);
+ if(!recipe)return Object.freeze([]);
+ const pairs=[];
+ for(const suffix of MIRRORED_PARTS){
+  const left=recipe.pieces.find(p=>p.id==='left-'+suffix),
+   right=recipe.pieces.find(p=>p.id==='right-'+suffix);
+  if(!left||!right||left.shape!==right.shape||left.finish!==right.finish)continue;
+  pairs.push(Object.freeze({suffix,shape:left.shape,finish:left.finish,
+   parts:Object.freeze([left,right])}));
+ }
+ return Object.freeze(pairs);
+}
 function createHull(T,rings,sides=20){
  const positions=[],uv=[],index=[];
  for(let i=0;i<rings.length;i++){
@@ -212,8 +231,8 @@ function attachWeapon(T,group,hand,recipe,materialMap,geometry,built){
  */
 export function createCinematicFigure(T,actor,joints){
  const recipe=planCinematicFigure(actor?.u?.kind);
- if(!recipe||!T?.BufferGeometry||!actor?.assetRoot||!actor?.visualPivot||
-  !planFigureJointCoverage(joints).valid)return null;
+ if(!recipe||!T?.BufferGeometry||!T?.InstancedMesh||!T?.Matrix4||!actor?.assetRoot||
+  !actor?.visualPivot||!planFigureJointCoverage(joints).valid)return null;
  const geometry=createForms(T,recipe.kind),mat={
   metal:material(T,'metal',recipe.palette.metal,.70,.42),
   trim:material(T,'trim',recipe.palette.trim,.62,.41),
@@ -221,13 +240,36 @@ export function createCinematicFigure(T,actor,joints){
   leather:material(T,'leather',recipe.palette.leather,.06,.82),
   face:material(T,'face',recipe.palette.face,.055,.78)
  };
- const group=new T.Group(),built=[],figureScale=recipe.statureMeters/1.82;
+ const group=new T.Group(),built=[],anchors=[],batches=[];
+ const figureScale=recipe.statureMeters/1.82;
  group.name='Original anatomically articulated '+recipe.kind;
  try{
   actor.visualPivot.add(group);
   actor.visualPivot.updateWorldMatrix(true,true);actor.assetRoot.updateWorldMatrix(true,true);
+  const excluded=new Set();
+  // This is not a static merged costume: each half of each InstancedMesh
+  // follows its OWN actual native bone after the AnimationMixer, hit,
+  // dodge, Warden warning, full-body travel and defeat poses.
+  for(const pair of planCinematicPairedParts(recipe.kind)){
+   const mesh=new T.InstancedMesh(geometry[pair.shape],mat[pair.finish],2);
+   mesh.name='cinematic-'+recipe.kind+'-articulated-'+pair.suffix;
+   mesh.userData.cinematicFigurePiece=true;
+   mesh.frustumCulled=false;mesh.castShadow=false;mesh.receiveShadow=true;
+   mesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
+   group.add(mesh);built.push(mesh);
+   const jointAnchors=[];
+   for(const p of pair.parts){
+    const anchor=new T.Object3D();anchor.name='native '+p.anchor+' '+p.id;
+    anchor.position.set(p.x*figureScale,p.y*figureScale,p.z*figureScale);
+    anchor.scale.set(p.sx*figureScale,p.sy*figureScale,p.sz*figureScale);
+    group.add(anchor);anchors.push(anchor);
+    group.updateWorldMatrix(true,true);joints[p.anchor].attach(anchor);
+    jointAnchors.push(anchor);excluded.add(p.id);
+   }
+   batches.push({mesh,anchors:jointAnchors});
+  }
   for(const p of recipe.pieces){
-   if(p.shape==='weapon')continue;
+   if(p.shape==='weapon'||excluded.has(p.id))continue;
    const mesh=new T.Mesh(geometry[p.shape],mat[p.finish]);
    mesh.name='cinematic-'+recipe.kind+'-'+p.id;
    mesh.position.set(p.x*figureScale,p.y*figureScale,p.z*figureScale);
@@ -240,22 +282,41 @@ export function createCinematicFigure(T,actor,joints){
   const gripOffset=attachWeapon(T,group,joints.rightHand,recipe,mat,geometry,built);
   if(!Number.isFinite(gripOffset)||gripOffset>.015)
    throw Error('Native right-hand grip did not align: '+gripOffset);
-  // A partial skeleton never reaches this point. Do not hide user's real art
-  // until every replacement and weapon follows their TRUE animation bones.
+  // Reusable matrices, no per-frame allocations. Read-only copies of actual
+  // animated bone poses into six packed pairs of individually articulated
+  // geometry. All authority, collision and replay inputs stay unchanged.
+  const inverseGroup=new T.Matrix4(),pose=new T.Matrix4();
+  const sync=()=>{
+   group.updateWorldMatrix(true,false);
+   inverseGroup.copy(group.matrixWorld).invert();
+   for(const pair of batches){
+    for(let i=0;i<pair.anchors.length;i++){
+     pair.anchors[i].updateWorldMatrix(true,false);
+     pose.multiplyMatrices(inverseGroup,pair.anchors[i].matrixWorld);
+     pair.mesh.setMatrixAt(i,pose);
+    }
+    pair.mesh.instanceMatrix.needsUpdate=true;
+   }
+  };
+  sync();
   actor.assetRoot.traverse(obj=>{
    if(obj.isMesh&&!obj.userData?.cinematicFigurePiece)obj.visible=false;
   });
   actor.assetGeometries.push(...Object.values(geometry));
   actor.assetMaterials.push(...Object.values(mat));
   const vertices=Object.values(geometry).reduce((n,g)=>n+(g.getAttribute?.('position')?.count||0),0);
-  return Object.freeze({kind:recipe.kind,meshes:built.length,joints:12,
-   vertices,mappedMaterials:Object.values(mat).filter(m=>m.bumpMap).length,
-   handGripOffsetMeters:gripOffset,
-   weapon:recipe.weapon,sourceMeshesHidden:true,height:recipe.statureMeters});
+  return Object.freeze({kind:recipe.kind,meshes:built.length,
+   renderedParts:built.length+batches.length,pairedBatches:batches.length,
+   joints:12,vertices,mappedMaterials:Object.values(mat).filter(m=>m.bumpMap).length,
+   handGripOffsetMeters:gripOffset,weapon:recipe.weapon,
+   sourceMeshesHidden:true,height:recipe.statureMeters,sync,
+   dispose:()=>{for(const batch of batches)batch.mesh.dispose();}
+  });
  }catch(e){
-  // Object3D.attach reparents the limb pieces beneath source bones. Remove
-  // them individually so an incomplete frame cannot leave detached geometry.
-  for(const item of built)item.removeFromParent();
+  // Anchors have been reparented to skeleton bones; remove them as well as
+  // visible meshes on failure, preserving complete original GLB fallback.
+  for(const anchor of anchors)anchor.removeFromParent();
+  for(const item of built){item.removeFromParent();if(item.isInstancedMesh)item.dispose();}
   group.removeFromParent();
   actor.assetRoot.traverse(obj=>{if(obj.isMesh)obj.visible=true;});
   Object.values(geometry).forEach(g=>g.dispose());

@@ -934,9 +934,11 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
    actor.draperyFramesSkipped=Math.min(1000000,actor.draperyFramesSkipped+1);
   }
  }
+ actor.cinematicFigure?.sync?.();
 }
 function disposeActorAsset(actor){
  actor.detached=true;
+ actor.cinematicFigure?.dispose?.();
  // If the authored rig is retired, keep the complete coloured procedural
  // character visible as an offline/missing-asset fallback.
  actor.detail?.setAuthored?.(false);actor.body.visible=true;
@@ -984,6 +986,8 @@ function stats(actors){
  const all=[...actors.values()],authored=all.filter(a=>a.authored);
  return{cinematicFigures:authored.filter(a=>a.cinematicFigure).length,
   cinematicBosses:authored.filter(a=>a.u.kind==='warden'&&a.cinematicFigure).length,cinematicMeshes:authored.reduce((n,a)=>n+(a.cinematicFigure?.meshes||0),0),
+  cinematicRenderedParts:authored.reduce((n,a)=>n+(a.cinematicFigure?.renderedParts||0),0),
+  cinematicPairedBatches:authored.reduce((n,a)=>n+(a.cinematicFigure?.pairedBatches||0),0),
   cinematicVertices:authored.reduce((n,a)=>n+(a.cinematicFigure?.vertices||0),0),
   cinematicMaterialsMapped:authored.reduce((n,a)=>n+(a.cinematicFigure?.mappedMaterials||0),0),
   cinematicBoneMounts:authored.reduce((n,a)=>n+(a.cinematicFigure?.joints||0),0),

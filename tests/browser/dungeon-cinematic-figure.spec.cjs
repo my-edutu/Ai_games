@@ -7,7 +7,10 @@ test('actual Chromium renders original 3D cinematic figures at desktop and mobil
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.authoredCharacters??0),{timeout:45000}).toBeGreaterThanOrEqual(3);
  const desktop=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D);
  expect(desktop.cinematicFigures).toBeGreaterThanOrEqual(3);
- expect(desktop.cinematicMeshes).toBeGreaterThanOrEqual(desktop.cinematicFigures*22);
+ expect(desktop.cinematicMeshes).toBeGreaterThanOrEqual(desktop.cinematicFigures*16);
+ expect(desktop.cinematicPairedBatches).toBe(desktop.cinematicFigures*6);
+ expect(desktop.cinematicRenderedParts).toBe(desktop.cinematicMeshes+desktop.cinematicPairedBatches);
+ expect(desktop.cinematicRenderedParts).toBeGreaterThanOrEqual(desktop.cinematicFigures*22);
  expect(desktop.cinematicMeshes).toBeLessThanOrEqual(240);
  expect(desktop.cinematicVertices).toBeGreaterThan(3000);
  expect(desktop.cinematicMaterialsMapped).toBeGreaterThanOrEqual(desktop.cinematicFigures*5);
@@ -19,6 +22,9 @@ test('actual Chromium renders original 3D cinematic figures at desktop and mobil
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame??0),{timeout:30000}).toBeGreaterThan(3);
  const mobile=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D);
  expect(mobile.cinematicFigures).toBe(desktop.cinematicFigures);
+ expect(mobile.cinematicPairedBatches).toBe(desktop.cinematicPairedBatches);
+ expect(mobile.cinematicRenderedParts).toBe(desktop.cinematicRenderedParts);
+ expect(mobile.cinematicMeshes).toBeLessThanOrEqual(240);
  await page.locator('#world').screenshot({path:'artifacts/dungeon-m1-cinematic-figures-mobile.png',timeout:60000});
  expect(errors).toEqual([]);
 });

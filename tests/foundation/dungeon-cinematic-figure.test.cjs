@@ -43,3 +43,29 @@ test('actual renderer and server bind figures with fallback, bounded GPU and no 
  assert.match(code,/handGripOffsetMeters:gripOffset/);
  assert.doesNotMatch(code,/Math\.random|fetch\(|DungeonRuntime|performance\.now|https?:/);
 });
+test('six mirrored armour groups use separate true-bone poses while retaining all original physical parts',async()=>{
+ const {planCinematicFigure,planCinematicPairedParts}=await load();
+ for(const role of ['vanguard','ranger','mystic','revenant','cultist','warden']){
+  const figure=planCinematicFigure(role),pairs=planCinematicPairedParts(role);
+  assert.equal(pairs.length,6);
+  const ids=pairs.flatMap(p=>p.parts.map(x=>x.id));
+  assert.equal(ids.length,12);assert.equal(new Set(ids).size,12);
+  assert.ok(ids.every(id=>figure.pieces.some(x=>x.id===id)));
+  for(const p of pairs){
+   assert.equal(p.parts[0].shape,p.parts[1].shape);
+   assert.equal(p.parts[0].finish,p.parts[1].finish);
+   assert.notEqual(p.parts[0].anchor,p.parts[1].anchor);
+  }
+ }
+ assert.equal(planCinematicPairedParts('unknown').length,0);
+ const code=fs.readFileSync(src,'utf8');
+ const body=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(code,/new T\.InstancedMesh\(geometry\[pair\.shape\],mat\[pair\.finish\],2\)/);
+ assert.match(code,/joints\[p\.anchor\]\.attach\(anchor\)/);
+ assert.match(code,/pose\.multiplyMatrices\(inverseGroup,pair\.anchors\[i\]\.matrixWorld\)/);
+ assert.match(code,/pair\.mesh\.setMatrixAt\(i,pose\)/);
+ assert.match(code,/for\(const anchor of anchors\)anchor\.removeFromParent\(\)/);
+ assert.match(body,/actor\.cinematicFigure\?\.sync\?\.\(\)/);
+ assert.match(body,/actor\.cinematicFigure\?\.dispose\?\.\(\)/);
+ assert.match(body,/cinematicPairedBatches:/);
+});
