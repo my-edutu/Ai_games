@@ -20,6 +20,16 @@ test('actual desktop and mobile WebGL show real warning tiles and subsequent War
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.webgl),{timeout:75000}).toBe(true);
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wardenRitual?.warningTiles),{timeout:45000}).toBeGreaterThan(8);
  expect(await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.bossWarning?.shape)).toBe('RIFT_CROSS');
+ // This is actual software-WebGL, original native-bone figures in the real
+ // RUPTURE warning, not an invented cinematic or unit-test-only model.
+ await expect.poll(()=>page.evaluate(()=>
+  window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.cinematicBosses??0),
+  {timeout:60000}).toBeGreaterThanOrEqual(1);
+ const wardenArt=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D);
+ expect(wardenArt.cinematicPairedBatches).toBe(wardenArt.cinematicFigures*6);
+ expect(wardenArt.cinematicRenderedParts).toBe(wardenArt.cinematicMeshes+wardenArt.cinematicPairedBatches);
+ expect(wardenArt.cinematicMeshes).toBeLessThanOrEqual(240);
+ expect(wardenArt.cinematicSourceHidden).toBe(wardenArt.cinematicFigures);
  expect(await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.cinematicShot?.mode)).toBe('warden-warning');
  const warningLens=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.cinematicLens);
  expect(warningLens?.mode).toBe('warden-warning');
@@ -46,7 +56,9 @@ test('actual desktop and mobile WebGL show real warning tiles and subsequent War
  expect(errors).toEqual([]);
  await test.info().attach('real-authority-warden-pattern',{body:Buffer.from(JSON.stringify({
   seed:'warden-three-phase-browser-M1',fixture:'legitimate seed, relocated legal heroes and RUPTURE Warden',
-  source:'DungeonRuntime.step publicState',organicNarrativeReel:false,
+  source:'DungeonRuntime.step publicState',nativeBoneWardens:await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.cinematicBosses??0),
+  pairedNativeArmorBatches:await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.cinematicPairedBatches??0),
+  originalWaveAudioRecorded:false,organicNarrativeReel:false,
   threeFreshCritics:false,verifiedAudibleOutput:false,desktopMobileRealWebGL:true
  },null,2)),contentType:'application/json'});
 });
