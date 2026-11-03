@@ -31,7 +31,8 @@ test('guardian lane only witnesses a real source-facing, vertically threatening 
   assert.equal(lane.guardianId, 'f8:guardian');
   assert.equal(lane.remainingChargeTicks, 8);
   assert.equal(lane.charge, 0);
-  assert.equal(lane.length, 37500);
+  assert.equal(lane.length, 40300,
+    'source-present guardian/player separation determines the real corridor length');
   assert.equal(lane.worldWidth, 480000);
   assert.equal(JSON.stringify(source), unchanged, 'view projection cannot mutate fixed-step authority');
 
