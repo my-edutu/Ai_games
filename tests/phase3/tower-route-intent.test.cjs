@@ -330,3 +330,39 @@ test('health route is wired into the actual playable scene and refuses an ambigu
     assert.equal(effect.diagnostics().visible,false,'ambiguous loot must not invent the AI-selected destination');
   } finally { effect.dispose(); }
 });
+
+test('3D landing stones and source camera truthfully mark the same presently enemy-clear deck corridor', async()=>{
+  const [THREE,{createTowerRouteIntent}]=await loaded;
+  const effect=createTowerRouteIntent(THREE);
+  const deck={...landing,width:115000},center=deck.x+deck.width/2,top=deck.y+deck.height;
+  const player={x:center,y:top+74000,health:4,halfWidth:9000,halfHeight:14000,attacking:false};
+  const enemy={id:'observed-enemy',kind:'sentinel',active:true,
+    x:center,y:top+14000,halfWidth:9000,halfHeight:14000};
+  const frame=snapshot({tick:402,player,enemies:[enemy],hazards:[],
+    intent:{mode:'air-control',summary:'Steering for a clear landing lane',
+      targetPlatformId:deck.id}});
+  try{
+    const before=JSON.stringify(frame);
+    effect.update(frame,deck,{quality:'low'});
+    const diag=effect.diagnostics();
+    assert.equal(diag.visible,true);
+    assert.equal(diag.observedLandingX,center-20500);
+    assert.equal(diag.sourceClearLane,true);
+    assert.equal(diag.sourceEnemyClearance,true);
+    assert.equal(effect.group.children[0].material.color.getHex(),0xffd7a2,
+      'world-space warm alloy identifies a source-observed enemy-clear landing');
+    assert.equal(diag.extraDraws,1,'no new rendering pass for the enemy-clear route');
+    assert.equal(JSON.stringify(frame),before);
+    effect.update({...frame,tick:403,enemies:[{...enemy,active:false}]},deck);
+    assert.equal(effect.diagnostics().observedLandingX,center);
+    assert.equal(effect.diagnostics().sourceEnemyClearance,false);
+    assert.equal(effect.group.children[0].material.color.getHex(),0x9cefe5);
+    effect.update({...frame,tick:404,intent:{...frame.intent,
+      summary:'Steering toward the next landing'}},deck);
+    assert.equal(effect.diagnostics().observedLandingX,center,
+      'unrelated or historical decisions cannot be relabeled as enemy-clear');
+    effect.update({...frame,tick:405,lifecycle:'result'},deck);
+    assert.equal(effect.diagnostics().sourceEnemyClearance,false);
+    assert.equal(effect.diagnostics().markers,0);
+  }finally{effect.dispose();}
+});

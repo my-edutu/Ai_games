@@ -191,3 +191,43 @@ test('approaching a visible hazardous deck keeps source-aware clear-lane control
   const legacy=chooseTowerAction(original,createTowerObservation(original),{tactical:false});
   assert.equal(legacy.intent.mode,'evading-hazard','historical replay keeps prior hazard reflex');
 });
+
+test('a real enemy body occupying the observed deck changes the autonomous landing and keeps historical-v1 intact',()=>{
+  const {s,target}=airborne(),center=target.x+target.width/2,top=target.y+target.height;
+  s.player.position={x:center,y:top+s.player.halfHeight+60000};
+  s.player.velocity={x:0,y:-5000};s.player.dashCooldown=8;
+  s.enemies=[{id:'live-deck-sentinel',kind:'sentinel',floor:s.floor,
+    position:{x:center,y:top+14000},velocity:{x:0,y:0},
+    halfWidth:9000,halfHeight:14000,health:3,maxHealth:3,
+    facing:1,patrolMinX:target.x,patrolMaxX:target.x+target.width,
+    cooldown:0,telegraphUntilTick:0,active:true,damage:1}];
+  const before=structuredClone(s),choice=decision(s);
+  assert.equal(choice.intent.mode,'air-control');
+  assert.equal(choice.action.move,-1,'do not land within a presently occupied collision body');
+  assert.match(choice.intent.summary,/clear landing lane/i);
+  assert.equal(choice.intent.targetPlatformId,target.id);
+  assert.equal(choice.action.dash,false);
+  assert.equal(chooseTowerAction(s,createTowerObservation(s),{tactical:false}).action.move,0,
+    'frozen historical policy must not inherit new enemy-aware steering');
+  assert.deepEqual(s,before,'the current enemy and destination are never moved by a decision');
+  s.enemies[0].active=false;
+  assert.equal(decision(s).action.move,0,'defeated enemies cannot block landings');
+  s.enemies[0].active=true;s.enemies[0].position.y+=150000;
+  assert.equal(decision(s).action.move,0,'enemies on another height cannot block a deck');
+});
+
+test('an enemy occupying the entire observed landing cannot generate a fictitious safe corridor',()=>{
+  const {s,target}=airborne(),center=target.x+target.width/2,top=target.y+target.height;
+  s.player.position={x:center,y:top+s.player.halfHeight+60000};
+  s.player.velocity={x:0,y:-5000};s.player.dashCooldown=8;
+  s.enemies=[{id:'wide-guardian',kind:'guardian',floor:s.floor,
+    position:{x:center,y:top+20000},velocity:{x:0,y:0},
+    halfWidth:target.width,halfHeight:20000,health:8,maxHealth:8,
+    facing:1,patrolMinX:target.x,patrolMaxX:target.x+target.width,
+    cooldown:0,telegraphUntilTick:0,active:true,damage:1}];
+  const d=decision(s);
+  assert.equal(d.action.move,0);
+  assert.equal(d.intent.mode,'air-control');
+  assert.doesNotMatch(d.intent.summary,/clear landing lane/i);
+  assert.deepEqual(d,decision(s),'the observed decision is deterministic');
+});

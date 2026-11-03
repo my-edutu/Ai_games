@@ -11,10 +11,10 @@ function launchX(current:TowerPlatform,target:TowerPlatform,halfWidth:number){co
 // Physics remains authoritative: this is a deterministic feedback controller
 // using only present observed position/velocity and the current public deck.
 // It neither forecasts the deck, mutates state nor affects historical-v1.
-// Landing on an active hazard is not a successful landing. Partition the
-// CURRENT observed collision-safe deck lane around hazards whose present
-// vertical bounds intersect an ordinary landed body. We neither infer future
-// hazard phases nor invent a predicted moving-platform position.
+// Landing on active spikes or inside a live enemy collider is not a safe
+// touchdown. Partition the CURRENT observed deck around active hazards and
+// current enemy bodies intersecting a landed climber. Neither future enemy
+// patrol positions nor hazard phases are predicted.
 function observedLandingCorridor(state:TowerState,obs:TowerObservation,target:TowerObservation['platforms'][number]){
   const p=obs.player,halfWidth=state.player.halfWidth;
   const margin=Math.max(halfWidth+4000,Math.min(18000,Math.floor(target.width/8)));
@@ -41,8 +41,26 @@ function observedLandingCorridor(state:TowerState,obs:TowerObservation,target:To
     lanes=remainder;
     if(!lanes.length)break;
   }
+  // Active foes are actual colliders at the PRESENT observed landing height.
+  // Their next patrol movement is unknown, so clear only their CURRENT body
+  // envelope. It does not guarantee an enemy-free landing at a future tick.
+  if(lanes.length)for(const enemy of obs.enemies){
+    if(!enemy.active||enemy.position.y-enemy.halfHeight>=top+2*state.player.halfHeight||
+      enemy.position.y+enemy.halfHeight<=top)continue;
+    const blockedLeft=enemy.position.x-enemy.halfWidth-halfWidth-2500;
+    const blockedRight=enemy.position.x+enemy.halfWidth+halfWidth+2500;
+    const remainder:typeof lanes=[];
+    for(const lane of lanes){
+      if(blockedRight<=lane.left||blockedLeft>=lane.right){remainder.push(lane);continue}
+      const l=Math.min(lane.right,blockedLeft),r=Math.max(lane.left,blockedRight);
+      if(l-lane.left>=10000)remainder.push({left:lane.left,right:l});
+      if(lane.right-r>=10000)remainder.push({left:r,right:lane.right});
+    }
+    lanes=remainder;
+    if(!lanes.length)break;
+  }
   // When no genuinely safe lane exists, do not fabricate one. The ordinary
-  // physical deck remains the target and upstream hazard evasion still acts.
+  // physical deck remains the target and upstream hazard/enemy actions still act.
   if(!lanes.length)return {landingX:unclutteredX,hazardRoute:false};
   let best=lanes[0],bestX=Math.max(best.left,Math.min(best.right,p.position.x));
   for(const lane of lanes.slice(1)){

@@ -53,7 +53,32 @@ function witnessedLandingX(snapshot, deck) {
     lanes = next;
     if (!lanes.length) break;
   }
-  if (!lanes.length) return { x: center, sourceAirLane: false };
+  // Current enemy bodies can occupy the same real landing deck as spikes.
+  // Use observed positions only: this is a tactical choice, never a prediction
+  // of where a patrolling enemy will stand after our flight.
+  let enemyAvoided = false;
+  if (lanes.length) for (const enemy of snapshot.enemies || []) {
+    if (!enemy.active ||
+      ![enemy.x, enemy.y, enemy.halfWidth, enemy.halfHeight].every(Number.isFinite) ||
+      enemy.y - enemy.halfHeight >= top + 2 * (player.halfHeight || 0) ||
+      enemy.y + enemy.halfHeight <= top) continue;
+    const blockedLeft = enemy.x - enemy.halfWidth - halfWidth - 2500;
+    const blockedRight = enemy.x + enemy.halfWidth + halfWidth + 2500;
+    const next = [];
+    for (const lane of lanes) {
+      if (blockedRight <= lane.left || blockedLeft >= lane.right) {
+        next.push(lane); continue;
+      }
+      enemyAvoided = true;
+      const l = Math.min(lane.right, blockedLeft);
+      const r = Math.max(lane.left, blockedRight);
+      if (l - lane.left >= 10000) next.push({ left: lane.left, right: l });
+      if (lane.right - r >= 10000) next.push({ left: r, right: lane.right });
+    }
+    lanes = next;
+    if (!lanes.length) break;
+  }
+  if (!lanes.length) return { x: center, sourceAirLane: false, sourceEnemyClearance: false };
   let best = lanes[0], bestX = Math.max(best.left, Math.min(best.right, player.x));
   for (const lane of lanes.slice(1)) {
     const x = Math.max(lane.left, Math.min(lane.right, player.x));
@@ -64,7 +89,8 @@ function witnessedLandingX(snapshot, deck) {
       best = lane; bestX = x;
     }
   }
-  return { x: bestX, sourceAirLane: true };
+  return { x: bestX, sourceAirLane: true,
+    sourceEnemyClearance: enemyAvoided && bestX !== Math.max(left, Math.min(right, player.x)) };
 }
 // Recovery is a real autonomous choice, not a second jump or promised heal.
 // Reuse the existing bounded 3D stones for the CURRENT supporting deck and
@@ -146,7 +172,7 @@ export function createTowerRouteIntent(THREE) {
   const observedDeckPositions = [];
   let observedDeckX = null, observedDeckY = null;
   let observedMovement = 0, observedDeckKind = null;
-  let observedLandingX = null, sourceClearLane = false;
+  let observedLandingX = null, sourceClearLane = false, sourceEnemyClearance = false;
   let sourceHealthPickupId = null;
   const forward = new THREE.Vector3();
   const up = new THREE.Vector3(...UP);
@@ -164,6 +190,7 @@ export function createTowerRouteIntent(THREE) {
     observedDeckKind = null;
     observedLandingX = null;
     sourceClearLane = false;
+    sourceEnemyClearance = false;
     sourceHealthPickupId = null;
     observedDeckPositions.length = 0;
     deckEchoes.count = 0;
@@ -223,8 +250,12 @@ export function createTowerRouteIntent(THREE) {
     observedDeckKind = platform.kind;
     observedLandingX = landed.x;
     sourceClearLane = landed.sourceAirLane;
+    sourceEnemyClearance = !!landed.sourceEnemyClearance;
     sourceHealthPickupId = recoveryPickup?.id || null;
-    material.color.setHex(recoveryPickup ? 0xa7df9b : 0x9cefe5);
+    // Reuse the existing world-space stones. Warm alloy means a PRESENT
+    // enemy-occupied landing was avoided; green remains real health recovery.
+    material.color.setHex(recoveryPickup ? 0xa7df9b :
+      sourceEnemyClearance ? 0xffd7a2 : 0x9cefe5);
     reduced = stationary;
 
     // Map authoritative x/y onto the OUTSIDE of the cylinder. The rising
@@ -289,6 +320,7 @@ export function createTowerRouteIntent(THREE) {
       observedDeckDeltaX: group.visible ? observedMovement : 0,
       observedLandingX: group.visible ? observedLandingX : null,
       sourceClearLane: group.visible && sourceClearLane,
+      sourceEnemyClearance: group.visible && sourceEnemyClearance,
       sourceHealthPickupId: group.visible ? sourceHealthPickupId : null,
       echoedSourcePositionsOnly: true, movingDeckKind: observedDeckKind,
       opaqueTowerOccludes: material.depthTest,

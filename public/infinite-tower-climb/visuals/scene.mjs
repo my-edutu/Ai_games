@@ -683,8 +683,8 @@ function retainGuardianCameraShot(best, previous, quality) {
     priorScore >= bestScore - 2.25 ? previous : best;
 }
 
-// The live tactical pilot can deliberately land on the SAFE side of real
-// active spikes. All three physical arrival cues (camera destination, deck ink,
+// The live tactical pilot can deliberately land clear of real current active
+// spikes AND occupied enemy bodies. All three arrival cues (camera destination, deck ink,
 // and chevron) must honor the same SOURCE-declared lane as the existing 3D
 // choice stones. A historical-v1, ordinary route or untrusted frame stays at
 // the platform midpoint. This is a present-observation projection, never a
@@ -717,6 +717,29 @@ function observedSourceLandingX(snapshot, deck) {
         hazard.y + hazard.height <= top) continue;
     const blockedLeft = hazard.x - halfWidth - 2500;
     const blockedRight = hazard.x + hazard.width + halfWidth + 2500;
+    const remainder = [];
+    for (const lane of lanes) {
+      if (blockedRight <= lane.left || blockedLeft >= lane.right) {
+        remainder.push(lane); continue;
+      }
+      const l = Math.min(lane.right, blockedLeft);
+      const r = Math.max(lane.left, blockedRight);
+      if (l - lane.left >= 10000) remainder.push({ left: lane.left, right: l });
+      if (lane.right - r >= 10000) remainder.push({ left: r, right: lane.right });
+    }
+    lanes = remainder;
+    if (!lanes.length) return center;
+  }
+  // Keep the physical arrival camera, deck markings and chevrons aligned
+  // with the same PRESENT enemy-clear corridor chosen by the tactical pilot.
+  // Never forecast a patrol position or imply that future contact is impossible.
+  if (lanes.length) for (const enemy of snapshot.enemies || []) {
+    if (!enemy.active ||
+        ![enemy.x, enemy.y, enemy.halfWidth, enemy.halfHeight].every(Number.isFinite) ||
+        enemy.y - enemy.halfHeight >= top + 2 * (player.halfHeight || 0) ||
+        enemy.y + enemy.halfHeight <= top) continue;
+    const blockedLeft = enemy.x - enemy.halfWidth - halfWidth - 2500;
+    const blockedRight = enemy.x + enemy.halfWidth + halfWidth + 2500;
     const remainder = [];
     for (const lane of lanes) {
       if (blockedRight <= lane.left || blockedLeft >= lane.right) {
