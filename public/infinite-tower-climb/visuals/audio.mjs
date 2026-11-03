@@ -214,9 +214,20 @@ export function createTowerAudio() {
           }
         }
       }
+      // Only an adjacent true charge -> fixed-step stagger transition earns
+      // the optional maul-failure sound. A held frame, new run, mute or mere
+      // HP loss cannot invent an interrupted guardian attack.
+      if(enabled && sameFloor && earlier?.active && earlier.telegraph &&
+        !enemy.telegraph && (earlier.stagger??0)===0 &&
+        Number.isFinite(enemy.staggerTicksRemaining) &&
+        enemy.staggerTicksRemaining>0 && snapshot.tick>last.tick &&
+        snapshot.tick-last.tick<=8){
+        texture(840,.15,.065);
+        tone(510,115,.23,'triangle',.072);
+      }
       if(snapshot.lifecycle==='running' && earlier?.active && !enemy.active)
         witnessedSameFloorDefeat = true;
-      observedGuardians.set(enemy.id,{active:!!enemy.active,health:enemy.health,maxHealth:enemy.maxHealth});
+      observedGuardians.set(enemy.id,{active:!!enemy.active,health:enemy.health,maxHealth:enemy.maxHealth,telegraph:enemy.telegraph===true,stagger:Number.isFinite(enemy.staggerTicksRemaining)?enemy.staggerTicksRemaining:0});
     }
     if(witnessedGuardianPass){
       // The mechanical release is audible only for a genuine next-floor
