@@ -11,7 +11,7 @@ import { observedHealthRecovery, createTowerRecoveryTransfer } from './recovery-
 import { createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianRelayStage, observedGuardianPowerSpineStage } from './guardian-circuit.mjs';
 import { createTowerAtmosphere } from './atmosphere.mjs';
 import { createTowerGuardianShotStage } from './guardian-shot-stage.mjs';
-import { witnessedAirbornePulse } from './airborne-pulse.mjs';
+import { witnessedAirbornePulse, witnessedGuardianCounterPulse } from './airborne-pulse.mjs';
 import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue } from './guardian-camera-safety.mjs';
 import { createObservedMovingDeckRide } from './moving-deck-ride.mjs';
 // A tiny 3D attack lane follows only a REAL enemy telegraph. The curved ribbon
@@ -1565,7 +1565,7 @@ export function createTowerScene(canvas, settings = {}) {
   let authenticRestartSweep = null;
   // Real newly observed player-owned airborne projectile, not a guessed
   // ability input. Render-only for the original climber's existing rig.
-  let airbornePulse = null;
+  let airbornePulse = null, guardianCounterPulse = null;
   let elapsed = 0, lastTime = 0, renderErrors = 0, contextLost = false, disposed = false;
   let contactUntil=0,contactHero=false,contactEnemyId=null;
   let landingMoment=-Infinity,landingRun=null,landingFloor=null,landingWeight=0;
@@ -1642,7 +1642,7 @@ export function createTowerScene(canvas, settings = {}) {
     recoveryTransfer.clear();
     atmosphere.clear();
     guardianShotStage.clear();
-    airbornePulse = null;
+    airbornePulse = null; guardianCounterPulse = null;
     crownStage.visible = false; observedCrown = null;
     echoDrawnTick = -1; observedStageLight.reset();
     guardianRescueBlend = 0; guardianRescueApplications = 0;
@@ -1785,6 +1785,10 @@ export function createTowerScene(canvas, settings = {}) {
     // pulse from old packets, another floor or a fresh run.
     const pulse = options.stale ? null : witnessedAirbornePulse(previous, next);
     if (pulse) airbornePulse = { ...pulse, startedAt: elapsed };
+    // Give the SAME original skinned gauntlet a planted counterfire recoil only
+    // after source proves the real player bolt was fired during guardian charge.
+    const counter = options.stale ? null : witnessedGuardianCounterPulse(previous, next);
+    if (counter) guardianCounterPulse = { ...counter, startedAt: elapsed };
     motionLedger.accept(previous, next);
     // Authority may heal +1 on a floor advance or upgrade without any
     // collectible. A visible rescue transfer is earned ONLY by an actual
@@ -2036,6 +2040,8 @@ export function createTowerScene(canvas, settings = {}) {
     const witnessedShot = duelFocus && guardianWarning.visible &&
       guardianWarning.guardianId === sourceGuardian.id &&
       Number.isFinite(guardianWarning.remainingChargeTicks);
+    const observedPulse = p.state === 'airborne' ? airbornePulse :
+      p.state === 'standing' ? guardianCounterPulse : null;
     climber.animate({ ...p,
       // Only a real result is allowed to end a still-living climber's
       // expedition with a physical kneel or neutral halt. A lethal result
@@ -2045,11 +2051,11 @@ export function createTowerScene(canvas, settings = {}) {
       intentMode: snapshot.intent?.mode,
       // A real source-new bolt causes a short existing-rig recoil without
       // modifying attack authority or creating a phantom strike in air.
-      earnedPulseAge: !options.stale && airbornePulse &&
-        airbornePulse.runToken === snapshot.runToken &&
-        airbornePulse.floor === snapshot.floor &&
-        snapshot.lifecycle === 'running' && p.state === 'airborne'
-        ? elapsed - airbornePulse.startedAt : null,
+      earnedPulseAge: !options.stale && observedPulse &&
+        observedPulse.runToken === snapshot.runToken &&
+        observedPulse.floor === snapshot.floor &&
+        snapshot.lifecycle === 'running' && p.health > 0
+        ? elapsed - observedPulse.startedAt : null,
       platformRide: observedRidePose,
       // The same authentic floor-advance gate memory can weight the skinned
       // ascent handoff. No invented win: only the adjacent source guardian
@@ -2599,6 +2605,15 @@ export function createTowerScene(canvas, settings = {}) {
         snapshot?.lifecycle === 'running' && snapshot?.player?.state === 'airborne'
         ? { sourceTick: airbornePulse.tick, projectileId: airbornePulse.projectileId,
             ageSeconds: Math.max(0, elapsed - airbornePulse.startedAt), renderOnly: true } : null,
+      witnessedGuardianCounterPulse: guardianCounterPulse &&
+        guardianCounterPulse.runToken === snapshot?.runToken &&
+        guardianCounterPulse.floor === snapshot?.floor && !options.stale &&
+        snapshot?.lifecycle === 'running' && snapshot?.player?.state === 'standing'
+        ? { sourceTick: guardianCounterPulse.tick,
+            projectileId: guardianCounterPulse.projectileId,
+            guardianId: guardianCounterPulse.guardianId,
+            ageSeconds: Math.max(0, elapsed - guardianCounterPulse.startedAt),
+            renderOnly: true } : null,
       atmosphere: atmosphere.diagnostics(),
       recoveryTransfer: recoveryTransfer.diagnostics(),
       summitCrown: observedCrown && crownStage.visible ? {
