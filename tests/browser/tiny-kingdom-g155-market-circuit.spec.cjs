@@ -81,6 +81,13 @@ test('G156 real Day-120 market circuit reaches another actual stall on mobile',a
  expect(start.next.meters).toBeGreaterThan(2.5);
  expect(start.next.reachableCells).toBeGreaterThan(1);
  expect(start.next.reachableCells).toBeLessThanOrEqual(3000);
+ // G158 RED: the real Day-120 market had 238 alternate-stall compositions,
+ // but global person proximity rejected 186 even if the citizen was BEHIND
+ // the lens. Screen-space crowd occlusion must admit a real framed passage.
+ expect(start.planning.connectedSearch?.portraitSafeViews,
+  JSON.stringify(start.planning.connectedSearch)).toBeGreaterThan(0);
+ expect(start.planning.connectedSearch?.crowdRejected).toBeLessThan(
+  start.planning.connectedSearch?.screenedViews);
  expect(start.still).toEqual(start.position);
  const arrived=await page.evaluate(()=>{
   const g=window.__tinyKingdom;let tour=g.getMarketTourAudit(),
@@ -103,6 +110,7 @@ test('G156 real Day-120 market circuit reaches another actual stall on mobile',a
  // genuinely visible stall — never merely beside another opaque wall.
  expect(arrived.visit.architecture.portraitSafe).toBe(true);
  expect(arrived.visit.architecture.interveningRoofs).toBe(0);
+ expect(arrived.visit.foregroundCitizenCount).toBeLessThanOrEqual(1);
  expect(arrived.travelled).toBeGreaterThan(2.5);
  expect(arrived.minSafe).toBe(true);
  expect(arrived.authority).toBe(start.authority);
