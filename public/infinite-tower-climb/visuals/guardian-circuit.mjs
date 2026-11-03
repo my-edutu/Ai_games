@@ -4,6 +4,7 @@ import { pointFor, guardianGateAnchorX } from './coordinates.mjs';
 // guardian and the HP-operated lock at the real cap. This owns presentation
 // only: the simulation decides enemy damage, the gate and floor progression.
 const RAIL_STEPS = 22;
+const RELAY_TEETH = 8;
 const clamp01 = value => Math.min(1, Math.max(0, value));
 
 export function observedGuardianCircuit(snapshot) {
@@ -66,6 +67,30 @@ export function observedGuardianLockStage(source) {
   };
 }
 
+// A source-observed mechanical clutch runs ALONG the same real guardian-to-
+// cap gantry. A phone can see how much of the physical gate is still engaged
+// without forcing a camera cut to a distant gate or fabricating UI or damage.
+// Both the scene director and renderer use exactly the same exterior point.
+export function guardianLinkSite(source, t, offset = 0) {
+  const x = source.fromX + (source.toX - source.fromX) * t;
+  const y = source.fromY + (source.toY - source.fromY) * t +
+    Math.sin(Math.PI * t) * 6200 + offset;
+  const radius = 26.2 + 1.48 * Math.min(1, t / .18) - .03 * t +
+    2.55 * Math.sin(Math.PI * t);
+  return pointFor(x, y, source.baseY, source.width, radius);
+}
+
+export function observedGuardianRelayStage(source) {
+  if (!source || ![source.fromX, source.toX, source.fromY, source.toY,
+    source.baseY, source.width, source.health, source.maxHealth]
+    .every(Number.isFinite) || source.width <= 0 || source.maxHealth <= 0 ||
+    source.health <= 0 || source.health > source.maxHealth) return null;
+  return { center: guardianLinkSite(source, .12),
+    remainingFraction: clamp01(source.health / source.maxHealth),
+    releasedFraction: clamp01(1 - source.health / source.maxHealth),
+    sourceTick: source.tick, guardianId: source.guardianId };
+}
+
 export function createTowerGuardianCircuit(THREE) {
   const group = new THREE.Group();
   group.name = 'SourceObservedGuardianLockCircuit';
@@ -93,6 +118,23 @@ export function createTowerGuardianCircuit(THREE) {
   lockBolts.receiveShadow = false;
   lockBolts.frustumCulled = false;
   lockBolts.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  // The visible local clutch is attached to the gantry beside the guardian.
+  // Eight bronze teeth retract in direct proportion to the genuine source HP
+  // and expose pale alloy; it is physical scenery, never a health-bar HUD.
+  // One small instanced draw, bounded even on phone/low-quality settings.
+  const relayGeometry = new THREE.BoxGeometry(.31, .42, .19);
+  const relayMaterial = new THREE.MeshStandardMaterial({
+    color: 0xffffff, metalness: .69, roughness: .36,
+    emissive: 0x2a170b, emissiveIntensity: .16, depthTest: true,
+  });
+  const relayTeeth = new THREE.InstancedMesh(relayGeometry, relayMaterial, RELAY_TEETH);
+  relayTeeth.name = 'GuardianSourceHPMechanicalRelay';
+  relayTeeth.castShadow = false;
+  relayTeeth.receiveShadow = false;
+  relayTeeth.frustumCulled = false;
+  relayTeeth.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  const relayLocked = new THREE.Color(0xe6af72);
+  const relayReleased = new THREE.Color(0x83ada9);
   const conductorGeometry = new THREE.OctahedronGeometry(.13, 0);
   const conductorMaterial = new THREE.MeshBasicMaterial({
     color: 0xffbd75, transparent: true, opacity: .26,
@@ -130,7 +172,7 @@ export function createTowerGuardianCircuit(THREE) {
   atGuardian.name = 'GuardianLockGuardianAnchor';
   atGate.name = 'GuardianLockCapAnchor';
   atGuardian.castShadow = atGate.castShadow = false;
-  group.add(rails, conductors, atGuardian, atGate, lockBolts, fractures);
+  group.add(rails, conductors, atGuardian, atGate, lockBolts, fractures, relayTeeth);
   const pose = new THREE.Object3D();
   const start = new THREE.Vector3(), finish = new THREE.Vector3();
   const tangent = new THREE.Vector3();
@@ -154,27 +196,14 @@ export function createTowerGuardianCircuit(THREE) {
     rails.count = 0;
     conductors.count = 0;
     lockBolts.count = 0;
+    relayTeeth.count = 0;
     fractures.count = 0;
     previousSource = null;
     observedDamageTick = -1;
     observedDamage = 0;
     damagedGuardian = ''; damagedRun = ''; damagedFloor = -1;
   }
-  function mapped(item, t, offset = 0) {
-    const x = item.fromX + (item.toX - item.fromX) * t;
-    // An elevated outward gantry carries the real HP-operated connection
-    // ABOVE and OUTSIDE the opaque tower, instead of diving through its core
-    // or hiding below a nearby deck. Curvature is presentation-only and fixed
-    // to the live guardian and source cap, not a predicted player path.
-    const y = item.fromY + (item.toY - item.fromY) * t +
-      Math.sin(Math.PI * t) * 6200 + offset;
-    // Begin INSIDE the guardian's silhouette at ankle height, then lift the
-    // conduit outward over the wall: the glowing rail must not draw across
-    // the enemy's face or hide its real maul telegraph on a phone.
-    const radius = 26.2 + 1.48 * Math.min(1, t / .18) - .03 * t +
-      2.55 * Math.sin(Math.PI * t);
-    return pointFor(x, y, item.baseY, item.width, radius);
-  }
+  const mapped = guardianLinkSite;
   function update(snapshot, options = {}) {
     if (disposed) return;
     const next = !options.stale ? observedGuardianCircuit(snapshot) : null;
@@ -204,6 +233,7 @@ export function createTowerGuardianCircuit(THREE) {
     source = next;
     const opening = next.openedFraction;
     const lockStage = observedGuardianLockStage(next);
+    const relayStage = observedGuardianRelayStage(next);
     // Source HP drives a persistent widening, never a made-up kill. Genuine
     // windup briefly tightens the at-guardian fastening; no fake hit pulse.
     const windup = next.telegraph && !options.reducedMotion
@@ -243,9 +273,31 @@ export function createTowerGuardianCircuit(THREE) {
     conductors.count = RAIL_STEPS + 1;
     conductors.instanceMatrix.needsUpdate = true;
     const a = mapped(next, 0), b = mapped(next, 1);
-    atGuardian.position.set(a.x, a.y, a.z);
-    atGuardian.rotation.set(0, a.angle, 0);
-    atGuardian.scale.setScalar(next.telegraph ? 1.14 : 1);
+    // The same gantry physically carries the close-range release clutch.
+    // Preserve the original end anchor on the real opponent via the rails;
+    // the enlarged ring sits on the first exposed exterior rail segment.
+    const relayCenter = relayStage.center;
+    atGuardian.position.set(relayCenter.x, relayCenter.y, relayCenter.z);
+    atGuardian.rotation.set(0, relayCenter.angle, 0);
+    atGuardian.scale.setScalar(1.66);
+    for (let index = 0; index < RELAY_TEETH; index++) {
+      const theta = 2 * Math.PI * index / RELAY_TEETH;
+      const engaged = (index + .5) / RELAY_TEETH <= relayStage.remainingFraction;
+      const radius = engaged ? 1.39 : 1.61;
+      const tangent = Math.cos(theta) * radius;
+      pose.position.set(
+        relayCenter.x + Math.cos(relayCenter.angle) * tangent,
+        relayCenter.y + Math.sin(theta) * radius,
+        relayCenter.z - Math.sin(relayCenter.angle) * tangent);
+      pose.rotation.set(0, relayCenter.angle, theta);
+      pose.scale.set(engaged ? 1 : .58, engaged ? 1 : .48, 1);
+      pose.updateMatrix();
+      relayTeeth.setMatrixAt(index, pose.matrix);
+      relayTeeth.setColorAt(index, engaged ? relayLocked : relayReleased);
+    }
+    relayTeeth.count = RELAY_TEETH;
+    relayTeeth.instanceMatrix.needsUpdate = true;
+    if (relayTeeth.instanceColor) relayTeeth.instanceColor.needsUpdate = true;
     atGate.position.set(b.x, b.y, b.z);
     atGate.rotation.set(0, b.angle, 0);
     atGate.scale.setScalar(1 + opening * .35);
@@ -316,9 +368,12 @@ export function createTowerGuardianCircuit(THREE) {
       railSegments: group.visible ? rails.count : 0,
       conductorNodes: group.visible ? conductors.count : 0,
       lockBolts: group.visible ? lockBolts.count : 0,
+      nearbyRelayTeeth: group.visible ? relayTeeth.count : 0,
+      relaySourceHP: source?.health ?? null,
+      relaySourceTick: source?.tick ?? null,
       observedHealthLossTick: observedDamageTick >= 0 ? observedDamageTick : null,
       healthLossFragments: group.visible ? fractures.count : 0,
-      maxExtraDraws: 6, shadowCastingMeshes: 0,
+      maxExtraDraws: 7, shadowCastingMeshes: 0,
       metric: 'Decorative linked hardware from real live guardian HP and actual cap anchor; not a new collider or verified raster visibility',
       disposed,
     };
@@ -337,6 +392,8 @@ export function createTowerGuardianCircuit(THREE) {
     terminalMaterial.dispose();
     fractureGeometry.dispose();
     fractureMaterial.dispose();
+    relayGeometry.dispose();
+    relayMaterial.dispose();
   }
   return { group, update, clear, diagnostics, dispose };
 }

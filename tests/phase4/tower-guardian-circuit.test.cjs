@@ -150,7 +150,7 @@ test('guardian-to-cap gantry stays outside tower core and physically retracts so
   assert.ok(opened.distanceTo(closed) > .6,
     'true guardian HP loss must visibly retract the mechanical lock');
   assert.equal(effect.diagnostics().lockBolts, 8);
-  assert.equal(effect.diagnostics().maxExtraDraws, 6);
+  assert.equal(effect.diagnostics().maxExtraDraws, 7);
   effect.update(damaged, { stale: true });
   assert.equal(bolts.count, 0, 'stale streams cannot retain authoritative-looking lock teeth');
   effect.dispose();
@@ -187,4 +187,49 @@ test('true guardian HP changes produce short exterior impact echoes with no rest
   assert.equal(shards.count, 0, 'stale snapshots cannot claim a current hit');
   effect.dispose();
   assert.equal(effect.group.children.length, 0, 'GPU graph releases all visual parts');
+});
+
+
+test('physical guardian-side HP relay stays on the real exterior gantry and retracts only after authoritative damage', async () => {
+  const { observedGuardianCircuit, observedGuardianRelayStage,
+    guardianLinkSite, createTowerGuardianCircuit } = await modulePromise;
+  const original = snapshot({ tick: 52, enemies: [{ ...snapshot().enemies[0], health: 8 }] });
+  const source = observedGuardianCircuit(original);
+  const relay = observedGuardianRelayStage(source);
+  assert.ok(relay && relay.sourceTick === 52 && relay.remainingFraction === 1);
+  const sharedGantry = guardianLinkSite(source, .12);
+  assert.ok(new THREE.Vector3(relay.center.x, relay.center.y, relay.center.z).distanceTo(
+    new THREE.Vector3(sharedGantry.x, sharedGantry.y, sharedGantry.z)) < 1e-9);
+  assert.ok(Math.hypot(relay.center.x, relay.center.z) > 27.5,
+    'guardian relay must be visible from outside the solid tower, not inside a wall');
+  const before = JSON.stringify(original);
+  const effect = createTowerGuardianCircuit(THREE);
+  effect.update(original);
+  const teeth = effect.group.getObjectByName('GuardianSourceHPMechanicalRelay');
+  assert.ok(teeth?.material.depthTest && !teeth.castShadow);
+  assert.equal(teeth.count, 8);
+  assert.equal(effect.diagnostics().nearbyRelayTeeth, 8);
+  assert.equal(effect.diagnostics().relaySourceHP, 8);
+  const locked = new THREE.Matrix4(), unlocked = new THREE.Matrix4();
+  const colorLocked = new THREE.Color(), colorUnlocked = new THREE.Color();
+  teeth.getMatrixAt(7, locked);
+  teeth.getColorAt(7, colorLocked);
+  effect.update({ ...original, tick: 53, enemies: [{ ...original.enemies[0], health: 2 }] });
+  teeth.getMatrixAt(7, unlocked);
+  teeth.getColorAt(7, colorUnlocked);
+  assert.notDeepEqual(locked.toArray(), unlocked.toArray(),
+    'actual HP loss retracts a guardian-local physical gear tooth');
+  assert.ok(colorLocked.distanceTo(colorUnlocked) > .1,
+    'genuine HP loss exposes a different metal alloy on the relay');
+  assert.equal(effect.diagnostics().relaySourceHP, 2);
+  assert.equal(JSON.stringify(original), before, 'presentation must never mutate the source');
+  effect.update(original, { stale: true });
+  assert.equal(teeth.count, 0, 'connection loss may not leave a fake live HP indicator');
+  effect.update({ ...original, runToken: 'new-run', tick: 1 });
+  assert.equal(teeth.count, 8);
+  effect.update({ ...original, lifecycle: 'result' });
+  assert.equal(teeth.count, 0);
+  assert.equal(observedGuardianRelayStage({ ...source, health: 0 }), null);
+  effect.dispose();
+  assert.equal(effect.group.children.length, 0);
 });

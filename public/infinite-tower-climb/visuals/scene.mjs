@@ -7,7 +7,7 @@ import { createRenderProgress } from './render-progress.mjs';
 import { createTowerFinale } from './finale.mjs';
 import { observedGuardianPassage, createTowerGuardianPassage } from './guardian-passage.mjs';
 import { createTowerRouteIntent } from './route-intent.mjs';
-import { createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage } from './guardian-circuit.mjs';
+import { createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianRelayStage } from './guardian-circuit.mjs';
 import { createTowerAtmosphere } from './atmosphere.mjs';
 import { createTowerGuardianShotStage } from './guardian-shot-stage.mjs';
 import { createObservedMovingDeckRide } from './moving-deck-ride.mjs';
@@ -825,6 +825,8 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
     ? observedGuardianLockStage(guardianCircuitSource) : null;
   const gateAnchorX = lockStage ? guardianCircuitSource.toX : null;
   const gate = lockStage?.center || null;
+  const relay = guardianCircuitSource?.guardianId === contactGuardian?.guardianId
+    ? observedGuardianRelayStage(guardianCircuitSource)?.center || null : null;
   // Keep gate width a soft composition preference, never a hard camera bound:
   // the real climber and attacker's complete silhouettes still take priority.
   const gatePoints = lockStage
@@ -921,11 +923,14 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
     };
     const guardianFramed = guardianCorners.length > 0 &&
       guardianCorners.every(point => visible(point, .84, .75));
+    const relayFramed = !!relay && visible(relay, .88, .78) &&
+      towerCoreSightlineClear(position, relay, 23.5);
     const gateCoreClear = !!gate && towerCoreSightlineClear(position, gate, 23.5);
     const gateFramed = gatePoints.length > 0 && gateCoreClear &&
       gatePoints.every(point => visible(point, .93, .86));
     return { focus: center, position, distance, landing, targetId: target?.id || null, lean, clear,
       guardianStaged: !!contactGuardian, guardianFramed, gateFramed, gateCoreClear, gateAnchorX,
+      relayFramed,
       heroFraction: height * level / (2 * tangent * (distance - bodyDepth)) };
   }
   let best = solve(0);
@@ -951,6 +956,7 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
     const quality = view => (!view.clear || !view.guardianFramed || view.heroFraction < .15)
       ? -1000 + view.heroFraction
       : 150 + (view.gateFramed ? 16 + guardianCircuitSource.openedFraction * 12 : 0) +
+        (view.relayFramed ? 6 : 0) +
         Math.min(.24, view.heroFraction) * 16 - Math.abs(view.lean) * 1.6;
     let bestQuality = quality(best);
     for (const amount of [0, .22, .45, .7, .95, 1.13, -.22, -.45, -.7]) {
@@ -2292,14 +2298,20 @@ export function createTowerScene(canvas, settings = {}) {
       const lockStage = circuit?.guardianId === liveGuardian.id
         ? observedGuardianLockStage(circuit) : null;
       const gate = lockStage?.center || null;
+      const relay = circuit?.guardianId === liveGuardian.id
+        ? observedGuardianRelayStage(circuit)?.center || null : null;
       const guardianCenter = ndc(guardian);
       const gateCenter = gate ? ndc(gate) : null;
+      const relayCenter = relay ? ndc(relay) : null;
       const visible = point => !!point && point.every(Number.isFinite) &&
         Math.abs(point[0]) <= .85 && Math.abs(point[1]) <= .78 &&
         point[2] >= -1 && point[2] <= 1;
       encounterCamera = { tick: snapshot.tick, health: liveGuardian.health,
         maxHealth: liveGuardian.maxHealth, intent: snapshot.intent?.mode ?? null,
         actorNdc: ndc(actor), guardianNdc: guardianCenter, gateNdc: gateCenter,
+        nearbyRelayNdc: relayCenter,
+        nearbyRelayInFrame: visible(relayCenter),
+        nearbyRelayCoreClear: !!relay && towerCoreSightlineClear(camera.position, relay, 23.5),
         guardianInFrame: visible(guardianCenter), gateInFrame: visible(gateCenter),
         guardianCoreClear: towerCoreSightlineClear(camera.position, guardian, 23.5),
         gateCoreClear: !!gate && towerCoreSightlineClear(camera.position, gate, 23.5),
