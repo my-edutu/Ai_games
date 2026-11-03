@@ -6,6 +6,7 @@ on:
       - 'public/tiny-kingdom/**'
       - 'tests/browser/tiny-kingdom*.spec.cjs'
       - 'scripts/tiny-kingdom-gpu-evidence.cjs'
+      - 'scripts/tiny-kingdom-g154-scene-packer-contract.cjs'
       - '.github/workflows/tiny-kingdom-gpu-evidence.yml'
   workflow_dispatch:
 
@@ -38,13 +39,15 @@ jobs:
           name: tiny-kingdom-gpu-evidence
           path: artifacts/tiny-kingdom/
           retention-days: 14
-      - name: G150–G153 true market composition, home rendering and 390px framing
+      - name: G154 spatial scene packing preserves every original triangle and material
+        run: node scripts/tiny-kingdom-g154-scene-packer-contract.cjs
+      - name: G150–G154 true market composition, home rendering and 390px framing
         env:
           CI: '1'
           LIBGL_ALWAYS_SOFTWARE: '1'
         run: |
           npm run build
-          npx playwright test tests/browser/tiny-kingdom-g150-market-visit.spec.cjs tests/browser/tiny-kingdom-g151-market-composition.spec.cjs tests/browser/tiny-kingdom-g152-market-legibility.spec.cjs tests/browser/tiny-kingdom-g153-house-geometry-cache.spec.cjs --workers=1
+          npx playwright test tests/browser/tiny-kingdom-g150-market-visit.spec.cjs tests/browser/tiny-kingdom-g151-market-composition.spec.cjs tests/browser/tiny-kingdom-g152-market-legibility.spec.cjs tests/browser/tiny-kingdom-g153-house-geometry-cache.spec.cjs tests/browser/tiny-kingdom-g154-night-market.spec.cjs --workers=1
       - name: Focused Tiny Kingdom render, autonomy and live-workday contracts
         env:
           CI: '1'
