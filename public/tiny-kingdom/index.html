@@ -6300,6 +6300,37 @@ function marketVisitCrowd(pos,door){
 // This is pure presentation: citizens, authority, lots and simulation are read
 // but never moved or concealed. The same architecture audit is exposed in UI
 // diagnostics so browser recordings can reject physically misleading views.
+// G159: physical timber uprights were invisible to the wall-only portrait
+// scorer. A central foreground post dominated actual 390px market video even
+// though the cottage AABB ray was clear. Project the 16 ORIGINAL stall posts
+// into the same narrow camera; move ONLY the spectator, never the stalls.
+function marketPostFrame(pos,door){
+ const dx=door[0]-pos[0],dz=door[2]-pos[1],span=Math.hypot(dx,dz)||1;
+ const fx=dx/span,fz=dz/span,rx=-fz,rz=fx;
+ const aspect=Math.min(Math.max(.30,canvas.clientWidth/Math.max(1,canvas.clientHeight)),390/844);
+ const tanHalf=Math.tan(Math.PI/6.4),centerBand=.38;
+ let centralCover=0,postsInFrame=0,nearPost=Infinity;
+ for(const stall of MARKET_STALLS){
+  for(const sx of [-1,1])for(const sz of [-1,1]){
+   const px=stall.x+sx*1.23-pos[0],pz=stall.z+sz*.84-pos[1];
+   const along=px*fx+pz*fz;
+   if(along<=.20||along>span+1.75)continue;
+   const screenX=(px*rx+pz*rz)/(along*tanHalf*aspect);
+   // The original timber is 14.5cm wide. Its projection grows as a real
+   // visitor approaches; count screen width, not world-space distance.
+   const half=(.145/2+.035)/(along*tanHalf*aspect);
+   if(Math.abs(screenX)<=1+half){
+    postsInFrame++;nearPost=Math.min(nearPost,Math.hypot(px,pz));
+   }
+   const overlap=Math.max(0,Math.min(centerBand,screenX+half)-
+    Math.max(-centerBand,screenX-half));
+   centralCover=Math.max(centralCover,overlap/(centerBand*2));
+  }
+ }
+ return {centralCover:Math.round(centralCover*1000)/1000,postsInFrame,
+  nearestVisiblePost:nearPost===Infinity?null:Math.round(nearPost*100)/100,
+  source:'original-physical-market-uprights'};
+}
 function marketVisitArchitecture(pos,door,stall){
  const eye=[pos[0],terrain(...pos)+STREET_EYE,pos[1]];
  const ray=door.map((v,i)=>v-eye[i]),span=Math.hypot(...ray)||1;
@@ -6381,7 +6412,8 @@ function marketVisitArchitecture(pos,door,stall){
  // Portfolio composition must survive BOTH landscape and narrow 390px views.
  const portraitSafe=nearestWallDistance>=2&&interveningRoofs===0&&
   largestForegroundCover<.35;
- return {nearestWallDistance:Math.round(nearestWallDistance*100)/100,
+ const posts=marketPostFrame(pos,door);
+ return {posts,nearestWallDistance:Math.round(nearestWallDistance*100)/100,
   interveningRoofs,largestForegroundCover:Math.round(largestForegroundCover*1000)/1000,
   totalForegroundCover:Math.round(totalForegroundCover*1000)/1000,
   foregroundStructures,portraitAspect:Math.round(aspect*1000)/1000,portraitSafe};
@@ -6439,7 +6471,8 @@ function planMarketVisit(preferredTrade=null,origin=null){
    const score=24-Math.abs(distance-6.25)*2+
     Math.min(front,7)*.25+Math.min(6,view.forwardMetres)*.8-
     architecture.largestForegroundCover*60-
-    architecture.totalForegroundCover*18+
+    architecture.totalForegroundCover*18-
+    architecture.posts.centralCover*125+
     Math.min(4,architecture.nearestWallDistance)*2-
     Math.max(0,3.7-crowd.closestCitizenDistance)*3;
    const candidate={position:pos.slice(),yaw,tilt,score,stall,
@@ -6615,6 +6648,7 @@ function planConnectedMarketTour(origin,activeTrade){
      Math.min(4,architecture.nearestWallDistance)*2-
      architecture.largestForegroundCover*60-
      architecture.totalForegroundCover*18-
+     architecture.posts.centralCover*125-
      distanceFromStart*.48-
      crowd.foregroundCitizenCount*18-
      Math.max(0,2.4-crowd.closestFramedCitizenDistance)*8;
