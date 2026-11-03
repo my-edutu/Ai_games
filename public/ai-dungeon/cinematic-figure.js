@@ -30,8 +30,8 @@ export function planCinematicFigure(kind){
   part('pelvis','hips','leather',0,.86,0,'pelvis',w,1,1),
   part('gorget','neck','trim',0,1.52,-.015),
   part('helmet','head','metal',0,1.70,-.019,'head',p.head,1,p.head),
-  part('face','visage','face',0,1.68,-.12,'head',p.head,1,p.head),
-  part('visor','eyes','trim',0,1.77,-.17,'head',p.head,1,1),
+  part('face','visage','face',0,1.68,-.142,'head',p.head,1,p.head),
+  part('visor','eyes','trim',0,1.77,-.184,'head',p.head,1,1),
   part('front-crest','crest','trim',0,1.3,-.24,'chest',.8,1,1),
   part('hem','hem','cloth',0,.65,.075,'pelvis',w,p.garment,1)
  ];
@@ -115,13 +115,90 @@ function createHull(T,rings,sides=20){
  g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));
  g.setIndex(index);g.computeVertexNormals();return g;
 }
+/**
+ * One complete sculpted human-scale facial volume: cheek arches, brows,
+ * a real projecting nose, and narrowed chin are part of the SINGLE shared
+ * character face draw. Nothing is a billboard or copied reference asset.
+ * The existing animated cranial bone drives the whole face/helmet.
+ */
+function createAnatomicalFace(T,kind){
+ const rows=14,columns=16,stride=columns+1;
+ const positions=[],uvs=[],indices=[];
+ const mask=kind==='warden'?.55:kind==='revenant'?.74:1;
+ for(let layer=0;layer<2;layer++)for(let row=0;row<=rows;row++){
+  const v=2*row/rows-1;
+  const jaw=(v<-.25?(Math.abs(v)-.25)/.75:0);
+  for(let col=0;col<=columns;col++){
+   const u=2*col/columns-1;
+   const x=u*(.128+.005*Math.max(0,v)-.043*jaw);
+   const y=v*.176;
+   const g=(dx,dy,sx,sy)=>Math.exp(-dx*dx/sx-dy*dy/sy);
+   const brow=.014*g(Math.abs(u)-.49,v-.44,.078,.037);
+   const cheek=.023*g(Math.abs(u)-.59,v+.05,.092,.15);
+   const nose=.073*mask*g(u,v+.05,.034,.17);
+   const chin=.018*g(u,v+.72,.20,.033);
+   const depth=.016+.022*(1-u*u)*(1-v*v)+brow+cheek+nose+chin;
+   positions.push(x,y,layer===0?-depth:.025);
+   uvs.push((u+1)*.5,(v+1)*.5);
+  }
+ }
+ const layerSize=(rows+1)*stride;
+ for(let row=0;row<rows;row++)for(let col=0;col<columns;col++){
+  const a=row*stride+col,b=a+1,c=a+stride,d=c+1;
+  indices.push(a,c,b,b,c,d);
+  indices.push(layerSize+a,layerSize+b,layerSize+c,
+   layerSize+b,layerSize+d,layerSize+c);
+ }
+ // Close the thin sculpted brow/cheek volume. Both oblique desktop and phone
+ // cameras can see an actual profile rather than a flat painted face.
+ const edge=(a,b)=>{
+  indices.push(a,b,layerSize+b,a,layerSize+b,layerSize+a);
+ };
+ for(let col=0;col<columns;col++){
+  edge(col,col+1);edge(rows*stride+col+1,rows*stride+col);
+ }
+ for(let row=0;row<rows;row++){
+  edge((row+1)*stride,row*stride);
+  edge(row*stride+columns,(row+1)*stride+columns);
+ }
+ const geo=new T.BufferGeometry();
+ geo.setAttribute('position',new T.Float32BufferAttribute(positions,3));
+ geo.setAttribute('uv',new T.Float32BufferAttribute(uvs,2));
+ geo.setIndex(indices);geo.computeVertexNormals();return geo;
+}
+/** Two physically separate iron brow lenses with a narrow nose bridge,
+ * all in one buffer and one material draw; avoids the toy-like flat eye bar. */
+function createSplitVisor(T){
+ const positions=[],uvs=[],indices=[];
+ const polygon=coords=>{
+  const start=positions.length/3,n=coords.length;
+  for(const z of [-.028,.018])for(const [x,y] of coords){
+   positions.push(x,y,z);uvs.push(x+.5,y+.5);
+  }
+  for(let i=1;i<n-1;i++){
+   indices.push(start,start+i+1,start+i);
+   indices.push(start+n,start+n+i,start+n+i+1);
+  }
+  for(let i=0;i<n;i++){
+   const b=(i+1)%n;
+   indices.push(start+i,start+b,start+n+b,start+i,start+n+b,start+n+i);
+  }
+ };
+ polygon([[-.137,-.014],[-.052,.002],[-.038,.040],[-.122,.023]]);
+ polygon([[.052,.002],[.137,-.014],[.122,.023],[.038,.040]]);
+ polygon([[-.048,.011],[.048,.011],[.038,.023],[-.038,.023]]);
+ const geo=new T.BufferGeometry();
+ geo.setAttribute('position',new T.Float32BufferAttribute(positions,3));
+ geo.setAttribute('uv',new T.Float32BufferAttribute(uvs,2));
+ geo.setIndex(indices);geo.computeVertexNormals();return geo;
+}
 function createForms(T,kind){
  const profiles={
-  torso:[[-.34,.20,.155],[-.27,.25,.18],[-.09,.30,.20],[.12,.36,.215],[.23,.37,.20],[.34,.25,.15]],
+  torso:[[-.36,.15,.13],[-.29,.23,.17],[-.17,.27,.185],[-.06,.30,.19],[.06,.34,.225],[.17,.36,.205],[.28,.29,.175],[.36,.16,.13]],
   surcoat:[[-.34,.20,.17],[-.24,.26,.18],[.03,.29,.20],[.23,.315,.20],[.34,.24,.15]],
   hips:[[-.15,.23,.17],[-.055,.28,.19],[.07,.27,.185],[.14,.20,.14]],
   neck:[[-.08,.12,.10],[-.035,.15,.12],[.05,.14,.115],[.095,.10,.09]],
-  head:[[-.16,.10,.09],[-.105,.152,.127],[.055,.16,.135],[.13,.135,.12],[.18,.09,.075]],
+  head:[[-.196,.07,.075],[-.16,.115,.099],[-.105,.145,.120],[.020,.153,.135],[.115,.135,.115],[.175,.09,.085],[.211,.052,.054]],
   visage:[[-.125,.065,.03],[-.055,.105,.05],[.06,.11,.049],[.13,.07,.025]],
   shoulder:[[-.135,.075,.075],[-.03,.145,.13],[.035,.18,.154],[.14,.13,.115]],
   arm:[[-.22,.072,.08],[-.13,.095,.10],[.01,.123,.119],[.14,.14,.127],[.23,.082,.087]],
@@ -133,7 +210,8 @@ function createForms(T,kind){
   cowl:[[-.18,.122,.105],[-.12,.17,.16],[.04,.18,.17],[.17,.16,.13],[.235,.08,.09]]
  };
  const forms=Object.fromEntries(Object.entries(profiles).map(([key,rows])=>[key,createHull(T,rows)]));
- forms.eyes=new T.BoxGeometry(.27,.052,.065);
+ forms.visage.dispose();forms.visage=createAnatomicalFace(T,kind);
+ forms.eyes=createSplitVisor(T);
  // Each faction receives original raised metal heraldry rather than a
  // generic sphere or a borrowed insignia. These marks remain legible in 3D.
  const crests={

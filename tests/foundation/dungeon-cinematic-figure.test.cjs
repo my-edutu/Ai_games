@@ -69,3 +69,12 @@ test('six mirrored armour groups use separate true-bone poses while retaining al
  assert.match(body,/actor\.cinematicFigure\?\.dispose\?\.\(\)/);
  assert.match(body,/cinematicPairedBatches:/);
 });
+test('original six-class heads have closed physical facial anatomy and split iron lenses without extra draw calls',()=>{
+ const code=fs.readFileSync(src,'utf8');
+ assert.match(code,/function createAnatomicalFace\(T,kind\)/);
+ assert.match(code,/function createSplitVisor\(T\)/);
+ assert.match(code,/forms\.visage=createAnatomicalFace\(T,kind\)/);
+ assert.match(code,/forms\.eyes=createSplitVisor\(T\)/);
+ assert.match(code,/indices\.push\(a,c,b,b,c,d\)/);
+ assert.doesNotMatch(code,/Math\.random|fetch\(|https?:/);
+});
