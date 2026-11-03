@@ -22,6 +22,13 @@ export function planPartyWallReveal(x,z,subjects,camera,pad=2.1){
   if(distance<.001)continue;
   const progress=(dx*vx+dz*vz)/distance;
   const sideways=Math.abs(dx*vz-dz*vx)/distance;
+  // In a physical low camera shot, a knee-high pier can hide a hero's face
+  // even when its centre is just outside the narrow geometric ray. Open a
+  // tightly bounded camera-facing foreground wedge for the *actual* party.
+  // Behind the hero and outside 3.1m, retain the full dungeon silhouette.
+  const foregroundRadius=Math.min(3.1,nearRadius+.25);
+  if(progress>.12&&progress<3.1&&dx*dx+dz*dz<foregroundRadius*foregroundRadius&&
+     sideways<Math.min(3.05,width+1.0))return 'sightline';
   if(progress>-.55&&progress<distance+.7&&sideways<width+progress*.13)return 'sightline';
  }
  return nearby?'nearby':'none';
