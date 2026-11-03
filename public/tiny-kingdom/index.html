@@ -3364,7 +3364,9 @@ function rescaleCitizenHead(first,last,x,y,z,size){
 // real seeded route, IK gait, work pose, job identity and terrain contacts
 // as the close documentary workers, with a strictly lower-cost mesh.
 const compactCitizenAnimation={lastRenderedCompact:0,lastRenderedArticulated:0,
- lastWorking:0,lastTraveling:0,lastMotionTriangles:0};
+ lastWorking:0,lastTraveling:0,lastMotionTriangles:0,
+ lastRoleSilhouettes:0,lastBentWorkers:0,lastRoleToolRenderings:0,
+ lastWorksiteWorkers:0,lastAnimatedCartWheels:0,roleCounts:{}};
 function getPopulationMotionAudit(){
  const detail=selectVisibleCitizenDetail();
  const compact=people.filter((p,i)=>!detail.indices.has(i));
@@ -3372,6 +3374,8 @@ function getPopulationMotionAudit(){
  return {source:'real-citizen-rig-at-visible-LOD',
   population:people.length,detailedCount:detail.indices.size,
   compactCount:compact.length,...compactCitizenAnimation,
+  visualJobs:Object.keys(compactCitizenAnimation.roleCounts).
+   filter(job=>compactCitizenAnimation.roleCounts[job]>0).sort(),
   samples:compact.slice(0,8).map(p=>{
    const rig=citizenRigPose(p);
    return {citizen:p.name,job:p.job,activity:p.activity,
@@ -3386,6 +3390,40 @@ function getPopulationMotionAudit(){
      elbowToWrist:length(arm.elbow,arm.wrist)
     }))};
   })};
+}
+// G164 — readable occupations at a physical distance: every authentic
+// resident retains a distinct silhouette, without spawning decorative NPCs.
+// All accessories follow the exact existing worker gait and camera-facing
+// transform. No authoritative state, path, seed or inventory is touched.
+function renderCompactOccupationGear(p,x,y,z,s){
+ const linen=rgb(0xc4b9a0),leather=rgb(0x75543b),straw=rgb(0xbaa175);
+ materialScope(MATERIAL.GENERAL,()=>{
+  if(p.job==='farmer'){
+   cylinder(x,y+1.48*s,z,.275*s,.038*s,straw,7);
+   cone(x,y+1.505*s,z,.167*s,.135*s,rgb(0xd1b577),7);
+   box(x,y+.43*s,z+.20*s,.33*s,.38*s,.050*s,linen);
+  }else if(p.job==='gatherer'){
+   cone(x,y+1.50*s,z,.224*s,.15*s,rgb(0x798b60),7);
+   box(x-.26*s,y+.30*s,z+.03*s,.26*s,.28*s,.24*s,straw);
+   box(x-.26*s,y+.56*s,z+.03*s,.31*s,.055*s,.27*s,leather);
+  }else if(p.job==='forester'){
+   cone(x,y+1.49*s,z,.233*s,.19*s,rgb(0x54694d),7);
+   box(x,y+.43*s,z-.21*s,.31*s,.39*s,.15*s,leather);
+   box(x,y+.83*s,z-.19*s,.34*s,.047*s,.16*s,straw);
+  }else if(p.job==='builder'){
+   box(x,y+1.48*s,z,.42*s,.083*s,.39*s,straw);
+   box(x,y+.46*s,z+.19*s,.35*s,.38*s,.058*s,rgb(0xb7a17f));
+   box(x+.22*s,y+.40*s,z+.04*s,.15*s,.23*s,.15*s,leather);
+  }else if(p.job==='craftsperson'){
+   box(x,y+1.48*s,z,.38*s,.075*s,.34*s,rgb(0x5e6060));
+   box(x,y+.42*s,z+.22*s,.37*s,.43*s,.066*s,leather);
+   box(x,y+.82*s,z+.245*s,.34*s,.065*s,.085*s,linen);
+  }else if(p.job==='merchant'){
+   box(x,y+1.46*s,z,.38*s,.087*s,.38*s,rgb(0x947851));
+   box(x,y+.53*s,z-.19*s,.51*s,.55*s,.091*s,rgb(0x665d48));
+   box(x-.28*s,y+.39*s,z+.04*s,.19*s,.25*s,.15*s,leather);
+  }
+ });
 }
 function compactVillager(p){
  const vertexStart=data.length;
@@ -3414,16 +3452,9 @@ function compactVillager(p){
    limbSegment(joint(arm.shoulder),joint(arm.elbow),.088*s,cloth,4);
    limbSegment(joint(arm.elbow),joint(arm.wrist),.074*s,cloth,4);
   }
-  // A wrist-owned tool is present ONLY for an actual working shift. This
-  // remains presentation: no fabricated labor, cargo or awarded resources.
-  if(rig.working){
-   const hand=joint(rig.arms[1].wrist);
-   const tip=[hand[0]+.07*s,hand[1]+.13*s,hand[2]+.13*s];
-   limbSegment(hand,tip,.027*s,rgb(0x785b43),4);
-   box(tip[0],tip[1],tip[2],
-    ((p.job==='farmer'||p.job==='gatherer') ? .19 : .21)*s,
-    .075*s,.12*s,rgb(p.job==='craftsperson'||p.job==='forester'?0x999b93:0xb49466));
-  }
+  // The actual job-specific wrist prop is emitted after the physical body,
+  // so farmers carry sheaves, builders a mallet, foresters an axe, etc.
+  // Do not substitute the old shared featureless block for every profession.
   // Distinct skin from oak/wool: distant human faces must not receive
   // the baked wood fiber shader used by the market's beams and tools.
   materialScope(MATERIAL.GENERAL,()=>{
@@ -3434,6 +3465,36 @@ function compactVillager(p){
   });
   box(x,y+.40*s,z+.22*s,.22*s,.29*s,.06*s,rgb(0x785b43));
  });
+ renderCompactOccupationGear(p,x,y,z,s);
+ compactCitizenAnimation.lastRoleSilhouettes++;
+ compactCitizenAnimation.roleCounts[p.job]=
+  (compactCitizenAnimation.roleCounts[p.job]||0)+1;
+ // Authentic compact workers now use the same IK-driven occupational tools
+ // as the detailed actors, attached to their real wrist instead of a generic
+ // floating hammer. Unloading leaves the hands available for genuine cargo.
+ if(rig.working&&isWorkingAtSite(p)){
+  emitWorkdayHandTool(p,rig,joint,s);
+  compactCitizenAnimation.lastRoleToolRenderings++;
+  compactCitizenAnimation.lastWorksiteWorkers++;
+ }
+ // A worker leans into the task from the waist, but feet stay planted on the
+ // actual terrain. Deform citizen body and wrist tool before adding a cart:
+ // a leather delivery cart cannot flex like the human torso pulling it.
+ const bodyEnd=data.length;
+ if(rig.working){
+  const pivot=y+.27*s,lean=rig.acting.lean*.42,crouch=rig.acting.crouch*.65;
+  for(let v=vertexStart;v<bodyEnd;v+=10){
+   const rise=Math.max(0,Math.min(1.45*s,data[v+1]-pivot));
+   if(rise<=0)continue;
+   const influence=Math.min(1,rise/(.57*s));
+   data[v+2]+=rise*lean;
+   data[v+1]-=crouch*s*influence;
+   const nx=data[v+3],ny=data[v+4]-lean*data[v+5],
+    nz=data[v+5],length=Math.hypot(nx,ny,nz)||1;
+   data[v+3]=nx/length;data[v+4]=ny/length;data[v+5]=nz/length;
+  }
+  compactCitizenAnimation.lastBentWorkers++;
+ }
  emitStreetCargo(p,x,y,z,s);
  renderCommuterLantern(p,x,y,z,s,rig);
  // Keep the identical real next-waypoint facing transform across garment,
@@ -5496,6 +5557,16 @@ function emitStreetCargo(p,x,y,z,size){
      rgb(0x51473c),5);
     ellipsoid(wx+side*.06*size,y+.22*size,wz,.026*size,.062*size,
      .062*size,rope,5);
+    // Two visible spokes rotate from the exact distance-driven walk phase.
+    // Stationary or blocked porters hold their wheel angle; no fake mileage.
+    for(let spoke=0;spoke<2;spoke++){
+     const a=p.phase*.78+spoke*Math.PI/2;
+     const dy=Math.cos(a)*.137*size,dz=Math.sin(a)*.137*size;
+     limbSegment([wx+side*.072*size,y+.22*size+dy,wz+dz],
+      [wx+side*.072*size,y+.22*size-dy,wz-dz],
+      .014*size,rope,4);
+    }
+    compactCitizenAnimation.lastAnimatedCartWheels++;
    }
    box(x,cy+.13*size,cz+.30*size,.68*size,.17*size,.045*size,wood);
    if(stillLoaded&&p.delivery.resource==='wood'){
@@ -8602,6 +8673,12 @@ villageVisualLod.detailedCitizens=0;villageVisualLod.compactCitizens=0;
  compactCitizenAnimation.lastRenderedCompact=0;compactCitizenAnimation.lastRenderedArticulated=0;
  compactCitizenAnimation.lastWorking=0;compactCitizenAnimation.lastTraveling=0;
  compactCitizenAnimation.lastMotionTriangles=0;
+ compactCitizenAnimation.lastRoleSilhouettes=0;
+ compactCitizenAnimation.lastBentWorkers=0;
+ compactCitizenAnimation.lastRoleToolRenderings=0;
+ compactCitizenAnimation.lastWorksiteWorkers=0;
+ compactCitizenAnimation.lastAnimatedCartWheels=0;
+ compactCitizenAnimation.roleCounts={};
 villageVisualLod.compactFacingCount=0;villageVisualLod.compactTurnedCitizens=0;villageVisualLod.compactFacingVertexError=0;
 for(let i=0;i<people.length;i++){
  if(nearPeople.has(i)){villager(people[i]);villageVisualLod.detailedCitizens++}
