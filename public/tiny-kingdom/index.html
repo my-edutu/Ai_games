@@ -6282,9 +6282,14 @@ function marketVisitCrowd(pos,door){
   const across=Math.abs(px*dz-pz*dx)/span;
   // Keep actual residents, never remove bodies or relocate their work.
   // Only someone IN FRONT and INSIDE the narrow mobile camera can occlude.
+  // Keep the EXISTING real-frontage count unchanged: the first G158
+  // browser recording regressed because a wider count invalidated EVERY
+  // otherwise safe first market visit. Its contracted semantics are stable.
+  if(along>.25&&along<span-.20&&across<.85)foregroundCitizenCount++;
+  // Separate narrow-screen proximity for the connected alternate-stall
+  // planner; a citizen behind the lens must not veto a real sidewalk route.
   if(along<=.18||across>Math.max(.35,along*portraitTan+.23))continue;
   closestFramedCitizenDistance=Math.min(closestFramedCitizenDistance,metres);
-  if(along<span-.20)foregroundCitizenCount++;
  }
  return {closestCitizenDistance,closestFramedCitizenDistance,foregroundCitizenCount};
 }
