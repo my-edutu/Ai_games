@@ -965,6 +965,42 @@ export function createMazeWorld(options = {}) {
       rib.name = 'Carved reliquary rib ' + (i + 2);
     }
     const witnessed = key.collected && typeof key.id === 'string' && keyPickupAt.has(key.id);
+    // A full-scale, grounded tide-theatre is the treasure's physical reveal.
+    // The tall stone proscenium and joined ivory sea-glass shutters are behind
+    // the actual key, entirely based on this ALREADY disclosed key cell. This
+    // is not a door, route, second collectible, hint or gameplay authority.
+    // Unlike distant decorative pieces, both large panels fill the actual
+    // witnessed pickup composition and physically swing away from the key.
+    const theatre = new THREE.Group();
+    theatre.name = 'Disclosed key tide-theatre';
+    theatre.position.set(-.12, 0, -.52);
+    dais.add(theatre);
+    for (const side of [-1, 1]) {
+      mesh(theatre, bevel, deepStone, side * .81, .91, -.02, .24, 1.72, .34);
+      mesh(theatre, bevel, jade, side * .81, .97, .18, .11, 1.38, .07);
+      mesh(theatre, bevel, lightStone, side * .81, 1.81, -.02, .38, .17, .44);
+    }
+    mesh(theatre, bevel, deepStone, 0, 1.92, -.03, 1.96, .27, .41);
+    mesh(theatre, bevel, seaGlass, 0, 2.07, .04, 1.63, .12, .34);
+    mesh(theatre, bevel, lightStone, 0, 2.22, -.05, .84, .23, .44);
+    // These shutters pivot on the real stone uprights, never at screen
+    // coordinates. The two broad faces form a coherent architectural beat
+    // (closed before collection, opening ONLY after a witnessed pickup).
+    for (const side of [-1, 1]) {
+      const shutter = new THREE.Group();
+      shutter.name = 'Public key-theatre hinged shutter ' + side;
+      shutter.position.set(side * .69, .32, .13);
+      theatre.add(shutter);
+      mesh(shutter, bevel, seaGlass, -side * .31, .66, 0, .60, 1.25, .19);
+      mesh(shutter, bevel, lightStone, -side * .32, 1.23, .12, .56, .14, .09);
+      mesh(shutter, bevel, deepStone, -side * .32, .18, .12, .56, .12, .09);
+      mesh(shutter, bevel, lightStone, -side * .55, .67, .12, .07, .94, .08);
+      mesh(shutter, bevel, inlay, -side * .25, .66, .13, .09, .76, .05);
+      shutter.rotation.y = key.collected && !witnessed ? -side * 1.03 : 0;
+      if (witnessed) animations.push({
+        type: 'key-theatre', object: shutter, keyId: key.id, side
+      });
+    }
     // Four original carved, articulated petals open from the collected cell.
     // Their source-disclosed footprint never becomes a route or new reward.
     for (let i = 0; i < 4; i++) {
@@ -1348,15 +1384,17 @@ export function createMazeWorld(options = {}) {
     waterTexture.offset.set(reduced ? 0 : t * .0012, reduced ? 0 : t * .0006);
     if (highContrast !== !!options.highContrast) { highContrast = !!options.highContrast; if (snapshot) refreshVisibility(snapshot, true); }
     for (const a of animations) {
-      if (a.type === 'key-shrine' || a.type === 'key-sail') {
+      if (a.type === 'key-shrine' || a.type === 'key-sail' || a.type === 'key-theatre') {
         // The same REAL public pickup unfolds both rooted hinge assemblies.
         // Neither screenshot wall stalls nor polling can replay a stale key.
         const start = keyPickupAt.get(a.keyId);
         const age = Number.isFinite(start) ? presentationTime - start : Infinity;
-        const duration = a.type === 'key-sail' ? 1.18 : .82;
+        const duration = a.type === 'key-theatre' ? 1.22 : a.type === 'key-sail' ? 1.18 : .82;
         const phase = reduced ? 1 : Math.max(0, Math.min(1, age / duration));
         const eased = phase * phase * (3 - 2 * phase);
-        a.object.rotation.z = a.type === 'key-sail'
+        if (a.type === 'key-theatre')
+          a.object.rotation.y = -a.side * 1.03 * eased;
+        else a.object.rotation.z = a.type === 'key-sail'
           ? (1.16 * (1 - eased)) : (.78 * phase * (2 - phase));
         continue;
       }
