@@ -59,6 +59,7 @@ jobs:
           path: |
             artifacts/dungeon-*.png
             artifacts/dungeon-*.json
+            artifacts/dungeon-*.webm
             test-results/**
           if-no-files-found: warn
       - name: Upload focused WebGL scene audit
