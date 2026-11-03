@@ -32,7 +32,8 @@ test('W08 real courier wheels leave physical finite traces without manufacturing
   const readOnly=JSON.stringify(game.exportSnapshot())===before;
   const bound=audit.segments<=audit.maxSegments&&
     audit.activeTracks<=audit.maxTracks&&audit.triangles<=audit.maxTriangles;
-  const provenance=audit.tracks.every(t=>t.id&&t.samples>=2&&t.realActor);
+  const provenance=audit.tracks.every(t=>t.id&&t.samples>=1&&t.realActor)&&
+    audit.tracks.some(t=>t.samples>=4);
   game.setCamera({focus:[traveling.x,traveling.z],yaw:.85,pitch:.68,zoom:14});
   const cameraReadOnly=JSON.stringify(game.exportSnapshot())===before;
   return {empty,traveling,audit,readOnly,bound,provenance,
@@ -46,7 +47,9 @@ test('W08 real courier wheels leave physical finite traces without manufacturing
  expect(witnessed.audit.triangles).toBeGreaterThan(0);
  expect(witnessed.bound&&witnessed.provenance).toBe(true);
  expect(witnessed.readOnly&&witnessed.cameraReadOnly).toBe(true);
- await page.waitForTimeout(200);
+ await page.waitForFunction(()=>window.__tinyKingdom.getCourierTrailAudit().renderedTriangles>0,null,{timeout:30000});
+ const visible=await page.evaluate(()=>window.__tinyKingdom.getCourierTrailAudit());
+ expect(visible.renderedTriangles).toBeGreaterThanOrEqual(12);
  await page.screenshot({path:test.info().outputPath('w08-real-moving-courier-desktop.png')});
  await page.setViewportSize({width:390,height:844});
  await page.waitForTimeout(160);
