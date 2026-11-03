@@ -20,7 +20,7 @@ const loaded = (async () => {
 function rig(THREE, aspect = 390 / 844) {
   const camera = new THREE.PerspectiveCamera(42, aspect, .2, 1200);
   camera.position.set(0, 16, 62);
-  const gaze = new THREE.Vector3(-13, 11, 25);
+  const gaze = new THREE.Vector3(-6, 11, 25);
   const actor = new THREE.Vector3(0, 11, 27);
   const scratch = new THREE.Vector3(), orbit = new THREE.Vector3();
   const previousCamera = new THREE.Vector3(), previousGaze = new THREE.Vector3();
