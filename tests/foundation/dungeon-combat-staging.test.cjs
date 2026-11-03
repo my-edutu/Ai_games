@@ -198,3 +198,15 @@ test('actual Warden warning and exposed boss choreography outrank cross-cell cam
  assert.deepEqual([poses.hero.dx,poses.hero.dz,poses.foe.dx,poses.foe.dz,poses.warden.dx,poses.warden.dz],
   [0,0,0,0,0,0],'general crowd correction cannot distort boss telegraphs');
 });
+
+test('a still-living but geographically distant Warden does not silence ordinary cross-cell skirmish staging',async()=>{
+ const {planCombatStage}=await mod();
+ const party=u('hero','vanguard','party',3,3,80),cultist=u('cultist','cultist','enemy',4,4,80);
+ const distantBoss=u('warden','warden','enemy',0,0,200);
+ const state={tick:7,map:floor(),units:[party,cultist,distantBoss]};
+ const staged=planCombatStage(state,{x:7,z:7});
+ assert.ok(staged.hero.crowded&&staged.cultist.crowded,
+  'the distant unopened floor boss cannot disable legitimate corridor combat staging');
+ assert.deepEqual([staged.warden.dx,staged.warden.dz],[0,0],
+  'the Warden retains its own exact authoritative location');
+});
