@@ -2408,8 +2408,14 @@ export function createTowerScene(canvas, settings = {}) {
         entry.chargeArc.scale.setScalar((e.kind === 'guardian' ? 2.1 : 1.25) * (.58 + remaining * .42));
       }
       const impact = entry.impact;
+      // Reuse the owned 3D armor-impact marker during a genuinely interrupted
+      // guardian windup. The existing red threat ring stays OFF because this
+      // enemy cannot fire until its fixed-step stagger has expired.
+      const interrupted = !options.stale && snapshot.lifecycle === 'running' &&
+        e.kind === 'guardian' && e.active &&
+        Number.isFinite(e.staggerTicksRemaining) && e.staggerTicksRemaining > 0;
       impact.visible = (e.active || elapsed < entry.deadUntil)
-        && (elapsed < entry.impactUntil || entry.impactFramesRemaining > 0);
+        && (elapsed < entry.impactUntil || entry.impactFramesRemaining > 0 || interrupted);
       if (impact.visible) {
         impact.position.copy(model.position);
         impact.position.y += e.halfHeight * 2 / SCALE * .62;
