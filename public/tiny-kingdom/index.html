@@ -6269,18 +6269,24 @@ function streetSafe(x,z){const r=.22;return walkable(x,z)&&walkable(x-r,z-r)&&wa
 // growing-market geometry and citizens as evidence before placing the camera.
 function marketVisitCrowd(pos,door){
  const dx=door[0]-pos[0],dz=door[2]-pos[1],span=Math.max(.001,Math.hypot(dx,dz));
- let closestCitizenDistance=Infinity,foregroundCitizenCount=0;
+ // G158: the genuine Day-120 film showed 186/238 candidate viewpoints
+ // rejected by bystanders EVEN BEHIND the camera. Judge 390px foreground
+ // obstruction in portrait projection rather than global citizen distance.
+ const portraitTan=Math.tan(Math.PI/6.4)*(390/844);
+ let closestCitizenDistance=Infinity,closestFramedCitizenDistance=Infinity;
+ let foregroundCitizenCount=0;
  for(const person of people){
-  const px=person.x-pos[0],pz=person.z-pos[1];
-  const metres=Math.hypot(px,pz);
+  const px=person.x-pos[0],pz=person.z-pos[1],metres=Math.hypot(px,pz);
   closestCitizenDistance=Math.min(closestCitizenDistance,metres);
   const along=(px*dx+pz*dz)/span;
   const across=Math.abs(px*dz-pz*dx)/span;
-  // A real head/body directly between the spectator and stall frontage
-  // must not be mistaken for a valid unobstructed market composition.
-  if(along>.25&&along<span-.20&&across<.85)foregroundCitizenCount++;
+  // Keep actual residents, never remove bodies or relocate their work.
+  // Only someone IN FRONT and INSIDE the narrow mobile camera can occlude.
+  if(along<=.18||across>Math.max(.35,along*portraitTan+.23))continue;
+  closestFramedCitizenDistance=Math.min(closestFramedCitizenDistance,metres);
+  if(along<span-.20)foregroundCitizenCount++;
  }
- return {closestCitizenDistance,foregroundCitizenCount};
+ return {closestCitizenDistance,closestFramedCitizenDistance,foregroundCitizenCount};
 }
 // G152: prove the OPEN MARKET is actually in frame at human height.
 // G151's 6.12m shot passed distance/crowd tests while a full-height cottage
@@ -6579,14 +6585,14 @@ function planConnectedMarketTour(origin,activeTrade){
    screened.add(cell);
    for(const {stall,door} of doors){
     const dx=door[0]-pos[0],dz=door[2]-pos[1],distance=Math.hypot(dx,dz);
-    if(distance<4||distance>9.8||(pos[1]-stall.z)*stall.face<1.2)continue;
+    if(distance<4||distance>11.5||(pos[1]-stall.z)*stall.face<1.2)continue;
     audit.screenedViews++;
     const crowd=marketVisitCrowd(pos,door);
     // Residents are part of a REAL inhabited market: one passing shopper
     // must not make all other trading destinations disappear. Reject a
     // citizen actually too close to the camera, but score a partially
     // crossing bystander as a less desirable, still honest moving shot.
-    if(crowd.closestCitizenDistance<1.15||crowd.foregroundCitizenCount>1){
+    if(crowd.closestFramedCitizenDistance<1.35||crowd.foregroundCitizenCount>1){
      audit.crowdRejected++;continue;
     }
     const architecture=marketVisitArchitecture(pos,door,stall);
@@ -6596,7 +6602,7 @@ function planConnectedMarketTour(origin,activeTrade){
      audit.skyRejected++;continue;
     }
     const strictView=crowd.foregroundCitizenCount===0&&
-     crowd.closestCitizenDistance>=1.65&&view.forwardMetres>=1.6;
+     crowd.closestFramedCitizenDistance>=2.3&&view.forwardMetres>=1.6;
     audit.portraitSafeViews++;
     if(strictView)audit.strictViews++;else audit.adaptiveViews++;
     const score=24-Math.abs(distance-6.25)*2+
@@ -6604,9 +6610,9 @@ function planConnectedMarketTour(origin,activeTrade){
      Math.min(4,architecture.nearestWallDistance)*2-
      architecture.largestForegroundCover*60-
      architecture.totalForegroundCover*18-
-     distanceFromStart*.18-
+     distanceFromStart*.48-
      crowd.foregroundCitizenCount*18-
-     Math.max(0,2.4-crowd.closestCitizenDistance)*8;
+     Math.max(0,2.4-crowd.closestFramedCitizenDistance)*8;
     const chosen={nodeIndex:cursor,score,position:pos.slice(),yaw,stall,door,
       tilt:Math.max(-.45,Math.min(.35,
        Math.atan2(door[1]-(terrain(...pos)+STREET_EYE),distance))),
@@ -6712,8 +6718,16 @@ function advanceMarketTour(dt){
  streetPosition=next;streetDistance+=portion;
  // Follow the physical route without spinning the view toward arbitrary walls.
  const heading=Math.atan2(dx,dz);
- const turn=Math.atan2(Math.sin(heading-streetYaw),Math.cos(heading-streetYaw));
- streetYaw+=turn*Math.min(1,dt*3);
+ // Sight-line aware pedestrian cinema: smoothly turn toward the genuine
+ // selected market frontage on final approach, without snapping at arrival.
+ const remaining=Math.hypot(marketTour.plan.position[0]-next[0],
+  marketTour.plan.position[1]-next[1]);
+ const pan=Math.max(0,Math.min(1,(4.5-remaining)/3.5));
+ const toStall=Math.atan2(Math.sin(marketTour.plan.yaw-heading),
+  Math.cos(marketTour.plan.yaw-heading));
+ const desired=heading+toStall*pan;
+ const turn=Math.atan2(Math.sin(desired-streetYaw),Math.cos(desired-streetYaw));
+ streetYaw+=turn*Math.min(1,dt*3.5);
  if(distance-portion<.06)marketTour.index++;
 }
 
