@@ -2203,11 +2203,11 @@
       "actualWebglFramingRegression": "Predecessor 4cc8abd actual 1440x832 and 390x844 browser frames show companions cropped/packed against an overly dense foreground. No scientifically matched AFTER observation yet.",
       "latestCandidateWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41570415510",
       "currentPredecessorWebgl": "https://github.com/my-edutu/Ai_games/actions/runs/41582184616/artifacts/13207290223",
-      "newCandidateSceneReview": "UNVERIFIED: new sculpted geometry and truthful mixed-team staging not yet browser-captured at exact head."
+      "newCandidateSceneReview": "UNVERIFIED at new head: camera-space multi-actor cross-cell staging must be inspected in genuine desktop/mobile moving gameplay."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Actual original GLB characters and melee still read as toy-like/cluttered; a world-first integrated character art, authored motion and genuine combat timing leap is needed. The current cross-cell contact scene must be judged in real new-head desktop/mobile gameplay; full matched audiovisual expedition, GPU p95 and >=3 masked critics remain absent.",
-    "currentWork": "M1 actual combat-plane story: legal cross-cell opposing rigs now stage for the same live render/collision-free camera as their true contact VFX, distant bosses no longer suppress corridor fights, and a physically open Warden-court arch replaces the solid sightline-blocking bar. Costume bounds corrected after real failing authority run. New-head WebGL motion NOT YET VERIFIED.",
+    "biggestRemainingGap": "Imported miniature-like character anatomy and bulky costumes, expressive full-body impact, varied designed scenes and game-level expedition footage still lack a verified breakthrough. Composite camera blocking alone is not an accepted transformation.",
+    "currentWork": "M1 multi-actor cross-cell combat blocking now coordinates camera-space protagonist/enemy separation with the actual shared weapon-contact stage. Code only; real new-head audiovisual gameplay, motion quality and blind A/B remain UNVERIFIED.",
     "candidateCommit": "016b84c5171dc3dcd779e9b4461ffcd4baa365ec",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
@@ -3531,6 +3531,23 @@
         "performance": "UNVERIFIED new-head desktop/mobile p95/p99, GPU and endurance",
         "biggestGap": "Authentic playable character animation and readable impact contact still do not approach external Diablo IV, No Rest for the Wicked or Path of Exile 2 gameplay.",
         "next": "Inspect new-head real browser skirmish and Warden clips at both viewports; fix any genuine overlap, detached gear or performance regression; continue original higher-detail full-body rig, enemy reactions and boss pacing, then capture organic audiovisual traversal→combat→boss→floor→defeat/restart versus immutable baseline and run masked 3-critic judgments."
+      },
+      {
+        "id": "M1-CAMERA-ENSEMBLE-20261103",
+        "date": "2026-11-03",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "b1857435d78054a9ffe462e538557f3c5120d6ee",
+        "objective": "One integrated party-vs-multiple-guards on-screen battle plane: camera-space collision relief and honest shared combat-contact origins, without gameplay-coordinate changes.",
+        "code": [
+          "public/ai-dungeon/combat-staging-plan.js",
+          "public/ai-dungeon/app.js",
+          "tests/foundation/dungeon-combat-staging.test.cjs"
+        ],
+        "priorEvidence": "Genuine 3D predecessor screenshot reviewed; exact candidate not yet captured or judged.",
+        "evidence": "No claim of new-head checks/experiential wins until GitHub workflows complete.",
+        "verdict": "IN_PROGRESS / NOT_TRANSFORMED",
+        "next": "Inspect latest genuine desktop/mobile melee and boss motion; address toy-scale original character rigs, obtain continuous audiovisual seed-matched expedition reel and >=3 independent blind critics."
       }
     ]
   }

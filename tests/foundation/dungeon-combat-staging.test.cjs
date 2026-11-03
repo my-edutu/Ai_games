@@ -210,3 +210,31 @@ test('a still-living but geographically distant Warden does not silence ordinary
  assert.deepEqual([staged.warden.dx,staged.warden.dz],[0,0],
   'the Warden retains its own exact authoritative location');
 });
+
+
+test('a complete cross-cell party battle reduces projected silhouette interference without moving any legal cell',async()=>{
+ const {planCombatStage,inspectBattlefieldCrowding,MAX_STAGE_OFFSET}=await mod();
+ const units=[u('h1','vanguard','party',3,3),u('h2','ranger','party',3,4),
+  u('h3','mystic','party',3,5),u('e1','revenant','enemy',4,3),
+  u('e2','cultist','enemy',4,4),u('e3','cultist','enemy',4,5)];
+ const state={tick:7,map:floor(),units},view={x:7,z:4},frozen=JSON.stringify(state);
+ const original=Object.fromEntries(units.map(a=>[a.id,{x:a.x,z:a.z,dx:0,dz:0,crowded:false}]));
+ const prior=inspectBattlefieldCrowding(state,original,view);
+ const afterStage=planCombatStage(state,view),after=inspectBattlefieldCrowding(state,afterStage,view);
+ assert.ok(prior.comparedPairs>=4);
+ assert.ok(after.summedDeficit<prior.summedDeficit,'camera-visible crowding has reduced');
+ assert.ok(Object.values(afterStage).every(p=>Math.hypot(p.dx,p.dz)<=MAX_STAGE_OFFSET+.0001));
+ assert.deepEqual(afterStage,planCombatStage({...state,units:units.toReversed()},view));
+ assert.equal(JSON.stringify(state),frozen,'AI, damage, positions and replay are never modified');
+});
+test('boss warnings and nearby Warden retain their authoritative visual choreography',async()=>{
+ const {planCombatStage,inspectBattlefieldCrowding}=await mod();
+ const units=[u('hero','vanguard','party',3,3),u('foe','cultist','enemy',4,3),u('warden','warden','enemy',5,3,200)];
+ const s={tick:7,map:floor(),units},view={x:7,z:3};
+ const warning={...s,bossWarning:{attackTick:8,cells:[{x:3,z:3}]}};
+ assert.deepEqual(inspectBattlefieldCrowding(warning,planCombatStage(warning,view),view),
+  {comparedPairs:0,overlaps:0,summedDeficit:0});
+ const stage=planCombatStage(s,view);
+ assert.deepEqual([stage.hero.dx,stage.hero.dz,stage.foe.dx,stage.foe.dz,stage.warden.dx,stage.warden.dz],
+  [0,0,0,0,0,0]);
+});

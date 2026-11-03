@@ -12,6 +12,73 @@ const MAX_ACTORS=18;
 const isGrid=n=>Number.isInteger(n)&&n>=0&&n<=63;
 const aliveInFrame=(u,s)=>u.hp>0||(u.hp===0&&u.action==='hurt'&&u.actionTick===s.tick);
 
+
+/**
+ * M1 battle blocking: read-only projected silhouettes in real cross-cell
+ * skirmishes. Previous true-contact pair staging does not resolve an entire
+ * party engaging multiple opponents in a tight corridor. All actors and
+ * forged impacts keep the same legal coordinates and shared stagePoint.
+ */
+const ENSEMBLE_LIMIT=.434;
+function ensemblePairs(s,positions,view){
+ if(s?.bossWarning||!Number.isFinite(view?.x)||!Number.isFinite(view?.z))return [];
+ const n=s.map?.length;if(!Number.isInteger(n)||n<3||n>64)return [];
+ const boss=s.units.find(u=>u?.kind==='warden'&&u.hp>0);
+ const us=s.units.filter(u=>u?.hp>0&&u.kind!=='warden'&&positions[u.id]&&
+  s.map[u.z]?.[u.x]==='.').sort((a,b)=>a.id.localeCompare(b.id,'en'));
+ const pairs=[],half=(n-1)/2;
+ for(let i=0;i<us.length;i++)for(let j=i+1;j<us.length;j++){
+  const a=us[i],b=us[j],distance=Math.abs(a.x-b.x)+Math.abs(a.z-b.z);
+  if(distance<1||distance>2||(a.faction!=='party'&&b.faction!=='party'))continue;
+  // Boss warnings and true close-range Warden choreography have precedence.
+  if(boss&&[a,b].some(u=>Math.abs(u.x-boss.x)+Math.abs(u.z-boss.z)<=5))continue;
+  const vx=view.x-((a.x+b.x)/2-half),vz=view.z-((a.z+b.z)/2-half);
+  const len=Math.hypot(vx,vz);if(len<.8)continue;
+  const depth=Math.abs((b.x-a.x)*vx/len+(b.z-a.z)*vz/len);
+  if(depth>1.18)continue;
+  pairs.push({a,b,rx:vz/len,rz:-vx/len,fx:vx/len,fz:vz/len,
+   target:a.faction===b.faction?.71:.85});
+ }
+ return pairs;
+}
+function silhouetteDeficit(positions,p){
+ const a=positions[p.a.id],b=positions[p.b.id];
+ const dx=b.x-a.x,dz=b.z-a.z;
+ const lateral=dx*p.rx+dz*p.rz,depth=Math.abs(dx*p.fx+dz*p.fz);
+ return {lateral,deficit:depth>=.94?0:
+  Math.max(0,p.target-Math.abs(lateral))*(1-Math.min(.45,depth*.35))};
+}
+function ensemblePoint(u,p,dx,dz){
+ const radius=Math.hypot(dx,dz),factor=radius>ENSEMBLE_LIMIT?ENSEMBLE_LIMIT/radius:1;
+ dx=Number((dx*factor).toFixed(4));dz=Number((dz*factor).toFixed(4));
+ return Object.freeze({x:u.x+dx,z:u.z+dz,dx,dz,crowded:true});
+}
+/** Rendering diagnostic; a geometric overlap estimate, NOT an art score. */
+export function inspectBattlefieldCrowding(s,positions,view){
+ const pairs=ensemblePairs(s,positions,view);let overlaps=0,deficit=0;
+ for(const pair of pairs){const v=silhouetteDeficit(positions,pair);
+  if(v.deficit>.08){overlaps++;deficit+=v.deficit;}}
+ return Object.freeze({comparedPairs:pairs.length,overlaps,
+  summedDeficit:Number(deficit.toFixed(3))});
+}
+function relieveBattlefieldCrowding(s,placed,view){
+ const pairs=ensemblePairs(s,placed,view);
+ // Three bounded camera-oriented settlement passes, no elapsed time or RNG.
+ for(let pass=0;pass<3;pass++)for(const pair of pairs){
+  const old=silhouetteDeficit(placed,pair);if(old.deficit<.065)continue;
+  const a=placed[pair.a.id],b=placed[pair.b.id];
+  const sign=Math.abs(old.lateral)>.001?Math.sign(old.lateral):1;
+  const motion=Math.min(.175,old.deficit*.51);
+  const pa=ensemblePoint(pair.a,a,a.dx-pair.rx*sign*motion,a.dz-pair.rz*sign*motion);
+  const pb=ensemblePoint(pair.b,b,b.dx+pair.rx*sign*motion,b.dz+pair.rz*sign*motion);
+  const trial={...placed,[pair.a.id]:pa,[pair.b.id]:pb};
+  if(silhouetteDeficit(trial,pair).deficit+.008<old.deficit){
+   placed[pair.a.id]=pa;placed[pair.b.id]=pb;
+  }
+ }
+ return placed;
+}
+
 export function planCombatStage(snapshot,viewPosition=null){
  const placed=Object.create(null);
  if(!Array.isArray(snapshot?.map)||!Array.isArray(snapshot?.units))return placed;
@@ -174,7 +241,7 @@ export function planCombatStage(snapshot,viewPosition=null){
    reposition(foe,sign,rx,rz,nudge);
   }
  }
- return placed;
+ return relieveBattlefieldCrowding(snapshot,placed,viewPosition);
 }
 export function stagePoint(positions,unit){
  if(!unit||!Number.isFinite(unit.x)||!Number.isFinite(unit.z))return null;
