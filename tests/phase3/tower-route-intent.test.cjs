@@ -247,3 +247,64 @@ test('a real earned air-recovery decision keeps its original 3D stones on the ac
     assert.equal(effect.diagnostics().markers, 0,'result phase cannot show an unearned future route');
   } finally { effect.dispose(); }
 });
+
+
+test('a critical-health autonomous retreat gets real level 3D guidance without inventing a jump', async () => {
+  const [THREE, { createTowerRouteIntent }] = await loaded;
+  const effect = createTowerRouteIntent(THREE);
+  const support = { id: 'f7:real-support', kind: 'solid',
+    x: 45000, y: 95000, width: 110000, height: 1000 };
+  const frame = snapshot({ tick: 251,
+    player: { x: 95000, y: 110000, health: 1, maxHealth: 5,
+      attacking: false, halfWidth: 9000, halfHeight: 14000 },
+    pickups: [{ id: 'f7:health', kind: 'health', x: 135000, y: 110000, value: 2 }],
+    intent: { mode: 'collecting-resource',
+      summary: 'Retreating along clear footing for an observed health pickup',
+      targetPlatformId: support.id }, hazards: [], enemies: [] });
+  const before=JSON.stringify(frame);
+  try {
+    effect.update(frame, support, { quality: 'low' });
+    const diag=effect.diagnostics();
+    assert.equal(diag.visible,true);
+    assert.equal(diag.sourceHealthPickupId,'f7:health');
+    assert.equal(diag.observedLandingX,135000);
+    assert.equal(diag.sourceClearLane,false);
+    assert.equal(diag.targetPlatformId,support.id);
+    assert.equal(diag.extraDraws,1,'health guidance reuses an existing bounded 3D draw');
+    const stones=effect.group.children[0];
+    assert.ok(stones.material.depthTest && !stones.material.depthWrite);
+    assert.equal(stones.material.color.getHex(),0xa7df9b);
+    assert.equal(JSON.stringify(frame),before,'source health and loot must never be mutated by UI');
+    effect.update({...frame,tick:252},support,{reducedMotion:true});
+    assert.equal(effect.diagnostics().sourceHealthPickupId,'f7:health');
+    effect.update({...frame,tick:253,pickups:[]},support);
+    assert.equal(effect.diagnostics().visible,false,'collected pickup immediately retires route');
+    effect.update(frame,support);
+    effect.update({...frame,tick:254,lifecycle:'result'},support);
+    assert.equal(effect.diagnostics().sourceHealthPickupId,null);
+  } finally {effect.dispose();}
+});
+
+test('health stones cannot guide through active spikes, living enemies or forged source intent', async () => {
+  const [THREE, { createTowerRouteIntent }] = await loaded;
+  const effect=createTowerRouteIntent(THREE);
+  const support={id:'f7:support',kind:'solid',x:45000,y:95000,width:110000,height:1000};
+  const base=snapshot({player:{x:95000,y:110000,health:1,maxHealth:5,
+    attacking:false,halfWidth:9000,halfHeight:14000},
+    pickups:[{id:'safe-item',kind:'health',x:135000,y:110000,value:2}],
+    hazards:[],enemies:[],intent:{mode:'collecting-resource',
+      summary:'Retreating along clear footing for an observed health pickup',
+      targetPlatformId:support.id}});
+  try {
+    effect.update({...base,hazards:[{x:111000,y:95000,width:15000,height:25000,active:true}]},support);
+    assert.equal(effect.group.visible,false);
+    effect.update({...base,enemies:[{x:117000,y:110000,halfWidth:8000,halfHeight:12000,active:true}]},support);
+    assert.equal(effect.group.visible,false);
+    effect.update({...base,intent:{...base.intent,summary:'A fabricated heal'}},support);
+    assert.equal(effect.group.visible,false);
+    effect.update({...base,player:{...base.player,health:5}},support);
+    assert.equal(effect.group.visible,false);
+    effect.update({...base,pickups:[]},support);
+    assert.equal(effect.group.visible,false);
+  } finally {effect.dispose();}
+});
