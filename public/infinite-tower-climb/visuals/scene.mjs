@@ -392,8 +392,11 @@ const seeded = value => { const n = Math.sin(value * 127.13 + 38.37) * 43758.545
 // A destination marking is a statement about the present route, not a guess.
 function intendedLanding(snapshot) {
   const player = snapshot.player, mode = snapshot.intent?.mode?.replace(/^oracle-/, '');
+  const witnessedRecovery = mode === 'recovering' &&
+    ['Recovering toward an observed ascent deck',
+      'Recovering into an observed clear landing lane'].includes(snapshot.intent?.summary);
   if ((snapshot.lifecycle && snapshot.lifecycle !== 'running') || player.health <= 0
-    || !['aligning', 'jumping', 'air-control', 'settling-landing'].includes(mode)) return null;
+    || (!['aligning', 'jumping', 'air-control', 'settling-landing'].includes(mode) && !witnessedRecovery)) return null;
   const target = snapshot.platforms.find(platform => platform.id === snapshot.intent.targetPlatformId);
   if (!target || target.width <= 0) return null;
   const feet = player.y - player.halfHeight;
@@ -696,7 +699,8 @@ function observedSourceLandingX(snapshot, deck) {
   const center = deck.x + deck.width * .5;
   const mode = snapshot?.intent?.mode?.replace(/^oracle-/, '');
   const summary = snapshot?.intent?.summary;
-  const declared = (mode === 'air-control' &&
+  const declared = (mode === 'recovering' && summary === 'Recovering into an observed clear landing lane') ||
+    (mode === 'air-control' &&
     (summary === 'Steering for a clear landing lane' ||
       summary === 'Boosting toward a distant safe landing' ||
       summary === 'Using earned air recovery to reach observed landing')) ||
