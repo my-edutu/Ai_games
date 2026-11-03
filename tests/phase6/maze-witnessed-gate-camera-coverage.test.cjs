@@ -32,7 +32,10 @@ test('actual Three camera projected gate, helmet and feet remain framed at 1280 
       focus:[-.384,1.12,0],gateway:[-1.2,3.4,0]}
   ]) {
     const eye={x:0,y:0,z:0,set(x,y,z){this.x=x;this.y=y;this.z=z;}};
-    assert.equal(stage(eye,edge,17,delta),true);
+    assert.equal(stage(eye,edge,17,delta,width/height),true);
+    assert.equal(eye.y,31,'real landscape lens, not a scaled 3D Pip sprite');
+    assert.ok(Math.max(Math.abs(eye.x),Math.abs(eye.z)) / Math.min(Math.abs(eye.x),Math.abs(eye.z)) >= 3.5,
+      'actual landscape lens sits across, not behind, a verified foreground gate post');
     const half=3.92,aspect=width/height;
     const cam=new THREE.OrthographicCamera(-half*aspect,half*aspect,half,-half,.1,180);
     const center=new THREE.Vector3(...focus);

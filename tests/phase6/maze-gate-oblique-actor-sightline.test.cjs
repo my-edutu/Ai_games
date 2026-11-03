@@ -81,3 +81,24 @@ test('three-quarter character and authentic gate still share one projected diora
       name+' must not be cropped by the authored stage');
   }
 });
+
+test('landscape-only witnessed 3D gate camera re-angles a real lens and preserves portrait',async()=>{
+  const {setPublicGateOpeningStageOffset:stage}=await import(pathToFileURL(production).href);
+  const c=camera();
+  assert.equal(stage(c,{a:77,b:94},17,{x:0,z:-1.2},1280/900),true);
+  assert.deepEqual(pose(c),[28,31,-8],
+    'landscape looks past the obstructing post at the physical same-run gate');
+  assert.ok(c.x/Math.abs(c.z)>=3.5,'post and hero must not retain the old aligned azimuth');
+  assert.equal(stage(c,{a:94,b:77},17,{x:0,z:1.2},844/390),true);
+  assert.deepEqual(pose(c),[28,31,8],'true opposite passage changes the camera side');
+  assert.equal(stage(c,{a:77,b:78},17,{x:-1.2,z:0},844/390),true);
+  assert.deepEqual(pose(c),[-8,31,28],'perpendicular gate keeps an equally tangential physical lens');
+  assert.equal(stage(c,{a:77,b:94},17,{x:0,z:-1.2},390/844),true);
+  assert.deepEqual(pose(c),[24,30,-11],'native 390 portrait framing remains unchanged');
+  assert.equal(stage(c,{a:77,b:94},17,{x:0,z:-1.2},320/740),true);
+  assert.deepEqual(pose(c),[24,30,-11],'native 320 portrait framing remains unchanged');
+  assert.equal(stage(c,{a:77,b:94},17,{x:0,z:-1.2},NaN),true);
+  assert.deepEqual(pose(c),[24,30,-11],'invalid viewport cannot trigger new optical staging');
+  assert.match(scene,/openingGateToHero,\s*width \/ Math\.max\(1, height\)/,
+    'actual source uses real browser aspect, never the maze grid aspect');
+});

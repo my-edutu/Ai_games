@@ -408,7 +408,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       z: (openingA.z + openingB.z) * .5 - pose.z,
     } : null;
     const openingStageView = !!openingGateBeat
-      && setPublicGateOpeningStageOffset(openingGateCameraOffset, openingGateBeat, s.width, openingGateToHero);
+      && setPublicGateOpeningStageOffset(openingGateCameraOffset, openingGateBeat, s.width, openingGateToHero,
+        width / Math.max(1, height));
     const gateHeading = openingA && openingB ? Math.atan2(
       (openingA.x + openingB.x) * .5 - pose.x,
       (openingA.z + openingB.z) * .5 - pose.z) : undefined;

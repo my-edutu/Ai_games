@@ -484,7 +484,7 @@ export function publicGateOpeningCameraCue(before, after) {
  * This is an alternate physical camera azimuth, NOT another objective or an
  * inferred corridor. No allocations in the render loop, no simulation access.
  */
-export function setPublicGateOpeningStageOffset(target, cue, width, publicGateToHero = null) {
+export function setPublicGateOpeningStageOffset(target, cue, width, publicGateToHero = null, viewportAspect = null) {
   if (!target || typeof target.set !== 'function'
     || !Number.isSafeInteger(width) || width < 2
     || !Number.isSafeInteger(cue?.a) || !Number.isSafeInteger(cue?.b)
@@ -520,8 +520,16 @@ export function setPublicGateOpeningStageOffset(target, cue, width, publicGateTo
     // side of Pip, opposite the screenshot's offending foreground parapet.
     const normal = along ? z : x;
     const gateSide = normal < -.05 ? -1 : normal > .05 ? 1 : -1;
-    if (along) target.set(24, 30, gateSide * 11);
-    else target.set(gateSide * 11, 30, 24);
+    // Pass115: SHA-verified native 1280 MID still places a solid gate post
+    // over Pip's lower arm/boot. On a genuinely witnessed LANDSCAPE opening,
+    // let the physical lens move more tangentially to the same real arch.
+    // Preserve portrait Follow camera and legacy three/four-argument callers.
+    const landscapeStage = Number.isFinite(viewportAspect) && viewportAspect >= 1.1;
+    const tangent = landscapeStage ? 28 : 24;
+    const normalOffset = landscapeStage ? 8 : 11;
+    const elevation = landscapeStage ? 31 : 30;
+    if (along) target.set(tangent, elevation, gateSide * normalOffset);
+    else target.set(gateSide * normalOffset, elevation, tangent);
     return true;
   }
   // Preserve the historical three-argument, source-safe crane contract for
