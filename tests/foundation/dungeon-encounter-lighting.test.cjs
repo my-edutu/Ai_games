@@ -48,6 +48,6 @@ test('running renderer reuses existing lights, true camera subjects, rendered-fr
  assert.match(app,/planEncounterLighting\(state,cinematicShot,/);
  assert.match(app,/encounterLighting\?\.mode==='duel'/);
  assert.match(app,/const lightStep=new THREE\.Vector3\(\)/);
- assert.match(app,/if\(lightInjury\)lightInjury\.age=advancePresentationActionAge/);
+ assert.match(app,/if\(lightInjury\)\{lightInjury\.age=advancePresentationActionAge/);
  assert.match(server,/\['\/dungeon\/encounter-lighting-plan\.js','encounter-lighting-plan\.js'\]/);
 });
