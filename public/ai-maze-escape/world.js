@@ -1200,8 +1200,15 @@ export function createMazeWorld(options = {}) {
       mesh(p, bevel, lightStone, sign * .91, 1.66, 0, .45, .15, .5);
       for (let j = 0; j < 3; j++) mesh(p, bevel, inlay, sign * .91, .45 + j * .4, -.19, .12, .16, .05);
     }
-    mesh(p, bevel, stone, 0, 1.83, 0, 2.24, .23, .47);
-    mesh(p, bevel, darkJade, 0, 1.68, 0, 1.5, .08, .35);
+    // The genuine 1280px opening frame shows this old heavy stone header
+    // eating Pip's silhouette from the three-quarter gate-side camera.
+    // Keep a physically joining, legible arch, but carve out a leaner lintel
+    // and return the near face behind the sculpted jamb caps. This is REAL
+    // shared Three geometry on the disclosed original gate, not camera
+    // cropping, invisible actor scaling, a UI mask or a gameplay change.
+    const tideLintel = mesh(p, bevel, stone, 0, 1.83, .055, 2.16, .16, .27);
+    tideLintel.name = 'Slim disclosed gate tide-lintel';
+    mesh(p, bevel, darkJade, 0, 1.76, .08, 1.5, .075, .20);
     const gate = new THREE.Group(); gate.name = 'Withdrawable gate bars'; p.add(gate);
     // The raised gate is withdrawn into the lintel, leaving a fully clear opening.
     const edgeId = doorEdgeId(door.a, door.b);
