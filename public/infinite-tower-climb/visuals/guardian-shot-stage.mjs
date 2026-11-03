@@ -63,7 +63,7 @@ export function observedGuardianShotCorridor(snapshot) {
 export function observedGuardianPulseFlight(snapshot) {
   const player = snapshot?.player;
   if (snapshot?.lifecycle !== 'running' || !player || player.health <= 0 ||
-    player.state !== 'standing' || !Number.isSafeInteger(snapshot.tick) ||
+    !['standing', 'airborne'].includes(player.state) || !Number.isSafeInteger(snapshot.tick) ||
     !Number.isSafeInteger(snapshot.floor) || !snapshot.runToken ||
     !Number.isFinite(snapshot.chunkBaseY) ||
     !Number.isFinite(snapshot.worldWidth) || snapshot.worldWidth <= 0 ||
@@ -89,6 +89,7 @@ export function observedGuardianPulseFlight(snapshot) {
       best = {
         runToken: snapshot.runToken, floor: snapshot.floor, tick: snapshot.tick,
         projectileId: shot.id, guardianId: guardian.id,
+        airborne: player.state === 'airborne',
         x: shot.x, y: shot.y, vx: shot.vx,
         worldWidth: snapshot.worldWidth, baseY: snapshot.chunkBaseY,
       };

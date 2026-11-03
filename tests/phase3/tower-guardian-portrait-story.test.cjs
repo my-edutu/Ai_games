@@ -152,3 +152,41 @@ test('unwounded real guardian is staged BEFORE the first blow only on its observ
   }
   assert.equal(JSON.stringify(frame), original, 'composition can never alter a source frame');
 });
+
+test('real airborne guardian pulse shares a physical lens with the committed landing', async () => {
+  const { pointFor, context } = await loaded;
+  const historical = observedHit();
+  const guardian = historical.enemies.find(enemy => enemy.kind === 'guardian' && enemy.active);
+  const cap = historical.platforms.find(platform => platform.id.endsWith(':cap'));
+  assert.ok(guardian && cap);
+  const frame = {
+    ...historical,
+    player: { ...historical.player, state: 'airborne', attacking: false,
+      x: guardian.x + 25000, y: guardian.y },
+    intent: { mode: 'air-control', targetPlatformId: cap.id },
+    enemies: historical.enemies.map(enemy => enemy.id === guardian.id
+      ? { ...enemy, health: 3, maxHealth: 8, active: true, telegraph: false } : enemy),
+  };
+  const original = JSON.stringify(frame);
+  const hero = pointFor(frame.player.x, frame.player.y - frame.player.halfHeight,
+    frame.chunkBaseY, frame.worldWidth);
+  const realFlight = pointFor(guardian.x + 10000, guardian.y,
+    frame.chunkBaseY, frame.worldWidth, 27.82);
+  for (const aspect of [390 / 844, 960 / 600]) {
+    const ordinary = context.composeFollowView(frame, hero, aspect);
+    assert.equal(ordinary.guardianStaged, false,
+      'an ordinary airborne route remains landing-led without a real shot');
+    const pose = context.composeFollowView(frame, hero, aspect, 0, 1,
+      null, null, null, guardian.id, realFlight);
+    assert.equal(pose.guardianStaged, true,
+      'only the currently observed flying projectile may stage the boss');
+    assert.equal(pose.targetId, cap.id,
+      'a source-owned guardian shot cannot replace the actual landing target');
+    assert.ok(pose.clear && pose.guardianFramed,
+      'live guardian collision silhouette must remain on a clear exterior shot');
+    assert.ok(pose.heroFraction >= .14,
+      'do not trade a legible airborne climber for a distant spectacle');
+  }
+  assert.equal(JSON.stringify(frame), original,
+    'source snapshot remains immutable; all changes are rendered presentation');
+});

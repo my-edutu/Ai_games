@@ -913,9 +913,12 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
       // second physical combat camera subject. Previously the 90k gate let
       // long-range source combat happen outside the portrait picture. Extend
       // only the safe GROUNDED shot lens; real airborne landings stay first.
-      const witnessedRangedDuel = player.state === 'standing' &&
-        enemy.id === rangedGuardianId && !!actualPulsePoint;
-      const activeContact = (player.state !== 'airborne' || witnessedAirShot) &&
+      const witnessedRangedDuel = enemy.id === rangedGuardianId && !!actualPulsePoint &&
+        (player.state === 'standing' ||
+          // A live mid-air shot deserves a physical two-body frame only when
+          // nearby. The real landing must remain the first aerial objective.
+          (player.state === 'airborne' && dx <= 90000));
+      const activeContact = (player.state !== 'airborne' || witnessedAirShot || witnessedRangedDuel) &&
         (approachingLockedGate || healthRatio < 1 || enemy.telegraph ||
         witnessedAirShot || witnessedRangedDuel || player.attacking ||
         ['engaging-enemy', 'bracing-telegraph', 'evading-telegraph'].includes(snapshot.intent?.mode));
@@ -940,7 +943,9 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
   // temporarily favors actual attackers and their observed telegraph.
   const encounter = !!contactGuardian || (!!threat && (threat.imminentWindup
     || ['engaging-enemy', 'bracing-telegraph', 'evading-telegraph', 'evading-projectile'].includes(snapshot.intent?.mode)));
-  const routeLanding = encounter ? null : landing;
+  // A source-observed mid-air duel may SHARE the camera with the guardian,
+  // but may never erase the already committed physical landing destination.
+  const routeLanding = encounter && player.state !== 'airborne' ? null : landing;
   // Stage the SAME actual exterior bronze cap lock that the renderer poses:
   // the older inner-cap focus at radius 21.8 could look centered yet hide the
   // visible HP-retracting teeth at radius 27.78, especially on a phone. The
@@ -2140,7 +2145,9 @@ export function createTowerScene(canvas, settings = {}) {
     // the follow camera. No independent animation target or speculative hit.
     const rangedDuelFocus = !!sourceGuardian &&
       guardianWarning.pulseGuardianId === sourceGuardian.id &&
-      p.state === 'standing' && !options.stale;
+      ((p.state === 'standing' && !options.stale) ||
+        (p.state === 'airborne' && !options.stale &&
+          Math.abs(sourceGuardian.x - p.x) <= 90000));
     const duelFocus = sourceGuardian &&
       [sourceGuardian.x, sourceGuardian.y, p.x, p.y].every(Number.isFinite) &&
       Math.abs(sourceGuardian.x - p.x) <= (rangedDuelFocus ? 135000 : 90000) &&

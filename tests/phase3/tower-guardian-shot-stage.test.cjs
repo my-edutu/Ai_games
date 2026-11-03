@@ -206,7 +206,11 @@ test('hero pulse staging refuses wrong owner, shot direction, height, dead boss 
   reject(s => { s.enemies[0].health = 0; });
   reject(s => { s.enemies[0].active = false; });
   reject(s => { s.enemies[0].kind = 'shooter'; });
-  reject(s => { s.player.state = 'airborne'; });
+  const airborne = structuredClone(input);
+  airborne.player.state = 'airborne';
+  assert.equal(observed(airborne)?.guardianId, 'f8:guardian',
+    'a real aerial player-owned projectile must stay on the 3D guardian stage');
+  reject(s => { s.player.state = 'dashing'; });
   reject(s => { s.player.health = 0; });
   reject(s => { s.lifecycle = 'result'; });
   reject(s => { s.runToken = ''; });
