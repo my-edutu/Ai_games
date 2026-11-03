@@ -27,8 +27,13 @@ test('real Chromium GLB ranger bow and mystic staff remain attached to animated 
  expect(d.authored3D.rigCranialActors).toBeGreaterThanOrEqual(5);
  expect(d.authored3D.rigCranialRatios).toHaveLength(d.authored3D.rigCranialActors);
  expect(d.authored3D.rigCranialRatios.every(item=>item.ratio>=.60&&item.ratio<=.67)).toBe(true);
- expect(d.authored3D.rigBoundAccessoryParts).toBeGreaterThanOrEqual(5);
- expect(d.authored3D.rigBoundAccessoryParts).toBeLessThanOrEqual(5);
+ // Genuine full-body replacements carry exactly one original native-hand
+ // weapon each; the previous upper cap of five counted only five floating
+ // sword/bow/staff accessories and is no longer a truthful drawing budget.
+ // Enforce the new stronger one-per-real-figure lower bound and cap legacy
+ // extras, instead of erasing the old test or letting duplicate weapons grow.
+ expect(d.authored3D.rigBoundAccessoryParts).toBeGreaterThanOrEqual(d.authored3D.cinematicFigures);
+ expect(d.authored3D.rigBoundAccessoryParts).toBeLessThanOrEqual(d.authored3D.cinematicFigures+5);
  // Genuine GLB skeletons must move the authored grip origins onto their hands.
  console.log('DUNGEON R28 actual GLB rig grip candidates:',JSON.stringify({names:d.authored3D.rigHandBoneNames,candidates:d.authored3D.rigGripCandidates}));
  await page.locator('.arena').evaluate(node=>node.classList.add('world-only-audit'));
