@@ -37,6 +37,7 @@ function syncControls() {
     }
     const active = control === 'reduced-motion' ? reducedMotion
       : control === 'muted' ? muted
+        : control === 'cinematic' ? cameraMode === 'cinematic'
         : control === 'camera' ? cameraMode !== 'overview' : cleanFeed;
     button.setAttribute('aria-pressed', String(active));
   }
@@ -54,6 +55,7 @@ for (const button of document.querySelectorAll('[data-control]')) {
       case 'reduced-motion': reducedMotion = !reducedMotion; break;
       case 'muted': muted = await audio.setMuted(!muted); break;
       case 'camera': cameraMode = cameraMode === 'overview' ? 'follow' : cameraMode === 'follow' ? 'detail' : 'overview'; break;
+      case 'cinematic': cameraMode = cameraMode === 'cinematic' ? 'overview' : 'cinematic'; break;
       case 'settings': broadcast.classList.toggle('show-controls'); break;
       case 'clean-feed':
         cleanFeed = !cleanFeed;

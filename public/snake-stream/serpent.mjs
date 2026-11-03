@@ -3,6 +3,34 @@
  * Presentation only. All meshes, textures, and buffers are owned by this factory.
  * There is no asset fetch, simulation mutation, or frame-time geometry creation.
  */
+/**
+ * T2 grounded serpent acting. These pure transforms use only public,
+ * contiguous presentation paths. They never inspect AI state or change ticks.
+ */
+export function signedPublicTurn(a,b,c) {
+  if(!a||!b||!c)return 0;
+  const ax=b.x-a.x,az=b.z-a.z,bx=c.x-b.x,bz=c.z-b.z;
+  const la=Math.hypot(ax,az),lb=Math.hypot(bx,bz);
+  if(la<.001||lb<.001||la>1.5||lb>1.5)return 0;
+  return Math.max(-1,Math.min(1,(ax*bz-az*bx)/(la*lb)));
+}
+/** Reuses four output slots: radius, lateral sway, lift, cross-section camber.
+ * No new per-ring allocations, GPU objects, shader programs or draw calls. */
+export function sampleSerpentActing(distance,localDistance,remaining,bend,time,neck,reduced,out) {
+  if(!out||out.length<4)throw new TypeError('Four reusable pose values required');
+  if(reduced){out[0]=1;out[1]=0;out[2]=0;out[3]=0;return out;}
+  const smooth=(a,b,n)=>{const t=Math.max(0,Math.min(1,(n-a)/(b-a)));return t*t*(3-2*t);};
+  const envelope=smooth(.55,1.55,localDistance)*smooth(0,2.3,remaining)
+    *(1-Math.max(0,Math.min(1,neck)));
+  const curve=Math.max(-1,Math.min(1,bend))*envelope;
+  const muscle=Math.sin(distance*1.65-time*2.8);
+  out[0]=1+.080*muscle*envelope+.070*Math.abs(curve);
+  out[1]=.067*muscle*envelope+.088*curve;
+  out[2]=(.011+.008*Math.sin(distance*2.1-time*3))*envelope;
+  out[3]=.155*curve;
+  return out;
+}
+
 export function createSerpent(THREE) {
   const group = new THREE.Group();
   group.name = 'Jade garden serpent';
@@ -445,6 +473,7 @@ export function createSerpent(THREE) {
   // END R39 FEEDING ANTICIPATION STATE
 
   const sample = { x: 0, z: 0, dx: 0, dz: 1 };
+  const acting = new Float32Array(4); // reusable, never per-ring allocated
   function evaluate(path, segment, t) {
     const p1 = path[segment], p2 = path[Math.min(segment + 1, path.length - 1)];
     const p0 = path[Math.max(0, segment - 1)], p3 = path[Math.min(segment + 2, path.length - 1)];
@@ -459,7 +488,7 @@ export function createSerpent(THREE) {
     sample.dx = da*p1.x + db*m1x + dc*p2.x + dd*m2x;
     sample.dz = da*p1.z + db*m1z + dc*p2.z + dd*m2z;
   }
-  function writeRing(x, z, dx, dz, radius, distance, y, connect, lateral = 0) {
+  function writeRing(x, z, dx, dz, radius, distance, y, connect, lateral = 0, camber = 0) {
     if (ringCount >= MAX_RINGS) { truncated = true; return false; }
     // BEGIN R36 CONTINUITY MARK
     if (!connect) currentBreaks.push(ringCount);
@@ -471,7 +500,7 @@ export function createSerpent(THREE) {
       const angle = j / activeRadial * Math.PI * 2;
       const cos = lowDetail ? Math.cos(angle) : radialCos[j], sin = lowDetail ? Math.sin(angle) : radialSin[j], v = base + j;
       positions[v * 3] = x + nx * (cos * radius + lateral);
-      positions[v * 3 + 1] = y + sin * radius * 0.88;
+      positions[v * 3 + 1] = y + sin * radius * 0.88 + cos * radius * camber;
       positions[v * 3 + 2] = z + nz * (cos * radius + lateral);
       const ny = sin / 0.88, norm = Math.hypot(cos, ny);
       normals[v * 3] = nx * cos / norm;
@@ -546,6 +575,9 @@ export function createSerpent(THREE) {
       // Each portal-separated fragment has its own anchored leading end.
       const pathStartDistance = distance;
       for (let s = 0; s < path.length - 1; s++) {
+        // Public turns only WITHIN the current contiguous portal fragment.
+        const turnIn = s > 0 ? signedPublicTurn(path[s-1],path[s],path[s+1]) : 0;
+        const turnOut = s+2 < path.length ? signedPublicTurn(path[s],path[s+1],path[s+2]) : 0;
         const segmentLength = Math.hypot(path[s + 1].x - path[s].x, path[s + 1].z - path[s].z);
         const subdivisions = clamp(Math.ceil(segmentLength * (lowDetail ? 3 : 7)), 2, 14);
         const end = s === path.length - 2 ? subdivisions : subdivisions - 1;
@@ -563,22 +595,18 @@ export function createSerpent(THREE) {
           radius *= 1-0.986*neckBlend;
           // A subtle swallow travels down the neck without altering its path.
           radius *= 1 + eaten * 0.13 * Math.exp(-Math.pow(distance - 0.68, 2) * 3);
-          // T2 muscle-cohesion candidate: one travelling wave carries both
-          // circumferential compression and the existing bounded side motion.
-          // The same phase drives both, so no new sinusoid/GPU buffer/draw is
-          // introduced. Anchor the first neck ring and every portal/tail end;
-          // reduced-motion requests the original absolutely still geometry.
-          const envelope = smooth(.55, 1.6, distance - pathStartDistance) * smooth(0, 2.3, tailRemaining);
-          const muscleWave = reduced ? 0 : Math.sin(distance * 1.65 - time * 2.8) * envelope * (1 - neckBlend);
-          radius *= 1 + 0.065 * muscleWave;
-          const lift = reduced ? 0 : Math.sin(distance * 2.1 - time * 3) * 0.007 * Math.min(1, tailRemaining);
-          // Recalculate floor contact from the real compressed local ring, not
-          // an old fixed radius: its underside remains on genuine stone.
-          const groundedHeight = radius * 0.88 + bellyClearance;
-          const neckHeight = fullBodyHeight + 0.02 + eaten * 0.08;
-          const centreHeight = groundedHeight + (neckHeight - groundedHeight) * neckBlend;
-          const lateral = .050 * muscleWave;
-          if (!writeRing(sample.x, sample.z, sample.dx, sample.dz, radius, distance, centreHeight + lift, connected, lateral)) break;
+          // T2 whole-body acting: curvature follows the actual public route,
+          // with muscle compression, anchored portal seams and grounded camber.
+          const bend=turnIn*(1-k/subdivisions)+turnOut*(k/subdivisions);
+          sampleSerpentActing(distance,distance-pathStartDistance,tailRemaining,
+            bend,time,neckBlend,reduced,acting);
+          radius*=acting[0];
+          // Raised by exact cross-section radius, never bury its underside.
+          const groundedHeight=radius*Math.hypot(.88,acting[3])+bellyClearance;
+          const neckHeight=fullBodyHeight+.02+eaten*.08;
+          const centreHeight=groundedHeight+(neckHeight-groundedHeight)*neckBlend;
+          if(!writeRing(sample.x,sample.z,sample.dx,sample.dz,radius,
+            distance,centreHeight+acting[2],connected,acting[1],acting[3]))break;
           connected = true;
         }
         if (truncated) break;
@@ -661,18 +689,18 @@ export function createSerpent(THREE) {
           / (forwardLength * incomingLength), -1, 1);
       }
     }
-    const targetLean = curvature * 0.085;
+    const targetLean = curvature * 0.145;
     curveLean = teleported || reduced ? (reduced ? 0 : targetLean)
       : curveLean + (targetLean - curveLean) * (1 - Math.exp(-dt * 10));
     previousHeadX = first.x; previousHeadZ = first.z;
     // Keep the rear skull aligned with the grounded neck. Compensate for the
     // chewing pitch so the low rear cheek cannot rotate through the stone.
-    head.position.set(first.x, fullBodyHeight + 0.065 + (reduced ? 0 : eaten * 0.065 + Math.sin(time * 3.1) * 0.009), first.z);
+    head.position.set(first.x, fullBodyHeight + 0.065 + (reduced ? 0 : eaten * 0.065 + Math.sin(time * 3.1) * 0.015), first.z);
     head.rotation.y = heading;
     headPose.rotation.x = reduced ? 0 : -eaten * 0.11 + dangerEase * 0.025;
-    headPose.rotation.z = reduced ? 0 : clamp(curveLean - angleDifference * 0.045, -0.105, 0.105);
+    headPose.rotation.z = reduced ? 0 : clamp(curveLean - angleDifference * 0.055, -0.185, 0.185);
     // A shallow four-degree chew keeps the rounded jaw supported at both corners.
-    jaw.rotation.x = reduced ? 0 : eaten * 0.07;
+    jaw.rotation.x = reduced ? 0 : eaten * 0.16;
     updateJawCorners(jaw.rotation.x);
     headPose.scale.set(1 + eaten * 0.035, 1 + eaten * 0.025, 1);
     // BEGIN R48 PUBLIC THREAT POSTURE
@@ -748,7 +776,7 @@ export function createSerpent(THREE) {
       : teleported || reduced ? feedingTarget
         : feedingAnticipation + (feedingTarget - feedingAnticipation) * (1 - Math.exp(-dt * 9));
     if (!reduced && feedingAnticipation > 0.001) {
-      jaw.rotation.x = Math.max(jaw.rotation.x, feedingAnticipation * 0.105);
+      jaw.rotation.x = Math.max(jaw.rotation.x, feedingAnticipation * 0.16);
       // This is the existing shared cheek bridge, not a detached fake lip.
       updateJawCorners(jaw.rotation.x);
     }
