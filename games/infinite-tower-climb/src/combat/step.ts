@@ -4,6 +4,20 @@ import{NamedRng}from'../../../../packages/seeded-rng/src/index';import type{Towe
 // pulse-spam stun-lock. All timestamps are authoritative, replayable integers.
 const GUARDIAN_COUNTER_STAGGER_TICKS=10;
 const GUARDIAN_COUNTER_RECOVERY_TICKS=18;
+// Live second-wind guardian defense follows *actual* successful HP loss.
+// Its armor is not extra HP: a grounded melee hit inside this recovery
+// interval meets the visibly raised shield. A genuine projectile or an
+// attack during windup still reaches the vulnerable core.
+const GUARDIAN_SECOND_WIND_GUARD_TICKS=22;
+function engageGuardianShield(state:TowerState,enemy:TowerEnemy){
+  if(state.config.guardianSecondWind===true&&enemy.kind==='guardian'&&
+     enemy.active&&enemy.health>0&&enemy.health*2<=enemy.maxHealth)
+    enemy.guardUntilTick=state.tick+GUARDIAN_SECOND_WIND_GUARD_TICKS;
+}
+function guardianShieldBlocksMelee(state:TowerState,enemy:TowerEnemy){
+  return state.config.guardianSecondWind===true&&enemy.kind==='guardian'&&
+    (enemy.guardUntilTick??0)>state.tick&&enemy.telegraphUntilTick<=state.tick;
+}
 // A real low-HP guardian earns faster pressure but a longer opening between
 // charges: six fixed ticks followed by 40 recovery, not eight then 28.
 // The live-host flag leaves historical seeds/config fingerprints untouched.
@@ -16,7 +30,17 @@ function damagePlayer(state:TowerState,amount:number,source:string,events:Omit<T
 function defeat(state:TowerState,enemy:TowerEnemy,events:Omit<TowerEvent,'seq'>[]){if(!enemy.active)return;enemy.active=false;state.stats.enemiesDefeated++;if(enemy.kind==='guardian')state.stats.guardiansDefeated++;const points=Math.floor((enemy.kind==='guardian'?100:20)*state.build.scoreMultiplierPermille/1000);state.player.score+=points;state.meaningfulEventTick=state.tick;events.push({tick:state.tick,type:'enemy-defeated',data:{id:enemy.id,kind:enemy.kind,points}})}
 function spawnProjectile(state:TowerState,owner:'player'|'enemy',sourceId:string,position:{x:number;y:number},facing:-1|1,damage:number,events:Omit<TowerEvent,'seq'>[]){if(state.projectiles.filter(p=>p.active).length>=state.config.maxProjectiles)return;const id=`${sourceId}:projectile:${state.tick}:${state.stats.projectilesFired}`;state.projectiles.push({id,owner,floor:state.floor,position:{...position},velocity:{x:facing*state.config.projectileSpeed,y:0},halfWidth:5000,halfHeight:3500,damage,ttl:80,active:true,hitIds:[]});state.stats.projectilesFired++;events.push({tick:state.tick,type:'projectile-fired',data:{id,owner,sourceId}})}
 export function stepTowerCombat(input:TowerState,action:TowerAction,rng:NamedRng){const state=structuredClone(input),events:Omit<TowerEvent,'seq'>[]=[];const p=state.player;if(p.attackCooldown>0)p.attackCooldown--;if(p.abilityCooldown>0)p.abilityCooldown--;
-  if(action.attack&&p.attackCooldown===0){p.attackCooldown=state.config.attackCooldownTicks;const reach=state.config.attackReach+state.build.attackReachBonus,candidates=state.enemies.filter(e=>e.active&&e.floor===state.floor&&Math.abs(e.position.y-p.position.y)<=p.halfHeight+e.halfHeight+10000&&((p.facing>0&&e.position.x>=p.position.x)||(p.facing<0&&e.position.x<=p.position.x))&&Math.abs(e.position.x-p.position.x)<=reach).sort((a,b)=>Math.abs(a.position.x-p.position.x)-Math.abs(b.position.x-p.position.x)||a.id.localeCompare(b.id));const enemy=candidates[0];if(enemy){const amount=Math.max(1,state.build.attackDamage);enemy.health-=amount;state.stats.damageDealt+=amount;events.push({tick:state.tick,type:'melee-hit',data:{id:enemy.id,amount,health:enemy.health}});if(enemy.health<=0)defeat(state,enemy,events)}else events.push({tick:state.tick,type:'melee-miss'})}
+  if(action.attack&&p.attackCooldown===0){p.attackCooldown=state.config.attackCooldownTicks;const reach=state.config.attackReach+state.build.attackReachBonus,candidates=state.enemies.filter(e=>e.active&&e.floor===state.floor&&Math.abs(e.position.y-p.position.y)<=p.halfHeight+e.halfHeight+10000&&((p.facing>0&&e.position.x>=p.position.x)||(p.facing<0&&e.position.x<=p.position.x))&&Math.abs(e.position.x-p.position.x)<=reach).sort((a,b)=>Math.abs(a.position.x-p.position.x)-Math.abs(b.position.x-p.position.x)||a.id.localeCompare(b.id));const enemy=candidates[0];if(enemy){const amount=Math.max(1,state.build.attackDamage);
+    if(guardianShieldBlocksMelee(state,enemy)){
+      // Real 20Hz blocked strike: spent melee cooldown, zero invented damage.
+      events.push({tick:state.tick,type:'guardian-shield-block',data:{
+        id:enemy.id,remainingTicks:enemy.guardUntilTick!-state.tick}});
+    }else{
+      enemy.health-=amount;state.stats.damageDealt+=amount;
+      events.push({tick:state.tick,type:'melee-hit',data:{id:enemy.id,amount,health:enemy.health}});
+      if(enemy.health<=0)defeat(state,enemy,events);
+      else engageGuardianShield(state,enemy);
+    }}else events.push({tick:state.tick,type:'melee-miss'})}
   if(action.ability&&p.abilityCooldown===0&&state.build.upgradeIds.includes('pulse-shot')){p.abilityCooldown=24;spawnProjectile(state,'player',p.id,p.position,p.facing,state.build.attackDamage,events)}
   for(const enemy of state.enemies.sort((a,b)=>a.id.localeCompare(b.id))){if(!enemy.active||enemy.floor!==state.floor)continue;if(enemy.cooldown>0)enemy.cooldown--;
     if(enemy.kind==='guardian'&&(enemy.staggerUntilTick??0)>state.tick){
@@ -32,6 +56,9 @@ export function stepTowerCombat(input:TowerState,action:TowerAction,rng:NamedRng
           enemy.telegraphDurationTicks=guardianWindupTicks(state,enemy);
         events.push({tick:state.tick,type:'enemy-telegraph',data:{id:enemy.id}})}else if(enemy.telegraphUntilTick>0&&state.tick>=enemy.telegraphUntilTick){spawnProjectile(state,'enemy',enemy.id,enemy.position,enemy.facing,enemy.damage,events);enemy.telegraphUntilTick=0;enemy.cooldown=enemy.kind==='guardian'?(state.config.guardianSecondWind===true&&enemy.telegraphDurationTicks===6?40:28):42+rng.nextInt(`tower:enemy:fire:${enemy.id}:${state.tick}`,12)}}if(overlap(p,enemy))damagePlayer(state,enemy.damage,enemy.id,events)}
   for(const projectile of state.projectiles.sort((a,b)=>a.id.localeCompare(b.id))){if(!projectile.active)continue;projectile.position.x+=projectile.velocity.x;projectile.position.y+=projectile.velocity.y;projectile.ttl--;if(projectile.ttl<=0||projectile.position.x<-20000||projectile.position.x>state.config.worldWidth+20000){projectile.active=false;continue}if(projectile.owner==='enemy'){if(!projectile.hitIds.includes(p.id)&&overlap(p,projectile)){projectile.hitIds.push(p.id);projectile.active=false;damagePlayer(state,projectile.damage,projectile.id,events)}}else{const enemy=state.enemies.filter(e=>e.active&&!projectile.hitIds.includes(e.id)&&e.floor===state.floor&&overlap(e,projectile)).sort((a,b)=>a.id.localeCompare(b.id))[0];if(enemy){projectile.hitIds.push(enemy.id);projectile.active=false;enemy.health-=projectile.damage;state.stats.damageDealt+=projectile.damage;events.push({tick:state.tick,type:'projectile-hit',data:{id:enemy.id,amount:projectile.damage}});
+      // A genuine ranged hit can puncture the current guard. Re-arming the
+      // next guarded interval is source-authentic, not immunity to projectiles.
+      if(enemy.health>0)engageGuardianShield(state,enemy);
       // An already fired projectile cannot be undone, and ordinary enemies
       // remain unchanged. Only a successful, still-live PLAYER projectile
       // impact against an in-progress guardian windup earns an interruption.

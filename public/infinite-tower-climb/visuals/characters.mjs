@@ -1069,6 +1069,8 @@ export function createEnemy(kind='sentinel') {
     const dead=state.health===0||state.state==='dead'||state.active===false;
     const telegraph=Boolean(state.telegraph)&&!dead;
     const secondWind=guardian&&state.telegraphTotalTicks===6&&!dead&&!stale;
+    const shieldRaised=guardian&&Number.isFinite(state.guardTicksRemaining)&&
+      state.guardTicksRemaining>0&&!telegraph&&!dead&&!stale;
     const firing=Boolean(state.firing)&&!dead;
     const health=Number(state.health),hurt=state.state==='hurt'&&!dead;
     // HP is an authoritative field from the immutable game snapshot. The
@@ -1156,6 +1158,22 @@ export function createEnemy(kind='sentinel') {
       rig.position.y-=.065;rig.rotation.x-=.055;head.rotation.x+=.085;
       arms[1].upper.rotation.x-=.18;
       for(const leg of legs){leg.upper.rotation.x-=.14;leg.lower.rotation.x+=.22;}
+    }
+    // Source-authoritative guarded recovery creates a real, readable duel
+    // interval rather than eight identical melee hits. The shield rotates into
+    // the incoming lane and the maul drops. Pure skeletal pose, zero new draw
+    // calls, no hitbox, cooldown or simulated outcome touched. Windup exposes
+    // the core again; reduced motion retains this meaningful static silhouette.
+    if(shieldRaised){
+      rig.position.y-=.09;
+      rig.rotation.x-=.07;
+      head.rotation.x+=.06;
+      arms[0].upper.rotation.x-=.48;
+      arms[0].upper.rotation.z-=.27;
+      arms[0].lower.rotation.x-=.42;
+      arms[1].upper.rotation.x+=.32;
+      arms[1].lower.rotation.x+=.18;
+      for(const leg of legs){leg.upper.rotation.x-=.14;leg.lower.rotation.x+=.24;}
     }
     if(guardian&&telegraph){
       const total=state.telegraphTotalTicks===6?6:8;

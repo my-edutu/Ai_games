@@ -234,9 +234,18 @@ export function createTowerAudio() {
         texture(840,.15,.065);
         tone(510,115,.23,'triangle',.072);
       }
+      // The physical shield locks only after a REAL source melee/projectile
+      // health change. Do not signal a first frame, held packet or restart.
+      if(snapshot.lifecycle==='running'&&sameFloor&&earlier?.active&&
+         (earlier.guard??0)===0&&Number.isFinite(enemy.guardTicksRemaining)&&
+         enemy.guardTicksRemaining>0&&Number.isSafeInteger(earlier.tick)&&
+         snapshot.tick>earlier.tick&&snapshot.tick-earlier.tick<=8){
+        texture(320,.12,.029);
+        tone(145,96,.17,'triangle',.032);
+      }
       if(snapshot.lifecycle==='running' && earlier?.active && !enemy.active)
         witnessedSameFloorDefeat = true;
-      observedGuardians.set(enemy.id,{active:!!enemy.active,health:enemy.health,maxHealth:enemy.maxHealth,telegraph:enemy.telegraph===true,stagger:Number.isFinite(enemy.staggerTicksRemaining)?enemy.staggerTicksRemaining:0,tick:snapshot.tick});
+      observedGuardians.set(enemy.id,{active:!!enemy.active,health:enemy.health,maxHealth:enemy.maxHealth,telegraph:enemy.telegraph===true,stagger:Number.isFinite(enemy.staggerTicksRemaining)?enemy.staggerTicksRemaining:0,guard:Number.isFinite(enemy.guardTicksRemaining)?enemy.guardTicksRemaining:0,tick:snapshot.tick});
     }
     if(witnessedGuardianPass){
       // The mechanical release is audible only for a genuine next-floor

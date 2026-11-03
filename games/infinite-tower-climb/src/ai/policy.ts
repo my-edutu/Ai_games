@@ -434,12 +434,14 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
       const move=tactical?guardedEvasion(state,observation,wanted):wanted;
       const strikeFacing=move===0?observation.player.facing:move;
       const facingGuardian=!tactical||strikeFacing===facing;
-      return{action:action(move,{attack:inReach&&observation.player.attackCooldown===0&&facingGuardian,
+      return{action:action(move,{attack:inReach&&observation.player.attackCooldown===0&&facingGuardian&&
+          !(tactical&&(guardian.guardTicksRemaining??0)>0&&guardian.telegraphUntilTick<=observation.tick),
         // A safe actual facing must survive the movement safety check before
         // spending the pulse cooldown. An inward edge correction cannot fire
         // backward at a guardian beyond the cap.
         ability:tactical&&facingGuardian&&pulseLane}),
-        intent:{mode:'engaging-enemy',summary:inReach?'Fighting the guardian at the gate':
+        intent:{mode:'engaging-enemy',summary:inReach&&tactical&&(guardian.guardTicksRemaining??0)>0&&guardian.telegraphUntilTick<=observation.tick?
+          'Holding for the guardian shield to open':inReach?'Fighting the guardian at the gate':
           tactical&&move!==wanted?'Holding safe footing during the guardian duel':'Closing on the guardian at the gate',
           confidence:.96,fallbackUsed:false}};
     }
@@ -457,7 +459,8 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
     const move=tactical?guardedEvasion(state,observation,wanted):wanted;
     const actualFacing=move===0?observation.player.facing:move;
     const safeStrike=!tactical||actualFacing===(enemy.position.x>=observation.player.position.x?1:-1);
-    return{action:action(move,{attack:observation.player.attackCooldown===0&&safeStrike,
+    return{action:action(move,{attack:observation.player.attackCooldown===0&&safeStrike&&
+        !(tactical&&(enemy.guardTicksRemaining??0)>0&&enemy.telegraphUntilTick<=observation.tick),
       ability:tactical&&safeStrike&&pulseReady(state,observation,enemy)}),
       intent:{mode:'engaging-enemy',summary:tactical&&move!==wanted?
         `Keeping safe footing against ${enemy.kind}`:`Engaging ${enemy.kind}`,
