@@ -21,7 +21,8 @@ function airborneDuel(){
   player.attackCooldown=0;player.abilityCooldown=0;
   state.enemies=[];state.projectiles=[];state.chunks[0].hazards=[];
   const withoutEnemy=chooseTowerAction(state,createTowerObservation(state));
-  assert.equal(withoutEnemy.intent.mode,'air-control');
+  assert.ok(['air-control','settling-landing'].includes(withoutEnemy.intent.mode),
+    'real flight may be advancing or physically counterbraking');
   assert.equal(withoutEnemy.action.dash,false);
   assert.equal(withoutEnemy.action.jump,false);
   const direction=withoutEnemy.action.move||1;
@@ -49,7 +50,8 @@ test('an observed close airborne opponent cannot steal landing steering; real me
   addObservedEnemy(state,'shooter',20000);
   const original=JSON.stringify(state);
   const result=chooseTowerAction(state,createTowerObservation(state));
-  assert.equal(result.intent.mode,'air-control');
+  assert.equal(result.intent.mode,route.intent.mode,
+    'combat may not steal even the authentic landing/settling animation mode');
   for(const key of ['move','jump','dash'])
     assert.equal(result.action[key],route.action[key],key+' remains owned by the source landing controller');
   assert.equal(result.action.attack,true,'only a genuinely reachable opponent can be struck');
@@ -67,7 +69,8 @@ test('airborne projectile attack can accompany a real landing decision without f
   const route=chooseTowerAction(state,createTowerObservation(state));
   addObservedEnemy(state,'shooter',95000);
   const result=chooseTowerAction(state,createTowerObservation(state));
-  assert.equal(result.intent.mode,'air-control');
+  assert.equal(result.intent.mode,route.intent.mode,
+    'combat may not steal even the authentic landing/settling animation mode');
   assert.equal(result.action.move,route.action.move);
   assert.equal(result.action.attack,false);
   assert.equal(result.action.ability,true);
