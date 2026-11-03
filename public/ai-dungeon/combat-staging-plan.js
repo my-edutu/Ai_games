@@ -136,8 +136,10 @@ export function planCombatStage(snapshot,viewPosition=null){
   const half=(snapshot.map.length-1)/2;
   const pairs=[];
   for(const hero of allies)for(const foe of foes){
-   const cells=Math.hypot(hero.x-foe.x,hero.z-foe.z);
-   if(cells<.9||cells>1.5)continue;
+   // The authority's ordinary melee lane is cardinal, never diagonal:
+   // nearby diagonal silhouettes are not fabricated weapon contact.
+   const cells=Math.abs(hero.x-foe.x)+Math.abs(hero.z-foe.z);
+   if(cells!==1)continue;
    // A living Warden takes precedence ONLY in its real local arena.
    // An unopened boss elsewhere on the floor must not suppress ordinary
    // corridor skirmishes, or this visual improvement would never activate.
