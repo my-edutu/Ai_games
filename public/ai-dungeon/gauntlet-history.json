@@ -2194,7 +2194,7 @@
         "playsMajority": false,
         "provenance": "No fresh independent critics available. Do not infer a blind preference from test results or real predecessor screenshots."
       },
-      "safetyChecks": "Local source checked out from exact 69e8 GitHub workspace artifact: npm run dungeon:test (including TypeScript build) PASS 256/256 before 08338 commit; separate original-GLB underbody plan tests PASS 3/3. New exact-head 08338 browser/visual/CI status QUEUED; replay/security/performance independent fresh check PENDING. Safety is not the visual acceptance gate.",
+      "safetyChecks": "Recent 08338 exact-head visuals/Dungeon workflows CANCELLED, catalogue CI FAILED; new candidate fca74 follow-up browser/visual/CI queued. Latest 276c code/test/metrics safety and real browser outputs UNVERIFIED. No invented green tests, no recent performance certification.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED: actual opt-in Warden scene MediaRecorder returned ZERO bytes desktop+mobile despite 24 live boss polls desktop and 59 live polls mobile; silent Playwright test-results videos only. Original audible soundtrack not captured.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2202,7 +2202,7 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Real-source b8be04f 1440x832 browser screenshot from 41672587065 and Warden boss desktop/mobile screenshot/video artifacts 41672587022 were INSPECTED: new 14 anatomical joint cylinders made elongated opaque spindly/squid-like limbs. Warden encounter head-on 1440x832 has 3 heroes overlapping enemy bodies in the 58% HP boss arena, warning Rift Cross visible but contact indistinguishable; mobile capture progressed into floor 2 but large stylized ballheads persist. This is a NEGATIVE experiential finding compared with da492455 and exact locked baseline; source visual redesign at 71da2ea to cap spans remains unverified. No masked A/B victory.",
-      "latestCandidateWorkflow": "Candidate source 08338db (2026-11-03) visual review https://github.com/my-edutu/Ai_games/actions/runs/41685593726, AI Dungeon dedicated https://github.com/my-edutu/Ai_games/actions/runs/41685593708, catalogue CI https://github.com/my-edutu/Ai_games/actions/runs/41685593589 were QUEUED at authoring; results not claimed.",
+      "latestCandidateWorkflow": "276c856 source candidate must be verified at exact SHA after ledger. Previous fca74 (soon superseded) Dungeon 41689548287, visual 41689548444, catalogue CI 41689548239 were queued, no result claimed.",
       "currentPredecessorWebgl": {
         "sourceHead": "69e8f1fc338d4bf385577d64d1655d9a507b79dd",
         "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41681708361/artifacts/13254845756",
@@ -2218,7 +2218,7 @@
         "motion": "Browser test-results WebM present (silent); no controlled original audio/movie clip across journey",
         "verdict": "NOT_TRANSFORMED_SOURCE_PROBLEM"
       },
-      "newCandidateSceneReview": "New corrected code 71da2ea no desktop/mobile visuals yet. Critical predecessor real browser snapshot from b8be04f: long native-bone bridge poles and unreadable overlapping figures. Clip recording in true 4sec seeded Warden Court did NOT record: both video outputs 0 bytes. Do not claim original sound or motion recorded. New source artifacts pending.",
+      "newCandidateSceneReview": "Candidate M1-CHARACTER-IDENTITY-20261103: original bone-attached class gear and license-bearing underbody have no inspected real 3D screens yet. Last inspected predecessor 69e8 shows disconnected dark anatomy and busy walls; Warden audio recorder zero bytes. Do not score AFTER.",
       "characterDrawBudget": "Genuine b8be04f Warden Court desktop WebGL drawCalls 625, triangles 132658; mobile screenshot drawCalls 668, triangles 143516; game viewed through software Chromium, no real device GPU p95 or stable fps. Real world-only figure 9 with 172 prior meshes; after 14-bridge variant visually regressed. Corrective 71da2ea uses same number of instanced draws but hides too-long segments, performance at exact corrected head not yet measured.",
       "externalReferenceAudit": "Nonblind operator qualitative look at publicly available Diablo IV dungeon art and official gameplay world descriptions (https://diablo4.blizzard.com/en-gb/vessel-of-hatred), No Rest for the Wicked official world/Crucible updates (https://norestforthewicked.com/news/the-wicked-inside-showcase), Path of Exile 2 official class/combat/boss information (https://pathofexile2.com/). Readability, deep material variation, bespoke environments, heavy readable contact and challenge pacing remain far ahead of current proven Dungeon footage. Direct synchronized matched gameplay comparison NOT RUN; proprietary assets never copied.",
       "realBrowserFrameDeliveryPredecessor": "Actual d9e1c Chromium software WebGL shard 2 artifact 13238978845, artifacts/dungeon-raf-interval-evidence.json: foreground RAF intervals 15 samples, p50 733.3ms, p95 and worst 4549.9ms; other raster evidence sampled 8 frames, directRenderMs 3.9ms at 273136 pixels and downshift 2. Foreground RAF observations cannot establish standalone GPU render time or phone fps. Known scheduling / software runner risk, latest candidate performance UNVERIFIED.",
@@ -2297,9 +2297,9 @@
       "nativeContinuityCandidate": "Source commit 08338db is an unverified new 3D underlay candidate, not a demonstrated repair. Real after comparison/critics have not happened. Monitor additional native underbody draw calls and 3D anatomy material intersections."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Real pre-change Chromium 69e8 world-only frame proves detached gloves/globular heads and cluttered partitions; new underlying skinned mesh + material integration has no exact AFTER screenshot yet and may increase draw cost. Coherent full audible game progression and blind paired LOOKS/FEELS/PLAYS majority are absent. Strongest reference gap remains adult-scale connected movement/contact, hierarchy and distinctive boss encounter.",
-    "currentWork": "Integrated M1 body-geometry remediation at commit 08338db97a276cefbfe6a4cc13df7c0ed20a4c51: unlike preceding hollow native-bone ornaments, all six original CC0 characters now keep authentic weighted torso/arms/legs under hand-authored armature and cloth; duplicated helmets, capes, original props remain concealed. Corrected 70% unlit metal surfaces to a plausible diffuse response. Exact running new-head quality and sound remain UNVERIFIED.",
-    "candidateCommit": "08338db97a276cefbfe6a4cc13df7c0ed20a4c51",
+    "biggestRemainingGap": "Real predecessor WebGL showed miniature black-headed, separated-body actors swallowed by masonry. Current original bone-mounted equipment/textured body candidate has NO verified moving desktop/mobile AFTER footage; arms/face may still clip, plus actual Warden contact and full audible autonomous 5-stage narrative have no matched baseline or blind critic majority.",
+    "currentWork": "M1 remains open: 6 distinct physically bone-mounted role identities, 13 original large class assets, native textured GLB torso/4 limbs, tightened sculpted cranium/helmet, full original skeletal motion retained. Candidate source 276c856; gameplay authority/combat/persistence unchanged. Actual looks/feels/plays UNVERIFIED.",
+    "candidateCommit": "276c856539ccdd323820e9d61d0235cca7569ae2",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -4008,6 +4008,38 @@
         "feels": "UNVERIFIED",
         "plays": "UNVERIFIED",
         "next": "Inspect exact-head new true desktop/mobile game screenshots and motion, verify at least 5 native source underbody meshes per visible figure and coherent arm/torso seams, no z-fighting and acceptable render budget. Correct remaining cutaway/foreground clutter and boss action contact in the same playable scene. Capture full continuous autonomous traversal/combat/Warden/floor/restart with original synthesized audio and matched immutable baseline, seek three fresh blind independent LOOKS/FEELS/PLAYS verdicts."
+      },
+      {
+        "id": "M1-CHARACTER-IDENTITY-20261103",
+        "date": "2026-11-03",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "02c615aba09ef8c9bdf5365e201ea1c6835304ab",
+        "codeCommit": "1fdd2217f0f708c672ed6f9625ba79d40faca4c4",
+        "sourceVerifiedAt": "276c856539ccdd323820e9d61d0235cca7569ae2",
+        "objective": "Address the largest observed experiential problem: dark, disconnected, anonymous miniature-looking combatants in authentic desktop/mobile WebGL footage. Make all six licensed animated protagonists/opponents materially and physically distinguishable at game-camera scale while retaining native weighted anatomy and truthful combat.",
+        "integrated": "One original sculpted and bone-mounted class silhouette per role: Vanguard shield and sigil, Ranger rear quiver/fletching, Mystic face circlet/mantle, Revenant paired animated thorns, Cultist animated ritual stoles, Warden boss shield and two oath banners. 13 new role-identity attachments across six kinds, all use original locally constructed geometry and actual CC0 GLB skeletal joints. Adult figure helmets/face/visor proportionally narrowed. Native continuously skinned torso/arms/legs retain their licensed texture-bearing, already-cloned PBR materials instead of flat dark overwritten suit. Real rig animations, right-hand weapon, boss pacing and all combat authority unaffected. Browser instrumentation records identity geometry on actual live actors.",
+        "changes": [
+          "public/ai-dungeon/cinematic-figure.js",
+          "public/ai-dungeon/model-assets.js",
+          "tests/foundation/dungeon-native-anatomy.test.cjs",
+          "tests/foundation/dungeon-m1-role-identity.test.cjs",
+          "tests/browser/dungeon-cinematic-figure.spec.cjs"
+        ],
+        "commits": [
+          "1fdd2217f0f708c672ed6f9625ba79d40faca4c4",
+          "f6ef861cdc4d7c1fe4dcf4283d36442b9ac6adc6",
+          "fca74c73b3ae75c6baef4389ae7fc2fdb9d6efcb",
+          "5affc8f4399e427f78afb67a22887c98ee9f1b9c",
+          "900f775da6404c86b03aaffc64478e861126c819",
+          "276c856539ccdd323820e9d61d0235cca7569ae2"
+        ],
+        "priorHonestBrowser": "69e8f1f https://github.com/my-edutu/Ai_games/actions/runs/41681708361/artifacts/13254845756: dark globular heads, detached glove-like forearms; crowded wall partitions. Boss artifact https://github.com/my-edutu/Ai_games/actions/runs/41672587022/artifacts/13250093060 confirms overlapping Warden confrontation and zero-byte original audio capture.",
+        "currentRealGameEvidence": "UNVERIFIED: latest 276c source not yet rendered/inspected in genuine browser; cannot infer visual quality from modeled equipment or contract tests.",
+        "safetyChecks": "Code and focused browser contracts committed; NO local/CI/real-browser run verified for latest 276c source. Previous 08338 workflows were cancelled (Dungeon+visual), catalogue CI failed; new candidate workflows pending. More draw calls per actor and potential geometry/clipping are not yet measured.",
+        "blockers": "Fresh coding worker/subagent tunnel reported disconnected; independent critics unavailable. Authentic before/after mobile/desktop stills, live full sequence audiovisual clips, original recorded sound, real GPU p95, independent 3-critic LOOKS/FEELS/PLAYS blind votes and full CI are outstanding.",
+        "verdict": "IN_PROGRESS / NOT_TRANSFORMED",
+        "next": "Inspect exact-head real browser desktop/mobile figure+Warden images and motion. Reject/clamp any new shield, quiver, banners or skin-armor overlap, black faces and camera occlusion; measure draw calls/frame delivery. Then record genuine continuous traversal/combat/boss/floor/defeat/restart with audio and matched locked baseline and seek 3 blind critics. Never merge."
       }
     ]
   }
