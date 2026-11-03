@@ -620,7 +620,21 @@ async function marketCircuitMotion(browser,html,snapshot){
    started.position[1]-initial.position[1])<.8,
    'G156 pedestrian route jumped instead of walking');
   const wallStart=Date.now();
-  await page.waitForTimeout(started.tour.active?18000:2800);
+  // G158: an uncut SwiftShader video must follow the ACTUAL pedestrian
+  // until the real route succeeds or truthfully fails. Fixed 18-second
+  // clips cut off genuine longer market walks at 2–4 software FPS.
+  // Keep a strict 52-second wall-clock capture cap; no teleport or sim skip.
+  const routeBudget=Math.min(52000,Math.max(18000,
+   Math.ceil((started.tour.remaining||0)*2100)));
+  try{
+   await page.waitForFunction(()=>{
+    const t=window.__tinyKingdom.getMarketTourAudit();
+    return t.completed||!t.active;
+   },null,{timeout:routeBudget,polling:600});
+  }catch(error){
+   // Preserve the continuous video and record the incomplete journey;
+   // the unchanged end assertion below must then fail honestly.
+  }
   const end=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
    return {tour:g.getMarketTourAudit(),market:g.getMarketVisitAudit(),
