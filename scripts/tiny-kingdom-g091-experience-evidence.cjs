@@ -26,7 +26,7 @@ const gpuArgs=['--enable-webgl','--use-gl=angle','--use-angle=swiftshader',
  '--enable-precise-memory-info'];
 
 const evidence={
- version:'g149-matched-dawn-day-night-physical-market-life-v1',
+ version:'g150-candidate-walkable-market-and-matched-g088-v1',
  baselineSha:BASE,candidateSha:null,baselineBlob:null,candidateBlob:null,
  renderer:'UNVERIFIED',status:'INCOMPLETE',workdayTicks:null,
  camera:{wide,labor,grown,marketView},viewport,
@@ -105,6 +105,36 @@ async function advanceTicks(page,total){
    for(let k=0;k<n;k++)g.step(1/30);
   },Math.min(chunk,total-i));
  }
+}
+// G150: candidate-only physical marketplace screenshot (not a matched G088 feature).
+async function physicalMarketVisitShot(page,file){
+ const start=await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()));
+ const witness=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;g.setHudMode('full');
+  return {visit:g.visitMarket(),street:g.getStreetWalkState()};
+ });
+ assert(witness.visit.active&&witness.visit.safe&&witness.street.active,
+  file+' could not enter a real safe market viewpoint');
+ assert(witness.visit.stallDistance<10,file+' camera too distant from the stall');
+ await page.waitForTimeout(1100);
+ const after=await page.evaluate(()=>{
+  const g=window.__tinyKingdom,gl=document.querySelector('#world').getContext('webgl');
+  return {snapshot:JSON.stringify(g.exportSnapshot()),visit:g.getMarketVisitAudit(),
+   status:document.getElementById('street-walk-status').textContent,
+   overflow:document.documentElement.scrollWidth>innerWidth,
+   glError:gl?.getError()??-1};
+ });
+ assert.equal(after.snapshot,start,file+' spectator changed authority');
+ assert.equal(after.glError,0,file+' has GL errors');
+ assert(!after.overflow,file+' horizontal overflow');
+ assert(after.visit.active&&after.visit.safe,file+' market viewpoint not walkable');
+ assert(after.status.toLowerCase().includes('market'),file+' status missing');
+ await page.screenshot({path:path.join(DIR,file),timeout:90000});
+ await page.evaluate(()=>window.__tinyKingdom.setStreetWalk(false));
+ return {realWorld:true,matchedPair:false,viewerHeight:witness.street.height,
+  stall:witness.visit.stall,stallDistance:witness.visit.stallDistance,
+  authenticMarket:witness.visit.market,status:after.status,
+  authoritativeUnchanged:true,image:file.split('/').pop()};
 }
 async function stage(label,html,browser,matchedTicks){
  mkdir(label);
@@ -248,6 +278,10 @@ async function stage(label,html,browser,matchedTicks){
   if(label==='candidate')
    assert(result.marketDaytime?.openFraction>.99,'G149 real midday market shutters did not open');
   await page.evaluate(()=>window.__tinyKingdom.setHudMode('full'));
+  if(label==='candidate')result.g150DayMarketVisit=
+   await physicalMarketVisitShot(page,label+'/g150-day120-market-visitor-daytime.png');
+  const day120Snapshot=label==='candidate'?
+   await page.evaluate(()=>window.__tinyKingdom.exportSnapshot()):null;
   await page.setViewportSize({width:390,height:844});
   await page.waitForTimeout(1000);
   result.mobile=await cameraAndScreenshot(page,grown,label+'/day120-mobile.png',false);
@@ -360,8 +394,11 @@ async function stage(label,html,browser,matchedTicks){
    const g=window.__tinyKingdom;
    return typeof g.getMarketOperatingAudit==='function'?g.getMarketOperatingAudit():null;
   });
-  if(label==='candidate')
+  if(label==='candidate'){
    assert(result.marketNightAudit?.openFraction<.01,'G149 genuine nighttime shops stayed physically open');
+   result.g150NightMarketVisit=
+    await physicalMarketVisitShot(page,label+'/g150-day120-market-visitor-night-mobile.png');
+  }
   result.night=await cameraAndScreenshot(page,grown,label+'/day120-night-mobile.png',false);
   result.nightSociety=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
@@ -398,7 +435,7 @@ async function stage(label,html,browser,matchedTicks){
   }
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);
   assert.equal(overflow,false,label+' 390px horizontal document overflow');
-  return {result,ticks,homecomingSnapshot};
+  return {result,ticks,homecomingSnapshot,day120Snapshot};
  }finally{
   await context.close();
  }
@@ -475,6 +512,57 @@ async function motion(browser,html,snapshot,label,live=false,camera=labor,delive
 // 23:00 state. The user clicks Homecoming and manually orbits the actual
 // resident. No camera authority, simulation pause, actor spawn or tick jump
 // occurs during the footage; the 04:00 still supplies completed house proof.
+// G150: true uncut on-foot market visit at Day 120. No scripted citizens.
+async function marketVisitMotion(browser,html,snapshot,label){
+ const {context,page,contextInfo}=await openScene(browser,html,label,true,true);
+ const video=page.video();
+ try{
+  await page.evaluate(state=>{
+   const g=window.__tinyKingdom;
+   g.restoreSnapshot(state);g.setCommandView('world');
+  },snapshot);
+  await page.locator('#market-visit').click();
+  const start=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   return {view:g.getMarketVisitAudit(),clock:g.getDailyRhythmAudit(),
+    authority:g.exportSnapshot(),frames:g.renderQuality().framesDrawn};
+  });
+  assert(start.view.active&&start.view.safe,'No safe real market visit');
+  const wallStart=Date.now();
+  await page.waitForTimeout(2000);
+  await page.keyboard.down('ArrowLeft');
+  await page.waitForTimeout(900);
+  await page.keyboard.up('ArrowLeft');
+  await page.keyboard.down('w');
+  await page.waitForTimeout(1800);
+  await page.keyboard.up('w');
+  await page.waitForTimeout(2100);
+  const end=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   return {view:g.getMarketVisitAudit(),street:g.getStreetWalkState(),
+    authority:g.exportSnapshot(),frames:g.renderQuality().framesDrawn,
+    mobileWidth:document.documentElement.scrollWidth,
+    glError:document.querySelector('#world').getContext('webgl')?.getError()??-1};
+  });
+  assert.equal(end.glError,0,'G150 real market GL error');
+  assert(end.mobileWidth<=390,'G150 horizontal overflow');
+  assert(end.authority.payload.state.t>start.authority.payload.state.t,
+   'G150 recording failed to advance the real world');
+  const seconds=(Date.now()-wallStart)/1000;
+  return {renderer:contextInfo.quality.renderer,seconds,
+   observedSoftwareFps:(end.frames-start.frames)/seconds,
+   initialChecksum:start.authority.checksum,finalChecksum:end.authority.checksum,
+   openAtStart:start.view.market.openFraction,openAtEnd:end.view.market.openFraction,
+   firstVisitedStall:start.view.stall,firstDistance:start.view.stallDistance,
+   endStreet:end.street,observedMarket:end.view.market,
+   mobileWidth:end.mobileWidth,videoFile:label+'.webm',matchedPair:false,
+   realAutonomousClock:true,unedited:true,actualKeyboardInput:true,
+   physicalGPUFps:false,blindPreferenceVerdict:'NOT PROVEN'};
+ }finally{
+  await context.close();
+  fs.renameSync(await video.path(),path.join(DIR,label+'.webm'));
+ }
+}
 async function homecomingMotion(browser,html,snapshot){
  const label='candidate-homecoming-mobile';
  const {context,page,contextInfo}=await openScene(browser,html,label,true,true);
@@ -668,6 +756,10 @@ async function streetMotion(browser,html,snapshot){
     'candidate-market-night',false,marketView);
    evidence.videos.baselineNightMarket=await motion(browser,baseline,b.homecomingSnapshot,
     'baseline-market-night',false,marketView);
+   evidence.videos.g150Day120MarketVisitor=await marketVisitMotion(browser,candidate,
+    c.day120Snapshot,'candidate-market-visit-day120-mobile');
+   evidence.videos.g150NightMarketVisitor=await marketVisitMotion(browser,candidate,
+    c.homecomingSnapshot,'candidate-market-visit-night-mobile');
   // Real, continuous gameplay from a reproducible physical delivery state,
   // without faking agents, fast-forwarding within footage, or matching an
   // unavailable G088 delivery mechanic.
