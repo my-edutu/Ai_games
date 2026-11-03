@@ -6402,6 +6402,7 @@ function planMarketVisit(preferredTrade=null){
   if(!streetSafe(...pos)){stats.unsafe++;continue;}
   const eye=[pos[0],terrain(...pos)+STREET_EYE,pos[1]];
   for(const stall of MARKET_STALLS){
+   if(preferredTrade&&stall.trade!==preferredTrade)continue;
    const door=[stall.x,terrain(stall.x,stall.z)+1.3,stall.z+stall.face*.96];
    const dx=door[0]-pos[0],dz=door[2]-pos[1];
    const distance=Math.hypot(dx,dz);
@@ -6522,7 +6523,7 @@ function nextMarketStall(){
  for(let offset=1;offset<MARKET_STALLS.length;offset++){
   const trade=MARKET_STALLS[(current+offset)%MARKET_STALLS.length].trade;
   const plan=planMarketVisit(trade);
-  if(!plan)continue;
+  if(!plan||plan.stall.trade!==trade||plan.stall.trade===active)continue;
   const path=streetMarketRoute(streetPosition,plan.position);
   if(!path||!path.length)continue;
   marketTour={path,index:0,plan};
