@@ -85,7 +85,7 @@ export function planGroundedAnimation(kind,action,travelMeters,frameSeconds,
  const swing=Math.sin(2*Math.PI*footPhase),plant=1-Math.cos(4*Math.PI*footPhase);
  const bodyLift=moving?-.012*profile.bob*weight*plant:0;
  const bodyPitch=moving?clamp(speed*.014*profile.lean,0,.061):0;
- const bodyRoll=moving?.022*profile.bob*weight*swing:0;
+ const bodyRoll=moving ? .022*profile.bob*weight*swing : 0;
  return Object.freeze({clipAction,clipSpeed,footPhase,bodyLift,bodyPitch,bodyRoll,
   weight,moving,speed});
 }

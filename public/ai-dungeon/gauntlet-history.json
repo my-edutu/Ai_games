@@ -2193,7 +2193,7 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "No exact-head 4da3308 full CI, replay, real Chromium, frame-time or accessibility results yet. Previously reported source 241/241 tests and 24x900 replay apply only to earlier commits; not transferable to this code candidate.",
+      "safetyChecks": "Predecessor head 4d5107c: Chromium dungeon shard 2 failed 1/26 test: live seeded crypt opponent-fill intensity observed 1.75 vs max 1.3 (Actions 41625652639, job 125882208590). Other Chromium shards, authority/headless and independent visual workflow succeeded. Candidate 27329c4 now lowered intended opponent fill; new exact-head foundation, browser, shared CI and replay results pending (runs 41633171282, 41633171451, 41633171294). Not an accepted safety gate.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2201,14 +2201,14 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Predecessor 4cc8abd actual 1440x832 and 390x844 browser frames show companions cropped/packed against an overly dense foreground. No scientifically matched AFTER observation yet.",
-      "latestCandidateWorkflow": "Exact-head code SHA 4da33087bf2877d4831757803bab4d9af335ef38: GitHub Actions CI/browser/performance pending; connected coding workspace tunnel unavailable for live Chromium capture.",
+      "latestCandidateWorkflow": "New code candidate 27329c494c53566efb06b640f4b3b48bed0064d8. GitHub Actions run 41633171282 foundation, 41633171294 visual review, 41633171451 integrated CI started but were incomplete at this update.",
       "currentPredecessorWebgl": "https://github.com/my-edutu/Ai_games/actions/runs/41582184616/artifacts/13207290223",
-      "newCandidateSceneReview": "UNVERIFIED for 4da3308. Pure planner ran 4 independent local Node checks before commit; five in-repo foundation contract tests added but exact-head tests have NOT been executed by the connected workspace. No claimed visual quality win."
+      "newCandidateSceneReview": "UNVERIFIED: real candidate desktop/mobile motion/audio, relevant Warden traversal through restart and three fresh-context blind preference critics not inspected. Previous authentic Chromium 4d5107c run 41625652619 succeeded; cannot substitute predecessor images for candidate."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Real imported characters still look miniature/stylized and combat weight lacks convincing adult anatomy and organic audio-motion framing in crowded stonework. Genuine latest-head desktop/mobile reels and blind LOOKS/FEELS/PLAYS verdicts remain missing; no full audiovisual expedition acceptance.",
-    "currentWork": "M1, same unfinished playable-slice milestone: commit 4da3308 integrates real actor-and-camera-driven opposing 3D key/fill portrait lighting, genuine Warden warning lighting and true HP-loss lighting beats using the THREE existing lights (no extra shadow maps/passes). This is a code candidate only; not an accepted experience change.",
-    "candidateCommit": "4da33087bf2877d4831757803bab4d9af335ef38",
+    "biggestRemainingGap": "Actual imported humanoids remain stylized miniatures; dense original Gothic masonry and crowded fight contact undermine silhouette credibility. Need original substantially higher-quality proportioned characters, coordinated whole-body animation and full real audiovisual boss-expedition capture. Fresh candidate looks/feels/plays, mobile and blind judges UNVERIFIED.",
+    "currentWork": "M1 IN PROGRESS, NOT TRANSFORMED. Candidate 27329c494c53566efb06b640f4b3b48bed0064d8 aligns original six-class imported and fallback 3D locomotion with actual rendered authoritative movement, planted footsteps, existing opt-in audio, class-distinct gait mass and skinned-pelvis weight. Also reduces exposed enemy-fill light after genuine predecessor Chromium failure (1.75 > expected 1.3). No gameplay authority/rules changed.",
+    "candidateCommit": "27329c494c53566efb06b640f4b3b48bed0064d8",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
     "implementationEvents": [
@@ -3597,6 +3597,26 @@
         "evidence": "Pure source prototype 4/4 local Node checks; exact repo foundation/CI/browser/audio and new-head screenshots pending. Remote coding tunnel disconnected, independent critics unavailable.",
         "verdict": "IN_PROGRESS / NOT_TRANSFORMED; looks/feels/plays UNVERIFIED",
         "next": "Inspect authentic 4da3308 desktop/mobile combat and Warden motion; reject lighting washout, silhouette clipping and camera jitter; compare pinned SHA across same seeds and capture audio-enabled full expedition; obtain three fresh blind critics."
+      },
+      {
+        "id": "M1-GROUNDED-SKELETAL-TRAVEL-20261103",
+        "date": "2026-11-03",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "sourceHeadAtStart": "4d5107c9573a6cddce781c8c86d51150abbcda9c",
+        "codeCommit": "27329c494c53566efb06b640f4b3b48bed0064d8",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "objective": "Make the real playable autonomous dungeon journey feel physically planted, synchronizing actual grid-following travel, original six-class imported skeleton animation, procedural fallback feet, torso/pelvis mass and opt-in footsteps while preserving decisive attacks, Warden phases and gameplay truth.",
+        "code": [
+          "public/ai-dungeon/expedition-locomotion-plan.js",
+          "public/ai-dungeon/app.js",
+          "public/ai-dungeon/model-assets.js",
+          "public/ai-dungeon/encounter-lighting-plan.js",
+          "tests/foundation/dungeon-grounded-performance.test.cjs"
+        ],
+        "integration": "One genuine visual displacement stream drives planted foot parity, distance-matched skinned animation clip pacing, bounded torso and pelvis shift, procedural fallback foot cadence and the already present real-footstep audio; no floor/AI/collision/damage/RNG or save/replay mutations. Reduced-motion and teleport suppress locomotion. Existing opponent fill reduced after real live-browser warning.",
+        "evidence": "Code committed to existing PR #49. Five new Node foundation tests authored but not yet verified on exact SHA due disconnected coding tunnel; exact-head GitHub CI/browser/replay running when recorded. No new candidate mobile desktop motion/audio, before/after score, GPU measurement or independent blind critic verdict.",
+        "statusVerdict": "IN_PROGRESS / NOT_TRANSFORMED; LOOKS, FEELS, PLAYS UNVERIFIED",
+        "next": "Inspect actual 27329c4+ Chromium desktop/mobile travel, attack, Warden phases and audio; fix animation continuity, actual visual clipping and regression gate; then create high-quality original rigged character replacements and more sculptural rooms and obtain independent blinded feedback."
       }
     ]
   }
