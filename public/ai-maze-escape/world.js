@@ -899,7 +899,12 @@ export function createMazeWorld(options = {}) {
         // physical wall gives the otherwise pale stage a distinct green layer.
         // Outside-board edges already have separate low coastal planters.
         const faceSeed = c.cell * 31 + side + 130;
-        if (n >= 0 && gardenPatch(c.cell) > .38
+        // An original fossil listening sail is itself the public wall-side
+        // silhouette. Keep its actual hinged faces in view instead of planting
+        // a tall raised garden on the same observed NON-PASSAGE edge. Other
+        // walls retain their verdant profile; public navigation is untouched.
+        const fossilStageEdge = fossilSide && fossilSide.n === n;
+        if (n >= 0 && !fossilStageEdge && gardenPatch(c.cell) > .38
           && variation(faceSeed) > (dx + dz > 0 ? .29 : .56)) {
           if (gateApproachCells.has(c.cell)) gateForecourtPlanter(x, z, dx, dz, c.cell);
           else coastalGarden(x, z, dx, dz, c.cell * 71 + side * 19, c.cell, 1.05);
@@ -916,7 +921,9 @@ export function createMazeWorld(options = {}) {
           const ck = `${px.toFixed(2)}:${pz.toFixed(2)}`;
           if (!columns.has(ck)) { column(px, pz, c.cell, c.cell * 6 + side); columns.add(ck); }
         }
-        if (!gateApproachCells.has(c.cell) && gardenPatch(c.cell) > .65 && variation(c.cell + side * 41) > .55) plant(x + dx * .98 + dz * .64, .015, z + dz * .98 + dx * .64, c.cell * 17 + side, c.cell, 1.05);
+        if (!fossilStageEdge && !gateApproachCells.has(c.cell)
+          && gardenPatch(c.cell) > .65 && variation(c.cell + side * 41) > .55)
+          plant(x + dx * .98 + dz * .64, .015, z + dz * .98 + dx * .64, c.cell * 17 + side, c.cell, 1.05);
       }
       // Only the fixed, public board perimeter may carry these shore planters.
       // Unknown neighboring cells *within* the board never receive greenery.
