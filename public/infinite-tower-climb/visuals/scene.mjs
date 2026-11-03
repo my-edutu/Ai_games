@@ -772,7 +772,7 @@ function observedSourceLandingX(snapshot, deck) {
 // Fit a small local encounter, preserving the hero's 18%-high baseline whenever
 // the actual route fits. A long portrait crossing may require a wider view;
 // that tradeoff is preferable to cropping the real destination or opponent.
-function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previousGuardianLean = null, threatenedGuardianId = null, threatenedShotPoint = null) {
+function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previousGuardianLean = null, threatenedGuardianId = null, threatenedShotPoint = null, rangedGuardianId = null, actualPulsePoint = null) {
   const player = snapshot.player, height = player.halfHeight * 2 / SCALE;
   const heroAngle = angleFor(player.x, snapshot.worldWidth);
   const body = { x: hero.x, y: hero.y + height * .52, z: hero.z };
@@ -825,11 +825,18 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
       // Ordinary leaps retain their destination-first camera.
       const witnessedAirShot = player.state === 'airborne' &&
         enemy.telegraph === true && enemy.id === threatenedGuardianId;
+      // An actual earned projectile flying toward this living guardian is a
+      // second physical combat camera subject. Previously the 90k gate let
+      // long-range source combat happen outside the portrait picture. Extend
+      // only the safe GROUNDED shot lens; real airborne landings stay first.
+      const witnessedRangedDuel = player.state === 'standing' &&
+        enemy.id === rangedGuardianId && !!actualPulsePoint;
       const activeContact = (player.state !== 'airborne' || witnessedAirShot) &&
         (approachingLockedGate || healthRatio < 1 || enemy.telegraph ||
-        witnessedAirShot || player.attacking ||
+        witnessedAirShot || witnessedRangedDuel || player.attacking ||
         ['engaging-enemy', 'bracing-telegraph', 'evading-telegraph'].includes(snapshot.intent?.mode));
-      if (!activeContact || dx > 90000 || dy > 60000) continue;
+      if (!activeContact || dx > (witnessedRangedDuel ? 135000 : 90000) ||
+          dy > 60000) continue;
       const score = dx + dy * 1.4;
       if (score < contactGuardianDistance) {
         contactGuardianDistance = score;
@@ -873,7 +880,8 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
   // observed attack lane. The focus cannot hijack normal jumping, a stale
   // encounter or a different source guardian's projectile.
   const shotFocus = contactGuardian && threatenedGuardianId === contactGuardian.guardianId
-    ? threatenedShotPoint : null;
+    ? threatenedShotPoint : contactGuardian &&
+      rangedGuardianId === contactGuardian.guardianId ? actualPulsePoint : null;
   const gatePoints = lockStage
     ? [lockStage.center, ...lockStage.bolts.slice(2, 6)] : [];
   const center = { ...body };
@@ -2016,7 +2024,9 @@ export function createTowerScene(canvas, settings = {}) {
       composeFollowView(snapshot, climber.group.position, camera.aspect,
         orbit - restartReveal * .11, zoom + restartReveal * .17, guardianShotLean,
         !options.stale && guardianWarning.visible ? guardianWarning.guardianId : null,
-        !options.stale && guardianWarning.visible ? guardianShotStage.focusPoint() : null);
+        !options.stale && guardianWarning.visible ? guardianShotStage.focusPoint() : null,
+        !options.stale ? guardianWarning.pulseGuardianId : null,
+        !options.stale ? guardianShotStage.pulseFocusPoint() : null);
     guardianShotLean = !options.stale && followComposition?.guardianStaged
       ? followComposition.lean : null;
     const viewPosition = initialized ? camera.position : followComposition?.position || camera.position;
@@ -2032,11 +2042,16 @@ export function createTowerScene(canvas, settings = {}) {
     // During a genuine guardian approach, the physical eyes and helmet must
     // acknowledge the actual opponent instead of a stale midpoint beacon.
     // This source-bound pose changes neither the AI's target nor combat rules.
+    // The physical skinned visor turns toward the same true ranged duel as
+    // the follow camera. No independent animation target or speculative hit.
+    const rangedDuelFocus = !!sourceGuardian &&
+      guardianWarning.pulseGuardianId === sourceGuardian.id &&
+      p.state === 'standing' && !options.stale;
     const duelFocus = sourceGuardian &&
       [sourceGuardian.x, sourceGuardian.y, p.x, p.y].every(Number.isFinite) &&
-      Math.abs(sourceGuardian.x - p.x) <= 90000 &&
+      Math.abs(sourceGuardian.x - p.x) <= (rangedDuelFocus ? 135000 : 90000) &&
       Math.abs(sourceGuardian.y - p.y) <= 60000 &&
-      (sourceGuardian.telegraph || p.attacking ||
+      (rangedDuelFocus || sourceGuardian.telegraph || p.attacking ||
         ['engaging-enemy', 'bracing-telegraph', 'evading-telegraph',
           'evading-projectile'].includes(snapshot.intent?.mode));
     const witnessedShot = duelFocus && guardianWarning.visible &&
