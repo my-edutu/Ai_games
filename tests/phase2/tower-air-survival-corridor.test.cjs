@@ -171,3 +171,23 @@ test('physical air boost is reserved for a journey that present acceleration can
   s.player.velocity.x=-9000;
   assert.equal(decision(s).action.dash,false,'do not boost against actual opposite momentum');
 });
+
+test('approaching a visible hazardous deck keeps source-aware clear-lane control instead of a premature panic reversal',()=>{
+  const {s,target}=airborne(),center=target.x+target.width/2,top=target.y+target.height;
+  s.player.position={x:center,y:top+s.player.halfHeight+30000};
+  s.player.velocity={x:0,y:-5000};s.player.dashCooldown=8;
+  s.chunks[0].hazards=[{id:'present-spikes',kind:'spikes',x:center-16000,y:top,
+    width:32000,height:9000,activeFromTick:0,activeEvery:40,activeFor:40,damage:1}];
+  const original=structuredClone(s);
+  const early=decision(s);
+  assert.equal(early.intent.mode,'air-control');
+  assert.match(early.intent.summary,/clear landing lane/i);
+  assert.equal(early.intent.targetPlatformId,target.id);
+  assert.equal(early.action.move,-1,'real current safe lane is to the left');
+  assert.deepEqual(s,original,'danger steering must not alter source hazard or player');
+  s.player.position.y=top+s.player.halfHeight+1000;
+  const imminent=decision(s);
+  assert.equal(imminent.intent.mode,'evading-hazard','a real body overlap takes immediate safety precedence');
+  const legacy=chooseTowerAction(original,createTowerObservation(original),{tactical:false});
+  assert.equal(legacy.intent.mode,'evading-hazard','historical replay keeps prior hazard reflex');
+});
