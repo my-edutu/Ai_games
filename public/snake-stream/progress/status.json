@@ -1,10 +1,20 @@
 {
-  "updatedAt": "2026-11-03T13:36:32.736Z",
-  "status": "T1 BUILDING (last real frame self-rejected); T2 whole-serpent acting and T3 optional Director/HUD source candidates unverified in actual Chrome; exact-parent 1fa Chromium 64/83 with original strict desktop 5/17 FAIL at 751x415 despite 61 RAF (T4 HARD RED); true new-head T2/Director actor film and physical presents pending; independent acceptance unavailable. DRAFT never merge/deploy.",
-  "detail": "[2026-11-03 exact parent verification] Real 2b head Chromium 41641254466 COMPLETED FAILED 63/81, including unchanged 16/17 genuine complete full desktop WebGL submissions per original 1-second gate, actual 736x336 GPU drawing buffer; 61 RAF callbacks NOT draws/presented display FPS. Genuine source-bound images/video artifacts exist but were not independently viewed in this T3 source session. General 2b CI 41641254208 646/661, 15 fail. T3 integrated viewport-first UI is engineered not yet executable-tested or WebGL captured; T1 environmental visual quality still self-rejected from earlier actually reviewed 681. Need exact new-head 1920/detail/390 true WebGL, 45-90sec authentic gameplay, repeated >=17 genuine full render gate at useful raster, physical-device display p95, long-soak/portal/recovery and independent critique. No merge/deploy.",
+  "updatedAt": "2026-11-03",
+  "status": "T1 BUILDING / last actual source exact 93 full-game visually SELF-REJECTED, original genuine strict 7/17 complete desktop renderer submissions in 1007.6ms FAIL at 751x415, 61 RAF NOT real renders; new old-growth T1 stage source candidate native RED-GREEN ONLY, own WebGL/film/gate pending, T2/T3 unaccepted, T4 HARD RED, NEVER MERGE/DEPLOY.",
+  "detail": "Exact head 93bebb focused browser 41667987074 64/83 PASS 19 FAIL; true original 1s full desktop renderer 7 actual complete render submissions / 1007.6ms (<17) at 751x415, p95 frame interval 2016.6ms, GPU fence max 3253.4ms (neither physical display-present FPS/p95). Last a9 was 12/17 so 93 is 5 fewer. Read authentic 93 1920/portrait/detail + real unmodified 55s game artifacts: scene better than original T0 but grid/flat painted vegetation/tiny phone hero/stiffness remain; T1 whole-game SELF-REJECT. 93 general CI 652/668 PASS. Source exact SHA256 offline staged new 3D forest and 8 native old-growth shore arches, native 3/3 focused green+build pass, 18665/21785/21949 native triangles (<22000), true gameplay cells safe and existing assets retained. New art source exact real browser pending, local Chromium network blocked by administrator without bypass. Device presents, T2/T3 quality, soak and independent whole-game review OPEN.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Last actually reviewed 681 full-game stills/video SELF-REJECTED. T3 immersive UI is a native code candidate only; no new-head WebGL/55-second film yet, no T1/T3 acceptance.",
   "reviews": [
+    {
+      "area": "2026-11-03 complete exact-head 93bebb real whole-game WebGL and material renderer regression",
+      "verdict": "93 focused run 41667987074 FAILED 64/83 browser, original unchanged strict 1s complete desktop only 7/17 genuine renderer submissions in 1007.6ms at 751x415; 61 RAF callbacks are not full renders/presented frames. Previous different a9 12/17 FAILED, 93 5 fewer. Real 1920/390/detail and legitimate continuous 55s-game host film, actual 52.08s WebM inspected; some noticeable scene gains vs genuine T0, still giant regular grid, flat painted vines, tiny phone hero, self reject against Snake Pass/ASTRO BOT. General 93 652/668 FAIL; incoming old-growth physical source not browser tested. T1 SELF REJECTED BUILDING, T4 HARD RED, never merge/deploy.",
+      "gap": "Actual candidate source matched real WebGL desktop/portrait/detail+45–90s footage, ≥17 real complete full desktop render submissions per original 1s repeated at useful raster, physical presented FPS+p95, original assets/cues, 40+ body/portal/food/hazard/restart/recovery/long soak, independent blinded official Snake Pass/ASTRO BOT quality approval, full CI; no bypass."
+    },
+    {
+      "area": "2026-11-03 93bebb exact-source physical T1 forest/root/ruin composition, acceptance still pending",
+      "verdict": "Unreferenced physical production candidate only, native RED exact parent -> GREEN 3/3, build PASS. 8x8/28x16/40x24 stage 18665/21785/21949 native triangles all <22000, original 4 meshes/1 texture and every public cell intact. 93 CI 652/668 failed; exact 93 Chrome still running; prior a9 real strict 12/17 failed and whole game self rejected. No real candidate Chrome/film or independent critic, never merge/deploy.",
+      "gap": "Need actual exact-source matched full 1920/portrait/detail Chromium+uninterrupted 45–90s autonomous gameplay, genuine whole-game Snake Pass critique, unchanged original >=17 complete full-desktop submissions/1s repeated, physical device display present FPS/p95, 40+ segment portal/danger/food/restart/long soak/fallback/recovery/replay/accessibility and full CI. Local Chromium admin blocked; no bypass."
+    },
     {
       "area": "2026-11-03 T3 immersive spectator UI integrated candidate on exact 2b parent",
       "verdict": "Engineering candidate: full-viewport game with restrained truthful length/goal/record HUD, semantic goal meter, lean captions, explicit Display accessibility menu and touch clean-feed recovery; source tests authored, no new-source executable Node/Chromium evidence yet. Current parent 2b CI 646/661 FAIL 15 and Chromium in progress. Previous actual 681 whole-game SELF-REJECT and true original render 12/17 FAIL. T1 and T3 BUILDING, self-review only.",
@@ -1026,13 +1036,13 @@
     "firstImplementationPlan": "docs/superpowers/plans/2026-11-01-autonomous-snake-transformation.md",
     "acceptance": "An independently evidenced, visibly substantial upgrade of the full running game in environment, character, animation, materials, game feel and sustainable frame delivery; CI is necessary but never sufficient.",
     "overall": "NOT ACCEPTED",
-    "milestone": "T1 BUILDING / T3 spectator UI integrated engineering CANDIDATE; NOT visually accepted. 2b parent Chromium still running at review; prior 681 complete world SELF-REJECTED and strict true 12/17 FAIL. Never merge/deploy.",
+    "milestone": "T1 BUILDING, 93 real scene SELF-REJECTED; additional ten canopy/eight coastal root/native 3D T1 physical candidate only, not WebGL verified. T2/T3 BUILDING unaccepted, T4 last true strict 7/17 HARD RED, no device present FPS/p95; NEVER MERGE/DEPLOY.",
     "milestoneStatus": "BUILDING",
-    "latestKnownStrictBrowser": "Real 2b exact-head focused Chromium 41641254466: 63/81 browser PASS 18 FAIL; original untouched strict genuine full desktop 1s renderer 16/17 FAIL at 736x336; RAF 61 NOT draws or device present FPS; full physical present p95/soak unverified.",
+    "latestKnownStrictBrowser": "Source EXACT 93bebb full Chromium 41667987074 completed failure: original unchanged 1s FULL desktop genuine 7/17 renderer submissions /1007.6ms at actual buffer 751x415 and 61 RAF callbacks NOT draw submissions, frame gap p95 2016.6ms and GPU fence maximum 3253.4ms NOT physical device displayed p95. 93 Chromium 64/83, general CI 652/668; t1 head true screenshots and real authentic video inspected, whole-game T1 rejected.",
     "pillars": [
       {
         "name": "Living 3D world",
-        "status": "T1 BUILDING: 415dae original screenshot still regular tiled board; new four-coast native rain-cut escarpment and preserved forest material candidate has no post-change WebGL frames.",
+        "status": "T1 BUILDING: physically authored near-side-rear canopies/roots and nearer ruined aqueduct native-source candidate; exact real current-head/candidate browser images missing; prior full-game SELF-REJECTED.",
         "criterion": "Clearly transformed coherent original garden architecture/biomes/scene depth in matching real-game captures."
       },
       {
@@ -1047,13 +1057,13 @@
       },
       {
         "name": "Play feel and frame delivery",
-        "status": "T3 immersive UI code candidate only: viewport-first scene/true public meter/captions/display menu/touch clean-feed exit, real screen test pending; T4 original genuine 12/17 desktop renders FAIL on last reviewed 681 and parent 2b CI 15 FAIL. No device present p95 or acceptance.",
+        "status": "T4 HARD RED from previous actual a9 strict genuine full desktop 12/17 FAIL; 93 exact-head Chrome in progress, device-present p95/FPS unmeasured. Broad CI failed 16/668.",
         "criterion": "Readable responsive gameplay/UX, real continuous autonomous video, repeatable >=17 actual browser draws and real-device smoothness evidence."
       }
     ],
     "baselineHead": "108e2e439aab1f3fe4cf49019c1aa9fe5630feb6",
-    "candidate": "Immersive viewport-first broadcast UI: exact same 3D scene, honest public length/goal/record/progress/AI intent, readable event captions, visible accessible display settings and tap/Escape clean-feed restore, device-responsive overlays without added rendering work or simulation mutation. Source-only unverified candidate.",
-    "candidateProof": "New source-focused Node and exact-source real Chromium/1920/390 screenshot tests authored. Old 2b parent CI 646/661 FAIL; old-head focused Chromium in progress; NO executable candidate green/WebGL/media or performance proof. Red/green claims pending.",
-    "review": "SELF REVIEW / ACCEPTANCE PENDING. 2b old source exact Chromium 63/81, strict 16/17 FAIL; prior 681 real full world visually self-rejected. T3 immersive UI source candidate not WebGL/browser/film tested; independent critic and T1/T2/T3/T4 original acceptance incomplete."
+    "candidate": "New 93bebb parent SHA-pinned complete forest/ruin/root T1 physical-stage candidate, original ten trees, 4-bay arcade nearer board, eight additional 3D native shoreline old-growth arches; identical complete gameplay/public snapshot and immutable 17-render benchmark.",
+    "candidateProof": "Exact parent Git garden blob d78b79fad446d041cc7b939f7fc6a7ee2696b16e frozen. Native RED on exact predecessor then GREEN 3/3; real Three stage complete native triangles 18665/21785/21949 at 8x8/28x16/40x24, <22000 and 4 batches/one texture, 0 true cell intrusions. Local WebGL admin blocked, no screenshot/video or display-present FPS claims. 93 CI 652/668 FAIL; 93 Chromium still running.",
+    "review": "SELF REVIEW / ACCEPTANCE PENDING. Exact 93 real 1920/390/detail and authentic autonomous 55s host film inspected, more complete than much older T0 but large obvious rectangular tiled grid/flat garden paint, tiny phone actor, cartoon stiff facial/body craft still behind Snake Pass/ASTRO BOT. Exact original strict 7/17 full desktop per 1s HARD FAIL. New stage native geometry candidate not Chrome/art/film validated. True source before/after, >17 full desktop 3x and real device presented p95, soak/independent review pending."
   }
 }

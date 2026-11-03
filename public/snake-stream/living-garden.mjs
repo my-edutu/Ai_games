@@ -172,11 +172,15 @@ export function createLivingGarden(THREE, {width,height}) {
     // Arching roots make masonry belong to the biome. Every strip has a
     // tapered sculptural cross section, not a flat overlay or collision path.
     const dx=Math.cos(angle),dz=Math.sin(angle),segments=7;
+    // Outboard old-growth roots share the SAME six-sided ribbon topology as
+    // native masonry roots; larger natural arch and buttress are authored in
+    // the permanent static world, not a new draw, shader or gameplay wall.
+    const oldGrowth=phase>=400;
     const ring=t=>{
-      const bend=Math.sin(t*Math.PI)*(.28+.13*hash(phase,13));
+      const bend=Math.sin(t*Math.PI)*(.28+.13*hash(phase,13))*(oldGrowth?2.0:1);
       const xx=x+dx*length*t-dz*bend*.5,zz=z+dz*length*t+dx*bend*.5;
-      const cy=y+Math.sin(t*Math.PI)*(.65+.23*hash(phase,17))-.24*t;
-      const width=(.18*(1-t)+.025)*(.9+hash(phase,27)*.2);
+      const cy=y+Math.sin(t*Math.PI)*(.65+.23*hash(phase,17))*(oldGrowth?1.65:1)-.24*t;
+      const width=(.18*(1-t)+.025)*(.9+hash(phase,27)*.2)*(oldGrowth?2.1:1);
       return [[xx-dz*width,cy,zz+dx*width],
         [xx,cy+width*.32,zz], [xx+dz*width,cy,zz-dx*width]];
     };
@@ -244,6 +248,25 @@ export function createLivingGarden(THREE, {width,height}) {
         if(i%10===0)rootRibbon(p[0],p[1]-.02,p[2],1.3+hash(i,41)*.5,
           angle,i+shore.id.length);
       }
+    }
+  }
+  // T1 COMPLETE-COAST OLD-GROWTH COMPOSITION. Eight substantial natural
+  // buttress arcs link the *actual four eroded shores* to their plants and
+  // distant water, without changing one traversable cell or painting a fake
+  // water/fruit/portal. Exactly 8 × 28 authentic additional triangles in
+  // the already-owned static cliff batch; all board sizes remain <22k.
+  // The second ribbon starts farther along each shore for a varied silhouette.
+  for(let shoreIndex=0;shoreIndex<shorelines.length;shoreIndex++){
+    const shore=shorelines[shoreIndex];
+    const out=Math.sign(shore.far-shore.near);
+    const outwardAngle=shore.axis==='x'?(out>0?Math.PI/2:-Math.PI/2)
+      :(out>0?0:Math.PI);
+    for(let site=0;site<2;site++){
+      const along=.27+site*.46;
+      const t=shore.start+(shore.end-shore.start)*along;
+      const p=bankPoint(shore,t,.52);
+      rootRibbon(p[0],p[1]-.12,p[2],2.15+.24*hash(site,shoreIndex+41),
+        outwardAngle+(.15*(site?1:-1)),410+shoreIndex*17+site);
     }
   }
   // Two overgrown bastions, fragmented arcade and a lower viewpoint: a
@@ -347,15 +370,19 @@ export function createLivingGarden(THREE, {width,height}) {
     const crownX=x+.15*Math.sin(phase),crownZ=z+.12*Math.cos(phase);
     for(let branch=0;branch<7;branch++){
       const a=branch*Math.PI*2/7+phase*.31;
-      const reach=1.18+hash(branch,phase)*1.07;
+      // Broader branching and folded crown sizes improve complete-scene
+      // readability without replacing the tree with a billboard or dropping
+      // ANY of its original branches/leaves/vines/GPU geometry.
+      const reach=1.42+hash(branch,phase)*1.16;
       const bx=crownX+Math.cos(a)*reach,bz=crownZ+Math.sin(a)*reach;
       const by=stemTop+.18+(hash(branch+9,phase)-.5)*.55;
       woodySegment(crownX,stemTop-.23,crownZ,bx,by,bz,.14,.065,phase+branch*.13);
       for(let leafIndex=0;leafIndex<14;leafIndex++){
         const spread=leafIndex*2.39996+branch*.41+phase;
-        const rr=.31+hash(leafIndex+5,branch+phase)*.91;
-        const heightOffset=(hash(branch*19+leafIndex,phase+44)-.5)*.92;
-        const span=.69+hash(leafIndex*2,phase+branch)*.57;
+        const rr=.37+hash(leafIndex+5,branch+phase)*1.02;
+        const heightOffset=(hash(branch*19+leafIndex,phase+44)-.5)*1.16
+          + .17*Math.sin(leafIndex*.61+branch*.95+phase);
+        const span=.93+hash(leafIndex*2,phase+branch)*.70;
         canopyLeaf(bx+Math.cos(spread)*rr,by+heightOffset,bz+Math.sin(spread)*rr,
           spread,span,phase*41+branch*14+leafIndex);
       }
@@ -380,17 +407,17 @@ export function createLivingGarden(THREE, {width,height}) {
   // near, mid and far depth, never over any authoritative cell or portal.
   // No canopy leaf, vine, triangle, material, pass, texture or draw removed.
   const forest=[
-    [-W-7.6,-H*.25,6.15,.2],[-W*.47,-H-9.2,6.5,1.4],
-    [-W*.11,-H-8.55,6.3,2.5],[W*.27,-H-9.1,6.65,3.7],
-    [W*.61,-H-8.4,6.3,4.8],[W+7.75,-H*.15,6.45,5.7],
-    [-W-7.1,H+6.1,5.4,.65],[W+7.3,H+5.95,5.6,2.3]
+    [-W-7.20,-H*.25,6.30,.2],[-W*.47,-H-7.15,6.5,1.4],
+    [-W*.11,-H-7.20,6.3,2.5],[W*.27,-H-7.25,6.65,3.7],
+    [W*.61,-H-7.10,6.3,4.8],[W+7.25,-H*.15,6.45,5.7],
+    [-W-7.15,H+6.0,5.65,.65],[W+7.35,H+5.95,5.85,2.3]
   ];
   for(const [x,z,h,p] of forest)canopyTree(x,z,h,p);
   // A fractured, vine-rooted four-bay arched aqueduct gives the rear shore
   // a single recognizable architectural silhouette and a believable history.
   // The arch tunnels remain OPEN; the fake decorative masonry never sits on
   // navigable game coordinates or changes a portal/collision.
-  const zArch=-H-5.95,halfBay=Math.min(2.15,Math.max(1.45,W*.135));
+  const zArch=-H-5.40,halfBay=Math.min(2.15,Math.max(1.45,W*.135));
   const bayStep=halfBay*2.25;
   const pillarXs=Array.from({length:5},(_,i)=>(i-2)*bayStep);
   for(let i=0;i<pillarXs.length;i++){
@@ -752,8 +779,8 @@ export function createLivingGarden(THREE, {width,height}) {
   // Two large original branch-and-leaf canopies create near-camera parallax
   // on the OPEN wings; the authentic board and portal coordinates stay clear.
   for(const [x,z,h,phase] of [
-    [-W-7.25,H+5.80,7.05,8.1],
-    [W+7.1,H+5.65,7.30,9.2]
+    [-W-7.40,H+6.90,7.05,8.1],
+    [W+7.4,H+6.85,7.30,9.2]
   ]){
     canopyTree(x,z,h,phase);
     features.foregroundCanopies++;

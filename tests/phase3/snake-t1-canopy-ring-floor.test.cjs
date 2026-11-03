@@ -34,7 +34,14 @@ test('T1 whole-scene canopy ring visibly expands BOTH shores, retaining rear for
         'source-authentic LEFT and RIGHT near-stage canopy geometry, not an atlas-pixel improvement');
       assert.ok(b.rear>1000&&b.rear>a.rear*.5,'actual ruins-backed rear forest survives intact');
       assert.equal(b.invalid,0,'no exterior vertex over any authentic game cell');
-      assert.deepEqual(after.stats(),before.stats(),'never remove authored leaves, rocks, lilies, materials or triangles');
+      const oldStats=before.stats(),newStats=after.stats();
+      // The new complete-coast old-growth improvement adds exactly eight
+      // original 28-triangle root arches. Every previous authored feature is
+      // still present and the unchanged strict absolute budget remains below.
+      assert.deepEqual({...newStats,rootRibbons:oldStats.rootRibbons,triangles:oldStats.triangles},
+        oldStats,'preserve all existing authored leaves, rocks, lilies and materials');
+      assert.equal(newStats.rootRibbons,oldStats.rootRibbons+8,'physically keep eight new old-growth arches');
+      assert.equal(newStats.triangles,oldStats.triangles+224,'exact new native geometry, none deleted');
       assert.deepEqual(after.stats(),again.stats());
       assert.equal(after.stats().meshCount,4);assert.equal(after.stats().textures,1);
       assert.ok(after.stats().triangles<22000);
