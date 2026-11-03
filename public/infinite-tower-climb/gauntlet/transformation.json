@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updated": "2026-11-03",
+  "updated": "2026-11-04",
   "mode": "transformation-first",
   "baseline": {
     "sha": "1731b380851162741761c5569e2bc152a0869ca9",
@@ -10,18 +10,18 @@
   "candidate": {
     "sha": null,
     "title": "SAME open source-authentic ascent / live guardian / actual landing / result-restart transformation — independent quality NOT EVALUATED",
-    "implementationSha": "c9a6cca83e900178fe0e5dfe2824ec67220ae8e4",
-    "implementationEvidenceStatus": "SAME active 3D full-run transformation. Current c9a6cca83e900178fe0e5dfe2824ec67220ae8e4: after real damage drops a live second-wind guardian to <=50% HP, its authoritative 22-tick guarded melee window adds deterministic defensive decisions. It visibly raises its existing 3D shield/brace while ordinary melee is blocked; authentic enemy charge again exposes the core and earned Pulse Shot remains an actual ranged counter. Live agent reads source-observed guard and preserves melee cooldown. Optional audio and immutable live snapshot state reflect REAL guard; historical config/public snapshot remain opt-out. Exact-source technical CI https://github.com/my-edutu/Ai_games/actions/runs/41733725687 SUCCESS (safety veto only); original-host desktop/portrait real gameplay capture https://github.com/my-edutu/Ai_games/actions/runs/41733725691 9/9 SUCCESS (capture, NOT experience verdict). Builder-observed REAL normal-speed original-host film and source traces: former candidate b1940df8d5cf76f16d315da371221103a56c346a 9/9 capture jobs succeeded (https://github.com/my-edutu/Ai_games/actions/runs/41728349671); current c9a6cca83e900178fe0e5dfe2824ec67220ae8e4 9/9 succeeded (https://github.com/my-edutu/Ai_games/actions/runs/41733725691), desktop 960x600 and portrait 390x844. Within ONE comparable first guardian encounter in the candidate desktop danger trace, prior health 4→1 took 33 fixed 20 Hz ticks (1.65 s), current guarded-melee implementation took 55 ticks (2.75 s). This is source-trace timing ONLY, not independent perceptual improvement. Current portrait danger had 0 sampled unsafe actor projections, while portrait outcome had 7; prior portrait danger 3 and prior portrait outcome 5. Different run events/presented frames prohibit comparative quality scoring. Independent full-motion reviews and supported-device metrics missing; quality NOT EVALUATED."
+    "implementationSha": "b259457298c04e1b1aab252e62d8268a3dd84074",
+    "implementationEvidenceStatus": "Open same 3D ascent/guardian/outcome transformation: actual previous c9a6cca8 portrait outcome film had 7/69 UNSAFE actor projections, ALL during RUNNING ascent (6 floor 0, 1 floor 1), not result. New gameplay b259457298c04e1b1aab252e62d8268a3dd84074 adds a bounded post-action portrait gaze assist that only retains projected hero improvement without clipping already-visible guardian or committed airborne landing. Exact-source CI https://github.com/my-edutu/Ai_games/actions/runs/41740541616 SUCCESS (technical veto only); real normal-speed recapture https://github.com/my-edutu/Ai_games/actions/runs/41740541619 IN PROGRESS at inspection. Independent blind reviews / matched episodes / device frame-time and memory NOT EVALUATED. Candidate quality SHA remains null."
   },
   "currentTransformation": {
     "title": "SAME authentic 3D ascent → earned guardian counterplay → real HP gate → authentic outcome/restart transformation",
-    "state": "OPEN SAME source-authentic 3D game transformation: earned ranged counterplay → half-health guardian attack/defend/expose cycle → physical HP gate → authentic result/restart. Source c9a6cca83e900178fe0e5dfe2824ec67220ae8e4 committed and real source-authentic CI/capture completed. 5 independent blind critics, event-matched full-motion comparisons, hardware frame-time and memory remain NOT EVALUATED.",
+    "state": "OPEN SAME source-authentic 3D ascent→guardian-defense→HP gate→genuine result/restart transformation. Source b259457298c04e1b1aab252e62d8268a3dd84074 committed; CI succeeded, current-source real-play desktop/portrait recapture in progress. No independent votes or quality pass.",
     "promise": "Complete real autonomous ascent with earned guardian counterplay. At source-backed <=50% guardian HP, charging accelerates to 6 fixed ticks and the low-health guardian can brace its actual shield for 22 fixed ticks after damage: melee AI visibly waits, true windup reopens a vulnerable phase, real pulse still counters, and HP-linked cap mechanism/outcome/restart remain in SAME open playable slice. No fabricated hits, HUD clutter, deterministic time dilation or forced results.",
-    "nextDecision": "First inspect the genuine desktop+portrait source-pinned videos in https://github.com/my-edutu/Ai_games/actions/runs/41733725691 for the complete guardian shield→windup→counter→physical gate→authentic result/restart and mobile silhouette, then align actual gameplay EVENTS with the frozen baseline 1731b380 footage. Investigate 7 sampled unsafe actor projections in current candidate portrait outcome before claiming no visual regression. Obtain 5 independently blinded randomized full-motion critics each for LOOKS, FEELS and PLAYS, >=4/5 candidate preference each, plus real supported-device p50/p95/p99 and memory. Keep initiative/branch and baseline open; never merge or deploy without authorization.",
+    "nextDecision": "Inspect new-source 41740541619 60s+ REAL full-motion portrait ascent/danger/outcome and compare to c9a6cca8 captured frames. Confirm running camera has fewer unsafe projections without sacrificing real landing/guardian, particularly floor0 around the second run. Then align genuine equal gameplay EVENTS with frozen original host 1731b380; seek 5 independent blind randomized critics per LOOKS, FEELS, PLAYS with >=4/5 candidate preference EACH, supported-device p50/p95/p99/memory and accessibility/replay guardrails. Do not count source sample counts or synthetic framing tests as quality pass.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Builder-observed REAL normal-speed original-host film and source traces: former candidate b1940df8d5cf76f16d315da371221103a56c346a 9/9 capture jobs succeeded (https://github.com/my-edutu/Ai_games/actions/runs/41728349671); current c9a6cca83e900178fe0e5dfe2824ec67220ae8e4 9/9 succeeded (https://github.com/my-edutu/Ai_games/actions/runs/41733725691), desktop 960x600 and portrait 390x844. Within ONE comparable first guardian encounter in the candidate desktop danger trace, prior health 4→1 took 33 fixed 20 Hz ticks (1.65 s), current guarded-melee implementation took 55 ticks (2.75 s). This is source-trace timing ONLY, not independent perceptual improvement. Current portrait danger had 0 sampled unsafe actor projections, while portrait outcome had 7; prior portrait danger 3 and prior portrait outcome 5. Different run events/presented frames prohibit comparative quality scoring. Genuine 60+ second source footage exists but not yet complete event-matched blind review. Current portrait outcome has 7 sampled unsafe actor projections and its cause not isolated. Independent LOOKS 0/5, FEELS 0/5, PLAYS 0/5; hardware measurements NOT MEASURED and fresh independent worker/browser disconnected tunnel. Whole-game quality NOT EVALUATED, not a gameplay winner.",
-    "unverifiedImplementationBranchHead": "c9a6cca83e900178fe0e5dfe2824ec67220ae8e4",
-    "currentVerticalSlice": "SAME OPEN actual ascent→earned guardian pulse→source 6-tick second wind→22-tick shield/charge opening→HP-operated gate→result/restart. Playable code committed at c9a6cca83e900178fe0e5dfe2824ec67220ae8e4; exact-source CI and original-host capture completed, but 5 independent blind critics/event-match/mobile safety/hardware evidence remain OPEN.",
+    "biggestRemainingExperienceGap": "ROOT CAUSE IS NOT THE TERMINAL TABLEAU: inspected original-host real 129s portrait outcome film c9a6cca8 from https://github.com/my-edutu/Ai_games/actions/runs/41733725691. Seven sampled hero margins were unsafe at ticks 66, 85, 283, 345, 404, 425 on floor 0 and tick 326 on floor 1; all in RUNNING ascent, NDC x ~±.81–.88. Baseline original-host portrait outcome had 0 sampled unsafe positions, but different sampled events prohibit ranking. Live camera b2594572 now applies bounded look-at reframe after impact and duel lens, protecting already-visible guardian and airborne landing; new-source film still pending at inspection. No event-matched A/B comparisons, independent full-motion 4/5 votes, or supported-device tail/memory evidence. NOT EVALUATED.",
+    "unverifiedImplementationBranchHead": "b259457298c04e1b1aab252e62d8268a3dd84074",
+    "currentVerticalSlice": "SAME OPEN real 3D ascent, source-earned guardian counterfire and shield phase, genuine HP lock and result/restart. Now joined by bounded live portrait action staging b2594572 based on unsafe real film, not invented poses. Full-motion validation and independent experiential acceptance still open.",
     "biggestGap": "FIRST VALID original-host 2c gameplay film now EXISTS: baseline host blob dc559ad7979cefe6c308ec8c60a286b66e75ab46 and candidate 0e7c6a3fc1abbe2ba31927c060279b2b19ed0351, same neutral harness, real normal-speed danger and outcome desktop+portrait >=60s. Source-pinned candidate 2c portrait danger still has 2/69 unsafe actor projections against frozen baseline 0/69; old 6df real portrait video showed living guardian / climber visibly tiny during actual 7→5→3→1 HP. NEW playable camera source 4127f665ed97e6952ea19f41dcfbcbd398975085 technical CI succeeded, but its original-host video capture https://github.com/my-edutu/Ai_games/actions/runs/41704072954 was not complete at this inspection. Clips remain NOT event aligned, full-motion independent critique missing; 5/5 independent votes per pillar, hardware p50/p95/p99, memory, and clear complete outcome/restart comparison unavailable. Do not count original-host capture success as quality win."
   },
   "scenarios": [
@@ -1879,6 +1879,34 @@
         "real supported-device p50/p95/p99 and memory",
         "candidate portrait outcome actor safe-frame regression"
       ]
+    },
+    "portraitFocusRootCause20261104": {
+      "sourceFilm": "https://github.com/my-edutu/Ai_games/actions/runs/41733725691",
+      "sourceSha": "c9a6cca83e900178fe0e5dfe2824ec67220ae8e4",
+      "scenario": "outcome",
+      "viewport": "390x844",
+      "durationSeconds": 129.24,
+      "actorSamples": 69,
+      "unsafeSamples": 7,
+      "sourcePhases": "ALL seven unsafe actor projections during lifecycle RUNNING (6 floor 0, 1 floor 1); not terminal/intermission",
+      "sampleNdcX": [
+        0.8777,
+        0.8777,
+        -0.826,
+        -0.8101,
+        -0.8193,
+        0.8699,
+        -0.8128
+      ],
+      "baselineUnsafeSamples": 0,
+      "comparability": "Different sampled gameplay episodes, not a valid regression percentage or independent preference",
+      "gameplayFixSha": "b259457298c04e1b1aab252e62d8268a3dd84074",
+      "fix": "Camera-local bounded world gaze assist after contact, landing and guardian lens; retains only projected hero gain and already-visible guardian/destination; no authoritative state mutation or HUD",
+      "fixTechnicalCI": "https://github.com/my-edutu/Ai_games/actions/runs/41740541616",
+      "fixTechnicalStatus": "SUCCESS (engineering guardrail only)",
+      "fixRealMotionCapture": "https://github.com/my-edutu/Ai_games/actions/runs/41740541619",
+      "fixMotionStatus": "IN PROGRESS at review; cannot assert zero unsafe frames",
+      "independentQuality": "NOT EVALUATED"
     }
   }
 }

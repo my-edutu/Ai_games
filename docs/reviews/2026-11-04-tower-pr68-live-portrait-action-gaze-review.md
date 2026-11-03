@@ -1,0 +1,19 @@
+# Infinite Tower PR68 — actual portrait ascent framing, full-motion source attribution
+**Review date:** 2026-11-04. **Playable implementation:** [b2594572](https://github.com/my-edutu/Ai_games/commit/b259457298c04e1b1aab252e62d8268a3dd84074). **Frozen baseline:** `1731b380851162741761c5569e2bc152a0869ca9` (unchanged). **PR:** [#68](https://github.com/my-edutu/Ai_games/pull/68), open draft.
+
+## Why this is a whole-play continuity issue, not terminal decoration
+Downloaded and inspected the original-host `c9a6cca8` [nine-job real-game capture](https://github.com/my-edutu/Ai_games/actions/runs/41733725691), including the full 129.24-second native 390×844 outcome WebM, source trace, 69 camera samples and real WebGL canvas frames. Seven hero screen-safe-frame breaches occurred at:
+- floor 0, simulation ticks **66, 85, 283, 345, 404, 425**;
+- floor 1, simulation tick **326**.
+
+Every unsafe sample was in the **RUNNING** lifecycle. None belonged to the result/intermission tableau. Source NDC X ranged from **−0.826 to +0.8777** (safe margin `|x| <= .78`). The original-host frozen baseline portrait outcome had **0/69 sampled unsafe projections**, but its gameplay episodes did not align with the candidate's episodes; neither number establishes a valid A/B quality preference. Browser-video screenshots visibly confirm that real jumps can run against a portrait edge. These are software CI captures, not supported-device performance.
+
+## Source implementation: preserve actual subjects before the hero leaves the phone
+The continuous real ascent → earned pulse → guardian shield/counterplay → HP-operated gate → authentic outcome/restart transformation remains open. The new camera stage, `correctTowerPortraitFocus`, executes **after** real contact/touchdown camera shake, safe-frame recovery and source-driven boss dolly. It uses the actual climber projected under the current Three.js camera and re-aims the existing exterior view along its right/up axes. It never moves the camera through opaque stone, changes simulation steps, claims a landing, inserts a HUD note or creates graphics resources per frame. A trial is retained only if the current actor's measured screen safety improves; if a source-observed guardian or the already-chosen airborne landing was previously safely visible, the entire adjustment is rejected if it crops either one. Reduced-motion, stale, overview and actual terminal shots stay outside the intervention.
+
+Five focused geometry/controller tests exercise improvement, calm centered view, guardian preservation, committed landing preservation and no hard cut for offscreen actors. **Exact-source [quality contract workflow](https://github.com/my-edutu/Ai_games/actions/runs/41740541616) succeeded.** This is an engineering guardrail, NOT a quality PASS.
+
+## Status and required visual comparison
+The [new original-host 60+ second desktop/portrait capture](https://github.com/my-edutu/Ai_games/actions/runs/41740541619) was in progress at inspection; do **not** claim the original seven unsafe samples are eliminated without examining its actual new-source film. Before promotion, match authentic ascent/guardian/outcome EVENTS (not arbitrary timestamp pairs) between frozen baseline and candidate; inspect each complete normal-speed moving clip, including source-result-to-restart. Obtain at least five fresh truly independent blinded critics: LOOKS 0/5, FEELS 0/5, PLAYS 0/5 as of this review, requiring >=4/5 genuine candidate preferences **in each**. Supported-device p50/p95/p99 and memory, replay and accessibility are separately required. Independent worker/browser environment still responds `Tunnel-client has not been seen for 300 seconds`; no fake reviewer scores.
+
+**Quality verdict: NOT EVALUATED.** PR #58 untouched; no merge, force-push, deployment or baseline change. The existing transformation and its hourly continuation remain open.
