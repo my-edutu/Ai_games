@@ -4096,32 +4096,14 @@ function marketStall(s,index){
   box(x,signY+.12,boardZ+face*.075,1.00,.045,.08,trim);
   for(const sx of [-1,1])
    box(x+sx*.48,signY-.11,boardZ+face*.05,.075,.36,.08,trim);
-  if(s.trade==='grain'){
-   for(let n=0;n<5;n++){
-    const xx=x+(n-2)*.43,zz=z+face*.48;
-    ellipsoid(xx,y+1.08,zz,.19,.12,.24,rgb(n%2?0xcab184:0xe1c69b),6);
-   }
-   for(let n=0;n<3;n++)
-    cone(x+(n-1)*.23,y+1.0,boardZ+face*.10,.10,.44,rgb(0xdac27c),5);
-  }else if(s.trade==='smith'){
-   for(let n=0;n<3;n++){
-    const xx=x+(n-1)*.62;
-    box(xx,y+1.08,z+face*.47,.28,.27,.34,rgb(0x7c817f));
-    box(xx,y+1.39,z+face*.47,.39,.06,.44,rgb(0xb2aaa0));
-   }
-  }else if(s.trade==='textile'){
-   for(let n=0;n<4;n++){
-    const xx=x+(n-1.5)*.59;
-    box(xx,y+1.08,z+face*.39,.47,.20,.56,
-     rgb([0x9a685d,0x718781,0xc3a072,0x6c777e][n]));
-    box(xx,y+1.22,z+face*.39,.49,.065,.56,trim);
-   }
-  }else{
-   for(let n=0;n<5;n++){
-    const xx=x+(n-2)*.46;
-    box(xx,y+1.0,z+face*.39,.32,.23,.31,rgb(0x7c6045));
-    cone(xx,y+1.25,z+face*.39,.18,.31,rgb(n%2?0x77935d:0x93a675),6);
-   }
+  // Timber-carved profession glyphs are SHOP SIGNS, never inventories.
+  // Grain sacks, timber, herbs and cloth are not fabricated by static scenery.
+  // Goods appear separately only when they exist in spendable village stocks.
+  const relief=rgb([0xc9ad75,0xb0b6ac,0xd6c29a,0x8ea781][index]);
+  box(x,signY-.025,boardZ+face*.095,.31,.23,.045,relief);
+  for(let mark=0;mark<3;mark++){
+   const xx=x+(mark-1)*.34;
+   box(xx,signY-.18,boardZ+face*.102,.095,.045,.052,trim);
   }
  });
  marketQuarterStats.signboards++;marketQuarterStats.stalls++;
@@ -4157,9 +4139,18 @@ function marketQuarter(){
 /* The supplies on sale are derived from authoritative inventories.
  * No invented harvests, sales, merchants or prices. This function and its
  * drawing call can never mutate the saved/replayed economy. */
+// A physical display plan is an exact, bounded projection of spendable
+// resources. W09 escrow is already absent from state; only legacy credited
+// cargo must be subtracted here, avoiding double subtraction of real carts.
+function marketStallStockPlan(food,wood,gold,creditedFood=0,creditedWood=0){
+ const finite=n=>Number.isFinite(n)?Math.max(0,n):0;
+ return {
+  sacks:Math.min(6,Math.floor(Math.max(0,finite(food)-finite(creditedFood))/35)),
+  logs:Math.min(5,Math.floor(Math.max(0,finite(wood)-finite(creditedWood))/22)),
+  lockedCoffers:Math.min(3,Math.floor(finite(gold)/25))
+ };
+}
 function marketSupplyView(){
- // Physically unloaded market inventory must not depict goods STILL on the
- // road. The village's authoritative stock is already credited in work().
  const inTransit={food:0,wood:0},escrowed={food:0,wood:0},
   creditedInTransit={food:0,wood:0};
  for(const p of people)if(p.delivery){
@@ -4169,9 +4160,8 @@ function marketSupplyView(){
  return {
   resources:{food:state.food,wood:state.wood,gold:state.gold},
   inTransit,escrowed,creditedInTransit,
-  sacks:Math.max(0,Math.min(6,Math.floor(Math.max(0,state.food-creditedInTransit.food)/35))),
-  logs:Math.max(0,Math.min(5,Math.floor(Math.max(0,state.wood-creditedInTransit.wood)/22))),
-  lockedCoffers:Math.max(0,Math.min(3,Math.floor(state.gold/25)))
+  ...marketStallStockPlan(state.food,state.wood,state.gold,
+   creditedInTransit.food,creditedInTransit.wood)
  };
 }
 
@@ -4235,20 +4225,61 @@ function renderMarketOperatingShutters(){
  marketOperatingRenderStats.openFraction=opening;
 }
 
+// W10 — a physically situated, original market: authentic goods live ON
+// the trade counter that sells them, and vanish when village stocks empty.
+// Traders in professions without simulated wares have a shop sign and open
+// shelves, not counterfeit textile/herb production. Scene/UI/saves remain
+// tied to the SAME resource source of truth, including escorted W09 loads.
+let marketStallStockRenderStats={sacks:0,logs:0,coffers:0,triangles:0};
+function marketStallStockAudit(){
+ const supply=marketSupplyView();
+ const perStall=MARKET_STALLS.map(stall=>({
+  trade:stall.trade,x:stall.x,z:stall.z,
+  resource:stall.trade==='grain'?'food':stall.trade==='smith'?'wood':null,
+  goods:stall.trade==='grain'?supply.sacks:
+   stall.trade==='smith'?supply.logs:0,
+  source:stall.trade==='grain'||stall.trade==='smith'?
+   'real-spendable-inventory':'shop-sign-only-no-simulated-stock'
+ }));
+ return {source:'original-stalls-spendable-village-resources',
+  perStall,resources:{...supply.resources},inTransit:{...supply.inTransit},
+  escrowed:{...supply.escrowed},
+  lastRenderedSacks:marketStallStockRenderStats.sacks,
+  lastRenderedLogs:marketStallStockRenderStats.logs,
+  lastRenderedCoffers:marketStallStockRenderStats.coffers,
+  lastRenderedTriangles:marketStallStockRenderStats.triangles,
+  staticInventedFood:0,staticInventedUnsimulatedGoods:0};
+}
 function renderMarketStock(){
- const start=data.length,stock=marketSupplyView();
+ const first=data.length,stock=marketSupplyView(),
+  grain=MARKET_STALLS[0],smith=MARKET_STALLS[1];
+ // Grain is bagged and stacked in the actual grain stall; counter planks
+ // visibly support its weight. No central hovering cargo or fake grain art.
  materialScope(MATERIAL.GENERAL,()=>{
   for(let n=0;n<stock.sacks;n++){
-   const x=-1.8+(n%3)*.37,z=7.72+Math.floor(n/3)*.43,y=terrain(x,z);
-   ellipsoid(x,y+.23,z,.19,.24,.22,rgb(n%2?0xcbb58c:0xddcba6),6);
+   const x=grain.x+(n%3-1)*.68,z=grain.z+grain.face*.40+
+    Math.floor(n/3)*.46;
+   const y=terrain(grain.x,grain.z)+1.00;
+   const canvas=rgb(n%2?0xc7b48d:0xe3c9a3);
+   ellipsoid(x,y+.205,z,.285,.22,.27,canvas,7);
+   box(x,y+.385,z,.27,.044,.28,rgb(0x9b8059));
+   box(x,y+.08,z,.35,.055,.30,rgb(0xa69471));
   }
  });
+ // A genuinely stocked timber stall rather than permanent iron wares.
  materialScope(MATERIAL.WOOD,()=>{
   for(let n=0;n<stock.logs;n++){
-   const x=1.75+(n%3)*.26,z=7.96+Math.floor(n/3)*.39,y=terrain(x,z);
-   limbSegment([x-.33,y+.16,z],[x+.33,y+.16,z],.12,
-    rgb(n%2?0x7b573d:0x936c49),6);
+   const x=smith.x+(n%3-1)*.63;
+   const z=smith.z+smith.face*(.39+Math.floor(n/3)*.37);
+   const y=terrain(smith.x,smith.z)+1.13+
+    Math.floor(n/3)*.17;
+   limbSegment([x-.25,y,z],[x+.25,y,z],.116,
+    rgb(n%2?0x88603f:0x9c714a),7);
+   for(const side of [-1,1])
+    box(x+side*.16,y-.108,z,.07,.042,.21,rgb(0x755036));
   }
+  // Gold-backed lockboxes stay in the actual receiving court, not any
+  // imaginary textile/herb inventory. Capped by real village treasury.
   for(let n=0;n<stock.lockedCoffers;n++){
    const x=-1.25+n*.42,z=8.84,y=terrain(x,z);
    box(x,y+.09,z,.36,.25,.31,rgb(0x86613e));
@@ -4256,7 +4287,9 @@ function renderMarketStock(){
    box(x,y+.20,z+.18,.065,.16,.07,rgb(0xc3a36a));
   }
  });
- marketStockTriangles=(data.length-start)/30;
+ marketStallStockRenderStats={sacks:stock.sacks,logs:stock.logs,
+  coffers:stock.lockedCoffers,triangles:(data.length-first)/30};
+ marketStockTriangles=marketStallStockRenderStats.triangles;
 }
 
 
@@ -9312,7 +9345,7 @@ gl.drawArrays(gl.TRIANGLES,0,data.length/10);if((frames++%14)===0){updateUI();dr
  lastFrozenFrameKey=frozenViewKey;
 }
 requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getCitizenAnatomy,getPopulationMotionAudit,getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getOccupationalPerformance:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData({citizen:people[index].name,job:people[index].job,...occupationalPerformance(people[index])}):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getWorkdayEvents:()=>cloneData(workdayEvents),getStreetCargoWitnesses:()=>cloneData(streetCargoWitnesses()),getActiveDeliveries:()=>cloneData(getActiveDeliveries()),getCourierTrailAudit,getDeliveryEconomyAudit:()=>cloneData(getDeliveryEconomyAudit()),getDeliveryReceipts:()=>cloneData(getDeliveryReceipts()),getMarketHandoffs:()=>cloneData(getMarketHandoffs()),getMarketHandoffRenderStats:()=>({...marketHandoffRenderStats}),watchDelivery,watchHomecoming,getHomecomingView,getWorkdayView,getActiveWorksites,getHarvestInteractionAudit,getHarvestAftermathAudit,getCitizenActingAudit,
-getDailyRhythmAudit:dailyRhythmAudit,getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getSoftwareResolutionAudit,getSimulationFrameDelta:simulationFrameDelta,getHouseholdLightAudit:()=>({...householdLightAudit}),getOccupiedHearthCount:()=>occupiedHearths,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getMarketSupplyView:marketSupplyView,getMarketOperatingAudit:marketOperatingAudit,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getStreetWalkState,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?2:1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0):0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0):null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getForestVisualStats:()=>({
+getDailyRhythmAudit:dailyRhythmAudit,getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getSoftwareResolutionAudit,getSimulationFrameDelta:simulationFrameDelta,getHouseholdLightAudit:()=>({...householdLightAudit}),getOccupiedHearthCount:()=>occupiedHearths,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getStreetWalkState,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?2:1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0):0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0):null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getForestVisualStats:()=>({
  sourceTrees:trees.length,
  renderedTrees:forestVisualStats.deciduous+forestVisualStats.conifers,
  conifers:forestVisualStats.conifers,deciduous:forestVisualStats.deciduous,
