@@ -251,24 +251,49 @@ function refineTowerActorSafeFrame(camera, gaze, actor, dt,
     projection.z < -1 || projection.z > 1) return 0;
   const before = Math.max(0, Math.abs(projection.x)/.78-1,
     Math.abs(projection.y)/.78-1);
-  if (before<=.005) return 0;
+  if(before<=.005) return 0;
   previousCamera.copy(camera.position);
   previousGaze.copy(gaze);
-  const blend = recoverTowerActorView(camera.position, gaze, actor,
-    projection.x, projection.y, projection.z, camera.aspect,
-    Math.min(dt,.012), orbitTarget);
-  if(blend<=0) return 0;
-  camera.lookAt(gaze);
-  camera.updateMatrixWorld(true);
-  projection.copy(actor).project(camera);
-  const after=Math.max(0,Math.abs(projection.x)/.78-1,Math.abs(projection.y)/.78-1);
-  const angularStep=Math.abs(Math.atan2(
-    Math.sin(Math.atan2(camera.position.x,camera.position.z)-Math.atan2(previousCamera.x,previousCamera.z)),
-    Math.cos(Math.atan2(camera.position.x,camera.position.z)-Math.atan2(previousCamera.x,previousCamera.z))));
-  if(Number.isFinite(after) && after+.0005<before &&
-     Math.abs(projection.x)<=1 && Math.abs(projection.y)<=1 &&
-     projection.z>=-1 && projection.z<=1 && angularStep<=.09 &&
-     towerCoreSightlineClear(camera.position,actor,23.5)) return blend;
+  // Normal-speed authentic source 558924dc portrait outcome retained three
+  // 0.84–0.88 NDC actor-margin breaches after a one-shot .012s rescue.
+  // A measured TWO-step exterior orbit + gaze continuation is allowed ONLY
+  // for a presently clipped, yet still visible, live protagonist. Each step
+  // must independently improve the actual projected frame and preserve clear
+  // tower-core sightlines. No prediction, camera cut, simulation mutation,
+  // extra GPU pass or per-frame allocated objects.
+  let previousPressure=before;
+  let lastFraction=0;
+  const firstAzimuth=Math.atan2(previousCamera.x,previousCamera.z);
+  for(let attempt=0;attempt<2;attempt++){
+    const step=recoverTowerActorView(camera.position,gaze,actor,
+      projection.x,projection.y,projection.z,camera.aspect,
+      Math.min(dt,.009),orbitTarget);
+    if(step<=0)break;
+    camera.lookAt(gaze);
+    camera.updateMatrixWorld(true);
+    projection.copy(actor).project(camera);
+    const after=Math.max(0,Math.abs(projection.x)/.78-1,
+      Math.abs(projection.y)/.78-1);
+    const angle=Math.atan2(camera.position.x,camera.position.z);
+    const turn=Math.abs(Math.atan2(Math.sin(angle-firstAzimuth),
+      Math.cos(angle-firstAzimuth)));
+    // Reject the entire continuation if any part hides the real climber or
+    // makes an intermediate state worse; no frame may pass through opaque core.
+    if(!Number.isFinite(after)||after+.0002>=previousPressure||
+      Math.abs(projection.x)>1||Math.abs(projection.y)>1||
+      projection.z < -1||projection.z > 1||turn>=.095||
+      !towerCoreSightlineClear(camera.position,actor,23.5)){
+      camera.position.copy(previousCamera);
+      gaze.copy(previousGaze);
+      camera.lookAt(gaze);
+      camera.updateMatrixWorld(true);
+      return 0;
+    }
+    previousPressure=after;
+    lastFraction=Math.max(lastFraction,step);
+    if(after<=.005)break;
+  }
+  if(lastFraction>0&&previousPressure+.0005<before)return lastFraction;
   camera.position.copy(previousCamera);
   gaze.copy(previousGaze);
   camera.lookAt(gaze);

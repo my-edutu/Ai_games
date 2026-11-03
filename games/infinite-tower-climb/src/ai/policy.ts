@@ -220,6 +220,34 @@ function guardedEvasion(state:TowerState,obs:TowerObservation,wanted:TowerAction
  return p.position.x<platform.x+platform.width/2?1:-1;
 }
 function incomingProjectile(obs:TowerObservation){return obs.projectiles.filter(x=>x.owner==='enemy').find(x=>Math.abs(x.position.y-obs.player.position.y)<30000&&Math.abs(x.position.x-obs.player.position.x)<65000&&Math.sign(x.velocity.x)===Math.sign(obs.player.position.x-x.position.x))}
+/**
+ * Tactical combat only: react to a projectile which can really strike this
+ * body at its PRESENT horizontal flight height. The previous broad 30k
+ * vertical / 65k horizontal reflex abandoned safe landings to dodge harmless
+ * bolts travelling on another level. The source combat projectile is 3,500
+ * units tall, and its velocity is immutable in this observed fixed step.
+ * Calculate a bounded four-tick approach window, not a predicted hit or RNG.
+ * Preserve the old reflex verbatim for historical-v1 replay checksums.
+ */
+function incomingCollisionLaneProjectile(state:TowerState,obs:TowerObservation){
+  const player=obs.player;
+  if(player.health<=0)return undefined;
+  const collisionHeight=state.player.halfHeight+3500;
+  const collisionWidth=state.player.halfWidth+5000;
+  return obs.projectiles.filter(shot=>{
+    if(shot.owner!=='enemy'||!Number.isFinite(shot.velocity.x)||
+      !Number.isFinite(shot.position.x)||!Number.isFinite(shot.position.y)||
+      shot.velocity.x===0)return false;
+    const delta=player.position.x-shot.position.x;
+    return delta*shot.velocity.x>0 &&
+      Math.abs(shot.position.y-player.position.y)<collisionHeight &&
+      Math.abs(delta)<=Math.max(collisionWidth,
+        Math.abs(shot.velocity.x)*4+collisionWidth);
+  }).sort((a,b)=>
+    Math.abs(player.position.x-a.position.x)/Math.abs(a.velocity.x)-
+    Math.abs(player.position.x-b.position.x)/Math.abs(b.velocity.x)||
+    a.id.localeCompare(b.id))[0];
+}
 function immediateHazard(obs:TowerObservation){const p=obs.player;return obs.hazards.filter(h=>h.active&&Math.abs((h.y+h.height/2)-p.position.y)<42000).sort((a,b)=>Math.abs((a.x+a.width/2)-p.position.x)-Math.abs((b.x+b.width/2)-p.position.x)||a.id.localeCompare(b.id)).find(h=>Math.abs((h.x+h.width/2)-p.position.x)<62000)}
 // During the approach to a CURRENT known hazardous landing, the observed
 // clear-lane controller already chooses a body-width collision-safe opening.
@@ -245,6 +273,20 @@ function observedSafeLandingOwnsHazard(state:TowerState,obs:TowerObservation,
   return !overlapping&&observedLandingCorridor(state,obs,target).hazardRoute;
 }
 function nearbyEnemy(obs:TowerObservation,reach:number){return obs.enemies.filter(e=>e.active&&Math.abs(e.position.y-obs.player.position.y)<36000&&Math.abs(e.position.x-obs.player.position.x)<=reach).sort((a,b)=>Math.abs(a.position.x-obs.player.position.x)-Math.abs(b.position.x-obs.player.position.x)||a.id.localeCompare(b.id))[0]}
+/**
+ * Source combat melee checks the visible bodies, not an arbitrary 36,000-unit
+ * vertical proximity sphere. A climber must not repeatedly chase an unreachable
+ * enemy on a higher/lower deck while its genuine route/landing is available.
+ * Keep nearestEnemy above unchanged for frozen historical policy.
+ */
+function nearbyStrikeableEnemy(state:TowerState,obs:TowerObservation,reach:number){
+  return obs.enemies.filter(e=>e.active&&
+    Math.abs(e.position.y-obs.player.position.y)<=
+      state.player.halfHeight+e.halfHeight+10000&&
+    Math.abs(e.position.x-obs.player.position.x)<=reach)
+    .sort((a,b)=>Math.abs(a.position.x-obs.player.position.x)-
+      Math.abs(b.position.x-obs.player.position.x)||a.id.localeCompare(b.id))[0];
+}
 // A wounded autonomous climber may secure a real health pickup on its PRESENT
 // supporting deck before committing to another exposed leap. No invented loot,
 // hidden-enemy knowledge, off-platform detours or random route decisions.
@@ -307,7 +349,9 @@ function aimedTelegraph(state:TowerState,obs:TowerObservation,earliest:number,la
   return obs.enemies.filter(e=>e.active&&e.kind!=='sentinel'&&
     e.telegraphUntilTick-obs.tick>=earliest&&e.telegraphUntilTick-obs.tick<=latest&&
     Math.abs(e.position.x-p.position.x)<=110000&&
-    Math.abs(e.position.y-p.position.y)<=state.player.halfHeight+e.halfHeight+9000&&
+    // A real shooter/guardian projectile leaves the enemy CENTRELINE, not
+    // the full melee body. Warning on a different height was an AI false alarm.
+    Math.abs(e.position.y-p.position.y)<state.player.halfHeight+3500&&
     (p.position.x-e.position.x)*e.facing>=0)
     .sort((a,b)=>a.telegraphUntilTick-b.telegraphUntilTick||
       Math.abs(a.position.x-p.position.x)-Math.abs(b.position.x-p.position.x)||
@@ -329,7 +373,7 @@ function pulseReady(state:TowerState,obs:TowerObservation,enemy:TowerObservation
 export function chooseTowerAction(state:TowerState,observation:TowerObservation,options:{tactical?:boolean}={}):TowerDecision{
   const tactical=options.tactical!==false;
   if(observation.upgradeOffers.length){const selected=chooseTowerUpgrade(state);return{action:action(0,{upgradeChoice:selected?.id}),intent:{mode:'choosing-upgrade',summary:selected?`Selecting ${selected.name}`:'Waiting for a valid upgrade',confidence:1,fallbackUsed:false}}}
-  const projectile=incomingProjectile(observation);if(projectile){const away=moveSign(observation.player.position.x-projectile.position.x),move=tactical?guardedEvasion(state,observation,away):away;return{action:action(move,{jump:observation.player.grounded,dash:!observation.player.grounded&&observation.player.dashCooldown===0}),intent:{mode:'evading-projectile',summary:move!==away?'Guarding against a shot without leaving the deck':'Evading an incoming projectile',confidence:.98,fallbackUsed:false}}}
+  const projectile=tactical?incomingCollisionLaneProjectile(state,observation):incomingProjectile(observation);if(projectile){const away=moveSign(observation.player.position.x-projectile.position.x),move=tactical?guardedEvasion(state,observation,away):away;return{action:action(move,{jump:observation.player.grounded,dash:!observation.player.grounded&&observation.player.dashCooldown===0}),intent:{mode:'evading-projectile',summary:move!==away?'Guarding against a shot without leaving the deck':'Evading an incoming projectile',confidence:.98,fallbackUsed:false}}}
   const hazard=immediateHazard(observation);if(hazard&&
      (!tactical||!observedSafeLandingOwnsHazard(state,observation,hazard))){const center=hazard.x+hazard.width/2,away:TowerAction['move']=center>=observation.player.position.x?-1:1,move=tactical?guardedEvasion(state,observation,away):away;return{action:action(move,{jump:observation.player.grounded}),intent:{mode:'evading-hazard',summary:move!==away?'Jumping clear without abandoning the deck':`Avoiding ${hazard.kind}`,confidence:.96,fallbackUsed:false}}}
   const windup=tactical?imminentTelegraph(state,observation):undefined;
@@ -403,7 +447,8 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
   // In the air, preserving the real landing decision outranks chasing a body.
   // The flight controller may still attack a reachable enemy without changing steering.
   const enemy=tactical&&!observation.player.grounded?undefined:
-    nearbyEnemy(observation,state.config.attackReach+state.build.attackReachBonus);
+    tactical?nearbyStrikeableEnemy(state,observation,state.config.attackReach+state.build.attackReachBonus):
+      nearbyEnemy(observation,state.config.attackReach+state.build.attackReachBonus);
   if(enemy){
     const facing=moveSign(enemy.position.x-observation.player.position.x);
     const inStrikePocket=tactical&&Math.abs(enemy.position.x-observation.player.position.x)<state.config.attackReach*.7
