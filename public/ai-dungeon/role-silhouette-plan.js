@@ -80,7 +80,7 @@ export function planFittedRoleDetail(kind,part){
   return {mount:'pivot',scale:1};
  const id=part.id||'';
  let mount='chest';
- if(/bow|string|arrow-|staff-|heart/.test(id)&&['ranger','mystic'].includes(kind))
+ if(/bow|string|staff-/.test(id)&&['ranger','mystic'].includes(kind))
   mount='hand';
  else if(/helm-banner|horned-cowl/.test(id))mount='head';
  else if(/^left-(?:etched-pauldron|gilt-rim|scroll-shoulder|ritual-mantle|spined-shoulder)/.test(id))

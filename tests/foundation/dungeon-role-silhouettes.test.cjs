@@ -82,6 +82,7 @@ test('integrated outfit plan anchors identity pieces to real moving rig and soft
   }
  }
  assert.equal(planFittedRoleDetail('unknown',{}).mount,'pivot');
+ assert.equal(planFittedRoleDetail('ranger',{id:'arrow-one'}).mount,'chest','quiver arrows remain on the actual back');
 });
 test('real chest plates and identity fittings follow actual cloned animated GLB bones, not detached pivot props',()=>{
  const renderer=fs.readFileSync(path.join(ROOT,'public/ai-dungeon/model-assets.js'),'utf8');
