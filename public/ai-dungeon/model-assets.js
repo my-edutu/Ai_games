@@ -638,6 +638,10 @@ function stageRigForearmsAfterMixer(actor,since,reducedMotion){
 // One actual rendered displacement sample feeds every native skeletal layer
 // before posing, avoiding one-frame-late hips and invented footfalls.
 function stageRigGroundedStride(actor,reducedMotion){
+ // Real skinned gait requires real imported leg bones. Unauthored or partial
+ // GLB rigs cannot acquire imagined feet or run a presentation-only clock.
+ // This retains the original no-rig fallback during studio/VM playback too.
+ if(!actor.rigGaitBones?.length){actor.rigLegStride=null;actor.rigFullBodyStride=null;return;}
  const current=actor.root?.position,previous=actor.rigGaitPosition;
  const travel=current&&previous?Math.hypot(current.x-previous.x,current.z-previous.z):0;
  if(current&&previous)previous.copy(current);
