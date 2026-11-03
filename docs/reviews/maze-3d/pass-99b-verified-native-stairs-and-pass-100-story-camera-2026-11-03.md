@@ -13,14 +13,14 @@ Dated native Pass99 examples:
 | Real original capture | UTC timestamp | Exact full-resolution image SHA-256 |
 | --- | --- | --- |
 | 320×740 Follow Pip + Thornback | 2026-11-03T03:46:27.827Z | `e1b0e36cf2b4f63c334b012eba482c413039788b8393a6b3867799b5729adb60` |
-| 390×844 Follow Pip + Thornback | 2026-11-03T03:46:21.546Z | `a762cd50b12727ee...` (complete hash in original sidecar) |
-| 844×390 landscape Follow | 2026-11-03T03:46:47.221Z | `87d4cc4a9a4d3569...` (complete hash in original sidecar) |
+| 390×844 Follow Pip + Thornback | 2026-11-03T03:46:21.546Z | `a762cd50b12727ee77adaaf3ae9dc1092c96717b3cfc8fe32a0455858eba78f3` |
+| 844×390 landscape Follow | 2026-11-03T03:46:47.221Z | `87d4cc4a9a4d3569dea669e3020b11d191870f9ac48fd2dddec211819128b928` |
 | 390×844 genuinely witnessed collected key | 2026-11-03T03:49:10.911Z | `6de2d81356eac054a0303b120cba4967b7c1af92943820edd9d0f306b16f80dc` |
 | 1280×900 genuine three-frame gate manifest | 2026-11-03T03:50:31.369Z | Before/mid/after checked against separate original manifest |
 
 The true 320 Follow diagnostic reports **one real guardian fully in frame**, physical guardian rightmost bound `+0.87494 NDC` (unchanged strict `+0.95` acceptance), and **Pip also fully in frame**. Original 390 Follow and 844 landscape show both actors and the compact one-action HUD. The native 390 public key sequence retains **8 actual physical 3D fragments in frame**, complete Pip, one truthful `KEY FOUND` / `Searching` state and no dashboard/footer; the actual 1280 before/mid/after gate remains source-bound. No screenshot cropping, acceptance-threshold reduction, or image replacement.
 
-## Fresh-context artistic critique of actual gameplay pixels
+## Lead original-image artistic critique of actual gameplay pixels
 
 I directly opened native real WebGL Pass99 portrait pickup and the same-size Pass98/Pass99 guardian, portrait collection and 844 landscape A/B. **The paired, sloping physical stone/sea-glass stair rails are real** and read as connected playable architecture in front of Pip and Thornback, not a test-only statistic. The new rail still occupies only a narrow slice of the stage, so the full game remains too monotonous, with small on-screen characters and insufficiently consequential physical acting compared with fixed official Nintendo imagery. **The critic REJECTS the global benchmark**. This is a single-lead real-image review; **no distinct fresh-context agent, independent blind A/B or artistic win** is claimed.
 
