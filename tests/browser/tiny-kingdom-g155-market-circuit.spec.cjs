@@ -185,3 +185,46 @@ test('G160 camera motion reuses physically identical resident citizen geometry o
  expect(end.gl).toBe(0);
  expect(errors).toEqual([]);
 });
+
+
+// G161: 2-3 FPS software renders must not silently turn a real 2.9 m/s
+// pedestrian into a 1 m/s slideshow. This is a spectator-clock regression:
+// movement crosses real walkable cells, while AI ticks, resources and replay
+// remain unchanged. One slow frame must be integrated in collision-safe steps.
+test('G161 slow-software market navigation catches up safely to real wall time at 390px',async({page})=>{
+ test.setTimeout(150000);
+ const errors=[];page.on('pageerror',error=>errors.push(error.message));
+ await page.setViewportSize({width:390,height:844});
+ await page.setContent(html);
+ await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0,
+  null,{timeout:90000});
+ const start=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;g.reset();g.setSpeed(0);
+  const visit=g.visitMarket(),origin=g.getStreetWalkState().position;
+  const route=g.nextMarketStall();
+  return {visit,origin,route,authority:JSON.stringify(g.exportSnapshot())};
+ });
+ expect(start.visit.active).toBe(true);
+ expect(start.route.started,JSON.stringify(start.route)).toBe(true);
+ expect(start.route.meters).toBeGreaterThan(2.5);
+ // A 600ms late rendered frame advances SIX .10s collision-checked intervals,
+ // not the prior .18s clamp that made a 7m trip take several extra seconds.
+ const result=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;
+  const motion=g.advanceStreetViewClock(.6);
+  return {motion,position:g.getStreetWalkState().position,
+   safe:g.getMarketVisitAudit().safe,
+   authority:JSON.stringify(g.exportSnapshot()),
+   errors:document.querySelector('#world').getContext('webgl')?.getError()??-1,
+   overflow:document.documentElement.scrollWidth};
+ });
+ expect(result.motion.substeps).toBe(6);
+ expect(result.motion.consumedSeconds).toBeCloseTo(.6,5);
+ expect(result.motion.travelledMeters).toBeGreaterThan(.6);
+ expect(result.motion.travelledMeters).toBeLessThanOrEqual(1.80);
+ expect(result.safe).toBe(true);
+ expect(result.authority).toBe(start.authority);
+ expect(result.overflow).toBeLessThanOrEqual(390);
+ expect(result.errors).toBe(0);
+ expect(errors).toEqual([]);
+});
