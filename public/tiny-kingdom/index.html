@@ -8530,9 +8530,15 @@ function skyConditions(time){
 // Exposed deterministic radiance contract: the sky already derives this same
 // daylight factor. Rendering only; no mutable weather, RNG or save changes.
 function lightingProfile(time){
- const sky=skyConditions(time);
+ const sky=skyConditions(time),hour=((time%24)+24)%24;
+ // Actual dawn and dusk are more inviting when low-angle warm skylight
+ // reaches plaster and road shadow faces. An extra bounded ambient lift
+ // corrects the overly dark W01 workday capture without raising midnight
+ // or adding any fake lamp, triangle, framebuffer or new economic event.
+ const dawnBounce=Math.max(0,1-Math.abs(hour-7)/2.3)*.21;
+ const duskBounce=Math.max(0,1-Math.abs(hour-18.4)/2.3)*.13;
  return {solar:Math.max(0,Math.min(1,(sky.daylight-.20)/.80)),
-  ambientBlend:Math.max(.25,Math.min(1,sky.daylight*1.35)),
+  ambientBlend:Math.max(.25,Math.min(1,sky.daylight*1.35+dawnBounce+duskBounce)),
   daylight:sky.daylight};
 }
 
