@@ -8,11 +8,11 @@ const BASE_HZ=Object.freeze([55.0,65.41,58.27,49.0]);
 const EVENT_KIND=Object.freeze({
  telegraph:'warning',opening:'opening',danger:'danger',breach:'breach',defeat:'defeat',loot:'reward',
  healing:'heal',kill:'kill',trap:'trap',disarm:'disarm',unseal:'unseal',
- guard:'guard',cover:'cover',evade:'evade',block:'block',interrupt:'opening'
+ guard:'guard',cover:'cover',evade:'evade',block:'block',interrupt:'interrupt'
 });
 const PRIORITY=Object.freeze({
  defeat:6,renewal:5,transition:5,warning:5,'warning-rising':4,'warning-final':5,unseal:5,boss:4,danger:4,
- opening:4,breach:4,cover:4,'cover-impact':5,'boss-fall':5,impact:3,weapon:3,ranged:3,magic:3,heal:3,kill:3,
+ opening:4,interrupt:4,breach:4,cover:4,'cover-impact':5,'boss-fall':5,impact:3,weapon:3,ranged:3,magic:3,heal:3,kill:3,
  reward:2,trap:2,disarm:2,guard:1,block:1,evade:1
 });
 const finite=(n,defaultValue=0)=>Number.isFinite(n)?n:defaultValue;

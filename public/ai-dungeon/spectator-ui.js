@@ -4,7 +4,7 @@ export function encounterTarget(focus,boss,mapSize,nearby){
  const origin=(mapSize-1)/2;
  return {x:focus.x*.72+(boss.x-origin)*.28,z:focus.z*.72+(boss.z-origin)*.28};
 }
-export function isSceneAlert(event){return ['telegraph','phase','defeat','breach'].includes(event.kind)}
+export function isSceneAlert(event){return ['telegraph','phase','defeat','breach','interrupt'].includes(event.kind)}
 export function installSpectatorUI(doc=document){
  const $=id=>doc.getElementById(id),body=doc.body;
  const hud=$('hud-toggle'),map=$('map-toggle'),journal=$('journal-dialog'),open=$('journal-toggle');

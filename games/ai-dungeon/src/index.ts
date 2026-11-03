@@ -200,6 +200,38 @@ function cultistRetreat(s:DungeonState,caster:Unit,hero:Unit){
  return escapes[0]?.p??null;
 }
 
+
+/**
+ * Real imminent channel interruption opportunities, ranked deterministically.
+ * Only existing enemy cast coordinates locked to a living ally still standing
+ * on that tile can change an autonomous hero's target priority.
+ */
+export function planThreatInterceptions(s:Pick<DungeonState,'tick'|'units'>,hero:Unit):Unit[]{
+ if(!s||!Number.isSafeInteger(s.tick)||!Array.isArray(s.units)||
+    !hero||hero.faction!=='party'||hero.hp<=0)return [];
+ const allies=new Map(s.units.filter(u=>u.faction==='party'&&u.hp>0&&
+    Number.isFinite(u.maxHp)&&u.maxHp>0).map(u=>[u.id,u]));
+ const found:{foe:Unit;remaining:number;vulnerability:number;distance:number}[]=[];
+ for(const foe of s.units){
+  if(foe.hp<=0||foe.faction!=='enemy'||
+     (foe.kind!=='cultist'&&foe.kind!=='revenant'))continue;
+  const hex=foe.kind==='cultist';
+  const due=hex?foe.channelUntilTick:foe.breachUntilTick;
+  const targetId=hex?foe.channelTargetId:foe.breachTargetId;
+  const x=hex?foe.channelX:foe.breachX,z=hex?foe.channelZ:foe.breachZ;
+  if(!Number.isSafeInteger(due)||due<s.tick||due>s.tick+2||
+     typeof targetId!=='string')continue;
+  const ally=allies.get(targetId);
+  if(!ally||!Number.isInteger(x)||!Number.isInteger(z)||
+    ally.x!==x||ally.z!==z)continue;
+  found.push({foe,remaining:due-s.tick,vulnerability:ally.hp/ally.maxHp,
+   distance:dist(hero,foe)});
+ }
+ return found.sort((a,b)=>a.remaining-b.remaining||
+   a.vulnerability-b.vulnerability||a.distance-b.distance||
+   a.foe.id.localeCompare(b.foe.id)).map(item=>item.foe);
+}
+
 /**
  * Deterministic physical squad and enemy footwork on the real dungeon grid.
  * Actors cannot traverse occupied living cells. Ranged agents choose actual
@@ -591,7 +623,12 @@ export class DungeonRuntime {
    const recoveringWarden=enemies.find(e=>e.kind==='warden'&&planWardenRecovery(s,e));
    // Real counterplay: attack the genuinely exposed guardian before minions,
    // but only when a legal unobstructed firing/weapon lane exists.
-   const attackable=recoveringWarden?[recoveringWarden,...defenders]:defenders.length?defenders:enemies;
+   // A genuine charged hex or breach aimed at a still-marked ally outranks
+   // an incidental nearby foe. Actual attack range and blocked lanes remain.
+   const threatenedCasters=planThreatInterceptions(s,hero);
+   const attackable=[...threatenedCasters,...(recoveringWarden?[recoveringWarden]:[]),
+    ...(defenders.length?defenders:enemies)]
+    .filter((foe,i,all)=>all.findIndex(other=>other.id===foe.id)===i);
    const range=hero.kind==='vanguard'?1:hero.kind==='ranger'?4:3;
    if(hero.kind==='mystic'){
     const urgent=party.some(u=>u.hp>0&&u.hp<=u.maxHp*.35);
@@ -649,7 +686,11 @@ export class DungeonRuntime {
     const minion=protectorTarget??defenders.find(e=>dist(hero,e)<=5||dist(leader,e)<=4)??defenders[0];
    const boss=enemies.find(e=>e.kind==='warden');
    const nearbyBoss=boss&&dist(hero,boss)<=5?boss:null;
-   const engagement=recoveringWarden||minion||(hero===leader?boss:nearbyBoss);
+   // Ranged support can spend one lawful movement turn to open an interrupt
+   // line before an actual locked attack resolves. No free shot or teleport.
+   const imminentInterception=hero.kind!=='vanguard'?
+    threatenedCasters.find(enemy=>dist(hero,enemy)<=range+2):null;
+   const engagement=imminentInterception??(recoveringWarden||minion||(hero===leader?boss:nearbyBoss));
    if(hero!==leader&&!engagement){
     const next=planTacticalStep(s,hero,leader,'escort');
     if(next){hero.x=next.x;hero.z=next.z;hero.action='move';
@@ -661,7 +702,8 @@ export class DungeonRuntime {
    const next=planTacticalStep(s,hero,engagement??s.exit,engagement?'engage':'exit');
    if(next){
     hero.x=next.x;hero.z=next.z;hero.action='move';
-    s.intent=recoveringWarden?'Closing on the Warden counterattack':hero.kind==='vanguard'?(minion?'Intercepting '+minion.kind:engagement?'Confronting the Warden':'Claiming the portal'):
+    s.intent=imminentInterception&&engagement===imminentInterception?'Seeking a lawful interrupt lane before the locked strike':
+     recoveringWarden?'Closing on the Warden counterattack':hero.kind==='vanguard'?(minion?'Intercepting '+minion.kind:engagement?'Confronting the Warden':'Claiming the portal'):
      hero.kind==='ranger'?'Wildshadow seeking an open shot':'Starweaver taking a safe spell lane';
    }
   }
