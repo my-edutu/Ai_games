@@ -36,6 +36,11 @@ jobs:
           CI: '1'
           LIBGL_ALWAYS_SOFTWARE: '1'
         run: npx playwright test tests/browser/tiny-kingdom-w04-real-harvest-aftermath.spec.cjs --workers=1
+      - name: W06 RED-before - actual Day-120 market visibility at 1024px and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w06-readable-market-path.spec.cjs --workers=1
       - name: W05 live farm cut-row plots, physically tied sheaves, replay and 390px
         env:
           CI: '1'
