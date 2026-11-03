@@ -330,18 +330,32 @@ function blendTowerStageFocus(center, subject, weight) {
 // on a phone. No victory pose, fake checkpoint, camera cut or HUD narration.
 // Unlike the mid-ascent camera this wide exterior shot cannot look through the
 // solid tower core to a fictional destination. User orbit/zoom still work.
-function composeTowerTerminalShot(hero, aspect, zoom = 1, orbit = 0) {
+function composeTowerTerminalShot(hero, aspect, zoom = 1, orbit = 0,
+  resultAgeSeconds = 0, reducedMotion = false) {
+  if (!hero || ![hero.x, hero.y, hero.z, aspect, zoom, orbit,
+    resultAgeSeconds].every(Number.isFinite) || aspect <= 0) return null;
   const portrait = aspect < .85;
   const heroRadius = Math.max(27.35, Math.hypot(hero.x, hero.z));
+  // The actual source outcome is an entire physical sequence: begin with an
+  // exterior establishing view of the fallen climber and earned-floor rungs,
+  // then resolve onto their silhouettes over 1.9 seconds. No fabricated
+  // result, scene cut, extra render pass, or authoritative time change.
+  const established = clamp((resultAgeSeconds - .25) / 1.9, 0, 1);
+  const finish = reducedMotion ? 1 : established * established * (3 - 2 * established);
+  const wide = portrait ? 35 : 29;
+  const close = portrait ? 27.5 : 23.7;
+  // Respect a viewer's wider zoom. The close portrait lens still admits the
+  // ~8-unit-wide physical terminal memorial and the true skinned character.
+  const radius = heroRadius + (wide + (close - wide) * finish) *
+    clamp(zoom, 1, 1.35);
   const angle = Math.atan2(hero.x, hero.z) + (portrait ? .015 : .08) +
-    clamp(orbit, -.5, .5) * .25;
-  // Preserve the earned 3D memorial's full width if someone zoomed into
-  // a ledge moments before the true result. Zooming out is still respected.
-  const radius = heroRadius + (portrait ? 35 : 29) * clamp(zoom, 1, 1.35);
+    clamp(orbit, -.5, .5) * .25 +
+    (reducedMotion ? 0 : (1 - finish) * .025);
   const position = new THREE.Vector3(Math.sin(angle) * radius,
-    hero.y + (portrait ? 8.2 : 6.5), Math.cos(angle) * radius);
+    hero.y + (portrait ? 8.2 - 1.3 * finish : 6.5 - .9 * finish),
+    Math.cos(angle) * radius);
   const focus = new THREE.Vector3(hero.x, hero.y + 2.1, hero.z);
-  return { position, focus };
+  return { position, focus, stageProgress: finish };
 }
 
 // Evidence-only approximate core occlusion for the inset bronze lock. A point
@@ -1641,6 +1655,9 @@ export function createTowerScene(canvas, settings = {}) {
   // The *observed* terminal→new-token handoff receives a brief exterior
   // establishing sweep. Camera-only: no source clock, physics or AI changes.
   let authenticRestartSweep = null;
+  // One genuine terminal token owns one physical memorial camera passage.
+  // Context-loss rebuild, floor changes and actual new runs retire the shot.
+  let terminalCameraRun = null, terminalCameraBegan = 0;
   // Real newly observed player-owned airborne projectile, not a guessed
   // ability input. Render-only for the original climber's existing rig.
   let airbornePulse = null, guardianCounterPulse = null;
@@ -1729,6 +1746,7 @@ export function createTowerScene(canvas, settings = {}) {
     echoDrawnTick = -1; observedStageLight.reset();
     guardianRescueBlend = 0; guardianRescueApplications = 0;
     actorSafeRefinements = 0;
+    terminalCameraRun = null; terminalCameraBegan = 0;
   }
   function rebuildGraphicsResources() {
     // Dispose while WebGL is still lost: Three's disposal listeners otherwise
@@ -2341,12 +2359,23 @@ export function createTowerScene(canvas, settings = {}) {
     // of the solid tower while the 20 Hz authority runs normally.
     const terminalStaged = !overview && finale.group.visible && !!snapshot.result
       && ['result', 'intermission'].includes(snapshot.lifecycle);
+    if (!terminalStaged) terminalCameraRun = null;
     if (terminalStaged) {
+      // The source, not the camera, determines whether the expedition ended.
+      // An actual new run/restart gets an independent shot; an old terminal
+      // frame can never stage a fictitious reward or prolong intermission.
+      if (terminalCameraRun !== snapshot.runToken) {
+        terminalCameraRun = snapshot.runToken;
+        terminalCameraBegan = elapsed;
+      }
       const shot = composeTowerTerminalShot(climber.group.position,
-        camera.aspect, zoom, orbit);
-      destination.copy(shot.position);
-      focus.copy(shot.focus);
-      targetY = focus.y;
+        camera.aspect, zoom, orbit,
+        Math.max(0, elapsed - terminalCameraBegan), options.reducedMotion);
+      if (shot) {
+        destination.copy(shot.position);
+        focus.copy(shot.focus);
+        targetY = focus.y;
+      }
     }
     // Follow source-observed guardian action a little faster than exploration:
     // a real HP change should not be over before the camera catches its actor.
