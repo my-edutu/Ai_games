@@ -3,7 +3,7 @@ import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset } from './map-view.mjs';
+import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -525,9 +525,15 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
             && ((nearObservedGate.a === keyGateCue.a && nearObservedGate.b === keyGateCue.b)
               || (nearObservedGate.a === keyGateCue.b && nearObservedGate.b === keyGateCue.a));
           const gateDelta = {x: (a.x + b.x) / 2 - pose.x, z: (a.z + b.z) / 2 - pose.z};
-          focus = keyLockCloseup || openingKeyedBeat
-            ? composePublicKeyLockFocus(stageBias, gateDelta, aspect)
-            : composePublicSealedGateFocus(stageBias, gateDelta, aspect);
+          // When the same public gate actually opens, foreground scenery
+          // must not drag the actor behind the nearest visible balustrade.
+          // Center the real actor/arch pair; normal sealed/keyed gates retain
+          // their previous verified stage composition and privacy rules.
+          focus = openingGateBeat
+            ? composePublicGateOpeningFocus(gateDelta, aspect)
+            : keyLockCloseup
+              ? composePublicKeyLockFocus(stageBias, gateDelta, aspect)
+              : composePublicSealedGateFocus(stageBias, gateDelta, aspect);
         } else {
           // A near, already-observed goal does not erase the public coastline
           // correction. Keep Pip and its legitimate first step in the diorama.
