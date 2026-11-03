@@ -6549,28 +6549,113 @@ function getMarketTourAudit(){
    waypoints:marketTourCompletion?.waypoints||0,
    reason:marketTourCompletion?.reason||null};
 }
+// The spectator must reach a genuinely visible second stall without ever
+// crossing an awning, cottage, or citizen's authoritative navigation state.
+// Earlier G155/G156 plans sampled attractive photographs first, then tried
+// 24 separate paths to distant points. At Day 120 none was connected. Instead
+// expand the player's ACTUAL walkable component once, and photograph only
+// positions the spectator can physically reach. Bound both space and work.
+function planConnectedMarketTour(origin,activeTrade){
+ const size=.55,bound=35,limit=3000;
+ const nodes=[{ix:0,iz:0,from:-1}],visited=new Set(['0,0']);
+ const screened=new Set(),eligibleStalls=MARKET_STALLS.filter(s=>s.trade!==activeTrade);
+ const doors=eligibleStalls.map(stall=>({
+  stall,door:[stall.x,terrain(stall.x,stall.z)+1.3,stall.z+stall.face*.96]
+ }));
+ const directions=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
+ const point=n=>[origin[0]+n.ix*size,origin[1]+n.iz*size];
+ const audit={reachableCells:0,screenedViews:0,portraitSafeViews:0,
+  routesRebuilt:0,obstructed:0,stalls:eligibleStalls.map(s=>s.trade)};
+ let best=null;
+ for(let cursor=0;cursor<nodes.length&&cursor<limit;cursor++){
+  const node=nodes[cursor],pos=point(node);
+  audit.reachableCells++;
+  // Evaluate a broad and connected geographic area without repeatedly
+  // projecting the same facade from almost identical sub-metre viewpoints.
+  const distanceFromStart=Math.hypot(pos[0]-origin[0],pos[1]-origin[1]);
+  const cell=Math.round(pos[0]*1.3)+','+Math.round(pos[1]*1.3);
+  if(distanceFromStart>=2.7&&!screened.has(cell)){
+   screened.add(cell);
+   for(const {stall,door} of doors){
+    const dx=door[0]-pos[0],dz=door[2]-pos[1],distance=Math.hypot(dx,dz);
+    if(distance<4||distance>9.8||(pos[1]-stall.z)*stall.face<1.2)continue;
+    audit.screenedViews++;
+    const crowd=marketVisitCrowd(pos,door);
+    if(crowd.foregroundCitizenCount||crowd.closestCitizenDistance<1.65)continue;
+    const architecture=marketVisitArchitecture(pos,door,stall);
+    if(!architecture.portraitSafe){audit.obstructed++;continue;}
+    const yaw=Math.atan2(dx,dz),view=streetEyeVisibility(pos[0],pos[1],yaw,STREET_EYE);
+    if(!view.openSky||view.forwardMetres<1.6)continue;
+    audit.portraitSafeViews++;
+    const score=24-Math.abs(distance-6.25)*2+
+     Math.min(6,view.forwardMetres)*.8+
+     Math.min(4,architecture.nearestWallDistance)*2-
+     architecture.largestForegroundCover*60-
+     architecture.totalForegroundCover*18-
+     distanceFromStart*.18;
+    if(!best||score>best.score){
+     best={nodeIndex:cursor,score,position:pos.slice(),yaw,stall,door,
+      tilt:Math.max(-.45,Math.min(.35,
+       Math.atan2(door[1]-(terrain(...pos)+STREET_EYE),distance))),
+      stallDistance:distance,visibility:view,architecture,
+      adaptiveStandoff:crowd.closestCitizenDistance<2.4,...crowd};
+    }
+   }
+  }
+  // Deterministic connected-component expansion: a cell is discovered only
+  // when its ENTIRE swept shoulder-width segment is physically traversable.
+  for(const [ix,iz] of directions){
+   const ni=node.ix+ix,nj=node.iz+iz,key=ni+','+nj;
+   if(Math.abs(ni)>bound||Math.abs(nj)>bound||visited.has(key))continue;
+   const next={ix:ni,iz:nj,from:cursor},p=point(next);
+   if(!streetTourSegmentSafe(pos,p))continue;
+   visited.add(key);nodes.push(next);
+  }
+  // Once a reachable, screen-safe shot exists, inspect more of the connected
+  // neighbourhood for a better one but do not scan the entire valley.
+  if(best&&cursor>Math.min(limit-1,best.nodeIndex+360))break;
+ }
+ if(!best){
+  marketVisitPlanStats={...marketVisitPlanStats,connectedSearch:audit,
+   routeReachable:false,lastFailure:'No physically connected unobstructed second stall'};
+  return null;
+ }
+ const backwards=[];let i=best.nodeIndex;
+ while(i>0){backwards.push(point(nodes[i]));i=nodes[i].from;}
+ backwards.reverse();
+ const chain=[origin,...backwards],route=[];
+ for(let a=0;a<chain.length-1;){
+  let b=chain.length-1;
+  while(b>a+1&&!streetTourSegmentSafe(chain[a],chain[b]))b--;
+  // Defensive: no saved path may cross a building, even if the grid changes.
+  if(b<=a||!streetTourSegmentSafe(chain[a],chain[b]))return null;
+  route.push(chain[b]);a=b;
+ }
+ audit.routesRebuilt=1;
+ marketVisitPlanStats={...marketVisitPlanStats,connectedSearch:audit,
+  routeReachable:true,lastFailure:null};
+ return {...best,route,connectedSearch:audit};
+}
 function nextMarketStall(){
  if(!marketVisitActive||!streetWalk||!marketVisitFocus)
   return {started:false,reason:'Enter the real village market first'};
  const active=marketVisitFocus.stall.trade;
- const current=MARKET_STALLS.findIndex(s=>s.trade===active);
  marketTour=null;marketTourCompletion=null;
- for(let offset=1;offset<MARKET_STALLS.length;offset++){
-  const trade=MARKET_STALLS[(current+offset)%MARKET_STALLS.length].trade;
-  const plan=planMarketVisit(trade,streetPosition);
-  if(!plan||plan.stall.trade!==trade||plan.stall.trade===active)continue;
+ const plan=planConnectedMarketTour(streetPosition,active);
+ if(plan&&plan.route.length&&plan.stall.trade!==active){
   const path=plan.route;
-  if(!path||!path.length)continue;
   marketTour={path,index:0,plan,replans:0};
   marketTourCompletion=null;
   streetCaption();presentationEpoch++;
-  return {started:true,trade,waypoints:path.length,
+  return {started:true,trade:plan.stall.trade,waypoints:path.length,
    meters:Math.round(path.reduce((sum,p,i)=>sum+
     Math.hypot(p[0]-(i?path[i-1][0]:streetPosition[0]),
      p[1]-(i?path[i-1][1]:streetPosition[1])),0)*10)/10,
-   realPavement:true,authorityUnchanged:true};
+   realPavement:true,authorityUnchanged:true,
+   reachableCells:plan.connectedSearch.reachableCells};
  }
- marketTourCompletion={completed:false,reason:'No continuous clear pavement route to a different stall'};
+ marketTourCompletion={completed:false,
+  reason:'No physically connected unobstructed pavement view of another stall'};
  showToast('No safe market passage to another stall yet');
  return {started:false,reason:marketTourCompletion.reason};
 }
