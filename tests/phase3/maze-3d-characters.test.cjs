@@ -594,6 +594,25 @@ test('Pip physically acknowledges only a witnessed public pickup with stable pri
       'the genuinely collected connected key must be visibly turned and large enough for native mobile');
     assert.ok(key.position.x < -.24 && key.position.y > .02 && key.position.z > .16,
       'during witnessed reward, the same connected key is lifted outward from Pip’s face rather than covering it');
+
+    // Render-camera-relative face acting is an ORIGINAL 3D rig movement, not
+    // a sprite or autonomous steering command. Two actual viewpoints must
+    // produce opposite signed joint turns, then clear without hidden data.
+    pip.update({...cue,keyCameraPosition:{x:12,y:18,z:12}});
+    assert.ok(body.rotation.y>.18 && head.rotation.y>.5,
+      'pickup face acting must look toward the public render camera, not just raise the key');
+    assert.deepEqual(pip.group.position.toArray(),[0,0,0],
+      'camera-relative facial acting never moves the autonomous explorer');
+    pip.update({...cue,keyCameraPosition:{x:-12,y:18,z:12}});
+    assert.ok(body.rotation.y<-.18 && head.rotation.y<-.5,
+      'the same physical actor turns left when the camera is on its left');
+    pip.update({...cue,keyCameraPosition:{x:NaN,y:18,z:12}});
+    assert.equal(body.rotation.y,0,'invalid camera direction cannot corrupt Pip pose');
+    assert.equal(head.rotation.y,0,'invalid camera direction cannot leave a false face cue');
+    pip.update({...cue,pickupStrength:0,keyCameraPosition:{x:12,y:18,z:12}});
+    assert.equal(body.rotation.y,0,'an expired pickup cannot keep looking at the camera');
+    assert.equal(head.rotation.y,0,'no public event means no staged hero facial turn');
+    pip.update(cue);
     assert.deepEqual(pip.group.position.toArray(),[0,0,0],'presentation never changes engine actor position');
     const staticPose=[body.position.y,head.rotation.x,left.rotation.x,right.rotation.x,scarf.rotation.x];
     pip.update({...cue,time:700});
