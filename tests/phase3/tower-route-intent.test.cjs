@@ -218,3 +218,32 @@ test('visible 3D route stones point only at the source-declared genuinely clear 
     assert.equal(effect.diagnostics().sourceClearLane, false);
   } finally { effect.dispose(); }
 });
+
+test('a real earned air-recovery decision keeps its original 3D stones on the actually observed safe deck lane', async () => {
+  const [THREE, { createTowerRouteIntent }] = await loaded;
+  const effect = createTowerRouteIntent(THREE);
+  const deck = { ...landing, width: 115000 };
+  const center = deck.x + deck.width / 2, top = deck.y + deck.height;
+  const source = snapshot({ tick: 337,
+    player: { x: center, y: top + 42000, health: 4, attacking: false, halfWidth: 9000, halfHeight: 14000 },
+    hazards: [{ id: 'active-spikes', kind: 'spikes', active: true, x: center - 16000,
+      y: top, width: 32000, height: 9000 }],
+    intent: { mode: 'air-control', summary: 'Using earned air recovery to reach observed landing',
+      targetPlatformId: deck.id } });
+  const pristine = JSON.stringify(source);
+  try {
+    effect.update(source, deck);
+    assert.equal(effect.group.visible, true);
+    assert.equal(effect.diagnostics().observedLandingX, center - 27500,
+      'source-earned second jump must not point to the hazardous decorative midpoint');
+    assert.equal(effect.diagnostics().sourceClearLane, true);
+    assert.equal(effect.diagnostics().extraDraws, 1,
+      'earned air recovery uses the existing bounded instanced route stones');
+    assert.equal(JSON.stringify(source), pristine,'3D feedback cannot mutate real AI observation');
+    effect.update({ ...source, tick: 338 }, deck, { reducedMotion: true });
+    assert.equal(effect.diagnostics().observedLandingX, center - 27500,
+      'reduced motion retains a stable real destination without movement pulses');
+    effect.update({ ...source, tick: 339, lifecycle: 'intermission' }, deck);
+    assert.equal(effect.diagnostics().markers, 0,'result phase cannot show an unearned future route');
+  } finally { effect.dispose(); }
+});
