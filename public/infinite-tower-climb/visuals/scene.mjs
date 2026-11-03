@@ -746,7 +746,7 @@ function observedSourceLandingX(snapshot, deck) {
 // Fit a small local encounter, preserving the hero's 18%-high baseline whenever
 // the actual route fits. A long portrait crossing may require a wider view;
 // that tradeoff is preferable to cropping the real destination or opponent.
-function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previousGuardianLean = null, threatenedGuardianId = null) {
+function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previousGuardianLean = null, threatenedGuardianId = null, threatenedShotPoint = null) {
   const player = snapshot.player, height = player.halfHeight * 2 / SCALE;
   const heroAngle = angleFor(player.x, snapshot.worldWidth);
   const body = { x: hero.x, y: hero.y + height * .52, z: hero.z };
@@ -835,6 +835,11 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
   const powerSpine = guardianCircuitSource &&
     guardianCircuitSource.guardianId === contactGuardian?.guardianId
     ? observedGuardianPowerSpineStage(guardianCircuitSource)?.center || null : null;
+  // The physical warning vanes AND the camera use the identical present
+  // observed attack lane. The focus cannot hijack normal jumping, a stale
+  // encounter or a different source guardian's projectile.
+  const shotFocus = contactGuardian && threatenedGuardianId === contactGuardian.guardianId
+    ? threatenedShotPoint : null;
   const gatePoints = lockStage
     ? [lockStage.center, ...lockStage.bolts.slice(2, 6)] : [];
   const center = { ...body };
@@ -933,12 +938,14 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
       towerCoreSightlineClear(position, relay, 23.5);
     const powerSpineFramed = !!powerSpine && visible(powerSpine, .88, .78) &&
       towerCoreSightlineClear(position, powerSpine, 23.5);
+    const shotFramed = !!shotFocus && visible(shotFocus, .89, .76) &&
+      towerCoreSightlineClear(position, shotFocus, 23.5);
     const gateCoreClear = !!gate && towerCoreSightlineClear(position, gate, 23.5);
     const gateFramed = gatePoints.length > 0 && gateCoreClear &&
       gatePoints.every(point => visible(point, .93, .86));
     return { focus: center, position, distance, landing, targetId: target?.id || null, lean, clear,
       guardianStaged: !!contactGuardian, guardianFramed, gateFramed, gateCoreClear, gateAnchorX,
-      relayFramed, powerSpineFramed,
+      relayFramed, powerSpineFramed, shotFramed,
       heroFraction: height * level / (2 * tangent * (distance - bodyDepth)) };
   }
   let best = solve(0);
@@ -969,6 +976,9 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
         // phone; prefer the first true power-spine clutch only among shots
         // with both real actors, exterior clearance and readable hero scale.
         (guardianCircuitSource?.openedFraction > 0 && view.powerSpineFramed ? 5 : 0) +
+        // Prioritize the actual warning lane while real contact is imminent,
+        // never at the expense of a cropped actor or hidden guardian.
+        (view.shotFramed ? 11 : 0) +
         Math.min(.24, view.heroFraction) * 16 - Math.abs(view.lean) * 1.6;
     let bestQuality = quality(best);
     for (const amount of [0, .22, .45, .7, .95, 1.13, -.22, -.45, -.7]) {
@@ -1894,7 +1904,8 @@ export function createTowerScene(canvas, settings = {}) {
     const followComposition = options.camera === 'overview' ? null :
       composeFollowView(snapshot, climber.group.position, camera.aspect,
         orbit, zoom, guardianShotLean,
-        !options.stale && guardianWarning.visible ? guardianWarning.guardianId : null);
+        !options.stale && guardianWarning.visible ? guardianWarning.guardianId : null,
+        !options.stale && guardianWarning.visible ? guardianShotStage.focusPoint() : null);
     guardianShotLean = !options.stale && followComposition?.guardianStaged
       ? followComposition.lean : null;
     const viewPosition = initialized ? camera.position : followComposition?.position || camera.position;
