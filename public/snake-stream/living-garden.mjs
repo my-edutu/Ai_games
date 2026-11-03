@@ -80,7 +80,7 @@ export function createLivingGarden(THREE, {width,height}) {
     let shade=layer==='moss'?1.08+cloud*1.91+(lichen-.5)*.28
       :layer==='cliff'?.62+cloud*2.75-wet*.45+(lichen-.5)*.16
       :layer==='ruin'?1.11+cloud*1.67+(lichen-.5)*.30
-      :.70+cloud*2.43+(lichen-.5)*.42;
+      :.43+cloud*2.24+(lichen-.5)*.42 + clamp((point[1]-2.5)/6,0,1)*1.05;
     shade=clamp(shade+faceShade,0,colors.length-1);
     const low=Math.floor(shade),high=Math.min(colors.length-1,low+1),mix=shade-low;
     const a=colors[low],c=colors[high];
@@ -372,18 +372,28 @@ export function createLivingGarden(THREE, {width,height}) {
     for(let i=0;i<sides;i++)quad('cliff',point(0,i),point(0,(i+1)%sides),
       point(1,(i+1)%sides),point(1,i),i+phase*13);
   }
+  // A single original four-face folded leaf becomes a cupped, offset 3D
+  // lancet instead of a paper-thin kite. Dorsal height, asymmetrical lobes,
+  // side curling and a drooping tip are sculpted into the SAME four triangles.
+  // Every woodland canopy retains its full leaf count and existing GPU budget.
   function canopyLeaf(x,y,z,a,span,phase){
     const dx=Math.cos(a),dz=Math.sin(a),side=[-dz,dx];
-    const dip=.23*Math.sin(phase*1.17),w=span*(.24+.08*hash(phase,47));
-    const base=[x,y,z],mid=[x+dx*span*.45,y+dip+.16,z+dz*span*.45];
-    const tip=[x+dx*span,y+dip-.18,z+dz*span];
-    const left=[mid[0]+side[0]*w,mid[1]-.09,mid[2]+side[1]*w];
-    const right=[mid[0]-side[0]*w,mid[1]-.09,mid[2]-side[1]*w];
-    // Folded upper blade, elevated midrib and irregular tip: not planar quads.
-    tri('foliage',base,left,mid,phase);
-    tri('foliage',base,mid,right,phase+1);
-    tri('foliage',left,tip,mid,phase+2);
-    tri('foliage',mid,tip,right,phase+3);
+    const sweep=(hash(phase,45)-.5)*.30;
+    const lift=.25+.20*hash(phase,51);
+    const width=span*(.32+.12*hash(phase,47));
+    const base=[x,y,z];
+    const ridge=[x+dx*span*.41-side[0]*sweep*.19,
+      y+lift,z+dz*span*.41-side[1]*sweep*.19];
+    const tip=[x+dx*span+side[0]*sweep,
+      y-.20-.26*hash(phase,53),z+dz*span+side[1]*sweep];
+    const left=[ridge[0]+side[0]*width,ridge[1]-.15-.07*hash(phase,55),
+      ridge[2]+side[1]*width];
+    const right=[ridge[0]-side[0]*width*.81,ridge[1]-.25-.09*hash(phase,59),
+      ridge[2]-side[1]*width*.81];
+    tri('foliage',base,left,ridge,phase);
+    tri('foliage',base,ridge,right,phase+1);
+    tri('foliage',left,tip,ridge,phase+2);
+    tri('foliage',ridge,tip,right,phase+3);
     features.canopyLeaflets++;
   }
   function hangingVine(x,y,z,phase,length){
@@ -401,28 +411,35 @@ export function createLivingGarden(THREE, {width,height}) {
     }
     features.hangingVines++;
   }
+  // Seven genuinely woody branch systems carry 14 cupped leaves each.
+  // Cluster along the actual branch and around its tip at three overlapping
+  // heights, so all ten trees form continuous crowns rather than separated
+  // identical flat paper stars. No duplicate geometry, new leaf or live work.
   function canopyTree(x,z,h,phase){
     const baseY=-.56,stemTop=baseY+h*.77;
-    woodySegment(x,baseY,z,x+.15*Math.sin(phase),stemTop,z+.12*Math.cos(phase),
-      .34,.15,phase);
     const crownX=x+.15*Math.sin(phase),crownZ=z+.12*Math.cos(phase);
+    woodySegment(x,baseY,z,crownX,stemTop,crownZ,.34,.15,phase);
     for(let branch=0;branch<7;branch++){
-      const a=branch*Math.PI*2/7+phase*.31;
-      // Broader branching and folded crown sizes improve complete-scene
-      // readability without replacing the tree with a billboard or dropping
-      // ANY of its original branches/leaves/vines/GPU geometry.
+      const a=branch*Math.PI*2/7+phase*.31
+        +(hash(branch+16,phase)-.5)*.23;
       const reach=1.42+hash(branch,phase)*1.16;
       const bx=crownX+Math.cos(a)*reach,bz=crownZ+Math.sin(a)*reach;
       const by=stemTop+.18+(hash(branch+9,phase)-.5)*.55;
       woodySegment(crownX,stemTop-.23,crownZ,bx,by,bz,.14,.065,phase+branch*.13);
       for(let leafIndex=0;leafIndex<14;leafIndex++){
-        const spread=leafIndex*2.39996+branch*.41+phase;
-        const rr=.37+hash(leafIndex+5,branch+phase)*1.02;
-        const heightOffset=(hash(branch*19+leafIndex,phase+44)-.5)*1.16
-          + .17*Math.sin(leafIndex*.61+branch*.95+phase);
-        const span=.93+hash(leafIndex*2,phase+branch)*.70;
-        canopyLeaf(bx+Math.cos(spread)*rr,by+heightOffset,bz+Math.sin(spread)*rr,
-          spread,span,phase*41+branch*14+leafIndex);
+        const tier=Math.floor(leafIndex/5);
+        const bearing=leafIndex*2.39996+branch*.41+phase;
+        const rr=(.28+.82*hash(leafIndex+5,branch+phase))*(tier===2?.65:1);
+        const branchT=tier===0?.72:tier===1?.92:1.08;
+        const rootX=crownX+(bx-crownX)*branchT;
+        const rootY=stemTop+(by-stemTop)*branchT;
+        const rootZ=crownZ+(bz-crownZ)*branchT;
+        const heightOffset=(tier-1)*.30
+          +(hash(branch*19+leafIndex,phase+44)-.5)*.68;
+        const span=.99+hash(leafIndex*2,phase+branch)*.62;
+        canopyLeaf(rootX+Math.cos(bearing)*rr,rootY+heightOffset,
+          rootZ+Math.sin(bearing)*rr,bearing,span,
+          phase*41+branch*14+leafIndex);
       }
       if(branch%3===0)hangingVine(bx,by-.23,bz,phase+branch,
         .8+hash(branch,phase)*.65);

@@ -134,15 +134,20 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
         mineral*.57 + watershed*.33 + .10*Math.sin(gx*.18+gz*.07));
       const slateStrata = canopyShade * (.5+.5*Math.sin(gz*.49-gx*.21))
         * (1-loamStrata*.35);
+      // Original full-board limestone/lichen is now weathered in long,
+      // naturally offset mineral seams rather than one monolithic tint.
+      // Analytic, deterministic and burned into the SAME 1024x512 map.
+      const riverWeather = canopyShade*(.35+.65*watershed)
+        *(.5+.5*Math.sin(gx*.35+1.3*Math.sin(gz*.33)-gz*.12));
       const targetR = 204 + 16 * openStone + silt * .68
         - canopyShade * 153 - rooted * 25 + loamStrata*24 - slateStrata*7
-        - mineralLace * 7;
+        - mineralLace * 7 - riverWeather * 13;
       const targetG = 184 + 11 * openStone + silt * .42
         - canopyShade * 57 - rooted * 12 - loamStrata*8
-        + slateStrata*4 + mineralLace * 3;
+        + slateStrata*4 + mineralLace * 3 + riverWeather * 5;
       const targetB = 155 + 8 * openStone + silt * .47
         - canopyShade * 105 - rooted * 23 - loamStrata*12
-        + slateStrata*5 - mineralLace * 8;
+        + slateStrata*5 - mineralLace * 8 + riverWeather * 6;
       // Retain directional raking-light/mortar contrast from ORIGINAL pixels.
       // Lift only the muddy compression range, without bleaching real ruin
       // greenery or painting over portal/fruit/hazard geometry.
@@ -153,7 +158,7 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
       const mortar = 1 - smooth(.012, .067, Math.min(tileX, 1-tileX, tileZ, 1-tileZ));
       // Real 68178 video exposed heavy black graph-paper joints; a softer
       // physically retained old mortar groove supports the forest substrate.
-      const grain = localDetail - mortar * 7;
+      const grain = localDetail - mortar * 3.8;
       // A readable original ancient limestone sundial becomes the static
       // garden's central place marker. Unlike the real blue portals it has
       // no ring mesh, emissive highlight, collision or player outcome. The
