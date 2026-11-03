@@ -537,10 +537,17 @@ async function marketVisitMotion(browser,html,snapshot,label){
   await page.keyboard.press('Enter');
   const start=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
-   return {view:g.getMarketVisitAudit(),clock:g.getDailyRhythmAudit(),
-    authority:g.exportSnapshot(),frames:g.renderQuality().framesDrawn};
+   return {view:g.getMarketVisitAudit(),planning:g.getMarketVisitPlanningAudit(),
+    clock:g.getDailyRhythmAudit(),authority:g.exportSnapshot(),
+    frames:g.renderQuality().framesDrawn};
   });
-  assert(start.view.active&&start.view.safe,'No safe real market visit');
+  assert(start.view.active&&start.view.safe,
+   'No safe real market visit: '+JSON.stringify({
+    view:start.view.active?{position:start.view.position,safe:start.view.safe,
+     architecture:start.view.architecture,crowd:start.view.foregroundCitizenCount}:
+     {active:start.view.active},
+    planning:start.planning
+   }));
   const wallStart=Date.now();
   await page.waitForTimeout(2000);
   await page.keyboard.down('ArrowLeft');
