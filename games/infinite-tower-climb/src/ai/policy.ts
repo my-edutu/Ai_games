@@ -244,6 +244,31 @@ function reachableHealthOnSupport(state:TowerState,obs:TowerObservation){
       ||a.id.localeCompare(b.id))[0];
   return pickup;
 }
+// A wounded climber facing a real opponent can choose a *presently safe*
+// supported-deck health pickup before committing to melee. Earlier policy
+// prioritised any nearby enemy indefinitely, even at one HP, making recovery
+// loot functionally unreachable during the high-stakes guardian fight.
+// No enemy path or future hazard phase is predicted: only CURRENT observed
+// body-width collision lanes and the visible supporting deck authorize this.
+function observedEmergencyHealthRetreat(state:TowerState,obs:TowerObservation){
+  const p=obs.player;
+  if(p.health<=0||p.health>Math.max(1,Math.floor(p.maxHealth/3)))return undefined;
+  const pickup=reachableHealthOnSupport(state,obs);
+  if(!pickup)return undefined;
+  const wanted=moveSign(pickup.position.x-p.position.x);
+  if(wanted===0||guardedEvasion(state,obs,wanted)!==wanted)return undefined;
+  const left=Math.min(p.position.x,pickup.position.x)-state.player.halfWidth;
+  const right=Math.max(p.position.x,pickup.position.x)+state.player.halfWidth;
+  const bottom=p.position.y-state.player.halfHeight,top=p.position.y+state.player.halfHeight;
+  // A pickup across a live spike, moving enemy body or open deck edge is not
+  // a safe recovery plan. Existing projectile/telegraph reflexes still win.
+  if(obs.hazards.some(h=>h.active&&h.x<right&&h.x+h.width>left&&
+    h.y<top&&h.y+h.height>bottom))return undefined;
+  if(obs.enemies.some(e=>e.active&&
+    Math.abs(e.position.y-p.position.y)<state.player.halfHeight+e.halfHeight+10000&&
+    e.position.x+e.halfWidth+4000>left&&e.position.x-e.halfWidth-4000<right))return undefined;
+  return {pickup,move:wanted};
+}
 // A telegraph is authoritative and grants a short, readable chance to respond.
  // Never fabricate projectile knowledge, dodge from unsupported ground, or send
  // the climber off the ledge just to trigger a heroic-looking animation.
@@ -297,6 +322,12 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
       summary:move!==0?'Bracing while making room for incoming fire':`Bracing for ${charging.kind} fire`,
       confidence:.95,fallbackUsed:false}};
   }
+  const emergencyRecovery=tactical?observedEmergencyHealthRetreat(state,observation):undefined;
+  if(emergencyRecovery)return{action:action(emergencyRecovery.move),
+    intent:{mode:'collecting-resource',
+      summary:'Retreating along clear footing for an observed health pickup',
+      confidence:.95,fallbackUsed:false,
+      targetPlatformId:observation.player.groundedPlatformId}};
   // The cap exit is deliberately locked while its guardian lives. Do not treat
   // standing on that cap as the end of the route: the guardian patrols the
   // penultimate deck and must be defeated by ordinary, range-checked combat.
