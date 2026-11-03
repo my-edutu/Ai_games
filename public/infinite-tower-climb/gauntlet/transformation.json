@@ -1109,7 +1109,19 @@
         "feels": 0,
         "plays": 0
       },
-      "deviceFrameTimeMemory": "NOT MEASURED"
+      "deviceFrameTimeMemory": "NOT MEASURED",
+      "builderInspection": {
+        "sourceSha": "0799127dce732d3fb6fd8e069dea6fcdd81f9cf7",
+        "videoArtifact": 13209016870,
+        "videoWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41587700834",
+        "method": "Developer-side review of actual real-game native desktop+portrait WebM-associated canvas frames and source-camera motion JSON; sampled physical canvas frames at 0..60 seconds (10-second steps), not full-motion blinded A/B.",
+        "actualPortraitDangerSeconds": 114.882,
+        "actualDesktopDangerSeconds": 142.735,
+        "portraitGuardianCombatSamples": "Among 6 sparse active-guardian camera observations whose actual source intent was engaging/bracing/evading, both climber and guardian centers were within conservative NDC area separately in 4/6 each; the physical gate center was in area only 1/6. These are per-element NDC center diagnostics, not simultaneous full-body raster visibility or continuous coverage.",
+        "desktopGuardianCombatSamples": "Among 12 analogous sparse desktop combat observations, guardian center 10/12, climber center 11/12, physical gate center 5/12 in conservative projected area. Distinct source runs, positions, and ticks; do not treat as matched before/after votes.",
+        "biggestDefect": "Distant cap/HP machinery still struggles to stay readable together with the actual hero and guardian on portrait. Near-grounded threat vanes and source-focused camera in newest SHA 0e6ec42 are NOT PRESENT in these older videos and their benefit remains unverified.",
+        "quality": "NOT EVALUATED: sampled builder observations only; no independently watched 60s state-matched comparative A/B and no supported-hardware performance"
+      }
     }
   }
 }
