@@ -583,7 +583,8 @@ export function createMazeWorld(options = {}) {
       for (const id of [door.a, door.b]) {
         // Use ONLY the current public neighbor list, never hidden topology
         // or the engine's private navigation/solver state.
-        if ((knownByCell.get(id).neighbors || []).some(n=>knownByCell.has(n)))
+        if ((knownByCell.get(id).neighbors || []).some(n=>
+          adjacent(id,n) && knownByCell.has(n) && !knownByCell.get(n).blocked))
           gateCourtCells.add(id);
         gateApproachCells.add(id);
         for (const neighbor of knownByCell.get(id).neighbors || [])
