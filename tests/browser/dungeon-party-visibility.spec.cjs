@@ -44,3 +44,34 @@ test('real seeded Chromium WebGL reveals near-party masonry but retains distant 
   render: {drawCalls:diagnostics.drawCalls,triangles:diagnostics.triangles}
  },null,2)),contentType:'application/json'});
 });
+
+
+// The M1 story continues across a single locked original benchmark. These
+// are true source-backed desktop/phone WebGL pictures, NOT a quality vote.
+for(const viewport of [{name:'desktop',width:1440,height:832},{name:'phone',width:390,height:844}]){
+ test('M1 live '+viewport.name+' real native-actor camera and acting-space evidence',async({page})=>{
+  test.setTimeout(150000);
+  await page.setViewportSize({width:viewport.width,height:viewport.height});
+  const runtime=DungeonRuntime.create('dungeon-ui-round17');
+  for(let tick=0;tick<18;tick++)runtime.step();
+  const truth=runtime.publicState();
+  await page.route('**/dungeon/state',route=>route.fulfill({json:truth}));
+  await page.goto('/dungeon');
+  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.texturedCharacters??0),{timeout:90000}).toBeGreaterThanOrEqual(3);
+  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame??0),{timeout:15000}).toBeGreaterThan(3);
+  const d=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+  expect(d.authored3D.missingAssets).toBe(0);
+  expect(d.cutawayWalls).toBeGreaterThan(0);
+  expect(d.cutawayWalls).toBeLessThan(d.wallProfiles.totalWalls);
+  expect(d.drawCalls).toBeLessThan(1600);
+  expect(d.visibility.unoccludedHeroes).toBeGreaterThanOrEqual(2);
+  await page.locator('.arena').evaluate(el=>el.classList.add('world-only-audit'));
+  await page.locator('#world').screenshot({path:'artifacts/dungeon-m1-acting-pocket-'+viewport.name+'-seed18.png',timeout:65000});
+  await test.info().attach('M1-'+viewport.name+'-real-game-evidence',{
+   body:Buffer.from(JSON.stringify({baseline:'281735d0910c6b2443648af976003d50412ee324',seed:'dungeon-ui-round17',tick:truth.tick,
+    viewport,camera:d.cinematicLens,cameraShot:d.cinematicShot,heroVisibility:d.visibility,
+    realCutaway:d.cutawayWalls,remainingWalls:d.wallProfiles.totalWalls,drawCalls:d.drawCalls,
+    UNVERIFIED:['audiovisual-reference-A/B','independent-blind-critics','original-recorded-sound','full-five-phase-campaign']},null,2)),
+   contentType:'application/json'});
+ });
+}
