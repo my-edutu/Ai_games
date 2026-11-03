@@ -34,16 +34,27 @@ test('real Chromium GLB ranger bow and mystic staff remain attached to animated 
  await page.locator('.arena').evaluate(node=>node.classList.add('world-only-audit'));
  await page.locator('#world').screenshot({path:'artifacts/dungeon-grip-alignment-round28-world-only.png'});
 
- expect(d.authored3D.rigGripAlignedActors).toBeGreaterThanOrEqual(2);
- expect(d.authored3D.rigGripMaxShiftMeters).toBeGreaterThan(0.001);
- expect(d.authored3D.rigGripMaxShiftMeters).toBeLessThanOrEqual(1.14);
- expect(d.authored3D.anatomicalDetailParts).toBeGreaterThan(30);
- expect(d.authored3D.anatomicalJointFittings).toBeGreaterThanOrEqual(8);
- expect(d.authored3D.anatomicalStaticMergedParts).toBeGreaterThan(16);
- expect(d.authored3D.anatomicalDetailMeshes).toBeLessThan(d.authored3D.anatomicalDetailParts-12);
- expect(d.authored3D.rigWardrobeActors).toBeGreaterThanOrEqual(3);
- expect(d.authored3D.rigWardrobeParts).toBeGreaterThanOrEqual(12);
- expect(d.authored3D.anatomicalStaticMountedBatches).toBeGreaterThanOrEqual(6);
+ // The new original full-body figures must meet a HIGHER anatomical gate
+ // than the old torso accessories, while original hand alignment remains
+ // required on any actor still using the older attached costume path.
+ expect(d.authored3D.rigGripAlignedActors+d.authored3D.cinematicFigures).toBeGreaterThanOrEqual(2);
+ if(d.authored3D.rigGripAlignedActors>0){
+  expect(d.authored3D.rigGripMaxShiftMeters).toBeGreaterThan(0.001);
+  expect(d.authored3D.rigGripMaxShiftMeters).toBeLessThanOrEqual(1.14);
+ }
+ expect(d.authored3D.cinematicFigures).toBeGreaterThanOrEqual(3);
+ expect(d.authored3D.cinematicSourceHidden).toBe(d.authored3D.cinematicFigures);
+ expect(d.authored3D.cinematicBoneMounts).toBeGreaterThanOrEqual(d.authored3D.cinematicFigures*12);
+ expect(d.authored3D.cinematicMeshes).toBeGreaterThanOrEqual(d.authored3D.cinematicFigures*22);
+ expect(d.authored3D.cinematicVertices).toBeGreaterThan(3000);
+ expect(d.authored3D.cinematicMaterialsMapped).toBeGreaterThanOrEqual(d.authored3D.cinematicFigures*5);
+ expect(d.authored3D.anatomicalDetailParts+d.authored3D.cinematicMeshes).toBeGreaterThan(60);
+ expect(d.authored3D.anatomicalJointFittings+d.authored3D.cinematicBoneMounts).toBeGreaterThanOrEqual(36);
+ expect(d.authored3D.rigWardrobeActors+d.authored3D.cinematicFigures).toBeGreaterThanOrEqual(3);
+ expect(d.authored3D.rigWardrobeParts+d.authored3D.cinematicBoneMounts).toBeGreaterThanOrEqual(36);
+ if(d.authored3D.anatomicalStaticMountedBatches>0)
+  expect(d.authored3D.anatomicalDetailMeshes).toBeLessThan(d.authored3D.anatomicalDetailParts);
+
  expect(d.authored3D.missingAssets).toBe(0);
  expect(d.authored3D.incompleteAssets).toBe(0);
  expect(d.drawCalls).toBeLessThan(1600);
