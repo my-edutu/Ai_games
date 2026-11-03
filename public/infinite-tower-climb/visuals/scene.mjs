@@ -968,7 +968,7 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
         // Damage must read as a connected battle-to-gate mechanism on a
         // phone; prefer the first true power-spine clutch only among shots
         // with both real actors, exterior clearance and readable hero scale.
-        (guardianCircuitSource.openedFraction > 0 && view.powerSpineFramed ? 5 : 0) +
+        (guardianCircuitSource?.openedFraction > 0 && view.powerSpineFramed ? 5 : 0) +
         Math.min(.24, view.heroFraction) * 16 - Math.abs(view.lean) * 1.6;
     let bestQuality = quality(best);
     for (const amount of [0, .22, .45, .7, .95, 1.13, -.22, -.45, -.7]) {
