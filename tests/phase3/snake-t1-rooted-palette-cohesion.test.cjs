@@ -17,7 +17,14 @@ test('T1 physically planted forest floor has stronger 3D-coherent palette while 
   const first=old(THREE,{width,height,world:priorWorld}),second=next(THREE,{width,height,world});
   const map=scene=>{let data;scene.group.traverse(o=>{if(o.material?.map?.image?.width===1024)data=o.material.map.image.data});assert.ok(data);return data};
   try{
-   assert.deepEqual(first.stats(),second.stats(),'never delete source-exact fern/landmark/mesh/material/texture assets');
+   const original=first.stats(), transformed=second.stats();
+   // A purposefully more sculpted 3D fern CANOPY changes canopyHeight; all
+   // original immutable geometry count, mesh, root site, landmark, pigment,
+   // public game-cell, resource and material contracts remain exact.
+   const {fernCanopyHeight: priorHeight,...oldContract}=original;
+   const {fernCanopyHeight: newHeight,...newContract}=transformed;
+   assert.deepEqual(oldContract,newContract,'keep every actual source-exact fern/site/material/triangle/stone resource invariant');
+   assert.ok(newHeight>priorHeight && newHeight<=.185,'the same 3D fern canopy is visibly taller but remains below the playable serpent/cues');
    assert.equal(second.stats().meshCount,1);assert.equal(second.stats().textures,0);assert.equal(second.stats().publicCellsMoved,0);
    const a=map(priorWorld),b=map(world);let n=0,greenOld=0,greenNew=0,richOld=0,richNew=0,changed=0,heart=0,heartN=0;
    for(let y=48;y<464;y+=4)for(let x=70;x<954;x+=4){

@@ -599,8 +599,30 @@ export function createWorld(THREE, {width, height}) {
   const W=width/2,H=height/2;
   // A quiet, exact playing field with very fine joints; no foliage is placed inside it.
   add(cube,darkStone,0,-.27,0,width+.18,.46,height+.18);
+  // T1 continuous sculpted garden stage: the existing rooted stone atlas
+  // already paints three eroded watersheds, but its uniform near-white stone
+  // vertex multiplier washed those colours back to a giant pale rectangle.
+  // Match the EXACT ecology/atlas courses at a broad physical-cell scale.
+  // Forest stone holds its material tint across WHOLE connected catchments,
+  // opens to natural warm limestone around the readable real-game centre,
+  // and fades into the existing coastal walls. No geometry/cell movement,
+  // new texture, material, branch, shader, per-frame cost or fake obstacle.
+  const gardenCourses=[-.57,.02,.59];
   for(let z=0;z<height;z++)for(let x=0;x<width;x++){
-    const shade=.965+random()*.055;color.setRGB(shade,shade,shade);
+    const nx=(x+.5)/width*2-1,nz=(z+.5)/height*2-1;
+    let basinDistance=Infinity;
+    for(let course=0;course<gardenCourses.length;course++){
+      const centre=gardenCourses[course]
+        +.20*Math.sin(nx*3.7+course*1.67)
+        +.07*Math.sin(nx*8.3-course*.91);
+      basinDistance=Math.min(basinDistance,Math.abs(nz-centre));
+    }
+    const underCanopy=1-fade(.075,.34,basinDistance);
+    const stoneHeart=1-fade(.26,.62,Math.hypot(nx/.60,nz/.76));
+    const forest=underCanopy*(1-stoneHeart*.95);
+    const dampStone=Math.max(0,forest*.91+(1-fade(.02,.23,1-Math.max(Math.abs(nx),Math.abs(nz))))*.14);
+    const shade=.965+random()*.055;
+    color.setRGB(shade*(1-dampStone*.38),shade*(1-dampStone*.055),shade*(1-dampStone*.275));
     add(tile,tileMat,x-(width-1)/2,-.105,z-(height-1)/2,.994,.21,.994,0,0,0,color.clone());
   }
   // Terraced structural stone, rubble and topsoil form one coherent island silhouette.

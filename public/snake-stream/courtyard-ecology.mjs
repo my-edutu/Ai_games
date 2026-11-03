@@ -376,15 +376,19 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
       + (noise(ix+17,iz+43)-.5)*.67;
     for (let blade=0; blade<3; blade++) {
       const angle=phase+blade*2*Math.PI/3;
-      const reach=.193+.043*noise(ix+blade*4,iz+blade+3);
-      const tipRise=.089+.026*noise(ix+8+blade,iz+21);
-      const sideRise=.141+.035*noise(ix+42,iz+blade+8);
+      // T1 leafy gallery: give the SAME original six-triangle rooted fern
+      // a more complete, projecting three-lobed canopy, instead of paper-thin
+      // needles lost in the genuine 1080p whole-game overview. Maximum height
+      // remains safely below the real serpent and all authentic cell cues.
+      const reach=.221+.036*noise(ix+blade*4,iz+blade+3);
+      const tipRise=.101+.025*noise(ix+8+blade,iz+21);
+      const sideRise=.158+.024*noise(ix+42,iz+blade+8);
       const nx=Math.cos(angle), nz=Math.sin(angle);
       const px=-nz, pz=nx;
       const root=[x,.014,z];
       const tip=[x+nx*reach,tipRise,z+nz*reach];
-      const left=[x+nx*reach*.54+px*.044,sideRise,z+nz*reach*.54+pz*.044];
-      const right=[x+nx*reach*.54-px*.044,sideRise*.94,z+nz*reach*.54-pz*.044];
+      const left=[x+nx*reach*.56+px*.075,sideRise,z+nz*reach*.56+pz*.075];
+      const right=[x+nx*reach*.56-px*.075,sideRise*.94,z+nz*reach*.56-pz*.075];
       leaves.push([root,left,tip],[root,tip,right]);
     }
     if (!leaves.flat().every(p => Math.abs(p[0])<=W-.68 &&
