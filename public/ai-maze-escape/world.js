@@ -159,7 +159,7 @@ export function createMazeWorld(options = {}) {
   const leafGeometry = geometry(new THREE.ShapeGeometry(leafShape, 5));
   const matrix = new THREE.Matrix4(), rotation = new THREE.Quaternion(), euler = new THREE.Euler(), scale = new THREE.Vector3(), position = new THREE.Vector3();
   let snapshot = null, runToken = null, terrainSignature = '', objectSignature = '', backdropSignature = '', disposed = false;
-  let batches = [], animations = [], ripples = [], renderedCells = [], stairEdges = [], coastalGardens = 0, wallGardens = 0, lastVisibility = '', highContrast = false;
+  let batches = [], animations = [], ripples = [], renderedCells = [], stairEdges = [], stairBalustrades = 0, coastalGardens = 0, wallGardens = 0, lastVisibility = '', highContrast = false;
   let coastCanopies = 0, tidalObservatories = 0, sculptedMosaicWalls = 0, tidePennants = 0, perimeterCascades = 0, collapsedPavilions = 0, shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0;
   let batchData = new Map();
   const clear = (target) => {
@@ -516,7 +516,7 @@ export function createMazeWorld(options = {}) {
     for (let j = 0; j < 3; j++) plant(x - span + j * .08, 2.8 - j * .42, z + .17, seed + j * 5, cell, 1.4 - j * .15);
   }
   function rebuildTerrain(s) {
-    clear(terrain); batchData = new Map(); renderedCells = s.cells.map(c => c.cell); stairEdges = []; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0;
+    clear(terrain); batchData = new Map(); renderedCells = s.cells.map(c => c.cell); stairEdges = []; stairBalustrades = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0;
     const edges = new Set(), columns = new Set(), landmarkSites = new Map();
     const knownByCell = new Map(s.cells.map(c => [c.cell, c]));
     for (const c of s.cells) {
@@ -637,6 +637,38 @@ export function createMazeWorld(options = {}) {
                 add(box, step % 2 ? lightStone : stone, x + dx * distance, top / 2, z + dz * distance, dz ? STAIR_HALF_WIDTH * 2 : STAIR_RUN / STAIR_COUNT + .002, top, dx ? STAIR_HALF_WIDTH * 2 : STAIR_RUN / STAIR_COUNT + .002, c.cell);
                 // Narrow jade side cheeks make the stair an intentional connector.
                 for (const sign of [-1, 1]) add(box, jade, x + dx * distance + dz * sign * .84, top / 2, z + dz * distance + dx * sign * .84, dz ? .12 : STAIR_RUN / STAIR_COUNT, top + .06, dx ? .12 : STAIR_RUN / STAIR_COUNT, c.cell);
+              }
+              // A genuinely connected public elevation change now reads as a
+              // playable tideglass stair, not eight anonymous floating blocks.
+              // Twin low side balustrades join the actual sculpted steps; their
+              // stone feet stay OUTSIDE the existing 1.56-wide walkable lane.
+              // All instances use existing materials/geometry and the known
+              // reciprocal link only. No inferred bridge, collision change,
+              // new route, private map query or per-frame allocation.
+              stairBalustrades++;
+              const rampLength = Math.hypot(STAIR_RUN, rise);
+              const incline = Math.atan2(rise, STAIR_RUN);
+              for (const sign of [-1, 1]) {
+                const sideX = dz * sign * .99, sideZ = dx * sign * .99;
+                const centerX = x + dx * (STAIR_START + STAIR_RUN / 2) + sideX;
+                const centerZ = z + dz * (STAIR_START + STAIR_RUN / 2) + sideZ;
+                // Real sloping timber/ceramic grip follows the stair ascent.
+                add(box, deepStone, centerX, .70 + rise / 2, centerZ,
+                  dx ? rampLength : .19, .17, dz ? rampLength : .19,
+                  c.cell, dz ? -incline * dz : 0, 0, dx ? incline * dx : 0);
+                add(box, seaGlass, centerX, .81 + rise / 2, centerZ,
+                  dx ? rampLength * .93 : .075, .047, dz ? rampLength * .93 : .075,
+                  c.cell, dz ? -incline * dz : 0, 0, dx ? incline * dx : 0);
+                // Three rooted uprights create a readable physical silhouette
+                // beneath each continuous handrail and stop short of the tile
+                // boundary. They do not obstruct Pip's authoritative centerline.
+                for (const distance of [.15, .59, 1.08]) {
+                  const climb = rise * Math.max(0, (distance - STAIR_START) / STAIR_RUN);
+                  const px = x + dx * distance + sideX;
+                  const pz = z + dz * distance + sideZ;
+                  add(box, deepStone, px, climb + .34, pz, .18, .68, .18, c.cell);
+                  add(box, lightStone, px, climb + .69, pz, .25, .12, .25, c.cell);
+                }
               }
             }
           }
@@ -1334,7 +1366,7 @@ export function createMazeWorld(options = {}) {
       // otherwise old renderedCells diagnostics can survive with no meshes.
       runToken = s.runToken; terrainSignature = null; objectSignature = ''; backdropSignature = ''; lastVisibility = '';
       clear(terrain); clear(objects); clear(backdrop); publicClosedSockets.clear(); gateOpeningAt.clear(); retractingGates.clear(); keyPickupAt.clear();
-      batches = []; animations = []; ripples = []; renderedCells = []; stairEdges = [];
+      batches = []; animations = []; ripples = []; renderedCells = []; stairEdges = []; stairBalustrades = 0;
       coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0;
     }
     const backgroundKey = `${s.width}:${s.height}`;
@@ -1411,7 +1443,7 @@ export function createMazeWorld(options = {}) {
     for (const g of geometries) g.dispose();
     for (const m of materials) m.dispose();
     for (const t of textures) t.dispose(); textures.clear();
-    geometries.clear(); materials.clear(); batches = []; animations = []; ripples = []; batchData.clear(); snapshot = null; renderedCells = []; stairEdges = []; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0; group.clear();
+    geometries.clear(); materials.clear(); batches = []; animations = []; ripples = []; batchData.clear(); snapshot = null; renderedCells = []; stairEdges = []; stairBalustrades = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0; group.clear();
   }
   function stats() {
     let meshes = 0, instances = 0;
@@ -1422,7 +1454,7 @@ export function createMazeWorld(options = {}) {
     const visibleGateBars = [...retractingGates.values()].filter(gate => gate.visible);
     const movingGateMinBarsHeightRatio = visibleGateBars.length
       ? Math.min(...visibleGateBars.map(gate => gate.scale.y)) : 0;
-    return { renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), coastalGardens, wallGardens, coastCanopies, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, windcatcherTowers, wallWindcatchers, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
+    return { renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), stairBalustrades, coastalGardens, wallGardens, coastCanopies, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, windcatcherTowers, wallWindcatchers, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
   }
   return { group, update, animate, dispose, stats, matchingPublicSocket };
 }
