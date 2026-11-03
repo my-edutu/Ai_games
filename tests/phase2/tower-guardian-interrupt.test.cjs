@@ -69,7 +69,7 @@ test('stagger never appears on a miss, non-guardian enemy, or attack already fir
   const shot=stepTowerCombat(shooter,still,NamedRng.fromSeed('shooter')).state.enemies[0];
   assert.equal(shot.staggerUntilTick,undefined,'ordinary ranged enemies keep their combat contract');
   const expired=structuredClone(original);
-  expired.enemies[0].telegraphUntilTick=expired.tick;
+  expired.tick=12;expired.enemies[0].telegraphUntilTick=expired.tick;
   const outcome=stepTowerCombat(expired,still,NamedRng.fromSeed('expired'));
   assert.equal(outcome.state.enemies[0].staggerUntilTick,undefined);
   assert.ok(outcome.events.some(e=>e.type==='projectile-fired'&&e.data.owner==='enemy'),
