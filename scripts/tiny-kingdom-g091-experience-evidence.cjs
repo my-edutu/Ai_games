@@ -128,12 +128,16 @@ async function physicalMarketVisitShot(page,file){
  assert.equal(after.glError,0,file+' has GL errors');
  assert(!after.overflow,file+' horizontal overflow');
  assert(after.visit.active&&after.visit.safe,file+' market viewpoint not walkable');
+ assert(after.visit.architecture?.portraitSafe,
+  file+' actual architecture blocked the narrow marketplace lens: '+
+  JSON.stringify(after.visit.architecture));
  assert(after.status.toLowerCase().includes('market'),file+' status missing');
  await page.screenshot({path:path.join(DIR,file),timeout:90000});
  await page.evaluate(()=>window.__tinyKingdom.setStreetWalk(false));
  return {realWorld:true,matchedPair:false,viewerHeight:witness.street.height,
   stall:witness.visit.stall,stallDistance:witness.visit.stallDistance,
-  authenticMarket:witness.visit.market,status:after.status,
+  authenticMarket:witness.visit.market,architecture:after.visit.architecture,
+  status:after.status,
   authoritativeUnchanged:true,image:file.split('/').pop()};
 }
 async function stage(label,html,browser,matchedTicks){
@@ -286,6 +290,10 @@ async function stage(label,html,browser,matchedTicks){
   await page.waitForTimeout(1000);
   result.mobile=await cameraAndScreenshot(page,grown,label+'/day120-mobile.png',false);
   result.marketMobile=await cameraAndScreenshot(page,marketView,label+'/market-mobile.png',false);
+  // Additional genuine Day-120 mobile MARKET visitor frame at the same world
+  // tick, with the physically screened lens. Never substitute for baseline A/B.
+  if(label==='candidate')result.g152PortraitMarketVisit=
+   await physicalMarketVisitShot(page,label+'/g152-day120-market-portrait.png');
   if(label==='candidate'){
    const mobileLive=await page.evaluate(()=>{
     const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
