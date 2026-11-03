@@ -160,7 +160,7 @@ export function createMazeWorld(options = {}) {
   const matrix = new THREE.Matrix4(), rotation = new THREE.Quaternion(), euler = new THREE.Euler(), scale = new THREE.Vector3(), position = new THREE.Vector3();
   let snapshot = null, runToken = null, terrainSignature = '', objectSignature = '', backdropSignature = '', disposed = false;
   let batches = [], animations = [], ripples = [], renderedCells = [], stairEdges = [], stairBalustrades = 0, coastalGardens = 0, wallGardens = 0, lastVisibility = '', highContrast = false;
-  let coastCanopies = 0, tidalObservatories = 0, sculptedMosaicWalls = 0, tidePennants = 0, perimeterCascades = 0, collapsedPavilions = 0, shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0;
+  let coastCanopies = 0, tidalObservatories = 0, sculptedMosaicWalls = 0, tidePennants = 0, perimeterCascades = 0, collapsedPavilions = 0, shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0, gateForecourtParapets = 0;
   let batchData = new Map();
   const clear = (target) => {
     for (const child of [...target.children]) {
@@ -294,6 +294,27 @@ export function createMazeWorld(options = {}) {
       const px = ex + (alongX ? i * .44 : dx * .09);
       const pz = ez + (alongX ? dz * .09 : i * .44);
       add(sphere, i === 0 ? moss : leafDark, px, 1.12, pz, .15, .13, .15, cell);
+    }
+  }
+  // A real disclosed gate's side walls should read as masonry, not rise
+  // across Pip's body during the physical gate-opening act. On an already
+  // visible BLOCKED edge between TWO disclosed cells, retain a continuous,
+  // unmistakably impassable stone barrier but lower its central silhouette.
+  // Never alter the authentic gate seam, collision authority, undisclosed
+  // cells, or any other wall. All material and geometry are already pooled.
+  function gateForecourtParapet(x, z, horizontal, cell) {
+    gateForecourtParapets++;
+    block(deepStone, x, .17, z, horizontal ? 2.32 : .39, .34,
+      horizontal ? .39 : 2.32, cell);
+    add(box, lightStone, x, .355, z, horizontal ? 2.34 : .44, .075,
+      horizontal ? .44 : 2.34, cell);
+    add(box, seaGlass, x, .410, z, horizontal ? 2.06 : .19, .037,
+      horizontal ? .19 : 2.06, cell);
+    for (const side of [-1, 1]) {
+      const px = x + (horizontal ? side * .99 : 0);
+      const pz = z + (horizontal ? 0 : side * .99);
+      block(stone, px, .32, pz, .24, .64, .24, cell);
+      add(box, lightStone, px, .66, pz, .28, .055, .28, cell);
     }
   }
   function wall(x, z, horizontal, id, cell) {
@@ -531,13 +552,13 @@ export function createMazeWorld(options = {}) {
     for (let j = 0; j < 3; j++) plant(x - span + j * .08, 2.8 - j * .42, z + .17, seed + j * 5, cell, 1.4 - j * .15);
   }
   function rebuildTerrain(s) {
-    clear(terrain); batchData = new Map(); renderedCells = s.cells.map(c => c.cell); stairEdges = []; stairBalustrades = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0;
+    clear(terrain); batchData = new Map(); renderedCells = s.cells.map(c => c.cell); stairEdges = []; stairBalustrades = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0; gateForecourtParapets = 0;
     const edges = new Set(), columns = new Set(), landmarkSites = new Map();
     const knownByCell = new Map(s.cells.map(c => [c.cell, c]));
     // The public snapshot is the ONLY source of foreground cutaway geometry.
     // A door is usable here only when BOTH endpoints are currently disclosed
     // as real adjacent walkable cells. This never infers an unseen passage.
-    const gateApproachCells = new Set();
+    const gateApproachCells = new Set(), gateEdges = new Set();
     const adjacent = (a, b) => Math.abs(a % s.width - b % s.width)
       + Math.abs(Math.floor(a / s.width) - Math.floor(b / s.width)) === 1;
     for (const door of Array.isArray(s.doors) ? s.doors : []) {
@@ -545,6 +566,7 @@ export function createMazeWorld(options = {}) {
         || door.a < 0 || door.b < 0 || !adjacent(door.a, door.b)
         || !knownByCell.has(door.a) || !knownByCell.has(door.b)
         || knownByCell.get(door.a).blocked || knownByCell.get(door.b).blocked) continue;
+      gateEdges.add(doorEdgeId(door.a, door.b));
       for (const id of [door.a, door.b]) {
         gateApproachCells.add(id);
         for (const neighbor of knownByCell.get(id).neighbors || [])
@@ -714,7 +736,15 @@ export function createMazeWorld(options = {}) {
         }
         const key = n < 0 ? `${c.cell}:${side}:edge` : `${Math.min(c.cell, n)}:${Math.max(c.cell, n)}`;
         if (edges.has(key)) continue; edges.add(key);
-        wall(x + dx * 1.2, z + dz * 1.2, !!dz, c.cell * 17 + side, c.cell);
+        // The authentic gate forecourt is only cut down on confirmed,
+        // blocked side edges with both cells ALREADY disclosed. The actual
+        // gate edge keeps its gate geometry; unknown edges keep their high
+        // silhouette, so this cannot suggest an undiscovered passage.
+        const publicParapet = gateApproachCells.has(c.cell)
+          && n >= 0 && knownByCell.has(n) && !gateEdges.has(key);
+        if (publicParapet)
+          gateForecourtParapet(x + dx * 1.2, z + dz * 1.2, !!dz, c.cell);
+        else wall(x + dx * 1.2, z + dz * 1.2, !!dz, c.cell * 17 + side, c.cell);
         // Unlike unrevealed neighbors, this is a real blocked direction in
         // the public room's advertised edges. A lifted vertical garden on its
         // physical wall gives the otherwise pale stage a distinct green layer.
@@ -731,7 +761,7 @@ export function createMazeWorld(options = {}) {
           gardenLandmark(x + (wide ? 1.2 : 0), z - 1.2, c.cell, c.cell * 19, wide);
         }
         // Cap a limited number of wall intersections with taller ruined columns.
-        if (variation(c.cell * 31 + side) > .76) {
+        if (!gateApproachCells.has(c.cell) && variation(c.cell * 31 + side) > .76) {
           const px = x + (dx || (side === 0 ? -1 : 1)) * 1.2;
           const pz = z + (dz || (side === 1 ? -1 : 1)) * 1.2;
           const ck = `${px.toFixed(2)}:${pz.toFixed(2)}`;
@@ -1518,7 +1548,7 @@ export function createMazeWorld(options = {}) {
     for (const g of geometries) g.dispose();
     for (const m of materials) m.dispose();
     for (const t of textures) t.dispose(); textures.clear();
-    geometries.clear(); materials.clear(); batches = []; animations = []; ripples = []; batchData.clear(); snapshot = null; renderedCells = []; stairEdges = []; stairBalustrades = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0; group.clear();
+    geometries.clear(); materials.clear(); batches = []; animations = []; ripples = []; batchData.clear(); snapshot = null; renderedCells = []; stairEdges = []; stairBalustrades = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0; gateForecourtParapets = 0; group.clear();
   }
   function stats() {
     let meshes = 0, instances = 0;
@@ -1529,7 +1559,7 @@ export function createMazeWorld(options = {}) {
     const visibleGateBars = [...retractingGates.values()].filter(gate => gate.visible);
     const movingGateMinBarsHeightRatio = visibleGateBars.length
       ? Math.min(...visibleGateBars.map(gate => gate.scale.y)) : 0;
-    return { renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), stairBalustrades, coastalGardens, wallGardens, coastCanopies, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, windcatcherTowers, wallWindcatchers, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
+    return { renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), stairBalustrades, coastalGardens, wallGardens, coastCanopies, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, windcatcherTowers, wallWindcatchers, gateForecourtParapets, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
   }
   return { group, update, animate, dispose, stats, matchingPublicSocket };
 }
