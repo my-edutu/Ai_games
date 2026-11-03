@@ -26,7 +26,7 @@ const gpuArgs=['--enable-webgl','--use-gl=angle','--use-angle=swiftshader',
  '--enable-precise-memory-info'];
 
 const evidence={
- version:'g150-candidate-walkable-market-and-matched-g088-v1',
+ version:'g151-crowd-clear-market-and-accessible-uncut-filming-v1',
  baselineSha:BASE,candidateSha:null,baselineBlob:null,candidateBlob:null,
  renderer:'UNVERIFIED',status:'INCOMPLETE',workdayTicks:null,
  camera:{wide,labor,grown,marketView},viewport,
@@ -521,7 +521,12 @@ async function marketVisitMotion(browser,html,snapshot,label){
    const g=window.__tinyKingdom;
    g.restoreSnapshot(state);g.setCommandView('world');
   },snapshot);
-  await page.locator('#market-visit').click();
+  // Enter is the accessible activation of the *real* visible market
+  // button, without direct game-state calls or force-clicking off-screen.
+  const marketButton=page.locator('#market-visit');
+  assert(await marketButton.isVisible(),'Market visit button is not visible');
+  await marketButton.focus();
+  await page.keyboard.press('Enter');
   const start=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
    return {view:g.getMarketVisitAudit(),clock:g.getDailyRhythmAudit(),
@@ -633,7 +638,12 @@ async function streetMotion(browser,html,snapshot){
    g.restoreSnapshot(saved);
    g.setCommandView('world');
   },snapshot);
-  await page.locator('#street-walk').click();
+  // G151 actual G150 uncut-film failure: the sticky/scrolling tour button
+  // could be DOM-visible but outside the Playwright click viewport for 90s.
+  // Use the game's real, documented V keyboard shortcut as a player would.
+  await page.keyboard.press('v');
+  await page.waitForFunction(()=>window.__tinyKingdom.getStreetWalkState().active,
+   null,{timeout:10000});
   const start=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
    return {view:g.getStreetWalkState(),authority:g.exportSnapshot(),
