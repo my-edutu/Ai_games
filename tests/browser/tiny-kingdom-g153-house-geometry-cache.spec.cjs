@@ -43,6 +43,19 @@ test('G153 grown autonomous town reuses bounded per-lot geometry across seasons 
  expect(end.audit.evictions).toBeGreaterThanOrEqual(0);
  expect(end.geometry.totalTriangles).toBeLessThan(160000);
  for(const row of observations)expect(row.gl).toBe(0);
+ const truthBeforeRestore=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;
+  const lod=g.getVillageVisualLod(),street=g.getStreetMorphologyStats(),
+   facade=g.getCottageFacadeStats();
+  return {triangleCount:g.getGeometryAudit().totalTriangles,
+   homes:lod.homes,detailedHomes:lod.detailedHomes,compactHomes:lod.compactHomes,
+   roofTiles:lod.compactRoofTiles,street,facade};
+ });
+ console.log('G153 actual growth/cache sample:',JSON.stringify({
+  day:end.world.day,citizens:end.world.citizens,homes:end.world.buildings,
+  cachedLots:end.audit.entries,reuses:end.audit.reuses,
+  freshlyBuiltLots:end.audit.freshBuilds,cachedBytes:end.audit.cachedBytes
+ }));
  const state=await page.evaluate(()=>{
   const g=window.__tinyKingdom,save=g.exportSnapshot();
   const before=JSON.stringify(save),restored=g.restoreSnapshot(save);
@@ -54,6 +67,14 @@ test('G153 grown autonomous town reuses bounded per-lot geometry across seasons 
  expect(state.empty.entries).toBe(0);
  await page.setViewportSize({width:390,height:844});
  await page.waitForFunction(()=>window.__tinyKingdom.getHouseGeometryCacheAudit().entries>0,null,{timeout:90000});
+ const truthAfterRestore=await page.evaluate(()=>{
+  const g=window.__tinyKingdom,lod=g.getVillageVisualLod();
+  return {triangleCount:g.getGeometryAudit().totalTriangles,
+   homes:lod.homes,detailedHomes:lod.detailedHomes,compactHomes:lod.compactHomes,
+   roofTiles:lod.compactRoofTiles,street:g.getStreetMorphologyStats(),
+   facade:g.getCottageFacadeStats()};
+ });
+ expect(truthAfterRestore).toEqual(truthBeforeRestore);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=390)).toBe(true);
  expect(errors).toEqual([]);
 });
