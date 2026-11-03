@@ -67,7 +67,7 @@ test('3D warning remains one bounded outboard draw, source-timed and disposable'
   assert.equal(early.extraDraws, 1);
   assert.equal(early.predictedHits, false);
   assert.equal(early.shadowCastingMeshes, 0);
-  assert.equal(stage.group.children.length, 1);
+  assert.equal(stage.group.children.length, 2, 'one bounded authentic guardian lane plus dormant sourced hero pulse mesh');
   assert.equal(mesh.material.depthTest, true);
   const matrix = new THREE.Matrix4();
   mesh.getMatrixAt(0, matrix);
@@ -131,4 +131,97 @@ test('live scene integrates guardian warning across snapshot, restart, renderer 
   assert.match(characters, /incomingGuardian > 0/);
   assert.match(characters, /reducedMotion \? incomingGuardian \* \.42/,
     'full and reduced-motion guardian defensive animation remain distinct');
+});
+
+test('earned player projectile makes a source-bounded 3D guardian duel readable without inventing an impact', async () => {
+  const { observedGuardianPulseFlight: observed, createTowerGuardianShotStage } = await modulePromise;
+  const base = snapshot(), input = snapshot({
+    enemies: [{ ...base.enemies[0], telegraph: false }],
+    projectiles: [{ id: 'hero:shot:150', owner: 'player',
+      x: 160000, y: 930000, vx: -12000 }],
+  });
+  const unchanged = JSON.stringify(input);
+  const flight = observed(input);
+  assert.equal(flight?.projectileId, 'hero:shot:150');
+  assert.equal(flight?.guardianId, 'f8:guardian');
+  assert.equal(flight?.vx, -12000);
+  assert.equal(JSON.stringify(input), unchanged, 'source frame must stay immutable');
+
+  const stage = createTowerGuardianShotStage(THREE);
+  const pulse = stage.group.getObjectByName('RealPlayerPulseGuardianFlight');
+  let disposed = 0;
+  pulse.geometry.addEventListener('dispose', () => disposed++);
+  stage.update(input, { quality: 'low' });
+  assert.equal(stage.diagnostics().markerCount, 0,
+    'an uncharged guardian must not create a fake hostile warning');
+  assert.equal(stage.diagnostics().pulseMarkerCount, 4);
+  assert.equal(stage.diagnostics().extraDraws, 1);
+  assert.equal(stage.diagnostics().predictedHits, false);
+  assert.equal(stage.focusPoint(), null, 'hero shot is not an incoming guardian warning');
+  assert.ok(stage.pulseFocusPoint(), 'camera can frame the real current projectile');
+  assert.ok(pulse.material.depthTest, 'world depth and opponents occlude the plume');
+
+  const matrix = new THREE.Matrix4();
+  pulse.getMatrixAt(0, matrix);
+  const pos = new THREE.Vector3().setFromMatrixPosition(matrix);
+  assert.ok(Math.abs(Math.hypot(pos.x, pos.z) - 27.82) < 1e-4,
+    'the recorded bolt travels on the outside tower combat lane');
+  const charged = { ...input, tick: 151,
+    enemies: [{ ...base.enemies[0], telegraphTicksRemaining: 4 }] };
+  stage.update(charged, { quality: 'low' });
+  assert.equal(stage.diagnostics().extraDraws, 2,
+    'a real counter-shot and simultaneous real guardian warning remain distinct');
+  assert.equal(stage.diagnostics().pulseMarkerCount, 4);
+  assert.ok(stage.diagnostics().markerCount > 0);
+  stage.update({ ...input, projectiles: [] });
+  assert.equal(stage.diagnostics().pulseMarkerCount, 0);
+  assert.equal(stage.group.visible, false);
+  stage.update(input, { quality: 'high' });
+  assert.equal(stage.diagnostics().pulseMarkerCount, 6);
+  stage.update(input, { stale: true });
+  assert.equal(stage.group.visible, false, 'a stalled transport must not hold fictional shots');
+  stage.dispose();
+  stage.dispose();
+  assert.equal(disposed, 1, 'all new real geometry must release on teardown/recovery');
+  assert.equal(stage.group.children.length, 0);
+});
+
+test('hero pulse staging refuses wrong owner, shot direction, height, dead boss and false run states', async () => {
+  const { observedGuardianPulseFlight: observed } = await modulePromise;
+  const base = snapshot();
+  const input = snapshot({
+    enemies: [{ ...base.enemies[0], telegraph: false }],
+    projectiles: [{ id: 'source:real-shot', owner: 'player',
+      x: 160000, y: 930000, vx: -12000 }],
+  });
+  function reject(edit) {
+    const copy = structuredClone(input);
+    edit(copy);
+    assert.equal(observed(copy), null);
+  }
+  reject(s => { s.projectiles = []; });
+  reject(s => { s.projectiles[0].owner = 'enemy'; });
+  reject(s => { s.projectiles[0].vx = 12000; });
+  reject(s => { s.projectiles[0].y += 33000; });
+  reject(s => { s.enemies[0].health = 0; });
+  reject(s => { s.enemies[0].active = false; });
+  reject(s => { s.enemies[0].kind = 'shooter'; });
+  reject(s => { s.player.state = 'airborne'; });
+  reject(s => { s.player.health = 0; });
+  reject(s => { s.lifecycle = 'result'; });
+  reject(s => { s.runToken = ''; });
+  reject(s => { s.floor = Number.NaN; });
+  reject(s => { s.projectiles[0].x = 450000; });
+  assert.equal(observed(null), null);
+});
+
+test('camera and articulated climber share the actual 3D hero pulse, not autonomous predictions', () => {
+  const scene = fs.readFileSync(path.resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/scene.mjs'), 'utf8');
+  assert.match(scene, /rangedGuardianId === contactGuardian\.guardianId/);
+  assert.match(scene, /witnessedRangedDuel \? 135000 : 90000/);
+  assert.match(scene, /guardianShotStage\.pulseFocusPoint\(\)/);
+  assert.match(scene, /guardianWarning\.pulseGuardianId === sourceGuardian\.id/);
+  assert.match(scene, /p\.state === 'standing' && !options\.stale/);
+  assert.match(scene, /duelFocus \? sourceGuardian\.x - p\.x/);
 });
