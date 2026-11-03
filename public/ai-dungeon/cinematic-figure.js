@@ -28,7 +28,8 @@ export function planCinematicFigure(kind){
   part('torso','torso','metal',0,1.2,-.006,'chest',s,1,.99),
   part('surcoat','surcoat','cloth',0,1.20,.075,'chest',w,1,.87),
   part('pelvis','hips','leather',0,.86,0,'pelvis',w,1,1),
-  part('gorget','neck','trim',0,1.52,-.015),
+  // The inherited hard neck ring obscured true face/skin and added one draw
+  // to every crowded expedition actor; the skinned underlay now carries it.
   part('helmet','head','metal',0,1.70,-.019,'head',p.head,.80,p.head),
   part('face','visage','face',0,1.68,-.142,'head',p.head,.80,p.head),
   part('visor','eyes','trim',0,1.77,-.184,'head',p.head,.80,1),
@@ -161,6 +162,50 @@ export function planCinematicPairedParts(kind){
  }
  return Object.freeze(pairs);
 }
+
+/**
+ * A whole sculpted head should move as one native cranial object, not four
+ * overlapping opaque meshes. Keep role silhouettes (helmet, real face,
+ * separate brows and cowl/circlet) but weld their *geometry*, not bones.
+ * Five original material identities survive as per-vertex color zones.
+ */
+export function planCinematicHeadShell(kind){
+ const recipe=planCinematicFigure(kind);
+ return recipe?Object.freeze(recipe.pieces.filter(p=>p.anchor==='head'&&p.shape!=='weapon')):Object.freeze([]);
+}
+function sculptIntegratedHeadShell(T,recipe,forms,parts){
+ const pivot=parts.find(p=>p.id==='helmet');
+ if(!pivot||!parts.some(p=>p.id==='face')||!parts.some(p=>p.id==='visor'))
+  throw Error('Cinematic head requires genuine facial volume, helmet and visor');
+ const positions=[],uvs=[],colors=[],indices=[];
+ for(const p of parts){
+  const source=forms[p.shape],vertex=source?.getAttribute?.('position');
+  if(!vertex)throw Error('Missing original sculpted head form '+p.shape);
+  const uv=source.getAttribute('uv');
+  const color=new T.Color(recipe.palette[p.finish]||recipe.palette.metal);
+  const offset=positions.length/3;
+  for(let i=0;i<vertex.count;i++){
+   // Local geometry is baked relative to ONE imported cranial bone. The
+   // authored head position, crown silhouettes and face offsets stay exact.
+   positions.push(vertex.getX(i)*p.sx+p.x-pivot.x,
+    vertex.getY(i)*p.sy+p.y-pivot.y,
+    vertex.getZ(i)*p.sz+p.z-pivot.z);
+   uvs.push(uv?.getX(i)??.5,uv?.getY(i)??.5);
+   colors.push(color.r,color.g,color.b);
+  }
+  const idx=source.index;
+  if(idx){for(let i=0;i<idx.count;i++)indices.push(offset+idx.getX(i));}
+  else {for(let i=0;i<vertex.count;i++)indices.push(offset+i);}
+ }
+ if(!indices.length||positions.length/3>20000)throw Error('Invalid bounded cinematic head shell');
+ const geo=new T.BufferGeometry();
+ geo.setAttribute('position',new T.Float32BufferAttribute(positions,3));
+ geo.setAttribute('uv',new T.Float32BufferAttribute(uvs,2));
+ geo.setAttribute('color',new T.Float32BufferAttribute(colors,3));
+ geo.setIndex(indices);geo.computeVertexNormals();
+ return geo;
+}
+
 function createGambesonGusset(T){
  // Original tapered cloth rather than a constant-width hard cylinder.
  // Only genuine adjacent short bone gaps remain eligible for this draw.
@@ -429,6 +474,12 @@ export function createCinematicFigure(T,actor,joints){
   cloth:material(T,'cloth',recipe.palette.cloth,.028,.91),
   leather:material(T,'leather',recipe.palette.leather,.06,.82),
   face:material(T,'face',recipe.palette.face,.035,.82),
+  // One material per real head rather than per overlapping helmet/face/visor.
+  // Vertex colours keep independent skin/iron/cloth identity at game scale;
+  // rough PBR microrelief preserves face planes without fake bloom.
+  integratedHead:new T.MeshStandardMaterial({color:'#ffffff',vertexColors:true,
+   metalness:.18,roughness:.73,bumpMap:originalSurface(T,'face'),
+   roughnessMap:originalSurface(T,'face'),bumpScale:.014}),
   // Use configured, texture-bearing native skinned body materials.
  };
  const group=new T.Group(),built=[],anchors=[],batches=[],attachments=new Map();
@@ -459,6 +510,19 @@ export function createCinematicFigure(T,actor,joints){
    }
    batches.push({mesh,anchors:jointAnchors});
   }
+  const headPieces=planCinematicHeadShell(recipe.kind);
+  const headPivot=headPieces.find(p=>p.id==='helmet');
+  const sculptedHead=sculptIntegratedHeadShell(T,recipe,geometry,headPieces);
+  geometry.integratedHead=sculptedHead;
+  const headMesh=new T.Mesh(sculptedHead,mat.integratedHead);
+  headMesh.name='cinematic-'+recipe.kind+'-cranial-sculpture';
+  headMesh.position.set(headPivot.x*figureScale,headPivot.y*figureScale,headPivot.z*figureScale);
+  headMesh.scale.setScalar(figureScale);
+  headMesh.userData.cinematicFigurePiece=true;
+  headMesh.castShadow=false;headMesh.receiveShadow=true;
+  group.add(headMesh);built.push(headMesh);
+  group.updateWorldMatrix(true,true);joints.head.attach(headMesh);
+  for(const p of headPieces){excluded.add(p.id);attachments.set(p.id,headMesh);}
   for(const p of recipe.pieces){
    if(p.shape==='weapon'||excluded.has(p.id))continue;
    const mesh=new T.Mesh(geometry[p.shape],mat[p.finish]);
@@ -545,6 +609,7 @@ export function createCinematicFigure(T,actor,joints){
    joints:12,vertices,mappedMaterials:Object.values(mat).filter(m=>m.bumpMap).length,
    handGripOffsetMeters:gripOffset,weapon:recipe.weapon,
    sourceMeshesHidden:true,nativeBodyUnderlays:nativeAnatomy.length,
+   integratedHeadDraws:1,integratedHeadPartCount:headPieces.length,
     identityEquipmentPieces:recipe.pieces.filter(p=>p.id.startsWith('identity-')).length,
    sourceCostumeHidden:true,height:recipe.statureMeters,anatomyBridges:CINEMATIC_ANATOMY_LINKS.length,activeAnatomyBridges:()=>activeBridges,
    suppressedLongAnatomyBridges:()=>rejectedLongBridges,sync,

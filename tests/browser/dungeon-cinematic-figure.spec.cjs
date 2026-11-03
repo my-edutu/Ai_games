@@ -16,6 +16,10 @@ test('actual Chromium renders original 3D cinematic figures at desktop and mobil
  expect(desktop.cinematicProfiles).toEqual(expect.arrayContaining(['vanguard','ranger','mystic']));
  expect(desktop.cinematicMeshes).toBeGreaterThanOrEqual(desktop.cinematicFigures*16);
  expect(desktop.cinematicPairedBatches).toBe(desktop.cinematicFigures*6);
+ // Preserve expressive eyes, face and faction helmet on real skinned
+ // animation while cutting overlapping head surface draws at every distance.
+ expect(desktop.cinematicIntegratedHeads).toBe(desktop.cinematicFigures);
+ expect(desktop.cinematicIntegratedHeadParts).toBeGreaterThanOrEqual(desktop.cinematicFigures*4);
  expect(desktop.cinematicAnatomyBridges).toBe(desktop.cinematicFigures*14);
  // Do not force metre-long false arms for a passing number: real bone-link
  // distances must suppress implausible spans; the rendered story is the bar.
@@ -45,6 +49,8 @@ test('actual Chromium renders original 3D cinematic figures at desktop and mobil
  expect(mobile.cinematicIdentityActors).toBe(mobile.cinematicFigures);
  expect(mobile.cinematicIdentityPieces).toBeGreaterThanOrEqual(mobile.cinematicFigures*2);
  expect(mobile.cinematicPairedBatches).toBe(mobile.cinematicFigures*6);
+ expect(mobile.cinematicIntegratedHeads).toBe(mobile.cinematicFigures);
+ expect(mobile.cinematicIntegratedHeadParts).toBeGreaterThanOrEqual(mobile.cinematicFigures*4);
  expect(mobile.cinematicRenderedParts).toBe(mobile.cinematicMeshes+mobile.cinematicPairedBatches);
  expect(mobile.cinematicAnatomyBridges).toBe(mobile.cinematicFigures*14);
  expect(mobile.cinematicSourceHidden).toBe(mobile.cinematicFigures);
