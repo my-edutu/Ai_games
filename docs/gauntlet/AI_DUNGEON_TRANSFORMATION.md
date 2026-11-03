@@ -490,3 +490,48 @@ The existing six-class imported animation system now supports a new sculpted 2.3
 **Quality-bar comparison, nonblind and qualitative:** [Diablo IV official dungeon/world standard](https://diablo4.blizzard.com/en-gb/vessel-of-hatred) demonstrates dense environmental craft, material depth and readable action; [No Rest for the Wicked official environmental / dungeon systems](https://norestforthewicked.com/news/the-wicked-inside-showcase) demonstrates coherent spaces with character and mood; [Path of Exile 2 official combat/boss content](https://pathofexile2.com/) demonstrates distinct active class and combat progression. The **actually observed Dungeon raw 3D** still trails all three in readable human forms, distinctive spaces, on-contact animation, challenge presentation and verified audio. Authentic direct frame-matched gameplay reference comparison, independent panel and A/B majority remain **NOT RUN**. Never copy proprietary assets.
 
 **Next work unit:** run/inspect current real browser scenes, especially Warden RUPTURE phase; correct anatomy drift, crowd draw and visibility in true motion. Capture one organic natural game run through traversal, fight, Warden, floor progression, eventual defeat and genuine restart with audio-enabled browser stream at desktop and mobile; reproduce locked BEFORE and compare multiple seeds/scenes blind with at least three separate critics. Acceptance requires all three LOOKS/FEELS/PLAYS majorities and safety CI; not green tests alone.
+
+## M1 native-bone continuous anatomy and face-aware duel (2026-11-03)
+
+**Current source** [`221f242`](https://github.com/my-edutu/Ai_games/commit/221f2424833424a7311d2ff12851b01b06ac11bc); existing draft PR #49; same immutable baseline
+[`281735d0910c6b2443648af976003d50412ee324`](https://github.com/my-edutu/Ai_games/commit/281735d0910c6b2443648af976003d50412ee324), **not reset**.
+
+The genuine preceding 1440 × 832 game capture from `da492455` was inspected
+alongside the actual earlier locked-baseline and current natural contact/last
+stand footage: sphere-like black helmet backs, visually disjoint armor/joints
+and a busy high masonry foreground remain the **largest experiential gap**.
+This is not yet a coherent Diablo-IV-calibre combat/character/world experience.
+
+We integrated **14 connected original 3D anatomical gambeson seams into every
+live rig** across the vanguard/ranger/mystic/revenant/cultist/Warden. A single
+original instanced cloth mesh per figure tracks the imported CC0 native bone
+transforms after the real mixer, including locomotion, attacks, casts, Warden
+warning/recovery and defeat. No collision, simulation, HP, pathing, RNG,
+damage or replay change. Bounds prevent extreme joint separation from becoming
+long rubber tubes. The real Warden duel director now prefers seeing the genuine
+living hero's face among otherwise acceptable views, without overriding actual
+boss warning cells, body separation or arena obstructions. New live diagnostics
+measure active anatomical links.
+
+At this code source, local **250/250 Dungeon foundation cases PASS**, plus
+three new focused source/body/camera contracts and 24 seeded campaigns × 900
+ticks with **zero replay divergences** (highest floor 13; 256 floor
+transitions; 5 deaths/restarts); TypeScript build PASS. These are **safety
+gates, not experiential wins**. The preceding browser workflow
+[41665354929](https://github.com/my-edutu/Ai_games/actions/runs/41665354929)
+FAILED two shards: the paired GPU body uses 172 real meshes, not old expected
+198 unbatched ones, and an actual non-frozen autonomous frame added a character
+between desktop and mobile. Tests now require the body-link presence, rendered
+part count, actual hand alignment, and bounded GPU objects, but do not freeze
+the game to manufacture equal frame counts.
+
+The unmodified reference footage and new source **have NOT been captured at
+matching seeds/cameras yet**; Chromium in the local workspace is blocked from
+localhost by the host administrator. New code remains **LOOKS UNVERIFIED,
+FEELS UNVERIFIED, PLAYS UNVERIFIED**. No independent blind panel or exact-head
+WebAudio quality verdict; no mobile physical-device performance. Next: inspect
+authentic newest-code desktop/mobile replay and contact VFX before judging
+or adjusting the rig, get the complete real game traverse→battle→boss→floor
+transition→defeat/restart reel with sound, and compare against the fixed baseline
+and three external genre-quality reference bars with a fresh >=3 blind panel.
+**IN PROGRESS — NOT TRANSFORMED. PR remains draft and unmerged.**
