@@ -125,3 +125,60 @@ test('G156 real Day-120 market circuit reaches another actual stall on mobile',a
  expect(arrived.gl).toBe(0);
  expect(errors).toEqual([]);
 });
+
+
+// G160: a camera translating through a PAUSED but real 3D market must not
+// regenerate and reupload every unchanged citizen/prop triangle each frame.
+// This is a performance safety floor for the same lived-in market workstream,
+// not a substitute for visually better movement or the Manor Lords benchmark.
+test('G160 camera motion reuses physically identical resident citizen geometry on a paused 390px market walk',async({page})=>{
+ test.setTimeout(150000);
+ const errors=[];page.on('pageerror',error=>errors.push(error.message));
+ await page.setViewportSize({width:390,height:844});
+ await page.setContent(html);
+ await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0,
+  null,{timeout:90000});
+ const entry=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;g.reset();g.setSpeed(0);
+  const visit=g.visitMarket();
+  return {visit,before:JSON.stringify(g.exportSnapshot())};
+ });
+ expect(entry.visit.active).toBe(true);
+ // RED before implementation: no render-only camera mesh residency API exists.
+ await page.waitForFunction(()=>
+  window.__tinyKingdom?.getCameraDynamicCacheStats?.().reuses>=2,
+  null,{timeout:30000});
+ const start=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;
+  return {position:g.getStreetWalkState().position,
+   cache:g.getCameraDynamicCacheStats(),submitted:g.renderStats().lastFrameTriangles,
+   journey:g.nextMarketStall()};
+ });
+ expect(start.journey.started,JSON.stringify(start.journey)).toBe(true);
+ expect(start.journey.trade).not.toBe(entry.visit.stall.trade);
+ await page.waitForFunction(start=>{
+  const g=window.__tinyKingdom,p=g.getStreetWalkState().position;
+  return Math.hypot(p[0]-start[0],p[1]-start[1])>.45 &&
+    g.getCameraDynamicCacheStats().reuses>2;
+ },start.position,{timeout:35000});
+ const end=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;
+  return {position:g.getStreetWalkState().position,
+   cache:g.getCameraDynamicCacheStats(),scene:g.getGeometryAudit(),
+   triangleCount:g.renderStats().lastFrameTriangles,
+   snapshot:JSON.stringify(g.exportSnapshot()),
+   mobileOverflow:document.documentElement.scrollWidth,
+   gl:document.querySelector('#world').getContext('webgl')?.getError()??-1};
+ });
+ expect(end.cache.reuses).toBeGreaterThan(start.cache.reuses);
+ expect(end.cache.skippedUploads).toBeGreaterThan(0);
+ expect(end.cache.entries).toBeLessThanOrEqual(1);
+ expect(end.cache.cachedFloats).toBeGreaterThan(0);
+ expect(end.cache.cachedFloats).toBeLessThanOrEqual(800000);
+ expect(end.scene.totalTriangles).toBeLessThan(160000);
+ expect(end.triangleCount).toBeGreaterThan(0);
+ expect(end.snapshot).toBe(entry.before); // no synthetic jobs/resources/RNG
+ expect(end.mobileOverflow).toBeLessThanOrEqual(390);
+ expect(end.gl).toBe(0);
+ expect(errors).toEqual([]);
+});
