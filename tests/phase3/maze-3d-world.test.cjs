@@ -90,6 +90,9 @@ test('tideglass balustrades trace only reciprocal disclosed playable stairs', as
   world.update(fixture([low]));
   assert.equal(world.stats().stairBalustrades,0,
     'an undisclosed high neighbor never produces a hinting rail');
+  world.update(fixture([low,{...high,neighbors:[]}]));
+  assert.equal(world.stats().stairBalustrades,0,
+    'a one-sided public neighbor disclosure cannot imply an established passage');
   world.update(fixture([{...low,neighbors:[]},{...high,neighbors:[]}]));
   assert.equal(world.stats().stairBalustrades,0,'known but unlinked cells do not fabricate bridges');
   world.update({...linked,runToken:'new-run'});
