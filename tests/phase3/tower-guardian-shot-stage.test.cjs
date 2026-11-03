@@ -109,6 +109,8 @@ test('live scene integrates guardian warning across snapshot, restart, renderer 
   const scene = fs.readFileSync(path.resolve(__dirname,
     '../../public/infinite-tower-climb/visuals/scene.mjs'), 'utf8');
   assert.match(scene, /guardianShotStage\.update\(snapshot, options\)/);
+  assert.match(scene, /entry\.threatLane\.visible = e\.active && e\.telegraph && !options\.stale && e\.kind !== 'guardian'/,
+    'do not draw duplicate near-core guardian threat strip under the real exterior signal');
   assert.match(scene, /guardianShotStage\.clear\(\)/);
   assert.match(scene, /guardianShotStage = createTowerGuardianShotStage\(THREE\)/);
   assert.match(scene, /guardianShotStage\.dispose\(\)/);
