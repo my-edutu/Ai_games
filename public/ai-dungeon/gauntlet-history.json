@@ -2193,22 +2193,22 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "Predecessor head 4d5107c: Chromium dungeon shard 2 failed 1/26 test: live seeded crypt opponent-fill intensity observed 1.75 vs max 1.3 (Actions 41625652639, job 125882208590). Other Chromium shards, authority/headless and independent visual workflow succeeded. Candidate 27329c4 now lowered intended opponent fill; new exact-head foundation, browser, shared CI and replay results pending (runs 41633171282, 41633171451, 41633171294). Not an accepted safety gate.",
+      "safetyChecks": "Earlier code-only 360703a Dungeon foundation 245/245 PASS; presentation VM 16/20 FAILED due missing actual planner in stripped-source harness. Fixed test harness by executing real pure planner at code+test head 17fc673. Exact-head Dungeon browser, full catalogue CI, replay and accessibility results still pending, not certified.",
       "matchedExternalReference": "NOT_RUN",
-      "originalAudioMotionClip": "UNVERIFIED",
+      "originalAudioMotionClip": "UNVERIFIED for new 17fc673 exact candidate; original synthesized opt-in audio remains existing, no new recorded performance",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
       "audioLoudnessAndClipping": "NOT_MEASURED",
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Predecessor 4cc8abd actual 1440x832 and 390x844 browser frames show companions cropped/packed against an overly dense foreground. No scientifically matched AFTER observation yet.",
-      "latestCandidateWorkflow": "New code candidate 27329c494c53566efb06b640f4b3b48bed0064d8. GitHub Actions run 41633171282 foundation, 41633171294 visual review, 41633171451 integrated CI started but were incomplete at this update.",
+      "latestCandidateWorkflow": "Follow-up source and test head 17fc67384c859174a38fe67aded78a84c607df9e: Dungeon Actions 41641751880, visual 41641752002, catalogue 41641752015 were pending/in progress at this receipt. Earlier code-only 360703a Dungeon authority completed 245/245 foundation but presentation VM failed 4/20 due absent genuine planRangedBodyPose import after import stripping; fixed in 17fc673. Do not claim exact-head full CI or browser quality pass.",
       "currentPredecessorWebgl": "https://github.com/my-edutu/Ai_games/actions/runs/41582184616/artifacts/13207290223",
-      "newCandidateSceneReview": "UNVERIFIED: real candidate desktop/mobile motion/audio, relevant Warden traversal through restart and three fresh-context blind preference critics not inspected. Previous authentic Chromium 4d5107c run 41625652619 succeeded; cannot substitute predecessor images for candidate."
+      "newCandidateSceneReview": "UNVERIFIED: no exact-head continuous organic 3D desktop/mobile traversal, combat, Warden, floor advance, defeat/restart, audioclip or matched blind assessment. Previous real Chromium frames remain predecessor evidence only."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Actual imported humanoids remain stylized miniatures; dense original Gothic masonry and crowded fight contact undermine silhouette credibility. Need original substantially higher-quality proportioned characters, coordinated whole-body animation and full real audiovisual boss-expedition capture. Fresh candidate looks/feels/plays, mobile and blind judges UNVERIFIED.",
-    "currentWork": "M1 IN PROGRESS, NOT TRANSFORMED. Candidate 27329c494c53566efb06b640f4b3b48bed0064d8 aligns original six-class imported and fallback 3D locomotion with actual rendered authoritative movement, planted footsteps, existing opt-in audio, class-distinct gait mass and skinned-pelvis weight. Also reduces exposed enemy-fill light after genuine predecessor Chromium failure (1.75 > expected 1.3). No gameplay authority/rules changed.",
-    "candidateCommit": "27329c494c53566efb06b640f4b3b48bed0064d8",
+    "biggestRemainingGap": "Actual low-detail humanoid anatomy, stiff/miniature original GLB proportions, dense stone occlusion and weak perceptual combat impact still dominate. Native ranged release is implemented but real running desktop/mobile motion quality, opponent contact, boss progression and sustained performance are not judged. Need high-quality original characters and full organic audiovisual Warden adventure with matched 281735d baseline and independent critics.",
+    "currentWork": "Continuing SAME M1: code commit 360703a900d716555e98e64c7361d7881115818d connects genuine skeletal two-handed ranger draw/release and caster ritual to original physically shaped arrow/glyph shots, hand-origin projectile placement validated against the actual authority cell, one existing projectile pool and strict no-fake-damage/contact policy. Presentation-only; no gameplay authority, navigation, combat damage, RNG, replay or saves changes. Follow-up test harness fix 17fc67384c859174a38fe67aded78a84c607df9e loads the real pure ranged choreography in the stripped-import VM. New candidate real audio/motion not inspected.",
+    "candidateCommit": "17fc67384c859174a38fe67aded78a84c607df9e",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
     "implementationEvents": [
@@ -3617,6 +3617,30 @@
         "evidence": "Code committed to existing PR #49. Five new Node foundation tests authored but not yet verified on exact SHA due disconnected coding tunnel; exact-head GitHub CI/browser/replay running when recorded. No new candidate mobile desktop motion/audio, before/after score, GPU measurement or independent blind critic verdict.",
         "statusVerdict": "IN_PROGRESS / NOT_TRANSFORMED; LOOKS, FEELS, PLAYS UNVERIFIED",
         "next": "Inspect actual 27329c4+ Chromium desktop/mobile travel, attack, Warden phases and audio; fix animation continuity, actual visual clipping and regression gate; then create high-quality original rigged character replacements and more sculptural rooms and obtain independent blinded feedback."
+      },
+      {
+        "id": "M1-NATIVE-RANGED-RELEASE-20261103",
+        "date": "2026-11-03",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "6d0e5e232fccc8242369e741d12f85427d994eb8",
+        "codeCommit": "360703a900d716555e98e64c7361d7881115818d",
+        "harnessFixCommit": "17fc67384c859174a38fe67aded78a84c607df9e",
+        "objective": "A connected playable improvement to the real autonomous expedition: give aim-validated ranger attacks and genuine enemy/caster spells distinctive full upper-body skeletal choreography and physically recognizable original projectile forms, with shot origin attached to real animated weapon hand where safely verifiable",
+        "files": [
+          "public/ai-dungeon/ranged-encounter-plan.js",
+          "public/ai-dungeon/model-assets.js",
+          "public/ai-dungeon/combat-director.js",
+          "scripts/serve-dungeon-stream.cjs",
+          "tests/foundation/dungeon-ranged-encounter.test.cjs",
+          "tests/foundation/dungeon-presentation.test.cjs",
+          "package.json"
+        ],
+        "integratedImplementation": "Original shared forged arrow / luminous knot geometry, actual source within a legal public grid cell, actual selected target only, existing projectile budget, imported shoulder/elbow/chest joints with reversible additive poses. No fabricated hits or gameplay authority mutation; reduced motion and no-assets fallback remain.",
+        "verifiedSafety": "Code-only exact SHA 360703a: 245/245 Dungeon foundation PASS, but presentation VM 4/20 FAILED because imports stripped and test harness lacked the new pure planner. Real planner injection committed in 17fc673; exact-head runs pending (Dungeon 41641751880; visual 41641752002; catalogue 41641752015). No full CI/replay or visual pass claimed for candidate.",
+        "experienceVerdict": "IN_PROGRESS — NOT_TRANSFORMED, Looks/Feels/Plays UNVERIFIED",
+        "proofGaps": "No inspected new-head real desktop or mobile motion/audio, no full organic campaign reel, no same-seed matched BEFORE/AFTER, no GPU/mobile p95 and no >=3 blind critics (worker tunnel disconnected).",
+        "next": "Read new-head real browser footage of physical arrows, hands, caster rhythm and actual boss/traversal. Repair geometric clipping/shot speed and narrative combat pacing. Proceed with original high-quality re-proportioned character models and rigorous full expedition videos, then independent blind ratings against locked baseline."
       }
     ]
   }
