@@ -94,3 +94,38 @@ test('camera-facing nearby masonry now reveals full actor weapons but preserves 
  assert.match(environment,/reveal==='nearby'\?\.42/);
  assert.match(environment,/reveal==='nearby'\?\.22/);
 });
+
+test('real group camera clears only the foreground wedge in front of living characters',async()=>{
+ const {planPartyWallReveal}=await load();
+ const camera={x:6,z:0},subjects=[{x:0,z:0}];
+ assert.equal(planPartyWallReveal(1,2.5,subjects,camera),'sightline',
+  'near-front masonry must not obscure a companion at body height');
+ assert.equal(planPartyWallReveal(-1,2.5,subjects,camera),'nearby',
+  'stone behind the character still defines the room');
+ assert.equal(planPartyWallReveal(1,3.7,subjects,camera),'none',
+  'a full distant wall remains visible to establish architecture');
+});
+test('true living-party centroid and source masonry inform a bounded cinematic camera without changing game state',async()=>{
+ const filename=path.join(root,'public/ai-dungeon/cinematic-chapter-plan.js');
+ const code=fs.readFileSync(filename,'utf8');
+ const {planPartyVistaSightline}=await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));
+ const n=19,units=[{id:'v',kind:'vanguard',faction:'party',hp:5,x:9,z:9},
+  {id:'r',kind:'ranger',faction:'party',hp:5,x:8,z:10},
+  {id:'m',kind:'mystic',faction:'party',hp:5,x:8,z:9}];
+ const state=Object.freeze({phase:'exploring',map:Array(n).fill('.'),
+  units:units.map(u=>Object.freeze(u))});
+ const baseline=JSON.stringify(state),inputLook=Object.freeze({x:0,z:0});
+ const params={width:390,height:844,fov:48};
+ const shot=planPartyVistaSightline(state,inputLook,[5,8,5],params);
+ assert.ok(shot,'an actual clustered three-hero party must receive its own camera shot');
+ assert.ok(shot.look.x<-.2&&shot.look.x>-.9,'party may recenter but not abandon Vanguard');
+ assert.ok(Math.abs(shot.look.z)<1.3);
+ assert.ok(shot.position&&Number.isFinite(shot.position.x)&&Number.isFinite(shot.position.z));
+ assert.ok(shot.sightline.foregroundWalls>=0);
+ assert.ok(shot.sightline.candidateCount<=17);
+ assert.deepEqual(planPartyVistaSightline(state,inputLook,[5,8,5],params),shot,
+  'scene framing is deterministic and does not need random visual staging');
+ assert.equal(JSON.stringify(state),baseline,'camera cannot mutate actual game snapshots');
+ assert.match(fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8'),
+  /const viewedAim=plannedCamera\.look\?\?look/);
+});
