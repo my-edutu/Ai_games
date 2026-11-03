@@ -469,6 +469,86 @@ body[data-workday="homecoming"] #homecoming-follow[aria-pressed="true"]{
  body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]) .bottom > :not(#pause):not(#speed1):not(#focus):not(#command-toggle):not(#hud-toggle){
   display:none!important}
 }
+
+/* Living Valley visual-direction workstream: ink, parchment, weathered bronze.
+   Applied after historical Gauntlet styling; no new HUD panels or page effects.
+   Readable typography and controls remain available at 390px. */
+:root{
+ --tk-art-ink:#1d2928;--tk-art-paper:#f4ebd8;
+ --tk-art-brass:#d4b17d;--tk-art-sage:#adbfaa;
+ --tk-art-panel:rgba(28,39,37,.92);--tk-art-stroke:rgba(222,195,150,.48);
+}
+body{color:var(--tk-art-paper)}
+.brand,.panel,.pill,.atlas,.feed,.world-tour,.bottom,.realm-signal,#world-ribbon{
+ background:linear-gradient(155deg,rgba(34,44,40,.95),rgba(19,32,33,.91) 58%,rgba(30,37,33,.94));
+ border:1px solid var(--tk-art-stroke);
+ box-shadow:0 12px 32px rgba(4,16,17,.42),inset 0 1px rgba(255,245,220,.12);
+ backdrop-filter:blur(12px);
+}
+.brand,.panel,.atlas,.feed{border-radius:13px}
+.brand{gap:10px}
+.seal{
+ background:linear-gradient(155deg,#edcf98,#b78b55 65%,#87603d);
+ border:1px solid #e6cf9e;color:#24352d;
+ box-shadow:0 4px 15px rgba(0,0,0,.26);border-radius:11px
+}
+.overline,.atlas-heading b,.world-tour small{color:var(--tk-art-sage);letter-spacing:1.6px}
+.name,#citizen-name{color:var(--tk-art-paper);text-shadow:0 2px 12px rgba(0,0,0,.35)}
+.subtitle{color:#c7d1c4}
+.panel h2,.atlas-heading,.world-ribbon .world-identity strong{
+ color:#e5c79b;letter-spacing:1.55px;text-shadow:none
+}
+.panel::before,.atlas::before,.feed::before{background:linear-gradient(90deg,transparent,#d3b17d66,transparent)}
+.sidebar>.panel:first-child,.sidebar>.panel:nth-child(2),.sidebar>.panel:nth-child(3),
+.feed,.atlas{border-top:2px solid #af8a5c}
+.stat,.stat:nth-child(1),.stat:nth-child(2),.stat:nth-child(3),.stat:nth-child(4){
+ background:linear-gradient(145deg,rgba(62,77,66,.55),rgba(27,43,42,.61));
+ border:1px solid rgba(223,198,153,.20);box-shadow:none;border-radius:9px
+}
+.stat strong{color:#f6edd8;font-weight:600;text-shadow:none}
+.stat label,.resource,.atlas-footer,.atlas-legend{color:#ccdacb}
+.resource{border-bottom:1px solid rgba(219,198,157,.14)}
+.resource b{background:rgba(177,138,79,.16);color:#ead3a9;border-color:rgba(216,183,130,.26)}
+.meter{background:#172826;border-color:rgba(219,183,132,.30)}
+.meter span{background:linear-gradient(90deg,#6c9b82,#b8bf8a,#d7a76e);box-shadow:none}
+.pill{color:#f1ead6;font-weight:650}
+.pill #weather{color:#dfc391!important}
+.live{width:7px;height:7px;background:#91cb9c;box-shadow:0 0 0 3px #91cb9c20,0 0 8px #91cb9c72}
+.feeditem{color:#e2e6d8;background:linear-gradient(90deg,rgba(191,154,96,.09),transparent 75%);
+ border-left:2px solid #b99567;border-top:1px solid #cbb59322}
+.feeditem:nth-child(even){border-left-color:#91b9a1}
+.feeditem span{color:#dabd8c}
+#atlas-map{background:#2d544b;border:1px solid #b0c7a65e;box-shadow:inset 0 0 16px #192b2a6b}
+.bottom,.world-tour{border-radius:12px;gap:4px}
+.btn,.tour-btn{color:#e9eadc;font-weight:650;transition:background-color .15s ease,color .15s ease}
+.btn:hover,.tour-btn:hover{background:#364f46;color:#fff6e6;transform:none}
+.btn.active,.tour-btn[aria-pressed="true"],#world-open-command{
+ background:linear-gradient(145deg,#dfc18c,#bc9866);color:#1e302c;
+ box-shadow:inset 0 1px rgba(255,246,215,.62),0 3px 12px #0003
+}
+.btn:focus-visible,.tour-btn:focus-visible,#world-open-command:focus-visible,
+#command-toggle:focus-visible,#cycleCitizen:focus-visible{
+ outline:2px solid #f1d59a;outline-offset:3px
+}
+#workday-activity{background:#20332ff0;border-color:#c9b184b8;color:#f4ead4}
+#workday-progress::-webkit-progress-value{background:#c5aa74}
+#workday-progress::-moz-progress-bar{background:#c5aa74}
+#world-ribbon{color:#ede8d7}
+#world-ribbon .world-measure strong{color:#fff2dc}
+.vignette{background:
+ linear-gradient(180deg,rgba(13,20,22,.32),transparent 22%,transparent 78%,rgba(12,21,22,.39)),
+ radial-gradient(ellipse at center,transparent 67%,rgba(10,21,20,.20))}
+@media(max-width:520px){
+ .brand,.panel,.pill,.atlas,.feed,.world-tour,.bottom{backdrop-filter:blur(8px)}
+ .stat strong{font-size:19px}
+ .name{letter-spacing:-.4px}
+ .btn,.tour-btn{min-height:34px}
+ .world-tour{scrollbar-width:thin}
+}
+@media(prefers-reduced-motion:reduce){
+ .btn,.tour-btn{transition:none!important;transform:none!important}
+}
+
 </style></head><body>
 <canvas id="world" aria-label="Live 3D simulation of a medieval valley with autonomous villagers"></canvas><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
@@ -638,6 +718,16 @@ void main(){
  vec3 moonAmbient=mix(vec3(.10,.15,.23),vec3(.14,.19,.26),hemi);
  vec3 ambient=mix(moonAmbient,noonAmbient,ambientBlend);
  vColor=color*(ambient+lit*.67*sunTint*sunStrength+bounce*.11*sunStrength);
+ // Art-direction: an inexpensive form shadow separates plaster walls, eaves,
+ // stone bases and roofs without adding geometry or another lighting pass.
+ // This only changes presentation, never paths or authoritative resource use.
+ float upperFace=clamp(.5+.5*n.y,0.,1.);
+ float formShade=mix(.835,1.,upperFace);
+ if(materialId>4.5&&materialId<8.5){
+  float foundation=1.-smoothstep(.16,1.58,world.y);
+  formShade*=1.-foundation*.09;
+ }
+ vColor*=mix(1.,formShade,.85);
  // Bounded lighting follows the real currently working actor, never fake jobs.
  if(workLightStrength>.001){
   float range=length(world.xz-workLightPosition.xz);
@@ -654,12 +744,12 @@ void main(){
   vec3 warmGlass=materialId<9.5?vec3(.98,.88,.47):vec3(.98,.90,.44);
   vColor=mix(vColor,warmGlass,afterDusk);
  }
- vWorld=world;vNormal=n;vMaterial=materialId;vFog=clamp((p.w-24.)/105.,0.,.82);
+ vWorld=world;vNormal=n;vMaterial=materialId;vFog=clamp((p.w-31.)/121.,0.,.70);
 }`;
 // Gauntlet 023 — world-space GPU materials. Original procedural detail; not full PBR.
 const fs=`precision mediump float;
 varying vec3 vColor;varying vec3 vWorld;varying vec3 vNormal;varying float vFog;varying float vMaterial;
-uniform vec3 fogColor;uniform highp vec3 sunDirection;uniform highp vec3 eyePosition;uniform highp float worldTime;uniform float weatherWetness;
+uniform vec3 fogColor;uniform float sunStrength;uniform highp vec3 sunDirection;uniform highp vec3 eyePosition;uniform highp float worldTime;uniform float weatherWetness;
 uniform sampler2D groundAtlas;uniform float groundAtlasFast;
 uniform sampler2D architectureAtlas;
 float hash3(vec3 p){p=fract(p*.1031);p+=dot(p,p.yxz+33.33);return fract((p.x+p.y)*p.z);}
@@ -904,9 +994,18 @@ void main(){
   c*=mix(vec3(1.),baked*1.27,.81);
  }
  c=mix(c,fogColor,vFog);
- vec3 mapped=c/(c+vec3(.34));
+ // Living Valley cinematic grade: retain the original material response but
+ // restore mid-tone separation, cool recesses and warm sun-facing surfaces.
+ // One bounded material pass; no fullscreen framebuffer or texture allocation.
+ vec3 mapped=c/(c+vec3(.37));
  mapped=fastFilmicGamma(mapped);
- gl_FragColor=vec4(mapped,1.);
+ float luma=dot(mapped,vec3(.2126,.7152,.0722));
+ mapped=mix(vec3(luma),mapped,1.10);
+ mapped=(mapped-vec3(.5))*mix(1.045,1.125,clamp(sunStrength,0.,1.))+vec3(.5);
+ float highlight=smoothstep(.26,.72,luma);
+ vec3 tint=mix(vec3(.945,.980,1.045),vec3(1.055,1.012,.950),highlight);
+ mapped*=mix(vec3(1.),tint,mix(.45,.90,clamp(sunStrength,0.,1.)));
+ gl_FragColor=vec4(clamp(mapped,vec3(0.),vec3(1.)),1.);
 }`;
 function shader(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s}
 // G094 integrated lived-in workday: the current software renderer is
@@ -1357,7 +1456,7 @@ function skyColorProfile(time){
  const horizon=darkHorizon.map((v,i)=>v*(1-exposure)+litHorizon[i]*exposure);
  const sunriseTint=[.71,.46,.31],warmMix=warm*(.43+.15*exposure);
  for(let i=0;i<3;i++)horizon[i]=Math.max(0,Math.min(1,horizon[i]*(1-warmMix)+sunriseTint[i]*warmMix));
- const nightZenith=[.037,.064,.13],dayZenith=[.30,.53,.78];
+ const nightZenith=[.028,.049,.102],dayZenith=[.225,.406,.648];
  const zenith=nightZenith.map((v,i)=>v*(1-exposure)+dayZenith[i]*exposure);
  return {horizon,zenith,exposure,nightStars:1-Math.max(0,Math.min(1,(a.daylight-.21)/.11)),sunrise:warm};
 }
