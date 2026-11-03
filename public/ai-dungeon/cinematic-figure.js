@@ -29,9 +29,9 @@ export function planCinematicFigure(kind){
   part('surcoat','surcoat','cloth',0,1.20,.075,'chest',w,1,.87),
   part('pelvis','hips','leather',0,.86,0,'pelvis',w,1,1),
   part('gorget','neck','trim',0,1.52,-.015),
-  part('helmet','head','metal',0,1.70,-.019,'head',p.head,1,p.head),
-  part('face','visage','face',0,1.68,-.142,'head',p.head,1,p.head),
-  part('visor','eyes','trim',0,1.77,-.184,'head',p.head,1,1),
+  part('helmet','head','metal',0,1.70,-.019,'head',p.head,.80,p.head),
+  part('face','visage','face',0,1.68,-.142,'head',p.head,.80,p.head),
+  part('visor','eyes','trim',0,1.77,-.184,'head',p.head,.80,1),
   part('front-crest','crest','trim',0,1.3,-.24,'chest',.8,1,1),
   part('hem','hem','cloth',0,.65,.075,'pelvis',w,p.garment,1)
  ];
@@ -60,6 +60,36 @@ export function planCinematicFigure(kind){
   part('oathbreaker-left-skirt','hem','cloth',-.23,.66,.10,'pelvis',.47,.81,.88),
   part('oathbreaker-right-skirt','hem','cloth',.23,.66,.10,'pelvis',.47,.81,.88)
  );
+ // Distinct sculpted identity equipment is attached to animated native bones.
+ // The armor moves with legal travel, casting and combat; no authority changes.
+ const identity={
+  vanguard:[
+   part('identity-bastion-shield','shield','metal',-0.52,1.05,-0.29,'leftForearm',1.04,1.03,1),
+   part('identity-bastion-sigil','crest','trim',-0.52,1.07,-0.395,'leftForearm',0.63,0.74,1)
+  ],
+  ranger:[
+   part('identity-wayfinder-quiver','quiver','leather',0.33,1.2,0.275,'chest',0.84,1.02,0.84),
+   part('identity-wayfinder-fletching','vane','trim',0.34,1.59,0.25,'chest',0.58,0.65,0.58)
+  ],
+  mystic:[
+   part('identity-oracle-circlet','circlet','trim',0,1.89,-0.02,'head',0.95,1,0.95),
+   part('identity-oracle-mantle','banner','cloth',-0.22,0.84,0.24,'chest',0.68,0.9,0.78)
+  ],
+  revenant:[
+   part('identity-hollow-left-thorn','vane','metal',-0.37,1.49,0.08,'leftUpperArm',0.95,1.22,0.88),
+   part('identity-hollow-right-thorn','vane','metal',0.37,1.49,0.08,'rightUpperArm',0.95,1.22,0.88)
+  ],
+  cultist:[
+   part('identity-penitent-left-stole','banner','cloth',-0.24,0.85,-0.2,'chest',0.78,1.22,0.79),
+   part('identity-penitent-right-stole','banner','cloth',0.24,0.85,-0.2,'chest',0.78,1.22,0.79)
+  ],
+  warden:[
+   part('identity-oathbreaker-guard','shield','metal',-0.63,1.07,-0.28,'leftForearm',1.18,1.26,1),
+   part('identity-oathbreaker-left-oath','banner','cloth',-0.34,0.87,0.28,'chest',0.88,1.32,0.85),
+   part('identity-oathbreaker-right-oath','banner','cloth',0.34,0.87,0.28,'chest',0.88,1.32,0.85)
+  ],
+ };
+ pieces.push(...identity[kind]);
  pieces.push(part('true-hand-weapon','weapon','trim',.49,1.0,-.18,'rightHand'));
  return Object.freeze({
   kind,statureMeters:kind==='warden'?2.30:1.82,weapon:p.weapon,
@@ -272,6 +302,26 @@ function createForms(T,kind){
  const forms=Object.fromEntries(Object.entries(profiles).map(([key,rows])=>[key,createHull(T,rows)]));
  forms.visage.dispose();forms.visage=createAnatomicalFace(T,kind);
  forms.eyes=createSplitVisor(T);
+ // Original hero-scale silhouette geometry, never proprietary meshes.
+ const shield=new T.Shape();
+ shield.moveTo(-.32,.34);shield.lineTo(.32,.34);shield.lineTo(.34,.06);
+ shield.quadraticCurveTo(.27,-.28,0,-.47);
+ shield.quadraticCurveTo(-.27,-.28,-.34,.06);shield.closePath();
+ forms.shield=new T.ExtrudeGeometry(shield,{depth:.085,steps:1,
+  bevelEnabled:true,bevelSize:.028,bevelThickness:.018,bevelSegments:2});
+ forms.shield.translate(0,0,-.0425);
+ forms.quiver=createHull(T,[[-.31,.095,.09],[-.23,.115,.103],[.05,.138,.126],
+  [.23,.152,.137],[.32,.141,.13]],14);
+ forms.vane=createHull(T,[[-.24,.055,.07],[-.11,.105,.10],
+  [.06,.095,.09],[.23,.041,.052],[.38,.009,.015]],12);
+ forms.circlet=new T.TorusGeometry(.205,.034,8,32,Math.PI*1.77);
+ const banner=new T.Shape();
+ banner.moveTo(-.145,.30);banner.lineTo(.145,.30);banner.lineTo(.15,-.09);
+ banner.lineTo(.065,-.30);banner.lineTo(0,-.22);banner.lineTo(-.09,-.37);
+ banner.lineTo(-.16,-.18);banner.closePath();
+ forms.banner=new T.ExtrudeGeometry(banner,{depth:.027,steps:1,
+  bevelEnabled:true,bevelSize:.011,bevelThickness:.008,bevelSegments:1});
+ forms.banner.translate(0,0,-.0135);
  // Each faction receives original raised metal heraldry rather than a
  // generic sphere or a borrowed insignia. These marks remain legible in 3D.
  const crests={
@@ -378,8 +428,8 @@ export function createCinematicFigure(T,actor,joints){
   trim:material(T,'trim',recipe.palette.trim,.38,.53),
   cloth:material(T,'cloth',recipe.palette.cloth,.028,.91),
   leather:material(T,'leather',recipe.palette.leather,.06,.82),
-  face:material(T,'face',recipe.palette.face,.055,.78),
-  nativeSuit:material(T,'cloth',recipe.palette.leather,.055,.87)
+  face:material(T,'face',recipe.palette.face,.035,.82),
+  // Use configured, texture-bearing native skinned body materials.
  };
  const group=new T.Group(),built=[],anchors=[],batches=[],attachments=new Map();
  const figureScale=recipe.statureMeters/1.82;
@@ -484,7 +534,7 @@ export function createCinematicFigure(T,actor,joints){
    if(obj.isMesh&&!obj.userData?.cinematicFigurePiece){
     const keep=isNativeContinuityMesh(obj.name,obj.isSkinnedMesh);
     obj.visible=keep;
-    if(keep){obj.material=mat.nativeSuit;obj.userData.cinematicBodyUnderlay=true;}
+    if(keep){obj.userData.cinematicBodyUnderlay=true;}
    }
   });
   actor.assetGeometries.push(...Object.values(geometry));
@@ -495,6 +545,7 @@ export function createCinematicFigure(T,actor,joints){
    joints:12,vertices,mappedMaterials:Object.values(mat).filter(m=>m.bumpMap).length,
    handGripOffsetMeters:gripOffset,weapon:recipe.weapon,
    sourceMeshesHidden:true,nativeBodyUnderlays:nativeAnatomy.length,
+    identityEquipmentPieces:recipe.pieces.filter(p=>p.id.startsWith('identity-')).length,
    sourceCostumeHidden:true,height:recipe.statureMeters,anatomyBridges:CINEMATIC_ANATOMY_LINKS.length,activeAnatomyBridges:()=>activeBridges,
    suppressedLongAnatomyBridges:()=>rejectedLongBridges,sync,
    dispose:()=>{for(const batch of batches)batch.mesh.dispose();bridge.dispose();}
