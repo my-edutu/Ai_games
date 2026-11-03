@@ -184,6 +184,41 @@ export function isNativeContinuityMesh(name,isSkinnedMesh){
   /_(?:Body|ArmLeft|ArmRight|LegLeft|LegRight)$/i.test(name);
 }
 const MIN_NATIVE_BODY_PIECES=5;
+/**
+ * Fit original armour to the ACTUAL imported adult skeleton at rest, instead
+ * of assuming that six distinct licensed skeletons place their shoulder,
+ * elbow, hip, knee and cranial joints at the same hard-coded XYZ values.
+ * This is one-time bind-pose geometry fitting, not per-frame procedural IK.
+ * Rigid/cloth parts still move with their own genuine animated native bone.
+ * The maximal gap is a physical fitting envelope; ornaments (a shield,
+ * quiver and hanging cloth) legitimately sit farther from the parent joint.
+ * Invalid joint measurements leave the source-designed attachment untouched.
+ */
+export function planNativeArmorMount(piece,bone,scale=1){
+ const requested=Object.freeze({x:(piece?.x??0)*scale,y:(piece?.y??0)*scale,z:(piece?.z??0)*scale});
+ if(!piece||!Number.isFinite(scale)||scale<.6||scale>1.7||
+    ![requested.x,requested.y,requested.z,bone?.x,bone?.y,bone?.z].every(Number.isFinite)||
+    bone.y<-.25||bone.y>3.3||Math.hypot(bone.x,bone.z)>1.8)
+  return Object.freeze({...requested,adjusted:false,shift:0,source:'unfitted'});
+ const id=String(piece.id||''),shape=String(piece.shape||'');
+ const envelope=id.startsWith('identity-')?
+   (shape==='shield'?.63:shape==='quiver'||shape==='banner'?.55:.42):
+   shape==='boot'?.55:shape==='bracer'?.45:shape==='shin'?.41:
+   shape==='hem'?.52:shape==='thigh'?.38:shape==='surcoat'?.44:
+   shape==='cowl'||shape==='head'||shape==='visage'||shape==='eyes'?.20:
+   shape==='shoulder'?.32:shape==='arm'?.35:shape==='torso'?.29:
+   shape==='crest'?.38:.32;
+ const distance=Math.hypot(requested.x-bone.x,requested.y-bone.y,requested.z-bone.z);
+ const allowance=envelope*scale;
+ if(distance<=allowance)return Object.freeze({...requested,adjusted:false,shift:0,source:'native'});
+ const f=allowance/distance;
+ const fitted={x:bone.x+(requested.x-bone.x)*f,
+  y:bone.y+(requested.y-bone.y)*f,z:bone.z+(requested.z-bone.z)*f};
+ const round=v=>Number(v.toFixed(5));
+ return Object.freeze({x:round(fitted.x),y:round(fitted.y),z:round(fitted.z),
+  adjusted:true,shift:round(distance-allowance),source:'native'});
+}
+
 
 const MIRRORED_PARTS=Object.freeze(['shoulder','upper-arm','bracer','thigh','shin','boot']);
 /**
@@ -527,6 +562,25 @@ export function createCinematicFigure(T,actor,joints){
  const group=new T.Group(),built=[],anchors=[],batches=[],attachments=new Map();
  const figureScale=recipe.statureMeters/1.82;
  group.name='Original anatomically articulated '+recipe.kind;
+ let nativeMountAdjustments=0,nativeMountLargestShift=0;
+ const nativeJointRest=Object.create(null),jointWorld=new T.Vector3();
+ // Sample the real imported rig ONCE in neutral pose. Shared skeleton clips
+ // continue to own animation; no world-space costume drive is added.
+ actor.assetRoot.updateWorldMatrix(true,true);
+ actor.visualPivot.updateWorldMatrix(true,true);
+ group.updateWorldMatrix(true,true);
+ for(const key of CRITICAL_FIGURE_JOINTS){
+  joints[key].updateWorldMatrix(true,false);
+  joints[key].getWorldPosition(jointWorld);
+  group.worldToLocal(jointWorld);
+  nativeJointRest[key]={x:jointWorld.x,y:jointWorld.y,z:jointWorld.z};
+ }
+ const mount=piece=>{
+  const position=planNativeArmorMount(piece,nativeJointRest[piece.anchor],figureScale);
+  if(position.adjusted){nativeMountAdjustments++;
+   nativeMountLargestShift=Math.max(nativeMountLargestShift,position.shift);}
+  return position;
+ };
  try{
   actor.visualPivot.add(group);
   actor.visualPivot.updateWorldMatrix(true,true);actor.assetRoot.updateWorldMatrix(true,true);
@@ -544,7 +598,8 @@ export function createCinematicFigure(T,actor,joints){
    const jointAnchors=[];
    for(const p of pair.parts){
     const anchor=new T.Object3D();anchor.name='native '+p.anchor+' '+p.id;
-    anchor.position.set(p.x*figureScale,p.y*figureScale,p.z*figureScale);
+    const fitted=mount(p);
+    anchor.position.set(fitted.x,fitted.y,fitted.z);
     anchor.scale.set(p.sx*figureScale,p.sy*figureScale,p.sz*figureScale);
     group.add(anchor);anchors.push(anchor);attachments.set(p.id,anchor);
     group.updateWorldMatrix(true,true);joints[p.anchor].attach(anchor);
@@ -558,7 +613,8 @@ export function createCinematicFigure(T,actor,joints){
   geometry.integratedHead=sculptedHead;
   const headMesh=new T.Mesh(sculptedHead,mat.integratedHead);
   headMesh.name='cinematic-'+recipe.kind+'-cranial-sculpture';
-  headMesh.position.set(headPivot.x*figureScale,headPivot.y*figureScale,headPivot.z*figureScale);
+  const fittedHead=mount(headPivot);
+  headMesh.position.set(fittedHead.x,fittedHead.y,fittedHead.z);
   headMesh.scale.setScalar(figureScale);
   headMesh.userData.cinematicFigurePiece=true;
   headMesh.castShadow=false;headMesh.receiveShadow=true;
@@ -569,7 +625,8 @@ export function createCinematicFigure(T,actor,joints){
    if(p.shape==='weapon'||excluded.has(p.id))continue;
    const mesh=new T.Mesh(geometry[p.shape],mat[p.finish]);
    mesh.name='cinematic-'+recipe.kind+'-'+p.id;
-   mesh.position.set(p.x*figureScale,p.y*figureScale,p.z*figureScale);
+   const fitted=mount(p);
+   mesh.position.set(fitted.x,fitted.y,fitted.z);
    mesh.scale.set(p.sx*figureScale,p.sy*figureScale,p.sz*figureScale);
    mesh.userData.cinematicFigurePiece=true;
    mesh.castShadow=false;mesh.receiveShadow=true;
@@ -657,6 +714,8 @@ export function createCinematicFigure(T,actor,joints){
    handGripOffsetMeters:gripOffset,weapon:recipe.weapon,
    sourceMeshesHidden:true,nativeBodyUnderlays:nativeAnatomy.length,
    integratedHeadDraws:1,integratedHeadPartCount:headPieces.length,
+   nativeMountAdjusted:nativeMountAdjustments,
+   nativeMountLargestShift:Number(nativeMountLargestShift.toFixed(4)),
     identityEquipmentPieces:recipe.pieces.filter(p=>p.id.startsWith('identity-')).length,
    sourceCostumeHidden:true,height:recipe.statureMeters,anatomyBridges:CINEMATIC_ANATOMY_LINKS.length,activeAnatomyBridges:()=>activeBridges,
    suppressedLongAnatomyBridges:()=>rejectedLongBridges,sync,

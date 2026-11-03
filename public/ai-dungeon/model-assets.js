@@ -1006,6 +1006,8 @@ function stats(actors){
   cinematicPairedBatches:authored.reduce((n,a)=>n+(a.cinematicFigure?.pairedBatches||0),0),
    cinematicIntegratedHeads:authored.reduce((n,a)=>n+(a.cinematicFigure?.integratedHeadDraws||0),0),
    cinematicIntegratedHeadParts:authored.reduce((n,a)=>n+(a.cinematicFigure?.integratedHeadPartCount||0),0),
+   cinematicNativeMountAdjustments:authored.reduce((n,a)=>n+(a.cinematicFigure?.nativeMountAdjusted||0),0),
+   cinematicNativeMountMaxShiftMeters:Math.max(0,...authored.map(a=>a.cinematicFigure?.nativeMountLargestShift||0)),
   cinematicIdentityPieces:authored.reduce((n,a)=>n+(a.cinematicFigure?.identityEquipmentPieces||0),0),
   cinematicIdentityActors:authored.filter(a=>(a.cinematicFigure?.identityEquipmentPieces||0)>=2).length,
   cinematicAnatomyBridges:authored.reduce((n,a)=>n+(a.cinematicFigure?.anatomyBridges||0),0),
