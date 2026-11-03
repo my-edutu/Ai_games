@@ -771,7 +771,7 @@ export function createMazeWorld(options = {}) {
       // NON-PASSAGE side. Keep the real tile center and true route open.
       // This is a deterministic presentation variation, not an extra obstacle.
       const fossilSide = !c.blocked && !c.trap && !c.checkpoint && !c.clue
-        && c.cell!==s.currentCell && c.cell!==s.exitCell
+        && c.cell!==s.exitCell
         && !gateCourt && !gateApproachCells.has(c.cell)
         && !s.keys.some(key=>key.cell===c.cell)
         && variation(c.cell*17+131)>.40
@@ -1602,8 +1602,17 @@ export function createMazeWorld(options = {}) {
         && knownCellsForGate.has(d.b) && Math.abs(d.a % s.width - d.b % s.width)
           + Math.abs(Math.floor(d.a / s.width) - Math.floor(d.b / s.width)) === 1)
       .map(d => doorEdgeId(d.a, d.b)).sort().join('.');
+    // Wall-side fossil alcoves must never cover an actually PUBLIC key or
+    // exit prop. Include those rare disclosed landmark cell changes in the
+    // terrain cache key, without rebuilding on every moving hero tick or
+    // peeking at undisclosed future cells. Run reset already clears all art.
+    const knownKeyRelicCells=(s.keys||[])
+      .filter(key=>knownCellsForGate.has(key.cell))
+      .map(key=>key.cell).sort((a,b)=>a-b).join('.');
+    const disclosedExitRelicCell=knownCellsForGate.has(s.exitCell)?s.exitCell:'';
     const terrainKey = s.cells.map(c =>
-      `${c.cell}/${c.neighbors.join('.')}/${+c.blocked}/${+!!c.trap}/${+!!c.checkpoint}/${+!!c.clue}`).join('|') + '#' + gateKey;
+      `${c.cell}/${c.neighbors.join('.')}/${+c.blocked}/${+!!c.trap}/${+!!c.checkpoint}/${+!!c.clue}`).join('|')
+      + '#' + gateKey + '#relic:' + knownKeyRelicCells + ':' + disclosedExitRelicCell;
     if (terrainKey !== terrainSignature) { rebuildTerrain(s); terrainSignature = terrainKey; }
     const objectKey = JSON.stringify([s.keys, s.doors, s.inventory, s.exitCell, s.cells.map(c => [c.cell, c.trap, c.checkpoint, c.clue])]);
     if (objectKey !== objectSignature) { rebuildObjects(s); objectSignature = objectKey; }
