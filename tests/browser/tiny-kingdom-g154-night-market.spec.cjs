@@ -12,7 +12,7 @@ test('G154 Day-120 dusk market remains physically visitable after a real day-nig
  await page.setViewportSize({width:390,height:844});
  await page.setContent(html);
  await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0,null,{timeout:90000});
- await page.evaluate(()=>{const g=window.__tinyKingdom;g.setSpeed(0);g.reset();});
+ await page.evaluate(()=>{const g=window.__tinyKingdom;g.reset();g.setSpeed(0);});
  for(let remaining=120*24*30;remaining>0;remaining-=7200){
   await page.evaluate(n=>{
    for(let i=0;i<n;i++)window.__tinyKingdom.step(1/30);
