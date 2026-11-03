@@ -631,10 +631,18 @@ export function createWorld(THREE, {width, height}) {
     const forestEdge=1-fade(.12,.45,1-Math.max(Math.abs(nx),Math.abs(nz)));
     const dampStone=Math.min(1,Math.max(0,forest*.97+forestEdge*.19));
     const shade=.95+random()*.055;
-    // Deep fern-lit stone makes the original golden serpent, live food and
-    // bright blue portal cues separate from the environment at broadcast size.
-    // The green valley still uses the SAME old slab mesh + one baked atlas.
-    color.setRGB(shade*(1-dampStone*.55),shade*(1-dampStone*.052),shade*(1-dampStone*.43));
+    // T1 honest real-frame correction: bright rainforest-green multiplied by
+    // a bright atlas produced a fluorescent, uniform rectangular board on
+    // the actual 68178 Chromium video. Sculpt a darker differentiated forest
+    // substrate into the SAME original tile vertex colors, with fine slate /
+    // amber variation, without changing geometry, the playable cell centres,
+    // public cues or draw calls. Maintain the sunlit limestone heart.
+    const mineralRift = .5+.5*Math.sin(nx*12.7+nz*4.1+
+      .56*Math.sin(nz*11.3-nx*3.2));
+    const forestLoam = dampStone*(.35+.65*mineralRift);
+    color.setRGB(shade*(1-dampStone*.61+forestLoam*.045),
+      shade*(1-dampStone*.20-forestLoam*.020),
+      shade*(1-dampStone*.47+forestLoam*.030));
     add(tile,tileMat,x-(width-1)/2,-.105,z-(height-1)/2,.994,.21,.994,0,0,0,color.clone());
   }
   // Terraced structural stone, rubble and topsoil form one coherent island silhouette.

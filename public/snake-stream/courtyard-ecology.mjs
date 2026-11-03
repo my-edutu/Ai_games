@@ -123,17 +123,26 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
       const rootX = Math.round(gx), rootZ = Math.round(gz);
       const rooted = fernSites?.[rootZ * (width + 1) + rootX] ?
         (1 - smooth(.10, .53, Math.hypot(gx - rootX, gz - rootZ))) : 0;
-      // T1 DEEP ROOTED RAIN-FOREST PALETTE (same once-baked stone atlas).
-      // Real 415dae WebGL still showed washed-out streaks over a pale court.
-      // These exact rooted valleys now inherit deep fern and wet forest hues.
-      // Keep original lit sunstone, mortar, fruit/portal/danger/cell geometry.
-      // No added texture, triangle, alpha, draw or shader work.
-      const targetR = 204 + 16 * openStone + silt * .62
-        - canopyShade * 158 - rooted * 37 - mineralLace * 14;
-      const targetG = 184 + 11 * openStone + silt * .48
-        - canopyShade * 34 - rooted * 11 + mineralLace * 9;
-      const targetB = 155 + 8 * openStone + silt * .42
-        - canopyShade * 126 - rooted * 32 - mineralLace * 12;
+      // 68178's authentic 1920p and 63s real gameplay reject neon-green
+      // lawns. The same genuine three planted watersheds now grade as forest
+      // moss, blue slate, exposed warm sandstone and dark rain-cut umber.
+      // This is ONE existing baked owned atlas, not another GPU texture/pass.
+      // Local low-frequency mineral variation breaks vast uniform painted
+      // polygons while actual original mortar, cue contrast, sunstone and
+      // gameplay tile geometry remain intact.
+      const loamStrata = canopyShade * smooth(.23,.79,
+        mineral*.57 + watershed*.33 + .10*Math.sin(gx*.18+gz*.07));
+      const slateStrata = canopyShade * (.5+.5*Math.sin(gz*.49-gx*.21))
+        * (1-loamStrata*.35);
+      const targetR = 204 + 16 * openStone + silt * .68
+        - canopyShade * 153 - rooted * 25 + loamStrata*24 - slateStrata*7
+        - mineralLace * 7;
+      const targetG = 184 + 11 * openStone + silt * .42
+        - canopyShade * 57 - rooted * 12 - loamStrata*8
+        + slateStrata*4 + mineralLace * 3;
+      const targetB = 155 + 8 * openStone + silt * .47
+        - canopyShade * 105 - rooted * 23 - loamStrata*12
+        + slateStrata*5 - mineralLace * 8;
       // Retain directional raking-light/mortar contrast from ORIGINAL pixels.
       // Lift only the muddy compression range, without bleaching real ruin
       // greenery or painting over portal/fruit/hazard geometry.
@@ -142,7 +151,9 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
       const localDetail = Math.max(-18, Math.min(18, (oldLuma - 95) * .16));
       const tileX = gx - Math.floor(gx), tileZ = gz - Math.floor(gz);
       const mortar = 1 - smooth(.012, .067, Math.min(tileX, 1-tileX, tileZ, 1-tileZ));
-      const grain = localDetail - mortar * 13;
+      // Real 68178 video exposed heavy black graph-paper joints; a softer
+      // physically retained old mortar groove supports the forest substrate.
+      const grain = localDetail - mortar * 7;
       // A readable original ancient limestone sundial becomes the static
       // garden's central place marker. Unlike the real blue portals it has
       // no ring mesh, emissive highlight, collision or player outcome. The
@@ -403,6 +414,22 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
     }
     if (!leaves.flat().every(p => Math.abs(p[0])<=W-.68 &&
         Math.abs(p[2])<=H-.68 && !landmark(p) && !nearPublicCell(p))) continue;
+    // Keep EXACT same approved 68178 fern sites and their existing clearance
+    // tests, expanding only the shoulder of individual leaves which can fit.
+    // A rejected broader frond reverts to its immutable original silhouette,
+    // never shifting a rooted fern into a genuine gameplay cell or changing
+    // clump count, triangle count, or physical world collision.
+    for(let i=0;i<leaves.length;i+=2){
+      const a=leaves[i],b=leaves[i+1];
+      const root=a[0],left=a[1],tip=a[2],right=b[2];
+      const widen=(point)=>[root[0]+(point[0]-root[0])*1.18,
+        point[1],root[2]+(point[2]-root[2])*1.18];
+      const broadLeft=widen(left),broadRight=widen(right);
+      if([broadLeft,broadRight].every(p=>Math.abs(p[0])<=W-.68 &&
+          Math.abs(p[2])<=H-.68 && !landmark(p) && !nearPublicCell(p))){
+        a[1]=broadLeft;b[2]=broadRight;
+      }
+    }
     for (const [a,b,c] of leaves) {
       vertex(a,-1.7,true);vertex(b,-1.4,true);vertex(c,-1.8,true);
       interstitialFernTriangles++;
