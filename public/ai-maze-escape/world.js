@@ -1376,7 +1376,12 @@ export function createMazeWorld(options = {}) {
     }
     const backgroundKey = `${s.width}:${s.height}`;
     if (backgroundKey !== backdropSignature) { rebuildBackdrop(s); backdropSignature = backgroundKey; }
-    const terrainKey = s.cells.map(c => `${c.cell}/${c.neighbors.join('.')}/${+c.blocked}`).join('|');
+    // Semantic public-cell flags control floor relief/ornaments too. A newly
+    // disclosed trap, checkpoint or clue on an already-known cell must rebuild
+    // the actual instanced court, not leave a decorative shell under danger.
+    // These are ONLY sanitized public cell properties, never private map data.
+    const terrainKey = s.cells.map(c =>
+      `${c.cell}/${c.neighbors.join('.')}/${+c.blocked}/${+!!c.trap}/${+!!c.checkpoint}/${+!!c.clue}`).join('|');
     if (terrainKey !== terrainSignature) { rebuildTerrain(s); terrainSignature = terrainKey; }
     const objectKey = JSON.stringify([s.keys, s.doors, s.inventory, s.exitCell, s.cells.map(c => [c.cell, c.trap, c.checkpoint, c.clue])]);
     if (objectKey !== objectSignature) { rebuildObjects(s); objectSignature = objectKey; }

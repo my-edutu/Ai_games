@@ -1,3 +1,10 @@
+## Pass104 — semantic public-cell relief correctness, unverified new-source browser (2026-11-03T06:53:15.782Z)
+
+- **Verified source mismatch:** existing `world.js` terrain cache omitted publicly disclosed trap/checkpoint/clue metadata despite `rebuildTerrain` expressly suppressing broad physical shell artwork on those cells. Same-run known-cell semantic changes could leave an ornamental shell beneath a genuine hazard; this is a playable visual correctness issue, not SwiftShader FPS.
+- **Source correction:** include exactly those three sanitized public-cell signals in terrain fingerprint; deterministic material batches will rebuild without changing navigation, AI authority, secret map, render-loop resources or any existing native 320/390/844/1280 framing/low-HUD threshold.
+- **Separate real Three.js regression:** `tests/phase6/maze-public-terrain-semantic-rebuild.test.cjs` checks actual mesh-instance disappearance and deterministic restoration for each signal, no newly disclosed cells, original source immutability and cross-run cleanup. The production source and test have **not yet passed new-source CI**, so don't claim runtime acceptance.
+- **Pass103 remained queued:** focused 41590979922, predecessor 41590554584; whole CI 41590554441 in progress when checked. Workspace/agents/Ultracode unavailable via 300-second disconnected tunnel. No fresh images or fresh-context independent critic this pass. Nintendo benchmark **NOT MET**, PR open draft/no merge/no deploy. [Detailed Pass104 source review](./maze-3d/pass-104-public-terrain-semantic-rebuild-2026-11-03.md).
+
 ## Pass103 — public witnessed three-quarter 3D camera source; native evidence PENDING (2026-11-03T06:36:03.281Z)
 
 - Pass102 original [focused WebGL 41582181683](https://github.com/my-edutu/Ai_games/actions/runs/41582181683) passed and original 23/23 full-resolution PNG hashes were independently validated; real Pip remained partly masked by stone theatre and key; **Nintendo artistic bar FAILED**. This is the actual previous-screen art finding, not Pass103 approval.
