@@ -23,7 +23,7 @@ test('actual desktop and mobile WebGL show real warning tiles and subsequent War
  // This is actual software-WebGL, original native-bone figures in the real
  // RUPTURE warning, not an invented cinematic or unit-test-only model.
  await expect.poll(()=>page.evaluate(()=>
-  window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.cinematicBosses??0),
+  window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.authoredBosses??0),
   {timeout:60000}).toBeGreaterThanOrEqual(1);
  const wardenArt=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D);
  expect(wardenArt.nativeContinuousActors).toBeGreaterThanOrEqual(3);
@@ -52,8 +52,8 @@ test('actual desktop and mobile WebGL show real warning tiles and subsequent War
  expect(errors).toEqual([]);
  await test.info().attach('real-authority-warden-pattern',{body:Buffer.from(JSON.stringify({
   seed:'warden-three-phase-browser-M1',fixture:'legitimate seed, relocated legal heroes and RUPTURE Warden',
-  source:'DungeonRuntime.step publicState',nativeBoneWardens:await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.cinematicBosses??0),
-  pairedNativeArmorBatches:await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.cinematicPairedBatches??0),
+  source:'DungeonRuntime.step publicState',nativeBoneWardens:await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.authoredBosses??0),
+  continuousNativeSkinnedMeshes:await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.nativeVisibleSkinnedMeshes??0),
   originalWaveAudioRecorded:false,organicNarrativeReel:false,
   threeFreshCritics:false,verifiedAudibleOutput:false,desktopMobileRealWebGL:true
  },null,2)),contentType:'application/json'});

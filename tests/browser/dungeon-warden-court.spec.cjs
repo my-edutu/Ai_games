@@ -38,7 +38,7 @@ for(const device of [
    await route.fulfill({json:snapshot});
   });
   await page.goto('/dungeon');
-  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.cinematicBosses??0),
+  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.authoredBosses??0),
    {timeout:60000}).toBe(1);
   await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.dressing?.wardenCourt?.activeBoss??false),
    {timeout:30000}).toBe(true);
@@ -106,7 +106,7 @@ for(const device of [
    seed:'visual-room-art-18',firstTick,firstFloor,authorityPolls:served,device,
    optInAudioControl:soundOptedIn,recording:captureMeta,
    initialCourt:initial.dressing.wardenCourt,finalCourt:after.dressing.wardenCourt,
-   initialBoss:initial.authored3D.cinematicBosses,finalBoss:after.authored3D.cinematicBosses,
+   initialBoss:initial.authored3D.authoredBosses,finalBoss:after.authored3D.authoredBosses,
    drawCalls:after.drawCalls,triangles:after.triangles,webgl:after.webgl,
    limitations:'Not full unbroken organic campaign, audio track existence is not proof of audible sound; not baseline-matched; no blind critics, real-phone hardware performance or gameplay-quality verdict'
   };
