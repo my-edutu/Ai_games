@@ -35,6 +35,16 @@ test('G163 390px grown civilization has physically articulated walking residents
  expect(original.audit.compactCount).toBeGreaterThan(5);
  expect(original.audit.lastRenderedCompact).toBeGreaterThan(0);
  expect(original.audit.lastRenderedArticulated).toBe(original.audit.lastRenderedCompact);
+ // G164 integrated inhabited-workday contract. Every far-field resident must
+ // have visually identifiable occupation clothing, not just a job-coloured cube.
+ // Authentic workers bend over the physical task and use their own job tool.
+ expect(original.audit.lastRoleSilhouettes).toBe(original.audit.lastRenderedCompact);
+ expect(original.audit.lastBentWorkers).toBe(original.audit.lastWorking);
+ expect(original.audit.visualJobs.length).toBeGreaterThanOrEqual(3);
+ expect(original.audit.lastRoleToolRenderings).toBeGreaterThanOrEqual(0);
+ if(original.audit.lastWorksiteWorkers>0)
+  expect(original.audit.lastRoleToolRenderings).toBe(original.audit.lastWorksiteWorkers);
+ expect(original.audit.lastAnimatedCartWheels).toBeGreaterThanOrEqual(0);
  expect(original.audit.samples.length).toBeGreaterThan(0);
  for(const p of original.audit.samples){
   expect(p.twoBoneGait).toBe(true);
