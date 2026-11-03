@@ -1,0 +1,35 @@
+name: Tower Transformation Source Snapshot
+on:
+  push:
+    branches: [feat/tower-transformation-gauntlet-20261101]
+    paths:
+      - .github/workflows/tower-source-snapshot.yml
+      - games/infinite-tower-climb/src/ai/**
+      - games/infinite-tower-climb/src/testing/**
+      - tests/phase2/tower-*.test.cjs
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tower-source-snapshot-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Preserve exact committed source
+        shell: bash
+        run: |
+          mkdir -p artifacts/tower-source
+          git archive --format=tar HEAD | gzip -9 > artifacts/tower-source/repository.tar.gz
+          git rev-parse HEAD > artifacts/tower-source/source-sha.txt
+          sha256sum artifacts/tower-source/repository.tar.gz > artifacts/tower-source/sha256.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tower-source-${{ github.sha }}
+          path: artifacts/tower-source/
+          retention-days: 2
