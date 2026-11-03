@@ -746,7 +746,7 @@ function observedSourceLandingX(snapshot, deck) {
 // Fit a small local encounter, preserving the hero's 18%-high baseline whenever
 // the actual route fits. A long portrait crossing may require a wider view;
 // that tradeoff is preferable to cropping the real destination or opponent.
-function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previousGuardianLean = null) {
+function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previousGuardianLean = null, threatenedGuardianId = null) {
   const player = snapshot.player, height = player.halfHeight * 2 / SCALE;
   const heroAngle = angleFor(player.x, snapshot.worldWidth);
   const body = { x: hero.x, y: hero.y + height * .52, z: hero.z };
@@ -784,9 +784,17 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
       const approachingLockedGate =
         snapshot.intent?.targetPlatformId === `f${snapshot.floor}:cap` &&
         ['aligning', 'settling-launch'].includes(snapshot.intent?.mode);
-      const activeContact = player.state !== 'airborne' &&
+      // A real horizontal shot can threaten a mid-air climber. The previous
+      // grounded-only camera rule abandoned this exact high-stakes silhouette.
+      // Aerial coverage is enabled ONLY by the genuine source-facing,
+      // height-overlapping guardian warning already checked by the 3D stage.
+      // Ordinary leaps retain their destination-first camera.
+      const witnessedAirShot = player.state === 'airborne' &&
+        enemy.telegraph === true && enemy.id === threatenedGuardianId;
+      const activeContact = (player.state !== 'airborne' || witnessedAirShot) &&
         (approachingLockedGate || healthRatio < 1 || enemy.telegraph ||
-        player.attacking || ['engaging-enemy', 'bracing-telegraph', 'evading-telegraph'].includes(snapshot.intent?.mode));
+        witnessedAirShot || player.attacking ||
+        ['engaging-enemy', 'bracing-telegraph', 'evading-telegraph'].includes(snapshot.intent?.mode));
       if (!activeContact || dx > 90000 || dy > 60000) continue;
       const score = dx + dy * 1.4;
       if (score < contactGuardianDistance) {
@@ -1852,9 +1860,14 @@ export function createTowerScene(canvas, settings = {}) {
       guardianShotKey = nextGuardianShotKey;
       guardianShotLean = null;
     }
+    // Both combat composition and skinned threat response read the SAME
+    // authenticated, present-tick shot corridor. Never stage an airborne
+    // guardian from speculation or stale source, and never hijack a routine jump.
+    const guardianWarning = guardianShotStage.diagnostics();
     const followComposition = options.camera === 'overview' ? null :
       composeFollowView(snapshot, climber.group.position, camera.aspect,
-        orbit, zoom, guardianShotLean);
+        orbit, zoom, guardianShotLean,
+        !options.stale && guardianWarning.visible ? guardianWarning.guardianId : null);
     guardianShotLean = !options.stale && followComposition?.guardianStaged
       ? followComposition.lean : null;
     const viewPosition = initialized ? camera.position : followComposition?.position || camera.position;
@@ -1867,6 +1880,19 @@ export function createTowerScene(canvas, settings = {}) {
       ? snapshot.pickups.filter(item => item.kind === 'health')
         .sort((a, b) => Math.abs(a.x - p.x) - Math.abs(b.x - p.x) || a.id.localeCompare(b.id))[0]
       : null;
+    // During a genuine guardian approach, the physical eyes and helmet must
+    // acknowledge the actual opponent instead of a stale midpoint beacon.
+    // This source-bound pose changes neither the AI's target nor combat rules.
+    const duelFocus = sourceGuardian &&
+      [sourceGuardian.x, sourceGuardian.y, p.x, p.y].every(Number.isFinite) &&
+      Math.abs(sourceGuardian.x - p.x) <= 90000 &&
+      Math.abs(sourceGuardian.y - p.y) <= 60000 &&
+      (sourceGuardian.telegraph || p.attacking ||
+        ['engaging-enemy', 'bracing-telegraph', 'evading-telegraph',
+          'evading-projectile'].includes(snapshot.intent?.mode));
+    const witnessedShot = duelFocus && guardianWarning.visible &&
+      guardianWarning.guardianId === sourceGuardian.id &&
+      Number.isFinite(guardianWarning.remainingChargeTicks);
     climber.animate({ ...p,
       // Only a real result is allowed to end a still-living climber's
       // expedition with a physical kneel or neutral halt. A lethal result
@@ -1875,8 +1901,11 @@ export function createTowerScene(canvas, settings = {}) {
       terminalReason: snapshot.lifecycle !== 'running' ? snapshot.result?.reason : null,
       intentMode: snapshot.intent?.mode,
       platformRide: observedRidePose,
-      targetDx: resourceTarget ? resourceTarget.x - p.x : targetPlatform ? targetPlatform.x + targetPlatform.width / 2 - p.x : 0,
-      targetDy: resourceTarget ? resourceTarget.y - p.y : targetPlatform ? targetPlatform.y + targetPlatform.height - p.y : 0,
+      incomingGuardianCharge: witnessedShot
+        ? clamp((8 - guardianWarning.remainingChargeTicks) / 7, 0, 1) : null,
+      incomingGuardianSide: witnessedShot ? Math.sign(sourceGuardian.x - p.x) : 0,
+      targetDx: duelFocus ? sourceGuardian.x - p.x : resourceTarget ? resourceTarget.x - p.x : targetPlatform ? targetPlatform.x + targetPlatform.width / 2 - p.x : 0,
+      targetDy: duelFocus ? sourceGuardian.y - p.y : resourceTarget ? resourceTarget.y - p.y : targetPlatform ? targetPlatform.y + targetPlatform.height - p.y : 0,
       // Real snapshot platform top, inside the existing radial walking surface.
       // No grab, pause, lift or authoritative collision is fabricated.
       ledgeTarget,

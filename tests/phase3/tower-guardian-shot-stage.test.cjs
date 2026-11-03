@@ -115,4 +115,17 @@ test('live scene integrates guardian warning across snapshot, restart, renderer 
   assert.match(scene, /guardianShotStage = createTowerGuardianShotStage\(THREE\)/);
   assert.match(scene, /guardianShotStage\.dispose\(\)/);
   assert.match(scene, /guardianShotStage: guardianShotStage\.diagnostics\(\)/);
+  assert.match(scene, /enemy\.id === threatenedGuardianId/,
+    'only the currently witnessed real shot can promote an airborne guardian into camera focus');
+  assert.match(scene, /!options\.stale && guardianWarning\.visible \? guardianWarning\.guardianId : null/,
+    'stale or absent shot must not pull airborne camera away from the genuine route');
+  assert.match(scene, /duelFocus \? sourceGuardian\.x - p\.x/,
+    'the existing skinned visor must acknowledge the live dueling enemy');
+  assert.match(scene, /incomingGuardianCharge: witnessedShot/,
+    'the same source shot charge must drive the climber instead of cosmetic timers');
+  const characters = fs.readFileSync(path.resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/characters.mjs'), 'utf8');
+  assert.match(characters, /incomingGuardian > 0/);
+  assert.match(characters, /reducedMotion \? incomingGuardian \* \.42/,
+    'full and reduced-motion guardian defensive animation remain distinct');
 });

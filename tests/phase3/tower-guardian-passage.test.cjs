@@ -141,11 +141,13 @@ test('the actual scene consumes source transitions and owns passage lifecycle on
   assert.doesNotMatch(source, /passage\.begin\(previous, next, pointFor\(next\.player\.x/);
   // A world-space continuity cue must come from the defeated SOURCE gate,
   // never from the new player's arbitrary location after a floor transition.
-  assert.match(source, /scene\.remove\(world\.group, climber\.group, finale\.group, passage\.group, routeIntent\.group, guardianCircuit\.group, atmosphere\.group\)/,
+  assert.match(source, /scene\.remove\(world\.group, climber\.group, finale\.group, passage\.group, routeIntent\.group, guardianCircuit\.group, guardianShotStage\.group, atmosphere\.group\)/,
     'graphics recovery must retire all source-observed scene owners');
   assert.match(source, /passage\.dispose\(\)/);
   assert.match(source, /routeIntent\.dispose\(\)/, 'source choice trails must release their resources too');
   assert.match(source, /guardianCircuit\.dispose\(\)/, 'physical guardian/cap scene resources must dispose too');
+  assert.match(source, /guardianShotStage\.dispose\(\)/, 'guardian shot telegraph resources must dispose too');
+  assert.match(source, /guardianShotStage\.clear\(\)/, 'shot stage must clear on real run reset');
   assert.match(source, /atmosphere\.dispose\(\)/, 'source-bound biome weather must release all GPU owners');
   assert.match(source, /guardianCircuit\.update\(snapshot, options\)/);
   assert.match(source, /passage\.update\(dt, options\)/);

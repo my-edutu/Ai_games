@@ -803,6 +803,26 @@ export function createClimber() {
     if(Number.isFinite(state.targetDy)&&!hurt&&!dead){
       head.rotation.x=clamp(-Math.atan2(state.targetDy,Math.max(10000,Math.abs(state.targetDx??0))),-.34,.34);
     }
+    // One world-observed guardian windup has a tangible, defensive counterpose
+    // in the existing skinned climber. This expresses anticipation WITHOUT an
+    // invented hit, evasive physics or a screen overlay. Combat/grip/dash and
+    // terminal poses still own the skeleton; reduced-motion is a static brace.
+    const incomingGuardian = !dead && !hurt && !stale && !terminalKind &&
+      !defending && !attacking && !dash &&
+      Number.isFinite(state.incomingGuardianCharge) &&
+      (state.incomingGuardianSide === -1 || state.incomingGuardianSide === 1)
+        ? clamp(.28 + .72 * state.incomingGuardianCharge, 0, 1) : 0;
+    if (incomingGuardian > 0) {
+      const brace = reducedMotion ? incomingGuardian * .42 : incomingGuardian;
+      body.rotation.z -= state.incomingGuardianSide * .095 * brace;
+      body.rotation.x -= .065 * brace;
+      head.rotation.z += state.incomingGuardianSide * .12 * brace;
+      head.rotation.y += state.incomingGuardianSide * .18 * brace;
+      arms[0].upper.rotation.x -= .24 * brace;
+      arms[0].lower.rotation.x -= .20 * brace;
+      legs[0].lower.rotation.x += .12 * brace;
+      legs[1].lower.rotation.x += .12 * brace;
+    }
     if(dash){body.rotation.x=.65;head.rotation.x=-.4;for(let i=0;i<2;i++){
       arms[i].upper.rotation.x=1.15;arms[i].lower.rotation.x=-.6;legs[i].upper.rotation.x=i?.5:-.75;legs[i].lower.rotation.x=i?.95:.25;
     }}
