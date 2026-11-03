@@ -6923,12 +6923,23 @@ function marketVisitArchitecture(pos,door,stall){
   totalForegroundCover:Math.round(totalForegroundCover*1000)/1000,
   foregroundStructures,portraitAspect:Math.round(aspect*1000)/1000,portraitSafe};
 }
+// W06: real 390px video showed opaque buildings across 55.6% of the
+// "safe" market shot. Select an open aisle using actual original architecture.
+function marketVisitComposition(architecture){
+ const cover=architecture.totalForegroundCover,posts=architecture.posts.centralCover;
+ const grade=architecture.portraitSafe&&cover<.38&&posts<.22?
+  'open-aisle':'compromised';
+ return {grade,foregroundCoverage:cover,centralPostCoverage:posts,
+  readable:grade==='open-aisle',source:'real-390px-projected-architecture'};
+}
 let marketVisitPlanStats={candidateCount:0,unsafe:0,crowd:0,architecture:0,
- sky:0,eligible:0,closest:[],adaptiveStandoff:false,lastFailure:null};
+ sky:0,eligible:0,openAisleCandidates:0,selectionQuality:null,
+ closest:[],adaptiveStandoff:false,lastFailure:null};
 function getMarketVisitPlanningAudit(){return JSON.parse(JSON.stringify(marketVisitPlanStats));}
 function planMarketVisit(preferredTrade=null,origin=null){
  const stats={candidateCount:0,unsafe:0,crowd:0,architecture:0,
-  sky:0,eligible:0,closest:[],adaptiveStandoff:false,lastFailure:null};
+  sky:0,eligible:0,openAisleCandidates:0,selectionQuality:null,
+  closest:[],adaptiveStandoff:false,lastFailure:null};
  const candidates=[];
  for(const stall of MARKET_STALLS){
   if(preferredTrade&&stall.trade!==preferredTrade)continue;
@@ -6944,7 +6955,8 @@ function planMarketVisit(preferredTrade=null,origin=null){
  // Keep a second choice only when its stall sightline is free of citizens,
  // its nearest bystander is still at least 1.65m away and every real wall
  // check passes. Never move, suppress or fabricate a single inhabitant.
- let best=null,adapted=null;const viable=[];
+ let best=null,adapted=null,bestOpen=null,adaptedOpen=null;
+ const viable=[];
  for(const pos of candidates){
   stats.candidateCount++;
   if(!streetSafe(...pos)){stats.unsafe++;continue;}
@@ -6973,27 +6985,35 @@ function planMarketVisit(preferredTrade=null,origin=null){
    const view=streetEyeVisibility(pos[0],pos[1],yaw,STREET_EYE);
    if(!view.openSky||view.forwardMetres<1.6){stats.sky++;continue;}
    const isStrict=crowd.closestCitizenDistance>=2.4;
+   const composition=marketVisitComposition(architecture);
+   if(composition.readable)stats.openAisleCandidates++;
    const score=24-Math.abs(distance-6.25)*2+
     Math.min(front,7)*.25+Math.min(6,view.forwardMetres)*.8-
     architecture.largestForegroundCover*60-
-    architecture.totalForegroundCover*18-
+    architecture.totalForegroundCover*78-
     architecture.posts.centralCover*125+
     Math.min(4,architecture.nearestWallDistance)*2-
     Math.max(0,3.7-crowd.closestCitizenDistance)*3;
    const candidate={position:pos.slice(),yaw,tilt,score,stall,
     stallDistance:distance,eye,door,visibility:view,architecture,
-    adaptiveStandoff:!isStrict,...crowd};
+    composition,adaptiveStandoff:!isStrict,...crowd};
    viable.push(candidate);
    if(isStrict){
     stats.eligible++;
     if(!best||score>best.score)best=candidate;
+    if(composition.readable&&(!bestOpen||score>bestOpen.score))
+     bestOpen=candidate;
    }else{
     stats.crowd++;
     if(!adapted||score>adapted.score)adapted=candidate;
+    if(composition.readable&&(!adaptedOpen||score>adaptedOpen.score))
+     adaptedOpen=candidate;
    }
   }
  }
- let chosen=best||adapted;
+ // Prefer clear, physically inhabited aisles to the old blocked frontage;
+ // preserve the genuine walkable fallback when no clear view is available.
+ let chosen=bestOpen||adaptedOpen||best||adapted;
  // A photogenic but disconnected stall is not a playable destination.
  // Search multiple genuine portrait-safe viewpoints in a bounded order and
  // only accept an actual collision-checked path from the spectator's feet.
@@ -7023,6 +7043,7 @@ function planMarketVisit(preferredTrade=null,origin=null){
   stats.routeReachable=!!chosen;
  }
  stats.adaptiveStandoff=Boolean(chosen?.adaptiveStandoff);
+ stats.selectionQuality=chosen?.composition?.grade||null;
  stats.lastFailure=chosen?null:origin?
   'No physically connected portrait-safe viewpoint at a different genuine stall':
   'No walkable portrait-safe market view with a clear real-citizen sightline';
@@ -7329,6 +7350,9 @@ function getMarketVisitAudit(){
   architecture:streetWalk&&marketVisitFocus?
    marketVisitArchitecture(streetPosition,marketVisitFocus.door,marketVisitFocus.stall):null,
   ...crowd,
+  composition:streetWalk&&marketVisitFocus?
+   marketVisitComposition(marketVisitArchitecture(
+    streetPosition,marketVisitFocus.door,marketVisitFocus.stall)):null,
   eye:streetWalk?[streetPosition[0],terrain(...streetPosition)+streetEyeHeight,streetPosition[1]]:null,
   market,tour:getMarketTourAudit(),authorityUnchangedByCamera:true};
 }
