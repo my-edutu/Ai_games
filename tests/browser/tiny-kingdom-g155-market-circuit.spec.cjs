@@ -228,3 +228,66 @@ test('G161 slow-software market navigation catches up safely to real wall time a
  expect(result.errors).toBe(0);
  expect(errors).toEqual([]);
 });
+
+
+// G162: genuine mobile Day-120 market lens remains physically routed,
+// anchored to the actual entrance, and visually oriented toward open pavement.
+// A camera audit is NOT a commercial visual-review verdict.
+test('G162 moving market viewpoint preserves real street travel and unobstructed route lens at 390px',async({page})=>{
+ test.setTimeout(220000);
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.setViewportSize({width:390,height:844});
+ await page.setContent(html);
+ await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0,
+  null,{timeout:90000});
+ await page.evaluate(()=>{window.__tinyKingdom.reset();window.__tinyKingdom.setSpeed(0);});
+ for(let remaining=120*24*30;remaining>0;remaining-=7200)
+  await page.evaluate(n=>{
+   const g=window.__tinyKingdom;
+   for(let i=0;i<n;i++)g.step(1/30);
+  },Math.min(remaining,7200));
+ const entrance=await page.evaluate(()=>{
+  const g=window.__tinyKingdom,market=g.visitMarket();
+  const origin=g.getStreetWalkState().position;
+  const authority=JSON.stringify(g.exportSnapshot());
+  const start=g.nextMarketStall(),after=g.getMarketTourAudit();
+  return {market,origin,authority,start,after,
+   position:g.getStreetWalkState().position};
+ });
+ expect(entrance.market.active).toBe(true);
+ expect(entrance.start.started,JSON.stringify(entrance.start)).toBe(true);
+ expect(entrance.after.origin).toEqual(entrance.origin);
+ expect(entrance.after.travelledMeters).toBe(0);
+ expect(entrance.position).toEqual(entrance.origin);
+ const playback=await page.evaluate(()=>{
+  const g=window.__tinyKingdom,frames=[];
+  for(let i=0;i<450;i++){
+   g.advanceStreetWalk(.10);
+   const t=g.getMarketTourAudit(),s=g.getStreetWalkState();
+   if(t.lens)frames.push({position:s.position,forward:t.lens.forwardMetres,
+    requested:t.lens.requestedMetres,route:t.lens.routeMetres,
+    avoided:t.lens.avoidedWall,travelled:t.travelledMeters});
+   if(t.completed||(!t.active&&i>0))break;
+  }
+  return {frames,tour:g.getMarketTourAudit(),visit:g.getMarketVisitAudit(),
+   authority:JSON.stringify(g.exportSnapshot()),
+   gl:document.querySelector('#world').getContext('webgl')?.getError()??-1,
+   width:document.documentElement.scrollWidth};
+ });
+ expect(playback.tour.completed,JSON.stringify(playback.tour)).toBe(true);
+ expect(playback.tour.origin).toEqual(entrance.origin);
+ expect(playback.frames.length).toBeGreaterThan(10);
+ expect(playback.tour.travelledMeters).toBeGreaterThan(2.5);
+ const last=playback.frames.at(-1);
+ expect(last.travelled).toBeGreaterThan(2.5);
+ for(const sample of playback.frames){
+  expect(sample.forward).toBeGreaterThanOrEqual(0);
+  expect(sample.forward).toBeLessThanOrEqual(6);
+  expect(Number.isFinite(sample.route)).toBe(true);
+ }
+ expect(playback.visit.safe).toBe(true);
+ expect(playback.authority).toBe(entrance.authority);
+ expect(playback.width).toBeLessThanOrEqual(390);
+ expect(playback.gl).toBe(0);
+ expect(errors).toEqual([]);
+});
