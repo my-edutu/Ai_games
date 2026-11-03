@@ -1133,4 +1133,16 @@ test('production serves every transitive gate-animation module with JavaScript M
   const script = await moduleResponse.text();
   expect(script).toContain('observedGateOpenings');
   expect(script).toContain('gateRetractionPose');
+
+  // The three-quarter pickup camera is a transitive import of scene.js.
+  // A missing allowlist entry fails the whole real game into fallback before
+  // its first rendered WebGL frame; earlier tests mistook this for CPU stalls.
+  // Require the ORIGINAL production host to serve the module, never mock it.
+  const pickup = await page.request.get(`${base}/maze/pickup-story-camera.mjs`);
+  expect(pickup.status(), 'the real story camera module must not be a 404').toBe(200);
+  expect(pickup.headers()['content-type']).toContain('text/javascript');
+  expect(await pickup.text()).toContain('export function setWitnessedPickupStoryCameraOffset');
+  const scene = await page.request.get(`${base}/maze/scene.js`);
+  expect(scene.status()).toBe(200);
+  expect(await scene.text()).toContain("from './pickup-story-camera.mjs'");
 });
