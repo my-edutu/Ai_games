@@ -604,6 +604,11 @@ async function marketCircuitMotion(browser,html,snapshot){
   });
   assert(initial.market.active&&initial.market.safe,
    'G155 could not enter a safe real starting stall');
+  // G159: rejected real footage showed an original timber upright directly
+  // in the mobile frame. A clear cottage ray is not sufficient evidence.
+  assert(initial.market.architecture?.posts?.centralCover<.38,
+   'G159 actual mobile market entrance has a dominating physical timber post: '+
+   JSON.stringify(initial.market.architecture?.posts));
   await page.locator('#street-meet-worker').focus();
   await page.keyboard.press('Enter');
   const started=await page.evaluate(()=>{
@@ -651,9 +656,14 @@ async function marketCircuitMotion(browser,html,snapshot){
    'G156 guided market footage did not show substantial physical travel');
   assert(end.tour.completed&&end.market.stall?.trade!==initial.market.stall?.trade,
    'G156 guided visitor failed to reach a different genuine stall');
+  assert(end.market.architecture?.posts?.centralCover<.38,
+   'G159 actual destination is obscured by a central physical market post: '+
+   JSON.stringify(end.market.architecture?.posts));
   return {renderer:contextInfo.quality.renderer,started:started.tour.active,
    endTour:end.tour,initialStall:initial.market.stall?.trade,
    endStall:end.market.stall?.trade,metresFromStart:metres,
+   originalTimberPostComposition:{entry:initial.market.architecture?.posts,
+    destination:end.market.architecture?.posts},
    realWorldClockMoved:end.authority.payload.state.t>initial.authority.payload.state.t,
    realWorldChecksums:{start:initial.authority.checksum,end:end.authority.checksum},
    seconds:(Date.now()-wallStart)/1000,
