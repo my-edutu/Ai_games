@@ -69,3 +69,28 @@ const PLANS=Object.freeze({
 });
 const EMPTY=Object.freeze([]);
 export function planRoleSilhouette(kind){return Object.hasOwn(PLANS,kind)?PLANS[kind]:EMPTY;}
+
+// An actual GLB has its own body, shoulders, and head. The existing class
+// fittings must ride those bones rather than floating as a second rigid
+// costume during the party's real combat animations. Temper duplicated
+// pauldron/collar masses while preserving recognisable class equipment.
+// Ranged weapons are handled separately by the verified hand-grip binding.
+export function planFittedRoleDetail(kind,part){
+ if(!part||!['vanguard','ranger','mystic','revenant','cultist'].includes(kind))
+  return {mount:'pivot',scale:1};
+ const id=part.id||'';
+ let mount='chest';
+ if(/bow|string|arrow-|staff-|heart/.test(id)&&['ranger','mystic'].includes(kind))
+  mount='hand';
+ else if(/helm-banner|horned-cowl/.test(id))mount='head';
+ else if(/^left-(?:etched-pauldron|gilt-rim|scroll-shoulder|ritual-mantle|spined-shoulder)/.test(id))
+  mount='leftArm';
+ else if(/^right-(?:etched-pauldron|gilt-rim|scroll-shoulder|ritual-mantle|spined-shoulder)/.test(id))
+  mount='rightArm';
+ // These sculpted pieces overlay a second, actually skinned anatomical kit.
+ // A slimmer shell reveals the genuine GLB body and weapon contact.
+ const scale=/pauldron|mantle|scroll-shoulder|gilt-rim/.test(id)?.68:
+  /gorget|collar/.test(id)?.74:/scabbard|quiver|spined-shoulder/.test(id)?.82:
+  /helm-banner/.test(id)?.77:1;
+ return {mount,scale:part.shape==='arc'?1:scale};
+}

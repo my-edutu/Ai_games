@@ -2193,7 +2193,7 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "First candidate b949973 CI 41570523890 FAILED TypeScript optional due clock (TS18048); corrected via explicit type narrow + pre-existing one-turn deadline. Predecessor f7b8691 Dungeon browser+authority passed 41564132806; full catalogue CI earlier failed unrelated Tiny Kingdom checks. Corrected candidate exact-head UNVERIFIED.",
+      "safetyChecks": "At source-head 850a101: dedicated Dungeon workflow 41570896508 SUCCESS, visual 41570896564 SUCCESS, full catalogue CI 41570896490 FAILED (cause not attributed without logs). New wardrobe candidate exact-head browser/security/CI UNVERIFIED.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2206,8 +2206,8 @@
       "newCandidateSceneReview": "UNVERIFIED new exact-head screenshot/audio/long motion. Source-head 4cc8abd desktop and portrait world-only screenshots inspected; candidate capture not yet available."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Toy-like dense low-poly hero/enemy anatomy and weakly readable weapon-body contact are still visibly below official Diablo IV, No Rest for the Wicked and Path of Exile 2; original complete mobile/desktop motion/audio and matched blind A/B evidence remain missing.",
-    "currentWork": "Genuine charged-cast rescue feature pushed, followed by an explicit type guard restoring TypeScript compilation compatibility. New-head validation pending. Same IN_PROGRESS / NOT_TRANSFORMED milestone; no new visuals judged.",
+    "biggestRemainingGap": "Even after the current candidate, genuine adult character anatomy, silhouettes, weight, camera separation and physically convincing contact still lag Diablo IV/PoE2; measured desktop/mobile audiovisual A/B is missing.",
+    "currentWork": "Integrated genuine skeleton-bound wardrobe and forged torso art, with restrained duplicated shoulder/collar mass, in one continuing M1 candidate; no moving AFTER evidence or independent critic majority yet.",
     "candidateCommit": "",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
@@ -3418,6 +3418,25 @@
         ],
         "evidence": "Initial exact-head 41570523890 FAILED TS18048 until explicit optional numeric cast clock narrowing; corrected candidate must rerun full Dungeon/CI and real-browser verification; no independent A/B.",
         "next": "Inspect genuine desktop/mobile charged-cast and Warden video; fix defects and performance; replace toy-like character anatomy with original detailed rigs; record full before/after and blind critic assessment."
+      },
+      {
+        "id": "M1-RIG-BOUND-WARDROBE-20261103",
+        "date": "2026-11-03",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "sourceHeadAtStart": "850a101e2df5927401cf305f08318ddd81c6da4e",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "objective": "Turn visibly detached ornamental costumes into anatomically proportionate, full-body animated fittings across hero and enemy combat; mate genuine GLB bone movement to sculpted torso armor and class identity gear, preserving legal autonomous gameplay.",
+        "code": [
+          "public/ai-dungeon/role-silhouette-plan.js",
+          "public/ai-dungeon/model-assets.js",
+          "tests/foundation/dungeon-role-silhouettes.test.cjs",
+          "tests/browser/dungeon-rig-attachments.spec.cjs"
+        ],
+        "actualPredecessorCapture": "https://github.com/my-edutu/Ai_games/actions/runs/41570896508/artifacts/13201937282",
+        "observedExperience": "Real 1440x832 Chromium predecessor shows 3 heroes technically visible but enlarged overlapping stylized capes/pauldrons, dense square masonry, weak character-vs-world contrast; same pinned baseline. Candidate animation and battle visuals not yet judged.",
+        "validation": "Foundation/browser checks added; exact-head result UNVERIFIED. Prior source 850a101 dedicated Dungeon and visual review succeeded, global CI failed.",
+        "experienceVerdict": "IN_PROGRESS / NOT TRANSFORMED",
+        "next": "Inspect newly rendered desktop and mobile battle and Warden clips; correct bone-space armor distortions and draw-call regressions, then complete genuine traversal-to-restart audiovisual capture and 3+ blind critics."
       }
     ]
   }

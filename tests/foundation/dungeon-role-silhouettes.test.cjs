@@ -67,3 +67,29 @@ test('the dedicated Chromium suite actually discovers this class-silhouette brow
  const config=fs.readFileSync(path.join(ROOT,'tests/browser/dungeon.playwright.config.cjs'),'utf8');
  assert.ok(config.includes("'dungeon-role-silhouettes.spec.cjs'"),'new browser contract must not silently disappear from the explicit testMatch whitelist');
 });
+
+test('integrated outfit plan anchors identity pieces to real moving rig and softens duplicate armor mass',async()=>{
+ const {planRoleSilhouette,planFittedRoleDetail}=await loadPlan();
+ for(const kind of ROLES){
+  const pieces=planRoleSilhouette(kind);
+  for(const part of pieces){
+   const fit=planFittedRoleDetail(kind,part);
+   assert.ok(['chest','head','hand','leftArm','rightArm','pivot'].includes(fit.mount));
+   assert.ok(fit.scale>=.65&&fit.scale<=1,'bounded adult costume envelope');
+   if(fit.mount==='hand')assert.ok(['ranger','mystic'].includes(kind));
+   if(/pauldron|mantle|scroll-shoulder/.test(part.id))
+    assert.ok(fit.scale<=.82,'no second inflated shoulder armor layer');
+  }
+ }
+ assert.equal(planFittedRoleDetail('unknown',{}).mount,'pivot');
+});
+test('real chest plates and identity fittings follow actual cloned animated GLB bones, not detached pivot props',()=>{
+ const renderer=fs.readFileSync(path.join(ROOT,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/function bindRigWardrobe\(actor\)/);
+ assert.match(renderer,/bindRigWardrobe\(actor\)/);
+ assert.match(renderer,/spine\.attach\(part\)/);
+ assert.match(renderer,/bone\.attach\(part\)/);
+ assert.match(renderer,/rigWardrobeParts:/);
+ assert.match(renderer,/anatomicalStaticMountedBatches:/);
+ assert.match(renderer,/actor\.rigWardrobeParts=0/);
+});
