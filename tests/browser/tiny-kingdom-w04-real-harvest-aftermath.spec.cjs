@@ -47,7 +47,9 @@ test('W04 completed real farmer work produces replay-safe, bounded harvest after
    error:gl?.getError()||0};
  });
  expect(rendered.audit.lastRenderedTriangles).toBeGreaterThan(0);
- expect(rendered.audit.lastRenderedTriangles).toBeLessThan(300);
+ // W05 increases one authentic cut site from six isolated stems to five
+ // physical rows and tied sheaves. Preserve a strict bounded geometry gate.
+ expect(rendered.audit.lastRenderedTriangles).toBeLessThan(1200);
  expect(rendered.triangles).toBeLessThan(160000);
  expect(rendered.error).toBe(0);
  await page.setViewportSize({width:390,height:844});
