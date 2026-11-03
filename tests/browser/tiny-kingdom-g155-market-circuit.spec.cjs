@@ -118,7 +118,13 @@ test('G156 real Day-120 market circuit reaches another actual stall on mobile',a
   JSON.stringify(arrived.visit.architecture)).toBeLessThan(.38);
  expect(arrived.visit.architecture.interveningRoofs).toBe(0);
  expect(arrived.visit.foregroundCitizenCount).toBeLessThanOrEqual(1);
- expect(arrived.travelled).toBeGreaterThan(2.5);
+ // The SwiftShader RAF may begin the physical walk after the first page.evaluate
+ // and BEFORE the second one starts sampling. That makes arrived.travelled a
+ // suffix of the trip, not its end-to-end distance. Preserve the strict 2.5m
+ // acceptance gate using the game-side route odometer, which starts at zero
+ // on the original click and integrates collision-checked spectator steps.
+ expect(arrived.tour.travelledMeters).toBeGreaterThan(2.5);
+ expect(arrived.tour.travelledMeters).toBeGreaterThanOrEqual(arrived.travelled-0.001);
  expect(arrived.minSafe).toBe(true);
  expect(arrived.authority).toBe(start.authority);
  expect(arrived.overflow).toBeLessThanOrEqual(390);
