@@ -237,7 +237,8 @@ function recoverTowerActorView(position, gaze, actor, ndcX, ndcY, ndcZ, aspect, 
 // orbit and gaze response. Keep it only if the actual after-view is safer.
 // No prediction, new mesh, GPU pass, game tick or authoritative mutation.
 function refineTowerActorSafeFrame(camera, gaze, actor, dt,
-  projection, orbitTarget, previousCamera, previousGaze) {
+  projection, orbitTarget, previousCamera, previousGaze,
+  protectedSubject = null, protectedProjection = null) {
   if (!camera || !gaze || !actor || !projection || !orbitTarget ||
     !previousCamera || !previousGaze || !Number.isFinite(camera.aspect) ||
     camera.aspect >= .85 || camera.aspect <= 0 ||
@@ -254,6 +255,21 @@ function refineTowerActorSafeFrame(camera, gaze, actor, dt,
   if(before<=.005) return 0;
   previousCamera.copy(camera.position);
   previousGaze.copy(gaze);
+  // When a real, visible opponent is present, never repair the climber by
+  // ejecting the other living combatant from the same camera frame.
+  const protect = !!protectedSubject && !!protectedProjection &&
+    Number.isFinite(protectedSubject.x) &&
+    Number.isFinite(protectedSubject.y) &&
+    Number.isFinite(protectedSubject.z) &&
+    towerCoreSightlineClear(camera.position, protectedSubject, 23.5);
+  if (protect) protectedProjection.copy(protectedSubject).project(camera);
+  const protectedReadable = protect &&
+    Number.isFinite(protectedProjection.x) &&
+    Number.isFinite(protectedProjection.y) &&
+    Number.isFinite(protectedProjection.z) &&
+    Math.abs(protectedProjection.x) <= .82 &&
+    Math.abs(protectedProjection.y) <= .80 &&
+    protectedProjection.z >= -1 && protectedProjection.z <= 1;
   // Normal-speed authentic source 558924dc portrait outcome retained three
   // 0.84–0.88 NDC actor-margin breaches after a one-shot .012s rescue.
   // A measured TWO-step exterior orbit + gaze continuation is allowed ONLY
@@ -264,7 +280,7 @@ function refineTowerActorSafeFrame(camera, gaze, actor, dt,
   let previousPressure=before;
   let lastFraction=0;
   const firstAzimuth=Math.atan2(previousCamera.x,previousCamera.z);
-  for(let attempt=0;attempt<2;attempt++){
+  for(let attempt=0;attempt<3;attempt++){
     const step=recoverTowerActorView(camera.position,gaze,actor,
       projection.x,projection.y,projection.z,camera.aspect,
       Math.min(dt,.009),orbitTarget);
@@ -272,6 +288,15 @@ function refineTowerActorSafeFrame(camera, gaze, actor, dt,
     camera.lookAt(gaze);
     camera.updateMatrixWorld(true);
     projection.copy(actor).project(camera);
+    if (protectedReadable) protectedProjection.copy(protectedSubject).project(camera);
+    const protectedSafe = !protectedReadable ||
+      (Number.isFinite(protectedProjection.x) &&
+       Number.isFinite(protectedProjection.y) &&
+       Number.isFinite(protectedProjection.z) &&
+       Math.abs(protectedProjection.x) <= .82 &&
+       Math.abs(protectedProjection.y) <= .80 &&
+       protectedProjection.z >= -1 && protectedProjection.z <= 1 &&
+       towerCoreSightlineClear(camera.position, protectedSubject, 23.5));
     const after=Math.max(0,Math.abs(projection.x)/.78-1,
       Math.abs(projection.y)/.78-1);
     const angle=Math.atan2(camera.position.x,camera.position.z);
@@ -281,7 +306,7 @@ function refineTowerActorSafeFrame(camera, gaze, actor, dt,
     // makes an intermediate state worse; no frame may pass through opaque core.
     if(!Number.isFinite(after)||after+.0002>=previousPressure||
       Math.abs(projection.x)>1||Math.abs(projection.y)>1||
-      projection.z < -1||projection.z > 1||turn>=.095||
+      projection.z < -1||projection.z > 1||turn>=.095||!protectedSafe||
       !towerCoreSightlineClear(camera.position,actor,23.5)){
       camera.position.copy(previousCamera);
       gaze.copy(previousGaze);
@@ -2519,15 +2544,8 @@ export function createTowerScene(canvas, settings = {}) {
       actorRescueFraction = recoverTowerActorView(camera.position, lookAt,
         actorFramePoint, scratch.x, scratch.y, scratch.z,
         camera.aspect, dt, actorOrbitTarget);
-      // Actual source-pinned 390x844 gameplay still had live hero samples
-      // at |x|=.79–.91: improve that present action, not future movement.
-      const refined = refineTowerActorSafeFrame(camera, lookAt, actorFramePoint,
-        dt, actorSafeProjection, actorOrbitTarget,
-        actorSafePreviousCamera, actorSafePreviousGaze);
-      if (refined > 0) {
-        actorRescueFraction = Math.max(actorRescueFraction, refined);
-        actorSafeRefinements = Math.min(1000000, actorSafeRefinements + 1);
-      }
+      // A final real-submitted-frame safe margin check follows the guardian
+      // chase and source-earned impact camera below, not the early lens.
     }
     // Keep both real combat subjects readable in the SAME uninterrupted shot.
     // Merely accelerating the camera was insufficient in the portrait videos:
@@ -2606,6 +2624,33 @@ export function createTowerScene(canvas, settings = {}) {
       camera.position.y+=(contactHero?-.24:.18)*Math.sin((1-contactProgress)*Math.PI);
     if(!options.reducedMotion && options.camera==='follow' && landingHalo.visible)
       camera.position.y-=landingWeight*.13*Math.sin(landingProgress*Math.PI);
+    // Source-authentic portrait video still loses the hero safe frame AFTER
+    // the guardian chase or touchdown shake. Perform the measured rescue last,
+    // while protecting an opponent that is already visible and core-clear.
+    // No fake body, cut, gameplay tick, HUD element or extra WebGL pass.
+    if (!overview && !options.reducedMotion && !options.stale &&
+      snapshot.lifecycle === 'running' && p.health > 0 &&
+      camera.aspect < .85) {
+      actorFramePoint.copy(climber.group.position);
+      actorFramePoint.y += p.halfHeight / SCALE;
+      const protectGuardian = !!sourceGuardian &&
+        !!followComposition?.guardianStaged &&
+        Number.isFinite(sourceGuardian.x) && Number.isFinite(sourceGuardian.y);
+      if (protectGuardian) {
+        const observed = pointFor(sourceGuardian.x, sourceGuardian.y,
+          snapshot.chunkBaseY, snapshot.worldWidth, 27.15);
+        guardianRescuePoint.set(observed.x, observed.y, observed.z);
+      }
+      const verified = refineTowerActorSafeFrame(camera, lookAt, actorFramePoint,
+        dt, actorSafeProjection, actorOrbitTarget,
+        actorSafePreviousCamera, actorSafePreviousGaze,
+        protectGuardian ? guardianRescuePoint : null,
+        protectGuardian ? guardianRescueEnemyProjection : null);
+      if (verified > 0) {
+        actorRescueFraction = Math.max(actorRescueFraction, verified);
+        actorSafeRefinements = Math.min(1000000, actorSafeRefinements + 1);
+      }
+    }
     camera.lookAt(lookAt);
     world.revealGuardianSightlines(camera,guardianSightPoints);
     // Foreground visibility is tested against the very same ACTUAL smoothed
