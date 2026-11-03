@@ -1538,6 +1538,9 @@ export function createTowerScene(canvas, settings = {}) {
   // The chosen combat lens belongs to one real guardian on one source floor.
   // Reset across encounter exits, floor changes, restarts and stale transport.
   let guardianShotKey = null, guardianShotLean = null;
+  // The *observed* terminal→new-token handoff receives a brief exterior
+  // establishing sweep. Camera-only: no source clock, physics or AI changes.
+  let authenticRestartSweep = null;
   let elapsed = 0, lastTime = 0, renderErrors = 0, contextLost = false, disposed = false;
   let contactUntil=0,contactHero=false,contactEnemyId=null;
   let landingMoment=-Infinity,landingRun=null,landingFloor=null,landingWeight=0;
@@ -1721,7 +1724,14 @@ export function createTowerScene(canvas, settings = {}) {
     lastRevision = revision;
     renderProgress.expectFrame(performance.now());
     const newRun = snapshot && next.runToken !== snapshot.runToken;
-    if (newRun) { clearActors(); passage.clear(); initialized = false; previous = null; landingMoment=-Infinity; landingRun=null; landingHalo.visible=false; footingShadow.visible=false; observedFooting=null; actorRescueFraction = 0; }
+    if (newRun) {
+      authenticRestartSweep = snapshot.result &&
+        ['result', 'intermission'].includes(snapshot.lifecycle) &&
+        ['game', 'technical', 'operator'].includes(snapshot.result.kind) &&
+        next.lifecycle === 'running'
+        ? { runToken: next.runToken, began: elapsed } : null;
+      clearActors(); passage.clear(); initialized = false; previous = null; landingMoment=-Infinity; landingRun=null; landingHalo.visible=false; footingShadow.visible=false; observedFooting=null; actorRescueFraction = 0;
+    }
     if (snapshot && baseY !== next.chunkBaseY) {
       const shift = (baseY - next.chunkBaseY) / SCALE;
       climber.group.position.y += shift; camera.position.y += shift; lookAt.y += shift;
@@ -1932,9 +1942,18 @@ export function createTowerScene(canvas, settings = {}) {
     // authenticated, present-tick shot corridor. Never stage an airborne
     // guardian from speculation or stale source, and never hijack a routine jump.
     const guardianWarning = guardianShotStage.diagnostics();
+    // A witnessed new expedition opens on a readable exterior establishing
+    // view, then gently closes back to the player's normal follow lens.
+    // This is a true scene reset, never a fake defeat, freeze or time warp.
+    if (authenticRestartSweep && (authenticRestartSweep.runToken !== snapshot.runToken ||
+      snapshot.lifecycle !== 'running' || elapsed - authenticRestartSweep.began >= 3.2))
+      authenticRestartSweep = null;
+    const restartReveal = authenticRestartSweep && !options.stale &&
+      !options.reducedMotion && options.camera === 'follow'
+      ? Math.pow(1 - clamp((elapsed - authenticRestartSweep.began) / 3.2, 0, 1), 2) : 0;
     const followComposition = options.camera === 'overview' ? null :
       composeFollowView(snapshot, climber.group.position, camera.aspect,
-        orbit, zoom, guardianShotLean,
+        orbit - restartReveal * .11, zoom + restartReveal * .17, guardianShotLean,
         !options.stale && guardianWarning.visible ? guardianWarning.guardianId : null,
         !options.stale && guardianWarning.visible ? guardianShotStage.focusPoint() : null);
     guardianShotLean = !options.stale && followComposition?.guardianStaged
@@ -2310,7 +2329,7 @@ export function createTowerScene(canvas, settings = {}) {
   canvas.addEventListener('pointerup', pointerUp); canvas.addEventListener('pointercancel', pointerUp);
   canvas.addEventListener('wheel', wheel, { passive: false });
   canvas.title = 'Drag to look around. Scroll to zoom. Camera buttons reset the view.';
-  function setCamera(mode) { if (['follow', 'overview'].includes(mode)) { options.camera = mode; orbit = 0; zoom = 1; } }
+  function setCamera(mode) { if (['follow', 'overview'].includes(mode)) { options.camera = mode; orbit = 0; zoom = 1; authenticRestartSweep = null; } }
   function setMotion(reduced) { options.reducedMotion = !!reduced; }
   function setStale(stale) { options.stale = !!stale; }
   function setQuality(quality) {
@@ -2442,6 +2461,11 @@ export function createTowerScene(canvas, settings = {}) {
         environmentFailures: reflectionFailures, environmentLastError: reflectionLastError,
         environmentSize: reflectionTarget ? [reflectionTarget.width, reflectionTarget.height] : [0, 0], shadowLights: 1, shadowMapSize: sun.shadow.mapSize.x },
       world: world.diagnostics(), finale: finale.diagnostics(), passage: passage.diagnostics(),
+      authenticRestartSweep: authenticRestartSweep ? {
+        sourceBound: true, runToken: authenticRestartSweep.runToken,
+        ageSeconds: Math.max(0, Number((elapsed - authenticRestartSweep.began).toFixed(3))),
+        cameraOnly: true, motionDisabled: !!options.reducedMotion,
+      } : null,
       routeIntent: routeIntent.diagnostics(), guardianCircuit: guardianCircuit.diagnostics(),
       guardianShotStage: guardianShotStage.diagnostics(),
       atmosphere: atmosphere.diagnostics(),

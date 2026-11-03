@@ -136,6 +136,20 @@ button:focus-visible, summary:focus-visible, .choice-card:focus-visible { outlin
 .result-card strong { display: block; color: var(--orange); font-size: 40px; font-weight: 400; letter-spacing: -.055em; line-height: 1; font-variant-numeric: tabular-nums; }
 .result-card #result-reason { font-size: 12px; line-height: 1.4; margin: 7px 0 2px; }
 .result-card > span { font-size: 11px; color: var(--muted); line-height: 1.5; }
+/* After a witnessed new run begins, keep the preceding result as a modest,
+   explicitly historical non-blocking receipt, then clear it. No full-screen
+   curtain, fake victory, gameplay pause or permanent stats HUD. */
+.result-card[data-phase="previous"] {
+  top: auto; bottom: calc(102px + env(safe-area-inset-bottom));
+  width: min(220px, calc(100vw - 2 * var(--pad)));
+  padding: 9px 12px; border-left-color: var(--mint);
+  background: rgba(9, 20, 19, .84); pointer-events: none;
+}
+.result-card[data-phase="previous"] .section-label { font-size: 9px; }
+.result-card[data-phase="previous"] h2 { font-size: 13px; margin-bottom: 4px; }
+.result-card[data-phase="previous"] strong { font-size: 24px; color: var(--mint); }
+.result-card[data-phase="previous"] #result-reason { margin: 4px 0 0; font-size: 11px; }
+.result-card[data-phase="previous"] > span { font-size: 10px; }
 .recovery-card { display: flex; align-items: center; gap: 12px; max-width: 100%; padding: 11px 14px; border: 1px solid #ffae7659; border-radius: 10px; background: rgba(12, 22, 20, .95); box-shadow: 0 6px 24px #0003; }
 .recovery-icon { width: 20px; height: 20px; flex: none; stroke: var(--orange); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 #recovery-message { font-size: 13px; font-weight: 500; line-height: 1.35; margin: 0; white-space: nowrap; }

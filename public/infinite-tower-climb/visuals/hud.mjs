@@ -30,6 +30,9 @@ export function createHUD({ initialQuality, onCamera, onSound, onMotion, onQuali
     : innerWidth < 700 ? 'low' : 'high';
   let offersKey = '', buildKey = '', currentRun = '';
   let disposed = false, hasSubmittedView = false, activeRecovery = null, feedbackTimer = null;
+  // Only a source-witnessed completed expedition can leave a brief record
+  // when the *next genuine run token* begins. Never retain an inferred loss.
+  let observedTerminal = null, previousExpedition = null;
   const text = (node, value) => { const next = limit(value); if (node && node.textContent !== next) node.textContent = next; };
   const set = (id, value) => text(byTest(id), value);
   const bind = (node, event, fn) => { node.addEventListener(event, fn); listeners.push(() => node.removeEventListener(event, fn)); };
@@ -160,6 +163,16 @@ export function createHUD({ initialQuality, onCamera, onSound, onMotion, onQuali
     if (!['result', 'intermission'].includes(sourceScene)) byId('result-card').hidden = true;
     if (!snapshot) return;
     if (snapshot.runToken !== currentRun) {
+      // Preserve a truthful previous-run memory for a few seconds after an
+      // authentic result→new-run handoff. Unlike the terminal card, this is
+      // explicitly labelled PREVIOUS and does not conceal live new-run action.
+      const successor = !!currentRun && observedTerminal?.runToken === currentRun
+        && snapshot.lifecycle === 'running' && !snapshot.result
+        && typeof snapshot.runToken === 'string' && snapshot.runToken.length > 0;
+      previousExpedition = successor
+        ? { ...observedTerminal, nextRunToken: snapshot.runToken, until: performance.now() + 4600 }
+        : null;
+      observedTerminal = null;
       currentRun = snapshot.runToken;
       offersKey = '';
       buildKey = '';
@@ -219,8 +232,27 @@ export function createHUD({ initialQuality, onCamera, onSound, onMotion, onQuali
         row.append(number, name); return row;
       }));
     }
-    const isResult = ['result', 'intermission'].includes(sourceScene) && !!snapshot.result;
-    byId('result-card').hidden = !isResult;
+    const isResult = ['result', 'intermission'].includes(sourceScene) && !!snapshot.result &&
+      ['game', 'technical', 'operator'].includes(snapshot.result.kind) &&
+      snapshot.lifecycle === sourceScene;
+    if (isResult) {
+      observedTerminal = { runToken: snapshot.runToken, floor: snapshot.floor,
+        height: metres, kind: snapshot.result.kind, reason: snapshot.result.reason };
+      previousExpedition = null;
+    }
+    // No stale transport, combat, upgrades, recovery or clean-feed interruption
+    // may turn yesterday's result into a live claim. No extra permanent HUD.
+    const showPrevious = !isResult && previousExpedition &&
+      previousExpedition.nextRunToken === snapshot.runToken &&
+      snapshot.lifecycle === 'running' && sourceScene === 'normal' &&
+      !activeRecovery && performance.now() < previousExpedition.until;
+    if (previousExpedition && !showPrevious && performance.now() >= previousExpedition.until)
+      previousExpedition = null;
+    const resultCard = byId('result-card');
+    resultCard.hidden = !isResult && !showPrevious;
+    resultCard.dataset.phase = isResult ? 'current' : showPrevious ? 'previous' : 'hidden';
+    // Announce the authentic result once, not the same result again as history.
+    resultCard.setAttribute('aria-live', isResult ? 'polite' : 'off');
     if (isResult) {
       const technical = snapshot.result.kind === 'technical';
       text(byId('result-kicker'), `Floor ${snapshot.floor}`);
@@ -228,6 +260,12 @@ export function createHUD({ initialQuality, onCamera, onSound, onMotion, onQuali
       text(byId('result-height'), metres);
       text(byId('result-reason'), sentence(snapshot.result.reason));
       text(byId('restart-state'), sourceScene === 'intermission' ? 'Next run starting' : technical ? 'Awaiting recovery' : 'Next run soon');
+    } else if (showPrevious) {
+      text(byId('result-kicker'), `Previous run · Floor ${previousExpedition.floor}`);
+      text(byId('result-title'), previousExpedition.kind === 'technical' ? 'Run interrupted' : 'Ascent ended');
+      text(byId('result-height'), previousExpedition.height);
+      text(byId('result-reason'), sentence(previousExpedition.reason));
+      text(byId('restart-state'), 'New ascent underway');
     }
   }
   function dispose() { disposed = true; clearFeedback(); for (const remove of listeners) remove(); }

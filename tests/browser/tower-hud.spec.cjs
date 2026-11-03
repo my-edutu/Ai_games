@@ -108,3 +108,59 @@ test('toggle names and their keyboard tooltips describe coherent settings', asyn
   await expect(page.locator('.controls-legend')).toBeVisible();
   await expect(page.getByText('Peak height', { exact: true })).toBeVisible();
 });
+
+test('authentic terminal carries a clearly historical receipt into a genuine new run without obscuring danger', async ({ page }) => {
+  await hudPage(page, { width: 390, height: 844 });
+  await page.evaluate(() => {
+    const snap = window.hudFrame.snapshot;
+    window.hudTerminal = {
+      ...window.hudFrame, scene: 'result', snapshot: {
+        ...snap, lifecycle: 'result', result: { kind: 'game', reason: 'fall' },
+      },
+    };
+    window.hud.update(window.hudTerminal, { renderProgress: { state: 'current', lastSubmitted: { tick: 219 } } });
+  });
+  await expect(page.locator('#result-card')).toBeVisible();
+  await expect(page.locator('#result-card')).toHaveAttribute('data-phase', 'current');
+  await expect(page.locator('#result-title')).toHaveText('Ascent ended');
+  await page.evaluate(() => {
+    window.hudNewRun = {
+      ...window.hudFrame, scene: 'normal', snapshot: {
+        ...window.hudFrame.snapshot, lifecycle: 'running', runToken: 'next-real-run', tick: 2,
+      },
+    };
+    window.hud.update(window.hudNewRun, { renderProgress: { state: 'current', lastSubmitted: { tick: 2 } } });
+  });
+  const memory = page.locator('#result-card');
+  await expect(memory).toBeVisible();
+  await expect(memory).toHaveAttribute('data-phase', 'previous');
+  await expect(memory).toHaveAttribute('aria-live', 'off');
+  await expect(page.locator('#result-kicker')).toHaveText('Previous run · Floor 4');
+  await expect(page.locator('#restart-state')).toHaveText('New ascent underway');
+  const card = await memory.boundingBox();
+  expect(card.x).toBeGreaterThanOrEqual(0);
+  expect(card.y).toBeGreaterThanOrEqual(0);
+  expect(card.x + card.width).toBeLessThanOrEqual(390);
+  expect(card.y + card.height).toBeLessThanOrEqual(844);
+  await page.evaluate(() => window.hud.update({ ...window.hudNewRun, scene: 'guardian' },
+    { renderProgress: { state: 'current', lastSubmitted: { tick: 2 } } }));
+  await expect(memory).toBeHidden();
+  await page.evaluate(() => window.hud.update(window.hudNewRun,
+    { renderProgress: { state: 'current', lastSubmitted: { tick: 2 } } }));
+  await expect(memory).toBeVisible();
+  await page.waitForTimeout(4700);
+  await page.evaluate(() => window.hud.update(window.hudNewRun,
+    { renderProgress: { state: 'current', lastSubmitted: { tick: 2 } } }));
+  await expect(memory).toBeHidden();
+  await expect(memory).toHaveAttribute('data-phase', 'hidden');
+});
+
+test('new run without a witnessed source terminal never fabricates a prior result', async ({ page }) => {
+  await hudPage(page, { width: 390, height: 844 });
+  await page.evaluate(() => window.hud.update({
+    ...window.hudFrame, scene: 'normal', snapshot: {
+      ...window.hudFrame.snapshot, runToken: 'recovered-unseen-run', lifecycle: 'running', tick: 0,
+    },
+  }, { renderProgress: { state: 'current', lastSubmitted: { tick: 0 } } }));
+  await expect(page.locator('#result-card')).toBeHidden();
+});
