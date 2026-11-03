@@ -778,11 +778,19 @@ test('a real close public encounter frames both autonomous actors and saves date
   expect((await page.evaluate(()=>window.__MAZE_3D__)).witnessedKeyPickupVisual,
     'native public BEFORE snapshot must never contain fabricated pickup fragments').toBe(false);
   activeFrame=picked.after.frame;
+  // Under CPU-throttled SwiftShader the original browser test sometimes
+  // read the first shard frame before the *real camera* had eased into view:
+  // the target was 5.67 but the frame still showed 7.34 (strict limit <7).
+  // Judge the genuine rendered candidate, not a mid-ease snapshot. Keep every
+  // physical framing/shard/HUD/privacy threshold unchanged; reject if the
+  // publicly witnessed event expires before a valid composed image exists.
   await page.waitForFunction(({tick,token})=>{
     const d=window.__MAZE_3D__;
     return d?.renderer==='webgl' && d.tick===tick && d.runToken===token
-      && d.witnessedKeyPickupVisual && d.pickupShardsInFrame>=6;
-  },{tick:nextPickupState.tick,token:nextPickupState.runToken});
+      && d.witnessedKeyPickupVisual && d.pickupShardsInFrame>=6
+      && d.pickupCameraBeat && d.pickupCameraTargetHalfHeight<6
+      && d.cameraHalfHeight<7 && d.explorerModelFullyInFrame;
+  },{tick:nextPickupState.tick,token:nextPickupState.runToken},{timeout:45000});
   const pickupPortraitDiagnostic=await page.evaluate(()=>window.__MAZE_3D__);
   await expect(page.locator('#goal-label')).toHaveText('KEY FOUND');
   await expect(page.locator('#goal-title')).toHaveText('Key collected');
