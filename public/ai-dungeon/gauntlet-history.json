@@ -2194,7 +2194,7 @@
         "playsMajority": false,
         "provenance": "No fresh independent critics available. Do not infer a blind preference from test results or real predecessor screenshots."
       },
-      "safetyChecks": "Prior 8eab0d3 Dungeon 41718957315 and visual 41718957360 passed. Catalogue 41718957163 FAILED. New scenic-recess code has no exact-head CI/browser validation, no original-audio capture, performance benchmarks or blind before/after evidence.",
+      "safetyChecks": "Prior 8eab0d3 Dungeon and visual workflows SUCCESS, global catalogue CI FAILED. Candidate 6efb874 workflows 41727137082 (Dungeon), 41727137110 (visual), 41727137149 (catalogue) were IN PROGRESS at inspection; calibrated exact-head safety and WebGL performance remain UNVERIFIED.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED: actual opt-in Warden scene MediaRecorder returned ZERO bytes desktop+mobile despite 24 live boss polls desktop and 59 live polls mobile; silent Playwright test-results videos only. Original audible soundtrack not captured.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2298,8 +2298,8 @@
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
     "biggestRemainingGap": "Authentic candidate in-motion desktop/mobile proof that body armour, foreground masonry, warning cells and combat contact form coherent readable silhouettes; complete natural traversal→fight→Warden→floor→defeat/restart audiovisual capture, matched locked baseline and 3 fresh blind majority votes unavailable.",
-    "currentWork": "Exact-head 8eab0d3 authentic screenshot exposed ray-unoccluded but visually cluttered body/camera composition. Candidate replaces foreground masonry around real animated protagonists and actual battle participants with bounded physical stone recesses across all existing 3D cutaway consumers; code committed only, exact-code running gameplay UNVERIFIED.",
-    "candidateCommit": "791c8b723724e1f747246472bc9055dc8da6df8f",
+    "currentWork": "Source 6efb874 M1 physical real-actor scenic clearing, plus calibrated two-stage camera-side negative-space radius. Authentic 8eab0d3 predecessor screenshot showed 3/3 geometrically unoccluded heroes yet visibly unreadable segmented costumes behind dense stockades. Candidate genuine gameplay and comparison UNVERIFIED.",
+    "candidateCommit": "6efb874f130e76bccb4d4eed5870db9854e55d3b",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -4146,7 +4146,9 @@
         "audio": "UNVERIFIED; no complete original sound movie",
         "independentCritics": "0/3; fresh independent critics unavailable",
         "verdict": "IN_PROGRESS — NOT_TRANSFORMED",
-        "next": "Run exact-head browser after scene, capture genuine mobile/desktop action and compare versus fixed 281735d baseline, reject camera pops/overclearance, assess model intersections and GPU frame costs, capture all five stages with audio and obtain 3 independent blind pillar judgments."
+        "next": "Run exact-head browser after scene, capture genuine mobile/desktop action and compare versus fixed 281735d baseline, reject camera pops/overclearance, assess model intersections and GPU frame costs, capture all five stages with audio and obtain 3 independent blind pillar judgments.",
+        "sourceCodeCommit": "6efb874f130e76bccb4d4eed5870db9854e55d3b",
+        "calibration": "Travel foreground cutaway radius <=3.05m, contact foreground <=3.65m; immediate camera-facing only, no distant/behind clearing; shared legacy five-subject cap."
       }
     ]
   }

@@ -28,10 +28,10 @@ export function planPartyWallReveal(x,z,subjects,camera,pad=2.1){
   // animated hero. In a genuine legal fight, grant ONE actual opponent and
   // defender a slightly deeper contact stage. Preserve all rear/distant
   // architecture, the source wall grid, warnings and collision unchanged.
-  if(subject.combatRecess===true&&progress>=-.22&&progress<3.15&&
-     radial<3.30*3.30&&sideways<2.65)return 'sightline';
-  if(subject.silhouetteRecess===true&&progress>=-.08&&progress<2.40&&
-     radial<2.65*2.65&&sideways<1.85)return 'sightline';
+  if(subject.combatRecess===true&&progress>=-.25&&progress<3.40&&
+     radial<3.65*3.65&&sideways<3.10)return 'sightline';
+  if(subject.silhouetteRecess===true&&progress>=-.10&&progress<2.65&&
+     radial<3.05*3.05&&sideways<2.65)return 'sightline';
   // In a physical low camera shot, a knee-high pier can hide a hero's face
   // even when its centre is just outside the narrow geometric ray. Open a
   // tightly bounded camera-facing foreground wedge for the *actual* party.
