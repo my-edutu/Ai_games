@@ -152,3 +152,52 @@ test('the public immutable snapshot exposes only an observed finite enemy windup
  s.enemies[0].telegraphUntilTick=0;
  assert.equal(createTowerRenderSnapshot(s,{includeWindupTicks:true}).enemies[0].telegraphTicksRemaining,0);
 });
+
+
+test('critical-health fighter retreats for a visible safe pickup instead of trading a fatal melee',()=>{
+ const s=encounter(),p=s.player;
+ s.chunks[0].hazards=[];s.projectiles=[];
+ const support=s.chunks[0].platforms.find(q=>q.id===p.groundedPlatformId);
+ // A wide, real supporting deck with an accessible health pickup and hostile
+ // on the opposite side. This plan uses observations, not future patrol data.
+ support.x=p.position.x-120000;support.width=240000;
+ support.y=p.position.y-p.halfHeight-support.height;
+ p.health=1;p.velocity.x=0;p.facing=1;
+ s.enemies[0].position.x=p.position.x+25000;
+ s.enemies[0].position.y=p.position.y;
+ s.enemies[0].telegraphUntilTick=0;
+ s.pickups=[{id:'critical-health',kind:'health',floor:s.floor,
+   position:{x:p.position.x-55000,y:p.position.y},value:2,collected:false}];
+ const before=JSON.stringify(s),obs=createTowerObservation(s);
+ const live=chooseTowerAction(s,obs);
+ assert.equal(live.intent.mode,'collecting-resource');
+ assert.equal(live.action.move,-1);
+ assert.equal(live.action.attack,false);
+ assert.equal(live.action.jump,false);
+ assert.equal(live.intent.targetPlatformId,support.id);
+ assert.notEqual(chooseTowerAction(s,obs,{tactical:false}).intent.mode,'collecting-resource',
+   'historical-v1 replay decisions remain frozen');
+ assert.equal(JSON.stringify(s),before);
+ // Healthy climbers still engage; emergency recovery must not preempt every battle.
+ p.health=p.maxHealth;
+ assert.equal(chooseTowerAction(s,createTowerObservation(s)).intent.mode,'engaging-enemy');
+});
+
+test('no emergency retreat through an observed enemy or active hazard corridor',()=>{
+ const s=encounter(),p=s.player;
+ s.chunks[0].hazards=[];s.projectiles=[];
+ const support=s.chunks[0].platforms.find(q=>q.id===p.groundedPlatformId);
+ support.x=p.position.x-120000;support.width=240000;
+ support.y=p.position.y-p.halfHeight-support.height;
+ p.health=1;p.velocity.x=0;
+ s.pickups=[{id:'critical-health',kind:'health',floor:s.floor,
+   position:{x:p.position.x-55000,y:p.position.y},value:2,collected:false}];
+ s.enemies[0].position={x:p.position.x-30000,y:p.position.y};
+ s.enemies[0].telegraphUntilTick=0;
+ assert.notEqual(chooseTowerAction(s,createTowerObservation(s)).intent.mode,'collecting-resource');
+ s.enemies[0].position.x=p.position.x+25000;
+ s.chunks[0].hazards=[{id:'crossing-spikes',kind:'spikes',
+   x:p.position.x-36000,y:p.position.y-p.halfHeight-1000,
+   width:12000,height:20000,activeFromTick:0,activeEvery:10,activeFor:10,damage:1}];
+ assert.notEqual(chooseTowerAction(s,createTowerObservation(s)).intent.mode,'collecting-resource');
+});
