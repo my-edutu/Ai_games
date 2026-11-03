@@ -439,7 +439,22 @@ export function createMazeWorld(options = {}) {
         dz ? .25 : .065,.52,dz ? .065 : .25,
         0,0,side*.10);
       mesh(sail,sphere,clay,0,.94,0,.11,.09,.11);
-      fossilSails.push({object:sail,cell,side,dx,x:sail.position.x,z:sail.position.z,
+      // A second, connected physical hinge lifts a scalloped sea-glass
+      // crown above the LOW cutaway wall. Previously the actual full-size
+      // WebGL image showed only two tiny ivory sticks. These paired crowns
+      // now make the response readable as an ancient listening flower, not
+      // a treasure, switch, route hint or HUD symbol. All pieces share the
+      // installed stone geometry/material pools and move only with public Pip.
+      const crown=new THREE.Group();
+      crown.name='Disclosed fossil listening crown '+cell+' '+side;
+      crown.position.y=.82;
+      sail.add(crown);
+      mesh(crown,bevel,lightStone,0,.14,0,
+        dz ? .47 : .16,.44,dz ? .16 : .47,0,0,side*.14);
+      mesh(crown,bevel,seaGlass,dx*.027,.19,dz*.027,
+        dz ? .34 : .075,.31,dz ? .075 : .34,0,0,side*.14);
+      mesh(crown,sphere,clay,0,.39,0,.095,.085,.095);
+      fossilSails.push({object:sail,crown,cell,side,dx,x:sail.position.x,z:sail.position.z,
         phase:cell*.37+side});
     }
   }
@@ -1734,8 +1749,17 @@ export function createMazeWorld(options = {}) {
       const near=Math.max(0,1-Math.hypot(hx-relic.x,hz-relic.z)/3.2);
       const angle=reduced ? .07
         : .07+.24*near+Math.sin(t*1.4+relic.phase)*.028;
-      if (relic.dx) relic.object.rotation.x=relic.side*angle;
-      else relic.object.rotation.z=relic.side*angle;
+      // Two independently articulated joints visibly unfurl as the real
+      // explorer comes near; at reduced motion both settle to a static,
+      // recognizable resting shape. No additional simulation or frame mesh.
+      const crownAngle=reduced ? .10 : .10+.54*near;
+      if (relic.dx) {
+        relic.object.rotation.x=relic.side*angle;
+        relic.crown.rotation.x=-relic.side*crownAngle;
+      } else {
+        relic.object.rotation.z=relic.side*angle;
+        relic.crown.rotation.z=-relic.side*crownAngle;
+      }
     }
     waterTexture.offset.set(reduced ? 0 : t * .0012, reduced ? 0 : t * .0006);
     if (highContrast !== !!options.highContrast) { highContrast = !!options.highContrast; if (snapshot) refreshVisibility(snapshot, true); }
