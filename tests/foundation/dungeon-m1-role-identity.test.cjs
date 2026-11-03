@@ -23,7 +23,11 @@ test('M1 actually equips all six animated characters with prominent role-unique 
    assert.ok(!seen.has(p.id),'identity not copied across classes');
    seen.add(p.id);
   }
-  assert.ok(identity.some(p=>p.anchor!=='chest'),'identity must follow real animated bone');
+  assert.ok(identity.every(p=>CRITICAL_FIGURE_JOINTS.includes(p.anchor)),kind+' identity follows native animated bones');
+  if(kind!=='ranger')assert.ok(identity.some(p=>p.anchor!=='chest'),'role identity includes animated head, arm or pelvis');
+  // The ranger's arrows belong to the back-mounted quiver and its fletching:
+  // they must move together on the same real torso joint, not float apart.
+  else assert.ok(identity.every(p=>p.anchor==='chest'),'ranger fletching stays in the quiver');
  }
  assert.equal(seen.size,13);
 });
