@@ -449,12 +449,24 @@ export function createMazeWorld(options = {}) {
       crown.name='Disclosed fossil listening crown '+cell+' '+side;
       crown.position.y=.82;
       sail.add(crown);
-      mesh(crown,bevel,lightStone,0,.14,0,
-        dz ? .47 : .16,.44,dz ? .16 : .47,0,0,side*.14);
-      mesh(crown,bevel,seaGlass,dx*.027,.19,dz*.027,
-        dz ? .34 : .075,.31,dz ? .075 : .34,0,0,side*.14);
-      mesh(crown,sphere,clay,0,.39,0,.095,.085,.095);
-      fossilSails.push({object:sail,crown,cell,side,dx,x:sail.position.x,z:sail.position.z,
+      // Pass126: three original, individually hinged ceramic petals replace
+      // the old narrow rectangular prongs. A sculpted fan can now visibly
+      // open when Pip walks beside this *already disclosed* wall, without
+      // resembling a key, door, map reveal or floating UI beacon. Petals
+      // are solid existing Three geometry, rooted in the second joint and
+      // restrained to the impassable wall-side alcove.
+      const petals=[];
+      for (const petalSide of [-1,0,1]) {
+        const petal=new THREE.Group();
+        petal.name='Disclosed fossil listening petal '+cell+' '+side+' '+petalSide;
+        petal.position.set(tx*petalSide*.16,.10,tz*petalSide*.16);
+        crown.add(petal);
+        const petalMaterial=petalSide===0?seaGlass:petalSide<0?lightStone:clay;
+        mesh(petal,sphere,petalMaterial,0,petalSide===0?.35:.28,0,
+          petalSide===0?.23:.18,petalSide===0?.49:.40,.13);
+        petals.push(petal);
+      }
+      fossilSails.push({object:sail,crown,petals,cell,side,dx,x:sail.position.x,z:sail.position.z,
         phase:cell*.37+side});
     }
   }
