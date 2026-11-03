@@ -891,9 +891,24 @@ export function createMazeWorld(options = {}) {
         // silhouette, so this cannot suggest an undiscovered passage.
         const publicParapet = gateApproachCells.has(c.cell)
           && n >= 0 && knownByCell.has(n) && !gateEdges.has(key);
+        const fossilStageEdge = fossilSide && fossilSide.n === n;
         if (publicParapet)
           gateForecourtParapet(x + dx * 1.2, z + dz * 1.2, !!dz, c.cell);
-        else wall(x + dx * 1.2, z + dz * 1.2, !!dz, c.cell * 17 + side, c.cell);
+        else if (fossilStageEdge) {
+          // Physical sightline repair: the real native fossil images reveal
+          // listening sails trapped behind their own tall opaque wall. A
+          // low, continuous stone seawall plus connected ivory end-stops
+          // preserves the SAME publicly confirmed impassable edge and leaves
+          // the authored hinged faces visible. No collision, route, camera,
+          // AI, key, door or undisclosed cell information is changed.
+          const wx=x+dx*1.2, wz=z+dz*1.2;
+          block(deepStone,wx,.12,wz,dz?2.24:.34,.24,dx?2.24:.34,c.cell);
+          block(seaGlass,wx,.30,wz,dz?2.26:.25,.17,dx?2.26:.25,c.cell);
+          for (const sign of [-1,1]) {
+            const ex=wx+(dz?sign*.94:0), ez=wz+(dx?sign*.94:0);
+            block(lightStone,ex,.33,ez,.20,.34,.20,c.cell);
+          }
+        } else wall(x + dx * 1.2, z + dz * 1.2, !!dz, c.cell * 17 + side, c.cell);
         // Unlike unrevealed neighbors, this is a real blocked direction in
         // the public room's advertised edges. A lifted vertical garden on its
         // physical wall gives the otherwise pale stage a distinct green layer.
@@ -903,7 +918,6 @@ export function createMazeWorld(options = {}) {
         // silhouette. Keep its actual hinged faces in view instead of planting
         // a tall raised garden on the same observed NON-PASSAGE edge. Other
         // walls retain their verdant profile; public navigation is untouched.
-        const fossilStageEdge = fossilSide && fossilSide.n === n;
         if (n >= 0 && !fossilStageEdge && gardenPatch(c.cell) > .38
           && variation(faceSeed) > (dx + dz > 0 ? .29 : .56)) {
           if (gateApproachCells.has(c.cell)) gateForecourtPlanter(x, z, dx, dz, c.cell);
