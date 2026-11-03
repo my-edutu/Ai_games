@@ -1039,7 +1039,9 @@ test('a real close public encounter frames both autonomous actors and saves date
     afterCapture:{ageSeconds:midGateAfterScreenshot.publicOpeningCameraBeat?.ageSeconds??null,
       frames:midGateAfterScreenshot.frames,
       retractingPublicGates:midGateAfterScreenshot.world.retractingPublicGates,
-      movingGateMinBarsHeightRatio:midGateAfterScreenshot.world.movingGateMinBarsHeightRatio},
+      movingGateMinBarsHeightRatio:midGateAfterScreenshot.world.movingGateMinBarsHeightRatio,
+      actualPublicCameraOffset:midGateAfterScreenshot.cameraOffset,
+      heroPhysicalBounds:midGateAfterScreenshot.explorerPhysicalBounds},
     verdict:(midGateAfterScreenshot.world.retractingPublicGates>0
       &&!!midGateAfterScreenshot.publicOpeningCameraBeat)?'candidate':'rejected',
     caveat:'Original source WebGL, SwiftShader CPU-throttled; not a Nintendo quality or hardware GPU win.'
@@ -1050,6 +1052,10 @@ test('a real close public encounter frames both autonomous actors and saves date
     'one active gate is insufficient: the real WebGL screenshot must show materially tall moving 3D bars').toBeGreaterThan(.30);
   expect(midGateAfterScreenshot.publicOpeningCameraBeat,
     'the original open gate must still be the gameplay camera subject').toBeTruthy();
+  expect(midGateAfterScreenshot.explorerModelFullyInFrame,
+    'the genuine mid-lift camera must not crop any physical part of Pip').toBe(true);
+  expect(Math.abs(midGateAfterScreenshot.cameraOffset.x),
+    'native rendered gate celebration uses a real oblique 3D camera').toBeGreaterThan(14);
   const afterGateDiagnostic=await page.evaluate(()=>window.__MAZE_3D__);
   const openingAfterImage=path.join(dir,'public-gate-after-1280.png');
   await page.screenshot({path:openingAfterImage,fullPage:true});

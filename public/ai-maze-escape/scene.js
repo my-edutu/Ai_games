@@ -398,10 +398,17 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // Reduced-motion shows a stable model pose without a camera movement.
     const openingGateBeat = cameraMode === 'follow' && !settings.reducedMotion
       ? publicOpeningMoment : null;
-    const openingStageView = !!openingGateBeat
-      && setPublicGateOpeningStageOffset(openingGateCameraOffset, openingGateBeat, s.width);
     const openingA = publicOpeningMoment ? cellPosition(publicOpeningMoment.a, s.width, s.height) : null;
     const openingB = publicOpeningMoment ? cellPosition(publicOpeningMoment.b, s.width, s.height) : null;
+    // Public, current-frame actor-to-gate delta: no future route, private
+    // topology or guessed cell. Side-on staging exposes physical hero motion
+    // instead of looking through the near forecourt masonry.
+    const openingGateToHero = openingA && openingB ? {
+      x: (openingA.x + openingB.x) * .5 - pose.x,
+      z: (openingA.z + openingB.z) * .5 - pose.z,
+    } : null;
+    const openingStageView = !!openingGateBeat
+      && setPublicGateOpeningStageOffset(openingGateCameraOffset, openingGateBeat, s.width, openingGateToHero);
     const gateHeading = openingA && openingB ? Math.atan2(
       (openingA.x + openingB.x) * .5 - pose.x,
       (openingA.z + openingB.z) * .5 - pose.z) : undefined;
@@ -659,7 +666,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // Faster bounded easing acts on the public presentation camera alone;
     // keep the original camera safety framing, privacy and model-fit gates.
     const blend = settings.reducedMotion ? 1
-      : 1 - Math.exp(-delta * (pickupCameraBeat ? 12 : 4.5));
+      : 1 - Math.exp(-delta * (pickupCameraBeat ? 12 : openingStageView ? 8 : 4.5));
     cameraTarget.lerp(desiredTarget, blend);
     halfHeight += (targetHeight - halfHeight) * blend;
     camera.left = -halfHeight * aspect; camera.right = halfHeight * aspect;

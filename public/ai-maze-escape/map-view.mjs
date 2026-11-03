@@ -484,7 +484,7 @@ export function publicGateOpeningCameraCue(before, after) {
  * This is an alternate physical camera azimuth, NOT another objective or an
  * inferred corridor. No allocations in the render loop, no simulation access.
  */
-export function setPublicGateOpeningStageOffset(target, cue, width) {
+export function setPublicGateOpeningStageOffset(target, cue, width, publicGateToHero = null) {
   if (!target || typeof target.set !== 'function'
     || !Number.isSafeInteger(width) || width < 2
     || !Number.isSafeInteger(cue?.a) || !Number.isSafeInteger(cue?.b)
@@ -500,6 +500,33 @@ export function setPublicGateOpeningStageOffset(target, cue, width) {
   // witnessed opening, like a short diorama crane shot. Keep the existing
   // azimuth quadrant for continuity; no model or obstacle is removed.
   // Normal Follow, known CLOSED, reduced-motion and hidden gates never use it.
+  // The real Pass110 1280x900 MID image proved that merely raising the
+  // camera along the old +X/+Z direction still leaves Pip's torso/feet behind
+  // a solid foreground terrace. During an AUTHENTIC opening, the caller may
+  // provide the observed gate-to-Pip horizontal displacement. The physical
+  // camera moves to an oblique, gate-side view where that foreground wall
+  // is BEHIND the actor instead of between the lens and their body.
+  //
+  // This never uses a guessed future path, private maze, collider, AI state,
+  // off-board waypoint, shader cutout or actor relocation. All offsets remain
+  // finite; no extra camera, world mesh or frame allocations are required.
+  if (publicGateToHero !== null) {
+    const x = publicGateToHero?.x, z = publicGateToHero?.z;
+    if (!Number.isFinite(x) || !Number.isFinite(z)
+      || Math.hypot(x, z) > 7.2) return false;
+    // A face-on camera from the gate would hide Pip behind its own physical
+    // portcullis. The large tangential component gives a genuine side-on view
+    // of the *same* actor/arch; a smaller signed component is on the gate
+    // side of Pip, opposite the screenshot's offending foreground parapet.
+    const normal = along ? z : x;
+    const gateSide = normal < -.05 ? -1 : normal > .05 ? 1 : -1;
+    if (along) target.set(24, 30, gateSide * 11);
+    else target.set(gateSide * 11, 30, 24);
+    return true;
+  }
+  // Preserve the historical three-argument, source-safe crane contract for
+  // callers without an observed hero. Only the actual game supplies the
+  // optional disclosed displacement, never untrusted/private state.
   if (along) target.set(6, 34, 25);
   else target.set(25, 34, 6);
   return true;

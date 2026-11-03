@@ -56,7 +56,8 @@ test('witnessed gate-only actor/arch focus does not use scenery bias, hidden rou
 test('physical gate crane is gated on authentic public transition, never a permanently open gate or ordinary Follow',()=>{
   assert.match(scene,/publicGateOpeningCameraCue\(previous, snapshot\)/);
   assert.match(scene,/recentPublicOpening\?\.runToken === s\.runToken/);
-  assert.match(scene,/setPublicGateOpeningStageOffset\(openingGateCameraOffset, openingGateBeat, s\.width\)/);
+  assert.match(scene,/setPublicGateOpeningStageOffset\(openingGateCameraOffset, openingGateBeat, s\.width, openingGateToHero\)/);
+  assert.match(scene,/openingGateToHero = openingA && openingB/,'camera derives solely from witnessed public physical coordinates');
   assert.match(scene,/focus = openingGateBeat\s*\? composePublicGateOpeningFocus\(gateDelta, aspect\)/);
   assert.match(scene,/cameraOffset\.lerp\(openingStageView \? openingGateCameraOffset/);
   assert.match(scene,/cameraMode === 'follow' && !settings\.reducedMotion\s*\? publicOpeningMoment : null/);
