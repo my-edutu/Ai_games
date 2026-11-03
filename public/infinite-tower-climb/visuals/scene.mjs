@@ -2545,7 +2545,16 @@ export function createTowerScene(canvas, settings = {}) {
       snapshot.lifecycle === 'running' && p.health > 0 &&
       actorRescueFraction === 0 && followComposition?.guardianStaged &&
       followComposition.clear && followComposition.guardianFramed &&
-      followComposition.heroFraction >= .16 && sourceGuardian &&
+      // The source-backed aerial two-body lens protects a 14%-high hero:
+      // its real guardian must not be ignored by the post-smoothing camera
+      // merely because the grounded 16% comfort threshold is unreachable in
+      // a narrow landing shot. The same projected actor/core rescue vetoes
+      // below still reject any unsafe or hidden camera.
+      followComposition.heroFraction >=
+        (p.state === 'airborne' && followComposition.duelLandingSoftened &&
+         (guardianWarning.pulseGuardianId === sourceGuardian?.id ||
+          guardianWarning.guardianId === sourceGuardian?.id) ? .14 : .16) &&
+      sourceGuardian &&
       [sourceGuardian.x, sourceGuardian.y].every(Number.isFinite)) {
       const observed = pointFor(sourceGuardian.x, sourceGuardian.y,
         snapshot.chunkBaseY, snapshot.worldWidth, 27.15);
