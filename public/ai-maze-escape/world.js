@@ -872,7 +872,10 @@ export function createMazeWorld(options = {}) {
         // scenery must not announce secret routes, keys, hazards or AI moves.
         const relic = variation(c.cell * 23 + 811);
         if (relic < .35) {
-          tideFossilGrove(x, z, c.cell, gateApproachCells.has(c.cell));
+          // Only genuinely disclosed, adjacent gate court masonry earns a
+          // lower fossil profile; hidden neighbors never affect the stage.
+          const besidePublicGate = [...gateApproachCells].some(id => adjacent(id, c.cell));
+          tideFossilGrove(x, z, c.cell, besidePublicGate);
         } else if (relic < .70) {
           collapsedPavilions++;
           // Roofless tidal pavilion: connected masonry, two fractured
