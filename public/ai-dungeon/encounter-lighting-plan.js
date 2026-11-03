@@ -34,7 +34,7 @@ export function planEncounterLighting(s,shot,{damageBeat=null,reducedMotion=fals
  const heroKey=Object.freeze({x:fix(hx+sideX*1.28),y:2.68,z:fix(hz+sideZ*1.28),
   intensity:duel?3.28:2.65,distance:duel?7.8:6.8});
  const opponentFill=Object.freeze({x:fix(ex-sideX*1.18),y:2.18,z:fix(ez-sideZ*1.18),
-  intensity:duel?1.75:1.5,distance:duel?6.45:7.7});
+  intensity:duel?1.26:1.18,distance:duel?6.45:7.7});
  const boss=enemies.find(u=>u.kind==='warden')??null;
  const warning=Boolean(boss&&s.bossWarning&&Number.isInteger(s.bossWarning.attackTick)&&
   Number.isInteger(s.tick)&&s.bossWarning.attackTick>=s.tick&&s.bossWarning.attackTick<=s.tick+3);

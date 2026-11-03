@@ -17,7 +17,7 @@ import {planCinematicShot,planReadableExpeditionLens,planCriticalSubjectFit,plan
 import {planPartyWallReveal,createCutawayBandCache,shouldUploadCutawayBand} from '/dungeon/party-visibility-plan.js';
 import {planBoundaryCamera} from '/dungeon/camera-boundary-plan.js';
 import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
-import {planExpeditionStep,advanceExpeditionFootfall} from '/dungeon/expedition-locomotion-plan.js';
+import {planExpeditionStep,advanceExpeditionFootfall,planGroundedAnimation} from '/dungeon/expedition-locomotion-plan.js';
 import {planAuthorityDamageBeats,planDamageReaction,resolveImpactSide,planDefeatTableauPose,planImpactCameraHold,DAMAGE_BEAT_DURATION,DEATH_BEAT_DURATION} from '/dungeon/impact-choreography-plan.js';
 import {planAuthorityEvasions,EVASION_BEAT_DURATION} from '/dungeon/evasion-performance-plan.js';
 import {planPostFXBudget,adaptPostFXPixelCap,postFXStallAction,isSoftwareWebGLRenderer,createFrameIntervalProbe,planDirectRenderBudget,adaptDirectRenderPixelCap} from '/dungeon/postfx-budget.js';
@@ -916,7 +916,17 @@ function animate(t){
    // WebAudio itself still requires explicit spectator opt-in.
    if(a.u.id===focusedHeroId&&a.u.faction==='party')soundstage?.footstep();
   }
-  const moving=locomotion.moving;const bounce=reduced?0:Math.sin(time*5+a.at.x)*.028;a.body.position.y=bounce;a.leftLeg.rotation.x=moving?Math.sin(time*10)*.35:0;a.rightLeg.rotation.x=-a.leftLeg.rotation.x;a.leftArm.rotation.x=moving?Math.sin(time*10)*.22:0;a.rightArm.rotation.x=-a.leftArm.rotation.x;
+  // One actual footstep cycle now owns animation, plantar weight and sound.
+  a.groundedPerformance=planGroundedAnimation(a.u.kind,a.u.action||'idle',
+   locomotion.travel,frameInterval,footfall.accumulator,a.footstepIndex??0,
+   a.groundedPerformance?.weight??0,
+   {alive:a.u.hp>0,reducedMotion:reduced,teleport:locomotion.teleport});
+  const moving=a.groundedPerformance.moving,stride=2*Math.PI*a.groundedPerformance.footPhase;
+  a.body.position.y=a.groundedPerformance.bodyLift;
+  a.leftLeg.rotation.x=moving?Math.sin(stride)*.35:0;
+  a.rightLeg.rotation.x=-a.leftLeg.rotation.x;
+  a.leftArm.rotation.x=moving?Math.sin(stride)*.22:0;
+  a.rightArm.rotation.x=-a.leftArm.rotation.x;
   // One-shots age by actual rendered frames; a stalled software WebGL frame must
   // not skip the attack, spell or impact before the spectator sees its first pose.
   const oneShot=['attack','cast','hurt'].includes(a.u.action);
