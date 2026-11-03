@@ -24,8 +24,10 @@ test('T1 exact-head riparian water garden: actual full-scene, portrait, detail a
  const oldGarden=remove(remove(gardenBeforeAmphitheatre,'  // BEGIN T1 LIVING WATER GARDEN\n',
   '  // END T1 LIVING WATER GARDEN\n'),
   '      // BEGIN T1 WATER GARDEN STATS\n','      // END T1 WATER GARDEN STATS\n');
+ const historicGarden=fs.readFileSync(path.join(root,'tests/fixtures/snake-t1-historical-wetland-8c9409c.mjs'),'utf8');
  expect(blob(oldWorld)).toBe('0f69c6ae6324d7fcfa6e0c1e9659fc4be37cc66d');
- expect(blob(oldGarden)).toBe('bdfe91e5305bbe87f3d23d858e03e90b87c47159');
+ expect(blob(historicGarden)).toBe('bdfe91e5305bbe87f3d23d858e03e90b87c47159');
+ expect(blob(oldGarden)).not.toBe(blob(garden));
  const frame=JSON.parse(fs.readFileSync(path.join(root,'docs/reviews/snake-gauntlet/round-4-public-frame.json'),'utf8'));
  const preserved=JSON.stringify(frame),records=[];
  for(const [scene,camera,viewport] of [
@@ -35,7 +37,7 @@ test('T1 exact-head riparian water garden: actual full-scene, portrait, detail a
   ['full-desktop','overview',{width:1920,height:1080}]
  ]){
   const pair=[];
-  for(const [version,prior] of [['exact-8c9409c-before',true],['wetland-after',false]]){
+  for(const [version,prior] of [['current-feature-reversed-before',true],['wetland-after',false]]){
    const page=await browser.newPage({viewport,reducedMotion:'reduce'});
    const errors=[];page.on('pageerror',error=>errors.push(error.message));
    try{
@@ -82,8 +84,9 @@ test('T1 exact-head riparian water garden: actual full-scene, portrait, detail a
  }
  expect(JSON.stringify(frame)).toBe(preserved);
  fs.writeFileSync(image('snake-t1-wetland-matched-actual-webgl.json'),JSON.stringify({
-  priorExactHead:'8c9409c63fcc85a0ca2fb6db5f69ba82a378d869',
-  priorWorldBlob:blob(oldWorld),priorGardenBlob:blob(oldGarden),
+  independentlyPinnedHistoricalHead:'8c9409c63fcc85a0ca2fb6db5f69ba82a378d869',
+  originalHistoricalGardenBlob:blob(historicGarden),
+  currentFeatureReversedWorldBlob:blob(oldWorld),currentFeatureReversedGardenBlob:blob(oldGarden),
   newWorldBlob:blob(world),newGardenBlob:blob(garden),
   snapshotFrozen:true,genuineChromiumWebGL:true,submittedDrawGateUnchanged:true,
   physicalHardwareDisplayPresentFps:'NOT VERIFIED',independentArtReview:'NOT AVAILABLE',
