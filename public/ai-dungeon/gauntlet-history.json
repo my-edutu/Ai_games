@@ -3547,7 +3547,8 @@
         "priorEvidence": "Genuine 3D predecessor screenshot reviewed; exact candidate not yet captured or judged.",
         "evidence": "No claim of new-head checks/experiential wins until GitHub workflows complete.",
         "verdict": "IN_PROGRESS / NOT_TRANSFORMED",
-        "next": "Inspect latest genuine desktop/mobile melee and boss motion; address toy-scale original character rigs, obtain continuous audiovisual seed-matched expedition reel and >=3 independent blind critics."
+        "next": "Inspect latest genuine desktop/mobile melee and boss motion; address toy-scale original character rigs, obtain continuous audiovisual seed-matched expedition reel and >=3 independent blind critics.",
+        "verification": "Locally executed exact reviewed-source workspace with corrected spec: npm run dungeon:test 237/237 PASS; includes 16 staging cases. Earlier newly added boss test incorrectly expected zero movement despite pre-existing genuine Warden hero retreat; corrected expectation preserves that safety behaviour. Browser/CI/latest-head gameplay still UNVERIFIED."
       }
     ]
   }

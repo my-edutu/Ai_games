@@ -235,6 +235,8 @@ test('boss warnings and nearby Warden retain their authoritative visual choreogr
  assert.deepEqual(inspectBattlefieldCrowding(warning,planCombatStage(warning,view),view),
   {comparedPairs:0,overlaps:0,summedDeficit:0});
  const stage=planCombatStage(s,view);
- assert.deepEqual([stage.hero.dx,stage.hero.dz,stage.foe.dx,stage.foe.dz,stage.warden.dx,stage.warden.dz],
-  [0,0,0,0,0,0]);
+ assert.ok(stage.hero.dx<-.18, 'pre-existing lawful Warden duel hero retreat remains active');
+ assert.deepEqual([stage.foe.dx,stage.foe.dz,stage.warden.dx,stage.warden.dz],[0,0,0,0],
+  'general cross-cell blocking cannot displace the Warden or neighboring court guards');
+ assert.ok(Math.hypot(stage.hero.dx,stage.hero.dz)<=.441);
 });
