@@ -18,6 +18,11 @@ test('G155 390px market stall circuit travels on real walkable streets',async({p
    authority:JSON.stringify(g.exportSnapshot())};
  });
  expect(started.market.active).toBe(true);
+ // G159 RED: screenshot evidence showed a stall post dominating the center
+ // of the 390px frame despite the wall-only portraitSafe test passing.
+ // The physical timbers must be evaluated, not removed from the world.
+ expect(started.market.architecture.posts?.centralCover,
+  JSON.stringify(started.market.architecture)).toBeLessThan(.38);
  // Read the activation and position in ONE browser turn; a slow SwiftShader
  // frame can advance the real walking animation between separate evaluations.
  const immediate=await page.evaluate(()=>{
@@ -109,6 +114,8 @@ test('G156 real Day-120 market circuit reaches another actual stall on mobile',a
  // A route counts only when it finishes at a photographically readable,
  // genuinely visible stall — never merely beside another opaque wall.
  expect(arrived.visit.architecture.portraitSafe).toBe(true);
+ expect(arrived.visit.architecture.posts?.centralCover,
+  JSON.stringify(arrived.visit.architecture)).toBeLessThan(.38);
  expect(arrived.visit.architecture.interveningRoofs).toBe(0);
  expect(arrived.visit.foregroundCitizenCount).toBeLessThanOrEqual(1);
  expect(arrived.travelled).toBeGreaterThan(2.5);
