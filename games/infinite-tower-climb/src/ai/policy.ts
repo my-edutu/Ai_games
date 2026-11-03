@@ -316,8 +316,12 @@ function aimedTelegraph(state:TowerState,obs:TowerObservation,earliest:number,la
 function imminentTelegraph(state:TowerState,obs:TowerObservation){return aimedTelegraph(state,obs,1,3)}
 function pulseReady(state:TowerState,obs:TowerObservation,enemy:TowerObservation['enemies'][number]){
   const p=obs.player,delta=enemy.position.x-p.position.x;
+  // The real source projectile is launched at the climber's CENTERLINE with
+  // a 3500-unit half-height: a broad melee-height test used to waste ranged
+  // cooldowns on foes that the projectile could never physically intersect.
+  // A moving opponent can still evade a valid shot: this is not prediction.
   return state.build.upgradeIds.includes('pulse-shot')&&p.abilityCooldown===0&&enemy.active&&
-    Math.abs(delta)<=210000&&Math.abs(enemy.position.y-p.position.y)<=state.player.halfHeight+enemy.halfHeight+10000&&
+    Math.abs(delta)<=210000&&Math.abs(enemy.position.y-p.position.y)<enemy.halfHeight+3500&&
     p.facing===(delta>=0?1:-1);
 }
 // Tactical v2 is the live policy. Historical v1 is retained for pinned replay
@@ -360,8 +364,15 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
     const verticalReach=state.player.halfHeight+guardian.halfHeight+10000;
     const reach=state.config.attackReach+state.build.attackReachBonus;
     const safeLeft=cap.x+state.player.halfWidth,safeRight=cap.x+cap.width-state.player.halfWidth;
-    if(Math.abs(guardian.position.y-observation.player.position.y)<=verticalReach
-      &&guardian.position.x>=safeLeft-reach&&guardian.position.x<=safeRight+reach){
+    // The source guardian can be fought at a REAL distance after earning
+    // Pulse Shot, not only inside melee reach. The old cap-only condition
+    // made the ranged upgrade impossible to spend during this gate approach.
+    // Keep the original supported melee envelope and add only the actual
+    // centreline projectile lane, without guessing future guardian movement.
+    const meleeLane=Math.abs(guardian.position.y-observation.player.position.y)<=verticalReach
+      &&guardian.position.x>=safeLeft-reach&&guardian.position.x<=safeRight+reach;
+    const pulseLane=tactical&&pulseReady(state,observation,guardian);
+    if(meleeLane||pulseLane){
       const dx=guardian.position.x-observation.player.position.x;
       const facing:TowerAction['move']=dx>=0?1:-1;
       const inReach=Math.abs(dx)<=reach-4000;
@@ -374,7 +385,10 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
       const strikeFacing=move===0?observation.player.facing:move;
       const facingGuardian=!tactical||strikeFacing===facing;
       return{action:action(move,{attack:inReach&&observation.player.attackCooldown===0&&facingGuardian,
-        ability:tactical&&inReach&&facingGuardian&&pulseReady(state,observation,guardian)}),
+        // A safe actual facing must survive the movement safety check before
+        // spending the pulse cooldown. An inward edge correction cannot fire
+        // backward at a guardian beyond the cap.
+        ability:tactical&&facingGuardian&&pulseLane}),
         intent:{mode:'engaging-enemy',summary:inReach?'Fighting the guardian at the gate':
           tactical&&move!==wanted?'Holding safe footing during the guardian duel':'Closing on the guardian at the gate',
           confidence:.96,fallbackUsed:false}};
@@ -403,6 +417,25 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
       targetPlatformId:observation.player.groundedPlatformId}};
   }
   if(detectTowerStuck(observation.recentHeights)){const direction:TowerAction['move']=observation.tick%2===0?1:-1;return{action:action(direction,{jump:observation.player.grounded,dash:!observation.player.grounded&&observation.player.dashCooldown===0}),intent:{mode:'recovering',summary:'Breaking a repeated height cycle',confidence:.82,fallbackUsed:true}}}
+  // Use a genuinely EARNED ranged option during ordinary traversal without
+  // turning ascent into a boss chase. Only one present same-floor opponent in
+  // the real source projectile lane, a ready cooldown, supported safe footing
+  // and the climber's ALREADY correct facing may interrupt ONE 20Hz step.
+  // The next step resumes ordinary traversal; no aim oracle, free projectile,
+  // velocity teleport, targeting another game or old-v1 replay changes.
+  if(tactical&&observation.player.grounded&&observation.player.health>0&&
+    observation.player.groundedPlatformId&&
+    guardedEvasion(state,observation,0)===0){
+    const reach=state.config.attackReach+state.build.attackReachBonus;
+    const distant=observation.enemies.filter(enemy=>enemy.active&&
+      Math.abs(enemy.position.x-observation.player.position.x)>reach&&
+      pulseReady(state,observation,enemy))
+      .sort((a,b)=>Math.abs(a.position.x-observation.player.position.x)-
+        Math.abs(b.position.x-observation.player.position.x)||a.id.localeCompare(b.id))[0];
+    if(distant)return{action:action(0,{ability:true}),intent:{mode:'engaging-enemy',
+      summary:`Firing earned pulse at observed ${distant.kind}`,
+      confidence:.94,fallbackUsed:false}};
+  }
   let target=currentPlatform(observation,state.ai.targetPlatformId);if(observation.player.grounded){target=tactical?nextTowerTacticalPlatform(observation,state.config,observation.player.groundedPlatformId,state.ai.targetPlatformId,state.player.halfWidth,state.player.halfHeight):nextTowerPlatform(observation,state.config,observation.player.groundedPlatformId)}else if(!target)target=nextTowerPlatform(observation,state.config,observation.player.groundedPlatformId);
   if(!target)return{action:action(),intent:{mode:'waiting',summary:'Waiting for a valid route node',confidence:.6,fallbackUsed:false}};
   const center=target.x+target.width/2;if(!observation.player.grounded){const delta=center-observation.player.position.x;
