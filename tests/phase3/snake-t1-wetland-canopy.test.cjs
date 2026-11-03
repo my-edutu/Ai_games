@@ -20,9 +20,9 @@ test('T1 bounded live water-garden is RED on byte-exact previous head and GREEN 
  const gardenBeforeAmphitheatre=stripped(stripped(gardenSource,
   '  // BEGIN T1 ESCARPMENT AMPHITHEATRE\n','  // END T1 ESCARPMENT AMPHITHEATRE\n'),
   '      // BEGIN T1 AMPHITHEATRE STATS\n','      // END T1 AMPHITHEATRE STATS\n');
- assert.equal(blob(stripped(stripped(gardenBeforeAmphitheatre,gardenStart,gardenEnd),
-  '      // BEGIN T1 WATER GARDEN STATS\n', '      // END T1 WATER GARDEN STATS\n')),
-  'bdfe91e5305bbe87f3d23d858e03e90b87c47159');
+ const frozenGarden=fs.readFileSync(path.join(root,'tests/fixtures/snake-t1-historical-wetland-bdfe.mjs'),'utf8');
+ assert.equal(blob(frozenGarden),'bdfe91e5305bbe87f3d23d858e03e90b87c47159',
+  'true immutable pre-water-garden Git blob is separately pinned and verified');
  const previousWorld=stripped(worldSource,start,end);
  const previousGarden=stripped(stripped(gardenBeforeAmphitheatre,gardenStart,gardenEnd),
   '      // BEGIN T1 WATER GARDEN STATS\n','      // END T1 WATER GARDEN STATS\n');

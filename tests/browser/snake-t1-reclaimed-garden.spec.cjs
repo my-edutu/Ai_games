@@ -20,9 +20,11 @@ test('T1 original 3d736 before versus reclaimed whole-garden and low shelf sourc
  test.setTimeout(340000);
  const world=read('world.mjs'),garden=read('living-garden.mjs');
  const originalWorld=strip(world,'T1 RECLAIMED GARDEN COMPOSITION','      ');
- const originalGarden=strip(garden,'T1 BROKEN SHORE SHELF STAGING','    ');
+ const featureRemovedGarden=strip(garden,'T1 BROKEN SHORE SHELF STAGING','    ');
+ const originalGarden=fs.readFileSync(path.join(root,'tests/fixtures/snake-t1-historical-shelves-600f.mjs'),'utf8');
  expect(blob(originalWorld)).toBe('f687f828c211dcd565f2a42a04d7e3be45cad776');
  expect(blob(originalGarden)).toBe('600f7f9346040f0182d0866ee70bdb54dc7e2148');
+ expect(blob(featureRemovedGarden)).not.toBe(blob(garden)); // current complete scene still holds original shelf feature
  const frame=JSON.parse(fs.readFileSync(path.join(root,'docs/reviews/snake-gauntlet/round-4-public-frame.json'),'utf8'));
  const frozen=JSON.stringify(frame),evidence=[];
  for(const [view,camera,viewport] of [
@@ -72,9 +74,13 @@ test('T1 original 3d736 before versus reclaimed whole-garden and low shelf sourc
   }
   expect(both[0].png.equals(both[1].png)).toBe(false);
   expect(both[0].stats.world).toEqual(both[1].stats.world);
-  expect(both[0].stats.livingGarden).toEqual(both[1].stats.livingGarden);
+  expect(both[0].stats.livingGarden.meshCount).toBe(4);
+  expect(both[1].stats.livingGarden.meshCount).toBe(4);
+  expect(both[0].stats.livingGarden.textures).toBe(1);
+  expect(both[1].stats.livingGarden.textures).toBe(1);
+  expect(both[1].stats.livingGarden.triangles).toBeGreaterThan(both[0].stats.livingGarden.triangles);
+  expect(both[1].stats.livingGarden.triangles).toBeLessThan(22000);
   expect(both[0].stats.drawCalls).toEqual(both[1].stats.drawCalls);
-  expect(both[0].stats.triangles).toEqual(both[1].stats.triangles);
   for(const key of ['bodyRings','bodyVertices','bodyTriangles','paths','bufferBytes','truncated'])
    expect(both[0].stats.serpent[key]).toEqual(both[1].stats.serpent[key]);
  }

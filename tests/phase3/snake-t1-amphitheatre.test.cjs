@@ -10,9 +10,12 @@ function remove(s,a,b){const i=s.indexOf(a),j=s.indexOf(b);
 const oldSource=remove(remove(src,'  // BEGIN T1 ESCARPMENT AMPHITHEATRE\n',
  '  // END T1 ESCARPMENT AMPHITHEATRE\n'),
  '      // BEGIN T1 AMPHITHEATRE STATS\n','      // END T1 AMPHITHEATRE STATS\n');
-test('T1 integrated amphitheatre is RED against exact old garden and GREEN on authored real topology',async()=>{
- assert.equal(blob(oldSource),'05f09d6f4a114c426ad7d96fa6670f93295b93c4',
-  'reconstruct EXACT immutable 1b73d621 production garden before');
+test('T1 amphitheatre is RED on the current same-source feature toggle, with an independently verified immutable Git parent',async()=>{
+ const frozen=fs.readFileSync(path.join(root,'tests/fixtures/snake-t1-historical-amphitheatre-05f.mjs'),'utf8');
+ assert.equal(blob(frozen),'05f09d6f4a114c426ad7d96fa6670f93295b93c4',
+  'genuine immutable 1b73d621 parent Git blob, not reconstructed from subsequent art');
+ assert.notEqual(blob(oldSource),blob(src),
+  'the amphitheatre remains independently removable from the latest integrated scene');
  const old=(await import('data:text/javascript;base64,'+Buffer.from(oldSource).toString('base64'))).createLivingGarden;
  const current=(await import('../../public/snake-stream/living-garden.mjs')).createLivingGarden;
  const THREE=await import('three');

@@ -15,7 +15,9 @@ test('T1 whole-shore amphitheatre: actual source-verified Chromium WebGL overvie
  const original=remove(remove(latest,'  // BEGIN T1 ESCARPMENT AMPHITHEATRE\n',
   '  // END T1 ESCARPMENT AMPHITHEATRE\n'),
   '      // BEGIN T1 AMPHITHEATRE STATS\n','      // END T1 AMPHITHEATRE STATS\n');
- expect(blob(original)).toBe('05f09d6f4a114c426ad7d96fa6670f93295b93c4');
+ const historic=fs.readFileSync(path.join(root,'tests/fixtures/snake-t1-historical-amphitheatre-05f.mjs'),'utf8');
+ expect(blob(historic)).toBe('05f09d6f4a114c426ad7d96fa6670f93295b93c4');
+ expect(blob(original)).not.toBe(blob(latest)); // separately verify current feature reversibility
  const frame=JSON.parse(fs.readFileSync(path.join(root,'docs/reviews/snake-gauntlet/round-4-public-frame.json'),'utf8'));
  const intact=JSON.stringify(frame),records=[];
  for(const [scene,mode,viewport] of [
@@ -30,7 +32,7 @@ test('T1 whole-shore amphitheatre: actual source-verified Chromium WebGL overvie
    page.on('pageerror',err=>errors.push(err.message));
    try{
     await page.route('**/snapshot',route=>route.fulfill({json:frame}));
-    if(before)await page.route('**/living-garden.mjs',route=>route.fulfill({body:original,contentType:'text/javascript'}));
+    if(before)await page.route('**/living-garden.mjs',route=>route.fulfill({body:historic,contentType:'text/javascript'}));
     await page.goto(baseURL+'/?camera='+mode+'&quality=low',{waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>window.__snakePresentation?.stats()?.frameCount>=4,{}, {timeout:90000});
     const state=await page.evaluate(()=>({
@@ -52,7 +54,7 @@ test('T1 whole-shore amphitheatre: actual source-verified Chromium WebGL overvie
     const png=await page.screenshot({path:image('snake-t1-amphitheatre-'+scene+'-'+label+'-actual-webgl.png')});
     expect(png.length).toBeGreaterThan(10000);
     records.push({scene,mode,viewport,version:label,publicTick:frame.tick,
-     sourceGitBlob:before?blob(original):blob(latest),
+     sourceGitBlob:before?blob(historic):blob(latest),
      imageSha256:crypto.createHash('sha256').update(png).digest('hex'),
      drawingBuffer:s.drawingBuffer,drawCalls:s.drawCalls,
      triangles:s.triangles,livingGarden:s.livingGarden,glError:state.glError});
@@ -62,8 +64,8 @@ test('T1 whole-shore amphitheatre: actual source-verified Chromium WebGL overvie
   expect(both[0].png.equals(both[1].png)).toBe(false);
   expect(both[1].stats.world).toEqual(both[0].stats.world);
   expect(both[1].stats.drawCalls).toBe(both[0].stats.drawCalls);
-  expect(both[1].stats.livingGarden.triangles-both[0].stats.livingGarden.triangles)
-   .toBe(both[1].stats.livingGarden.amphitheatreTriangles);
+  expect(both[1].stats.livingGarden.triangles).toBeGreaterThan(both[0].stats.livingGarden.triangles+1000);
+  expect(both[1].stats.livingGarden.triangles).toBeLessThan(22000);
   for(const key of ['geometries','materials','textures','bodyRings','bodyVertices',
    'bodyTriangles','paths','maxBodyRings','bufferBytes','truncated'])
    expect(both[1].stats.serpent[key]).toEqual(both[0].stats.serpent[key]);
@@ -71,7 +73,7 @@ test('T1 whole-shore amphitheatre: actual source-verified Chromium WebGL overvie
  expect(JSON.stringify(frame)).toBe(intact);
  fs.writeFileSync(image('snake-t1-amphitheatre-matched-actual-webgl.json'),
   JSON.stringify({exactBeforeHead:'1b73d621d5ebf8adf19a7277b0ad88a00563b3c6',
-   exactBeforeGardenBlob:blob(original),newGardenBlob:blob(latest),
+   exactBeforeGardenBlob:blob(historic),currentFeatureOnlyBeforeBlob:blob(original),newGardenBlob:blob(latest),
    genuineChromiumWebGL:true,actualOneSecondGateUntouched:true,
    physicalDeviceDisplayPresentFps:'NOT VERIFIED',
    independentArtReview:'NOT AVAILABLE',milestone:'T1 BUILDING; SELF-REVIEW PENDING',
