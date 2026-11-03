@@ -12,6 +12,16 @@ export function guardianFramePressure(ndc, aspect) {
     ndc[2] < -1 || ndc[2] > 1 ? 2 : 0);
 }
 
+// A guardian camera repair must not purchase an enemy close-up by moving the
+// real climber outside the phone's tighter 78% action safe area.
+export function actorFramePressure(ndc, aspect) {
+  if (!Array.isArray(ndc) || ndc.length !== 3 || !ndc.every(finite) ||
+    !finite(aspect) || aspect <= 0) return Infinity;
+  return Math.max(0, Math.abs(ndc[0]) / (aspect < .85 ? .78 : .82) - 1,
+    Math.abs(ndc[1]) / .78 - 1,
+    ndc[2] < -1 || ndc[2] > 1 ? 2 : 0);
+}
+
 export function guardianCameraRecoveryBlend(pressure, elapsedSeconds) {
   if (!finite(pressure) || !finite(elapsedSeconds) ||
     pressure <= .02 || elapsedSeconds <= 0) return 0;
@@ -27,12 +37,12 @@ export function acceptGuardianCameraRescue({
 }) {
   const start = guardianFramePressure(guardianBefore, aspect);
   const end = guardianFramePressure(guardianAfter, aspect);
-  const playerStart = guardianFramePressure(actorBefore, aspect);
-  const playerEnd = guardianFramePressure(actorAfter, aspect);
+  const playerStart = actorFramePressure(actorBefore, aspect);
+  const playerEnd = actorFramePressure(actorAfter, aspect);
   // Existing protagonist safety and exterior tower sightlines always win.
   // A cropped hero or blocked world cannot be exchanged for a pretty boss.
-  if (!actorCoreClear || !guardianCoreClear || playerStart > .02 ||
-    playerEnd > .02 || !finite(start) || !finite(end) || start <= .02) return false;
+  if (!actorCoreClear || !guardianCoreClear || playerStart > 0 ||
+    playerEnd > 0 || !finite(start) || !finite(end) || start <= .02) return false;
   // Avoid chase-camera oscillation from insignificant NDC fluctuations:
   // approve only a measurable improvement in the *same actual* guardian.
   return end < start - .025;
