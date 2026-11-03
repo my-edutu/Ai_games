@@ -6604,6 +6604,11 @@ function streetMarketRoute(start,goal){
 }
 function getMarketTourAudit(){
  return marketTour?{active:true,completed:false,trade:marketTour.plan.stall.trade,
+  // Actual swept origin persists across sparse SwiftShader frames; browser
+  // observers must never mistake legitimate walking for a teleport.
+  origin:marketTour.origin.slice(),
+  travelledMeters:Math.round(marketTour.travelledMeters*1000)/1000,
+  lens:marketTour.lens?{...marketTour.lens}:null,
   waypoints:marketTour.path.length,progress:marketTour.index,
   remaining:Math.round((marketTour.path.slice(marketTour.index).reduce(
    (sum,p,i,a)=>sum+Math.hypot(
@@ -6612,6 +6617,9 @@ function getMarketTourAudit(){
   reason:null}:
   {active:false,completed:marketTourCompletion?.completed||false,
    trade:marketTourCompletion?.trade||null,
+   origin:marketTourCompletion?.origin?.slice()||null,
+   travelledMeters:marketTourCompletion?.travelledMeters||0,
+   lens:marketTourCompletion?.lens?{...marketTourCompletion.lens}:null,
    waypoints:marketTourCompletion?.waypoints||0,
    reason:marketTourCompletion?.reason||null};
 }
@@ -6729,7 +6737,8 @@ function nextMarketStall(){
  const plan=planConnectedMarketTour(streetPosition,active);
  if(plan&&plan.route.length&&plan.stall.trade!==active){
   const path=plan.route;
-  marketTour={path,index:0,plan,replans:0};
+  marketTour={path,index:0,plan,replans:0,origin:streetPosition.slice(),
+   travelledMeters:0,lens:null};
   marketTourCompletion=null;
   streetCaption();presentationEpoch++;
   return {started:true,trade:plan.stall.trade,waypoints:path.length,
@@ -6744,6 +6753,28 @@ function nextMarketStall(){
  showToast('No safe market passage to another stall yet');
  return {started:false,reason:marketTourCompletion.reason};
 }
+// G162: physically blocked street-facing camera angles made actual G161
+// mobile film stare at opaque masonry while the journey was correctly routed.
+// Inspect real roof/headroom visibility near each camera step and prefer
+// unobstructed pavement until the authentic stall is close. Observer only.
+function planMarketTourLens(position,heading,desired,remaining){
+ const view=angle=>streetEyeVisibility(position[0],position[1],angle,STREET_EYE).forwardMetres;
+ const requested=view(desired),route=view(heading);
+ let bearing=desired,clear=requested,avoided=false;
+ if(remaining>1.2&&route>requested+.65&&requested<2.1){
+  bearing=heading;clear=route;avoided=true;
+ }
+ if(remaining>1.2&&clear<1.4){
+  for(const offset of [-.32,.32]){
+   const angle=heading+offset,metres=view(angle);
+   if(metres>clear+.5){
+    bearing=angle;clear=metres;avoided=true;
+   }
+  }
+ }
+ return {bearing,forwardMetres:clear,requestedMetres:requested,
+  routeMetres:route,avoidedWall:avoided};
+}
 function advanceMarketTour(dt){
  if(!marketTour||!streetWalk||!marketVisitActive)return;
  const point=marketTour.path[marketTour.index];
@@ -6752,7 +6783,8 @@ function advanceMarketTour(dt){
   marketVisitFocus=done.plan;
   streetYaw=done.plan.yaw;streetTilt=done.plan.tilt;
   marketTourCompletion={completed:true,trade:done.plan.stall.trade,
-   waypoints:done.path.length,reason:null};
+   origin:done.origin.slice(),travelledMeters:Math.round(done.travelledMeters*1000)/1000,
+   lens:done.lens?{...done.lens}:null,waypoints:done.path.length,reason:null};
   marketTour=null;streetCaption();presentationEpoch++;
   return;
  }
@@ -6773,10 +6805,13 @@ function advanceMarketTour(dt){
    streetCaption();return;
   }
   marketTourCompletion={completed:false,trade:marketTour.plan.stall.trade,
+   origin:marketTour.origin.slice(),travelledMeters:Math.round(marketTour.travelledMeters*1000)/1000,
+   lens:marketTour.lens?{...marketTour.lens}:null,
    reason:'A real wall or obstruction now blocks the market path'};
   marketTour=null;streetCaption();return;
  }
  streetPosition=next;streetDistance+=portion;
+ marketTour.travelledMeters+=portion;
  // Follow the physical route without spinning the view toward arbitrary walls.
  const heading=Math.atan2(dx,dz);
  // Sight-line aware pedestrian cinema: smoothly turn toward the genuine
@@ -6787,7 +6822,12 @@ function advanceMarketTour(dt){
  const toStall=Math.atan2(Math.sin(marketTour.plan.yaw-heading),
   Math.cos(marketTour.plan.yaw-heading));
  const desired=heading+toStall*pan;
- const turn=Math.atan2(Math.sin(desired-streetYaw),Math.cos(desired-streetYaw));
+ const lens=planMarketTourLens(next,heading,desired,remaining);
+ marketTour.lens={forwardMetres:lens.forwardMetres,
+  requestedMetres:lens.requestedMetres,routeMetres:lens.routeMetres,
+  avoidedWall:lens.avoidedWall};
+ const turn=Math.atan2(Math.sin(lens.bearing-streetYaw),
+  Math.cos(lens.bearing-streetYaw));
  streetYaw+=turn*Math.min(1,dt*3.5);
  if(distance-portion<.06)marketTour.index++;
 }
