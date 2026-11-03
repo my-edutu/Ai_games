@@ -28,3 +28,12 @@ test('new chapter responds only to public boss truth and remains spectator-only'
  const app=fs.readFileSync('public/ai-dungeon/app.js','utf8');
  assert.match(app,/enrichEnvironment\(world,s\.map,s\.floor,vaultedSites,s\.exit\)/);
 });
+
+test('natural seven-cell cleared Warden arena still has original carved enclosing stone',async()=>{
+ const {planWardenCourt}=await import('data:text/javascript,'+encodeURIComponent(source));
+ const a=Array.from({length:19},()=>Array(19).fill('#'));
+ for(let z=6;z<=12;z++)for(let x=6;x<=12;x++)a[z][x]='.';
+ const court=planWardenCourt(a.map(row=>row.join('')),{x:9,z:9},1);
+ assert.ok(court.tiles.length>0&&court.facades.length>0&&court.facades.length<=14);
+ assert.ok(court.facades.every(face=>Number.isFinite(face.x)&&Number.isFinite(face.z)&&Number.isFinite(face.yaw)));
+});

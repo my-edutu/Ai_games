@@ -45,6 +45,8 @@ for(const device of [
   const initial=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
   expect(initial.dressing.wardenCourt.originalAssets).toBe(true);
   expect(initial.dressing.wardenCourt.processionTiles).toBeGreaterThan(0);
+  // Real naturally opened boss arenas must have carved enclosing wall reliefs.
+  expect(initial.dressing.wardenCourt.reliefs).toBeGreaterThan(0);
   expect(initial.dressing.wardenCourt.collisionChanged).toBe(false);
   expect(initial.dressing.wardenCourt.dynamicLights).toBe(1);
   expect(initial.webgl).toBe(true);
