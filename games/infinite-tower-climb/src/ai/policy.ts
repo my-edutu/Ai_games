@@ -53,21 +53,69 @@ function observedLandingCorridor(state:TowerState,obs:TowerObservation,target:To
   }
   return {landingX:bestX,hazardRoute:bestX!==unclutteredX};
 }
+// Estimate ONLY the climber's deterministic present-state flight envelope
+// against the CURRENT observed deck height. This is not an oracle for future
+// platform motion, hazard phases, an enemy or a landing guarantee. The budget
+// is deliberately optimistic: it grants the highest permitted lateral
+// acceleration at every remaining fixed step. A missed landing can therefore
+// still happen, but a boost is not spent when normal physics can reach it.
+function observedFlightTravel(state:TowerState,obs:TowerObservation,
+  target:TowerObservation['platforms'][number],direction:TowerAction['move']){
+  const p=obs.player,c=state.config;
+  const acceleration=Math.max(1,Math.round(c.moveAcceleration*state.build.airControlPermille/1000));
+  let feet=p.position.y-state.player.halfHeight,vertical=p.velocity.y;
+  let speed=p.velocity.x*direction,travel=0,maxFeet=feet;
+  for(let tick=0;tick<40;tick++){
+    vertical=Math.max(-c.maxFallSpeed,vertical-c.gravity);
+    feet+=vertical;
+    speed=Math.min(c.maxRunSpeed,speed+acceleration);
+    travel+=Math.max(0,speed);
+    maxFeet=Math.max(maxFeet,feet);
+    if(vertical<=0&&feet<=target.y+target.height)break;
+  }
+  return {travel,maxFeet};
+}
 // A boost is a committed source-authentic traversal move, not a teleport.
-// Physics applies a dash in the player's FACING direction on the same step.
-// Force that direction only if the observed safe corridor is truly distant,
-// the climber is still rising, has sufficient real stamina and isn't braking
-// against an opposite velocity. Otherwise ordinary air steering owns the step.
-function observedSafeAirBoost(state:TowerState,obs:TowerObservation,landing:{
+// The older fixed 165k cutoff accidentally prohibited ALL boosts on some
+// source-generated long crossings: the nearest collision-safe deck edge may
+// be closer than its decorative center but still unreachable before descent.
+// Judge actual remaining lateral reach, rather than the midpoint distance.
+// Dash still follows present intended steering and cannot reverse real
+// opposing momentum or burn stamina for a collision-safe imminent landing.
+function observedSafeAirBoost(state:TowerState,obs:TowerObservation,
+  target:TowerObservation['platforms'][number],landing:{
   move:TowerAction['move'];landingX:number}):TowerAction['move']{
   const p=obs.player;
   if(p.velocity.y<=0||p.dashCooldown!==0||p.stamina<state.build.dashCost)return 0;
   const delta=landing.landingX-p.position.x;
   const direction:TowerAction['move']=delta>0?1:delta<0?-1:0;
-  const minimumGap=Math.max(165000,state.config.dashSpeed*2+state.player.halfWidth+10000);
+  const minimumGap=Math.max(60000,state.config.dashSpeed*3+state.player.halfWidth+6000);
   if(direction===0||Math.abs(delta)<=minimumGap||
     p.velocity.x*direction<0||(landing.move!==0&&landing.move!==direction))return 0;
+  const reach=observedFlightTravel(state,obs,target,direction);
+  if(reach.maxFeet<target.y+target.height||
+    Math.abs(delta)<=reach.travel+state.player.halfWidth+4000)return 0;
   return direction;
+}
+// The physics already supports ONE earned mid-air jump after takeoff. Use it
+// only if the visible deck's safe corridor cannot be reached on this descent.
+// This adds no new jump, stamina, route or hidden world knowledge. Historical
+// replay policy stays frozen; charges are consumed by ordinary fixed-step
+// physics, and the pose/audio simply react to real subsequent source motion.
+function observedEarnedAirRecovery(state:TowerState,obs:TowerObservation,
+  target:TowerObservation['platforms'][number],landingX:number){
+  const p=obs.player,c=state.config;
+  if(p.velocity.y>0||p.jumpCharges<=0)return false;
+  const delta=landingX-p.position.x;
+  const direction:TowerAction['move']=delta>0?1:delta<0?-1:0;
+  if(!direction||Math.abs(delta)<=Math.max(60000,c.dashSpeed*3+state.player.halfWidth+6000))
+    return false;
+  const top=target.y+target.height,feet=p.position.y-state.player.halfHeight;
+  // An earned jump cannot recover a deck already above its own maximum rise.
+  const rise=Math.floor(c.jumpImpulse*c.jumpImpulse/(2*c.gravity));
+  if(feet<top-rise+2000)return false;
+  const reach=observedFlightTravel(state,obs,target,direction);
+  return feet<top||Math.abs(delta)>reach.travel+state.player.halfWidth+4000;
 }
 function observedLandingSteering(state:TowerState,obs:TowerObservation,target:TowerObservation['platforms'][number]){
   const p=obs.player;
@@ -265,12 +313,14 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
   if(!target)return{action:action(),intent:{mode:'waiting',summary:'Waiting for a valid route node',confidence:.6,fallbackUsed:false}};
   const center=target.x+target.width/2;if(!observation.player.grounded){const delta=center-observation.player.position.x;
     const landing=tactical?observedLandingSteering(state,observation,target):null;
-    const boost=tactical&&landing?observedSafeAirBoost(state,observation,landing):0;
+    const boost=tactical&&landing?observedSafeAirBoost(state,observation,target,landing):0;
     const dash=tactical?boost!==0:Math.abs(delta)>165000&&observation.player.dashCooldown===0&&observation.player.velocity.y>0;
     const move=boost!==0?boost:(landing?.move??moveSign(delta));
-    const settling=!dash&&!!landing?.settling;
-    return{action:action(move,{dash}),intent:{mode:settling?'settling-landing':'air-control',
-      summary:dash&&tactical?'Boosting toward a distant safe landing':
+    const recovery=tactical&&landing&&!dash?observedEarnedAirRecovery(state,observation,target,landing.landingX):false;
+    const settling=!dash&&!recovery&&!!landing?.settling;
+    return{action:action(move,{dash,jump:recovery}),intent:{mode:settling?'settling-landing':'air-control',
+      summary:recovery?'Using earned air recovery to reach observed landing':
+        dash&&tactical?'Boosting toward a distant safe landing':
         settling?(landing?.hazardRoute?'Braking into a clear landing lane':target.kind==='moving'?'Braking to meet the moving deck':'Braking for a controlled landing'):
         landing?.hazardRoute?'Steering for a clear landing lane':'Steering toward the next landing',
       confidence:.9,fallbackUsed:false,targetPlatformId:target.id}}}
