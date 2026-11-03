@@ -545,6 +545,25 @@ body{color:var(--tk-art-paper)}
  .btn,.tour-btn{min-height:34px}
  .world-tour{scrollbar-width:thin}
 }
+/* World view at 390px: readable in-game text with finger-sized actions.
+   Controls remain horizontally scrollable; full command desk remains a tap away. */
+@media(max-width:520px){
+ body[data-command="world"] .world-tour .tour-btn{
+  font-size:11px!important;min-height:40px;line-height:1.25;padding:7px 9px!important
+ }
+ body[data-command="world"] .bottom .btn{
+  font-size:11px!important;min-height:40px;line-height:1.2;padding:8px 10px!important
+ }
+ body[data-command="world"] #world-ribbon .world-measure small{
+  font-size:9px!important;color:#e4ddc8
+ }
+ body[data-command="world"] #world-ribbon .world-measure strong{
+  font-size:15px!important
+ }
+ body[data-command="world"] #world-open-command{
+  min-height:34px;font-size:10px!important
+ }
+}
 @media(prefers-reduced-motion:reduce){
  .btn,.tour-btn{transition:none!important;transform:none!important}
 }
