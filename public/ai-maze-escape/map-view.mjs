@@ -494,11 +494,33 @@ export function setPublicGateOpeningStageOffset(target, cue, width) {
   const along = cue.a % width === cue.b % width
     && Math.abs(cue.a - cue.b) === width;
   if (!across && !along) return false;
-  // Stay in the existing +X/+Z quadrant to avoid reversing camera continuity.
-  // These offsets stage the *original* moving portcullis, not synthetic action.
-  if (along) target.set(6, 21, 25);
-  else target.set(25, 21, 6);
+  // The original source-bound 1280px Pass108 gate images still hide Pip's
+  // legs behind the near parapet even after the tall garden is lowered.
+  // Raise the ORIGINAL camera above the physical forecourt during a truly
+  // witnessed opening, like a short diorama crane shot. Keep the existing
+  // azimuth quadrant for continuity; no model or obstacle is removed.
+  // Normal Follow, known CLOSED, reduced-motion and hidden gates never use it.
+  if (along) target.set(6, 34, 25);
+  else target.set(25, 34, 6);
   return true;
+}
+
+/**
+ * Frame Pip AND the authentic opening arch rather than pulling toward
+ * unrelated visible stage scenery. The old stage bias put Pip behind the
+ * nearest parapet in the verified Pass108 1280px MID image. This pure
+ * camera-only offset uses only the caller's public gate-to-hero delta.
+ * Invalid numbers fail closed; no private route or hidden cell is inspected.
+ */
+export function composePublicGateOpeningFocus(gateDelta, aspect = 1) {
+  if (!Number.isFinite(gateDelta?.x) || !Number.isFinite(gateDelta?.z)
+    || !Number.isFinite(aspect) || aspect <= 0) return {x:0,z:0};
+  const weight = aspect < .9 ? .25 : .32;
+  const x = gateDelta.x * weight, z = gateDelta.z * weight;
+  const limit = aspect < .9 ? 1.2 : 1.7;
+  const length = Math.hypot(x,z);
+  const scale = length > limit ? limit / length : 1;
+  return {x:x*scale,z:z*scale};
 }
 
 /**
