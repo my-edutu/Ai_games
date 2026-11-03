@@ -1,0 +1,35 @@
+# Infinite Tower Climb — source-original native film and final guardian shot
+_2026-11-03 · SAME open transformation · draft PR #68 · quality **NOT EVALUATED**_
+
+## Real film inspected (not model mockups or test counts)
+
+[Original-host gameplay workflow 41704072954](https://github.com/my-edutu/Ai_games/actions/runs/41704072954) completed **9/9** jobs. The source checkout used the game’s **own unmodified** stream-server script: archived `source-game-host-blob.txt` is `dc559ad7979cefe6c308ec8c60a286b66e75ab46` for the frozen baseline `1731b380851162741761c5569e2bc152a0869ca9`, versus `0e7c6a3fc1abbe2ba31927c060279b2b19ed0351` for filmed candidate `4127f665ed97e6952ea19f41dcfbcbd398975085`. The neutral harness uses identical declared seed `tower-transformation-capture-v1`, low tier, normal-speed source game, no sound, and native 960×600 desktop / 390×844 portrait video. The earlier overwritten-baseline-host artifacts remain disqualified.
+
+The builder **downloaded and inspected** the authentic desktop+portrait WebM film frames, `motion.json`, fixed-tick source summaries, and source-host stamps from the following artifacts; recordings exceed 60 seconds, but these facts **do not** count as independent LOOKS/FEELS/PLAYS votes.
+
+| Scene | Frozen baseline archive | Candidate archive | Observed wall-time desktop / portrait |
+|---|---|---|---|
+| Live danger | [13265059317](https://github.com/my-edutu/Ai_games/actions/runs/41704072954/artifacts/13265059317) | [13265244235](https://github.com/my-edutu/Ai_games/actions/runs/41704072954/artifacts/13265244235) | Baseline 121.538s / 104.739s; candidate 127.261s / 111.600s |
+| Outcome / restart | [13265249157](https://github.com/my-edutu/Ai_games/actions/runs/41704072954/artifacts/13265249157) | [13264269133](https://github.com/my-edutu/Ai_games/actions/runs/41704072954/artifacts/13264269133) | Baseline 175.861s / 137.425s; candidate 127.358s / 100.626s |
+
+The completed workflow also archived original-host ascent and moving-deck runs: [baseline ascent](https://github.com/my-edutu/Ai_games/actions/runs/41704072954/artifacts/13265463534), [candidate ascent](https://github.com/my-edutu/Ai_games/actions/runs/41704072954/artifacts/13265084358), [baseline moving](https://github.com/my-edutu/Ai_games/actions/runs/41704072954/artifacts/13265732759), [candidate moving](https://github.com/my-edutu/Ai_games/actions/runs/41704072954/artifacts/13264803960). Their completion is verified via workflow results; they were **not** all independently watched.
+
+### Hard experience defect in actual candidate
+
+In candidate `4127f665` portrait danger, **3 of 69 sampled** render diagnostics put the actual climber outside the 78%-safe projected action region, despite zero completely offscreen samples. One observed floor-8 dash with a live guardian at HP 7/8 had climber NDC **x = −0.9153**; later floor-12 movement gave x **0.8475** and **0.8125**. The desktop danger also had **1/69** sampled unsafe projections. These diagnostics are projections, not proof of raster visibility or human preference. Importantly, frozen baseline source produces `observedActor: null`, so its reported unsafe count 0 is **not an equivalent metric** and must not be interpreted as a 0/69 comparative victory. Sampled authentic video still shows a tiny or edge-situated fighter during high-stakes action.
+
+Across baseline and candidate, identical elapsed seconds frequently show **different floors, fights and result stages**. The film is source-original and long enough, **but not event-aligned for fair blind A/B**. Candidate source traces do include real result/intermission and multiple genuine run transitions; the visually clear complete outcome → restart sequence was **not independently established from aligned full-motion viewing**.
+
+## Implemented in the SAME real-game experience slice
+
+- [`ecf1d0e8`](https://github.com/my-edutu/Ai_games/commit/ecf1d0e82b5a576a6597f424a413fd27b64d3e5d): the actual mobile **submitted** camera now checks native actor safety **after** any source-real guardian chase correction and physical impact/landing camera offset, instead of measuring only a prior plan. Three bounded exterior orbit/gaze refinements replace two when the current live actor breaches safe view; each step must improve the actual projected actor without looking through the tower core. When a presently visible living guardian shares the shot, protect its real position so reframing the hero cannot discard the opponent.
+- [`e9070852`](https://github.com/my-edutu/Ai_games/commit/e9070852c723890ab36c0cc54376d11c764672b2): the guardian's own rescue policy now treats the actual climber's **78%** native-portrait action margin as a hard veto, rather than accepting a bigger 82% opponent-oriented margin. It cannot win a handsome boss close-up by pushing the hero toward the phone edge.
+- [`01ff4a19`](https://github.com/my-edutu/Ai_games/commit/01ff4a19a5617492807bb579864c5981173f6d59) and [`ebb01b0f`](https://github.com/my-edutu/Ai_games/commit/ebb01b0f878df5a55784b23c1d33e4b98dad09d5) add scoped native-portrait/source-frame regression contracts. Their passing would establish only controlled geometry, **not better game quality**.
+
+No new HUD, fake enemy, fabricated damage, adjusted RNG, physics, authority, reset rule, 3D draw pass, or render-time gameplay mutation. The existing model, scene, fixed 20Hz source, live guardian, route and authentic finale stay in place. Reduced motion, stale transport and overview bypass this mobile response; the camera stays outside the solid cylindrical tower. There is a bounded extra CPU projection/guard cost only on an already unsafe phone shot, still **not measured on real supported hardware**.
+
+## Assessment and next iteration
+
+**TRANSFORMATION QUALITY: NOT EVALUATED.** Frozen baseline `1731b380851162741761c5569e2bc152a0869ca9` unchanged. Latest playable correction `ebb01b0f878df5a55784b23c1d33e4b98dad09d5` did **not** exist in the completed `4127f665` source video; do not imply that old film verifies the new correction. Its exact-head CI workflow was pending at inspection. The independent builder/critic/browser environment returned `NOT_FOUND: Tunnel-client has not been seen for 300 seconds`: LOOKS **0/5**, FEELS **0/5**, PLAYS **0/5** genuine independent blind judgments. Neither hardware p50/p95/p99 frame time nor memory or thermal behavior is measured.
+
+Highest-value next work: recapture current source and inspect actual full-motion final guardian fight, hero screen share, touchdown, and genuine full outcome/restart against event-aligned baseline, including phone; obtain five fresh-context randomized blind judgments and real supported-device performance / accessibility / replay evidence. Technical safety CI is a veto, never a Gauntlet point. PR #68 remains draft; PR #58 unchanged. No merge, deployment, force-push or quality PASS.
