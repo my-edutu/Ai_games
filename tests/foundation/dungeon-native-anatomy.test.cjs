@@ -35,7 +35,9 @@ test('continuous anatomy belongs to the live scene and fails closed without inve
  const text=fs.readFileSync(source,'utf8');
  const adapter=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(text,/obj\.isSkinnedMesh&&isNativeContinuityMesh/);
- assert.match(text,/obj\.material=mat\.nativeSuit/);
+ // Keep configured, embedded GLB textures visible on all five moving limbs.
+ assert.doesNotMatch(text,/obj\.material=mat\.nativeSuit/);
+ assert.match(text,/if\(keep\)\{obj\.userData\.cinematicBodyUnderlay=true;\}/);
  assert.match(text,/obj\.userData\.cinematicBodyUnderlay=true/);
  assert.match(text,/if\(nativeAnatomy\.length<MIN_NATIVE_BODY_PIECES\)/);
  assert.match(adapter,/cinematicNativeBodyUnderlays:/);
