@@ -2151,7 +2151,7 @@
     "title": "From Prototype to Believable 3D Adventure",
     "adoptedOn": "2026-11-01",
     "status": "IN_PROGRESS",
-    "verdict": "NOT_TRANSFORMED",
+    "verdict": "IN PROGRESS — NOT TRANSFORMED",
     "baseline": {
       "sha": "281735d0910c6b2443648af976003d50412ee324",
       "locked": true,
@@ -2297,9 +2297,9 @@
       "nativeContinuityCandidate": "Source commit 08338db is an unverified new 3D underlay candidate, not a demonstrated repair. Real after comparison/critics have not happened. Monitor additional native underbody draw calls and 3D anatomy material intersections."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Make newly reconnected genuine skeletal heroes/enemies readable and attractive across authentic moving combat and boss footage amid dense masonry; prove audible complete traversal→fight→Warden→floor→defeat/restart, matched baseline and independent blind LOOKS/FEELS/PLAYS majorities.",
-    "currentWork": "Original continuous skinned/texture-native 3D characters reinstated throughout live autonomous adventure; oversized floating sculpted overlays retired after negative genuine browser comparison. Exact-code desktop/mobile browser review and candidate audio remain pending.",
-    "candidateCommit": "c66d936c04a73f32d1d3503b1e7b3ad9519890af",
+    "biggestRemainingGap": "Native source figures are physically continuous again but cartoon-like versus the external Diablo IV/No Rest for the Wicked/Path of Exile 2 references, and foreground Gothic masonry still competes with combat. Fresh candidate audiovisual gameplay and blind preference majority are absent.",
+    "currentWork": "One integrated unaccepted M1 combat-stage candidate: original tapered, lancet-ribbed sculpted wall instancing; open broken junction masonry that retains actual solid map truth; and ambient wildlife/motes yielding near real attacking opponents and active Warden warnings. New real desktop/mobile video and original audio, p95/p99, blind judging UNVERIFIED.",
+    "candidateCommit": "e2496d6b7d9ca0597376d0b9d9c1be473a38d5c3",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -4170,6 +4170,45 @@
         "performance": "UNVERIFIED; removal of cosmetic draw load anticipated but not measured",
         "verdict": "IN_PROGRESS — NOT_TRANSFORMED",
         "next": "Inspect new run authentic raw-world desktop/mobile and boss moving footage, reject if source anatomy still unreadable, refine camera/near-wall architecture and impact, record original game audio and full five-stage narrative, score blind matched A/B by 3 independent judges."
+      },
+      {
+        "id": "M1-SCULPTED-COMBAT-VISTA-20261104",
+        "date": "2026-11-04",
+        "milestone": "M1",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "347702eb36f5537ec103a2f2f21ab84cc9a482e1",
+        "codeCommit": "e2496d6b7d9ca0597376d0b9d9c1be473a38d5c3",
+        "objective": "Give true live skinned protagonists and foes visibly readable Gothic fighting space, not more disconnected costume boxes or visual noise.",
+        "baselineImageVideo": "https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
+        "observedPredecessor": "https://github.com/my-edutu/Ai_games/actions/runs/41737414451/artifacts/13279204594",
+        "observedPredecessorVerdict": "Authentic exact 347702e 1440×832 Chromium desktop/world-only and mobile captures inspected. Licensed source rigs are now visually continuous vs rejected detached models, but still toy-like and partially surrounded by cramped 3D brown masonry, stockade bands and floating magic motes. Baseline not synchronized to candidate simulation tick; no before/after preference win.",
+        "integratedImplementation": "In one physical scenery pass the existing closed instanced wall sculpture gains four raised original Gothic lancet ribs and a stronger battered taper. Real 2+ exposed wall junctions become 0.78–1.02m broken galleries, down from 1.18–1.36m; one-face standing piers and remote backing masonry remain taller. Instanced ambient biome particles and moving fantasy wildlife share one deterministic cosmetic quiet-zone plan that prioritizes actual legal recent attacks and actual near-term Warden warning, not generic effect density. Original source rigs, all world-solid coordinates, collision, movement, combat authority, AI, RNG, saves and deterministic replay are unchanged.",
+        "sourceFiles": [
+          "public/ai-dungeon/fractured-wall-plan.js",
+          "public/ai-dungeon/wall-profile-plan.js",
+          "public/ai-dungeon/ambient-focus-plan.js",
+          "public/ai-dungeon/living-world.js",
+          "public/ai-dungeon/biome-atmosphere.js",
+          "public/ai-dungeon/app.js",
+          "scripts/serve-dungeon-stream.cjs",
+          "package.json",
+          "tests/foundation/dungeon-m1-architectural-silhouette.test.cjs",
+          "tests/foundation/dungeon-m1-combat-atmosphere.test.cjs",
+          "tests/foundation/dungeon-sculpted-wall.test.cjs",
+          "tests/foundation/dungeon-wall-profiles.test.cjs"
+        ],
+        "localSafety": "Local unpacked authentic exact-head source + patch: npm run dungeon:test PASS 267/267, build PASS, focused new red->green 6/6. This is engineering safety ONLY.",
+        "realCandidateImages": "UNVERIFIED; fresh Actions capture at code SHA not yet inspected",
+        "mobile": "UNVERIFIED; code not yet filmed on mobile",
+        "audio": "UNVERIFIED; predecessor and baseline video-only VP8, no original audio track",
+        "performance": "UNVERIFIED. Same one instanced GPU wall draw; one sculpted source mesh grows from 62 to 110 vertices and total triangles remain bounded. Existing ambient instance count preserved, no new shader pass. Actual mobile p95/p99 unavailable.",
+        "independentCritics": "0/3; no fresh-context independent blind judgments available",
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "biggestGap": "Cartoon character geometry, cramped chapel clutter and weak combat impact persist. New architectural lowerings may falsely imply traversable walls and lancet ribs might float; these are candidate risks requiring genuine footage and correction.",
+        "next": "Inspect exact-code real desktop/mobile moving Warden and party; fix silhouette/staging, real wall floor-truth, original contact motion and audio; capture five-stage expedition same-seed versus locked BEFORE, measure render tails, obtain >=3 blind judge majorities. No merge."
       }
     ]
   }
