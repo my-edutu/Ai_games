@@ -2196,13 +2196,13 @@
       },
       "safetyChecks": "Real preceding d9e1c head: Dungeon authority PASS, 2/3 browser shards PASS, other browser shard 25/26 with actual 300 character mesh objects >240 cap (workflow 41651252455), visual review PASS (41651252373). Catalogue CI failed unrelated Tiny Kingdom version-source browser checks (41651252343). At new a7afb06 / 7f8447a head, GPU rendering, replay, screenshots, performance and CI remain PENDING / UNVERIFIED. No false green gate.",
       "matchedExternalReference": "NOT_RUN",
-      "originalAudioMotionClip": "UNVERIFIED",
+      "originalAudioMotionClip": "UNVERIFIED: actual opt-in Warden scene MediaRecorder returned ZERO bytes desktop+mobile despite 24 live boss polls desktop and 59 live polls mobile; silent Playwright test-results videos only. Original audible soundtrack not captured.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
-      "audioLoudnessAndClipping": "NOT_MEASURED",
+      "audioLoudnessAndClipping": "NOT_MEASURED (no valid original audio stream/bytes)",
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
-      "actualWebglFramingRegression": "READ genuine locked SHA 281735d screenshot artifact 13081734898 (run 41302939553) and genuine previous source da492455 1440x832 WebGL screenshot 13246947809 (run 41665354929); also previously recorded natural true-contact and desktop/mobile last-stand clips from shard artifact 13246398281. Predecessor snapshot 9 native replacement characters, 172 meshes/54 paired groups, 105168 triangles, 3 visible party heroes, minimum size 210 pixels, live Warden visible in authority but outside this particular camera frame. Incumbent appearance remains black-helmet and disconnected armor. THESE ARE NOT MATCHED BEFORE/AFTER scenarios; no win claimed.",
-      "latestCandidateWorkflow": "Original previous b8be04f workflow 41672587022 had Dungeon authority success, browser 3 shards still running at initial review; visual workflow 41672587065 PASSED. New 3b29f chapter source exact-head runs had not appeared in first GitHub workflow-status lookup. No source-level test count or browser pass claimed for chapter code.",
+      "actualWebglFramingRegression": "Real-source b8be04f 1440x832 browser screenshot from 41672587065 and Warden boss desktop/mobile screenshot/video artifacts 41672587022 were INSPECTED: new 14 anatomical joint cylinders made elongated opaque spindly/squid-like limbs. Warden encounter head-on 1440x832 has 3 heroes overlapping enemy bodies in the 58% HP boss arena, warning Rift Cross visible but contact indistinguishable; mobile capture progressed into floor 2 but large stylized ballheads persist. This is a NEGATIVE experiential finding compared with da492455 and exact locked baseline; source visual redesign at 71da2ea to cap spans remains unverified. No masked A/B victory.",
+      "latestCandidateWorkflow": "Latest correction source 71da2ea38b96f7ec3cb6b768339729cf571f261c queued dedicated workflow https://github.com/my-edutu/Ai_games/actions/runs/41676873843 and new live visual https://github.com/my-edutu/Ai_games/actions/runs/41676873814. Previous exact b8be04f authority+browser PASS in https://github.com/my-edutu/Ai_games/actions/runs/41672587022; genuine visual PASS https://github.com/my-edutu/Ai_games/actions/runs/41672587065. These previous-head successes do NOT verify new corrected body rendering. Previous 14-seam animation screenshot was in fact worse; never mark transformed.",
       "currentPredecessorWebgl": {
         "sourceHead": "da4924553083db367c000a920f7f641948a523f0",
         "candidateCapture": "https://github.com/my-edutu/Ai_games/actions/runs/41665354929/artifacts/13246947809",
@@ -2221,19 +2221,61 @@
         },
         "critique": "Genuine incumbent look: spherical black head and apparently detached forearms, same-looking brick corridor; external reference quality not met. No matched seed or blind critic vote."
       },
-      "newCandidateSceneReview": "Exact new code candidate 3b29f6971356255d0142c95530c9fe7a7a0bb181 adds four-batch native chapter naves; committed browser desktop/mobile screenshot tests but no completed verified new-code capture or independently inspected clips at handoff. Previous captured stills are prior-code NOT matched A/B.",
-      "characterDrawBudget": "Observed predecessor da492455 through genuine Chromium 9 source-hidden cinematics, 172 mesh objects, 54 paired batches, 105168 triangles. New source adds one instanced anatomical underbody draw/figure; EXPECTED prior 9 actors would total 181 mesh objects, but this is an estimate from source, not measured. Browser must measure live exact-head and guarantee <=240 bound, no pathological long sleeves/geometry protrusions, real frame rate/memory.",
+      "newCandidateSceneReview": "New corrected code 71da2ea no desktop/mobile visuals yet. Critical predecessor real browser snapshot from b8be04f: long native-bone bridge poles and unreadable overlapping figures. Clip recording in true 4sec seeded Warden Court did NOT record: both video outputs 0 bytes. Do not claim original sound or motion recorded. New source artifacts pending.",
+      "characterDrawBudget": "Genuine b8be04f Warden Court desktop WebGL drawCalls 625, triangles 132658; mobile screenshot drawCalls 668, triangles 143516; game viewed through software Chromium, no real device GPU p95 or stable fps. Real world-only figure 9 with 172 prior meshes; after 14-bridge variant visually regressed. Corrective 71da2ea uses same number of instanced draws but hides too-long segments, performance at exact corrected head not yet measured.",
       "externalReferenceAudit": "Nonblind operator qualitative look at publicly available Diablo IV dungeon art and official gameplay world descriptions (https://diablo4.blizzard.com/en-gb/vessel-of-hatred), No Rest for the Wicked official world/Crucible updates (https://norestforthewicked.com/news/the-wicked-inside-showcase), Path of Exile 2 official class/combat/boss information (https://pathofexile2.com/). Readability, deep material variation, bespoke environments, heavy readable contact and challenge pacing remain far ahead of current proven Dungeon footage. Direct synchronized matched gameplay comparison NOT RUN; proprietary assets never copied.",
       "realBrowserFrameDeliveryPredecessor": "Actual d9e1c Chromium software WebGL shard 2 artifact 13238978845, artifacts/dungeon-raf-interval-evidence.json: foreground RAF intervals 15 samples, p50 733.3ms, p95 and worst 4549.9ms; other raster evidence sampled 8 frames, directRenderMs 3.9ms at 273136 pixels and downshift 2. Foreground RAF observations cannot establish standalone GPU render time or phone fps. Known scheduling / software runner risk, latest candidate performance UNVERIFIED.",
       "latestCourtChapter": "Original stage source from commit 48e74d053076b4cdec75740fd83ac7dd13c5e241 installed on same draft PR. Authentic browser render/real sound/critics/complete journey NOT YET VERIFIED.",
       "newChapterSourceCommit": "3b29f6971356255d0142c95530c9fe7a7a0bb181",
-      "chapterBrowser": "PENDING / UNVERIFIED; new desktop and mobile original physical chamber screenshots have been authored as Playwright artifacts. Do not claim actual capture until workflow succeeds and artifacts inspected."
+      "chapterBrowser": "PENDING / UNVERIFIED; new desktop and mobile original physical chamber screenshots have been authored as Playwright artifacts. Do not claim actual capture until workflow succeeds and artifacts inspected.",
+      "realWardenCourtCapture": {
+        "sourceSha": "b8be04f417302a87c9bcb4696a8483497170a104",
+        "originalSeed": "visual-room-art-18",
+        "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41672587022/artifacts/13250093060",
+        "desktop": {
+          "width": 1440,
+          "height": 832,
+          "initialFloor": 1,
+          "authorityPolls": 24,
+          "bossHPVisiblePercent": 58,
+          "liveBossWarnings": true,
+          "drawCalls": 625,
+          "triangles": 132658,
+          "audioOptIn": true,
+          "mediaRecorder": {
+            "capture": "UNAVAILABLE",
+            "bytes": 0
+          }
+        },
+        "mobile": {
+          "width": 390,
+          "height": 844,
+          "initialFloor": 1,
+          "authorityPolls": 59,
+          "observedNextFloor": 2,
+          "drawCalls": 668,
+          "triangles": 143516,
+          "audioOptIn": true,
+          "mediaRecorder": {
+            "capture": "UNAVAILABLE",
+            "bytes": 0
+          }
+        },
+        "limitations": "Seed starts after 38 genuine simulation ticks to near Warden; not continuous natural entire campaign. Mobile progressed to next floor, not a matched same-frame desktop/mobile comparison; original sound unavailable. Negative body-geometry critique, not proof of improvement."
+      },
+      "characterBridgeCritique": {
+        "verdict": "REJECTED_IN_REAL_BROWSER",
+        "sourceHead": "b8be04f417302a87c9bcb4696a8483497170a104",
+        "finding": "Full native 14 bone connectors physically rendered as giant dark opaque tubes/tentacles. Source regression despite passing CI; 71da2ea caps valid cloth joins <=.28m on 1.82m hero and suppresses overlong segment poses. Exact corrected footage pending.",
+        "screenshot": "https://github.com/my-edutu/Ai_games/actions/runs/41672587065/artifacts/13249651215",
+        "correctiveHead": "71da2ea38b96f7ec3cb6b768339729cf571f261c"
+      }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Even with the original room chapters, recent authentic browser scenes remain toy-like dark figures among highly repetitive square masonry, far from Diablo IV/No Rest for the Wicked/Path of Exile 2. Need genuine candidate desktop/mobile interactive motion clips inspecting body art and actual boss strike, full continuous traversal→combat→boss→floor transition→defeat/restart audiovisual clips, locked-seed browser-captured BEFORE/AFTER and >=3 independent blind critic majorities in Looks, Feels, Plays. Performance and security safety gates also unverified.",
-    "currentWork": "Candidate 3b29f697: 3 real connected nine-cell open-room 3D Gothic naves at most per floor, actual wall-facade stone lancet apertures and low carved rosette pavement, integrated into real autonomous traversal, Warden warning physical emissive intensity and camera/party cutaways. All 3D art is original and constrained to four instanced GPU batches. Actual live browser rendering, sound, scene clips, hardware performance and independent BEFORE/AFTER verdicts not yet reviewed, hence IN PROGRESS and NOT TRANSFORMED.",
-    "candidateCommit": "3b29f6971356255d0142c95530c9fe7a7a0bb181",
-    "candidateArtifactUrl": "",
+    "biggestRemainingGap": "The actual playable game in new b8be04f browser shows primitive dark rounded, overlapping heroes, broken giant hose/tentacle anatomy, repetitive tall masonry and distant overhead boss action. Corrective 71da2ea suppresses oversize native joins, but full new-Code real Chromium images/performance UNVERIFIED. Need coherent expressive hero/enemy silhouettes, true-contact animation, boss tactics, readable physically distinctive rooms; 1440/390 actual motion/audio clips from organic traversal→contact→boss→floor→last-stand/restart, fixed seed/camera locked 281735d BEFORE/AFTER and 3 unbiased blind judges. Original audio MediaRecorder yielded zero bytes on both devices.",
+    "currentWork": "Actual exact-source Chromium at b8be04f uncovered serious visible regression: full-length dark cylindrical native-body connectors resemble giant spaghetti arms, worsening already toy-like heroes and unreadable crowded Warden brawls. Rather than claiming an A/B win, corrective 71da2ea now strictly clips original 3D underarmor joins to <=0.28m authentic human anatomy segments (scale-adjusted for living Warden), with bounded narrow cloth radius and explicit count of rejected long bones. Existing true Warden-Court 2-device run reached real Rift Cross combat and floor transition; original WebM capture produced ZERO BYTES for both despite opt-in sound. Concurrent original nave stage work retained. Safety source checks need exact corrective SHA, not assumed green.",
+    "candidateCommit": "71da2ea38b96f7ec3cb6b768339729cf571f261c",
+    "candidateArtifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41672587022/artifacts/13250093060",
     "acceptedAt": null,
     "implementationEvents": [
       {
@@ -3854,6 +3896,30 @@
         "integrated": "Plans strictly from real 3x3 walkable chambers and existing solid-wall face, up to three rooms with 16 original carved rose petals per room and 8 Gothic lancet/buttress facades; only four instanced GPU draws; real boss attack warning and phase colorless timing drives quiet material energy, camera sightlines cut away nearby foreground, reduced motion never animates them, no collision/damage/AI/save/RNG/replay effects.",
         "evidence": "Committed implementation and actual desktop/mobile Chromium screenshot test; at this receipt NO exact new-head test success, captures, natural full-adventure reel, audio playback assessment, GPU percentile or blind critic opinion available.",
         "next": "Inspect authentic code-head chapter screenshots, diagnostic counts, Warden WebM/audio receipts and performance; fix any geometry/occlusion issues, then complete natural adventure and matched immutable-baseline blind evaluation."
+      },
+      {
+        "id": "M1-REAL-BROWSER-NEGATIVE-CRITIC-20261103",
+        "date": "2026-11-03",
+        "status": "REGRESSION_REJECTED_AND_CORRECTION_IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "b8be04f417302a87c9bcb4696a8483497170a104",
+        "correctiveCodeCommit": "71da2ea38b96f7ec3cb6b768339729cf571f261c",
+        "objective": "Acknowledge the previous integrated native-bone armor as physically grotesque in genuine browser screenshot, not as a win. Correct source so only short real skeletal cloth seams can render; preserve independent current original nave work and start visible screenshot verification.",
+        "realWorldReview": "True new-source world-only 1440x832 and true 390 mobile from 41672587065 reveal 14-link body tubes like giant arm tentacles; boss desktop 41672587022 is a confusing overlapping cluster. Production reference bars not met.",
+        "functionalReceipts": "Previous code b8be04f true dedicated browser/authority CI PASSED (41672587022) and visual review PASSED (41672587065). Warden Court seeded 24 desktop authority polls, mobile 59 polls observed floor advancement; WebM MediaRecorder ZERO bytes both, so no audio/motion acceptance. No new corrective 71da2ea exact-head source tests/captures yet.",
+        "code": [
+          "public/ai-dungeon/cinematic-figure.js",
+          "public/ai-dungeon/model-assets.js",
+          "tests/foundation/dungeon-m1-continuous-body.test.cjs",
+          "tests/browser/dungeon-cinematic-figure.spec.cjs"
+        ],
+        "action": "Native-bone seam max .28m scaled Warden, <.053 radius, report suppressed long links, animate only true bones and hide implausible geometry. Original linked mega-poles suppressed source only; real image UNVERIFIED.",
+        "pillars": {
+          "looks": "UNVERIFIED",
+          "feels": "UNVERIFIED",
+          "plays": "UNVERIFIED"
+        },
+        "next": "Inspect new exact-71da2ea desktop/mobile true WebGL and Warden action, reject/rework architecture if still tube-like. Repair original real multimedia capture: zero-byte MediaRecorder on both viewports; prefer proven original audio recording and video playback, not faked tracks. Then capture full natural continuous adventure and match fixed baseline, get 3 blind fresh critics, measure hardware and accessibility."
       }
     ]
   }
