@@ -574,10 +574,19 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // Authentic native Pass45 had Thornback's center in frame but clipped
       // the right-hand shell/legs. Only an actually disclosed portrait Detail
       // encounter gets a wider pair shot; solo/other cameras retain scale.
+      // Pass114: the ORIGINAL native 1280 opening frame puts a clear but
+      // undersized Pip against a great deal of relatively idle upper masonry.
+      // Give the *actually witnessed* public opening an optical close stage
+      // on landscape only. Do not enlarge the actor mesh, move the simulation,
+      // crop the physical gate or borrow this framing for portrait guardians,
+      // closed doors, unauthenticated openings, overview or Detail.
+      // Native WebGL silhouette and HUD/occlusion acceptance remain mandatory.
+      const gateStoryCloseup = !!openingGateBeat && aspect >= 1.1;
       targetHeight = cameraMode === 'detail'
         ? publicDetailEncounterHalfHeight(aspect, closestThreat?.strength)
         : height < 340 ? 5.4
-        : cameraGate ? ((keyLockCloseup || openingKeyedBeat) ? (aspect < .9 ? 4.70 : 4.55) : (aspect < .9 ? 5.42 : 5.05))
+        : cameraGate ? (gateStoryCloseup ? 3.92
+          : ((keyLockCloseup || openingKeyedBeat) ? (aspect < .9 ? 4.70 : 4.55) : (aspect < .9 ? 5.42 : 5.05)))
         : aspect < .9 ? 6.2 : nearObservedGoal ? 6.25 : 7.3;
       // A live full-viewport portrait is narrower in WORLD units than the
       // old in-page canvas. Preserve the already-disclosed pair/terrain span
