@@ -583,6 +583,69 @@ async function marketVisitMotion(browser,html,snapshot,label){
   fs.renameSync(await video.path(),path.join(DIR,label+'.webm'));
  }
 }
+// G155 supplementary unedited actual browser footage: the player activates
+// a physically routed market circuit at 390px while the real society continues.
+// A stopped path is reported truthfully; this is not a matched baseline feature.
+async function marketCircuitMotion(browser,html,snapshot){
+ const label='candidate-market-guided-circuit-mobile';
+ const {context,page,contextInfo}=await openScene(browser,html,label,true,true);
+ const video=page.video();
+ try{
+  await page.evaluate(state=>{
+   const g=window.__tinyKingdom;g.restoreSnapshot(state);
+   g.setCommandView('world');
+  },snapshot);
+  await page.locator('#market-visit').focus();
+  await page.keyboard.press('Enter');
+  const initial=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   return {market:g.getMarketVisitAudit(),position:g.getStreetWalkState().position,
+    authority:g.exportSnapshot(),frames:g.renderQuality().framesDrawn};
+  });
+  assert(initial.market.active&&initial.market.safe,
+   'G155 could not enter a safe real starting stall');
+  await page.locator('#street-meet-worker').focus();
+  await page.keyboard.press('Enter');
+  const started=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   return {tour:g.getMarketTourAudit(),position:g.getStreetWalkState().position};
+  });
+  if(started.tour.active){
+   assert.deepEqual(started.position,initial.position,
+    'G155 route activation teleported the visitor');
+  }
+  const wallStart=Date.now();
+  await page.waitForTimeout(started.tour.active?18000:2800);
+  const end=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   return {tour:g.getMarketTourAudit(),market:g.getMarketVisitAudit(),
+    walk:g.getStreetWalkState(),authority:g.exportSnapshot(),
+    frames:g.renderQuality().framesDrawn,
+    width:document.documentElement.scrollWidth,
+    gl:document.querySelector('#world').getContext('webgl')?.getError()??-1};
+  });
+  assert.equal(end.gl,0,'G155 market circuit GL error');
+  assert(end.width<=390,'G155 market circuit horizontal overflow');
+  const metres=Math.hypot(end.walk.position[0]-initial.position[0],
+   end.walk.position[1]-initial.position[1]);
+  if(started.tour.active)assert(metres>.25,
+   'G155 guided route did not produce visible physical pedestrian travel');
+  return {renderer:contextInfo.quality.renderer,started:started.tour.active,
+   endTour:end.tour,initialStall:initial.market.stall?.trade,
+   endStall:end.market.stall?.trade,metresFromStart:metres,
+   realWorldClockMoved:end.authority.payload.state.t>initial.authority.payload.state.t,
+   realWorldChecksums:{start:initial.authority.checksum,end:end.authority.checksum},
+   seconds:(Date.now()-wallStart)/1000,
+   softwareFrames:end.frames-initial.frames,mobileWidth:end.width,
+   videoFile:label+'.webm',matchedPair:false,unedited:true,
+   realKeyboardAction:true,realStreetCollision:true,
+   independentVerdict:'NOT PROVEN',physicalGPUFps:false};
+ }finally{
+  await context.close();
+  fs.renameSync(await video.path(),path.join(DIR,label+'.webm'));
+ }
+}
+
 async function homecomingMotion(browser,html,snapshot){
  const label='candidate-homecoming-mobile';
  const {context,page,contextInfo}=await openScene(browser,html,label,true,true);
@@ -785,6 +848,8 @@ async function streetMotion(browser,html,snapshot){
     c.day120Snapshot,'candidate-market-visit-day120-mobile');
    evidence.videos.g150NightMarketVisitor=await marketVisitMotion(browser,candidate,
     c.homecomingSnapshot,'candidate-market-visit-night-mobile');
+   evidence.videos.g155RealMarketCircuit=await marketCircuitMotion(browser,candidate,
+    c.day120Snapshot);
   // Real, continuous gameplay from a reproducible physical delivery state,
   // without faking agents, fast-forwarding within footage, or matching an
   // unavailable G088 delivery mechanic.
