@@ -79,6 +79,9 @@ test('low-ruin cinematic stonework keeps relief attached and Gothic panes suppor
   assert.ok(Math.abs(crown.y-face[4])<.1,'coping sits directly on its real shortened wall');
  }
  const architecture=fs.readFileSync(path.join(root,'public/ai-dungeon/architecture.js'),'utf8');
- assert.match(architecture,/face\[4\]>=1\.65/,'windows may hang only on genuine tall load-bearing piers');
+ assert.match(architecture,/face\[4\]>=1\.16/,'windows may rise from actual low walls only with the joined new buttress');
+ assert.match(architecture,/const buttressFoot=new THREE\.BoxGeometry\(\.22,\.64,\.30\)/,'the original foundation must be a narrow physical vertical support');
+ assert.match(architecture,/add\(buttressFoot,stone,side\*\.45,\.48,\.015\)/,'every selected window must connect its upper stone pier to the real low facade');
+ assert.match(architecture,/selected\.some\(p=>Math\.hypot/,'separate authentic architectural landmarks rather than a continuous opaque window wall');
  assert.match(architecture,/count<6/,'unique architectural window meshes remain strictly bounded');
 });

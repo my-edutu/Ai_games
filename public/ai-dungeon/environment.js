@@ -387,9 +387,9 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[]){
  // it, and defeat dims it. No synthetic boss cue, map edit, or new AI event.
  let encounterLight=0;
  const accept=s=>{
-  encounterLight=s?.phase==='intermission'?-.24:
-   Array.isArray(s?.bossWarning?.cells)&&s.bossWarning.cells.length?.34:
-   s?.bossRecovery?.remaining?-.12:0;
+  encounterLight=s?.phase==='intermission'?-0.24:
+   (Array.isArray(s?.bossWarning?.cells)&&s.bossWarning.cells.length>0)?0.34:
+   s?.bossRecovery?.remaining?-0.12:0;
   sceneMetrics.encounterTorchMood=encounterLight;
   for(const p of flames)if(p.light)p.light.intensity=2.1*(1+encounterLight);
  };
