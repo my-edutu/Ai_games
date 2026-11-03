@@ -48,6 +48,12 @@ jobs:
         run: |
           npm run build
           npx playwright test tests/browser/tiny-kingdom-g150-market-visit.spec.cjs tests/browser/tiny-kingdom-g151-market-composition.spec.cjs tests/browser/tiny-kingdom-g152-market-legibility.spec.cjs tests/browser/tiny-kingdom-g153-house-geometry-cache.spec.cjs tests/browser/tiny-kingdom-g154-night-market.spec.cjs tests/browser/tiny-kingdom-g155-market-circuit.spec.cjs --workers=1
+      - name: G163 real Day-120 articulated citizen population at 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          npx playwright test tests/browser/tiny-kingdom-g163-lived-population.spec.cjs --workers=1
       - name: Focused Tiny Kingdom render, autonomy and live-workday contracts
         env:
           CI: '1'
