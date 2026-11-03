@@ -139,15 +139,32 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
       // Analytic, deterministic and burned into the SAME 1024x512 map.
       const riverWeather = canopyShade*(.35+.65*watershed)
         *(.5+.5*Math.sin(gx*.35+1.3*Math.sin(gz*.33)-gz*.12));
+      // Connected mineral benches between the three REAL interstitial fern
+      // courses: a deliberately large warm/cool composition, not a decal,
+      // regular painted path or decorative fake objective. Broad limestone
+      // banks break the sea of uniformly green tiles while the thickest
+      // original undergrowth retains deep forest colour. Undulating stratum
+      // edges share the already authored wetland lattice and cracked stone.
+      // This is baked once into the SAME one owned stone atlas: no extra GL
+      // samples, map, mesh, draw pass, gameplay obstacle or per-tick allocation.
+      const strataWarp = (mineral-.5)*.11 + (watershed-.5)*.10
+        + Math.sin(gx*.28 + Math.sin(gz*.25)*1.6)*.035;
+      const limestoneBench = smooth(.095,.31,groveDistance+strataWarp)
+        * (1-smooth(.40,.55,groveDistance+strataWarp));
+      const sunBroken=(.55+.45*mineral)*(.81+.19*Math.sin(gx*.48-gz*.34));
+      const mineralBench=limestoneBench*sunBroken*(.82+.18*(1-canopyShade));
+      const darkBank=(1-limestoneBench)*evergreen*.25;
       const targetR = 204 + 16 * openStone + silt * .68
         - canopyShade * 153 - rooted * 25 + loamStrata*24 - slateStrata*7
-        - mineralLace * 7 - riverWeather * 13;
+        - mineralLace * 7 - riverWeather * 13 + mineralBench*77 - darkBank*9;
       const targetG = 184 + 11 * openStone + silt * .42
         - canopyShade * 57 - rooted * 12 - loamStrata*8
-        + slateStrata*4 + mineralLace * 3 + riverWeather * 5;
+        + slateStrata*4 + mineralLace * 3 + riverWeather * 5
+        + mineralBench*57 - darkBank*13;
       const targetB = 155 + 8 * openStone + silt * .47
         - canopyShade * 105 - rooted * 23 - loamStrata*12
-        + slateStrata*5 - mineralLace * 8 + riverWeather * 6;
+        + slateStrata*5 - mineralLace * 8 + riverWeather * 6
+        + mineralBench*38 - darkBank*12;
       // Retain directional raking-light/mortar contrast from ORIGINAL pixels.
       // Lift only the muddy compression range, without bleaching real ruin
       // greenery or painting over portal/fruit/hazard geometry.

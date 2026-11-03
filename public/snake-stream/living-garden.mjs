@@ -138,7 +138,14 @@ export function createLivingGarden(THREE, {width,height}) {
     canopyTrees:0,canopyLeaflets:0,arcadeArches:0,arcadeStones:0,hangingVines:0};
   const bankPoint=(s,t,v)=>{
     const warp=(Math.sin(t*.29+v*2.1)*.37+Math.sin(t*.65-1.3)*.13)*v;
-    const outer=s.near+(s.far-s.near)*v+warp;
+    // One flowing geological contour links all four real coasts: the same
+    // shoreline that owns ruins, old-growth roots, plants and tide pools.
+    // The warp vanishes at both v boundaries and never enters playable cells.
+    const shoreSide=Math.sign(s.far-s.near);
+    const winding=Math.sin(t*.18+s.start*.11+v*.73)*.74
+      +Math.sin(t*.47-s.end*.07-v*.31)*.34;
+    const coastalBend=shoreSide*winding*Math.pow(Math.sin(Math.PI*v),1.25);
+    const outer=s.near+(s.far-s.near)*v+warp+coastalBend;
     const x=s.axis==='x'?t:outer,z=s.axis==='x'?outer:t;
     const relief=.08*Math.sin(t*.38+v*3.6)+.13*(smooth(t*.23+12,v*2+21)-.5);
     // Wide turf banks fall into darker rock shelves, rather than identical
@@ -160,8 +167,17 @@ export function createLivingGarden(THREE, {width,height}) {
     // outboard, away from all fixed public board coordinates and fruit/portal
     // markers. The original smooth bank and cove lift remain underneath.
     const tidalValley=shoreValleyRelief(s,t,v);
+    // Continuous terraced rainforest height, not eight isolated spoil heaps.
+    // The camera-facing beach stays low and open; the three other banks form
+    // genuine layered silhouettes while preserving the original water edge.
+    // Existing native vertices, water lilies, ruins, roots and canopies all
+    // inherit the SAME coordinate and height; no extra GPU work or game cell.
+    const front=s.axis==='x'&&s.near>0;
+    const terraceWidth=Math.pow(Math.sin(Math.PI*v),1.18);
+    const swell=.79+.21*Math.sin(t*.19+s.near*.11+v*.8);
+    const uplift=(front?.42:s.axis==='x'?2.58:2.34)*terraceWidth*swell;
     const y=-.43-.42*v-.54*v*v+.11*Math.sin(t*.24+2)*(.25+.75*v)+relief
-      +coveLift*.52+erodedShelf+tidalValley;
+      +coveLift*.52+erodedShelf+tidalValley+uplift;
     return [x,y,z];
   };
   function leaf(x,y,z,height,angle,shade,species='fern') {
@@ -415,8 +431,8 @@ export function createLivingGarden(THREE, {width,height}) {
   // Cluster along the actual branch and around its tip at three overlapping
   // heights, so all ten trees form continuous crowns rather than separated
   // identical flat paper stars. No duplicate geometry, new leaf or live work.
-  function canopyTree(x,z,h,phase){
-    const baseY=-.56,stemTop=baseY+h*.77;
+  function canopyTree(x,z,h,phase,seat=-.56){
+    const baseY=seat,stemTop=baseY+h*.77;
     const crownX=x+.15*Math.sin(phase),crownZ=z+.12*Math.cos(phase);
     woodySegment(x,baseY,z,crownX,stemTop,crownZ,.34,.15,phase);
     for(let branch=0;branch<7;branch++){
@@ -467,7 +483,17 @@ export function createLivingGarden(THREE, {width,height}) {
     [W*.61,-H-7.10,6.3,4.8],[W+7.25,-H*.15,6.45,5.7],
     [-W-7.15,H+6.0,5.65,.65],[W+7.35,H+5.95,5.85,2.3]
   ];
-  for(const [x,z,h,p] of forest)canopyTree(x,z,h,p);
+  // Seat real woodland trunks INTO their coast rather than letting an
+  // identical -0.56 base float beside the newly sculpted bank. The bounded
+  // root seat keeps the proven original maximum canopy envelope and avoids
+  // concealing navigable stones even on small public board sizes.
+  for(const [x,z,h,p] of forest){
+    const coast=x<-W-3?shorelines[2]:x>W+3?shorelines[3]:shorelines[1];
+    const along=coast.axis==='x'?x:z,outer=coast.axis==='x'?z:x;
+    const v=Math.max(0,Math.min(1,(outer-coast.near)/(coast.far-coast.near)));
+    const elevation=bankPoint(coast,along,v)[1];
+    canopyTree(x,z,h,p,Math.max(-.56,Math.min(.25,elevation-.12)));
+  }
   // A fractured, vine-rooted four-bay arched aqueduct gives the rear shore
   // a single recognizable architectural silhouette and a believable history.
   // The arch tunnels remain OPEN; the fake decorative masonry never sits on
