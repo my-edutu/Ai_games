@@ -16,7 +16,7 @@ import {planFittedRoleDetail} from '/dungeon/role-silhouette-plan.js';
 import {planAnatomicalKit,planAnatomicalDrawGroups} from '/dungeon/anatomical-kit-plan.js';
 import {createForgedArmorForms,planForgedArmor,planForgedFinishes,planAuthoredBodyShape} from '/dungeon/forged-armor.js';
 import {planDrapePanels,planDrapeSwing,planDrapeVertexBend,drapePoseKey,DRAPE_ROWS,DRAPE_COLUMNS} from '/dungeon/fabric-drape-plan.js';
-import {rigWeaponParts,selectHandBone,rigGripAnchor,boundedGripOffset,selectUpperArmBone,planRigArmGesture,selectForearmBone,planRigForearmGesture,selectLegBone,advanceRigGait,planRigLegGesture,planRigContactBrace,selectCranialBone,planCranialRatio,restoreCranialProportion,stageCranialProportion,selectCombatTorsoBone,planRigMeleeFollowThrough,selectPelvisBone,planRigBearing} from '/dungeon/rig-attachment-plan.js';
+import {rigWeaponParts,selectHandBone,rigGripAnchor,boundedGripOffset,selectUpperArmBone,planRigArmGesture,selectForearmBone,planRigForearmGesture,selectLegBone,advanceRigGait,planRigLegGesture,planRigFullBodyStride,planRigContactBrace,selectCranialBone,planCranialRatio,restoreCranialProportion,stageCranialProportion,selectCombatTorsoBone,planRigMeleeFollowThrough,selectPelvisBone,planRigBearing} from '/dungeon/rig-attachment-plan.js';
 
 // Optional locally vendored CC0 characters. Offline / missing-asset fallback is the
 // fully autonomous procedural 3D rig, not a blank screen. No third-party runtime calls.
@@ -517,10 +517,11 @@ function restoreRigPelvisBeforeMixer(actor){
 }
 function stageRigPelvisAfterMixer(actor){
  const m=actor.rigPelvisBearing;if(!m)return;const p=actor.rigBearing?.hips||RIG_ZERO;
- const g=actor.groundedPerformance;
+ const g=actor.groundedPerformance,stride=actor.rigFullBodyStride?.hips||RIG_ZERO;
  m.next.setFromEuler(m.euler.set(
-  Math.max(-.2,Math.min(.2,p.pitch+(g?.bodyPitch??0)*.32)),
-  p.yaw,Math.max(-.16,Math.min(.16,p.roll+(g?.bodyRoll??0)*.65)),'YXZ'));
+  Math.max(-.2,Math.min(.2,p.pitch+(g?.bodyPitch??0)*.32+stride.pitch)),
+  Math.max(-.15,Math.min(.15,p.yaw+stride.yaw)),
+  Math.max(-.16,Math.min(.16,p.roll+(g?.bodyRoll??0)*.65+stride.roll)),'YXZ'));
  m.bone.quaternion.multiply(m.next);m.last.copy(m.next);
 }
 function restoreRigArmsBeforeMixer(actor){
@@ -561,10 +562,11 @@ function stageRigMeleeAfterMixer(actor,since,reducedMotion){
   const joint=pose[mount.part],extra=actor.performanceBeat?.[mount.part]||RIG_ZERO;
   const dodge=mount.part==='spine'?(actor.evasionFrame?.spine||RIG_ZERO):RIG_ZERO;
   const bearing=mount.part==='spine'?(actor.rigBearing?.chest||RIG_ZERO):RIG_ZERO;
+  const stride=mount.part==='spine'?(actor.rigFullBodyStride?.chest||RIG_ZERO):RIG_ZERO;
   mount.next.setFromEuler(mount.euler.set(
-   Math.max(-.55,Math.min(.55,joint.pitch+extra.pitch+dodge.pitch+bearing.pitch)),
-   Math.max(-.48,Math.min(.48,joint.yaw+extra.yaw+dodge.yaw+bearing.yaw)),
-   Math.max(-.46,Math.min(.46,joint.roll+extra.roll+dodge.roll+bearing.roll)),'YXZ'));
+   Math.max(-.55,Math.min(.55,joint.pitch+extra.pitch+dodge.pitch+bearing.pitch+stride.pitch)),
+   Math.max(-.48,Math.min(.48,joint.yaw+extra.yaw+dodge.yaw+bearing.yaw+stride.yaw)),
+   Math.max(-.46,Math.min(.46,joint.roll+extra.roll+dodge.roll+bearing.roll+stride.roll)),'YXZ'));
   mount.bone.quaternion.multiply(mount.next);
   mount.last.copy(mount.next);
   actor.rigMeleeCurrentPeak=Math.max(actor.rigMeleeCurrentPeak,
@@ -606,9 +608,10 @@ function stageRigArmsAfterMixer(actor,since,reducedMotion){
  actor.wardenChargeShoulderPeak=Math.max(actor.wardenChargeShoulderPeak||0,Math.abs(warningLift));
  for(const mount of actor.rigUpperArms||[]){
   const joint=pose[mount.side],extra=actor.performanceBeat?.arms?.[mount.side]||RIG_ZERO;
+  const stride=actor.rigFullBodyStride?.arms?.[mount.side];
   mount.next.setFromEuler(mount.euler.set(
-   Math.max(-.62,Math.min(.62,joint.pitch+warningLift+stagger+extra.pitch+(actor.evasionFrame?.arms?.[mount.side]?.pitch??0))),0,
-   Math.max(-.38,Math.min(.38,joint.roll+extra.roll+(mount.side==='left'?-1:1)*(exposure?.shoulderRoll??0)+(actor.evasionFrame?.arms?.[mount.side]?.roll??0))),'XYZ'));
+   Math.max(-.62,Math.min(.62,joint.pitch+warningLift+stagger+extra.pitch+(stride?.pitch??0)+(actor.evasionFrame?.arms?.[mount.side]?.pitch??0))),0,
+   Math.max(-.38,Math.min(.38,joint.roll+extra.roll+(stride?.roll??0)+(mount.side==='left'?-1:1)*(exposure?.shoulderRoll??0)+(actor.evasionFrame?.arms?.[mount.side]?.roll??0))),'XYZ'));
   mount.bone.quaternion.multiply(mount.next);
   mount.last.copy(mount.next);
   actor.rigGesturePeak=Math.max(actor.rigGesturePeak||0,Math.abs(joint.pitch),Math.abs(joint.roll));
@@ -632,17 +635,25 @@ function stageRigForearmsAfterMixer(actor,since,reducedMotion){
  }
 }
 
-// Distance-paced cosmetic stride: idle actors settle; teleports reset.
-function stageRigLegsAfterMixer(actor,since,reducedMotion){
- if(!actor.rigGaitBones?.length)return;
+// One actual rendered displacement sample feeds every native skeletal layer
+// before posing, avoiding one-frame-late hips and invented footfalls.
+function stageRigGroundedStride(actor,reducedMotion){
  const current=actor.root?.position,previous=actor.rigGaitPosition;
  const travel=current&&previous?Math.hypot(current.x-previous.x,current.z-previous.z):0;
  if(current&&previous)previous.copy(current);
+ const combat=['attack','cast','hurt','guard'].includes(actor.groundedPerformance?.clipAction);
+ const stopped=reducedMotion||actor.u.hp<=0||combat;
  const gait=advanceRigGait(actor.rigGaitPhase,actor.rigGaitWeight,
-  actor.locomotionTeleport?Infinity:Math.min(travel,.30),
-  reducedMotion||actor.u.hp<=0);
+  actor.locomotionTeleport?Infinity:stopped?0:Math.min(travel,.30),stopped);
  actor.rigGaitPhase=gait.phase;actor.rigGaitWeight=gait.weight;
- const pose=planRigLegGesture(gait.phase,gait.weight,reducedMotion||actor.u.hp<=0);
+ actor.rigLegStride=planRigLegGesture(gait.phase,gait.weight,stopped);
+ actor.rigFullBodyStride=planRigFullBodyStride(actor.u.kind,gait.phase,gait.weight,stopped);
+ actor.rigFullBodyStridePeak=Math.max(actor.rigFullBodyStridePeak||0,
+  Math.abs(actor.rigFullBodyStride.hips.yaw),Math.abs(actor.rigFullBodyStride.chest.yaw));
+}
+function stageRigLegsAfterMixer(actor,since,reducedMotion){
+ if(!actor.rigGaitBones?.length)return;
+ const pose=actor.rigLegStride||planRigLegGesture(0,0,true);
  // Never invent a melee target: the app supplies only a grid-validated,
  // unobstructed public facing, and we require exactly one-cell contact.
  const brace=planRigContactBrace(actor.u.kind,actor.u.action||'idle',since,
@@ -874,6 +885,7 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
   {reducedMotion:reducedMotion||actor.u.hp<=0,yaw:actor.root?.rotation?.y??0});
  actor.evasionPosePeak=Math.max(actor.evasionPosePeak||0,actor.evasionFrame.strength);
  actor.rigBearing=planRigBearing(actor.u.kind,actor.u.hp,actor.u.maxHp,actor.u.action||'idle',since,actor.combatFacing?.distance,reducedMotion||actor.u.hp<=0);
+ stageRigGroundedStride(actor,reducedMotion);
  stageRigCranialAfterMixer(actor);
  stageRigPelvisAfterMixer(actor);
  stageRigArmsAfterMixer(actor,since,reducedMotion);
@@ -998,7 +1010,7 @@ function stats(actors){
   cinematicSourceHidden:authored.filter(a=>a.cinematicFigure?.sourceMeshesHidden).length,cinematicProfiles:[...new Set(authored.map(a=>a.cinematicFigure?.kind).filter(Boolean))].sort(),groundedTravelActors:authored.filter(a=>a.groundedPerformance?.moving).length,
  groundedClipSpeeds:authored.filter(a=>a.groundedPerformance?.moving).map(a=>Number(a.groundedPerformance.clipSpeed.toFixed(3))).slice(0,12),
  groundedStationaryActors:authored.filter(a=>!a.groundedPerformance?.moving).length,
- evasionPosePeak:Math.max(0,...authored.map(a=>a.evasionPosePeak||0)),evasionPoseActors:authored.filter(a=>(a.evasionPosePeak||0)>.03).length,contactBodyPeakMeters:Math.max(0,...authored.map(a=>a.contactBodyPeakMeters||0)),authoredBosses:authored.filter(a=>a.u.kind==='warden').length,bossRegaliaParts:all.reduce((n,a)=>n+(a.regaliaParts||0),0),roleSilhouetteActors:authored.filter(a=>(a.roleSilhouetteParts||0)>0).length,roleSilhouetteParts:all.reduce((n,a)=>n+(a.roleSilhouetteParts||0),0),anatomicalDetailActors:authored.filter(a=>(a.anatomicalParts||0)>0).length,sculptedArmorActors:authored.filter(a=>a.sculptedArmorProfile).length,sculptedArmorVertices:authored.reduce((sum,a)=>sum+(a.sculptedArmorVertices||0),0),sculptedArmorProfiles:[...new Set(authored.map(a=>a.sculptedArmorProfile).filter(Boolean))].sort(),anatomicalDetailParts:all.reduce((n,a)=>n+(a.anatomicalParts||0),0),anatomicalJointFittings:all.reduce((n,a)=>n+(a.anatomicalJointParts||0),0),anatomicalDetailMeshes:all.reduce((n,a)=>n+(a.anatomicalDetailMeshes||0),0),anatomicalStaticMergedParts:all.reduce((n,a)=>n+(a.anatomicalStaticMergedParts||0),0),draperyActors:authored.filter(a=>(a.draperyPanels?.length||0)>0).length,draperyPanels:all.reduce((n,a)=>n+(a.draperyPanels?.length||0),0),draperyTriangles:all.reduce((n,a)=>n+(a.draperyTriangles||0),0),draperyFramesSkipped:all.reduce((n,a)=>n+(a.draperyFramesSkipped||0),0),draperyNormalRebuilds:all.reduce((n,a)=>n+(a.draperyNormalRebuilds||0),0),draperyVertexUploads:all.reduce((n,a)=>n+(a.draperyVertexUploads||0),0),draperyPeakDeformationMeters:Math.max(0,...all.map(a=>a.draperyPeakDeformationMeters||0)),rigCranialActors:authored.filter(a=>a.rigCranial?.applied).length,rigCranialRatios:authored.filter(a=>a.rigCranial?.applied).map(a=>({kind:a.u.kind,ratio:a.rigCranial.ratio})).slice(0,18),rigGestureBones:authored.reduce((n,a)=>n+(a.rigUpperArms?.length||0),0),rigGesturePeakRad:Math.max(0,...authored.map(a=>a.rigGesturePeak||0)),wardenChargeShoulderPeakRad:Math.max(0,...authored.filter(a=>a.u.kind==='warden').map(a=>a.wardenChargeShoulderPeak||0)),rigForearmBones:authored.reduce((n,a)=>n+(a.rigForearms?.length||0),0),rigForearmPeakRad:Math.max(0,...authored.map(a=>a.rigForearmPeak||0)),rigGaitBones:authored.reduce((n,a)=>n+(a.rigGaitBones?.length||0),0),rigGaitPeakRad:Math.max(0,...authored.map(a=>a.rigGaitPeak||0)),rigContactBraceActors:authored.filter(a=>(a.rigContactBracePeak||0)>.09).length,rigContactBracePeakRad:Math.max(0,...authored.map(a=>a.rigContactBracePeak||0)),rigMeleeBones:authored.reduce((n,a)=>n+(a.rigMeleeBones?.length||0),0),rigMeleePeakRad:Math.max(0,...authored.map(a=>a.rigMeleePeak||0)),rigMeleeCurrentPeakRad:Math.max(0,...authored.map(a=>a.rigMeleeCurrentPeak||0)),rigMeleeActiveActors:authored.filter(a=>a.rigMeleeActive).length,rigRangedActiveActors:authored.filter(a=>a.rigRangedActive).length,rigRangedPeak:Math.max(0,...authored.map(a=>a.rigRangedPeak||0)),rigMeleeBoneNames:authored.flatMap(a=>(a.rigMeleeBones||[]).map(m=>m.part+':'+m.bone.name)).slice(0,12),rigBoundAccessoryActors:authored.filter(a=>(a.rigBoundAccessoryParts||0)>0).length,rigBoundAccessoryParts:all.reduce((n,a)=>n+(a.rigBoundAccessoryParts||0),0),rigWardrobeActors:authored.filter(a=>(a.rigWardrobeParts||0)>0).length,rigWardrobeParts:all.reduce((n,a)=>n+(a.rigWardrobeParts||0),0),anatomicalStaticMountedBatches:all.reduce((n,a)=>n+(a.anatomicalStaticMountedCount||0),0),
+ evasionPosePeak:Math.max(0,...authored.map(a=>a.evasionPosePeak||0)),evasionPoseActors:authored.filter(a=>(a.evasionPosePeak||0)>.03).length,contactBodyPeakMeters:Math.max(0,...authored.map(a=>a.contactBodyPeakMeters||0)),authoredBosses:authored.filter(a=>a.u.kind==='warden').length,bossRegaliaParts:all.reduce((n,a)=>n+(a.regaliaParts||0),0),roleSilhouetteActors:authored.filter(a=>(a.roleSilhouetteParts||0)>0).length,roleSilhouetteParts:all.reduce((n,a)=>n+(a.roleSilhouetteParts||0),0),anatomicalDetailActors:authored.filter(a=>(a.anatomicalParts||0)>0).length,sculptedArmorActors:authored.filter(a=>a.sculptedArmorProfile).length,sculptedArmorVertices:authored.reduce((sum,a)=>sum+(a.sculptedArmorVertices||0),0),sculptedArmorProfiles:[...new Set(authored.map(a=>a.sculptedArmorProfile).filter(Boolean))].sort(),anatomicalDetailParts:all.reduce((n,a)=>n+(a.anatomicalParts||0),0),anatomicalJointFittings:all.reduce((n,a)=>n+(a.anatomicalJointParts||0),0),anatomicalDetailMeshes:all.reduce((n,a)=>n+(a.anatomicalDetailMeshes||0),0),anatomicalStaticMergedParts:all.reduce((n,a)=>n+(a.anatomicalStaticMergedParts||0),0),draperyActors:authored.filter(a=>(a.draperyPanels?.length||0)>0).length,draperyPanels:all.reduce((n,a)=>n+(a.draperyPanels?.length||0),0),draperyTriangles:all.reduce((n,a)=>n+(a.draperyTriangles||0),0),draperyFramesSkipped:all.reduce((n,a)=>n+(a.draperyFramesSkipped||0),0),draperyNormalRebuilds:all.reduce((n,a)=>n+(a.draperyNormalRebuilds||0),0),draperyVertexUploads:all.reduce((n,a)=>n+(a.draperyVertexUploads||0),0),draperyPeakDeformationMeters:Math.max(0,...all.map(a=>a.draperyPeakDeformationMeters||0)),rigCranialActors:authored.filter(a=>a.rigCranial?.applied).length,rigCranialRatios:authored.filter(a=>a.rigCranial?.applied).map(a=>({kind:a.u.kind,ratio:a.rigCranial.ratio})).slice(0,18),rigGestureBones:authored.reduce((n,a)=>n+(a.rigUpperArms?.length||0),0),rigGesturePeakRad:Math.max(0,...authored.map(a=>a.rigGesturePeak||0)),wardenChargeShoulderPeakRad:Math.max(0,...authored.filter(a=>a.u.kind==='warden').map(a=>a.wardenChargeShoulderPeak||0)),rigForearmBones:authored.reduce((n,a)=>n+(a.rigForearms?.length||0),0),rigForearmPeakRad:Math.max(0,...authored.map(a=>a.rigForearmPeak||0)),rigGaitBones:authored.reduce((n,a)=>n+(a.rigGaitBones?.length||0),0),rigGaitPeakRad:Math.max(0,...authored.map(a=>a.rigGaitPeak||0)),rigFullBodyStridePeakRad:Math.max(0,...authored.map(a=>a.rigFullBodyStridePeak||0)),rigContactBraceActors:authored.filter(a=>(a.rigContactBracePeak||0)>.09).length,rigContactBracePeakRad:Math.max(0,...authored.map(a=>a.rigContactBracePeak||0)),rigMeleeBones:authored.reduce((n,a)=>n+(a.rigMeleeBones?.length||0),0),rigMeleePeakRad:Math.max(0,...authored.map(a=>a.rigMeleePeak||0)),rigMeleeCurrentPeakRad:Math.max(0,...authored.map(a=>a.rigMeleeCurrentPeak||0)),rigMeleeActiveActors:authored.filter(a=>a.rigMeleeActive).length,rigRangedActiveActors:authored.filter(a=>a.rigRangedActive).length,rigRangedPeak:Math.max(0,...authored.map(a=>a.rigRangedPeak||0)),rigMeleeBoneNames:authored.flatMap(a=>(a.rigMeleeBones||[]).map(m=>m.part+':'+m.bone.name)).slice(0,12),rigBoundAccessoryActors:authored.filter(a=>(a.rigBoundAccessoryParts||0)>0).length,rigBoundAccessoryParts:all.reduce((n,a)=>n+(a.rigBoundAccessoryParts||0),0),rigWardrobeActors:authored.filter(a=>(a.rigWardrobeParts||0)>0).length,rigWardrobeParts:all.reduce((n,a)=>n+(a.rigWardrobeParts||0),0),anatomicalStaticMountedBatches:all.reduce((n,a)=>n+(a.anatomicalStaticMountedCount||0),0),
  hiddenFallbackOrnamentActors:authored.filter(a=>(a.detail?.hiddenProceduralOrnamentCount||0)>0).length,
  hiddenFallbackOrnamentMeshes:authored.reduce((n,a)=>n+(a.detail?.hiddenProceduralOrnamentCount||0),0),rigGripAlignedActors:authored.filter(a=>a.rigGripAligned).length,rigGripMaxShiftMeters:Math.max(0,...authored.map(a=>a.rigGripShiftMeters||0)),rigGripCandidates:authored.filter(a=>a.rigGripCandidateMeters!==null).map(a=>({kind:a.u.kind,meters:a.rigGripCandidateMeters})).slice(0,3),rigHandBoneNames:authored.filter(a=>a.rigHandBoneName).map(a=>a.rigHandBoneName).slice(0,8),skinnedHitActors:authored.filter(a=>(a.skinnedHitWeight||0)>.02).length,skinnedHitPeak:Math.max(0,...authored.map(a=>a.skinnedHitPeak||0)),skinnedDefeatActors:authored.filter(a=>a.skinnedDefeatWeight>.02).length,forgedMicrotextures:forgedMicrotextureCache.size,authoredCharacters:authored.length,proceduralFallbacks:all.length-authored.length,uniqueAssets:cache.size,missingAssets:failures.size,incompleteAssets:incompleteAssets.size,texturedCharacters:authored.filter(a=>a.textureReadiness?.decodedColorMaps>0).length,decodedColorMaps:authored.reduce((n,a)=>n+(a.textureReadiness?.decodedColorMaps||0),0)};
 }

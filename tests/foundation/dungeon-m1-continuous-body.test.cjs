@@ -24,10 +24,28 @@ test('original skinned anatomical links connect 14 real adjacent body pieces wit
  assert.ok(normal.length>.20&&normal.length<.24);
  assert.ok(normal.radius<.06);
 });
+test('true displacement drives torso/pelvis/shoulders and native knees with bounded opposite balance',async()=>{
+ const source=fs.readFileSync(path.join(root,'public/ai-dungeon/rig-attachment-plan.js'),'utf8');
+ const {planRigFullBodyStride,planRigLegGesture}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+ for(const kind of ['vanguard','ranger','mystic','revenant','cultist','warden']){
+  const p=planRigFullBodyStride(kind,Math.PI/2,1);
+  assert.ok(p.hips.yaw*p.chest.yaw<0&&p.arms.left.pitch*p.arms.right.pitch<0);
+  assert.ok(Math.abs(p.hips.yaw)<.06&&Math.abs(p.arms.left.pitch)<.10);
+  assert.deepEqual(planRigFullBodyStride(kind,0,0),planRigFullBodyStride(kind,0,1,true));
+  assert.deepEqual(planRigFullBodyStride(kind,NaN,1),planRigFullBodyStride(kind,0,1));
+  assert.ok(planRigLegGesture(Math.PI/2,1).right.lower>.05);
+ }
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/stageRigGroundedStride\(actor,reducedMotion\);[\s\S]*stageRigPelvisAfterMixer\(actor\)/);
+ assert.match(model,/rigFullBodyStridePeakRad:/);
+ assert.doesNotMatch(source,/Math\.random|performance\.now|DungeonRuntime|fetch\(/);
+});
 test('single original instanced gambeson follows current native bones with no game authority changes',()=>{
  const figure=fs.readFileSync(source,'utf8');
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(figure,/new T\.InstancedMesh\(bridgeGeometry,mat\.cloth,CINEMATIC_ANATOMY_LINKS\.length\)/);
+ assert.match(figure,/const bridgeGeometry=createGambesonGusset\(T\)/);
+ assert.doesNotMatch(figure,/const bridgeGeometry=new T\.CylinderGeometry/);
  assert.match(figure,/a\.getWorldPosition\(bridgeStart\)\.applyMatrix4\(inverseGroup\)/);
  assert.match(figure,/b\.getWorldPosition\(bridgeEnd\)\.applyMatrix4\(inverseGroup\)/);
  assert.match(figure,/bridge\.setMatrixAt\(i,pose\)/);

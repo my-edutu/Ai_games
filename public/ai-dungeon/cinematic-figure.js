@@ -117,6 +117,25 @@ export function planCinematicPairedParts(kind){
  }
  return Object.freeze(pairs);
 }
+function createGambesonGusset(T){
+ // Original tapered cloth rather than a constant-width hard cylinder.
+ // Only genuine adjacent short bone gaps remain eligible for this draw.
+ const rings=[[-.5,.64],[-.36,.82],[-.18,.98],[0,1.055],[.18,.98],[.36,.82],[.5,.64]];
+ const sides=12,positions=[],uvs=[],indices=[];
+ for(let r=0;r<rings.length;r++)for(let i=0;i<=sides;i++){
+  const t=i*Math.PI*2/sides,fold=1+.055*Math.cos(t*6),radius=rings[r][1]*fold;
+  positions.push(Math.cos(t)*radius,rings[r][0],Math.sin(t)*radius*.83);
+  uvs.push(i/sides,r/(rings.length-1));
+ }
+ for(let r=0;r<rings.length-1;r++)for(let i=0;i<sides;i++){
+  const a=r*(sides+1)+i,b=a+1,c=a+sides+1,d=c+1;
+  indices.push(a,c,b,b,c,d);
+ }
+ const g=new T.BufferGeometry();
+ g.setAttribute('position',new T.Float32BufferAttribute(positions,3));
+ g.setAttribute('uv',new T.Float32BufferAttribute(uvs,2));
+ g.setIndex(indices);g.computeVertexNormals();return g;
+}
 function createHull(T,rings,sides=20){
  const positions=[],uv=[],index=[];
  for(let i=0;i<rings.length;i++){
@@ -390,7 +409,7 @@ export function createCinematicFigure(T,actor,joints){
   // One shared GPU draw per original cloth-connected anatomical body,
   // rather than a new mesh per joint. World transforms come ONLY from
   // native animated bones after the actual actor's mixer/real combat poses.
-  const bridgeGeometry=new T.CylinderGeometry(.72,.82,1,9,2);
+  const bridgeGeometry=createGambesonGusset(T);
   geometry.anatomyBridge=bridgeGeometry;
   const bridge=new T.InstancedMesh(bridgeGeometry,mat.cloth,CINEMATIC_ANATOMY_LINKS.length);
   bridge.name='cinematic-'+recipe.kind+'-continuous-bone-driven-anatomy';

@@ -214,6 +214,25 @@ export function advanceRigGait(phase=0,weight=0,travelMeters=0,reducedMotion=fal
  if(travelMeters<=.0015)return {phase:p,weight:Math.max(0,w-.18)};
  return {phase:(p+Math.min(travelMeters,.24)*TAU/1.05)%TAU,weight:Math.min(1,w+.58)};
 }
+/** Full-body travel transfers genuine stride phase through hips, spine and
+ * opposing shoulders while both feet share the same real displacement.
+ * Additive visual radians only, no clock, chance or game authority. */
+const BODY_STRIDE_REST=Object.freeze({
+ hips:{pitch:0,yaw:0,roll:0},chest:{pitch:0,yaw:0,roll:0},
+ arms:{left:{pitch:0,roll:0},right:{pitch:0,roll:0}},weight:0
+});
+const BODY_STRIDE_MASS=Object.freeze({vanguard:.91,ranger:1.13,mystic:.84,revenant:.88,cultist:.95,warden:.66});
+export function planRigFullBodyStride(kind,phase=0,weight=0,reducedMotion=false){
+ if(reducedMotion||!Object.hasOwn(BODY_STRIDE_MASS,kind))return BODY_STRIDE_REST;
+ const w=clampWeight(weight);if(!w)return BODY_STRIDE_REST;
+ const p=Number.isFinite(phase)?((phase%TAU)+TAU)%TAU:0;
+ const turn=Math.sin(p)*w*BODY_STRIDE_MASS[kind];
+ const loading=(1-Math.cos(2*p))*.5*w*BODY_STRIDE_MASS[kind];
+ return {hips:{pitch:.018*loading,yaw:.049*turn,roll:.022*turn},
+  chest:{pitch:-.012*loading,yaw:-.041*turn,roll:-.018*turn},
+  arms:{left:{pitch:-.078*turn,roll:-.019*loading},
+   right:{pitch:.078*turn,roll:.019*loading}},weight:w};
+}
 const LEG_REST=Object.freeze({
  left:Object.freeze({upper:0,lower:0,foot:0}),
  right:Object.freeze({upper:0,lower:0,foot:0})
@@ -224,10 +243,10 @@ export function planRigLegGesture(phase=0,weight=0,reducedMotion=false){
  const p=Number.isFinite(phase)?((phase%TAU)+TAU)%TAU:0;
  const w=clampWeight(weight);
  if(w===0)return LEG_REST;
- const left=Math.sin(p)*w,right=-left;
+ const left=Math.sin(p)*w,right=-left,load=(1-Math.cos(2*p))*.5*w;
  return {
-  left:{upper:.255*left,lower:.180*Math.max(0,-left),foot:-.095*left},
-  right:{upper:.255*right,lower:.180*Math.max(0,-right),foot:-.095*right}
+  left:{upper:.245*left,lower:.168*Math.max(0,-left)+.022*load,foot:-.091*left-.016*load},
+  right:{upper:.245*right,lower:.168*Math.max(0,-right)+.022*load,foot:-.091*right-.016*load}
  };
 }
 
