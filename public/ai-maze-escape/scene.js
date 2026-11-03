@@ -3,7 +3,7 @@ import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
+import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -594,6 +594,15 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // without altering object scale, AI, hidden cells or route direction.
       if (cameraMode === 'follow' && height >= 340) {
         targetHeight = publicFullBleedFollowHalfHeight(aspect, targetHeight);
+        // Pass121: neutral autonomous discovery should not be a tiny
+        // postage-stamp island inside the full-screen ocean. Only a current
+        // PUBLIC, reciprocally connected stage with no gate, guardian,
+        // witnessed goal or result earns a closer physical Follow camera.
+        // The existing gate/guardian/key and reduced-motion camera contracts
+        // retain their separate verified in-frame bounds and behaviour.
+        if (!result && !cameraGate && !closestThreat?.strength
+          && !nearObservedGoal && !settings.reducedMotion)
+          targetHeight = publicCompactExplorationHalfHeight(aspect,targetHeight,s);
         // At genuine disclosed close encounters a narrow portrait no longer
         // sacrifices all actor readability to the old in-page horizontal span.
         // Derive the safe tighter shot from BOTH actual public 3D positions.

@@ -403,6 +403,20 @@ export function createMazeWorld(options = {}) {
       add(cone,i===0?inlay:deepStone,px+dx*.19,.265,pz+dz*.19,
         .10,.27,.10,cell,0,0,i*.18);
     }
+    // Pass121: the live 390px evidence showed the little mineral relics
+    // disappearing underneath nearby greenery. Two pale, swept-back ribs
+    // form a legible original fossil silhouette against the known solid side.
+    // They grow from the existing wall-side stone plinth; their physical
+    // bases stay >= .77 from the traversable cell centre. No collider, clue,
+    // key, authored path, undisclosed tile or animation-clock dependency.
+    for (const side of [-1,1]) {
+      const rx=bx+tx*side*.31+dx*.13, rz=bz+tz*side*.31+dz*.13;
+      add(box,deepStone,rx,.215,rz,.17,.16,.19,cell);
+      add(cone,lightStone,rx,.615,rz,.13,.82,.12,cell,
+        dz*side*.18,0,-dx*side*.18);
+      add(box,clay,rx-dx*.035,.875,rz-dz*.035,
+        .115,.065,.125,cell,0,side*.14,side*.16);
+    }
   }
   function wall(x, z, horizontal, id, cell) {
     const h = .91 + variation(id + 22) * .12;

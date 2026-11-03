@@ -69,6 +69,44 @@ export function publicEncounterFrameWeight(attentionStrength, cameraMode, result
  * when the HUD moves into the corners. Does not invent a cell or move actors.
  * Only the camera frustum changes; the live simulation is unchanged.
  */
+/**
+ * Neutral, genuinely discovered stage close-up. Source-bound 1280 and
+ * 390px WebGL frames showed the original hero/fossils occupying very few
+ * pixels while the lagoon dominated. This compacts ONLY Follow exploration
+ * with a reciprocal, currently public adjacent passage and at least five
+ * genuine disclosed cells. No revealed exit, planned route, simulation
+ * decision, private map or pseudo-event is consumed.
+ *
+ * Active gates, discoveries, guardian encounters, manual camera and
+ * reduced-motion staging are excluded by the rendering caller; existing
+ * portrait/gate fit helpers keep their original strict thresholds.
+ */
+export function publicCompactExplorationHalfHeight(aspect, selectedHalfHeight, snapshot) {
+  const base=Number.isFinite(selectedHalfHeight)&&selectedHalfHeight>0?selectedHalfHeight:7.3;
+  if (!(Number.isFinite(aspect)&&aspect>.35&&aspect<=2.2)
+    || !snapshot || snapshot.result
+    || !Number.isSafeInteger(snapshot.width)||snapshot.width<2
+    || !Number.isSafeInteger(snapshot.height)||snapshot.height<2
+    || !Number.isSafeInteger(snapshot.currentCell)
+    || !Array.isArray(snapshot.cells)||snapshot.cells.length<5) return base;
+  const known=new Map(snapshot.cells.filter(c=>Number.isSafeInteger(c?.cell)
+    && c.cell>=0 && c.cell<snapshot.width*snapshot.height
+    && c.blocked===false).map(c=>[c.cell,c]));
+  const here=known.get(snapshot.currentCell);
+  if (!here || !Array.isArray(here.neighbors)) return base;
+  const connected=here.neighbors.some(n=>{
+    const other=known.get(n);
+    return !!other && Array.isArray(other.neighbors)
+      && other.neighbors.includes(snapshot.currentCell)
+      && Math.abs(n%snapshot.width-snapshot.currentCell%snapshot.width)
+       +Math.abs(Math.floor(n/snapshot.width)-Math.floor(snapshot.currentCell/snapshot.width))===1;
+  });
+  if (!connected) return base;
+  if (aspect>=1.22) return Math.min(base,6.35);
+  if (aspect<.60) return Math.min(base,8.05);
+  return base;
+}
+
 export function publicFullBleedFollowHalfHeight(aspect, selectedHalfHeight) {
   const base = Number.isFinite(selectedHalfHeight) && selectedHalfHeight > 0 ? selectedHalfHeight : 7.3;
   if (!Number.isFinite(aspect) || aspect >= .60 || aspect <= 0) return base;

@@ -66,6 +66,34 @@ test('safe truly disclosed tile physically grows side-facing fossil alcove witho
   assert.equal(world.stats().tideFossilAlcoves,0,'must disappear when no longer publicly disclosed');
  }finally{world.dispose();again.dispose();done();}
 });
+test('new rooted ivory fossil fans are physically taller but remain wall-side and disclosure-bound',async()=>{
+ const {module,THREE,done}=await loadProduction();
+ const world=module.createMazeWorld({balanced:true});
+ try{
+  world.update(shot([cell(10,[11])]));
+  const center=module.cellPosition(10,7,7), matrix=new THREE.Matrix4();
+  const vec=new THREE.Vector3(), scale=new THREE.Vector3();
+  const fans=[];
+  world.group.children[1].traverse(mesh=>{
+   if(!mesh.isInstancedMesh||mesh.geometry.type!=='ConeGeometry'
+    ||mesh.material.color.getHexString()!=='eed5a0')return;
+   for(let i=0;i<mesh.count;i++){
+    mesh.getMatrixAt(i,matrix);vec.setFromMatrixPosition(matrix);
+    if(Math.abs(vec.x-center.x)<1.2&&Math.abs(vec.z-(center.z-.79))<.70){
+     scale.setFromMatrixScale(matrix);
+     if(Math.abs(scale.y-.82)<.002) fans.push({x:vec.x,z:vec.z,y:vec.y,h:scale.y});
+    }
+   }
+  });
+  assert.equal(fans.length,2,'actual installed Three world has two taller wall-rooted pale ribs');
+  assert.ok(fans.every(f=>f.z<center.z-.75&&f.z>center.z-1.15
+   &&f.y>.60&&f.y<.64),'both fossil fans stay out of the disclosed east passage');
+  assert.ok(world.stats().geometryCount<=16&&world.stats().materialCount<=26);
+  world.update(shot([],{runToken:'reset',tick:1}));
+  assert.equal(world.stats().tideFossilAlcoves,0);
+ }finally{world.dispose();done();}
+});
+
 test('a trap, a matching key, a real public gate or undisclosed tile cannot grow a fake fossil objective',async()=>{
  const {module,done}=await loadProduction(),world=module.createMazeWorld({balanced:true});
  try{
