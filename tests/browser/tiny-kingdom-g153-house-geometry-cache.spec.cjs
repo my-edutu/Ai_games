@@ -12,7 +12,10 @@ test('G153 grown autonomous town reuses bounded per-lot geometry across seasons 
  await page.setViewportSize({width:1024,height:640});
  await page.setContent(html);
  await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0,null,{timeout:90000});
- await page.locator('#pause').click();
+ // Keep WebGL presenting after each manually advanced 10-day state: the
+ // paused renderer intentionally freezes identical frames and cannot be used
+ // as a progress signal. Speed zero prevents extra simulation during captures.
+ await page.evaluate(()=>window.__tinyKingdom.setSpeed(0));
  const base=await page.evaluate(()=>({
   audit:window.__tinyKingdom.getHouseGeometryCacheAudit(),
   authority:JSON.stringify(window.__tinyKingdom.exportSnapshot())
@@ -24,8 +27,8 @@ test('G153 grown autonomous town reuses bounded per-lot geometry across seasons 
  expect(base.audit.freshBuilds).toBeGreaterThanOrEqual(12);
  const observations=[];
  for(let n=0;n<12;n++){
-  await page.evaluate(()=>{for(let i=0;i<7200;i++)window.__tinyKingdom.step(1/30)});
   const prior=await page.evaluate(()=>window.__tinyKingdom.getFrameProfile().totalFrames);
+  await page.evaluate(()=>{for(let i=0;i<7200;i++)window.__tinyKingdom.step(1/30)});
   await page.waitForFunction(p=>window.__tinyKingdom.getFrameProfile().totalFrames>p,prior,{timeout:90000});
   observations.push(await page.evaluate(()=>{
    const g=window.__tinyKingdom;
