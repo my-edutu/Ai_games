@@ -12,7 +12,7 @@ const tongue=serpent=>{
 };
 test('R45 exact-parent RED control: public forward food triggers existing fork while original ambient phase is silent',async()=>{
   const source=fs.readFileSync(sourcePath,'utf8'),previous=restorePreR45Only(source);
-  assert.equal(blob(fs.readFileSync(path.resolve(__dirname,'../fixtures/snake-history/r45-pre.mjs'),'utf8')),'73475b622c5a3dde49d35d0fb659c003845b4650','verified predecessor Git blob');
+  assert.equal(gitBlob(fs.readFileSync(path.resolve(__dirname,'../fixtures/snake-history/r45-pre.mjs'),'utf8')),'73475b622c5a3dde49d35d0fb659c003845b4650','verified predecessor Git blob');
   const THREE=await import('three');
   const {createSerpent:oldFactory}=await import('data:text/javascript;base64,'+Buffer.from(previous).toString('base64'));
   const {createSerpent:newFactory}=await import('../../public/snake-stream/serpent.mjs');

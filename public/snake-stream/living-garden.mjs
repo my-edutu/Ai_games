@@ -111,7 +111,19 @@ export function createLivingGarden(THREE, {width,height}) {
     const relief=.08*Math.sin(t*.38+v*3.6)+.13*(smooth(t*.23+12,v*2+21)-.5);
     // Wide turf banks fall into darker rock shelves, rather than identical
     // sharply creased sawtooth terraces in each coastal compass direction.
-    const y=-.43-.42*v-.54*v*v+.11*Math.sin(t*.24+2)*(.25+.75*v)+relief;
+    // T1 RAIN-CUT SHOULDER / FOUR-COAST REPROFILE (existing native geometry).
+    // From the exact 415dae scene, each forest bank was a shallow strip
+    // leaving a hard rectangular stage. An inland-crested shoulder now rises
+    // and returns to the same original low-tide boundary; every original tree,
+    // root, capstone, boulder and tuft remains anchored to this SAME bankPoint.
+    // No new triangles, shaders, textures, GPU passes, assets or game cells.
+    const shoulder=Math.pow(Math.sin(Math.PI*v),.90);
+    const cove=smooth(t*.145+(s.axis==='x'?11:23),v*2.07+31);
+    const rhythm=.50+.50*Math.sin(t*.31+s.start*.14+v*1.9);
+    const coveLift=shoulder*(.78+.43*cove+.22*rhythm);
+    const erodedShelf=shoulder*.12*Math.sin(t*.65+v*5.4)*Math.sin(t*.18-v*3.2);
+    const y=-.43-.42*v-.54*v*v+.11*Math.sin(t*.24+2)*(.25+.75*v)+relief
+      +coveLift+erodedShelf;
     return [x,y,z];
   };
   function leaf(x,y,z,height,angle,shade,species='fern') {

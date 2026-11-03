@@ -369,9 +369,12 @@ export function createSerpent(THREE) {
     const socket = new THREE.Group();
     // Keep the eyes nestled in the existing cranial swell. The previous
     // oversized raised sockets read like frog stalks in gameplay close-ups.
-    socket.position.set(sign*0.184,0.191,0.148);
-    socket.rotation.y=sign*0.33; socket.rotation.x=-0.15;
-    socket.scale.setScalar(1.23);
+    // T2 original reptilian brow: nest the EXISTING two ivory/amber eyes
+    // into the real skull instead of oversized floating amphibian globes.
+    // Keep same complete eyes/lids/LOD, public-only motion and GPU resources.
+    socket.position.set(sign*0.184,0.177,0.141);
+    socket.rotation.y=sign*0.27; socket.rotation.x=-0.13;
+    socket.scale.setScalar(1.09);
     headPose.add(socket);
     ellipsoid(socket,jade,0,0,-0.014,0.111,0.113,0.070,'Inset eye rim');
     const eye=new THREE.Group(); socket.add(eye); eyes.push(eye);

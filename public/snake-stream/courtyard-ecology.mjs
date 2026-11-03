@@ -113,12 +113,17 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
       const rootX = Math.round(gx), rootZ = Math.round(gz);
       const rooted = fernSites?.[rootZ * (width + 1) + rootX] ?
         (1 - smooth(.10, .53, Math.hypot(gx - rootX, gz - rootZ))) : 0;
+      // T1 DEEP ROOTED RAIN-FOREST PALETTE (same once-baked stone atlas).
+      // Real 415dae WebGL still showed washed-out streaks over a pale court.
+      // These exact rooted valleys now inherit deep fern and wet forest hues.
+      // Keep original lit sunstone, mortar, fruit/portal/danger/cell geometry.
+      // No added texture, triangle, alpha, draw or shader work.
       const targetR = 204 + 16 * openStone + silt * .62
-        - canopyShade * 110 - rooted * 29 - mineralLace * 10;
+        - canopyShade * 158 - rooted * 37 - mineralLace * 14;
       const targetG = 184 + 11 * openStone + silt * .48
-        - canopyShade * 50 - rooted * 14 + mineralLace * 6;
+        - canopyShade * 34 - rooted * 11 + mineralLace * 9;
       const targetB = 155 + 8 * openStone + silt * .42
-        - canopyShade * 78 - rooted * 21 - mineralLace * 9;
+        - canopyShade * 126 - rooted * 32 - mineralLace * 12;
       // Retain directional raking-light/mortar contrast from ORIGINAL pixels.
       // Lift only the muddy compression range, without bleaching real ruin
       // greenery or painting over portal/fruit/hazard geometry.
