@@ -89,3 +89,33 @@ test('after-smoothing correction must not sacrifice safe exterior tower sightlin
   }
   assert.ok(pressure(projection(r)) < pressure(first),'repeated source-driven frames converge toward safety');
 });
+
+
+test('a final portrait rescue cannot push an already readable actual guardian away', async () => {
+  const { THREE, context } = await loaded;
+  const r = rig(THREE);
+  const guardian = new THREE.Vector3(-2, 11, 27);
+  const guardedProjection = new THREE.Vector3();
+  const before = projection(r), guardianBefore = guardian.clone().project(r.camera);
+  assert.ok(pressure(before) > 0, 'real climber must start beyond portrait margin');
+  assert.ok(Math.abs(guardianBefore.x) < .82 && Math.abs(guardianBefore.y) < .8);
+  const actorOriginal = r.actor.clone(), guardianOriginal = guardian.clone();
+  context.refineTowerActorSafeFrame(r.camera,r.gaze,r.actor,1/60,
+    r.scratch,r.orbit,r.previousCamera,r.previousGaze,guardian,guardedProjection);
+  const after = projection(r), guardianAfter = guardian.clone().project(r.camera);
+  assert.ok(pressure(after) <= pressure(before) + 1e-6);
+  assert.ok(Math.abs(guardianAfter.x) <= .82 && Math.abs(guardianAfter.y) <= .8);
+  assert.equal(context.towerCoreSightlineClear(r.camera.position,guardian,23.5),true);
+  assert.ok(guardian.equals(guardianOriginal) && r.actor.equals(actorOriginal));
+});
+
+test('source-real mobile guardian and touchdown offsets precede final actor framing', () => {
+  const source = fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/scene.mjs'), 'utf8');
+  const guardian = source.indexOf('guardianRescueBlend = step;');
+  const contact = source.indexOf('camera.position.y+=(contactHero?-.24:.18)');
+  const final = source.indexOf('const verified = refineTowerActorSafeFrame(');
+  const reveal = source.indexOf('world.revealGuardianSightlines(camera,guardianSightPoints)');
+  assert.ok(guardian > 0 && guardian < contact && contact < final && final < reveal,
+    'the final physical submitted camera must protect the actor AFTER live guardian/impact');
+  assert.match(source, /protectGuardian \? guardianRescuePoint : null/);
+});
