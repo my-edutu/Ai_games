@@ -5842,7 +5842,7 @@ function getLiveWorkJourneyAudit(){
  if(!p)return {active:false,stage:'off',source:'real-autonomous-work-to-market'};
  const d=p.delivery||null;
  const receipt=deliveryReceipts.find(r=>r.citizen===p.name&&
-  state.t>=r.time&&state.t-r.time<.22)||null;
+  state.t>=r.time&&state.t-r.time<2.0)||null;
  const e=workdayEvents.find(row=>row.citizen===p.name&&
   state.t>=row.time&&state.t-row.time<6.5)||null;
  return {source:'real-autonomous-work-to-market',active:true,
