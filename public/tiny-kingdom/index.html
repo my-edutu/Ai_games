@@ -6485,7 +6485,10 @@ function planMarketVisit(preferredTrade=null,origin=null){
 // bounded and checked against the actual built village/market roofs.
 function streetTourSegmentSafe(a,b){
  const distance=Math.hypot(b[0]-a[0],b[1]-a[1]);
- for(let i=0,n=Math.max(1,Math.ceil(distance/.34));i<=n;i++){
+ // G156 RED: coarse 34cm ray samples accepted paths through the edge of
+ // genuine low-hanging market timber, then the walking step rejected them.
+ // Sweep at 10cm intervals for exactly the same physical pedestrian volume.
+ for(let i=0,n=Math.max(1,Math.ceil(distance/.10));i<=n;i++){
   const k=i/n,x=a[0]+(b[0]-a[0])*k,z=a[1]+(b[1]-a[1])*k;
   if(!streetSafe(x,z))return false;
  }
@@ -6521,9 +6524,11 @@ function streetMarketRoute(start,goal){
   for(const [ix,iz] of dirs){
    const ni=node.ix+ix,nj=node.iz+iz,key=ni+','+nj;
    if(visited.has(key)||Math.abs(ni)>31||Math.abs(nj)>31)continue;
-   visited.add(key);
    const next={ix:ni,iz:nj,from:index},p=point(next);
+   // A corner-blocked diagonal must not blacklist a cell that another
+   // physically safe direction could still enter through.
    if(!streetTourSegmentSafe(pos,p))continue;
+   visited.add(key);
    const estimate=Math.hypot(p[0]-goal[0],p[1]-goal[1]);
    next.cost=Math.hypot(ni,nj)*.30+estimate;
    frontier.push(next);
@@ -6556,7 +6561,7 @@ function nextMarketStall(){
   if(!plan||plan.stall.trade!==trade||plan.stall.trade===active)continue;
   const path=plan.route;
   if(!path||!path.length)continue;
-  marketTour={path,index:0,plan};
+  marketTour={path,index:0,plan,replans:0};
   marketTourCompletion=null;
   streetCaption();presentationEpoch++;
   return {started:true,trade,waypoints:path.length,
@@ -6588,6 +6593,15 @@ function advanceMarketTour(dt){
  const next=[streetPosition[0]+dx/distance*portion,
   streetPosition[1]+dz/distance*portion];
  if(!streetTourSegmentSafe(streetPosition,next)){
+  // A new genuine building or a route edge can close a passage. Try two
+  // bounded detours from the pedestrian's CURRENT location; never jump the
+  // camera or rewrite an autonomous villager's destination.
+  const detour=marketTour.replans<2?
+   streetMarketRoute(streetPosition,marketTour.plan.position):null;
+  if(detour&&detour.length){
+   marketTour.path=detour;marketTour.index=0;marketTour.replans++;
+   streetCaption();return;
+  }
   marketTourCompletion={completed:false,trade:marketTour.plan.stall.trade,
    reason:'A real wall or obstruction now blocks the market path'};
   marketTour=null;streetCaption();return;
