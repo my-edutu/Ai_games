@@ -89,8 +89,8 @@ export function planFittedRoleDetail(kind,part){
   mount='rightArm';
  // These sculpted pieces overlay a second, actually skinned anatomical kit.
  // A slimmer shell reveals the genuine GLB body and weapon contact.
- const scale=/pauldron|mantle|scroll-shoulder|gilt-rim/.test(id)?.56:
+ const scale=/pauldron|mantle|scroll-shoulder|gilt-rim/.test(id)?.66:
   /gorget|collar/.test(id)?.69:/scabbard|quiver|spined-shoulder/.test(id)?.70:
-  /helm-banner/.test(id)?.60:1;
+  /helm-banner/.test(id)?.66:1;
  return {mount,scale:part.shape==='arc'?1:scale};
 }
