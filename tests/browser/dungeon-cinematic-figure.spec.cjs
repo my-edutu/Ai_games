@@ -11,6 +11,9 @@ test('actual Chromium renders original 3D cinematic figures at desktop and mobil
   {timeout:35000}).toBeGreaterThan(.002);
  const desktop=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D);
  expect(desktop.cinematicFigures).toBeGreaterThanOrEqual(3);
+ expect(desktop.cinematicIdentityActors).toBe(desktop.cinematicFigures);
+ expect(desktop.cinematicIdentityPieces).toBeGreaterThanOrEqual(desktop.cinematicFigures*2);
+ expect(desktop.cinematicProfiles).toEqual(expect.arrayContaining(['vanguard','ranger','mystic']));
  expect(desktop.cinematicMeshes).toBeGreaterThanOrEqual(desktop.cinematicFigures*16);
  expect(desktop.cinematicPairedBatches).toBe(desktop.cinematicFigures*6);
  expect(desktop.cinematicAnatomyBridges).toBe(desktop.cinematicFigures*14);
@@ -39,6 +42,8 @@ test('actual Chromium renders original 3D cinematic figures at desktop and mobil
  // Live autonomy can add a legitimate actor during the viewport transition.
  // Never freeze a natural expedition just to manufacture identical totals.
  expect(mobile.cinematicFigures).toBeGreaterThanOrEqual(3);
+ expect(mobile.cinematicIdentityActors).toBe(mobile.cinematicFigures);
+ expect(mobile.cinematicIdentityPieces).toBeGreaterThanOrEqual(mobile.cinematicFigures*2);
  expect(mobile.cinematicPairedBatches).toBe(mobile.cinematicFigures*6);
  expect(mobile.cinematicRenderedParts).toBe(mobile.cinematicMeshes+mobile.cinematicPairedBatches);
  expect(mobile.cinematicAnatomyBridges).toBe(mobile.cinematicFigures*14);
@@ -53,9 +58,9 @@ test('actual Chromium renders original 3D cinematic figures at desktop and mobil
  fs.writeFileSync('artifacts/dungeon-m1-native-stride-desktop-mobile.json',JSON.stringify({
   source:'Real WebGL render diagnostic; live autonomous actor movement',
   baselineSha:'281735d0910c6b2443648af976003d50412ee324',
-  desktop:{figures:desktop.cinematicFigures,stridePeakRad:desktop.rigFullBodyStridePeakRad,
+  desktop:{figures:desktop.cinematicFigures,identityPieces:desktop.cinematicIdentityPieces,stridePeakRad:desktop.rigFullBodyStridePeakRad,
    activeShortLinks:desktop.cinematicActiveAnatomyBridges},
-  mobile:{figures:mobile.cinematicFigures,stridePeakRad:mobile.rigFullBodyStridePeakRad,
+  mobile:{figures:mobile.cinematicFigures,identityPieces:mobile.cinematicIdentityPieces,stridePeakRad:mobile.rigFullBodyStridePeakRad,
    activeShortLinks:mobile.cinematicActiveAnatomyBridges},
   limitations:'Not a controlled before/after or an objective animation-quality judgment'
  },null,2));
