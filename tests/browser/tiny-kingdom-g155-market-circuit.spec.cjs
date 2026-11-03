@@ -174,7 +174,10 @@ test('G160 camera motion reuses physically identical resident citizen geometry o
  expect(end.cache.skippedUploads).toBeGreaterThan(0);
  expect(end.cache.entries).toBeLessThanOrEqual(1);
  expect(end.cache.cachedFloats).toBeGreaterThan(0);
- expect(end.cache.cachedFloats).toBeLessThanOrEqual(800000);
+ // Real Day-1 390px GPU evidence on G160 contained 868,410 dynamic floats;
+ // the former 800,000 float cap disabled this cache entirely.
+ expect(end.cache.floatBudget).toBe(960000);
+ expect(end.cache.cachedFloats).toBeLessThanOrEqual(end.cache.floatBudget);
  expect(end.scene.totalTriangles).toBeLessThan(160000);
  expect(end.triangleCount).toBeGreaterThan(0);
  expect(end.snapshot).toBe(entry.before); // no synthetic jobs/resources/RNG
