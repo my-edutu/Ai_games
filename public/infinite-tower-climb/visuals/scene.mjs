@@ -156,6 +156,20 @@ function towerCameraActorSafetyRate(rate, ndcX, ndcY, aspect) {
   return Math.min(18, rate + pressure * 10);
 }
 
+// A REAL nearby guardian must become readable BEFORE its first wound, not
+// several slow camera seconds after the opening hit. This bounded follow-rate
+// correction uses its CURRENT projected body center from the preceding camera
+// image. Never pull the camera toward an unseen, dead or distant opponent.
+// The hero's existing offscreen rescue and safe exterior-orbit view still win.
+function towerCameraGuardianSafetyRate(rate, ndcX, ndcY, aspect) {
+  if (![rate, ndcX, ndcY, aspect].every(Number.isFinite) || aspect <= 0)
+    return rate;
+  const horizontal = aspect < .85 ? .8 : .87;
+  const pressure = Math.max(0, Math.abs(ndcX) / horizontal - .78,
+    Math.abs(ndcY) / .82 - .78);
+  return pressure ? Math.max(rate, Math.min(17.5, 6.5 + pressure * 11)) : rate;
+}
+
 // Emergency stage direction is only a FALLBACK for a real, projected actor
 // leaving the picture or becoming hidden by the solid cylindrical core.
 // Keep the previous readable route/guardian composition whenever it is safe:
@@ -762,7 +776,15 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
       const dx = Math.abs(enemy.x - player.x), dy = Math.abs(enemy.y - player.y);
       const healthRatio = Number.isFinite(enemy.health) && Number.isFinite(enemy.maxHealth) && enemy.maxHealth > 0
         ? clamp(enemy.health / enemy.maxHealth, 0, 1) : 1;
-      const activeContact = player.state !== 'airborne' && (healthRatio < 1 || enemy.telegraph ||
+      // The source-selected cap route is a genuine approach to an occupied
+      // boss gate. Stage its living guardian before the first hit, while there
+      // is still time for a portrait viewer to read the enemy silhouette.
+      // Ordinary climbing and airborne landings keep the route-first camera.
+      const approachingLockedGate =
+        snapshot.intent?.targetPlatformId === `f${snapshot.floor}:cap` &&
+        ['aligning', 'settling-launch'].includes(snapshot.intent?.mode);
+      const activeContact = player.state !== 'airborne' &&
+        (approachingLockedGate || healthRatio < 1 || enemy.telegraph ||
         player.attacking || ['engaging-enemy', 'bracing-telegraph', 'evading-telegraph'].includes(snapshot.intent?.mode));
       if (!activeContact || dx > 90000 || dy > 60000) continue;
       const score = dx + dy * 1.4;
@@ -2049,6 +2071,17 @@ export function createTowerScene(canvas, settings = {}) {
       scratch.project(camera);
       cameraRate = towerCameraActorSafetyRate(cameraRate,
         scratch.x, scratch.y, camera.aspect);
+      // An observed guardian cropped in the PREVIOUS submitted image gets a
+      // faster, continuous exterior orbit toward the already safe composition.
+      // The actor and the airborne landing remain higher-priority objectives.
+      if (!options.stale && followComposition?.guardianStaged && sourceGuardian &&
+          Number.isFinite(sourceGuardian.x) && Number.isFinite(sourceGuardian.y)) {
+        const enemyPoint = pointFor(sourceGuardian.x, sourceGuardian.y,
+          snapshot.chunkBaseY, snapshot.worldWidth, 27.15);
+        scratch.set(enemyPoint.x, enemyPoint.y, enemyPoint.z).project(camera);
+        cameraRate = towerCameraGuardianSafetyRate(cameraRate,
+          scratch.x, scratch.y, camera.aspect);
+      }
     }
     const cameraBlend = options.reducedMotion ? 1 : 1 - Math.exp(-dt * cameraRate);
     if (!initialized) { camera.position.copy(destination); lookAt.copy(focus); initialized = true; }

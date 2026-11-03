@@ -103,3 +103,38 @@ test('a genuine airborne route does not become a forced boss cutaway', async () 
   assert.equal(view.guardianStaged, false, 'do not steal the landing camera while airborne');
   assert.equal(view.targetId, cap.id, 'the actual required platform remains readable');
 });
+
+test('unwounded real guardian is staged BEFORE the first blow only on its observed cap approach', async () => {
+  const { pointFor, context } = await loaded;
+  const historical = observedHit();
+  const cap = historical.platforms.find(platform => platform.id.endsWith(':cap'));
+  const frame = {
+    ...historical,
+    player: { ...historical.player, state: 'standing', attacking: false },
+    intent: { mode: 'aligning', targetPlatformId: cap.id },
+    enemies: historical.enemies.map(enemy => enemy.kind === 'guardian'
+      ? { ...enemy, health: 8, maxHealth: 8, active: true, telegraph: false } : enemy),
+  };
+  const original = JSON.stringify(frame);
+  const hero = pointFor(frame.player.x, frame.player.y - frame.player.halfHeight,
+    frame.chunkBaseY, frame.worldWidth);
+  for (const aspect of [390 / 844, 960 / 600]) {
+    const arrival = context.composeFollowView(frame, hero, aspect);
+    assert.equal(arrival.guardianStaged, true, 'occupied gate must be readable before the first source-authentic damage');
+    assert.equal(arrival.guardianFramed, true, 'the unwounded opponent must fit in the portrait and desktop shot');
+    assert.ok(arrival.clear && arrival.heroFraction >= .15, 'early guardian staging cannot sacrifice the real climber');
+  }
+  for (const [mode, targetPlatformId] of [
+    ['aligning', 'unrelated-route'], ['air-control', cap.id],
+  ]) {
+    const nonContact = {
+      ...frame,
+      player: { ...frame.player, state: mode === 'air-control' ? 'airborne' : 'standing' },
+      intent: { mode, targetPlatformId },
+    };
+    const shot = context.composeFollowView(nonContact, hero, 390 / 844);
+    assert.equal(shot.guardianStaged, false, 'only source-visible actual cap approach can cue an unwounded boss');
+    if (mode === 'air-control') assert.equal(shot.targetId, cap.id, 'true airborne route remains the camera objective');
+  }
+  assert.equal(JSON.stringify(frame), original, 'composition can never alter a source frame');
+});

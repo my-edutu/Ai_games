@@ -201,3 +201,20 @@ test('actual out-of-frame portrait climber receives a stronger exterior rescue w
     'rescue must not dive through the opaque masonry');
   assert.deepEqual(actor.toArray(), [2, 15, 27], 'the presentation has no authority to move the real explorer');
 });
+
+test('real projected guardian outside a phone crop accelerates its existing exterior follow without a cut', async () => {
+  const { context } = await loaded;
+  const base = 5.2, portrait = 390 / 844;
+  assert.equal(context.towerCameraGuardianSafetyRate(base, .2, .3, portrait), base,
+    'centered pre-contact guardian never perturbs calm camera motion');
+  const edging = context.towerCameraGuardianSafetyRate(base, .78, .2, portrait);
+  const missing = context.towerCameraGuardianSafetyRate(base, 1.6, .2, portrait);
+  assert.ok(edging > base && missing > edging && missing <= 17.5,
+    'cropped source guardian requires bounded catch-up before the viewer misses the actual attack');
+  assert.ok(context.towerCameraGuardianSafetyRate(base, .1, 1.45, portrait) > base,
+    'vertical phone crop is also a genuine safety signal');
+  assert.equal(context.towerCameraGuardianSafetyRate(base, Infinity, 0, portrait), base,
+    'invalid source projection cannot invent a guardian');
+  assert.equal(context.towerCameraGuardianSafetyRate(18, 1.4, .4, portrait), 18,
+    'guardian recovery cannot override a faster existing hero-safety requirement');
+});
