@@ -2194,7 +2194,7 @@
         "playsMajority": false,
         "provenance": "No fresh independent critics available. Do not infer a blind preference from test results or real predecessor screenshots."
       },
-      "safetyChecks": "Dedicated exact-head f7964d authority PASS, 256/256 Dungeon foundation and 20/20 other tests, 24 seeded campaigns x900, deterministic replay 0 failures. Chromium screenshot *exists and inspected* but looks not transformed. Browser shards in progress, catalogue CI FAILS due missing GLB source file in generic runner. Full A/B/independent critics/mobile performance/audio remain UNVERIFIED.",
+      "safetyChecks": "New candidate 791c8b723724e1f747246472bc9055dc8da6df8f exact-head CI, browser, replay, security and performance PENDING, not counted passed. Previous 681a7b dedicated Dungeon and reproducible visual workflows succeeded; its global catalogue CI failed. This source fitting is NOT a transformation, audio/movie or critic win.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED: actual opt-in Warden scene MediaRecorder returned ZERO bytes desktop+mobile despite 24 live boss polls desktop and 59 live polls mobile; silent Playwright test-results videos only. Original audible soundtrack not captured.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2297,9 +2297,9 @@
       "nativeContinuityCandidate": "Source commit 08338db is an unverified new 3D underlay candidate, not a demonstrated repair. Real after comparison/critics have not happened. Monitor additional native underbody draw calls and 3D anatomy material intersections."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Actual running game still contains dark small figures, cluttered near-field masonry and weak combat contact; need genuine post-change moving Warden/party footage and complete mobile/desktop organic five-stage audiovisual A/B with independent blind judgment.",
-    "currentWork": "Native GLB joint-fitted costume seams committed as integrated animated figure candidate; no genuine exact-head visual quality or sound evidence has been inspected at this SHA. Continue Warden gameplay and body/camera/environment improvement.",
-    "candidateCommit": "3aec18998b31c156c261a1b6526ca91c47b22139",
+    "biggestRemainingGap": "Real visually convincing continuous anatomy and legible combat in moving actual 3D dungeon, plus authentic complete traversal/boss/floor/defeat/restart desktop/mobile audiovisual matched to original 281735d baseline. Original audio and >=3 independent blind looks/feels/plays verdicts remain UNVERIFIED.",
+    "currentWork": "Native-skeleton calibrated full armour integration across all six existing animated roles committed at 791c8b7, now awaiting exact-head genuine desktop/mobile capture. Earlier running game suffered dark detached miniature anatomy and dense near-field masonry. No validated new motion, original audio or critic preference; continue ONE M1 milestone.",
+    "candidateCommit": "791c8b723724e1f747246472bc9055dc8da6df8f",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -4097,6 +4097,33 @@
         "criticVerdicts": "UNVERIFIED; zero independent fresh-context LOOKS/FEELS/PLAYS votes.",
         "next": "Inspect real browser moving Warden and party at exact new SHA; reject any torso/shoulder seam clipping; improve character/near-wall composition and contact; record genuine unbroken five-stage desktop/mobile audiovisual before/after against immutable baseline and seek >=3 blinded independent critics.",
         "verdict": "IN_PROGRESS — NOT_TRANSFORMED"
+      },
+      {
+        "id": "M1-NATIVE-BONE-ARMOR-FIT-20261103",
+        "date": "2026-11-03",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "codeCommit": "791c8b723724e1f747246472bc9055dc8da6df8f",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "681a7b86b678726e9e4cf041eb8a56afb78686a7",
+        "objective": "Retire detached-looking role armour from hand-guessed one-size-fits-all coordinate mounts, and keep all six original animated adult characters and Warden costume physically near authentic imported native joints through traversal, attacks and boss choreography.",
+        "implementation": "One-time neutral bind-pose native joint-space measurements from the genuine source GLB calibrate all paired bone-instanced armour, single bone-welded cranial sculpture and asymmetric class-specific forged accessories. Bounded anatomical envelopes protect shields, quivers, cloth and leg plates from arbitrary gaps; invalid imported measurements fail back to original authored mounts, never invent simulated movement. Native skinned body/rig clips, original weapons, camera, rooms and Warden fight continue to share the existing 3D scene. Counters expose correction count and max displacement. No changes to DungeonRuntime, saved state, AI, seeds, damage, replay, new proprietary assets or shader passes.",
+        "files": [
+          "public/ai-dungeon/cinematic-figure.js",
+          "public/ai-dungeon/model-assets.js",
+          "tests/foundation/dungeon-m1-native-armor-fit.test.cjs"
+        ],
+        "safety": "New pure fit contracts submitted, not yet observed running. Dedicated browser workflow 41718051465, visual review 41718051706 and catalogue CI 41718051583 queued at observation. No exact-code technical pass claim.",
+        "realBefore": "https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
+        "observedPredecessor": "https://github.com/my-edutu/Ai_games/actions/runs/41699864342/artifacts/13262519453",
+        "after": "UNVERIFIED: exact-head genuine moving WebGL desktop/mobile capture and sound not yet inspected",
+        "originalAudio": "UNVERIFIED; prior genuine Warden recorder attempts 0 bytes on desktop and phone",
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "independentCritics": "0/3; tunnel disconnected, no outside blind judgments",
+        "performance": "UNVERIFIED; changes existing mount poses only and no additional draw pass, but frame-time/geometry intersections have not been measured",
+        "biggestGap": "Small dark jointed bodies compete with masonry and overlap in attack; true action/reaction and sound need direct real-browser scrutiny",
+        "next": "Inspect current head actual in-motion screenshots/video, reject or refine body intersections and boss camera occlusion, then obtain organic uninterrupted five-stage desktop/mobile game+original-sound footage, matched BEFORE/AFTER and >=3 fresh independent blind pillar critiques. Keep same M1, same fixed baseline, draft PR."
       }
     ]
   }
