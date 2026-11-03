@@ -1062,6 +1062,16 @@ test('a real close public encounter frames both autonomous actors and saves date
     'the original open gate must still be the gameplay camera subject').toBeTruthy();
   expect(midGateAfterScreenshot.explorerModelFullyInFrame,
     'the genuine mid-lift camera must not crop any physical part of Pip').toBe(true);
+  // Pass114 source-bound visual COVERAGE, measured on the real original PNG
+  // camera AFTER its screenshot. Pass113 1280 MID Pip bounds were only
+  // .2465 NDC wide and .5584 high; the tighter public landscape stage must
+  // make the actual rig substantially larger without cropping the arch.
+  // Preserve the pre-existing true silhouette and moving-bar assertions.
+  const gateHeroBounds=midGateAfterScreenshot.explorerPhysicalBounds;
+  expect(gateHeroBounds?.right-gateHeroBounds?.left,
+    'real gate screenshot must give the full 3D explorer more horizontal stage').toBeGreaterThan(.258);
+  expect(gateHeroBounds?.top-gateHeroBounds?.bottom,
+    'real gate screenshot must give Pip a visibly taller physical action').toBeGreaterThan(.585);
   // This ORIGINAL actual-WebGL screenshot must show a meaningful connected
   // performance, not just a static robot and an animated goal badge. The
   // authoritative character remains in-frame with its real moving props.
