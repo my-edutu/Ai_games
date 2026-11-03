@@ -1249,6 +1249,12 @@ test('a real close public encounter frames both autonomous actors and saves date
     'keep the actual walkable cell linked to the source-authoritative traversal').toBeGreaterThan(0);
   expect(fossilDiagnostic.world.tideFossilAlcoves,
     'the actual browser world must render a sculpted fossil, not only a unit-test mesh').toBeGreaterThan(0);
+  expect(fossilDiagnostic.world.responsiveFossilSails,
+    'source-bound WebGL world must contain both genuine hinged sculptural pieces for every disclosed fossil alcove')
+    .toBe(fossilDiagnostic.world.tideFossilAlcoves*2);
+  expect(Number.isFinite(fossilDiagnostic.world.fossilMotionMaxRadians)).toBe(true);
+  expect(fossilDiagnostic.world.fossilMotionMaxRadians,
+    'true native screenshot must measure a real physical hinged fossil pose, not a text-only event').toBeGreaterThan(.03);
   expect(fossilDiagnostic.world.renderedCells).toEqual(fossilSnapshot.cells.map(c=>c.cell));
   expect(fossilDiagnostic.explorerModelFullyInFrame,
     'no physical fossil should justify cropping Pip').toBe(true);
@@ -1276,6 +1282,8 @@ test('a real close public encounter frames both autonomous actors and saves date
     caveat:'Native original PNG awaiting direct independent image judgement, not a Nintendo victory.'
   },null,2));
   expect(fossilPortrait.world.tideFossilAlcoves).toBeGreaterThan(0);
+  expect(fossilPortrait.world.responsiveFossilSails).toBe(fossilPortrait.world.tideFossilAlcoves*2);
+  expect(fossilPortrait.world.fossilMotionMaxRadians).toBeGreaterThan(.03);
   expect(fossilPortrait.explorerModelFullyInFrame).toBe(true);
   expect(fossilPortrait.cameraAspect).toBeCloseTo(390/844,2);
 
