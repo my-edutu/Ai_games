@@ -2297,8 +2297,8 @@
       "nativeContinuityCandidate": "Source commit 08338db is an unverified new 3D underlay candidate, not a demonstrated repair. Real after comparison/critics have not happened. Monitor additional native underbody draw calls and 3D anatomy material intersections."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Authentic latest f7964d Chromium raw gameplay still has bulbous/partially detached miniature-like figures competing with dense waist-height/tall Gothic block masonry, unlike reference game character staging and impact clarity. Fusion alone did NOT substantiate a LOOKS win. A complete moving 5-phase audiovisual adventure, matched locked M1 baseline and blind LOOKS/FEELS/PLAYS majority remain absent.",
-    "currentWork": "Exact-head f7964d M1 bone-local integrated cranial sculpture is committed and successfully rendered in real Chromium; scene remains visually crowded and character anatomy unconvincing. Authority/replay safety pass, but catalogue CI/visual objective not accepted. Next integrated milestone work must prioritize body/camera/world/contact under real running gameplay.",
+    "biggestRemainingGap": "Actual running game still contains dark small figures, cluttered near-field masonry and weak combat contact; need genuine post-change moving Warden/party footage and complete mobile/desktop organic five-stage audiovisual A/B with independent blind judgment.",
+    "currentWork": "Native GLB joint-fitted costume seams committed as integrated animated figure candidate; no genuine exact-head visual quality or sound evidence has been inspected at this SHA. Continue Warden gameplay and body/camera/environment improvement.",
     "candidateCommit": "3aec18998b31c156c261a1b6526ca91c47b22139",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
@@ -4077,6 +4077,26 @@
           "referenceBar": "Compared qualitatively against 2023 Diablo IV Frozen Tunnel combat still (https://www.npr.org/2023/05/30/1178222988/diablo-iv-review-activision-blizzard), real No Rest for the Wicked 2026 cavern still (https://www.rpgsite.net/news/20518-no-rest-for-the-wicked-1-0-release-ps5-xbox-switch-2-cross-save-multiplayer-pc-october), and Path of Exile 2 Executioner combat still (https://www.mmorpg.com/reviews/path-of-exile-2-early-access-review-2000133606). Their negative space/material structure/impact clarity remain far ahead; they are references, NOT licensed or copied game assets.",
           "verdict": "NOT TRANSFORMED / reviewer observation, no independent critic panel"
         }
+      },
+      {
+        "id": "M1-RIG-TRUE-SEAMS-20261103",
+        "date": "2026-11-03",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "5d6ed27e0995bc36855271c335be255406b91079",
+        "objective": "Replace widely separated costume-pivot geometry with an integrated native-skeleton, originally sculpted cloth continuity pass across true moving player and Warden anatomy in the playable dungeon.",
+        "integration": "Ten real animated GLB chest/pelvis/head/upper-arm/forearm/thigh/shin spans are fitted to class-specific cloth radii; four original fake long body bridges are retired. One existing 14-instance GPU draw budget is retained; all spans are rejected if too distant to be physically plausible. Six role/armor identities, genuine Warden mechanics, movement/attacks/sound, original 5-mesh weighted underbody, authority AI and replay are unchanged.",
+        "sourceFiles": [
+          "public/ai-dungeon/cinematic-figure.js",
+          "tests/foundation/dungeon-native-garment-seams.test.cjs"
+        ],
+        "priorRealEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/41699864342/artifacts/13262519453",
+        "localExecution": "UNVERIFIED — connected workspace and Chromium/worker tunnel unavailable; source/test files committed via GitHub connector with no invented checks.",
+        "afterGameplay": "UNVERIFIED; fresh exact-head 3D desktop/mobile frame and sound captures required.",
+        "performance": "UNVERIFIED; 14 existing instance slots and same material groups, but no measured frame-time delta.",
+        "criticVerdicts": "UNVERIFIED; zero independent fresh-context LOOKS/FEELS/PLAYS votes.",
+        "next": "Inspect real browser moving Warden and party at exact new SHA; reject any torso/shoulder seam clipping; improve character/near-wall composition and contact; record genuine unbroken five-stage desktop/mobile audiovisual before/after against immutable baseline and seek >=3 blinded independent critics.",
+        "verdict": "IN_PROGRESS — NOT_TRANSFORMED"
       }
     ]
   }

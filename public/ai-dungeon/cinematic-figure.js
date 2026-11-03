@@ -129,6 +129,48 @@ export function planAnatomyBridge(span,stature=1.82){
  const width=(span<.14*scale?.044:.053)*scale;
  return Object.freeze({visible:true,length:span*1.055,radius:width});
 }
+/**
+ * An animated cloth seam follows real CC0 GLB bones, never a widely spaced
+ * ornamental costume pivot. Exactly fourteen bounded GPU instance slots,
+ * with four old rubber-tube extensions retired. No ghost skeletons.
+ */
+export const CINEMATIC_NATIVE_SEAMS=Object.freeze([
+ ['chest','pelvis','gambeson'],['chest','head','collar'],
+ ['chest','leftUpperArm','shoulder'],['leftUpperArm','leftForearm','sleeve'],
+ ['leftForearm',null,'retired'],['chest','rightUpperArm','shoulder'],
+ ['rightUpperArm','rightForearm','sleeve'],['rightForearm',null,'retired'],
+ ['pelvis','leftUpperLeg','hip'],['leftUpperLeg','leftLowerLeg','legging'],
+ ['leftLowerLeg',null,'retired'],['pelvis','rightUpperLeg','hip'],
+ ['rightUpperLeg','rightLowerLeg','legging'],['rightLowerLeg',null,'retired']
+].map(([a,b,profile])=>Object.freeze({a,b,profile})));
+/**
+ * Bounded original cloth volume profiles for anatomically skinned figures.
+ * Guard against metre-long dark capsules even when imported bones are
+ * unexpectedly far apart in genuine travel, melee and Warden animations.
+ */
+export function planNativeGarmentSeam(span,stature=1.82,profile='sleeve',kind='vanguard'){
+ const hidden=Object.freeze({visible:false,length:0,radiusX:0,radiusZ:0});
+ const profiles={
+  gambeson:[.09,.40,.178,.148],
+  collar:[.045,.245,.083,.067],
+  shoulder:[.055,.38,.111,.089],
+  sleeve:[.095,.38,.077,.069],
+  hip:[.075,.36,.118,.097],
+  legging:[.09,.40,.100,.086]
+ };
+ const p=profiles[profile];
+ if(!p||!Number.isFinite(span)||!Number.isFinite(stature)||
+    stature<1.3||stature>2.6||!Object.hasOwn(ROLES,kind))return hidden;
+ const size=stature/1.82;
+ if(span<p[0]*size||span>p[1]*size)return hidden;
+ const shape=ROLES[kind];
+ const width=profile==='shoulder'?shape.shoulders:
+  profile==='hip'||profile==='legging'?shape.waist:1;
+ return Object.freeze({visible:true,length:span*1.035,
+  radiusX:Math.min(.20,p[2]*size*width),
+  radiusZ:Math.min(.18,p[3]*size)});
+}
+
 /** 
  * M1 anatomical continuity: preserve ONLY the artist-authored, continuously
  * SKINNED underlying torso and four limbs beneath the original forged armor.
@@ -565,21 +607,26 @@ export function createCinematicFigure(T,actor,joints){
     pair.mesh.instanceMatrix.needsUpdate=true;
    }
    activeBridges=0;rejectedLongBridges=0;
-   CINEMATIC_ANATOMY_LINKS.forEach(([from,to],i)=>{
-    const a=attachments.get(from),b=attachments.get(to);
-    if(!a||!b){pose.makeScale(.00001,.00001,.00001);bridge.setMatrixAt(i,pose);return;}
+   CINEMATIC_NATIVE_SEAMS.forEach(({a:from,b:to,profile},i)=>{
+    // Only true skinning joints may anchor a rendered garment. Missing bones
+    // and retired long costume seams stay invisible; never fabricate anatomy.
+    const a=joints[from],b=to?joints[to]:null;
+    if(!a?.isBone||!b?.isBone){
+     pose.makeScale(.00001,.00001,.00001);bridge.setMatrixAt(i,pose);return;
+    }
     a.updateWorldMatrix(true,false);b.updateWorldMatrix(true,false);
     a.getWorldPosition(bridgeStart).applyMatrix4(inverseGroup);
     b.getWorldPosition(bridgeEnd).applyMatrix4(inverseGroup);
     bridgeDirection.subVectors(bridgeEnd,bridgeStart);
-    const length=bridgeDirection.length(),plan=planAnatomyBridge(length,recipe.statureMeters);
+    const length=bridgeDirection.length();
+    const plan=planNativeGarmentSeam(length,recipe.statureMeters,profile,recipe.kind);
     if(!plan.visible){
-     if(Number.isFinite(length)&&length>.28*recipe.statureMeters/1.82)rejectedLongBridges++;
+     if(Number.isFinite(length)&&length>.04)rejectedLongBridges++;
      pose.makeScale(.00001,.00001,.00001);bridge.setMatrixAt(i,pose);return;
     }
     bridgeMid.addVectors(bridgeStart,bridgeEnd).multiplyScalar(.5);
     bridgeQuat.setFromUnitVectors(bridgeUp,bridgeDirection.multiplyScalar(1/length));
-    bridgeScale.set(plan.radius,plan.length,plan.radius);
+    bridgeScale.set(plan.radiusX,plan.length,plan.radiusZ);
     pose.compose(bridgeMid,bridgeQuat,bridgeScale);
     bridge.setMatrixAt(i,pose);activeBridges++;
    });
