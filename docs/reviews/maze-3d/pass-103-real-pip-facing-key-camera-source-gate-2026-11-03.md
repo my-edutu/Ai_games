@@ -8,11 +8,11 @@ The authentic Pass102 full-resolution 390×844 and 1280×900 WebGL captures, ind
 
 The live source now sets the **original existing Three.js camera** to a lower, face-facing three-quarter view in a *genuinely witnessed* public key pickup. The bearing is captured from Pip's last **public rendered movement heading at the actual same-run collection** and held steady, instead of following subsequent autonomous turns or guessing hidden state. This is not a new gameplay command, actor movement, route, collision change or HUD element.
 
-- [Source camera helper](../../../../public/ai-maze-escape/pickup-story-camera.mjs) — finite public bearing, single reused physical camera vector, original stage angle.
-- [Exact in-game source](../../../../public/ai-maze-escape/scene.js) — guarded by the existing source-witnessed collection, inventory, disclosed cell, proximity, follow mode, no genuine warden/gate/terminal priority; publishes `pickupCameraHeroFacing` from the **actual rendered camera**, not the intended target.
-- [Deterministic source test](../../../../tests/phase6/maze-pickup-story-camera.test.cjs) — all cardinal/intermediate public headings aim a 3D three-quarter camera toward Pip, invalid headings cannot move it, source privacy guards remain.
-- [Native Playwright critic](../../../../tests/browser/maze-review.spec.cjs) — **stronger, not weaker**, native 390 collection must show actual camera facing >0.78 as well as prior unchanged <6 intended / <7 **rendered** half-height, >=6 genuine in-frame fragments, >60px actual shard spread, whole model, truthful HUD and source hashes. The original captured JSON records this physical facing metric.
-- [Source-bound capture script](../../../../scripts/capture-maze-3d.cjs) — original evidence hashes include both this camera file and the game-first HUD source.
+- [Source camera helper](../../../public/ai-maze-escape/pickup-story-camera.mjs) — finite public bearing, single reused physical camera vector, original stage angle.
+- [Exact in-game source](../../../public/ai-maze-escape/scene.js) — guarded by the existing source-witnessed collection, inventory, disclosed cell, proximity, follow mode, no genuine warden/gate/terminal priority; publishes `pickupCameraHeroFacing` from the **actual rendered camera**, not the intended target.
+- [Deterministic source test](../../../tests/phase6/maze-pickup-story-camera.test.cjs) — all cardinal/intermediate public headings aim a 3D three-quarter camera toward Pip, invalid headings cannot move it, source privacy guards remain.
+- [Native Playwright critic](../../../tests/browser/maze-review.spec.cjs) — **stronger, not weaker**, native 390 collection must show actual camera facing >0.78 as well as prior unchanged <6 intended / <7 **rendered** half-height, >=6 genuine in-frame fragments, >60px actual shard spread, whole model, truthful HUD and source hashes. The original captured JSON records this physical facing metric.
+- [Source-bound capture script](../../../scripts/capture-maze-3d.cjs) — original evidence hashes include both this camera file and the game-first HUD source.
 
 ## Independent critic / evidence gate
 
