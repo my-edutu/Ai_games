@@ -87,7 +87,9 @@ test('new rooted ivory fossil fans are physically taller but remain wall-side an
   });
   assert.equal(fans.length,2,'actual installed Three world has two taller wall-rooted pale ribs');
   assert.ok(fans.every(f=>f.z<center.z-.75&&f.z>center.z-1.15
-   &&f.y>.60&&f.y<.64),'both fossil fans stay out of the disclosed east passage');
+   &&f.y-module.cellHeight(10,7,7)>.60
+   &&f.y-module.cellHeight(10,7,7)<.64),
+   'both real fossil fans stay rooted above their public terrace and outside its east passage');
   assert.ok(world.stats().geometryCount<=16&&world.stats().materialCount<=26);
   world.update(shot([],{runToken:'reset',tick:1}));
   assert.equal(world.stats().tideFossilAlcoves,0);
