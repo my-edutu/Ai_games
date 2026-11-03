@@ -91,3 +91,10 @@ test('live 3D nameplates retain camera truth but never occupy the same mobile/de
  assert.deepEqual(planReadableNameplates([{id:'bad',x:NaN,y:1,width:110}],{width:390,height:500}),{labels:[],suppressed:0});
  assert.doesNotMatch(source,/Math\.random|Date\.|fetch\(|DungeonRuntime/);
 });
+
+test('actual focused combat annotations resolve through the strict same-origin module whitelist',()=>{
+ const server=fs.readFileSync(path.join(root,'scripts/serve-dungeon-stream.cjs'),'utf8');
+ const overlay=fs.readFileSync(path.join(root,'public/ai-dungeon/combat-overlay.js'),'utf8');
+ assert.ok(server.includes("['/dungeon/nameplate-composition-plan.js','nameplate-composition-plan.js']"));
+ assert.match(overlay,/import \{planReadableNameplates\} from '\/dungeon\/nameplate-composition-plan\.js';/);
+});
