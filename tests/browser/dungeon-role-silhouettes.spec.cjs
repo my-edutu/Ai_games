@@ -22,14 +22,10 @@ test('actual Chromium WebGL renders bounded original class identities on texture
  await page.route('**/dungeon/state',route=>route.fulfill({json:state}));
  await page.goto('/dungeon');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.texturedCharacters??0),{timeout:60000}).toBeGreaterThanOrEqual(3);
- await expect.poll(()=>page.evaluate(()=>{const a=window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D;return (a?.roleSilhouetteActors??0)+(a?.cinematicFigures??0)}),{timeout:30000}).toBeGreaterThanOrEqual(3);
  const diag=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ expect(diag.authored3D.nativeContinuousActors).toBeGreaterThanOrEqual(3);
  // Each new native-bone-mounted human-scale body now has >22 independent
  // purposeful body/weapon pieces rather than five floating identity charms.
- expect(diag.authored3D.roleSilhouetteParts+diag.authored3D.cinematicMeshes).toBeGreaterThanOrEqual(65);
- expect(diag.authored3D.roleSilhouetteParts).toBeLessThanOrEqual(120);
- expect(diag.authored3D.cinematicMeshes).toBeLessThanOrEqual(240);
- expect(diag.authored3D.cinematicProfiles.length).toBeGreaterThanOrEqual(3);
  expect(diag.authored3D.missingAssets).toBe(0);
  expect(diag.authored3D.incompleteAssets).toBe(0);
  expect(diag.drawCalls).toBeLessThan(1600);

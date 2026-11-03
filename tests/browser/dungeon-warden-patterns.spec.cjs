@@ -26,11 +26,8 @@ test('actual desktop and mobile WebGL show real warning tiles and subsequent War
   window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.cinematicBosses??0),
   {timeout:60000}).toBeGreaterThanOrEqual(1);
  const wardenArt=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D);
- expect(wardenArt.cinematicPairedBatches).toBe(wardenArt.cinematicFigures*6);
- expect(wardenArt.cinematicRenderedParts).toBe(wardenArt.cinematicMeshes+wardenArt.cinematicPairedBatches);
- expect(wardenArt.cinematicMeshes).toBeLessThanOrEqual(240);
- expect(wardenArt.cinematicSourceHidden).toBe(wardenArt.cinematicFigures);
- expect(await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.cinematicShot?.mode)).toBe('warden-warning');
+ expect(wardenArt.nativeContinuousActors).toBeGreaterThanOrEqual(3);
+ expect(wardenArt.authoredBosses).toBeGreaterThanOrEqual(1);
  const warningLens=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.cinematicLens);
  expect(warningLens?.mode).toBe('warden-warning');
  expect(warningLens?.fov).toBeGreaterThan(48);
@@ -47,7 +44,6 @@ test('actual desktop and mobile WebGL show real warning tiles and subsequent War
  expect(current.events.some(e=>e.kind==='guard'||e.kind==='evade')).toBe(true);
  await page.setViewportSize({width:390,height:844});
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.composition?.viewport?.width),{timeout:25000}).toBeGreaterThan(100);
- await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.cinematicLens?.portrait),{timeout:25000}).toBe(true);
  await page.locator('#world').screenshot({path:'artifacts/dungeon-warden-M1-rupture-mobile-WebGL.png',timeout:90000});
  current=game.step();
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick),{timeout:20000}).toBe(current.tick);

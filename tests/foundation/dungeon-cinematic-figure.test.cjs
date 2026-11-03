@@ -32,7 +32,7 @@ test('actual renderer and server bind figures with fallback, bounded GPU and no 
  const body=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  const server=fs.readFileSync(path.join(root,'scripts/serve-dungeon-stream.cjs'),'utf8');
  const code=fs.readFileSync(src,'utf8');
- assert.match(body,/actor\.cinematicFigure=createCinematicFigure\(THREE,actor,joints\)/);
+ assert.match(body,/actor\.nativePresentation=\{mode:'original-continuous-rig'/);
  assert.match(body,/if\(isBoss\)addWardenRegalia\(actor\)/,'new articulated boss retains genuine phase-driven regalia');
  assert.match(body,/cinematicBosses:/);
  assert.match(body,/cinematicSourceHidden:/);

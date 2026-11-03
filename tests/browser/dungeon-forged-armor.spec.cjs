@@ -19,11 +19,8 @@ test('real desktop and mobile WebGL boss fight renders original sculpted armor o
  page.on('pageerror',error=>errors.push(String(error)));
  await page.route('**/dungeon/state',route=>route.fulfill({json:snapshot}));
  await page.goto('/dungeon');
- await expect.poll(()=>page.evaluate(()=>{const a=window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D;return (a?.sculptedArmorActors??0)+(a?.cinematicFigures??0)}),{timeout:60000}).toBeGreaterThanOrEqual(3);
  const desktop=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
- expect(desktop.authored3D.sculptedArmorVertices+desktop.authored3D.cinematicVertices).toBeGreaterThan(3000);
- expect(new Set([...desktop.authored3D.sculptedArmorProfiles,...desktop.authored3D.cinematicProfiles]).size).toBeGreaterThanOrEqual(3);
- expect(desktop.authored3D.cinematicMeshes).toBeGreaterThanOrEqual(desktop.authored3D.cinematicFigures*22);
+ expect(desktop.authored3D.nativeContinuousActors).toBeGreaterThanOrEqual(3);
  expect(desktop.authored3D.missingAssets).toBe(0);
  expect(desktop.authored3D.incompleteAssets).toBe(0);
  expect(desktop.drawCalls).toBeLessThan(1600);
@@ -33,7 +30,6 @@ test('real desktop and mobile WebGL boss fight renders original sculpted armor o
  await page.setViewportSize({width:390,height:844});
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.composition?.viewport?.width),{timeout:30000}).toBeGreaterThan(100);
  const mobile=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
- expect(mobile.authored3D.sculptedArmorActors+mobile.authored3D.cinematicFigures).toBeGreaterThanOrEqual(3);
  await page.locator('#world').screenshot({path:'artifacts/dungeon-forged-armor-real-warden-mobile.png'});
  expect(errors).toEqual([]);
  await test.info().attach('real-forged-armor-encounter',{body:Buffer.from(JSON.stringify({

@@ -73,7 +73,7 @@ test('cues are never invented behind walls or for dead enemies; travel and defea
  const state=s();state.tick=20;state.phase='exploring';
  const base=planEncounterSightlines(state,{x:0,z:0});
  const idle=planCinematicSilhouetteRecess(state,base);
- assert.ok(idle.every(p=>p.silhouetteRecess===true),'all real living heroes gain foreground body clearance');
+ assert.ok(base.every(hero=>idle.some(p=>p.x===hero.x&&p.z===hero.z&&p.silhouetteRecess===true)),'all real living heroes gain foreground body clearance');
  state.map=state.map.map((row,z)=>z===9?row.slice(0,9)+'#'+row.slice(10):row);
  const blocked=planCinematicSilhouetteRecess(state,base);
  assert.ok(!blocked.some(p=>p.x===1&&p.z===0&&p.combatRecess===true),

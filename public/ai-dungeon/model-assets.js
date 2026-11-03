@@ -4,7 +4,6 @@ import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
 import {planRangedBodyPose} from '/dungeon/ranged-encounter-plan.js';
-import {createCinematicFigure} from '/dungeon/cinematic-figure.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
 import {planEvasionPerformance} from '/dungeon/evasion-performance-plan.js';
 import {planCombatPerformanceBeat} from '/dungeon/combat-performance-plan.js';
@@ -756,25 +755,29 @@ function attachCharacter(actor){
    rightLowerLeg:actor.rigGaitBones?.find(m=>m.side==='right'&&m.part==='lower')?.bone,
    rightHand:(()=>{const found=[];actor.assetRoot.traverse(o=>{if(o.isSkinnedMesh)for(const b of o.skeleton?.bones||[])if(b?.isBone&&!found.includes(b))found.push(b);});return selectHandBone(found,'right');})()
   };
-  actor.cinematicFigure=createCinematicFigure(THREE,actor,joints);
-  if(actor.cinematicFigure){
-   // Keep the real Warden's 24 phase-responsive regalia components on top
-   // of its full new native-bone sculpt, not the now hidden miniature source.
-   if(isBoss)addWardenRegalia(actor);
-   // Existing original deformable textiles complete the body silhouette.
-   // Their existing cleanup/reduced-motion paths continue to apply.
-   addFabricDrape(actor);
-   actor.rigHandBone=joints.rightHand;
-   actor.rigHandBoneName=joints.rightHand?.name??null;
-   actor.rigBoundAccessoryParts=1;
-  }else{
-   addWardenRegalia(actor);
-   addRoleSilhouette(actor);
-   bindRigWeaponAccessories(actor);
-   addAnatomicalKit(actor);
-   bindRigWardrobe(actor);
-   addFabricDrape(actor);
-  }
+  // M1 visual rescue: genuine browser A/B showed the overlaid faceted skull,
+  // disconnected plates and procedural garment bridges DEGRADE the running
+  // game against its own untouched source rig (baseline 281735d). Retire that
+  // complete duplicate silhouette from the live rendering path. Preserve all
+  // original licensed GLB body, clothing, head, hands and weapon meshes, with
+  // their continuous weight-painted skeleton and real source animations.
+  // This is deliberately not an opaque procedural substitute or hidden draw.
+  let visibleSourceMeshes=0,visibleSourceSkinMeshes=0,visibleSourceMaterials=0;
+  actor.assetRoot.traverse(obj=>{
+   if(!obj.isMesh)return;
+   obj.visible=true;
+   visibleSourceMeshes++;
+   if(obj.isSkinnedMesh)visibleSourceSkinMeshes++;
+   if((Array.isArray(obj.material)?obj.material:[obj.material]).some(m=>m?.map))visibleSourceMaterials++;
+  });
+  actor.nativePresentation={mode:'original-continuous-rig',sourceMeshes:visibleSourceMeshes,
+   skinnedMeshes:visibleSourceSkinMeshes,texturedMeshes:visibleSourceMaterials,
+   complete:visibleSourceSkinMeshes>=5&&visibleSourceMaterials>=1};
+  actor.rigHandBone=joints.rightHand??null;
+  actor.rigHandBoneName=joints.rightHand?.name??null;
+  // Original Warden ritual identity sits on the same genuine skinned rig;
+  // its authored warning/phase cues and genuine combat choreography survive.
+  if(isBoss)addWardenRegalia(actor);
   changeAction(actor,actor.u.action||'idle');
   return true;
  }).catch(e=>{failures.add(asset);return false});
@@ -1000,7 +1003,12 @@ function putEnvironment(world,sceneKey,map){
 }
 function stats(actors){
  const all=[...actors.values()],authored=all.filter(a=>a.authored);
- return{cinematicFigures:authored.filter(a=>a.cinematicFigure).length,
+ return{nativeContinuousActors:authored.filter(a=>a.nativePresentation?.complete).length,
+  nativeVisibleSourceMeshes:authored.reduce((n,a)=>n+(a.nativePresentation?.sourceMeshes||0),0),
+  nativeVisibleSkinnedMeshes:authored.reduce((n,a)=>n+(a.nativePresentation?.skinnedMeshes||0),0),
+  nativeTexturedSourceMeshes:authored.reduce((n,a)=>n+(a.nativePresentation?.texturedMeshes||0),0),
+  nativePresentationModes:[...new Set(authored.map(a=>a.nativePresentation?.mode).filter(Boolean))],
+  cinematicFigures:authored.filter(a=>a.cinematicFigure).length,
   cinematicBosses:authored.filter(a=>a.u.kind==='warden'&&a.cinematicFigure).length,cinematicMeshes:authored.reduce((n,a)=>n+(a.cinematicFigure?.meshes||0),0),
   cinematicRenderedParts:authored.reduce((n,a)=>n+(a.cinematicFigure?.renderedParts||0),0),
   cinematicPairedBatches:authored.reduce((n,a)=>n+(a.cinematicFigure?.pairedBatches||0),0),

@@ -11,8 +11,8 @@ test('real 3D dungeon sculpting and anatomical gear render from an unchanged aut
  await page.route('**/dungeon/state',route=>route.fulfill({json:snapshot}));
  await page.goto('/dungeon');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.texturedCharacters??0),{timeout:60000}).toBeGreaterThanOrEqual(3);
- await expect.poll(()=>page.evaluate(()=>{const a=window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D;return (a?.anatomicalDetailActors??0)+(a?.cinematicFigures??0)}),{timeout:30000}).toBeGreaterThanOrEqual(3);
  const diag=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ expect(diag.authored3D.nativeContinuousActors).toBeGreaterThanOrEqual(3);
  expect(diag.webgl).toBe(true);
  expect(diag.wallSculpture).toMatchObject({sculpted:true,variants:4});
  expect(diag.wallSculpture.wallCount).toBeGreaterThan(40);
@@ -36,10 +36,6 @@ test('real 3D dungeon sculpting and anatomical gear render from an unchanged aut
  await expect.poll(()=>page.evaluate(()=>
   window.__DUNGEON_RENDER_DIAGNOSTICS__?.dressing?.matrixWrites?.capstone??-1
  ),{timeout:40000}).toBe(0);
- expect(diag.authored3D.anatomicalDetailParts+diag.authored3D.cinematicMeshes).toBeGreaterThanOrEqual(65);
- expect(diag.authored3D.anatomicalDetailParts).toBeLessThanOrEqual(144);
- expect(diag.authored3D.cinematicMeshes).toBeLessThanOrEqual(240);
- expect(diag.authored3D.cinematicMaterialsMapped).toBeGreaterThanOrEqual(diag.authored3D.cinematicFigures*5);
  expect(diag.composition.visibleHeroes).toBeGreaterThan(0);
  expect(diag.visibility.unoccludedHeroes).toBeGreaterThan(0);
  expect(diag.drawCalls).toBeLessThan(1600);
