@@ -26,6 +26,10 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
+      # Playwright's configured webServer imports dist/packages/replay; an
+      # unbuilt checkout makes the W02 browser test fail before it ever runs.
+      - name: Build browser webServer dependencies
+        run: npm run build
       - run: npx playwright install --with-deps chromium
       - name: Capture WebGL capability and frame
         env:
