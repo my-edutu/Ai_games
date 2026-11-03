@@ -610,6 +610,7 @@ async function marketCircuitMotion(browser,html,snapshot){
    'G159 actual mobile market entrance has a dominating physical timber post: '+
    JSON.stringify(initial.market.architecture?.posts));
   await page.locator('#street-meet-worker').focus();
+  const activationClock=Date.now();
   await page.keyboard.press('Enter');
   const started=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
@@ -619,11 +620,20 @@ async function marketCircuitMotion(browser,html,snapshot){
   assert(started.tour.active,
    'G157 Day-120 actual filmed market circuit cannot find a safe second-stall view: '+
    JSON.stringify(started.planning?.connectedSearch||started.planning));
-  // A SwiftShader game frame may advance between user input and the audit;
-  // do not confuse legitimate motion with an instantaneous teleport.
-  assert(Math.hypot(started.position[0]-initial.position[0],
-   started.position[1]-initial.position[1])<.8,
-   'G156 pedestrian route jumped instead of walking');
+  // G162: actual exact-head G161 footage falsely reported a "teleport"
+  // because at ~2.45 SwiftShader FPS the real player moved farther than
+  // 0.8m before the second Playwright inspection. Assert the exact entrance,
+  // accumulated collision-swept displacement and elapsed-world-clock bound.
+  const movedOnActivation=Math.hypot(
+   started.position[0]-initial.position[0],
+   started.position[1]-initial.position[1]);
+  const activationSeconds=(Date.now()-activationClock)/1000;
+  assert.deepEqual(started.tour.origin,initial.position,
+   'G162 market route origin changed on activation');
+  assert(started.tour.travelledMeters>=movedOnActivation-.26,
+   'G162 market moved without swept, accumulated pedestrian steps');
+  assert(movedOnActivation<=2.1*activationSeconds+.36,
+   'G162 market visitor exceeded actual elapsed walking speed');
   const wallStart=Date.now();
   // G158: an uncut SwiftShader video must follow the ACTUAL pedestrian
   // until the real route succeeds or truthfully fails. Fixed 18-second
