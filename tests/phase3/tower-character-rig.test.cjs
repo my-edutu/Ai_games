@@ -565,3 +565,34 @@ test('source stamina pressure changes quiet physical stance but never creates an
   assert.equal(torso.position.y, restedY, 'real strike has higher animation priority than idle fatigue');
   assert.deepEqual(rootTransform(model.group), root);
 });
+
+test('source-witnessed pulse recoil deforms original airborne forearm without inventing a landing or melee punch',async t=>{
+  const [api,THREE]=await loadCharacters();
+  const model=api.createClimber();t.after(()=>model.dispose());
+  const state=Object.freeze({...standing,state:'airborne',vy:-4000,vx:0,
+    targetDy:-35000,targetDx:55000,attacking:false,
+    intentMode:'air-control',runToken:'airborne-pulse-source',
+    floor:2,tick:200});
+  const options=Object.freeze({reducedMotion:false});
+  model.animate({...state,earnedPulseAge:null},1/60,0,options);
+  const baseline=posedVertices(model,'1-elbow',THREE);
+  const hip=joint(model,'1-hip').rotation.x;
+  const root=rootTransform(model.group);
+  model.animate({...state,earnedPulseAge:.08},1/60,1/60,options);
+  const recoiling=posedVertices(model,'1-elbow',THREE);
+  assert.ok(recoiling.some((point,i)=>point.distanceTo(baseline[i])>.035),
+    'the source-fired pulse physically moves the rendered airborne gauntlet');
+  assert.equal(joint(model,'1-hip').rotation.x,hip,
+    'pulse recoil never replaces the authentic landing/flight leg silhouette');
+  assert.deepEqual(rootTransform(model.group),root,
+    'only the authority host may move the protagonist root');
+  model.animate({...state,earnedPulseAge:null},1/60,2/60,options);
+  const cleared=posedVertices(model,'1-elbow',THREE);
+  assert.ok(cleared.every((point,i)=>point.distanceTo(baseline[i])<.01),
+    'no residual pulse pose survives when source evidence is removed');
+  model.animate({...state,earnedPulseAge:.08},1/60,3/60,
+    Object.freeze({reducedMotion:true}));
+  const still=posedVertices(model,'1-elbow',THREE);
+  assert.ok(still.every((point,i)=>point.distanceTo(baseline[i])<.01),
+    'reduced-motion users receive no sudden forearm throw');
+});
