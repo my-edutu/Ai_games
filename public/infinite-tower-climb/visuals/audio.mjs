@@ -289,10 +289,7 @@ export function createTowerAudio() {
     // observation after floor change, an old packet, combat or a vanished
     // target must never fabricate a selection sound.
     const routeMode = ['aligning', 'settling-launch', 'jumping', 'air-control', 'settling-landing'].includes(
-      intent.replace(/^oracle-/, '')) ||
-      (intent.replace(/^oracle-/, '') === 'recovering' &&
-        ['Recovering toward an observed ascent deck',
-          'Recovering into an observed clear landing lane'].includes(snapshot.intent?.summary));
+      intent.replace(/^oracle-/, ''));
     const observedTarget = routeMode && typeof snapshot.intent?.targetPlatformId === 'string'
       ? snapshot.intent.targetPlatformId : null;
     const presentTarget = observedTarget && snapshot.platforms?.some(

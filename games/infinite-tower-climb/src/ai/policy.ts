@@ -174,6 +174,11 @@ function observedLaunchSteering(state:TowerState,obs:TowerObservation,support:To
   const speedError=desiredSpeed-velocity;
   let move:TowerAction['move']=Math.abs(speedError)<=Math.max(400,accel/2)?0:
     speedError>0?1:-1;
+  // Integer acceleration can round the requested launch speed beneath the
+  // controller deadband while the climber is still OUTSIDE the 12k takeoff
+  // window. One genuine step toward the present target breaks the frozen pose.
+  // This is ordinary fixed-step input, not a physics/position override.
+  if(!near&&move===0&&velocity===0)move=delta>0?1:-1;
   // Ground friction is stronger than opposite-thrust braking on the current
   // physics contract. Coast when that is the quickest *actual* deceleration.
   if(velocity!==0&&Math.sign(velocity)===Math.sign(delta)&&
@@ -315,43 +320,6 @@ function pulseReady(state:TowerState,obs:TowerObservation,enemy:TowerObservation
     Math.abs(delta)<=210000&&Math.abs(enemy.position.y-p.position.y)<=state.player.halfHeight+enemy.halfHeight+10000&&
     p.facing===(delta>=0?1:-1);
 }
-
- // In a true height stall the old fallback alternated left/right on EVERY
- // 20Hz decision, obscuring source route intent and often cancelling its own
- // acceleration. Rescue only through a currently observed, physically connected
- // deck and the SAME launch / air-control physics as ordinary ascent.
- // A missing route is not a licence to jump into an invented platform.
- // Tactical v2 only: historical pinned v1 keeps its original fallback.
- function observedStallRecovery(state:TowerState,obs:TowerObservation):TowerDecision {
-   const p=obs.player, support=currentPlatform(obs,p.groundedPlatformId);
-   const target=p.grounded && support
-     ?nextTowerTacticalPlatform(obs,state.config,support.id,state.ai.targetPlatformId,
-       state.player.halfWidth,state.player.halfHeight)
-     :currentPlatform(obs,state.ai.targetPlatformId);
-   if(target && p.grounded && support) {
-     const launch=observedLaunchSteering(state,obs,support,target);
-     return {action:action(launch.move,{jump:launch.jump}),intent:{
-       mode:'recovering',summary:'Recovering toward an observed ascent deck',
-       confidence:.82,fallbackUsed:true,targetPlatformId:target.id}};
-   }
-   if(target && !p.grounded) {
-     const landing=observedLandingSteering(state,obs,target);
-     const boost=observedSafeAirBoost(state,obs,target,landing);
-     const recovery=boost===0&&observedEarnedAirRecovery(state,obs,target,landing.landingX);
-     return {action:action(boost||landing.move,{dash:boost!==0,jump:recovery}),
-       intent:{mode:'recovering',
-         summary:landing.hazardRoute?'Recovering into an observed clear landing lane':
-           'Recovering toward an observed ascent deck',
-         confidence:.78,fallbackUsed:true,targetPlatformId:target.id}};
-   }
-   // No current graph edge or valid airborne target: do not manufacture an
-   // escape or let alternating inputs create phantom ascent. The fixed-step
-   // stagnation/result lifecycle is still authoritative.
-   return {action:action(),intent:{mode:'recovering',
-     summary:'No observed supported recovery route',confidence:.35,
-     fallbackUsed:true}};
- }
-
 // Tactical v2 is the live policy. Historical v1 is retained for pinned replay
 // evidence; it is never silently substituted into a new live expedition.
 export function chooseTowerAction(state:TowerState,observation:TowerObservation,options:{tactical?:boolean}={}):TowerDecision{
@@ -434,7 +402,7 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
       summary:'Securing nearby health before the next climb',confidence:.94,fallbackUsed:false,
       targetPlatformId:observation.player.groundedPlatformId}};
   }
-  if(detectTowerStuck(observation.recentHeights)){if(tactical)return observedStallRecovery(state,observation);const direction:TowerAction['move']=observation.tick%2===0?1:-1;return{action:action(direction,{jump:observation.player.grounded,dash:!observation.player.grounded&&observation.player.dashCooldown===0}),intent:{mode:'recovering',summary:'Breaking a repeated height cycle',confidence:.82,fallbackUsed:true}}}
+  if(detectTowerStuck(observation.recentHeights)){const direction:TowerAction['move']=observation.tick%2===0?1:-1;return{action:action(direction,{jump:observation.player.grounded,dash:!observation.player.grounded&&observation.player.dashCooldown===0}),intent:{mode:'recovering',summary:'Breaking a repeated height cycle',confidence:.82,fallbackUsed:true}}}
   let target=currentPlatform(observation,state.ai.targetPlatformId);if(observation.player.grounded){target=tactical?nextTowerTacticalPlatform(observation,state.config,observation.player.groundedPlatformId,state.ai.targetPlatformId,state.player.halfWidth,state.player.halfHeight):nextTowerPlatform(observation,state.config,observation.player.groundedPlatformId)}else if(!target)target=nextTowerPlatform(observation,state.config,observation.player.groundedPlatformId);
   if(!target)return{action:action(),intent:{mode:'waiting',summary:'Waiting for a valid route node',confidence:.6,fallbackUsed:false}};
   const center=target.x+target.width/2;if(!observation.player.grounded){const delta=center-observation.player.position.x;

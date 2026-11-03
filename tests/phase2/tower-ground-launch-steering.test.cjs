@@ -63,3 +63,33 @@ test('replaying an unchanged grounded observation always chooses the same author
  assert.deepEqual(chooseTowerAction(s,obs),first);
  assert.equal(s.player.grounded,true);
 });
+
+
+test('actual source-step launch breaks integer deadband without fake motion or legacy rewrite',()=>{
+ const r=TowerRuntime.create({launchFloor:2,maxTicks:3500,noProgressTicks:2200},
+   'tower-incident-rescue:storm:1',{policy:'autonomous'});
+ const s=structuredClone(r.state);
+ const support=s.chunks[0].platforms.find(p=>p.id==='f2:p1');
+ const target=s.chunks[0].platforms.find(p=>p.id==='f2:p2');
+ assert.ok(support&&target);
+ const desired=support.x+s.player.halfWidth+6000;
+ s.player.position={x:desired+12007,y:support.y+support.height+s.player.halfHeight};
+ s.player.velocity={x:0,y:0};s.player.grounded=true;
+ s.player.groundedPlatformId=support.id;s.player.state='standing';
+ s.ai.targetPlatformId=target.id;s.ai.recentHeights=[];
+ s.enemies=[];s.projectiles=[];s.chunks[0].hazards=[];s.pickups=[];
+ const obs=createTowerObservation(s),before=structuredClone(obs);
+ const decision=chooseTowerAction(s,obs);
+ assert.equal(decision.action.move,-1,'must physically cross launch-window deadband');
+ assert.equal(decision.action.jump,false,'no premature or invented jump');
+ assert.equal(decision.intent.targetPlatformId,target.id);
+ const physical=stepTowerPhysics(s,decision.action);
+ assert.equal(physical.integrityFailure,undefined);
+ assert.ok(physical.state.player.position.x<s.player.position.x);
+ const next=chooseTowerAction(physical.state,createTowerObservation(physical.state));
+ assert.equal(next.action.jump,true,'new source position now permits real jumping');
+ assert.equal(next.intent.targetPlatformId,target.id);
+ assert.deepEqual(obs,before,'decision cannot mutate replay observation');
+ const legacy=chooseTowerAction(s,obs,{tactical:false});
+ assert.equal(legacy.action.jump,false,'archived v1 launch remains unchanged');
+});

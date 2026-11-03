@@ -18,9 +18,7 @@ function witnessedLandingX(snapshot, deck) {
   const center = deck.x + deck.width * .5;
   const mode = snapshot?.intent?.mode?.replace(/^oracle-/, '');
   const summary = snapshot?.intent?.summary;
-  const sourceAirLane = (mode === 'recovering' &&
-    summary === 'Recovering into an observed clear landing lane') ||
-    (mode === 'air-control' &&
+  const sourceAirLane = (mode === 'air-control' &&
     (summary === 'Steering for a clear landing lane' ||
       summary === 'Boosting toward a distant safe landing' ||
       summary === 'Using earned air recovery to reach observed landing')) ||
@@ -202,15 +200,12 @@ export function createTowerRouteIntent(THREE) {
     if (disposed) return;
     const player = snapshot?.player;
     const mode = snapshot?.intent?.mode?.replace(/^oracle-/, '');
-    const recoveryRoute = mode === 'recovering' &&
-      ['Recovering toward an observed ascent deck',
-        'Recovering into an observed clear landing lane'].includes(snapshot?.intent?.summary);
     const recoveryPickup = witnessedHealthPickup(snapshot, platform);
     const valid = snapshot?.lifecycle === 'running' && !options.stale &&
       Number.isSafeInteger(snapshot.tick) && typeof snapshot.runToken === 'string' &&
       snapshot.runToken.length > 0 && player?.health > 0 && !player.attacking &&
       (['aligning', 'settling-launch', 'jumping', 'air-control', 'settling-landing'].includes(mode) ||
-        recoveryRoute || (mode === 'collecting-resource' && !!recoveryPickup)) &&
+        (mode === 'collecting-resource' && !!recoveryPickup)) &&
       platform && typeof platform.id === 'string' &&
       platform.id === snapshot.intent?.targetPlatformId && platform.width > 0 &&
       Number.isFinite(snapshot.worldWidth) && snapshot.worldWidth > 0 &&
@@ -260,7 +255,7 @@ export function createTowerRouteIntent(THREE) {
     // Reuse the existing world-space stones. Warm alloy means a PRESENT
     // enemy-occupied landing was avoided; green remains real health recovery.
     material.color.setHex(recoveryPickup ? 0xa7df9b :
-      sourceEnemyClearance || recoveryRoute ? 0xffd7a2 : 0x9cefe5);
+      sourceEnemyClearance ? 0xffd7a2 : 0x9cefe5);
     reduced = stationary;
 
     // Map authoritative x/y onto the OUTSIDE of the cylinder. The rising

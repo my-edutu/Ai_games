@@ -54,12 +54,6 @@ test('landing emphasis follows only a current traversal intent and disappears on
   const frame = snapshot();
   const before = JSON.stringify(frame);
   assert.equal(context.intendedLanding(frame), frame.platforms[1]);
-  assert.equal(context.intendedLanding({ ...frame, intent: { ...frame.intent,
-    mode: 'recovering', summary: 'Recovering toward an observed ascent deck' } }), frame.platforms[1],
-    'live documented stall ascent remains a real source-bound landing');
-  assert.equal(context.intendedLanding({ ...frame, intent: { ...frame.intent,
-    mode: 'recovering', summary: 'No observed supported recovery route' } }), null,
-    'failed recovery cannot fabricate an on-screen landing');
   for (const mode of ['engaging-enemy', 'evading-hazard', 'evading-projectile', 'recovering', 'waiting']) {
     assert.equal(context.intendedLanding({ ...frame, intent: { ...frame.intent, mode } }), null, mode);
   }
