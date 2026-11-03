@@ -560,17 +560,21 @@ export function createSerpent(THREE) {
           radius *= 1-0.986*neckBlend;
           // A subtle swallow travels down the neck without altering its path.
           radius *= 1 + eaten * 0.13 * Math.exp(-Math.pow(distance - 0.68, 2) * 3);
+          // T2 muscle-cohesion candidate: one travelling wave carries both
+          // circumferential compression and the existing bounded side motion.
+          // The same phase drives both, so no new sinusoid/GPU buffer/draw is
+          // introduced. Anchor the first neck ring and every portal/tail end;
+          // reduced-motion requests the original absolutely still geometry.
+          const envelope = smooth(.55, 1.6, distance - pathStartDistance) * smooth(0, 2.3, tailRemaining);
+          const muscleWave = reduced ? 0 : Math.sin(distance * 1.65 - time * 2.8) * envelope * (1 - neckBlend);
+          radius *= 1 + 0.065 * muscleWave;
           const lift = reduced ? 0 : Math.sin(distance * 2.1 - time * 3) * 0.007 * Math.min(1, tailRemaining);
-          // Follow the local belly radius all the way into the tapered tail.
-          // A fixed centre height made small tail rings float high above the floor.
+          // Recalculate floor contact from the real compressed local ring, not
+          // an old fixed radius: its underside remains on genuine stone.
           const groundedHeight = radius * 0.88 + bellyClearance;
           const neckHeight = fullBodyHeight + 0.02 + eaten * 0.08;
           const centreHeight = groundedHeight + (neckHeight - groundedHeight) * neckBlend;
-          // A small travelling contraction gives the body muscular life without
-          // changing gameplay. Fade it at both ends of every contiguous path,
-          // so the skull, tail and portal-separated fragments stay anchored.
-          const envelope = smooth(.55, 1.6, distance - pathStartDistance) * smooth(0, 2.3, tailRemaining);
-          const lateral = reduced ? 0 : .050 * Math.sin(distance * 1.65 - time * 2.8) * envelope * (1 - neckBlend);
+          const lateral = .050 * muscleWave;
           if (!writeRing(sample.x, sample.z, sample.dx, sample.dz, radius, distance, centreHeight + lift, connected, lateral)) break;
           connected = true;
         }

@@ -994,9 +994,9 @@
     "firstImplementationPlan": "docs/superpowers/plans/2026-11-01-autonomous-snake-transformation.md",
     "acceptance": "An independently evidenced, visibly substantial upgrade of the full running game in environment, character, animation, materials, game feel and sustainable frame delivery; CI is necessary but never sufficient.",
     "overall": "NOT ACCEPTED",
-    "milestone": "T1 BUILDING / P0 cinematic 404 repaired and REAL current-head Chromium/55s verified. Previous whole-scene self-rejected vs Snake Pass. Four-shore 72 fern crowns + 12 grounded rocks substantive candidate authored; actual new-head visuals pending. No acceptance.",
+    "milestone": "T1 BUILDING / dramatic whole-scene staging candidate authored from exact bcfc parent, not native/WebGL accepted. Rear garden canopy and arcade brought into shot; living body muscle compression and closer true-head follow camera. Original >=17 renderer gate remains FAILED. NEVER MERGE/DEPLOY.",
     "milestoneStatus": "BUILDING",
-    "latestKnownStrictBrowser": "Exact b127138c run 41530641203 original unchanged 1002.6ms strict full-desktop only 8 genuine complete renderer submissions <17 at 736x336, cancelled workflow. General 41530640978 strict 10/17 in 1003.5ms, cancelled. RAF 61, GPU timers, partial scene and video frames are NOT gate or displayed FPS.",
+    "latestKnownStrictBrowser": "Exact bcfc2c9 focused Chromium run 41585345577: 8 genuine full-desktop complete renderer submissions / 1009.7ms < required 17, drawing buffer only 736x336, 61 RAF callbacks do not count, general suite pending. Historical wetland image assertion failed separately. Original gate unchanged; physical-display-present FPS unknown.",
     "pillars": [
       {
         "name": "Living 3D world",
@@ -1020,8 +1020,8 @@
       }
     ],
     "baselineHead": "108e2e439aab1f3fe4cf49019c1aa9fe5630feb6",
-    "candidate": "T1 complete four-shore coastal rooted 3D fern/stone landscape: 72 five-folded fern crowns, 360 real fronds, 12 anchored rounded boulders in 24 original riparian beds, +1860 static triangles below original 22000 budget, original 4 static mesh/1 texture, all gameplay cues/authority retained. Same-head WebGL screenshots and real 55s video tests authored but current candidate not yet verified.",
-    "candidateProof": "Frozen exact source b127 living garden blob ff3e631ba4cba768a89e4b39123c2a2ce68216b3. Parent verified: actual HTTP 200, six real Chromium/WebGL screenshots, two authentic 55s games; strict 8/17 fail. New own-head negative/positive tests, 8 identical-state true WebGL before/after pictures and genuine 55s new game test waiting Actions. NOT A VISUAL PASS.",
-    "review": "SELF REVIEW / ACCEPTANCE PENDING. Parent real overview still dominated by rectangular paved grid, character too small/mechanical. Original strict rendered frames fail at unusable 736x336. No proof new shore significantly transforms full-frame motion, no 17+ repeated gate, physical-device p95/long-soak or independent review. T1 BUILDING; T2–T4 OPEN."
+    "candidate": "T1 multi-system 3D stage candidate: nearer/wider original ten-canopy forest and four-bay real ruined arcade, fuller existing folded-leaf silhouettes, original 4 static batches and one texture, original triangles 18441/21561/21725 on 8x8/28x16/40x24, all geometry off authoritative cells. Original public-head follow shot reframed closer with overview retained. T2 body wave drives bounded muscle girth and existing lateral movement, reduced motion still.",
+    "candidateProof": "Exact parent bcfc2c9 frozen Git blob archives for living-garden/camera/serpent; source-exact V8 surrogate (NOT native Three) found near rear high-scene vertices 44->1982 / 174->2178 / 310->2380; no extra geometry, draw, texture or invalid vertex. New native RED-GREEN tests and eight identical-snapshot genuine Chromium/WebGL pair fixtures authored but NOT RUN yet. Real auth 55s playback needs new-head evidence. Strict current-head real complete GPU submission gate remains FAILED 8/17 in 1009.7ms.",
+    "review": "SELF REVIEW / ACCEPTANCE PENDING. T1 scene candidate's dramatic whole-frame value has NOT yet been judged against real images or official Snake Pass. No native Three green suite, current-head authentic screenshots/movie, repeated >=17 full submissions at useful resolution, physical device FPS/p95, long soak or independent critic. Keep T1 BUILDING and do not merge or deploy."
   }
 }

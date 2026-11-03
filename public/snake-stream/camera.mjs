@@ -128,7 +128,12 @@ export function cameraComposition({ width, height, aspect, mode = 'overview', he
     outward = clearFoodSightline(outward, distance, head, food);
     outward = avoidForegroundOcclusion(outward, distance, head, food, occluders);
   } else if (mode === 'follow') {
-    distance = portrait ? 14 : 16;
+    // T1/T2 close spectator tracking: stay with the real public head and
+    // show the complete authored forest in perspective, rather than shrinking
+    // a living protagonist into the large board. The full-board overview is
+    // unaffected and always available; no extra render pass or game mutation.
+    outward = normalize({ x: .16, y: .68, z: .72 });
+    distance = portrait ? 11.5 : 12;
   } else {
     const right = normalize({ x: outward.z, y: 0, z: -outward.x });
     const up = { x: outward.y * right.z, y: outward.z * right.x - outward.x * right.z, z: -outward.y * right.x };

@@ -335,15 +335,15 @@ export function createLivingGarden(THREE, {width,height}) {
     const crownX=x+.15*Math.sin(phase),crownZ=z+.12*Math.cos(phase);
     for(let branch=0;branch<7;branch++){
       const a=branch*Math.PI*2/7+phase*.31;
-      const reach=.84+hash(branch,phase)*.68;
+      const reach=1.18+hash(branch,phase)*1.07;
       const bx=crownX+Math.cos(a)*reach,bz=crownZ+Math.sin(a)*reach;
       const by=stemTop+.18+(hash(branch+9,phase)-.5)*.55;
       woodySegment(crownX,stemTop-.23,crownZ,bx,by,bz,.14,.065,phase+branch*.13);
       for(let leafIndex=0;leafIndex<14;leafIndex++){
         const spread=leafIndex*2.39996+branch*.41+phase;
-        const rr=.25+hash(leafIndex+5,branch+phase)*.75;
-        const heightOffset=(hash(branch*19+leafIndex,phase+44)-.5)*.72;
-        const span=.54+hash(leafIndex*2,phase+branch)*.48;
+        const rr=.31+hash(leafIndex+5,branch+phase)*.91;
+        const heightOffset=(hash(branch*19+leafIndex,phase+44)-.5)*.92;
+        const span=.69+hash(leafIndex*2,phase+branch)*.57;
         canopyLeaf(bx+Math.cos(spread)*rr,by+heightOffset,bz+Math.sin(spread)*rr,
           spread,span,phase*41+branch*14+leafIndex);
       }
@@ -352,20 +352,26 @@ export function createLivingGarden(THREE, {width,height}) {
     }
     features.canopyTrees++;
   }
+  // T1 continuous stage restoration: bring the *existing* ten original living
+  // crowns into a deliberately readable near/mid/far forest composition. Their
+  // wider, folded leaves share the same four cached material batches and the
+  // same exact 3D triangle/texture budget; root and canopy bounds remain well
+  // outside every authentic active game cell. A nearer, broken arcade now
+  // reads against the layered rear canopy instead of disappearing in the sea.
   // Six rear trees, staggered in depth, frame the authentic gameplay board.
   // Two near-camera wings make the ocean edge a lush inhabited diorama.
   const forest=[
-    [-W*.78,-H-9.25,5.35,.2],[-W*.45,-H-10.15,5.65,1.4],
-    [-W*.09,-H-9.45,5.1,2.5],[W*.27,-H-10.4,5.75,3.7],
-    [W*.61,-H-9.75,5.35,4.8],[W*.86,-H-10.5,5.5,5.7],
-    [-W-5.35,H+4.6,4.4,.65],[W+5.5,H+4.35,4.55,2.3]
+    [-W*.79,-H-8.65,6.15,.2],[-W*.47,-H-9.2,6.5,1.4],
+    [-W*.11,-H-8.55,6.3,2.5],[W*.27,-H-9.1,6.65,3.7],
+    [W*.61,-H-8.4,6.3,4.8],[W*.85,-H-9.1,6.45,5.7],
+    [-W-7.1,H+6.1,5.4,.65],[W+7.3,H+5.95,5.6,2.3]
   ];
   for(const [x,z,h,p] of forest)canopyTree(x,z,h,p);
   // A fractured, vine-rooted four-bay arched aqueduct gives the rear shore
   // a single recognizable architectural silhouette and a believable history.
   // The arch tunnels remain OPEN; the fake decorative masonry never sits on
   // navigable game coordinates or changes a portal/collision.
-  const zArch=-H-8.15,halfBay=Math.min(2.15,Math.max(1.45,W*.135));
+  const zArch=-H-5.95,halfBay=Math.min(2.15,Math.max(1.45,W*.135));
   const bayStep=halfBay*2.25;
   const pillarXs=Array.from({length:5},(_,i)=>(i-2)*bayStep);
   for(let i=0;i<pillarXs.length;i++){
@@ -738,7 +744,7 @@ export function createLivingGarden(THREE, {width,height}) {
   bands.get('moss').color=0x76907a;
   bands.get('cliff').color=0x879787;
   bands.get('ruin').color=0xc9c4ad;
-  bands.get('foliage').color=0xa2c2a6;
+  bands.get('foliage').color=0xb7d2b1;
   features.amphitheatreTriangles=stageTriangles()-stageBefore;
   // END T1 ESCARPMENT AMPHITHEATRE
   // A shared-vertex terrain should read as rolling soil, not a topographic
