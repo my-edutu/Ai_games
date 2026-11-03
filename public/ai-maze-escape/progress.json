@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-03T13:57:26.257Z",
+  "updatedAt": "2026-11-03T14:04:28.968Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass112 exact source 41646044314 SUCCESS: real original 23/23 full-resolution PNG SHA-256 independently matched; genuine 1280 gate MID 2026-11-03T13:49:44.075Z source-honest PASSAGE OPEN / Gate opened / Explore onward existing goal chip, Pip/gate physically visible. Pass113 new actually connected 3D Pip whole-body gate performance source 5f9ebf3 committed, model/CI/current PNG visual acceptance pending at 41648318740 and whole CI 41648318800. Nintendo Captain Toad benchmark NOT met; no independent blind critic (coding workspace tunnel disconnected), SwiftShader CPU slowdown not hardware GPU FPS. PR open draft no merge/deploy."
+    "summary": "Pass113 3D Pip connected gate performance exact WebGL 41648318740 SUCCESS; original full-resolution 23/23 PNG SHA-256 individually verified. Real 1280 public gate MID 2026-11-03T14:00:35.329Z b4186a54... shows modeled torso .9255, lantern arm -1.104 rad, cage 1.0945; actor in-frame, genuine gate and one-chip source HUD. Native 320 guardian remains fully in frame. Local significant pixel changes 2.532% overall, 13.882% in fixed Pip inspection area, NOT a Nintendo quality measure. Fixed official Captain Toad benchmark still wins, no independent blind critic (coding workspace tunnel disconnected). Whole CI 41648318800 queued. PR open draft unmerged/undeployed."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass113 original native rendered-image audit 2026-11-03T14:04:28.968Z: exact-source focused 41648318740 completed SUCCESS and original 23/23 full-size PNG dated SHA hashes independently matched. Genuine 1280 MID actor torsoY .9255, lantern shoulder -1.104 radians, modeled cage 1.0945; native 320 guardian and low-text WebGL preserved. Direct before/after 2.532% full 1280 and 13.882% Pip inspection-region changed pixels >12 RGB. Meaningful LOCAL physical acting, overall Nintendo bar NOT met, whole CI pending, no subagents/Ultracode through disconnected workspace, no merge/deploy.",
     "Pass113 2026-11-03T13:57:26.257Z: Genuine Pass112 full-resolution exact-source 23/23 original WebGL image hashes personally verified; gate MID actual screenshot now shows physical Pip/portcullis and unclipped single event mission. Pass113 connected physical 3D gate character actor: rises/turns torso, braces knees, raises BOTH arm/elbow joints, tilts helmet, attached scarf follows, existing 3D lantern expands and emissive light responds only to authentic public gate. Guardian/closed lock/result/neutral/reduced motion precedence preserved. New separate actual Three rig test + real WebGL screenshot joint diagnostic, unchanged viewport/privacy and 44px tests. Exact new-source visual 41648318740 and full CI 41648318800 PENDING; Nintendo NOT yet won.",
     "Pass112 (2026-11-03T13:39:29.950Z): verified PASS111 real full-resolution 1280 gate MID screenshot 2026-11-03T13:34:15.813Z and 23/23 original PNG SHA-256, physical 3D Pip much clearer than Pass110 occluded shot with same genuine public gate. Built Pass112 action-first HUD sync for actual same-run public CLOSED->OPEN, one transient PASSAGE OPEN / Gate opened / Explore onward chip, shortened clipped Find a passage to Find passage; no new panel, no private state/AI change, danger/result/reduced-motion/44px/Map/Details precedence. Source-bound browser now rejects clipped gate label. Pass112 CI queued and authentic new native renders not yet approved.",
     "Pass111 (2026-11-03T13:26:25.461Z): confirmed Pass110 original 23/23 dated WebGL PNG SHA-256 and REJECTED real 1280 physical gate sightline (Pip obscured by near courtyard wall/hedge). Implemented actual oblique three-quarter gate-side camera using same authentic public CLOSED->OPEN and gate-to-Pip physical displacement, fast physical framing only during witnessed opening; original old 3-arg fallback/normal closed/guardian/reduced-motion/AI/privacy/viewport gates intact. New production pure/Three camera tests and original mid-event camera offset + Pip silhouette evidence. CI 41643909846/41643909850 queued; new pixel quality pending.",
@@ -224,6 +225,13 @@
     "Pass91: inspect current-source 320/390/844/1280, witnessed key and moving gate WebGL originals; independently verify dated SHA source identities, strict viewport/model bounds and real HUD coverage; compare same-seed motion settings to Pass90 Nintendo/old screen; reject if tide-watch spires are off-camera, false goals or obstruct actual 3D action. Full whole-CI, detached fresh-context critic and Ultracode outstanding."
   ],
   "reviews": [
+    {
+      "title": "Pass113 — original full-resolution 23/23 SHA verified Pip connected physical gate performance",
+      "reviewer": "Lead actual native WebGL image/source critic, no independent fresh context (workspace disconnected)",
+      "verdict": "Verified localized game-action improvement; fixed official Nintendo Captain Toad benchmark remains ahead; full CI pending",
+      "date": "2026-11-03T14:04:28.968Z",
+      "summary": "Source-authorized real gate MID physical torso y=.9255, lantern arm -1.104, cage scale1.0945; real 320 actor and compact HUD unoccluded, 23/23 source-bound image hashes verified; significant pixels changed 13.882% in fixed actor inspection region (not art score)."
+    },
     {
       "title": "Pass113 — witness-grounded connected 3D Pip body+lantern gate performance",
       "reviewer": "Lead original native Pass112 image audit; fresh-context source/visual critic unavailable (coding workspace tunnel disconnected)",
@@ -562,6 +570,13 @@
     }
   ],
   "verification": [
+    {
+      "name": "Pass113 23 original WebGL PNG SHA-256 and direct full native actor audit",
+      "status": "passed",
+      "detail": "Focused 41648318740 success; original dated artifact 13235544224 independently 23/23 full-resolution PNG SHA; 1280 same-run gate after source joint diagnostics and visual compare. Full monorepo CI 41648318800 remains pending; Nintendo artistic bar not passed.",
+      "sourceCommit": "5f9ebf30cf79fe4de02c32b850427576296f4129",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41648318740"
+    },
     {
       "name": "Pass113 real source-bound 3D gate acting native visual",
       "status": "pending",
