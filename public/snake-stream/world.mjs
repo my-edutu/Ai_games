@@ -617,12 +617,24 @@ export function createWorld(THREE, {width, height}) {
         +.07*Math.sin(nx*8.3-course*.91);
       basinDistance=Math.min(basinDistance,Math.abs(nz-centre));
     }
-    const underCanopy=1-fade(.075,.34,basinDistance);
-    const stoneHeart=1-fade(.26,.62,Math.hypot(nx/.60,nz/.76));
-    const forest=underCanopy*(1-stoneHeart*.95);
-    const dampStone=Math.max(0,forest*.91+(1-fade(.02,.23,1-Math.max(Math.abs(nx),Math.abs(nz))))*.14);
-    const shade=.965+random()*.055;
-    color.setRGB(shade*(1-dampStone*.38),shade*(1-dampStone*.055),shade*(1-dampStone*.275));
+    // The earlier narrow fern-aligned bands still left most of the full-HD
+    // game as a uniform beige rectangle. The three REAL planted valleys now
+    // broaden into one irregular ancient forest floor, punctuated by the
+    // *existing* central sunstone and two naturally exposed limestone glades.
+    // Readably traversable cell tops, UVs and actual event cues stay identical.
+    const valleyWarp=.075*Math.sin(nx*8.7+nz*2.9)+.058*Math.sin(nz*9.2-nx*5.7);
+    const underCanopy=1-fade(.15,.66,Math.max(0,basinDistance+valleyWarp));
+    const stoneHeart=1-fade(.28,.61,Math.hypot(nx/.60,nz/.76));
+    const gladeA=1-fade(.21,.49,Math.hypot((nx+.63)/.55,(nz-.35)/.58));
+    const gladeB=1-fade(.22,.50,Math.hypot((nx-.69)/.58,(nz+.34)/.56));
+    const forest=underCanopy*(1-stoneHeart*.97)*(1-Math.max(gladeA,gladeB)*.48);
+    const forestEdge=1-fade(.12,.45,1-Math.max(Math.abs(nx),Math.abs(nz)));
+    const dampStone=Math.min(1,Math.max(0,forest*.97+forestEdge*.19));
+    const shade=.95+random()*.055;
+    // Deep fern-lit stone makes the original golden serpent, live food and
+    // bright blue portal cues separate from the environment at broadcast size.
+    // The green valley still uses the SAME old slab mesh + one baked atlas.
+    color.setRGB(shade*(1-dampStone*.55),shade*(1-dampStone*.052),shade*(1-dampStone*.43));
     add(tile,tileMat,x-(width-1)/2,-.105,z-(height-1)/2,.994,.21,.994,0,0,0,color.clone());
   }
   // Terraced structural stone, rubble and topsoil form one coherent island silhouette.

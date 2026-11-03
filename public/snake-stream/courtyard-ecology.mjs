@@ -96,15 +96,25 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
       // Preserve the ancient central limestone clearing and all live markers.
       const shoreMoss = 1 - smooth(.085, .295,
         groveDistance + (mineral - .5) * .15 + (watershed - .5) * .105);
+      // T1 WHOLE-GARDEN FOREST SUBSTRATE: three actually planted 3D fern
+      // courses flow into a continuous darker rain-cut living mineral field,
+      // punctuated by two organic pale glades. Source atlas is owned by the
+      // original world. No new game cells, shader, GPU object or obstruction.
+      const forestWarp = .075 * Math.sin((u-.5)*17.4+(v-.5)*5.8)
+        + .058 * Math.sin((v-.5)*18.4-(u-.5)*11.4);
+      const forestReach = 1 - smooth(.15, .66, Math.max(0, groveDistance + forestWarp));
+      const gladeA = 1-smooth(.21,.49,Math.hypot(((u-.5)*2+.63)/.55,((v-.5)*2-.35)/.58));
+      const gladeB = 1-smooth(.22,.50,Math.hypot(((u-.5)*2-.69)/.58,((v-.5)*2+.34)/.56));
+      const twoGlades = Math.max(gladeA,gladeB);
+      const evergreen = forestReach * (.90 + .10 * mineral)
+        * (1 - heart * .97) * (1-twoGlades*.48);
       const grove = shoreMoss * (.79 + .21 * watershed)
         * (1 - heart * .88) * smooth(.055, .25, v * (1-v) * 4);
-      if (grove > .37) grovePixelCount++;
-      // Natural limestone islands break the forest floor; several overlapping
-      // scales make coherent planting beds instead of three painted stripes.
-      // Value contrast is retained at the exact real public cell centres.
+      if (Math.max(grove,evergreen) > .37) grovePixelCount++;
       const edgeUnderstory = nearEdge * (.43 + .25 * mineral);
-      const planted = clamp01(grove * 1.12 + marsh * .23 + edgeUnderstory * .38);
-      const canopyShade = smooth(.20, .89, planted) * (1 - heart * .83);
+      const planted = clamp01(Math.max(grove * 1.12, evergreen * 1.06)
+        + marsh * .20 + edgeUnderstory * .31);
+      const canopyShade = smooth(.15, .78, planted) * (1 - heart * .89);
       const openStone = heart * (1 - canopyShade);
       const mineralLace = (.45 + .55 * Math.sin(gx * .79 + Math.sin(gz * .38) * 2.1))
         * (.35 + .65 * watershed) * canopyShade;
