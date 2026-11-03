@@ -2193,7 +2193,7 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "Old exact head 708e797 Dungeon/CI FAILED (VM missing real planRigBearing; 156 >144 anatomical meshes). Candidate head current CI/replay/browser/accessibility/performance UNVERIFIED.",
+      "safetyChecks": "No exact-head 4da3308 full CI, replay, real Chromium, frame-time or accessibility results yet. Previously reported source 241/241 tests and 24x900 replay apply only to earlier commits; not transferable to this code candidate.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2201,14 +2201,14 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Predecessor 4cc8abd actual 1440x832 and 390x844 browser frames show companions cropped/packed against an overly dense foreground. No scientifically matched AFTER observation yet.",
-      "latestCandidateWorkflow": "PENDING exact-head GitHub Actions after db1346f7",
+      "latestCandidateWorkflow": "Exact-head code SHA 4da33087bf2877d4831757803bab4d9af335ef38: GitHub Actions CI/browser/performance pending; connected coding workspace tunnel unavailable for live Chromium capture.",
       "currentPredecessorWebgl": "https://github.com/my-edutu/Ai_games/actions/runs/41582184616/artifacts/13207290223",
-      "newCandidateSceneReview": "UNVERIFIED exact candidate db1346f7 after successful 241/241 local foundation checks. Browser navigation ERR_BLOCKED_BY_ADMINISTRATOR; original predecessor real screenshot does not establish AFTER improvement."
+      "newCandidateSceneReview": "UNVERIFIED for 4da3308. Pure planner ran 4 independent local Node checks before commit; five in-repo foundation contract tests added but exact-head tests have NOT been executed by the connected workspace. No claimed visual quality win."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Exact-head moving game must prove that skinned heroes and hostile attacks are visibly separated from heavy Gothic architecture. Import silhouettes and native impact animation still read as miniature-like versus Diablo IV, No Rest for the Wicked and Path of Exile 2. No full organic audiovisual journey or unbiased majority exists.",
-    "currentWork": "M1: source candidate removes duplicate toy-like helmet/chest/accessory bulk while bringing one real, live, near-lane hostile into the same bounded camera-facing wall/prop cutaway before first contact. This remains one unfinished combat-readability milestone. Native screenshots/audio from this exact source head are NOT YET captured; no experiential verdict is claimed.",
-    "candidateCommit": "db1346f7e189c71a8fd0ea5d28bc52680974bcb8",
+    "biggestRemainingGap": "Real imported characters still look miniature/stylized and combat weight lacks convincing adult anatomy and organic audio-motion framing in crowded stonework. Genuine latest-head desktop/mobile reels and blind LOOKS/FEELS/PLAYS verdicts remain missing; no full audiovisual expedition acceptance.",
+    "currentWork": "M1, same unfinished playable-slice milestone: commit 4da3308 integrates real actor-and-camera-driven opposing 3D key/fill portrait lighting, genuine Warden warning lighting and true HP-loss lighting beats using the THREE existing lights (no extra shadow maps/passes). This is a code candidate only; not an accepted experience change.",
+    "candidateCommit": "4da33087bf2877d4831757803bab4d9af335ef38",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
     "implementationEvents": [
@@ -3578,6 +3578,25 @@
         "verdict": "IN_PROGRESS / NOT_TRANSFORMED",
         "performance": "UNVERIFIED physical desktop/mobile GPU p95/p99 and draw calls for new exact head",
         "next": "Inspect GitHub exact-head Chromium desktop/mobile and real contact/boss motion; reject any remaining building occlusion, clipped bow, thin armour or inconsistent combat tell; continue original character animation and designed encounter overhaul; record full continuous travel/combat/Warden/floor/defeat-restart with audio; compare identical baseline seed and obtain 3 blind LOOKS/FEELS/PLAYS critics."
+      },
+      {
+        "id": "M1-TRUE-ENCOUNTER-PORTRAIT-LIGHT-20261103",
+        "date": "2026-11-03",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "sourceHeadAtStart": "bf0a4761b3881735e63c1ab7570dbc0887cda236",
+        "codeCommit": "4da33087bf2877d4831757803bab4d9af335ef38",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "objective": "Turn visible actual combat into a legible, dimensional hero-versus-hostile portrait inside existing camera staging, sightline cutaway, skinned-hit/body-contact, tactical and Warden events; never simulate contact for display.",
+        "code": [
+          "public/ai-dungeon/encounter-lighting-plan.js",
+          "public/ai-dungeon/app.js",
+          "scripts/serve-dungeon-stream.cjs",
+          "tests/foundation/dungeon-encounter-lighting.test.cjs"
+        ],
+        "integration": "Read-only shot from genuine state and camera: two opposing 3D positions plus existing Warden/hostile light, no additional lights/shadows/passes or authoritative changes. Existing saved replay, seed, combat, AI, progression, security and licensed assets untouched; no live game acceptance claimed.",
+        "evidence": "Pure source prototype 4/4 local Node checks; exact repo foundation/CI/browser/audio and new-head screenshots pending. Remote coding tunnel disconnected, independent critics unavailable.",
+        "verdict": "IN_PROGRESS / NOT_TRANSFORMED; looks/feels/plays UNVERIFIED",
+        "next": "Inspect authentic 4da3308 desktop/mobile combat and Warden motion; reject lighting washout, silhouette clipping and camera jitter; compare pinned SHA across same seeds and capture audio-enabled full expedition; obtain three fresh blind critics."
       }
     ]
   }
