@@ -861,7 +861,28 @@ export function createClimber() {
       body.rotation.x+=.08*attackWeight;
       head.rotation.y-=.12*attackWeight;
     }
+    // The earned ranged weapon has an authored projectile ribbon but a
+    // pulse-only shot is not a melee attack, so the ordinary punch flag
+    // cannot tell the climber's gauntlet to recoil. This impulse is passed
+    // ONLY after a new player-owned bolt is witnessed in consecutive source
+    // snapshots while airborne. Preserve jump, air braking and actual landing
+    // leg pose; no authority state, frame-timed projectile or extra mesh.
+    const pulseAge=Number.isFinite(state.earnedPulseAge) &&
+      state.earnedPulseAge>=0 ? state.earnedPulseAge : Infinity;
+    const pulseLive=pulseAge<.30&&!dead&&!hurt&&!stale&&!terminalKind;
+    const pulseWeight=pulseLive&&!attacking&&!dash&&!reducedMotion
+      ?1-THREE.MathUtils.smoothstep(pulseAge,.035,.30):0;
+    if(pulseWeight>.001){
+      const arm=arms[1],guard=arms[0];
+      arm.upper.rotation.x=mix(arm.upper.rotation.x,-1.30,pulseWeight*.72);
+      arm.lower.rotation.x=mix(arm.lower.rotation.x,-.35,pulseWeight*.75);
+      arm.upper.rotation.z+=-.14*pulseWeight;
+      guard.upper.rotation.x-=.18*pulseWeight;
+      head.rotation.x-=.085*pulseWeight;
+      body.rotation.x-=.08*pulseWeight;
+    }
     fistLight.emissiveIntensity=dead?.02:.12+attackWeight*1.4+
+      (pulseLive?(reducedMotion?.20:pulseWeight*.85):0)+
       integrityWear*.40+(reducedMotion||stale?0:(1-THREE.MathUtils.smoothstep(lastHealAge,.03,.4))*.30);
 
     // Real depletion visibly weights the climber's quiet resting posture;
