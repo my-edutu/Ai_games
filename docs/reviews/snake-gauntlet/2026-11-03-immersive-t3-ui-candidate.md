@@ -20,3 +20,7 @@ Real previous [68178 Chromium images](https://github.com/my-edutu/Ai_games/actio
 
 ## Next honest acceptance
 Run exact new-commit full suite plus WebGL screenshots at same legitimate source, record uninterrupted 45–90s true autonomous action and actual unchanged strict gate, screen-reader/contrast/phone landscape, fallback, clean-feed recovery; inspect occlusion/contrast at danger/fruit/portal and revise same T3 if needed. Finish T1 world, T2 acting, T4 repeated strict performance, physical-device display presents/p95, 40+ segment/portal/replay/soak and independent whole-game benchmark before claiming Gauntlet. NEVER MERGE OR DEPLOY.
+
+## Post-stage exact old-head Chromium result (supersedes 'in progress' at authoring time)
+
+[Run 41641254466](https://github.com/my-edutu/Ai_games/actions/runs/41641254466) finished **63/81 PASS; 18 FAIL**. The original strict 1-second full desktop WebGL renderer **16 genuine submissions / required >=17 FAIL**, 736×336 draw buffer; 61 RAFs are not renders or display presents. Recorded frame evidence is from the **old 2b328e source**, NOT the UI candidate, and was not independently visually inspected in this source-staging session. UI source candidate, test execution, new screenshots/autonomous video and whole-game creative/performance acceptance PENDING.
