@@ -13,6 +13,7 @@ import { createTowerAtmosphere } from './atmosphere.mjs';
 import { createTowerGuardianShotStage } from './guardian-shot-stage.mjs';
 import { witnessedAirbornePulse, witnessedGuardianCounterPulse } from './airborne-pulse.mjs';
 import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue } from './guardian-camera-safety.mjs';
+import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { createObservedMovingDeckRide } from './moving-deck-ride.mjs';
 // A tiny 3D attack lane follows only a REAL enemy telegraph. The curved ribbon
 // traces the same cylindrical projection as authoritative horizontal shots and
@@ -467,6 +468,15 @@ function createObservedTowerMotionLedger() {
   return { samples, reset, accept };
 }
 
+// Actual projected BODY share; center-only NDC checks can miss tiny heroes.
+function measureDuelBodyNdc(center, halfHeight, lens, top, bottom, result) {
+  top.copy(center); top.y += halfHeight; top.project(lens);
+  bottom.copy(center); bottom.y -= halfHeight; bottom.project(lens);
+  result[0] = (top.x + bottom.x) * .5;
+  result[1] = (top.y + bottom.y) * .5;
+  result[2] = Math.max(top.z, bottom.z);
+  result[3] = Math.abs(top.y - bottom.y) * .5;
+}
 function towerCoreSightlineClear(position, point, coreRadius = 21.6) {
   const dx = point.x - position.x, dz = point.z - position.z;
   const denominator = dx * dx + dz * dz;
@@ -1799,6 +1809,12 @@ export function createTowerScene(canvas, settings = {}) {
   const guardianBefore = [0, 0, 0], guardianAfter = [0, 0, 0];
   const actorBefore = [0, 0, 0], actorAfter = [0, 0, 0];
   let guardianRescueBlend = 0, guardianRescueApplications = 0;
+  // Reusable measurements and camera backups; no per-frame allocation/render.
+  const duelPreviousCamera = new THREE.Vector3();
+  const duelTop = new THREE.Vector3(), duelBottom = new THREE.Vector3();
+  const duelActorBefore = [0, 0, 0, 0], duelActorAfter = [0, 0, 0, 0];
+  const duelGuardianBefore = [0, 0, 0, 0], duelGuardianAfter = [0, 0, 0, 0];
+  let duelDollyApplications = 0, duelDollyLastStep = 0;
   const guardianSightPoints=[];
   const climberCapSightPoint = new THREE.Vector3();
   const lookAt = new THREE.Vector3();
@@ -1859,6 +1875,7 @@ export function createTowerScene(canvas, settings = {}) {
     crownStage.visible = false; observedCrown = null;
     echoDrawnTick = -1; observedStageLight.reset();
     guardianRescueBlend = 0; guardianRescueApplications = 0;
+    duelDollyApplications = 0; duelDollyLastStep = 0;
     actorSafeRefinements = 0;
     terminalCameraRun = null; terminalCameraBegan = 0;
   }
@@ -2651,6 +2668,59 @@ export function createTowerScene(canvas, settings = {}) {
         actorSafeRefinements = Math.min(1000000, actorSafeRefinements + 1);
       }
     }
+    // Authentic portrait danger films show that centered fighters can still
+    // be too tiny to read. During a REAL grounded guardian confrontation
+    // stage a restrained physical two-body close-up after edge/frame recovery.
+    // No fabricated attack, outcome, shot, camera cut, HUD or authority edit.
+    duelDollyLastStep = 0;
+    if (!overview && !options.reducedMotion && !options.stale &&
+      snapshot.lifecycle === 'running' && p.health > 0 &&
+      p.state === 'standing' && zoom <= 1.02 && camera.aspect < .85 &&
+      sourceGuardian && sourceGuardian.health > 0 &&
+      Number.isFinite(sourceGuardian.halfHeight) && sourceGuardian.halfHeight > 0 &&
+      Number.isFinite(p.halfHeight) && p.halfHeight > 0 &&
+      followComposition?.guardianStaged && followComposition.clear &&
+      followComposition.guardianFramed &&
+      (sourceGuardian.telegraph || sourceGuardian.health < sourceGuardian.maxHealth ||
+        ['engaging-enemy', 'bracing-telegraph', 'evading-telegraph'].includes(snapshot.intent?.mode))) {
+      const site = pointFor(sourceGuardian.x, sourceGuardian.y,
+        snapshot.chunkBaseY, snapshot.worldWidth, 27.15);
+      guardianRescuePoint.set(site.x, site.y, site.z);
+      actorFramePoint.copy(climber.group.position);
+      actorFramePoint.y += p.halfHeight / SCALE;
+      camera.lookAt(lookAt); camera.updateMatrixWorld(true);
+      measureDuelBodyNdc(actorFramePoint, p.halfHeight / SCALE,
+        camera, duelTop, duelBottom, duelActorBefore);
+      measureDuelBodyNdc(guardianRescuePoint, sourceGuardian.halfHeight / SCALE,
+        camera, duelTop, duelBottom, duelGuardianBefore);
+      const previousRadius = Math.hypot(camera.position.x, camera.position.z);
+      const nextRadius = Math.max(30.8, previousRadius - Math.min(.85, dt * 13));
+      if (nextRadius < previousRadius - .1 && duelActorBefore[3] < .16 &&
+        previousRadius > 30.9) {
+        duelPreviousCamera.copy(camera.position);
+        const scale = nextRadius / previousRadius;
+        camera.position.x *= scale; camera.position.z *= scale;
+        camera.lookAt(lookAt); camera.updateMatrixWorld(true);
+        measureDuelBodyNdc(actorFramePoint, p.halfHeight / SCALE,
+          camera, duelTop, duelBottom, duelActorAfter);
+        measureDuelBodyNdc(guardianRescuePoint, sourceGuardian.halfHeight / SCALE,
+          camera, duelTop, duelBottom, duelGuardianAfter);
+        if (acceptObservedDuelDolly({
+          aspect: camera.aspect, actorBefore: duelActorBefore,
+          actorAfter: duelActorAfter, guardianBefore: duelGuardianBefore,
+          guardianAfter: duelGuardianAfter,
+          radiusBefore: previousRadius, radiusAfter: nextRadius,
+          actorCoreClear: towerCoreSightlineClear(camera.position, actorFramePoint, 23.5),
+          guardianCoreClear: towerCoreSightlineClear(camera.position, guardianRescuePoint, 23.5),
+        })) {
+          duelDollyApplications = Math.min(1000000, duelDollyApplications + 1);
+          duelDollyLastStep = previousRadius - nextRadius;
+        } else {
+          camera.position.copy(duelPreviousCamera);
+          camera.lookAt(lookAt); camera.updateMatrixWorld(true);
+        }
+      }
+    }
     camera.lookAt(lookAt);
     world.revealGuardianSightlines(camera,guardianSightPoints);
     // Foreground visibility is tested against the very same ACTUAL smoothed
@@ -2849,6 +2919,8 @@ export function createTowerScene(canvas, settings = {}) {
     return { renderer: 'three-webgl', frames: submissionProgress.submittedFrames, tick: snapshot?.tick ?? 0, floor: snapshot?.floor ?? 0, theme: snapshot?.theme ?? '',
       camera: options.camera, quality: options.quality, reducedMotion: options.reducedMotion, stale: !!options.stale, contextLost, renderErrors,
       actorSafeRefinements,
+      duelDollyApplications, duelDollyLastStep: Number(duelDollyLastStep.toFixed(4)),
+      duelDollyEvidence: 'Real portrait body projection only; not verified raster visibility or quality vote',
       resolution: { basePixelRatio, pixelRatio: renderPixelRatio, scale: innerWidth >= 700 ? resolutionPolicy.scale : 1,
         adaptations: resolutionPolicy.adaptations, submissionMs: resolutionPolicy.lastSubmissionMs,
         measurement: 'JS scene-update-and-render-call duration; not presented FPS' },
