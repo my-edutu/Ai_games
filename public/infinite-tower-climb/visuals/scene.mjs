@@ -1954,7 +1954,10 @@ export function createTowerScene(canvas, settings = {}) {
         ? clamp(e.telegraphTicksRemaining,1,8):8;
       const threatBase = e.kind === 'guardian' ? 3.5 : 2.2;
       entry.warning.scale.setScalar(threatBase*(options.reducedMotion?1:.82+.2*(1-chargeLeft/8)));
-      entry.threatLane.visible = e.active && e.telegraph && !options.stale;
+      // The guardian has a real exterior source-facing shot stage instead.
+      // Never stack the old inner-core stripe over that same encounter;
+      // non-guardian authentic telegraphs keep their original 3D strip.
+      entry.threatLane.visible = e.active && e.telegraph && !options.stale && e.kind !== 'guardian';
       if(entry.threatLane.visible)poseThreatLane(entry.threatLane,e,snapshot);
       // The incomplete arc shrinks across the enemy's true remaining ticks.
       // Rotation is optional; reduced motion retains size and shape information.
