@@ -6205,6 +6205,12 @@ function marketVisitArchitecture(pos,door,stall){
   if(roof.kind==='market-stall'&&Math.abs(roof.x-stall.x)<.01&&
      Math.abs(roof.z-stall.z)<.01)continue;
   blockers.push(roof);
+  // Treat the ORIGINAL market linen awnings and open timber arches as
+  // desired street-market context, not impenetrable cottage walls. They
+  // still participate in the real physical ray obstruction check below.
+  // Genuine solid homes/craft roofs remain strict foreground exclusions.
+  if(!['home','hall','craft-district','granary','street-shop'].includes(roof.kind))
+   continue;
   const center=[roof.x,((roof.visualBottom??roof.bottom??terrain(roof.x,roof.z)-.22)+roof.top)/2,roof.z];
   const along=center.reduce((sum,v,i)=>sum+(v-eye[i])*forward[i],0);
   // The 390px A/B gate cares about WHAT THE CAMERA ACTUALLY SEES.
@@ -6275,7 +6281,7 @@ function planMarketVisit(){
   sky:0,eligible:0,closest:[],lastFailure:null};
  const candidates=[];
  for(const stall of MARKET_STALLS){
-  for(const lateral of [0,-.65,.65,-1.3,1.3,-1.95,1.95,-2.6,2.6,-3.25,3.25,-3.9,3.9,-4.55,4.55,-5.2,5.2,-5.85,5.85])
+  for(const lateral of [0,-.65,.65,-1.3,1.3,-1.95,1.95,-2.6,2.6,-3.25,3.25,-3.9,3.9,-4.55,4.55,-5.2,5.2,-5.85,5.85,-6.5,6.5,-7.15,7.15,-7.8,7.8,-8.45,8.45])
    for(const forward of [4.05,4.65,5.25,5.85,6.45,7.05,7.65,8.25,8.85,9.45])
     candidates.push([stall.x+lateral,stall.z+stall.face*forward]);
  }
