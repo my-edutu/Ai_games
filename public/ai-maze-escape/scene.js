@@ -609,11 +609,17 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       const originalCell = cellPosition(recentPublicPickup.cell,s.width,s.height);
       if (Math.hypot(pose.x-originalCell.x,pose.z-originalCell.z) <= CELL_SIZE * 1.25) {
         pickupCameraBeat = true;
-        // Keep a minimum 3.55 world-unit horizontal half-span on narrow phones
-        // while increasing the screen presence of the witnessed story beat.
-        // Never force this tighter view on guardian, gate, overview or reduced
-        // motion. Camera target and zoom are solely presentation state.
-        targetHeight = Math.min(targetHeight, Math.max(5.45,3.55/Math.max(.35,aspect)));
+        // A real native 390px capture at Pass97 still gave Pip and the
+        // full-scale treasure theatre too little of the game screen. Stage
+        // ONLY their witnessed nearby action closer, with a bounded 3.26
+        // world-unit portrait half-span and a 4.72 desktop floor. The same
+        // public key, Pip pose and model bounds remain authoritative; existing
+        // real 390px physical-framing and shard-visibility gates must pass.
+        // Danger, observed gates, results, manual view and reduced motion win.
+        const safePickupSpan = width < 500 ? 3.26 : 3.12;
+        targetHeight = Math.min(targetHeight,
+          Math.max(width < 500 ? 5.1 : 4.72,
+            safePickupSpan / Math.max(.35, aspect)));
         desiredTarget.set((pose.x+originalCell.x)*.5,ground+.68,
           (pose.z+originalCell.z)*.5);
       }
