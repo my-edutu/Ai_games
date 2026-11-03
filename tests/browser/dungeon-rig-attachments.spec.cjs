@@ -50,7 +50,11 @@ test('real Chromium GLB ranger bow and mystic staff remain attached to animated 
  expect(d.authored3D.cinematicFigures).toBeGreaterThanOrEqual(3);
  expect(d.authored3D.cinematicSourceHidden).toBe(d.authored3D.cinematicFigures);
  expect(d.authored3D.cinematicBoneMounts).toBeGreaterThanOrEqual(d.authored3D.cinematicFigures*12);
- expect(d.authored3D.cinematicMeshes).toBeGreaterThanOrEqual(d.authored3D.cinematicFigures*22);
+ // Native left/right armour parts share GPU draws. Preserve a substantial
+ // full-body rendered-part count, physical connections and GPU budget.
+ expect(d.authored3D.cinematicRenderedParts).toBeGreaterThanOrEqual(d.authored3D.cinematicFigures*22);
+ expect(d.authored3D.cinematicAnatomyBridges).toBe(d.authored3D.cinematicFigures*14);
+ expect(d.authored3D.cinematicMeshes).toBeLessThanOrEqual(240);
  expect(d.authored3D.cinematicVertices).toBeGreaterThan(3000);
  expect(d.authored3D.cinematicMaterialsMapped).toBeGreaterThanOrEqual(d.authored3D.cinematicFigures*5);
  expect(d.authored3D.anatomicalDetailParts+d.authored3D.cinematicMeshes).toBeGreaterThan(60);

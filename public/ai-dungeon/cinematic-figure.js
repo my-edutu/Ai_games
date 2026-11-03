@@ -71,6 +71,23 @@ export function planFigureJointCoverage(joints){
  const missing=CRITICAL_FIGURE_JOINTS.filter(key=>joints?.[key]?.isBone!==true);
  return Object.freeze({valid:missing.length===0,count:CRITICAL_FIGURE_JOINTS.length-missing.length,missing:Object.freeze(missing)});
 }
+/** Cohesive 3D under-armour follows actual native CC0 skeleton. The former
+ * discrete rigid plates visibly floated apart during true movement/attacks.
+ * Every seam is bounded, animation-driven, authority-free and shader-free.
+ */
+export const CINEMATIC_ANATOMY_LINKS=Object.freeze([
+ ['torso','pelvis'], ['torso','helmet'],
+ ['torso','left-shoulder'], ['left-shoulder','left-upper-arm'], ['left-upper-arm','left-bracer'],
+ ['torso','right-shoulder'], ['right-shoulder','right-upper-arm'], ['right-upper-arm','right-bracer'],
+ ['pelvis','left-thigh'], ['left-thigh','left-shin'], ['left-shin','left-boot'],
+ ['pelvis','right-thigh'], ['right-thigh','right-shin'], ['right-shin','right-boot']
+].map(([a,b])=>Object.freeze([a,b])));
+export function planAnatomyBridge(span,stature=1.82){
+ if(!Number.isFinite(span)||!Number.isFinite(stature)||stature<1.3||stature>2.6||span<.025||span>1.04*stature/1.82)
+  return Object.freeze({visible:false,length:0,radius:0});
+ const width=span<.18?.078:span<.32?.095:.108;
+ return Object.freeze({visible:true,length:span*1.16,radius:width*stature/1.82});
+}
 const MIRRORED_PARTS=Object.freeze(['shoulder','upper-arm','bracer','thigh','shin','boot']);
 /**
  * Share one GPU draw per articulated left/right material pair without
@@ -318,7 +335,7 @@ export function createCinematicFigure(T,actor,joints){
   leather:material(T,'leather',recipe.palette.leather,.06,.82),
   face:material(T,'face',recipe.palette.face,.055,.78)
  };
- const group=new T.Group(),built=[],anchors=[],batches=[];
+ const group=new T.Group(),built=[],anchors=[],batches=[],attachments=new Map();
  const figureScale=recipe.statureMeters/1.82;
  group.name='Original anatomically articulated '+recipe.kind;
  try{
@@ -340,7 +357,7 @@ export function createCinematicFigure(T,actor,joints){
     const anchor=new T.Object3D();anchor.name='native '+p.anchor+' '+p.id;
     anchor.position.set(p.x*figureScale,p.y*figureScale,p.z*figureScale);
     anchor.scale.set(p.sx*figureScale,p.sy*figureScale,p.sz*figureScale);
-    group.add(anchor);anchors.push(anchor);
+    group.add(anchor);anchors.push(anchor);attachments.set(p.id,anchor);
     group.updateWorldMatrix(true,true);joints[p.anchor].attach(anchor);
     jointAnchors.push(anchor);excluded.add(p.id);
    }
@@ -354,16 +371,28 @@ export function createCinematicFigure(T,actor,joints){
    mesh.scale.set(p.sx*figureScale,p.sy*figureScale,p.sz*figureScale);
    mesh.userData.cinematicFigurePiece=true;
    mesh.castShadow=false;mesh.receiveShadow=true;
-   group.add(mesh);built.push(mesh);
+   group.add(mesh);built.push(mesh);attachments.set(p.id,mesh);
    group.updateWorldMatrix(true,true);joints[p.anchor].attach(mesh);
   }
   const gripOffset=attachWeapon(T,group,joints.rightHand,recipe,mat,geometry,built);
   if(!Number.isFinite(gripOffset)||gripOffset>.015)
    throw Error('Native right-hand grip did not align: '+gripOffset);
-  // Reusable matrices, no per-frame allocations. Read-only copies of actual
-  // animated bone poses into six packed pairs of individually articulated
-  // geometry. All authority, collision and replay inputs stay unchanged.
-  const inverseGroup=new T.Matrix4(),pose=new T.Matrix4();
+  // One shared GPU draw per original cloth-connected anatomical body,
+  // rather than a new mesh per joint. World transforms come ONLY from
+  // native animated bones after the actual actor's mixer/real combat poses.
+  const bridgeGeometry=new T.CylinderGeometry(.72,.82,1,9,2);
+  geometry.anatomyBridge=bridgeGeometry;
+  const bridge=new T.InstancedMesh(bridgeGeometry,mat.cloth,CINEMATIC_ANATOMY_LINKS.length);
+  bridge.name='cinematic-'+recipe.kind+'-continuous-bone-driven-anatomy';
+  bridge.userData.cinematicFigurePiece=true;bridge.frustumCulled=false;
+  bridge.castShadow=false;bridge.receiveShadow=true;
+  bridge.instanceMatrix.setUsage(T.DynamicDrawUsage);
+  group.add(bridge);built.push(bridge);
+  const inverseGroup=new T.Matrix4(),pose=new T.Matrix4(),
+   bridgeStart=new T.Vector3(),bridgeEnd=new T.Vector3(),bridgeMid=new T.Vector3(),
+   bridgeDirection=new T.Vector3(),bridgeScale=new T.Vector3(),
+   bridgeQuat=new T.Quaternion(),bridgeUp=new T.Vector3(0,1,0);
+  let activeBridges=0;
   const sync=()=>{
    group.updateWorldMatrix(true,false);
    inverseGroup.copy(group.matrixWorld).invert();
@@ -375,6 +404,23 @@ export function createCinematicFigure(T,actor,joints){
     }
     pair.mesh.instanceMatrix.needsUpdate=true;
    }
+   activeBridges=0;
+   CINEMATIC_ANATOMY_LINKS.forEach(([from,to],i)=>{
+    const a=attachments.get(from),b=attachments.get(to);
+    if(!a||!b){pose.makeScale(.00001,.00001,.00001);bridge.setMatrixAt(i,pose);return;}
+    a.updateWorldMatrix(true,false);b.updateWorldMatrix(true,false);
+    a.getWorldPosition(bridgeStart).applyMatrix4(inverseGroup);
+    b.getWorldPosition(bridgeEnd).applyMatrix4(inverseGroup);
+    bridgeDirection.subVectors(bridgeEnd,bridgeStart);
+    const length=bridgeDirection.length(),plan=planAnatomyBridge(length,recipe.statureMeters);
+    if(!plan.visible){pose.makeScale(.00001,.00001,.00001);bridge.setMatrixAt(i,pose);return;}
+    bridgeMid.addVectors(bridgeStart,bridgeEnd).multiplyScalar(.5);
+    bridgeQuat.setFromUnitVectors(bridgeUp,bridgeDirection.multiplyScalar(1/length));
+    bridgeScale.set(plan.radius,plan.length,plan.radius);
+    pose.compose(bridgeMid,bridgeQuat,bridgeScale);
+    bridge.setMatrixAt(i,pose);activeBridges++;
+   });
+   bridge.instanceMatrix.needsUpdate=true;
   };
   sync();
   actor.assetRoot.traverse(obj=>{
@@ -387,8 +433,8 @@ export function createCinematicFigure(T,actor,joints){
    renderedParts:built.length+batches.length,pairedBatches:batches.length,
    joints:12,vertices,mappedMaterials:Object.values(mat).filter(m=>m.bumpMap).length,
    handGripOffsetMeters:gripOffset,weapon:recipe.weapon,
-   sourceMeshesHidden:true,height:recipe.statureMeters,sync,
-   dispose:()=>{for(const batch of batches)batch.mesh.dispose();}
+   sourceMeshesHidden:true,height:recipe.statureMeters,anatomyBridges:CINEMATIC_ANATOMY_LINKS.length,activeAnatomyBridges:()=>activeBridges,sync,
+   dispose:()=>{for(const batch of batches)batch.mesh.dispose();bridge.dispose();}
   });
  }catch(e){
   // Anchors have been reparented to skeleton bones; remove them as well as

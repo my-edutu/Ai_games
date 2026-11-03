@@ -389,6 +389,17 @@ export function planBossDuelSightline(s,shot,look,offsets,{width=1440,height=832
    return blocks;
   };
   const wallPenalty=nearWall(xHero,zHero)+nearWall(xBoss,zBoss);
+  // Genuine previous-world clips film mostly featureless dark helmet backs.
+  // Where two safe views genuinely tie, reveal the real hero's face. Never
+  // displace the actors or override silhouette, collision or Warden danger.
+  const faceDirection=(unit,x,z)=>{
+   const yaw=visualActors?.get?.(unit.id)?.root?.rotation?.y;
+   if(!Number.isFinite(yaw))return 0;
+   const vx=cx-x,vz=cz-z,d=Math.hypot(vx,vz);
+   return d>.01?(-Math.sin(yaw)*vx-Math.cos(yaw)*vz)/d:0;
+  };
+  const heroFace=faceDirection(hero,xHero,zHero),bossFace=faceDirection(boss,xBoss,zBoss);
+  const faceBonus=2.8*Math.max(0,heroFace)+.65*Math.max(0,bossFace);
   const edgePenalty=Math.hypot(rawX-cx,rawZ-cz);
   const closePenalty=Math.max(0,3.8-Math.hypot(heroDeltaX,heroDeltaZ))+
    Math.max(0,4.0-Math.hypot(bossDeltaX,bossDeltaZ));
@@ -398,11 +409,12 @@ export function planBossDuelSightline(s,shot,look,offsets,{width=1440,height=832
   const score=silhouetteGap*34+Math.min(.9,lead)*1.9-
    Math.max(0,.18-lead)*16-(heroCrop+bossCrop)*55-
    wallPenalty*.72-edgePenalty*.28-closePenalty*3-
-   Math.abs(step)*.006;
+   Math.abs(step)*.006+faceBonus;
   if(!best||score>best.score+.00001)
    best={score,position:{x:cx,y:cameraHeight,z:cz},silhouetteGap,
     heroDepthLead:lead,projectedSeparation:Math.abs(heroScreen-bossScreen),
-    nearWallBlocks:wallPenalty,heroCrop,bossCrop,angleStep:step};
+    nearWallBlocks:wallPenalty,heroCrop,bossCrop,angleStep:step,
+    heroFace:heroFace,bossFace:bossFace};
  }
  if(!best)return null;
  return Object.freeze({
@@ -416,6 +428,8 @@ export function planBossDuelSightline(s,shot,look,offsets,{width=1440,height=832
    heroDepthLead:Number(best.heroDepthLead.toFixed(4)),
    projectedSeparation:Number(best.projectedSeparation.toFixed(4)),
    nearWallBlocks:best.nearWallBlocks,
+   heroFacialVisibility:Number(best.heroFace.toFixed(3)),
+   bossFacialVisibility:Number(best.bossFace.toFixed(3)),
    cropped:best.heroCrop>0||best.bossCrop>0,
    angleStep:best.angleStep,
    candidateCount:48

@@ -988,6 +988,8 @@ function stats(actors){
   cinematicBosses:authored.filter(a=>a.u.kind==='warden'&&a.cinematicFigure).length,cinematicMeshes:authored.reduce((n,a)=>n+(a.cinematicFigure?.meshes||0),0),
   cinematicRenderedParts:authored.reduce((n,a)=>n+(a.cinematicFigure?.renderedParts||0),0),
   cinematicPairedBatches:authored.reduce((n,a)=>n+(a.cinematicFigure?.pairedBatches||0),0),
+  cinematicAnatomyBridges:authored.reduce((n,a)=>n+(a.cinematicFigure?.anatomyBridges||0),0),
+  cinematicActiveAnatomyBridges:authored.reduce((n,a)=>n+(a.cinematicFigure?.activeAnatomyBridges?.()||0),0),
   cinematicVertices:authored.reduce((n,a)=>n+(a.cinematicFigure?.vertices||0),0),
   cinematicMaterialsMapped:authored.reduce((n,a)=>n+(a.cinematicFigure?.mappedMaterials||0),0),
   cinematicBoneMounts:authored.reduce((n,a)=>n+(a.cinematicFigure?.joints||0),0),
