@@ -19,6 +19,22 @@ export function planCranialRatio(kind){
  return typeof kind==='string'&&Object.hasOwn(CRANIAL_RATIOS,kind)?CRANIAL_RATIOS[kind]:1;
 }
 // A true skinned artist pelvis, not an arbitrary thigh or combat proxy.
+// Bounded, deterministic visual bearing from genuine HP, current action
+// and actual legal nearby enemy. These poses never invent game outcomes.
+const REST_BEARING=Object.freeze({head:Object.freeze({pitch:0,yaw:0,roll:0}),chest:Object.freeze({pitch:0,yaw:0,roll:0}),hips:Object.freeze({pitch:0,yaw:0,roll:0})});
+const BEARING=Object.freeze({vanguard:[.75,.65],ranger:[.60,1.15],mystic:[.88,1.06],revenant:[.38,.42],cultist:[.82,1],warden:[.46,.58]});
+export function planRigBearing(kind,hp,maxHp,action,age=0,enemyDistance=null,reducedMotion=false){
+ const role=BEARING[kind];
+ if(!role||reducedMotion||!Number.isFinite(hp)||!Number.isFinite(maxHp)||hp<=0||maxHp<=0||hp>maxHp||!Number.isFinite(age)||age<0)return REST_BEARING;
+ const wounded=Math.min(1,Math.max(0,(1-hp/maxHp)*1.4))*role[0],near=Number.isInteger(enemyDistance)&&enemyDistance>=1&&enemyDistance<=4;
+ const moving=action==='move',guard=action==='guard',cast=action==='cast',attack=action==='attack';
+ const breath=Math.sin(age*2.1)*(moving?.008:.015),drive=attack?.035*Math.sin(Math.min(.55,age)*Math.PI/.55):0;
+ return {
+  head:{pitch:Math.max(-.15,Math.min(.20,wounded*.14-(cast?.045:0)+breath*.4)),yaw:near*Math.sin(age*1.5)*.04*role[1],roll:Math.min(.09,wounded*.07)+(moving?.012*Math.sin(age*4):0)},
+  chest:{pitch:Math.max(-.16,Math.min(.19,wounded*.09+breath+(guard?.06:0)-drive)),yaw:near*Math.sin(age*1.28)*.014*role[1],roll:Math.min(.055,wounded*.035)+(moving?.011*Math.sin(age*5):0)},
+  hips:{pitch:Math.min(.11,wounded*.044+(guard?.013:0)),yaw:0,roll:(moving?.020*Math.sin(age*5):0)+drive*.33}
+ };
+}
 export function selectPelvisBone(bones){
  if(!Array.isArray(bones))return null;
  return bones.find(b=>b?.isBone&&typeof b.name==='string'&&

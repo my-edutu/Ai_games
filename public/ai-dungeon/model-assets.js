@@ -14,7 +14,7 @@ import {planFittedRoleDetail} from '/dungeon/role-silhouette-plan.js';
 import {planAnatomicalKit,planAnatomicalDrawGroups} from '/dungeon/anatomical-kit-plan.js';
 import {createForgedArmorForms,planForgedArmor,planForgedFinishes,planAuthoredBodyShape} from '/dungeon/forged-armor.js';
 import {planDrapePanels,planDrapeSwing,planDrapeVertexBend,drapePoseKey,DRAPE_ROWS,DRAPE_COLUMNS} from '/dungeon/fabric-drape-plan.js';
-import {rigWeaponParts,selectHandBone,rigGripAnchor,boundedGripOffset,selectUpperArmBone,planRigArmGesture,selectForearmBone,planRigForearmGesture,selectLegBone,advanceRigGait,planRigLegGesture,planRigContactBrace,selectCranialBone,planCranialRatio,restoreCranialProportion,stageCranialProportion,selectCombatTorsoBone,planRigMeleeFollowThrough,selectPelvisBone} from '/dungeon/rig-attachment-plan.js';
+import {rigWeaponParts,selectHandBone,rigGripAnchor,boundedGripOffset,selectUpperArmBone,planRigArmGesture,selectForearmBone,planRigForearmGesture,selectLegBone,advanceRigGait,planRigLegGesture,planRigContactBrace,selectCranialBone,planCranialRatio,restoreCranialProportion,stageCranialProportion,selectCombatTorsoBone,planRigMeleeFollowThrough,selectPelvisBone,planRigBearing} from '/dungeon/rig-attachment-plan.js';
 
 // Optional locally vendored CC0 characters. Offline / missing-asset fallback is the
 // fully autonomous procedural 3D rig, not a blank screen. No third-party runtime calls.
@@ -483,22 +483,37 @@ function bindRigArmGestures(actor){
  }
  actor.rigMeleeCurrentPeak=0;actor.rigMeleePeak=0;actor.rigMeleeActive=false;
  actor.rigPelvisBone=selectPelvisBone(bones);
+ actor.rigPelvisBearing=actor.rigPelvisBone?{bone:actor.rigPelvisBone,last:new THREE.Quaternion(),inverse:new THREE.Quaternion(),next:new THREE.Quaternion(),euler:new THREE.Euler()}:null;
  // Authentic KayKit head skin joints are animated (including scale) in the
  // imported GLB clips. Apply our original adult-proportion adjustment only
  // AFTER the mixer, reversing it before the next mixer update. Missing bones
  // remain unchanged and never create or reposition a gameplay entity.
  const cranialBone=selectCranialBone(bones);
  actor.rigCranial=cranialBone?{
-  bone:cranialBone,ratio:planCranialRatio(actor.u.kind),applied:false
+  bone:cranialBone,ratio:planCranialRatio(actor.u.kind),applied:false,bearingLast:new THREE.Quaternion(),bearingInverse:new THREE.Quaternion(),bearingNext:new THREE.Quaternion(),bearingEuler:new THREE.Euler()
  }:null;
  actor.rigGaitPosition=actor.root?.position?.clone?.()??null;
  actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;
 }
 function restoreRigCranialBeforeMixer(actor){
- restoreCranialProportion(actor.rigCranial);
+ const m=actor.rigCranial;
+ if(m?.bearingLast){m.bone.quaternion.multiply(m.bearingInverse.copy(m.bearingLast).invert());m.bearingLast.identity();}
+ restoreCranialProportion(m);
 }
 function stageRigCranialAfterMixer(actor){
- stageCranialProportion(actor.rigCranial);
+ const m=actor.rigCranial;stageCranialProportion(m);if(!m)return;
+ const p=actor.rigBearing?.head||RIG_ZERO;
+ m.bearingNext.setFromEuler(m.bearingEuler.set(p.pitch,p.yaw,p.roll,'YXZ'));
+ m.bone.quaternion.multiply(m.bearingNext);m.bearingLast.copy(m.bearingNext);
+}
+function restoreRigPelvisBeforeMixer(actor){
+ const m=actor.rigPelvisBearing;if(!m)return;
+ m.bone.quaternion.multiply(m.inverse.copy(m.last).invert());m.last.identity();
+}
+function stageRigPelvisAfterMixer(actor){
+ const m=actor.rigPelvisBearing;if(!m)return;const p=actor.rigBearing?.hips||RIG_ZERO;
+ m.next.setFromEuler(m.euler.set(p.pitch,p.yaw,p.roll,'YXZ'));
+ m.bone.quaternion.multiply(m.next);m.last.copy(m.next);
 }
 function restoreRigArmsBeforeMixer(actor){
  for(const mount of actor.rigUpperArms||[]){
@@ -537,10 +552,11 @@ function stageRigMeleeAfterMixer(actor,since,reducedMotion){
  for(const mount of actor.rigMeleeBones){
   const joint=pose[mount.part],extra=actor.performanceBeat?.[mount.part]||RIG_ZERO;
   const dodge=mount.part==='spine'?(actor.evasionFrame?.spine||RIG_ZERO):RIG_ZERO;
+  const bearing=mount.part==='spine'?(actor.rigBearing?.chest||RIG_ZERO):RIG_ZERO;
   mount.next.setFromEuler(mount.euler.set(
-   Math.max(-.55,Math.min(.55,joint.pitch+extra.pitch+dodge.pitch)),
-   Math.max(-.48,Math.min(.48,joint.yaw+extra.yaw+dodge.yaw)),
-   Math.max(-.46,Math.min(.46,joint.roll+extra.roll+dodge.roll)),'YXZ'));
+   Math.max(-.55,Math.min(.55,joint.pitch+extra.pitch+dodge.pitch+bearing.pitch)),
+   Math.max(-.48,Math.min(.48,joint.yaw+extra.yaw+dodge.yaw+bearing.yaw)),
+   Math.max(-.46,Math.min(.46,joint.roll+extra.roll+dodge.roll+bearing.roll)),'YXZ'));
   mount.bone.quaternion.multiply(mount.next);
   mount.last.copy(mount.next);
   actor.rigMeleeCurrentPeak=Math.max(actor.rigMeleeCurrentPeak,
@@ -677,7 +693,7 @@ function attachCharacter(actor){
    instance.position.set(-center.x*fitX,-bounds.min.y*sourceScale,-center.z*fitZ);
   }
   const pivot=new THREE.Group();(actor.impactPivot||actor.root).add(pivot);pivot.add(instance);
-  actor.visualPivot=pivot;actor.motionPeak=0;actor.evasionFrame=null;actor.evasionPosePeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.anatomicalParts=0;actor.anatomicalJointParts=0;actor.anatomicalDetailMeshes=0;actor.anatomicalStaticMergedParts=0;actor.sculptedArmorProfile=null;actor.sculptedArmorVertices=0;actor.rigBoundAccessoryParts=0;actor.rigWardrobeParts=0;actor.anatomicalStaticMountedCount=0;actor.rigHandBoneName=null;actor.rigHandBone=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigCranial=null;actor.rigPelvisBone=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.wardenChargeShoulderPeak=0;actor.wardenCharge=null;actor.rigForearms=[];actor.rigForearmPeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;actor.rigMeleeBones=[];actor.rigMeleePeak=0;actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;actor.skinnedHitWeight=0;actor.skinnedHitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.draperyPoseKey=null;actor.draperyFramesSkipped=0;actor.draperyNormalRebuilds=0;actor.draperyVertexUploads=0;
+  actor.visualPivot=pivot;actor.motionPeak=0;actor.evasionFrame=null;actor.evasionPosePeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.anatomicalParts=0;actor.anatomicalJointParts=0;actor.anatomicalDetailMeshes=0;actor.anatomicalStaticMergedParts=0;actor.sculptedArmorProfile=null;actor.sculptedArmorVertices=0;actor.rigBoundAccessoryParts=0;actor.rigWardrobeParts=0;actor.anatomicalStaticMountedCount=0;actor.rigHandBoneName=null;actor.rigHandBone=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigCranial=null;actor.rigPelvisBone=null;actor.rigPelvisBearing=null;actor.rigBearing=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.wardenChargeShoulderPeak=0;actor.wardenCharge=null;actor.rigForearms=[];actor.rigForearmPeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;actor.rigMeleeBones=[];actor.rigMeleePeak=0;actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;actor.skinnedHitWeight=0;actor.skinnedHitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.draperyPoseKey=null;actor.draperyFramesSkipped=0;actor.draperyNormalRebuilds=0;actor.draperyVertexUploads=0;
   actor.body.visible=false;actor.authored=true;actor.detail?.setAuthored?.(true);actor.mixer=new THREE.AnimationMixer(instance);
   actor.availableClips=gltf.animations||[];actor.currentAction='';actor.currentActionTick=null;
   actor.textureReadiness=textureReadiness.get(gltf);
@@ -786,6 +802,7 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
  restoreRigLegsBeforeMixer(actor);
  restoreRigMeleeBeforeMixer(actor);
  restoreRigCranialBeforeMixer(actor);
+ restoreRigPelvisBeforeMixer(actor);
  actor.mixer.update(Math.min(.05,Math.max(0,dt)));
  actor.performanceBeat=planCombatPerformanceBeat(actor.u.kind,actor.u.action||'idle',since,{
   targetId:actor.combatFacing?.targetId,distance:actor.combatFacing?.distance,
@@ -794,7 +811,9 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
  actor.evasionFrame=planEvasionPerformance(actor.u.kind,actor.evasionBeat?.age,actor.evasionBeat,
   {reducedMotion:reducedMotion||actor.u.hp<=0,yaw:actor.root?.rotation?.y??0});
  actor.evasionPosePeak=Math.max(actor.evasionPosePeak||0,actor.evasionFrame.strength);
+ actor.rigBearing=planRigBearing(actor.u.kind,actor.u.hp,actor.u.maxHp,actor.u.action||'idle',since,actor.combatFacing?.distance,reducedMotion||actor.u.hp<=0);
  stageRigCranialAfterMixer(actor);
+ stageRigPelvisAfterMixer(actor);
  stageRigArmsAfterMixer(actor,since,reducedMotion);
  stageRigForearmsAfterMixer(actor,since,reducedMotion);
  stageRigLegsAfterMixer(actor,since,reducedMotion);

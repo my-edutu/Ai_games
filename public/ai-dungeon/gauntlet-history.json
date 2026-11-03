@@ -2193,7 +2193,7 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "At source-head 850a101: dedicated Dungeon workflow 41570896508 SUCCESS, visual 41570896564 SUCCESS, full catalogue CI 41570896490 FAILED (cause not attributed without logs). New wardrobe candidate exact-head browser/security/CI UNVERIFIED.",
+      "safetyChecks": "Latest native body presence source needs exact-head Node, replay, Chromium, CI, accessibility and frame-time verification; earlier source-head tests are not evidence for this head.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2206,8 +2206,8 @@
       "newCandidateSceneReview": "UNVERIFIED new exact-head screenshot/audio/long motion. Source-head 4cc8abd desktop and portrait world-only screenshots inspected; candidate capture not yet available."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Even after the current candidate, genuine adult character anatomy, silhouettes, weight, camera separation and physically convincing contact still lag Diablo IV/PoE2; measured desktop/mobile audiovisual A/B is missing.",
-    "currentWork": "Integrated genuine skeleton-bound wardrobe and forged torso art, with restrained duplicated shoulder/collar mass, in one continuing M1 candidate; no moving AFTER evidence or independent critic majority yet.",
+    "biggestRemainingGap": "Stylized oversized heads, overcrowded character silhouettes and muted combat contact; exact-head true audiovisual playback, matched baseline and independent critics remain missing.",
+    "currentWork": "Integrated six class skinned thigh/waist armor and real HP/action/nearby foe-driven reversible original head/chest/pelvis animation; continuing one M1 candidate, no live new-head acceptance.",
     "candidateCommit": "",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
@@ -3437,6 +3437,23 @@
         "validation": "Foundation/browser checks added; exact-head result UNVERIFIED. Prior source 850a101 dedicated Dungeon and visual review succeeded, global CI failed.",
         "experienceVerdict": "IN_PROGRESS / NOT TRANSFORMED",
         "next": "Inspect newly rendered desktop and mobile battle and Warden clips; correct bone-space armor distortions and draw-call regressions, then complete genuine traversal-to-restart audiovisual capture and 3+ blind critics."
+      },
+      {
+        "id": "M1-NATIVE-BODY-PRESENCE-20261103",
+        "date": "2026-11-03",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "milestone": "SAME OPEN M1",
+        "sourceHeadAtStart": "5c74a952bc096f9732eeab4ce41c67c78559f093",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "objective": "Connect real autonomous game travel, combat and injury to native all-six-role head/chest/pelvis body language with original pelvis/thigh armor integrated from prior candidate.",
+        "code": [
+          "public/ai-dungeon/rig-attachment-plan.js",
+          "public/ai-dungeon/model-assets.js"
+        ],
+        "mechanism": "Bounded HP proportion, genuine action and validated nearby real enemy drive different head/chest/hip bearing; cosmetic quaternion layers reverse before every original AnimationMixer frame and respect reduced-motion and death. Existing scene, audio, combat and world remain. No RNG, authority, physics, save, network, new assets.",
+        "verification": "Source syntactic checks only; real Chromium, CI/replay, hardware performance, audiovisual full scenario, matched baseline, independent 3-critic majority UNVERIFIED because workspace/browser tunnel disconnected.",
+        "largestGap": "Current real desktop/mobile art still looks crowded and miniature; new after must be judged live, not assumed improved.",
+        "next": "Capture exact-head real motion and fix limb/hip clipping, then continue substantial integrated character/world/boss pacing while recording original full traversal→combat→Warden→floor→defeat/restart with audio and blind judging."
       }
     ]
   }
