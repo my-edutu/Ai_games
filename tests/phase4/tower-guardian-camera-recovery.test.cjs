@@ -8,7 +8,7 @@ const cameraPolicy = import(pathToFileURL(path.resolve(__dirname,
   '../../public/infinite-tower-climb/visuals/guardian-camera-safety.mjs')).href);
 
 test('guardian rescue only accepts actual dual-subject improvement on an exterior stage', async () => {
-  const { guardianFramePressure, guardianCameraRecoveryBlend,
+  const { guardianFramePressure, actorFramePressure, guardianCameraRecoveryBlend,
     acceptGuardianCameraRescue } = await cameraPolicy;
   const portrait = 390 / 844;
   const actor = [0.12, -.03, .7];
@@ -42,6 +42,12 @@ test('guardian rescue only accepts actual dual-subject improvement on an exterio
   assert.ok(guardianCameraRecoveryBlend(1e9, 3) <= .3);
   assert.equal(guardianFramePressure([NaN, 0, 0], portrait), Infinity);
   assert.equal(guardianFramePressure([0, 0, 0], 16/9), 0);
+  assert.ok(actorFramePressure([.81, 0, .7], portrait) > 0,
+    'native phone actor framing must be stricter than the guardian margin');
+  assert.equal(acceptGuardianCameraRescue({
+    ...basis, actorAfter: [.81, 0, .7],
+  }), false, 'a handsome guardian close-up cannot push the climber out of 78% safe frame');
+  assert.equal(actorFramePressure([0, 0, .7], portrait), 0);
 });
 
 test('scene connects guardian rescue to observed actor, guardian and authentic lens', () => {
