@@ -15,22 +15,22 @@ const part=(id,shape,finish,x,y,z,sx,sy,sz,rz=0,mount='torso')=>
 function make(kind,p){
  const w=p.scale,robe=p.robe;
  const items=[
-  part(kind+'-forged-cuirass','cuirass',p.chest,0,1.19,-.29,.68*w,.62,.23),
-  part(kind+'-upper-breastplate','cuirass',p.detail,0,1.32,-.40,.31*w,.32,.10),
-  part(kind+'-neck-gorget','collar',p.detail,0,1.50,-.19,.44*w,.17,.22),
+  part(kind+'-forged-cuirass','cuirass',p.chest,0,1.19,-.29,.62*w,.65,.19),
+  part(kind+'-upper-breastplate','cuirass',p.detail,0,1.30,-.39,.25*w,.25,.075),
+  part(kind+'-neck-gorget','collar',p.detail,0,1.49,-.18,.36*w,.10,.14),
   // Preserve one slimmer facial guard with the original skinned cranium.
   // Duplicated solid mask shells and rigid shoulders obscured native animation.
-  part(kind+'-face-guard','mask',p.face,0,1.68,-.26,.68*p.head,.42,.31,0,'head'),
-  part(kind+'-left-bracer','vambrace',p.arm,-.43,1.03,-.10,.30,.47,.30,-.12,'leftForearm'),
-  part(kind+'-right-bracer','vambrace',p.arm,.43,1.03,-.10,.30,.47,.30,.12,'rightForearm'),
-  part(kind+'-left-shin','greave',p.lower,-.17,.39,-.13,.29,.54,.29,0,'leftLowerLeg'),
-  part(kind+'-right-shin','greave',p.lower,.17,.39,-.13,.29,.54,.29,0,'rightLowerLeg'),
+  part(kind+'-face-guard','mask',p.face,0,1.68,-.26,.56*p.head,.34,.20,0,'head'),
+  part(kind+'-left-bracer','vambrace',p.arm,-.43,1.03,-.10,.26,.46,.24,-.12,'leftForearm'),
+  part(kind+'-right-bracer','vambrace',p.arm,.43,1.03,-.10,.26,.46,.24,.12,'rightForearm'),
+  part(kind+'-left-shin','greave',p.lower,-.17,.39,-.13,.25,.57,.24,0,'leftLowerLeg'),
+  part(kind+'-right-shin','greave',p.lower,.17,.39,-.13,.25,.57,.24,0,'rightLowerLeg'),
   // These new sculpted segments articulate with native skinned hips/thighs:
   // one connected lower-body silhouette through actual travel and combat.
-  part(kind+'-left-thigh','greave',p.lower,-.20,.73,-.11,.29*w,.36,.28,0,'leftUpperLeg'),
-  part(kind+'-right-thigh','greave',p.lower,.20,.73,-.11,.29*w,.36,.28,0,'rightUpperLeg'),
-  part(kind+'-hip-mail','fauld',p.chest,0,.79,-.12,.64*w,.36,.46,0,'hips'),
-  part(kind+'-hanging-tabard','tabard',p.face,0,.52,-.33,.39*w,.52*robe,.17,0,'hips')
+  part(kind+'-left-thigh','greave',p.lower,-.20,.73,-.11,.26*w,.43,.23,0,'leftUpperLeg'),
+  part(kind+'-right-thigh','greave',p.lower,.20,.73,-.11,.26*w,.43,.23,0,'rightUpperLeg'),
+  part(kind+'-hip-mail','fauld',p.chest,0,.79,-.12,.57*w,.29,.34,0,'hips'),
+  part(kind+'-hanging-tabard','tabard',p.face,0,.52,-.33,.35*w,.56*robe,.11,0,'hips')
  ];
  if(kind==='revenant'||kind==='warden'){
   items.push(part(kind+'-exposed-first-rib','rib','bone',0,1.43,-.40,.63,.31,.13));

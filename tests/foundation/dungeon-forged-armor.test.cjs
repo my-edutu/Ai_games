@@ -86,3 +86,23 @@ test('forged role finishes are unique restrained physical surfaces with no new m
  assert.match(renderer,/planForgedFinishes\(actor\.u\.kind\)/);
  assert.match(renderer,/Object\.fromEntries\(Object\.entries\(materials\)/);
 });
+
+
+// M1 silhouette overhaul: same bounded draw budget, physically open face,
+// non-circular forged planes and exposed native character anatomy.
+test('open-cheek visor exposes the true animated GLB face; real torso shell remains closed',async()=>{
+ const {createForgedArmorForms,planAuthoredBodyShape}=await load();
+ for(const kind of kinds){
+  const forms=createForgedArmorForms(THREE,kind);
+  const mask=forms.mask,cuirass=forms.cuirass;
+  assert.ok(mask.index.count>500&&mask.index.count<1008,kind+' open-face original geometry');
+  assert.ok(cuirass.index.count>=1000,kind+' retains continuous armored torso');
+  const pos=cuirass.getAttribute('position'),front=[];
+  for(let i=0;i<pos.count;i++){
+   if(pos.getZ(i)<-.20)front.push(pos.getX(i));
+  }
+  assert.ok(front.length>15,'actual forward chest armour has meaningful sculpted surface');
+  assert.ok(planAuthoredBodyShape(kind).width>=.83,'native body stays bounded');
+  Object.values(forms).forEach(geometry=>geometry.dispose());
+ }
+});

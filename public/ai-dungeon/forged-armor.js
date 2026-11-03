@@ -5,12 +5,15 @@
  * Presentation only: no simulation state, damage, navigation, RNG or network.
  */
 const PROFILES=Object.freeze({
- vanguard:Object.freeze({name:'bastion',shoulders:1.18,waist:.88,hem:1.00,keel:.065,flutes:8}),
- ranger:Object.freeze({name:'wayfinder',shoulders:.92,waist:.78,hem:.88,keel:.035,flutes:10}),
- mystic:Object.freeze({name:'oracle',shoulders:.91,waist:.94,hem:1.18,keel:.040,flutes:12}),
- revenant:Object.freeze({name:'hollow',shoulders:1.09,waist:.72,hem:.86,keel:.09,flutes:6}),
- cultist:Object.freeze({name:'penitent',shoulders:.87,waist:.91,hem:1.13,keel:.052,flutes:9}),
- warden:Object.freeze({name:'oathbreaker',shoulders:1.30,waist:.96,hem:1.19,keel:.11,flutes:10})
+ // Distinct body architecture, not six recolours of a circular fantasy tube.
+ // facets makes forged plates read as planar metal from the actual overhead
+ // camera; cheekGap exposes the textured, animated original actor's face.
+ vanguard:Object.freeze({name:'bastion',shoulders:1.12,waist:.77,hem:.90,keel:.105,flutes:8,facets:.21,sternum:.075}),
+ ranger:Object.freeze({name:'wayfinder',shoulders:.87,waist:.73,hem:.80,keel:.042,flutes:10,facets:.12,sternum:.043}),
+ mystic:Object.freeze({name:'oracle',shoulders:.85,waist:.87,hem:1.02,keel:.052,flutes:12,facets:.10,sternum:.052}),
+ revenant:Object.freeze({name:'hollow',shoulders:1.03,waist:.69,hem:.84,keel:.115,flutes:6,facets:.25,sternum:.088}),
+ cultist:Object.freeze({name:'penitent',shoulders:.84,waist:.85,hem:1.03,keel:.059,flutes:9,facets:.14,sternum:.046}),
+ warden:Object.freeze({name:'oathbreaker',shoulders:1.21,waist:.89,hem:1.06,keel:.13,flutes:10,facets:.26,sternum:.094})
 });
 // This refits the *source* licensed GLB silhouette, not a collision capsule.
  // The vertical 1.82m heroic read is preserved; less squat X/Z dimensions
@@ -18,10 +21,10 @@ const PROFILES=Object.freeze({
  // Only the cloned presentation model is changed; world cells and reach stay put.
  const BODY_SHAPES=Object.freeze({
   vanguard:Object.freeze({width:.87,depth:.88}),
-  ranger:Object.freeze({width:.81,depth:.83}),
+  ranger:Object.freeze({width:.83,depth:.83}),
   mystic:Object.freeze({width:.83,depth:.84}),
   revenant:Object.freeze({width:.84,depth:.84}),
-  cultist:Object.freeze({width:.82,depth:.82}),
+  cultist:Object.freeze({width:.83,depth:.83}),
   warden:Object.freeze({width:.92,depth:.91})
  });
  export function planAuthoredBodyShape(kind){
@@ -44,6 +47,7 @@ function forgeShell(THREE,kind,profile){
  const rings=PROFILES_Y[kind];
  if(!rings)throw Error('Unsupported forged shell shape');
  const positions=[],uvs=[],indices=[];
+ const angularity=profile.facets*(kind==='mask'?.68:kind==='vambrace'||kind==='greave'?.48:1);
  for(let row=0;row<rings.length;row++){
   const [y,rx,rz]=rings[row],t=clamp(y+.5,0,1);
   const shoulder=t*t*(3-2*t);
@@ -51,30 +55,47 @@ function forgeShell(THREE,kind,profile){
    kind==='pauldron'?profile.shoulders:kind==='fauld'?profile.hem:1;
   for(let j=0;j<=SEGMENTS;j++){
    const a=j/SEGMENTS*TAU,s=Math.sin(a),c=Math.cos(a);
-   const fluteAmplitude=kind==='cuirass'?.023:kind==='pauldron'?.019:kind==='fauld'?.027:.013;
-   const fluted=1+fluteAmplitude*Math.cos(profile.flutes*a);
-   const keel=(kind==='mask'?1.15:kind==='cuirass'?.78:0)*profile.keel*Math.pow(Math.max(0,-s),10);
-   const forgedRidge=(kind==='greave'||kind==='vambrace')?.010*Math.cos(2*a)*Math.sin(Math.PI*t):0;
-   positions.push(rx*width*fluted*c,y,rz*fluted*s-keel-forgedRidge);
+   // The previous circular bell-shaped shells made every six-class actor
+   // look like a toy. Flatten four anatomical planes while retaining
+   // rounded bevels. All vertices remain on the same bounded shared mesh.
+   const facetedX=Math.sign(c)*Math.pow(Math.abs(c),1-angularity);
+   const facetedZ=Math.sign(s)*Math.pow(Math.abs(s),1-angularity*.55);
+   const band=Math.sin(Math.PI*t);
+   const fluting=1+(kind==='cuirass'?.019:kind==='fauld'?.014:.008)*
+    Math.cos(profile.flutes*a)*band;
+   const breast=kind==='cuirass'&&s<0?
+    profile.sternum*Math.pow(Math.max(0,-s),7)*Math.sin(Math.PI*(.18+.82*t)):0;
+   const keel=(kind==='mask'?.56:kind==='cuirass'?.72:0)*
+    profile.keel*Math.pow(Math.max(0,-s),9);
+   const greaveCrease=(kind==='greave'||kind==='vambrace')?
+    .015*Math.cos(2*a)*band:0;
+   const backDepth=s>0?(kind==='cuirass'?.82:.92):1;
+   const taper=kind==='fauld'?1+.065*(1-t):kind==='mask'?1-.075*t:1;
+   positions.push(rx*width*facetedX*fluting*taper,y,
+    rz*facetedZ*fluting*backDepth-breast-keel-greaveCrease);
    uvs.push(j/SEGMENTS,t);
   }
  }
  for(let row=0;row<rings.length-1;row++)for(let j=0;j<SEGMENTS;j++){
+  // The face guard is a genuine open-cheek visor, not a solid second head:
+  // the original skinned, textured face remains visible during motion.
+  const middle=(j+.5)/SEGMENTS*TAU;
+  if(kind==='mask'&&Math.sin(middle)<-.58)continue;
   const a=row*(SEGMENTS+1)+j,b=a+1,c=a+SEGMENTS+1,d=c+1;
   indices.push(a,c,b,b,c,d);
  }
- // Solid end caps: the close-up lens must not reveal open black tubes.
  const bottom=positions.length/3;
  positions.push(0,rings[0][0],0);uvs.push(.5,0);
  const top=positions.length/3;
  positions.push(0,rings[rings.length-1][0],0);uvs.push(.5,1);
  const last=(rings.length-1)*(SEGMENTS+1);
  for(let j=0;j<SEGMENTS;j++){
+  if(kind==='mask'&&Math.sin((j+.5)/SEGMENTS*TAU)<-.58)continue;
   indices.push(bottom,j,j+1);
   indices.push(top,last+j+1,last+j);
  }
  const geometry=new THREE.BufferGeometry();
- geometry.name='Original '+profile.name+' forged '+kind;
+ geometry.name='Original '+profile.name+' anatomical '+kind;
  geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
  geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
  geometry.setIndex(indices);
@@ -92,9 +113,9 @@ export function createForgedArmorForms(THREE,kind){
   greave:forgeShell(THREE,'greave',profile),
   fauld:forgeShell(THREE,'fauld',profile),
   mask:forgeShell(THREE,'mask',profile),
-  collar:new THREE.TorusGeometry(.5,.10,9,24),
-  rib:new THREE.TorusGeometry(.5,.08,9,24,Math.PI),
-  tabard:new THREE.BoxGeometry(1,1,.15)
+  collar:new THREE.TorusGeometry(.43,.055,7,24,Math.PI*1.70),
+  rib:new THREE.TorusGeometry(.5,.063,9,24,Math.PI),
+  tabard:new THREE.BoxGeometry(1,1,.07,1,4,1)
  };
 }
 

@@ -2203,11 +2203,11 @@
       "actualWebglFramingRegression": "Predecessor 4cc8abd actual 1440x832 and 390x844 browser frames show companions cropped/packed against an overly dense foreground. No scientifically matched AFTER observation yet.",
       "latestCandidateWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41570415510",
       "currentPredecessorWebgl": "https://github.com/my-edutu/Ai_games/actions/runs/41582184616/artifacts/13207290223",
-      "newCandidateSceneReview": "UNVERIFIED new exact-head screenshot/audio/long motion. Source-head 4cc8abd desktop and portrait world-only screenshots inspected; candidate capture not yet available."
+      "newCandidateSceneReview": "UNVERIFIED: new sculpted geometry and truthful mixed-team staging not yet browser-captured at exact head."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Toy-like original model anatomy, crowding and combat contact weight versus AAA references; genuine new-head audiovisual A/B and 3 independent critics still outstanding.",
-    "currentWork": "Single M1 continues: source-visible reduction of redundant six-class armor and camera-stable real crowd staging while preserving all authoritative combat decisions. NOT TRANSFORMED.",
+    "biggestRemainingGap": "Native low-detail toy-like source GLB proportions, dense combat and unverified full action/contact motion; need authentic mobile/desktop end-to-end comparisons and 3 independent critics.",
+    "currentWork": "M1 integrated native face-exposing forged anatomy and camera-aligned real mixed-faction combat tableau; exact-head experiential proof pending. NOT TRANSFORMED.",
     "candidateCommit": "",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
@@ -3476,6 +3476,24 @@
         "motionAudio": "UNVERIFIED full continuous original desktop/mobile game recording",
         "verdict": "IN_PROGRESS / NOT_TRANSFORMED",
         "next": "Inspect actual new head in moving WebGL; if sound/contact and character silhouettes still weak, continue high-quality provenance-cleared anatomical/animation overhaul. Capture true full scenario and blind baseline judgments. Draft/unmerged."
+      },
+      {
+        "id": "M1-SCULPTED-ANATOMY-AND-CLASH-FRONTLINE-20261103",
+        "date": "2026-11-03",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "sourceHeadAtStart": "23781e7027855510db7abf540f92b137391eec5d",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "objective": "Integrated real 3D adult-proportion sculpted armor on six native skeletal roles with open-cheek face exposure and bounded camera-facing mixed-team battlefield ranks for truthful combat contact.",
+        "code": [
+          "public/ai-dungeon/forged-armor.js",
+          "public/ai-dungeon/anatomical-kit-plan.js",
+          "public/ai-dungeon/combat-staging-plan.js",
+          "tests/foundation/dungeon-forged-armor.test.cjs",
+          "tests/foundation/dungeon-combat-staging.test.cjs"
+        ],
+        "evidence": "True predecessor Chromium evidence remains toy-like/crowded. Source candidate changed actual geometry and staged render coordinates. No new exact-head real audiovisual capture, matched A/B, p95/p99, safety CI or fresh critics at commit.",
+        "remaining": "Inspect exact-head desktop/mobile combat, continuity of face and bone mounts, Warden telegraph, authority/replay and true motion/audio; compare seed and full narrative reel against immutable 281735d0 baseline; >=3 blind independent LOOKS/FEELS/PLAYS critics.",
+        "verdict": "IN_PROGRESS / NOT_TRANSFORMED"
       }
     ]
   }

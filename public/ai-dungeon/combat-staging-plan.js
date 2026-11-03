@@ -72,10 +72,21 @@ export function planCombatStage(snapshot,viewPosition=null){
     dx=Number((screenRight.x*lateral+(vx/vLength)*depth).toFixed(4));
     dz=Number((screenRight.z*lateral+(vz/vLength)*depth).toFixed(4));
    }else if(cameraLine){
-    // Orient a truthful in-cell ring to the live camera; the same staged
-    // positions also anchor the actual render-only melee/contact director.
-    dx=Number((screenRight.x*Math.cos(theta)*radius+(vx/vLength)*Math.sin(theta)*radius).toFixed(4));
-    dz=Number((screenRight.z*Math.cos(theta)*radius+(vz/vLength)*Math.sin(theta)*radius).toFixed(4));
+    // The real four-to-six-body melee scrum needs a legible FRONTLINE,
+    // not a round pile of helmets: real party bodies occupy the nearer
+    // row while opposing enemies sit behind, with each still within its
+    // own legal authority tile. Both skinned weapons and true HP effects
+    // consume these exact same staged world coordinates.
+    const tableaux={
+     4:[[-.38,.18],[.38,.18],[-.38,-.18],[.38,-.18]],
+     5:[[-.37,.19],[0,.40],[.37,.19],[-.37,-.19],[.37,-.19]],
+     6:[[-.39,.15],[0,.39],[.39,.15],[-.39,-.15],[0,-.39],[.39,-.15]]
+    };
+    const lane=tableaux[n]?.[i];
+    const lateral=lane?lane[0]:Math.cos(theta)*radius;
+    const depth=lane?lane[1]:Math.sin(theta)*radius;
+    dx=Number((screenRight.x*lateral+(vx/vLength)*depth).toFixed(4));
+    dz=Number((screenRight.z*lateral+(vz/vLength)*depth).toFixed(4));
    }
    const u=group[i];
    if(n===1&&u.id===warden?.id&&nearest){

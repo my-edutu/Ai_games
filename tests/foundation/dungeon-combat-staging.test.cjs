@@ -143,3 +143,26 @@ test('four and six legal co-located combatants separate into reproducible camera
   assert.equal(JSON.stringify(state),before,'no authoritative collision or attack change');
  }
 });
+
+
+// M1 original camera-facing frontline: heroes face real enemies as a visual
+// ensemble without fake movement, invented combat or crossed cell boundaries.
+test('true crowded mixed-faction combat stages a nearer hero rank with separated silhouettes',async()=>{
+ const {planCombatStage,MAX_STAGE_OFFSET}=await mod();
+ for(const n of [4,5,6]){
+  const units=Array.from({length:n},(_,i)=>u('clash'+i,i<Math.ceil(n/2)?'vanguard':'cultist',i<Math.ceil(n/2)?'party':'enemy',3,3));
+  const snapshot={tick:7,map:floor(),units},frozen=JSON.stringify(snapshot);
+  const view={x:7,z:3},poses=planCombatStage(snapshot,view);
+  const heroes=units.filter(actor=>actor.faction==='party').map(actor=>poses[actor.id]);
+  const enemies=units.filter(actor=>actor.faction==='enemy').map(actor=>poses[actor.id]);
+  assert.ok(heroes.every(p=>Math.hypot(p.dx,p.dz)<=MAX_STAGE_OFFSET+.001));
+  assert.ok(enemies.every(p=>Math.hypot(p.dx,p.dz)<=MAX_STAGE_OFFSET+.001));
+  assert.ok(heroes.reduce((sum,p)=>sum+p.dx,0)/heroes.length>
+   enemies.reduce((sum,p)=>sum+p.dx,0)/enemies.length,'legible near-to-far front line');
+  for(const a of Object.values(poses))for(const b of Object.values(poses)){
+   if(a!==b)assert.ok(Math.hypot(a.dx-b.dx,a.dz-b.dz)>.22,'actual unit bodies stay visually separated');
+  }
+  assert.equal(JSON.stringify(snapshot),frozen);
+  assert.deepEqual(poses,planCombatStage({...snapshot,units:units.toReversed()},view));
+ }
+});
