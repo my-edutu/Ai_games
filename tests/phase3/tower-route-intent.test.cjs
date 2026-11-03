@@ -308,3 +308,25 @@ test('health stones cannot guide through active spikes, living enemies or forged
     assert.equal(effect.group.visible,false);
   } finally {effect.dispose();}
 });
+
+
+test('health route is wired into the actual playable scene and refuses an ambiguous item', async () => {
+  const fs=require('node:fs');
+  const scene=fs.readFileSync(path.join(ROOT,'public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+  assert.match(scene,/const recoverySupport = snapshot.intent\?\.mode\?\.replace/);
+  assert.match(scene,/routeIntent\.update\(snapshot, recoverySupport \|\| targetPlatform, options\)/);
+  const [THREE, { createTowerRouteIntent }] = await loaded;
+  const effect=createTowerRouteIntent(THREE);
+  const support={id:'f7:support',kind:'solid',x:45000,y:95000,width:110000,height:1000};
+  const frame=snapshot({player:{x:95000,y:110000,health:1,maxHealth:5,
+    attacking:false,halfWidth:9000,halfHeight:14000},
+    pickups:[{id:'health-a',kind:'health',x:130000,y:110000,value:1},
+      {id:'health-b',kind:'health',x:135000,y:110000,value:1}],
+    intent:{mode:'collecting-resource',
+      summary:'Retreating along clear footing for an observed health pickup',
+      targetPlatformId:support.id},hazards:[],enemies:[]});
+  try {
+    effect.update(frame,support);
+    assert.equal(effect.diagnostics().visible,false,'ambiguous loot must not invent the AI-selected destination');
+  } finally { effect.dispose(); }
+});
