@@ -1064,7 +1064,7 @@ export function createEnemy(kind='sentinel') {
   const materialRest=[p.color,p.armor,p.dark,p.metal,trim,glow,black].map(material=>({material,color:material.color.clone()}));
   let phase=0,telegraphBlend=0,shotAge=1,wasFiring=false,deathAge=0,wasDead=false;
   let previousHealth=null,hurtAge=1,wasHurt=false;
-  return w.finish((state,dt,time,{reducedMotion=false})=>{
+  return w.finish((state,dt,time,{reducedMotion=false,stale=false})=>{
     const vx=Number(state.vx??state.velocity?.x)||0,speed=clamp(Math.abs(vx)/3000,0,1);
     const dead=state.health===0||state.state==='dead'||state.active===false;
     const telegraph=Boolean(state.telegraph)&&!dead;
@@ -1169,6 +1169,30 @@ export function createEnemy(kind='sentinel') {
       arms[1].upper.rotation.x-=.34*weight;
       arms[1].lower.rotation.x+=.24*weight;
     }
+    // A successful earned Pulse Shot can now interrupt a LIVE guardian charge.
+    // Source-authentic stagger lasts ten fixed ticks. The original rig physically
+    // gives ground, lowers the armed shoulder and braces its boots; no fake shot,
+    // per-frame source damage, extra mesh or timer-driven gameplay is created.
+    // Reduced-motion retains a stable crouched silhouette without oscillation.
+    const interruptTicks=guardian&&!dead&&!stale&&
+      Number.isFinite(state.staggerTicksRemaining)
+        ?clamp(state.staggerTicksRemaining,0,10):0;
+    const interrupt=interruptTicks>0
+      ?(reducedMotion?.72:.76+.24*interruptTicks/10):0;
+    if(interrupt>0){
+      rig.position.y-=.13*interrupt;
+      rig.rotation.x+=.22*interrupt;
+      rig.rotation.z+=.09*interrupt;
+      head.rotation.x-=.2*interrupt;
+      arms[1].upper.rotation.x=mix(arms[1].upper.rotation.x,-.2,interrupt);
+      arms[1].lower.rotation.x=mix(arms[1].lower.rotation.x,-.75,interrupt);
+      arms[0].upper.rotation.z-=.25*interrupt;
+      for(let i=0;i<2;i++){
+        legs[i].upper.rotation.x-=.38*interrupt;
+        legs[i].lower.rotation.x+=.52*interrupt;
+        legs[i].foot.rotation.x-=.08*interrupt;
+      }
+    }
     // This impulse follows a real shot/attack edge, rather than free-running
     // combat choreography. The sustained telegraph remains a separate channel.
     const recoil=shotAge<.36?Math.exp(-shotAge*12):0;
@@ -1195,8 +1219,8 @@ export function createEnemy(kind='sentinel') {
         arm.lower.rotation.x=mix(arm.lower.rotation.x,-.45,hurtWeight);
       }
     }
-    glow.emissiveIntensity=dead?mix(1.05,.035,collapse):Math.max(telegraph?2.2:1.05,1.05+recoil*.65+(guardian?.55*guardianExposure:0));
-    for(const e of eyeNodes)e.scale.y=dead?mix(1,.15,collapse):hurtWeight>0?mix(1,.38,hurtWeight):telegraph?1.3:1;
+    glow.emissiveIntensity=dead?mix(1.05,.035,collapse):interrupt>0?.45:Math.max(telegraph?2.2:1.05,1.05+recoil*.65+(guardian?.55*guardianExposure:0));
+    for(const e of eyeNodes)e.scale.y=dead?mix(1,.15,collapse):interrupt>0?.42:hurtWeight>0?mix(1,.38,hurtWeight):telegraph?1.3:1;
     if(dead){
       // Fold and tip into a visibly inert silhouette before the host retires it.
       // Height compensation is internal to the rig and keeps the host immutable.
