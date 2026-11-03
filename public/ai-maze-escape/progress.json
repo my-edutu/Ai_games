@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-03T20:41:14.111Z",
+  "updatedAt": "2026-11-03T20:54:44Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass121: Real original exact-head 7d115cd focused native WebGL run 41713379164/artifact 13268952174 SUCCESS. Downloaded and independently SHA-256 validated 25/25 full-resolution PNGs against UTC JSON sidecars and gate transition manifest; true 1280x900 fossil image 2026-11-03T20:35:34.487Z SHA f67ee6fb... and 390x844 at 20:35:36.307Z SHA 1a5fedd3...; 320 Follow Pip and guardian physically full in frame. Original rooted pale fossil ribs visible as three genuinely disclosed public-side alcoves, actual world instances 775 to 793 with no new GPU geometry/material/texture classes; actual neutral full-viewport camera half-height 1280 7.30→6.35 and 390 9.05→7.86 for a more readable real Pip and stage. One initial 621-test full CI failure was incorrectly absolute Y in a NEW physical rib test on a raised public tile; corrected 7d115cd tests true world-to-terrain height without relaxing coverage/privacy. Corrected full CI 41713379213 pending, not green yet. Lead direct real-image critic: better stage yet original Nintendo Captain Toad fixed bar still wins, gate post remains distracting, 390 left scenery clipped but Pip whole. No fresh-context independent/blind reviewer: shared worker tunnel disconnected; SwiftShader is CPU bound, not end-user GPU FPS. PR #53 OPEN DRAFT, no merge or deployment."
+    "summary": "Pass122: Original real 3D world source now has two four-part hinged ceramic/sea-glass listening sails on genuinely disclosed safe wall-side fossil alcoves (c9c7f2f), physically responding to the real PUBLIC interpolated Pip pose passed by scene.js (5488b5e), settling for reduced motion without changing AI, collision, privacy or HUD. New installed Three source critic/test 9e793ad validates physical mesh, real proximity response, terrace grounding, reset, source immutability and reduced motion. Current source candidate whole CI 41716553777 and real original WebGL 41716553251 QUEUED: no green claim, no actual Pass122 dated screenshot/hash, no native art signoff. Previous verified 25/25 original Pass121 screenshot hashes at 7d115cd still show an underdeveloped static stage and distracting gate architecture vs fixed Nintendo Captain Toad reference. Connected coding workers/Ultracode unavailable (tunnel disconnected). CPU-throttled SwiftShader not consumer GPU FPS. Draft PR #53 open, unmerged and undeployed."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass122 — 2026-11-03 UTC: built genuine 3D original wall-rooted reactive fossil listening sails, 2×4 physical mesh parts per known safe non-passage alcove, new mild motion visibly tied to Pip's interpolated public Three pose; reduced-motion stable; same existing Three geometries/materials/textures and exact public terrain only, no AI/collision/key/gate/hidden-map change. c9c7f2f + 5488b5e. Added separate installed physical Three acceptance 9e793ad. Source-head 9e793ad exact-source browser 41716553251 and full CI 41716553777 queued; no real Pass122 capture or tests pass asserted. Pass121 genuine 25/25 native images and fixed Nintendo art gap remain valid. Fresh subagents/Ultracode unavailable; original rendered response and image A/B still mandatory. Review docs/reviews/maze-3d/pass-122-public-fossil-listening-sails-2026-11-03.md; unmerged OPEN DRAFT PR #53.",
     "Pass121 — 2026-11-03 UTC: new truly rooted pale fossil alcove silhouettes on safe publicly disclosed non-passage edges (3 real alcoves, 775→793 world physical instances, unchanged 9/22/2 geo/material/texture resources), plus honest neutral Follow-only actual 3D source-bound camera (1280 halfheight 7.3000→6.3500, native 390 9.0464→7.8568) gated by ≥5 disclosed cells and reciprocal adjacent passage; no leak, false objective, AI reroute, model scaling or HUD prose. Exact corrected candidate 7d115cd focused WebGL 41713379164 SUCCESS/artifact 13268952174 downloaded and all 25/25 original dated PNG SHA-256 matched sidecars+physical gate manifest; real 1280 20:35:34.487Z SHA f67ee6fb..., real 390 20:35:36.307Z SHA 1a5fedd3..., full Pip both and 320 guardian whole. Initial full 41712476518 failed 1/621 from erroneous absolute-Y NEW rib test: corrected at 7d115cd to check real public terrace relative Y; corrected all-repo 41713379213 in progress at review, no green claim. Real-image comparison STILL rejects fixed official Nintendo bar: better full-stage coverage, small fossils, clipped left scenery on 390 (not actors), gate post still occludes performance. No fresh-context subagents/Ultracode: tunnel disconnected. SwiftShader CPU timings not hardware FPS. Dated review docs/reviews/maze-3d/pass-121-actual-native-stage-closeup-and-fossil-relief-2026-11-03.md. Draft PR #53 remains unmerged/undeployed.",
     "Pass120 — 2026-11-03 UTC: independently verified 24/24 authentic original screenshot SHA hashes from exact-source FAILED browser Actions 41698473051/artifact 13262582087, including 1280x900 safe publicly disclosed fossil cell 41 (1 cell from Pip, real installed world.tideFossilAlcoves=3, original 2026-11-03T19:02:56.200Z, SHA b1d81c98e2b16a1480338e6db5aad649f97366ec7a1102787244778bab524a86), 320 guardian SHA a5a30a2a..., and actual mid-opening 1280 SHA 24be8f0e.... Original image critic: the new sculptures are physically rendered but still tiny, the 3D diorama has expansive teal water and small guardian/pair; official Nintendo art bar NOT MET. The browser failed from an OBSOLETE blocked-tile assertion at maze-review.spec.cjs:1229 after authentic walkable-alcove builder: committed strict corrected public-only positive assertions 395d520, still requiring WebGL, actual world instances, exact public cells, Pip whole, responsive screenshot, SHA, touch and privacy. Fresh exact-head browser 41699919255/full 41699919348 queued; failed job stopped before native 390 fossil. Dated full review: docs/reviews/maze-3d/pass-120-public-alcove-true-native-image-and-assertion-repair-2026-11-03.md. Draft unchanged, no merge/deploy, no independent blind A/B or hardware GPU claim.",
     "Pass119 — 2026-11-03 UTC: independently rehashed 23/23 genuine full-resolution Pass118 source-bound WebGL PNGs from successful Actions 41685212403/artifact 13256088956, including real 1280×900 source-authentic mid-lift 2026-11-03T18:05:17.058Z SHA 12997d662a1f7ba9952c4d9be0edd07cc96edbdecdb999420f148ab3f5f525b8; original 320px warden and 390px views visually inspected. Fixed Captain Toad official image bar still wins: real thick foreground gate pier crowds Pip; mobile fully framed characters remain too small. Important evidence GAP: actual Pass118 gate world.tideFossilGroves=0, so earlier screenshot suite never visually showed new blocked-cell fossil art. Committed real physical compact solid gate piers cf62f168 and separately installed Three source critic 19080370; pier-only focused WebGL 41695329934 passed, fresh exact-source full native A/B still needed. Committed b44c2029 to capture native original production public blocked fossil at 1280/390 using same warm browser + original seeded authoritative frames, public disclosure/hash/actor frame guards; Pass119 latest full visual 41696149597 and all-repo 41696149616 RUNNING at review and must not be treated as success. Real gate cutaway, fossil artistic acceptance, additional authored worlds and actor scale still to verify. Fresh-context critics/Ultracode unavailable due disconnected coding tunnel; no independent blind A/B. CPU SwiftShader timing not consumer GPU FPS. Public knowledge, determinism, full-viewport short HUD, access and strict existing quality tests preserved. Nintendo benchmark NOT MET, open DRAFT PR #53; never merge/deploy. Review docs/reviews/maze-3d/pass-119-gate-cutaway-fossil-native-evidence-2026-11-03.md.",
@@ -234,6 +235,13 @@
     "Pass91: inspect current-source 320/390/844/1280, witnessed key and moving gate WebGL originals; independently verify dated SHA source identities, strict viewport/model bounds and real HUD coverage; compare same-seed motion settings to Pass90 Nintendo/old screen; reject if tide-watch spires are off-camera, false goals or obstruct actual 3D action. Full whole-CI, detached fresh-context critic and Ultracode outstanding."
   ],
   "reviews": [
+    {
+      "title": "Pass122 — original public fossil motion source critic; independent real-image review pending",
+      "reviewer": "Installed-production Three physical source checks authored; new test/CI and separate native screenshot critic pending (shared workspace tunnel disconnected)",
+      "verdict": "New physical source candidate; no confirmed visual win. Official Nintendo Captain Toad fixed art bar NOT MET",
+      "date": "2026-11-03T20:54:44Z",
+      "summary": "Each genuinely disclosed safe wall-side alcove gains two large hinged original pale ceramic sails; actual interpolated public Pip pose drives local opening motion with stable reduced-motion pose. Tests commit 9e793ad is queued, current WebGL 41716553251 pending; native screenshot hashes and blind A/B absent, so the actor-scale, background-water, stage sightline and game-first HUD bar remains unproven."
+    },
     {
       "title": "Pass115 — original full-resolution native screen/image A/B and authentic CI failure repaired",
       "reviewer": "Lead original native WebGL critic; fresh-context independent image worker and blind A/B unavailable (workspace tunnel disconnected)",
@@ -586,6 +594,20 @@
     }
   ],
   "verification": [
+    {
+      "name": "Pass122 installed real Three fossil response and all-repo CI",
+      "status": "pending",
+      "detail": "New tests assert installed physical scene mesh count, public wall-side root, true terrace height, near-vs-far physical response, stable reduced motion, reset, privacy, resource bounds; no test pass is yet established. Current whole CI 41716553777 queued. Previous full CI for Pass121 remains in progress, not green.",
+      "sourceCommit": "9e793ad64dd5ee67d5723f5f1cef83a272286b49",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41716553777"
+    },
+    {
+      "name": "Pass122 exact-source WebGL with new responsive fossil 3D",
+      "status": "pending",
+      "detail": "Whole native suite run 41716553251 was QUEUED at evidence update. No Pass122 real dated screenshot was retrieved or examined. Must inspect authentic 1280/390/public Follow with 320 guardian, 844 landscape, gates, privacy, compact HUD and true reactor in view; compare real official Nintendo bar; never lower thresholds or accept code alone.",
+      "sourceCommit": "9e793ad64dd5ee67d5723f5f1cef83a272286b49",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41716553251"
+    },
     {
       "name": "Pass115 current candidate whole CI after obsolete source assertion repair",
       "status": "pending",
