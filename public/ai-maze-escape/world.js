@@ -1206,7 +1206,7 @@ export function createMazeWorld(options = {}) {
     // and return the near face behind the sculpted jamb caps. This is REAL
     // shared Three geometry on the disclosed original gate, not camera
     // cropping, invisible actor scaling, a UI mask or a gameplay change.
-    const tideLintel = mesh(p, bevel, stone, 0, 1.83, .055, 2.16, .16, .27);
+    const tideLintel = mesh(p, bevel, stone, 0, 1.80, .055, 2.16, .16, .27);
     tideLintel.name = 'Slim disclosed gate tide-lintel';
     mesh(p, bevel, darkJade, 0, 1.76, .08, 1.5, .075, .20);
     const gate = new THREE.Group(); gate.name = 'Withdrawable gate bars'; p.add(gate);
