@@ -53,6 +53,14 @@ test('W10 original market stalls show only real available grain and timber, acro
  expect(entry.after).toBe(entry.before);
  expect(entry.render.lastFrameTriangles).toBeGreaterThan(0);
  expect(entry.gl).toBe(0);
+ // The two images below depict a REAL open original market with live WebGL,
+ // not a source-level counter or a mocked screenshot of the inventory.
+ const desktopVisit=await page.evaluate(()=>window.__tinyKingdom.visitMarket());
+ expect(desktopVisit.active).toBe(true);
+ await page.waitForTimeout(220);
+ const out=path.resolve(__dirname,'../../test-results');
+ fs.mkdirSync(out,{recursive:true});
+ await page.screenshot({path:path.join(out,'w10-truthful-market-stalls-desktop.png')});
  await page.setViewportSize({width:390,height:844});
  await page.waitForTimeout(400);
  const mobile=await page.evaluate(()=>{
@@ -65,8 +73,9 @@ test('W10 original market stalls show only real available grain and timber, acro
  expect(mobile.stock.perStall).toEqual(entry.stock.perStall);
  expect(mobile.after).toBe(entry.before);
  expect(mobile.gl).toBe(0);
- const out=path.resolve(__dirname,'../../test-results');
- fs.mkdirSync(out,{recursive:true});
+ // The mobile capture remains at the authentic on-foot market visit,
+ // with the same authoritative village and full 390px viewport.
+ expect(await page.evaluate(()=>window.__tinyKingdom.getMarketVisitAudit().active)).toBe(true);
  await page.screenshot({path:path.join(out,'w10-truthful-market-stalls-390.png')});
  expect(errors).toEqual([]);
 });
