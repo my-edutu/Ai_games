@@ -6622,7 +6622,7 @@ function streetCaption(){
    if(status.textContent!==text)status.textContent=text;
    return;
   }
-  const caption=(marketVisitFocus?.stall?.trade||'Market')+' stall · '+
+  const caption='Market · '+(marketVisitFocus?.stall?.trade||'village')+' stall · '+
    (open?'open':'closed')+' · '+
    actual.activeMerchantNames.length+' merchants · '+
    Math.round(actual.resources.food)+' food · '+
