@@ -328,6 +328,88 @@ function refineTowerActorSafeFrame(camera, gaze, actor, dt,
   return 0;
 }
 
+// Source-authentic portrait outcome film at c9a6cca8 contained SEVEN
+// unsafe hero samples during live ascent (not during the actual ending).
+// A final scene-space gaze adjustment protects the real hero after every
+// impact, guardian shot and camera move. Never alter source gameplay or
+// move the exterior camera through the solid tower. Roll back if the actual
+// projection fails to improve or an already-visible subject is cropped.
+function correctTowerPortraitFocus(camera,gaze,actor,guardian,landing,dt,
+    actorProjection,guardianProjection,landingProjection,oldGaze) {
+  if(!camera||!gaze||!actor||!actorProjection||!guardianProjection||
+     !landingProjection||!oldGaze||!camera.position||!camera.matrixWorld||
+     !Number.isFinite(camera.aspect)||camera.aspect<=0||camera.aspect>=.85||
+     !Number.isFinite(camera.fov)||camera.fov<=0||camera.fov>=150||
+     !Number.isFinite(dt)||dt<=0) return 0;
+  camera.lookAt(gaze);camera.updateMatrixWorld(true);
+  actorProjection.copy(actor).project(camera);
+  const {x,y,z}=actorProjection;
+  if(!Number.isFinite(x)||!Number.isFinite(y)||!Number.isFinite(z)||
+     Math.abs(x)>=1||Math.abs(y)>=1||z<=-1||z>=1||
+     !towerCoreSightlineClear(camera.position,actor,23.5))return 0;
+  const before=Math.max(Math.abs(x)/.78,Math.abs(y)/.78);
+  if(before<=1.015)return 0;
+  let protectGuardian=false,protectLanding=false;
+  if(guardian&&Number.isFinite(guardian.x)&&Number.isFinite(guardian.y)&&
+     Number.isFinite(guardian.z)&&towerCoreSightlineClear(camera.position,guardian,23.5)){
+    guardianProjection.copy(guardian).project(camera);
+    protectGuardian=Number.isFinite(guardianProjection.x)&&
+      Number.isFinite(guardianProjection.y)&&Number.isFinite(guardianProjection.z)&&
+      Math.abs(guardianProjection.x)<=.82&&Math.abs(guardianProjection.y)<=.80&&
+      guardianProjection.z>=-1&&guardianProjection.z<=1;
+  }
+  if(landing&&Number.isFinite(landing.x)&&Number.isFinite(landing.y)&&
+     Number.isFinite(landing.z)&&towerCoreSightlineClear(camera.position,landing,23.5)){
+    landingProjection.copy(landing).project(camera);
+    protectLanding=Number.isFinite(landingProjection.x)&&
+      Number.isFinite(landingProjection.y)&&Number.isFinite(landingProjection.z)&&
+      Math.abs(landingProjection.x)<=.9&&Math.abs(landingProjection.y)<=.88&&
+      landingProjection.z>=-1&&landingProjection.z<=1;
+  }
+  const m=camera.matrixWorld.elements;
+  const depth=-((actor.x-camera.position.x)*m[8]+
+    (actor.y-camera.position.y)*m[9]+(actor.z-camera.position.z)*m[10]);
+  const span=Math.tan(camera.fov*Math.PI/360)*depth;
+  if(!Number.isFinite(span)||span<=0||depth<=1)return 0;
+  const speed=Math.max(.35,Math.min(1,dt*22));
+  const horizontal=Math.sign(x)*Math.max(0,Math.abs(x)-.68);
+  const vertical=Math.sign(y)*Math.max(0,Math.abs(y)-.70);
+  const sx=Math.max(-1.3,Math.min(1.3,horizontal*span*camera.aspect*speed));
+  const sy=Math.max(-.9,Math.min(.9,vertical*span*speed));
+  if(Math.abs(sx)+Math.abs(sy)<.001)return 0;
+  oldGaze.copy(gaze);
+  gaze.x+=m[0]*sx+m[4]*sy;
+  gaze.y+=m[1]*sx+m[5]*sy;
+  gaze.z+=m[2]*sx+m[6]*sy;
+  camera.lookAt(gaze);camera.updateMatrixWorld(true);
+  actorProjection.copy(actor).project(camera);
+  const after=Math.max(Math.abs(actorProjection.x)/.78,Math.abs(actorProjection.y)/.78);
+  let good=Number.isFinite(after)&&after+.012<before&&
+    Number.isFinite(actorProjection.z)&&
+    Math.abs(actorProjection.x)<.96&&Math.abs(actorProjection.y)<.96&&
+    actorProjection.z>=-1&&actorProjection.z<=1&&
+    towerCoreSightlineClear(camera.position,actor,23.5);
+  if(good&&protectGuardian){
+    guardianProjection.copy(guardian).project(camera);
+    good=Number.isFinite(guardianProjection.x)&&Number.isFinite(guardianProjection.y)&&
+      Number.isFinite(guardianProjection.z)&&
+      Math.abs(guardianProjection.x)<=.82&&Math.abs(guardianProjection.y)<=.80&&
+      guardianProjection.z>=-1&&guardianProjection.z<=1&&
+      towerCoreSightlineClear(camera.position,guardian,23.5);
+  }
+  if(good&&protectLanding){
+    landingProjection.copy(landing).project(camera);
+    good=Number.isFinite(landingProjection.x)&&Number.isFinite(landingProjection.y)&&
+      Number.isFinite(landingProjection.z)&&
+      Math.abs(landingProjection.x)<=.9&&Math.abs(landingProjection.y)<=.88&&
+      landingProjection.z>=-1&&landingProjection.z<=1&&
+      towerCoreSightlineClear(camera.position,landing,23.5);
+  }
+  if(good)return before-after;
+  gaze.copy(oldGaze);camera.lookAt(gaze);camera.updateMatrixWorld(true);
+  return 0;
+}
+
 // Wide jumps must keep the camera's chosen stage on the exterior cylinder.
 // Cartesian midpoint focus can stare straight into opaque stone. Only the
 // real visible actor, live route and observed threat select these coordinates.
@@ -1798,6 +1880,11 @@ export function createTowerScene(canvas, settings = {}) {
   const actorSafePreviousCamera = new THREE.Vector3();
   const actorSafePreviousGaze = new THREE.Vector3();
   let actorSafeRefinements = 0;
+  const portraitAimGuardianProjection = new THREE.Vector3();
+  const portraitAimLandingProjection = new THREE.Vector3();
+  const portraitAimLanding = new THREE.Vector3();
+  const portraitAimPreviousFocus = new THREE.Vector3();
+  let portraitAimCorrections = 0, portraitAimLastGain = 0;
   let actorRescueFraction = 0;
   // Reused CPU-only vectors and NDC arrays; no per-frame draw, material or
   // allocation. A genuine off-frame guardian may catch the approved two-body
@@ -2729,6 +2816,39 @@ export function createTowerScene(canvas, settings = {}) {
         }
       }
     }
+    // Source-observed final portrait composition: applies to live ascent and
+    // airborne landings, NOT only terminal memorial or staged test poses.
+    // This follows every prior real impact/camera adjustment.
+    portraitAimLastGain=0;
+    if(!overview&&!options.reducedMotion&&!options.stale&&
+       snapshot.lifecycle==='running'&&p.health>0&&
+       camera.aspect>0&&camera.aspect<.85) {
+      actorFramePoint.copy(climber.group.position);
+      actorFramePoint.y+=p.halfHeight/SCALE;
+      const protectGuardian=!!sourceGuardian&&!!followComposition?.guardianStaged&&
+        Number.isFinite(sourceGuardian.x)&&Number.isFinite(sourceGuardian.y);
+      if(protectGuardian){
+        const point=pointFor(sourceGuardian.x,sourceGuardian.y,
+          snapshot.chunkBaseY,snapshot.worldWidth,27.15);
+        guardianRescuePoint.set(point.x,point.y,point.z);
+      }
+      let protectLanding=false;
+      if(p.state==='airborne'&&targetPlatform&&
+         Number.isFinite(targetPlatform.y)&&Number.isFinite(targetPlatform.height)){
+        const point=pointFor(observedSourceLandingX(snapshot,targetPlatform),
+          targetPlatform.y+targetPlatform.height,snapshot.chunkBaseY,
+          snapshot.worldWidth,26.7);
+        portraitAimLanding.set(point.x,point.y,point.z);
+        protectLanding=true;
+      }
+      portraitAimLastGain=correctTowerPortraitFocus(camera,lookAt,actorFramePoint,
+        protectGuardian?guardianRescuePoint:null,
+        protectLanding?portraitAimLanding:null,dt,actorSafeProjection,
+        portraitAimGuardianProjection,portraitAimLandingProjection,
+        portraitAimPreviousFocus);
+      if(portraitAimLastGain>0)portraitAimCorrections=Math.min(1000000,
+        portraitAimCorrections+1);
+    }
     camera.lookAt(lookAt);
     world.revealGuardianSightlines(camera,guardianSightPoints);
     // Foreground visibility is tested against the very same ACTUAL smoothed
@@ -2927,6 +3047,9 @@ export function createTowerScene(canvas, settings = {}) {
     return { renderer: 'three-webgl', frames: submissionProgress.submittedFrames, tick: snapshot?.tick ?? 0, floor: snapshot?.floor ?? 0, theme: snapshot?.theme ?? '',
       camera: options.camera, quality: options.quality, reducedMotion: options.reducedMotion, stale: !!options.stale, contextLost, renderErrors,
       actorSafeRefinements,
+      portraitAimCorrections,
+      portraitAimLastGain: Number(portraitAimLastGain.toFixed(4)),
+      portraitAimEvidence: 'Post-action actual source projection; not raster visibility, A/B quality or device FPS',
       duelDollyApplications, duelDollyLastStep: Number(duelDollyLastStep.toFixed(4)),
       duelDollyEvidence: 'Real portrait body projection only; not verified raster visibility or quality vote',
       resolution: { basePixelRatio, pixelRatio: renderPixelRatio, scale: innerWidth >= 700 ? resolutionPolicy.scale : 1,
