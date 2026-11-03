@@ -973,7 +973,7 @@ export function createMazeWorld(options = {}) {
     // witnessed pickup composition and physically swing away from the key.
     const theatre = new THREE.Group();
     theatre.name = 'Disclosed key tide-theatre';
-    theatre.position.set(-.12, 0, -.52);
+    theatre.position.set(-.12, 0, -.40);
     dais.add(theatre);
     for (const side of [-1, 1]) {
       mesh(theatre, bevel, deepStone, side * .81, .91, -.02, .24, 1.72, .34);
@@ -996,7 +996,7 @@ export function createMazeWorld(options = {}) {
       mesh(shutter, bevel, deepStone, -side * .32, .18, .12, .56, .12, .09);
       mesh(shutter, bevel, lightStone, -side * .55, .67, .12, .07, .94, .08);
       mesh(shutter, bevel, inlay, -side * .25, .66, .13, .09, .76, .05);
-      shutter.rotation.y = key.collected && !witnessed ? -side * 1.03 : 0;
+      shutter.rotation.y = key.collected && !witnessed ? -side * .92 : 0;
       if (witnessed) animations.push({
         type: 'key-theatre', object: shutter, keyId: key.id, side
       });
@@ -1393,7 +1393,7 @@ export function createMazeWorld(options = {}) {
         const phase = reduced ? 1 : Math.max(0, Math.min(1, age / duration));
         const eased = phase * phase * (3 - 2 * phase);
         if (a.type === 'key-theatre')
-          a.object.rotation.y = -a.side * 1.03 * eased;
+          a.object.rotation.y = -a.side * .92 * eased;
         else a.object.rotation.z = a.type === 'key-sail'
           ? (1.16 * (1 - eased)) : (.78 * phase * (2 - phase));
         continue;
