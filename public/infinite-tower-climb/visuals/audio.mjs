@@ -205,6 +205,14 @@ export function createTowerAudio() {
         // announce a stage at first sight, on repair, or on duplicate data.
         if (Number.isFinite(enemy.maxHealth) && enemy.maxHealth > 0 &&
           earlier.maxHealth === enemy.maxHealth) {
+          // A distinct opt-in phase transition accompanies actual guardian
+          // HP crossing. A held frame, first snapshot, rewind or mere audio
+          // enable never creates a fake second-wind cue.
+          if(enemy.telegraphTotalTicks===6&&earlier.health*2>enemy.maxHealth &&
+             enemy.health*2<=enemy.maxHealth &&
+             Number.isSafeInteger(earlier.tick)&&snapshot.tick>earlier.tick &&
+             snapshot.tick-earlier.tick<=8)
+            tone(175,300,.36,'triangle',.051);
           const beforeStage = Math.floor(3 * (1 - earlier.health / enemy.maxHealth));
           const afterStage = Math.floor(3 * (1 - enemy.health / enemy.maxHealth));
           if (afterStage > beforeStage) {

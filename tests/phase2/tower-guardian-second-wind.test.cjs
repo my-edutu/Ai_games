@@ -40,4 +40,11 @@ test('source-projected second-wind duration is opt-in; replay and old public sch
   const run=()=>stepTowerCombat(structuredClone(fast),idle,NamedRng.fromSeed('replay'));
   assert.deepEqual(run(),run());
   assert.equal(historic.config.guardianSecondWind,undefined);
+  // The first winding charge was genuinely initiated at eight ticks. Losing
+  // HP halfway through cannot accelerate THAT already-committed projectile.
+  const charging=stepTowerCombat(encounter(true,8),idle,NamedRng.fromSeed('mid-charge')).state;
+  assert.equal(charging.enemies[0].telegraphDurationTicks,8);
+  charging.enemies[0].health=4;charging.tick+=1;
+  assert.equal(duration(charging),8,'public camera must reflect actual active charge, not new HP');
+  assert.equal(JSON.stringify(charging).includes('telegraphDurationTicks'),true);
 });
