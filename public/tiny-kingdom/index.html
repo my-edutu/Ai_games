@@ -3424,10 +3424,14 @@ function compactVillager(p){
     ((p.job==='farmer'||p.job==='gatherer') ? .19 : .21)*s,
     .075*s,.12*s,rgb(p.job==='craftsperson'||p.job==='forester'?0x999b93:0xb49466));
   }
-  const headStart=data.length;
-  ellipsoid(x,y+1.35*s,z,.22*s,.25*s,.21*s,skin,6);
-  box(x,y+1.50*s,z-.02*s,.34*s,.12*s,.32*s,hair);
-  rescaleCitizenHead(headStart,data.length,x,y,z,s);
+  // Distinct skin from oak/wool: distant human faces must not receive
+  // the baked wood fiber shader used by the market's beams and tools.
+  materialScope(MATERIAL.GENERAL,()=>{
+   const headStart=data.length;
+   ellipsoid(x,y+1.35*s,z,.22*s,.25*s,.21*s,skin,6);
+   box(x,y+1.50*s,z-.02*s,.34*s,.12*s,.32*s,hair);
+   rescaleCitizenHead(headStart,data.length,x,y,z,s);
+  });
   box(x,y+.40*s,z+.22*s,.22*s,.29*s,.06*s,rgb(0x785b43));
  });
  emitStreetCargo(p,x,y,z,s);
