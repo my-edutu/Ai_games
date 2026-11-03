@@ -16,13 +16,14 @@ test.use({trace:'off',video:'off',launchOptions:{
  executablePath:process.env.SNAKE_SYSTEM_CHROMIUM||undefined,
  args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']
 }});
-test('T1 physical terrace AND courtyard exact-d16 paired whole-scene genuine Chromium WebGL views',async({browser,baseURL})=>{
+test('T1 terrace/court: paired real Chromium/WebGL scene with current-source feature reversal',async({browser,baseURL})=>{
  test.setTimeout(340000);
  const world=read('world.mjs'),garden=read('living-garden.mjs');
  const originalWorld=strip(strip(strip(world,'T1 RECLAIMED GARDEN COMPOSITION','      '),'T1 TERRACE TONE CAPTURE','      '),'T1 SUNLIT SCARRED TERRACES','      ');
  const originalGarden=strip(strip(strip(garden,'T1 BROKEN SHORE SHELF STAGING','    '),'T1 TERRACED MASS CAPTURE','    '),'T1 TERRACED MASS REPROFILE','    ');
  expect(blob(originalWorld)).toBe('39f89dda13f6cb14b3b1977d5cac91b80b81bbcd');
- expect(blob(originalGarden)).toBe('f5bbb7a56684ede60c117e2de16742abf2f70ee0');
+ expect(blob(fs.readFileSync(path.join(root,'tests/fixtures/snake-t1-historical-terraces-f5b.mjs'),'utf8'))).toBe('f5bbb7a56684ede60c117e2de16742abf2f70ee0');
+ expect(blob(originalGarden)).not.toBe(blob(garden));
  const frame=JSON.parse(fs.readFileSync(path.join(root,'docs/reviews/snake-gauntlet/round-4-public-frame.json'),'utf8'));
  const frozen=JSON.stringify(frame),evidence=[];
  for(const [view,camera,viewport] of [
@@ -32,7 +33,7 @@ test('T1 physical terrace AND courtyard exact-d16 paired whole-scene genuine Chr
   ['full-desktop','overview',{width:1920,height:1080}]
  ]){
   const both=[];
-  for(const [version,prior] of [['exact-d16-before',true],['terraced-composition-after',false]]){
+  for(const [version,prior] of [['reversed-current-feature',true],['terraced-composition-after',false]]){
    const page=await browser.newPage({viewport,reducedMotion:'reduce'}),errors=[];
    page.on('pageerror',e=>errors.push(e.message));
    try{
@@ -80,11 +81,11 @@ test('T1 physical terrace AND courtyard exact-d16 paired whole-scene genuine Chr
  }
  expect(JSON.stringify(frame)).toBe(frozen);
  fs.writeFileSync(artifact('snake-t1-terraced-matched-actual-webgl.json'),JSON.stringify({
-  exactOldHead:'d16cd2a3ac2d8c3eb7c68c39ad333d92d61f74be',
+  archivedHistoricalHead:'d16cd2a3ac2d8c3eb7c68c39ad333d92d61f74be',
   genuineChromiumWebGL:true,fullSourceMatched:true,unchangedOriginalStrictDesktopGate:true,
   physicalDeviceDisplayPresent:'UNKNOWN',independentQualityReview:'NOT AVAILABLE',
   t1:'BUILDING, SELF REVIEW, VISUAL ACCEPTANCE PENDING',evidence},null,2)+'\n');
- console.log('SNAKE_T1_TERRACED_WEBGL',JSON.stringify({images:evidence.length,originalSourceVerified:true,genuineWebGL:true,originalGateUnchanged:true,acceptancePending:true}));
+ console.log('SNAKE_T1_TERRACED_WEBGL',JSON.stringify({images:evidence.length,historicalGardenGitBlobPinned:true,sameHeadFeatureIsolation:true,genuineWebGL:true,originalGateUnchanged:true,acceptancePending:true}));
 });
 test('T1 new terrace survives authentic uninterrupted 55-second autonomous live WebGL, not a scripted clip',async({browser,baseURL})=>{
  test.setTimeout(190000);

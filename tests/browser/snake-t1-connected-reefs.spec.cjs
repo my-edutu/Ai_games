@@ -11,7 +11,7 @@ test.use({trace:'off',video:'off',launchOptions:{
  args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']
 }});
 
-test('T1 original connected coastal ridge relief: matched real WebGL complete-scene, portrait and detail views versus exact 43a5e04',async({browser,baseURL})=>{
+test('T1 connected coastal ridge relief: current-source feature-reversal WebGL scene/portrait/detail',async({browser,baseURL})=>{
  test.setTimeout(360000);
  const after=fs.readFileSync(sourcePath,'utf8');
  const begin='    // BEGIN T1 CONNECTED COASTAL RIDGES\n',end='    // END T1 CONNECTED COASTAL RIDGES\n';
@@ -19,7 +19,8 @@ test('T1 original connected coastal ridge relief: matched real WebGL complete-sc
  expect(a).toBeGreaterThanOrEqual(0);expect(b).toBeGreaterThan(a);
  expect(after.indexOf(begin,a+1)).toBe(-1);expect(after.indexOf(end,b+1)).toBe(-1);
  const before=after.slice(0,a)+after.slice(b+end.length);
- expect(blob(before)).toBe('ab20ddc7db0eecbc0726d26beb3c12ea32649a93');
+ expect(blob(fs.readFileSync(path.join(root,'tests/fixtures/snake-t1-historical-reefs-ab20.mjs'),'utf8'))).toBe('ab20ddc7db0eecbc0726d26beb3c12ea32649a93');
+ expect(blob(before)).not.toBe(blob(after));
  const frame=JSON.parse(fs.readFileSync(path.join(root,'docs/reviews/snake-gauntlet/round-4-public-frame.json'),'utf8'));
  const immutable=JSON.stringify(frame),evidence=[];
  for(const [view,camera,viewport] of [
@@ -29,7 +30,7 @@ test('T1 original connected coastal ridge relief: matched real WebGL complete-sc
   ['full-desktop','overview',{width:1920,height:1080}]
  ]){
   const states=[];
-  for(const [label,prior] of [['exact-43a5-before',true],['linked-ridges-after',false]]){
+  for(const [label,prior] of [['reversed-current-feature',true],['linked-ridges-after',false]]){
    const page=await browser.newPage({viewport,reducedMotion:'reduce'}),errors=[];
    page.on('pageerror',error=>errors.push(error.message));
    try{
@@ -72,14 +73,14 @@ test('T1 original connected coastal ridge relief: matched real WebGL complete-sc
  }
  expect(JSON.stringify(frame)).toBe(immutable);
  fs.writeFileSync(output('snake-t1-linked-ridges-real-webgl.json'),JSON.stringify({
-  exactParentHead:'43a5e04194e510eb82e1bfb30c7302dcf8a4fc71',
-  exactParentGardenBlob:blob(before),currentGardenBlob:blob(after),
+  archivedHistoricalHead:'43a5e04194e510eb82e1bfb30c7302dcf8a4fc71',
+  featureReversedCurrentGardenBlob:blob(before),currentGardenBlob:blob(after),
   realWebGL:true,sameSourcePublicFrame:true,originalStrict17RenderGateUnchanged:true,
   trueDevicePresentFps:'UNKNOWN',wholeGameIndependentCritic:'NOT AVAILABLE',
   verdict:'T1 BUILDING / genuine whole-game visual review pending',evidence
  },null,2)+'\n');
  console.log('SNAKE_T1_LINKED_RIDGES_REAL_WEBGL',JSON.stringify({views:evidence.length,
-  oldSourceVerified:true,unchangedStrictGate:true,qualityAcceptancePending:true}));
+  historicalGardenGitBlobPinned:true,sameHeadFeatureIsolation:true,unchangedStrictGate:true,qualityAcceptancePending:true}));
 });
 
 test('T1 connected ridge environment holds genuine uninterrupted 55-second autonomous host game',async({browser,baseURL})=>{

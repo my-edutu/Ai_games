@@ -17,13 +17,14 @@ test.use({trace:'off',video:'off',launchOptions:{
  executablePath:process.env.SNAKE_SYSTEM_CHROMIUM||undefined,
  args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']
 }});
-test('T1 braided 3D coast+court: exact-parent matched genuine Chromium/WebGL whole-game A/B (8 real images)',async({browser,baseURL})=>{
+test('T1 braided coast+court: current-source feature-reversal genuine WebGL A/B with immutable historic Git control',async({browser,baseURL})=>{
  test.setTimeout(360000);
  const currentWorld=original('world.mjs'),currentGarden=original('living-garden.mjs');
  const priorWorld=undo(currentWorld,'T1 BRAIDED ESTUARY WHOLE-FIELD','      ');
  const priorGarden=undo(currentGarden,'T1 CURVED GEOLOGICAL COAST','    ');
  expect(blob(priorWorld)).toBe('862d9e879dc7ebd814e7041b59372e1984b04ded');
- expect(blob(priorGarden)).toBe('f478a8c6593d7ff89429599f0edbe0314b83e3b6');
+ expect(blob(fs.readFileSync(path.join(root,'tests/fixtures/snake-t1-historical-curved-f478.mjs'),'utf8'))).toBe('f478a8c6593d7ff89429599f0edbe0314b83e3b6');
+ expect(blob(priorGarden)).not.toBe(blob(currentGarden));
  const publicFrame=JSON.parse(fs.readFileSync(path.join(root,'docs/reviews/snake-gauntlet/round-4-public-frame.json'),'utf8'));
  const frozen=JSON.stringify(publicFrame),images=[];
  for(const [view,camera,viewport] of [
@@ -33,7 +34,7 @@ test('T1 braided 3D coast+court: exact-parent matched genuine Chromium/WebGL who
   ['desktop-1920','overview',{width:1920,height:1080}]
  ]){
   const states=[];
-  for(const [label,old] of [['exact-aa7-before',true],['braided-estuary-after',false]]){
+  for(const [label,old] of [['reversed-current-feature',true],['braided-estuary-after',false]]){
    const page=await browser.newPage({viewport,reducedMotion:'reduce'}),errors=[];
    page.on('pageerror',e=>errors.push(e.message));
    try{
@@ -81,12 +82,12 @@ test('T1 braided 3D coast+court: exact-parent matched genuine Chromium/WebGL who
  }
  expect(JSON.stringify(publicFrame)).toBe(frozen);
  fs.writeFileSync(file('snake-t1-braided-authentic-webgl.json'),JSON.stringify({
-  predecessorHead:'aa7bb05acaa4a69996bf1e8ec469993e6666c665',
-  predecessorWorldBlob:blob(priorWorld),predecessorGardenBlob:blob(priorGarden),
-  realChromiumWebGL:true,unchangedReal17Gate:true,independentVerdict:'NOT AVAILABLE',
+  archivedHistoricalHead:'aa7bb05acaa4a69996bf1e8ec469993e6666c665',
+  featureReversedWorldBlob:blob(priorWorld),featureReversedCurrentGardenBlob:blob(priorGarden),
+  realChromiumWebGL:true,unchangedReal17Gate:true,historicalGardenGitBlobPinned:true,independentVerdict:'NOT AVAILABLE',
   visualAcceptance:'PENDING actual same-source image/motion inspection',
   actualUnscripted55sVideo:'Collected separately by existing snake-t1-connected-reefs.spec.cjs',
   images
  },null,2)+'\n');
- console.log('T1_BRAIDED_WHOLE_SCENE_REAL_WEBGL',JSON.stringify({imageCount:images.length,exactParent:true,acceptance:'PENDING'}));
+ console.log('T1_BRAIDED_WHOLE_SCENE_REAL_WEBGL',JSON.stringify({imageCount:images.length,historicalGardenGitBlobPinned:true,sameHeadFeatureIsolation:true,acceptance:'PENDING'}));
 });

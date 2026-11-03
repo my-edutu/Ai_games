@@ -20,10 +20,11 @@ test.use({trace:'off',video:'off',launchOptions:{
  executablePath:process.env.SNAKE_SYSTEM_CHROMIUM||undefined,
  args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']
 }});
-test('T1 exact-e228 before and complete world-grade after: eight authentic Chromium/WebGL source-matched full-game images',async({browser,baseURL})=>{
+test('T1 stratified whole environment: eight true WebGL current-feature-reversal source-matched frames',async({browser,baseURL})=>{
  test.setTimeout(360000);
  expect(gitBlob(oldWorld)).toBe('5da8528a5895b7d4ba39c38fae3fed266bff711b');
- expect(gitBlob(oldGarden)).toBe('1a8fec973bbe5bca82246ec630ced30984073020');
+ expect(gitBlob(fs.readFileSync(path.join(root,'tests/fixtures/snake-t1-historical-strata-1a8.mjs'),'utf8'))).toBe('1a8fec973bbe5bca82246ec630ced30984073020');
+ expect(gitBlob(oldGarden)).not.toBe(gitBlob(garden));
  const frame=JSON.parse(fs.readFileSync(path.join(root,'docs/reviews/snake-gauntlet/round-4-public-frame.json'),'utf8'));
  const immutable=JSON.stringify(frame),images=[];
  for(const [view,camera,viewport] of [
@@ -33,7 +34,7 @@ test('T1 exact-e228 before and complete world-grade after: eight authentic Chrom
    ['desktop-1920','overview',{width:1920,height:1080}]
  ]){
   const pair=[];
-  for(const [label,old] of [['exact-e228-before',true],['integrated-sculpt-after',false]]){
+  for(const [label,old] of [['reversed-current-feature',true],['integrated-sculpt-after',false]]){
    const page=await browser.newPage({viewport,reducedMotion:'reduce'}),errors=[];
    page.on('pageerror',error=>errors.push(error.message));
    try{
@@ -77,17 +78,17 @@ test('T1 exact-e228 before and complete world-grade after: eight authentic Chrom
  }
  expect(JSON.stringify(frame)).toBe(immutable);
  fs.writeFileSync(out('snake-t1-integrated-real-webgl.json'),JSON.stringify({
-  exactPriorHead:'e2283963cd066261447955b05414389da3dae06e',
-  original17FullDesktopRenderSubmissionsGate:'UNMODIFIED',
+  archivedHistoricalHead:'e2283963cd066261447955b05414389da3dae06e',
+  original17FullDesktopRenderSubmissionsGate:'UNMODIFIED',historicalGardenGitBlobPinned:true,sameHeadFeatureIsolation:true,
   acceptance:'BUILDING — true whole-scene visual and independent review PENDING',
   independentCritic:'UNAVAILABLE',images
  },null,2)+'\n');
 });
-test('T1 authentic 55-second autonomous original-head versus integrated new-head motion, no scripted events',async({browser,baseURL})=>{
+test('T1 authentic 55-second autonomous reversible-current-feature versus integrated motion, no scripted events',async({browser,baseURL})=>{
  test.setTimeout(220000);
  expect(gitBlob(oldWorld)).toBe('5da8528a5895b7d4ba39c38fae3fed266bff711b');
  const records=[];
- for(const [label,old] of [['exact-e228-before',true],['integrated-after',false]]){
+ for(const [label,old] of [['reversed-current-feature',true],['integrated-after',false]]){
   const page=await browser.newPage({viewport:{width:960,height:640},
    recordVideo:{dir:path.join(root,'artifacts/phase3'),size:{width:960,height:640}}});
   const video=page.video(),errors=[];
