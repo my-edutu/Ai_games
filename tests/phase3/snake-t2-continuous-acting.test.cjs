@@ -44,6 +44,26 @@ test('Actor uses reusable body ring and real director stays optional, fully acce
   assert.match(actorSource,/radius\*Math\.hypot\(\.88,acting\[3\]\)/);
   assert.match(html,/data-control="cinematic" aria-pressed="false"/);
   assert.match(app,/case 'cinematic': cameraMode = cameraMode === 'cinematic'/);
-  assert.match(app,/params\.get\('camera'\) \? params\.get\('camera'\) : 'overview'/);
+  assert.ok(app.includes("['follow', 'detail', 'cinematic'].includes(params.get('camera')) ? params.get('camera') : 'overview'"), 'accept only approved 3D camera modes; reject untrusted query modes');
   assert.match(read('tests/browser/snake-stream.spec.cjs'),/expect\(animation\.actualDraws\)\.toBeGreaterThanOrEqual\(17\)/);
+});
+
+test('T2 actor maintains grounded face rotation and public feeding joint limits through curved paths',async()=>{
+  const THREE=await import('three'),{createSerpent}=await actor();
+  const model=createSerpent(THREE),head=model.group.getObjectByName('Expressive head');
+  const jaw=model.group.getObjectByName('Attached lower jaw pivot');
+  const path=Object.freeze([{x:0,z:0},{x:-1,z:0},{x:-1,z:1},{x:-1,z:2}].map(Object.freeze));
+  const frozen=JSON.stringify(path),before=model.stats();
+  try{
+    for(let i=0;i<48;i++)model.update([path],{detail:'low',time:i/60,delta:1/60,direction:{x:1,z:0},
+      runToken:'turn',food:{x:1.6,z:0.25},danger:0});
+    assert.ok(Math.abs(head.children[0].rotation.z)<=.1050001,'avoid ground-intersecting skull roll');
+    assert.ok(jaw.rotation.x>=0&&jaw.rotation.x<=.1050001,'public feeding safely articulates existing mouth');
+    model.update([path],{detail:'low',time:1,delta:1/60,direction:{x:1,z:0},
+      runToken:'turn',food:{x:1.6,z:0.25},reducedMotion:true});
+    assert.equal(head.children[0].rotation.z,0,'reduced motion must never bank the skull');
+    assert.equal(JSON.stringify(path),frozen,'public route remains immutable');
+    for(const key of ['geometries','materials','textures','bufferBytes'])
+      assert.equal(model.stats()[key],before[key],'no new GPU resource: '+key);
+  }finally{model.dispose();}
 });

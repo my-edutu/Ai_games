@@ -689,7 +689,7 @@ export function createSerpent(THREE) {
           / (forwardLength * incomingLength), -1, 1);
       }
     }
-    const targetLean = curvature * 0.145;
+    const targetLean = curvature * 0.105;
     curveLean = teleported || reduced ? (reduced ? 0 : targetLean)
       : curveLean + (targetLean - curveLean) * (1 - Math.exp(-dt * 10));
     previousHeadX = first.x; previousHeadZ = first.z;
@@ -698,9 +698,9 @@ export function createSerpent(THREE) {
     head.position.set(first.x, fullBodyHeight + 0.065 + (reduced ? 0 : eaten * 0.065 + Math.sin(time * 3.1) * 0.015), first.z);
     head.rotation.y = heading;
     headPose.rotation.x = reduced ? 0 : -eaten * 0.11 + dangerEase * 0.025;
-    headPose.rotation.z = reduced ? 0 : clamp(curveLean - angleDifference * 0.055, -0.185, 0.185);
+    headPose.rotation.z = reduced ? 0 : clamp(curveLean - angleDifference * 0.055, -0.105, 0.105);
     // A shallow four-degree chew keeps the rounded jaw supported at both corners.
-    jaw.rotation.x = reduced ? 0 : eaten * 0.16;
+    jaw.rotation.x = reduced ? 0 : eaten * 0.07;
     updateJawCorners(jaw.rotation.x);
     headPose.scale.set(1 + eaten * 0.035, 1 + eaten * 0.025, 1);
     // BEGIN R48 PUBLIC THREAT POSTURE
@@ -776,7 +776,7 @@ export function createSerpent(THREE) {
       : teleported || reduced ? feedingTarget
         : feedingAnticipation + (feedingTarget - feedingAnticipation) * (1 - Math.exp(-dt * 9));
     if (!reduced && feedingAnticipation > 0.001) {
-      jaw.rotation.x = Math.max(jaw.rotation.x, feedingAnticipation * 0.16);
+      jaw.rotation.x = Math.max(jaw.rotation.x, feedingAnticipation * 0.105);
       // This is the existing shared cheek bridge, not a detached fake lip.
       updateJawCorners(jaw.rotation.x);
     }
