@@ -83,3 +83,38 @@ test('identical source snapshot and seed produce identical interruption state, e
   const live=createTowerRenderSnapshot(a.state,{includeWindupTicks:true});
   assert.equal(live.authorityChecksum,createTowerRenderSnapshot(b.state,{includeWindupTicks:true}).authorityChecksum);
 });
+test('a real autonomous earned counter-shot can cause the full combat interruption without scripted hit events',()=>{
+  const runtime=TowerRuntime.create({launchFloor:10,maxTicks:5000,noProgressTicks:2000},
+    'integrated-guardian-pulse-interruption');
+  const s=structuredClone(runtime.state),chunk=s.chunks.find(x=>x.floor===s.floor);
+  const cap=chunk.platforms.find(x=>x.id===`f${s.floor}:cap`);
+  const boss=s.enemies.find(x=>x.kind==='guardian'&&x.active);
+  assert.ok(cap&&boss,'test must start from real generated 3D Tower guardian cap');
+  const p=s.player;
+  p.position={x:cap.x+cap.width/2,y:cap.y+cap.height+p.halfHeight};
+  p.velocity={x:0,y:0};p.grounded=true;p.groundedPlatformId=cap.id;
+  p.state='standing';p.abilityCooldown=0;
+  const side=p.position.x>s.config.worldWidth/2?-1:1;
+  p.facing=side;
+  boss.position={x:p.position.x+side*38000,y:p.position.y};
+  boss.facing=-side;boss.patrolMinX=Math.max(0,boss.position.x-65000);
+  boss.patrolMaxX=Math.min(s.config.worldWidth,boss.position.x+65000);
+  boss.cooldown=0;boss.telegraphUntilTick=s.tick+8;boss.health=8;boss.maxHealth=8;
+  s.enemies=[boss];s.chunks.find(x=>x.floor===s.floor).hazards=[];
+  s.projectiles=[];s.pickups=[];s.build.upgradeIds.push('pulse-shot');
+  s.ai.targetPlatformId=undefined;s.ai.recentHeights=[];
+  runtime.state=s;
+  const first=runtime.step();
+  assert.ok(first.stats.projectilesFired>s.stats.projectilesFired,
+    'autonomous source AI chooses a real earned projectile during the attack warning');
+  assert.ok(runtime.events.some(x=>x.type==='projectile-fired'&&x.data.owner==='player'));
+  for(let i=0;i<6&&!runtime.events.some(x=>x.type==='guardian-windup-interrupted');i++)
+    runtime.step();
+  const interruption=runtime.events.find(x=>x.type==='guardian-windup-interrupted');
+  assert.ok(interruption,'the autonomous 20Hz fight actually connects the earned pulse with a still-live charge');
+  const currentBoss=runtime.state.enemies.find(x=>x.id===boss.id);
+  assert.equal(currentBoss.telegraphUntilTick,0);
+  assert.ok(currentBoss.staggerUntilTick>runtime.state.tick);
+  assert.ok(runtime.events.some(x=>x.type==='projectile-hit'&&x.data.id===boss.id));
+  assert.ok(runtime.state.stats.damageDealt>=1,'source HP, not fake presentation, changes');
+});
