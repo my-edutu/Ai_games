@@ -610,10 +610,13 @@ async function marketCircuitMotion(browser,html,snapshot){
    const g=window.__tinyKingdom;
    return {tour:g.getMarketTourAudit(),position:g.getStreetWalkState().position};
   });
-  if(started.tour.active){
-   assert.deepEqual(started.position,initial.position,
-    'G155 route activation teleported the visitor');
-  }
+  assert(started.tour.active,
+   'G156 Day-120 genuine market circuit cannot find a safe route to another stall');
+  // A SwiftShader game frame may advance between user input and the audit;
+  // do not confuse legitimate motion with an instantaneous teleport.
+  assert(Math.hypot(started.position[0]-initial.position[0],
+   started.position[1]-initial.position[1])<.8,
+   'G156 pedestrian route jumped instead of walking');
   const wallStart=Date.now();
   await page.waitForTimeout(started.tour.active?18000:2800);
   const end=await page.evaluate(()=>{
@@ -628,8 +631,10 @@ async function marketCircuitMotion(browser,html,snapshot){
   assert(end.width<=390,'G155 market circuit horizontal overflow');
   const metres=Math.hypot(end.walk.position[0]-initial.position[0],
    end.walk.position[1]-initial.position[1]);
-  if(started.tour.active)assert(metres>.25,
-   'G155 guided route did not produce visible physical pedestrian travel');
+  assert(metres>2.5,
+   'G156 guided market footage did not show substantial physical travel');
+  assert(end.tour.completed&&end.market.stall?.trade!==initial.market.stall?.trade,
+   'G156 guided visitor failed to reach a different genuine stall');
   return {renderer:contextInfo.quality.renderer,started:started.tour.active,
    endTour:end.tour,initialStall:initial.market.stall?.trade,
    endStall:end.market.stall?.trade,metresFromStart:metres,

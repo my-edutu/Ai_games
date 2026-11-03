@@ -6378,7 +6378,7 @@ function marketVisitArchitecture(pos,door,stall){
 let marketVisitPlanStats={candidateCount:0,unsafe:0,crowd:0,architecture:0,
  sky:0,eligible:0,closest:[],adaptiveStandoff:false,lastFailure:null};
 function getMarketVisitPlanningAudit(){return JSON.parse(JSON.stringify(marketVisitPlanStats));}
-function planMarketVisit(preferredTrade=null){
+function planMarketVisit(preferredTrade=null,origin=null){
  const stats={candidateCount:0,unsafe:0,crowd:0,architecture:0,
   sky:0,eligible:0,closest:[],adaptiveStandoff:false,lastFailure:null};
  const candidates=[];
@@ -6396,7 +6396,7 @@ function planMarketVisit(preferredTrade=null){
  // Keep a second choice only when its stall sightline is free of citizens,
  // its nearest bystander is still at least 1.65m away and every real wall
  // check passes. Never move, suppress or fabricate a single inhabitant.
- let best=null,adapted=null;
+ let best=null,adapted=null;const viable=[];
  for(const pos of candidates){
   stats.candidateCount++;
   if(!streetSafe(...pos)){stats.unsafe++;continue;}
@@ -6434,6 +6434,7 @@ function planMarketVisit(preferredTrade=null){
    const candidate={position:pos.slice(),yaw,tilt,score,stall,
     stallDistance:distance,eye,door,visibility:view,architecture,
     adaptiveStandoff:!isStrict,...crowd};
+   viable.push(candidate);
    if(isStrict){
     stats.eligible++;
     if(!best||score>best.score)best=candidate;
@@ -6443,9 +6444,38 @@ function planMarketVisit(preferredTrade=null){
    }
   }
  }
- const chosen=best||adapted;
- stats.adaptiveStandoff=!best&&!!adapted;
- stats.lastFailure=chosen?null:
+ let chosen=best||adapted;
+ // A photogenic but disconnected stall is not a playable destination.
+ // Search multiple genuine portrait-safe viewpoints in a bounded order and
+ // only accept an actual collision-checked path from the spectator's feet.
+ // The initial visit (origin=null) retains its original composition behavior.
+ if(origin&&preferredTrade){
+  const distanceTo=c=>Math.hypot(c.position[0]-origin[0],c.position[1]-origin[1]);
+  viable.sort((a,b)=>
+   (b.score-(b.adaptiveStandoff?4:0)-distanceTo(b)*.28)-
+   (a.score-(a.adaptiveStandoff?4:0)-distanceTo(a)*.28));
+  const considered=new Set();let routesChecked=0;
+  chosen=null;
+  for(const candidate of viable){
+   if(distanceTo(candidate)<2.5)continue;
+   // Do not repeatedly search paths to adjacent 65cm camera samples.
+   const key=Math.round(candidate.position[0]/1.3)+','+
+    Math.round(candidate.position[1]/1.3);
+   if(considered.has(key))continue;
+   considered.add(key);routesChecked++;
+   const route=streetMarketRoute(origin,candidate.position);
+   if(route&&route.length){
+    chosen={...candidate,route};
+    break;
+   }
+   if(routesChecked>=24)break;
+  }
+  stats.routesChecked=routesChecked;
+  stats.routeReachable=!!chosen;
+ }
+ stats.adaptiveStandoff=Boolean(chosen?.adaptiveStandoff);
+ stats.lastFailure=chosen?null:origin?
+  'No physically connected portrait-safe viewpoint at a different genuine stall':
   'No walkable portrait-safe market view with a clear real-citizen sightline';
  marketVisitPlanStats=stats;
  return chosen;
@@ -6522,9 +6552,9 @@ function nextMarketStall(){
  marketTour=null;marketTourCompletion=null;
  for(let offset=1;offset<MARKET_STALLS.length;offset++){
   const trade=MARKET_STALLS[(current+offset)%MARKET_STALLS.length].trade;
-  const plan=planMarketVisit(trade);
+  const plan=planMarketVisit(trade,streetPosition);
   if(!plan||plan.stall.trade!==trade||plan.stall.trade===active)continue;
-  const path=streetMarketRoute(streetPosition,plan.position);
+  const path=plan.route;
   if(!path||!path.length)continue;
   marketTour={path,index:0,plan};
   marketTourCompletion=null;

@@ -18,12 +18,17 @@ test('G155 390px market stall circuit travels on real walkable streets',async({p
    authority:JSON.stringify(g.exportSnapshot())};
  });
  expect(started.market.active).toBe(true);
- const handoff=await page.evaluate(()=>window.__tinyKingdom.nextMarketStall());
+ // Read the activation and position in ONE browser turn; a slow SwiftShader
+ // frame can advance the real walking animation between separate evaluations.
+ const immediate=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;
+  return {handoff:g.nextMarketStall(),position:g.getStreetWalkState().position};
+ });
+ const handoff=immediate.handoff;
  expect(handoff.started,JSON.stringify(handoff)).toBe(true);
  expect(handoff.trade).not.toBe(started.market.stall.trade);
  expect(handoff.waypoints).toBeGreaterThan(0);
- const stationary=await page.evaluate(()=>window.__tinyKingdom.getStreetWalkState().position);
- expect(stationary).toEqual(started.position); // Not an instant viewpoint teleport.
+ expect(immediate.position).toEqual(started.position); // Never teleport on click.
  const journey=await page.evaluate(()=>{
   const g=window.__tinyKingdom,positions=[g.getStreetWalkState().position];
   let last=g.getMarketTourAudit();
@@ -47,5 +52,55 @@ test('G155 390px market stall circuit travels on real walkable streets',async({p
  expect(journey.authority).toBe(started.authority);
  expect(journey.overflow).toBeLessThanOrEqual(390);
  expect(journey.gl).toBe(0);
+ expect(errors).toEqual([]);
+});
+ 
+// G156 RED source: G155 real uncut Day-120 film recorded started=false and
+// 0 metres travelled despite the user pressing Next stall. No mock actors.
+test('G156 real Day-120 market circuit reaches another actual stall on mobile',async({page})=>{
+ test.setTimeout(240000);
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.setViewportSize({width:390,height:844});
+ await page.setContent(html);
+ await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0,null,{timeout:90000});
+ await page.evaluate(()=>{window.__tinyKingdom.reset();window.__tinyKingdom.setSpeed(0);});
+ for(let remaining=120*24*30;remaining>0;remaining-=7200)
+  await page.evaluate(n=>{
+   const g=window.__tinyKingdom;
+   for(let i=0;i<n;i++)g.step(1/30);
+  },Math.min(remaining,7200));
+ const start=await page.evaluate(()=>{
+  const g=window.__tinyKingdom,authority=JSON.stringify(g.exportSnapshot());
+  const visit=g.visitMarket(),position=g.getStreetWalkState().position;
+  const next=g.nextMarketStall(),still=g.getStreetWalkState().position;
+  return {authority,visit,position,next,still,planning:g.getMarketVisitPlanningAudit()};
+ });
+ expect(start.visit.active,JSON.stringify(start.planning)).toBe(true);
+ expect(start.next.started,JSON.stringify({next:start.next,planning:start.planning})).toBe(true);
+ expect(start.next.trade).not.toBe(start.visit.stall.trade);
+ expect(start.next.meters).toBeGreaterThan(2.5);
+ expect(start.still).toEqual(start.position);
+ const arrived=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;let tour=g.getMarketTourAudit(),
+   minSafe=true,steps=0,travelled=0,last=g.getStreetWalkState().position;
+  while(tour.active&&steps++<1000){
+   g.advanceStreetWalk(.10);
+   const p=g.getStreetWalkState().position;
+   minSafe=minSafe&&g.getMarketVisitAudit().safe;
+   travelled+=Math.hypot(p[0]-last[0],p[1]-last[1]);
+   last=p;tour=g.getMarketTourAudit();
+  }
+  return {tour,visit:g.getMarketVisitAudit(),minSafe,travelled,
+   authority:JSON.stringify(g.exportSnapshot()),
+   overflow:document.documentElement.scrollWidth,
+   gl:document.querySelector('#world').getContext('webgl')?.getError()??-1};
+ });
+ expect(arrived.tour.completed,JSON.stringify(arrived.tour)).toBe(true);
+ expect(arrived.visit.stall.trade).toBe(start.next.trade);
+ expect(arrived.travelled).toBeGreaterThan(2.5);
+ expect(arrived.minSafe).toBe(true);
+ expect(arrived.authority).toBe(start.authority);
+ expect(arrived.overflow).toBeLessThanOrEqual(390);
+ expect(arrived.gl).toBe(0);
  expect(errors).toEqual([]);
 });
