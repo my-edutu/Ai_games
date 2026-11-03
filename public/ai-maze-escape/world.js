@@ -982,7 +982,32 @@ export function createMazeWorld(options = {}) {
       mesh(petal, bevel, lightStone, .47, .18, 0, .30, .10, .31);
       mesh(petal, bevel, inlay, .50, .245, 0, .12, .055, .21);
       mesh(petal, bevel, darkJade, .66, .09, 0, .10, .12, .28);
-      if (witnessed) animations.push({type:'key-shrine', object:petal, keyId:key.id});
+      // This source-witnessed treasure opens a full-sized four-part tide-shell
+      // mechanism, rather than merely changing a tiny inlaid floor pattern.
+      // Each joined vertical sail FOLDS INTO its real stone socket before
+      // collection, then hinges upright with the existing carved petal. No
+      // new key, passage, hazard, light, marker or game authority is created.
+      // The broad sculpture stays inside the already disclosed tile, with
+      // its ivory face legible from Pip's authentic isometric camera.
+      const sail = new THREE.Group();
+      sail.name = 'Hinged disclosed tide-shell sail ' + i;
+      sail.position.set(.35, .10, 0);
+      petal.add(sail);
+      mesh(sail, bevel, deepStone, .04, .13, 0, .31, .24, .36);
+      const ivoryBlade = mesh(sail, bevel, lightStone,
+        .075, .45, 0, .37, .72, .42);
+      ivoryBlade.rotation.z = -.09;
+      const ceramicRib = mesh(sail, bevel, jade,
+        .105, .43, .235, .13, .59, .055);
+      ceramicRib.rotation.z = -.09;
+      // Already-collected keys without a witnessed transition rest in their
+      // final sculpture pose. A true current-run collection is animated with
+      // the same stall-safe public visual clock as the physical key release.
+      sail.rotation.z = key.collected && !witnessed ? 0 : 1.16;
+      if (witnessed) {
+        animations.push({type:'key-shrine', object:petal, keyId:key.id});
+        animations.push({type:'key-sail', object:sail, keyId:key.id});
+      }
     }
     if (key.collected) {
       // A dark, empty, stone-cut recess stays visible. No second key,
@@ -1323,13 +1348,16 @@ export function createMazeWorld(options = {}) {
     waterTexture.offset.set(reduced ? 0 : t * .0012, reduced ? 0 : t * .0006);
     if (highContrast !== !!options.highContrast) { highContrast = !!options.highContrast; if (snapshot) refreshVisibility(snapshot, true); }
     for (const a of animations) {
-      if (a.type === 'key-shrine') {
-        // Separate bounded presentation clock protects observable 3D hinges
-        // under CPU-throttled capture. Simulation ticks remain authoritative.
+      if (a.type === 'key-shrine' || a.type === 'key-sail') {
+        // The same REAL public pickup unfolds both rooted hinge assemblies.
+        // Neither screenshot wall stalls nor polling can replay a stale key.
         const start = keyPickupAt.get(a.keyId);
         const age = Number.isFinite(start) ? presentationTime - start : Infinity;
-        const phase = reduced ? 1 : Math.max(0, Math.min(1, age / .82));
-        a.object.rotation.z = .78 * phase * (2 - phase);
+        const duration = a.type === 'key-sail' ? 1.18 : .82;
+        const phase = reduced ? 1 : Math.max(0, Math.min(1, age / duration));
+        const eased = phase * phase * (3 - 2 * phase);
+        a.object.rotation.z = a.type === 'key-sail'
+          ? (1.16 * (1 - eased)) : (.78 * phase * (2 - phase));
         continue;
       }
       const wave = reduced ? 0 : Math.sin(t * 1.8 + a.phase) * .045;
