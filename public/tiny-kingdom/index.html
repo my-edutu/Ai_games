@@ -3435,7 +3435,7 @@ function compactVillager(p){
  // Keep the identical real next-waypoint facing transform across garment,
  // pelvis, feet, joints, hands and any true carried supplies.
  const originX=data[vertexStart],originZ=data[vertexStart+2];
- const look=rig.working?rig.acting.focus:(p.path?.length?p.path[0]:p.target);
+ const look=p.path?.length?p.path[0]:p.target;
  const angle=look?Math.atan2(look[0]-x,look[1]-z):0;
  const co=Math.cos(angle),si=Math.sin(angle);
  for(let v=vertexStart;v<data.length;v+=10){
