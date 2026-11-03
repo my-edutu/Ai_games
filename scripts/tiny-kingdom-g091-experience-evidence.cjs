@@ -94,7 +94,14 @@ async function cameraAndScreenshot(page,camera,filename,cinema=true){
  return {snapshotChecksum:record.snapshot.checksum,day:Math.floor(record.snapshot.payload.state.t/24)+1,
   simulatedHour:record.snapshot.payload.state.t,
   triangleCount:record.triangles,quality:record.quality,
+  // Record each MEASURED CPU stage, not only a blended total. This is
+  // performance.now() wall time around frame phases on the exact renderer;
+  // never label these values physical-GPU timings or sustained hardware FPS.
   cpuPhaseMs:record.profile.stages?.total,
+  cpuStagesMs:record.profile.stages,
+  cpuProfile: {kind:record.profile.kind,units:record.profile.units,
+   samples:record.profile.samples,latest:record.profile.latest,
+   totalFrames:record.profile.totalFrames},
   activeWorksites:record.worksites?.length??null};
 }
 async function advanceTicks(page,total){
