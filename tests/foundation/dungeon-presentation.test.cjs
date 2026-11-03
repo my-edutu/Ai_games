@@ -30,6 +30,11 @@ function presentation({nestedFailure=false,fixture=null}={}){
  // rather than hiding or inventing missing dependencies for live actor poses.
  const bearing=fs.readFileSync(path.join(ROOT,'public/ai-dungeon/rig-attachment-plan.js'),'utf8').replace(/^export /gm,'');
  context.planRigBearing=vm.runInContext('(function(){\n'+bearing+'\nreturn planRigBearing;})()',context);
+ // Source imports are stripped by this VM. Execute the actual new read-only
+ // ranged animation planner, not an unrepresentative no-op approximation.
+ const ranged=fs.readFileSync(path.join(ROOT,'public/ai-dungeon/ranged-encounter-plan.js'),'utf8')
+  .replace(/^export /gm,'');
+ context.planRangedBodyPose=vm.runInContext('(function(){\n'+ranged+'\nreturn planRangedBodyPose;})()',context);
  // The isolated VM removes ES imports: run the REAL evasion planner with its
  // lexical dependencies, rather than stubbing away the latest 3D action.
  const evasion=fs.readFileSync(path.join(ROOT,'public/ai-dungeon/evasion-performance-plan.js'),'utf8')
