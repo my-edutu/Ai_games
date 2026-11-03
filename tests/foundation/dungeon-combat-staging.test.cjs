@@ -171,7 +171,7 @@ test('real cardinal cross-cell melee skirmishes do not stack opposing rigs in ca
  const {planCombatStage,MAX_STAGE_OFFSET}=await mod();
  const hero=u('hero','vanguard','party',3,3,80),foe=u('foe','cultist','enemy',4,3,60);
  const state={tick:7,map:floor(),units:[foe,hero]},before=JSON.stringify(state);
- const camera={x:7,z:3},pose=planCombatStage(state,camera);
+ const camera={x:7,z:0},pose=planCombatStage(state,camera);
  const right={x:0,z:-1};
  const gap=Math.abs((pose.foe.x-pose.hero.x)*right.x+(pose.foe.z-pose.hero.z)*right.z);
  assert.ok(gap>.48,'true adjacent enemies should project as distinct combat silhouettes');
@@ -204,7 +204,7 @@ test('a still-living but geographically distant Warden does not silence ordinary
  const party=u('hero','vanguard','party',3,3,80),cultist=u('cultist','cultist','enemy',4,3,80);
  const distantBoss=u('warden','warden','enemy',0,0,200);
  const state={tick:7,map:floor(),units:[party,cultist,distantBoss]};
- const staged=planCombatStage(state,{x:7,z:3});
+ const staged=planCombatStage(state,{x:7,z:0});
  assert.ok(staged.hero.crowded&&staged.cultist.crowded,
   'the distant unopened floor boss cannot disable legitimate corridor combat staging');
  assert.deepEqual([staged.warden.dx,staged.warden.dz],[0,0],
