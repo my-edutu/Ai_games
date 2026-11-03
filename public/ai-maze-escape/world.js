@@ -1239,11 +1239,21 @@ export function createMazeWorld(options = {}) {
     const p = new THREE.Group(); p.name = door.open ? 'Disclosed open gate' : 'Disclosed sealed gate';
     const disclosedEnds = [door.a, door.b].filter(cell => s.cells.some(c => c.cell === cell));
     p.position.set((a.x + b.x) / 2, Math.max(...disclosedEnds.map(cell => cellHeight(cell, s.width, s.height))), (a.z + b.z) / 2); p.rotation.y = a.x === b.x ? 0 : Math.PI / 2; objects.add(p);
+    // Native 1280 opening evidence showed the full-height foreground gate
+    // pier competing with Pip even after the lintel was slimmed. Reduce the
+    // TRUE stone silhouette in both cardinal gate orientations, while keeping
+    // two solid, cap-joined supports and a wide honest traversable opening.
+    // This is a world model revision: no camera crop, transparent mesh,
+    // altered collision, hidden cell lookup or game-state-dependent shortcut.
     for (const sign of [-1, 1]) {
-      mesh(p, bevel, deepStone, sign * .91, .1, 0, .43, .2, .51);
-      mesh(p, bevel, jade, sign * .91, .9, 0, .3, 1.5, .33);
-      mesh(p, bevel, lightStone, sign * .91, 1.66, 0, .45, .15, .5);
-      for (let j = 0; j < 3; j++) mesh(p, bevel, inlay, sign * .91, .45 + j * .4, -.19, .12, .16, .05);
+      const foot = mesh(p, bevel, deepStone, sign * .91, .1, -.055, .35, .2, .39);
+      foot.name = 'Disclosed gate cutaway foot ' + sign;
+      const pier = mesh(p, bevel, jade, sign * .91, .9, -.065, .22, 1.5, .25);
+      pier.name = 'Disclosed gate slim structural pier ' + sign;
+      const cap = mesh(p, bevel, lightStone, sign * .91, 1.66, -.075, .32, .15, .35);
+      cap.name = 'Disclosed gate compact joined cap ' + sign;
+      for (let j = 0; j < 3; j++)
+        mesh(p, bevel, inlay, sign * .91, .45 + j * .4, -.197, .075, .13, .04);
     }
     // The genuine 1280px opening frame shows this old heavy stone header
     // eating Pip's silhouette from the three-quarter gate-side camera.
