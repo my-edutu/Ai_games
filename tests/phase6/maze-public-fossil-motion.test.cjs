@@ -38,8 +38,25 @@ test('real disclosed fossil sails have connected 3D carved mass, nonblocking roo
    assert.ok(sails.every(Boolean),'two genuine public wall-side Three hinges should exist');
    assert.equal(world.stats().responsiveFossilSails,2);
    assert.equal(world.stats().tideFossilAlcoves,1);
+   assert.equal(world.stats().fossilGalleryEdges,1,'one public blocked wall receives a physically low gallery');
    const center=module.cellPosition(10,7,7);
    const ground=module.cellHeight(10,7,7);
+   // Inspect actual installed instancing, not a cosmetic CSS counter or
+   // metadata-only promise. The PUBLIC north wall has a stone gallery cap
+   // below the hinged sculpture; its 0.17-high band cannot hide the actor.
+   const galleryCaps=[];
+   world.group.traverse(node=>{
+     if(!node.isInstancedMesh||node.material?.name!=='Disclosed sea-glass mosaic')return;
+     const transform=new THREE.Matrix4(),at=new THREE.Vector3(),rot=new THREE.Quaternion(),scale=new THREE.Vector3();
+     for(let i=0;i<node.count;i++){
+       node.getMatrixAt(i,transform);transform.decompose(at,rot,scale);
+       if(Math.abs(at.x-center.x)<.01 && Math.abs(at.z-(center.z-1.2))<.01
+         && Math.abs(at.y-(ground+.30))<.01 && Math.abs(scale.x-2.26)<.01
+         && Math.abs(scale.y-.17)<.01)galleryCaps.push({top:at.y+scale.y/2,depth:scale.z});
+     }
+   });
+   assert.equal(galleryCaps.length,1,'one actual grounded low sea-glass cap is installed at the known impassable edge');
+   assert.ok(galleryCaps[0].top-ground<.45,'the real wall profile stays below the physical listening sails');
    for(const sail of sails){
      assert.ok(sail.children.filter(node=>node.isMesh).length>=4,
        'each animated object has a physical four-part silhouette, not a sprite');
@@ -62,6 +79,7 @@ test('real disclosed fossil sails have connected 3D carved mass, nonblocking roo
    assert.equal(JSON.stringify(state),frozen,'rendering never edits published engine source');
    world.update(published({runToken:'next-run',cells:[],visibleCells:[]}));
    assert.equal(world.stats().responsiveFossilSails,0,'new run discards prior physical art');
+   assert.equal(world.stats().fossilGalleryEdges,0,'new run never retains old cutaway masonry');
    assert.ok(pair(world).every(x=>!x),'unseen former cell cannot retain a reacting model');
  }finally{world.dispose();cleanup();}
 });
@@ -78,6 +96,7 @@ test('unsafe/disclosed source semantics and unknown fields cannot fabricate foss
        doors:[{a:10,b:11,open:false}]}),
    ]){
      world.update(state);
+     assert.equal(world.stats().fossilGalleryEdges,0,'no cutaway of an unsafe, undisclosed or genuine gate wall');
      assert.equal(world.stats().responsiveFossilSails,0,
        'no new physical event on undisclosed, hazardous, occupied or gate cells: '
          + JSON.stringify({cells:state.cells,visibleCells:state.visibleCells,keys:state.keys,doors:state.doors}));
@@ -87,6 +106,8 @@ test('unsafe/disclosed source semantics and unknown fields cannot fabricate foss
    world.update(unknown);
    assert.equal(world.stats().responsiveFossilSails,2,
      'only published walkable tile and disclosed impassable side control physical placement');
+   assert.equal(world.stats().fossilGalleryEdges,1,
+     'unknown private topology cannot add another physical wall cutaway');
    assert.equal(world.stats().renderedCells.length,1);
  }finally{world.dispose();cleanup();}
 });
