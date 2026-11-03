@@ -237,13 +237,25 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[]){
  batched(world,new THREE.CylinderGeometry(.31,.22,1,9),brass,vases,{floor});
  const buildTorch=(x,z,angle,h)=>{
   const group=new THREE.Group();group.position.set(x,0,z);group.rotation.y=angle;
+  // The fire basket has a visible, slender forged vertical support rooted in
+  // the existing real wall. Never suspend a floating torch above short ruins.
+  const stem=new THREE.Mesh(new THREE.CylinderGeometry(.052,.075,1.5,9),chrome);
+  stem.position.set(0,.80,-.045);group.add(stem);
+  const crook=new THREE.Mesh(new THREE.CylinderGeometry(.038,.038,.31,7),brass);
+  crook.rotation.x=Math.PI/2;crook.position.set(0,1.45,.12);group.add(crook);
   const holder=new THREE.Mesh(new THREE.CylinderGeometry(.10,.13,.36,8),brass);holder.position.y=1.58;group.add(holder);
   const cup=new THREE.Mesh(new THREE.CylinderGeometry(.2,.1,.12,9),chrome);cup.position.y=1.82;group.add(cup);
   const fire=new THREE.Mesh(new THREE.ConeGeometry(.15,.46,9),flameMaterial);fire.position.y=2.04;group.add(fire);
   const inner=new THREE.Mesh(new THREE.ConeGeometry(.065,.26,8),new THREE.MeshBasicMaterial({color:'#fff2c7',transparent:true,opacity:.87,depthWrite:false}));inner.position.y=1.99;group.add(inner);
   world.add(group);foregroundGroups.push(group);
-  if(flames.length<5){const torchLight=new THREE.PointLight(warmTorch,2.3,7.2,2);torchLight.position.set(x,2.1,z);world.add(torchLight)}
-  flames.push({fire,inner,phase:(h%37)*.33});return group;
+  let light=null;
+  if(flames.length<5){
+   light=new THREE.PointLight(warmTorch,2.1,7.2,2);
+   light.position.set(0,2.04,.12);group.add(light);
+  }
+  // Torch visibility and its actual light now obey the SAME cinematic cutaway.
+  // No invisible floating lights stay on after masonry hides a foreground prop.
+  flames.push({fire,inner,light,phase:(h%37)*.33});return group;
  };
  for(const [x,z,yaw,h] of pillars.slice(0,11)){
   const root=new THREE.Group();root.position.set(x,0,z);root.rotation.y=yaw;
@@ -261,10 +273,10 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[]){
   // Mount a pair of original flame sconces on genuine standing piers when
   // low, open ruin junctions leave no pillar-based torches. Deliberately
   // spread the two anchors across the level, not over the nearest hero.
-  const standing=wallFaces.filter(face=>face[4]>=1.65);
-  const available=standing.length?standing:wallFaces.filter(face=>face[4]>=1.25);
+  const standing=wallFaces.filter(face=>face[4]>=1.16);
+  const available=standing.length?standing:wallFaces;
   const stride=Math.max(1,Math.ceil(available.length/2));
-  for(let i=0;i<available.length&&flames.length<2;i+=stride){
+  for(let i=0;i<available.length&&flames.length<3;i+=stride){
    const face=available[i];
    buildTorch(face[0],face[2],Math.atan2(face[7]||0,face[8]||0),floor*31+i);
   }
@@ -370,7 +382,22 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[]){
   sceneMetrics.clearedForeground=cleared;
  }
 
- const animate=time=>{for(const p of flames){const t=time*5+p.phase,scale=1+Math.sin(t)*.13;p.fire.scale.y=scale;p.inner.scale.setScalar(.91+Math.sin(t+1.3)*.14)}};
- return {animate,cutaway,occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{biome:floor,vaultedFacadeOpenings:wallFaces.filter(f=>f[4]<1.2).length,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,wovenRugs:rugs.length,cutawayFloorBackings:backing.length,columnCapstones:columnCap.length,texturedSurfaces:floorDetails.length+wallFaces.length,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
+ // The same flames now tell the truth about the actual authoritative encounter:
+ // real telegraphed boss danger swells the room light, exposed recovery settles
+ // it, and defeat dims it. No synthetic boss cue, map edit, or new AI event.
+ let encounterLight=0;
+ const accept=s=>{
+  encounterLight=s?.phase==='intermission'?-.24:
+   Array.isArray(s?.bossWarning?.cells)&&s.bossWarning.cells.length?.34:
+   s?.bossRecovery?.remaining?-.12:0;
+  sceneMetrics.encounterTorchMood=encounterLight;
+  for(const p of flames)if(p.light)p.light.intensity=2.1*(1+encounterLight);
+ };
+ const animate=time=>{for(const p of flames){
+  const t=time*5+p.phase,scale=1+Math.sin(t)*.13;
+  p.fire.scale.y=scale;p.inner.scale.setScalar(.91+Math.sin(t+1.3)*.14);
+  if(p.light)p.light.intensity=2.1*(1+encounterLight)*(1+.035*Math.sin(time*2.5+p.phase));
+ }};
+ return {animate,accept,cutaway,occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{biome:floor,vaultedFacadeOpenings:wallFaces.filter(f=>f[4]<1.2).length,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,wovenRugs:rugs.length,cutawayFloorBackings:backing.length,columnCapstones:columnCap.length,texturedSurfaces:floorDetails.length+wallFaces.length,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
 }
 

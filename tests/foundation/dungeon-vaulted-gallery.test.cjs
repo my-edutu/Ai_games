@@ -78,3 +78,20 @@ test('a true traversable route guides four distinct vaulted architectural acts w
  assert.match(art,/architecturalProfiles:/);
  assert.doesNotMatch(art,/Math\.random|DungeonRuntime|fetch\(|performance\.now/);
 });
+
+// These are integrated world-geometry contracts; true visual proof remains in
+// the Chromium WebGL capture with non-zero window/torch metrics.
+test('low but genuine crypt walls support spaced 3D stained glass and original responsive light without altering AI',()=>{
+ const architecture=fs.readFileSync(path.join(root,'public/ai-dungeon/architecture.js'),'utf8');
+ const dressing=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ assert.match(architecture,/face\[4\]>=1\.16/);
+ assert.match(architecture,/buttressFoot/);
+ assert.match(architecture,/selected\.some\(p=>Math\.hypot/);
+ assert.match(dressing,/const standing=wallFaces\.filter\(face=>face\[4\]>=1\.16\)/);
+ assert.match(dressing,/group\.add\(light\)/);
+ assert.match(dressing,/const accept=s=>/);
+ assert.match(dressing,/bossWarning\?\.cells/);
+ assert.match(app,/world\.userData\.dressing\?\.accept\?\.\(s\)/);
+ assert.doesNotMatch(architecture+String(dressing),/Math\.random\(|DungeonRuntime\(|fetch\('/);
+});

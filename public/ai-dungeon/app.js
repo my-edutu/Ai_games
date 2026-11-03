@@ -765,6 +765,7 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
  combatDirector.recordDamage(damageBeats);
  combatDirector.recordEvasions(evasionBeats);
  world.userData.wardenRitual?.accept(s);
+ world.userData.dressing?.accept?.(s);
  soundstage?.acceptSnapshot(s);
  if(world.userData.courtShield){
   world.userData.courtShield.visible=Boolean(s.guardianWard);

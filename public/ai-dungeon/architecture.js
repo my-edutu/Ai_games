@@ -40,17 +40,27 @@ export function addDungeonWindows(world,faces,floor,biome,materials,geometries,t
  const tracery=new THREE.BoxGeometry(.045,.69,.045);
  const peakRib=new THREE.CylinderGeometry(.045,.045,.46,7);
  const corbel=new THREE.BoxGeometry(.20,.16,.26);
- geometries.push(jamb,arch,pane,keystone,sill,pier,finial,tracery,peakRib,corbel);
- // Only tall *physical* wall piers can carry a Gothic stained-glass window.
- // Shallow ruin fragments cannot support freestanding panes and finials.
- // Six original windows are spatial landmarks, not repeated view blockers.
- const mounted=faces.filter(face=>Array.isArray(face)&&face[4]>=1.65&&
+ // A narrow contiguous stone buttress reaches the genuine low wall plinth.
+ // It supports the pointed glass above the former 1.65m facade minimum,
+ // without erecting a full opaque slab that hides the moving party.
+ const buttressFoot=new THREE.BoxGeometry(.22,.64,.30);
+ geometries.push(jamb,arch,pane,keystone,sill,pier,finial,tracery,peakRib,corbel,buttressFoot);
+ // Each pane rises from a real impassable wall base at least 1.16m tall.
+ // The original narrow buttress foot carries the upper mullions and arch:
+ // a low open ruin is no longer falsely treated as unsupported empty air.
+ // Six widely spaced windows are actual 3D landmarks, not opaque walls.
+ const mounted=faces.filter(face=>Array.isArray(face)&&face[4]>=1.16&&
   Number.isFinite(face[0])&&Number.isFinite(face[2])&&
   Math.abs(face[0])<=10&&Math.abs(face[2])<=10);
  let count=0;
+ const selected=[];
  const stride=Math.max(1,Math.ceil(mounted.length/6));
  for(let i=0;i<mounted.length&&count<6;i+=stride){
-  const face=mounted[i],group=new THREE.Group();
+  const face=mounted[i];
+  // Original windows should orient a journey, not create a continuous
+  // repetitive wall of glass or mask a single combat sightline.
+  if(selected.some(p=>Math.hypot(p[0]-face[0],p[1]-face[2])<2.25))continue;
+  const group=new THREE.Group();
   group.position.set(face[0],0,face[2]);
   // Face the walkable corridor, not an arbitrary world direction; otherwise
   // the solid wall hides half the panes in actual WebGL screenshots.
@@ -71,6 +81,7 @@ export function addDungeonWindows(world,faces,floor,biome,materials,geometries,t
   for(const side of [-1,1]){
    add(jamb,frame,side*.34,1.34,.11);
    add(pier,stone,side*.45,1.42,.015);
+   add(buttressFoot,stone,side*.45,.48,.015);
   }
   add(sill,stone,0,.89,.08);
   const crown=add(keystone,frame,0,2.17,.13);
@@ -80,7 +91,7 @@ export function addDungeonWindows(world,faces,floor,biome,materials,geometries,t
    spire.rotation.z=side*.17;
   }
   // Never create per-window materials, lights or geometries.
-  world.add(group);occluders.push(group);count++;
+  world.add(group);occluders.push(group);selected.push([face[0],face[2]]);count++;
  }
  return count;
 }
