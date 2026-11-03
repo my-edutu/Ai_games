@@ -281,6 +281,21 @@ export function createMazeWorld(options = {}) {
       }
     }
   }
+  // Authentic gate screenshots showed foreground hedge masking Pip. A public
+  // gate forecourt now uses REAL low stone and root-connected greenery in
+  // place of a tall foliage curtain on adjacent KNOWN solid walls only.
+  // Reuses existing GPU instance batches, with no collision or route change.
+  function gateForecourtPlanter(x, z, dx, dz, cell) {
+    const ex = x + dx * 1.19, ez = z + dz * 1.19, alongX = !!dz;
+    add(box, deepStone, ex, .88, ez, alongX ? 1.86 : .33, .22, alongX ? .33 : 1.86, cell);
+    add(box, lightStone, ex, 1.005, ez, alongX ? 1.88 : .36, .055, alongX ? .36 : 1.88, cell);
+    add(box, moss, ex, 1.046, ez, alongX ? 1.66 : .23, .035, alongX ? .23 : 1.66, cell);
+    for (let i = -1; i <= 1; i++) {
+      const px = ex + (alongX ? i * .44 : dx * .09);
+      const pz = ez + (alongX ? dz * .09 : i * .44);
+      add(sphere, i === 0 ? moss : leafDark, px, 1.12, pz, .15, .13, .15, cell);
+    }
+  }
   function wall(x, z, horizontal, id, cell) {
     const h = .91 + variation(id + 22) * .12;
     const length = CELL_SIZE - .13, thickness = .31;
@@ -519,6 +534,24 @@ export function createMazeWorld(options = {}) {
     clear(terrain); batchData = new Map(); renderedCells = s.cells.map(c => c.cell); stairEdges = []; stairBalustrades = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0;
     const edges = new Set(), columns = new Set(), landmarkSites = new Map();
     const knownByCell = new Map(s.cells.map(c => [c.cell, c]));
+    // The public snapshot is the ONLY source of foreground cutaway geometry.
+    // A door is usable here only when BOTH endpoints are currently disclosed
+    // as real adjacent walkable cells. This never infers an unseen passage.
+    const gateApproachCells = new Set();
+    const adjacent = (a, b) => Math.abs(a % s.width - b % s.width)
+      + Math.abs(Math.floor(a / s.width) - Math.floor(b / s.width)) === 1;
+    for (const door of Array.isArray(s.doors) ? s.doors : []) {
+      if (!Number.isSafeInteger(door?.a) || !Number.isSafeInteger(door?.b)
+        || door.a < 0 || door.b < 0 || !adjacent(door.a, door.b)
+        || !knownByCell.has(door.a) || !knownByCell.has(door.b)
+        || knownByCell.get(door.a).blocked || knownByCell.get(door.b).blocked) continue;
+      for (const id of [door.a, door.b]) {
+        gateApproachCells.add(id);
+        for (const neighbor of knownByCell.get(id).neighbors || [])
+          if (knownByCell.has(neighbor) && adjacent(id, neighbor))
+            gateApproachCells.add(neighbor);
+      }
+    }
     for (const c of s.cells) {
       if (c.neighbors.includes(c.cell - s.width)) continue;
       const col = c.cell % s.width, row = Math.floor(c.cell / s.width);
@@ -689,7 +722,8 @@ export function createMazeWorld(options = {}) {
         const faceSeed = c.cell * 31 + side + 130;
         if (n >= 0 && gardenPatch(c.cell) > .38
           && variation(faceSeed) > (dx + dz > 0 ? .29 : .56)) {
-          coastalGarden(x, z, dx, dz, c.cell * 71 + side * 19, c.cell, 1.05);
+          if (gateApproachCells.has(c.cell)) gateForecourtPlanter(x, z, dx, dz, c.cell);
+          else coastalGarden(x, z, dx, dz, c.cell * 71 + side * 19, c.cell, 1.05);
         }
         const region = `${Math.floor(col / 6)}:${Math.floor(row / 6)}`;
         if (side === 0 && landmarkSites.get(region)?.cell === c.cell) {
@@ -703,7 +737,7 @@ export function createMazeWorld(options = {}) {
           const ck = `${px.toFixed(2)}:${pz.toFixed(2)}`;
           if (!columns.has(ck)) { column(px, pz, c.cell, c.cell * 6 + side); columns.add(ck); }
         }
-        if (gardenPatch(c.cell) > .65 && variation(c.cell + side * 41) > .55) plant(x + dx * .98 + dz * .64, .015, z + dz * .98 + dx * .64, c.cell * 17 + side, c.cell, 1.05);
+        if (!gateApproachCells.has(c.cell) && gardenPatch(c.cell) > .65 && variation(c.cell + side * 41) > .55) plant(x + dx * .98 + dz * .64, .015, z + dz * .98 + dx * .64, c.cell * 17 + side, c.cell, 1.05);
       }
       // Only the fixed, public board perimeter may carry these shore planters.
       // Unknown neighboring cells *within* the board never receive greenery.
@@ -1401,8 +1435,15 @@ export function createMazeWorld(options = {}) {
     // disclosed trap, checkpoint or clue on an already-known cell must rebuild
     // the actual instanced court, not leave a decorative shell under danger.
     // These are ONLY sanitized public cell properties, never private map data.
+    const knownCellsForGate = new Set(s.cells.map(c => c.cell));
+    const gateKey = (Array.isArray(s.doors) ? s.doors : [])
+      .filter(d => Number.isSafeInteger(d?.a) && Number.isSafeInteger(d?.b)
+        && d.a >= 0 && d.b >= 0 && knownCellsForGate.has(d.a)
+        && knownCellsForGate.has(d.b) && Math.abs(d.a % s.width - d.b % s.width)
+          + Math.abs(Math.floor(d.a / s.width) - Math.floor(d.b / s.width)) === 1)
+      .map(d => doorEdgeId(d.a, d.b)).sort().join('.');
     const terrainKey = s.cells.map(c =>
-      `${c.cell}/${c.neighbors.join('.')}/${+c.blocked}/${+!!c.trap}/${+!!c.checkpoint}/${+!!c.clue}`).join('|');
+      `${c.cell}/${c.neighbors.join('.')}/${+c.blocked}/${+!!c.trap}/${+!!c.checkpoint}/${+!!c.clue}`).join('|') + '#' + gateKey;
     if (terrainKey !== terrainSignature) { rebuildTerrain(s); terrainSignature = terrainKey; }
     const objectKey = JSON.stringify([s.keys, s.doors, s.inventory, s.exitCell, s.cells.map(c => [c.cell, c.trap, c.checkpoint, c.clue])]);
     if (objectKey !== objectSignature) { rebuildObjects(s); objectSignature = objectKey; }
