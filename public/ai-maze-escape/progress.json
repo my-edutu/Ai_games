@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-03T11:31:28.743Z",
+  "updatedAt": "2026-11-03T12:40:07.267Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass107 exact-source focused WebGL run 41614656500 SUCCESS at a425763, original artifact 13220269001 independently verified 23/23 distinct full-resolution PNG SHA-256 against dated sidecars/genuine same-run gate manifest (24 references with repeated MID). Real 1280 gate MID 2026-11-03T09:59:26.071Z SHA 166c8b8006d7331466328af467f5db19195a40e50ed188d7f3c7d2a99520098f at true 0.5100 lift. Native 320 guardian fully framed, 390 genuine collection 8 fragments/69.31px and compact actionable HUD. Authentic image critic: gate camera is frontal but tall foreground wall garden covers much of Pip. Pass108 source now replaces only genuinely public gate approach tall foliage with low physical planters, no public/private topology or AI changes. New Pass108 Three tests and current 320/390/844/1280 Playwright screenshot approval PENDING at runs 41627915220, 41627915449; no independent blind critics (workspace disconnected). Fixed Nintendo benchmark NOT MET. CPU-throttled SwiftShader timing not product GPU FPS. Draft PR #53 open unmerged undeployed."
+    "summary": "Pass108 exact-source WebGL run 41628224872 SUCCESS at b73822f; independently rehashed ALL 23/23 native source-bound PNGs from artifact 13227029821 against UTC JSON and real three-frame gate manifest. Original 1280 gate MID SHA c65fd2aa96ad1b77b6f46aea445fc57eb44b862b69d93a97c519bd05393fc1d8. Direct Pass107/108 original native gate A/B: 3.79% BEFORE, 4.56% MID, 3.73% AFTER pixels differ >12/255. Lower foliage is genuinely visible, BUT the near architectural parapet STILL masks Pip's torso/legs during opening. 320 genuine Follow guardian whole (SHA 193611461be0867c67bd7da72c5463246271fdc3550b6d6063abc846e137d940); 390 witnessed key remains eight shards. Pass108 whole-repo CI 41628224790 CANCELLED, not green. Pass109 production candidate uses taller original 3D gate crane plus stage-bias-free publicly witnessed actor/arch focus; production helper/source critic added, exact new-source browser screenshots and CI PENDING. Workspace subagents/Ultracode unavailable via >300-second disconnected tunnel; no blind A/B or hardware GPU inference. Fixed Nintendo Captain Toad artistic bar NOT MET; PR #53 stays draft/unmerged/undeployed."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass109 2026-11-03 UTC: independently retrieved Pass108 original artifact 13227029821 from successful WebGL 41628224872 and verified 23/23 genuine full-resolution PNG SHA-256 against dated JSON/three-frame manifest; zero mismatches. A/B vs authentic Pass107 gate: visible low foliage now present, but near physical balustrade STILL occludes Pip (3.79% before, 4.56% MID, 3.73% after significantly different pixels, not beauty scores). Physical camera response: only a same-run public gate CLOSED→OPEN Follow beat uses a higher 3D crane (21→34 vertical, unchanged public-axis azimuth) and stage-bias-free real Pip/arch midpoint for visibility. Ordinary closed gate, threat, manual/overview, reduced-motion and authoritative AI still unchanged. New production-only source regressions cover both axes, invalid cues, bounded focus, transition gating. New source WebGL/independent image critic PENDING; workspace subagents/Ultracode disconnected. Benchmark NOT MET.",
     "Pass108 2026-11-03 UTC: independently downloaded and verified Pass107 focused exact-source original artifact 13220269001: all 23 distinct full-resolution 320/390/844/1280 PNG SHA-256 matched UTC metadata and 1280 three-frame gate manifest. Real MID gate 09:59:26.071Z SHA 166c8b8006d7331466328af467f5db19195a40e50ed188d7f3c7d2a99520098f, true .5100 lift. Lead image critic saw actual front-facing gate but tall hedge blocked Pip. Built first physical low garden forecourt on known public-gate adjacent walls via world.js, eliminating tall foliage without changing authority/occlusion thresholds or other world gardens. Added separate real Three tests and source fingerprint invalidation for new PUBLIC known door endpoints. Original new-source screenshot acceptance and CI pending; independent subagents/Ultracode disconnected. Benchmark NOT MET; PR draft unmerged/undeployed.",
     "Pass106 2026-11-03: Independently recovered and rehashed 23/23 ACTUAL Pass105 original native 320/390/844/1280 WebGL PNGs from focused workflow 41600127825 artifact 13213359067; repaired browser now truly draws full 3D. Lead art critic still rejects Nintendo quality from actual images: tiny ordinary figures, overlapping Pip/key and repeated court silhouette. Built new original gate physical performance 9b6a172: two seven-mesh tideglass wings hinged outside the truthful gate centerline, mirroring real publicly witnessed CLOSED→OPEN portcullis; initially-open doors static, unknown doors absent; no new HUD, private source, AI actions, collision, materials or geometry classes. New production Three regression test added. Pass106 new-source browser image acceptance pending; not a win.",
     "Pass105 2026-11-03 UTC: inspected current PR head and GitHub Actions job logs, found genuine blank playable 3D screen: Pass103 focused 41590979922 and Pass104 focused 41592753200 FAILED 30-second and 480-second Playwright WebGL-frame waits, with NO screenshot artifact. Root cause: production HTTP public asset allowlist missed new transitive pickup-story-camera.mjs import; scene dynamic import 404, fallback map shown. Fixed actual production allowlist in 3b8dd1e; separate browser critic 2d3cc0d now checks 200 JavaScript module and scene import via live HTTP. Previous strict native visibility, HUD and privacy thresholds unchanged. New-source CI and real images still pending, benchmark NOT MET. See docs/reviews/maze-3d/pass-105-transitive-module-browser-blank-stage-repair-2026-11-03.md.",
@@ -200,6 +201,7 @@
     "Fourteenth pass: the original disclosed closed gate's coral crossed brace and gold lock now sit on the camera-facing side of its physical bars, for both door orientations; open or undisclosed barriers remain absent. Exact-source CI passed 523 Node and 25 browser checks. Real same-seed/tick21 1280×900 screenshot at 2026-10-31T05:04:37.546Z (SHA256 3ef0814c04f38a2465687b7feded50c6d8b7dc24c3da6ed2278de74f356ef668) shows the X clearly but gate is small at the far left and Pip partly obscured. Nintendo remains stronger; no independent critic or GPU performance claim."
   ],
   "nextGaps": [
+    "Pass109: independently retrieve and hash ORIGINAL source-bound WebGL 41637420754 or latest-current-head focused artifact (never reuse Pass108), inspect 1280 real gate BEFORE/MID/AFTER at full pixels for Pip face/torso/legs and unobscured portcullis; compare directly with Pass108 13227029821 and official Nintendo Captain Toad. Check 320/390/844/1280 real viewport, uncropped guardian/Pip, compact HUD/privacy, both orientations in source tests, no unexpected zoom/crop. If crane does not unmask the actor, reject and implement a genuinely different physical over-the-shoulder composition or forecourt sightline solution, not a weaker acceptance bar. Then build major distinct world/AI interactions and character animation.",
     "Pass108: retrieve current source WebGL screenshots from workflow 41627915220 and independently SHA-256 check full native 1280 gate before/mid/after and 320/390/844; compare physical Pip silhouette/forecourt vs authentic Pass107 (artifact 13220269001) and original official Nintendo gameplay. Reject new clipping, disappearing authored action or HUD/privacy issues; source tests alone do not count as artistic win. Next build richly differentiated physical rooms, stronger meaningful AI/environment interactions and expressive Pip/Thornback after this sightline correction.",
     "Pass106: verify CI and retrieve original source-bound full-size 1280 BEFORE/MID/AFTER and 320/390/844 entire-actor gate images for physical wing animation; recompute 23/23 PNG SHA pairs, compare real source-matched screenshot and actual Nintendo reference without cropping. Reject tiny, misleading or actor-obscuring wings. Continue bigger distinctive authored playable areas, connected characters, public autonomous behavior and strict low-text HUD. No false win from passing source tests.",
     "Pass103 review gate: retrieve original source-bound native 320x740, 390x844, 844x390, 1280x900 PNGs and dated SHA manifests from current focused WebGL CI; compare actual 390 pickup physical Pip two-eye/face silhouette and separated connected key, theatre overlap and strong 3D action vs Pass102 original AND official Nintendo Captain Toad gameplay. Keep strict <6 target, <7 rendered, >0.78 real Pip-facing camera, >=6 physical shards and >60px spread, guardian full-body, compact 44px HUD/privacy/reduced motion/fallback. Fix any REAL clipping or occlusion in physical world/camera, not weakened tests. After visual gate, major distinctive authored interactive regions/character acting remain.",
@@ -217,6 +219,13 @@
     "Pass91: inspect current-source 320/390/844/1280, witnessed key and moving gate WebGL originals; independently verify dated SHA source identities, strict viewport/model bounds and real HUD coverage; compare same-seed motion settings to Pass90 Nintendo/old screen; reject if tide-watch spires are off-camera, false goals or obstruct actual 3D action. Full whole-CI, detached fresh-context critic and Ultracode outstanding."
   ],
   "reviews": [
+    {
+      "title": "Pass109 original Pass108 23/23 SHA audit; real gate crane candidate",
+      "reviewer": "Lead original-source image A/B critic; independent fresh-context subagent unavailable (coding tunnel disconnected)",
+      "verdict": "Pass108 focused source WebGL VERIFIED; physical foliage improved but Pip still occluded. Pass109 production camera/tests committed, new-source image/CI PENDING. Nintendo overall artistic bar NOT MET.",
+      "date": "2026-11-03T12:40:07.267Z",
+      "summary": "Authentic Pass107↔108 1280 gate before/mid/after pixel comparison; 4.56% MID changed significantly but foreground balustrade still masks Pip. New high physical 3D crane and bounded disclosed actor/arch focus only on genuine same-run gate opening. See docs/reviews/maze-3d/pass-109-pass108-native-crane-candidate-2026-11-03.md."
+    },
     {
       "title": "Pass108 original Pass107 23/23 native image audit and physical gate forecourt",
       "reviewer": "Lead genuine source-bound image review; fresh-context independent worker unavailable (disconnected workspace)",
@@ -521,6 +530,13 @@
   ],
   "verification": [
     {
+      "name": "Pass108 genuine full-resolution 23/23 hash verification and Pass109 crane new-source acceptance",
+      "status": "Pass108 focused WebGL 41628224872 SUCCESS at b73822f, original artifact 13227029821 23/23 PNGs match UTC sidecar and gate manifest; Pass108 whole CI 41628224790 CANCELLED. Pass109 focused 41637420754 & whole CI 41637420811 IN PROGRESS at review, not approved.",
+      "detail": "Real 1280 gate MID hash c65fd2aa96ad1b77b6f46aea445fc57eb44b862b69d93a97c519bd05393fc1d8; 320 and 390 original clips/physical key preserved; Pass109 must prove physical hero unmasking without changing strict thresholds. Independent blind A/B unavailable and SwiftShader times not GPU FPS.",
+      "sourceCommit": "d523ba9fedb92c333b36d8e3013975cbea3c85d3",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41628224872/artifacts/13227029821"
+    },
+    {
       "name": "Pass107 authentic native 23/23 PNG SHA verified; Pass108 low gate forecourt new-source verification pending",
       "status": "Pass107 focused 41614656500 SUCCESS at a425763; actual artifact 13220269001 23/23 native screenshots matched dated SHA; new source focused 41627915220 + full CI 41627915449 queued at initial check, not approved.",
       "detail": "Original 1280 MID 2026-11-03T09:59:26.071Z with gate real half-lift .5100; 390 genuine key shards 8 and Pip whole; 320 real guardian and hero entire with 44px controls. Tall foliage still occludes the gate shot; new lower physical forecourt requires authentic full-resolution screenshot comparison. No independent blind A/B or hardware GPU timing.",
@@ -815,6 +831,10 @@
     }
   ],
   "references": [
+    {
+      "title": "Pass108 genuine 23/23 native WebGL, 1280 gate before/mid/after and 320/390/844 real screenshots",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/41628224872/artifacts/13227029821"
+    },
     {
       "title": "Pass107 23/23 exact-source full native browser screenshots and real gate sequence",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/41614656500/artifacts/13220269001"
