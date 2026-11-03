@@ -198,6 +198,29 @@ function guardedEvasion(state:TowerState,obs:TowerObservation,wanted:TowerAction
 }
 function incomingProjectile(obs:TowerObservation){return obs.projectiles.filter(x=>x.owner==='enemy').find(x=>Math.abs(x.position.y-obs.player.position.y)<30000&&Math.abs(x.position.x-obs.player.position.x)<65000&&Math.sign(x.velocity.x)===Math.sign(obs.player.position.x-x.position.x))}
 function immediateHazard(obs:TowerObservation){const p=obs.player;return obs.hazards.filter(h=>h.active&&Math.abs((h.y+h.height/2)-p.position.y)<42000).sort((a,b)=>Math.abs((a.x+a.width/2)-p.position.x)-Math.abs((b.x+b.width/2)-p.position.x)||a.id.localeCompare(b.id)).find(h=>Math.abs((h.x+h.width/2)-p.position.x)<62000)}
+// During the approach to a CURRENT known hazardous landing, the observed
+// clear-lane controller already chooses a body-width collision-safe opening.
+// A broad 62k proximity reflex used to preempt that plan several ticks before
+// possible contact, oscillating a real climber back into the gap. Preserve
+// immediate dodging for ACTUAL body overlap and unrelated approaching hazards;
+// merely seeing active spikes in front of the safe landing is not a collision.
+function observedSafeLandingOwnsHazard(state:TowerState,obs:TowerObservation,
+  hazard:TowerObservation['hazards'][number]){
+  if(obs.player.grounded)return false;
+  const target=currentPlatform(obs,state.ai.targetPlatformId);
+  if(!target)return false;
+  const top=target.y+target.height;
+  if(hazard.y>=top+2*state.player.halfHeight||
+    hazard.y+hazard.height<=top||
+    hazard.x>=target.x+target.width||
+    hazard.x+hazard.width<=target.x)return false;
+  const p=obs.player;
+  const overlapping=p.position.x+state.player.halfWidth>hazard.x&&
+    p.position.x-state.player.halfWidth<hazard.x+hazard.width&&
+    p.position.y+state.player.halfHeight>hazard.y&&
+    p.position.y-state.player.halfHeight<hazard.y+hazard.height;
+  return !overlapping&&observedLandingCorridor(state,obs,target).hazardRoute;
+}
 function nearbyEnemy(obs:TowerObservation,reach:number){return obs.enemies.filter(e=>e.active&&Math.abs(e.position.y-obs.player.position.y)<36000&&Math.abs(e.position.x-obs.player.position.x)<=reach).sort((a,b)=>Math.abs(a.position.x-obs.player.position.x)-Math.abs(b.position.x-obs.player.position.x)||a.id.localeCompare(b.id))[0]}
 // A wounded autonomous climber may secure a real health pickup on its PRESENT
 // supporting deck before committing to another exposed leap. No invented loot,
@@ -255,7 +278,8 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
   const tactical=options.tactical!==false;
   if(observation.upgradeOffers.length){const selected=chooseTowerUpgrade(state);return{action:action(0,{upgradeChoice:selected?.id}),intent:{mode:'choosing-upgrade',summary:selected?`Selecting ${selected.name}`:'Waiting for a valid upgrade',confidence:1,fallbackUsed:false}}}
   const projectile=incomingProjectile(observation);if(projectile){const away=moveSign(observation.player.position.x-projectile.position.x),move=tactical?guardedEvasion(state,observation,away):away;return{action:action(move,{jump:observation.player.grounded,dash:!observation.player.grounded&&observation.player.dashCooldown===0}),intent:{mode:'evading-projectile',summary:move!==away?'Guarding against a shot without leaving the deck':'Evading an incoming projectile',confidence:.98,fallbackUsed:false}}}
-  const hazard=immediateHazard(observation);if(hazard){const center=hazard.x+hazard.width/2,away:TowerAction['move']=center>=observation.player.position.x?-1:1,move=tactical?guardedEvasion(state,observation,away):away;return{action:action(move,{jump:observation.player.grounded}),intent:{mode:'evading-hazard',summary:move!==away?'Jumping clear without abandoning the deck':`Avoiding ${hazard.kind}`,confidence:.96,fallbackUsed:false}}}
+  const hazard=immediateHazard(observation);if(hazard&&
+     (!tactical||!observedSafeLandingOwnsHazard(state,observation,hazard))){const center=hazard.x+hazard.width/2,away:TowerAction['move']=center>=observation.player.position.x?-1:1,move=tactical?guardedEvasion(state,observation,away):away;return{action:action(move,{jump:observation.player.grounded}),intent:{mode:'evading-hazard',summary:move!==away?'Jumping clear without abandoning the deck':`Avoiding ${hazard.kind}`,confidence:.96,fallbackUsed:false}}}
   const windup=tactical?imminentTelegraph(state,observation):undefined;
   if(windup)return{action:action(guardedEvasion(state,observation,0),{jump:true}),
     intent:{mode:'evading-telegraph',summary:`Jumping clear of ${windup.kind} fire`,confidence:.96,fallbackUsed:false}};
