@@ -1026,6 +1026,13 @@ test('a real close public encounter frames both autonomous actors and saves date
   const midGateImage=path.join(dir,'public-gate-mid-lift-1280.png');
   await page.screenshot({path:midGateImage,fullPage:true});
   const midGateAfterScreenshot=await page.evaluate(()=>window.__MAZE_3D__);
+  await expect(page.locator('#goal-label')).toHaveText('PASSAGE OPEN');
+  await expect(page.locator('#goal-title')).toHaveText('Gate opened');
+  await expect(page.locator('#objective')).toHaveText('Explore onward');
+  const gateMission=await page.locator('#goal-title').evaluate(el=>({
+    clipped:el.scrollWidth>el.clientWidth+1,value:el.textContent.trim()}));
+  expect(gateMission.clipped,
+    'genuine gate opening must have an unclipped compact objective').toBe(false);
   // Persist the authentic failed frame's source hash and diagnostic too.
   // A rejection must be inspectable, not vanish with the failed assertion.
   fs.writeFileSync(path.join(dir,'public-gate-mid-lift-1280.json'),JSON.stringify({

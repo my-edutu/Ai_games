@@ -293,3 +293,11 @@ body[data-high-contrast="true"] #broadcast[data-ux-revision="4"] #hud :is(#time,
 body[data-high-contrast="true"] #broadcast[data-ux-revision="4"] #captions #caption{
   color:#fff;
 }
+
+/* Physical gate action, not another dashboard panel. */
+#broadcast[data-ux-revision="4"][data-gate-moment="true"] #hud .mission-block{
+  border-left-color:#a7f5da;background:rgba(10,53,48,.93);
+}
+body[data-high-contrast="true"] #broadcast[data-ux-revision="4"][data-gate-moment="true"] #hud .mission-block{
+  background:#061913;border-color:#ffefb0;
+}

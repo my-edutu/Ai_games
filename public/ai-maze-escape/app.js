@@ -1,6 +1,6 @@
 import { computePublicView, drawMinimap, publicObjective, publicHeldGateStatus, publicKeyCollectionMoment } from './map-view.mjs';
 import { createMazeAudio } from './audio.js';
-import { advanceGateVisualClock, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
+import { advanceGateVisualClock, PUBLIC_PICKUP_VISUAL_SECONDS, observedGateOpenings } from './gate-moment.mjs';
 
 const MAX_TRAIL=240;
 const POLL_DELAY_MS=180;
@@ -14,7 +14,7 @@ const query=new URLSearchParams(location.search);
 const motionPreference=matchMedia('(prefers-reduced-motion: reduce)');
 const settings={quality:query.get('quality')==='high'?'high':'auto',reducedMotion:query.get('reducedMotion')==='1'||motionPreference.matches,highContrast:query.get('highContrast')==='1',muted:true,cleanFeed:query.get('cleanFeed')==='1'};
 const audio=createMazeAudio();
-let frame=null, scene=null, fallbackCanvas=null, pollTimer=0, recoveryTimer=0, requestController=null, stopped=false, raf=0, rendererState='loading',cameraMode=query.get('camera')==='overview'?'overview':query.get('camera')==='detail'?'detail':'follow', lastCaption='', lastRunToken='', captionSource='', captionUntil=0, wasInDanger=false, failedPolls=0, initialising=false, pickupMilestone=null;
+let frame=null, scene=null, fallbackCanvas=null, pollTimer=0, recoveryTimer=0, requestController=null, stopped=false, raf=0, rendererState='loading',cameraMode=query.get('camera')==='overview'?'overview':query.get('camera')==='detail'?'detail':'follow', lastCaption='', lastRunToken='', captionSource='', captionUntil=0, wasInDanger=false, failedPolls=0, initialising=false, pickupMilestone=null, gateMilestone=null;
 let hudVisualTime=0, lastHudRenderNow=0;
 
 function press(id,value,label){const button=byId(id);if(!button)return;button.setAttribute('aria-pressed',String(value));if(label){button.setAttribute('aria-label',label);button.title=label}}
@@ -62,7 +62,7 @@ function formatTime(ticks,interval=360){
     : `${Math.floor(seconds/60)}:${part(seconds%60)}`;
 }
 const intentLabels={'exploring':'Exploring','returning-key':'Find key','unlocking-route':'At gate','searching-exit':'To exit','evading-threat':'Evading','revising-map':'Rerouting','fallback':'Exploring','escaped':'Escaped'};
-const goals={'exploring':'Find a passage','returning-key':'Find key','unlocking-route':'Gate ahead','searching-exit':'Find the exit','evading-threat':'Avoid warden','revising-map':'New route','fallback':'Explore','escaped':'Escaped'};
+const goals={'exploring':'Find passage','returning-key':'Find key','unlocking-route':'Gate ahead','searching-exit':'Find the exit','evading-threat':'Avoid warden','revising-map':'New route','fallback':'Explore','escaped':'Escaped'};
 function viewerCaption(value){
   if(/^Key collected:/i.test(value))return 'Pip found a key.';
   if(/^Route unlocked:/i.test(value))return 'A locked passage opened.';
@@ -78,6 +78,18 @@ function update(value){
   // key shards also earns a single brief game HUD beat. No hidden state or
   // authoritative simulation time is involved.
   const observedPickup=publicKeyCollectionMoment(frame?.snapshot,snapshot);
+  // A confirmed same-run CLOSED->OPEN passage gets one short action chip:
+  // no phantom gate, hidden-map reveal, extra panel or invented AI command.
+  const witnessedOpenings=observedGateOpenings(frame?.snapshot,snapshot);
+  if(gateMilestone && (gateMilestone.runToken!==snapshot.runToken || snapshot.result
+    || !snapshot.doors.some(d=>d.open
+      && ((d.a===gateMilestone.a && d.b===gateMilestone.b)
+        || (d.b===gateMilestone.a && d.a===gateMilestone.b)))))
+    gateMilestone=null;
+  if(witnessedOpenings.length && snapshot.lifecycle==='running'){
+    const gate=witnessedOpenings[0];
+    gateMilestone={runToken:snapshot.runToken,a:gate.a,b:gate.b,until:hudVisualTime+1.35};
+  }
   if(pickupMilestone && (pickupMilestone.runToken!==snapshot.runToken || snapshot.result))pickupMilestone=null;
   if(observedPickup && snapshot.lifecycle==='running')
     pickupMilestone={runToken:snapshot.runToken,until:hudVisualTime+PUBLIC_PICKUP_VISUAL_SECONDS};
@@ -109,13 +121,17 @@ function update(value){
   const keyedSealedGate=!ended && !exposedDanger && !landmark && publicHeldGateStatus(snapshot);
   // Danger, termination and a currently matching CLOSED lock outrank a
   // collectible celebration; AI intent continues to report its real plan.
-  const freshKey=!ended && !exposedDanger && !keyedSealedGate
+  const freshGate=!ended && !exposedDanger && !keyedSealedGate
+    && gateMilestone?.runToken===snapshot.runToken
+    && hudVisualTime<gateMilestone.until;
+  elements.broadcast.dataset.gateMoment=String(freshGate);
+  const freshKey=!ended && !exposedDanger && !keyedSealedGate && !freshGate
     && pickupMilestone?.runToken===snapshot.runToken
     && hudVisualTime<pickupMilestone.until;
-  byId('goal-label').textContent=ended?'Journey result':exposedDanger?'Immediate danger':keyedSealedGate?'Known sealed gate':freshKey?'KEY FOUND':landmark?'Discovered landmark':'Current goal';
-  byId('goal-title').textContent=ended?(escaped?'Escaped':'Run ended'):exposedDanger?'Avoid warden':keyedSealedGate?'Key for gate':freshKey?'Key collected':landmark?(landmark.kind==='key'?'Key spotted':'Exit spotted'):goals[snapshot.intent.mode]||'Find the exit';
+  byId('goal-label').textContent=ended?'Journey result':exposedDanger?'Immediate danger':keyedSealedGate?'Known sealed gate':freshGate?'PASSAGE OPEN':freshKey?'KEY FOUND':landmark?'Discovered landmark':'Current goal';
+  byId('goal-title').textContent=ended?(escaped?'Escaped':'Run ended'):exposedDanger?'Avoid warden':keyedSealedGate?'Key for gate':freshGate?'Gate opened':freshKey?'Key collected':landmark?(landmark.kind==='key'?'Key spotted':'Exit spotted'):goals[snapshot.intent.mode]||'Find the exit';
   byId('intent-label').textContent=ended?'Result':'Pip';
-  byId('objective').textContent=ended?(escaped?'Exit reached':'Next run soon'):exposedDanger?'Keep clear':landmark?(landmark.steps===0?'At the landmark':`${landmark.steps} known step${landmark.steps===1?'':'s'} away`):keyedSealedGate?'Gate still closed':'Explore';
+  byId('objective').textContent=ended?(escaped?'Exit reached':'Next run soon'):exposedDanger?'Keep clear':freshGate?'Explore onward':landmark?(landmark.steps===0?'At the landmark':`${landmark.steps} known step${landmark.steps===1?'':'s'} away`):keyedSealedGate?'Gate still closed':'Explore';
   if(freshKey)byId('objective').textContent='Keep exploring';
   // A witnessed key pickup should not show a second visible "Find key" call
   // directly below "Key collected". Keep the original autonomous strategy
