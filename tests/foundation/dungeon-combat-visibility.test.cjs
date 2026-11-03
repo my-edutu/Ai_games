@@ -49,3 +49,40 @@ test('costume bodies have trimmed identity shapes without changing real GLB anim
  assert.match(models,/plate:new THREE\.IcosahedronGeometry\(\.5,0\)/);
  assert.match(models,/bindRigWardrobe\(actor\)/);
 });
+
+
+test('the physical cinematic recess identifies only real legal combat participants and preserves five-subject bound',async()=>{
+ const {planEncounterSightlines,planCinematicSilhouetteRecess}=await load();
+ const state=s();state.tick=20;state.phase='exploring';
+ state.units[0].action='attack';state.units[0].targetId='revenant1';state.units[0].actionTick=20;
+ const immutable=JSON.stringify(state),base=planEncounterSightlines(state,{x:0,z:0});
+ const staged=planCinematicSilhouetteRecess(state,base);
+ assert.equal(staged.length,4);
+ assert.equal(staged[0].silhouetteRecess,true);
+ assert.equal(staged[0].combatRecess,true);
+ assert.ok(staged.some(p=>p.x===1&&p.z===0&&p.combatRecess===true),
+  'the real lawful target enters the same foreground clearing as the attacker');
+ assert.equal(JSON.stringify(state),immutable,'render composition cannot alter authoritative state');
+ assert.deepEqual(planCinematicSilhouetteRecess(state,base),staged);
+ const full=base.concat([{x:6,z:6},{x:7,z:7}]);
+ assert.equal(planCinematicSilhouetteRecess(state,full).length,5,'never expand a full scene budget');
+});
+
+test('cues are never invented behind walls or for dead enemies; travel and defeat retain actor sightlines',async()=>{
+ const {planEncounterSightlines,planCinematicSilhouetteRecess}=await load();
+ const state=s();state.tick=20;state.phase='exploring';
+ const base=planEncounterSightlines(state,{x:0,z:0});
+ const idle=planCinematicSilhouetteRecess(state,base);
+ assert.ok(idle.every(p=>p.silhouetteRecess===true),'all real living heroes gain foreground body clearance');
+ state.map=state.map.map((row,z)=>z===9?row.slice(0,9)+'#'+row.slice(10):row);
+ const blocked=planCinematicSilhouetteRecess(state,base);
+ assert.ok(!blocked.some(p=>p.x===1&&p.z===0&&p.combatRecess===true),
+  'a distant enemy may not acquire an invented camera combat chapter through a wall');
+ state.phase='intermission';state.units.filter(u=>u.faction==='party').forEach(u=>u.hp=0);
+ const fallen=planCinematicSilhouetteRecess(state,base);
+ assert.ok(fallen.some(p=>p.silhouetteRecess===true),'real fallen party bodies remain visible');
+ assert.ok(fallen.every(p=>p.combatRecess!==true),'never fake an active battle during defeat');
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ assert.match(app,/planCinematicSilhouetteRecess\(state,planCombatSightlineExtension/);
+ assert.match(app,/recessCombatants:/);
+});

@@ -2194,7 +2194,7 @@
         "playsMajority": false,
         "provenance": "No fresh independent critics available. Do not infer a blind preference from test results or real predecessor screenshots."
       },
-      "safetyChecks": "New candidate 791c8b723724e1f747246472bc9055dc8da6df8f exact-head CI, browser, replay, security and performance PENDING, not counted passed. Previous 681a7b dedicated Dungeon and reproducible visual workflows succeeded; its global catalogue CI failed. This source fitting is NOT a transformation, audio/movie or critic win.",
+      "safetyChecks": "Prior 8eab0d3 Dungeon 41718957315 and visual 41718957360 passed. Catalogue 41718957163 FAILED. New scenic-recess code has no exact-head CI/browser validation, no original-audio capture, performance benchmarks or blind before/after evidence.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED: actual opt-in Warden scene MediaRecorder returned ZERO bytes desktop+mobile despite 24 live boss polls desktop and 59 live polls mobile; silent Playwright test-results videos only. Original audible soundtrack not captured.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2297,8 +2297,8 @@
       "nativeContinuityCandidate": "Source commit 08338db is an unverified new 3D underlay candidate, not a demonstrated repair. Real after comparison/critics have not happened. Monitor additional native underbody draw calls and 3D anatomy material intersections."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Real visually convincing continuous anatomy and legible combat in moving actual 3D dungeon, plus authentic complete traversal/boss/floor/defeat/restart desktop/mobile audiovisual matched to original 281735d baseline. Original audio and >=3 independent blind looks/feels/plays verdicts remain UNVERIFIED.",
-    "currentWork": "Native-skeleton calibrated full armour integration across all six existing animated roles committed at 791c8b7, now awaiting exact-head genuine desktop/mobile capture. Earlier running game suffered dark detached miniature anatomy and dense near-field masonry. No validated new motion, original audio or critic preference; continue ONE M1 milestone.",
+    "biggestRemainingGap": "Authentic candidate in-motion desktop/mobile proof that body armour, foreground masonry, warning cells and combat contact form coherent readable silhouettes; complete natural traversal→fight→Warden→floor→defeat/restart audiovisual capture, matched locked baseline and 3 fresh blind majority votes unavailable.",
+    "currentWork": "Exact-head 8eab0d3 authentic screenshot exposed ray-unoccluded but visually cluttered body/camera composition. Candidate replaces foreground masonry around real animated protagonists and actual battle participants with bounded physical stone recesses across all existing 3D cutaway consumers; code committed only, exact-code running gameplay UNVERIFIED.",
     "candidateCommit": "791c8b723724e1f747246472bc9055dc8da6df8f",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
@@ -4124,6 +4124,29 @@
         "performance": "UNVERIFIED; changes existing mount poses only and no additional draw pass, but frame-time/geometry intersections have not been measured",
         "biggestGap": "Small dark jointed bodies compete with masonry and overlap in attack; true action/reaction and sound need direct real-browser scrutiny",
         "next": "Inspect current head actual in-motion screenshots/video, reject or refine body intersections and boss camera occlusion, then obtain organic uninterrupted five-stage desktop/mobile game+original-sound footage, matched BEFORE/AFTER and >=3 fresh independent blind pillar critiques. Keep same M1, same fixed baseline, draft PR."
+      },
+      {
+        "id": "M1-PHYSICAL-SCENIC-RECESS-20261103",
+        "date": "2026-11-03",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "sourceHeadAtStart": "8eab0d3a6dd8284e453a8e224d6207599f4dbdcf",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "objective": "Correct the single most visible 1440x832 real-browser problem: legal heroes are ray-unoccluded yet visually swallowed by waist-high masonry and stockades, making body/weapon contact unreadable.",
+        "integrated": "Camera-facing physical masonry cutaways for all genuine animated heroes/fallen body positions, a bounded stronger foreground recess for one real unblocked fight pair including Warden warnings, shared through base walls, existing cladding, gallery reliefs and foreground props. Capped at five subjects and preserving distant room mass; no fake gameplay, extra shader passes, assets, or simulation changes.",
+        "sourceFiles": [
+          "public/ai-dungeon/encounter-sightlines.js",
+          "public/ai-dungeon/party-visibility-plan.js",
+          "public/ai-dungeon/app.js",
+          "tests/foundation/dungeon-combat-visibility.test.cjs",
+          "tests/foundation/dungeon-party-visibility.test.cjs"
+        ],
+        "previousRealEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/41718957315/artifacts/13272031660",
+        "metrics": "At 8eab0d3, genuine 1440x832 world-only: 3/3 visible heroes, 1/1 boss ray unoccluded, min hero 210px, 153172 triangles. Visual judgment: crowded/miniature-like, NOT accepted.",
+        "candidateRealGame": "UNVERIFIED; no exact-head new screenshot/video observed.",
+        "audio": "UNVERIFIED; no complete original sound movie",
+        "independentCritics": "0/3; fresh independent critics unavailable",
+        "verdict": "IN_PROGRESS — NOT_TRANSFORMED",
+        "next": "Run exact-head browser after scene, capture genuine mobile/desktop action and compare versus fixed 281735d baseline, reject camera pops/overclearance, assess model intersections and GPU frame costs, capture all five stages with audio and obtain 3 independent blind pillar judgments."
       }
     ]
   }

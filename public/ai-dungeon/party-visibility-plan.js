@@ -16,12 +16,22 @@ export function planPartyWallReveal(x,z,subjects,camera,pad=2.1){
  for(const subject of eyes){
   if(!Number.isFinite(subject?.x)||!Number.isFinite(subject?.z))continue;
   const dx=x-subject.x,dz=z-subject.z;
-  if(dx*dx+dz*dz<=nearRadius*nearRadius)nearby=true;
+  const radial=dx*dx+dz*dz;
+  if(radial<=nearRadius*nearRadius)nearby=true;
   const vx=camera.x-subject.x,vz=camera.z-subject.z;
   const distance=Math.hypot(vx,vz);
   if(distance<.001)continue;
   const progress=(dx*vx+dz*vz)/distance;
   const sideways=Math.abs(dx*vz-dz*vx)/distance;
+  // Physical scenic blocking, not opacity or a cosmetic full-screen effect:
+  // in the real shot, dismantle foreground stone between the camera and an
+  // animated hero. In a genuine legal fight, grant ONE actual opponent and
+  // defender a slightly deeper contact stage. Preserve all rear/distant
+  // architecture, the source wall grid, warnings and collision unchanged.
+  if(subject.combatRecess===true&&progress>=-.22&&progress<3.15&&
+     radial<3.30*3.30&&sideways<2.65)return 'sightline';
+  if(subject.silhouetteRecess===true&&progress>=-.08&&progress<2.40&&
+     radial<2.65*2.65&&sideways<1.85)return 'sightline';
   // In a physical low camera shot, a knee-high pier can hide a hero's face
   // even when its centre is just outside the narrow geometric ray. Open a
   // tightly bounded camera-facing foreground wedge for the *actual* party.

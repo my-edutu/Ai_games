@@ -111,3 +111,59 @@ export function planCombatSightlineExtension(state,base,mode){
  return [...existing,{x:nearest.x-origin,z:nearest.z-origin}];
 }
 
+
+/**
+ * M1 physical scene blocking. Every hero must remain readable as an actual
+ * moving body, not as armour fragments behind half-height Gothic partitions.
+ * One real near-contact pair receives an extra foreground clearing. This
+ * labels existing camera cutaway subjects: no fake battle, AI, hitbox, map,
+ * damage, time or seeded authority is introduced.
+ *
+ * Base order is preserved (three heroes, actual enemy/boss, at most five).
+ * Front-facing stone is moved to its foundation only in a bounded volume;
+ * intact masonry behind and outside the shot still defines the dungeon.
+ */
+export function planCinematicSilhouetteRecess(state,base){
+ const points=Array.isArray(base)?base.filter(p=>p&&Number.isFinite(p.x)&&Number.isFinite(p.z)).slice(0,5):[];
+ const size=Array.isArray(state?.map)?state.map.length:0;
+ if(size<3||size>64||!Array.isArray(state?.units)||!points.length)return points;
+ const origin=(size-1)/2;
+ const valid=u=>u&&Number.isInteger(u.x)&&Number.isInteger(u.z)&&u.x>=0&&u.z>=0&&
+  u.x<size&&u.z<size&&state.map[u.z]?.[u.x]==='.';
+ const heroes=state.units.filter(u=>u.faction==='party'&&valid(u));
+ const live=heroes.filter(u=>u.hp>0);
+ const foes=state.units.filter(u=>u.faction==='enemy'&&u.hp>0&&valid(u));
+ const lane=(a,b)=>{
+  if(a.x!==b.x&&a.z!==b.z)return false;
+  const dx=Math.sign(b.x-a.x),dz=Math.sign(b.z-a.z);
+  for(let x=a.x+dx,z=a.z+dz;x!==b.x||z!==b.z;x+=dx,z+=dz)
+   if(state.map[z]?.[x]!=='.')return false;
+  return true;
+ };
+ const candidates=[];
+ if(state.phase==='exploring')for(const h of live)for(const foe of foes){
+  const d=Math.abs(h.x-foe.x)+Math.abs(h.z-foe.z);
+  if(d<1||d>4||!lane(h,foe))continue;
+  const actualContact=(h.action==='attack'||h.action==='cast')&&h.targetId===foe.id&&
+   Number.isSafeInteger(h.actionTick)&&Number.isSafeInteger(state.tick)&&
+   h.actionTick<=state.tick&&state.tick-h.actionTick<=3;
+  const bossDanger=foe.kind==='warden'&&Boolean(state.bossWarning)&&d<=5;
+  if(!actualContact&&!bossDanger&&d>2)continue;
+  candidates.push({h,foe,d,priority:actualContact?0:bossDanger?1:2});
+ }
+ candidates.sort((a,b)=>a.priority-b.priority||a.d-b.d||
+  String(a.h.id).localeCompare(String(b.h.id),'en')||
+  String(a.foe.id).localeCompare(String(b.foe.id),'en'));
+ const pair=candidates[0]||null;
+ let enriched=points.map(p=>{
+  const party=heroes.some(h=>h.x-origin===p.x&&h.z-origin===p.z);
+  const pivotal=pair&&((pair.h.x-origin===p.x&&pair.h.z-origin===p.z)||
+   (pair.foe.x-origin===p.x&&pair.foe.z-origin===p.z));
+  return {...p,...(party?{silhouetteRecess:true}:{}),...(pivotal?{combatRecess:true}:{})};
+ });
+ // Reveal the nearest real hostile if the existing party/boss sightlines leave
+ // an available slot. Never drop a hero or genuine Warden for this supplement.
+ if(pair&&enriched.length<5&&!enriched.some(p=>p.x===pair.foe.x-origin&&p.z===pair.foe.z-origin))
+  enriched=[...enriched,{x:pair.foe.x-origin,z:pair.foe.z-origin,combatRecess:true}];
+ return enriched;
+}

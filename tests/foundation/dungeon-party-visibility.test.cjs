@@ -129,3 +129,22 @@ test('true living-party centroid and source masonry inform a bounded cinematic c
  assert.match(fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8'),
   /const viewedAim=plannedCamera\.look\?\?look/);
 });
+
+
+test('real-camera acting-space is a shallow physical stone removal, not wall deletion or a new battle',async()=>{
+ const {planPartyWallReveal}=await load();
+ const hero=Object.freeze({x:0,z:0,silhouetteRecess:true});
+ const contact=Object.freeze({x:0,z:0,silhouetteRecess:true,combatRecess:true});
+ const cam=Object.freeze({x:6,z:0});
+ assert.equal(planPartyWallReveal(.4,1.7,[hero],cam),'sightline');
+ assert.equal(planPartyWallReveal(.4,2.5,[hero],cam),'nearby',
+  'ordinary traversal retains short nearby masonry beyond the actor-shaped wedge');
+ assert.equal(planPartyWallReveal(.4,2.5,[contact],cam),'sightline',
+  'a real battle grants more physical clearance around contact silhouettes');
+ assert.equal(planPartyWallReveal(-2.9,1.8,[contact],cam),'none',
+  'walls behind the actors still define a bounded dungeon');
+ assert.equal(planPartyWallReveal(1,5,[contact],cam),'none',
+  'distant walls cannot disappear to flatter a close combat shot');
+ assert.equal(planPartyWallReveal(.4,2.5,[{x:0,z:0}],cam),'nearby',
+  'unmarked scene behavior remains backward-compatible');
+});
