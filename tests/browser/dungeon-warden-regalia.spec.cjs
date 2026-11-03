@@ -24,6 +24,10 @@ test('true Chromium WebGL has recognisable locally authored Warden regalia, rend
  await page.goto('/dungeon');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.authoredBosses??0),{timeout:60000}).toBe(1);
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.bossRegaliaParts??0),{timeout:15000}).toBe(24);
+ // The genuine live Warden no longer uses the old miniaturized swordsman
+ // body behind its armour. Real native joints carry its original full figure.
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.cinematicBosses??0),{timeout:20000}).toBe(1);
+ expect((await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.cinematicProfiles||[]))).toContain('warden');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.texturedCharacters??0),{timeout:30000}).toBeGreaterThanOrEqual(3);
  // Round 24: the filmed boss itself, not just surviving heroes, needs a clear actual 3D sightline.
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.bossCutawayActive??false),{timeout:20000}).toBe(true);

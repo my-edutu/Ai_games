@@ -3,12 +3,13 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),fs=requir
 const root=path.resolve(__dirname,'../..');
 const src=path.join(root,'public/ai-dungeon/cinematic-figure.js');
 async function load(){return import('data:text/javascript;base64,'+Buffer.from(fs.readFileSync(src)).toString('base64'))}
-test('five original figures have full adult body proportions and truthful hand-bound weapons',async()=>{
- const {planCinematicFigure}=await load(),roles=['vanguard','ranger','mystic','revenant','cultist'],signatures=new Set();
+test('six physical figures include the sculpted phase-responsive Warden and truthful hand-bound weapons',async()=>{
+ const {planCinematicFigure}=await load(),roles=['vanguard','ranger','mystic','revenant','cultist','warden'],signatures=new Set();
  for(const role of roles){
   const r=planCinematicFigure(role);
-  assert.equal(r.statureMeters,1.82);
-  assert.ok(r.pieces.length>=22&&r.pieces.length<=24);
+  assert.equal(r.statureMeters,role==='warden'?2.30:1.82);
+  assert.ok(r.pieces.length>=22&&r.pieces.length<=(role==='warden'?30:24));
+  if(role==='warden')assert.ok(r.pieces.some(p=>p.id==='oathbreaker-keel')&&r.pieces.some(p=>p.id==='oathbreaker-left-knee'));
   assert.equal(new Set(r.pieces.map(p=>p.id)).size,r.pieces.length);
   assert.ok(r.pieces.some(p=>p.id==='helmet')&&r.pieces.some(p=>p.id==='torso'));
   assert.ok(r.pieces.filter(p=>p.id.includes('boot')).length===2);
@@ -16,8 +17,8 @@ test('five original figures have full adult body proportions and truthful hand-b
   assert.ok(r.pieces.every(p=>[p.x,p.y,p.z,p.sx,p.sy,p.sz].every(Number.isFinite)));
   signatures.add(r.palette.metal+'|'+r.weapon);
  }
- assert.equal(signatures.size,5);
- assert.equal(planCinematicFigure('warden'),null,'original encounter-boss setpiece retained');
+ assert.equal(signatures.size,6);
+ assert.equal(planCinematicFigure('not-a-faction'),null);
 });
 test('a missing native limb or hand retains original character, never a half-built replacement',async()=>{
  const {planFigureJointCoverage,CRITICAL_FIGURE_JOINTS}=await load();
@@ -32,7 +33,8 @@ test('actual renderer and server bind figures with fallback, bounded GPU and no 
  const server=fs.readFileSync(path.join(root,'scripts/serve-dungeon-stream.cjs'),'utf8');
  const code=fs.readFileSync(src,'utf8');
  assert.match(body,/actor\.cinematicFigure=createCinematicFigure\(THREE,actor,joints\)/);
- assert.match(body,/else\{\s*addWardenRegalia\(actor\)/);
+ assert.match(body,/if\(isBoss\)addWardenRegalia\(actor\)/,'new articulated boss retains genuine phase-driven regalia');
+ assert.match(body,/cinematicBosses:/);
  assert.match(body,/cinematicSourceHidden:/);
  assert.match(server,/cinematic-figure\.js/);
  assert.match(code,/obj\.isMesh&&!obj\.userData\?\.cinematicFigurePiece/);

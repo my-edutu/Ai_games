@@ -743,6 +743,9 @@ function attachCharacter(actor){
   };
   actor.cinematicFigure=createCinematicFigure(THREE,actor,joints);
   if(actor.cinematicFigure){
+   // Keep the real Warden's 24 phase-responsive regalia components on top
+   // of its full new native-bone sculpt, not the now hidden miniature source.
+   if(isBoss)addWardenRegalia(actor);
    // Existing original deformable textiles complete the body silhouette.
    // Their existing cleanup/reduced-motion paths continue to apply.
    addFabricDrape(actor);
@@ -979,7 +982,8 @@ function putEnvironment(world,sceneKey,map){
 }
 function stats(actors){
  const all=[...actors.values()],authored=all.filter(a=>a.authored);
- return{cinematicFigures:authored.filter(a=>a.cinematicFigure).length,cinematicMeshes:authored.reduce((n,a)=>n+(a.cinematicFigure?.meshes||0),0),
+ return{cinematicFigures:authored.filter(a=>a.cinematicFigure).length,
+  cinematicBosses:authored.filter(a=>a.u.kind==='warden'&&a.cinematicFigure).length,cinematicMeshes:authored.reduce((n,a)=>n+(a.cinematicFigure?.meshes||0),0),
   cinematicVertices:authored.reduce((n,a)=>n+(a.cinematicFigure?.vertices||0),0),
   cinematicMaterialsMapped:authored.reduce((n,a)=>n+(a.cinematicFigure?.mappedMaterials||0),0),
   cinematicBoneMounts:authored.reduce((n,a)=>n+(a.cinematicFigure?.joints||0),0),

@@ -9,7 +9,11 @@ const ROLES=Object.freeze({
  ranger:{shoulders:.87,waist:.79,head:.88,garment:.84,weapon:'bow',metal:'#57665f',trim:'#a18b6e',cloth:'#35473c',leather:'#3f3830',face:'#a28b73'},
  mystic:{shoulders:.83,waist:.94,head:.91,garment:1.07,weapon:'staff',metal:'#706b78',trim:'#b4a68e',cloth:'#48445c',leather:'#464047',face:'#af9a89'},
  revenant:{shoulders:.99,waist:.79,head:.90,garment:.60,weapon:'sword',metal:'#414b50',trim:'#91877b',cloth:'#30393d',leather:'#292b2e',face:'#7a807d'},
- cultist:{shoulders:.83,waist:.91,head:.89,garment:.97,weapon:'staff',metal:'#64535a',trim:'#af8875',cloth:'#4b3740',leather:'#392f31',face:'#9c847d'}
+ cultist:{shoulders:.83,waist:.91,head:.89,garment:.97,weapon:'staff',metal:'#64535a',trim:'#af8875',cloth:'#4b3740',leather:'#392f31',face:'#9c847d'},
+ // The same physically articulate figure system now carries the Warden's
+ // towering martial anatomy. Its existing 24 original, phase-driven pieces
+ // remain on top, instead of surrounding a toy-scale source body.
+ warden:{shoulders:1.17,waist:1.04,head:.84,garment:.68,weapon:'sword',metal:'#323b43',trim:'#b99160',cloth:'#3c3440',leather:'#302b29',face:'#7e7772'}
 });
 export const CRITICAL_FIGURE_JOINTS=Object.freeze([
  'chest','pelvis','head','leftUpperArm','rightUpperArm','leftForearm','rightForearm',
@@ -47,9 +51,18 @@ export function planCinematicFigure(kind){
  else if(kind==='vanguard')
   pieces.push(part('raised-helmet-ridge','cowl','trim',0,1.77,.055,'head',.79,.63,.73));
  else pieces.push(part('bone-death-crown','cowl','face',0,1.76,.047,'head',.81,.63,.72));
+ if(kind==='warden')pieces.push(
+  // Raised iron oath-keel, mobile knee defenses and heavy separated skirts:
+  // these FOLLOW native bones during the true warning, charge and recovery.
+  part('oathbreaker-keel','crest','trim',0,1.37,-.30,'chest',1.1,1.38,.90),
+  part('oathbreaker-left-knee','shoulder','metal',-.18,.43,-.18,'leftLowerLeg',.47,.46,.62),
+  part('oathbreaker-right-knee','shoulder','metal',.18,.43,-.18,'rightLowerLeg',.47,.46,.62),
+  part('oathbreaker-left-skirt','hem','cloth',-.23,.66,.10,'pelvis',.47,.81,.88),
+  part('oathbreaker-right-skirt','hem','cloth',.23,.66,.10,'pelvis',.47,.81,.88)
+ );
  pieces.push(part('true-hand-weapon','weapon','trim',.49,1.0,-.18,'rightHand'));
  return Object.freeze({
-  kind,statureMeters:1.82,weapon:p.weapon,
+  kind,statureMeters:kind==='warden'?2.30:1.82,weapon:p.weapon,
   palette:Object.freeze({...p}),
   pieces:Object.freeze(pieces)
  });
@@ -152,7 +165,10 @@ const material=(T,finish,color,metalness,roughness)=>{
 };
 function attachWeapon(T,group,hand,recipe,materialMap,geometry,built){
  const grip=new T.Group();grip.name='Original '+recipe.weapon+' skinned-hand weapon';
- grip.position.set(.5,1.03,-.22);group.add(grip);
+ grip.position.set(.5,1.03,-.22);
+ // Hand-mounted Warden steel grows with the already-scaled 2.30m skeleton.
+ // Attach preserves the resulting world-space size, never adds an authority hitbox.
+ grip.scale.setScalar(recipe.statureMeters/1.82);group.add(grip);
  const piece=(g,m,x,y,z)=>{
   const mesh=new T.Mesh(g,materialMap[m]);mesh.position.set(x,y,z);
   mesh.name='cinematic-weapon-'+recipe.weapon;
@@ -205,7 +221,8 @@ export function createCinematicFigure(T,actor,joints){
   leather:material(T,'leather',recipe.palette.leather,.06,.82),
   face:material(T,'face',recipe.palette.face,.055,.78)
  };
- const group=new T.Group(),built=[];group.name='Original human-scale '+recipe.kind;
+ const group=new T.Group(),built=[],figureScale=recipe.statureMeters/1.82;
+ group.name='Original anatomically articulated '+recipe.kind;
  try{
   actor.visualPivot.add(group);
   actor.visualPivot.updateWorldMatrix(true,true);actor.assetRoot.updateWorldMatrix(true,true);
@@ -213,7 +230,8 @@ export function createCinematicFigure(T,actor,joints){
    if(p.shape==='weapon')continue;
    const mesh=new T.Mesh(geometry[p.shape],mat[p.finish]);
    mesh.name='cinematic-'+recipe.kind+'-'+p.id;
-   mesh.position.set(p.x,p.y,p.z);mesh.scale.set(p.sx,p.sy,p.sz);
+   mesh.position.set(p.x*figureScale,p.y*figureScale,p.z*figureScale);
+   mesh.scale.set(p.sx*figureScale,p.sy*figureScale,p.sz*figureScale);
    mesh.userData.cinematicFigurePiece=true;
    mesh.castShadow=false;mesh.receiveShadow=true;
    group.add(mesh);built.push(mesh);
