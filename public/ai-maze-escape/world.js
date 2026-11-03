@@ -1765,6 +1765,14 @@ export function createMazeWorld(options = {}) {
       // explorer comes near; at reduced motion both settle to a static,
       // recognizable resting shape. No additional simulation or frame mesh.
       const crownAngle=reduced ? .10 : .10+.54*near;
+      // Each solid ceramic petal now has its own third physical hinge.
+      // The left/right blades spread while the centre stays upright; this
+      // is a decorative response to the observed Pip pose, not an AI cue.
+      // Reduced motion fixes every hinge in a stable open resting silhouette.
+      const fanAngle=reduced ? .11 : .11+.43*near;
+      const fanAxis=relic.dx?'x':'z';
+      for (let i=0;i<relic.petals.length;i++)
+        relic.petals[i].rotation[fanAxis]=(i-1)*fanAngle;
       if (relic.dx) {
         relic.object.rotation.x=relic.side*angle;
         relic.crown.rotation.x=-relic.side*crownAngle;
