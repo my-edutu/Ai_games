@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-03T13:39:29.950Z",
+  "updatedAt": "2026-11-03T13:57:26.257Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass111 source WebGL 41643909846 SUCCESS: original dated 23/23 PNG hashes individually verified and actual native 1280 gate MID hero visibility demonstrably better than Pass110 (physical camera 24,30,-11). Pass112 source commit 8d8ab84 adds one-source public-gate transient goal chip, shortened unclipped Find passage, existing HUD/AI/privacy/accessibility intact. New Pass112 focused 41646044314 and whole CI 41646044353 queued; no Pass112 visual acceptance. Nintendo bar still wins on broader world/actor quality; no independent blinded critic, coding workspace tunnel disconnected, SwiftShader CPU isn't GPU FPS. Draft PR no merge/deploy."
+    "summary": "Pass112 exact source 41646044314 SUCCESS: real original 23/23 full-resolution PNG SHA-256 independently matched; genuine 1280 gate MID 2026-11-03T13:49:44.075Z source-honest PASSAGE OPEN / Gate opened / Explore onward existing goal chip, Pip/gate physically visible. Pass113 new actually connected 3D Pip whole-body gate performance source 5f9ebf3 committed, model/CI/current PNG visual acceptance pending at 41648318740 and whole CI 41648318800. Nintendo Captain Toad benchmark NOT met; no independent blind critic (coding workspace tunnel disconnected), SwiftShader CPU slowdown not hardware GPU FPS. PR open draft no merge/deploy."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass113 2026-11-03T13:57:26.257Z: Genuine Pass112 full-resolution exact-source 23/23 original WebGL image hashes personally verified; gate MID actual screenshot now shows physical Pip/portcullis and unclipped single event mission. Pass113 connected physical 3D gate character actor: rises/turns torso, braces knees, raises BOTH arm/elbow joints, tilts helmet, attached scarf follows, existing 3D lantern expands and emissive light responds only to authentic public gate. Guardian/closed lock/result/neutral/reduced motion precedence preserved. New separate actual Three rig test + real WebGL screenshot joint diagnostic, unchanged viewport/privacy and 44px tests. Exact new-source visual 41648318740 and full CI 41648318800 PENDING; Nintendo NOT yet won.",
     "Pass112 (2026-11-03T13:39:29.950Z): verified PASS111 real full-resolution 1280 gate MID screenshot 2026-11-03T13:34:15.813Z and 23/23 original PNG SHA-256, physical 3D Pip much clearer than Pass110 occluded shot with same genuine public gate. Built Pass112 action-first HUD sync for actual same-run public CLOSED->OPEN, one transient PASSAGE OPEN / Gate opened / Explore onward chip, shortened clipped Find a passage to Find passage; no new panel, no private state/AI change, danger/result/reduced-motion/44px/Map/Details precedence. Source-bound browser now rejects clipped gate label. Pass112 CI queued and authentic new native renders not yet approved.",
     "Pass111 (2026-11-03T13:26:25.461Z): confirmed Pass110 original 23/23 dated WebGL PNG SHA-256 and REJECTED real 1280 physical gate sightline (Pip obscured by near courtyard wall/hedge). Implemented actual oblique three-quarter gate-side camera using same authentic public CLOSED->OPEN and gate-to-Pip physical displacement, fast physical framing only during witnessed opening; original old 3-arg fallback/normal closed/guardian/reduced-motion/AI/privacy/viewport gates intact. New production pure/Three camera tests and original mid-event camera offset + Pip silhouette evidence. CI 41643909846/41643909850 queued; new pixel quality pending.",
     "Pass110 2026-11-03 UTC: committed actual instanced 3D gate-side low masonry forecourt, only on BLOCKED edges between two genuinely disclosed cells beside an observed gate and never on that gate seam. Original tall generic stone wall becomes a continuous lower deep-stone/ivory/sea-glass parapet with planted posts; high columns do not mask the physically witnessed gate on already-public approaches. No change to collision, AI decision, hidden map, HUD prose, reduced motion or browser acceptance thresholds. Separate real-production Three regression checks lower foreground instance clutter, public privacy, gate stability, and deterministic reset. Pass109 focused WebGL succeeded but full-resolution image rehash/art verdict blocked by unavailable image container. Pass110 exact-source build and stream passed; native screenshot review and full CI remain pending. Nintendo benchmark NOT MET; PR draft/unmerged/undeployed.",
@@ -223,6 +224,13 @@
     "Pass91: inspect current-source 320/390/844/1280, witnessed key and moving gate WebGL originals; independently verify dated SHA source identities, strict viewport/model bounds and real HUD coverage; compare same-seed motion settings to Pass90 Nintendo/old screen; reject if tide-watch spires are off-camera, false goals or obstruct actual 3D action. Full whole-CI, detached fresh-context critic and Ultracode outstanding."
   ],
   "reviews": [
+    {
+      "title": "Pass113 — witness-grounded connected 3D Pip body+lantern gate performance",
+      "reviewer": "Lead original native Pass112 image audit; fresh-context source/visual critic unavailable (coding workspace tunnel disconnected)",
+      "verdict": "Pass112 real game-first HUD accepted locally, Pass113 physical actor candidate awaits original rendered verification; Nintendo fixed benchmark not met",
+      "date": "2026-11-03T13:57:26.257Z",
+      "summary": "Actual Pass112 original 23/23 PNG SHA records matched including 1280 real gate and 320 guardian. Stronger stage physical storytelling now modeled in real Pip rig; measured actual joints after screenshot acceptance and new real Three deterministic/precedence tests. No merge/deploy."
+    },
     {
       "title": "Pass112 — original Pass111 physical image accepted locally; one-chip real gate HUD candidate",
       "reviewer": "Lead source-bound native image critic; separate fresh-context subagent and blind A/B unavailable",
@@ -554,6 +562,13 @@
     }
   ],
   "verification": [
+    {
+      "name": "Pass113 real source-bound 3D gate acting native visual",
+      "status": "pending",
+      "detail": "Pass112 current original native 23/23 screenshot hashes checked and game event chip visually verified; new Pass113 actual joint/lantern and rendered WebGL + full CI not concluded at documentation",
+      "sourceCommit": "5f9ebf30cf79fe4de02c32b850427576296f4129",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41648318740"
+    },
     {
       "name": "Pass112 authentic gate HUD and 3D actor screen-space evidence",
       "status": "pending",
