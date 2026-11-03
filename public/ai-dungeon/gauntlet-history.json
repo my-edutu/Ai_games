@@ -2269,13 +2269,39 @@
         "finding": "Full native 14 bone connectors physically rendered as giant dark opaque tubes/tentacles. Source regression despite passing CI; 71da2ea caps valid cloth joins <=.28m on 1.82m hero and suppresses overlong segment poses. Exact corrected footage pending.",
         "screenshot": "https://github.com/my-edutu/Ai_games/actions/runs/41672587065/artifacts/13249651215",
         "correctiveHead": "71da2ea38b96f7ec3cb6b768339729cf571f261c"
-      }
+      },
+      "wardenCourtOriginalBrowserArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41672587022/artifacts/13250093060",
+      "wardenCourtOriginalDesktopReceipt": {
+        "commit": "b8be04f417302a87c9bcb4696a8483497170a104",
+        "seed": "visual-room-art-18",
+        "firstTick": 38,
+        "desktop": {
+          "bossActive": true,
+          "carvedReliefs": 0,
+          "processionTiles": 28,
+          "drawCalls": 625,
+          "triangles": 132658,
+          "mediaRecorder": "UNAVAILABLE",
+          "mediaRecorderBytes": 0
+        },
+        "mobile": {
+          "carvedReliefs": 0,
+          "processionTiles": 28,
+          "drawCalls": 668,
+          "triangles": 143516,
+          "mediaRecorder": "UNAVAILABLE",
+          "mediaRecorderBytes": 0
+        },
+        "source": "Actual browser artifact 13250093060 desktop/mobile JSON; verified by reading files from published Action archive; not new-head gate"
+      },
+      "wardenCourtNewSourceFix": "557af7a55123db77c1d7919a60ea75eca8eba16c",
+      "wardenCourtNewSourceVisual": "UNVERIFIED: new actual court perimeter reliefs and original chapter nave art must be inspected in exact-head Chromium on desktop/mobile. Do not claim success based on source or unit tests."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "The actual playable game in new b8be04f browser shows primitive dark rounded, overlapping heroes, broken giant hose/tentacle anatomy, repetitive tall masonry and distant overhead boss action. Corrective 71da2ea suppresses oversize native joins, but full new-Code real Chromium images/performance UNVERIFIED. Need coherent expressive hero/enemy silhouettes, true-contact animation, boss tactics, readable physically distinctive rooms; 1440/390 actual motion/audio clips from organic traversal→contact→boss→floor→last-stand/restart, fixed seed/camera locked 281735d BEFORE/AFTER and 3 unbiased blind judges. Original audio MediaRecorder yielded zero bytes on both devices.",
-    "currentWork": "Actual exact-source Chromium at b8be04f uncovered serious visible regression: full-length dark cylindrical native-body connectors resemble giant spaghetti arms, worsening already toy-like heroes and unreadable crowded Warden brawls. Rather than claiming an A/B win, corrective 71da2ea now strictly clips original 3D underarmor joins to <=0.28m authentic human anatomy segments (scale-adjusted for living Warden), with bounded narrow cloth radius and explicit count of rejected long bones. Existing true Warden-Court 2-device run reached real Rift Cross combat and floor transition; original WebM capture produced ZERO BYTES for both despite opt-in sound. Concurrent original nave stage work retained. Safety source checks need exact corrective SHA, not assumed green.",
-    "candidateCommit": "71da2ea38b96f7ec3cb6b768339729cf571f261c",
-    "candidateArtifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41672587022/artifacts/13250093060",
+    "biggestRemainingGap": "Genuine earlier b8be04f browser Warden screenshot shows overlapped, dark, stretched/toy-like hero and enemy forms and cluttered square walls; animated 3D legibility remains the main unproven experiential quality problem. Browser Warden Court receipts documented zero original wall shields and zero-byte opt-in MediaRecorder output; new live perimeter-facade source correction now requires fresh desktop/mobile screenshot and audio-motion acceptance. No full organic before/after adventure or independent Looks/Feels/Plays majority.",
+    "currentWork": "M1 source head 557af7a5: authored real walkable connected Gothic naves, original articulated anatomy correction in 71da2ea, and a verified-need Warden Court source fix that locates real surrounding wall sculptures rather than zero reliefs in the seven-cell boss arena. Same draft PR, original Warden and player authority, no replay changes. Exact-head visible audiovisual outcome and independent A/B still UNVERIFIED.",
+    "candidateCommit": "557af7a55123db77c1d7919a60ea75eca8eba16c",
+    "candidateArtifactUrl": "",
     "acceptedAt": null,
     "implementationEvents": [
       {
@@ -3920,6 +3946,17 @@
           "plays": "UNVERIFIED"
         },
         "next": "Inspect new exact-71da2ea desktop/mobile true WebGL and Warden action, reject/rework architecture if still tube-like. Repair original real multimedia capture: zero-byte MediaRecorder on both viewports; prefer proven original audio recording and video playback, not faked tracks. Then capture full natural continuous adventure and match fixed baseline, get 3 blind fresh critics, measure hardware and accessibility."
+      },
+      {
+        "id": "M1-WARDEN-COURT-REAL-WALLS-20261103",
+        "date": "2026-11-03",
+        "status": "SOURCE_FIX_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "codeCommit": "557af7a55123db77c1d7919a60ea75eca8eba16c",
+        "finding": "Real actual seeded desktop and mobile 2026-11-03 browser evidence in artifact 13250093060 showed Warden Court carvedReliefs=0 even during genuine live boss combat, and MediaRecorder output unavailable with bytes=0. In actual desktop Warden screenshot actors visually overlap, boss not yet individually legible; mobile shows overlaid names and clustered silhouettes.",
+        "integrated": "Fix the existing physical Warden Court planner to scan authentic real 7x7 arena perimeter walls up to 10 cells from boss exit and choose at most 14 original shield reliefs across up to four quadrants, while preserving the authoritative cleared floor, boss warning seal, existing cutaways and original class animation. Add real Chromium and genuine seven-cell foundation source gates.",
+        "evidence": "The 0-relief and zero-byte findings are VERIFIED on prior-head browser receipts; whether NEW-HEAD perimeter architecture actually appears, sounds/moves or improves independent looks/feels/plays is UNVERIFIED.",
+        "next": "Wait for exact new-head action, inspect real desktop/mobile Warden screenshot and clips, confirm relief count >0 and headless authority/replay. Fix screen-space actor overlap and sound capture, then attempt uninterrupted seeded organic journey plus matched locked-baseline independent blind comparisons."
       }
     ]
   }

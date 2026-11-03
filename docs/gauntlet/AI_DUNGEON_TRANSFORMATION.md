@@ -573,3 +573,11 @@ clip was captured**. Silent Playwright video exists, not audiovisual
 acceptance. True fair matched locked BEFORE/AFTER and 3 fresh blind critics
 remain absent. New corrective-code exact-head results remain pending.
 LOOKS/FEELS/PLAYS each **UNVERIFIED**. Status **IN PROGRESS—NOT TRANSFORMED**.
+
+## M1 follow-through: real Warden Court evidence identified missing architecture (3 November 2026)
+
+Actual live Chromium desktop/mobile Warden Court receipt, [artifact 13250093060](https://github.com/my-edutu/Ai_games/actions/runs/41672587022/artifacts/13250093060), seed `visual-room-art-18`, first encounter tick 38, proved the in-game carved court shields count was **0** (28 authentic procession tiles remained). The original opt-in MediaRecorder produced **0 bytes** on BOTH devices despite WebGL rendering; the independent Playwright test video is video-only, NOT proof of original audible mix. Desktop Warden capture shows visually merged giant boss, hero and enemies against box-wall foreground, a direct experiential quality failure even where semantic warning UI works.
+
+**Source response:** [`557af7a5`](https://github.com/my-edutu/Ai_games/commit/557af7a55123db77c1d7919a60ea75eca8eba16c) changes only the original real-Warden-map perimeter facade planner and real regression probes: in a seven-square opened actual encounter, browse the EXISTING enclosing connected walls (not imaginary inner stone) and bound 14 original carved surfaces spread around the court. No tile/collision/AI/attack/replay change. Concurrent [`71da2ea`](https://github.com/my-edutu/Ai_games/commit/71da2ea38b96f7ec3cb6b768339729cf571f261c) addressed genuinely excessive original animated anatomy bridges; both source fixes are part of the SAME M1 unaccepted transformation.
+
+**Evidence status:** previous-source zero-relief and zero-byte sound failures **VERIFIED**; NEW-SOURCE live wall relief presence, legible animation, original audible motion, matched immutable-baseline A/B and independent >=3 critic majority for LOOKS, FEELS, PLAYS all **UNVERIFIED** pending real desktop/mobile capture. Current mark **IN PROGRESS — NOT TRANSFORMED**; do not merge PR #49.
