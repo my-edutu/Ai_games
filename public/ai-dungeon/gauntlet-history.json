@@ -2193,7 +2193,7 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "Earlier code-only 360703a Dungeon foundation 245/245 PASS; presentation VM 16/20 FAILED due missing actual planner in stripped-source harness. Fixed test harness by executing real pure planner at code+test head 17fc673. Exact-head Dungeon browser, full catalogue CI, replay and accessibility results still pending, not certified.",
+      "safetyChecks": "Reconstructed source with exact matching blob SHAs for four Warden-change files: npm run dungeon:test PASS 248/248, tsc build PASS, accelerated campaign 24 seeds x 900 ticks PASS with zero replay divergence, 256 floor advances, 5 restarts and highest floor 13. Dedicated GitHub Action exact-SHA three-shard browser and full catalogue CI still pending and NOT claimed green. Standalone Chromium cannot navigate local server in sandbox (ERR_BLOCKED_BY_ADMINISTRATOR), so actual boss frame, real GPU mobile p95, accessibility and endurance UNVERIFIED.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED for new 17fc673 exact candidate; original synthesized opt-in audio remains existing, no new recorded performance",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2201,15 +2201,15 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Predecessor 4cc8abd actual 1440x832 and 390x844 browser frames show companions cropped/packed against an overly dense foreground. No scientifically matched AFTER observation yet.",
-      "latestCandidateWorkflow": "Code head 5215d72c4e9e63e8f8eddd6cccb16476e6733b72: dedicated authority/browser GitHub Actions 41646763108, visual 41646763003, catalogue CI 41646763051 were all QUEUED at review. No new-head actual WebGL video/still inspected, no original captured sound or blind critics. Prior real screenshot https://github.com/my-edutu/Ai_games/actions/runs/41609168400/artifacts/13219510323. The locked baseline artifact is still workflow 41302939553 artifact 13081734898.",
+      "latestCandidateWorkflow": "Boss sculpt code SHA d35a77ba3344991ce4569d81d73a6f96ade6c5ae; real exact-SHA Chromium visual review run 41650090209 passed its 11 existing interface tests and yielded genuine desktop/mobile/raw-world/browser video artifact 13236868357. Inspected raw-world scene STILL stylized with round miniatures, dense walls; it does NOT show Warden or verify the new boss art. Dedicated new boss Chromium checks run 41650090150 and catalogue CI 41650090167 not yet complete. Local reconstructed source verified four exact changed source blob hashes, 248/248 Dungeon foundation tests, 24x900 real headless ticks, 0 replay failures, highest floor 13. Local Chromium launch succeeded but page navigation blocked ERR_BLOCKED_BY_ADMINISTRATOR; not a product failure or pass.",
       "currentPredecessorWebgl": "https://github.com/my-edutu/Ai_games/actions/runs/41582184616/artifacts/13207290223",
-      "newCandidateSceneReview": "UNVERIFIED: no exact-head continuous organic 3D desktop/mobile traversal, combat, Warden, floor advance, defeat/restart, audioclip or matched blind assessment. Previous real Chromium frames remain predecessor evidence only."
+      "newCandidateSceneReview": "EXACT-CANDIDATE generic live WebGL desktop/mobile captured via run 41650090209 artifact 13236868357, but no actual live Warden frame/phase, full expedition narrative or audible audio. No valid matched visual/scenario A/B wins. All three pillars remain UNVERIFIED."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Actual running desktop/mobile visual and motion proof of the new five-class body replacement, especially source bone coverage and contact. Prior genuine frame still miniature-like amid giant masonry. Human-scale design is implemented but reference-parity, complete seed-matched audiovisual adventure, hardware frame/soak and >=3 independent blind LOOKS/FEELS/PLAYS majority remain UNVERIFIED.",
-    "currentWork": "M1 major playable character-art candidate implemented: five original human-scale complete native-bone-driven figures with sculpted anatomy, 3D class weapons, unique heraldry and PBR microtexture, original existing rig motion, bounded original cloth and verified fallback design. Real browser artwork and full adventure acceptance NOT VERIFIED; no code is marked transformed.",
-    "candidateCommit": "5215d72c4e9e63e8f8eddd6cccb16476e6733b72",
-    "candidateArtifactUrl": null,
+    "biggestRemainingGap": "Actual browser footage and diagnostics of the NEW Warden body in an active, phase-changing confrontation; existing authentic candidate 3D viewport still shows rounded, miniature party silhouettes and a wall-heavy repetitive scene, and does not include the Warden. Need real mobile/desktop character visibility, convincing full-body combat and original audio, organic traversal/boss/floor/defeat-restart, performance soak and 3 blind majority critics versus immutable M1 baseline.",
+    "currentWork": "One connected M1 boss-art implementation: six original native-skeleton figures now include the playable 2.30m Warden with new oathbreaker breast keel, joint-bound knees and separate articulated skirt, forged real-hand sword, original PBR finishes and the pre-existing 24 real-phase regalia. The definitive Warden browser encounter is still UNVERIFIED. Existing true desktop screenshot shows the scene remains dense/miniature rather than convincing Diablo IV quality.",
+    "candidateCommit": "d35a77ba3344991ce4569d81d73a6f96ade6c5ae",
+    "candidateArtifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41650090209/artifacts/13236868357",
     "acceptedAt": null,
     "implementationEvents": [
       {
@@ -3687,6 +3687,28 @@
         "experienceVerdict": "IN_PROGRESS / NOT_TRANSFORMED",
         "largestRemainingGap": "Actual 3D browser verification of complete new human-scale rigs/motion and hand contact; any joint coverage/fallback/overdraw errors, then real boss combat, coherent audiovisual pacing, performance and independent matched M1 acceptance.",
         "next": "Inspect and if needed repair genuine exact-head WebGL desktop/mobile captures, source-bone coverage, armor/cloth clipping and actual hand grip. Continue physical animated combat and scene blocking only after real footage. Compare unchanged 281735d M1 baseline using matched seed/scene/camera for traversal, active combat, Warden, floor and natural defeat/restart with original recorded audio, then require independent three-critic majorities and device performance; never merge/deploy."
+      },
+      {
+        "id": "M1-NATIVE-WARDEN-SCULPT-20261103",
+        "date": "2026-11-03",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "da6c26cb0b2c37859c1ce190f3ca108b731128fe",
+        "codeCommit": "d35a77ba3344991ce4569d81d73a6f96ade6c5ae",
+        "objective": "Replace the real live Warden's low-detail boss body behind its regalia with an original full anatomically articulated, true-skinned encounter giant while retaining authentic battle phases, Warden mechanics, 24 fitted metal ornaments and a hand-mounted sword.",
+        "integration": "Six original native-bone 3D character roles now include 2.30m Warden; distinct sculpted keel, bounded leg armor, separated cloth, PBR finish, original steel, and genuine right-hand bone; low-poly source mesh hidden only after successful 12-joint bind. Existing living Warden phase-driven 24 original ornaments layered on the successful body. Safe fallback continues if not all joints map; no gameplay authority, RNG, collision, progression, saves, licenses or audio triggers modified.",
+        "files": [
+          "public/ai-dungeon/cinematic-figure.js",
+          "public/ai-dungeon/model-assets.js",
+          "tests/foundation/dungeon-cinematic-figure.test.cjs",
+          "tests/browser/dungeon-warden-regalia.spec.cjs",
+          "tests/browser/dungeon.playwright.config.cjs"
+        ],
+        "checks": "Local reconstruction verifies source against exact GitHub blob hashes, 248/248 foundation PASS, build PASS, 24 seeds x900 simulation PASS (0 divergences). Prior exact-code Chromium UI review 41650090209 passed 11/11 and gives authentic desktop/mobile artifact 13236868357, but no Warden visibility. Dedicated three-shard browser and full CI still pending. Standalone local Chromium ERR_BLOCKED_BY_ADMINISTRATOR; no independent worker connection.",
+        "visualReview": "Actual 1440px real raw-world frame from 41650090209 was inspected: dense block-stone walls and sphere-headed miniature party figures remain. The screenshot does not contain an active Warden; it cannot substantiate the sculpted boss or M1 experience improvement.",
+        "blockers": "NO true boss AFTER motion/camera/audio evidence yet, no independently reviewed matched M1 baseline, no natural complete multi-floor adventure, mobile hardware p95/soak or 3 fresh blind critics. Actual Warden boss 3D diagnostic newly required by browser test; browser-suite test discovery repaired.",
+        "verdict": "IN_PROGRESS / NOT_TRANSFORMED — LOOKS, FEELS, PLAYS remain UNVERIFIED",
+        "next": "Inspect next exact-head Chromium render of real nearby Warden, ensure cinematicBosses==1 and 24 phase regalia, repair body-bone clipping/helmet proportions and overdraw, then capture organic desktop/mobile video+original sound of travel, contacts, boss warning, boss defeat, floor and restart. Compare against fixed 281735d exact-seed and secure independent masked critics before any experience claim."
       }
     ]
   }
