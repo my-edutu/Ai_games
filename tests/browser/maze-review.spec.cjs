@@ -1048,7 +1048,8 @@ test('a real close public encounter frames both autonomous actors and saves date
       retractingPublicGates:midGateAfterScreenshot.world.retractingPublicGates,
       movingGateMinBarsHeightRatio:midGateAfterScreenshot.world.movingGateMinBarsHeightRatio,
       actualPublicCameraOffset:midGateAfterScreenshot.cameraOffset,
-      heroPhysicalBounds:midGateAfterScreenshot.explorerPhysicalBounds},
+      heroPhysicalBounds:midGateAfterScreenshot.explorerPhysicalBounds,
+      realPhysicalActorPose:midGateAfterScreenshot.gateActorPhysicalPose},
     verdict:(midGateAfterScreenshot.world.retractingPublicGates>0
       &&!!midGateAfterScreenshot.publicOpeningCameraBeat)?'candidate':'rejected',
     caveat:'Original source WebGL, SwiftShader CPU-throttled; not a Nintendo quality or hardware GPU win.'
@@ -1061,6 +1062,15 @@ test('a real close public encounter frames both autonomous actors and saves date
     'the original open gate must still be the gameplay camera subject').toBeTruthy();
   expect(midGateAfterScreenshot.explorerModelFullyInFrame,
     'the genuine mid-lift camera must not crop any physical part of Pip').toBe(true);
+  // This ORIGINAL actual-WebGL screenshot must show a meaningful connected
+  // performance, not just a static robot and an animated goal badge. The
+  // authoritative character remains in-frame with its real moving props.
+  expect(midGateAfterScreenshot.gateActorPhysicalPose?.torsoY,
+    'witnessed opening must lift the actual 3D torso').toBeGreaterThan(.82);
+  expect(midGateAfterScreenshot.gateActorPhysicalPose?.lanternArmX,
+    'real lantern shoulder must turn visibly in the captured gate moment').toBeLessThan(-.52);
+  expect(midGateAfterScreenshot.gateActorPhysicalPose?.lanternCageScale,
+    'source-authentic opening must visibly swell the original 3D lantern').toBeGreaterThan(1.02);
   expect(Math.abs(midGateAfterScreenshot.cameraOffset.x),
     'native rendered gate celebration uses a real oblique 3D camera').toBeGreaterThan(14);
   const afterGateDiagnostic=await page.evaluate(()=>window.__MAZE_3D__);

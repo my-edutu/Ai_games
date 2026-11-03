@@ -263,6 +263,15 @@ export function createExplorer(options = {}) {
     const gateYaw=gateCelebrate>0?gateCelebrate*Math.max(-.7,Math.min(.7,
       Math.atan2(Math.sin(options.gateHeading-group.rotation.y),
         Math.cos(options.gateHeading-group.rotation.y)))):0;
+    // The new public gate-side 3D camera finally reveals Pip's whole body.
+    // Turn the earlier tiny, mostly-arm-only salute into a connected,
+    // leg-to-lantern physical performance: plant/widen the knees, rise,
+    // counter-tilt the shoulders and let the attached cage swell visibly.
+    // First and final poses stay grounded. Mid-motion adds a bounded
+    // follow-through WITHOUT moving the authoritative actor root.
+    // Reduced-motion retains a static readable event pose without pulsing.
+    const gatePerformance=gateCelebrate>0
+      ?gateCelebrate*(s.reduced?1:.64+.36*Math.sin(Math.PI*(1-gateCelebrate))):0;
     // A true, publicly recorded collected key makes Pip lift and present its
     // existing lantern. Lower priority than a real warden, a matching lock,
     // a witnessed gate opening or terminal truth. No teleport/AI authority.
@@ -314,12 +323,12 @@ export function createExplorer(options = {}) {
     // no run movement, new gameplay ability or undisclosed target is invented.
     // The entire gesture clears as soon as public attention is withdrawn.
     body.position.x=-.025*rest;
-    body.position.y=.78+Math.abs(step)*.035+(s.lose?0:idle*.008)-alert*.11+gateCelebrate*.09+pickupCelebrate*.23;
-    body.position.z=alert>0?-alert*.105:gateCelebrate*.035;
-    body.rotation.set(s.lose?.22:stride*.065-s.danger*.035-keyReach*.07-alert*.25-gateCelebrate*.12-pickupCelebrate*.13,
+    body.position.y=.78+Math.abs(step)*.035+(s.lose?0:idle*.008)-alert*.11+gateCelebrate*.09+gatePerformance*.17+pickupCelebrate*.23;
+    body.position.z=alert>0?-alert*.105:gateCelebrate*.035+gatePerformance*.055;
+    body.rotation.set(s.lose?.22:stride*.065-s.danger*.035-keyReach*.07-alert*.25-gateCelebrate*.12-gatePerformance*.11-pickupCelebrate*.13,
       lookYaw*.14+keyYaw*.08+pickupFaceTurn*.28,
       .035*rest-step*.05-Math.sign(lookYaw)*alert*.12);
-    head.rotation.set(s.lose?.28:-.04-s.danger*.08+idle*.018+alert*.10-keyReach*.06-gateCelebrate*.16-pickupCelebrate*.18,
+    head.rotation.set(s.lose?.28:-.04-s.danger*.08+idle*.018+alert*.10-keyReach*.06-gateCelebrate*.16-gatePerformance*.09-pickupCelebrate*.18,
       (s.reduced?0:Math.max(-.42,Math.min(.42,turn*.7))+(Math.sin(s.time*.73)*.08+.12)*rest)*(1-alert-keyReach*.7-gateCelebrate*.55)+lookYaw+keyYaw+gateYaw+pickupFaceTurn*.72,
       s.win?-.13:s.lose?.07:-.065*rest+step*.035-Math.sign(lookYaw)*alert*.19);
     for (let i=0;i<2;i++) {
@@ -327,15 +336,15 @@ export function createExplorer(options = {}) {
       // Two planted, widened knees sell a real physical startle without
       // moving the authoritative public cell or suggesting retreat movement.
       legs[i].hip.rotation.x=step*sign*.62-alert*.22;
-      legs[i].hip.rotation.z=alert>0?-sign*alert*.3:0;
-      legs[i].knee.rotation.x=Math.max(0,-step*sign)*.58+alert*.3+pickupCelebrate*.14;
-      arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0)-alert*(i===1?1.55:.95)-(i===0?keyReach*2.3:0)-gateCelebrate*(i===1?1.35:.48)-pickupCelebrate*(i===1?1.43:1.38);
+      legs[i].hip.rotation.z=alert>0?-sign*alert*.3:-sign*gatePerformance*.14;
+      legs[i].knee.rotation.x=Math.max(0,-step*sign)*.58+alert*.3+gatePerformance*.21+pickupCelebrate*.14;
+      arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0)-alert*(i===1?1.55:.95)-(i===0?keyReach*2.3:0)-gateCelebrate*(i===1?1.35:.48)-gatePerformance*(i===1?.34:.54)-pickupCelebrate*(i===1?1.43:1.38);
       // Aim the raised physical glove toward the publicly disclosed lock,
       // not just upward. Reduced-motion uses the same stable static pose.
       // A terminal result or nearby guardian suppresses keyYaw entirely.
       arms[i].shoulder.rotation.y=i===0?keyYaw*1.1:0;
-      arms[i].shoulder.rotation.z=(i===0?-1:1)*(s.win?.95:i===1?.34:.15)+(i===0?keyYaw*.25:0)+(i===0?-1:1)*alert*.65+gateCelebrate*(i===1?.36:-.21)-(i===0?pickupCelebrate*.56:0);
-      arms[i].elbow.rotation.x=-.16-(i===1?.22:0)-(s.danger*.3)-(i===0?keyReach*.7:0)-alert*(i===1?.38:.24)-gateCelebrate*(i===1?.3:.12)-pickupCelebrate*(i===1?.23:.18);
+      arms[i].shoulder.rotation.z=(i===0?-1:1)*(s.win?.95:i===1?.34:.15)+(i===0?keyYaw*.25:0)+(i===0?-1:1)*alert*.65+gateCelebrate*(i===1?.36:-.21)+gatePerformance*(i===1?.28:-.35)-(i===0?pickupCelebrate*.56:0);
+      arms[i].elbow.rotation.x=-.16-(i===1?.22:0)-(s.danger*.3)-(i===0?keyReach*.7:0)-alert*(i===1?.38:.24)-gateCelebrate*(i===1?.3:.12)-gatePerformance*.26-pickupCelebrate*(i===1?.23:.18);
       // Counter-turn the connected wrist as the shoulder aims at the known lock.
       // Keep the actual glove/key face visible rather than twisting its bow
       // behind the sealed gate's foreground masonry. No hidden-state input.
@@ -377,13 +386,17 @@ export function createExplorer(options = {}) {
     if (s.win) body.position.y += amount*Math.max(0,Math.sin(s.time*5))*.075;
     // Scarf reacts to the same public startle, including a static pose when
     // reduced motion is requested; return to neutral without lingering cues.
-    tail.rotation.x=-stride*.28+step*.1-alert*.27+gateCelebrate*.22+pickupCelebrate*.24;
-    tail.rotation.z=alert*.22-gateYaw*.16;
+    tail.rotation.x=-stride*.28+step*.1-alert*.27+gateCelebrate*.22+gatePerformance*.21+pickupCelebrate*.24;
+    tail.rotation.z=alert*.22-gateYaw*.16+gatePerformance*.13;
     // Keep the hanging cage upright beneath the outward arm; let it trail the stride.
     lantern.rotation.z=-arms[1].shoulder.rotation.z-step*.17;
     lantern.rotation.x=-(arms[1].shoulder.rotation.x+arms[1].elbow.rotation.x)+step*.18;
     lantern.rotation.y=(lookYaw+gateYaw)*.38+pickupCelebrate*.28;
-    glow.emissiveIntensity=s.lose?.45:1.45;
+    // One existing physical lantern and emissive crystal now perform the
+    // opening beat. No extra dynamic light, material, geometry, shader,
+    // timer or unauthorized key/exit data is introduced.
+    lamp.scale.setScalar(1+gatePerformance*.17);
+    glow.emissiveIntensity=s.lose?.45:1.45+gatePerformance*.95;
   }};
 }
 

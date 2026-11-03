@@ -832,6 +832,15 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         keyLockCloseup, cameraAimLift, physicalKeyLock,
         publicOpeningCameraBeat: openingGateBeat ? {a:openingGateBeat.a,b:openingGateBeat.b,
           keyed:openingKeyedBeat,ageSeconds:gateVisualTime-openingGateBeat.start} : null,
+        // Real sparse physically modeled character pose, sampled AFTER the
+        // WebGL render. A GUI label or an actor center in frame never proves
+        // the original head, arms and lantern genuinely performed the event.
+        // The three joints already exist in the source-owned Three rig.
+        gateActorPhysicalPose: openingGateBeat ? {
+          torsoY:explorer.group.getObjectByName('breathing torso')?.position.y ?? null,
+          lanternArmX:explorer.group.getObjectByName('shoulder 1')?.rotation.x ?? null,
+          lanternCageScale:explorer.group.getObjectByName('lantern cage')?.scale.x ?? null,
+        } : null,
         // Camera evidence is derived only from the source-disclosed gate,
         // with projected coordinates in normalized device space [-1,+1].
         nearbySealedGate: nearObservedGate ? {...nearObservedGate} : null,
