@@ -785,6 +785,8 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
  combatDirector.recordEvasions(evasionBeats);
  world.userData.wardenRitual?.accept(s);
  world.userData.dressing?.accept?.(s);
+ world.userData.livingWorld?.accept?.(s);
+ world.userData.atmosphere?.accept?.(s);
  world.userData.chapterNaves?.accept(s);
  soundstage?.acceptSnapshot(s);
  if(world.userData.courtShield){

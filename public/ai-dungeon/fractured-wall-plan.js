@@ -23,7 +23,7 @@ export function planFracturedWallStone(floor){
  const vertices=[],indices=[],uvs=[],N=OUTLINE.length;
  for(let course=0;course<COURSES.length;course++)for(let i=0;i<N;i++){
   const [bx,bz]=OUTLINE[i],n=hash(i+12*course,course*31,floor);
-  const inset=[0,.018,.048,.032,.040][course]+((n>>>8)%5)*.002;
+  const inset=[0,.027,.075,.105,.142][course]+((n>>>8)%5)*.002;
   const scar=course===2?((n>>>16)%5)*.003:0;
   const x=limit(bx-Math.sign(bx)*(inset+scar),-.5,.5);
   const z=limit(bz-Math.sign(bz)*(inset+scar),-.5,.5);
@@ -43,7 +43,37 @@ export function planFracturedWallStone(floor){
   const next=(i+1)%N;
   indices.push(roofCenter,top+next,top+i,floorCenter,i,next);
  }
- return{vertices,indices,uvs};
+ // Four shallow, raised Gothic lancet ribs are actually sculpted into this
+ // same closed original wall mesh. No extra materials, draw calls, impostor
+ // sprites or proprietary models. Each rib follows the battered stone's taper
+ // from plinth to crown. Its camera-visible normals create real relief under
+ // the existing dungeon lighting, even while cutaways scale the whole wall.
+ // Six paired stations per face: 4 * 5 * 2 triangles, 48 genuine vertices.
+ // Wall tiles are STILL physically closed, exactly matching the solid grid.
+ const lancet=[[-.286,-.286],[-.290,-.060],[-.196,.178],[0,.305],
+  [.196,.178],[.290,-.286]];
+ const profileY=y=>y<=-.25?.478:y<.16?.448:.392;
+ for(let face=0;face<4;face++){
+  const rib=[];
+  for(const [u,v] of lancet){
+   const edge=.026,front=profileY(v)+.006;
+   const add=(offset)=>{
+    let x=u+offset,z=front;
+    if(face===1){x=front;z=-(u+offset)}
+    if(face===2){x=-(u+offset);z=-front}
+    if(face===3){x=-front;z=u+offset}
+    rib.push(vertices.length/3);vertices.push(x,v,z);
+    uvs.push((u+offset+.5),v+.5);
+   };
+   add(-edge);add(edge);
+  }
+  for(let j=0;j<lancet.length-1;j++){
+   const a=rib[j*2],b=rib[j*2+1],c=rib[(j+1)*2],d=rib[(j+1)*2+1];
+   if(face===0||face===2)indices.push(a,c,b,b,c,d);
+   else indices.push(b,c,a,d,c,b);
+  }
+ }
+ return{vertices,indices,uvs,archRibs:4};
 }
 export function planWallStoneVariation(x,z,floor){
  if(!Number.isSafeInteger(x)||!Number.isSafeInteger(z)||!Number.isSafeInteger(floor)||

@@ -1,4 +1,5 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
+import {planCombatQuietZone,ambientVisibilityAt} from '/dungeon/ambient-focus-plan.js';
 import {createDungeonSetpieces} from '/dungeon/dungeon-setpieces.js';
 import {planCavernRim} from '/dungeon/cavern-rim-plan.js';
 
@@ -32,6 +33,7 @@ function gradientTexture(biome,floor){
 export function createBiomeAtmosphere(root,map,floor,exit){
  const f=(floor-1)%BIOMES.length,biome=BIOMES[f],size=map.length,offset=(size-1)/2,objects=new THREE.Group();root.add(objects);
  const material=[],geometries=[],textures=[],lights=[],animation=[];
+ let quietZone=null;
  const register=(mat)=>{material.push(mat);return mat},geometry=(geo)=>{geometries.push(geo);return geo};
  const emissive=register(new THREE.MeshStandardMaterial({color:biome.glow,emissive:biome.glow,emissiveIntensity:1.15,metalness:.38,roughness:.25}));
  const pale=register(new THREE.MeshStandardMaterial({color:biome.bright,emissive:biome.secondary,emissiveIntensity:.32,metalness:.28,roughness:.42}));
@@ -120,6 +122,7 @@ export function createBiomeAtmosphere(root,map,floor,exit){
  const update=(time)=>{
   for(let i=0;i<count;i++){
    const [x,y,z,phase]=offsets[i];p.set(x+Math.sin(time*.33+phase)*.12,y+Math.sin(time*.58+phase)*.19,z+Math.cos(time*.42+phase)*.14);
+   scale.setScalar(ambientVisibilityAt(p.x,p.z,quietZone));
    matrix.compose(p,q,scale);particle.setMatrixAt(i,matrix);
   }
   particle.instanceMatrix.needsUpdate=true;
@@ -127,7 +130,7 @@ export function createBiomeAtmosphere(root,map,floor,exit){
   for(let i=0;i<lights.length;i++)lights[i].intensity=1.05+Math.sin(time*2+i)*.16;
  };
  const metrics={biome:biome.name,landmarks:setpieces.metrics.landmarks,roomArt:setpieces.metrics,glowSources:lights.length,particles:count,liquidOrRifts:pools.length,crystalClusters:spires.length,backgroundStructures:rim.near.length+rim.far.length,rimNear:rim.near.length,rimFar:rim.far.length,lightShafts:shafts.length};
- return{update,metrics,dispose(){
+ return{update,accept(state){quietZone=planCombatQuietZone(state);},metrics,dispose(){
   setpieces.dispose();objects.parent?.remove(objects);
   for(const m of material)m.dispose();for(const t of textures)t.dispose();for(const g of geometries)g.dispose();
  }};

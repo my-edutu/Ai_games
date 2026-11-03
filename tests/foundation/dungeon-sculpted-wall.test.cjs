@@ -9,7 +9,7 @@ test('sculpted dungeon wall tile is a closed, irregular, bounded real 3D volume'
  const {planFracturedWallStone}=await load();
  for(const floor of [1,2,3,4,1000]){
   const plan=planFracturedWallStone(floor);
-  assert.ok(plan.vertices.length>=72&&plan.vertices.length<=240);
+  assert.ok(plan.vertices.length>=300&&plan.vertices.length<=360);
   assert.ok(plan.indices.length>=120&&plan.indices.length<=480);
   assert.equal(plan.indices.length%3,0);
   assert.equal(plan.uvs.length,plan.vertices.length/3*2);

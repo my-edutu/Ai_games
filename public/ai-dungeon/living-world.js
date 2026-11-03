@@ -1,4 +1,5 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
+import {planCombatQuietZone,ambientVisibilityAt} from '/dungeon/ambient-focus-plan.js';
 
 /**
  * Deterministic, bounded ambient 3D life — cosmetic only.
@@ -16,6 +17,7 @@ export function createLivingWorld(root,map,floor){
  const biome=BIOME_LIFE[(floor-1)%4],N=map.length,O=(N-1)/2;
  const group=new THREE.Group();root.add(group);
  const mats=[],geos=[],creatures=[];
+ let quietZone=null;
  const flyingMaterial=new THREE.MeshStandardMaterial({color:biome.wing,roughness:.67,metalness:.14,emissive:biome.wing,emissiveIntensity:.18,side:THREE.DoubleSide});
  const coreMaterial=new THREE.MeshBasicMaterial({color:biome.core,transparent:true,opacity:.82,depthWrite:false});
  const glowMaterial=new THREE.MeshBasicMaterial({color:biome.glow,transparent:true,opacity:.48,depthWrite:false,blending:THREE.AdditiveBlending});
@@ -44,7 +46,8 @@ export function createLivingWorld(root,map,floor){
   const phase=mixHash(i,floor,21)*Math.PI*2,speed=.45+mixHash(i,floor,22)*.8;
   creature.position.set(spot.x,1.05+mixHash(i,floor,23)*1.5,spot.z);
   creature.scale.setScalar(.65+mixHash(i,floor,24)*.48);
-  creatures.push({creature,spot,phase,speed,left,right});group.add(creature);
+  const baseScale=creature.scale.x;
+  creatures.push({creature,spot,phase,speed,left,right,baseScale});group.add(creature);
  }
  // Bounded spectral sparks; instancing instead of per-particle draw calls.
  const sparkGeometry=new THREE.OctahedronGeometry(.055,0);geos.push(sparkGeometry);
@@ -58,17 +61,19 @@ export function createLivingWorld(root,map,floor){
  }
  sparkMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);sparkMesh.frustumCulled=false;group.add(sparkMesh);
  const update=(t)=>{
-  for(const {creature,spot,phase,speed,left,right} of creatures){
+  for(const {creature,spot,phase,speed,left,right,baseScale} of creatures){
    const x=t*speed+phase;
    creature.position.set(spot.x+Math.cos(x)*.46,1.25+Math.sin(x*1.32)*.29,spot.z+Math.sin(x)*.48);
    creature.rotation.y=x+.7;
+   creature.scale.setScalar(baseScale*ambientVisibilityAt(creature.position.x,creature.position.z,quietZone));
    left.rotation.z=Math.sin(t*10*speed+phase)*.63;
    right.rotation.z=-Math.sin(t*10*speed+phase)*.63;
   }
   for(let i=0;i<sparkCount;i++){
    const p=sparkData[i],wave=t*p.speed+p.phase;
    position.set(p.x+Math.sin(wave)*.19,p.y+Math.sin(wave*1.6)*.24,p.z+Math.cos(wave)*.18);
-   const factor=.52+Math.sin(wave*2.8)*.16;scale.setScalar(factor);
+   const factor=(.52+Math.sin(wave*2.8)*.16)*ambientVisibilityAt(position.x,position.z,quietZone);
+   scale.setScalar(factor);
    matrix.compose(position,quaternion,scale);sparkMesh.setMatrixAt(i,matrix);
   }
   sparkMesh.instanceMatrix.needsUpdate=true;
@@ -76,6 +81,7 @@ export function createLivingWorld(root,map,floor){
  update(0);
  return{
   update,
+  accept(state){quietZone=planCombatQuietZone(state);},
   metrics:{archetype:biome.name,animatedCreatures:creatures.length,instancedMotes:sparkCount},
   dispose(){root.remove(group);for(const g of geos)g.dispose();for(const m of mats)m.dispose()}
  };

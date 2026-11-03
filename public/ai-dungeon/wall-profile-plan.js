@@ -46,10 +46,12 @@ export function planLegibleWallMass(map,floor,vaultedSites=[]){
   // mounted torches and fractured coping. They establish vertical Gothic rhythm
   // without re-closing the broad fighting and travel vistas between them.
   if(p.exposedFaces===1&&value%5===0)return 1.82+(value%3)*.08;
-  // Keep junctions physically low, but high enough for chipped masonry
-  // to remain anchored on real wall material rather than floating in space.
-  // Authority and collision still see exactly the original solid cells.
-  return p.exposedFaces>=2?[1.18,1.24,1.31,1.36][value%4]:
-   [1.29,1.36,1.44,1.52][value%4];
+  // Broad multi-sided junctions are reimagined as a *legible shattered
+  // arcade*: sculpted floor-level stonework, not a waist-high stockade
+  // covering the living source-skinned shoulders and attack silhouettes.
+  // Sparse intact one-face piers and hidden backing walls keep the ruin Gothic.
+  // The solid maze grid, navigation, attack blocking and replay do not change.
+  return p.exposedFaces>=2?[.78,.86,.94,1.02][value%4]:
+   [1.05,1.10,1.16,1.22][value%4];
  });
 }
