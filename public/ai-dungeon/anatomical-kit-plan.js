@@ -30,8 +30,12 @@ function make(kind,p){
   part(kind+'-right-bracer','vambrace',p.arm,.43,1.03,-.10,.30,.47,.30,.12,'rightForearm'),
   part(kind+'-left-shin','greave',p.lower,-.17,.39,-.13,.29,.54,.29,0,'leftLowerLeg'),
   part(kind+'-right-shin','greave',p.lower,.17,.39,-.13,.29,.54,.29,0,'rightLowerLeg'),
-  part(kind+'-hip-mail','fauld',p.chest,0,.79,-.12,.64*w,.36,.46),
-  part(kind+'-hanging-tabard','tabard',p.face,0,.52,-.33,.39*w,.52*robe,.17)
+  // These new sculpted segments articulate with native skinned hips/thighs:
+  // one connected lower-body silhouette through actual travel and combat.
+  part(kind+'-left-thigh','greave',p.lower,-.20,.73,-.11,.29*w,.36,.28,0,'leftUpperLeg'),
+  part(kind+'-right-thigh','greave',p.lower,.20,.73,-.11,.29*w,.36,.28,0,'rightUpperLeg'),
+  part(kind+'-hip-mail','fauld',p.chest,0,.79,-.12,.64*w,.36,.46,0,'hips'),
+  part(kind+'-hanging-tabard','tabard',p.face,0,.52,-.33,.39*w,.52*robe,.17,0,'hips')
  ];
  if(kind==='revenant'||kind==='warden'){
   items.push(part(kind+'-exposed-first-rib','rib','bone',0,1.43,-.40,.63,.31,.13));

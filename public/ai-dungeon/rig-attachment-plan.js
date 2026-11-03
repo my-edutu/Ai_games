@@ -18,6 +18,13 @@ const CRANIAL_RATIOS=Object.freeze({
 export function planCranialRatio(kind){
  return typeof kind==='string'&&Object.hasOwn(CRANIAL_RATIOS,kind)?CRANIAL_RATIOS[kind]:1;
 }
+// A true skinned artist pelvis, not an arbitrary thigh or combat proxy.
+export function selectPelvisBone(bones){
+ if(!Array.isArray(bones))return null;
+ return bones.find(b=>b?.isBone&&typeof b.name==='string'&&
+ /^(?:hips?|pelvis|mixamorighips|bip[0-9]+pelvis|bip[0-9]+hips?)$/i.test(
+ b.name.toLowerCase().replace(/[^a-z0-9]/g,'')))||null;
+}
 // The imported AnimationMixer owns the unmodified bone scale. Each frame
 // removes the previous cosmetic overlay BEFORE the mixer and reapplies it
 // AFTERWARDS; clips with no scale channel therefore cannot accumulate drift.
