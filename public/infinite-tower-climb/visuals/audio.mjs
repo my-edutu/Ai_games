@@ -169,10 +169,23 @@ export function createTowerAudio() {
         && enemy.health < earlier.health) {
         texture(610,.14,.042);
         tone(150,85,.17,'triangle',.042);
+        // The three REAL source HP pressure stages now have a restrained
+        // opt-in acoustic answer to their physical clutch release. Never
+        // announce a stage at first sight, on repair, or on duplicate data.
+        if (Number.isFinite(enemy.maxHealth) && enemy.maxHealth > 0 &&
+          earlier.maxHealth === enemy.maxHealth) {
+          const beforeStage = Math.floor(3 * (1 - earlier.health / enemy.maxHealth));
+          const afterStage = Math.floor(3 * (1 - enemy.health / enemy.maxHealth));
+          if (afterStage > beforeStage) {
+            texture(390,.19,.048);
+            tone(245 + 70 * Math.min(3, afterStage),
+              110 + 42 * Math.min(3, afterStage),.28,'triangle',.056);
+          }
+        }
       }
       if(snapshot.lifecycle==='running' && earlier?.active && !enemy.active)
         witnessedSameFloorDefeat = true;
-      observedGuardians.set(enemy.id,{active:!!enemy.active,health:enemy.health});
+      observedGuardians.set(enemy.id,{active:!!enemy.active,health:enemy.health,maxHealth:enemy.maxHealth});
     }
     if(witnessedGuardianPass){
       // The mechanical release is audible only for a genuine next-floor

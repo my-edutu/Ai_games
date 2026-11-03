@@ -7,7 +7,7 @@ import { createRenderProgress } from './render-progress.mjs';
 import { createTowerFinale } from './finale.mjs';
 import { observedGuardianPassage, createTowerGuardianPassage } from './guardian-passage.mjs';
 import { createTowerRouteIntent } from './route-intent.mjs';
-import { createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianRelayStage } from './guardian-circuit.mjs';
+import { createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianRelayStage, observedGuardianPowerSpineStage } from './guardian-circuit.mjs';
 import { createTowerAtmosphere } from './atmosphere.mjs';
 import { createTowerGuardianShotStage } from './guardian-shot-stage.mjs';
 import { createObservedMovingDeckRide } from './moving-deck-ride.mjs';
@@ -832,6 +832,9 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
     ? observedGuardianRelayStage(guardianCircuitSource)?.center || null : null;
   // Keep gate width a soft composition preference, never a hard camera bound:
   // the real climber and attacker's complete silhouettes still take priority.
+  const powerSpine = guardianCircuitSource &&
+    guardianCircuitSource.guardianId === contactGuardian?.guardianId
+    ? observedGuardianPowerSpineStage(guardianCircuitSource)?.center || null : null;
   const gatePoints = lockStage
     ? [lockStage.center, ...lockStage.bolts.slice(2, 6)] : [];
   const center = { ...body };
@@ -928,12 +931,14 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
       guardianCorners.every(point => visible(point, .84, .75));
     const relayFramed = !!relay && visible(relay, .88, .78) &&
       towerCoreSightlineClear(position, relay, 23.5);
+    const powerSpineFramed = !!powerSpine && visible(powerSpine, .88, .78) &&
+      towerCoreSightlineClear(position, powerSpine, 23.5);
     const gateCoreClear = !!gate && towerCoreSightlineClear(position, gate, 23.5);
     const gateFramed = gatePoints.length > 0 && gateCoreClear &&
       gatePoints.every(point => visible(point, .93, .86));
     return { focus: center, position, distance, landing, targetId: target?.id || null, lean, clear,
       guardianStaged: !!contactGuardian, guardianFramed, gateFramed, gateCoreClear, gateAnchorX,
-      relayFramed,
+      relayFramed, powerSpineFramed,
       heroFraction: height * level / (2 * tangent * (distance - bodyDepth)) };
   }
   let best = solve(0);
@@ -960,6 +965,10 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
       ? -1000 + view.heroFraction
       : 150 + (view.gateFramed ? 16 + guardianCircuitSource.openedFraction * 12 : 0) +
         (view.relayFramed ? 6 : 0) +
+        // Damage must read as a connected battle-to-gate mechanism on a
+        // phone; prefer the first true power-spine clutch only among shots
+        // with both real actors, exterior clearance and readable hero scale.
+        (guardianCircuitSource.openedFraction > 0 && view.powerSpineFramed ? 5 : 0) +
         Math.min(.24, view.heroFraction) * 16 - Math.abs(view.lean) * 1.6;
     let bestQuality = quality(best);
     for (const amount of [0, .22, .45, .7, .95, 1.13, -.22, -.45, -.7]) {

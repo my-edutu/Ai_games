@@ -192,11 +192,17 @@ test('true guardian HP changes produce short exterior impact echoes with no rest
 
 test('physical guardian-side HP relay stays on the real exterior gantry and retracts only after authoritative damage', async () => {
   const { observedGuardianCircuit, observedGuardianRelayStage,
-    guardianLinkSite, createTowerGuardianCircuit } = await modulePromise;
+    observedGuardianPowerSpineStage, guardianLinkSite, createTowerGuardianCircuit } = await modulePromise;
   const original = snapshot({ tick: 52, enemies: [{ ...snapshot().enemies[0], health: 8 }] });
   const source = observedGuardianCircuit(original);
   const relay = observedGuardianRelayStage(source);
   assert.ok(relay && relay.sourceTick === 52 && relay.remainingFraction === 1);
+  const power = observedGuardianPowerSpineStage(source);
+  assert.ok(power?.center && power.guardianId === source.guardianId);
+  assert.equal(power.sourceTick,source.tick);
+  const closeGantry = guardianLinkSite(source,.23);
+  assert.ok(new THREE.Vector3(power.center.x,power.center.y,power.center.z).distanceTo(
+    new THREE.Vector3(closeGantry.x,closeGantry.y,closeGantry.z))<1e-9);
   const sharedGantry = guardianLinkSite(source, .12);
   assert.ok(new THREE.Vector3(relay.center.x, relay.center.y, relay.center.z).distanceTo(
     new THREE.Vector3(sharedGantry.x, sharedGantry.y, sharedGantry.z)) < 1e-9);

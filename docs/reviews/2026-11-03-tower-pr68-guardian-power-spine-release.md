@@ -13,3 +13,7 @@ Corrected the stale source-regex guardrail that still required the old platform-
 ## Evidence and quality posture
 
 This is source implementation awaiting source-exact normal-speed desktop and portrait gameplay verification. Builder inspection and automated geometry contracts are engineering safety checks, not independent LOOKS, FEELS or PLAYS votes. No new independent critics or real supported-device frame-time/memory evidence have been obtained. Quality remains NOT EVALUATED. Do not imply a new win, AAA parity or successful mobile combat without matched video and blind review. PR58 and frozen baseline unchanged; PR68 remains draft, unmerged and undeployed.
+
+## Cohesive cross-system encounter follow-through
+
+The source-only power-spine stage is now shared by physical machinery and the combat camera. On genuine guardian health loss, the camera's exterior-orbit search gains a small preference for the nearest visible clutch, but **only** after the climber and full guardian are still safely framed; the existing physical cap, HP relay and safe-angle memory remain higher priority. This does not introduce a cut, prediction or player repositioning. The existing gesture-gated, bounded soundscape now accents genuinely crossed HP clutch thresholds once, alongside the existing source health-impact cue. A clip remains necessary to establish that the physical silhouette, sound and action are actually readable, and quality remains NOT EVALUATED.

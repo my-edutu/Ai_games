@@ -85,6 +85,20 @@ test('source-observed wounded guardian, actual cap and climber share a stable po
     // its missing video visibility stays an explicitly OPEN quality blocker.
     // Do not force a wider camera that breaks the hero or guardian silhouette.
     assert.equal(typeof view.gateFramed, 'boolean');
+    const spine = context.observedGuardianPowerSpineStage(live);
+    assert.ok(spine && spine.guardianId === guardian.id,
+      'the candidate camera must use the exact present guardian source');
+    const spineNdc = new THREE.Vector3(spine.center.x,spine.center.y,spine.center.z);
+    const projection = new THREE.PerspectiveCamera(42, aspect, .2, 1200);
+    projection.position.copy(view.position);
+    projection.lookAt(view.focus.x,view.focus.y,view.focus.z);
+    projection.updateMatrixWorld(true);
+    spineNdc.project(projection);
+    if(view.powerSpineFramed) {
+      assert.ok(Math.abs(spineNdc.x)<=.88 && Math.abs(spineNdc.y)<=.78,
+        'claimed power-spine visibility must be true at the actual projection');
+    }
+    assert.equal(typeof view.powerSpineFramed,'boolean');
   }
   assert.equal(JSON.stringify(frame), before, 'camera is a read-only consumer of the immutable public game state');
 });

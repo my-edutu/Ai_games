@@ -55,6 +55,7 @@ test('opt-in guardian audio communicates actual damage and a real guardian-floor
     assert.deepEqual(pitches,[], 'a living full-health guardian is not a reward');
     audio.accept(frame({health:5}));
     assert.ok(pitches.includes(150), 'real same-floor boss damage gets restrained metal feedback');
+    assert.ok(pitches.includes(315), 'the first genuinely released HP clutch has a distinct optional mechanical tone');
     const n = pitches.length;
     audio.accept(frame({health:5}));
     assert.equal(pitches.length,n, 'replayed snapshot must not repeat damage');

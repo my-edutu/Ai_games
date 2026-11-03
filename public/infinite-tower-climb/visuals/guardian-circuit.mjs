@@ -95,6 +95,19 @@ export function observedGuardianRelayStage(source) {
     sourceTick: source.tick, guardianId: source.guardianId };
 }
 
+// This camera-readable source anchor is exactly the nearest PHYSICAL pair
+// of the power-spine shutters. A lens may prefer it when the far gate will
+// not fit with the two actors, but it never changes their hard safety bounds.
+export function observedGuardianPowerSpineStage(source) {
+  if (!observedGuardianRelayStage(source)) return null;
+  return {
+    center: guardianLinkSite(source, POWER_SHUNT_STAGES[0]),
+    releasedFraction: clamp01(source.openedFraction * POWER_SHUNT_STAGES.length),
+    sourceTick: source.tick,
+    guardianId: source.guardianId,
+  };
+}
+
 export function createTowerGuardianCircuit(THREE) {
   const group = new THREE.Group();
   group.name = 'SourceObservedGuardianLockCircuit';
