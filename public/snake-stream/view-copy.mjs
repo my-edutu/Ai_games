@@ -16,3 +16,12 @@ export function spectatorCopy(snapshot) {
     intent: strategies[snapshot.ai?.mode] || 'Finding a safe path',
   };
 }
+
+/** Display-only, bounded progress derived exclusively from the public goal.
+ * This never influences the autonomous simulation or scoring. */
+export function goalProgress(snapshot) {
+  const goal = Number(snapshot?.goal);
+  const length = Number(snapshot?.length);
+  if (!Number.isFinite(goal) || goal <= 0 || !Number.isFinite(length)) return 0;
+  return Math.max(0, Math.min(100, Math.round(length / goal * 100)));
+}

@@ -1,6 +1,6 @@
 import { createFallbackRenderer } from './fallback.mjs';
 import { createGardenAudio } from './audio.mjs';
-import { spectatorCopy } from './view-copy.mjs';
+import { spectatorCopy, goalProgress } from './view-copy.mjs';
 import { createOverview } from './overview.mjs';
 import { selectCinematicShot } from './cinematic-director.mjs';
 
@@ -30,6 +30,11 @@ if (params.get('controls') === '1') broadcast.classList.add('show-controls');
 function syncControls() {
   for (const button of document.querySelectorAll('[data-control]')) {
     const control = button.dataset.control;
+    if (control === 'settings') {
+      const expanded = String(broadcast.classList.contains('show-controls'));
+      if (button.getAttribute('aria-expanded') !== expanded) button.setAttribute('aria-expanded', expanded);
+      continue;
+    }
     const active = control === 'reduced-motion' ? reducedMotion
       : control === 'muted' ? muted
         : control === 'camera' ? cameraMode !== 'overview' : cleanFeed;
@@ -49,16 +54,30 @@ for (const button of document.querySelectorAll('[data-control]')) {
       case 'reduced-motion': reducedMotion = !reducedMotion; break;
       case 'muted': muted = await audio.setMuted(!muted); break;
       case 'camera': cameraMode = cameraMode === 'overview' ? 'follow' : cameraMode === 'follow' ? 'detail' : 'overview'; break;
+      case 'settings': broadcast.classList.toggle('show-controls'); break;
       case 'clean-feed':
         cleanFeed = !cleanFeed;
         broadcast.classList.toggle('clean-feed', cleanFeed);
+        if (cleanFeed) broadcast.classList.remove('show-controls');
         break;
     }
     syncControls();
   });
 }
+// A clean stream contains no clickable HUD: touching the game itself brings
+// controls back, including on phones where an Escape key is unavailable.
+document.querySelector('.stage').addEventListener('click', () => {
+  if (!cleanFeed) return;
+  cleanFeed = false;
+  broadcast.classList.remove('clean-feed');
+  syncControls();
+});
 document.addEventListener('keydown', event => {
   if (event.key === 'Escape' && cleanFeed) { cleanFeed = false; broadcast.classList.remove('clean-feed'); syncControls(); }
+  else if (event.key === 'Escape' && broadcast.classList.contains('show-controls')) {
+    broadcast.classList.remove('show-controls');
+    syncControls();
+  }
   // Optional cinematic spectator mode is also accessible without editing a URL.
   // Keep the established three-button camera cycle and its accessibility tests.
   if (event.key.toLowerCase() === 'c' && !event.altKey && !event.ctrlKey && !event.metaKey
@@ -80,10 +99,24 @@ function setScene(value) {
   if (broadcast.dataset.scene !== value) broadcast.dataset.scene = value;
 }
 
+// Public-only presentation metadata, updated at the poll rate rather than RAF.
+function updateGoalProgress(snapshot) {
+  const meter = $('run-progress');
+  if (!meter) return;
+  const percent = String(goalProgress(snapshot));
+  const valueText = snapshot ? `Length ${snapshot.length} of goal ${snapshot.goal}` : 'Waiting for a new run';
+  if (meter.getAttribute('aria-valuenow') !== percent) {
+    meter.setAttribute('aria-valuenow', percent);
+    meter.style.setProperty('--goal-progress', `${percent}%`);
+  }
+  if (meter.getAttribute('aria-valuetext') !== valueText) meter.setAttribute('aria-valuetext', valueText);
+}
+
 function updateText(next) {
   const snapshot = next.snapshot;
   const hud = next.hud;
   const copy = snapshot ? spectatorCopy(snapshot) : null;
+  updateGoalProgress(snapshot);
   setScene(loading ? 'maintenance' : (reconnecting || drawFailed) ? 'recovery' : next.scene || 'normal');
   setText('primary', snapshot ? `LENGTH ${snapshot.length} / ${snapshot.goal}` : 'LENGTH — / —');
   setText('secondary', copy?.occupancy || 'The garden is waking');

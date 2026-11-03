@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-11-03T12:40:00.000Z",
-  "status": "T1 BUILDING / exact 68178 live Chromium 63/81 browser, genuine full desktop 12/17 FAIL, 744x340, general CI 644/659 RED 15; genuine 1920p and 63s source SELF REJECTED. Co-committed earth-moss integrated candidate native 9/9 and build PASS only, NEW SOURCE VISUAL and gate ACCEPTANCE PENDING. DRAFT / NEVER MERGE DEPLOY.",
-  "detail": "True 68178 1920p/portrait/detail and 63.44s+63.48s autonomous WebGL videos were inspected: garish neon-green rectangular grid, small stiff snake vs official Snake Pass, SELF REJECTED. Exact current-head focused Actions 41630840885 63 pass/18 fail, original hard ≥17 actual 1s complete draws 12 FAIL at GPU 744x340; 61 RAF NOT draws, GPU queue 2126.7ms max, device presents not measured. General CI 41630840904 644/659 (15 fail). Integrated earth-moss-slate atlas + vertex tint + safe same-root fern canopy broadening candidate new tests RED 0/2→GREEN 2/2, 9/9 affected tests and build PASS; native green-pixel/fern projection NOT visual proof. Requires NEW head authentic Chromium 1920/phone/detail + 45–90s movie and independent review, original strict ≥17 repeated true full renders useful raster, physical presents/p95, 40+ segment soak/recovery and full CI. Never merge/deploy.",
+  "updatedAt": "2026-11-03T13:36:32.736Z",
+  "status": "T1 BUILDING / T3 integrated immersive UI engineering CANDIDATE pending exact-head browser; current 2b CI 646/661 FAIL 15; unchanged previous 681 strict 12/17 FAIL. SELF REVIEW / NO ACCEPTANCE. DRAFT never merge/deploy.",
+  "detail": "Current PR parent 2b328e63: general GitHub Actions 41641254208 646/661 Node tests, 15 FAIL; focused Chromium 41641254466 was still in progress at review. New source candidate replaces dashboard-heavy strips with nearly full-viewport real game plus truthful public goal/length/record, readable responsive live captions, accessible Display options and clean-feed tap exit. T3 new-source tests/screenshots/film/gate and independent visual review NOT YET EXECUTED. Earlier 681 real full game remains self-rejected vs Snake Pass, hard 12 actual full-desktop draws/17 FAIL; no physical-device FPS. T1/T2/T3/T4 acceptance open, no merge/deploy.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Verified exact-68178 true 1920p + authentic 63s video: neon rectangular arena, tiny stiff serpent SELF REJECTED; unchanged original 12/17 genuine full renders FAIL. Earth/moss source candidate native only, T1 BUILDING.",
+  "latestCaption": "Last actually reviewed 681 full-game stills/video SELF-REJECTED. T3 immersive UI is a native code candidate only; no new-head WebGL/55-second film yet, no T1/T3 acceptance.",
   "reviews": [
+    {
+      "area": "2026-11-03 T3 immersive spectator UI integrated candidate on exact 2b parent",
+      "verdict": "Engineering candidate: full-viewport game with restrained truthful length/goal/record HUD, semantic goal meter, lean captions, explicit Display accessibility menu and touch clean-feed recovery; source tests authored, no new-source executable Node/Chromium evidence yet. Current parent 2b CI 646/661 FAIL 15 and Chromium in progress. Previous actual 681 whole-game SELF-REJECT and true original render 12/17 FAIL. T1 and T3 BUILDING, self-review only.",
+      "gap": "Source-exact Node RED/GREEN/build/browser, 1080p/portrait/detail before/after, real 45-90sec autonomous footage, independent critique, unchanged >=17 genuine full-scene desktop renderer/1s repeated useful raster, physical-device presents/p95, T1 landscape/T2 movement, 40+ segment soak/fallback/recovery/replay. DRAFT no merge/deploy."
+    },
     {
       "area": "2026-11-03 68178 actual original WebGL full-scene rejection + earth-moss integrated candidate",
       "verdict": "Original exact 68178 Chromium 41630840885 63/81 browser checks, original >=17 true full desktop renders only 12 /1008.9ms at 744x340; 61 RAF are not actual renders, no physical presented p95. Real 1920/portrait/detail plus genuine 63s overview/director whole-game visually SELF-REJECTED bright green rectangle and tiny stiff serpent; CI 644/659 FAIL 15 tests. New native candidate 0/2 RED→2/2 GREEN, affected 9/9 GREEN, TS build PASS. Same existing garden geometry/atlas/130 rooted fern clumps, no new mesh/pass/texture/false cues; native only, NOT quality acceptance.",
@@ -965,6 +970,7 @@
     }
   ],
   "checks": [
+    "2026-11-03 T3 immersive UX source candidate authored on 2b328e63; code/test objects staged without cancelling old Chromium 41641254466. Parent general CI 41641254208 646/661 FAIL 15; no candidate CI or real browser acceptance yet. Parent prior latest inspected 681 strict 12/17 genuine renders FAIL. T1/T3 BUILDING, never merge/deploy.",
     "2026-11-02 exact-head 9d3 authentic 8-view Chromium/WebGL and paired 55s video inspected: full-scene T1 SELF-REJECTED; 63/64 focused browser with mandatory original >=17 1s genuine renders FAILED 11/17 /1007.4ms at 736x336. Runtime source unmodified; details in docs/reviews/snake-gauntlet/2026-11-02-current-9d3-real-webgl-motion-rejection.md.",
     "2026-11-01: b8ae real 47/47 focused Chromium PASS and genuine 8 matched WebGL screenshots, dual 55-second autoplay movies. First T1 visibly inadequate and not accepted. Strict single 18 actual submits/1008.8ms >=17 PASS but raster only 777x355 and p95 ~966.7ms; physical present/soak and repeated pass OPEN. New connected ecology candidate locally 103/103 Snake Node+build PASS, new-head CI PENDING; source SHA exact head checkout corrected in workflows.",
     "2026-11-01: user acceptance rule changed. Full game must LOOK / FEEL / PLAY substantially better; micro-patch tests, changed pixels, round/commit counts are not acceptance. See TRANSFORMATION_GAUNTLET.md.",
@@ -1019,7 +1025,7 @@
     "firstImplementationPlan": "docs/superpowers/plans/2026-11-01-autonomous-snake-transformation.md",
     "acceptance": "An independently evidenced, visibly substantial upgrade of the full running game in environment, character, animation, materials, game feel and sustainable frame delivery; CI is necessary but never sufficient.",
     "overall": "NOT ACCEPTED",
-    "milestone": "T1 BUILDING, 415dae authentic full game self-rejected vs Snake Pass. New same-T1 4-shore native bank geometry + rooted real stone palette + T2 eye-brow cohesion candidate NOT yet native/WebGL accepted. Strict 9/17 fails, never merge/deploy.",
+    "milestone": "T1 BUILDING / T3 spectator UI integrated engineering CANDIDATE; NOT visually accepted. 2b parent Chromium still running at review; prior 681 complete world SELF-REJECTED and strict true 12/17 FAIL. Never merge/deploy.",
     "milestoneStatus": "BUILDING",
     "latestKnownStrictBrowser": "Actual original exact 415dae focus Chromium 41602261722: 80/81, mandatory 1s 9 true complete desktop GPU renderer submissions / 1012ms FAIL vs >=17, 736x336 drawing buffer, p95 interval 1733ms, max GPU queue latency 2696ms, 61 RAF callbacks do NOT count. Device-present frames unknown.",
     "pillars": [
@@ -1040,13 +1046,13 @@
       },
       {
         "name": "Play feel and frame delivery",
-        "status": "P0: actual 415dae mandatory strict >=17 genuine complete desktop submissions/1s FAIL at 9/17, GPU buffer 736x336, p95 frame interval 1733ms, max queued work 2696ms. Device real present-FPS unknown, new candidate unmeasured.",
+        "status": "T3 immersive UI code candidate only: viewport-first scene/true public meter/captions/display menu/touch clean-feed exit, real screen test pending; T4 original genuine 12/17 desktop renders FAIL on last reviewed 681 and parent 2b CI 15 FAIL. No device present p95 or acceptance.",
         "criterion": "Readable responsive gameplay/UX, real continuous autonomous video, repeatable >=17 actual browser draws and real-device smoothness evidence."
       }
     ],
     "baselineHead": "108e2e439aab1f3fe4cf49019c1aa9fe5630feb6",
-    "candidate": "Original assets/meshes retained: four authentic 3D coast and forest bank native shoulders reposition shared stones/trees/leaves and terrain with no new scene geometry/mesh/pass; deep saturation of exactly existing 1024x512 rooted three-course sunstone atlas, and reposition original intact ivory/amber eyes into reptilian brow. Two historical tests invoke correct declared gitBlob. No game authority, portal, fruit, hazards, scoring, audio, recovery, fallback or accessibility changed.",
-    "candidateProof": "Immutable full baseline Git blobs 12a26a7 and 9febd47 in new true source-exact fixture controls. Locally run focused RED→GREEN cliff/head 2/4=>4/4 and rooted palette 1/2=>2/2, historical helper 3/3 GREEN; TS build PASS, longer related suite incomplete due runtime timeout. Original 415dae real screenshot + 60.6s video exists; no candidate source fresh Chromium/WebGL proof, 17 gate still FAIL 9/17.",
-    "review": "SELF REVIEW / ACCEPTANCE PENDING. Last 415dae native real WebGL scene and 60.6s gameplay visibly self-REJECTED. New T1 native source code requires identical current-head authentic stills/film; frame delivery failing 9/17 at tiny buffer, device physical display p95/long-soak/independent whole-game critic unproven. Continue SAME T1."
+    "candidate": "Immersive viewport-first broadcast UI: exact same 3D scene, honest public length/goal/record/progress/AI intent, readable event captions, visible accessible display settings and tap/Escape clean-feed restore, device-responsive overlays without added rendering work or simulation mutation. Source-only unverified candidate.",
+    "candidateProof": "New source-focused Node and exact-source real Chromium/1920/390 screenshot tests authored. Old 2b parent CI 646/661 FAIL; old-head focused Chromium in progress; NO executable candidate green/WebGL/media or performance proof. Red/green claims pending.",
+    "review": "SELF REVIEW / ACCEPTANCE PENDING. Previous real 681 3D world SELF-REJECTED. T1 world still giant rectangle/tiny rigid hero; T3 UI changes have no actual browser screenshots/55–90s gameplay yet; performance original gate >=17 fails 12/17 on last inspected actual head; no device FPS or independent reviewer."
   }
 }
