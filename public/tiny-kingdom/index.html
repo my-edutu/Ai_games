@@ -5810,20 +5810,35 @@ function emitStreetCargo(p,x,y,z,size){
     const xx=x+side*.29*size;
     limbSegment([xx,y+.45*size,z-.20*size],
       [xx,cy+.08*size,cz-.25*size],.022*size,wood,5);
-    const wx=x+side*.40*size,wz=cz-.09*size;
-    ellipsoid(wx,y+.22*size,wz,.065*size,.20*size,.20*size,
-     rgb(0x51473c),5);
-    ellipsoid(wx+side*.06*size,y+.22*size,wz,.026*size,.062*size,
-     .062*size,rope,5);
-    // Two visible spokes rotate from the exact distance-driven walk phase.
-    // Stationary or blocked porters hold their wheel angle; no fake mileage.
-    for(let spoke=0;spoke<2;spoke++){
-     const a=p.phase*.78+spoke*Math.PI/2;
-     const dy=Math.cos(a)*.137*size,dz=Math.sin(a)*.137*size;
-     limbSegment([wx+side*.072*size,y+.22*size+dy,wz+dz],
-      [wx+side*.072*size,y+.22*size-dy,wz-dz],
-      .014*size,rope,4);
+    const wx=x+side*.40*size,wz=cz-.09*size,wy=y+.22*size;
+    const travelled=courierWheelTrails.get(p.delivery.id)?.distance||0;
+    // Unlike a phase-driven spinning disc, this wheel's rotation is the
+    // ACTUAL collision-checked distance traversed / its rolling radius.
+    // While a genuine courier stops to unload, the wheel also stops.
+    const wheelAngle=travelled/(CART_WHEEL_RADIUS*size);
+    const wheelPoint=(radius,angle,axial=0)=>[
+      wx+side*axial*size,
+      wy+Math.cos(angle)*radius*size,
+      wz+Math.sin(angle)*radius*size];
+    const iron=rgb(0x51473c),spokeOak=rgb(0xb49364);
+    for(let ring=0;ring<10;ring++){
+     const a=ring*Math.PI/5,b=(ring+1)*Math.PI/5;
+     // Proper hollow iron-shod wheel, not a solid elliptical coin.
+     // Faces and outer running tread are both visible at street height.
+     quad(wheelPoint(.21,a,.058),wheelPoint(.21,b,.058),
+      wheelPoint(.157,b,.058),wheelPoint(.157,a,.058),iron);
+     quad(wheelPoint(.157,a,-.058),wheelPoint(.157,b,-.058),
+      wheelPoint(.21,b,-.058),wheelPoint(.21,a,-.058),iron);
+     quad(wheelPoint(.21,a,-.058),wheelPoint(.21,b,-.058),
+      wheelPoint(.21,b,.058),wheelPoint(.21,a,.058),iron);
     }
+    for(let spoke=0;spoke<6;spoke++){
+     const a=wheelAngle+spoke*Math.PI/3;
+     limbSegment(wheelPoint(.038,a,side*.075),
+      wheelPoint(.17,a,side*.075),.024*size,spokeOak,4);
+    }
+    ellipsoid(wx+side*.076*size,wy,wz,
+      .045*size,.066*size,.066*size,rope,5);
     compactCitizenAnimation.lastAnimatedCartWheels++;
    }
    box(x,cy+.13*size,cz+.30*size,.68*size,.17*size,.045*size,wood);
