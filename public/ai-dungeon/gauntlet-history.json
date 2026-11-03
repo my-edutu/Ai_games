@@ -2194,9 +2194,9 @@
         "playsMajority": false,
         "provenance": "No fresh independent critics available. Do not infer a blind preference from test results or real predecessor screenshots."
       },
-      "safetyChecks": "Prior 8eab0d3 Dungeon and visual workflows SUCCESS, global catalogue CI FAILED. Candidate 6efb874 workflows 41727137082 (Dungeon), 41727137110 (visual), 41727137149 (catalogue) were IN PROGRESS at inspection; calibrated exact-head safety and WebGL performance remain UNVERIFIED.",
+      "safetyChecks": "Local candidate extracted source: Dungeon foundation 261/261 PASS. Exact-code Actions 41736374006 (dungeon), 41736374025 (visual) and 41736374029 (global) pending; do not imply full green.",
       "matchedExternalReference": "NOT_RUN",
-      "originalAudioMotionClip": "UNVERIFIED: actual opt-in Warden scene MediaRecorder returned ZERO bytes desktop+mobile despite 24 live boss polls desktop and 59 live polls mobile; silent Playwright test-results videos only. Original audible soundtrack not captured.",
+      "originalAudioMotionClip": "UNVERIFIED: baseline and ac82a5b Chromium VP8 clips have NO audio track; candidate original audio not recorded.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
       "audioLoudnessAndClipping": "NOT_MEASURED (no valid original audio stream/bytes)",
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
@@ -2218,7 +2218,7 @@
         "motion": "Browser test-results WebM present (silent); no controlled original audio/movie clip across journey",
         "verdict": "NOT_TRANSFORMED_SOURCE_PROBLEM"
       },
-      "newCandidateSceneReview": "Operator inspected actual 1440x832 raw world image after integrated sculpt and exact matched predecessor 429e raw world. Character silhouettes still appear as small, somewhat floating/orb-headed segmented figures; thick close Gothic wall dividers dominate the composition. Comparison remains a negative/mixed subjective result: no convincingly substantial LOOKS improvement. Mobile also retains an extensive lower informational area. No blind critic vote.",
+      "newCandidateSceneReview": "Genuine locked 281735d raw-world 1440x832 vs genuine ac82a5b raw-world 1440x832 visual review: predecessor looks worse, visually disconnected large dark orbs/tubular limbs and obstructive masonry. Same test route/viewport; tick not synchronized. Candidate c66d936 source aims to restore continuity; AFTER pixels uninspected.",
       "characterDrawBudget": "Previous exact 429e6b real Chromium had 265 cinematicMeshes at desktop versus <=240 test bound (shard1 failed). New 3aec189 fuses 4–5 head parts per figure and removes 1 gorget per figure but actual current head draw counts, performance and visual quality UNVERIFIED; do not infer from mesh arithmetic.",
       "externalReferenceAudit": "Compared qualitatively against 2023 Diablo IV Frozen Tunnel combat still (https://www.npr.org/2023/05/30/1178222988/diablo-iv-review-activision-blizzard), real No Rest for the Wicked 2026 cavern still (https://www.rpgsite.net/news/20518-no-rest-for-the-wicked-1-0-release-ps5-xbox-switch-2-cross-save-multiplayer-pc-october), and Path of Exile 2 Executioner combat still (https://www.mmorpg.com/reviews/path-of-exile-2-early-access-review-2000133606). Their negative space/material structure/impact clarity remain far ahead; they are references, NOT licensed or copied game assets. No direct synchronized/gameplay-balanced reference test or blind score.",
       "realBrowserFrameDeliveryPredecessor": "Actual d9e1c Chromium software WebGL shard 2 artifact 13238978845, artifacts/dungeon-raf-interval-evidence.json: foreground RAF intervals 15 samples, p50 733.3ms, p95 and worst 4549.9ms; other raster evidence sampled 8 frames, directRenderMs 3.9ms at 273136 pixels and downshift 2. Foreground RAF observations cannot establish standalone GPU render time or phone fps. Known scheduling / software runner risk, latest candidate performance UNVERIFIED.",
@@ -2297,9 +2297,9 @@
       "nativeContinuityCandidate": "Source commit 08338db is an unverified new 3D underlay candidate, not a demonstrated repair. Real after comparison/critics have not happened. Monitor additional native underbody draw calls and 3D anatomy material intersections."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Authentic candidate in-motion desktop/mobile proof that body armour, foreground masonry, warning cells and combat contact form coherent readable silhouettes; complete natural traversal→fight→Warden→floor→defeat/restart audiovisual capture, matched locked baseline and 3 fresh blind majority votes unavailable.",
-    "currentWork": "Source 6efb874 M1 physical real-actor scenic clearing, plus calibrated two-stage camera-side negative-space radius. Authentic 8eab0d3 predecessor screenshot showed 3/3 geometrically unoccluded heroes yet visibly unreadable segmented costumes behind dense stockades. Candidate genuine gameplay and comparison UNVERIFIED.",
-    "candidateCommit": "6efb874f130e76bccb4d4eed5870db9854e55d3b",
+    "biggestRemainingGap": "Make newly reconnected genuine skeletal heroes/enemies readable and attractive across authentic moving combat and boss footage amid dense masonry; prove audible complete traversal→fight→Warden→floor→defeat/restart, matched baseline and independent blind LOOKS/FEELS/PLAYS majorities.",
+    "currentWork": "Original continuous skinned/texture-native 3D characters reinstated throughout live autonomous adventure; oversized floating sculpted overlays retired after negative genuine browser comparison. Exact-code desktop/mobile browser review and candidate audio remain pending.",
+    "candidateCommit": "c66d936c04a73f32d1d3503b1e7b3ad9519890af",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -4149,6 +4149,27 @@
         "next": "Run exact-head browser after scene, capture genuine mobile/desktop action and compare versus fixed 281735d baseline, reject camera pops/overclearance, assess model intersections and GPU frame costs, capture all five stages with audio and obtain 3 independent blind pillar judgments.",
         "sourceCodeCommit": "6efb874f130e76bccb4d4eed5870db9854e55d3b",
         "calibration": "Travel foreground cutaway radius <=3.05m, contact foreground <=3.65m; immediate camera-facing only, no distant/behind clearing; shared legacy five-subject cap."
+      },
+      {
+        "id": "M1-NATIVE-SILHOUETTE-RESCUE-20261103",
+        "date": "2026-11-03",
+        "milestone": "M1",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "ac82a5bae23c64f231830ea05bf7e54fee78b0ef",
+        "codeCommit": "c66d936c04a73f32d1d3503b1e7b3ad9519890af",
+        "objective": "Correct source-confirmed visual regression: genuine player and enemy heads/arms fragmented by giant dark procedural armor and false anatomical tubes.",
+        "before": "https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
+        "observedWorsePredecessor": "https://github.com/my-edutu/Ai_games/actions/runs/41727392463/artifacts/13275342501",
+        "genuineComparison": "Actual 1440x832 raw world screenshots same route; predecessor worse than locked baseline; tick unaligned, not blind A/B. Original and predecessor VP8 videos silent.",
+        "integratedImplementation": "Restore complete original textured, continuously skinned CC0 source rig mesh costume/head/hands/weapon to live render, preserve actual mixer, bone motion, attack choreography, original phase Warden regalia, VFX anchors; remove floating procedural body shells and false head. Native continuity desktop/mobile runtime audits and safety test correction.",
+        "localSafety": "261/261 Dungeon foundation PASSED after npm build in extracted genuine source workspace; exact-head browser and catalogue CI awaiting Actions; no subjective after win.",
+        "audio": "UNVERIFIED; prior videos no audio track",
+        "candidateAfter": "UNVERIFIED; genuine exact-head desktop/mobile browser images/video not yet inspected",
+        "critics": "UNVERIFIED; 0/3 independent critics; worker tunnel unavailable",
+        "performance": "UNVERIFIED; removal of cosmetic draw load anticipated but not measured",
+        "verdict": "IN_PROGRESS — NOT_TRANSFORMED",
+        "next": "Inspect new run authentic raw-world desktop/mobile and boss moving footage, reject if source anatomy still unreadable, refine camera/near-wall architecture and impact, record original game audio and full five-stage narrative, score blind matched A/B by 3 independent judges."
       }
     ]
   }
