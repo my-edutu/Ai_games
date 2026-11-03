@@ -92,19 +92,21 @@ function witnessedHealthPickup(snapshot, support) {
     Math.abs(item.x - p.x) > p.halfWidth + 8000)
     .sort((a,b) => Math.abs(a.x-p.x)-Math.abs(b.x-p.x) ||
       a.id.localeCompare(b.id));
-  for(const item of options) {
-    const lowX = Math.min(p.x,item.x)-p.halfWidth;
-    const highX = Math.max(p.x,item.x)+p.halfWidth;
-    const lowY = p.y-p.halfHeight, highY = p.y+p.halfHeight;
-    const hazard = snapshot.hazards?.some(h=>h?.active &&
-      h.x < highX && h.x+h.width > lowX &&
-      h.y < highY && h.y+h.height > lowY);
-    const enemy = snapshot.enemies?.some(e=>e?.active &&
-      Math.abs(e.y-p.y) < p.halfHeight+e.halfHeight+10000 &&
-      e.x+e.halfWidth+4000 > lowX && e.x-e.halfWidth-4000 < highX);
-    if(!hazard && !enemy) return item;
-  }
-  return null;
+  // The public intent does not expose a pickup ID. When multiple eligible
+  // health items exist, we cannot prove WHICH one authority chose: show no
+  // route instead of depicting a fabricated detour to the wrong item.
+  if(options.length !== 1) return null;
+  const item = options[0];
+  const lowX = Math.min(p.x,item.x)-p.halfWidth;
+  const highX = Math.max(p.x,item.x)+p.halfWidth;
+  const lowY = p.y-p.halfHeight, highY = p.y+p.halfHeight;
+  const hazard = snapshot.hazards?.some(h=>h?.active &&
+    h.x < highX && h.x+h.width > lowX &&
+    h.y < highY && h.y+h.height > lowY);
+  const enemy = snapshot.enemies?.some(e=>e?.active &&
+    Math.abs(e.y-p.y) < p.halfHeight+e.halfHeight+10000 &&
+    e.x+e.halfWidth+4000 > lowX && e.x-e.halfWidth-4000 < highX);
+  return hazard || enemy ? null : item;
 }
 export function createTowerRouteIntent(THREE) {
   const geometry = new THREE.ConeGeometry(.28, .74, 4, 1);
