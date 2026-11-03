@@ -58,6 +58,45 @@ export function observedGuardianShotCorridor(snapshot) {
   };
 }
 
+// Only a physically present source-owned projectile flying toward a living
+// guardian can earn a hero pulse plume. No simulated future hit or shot.
+export function observedGuardianPulseFlight(snapshot) {
+  const player = snapshot?.player;
+  if (snapshot?.lifecycle !== 'running' || !player || player.health <= 0 ||
+    player.state !== 'standing' || !Number.isSafeInteger(snapshot.tick) ||
+    !Number.isSafeInteger(snapshot.floor) || !snapshot.runToken ||
+    !Number.isFinite(snapshot.chunkBaseY) ||
+    !Number.isFinite(snapshot.worldWidth) || snapshot.worldWidth <= 0 ||
+    !Number.isFinite(player.x) || !Array.isArray(snapshot.projectiles) ||
+    !Array.isArray(snapshot.enemies)) return null;
+  let best = null, bestDistance = Infinity;
+  for (const shot of snapshot.projectiles) {
+    if (shot?.owner !== 'player' || typeof shot.id !== 'string' || !shot.id ||
+      ![shot.x, shot.y, shot.vx].every(Number.isFinite) || shot.vx === 0 ||
+      Math.abs(shot.x - player.x) > 210000) continue;
+    const direction = Math.sign(shot.vx);
+    for (const guardian of snapshot.enemies) {
+      if (guardian?.kind !== 'guardian' || guardian.active !== true ||
+        typeof guardian.id !== 'string' || !guardian.id ||
+        ![guardian.x, guardian.y, guardian.halfHeight, guardian.health].every(Number.isFinite) ||
+        guardian.health <= 0 || guardian.halfHeight <= 0) continue;
+      const distance = (guardian.x - shot.x) * direction;
+      if (distance < 0 || distance > 210000 || distance >= bestDistance ||
+        (guardian.x - player.x) * direction <= 0 ||
+        Math.abs(guardian.x - player.x) > 210000 ||
+        Math.abs(guardian.y - shot.y) >= guardian.halfHeight + 3500) continue;
+      bestDistance = distance;
+      best = {
+        runToken: snapshot.runToken, floor: snapshot.floor, tick: snapshot.tick,
+        projectileId: shot.id, guardianId: guardian.id,
+        x: shot.x, y: shot.y, vx: shot.vx,
+        worldWidth: snapshot.worldWidth, baseY: snapshot.chunkBaseY,
+      };
+    }
+  }
+  return best;
+}
+
 export function createTowerGuardianShotStage(THREE) {
   const group = new THREE.Group();
   group.name = 'RealGuardianShotWarningStage';
@@ -84,34 +123,56 @@ export function createTowerGuardianShotStage(THREE) {
   const warm = new THREE.Color(0xffbc78);
   const urgent = new THREE.Color(0xff7657);
   const color = new THREE.Color();
-  group.add(arrows);
+  // A second instanced forged alloy plume renders one REAL step of the
+  // player projectile. It never stretches ahead into a fabricated impact.
+  const pulseGeometry = new THREE.OctahedronGeometry(.38, 0);
+  const pulseMaterial = new THREE.MeshStandardMaterial({
+    color: 0xa8eee3, metalness: .28, roughness: .36,
+    emissive: 0x29766e, emissiveIntensity: .42,
+    transparent: true, opacity: .82, depthTest: true, depthWrite: false,
+  });
+  const pulses = new THREE.InstancedMesh(pulseGeometry, pulseMaterial, 6);
+  pulses.name = 'RealPlayerPulseGuardianFlight';
+  pulses.count = 0;
+  pulses.castShadow = false;
+  pulses.receiveShadow = false;
+  pulses.frustumCulled = false;
+  pulses.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  group.add(arrows, pulses);
   group.visible = false;
-  let source = null, lastKey = '', disposed = false;
+  let source = null, pulseSource = null, lastKey = '', disposed = false;
   function clear() {
     source = null;
+    pulseSource = null;
     lastKey = '';
     arrows.count = 0;
+    pulses.count = 0;
     group.visible = false;
   }
   function update(snapshot, options = {}) {
     if (disposed) return;
     const next = options.stale ? null : observedGuardianShotCorridor(snapshot);
-    if (!next) { clear(); return; }
+    const flight = options.stale ? null : observedGuardianPulseFlight(snapshot);
+    if (!next && !flight) { clear(); return; }
     const reduced = options.reducedMotion === true;
     // At close quarters there is not enough physical lane to space eight
     // large vanes: show one substantial warning instead of a flickering
     // stack. Wider real lanes gain density, never exceeding 8 phone/12 HD.
     const budget = options.quality === 'low' ? 8 : MAX_MARKERS;
-    const count = Math.min(budget, Math.max(1,
-      Math.floor(next.length / 11500)));
-    const key = [next.runToken, next.floor, next.tick, next.guardianId,
-      next.x, next.y, next.playerX, next.remainingChargeTicks,
-      next.facing, next.startGap, next.length, count, reduced].join(':');
+    const count = next ? Math.min(budget, Math.max(1,
+      Math.floor(next.length / 11500))) : 0;
+    const pulseCount = flight ? (options.quality === 'low' ? 4 : 6) : 0;
+    const key = [next?.runToken, next?.floor, next?.tick, next?.guardianId,
+      next?.x, next?.y, next?.playerX, next?.remainingChargeTicks,
+      next?.facing, next?.startGap, next?.length, count, reduced,
+      flight?.runToken, flight?.floor, flight?.tick, flight?.projectileId,
+      flight?.guardianId, flight?.x, flight?.y, flight?.vx, pulseCount].join(':');
     if (key === lastKey) return;
     source = next;
+    pulseSource = flight;
     lastKey = key;
     arrows.count = count;
-    const heat = next.charge;
+    const heat = next?.charge ?? 0;
     for (let index = 0; index < count; index++) {
       const t = (index + .5) / count;
       const x = clamp(next.x + next.facing * (next.startGap + next.length * t),
@@ -136,8 +197,28 @@ export function createTowerGuardianShotStage(THREE) {
       color.copy(warm).lerp(urgent, heat);
       arrows.setColorAt(index, color);
     }
-    arrows.instanceMatrix.needsUpdate = true;
-    if (arrows.instanceColor) arrows.instanceColor.needsUpdate = true;
+    if (count) {
+      arrows.instanceMatrix.needsUpdate = true;
+      if (arrows.instanceColor) arrows.instanceColor.needsUpdate = true;
+    }
+    pulses.count = pulseCount;
+    if (flight) {
+      // Every shard occupies the bolt's already traversed single-tick segment.
+      // Tick and velocity are SOURCE observations, not an animation prediction.
+      const travelled = Math.min(16000, Math.abs(flight.vx));
+      const sign = Math.sign(flight.vx);
+      for (let index = 0; index < pulseCount; index++) {
+        const t = (index + .5) / pulseCount;
+        const x = clamp(flight.x - sign * travelled * t, 0, flight.worldWidth);
+        const site = pointFor(x, flight.y, flight.baseY, flight.worldWidth, 27.82);
+        pose.position.set(site.x, site.y + .10, site.z);
+        pose.rotation.set(0, site.angle, 0);
+        pose.scale.setScalar(.95 - t * .46);
+        pose.updateMatrix();
+        pulses.setMatrixAt(index, pose.matrix);
+      }
+      pulses.instanceMatrix.needsUpdate = true;
+    }
     group.visible = true;
   }
   // The actual combat camera may prefer this SAME source-bound physical
@@ -149,6 +230,11 @@ export function createTowerGuardianShotStage(THREE) {
       (source.startGap + source.length * .45), 0, source.worldWidth);
     return pointFor(x, source.y, source.baseY, source.worldWidth, 27.75);
   }
+  function pulseFocusPoint() {
+    if (!group.visible || !pulseSource) return null;
+    return pointFor(pulseSource.x, pulseSource.y, pulseSource.baseY,
+      pulseSource.worldWidth, 27.82);
+  }
   function diagnostics() {
     return {
       sourceBound: true, visible: group.visible,
@@ -157,7 +243,11 @@ export function createTowerGuardianShotStage(THREE) {
       remainingChargeTicks: source?.remainingChargeTicks ?? null,
       facing: source?.facing ?? null, markerCount: group.visible ? arrows.count : 0,
       presentLaneLength: source?.length ?? null, startGap: source?.startGap ?? null,
-      maximumMarkers: MAX_MARKERS, extraDraws: group.visible ? 1 : 0,
+      pulseGuardianId: pulseSource?.guardianId ?? null,
+      witnessedPlayerProjectileId: pulseSource?.projectileId ?? null,
+      pulseMarkerCount: group.visible ? pulses.count : 0,
+      maximumMarkers: MAX_MARKERS, maximumPulseMarkers: 6,
+      extraDraws: (arrows.count > 0 ? 1 : 0) + (pulses.count > 0 ? 1 : 0),
       predictedHits: false, shadowCastingMeshes: 0, disposed,
     };
   }
@@ -168,6 +258,8 @@ export function createTowerGuardianShotStage(THREE) {
     group.clear();
     geometry.dispose();
     material.dispose();
+    pulseGeometry.dispose();
+    pulseMaterial.dispose();
   }
-  return { group, update, clear, focusPoint, diagnostics, dispose };
+  return { group, update, clear, focusPoint, pulseFocusPoint, diagnostics, dispose };
 }
