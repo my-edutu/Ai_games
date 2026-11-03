@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {planSkinnedDefeatPose,planSkinnedHitResponse} from '/dungeon/impact-choreography-plan.js';
+import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
 import {planEvasionPerformance} from '/dungeon/evasion-performance-plan.js';
 import {planCombatPerformanceBeat} from '/dungeon/combat-performance-plan.js';
 import {planWardenRegalia} from '/dungeon/warden-regalia-plan.js';
@@ -692,7 +692,8 @@ function stageSkinnedHitAfterMixer(actor,reducedMotion){
  if(!actor.authored||!actor.root||actor.root.visible===false)return;
  const beat=actor.damageBeat;
  const pose=planSkinnedHitResponse(actor.u.kind,beat?.damage,beat?.maxHp,
-  beat?.age,Boolean(beat?.fatal)||actor.u.hp<=0,reducedMotion);
+  beat?.age,Boolean(beat?.fatal)||actor.u.hp<=0,reducedMotion,
+  resolveImpactSide(beat?.incoming,actor.root.rotation.y));
  if(pose.weight<=0)return;
  actor.skinnedHitWeight=pose.weight;
  actor.skinnedHitPeak=Math.max(actor.skinnedHitPeak||0,pose.weight);

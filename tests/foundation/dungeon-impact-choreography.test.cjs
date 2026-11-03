@@ -155,3 +155,25 @@ test('true damage attaches to bone overlay without stacking on imported mixer',(
  assert.match(model,/const chest=selectCombatTorsoBone\(bones\)/);
  assert.match(model,/skinnedHitActors:/);
 });
+
+test('a true HP decrease uses only a single same-tick unobstructed enemy action to orient hit recoil',async()=>{
+ const {planAuthorityDamageBeats,resolveImpactSide,planSkinnedHitResponse,planDamageReaction}=await plan();
+ const prior=snapshot(16,[hero,enemy]);
+ const after=snapshot(17,[hero,{...enemy,hp:54}]);
+ const beat=planAuthorityDamageBeats(prior,after)[0];
+ assert.deepEqual(beat.incoming,{dx:1,dz:0,sourceId:'vanguard'});
+ assert.equal(resolveImpactSide(beat.incoming,0),1);
+ assert.equal(resolveImpactSide(beat.incoming,Math.PI),-1);
+ assert.equal(resolveImpactSide({dx:0,dz:0}),0);
+ const a=planSkinnedHitResponse('warden',36,90,.16,false,false,1);
+ const b=planSkinnedHitResponse('warden',36,90,.16,false,false,-1);
+ assert.ok(a.spine.roll>0&&b.spine.roll<0);
+ assert.ok(planDamageReaction('warden',36,90,.17,false,false,1).roll>0);
+ assert.ok(planDamageReaction('warden',36,90,.17,false,false,-1).roll<0);
+ const doubled=snapshot(17,[hero,{...hero,id:'second-striker'}, {...enemy,hp:54}]);
+ assert.equal(planAuthorityDamageBeats(prior,doubled)[0].incoming,undefined,'two plausible attackers cannot prove a direction');
+ const blocked=snapshot(17,[{...hero,x:1,z:9},{...enemy,hp:54}]);
+ assert.equal(planAuthorityDamageBeats(prior,blocked)[0].incoming,undefined,'a distant attack is not matched');
+ const trapped=snapshot(17,[{...hero,targetId:undefined},{...enemy,hp:54}]);
+ assert.equal(planAuthorityDamageBeats(prior,trapped)[0].incoming,undefined,'environmental damage receives no invented attacker');
+});

@@ -13,6 +13,40 @@ const ease=x=>{const t=clip(x,0,1);return t*t*(3-2*t)};
 const neutral=()=>({x:0,y:0,z:0,pitch:0,roll:0});
 const finiteHp=u=>u&&typeof u.id==='string'&&u.id.length>0&&u.id.length<=128&&
  Number.isInteger(u.hp)&&Number.isInteger(u.maxHp)&&u.hp>=0&&u.maxHp>0&&u.hp<=u.maxHp;
+/**
+ * Attribute a visual incoming lane only when exactly one opposite-faction
+ * same-tick action explicitly targets the injured unit through a legal,
+ * unobstructed cardinal lane. This DOES NOT prove damage causation: hazards
+ * and simultaneous hits can still apply authoritative damage independently.
+ * Ambiguous/missing actors intentionally retain neutral hit choreography.
+ */
+function matchedIncomingLane(snapshot,victim){
+ if(!Array.isArray(snapshot?.map)||!Array.isArray(snapshot?.units))return null;
+ const candidates=snapshot.units.filter(source=>{
+  if(!source||source.faction===victim.faction||source.hp<=0||
+    source.targetId!==victim.id||source.actionTick!==snapshot.tick||
+    !['attack','cast'].includes(source.action)||
+    !Number.isInteger(source.x)||!Number.isInteger(source.z)||
+    !Number.isInteger(victim.x)||!Number.isInteger(victim.z))return false;
+  const dx=victim.x-source.x,dz=victim.z-source.z,range=Math.abs(dx)+Math.abs(dz);
+  const limit=source.kind==='ranger'?4:['mystic','cultist'].includes(source.kind)?3:1;
+  if(range<1||range>limit||(dx!==0&&dz!==0))return false;
+  const stepX=Math.sign(dx),stepZ=Math.sign(dz);
+  for(let k=1;k<range;k++)if(snapshot.map[source.z+k*stepZ]?.[source.x+k*stepX]!=='.')return false;
+  return true;
+ });
+ if(candidates.length!==1)return null;
+ const source=candidates[0];
+ return Object.freeze({dx:victim.x-source.x,dz:victim.z-source.z,sourceId:source.id});
+}
+/** Signed, physically oriented flinch across the actual animated body. */
+export function resolveImpactSide(incoming,yaw=0){
+ if(!incoming||!Number.isInteger(incoming.dx)||!Number.isInteger(incoming.dz)||
+  Math.abs(incoming.dx)+Math.abs(incoming.dz)<1||
+  Math.abs(incoming.dx)+Math.abs(incoming.dz)>4||!Number.isFinite(yaw))return 0;
+ const lateral=incoming.dx*Math.cos(yaw)-incoming.dz*Math.sin(yaw);
+ return Math.abs(lateral)<.20?0:Math.sign(lateral);
+}
 export function planAuthorityDamageBeats(previous,next){
  if(!previous||!next||!Array.isArray(previous.units)||!Array.isArray(next.units)||
    !Number.isSafeInteger(previous.tick)||!Number.isSafeInteger(next.tick)||
@@ -25,21 +59,23 @@ export function planAuthorityDamageBeats(previous,next){
   const before=old.get(unit.id);
   if(!before||before.kind!==unit.kind||before.faction!==unit.faction||before.hp<=unit.hp)continue;
   const damage=before.hp-unit.hp;
+  const incoming=matchedIncomingLane(next,unit);
   events.push(Object.freeze({id:unit.id,kind:unit.kind,faction:unit.faction,
-   damage,maxHp:unit.maxHp,fatal:unit.hp===0,x:unit.x,z:unit.z}));
+   damage,maxHp:unit.maxHp,fatal:unit.hp===0,x:unit.x,z:unit.z,
+   ...(incoming?{incoming}:{})}));
  }
  events.sort((a,b)=>Number(b.fatal)-Number(a.fatal)||
   b.damage/b.maxHp-a.damage/a.maxHp||a.id.localeCompare(b.id,'en'));
  return Object.freeze(events.slice(0,18));
 }
 /** Bounded physical response. Never moves a gameplay cell or changes a hit. */
-export function planDamageReaction(kind,damage,maxHp,age,fatal=false,reducedMotion=false){
+export function planDamageReaction(kind,damage,maxHp,age,fatal=false,reducedMotion=false,impactSide=0){
  if(!Number.isFinite(damage)||damage<=0||!Number.isFinite(maxHp)||maxHp<=0||
    !Number.isFinite(age)||age<0||age>=DEATH_BEAT_DURATION||reducedMotion)return neutral();
  const strength=clip(.44+damage/maxHp*2.6,.44,1.0)*(kind==='warden'?.68:1);
  const rise=ease(age/.105),release=1-ease((age-.105)/.285);
  const impact=rise*release*strength;
- const direction=kind==='cultist'||kind==='warden'?-1:1;
+ const direction=impactSide===-1||impactSide===1?impactSide:(kind==='cultist'||kind==='warden'?-1:1);
  if(fatal){
   const fall=ease((age-.12)/.62);
   return {x:0,y:-.26*fall-.022*impact,z:.13*fall+.08*impact,
@@ -102,7 +138,7 @@ const SKINNED_HIT_REST=Object.freeze({
  right:Object.freeze({upper:0,lower:0,foot:0})})
 });
 const HIT_ROLES=Object.freeze(['vanguard','ranger','mystic','revenant','cultist','warden']);
-export function planSkinnedHitResponse(kind,damage,maxHp,age,fatal=false,reducedMotion=false){
+export function planSkinnedHitResponse(kind,damage,maxHp,age,fatal=false,reducedMotion=false,impactSide=0){
  if(!HIT_ROLES.includes(kind)||fatal||reducedMotion||
  !Number.isFinite(damage)||damage<=0||!Number.isFinite(maxHp)||maxHp<=0||
  !Number.isFinite(age)||age<0||age>=DAMAGE_BEAT_DURATION)return SKINNED_HIT_REST;
@@ -110,7 +146,7 @@ export function planSkinnedHitResponse(kind,damage,maxHp,age,fatal=false,reduced
  const weight=clip(.36+2.2*damage/maxHp,.36,1)*(kind==='warden'?.76:1)*onset*release;
  if(weight<=0)return SKINNED_HIT_REST;
  const caster=kind==='ranger'||kind==='mystic'||kind==='cultist';
- const side=kind==='cultist'||kind==='revenant'||kind==='warden'?-1:1,w=weight;
+ const side=impactSide===-1||impactSide===1?impactSide:(kind==='cultist'||kind==='revenant'||kind==='warden'?-1:1),w=weight;
  return Object.freeze({
  weight:w,spine:{pitch:(caster?.21:.28)*w,roll:.19*side*w},
  shoulders:{left:(caster?-.25:-.36)*w,right:(caster?-.39:-.30)*w},

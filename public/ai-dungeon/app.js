@@ -16,7 +16,7 @@ import {planPartyWallReveal,createCutawayBandCache,shouldUploadCutawayBand} from
 import {planBoundaryCamera} from '/dungeon/camera-boundary-plan.js';
 import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
 import {planExpeditionStep,advanceExpeditionFootfall} from '/dungeon/expedition-locomotion-plan.js';
-import {planAuthorityDamageBeats,planDamageReaction,planDefeatTableauPose,planImpactCameraHold,DAMAGE_BEAT_DURATION,DEATH_BEAT_DURATION} from '/dungeon/impact-choreography-plan.js';
+import {planAuthorityDamageBeats,planDamageReaction,resolveImpactSide,planDefeatTableauPose,planImpactCameraHold,DAMAGE_BEAT_DURATION,DEATH_BEAT_DURATION} from '/dungeon/impact-choreography-plan.js';
 import {planAuthorityEvasions,EVASION_BEAT_DURATION} from '/dungeon/evasion-performance-plan.js';
 import {planPostFXBudget,adaptPostFXPixelCap,postFXStallAction,isSoftwareWebGLRenderer,createFrameIntervalProbe,planDirectRenderBudget,adaptDirectRenderPixelCap} from '/dungeon/postfx-budget.js';
 import {planCombatFacing,planMovementFacing,approachCharacterYaw,shortestYawDelta} from '/dungeon/facing-plan.js';
@@ -928,7 +928,8 @@ function animate(t){
    a.impactPivot.rotation.set(lastStand.pitch,0,lastStand.roll);
   }else if(a.damageBeat){
    a.damageBeat.age=advancePresentationActionAge(a.damageBeat.age,dt);
-   const recoil=planDamageReaction(a.u.kind,a.damageBeat.damage,a.damageBeat.maxHp,a.damageBeat.age,a.damageBeat.fatal,reduced);
+   const recoil=planDamageReaction(a.u.kind,a.damageBeat.damage,a.damageBeat.maxHp,a.damageBeat.age,a.damageBeat.fatal,reduced,
+    resolveImpactSide(a.damageBeat.incoming,a.root.rotation.y));
    a.impactPivot.position.set(recoil.x,recoil.y,recoil.z);
    a.impactPivot.rotation.set(recoil.pitch,0,recoil.roll);
    if(a.damageBeat.fatal&&a.damageBeat.age>=DEATH_BEAT_DURATION)a.root.visible=false;

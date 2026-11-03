@@ -41,3 +41,19 @@ test('rendering uses genuine rig hand, HP-delta guard, and restricted local asse
  assert.doesNotMatch(director,/flashAt\(p\.target,color\(p\.kind\)\)/);
  assert.doesNotMatch(fs.readFileSync(file,'utf8'),/Math\.random|Date\.now|fetch\(|DungeonRuntime/);
 });
+
+test('the live attack-to-injury renderer follows legitimate animated skinned actors through full physical contact',()=>{
+ const code=fs.readFileSync(path.join(root,'public/ai-dungeon/combat-director.js'),'utf8');
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(code,/liveActorCellPoint\(source,from,actorById\)/);
+ assert.match(code,/liveActorCellPoint\(target,to,actorById\)/);
+ assert.match(code,/source:\{id:source\.id,x:source\.x,z:source\.z\}/);
+ assert.match(code,/liveInjuryAnchor\(beat,hit,actorById\)/);
+ assert.match(code,/skinnedArcFrames/);
+ assert.match(code,/skinnedHitAnchors/);
+ assert.match(app,/resolveImpactSide\(a\.damageBeat\.incoming,a\.root\.rotation\.y\)/);
+ assert.match(model,/resolveImpactSide\(beat\?\.incoming,actor\.root\.rotation\.y\)/);
+ assert.match(code,/Math\.hypot\(x-beat\.x,z-beat\.z\)>\.58/);
+ assert.doesNotMatch(code,/DungeonRuntime|Math\.random|Date\.now/);
+});

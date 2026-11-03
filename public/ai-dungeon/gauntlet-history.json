@@ -2206,8 +2206,8 @@
       "newCandidateSceneReview": "UNVERIFIED new exact-head screenshot/audio/long motion. Source-head 4cc8abd desktop and portrait world-only screenshots inspected; candidate capture not yet available."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Inspected authentic exact-predecessor desktop/portrait Chromium: toy-like imported character proportions and overlapping small party amid chunky oversized masonry; on portrait, Ranger is partly clipped at the left. Real contact/motion quality remains far below Diablo IV, PoE2 and No Rest for the Wicked. New candidate has no independently observed moving AFTER footage yet.",
-    "currentWork": "SAME OPEN M1: real nonfatal HP-loss skinned-combat response on the original textured GLB characters. Genuine damage now drives shoulders, elbow, chest, braced thighs/knees and recovery; imported animations, true VFX, sound and camera stay integrated. Local equivalent 218/218 focused safety tests pass; exact-head browser capture remains UNVERIFIED.",
+    "biggestRemainingGap": "Adult-quality readable character silhouettes and sustained believable attack/contact/recovery in live desktop and mobile footage remain below Diablo IV/No Rest for the Wicked/PoE2. Prior Gothic props crowd the party; phone companion cropping, incomplete audiovisual expedition and lack of blind reviewers remain unverified.",
+    "currentWork": "SAME OPEN M1: integrated physical damage bridge on actual imported skinned GLBs. Real same-tick attack lane (only unambiguous) orients genuine HP-loss recoil; read-only sword crescents continue tracking bounded real skinned hand/body positions; true damage fragments follow the actual wounded chest. No collision, authority, RNG or replay changes. Not verified in new running desktop/mobile game.",
     "candidateCommit": "",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
@@ -3371,6 +3371,35 @@
         },
         "performance": "UNVERIFIED desktop/phone p95 GPU, audio timing, endurance",
         "next": "Inspect exact-head authentic video and before/after 1440x832 and portrait injury frames for full-body recoil, weapon sync and clipping. Fix the largest observed render defect, then expand original adult proportions/world composition and tactical encounter quality. Record continuous organic travel→combat→boss→floor→defeat/restart with live sound, compare against locked baseline and obtain 3 independent masked critics. Never merge."
+      },
+      {
+        "id": "M1-SKINNED-CONTACT-SPACE-20261103",
+        "date": "2026-11-03",
+        "milestone": "SAME OPEN M1; NOT AN ACCEPTED GAUNTLET ROUND",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "sourceHeadAtStart": "34f535cc118f1003d2f0a0bcdc40498463012609",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "baselineArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
+        "precursorRealBrowser": "https://github.com/my-edutu/Ai_games/actions/runs/41557262830/artifacts/13195133729",
+        "objective": "Make an actual authority-backed blow a connected visible 3D performance: the correct animated attacker's wrist, the moving victim's body and the genuine HP-loss recoil must occupy the same physical encounter rather than fixed logical tile centres.",
+        "integratedImplementation": [
+          "Real positive HP loss matches an incoming side only for ONE exact same-tick opposite-faction target and legal unobstructed cardinal lane; ambiguous/multi-hit/environmental damage never guesses an attacker. Match is directional context, not proof of damage causation.",
+          "Imported GLB torso, armor and body recoil use the read-only incoming lane relative to actual facing; genuine death, accessibility and mixer restoration remain the higher priorities.",
+          "Original melee weapon crescent now carries source/target IDs throughout its frame-bound life, tracks both real moving staged bodies (bounded to legal cells) and the actual skinned wrist through the stroke. Former animation lost source ID after initial spawn and looked detached.",
+          "Real HP-loss spall is anchored to the real target's animation-mixer chest when valid, or grounded true target body, and follows the pose for the short impact interval. Bounded actor lifetime, valid-cell distance and existing effect caps stay intact."
+        ],
+        "technicalEvidence": "Implementation and new source/provenance assertions committed together on the existing draft branch. Exact-head CI, browser capture and replay not yet executed at authored time; do not count unrun assertions as passes. Immediately preceding head 34f535c had completed success for dedicated Dungeon Chromium and visual review (full catalogue CI canceled).",
+        "experientialVerdict": "IN_PROGRESS — NOT_TRANSFORMED; LOOKS/FEELS/PLAYS UNVERIFIED",
+        "independentCritics": {
+          "count": 0,
+          "looks": "UNVERIFIED",
+          "feels": "UNVERIFIED",
+          "plays": "UNVERIFIED"
+        },
+        "motionAudio": "UNVERIFIED complete organic desktop/mobile audiovisual travel → combat → boss → floor → defeat/restart",
+        "performance": "UNVERIFIED new head p95/p99 mobile and desktop; no GPU or soak claim",
+        "biggestGap": "Toy-like cramped characters and true sustained contact readability; new code must be inspected at the exact source head, along with mobile clipping and architecture obstruction.",
+        "next": "Inspect current-head real browser matched melee/true-HP skinned injury video and desktop/portrait screenshots. If the damage shards align but the bodies remain miniature, prioritize a larger original adult-rig silhouette/world art overhaul and AI encounter rhythm; capture the full organic audiovisual expedition; then masked 3-critic LOOKS/FEELS/PLAYS vote against immutable M1 baseline."
       }
     ]
   }

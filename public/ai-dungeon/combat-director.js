@@ -16,7 +16,44 @@ const PROJECTILE_LIMIT=26,IMPACT_LIMIT=24;
 const V3=(x,y,z)=>new THREE.Vector3(x-9,y,z-9);
 const shared={orb:new THREE.IcosahedronGeometry(.13,1),slash:createBladeRibbonGeometry(THREE),spall:createImpactSpallGeometry(THREE),dust:new THREE.SphereGeometry(.5,8,5),ring:new THREE.RingGeometry(.6,.69,45),spark:new THREE.OctahedronGeometry(.07,0)};
 const color=(kind)=>TINT[kind]||'#83fff0';
-const handPosition=new THREE.Vector3();
+const handPosition=new THREE.Vector3(),chestPosition=new THREE.Vector3();
+/**
+ * Trust actual visible 3D actor positions only inside their authoritative
+ * cell. Camera lerp after a missed poll, restore or floor swap must never
+ * cause a false melee reach or a detached travelling hit.
+ */
+function liveActorCellPoint(unit,staged,actorById){
+ const fallback=staged??unit;
+ const actor=typeof actorById==='function'?actorById(unit?.id):null;
+ if(!actor||actor.u?.id!==unit?.id||!actor.root?.visible)return fallback;
+ const x=actor.root.position.x+9,z=actor.root.position.z+9;
+ return Number.isFinite(x)&&Number.isFinite(z)&&
+  Math.hypot(x-unit.x,z-unit.z)<=.58?{x,z}:fallback;
+}
+/**
+ * True HP-loss spalls follow the actual skinned chest or grounded visual
+ * body, not an unoccupied public cell centre. Bone sampling is cosmetic and
+ * clipped to the same real damaged actor; ambiguous/missing rigs fall back.
+ */
+function liveInjuryAnchor(beat,hit,actorById){
+ const actor=typeof actorById==='function'?actorById(beat?.id):null;
+ if(!actor||actor.u?.id!==beat?.id||!actor.root?.visible)
+  return {x:hit.x,y:hit.y,z:hit.z,skinned:false};
+ const x=actor.root.position.x+9,z=actor.root.position.z+9;
+ if(!Number.isFinite(x)||!Number.isFinite(z)||
+   Math.hypot(x-beat.x,z-beat.z)>.58)
+  return {x:hit.x,y:hit.y,z:hit.z,skinned:false};
+ let y=actor.u.kind==='warden'?1.54:1.10,skinned=false;
+ const bone=actor.authored&&actor.rigMeleeBones?.find(b=>b.part==='spine')?.bone;
+ if(bone){
+  bone.updateWorldMatrix(true,false);bone.getWorldPosition(chestPosition);
+  if(Number.isFinite(chestPosition.y)&&chestPosition.y>=.38&&chestPosition.y<=3.1&&
+     Math.hypot(chestPosition.x-actor.root.position.x,chestPosition.z-actor.root.position.z)<.72){
+    y=chestPosition.y;skinned=true;
+  }
+ }
+ return {x,y,z,skinned};
+}
 function stagedArcFrame(source,target,from,to,life,reducedMotion,actorById=null){
  const pose=planMeleeArcFrame(source,target,life,reducedMotion);
  if(!pose)return null;
@@ -25,8 +62,10 @@ function stagedArcFrame(source,target,from,to,life,reducedMotion,actorById=null)
  // visible body instead of leaving a ghost strike at an empty tile centre.
  const dx=target.x-source.x,dz=target.z-source.z;
  const travel=Math.max(0,Math.min(1,(pose.x-source.x)*dx+(pose.z-source.z)*dz));
- pose.x+=(from.x-source.x)*(1-travel)+(to.x-target.x)*travel;
- pose.z+=(from.z-source.z)*(1-travel)+(to.z-target.z)*travel;
+ const liveFrom=liveActorCellPoint(source,from,actorById);
+ const liveTo=liveActorCellPoint(target,to,actorById);
+ pose.x+=(liveFrom.x-source.x)*(1-travel)+(liveTo.x-target.x)*travel;
+ pose.z+=(liveFrom.z-source.z)*(1-travel)+(liveTo.z-target.z)*travel;
  // When a genuine skinned hand is close to the authorised cell, the first
  // half of the forged sweep travels with that wrist instead of hovering.
  const actor=typeof actorById==='function'&&source.id?actorById(source.id):null;
@@ -34,7 +73,9 @@ function stagedArcFrame(source,target,from,to,life,reducedMotion,actorById=null)
  if(hand&&actor?.authored&&actor?.root?.visible){
   hand.updateWorldMatrix(true,false);hand.getWorldPosition(handPosition);
   if(Number.isFinite(handPosition.y)&&Math.hypot(handPosition.x-(from.x-9),handPosition.z-(from.z-9))<.9){
-   const mix=Math.max(0,1-life/MELEE_ARC_DURATION)*.48;
+   const progress=Math.min(1,Math.max(0,life/MELEE_ARC_DURATION));
+   const mix=progress<.65?.62:.62*Math.max(0,(1-progress)/.35);
+   pose.skinnedHand=true;
    pose.x+=(handPosition.x+9-pose.x)*mix;
    pose.z+=(handPosition.z+9-pose.z)*mix;
    pose.y+=Math.max(-.45,Math.min(.45,handPosition.y-pose.y))*mix;
@@ -48,6 +89,7 @@ function material(hex,opacity=.95){
 export function createCombatDirector(scene,{reducedMotion=false,actorById=null}={}){
  const projectiles=[],impacts=[],pendingCues=[],previous=new Map();let floorKey='',shots=0,bursts=0,releasedCues=0,droppedCues=0,healingCues=0,disarmCues=0,contactLockedCues=0,suppressedUnmatchedCues=0,meleeArcs=0;
  let stagePositions=Object.create(null),trueDamageCues=0,suppressedDamageCues=0,trueEvadeCues=0;
+ let skinnedArcFrames=0,skinnedHitAnchors=0;
  const cleanup=e=>{scene.remove(e.mesh);e.mesh.material.dispose()};
  function ensureBound(){
   while(projectiles.length>PROJECTILE_LIMIT)cleanup(projectiles.shift());
@@ -66,7 +108,7 @@ export function createCombatDirector(scene,{reducedMotion=false,actorById=null}=
    mesh.scale.setScalar(frame.scale*(kind==='warden'?1.2:1));
    scene.add(mesh);
    impacts.push({mesh,life:0,duration:MELEE_ARC_DURATION,mode:'slash',
-    source:{x:source.x,z:source.z},target:{x:target.x,z:target.z},from:{x:from.x,z:from.z},to:{x:to.x,z:to.z},kind});
+    source:{id:source.id,x:source.x,z:source.z},target:{id:target.id,x:target.x,z:target.z},from:{x:from.x,z:from.z},to:{x:to.x,z:to.z},kind});
    meleeArcs=Math.min(1000000,meleeArcs+1);bursts++;ensureBound();return;
   }
   const mesh=new THREE.Mesh(shared.orb,material(color(kind),.95));mesh.position.copy(src);mesh.scale.setScalar(kind==='warden'?1.8:kind==='mystic'?1.35:1);
@@ -151,8 +193,11 @@ export function createCombatDirector(scene,{reducedMotion=false,actorById=null}=
    const hit=planTrueDamageCue(beat,stagePoint(stagePositions,beat));
    if(!hit){suppressedDamageCues++;continue;}
    const mesh=new THREE.Mesh(shared.spall,material(hit.color,.88));
-   mesh.position.copy(V3(hit.x,hit.y,hit.z));mesh.scale.setScalar(hit.scale);
-   scene.add(mesh);impacts.push({mesh,life:0,duration:hit.duration,mode:'true-hit',startScale:hit.scale});
+   const anchor=liveInjuryAnchor(beat,hit,actorById);
+   mesh.position.copy(V3(anchor.x,anchor.y,anchor.z));mesh.scale.setScalar(hit.scale);
+   scene.add(mesh);impacts.push({mesh,life:0,duration:hit.duration,mode:'true-hit',
+    startScale:hit.scale,beat:{id:beat.id,x:beat.x,z:beat.z},hit:{x:hit.x,y:hit.y,z:hit.z}});
+   if(anchor.skinned)skinnedHitAnchors=Math.min(1000000,skinnedHitAnchors+1);
    trueDamageCues=Math.min(1000000,trueDamageCues+1);ensureBound();
   }
  }
@@ -206,11 +251,14 @@ export function createCombatDirector(scene,{reducedMotion=false,actorById=null}=
     effect.mesh.material.opacity=.78*(1-t);
     effect.mesh.scale.setScalar(effect.startScale*(.82+.62*t));
    }else if(effect.mode==='true-hit'){
+    const anchor=liveInjuryAnchor(effect.beat,effect.hit,actorById);
+    effect.mesh.position.copy(V3(anchor.x,anchor.y,anchor.z));
     effect.mesh.material.opacity=.88*(1-t);
     effect.mesh.scale.setScalar(effect.startScale*(.83+.36*t));
    }else if(effect.mode==='slash'){
     const frame=stagedArcFrame(effect.source,effect.target,effect.from,effect.to,effect.life,reducedMotion,actorById);
     if(frame){
+     if(frame.skinnedHand)skinnedArcFrames=Math.min(1000000,skinnedArcFrames+1);
      effect.mesh.position.copy(V3(frame.x,frame.y,frame.z));
      effect.mesh.rotation.set(0,frame.yaw,frame.roll);
      effect.mesh.scale.setScalar(frame.scale*(effect.kind==='warden'?1.2:1));
@@ -229,5 +277,5 @@ export function createCombatDirector(scene,{reducedMotion=false,actorById=null}=
   for(const p of projectiles)cleanup(p);for(const p of impacts)cleanup(p);
   projectiles.length=impacts.length=pendingCues.length=0;previous.clear();stagePositions=Object.create(null);
  }
- return{accept,recordDamage,recordEvasions,animate,reset,stats:()=>({trueEvadeCues,activeEvadeDust:impacts.filter(e=>e.mode==='evade-dust').length,trueDamageCues,suppressedDamageCues,activeProjectiles:projectiles.length,activeImpacts:impacts.length,pendingCues:pendingCues.length,healingCues:healingCues,disarmCues:disarmCues,contactLockedCues:contactLockedCues,suppressedUnmatchedCues:suppressedUnmatchedCues,releasedCues:releasedCues,droppedCues:droppedCues,activeGroundRings:impacts.filter(e=>e.mode==='ring').length,activeHitFlashes:impacts.filter(e=>e.mode==='spark').length,activeMeleeArcs:impacts.filter(e=>e.mode==='slash').length,totalMeleeArcs:meleeArcs,totalShots:shots,totalBursts:bursts}),dispose(){reset();for(const geometry of Object.values(shared))geometry.dispose()}};
+ return{accept,recordDamage,recordEvasions,animate,reset,stats:()=>({trueEvadeCues,activeEvadeDust:impacts.filter(e=>e.mode==='evade-dust').length,trueDamageCues,suppressedDamageCues,activeProjectiles:projectiles.length,activeImpacts:impacts.length,pendingCues:pendingCues.length,healingCues:healingCues,disarmCues:disarmCues,contactLockedCues:contactLockedCues,suppressedUnmatchedCues:suppressedUnmatchedCues,releasedCues:releasedCues,droppedCues:droppedCues,activeGroundRings:impacts.filter(e=>e.mode==='ring').length,activeHitFlashes:impacts.filter(e=>e.mode==='spark').length,activeMeleeArcs:impacts.filter(e=>e.mode==='slash').length,totalMeleeArcs:meleeArcs,skinnedArcFrames,skinnedHitAnchors,totalShots:shots,totalBursts:bursts}),dispose(){reset();for(const geometry of Object.values(shared))geometry.dispose()}};
 }
