@@ -6586,7 +6586,7 @@ function planConnectedMarketTour(origin,activeTrade){
   // projecting the same facade from almost identical sub-metre viewpoints.
   const distanceFromStart=Math.hypot(pos[0]-origin[0],pos[1]-origin[1]);
   const cell=Math.round(pos[0]*1.3)+','+Math.round(pos[1]*1.3);
-  if(distanceFromStart>=2.7&&!screened.has(cell)){
+  if(distanceFromStart>=3.65&&!screened.has(cell)){
    screened.add(cell);
    for(const {stall,door} of doors){
     const dx=door[0]-pos[0],dz=door[2]-pos[1],distance=Math.hypot(dx,dz);
@@ -6629,7 +6629,7 @@ function planConnectedMarketTour(origin,activeTrade){
     best=bestStrict||bestAdaptive;
    }
   }
-  // Deterministic connected-component expansion: a cell is discovered only
+  // G158 real RED: a 2.31m second-stall hop passed the route solver but\n // did not register as a meaningful pedestrian journey. Require an actual\n // destination at least 3.65m away; no simulated travel is credited.\n // Deterministic connected-component expansion: a cell is discovered only
   // when its ENTIRE swept shoulder-width segment is physically traversable.
   for(const [ix,iz] of directions){
    const ni=node.ix+ix,nj=node.iz+iz,key=ni+','+nj;
