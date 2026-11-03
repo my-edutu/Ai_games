@@ -743,6 +743,9 @@ test('a real close public encounter frames both autonomous actors and saves date
       pickupShardsInFrame:pickupDesktopDiagnostic.pickupShardsInFrame,
       pickupSpreadCssPx:pickupDesktopDiagnostic.pickupSpreadCssPx,
       explorerModelFullyInFrame:pickupDesktopDiagnostic.explorerModelFullyInFrame,
+      pickupCameraBeat:pickupDesktopDiagnostic.pickupCameraBeat,
+      pickupCameraTargetHalfHeight:pickupDesktopDiagnostic.pickupCameraTargetHalfHeight,
+      cameraHalfHeight:pickupDesktopDiagnostic.cameraHalfHeight,
       afterScreenshotShardsInFrame:pickupAfterDesktopScreenshot.pickupShardsInFrame,
       quality:pickupDesktopDiagnostic.quality},
     caveat:'Source-bound physical WebGL release; image visual quality and Nintendo parity require direct, independent critic.'
@@ -754,6 +757,8 @@ test('a real close public encounter frames both autonomous actors and saves date
     'a truly witnessed nearby pickup gets a physical story shot, not a generic water-wide follow camera').toBe(true);
   expect(pickupDesktopDiagnostic.pickupCameraTargetHalfHeight,
     'desktop physical pickup story framing must genuinely tighten the world stage').toBeLessThan(6);
+  expect(pickupDesktopDiagnostic.pickupCameraTargetHalfHeight,
+    'the authentic desktop pickup must bring the modeled Pip/theatre substantially closer, not leave Pass97 tiny characters').toBeLessThan(5.0);
   expect(pickupAfterDesktopScreenshot.pickupSpreadCssPx,
     'original 1280 screenshot must show physically SPREAD shards, not all eight hidden in Pip torso').toBeGreaterThan(20);
   // Pass71 real CPU SwiftShader screenshot rejected: resizing from desktop
@@ -805,6 +810,9 @@ test('a real close public encounter frames both autonomous actors and saves date
     diagnostic:{pickupShardsInFrame:pickupPortraitDiagnostic.pickupShardsInFrame,
       pickupSpreadCssPx:pickupPortraitDiagnostic.pickupSpreadCssPx,
       explorerModelFullyInFrame:pickupPortraitDiagnostic.explorerModelFullyInFrame,
+      pickupCameraBeat:pickupPortraitDiagnostic.pickupCameraBeat,
+      pickupCameraTargetHalfHeight:pickupPortraitDiagnostic.pickupCameraTargetHalfHeight,
+      cameraHalfHeight:pickupPortraitDiagnostic.cameraHalfHeight,
       afterScreenshotShardsInFrame:pickupAfterPortraitScreenshot.pickupShardsInFrame,
       cameraMode:pickupPortraitDiagnostic.cameraMode,
       quality:pickupPortraitDiagnostic.quality},
@@ -816,6 +824,8 @@ test('a real close public encounter frames both autonomous actors and saves date
     'native portrait camera follows only a genuinely witnessed collected key').toBe(true);
   expect(pickupPortraitDiagnostic.pickupCameraTargetHalfHeight,
     'the actual portrait pickup must be closer while retaining a safe physical stage').toBeLessThan(8);
+  expect(pickupPortraitDiagnostic.pickupCameraTargetHalfHeight,
+    'the real full-viewport 390px pickup must make its physical key-theatre readable, with source-bound safe camera').toBeLessThan(7.3);
   expect(pickupPortraitDiagnostic.pickupShardsInFrame,
     'genuine physical collectible release must be visible in full native portrait').toBeGreaterThanOrEqual(6);
   expect(pickupAfterPortraitScreenshot.pickupSpreadCssPx,
