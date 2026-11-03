@@ -158,7 +158,10 @@ test('the actual scene consumes source transitions and owns passage lifecycle on
   assert.match(source, /platform\.id === `f\$\{previous\.floor\}:cap`/);
   assert.match(source, /const gateAnchorX = guardianGateAnchorX\(previous, guardianCap\)/);
   assert.match(source, /passage\.begin\(previous, next, pointFor\(gateAnchorX/);
-  assert.match(source, /guardianCap\.y \+ guardianCap\.height, next\.chunkBaseY/);
+  assert.match(source, /previousLock\.toY, next\.chunkBaseY/,
+    'true gate release must retain the old source HP-lock height across a floor transition');
+  assert.doesNotMatch(source, /guardianCap\.y \+ guardianCap\.height, next\.chunkBaseY/,
+    'the previous physical lock is elevated above the old platform');
   assert.doesNotMatch(source, /passage\.begin\(previous, next, pointFor\(next\.player\.x/);
   // A world-space continuity cue must come from the defeated SOURCE gate,
   // never from the new player's arbitrary location after a floor transition.

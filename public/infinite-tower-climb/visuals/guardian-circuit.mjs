@@ -5,6 +5,10 @@ import { pointFor, guardianGateAnchorX } from './coordinates.mjs';
 // only: the simulation decides enemy damage, the gate and floor progression.
 const RAIL_STEPS = 22;
 const RELAY_TEETH = 8;
+// Three large paired gantry clutches physically disengage in observed HP
+// stages. They bridge the near-guardian relay and the actual cap lock, so a
+// distant gate is not the only progress cue in a narrow phone composition.
+const POWER_SHUNT_STAGES = [0.23, 0.53, 0.82];
 const clamp01 = value => Math.min(1, Math.max(0, value));
 
 export function observedGuardianCircuit(snapshot) {
@@ -135,6 +139,23 @@ export function createTowerGuardianCircuit(THREE) {
   relayTeeth.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   const relayLocked = new THREE.Color(0xe6af72);
   const relayReleased = new THREE.Color(0x83ada9);
+  // Original mechanical power-spine shutters: one reusable draw, six metal
+  // leaves at source-derived sites, each pair released by actual guardian HP.
+  // No prediction, RNG, colliders, emitted light or additional camera pass.
+  const shuntGeometry = new THREE.BoxGeometry(.42, 1.12, .68);
+  const shuntMaterial = new THREE.MeshStandardMaterial({
+    color: 0xffffff, metalness: .81, roughness: .34, depthTest: true,
+  });
+  const shunts = new THREE.InstancedMesh(shuntGeometry, shuntMaterial,
+    POWER_SHUNT_STAGES.length * 2);
+  shunts.name = 'GuardianSourcePowerSpineClutches';
+  shunts.castShadow = false;
+  shunts.receiveShadow = false;
+  shunts.frustumCulled = false;
+  shunts.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  const shuntTint = new THREE.Color();
+  const shuntDark = new THREE.Color(0x78624c);
+  const shuntOpen = new THREE.Color(0xb9dcd3);
   const conductorGeometry = new THREE.OctahedronGeometry(.13, 0);
   const conductorMaterial = new THREE.MeshBasicMaterial({
     color: 0xffbd75, transparent: true, opacity: .26,
@@ -172,7 +193,7 @@ export function createTowerGuardianCircuit(THREE) {
   atGuardian.name = 'GuardianLockGuardianAnchor';
   atGate.name = 'GuardianLockCapAnchor';
   atGuardian.castShadow = atGate.castShadow = false;
-  group.add(rails, conductors, atGuardian, atGate, lockBolts, fractures, relayTeeth);
+  group.add(rails, conductors, atGuardian, atGate, lockBolts, fractures, relayTeeth, shunts);
   const pose = new THREE.Object3D();
   const start = new THREE.Vector3(), finish = new THREE.Vector3();
   const tangent = new THREE.Vector3();
@@ -197,6 +218,7 @@ export function createTowerGuardianCircuit(THREE) {
     conductors.count = 0;
     lockBolts.count = 0;
     relayTeeth.count = 0;
+    shunts.count = 0;
     fractures.count = 0;
     previousSource = null;
     observedDamageTick = -1;
@@ -298,6 +320,30 @@ export function createTowerGuardianCircuit(THREE) {
     relayTeeth.count = RELAY_TEETH;
     relayTeeth.instanceMatrix.needsUpdate = true;
     if (relayTeeth.instanceColor) relayTeeth.instanceColor.needsUpdate = true;
+    // The broad power-spine pairs move progressively along the real arched
+    // rail. Each opened pair is an earned share of the present HP loss, not
+    // a speculative animation that assumes the guardian is defeated.
+    for (let stage = 0; stage < POWER_SHUNT_STAGES.length; stage++) {
+      const site = mapped(next, POWER_SHUNT_STAGES[stage]);
+      const release = clamp01(opening * POWER_SHUNT_STAGES.length - stage);
+      const spread = .35 + release * 1.46;
+      for (const side of [-1, 1]) {
+        const index = stage * 2 + (side < 0 ? 0 : 1);
+        pose.position.set(
+          site.x + Math.cos(site.angle) * side * spread,
+          site.y + release * .23,
+          site.z - Math.sin(site.angle) * side * spread);
+        pose.rotation.set(0, site.angle, -side * release * .32);
+        pose.scale.set(1 + release * .14, 1 - release * .28, 1);
+        pose.updateMatrix();
+        shunts.setMatrixAt(index, pose.matrix);
+        shuntTint.copy(shuntDark).lerp(shuntOpen, release);
+        shunts.setColorAt(index, shuntTint);
+      }
+    }
+    shunts.count = POWER_SHUNT_STAGES.length * 2;
+    shunts.instanceMatrix.needsUpdate = true;
+    if (shunts.instanceColor) shunts.instanceColor.needsUpdate = true;
     atGate.position.set(b.x, b.y, b.z);
     atGate.rotation.set(0, b.angle, 0);
     atGate.scale.setScalar(1 + opening * .35);
@@ -369,11 +415,13 @@ export function createTowerGuardianCircuit(THREE) {
       conductorNodes: group.visible ? conductors.count : 0,
       lockBolts: group.visible ? lockBolts.count : 0,
       nearbyRelayTeeth: group.visible ? relayTeeth.count : 0,
+      gantryClutchPairs: POWER_SHUNT_STAGES.length,
+      powerSpineLeaves: group.visible ? shunts.count : 0,
       relaySourceHP: source?.health ?? null,
       relaySourceTick: source?.tick ?? null,
       observedHealthLossTick: observedDamageTick >= 0 ? observedDamageTick : null,
       healthLossFragments: group.visible ? fractures.count : 0,
-      maxExtraDraws: 7, shadowCastingMeshes: 0,
+      maxExtraDraws: 8, shadowCastingMeshes: 0,
       metric: 'Decorative linked hardware from real live guardian HP and actual cap anchor; not a new collider or verified raster visibility',
       disposed,
     };
@@ -394,6 +442,8 @@ export function createTowerGuardianCircuit(THREE) {
     fractureMaterial.dispose();
     relayGeometry.dispose();
     relayMaterial.dispose();
+    shuntGeometry.dispose();
+    shuntMaterial.dispose();
   }
   return { group, update, clear, diagnostics, dispose };
 }

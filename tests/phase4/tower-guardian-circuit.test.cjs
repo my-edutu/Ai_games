@@ -150,7 +150,7 @@ test('guardian-to-cap gantry stays outside tower core and physically retracts so
   assert.ok(opened.distanceTo(closed) > .6,
     'true guardian HP loss must visibly retract the mechanical lock');
   assert.equal(effect.diagnostics().lockBolts, 8);
-  assert.equal(effect.diagnostics().maxExtraDraws, 7);
+  assert.equal(effect.diagnostics().maxExtraDraws, 8);
   effect.update(damaged, { stale: true });
   assert.equal(bolts.count, 0, 'stale streams cannot retain authoritative-looking lock teeth');
   effect.dispose();
@@ -233,4 +233,55 @@ test('physical guardian-side HP relay stays on the real exterior gantry and retr
   assert.equal(observedGuardianRelayStage({ ...source, health: 0 }), null);
   effect.dispose();
   assert.equal(effect.group.children.length, 0);
+});
+
+
+test('three real HP-gated gantry clutches expose a legible physical power spine without inventing victories', async () => {
+  const { createTowerGuardianCircuit, observedGuardianCircuit, guardianLinkSite } = await modulePromise;
+  const initial = snapshot({ tick: 60, enemies: [{ ...snapshot().enemies[0], health: 8 }] });
+  const frozen = JSON.stringify(initial);
+  const circuit = createTowerGuardianCircuit(THREE);
+  try {
+    circuit.update(initial, { quality: 'low' });
+    const leaves = circuit.group.getObjectByName('GuardianSourcePowerSpineClutches');
+    assert.ok(leaves?.isInstancedMesh, 'six real-world shutters share one GPU draw');
+    assert.equal(leaves.count, 6);
+    assert.equal(circuit.diagnostics().gantryClutchPairs, 3);
+    assert.equal(circuit.diagnostics().powerSpineLeaves, 6);
+    assert.ok(!leaves.castShadow && !leaves.receiveShadow && leaves.material.depthTest);
+    const closed = [], open = [];
+    const matrix = new THREE.Matrix4();
+    for (let i = 0; i < 6; i++) {
+      leaves.getMatrixAt(i, matrix);
+      closed.push(new THREE.Vector3().setFromMatrixPosition(matrix));
+      const site = guardianLinkSite(observedGuardianCircuit(initial), [.23, .53, .82][Math.floor(i / 2)]);
+      assert.ok(Math.hypot(site.x, site.z) > 27.5,
+        'all physical phase releases stay on the genuine exterior guardian-to-cap spine');
+    }
+    const hurt = snapshot({tick: 61,
+      enemies: [{...initial.enemies[0], health: 2}]});
+    circuit.update(hurt, { quality: 'low' });
+    const tint = new THREE.Color();
+    for (let i = 0; i < 6; i++) {
+      leaves.getMatrixAt(i, matrix);
+      open.push(new THREE.Vector3().setFromMatrixPosition(matrix));
+    }
+    assert.ok(open[0].distanceTo(closed[0]) > 1.2,
+      'the first mechanical clutch responds materially to real source damage');
+    assert.ok(open[4].distanceTo(closed[4]) > .1,
+      'later clutches respond at their earned HP stages too');
+    const firstColor = new THREE.Color(), lastColor = new THREE.Color();
+    leaves.getColorAt(0, firstColor);
+    leaves.getColorAt(4, lastColor);
+    assert.ok(firstColor.distanceTo(lastColor) > .08,
+      'later unearned HP stages stay visually distinguishable, not a fake full clearance');
+    assert.equal(JSON.stringify(initial), frozen, 'decorative machinery must not edit the authoritative source');
+    circuit.update(hurt, { stale: true });
+    assert.equal(leaves.count, 0, 'stale authority cannot leave falsely live machinery');
+    circuit.update({...initial,runToken:'new-run',tick:1}, { reducedMotion: true });
+    assert.equal(leaves.count, 6, 'still-motion makes the lock status visible without pulsing');
+    circuit.update({...initial,lifecycle:'result'});
+    assert.equal(leaves.count, 0, 'outcome retires the source HP stage');
+  } finally { circuit.dispose(); }
+  assert.equal(circuit.group.children.length, 0, 'all 3D owned resources are torn down on recovery');
 });
