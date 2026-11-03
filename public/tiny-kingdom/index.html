@@ -6802,6 +6802,22 @@ let streetPrior=null,streetDistance=0,streetBlocked=0,streetEncounterName=null;
 // Walking immediately returns to an honest 1.68m pedestrian eye height.
 let streetEyeHeight=STREET_EYE,streetPerspective='street';
 const streetHeld=new Set();
+// W12: a brief keyboard/touch tap must remain effective even when the 3 FPS
+// software renderer presents no frame between press and release. This is
+// spectator camera input only: never advance authority, emit work or edit RNG.
+const streetPressFrames=new Map();
+function finishStreetPress(key,token,pulse=true){
+ const pressedAt=streetPressFrames.get(token);
+ if(pressedAt===undefined)return;
+ streetPressFrames.delete(token);
+ if(pulse&&streetWalk&&framesDrawn===pressedAt&&streetHeld.has(key)){
+  // Exactly one bounded collision-checked travel/turn pulse for a lost tap.
+  advanceStreetWalk(.12);
+  presentationEpoch++;
+ }
+ streetHeld.delete(key);
+}
+
 // G114: photographed G113 gameplay put the visitor inside a physical textile
 // canopy. Authoritative citizen navigation intentionally ignores decorative
 // stalls; the human-height CAMERA must not. Cache presentation roof volumes
@@ -6999,6 +7015,14 @@ body[data-street="on"] #street-walk-controls .street-keys{
 }
 body[data-street="on"] #street-walk-controls .street-keys button{
  min-height:42px;touch-action:none;
+}
+body[data-street="on"] #street-walk-controls .street-keys button[data-active="true"]{
+ background:#bda571;color:#172e25;border-color:#fff1bb;
+}
+/* Full Command Desk wins hit testing. Its bottom toggle must never sit
+   underneath the pedestrian caption/dock on 390px screens. */
+body[data-street="on"][data-command="command"] #street-walk-controls{
+ display:none!important;
 }
 body[data-street="on"] #street-command-desk{
  min-width:53px!important;background:#d5b97d;color:#173427;
@@ -7958,7 +7982,7 @@ function setStreetWalk(enabled){
   meet.setAttribute('aria-label','Meet a real nearby working villager from a clear street viewpoint');
   setCommandView('world','user');
  }else{
-  streetWalk=false;streetHeld.clear();streetEncounterName=null;
+  streetWalk=false;streetHeld.clear();streetPressFrames.clear();streetEncounterName=null;
   marketVisitActive=false;marketVisitFocus=null;
   marketTour=null;marketTourCompletion=null;
   document.body.dataset.marketVisit='off';
@@ -8056,9 +8080,21 @@ document.getElementById('street-meet-worker').addEventListener('click',()=>{
  if(marketVisitActive)nextMarketStall();else visitStreetWorker();
 });
 document.querySelectorAll('#street-walk-controls [data-street-key]').forEach(b=>{
- const key=b.dataset.streetKey;
- b.addEventListener('pointerdown',e=>{e.preventDefault();streetHeld.add(key);if(b.setPointerCapture)b.setPointerCapture(e.pointerId)});
- for(const type of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(type,()=>streetHeld.delete(key));
+ const key=b.dataset.streetKey,token='pointer:'+key;
+ b.addEventListener('pointerdown',e=>{
+  e.preventDefault();
+  streetHeld.add(key);streetPressFrames.set(token,framesDrawn);
+  b.dataset.active='true';
+  if(b.setPointerCapture)b.setPointerCapture(e.pointerId);
+ });
+ b.addEventListener('pointerup',()=>{
+  finishStreetPress(key,token,true);
+  delete b.dataset.active;
+ });
+ for(const type of ['pointercancel','lostpointercapture'])b.addEventListener(type,()=>{
+  finishStreetPress(key,token,false);
+  delete b.dataset.active;
+ });
 });
 document.addEventListener('keydown',e=>{
  const editing=/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName||'')||document.activeElement?.isContentEditable;
@@ -8066,10 +8102,21 @@ document.addEventListener('keydown',e=>{
  const key=e.key.toLowerCase();
  if(key==='v'){setStreetWalk(!streetWalk);e.preventDefault();e.stopImmediatePropagation();return;}
  if(streetWalk&&e.key==='Escape'){setStreetWalk(false);e.preventDefault();e.stopImmediatePropagation();return;}
- if(streetWalk&&['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(key)){streetHeld.add(key);e.preventDefault();e.stopImmediatePropagation();}
+ if(streetWalk&&['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(key)){
+  if(!e.repeat&&!streetPressFrames.has('key:'+key))streetPressFrames.set('key:'+key,framesDrawn);
+  streetHeld.add(key);e.preventDefault();e.stopImmediatePropagation();
+ }
 },true);
-document.addEventListener('keyup',e=>streetHeld.delete(e.key.toLowerCase()));
-window.addEventListener('blur',()=>streetHeld.clear());
+document.addEventListener('keyup',e=>{
+ const key=e.key.toLowerCase();
+ finishStreetPress(key,'key:'+key,true);
+ streetHeld.delete(key);
+ if(streetWalk&&['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(key))e.preventDefault();
+});
+window.addEventListener('blur',()=>{
+ streetHeld.clear();streetPressFrames.clear();
+ document.querySelectorAll('#street-walk-controls [data-active]').forEach(b=>delete b.dataset.active);
+});
 document.addEventListener('click',e=>{
  if(streetWalk&&e.target.closest('#focus,#camera,#workday-live,#workday-watch,#delivery-follow,[data-scenic],#atlas-map'))setStreetWalk(false);
 },true);
