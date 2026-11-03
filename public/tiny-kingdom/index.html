@@ -593,6 +593,28 @@ body{color:var(--tk-art-paper)}
  .btn,.tour-btn{transition:none!important;transform:none!important}
 }
 
+
+/* W03: the real Day-1/Day-120 desktop footage lost the settlement beneath
+ * stacked command panels. Put the compact read-only world measures ABOVE the
+ * action rail, not across the upper third of the actual 3D countryside.
+ * The real society remains visible and full commands are always reachable. */
+#world-watch-life{
+ min-height:34px;white-space:nowrap;padding:8px 11px;border:1px solid #a4ba9c;
+ background:#2d4639;color:#f5ecd6;border-radius:9px;
+ font:700 11px/1.15 system-ui;cursor:pointer}
+#world-watch-life:focus-visible{outline:3px solid #ebca8b;outline-offset:2px}
+#world-watch-life:hover{background:#3d5847}
+@media(min-width:791px){
+ body[data-command="world"]:not([data-workday="live"]):not([data-workday="delivery"]) #world-ribbon{
+  top:auto;bottom:98px;gap:8px;max-width:min(880px,calc(100vw - 28px));
+  padding:8px 11px;border-radius:12px}
+ body[data-command="world"] #world-ribbon #world-story{max-width:130px}
+}
+@media(max-width:520px){
+ body[data-command="world"]:not([data-workday="live"]):not([data-workday="delivery"]) #world-ribbon .world-identity{
+  display:none}
+ #world-watch-life{padding:7px 8px;min-height:31px;font-size:10px}
+}
 </style></head><body>
 <canvas id="world" aria-label="Live 3D simulation of a medieval valley with autonomous villagers"></canvas><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
@@ -619,6 +641,7 @@ body{color:var(--tk-art-paper)}
  <div class="world-measure"><span class="world-glyph">♧</span><strong id="world-wood">90</strong><small>Wood</small></div>
  <div class="world-measure"><span class="world-glyph">✧</span><strong id="world-gold">42</strong><small>Gold</small></div>
  <span id="world-story" aria-live="off">Your villagers write their own chronicle.</span>
+ <button id="world-watch-life" type="button" aria-label="Follow a real worker or courier in the living village">⚒ Watch village life</button>
  <button id="world-open-command" type="button" aria-label="Open complete kingdom command interface">▤ Command desk</button>
 </section>
 <script>
@@ -8472,7 +8495,7 @@ function watchHomecoming(){
  setCommandView('world');updateUI();updateHomecomingUI();
  return getHomecomingView();
 }
-let commandView='command',commandUserPreference=null;
+let commandView='world',commandUserPreference=null;
 function updateWorldRibbon(){
  const sources=[['population','population'],['food','food'],['wood','wood'],['gold','gold']];
  for(const [name,id] of sources){
@@ -8498,18 +8521,26 @@ function setCommandView(next,origin='automatic'){
  control.textContent=next==='world'?'▤ Full command':'◉ World view';
  updateWorldRibbon();return commandView;
 }
-document.body.dataset.command='command';
- // G095 running 390px evidence exposed an excessively covered scene.
- // Default to the existing honest world-first ribbon on narrow screens.
- // Full command remains one tap away; respect an explicit user preference.
+document.body.dataset.command='world';
+ // W03: captured desktop gameplay was covered by the default command panels.
+ // Start with the EXISTING compact world observation on every screen size.
+ // Preserve the entire keyboard-accessible command desk one tap away;
+ // a player's explicit view selection is never overridden on resize.
  const compactViewport=window.matchMedia('(max-width: 520px)');
  function syncResponsiveCommand(){
-  if(commandUserPreference===null)
-   setCommandView(compactViewport.matches?'world':'command');
+  if(commandUserPreference===null)setCommandView('world');
  }
  compactViewport.addEventListener('change',syncResponsiveCommand);
  syncResponsiveCommand();
  button('command-toggle',()=>setCommandView(commandView==='command'?'world':'command','user'));
+ // Enter an honest, actual autonomous workday. A stocked courier takes
+ // priority; otherwise follow an existing producer, including their authentic
+ // journey to the worksite. This changes ONLY the spectator camera/HUD.
+ function watchVillageLife(){
+  return people.some(person=>Boolean(person.delivery))?
+   watchDelivery():watchLiveWorkday();
+ }
+ button('world-watch-life',watchVillageLife);
  button('world-open-command',()=>setCommandView('command','user'));
 button('workday-watch',watchLatestWork);
 button('workday-live',watchLiveWorkday);
