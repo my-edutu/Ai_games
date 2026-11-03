@@ -76,6 +76,7 @@ function publicFrame(tick, scene = 'normal') {
   return {
     scene, audio: { voices: [], captions: [] },
     snapshot: { tick, revision: tick, runToken: 'client-test-run', floor: 1, theme: 'foundry',
+      lifecycle: ['result', 'intermission'].includes(scene) ? scene : 'running',
       player: { state: 'standing', health: 5, maxHealth: 5, stamina: 100, maxStamina: 100, shieldCharges: 0, score: 0 },
       progress: { height: tick * 1000, nextGuardianFloor: 5, floorProgressPermille: 200 },
       intent: { summary: 'Climbing toward the next ledge', mode: 'climb', confidencePermille: 900 },

@@ -58,6 +58,7 @@ function harness({ search = '', width = 1440 } = {}) {
 function frame(scene = 'normal', overrides = {}) {
   return { scene, audio: { captions: [] }, snapshot: {
     tick: 60, runToken: 'run-first', floor: 4, theme: 'foundry',
+    lifecycle: ['result', 'intermission'].includes(scene) ? scene : 'running',
     player: { health: 3, maxHealth: 5, stamina: 84, maxStamina: 100, shieldCharges: 0, score: 320 },
     progress: { height: 160000, nextGuardianFloor: 8, floorProgressPermille: 420 },
     intent: { summary: 'Steering toward the next landing', mode: 'air-control', confidencePermille: 900 },
@@ -120,7 +121,7 @@ test('first-view failures remain explicit and never suggest that unavailable gra
 test('connection loss preserves the previous view and real result without claiming fresh gameplay', t => {
   const { hud, node } = harness(); t.after(() => hud.dispose());
   hud.update(frame(), currentView);
-  hud.update(frame('recovery', { result: { kind: 'game', reason: 'health-depleted' } }),
+  hud.update(frame('recovery', { lifecycle: 'result', result: { kind: 'game', reason: 'health-depleted' } }),
     { recoveryKind: 'connection', sourceScene: 'result', recoveryMessage: 'The connection was interrupted. Reconnecting automatically.' });
   assert.equal(node('recovery-card').dataset.presentation, 'retained');
   assert.equal(node('recovery-message').textContent, 'Reconnecting');
@@ -251,4 +252,14 @@ test('desktop framebuffer adaptation is disclosed only in the graphics detail, n
   node('quality-toggle').dispatch('click');
   hud.update(frame(), { ...currentView, resolution: { scale: .8 } });
   assert.equal(node('quality-label').textContent, 'Low · adaptive 80% render');
+});
+
+
+test('a result-looking scene cannot impersonate a source-confirmed terminal', t => {
+  const { hud, node } = harness(); t.after(() => hud.dispose());
+  const outcome = { kind: 'game', reason: 'health-depleted' };
+  hud.update(frame('result', { lifecycle: 'running', result: outcome }), currentView);
+  assert.equal(node('result-card').hidden, true, 'presentation phase alone cannot fabricate a real ending');
+  hud.update(frame('result', { lifecycle: 'result', result: outcome }), currentView);
+  assert.equal(node('result-card').hidden, false, 'a real matching result is still readable');
 });
