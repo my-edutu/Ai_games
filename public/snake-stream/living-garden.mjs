@@ -1,4 +1,36 @@
 /**
+ * T1 continuous four-coast tidal valleys. This controls the REAL native
+ * shoreline elevation before its shared stone/moss/roots/foliage are baked.
+ * Broad upland spines flank two winding, physically incised drainage courses
+ * on each coast. The front has a deliberately lower outline for uninterrupted
+ * gameplay visibility, while the long rear and side shores build a readable
+ * 3D horizon. It is pure coordinate-driven scenery, never a gameplay cell,
+ * shader, GPU pass, runtime allocation, randomized event or false water cue.
+ */
+export function shoreValleyRelief(shore,t,v) {
+  const fraction=Math.max(0,Math.min(1,(t-shore.start)/(shore.end-shore.start)));
+  const cross=Math.max(0,Math.min(1,v));
+  const shoulder=Math.pow(Math.sin(Math.PI*cross),1.08);
+  const front=shore.axis==='x'&&shore.near>0;
+  const phase=shore.axis==='x'?(front?.45:1.37):(shore.near<0?2.18:3.03);
+  // Move the two outboard streams smoothly with the slope, preserving
+  // continuous bank-to-water termination and avoiding orthogonal troughs.
+  const drainage=(centre,drift)=>{
+    const bend=.030*Math.sin(cross*6.7+phase+drift)
+      +.018*Math.sin(cross*12.2-phase*.7+drift);
+    const width=.040+.022*cross;
+    const d=(fraction-centre-bend)/width;
+    return Math.exp(-.5*d*d);
+  };
+  const channel=Math.max(drainage(.255,0),drainage(.735,2.4));
+  const longRidge=.30*Math.sin(fraction*Math.PI*3.7+phase)
+    +.18*Math.sin(fraction*Math.PI*7.4-phase*.8);
+  const evergreenRidge=(front?1.03:1.78) + longRidge;
+  const channelCut=(front?2.16:3.17)*channel;
+  return shoulder*(evergreenRidge-channelCut);
+}
+
+/**
  * The Living Garden, T1 production vertical slice.
  * Presentation-only original geometry: no game RNG, board/collision mutation,
  * external artwork, per-frame allocations or asynchronous runtime activity.
@@ -122,8 +154,14 @@ export function createLivingGarden(THREE, {width,height}) {
     const rhythm=.50+.50*Math.sin(t*.31+s.start*.14+v*1.9);
     const coveLift=shoulder*(.78+.43*cove+.22*rhythm);
     const erodedShelf=shoulder*.12*Math.sin(t*.65+v*5.4)*Math.sin(t*.18-v*3.2);
+    // Four continuous native gully systems connect the existing forest,
+    // ruin foundations and original sculpted estuary rather than merely
+    // painting a darker green rectangle around the game board. Water drains
+    // outboard, away from all fixed public board coordinates and fruit/portal
+    // markers. The original smooth bank and cove lift remain underneath.
+    const tidalValley=shoreValleyRelief(s,t,v);
     const y=-.43-.42*v-.54*v*v+.11*Math.sin(t*.24+2)*(.25+.75*v)+relief
-      +coveLift+erodedShelf;
+      +coveLift*.52+erodedShelf+tidalValley;
     return [x,y,z];
   };
   function leaf(x,y,z,height,angle,shade,species='fern') {

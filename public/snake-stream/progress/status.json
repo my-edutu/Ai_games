@@ -1,10 +1,15 @@
 {
   "updatedAt": "2026-11-03",
-  "status": "T1 BUILDING / last actual source exact 93 full-game visually SELF-REJECTED, original genuine strict 7/17 complete desktop renderer submissions in 1007.6ms FAIL at 751x415, 61 RAF NOT real renders; new old-growth T1 stage source candidate native RED-GREEN ONLY, own WebGL/film/gate pending, T2/T3 unaccepted, T4 HARD RED, NEVER MERGE/DEPLOY.",
-  "detail": "Exact head 93bebb focused browser 41667987074 64/83 PASS 19 FAIL; true original 1s full desktop renderer 7 actual complete render submissions / 1007.6ms (<17) at 751x415, p95 frame interval 2016.6ms, GPU fence max 3253.4ms (neither physical display-present FPS/p95). Last a9 was 12/17 so 93 is 5 fewer. Read authentic 93 1920/portrait/detail + real unmodified 55s game artifacts: scene better than original T0 but grid/flat painted vegetation/tiny phone hero/stiffness remain; T1 whole-game SELF-REJECT. 93 general CI 652/668 PASS. Source exact SHA256 offline staged new 3D forest and 8 native old-growth shore arches, native 3/3 focused green+build pass, 18665/21785/21949 native triangles (<22000), true gameplay cells safe and existing assets retained. New art source exact real browser pending, local Chromium network blocked by administrator without bypass. Device presents, T2/T3 quality, soak and independent whole-game review OPEN.",
+  "status": "T1 BUILDING / exact completed 70d2 actual full WebGL visually SELF-REJECTED; original strict desktop complete 11/17 in 1015.4ms HARD FAIL (61 RAF not real renders). Following four-coast physical gorge candidate native RED->GREEN only; own browser and live 55s pending. T2/T3 not accepted; T4 hard red; never merge/deploy.",
+  "detail": "70d2 Chromium 41676079653 64/83 browser PASS, 19 FAIL; general 41676079626 653/671 Node PASS, 18 FAIL, strict unchanged 11 genuine complete desktop draws of required 17 over 1015.4ms at 751x415 WebGL. True 1920/phone/hero and real 55s 70d2 stills/video examined: big rectangular tiled court, pale triangular leaves, tiny phone snake, much nicer close head => whole-game T1 SELF-REJECTED. New same-source actual four coast winding gullies and hills native verified zero cell intrusions, 21949 max high-board original triangles retained, 4 meshes/one texture/all original plants; focused RED then GREEN 3/3 plus 8/8 related and TS build; complete T1 catalogue timeout, older historical-source failures. New candidate own Chromium/film, strict performance, physical device presents/independent review NOT verified. No merge/deploy.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Last actually reviewed 681 full-game stills/video SELF-REJECTED. T3 immersive UI is a native code candidate only; no new-head WebGL/55-second film yet, no T1/T3 acceptance.",
+  "latestCaption": "Exact source 70d2 true 1920/detail/portrait and unmodified 55s real gameplay reviewed: full stage SELF-REJECTED. Following source-verified native 3D river gullies are a T1 BUILDING candidate, awaiting new-source real WebGL/film/strict gate.",
   "reviews": [
+    {
+      "area": "2026-11-03 exact 70d2 real WebGL reject plus original four-coast physical gullies T1 candidate",
+      "verdict": "Real Chromium 41676079653 64/83 pass, 19 fail; unchanged original full-desktop one-second 11/17 actual render submissions in 1015.4ms 751x415 (61 RAF NOT renders). Node 653/671 failed 18. Source exact 1080/390/hero real stills and 55s actual gameplay personally inspected: whole garden board giant rectangular tiled grid, tiny phone hero vs official Snake Pass => SELF-REJECTED. New source topology 4 coastal ridges and two channels each native RED old->3/3 GREEN, affected 8/8, build pass, geometry unchanged; its real browser/film not yet run.",
+      "gap": "Need source-matched new full HD/portrait/detail real WebGL and unscripted 55s real game, visually obvious coherent improvement, 3x unchanged >=17 genuinely rendered complete desktop/1s at useful raster, target device presented FPS/p95, original full suite and long soak 40+ portal/fruit/hazards/recovery/fallback/replay/accessibility/security and independent whole-game review. T1 BUILDING and T4 HARD RED. DRAFT only."
+    },
     {
       "area": "2026-11-03 complete exact-head 93bebb real whole-game WebGL and material renderer regression",
       "verdict": "93 focused run 41667987074 FAILED 64/83 browser, original unchanged strict 1s complete desktop only 7/17 genuine renderer submissions in 1007.6ms at 751x415; 61 RAF callbacks are not full renders/presented frames. Previous different a9 12/17 FAILED, 93 5 fewer. Real 1920/390/detail and legitimate continuous 55s-game host film, actual 52.08s WebM inspected; some noticeable scene gains vs genuine T0, still giant regular grid, flat painted vines, tiny phone hero, self reject against Snake Pass/ASTRO BOT. General 93 652/668 FAIL; incoming old-growth physical source not browser tested. T1 SELF REJECTED BUILDING, T4 HARD RED, never merge/deploy.",
@@ -1036,13 +1041,13 @@
     "firstImplementationPlan": "docs/superpowers/plans/2026-11-01-autonomous-snake-transformation.md",
     "acceptance": "An independently evidenced, visibly substantial upgrade of the full running game in environment, character, animation, materials, game feel and sustainable frame delivery; CI is necessary but never sufficient.",
     "overall": "NOT ACCEPTED",
-    "milestone": "T1 BUILDING, 93 real scene SELF-REJECTED; additional ten canopy/eight coastal root/native 3D T1 physical candidate only, not WebGL verified. T2/T3 BUILDING unaccepted, T4 last true strict 7/17 HARD RED, no device present FPS/p95; NEVER MERGE/DEPLOY.",
+    "milestone": "T1 BUILDING / 70d2 1920/390/hero + live 55s visually SELF-REJECTED; physically authored 4 coast drainage/ridge candidate native RED->GREEN only awaiting own true WebGL. T2/T3 unaccepted. T4 strict 11/17 HARD RED 70d2 and no physical device present data.",
     "milestoneStatus": "BUILDING",
-    "latestKnownStrictBrowser": "Source EXACT 93bebb full Chromium 41667987074 completed failure: original unchanged 1s FULL desktop genuine 7/17 renderer submissions /1007.6ms at actual buffer 751x415 and 61 RAF callbacks NOT draw submissions, frame gap p95 2016.6ms and GPU fence maximum 3253.4ms NOT physical device displayed p95. 93 Chromium 64/83, general CI 652/668; t1 head true screenshots and real authentic video inspected, whole-game T1 rejected.",
+    "latestKnownStrictBrowser": "Live 70d2 exact WebGL run 41676079653 complete FAIL 64/83; unchanged original strict 1-second true desktop 11/17 complete renderer submissions over 1015.4ms at 751x415 and 61 RAF NOT draws, 11 is not displayed FPS. General 653/671 fail 18. Exact-source stills, authentic 55s gameplay exist and T1 rejected.",
     "pillars": [
       {
         "name": "Living 3D world",
-        "status": "T1 BUILDING: physically authored near-side-rear canopies/roots and nearer ruined aqueduct native-source candidate; exact real current-head/candidate browser images missing; prior full-game SELF-REJECTED.",
+        "status": "T1 BUILDING: exact 70d2 full game SELF-REJECTED; native river-gully highland candidate developed, own true WebGL and genuine 55s pending.",
         "criterion": "Clearly transformed coherent original garden architecture/biomes/scene depth in matching real-game captures."
       },
       {
@@ -1057,13 +1062,13 @@
       },
       {
         "name": "Play feel and frame delivery",
-        "status": "T4 HARD RED from previous actual a9 strict genuine full desktop 12/17 FAIL; 93 exact-head Chrome in progress, device-present p95/FPS unmeasured. Broad CI failed 16/668.",
+        "status": "T4 HARD RED on exact 70d2 original strict full desktop 11/17 complete actual WebGL draws in 1015.4ms at 751x415, 61 RAF NOT rendered nor actual device presented FPS. General 653/671 and browser 64/83 fail.",
         "criterion": "Readable responsive gameplay/UX, real continuous autonomous video, repeatable >=17 actual browser draws and real-device smoothness evidence."
       }
     ],
     "baselineHead": "108e2e439aab1f3fe4cf49019c1aa9fe5630feb6",
-    "candidate": "New 93bebb parent SHA-pinned complete forest/ruin/root T1 physical-stage candidate, original ten trees, 4-bay arcade nearer board, eight additional 3D native shoreline old-growth arches; identical complete gameplay/public snapshot and immutable 17-render benchmark.",
-    "candidateProof": "Exact parent Git garden blob d78b79fad446d041cc7b939f7fc6a7ee2696b16e frozen. Native RED on exact predecessor then GREEN 3/3; real Three stage complete native triangles 18665/21785/21949 at 8x8/28x16/40x24, <22000 and 4 batches/one texture, 0 true cell intrusions. Local WebGL admin blocked, no screenshot/video or display-present FPS claims. 93 CI 652/668 FAIL; 93 Chromium still running.",
-    "review": "SELF REVIEW / ACCEPTANCE PENDING. Exact 93 real 1920/390/detail and authentic autonomous 55s host film inspected, more complete than much older T0 but large obvious rectangular tiled grid/flat garden paint, tiny phone actor, cartoon stiff facial/body craft still behind Snake Pass/ASTRO BOT. Exact original strict 7/17 full desktop per 1s HARD FAIL. New stage native geometry candidate not Chrome/art/film validated. True source before/after, >17 full desktop 3x and real device presented p95, soak/independent review pending."
+    "candidate": "Four real coastlines sculpted into connected river-cut heights with two meandering drainage gullies each, front low/rest high; exact 70d2 original 3D garden Git blob frozen f8879548903e4c570a4dcd78639ae75320f27d39, same authoring batches/gameplay and geometry.",
+    "candidateProof": "Real 70d2 WebGL 11/17 FAIL; native RED old relief undefined -> GREEN 3/3, 8/8 selected related native, TS build green; no new triangles/meshes/material/textures/passes, maximum 40x24 garden 21,949 unchanged <22k, 0 playable cell incursion. New source complete browser 8-view/55s/strict original gate pending. No bypass, no quality acceptance.",
+    "review": "SELF REVIEW / ACCEPTANCE PENDING; genuine 70d2 1080p/portrait/hero/full autonomous 55s scene visibly imperfect (giant green-tiled rectangle, small hero). New four-coast physically engraved estuaries not yet visually reviewed in actual WebGL. Own original strict >=17 complete real renders, physical present p95/FPS, independent game-quality verdict, soak/replay remain unproven."
   }
 }
