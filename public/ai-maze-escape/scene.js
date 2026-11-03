@@ -631,8 +631,14 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           (pose.z+originalCell.z)*.5);
       }
     }
+    // The native 390px pickup shot should respond while the real event is
+    // visible, not spend its first rendered frames showing the old wide stage.
+    // Whole-repo SwiftShader occasionally reached only 7.34 half-height
+    // before the witnessed fragments appeared, despite a correct 5.67 target.
+    // Faster bounded easing acts on the public presentation camera alone;
+    // keep the original camera safety framing, privacy and model-fit gates.
     const blend = settings.reducedMotion ? 1
-      : 1 - Math.exp(-delta * (pickupCameraBeat ? 8 : 4.5));
+      : 1 - Math.exp(-delta * (pickupCameraBeat ? 12 : 4.5));
     cameraTarget.lerp(desiredTarget, blend);
     halfHeight += (targetHeight - halfHeight) * blend;
     camera.left = -halfHeight * aspect; camera.right = halfHeight * aspect;
