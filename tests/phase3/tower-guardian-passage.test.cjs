@@ -137,8 +137,10 @@ test('the authentic guardian release stays aligned with the exposed source HP lo
   const gate = fs.readFileSync(path.join(root, 'public/infinite-tower-climb/visuals/guardian-passage.mjs'), 'utf8');
   assert.match(circuit, /source\.toY, source\.baseY, source\.width, 27\.78\)/,
     'the real guardian HP lock already occupies the outer tower surface');
-  assert.match(scene, /passage\.begin\(previous, next, pointFor\(gateAnchorX,[\s\S]*?next\.chunkBaseY, next\.worldWidth, 27\.78\)\)/,
-    'earned gate passage must persist at the same physical exterior lock, not inside opaque core');
+  assert.match(scene, /const previousLock = clearedGuardian \? observedGuardianCircuit\(previous\) : null/,
+    'a source-witnessed guardian and cap must exist before a visual release');
+  assert.match(scene, /passage\.begin\(previous, next, pointFor\(gateAnchorX,[\s\S]*?previousLock\.toY, next\.chunkBaseY, next\.worldWidth, 27\.78\)\)/,
+    'earned gate passage must preserve both the elevated HP-lock center and exterior radius');
   assert.match(scene, /guardianReleaseWeight: !options\.stale[\s\S]*?passage\.cameraWeight\(\)/,
     'only the source-witnessed passage provides the climber release weight');
   assert.match(rig, /const releasedGate = !dead && !hurt && !stale && !terminalKind &&[\s\S]*?!reducedMotion &&[\s\S]*?state\.guardianReleaseWeight/,

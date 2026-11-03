@@ -1704,13 +1704,19 @@ export function createTowerScene(canvas, settings = {}) {
       platform.id === `f${previous.floor}:cap` && Number.isFinite(platform.x) &&
       Number.isFinite(platform.width) && platform.width > 0 &&
       Number.isFinite(platform.y) && Number.isFinite(platform.height));
-    if (guardianCap && Number.isFinite(next.worldWidth) && next.worldWidth > 0) {
+    // A genuine adjacent-floor event must preserve the PREVIOUS guardian's
+    // complete exposed HP-lock geometry, including its elevated source cap
+    // center. Simply using the deck top would bury the opening two world
+    // units below the actual bronze lock, even with the correct radius.
+    const previousLock = clearedGuardian ? observedGuardianCircuit(previous) : null;
+    if (guardianCap && previousLock && Number.isFinite(next.worldWidth) && next.worldWidth > 0) {
       const gateAnchorX = guardianGateAnchorX(previous, guardianCap);
-      // The old HP lock was exposed on the EXTERIOR at radius 27.78. The
-      // witnessed opening must inhabit that SAME 3D site, not be buried at
-      // the old inner-cap radius 21.8 behind opaque tower masonry.
-      passage.begin(previous, next, pointFor(gateAnchorX,
-        guardianCap.y + guardianCap.height, next.chunkBaseY, next.worldWidth, 27.78));
+      // No invented lock when the source lacks enough authentic evidence;
+      // both the x anchor and elevated y belong to the same old-floor lock.
+      if (gateAnchorX === previousLock.toX) {
+        passage.begin(previous, next, pointFor(gateAnchorX,
+          previousLock.toY, next.chunkBaseY, next.worldWidth, 27.78));
+      }
     }
     // A landing is observable only across consecutive source snapshots in the
     // same real run/floor. Skipped long intervals and decorative ledge poses
