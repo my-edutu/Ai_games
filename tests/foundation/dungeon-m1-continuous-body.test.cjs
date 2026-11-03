@@ -60,3 +60,34 @@ test('Warden camera reveals genuine face only after combat/collision screening',
  assert.match(plan,/nearWall\(xHero,zHero\)\+nearWall\(xBoss,zBoss\)/);
  assert.doesNotMatch(plan,/Math\.random|fetch\(|DungeonRuntime/);
 });
+
+test('live 3D nameplates retain camera truth but never occupy the same mobile/desktop rectangle',async()=>{
+ const source=fs.readFileSync(path.join(root,'public/ai-dungeon/nameplate-composition-plan.js'),'utf8');
+ const {planReadableNameplates}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+ const points=[
+  {id:'v',faction:'party',x:188,y:210,width:110},
+  {id:'r',faction:'party',x:197,y:214,width:110},
+  {id:'m',faction:'party',x:204,y:207,width:110},
+  {id:'e',faction:'enemy',x:220,y:220,width:76,danger:true}
+ ];
+ for(const size of [{width:390,height:540},{width:1440,height:832}]){
+  const a=planReadableNameplates(points,{...size,focusId:'v'});
+  const b=planReadableNameplates(points.slice().reverse(),{...size,focusId:'v'});
+  assert.deepEqual(a,b,'projection order cannot change the live visual selection');
+  assert.ok(a.labels.some(p=>p.id==='v'),'focused actual hero must remain on-screen');
+  assert.ok(a.labels.length<=4);
+  for(const p of a.labels){
+   const w=points.find(x=>x.id===p.id).width;
+   assert.ok(Math.abs(p.x-points.find(x=>x.id===p.id).x)<=96);
+   assert.ok(p.x-w/2>=0&&p.x+w/2<=size.width);
+  }
+  for(let i=0;i<a.labels.length;i++)for(let j=i+1;j<a.labels.length;j++){
+   const x=a.labels[i],y=a.labels[j];
+   const wx=points.find(p=>p.id===x.id).width,wy=points.find(p=>p.id===y.id).width;
+   assert.ok(Math.abs(x.x-y.x)>=(wx+wy)/2+8||
+    Math.abs(x.y-y.y)>=36,'real actor nameplates must never cover each other');
+  }
+ }
+ assert.deepEqual(planReadableNameplates([{id:'bad',x:NaN,y:1,width:110}],{width:390,height:500}),{labels:[],suppressed:0});
+ assert.doesNotMatch(source,/Math\.random|Date\.|fetch\(|DungeonRuntime/);
+});

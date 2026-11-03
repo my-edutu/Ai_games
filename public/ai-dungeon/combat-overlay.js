@@ -1,4 +1,5 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
+import {planReadableNameplates} from '/dungeon/nameplate-composition-plan.js';
 
 /**
  * 2D spectator annotations projected from real Three.js world positions.
@@ -10,7 +11,7 @@ const colors={vanguard:'#69c9ff',ranger:'#79ffc4',mystic:'#bd95ff',revenant:'#ff
 const PI2=Math.PI*2;
 export function createCombatOverlay(canvas){
  const ctx=canvas.getContext('2d',{alpha:true}),hpBefore=new Map(),floaters=[];
- let lastScene='',width=0,height=0,ratio=1,observedUnits=0;
+ let lastScene='',width=0,height=0,ratio=1,observedUnits=0,suppressedNameplates=0;
  function setSize(){
   const w=canvas.clientWidth,h=canvas.clientHeight;
   const d=Math.min(devicePixelRatio||1,1.7);
@@ -73,31 +74,33 @@ export function createCombatOverlay(canvas){
   ctx.fillText(f.text,p.x+16+Math.sin(progress*3)*5,p.y-12-progress*36);
   ctx.restore();
  }
- function render(s,actors,camera,time){
+ function render(s,actors,camera,time,focusId=null){
   setSize();ctx.clearRect(0,0,width,height);
   if(!s||!width||!height)return;
-  let drawCount=0;
   const living=s.units.filter(u=>u.hp>0),heroes=living.filter(u=>u.faction==='party');
-  for(const u of living){
-   // The fixed accessible boss strip already reports this ACTUAL Warden's
-   // identity, HP, ward and phase. A duplicate floating nameplate covered
-   // the boss's crown AND the strike lane on real desktop/mobile captures.
-   // Keep world-anchored names for ordinary foes and the living party.
+  const visible=[],byId=new Map();
+  for(const u of living.slice(0,48)){
+   // A fixed accessible boss HP strip makes a duplicate giant nameplate
+   // obstructing the Warden and attack floor unnecessary.
    if(u.kind==='warden')continue;
    const a=actors.get(u.id);if(!a||!a.root.visible)continue;
-   const range=Math.min(...heroes.map(h=>Math.abs(h.x-u.x)+Math.abs(h.z-u.z)));
-   const nearby=u.faction==='party'||range<=6;
-   if(!nearby)continue;
-   const p=point(camera,a,u.kind==='warden'?3.1:2.1);
-   if(!p)continue;
-   label(u,p,time,range<=3);
-   drawCount++;
+   const range=heroes.length?Math.min(...heroes.map(h=>Math.abs(h.x-u.x)+Math.abs(h.z-u.z))):Infinity;
+   if(u.faction!=='party'&&range>6)continue;
+   const p=point(camera,a,2.1);if(!p)continue;
+   visible.push({id:u.id,kind:u.kind,faction:u.faction,x:p.x,y:p.y,
+    width:u.faction==='party'?110:76,focused:u.id===focusId,danger:range<=3});
+   byId.set(u.id,u);
   }
+  const composition=planReadableNameplates(visible,{width,height,focusId});
+  for(const p of composition.labels){
+   const u=byId.get(p.id);if(u)label(u,p,time,p.id===focusId||p.faction==='enemy');
+  }
+  observedUnits=composition.labels.length;
+  suppressedNameplates=composition.suppressed;
   for(let i=floaters.length-1;i>=0;i--){const f=floaters[i];
    if(time-f.start>.98){floaters.splice(i,1);continue;}
    const a=actors.get(f.id);if(a)flyup(f,a,camera,time);
   }
-  observedUnits=drawCount;
  }
- return {record,render,metrics:()=>({labels:observedUnits,activeFlyups:floaters.length}),dispose(){hpBefore.clear();floaters.length=0;ctx.clearRect(0,0,canvas.width,canvas.height)}};
+ return {record,render,metrics:()=>({labels:observedUnits,suppressedNameplates,activeFlyups:floaters.length}),dispose(){hpBefore.clear();floaters.length=0;ctx.clearRect(0,0,canvas.width,canvas.height)}};
 }
