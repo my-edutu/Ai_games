@@ -20,7 +20,8 @@ function witnessedLandingX(snapshot, deck) {
   const summary = snapshot?.intent?.summary;
   const sourceAirLane = (mode === 'air-control' &&
     (summary === 'Steering for a clear landing lane' ||
-      summary === 'Boosting toward a distant safe landing')) ||
+      summary === 'Boosting toward a distant safe landing' ||
+      summary === 'Using earned air recovery to reach observed landing')) ||
     (mode === 'settling-landing' && summary === 'Braking into a clear landing lane');
   const player = snapshot?.player;
   if (!sourceAirLane || !Number.isFinite(player?.halfWidth) ||
