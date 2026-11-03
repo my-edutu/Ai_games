@@ -166,3 +166,35 @@ test('true crowded mixed-faction combat stages a nearer hero rank with separated
   assert.deepEqual(poses,planCombatStage({...snapshot,units:units.toReversed()},view));
  }
 });
+
+test('real diagonal cross-cell skirmishes do not stack opposing rigs in camera space',async()=>{
+ const {planCombatStage,MAX_STAGE_OFFSET}=await mod();
+ const hero=u('hero','vanguard','party',3,3,80),foe=u('foe','cultist','enemy',4,4,60);
+ const state={tick:7,map:floor(),units:[foe,hero]},before=JSON.stringify(state);
+ const camera={x:7,z:7},pose=planCombatStage(state,camera);
+ const right={x:Math.SQRT1_2,z:-Math.SQRT1_2};
+ const gap=Math.abs((pose.foe.x-pose.hero.x)*right.x+(pose.foe.z-pose.hero.z)*right.z);
+ assert.ok(gap>.48,'true adjacent enemies should project as distinct combat silhouettes');
+ assert.ok(pose.hero.crowded&&pose.foe.crowded);
+ for(const [unit,point] of [[hero,pose.hero],[foe,pose.foe]]){
+  assert.ok(Math.hypot(point.dx,point.dz)<=MAX_STAGE_OFFSET+.0001);
+  assert.ok(Math.abs(point.x-unit.x)<.45&&Math.abs(point.z-unit.z)<.45);
+ }
+ assert.deepEqual(pose,planCombatStage({...state,units:[hero,foe]},camera),
+  'no snapshot iteration order affects true contact visuals');
+ assert.equal(JSON.stringify(state),before,'spectator staging does not touch AI combat or replay');
+ const noCamera=planCombatStage(state);
+ assert.deepEqual([noCamera.hero.dx,noCamera.hero.dz,noCamera.foe.dx,noCamera.foe.dz],[0,0,0,0],
+  'a camera-free authoritative snapshot must not invent movement');
+});
+
+test('actual Warden warning and exposed boss choreography outrank cross-cell camera separation',async()=>{
+ const {planCombatStage}=await mod();
+ const hero=u('hero','vanguard','party',3,3,80),foe=u('foe','cultist','enemy',4,4,60);
+ const warden=u('warden','warden','enemy',5,4,150);
+ const state={tick:7,map:floor(),units:[hero,foe,warden],
+  bossWarning:{attackTick:8,cells:[{x:3,z:3}]}};
+ const poses=planCombatStage(state,{x:7,z:7});
+ assert.deepEqual([poses.hero.dx,poses.hero.dz,poses.foe.dx,poses.foe.dz,poses.warden.dx,poses.warden.dz],
+  [0,0,0,0,0,0],'general crowd correction cannot distort boss telegraphs');
+});
