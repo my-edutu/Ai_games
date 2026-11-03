@@ -3,6 +3,18 @@ const {test,expect}=require('@playwright/test');
 const fs=require('node:fs'),path=require('node:path');
 const html=fs.readFileSync(path.resolve(__dirname,'../../public/tiny-kingdom/index.html'),'utf8');
 
+test('Tiny Kingdom solar shader uses the same precision in both WebGL1 stages',()=>{
+ const vertex=html.split('const vs=`')[1]?.split('`;')[0]||'';
+ const fragment=html.split('const fs=`')[1]?.split('`;')[0]||'';
+ const declaration=source=>source.match(/uniform\\s+(?:(lowp|mediump|highp)\\s+)?float\\s+sunStrength\\s*;/)?.[1]||'default';
+ expect(declaration(vertex)).toBe('default');
+ expect(declaration(fragment)).toBe('highp');
+ // Vertex WebGL1 defaults float uniforms to highp. Fragment mediump
+ // defaults cannot be linked to the same uniform name without this.
+ expect(vertex).toContain('uniform float sunStrength;');
+ expect(fragment).toContain('uniform highp float sunStrength;');
+});
+
 // This test protects the visual treatment and real rendered UI; the visual
 // TRANSFORMATION verdict still requires genuine same-seed A/B recordings.
 test('Tiny Kingdom art direction: warm/cool atmosphere, readable 390px UI, real WebGL',async({page})=>{
