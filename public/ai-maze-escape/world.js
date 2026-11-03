@@ -1146,13 +1146,34 @@ export function createMazeWorld(options = {}) {
       weight.name = side < 0 ? 'Left hanging gate weight' : 'Right hanging gate weight';
       wheels.push(wheel); weights.push(weight);
     }
-    gateDrives.set(gate, {wheels, weights});
+    // Twin full-sized tide-wing shields make the observed portcullis's
+    // physical opening legible in-world, not through another HUD paragraph.
+    // Both hinges are fixed OUTSIDE the real central passage. They are always
+    // built on an already-public gate and reuse pooled 3D materials/geometry;
+    // only a witnessed same-run CLOSED -> OPEN event can animate them.
+    // An initially observed OPEN door simply displays the settled sculpture.
+    const wings = [];
+    for (const side of [-1, 1]) {
+      const wing = new THREE.Group();
+      wing.name = 'Disclosed gate folding tide-wing ' + side;
+      wing.position.set(side * 1.11, 1.05, .38);
+      drive.add(wing);
+      mesh(wing, bevel, darkJade, side * .24, 0, .03, .57, 1.25, .095);
+      mesh(wing, bevel, seaGlass, side * .24, 0, .12, .48, 1.12, .14);
+      mesh(wing, bevel, lightStone, side * .24, .51, .21, .48, .11, .065);
+      for (const y of [-.32, 0, .32])
+        mesh(wing, bevel, lightStone, side * .24, y, .225, .39, .055, .065);
+      mesh(wing, cylinder, deepStone, 0, 0, -.06, .085, 1.3, .085);
+      wings.push(wing);
+    }
+    gateDrives.set(gate, {wheels, weights, wings});
     if (door.open && !retracting) {
       // A door first discovered OPEN is shown in its settled open pose. This
       // does not manufacture an opening event or another animated passage.
       for (let i = 0; i < 2; i++) {
         wheels[i].rotation.z = (i ? 1 : -1) * 1.35;
         weights[i].position.y = .31;
+        wings[i].rotation.z = (i ? -1 : 1) * .82;
       }
     }
     if (!door.open) {
@@ -1417,6 +1438,9 @@ export function createMazeWorld(options = {}) {
       if (drive) for (let i = 0; i < drive.wheels.length; i++) {
         drive.wheels[i].rotation.z = (i ? 1 : -1) * travel * 1.35;
         drive.weights[i].position.y = .61 - travel * .30;
+        // Gate-drive wing progress is coupled to the REAL grille's physical
+        // retraction, never an AI prediction or an independently looping timer.
+        drive.wings[i].rotation.z = (i ? -1 : 1) * .82 * travel;
       }
       if (!pose.visible) {
         retractingGates.delete(edge);
