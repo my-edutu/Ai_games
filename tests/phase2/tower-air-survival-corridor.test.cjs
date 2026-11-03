@@ -118,3 +118,56 @@ test('braking out of real spikes exposes the same clear-lane source intent to 3D
   assert.equal(d.intent.summary,'Braking into a clear landing lane');
   assert.equal(d.intent.targetPlatformId,target.id);
 });
+
+test('earned midair jump rescues an otherwise unreachable live landing without inventing future platforms',()=>{
+  const {s,target}=airborne();
+  s.player.position.x=target.x-108000;
+  s.player.position.y=target.y+target.height+s.player.halfHeight+9000;
+  s.player.velocity={x:900,y:-7800};
+  s.player.jumpCharges=1;
+  s.player.dashCooldown=8;
+  const original=structuredClone(s),obs=createTowerObservation(s);
+  assert.equal(obs.player.jumpCharges,1,'earned jump availability must be exposed to the present-state planner');
+  const d=chooseTowerAction(s,obs);
+  assert.equal(d.action.jump,true,'use the real remaining jump before missing the collision-supported landing');
+  assert.equal(d.action.dash,false);
+  assert.equal(d.intent.targetPlatformId,target.id);
+  assert.match(d.intent.summary,/earned air recovery/i);
+  assert.deepEqual(s,original,'planner cannot consume the jump or mutate source authority');
+  const actual=stepTowerPhysics(s,d.action);
+  assert.equal(actual.integrityFailure,undefined);
+  assert.equal(actual.state.player.jumpCharges,0);
+  assert.ok(actual.state.player.velocity.y>0);
+  assert.equal(actual.state.stats.jumps,s.stats.jumps+1);
+  const legacy=chooseTowerAction(s,obs,{tactical:false});
+  assert.equal(legacy.action.jump,false,'frozen historical-v1 policy cannot gain a new air recovery');
+});
+
+test('air recovery never fabricates a jump charge or spends one when an ordinary landing is reachable',()=>{
+  const {s,target}=airborne();
+  s.player.position.x=target.x-108000;
+  s.player.position.y=target.y+target.height+s.player.halfHeight+9000;
+  s.player.velocity={x:900,y:-7800};
+  s.player.jumpCharges=0;
+  s.player.dashCooldown=8;
+  assert.equal(decision(s).action.jump,false,'an exhausted midair jump must stay exhausted');
+  s.player.jumpCharges=1;
+  s.player.position.x=target.x+22000;
+  s.player.velocity.x=0;
+  assert.equal(decision(s).action.jump,false,'existing safe landing must not spend a charge');
+  const again=decision(s);
+  assert.deepEqual(again,decision(s),'source-identical recovery decisions remain deterministic');
+});
+
+test('physical air boost is reserved for a journey that present acceleration cannot cover in its current flight',()=>{
+  const {s,target}=airborne();
+  s.player.position.x=target.x-130000;
+  s.player.position.y=target.y+target.height+s.player.halfHeight+30000;
+  s.player.velocity={x:0,y:4000};
+  s.player.dashCooldown=0;s.player.stamina=s.player.maxStamina;
+  const d=decision(s);
+  assert.equal(d.action.dash,true,'the unfinished short flight needs a source-directed boost');
+  assert.equal(d.action.move,1);
+  s.player.velocity.x=-9000;
+  assert.equal(decision(s).action.dash,false,'do not boost against actual opposite momentum');
+});
