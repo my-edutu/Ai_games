@@ -81,7 +81,7 @@ test('ordinary same-floor shooter can be engaged from a real safe distant suppor
     'frozen historical policy is not rewritten');
 });
 
-test('opportunistic fire cannot invent shots from unsupported footing, wrong facing or blocked cadence',()=>{
+test('wrong facing or cooldown veto shots; legal mid-air shooting cannot steal landing controls',()=>{
   const {state}=guardianDuel();
   const p=state.player;
   state.enemies=[{...state.enemies[0],id:'distant-shooter',kind:'shooter',
@@ -89,9 +89,20 @@ test('opportunistic fire cannot invent shots from unsupported footing, wrong fac
     facing:-1,telegraphUntilTick:0,cooldown:20}];
   p.facing=-1;
   assert.equal(chooseTowerAction(state,createTowerObservation(state)).action.ability,false);
+  // Tactical airborne combat is now earned AND legal. It must preserve the
+  // original physical landing command instead of imposing ground-only rules.
   p.facing=1;p.grounded=false;p.groundedPlatformId=undefined;
-  assert.equal(chooseTowerAction(state,createTowerObservation(state)).action.ability,false);
-  p.grounded=true;p.groundedPlatformId=state.chunks[0].platforms.at(-1).id;
+  p.state='airborne';p.velocity={x:0,y:-3500};
+  p.position.y+=40000;
+  state.enemies[0].position.y=p.position.y;
+  state.ai.targetPlatformId=state.chunks[0].platforms.at(-1).id;
+  const withoutEnemy=structuredClone(state);withoutEnemy.enemies=[];
+  const landing=chooseTowerAction(withoutEnemy,createTowerObservation(withoutEnemy));
+  const duel=chooseTowerAction(state,createTowerObservation(state));
+  assert.ok(['air-control','settling-landing'].includes(duel.intent.mode),
+    'the aerial controller owns the actual physical descent');
+  for(const key of ['move','dash','jump'])assert.equal(duel.action[key],landing.action[key],
+    'a real shot cannot override '+key+' while landing');
   p.abilityCooldown=10;
   assert.equal(chooseTowerAction(state,createTowerObservation(state)).action.ability,false);
 });
