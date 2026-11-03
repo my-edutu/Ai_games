@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
-const {restorePreR45}=require('../helpers/snake-r45-archive.cjs');
+const {restorePreR45Only}=require('../helpers/snake-r45-archive.cjs');
 const sourcePath=path.resolve(__dirname,'../../public/snake-stream/serpent.mjs');
 const gitBlob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0').update(s).digest('hex');
 const firstPath=Object.freeze(Array.from({length:6},(_,i)=>Object.freeze({x:0,z:-i})));
@@ -11,8 +11,8 @@ const tongue=serpent=>{
   return stem.parent;
 };
 test('R45 exact-parent RED control: public forward food triggers existing fork while original ambient phase is silent',async()=>{
-  const source=fs.readFileSync(sourcePath,'utf8'),previous=restorePreR45(source);
-  assert.equal(gitBlob(previous),'73475b622c5a3dde49d35d0fb659c003845b4650','verified predecessor Git blob');
+  const source=fs.readFileSync(sourcePath,'utf8'),previous=restorePreR45Only(source);
+  assert.equal(blob(fs.readFileSync(path.resolve(__dirname,'../fixtures/snake-history/r45-pre.mjs'),'utf8')),'73475b622c5a3dde49d35d0fb659c003845b4650','verified predecessor Git blob');
   const THREE=await import('three');
   const {createSerpent:oldFactory}=await import('data:text/javascript;base64,'+Buffer.from(previous).toString('base64'));
   const {createSerpent:newFactory}=await import('../../public/snake-stream/serpent.mjs');

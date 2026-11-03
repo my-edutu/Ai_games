@@ -28,8 +28,7 @@ function restorePreR48(source) {
   if ((source.match(round48) || []).length !== 2) throw new Error('Expected two bounded R48 sections');
   return source.replace(round48, '');
 }
-function restorePreR45(source) {
-  source = restorePreR48(source);
+function restorePreR45Only(source) {
   const first=source.indexOf(begin),last=source.indexOf(end,first+begin.length);
   if(first<0||last<0||source.indexOf(begin,first+begin.length)!==-1
     ||source.indexOf(end,last+end.length)!==-1) {
@@ -37,4 +36,5 @@ function restorePreR45(source) {
   }
   return source.slice(0,first)+originalTongue+source.slice(last+end.length);
 }
-module.exports={restorePreR45,restorePreR48,restorePreR55,restorePreT2Skin};
+function restorePreR45(source) { return restorePreR45Only(restorePreR48(source)); }
+module.exports={restorePreR45,restorePreR45Only,restorePreR48,restorePreR55,restorePreT2Skin};

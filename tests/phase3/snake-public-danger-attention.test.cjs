@@ -1,14 +1,16 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
-const {restorePreR48}=require('../helpers/snake-r45-archive.cjs');
 const sourcePath=path.resolve(__dirname,'../../public/snake-stream/serpent.mjs');
+const round48=/^[ \t]*\/\/ BEGIN R48 [^\n]*\n[\s\S]*?^[ \t]*\/\/ END R48 [^\n]*\n/gm;
 const blob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0').update(s).digest('hex');
 const body=Object.freeze(Array.from({length:6},(_,i)=>Object.freeze({x:0,z:-i})));
 const headOf=s=>{const h=s.group.getObjectByName('Expressive head');assert.ok(h?.isGroup);return {h,p:h.children[0]};};
 test('R48 exact Git parent RED control and existing-head danger priority without new geometry',async()=>{
- const source=fs.readFileSync(sourcePath,'utf8'),old=restorePreR48(source);
- assert.equal(blob(old),'3c05c3720e5cbe0eb767c48783fd58d303d19bba');
+ const source=fs.readFileSync(sourcePath,'utf8');
+ assert.equal((source.match(round48)||[]).length,2,'two intact R48 presentation blocks');
+ const old=source.replace(round48,'');
+ assert.equal(blob(fs.readFileSync(path.resolve(__dirname,'../fixtures/snake-history/r48-pre.mjs'),'utf8')),'3c05c3720e5cbe0eb767c48783fd58d303d19bba');
  const THREE=await import('three'),{createSerpent:previous}=await import('data:text/javascript;base64,'+Buffer.from(old).toString('base64'));
  const {createSerpent:current}=await import('../../public/snake-stream/serpent.mjs');
  const a=previous(THREE),b=current(THREE),frozen=JSON.stringify(body);

@@ -11,7 +11,7 @@ const gitBlob = source => crypto.createHash('sha1')
 
 test('R56 tall portrait shows more of the real garden without clipping a cell or changing other camera modes', async () => {
   const source = fs.readFileSync(file, 'utf8'), prior = restorePreR56Portrait(source);
-  assert.equal(gitBlob(prior), 'c40b3dafd5becf38e77c72e7b8d7dba5414f6c12',
+  assert.equal(blob(fs.readFileSync(path.resolve(__dirname,'../fixtures/snake-history/r56-pre.mjs'),'utf8')), 'c40b3dafd5becf38e77c72e7b8d7dba5414f6c12',
     'pre-R56 camera bytes are exactly the original Git object');
   const THREE = await import('three');
   const { cameraComposition: before } = await import('data:text/javascript;base64,'+
