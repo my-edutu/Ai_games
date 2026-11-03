@@ -1154,6 +1154,89 @@ test('a real close public encounter frames both autonomous actors and saves date
     }
   }
 
+  // Pass119: the source-authentic Pass118 suite showed ZERO fossil gardens in
+  // every original shot. Measure the new model in a fresh ACTUAL gameplay
+  // screen instead of claiming a source-only 3D mesh changed what people see.
+  // Choose ONLY a MazeRuntime-disclosed, genuinely blocked fossil cell near
+  // Pip from the seeded public sequences already computed by this test.
+  const fossilVariation=n=>{
+    const v=Math.sin(n*127.1+311.7)*43758.5453;
+    return v-Math.floor(v);
+  };
+  let fossilSample=null, fossilCell=-1, fossilDistance=Infinity;
+  for(const sequence of sequences) for(const sample of sequence){
+    const snapshot=sample.frame.snapshot;
+    if(snapshot.lifecycle!=='running'||snapshot.result||snapshot.threats.length)continue;
+    const col=snapshot.currentCell%snapshot.width;
+    const row=Math.floor(snapshot.currentCell/snapshot.width);
+    for(const c of snapshot.cells){
+      if(!c.blocked||fossilVariation(c.cell*23+811)>=.35)continue;
+      const distance=Math.hypot(c.cell%snapshot.width-col,
+        Math.floor(c.cell/snapshot.width)-row);
+      if(distance>=.7 && distance<=2.7 && distance<fossilDistance){
+        fossilSample=sample;fossilCell=c.cell;fossilDistance=distance;
+      }
+    }
+  }
+  expect(fossilSample,
+    'An authentic seeded public production run must actually DISCLOSE a nearby blocked fossil cell before screenshot').toBeTruthy();
+  const fossilSnapshot=fossilSample.frame.snapshot;
+  const previousFossilFrames=await page.evaluate(()=>window.__MAZE_3D__?.frames??0);
+  activeFrame=fossilSample.frame;
+  await page.setViewportSize({width:1280,height:900});
+  await page.waitForFunction(({token,tick,oldFrames})=>
+    window.__MAZE_3D__?.renderer==='webgl'
+    &&window.__MAZE_3D__.runToken===token
+    &&window.__MAZE_3D__.tick===tick
+    &&window.__MAZE_3D__.frames>oldFrames+1
+    &&Math.abs(window.__MAZE_3D__.cameraAspect-1280/900)<.01,
+    {token:fossilSnapshot.runToken,tick:fossilSnapshot.tick,
+      oldFrames:previousFossilFrames},{timeout:30000});
+  const fossilDiagnostic=await page.evaluate(()=>window.__MAZE_3D__);
+  const fossilImage=path.join(dir,'public-fossil-grove-1280.png');
+  await page.screenshot({path:fossilImage,fullPage:true});
+  fs.writeFileSync(path.join(dir,'public-fossil-grove-1280.json'),JSON.stringify({
+    capturedAt:new Date().toISOString(),seed:fossilSample.seed,
+    source:'Unmodified real MazeRuntime publicly disclosed BLOCKED cell, active warm original WebGL camera; not a placed photo prop',
+    tick:fossilSnapshot.tick,viewport:{width:1280,height:900},
+    publicFossilCell:fossilCell,publicDistanceCells:fossilDistance,
+    imageSha256:hash(fossilImage),sourceSha256:nativeSourceHashes,
+    diagnostic:fossilDiagnostic,
+    caveat:'Native gameplay visual evidence, NOT independent visual approval against Nintendo nor hardware GPU speed.'
+  },null,2));
+  expect(fossilSnapshot.cells.some(c=>c.cell===fossilCell&&c.blocked)).toBe(true);
+  expect(fossilDiagnostic.world.tideFossilGroves,
+    'the actual browser world must render a sculpted fossil, not only a unit-test mesh').toBeGreaterThan(0);
+  expect(fossilDiagnostic.world.renderedCells).toEqual(fossilSnapshot.cells.map(c=>c.cell));
+  expect(fossilDiagnostic.explorerModelFullyInFrame,
+    'no physical fossil should justify cropping Pip').toBe(true);
+
+  const priorFossilFrames=fossilDiagnostic.frames;
+  await page.setViewportSize({width:390,height:844});
+  await page.waitForFunction(({token,tick,oldFrames})=>
+    window.__MAZE_3D__?.renderer==='webgl'
+    &&window.__MAZE_3D__.runToken===token
+    &&window.__MAZE_3D__.tick===tick
+    &&window.__MAZE_3D__.frames>oldFrames
+    &&Math.abs(window.__MAZE_3D__.cameraAspect-390/844)<.01,
+    {token:fossilSnapshot.runToken,tick:fossilSnapshot.tick,
+      oldFrames:priorFossilFrames},{timeout:30000});
+  const fossilPortrait=await page.evaluate(()=>window.__MAZE_3D__);
+  const fossilPortraitImage=path.join(dir,'public-fossil-grove-390.png');
+  await page.screenshot({path:fossilPortraitImage,fullPage:true});
+  fs.writeFileSync(path.join(dir,'public-fossil-grove-390.json'),JSON.stringify({
+    capturedAt:new Date().toISOString(),seed:fossilSample.seed,
+    source:'Same AUTHENTIC real public blocked fossil cell and WebGL scene at 390px native portrait; no fabricated passage or hidden map',
+    tick:fossilSnapshot.tick,viewport:{width:390,height:844},
+    publicFossilCell:fossilCell,publicDistanceCells:fossilDistance,
+    imageSha256:hash(fossilPortraitImage),sourceSha256:nativeSourceHashes,
+    diagnostic:fossilPortrait,
+    caveat:'Native original PNG awaiting direct independent image judgement, not a Nintendo victory.'
+  },null,2));
+  expect(fossilPortrait.world.tideFossilGroves).toBeGreaterThan(0);
+  expect(fossilPortrait.explorerModelFullyInFrame).toBe(true);
+  expect(fossilPortrait.cameraAspect).toBeCloseTo(390/844,2);
+
 });
 
 
