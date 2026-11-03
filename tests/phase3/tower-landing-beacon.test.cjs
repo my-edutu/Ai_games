@@ -144,3 +144,73 @@ test('both portrait traversal directions keep the complete destination glyph ins
     } finally { geometry.dispose(); }
   }
 });
+
+test('genuine hazard-clear arrival aligns camera, physical deck ink, chevrons and source 3D route stones on desktop and portrait', async () => {
+  const { THREE, pointFor, context } = await loaded;
+  const { createTowerRouteIntent } = await import(pathToFileURL(
+    path.join(ROOT, 'public/infinite-tower-climb/visuals/route-intent.mjs')).href);
+  const original = snapshot(), deck = { ...original.platforms[1], width: 115000 };
+  const center = deck.x + deck.width / 2, top = deck.y + deck.height;
+  const hazard = { id: 'real-current-spikes', kind: 'spikes', active: true,
+    x: center - 16000, y: top, width: 32000, height: 9000 };
+  const route = createTowerRouteIntent(THREE);
+  const geometry = context.createLandingCueGeometry();
+  const beacon = new THREE.Mesh(context.createLandingBeaconGeometry());
+  const camera = new THREE.PerspectiveCamera(42, 390 / 844, .2, 1200);
+  try {
+    for (const [tick, playerX, mode, summary] of [
+      [171, center, 'air-control', 'Steering for a clear landing lane'],
+      [172, center + 9000, 'settling-landing', 'Braking into a clear landing lane'],
+      [173, center - 9000, 'air-control', 'Using earned air recovery to reach observed landing'],
+    ]) {
+      const frame = { ...original, lifecycle: 'running', floor: 1, tick,
+        runToken: 'hazard-arrival', platforms: [deck], enemies: [], hazards: [hazard],
+        player: { x: playerX, y: top + 73000, halfWidth: 9000, halfHeight: 14000,
+          vx: 0, vy: -5000, health: 4, attacking: false },
+        intent: { mode, summary, targetPlatformId: deck.id } };
+      const pristine = JSON.stringify(frame);
+      route.update(frame, deck, { reducedMotion: true });
+      const chosen = route.diagnostics().observedLandingX;
+      assert.ok(route.diagnostics().sourceClearLane,
+        'only a true active body-height hazard permits a clear-lane claim');
+      assert.equal(context.observedSourceLandingX(frame, deck), chosen,
+        'camera and bracket must choose the same currently safe deck x as the actual source route');
+      for (const aspect of [960 / 600, 390 / 844]) {
+        camera.aspect = aspect; camera.updateProjectionMatrix();
+        const hero = pointFor(playerX, frame.player.y - frame.player.halfHeight,
+          frame.chunkBaseY, frame.worldWidth);
+        const view = context.composeFollowView(frame, hero, aspect);
+        const focus = pointFor(chosen, top, frame.chunkBaseY, frame.worldWidth, 26.7);
+        assert.ok(Math.abs(view.landing.x - focus.x) < 1e-8 &&
+          Math.abs(view.landing.z - focus.z) < 1e-8,
+          'the physical camera destination follows the true safe side in both layouts');
+        context.updateLandingBeacon(beacon, deck, frame, camera);
+        const physical = pointFor(chosen, top, frame.chunkBaseY, frame.worldWidth, 26.5);
+        assert.ok(Math.abs(beacon.position.x - physical.x) < 1e-8 &&
+          Math.abs(beacon.position.z - physical.z) < 1e-8,
+          'physical chevrons cannot lure the climber back into the active hazard');
+      }
+      context.updateLandingCueGeometry(geometry, deck, frame);
+      const positions = geometry.attributes.position, angles = [];
+      for (let index = 24 * 4; index < 40 * 4; index++) {
+        const x = positions.getX(index), z = positions.getZ(index);
+        angles.push(Math.atan2(x, z));
+      }
+      const inkCenter = angles.reduce((sum, value) => sum + value, 0) / angles.length;
+      const expectedAngle = (chosen / frame.worldWidth - .5) * 2.2;
+      assert.ok(Math.abs(inkCenter - expectedAngle) < .005,
+        'all fixed-budget physical deck ink should bracket the same real safe arrival');
+      assert.equal(JSON.stringify(frame), pristine, 'source cannot be mutated by staged guidance');
+    }
+    // Historical policy, inactive danger and unrelated modes have no license
+    // to place a fake safe-lane destination or change frozen baseline footage.
+    const historical = { ...original, player: { x: center, y: top + 73000,
+      halfWidth: 9000, halfHeight: 14000 }, hazards: [hazard],
+      intent: { mode: 'air-control', summary: 'Steering toward the next landing',
+        targetPlatformId: deck.id } };
+    assert.equal(context.observedSourceLandingX(historical, deck), center);
+    const inactive = { ...historical, hazards: [{ ...hazard, active: false }],
+      intent: { ...historical.intent, summary: 'Steering for a clear landing lane' } };
+    assert.equal(context.observedSourceLandingX(inactive, deck), center);
+  } finally { route.dispose(); geometry.dispose(); beacon.geometry.dispose(); }
+});

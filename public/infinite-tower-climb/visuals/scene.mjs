@@ -668,6 +668,66 @@ function retainGuardianCameraShot(best, previous, quality) {
     priorScore >= bestScore - 2.25 ? previous : best;
 }
 
+// The live tactical pilot can deliberately land on the SAFE side of real
+// active spikes. All three physical arrival cues (camera destination, deck ink,
+// and chevron) must honor the same SOURCE-declared lane as the existing 3D
+// choice stones. A historical-v1, ordinary route or untrusted frame stays at
+// the platform midpoint. This is a present-observation projection, never a
+// predicted collision, new platform or authority state. Keep this partition
+// contract synchronized with route-intent.mjs and the tactical AI.
+function observedSourceLandingX(snapshot, deck) {
+  const center = deck.x + deck.width * .5;
+  const mode = snapshot?.intent?.mode?.replace(/^oracle-/, '');
+  const summary = snapshot?.intent?.summary;
+  const declared = (mode === 'air-control' &&
+    (summary === 'Steering for a clear landing lane' ||
+      summary === 'Boosting toward a distant safe landing' ||
+      summary === 'Using earned air recovery to reach observed landing')) ||
+    (mode === 'settling-landing' && summary === 'Braking into a clear landing lane');
+  const player = snapshot?.player;
+  if (!declared || !Number.isFinite(player?.halfWidth) ||
+      !Number.isFinite(player?.x) || !Number.isFinite(player?.y) ||
+      !Array.isArray(snapshot?.hazards)) return center;
+  const halfWidth = player.halfWidth;
+  const margin = Math.max(halfWidth + 4000,
+    Math.min(18000, Math.floor(deck.width / 8)));
+  const left = deck.x + margin, right = deck.x + deck.width - margin;
+  if (left >= right) return center;
+  const top = deck.y + deck.height;
+  let lanes = [{ left, right }];
+  for (const hazard of snapshot.hazards) {
+    if (!hazard.active ||
+        ![hazard.x, hazard.y, hazard.width, hazard.height].every(Number.isFinite) ||
+        hazard.y >= top + 2 * (player.halfHeight || 0) ||
+        hazard.y + hazard.height <= top) continue;
+    const blockedLeft = hazard.x - halfWidth - 2500;
+    const blockedRight = hazard.x + hazard.width + halfWidth + 2500;
+    const remainder = [];
+    for (const lane of lanes) {
+      if (blockedRight <= lane.left || blockedLeft >= lane.right) {
+        remainder.push(lane); continue;
+      }
+      const l = Math.min(lane.right, blockedLeft);
+      const r = Math.max(lane.left, blockedRight);
+      if (l - lane.left >= 10000) remainder.push({ left: lane.left, right: l });
+      if (lane.right - r >= 10000) remainder.push({ left: r, right: lane.right });
+    }
+    lanes = remainder;
+    if (!lanes.length) return center;
+  }
+  let best = lanes[0], bestX = Math.max(best.left, Math.min(best.right, player.x));
+  for (const lane of lanes.slice(1)) {
+    const x = Math.max(lane.left, Math.min(lane.right, player.x));
+    const distance = Math.abs(x - player.x);
+    const priorDistance = Math.abs(bestX - player.x);
+    if (distance < priorDistance ||
+        (distance === priorDistance && lane.right - lane.left > best.right - best.left)) {
+      best = lane; bestX = x;
+    }
+  }
+  return bestX;
+}
+
 // Fit a small local encounter, preserving the hero's 18%-high baseline whenever
 // the actual route fits. A long portrait crossing may require a wider view;
 // that tradeoff is preferable to cropping the real destination or opponent.
@@ -677,7 +737,7 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
   const body = { x: hero.x, y: hero.y + height * .52, z: hero.z };
   const target = intendedLanding(snapshot);
   let landing = null;
-  if (target) landing = pointFor(target.x + target.width / 2,
+  if (target) landing = pointFor(observedSourceLandingX(snapshot, target),
     target.y + target.height, snapshot.chunkBaseY, snapshot.worldWidth, 26.7);
   let threat = null, nearest = Infinity;
   // The tactical nearest-object camera may prefer a small bolt or hazard
@@ -913,7 +973,9 @@ function updateLandingCueGeometry(geometry, platform, snapshot) {
       positions.setXYZ(index * 4 + corner, Math.sin(angle) * r, top, Math.cos(angle) * r);
     }
   }
-  const center = (left + right) / 2, span = Math.min((right - left) * .31, .13);
+  const span = Math.min((right - left) * .31, .13);
+  const center = clamp(angleFor(observedSourceLandingX(snapshot, platform), snapshot.worldWidth),
+    left + span, right - span);
   for (let layer = 0; layer < 2; layer++) {
     const line = layer ? .20 : .38, angularLine = Math.min(line / 25, (right - left) * .1);
     const arm = Math.min((right - left) * .18, (layer ? 1.45 : 1.63) / 25);
@@ -961,7 +1023,7 @@ function updateLandingBeacon(beacon, platform, snapshot, camera) {
   // the foreground upright in the source-pinned left-desktop view; the prior
   // 27.24 anchor floated outside the rim. Compact arms keep all glyph vertices
   // above the actual deck while retaining depth testing and target identity.
-  const anchor = pointFor(platform.x + platform.width / 2, platform.y + platform.height,
+  const anchor = pointFor(observedSourceLandingX(snapshot, platform), platform.y + platform.height,
     snapshot.chunkBaseY, snapshot.worldWidth, 26.5);
   beacon.position.set(anchor.x, anchor.y + .65, anchor.z);
   beacon.quaternion.copy(camera.quaternion);
