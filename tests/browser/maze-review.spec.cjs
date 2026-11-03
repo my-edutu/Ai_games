@@ -201,7 +201,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     publicThreatDistanceCells: encounter.distanceCells,
     imageSha256: hash(imagePath),
     sourceSha256: Object.fromEntries(
-      ['app.js', 'scene.js', 'characters.js', 'world.js','gate-moment.mjs']
+      ['app.js', 'scene.js','pickup-story-camera.mjs', 'characters.js', 'world.js','gate-moment.mjs']
         .map(name => [name, hash(path.join(sourceDir, name))])
     ),
     diagnostics: {
@@ -240,7 +240,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     viewport:{width:390,height:844},
     publicThreatDistanceCells:encounter.distanceCells,
     imageSha256:hash(portraitEncounterPath),
-    sourceSha256:Object.fromEntries(['app.js','scene.js','characters.js','world.js','gate-moment.mjs']
+    sourceSha256:Object.fromEntries(['app.js','scene.js','pickup-story-camera.mjs','characters.js','world.js','gate-moment.mjs']
       .map(name=>[name,hash(path.join(sourceDir,name))])),
     diagnostics:{
       quality:portraitEncounter.quality,
@@ -274,7 +274,7 @@ test('a real close public encounter frames both autonomous actors and saves date
   // WARM true WebGL production encounter, not a second CPU-throttled browser.
   // Maintain the identical real public actor pose, source and engine snapshot.
   const nativeSourceHashes=Object.fromEntries(
-    ['index.html','app.js','gameplay-hud.css','map-view.mjs','scene.js','characters.js','world.js','gate-moment.mjs']
+    ['index.html','app.js','gameplay-hud.css','map-view.mjs','scene.js','pickup-story-camera.mjs','characters.js','world.js','gate-moment.mjs']
       .map(name=>[name,hash(path.join(sourceDir,name))]));
   for(const [narrowWidth,narrowHeight,narrowName] of [
     [320,740,'guardian-320-portrait'],
@@ -568,7 +568,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     seed: observed.seed, tick: activeFrame.snapshot.tick,
     publicGoal: observed.goal,
     imageSha256: hash(landmarkPath),
-    sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'characters.js', 'world.js','gate-moment.mjs'].map(name => [name, hash(path.join(sourceDir, name))])),
+    sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js','pickup-story-camera.mjs', 'characters.js', 'world.js','gate-moment.mjs'].map(name => [name, hash(path.join(sourceDir, name))])),
     diagnostic: {objectiveCue: observedDiagnostic.objectiveCue, objectiveInFrame: observedDiagnostic.objectiveInFrame,
       quality: observedDiagnostic.quality, frameP50Ms: observedDiagnostic.frameP50Ms},
     caveat: 'Known connection only, not safety; CPU-throttled CI software rendering; independent visual acceptance pending.',
@@ -594,7 +594,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     viewport:{width:390,height:844}, seed:observed.seed, tick:activeFrame.snapshot.tick,
     publicGoal:observed.goal,
     imageSha256:hash(landmarkPortraitPath),
-    sourceSha256:Object.fromEntries(['app.js','map-view.mjs','scene.js','characters.js','world.js','gate-moment.mjs']
+    sourceSha256:Object.fromEntries(['app.js','map-view.mjs','scene.js','pickup-story-camera.mjs','characters.js','world.js','gate-moment.mjs']
       .map(name=>[name,hash(path.join(sourceDir,name))])),
     diagnostic:{objectiveCue:landmarkPortraitDiagnostic.objectiveCue,
       objectiveInFrame:landmarkPortraitDiagnostic.objectiveInFrame,
@@ -645,7 +645,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     source: 'Unaltered production MazeRuntime public frame rendered in the actual browser',
     tick: activeFrame.snapshot.tick, publicKey: keySample.goal,
     imageSha256: hash(keyImage),
-    sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'characters.js', 'world.js','gate-moment.mjs'].map(name => [name, hash(path.join(sourceDir, name))])),
+    sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js','pickup-story-camera.mjs', 'characters.js', 'world.js','gate-moment.mjs'].map(name => [name, hash(path.join(sourceDir, name))])),
     diagnostic: {keysInFrame: keyDiagnostic.keysInFrame, objectiveCue: keyDiagnostic.objectiveCue,
       quality: keyDiagnostic.quality, frameP50Ms: keyDiagnostic.frameP50Ms},
     caveat: 'No disclosed path guarantees safety; CPU-throttled software render, not independent benchmark acceptance.',
@@ -662,7 +662,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     capturedAt: new Date().toISOString(), seed: keySample.seed, tick: keySample.frame.snapshot.tick,
     source: 'Same production public key snapshot and browser, 390px CSS viewport; not a synthetic scene',
     viewport: {width: 390, height: 844}, imageSha256: hash(portraitKeyImage),
-    sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'characters.js', 'world.js','gate-moment.mjs'].map(name => [name, hash(path.join(sourceDir, name))])),
+    sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js','pickup-story-camera.mjs', 'characters.js', 'world.js','gate-moment.mjs'].map(name => [name, hash(path.join(sourceDir, name))])),
     diagnostic: {keysInFrame: portraitKeyDiagnostic.keysInFrame,
       explorerProjection: portraitKeyDiagnostic.explorerProjection, quality: portraitKeyDiagnostic.quality},
     caveat: 'Portrait composition needs native-size independent review; software-rendered CI is not hardware FPS.',
@@ -693,7 +693,7 @@ test('a real close public encounter frames both autonomous actors and saves date
   const previousPickupState=picked.before.frame.snapshot;
   const nextPickupState=picked.after.frame.snapshot;
   const pickupHashes=Object.fromEntries(
-    ['index.html','app.js','gameplay-hud.css','scene.js','map-view.mjs','world.js','characters.js','gate-moment.mjs']
+    ['index.html','app.js','gameplay-hud.css','scene.js','pickup-story-camera.mjs','map-view.mjs','world.js','characters.js','gate-moment.mjs']
       .map(name=>[name,hash(path.join(sourceDir,name))]));
   activeFrame=picked.before.frame;
   await page.setViewportSize({width:1280,height:900});
@@ -789,7 +789,8 @@ test('a real close public encounter frames both autonomous actors and saves date
     return d?.renderer==='webgl' && d.tick===tick && d.runToken===token
       && d.witnessedKeyPickupVisual && d.pickupShardsInFrame>=6
       && d.pickupCameraBeat && d.pickupCameraTargetHalfHeight<6
-      && d.cameraHalfHeight<7 && d.explorerModelFullyInFrame;
+      && d.cameraHalfHeight<7 && d.explorerModelFullyInFrame
+      && d.pickupCameraHeroFacing>.78;
   },{tick:nextPickupState.tick,token:nextPickupState.runToken},{timeout:45000});
   const pickupPortraitDiagnostic=await page.evaluate(()=>window.__MAZE_3D__);
   await expect(page.locator('#goal-label')).toHaveText('KEY FOUND');
@@ -819,6 +820,7 @@ test('a real close public encounter frames both autonomous actors and saves date
       pickupSpreadCssPx:pickupPortraitDiagnostic.pickupSpreadCssPx,
       explorerModelFullyInFrame:pickupPortraitDiagnostic.explorerModelFullyInFrame,
       pickupCameraBeat:pickupPortraitDiagnostic.pickupCameraBeat,
+      pickupCameraHeroFacing:pickupPortraitDiagnostic.pickupCameraHeroFacing,
       pickupCameraTargetHalfHeight:pickupPortraitDiagnostic.pickupCameraTargetHalfHeight,
       cameraHalfHeight:pickupPortraitDiagnostic.cameraHalfHeight,
       afterScreenshotShardsInFrame:pickupAfterPortraitScreenshot.pickupShardsInFrame,
@@ -828,6 +830,8 @@ test('a real close public encounter frames both autonomous actors and saves date
   },null,2));
   expect(pickupPortraitDiagnostic.explorerModelFullyInFrame,
     'authentic pickup moment must preserve complete original hero model at 390px').toBe(true);
+  expect(pickupPortraitDiagnostic.pickupCameraHeroFacing,
+    'real 390px collection must show Pip from a genuinely front-facing 3D angle, not the old near-top-down profile').toBeGreaterThan(.78);
   expect(pickupPortraitDiagnostic.pickupCameraBeat,
     'native portrait camera follows only a genuinely witnessed collected key').toBe(true);
   expect(pickupPortraitDiagnostic.pickupCameraTargetHalfHeight,
@@ -904,7 +908,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     source: 'Unaltered production MazeRuntime public frame and actual WebGL gate mesh',
     tick: activeFrame.snapshot.tick, disclosedClosedGateIds: sealed.doors.map(door => door.id),
     imageSha256: hash(gateImage),
-    sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'characters.js', 'world.js','gate-moment.mjs'].map(name => [name, hash(path.join(sourceDir, name))])),
+    sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js','pickup-story-camera.mjs', 'characters.js', 'world.js','gate-moment.mjs'].map(name => [name, hash(path.join(sourceDir, name))])),
     diagnostic: {closedGatesInFrame: gateDiagnostic.closedGatesInFrame,
       cameraHalfHeight: gateDiagnostic.cameraHalfHeight,
       cameraOffset: gateDiagnostic.cameraOffset,
@@ -953,7 +957,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     capturedAt: new Date().toISOString(), seed: sealed.seed, tick: sealed.frame.snapshot.tick,
     source: 'Same public sealed gate and running Chromium page as desktop evidence, not invented state',
     viewport: {width: 390, height: 844}, imageSha256: hash(portraitGateImage),
-    sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'characters.js', 'world.js','gate-moment.mjs'].map(name => [name, hash(path.join(sourceDir, name))])),
+    sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js','pickup-story-camera.mjs', 'characters.js', 'world.js','gate-moment.mjs'].map(name => [name, hash(path.join(sourceDir, name))])),
     diagnostic: {closedGatesInFrame: gatePortraitDiagnostic.closedGatesInFrame,
       cameraHalfHeight: gatePortraitDiagnostic.cameraHalfHeight,
       cameraOffset: gatePortraitDiagnostic.cameraOffset,
@@ -994,7 +998,7 @@ test('a real close public encounter frames both autonomous actors and saves date
   expect(observedGateOpenings(beforeGate,afterGate)).toEqual(
     expect.arrayContaining([opening.door]));
   const openingHashes=Object.fromEntries(
-    ['index.html','app.js','gameplay-hud.css','scene.js','world.js','gate-moment.mjs','characters.js']
+    ['index.html','app.js','gameplay-hud.css','scene.js','pickup-story-camera.mjs','world.js','gate-moment.mjs','characters.js']
       .map(name=>[name,hash(path.join(sourceDir,name))]));
   await page.setViewportSize({width:1280,height:900});
   activeFrame=opening.before.frame;
