@@ -231,6 +231,50 @@ function recoverTowerActorView(position, gaze, actor, ndcX, ndcY, ndcZ, aspect, 
   return orbitBlend;
 }
 
+// A measured second-stage portrait rescue for the actual 3D protagonist.
+// The ordinary route/guardian lens stays primary. Only PRESENT, in-picture
+// actor pixels beyond the 78% safe margin can request a short extra exterior
+// orbit and gaze response. Keep it only if the actual after-view is safer.
+// No prediction, new mesh, GPU pass, game tick or authoritative mutation.
+function refineTowerActorSafeFrame(camera, gaze, actor, dt,
+  projection, orbitTarget, previousCamera, previousGaze) {
+  if (!camera || !gaze || !actor || !projection || !orbitTarget ||
+    !previousCamera || !previousGaze || !Number.isFinite(camera.aspect) ||
+    camera.aspect >= .85 || camera.aspect <= 0 ||
+    !Number.isFinite(dt) || dt <= 0) return 0;
+  camera.lookAt(gaze);
+  camera.updateMatrixWorld(true);
+  projection.copy(actor).project(camera);
+  if (![projection.x,projection.y,projection.z].every(Number.isFinite) ||
+    Math.abs(projection.x)>1 || Math.abs(projection.y)>1 ||
+    projection.z < -1 || projection.z > 1) return 0;
+  const before = Math.max(0, Math.abs(projection.x)/.78-1,
+    Math.abs(projection.y)/.78-1);
+  if (before<=.005) return 0;
+  previousCamera.copy(camera.position);
+  previousGaze.copy(gaze);
+  const blend = recoverTowerActorView(camera.position, gaze, actor,
+    projection.x, projection.y, projection.z, camera.aspect,
+    Math.min(dt,.012), orbitTarget);
+  if(blend<=0) return 0;
+  camera.lookAt(gaze);
+  camera.updateMatrixWorld(true);
+  projection.copy(actor).project(camera);
+  const after=Math.max(0,Math.abs(projection.x)/.78-1,Math.abs(projection.y)/.78-1);
+  const angularStep=Math.abs(Math.atan2(
+    Math.sin(Math.atan2(camera.position.x,camera.position.z)-Math.atan2(previousCamera.x,previousCamera.z)),
+    Math.cos(Math.atan2(camera.position.x,camera.position.z)-Math.atan2(previousCamera.x,previousCamera.z))));
+  if(Number.isFinite(after) && after+.0005<before &&
+     Math.abs(projection.x)<=1 && Math.abs(projection.y)<=1 &&
+     projection.z>=-1 && projection.z<=1 && angularStep<=.09 &&
+     towerCoreSightlineClear(camera.position,actor,23.5)) return blend;
+  camera.position.copy(previousCamera);
+  gaze.copy(previousGaze);
+  camera.lookAt(gaze);
+  camera.updateMatrixWorld(true);
+  return 0;
+}
+
 // Wide jumps must keep the camera's chosen stage on the exterior cylinder.
 // Cartesian midpoint focus can stare straight into opaque stone. Only the
 // real visible actor, live route and observed threat select these coordinates.
@@ -1582,6 +1626,10 @@ export function createTowerScene(canvas, settings = {}) {
   const actorTarget = new THREE.Vector3();
   const actorFramePoint = new THREE.Vector3();
   const actorOrbitTarget = new THREE.Vector3();
+  const actorSafeProjection = new THREE.Vector3();
+  const actorSafePreviousCamera = new THREE.Vector3();
+  const actorSafePreviousGaze = new THREE.Vector3();
+  let actorSafeRefinements = 0;
   let actorRescueFraction = 0;
   // Reused CPU-only vectors and NDC arrays; no per-frame draw, material or
   // allocation. A genuine off-frame guardian may catch the approved two-body
@@ -2324,6 +2372,15 @@ export function createTowerScene(canvas, settings = {}) {
       actorRescueFraction = recoverTowerActorView(camera.position, lookAt,
         actorFramePoint, scratch.x, scratch.y, scratch.z,
         camera.aspect, dt, actorOrbitTarget);
+      // Actual source-pinned 390x844 gameplay still had live hero samples
+      // at |x|=.79–.91: improve that present action, not future movement.
+      const refined = refineTowerActorSafeFrame(camera, lookAt, actorFramePoint,
+        dt, actorSafeProjection, actorOrbitTarget,
+        actorSafePreviousCamera, actorSafePreviousGaze);
+      if (refined > 0) {
+        actorRescueFraction = Math.max(actorRescueFraction, refined);
+        actorSafeRefinements++;
+      }
     }
     // Keep both real combat subjects readable in the SAME uninterrupted shot.
     // Merely accelerating the camera was insufficient in the portrait videos:
@@ -2564,6 +2621,7 @@ export function createTowerScene(canvas, settings = {}) {
     // GPU completion or visibility in a captured/composited output.
     return { renderer: 'three-webgl', frames: submissionProgress.submittedFrames, tick: snapshot?.tick ?? 0, floor: snapshot?.floor ?? 0, theme: snapshot?.theme ?? '',
       camera: options.camera, quality: options.quality, reducedMotion: options.reducedMotion, stale: !!options.stale, contextLost, renderErrors,
+      actorSafeRefinements,
       resolution: { basePixelRatio, pixelRatio: renderPixelRatio, scale: innerWidth >= 700 ? resolutionPolicy.scale : 1,
         adaptations: resolutionPolicy.adaptations, submissionMs: resolutionPolicy.lastSubmissionMs,
         measurement: 'JS scene-update-and-render-call duration; not presented FPS' },
