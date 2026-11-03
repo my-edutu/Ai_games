@@ -16,7 +16,8 @@ async function loadRealWorld(){
     for(const file of ['three.module.js','three.core.js'])
       fs.copyFileSync(path.join(root,'node_modules/three/build',file),path.join(temp,'vendor',file));
     const loaded=await import(pathToFileURL(path.join(temp,'world.js')).href);
-    return {loaded,cleanup:()=>fs.rmSync(temp,{recursive:true,force:true})};
+    const THREE=await import(pathToFileURL(path.join(temp,'vendor/three.module.js')).href);
+    return {loaded,THREE,cleanup:()=>fs.rmSync(temp,{recursive:true,force:true})};
   } catch(error){fs.rmSync(temp,{recursive:true,force:true});throw error;}
 }
 const knownCell=(flags={})=>({
@@ -29,7 +30,7 @@ const publicFrame=(c,tick=1)=>({
 });
 
 test('newly disclosed hazard/checkpoint/clue removes misleading relief from real known floor',async()=>{
-  const {loaded,cleanup}=await loadRealWorld();
+  const {loaded,THREE,cleanup}=await loadRealWorld();
   const world=loaded.createMazeWorld({balanced:true});
   let tick=0;
   try{
@@ -40,13 +41,33 @@ test('newly disclosed hazard/checkpoint/clue removes misleading relief from real
     world.update(baseline);
     const originalInstances=world.stats().instances;
     assert.ok(originalInstances>5,'real public tile has physical batched court artwork');
+    // Count the EXACT five source-authorized floor shell ShapeGeometry
+    // instances, not aggregate instance count. Newly excluded fossils may
+    // replace a cutaway sea wall with complete solid wall on a trap, so
+    // total instances alone are NOT a trustworthy shell-privacy measure.
+    const shellBladeCount=()=>{
+      let count=0;
+      const matrix=new THREE.Matrix4(),at=new THREE.Vector3(),q=new THREE.Quaternion(),scale=new THREE.Vector3();
+      const center=loaded.cellPosition(4,3,3),floor=loaded.cellHeight(4,3,3);
+      world.group.traverse(node=>{
+        if(!node.isInstancedMesh||node.geometry?.type!=='ShapeGeometry')return;
+        for(let i=0;i<node.count;i++){
+          node.getMatrixAt(i,matrix);matrix.decompose(at,q,scale);
+          if(Math.abs(at.x-center.x)<.001&&Math.abs(at.z-center.z)<.001
+             &&Math.abs(at.y-(floor+.024))<.001
+             &&Math.abs(scale.x-.82)<.001&&Math.abs(scale.y-.77)<.001)
+            count++;
+        }
+      });
+      return count;
+    };
+    assert.equal(shellBladeCount(),5,'real safe known floor displays all five original Three shell blades');
     for(const flag of ['trap','checkpoint','clue']){
       const signalled=publicFrame(knownCell({[flag]:true}),++tick);
       const unchangedSignal=JSON.stringify(signalled);
       world.update(signalled);
-      const withoutShell=world.stats().instances;
-      assert.ok(withoutShell<=originalInstances-5,
-        flag+' public disclosure must rebuild the actual floor, not retain a misleading shell');
+      assert.equal(shellBladeCount(),0,
+        flag+' public disclosure must physically remove all five original floor shell blades');
       assert.equal(world.stats().renderedCells.length,1,
         'only the originally disclosed cell remains rendered');
       assert.equal(world.stats().renderedCells[0],4,
@@ -54,6 +75,8 @@ test('newly disclosed hazard/checkpoint/clue removes misleading relief from real
       assert.equal(JSON.stringify(signalled),unchangedSignal,
         'presentation must never mutate game-source knowledge');
       world.update(publicFrame(knownCell(),++tick));
+      assert.equal(shellBladeCount(),5,
+        flag+' removal must restore all five deterministic original floor shell blades');
       assert.equal(world.stats().instances,originalInstances,
         flag+' removal must restore exactly the same deterministic floor');
     }
