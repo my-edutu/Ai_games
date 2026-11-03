@@ -79,7 +79,7 @@ test('the real Tower scene uses adaptive backing resolution without downgrading 
   const actor = () => ({ group: new real.Group(), animate() {}, dispose() {} });
   const context = { THREE: { ...real, WebGLRenderer: Renderer, PMREMGenerator: class { fromEquirectangular() { throw new Error('fixture reflection unavailable'); } dispose() {} } },
     ...coordinates, createRenderProgress, createTowerFinale, createTowerRouteIntent, witnessedHealthPickup, createTowerAtmosphere, createTowerGuardianShotStage, createObservedMovingDeckRide, observedHealthRecovery, createTowerRecoveryTransfer, guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue, createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianPassage, createTowerGuardianPassage, snapshotVelocity: () => 0, createClimber: actor, createEnemy: actor,
-    createTowerWorld: () => ({ group: new real.Group(), update() {}, revealGuardianSightlines() {}, diagnostics() { return {}; }, dispose() {} }),
+    createTowerWorld: () => ({ group: new real.Group(), update() {}, revealGuardianSightlines() {}, protectRouteSightlines() {}, diagnostics() { return {}; }, dispose() {} }),
     THEMES: { foundry: { sun: 0xffdfbc, ambient: 0xe8e0d3, fog: 0x99796d } },
     innerWidth: 1920, devicePixelRatio: 1.5, performance: { now: () => now },
     document: { visibilityState: 'visible', addEventListener() {}, removeEventListener() {} },

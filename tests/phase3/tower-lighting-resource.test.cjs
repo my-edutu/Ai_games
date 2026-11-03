@@ -60,7 +60,7 @@ async function main() {
     const actor = () => ({ group: new real.Group(), animate() {}, dispose() {} });
     // This is the renderer resource harness, not the physical tower. Its stub
     // must satisfy the real scene's camera-to-cap visibility interface too.
-    const world = () => ({ group: new real.Group(), update() {}, revealGuardianSightlines() {}, dispose() {}, diagnostics: () => ({}) });
+    const world = () => ({ group: new real.Group(), update() {}, revealGuardianSightlines() {}, protectRouteSightlines() {}, dispose() {}, diagnostics: () => ({}) });
     const context = {
       THREE, createRenderProgress, createTowerFinale, createTowerRouteIntent, witnessedHealthPickup, createTowerAtmosphere, createTowerGuardianShotStage, createObservedMovingDeckRide, observedHealthRecovery, createTowerRecoveryTransfer, guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue, createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianPassage, createTowerGuardianPassage, createTowerWorld: world, createClimber: actor, createEnemy: actor,
       THEMES: { foundry: { sun: 0xffdfbc, ambient: 0xe8e0d3, fog: 0x99796d } },

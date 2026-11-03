@@ -186,6 +186,14 @@ test('real airborne guardian pulse shares a physical lens with the committed lan
       'live guardian collision silhouette must remain on a clear exterior shot');
     assert.ok(pose.heroFraction >= .14,
       'do not trade a legible airborne climber for a distant spectacle');
+    assert.equal(typeof pose.landingFramed, 'boolean',
+      'source-committed landing visibility must be reported instead of presumed');
+    if (pose.duelLandingSoftened) {
+      assert.ok(pose.heroFraction > .14 && pose.guardianFramed,
+        'a relaxed cap lens may be selected only to preserve both live combat bodies');
+      assert.equal(pose.targetId, cap.id,
+        'the real source-selected touchdown remains the objective');
+    }
   }
   assert.equal(JSON.stringify(frame), original,
     'source snapshot remains immutable; all changes are rendered presentation');

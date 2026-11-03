@@ -33,7 +33,7 @@ test('enemy health fill stays correctly layered and actual combat damage has a l
   const actor = () => ({ group: new real.Group(), animate() {}, dispose() {} });
   const context = { THREE: { ...real, WebGLRenderer: Renderer, PMREMGenerator: class { fromEquirectangular() { throw new Error('CPU fixture'); } dispose() {} } },
     ...coordinates, createRenderProgress, createTowerFinale, createTowerRouteIntent, witnessedHealthPickup, createTowerAtmosphere, createTowerGuardianShotStage, createObservedMovingDeckRide, observedHealthRecovery, createTowerRecoveryTransfer, guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue, createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianPassage, createTowerGuardianPassage, snapshotVelocity: () => 0, createClimber: actor, createEnemy: actor,
-    createTowerWorld: () => ({ group: new real.Group(), update() {}, revealGuardianSightlines() {}, dispose() {} }),
+    createTowerWorld: () => ({ group: new real.Group(), update() {}, revealGuardianSightlines() {}, protectRouteSightlines() {}, dispose() {} }),
     THEMES: { foundry: { sun: 0xffdfbc, ambient: 0xe8e0d3, fog: 0x99796d } },
     innerWidth: 960, devicePixelRatio: 1, performance: { now: () => 100 },
     document: { visibilityState: 'visible', addEventListener() {}, removeEventListener() {} },

@@ -1008,6 +1008,10 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
     }
   }
   includeBody(body, (player.halfWidth || 9000) / SCALE, height * .52, heroAngle);
+  // Track the real route's camera-fit points separately from combatants.
+  // If an authentic aerial boss exchange spans a huge cap, we may relax
+  // ONLY those bounds, not the climber/guardian collision silhouettes.
+  const landingPointStart = points.length;
   if (routeLanding) {
     if (observedAid && !target) {
       // Recovery's hard bound is the REAL pickup, not a fabricated platform
@@ -1040,6 +1044,7 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
         target.y + target.height, snapshot.chunkBaseY, snapshot.worldWidth, 24.4));
     }
   }
+  const landingPointEnd = points.length;
   if (threat && (!contactGuardian || !threat.guardian)) {
     includeBody(threat, threat.halfWidth, threat.halfHeight, threat.angle);
     sightlines.push(threat);
@@ -1056,7 +1061,7 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
   // Prioritize a complete hero + guardian; reveal the gate when it fits.
   const subject = contactGuardian || routeLanding || threat;
   const direction = subject ? (Math.sign(body.x - subject.x) || 1) : 1;
-  function solve(lean) {
+  function solve(lean, hardLandingFit = true) {
     const angle = Math.atan2(center.x, center.z) + direction * .08 + orbit + lean;
     // Active traversal gets a modest overlook so the destination presents a
     // usable top. Grounded encounters keep the established near-eye framing.
@@ -1066,7 +1071,12 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
     const bodyDepth = dot(relative(body), out);
     const minimumActorShare = encounter ? (aspect < .85 ? .205 : .225) : .18;
     let distance = bodyDepth + height * level / (2 * tangent * minimumActorShare);
-    for (const point of points) {
+    for (let index = 0; index < points.length; index++) {
+      // The route still owns its physical marker and target ID. During a
+      // witnessed mid-air duel, do not let a distant cap's huge footprint
+      // turn the living characters into illegible specks on a phone.
+      if (!hardLandingFit && index >= landingPointStart && index < landingPointEnd) continue;
+      const point = points[index];
       const delta = relative(point), depth = dot(delta, out);
       distance = Math.max(distance,
         depth + Math.abs(dot(delta, right)) / (tangent * Math.max(.25, aspect) * horizontalSafe),
@@ -1097,18 +1107,43 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
     const gateCoreClear = !!gate && towerCoreSightlineClear(position, gate, 23.5);
     const gateFramed = gatePoints.length > 0 && gateCoreClear &&
       gatePoints.every(point => visible(point, .93, .86));
-    return { focus: center, position, distance, landing, targetId: target?.id || null, lean, clear,
+    return { focus: { ...center }, position, distance, landing, targetId: target?.id || null, lean, clear,
+      landingFramed: !!routeLanding && visible(routeLanding, .88, .8) &&
+        towerCoreSightlineClear(position, routeLanding, 23.5),
+      duelLandingSoftened: !hardLandingFit,
       guardianStaged: !!contactGuardian, guardianFramed, gateFramed, gateCoreClear, gateAnchorX,
       relayFramed, powerSpineFramed, shotFramed,
       heroFraction: height * level / (2 * tangent * (distance - bodyDepth)) };
   }
   let best = solve(0);
+  let hardLandingFit = true;
+  // A source-observed airborne guardian fight is an actual action beat, not
+  // a panorama of an oversized destination cap. First try the REAL full
+  // footprint. Only if it makes the fighter smaller than a 15%-high picture
+  // may this director center the two living bodies and keep the same REAL
+  // landing as a soft preference. No target, collision or event is changed.
+  // No intervention for ordinary jumps or speculative/offline encounters.
+  if (contactGuardian && routeLanding && player.state === 'airborne' &&
+      best.heroFraction < .15 &&
+      (contactGuardian.guardianId === rangedGuardianId ||
+       contactGuardian.guardianId === threatenedGuardianId)) {
+    const normalCenter = { ...center };
+    center.x = lerp(body.x, contactGuardian.x, .48);
+    center.y = lerp(body.y, contactGuardian.y, .48);
+    center.z = lerp(body.z, contactGuardian.z, .48);
+    const rescue = solve(0, false);
+    if (rescue.clear && rescue.guardianFramed &&
+        rescue.heroFraction > best.heroFraction + .018) {
+      best = rescue;
+      hardLandingFit = false;
+    } else Object.assign(center, normalCenter);
+  }
   const preferredFraction = (encounter ? (aspect < .85 ? .195 : .215) : .165) / zoom;
   if (subject && best.heroFraction < preferredFraction) {
     // View along a broad crossing: the real destination recedes into depth,
     // instead of shrinking the entire encounter to fit a narrow screen.
     for (const amount of (aspect < .85 ? [.45, .75, .95, 1.1] : [.25, .5, .75])) {
-      const candidate = solve(direction * amount);
+      const candidate = solve(direction * amount, hardLandingFit);
       if (candidate.clear && candidate.heroFraction > best.heroFraction) best = candidate;
       if (best.heroFraction >= preferredFraction) break;
     }
@@ -1136,7 +1171,7 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
         Math.min(.24, view.heroFraction) * 16 - Math.abs(view.lean) * 1.6;
     let bestQuality = quality(best);
     for (const amount of [0, .22, .45, .7, .95, 1.13, -.22, -.45, -.7]) {
-      const candidate = solve(direction * amount), candidateQuality = quality(candidate);
+      const candidate = solve(direction * amount, hardLandingFit), candidateQuality = quality(candidate);
       if (candidateQuality <= bestQuality + .01) continue;
       best = candidate;
       bestQuality = candidateQuality;
@@ -1145,7 +1180,7 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
     // camera pose. A marginal quality difference cannot force a phone
     // orbit reversal, but genuine cropped action or an opened gate can.
     if (Number.isFinite(previousGuardianLean) && Math.abs(previousGuardianLean) <= 1.2) {
-      best = retainGuardianCameraShot(best, solve(previousGuardianLean), quality);
+      best = retainGuardianCameraShot(best, solve(previousGuardianLean, hardLandingFit), quality);
     }
   }
   return best;
