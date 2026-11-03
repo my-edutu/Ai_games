@@ -5,6 +5,10 @@ test('actual Chromium renders original 3D cinematic figures at desktop and mobil
  test.setTimeout(150000);const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await page.setViewportSize({width:1440,height:832});await page.goto('/dungeon');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.authoredCharacters??0),{timeout:45000}).toBeGreaterThanOrEqual(3);
+ // A native-body 'walk' without actual travelled feet is not a real
+ // animation. A test-generated still is not used as acceptance evidence.
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.rigFullBodyStridePeakRad??0),
+  {timeout:35000}).toBeGreaterThan(.002);
  const desktop=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D);
  expect(desktop.cinematicFigures).toBeGreaterThanOrEqual(3);
  expect(desktop.cinematicMeshes).toBeGreaterThanOrEqual(desktop.cinematicFigures*16);
@@ -38,5 +42,16 @@ test('actual Chromium renders original 3D cinematic figures at desktop and mobil
  expect(mobile.cinematicMaxHandOffsetMeters).toBeLessThanOrEqual(.015);
  expect(mobile.cinematicMeshes).toBeLessThanOrEqual(240);
  await page.locator('#world').screenshot({path:'artifacts/dungeon-m1-cinematic-figures-mobile.png',timeout:60000});
+ // Actual browser diagnostic receipt, not a fabricated feel score. Peak
+ // values prove an executed animated overlay, never motion quality or FPS.
+ fs.writeFileSync('artifacts/dungeon-m1-native-stride-desktop-mobile.json',JSON.stringify({
+  source:'Real WebGL render diagnostic; live autonomous actor movement',
+  baselineSha:'281735d0910c6b2443648af976003d50412ee324',
+  desktop:{figures:desktop.cinematicFigures,stridePeakRad:desktop.rigFullBodyStridePeakRad,
+   activeShortLinks:desktop.cinematicActiveAnatomyBridges},
+  mobile:{figures:mobile.cinematicFigures,stridePeakRad:mobile.rigFullBodyStridePeakRad,
+   activeShortLinks:mobile.cinematicActiveAnatomyBridges},
+  limitations:'Not a controlled before/after or an objective animation-quality judgment'
+ },null,2));
  expect(errors).toEqual([]);
 });

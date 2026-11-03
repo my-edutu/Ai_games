@@ -2202,7 +2202,7 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Real-source b8be04f 1440x832 browser screenshot from 41672587065 and Warden boss desktop/mobile screenshot/video artifacts 41672587022 were INSPECTED: new 14 anatomical joint cylinders made elongated opaque spindly/squid-like limbs. Warden encounter head-on 1440x832 has 3 heroes overlapping enemy bodies in the 58% HP boss arena, warning Rift Cross visible but contact indistinguishable; mobile capture progressed into floor 2 but large stylized ballheads persist. This is a NEGATIVE experiential finding compared with da492455 and exact locked baseline; source visual redesign at 71da2ea to cap spans remains unverified. No masked A/B victory.",
-      "latestCandidateWorkflow": "Latest correction source 71da2ea38b96f7ec3cb6b768339729cf571f261c queued dedicated workflow https://github.com/my-edutu/Ai_games/actions/runs/41676873843 and new live visual https://github.com/my-edutu/Ai_games/actions/runs/41676873814. Previous exact b8be04f authority+browser PASS in https://github.com/my-edutu/Ai_games/actions/runs/41672587022; genuine visual PASS https://github.com/my-edutu/Ai_games/actions/runs/41672587065. These previous-head successes do NOT verify new corrected body rendering. Previous 14-seam animation screenshot was in fact worse; never mark transformed.",
+      "latestCandidateWorkflow": "Source e29df06 triggered exact visual workflow https://github.com/my-edutu/Ai_games/actions/runs/41680230682, dedicated Dungeon https://github.com/my-edutu/Ai_games/actions/runs/41680230625 and catalogue CI https://github.com/my-edutu/Ai_games/actions/runs/41680230446, QUEUED at authoring. This receipt commit adds browser diagnostics and will require its OWN newer exact-head workflows. Nothing declared passing.",
       "currentPredecessorWebgl": {
         "sourceHead": "da4924553083db367c000a920f7f641948a523f0",
         "candidateCapture": "https://github.com/my-edutu/Ai_games/actions/runs/41665354929/artifacts/13246947809",
@@ -2295,13 +2295,14 @@
         "source": "Actual browser artifact 13250093060 desktop/mobile JSON; verified by reading files from published Action archive; not new-head gate"
       },
       "wardenCourtNewSourceFix": "557af7a55123db77c1d7919a60ea75eca8eba16c",
-      "wardenCourtNewSourceVisual": "UNVERIFIED: new actual court perimeter reliefs and original chapter nave art must be inspected in exact-head Chromium on desktop/mobile. Do not claim success based on source or unit tests."
+      "wardenCourtNewSourceVisual": "UNVERIFIED: new actual court perimeter reliefs and original chapter nave art must be inspected in exact-head Chromium on desktop/mobile. Do not claim success based on source or unit tests.",
+      "latestNativeStride": "Real-browser desktop/mobile motion test registered and source committed; actual exact-head browser pixels, clips, true original audio and p95 performance UNVERIFIED. Prior artifact https://github.com/my-edutu/Ai_games/actions/runs/41672587022/artifacts/13250093060 had 0-byte WebM on both form factors."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Genuine earlier b8be04f browser Warden screenshot shows overlapped, dark, stretched/toy-like hero and enemy forms and cluttered square walls; animated 3D legibility remains the main unproven experiential quality problem. Browser Warden Court receipts documented zero original wall shields and zero-byte opt-in MediaRecorder output; new live perimeter-facade source correction now requires fresh desktop/mobile screenshot and audio-motion acceptance. No full organic before/after adventure or independent Looks/Feels/Plays majority.",
-    "currentWork": "M1 source head 557af7a5: authored real walkable connected Gothic naves, original articulated anatomy correction in 71da2ea, and a verified-need Warden Court source fix that locates real surrounding wall sculptures rather than zero reliefs in the seven-cell boss arena. Same draft PR, original Warden and player authority, no replay changes. Exact-head visible audiovisual outcome and independent A/B still UNVERIFIED.",
-    "candidateCommit": "557af7a55123db77c1d7919a60ea75eca8eba16c",
-    "candidateArtifactUrl": "",
+    "biggestRemainingGap": "Latest authentic earlier browser captures still show miniaturized/overlapping characters and a large confusing Warden, dense square walls, and failed original MediaRecorder (0 bytes); the new coordinated skinned gait and short cloth junctions HAVE NOT yet been observed in new-head moving footage. Genuine real campaign sound/restart, baseline A/B, independently measured hardware frame-time and ≥3 blind Looks/Feels/Plays majorities remain missing.",
+    "currentWork": "M1 integrated source e29df06: all six imported animated roles (three protagonists, three enemies including Warden) now share one genuine distance-planted native-bone stride phase across thigh/ankle, opposing shoulders, pelvic bearing and chest counter-turn. Old straight cylindrical anatomy joins are replaced with original tapered cloth profiles; critical long links remain suppressed. Browser desktop/mobile real motion checks added. Exact code-head audiovisual quality, full organic journey and fresh blind critics UNVERIFIED.",
+    "candidateCommit": "e29df06cb0d7b473af1d35f21349a1cf85bbb707",
+    "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
       {
@@ -3957,6 +3958,30 @@
         "integrated": "Fix the existing physical Warden Court planner to scan authentic real 7x7 arena perimeter walls up to 10 cells from boss exit and choose at most 14 original shield reliefs across up to four quadrants, while preserving the authoritative cleared floor, boss warning seal, existing cutaways and original class animation. Add real Chromium and genuine seven-cell foundation source gates.",
         "evidence": "The 0-relief and zero-byte findings are VERIFIED on prior-head browser receipts; whether NEW-HEAD perimeter architecture actually appears, sounds/moves or improves independent looks/feels/plays is UNVERIFIED.",
         "next": "Wait for exact new-head action, inspect real desktop/mobile Warden screenshot and clips, confirm relief count >0 and headless authority/replay. Fix screen-space actor overlap and sound capture, then attempt uninterrupted seeded organic journey plus matched locked-baseline independent blind comparisons."
+      },
+      {
+        "id": "M1-NATIVE-BODY-STRIDE-20261103",
+        "date": "2026-11-03",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "b348f05468e480c644447e38af7cd4d590db7d16",
+        "codeCommit": "e29df06cb0d7b473af1d35f21349a1cf85bbb707",
+        "objective": "Replace robotic and disconnected foot-first animation through the genuinely playing dungeon and Warden duel with a shared role-weighted skinned anatomical stride, without inventing travel, hits or a new Gauntlet round.",
+        "integration": "Original per-role 3D weight transfer now consumes actual visually rendered metres once per animation update, and carries the same planted leg phase across the native pelvis, spine and counter-moving shoulder joints. Imported animations and true weapon/attack/evasion layers still operate. Authentic short anatomical cloth links use original tapered/folded gusset instead of hard cylinder; existing long-gap rejection remains. Six role masses including heavy Warden and light ranger; true combat interruptions, reduced-motion, teleport and defeat suppress stride; bounded reversible native joints, same mesh instance batches. No touched DungeonRuntime, tile collision, game RNG, damage, saves, replay, paid influence or copied art.",
+        "files": [
+          "public/ai-dungeon/rig-attachment-plan.js",
+          "public/ai-dungeon/model-assets.js",
+          "public/ai-dungeon/cinematic-figure.js",
+          "tests/foundation/dungeon-m1-continuous-body.test.cjs",
+          "tests/browser/dungeon-cinematic-figure.spec.cjs"
+        ],
+        "checks": "Source committed on draft branch. New focused contract and desktop/mobile native-stride Chromium check registered. Exact commit node tests, browser, catalog CI, seed replay, GPU performance and original audio have NOT YET completed/been inspected at receipt; no invented pass or A/B preference.",
+        "previousRealEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/41672587022/artifacts/13250093060",
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "biggestGap": "Human silhouette/armor integration and natural contact still look miniature and crowded in prior real browser; complete audiovisual journey and independent looks/feels/plays A/B missing",
+        "next": "Inspect actual latest-head desktop/mobile body movement, Warden Court reliefs and born-digital silhouettes; fix anatomy deformation, actor overlap and sound capture defects seen in authentic footage; record natural full traversal→fight→Warden→floor→defeat/restart with original audio; compare same seed against locked baseline and three original public gameplay bars; commission three independent blinded critics and measure sustained accessible frame-rate."
       }
     ]
   }
