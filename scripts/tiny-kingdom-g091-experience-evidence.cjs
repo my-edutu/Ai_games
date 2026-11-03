@@ -608,10 +608,12 @@ async function marketCircuitMotion(browser,html,snapshot){
   await page.keyboard.press('Enter');
   const started=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
-   return {tour:g.getMarketTourAudit(),position:g.getStreetWalkState().position};
+   return {tour:g.getMarketTourAudit(),position:g.getStreetWalkState().position,
+    planning:g.getMarketVisitPlanningAudit()};
   });
   assert(started.tour.active,
-   'G156 Day-120 genuine market circuit cannot find a safe route to another stall');
+   'G157 Day-120 actual filmed market circuit cannot find a safe second-stall view: '+
+   JSON.stringify(started.planning?.connectedSearch||started.planning));
   // A SwiftShader game frame may advance between user input and the audit;
   // do not confuse legitimate motion with an instantaneous teleport.
   assert(Math.hypot(started.position[0]-initial.position[0],
