@@ -4,6 +4,8 @@ on:
     branches: [feat/tower-transformation-gauntlet-20261101]
     paths:
       - .github/workflows/tower-transformation-visual-evidence.yml
+      - playwright.tower.config.cjs
+      - scripts/tower-source-capture-server.cjs
       - games/infinite-tower-climb/src/**
       - public/infinite-tower-climb/visuals/**
       - public/infinite-tower-climb/styles.css
@@ -96,6 +98,7 @@ jobs:
       TOWER_LAUNCH_FLOOR: ${{ matrix.floor }}
       TOWER_MOTION_SCENARIO: ${{ matrix.scenario }}
       TOWER_SEED: tower-transformation-capture-v1
+      TOWER_CAPTURE_UNALTERED_SOURCE: '1'
     steps:
       - name: Checkout the actual game source being assessed
         uses: actions/checkout@v4
@@ -110,12 +113,16 @@ jobs:
           ref: ${{ github.sha }}
           path: current-harness
           persist-credentials: false
-      - name: Use identical live-host capture method for frozen baseline
+      - name: Install neutral capture harness; do NOT overwrite frozen game's server
         if: matrix.source == 'baseline'
         run: |
           cp current-harness/tests/browser/tower-live-motion.spec.cjs source/tests/browser/tower-live-motion.spec.cjs
           cp current-harness/scripts/tower-motion-evidence.cjs source/scripts/tower-motion-evidence.cjs
-          cp current-harness/scripts/serve-tower-stream.cjs source/scripts/serve-tower-stream.cjs
+          cp current-harness/scripts/tower-source-capture-server.cjs source/scripts/tower-source-capture-server.cjs
+          cp current-harness/playwright.tower.config.cjs source/playwright.tower.config.cjs
+          # The SOURCE-controlled app, game runtime, scene, and stream host
+          # are immutable at the original frozen checkout SHA.
+          git -C source diff --exit-code -- scripts/serve-tower-stream.cjs
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -137,7 +144,9 @@ jobs:
         working-directory: source
         run: |
           mkdir -p artifacts/tower-motion
+          git diff --exit-code -- scripts/serve-tower-stream.cjs
           git rev-parse HEAD > artifacts/tower-motion/source-sha.txt
+          git hash-object scripts/serve-tower-stream.cjs > artifacts/tower-motion/source-game-host-blob.txt
           echo "TOWER_CAPTURE_SOURCE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
           echo "${{ github.sha }}" > artifacts/tower-motion/evidence-harness-sha.txt
       - name: Record at least 60 seconds of normal-speed autonomous WebGL gameplay

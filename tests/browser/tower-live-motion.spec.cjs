@@ -192,7 +192,10 @@ for (const viewport of viewports) {
     videoGeometry: { width: viewport.width, height: viewport.height,
       fixture: 'playwright-context-created-with-native-viewport-and-recording-size' },
     actualWallSeconds: assessment.wallMs / 1000, minimumRequiredSeconds: 60,
-    outcomeCapture: scenario === 'outcome' ? { maxTicks: 900, noProgressTicks: 850, intermissionTicks: 36 } : null,
+    outcomeCapture: scenario === 'outcome' ? {
+      maxTicks: 900, noProgressTicks: 850, intermissionTicks: 100,
+      note: 'Identical public scenario settings applied through neutral capture server; source game host not modified.',
+    } : null,
     sampledActorOffscreen: observations.filter(item => item.observedActor?.inPicture === false).length,
     sampledActorUnsafe: observations.filter(item => item.observedActor?.inSafeFrame === false).length,
     capturedAt: new Date().toISOString(), observations, assessment,

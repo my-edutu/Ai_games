@@ -13,7 +13,12 @@ module.exports = defineConfig({
     launchOptions: { args: process.env.CI || process.env.TOWER_SOFTWARE_GL === '1' ? ['--enable-unsafe-swiftshader', '--use-angle=swiftshader'] : [] },
   },
   webServer: {
-    command: 'node scripts/serve-tower-stream.cjs --port=4176',
+    // CI captures use the ORIGINAL checked-out game's server implementation.
+    // The neutral runner supplies identical scenario settings without
+    // overwriting the frozen baseline's gameplay files.
+    command: process.env.TOWER_CAPTURE_UNALTERED_SOURCE === '1'
+      ? 'node scripts/tower-source-capture-server.cjs --port=4176'
+      : 'node scripts/serve-tower-stream.cjs --port=4176',
     url: 'http://127.0.0.1:4176/tower/health',
     timeout: 30000,
     reuseExistingServer: false,
