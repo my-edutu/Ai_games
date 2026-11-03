@@ -3421,7 +3421,7 @@ function compactVillager(p){
    const tip=[hand[0]+.07*s,hand[1]+.13*s,hand[2]+.13*s];
    limbSegment(hand,tip,.027*s,rgb(0x785b43),4);
    box(tip[0],tip[1],tip[2],
-    (p.job==='farmer'||p.job==='gatherer'?.19:.21)*s,
+    ((p.job==='farmer'||p.job==='gatherer') ? .19 : .21)*s,
     .075*s,.12*s,rgb(p.job==='craftsperson'||p.job==='forester'?0x999b93:0xb49466));
   }
   const headStart=data.length;
