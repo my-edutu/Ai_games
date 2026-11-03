@@ -145,8 +145,8 @@ test('the authentic guardian release stays aligned with the exposed source HP lo
     'injury, combat, terminal and reduced motion must all veto the gate handoff pose');
   assert.match(gate, /wing\.rotation\.y = -side \* opened \* \.27/,
     'the earned bronze leaves must turn outward while they physically retract');
-  assert.doesNotMatch(scene, /guardianCircuitSource\?\.guardianId === contactGuardian\?\.guardianId/,
-    'absent guardian and absent circuit must not compare as matching IDs');
+  assert.match(scene, /const relay = guardianCircuitSource &&\s+guardianCircuitSource\.guardianId === contactGuardian\?\.guardianId/,
+    'a present guardian circuit is mandatory before comparing its ID');
 });
 
 test('the actual scene consumes source transitions and owns passage lifecycle on recovery', () => {
