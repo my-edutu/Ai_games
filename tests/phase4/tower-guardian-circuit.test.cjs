@@ -273,7 +273,8 @@ test('three real HP-gated gantry clutches expose a legible physical power spine 
     const firstColor = new THREE.Color(), lastColor = new THREE.Color();
     leaves.getColorAt(0, firstColor);
     leaves.getColorAt(4, lastColor);
-    assert.ok(firstColor.distanceTo(lastColor) > .08,
+    assert.ok(Math.hypot(firstColor.r-lastColor.r,
+      firstColor.g-lastColor.g, firstColor.b-lastColor.b) > .08,
       'later unearned HP stages stay visually distinguishable, not a fake full clearance');
     assert.equal(JSON.stringify(initial), frozen, 'decorative machinery must not edit the authoritative source');
     circuit.update(hurt, { stale: true });
