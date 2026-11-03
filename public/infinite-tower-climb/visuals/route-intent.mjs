@@ -95,7 +95,7 @@ function witnessedLandingX(snapshot, deck) {
 // Recovery is a real autonomous choice, not a second jump or promised heal.
 // Reuse the existing bounded 3D stones for the CURRENT supporting deck and
 // a CURRENT collectible. Never point spectators toward an old/blocked pickup.
-function witnessedHealthPickup(snapshot, support) {
+export function witnessedHealthPickup(snapshot, support) {
   const p = snapshot?.player, intent = snapshot?.intent;
   if (!support || !p || intent?.mode?.replace(/^oracle-/, '') !== 'collecting-resource' ||
     intent.targetPlatformId !== support.id ||

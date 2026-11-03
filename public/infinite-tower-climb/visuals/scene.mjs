@@ -6,7 +6,8 @@ import { snapshotVelocity } from './motion.mjs';
 import { createRenderProgress } from './render-progress.mjs';
 import { createTowerFinale } from './finale.mjs';
 import { observedGuardianPassage, createTowerGuardianPassage } from './guardian-passage.mjs';
-import { createTowerRouteIntent } from './route-intent.mjs';
+import { createTowerRouteIntent, witnessedHealthPickup } from './route-intent.mjs';
+import { observedHealthRecovery, createTowerRecoveryTransfer } from './recovery-transfer.mjs';
 import { createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianRelayStage, observedGuardianPowerSpineStage } from './guardian-circuit.mjs';
 import { createTowerAtmosphere } from './atmosphere.mjs';
 import { createTowerGuardianShotStage } from './guardian-shot-stage.mjs';
@@ -778,6 +779,14 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
   let landing = null;
   if (target) landing = pointFor(observedSourceLandingX(snapshot, target),
     target.y + target.height, snapshot.chunkBaseY, snapshot.worldWidth, 26.7);
+  // A genuinely selected and currently supported health pickup is a camera
+  // destination too. Reuse EXACTLY the route renderer's guarded observation:
+  // never look at an ambiguous, dangerous or already collected item.
+  const recoverySupport = snapshot.intent?.mode?.replace(/^oracle-/, '') === 'collecting-resource'
+    ? snapshot.platforms?.find(deck => deck.id === snapshot.intent?.targetPlatformId) : null;
+  const observedAid = witnessedHealthPickup(snapshot, recoverySupport);
+  if (observedAid && !target) landing = pointFor(observedAid.x, observedAid.y,
+    snapshot.chunkBaseY, snapshot.worldWidth, 25.3);
   let threat = null, nearest = Infinity;
   // The tactical nearest-object camera may prefer a small bolt or hazard
   // while the guardian is visibly losing HP. Keep a separate, source-backed
@@ -902,13 +911,20 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
   }
   includeBody(body, (player.halfWidth || 9000) / SCALE, height * .52, heroAngle);
   if (routeLanding) {
-    // Include the real usable width, rather than only a guessed touch point.
-    // The outer walking band is outside the architectural core at radius 23.4.
-    for (const x of [target.x, target.x + target.width]) {
-      const edge = pointFor(x, target.y + target.height, snapshot.chunkBaseY, snapshot.worldWidth, 26.7);
-      points.push(edge, { ...edge, y: edge.y + .4 }); sightlines.push(edge);
+    if (observedAid && !target) {
+      // Recovery's hard bound is the REAL pickup, not a fabricated platform
+      // jump. Keep hero+aid visible without forcing a combat camera cut.
+      points.push(routeLanding, { ...routeLanding, y: routeLanding.y + .65 });
+      sightlines.push(routeLanding);
+    } else if (target) {
+      // Include the real usable deck width, not an imagined touch point.
+      for (const x of [target.x, target.x + target.width]) {
+        const edge = pointFor(x, target.y + target.height, snapshot.chunkBaseY, snapshot.worldWidth, 26.7);
+        points.push(edge, { ...edge, y: edge.y + .4 }); sightlines.push(edge);
+      }
+      points.push(pointFor(target.x + target.width / 2,
+        target.y + target.height, snapshot.chunkBaseY, snapshot.worldWidth, 24.4));
     }
-    points.push(pointFor(target.x + target.width / 2, target.y + target.height, snapshot.chunkBaseY, snapshot.worldWidth, 24.4));
   }
   if (threat && (!contactGuardian || !threat.guardian)) {
     includeBody(threat, threat.halfWidth, threat.halfHeight, threat.angle);
@@ -1488,6 +1504,10 @@ export function createTowerScene(canvas, settings = {}) {
   // the skinned rider one bounded counterweight pose. Zero extra GPU draws.
   const movingDeckRide = createObservedMovingDeckRide();
   let observedRidePose = null;
+  // One low-cost source-earned recovery event completes the already-authentic
+  // AI detour -> picked-up aid -> skinned armor restoration loop in real 3D.
+  let recoveryTransfer = createTowerRecoveryTransfer(THREE);
+  scene.add(recoveryTransfer.group);
 
   // Existing source route stays authoritative. One instanced world-space
   // movement echo helps follow a real dash/launch on a small phone viewport.
@@ -1615,6 +1635,7 @@ export function createTowerScene(canvas, settings = {}) {
     motionLedger.reset(); motionEcho.count = 0; motionEcho.visible = false;
     footingShadow.visible = false; observedFooting = null;
     movingDeckRide.reset(); observedRidePose = null;
+    recoveryTransfer.clear();
     atmosphere.clear();
     guardianShotStage.clear();
     crownStage.visible = false; observedCrown = null;
@@ -1628,8 +1649,8 @@ export function createTowerScene(canvas, settings = {}) {
     releaseEnvironment();
     reflectionFirstFrame = true;
     clearActors();
-    scene.remove(world.group, climber.group, finale.group, passage.group, routeIntent.group, guardianCircuit.group, guardianShotStage.group, atmosphere.group);
-    world.dispose(); climber.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose(); guardianCircuit.dispose(); guardianShotStage.dispose(); atmosphere.dispose();
+    scene.remove(world.group, climber.group, finale.group, passage.group, routeIntent.group, guardianCircuit.group, guardianShotStage.group, atmosphere.group, recoveryTransfer.group);
+    world.dispose(); climber.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose(); guardianCircuit.dispose(); guardianShotStage.dispose(); atmosphere.dispose(); recoveryTransfer.dispose();
     skyGeometry.dispose(); skyMaterial.dispose();
     for (const geometry of sharedGeometry) geometry.dispose();
     for (const material of sharedMaterials) material.dispose();
@@ -1640,8 +1661,9 @@ export function createTowerScene(canvas, settings = {}) {
     guardianCircuit = createTowerGuardianCircuit(THREE);
     guardianShotStage = createTowerGuardianShotStage(THREE);
     atmosphere = createTowerAtmosphere(THREE);
+    recoveryTransfer = createTowerRecoveryTransfer(THREE);
     climber.group.name = 'ExpeditionClimber';
-    scene.add(world.group, climber.group, finale.group, passage.group, routeIntent.group, guardianCircuit.group, guardianShotStage.group, atmosphere.group);
+    scene.add(world.group, climber.group, finale.group, passage.group, routeIntent.group, guardianCircuit.group, guardianShotStage.group, atmosphere.group, recoveryTransfer.group);
     initialized = false;
     if (snapshot) updateEntities(snapshot);
   }
@@ -1754,6 +1776,15 @@ export function createTowerScene(canvas, settings = {}) {
     previous = newRun ? null : snapshot;
     snapshot = next; baseY = next.chunkBaseY;
     motionLedger.accept(previous, next);
+    // Authority may heal +1 on a floor advance or upgrade without any
+    // collectible. A visible rescue transfer is earned ONLY by an actual
+    // nearby health pickup disappearing on a same-run, same-floor HP increase.
+    const recovered = observedHealthRecovery(previous, next);
+    if (recovered && !options.stale) {
+      const consumedAt = pointFor(recovered.x, recovered.y,
+        next.chunkBaseY, next.worldWidth, 25.3);
+      recoveryTransfer.begin(recovered, consumedAt, elapsed);
+    }
     // A decisive guardian hit can also advance the REAL fixed-step floor.
     // The previous gate is discarded with its old world; preserve only a short
     // non-colliding bronze passage memory, witnessed in adjacent real source
@@ -1921,6 +1952,7 @@ export function createTowerScene(canvas, settings = {}) {
     else { followClimberContact(climber.group.position, actorTarget, blend, p.state); actorYaw += Math.atan2(Math.sin(desiredYaw - actorYaw), Math.cos(desiredYaw - actorYaw)) * blend; }
     climber.group.rotation.y = actorYaw;
     climber.group.scale.setScalar(p.halfHeight * 2 / SCALE / 2.8);
+    recoveryTransfer.update(snapshot, climber.group.position, elapsed, options);
     const echoes = motionLedger.samples;
     motionEcho.visible = !options.stale && !options.reducedMotion &&
       snapshot.lifecycle === 'running' && p.health > 0 && echoes.length > 1;
@@ -2546,6 +2578,7 @@ export function createTowerScene(canvas, settings = {}) {
       routeIntent: routeIntent.diagnostics(), guardianCircuit: guardianCircuit.diagnostics(),
       guardianShotStage: guardianShotStage.diagnostics(),
       atmosphere: atmosphere.diagnostics(),
+      recoveryTransfer: recoveryTransfer.diagnostics(),
       summitCrown: observedCrown && crownStage.visible ? {
         capId: observedCrown.capId, sourceTick: observedCrown.sourceTick,
         guardianId: observedCrown.guardianId,
@@ -2578,7 +2611,7 @@ export function createTowerScene(canvas, settings = {}) {
     canvas.removeEventListener('pointerup', pointerUp); canvas.removeEventListener('pointercancel', pointerUp); canvas.removeEventListener('wheel', wheel);
     releaseEnvironment();
     sun.shadow.dispose(); sun.shadow.map = null; sun.shadow.mapPass = null;
-    clearActors(); climber.dispose(); world.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose(); guardianCircuit.dispose(); guardianShotStage.dispose(); atmosphere.dispose();
+    clearActors(); climber.dispose(); world.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose(); guardianCircuit.dispose(); guardianShotStage.dispose(); atmosphere.dispose(); recoveryTransfer.dispose();
     skyGeometry.dispose(); skyMaterial.dispose();
     for (const geometry of sharedGeometry) geometry.dispose();
     for (const material of sharedMaterials) material.dispose();
