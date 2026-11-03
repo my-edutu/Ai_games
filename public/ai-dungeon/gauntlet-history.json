@@ -2195,23 +2195,24 @@
       },
       "safetyChecks": "Real preceding d9e1c head: Dungeon authority PASS, 2/3 browser shards PASS, other browser shard 25/26 with actual 300 character mesh objects >240 cap (workflow 41651252455), visual review PASS (41651252373). Catalogue CI failed unrelated Tiny Kingdom version-source browser checks (41651252343). At new a7afb06 / 7f8447a head, GPU rendering, replay, screenshots, performance and CI remain PENDING / UNVERIFIED. No false green gate.",
       "matchedExternalReference": "NOT_RUN",
-      "originalAudioMotionClip": "UNVERIFIED for new 17fc673 exact candidate; original synthesized opt-in audio remains existing, no new recorded performance",
+      "originalAudioMotionClip": "UNVERIFIED: genuine seeded Warden canvas video + opt-in WebAudio recording test authored but not yet executed. No actual track/sound has been inspected.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
       "audioLoudnessAndClipping": "NOT_MEASURED",
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Manually opened immutable source world-only screenshot from workflow 41302939553 artifact 13081734898 and later genuine Chromium from 41650090209 artifact 13236868357. Both show rectangular walls and stylized rounded figures; later frame shows dramatic arch details but still toy-like dark helmets and busy, repeated stone. These are different live instants, not controlled matched before-after and not independent masked scoring.",
-      "latestCandidateWorkflow": "Candidate a7afb06 true-bone paired instancing and 7f8447a live boss capture test, latest art candidate 9f0354e sculpted head/face/torso. Exact-head workflows pending; previous d9e1c real Chromium revealed 300 figure mesh objects > cap240. No green exact head claim, real new boss clip, comparable mobile fps or captured opt-in sound.",
+      "latestCandidateWorkflow": "Code SHA 48e74d053076b4cdec75740fd83ac7dd13c5e241 Warden Court chapter; dedicated run https://github.com/my-edutu/Ai_games/actions/runs/41664239611, real visual review https://github.com/my-edutu/Ai_games/actions/runs/41664238914; no exact-code pass or observed footage confirmed. New browser seeded Warden multimedia study is source-only and not yet executed.",
       "currentPredecessorWebgl": "https://github.com/my-edutu/Ai_games/actions/runs/41582184616/artifacts/13207290223",
       "newCandidateSceneReview": "UNVERIFIED at art code 9f0354e; no screenshot/video from this exact source yet. Previous real browser artifact from 41650090209 has dark rounded toy heroes and repetitive masonry versus reference bars; older locked baseline retains visibly different camera/state and still toy characters. Real 7f boss test registered but actual latest-head execution/results remain pending.",
       "characterDrawBudget": "Predecessor exact-head real software WebGL from run 41651252455 observed cinematicMeshes=300 > cap 240. Pair instancing should save six separate draw objects per full native figure; actual new live figure count/DrawCalls/p95/p99 UNVERIFIED.",
       "externalReferenceAudit": "Nonblind operator qualitative look at publicly available Diablo IV dungeon art and official gameplay world descriptions (https://diablo4.blizzard.com/en-gb/vessel-of-hatred), No Rest for the Wicked official world/Crucible updates (https://norestforthewicked.com/news/the-wicked-inside-showcase), Path of Exile 2 official class/combat/boss information (https://pathofexile2.com/). Readability, deep material variation, bespoke environments, heavy readable contact and challenge pacing remain far ahead of current proven Dungeon footage. Direct synchronized matched gameplay comparison NOT RUN; proprietary assets never copied.",
-      "realBrowserFrameDeliveryPredecessor": "Actual d9e1c Chromium software WebGL shard 2 artifact 13238978845, artifacts/dungeon-raf-interval-evidence.json: foreground RAF intervals 15 samples, p50 733.3ms, p95 and worst 4549.9ms; other raster evidence sampled 8 frames, directRenderMs 3.9ms at 273136 pixels and downshift 2. Foreground RAF observations cannot establish standalone GPU render time or phone fps. Known scheduling / software runner risk, latest candidate performance UNVERIFIED."
+      "realBrowserFrameDeliveryPredecessor": "Actual d9e1c Chromium software WebGL shard 2 artifact 13238978845, artifacts/dungeon-raf-interval-evidence.json: foreground RAF intervals 15 samples, p50 733.3ms, p95 and worst 4549.9ms; other raster evidence sampled 8 frames, directRenderMs 3.9ms at 273136 pixels and downshift 2. Foreground RAF observations cannot establish standalone GPU render time or phone fps. Known scheduling / software runner risk, latest candidate performance UNVERIFIED.",
+      "latestCourtChapter": "Original stage source from commit 48e74d053076b4cdec75740fd83ac7dd13c5e241 installed on same draft PR. Authentic browser render/real sound/critics/complete journey NOT YET VERIFIED."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Latest-head genuine playable Warden/hero silhouettes and room legibility, movement/contact and full campaign continuity are unverified. Manually inspected LOCKED 281735d browser world-only image and Nov 3 41650090209 real-browser image: both look toy-like, block masonry dominates, later scene still dark glossy heads and visually repetitive walls; these are non-blind different-timing frames, NOT a matched A/B win. Real preceding 41651252455 renderer failed crowded 300 character draw objects vs 240 limit and observed foreground RAF p95 4549.9ms on software WebGL with only 15 samples; cannot infer hardware GPU or mobile performance. Need latest-head actual browser screenshots/audio/critic majorities, organic boss/floor/defeat/restart. Diablo IV, No Rest for the Wicked, Path of Exile 2 quality NOT MET.",
+    "biggestRemainingGap": "Authentic latest-head mobile and desktop moving Warden/court anatomy and contact, real sound and frame pacing UNVERIFIED. The previous real Chromium artwork still has miniature toy scale and obstructive grid stone; now physical chapter source exists but has not proven a visual leap. Must capture complete natural traversal/combat/boss/floor/death/restart plus matched fixed baseline and >=3 unbiased critics on all LOOKS/FEELS/PLAYS; preserve software-WebGL 15-frame stall warning and hardware/soak unknown.",
     "currentWork": "Original anatomically articulated six-class full 3D character pass on active M1 vertical slice: reduced packed armor draw objects with full independent GLB native skeleton movement (a7afb06); captured non-match prior real desktop/mobile scenes for critique; registered real Warden RUPTURE browser warning/strike capture (7f8447a); carved original 3D cheek, nose, brow, chin face volume, dual iron eye lenses, adult-shaped helm and tapered armored torso WITHOUT adding any character draw object or source asset (9f0354e). Actual latest-head visual/motion/audiovisual performance remain UNVERIFIED; no gameplay authority modifications.",
-    "candidateCommit": "9f0354e54d5403a27b76669e5cedb3152e386aab",
+    "candidateCommit": "48e74d053076b4cdec75740fd83ac7dd13c5e241",
     "candidateArtifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41650090209/artifacts/13236868357",
     "acceptedAt": null,
     "implementationEvents": [
@@ -3751,6 +3752,38 @@
         "performanceObserved": "Old software Chromium observed 15 interval p95 4549.9ms; separate direct renderer 3.9ms at dynamically reduced pixel ratio. No latest-head p95/device or real browser pass.",
         "noClaim": "Looks / feels / plays improvement UNVERIFIED. Current full transformation gate NOT MET.",
         "next": "Wait for exact-head Chromium auto-capture, inspect face visibility and native-bone armor motion at idle/attack/boss warning/defeat on 1440 desktop and 390 mobile; correct regressions and evaluate real boss tactics plus authentic audible event clips and locked matched multi-scenario blind majority."
+      },
+      {
+        "id": "M1-WARDEN-COURT-20261103",
+        "date": "2026-11-03",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "codeCommit": "48e74d053076b4cdec75740fd83ac7dd13c5e241",
+        "evidenceCaptureCodeCommit": "PENDING_COMMIT",
+        "objective": "Enact a coherent original Warden court chapter that materially ties the visible room, playable processional path and lighting to the living boss's authentic warning, exposure and actual position, addressing generic heavy stone scenery while native-bodied characters and true damage remain intact.",
+        "integration": "Original physically beveled lancet iron/stone wall shields, real walkable-tile engraved aisle with procedural pigment atlas, genuine living-Warden-underfoot binding seal and single original no-shadow firelight. True public boss and phases govern appearance and animation; all camera cutaways, floor disposal and reduced-motion existing path honored. No changes to authoritative maze, AI, navigation, damage, RNG, saves or replay. Stage integrated in actual world builder, allowlisted server endpoints, diagnostics and deterministic unit contracts.",
+        "files": [
+          "public/ai-dungeon/warden-court-plan.js",
+          "public/ai-dungeon/warden-court.js",
+          "public/ai-dungeon/environment.js",
+          "public/ai-dungeon/app.js",
+          "scripts/serve-dungeon-stream.cjs",
+          "tests/foundation/dungeon-warden-court.test.cjs",
+          "tests/browser/dungeon-warden-court.spec.cjs"
+        ],
+        "exactHeadActions": {
+          "dungeon": "https://github.com/my-edutu/Ai_games/actions/runs/41664239611",
+          "visual": "https://github.com/my-edutu/Ai_games/actions/runs/41664238914",
+          "catalogue": "https://github.com/my-edutu/Ai_games/actions/runs/41664239168"
+        },
+        "evidence": "Draft browser study authored: real seed-driven Warden desktop + mobile screenshot and 4s canvas MediaRecorder WebM with opt-in original sound track attempt. No such current artifact exists until exact-head GitHub Actions execute. It is not an organic full journey or blind matched A/B.",
+        "performance": "Bounded <=14 batched reliefs, <=32 engraved tiles, 1 conditional point light with no dynamic shadow, and a small procedural 128px alpha atlas. Actual new-head p95/p99 CPU/GPU, phone frame delivery, draw calls, memory and touch accessibility NOT YET MEASURED.",
+        "results": "Exact-source/browser/CI checks queued/in progress when authored; NO pass claimed. Fresh-context worker connection unavailable (NOT_FOUND), so independent critics and ultracode NOT RUN.",
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "biggestGap": "Still needs genuine latest-head motion and readable human-scale Warden encounter, high-fidelity room identity beyond grid walls, tactic-rich actual combat and fully organic audio-enabled journey; independent masked comparison/3-critic majority missing.",
+        "next": "Inspect exact-head 1440×832 and 390×844 capture, play WebM to assess stage and original audio, fix visibility/render regressions, then capture true uninterrupted traversal→battle→Warden→floor transition→defeat/restart at matching fixed 281735d seed/cameras; independent LOOKS/FEELS/PLAYS blind majority and performance/safety gates mandatory before any transformation claim."
       }
     ]
   }

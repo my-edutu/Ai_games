@@ -31,7 +31,7 @@ export function createWardenCourt(world,map,exit,floor){
  function reliefPose(mesh,i,item,hidden=false,arc=false){
   position.set(item.x,arc?1.21:.98,item.z);
   rotation.setFromAxisAngle(up,item.yaw);
-  scale.setScalar(hidden?.0001:1);matrix.compose(position,rotation,scale);
+  scale.setScalar(hidden ? .0001 : 1);matrix.compose(position,rotation,scale);
   mesh.setMatrixAt(i,matrix);
  }
  const relief=batch(reliefGeo,reliefMat,plan.facades,(m,i,v,h)=>reliefPose(m,i,v,h),'Ward-court carved shield reliefs');
