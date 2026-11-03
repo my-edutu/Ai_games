@@ -70,3 +70,31 @@ test('Tiny Kingdom art direction: warm/cool atmosphere, readable 390px UI, real 
  fs.mkdirSync(path.resolve(__dirname,'../../artifacts/tiny-kingdom'),{recursive:true});
  await page.screenshot({path:path.resolve(__dirname,'../../artifacts/tiny-kingdom/visual-direction-390.png')});
 });
+
+test('Tiny Kingdom 1024px command desk stays one row without clipping actual actions',async({page})=>{
+ test.setTimeout(180000);
+ const errors=[];page.on('pageerror',error=>errors.push(error.message));
+ await page.setViewportSize({width:1024,height:640});await page.setContent(html);
+ await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0,null,{timeout:90000});
+ const measured=await page.evaluate(()=>{
+   const desk=document.querySelector('.bottom');
+   const before={height:desk.getBoundingClientRect().height,
+    wrap:getComputedStyle(desk).flexWrap,viewport:document.documentElement.clientWidth,
+    overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,
+    scrollExtent:desk.scrollWidth,clientWidth:desk.clientWidth,
+    hasSave:Boolean(document.getElementById('save')),
+    hasRestore:Boolean(document.getElementById('restore')),
+    hasRestart:Boolean(document.getElementById('restart'))};
+   desk.scrollLeft=desk.scrollWidth;
+   const last=document.getElementById('restart'),d=desk.getBoundingClientRect(),c=last.getBoundingClientRect();
+   return {...before,restartInView:c.left>=d.left-1&&c.right<=d.right+1,
+    glError:document.getElementById('world').getContext('webgl')?.getError()};
+ });
+ expect(measured.wrap).toBe('nowrap');
+ expect(measured.height).toBeLessThanOrEqual(64);
+ expect(measured.overflow).toBeLessThanOrEqual(0);
+ expect(measured.hasSave&&measured.hasRestore&&measured.hasRestart).toBe(true);
+ expect(measured.restartInView).toBe(true);
+ expect(measured.glError).toBe(0);
+ expect(errors).toEqual([]);
+});
