@@ -1756,7 +1756,12 @@ export function createMazeWorld(options = {}) {
     const visibleGateBars = [...retractingGates.values()].filter(gate => gate.visible);
     const movingGateMinBarsHeightRatio = visibleGateBars.length
       ? Math.min(...visibleGateBars.map(gate => gate.scale.y)) : 0;
-    return { renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), stairBalustrades, tideFossilGroves, tideFossilAlcoves, responsiveFossilSails: fossilSails.length, coastalGardens, wallGardens, coastCanopies, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, windcatcherTowers, wallWindcatchers, gateForecourtParapets, gateCourtRosettes, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
+    // Measure true installed hinge angles in exact-source native PNG sidecars.
+    // This is diagnostic only; it never drives gameplay or animation.
+    const fossilMotionMaxRadians = fossilSails.length
+      ? Math.max(...fossilSails.map(sail => Math.abs(sail.dx
+        ? sail.object.rotation.x : sail.object.rotation.z))) : 0;
+    return { fossilMotionMaxRadians, renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), stairBalustrades, tideFossilGroves, tideFossilAlcoves, responsiveFossilSails: fossilSails.length, coastalGardens, wallGardens, coastCanopies, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, windcatcherTowers, wallWindcatchers, gateForecourtParapets, gateCourtRosettes, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
   }
   return { group, update, animate, dispose, stats, matchingPublicSocket };
 }
