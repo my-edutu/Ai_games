@@ -61,7 +61,8 @@ test('3D warning remains one bounded outboard draw, source-timed and disposable'
   stage.update(original, { quality: 'low' });
   const early = stage.diagnostics();
   assert.equal(early.visible, true);
-  assert.equal(early.markerCount, 8);
+  assert.equal(early.markerCount, 3,
+    'a real 37,500-unit close-combat lane has three legible spaced vanes');
   assert.equal(early.extraDraws, 1);
   assert.equal(early.predictedHits, false);
   assert.equal(early.shadowCastingMeshes, 0);
@@ -89,7 +90,8 @@ test('3D warning remains one bounded outboard draw, source-timed and disposable'
   stage.update(snapshot({ tick: 151 }), { reducedMotion: true, quality: 'high' });
   assert.deepEqual([...mesh.instanceMatrix.array], still,
     'reduced-motion stage never oscillates between identical authoritative poses');
-  assert.equal(stage.diagnostics().markerCount, 12);
+  assert.equal(stage.diagnostics().markerCount, 3,
+    'HD does not squeeze twelve overlapping arrows into a short real lane');
   stage.update(snapshot({ tick: 152 }), { stale: true });
   assert.equal(stage.diagnostics().markerCount, 0, 'transport loss cannot keep a fictitious firing lane');
   stage.update(snapshot({ tick: 1, runToken: 'new-run' }), { quality: 'low' });

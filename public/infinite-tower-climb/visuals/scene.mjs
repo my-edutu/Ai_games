@@ -1733,8 +1733,12 @@ export function createTowerScene(canvas, settings = {}) {
       // No invented lock when the source lacks enough authentic evidence;
       // both the x anchor and elevated y belong to the same old-floor lock.
       if (gateAnchorX === previousLock.toX) {
+        // The old guardian's source-observed coordinates live in the same
+        // previous-floor space as the mechanical release; no new-floor enemy.
         passage.begin(previous, next, pointFor(gateAnchorX,
-          previousLock.toY, next.chunkBaseY, next.worldWidth, 27.78));
+          previousLock.toY, next.chunkBaseY, next.worldWidth, 27.78),
+          pointFor(previousLock.fromX, previousLock.fromY,
+            next.chunkBaseY, next.worldWidth, 27.65));
       }
     }
     // A landing is observable only across consecutive source snapshots in the

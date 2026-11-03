@@ -90,7 +90,7 @@ test('the real event creates a separated 3D bronze passage with bounded resource
       assert.equal(object.receiveShadow, false);
       assert.equal(object.userData.collider, undefined);
     });
-    assert.equal(meshCount, 13);
+    assert.equal(meshCount, 14);
     assert.equal(effect.diagnostics().fragmentInstances, 8);
     assert.ok(effect.focusPoint()?.y > anchor.y + 2);
     assert.equal(effect.diagnostics().shadows, 0);
@@ -127,7 +127,7 @@ test('stale transport and reduced motion cannot animate fake progress; context r
   effect.dispose();
   assert.equal(effect.diagnostics().disposed, true);
   assert.equal(effect.group.children.length, 0);
-  assert.equal(new Set(disposed).size, 5, 'all owned geometries including instanced fragments are released');
+  assert.equal(new Set(disposed).size, 6, 'all owned geometries including guardian armor are released');
 });
 
 test('the authentic guardian release stays aligned with the exposed source HP lock and skinned handoff', () => {
@@ -139,7 +139,7 @@ test('the authentic guardian release stays aligned with the exposed source HP lo
     'the real guardian HP lock already occupies the outer tower surface');
   assert.match(scene, /const previousLock = clearedGuardian \? observedGuardianCircuit\(previous\) : null/,
     'a source-witnessed guardian and cap must exist before a visual release');
-  assert.match(scene, /passage\.begin\(previous, next, pointFor\(gateAnchorX,[\s\S]*?previousLock\.toY, next\.chunkBaseY, next\.worldWidth, 27\.78\)\)/,
+  assert.match(scene, /passage\.begin\(previous, next, pointFor\(gateAnchorX,[\s\S]*?previousLock\.toY, next\.chunkBaseY, next\.worldWidth, 27\.78\),[\s\S]*?previousLock\.fromX, previousLock\.fromY,[\s\S]*?next\.chunkBaseY, next\.worldWidth, 27\.65\)\)/,
     'earned gate passage must preserve both the elevated HP-lock center and exterior radius');
   assert.match(scene, /guardianReleaseWeight: !options\.stale[\s\S]*?passage\.cameraWeight\(\)/,
     'only the source-witnessed passage provides the climber release weight');
@@ -176,4 +176,50 @@ test('the actual scene consumes source transitions and owns passage lifecycle on
   assert.match(source, /guardianCircuit\.update\(snapshot, options\)/);
   assert.match(source, /passage\.update\(dt, options\)/);
   assert.match(source, /passage: passage\.diagnostics\(\)/);
+});
+
+test('source-earned defeat retains the actual old guardian world position through the gate release', async () => {
+  const [THREE, { createTowerGuardianPassage }] = await loaded;
+  const { previous, next } = frames();
+  const effect = createTowerGuardianPassage(THREE);
+  const oldGuardian = { x: 12.6, y: 14.2, z: 22.3 };
+  try {
+    assert.equal(effect.begin(previous, next, anchor, oldGuardian), true);
+    const armor = effect.group.getObjectByName('WitnessedGuardianDefeatArmor');
+    assert.equal(armor.count, 12);
+    assert.equal(armor.castShadow, false);
+    assert.equal(armor.userData.collider, undefined);
+    effect.group.updateMatrixWorld(true);
+    assert.ok(armor.getWorldPosition(new THREE.Vector3()).distanceTo(
+      new THREE.Vector3(oldGuardian.x, oldGuardian.y, oldGuardian.z)) < 1e-5);
+    assert.deepEqual(effect.diagnostics().guardianDefeatSourcePosition,
+      [oldGuardian.x, oldGuardian.y, oldGuardian.z]);
+    const matrix = new THREE.Matrix4();
+    armor.getMatrixAt(11, matrix);
+    const before = [...matrix.elements];
+    effect.update(.75);
+    armor.getMatrixAt(11, matrix);
+    assert.notDeepEqual(matrix.elements, before, 'real defeated armor must visibly collapse');
+    effect.clear();
+    assert.equal(armor.count, 0);
+    assert.equal(effect.diagnostics().guardianDefeatSourcePosition, null);
+    assert.equal(effect.begin(previous, next, anchor), true);
+    assert.equal(armor.visible, false, 'missing real guardian anchor cannot fabricate armor');
+  } finally { effect.dispose(); }
+});
+
+test('reduced motion presents a still, real defeat and no motion after stale transport', async () => {
+  const [THREE, { createTowerGuardianPassage }] = await loaded;
+  const { previous, next } = frames();
+  const effect = createTowerGuardianPassage(THREE);
+  try {
+    effect.begin(previous, next, anchor, { x: 12, y: 17, z: 22 });
+    effect.update(.1, { reducedMotion: true });
+    const armor = effect.group.getObjectByName('WitnessedGuardianDefeatArmor');
+    const still = Array.from(armor.instanceMatrix.array);
+    effect.update(.45, { reducedMotion: true });
+    effect.update(.3, { stale: true, reducedMotion: true });
+    assert.deepEqual(Array.from(armor.instanceMatrix.array), still);
+    assert.equal(effect.diagnostics().guardianDefeatPieces, 12);
+  } finally { effect.dispose(); }
 });

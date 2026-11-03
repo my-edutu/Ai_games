@@ -34,8 +34,16 @@ export function createTowerGuardianPassage(THREE) {
   const shardGeometry = new THREE.TetrahedronGeometry(.27, 0);
   const openingGeometry = new THREE.TorusGeometry(2.15, .07, 6, 36, Math.PI * 1.75);
   const groundGeometry = new THREE.TorusGeometry(2.8, .045, 4, 36);
-  const ownedGeometry = [box, crownGeometry, openingGeometry, groundGeometry, shardGeometry];
-  const ownedMaterials = [stone, bronze, glow];
+  // The real guardian disappears from the new floor on the decisive tick.
+  // A short non-colliding armor silhouette recalls only its LAST old-floor
+  // position; never recreate an active enemy or an invented victory.
+  const fallenGeometry = new THREE.BoxGeometry(.68, .64, .37);
+  const fallenMaterial = new THREE.MeshStandardMaterial({
+    color: 0xb58d6b, metalness: .66, roughness: .48,
+    transparent: true, opacity: .88, depthTest: true, depthWrite: false,
+  });
+  const ownedGeometry = [box, crownGeometry, openingGeometry, groundGeometry, shardGeometry, fallenGeometry];
+  const ownedMaterials = [stone, bronze, glow, fallenMaterial];
   const add = (name, geometry, material, position, scale, parent = group) => {
     const object = new THREE.Mesh(geometry, material);
     object.name = name;
@@ -75,6 +83,35 @@ export function createTowerGuardianPassage(THREE) {
   fragments.visible = false;
   fragments.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   group.add(fragments);
+  const fallenArmor = new THREE.InstancedMesh(fallenGeometry, fallenMaterial, 12);
+  fallenArmor.name = 'WitnessedGuardianDefeatArmor';
+  fallenArmor.count = 0;
+  fallenArmor.visible = false;
+  fallenArmor.castShadow = false;
+  fallenArmor.receiveShadow = false;
+  fallenArmor.frustumCulled = false;
+  fallenArmor.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  group.add(fallenArmor);
+  const fallenPose = new THREE.Object3D();
+  const guardianWorld = new THREE.Vector3();
+  let witnessedGuardian = false;
+  function poseFallenArmor(seconds, still) {
+    if (!witnessedGuardian) return;
+    const t = still ? 1 : Math.min(1, Math.max(0, seconds / 1.25));
+    const drop = 1 - Math.pow(1 - t, 3);
+    for (let i = 0; i < 12; i++) {
+      const side = i % 2 ? 1 : -1, tier = Math.floor(i / 2);
+      fallenPose.position.set(side * (.46 + drop * (.18 + tier * .13)),
+        Math.max(.26, .44 + tier * .45 - drop * (.24 + tier * .28)),
+        .08 + drop * (.14 + tier * .075));
+      fallenPose.rotation.set(side * drop * .22,
+        -side * drop * .42, side * drop * (.24 + tier * .09));
+      fallenPose.scale.set(1 + tier * .045, 1 - drop * .20, 1);
+      fallenPose.updateMatrix();
+      fallenArmor.setMatrixAt(i, fallenPose.matrix);
+    }
+    fallenArmor.instanceMatrix.needsUpdate = true;
+  }
   const shardTransform = new THREE.Object3D();
   const focusPosition = new THREE.Vector3();
   const clampUnit = v => Math.max(0, Math.min(1, v));
@@ -103,12 +140,14 @@ export function createTowerGuardianPassage(THREE) {
   function clear() {
     group.visible = false;
     fragments.visible = false;
+    fallenArmor.visible = false; fallenArmor.count = 0;
+    witnessedGuardian = false; guardianWorld.set(0, 0, 0);
     runToken = null;
     floor = null;
     sourceTick = -1;
     age = 0;
   }
-  function begin(previous, source, anchor) {
+  function begin(previous, source, anchor, guardianAnchor = null) {
     if (!observedGuardianPassage(previous, source)) return false;
     if (disposed || !source || !anchor || source.lifecycle !== 'running' ||
       !Number.isSafeInteger(source.tick) || !Number.isSafeInteger(source.floor) ||
@@ -117,6 +156,18 @@ export function createTowerGuardianPassage(THREE) {
     group.position.set(anchor.x, anchor.y, anchor.z);
     focusPosition.set(anchor.x, anchor.y + 2.6, anchor.z);
     group.rotation.y = anchor.angle;
+    witnessedGuardian = !!guardianAnchor &&
+      [guardianAnchor.x, guardianAnchor.y, guardianAnchor.z].every(Number.isFinite);
+    fallenArmor.visible = witnessedGuardian;
+    fallenArmor.count = witnessedGuardian ? 12 : 0;
+    if (witnessedGuardian) {
+      guardianWorld.set(guardianAnchor.x, guardianAnchor.y, guardianAnchor.z);
+      const dx = guardianAnchor.x - anchor.x, dz = guardianAnchor.z - anchor.z;
+      const cs = Math.cos(anchor.angle), sn = Math.sin(anchor.angle);
+      fallenArmor.position.set(cs * dx - sn * dz,
+        guardianAnchor.y - anchor.y, sn * dx + cs * dz);
+      poseFallenArmor(0, false);
+    }
     group.visible = true;
     runToken = source.runToken;
     floor = source.floor;
@@ -130,6 +181,7 @@ export function createTowerGuardianPassage(THREE) {
     if (age >= duration) { clear(); return; }
     const still = options.reducedMotion === true;
     poseFragments(age, still);
+    poseFallenArmor(age, still);
     const opened = still ? 1 : 1 - Math.pow(1 - clamp(age / .95), 3);
     const fade = 1 - .9 * clamp((age - 1.75) / (duration - 1.75));
     for (const { side, wing } of wings) {
@@ -165,7 +217,10 @@ export function createTowerGuardianPassage(THREE) {
       // motion; no fabricated win, private event or gameplay mutation.
       anchorPosition: group.visible ? group.position.toArray() : null,
       focusPosition: group.visible ? focusPosition.toArray() : null,
-      meshes: 13, fragmentInstances: 8, fragmentsVisible: fragments.visible,
+      meshes: 14, fragmentInstances: 8, fragmentsVisible: fragments.visible,
+      guardianDefeatPieces: fallenArmor.count,
+      guardianDefeatSourcePosition: group.visible && witnessedGuardian ? guardianWorld.toArray() : null,
+      guardianDefeatPresentationOnly: true,
       geometries: ownedGeometry.length, shadows: 0, disposed };
   }
   function dispose() {
