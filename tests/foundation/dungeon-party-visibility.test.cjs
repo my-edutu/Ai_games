@@ -100,8 +100,8 @@ test('real group camera clears only the foreground wedge in front of living char
  const camera={x:6,z:0},subjects=[{x:0,z:0}];
  assert.equal(planPartyWallReveal(1,2.5,subjects,camera),'sightline',
   'near-front masonry must not obscure a companion at body height');
- assert.equal(planPartyWallReveal(-1,2.5,subjects,camera),'nearby',
-  'stone behind the character still defines the room');
+ assert.equal(planPartyWallReveal(-1,2.5,subjects,camera),'none',
+  'stone beyond the camera-side pocket remains fully visible behind the hero');
  assert.equal(planPartyWallReveal(1,3.7,subjects,camera),'none',
   'a full distant wall remains visible to establish architecture');
 });
