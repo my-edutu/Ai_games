@@ -47,6 +47,25 @@ test('Tiny Kingdom art direction: warm/cool atmosphere, readable 390px UI, real 
  expect(evidence.triangles).toBeGreaterThan(0);
  expect(evidence.snapshotUnchanged).toBe(true);
  expect(evidence.glError).toBe(0);
+ const mobile=await page.evaluate(()=>{
+   const visible=id=>{
+     const el=document.getElementById(id),style=getComputedStyle(el);
+     return {display:style.display,fontSize:parseFloat(style.fontSize),
+      height:el.getBoundingClientRect().height};
+   };
+   const tour=document.querySelector('.world-tour .tour-btn');
+   return {mode:document.body.dataset.command,
+    resume:visible('pause'),command:visible('command-toggle'),
+    tour:{fontSize:parseFloat(getComputedStyle(tour).fontSize),
+     height:tour.getBoundingClientRect().height},
+    fullCommandPresent:Boolean(document.getElementById('world-open-command'))};
+ });
+ expect(mobile.mode).toBe('world');
+ for(const control of [mobile.resume,mobile.command,mobile.tour]){
+   expect(control.fontSize).toBeGreaterThanOrEqual(11);
+   expect(control.height).toBeGreaterThanOrEqual(39);
+ }
+ expect(mobile.fullCommandPresent).toBe(true);
  expect(errors).toEqual([]);
  fs.mkdirSync(path.resolve(__dirname,'../../artifacts/tiny-kingdom'),{recursive:true});
  await page.screenshot({path:path.resolve(__dirname,'../../artifacts/tiny-kingdom/visual-direction-390.png')});
