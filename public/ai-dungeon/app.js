@@ -10,6 +10,7 @@ import {createExpeditionStonework} from '/dungeon/expedition-stonework.js';
 import {planVaultedWallBays} from '/dungeon/vaulted-wall-plan.js';
 import {createVaultedWallGallery} from '/dungeon/vaulted-wall-gallery.js';
 import {planEncounterSightlines} from '/dungeon/encounter-sightlines.js';
+import {planCombatSightlineExtension} from '/dungeon/encounter-sightlines.js';
 import {planEncounterFrame} from '/dungeon/encounter-frame-plan.js';
 import {planCinematicShot,planReadableExpeditionLens,planCriticalSubjectFit,planWardenCharge,planOathguardPose,planBossDuelSightline,planPartyVistaSightline} from '/dungeon/cinematic-chapter-plan.js';
 import {planPartyWallReveal,createCutawayBandCache,shouldUploadCutawayBand} from '/dungeon/party-visibility-plan.js';
@@ -1087,7 +1088,8 @@ function animate(t){
  }
  // The camera must settle before the cutaway is measured. Previous frames culled
  // props using stale view angles during cinematic shot switches.
- const partySightlines=planEncounterSightlines(state,target,Boolean(bossDistance));
+ const partySightlines=planCombatSightlineExtension(state,
+   planEncounterSightlines(state,target,Boolean(bossDistance)),cinematicShot?.mode);
  // Clear the real Warden-to-camera corridor during actual boss combat;
  // ordinary traversal retains the narrower party-only sightlines.
  const origin=state?.map?.length?(state.map.length-1)/2:9;

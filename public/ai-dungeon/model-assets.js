@@ -188,7 +188,9 @@ function addRoleSilhouette(actor){
   arcane:new THREE.MeshStandardMaterial({color:'#72a4a9',emissive:'#285d65',emissiveIntensity:.30,metalness:.21,roughness:.42})
  };
  const forms={
-  plate:new THREE.SphereGeometry(.5,10,7),
+  // Angular hammered pauldrons and open, light fittings rather than
+   // duplicated large spherical costume masses over a skinned character.
+   plate:new THREE.IcosahedronGeometry(.5,0),
   lamella:new THREE.BoxGeometry(1,1,1),
   spike:new THREE.ConeGeometry(.5,1,8),
   gem:new THREE.OctahedronGeometry(.5,0),

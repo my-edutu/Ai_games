@@ -16,11 +16,11 @@ function make(kind,p){
  const w=p.scale,robe=p.robe;
  const items=[
   part(kind+'-forged-cuirass','cuirass',p.chest,0,1.19,-.29,.62*w,.65,.19),
-  part(kind+'-upper-breastplate','cuirass',p.detail,0,1.30,-.39,.25*w,.25,.075),
+  part(kind+'-upper-breastplate','cuirass',p.detail,0,1.30,-.39,.19*w,.20,.055),
   part(kind+'-neck-gorget','collar',p.detail,0,1.49,-.18,.36*w,.10,.14),
   // Preserve one slimmer facial guard with the original skinned cranium.
   // Duplicated solid mask shells and rigid shoulders obscured native animation.
-  part(kind+'-face-guard','mask',p.face,0,1.68,-.26,.56*p.head,.34,.20,0,'head'),
+  part(kind+'-face-guard','mask',p.face,0,1.68,-.26,.44*p.head,.28,.16,0,'head'),
   part(kind+'-left-bracer','vambrace',p.arm,-.43,1.03,-.10,.26,.46,.24,-.12,'leftForearm'),
   part(kind+'-right-bracer','vambrace',p.arm,.43,1.03,-.10,.26,.46,.24,.12,'rightForearm'),
   part(kind+'-left-shin','greave',p.lower,-.17,.39,-.13,.25,.57,.24,0,'leftLowerLeg'),
