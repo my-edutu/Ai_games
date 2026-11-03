@@ -6,7 +6,7 @@ const html=fs.readFileSync(path.resolve(__dirname,'../../public/tiny-kingdom/ind
 test('Tiny Kingdom solar shader uses the same precision in both WebGL1 stages',()=>{
  const vertex=html.split('const vs=`')[1]?.split('`;')[0]||'';
  const fragment=html.split('const fs=`')[1]?.split('`;')[0]||'';
- const declaration=source=>source.match(/uniform\\s+(?:(lowp|mediump|highp)\\s+)?float\\s+sunStrength\\s*;/)?.[1]||'default';
+ const declaration=source=>source.match(/uniform\s+(?:(lowp|mediump|highp)\s+)?float\s+sunStrength\s*;/)?.[1]||'default';
  expect(declaration(vertex)).toBe('default');
  expect(declaration(fragment)).toBe('highp');
  // Vertex WebGL1 defaults float uniforms to highp. Fragment mediump
