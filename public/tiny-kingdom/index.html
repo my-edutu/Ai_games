@@ -545,6 +545,31 @@ body{color:var(--tk-art-paper)}
  .btn,.tour-btn{min-height:34px}
  .world-tour{scrollbar-width:thin}
 }
+/* 1024px documentary UI: stop the full command desk wrapping across the
+   simulation. Actions remain keyboard/touch accessible through horizontal
+   scroll; never remove real controls or change authoritative data. */
+@media(min-width:521px){
+ .bottom{
+  width:min(1120px,calc(100vw - 28px))!important;
+  max-width:calc(100vw - 28px)!important;
+  min-height:52px;max-height:62px;box-sizing:border-box;
+  flex-wrap:nowrap!important;justify-content:flex-start!important;
+  overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;
+  white-space:nowrap;scrollbar-width:thin;padding:6px 8px;
+ }
+ .bottom .btn{flex:0 0 auto;min-height:38px;padding:9px 11px;font-size:11px}
+ .bottom .divider{flex:0 0 1px;min-width:1px}
+}
+@media(min-width:791px) and (max-width:1150px){
+ .sidebar{left:14px;width:194px}
+ .atlas,.feed{right:14px;width:194px}
+ .top{left:14px;right:14px}
+ .world-tour{
+  max-width:calc(100vw - 28px);overflow-x:auto;overflow-y:hidden;
+  flex-wrap:nowrap;justify-content:flex-start;scrollbar-width:thin;
+ }
+ .world-tour .tour-btn{flex:0 0 auto}
+}
 /* World view at 390px: readable in-game text with finger-sized actions.
    Controls remain horizontally scrollable; full command desk remains a tap away. */
 @media(max-width:520px){
