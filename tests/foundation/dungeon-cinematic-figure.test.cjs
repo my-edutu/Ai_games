@@ -36,5 +36,8 @@ test('actual renderer and server bind figures with fallback, bounded GPU and no 
  assert.match(body,/cinematicSourceHidden:/);
  assert.match(server,/cinematic-figure\.js/);
  assert.match(code,/obj\.isMesh&&!obj\.userData\?\.cinematicFigurePiece/);
+ assert.match(code,/hand\.attach\(grip\)/);
+ assert.match(code,/grip\.position\.set\(0,0,0\)/,'the actual native hand must own the weapon grip');
+ assert.match(code,/handGripOffsetMeters:gripOffset/);
  assert.doesNotMatch(code,/Math\.random|fetch\(|DungeonRuntime|performance\.now|https?:/);
 });

@@ -180,7 +180,14 @@ function attachWeapon(T,group,hand,recipe,materialMap,geometry,built){
   piece(geometry.staff,'leather',0,-.29,-.16);
   piece(geometry.crystal,'trim',0,.30,-.16);
  }
- group.updateWorldMatrix(true,true);hand.attach(grip);
+ group.updateWorldMatrix(true,true);
+ hand.attach(grip);
+ // Object3D.attach preserves the old world position. The correct contact
+ // point is the actual imported skinned right hand, NOT the legacy costume
+ // coordinates that can leave a full metre of visual blade/hand separation.
+ grip.position.set(0,0,0);
+ hand.updateWorldMatrix(true,true);
+ return hand.getWorldPosition(new T.Vector3()).distanceTo(grip.getWorldPosition(new T.Vector3()));
 }
 /**
  * Complete visual replacement, carrying exact scene-space body proportions.
@@ -212,7 +219,9 @@ export function createCinematicFigure(T,actor,joints){
    group.add(mesh);built.push(mesh);
    group.updateWorldMatrix(true,true);joints[p.anchor].attach(mesh);
   }
-  attachWeapon(T,group,joints.rightHand,recipe,mat,geometry,built);
+  const gripOffset=attachWeapon(T,group,joints.rightHand,recipe,mat,geometry,built);
+  if(!Number.isFinite(gripOffset)||gripOffset>.015)
+   throw Error('Native right-hand grip did not align: '+gripOffset);
   // A partial skeleton never reaches this point. Do not hide user's real art
   // until every replacement and weapon follows their TRUE animation bones.
   actor.assetRoot.traverse(obj=>{
@@ -223,6 +232,7 @@ export function createCinematicFigure(T,actor,joints){
   const vertices=Object.values(geometry).reduce((n,g)=>n+(g.getAttribute?.('position')?.count||0),0);
   return Object.freeze({kind:recipe.kind,meshes:built.length,joints:12,
    vertices,mappedMaterials:Object.values(mat).filter(m=>m.bumpMap).length,
+   handGripOffsetMeters:gripOffset,
    weapon:recipe.weapon,sourceMeshesHidden:true,height:recipe.statureMeters});
  }catch(e){
   // Object3D.attach reparents the limb pieces beneath source bones. Remove

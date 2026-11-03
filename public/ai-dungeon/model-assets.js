@@ -983,6 +983,7 @@ function stats(actors){
   cinematicVertices:authored.reduce((n,a)=>n+(a.cinematicFigure?.vertices||0),0),
   cinematicMaterialsMapped:authored.reduce((n,a)=>n+(a.cinematicFigure?.mappedMaterials||0),0),
   cinematicBoneMounts:authored.reduce((n,a)=>n+(a.cinematicFigure?.joints||0),0),
+  cinematicMaxHandOffsetMeters:Math.max(0,...authored.map(a=>a.cinematicFigure?.handGripOffsetMeters||0)),
   cinematicSourceHidden:authored.filter(a=>a.cinematicFigure?.sourceMeshesHidden).length,cinematicProfiles:[...new Set(authored.map(a=>a.cinematicFigure?.kind).filter(Boolean))].sort(),groundedTravelActors:authored.filter(a=>a.groundedPerformance?.moving).length,
  groundedClipSpeeds:authored.filter(a=>a.groundedPerformance?.moving).map(a=>Number(a.groundedPerformance.clipSpeed.toFixed(3))).slice(0,12),
  groundedStationaryActors:authored.filter(a=>!a.groundedPerformance?.moving).length,
