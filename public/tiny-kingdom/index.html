@@ -6065,7 +6065,7 @@ function getHarvestInteractionAudit(){
 // farmer work events. Presentation must not grant or spend food, change routes,
 // rewrite save state, or invent labour. At most two cut sites survive six hours.
 const COMPLETED_HARVEST_VISUAL_HOURS=6;
-let completedHarvestRenderStats={sites:0,triangles:0};
+let completedHarvestRenderStats={sites:0,triangles:0,rows:0,stubble:0,sheaves:0};
 function completedHarvestVisuals(time=state.t){
  if(!Number.isFinite(time))throw Error('Invalid harvest observation time');
  return workdayEvents.filter(e=>
@@ -6087,23 +6087,62 @@ function getHarvestAftermathAudit(){
   persistenceHours:COMPLETED_HARVEST_VISUAL_HOURS,
   sites:completedHarvestVisuals().map(row=>({...row})),
   lastRenderedSites:completedHarvestRenderStats.sites,
+  lastRenderedRows:completedHarvestRenderStats.rows,
+  lastRenderedStubble:completedHarvestRenderStats.stubble,
+  lastRenderedSheaves:completedHarvestRenderStats.sheaves,
   lastRenderedTriangles:completedHarvestRenderStats.triangles};
 }
+/* W05 Living Valley harvest-workstream: one completed, positive farmer
+   production event leaves a coherent cut patch and tied sheaves, not merely
+   a decorative bag. The patch is clamped INSIDE the field footprint; its
+   count, coordinates and decay come solely from real workdayEvents.
+   Presentational only: no stock changes, invented actors or seeded draws. */
 function renderCompletedHarvestWitnesses(){
  const sites=completedHarvestVisuals(),beginning=data.length;
- materialScope(MATERIAL.FOLIAGE,()=>{
-  for(const site of sites){
-   const {x,z,floor,strength}=site;
-   for(let i=0;i<6;i++){
-    const dx=(i%3-1)*.13,dz=(Math.floor(i/3)-.5)*.20;
-    taperedBranch([x+dx,floor+.085,z+dz],
-     [x+dx+.12*strength,floor+.13+.085*strength,z+dz+.28+.14*(i%3)],
-     .029,.009,rgb(i%2?0xd9bb79:0xc5a162),4);
+ let rows=0,stubble=0,sheaves=0;
+ for(const site of sites){
+  const field=FARMSTEAD.fields.find(([x0,x1,z0,z1])=>
+   site.x>=x0&&site.x<=x1&&site.z>=z0&&site.z<=z1);
+  if(!field)continue;
+  const [x0,x1,z0,z1]=field,fade=site.strength;
+  const inside=(v,min,max)=>Math.max(min+.11,Math.min(max-.11,v));
+  // Five coherent harvested furrows form a genuinely legible cleared plot
+  // from above. The original uncut crops remain the cached base field.
+  materialScope(MATERIAL.FOLIAGE,()=>{
+   for(let row=0;row<5;row++){
+    rows++;
+    const z=inside(site.z+(row-2)*.31,z0,z1);
+    for(let col=0;col<9;col++){
+     const x=inside(site.x+(col-4)*.27,x0,x1);
+     const y=terrain(x,z)+.072;
+     const stagger=.012*((col+row)%3);
+     taperedBranch([x,y,z],[x-.027,y+.13*fade+stagger,z+.02],
+      .027,.011,rgb((row+col)%3===0?0xb09353:0xc2a869),4);
+     stubble++;
+    }
    }
-   box(x,floor+.105,z,.76,.085,.22,rgb(0x987747));
-  }
- });
- completedHarvestRenderStats={sites:sites.length,triangles:(data.length-beginning)/30};
+  });
+  // The grain has ALREADY entered the authoritative economy. Bundles only
+  // witness the completed harvest and fade; never represent extra inventory.
+  const count=Math.min(2,Math.max(1,Math.ceil(site.foodEarned/2.2)));
+  materialScope(MATERIAL.WOOD,()=>{
+   for(let k=0;k<count;k++){
+    const x=inside(site.x+(k? .67:-.67),x0,x1);
+    const z=inside(site.z+1.00,z0,z1),y=terrain(x,z)+.072;
+    const height=.67*fade;
+    for(let stalk=0;stalk<7;stalk++){
+     const a=stalk*Math.PI*2/7;
+     taperedBranch([x+Math.cos(a)*.19,y,z+Math.sin(a)*.19],
+      [x,y+height,z],.044,.012,
+      rgb(stalk%2?0xc9a565:0xd9bd80),4);
+    }
+    box(x,y+height*.54,z,.35,.064,.33,rgb(0x816444));
+    sheaves++;
+   }
+  });
+ }
+ completedHarvestRenderStats={sites:sites.length,rows,stubble,sheaves,
+  triangles:(data.length-beginning)/30};
 }
 function getActiveWorksites(){
  return people.filter(isWorkingAtSite).map(p=>({
