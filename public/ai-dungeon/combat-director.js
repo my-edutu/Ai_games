@@ -6,6 +6,7 @@ import {planVisualContact} from '/dungeon/facing-plan.js';
 import {planCombatStage,stagePoint} from '/dungeon/combat-staging-plan.js';
 import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
 import {createBladeRibbonGeometry,createImpactSpallGeometry,planTrueDamageCue} from '/dungeon/contact-performance.js';
+import {createRangedProjectileGeometry,rangedProjectileProfile} from '/dungeon/ranged-encounter-plan.js';
 
 /**
  * Visual-only combat choreographer: never modifies the deterministic RPG.
@@ -14,7 +15,7 @@ import {createBladeRibbonGeometry,createImpactSpallGeometry,planTrueDamageCue} f
 const TINT={vanguard:'#62cbff',ranger:'#a5ff95',mystic:'#be8aff',revenant:'#ff9659',cultist:'#ff70b3',warden:'#ffbd57'};
 const PROJECTILE_LIMIT=26,IMPACT_LIMIT=24;
 const V3=(x,y,z)=>new THREE.Vector3(x-9,y,z-9);
-const shared={orb:new THREE.IcosahedronGeometry(.13,1),slash:createBladeRibbonGeometry(THREE),spall:createImpactSpallGeometry(THREE),dust:new THREE.SphereGeometry(.5,8,5),ring:new THREE.RingGeometry(.6,.69,45),spark:new THREE.OctahedronGeometry(.07,0)};
+const shared={orb:new THREE.IcosahedronGeometry(.13,1),slash:createBladeRibbonGeometry(THREE),spall:createImpactSpallGeometry(THREE),dust:new THREE.SphereGeometry(.5,8,5),ring:new THREE.RingGeometry(.6,.69,45),spark:new THREE.OctahedronGeometry(.07,0),arrow:createRangedProjectileGeometry(THREE,'arrow'),glyph:createRangedProjectileGeometry(THREE,'glyph')};
 const color=(kind)=>TINT[kind]||'#83fff0';
 const handPosition=new THREE.Vector3(),chestPosition=new THREE.Vector3();
 /**
@@ -53,6 +54,20 @@ function liveInjuryAnchor(beat,hit,actorById){
   }
  }
  return {x,y,z,skinned};
+}
+// A real skinned hand is an eligible launch point only inside the attacker's
+// unchanged authoritative cell. Never make a remote/stale character cast.
+function liveRangedOrigin(source,from,actorById){
+ const origin=V3(from.x,source.kind==='ranger'?1.24:1.33,from.z);
+ const actor=typeof actorById==='function'?actorById(source?.id):null;
+ const bone=actor?.rigHandBone;
+ if(!bone||!actor.authored||actor.u?.id!==source?.id||!actor.root?.visible)return origin;
+ bone.updateWorldMatrix(true,false);bone.getWorldPosition(handPosition);
+ if([handPosition.x,handPosition.y,handPosition.z].every(Number.isFinite)&&
+  handPosition.y>.33&&handPosition.y<2.5&&
+  Math.hypot(handPosition.x-(source.x-9),handPosition.z-(source.z-9))<.75)
+  origin.copy(handPosition);
+ return origin;
 }
 function stagedArcFrame(source,target,from,to,life,reducedMotion,actorById=null){
  const pose=planMeleeArcFrame(source,target,life,reducedMotion);
@@ -96,7 +111,8 @@ export function createCombatDirector(scene,{reducedMotion=false,actorById=null}=
   while(impacts.length>IMPACT_LIMIT)cleanup(impacts.shift());
  }
  function projectile(source,target,kind,action,from=stagePoint(stagePositions,source),to=stagePoint(stagePositions,target)){
-  const src=V3(from.x,kind==='mystic'?1.37:1.21,from.z),dst=V3(to.x,1.18,to.z);
+  const profile=rangedProjectileProfile(kind,action);
+  const src=profile?liveRangedOrigin(source,from,actorById):V3(from.x,kind==='mystic'?1.37:1.21,from.z),dst=V3(to.x,1.18,to.z);
   // Physical blades sweep through the actual adjacent grid lane, from source
   // toward opponent. An adjacent ranger still fires a real arrow, not a sword.
   // Casts, diagonal guesses and unmatched actions never create melee arcs.
@@ -111,8 +127,19 @@ export function createCombatDirector(scene,{reducedMotion=false,actorById=null}=
     source:{id:source.id,x:source.x,z:source.z},target:{id:target.id,x:target.x,z:target.z},from:{x:from.x,z:from.z},to:{x:to.x,z:to.z},kind});
    meleeArcs=Math.min(1000000,meleeArcs+1);bursts++;ensureBound();return;
   }
-  const mesh=new THREE.Mesh(shared.orb,material(color(kind),.95));mesh.position.copy(src);mesh.scale.setScalar(kind==='warden'?1.8:kind==='mystic'?1.35:1);
-  scene.add(mesh);projectiles.push({mesh,src,dst,target:{x:to.x,z:to.z},t:0,duration:.18+Math.min(.38,src.distanceTo(dst)*.045),kind});shots++;ensureBound();
+  const shape=profile?.shape??'orb';
+  const mesh=shape==='arrow'?new THREE.Mesh(shared.arrow,new THREE.MeshStandardMaterial({
+   color:'#b2a48a',metalness:.67,roughness:.40,emissive:'#354a45',emissiveIntensity:.16})):
+   new THREE.Mesh(shape==='glyph'?shared.glyph:shared.orb,material(color(kind),.95));
+  mesh.position.copy(src);
+  if(shape==='arrow'){
+   const direction=new THREE.Vector3().subVectors(dst,src);
+   if(direction.lengthSq()>.0001)
+    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),direction.normalize());
+  }else mesh.scale.setScalar(kind==='warden'?1.8:kind==='mystic'?1.35:1);
+  scene.add(mesh);projectiles.push({mesh,src,dst,target:{x:to.x,z:to.z},t:0,
+   duration:.18+Math.min(.38,src.distanceTo(dst)*.045),kind,shape,profile});
+  shots++;ensureBound();
  }
  // Body-height impact flares replace routine bright floor circles. The actual
  // boss warning/telegraph remains controlled by authoritative app.js state.
@@ -229,7 +256,11 @@ export function createCombatDirector(scene,{reducedMotion=false,actorById=null}=
    const p=projectiles[i];p.t+=dt;
    const progress=Math.min(1,p.t/p.duration),smooth=progress*progress*(3-2*progress);
    p.mesh.position.lerpVectors(p.src,p.dst,smooth);
-   if(!reducedMotion)p.mesh.position.y+=Math.sin(progress*Math.PI)*.045;
+   if(!reducedMotion)p.mesh.position.y+=Math.sin(progress*Math.PI)*(p.profile?.arc??.045);
+   if(p.shape==='glyph'&&!reducedMotion){
+    p.mesh.rotation.y+=dt*(p.profile?.spin??5);
+    p.mesh.rotation.x+=dt*2.6;
+   }
    p.mesh.material.opacity=.9*(1-progress*.45);
    if(progress>=1){
     // One close-range body flare marks the true target; no extra giant
