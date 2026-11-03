@@ -11,6 +11,7 @@ import { observedHealthRecovery, createTowerRecoveryTransfer } from './recovery-
 import { createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianRelayStage, observedGuardianPowerSpineStage } from './guardian-circuit.mjs';
 import { createTowerAtmosphere } from './atmosphere.mjs';
 import { createTowerGuardianShotStage } from './guardian-shot-stage.mjs';
+import { witnessedAirbornePulse } from './airborne-pulse.mjs';
 import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue } from './guardian-camera-safety.mjs';
 import { createObservedMovingDeckRide } from './moving-deck-ride.mjs';
 // A tiny 3D attack lane follows only a REAL enemy telegraph. The curved ribbon
@@ -1562,6 +1563,9 @@ export function createTowerScene(canvas, settings = {}) {
   // The *observed* terminal→new-token handoff receives a brief exterior
   // establishing sweep. Camera-only: no source clock, physics or AI changes.
   let authenticRestartSweep = null;
+  // Real newly observed player-owned airborne projectile, not a guessed
+  // ability input. Render-only for the original climber's existing rig.
+  let airbornePulse = null;
   let elapsed = 0, lastTime = 0, renderErrors = 0, contextLost = false, disposed = false;
   let contactUntil=0,contactHero=false,contactEnemyId=null;
   let landingMoment=-Infinity,landingRun=null,landingFloor=null,landingWeight=0;
@@ -1638,6 +1642,7 @@ export function createTowerScene(canvas, settings = {}) {
     recoveryTransfer.clear();
     atmosphere.clear();
     guardianShotStage.clear();
+    airbornePulse = null;
     crownStage.visible = false; observedCrown = null;
     echoDrawnTick = -1; observedStageLight.reset();
     guardianRescueBlend = 0; guardianRescueApplications = 0;
@@ -1775,6 +1780,11 @@ export function createTowerScene(canvas, settings = {}) {
     }
     previous = newRun ? null : snapshot;
     snapshot = next; baseY = next.chunkBaseY;
+    // Only a physically fired NEW player bolt on adjacent immutable source
+    // ticks can trigger the gauntlet recoil. No ability prediction or visual
+    // pulse from old packets, another floor or a fresh run.
+    const pulse = options.stale ? null : witnessedAirbornePulse(previous, next);
+    if (pulse) airbornePulse = { ...pulse, startedAt: elapsed };
     motionLedger.accept(previous, next);
     // Authority may heal +1 on a floor advance or upgrade without any
     // collectible. A visible rescue transfer is earned ONLY by an actual
@@ -2033,6 +2043,13 @@ export function createTowerScene(canvas, settings = {}) {
       terminalKind: snapshot.lifecycle !== 'running' ? snapshot.result?.kind : null,
       terminalReason: snapshot.lifecycle !== 'running' ? snapshot.result?.reason : null,
       intentMode: snapshot.intent?.mode,
+      // A real source-new bolt causes a short existing-rig recoil without
+      // modifying attack authority or creating a phantom strike in air.
+      earnedPulseAge: !options.stale && airbornePulse &&
+        airbornePulse.runToken === snapshot.runToken &&
+        airbornePulse.floor === snapshot.floor &&
+        snapshot.lifecycle === 'running' && p.state === 'airborne'
+        ? elapsed - airbornePulse.startedAt : null,
       platformRide: observedRidePose,
       // The same authentic floor-advance gate memory can weight the skinned
       // ascent handoff. No invented win: only the adjacent source guardian
@@ -2577,6 +2594,11 @@ export function createTowerScene(canvas, settings = {}) {
       } : null,
       routeIntent: routeIntent.diagnostics(), guardianCircuit: guardianCircuit.diagnostics(),
       guardianShotStage: guardianShotStage.diagnostics(),
+      witnessedAirbornePulse: airbornePulse && airbornePulse.runToken === snapshot?.runToken &&
+        airbornePulse.floor === snapshot?.floor && !options.stale &&
+        snapshot?.lifecycle === 'running' && snapshot?.player?.state === 'airborne'
+        ? { sourceTick: airbornePulse.tick, projectileId: airbornePulse.projectileId,
+            ageSeconds: Math.max(0, elapsed - airbornePulse.startedAt), renderOnly: true } : null,
       atmosphere: atmosphere.diagnostics(),
       recoveryTransfer: recoveryTransfer.diagnostics(),
       summitCrown: observedCrown && crownStage.visible ? {
