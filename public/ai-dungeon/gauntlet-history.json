@@ -2193,22 +2193,22 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "Predecessor source cb359b: authority passed, Dungeon browser 2/3 shards failed meaningful real missing windows/spalls/wall-height regressions, full catalogue CI failed outdated boss/party camera regex. New candidate 9f7cfb pure plan executed and anchored relief invariant checked directly, but exact-new-head CI/browser/replay/security UNVERIFIED. Do not claim green.",
+      "safetyChecks": "Local source archive at 4cc8abd with exactly mirrored new camera/foreground edits: TypeScript build PASS, Node syntax PASS, 214/214 Dungeon foundation tests PASS, isolated new camera and wall tests PASS; one newly authored behind-hero expected label corrected before final head. Exact-head GitHub CI/browser/replay/security remain UNVERIFIED and cannot count as experience acceptance.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED full real original audio plus continuous traversal/combat/Warden/floor/defeat/restart on desktop and mobile. Prior Chromium videos are screen tracks and do not constitute authenticated audio proof.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
       "audioLoudnessAndClipping": "NOT_MEASURED",
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
-      "actualWebglFramingRegression": "PREDECESSOR e474553 real Chromium 1440x832 Warden exposure and 390x844 contact: https://github.com/my-edutu/Ai_games/actions/runs/41490449531/artifacts/13165920178 . Inspected: the actual Vanguard is present but partially masked by the overlarge Warden; floating Warden nameplate overlaps the fixed boss health strip, especially on phone; masonry is cubic. Matched immutable baseline A/B remains UNVERIFIED. New code SHA 89a7e575 AFTER not yet captured. New source M1 hero-escape candidate a951f64 is unverified visually; older predecessor snapshot is not an A/B result.",
-      "latestCandidateWorkflow": "2026-11-03 code 9f7cfb plus append-only ledger; exact-current browser and CI status UNVERIFIED; check actual GitHub Actions on PR #49 before any claim.",
-      "currentPredecessorWebgl": "Actual predecessor 2026-11-02 source cb359b, GitHub Chromium workflow https://github.com/my-edutu/Ai_games/actions/runs/41543693756, exact world-only screenshot https://github.com/my-edutu/Ai_games/actions/runs/41543693756/artifacts/13187483834. 3/3 ray-unoccluded heroes, minimum 210 px, 113920 triangles, 0 windows, 0 torches, 0 spalls and 0 coping. Dense stone and character silhouette overlap still prominent, NOT a fixed-baseline matched AFTER.",
-      "newCandidateSceneReview": "UNVERIFIED AFTER. Genuine preceding source cb359b 1440x832 world-only https://github.com/my-edutu/Ai_games/actions/runs/41543693756/artifacts/13187483834 records actual 0 archWindows, 0 torches, 0 weatheredSpalls, 0 brokenCopingStones, 3/3 ray-visible but crowded toy-like party. 113920 scene triangles in one frame; not a frame-time or art-quality grade."
+      "actualWebglFramingRegression": "Predecessor 4cc8abd actual 1440x832 and 390x844 browser frames show companions cropped/packed against an overly dense foreground. No scientifically matched AFTER observation yet.",
+      "latestCandidateWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41550762323",
+      "currentPredecessorWebgl": "https://github.com/my-edutu/Ai_games/actions/runs/41547733443/artifacts/13189299945",
+      "newCandidateSceneReview": "UNVERIFIED new exact-head screenshot/audio/long motion. Source-head 4cc8abd desktop and portrait world-only screenshots inspected; candidate capture not yet available."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Actually inspected previous exact-head real WebGL: toy-scale heavily overlapping hero/foe anatomy and blocky repeated dungeon props despite measured 3/3 ray-visible. The same scene lost ALL Gothic stained glass, torches and original weathered stone relief after prior shallow-wall staging. New physically supported architectural scene candidate is not yet seen in running gameplay; genuinely believable adult character rigs, contact, fight pacing and continuous story remain substantially below authentic AAA benchmarks.",
-    "currentWork": "SAME UNFINISHED M1: original low-ruin party stage with real 1.82–1.98m Gothic window piers, no more than six original spatially spaced stained-glass groups, deterministic two-sconce fallback, true on-wall spalls and coping physically following shortened stone edges; preserved coherent 3D sightlines and unchanged original authority. Pure planner evidence only; real AFTER browser quality unverified.",
-    "candidateCommit": "9f7cfbe1adbb0df77df91e3d0312b8ffe302b483",
+    "biggestRemainingGap": "Current predecessor genuine Chromium desktop/mobile shows tall cluttered Gothic masonry and ornamental weapons pushing genuine characters toward edge/behind foreground, with a miniature/toy-like party despite imported skinned models. Candidate camera/cutaway attempt remains unverified in moving WebGL. Authentic AAA gap in character proportions/attack contact/environment readability and meaningful tactical pacing remains substantial.",
+    "currentWork": "SAME UNFINISHED M1: grounded 3D group-first cinematic party shot with actual living-party centre, grid-bound foreground occlusion scoring, and shared short-range camera-facing masonry cutaway. Original combat and audio maintained. Actual new-head browser experience and complete acceptance remain unverified.",
+    "candidateCommit": "721afccef49f1dc099f6550b38212ec10cce620e",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
     "implementationEvents": [
@@ -3311,6 +3311,38 @@
         "checks": "Pure deterministic 19x19 map calculated: 160 exposed faces, 12 physically tall single-front piers, 64 short junctions, valid 1.18–1.98 m, same result on repeat. Mixed-height 120-face original stone-relief planner returned 54 anchored spalls and 32 correctly mounted coping stones. Code changed on existing draft branch with normal GitHub fast-forward file writes; full Node/Chromium/CI at candidate head not yet inspected.",
         "experientialProof": "UNVERIFIED; no genuine running AFTER or matched pinned baseline, no original audio/motion full expedition, no phone p95 and no 3 fresh blind critics.",
         "next": "Inspect actual browser-captured candidate route and combat, diagnose any dark or floating details or huge character masks, correct physical 3D stage before pushing into more demanding adult-character anatomy/movement and decisive boss/tactical play; capture full original audiovisual session with same-seed locked M1 baseline and >=3 independent masked LOOKS / FEELS / PLAYS judges."
+      },
+      {
+        "id": "M1-PARTY-FIRST-CINEMATIC-20261103",
+        "date": "2026-11-03",
+        "milestone": "SAME open M1, no transformation accepted",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "sourceHeadAtStart": "4cc8abd2597e04d76469dbd6300f6510a2d9f11b",
+        "codeCommit": "721afccef49f1dc099f6550b38212ec10cce620e",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "objective": "Replace the actual-world-only desktop/portrait party scene where repeated tall masonry and front-positioned props visually swallow the three separate heroes with a true group-aware 3D optical stage; keep Warden tactical warnings and the underlying path/combat truth unchanged.",
+        "observedActualBefore": "https://github.com/my-edutu/Ai_games/actions/runs/41547733443/artifacts/13189299945",
+        "observedBeforeDetail": "Current-head predecessor 4cc8abd real Chromium 1440x832 and 390x844 pictures: distinct sculpted Gothic architecture is present but dominates both frames; Vanguard and other living party members are pressed against wall faces, companions drift off left edge, and the characters remain cartoonishly chunky.",
+        "implementation": [
+          "The same live presentation-only cutaway now clears a bounded (<=3.1m) camera-facing foreground wedge around the actual living party, instead of relying exclusively on a narrow mathematical ray; stone behind and distant rooms remain intact. Affects the existing wall, Gothic gallery, weathering, caps and nearby set-dressing renderer through their shared policy.",
+          "Living-party cinematic director on 17 physically map-bounded azimuths aims a capped 68% of the way toward the true 2–4 hero centroid; it uses actual within-cell visual actor coordinates when valid, avoiding single-Vanguard framing that clips companions on desktop or portrait mobile.",
+          "Cinematic candidates now score authentic impassable wall cells between camera and heroes beyond the pre-cleared 2.9m pocket; the main render loop aims at the selected group target instead of the stale single-hero target.",
+          "Guarded pure-camera and deterministic foreground wedge tests were added, including no game-state mutation, five-subject render bounds and intact distant masonry. No authoritative enemy behavior, loot, AI, RNG, collision, replay or server API changed."
+        ],
+        "sourceAndLocalValidation": "Used actual exact predecessor browser images. Local snapshot of that exact source plus mirrored new edits passed Node syntax checks, npm run build and 214/214 Dungeon foundation tests; new isolated camera/wedge assertions passed after correcting one behind-hero expected visual band. New exact-GitHub-head browser and CI still pending; local Chromium navigations return ERR_BLOCKED_BY_ADMINISTRATOR, which is not an application defect or evidence of acceptance.",
+        "currentAfter": "UNVERIFIED in real browser at new head; Playwright dedicated workflow https://github.com/my-edutu/Ai_games/actions/runs/41550762323 and visual review https://github.com/my-edutu/Ai_games/actions/runs/41550762563 were queued at last check.",
+        "motionAudio": "UNVERIFIED complete actual audible adventure; no new audio claims.",
+        "independentCritics": {
+          "status": "NOT_RUN",
+          "count": 0,
+          "looks": "UNVERIFIED",
+          "feels": "UNVERIFIED",
+          "plays": "UNVERIFIED"
+        },
+        "performance": "UNVERIFIED actual desktop/mobile frame-time p95/p99 from new head",
+        "experienceVerdict": "IN_PROGRESS — NOT TRANSFORMED",
+        "biggestGap": "Real characters remain toy-like with oversized, crowded prop silhouettes and their genuine combat still falls far short of Diablo IV/PoE2 contact clarity. First verify that the proposed group-first camera and local foreground cutaway actually work and do not produce excessive opening of distant wall geometry.",
+        "next": "Inspect exact-head 1440x832/390x844 real browser world-only and active Warden video; if centroid still crops mobile party or architecture crowds characters, implement a broader coherent art/camera/actor stage, not another isolated cosmetic. Complete same-seed matched BEFORE/AFTER traversal, real combat, Warden, floor transition, defeat/restart, audio and 3 independent blind LOOKS/FEELS/PLAYS critics. Keep PR draft/unmerged."
       }
     ]
   }
