@@ -6,7 +6,12 @@ test('actual Chromium renders original 3D cinematic figures at desktop and mobil
  await page.setViewportSize({width:1440,height:832});await page.goto('/dungeon');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.authoredCharacters??0),{timeout:45000}).toBeGreaterThanOrEqual(3);
  const desktop=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D);
+ expect(desktop.cinematicFigures).toBeGreaterThanOrEqual(3);
+ expect(desktop.cinematicMeshes).toBeGreaterThanOrEqual(desktop.cinematicFigures*22);
  expect(desktop.cinematicMeshes).toBeLessThanOrEqual(240);
+ expect(desktop.cinematicVertices).toBeGreaterThan(3000);
+ expect(desktop.cinematicMaterialsMapped).toBeGreaterThanOrEqual(desktop.cinematicFigures*5);
+ expect(desktop.cinematicBoneMounts).toBeGreaterThanOrEqual(desktop.cinematicFigures*12);
  expect(desktop.cinematicSourceHidden).toBe(desktop.cinematicFigures);
  await page.locator('#world').screenshot({path:'artifacts/dungeon-m1-cinematic-figures-desktop.png',timeout:60000});
  await page.setViewportSize({width:390,height:844});
