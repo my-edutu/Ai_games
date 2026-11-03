@@ -98,6 +98,20 @@ export function planAnatomyBridge(span,stature=1.82){
  const width=(span<.14*scale?.044:.053)*scale;
  return Object.freeze({visible:true,length:span*1.055,radius:width});
 }
+/** 
+ * M1 anatomical continuity: preserve ONLY the artist-authored, continuously
+ * SKINNED underlying torso and four limbs beneath the original forged armor.
+ * Exact-head desktop Chromium exposed detached gloves and floating pauldrons
+ * when we hid every CC0 character mesh. This legal KayKit underbody already
+ * follows imported bone weights/clips; it never invents body movement or combat.
+ * Rigid helmets, heads, accessories, weapons and oversized capes remain hidden.
+ */
+export function isNativeContinuityMesh(name,isSkinnedMesh){
+ return isSkinnedMesh===true&&typeof name==='string'&&
+  /_(?:Body|ArmLeft|ArmRight|LegLeft|LegRight)$/i.test(name);
+}
+const MIN_NATIVE_BODY_PIECES=5;
+
 const MIRRORED_PARTS=Object.freeze(['shoulder','upper-arm','bracer','thigh','shin','boot']);
 /**
  * Share one GPU draw per articulated left/right material pair without
@@ -358,11 +372,14 @@ export function createCinematicFigure(T,actor,joints){
  if(!recipe||!T?.BufferGeometry||!T?.InstancedMesh||!T?.Matrix4||!actor?.assetRoot||
   !actor?.visualPivot||!planFigureJointCoverage(joints).valid)return null;
  const geometry=createForms(T,recipe.kind),mat={
-  metal:material(T,'metal',recipe.palette.metal,.70,.42),
-  trim:material(T,'trim',recipe.palette.trim,.62,.41),
+  // The original no-reflection-probe scene made 70%-metallic armor render
+  // nearly black. Restore physically readable diffuse energy to adult forms.
+  metal:material(T,'metal',recipe.palette.metal,.32,.58),
+  trim:material(T,'trim',recipe.palette.trim,.38,.53),
   cloth:material(T,'cloth',recipe.palette.cloth,.028,.91),
   leather:material(T,'leather',recipe.palette.leather,.06,.82),
-  face:material(T,'face',recipe.palette.face,.055,.78)
+  face:material(T,'face',recipe.palette.face,.055,.78),
+  nativeSuit:material(T,'cloth',recipe.palette.leather,.055,.87)
  };
  const group=new T.Group(),built=[],anchors=[],batches=[],attachments=new Map();
  const figureScale=recipe.statureMeters/1.82;
@@ -455,8 +472,20 @@ export function createCinematicFigure(T,actor,joints){
    bridge.instanceMatrix.needsUpdate=true;
   };
   sync();
+  // Require genuine skinned continuity BEFORE hiding source clothes. Failing
+  // that requirement restores the complete asset instead of a hollow figure.
+  const nativeAnatomy=[];
   actor.assetRoot.traverse(obj=>{
-   if(obj.isMesh&&!obj.userData?.cinematicFigurePiece)obj.visible=false;
+   if(obj.isSkinnedMesh&&isNativeContinuityMesh(obj.name,true))nativeAnatomy.push(obj);
+  });
+  if(nativeAnatomy.length<MIN_NATIVE_BODY_PIECES)
+   throw Error('Continuous native skinned torso/limb underlay missing: '+nativeAnatomy.length);
+  actor.assetRoot.traverse(obj=>{
+   if(obj.isMesh&&!obj.userData?.cinematicFigurePiece){
+    const keep=isNativeContinuityMesh(obj.name,obj.isSkinnedMesh);
+    obj.visible=keep;
+    if(keep){obj.material=mat.nativeSuit;obj.userData.cinematicBodyUnderlay=true;}
+   }
   });
   actor.assetGeometries.push(...Object.values(geometry));
   actor.assetMaterials.push(...Object.values(mat));
@@ -465,7 +494,8 @@ export function createCinematicFigure(T,actor,joints){
    renderedParts:built.length+batches.length,pairedBatches:batches.length,
    joints:12,vertices,mappedMaterials:Object.values(mat).filter(m=>m.bumpMap).length,
    handGripOffsetMeters:gripOffset,weapon:recipe.weapon,
-   sourceMeshesHidden:true,height:recipe.statureMeters,anatomyBridges:CINEMATIC_ANATOMY_LINKS.length,activeAnatomyBridges:()=>activeBridges,
+   sourceMeshesHidden:true,nativeBodyUnderlays:nativeAnatomy.length,
+   sourceCostumeHidden:true,height:recipe.statureMeters,anatomyBridges:CINEMATIC_ANATOMY_LINKS.length,activeAnatomyBridges:()=>activeBridges,
    suppressedLongAnatomyBridges:()=>rejectedLongBridges,sync,
    dispose:()=>{for(const batch of batches)batch.mesh.dispose();bridge.dispose();}
   });

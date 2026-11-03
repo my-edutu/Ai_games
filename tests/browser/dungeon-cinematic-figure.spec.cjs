@@ -28,6 +28,10 @@ test('actual Chromium renders original 3D cinematic figures at desktop and mobil
  expect(desktop.cinematicBoneMounts).toBeGreaterThanOrEqual(desktop.cinematicFigures*12);
  expect(desktop.cinematicMaxHandOffsetMeters).toBeLessThanOrEqual(.015);
  expect(desktop.cinematicSourceHidden).toBe(desktop.cinematicFigures);
+ // The genuine native bones are now a continuous skinned undersuit instead of
+ // five separated cosmetic shells over invisible skeletons.
+ expect(desktop.cinematicNativeBodyActors).toBe(desktop.cinematicFigures);
+ expect(desktop.cinematicNativeBodyUnderlays).toBeGreaterThanOrEqual(desktop.cinematicFigures*5);
  await page.locator('#world').screenshot({path:'artifacts/dungeon-m1-cinematic-figures-desktop.png',timeout:60000});
  await page.setViewportSize({width:390,height:844});
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame??0),{timeout:30000}).toBeGreaterThan(3);
@@ -39,6 +43,8 @@ test('actual Chromium renders original 3D cinematic figures at desktop and mobil
  expect(mobile.cinematicRenderedParts).toBe(mobile.cinematicMeshes+mobile.cinematicPairedBatches);
  expect(mobile.cinematicAnatomyBridges).toBe(mobile.cinematicFigures*14);
  expect(mobile.cinematicSourceHidden).toBe(mobile.cinematicFigures);
+ expect(mobile.cinematicNativeBodyActors).toBe(mobile.cinematicFigures);
+ expect(mobile.cinematicNativeBodyUnderlays).toBeGreaterThanOrEqual(mobile.cinematicFigures*5);
  expect(mobile.cinematicMaxHandOffsetMeters).toBeLessThanOrEqual(.015);
  expect(mobile.cinematicMeshes).toBeLessThanOrEqual(240);
  await page.locator('#world').screenshot({path:'artifacts/dungeon-m1-cinematic-figures-mobile.png',timeout:60000});
