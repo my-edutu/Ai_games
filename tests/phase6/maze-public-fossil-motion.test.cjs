@@ -1,0 +1,90 @@
+'use strict';
+const {test}=require('node:test'),assert=require('node:assert/strict');
+const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
+const {pathToFileURL}=require('node:url');
+
+// Inspect the installed production Three scene. No synthetic screenshot,
+// invented hidden cells, loosened image thresholds or placeholder meshes.
+async function worldFixture(){
+  const root=path.resolve(__dirname,'../..');
+  const temp=fs.mkdtempSync(path.join(os.tmpdir(),'maze-public-fossil-motion-'));
+  try{
+    fs.mkdirSync(path.join(temp,'vendor'));
+    fs.writeFileSync(path.join(temp,'package.json'),'{"type":"module"}');
+    for(const file of ['world.js','gate-moment.mjs','map-view.mjs'])
+      fs.copyFileSync(path.join(root,'public/ai-maze-escape',file),path.join(temp,file));
+    for(const file of ['three.module.js','three.core.js'])
+      fs.copyFileSync(path.join(root,'node_modules/three/build',file),path.join(temp,'vendor',file));
+    const module=await import(pathToFileURL(path.join(temp,'world.js')).href);
+    const THREE=await import(pathToFileURL(path.join(temp,'vendor/three.module.js')).href);
+    return {module,THREE,world:module.createMazeWorld({balanced:true}),
+      cleanup:()=>fs.rmSync(temp,{recursive:true,force:true})};
+  }catch(error){fs.rmSync(temp,{recursive:true,force:true});throw error;}
+}
+const c=(cell,neighbors=[],flags={})=>({cell,neighbors,blocked:false,trap:false,checkpoint:false,clue:false,...flags});
+const published=(overrides={})=>({
+  runToken:'public-fossil-action',width:7,height:7,tick:1,currentCell:10,
+  cells:[c(10,[11])],visibleCells:[10],keys:[],doors:[],inventory:[],
+  threats:[],exitCell:null,result:null,...overrides
+});
+const pair=world=>[-1,1].map(side=>world.group.getObjectByName('Disclosed fossil listening sail 10 '+side));
+
+test('real disclosed fossil sails have connected 3D carved mass, nonblocking roots and physical proximity acting',async()=>{
+ const {world,module,THREE,cleanup}=await worldFixture();
+ try{
+   const state=published(),frozen=JSON.stringify(state);
+   world.update(state);
+   const sails=pair(world);
+   assert.ok(sails.every(Boolean),'two genuine public wall-side Three hinges should exist');
+   assert.equal(world.stats().responsiveFossilSails,2);
+   assert.equal(world.stats().tideFossilAlcoves,1);
+   const center=module.cellPosition(10,7,7);
+   const ground=module.cellHeight(10,7,7);
+   for(const sail of sails){
+     assert.ok(sail.children.filter(node=>node.isMesh).length>=4,
+       'each animated object has a physical four-part silhouette, not a sprite');
+     assert.ok(sail.position.z<center.z-.6,'public NORTH impassable edge owns the sculpture');
+     assert.ok(Math.abs(sail.position.x-center.x)<.85,'stone stays off the eastward true passage');
+     assert.ok(Math.abs(sail.position.y-ground-.25)<1e-9,'physical root follows real known terrace height');
+   }
+   world.animate(0,{explorerPosition:new THREE.Vector3(center.x,ground,center.z)});
+   const near=sails.map(sail=>Math.abs(sail.rotation.z));
+   world.animate(0,{explorerPosition:new THREE.Vector3(center.x+40,ground,center.z+40)});
+   const far=sails.map(sail=>Math.abs(sail.rotation.z));
+   assert.ok(near.every((angle,i)=>angle>far[i]+.1),
+     'both physical hinges respond to real explorer proximity instead of fake AI text');
+   world.animate(.3,{reducedMotion:true,explorerPosition:new THREE.Vector3(center.x,ground,center.z)});
+   assert.ok(sails.every(sail=>Math.abs(Math.abs(sail.rotation.z)-.07)<1e-9),
+     'reduced motion holds a stable pose even beside Pip');
+   const stats=world.stats();
+   assert.ok(stats.geometryCount<=16&&stats.materialCount<=26&&stats.textureCount<=3,
+     'authored action reuses installed shared GPU resource classes');
+   assert.equal(JSON.stringify(state),frozen,'rendering never edits published engine source');
+   world.update(published({runToken:'next-run',cells:[],visibleCells:[]}));
+   assert.equal(world.stats().responsiveFossilSails,0,'new run discards prior physical art');
+   assert.ok(pair(world).every(x=>!x),'unseen former cell cannot retain a reacting model');
+ }finally{world.dispose();cleanup();}
+});
+
+test('unsafe/disclosed source semantics and unknown fields cannot fabricate fossil actors',async()=>{
+ const {world,cleanup}=await worldFixture();
+ try{
+   for(const state of [
+     published({cells:[],visibleCells:[],privateMazeCells:[10]}),
+     published({cells:[c(10,[11],{trap:true})]}),
+     published({cells:[c(10,[11],{blocked:true})]}),
+     published({cells:[c(10,[11])],keys:[{id:'treasure',cell:10,collected:false}]}),
+     published({cells:[c(10,[11])],doors:[{a:10,b:11,open:false}]}),
+   ]){
+     world.update(state);
+     assert.equal(world.stats().responsiveFossilSails,0,
+       'no new physical event on undisclosed, hazardous, occupied or gate cells');
+   }
+   const unknown=published({hiddenExitCell:10,privateRoute:[1,2,3],privateThreatCell:10,
+     unrevealedDoor:{a:10,b:17}});
+   world.update(unknown);
+   assert.equal(world.stats().responsiveFossilSails,2,
+     'only published walkable tile and disclosed impassable side control physical placement');
+   assert.equal(world.stats().renderedCells.length,1);
+ }finally{world.dispose();cleanup();}
+});
