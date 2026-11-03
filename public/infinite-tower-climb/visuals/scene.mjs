@@ -1783,11 +1783,13 @@ export function createTowerScene(canvas, settings = {}) {
     // Only a physically fired NEW player bolt on adjacent immutable source
     // ticks can trigger the gauntlet recoil. No ability prediction or visual
     // pulse from old packets, another floor or a fresh run.
-    const pulse = options.stale ? null : witnessedAirbornePulse(previous, next);
+    const pulse = options.stale || typeof witnessedAirbornePulse !== 'function'
+      ? null : witnessedAirbornePulse(previous, next);
     if (pulse) airbornePulse = { ...pulse, startedAt: elapsed };
     // Give the SAME original skinned gauntlet a planted counterfire recoil only
     // after source proves the real player bolt was fired during guardian charge.
-    const counter = options.stale ? null : witnessedGuardianCounterPulse(previous, next);
+    const counter = options.stale || typeof witnessedGuardianCounterPulse !== 'function'
+      ? null : witnessedGuardianCounterPulse(previous, next);
     if (counter) guardianCounterPulse = { ...counter, startedAt: elapsed };
     motionLedger.accept(previous, next);
     // Authority may heal +1 on a floor advance or upgrade without any
