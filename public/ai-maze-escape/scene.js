@@ -2,6 +2,7 @@ import * as THREE from './vendor/three.module.js';
 import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
+import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
 import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicGateOpeningCameraCue } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
@@ -270,7 +271,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       if (cells.length > 32) resetPosition(snapshot);
     }
     if (openingCue) recentPublicOpening = {...openingCue, runToken:snapshot.runToken, start:gateVisualTime};
-    if (pickupCue) recentPublicPickup = {...pickupCue,runToken:snapshot.runToken,start:gateVisualTime};
+    if (pickupCue) recentPublicPickup = {...pickupCue,runToken:snapshot.runToken,start:gateVisualTime,
+      cameraHeading:heading};
     previous = snapshot;
     world.update(snapshot);
     updateRoutes(snapshot);
@@ -629,6 +631,15 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
             safePickupSpan / Math.max(.35, aspect)));
         desiredTarget.set((pose.x+originalCell.x)*.5,ground+.68,
           (pose.z+originalCell.z)*.5);
+        // The earlier near-top-down key view buried Pip's face in the stone
+        // theatre even after moving the glove. During THIS verified public
+        // collection only, view the original physical hero three-quarter
+        // front-on, from the last publicly observed travel bearing. Freeze
+        // that bearing at the source event so an autonomous next step does
+        // not swing the camera or imply unseen AI intent. No new camera,
+        // terrain, game command, private state or HUD overlay is introduced.
+        setWitnessedPickupStoryCameraOffset(pickupCameraOffset,
+          recentPublicPickup.cameraHeading);
       }
     }
     // The native 390px pickup shot should respond while the real event is
@@ -810,6 +821,12 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         cameraOrbitRadians: Math.atan2(Math.sin(Math.atan2(cameraOffset.z,cameraOffset.x)-Math.atan2(18,15)),
           Math.cos(Math.atan2(cameraOffset.z,cameraOffset.x)-Math.atan2(18,15))),
         pickupCameraBeat, pickupCameraTargetHalfHeight: pickupCameraBeat ? targetHeight : null,
+        // Real current WebGL camera, not the proposed target; independent
+        // capture tests can reject a frame still showing Pip's side/back.
+        pickupCameraHeroFacing: pickupCameraBeat ? (
+          (Math.sin(recentPublicPickup.cameraHeading) * cameraOffset.x
+            + Math.cos(recentPublicPickup.cameraHeading) * cameraOffset.z)
+          / Math.max(.001, Math.hypot(cameraOffset.x, cameraOffset.z))) : null,
         cameraAspect: aspect, cameraHorizontalHalfSpan: halfHeight * aspect,
         cameraOffset: {x: cameraOffset.x, y: cameraOffset.y, z: cameraOffset.z},
         nearbySealedGateProjection: nearObservedGate ? (() => {
