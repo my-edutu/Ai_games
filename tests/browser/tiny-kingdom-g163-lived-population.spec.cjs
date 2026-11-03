@@ -17,7 +17,11 @@ test('G163 390px grown civilization has physically articulated walking residents
   await page.evaluate(n=>{
    const g=window.__tinyKingdom;for(let i=0;i<n;i++)g.step(1/30);
   },Math.min(remaining,7200));
- await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0);
+ // Day-121 daytime: work shifts and road journeys must be authentic and
+ // visible; a midnight motionless settlement cannot prove inhabited life.
+ await page.evaluate(()=>{for(let i=0;i<8*30;i++)window.__tinyKingdom.step(1/30);});
+ await page.waitForFunction(()=>window.__tinyKingdom?.getPopulationMotionAudit?.().lastRenderedCompact>0,
+  null,{timeout:90000});
  const original=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
   return {authority:JSON.stringify(g.exportSnapshot()),audit:g.getPopulationMotionAudit(),
