@@ -128,7 +128,7 @@ export function planCombatStage(snapshot,viewPosition=null){
  // opponents; never alter their physical cells, contact targets or turn order.
  // A living Warden has a separately authored warning/duel composition and is
  // deliberately excluded from this general skirmish staging.
- if(!warden&&Number.isFinite(viewPosition?.x)&&Number.isFinite(viewPosition?.z)){
+ if(!snapshot.bossWarning&&Number.isFinite(viewPosition?.x)&&Number.isFinite(viewPosition?.z)){
   const living=snapshot.units.slice(0,MAX_ACTORS)
    .filter(u=>u&&placed[u.id]&&u.hp>0&&u.kind!=='warden');
   const allies=living.filter(u=>u.faction==='party').sort((a,b)=>a.id.localeCompare(b.id,'en'));
@@ -138,6 +138,11 @@ export function planCombatStage(snapshot,viewPosition=null){
   for(const hero of allies)for(const foe of foes){
    const cells=Math.hypot(hero.x-foe.x,hero.z-foe.z);
    if(cells<.9||cells>1.5)continue;
+   // A living Warden takes precedence ONLY in its real local arena.
+   // An unopened boss elsewhere on the floor must not suppress ordinary
+   // corridor skirmishes, or this visual improvement would never activate.
+   if(warden&&[hero,foe].some(u=>
+    Math.abs(u.x-warden.x)+Math.abs(u.z-warden.z)<=5))continue;
    const cx=(hero.x+foe.x)/2-half,cz=(hero.z+foe.z)/2-half;
    const vx=viewPosition.x-cx,vz=viewPosition.z-cz,length=Math.hypot(vx,vz);
    if(length<=.75)continue;
