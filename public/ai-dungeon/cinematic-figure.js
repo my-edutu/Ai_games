@@ -80,7 +80,7 @@ export function planCinematicFigure(kind){
    part('identity-hollow-right-thorn','vane','metal',0.37,1.49,0.08,'rightUpperArm',0.95,1.22,0.88)
   ],
   cultist:[
-   part('identity-penitent-left-stole','banner','cloth',-0.24,0.85,-0.2,'chest',0.78,1.22,0.79),
+   part('identity-penitent-left-stole','banner','cloth',-0.24,0.85,-0.2,'leftUpperArm',0.78,1.22,0.79),
    part('identity-penitent-right-stole','banner','cloth',0.24,0.85,-0.2,'chest',0.78,1.22,0.79)
   ],
   warden:[
