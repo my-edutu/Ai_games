@@ -459,6 +459,12 @@ async function motion(browser,html,snapshot,label,live=false,camera=labor,delive
  const {context,page,contextInfo}=await openScene(browser,html,label,true);
  const video=page.video();
  try{
+  // W05: freeze the recording context BEFORE restore/focus, otherwise at
+  // 2-3 software FPS the authentic unloading courier can finish its 1.6h
+  // shift while Chromium executes camera surveys before the assertion.
+  // Freeze only the witness setup; continuous footage below resumes real
+  // autonomous simulation without synthetic delivery or staged animation.
+  if(delivery)await page.locator('#pause').click();
   await page.evaluate(({snapshot,camera})=>{
    const g=window.__tinyKingdom;
    g.restoreSnapshot(snapshot);
@@ -483,6 +489,7 @@ async function motion(browser,html,snapshot,label,live=false,camera=labor,delive
    });
    assert(d.following&&d.active.some(v=>v.citizen===d.selected),
     'Delivery recording must follow an actually loaded, navigating citizen');
+   await page.locator('#pause').click();
   }
   // Genuine unpaused 3D simulation and real camera pointer interactions.
   const start=await page.evaluate(isLive=>({quality:window.__tinyKingdom.renderQuality(),
