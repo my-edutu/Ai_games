@@ -11,7 +11,7 @@
     "sha": null,
     "title": "SAME continuous real 3D Tower transformation: source-safe climbing and cap approach -> actual guardian encounter -> authentic outcome. NOT EVALUATED.",
     "implementationSha": "0799127dce732d3fb6fd8e069dea6fcdd81f9cf7",
-    "implementationEvidenceStatus": "NOT EVALUATED: same playable 3D guardian-to-cap encounter transformation now has three real HP-retracting mechanical clutch pairs on the exterior gantry, source-matched physical stage and guarded portrait camera preference, and optional same-source HP-stage audio. Current gameplay implementation 0799127dce732d3fb6fd8e069dea6fcdd81f9cf7 has its own source-pinned 9-job real-game capture 41587700834 IN PROGRESS and technical CI 41587700830 IN PROGRESS; neither may be called passing until final result. Earlier source c0903c5 desktop/portrait 9/9 capture run 41585759019 SUCCESS, not latest. 0/5 independent blind votes on each pillar. Supported-device p50/p95/p99, memory, accessibility and full replay validation NOT VERIFIED."
+    "implementationEvidenceStatus": "NOT EVALUATED: same 3D game now presents original 3-stage/6-leaf guardian HP mechanical power spine coordinated with safe exterior guardian camera framing and optional source-damage audio. Gameplay-source SHA 0799127d has exact-source safety CI 41587700830 SUCCESS (not experience score). Source-pinned 9-job normal-speed desktop/phone baseline/candidate capture 41587700834 still IN PROGRESS at inspection; no blind full-motion or hardware metrics. Frozen baseline 1731b380, independent votes LOOKS 0/5, FEELS 0/5, PLAYS 0/5."
   },
   "currentTransformation": {
     "title": "Same continuous playable 3D climb → visible real AI route decision and touchdown → high-stakes guardian machinery → source-authentic ending/restart",
@@ -22,7 +22,7 @@
     "biggestRemainingExperienceGap": "Demonstrate true live mobile and desktop guardian→cap readability while protecting player scale, windup/projectile direction and genuine landing. Latest added physical power-spine shutters, safe camera preference and optional release audio have not been independently judged in full motion. State-aligned >=60s ascent/danger/outcome baseline/candidate real video, 5 blind randomized critics for each of LOOKS/FEELS/PLAYS (4/5), hardware frame-time/memory, accessibility, deterministic replay and recovery still required. No quality pass.",
     "unverifiedImplementationBranchHead": "0799127dce732d3fb6fd8e069dea6fcdd81f9cf7",
     "currentVerticalSlice": "SAME whole-game real 3D climb→safe-route touchdown→true guardian HP fight and staged physical cap release→authentic restart. This continuation integrates source-HP gradual bronze pressure clutches, real observed power-spine framing among safe combat camera shots, and gesture-gated mechanical release audio, without altering authority, collision, RNG, replay, attack outcomes or HUD.",
-    "biggestGap": "0/5 LOOKS, 0/5 FEELS, 0/5 PLAYS; no independent video reviewers because workspace tunnel NOT_FOUND. New source 0799127d capture workflow 41587700834 and CI 41587700830 in progress. Prior c0903c5 candidate capture 41585759019 9/9 jobs success but does NOT validate newest 3D+audio. Supported-device performance unknown. NOT EVALUATED."
+    "biggestGap": "Source-verified code 0799127d passed technical CI 41587700830, BUT exact-source normal-speed baseline/candidate capture 41587700834 still IN PROGRESS; no state-event matched full-motion clips, independent critics (0/5 each LOOKS FEELS PLAYS), device hardware metrics or complete replay/accessibility acceptance. Real mobile guardian→power-spine→gate visibility NOT EVALUATED."
   },
   "scenarios": [
     {
@@ -62,11 +62,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Last completed previous source c0903c5 workflow 41585759085 FAILED exactly 1/802 tests on stale passage-source geometry regex; this run repaired it. Current full-game source 0799127d exact-source workflow 41587700830 still running through repository logic at inspection; final outcome NOT VERIFIED. CI veto only, not quality.",
+    "ci": "Exact 3D gameplay-source workflow 41587700830 for implementation 0799127d COMPLETED SUCCESS 2026-11-03, including build, repository logic, Tower authority and browser progress-page contract. This is engineering safety only, NOT a Gauntlet quality score. The evidence-only commits deliberately skip redundant CI, without changing gameplay source.",
     "replay": "New power-spine renderer, camera and optional audio consume immutable present authoritative snapshots and source history only. No authoritative game tick, physics, collision, AI move, seed, RNG or replay format changed. Latest exact-source replay/recovery acceptance NOT VERIFIED.",
     "accessibility": "HP stages release 3 paired bronze shutters with physical position/metal appearance, as well as an 8-tooth local relay, not relying solely on color. Reduced-motion keeps static HP state; audio opt-in, HUD unchanged. Real phone legibility, assistive technology and reduced-motion device audit NOT VERIFIED.",
     "performance": "At guardian only: 6 shutter instances in one added source-bound instanced draw, no new light/shadow/collider/postprocess; scene camera safe search reuses existing CPU projection, optional audio uses bounded existing synthesized voices. No supported device p50/p95/p99 frame-time or memory measurements yet; NOT VERIFIED.",
-    "stability": "Last c0903c5 normal-speed baseline/candidate source-pinned desktop+portrait 9/9 capture jobs succeeded at 41585759019. Exact new 0799127d normal-speed 41587700834 IN PROGRESS at inspection, exact-source quality contract 41587700830 IN PROGRESS. Independent worker/browser tunnel NOT_FOUND; no independent full-motion verdict."
+    "stability": "Latest exact gameplay-source CI 41587700830 COMPLETED SUCCESS (safety veto cleared at implementation 0799127d). Current exact-source baseline/candidate real desktop and portrait footage 41587700834 IN PROGRESS, no completed matched clips or independent full-motion review at inspection. Prior c0903c5 capture 41585759019 9/9 successful. Independent critic/browser tunnel NOT_FOUND; device performance/replay/accessibility not acceptance-verified."
   },
   "unresolvedCriticalIssues": null,
   "benchmark": {
@@ -1051,10 +1051,10 @@
       "sourceSha": "0799127dce732d3fb6fd8e069dea6fcdd81f9cf7",
       "captureRunId": 41587700834,
       "captureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41587700834",
-      "captureStatus": "in_progress: candidate vs frozen baseline, nine source-pinned desktop/portrait jobs; awaiting complete artifacts",
+      "captureStatus": "in_progress at last inspection: nine jobs for 0799127d vs frozen baseline, each expected to record real desktop/portrait normal-speed evidence; outcomes unverified",
       "ciRunId": 41587700830,
       "ciRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41587700830",
-      "ciStatus": "in_progress: build and transformation verdict gate passed, repository logic still running; NOT technical PASS",
+      "ciStatus": "completed SUCCESS 2026-11-03: exact gameplay SHA 0799127d; engineering safety only, no LOOKS/FEELS/PLAYS assessment",
       "note": "All quality ratings remain NOT EVALUATED. This evidence-only commit intentionally skips redundant CI to keep live source-pinned video and source technical runs uninterrupted."
     }
   }
