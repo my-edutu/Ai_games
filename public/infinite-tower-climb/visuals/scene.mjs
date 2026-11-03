@@ -10,6 +10,7 @@ import { createTowerRouteIntent } from './route-intent.mjs';
 import { createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianRelayStage, observedGuardianPowerSpineStage } from './guardian-circuit.mjs';
 import { createTowerAtmosphere } from './atmosphere.mjs';
 import { createTowerGuardianShotStage } from './guardian-shot-stage.mjs';
+import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue } from './guardian-camera-safety.mjs';
 import { createObservedMovingDeckRide } from './moving-deck-ride.mjs';
 // A tiny 3D attack lane follows only a REAL enemy telegraph. The curved ribbon
 // traces the same cylindrical projection as authoritative horizontal shots and
@@ -1550,6 +1551,17 @@ export function createTowerScene(canvas, settings = {}) {
   const actorFramePoint = new THREE.Vector3();
   const actorOrbitTarget = new THREE.Vector3();
   let actorRescueFraction = 0;
+  // Reused CPU-only vectors and NDC arrays; no per-frame draw, material or
+  // allocation. A genuine off-frame guardian may catch the approved two-body
+  // lens, but only if the real climber stays readable and the core is clear.
+  const guardianRescuePoint = new THREE.Vector3();
+  const guardianRescuePreviousCamera = new THREE.Vector3();
+  const guardianRescuePreviousGaze = new THREE.Vector3();
+  const guardianRescueActorProjection = new THREE.Vector3();
+  const guardianRescueEnemyProjection = new THREE.Vector3();
+  const guardianBefore = [0, 0, 0], guardianAfter = [0, 0, 0];
+  const actorBefore = [0, 0, 0], actorAfter = [0, 0, 0];
+  let guardianRescueBlend = 0, guardianRescueApplications = 0;
   const guardianSightPoints=[];
   const climberCapSightPoint = new THREE.Vector3();
   const lookAt = new THREE.Vector3();
@@ -1607,6 +1619,7 @@ export function createTowerScene(canvas, settings = {}) {
     guardianShotStage.clear();
     crownStage.visible = false; observedCrown = null;
     echoDrawnTick = -1; observedStageLight.reset();
+    guardianRescueBlend = 0; guardianRescueApplications = 0;
   }
   function rebuildGraphicsResources() {
     // Dispose while WebGL is still lost: Three's disposal listeners otherwise
@@ -2239,6 +2252,70 @@ export function createTowerScene(canvas, settings = {}) {
         actorFramePoint, scratch.x, scratch.y, scratch.z,
         camera.aspect, dt, actorOrbitTarget);
     }
+    // Keep both real combat subjects readable in the SAME uninterrupted shot.
+    // Merely accelerating the camera was insufficient in the portrait videos:
+    // the slow exterior orbit could leave the fighting guardian outside the
+    // crop while its HP and real cap machinery were already changing.
+    //
+    // Only a currently alive, source-observed guardian on a successfully
+    // planned TWO-BODY exterior lens can request this guarded correction.
+    // Save the actual smoothed camera, try a bounded continuation toward that
+    // already validated lens, and KEEP it only when the guardian's screen
+    // error measurably decreases without cropping/occluding the climber.
+    // No teleport, fake enemy, time slowdown, extra render or prediction.
+    guardianRescueBlend = 0;
+    if (!overview && !options.reducedMotion && !options.stale &&
+      snapshot.lifecycle === 'running' && p.health > 0 &&
+      actorRescueFraction === 0 && followComposition?.guardianStaged &&
+      followComposition.clear && followComposition.guardianFramed &&
+      followComposition.heroFraction >= .16 && sourceGuardian &&
+      [sourceGuardian.x, sourceGuardian.y].every(Number.isFinite)) {
+      const observed = pointFor(sourceGuardian.x, sourceGuardian.y,
+        snapshot.chunkBaseY, snapshot.worldWidth, 27.15);
+      guardianRescuePoint.set(observed.x, observed.y, observed.z);
+      camera.lookAt(lookAt);
+      camera.updateMatrixWorld(true);
+      guardianRescueEnemyProjection.copy(guardianRescuePoint).project(camera);
+      guardianRescueActorProjection.copy(actorFramePoint).project(camera);
+      guardianBefore[0] = guardianRescueEnemyProjection.x;
+      guardianBefore[1] = guardianRescueEnemyProjection.y;
+      guardianBefore[2] = guardianRescueEnemyProjection.z;
+      actorBefore[0] = guardianRescueActorProjection.x;
+      actorBefore[1] = guardianRescueActorProjection.y;
+      actorBefore[2] = guardianRescueActorProjection.z;
+      const pressure = guardianFramePressure(guardianBefore, camera.aspect);
+      if (pressure > .12 && Number.isFinite(pressure)) {
+        const step = guardianCameraRecoveryBlend(pressure, dt);
+        guardianRescuePreviousCamera.copy(camera.position);
+        guardianRescuePreviousGaze.copy(lookAt);
+        followTowerCamera(camera.position, destination, step);
+        followTowerFocus(lookAt, focus, step);
+        camera.lookAt(lookAt);
+        camera.updateMatrixWorld(true);
+        guardianRescueEnemyProjection.copy(guardianRescuePoint).project(camera);
+        guardianRescueActorProjection.copy(actorFramePoint).project(camera);
+        guardianAfter[0] = guardianRescueEnemyProjection.x;
+        guardianAfter[1] = guardianRescueEnemyProjection.y;
+        guardianAfter[2] = guardianRescueEnemyProjection.z;
+        actorAfter[0] = guardianRescueActorProjection.x;
+        actorAfter[1] = guardianRescueActorProjection.y;
+        actorAfter[2] = guardianRescueActorProjection.z;
+        if (acceptGuardianCameraRescue({
+          aspect: camera.aspect, guardianBefore, guardianAfter, actorBefore,
+          actorAfter,
+          actorCoreClear: towerCoreSightlineClear(camera.position, actorFramePoint, 23.5),
+          guardianCoreClear: towerCoreSightlineClear(camera.position, guardianRescuePoint, 23.5),
+        })) {
+          guardianRescueBlend = step;
+          guardianRescueApplications++;
+        } else {
+          camera.position.copy(guardianRescuePreviousCamera);
+          lookAt.copy(guardianRescuePreviousGaze);
+          camera.lookAt(lookAt);
+          camera.updateMatrixWorld(true);
+        }
+      }
+    }
     if(!options.reducedMotion && !options.stale && options.camera==='follow'&&contactProgress>0)
       camera.position.y+=(contactHero?-.24:.18)*Math.sin((1-contactProgress)*Math.PI);
     if(!options.reducedMotion && options.camera==='follow' && landingHalo.visible)
@@ -2486,6 +2563,9 @@ export function createTowerScene(canvas, settings = {}) {
         cameraRadius: Number(Math.hypot(camera.position.x, camera.position.z).toFixed(4)),
         criterion: 'Actual smoothed source-final camera; source projection only, not verified video visibility',
       } : null,
+      guardianRescueBlend: Number(guardianRescueBlend.toFixed(4)),
+      guardianRescueApplications,
+      guardianRescueEvidence: 'Approved dual-subject source projection + exterior-core guards; NOT raster visibility or quality score',
       encounterCamera, actorCamera, cameraPosition: camera.position.toArray(), climberPosition: climber.group.position.toArray() };
   }
   function dispose() {
