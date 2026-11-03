@@ -2206,9 +2206,9 @@
       "newCandidateSceneReview": "UNVERIFIED: new sculpted geometry and truthful mixed-team staging not yet browser-captured at exact head."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Native low-detail toy-like source GLB proportions, dense combat and unverified full action/contact motion; need authentic mobile/desktop end-to-end comparisons and 3 independent critics.",
-    "currentWork": "M1 integrated native face-exposing forged anatomy and camera-aligned real mixed-faction combat tableau; exact-head experiential proof pending. NOT TRANSFORMED.",
-    "candidateCommit": "",
+    "biggestRemainingGap": "Actual original GLB characters and melee still read as toy-like/cluttered; a world-first integrated character art, authored motion and genuine combat timing leap is needed. The current cross-cell contact scene must be judged in real new-head desktop/mobile gameplay; full matched audiovisual expedition, GPU p95 and >=3 masked critics remain absent.",
+    "currentWork": "M1 actual combat-plane story: legal cross-cell opposing rigs now stage for the same live render/collision-free camera as their true contact VFX, distant bosses no longer suppress corridor fights, and a physically open Warden-court arch replaces the solid sightline-blocking bar. Costume bounds corrected after real failing authority run. New-head WebGL motion NOT YET VERIFIED.",
+    "candidateCommit": "016b84c5171dc3dcd779e9b4461ffcd4baa365ec",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
     "implementationEvents": [
@@ -3494,6 +3494,43 @@
         "evidence": "True predecessor Chromium evidence remains toy-like/crowded. Source candidate changed actual geometry and staged render coordinates. No new exact-head real audiovisual capture, matched A/B, p95/p99, safety CI or fresh critics at commit.",
         "remaining": "Inspect exact-head desktop/mobile combat, continuity of face and bone mounts, Warden telegraph, authority/replay and true motion/audio; compare seed and full narrative reel against immutable 281735d0 baseline; >=3 blind independent LOOKS/FEELS/PLAYS critics.",
         "verdict": "IN_PROGRESS / NOT_TRANSFORMED"
+      },
+      {
+        "id": "M1-SKIRMISH-PLANE-AND-OPEN-BOSS-COURT-20261103",
+        "date": "2026-11-03",
+        "milestone": "SAME OPEN M1, NOT AN ACCEPTED GAUNTLET ROUND",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "90a9bddf157fbfb75c10f47d7ed92bcc15de791e",
+        "candidateHeadBeforeLedger": "016b84c5171dc3dcd779e9b4461ffcd4baa365ec",
+        "objective": "Make the real autonomous dungeon more readable as one playable adventure: genuine adjacent cross-cell attackers stage apart in camera space, and the original boss entrance remains an open Gothic room rather than a view-blocking solid slab.",
+        "integratedImplementation": [
+          "Deterministic pure spectator planner separates genuinely adjacent party/enemy bodies along the real camera horizontal axis by <=0.435m within original legal grid cells. Shared scene and contact director read this one stage. No AI, collision, hitbox, target, RNG, save or replay changes.",
+          "An actual distant living Warden does not disable all skirmishes; only real local Warden court proximity or authoritative warnings suppress generic stage to preserve existing boss telegraph and exposed-recovery choreography.",
+          "The prior 1.9m solid golden lintel at the actual exit is replaced by original open ogive supported by the same two stone piers. Shared capped geometry and existing dynamic cutaway; 3D diagnostic confirms source wiring but not artistic quality.",
+          "Restored costume-fitting scale minimum for all five native class-role accessories after real exact-head authority failed one of 221 tests. Assertion bounds retained, not weakened."
+        ],
+        "priorExactHeadChecks": {
+          "browserRun": "https://github.com/my-edutu/Ai_games/actions/runs/41594097157",
+          "browserResult": "3/3 browser shards PASSED at predecessor 90a9bddf",
+          "authorityResult": "220/221 PASSED; adult costume envelope test FAILED at predecessor",
+          "visualReview": "https://github.com/my-edutu/Ai_games/actions/runs/41594097032",
+          "visualReviewResult": "PASSED at predecessor only",
+          "catalogue": "https://github.com/my-edutu/Ai_games/actions/runs/41594097167",
+          "catalogueResult": "FAILED at predecessor"
+        },
+        "predecessorEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/41594097157/artifacts/13213010227",
+        "observedPredecessor": "Genuine 1440x832 real Chromium world capture shows all 3 heroes technically unoccluded with ~210px minimum character height and the Warden visible, but clustered toy-like silhouettes and dense architectural framing remain. This is NOT a matched BEFORE/AFTER win.",
+        "newHeadBrowserMotionAudio": "UNVERIFIED",
+        "independentCritics": {
+          "count": 0,
+          "looks": "UNVERIFIED",
+          "feels": "UNVERIFIED",
+          "plays": "UNVERIFIED"
+        },
+        "performance": "UNVERIFIED new-head desktop/mobile p95/p99, GPU and endurance",
+        "biggestGap": "Authentic playable character animation and readable impact contact still do not approach external Diablo IV, No Rest for the Wicked or Path of Exile 2 gameplay.",
+        "next": "Inspect new-head real browser skirmish and Warden clips at both viewports; fix any genuine overlap, detached gear or performance regression; continue original higher-detail full-body rig, enemy reactions and boss pacing, then capture organic audiovisual traversal→combat→boss→floor→defeat/restart versus immutable baseline and run masked 3-critic judgments."
       }
     ]
   }
