@@ -6565,8 +6565,9 @@ function planConnectedMarketTour(origin,activeTrade){
  const directions=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
  const point=n=>[origin[0]+n.ix*size,origin[1]+n.iz*size];
  const audit={reachableCells:0,screenedViews:0,portraitSafeViews:0,
+  strictViews:0,adaptiveViews:0,crowdRejected:0,skyRejected:0,
   routesRebuilt:0,obstructed:0,stalls:eligibleStalls.map(s=>s.trade)};
- let best=null;
+ let best=null,bestStrict=null,bestAdaptive=null;
  for(let cursor=0;cursor<nodes.length&&cursor<limit;cursor++){
   const node=nodes[cursor],pos=point(node);
   audit.reachableCells++;
@@ -6581,25 +6582,40 @@ function planConnectedMarketTour(origin,activeTrade){
     if(distance<4||distance>9.8||(pos[1]-stall.z)*stall.face<1.2)continue;
     audit.screenedViews++;
     const crowd=marketVisitCrowd(pos,door);
-    if(crowd.foregroundCitizenCount||crowd.closestCitizenDistance<1.65)continue;
+    // Residents are part of a REAL inhabited market: one passing shopper
+    // must not make all other trading destinations disappear. Reject a
+    // citizen actually too close to the camera, but score a partially
+    // crossing bystander as a less desirable, still honest moving shot.
+    if(crowd.closestCitizenDistance<1.15||crowd.foregroundCitizenCount>1){
+     audit.crowdRejected++;continue;
+    }
     const architecture=marketVisitArchitecture(pos,door,stall);
     if(!architecture.portraitSafe){audit.obstructed++;continue;}
     const yaw=Math.atan2(dx,dz),view=streetEyeVisibility(pos[0],pos[1],yaw,STREET_EYE);
-    if(!view.openSky||view.forwardMetres<1.6)continue;
+    if(!view.openSky||view.forwardMetres<.65){
+     audit.skyRejected++;continue;
+    }
+    const strictView=crowd.foregroundCitizenCount===0&&
+     crowd.closestCitizenDistance>=1.65&&view.forwardMetres>=1.6;
     audit.portraitSafeViews++;
+    if(strictView)audit.strictViews++;else audit.adaptiveViews++;
     const score=24-Math.abs(distance-6.25)*2+
      Math.min(6,view.forwardMetres)*.8+
      Math.min(4,architecture.nearestWallDistance)*2-
      architecture.largestForegroundCover*60-
      architecture.totalForegroundCover*18-
-     distanceFromStart*.18;
-    if(!best||score>best.score){
-     best={nodeIndex:cursor,score,position:pos.slice(),yaw,stall,door,
+     distanceFromStart*.18-
+     crowd.foregroundCitizenCount*18-
+     Math.max(0,2.4-crowd.closestCitizenDistance)*8;
+    const chosen={nodeIndex:cursor,score,position:pos.slice(),yaw,stall,door,
       tilt:Math.max(-.45,Math.min(.35,
        Math.atan2(door[1]-(terrain(...pos)+STREET_EYE),distance))),
       stallDistance:distance,visibility:view,architecture,
-      adaptiveStandoff:crowd.closestCitizenDistance<2.4,...crowd};
-    }
+      adaptiveStandoff:!strictView,...crowd};
+    if(strictView){
+     if(!bestStrict||score>bestStrict.score)bestStrict=chosen;
+    }else if(!bestAdaptive||score>bestAdaptive.score)bestAdaptive=chosen;
+    best=bestStrict||bestAdaptive;
    }
   }
   // Deterministic connected-component expansion: a cell is discovered only
@@ -6613,8 +6629,9 @@ function planConnectedMarketTour(origin,activeTrade){
   }
   // Once a reachable, screen-safe shot exists, inspect more of the connected
   // neighbourhood for a better one but do not scan the entire valley.
-  if(best&&cursor>Math.min(limit-1,best.nodeIndex+360))break;
+  if(bestStrict&&cursor>Math.min(limit-1,bestStrict.nodeIndex+360))break;
  }
+ best=bestStrict||bestAdaptive;
  if(!best){
   marketVisitPlanStats={...marketVisitPlanStats,connectedSearch:audit,
    routeReachable:false,lastFailure:'No physically connected unobstructed second stall'};
@@ -6632,6 +6649,7 @@ function planConnectedMarketTour(origin,activeTrade){
   route.push(chain[b]);a=b;
  }
  audit.routesRebuilt=1;
+ audit.usedAdaptiveView=!Boolean(bestStrict);
  marketVisitPlanStats={...marketVisitPlanStats,connectedSearch:audit,
   routeReachable:true,lastFailure:null};
  return {...best,route,connectedSearch:audit};
