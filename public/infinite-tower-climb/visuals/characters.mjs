@@ -1068,6 +1068,7 @@ export function createEnemy(kind='sentinel') {
     const vx=Number(state.vx??state.velocity?.x)||0,speed=clamp(Math.abs(vx)/3000,0,1);
     const dead=state.health===0||state.state==='dead'||state.active===false;
     const telegraph=Boolean(state.telegraph)&&!dead;
+    const secondWind=guardian&&state.telegraphTotalTicks===6&&!dead&&!stale;
     const firing=Boolean(state.firing)&&!dead;
     const health=Number(state.health),hurt=state.state==='hurt'&&!dead;
     // HP is an authoritative field from the immutable game snapshot. The
@@ -1149,10 +1150,18 @@ export function createEnemy(kind='sentinel') {
     // free-running animation on a loop or a cosmetic prediction of a hit.
     // Reduced-motion visitors still see a clear braced/raised-weapon silhouette
     // without an additional oscillation or camera shake.
+    if(secondWind&&!telegraph){
+      // Low-HP encounter has a planted, clearly distinct static silhouette;
+      // reduced motion still shows the earned phase with no fake attack.
+      rig.position.y-=.065;rig.rotation.x-=.055;head.rotation.x+=.085;
+      arms[1].upper.rotation.x-=.18;
+      for(const leg of legs){leg.upper.rotation.x-=.14;leg.lower.rotation.x+=.22;}
+    }
     if(guardian&&telegraph){
+      const total=state.telegraphTotalTicks===6?6:8;
       const remaining=Number.isFinite(state.telegraphTicksRemaining)
-        ? clamp(state.telegraphTicksRemaining,1,8):8;
-      const commitment=1-(remaining-1)/7;
+        ? clamp(state.telegraphTicksRemaining,1,total):total;
+      const commitment=1-(remaining-1)/(total-1);
       const weight=telegraphBlend*(.35+.65*commitment);
       rig.position.y-=.10*weight;
       rig.rotation.x-=.12*weight;

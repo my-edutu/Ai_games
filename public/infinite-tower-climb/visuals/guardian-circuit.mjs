@@ -36,8 +36,11 @@ export function observedGuardianCircuit(snapshot) {
     guardianId: guardian.id, health: guardian.health,
     maxHealth: guardian.maxHealth, openedFraction: clamp01(1 - guardian.health / guardian.maxHealth),
     telegraph: guardian.telegraph === true,
+    chargeTotalTicks: guardian.telegraphTotalTicks===6?6:8,
     remainingChargeTicks: Number.isFinite(guardian.telegraphTicksRemaining)
-      ? Math.min(8, Math.max(1, guardian.telegraphTicksRemaining)) : 8,
+      ? Math.min(guardian.telegraphTotalTicks===6?6:8,
+        Math.max(1, guardian.telegraphTicksRemaining))
+      : (guardian.telegraphTotalTicks===6?6:8),
     fromX: guardian.x, fromY: guardian.y - guardian.halfHeight + 9000,
     toX: anchorX, toY: cap.y + cap.height + 20000,
     width: snapshot.worldWidth, baseY: snapshot.chunkBaseY,
@@ -272,7 +275,7 @@ export function createTowerGuardianCircuit(THREE) {
     // Source HP drives a persistent widening, never a made-up kill. Genuine
     // windup briefly tightens the at-guardian fastening; no fake hit pulse.
     const windup = next.telegraph && !options.reducedMotion
-      ? (8 - next.remainingChargeTicks) / 8 : 0;
+      ? (next.chargeTotalTicks-next.remainingChargeTicks)/next.chargeTotalTicks : 0;
     for (const side of [-1, 1]) {
       for (let index = 0; index < RAIL_STEPS; index++) {
         const first = mapped(next, index / RAIL_STEPS,

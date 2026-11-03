@@ -39,9 +39,10 @@ function poseThreatLane(lane, enemy, frame){
   // A real approaching strike tightens its projected danger contour. The
   // source's 8 fixed windup ticks, not the animation clock, own the warning;
   // this adds no prediction, text overlay or authoritative collision.
+  const total=enemy.telegraphTotalTicks===6?6:8;
   const ticks=Number.isFinite(enemy.telegraphTicksRemaining)
-    ? clamp(enemy.telegraphTicksRemaining,1,8):8;
-  const laneHalf=.10+(1-ticks/8)*.095;
+    ? clamp(enemy.telegraphTicksRemaining,1,total):total;
+  const laneHalf=.10+(1-ticks/total)*.095;
   for(let i=0;i<=THREAT_LANE_SEGMENTS;i++){
     const x=clamp(enemy.x+direction*(9000+distance*i/THREAT_LANE_SEGMENTS),0,frame.worldWidth);
     const mapped=pointFor(x,enemy.y,frame.chunkBaseY,frame.worldWidth,26.15);
@@ -2384,10 +2385,11 @@ export function createTowerScene(canvas, settings = {}) {
       // A guardian's *true* remaining charge ticks make the deck warning
       // contract inward as its maul rises. Reduced motion retains a constant
       // physical danger ring. No imaginary strike/hit is presented.
+      const chargeTotal = e.kind === 'guardian'&&e.telegraphTotalTicks===6?6:8;
       const chargeLeft = Number.isFinite(e.telegraphTicksRemaining)
-        ? clamp(e.telegraphTicksRemaining,1,8):8;
+        ? clamp(e.telegraphTicksRemaining,1,chargeTotal):chargeTotal;
       const threatBase = e.kind === 'guardian' ? 3.5 : 2.2;
-      entry.warning.scale.setScalar(threatBase*(options.reducedMotion?1:.82+.2*(1-chargeLeft/8)));
+      entry.warning.scale.setScalar(threatBase*(options.reducedMotion?1:.82+.2*(1-chargeLeft/chargeTotal)));
       // The guardian has a real exterior source-facing shot stage instead.
       // Never stack the old inner-core stripe over that same encounter;
       // non-guardian authentic telegraphs keep their original 3D strip.
@@ -2398,7 +2400,7 @@ export function createTowerScene(canvas, settings = {}) {
       entry.chargeArc.visible = e.active && e.telegraph && e.kind !== 'sentinel' && !options.stale;
       if (entry.chargeArc.visible) {
         const remaining = Number.isFinite(e.telegraphTicksRemaining)
-          ? clamp(e.telegraphTicksRemaining, 1, 8) / 8 : 1;
+          ? clamp(e.telegraphTicksRemaining, 1, chargeTotal) / chargeTotal : 1;
         entry.chargeArc.position.copy(model.position);
         entry.chargeArc.position.y += e.halfHeight * 2 / SCALE * .69;
         scratch.copy(camera.position).sub(entry.chargeArc.position).normalize();
