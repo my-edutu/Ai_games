@@ -2201,14 +2201,14 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Predecessor 4cc8abd actual 1440x832 and 390x844 browser frames show companions cropped/packed against an overly dense foreground. No scientifically matched AFTER observation yet.",
-      "latestCandidateWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41570415510",
+      "latestCandidateWorkflow": "PENDING exact-head GitHub Actions after db1346f7",
       "currentPredecessorWebgl": "https://github.com/my-edutu/Ai_games/actions/runs/41582184616/artifacts/13207290223",
-      "newCandidateSceneReview": "UNVERIFIED at new head: camera-space multi-actor cross-cell staging must be inspected in genuine desktop/mobile moving gameplay."
+      "newCandidateSceneReview": "UNVERIFIED exact candidate db1346f7 after successful 241/241 local foundation checks. Browser navigation ERR_BLOCKED_BY_ADMINISTRATOR; original predecessor real screenshot does not establish AFTER improvement."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Imported miniature-like character anatomy and bulky costumes, expressive full-body impact, varied designed scenes and game-level expedition footage still lack a verified breakthrough. Composite camera blocking alone is not an accepted transformation.",
-    "currentWork": "M1 multi-actor cross-cell combat blocking now coordinates camera-space protagonist/enemy separation with the actual shared weapon-contact stage. Code only; real new-head audiovisual gameplay, motion quality and blind A/B remain UNVERIFIED.",
-    "candidateCommit": "016b84c5171dc3dcd779e9b4461ffcd4baa365ec",
+    "biggestRemainingGap": "Exact-head moving game must prove that skinned heroes and hostile attacks are visibly separated from heavy Gothic architecture. Import silhouettes and native impact animation still read as miniature-like versus Diablo IV, No Rest for the Wicked and Path of Exile 2. No full organic audiovisual journey or unbiased majority exists.",
+    "currentWork": "M1: source candidate removes duplicate toy-like helmet/chest/accessory bulk while bringing one real, live, near-lane hostile into the same bounded camera-facing wall/prop cutaway before first contact. This remains one unfinished combat-readability milestone. Native screenshots/audio from this exact source head are NOT YET captured; no experiential verdict is claimed.",
+    "candidateCommit": "db1346f7e189c71a8fd0ea5d28bc52680974bcb8",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
     "implementationEvents": [
@@ -3549,6 +3549,35 @@
         "verdict": "IN_PROGRESS / NOT_TRANSFORMED",
         "next": "Inspect latest genuine desktop/mobile melee and boss motion; address toy-scale original character rigs, obtain continuous audiovisual seed-matched expedition reel and >=3 independent blind critics.",
         "verification": "Locally executed exact reviewed-source workspace with corrected spec: npm run dungeon:test 237/237 PASS; includes 16 staging cases. Earlier newly added boss test incorrectly expected zero movement despite pre-existing genuine Warden hero retreat; corrected expectation preserves that safety behaviour. Browser/CI/latest-head gameplay still UNVERIFIED."
+      },
+      {
+        "id": "M1-BATTLE-READABILITY-20261103",
+        "date": "2026-11-03",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "sourceHeadAtStart": "8bd238791fc6e698641545b653936b0d7b1d773d",
+        "codeCommit": "db1346f7e189c71a8fd0ea5d28bc52680974bcb8",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "baselineArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
+        "objective": "Transform a true approaching multi-character skirmish into a visible Gothic dungeon confrontation: clear the read-only foreground along the actual enemy, reduce toy-heavy duplicate costume forms and retain real skinned motion/contact.",
+        "integratedImplementation": [
+          "Read-only capped floor-lane planner selects at most one nearest living, legal <=3-tile hostile during genuine skirmish/contact/warning shots. Only a real walkable straight or single-bend corridor triggers the extra sightline; Warden shots and distant rooms are preserved.",
+          "Actual scene camera, instanced wall, foundation, parapet and decorative foreground use the same augmented party-plus-enemy sightline; the actor and combat/AI truth remain exactly where the authority placed them.",
+          "Original class bows/staves, helmets, horns, oversized shoulder spikes and double breastplates are proportioned down; plated role ornaments use angular hammered forms on existing animated skeleton and material budget.",
+          "Full new 4-case sightline/costume contract added to the existing Dungeon foundation script; tests keep strict boss/party bounds and protect stale/dead/behind-wall hostiles."
+        ],
+        "localChecks": "npm run dungeon:test 241/241 PASS, npm run dungeon:gauntlet 24 seeds x 900 ticks PASS, 0 determinism failures, 256 floor advances, 5 restarts, highest floor 13. These are safety not transformation outcomes.",
+        "actualPredecessorEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/41609168400/artifacts/13219510323",
+        "exactHeadMedia": "UNVERIFIED: local chromium page.goto ERR_BLOCKED_BY_ADMINISTRATOR; no AFTER screenshot/audio.",
+        "catalogueCI": "Prior source 8bd2387 catalogue CI 41609168484 FAILED in 3 Tiny Kingdom browser cases (94 passed), not Dungeon. This new commit's exact-head CI not yet verified.",
+        "independentCritics": {
+          "count": 0,
+          "looks": "UNVERIFIED",
+          "feels": "UNVERIFIED",
+          "plays": "UNVERIFIED"
+        },
+        "verdict": "IN_PROGRESS / NOT_TRANSFORMED",
+        "performance": "UNVERIFIED physical desktop/mobile GPU p95/p99 and draw calls for new exact head",
+        "next": "Inspect GitHub exact-head Chromium desktop/mobile and real contact/boss motion; reject any remaining building occlusion, clipped bow, thin armour or inconsistent combat tell; continue original character animation and designed encounter overhaul; record full continuous travel/combat/Warden/floor/defeat-restart with audio; compare identical baseline seed and obtain 3 blind LOOKS/FEELS/PLAYS critics."
       }
     ]
   }
