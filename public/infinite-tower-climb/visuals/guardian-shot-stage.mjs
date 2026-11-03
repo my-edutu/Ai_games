@@ -47,7 +47,7 @@ export function observedGuardianShotCorridor(snapshot) {
     worldWidth: snapshot.worldWidth, baseY: snapshot.chunkBaseY,
     // Stop just short of the actual player. This is neither a fictitious
     // bullet, collision shape, nor a promise that the guardian will hit.
-    length: Math.min(140000, Math.max(0, distance - 6500)),
+    length: Math.min(140000, Math.max(0, distance - 17500)),
   };
 }
 
