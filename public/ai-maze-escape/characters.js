@@ -281,6 +281,12 @@ export function createExplorer(options = {}) {
     // Clear any prior quaternion aim when returning to neutral or guardian.
     heldKey.rotation.set(keyReach*2.7+pickupCelebrate*2.48,0,
       s.reduced?0:Math.sin(s.time*2.2)*.045*Math.max(keyReach,pickupCelebrate));
+    // An authentic pickup presents a large key beside, not directly over,
+    // Pip's face. This is local wrist-space choreography only: the normal
+    // matched-lock key grip stays unchanged, and every cue clears to neutral.
+    // No mesh allocation or authoritative actor movement occurs in a frame.
+    heldKey.position.set(-pickupCelebrate*.26,
+      -.075+pickupCelebrate*.11, .14+pickupCelebrate*.03);
     heldKey.scale.setScalar(1+keyReach*.25+pickupCelebrate*.62);
     // Shape, not color or blinking alone, communicates a real nearby warden.
     // Reduced-motion keeps the same static visual cue.
@@ -293,7 +299,7 @@ export function createExplorer(options = {}) {
     // no run movement, new gameplay ability or undisclosed target is invented.
     // The entire gesture clears as soon as public attention is withdrawn.
     body.position.x=-.025*rest;
-    body.position.y=.78+Math.abs(step)*.035+(s.lose?0:idle*.008)-alert*.11+gateCelebrate*.09+pickupCelebrate*.15;
+    body.position.y=.78+Math.abs(step)*.035+(s.lose?0:idle*.008)-alert*.11+gateCelebrate*.09+pickupCelebrate*.23;
     body.position.z=alert>0?-alert*.105:gateCelebrate*.035;
     body.rotation.set(s.lose?.22:stride*.065-s.danger*.035-keyReach*.07-alert*.25-gateCelebrate*.12-pickupCelebrate*.13,
       lookYaw*.14+keyYaw*.08,
