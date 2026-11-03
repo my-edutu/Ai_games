@@ -784,7 +784,7 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
   // never look at an ambiguous, dangerous or already collected item.
   const recoverySupport = snapshot.intent?.mode?.replace(/^oracle-/, '') === 'collecting-resource'
     ? snapshot.platforms?.find(deck => deck.id === snapshot.intent?.targetPlatformId) : null;
-  const observedAid = witnessedHealthPickup(snapshot, recoverySupport);
+  const observedAid = recoverySupport ? witnessedHealthPickup(snapshot, recoverySupport) : null;
   if (observedAid && !target) landing = pointFor(observedAid.x, observedAid.y,
     snapshot.chunkBaseY, snapshot.worldWidth, 25.3);
   let threat = null, nearest = Infinity;
