@@ -497,7 +497,19 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
  s.relics.forEach((r,i)=>{const gem=make(new THREE.OctahedronGeometry(.19,0),tealGlow,world,r.x-offset,.4,r.z-offset,.8,1.2,.8);gem.userData.relic=i});
  // Procedural decorative vaulted gate framing the final encounter.
  const gx=pos.x+.9,gz=pos.z;column(world,gx,gz-.8);column(world,gx,gz+.8);
- make(geo.cube,gold,world,gx,2.2,gz,.32,.22,1.9);
+ // The previous 1.9m SOLID golden lintel visually chopped the genuine boss
+ // duel in half. Replace it with an original physically open pointed crown.
+ // The one shared carved geometry, two existing pillars and real cutaway
+ // director remain bounded; the authoritative exit and walls are untouched.
+ const bossGate=new THREE.Group();bossGate.name='Open Warden court gate';
+ bossGate.position.set(gx,0,gz);bossGate.rotation.y=Math.PI/2;
+ const bossArch=new THREE.Mesh(archRibGeometry,stoneEdge);
+ bossArch.name='Open carved Warden ogive';bossArch.scale.set(1.92,1.03,1);
+ bossArch.castShadow=false;bossArch.receiveShadow=true;
+ bossArch.userData.sharedAssetGeometry=true;bossGate.add(bossArch);
+ make(geo.cube,gold,bossGate,0,2.30,0,.16,.16,.16);
+ world.add(bossGate);world.userData.foregroundProps.push(bossGate);
+ world.userData.openWardenGate=true;
  // Warden court: layered ceremonial dais, spatially legible runes and shield ring.
  const court=new THREE.Group();court.position.set(pos.x,.03,pos.z);
  const courtGlow=new THREE.MeshBasicMaterial({color:theme.accent,transparent:true,opacity:.85,depthWrite:false,side:THREE.DoubleSide});
