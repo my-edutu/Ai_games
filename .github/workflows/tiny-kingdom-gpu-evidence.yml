@@ -38,13 +38,13 @@ jobs:
           name: tiny-kingdom-gpu-evidence
           path: artifacts/tiny-kingdom/
           retention-days: 14
-      - name: G150 verified real market visit (human-height, day/night, 390px)
+      - name: G150/G151 true market visit and Day-120 crowd-clear framing (desktop/390px)
         env:
           CI: '1'
           LIBGL_ALWAYS_SOFTWARE: '1'
         run: |
           npm run build
-          npx playwright test tests/browser/tiny-kingdom-g150-market-visit.spec.cjs --workers=1
+          npx playwright test tests/browser/tiny-kingdom-g150-market-visit.spec.cjs tests/browser/tiny-kingdom-g151-market-composition.spec.cjs --workers=1
       - name: Focused Tiny Kingdom render, autonomy and live-workday contracts
         env:
           CI: '1'
