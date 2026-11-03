@@ -1015,12 +1015,28 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
       points.push(routeLanding, { ...routeLanding, y: routeLanding.y + .65 });
       sightlines.push(routeLanding);
     } else if (target) {
-      // Include the real usable deck width, not an imagined touch point.
-      for (const x of [target.x, target.x + target.width]) {
-        const edge = pointFor(x, target.y + target.height, snapshot.chunkBaseY, snapshot.worldWidth, 26.7);
+      // Real guardian projectile flight can demand the climber, living boss
+      // AND its already selected touchdown in one narrow portrait view. The
+      // previous lens expanded over the ENTIRE cap (often ~250k source units),
+      // shrinking the actual climber below the protected 14% screen share.
+      // In that one witnessed airborne duel, compose around the real selected
+      // landing FOOTPRINT instead; the complete deck remains physical in
+      // world geometry and gameplay. Non-combat ascent still frames its full
+      // usable width, and no camera may invent a new destination.
+      const airdrop = !!contactGuardian && player.state === 'airborne';
+      const touchdownX = observedSourceLandingX(snapshot, target);
+      const halfFootprint = Math.min(target.width * .45,
+        Math.max((player.halfWidth || 9000) * 1.35, 9000));
+      const left = airdrop ? clamp(touchdownX - halfFootprint,
+        target.x, target.x + target.width) : target.x;
+      const right = airdrop ? clamp(touchdownX + halfFootprint,
+        target.x, target.x + target.width) : target.x + target.width;
+      for (const x of [left, right]) {
+        const edge = pointFor(x, target.y + target.height,
+          snapshot.chunkBaseY, snapshot.worldWidth, 26.7);
         points.push(edge, { ...edge, y: edge.y + .4 }); sightlines.push(edge);
       }
-      points.push(pointFor(target.x + target.width / 2,
+      points.push(pointFor(airdrop ? touchdownX : target.x + target.width / 2,
         target.y + target.height, snapshot.chunkBaseY, snapshot.worldWidth, 24.4));
     }
   }
