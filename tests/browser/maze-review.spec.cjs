@@ -1219,14 +1219,34 @@ test('a real close public encounter frames both autonomous actors and saves date
   await page.screenshot({path:fossilImage,fullPage:true});
   fs.writeFileSync(path.join(dir,'public-fossil-alcove-1280.json'),JSON.stringify({
     capturedAt:new Date().toISOString(),seed:fossilSample.seed,
-    source:'Unmodified real MazeRuntime publicly disclosed BLOCKED cell, active warm original WebGL camera; not a placed photo prop',
+    source:'Unmodified real MazeRuntime safe disclosed walkable tile with a genuine public non-passage side, active warm WebGL camera; not a placed photo prop',
     tick:fossilSnapshot.tick,viewport:{width:1280,height:900},
     publicFossilCell:fossilCell,publicDistanceCells:fossilDistance,
     imageSha256:hash(fossilImage),sourceSha256:nativeSourceHashes,
     diagnostic:fossilDiagnostic,
     caveat:'Native gameplay visual evidence, NOT independent visual approval against Nintendo nor hardware GPU speed.'
   },null,2));
-  expect(fossilSnapshot.cells.some(c=>c.cell===fossilCell&&c.blocked)).toBe(true);
+  // Preserve the real failure's meaning: isolated BLOCKED rubble was not
+  // shown by partial public observations. The repaired candidate is a SAFE
+  // disclosed walkable alcove, never a fabricated hidden blocked tile.
+  const authoredCell=fossilSnapshot.cells.find(c=>c.cell===fossilCell);
+  expect(authoredCell,'fossil must belong to a genuinely disclosed cell').toBeDefined();
+  expect(!!(authoredCell.blocked||authoredCell.trap||authoredCell.checkpoint||authoredCell.clue),
+    'sculpture cannot obstruct a real hazard, clue, checkpoint or walkable authority').toBe(false);
+  expect(fossilSnapshot.keys.some(k=>k.cell===fossilCell)).toBe(false);
+  expect(fossilCell).not.toBe(fossilSnapshot.exitCell);
+  const fossilCol=fossilCell%fossilSnapshot.width;
+  const fossilRow=Math.floor(fossilCell/fossilSnapshot.width);
+  const publishedSides=[
+    fossilRow>0?fossilCell-fossilSnapshot.width:-1,
+    fossilCol+1<fossilSnapshot.width?fossilCell+1:-1,
+    fossilRow+1<fossilSnapshot.height?fossilCell+fossilSnapshot.width:-1,
+    fossilCol>0?fossilCell-1:-1
+  ];
+  expect(publishedSides.some(n=>!authoredCell.neighbors.includes(n)),
+    'real publicly disclosed non-passage side required, never guess a secret path').toBe(true);
+  expect(authoredCell.neighbors.length,
+    'keep the actual walkable cell linked to the source-authoritative traversal').toBeGreaterThan(0);
   expect(fossilDiagnostic.world.tideFossilAlcoves,
     'the actual browser world must render a sculpted fossil, not only a unit-test mesh').toBeGreaterThan(0);
   expect(fossilDiagnostic.world.renderedCells).toEqual(fossilSnapshot.cells.map(c=>c.cell));
@@ -1248,7 +1268,7 @@ test('a real close public encounter frames both autonomous actors and saves date
   await page.screenshot({path:fossilPortraitImage,fullPage:true});
   fs.writeFileSync(path.join(dir,'public-fossil-alcove-390.json'),JSON.stringify({
     capturedAt:new Date().toISOString(),seed:fossilSample.seed,
-    source:'Same AUTHENTIC real public blocked fossil cell and WebGL scene at 390px native portrait; no fabricated passage or hidden map',
+    source:'Same AUTHENTIC real public safe wall-side fossil alcove and WebGL scene at 390px native portrait; no fabricated passage or hidden map',
     tick:fossilSnapshot.tick,viewport:{width:390,height:844},
     publicFossilCell:fossilCell,publicDistanceCells:fossilDistance,
     imageSha256:hash(fossilPortraitImage),sourceSha256:nativeSourceHashes,
