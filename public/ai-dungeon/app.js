@@ -540,7 +540,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
   hazard.userData={charge,ring,active:t.active};world.add(hazard);hazardMeshes.set(t.id,hazard);
  }
  world.userData.hazardMeshes=hazardMeshes;
- world.userData.dressing=enrichEnvironment(world,s.map,s.floor,vaultedSites);
+ world.userData.dressing=enrichEnvironment(world,s.map,s.floor,vaultedSites,s.exit);
  world.userData.atmosphere=createBiomeAtmosphere(world,s.map,s.floor,s.exit);
  world.userData.livingWorld=createLivingWorld(world,s.map,s.floor);
  world.userData.authoredProps=putEnvironment(world,worldFloor,s.map);

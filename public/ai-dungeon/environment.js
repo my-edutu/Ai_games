@@ -4,6 +4,7 @@ import {planStoneRelief} from '/dungeon/stone-relief-plan.js';
 import {planCutawayFloorBacking,planCutawayCapTransform} from '/dungeon/cutaway-floor-plan.js';
 import {planPartyWallReveal,createCutawayBandCache,shouldUploadCutawayBand} from '/dungeon/party-visibility-plan.js';
 import {planDungeonWallProfiles,planLegibleWallMass} from '/dungeon/wall-profile-plan.js';
+import {createWardenCourt} from '/dungeon/warden-court.js';
 
 // Purely cosmetic, reproducible procedural dressing. This code never touches game authority.
 // All geometry is batched or tightly budgeted so a streaming run can regenerate indefinitely.
@@ -108,12 +109,13 @@ function buildStatue(world,x,z,metal,stone,glow,variant){
  for(const side of [-1,1]){const horn=make(new THREE.ConeGeometry(.11,.48,7),stone,side*.14,1.96,-.02);horn.rotation.z=-side*.28}
  world.add(group);return group;
 }
-export function enrichEnvironment(world,map,floor,vaultedSites=[]){
+export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
  // The arch cannot be a solid cube with a pretty ornament. Every selected
  // impassable tile uses a physically low facade as the Gothic gallery takes
  // over its upper volume. Source map, collision and AI stay completely intact.
  const vaultedTiles=new Set(Array.isArray(vaultedSites)?vaultedSites.map(site=>site.gridZ*map.length+site.gridX):[]);
  const N=map.length,O=(N-1)/2,biome=BIOMES[(floor-1)%BIOMES.length];
+ const wardenCourt=createWardenCourt(world,map,exit,floor);
  const masonryProfiles=planDungeonWallProfiles(map,floor);
  const masonryHeights=planLegibleWallMass(map,floor,vaultedSites);
  const claddingHeightByTile=new Map(masonryProfiles.map((p,i)=>[p.z*N+p.x,masonryHeights[i]]));
@@ -380,6 +382,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[]){
    group.visible=!blocked;if(blocked)cleared++;
   }
   sceneMetrics.clearedForeground=cleared;
+  wardenCourt.cutaway(eyes,camera,wallPad);
  }
 
  // The same flames now tell the truth about the actual authoritative encounter:
@@ -387,17 +390,18 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[]){
  // it, and defeat dims it. No synthetic boss cue, map edit, or new AI event.
  let encounterLight=0;
  const accept=s=>{
+  wardenCourt.accept(s);
   encounterLight=s?.phase==='intermission'?-0.24:
    (Array.isArray(s?.bossWarning?.cells)&&s.bossWarning.cells.length>0)?0.34:
    s?.bossRecovery?.remaining?-0.12:0;
   sceneMetrics.encounterTorchMood=encounterLight;
   for(const p of flames)if(p.light)p.light.intensity=2.1*(1+encounterLight);
  };
- const animate=time=>{for(const p of flames){
+ const animate=time=>{wardenCourt.animate(time);for(const p of flames){
   const t=time*5+p.phase,scale=1+Math.sin(t)*.13;
   p.fire.scale.y=scale;p.inner.scale.setScalar(.91+Math.sin(t+1.3)*.14);
   if(p.light)p.light.intensity=2.1*(1+encounterLight)*(1+.035*Math.sin(time*2.5+p.phase));
  }};
- return {animate,accept,cutaway,occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{biome:floor,vaultedFacadeOpenings:wallFaces.filter(f=>f[4]<1.2).length,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,wovenRugs:rugs.length,cutawayFloorBackings:backing.length,columnCapstones:columnCap.length,texturedSurfaces:floorDetails.length+wallFaces.length,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
+ return {animate,accept,cutaway,occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{wardenCourt:wardenCourt.metrics,biome:floor,vaultedFacadeOpenings:wallFaces.filter(f=>f[4]<1.2).length,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,wovenRugs:rugs.length,cutawayFloorBackings:backing.length,columnCapstones:columnCap.length,texturedSurfaces:floorDetails.length+wallFaces.length,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{wardenCourt.dispose();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
 }
 
