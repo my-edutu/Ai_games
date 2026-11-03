@@ -10,7 +10,7 @@
   "candidate": {
     "sha": null,
     "title": "SAME continuous real 3D Tower transformation: source-safe climbing and cap approach -> actual guardian encounter -> authentic outcome. NOT EVALUATED.",
-    "implementationSha": null,
+    "implementationSha": "104f39f1a360b5ec327b85274c2d4471b6e62b76",
     "implementationEvidenceStatus": "NOT EVALUATED. New guardian-to-cap physical 3D source-HP relay (8 original metal teeth beside the guardian), same source geometry in camera and measured NDC diagnostics, plus source-based test. Latest real normal-speed evidence run 41573058223 is previous gameplay SHA 1c147b4, NOT this new implementation. Independent blind video votes and real supported-device perf/replay/accessibility remain unverified."
   },
   "currentTransformation": {
@@ -20,9 +20,9 @@
     "nextDecision": "Run exact-new-source CI, source-pinned normal-speed 60s+ desktop/phone ascent, guardian and complete outcome/restart; inspect authentic relay visibility and guardian/cap in continuous motion, measure actual device frame-time p50/p95/p99/memory, establish replay/accessibility and 5 independent blinded votes for each pillar. Worker's workspace tunnel reported NOT_FOUND. No quality award.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
     "biggestRemainingExperienceGap": "Phone danger footage previously often omitted the exterior gate; the new physically linked guardian-side HP relay and camera framing are still UNRECORDED and blind-unreviewed. Must prove the climb, guardian attack and true outcome/restart through source-event-matched >=60s actual baseline/candidate desktop and portrait videos, 5 fresh-context blind opinions each of LOOKS/FEELS/PLAYS (>=4/5 for each), accessibility, replay/recovery and device frame-time p50/p95/p99 + memory.",
-    "unverifiedImplementationBranchHead": "1c147b4d40fbc35c662b8fa806c39c3254b189a8",
+    "unverifiedImplementationBranchHead": "104f39f1a360b5ec327b85274c2d4471b6e62b76",
     "currentVerticalSlice": "SAME OPEN whole-game climb→landing→guardian→authentic outcome transformation. This continuation adds a source-bound guardian-side physical cap-lock relay and portrait-safe camera preference, without replacing or inventing game authority. Unverified new implementation.",
-    "biggestGap": "Last captured candidate 1c147b4 via 41573058223 has 9/9 real normal-speed workflow jobs with preserved frozen baseline 1731b38, but clips are not blind source-event-aligned and predate guardian relay. CI 41573334029 passed for old head 6d65563 (safety only). New source tests, capture, independent evaluation and real target hardware unverified. Worker/browser tunnel is offline; quality remains NOT EVALUATED."
+    "biggestGap": "Last prior-source actual 9/9 desktop/portrait capture 41573058223 at 1c147b4 is not current game. New source 104f39f has CI 41579790425 and capture 41579790437 QUEUED at inspection. No blind source-event matched review, 0/5 LOOKS FEELS PLAYS. Independent worker/browser tunnel offline. No phone-device frame-time/memory evidence. NOT EVALUATED."
   },
   "scenarios": [
     {
@@ -1056,7 +1056,11 @@
       },
       "targetDeviceFrameTimeMemory": "NOT MEASURED",
       "biggestExperienceGap": "Actual portrait guardian/cap/relay full-motion readability under live attacks and uncut source-matched ascent/outcome.",
-      "reviewerBlocker": "Independent-worker/browser tunnel NOT_FOUND (>300 seconds)."
+      "reviewerBlocker": "Independent-worker/browser tunnel NOT_FOUND (>300 seconds).",
+      "implementationSha": "104f39f1a360b5ec327b85274c2d4471b6e62b76",
+      "exactSourceSafetyWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41579790425",
+      "exactSourceCaptureWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41579790437",
+      "exactSourceAtInspection": "QUEUED (not PASS)"
     }
   }
 }

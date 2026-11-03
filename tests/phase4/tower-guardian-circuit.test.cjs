@@ -219,7 +219,8 @@ test('physical guardian-side HP relay stays on the real exterior gantry and retr
   teeth.getColorAt(7, colorUnlocked);
   assert.notDeepEqual(locked.toArray(), unlocked.toArray(),
     'actual HP loss retracts a guardian-local physical gear tooth');
-  assert.ok(colorLocked.distanceTo(colorUnlocked) > .1,
+  assert.ok(Math.hypot(colorLocked.r - colorUnlocked.r,
+    colorLocked.g - colorUnlocked.g, colorLocked.b - colorUnlocked.b) > .1,
     'genuine HP loss exposes a different metal alloy on the relay');
   assert.equal(effect.diagnostics().relaySourceHP, 2);
   assert.equal(JSON.stringify(original), before, 'presentation must never mutate the source');
