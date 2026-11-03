@@ -990,6 +990,7 @@ function stats(actors){
   cinematicPairedBatches:authored.reduce((n,a)=>n+(a.cinematicFigure?.pairedBatches||0),0),
   cinematicAnatomyBridges:authored.reduce((n,a)=>n+(a.cinematicFigure?.anatomyBridges||0),0),
   cinematicActiveAnatomyBridges:authored.reduce((n,a)=>n+(a.cinematicFigure?.activeAnatomyBridges?.()||0),0),
+  cinematicSuppressedLongAnatomyBridges:authored.reduce((n,a)=>n+(a.cinematicFigure?.suppressedLongAnatomyBridges?.()||0),0),
   cinematicVertices:authored.reduce((n,a)=>n+(a.cinematicFigure?.vertices||0),0),
   cinematicMaterialsMapped:authored.reduce((n,a)=>n+(a.cinematicFigure?.mappedMaterials||0),0),
   cinematicBoneMounts:authored.reduce((n,a)=>n+(a.cinematicFigure?.joints||0),0),

@@ -545,3 +545,31 @@ This connected visual world intervention targets flatly repeated cubical masonry
 **Evidence integrity:** tests and new desktop/mobile real Chromium screenshot receipts were authored and committed, but the new exact-head browser output, measured p95 frame, live original audio and authentic motion were NOT verified when this receipt was authored. The code has not passed the independent matched baseline A/B gate. Prior true world captures still look toy-like and block-crowded; these candidate naves do not by themselves prove a substantially better adventure. The full uninterrupted natural traversal → active combat → Warden → floor transition → defeat/restart audiovisual evidence, a consistent locked-before matched-after comparison and >=3 fresh blind LOOKS/FEELS/PLAYS majority votes are outstanding.
 
 **Verdict: IN PROGRESS — NOT TRANSFORMED.** Next: inspect actual new-code desktop/mobile WebGL capture and concurrent Warden Court footage, remediate visible defects/performance, then expand/verify full natural gameplay chapter and compare blind against the unchanged milestone baseline and original Diablo IV, No Rest for the Wicked and Path of Exile 2 reference gameplay. Never merge or deploy PR #49 without explicit instruction.
+
+### M1 actual browser visual rejection: anatomy bridge regression (3 November 2026)
+
+An authentic Chromium browser screenshot at source `b8be04f`, visual-review
+run [41672587065](https://github.com/my-edutu/Ai_games/actions/runs/41672587065),
+**revealed that the initial native-bone body-bridge candidate created long,
+opaque tubular alien/tentacle-shaped limbs**, demonstrably *worse* than the
+previously disconnected, toy-like character shapes. We explicitly reject this
+as an experiential improvement despite the previous source's CI passing.
+
+Corrective source change: original animated skin/cloth seams render ONLY
+within 0.28m native human bone-gap distances (Warden scaling 2.30/1.82),
+radius <=.053m and natural no-stretch 1.055 length; invalid oversized gaps
+become invisible instead of inventing a rigid bar. New live diagnostic
+counts rejected long segments; acceptance requires genuinely inspected exact
+code pixel/motion capture, not extra green unit tests. If still implausible,
+discard bridge concept and replace figure anatomy architecture.
+
+Dedicated prior [browser CI 41672587022](https://github.com/my-edutu/Ai_games/actions/runs/41672587022)
+and [visual 41672587065](https://github.com/my-edutu/Ai_games/actions/runs/41672587065)
+**both PASSED** at older `b8be04f`. Browser Warden Court study genuinely
+reached active boss combat on desktop (24 live authority polls, 58% boss HP,
+Rift Cross danger) and floor 2 on mobile (59 polls), but WebM MediaRecorder
+returned ZERO bytes on both devices: **NO user-facing original audio+motion
+clip was captured**. Silent Playwright video exists, not audiovisual
+acceptance. True fair matched locked BEFORE/AFTER and 3 fresh blind critics
+remain absent. New corrective-code exact-head results remain pending.
+LOOKS/FEELS/PLAYS each **UNVERIFIED**. Status **IN PROGRESS—NOT TRANSFORMED**.

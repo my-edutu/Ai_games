@@ -14,10 +14,15 @@ test('original skinned anatomical links connect 14 real adjacent body pieces wit
  assert.equal(planAnatomyBridge(0).visible,false);
  assert.equal(planAnatomyBridge(Infinity).visible,false);
  assert.equal(planAnatomyBridge(5).visible,false);
- const normal=planAnatomyBridge(.35),boss=planAnatomyBridge(.35,2.3);
+ // Actual browser evidence: long tubes are visible regressions, not anatomy.
+ assert.equal(planAnatomyBridge(.35).visible,false);
+ assert.equal(planAnatomyBridge(.44,2.3).visible,false);
+ assert.equal(planAnatomyBridge(.029).visible,false);
+ const normal=planAnatomyBridge(.20),boss=planAnatomyBridge(.20,2.3);
  assert.equal(normal.visible,true);assert.equal(boss.visible,true);
  assert.ok(boss.radius>normal.radius);
- assert.ok(normal.length>.35&&normal.length<.5);
+ assert.ok(normal.length>.20&&normal.length<.24);
+ assert.ok(normal.radius<.06);
 });
 test('single original instanced gambeson follows current native bones with no game authority changes',()=>{
  const figure=fs.readFileSync(source,'utf8');

@@ -82,11 +82,21 @@ export const CINEMATIC_ANATOMY_LINKS=Object.freeze([
  ['pelvis','left-thigh'], ['left-thigh','left-shin'], ['left-shin','left-boot'],
  ['pelvis','right-thigh'], ['right-thigh','right-shin'], ['right-shin','right-boot']
 ].map(([a,b])=>Object.freeze([a,b])));
+/**
+ * Real source-b8be04f desktop and mobile screenshots exposed enormous opaque
+ * tube-shaped "arms" between distant native-bone ornaments. This is a real
+ * visual regression. Do not fabricate body continuity across bad rig gaps.
+ */
 export function planAnatomyBridge(span,stature=1.82){
- if(!Number.isFinite(span)||!Number.isFinite(stature)||stature<1.3||stature>2.6||span<.025||span>1.04*stature/1.82)
+ if(!Number.isFinite(span)||!Number.isFinite(stature)||stature<1.3||stature>2.6)
   return Object.freeze({visible:false,length:0,radius:0});
- const width=span<.18?.078:span<.32?.095:.108;
- return Object.freeze({visible:true,length:span*1.16,radius:width*stature/1.82});
+ const scale=stature/1.82;
+ // Only cover true short cloth seams; no large rubber geometry spanning
+ // separate poses. The larger Warden uses proportionally scaled anatomy.
+ if(span<.035*scale||span>.28*scale)
+  return Object.freeze({visible:false,length:0,radius:0});
+ const width=(span<.14*scale?.044:.053)*scale;
+ return Object.freeze({visible:true,length:span*1.055,radius:width});
 }
 const MIRRORED_PARTS=Object.freeze(['shoulder','upper-arm','bracer','thigh','shin','boot']);
 /**
@@ -392,7 +402,7 @@ export function createCinematicFigure(T,actor,joints){
    bridgeStart=new T.Vector3(),bridgeEnd=new T.Vector3(),bridgeMid=new T.Vector3(),
    bridgeDirection=new T.Vector3(),bridgeScale=new T.Vector3(),
    bridgeQuat=new T.Quaternion(),bridgeUp=new T.Vector3(0,1,0);
-  let activeBridges=0;
+  let activeBridges=0,rejectedLongBridges=0;
   const sync=()=>{
    group.updateWorldMatrix(true,false);
    inverseGroup.copy(group.matrixWorld).invert();
@@ -404,7 +414,7 @@ export function createCinematicFigure(T,actor,joints){
     }
     pair.mesh.instanceMatrix.needsUpdate=true;
    }
-   activeBridges=0;
+   activeBridges=0;rejectedLongBridges=0;
    CINEMATIC_ANATOMY_LINKS.forEach(([from,to],i)=>{
     const a=attachments.get(from),b=attachments.get(to);
     if(!a||!b){pose.makeScale(.00001,.00001,.00001);bridge.setMatrixAt(i,pose);return;}
@@ -413,7 +423,10 @@ export function createCinematicFigure(T,actor,joints){
     b.getWorldPosition(bridgeEnd).applyMatrix4(inverseGroup);
     bridgeDirection.subVectors(bridgeEnd,bridgeStart);
     const length=bridgeDirection.length(),plan=planAnatomyBridge(length,recipe.statureMeters);
-    if(!plan.visible){pose.makeScale(.00001,.00001,.00001);bridge.setMatrixAt(i,pose);return;}
+    if(!plan.visible){
+     if(Number.isFinite(length)&&length>.28*recipe.statureMeters/1.82)rejectedLongBridges++;
+     pose.makeScale(.00001,.00001,.00001);bridge.setMatrixAt(i,pose);return;
+    }
     bridgeMid.addVectors(bridgeStart,bridgeEnd).multiplyScalar(.5);
     bridgeQuat.setFromUnitVectors(bridgeUp,bridgeDirection.multiplyScalar(1/length));
     bridgeScale.set(plan.radius,plan.length,plan.radius);
@@ -433,7 +446,8 @@ export function createCinematicFigure(T,actor,joints){
    renderedParts:built.length+batches.length,pairedBatches:batches.length,
    joints:12,vertices,mappedMaterials:Object.values(mat).filter(m=>m.bumpMap).length,
    handGripOffsetMeters:gripOffset,weapon:recipe.weapon,
-   sourceMeshesHidden:true,height:recipe.statureMeters,anatomyBridges:CINEMATIC_ANATOMY_LINKS.length,activeAnatomyBridges:()=>activeBridges,sync,
+   sourceMeshesHidden:true,height:recipe.statureMeters,anatomyBridges:CINEMATIC_ANATOMY_LINKS.length,activeAnatomyBridges:()=>activeBridges,
+   suppressedLongAnatomyBridges:()=>rejectedLongBridges,sync,
    dispose:()=>{for(const batch of batches)batch.mesh.dispose();bridge.dispose();}
   });
  }catch(e){
