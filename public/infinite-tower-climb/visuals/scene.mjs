@@ -2515,6 +2515,32 @@ export function createTowerScene(canvas, settings = {}) {
       camera.position.y-=landingWeight*.13*Math.sin(landingProgress*Math.PI);
     camera.lookAt(lookAt);
     world.revealGuardianSightlines(camera,guardianSightPoints);
+    // Foreground visibility is tested against the very same ACTUAL smoothed
+    // camera submitted this frame, never the desired/planned lens. A viewer
+    // must see the climber, real living boss and committed airborne landing
+    // before the tower's atmospheric gears. Nothing touches gameplay state.
+    const protectLiveRoute=!options.stale&&snapshot.lifecycle==='running'&&
+      p.health>0&&options.camera==='follow';
+    if(protectLiveRoute){
+      actorFramePoint.copy(climber.group.position);
+      actorFramePoint.y+=p.halfHeight/SCALE;
+      if(sourceGuardian){
+        const observed=pointFor(sourceGuardian.x,sourceGuardian.y,
+          snapshot.chunkBaseY,snapshot.worldWidth,27.15);
+        guardianRescuePoint.set(observed.x,observed.y,observed.z);
+      }
+      if(p.state==='airborne'&&targetPlatform){
+        const landing=pointFor(observedSourceLandingX(snapshot,targetPlatform),
+          targetPlatform.y+targetPlatform.height,snapshot.chunkBaseY,
+          snapshot.worldWidth,26.7);
+        actorOrbitTarget.set(landing.x,landing.y,landing.z);
+      }
+    }
+    world.protectRouteSightlines(camera,
+      protectLiveRoute?actorFramePoint:null,
+      protectLiveRoute&&sourceGuardian?guardianRescuePoint:null,
+      protectLiveRoute&&p.state==='airborne'&&targetPlatform?actorOrbitTarget:null,
+      dt,options);
     updateLandingBeacon(landingBeacon, targetPlatform, snapshot, camera);
     sky.position.copy(camera.position);
     sun.target.position.set(0, targetY, 0);

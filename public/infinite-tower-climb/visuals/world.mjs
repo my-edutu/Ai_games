@@ -222,8 +222,8 @@ export function createTowerWorld(){
   const stoneSurface=createStoneSurfaceAsset(THREE);
   let floorGroup=null,key='',theme='foundry',disposed=false,lastSnapshot=null;
   let materials={}, floorGeometries=new Set(),floorMaterials=new Set();
-  const primitives=new Map(),platforms=new Map(),hazards=new Map(),rotors=[],floaters=[];
-  let particles=null,vistaGroup=null,quality='normal',occludedGuardianCaps=0,ruinsPortalVoussoirs=0,ruinsGateLeaves=0;
+  const primitives=new Map(),platforms=new Map(),hazards=new Map(),rotors=[],floaters=[],foregroundGears=[];
+  let particles=null,vistaGroup=null,quality='normal',occludedGuardianCaps=0,occludedForegroundGears=0,ruinsPortalVoussoirs=0,ruinsGateLeaves=0;
   let ruinsSanctuaryArches=0,ruinsSanctuaryPlants=0,ruinsSanctuaryCascadePanels=0;
   const canopyRay = new THREE.Raycaster(), canopyDirection = new THREE.Vector3();
   function geometry(name,build){if(!primitives.has(name))primitives.set(name,build());return primitives.get(name);}
@@ -378,11 +378,25 @@ export function createTowerWorld(){
     }
   }
   function gear(parent,r,thickness,m){
+    // This is DECORATIVE clockwork, not the source-owned moving-deck drive.
+    // A private floor-owned alloy lets ONLY a physically blocking foreground
+    // rotor soften instead of making the entire tower translucent or hiding
+    // meaningful combat geometry. No extra geometry, lights or shader passes.
+    const alloy=m.clone();
+    alloy.name='SightlineResponsiveDecorativeAlloy';
+    alloy.transparent=true;
+    alloy.opacity=1;
+    alloy.depthWrite=true;
+    floorMaterials.add(alloy);
     const shape=new THREE.Shape(),teeth=14;for(let i=0;i<teeth*4;i++){const a=i/teeth/4*TAU,rad=r*(i%4===0||i%4===3?.84:1);const x=Math.sin(a)*rad,y=Math.cos(a)*rad;if(i===0)shape.moveTo(x,y);else shape.lineTo(x,y);}shape.closePath();
     const hole=new THREE.Path();hole.absarc(0,0,r*.49,0,TAU,true);shape.holes.push(hole);
     const g=own(new THREE.ExtrudeGeometry(shape,{depth:thickness,bevelEnabled:true,bevelSize:.06,bevelThickness:.04,bevelSegments:1,steps:1,curveSegments:18}));
-    const root=new THREE.Group();parent.add(root);mesh(root,g,m,[0,0,-thickness/2]);mesh(root,cylinder(),materials.edge,[0,0,0],[r*.16,thickness*1.6,r*.16],[Math.PI/2,0,0]);
-    for(let i=0;i<4;i++)block(root,m,[0,0,0],[r*1.42,r*.13,thickness],[0,0,i*Math.PI/4]);return root;
+    const root=new THREE.Group();root.name='CameraResponsiveDecorativeGear';parent.add(root);
+    mesh(root,g,alloy,[0,0,-thickness/2]);
+    mesh(root,cylinder(),materials.edge,[0,0,0],[r*.16,thickness*1.6,r*.16],[Math.PI/2,0,0]);
+    for(let i=0;i<4;i++)block(root,alloy,[0,0,0],[r*1.42,r*.13,thickness],[0,0,i*Math.PI/4]);
+    foregroundGears.push({root,alloy});
+    return root;
   }
   function arch(parent,a,y,size=1){const root=new THREE.Group();radial(root,a,22.65,y);parent.add(root);
     root.name = 'ruins-carved-portal';
@@ -1126,7 +1140,7 @@ export function createTowerWorld(){
   function clearFloor(){
     if(floorGroup){group.remove(floorGroup);floorGroup.traverse(o=>{if(o.isInstancedMesh)o.dispose();});}
     for(const g of floorGeometries)g.dispose();for(const m of floorMaterials)m.dispose();
-    floorGeometries.clear();floorMaterials.clear();platforms.clear();hazards.clear();rotors.length=0;floaters.length=0;particles=null;vistaGroup=null;floorGroup=null;occludedGuardianCaps=0;ruinsPortalVoussoirs=0;ruinsGateLeaves=0;
+    floorGeometries.clear();floorMaterials.clear();platforms.clear();hazards.clear();rotors.length=0;floaters.length=0;foregroundGears.length=0;particles=null;vistaGroup=null;floorGroup=null;occludedGuardianCaps=0;occludedForegroundGears=0;ruinsPortalVoussoirs=0;ruinsGateLeaves=0;
     ruinsSanctuaryArches=0;ruinsSanctuaryPlants=0;ruinsSanctuaryCascadePanels=0;
   }
   function rebuild(snapshot, requestedQuality='normal'){
@@ -1341,6 +1355,53 @@ export function createTowerWorld(){
       const items=particles.userData.items;for(let i=0;i<items.length;i++){const s=items[i];dummy.position.set(s.p[0]+Math.sin(time*.13+i)*.2,s.p[1]+Math.sin(time*.19+i*.5)*.7,s.p[2]);dummy.rotation.set(0,0,0);dummy.scale.set(...s.s);dummy.updateMatrix();particles.setMatrixAt(i,dummy.matrix);}particles.instanceMatrix.needsUpdate=true;
     }}
   }
+  // The actual phone footage at source 5b589470 shows enormous clockwork
+  // foreground teeth occupying the climber/guardian picture in real motion.
+  // Protect the player's PRESENT skinned head, current living guardian and
+  // committed airborne landing with camera-to-world geometry rays. Only the
+  // THREE DECORATIVE gears may soften. Combatants, real route platforms,
+  // hazard warnings, structural supports and source-driven machinery remain
+  // solid. This is render-only; it cannot predict a safe path or modify AI.
+  function protectRouteSightlines(camera, actor=null, guardian=null, landing=null, dt=0, options={}) {
+    if(disposed)return {total:0,softened:0};
+    if(!foregroundGears.length){occludedForegroundGears=0;return {total:0,softened:0};}
+    const enabled=!!camera&&!!actor&&!options.stale&&
+      Number.isFinite(camera.position?.x)&&Number.isFinite(camera.position?.y)&&
+      Number.isFinite(camera.position?.z);
+    let softened=0;
+    const targets=enabled?[actor,guardian,landing]:[];
+    for(const entry of foregroundGears){
+      let requiredOpacity=1;
+      if(enabled){
+        entry.root.updateWorldMatrix(true,true);
+        for(let index=0;index<targets.length;index++){
+          const point=targets[index];
+          if(!point||![point.x,point.y,point.z].every(Number.isFinite))continue;
+          canopyDirection.copy(point).sub(camera.position);
+          const length=canopyDirection.length();
+          if(!Number.isFinite(length)||length<=.25)continue;
+          canopyRay.set(camera.position,canopyDirection.multiplyScalar(1/length));
+          canopyRay.near=0;
+          canopyRay.far=length-.20;
+          if(canopyRay.intersectObject(entry.root,true).length){
+            // High-priority actor and opponent receive a more transparent
+            // aperture than a route-only landmark. Never fully erase a gear.
+            requiredOpacity=Math.min(requiredOpacity,index===2?.48:.24);
+          }
+        }
+      }
+      const strength=options.reducedMotion||!enabled?1:
+        Math.max(0,Math.min(1,(Number.isFinite(dt)?dt:0)*10));
+      entry.alloy.opacity+=(requiredOpacity-entry.alloy.opacity)*strength;
+      if(Math.abs(requiredOpacity-entry.alloy.opacity)<.002)
+        entry.alloy.opacity=requiredOpacity;
+      const solid=entry.alloy.opacity>=.985;
+      entry.alloy.depthWrite=solid;
+      if(!solid)softened++;
+    }
+    occludedForegroundGears=softened;
+    return {total:foregroundGears.length,softened};
+  }
   function revealGuardianSightlines(camera, crestPoints=[]) {
     if(disposed||!camera)return;
     let faded=0;
@@ -1368,7 +1429,7 @@ export function createTowerWorld(){
     }
     occludedGuardianCaps=faded;
   }
-  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,activeHazardPressureFins:[...hazards.values()].reduce((n,h)=>n+(h.indicator.userData.activePressureTeeth||0),0),observedMovingDeckCranks:[...platforms.values()].filter(p=>p.traveler).length,observedMovingDeckDriveStages:[...platforms.values()].filter(p=>p.countergear&&p.actuator).length,observedMovingDeckGearBatches:[...platforms.values()].filter(p=>p.gearVisual?.count===2).length,observedMovingDeckDriveLastTick:[...platforms.values()].reduce((latest,p)=>Math.max(latest,p.motionSourceTick??-1),-1),ambientParticles:particles?.visible?48:0,floor:lastSnapshot?.floor??null,theme,quality,disposed,guardianGates:[...platforms.entries()].filter(([,p])=>p.guardianGate).map(([id,p])=>({id,unlocked:p.guardianGate.unlocked,opening:p.guardianGate.progress,conduitReach:p.guardianGate.conduit.scale.z,anchorX:p.guardianGate.anchorX})),occludedGuardianCaps,ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
+  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,activeHazardPressureFins:[...hazards.values()].reduce((n,h)=>n+(h.indicator.userData.activePressureTeeth||0),0),observedMovingDeckCranks:[...platforms.values()].filter(p=>p.traveler).length,observedMovingDeckDriveStages:[...platforms.values()].filter(p=>p.countergear&&p.actuator).length,observedMovingDeckGearBatches:[...platforms.values()].filter(p=>p.gearVisual?.count===2).length,observedMovingDeckDriveLastTick:[...platforms.values()].reduce((latest,p)=>Math.max(latest,p.motionSourceTick??-1),-1),ambientParticles:particles?.visible?48:0,floor:lastSnapshot?.floor??null,theme,quality,disposed,guardianGates:[...platforms.entries()].filter(([,p])=>p.guardianGate).map(([id,p])=>({id,unlocked:p.guardianGate.unlocked,opening:p.guardianGate.progress,conduitReach:p.guardianGate.conduit.scale.z,anchorX:p.guardianGate.anchorX})),occludedGuardianCaps,occludedForegroundGears,decorativeSightlineGears:foregroundGears.length,ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;clearFloor();for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
-  return{group,update,revealGuardianSightlines,dispose,diagnostics};
+  return{group,update,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics};
 }
