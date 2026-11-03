@@ -6212,34 +6212,50 @@ function marketVisitArchitecture(pos,door,stall){
   // their harmless proximity had previously eliminated every valid market
   // viewpoint despite leaving an open street visible in front.
   if(along<-.1||along>span+1.5)continue;
-  const wall=Math.hypot(
-   Math.max(0,Math.abs(pos[0]-roof.x)-roof.rx),
-   Math.max(0,Math.abs(pos[1]-roof.z)-roof.rz));
-  if(['home','hall','craft-district','granary','street-shop'].includes(roof.kind))
-   nearestWallDistance=Math.min(nearestWallDistance,wall);
   const bottom=roof.visualBottom??roof.bottom??terrain(roof.x,roof.z)-.22;
-  let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity,behind=0,visible=0;
+  // G152R actual A/B failure: a single roof corner behind the camera was
+  // previously expanded to a FAKE 100%-of-screen obstruction. Clip all
+  // original building AABB edges at the real near plane instead.
+  const corners=[];
   for(const sx of [-1,1])for(const y of [bottom,roof.top])for(const sz of [-1,1]){
    const v=[roof.x+sx*roof.rx-eye[0],y-eye[1],roof.z+sz*roof.rz-eye[2]];
-   const d=v.reduce((sum,n,i)=>sum+n*forward[i],0);
-   if(d<.12){behind++;continue}
+   corners.push({v,d:v.reduce((sum,n,i)=>sum+n*forward[i],0)});
+  }
+  let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity,visible=0;
+  const project=(v,d)=>{
    const px=(v[0]*right[0]+v[2]*right[2])/(d*tanHalf*aspect);
    const py=v.reduce((sum,n,i)=>sum+n*up[i],0)/(d*tanHalf);
    minX=Math.min(minX,px);maxX=Math.max(maxX,px);
    minY=Math.min(minY,py);maxY=Math.max(maxY,py);visible++;
+  };
+  for(let i=0;i<corners.length;i++){
+   const a=corners[i];if(a.d>=.12)project(a.v,a.d);
+   for(const bit of [1,2,4]){
+    const j=i^bit;if(j<=i)continue;
+    const other=corners[j];
+    if((a.d-.12)*(other.d-.12)>=0)continue;
+    const t=(.12-a.d)/(other.d-a.d);
+    project(a.v.map((n,k)=>n+(other.v[k]-n)*t),.12);
+   }
   }
   if(!visible)continue;
-  // A camera partially within the near clipping plane faces a massive
-  // close wall, not a photogenic courtyard.
-  if(behind){minX=Math.min(minX,-1);maxX=Math.max(maxX,1);
-   minY=Math.min(minY,-1);maxY=Math.max(maxY,1)}
-  const width=Math.max(0,Math.min(1,maxX)-Math.max(-1,minX));
-  const height=Math.max(0,Math.min(1,maxY)-Math.max(-1,minY));
+  const left=Math.max(-1,minX),rightEdge=Math.min(1,maxX);
+  const top=Math.min(1,maxY),bottomEdge=Math.max(-1,minY);
+  const width=Math.max(0,rightEdge-left),height=Math.max(0,top-bottomEdge);
   const cover=width*height/4;
   if(cover>.003){
    foregroundStructures++;
    largestForegroundCover=Math.max(largestForegroundCover,cover);
    totalForegroundCover=Math.min(1,totalForegroundCover+cover*.85);
+   // A nearby wall can be legitimate BEHIND or beside the spectator; only
+   // the central portrait's architectural intrusion invalidates the shot.
+   if(['home','hall','craft-district','granary','street-shop'].includes(roof.kind)&&
+      left<.35&&rightEdge>-.35&&bottomEdge<.75&&top>-.75){
+    const wall=Math.hypot(
+     Math.max(0,Math.abs(pos[0]-roof.x)-roof.rx),
+     Math.max(0,Math.abs(pos[1]-roof.z)-roof.rz));
+    nearestWallDistance=Math.min(nearestWallDistance,wall);
+   }
   }
  }
  const interveningRoofs=followRayBlockers(eye,door,blockers);
