@@ -2201,15 +2201,15 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Predecessor 4cc8abd actual 1440x832 and 390x844 browser frames show companions cropped/packed against an overly dense foreground. No scientifically matched AFTER observation yet.",
-      "latestCandidateWorkflow": "Follow-up source and test head 17fc67384c859174a38fe67aded78a84c607df9e: Dungeon Actions 41641751880, visual 41641752002, catalogue 41641752015 were pending/in progress at this receipt. Earlier code-only 360703a Dungeon authority completed 245/245 foundation but presentation VM failed 4/20 due absent genuine planRangedBodyPose import after import stripping; fixed in 17fc673. Do not claim exact-head full CI or browser quality pass.",
+      "latestCandidateWorkflow": "Code head 5215d72c4e9e63e8f8eddd6cccb16476e6733b72: dedicated authority/browser GitHub Actions 41646763108, visual 41646763003, catalogue CI 41646763051 were all QUEUED at review. No new-head actual WebGL video/still inspected, no original captured sound or blind critics. Prior real screenshot https://github.com/my-edutu/Ai_games/actions/runs/41609168400/artifacts/13219510323. The locked baseline artifact is still workflow 41302939553 artifact 13081734898.",
       "currentPredecessorWebgl": "https://github.com/my-edutu/Ai_games/actions/runs/41582184616/artifacts/13207290223",
       "newCandidateSceneReview": "UNVERIFIED: no exact-head continuous organic 3D desktop/mobile traversal, combat, Warden, floor advance, defeat/restart, audioclip or matched blind assessment. Previous real Chromium frames remain predecessor evidence only."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Actual low-detail humanoid anatomy, stiff/miniature original GLB proportions, dense stone occlusion and weak perceptual combat impact still dominate. Native ranged release is implemented but real running desktop/mobile motion quality, opponent contact, boss progression and sustained performance are not judged. Need high-quality original characters and full organic audiovisual Warden adventure with matched 281735d baseline and independent critics.",
-    "currentWork": "Continuing SAME M1: code commit 360703a900d716555e98e64c7361d7881115818d connects genuine skeletal two-handed ranger draw/release and caster ritual to original physically shaped arrow/glyph shots, hand-origin projectile placement validated against the actual authority cell, one existing projectile pool and strict no-fake-damage/contact policy. Presentation-only; no gameplay authority, navigation, combat damage, RNG, replay or saves changes. Follow-up test harness fix 17fc67384c859174a38fe67aded78a84c607df9e loads the real pure ranged choreography in the stripped-import VM. New candidate real audio/motion not inspected.",
-    "candidateCommit": "17fc67384c859174a38fe67aded78a84c607df9e",
-    "candidateArtifactUrl": "",
+    "biggestRemainingGap": "Actual running desktop/mobile visual and motion proof of the new five-class body replacement, especially source bone coverage and contact. Prior genuine frame still miniature-like amid giant masonry. Human-scale design is implemented but reference-parity, complete seed-matched audiovisual adventure, hardware frame/soak and >=3 independent blind LOOKS/FEELS/PLAYS majority remain UNVERIFIED.",
+    "currentWork": "M1 major playable character-art candidate implemented: five original human-scale complete native-bone-driven figures with sculpted anatomy, 3D class weapons, unique heraldry and PBR microtexture, original existing rig motion, bounded original cloth and verified fallback design. Real browser artwork and full adventure acceptance NOT VERIFIED; no code is marked transformed.",
+    "candidateCommit": "5215d72c4e9e63e8f8eddd6cccb16476e6733b72",
+    "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
       {
@@ -3641,6 +3641,52 @@
         "experienceVerdict": "IN_PROGRESS — NOT_TRANSFORMED, Looks/Feels/Plays UNVERIFIED",
         "proofGaps": "No inspected new-head real desktop or mobile motion/audio, no full organic campaign reel, no same-seed matched BEFORE/AFTER, no GPU/mobile p95 and no >=3 blind critics (worker tunnel disconnected).",
         "next": "Read new-head real browser footage of physical arrows, hands, caster rhythm and actual boss/traversal. Repair geometric clipping/shot speed and narrative combat pacing. Proceed with original high-quality re-proportioned character models and rigorous full expedition videos, then independent blind ratings against locked baseline."
+      },
+      {
+        "id": "M1-ORIGINAL-FIVE-ROLE-CINEMATIC-FIGURES-20261103",
+        "date": "2026-11-03",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "9f634e23b025cf7028861a6735329a9d5deed191",
+        "codeCommits": [
+          "3681a5b482a06559434a532d5713f9b12246aeb1",
+          "a8e27998b1624db3bf67cdc0cbc273d6c9bbf855",
+          "3cf1dd45bcdc1fe0169f54db420da9f93009cfa8",
+          "5215d72c4e9e63e8f8eddd6cccb16476e6733b72"
+        ],
+        "objective": "Replace the dominant low-poly toy-sized playable hero/enemy visual silhouettes with coherent human-scale original 3D character bodies, role-differentiated sculpted armor, physically present weapons, animated limbs and material finish across the real autonomous expedition while preserving the genuine Warden encounter.",
+        "integratedImplementation": [
+          "A completely original 3D cinematic figure builder provides five character class/faction roles, 22 planned body/weapon pieces per role, sculpted closed 3D chest/waist/head and articulated arms/legs, original forged weapons and raised role-specific crests, PBR materials with five original bounded 96x96 microtexture maps. No copied proprietary material or asset dependencies.",
+          "Constructs and reattaches to the ACTUAL imported source skinned GLB skeleton: head, chest, pelvis, 8 distinct limb joints and a true right hand. Only after 12 real joints and successful entire figure creation is the old miniaturized source mesh hidden; missing/unmapped model retains CC0 source with existing costume and animation.",
+          "Actual existing AnimationMixer, native hand-following combat effects, injury, Warden phases, grounded walk/evasion, camera, dungeon architecture and original optional audio remain. Physical weapon grip is reset to native right-hand joint with measured <=0.015m attachment contract. Existing deformable cloth drape continues with reduced width on new figures.",
+          "Live authored3D metrics extended: original cinematic figure count, mesh and vertex budget, five PBR material mappings, native bone mounts, source mesh retirement, unique class profiles, hand-grip offset. Dedicated real desktop/mobile WebGL test and 4 legacy suites now require substantial new figure quality rather than old decorative props."
+        ],
+        "files": [
+          "public/ai-dungeon/cinematic-figure.js",
+          "public/ai-dungeon/model-assets.js",
+          "scripts/serve-dungeon-stream.cjs",
+          "tests/foundation/dungeon-cinematic-figure.test.cjs",
+          "tests/browser/dungeon-cinematic-figure.spec.cjs",
+          "tests/browser/dungeon-rig-attachments.spec.cjs",
+          "tests/browser/dungeon-forged-armor.spec.cjs",
+          "tests/browser/dungeon-role-silhouettes.spec.cjs",
+          "tests/browser/dungeon-sculpted-reality.spec.cjs",
+          "package.json"
+        ],
+        "checks": "Function-level pure JavaScript parse and stub Three.js geometry/bone construction verified all five role recipes; 24-25 built render meshes / 1633-1693 shape vertices each; 5 mapped materials and old-model hiding in stub harness. Real WebGL, TypeScript build, exact-head full Dungeon/replay/catalogue jobs, visual capture and all independent critics NOT YET VERIFIED. The connected code/subagent tunnel returned NOT_FOUND; no live local Chromium execution.",
+        "realVisualBefore": "Prior genuine screenshot https://github.com/my-edutu/Ai_games/actions/runs/41609168400/artifacts/13219510323 inspected: 3 heroes visible, predominantly toy-scale low-detail silhouettes, large crowded equipment and masonry. It is a previous-branch image, NOT a matched current AFTER.",
+        "exactHeadWorkflows": {
+          "dungeon": "https://github.com/my-edutu/Ai_games/actions/runs/41646763108",
+          "visual": "https://github.com/my-edutu/Ai_games/actions/runs/41646763003",
+          "catalogue": "https://github.com/my-edutu/Ai_games/actions/runs/41646763051"
+        },
+        "currentResults": "All exact-head authority/browser/visual/catalogue GitHub Actions jobs QUEUED at last inspection. Explicitly UNVERIFIED; no passed CI, gameplay or audio claimed.",
+        "gameplayAuthority": "No changes to games/ai-dungeon/src/index.ts, AI, damage, navigation, collision, RNG, progression, signed replay or save schema.",
+        "resourceImpact": "Bounded procedural model allocation at GLB load, shared five small texture maps, no new shadow passes or lights; exact desktop/mobile drawcalls, GPU p95/p99 and long-run memory still UNVERIFIED.",
+        "critics": "NOT_RUN — no independent connected worker, no blind looks/feels/plays verdict",
+        "experienceVerdict": "IN_PROGRESS / NOT_TRANSFORMED",
+        "largestRemainingGap": "Actual 3D browser verification of complete new human-scale rigs/motion and hand contact; any joint coverage/fallback/overdraw errors, then real boss combat, coherent audiovisual pacing, performance and independent matched M1 acceptance.",
+        "next": "Inspect and if needed repair genuine exact-head WebGL desktop/mobile captures, source-bone coverage, armor/cloth clipping and actual hand grip. Continue physical animated combat and scene blocking only after real footage. Compare unchanged 281735d M1 baseline using matched seed/scene/camera for traversal, active combat, Warden, floor and natural defeat/restart with original recorded audio, then require independent three-critic majorities and device performance; never merge/deploy."
       }
     ]
   }
