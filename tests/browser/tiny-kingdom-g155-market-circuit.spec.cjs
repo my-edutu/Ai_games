@@ -79,6 +79,8 @@ test('G156 real Day-120 market circuit reaches another actual stall on mobile',a
  expect(start.next.started,JSON.stringify({next:start.next,planning:start.planning})).toBe(true);
  expect(start.next.trade).not.toBe(start.visit.stall.trade);
  expect(start.next.meters).toBeGreaterThan(2.5);
+ expect(start.next.reachableCells).toBeGreaterThan(1);
+ expect(start.next.reachableCells).toBeLessThanOrEqual(3000);
  expect(start.still).toEqual(start.position);
  const arrived=await page.evaluate(()=>{
   const g=window.__tinyKingdom;let tour=g.getMarketTourAudit(),
@@ -97,6 +99,10 @@ test('G156 real Day-120 market circuit reaches another actual stall on mobile',a
  });
  expect(arrived.tour.completed,JSON.stringify(arrived.tour)).toBe(true);
  expect(arrived.visit.stall.trade).toBe(start.next.trade);
+ // A route counts only when it finishes at a photographically readable,
+ // genuinely visible stall — never merely beside another opaque wall.
+ expect(arrived.visit.architecture.portraitSafe).toBe(true);
+ expect(arrived.visit.architecture.interveningRoofs).toBe(0);
  expect(arrived.travelled).toBeGreaterThan(2.5);
  expect(arrived.minSafe).toBe(true);
  expect(arrived.authority).toBe(start.authority);
