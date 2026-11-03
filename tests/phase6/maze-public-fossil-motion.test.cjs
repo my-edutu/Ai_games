@@ -79,7 +79,8 @@ test('unsafe/disclosed source semantics and unknown fields cannot fabricate foss
    ]){
      world.update(state);
      assert.equal(world.stats().responsiveFossilSails,0,
-       'no new physical event on undisclosed, hazardous, occupied or gate cells');
+       'no new physical event on undisclosed, hazardous, occupied or gate cells: '
+         + JSON.stringify({cells:state.cells,visibleCells:state.visibleCells,keys:state.keys,doors:state.doors}));
    }
    const unknown=published({hiddenExitCell:10,privateRoute:[1,2,3],privateThreatCell:10,
      unrevealedDoor:{a:10,b:17}});
