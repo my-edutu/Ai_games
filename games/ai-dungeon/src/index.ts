@@ -219,7 +219,7 @@ export function planThreatInterceptions(s:Pick<DungeonState,'tick'|'units'>,hero
   const due=hex?foe.channelUntilTick:foe.breachUntilTick;
   const targetId=hex?foe.channelTargetId:foe.breachTargetId;
   const x=hex?foe.channelX:foe.breachX,z=hex?foe.channelZ:foe.breachZ;
-  if(!Number.isSafeInteger(due)||due<s.tick||due>s.tick+2||
+  if(typeof due!=='number'||!Number.isSafeInteger(due)||due<s.tick||due>s.tick+1||
      typeof targetId!=='string')continue;
   const ally=allies.get(targetId);
   if(!ally||!Number.isInteger(x)||!Number.isInteger(z)||
