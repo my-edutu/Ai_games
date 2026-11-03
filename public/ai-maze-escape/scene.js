@@ -47,6 +47,10 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   const sealedGateCameraOffset = new THREE.Vector3(20, 21, 14);
   const cameraOffset = followCameraOffset.clone();
   const portraitCameraOffset = followCameraOffset.clone(); // reuse; never allocate in a render frame
+  // A lower, closer ORIGINAL 3D story angle is reserved solely for a truly
+  // witnessed public key collection. Reuse this offset; no per-frame objects,
+  // synthetic treasure, actor movement, hidden data or additional HUD prose.
+  const pickupCameraOffset = new THREE.Vector3(13, 17, 16);
   const world = createMazeWorld({ balanced });
   scene.add(world.group);
 
@@ -611,14 +615,17 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         pickupCameraBeat = true;
         // A real native 390px capture at Pass97 still gave Pip and the
         // full-scale treasure theatre too little of the game screen. Stage
-        // ONLY their witnessed nearby action closer, with a bounded 3.26
-        // world-unit portrait half-span and a 4.72 desktop floor. The same
-        // public key, Pip pose and model bounds remain authoritative; existing
-        // real 390px physical-framing and shard-visibility gates must pass.
-        // Danger, observed gates, results, manual view and reduced motion win.
-        const safePickupSpan = width < 500 ? 3.26 : 3.12;
+        // ONLY the witnessed and inventory-confirmed physical performance
+        // gets the close stage. The Pass98/99 native 390px image measured a
+        // 7.27 half-height: Pip and the rooted theatre still looked too small.
+        // Stage this real 3D collection at ~5.67 portrait half-height with a
+        // lower camera; retain the *same* in-world actor, floor, sculpture,
+        // public seed, shard physics and strict original uncropped-model gate.
+        // An observed guardian, gate, terminal result, manual camera or
+        // reduced motion always outranks this cinematic.
+        const safePickupSpan = width < 500 ? 2.62 : 2.92;
         targetHeight = Math.min(targetHeight,
-          Math.max(width < 500 ? 5.1 : 4.72,
+          Math.max(width < 500 ? 4.8 : 4.45,
             safePickupSpan / Math.max(.35, aspect)));
         desiredTarget.set((pose.x+originalCell.x)*.5,ground+.68,
           (pose.z+originalCell.z)*.5);
@@ -634,7 +641,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // Rotate only the visual camera toward the side of a disclosed obstruction.
     // Smooth it back after leaving; never alter the simulation or private map.
     cameraOffset.lerp(cameraGate ? sealedGateCameraOffset
-      : portraitEncounterOrbit ? portraitCameraOffset : followCameraOffset, blend);
+      : portraitEncounterOrbit ? portraitCameraOffset
+      : pickupCameraBeat ? pickupCameraOffset : followCameraOffset, blend);
     camera.position.copy(cameraTarget).add(cameraOffset); camera.lookAt(cameraTarget);
     const background = settings.highContrast ? '#50665f' : '#b2c6b6';
     scene.background.set(background); scene.fog.color.set(background);
