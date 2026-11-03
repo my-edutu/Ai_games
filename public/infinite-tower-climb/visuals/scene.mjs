@@ -2026,7 +2026,8 @@ export function createTowerScene(canvas, settings = {}) {
         !options.stale && guardianWarning.visible ? guardianWarning.guardianId : null,
         !options.stale && guardianWarning.visible ? guardianShotStage.focusPoint() : null,
         !options.stale ? guardianWarning.pulseGuardianId : null,
-        !options.stale ? guardianShotStage.pulseFocusPoint() : null);
+        !options.stale && typeof guardianShotStage.pulseFocusPoint === 'function'
+          ? guardianShotStage.pulseFocusPoint() : null);
     guardianShotLean = !options.stale && followComposition?.guardianStaged
       ? followComposition.lean : null;
     const viewPosition = initialized ? camera.position : followComposition?.position || camera.position;
