@@ -19,7 +19,8 @@ test('original court is bounded, seeded, and physically confined to existing wal
 });
 test('new chapter responds only to public boss truth and remains spectator-only',()=>{
  const code=fs.readFileSync('public/ai-dungeon/warden-court.js','utf8');
- assert.match(code,/boss\.hp>0/);assert.match(code,/bossWarning\?\.cells/);
+ assert.match(code,/u\.kind==='warden'&&u\.faction==='enemy'&&u\.hp>0/);
+ assert.match(code,/bossWarning\?\.cells/);
  assert.match(code,/binding\.visible=active/);
  assert.doesNotMatch(code,/Math\.random|game\.step\(|fetch\(|localStorage/);
  const server=fs.readFileSync('scripts/serve-dungeon-stream.cjs','utf8');

@@ -40,7 +40,8 @@ test('actual WebGL receives original vaulted-bay 3D batches and cutaway',()=>{
  assert.match(app,/planVaultedWallBays\(s\.map,s\.floor,s\.exit\)/);
  assert.match(app,/createVaultedWallGallery\(world,vaultedSites,vaultedWallIndices,s\.floor\)/);
  assert.match(app,/world\.userData\.vaultedGallery\?\.cutaway\(wallBands\)/);
- assert.match(app,/enrichEnvironment\(world,s\.map,s\.floor,vaultedSites\)/);
+ assert.match(app,/enrichEnvironment\(world,s\.map,s\.floor,vaultedSites,s\.exit\)/,
+  'decorative Court receives the real authority exit and preserves vaulted galleries');
  const dressing=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
  assert.match(dressing,/vaultedFacadeOpenings:/);
  assert.match(dressing,/const windowFaces=wallFaces\.filter\(face=>face\[4\]>=1\.25\)/,
