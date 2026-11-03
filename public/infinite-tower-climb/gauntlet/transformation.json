@@ -9,20 +9,20 @@
   },
   "candidate": {
     "sha": null,
-    "title": "SAME open actual 3D Tower climb → simultaneous safe aerial landing and earned combat → physical guardian gate → real result/restart. NOT EVALUATED.",
-    "implementationSha": "ab585d02d857bc9732f59ac62eac6e4c8748ebdd",
-    "implementationEvidenceStatus": "NOT EVALUATED: current source ab585d joins actual source-authentic airborne Pulse Shot/melee with unchanged physical landing controls and source-witnessed NEW player projectile to an original skinned 3D gauntlet recoil and opt-in existing sound. No fake hit, extra render draw, HUD or old-v1 replay rewrite. Source-bound tests committed but NOT EXECUTED (coding/browser tunnel offline >300s). Predecessor source 16b11cc capture 41650913522 still pending at last inspection and cannot verify this implementation; source exact CI not verified. 0 independent full-motion blind critics, no fair 60+s source-event-aligned native desktop+portrait clip set, supported-device frame tails/memory absent; no quality PASS."
+    "title": "SAME open playable 3D Tower: safe autonomous aerial combat/landing → source-authoritative guardian charge and earned counterfire → physical HP-gated exit → real result/restart. NOT EVALUATED.",
+    "implementationSha": "31c11b34686b3c8914d8c9eca50cd37725bfe501",
+    "implementationEvidenceStatus": "NOT EVALUATED. New actual gameplay code at 31c11b34686b3c8914d8c9eca50cd37725bfe501 adds earned guardian-charge counterfire (safe supported 4–8-tick window), connects genuine newly fired player projectile to existing original skinned grounded gauntlet recoil, while keeping previous airborne combat and physical landing controls. A 2026-11-03 earlier-head integrity run 41657621020 FAILED 5/841 technical tests (2 policy fixture mismatches; 3 optional witness missing in import-stripped render harnesses); corrective source/test changes are committed but final exact-head guardrails are queued, not verified. Existing frozen-baseline clips are NOT equivalent to current candidate footage. No source-pinned reviewed matched 60+s desktop and native-portrait ascent/danger/terminal sets; 0/5 independent LOOKS, 0/5 FEELS, 0/5 PLAYS; no physical-device p50/p95/p99 or memory. No experience pass."
   },
   "currentTransformation": {
-    "title": "One open 3D Tower ascent→source-witnessed airborne combat and physically safe landing→live HP guardian gate→real outcome/restart",
-    "state": "OPEN — real source tactical airborne landing/combat and corresponding original 3D rig response committed; matched full-motion experience NOT EVALUATED",
-    "promise": "Source tactical v2 preserves autonomous safe landing, jump, dash, air brake while opportunistically issuing earned physically valid ranged or melee combat at a present observed foe. Consecutive same-run/floor public snapshots now drive a bounded actual new player projectile recoil through the original 3D skinned gauntlet without a new draw/material or invented source event, and unchanged opt-in audio/projection show real projectiles. The larger guardian/physical HP gate/outcome remains the same original 3D live game and the whole initiative remains open.",
-    "nextDecision": "Verify exact ab585d source compile/tests/campaign before claiming playable stability; new character/source tests remain unexecuted as coding/browser tunnel unavailable. Capture new-source genuine normal-speed >=60s matched ascent/danger+guardian/complete outcome+restart on 960x600 and native 390x844 against frozen 1731b380 seed/quality, align actual source event not wall time. Inspect air fire and real collision/landing. Recruit 5 separate genuinely independent blind full-motion critics, 4/5 candidate votes on EACH of LOOKS, FEELS, PLAYS; measure native supported-device p50/p95/p99, memory, accessibility and replay. Reject if regression; leave PR68 draft and PR58 untouched.",
+    "title": "One still-open actual 3D Tower ascent, real-air combat/safe landing, earned planted guardian counterfire, HP gate and authentic outcome/restart",
+    "state": "OPEN — connected playable 3D movement/combat/guardian charge source logic committed; full-motion experience and independent preference NOT EVALUATED",
+    "promise": "The same autonomous climber now makes source-owned safe-landing and earned aerial fight choices, with a physical, standing counterfire opportunity during the real first half of the guardian firing charge. The already-articulated source-authenticated 3D gauntlet reacts to a new actual player projectile, the existing original world/guardian/circuit/combat audio remain integrated, and later danger still triggers the source evasive jump. No fabricated hit, parry, victory, extra in-game HUD or reference asset.",
+    "nextDecision": "Exact-source 31c11b34686b3c8914d8c9eca50cd37725bfe501 full CI and runtime campaign must pass; old 0c198f quality run 41657621020 failed (5 tests) and harness plus policy-fixture corrections were pushed, NOT yet revalidated. Launch native 960x600 and 390x844 real normal-speed 60+s ascent, guardian/danger, terminal/restart paired to frozen 1731b380 using matched seeds/settings/observable events, inspect real guardian charge→real player projectile→HP impact/landing and mobile framing. Independent five fresh-context blind full-motion critic votes with at least four preference in EACH LOOKS/FEELS/PLAYS. Supported-device frame tails, memory, replay, accessibility and recovery required. No merge/deploy.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Unverified COMPLETE REAL 3D game flow on source ab585d, especially whether new air-fire→foe reaction→safe landing makes a visible and effective sequence on 390px portrait and guardian HP-operated gate/outcome/restart genuinely read on video. Missing source-pinned matched continuous 60+s baseline/new desktop/mobile footage, five independent blind full-motion votes, device frame tails and memory.",
-    "unverifiedImplementationBranchHead": "ab585d02d857bc9732f59ac62eac6e4c8748ebdd",
-    "currentVerticalSlice": "Authority-owned 3D autonomous leap and supported landing, which can now also fire an earned Pulse Shot or melee against actual observed source opponents; true new player projectile feeds articulated gauntlet recoil while original shot ribbon and optional synth sound play, then existing real guardian HP→physical exit circuit→real outcome/restart remains connected. Source change and tests committed, independent experience not judged.",
-    "biggestGap": "Neither newest source exact CI nor actual normal-speed footage was available to inspect in worker/browser tunnel; retrospective old-source clips are not fair evidence. Hero/guardian/landing portrait framing, motion weight and genuine terminal/restart are unassessed. 0 independent A/B votes each LOOKS FEELS PLAYS; native hardware p50/p95/p99 and memory missing."
+    "biggestRemainingExperienceGap": "Uninspected, unverified authentic source 31c11b34686b3c8914d8c9eca50cd37725bfe501 full-motion 3D descent/combat/guardian counter-shot/real outcome and restart on native desktop+390px portrait. No current candidate vs frozen baseline source-tick/seed aligned 3-scene A/B footage or independent critics, so source-only improvements might not be visible or enjoyable. Earlier old-head CI had failures and exact current CI is queued.",
+    "unverifiedImplementationBranchHead": "31c11b34686b3c8914d8c9eca50cd37725bfe501",
+    "currentVerticalSlice": "Existing original physical 3D Tower climbing and safe landing now coexist with earned mid-air melee/pulse. Added tactical grounded early guardian charge counter-shot that does not override defensive retreat or imminent source evasive jump, plus original skinned gauntlet planted recoil witnessed ONLY by actual newly spawned source player shot. Continues the same ascent→guardian HP circuit→real outcome/restart initiative, not an isolated win.",
+    "biggestGap": "Safety veto unresolved at exact source, real normal-speed desktop/portrait clips and true complete baseline result/restart missing, 0/5 genuinely independent LOOKS/FEELS/PLAYS, and no supported-device tail/memory. Independent worker/browser tunnel NOT_FOUND >300s."
   },
   "scenarios": [
     {
@@ -62,11 +62,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "NOT VERIFIED at current actual code SHA ab585d, last added source and Three.js rig/source-witness tests not executed here (coding/browser tunnel NOT_FOUND). Predecessor 16b11cc run 41650913503 CANCELLED. No technical safety or experience PASS inferred.",
-    "replay": "PENDING exact-source ab585d deterministic campaign and new source witness tests. Historical tactical:false branch unchanged. Source read-only snapshots drive purely render-only recoil; authoritative physics, combat and seeded RNG unchanged except tactical airborne action choice, no replay oracle.",
-    "accessibility": "No new HUD, autoplay, service or keybinding. Reduced-motion renders a small source-truth gauntlet glow instead of rapid firing-arm recoil; old opt-in sound only. Native portrait and actual assistive tech accessibility NOT independently evaluated.",
-    "performance": "No new WebGL draw, geometry, material, shader, light, remote call or audio channel. Source projectile edge checks are bounded by maxProjectiles, and one existing rig pose is adjusted in place. Real supported device p50/p95/p99 frame times and peak memory NOT MEASURED.",
-    "stability": "PENDING newly source-bound ab585d normal-speed 60+s desktop/native portrait ascent, guardian and terminal→restart clips and stress/recovery soak. Predecessor source 16b11cc capture still queued/in progress at inspection; source-specific proof unavailable. Tests committed, not executed via tunnel."
+    "ci": "NOT VERIFIED at new game SHA 31c11b34686b3c8914d8c9eca50cd37725bfe501. Historical 0c198f quality run https://github.com/my-edutu/Ai_games/actions/runs/41657621020 FAILED 5/841: source-owned airborne priority invalidated old combat fixture assumptions (2), stripped import scene fixtures crashed on optional witnessedAirbornePulse (3). Harness now degrades optional witness safely, test fixtures reflect supported ground vs actual legal airborne shot, new guardian counterfire regressions authored; current-head workflow https://github.com/my-edutu/Ai_games/actions/runs/41660513975 QUEUED at last inspection. CI is a safety veto not a score.",
+    "replay": "PENDING exact-source campaign. The source-only tactical charge counterfire is opt-in within tactical v2, historical tactical:false branch untouched; new visual witness is read-only adjacent immutable public snapshots and cannot alter fixed-step combat or seeded RNG. New test files not yet executed.",
+    "accessibility": "No new HUD, autoplay, input, or mandatory sound; original opt-in audio and reduced-motion static/attenuated recoil path reused. Native 390x844 visual legibility and real assistive-tech checks NOT independently evaluated.",
+    "performance": "Source update adds bounded early-shot choice and one read-only adjacent projectile/guardian witness using existing original rig; no claimed additional draw/geometry pass. Real supported-device p50/p95/p99 frame times, GPU load and peak memory NOT MEASURED.",
+    "stability": "NOT VERIFIED. Existing scenario videos from earlier code cannot validate new charge counterfire. Current-head normal-speed source-pinned game footage, full outcome/restart, stress/recovery/replay checks outstanding; remote browser/worker connector returned NOT_FOUND >300s."
   },
   "unresolvedCriticalIssues": null,
   "benchmark": {
@@ -1403,6 +1403,32 @@
       "qualityVerdict": "NOT EVALUATED"
     },
     "latestUncapturedGameImplementationSha": "ab585d02d857bc9732f59ac62eac6e4c8748ebdd",
-    "latestUncapturedExperienceStatus": "NOT EVALUATED: code ab585d adds source-witnessed genuine midair Pulse Shot articulated recoil and preserved landing steering, but no current source video, event-matched frozen-baseline A/B, 5 blind votes each pillar, real device tail/memory measurements. Shared browser/worker tunnel returned NOT_FOUND >300s."
+    "latestUncapturedExperienceStatus": "NOT EVALUATED: code ab585d adds source-witnessed genuine midair Pulse Shot articulated recoil and preserved landing steering, but no current source video, event-matched frozen-baseline A/B, 5 blind votes each pillar, real device tail/memory measurements. Shared browser/worker tunnel returned NOT_FOUND >300s.",
+    "latestGuardianCounterfire20261103": {
+      "actualSourceSha": "31c11b34686b3c8914d8c9eca50cd37725bfe501",
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "branch": "feat/tower-transformation-gauntlet-20261101",
+      "prUrl": "https://github.com/my-edutu/Ai_games/pull/68",
+      "previousFullIntegrityRun": "https://github.com/my-edutu/Ai_games/actions/runs/41657621020",
+      "previousIntegrity": "FAILED: five/841 tests on 0c198f prior source; two outdated air-combat assumptions, three optional source-witness missing from isolated scene render VM. Fixes committed after run; new exact head pending, NOT assumed green.",
+      "currentHeadIntegrityUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41660513975",
+      "currentHeadIntegrityStatusAtInspection": "QUEUED — no outcome recorded",
+      "currentHeadCapture": "NOT CAPTURED or REVIEWED",
+      "previousClips": "Different implementation SHAs; not fair candidate-current evidence",
+      "matchedScenarios": {
+        "ascent": null,
+        "danger": null,
+        "outcome": null
+      },
+      "independentCriticVotes": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "genuineFullMotionBlindCritics": "UNAVAILABLE: coding/browser/worker tunnel NOT_FOUND >300 seconds; not guessed",
+      "supportedHardware": "NOT MEASURED (p50/p95/p99 frames and memory)",
+      "biggestRemainingExperienceGap": "Uninspected, unverified authentic source 31c11b34686b3c8914d8c9eca50cd37725bfe501 full-motion 3D descent/combat/guardian counter-shot/real outcome and restart on native desktop+390px portrait. No current candidate vs frozen baseline source-tick/seed aligned 3-scene A/B footage or independent critics, so source-only improvements might not be visible or enjoyable. Earlier old-head CI had failures and exact current CI is queued.",
+      "qaStatus": "NOT EVALUATED"
+    }
   }
 }
