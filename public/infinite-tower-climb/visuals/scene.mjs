@@ -9,6 +9,7 @@ import { observedGuardianPassage, createTowerGuardianPassage } from './guardian-
 import { createTowerRouteIntent } from './route-intent.mjs';
 import { createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage } from './guardian-circuit.mjs';
 import { createTowerAtmosphere } from './atmosphere.mjs';
+import { createTowerGuardianShotStage } from './guardian-shot-stage.mjs';
 import { createObservedMovingDeckRide } from './moving-deck-ride.mjs';
 // A tiny 3D attack lane follows only a REAL enemy telegraph. The curved ribbon
 // traces the same cylindrical projection as authoritative horizontal shots and
@@ -1278,6 +1279,10 @@ export function createTowerScene(canvas, settings = {}) {
   scene.add(routeIntent.group);
   let guardianCircuit = createTowerGuardianCircuit(THREE);
   scene.add(guardianCircuit.group);
+  // True guardian charge -> projectile: one exterior world-space warning draw,
+  // not a screen label or a guessed hit. The fired-shot ribbon remains source-owned.
+  let guardianShotStage = createTowerGuardianShotStage(THREE);
+  scene.add(guardianShotStage.group);
   // The biome has real world-depth motes, not UI flakes. One GPU draw,
   // source-tick animation; hidden during stale/terminal/reduced-motion play.
   let atmosphere = createTowerAtmosphere(THREE);
@@ -1537,6 +1542,7 @@ export function createTowerScene(canvas, settings = {}) {
     footingShadow.visible = false; observedFooting = null;
     movingDeckRide.reset(); observedRidePose = null;
     atmosphere.clear();
+    guardianShotStage.clear();
     crownStage.visible = false; observedCrown = null;
     echoDrawnTick = -1; observedStageLight.reset();
   }
@@ -1547,8 +1553,8 @@ export function createTowerScene(canvas, settings = {}) {
     releaseEnvironment();
     reflectionFirstFrame = true;
     clearActors();
-    scene.remove(world.group, climber.group, finale.group, passage.group, routeIntent.group, guardianCircuit.group, atmosphere.group);
-    world.dispose(); climber.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose(); guardianCircuit.dispose(); atmosphere.dispose();
+    scene.remove(world.group, climber.group, finale.group, passage.group, routeIntent.group, guardianCircuit.group, guardianShotStage.group, atmosphere.group);
+    world.dispose(); climber.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose(); guardianCircuit.dispose(); guardianShotStage.dispose(); atmosphere.dispose();
     skyGeometry.dispose(); skyMaterial.dispose();
     for (const geometry of sharedGeometry) geometry.dispose();
     for (const material of sharedMaterials) material.dispose();
@@ -1557,9 +1563,10 @@ export function createTowerScene(canvas, settings = {}) {
     passage = createTowerGuardianPassage(THREE);
     routeIntent = createTowerRouteIntent(THREE);
     guardianCircuit = createTowerGuardianCircuit(THREE);
+    guardianShotStage = createTowerGuardianShotStage(THREE);
     atmosphere = createTowerAtmosphere(THREE);
     climber.group.name = 'ExpeditionClimber';
-    scene.add(world.group, climber.group, finale.group, passage.group, routeIntent.group, guardianCircuit.group, atmosphere.group);
+    scene.add(world.group, climber.group, finale.group, passage.group, routeIntent.group, guardianCircuit.group, guardianShotStage.group, atmosphere.group);
     initialized = false;
     if (snapshot) updateEntities(snapshot);
   }
@@ -1772,6 +1779,7 @@ export function createTowerScene(canvas, settings = {}) {
     // HP-operated real-world lock: one depth-tested architectural twin-rail
     // connection from the live guardian to its existing cap anchor.
     guardianCircuit.update(snapshot, options);
+    guardianShotStage.update(snapshot, options);
     // The summit's physical bearing stays pinned to the REAL cap throughout
     // route replans, moving decks and guardian HP changes. Only observed
     // combat loss alters its metal; telegraphs dim it for danger readability.
@@ -2323,6 +2331,7 @@ export function createTowerScene(canvas, settings = {}) {
         environmentSize: reflectionTarget ? [reflectionTarget.width, reflectionTarget.height] : [0, 0], shadowLights: 1, shadowMapSize: sun.shadow.mapSize.x },
       world: world.diagnostics(), finale: finale.diagnostics(), passage: passage.diagnostics(),
       routeIntent: routeIntent.diagnostics(), guardianCircuit: guardianCircuit.diagnostics(),
+      guardianShotStage: guardianShotStage.diagnostics(),
       atmosphere: atmosphere.diagnostics(),
       summitCrown: observedCrown && crownStage.visible ? {
         capId: observedCrown.capId, sourceTick: observedCrown.sourceTick,
@@ -2353,7 +2362,7 @@ export function createTowerScene(canvas, settings = {}) {
     canvas.removeEventListener('pointerup', pointerUp); canvas.removeEventListener('pointercancel', pointerUp); canvas.removeEventListener('wheel', wheel);
     releaseEnvironment();
     sun.shadow.dispose(); sun.shadow.map = null; sun.shadow.mapPass = null;
-    clearActors(); climber.dispose(); world.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose(); guardianCircuit.dispose(); atmosphere.dispose();
+    clearActors(); climber.dispose(); world.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose(); guardianCircuit.dispose(); guardianShotStage.dispose(); atmosphere.dispose();
     skyGeometry.dispose(); skyMaterial.dispose();
     for (const geometry of sharedGeometry) geometry.dispose();
     for (const material of sharedMaterials) material.dispose();
