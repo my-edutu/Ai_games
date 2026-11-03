@@ -245,7 +245,8 @@ function refineTowerActorSafeFrame(camera, gaze, actor, dt,
   camera.lookAt(gaze);
   camera.updateMatrixWorld(true);
   projection.copy(actor).project(camera);
-  if (![projection.x,projection.y,projection.z].every(Number.isFinite) ||
+  if (!Number.isFinite(projection.x) || !Number.isFinite(projection.y) ||
+    !Number.isFinite(projection.z) ||
     Math.abs(projection.x)>1 || Math.abs(projection.y)>1 ||
     projection.z < -1 || projection.z > 1) return 0;
   const before = Math.max(0, Math.abs(projection.x)/.78-1,
@@ -1702,6 +1703,7 @@ export function createTowerScene(canvas, settings = {}) {
     crownStage.visible = false; observedCrown = null;
     echoDrawnTick = -1; observedStageLight.reset();
     guardianRescueBlend = 0; guardianRescueApplications = 0;
+    actorSafeRefinements = 0;
   }
   function rebuildGraphicsResources() {
     // Dispose while WebGL is still lost: Three's disposal listeners otherwise
@@ -2379,7 +2381,7 @@ export function createTowerScene(canvas, settings = {}) {
         actorSafePreviousCamera, actorSafePreviousGaze);
       if (refined > 0) {
         actorRescueFraction = Math.max(actorRescueFraction, refined);
-        actorSafeRefinements++;
+        actorSafeRefinements = Math.min(1000000, actorSafeRefinements + 1);
       }
     }
     // Keep both real combat subjects readable in the SAME uninterrupted shot.
