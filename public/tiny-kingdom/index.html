@@ -6180,11 +6180,79 @@ function marketVisitCrowd(pos,door){
  }
  return {closestCitizenDistance,foregroundCitizenCount};
 }
+// G152: prove the OPEN MARKET is actually in frame at human height.
+// G151's 6.12m shot passed distance/crowd tests while a full-height cottage
+// wall occupied most of the 1024px image. Measure ORIGINAL building volumes
+// in the narrowest supported portrait composition before choosing the lens.
+// This is pure presentation: citizens, authority, lots and simulation are read
+// but never moved or concealed. The same architecture audit is exposed in UI
+// diagnostics so browser recordings can reject physically misleading views.
+function marketVisitArchitecture(pos,door,stall){
+ const eye=[pos[0],terrain(...pos)+STREET_EYE,pos[1]];
+ const ray=door.map((v,i)=>v-eye[i]),span=Math.hypot(...ray)||1;
+ const forward=ray.map(v=>v/span),flat=Math.hypot(forward[0],forward[2])||1;
+ const right=[-forward[2]/flat,0,forward[0]/flat];
+ const up=[-right[2]*forward[1],right[2]*forward[0]-right[0]*forward[2],
+  right[0]*forward[1]];
+ const aspect=Math.min(Math.max(.30,canvas.clientWidth/Math.max(1,canvas.clientHeight)),390/844);
+ const tanHalf=Math.tan(Math.PI/6.4);
+ const roofs=streetRoofs(),blockers=[];
+ let nearestWallDistance=Infinity,largestForegroundCover=0,totalForegroundCover=0;
+ let foregroundStructures=0;
+ for(const roof of roofs){
+  // The chosen stall is the story subject, not an occluder. Every OTHER
+  // genuine cottage, guild building, canopy and shop remains inspectable.
+  if(roof.kind==='market-stall'&&Math.abs(roof.x-stall.x)<.01&&
+     Math.abs(roof.z-stall.z)<.01)continue;
+  blockers.push(roof);
+  const wall=Math.hypot(
+   Math.max(0,Math.abs(pos[0]-roof.x)-roof.rx),
+   Math.max(0,Math.abs(pos[1]-roof.z)-roof.rz));
+  if(['home','hall','craft-district','granary','street-shop'].includes(roof.kind))
+   nearestWallDistance=Math.min(nearestWallDistance,wall);
+  const center=[roof.x,((roof.visualBottom??roof.bottom??terrain(roof.x,roof.z)-.22)+roof.top)/2,roof.z];
+  const along=center.reduce((sum,v,i)=>sum+(v-eye[i])*forward[i],0);
+  // Behind-camera or beyond-subject houses cannot bury the market frontage.
+  if(along<-.1||along>span+1.5)continue;
+  const bottom=roof.visualBottom??roof.bottom??terrain(roof.x,roof.z)-.22;
+  let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity,behind=0,visible=0;
+  for(const sx of [-1,1])for(const y of [bottom,roof.top])for(const sz of [-1,1]){
+   const v=[roof.x+sx*roof.rx-eye[0],y-eye[1],roof.z+sz*roof.rz-eye[2]];
+   const d=v.reduce((sum,n,i)=>sum+n*forward[i],0);
+   if(d<.12){behind++;continue}
+   const px=(v[0]*right[0]+v[2]*right[2])/(d*tanHalf*aspect);
+   const py=v.reduce((sum,n,i)=>sum+n*up[i],0)/(d*tanHalf);
+   minX=Math.min(minX,px);maxX=Math.max(maxX,px);
+   minY=Math.min(minY,py);maxY=Math.max(maxY,py);visible++;
+  }
+  if(!visible)continue;
+  // A camera partially within the near clipping plane faces a massive
+  // close wall, not a photogenic courtyard.
+  if(behind){minX=Math.min(minX,-1);maxX=Math.max(maxX,1);
+   minY=Math.min(minY,-1);maxY=Math.max(maxY,1)}
+  const width=Math.max(0,Math.min(1,maxX)-Math.max(-1,minX));
+  const height=Math.max(0,Math.min(1,maxY)-Math.max(-1,minY));
+  const cover=width*height/4;
+  if(cover>.003){
+   foregroundStructures++;
+   largestForegroundCover=Math.max(largestForegroundCover,cover);
+   totalForegroundCover=Math.min(1,totalForegroundCover+cover*.85);
+  }
+ }
+ const interveningRoofs=followRayBlockers(eye,door,blockers);
+ // Portfolio composition must survive BOTH landscape and narrow 390px views.
+ const portraitSafe=nearestWallDistance>=2&&interveningRoofs===0&&
+  largestForegroundCover<.35;
+ return {nearestWallDistance:Math.round(nearestWallDistance*100)/100,
+  interveningRoofs,largestForegroundCover:Math.round(largestForegroundCover*1000)/1000,
+  totalForegroundCover:Math.round(totalForegroundCover*1000)/1000,
+  foregroundStructures,portraitAspect:Math.round(aspect*1000)/1000,portraitSafe};
+}
 function planMarketVisit(){
  const candidates=[];
  for(const stall of MARKET_STALLS){
-  for(const lateral of [0,-1.6,1.6,-2.6,2.6,-3.8,3.8])
-   for(const forward of [4.3,5.35,6.5,7.7])
+  for(const lateral of [0,-1.6,1.6,-2.6,2.6,-3.8,3.8,-4.9,4.9])
+   for(const forward of [4.3,5.35,6.5,7.7,8.7,9.6])
     candidates.push([stall.x+lateral,stall.z+stall.face*forward]);
  }
  for(const place of [[-.6,11.45],[.45,12.15],[-3.2,10.7],[3.15,10.7],
@@ -6203,18 +6271,22 @@ function planMarketVisit(){
    if(front<1.2)continue;
    const yaw=Math.atan2(dx,dz);
    const tilt=Math.max(-.45,Math.min(.35,Math.atan2(door[1]-eye[1],distance)));
-   const view=streetEyeVisibility(pos[0],pos[1],yaw,STREET_EYE);
    const crowd=marketVisitCrowd(pos,door);
-   // Human-scale orientation, with scene breathing room, not an extreme
-   // close-up that shows no architecture, trading square or actual work.
-   const score=16-Math.abs(distance-5.7)*2.8+
-    Math.min(front,6)*.32+(view.openSky?3:-6)+
-    Math.min(6,view.forwardMetres)*1.1-
-    Math.max(0,3.3-crowd.closestCitizenDistance)*12-
-    crowd.foregroundCitizenCount*16;
+   if(crowd.foregroundCitizenCount>0||crowd.closestCitizenDistance<2.4)continue;
+   const architecture=marketVisitArchitecture(pos,door,stall);
+   // Never promise an open medieval square while literally filming a wall.
+   if(!architecture.portraitSafe)continue;
+   const view=streetEyeVisibility(pos[0],pos[1],yaw,STREET_EYE);
+   if(!view.openSky||view.forwardMetres<1.6)continue;
+   const score=24-Math.abs(distance-6.25)*2+
+    Math.min(front,7)*.25+Math.min(6,view.forwardMetres)*.8-
+    architecture.largestForegroundCover*60-
+    architecture.totalForegroundCover*18+
+    Math.min(4,architecture.nearestWallDistance)*2-
+    Math.max(0,3.7-crowd.closestCitizenDistance)*3;
    if(!best||score>best.score)best={
     position:pos.slice(),yaw,tilt,score,stall,stallDistance:distance,
-    eye,door,visibility:view,...crowd
+    eye,door,visibility:view,architecture,...crowd
    };
   }
  }
@@ -6230,6 +6302,8 @@ function getMarketVisitAudit(){
   position:streetPosition.slice(),safe:streetWalk&&streetSafe(...streetPosition),
   stall:marketVisitFocus?.stall?{...marketVisitFocus.stall}:null,
   stallDistance:marketVisitFocus?.stallDistance??null,
+  architecture:streetWalk&&marketVisitFocus?
+   marketVisitArchitecture(streetPosition,marketVisitFocus.door,marketVisitFocus.stall):null,
   ...crowd,
   eye:streetWalk?[streetPosition[0],terrain(...streetPosition)+streetEyeHeight,streetPosition[1]]:null,
   market,authorityUnchangedByCamera:true};
