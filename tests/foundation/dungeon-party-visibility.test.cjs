@@ -232,3 +232,45 @@ test('real Gothic weathering is fitted to the near ruin rather than erased or fl
  assert.match(env,/const obscures=.*==='sightline'/);
  assert.match(floor,/height:\.43,footprint:\.84/);
 });
+
+test('M1 camera-height body rays expose real obscuring stone without erasing distant architecture',async()=>{
+ const {planPartyWallReveal,planCameraBodyOcclusion}=await load();
+ const combat=Object.freeze({x:0,z:0,silhouetteRecess:true,combatRecess:true});
+ const camera=Object.freeze({x:7,y:2.2,z:0});
+ assert.equal(planCameraBodyOcclusion(4.5,0,[combat],camera,2.6),true,
+  'the foreground block physically intersects the camera-to-torso line');
+ assert.equal(planPartyWallReveal(4.5,0,[combat],camera,2.1,2.6),'sightline',
+  'the old flattened camera wedge missed an actually obscuring wall');
+ assert.equal(planCameraBodyOcclusion(4.5,0,[combat],camera,.4),false,
+  'a lower foundation cannot intercept a chest or upper-body ray');
+ assert.equal(planPartyWallReveal(4.5,0,[combat],camera,2.1,.4),'none',
+  'already-lowered masonry cannot erase another part of the nave');
+ assert.equal(planPartyWallReveal(-4.5,0,[combat],camera),'none',
+  'back wall must survive the real three-dimensional sightline');
+ assert.equal(planPartyWallReveal(4.5,2,[combat],camera),'none',
+  'off-axis stone retains original Gothic depth');
+ assert.equal(planPartyWallReveal(4.5,0,[combat],{...camera,y:12}),'none',
+  'a high camera whose rays clear the masonry should not erase it');
+ assert.equal(planCameraBodyOcclusion(4.5,0,[{x:0,z:0}],camera,2.6),false,
+  'unmarked cosmetic subjects are not licensed to extend physical clearance');
+});
+test('M1 anatomical stone clearance has finite read-only budgets, and source renderers share height',async()=>{
+ const {planCameraBodyOcclusion}=await load();
+ const real=Object.freeze({x:0,z:0,silhouetteRecess:true});
+ const camera=Object.freeze({x:7,y:2.2,z:0});
+ const snapshot=JSON.stringify({real,camera});
+ assert.equal(planCameraBodyOcclusion(4.5,0,[real],camera,2.6),true);
+ assert.equal(planCameraBodyOcclusion(4.5,0,[real],camera,2.6),true);
+ assert.equal(planCameraBodyOcclusion(4.5,0,[real],{x:7,z:0},2.6),false);
+ assert.equal(planCameraBodyOcclusion(NaN,0,[real],camera,2.6),false);
+ assert.equal(planCameraBodyOcclusion(4.5,0,[real],camera,Infinity),false);
+ assert.equal(planCameraBodyOcclusion(4.5,0,[{x:Infinity,z:0,silhouetteRecess:true}],camera,2.6),false);
+ const blank=Object.freeze({x:0,z:0});
+ assert.equal(planCameraBodyOcclusion(4.5,0,[blank,blank,blank,blank,blank,real],camera,2.6),false);
+ assert.equal(JSON.stringify({real,camera}),snapshot);
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ const dressing=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
+ assert.match(app,/wallPad,world\.userData\.wallHeights\?\.\[i\]/);
+ assert.match(dressing,/wallPad,f\[4\]/);
+ assert.match(app,/fullBodyHeroes,partiallyVisibleHeroes,fullBodyBosses,bodySamples/);
+});
