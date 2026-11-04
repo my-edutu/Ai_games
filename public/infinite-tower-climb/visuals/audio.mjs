@@ -1,3 +1,5 @@
+import { observedTraversalKinetics } from './traversal-kinetics.mjs';
+
 // Only adjacent, same-run/floor fixed-step HP crossings can earn optional
 // critical-health or relief audio. No inferred pickup, result or restart.
 export function observedSurvivalChange(previous, next) {
@@ -490,6 +492,28 @@ export function createTowerAudio() {
     if (last && actor.score > last.score) tone(700, 1150, .12, 'sine', .075);
     last = actor;
     lastFloor = snapshot.floor;
+    // One continuous source-velocity response joins the real outdoor parallax
+    // and skinned jump. Reuse the OWNED opt-in wind buffer/filter; do not create
+    // an oscillator or synthesize a jump from intended motion. Muted output
+    // remains silent. A stale/terminal frame immediately retires the air cue.
+    const kineticAirflow = observedTraversalKinetics(snapshot).airflow;
+    if (enabled && context && windGain) {
+      const windMood = frame.audio?.musicState || 'ascent';
+      const windBase = lifecycle === 'running' ?
+        (windMood === 'guardian' ? .021 : windMood === 'danger' ? .015 : .008) : .004;
+      const healthFraction = Number.isFinite(actor.maxHealth) && actor.maxHealth > 0 &&
+        Number.isFinite(actor.health) ?
+        Math.max(0, Math.min(1, actor.health / actor.maxHealth)) : 1;
+      const injury = Math.max(0, Math.min(1, (.55 - healthFraction) / .35));
+      const gain = Math.min(.043, windBase + injury * .006 + kineticAirflow * .014);
+      windGain.gain.setTargetAtTime(gain, context.currentTime, .38);
+      if (windFilter) {
+        const baseFilter = { foundry: 200, ruins: 400, storm: 1050,
+          clockwork: 300, void: 140 }[snapshot.theme] || 260;
+        windFilter.frequency.setTargetAtTime(
+          baseFilter + kineticAirflow * 290, context.currentTime, .48);
+      }
+    }
     if (enabled && context.currentTime - lastAmbient > 2) {
       lastAmbient = context.currentTime;
       const mood = frame.audio?.musicState || 'ascent';
@@ -498,16 +522,11 @@ export function createTowerAudio() {
         Number.isFinite(actor.health) ? Math.max(0, Math.min(1, actor.health / actor.maxHealth)) : 1;
       const pressure = Math.max(0, Math.min(1, (.55 - healthRatio) / .35));
       bed.gain.setTargetAtTime(intensity * (1 - .25 * pressure), context.currentTime, .65);
-      if(windGain)windGain.gain.setTargetAtTime(
-        (mood === 'guardian' ? .022 : mood === 'danger' ? .016 : .008) +
-        pressure * .006, context.currentTime, .75);
       const pitches = { foundry: 55, ruins: 65.41, storm: 61.74, clockwork: 82.41, void: 49 };
       const root = pitches[snapshot.theme] || 55;
       for (let index = 0; index < pads.length; index++) {
         pads[index].frequency.setTargetAtTime(root * [1, 1.5, 2][index], context.currentTime, .8);
       }
-      const filters = { foundry: 200, ruins: 400, storm: 1050, clockwork: 300, void: 140 };
-      if(windFilter)windFilter.frequency.setTargetAtTime(filters[snapshot.theme] || 260, context.currentTime, 1);
     }
   }
   function dispose() {
