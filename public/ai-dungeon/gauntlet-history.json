@@ -2194,7 +2194,7 @@
         "playsMajority": false,
         "provenance": "No fresh independent critics available. Do not infer a blind preference from test results or real predecessor screenshots."
       },
-      "safetyChecks": "Previous 13088c authority job passed but all browser viewing failed on HTTP 404 for new camera ESM. New exact head bc165793 routes 38/38 direct imported first-party app modules (static source inspection), with live import-coverage boot contract; tests/real browser pending.",
+      "safetyChecks": "Predecessor 938cf0c actual authority PASS, WebGL browser shards 1/3 and 2/3 PASS, shard 3/3 27/28 (failed real scene archWindows=0), visual review PASS, catalogue CI CANCELLED; 7e47b7e corrected window eligibility and replaced redundant Warden per-tile outlines, new exact-head safety and gameplay checks QUEUED/UNVERIFIED. Do not mark PASSED before completion.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2202,19 +2202,22 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Real-source b8be04f 1440x832 browser screenshot from 41672587065 and Warden boss desktop/mobile screenshot/video artifacts 41672587022 were INSPECTED: new 14 anatomical joint cylinders made elongated opaque spindly/squid-like limbs. Warden encounter head-on 1440x832 has 3 heroes overlapping enemy bodies in the 58% HP boss arena, warning Rift Cross visible but contact indistinguishable; mobile capture progressed into floor 2 but large stylized ballheads persist. This is a NEGATIVE experiential finding compared with da492455 and exact locked baseline; source visual redesign at 71da2ea to cap spans remains unverified. No masked A/B victory.",
-      "latestCandidateWorkflow": "New HTTP route safety fix bc165793: Dungeon 41757934216 and Chromium visual 41757934055 IN PROGRESS; actual LIVE AFTER evidence UNVERIFIED. Do not assume successful browser rendering. Last source head 13088c dedicated Dungeon and visual workflows FAILED.",
+      "latestCandidateWorkflow": "7e47b7e Dungeon Foundation 41765110980 QUEUED, actual visual review 41765111004 QUEUED, catalogue CI 41765110979 IN PROGRESS at last observation. No verdict yet.",
       "currentPredecessorWebgl": {
-        "sourceHead": "e886a0e0b94dce6b1bc137cecd7d1a5a3fc0f9cf",
-        "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41740892204/artifacts/13281337312",
-        "actualImages": [
-          "artifacts/dungeon-immersive-world-only.png",
-          "artifacts/dungeon-immersive-desktop.png",
-          "artifacts/dungeon-immersive-mobile.png"
+        "sourceHead": "938cf0c44726b7be5dd3441eb33f7c1226f2b872",
+        "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41758062752/artifacts/13289962348",
+        "rawWorldArtifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41758062752/artifacts/13289957395",
+        "realScreenshots": [
+          "artifacts/dungeon-m1-counter-telegraph-real-desktop.png",
+          "artifacts/dungeon-m1-court-desktop.png",
+          "artifacts/dungeon-3d-world-only.png"
         ],
-        "worldViewport": "1440x832",
-        "captureDescription": "Personally inspected actual source-native skinned green Ranger, silver Vanguard, purple Mystic in thick Gothic chapel; very large broken partitions, pillars and short stone bands visually compete with the bodies, despite live WebGL and existing cutaway. Real browser video 9.4s VP8 video-only, NO game audio. This is predecessor, not AFTER."
+        "observation": "Genuine screen 1440x832 shows Warden warning grid overrun by repeated bright octagon rings, hiding adjacent characters and tactical floor geometry; raw world contains 3/3 visible heroes, 241px minimum hero projection, 119241 triangles, 0 architecturally supported stained-glass windows. Not a synchronized A/B score, reference parity or fps benchmark.",
+        "webglBoot": "PASS on real Chromium; startup rescue is verified at this predecessor",
+        "audio": "Real 3-second opt-in Warden audiovisual MediaRecorder produced no recorded frames in that workflow; UNSUPPORTED/UNVERIFIED",
+        "fullGameReel": false
       },
-      "newCandidateSceneReview": "UNVERIFIED; the last actual Chromium showed a blank scene with module fetch 404, not a quality win. Source head bc165793 may restore rendering and still requires physical game capture.",
+      "newCandidateSceneReview": "UNVERIFIED current 7e47b7e real browser motion/photos not reviewed. Predecessor exact 938cf0c real Chromium Warden NOVA and RIFT_CROSS screenshots personally inspected: 10+ bright white octagonal rings occupy each attack tile, obscuring one living Vanguard and actual Warden, with stacked HUD and overlapping original GLB bodies. Corrected source path must be judged against that same actual seed/view.",
       "characterDrawBudget": "Previous exact 429e6b real Chromium had 265 cinematicMeshes at desktop versus <=240 test bound (shard1 failed). New 3aec189 fuses 4–5 head parts per figure and removes 1 gorget per figure but actual current head draw counts, performance and visual quality UNVERIFIED; do not infer from mesh arithmetic.",
       "externalReferenceAudit": "Compared qualitatively against 2023 Diablo IV Frozen Tunnel combat still (https://www.npr.org/2023/05/30/1178222988/diablo-iv-review-activision-blizzard), real No Rest for the Wicked 2026 cavern still (https://www.rpgsite.net/news/20518-no-rest-for-the-wicked-1-0-release-ps5-xbox-switch-2-cross-save-multiplayer-pc-october), and Path of Exile 2 Executioner combat still (https://www.mmorpg.com/reviews/path-of-exile-2-early-access-review-2000133606). Their negative space/material structure/impact clarity remain far ahead; they are references, NOT licensed or copied game assets. No direct synchronized/gameplay-balanced reference test or blind score.",
       "realBrowserFrameDeliveryPredecessor": "Actual d9e1c Chromium software WebGL shard 2 artifact 13238978845, artifacts/dungeon-raf-interval-evidence.json: foreground RAF intervals 15 samples, p50 733.3ms, p95 and worst 4549.9ms; other raster evidence sampled 8 frames, directRenderMs 3.9ms at 273136 pixels and downshift 2. Foreground RAF observations cannot establish standalone GPU render time or phone fps. Known scheduling / software runner risk, latest candidate performance UNVERIFIED.",
@@ -2293,9 +2296,9 @@
       "nativeContinuityCandidate": "Source commit 08338db is an unverified new 3D underlay candidate, not a demonstrated repair. Real after comparison/critics have not happened. Monitor additional native underbody draw calls and 3D anatomy material intersections."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Critical last actual-Chromium source head 13088c rendered zero world frames because /dungeon/combat-shot-continuity.js was 404; candidate route fixed but exact-head moving gameplay unverified. Once playable, source-native figures are still toy-like, Gothic foreground competes with readable contact, real non-silent audio and a full five-stage adventure are missing.",
-    "currentWork": "One uninterrupted M1 milestone: restored HTTP serving of actual combat-shot-continuity module after traced browser source failure left every live 3D scene blank. All 38 direct app modules are allowlisted at fixed exact head bc165793; true candidate WebGL, Warden, audio, mobile still require CI evidence.",
-    "candidateCommit": "bc165793ce3f42c9926859158eb3066246a67abe",
+    "biggestRemainingGap": "In authentic current-predecessor browser boss footage, overly repeated high-contrast white hazard-ring geometry and overlapping miniature-like protagonist/enemy bodies bury real tactical contact. New unified Warden contour candidate is unverified in motion. Beyond that, source character fidelity, complete natural gameplay/audio journey, phone frame delivery and independently masked 3-pillar comparison remain outstanding.",
+    "currentWork": "Actual 4 Nov Chromium Warden footage exposed a thick carpet of per-cell white octagonal rings obscuring real bodies and safe escape routes. Source candidate 7e47b7e removes those duplicate halos, retains only real union-perimeter danger outlines and at most 10 physical frontier incisions with same authoritative strike cells/telegraph timing; on the same travel-to-boss path restores Gothic stained glass on truly blocked non-vault masonry by supporting lower original plinths. True exact-head moving desktop/phone game and original A/V still pending; no looks/feels/plays win.",
+    "candidateCommit": "7e47b7e2da495deed163035c28d1dc45560a90c2",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
     "implementationEvents": [
@@ -4307,6 +4310,28 @@
         "feels": "UNVERIFIED",
         "plays": "UNVERIFIED",
         "next": "Inspect exact code desktop/mobile WebGL and motion/audio; prioritize coherent professional character scale, meaningful true combat contact and boss pacing; film full natural five-stage expedition, pinned matched BEFORE/AFTER, original audible soundtrack, performance and three independent blind majority votes. Preserve PR draft and baseline."
+      },
+      {
+        "id": "M1-WARDEN-THREAT-COMPOSITION-20261104",
+        "date": "2026-11-04",
+        "milestone": "M1",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "codeCommit": "7e47b7e2da495deed163035c28d1dc45560a90c2",
+        "objective": "Recover a tactically readable real Warden arena from a cluttered per-tile halo carpet, then restore genuine Gothic world accents that visibly support exploration without deceiving collision.",
+        "actualPredecessorEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/41758062752/artifacts/13289962348",
+        "actualRawWorldEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/41758062752/artifacts/13289957395",
+        "realDiagnosis": "Authentic desktop Warden NOVA and RIFT_CROSS screenshots at 938cf0c show dozens of bright octagonal tile rings and buried source-native skinned figures. Real 1440x832 world-only scene has zero actual stained-glass arch windows; previous run shard 3/3 27/28 failed arch-window assertion, despite real WebGL startup and true gameplay.",
+        "integratedImplementation": "Retire individually outlined high-contrast octagonal tile meshes; display the exact authoritative union boundary of danger tiles, retain subdued inside fills and a <=10 sparse stone incision frontier with stage-tied light dynamics, never fabricate a strike. Mount 3D stained-glass/buttress structures on legal genuinely blocked wall faces >=1.04m excluding vaulted cut-through gallery; preserve cutaways and wall collisions. Browser regression verifies zero white per-cell halos, true perimeter and bounded sparsity in actual Warden encounter.",
+        "code": [
+          "public/ai-dungeon/warden-ritual.js",
+          "public/ai-dungeon/environment.js",
+          "public/ai-dungeon/architecture.js",
+          "tests/browser/dungeon-warden-patterns.spec.cjs"
+        ],
+        "sourceSafety": "Presentation only; retains actual seeded boss strike cells, AI and HP/evade authority, map, RNG, save/replay; original art and Three.js only. New code not yet verified by source-head browser/authority or frame-time check.",
+        "liveCandidateEvidence": "UNVERIFIED; new 41765110980 and 41765111004 running/queued at observation; 0 fresh independent blind critics, original game WAV and full journey UNVERIFIED",
+        "next": "Inspect real exact-head moving desktop/phone NOVA/RIFT_CROSS and world-only glass, confirm hazard readability, reduce any remaining clutter/overdraw, preserve phone FPS; build a complete non-staged journey clip with actual audible original gameplay, compare fixed same-seed baseline, and require three independent blind all-pillar majorities."
       }
     ]
   }
