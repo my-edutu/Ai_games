@@ -14,6 +14,34 @@ permissions:
   contents: read
 
 jobs:
+  # W22: one worker's continuous physical task is a genuine visible action,
+  # not a looping boot slide or a static tool pointing at a fake station.
+  # Independent of legacy all-catalogue browser failures.
+  w22-grounded-real-labor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Genuine autonomous worksite planted boots and two-hand animated contact, desktop and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w22-grounded-labor-cadence.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w22-grounded-labor
+          path: test-results/
+          retention-days: 14
   # W15 ground-under-actual-homes is independently bounded. The enormous
   # legacy catalogue suite can time out without hiding this vertical gate.
   w15-ground-atlas:
