@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T16:13:52.012Z",
-  "status": "IN PROGRESS — NOT TRANSFORMED: actual camera-height body-ray clearing integrated with Gothic walls/facades, NEW RUNNING AFTER UNVERIFIED",
+  "generatedAt": "2026-11-04T16:54:12Z",
+  "status": "IN PROGRESS — NOT TRANSFORMED: native-width body rays and physical orbit integrated in code; NEW-HEAD real gameplay UNVERIFIED",
   "reference": "Diablo IV: overall quality; No Rest for the Wicked: worlds; Path of Exile 2: contact and combat — NOT independently compared as matched motion",
   "metrics": {
     "sample_seeds": 24,
@@ -208,19 +208,19 @@
       "elapsedMs": 158
     }
   ],
-  "visualVerdict": "Genuine predecessor browser art still shows toy-like original humanoids and Vanguard body obstructed by masonry despite unoccludedHeroes. New code integrates physical 3D camera-height boot/torso/head stone clearance and more truthful full-body audit; no exact-head running AFTER footage, motion/audio or blind majority witnessed. No substantial visual win claimed.",
+  "visualVerdict": "Inspected real 7817fb4 Chromium desktop/mobile 3D shows Vanguard's head and blade above chunky stone; body obscured. Original source art still toy-like. The 05da9ae change is only a code candidate; no new-head AFTER or blinded preference evidence.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
-  "candidateCommit": "e76c3d37ee07343cb3f07d5f961955ec2b51065e",
-  "metricsProvenance": "The displayed 24×900 seeds are HISTORICAL, not rerun at e76c3d37. Previous 7cc4d0d Dungeon/visual passed; broad CI failed due to malformed test which is now repaired, new exact-head workflow conclusions pending. No full audio/video journey, phone p95 or critic majority.",
+  "candidateCommit": "05da9ae111a727024093411e8de68b2c4cec279d",
+  "metricsProvenance": "The 24x900 deterministic campaign aggregate is HISTORICAL. Previous exact 7817fb4 visual/3 browser shards succeeded but authority 294/295 and broader CI failed stale facade signature; no new candidate authority, browser, performance or synchronized original audio verified.",
   "transformation": {
     "milestone": "M1",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
     "locked": true,
-    "candidateSha": "e76c3d37ee07343cb3f07d5f961955ec2b51065e",
+    "candidateSha": "05da9ae111a727024093411e8de68b2c4cec279d",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
-    "exactHeadSafety": "Original baseline locked. Previous 7cc4d0d Dungeon+Chromium 41854700253 PASS, visual 41854700657 PASS, catalogue 41854700728 FAIL (a real test SyntaxError, corrected at 942d3be). Current source e76c3d37 exact-head workflows queued: Dungeon 41865005779, visual review 41865005746, catalogue 41865005787 — conclusions UNVERIFIED.",
+    "exactHeadSafety": "Previous exact source 7817fb4: real visual review 41865245118 PASSED and all three browser shards of 41865245158 PASSED. Dedicated authority FAILED 294/295 on a stale 5-argument facade source assertion (actual code passes f[4]); broad catalogue CI 41865245251 FAILED on the same case. Current 05da9ae new-head tests/Chromium performance and correct full journey are still PENDING / UNVERIFIED.",
     "looks": "UNVERIFIED",
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
@@ -230,10 +230,10 @@
       "majorityAllPillars": false
     },
     "fullDesktopMobileAudiovisualJourney": "UNVERIFIED",
-    "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41854700657/artifacts/13338175429",
-    "exactHeadAction": "Inspect e76c3d37 authentic new-head browser video desktop/mobile and body-ray diagnostic after CI concludes; compare against same fixed original baseline and truthful same-seed scene, and reject if full anatomy remains hidden or frame performance worsens.",
-    "biggestGap": "True source-skinned anatomy remains stylized and weapon contact visually light; last inspected full-body obstruction is now addressed by new geometric ray policy but has no authentic new-head motion validation.",
-    "nextTask": "Review genuine exact-head moving WebGL and first repair any regressions; materially improve full native actor silhouette/combat animation and floor-to-wipe coherent adventure; collect real desktop/mobile audiovisual A/B against immutable source and 3 blinded critics.",
+    "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41865245118/artifacts/13341748845",
+    "exactHeadAction": "Review 05da9ae real browser desktop/mobile continuous gameplay and verify native shoulder visibility without camera hunting or visual flattening; current candidate exact-head safety UNVERIFIED.",
+    "biggestGap": "Native actors remain KayKit-style and toy-proportioned; real sword/body impact lacks reference-class weight, and last real video had no full-body view or synchronized adventure audio.",
+    "nextTask": "Inspect exact-05da9ae gameplay footage 1440x832 and 390x844, verify that the torso/boots become consistently visible and camera does not hunt or erase architecture; reject if not. Follow through with larger skinned character/anatomy/material/weapon-contact work and genuine full mobile+desktop organic episode, audio and 3 independent masked critics.",
     "currentMilestoneLedger": "public/ai-dungeon/gauntlet-history.json"
   },
   "acceptanceStatus": "IN PROGRESS / NOT TRANSFORMED — LOOKS, FEELS and PLAYS UNVERIFIED; critics 0/3; exact-head new capture pending."
