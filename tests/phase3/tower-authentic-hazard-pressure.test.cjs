@@ -94,7 +94,7 @@ test('reduced motion shows static legible pressure; invalid/stale/result/guardia
     [snapshot(1, { worldWidth: 0 }), {}],
     [snapshot(1, { enemies: [{ active: true, telegraph: true }] }), {}],
     [snapshot(1), { stale: true }],
-    [snapshot(1, { hazards: [{ ...snapshot(1).hazards[0], active: true }] }), {}],
+    [snapshot(1, { hazards: [{ ...snapshot(1).hazards[0], active: false, chargeTicksRemaining: 13 }] }), {}],
     [snapshot(1, { hazards: [{ ...snapshot(1).hazards[0], x: 900000 }] }), {}],
   ]) {
     effect.update(frame, options);
