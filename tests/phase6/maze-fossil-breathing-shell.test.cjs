@@ -40,25 +40,36 @@ test('authentic known-wall organ has a connected ivory shell and approaches Pip 
       'two installed concentric ceramic rings, not a screen HUD decoration');
     assert.ok(shell.children.some(x=>x.isMesh && x.geometry.type==='IcosahedronGeometry'),
       'real sculpted sea-glass center is part of the installed object');
-    for (const side of [-1,1]) {
+    const mantles=[-1,1].map(side=>{
       const mantle=world.group.getObjectByName('Disclosed fossil breathing shell mantle 10 '+side);
-      assert.ok(mantle?.isGroup && mantle.parent===shell
-        && mantle.children.some(x=>x.isMesh && x.geometry.type==='ExtrudeGeometry'),
-      'both broad shell mantles are connected physical geometry');
-    }
+      assert.ok(mantle?.isGroup && mantle.parent===shell,
+        'both broad shell mantles are rooted in the ring, not sprites');
+      const face=mantle.children.find(x=>x.isMesh && x.geometry.type==='ExtrudeGeometry');
+      assert.ok(face && face.scale.x>=.46 && face.scale.y>=.30,
+        'the real broadened stone fluke must have gameplay-size physical width');
+      return mantle;
+    });
     const pos=cellPosition(10,7,7),height=cellHeight(10,7,7);
     assert.ok(organ.position.z<pos.z-.98 && organ.position.z>pos.z-1.2,
       'the shell remains rooted on the verified impassable north side');
     world.animate(2, {explorerPosition:new Vector3(150,0,150)});
-    const far={y:shell.position.y,scale:shell.scale.x,angle:shell.rotation.z};
+    const far={y:shell.position.y,scale:shell.scale.x,angle:shell.rotation.z,
+      mantleAngles:mantles.map(m=>Math.abs(m.rotation.z))};
     world.animate(2, {explorerPosition:new Vector3(pos.x,height,pos.z)});
+    assert.ok(mantles.every((m,i)=>Math.abs(m.rotation.z)>far.mantleAngles[i]+.3),
+      'both actual attached fluke hinges must spread only with publicly observed Pip');
+    assert.ok(Math.abs(mantles[0].rotation.z+mantles[1].rotation.z)<1e-9,
+      'the physical hinge action is symmetric and deterministic');
     assert.ok(shell.position.y>far.y+.1 && shell.scale.x>far.scale+.15,
       'public Pip arrival makes the real shell bloom and rise');
     assert.ok(shell.rotation.z>far.angle+.1,
       'actual connected ring tilts rather than only changing HUD text');
     world.animate(2, {reducedMotion:true,explorerPosition:new Vector3(pos.x,height,pos.z)});
-    const settled={y:shell.position.y,scale:shell.scale.x,angle:shell.rotation.z};
+    const settled={y:shell.position.y,scale:shell.scale.x,angle:shell.rotation.z,
+      mantleAngles:mantles.map(m=>m.rotation.z)};
     world.animate(20, {reducedMotion:true,explorerPosition:new Vector3(150,0,150)});
+    assert.deepEqual(mantles.map(m=>m.rotation.z),settled.mantleAngles,
+      'reduced-motion fluke hinges must remain fixed even when public Pip retreats');
     assert.equal(shell.position.y,settled.y);
     assert.equal(shell.scale.x,settled.scale);
     assert.equal(shell.rotation.z,settled.angle,
@@ -68,6 +79,8 @@ test('authentic known-wall organ has a connected ivory shell and approaches Pip 
     assert.equal(shell.scale.x,far.scale);
     assert.equal(shell.rotation.z,far.angle,
       'withdrawing removes the publicly triggered gesture');
+    assert.deepEqual(mantles.map(m=>Math.abs(m.rotation.z)),far.mantleAngles,
+      'withdrawal must reset both original physical mantles without ghost AI cues');
     assert.equal(JSON.stringify(s), frozen, 'no mutation of public gameplay authority');
     assert.equal(world.stats().geometryCount,budget.geometryCount);
     assert.equal(world.stats().materialCount,budget.materialCount);
