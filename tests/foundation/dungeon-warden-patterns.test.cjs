@@ -1,11 +1,11 @@
 'use strict';
 const {test}=require('node:test'),assert=require('node:assert/strict');
-const {DungeonRuntime,planWardenStrike,assertDungeonState}=require('../../dist/games/ai-dungeon/src/index.js');
+const {DungeonRuntime,planWardenStrike,planWardenEvasionStep,assertDungeonState}=require('../../dist/games/ai-dungeon/src/index.js');
 const key=p=>p.x+','+p.z;
 test('real phase attacks have three distinct safe and dangerous footprints',()=>{
  const game=DungeonRuntime.create('three-warden-patterns-M1'),s=game.state;
  const boss=s.units.find(u=>u.kind==='warden');assert.ok(boss);
- for(const [fraction,shape,max] of [[1,'NOVA',25],[.48,'RIFT_CROSS',17],[.2,'ECLIPSE_SWEEP',9]]){
+ for(const [fraction,shape,max] of [[1,'NOVA',25],[.48,'RIFT_CROSS',17],[.2,'ECLIPSE_SWEEP',27]]){
   boss.hp=Math.ceil(boss.maxHp*fraction);s.tick=4;
   const threat=planWardenStrike(s,boss);
   assert.equal(threat.shape,shape);
@@ -19,9 +19,9 @@ test('Eclipse warning, reaction and actual strike agree on orientation and tiles
  const game=DungeonRuntime.create('warden-warning-fixed-M1'),s=game.state;
  const boss=s.units.find(u=>u.kind==='warden');boss.hp=Math.ceil(boss.maxHp*.2);
  const plan=[];
- for(const tick of [2,3,4]){s.tick=tick;plan.push(planWardenStrike(s,boss))}
- assert.equal(plan[0].warning,true);assert.equal(plan[1].warning,true);assert.equal(plan[2].warning,false);
- assert.deepEqual(plan[0].cells,plan[1].cells);assert.deepEqual(plan[1].cells,plan[2].cells);
+ for(const tick of [1,2,3,4]){s.tick=tick;plan.push(planWardenStrike(s,boss))}
+ assert.deepEqual(plan.map(p=>p.warning),[true,true,true,false]);
+ assert.deepEqual(plan[0].cells,plan[1].cells);assert.deepEqual(plan[1].cells,plan[2].cells);assert.deepEqual(plan[2].cells,plan[3].cells);
  s.tick=6;assert.notEqual(planWardenStrike(s,boss).axis,plan[0].axis);
 });
 test('a hero genuinely steps off a Rupture cross and avoids the real following attack',()=>{
@@ -51,4 +51,32 @@ test('no legal adjacent safe tile causes a real guard with damage mitigation',()
  assert.equal(hero.guardTick,s.tick+1);assert.ok(view.events.some(e=>e.kind==='guard'));
  game.step();assert.ok(hero.hp<hp&&hero.hp>=hp-8);
  assertDungeonState(game.state);
+});
+
+test('Eclipse final act raises three true lanes and a legal three-beat escape, without teleport',()=>{
+ const game=DungeonRuntime.create('eclipse-pressure-tactics-M1'),s=game.state;
+ const boss=s.units.find(u=>u.kind==='warden'),hero=s.units.find(u=>u.id==='vanguard');
+ assert.ok(boss&&hero);boss.hp=Math.ceil(boss.maxHp*.2);
+ for(const u of s.units)if(u!==boss&&u!==hero)u.hp=0;
+ hero.x=boss.x;hero.z=boss.z+1;s.tick=1;
+ const strike=planWardenStrike(s,boss);
+ assert.equal(strike.shape,'ECLIPSE_SWEEP');assert.equal(strike.turnsUntilImpact,3);
+ assert.ok(strike.cells.length>=18&&strike.cells.length<=27);
+ assert.ok(strike.cells.some(p=>p.x===boss.x+1&&p.z===hero.z));
+ assert.ok(strike.cells.some(p=>p.x===boss.x-1&&p.z===hero.z));
+ const initial={x:hero.x,z:hero.z};let moves=0;
+ for(const beat of [3,2,1]){
+  const live=planWardenStrike(s,boss);assert.equal(live.turnsUntilImpact,beat);
+  if(live.cells.some(p=>p.x===hero.x&&p.z===hero.z)){
+   const next=planWardenEvasionStep(s,hero,live);assert.ok(next);
+   assert.equal(Math.abs(next.x-hero.x)+Math.abs(next.z-hero.z),1);
+   assert.equal(s.map[next.z][next.x],'.');hero.x=next.x;hero.z=next.z;moves++;
+  }
+  s.tick++;
+ }
+ assert.ok(moves>=2,'three-column curtain requires successive lawful footfalls from the centre');
+ assert.equal(s.tick,4);assert.equal(planWardenStrike(s,boss).warning,false);
+ assert.equal(strike.cells.some(p=>p.x===hero.x&&p.z===hero.z),false);
+ assert.notDeepEqual({x:hero.x,z:hero.z},initial);
+ assertDungeonState(s);
 });
