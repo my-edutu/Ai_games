@@ -3,7 +3,7 @@ import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicLanternEncounter, publicLanternWarning } from './public-lantern-encounter.mjs';
+import { publicLanternEncounter, publicLanternWarning, publicGuardianEncounterBeat } from './public-lantern-encounter.mjs';
 import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
@@ -341,7 +341,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     }
     for (const threat of snapshot.threats) {
       let entry = wardens.get(threat.id);
-      if (!entry) { entry = { model: createWarden({ balanced }), contact: createWardenContact(), cell: threat.cell, cells: [threat.cell], progress: 0, heading: 0 }; wardens.set(threat.id, entry); scene.add(entry.model.group); }
+      if (!entry) { entry = { model: createWarden({ balanced }), contact: createWardenContact(), cell: threat.cell, cells: [threat.cell], progress: 0, heading: 0, encounterStart: null, encounterBeat: 0 }; wardens.set(threat.id, entry); scene.add(entry.model.group); }
       const p = cellPosition(threat.cell, snapshot.width, snapshot.height);
       const old = cellPosition(entry.cell, snapshot.width, snapshot.height);
       if (old.x !== p.x || old.z !== p.z) entry.heading = Math.atan2(p.x - old.x, p.z - old.z);
@@ -413,10 +413,25 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       const attentionStrength=result?0:clamp((6.6-separation)/2.2,0,1);
       if (attentionStrength>(closestThreat?.strength??0))
         closestThreat={x:threatPose.x,y:threatGround,z:threatPose.z,cell:entry.cell,strength:attentionStrength};
+      // Per-guardian source-authentic encounter: first PUBLIC attention starts
+      // a bounded visual timeline. Clearing/ending public attention resets it.
+      // This never sets AI intent or creates movement and cannot track a hidden
+      // warden because only the public 'wardens' map is iterated.
+      if (!result && attentionStrength > .35) {
+        if (entry.encounterStart === null) entry.encounterStart = gateVisualTime;
+      } else entry.encounterStart = null;
+      entry.encounterBeat=entry.encounterStart===null?0
+        :publicGuardianEncounterBeat(gateVisualTime-entry.encounterStart,settings.reducedMotion);
+      const brace=Math.max(0,Math.min(1,(entry.encounterBeat-.24)/.36));
+      // The existing, physically grounded contact shadow responds to the
+      // actual armored body planting its feet. Its x/z/y always follow the
+      // disclosed model; no extra mesh, billboard or GPU material is spawned.
+      entry.contact.scale.set(1.22+brace*.16,.96+brace*.08,1);
       entry.model.update({
         time:elapsed,delta,moving:threatPose.moving&&!result,heading:entry.heading,
         attentionHeading:attentionStrength?Math.atan2(towardExplorerX,towardExplorerZ):undefined,
-        attentionStrength,danger:1,result,reducedMotion:settings.reducedMotion,
+        attentionStrength,encounterBeat:entry.encounterBeat,
+        danger:1,result,reducedMotion:settings.reducedMotion,
       });
     }
     // Authentic same-run public CLOSED→OPEN testimony drives both Pip's
@@ -968,6 +983,12 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         wardenContactShadows: [...wardens.values()].filter(entry => entry.contact?.parent === scene).length,
         wardenGroundedContacts,
         encounterAttention: closestThreat?.strength ?? 0,
+        // Source-bound 3D witness diagnostics for REAL desktop/mobile PNGs.
+        // Values belong to already published guardians, never hidden AI state.
+        witnessedGuardianBeat: [...wardens.values()].map(entry => ({
+          cell: entry.cell, beat: entry.encounterBeat,
+          bracedContact: entry.contact.scale.x,
+        })),
         witnessedLanternConeVisible: lanternBeam.visible,
         witnessedLanternWarningVisible: lanternWarning.visible,
         // Read the real Three.js light and articulated cage after the actual
@@ -1055,7 +1076,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     if (disposed) return;
     lost = false; lastNow = 0;
     if (frame?.snapshot) { resetPosition(frame.snapshot); previous = frame.snapshot; }
-    for (const entry of wardens.values()) { entry.cells = [entry.cell]; entry.progress = 0; }
+    for (const entry of wardens.values()) { entry.cells = [entry.cell]; entry.progress = 0; entry.encounterStart = null; entry.encounterBeat = 0; }
     canvas.dataset.renderer = 'webgl'; onStatus?.('ready');
   }
   canvas.addEventListener('webglcontextlost', contextLost);
