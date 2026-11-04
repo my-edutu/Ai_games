@@ -83,6 +83,49 @@ test('physical tide-fern mantles hang from the exterior of actual disclosed 3D f
       'presentation may not mutate AI public authority');
   } finally { world.dispose(); replay.dispose(); done(); }
 });
+test('actual disclosed lower facades carry three broad 3D tidal stone courses per exterior face', async () => {
+  const {module, THREE, done} = await loadRealWorld();
+  const world = module.createMazeWorld({balanced:true});
+  const replay = module.createMazeWorld({balanced:true});
+  try {
+    const publicShot = shot([cell(22)]);
+    const original = JSON.stringify(publicShot);
+    world.update(publicShot);
+    replay.update(shot([cell(22)], {runToken:'same-public-geometry', tick:987}));
+    const center = module.cellPosition(22, 7, 7);
+    const floor = module.cellHeight(22, 7, 7);
+    const east = [], south = [];
+    const mat = new THREE.Matrix4(), pos = new THREE.Vector3(), size = new THREE.Vector3();
+    world.group.children[1].traverse(mesh => {
+      if (!mesh.isInstancedMesh || mesh.geometry.type !== 'ExtrudeGeometry'
+        || !['Disclosed sunlit ivory terrace', 'Disclosed sea-glass mosaic'].includes(mesh.material.name)) return;
+      for (let i=0;i<mesh.count;i++) {
+        mesh.getMatrixAt(i,mat); pos.setFromMatrixPosition(mat);
+        size.setFromMatrixScale(mat);
+        const entry = {y:pos.y, wide:Math.max(size.x,size.z), thickness:Math.min(size.x,size.z)};
+        if (Math.abs(pos.x - center.x - 1.285) < .005
+          && Math.abs(pos.z-center.z)<.005) east.push(entry);
+        if (Math.abs(pos.z - center.z - 1.285) < .005
+          && Math.abs(pos.x-center.x)<.005) south.push(entry);
+      }
+    });
+    const expected = [.12,.48,.80].map(depth=>floor-.34-depth*(1.36+floor));
+    for (const [face,entries] of [['east',east],['south',south]]) {
+      const courses=entries.filter(p=>p.wide>=1.68 && p.thickness<.15);
+      assert.equal(courses.length,3,face+' has three actual broad stone strata, not CSS');
+      for (const y of expected)
+        assert.ok(courses.some(p=>Math.abs(p.y-y)<.005),
+          face+' strata follow the actual disclosed terrace foundation height');
+    }
+    const stats=world.stats();
+    assert.equal(stats.undercroftButtresses,2);
+    assert.equal(stats.instances,replay.stats().instances,'identical publicly disclosed geometry is deterministic');
+    assert.ok(stats.geometryCount<=16 && stats.materialCount<=26 && stats.textureCount<=3,
+      'sculpted courses reuse original physical draw-resource classes');
+    assert.equal(JSON.stringify(publicShot),original,'rendering cannot mutate public AI facts');
+  } finally {world.dispose(); replay.dispose(); done();}
+});
+
 test('private history never grows scenery, and unsafe/public landmark cells do not wear fern mantles', async () => {
   const {module, done} = await loadRealWorld();
   const world = module.createMazeWorld({balanced:true});

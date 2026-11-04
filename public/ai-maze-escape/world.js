@@ -907,6 +907,25 @@ export function createMazeWorld(options = {}) {
               z + dz * 1.232, dz ? 1.72 : .13, .12,
               dx ? 1.72 : .13, c.cell);
             undercroftButtresses++;
+            // Pass134: actual Pass133 native 1280/390 images still showed a
+            // monolithic, near-black undercroft occupying much of the playable
+            // frame. Three wide, stepped mineral tidal courses give the
+            // EXTERIOR of each already disclosed safe east/south foundation
+            // an authored architectural scale. Varying spans and the pale
+            // raised top/bottom edges make physical stone visible at normal
+            // gameplay zoom, not a thin shader stripe. No false doorway,
+            // directional arrow, collision, route or hidden-cell inference.
+            // Reuse the current bevel/material instancing only.
+            for (const [course, depth] of [.12, .48, .80].entries()) {
+              const reliefY = -.34 - depth * (1.36 + floorY);
+              const reliefSpan = course === 1 ? 1.68 : 2.04;
+              add(bevel, course === 1 ? seaGlass : lightStone,
+                x + dx * 1.285, reliefY,
+                z + dz * 1.285,
+                dz ? reliefSpan : .135,
+                course === 1 ? .16 : .12,
+                dx ? reliefSpan : .135, c.cell);
+            }
             // A rooted, physical sea-fern mantle gives the otherwise black
             // undercroft a readable living vertical layer. Every frond hangs
             // OUTSIDE a publicly disclosed tile, at the currently exposed
