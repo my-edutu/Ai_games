@@ -63,3 +63,48 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   await page.waitForTimeout(1400);
  });
 }
+
+
+for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
+ test('W33 truth-linked selected citizen shift and courier progress '+viewport.width+'px',async({page})=>{
+  test.setTimeout(180000);
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.setViewportSize(viewport);await page.setContent(html);
+  await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0,null,{timeout:90000});
+  const before=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;g.setSpeed(0);
+   const p=g.getState().people[2];g.setCamera({focus:[p.x,p.z],zoom:11,yaw:.7,pitch:.6});
+   return g.exportSnapshot().checksum;
+  });
+  await page.waitForFunction(()=>window.__tinyKingdom.getCitizenPickCandidates().some(c=>
+   c.visible&&c.x>90&&c.x<innerWidth-90&&c.y>125&&c.y<innerHeight-200),null,{timeout:90000});
+  const picked=await page.evaluate(()=>{
+   const options=window.__tinyKingdom.getCitizenPickCandidates().filter(c=>
+    c.visible&&c.x>90&&c.x<innerWidth-90&&c.y>125&&c.y<innerHeight-200);
+   return options[0];
+  });
+  await page.mouse.click(picked.x,picked.y);
+  const audit=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;const status=g.getSelectedCitizenTaskAudit();
+   return {status,checksum:g.exportSnapshot().checksum,
+    caption:document.querySelector('#citizen-pick-caption')?.textContent,
+    value:document.querySelector('#citizen-pick-meter')?.value,
+    visible:document.querySelector('#citizen-pick-meter')?.hidden,
+    errors:document.querySelector('#world').getContext('webgl')?.getError()??-1,
+    width:document.documentElement.scrollWidth};
+  });
+  expect(audit.status.source).toBe('real-selected-citizen-task-progression');
+  expect(audit.status.citizen).toBe(picked.name);
+  expect(['production','market-hauling','market-unloading','inactive']).toContain(audit.status.stage);
+  expect(audit.status.progress===null||audit.status.progress>=0&&audit.status.progress<=100).toBe(true);
+  expect(audit.status.authoritativeChanges).toBe(false);
+  expect(audit.caption).toContain(picked.name);
+  expect(audit.caption).toContain(picked.job);
+  expect(audit.visible).toBe(audit.status.progress===null);
+  if(audit.status.progress!==null)expect(audit.value).toBeCloseTo(audit.status.progress,2);
+  expect(audit.checksum).toBe(before);
+  expect(audit.width).toBeLessThanOrEqual(viewport.width);
+  expect(audit.errors).toBe(0);
+  expect(errors).toEqual([]);
+ });
+}
