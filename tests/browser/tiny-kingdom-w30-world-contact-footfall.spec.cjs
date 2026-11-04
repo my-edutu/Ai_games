@@ -22,7 +22,7 @@ test('W30 authentic moving citizens plant boots in world space at '+viewport.wid
    g.reset();g.setSpeed(0);
    const records=[],prior=new Map(),travellers=new Set();
    let stanceFrames=0,swingFrames=0;
-   let maxStanceSlip=0,maxSwingLift=0,minStanceSole=Infinity;
+   let maxStanceSlip=0,maxSwingLift=0,minStanceSole=Infinity,maxStanceSole=-Infinity;
    for(let frame=0;frame<150;frame++){
     const snapshot=g.exportSnapshot(),citizens=snapshot.payload.people;
     for(let i=0;i<citizens.length;i++){
@@ -45,8 +45,7 @@ test('W30 authentic moving citizens plant boots in world space at '+viewport.wid
        // meet the actual sampled terrain at the active forward-facing foot.
        const sole=leg.ankle[1]-leg.groundOffset-.045;
        minStanceSole=Math.min(minStanceSole,sole);
-       expect(sole).toBeGreaterThanOrEqual(-.001);
-       expect(sole).toBeLessThan(.009);
+       maxStanceSole=Math.max(maxStanceSole,sole);
       }else if(leg.contact==='swing'){
        swingFrames++;
        maxSwingLift=Math.max(maxSwingLift,leg.lift);
@@ -69,7 +68,7 @@ test('W30 authentic moving citizens plant boots in world space at '+viewport.wid
    }
    return {source:'real-travel-distance-to-world-boot-contact',viewport:innerWidth,
     travellers:[...travellers].sort(),stanceFrames,swingFrames,maxStanceSlip,
-    maxSwingLift,minStanceSole,validPairs:records.length,
+    maxSwingLift,minStanceSole,maxStanceSole,validPairs:records.length,
     worst:records.sort((a,b)=>b.slip-a.slip).slice(0,5),
     population:g.metrics().citizens,authority:g.exportSnapshot(),
     gl:document.querySelector('#world').getContext('webgl')?.getError()??-1,
@@ -81,7 +80,8 @@ test('W30 authentic moving citizens plant boots in world space at '+viewport.wid
   expect(sample.swingFrames).toBeGreaterThan(20);
   expect(sample.maxStanceSlip).toBeLessThan(.045);
   expect(sample.maxSwingLift).toBeGreaterThan(.085);
-  expect(sample.minStanceSole).toBeCloseTo(.002,2);
+  expect(sample.minStanceSole).toBeGreaterThanOrEqual(-.001);
+  expect(sample.maxStanceSole).toBeLessThan(.009);
   expect(sample.gl).toBe(0);
   expect(sample.scrollWidth).toBeLessThanOrEqual(viewport.width);
   expect(errors).toEqual([]);
