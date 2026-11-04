@@ -190,3 +190,50 @@ test('shield spacing never freezes a distant encounter or crosses an observed li
     'never retreat toward a presently active spike to make a cinematic pose');
   assert.equal(guarded.action.attack,false);
 });
+
+test('actual second-wind charge opens an earned melee answer across AI, combat and replay',()=>{
+  const s=encounter(true,4),boss=s.enemies[0],p=s.player;
+  const floor=s.chunks.find(c=>c.floor===s.floor);
+  const cap=floor.platforms.find(x=>x.id===`f${s.floor}:cap`);
+  assert.ok(cap,'counter-strike is played on the source guardian floor');
+  floor.hazards=[];s.projectiles=[];s.pickups=[];
+  p.position={x:cap.x+cap.width/2,y:cap.y+cap.height+p.halfHeight};
+  p.grounded=true;p.groundedPlatformId=cap.id;
+  p.velocity={x:0,y:0};p.facing=1;p.attackCooldown=0;
+  p.health=p.maxHealth;p.abilityCooldown=0;
+  boss.position={x:p.position.x+27000,y:p.position.y};
+  boss.facing=-1;boss.guardUntilTick=s.tick+18;
+  boss.telegraphUntilTick=s.tick+5;boss.telegraphDurationTicks=6;
+  boss.cooldown=20;
+  const original=JSON.stringify(s);
+  const decision=chooseTowerAction(s,createTowerObservation(s));
+  assert.equal(decision.intent.mode,'bracing-telegraph');
+  assert.equal(decision.action.move,0,'counterattack requires stable supported feet');
+  assert.equal(decision.action.attack,true,'living charged guardian opens the real shield');
+  assert.equal(decision.action.jump,false,'the early charge is not the late dodge window');
+  assert.equal(decision.action.ability,false,'an unearned Pulse Shot never appears');
+  const fight=()=>stepTowerCombat(s,decision.action,NamedRng.fromSeed('guard-open-core'));
+  const after=fight();
+  assert.equal(after.state.enemies[0].health,3,'only genuine melee applies HP damage');
+  assert.ok(after.events.some(e=>e.type==='melee-hit'));
+  assert.equal(after.events.some(e=>e.type==='guardian-shield-block'),false);
+  assert.deepEqual(after,fight(),'the opened-core reply is replay deterministic');
+  assert.equal(JSON.stringify(s),original,'render and AI may not mutate source state');
+  for(const mutate of [
+    state=>{state.enemies[0].telegraphUntilTick=0;},
+    state=>{state.player.facing=-1;},
+    state=>{state.player.attackCooldown=6;},
+    state=>{state.enemies[0].position.x=state.player.position.x+170000;}
+  ]){
+    const unsafe=structuredClone(s);mutate(unsafe);
+    assert.equal(chooseTowerAction(unsafe,createTowerObservation(unsafe)).action.attack,false,
+      'closed shield, wrong facing, cooldown and distant enemy veto free hits');
+  }
+  const imminent=structuredClone(s);imminent.enemies[0].telegraphUntilTick=s.tick+2;
+  const evade=chooseTowerAction(imminent,createTowerObservation(imminent));
+  assert.equal(evade.action.attack,false,'late incoming fire outranks offense');
+  assert.equal(evade.action.jump,true);
+  const legacy=structuredClone(s);delete legacy.config.guardianSecondWind;
+  assert.equal(chooseTowerAction(legacy,createTowerObservation(legacy)).action.attack,false,
+    'historical configs cannot silently opt in to new counter-strike');
+});

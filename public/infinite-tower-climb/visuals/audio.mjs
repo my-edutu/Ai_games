@@ -243,6 +243,20 @@ export function createTowerAudio() {
         texture(320,.12,.029);
         tone(145,96,.17,'triangle',.032);
       }
+      // A SAME-RUN, source-observed shield-to-charge change creates an
+      // immediate readable melee window. A restrained metal-release cue
+      // accompanies the actual opening, not a predicted future strike.
+      // The visual interlock remains truthful even for muted/reduced-motion
+      // players; first packets, skipped source periods and death stay silent.
+      if(enabled&&snapshot.lifecycle==='running'&&sameFloor&&
+         earlier?.active&&enemy.active&&earlier.guard>0&&
+         earlier.telegraph===false&&enemy.telegraph===true&&
+         Number.isFinite(enemy.guardTicksRemaining)&&
+         enemy.guardTicksRemaining>0&&Number.isSafeInteger(earlier.tick)&&
+         snapshot.tick>earlier.tick&&snapshot.tick-earlier.tick<=8){
+        tone(360,550,.18,'triangle',.046);
+        texture(690,.11,.032);
+      }
       // The real shield falls away after its authoritative fixed-step timer.
       // One restrained, opt-in mechanical release invites the next genuine
       // melee beat. This is NOT a free hit, fake stagger or future prediction.

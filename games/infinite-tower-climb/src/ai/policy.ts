@@ -442,17 +442,33 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
   if(charging){
     const proximity=Math.abs(charging.position.x-observation.player.position.x);
     const away:TowerAction['move']=charging.position.x>observation.player.position.x?-1:1;
-    const retreat:TowerAction['move']=proximity<state.config.attackReach*.7?away:0;
+    // The SECOND-WIND guardian genuinely opens its shield during a 20Hz
+    // windup. A grounded, already-facing climber can use an earned melee
+    // strike in the actual contact lane, instead of idling through the only
+    // visible opening. No forward prediction or invulnerability is granted.
+    // This opt-in opportunity never changes frozen tactical-v1 replay.
+    const p=observation.player;
+    const exposedCore=state.config.guardianSecondWind===true&&
+      charging.kind==='guardian'&&(charging.guardTicksRemaining??0)>0&&
+      p.attackCooldown===0&&p.health>0&&
+      p.facing===(charging.position.x>=p.position.x?1:-1)&&
+      proximity<=state.config.attackReach+state.build.attackReachBonus-4000&&
+      Math.abs(charging.position.y-p.position.y)<=
+        state.player.halfHeight+charging.halfHeight+10000;
+    const retreat:TowerAction['move']=exposedCore?0:
+      proximity<state.config.attackReach*.7?away:0;
     const move=guardedEvasion(state,observation,retreat);
-    // The eight-tick REAL charge allows an earned, source-fired counter-shot.
-    // Retreat and grounded edge safety still outrank offense: never shoot
-    // backwards after an evasive step, invent a parry, or inspect future RNG.
+    // Defensive corrections still outrank attack. Real charging fire keeps
+    // its original final-three-tick evasive jump and earned ranged option.
+    const counterMelee=exposedCore&&move===0;
     const counterShot=pulseReady(state,observation,charging)&&
       (move===0||move===observation.player.facing);
-    return{action:action(move,{ability:counterShot}),intent:{mode:'bracing-telegraph',
-      summary:counterShot?'Bracing and counter-firing earned pulse':
-        move!==0?'Bracing while making room for incoming fire':`Bracing for ${charging.kind} fire`,
-      confidence:.95,fallbackUsed:false}};
+    return{action:action(move,{attack:counterMelee,ability:counterShot}),
+      intent:{mode:'bracing-telegraph',
+        summary:counterMelee?'Striking the observed open guardian shield':
+          counterShot?'Bracing and counter-firing earned pulse':
+          move!==0?'Bracing while making room for incoming fire':`Bracing for ${charging.kind} fire`,
+        confidence:.95,fallbackUsed:false}};
   }
   const emergencyRecovery=tactical?observedEmergencyHealthRetreat(state,observation):undefined;
   if(emergencyRecovery)return{action:action(emergencyRecovery.move),

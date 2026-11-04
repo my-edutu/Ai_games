@@ -44,17 +44,33 @@ test('a living wounded source guardian physically stages four interlocked batten
   assert.equal(JSON.stringify([snapshot,guard]),before,'renderer cannot change source truth');
   assert.equal(stage.diagnostics().extraDraws,1);
 });
-test('source guard expiry, charge, death, new floor and stale transport remove the defense',async t=>{
+test('observed windup opens the actual battens; expiry, death and stale data retire them',async t=>{
   const [api,THREE]=await loaded;
   const stage=api.createObservedGuardianGuardStage(THREE);t.after(()=>stage.dispose());
   const model=new THREE.Group();
   const live=state(6);
   stage.update(live,model,enemy(6));assert.equal(stage.group.visible,true);
-  for(const value of [enemy(0),enemy(6,{telegraph:true}),
-    enemy(6,{active:false}),enemy(6,{health:6})]){
+  const mesh=stage.group.getObjectByName('SourceGuardMetalBattens');
+  const closed=new THREE.Matrix4(),opened=new THREE.Matrix4();
+  mesh.getMatrixAt(0,closed);
+  const charge=enemy(6,{telegraph:true,telegraphTicksRemaining:6,telegraphTotalTicks:6});
+  const signal=stage.update(state(6,{tick:501}),model,charge,{quality:'low'});
+  assert.equal(signal.opening,true,'actual guard windup exposes the melee core');
+  mesh.getMatrixAt(0,opened);
+  assert.ok(opened.elements[12]<closed.elements[12]-.15,
+    '3D copper shield moves fully away from the source-exposed body');
+  assert.equal(stage.diagnostics().sourceTick,501);
+  assert.equal(stage.update(state(6,{tick:502}),model,charge,
+    {quality:'low',reducedMotion:true}).release,1,
+    'reduced-motion preserves a fully legible static opening');
+  for(const value of [enemy(0),enemy(6,{active:false}),
+    enemy(6,{health:6})]){
     assert.equal(stage.update(live,model,value),null);
     assert.equal(stage.group.visible,false);
   }
+  assert.equal(stage.update(live,model,enemy(6,{telegraph:true,
+    telegraphTicksRemaining:2,active:false})),null,
+    'a dead or inactive enemy cannot display an open live guard');
   assert.equal(stage.update(state(6,{lifecycle:'result'}),model,enemy(6)),null);
   assert.equal(stage.update(live,model,enemy(6),{stale:true}),null);
   assert.equal(stage.update(live,null,enemy(6)),null);

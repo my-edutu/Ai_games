@@ -6,14 +6,20 @@ export function observeGuardianGuard(snapshot,enemy,stale=false){
   if(stale||snapshot?.lifecycle!=='running'||snapshot?.player?.health<=0||
       !Number.isSafeInteger(snapshot?.tick)||!Number.isSafeInteger(snapshot?.floor)||
       !enemy||enemy.kind!=='guardian'||enemy.active!==true||
-      enemy.telegraph===true||!Number.isFinite(enemy.guardTicksRemaining)||
+      !Number.isFinite(enemy.guardTicksRemaining)||
       enemy.guardTicksRemaining<=0||enemy.guardTicksRemaining>22||
       !Number.isFinite(enemy.health)||enemy.health<=0||
       !Number.isFinite(enemy.maxHealth)||enemy.maxHealth<=0||
       enemy.health*2>enemy.maxHealth)return null;
+  const opening=enemy.telegraph===true&&
+    Number.isFinite(enemy.telegraphTicksRemaining)&&
+    enemy.telegraphTicksRemaining>0&&enemy.telegraphTicksRemaining<=8;
+  const chargeTotal=enemy.telegraphTotalTicks===6?6:8;
   return {sourceTick:snapshot.tick,remaining:enemy.guardTicksRemaining,
     progress:clamp((22-enemy.guardTicksRemaining)/22,0,1),
-    guardianId:enemy.id,runToken:snapshot.runToken,floor:snapshot.floor};
+    opening,chargeRemaining:opening?Math.min(chargeTotal,enemy.telegraphTicksRemaining):0,
+    chargeTotal,guardianId:enemy.id,runToken:snapshot.runToken,
+    floor:snapshot.floor};
 }
 export function createObservedGuardianGuardStage(THREE){
   const group=new THREE.Group();
@@ -37,11 +43,16 @@ export function createObservedGuardianGuardStage(THREE){
     const observed=observeGuardianGuard(snapshot,enemy,!!options.stale);
     group.visible=!!observed&&!!model&&options.quality!=='none';
     if(!group.visible){last=null;return null;}
-    // Fold the rigid copper outer posts outward only near SOURCE guard expiry.
-    // Still physically latched until remaining==0; reduced motion keeps the
-    // exact same opening silhouette without unrequested oscillation.
-    const release=clamp((5-observed.remaining)/5,0,1);
-    const opened=release*.15;
+    // The ACTUAL hostile windup, not a timer in the renderer, unlocks a
+    // dramatic physical opening before its body becomes melee-vulnerable.
+    // Regular guard stays interlocked; its real expiry still eases the posts.
+    // Reduced-motion presents the exposed core immediately and statically.
+    const windupProgress=observed.opening?
+      clamp(1-observed.chargeRemaining/observed.chargeTotal,0,1):0;
+    const release=observed.opening?
+      (options.reducedMotion?1:.78+.22*windupProgress):
+      clamp((5-observed.remaining)/5,0,1);
+    const opened=release*(observed.opening?.7:.15);
     group.position.copy(model.position);
     group.quaternion.copy(model.quaternion);
     group.scale.copy(model.scale);
