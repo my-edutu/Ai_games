@@ -14,7 +14,7 @@ import {planCombatSightlineExtension,planCinematicSilhouetteRecess} from '/dunge
 import {planEncounterLighting} from '/dungeon/encounter-lighting-plan.js';
 import {planEncounterFrame} from '/dungeon/encounter-frame-plan.js';
 import {planCinematicShot,planReadableExpeditionLens,planCriticalSubjectFit,planWardenCharge,planOathguardPose,planBossDuelSightline,planPartyVistaSightline} from '/dungeon/cinematic-chapter-plan.js';
-import {planPartyWallReveal,createCutawayBandCache,shouldUploadCutawayBand} from '/dungeon/party-visibility-plan.js';
+import {planPartyWallReveal,createCutawayBandCache,shouldUploadCutawayBand,resolveRenderedSilhouetteSubjects} from '/dungeon/party-visibility-plan.js';
 import {planBoundaryCamera} from '/dungeon/camera-boundary-plan.js';
 import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
 import {planExpeditionStep,advanceExpeditionFootfall,planGroundedAnimation} from '/dungeon/expedition-locomotion-plan.js';
@@ -1070,8 +1070,9 @@ function animate(t){
  // Judge the actual head, armour and boots against the real camera-to-stone
  // ray, not the old centre-point unoccluded flag. The same physical cutaway
  // policy drives candidate grade and visible architecture in this frame.
- const partySightlines=planCinematicSilhouetteRecess(state,planCombatSightlineExtension(state,
-   planEncounterSightlines(state,target,Boolean(bossDistance)),cinematicShot?.mode));
+ const partySightlines=resolveRenderedSilhouetteSubjects(state,
+  planCinematicSilhouetteRecess(state,planCombatSightlineExtension(state,
+   planEncounterSightlines(state,target,Boolean(bossDistance)),cinematicShot?.mode)),actors);
  const basePlannedCamera=duelCamera??vistaCamera??authoredCamera;
  const occlusionCamera=cameraType==='cinematic'&&autoDirector?
   physicalCameraDirector.resolve(state,basePlannedCamera,{

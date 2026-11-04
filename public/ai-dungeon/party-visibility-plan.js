@@ -65,6 +65,32 @@ export function planPartyWallReveal(x,z,subjects,camera,pad=2.1){
  * sightline foundation (2). 255 means the GPU state has not been reconciled.
  * Kept per rebuilt scene, never alongside authoritative simulation state.
  */
+/**
+ * Real skinned bodies move inside authoritative cells during genuine melee
+ * tableau blocking and continuous travel. A camera ray aimed at the tile
+ * CENTER can miss a visible head, chest, weapon or foot beside the masonry.
+ * Resolve the same actual bounded living actor positions for every physical
+ * camera, base stone, facade and Gothic gallery cutaway.
+ * No gameplay state, RNG, movement or inferred enemy is introduced.
+ */
+export function resolveRenderedSilhouetteSubjects(state,subjects,actors){
+ const points=Array.isArray(subjects)?subjects.slice(0,5):[];
+ if(!Array.isArray(state?.map)||!Array.isArray(state?.units)||!(actors instanceof Map))return points;
+ const origin=(state.map.length-1)/2,claimed=new Set();
+ return points.map(point=>{
+  if(!Number.isFinite(point?.x)||!Number.isFinite(point?.z))return point;
+  const unit=state.units.find(u=>u&&u.hp>0&&!claimed.has(u.id)&&
+   Number.isInteger(u.x)&&Number.isInteger(u.z)&&
+   u.x-origin===point.x&&u.z-origin===point.z);
+  if(!unit)return point;
+  claimed.add(unit.id);
+  const actor=actors.get(unit.id),root=actor?.root?.position;
+  if(!actor?.root?.visible||![root?.x,root?.z].every(Number.isFinite)||
+   Math.hypot(root.x-point.x,root.z-point.z)>.49)return point;
+  return {...point,x:Number(root.x.toFixed(3)),z:Number(root.z.toFixed(3))};
+ });
+}
+
 export function createCutawayBandCache(count){
  if(!Number.isSafeInteger(count)||count<0||count>16384)return null;
  return new Uint8Array(count).fill(255);

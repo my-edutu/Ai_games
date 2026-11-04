@@ -79,6 +79,37 @@ function relieveBattlefieldCrowding(s,placed,view){
  return placed;
 }
 
+/**
+ * Settle truly displayed skinned bodies INSIDE their legal walkable tile.
+ * Camera-oriented combat tableaux previously shifted fighters by up to .44m,
+ * visibly burying a human-scale chest, sword or boot in adjacent solid stone.
+ * Cosmetic only; stagePoint uses these identical positions for physical FX.
+ */
+export function settleStoneSafeCombatStances(snapshot,placed){
+ if(!snapshot||!Array.isArray(snapshot.map)||!Array.isArray(snapshot.units))return placed;
+ const next=Object.create(null),map=snapshot.map;
+ for(const u of snapshot.units.slice(0,MAX_ACTORS)){
+  const pose=placed[u?.id];if(!pose||!isGrid(u.x)||!isGrid(u.z)||map[u.z]?.[u.x]!=='.')continue;
+  const padding=u.kind==='warden'?.40:u.kind==='vanguard'?.31:.26;
+  const clearance=.5-padding;
+  let dx=pose.dx,dz=pose.dz;
+  if(map[u.z]?.[u.x+1]==='#')dx=Math.min(dx,clearance);
+  if(map[u.z]?.[u.x-1]==='#')dx=Math.max(dx,-clearance);
+  if(map[u.z+1]?.[u.x]==='#')dz=Math.min(dz,clearance);
+  if(map[u.z-1]?.[u.x]==='#')dz=Math.max(dz,-clearance);
+  const sx=Math.sign(dx),sz=Math.sign(dz);
+  if(sx&&sz&&map[u.z+sz]?.[u.x+sx]==='#'&&Math.abs(dx)>.24&&Math.abs(dz)>.24){
+   const limit=u.kind==='warden'?.20:.24;
+   dx=sx*Math.min(Math.abs(dx),limit);
+   dz=sz*Math.min(Math.abs(dz),limit);
+  }
+  dx=Number(dx.toFixed(4));dz=Number(dz.toFixed(4));
+  next[u.id]=Object.freeze({x:u.x+dx,z:u.z+dz,dx,dz,crowded:pose.crowded,
+   stoneSafe:Math.abs(dx-pose.dx)>.0001||Math.abs(dz-pose.dz)>.0001});
+ }
+ return next;
+}
+
 export function planCombatStage(snapshot,viewPosition=null){
  const placed=Object.create(null);
  if(!Array.isArray(snapshot?.map)||!Array.isArray(snapshot?.units))return placed;
@@ -241,7 +272,7 @@ export function planCombatStage(snapshot,viewPosition=null){
    reposition(foe,sign,rx,rz,nudge);
   }
  }
- return relieveBattlefieldCrowding(snapshot,placed,viewPosition);
+ return settleStoneSafeCombatStances(snapshot,relieveBattlefieldCrowding(snapshot,placed,viewPosition));
 }
 export function stagePoint(positions,unit){
  if(!unit||!Number.isFinite(unit.x)||!Number.isFinite(unit.z))return null;
