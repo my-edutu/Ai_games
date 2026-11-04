@@ -1,3 +1,4 @@
+import { sampleGardenWatershed } from './garden-watersheds.mjs';
 import { sampleWeatheredTerrace } from './garden-biomes.mjs';
 
 /**
@@ -778,13 +779,7 @@ export function createWorld(THREE, {width, height}) {
   const gardenCourses=[-.57,.02,.59];
   for(let z=0;z<height;z++)for(let x=0;x<width;x++){
     const nx=(x+.5)/width*2-1,nz=(z+.5)/height*2-1;
-    let basinDistance=Infinity;
-    for(let course=0;course<gardenCourses.length;course++){
-      const centre=gardenCourses[course]
-        +.20*Math.sin(nx*3.7+course*1.67)
-        +.07*Math.sin(nx*8.3-course*.91);
-      basinDistance=Math.min(basinDistance,Math.abs(nz-centre));
-    }
+    const basinDistance=sampleGardenWatershed(nx,nz,width,height).distance;
     // The earlier narrow fern-aligned bands still left most of the full-HD
     // game as a uniform beige rectangle. The three REAL planted valleys now
     // broaden into one irregular ancient forest floor, punctuated by the

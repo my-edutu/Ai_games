@@ -1,3 +1,4 @@
+import { watercourseCentre, sampleGardenWatershed } from './garden-watersheds.mjs';
 import { sampleWeatheredTerrace } from './garden-biomes.mjs';
 
 /**
@@ -69,7 +70,7 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
   // fine static lattice. Bilinear interpolation keeps the same continuous
   // terrain/stone material boundaries without evaluating expensive trig 524k
   // times per board load. It neither alters geometry nor the dynamic renderer.
-  const biomeW = 129, biomeH = 65, biomeChannels = 4;
+  const biomeW = 129, biomeH = 65, biomeChannels = 5;
   const biomeLattice = new Float32Array(biomeW * biomeH * biomeChannels);
   for (let z=0; z<biomeH; z++) for (let x=0; x<biomeW; x++) {
     const habitat = sampleWeatheredTerrace(x/(biomeW-1),z/(biomeH-1),width,height);
@@ -78,6 +79,7 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
     biomeLattice[at+1] = habitat.litter;
     biomeLattice[at+2] = habitat.coolSlate;
     biomeLattice[at+3] = habitat.planted;
+    biomeLattice[at+4] = habitat.watercourseDistance;
   }
   const sampleBiome = (u,v) => {
     const fx=u*(biomeW-1), fz=v*(biomeH-1);
@@ -91,7 +93,7 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
         +biomeLattice[at+c+biomeW*biomeChannels+biomeChannels]*dx;
       out[c]=a*(1-dz)+b*dz;
     }
-    return { terrace:out[0], litter:out[1], coolSlate:out[2], planted:out[3] };
+    return { terrace:out[0], litter:out[1], coolSlate:out[2], planted:out[3], watercourseDistance:out[4] };
   };
   let grovePixelCount = 0;
   const biomePixelCounts = { terrace: 0, litter: 0, coolSlate: 0 };
@@ -118,13 +120,10 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
       // render pass, decal, live shade or external texture. Broad soil-to-
       // stone transitions rather than a false bright line/collectible.
       const bankX = (u - .5) * 2, bankZ = (v - .5) * 2;
-      let groveDistance = Infinity;
-      for (let course = 0; course < 3; course++) {
-        const centre = [-.57, .02, .59][course]
-          + .20 * Math.sin(bankX * 3.7 + course * 1.67)
-          + .07 * Math.sin(bankX * 8.3 - course * .91);
-        groveDistance = Math.min(groveDistance, Math.abs(bankZ - centre));
-      }
+      // The same three branched physical gullies drive texture pigment,
+      // the real rooted fronds, the stone tints and the shallow moss relief.
+      // This distance is interpolated from the existing one-time biome lattice.
+      const groveDistance = biome.watercourseDistance;
       // NOV 3 T1 REWOVEN GARDEN FLOOR: the forest actually reaches INTO the
       // playable old stone plaza. A wide, continuous verdant catchment follows
       // the same THREE real planted gullies, with warmer mineral islands and
@@ -233,6 +232,14 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
       targetR = targetR * (1-slateMix) + (78+grainRock*.38) * slateMix;
       targetG = targetG * (1-slateMix) + (117+grainRock*.36) * slateMix;
       targetB = targetB * (1-slateMix) + (119+grainRock*.48) * slateMix;
+      // Exposed sandstone benches and the two genuine limestone glades must
+      // stay SUNLIT where physical vegetation thins. Branched forest shade
+      // cannot erase the original warm mineral counterpoint across the frame.
+      const exposedLimestone = Math.max(biome.terrace*.86, limestoneBench*.91,
+        twoGlades*.75) * (1-smooth(.12,.67,biome.planted*.72+evergreen*.34));
+      targetR += 56 * exposedLimestone;
+      targetG += 6 * exposedLimestone;
+      targetB += 1.5 * exposedLimestone;
       // The original sunstone stays sunlit while the NEW surrounding natural
       // terraces read in broad shapes through the grazing-light stone grain.
       // Retain directional raking-light/mortar contrast from ORIGINAL pixels.
@@ -354,9 +361,7 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
     const rows = [];
     for (let i = 0; i <= samples; i++) {
       const x = -W + .86 + (width - 1.72) * i / samples;
-      const flow = Math.sin(x * .23 + phase) * Math.min(1.05, H * .13)
-        + Math.sin(x * .47 + phase * .67) * Math.min(.36, H * .06);
-      const centre = (channel - 1) * (H - .9) * .53 + flow;
+      const centre = H * watercourseCentre(x / W,channel);
       const edgeTaper = Math.min(1, Math.max(.09, Math.sin(Math.PI * i / samples) * 1.4));
       const widthAt = halfSpan * edgeTaper * (.78 + .20 * Math.sin(x * .31 - phase)
         + .12 * Math.sin(x * .69 + 1.5 * phase));
@@ -468,15 +473,10 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
     // creates visible foreground-to-distance scene rhythm and open limestone
     // negative space, with no new draw/triangle count or authoritative path.
     const nx=x/W,nz=z/H;
-    const courses=[-.57,.02,.59];
-    let nearest=Infinity,course=0;
-    for(let i=0;i<courses.length;i++){
-      const centre=courses[i]+.20*Math.sin(nx*3.7+i*1.67)
-        +.07*Math.sin(nx*8.3-i*.91);
-      const distance=Math.abs(nz-centre);
-      if(distance<nearest){nearest=distance;course=i;}
-    }
-    const rank=nearest + .105*noise(ix*.71+13,iz*.53+27);
+    const {distance:nearest,course,branch}=sampleGardenWatershed(nx,nz,width,height);
+    // Branch mouths deserve equal real rooted leaves rather than being
+    // represented by flat pigments only. Preserve bounded original clumps.
+    const rank=nearest + .105*noise(ix*.71+13,iz*.53+27) - (branch?.035:0);
     fernCandidates.push({ix,iz,x,z,rank,course,nearest});
   }
   // Original full-board resource budget is strictly <3100 triangles for

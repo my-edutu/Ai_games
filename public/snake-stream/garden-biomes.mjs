@@ -1,3 +1,4 @@
+import { sampleGardenWatershed } from './garden-watersheds.mjs';
 /**
  * Original, authored weathered-terrace landscape. Pure, deterministic,
  * presentation-only, shared by the existing flagstone vertex colours and the
@@ -35,12 +36,8 @@ export function sampleWeatheredTerrace(u,v,width,height){
   // original fern courses, but do not cover the protected real sunstone.
   const heart=1-smooth(.23,.57,Math.hypot(nx/.53,nz/.70));
   const tear=.05*Math.sin(nx*15.5-nz*5.2)+.035*Math.sin(nx*4.3+nz*12.1);
-  let courseDistance=Infinity;
-  for(let i=0;i<3;i++){
-    const centre=[-.57,.02,.59][i]+.20*Math.sin(nx*3.7+i*1.67)
-      +.07*Math.sin(nx*8.3-i*.91);
-    courseDistance=Math.min(courseDistance,Math.abs(nz-centre));
-  }
+  const watershed=sampleGardenWatershed(nx,nz,width,height);
+  const courseDistance=watershed.distance+.037;
   const planted=1-smooth(.045,.225,Math.max(0,courseDistance+tear));
   const protectedSunstone=heart;
   const wooded=smooth(.12,.85,planted+.24*softLoam+.16*lowerRoot);
@@ -50,5 +47,5 @@ export function sampleWeatheredTerrace(u,v,width,height){
     *(.42+.58*wooded)*(1-heart*.97));
   const coolSlate=clamp((.68*planted+.42*floodRock+.19*farRuin)
     * (1-heart*.91) * (1-terrace*.39));
-  return { terrace,litter,coolSlate,protectedSunstone,planted };
+  return { terrace,litter,coolSlate,protectedSunstone,planted,watercourseDistance:courseDistance };
 }
