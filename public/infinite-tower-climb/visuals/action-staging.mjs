@@ -67,3 +67,48 @@ export function observedActionStage(snapshot, selectedDeck = null) {
   return { kind: 'climber', x: actor.x, y: actor.y,
     sourceTick: snapshot.tick, sourceId: null };
 }
+
+// A protected crossfire camera nudge can bring a REAL striking shutter into
+// the same 3D frame as the living climber and guardian. Both bodies must remain
+// legible at their full skinned height, along with an already-visible landing.
+// This pure acceptance rule owns no camera, simulation or outcome authority.
+export function guardedCrossfireAimGain({
+  aspect, actorBefore, actorAfter, guardianBefore, guardianAfter,
+  hazardBefore, hazardAfter, landingBefore = null, landingAfter = null,
+  actorCoreClear = false, guardianCoreClear = false,
+  hazardCoreClear = false, landingCoreClear = true,
+}) {
+  const point = (value, width) => Array.isArray(value) &&
+    value.length === width && value.every(Number.isFinite) &&
+    value[2] >= -1 && value[2] <= 1;
+  if (!Number.isFinite(aspect) || aspect <= 0 ||
+    !actorCoreClear || !guardianCoreClear || !hazardCoreClear ||
+    !landingCoreClear || !point(actorBefore,4) || !point(actorAfter,4) ||
+    !point(guardianBefore,4) || !point(guardianAfter,4) ||
+    !point(hazardBefore,3) || !point(hazardAfter,3) ||
+    (!!landingBefore !== !!landingAfter) ||
+    (landingBefore && (!point(landingBefore,3) || !point(landingAfter,3)))) return 0;
+  const body = (sample, xLimit, yLimit) => Math.max(0,
+    Math.abs(sample[0]) / xLimit - 1,
+    (Math.abs(sample[1]) + Math.abs(sample[3])) / yLimit - 1);
+  const actorBeforeError = body(actorBefore, aspect < .85 ? .78 : .83, .78);
+  const actorAfterError = body(actorAfter, aspect < .85 ? .78 : .83, .78);
+  const guardianBeforeError = body(guardianBefore, aspect < .85 ? .81 : .87, .81);
+  const guardianAfterError = body(guardianAfter, aspect < .85 ? .81 : .87, .81);
+  // Do not sacrifice a clipped hero/guardian to chase another spectacle.
+  if (actorBeforeError > .08 || guardianBeforeError > .08 ||
+      actorAfterError > Math.max(.01, actorBeforeError + .008) ||
+      guardianAfterError > Math.max(.01, guardianBeforeError + .008)) return 0;
+  const pressure = sample => Math.max(0,
+    Math.abs(sample[0]) / .67 - 1, Math.abs(sample[1]) / .73 - 1);
+  const start = pressure(hazardBefore), end = pressure(hazardAfter);
+  if (start <= .035 || end > start - .012) return 0;
+  if (landingBefore) {
+    const routePressure = sample => Math.max(0,
+      Math.abs(sample[0]) / .86 - 1, Math.abs(sample[1]) / .82 - 1);
+    const startRoute = routePressure(landingBefore);
+    const endRoute = routePressure(landingAfter);
+    if (endRoute > Math.max(.012, startRoute + .006)) return 0;
+  }
+  return Math.min(.7, start - end);
+}

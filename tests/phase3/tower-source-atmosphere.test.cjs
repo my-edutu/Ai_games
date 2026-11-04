@@ -84,7 +84,11 @@ test('real guardian windup yields visibility priority; replay, phone reduced mot
   try {
     effect.update(source(), { quality: 'low' });
     const calmOpacity = mesh.material.opacity;
-    effect.update(source({ enemies: [{ active: true, telegraph: true }] }), { quality: 'low' });
+    // Use a genuine nearby guardian source, not an enemy with no coordinates.
+    // A distant telegraph must NOT extinguish unrelated weather.
+    effect.update(source({ enemies: [{ kind:'guardian', active:true,
+      telegraph:true, x:240000, y:1400000, health:8, maxHealth:8 }] }),
+      { quality: 'low' });
     assert.ok(mesh.material.opacity < calmOpacity);
     for (const [frame, settings] of [
       [source(), { reducedMotion: true }],

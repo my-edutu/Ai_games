@@ -350,8 +350,21 @@ export function createTowerAudio() {
       const charge=Number.isSafeInteger(hazard.chargeTicksRemaining) &&
         hazard.chargeTicksRemaining>=1 && hazard.chargeTicksRemaining<=12 &&
         !active ? hazard.chargeTicksRemaining : 0;
+      // In a real boss+shutter crossfire the guardian normally has sonic
+      // priority. Override that only for a SOURCE-published last-six-tick
+      // shutter physically touching the climber's immediate collision
+      // corridor. An unrelated or distant boss never masks a lethal ratchet.
+      const nearBody = charge>=1 && charge<=6 &&
+        snapshot.intent?.mode?.replace(/^oracle-/,'')==='evading-hazard' &&
+        [hazard.x,hazard.y,hazard.width,hazard.height,actor.x,actor.y,
+          actor.halfWidth,actor.halfHeight].every(Number.isFinite) &&
+        actor.halfWidth>0 && actor.halfHeight>0 &&
+        Math.abs(hazard.x+hazard.width*.5-actor.x)
+          <=actor.halfWidth+hazard.width*.5+9000 &&
+        Math.abs(hazard.y+hazard.height*.5-actor.y)
+          <=actor.halfHeight+hazard.height*.5+12000;
       const nearbyPublishedCharge = actor.health>0 &&
-        !snapshot.enemies?.some(enemy=>enemy.active&&enemy.telegraph) &&
+        (!snapshot.enemies?.some(enemy=>enemy.active&&enemy.telegraph) || nearBody) &&
         [hazard.x,hazard.y,hazard.width,hazard.height,actor.x,actor.y].every(Number.isFinite) &&
         Math.abs(hazard.x+hazard.width*.5-actor.x)<=Math.max(100000,hazard.width*2) &&
         Math.abs(hazard.y+hazard.height*.5-actor.y)<=120000;

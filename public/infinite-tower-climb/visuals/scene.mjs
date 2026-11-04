@@ -11,7 +11,7 @@ import { createTowerRouteIntent, witnessedHealthPickup } from './route-intent.mj
 import { createTowerLandingApproach } from './landing-approach.mjs';
 import { createTowerMovingDeckSuspension } from './moving-deck-suspension.mjs';
 import { createTowerHazardPressure, observedConcurrentHazardCluster } from './hazard-pressure.mjs';
-import { observedActionStage } from './action-staging.mjs';
+import { observedActionStage, guardedCrossfireAimGain } from './action-staging.mjs';
 import { observedTraversalKinetics } from './traversal-kinetics.mjs';
 import { observedHealthRecovery, createTowerRecoveryTransfer } from './recovery-transfer.mjs';
 import { createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianRelayStage, observedGuardianPowerSpineStage } from './guardian-circuit.mjs';
@@ -2068,6 +2068,20 @@ export function createTowerScene(canvas, settings = {}) {
   const jointGuardianBefore = [0,0,0,0], jointGuardianAfter = [0,0,0,0];
   const jointLandingBefore = [0,0,0], jointLandingAfter = [0,0,0];
   let jointShotApplications = 0, jointShotLastGain = 0;
+  // Reused live source crossfire shot. No GPU pass, allocations, predictive
+  // route, new camera, source input or extra scene node.
+  const crossfireHazardPoint = new THREE.Vector3();
+  const crossfireGuardianPoint = new THREE.Vector3();
+  const crossfireLandingPoint = new THREE.Vector3();
+  const crossfirePreviousFocus = new THREE.Vector3();
+  const crossfireHazardProjection = new THREE.Vector3();
+  const crossfireLandingProjection = new THREE.Vector3();
+  const crossfireTop = new THREE.Vector3(), crossfireBottom = new THREE.Vector3();
+  const crossfireActorBefore = [0,0,0,0], crossfireActorAfter = [0,0,0,0];
+  const crossfireGuardianBefore = [0,0,0,0], crossfireGuardianAfter = [0,0,0,0];
+  const crossfireHazardBefore = [0,0,0], crossfireHazardAfter = [0,0,0];
+  const crossfireLandingBefore = [0,0,0], crossfireLandingAfter = [0,0,0];
+  let crossfireAimApplications = 0, crossfireAimLastGain = 0;
   const guardianSightPoints=[];
   const climberCapSightPoint = new THREE.Vector3();
   const lookAt = new THREE.Vector3();
@@ -3195,6 +3209,120 @@ export function createTowerScene(canvas, settings = {}) {
         }
       }
     }
+    // During REAL guardian + close shutter crossfire the existing cinematic
+    // boss camera can make the mechanically imminent trap invisible. Reuse the
+    // current shutter stage's SOURCE position and nudge the same camera's gaze
+    // only if the actual hazard projection improves while full-body guardian,
+    // climber and visible airborne landing remain protected. No camera cut,
+    // lens swap, authority/policy change or new render submission.
+    crossfireAimLastGain = 0;
+    if (!overview && !options.reducedMotion && !options.stale &&
+      snapshot.lifecycle === 'running' && p.health > 0 &&
+      actionStage?.kind === 'hazard' && sourceGuardian?.active === true &&
+      sourceGuardian.health > 0 && followComposition?.guardianStaged &&
+      Number.isFinite(dt) && dt > 0 && Number.isFinite(camera.aspect) &&
+      camera.aspect > 0 && camera.aspect < 2 &&
+      Number.isFinite(p.halfHeight) && p.halfHeight > 0 &&
+      Number.isFinite(sourceGuardian.halfHeight) &&
+      sourceGuardian.halfHeight > 0) {
+      const liveTrap = pointFor(actionStage.x, actionStage.y,
+        snapshot.chunkBaseY, snapshot.worldWidth, 27.1);
+      const liveGuardian = pointFor(sourceGuardian.x, sourceGuardian.y,
+        snapshot.chunkBaseY, snapshot.worldWidth, 27.15);
+      crossfireHazardPoint.set(liveTrap.x, liveTrap.y, liveTrap.z);
+      crossfireGuardianPoint.set(liveGuardian.x, liveGuardian.y, liveGuardian.z);
+      actorFramePoint.copy(climber.group.position);
+      actorFramePoint.y += p.halfHeight / SCALE;
+      camera.lookAt(lookAt);
+      camera.updateMatrixWorld(true);
+      measureDuelBodyNdc(actorFramePoint, p.halfHeight / SCALE,
+        camera, crossfireTop, crossfireBottom, crossfireActorBefore);
+      measureDuelBodyNdc(crossfireGuardianPoint, sourceGuardian.halfHeight / SCALE,
+        camera, crossfireTop, crossfireBottom, crossfireGuardianBefore);
+      crossfireHazardProjection.copy(crossfireHazardPoint).project(camera);
+      crossfireHazardBefore[0] = crossfireHazardProjection.x;
+      crossfireHazardBefore[1] = crossfireHazardProjection.y;
+      crossfireHazardBefore[2] = crossfireHazardProjection.z;
+      let keepLanding = false;
+      if (p.state === 'airborne' && targetPlatform &&
+        [targetPlatform.y, targetPlatform.height,
+          snapshot.worldWidth].every(Number.isFinite)) {
+        const approach = pointFor(observedSourceLandingX(snapshot,targetPlatform),
+          targetPlatform.y + targetPlatform.height,
+          snapshot.chunkBaseY, snapshot.worldWidth, 26.7);
+        crossfireLandingPoint.set(approach.x,approach.y,approach.z);
+        crossfireLandingProjection.copy(crossfireLandingPoint).project(camera);
+        crossfireLandingBefore[0] = crossfireLandingProjection.x;
+        crossfireLandingBefore[1] = crossfireLandingProjection.y;
+        crossfireLandingBefore[2] = crossfireLandingProjection.z;
+        // Only an already-visible destination needs active protection.
+        keepLanding = crossfireLandingBefore.every(Number.isFinite) &&
+          Math.abs(crossfireLandingBefore[0]) < .88 &&
+          Math.abs(crossfireLandingBefore[1]) < .83 &&
+          crossfireLandingBefore[2] >= -1 && crossfireLandingBefore[2] <= 1;
+      }
+      const hX = crossfireHazardBefore[0], hY = crossfireHazardBefore[1];
+      if (Number.isFinite(hX) && Number.isFinite(hY) &&
+        Math.max(Math.abs(hX)/.67,Math.abs(hY)/.73)>1.035 &&
+        crossfireHazardBefore[2]>=-1 && crossfireHazardBefore[2]<=1 &&
+        towerCoreSightlineClear(camera.position,crossfireHazardPoint,23.5)) {
+        const m = camera.matrixWorld.elements;
+        const dx = crossfireHazardPoint.x-camera.position.x;
+        const dy = crossfireHazardPoint.y-camera.position.y;
+        const dz = crossfireHazardPoint.z-camera.position.z;
+        const depth = -(dx*m[8]+dy*m[9]+dz*m[10]);
+        const tangent = Math.tan(camera.fov * Math.PI / 360);
+        if (depth > 1 && Number.isFinite(depth) &&
+          tangent > 0 && Number.isFinite(tangent)) {
+          crossfirePreviousFocus.copy(lookAt);
+          const response = Math.min(.21,1-Math.exp(-Math.min(.06,dt)*5));
+          const sx = clamp(hX-clamp(hX,-.63,.63),-1,1) *
+            depth * tangent * camera.aspect * response;
+          const sy = clamp(hY-clamp(hY,-.69,.69),-1,1) *
+            depth * tangent * response;
+          lookAt.x += m[0]*sx + m[4]*sy;
+          lookAt.y += m[1]*sx + m[5]*sy;
+          lookAt.z += m[2]*sx + m[6]*sy;
+          camera.lookAt(lookAt); camera.updateMatrixWorld(true);
+          measureDuelBodyNdc(actorFramePoint, p.halfHeight / SCALE,
+            camera, crossfireTop, crossfireBottom, crossfireActorAfter);
+          measureDuelBodyNdc(crossfireGuardianPoint, sourceGuardian.halfHeight / SCALE,
+            camera, crossfireTop, crossfireBottom, crossfireGuardianAfter);
+          crossfireHazardProjection.copy(crossfireHazardPoint).project(camera);
+          crossfireHazardAfter[0] = crossfireHazardProjection.x;
+          crossfireHazardAfter[1] = crossfireHazardProjection.y;
+          crossfireHazardAfter[2] = crossfireHazardProjection.z;
+          if (keepLanding) {
+            crossfireLandingProjection.copy(crossfireLandingPoint).project(camera);
+            crossfireLandingAfter[0] = crossfireLandingProjection.x;
+            crossfireLandingAfter[1] = crossfireLandingProjection.y;
+            crossfireLandingAfter[2] = crossfireLandingProjection.z;
+          }
+          const gain = guardedCrossfireAimGain({
+            aspect:camera.aspect,actorBefore:crossfireActorBefore,
+            actorAfter:crossfireActorAfter,
+            guardianBefore:crossfireGuardianBefore,
+            guardianAfter:crossfireGuardianAfter,
+            hazardBefore:crossfireHazardBefore,
+            hazardAfter:crossfireHazardAfter,
+            landingBefore:keepLanding?crossfireLandingBefore:null,
+            landingAfter:keepLanding?crossfireLandingAfter:null,
+            actorCoreClear:towerCoreSightlineClear(camera.position,actorFramePoint,23.5),
+            guardianCoreClear:towerCoreSightlineClear(camera.position,crossfireGuardianPoint,23.5),
+            hazardCoreClear:towerCoreSightlineClear(camera.position,crossfireHazardPoint,23.5),
+            landingCoreClear:!keepLanding ||
+              towerCoreSightlineClear(camera.position,crossfireLandingPoint,23.5),
+          });
+          if (gain > 0) {
+            crossfireAimLastGain = gain;
+            crossfireAimApplications = Math.min(1000000,crossfireAimApplications+1);
+          } else {
+            lookAt.copy(crossfirePreviousFocus);
+            camera.lookAt(lookAt);camera.updateMatrixWorld(true);
+          }
+        }
+      }
+    }
     camera.lookAt(lookAt);
     world.revealGuardianSightlines(camera,guardianSightPoints);
     // Foreground visibility is tested against the very same ACTUAL smoothed
@@ -3216,12 +3344,21 @@ export function createTowerScene(canvas, settings = {}) {
           targetPlatform.y+targetPlatform.height,snapshot.chunkBaseY,
           snapshot.worldWidth,26.7);
         actorOrbitTarget.set(landing.x,landing.y,landing.z);
+      } else if (actionStage?.kind === 'hazard') {
+        // The same imminent physical shutter that leads the source-driven
+        // light/camera also clears any decorative foreground gears. The
+        // actual landing retains precedence when present.
+        const hazard=pointFor(actionStage.x,actionStage.y,
+          snapshot.chunkBaseY,snapshot.worldWidth,27.1);
+        actorOrbitTarget.set(hazard.x,hazard.y,hazard.z);
       }
     }
+    const protectArrival=!!targetPlatform&&landingApproach.diagnostics().visible;
+    const protectImmediateTrap=actionStage?.kind==='hazard';
     world.protectRouteSightlines(camera,
       protectLiveRoute?actorFramePoint:null,
       protectLiveRoute&&sourceGuardian?guardianRescuePoint:null,
-      protectLiveRoute&&targetPlatform&&landingApproach.diagnostics().visible?actorOrbitTarget:null,
+      protectLiveRoute&&(protectArrival||protectImmediateTrap)?actorOrbitTarget:null,
       dt,options);
     updateLandingBeacon(landingBeacon, targetPlatform, snapshot, camera);
     sky.position.copy(camera.position);
