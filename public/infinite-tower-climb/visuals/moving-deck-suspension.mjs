@@ -82,12 +82,13 @@ export function createTowerMovingDeckSuspension(THREE) {
   const color = new THREE.Color();
   let last = null, disposed = false, tintKey = null;
   let impactTick = -1, impactStrength = 0, compression = 0;
-  let travelLean = 0, trueHorizontalDisplacement = 0;
+  let travelLean = 0, trueHorizontalDisplacement = 0, lastReducedMotion = false;
   function clear() {
     group.visible = false;
     rods.count = 0;
     last = null; impactTick = -1; impactStrength = 0;
     compression = 0; travelLean = 0; trueHorizontalDisplacement = 0;
+    lastReducedMotion = false;
   }
   function update(snapshot, options = {}) {
     if (disposed) return;
@@ -98,16 +99,20 @@ export function createTowerMovingDeckSuspension(THREE) {
       last.platformId === current.platformId &&
       last.x === current.x && last.top === current.top &&
       last.width === current.width && last.loaded === current.loaded;
-    if (identical) return;
+    if (identical && lastReducedMotion === !!options.reducedMotion) return;
     // The load stroke is earned by TWO consecutive real source observations:
     // airborne approach followed by actual standing foot contact on this
     // exact moving deck. No timer, renderer frame or guessed collision can
     // trigger a pump. Duplicate ticks, run changes and feed gaps cannot replay it.
     const steps = last ? current.tick - last.tick : 0;
-    const continuous = last && last.runToken === current.runToken &&
-      last.floor === current.floor && last.platformId === current.platformId &&
-      steps > 0 && steps <= 8;
-    if (!continuous) { impactTick = -1; impactStrength = 0; }
+    const sameRunDeck = last && last.runToken === current.runToken &&
+      last.floor === current.floor && last.platformId === current.platformId;
+    const continuous = sameRunDeck && steps > 0 && steps <= 8;
+    // A same-tick accessibility toggle changes only presentation. It cannot
+    // invent or erase a witnessed landing. Only an actual gap/reset does.
+    if (!continuous && !(sameRunDeck && steps === 0)) {
+      impactTick = -1; impactStrength = 0;
+    }
     if (continuous && !last.loaded && current.loaded &&
       last.playerState === 'airborne' && current.playerState === 'standing') {
       impactTick = current.tick;
@@ -117,10 +122,16 @@ export function createTowerMovingDeckSuspension(THREE) {
     if (!current.loaded) impactTick = -1;
     const age = impactTick >= 0 ? current.tick - impactTick : Infinity;
     const release = age >= 0 && age < 12 ? Math.pow(1 - age / 12, 2) : 0;
-    compression = current.loaded ? .10 + impactStrength * release * .82 : 0;
+    // Reduced-motion still shows the physically loaded deck and the route,
+    // but never pumps/rocks the cosmetic undercarriage. It responds to a
+    // toggle on the SAME source tick without touching gameplay authority.
+    compression = current.loaded
+      ? .10 + (options.reducedMotion ? 0 : impactStrength * release * .82)
+      : 0;
     trueHorizontalDisplacement = continuous ? current.x - last.x : 0;
-    travelLean = continuous ? Math.max(-1, Math.min(1,
-      trueHorizontalDisplacement / (7000 * steps))) : 0;
+    travelLean = !options.reducedMotion && continuous
+      ? Math.max(-1, Math.min(1, trueHorizontalDisplacement / (7000 * steps)))
+      : 0;
     const left = current.x + current.width * .23;
     const right = current.x + current.width * .77;
     const middle = current.x + current.width * .5;
@@ -170,6 +181,7 @@ export function createTowerMovingDeckSuspension(THREE) {
     rods.instanceMatrix.needsUpdate = true;
     group.visible = true;
     last = current;
+    lastReducedMotion = !!options.reducedMotion;
   }
   function diagnostics() {
     return last && group.visible ? {

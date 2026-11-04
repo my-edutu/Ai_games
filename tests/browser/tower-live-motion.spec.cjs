@@ -90,6 +90,7 @@ for (const viewport of viewports) {
         // This is observational metadata, NOT a substitute for live WebM.
         sourceMovingDecks: (s?.platforms || []).filter(p => p.kind === 'moving')
           .map(p => ({ id:p.id, x:p.x, y:p.y, width:p.width, height:p.height })),
+        observedMovingSuspension: d.movingDeckSuspension || null,
         observedMovingCarriage: d?.world ? {
           cranks: d.world.observedMovingDeckCranks ?? null,
           driveStages: d.world.observedMovingDeckDriveStages ?? null,
@@ -138,7 +139,7 @@ for (const viewport of viewports) {
   // Every scenario still records >=68s of uninterrupted host play at native
   // wall-clock speed (nominal 20 fixed-step authority ticks per second).
   // No mocked state, accelerated page clock or replay scrubbing.
-  const cadenceMs = scenario === 'outcome' || scenario === 'danger' ? 1000 : 2000;
+  const cadenceMs = ['outcome', 'danger', 'moving'].includes(scenario) ? 1000 : 2000;
   const intervals = 68000 / cadenceMs;
   for (let i = 1; i <= intervals; i++) {
     await page.waitForTimeout(cadenceMs);
@@ -163,12 +164,17 @@ for (const viewport of viewports) {
       String(o.runToken) + ':' + platform.id + ':' + platform.x + ':' + platform.y));
   const sourceMovingSummary = {
     sourceFramesWithMovingDeck: sourceMovingSamples.length,
+    real3dSuspensionVisibleSamples: observations.filter(o => o.observedMovingSuspension?.visible).length,
+    real3dSuspensionContactSamples: observations.filter(o =>
+      Number.isSafeInteger(o.observedMovingSuspension?.authenticContactTick) &&
+      o.observedMovingSuspension.authenticContactTick >= 0).length,
+    real3dSuspensionPieces: observations.find(o => o.observedMovingSuspension?.visible)?.observedMovingSuspension?.pieces || 0,
     distinctSourcePositions: new Set(observedMovingPositions).size,
     physicallyDrivenSceneSamples: observations.filter(o =>
       (o.observedMovingCarriage?.driveStages ?? 0) > 0 &&
       Number.isSafeInteger(o.observedMovingCarriage?.lastDriveTick) &&
       o.observedMovingCarriage.lastDriveTick >= 0).length,
-    note: 'Source/scene diagnostics only. Actual loaded deck, moving geometry, foot contact and comparative motion require watching untouched native WebM; no device FPS or blind score.',
+    note: 'Read-only source/scene samples only. A zero captured spring sample is not proof the event never occurred: the 1000ms video sampling may miss its 12-tick stroke. Judging visual contact, mechanics and comparative motion still requires untouched native WebM; no device FPS or blind score.',
   };
   const sourcePhaseSummary = {
     available: !!trace, method: trace?.method || null,

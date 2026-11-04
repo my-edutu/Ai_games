@@ -116,6 +116,16 @@ test('genuine source airborne-to-foot-contact compresses real undercarriage; dup
     assert.equal(atContact.authenticContactTick, 31);
     assert.ok(atContact.sourceContactCompression > .5,
       'true rider arrival puts weight into the 3D suspension');
+    effect.update(contact, { reducedMotion: true });
+    assert.equal(effect.diagnostics().sourceContactCompression, .1,
+      'reduced-motion disables the decorative impact spring at the exact same tick');
+    assert.equal(effect.diagnostics().sourceTravelLean, 0);
+    effect.update(contact, { reducedMotion: false });
+    assert.equal(effect.diagnostics().authenticContactTick, 31,
+      'an accessibility toggle cannot invent or erase the real observed touchdown');
+    assert.equal(effect.diagnostics().sourceContactCompression,
+      atContact.sourceContactCompression,
+      'normal-motion presentation can rehydrate from the very same source snapshot');
     const rods = effect.group.getObjectByName('AuthenticMovingDeckUndercarriageTruss');
     const loaded = new THREE.Matrix4(); rods.getMatrixAt(15, loaded);
     effect.update(contact);
