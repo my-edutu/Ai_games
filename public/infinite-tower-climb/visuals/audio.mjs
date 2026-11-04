@@ -243,6 +243,19 @@ export function createTowerAudio() {
         texture(320,.12,.029);
         tone(145,96,.17,'triangle',.032);
       }
+      // The real shield falls away after its authoritative fixed-step timer.
+      // One restrained, opt-in mechanical release invites the next genuine
+      // melee beat. This is NOT a free hit, fake stagger or future prediction.
+      // Guard expiry is audible only on adjacent same-run observations; new
+      // runs, source gaps, guardian death and active windups stay silent.
+      if(enabled && snapshot.lifecycle==='running'&&sameFloor&&
+         earlier?.active&&enemy.active&&earlier.guard>0&&
+         earlier.guard<=8&&enemy.guardTicksRemaining===0&&
+         enemy.telegraph!==true&&Number.isSafeInteger(earlier.tick)&&
+         snapshot.tick>earlier.tick&&snapshot.tick-earlier.tick<=8){
+        tone(310,460,.15,'triangle',.037);
+        texture(540,.08,.026);
+      }
       if(snapshot.lifecycle==='running' && earlier?.active && !enemy.active)
         witnessedSameFloorDefeat = true;
       observedGuardians.set(enemy.id,{active:!!enemy.active,health:enemy.health,maxHealth:enemy.maxHealth,telegraph:enemy.telegraph===true,stagger:Number.isFinite(enemy.staggerTicksRemaining)?enemy.staggerTicksRemaining:0,guard:Number.isFinite(enemy.guardTicksRemaining)?enemy.guardTicksRemaining:0,tick:snapshot.tick});

@@ -393,7 +393,18 @@ function observedGuardianGuardSpacing(state:TowerState,obs:TowerObservation,
   // autonomous route step for the entire shield timer.
   if(gap>threshold+12000)return null;
   const away:TowerAction['move']=delta>=0?-1:1;
-  const wanted:TowerAction['move']=gap<threshold?away:0;
+  const toward:TowerAction['move']=delta>=0?1:-1;
+  const meleeReach=state.config.attackReach+state.build.attackReachBonus;
+  // The next exposed melee opening is real and only a few fixed ticks away.
+  // A grounded agent with an available strike can advance just inside its
+  // CURRENT physically safe reach instead of spending the entire last guard
+  // interval retreating. Contact separation, spikes and supporting edges
+  // still outrank this optional counterstep. No future enemy position is used.
+  const contactGap=state.player.halfWidth+guardian.halfWidth+8000;
+  const strikeGap=Math.max(contactGap+4000,meleeReach-6000);
+  const counterstep=guard<=4&&p.attackCooldown<=guard+1&&
+    gap>strikeGap+4000&&gap<=strikeGap+state.config.maxRunSpeed*5;
+  const wanted:TowerAction['move']=counterstep?toward:gap<threshold?away:0;
   // Preserve an inward correction when current momentum would otherwise
   // carry the protagonist over a ledge: safety outranks the bracing pose.
   let move:TowerAction['move']=guardedEvasion(state,obs,wanted);
@@ -410,7 +421,7 @@ function observedGuardianGuardSpacing(state:TowerState,obs:TowerObservation,
     if(obs.hazards.some(h=>h.active&&h.x<x1&&h.x+h.width>x0&&
       h.y<y1&&h.y+h.height>y0))move=0;
   }
-  return {move,guardTicks:guard};
+  return {move,guardTicks:guard,closing:counterstep&&move===toward};
 }
 // Tactical v2 is the live policy. Historical v1 is retained for pinned replay
 // evidence; it is never silently substituted into a new live expedition.
@@ -459,7 +470,8 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
     ?observedGuardianGuardSpacing(state,observation,guardedGuardian):null;
   if(shieldSpace)return{action:action(shieldSpace.move),
     intent:{mode:'bracing-guardian-shield',
-      summary:shieldSpace.move!==0?'Making room for the observed guardian shield':
+      summary:shieldSpace.closing?'Counterstepping toward the observed shield opening':
+        shieldSpace.move!==0?'Making room for the observed guardian shield':
         'Holding safe footing until the observed guardian shield opens',
       confidence:.95,fallbackUsed:false,
       targetPlatformId:observation.player.groundedPlatformId}};

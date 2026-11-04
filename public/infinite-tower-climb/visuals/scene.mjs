@@ -11,6 +11,7 @@ import { observedHealthRecovery, createTowerRecoveryTransfer } from './recovery-
 import { createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianRelayStage, observedGuardianPowerSpineStage } from './guardian-circuit.mjs';
 import { createTowerAtmosphere } from './atmosphere.mjs';
 import { createTowerGuardianShotStage } from './guardian-shot-stage.mjs';
+import { createObservedGuardianGuardStage } from './guardian-guard-stage.mjs';
 import { witnessedAirbornePulse, witnessedGuardianCounterPulse } from './airborne-pulse.mjs';
 import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue } from './guardian-camera-safety.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
@@ -1659,6 +1660,11 @@ export function createTowerScene(canvas, settings = {}) {
   // not a screen label or a guessed hit. The fired-shot ribbon remains source-owned.
   let guardianShotStage = createTowerGuardianShotStage(THREE);
   scene.add(guardianShotStage.group);
+  // Only genuine source guardian guard ticks make these original physical
+  // interlocking battens visible. This is a single instanced 3D draw, never
+  // a projected HUD shield or an additional combat hitbox.
+  let guardianGuardStage = createObservedGuardianGuardStage(THREE);
+  scene.add(guardianGuardStage.group);
   // The biome has real world-depth motes, not UI flakes. One GPU draw,
   // source-tick animation; hidden during stale/terminal/reduced-motion play.
   let atmosphere = createTowerAtmosphere(THREE);
@@ -1974,8 +1980,8 @@ export function createTowerScene(canvas, settings = {}) {
     releaseEnvironment();
     reflectionFirstFrame = true;
     clearActors();
-    scene.remove(world.group, climber.group, finale.group, passage.group, routeIntent.group, guardianCircuit.group, guardianShotStage.group, atmosphere.group, recoveryTransfer.group);
-    world.dispose(); climber.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose(); guardianCircuit.dispose(); guardianShotStage.dispose(); atmosphere.dispose(); recoveryTransfer.dispose();
+    scene.remove(world.group, climber.group, finale.group, passage.group, routeIntent.group, guardianCircuit.group, guardianShotStage.group, guardianGuardStage.group, atmosphere.group, recoveryTransfer.group);
+    world.dispose(); climber.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose(); guardianCircuit.dispose(); guardianShotStage.dispose(); guardianGuardStage.dispose(); atmosphere.dispose(); recoveryTransfer.dispose();
     skyGeometry.dispose(); skyMaterial.dispose();
     for (const geometry of sharedGeometry) geometry.dispose();
     for (const material of sharedMaterials) material.dispose();
@@ -1985,10 +1991,11 @@ export function createTowerScene(canvas, settings = {}) {
     routeIntent = createTowerRouteIntent(THREE);
     guardianCircuit = createTowerGuardianCircuit(THREE);
     guardianShotStage = createTowerGuardianShotStage(THREE);
+    guardianGuardStage = createObservedGuardianGuardStage(THREE);
     atmosphere = createTowerAtmosphere(THREE);
     recoveryTransfer = createTowerRecoveryTransfer(THREE);
     climber.group.name = 'ExpeditionClimber';
-    scene.add(world.group, climber.group, finale.group, passage.group, routeIntent.group, guardianCircuit.group, guardianShotStage.group, atmosphere.group, recoveryTransfer.group);
+    scene.add(world.group, climber.group, finale.group, passage.group, routeIntent.group, guardianCircuit.group, guardianShotStage.group, guardianGuardStage.group, atmosphere.group, recoveryTransfer.group);
     initialized = false;
     if (snapshot) updateEntities(snapshot);
   }
@@ -2515,6 +2522,14 @@ export function createTowerScene(canvas, settings = {}) {
         impact.scale.setScalar(e.kind === 'guardian' ? 1.5 : .95);
       }
     }
+    // The true defense phase owns one physical 3D interlock and a counterstep
+    // window; read the updated living guardian model, never a guessed pose.
+    const guardingEntry=[...enemies.values()].find(entry=>
+      entry.state.kind==='guardian'&&entry.state.active&&
+      Number.isFinite(entry.state.guardTicksRemaining)&&
+      entry.state.guardTicksRemaining>0);
+    guardianGuardStage.update(snapshot,guardingEntry?.model.group,
+      guardingEntry?.state,options);
     // A contact pulse is a short, bounded camera response to observed damage,
     // never an invented attack. Reduced motion retains the world-space cues.
     const contactProgress=options.stale?0:clamp((contactUntil-elapsed)/.24,0,1);
@@ -3154,7 +3169,7 @@ export function createTowerScene(canvas, settings = {}) {
     canvas.removeEventListener('pointerup', pointerUp); canvas.removeEventListener('pointercancel', pointerUp); canvas.removeEventListener('wheel', wheel);
     releaseEnvironment();
     sun.shadow.dispose(); sun.shadow.map = null; sun.shadow.mapPass = null;
-    clearActors(); climber.dispose(); world.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose(); guardianCircuit.dispose(); guardianShotStage.dispose(); atmosphere.dispose(); recoveryTransfer.dispose();
+    clearActors(); climber.dispose(); world.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose(); guardianCircuit.dispose(); guardianShotStage.dispose(); guardianGuardStage.dispose(); atmosphere.dispose(); recoveryTransfer.dispose();
     skyGeometry.dispose(); skyMaterial.dispose();
     for (const geometry of sharedGeometry) geometry.dispose();
     for (const material of sharedMaterials) material.dispose();
