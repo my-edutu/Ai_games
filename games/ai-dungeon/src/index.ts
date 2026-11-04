@@ -52,20 +52,24 @@ export function planWardenStrike(s:Pick<DungeonState,'map'|'tick'>,boss:Unit):Wa
  const attackTick=Math.ceil(s.tick/interval)*interval;
  const axis=Math.floor(attackTick/interval)%2===0?'NORTH_SOUTH':'EAST_WEST';
  const shape:WardenStrikeShape=phase==='SENTINEL'?'NOVA':phase==='RUPTURE'?'RIFT_CROSS':'ECLIPSE_SWEEP';
+ // The final Eclipse is a three-wide advancing stone curtain. It costs the
+ // party at least two lawful footsteps to leave the central lane; the fixed
+ // three-beat tell preserves the ability to dodge, guard, or counter. It uses
+ // the existing honest tiles, combat damage and zero additional state fields.
  const reach=shape==='NOVA'?3:4,cells:{x:number;z:number}[]=[];
  for(let dz=-reach;dz<=reach;dz++)for(let dx=-reach;dx<=reach;dx++){
   const x=boss.x+dx,z=boss.z+dz;
   if(!walkable(s.map,x,z))continue;
   const marked=shape==='NOVA'?Math.abs(dx)+Math.abs(dz)<=3:
    shape==='RIFT_CROSS'?dx===0||dz===0:
-   axis==='NORTH_SOUTH'?dx===0:dz===0;
+   axis==='NORTH_SOUTH'?Math.abs(dx)<=1:Math.abs(dz)<=1;
   if(marked)cells.push({x,z});
  }
  const turnsUntilImpact=attackTick-s.tick;
  // The wide Sentinel nova takes three *real* movement beats to escape from melee.
- // Narrow rifts and sweeps retain two beats. The boss cannot relocate the
+ // Narrow Rupture rifts retain two beats; the widened final sweep needs three. The boss cannot relocate the
  // footprint during this warning interval. All tiles remain authoritative.
- const warningTurns=shape==='NOVA'?3:2;
+ const warningTurns=shape==='RIFT_CROSS'?2:3;
  return {phase,shape,axis,attackTick,turnsUntilImpact,
   warning:turnsUntilImpact>0&&turnsUntilImpact<=warningTurns,cells};
 }
@@ -725,7 +729,7 @@ export class DungeonRuntime {
     // VFX stagger: no boss melee, pursuit, or repeat cast during these turns.
     if(planWardenRecovery(s,enemy))continue;
     const strike=planWardenStrike(s,enemy);
-    if(strike&&distance<=5&&strike.turnsUntilImpact===(strike.shape==='NOVA'?3:2))
+    if(strike&&distance<=5&&strike.turnsUntilImpact===(strike.shape==='RIFT_CROSS'?2:3))
      push(s,'telegraph','WARDEN '+strike.shape.replaceAll('_',' ')+' — leave the marked stone or brace');
     if(strike&&distance<=5&&attackTick===0){
      const marked=new Set(strike.cells.map(p=>key(p.x,p.z)));
