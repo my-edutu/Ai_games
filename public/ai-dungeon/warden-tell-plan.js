@@ -10,7 +10,7 @@ const IDLE=Object.freeze({shape:'NONE',progress:0,emboss:0,glow:0,warning:false,
 export function planWardenTellStage(warning,reducedMotion=false){
  const shape=warning?.shape;
  if(!['NOVA','RIFT_CROSS','ECLIPSE_SWEEP'].includes(shape)||warning?.warning!==true)return IDLE;
- const turns=warning?.turnsUntilImpact,max=shape==='NOVA'?3:2;
+ const turns=warning?.turnsUntilImpact,max=shape==='RIFT_CROSS'?2:3;
  if(!Number.isSafeInteger(turns)||turns<1||turns>max)return IDLE;
  const progress=(max-turns+1)/max,shift=progress-1/3;
  return Object.freeze({shape,progress,emboss:clip(.018+shift*.04,0,.07),
@@ -19,8 +19,7 @@ export function planWardenTellStage(warning,reducedMotion=false){
 }
 
 /**
- * Physical rhythm for a REAL, public-state Warden strike. All three NOVA
- * beats (or two narrower-attack beats) lift the SAME threatened floor cells.
+ * Physical rhythm for a REAL, public-state Warden strike. All three NOVA / Eclipse beats (or two narrow Rupture beats) lift the SAME threatened floor cells.
  * Actual impact settles those stones; reduced motion keeps a static, visible
  * warning with no extra presentation movement. Never creates danger, damage,
  * a false safe lane or a gameplay clock.
@@ -44,7 +43,7 @@ export function planWardenReliefBeat(stage,impactAge=0,reducedMotion=false){
  * A single continuous, original basalt shock-front moves out through the
  * ALREADY authoritatively marked Warden cells. The map and attack geometry are
  * never generated here. All marked stones remain visible from the first
- * warning; a tiny radial crest makes the three honest countdown beats feel
+ * warning; a tiny radial crest makes the honest countdown beats feel
  * like one physical event instead of 25 unrelated flashing HUD squares.
  * Reduced motion exposes the complete hazard with no vertical wave or tilt.
  */
