@@ -24,6 +24,33 @@ export function generateTowerChunk(config:TowerConfig,seed:string,floor:number,r
     const kinds:TowerHazard['kind'][]=['spikes','heat','crusher','lightning','void-pulse'];
     hazards.push({id:`f${floor}:h${i}`,kind:kinds[kindIndex],x:170000+rng.nextInt(`tower:hazard-x:${floor}:${i}`,120000),y:baseY+(slot-1)*stepHeight+groundHeight,width:32000,height:9000,activeFromTick:rng.nextInt(`tower:hazard-phase:${floor}:${i}`,20),activeEvery:40,activeFor:kindIndex===0?40:16,damage:kindIndex===0?1:2});
   }
+  // One coherent, SOURCE-AUTHENTIC guardian encounter: previous authored
+  // shutters stopped at the fifth ascent deck, while the real guardian fights
+  // on the sixth. No normal run could therefore show the intended simultaneous
+  // guardian + live closing-shutter encounter. Place a bounded, timed pressure
+  // shutter ON the guardian's actual supporting deck, not a camera-only prop.
+  // Opt in for the new real 3D live source; missing flag preserves every
+  // historical generation hash, hazard ID, RNG stream and replay checksum.
+  if (config.guardianArenaHazards === true && floor > 0 &&
+      floor % config.guardianInterval === 0 &&
+      config.maxHazardsPerChunk > 0) {
+    const arena = platforms[platforms.length - 2];
+    const width = Math.min(26000, Math.floor(arena.width * .23));
+    // Two real body-width ground exits remain. The guardian patrol overlaps
+    // the shutter's vicinity, so the AI must juggle its actual combat and
+    // fixed-step escape, with no scripted enemy position or free immunity.
+    const x = arena.x + Math.floor((arena.width - width) * .36);
+    const shutter:TowerHazard = {
+      id:`f${floor}:guardian-shutter`, kind:'crusher',
+      x, y:arena.y+arena.height, width, height:9000,
+      activeFromTick:12+rng.nextInt(`tower:guardian-arena-phase:${floor}`,20),
+      activeEvery:72, activeFor:9, damage:1,
+    };
+    // Budget is an invariant, even on a one-hazard low-memory stream. Reuse
+    // a regular slot rather than silently exceeding the configured cap.
+    if (hazards.length < config.maxHazardsPerChunk) hazards.push(shutter);
+    else hazards[hazards.length-1] = shutter;
+  }
   const spawn={x:42000,y:baseY+groundHeight+config.playerHalfHeight};
   const checkpoint={x:Math.floor(config.worldWidth/2),y:capY+12000+config.playerHalfHeight};
   const base={id:`tower:${seed}:floor:${floor}`,floor,theme:themeFor(floor),baseY,height:config.chunkHeight,spawn,exitY:baseY+config.chunkHeight-8000,platforms,hazards,checkpoint,guardian:floor>0&&floor%config.guardianInterval===0};
