@@ -73,12 +73,18 @@ test('real Thornback rig stages recognition, grounded brace, shell reveal, and c
       moving:false,time:1,delta:.016,reducedMotion};
     guardian.update({...cue,encounterBeat:0});
     const firstAngle=Math.abs(wing.rotation.z), firstHeight=body.position.y;
+    const firstJaw=jaw.rotation.x;
     guardian.update({...cue,encounterBeat:.5});
     const middleHeight=body.position.y;
     guardian.update({...cue,encounterBeat:1});
     const lastAngle=Math.abs(wing.rotation.z), lastJaw=jaw.rotation.x;
     assert.ok(firstAngle>.20,'visible attention keeps original armoured shape');
-    assert.ok(lastAngle>firstAngle+.35,'authentic encounter unfolds real wing, not a HUD icon');
+    assert.ok(firstAngle<lastAngle*.35,
+      'genuine recognition keeps most of the connected armor closed before the release');
+    assert.ok(lastAngle>firstAngle+.55,
+      'the source-authentic final phase must change the actual shell silhouette substantially');
+    assert.ok(lastJaw>firstJaw+.16,
+      'the physical mandible must participate in the true late defensive display');
     assert.ok(middleHeight<firstHeight-.012,'physical armored body plants feet before shell reveal');
     assert.ok(lastJaw>.3,'connected jaw participates in the observed performance');
     const same=[wing.rotation.z,body.position.y,jaw.rotation.x];
