@@ -250,6 +250,39 @@ export function publicLandscapeGuardianHalfHeight(aspect, selectedHalfHeight,
   return Math.min(base, Math.max(desired, physicallySafe));
 }
 
+/**
+ * A genuinely modeled, PUBLIC fossil organ and Pip may share a short,
+ * readable landscape stage when the sculpture actually unfolds. Only the
+ * camera's scale is considered here. The caller must gate terminal states,
+ * real threats, witnessed pickups, gates, objectives and reduced motion.
+ *
+ * Preserve BOTH endpoints of the smoothly interpolating camera and reserve
+ * the full physical actor (1.18 units) and sculptural leaves (1.5 units),
+ * rather than treating two tiny actor centers as sufficient. Native portrait
+ * remains on its stricter existing camera path.
+ */
+export function publicFossilPerformanceHalfHeight(aspect, selectedHalfHeight,
+  attention, hero, organ, focus, previousFocus=focus) {
+  const base=Number.isFinite(selectedHalfHeight)&&selectedHalfHeight>0
+    ? selectedHalfHeight : 7.3;
+  if (!(Number.isFinite(aspect)&&aspect>=1.1)
+    || !(Number.isFinite(attention)&&attention>.35)
+    || ![hero?.x,hero?.z,organ?.x,organ?.z,
+      focus?.x,focus?.z,previousFocus?.x,previousFocus?.z].every(Number.isFinite))
+    return base;
+  const viewLength=Math.hypot(18,15);
+  const projectedX=(point,target)=>
+    ((point.x-target.x)*18-(point.z-target.z)*15)/viewLength;
+  const extent=target=>Math.max(
+    Math.abs(projectedX(hero,target))+1.18,
+    Math.abs(projectedX(organ,target))+1.50);
+  const safeHeight=Math.max(extent(focus),extent(previousFocus))/(aspect*.92);
+  // Never ask for an aggressive zoom near the activation threshold.
+  const emphasis=clamp((attention-.35)/.65,0,1);
+  const desired=base*(1-.18*emphasis);
+  return Math.min(base,Math.max(desired,safeHeight));
+}
+
 export function publicDetailEncounterHalfHeight(aspect, disclosedAttention) {
   if (!(Number.isFinite(aspect) && aspect > 0 && aspect < .9)
     || !(Number.isFinite(disclosedAttention) && disclosedAttention > 0)) return 4.6;
