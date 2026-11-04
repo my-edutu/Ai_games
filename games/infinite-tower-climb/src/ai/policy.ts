@@ -389,10 +389,14 @@ function observedGuardianGuardSpacing(state:TowerState,obs:TowerObservation,
   const delta=guardian.position.x-p.position.x;
   const gap=Math.abs(delta),threshold=Math.max(65000,
     state.config.attackReach+14000);
+  // A distant guardian is a reason to approach, not to freeze every
+  // autonomous route step for the entire shield timer.
+  if(gap>threshold+12000)return null;
   const away:TowerAction['move']=delta>=0?-1:1;
   const wanted:TowerAction['move']=gap<threshold?away:0;
-  const safe=guardedEvasion(state,obs,wanted);
-  let move:TowerAction['move']=safe===wanted?safe:0;
+  // Preserve an inward correction when current momentum would otherwise
+  // carry the protagonist over a ledge: safety outranks the bracing pose.
+  let move:TowerAction['move']=guardedEvasion(state,obs,wanted);
   if(move!==0){
     // A retreat must not become a dodge *into* a present live floor spike.
     // The real next-step ground controller remains the final authority.
