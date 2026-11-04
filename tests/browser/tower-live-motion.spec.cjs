@@ -172,6 +172,46 @@ for (const viewport of viewports) {
     }
     observations.push(observation);
   }
+  // Neutral, passive evidence observer. The original game and source server
+  // remain byte-identical to their frozen SHA. Sample the genuinely displayed
+  // result DOM and current public state between expensive 1s screenshots.
+  // This does NOT prove that a WebM frame visibly contains the result.
+  if (scenario === 'outcome') await page.evaluate(() => {
+    const witnessed = [];
+    window.__TOWER_CAPTURE_RESULT_WITNESSES__ = witnessed;
+    window.__TOWER_CAPTURE_RESULT_WITNESS_TIMER__ = setInterval(() => {
+      const s = window.__TOWER_PUBLIC_STATE__;
+      if (!s || !['result', 'intermission'].includes(s.lifecycle) ||
+          !s.result || typeof s.runToken !== 'string') return;
+      const card = document.getElementById('result-card');
+      const rect = card?.getBoundingClientRect();
+      if (!rect || rect.width <= 80 || rect.height <= 45 ||
+          rect.left < 0 || rect.top < 0 ||
+          rect.right > innerWidth || rect.bottom > innerHeight) return;
+      let painted = true;
+      for (let el = card; el; el = el.parentElement) {
+        const css = getComputedStyle(el);
+        if (el.hidden || css.display === 'none' ||
+            css.visibility !== 'visible' || Number(css.opacity) <= 0) {
+          painted = false; break;
+        }
+      }
+      if (!painted) return;
+      const css = getComputedStyle(card);
+      const center = document.elementFromPoint(
+        rect.left + rect.width / 2, rect.top + rect.height / 2);
+      if (css.pointerEvents !== 'none' &&
+          center !== card && !card.contains(center)) return;
+      const title = document.getElementById('result-title')?.textContent?.trim() || '';
+      const height = document.getElementById('result-height')?.textContent?.trim() || '';
+      if (!title || !height) return;
+      witnessed.push({ atMs: Date.now(), runToken: s.runToken, scene: s.lifecycle,
+        sourceResult: { kind: s.result.kind, reason: s.result.reason },
+        observedResultCard: { visible: true, runToken: s.runToken, title, height,
+          pointerPassThrough: css.pointerEvents === 'none' } });
+      if (witnessed.length > 120) witnessed.shift();
+    }, 200);
+  });
   await sample(0);
   // The frozen baseline can have a one-tick terminal phase; an authentic
   // frame still may not be present in composited video. Do not imply a visible
@@ -186,8 +226,14 @@ for (const viewport of viewports) {
     await page.waitForTimeout(cadenceMs);
     await sample(i);
   }
+  const outcomeWitness = scenario === 'outcome' ?
+    await page.evaluate(() => {
+      clearInterval(window.__TOWER_CAPTURE_RESULT_WITNESS_TIMER__);
+      return [...(window.__TOWER_CAPTURE_RESULT_WITNESSES__ || [])];
+    }) : [];
   const assessment = assessTowerMotion(observations, {
     minDurationMs: 60000, requireOutcomeRestart: scenario === 'outcome',
+    outcomeWitness,
   });
   // The shared CI host can now witness every REAL fixed simulation tick,
   // including the frozen baseline's 50ms result. This trace is comparison
@@ -263,7 +309,7 @@ for (const viewport of viewports) {
     sampledActorOffscreen: observations.filter(item => item.observedActor?.inPicture === false).length,
     sampledActorUnsafe: observations.filter(item => item.observedActor?.inSafeFrame === false).length,
     capturedAt: new Date().toISOString(), observations, assessment,
-    sourcePhaseSummary, sourceMovingSummary, errors,
+    sourcePhaseSummary, sourceMovingSummary, outcomeWitness, errors,
     independentReview: false,
     gates: { captureIntegrity: assessment.scopedPass ? 'PASS' : 'FAIL',
       completeMotion: 'OPEN: manually review unedited normal-speed video for climbing, guardian danger, true result and restart',
