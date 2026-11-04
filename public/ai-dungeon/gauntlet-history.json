@@ -2402,10 +2402,10 @@
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Genuine 4 Nov desktop/phone Chromium still shows huge stylized heads, ordinary Gothic facade masonry bisecting actor bodies, and weak weapon contact. New camera is source implemented but actual improved full-body pixels, moving scene/phone performance, original audio and masked votes UNVERIFIED.",
-    "currentWork": "M1 integrated physical-camera and real-masonry/rig staging candidate e58f0bb3d42083c850ee2c82a86817d3cfe03e8a: score head/torso/feet physical sightlines for real cast against the SAME WebGL stone-cutaway policy; no more than six bounded camera orbits/elevation, only a meaningful actor-visibility improvement; retain warning, manual, reduced-motion and game authority. Authentic exact-candidate moving footage NOT YET INSPECTED.",
-    "candidateCommit": "e58f0bb3d42083c850ee2c82a86817d3cfe03e8a",
-    "candidateArtifactUrl": "",
+    "biggestRemainingGap": "Actual native figures still look toy-scale with weak contact and many obstructing architectural facades. True body-stage fix is source committed but genuine new-head audiovisual LOOKS/FEELS/PLAYS remain UNVERIFIED, critics 0/3.",
+    "currentWork": "M1 native-body and genuine full-body stone-safe stage at ddfe70361eaf78b6bfccae78dcd6676028965984; real browser predecessor e6f35ea72f4982fe156550e63fcaa0ec14ee3de8 still badly occluded. Code source verified locally, moving candidate visuals UNVERIFIED.",
+    "candidateCommit": "ddfe70361eaf78b6bfccae78dcd6676028965984",
+    "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
       {
@@ -4839,6 +4839,32 @@
         "plays": "UNVERIFIED",
         "blindCritics": "0 of 3",
         "next": "Watch new exact-head organic desktop/mobile movement and Warden attack in WebGL. Reject camera if it oscillates or still covers feet; improve real 3D anatomy, cohesive scene and weapon contact, then assemble synchronized organic journey and blind comparisons against original locked baseline."
+      },
+      {
+        "id": "M1-REAL-ACTOR-STONE-STAGE-20261104",
+        "date": "2026-11-04",
+        "status": "SOURCE_IMPLEMENTED_EXPERIENTIAL_RESULT_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "codeCommit": "ddfe70361eaf78b6bfccae78dcd6676028965984",
+        "predecessorSha": "e6f35ea72f4982fe156550e63fcaa0ec14ee3de8",
+        "predecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41840842557/artifacts/13329481647",
+        "objective": "Actually readable body-scale native skinned figures in a coherent Gothic combat stage: align legal visual stance, skinned render origin, camera grade and real architecture cutaway.",
+        "negativeBefore": "Exact e6f35ea genuine desktop/mobile browser still bisects Vanguard torso and sword with foreground facade; toy proportions, intrusive props and flat boxy surfaces. No genuine positive camera A/B proven.",
+        "integratedImplementation": [
+          "Bound actor presentation offsets against real # walls in all cardinal directions, nearby diagonal corners and actual role-sized silhouette; stagePoint and authoritative contact VFX use this same offset without modifying cell occupancy or hit outcomes.",
+          "Replace centre-of-grid cast camera/cutaway inputs with genuine visible, living skinned actor root positions bounded within the original legal cell; preserve multiple heroes sharing an actual tile.",
+          "Reuse a single bounded five-subject list across physical camera grading, base wall, facade/weathering, galleries and props; no new shader or draw pass, no AI or damage fabrication, preserve reduced-motion and manual cameras."
+        ],
+        "safety": "Local source copy ran npm run dungeon:test: 292/292 PASS including 4 new body-stage checks, against predecessor e6f35ea + code candidate; code pushed in same chain. New exact-SHA browser, main CI/replay/security, mobile GPU and synchronized original audio unverified.",
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "blindCritics": "0/3",
+        "fullJourney": "UNVERIFIED",
+        "mobileP95": "UNVERIFIED",
+        "statusVerdict": "IN PROGRESS — NOT TRANSFORMED",
+        "biggestRemainingGap": "Character anatomy remains toy-like and weapon contact weak; full-body cutaway may still fail against actual tall foreground galleries/decoration. Must inspect new authentic matched motion.",
+        "next": "Inspect real new candidate desktop/mobile WebGL gameplay across organic traversal, combat, Warden, floor transition and defeat/restart, reject if cutaway still buries source. Continue native rig and physical contact changes, synchronize real original audio and measure FPS, then blind majority A/B vs same fixed milestone baseline; keep PR draft."
       }
     ]
   }
