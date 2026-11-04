@@ -2194,9 +2194,9 @@
         "playsMajority": false,
         "provenance": "No fresh independent critics available. Do not infer a blind preference from test results or real predecessor screenshots."
       },
-      "safetyChecks": "Predecessor 938cf0c actual authority PASS, WebGL browser shards 1/3 and 2/3 PASS, shard 3/3 27/28 (failed real scene archWindows=0), visual review PASS, catalogue CI CANCELLED; 7e47b7e corrected window eligibility and replaced redundant Warden per-tile outlines, new exact-head safety and gameplay checks QUEUED/UNVERIFIED. Do not mark PASSED before completion.",
+      "safetyChecks": "Predecessor exact SHA 372f85d 41771366662 authority PASS, browser shards 1/2 PASS, shard 3/3 27/28 FAIL due genuine archWindows=0; 41771366759 visual PASS, full catalogue CI 41771366875 FAIL. New candidate 00c81196 GitHub Actions Dungeon 41777544297, visual 41777544237, full CI 41777544234 RUNNING/UNVERIFIED at observation.",
       "matchedExternalReference": "NOT_RUN",
-      "originalAudioMotionClip": "UNVERIFIED",
+      "originalAudioMotionClip": "UNVERIFIED synchronized full video+audio; predecessor Chromium Warden diagnostic 2.5s non-silent real PCM 44100Hz, peak .025445 RMS .00856, but browser video recorder reported zero bytes.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
       "audioLoudnessAndClipping": "NOT_MEASURED: browser records positive original peak/RMS and populated WAV only when genuine real-time AudioContext frames exist; no candidate measurements yet.",
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
@@ -2296,9 +2296,9 @@
       "nativeContinuityCandidate": "Source commit 08338db is an unverified new 3D underlay candidate, not a demonstrated repair. Real after comparison/critics have not happened. Monitor additional native underbody draw calls and 3D anatomy material intersections."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Genuine game remains toy-like with crowded body contact; real Warden combat has no accepted fluid, original-audio full traversal and boss sequence. Carved 3-beat low-profile floor performance is a candidate, never a blind or motion win. Browser screenshot scene liveness can fall to zero during long capture, and exact-head safety is not green.",
-    "currentWork": "M1 ongoing: actual 9b98c638 GitHub Actions real browser 41765710654 has 26/28 shard3, two blocking safety failures; 41765710825 visual PASS but catalogue CI 41765710846 FAILED. Browser NOVA failure from obsolete one-incision-per-tile expectation after real sparse 10-line composition; source milestone now integrates a low-relief original carved boss floor pulse on genuine warned cells and actual cast settling, strictly presentational. This is source candidate, not an accepted in-motion AFTER. Shared worker tunnel and local code runtime were unavailable. Preserve locked 281735d baseline and PR draft.",
-    "candidateCommit": "c72e58ca4e510fd1eda92bd284920733c120a53b",
+    "biggestRemainingGap": "Characters remain toy-like and weapon contact insufficiently convincing against overbusy masonry in authentic previous browser Warden footage. Integrated Warden tactical/ground/world candidate may help, but all exact-head moving combat, phone frame-time and independently blinded LOOKS/FEELS/PLAYS outcomes remain unverified.",
+    "currentWork": "M1 integrated source candidate 00c81196001d: authority-grounded squad Warden evacuation, sequential radial real-threat basalt pressure front, subdued physical outer contour, supported original stained glass. Authentic predecessor boss and world Chromium captured at 372f85d; last browser shard3 failed 27/28 missing windows. New-head physical motion, actual mobile/desktop player value and safety checks RUNNING/UNVERIFIED; never claim transformation from code or CI.",
+    "candidateCommit": "00c81196001d306c5b77590d0ba5a8ce0d252506",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
     "implementationEvents": [
@@ -4357,6 +4357,38 @@
         "verdict": "IN_PROGRESS — NOT_TRANSFORMED",
         "next": "Inspect genuine new-head Warden NOVA desktop/mobile moving footage for visible relief and honest safe cells, fix remaining moment-to-moment character silhouette and near-wall congestion, capture full genuine seed-matched audible traversal→combat→boss→floor→defeat/restart, measure phone frame timing, obtain >=3 fresh blind pillar votes; never merge.",
         "codeCommit": "c72e58ca4e510fd1eda92bd284920733c120a53b"
+      },
+      {
+        "id": "M1-WARDEN-COHERENT-TACTICS-AND-PHYSICAL-CINEMATIC-COURT-20261104",
+        "date": "2026-11-04",
+        "milestone": "M1",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "codeCommit": "00c81196001d306c5b77590d0ba5a8ce0d252506",
+        "currentObservedPredecessor": "372f85d5702b1924d949f2d07203f38e02d5db0e",
+        "actualPredecessorArtifacts": [
+          "https://github.com/my-edutu/Ai_games/actions/runs/41771366759/artifacts/13295166948",
+          "https://github.com/my-edutu/Ai_games/actions/runs/41771366662/artifacts/13296445388"
+        ],
+        "objective": "Transform the real Warden arena from a falsely stationary frontline and technical white danger squares into genuinely purposeful team movement, sequential physical stone pressure and supported atmospheric scene landmarks.",
+        "integratedImplementation": "Use bounded deterministic legal Warden evasion for healthy Vanguard as well as allies, preserving actual oathguard protective authority; original incipient warning wave on only real strike cells in 3/2 true beats with no fake collision or damage; physically shaded single exterior contour and no artificial per-cell loops; 4 original 3D Gothic lancets anchored to real impassable 0.88m stone walls respecting cutaways; no copied assets. New tactical and visual geometry tests.",
+        "codeFiles": [
+          "games/ai-dungeon/src/index.ts",
+          "public/ai-dungeon/warden-tell-plan.js",
+          "public/ai-dungeon/warden-ritual.js",
+          "public/ai-dungeon/environment.js",
+          "public/ai-dungeon/architecture.js",
+          "tests/foundation/dungeon-warden-evasion-m1.test.cjs",
+          "tests/foundation/dungeon-warden-ground-beat.test.cjs"
+        ],
+        "observedSafety": "Previous 372f85d authority PASS, browser shard3 27/28 FAIL missing archWindows, full catalogue CI FAIL. New 00c81196 safety RUNNING/UNVERIFIED (41777544297,41777544237,41777544234).",
+        "candidateRealMotion": "UNVERIFIED (predecessor only)",
+        "originalAudio": "Real prior PCM non-silent 2.5s, no synchronized full video",
+        "performance": "UNVERIFIED new-head desktop/mobile; predecessor one-frame ~501 draw calls not a sustained FPS measurement",
+        "blindCritics": "0/3, all pillars UNVERIFIED",
+        "verdict": "IN_PROGRESS — NOT_TRANSFORMED",
+        "biggestGap": "Still stylized toy-like skinned humans and weak visible weapon/body contact in crowded Gothic space; unaccepted five-stage complete movie.",
+        "next": "Inspect exact new SHA mobile/desktop Warden combat motion, sound and legal evasion and real 3D window staging, fix any visual or fairness regression, collect complete matched baseline and fresh independent 3-pillar votes. Do not merge."
       }
     ]
   }
