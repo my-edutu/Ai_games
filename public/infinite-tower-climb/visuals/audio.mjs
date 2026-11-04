@@ -24,6 +24,7 @@ export function createTowerAudio() {
   let disposed = false, lastAmbient = 0, enableRequest = 0, enablePending = false;
   const voices = new Set(), heard = new Set(), pads = [];
   let guardianWindups = new Map(), guardianStates = new Map(), hazardStates = new Map();
+  let hazardChargeStates = new Map(), lastHazardTick = null;
   let lastSurvivalSnapshot = null;
   // One opt-in arrival tone for crossing the actual cap-approach threshold.
   // This is a genuine same-run fixed-step crossing, not a route prediction.
@@ -119,7 +120,7 @@ export function createTowerAudio() {
     const snapshot = frame.snapshot;
     if (snapshot.runToken !== token) {
       const verifiedRestart = !!token && ['result', 'intermission'].includes(lastLifecycle);
-      heard.clear(); last = null; lastFloor = null; lastIntent = ''; lastTargetPlatformId = null; lastLifecycle = 'running'; stride = 0; crownDistance = null; crownTick = -1; crownHeard = ''; guardianWindups.clear(); guardianStates.clear(); hazardStates.clear(); lastSurvivalSnapshot = null; token = snapshot.runToken;
+      heard.clear(); last = null; lastFloor = null; lastIntent = ''; lastTargetPlatformId = null; lastLifecycle = 'running'; stride = 0; crownDistance = null; crownTick = -1; crownHeard = ''; guardianWindups.clear(); guardianStates.clear(); hazardStates.clear(); hazardChargeStates.clear(); lastHazardTick = null; lastSurvivalSnapshot = null; token = snapshot.runToken;
       if (verifiedRestart) tone(205, 365, .21, 'sine', .052);
     }
     for (const voice of frame.audio?.voices || []) if (!heard.has(voice.id)) {
@@ -168,7 +169,7 @@ export function createTowerAudio() {
       Number.isFinite(lastFloor) && snapshot.floor === lastFloor + 1 &&
       snapshot.lifecycle === 'running' &&
       [...guardianStates.values()].some(value => value.active === true);
-    if (!sameFloor) { guardianWindups.clear(); guardianStates.clear(); hazardStates.clear(); }
+    if (!sameFloor) { guardianWindups.clear(); guardianStates.clear(); hazardStates.clear(); hazardChargeStates.clear(); lastHazardTick = null; }
     // Follow the actual guardian's fixed-step telegraph as the visible maul
     // winds up and its source-projected warning lane narrows. At most one
     // low-level preparation and one final cue per real windup; missing optional
@@ -291,7 +292,11 @@ export function createTowerAudio() {
     // this same floor and a nearby living climber. Never infer threat from a
     // first observation, floor switch, stale route or future hazard schedule.
     const observedHazards=new Map();
-    let nearbyHazardRaised=false;
+    const observedCharges=new Map();
+    let nearbyHazardRaised=false, nearbyChargeRaised=false;
+    const adjacentCharge= sameFloor && Number.isSafeInteger(lastHazardTick) &&
+      Number.isSafeInteger(snapshot.tick) && snapshot.tick > lastHazardTick &&
+      snapshot.tick-lastHazardTick<=8;
     if(snapshot.lifecycle==='running')for(const hazard of snapshot.hazards||[]){
       if(typeof hazard.id!=='string'||!hazard.id)continue;
       const active=hazard.active===true;
@@ -302,9 +307,30 @@ export function createTowerAudio() {
           <=Math.max(48000,hazard.width*1.8)
         && Math.abs(hazard.y-actor.y)<=80000
         && actor.health>0)nearbyHazardRaised=true;
+      // The live source alone declares the scheduled windup. A previous
+      // authenticated zero followed by 1–12 charge ticks authorizes ONE
+      // restrained preparatory material sound when the climber is nearby.
+      // No first-frame warning, fabricated future phase or replay duplicate.
+      const charge=Number.isSafeInteger(hazard.chargeTicksRemaining) &&
+        hazard.chargeTicksRemaining>=1 && hazard.chargeTicksRemaining<=12 &&
+        !active ? hazard.chargeTicksRemaining : 0;
+      if(charge>0 && adjacentCharge && hazardChargeStates.get(hazard.id)===0 &&
+        !nearbyChargeRaised && actor.health>0 &&
+        !snapshot.enemies?.some(enemy=>enemy.active&&enemy.telegraph) &&
+        [hazard.x,hazard.y,hazard.width,hazard.height,actor.x,actor.y].every(Number.isFinite) &&
+        Math.abs(hazard.x+hazard.width*.5-actor.x)<=Math.max(100000,hazard.width*2) &&
+        Math.abs(hazard.y+hazard.height*.5-actor.y)<=120000)
+        nearbyChargeRaised=true;
+      observedCharges.set(hazard.id,charge);
       observedHazards.set(hazard.id,active);
     }
     hazardStates=observedHazards;
+    hazardChargeStates=observedCharges;
+    lastHazardTick=Number.isSafeInteger(snapshot.tick)?snapshot.tick:null;
+    if(nearbyChargeRaised){
+      texture(470,.09,.025);
+      tone(338,244,.14,'triangle',.035);
+    }
     if(nearbyHazardRaised){
       texture(720,.13,.045);
       tone(470,190,.18,'triangle',.058);
@@ -434,7 +460,7 @@ export function createTowerAudio() {
     if (disposed) return;
     disposed = true; enabled = false; enablePending = false; enableRequest++;
     for (const voice of voices) { try { voice.stop(); voice.disconnect(); } catch {} }
-    voices.clear(); heard.clear(); guardianWindups.clear(); guardianStates.clear(); hazardStates.clear(); lastSurvivalSnapshot = null; pads.length = 0; last = null; lastFloor = null; lastIntent = ''; lastTargetPlatformId = null; lastLifecycle = 'running'; stride = 0; crownDistance = null; crownTick = -1; crownHeard = '';
+    voices.clear(); heard.clear(); guardianWindups.clear(); guardianStates.clear(); hazardStates.clear(); hazardChargeStates.clear(); lastHazardTick = null; lastSurvivalSnapshot = null; pads.length = 0; last = null; lastFloor = null; lastIntent = ''; lastTargetPlatformId = null; lastLifecycle = 'running'; stride = 0; crownDistance = null; crownTick = -1; crownHeard = '';
     if (context) context.close().catch(() => {});
   }
   return { setEnabled, accept, dispose, diagnostics: () => ({ soundEnabled: enabled, soundPending: enablePending, voices: voices.size, context: context?.state || 'not-started' }) };
