@@ -39,14 +39,15 @@ const shot = (cells, overrides = {}) => ({
   result: null, ...overrides,
 });
 function realRootPositions(world, THREE) {
-  const out = [], matrix = new THREE.Matrix4(), point = new THREE.Vector3();
+  const out = [], matrix = new THREE.Matrix4(), point = new THREE.Vector3(), extent = new THREE.Vector3();
   world.group.children[1].traverse(mesh => {
     if (!mesh.isInstancedMesh || mesh.geometry.type !== 'ShapeGeometry'
       || mesh.material.color.getHexString() !== '8caf44') return;
     for (let i = 0; i < mesh.count; i++) {
       mesh.getMatrixAt(i, matrix);
       point.setFromMatrixPosition(matrix);
-      out.push({x: point.x, y: point.y, z: point.z});
+      extent.setFromMatrixScale(matrix);
+      out.push({x: point.x, y: point.y, z: point.z, width: extent.x, length: extent.y});
     }
   });
   return out;
@@ -72,6 +73,8 @@ test('physical tide-fern mantles hang from the exterior of actual disclosed 3D f
       && Math.abs(p.y - (floor - .36)) < .005 && Math.abs(p.x - center.x) < .56);
     assert.equal(east.length, 3, 'three actual hanging sea-fern blades root on the exterior east facade');
     assert.equal(south.length, 3, 'three actual hanging sea-fern blades root on the exterior south facade');
+    assert.ok([...east, ...south].every(p => p.width >= .81 && p.length >= 1.03 && p.length <= 1.37),
+      'actual exterior 3D foliage has a substantial sculpted fan silhouette, not a subpixel string');
     assert.ok(stats.geometryCount <= 16 && stats.materialCount <= 26
       && stats.textureCount <= 3, 'no new GPU resource class is introduced');
     assert.equal(stats.instances, replay.stats().instances,
