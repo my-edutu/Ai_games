@@ -14,6 +14,33 @@ permissions:
   contents: read
 
 jobs:
+  # W31 physically projected citizen selection: one honest visible actor, real
+  # desktop/390px pointer interaction and unchanged authoritative snapshot.
+  w31-real-citizen-picking:
+    runs-on: ubuntu-latest
+    timeout-minutes: 11
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: W31 actual world click targets a visible citizen on desktop and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w31-real-citizen-picking.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w31-real-citizen-picking
+          path: test-results/
+          retention-days: 14
   # W30 real physically planted boot contract: 1024px and 390px.
   w30-world-footfall:
     runs-on: ubuntu-latest
