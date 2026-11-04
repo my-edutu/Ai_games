@@ -155,3 +155,20 @@ test('pre-startup WebGL loss remains truthful rather than misclassified as a mod
  assert.equal(h.document.body.dataset.rendererStatus,'context-lost');
  assert.equal(h.recovery.hidden,false);
 });
+
+
+// This enforces browser boot, not a mock renderer. Every static ESM
+// dependency of the live app must be fetchable from the production allowlist.
+// A missing module kills the *entire* module graph before the first WebGL
+// frame; the real Nov 4 Chromium trace exposed exactly that regression.
+test('every live entry-module import is whitelisted for the actual dungeon HTTP server',()=>{
+ const root=path.resolve(__dirname,'../..');
+ const entry=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ const server=fs.readFileSync(path.join(root,'scripts/serve-dungeon-stream.cjs'),'utf8');
+ const imports=[...entry.matchAll(/\bfrom\s+['"](\/dungeon\/([\w-]+\.js))['"]/g)];
+ assert.ok(imports.length>=30,'must audit the actual app dependency graph, not a token list');
+ for(const [,url,file] of imports){
+  assert.ok(fs.existsSync(path.join(root,'public/ai-dungeon',file)),url+' has no real source file');
+  assert.ok(server.includes("['"+url+"','"+file+"']"),url+' is not served: this breaks all 3D browser gameplay');
+ }
+});
