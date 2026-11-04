@@ -117,6 +117,8 @@ test('stage is integrated with the real world renderer, graphics recovery, audio
   assert.match(audio, /hazardChargeStates/);
   assert.match(audio, /hazard\.chargeTicksRemaining/);
   assert.match(audio, /nearbyChargeRaised/);
+  assert.match(audio, /witnessedPressureRatchet\(previousCharge, charge, adjacentCharge\)/);
+  assert.match(audio, /nearbyRatchetRaised/);
 });
 
 test('simultaneous real pressure warnings make one bounded camera subject, not a safe-route promise', async () => {
@@ -153,4 +155,16 @@ test('source pressure chambers are pooled to one draw with bounded graphics tier
   assert.equal(effect.diagnostics().instances,48);
   effect.clear();assert.equal(effect.diagnostics().instances,0);
   assert.equal(JSON.stringify(frame),untouched);
+});
+
+test('final pressure chamber ratchet is source-authenticated, bounded, and never first-frame or replayed', async () => {
+  const { witnessedPressureRatchet } = await import(pathToFileURL(path.join(root,
+    'public/infinite-tower-climb/visuals/audio.mjs')).href);
+  assert.equal(witnessedPressureRatchet(12,4,true),true);
+  assert.equal(witnessedPressureRatchet(5,4,true),true);
+  for(const [before,after,adjacent] of [
+    [undefined,4,true],[0,4,true],[4,4,true],[3,2,true],
+    [12,0,true],[14,4,true],[9,4,false],[4,5,true],
+    [5,4,undefined],[NaN,4,true],[5,Infinity,true],
+  ]) assert.equal(witnessedPressureRatchet(before,after,adjacent),false);
 });

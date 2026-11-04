@@ -17,6 +17,15 @@ export function observedSurvivalChange(previous, next) {
   return null;
 }
 
+// The chamber ratchet is earned only by a CURRENT fixed-step countdown
+// genuinely crossing its final four ticks. A first packet, repeated snapshot,
+// stale/future value or discontinuous schedule never authorizes a sound.
+export function witnessedPressureRatchet(previous, current, adjacent) {
+  return adjacent === true && Number.isSafeInteger(previous) &&
+    Number.isSafeInteger(current) && previous > 4 && previous <= 12 &&
+    current >= 1 && current <= 4 && current < previous;
+}
+
 // A bounded synthesized soundscape. No audio is started until a viewer enables it.
 export function createTowerAudio() {
   let context = null, master = null, bed = null, wind = null, windFilter = null, windGain = null;
@@ -293,7 +302,7 @@ export function createTowerAudio() {
     // first observation, floor switch, stale route or future hazard schedule.
     const observedHazards=new Map();
     const observedCharges=new Map();
-    let nearbyHazardRaised=false, nearbyChargeRaised=false;
+    let nearbyHazardRaised=false, nearbyChargeRaised=false, nearbyRatchetRaised=false;
     const adjacentCharge= sameFloor && Number.isSafeInteger(lastHazardTick) &&
       Number.isSafeInteger(snapshot.tick) && snapshot.tick > lastHazardTick &&
       snapshot.tick-lastHazardTick<=8;
@@ -314,13 +323,21 @@ export function createTowerAudio() {
       const charge=Number.isSafeInteger(hazard.chargeTicksRemaining) &&
         hazard.chargeTicksRemaining>=1 && hazard.chargeTicksRemaining<=12 &&
         !active ? hazard.chargeTicksRemaining : 0;
-      if(charge>0 && adjacentCharge && hazardChargeStates.get(hazard.id)===0 &&
-        !nearbyChargeRaised && actor.health>0 &&
+      const nearbyPublishedCharge = actor.health>0 &&
         !snapshot.enemies?.some(enemy=>enemy.active&&enemy.telegraph) &&
         [hazard.x,hazard.y,hazard.width,hazard.height,actor.x,actor.y].every(Number.isFinite) &&
         Math.abs(hazard.x+hazard.width*.5-actor.x)<=Math.max(100000,hazard.width*2) &&
-        Math.abs(hazard.y+hazard.height*.5-actor.y)<=120000)
+        Math.abs(hazard.y+hazard.height*.5-actor.y)<=120000;
+      const previousCharge = sameFloor ? hazardChargeStates.get(hazard.id) : undefined;
+      if(charge>0 && adjacentCharge && previousCharge===0 &&
+        !nearbyChargeRaised && nearbyPublishedCharge)
         nearbyChargeRaised=true;
+      // A real impending collision gets ONE subdued counterweight-ratchet
+      // accent in the FINAL four source ticks. The 3D pylons and AI grounded
+      // escape now share the same physical countdown. No sound in mute mode.
+      if(!nearbyRatchetRaised && nearbyPublishedCharge &&
+        witnessedPressureRatchet(previousCharge, charge, adjacentCharge))
+        nearbyRatchetRaised=true;
       observedCharges.set(hazard.id,charge);
       observedHazards.set(hazard.id,active);
     }
@@ -330,6 +347,10 @@ export function createTowerAudio() {
     if(nearbyChargeRaised){
       texture(470,.09,.025);
       tone(338,244,.14,'triangle',.035);
+    }
+    if(nearbyRatchetRaised){
+      texture(380,.11,.032);
+      tone(210,95,.17,'triangle',.045);
     }
     if(nearbyHazardRaised){
       texture(720,.13,.045);
