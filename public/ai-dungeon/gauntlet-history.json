@@ -2202,7 +2202,7 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Real-source b8be04f 1440x832 browser screenshot from 41672587065 and Warden boss desktop/mobile screenshot/video artifacts 41672587022 were INSPECTED: new 14 anatomical joint cylinders made elongated opaque spindly/squid-like limbs. Warden encounter head-on 1440x832 has 3 heroes overlapping enemy bodies in the 58% HP boss arena, warning Rift Cross visible but contact indistinguishable; mobile capture progressed into floor 2 but large stylized ballheads persist. This is a NEGATIVE experiential finding compared with da492455 and exact locked baseline; source visual redesign at 71da2ea to cap spans remains unverified. No masked A/B victory.",
-      "latestCandidateWorkflow": "Exact integrated b5e6f4d5 source pushed; exact-head Dungeon browser, visual-review and catalogue CI pending. Synthetic direct ray checks only, not A/B.",
+      "latestCandidateWorkflow": "Final integrated source 05b49d1 checked with pure synthetic high/reduced wall ray tests and parser; exact-head new browser/visual/CI pending.",
       "currentPredecessorWebgl": {
         "sourceSha": "3b2025a619cc6c113e28dd463224e90205fd2476",
         "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41922629878/artifacts/13368532950",
@@ -5158,16 +5158,17 @@
     "implementationContinuation": {
       "date": "2026-11-04",
       "milestone": "M1",
-      "sourceCommit": "b5e6f4d5ed78aa4b46795bc9931f4fcf220b27bd",
+      "sourceCommit": "05b49d1851ec84d80c1dd9d1374298f721f02b45",
       "commits": [
         "c46679d7fe84e0c47cea4773a4e1603d5c2b862e",
         "8e956d96302fb88a011fc78802d56c2f77e797d9",
         "077e541bccb81db161cc3d6c188acdb2256c8628",
-        "b5e6f4d5ed78aa4b46795bc9931f4fcf220b27bd"
+        "b5e6f4d5ed78aa4b46795bc9931f4fcf220b27bd",
+        "05b49d1851ec84d80c1dd9d1374298f721f02b45"
       ],
-      "changes": "Joint native moving-body interpolation and exact drawn facade ray intersection for common physical-camera grading and actual environment stone cutaway. Scene presentation only, no authority mutation.",
-      "syntheticChecks": "Direct source JS parse and synthetic blocking/recess/rear, fake actor rejection and moving living one-cell root checks passed; tracked tests added, exact-head full tests/real browser motion not verified.",
-      "evaluation": "CANDIDATE ONLY; LOOKS/FEELS/PLAYS UNVERIFIED; 0/3 blind critics; no full five-stage original-audio matched footage",
+      "changes": "Joint native moving-body interpolation and exact drawn facade ray intersection for common physical-camera grading and actual environment stone cutaway. Scene presentation only, no authority mutation. Latest source prevents losing genuine low Gothic 43cm ruins when actor-body rays already clear current stone; maintains depth.",
+      "syntheticChecks": "Direct source JS parse and synthetic blocking/recess/rear, fake actor rejection and moving living one-cell root checks passed; tracked tests added, exact-head full tests/real browser motion not verified. Low and full-height physical slab checks PASSED for actual actor/recess.",
+      "evaluation": "UNVERIFIED in exact-head original WebGL desktop/mobile; all three experiential pillars and blind critics pending.",
       "largestGap": "Native fighters still toy-like in previous real Chromium; full body, melee contact and Warden engagement not readable through nearby stone.",
       "nextTask": "Inspect current exact-head desktop/mobile full moving real WebGL, ensure facade cutaway does not flatten room or raise frame p95; then integrated original character/anatomy/combat and complete five-stage capture with independent blind judges."
     }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedAt": "2026-11-04T21:56:03Z",
-  "status": "IN PROGRESS — NOT TRANSFORMED: real pixel obstruction diagnosed; exact 3D facade and moving-body integration candidate, actual new-head moving gameplay UNVERIFIED.",
+  "status": "IN PROGRESS — NOT TRANSFORMED: coherent live-body / real-Gothic-facade cutaway source committed; actual candidate desktop/mobile experiential test UNVERIFIED.",
   "reference": "Diablo IV: overall quality; No Rest for the Wicked: worlds; Path of Exile 2: contact and combat — NOT independently compared as matched motion",
   "metrics": {
     "sample_seeds": 24,
@@ -211,16 +211,16 @@
   "visualVerdict": "NEGATIVE real predecessor Chromium: Vanguard torso/boots concealed behind facade; original game remains miniature-like. b5e6f4d rendered pixels UNVERIFIED.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
-  "candidateCommit": "b5e6f4d5ed78aa4b46795bc9931f4fcf220b27bd",
-  "metricsProvenance": "Previous 3b2025a exact browser/authority and visual workflows passed; broad CI failed. New b5e6f4d source syntactic and synthetic ray/rear-wall/moving-body checks passed, real browser and updated full tests pending. Historical seeded campaign metrics unchanged.",
+  "candidateCommit": "05b49d1851ec84d80c1dd9d1374298f721f02b45",
+  "metricsProvenance": "Previous 3b2025a exact browser/authority and visual workflows passed; broad CI failed. New b5e6f4d source syntactic and synthetic ray/rear-wall/moving-body checks passed, real browser and updated full tests pending. Historical seeded campaign metrics unchanged. New 05b49d1 low Gothic wall preservation source synthetic check passed; full CI/browser evidence not established.",
   "transformation": {
     "milestone": "M1",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
     "locked": true,
-    "candidateSha": "b5e6f4d5ed78aa4b46795bc9931f4fcf220b27bd",
+    "candidateSha": "05b49d1851ec84d80c1dd9d1374298f721f02b45",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
-    "exactHeadSafety": "New exact-head gameplay and safety workflows pending. Direct source JS syntax and focused pure-synthetic facade/actor-recess checks passed; prior 3b2025a browser and visual jobs passed, broad CI failed.",
+    "exactHeadSafety": "05b49d1 pure synthetic read-only full/waist/sightline render-band and JS syntax checks passed. Full exact-head browser/authority/CI and mobile p95 pending.",
     "looks": "UNVERIFIED",
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
@@ -237,7 +237,7 @@
     "currentMilestoneLedger": "public/ai-dungeon/gauntlet-history.json",
     "realAfterArtifact": null,
     "realAfterObservation": "UNVERIFIED — current b5e6f4d desktop/mobile browser game capture and independent critique not yet inspected",
-    "integratedImplementation": "Cohesive real world facades + true physical-camera body rays + rooted real actor interpolation; no gameplay damage/AI/seed change, no extra GPU pass.",
+    "integratedImplementation": "Cohesive real world facades + true physical-camera body rays + rooted real actor interpolation; no gameplay damage/AI/seed change, no extra GPU pass. Low-height ruin preservation for actual body rays.",
     "latestPredecessorReview": {
       "sourceSha": "3b2025a619cc6c113e28dd463224e90205fd2476",
       "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41922629878/artifacts/13368532950",
