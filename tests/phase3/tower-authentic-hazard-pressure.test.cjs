@@ -168,3 +168,92 @@ test('final pressure chamber ratchet is source-authenticated, bounded, and never
     [5,4,undefined],[NaN,4,true],[5,Infinity,true],
   ]) assert.equal(witnessedPressureRatchet(before,after,adjacent),false);
 });
+
+test('live trap closure persists into authentic activation instead of vanishing on contact', async t => {
+  const [THREE, { createTowerHazardPressure }] = await loaded;
+  const stage = createTowerHazardPressure(THREE); t.after(() => stage.dispose());
+  const mesh = stage.group.getObjectByName('SourceTimedHazardChargingShutters');
+  const ready = snapshot(1), engaged = snapshot(0, {
+    hazards: [{ ...snapshot(0).hazards[0], active: true }],
+  });
+  const unchanged = JSON.stringify(engaged);
+  stage.update(ready);
+  const before = Array.from(mesh.instanceMatrix.array.slice(0, 16 * 16));
+  const warningColors = Array.from(mesh.instanceColor.array.slice(0, 16 * 3));
+  stage.update(engaged);
+  assert.equal(mesh.count, 16, 'the real attack must keep its physically closed chamber');
+  assert.equal(stage.diagnostics().activeHazards, 1);
+  assert.equal(stage.diagnostics().chargingHazards, 0);
+  assert.equal(stage.diagnostics().phase, 'active');
+  assert.deepEqual(Array.from(mesh.instanceMatrix.array.slice(0, 16 * 16)), before,
+    'last charged jaw frame and first actual attack frame share the same physical pose');
+  assert.notDeepEqual(Array.from(mesh.instanceColor.array.slice(0, 16 * 3)),
+    warningColors, 'actual danger remains distinct in color AND a physically locked shape');
+  assert.equal(mesh.material.depthTest, true);
+  assert.equal(stage.diagnostics().extraDraws, 1);
+  assert.equal(JSON.stringify(engaged), unchanged, 'presentation never mutates simulation truth');
+});
+test('source-proven deactivation unloads pressure machinery gradually, never fakes a safe phase', async t => {
+  const [THREE, { createTowerHazardPressure }] = await loaded;
+  const stage = createTowerHazardPressure(THREE); t.after(() => stage.dispose());
+  const mesh = stage.group.getObjectByName('SourceTimedHazardChargingShutters');
+  const active = snapshot(0, { hazards: [{ ...snapshot(0).hazards[0], active: true }] });
+  const inactive = tick => snapshot(0, { tick, hazards: [{
+    ...active.hazards[0], active: false,
+  }] });
+  stage.update(active);
+  const closed = Array.from(mesh.instanceMatrix.array.slice(0, 16 * 16));
+  stage.update(inactive(active.tick + 1));
+  assert.equal(stage.diagnostics().releasingHazards, 1);
+  assert.equal(mesh.count, 16);
+  assert.deepEqual(Array.from(mesh.instanceMatrix.array.slice(0, 16 * 16)), closed,
+    'release begins at the observed real active-to-inactive tick');
+  stage.update(inactive(active.tick + 3));
+  const opening = Array.from(mesh.instanceMatrix.array.slice(0, 16 * 16));
+  assert.notDeepEqual(opening, closed, 'the actual neutral phase unloads its chamber');
+  stage.update(inactive(active.tick + 3));
+  assert.deepEqual(Array.from(mesh.instanceMatrix.array.slice(0, 16 * 16)), opening,
+    'duplicate render frames cannot advance the mechanism');
+  stage.update(inactive(active.tick + 8));
+  assert.equal(mesh.count, 0, 'safe inactive phase removes the old stage after bounded recovery');
+  assert.equal(stage.diagnostics().releasingHazards, 0);
+  const neverSeen = createTowerHazardPressure(THREE); t.after(() => neverSeen.dispose());
+  neverSeen.update(inactive(active.tick + 1));
+  assert.equal(neverSeen.diagnostics().instances, 0,
+    'a first-frame inactive hazard is not allowed to invent a prior activation');
+  neverSeen.update(snapshot(12));
+  neverSeen.update(snapshot(0, { tick: 9999, hazards: inactive(9999).hazards }));
+  assert.equal(neverSeen.diagnostics().releasingHazards, 0,
+    'disconnected source ticks cannot manufacture a release event');
+});
+test('actual lethal trap outranks warnings in low quality and survives simultaneous boss cues', async t => {
+  const [THREE, { createTowerHazardPressure }] = await loaded;
+  const stage = createTowerHazardPressure(THREE); t.after(() => stage.dispose());
+  const charging = Array.from({ length: 6 }, (_,i) => ({
+    ...snapshot(8).hazards[0], id: 'charge-' + i, x: 130000 + 11000*i,
+  }));
+  const actual = { ...charging[0], id: 'actual', x: 175000,
+    active: true, chargeTicksRemaining: 0 };
+  const group = snapshot(8, { hazards: [...charging,actual] });
+  stage.update(group, {quality:'low'});
+  assert.equal(stage.diagnostics().activeHazards, 1,
+    'a source-active attack is never silently lost behind six warnings');
+  assert.equal(stage.diagnostics().chargingHazards, 2);
+  assert.equal(stage.diagnostics().instances, 48);
+  assert.equal(stage.diagnostics().extraDraws, 1);
+  stage.update({ ...group, enemies: [{active:true, telegraph:true}] }, {quality:'low'});
+  assert.equal(stage.diagnostics().activeHazards, 1,
+    'a guardian windup cannot make a separate active trap become invisible');
+  assert.equal(stage.diagnostics().chargingHazards, 0,
+    'suppress lower-priority anticipation while the guardian is winding up');
+  assert.equal(stage.diagnostics().instances, 16);
+  stage.update({ ...group, stale:true }, {quality:'low'});
+  assert.equal(stage.diagnostics().instances, 0);
+  stage.update({ ...group, lifecycle:'result' }, {quality:'low'});
+  assert.equal(stage.diagnostics().instances, 0);
+  stage.update({ ...group, runToken:'another-run', tick:group.tick+1,
+    hazards:charging.map(h=>({ ...h, active:false, chargeTicksRemaining:0 }))},
+    {quality:'low'});
+  assert.equal(stage.diagnostics().instances, 0,
+    'a new run must not resurrect old active or releasing hazards');
+});
