@@ -184,7 +184,9 @@ test('shield spacing never freezes a distant encounter or crosses an observed li
     activeFromTick:0,activeEvery:20,activeFor:20
   });
   const guarded=chooseTowerAction(state,createTowerObservation(state));
-  assert.equal(guarded.intent.mode,'bracing-guardian-shield');
-  assert.equal(guarded.action.move,0,'do not counterstep into an actual active spike');
+  assert.equal(guarded.intent.mode,'evading-hazard',
+    'a real immediate hazard must outrank the guardian shield tableau');
+  assert.notEqual(guarded.action.move,-1,
+    'never retreat toward a presently active spike to make a cinematic pose');
   assert.equal(guarded.action.attack,false);
 });
