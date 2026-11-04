@@ -887,7 +887,9 @@ export function createMazeWorld(options = {}) {
           // threat, or AI instruction. Only visibly exposed east/south
           // sides of public walkable cells receive these non-colliding ribs.
           // The shared instanced geometry and materials add no GPU classes.
-          if ((dx > 0 || dz > 0) && !c.blocked) {
+          if ((dx > 0 || dz > 0) && !c.blocked && !c.trap
+            && !c.checkpoint && !c.clue && c.cell !== s.exitCell
+            && !s.keys.some(key => key.cell === c.cell)) {
             const ribY = -floorY / 2 - .80;
             const ribHeight = floorY + 1.18;
             for (const transverse of [-.70, .70]) {
