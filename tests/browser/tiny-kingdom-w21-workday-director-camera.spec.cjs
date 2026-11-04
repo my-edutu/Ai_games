@@ -14,7 +14,15 @@ for(const portrait of [false,true]){
   await page.setViewportSize(portrait?{width:390,height:844}:{width:1024,height:640});
   await page.setContent(html);
   await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0,null,{timeout:90000});
-  await page.evaluate(()=>{const g=window.__tinyKingdom;g.reset();g.setSpeed(0);});
+  const seedProof=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;g.reset();
+   const first=g.exportSnapshot();g.reset();
+   const second=g.exportSnapshot();g.setSpeed(0);
+   return {same:JSON.stringify(first)===JSON.stringify(second),
+    seed:first.payload.seed,firstChecksum:first.checksum,secondChecksum:second.checksum};
+  });
+  expect(seedProof.same,'A camera-only presentation must start from one exact reproducible G088 seed').toBe(true);
+  expect(seedProof.firstChecksum).toBe(seedProof.secondChecksum);
   for(let remaining=120*24*30;remaining>0;remaining-=7200)
    await page.evaluate(n=>{for(let i=0;i<n;i++)window.__tinyKingdom.step(1/30)},Math.min(remaining,7200));
   const story=await page.evaluate(()=>{
