@@ -2151,7 +2151,7 @@
     "title": "From Prototype to Believable 3D Adventure",
     "adoptedOn": "2026-11-01",
     "status": "IN_PROGRESS",
-    "verdict": "IN PROGRESS — NOT TRANSFORMED",
+    "verdict": "NOT_TRANSFORMED",
     "baseline": {
       "sha": "281735d0910c6b2443648af976003d50412ee324",
       "locked": true,
@@ -2194,11 +2194,11 @@
         "playsMajority": false,
         "provenance": "No fresh independent critics available. Do not infer a blind preference from test results or real predecessor screenshots."
       },
-      "safetyChecks": "Locally tested source candidate equivalent: 270/270 Dungeon foundation contracts PASS, including 3 test-first red-to-green physical acting-pocket and camera contracts; local real browser blocked by ERR_BLOCKED_BY_ADMINISTRATOR. Original prior-head e886a0e visual review PASS and catalogue CI FAIL; exact 91178b9 visual 41743453391, Dungeon 41743453498, catalogue CI 41743453423 PENDING, do NOT assume passed.",
+      "safetyChecks": "Locally equivalent source: npm run dungeon:test 270/270 PASS with build; focused new source 3/3 green after genuine red. Previously global catalogue 41743453423 FAIL: two stale native-head / illegal 'IN PROGRESS' enum contracts. Updated real native-head test to require genuinely continuous source-skinned rig and corrected milestone machine enum to NOT_TRANSFORMED while retaining IN_PROGRESS status; focused 5/5 PASS. Latest exact-head browser and global CI PENDING; not claimed passed.",
       "matchedExternalReference": "NOT_RUN",
-      "originalAudioMotionClip": "UNVERIFIED: baseline and ac82a5b Chromium VP8 clips have NO audio track; candidate original audio not recorded.",
+      "originalAudioMotionClip": "UNVERIFIED: browser-original WebAudio has a new consent-gated PCM16 tap; no authentic non-silent candidate WAV has yet been retrieved. Prior audio/video MediaRecorder was zero bytes; available predecessor Playwright WebM has no audio track.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
-      "audioLoudnessAndClipping": "NOT_MEASURED (no valid original audio stream/bytes)",
+      "audioLoudnessAndClipping": "NOT_MEASURED: browser records positive original peak/RMS and populated WAV only when genuine real-time AudioContext frames exist; no candidate measurements yet.",
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Real-source b8be04f 1440x832 browser screenshot from 41672587065 and Warden boss desktop/mobile screenshot/video artifacts 41672587022 were INSPECTED: new 14 anatomical joint cylinders made elongated opaque spindly/squid-like limbs. Warden encounter head-on 1440x832 has 3 heroes overlapping enemy bodies in the 58% HP boss arena, warning Rift Cross visible but contact indistinguishable; mobile capture progressed into floor 2 but large stylized ballheads persist. This is a NEGATIVE experiential finding compared with da492455 and exact locked baseline; source visual redesign at 71da2ea to cap spans remains unverified. No masked A/B victory.",
@@ -2293,9 +2293,9 @@
       "nativeContinuityCandidate": "Source commit 08338db is an unverified new 3D underlay candidate, not a demonstrated repair. Real after comparison/critics have not happened. Monitor additional native underbody draw calls and 3D anatomy material intersections."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Latest genuine source-predecessor WebGL still shows recognizable but toy-like skinned humans immersed in overpowering chopped stone walls, with poor fine-scale combat contact and no original recorded audio. Current 91178b9 camera+physical aperture must be inspected in full moving desktop/phone fights; no before/after preference claim.",
-    "currentWork": "Continued the SAME unaccepted M1 with actual actor-scale 3D scene composition: physically clearer 360° close-body and legal combat staging cutaways plus genuine journey/contact cinematic lens, wide real Warden warning preserved. Source commits 8bdd456 and 91178b9. Candidate exact-head live proof, phone motion/audio and independent critics PENDING.",
-    "candidateCommit": "91178b9e9334812a68b6858b02a36bce793b2937",
+    "biggestRemainingGap": "Native humanoid proportions still feel toy-like; dense brown Gothic masonry overwhelms actual combat. New close stage/camera must be witnessed in motion and not imply false traversal. Genuine five-stage natural adventure, audible original audio waveform, matched pinned before/after and independent blind LOOKS/FEELS/PLAYS majority are all missing.",
+    "currentWork": "Same incomplete M1, now with genuine native actor-scale physical stage, camera and original opt-in WebAudio PCM audit. Original source skinned actors and all autonomous game rules preserved. Code candidate 9920571; awaiting actual after Chromium capture and audio waveform. Do not confuse existence of WAV capture code with recorded soundtrack.",
+    "candidateCommit": "9920571e4af4068ee07f53aee544b39126761b28",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -4237,6 +4237,36 @@
         "plays": "UNVERIFIED",
         "blocker": "Local Playwright Chromium GET 127.0.0.1 blocked by host administrator. Genuine GitHub Actions Chromium is available; test written to collect matched authentic source seed/tick on desktop/phone.",
         "next": "Inspect exact 91178b9 screenshots/real motion: ensure 360° aperture genuinely clears characters without showing fake traversable paths or vanishing rear walls; inspect true Warden boss contact, floor transition/restart and original sound. Preserve pinned before, measure phone render tails/accessibility and obtain >=3 blind LOOKS/FEELS/PLAYS majority. Never merge draft PR."
+      },
+      {
+        "id": "M1-ORIGINAL-AUDIO-EVIDENCE-20261104",
+        "date": "2026-11-04",
+        "milestone": "M1",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceCodeCommits": [
+          "56c6eee1f2a738a3d202ea171f772a888ec70bbe",
+          "9920571e4af4068ee07f53aee544b39126761b28"
+        ],
+        "objective": "Make the actual Warden encounter audible in original live gameplay evidence, without synthetic/offline reconstructions or silent MediaRecorder false wins.",
+        "integratedImplementation": "Only after the actual sound toggle is enabled, the real WebAudio master can temporarily connect to a zero-gain live ScriptProcessor limited to 0.5–10 seconds. It records bounded PCM16 WAV bytes with sample rate/peak/RMS; returns SILENT/UNAVAILABLE when real output is absent or processing unsupported. Cleanup on audio disable, no microphone, no remote uploading or new music. Existing genuine Warden and exploration browser tests attach real sound WAV and measurements when available, separate from video-only WebM. All combat and RNG authority unaffected.",
+        "realAudioClips": "UNVERIFIED; neither actual WAV output nor a synchronized non-silent A/V clip inspected yet.",
+        "prerecordedAudio": "NONE, never fabricated",
+        "sourceFiles": [
+          "public/ai-dungeon/soundstage.js",
+          "public/ai-dungeon/app.js",
+          "tests/browser/dungeon-warden-court.spec.cjs",
+          "tests/browser/dungeon-soundstage.spec.cjs"
+        ],
+        "precedingRealVideo": "https://github.com/my-edutu/Ai_games/actions/runs/41740892204/artifacts/13281337312",
+        "localSafety": "Source-equivalent local dungeon:test 270/270 PASS and focused fixed catalogue contracts 5/5 PASS; no exact code browser evidence yet. Predecessor global catalogue failed 2 historic contracts, now repaired semantically, exact-head CI pending.",
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "critics": "0/3 independent blind panels",
+        "audio": "UNVERIFIED",
+        "performance": "UNVERIFIED",
+        "next": "Inspect latest desktop/phone real boss WAV output and full moving video; reject silent/no frame captures, correct physical stage/person scale, capture complete expedition at matching seed/camera, measure performance and commission >=3 blind critics. Never merge draft PR."
       }
     ]
   }

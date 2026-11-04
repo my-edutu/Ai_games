@@ -19,11 +19,14 @@ test('M1 integrated cranial sculpture retains original distinct roles, not disco
  assert.match(source,/vertexColors:true/);
  assert.doesNotMatch(source,/Math\.random\(|fetch\(/);
 });
-test('live browser contract distinguishes actual head draw from original sculpted component counts',()=>{
+test('live browser contract enforces continuous skinned original heads instead of detached cosmetic bodies',()=>{
  const body=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  const browser=fs.readFileSync(path.join(root,'tests/browser/dungeon-cinematic-figure.spec.cjs'),'utf8');
- assert.match(body,/cinematicIntegratedHeads:/);
- assert.match(body,/cinematicIntegratedHeadParts:/);
- assert.match(browser,/desktop\.cinematicIntegratedHeads/);
- assert.match(browser,/mobile\.cinematicIntegratedHeads/);
+ assert.match(body,/nativeContinuousActors:/);
+ assert.match(body,/nativeVisibleSkinnedMeshes:/);
+ assert.match(body,/nativeTexturedSourceMeshes:/);
+ assert.match(browser,/desktop\.nativeContinuousActors/);
+ assert.match(browser,/mobile\.nativeContinuousActors/);
+ assert.match(browser,/desktop\.cinematicFigures\)\.toBe\(0\)/);
+ assert.match(browser,/mobile\.cinematicFigures\)\.toBe\(0\)/);
 });
