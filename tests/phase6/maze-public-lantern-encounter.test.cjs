@@ -52,6 +52,9 @@ test('private future information cannot create an encounter and wrap-around cell
 });
 test('actual production scene builds one reusable Three light volume with disposal and public-only gate',()=>{
   const scene=fs.readFileSync(scenePath,'utf8');
+  const server=fs.readFileSync(path.join(root,'scripts/serve-maze-stream.cjs'),'utf8');
+  assert.match(server,/['"]public-lantern-encounter\\.mjs['"]/,
+    'production HTTP asset allowlist must serve the real imported helper');
   assert.match(scene,/import \{ publicLanternEncounter \} from '\.\/public-lantern-encounter\.mjs'/);
   assert.match(scene,/new THREE\.CylinderGeometry\(\.055, \.47, 1, 16, 1, true\)/);
   assert.match(scene,/publicLanternEncounter\(s, closestThreat\.cell\)/);
