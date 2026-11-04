@@ -216,3 +216,28 @@ test('genuine hazard-clear arrival aligns camera, physical deck ink, chevrons an
     assert.equal(context.observedSourceLandingX(inactive, deck), center);
   } finally { route.dispose(); geometry.dispose(); beacon.geometry.dispose(); }
 });
+
+test('actual camera arrival matches the tactical 3D route during a genuine descending shutter warning', async () => {
+  const { context } = await loaded;
+  const { witnessedLandingX } = await import(pathToFileURL(
+    path.join(ROOT, 'public/infinite-tower-climb/visuals/route-intent.mjs')).href);
+  const deck = { id: 'f3:p3',kind: 'moving',
+    x:100000,y:81000,width:150000,height:4000 };
+  const player = { x:175000,y:119000,vy:-5000,state:'airborne',
+    halfWidth:6000,halfHeight:10000,health:4 };
+  const hazard = { id:'charging-vent',x:164000,y:85000,
+    width:26000,height:9000,active:false,chargeTicksRemaining:5 };
+  const snapshot = { lifecycle:'running',runToken:'real-run',floor:3,tick:121,
+    chunkBaseY:0,worldWidth:480000,platforms:[deck],player,
+    hazards:[hazard],enemies:[],intent:{mode:'air-control',
+      targetPlatformId:deck.id,summary:'Steering for a clear landing lane'} };
+  const original=JSON.stringify(snapshot);
+  const expected=witnessedLandingX(snapshot,deck);
+  assert.equal(expected.x,155500);
+  assert.equal(context.observedSourceLandingX(snapshot,deck),expected.x,
+    'camera cannot direct viewers into the shutter the AI has already avoided');
+  const early={...snapshot,hazards:[{...hazard,chargeTicksRemaining:8}]};
+  assert.equal(context.observedSourceLandingX(early,deck),175000,
+    'an earlier warning is not an invented current landing collision');
+  assert.equal(JSON.stringify(snapshot),original,'view computation never changes authority');
+});
