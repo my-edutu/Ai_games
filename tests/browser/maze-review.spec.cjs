@@ -598,6 +598,10 @@ test('a real close public encounter frames both autonomous actors and saves date
   // skip CPU-delayed visual frames or accept moving the camera as actor acting.
   // Every original PNG and exact-source sidecar survives a later rejection.
   activeFrame = frame;
+  // Playwright's clock pauses only after a frame really renders at its natural
+  // phase. This preserves the source-bound WebGL picture while a CPU-slow PNG
+  // is captured; it does NOT synthesize an actor, tick, position or pose.
+  await page.clock.install();
   await page.setViewportSize({width:390,height:844});
   await page.goto(base+'/maze?camera=follow', {waitUntil:'domcontentloaded'});
   const temporalPhases=[
@@ -618,6 +622,11 @@ test('a real close public encounter frames both autonomous actors and saves date
         &&d.witnessedExplorerGuardianBeat<max;
     },{tick:frame.snapshot.tick,token:frame.snapshot.runToken,
       min:phase.min,max:phase.max},{timeout:120000});
+    // The previous actual native PNGs revealed a 0.3-beat time drift DURING
+    // SwiftShader screenshot capture; the image did not correspond to its
+    // pre-capture label. Freeze the ALREADY RENDERED public phase, then resume
+    // for the next naturally occurring phase. Never seek/reset the AI clock.
+    await page.clock.pauseAt(new Date());
     const prior=await page.evaluate(()=>{
       const d=window.__MAZE_3D__,s=window.__MAZE_PUBLIC_STATE__;
       const canvas=document.getElementById('maze').getBoundingClientRect();
@@ -658,6 +667,9 @@ test('a real close public encounter frames both autonomous actors and saves date
       caveat:'CPU SwiftShader timings do not measure consumer GPU speed. Distinct source poses must still win a separate actual rendered image critique.',
     },null,2));
     renderedPhases.push(prior);
+    expect(prior.beat,'actual captured phase must match its native PNG label').toBeGreaterThanOrEqual(phase.min);
+    expect(prior.beat,'actual captured phase cannot drift to a later beat').toBeLessThan(phase.max);
+    expect(post.beat,'image capture must preserve genuine WebGL pose without temporal drift').toBe(prior.beat);
     expect(prior.publicHeroCell,'no invented public hero move').toBe(frame.snapshot.currentCell);
     expect(prior.publicThreatCells,'exact original disclosed threats').toEqual(frame.snapshot.threats.map(t=>t.cell));
     expect(post.tick).toBe(frame.snapshot.tick);
@@ -681,6 +693,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     }
     expect(prior.warningVisible,'only real public warning can trigger acting').toBe(eligibleWarning);
     expect(prior.coneVisible,'2.236-cell warning cannot suggest an invented open passage').toBe(false);
+    await page.clock.resume();
   }
   expect(renderedPhases[0].beat).toBeLessThan(renderedPhases[1].beat);
   expect(renderedPhases[1].beat).toBeLessThan(renderedPhases[2].beat);
@@ -694,7 +707,6 @@ test('a real close public encounter frames both autonomous actors and saves date
   await page.setViewportSize({width:1280,height:900});
 
   // Preserve the original desktop objective/lock captures; never move actors.
-  await page.setViewportSize({width:1280,height:900});
 
   // Separate authentic screenshot gate for an actionable *known* landmark.
   // Reuse this page/browser, not another CPU-heavy graphics process.
