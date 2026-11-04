@@ -79,12 +79,12 @@ test('low-ruin cinematic stonework keeps relief attached and Gothic panes suppor
   assert.ok(Math.abs(crown.y-face[4])<.1,'coping sits directly on its real shortened wall');
  }
  const architecture=fs.readFileSync(path.join(root,'public/ai-dungeon/architecture.js'),'utf8');
- assert.match(architecture,/face\[4\]>=1\.04/,'windows require actual raised stone plinths and joined buttress feet');
+ assert.match(architecture,/face\[4\]>=\.88/,'real minimum 0.88m impassable wall plinths support physical joined buttress feet');
  assert.match(architecture,/face\[9\]!==1/,'do not block authentic open vaulted galleries with false glass facades');
  const environment=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
- assert.match(environment,/face\[4\]>=1\.04&&face\[9\]!==1/,'only real non-vault exposed wall faces may mount upper glass');
+ assert.match(environment,/face\[4\]>=\.88&&face\[9\]!==1/,'only real non-vault exposed wall faces may mount upper glass on 0.88m+ solid masonry');
  assert.match(architecture,/const buttressFoot=new THREE\.BoxGeometry\(\.22,\.64,\.30\)/,'the original foundation must be a narrow physical vertical support');
  assert.match(architecture,/add\(buttressFoot,stone,side\*\.45,\.48,\.015\)/,'every selected window must connect its upper stone pier to the real low facade');
  assert.match(architecture,/selected\.some\(p=>Math\.hypot/,'separate authentic architectural landmarks rather than a continuous opaque window wall');
- assert.match(architecture,/count<6/,'unique architectural window meshes remain strictly bounded');
+ assert.match(architecture,/count<4/,'four widely separated actual 3D lancets cap expensive glass meshes in software WebGL');
 });
