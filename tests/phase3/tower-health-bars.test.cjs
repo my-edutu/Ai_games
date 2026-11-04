@@ -17,6 +17,7 @@ test('enemy health fill stays correctly layered and actual combat damage has a l
   const { createTowerRouteIntent } = await import(url('public/infinite-tower-climb/visuals/route-intent.mjs'));
   const { createTowerLandingApproach } = await import(url('public/infinite-tower-climb/visuals/landing-approach.mjs'));
   const { createTowerMovingDeckSuspension } = await import(url('public/infinite-tower-climb/visuals/moving-deck-suspension.mjs'));
+  const { createTowerHazardPressure } = await import(url('public/infinite-tower-climb/visuals/hazard-pressure.mjs'));
   const { observedHealthRecovery, createTowerRecoveryTransfer } = await import(url('public/infinite-tower-climb/visuals/recovery-transfer.mjs'));
   const { witnessedHealthPickup } = await import(url('public/infinite-tower-climb/visuals/route-intent.mjs'));
   const { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue } = await import(url('public/infinite-tower-climb/visuals/guardian-camera-safety.mjs'));
@@ -35,7 +36,7 @@ test('enemy health fill stays correctly layered and actual combat damage has a l
   }
   const actor = () => ({ group: new real.Group(), animate() {}, dispose() {} });
   const context = { THREE: { ...real, WebGLRenderer: Renderer, PMREMGenerator: class { fromEquirectangular() { throw new Error('CPU fixture'); } dispose() {} } },
-    ...coordinates, createRenderProgress, createTowerFinale, createTowerRouteIntent, createTowerLandingApproach, createTowerMovingDeckSuspension, witnessedHealthPickup, createTowerAtmosphere, createTowerGuardianShotStage, createObservedGuardianGuardStage, createObservedMovingDeckRide, observedHealthRecovery, createTowerRecoveryTransfer, guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue, createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianPassage, createTowerGuardianPassage, snapshotVelocity: () => 0, createClimber: actor, createEnemy: actor,
+    ...coordinates, createRenderProgress, createTowerFinale, createTowerRouteIntent, createTowerLandingApproach, createTowerMovingDeckSuspension, createTowerHazardPressure, witnessedHealthPickup, createTowerAtmosphere, createTowerGuardianShotStage, createObservedGuardianGuardStage, createObservedMovingDeckRide, observedHealthRecovery, createTowerRecoveryTransfer, guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue, createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianPassage, createTowerGuardianPassage, snapshotVelocity: () => 0, createClimber: actor, createEnemy: actor,
     createTowerWorld: () => ({ group: new real.Group(), update() {}, revealGuardianSightlines() {}, protectRouteSightlines() {}, dispose() {} }),
     THEMES: { foundry: { sun: 0xffdfbc, ambient: 0xe8e0d3, fog: 0x99796d } },
     innerWidth: 960, devicePixelRatio: 1, performance: { now: () => 100 },
