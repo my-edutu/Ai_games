@@ -84,6 +84,13 @@ for (const viewport of viewports) {
         observedRouteIntent: d.routeIntent || null,
         observedGuardianCircuit: d.guardianCircuit || null,
         observedAtmosphere: d.atmosphere || null,
+        // Source-pinned warning phase: only live fixed-step scheduled hazards
+        // can own the camera-visible 3D charging jaws (not fake collisions).
+        sourceChargingHazards: (s?.hazards || []).filter(h => !h.active &&
+          Number.isSafeInteger(h.chargeTicksRemaining) && h.chargeTicksRemaining >= 1 &&
+          h.chargeTicksRemaining <= 12).map(h => ({ id: h.id, kind: h.kind,
+            chargeTicksRemaining: h.chargeTicksRemaining })),
+        observedHazardPressure: d.hazardPressure || null,
         // In the real generated source, moving platforms occur at floor
         // 1, 4, 7, 10... (p3). The matched supplementary floor-7 video
         // makes the actual autonomous ride and cosmetic carriage inspectable.
@@ -175,6 +182,13 @@ for (const viewport of viewports) {
     sourceWitnessedImpactFragments: observations
       .find(o => o.observedPhysicalTouchdown?.physicalDeckContact)?.observedPhysicalTouchdown?.fragmentInstances || 0,
     real3dSuspensionVisibleSamples: observations.filter(o => o.observedMovingSuspension?.visible).length,
+    genuineSourceHazardChargeTicks: sourceTicks.filter(t => t.scheduledHazardCharges?.length > 0).length,
+    sourceChargingHazardIds: [...new Set(sourceTicks.flatMap(t =>
+      (t.scheduledHazardCharges || []).map(h => h.id)))],
+    visible3dHazardPressureSamples: observations.filter(o =>
+      o.observedHazardPressure?.extraDraws === 1 &&
+      o.observedHazardPressure?.chargingHazards > 0).length,
+    hazardPressureInspectionNote: 'Source 50ms charging windows may be missed by 1–2s browser diagnostics. A nonzero source charge/3D instance count is provenance only; inspect the untouched WebM for readable timing and zero gameplay occlusion. No real-device GPU frame-time proof.',
     real3dSuspensionContactSamples: observations.filter(o =>
       Number.isSafeInteger(o.observedMovingSuspension?.authenticContactTick) &&
       o.observedMovingSuspension.authenticContactTick >= 0).length,
