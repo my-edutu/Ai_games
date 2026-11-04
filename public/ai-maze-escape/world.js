@@ -918,7 +918,9 @@ export function createMazeWorld(options = {}) {
             // Reuse the current bevel/material instancing only.
             for (const [course, depth] of [.12, .48, .80].entries()) {
               const reliefY = -.34 - depth * (1.36 + floorY);
-              const reliefSpan = course === 1 ? 1.68 : 2.04;
+              // Keep middle stone courses physically above the strict 1.68
+              // real-model width bar, including float32 matrix rounding.
+              const reliefSpan = course === 1 ? 1.74 : 2.04;
               add(bevel, course === 1 ? seaGlass : lightStone,
                 x + dx * 1.285, reliefY,
                 z + dz * 1.285,
