@@ -56,7 +56,7 @@ test('the mobile encounter solver remains bounded and honest without introducing
  assert.match(app,/const basePlannedCamera=duelCamera\?\?vistaCamera\?\?authoredCamera/,
   'the real Warden duel still has first framing priority');
  assert.match(app,/const plannedCamera=occlusionCamera\?\?basePlannedCamera/,
-  'the physical camera's bounded body-visibility correction must remain applied');
+  "the physical camera's bounded body-visibility correction must remain applied");
  assert.match(app,/duelSightline:duelCamera\?\.sightline\?\?null/);
  assert.match(app,/__DUNGEON_RENDER_DIAGNOSTICS__\.autoDirector=autoDirector/);
 });
