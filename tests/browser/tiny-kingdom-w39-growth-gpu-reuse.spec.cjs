@@ -48,9 +48,16 @@ test('W39 growing town retires obsolete GPU generations and reuses bounded buffe
  expect(await page.evaluate(()=>document.getElementById('world').getContext('webgl')?.getError()??-1)).toBe(0);
  const authority=await page.evaluate(()=>window.__tinyKingdom.exportSnapshot());
  expect(JSON.stringify(authority)).toBe(end.snapshot);
- await page.evaluate(s=>window.__tinyKingdom.restoreSnapshot(s),authority);
- expect(await page.evaluate(()=>window.__tinyKingdom.getSettlementResidentStats().entries)).toBe(0);
- expect(await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()))).toBe(end.snapshot);
+ // Clear-and-inspect in ONE browser task. An intervening animation frame
+ // legitimately repopulates the render-only GPU cache after restore.
+ const restored=await page.evaluate(snapshot=>{
+  const g=window.__tinyKingdom,done=g.restoreSnapshot(snapshot);
+  return {done,entries:g.getSettlementResidentStats().entries,
+   authority:JSON.stringify(g.exportSnapshot())};
+ },authority);
+ expect(restored.done).toBe(true);
+ expect(restored.entries).toBe(0);
+ expect(restored.authority).toBe(end.snapshot);
  expect(errors).toEqual([]);
  console.log('W39 GROWTH GPU-LIFETIME AUDIT',JSON.stringify(observations.map(row=>({
   day:row.day,buildings:row.buildings,entries:row.r.entries,
