@@ -80,3 +80,36 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(resumed.gl).toBe(0);
  });
 }
+
+test('W31 real touchscreen pointer selects a physically visible citizen at 390px',async({browser},testInfo)=>{
+ test.setTimeout(160000);
+ const context=await browser.newContext({
+  viewport:{width:390,height:844},isMobile:true,hasTouch:true,
+  recordVideo:{dir:testInfo.outputPath('touch-webgl-video')}
+ });
+ try{
+  const page=await context.newPage(),errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  await page.setContent(html);
+  await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0,null,{timeout:90000});
+  await page.evaluate(()=>{
+   const g=window.__tinyKingdom;g.setSpeed(0);
+   const p=g.getState().people[2];g.setCamera({focus:[p.x,p.z],zoom:11,yaw:.7,pitch:.6});
+  });
+  await page.waitForFunction(()=>window.__tinyKingdom.getCitizenPickCandidates()
+   .some(c=>c.visible&&c.x>90&&c.x<300&&c.y>125&&c.y<620),null,{timeout:90000});
+  const before=await page.evaluate(()=>{
+   const g=window.__tinyKingdom,choices=g.getCitizenPickCandidates()
+    .filter(c=>c.visible&&c.x>90&&c.x<300&&c.y>125&&c.y<620);
+   choices.sort((a,b)=>Math.hypot(a.x-195,a.y-420)-Math.hypot(b.x-195,b.y-420));
+   return {person:choices[0],checksum:g.exportSnapshot().checksum};
+  });
+  await page.touchscreen.tap(before.person.x,before.person.y);
+  await expect.poll(()=>page.evaluate(()=>window.__tinyKingdom.getSelectedCitizen()))
+   .toBe(before.person.name);
+  expect(await page.evaluate(()=>window.__tinyKingdom.getCamera().follow)).toBe(true);
+  expect(await page.evaluate(()=>window.__tinyKingdom.exportSnapshot().checksum)).toBe(before.checksum);
+  expect(await page.evaluate(()=>window.__tinyKingdom.getCitizenPickAudit().source)).toBe('pointer');
+  expect(errors).toEqual([]);
+ }finally{await context.close()}
+});
