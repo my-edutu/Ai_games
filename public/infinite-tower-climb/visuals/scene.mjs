@@ -1062,7 +1062,10 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
     // Compose both authentic, simultaneous pressure chambers as one physical
     // threat while the pilot makes its actual escape decision. Existing enemy,
     // landing and guardian subjects retain their priority.
-    const pairedPressure = observedConcurrentHazardCluster(snapshot);
+    // Standalone camera-contract VM fixtures strip ESM imports; the shipped
+    // browser module always supplies this pure source-observation helper.
+    const pairedPressure = typeof observedConcurrentHazardCluster === 'function'
+      ? observedConcurrentHazardCluster(snapshot) : null;
     if (pairedPressure) consider(pairedPressure.x,pairedPressure.y,
       pairedPressure.halfWidth,pairedPressure.halfHeight,1.45);
     for (const hazard of snapshot.hazards || []) {
