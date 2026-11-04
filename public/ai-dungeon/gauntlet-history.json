@@ -2202,7 +2202,7 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Real-source b8be04f 1440x832 browser screenshot from 41672587065 and Warden boss desktop/mobile screenshot/video artifacts 41672587022 were INSPECTED: new 14 anatomical joint cylinders made elongated opaque spindly/squid-like limbs. Warden encounter head-on 1440x832 has 3 heroes overlapping enemy bodies in the 58% HP boss arena, warning Rift Cross visible but contact indistinguishable; mobile capture progressed into floor 2 but large stylized ballheads persist. This is a NEGATIVE experiential finding compared with da492455 and exact locked baseline; source visual redesign at 71da2ea to cap spans remains unverified. No masked A/B victory.",
-      "latestCandidateWorkflow": "At 766282bae5c32e01194e3aabb8938544f9987596: Dungeon Action 41819131102 pending, visual review 41819131223 pending, catalogue CI 41819131067 in progress; head may change with ledger commits. Source-predecessor 121117b Action 41813003315 authority 282/283 stale height, browser shard2 27/28 zero near walls, other shards passed; visual review 41813003252 passed (not acceptance).",
+      "latestCandidateWorkflow": "New code commit 4f1bf12 requires exact-head Action, 3 real Chromium shards, authority replay and original desktop/mobile videos; workflows initiated after commit, no completed pass or matched A/B claim. Predecessor 597b7e (Actions 41819823607, 41819823590, 41819823579) had 3 browser shards PASS, visual review PASS, authority 284/285 and catalogue CI FAIL. User-confirmed locked M1 baseline remains 281735d.",
       "currentPredecessorWebgl": {
         "sourceHead": "938cf0c44726b7be5dd3441eb33f7c1226f2b872",
         "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41758062752/artifacts/13289962348",
@@ -2217,7 +2217,7 @@
         "audio": "Real 3-second opt-in Warden audiovisual MediaRecorder produced no recorded frames in that workflow; UNSUPPORTED/UNVERIFIED",
         "fullGameReel": false
       },
-      "newCandidateSceneReview": "Source revised at 766282bae5c32e01194e3aabb8938544f9987596 following genuine 121117b Chromium near-wall 0 and original clumsy toy-looking Warden footage. True new-head visual composition/motion/audio NOT YET INSPECTED; retain old negative findings and do not score a visual win.",
+      "newCandidateSceneReview": "Warden's original 24 rendered ornaments use native head/arms/chest/pelvis bone delta source code; NO new-head pixel or moving clip inspected. All original and new evidence of substantial LOOKS, FEELS, PLAYS superiority UNVERIFIED.",
       "characterDrawBudget": "Previous exact 429e6b real Chromium had 265 cinematicMeshes at desktop versus <=240 test bound (shard1 failed). New 3aec189 fuses 4–5 head parts per figure and removes 1 gorget per figure but actual current head draw counts, performance and visual quality UNVERIFIED; do not infer from mesh arithmetic.",
       "externalReferenceAudit": "Compared qualitatively against 2023 Diablo IV Frozen Tunnel combat still (https://www.npr.org/2023/05/30/1178222988/diablo-iv-review-activision-blizzard), real No Rest for the Wicked 2026 cavern still (https://www.rpgsite.net/news/20518-no-rest-for-the-wicked-1-0-release-ps5-xbox-switch-2-cross-save-multiplayer-pc-october), and Path of Exile 2 Executioner combat still (https://www.mmorpg.com/reviews/path-of-exile-2-early-access-review-2000133606). Their negative space/material structure/impact clarity remain far ahead; they are references, NOT licensed or copied game assets. No direct synchronized/gameplay-balanced reference test or blind score.",
       "realBrowserFrameDeliveryPredecessor": "Actual d9e1c Chromium software WebGL shard 2 artifact 13238978845, artifacts/dungeon-raf-interval-evidence.json: foreground RAF intervals 15 samples, p50 733.3ms, p95 and worst 4549.9ms; other raster evidence sampled 8 frames, directRenderMs 3.9ms at 273136 pixels and downshift 2. Foreground RAF observations cannot establish standalone GPU render time or phone fps. Known scheduling / software runner risk, latest candidate performance UNVERIFIED.",
@@ -2386,9 +2386,9 @@
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Toy-like humanoid silhouettes and weak weapon-contact movement still dominate real earlier Warden video; the latest stage correction may retain cathedral depth and show bodies but has not been judged by real new-head desktop/mobile moving footage or independent critics. Full true synchronized campaign audiovisual reel and frame-time evidence absent.",
-    "currentWork": "Genuine exact-head Chromium 121117b failure: all-direction actor clearance removed ALL intermediate low stone walls in seeded party camera scene; authority 282/283 due inherited stale .16m assumption, browser 27/28 on shard2. Implemented scene-level camera-facing hero/true-combat physical stone clearance, retained and redressed rear Gothic 0.43m ruins in same instanced buffers, backed by deterministic two-sided/multi-hero safety contracts through 766282bae5c32e01194e3aabb8938544f9987596. Exact AFTER visual, original synchronized audio, critics UNVERIFIED. Not a new milestone or victory.",
-    "candidateCommit": "766282bae5c32e01194e3aabb8938544f9987596",
+    "biggestRemainingGap": "The genuine Chromium Warden and three heroes still look like toy-like KayKit figures and lack AAA-style anatomical/material/weapon-contact realism within congested Gothic walls. This new Warden rigging is an integrated original animation staging candidate, not a win. Need actual new-head video to reject possible rig motion tearing and perform full 5-stage audiovisual matched M1 assessment.",
+    "currentWork": "M1 continued without resetting baseline: latest candidate at 4f1bf12 drives 24 original Warden regalia pieces from five ACTUAL skinned skeleton zones during boss warning, melee, hit and recovery, while retaining original CC0 mesh continuity, 3D matrix transformations, authority/replay and no additional draw batches. This is SOURCE IMPLEMENTATION ONLY; new-head desktop/mobile moving visual, audio, real frame metrics, external matched reference and independent critics UNVERIFIED.",
+    "candidateCommit": "4f1bf12bcebbd39c0b2474b3162da7657ecbf5db",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
     "implementationEvents": [
@@ -4722,6 +4722,38 @@
         "actualAfter": "UNVERIFIED exact candidate desktop/mobile motion/audible soundtrack/performance",
         "blindCritics": "0/3; all LOOKS/FEELS/PLAYS UNVERIFIED",
         "next": "Inspect NEW exact-head moving Warden desktop/mobile footage; reject or fix obscuring rear blocks or lost dungeon identity, verify campaign/replay and mobile draw times, then execute native-rig character/contact overhaul and matched 5-stage original-audio baseline critique."
+      },
+      {
+        "id": "M1-WARDEN-NATIVE-ANIMATED-REGALIA-20261104-1214",
+        "date": "2026-11-04",
+        "status": "SOURCE_IMPLEMENTED_EXPERIENTIAL_RESULT_UNVERIFIED",
+        "sourceHeadAtStart": "a042a5daab23da9f68907a8b66bba026a502a63c",
+        "codeCommit": "4f1bf12bcebbd39c0b2474b3162da7657ecbf5db",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "milestone": "M1 — unchanged locked baseline",
+        "experientialGap": "Authentic desktop/browser Warden combat suffers toy-like figures and historically floating/rigid decorative boss regalia; native GLB figures, authored attack/warning/HP-loss poses already exist but the 24-piece crown, shoulders and chest were rigidly parented to the outer visual pivot rather than the moving skeleton.",
+        "integratedImplementation": [
+          "Vetted original 24-piece Warden iron/bronze/bone recipe now maps 5 body zones to the real imported head, left/right shoulder, chest and pelvis skeleton bones. Missing bones retain the original decoration instead of hiding the actor.",
+          "A per-zone bone-delta matrix applies the existing 3D authored regalia to the genuine source animation mixer, live attack follow-through, charge, real hit reaction and defeat. Rest bind pose is preserved even under GLB nonuniform fit; no new meshes, texture fetches, extra materials or draw calls.",
+          "The existing authoritative boss telegraph/phase/exposed recovery regalia morphs still animate the SAME 3D pieces. Stage sync occurs after live pose and visual pivot each rendered frame with cached matrices and bounded updates; no AI, damage, collision, movement, RNG, save/replay or sound rules touched.",
+          "Added focused native rig-pose, joint-mapping, rest/return and source-integration contract inside existing Warden test. Live gauntlet progress JSON retains locked baseline and all three pillar UNVERIFIED statuses."
+        ],
+        "commits": [
+          "ee84cdbefbe35320bad01be1ca90e48a611b490e",
+          "68f2771fd3896d927a634e8898087415a1e6bc41",
+          "4f1bf12bcebbd39c0b2474b3162da7657ecbf5db"
+        ],
+        "code": [
+          "public/ai-dungeon/warden-regalia-plan.js",
+          "public/ai-dungeon/model-assets.js",
+          "tests/foundation/dungeon-warden-regalia.test.cjs"
+        ],
+        "latestVerifiedPredecessor": "Real 597b7e predecessor Action 41819823607 all 3 Chromium shards PASS; authority 284/285 one stale prior .27/.78 expectation after physical low-ruin .43/.84; source a042a5d had reconciled test. This is NOT a current code-head green gate.",
+        "actualAfter": "UNVERIFIED at current code head; no moving desktop/mobile raw WebGL or synchronized original audio inspected",
+        "blindCritics": "0/3 — LOOKS, FEELS, PLAYS UNVERIFIED",
+        "accessibilityAndPerformance": "Original reduced-motion behavior and GLB/instanced rendering budgets retained in source; real frame-time p95/p99, phone legibility and audio unverified",
+        "risks": "Original KayKit GLB body remains toy-proportioned and crowded by masonry; regalia may distort under real GLB skin poses or regress mobile; reject if footage reveals floats/tears. Not a transformation success.",
+        "next": "Inspect authentic latest-head Warden animation across warning, attack, vulnerability, injury and death on desktop/mobile; fix any mesh detachment; then pursue a deep original actor-anatomy/material/locomotion and contact vertical slice with complete 5-stage organic audio/video, fixed-baseline paired scenes and ≥3 independent masked critic votes. No merge."
       }
     ]
   }
