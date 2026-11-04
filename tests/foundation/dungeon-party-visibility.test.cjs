@@ -410,3 +410,13 @@ test('the actual opaque facade is physically removed only when it cuts a moving 
  assert.equal(planLiveFacadeBodyReveal([7.5,1.55,0,.84,3.05,.82],[actual],camera),false,'stone beyond camera remains');
  assert.deepEqual([face,camera,actual],JSON.parse(original));
 });
+
+test('a nearby waist-high real ruin remains when it no longer intersects the skinned chest or boots',async()=>{
+ const {planLiveFacadeBodyReveal}=await load();
+ const face=[2.5,1.55,0,.84,3.05,.82],camera={x:5,y:3.7,z:0};
+ const real=[{x:0,z:0,visibleActor:true}];
+ assert.equal(planLiveFacadeBodyReveal(face,real,camera,'none'),true);
+ assert.equal(planLiveFacadeBodyReveal(face,real,camera,'nearby'),false,
+  '43cm background retains its geometry if the actual ray clears');
+ assert.equal(planLiveFacadeBodyReveal(face,real,camera,'sightline'),false);
+});

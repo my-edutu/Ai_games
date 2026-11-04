@@ -320,7 +320,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
  // cinematic director's evaluation, preventing a false 'fully visible' report.
  const facadeReveal=(face,eyes,camera,wallPad=2.1)=>{
   const coarse=planPartyWallReveal(face[0],face[2],eyes,camera,wallPad,face[4]);
-  return coarse==='sightline'||planLiveFacadeBodyReveal(face,eyes,camera)?
+  return coarse==='sightline'||planLiveFacadeBodyReveal(face,eyes,camera,coarse)?
    'sightline':coarse;
  };
  function cutaway(subjects,camera,wallPad=2.1){

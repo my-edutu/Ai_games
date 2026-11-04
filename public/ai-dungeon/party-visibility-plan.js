@@ -219,7 +219,7 @@ export function resolveRenderedSilhouetteSubjects(state,subjects,actors){
  * an exact facade clearance. Rays must pass through the actual original stone,
  * within the bounded nearby stage; nothing changes collision or AI vision.
  */
-function facadeRayBox(camera,x,y,z,face){
+function facadeRayBox(camera,x,y,z,face,height=face[4],centerY=face[1]){
  // Allocation-free slab clipping: the 3D camera calls this for several
  // anatomical samples per exposed original wall, every rendered frame.
  let lo=.014,hi=.985;
@@ -228,8 +228,8 @@ function facadeRayBox(camera,x,y,z,face){
  if(Math.abs(dx)<1e-8){if(camera.x<face[0]-face[3]/2||camera.x>face[0]+face[3]/2)return false;}
  else{a=(face[0]-face[3]/2-camera.x)/dx;b=(face[0]+face[3]/2-camera.x)/dx;
   lo=Math.max(lo,Math.min(a,b));hi=Math.min(hi,Math.max(a,b));if(lo>hi)return false;}
- if(Math.abs(dy)<1e-8){if(camera.y<face[1]-face[4]/2||camera.y>face[1]+face[4]/2)return false;}
- else{a=(face[1]-face[4]/2-camera.y)/dy;b=(face[1]+face[4]/2-camera.y)/dy;
+ if(Math.abs(dy)<1e-8){if(camera.y<centerY-height/2||camera.y>centerY+height/2)return false;}
+ else{a=(centerY-height/2-camera.y)/dy;b=(centerY+height/2-camera.y)/dy;
   lo=Math.max(lo,Math.min(a,b));hi=Math.min(hi,Math.max(a,b));if(lo>hi)return false;}
  if(Math.abs(dz)<1e-8){if(camera.z<face[2]-face[5]/2||camera.z>face[2]+face[5]/2)return false;}
  else{a=(face[2]-face[5]/2-camera.z)/dz;b=(face[2]+face[5]/2-camera.z)/dz;
@@ -238,11 +238,15 @@ function facadeRayBox(camera,x,y,z,face){
 }
 const FACADE_BODY_HEIGHTS=Object.freeze([.23,.88,1.18,1.63]);
 const FACADE_BODY_WIDTHS=Object.freeze([-.24,0,.24]);
-export function planLiveFacadeBodyReveal(face,subjects,camera){
+export function planLiveFacadeBodyReveal(face,subjects,camera,currentBand='none'){
+ if(currentBand==='sightline')return false;
  if(!Array.isArray(face)||face.length<6||
     !Number.isFinite(camera?.x)||!Number.isFinite(camera?.y)||!Number.isFinite(camera?.z)||
     face[3]<=0||face[4]<=.15||face[5]<=0||face[3]>4||face[4]>6||face[5]>4)return false;
  for(let j=0;j<6;j++)if(!Number.isFinite(face[j]))return false;
+ // A low real ruin stays visible whenever its CURRENT 43cm profile already
+ // clears the native anatomy. Upgrade only a genuinely still-opaque slab.
+ const h=currentBand==='nearby'?.43:face[4],cy=currentBand==='nearby'?.23:face[1];
  const n=Array.isArray(subjects)?Math.min(5,subjects.length):0;
  for(let i=0;i<n;i++){
   const subject=subjects[i];
@@ -252,7 +256,7 @@ export function planLiveFacadeBodyReveal(face,subjects,camera){
   if(distance<.8||distance>30)continue;
   const rightX=-dz/distance,rightZ=dx/distance;
   for(const y of FACADE_BODY_HEIGHTS)for(const side of FACADE_BODY_WIDTHS)
-   if(facadeRayBox(camera,subject.x+rightX*side,y,subject.z+rightZ*side,face))return true;
+   if(facadeRayBox(camera,subject.x+rightX*side,y,subject.z+rightZ*side,face,h,cy))return true;
  }
  return false;
 }
