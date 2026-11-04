@@ -9,6 +9,7 @@ import { observedGuardianPassage, createTowerGuardianPassage } from './guardian-
 import { createTowerRouteIntent, witnessedHealthPickup } from './route-intent.mjs';
 import { createTowerLandingApproach } from './landing-approach.mjs';
 import { createTowerMovingDeckSuspension } from './moving-deck-suspension.mjs';
+import { createTowerHazardPressure } from './hazard-pressure.mjs';
 import { observedHealthRecovery, createTowerRecoveryTransfer } from './recovery-transfer.mjs';
 import { createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianRelayStage, observedGuardianPowerSpineStage } from './guardian-circuit.mjs';
 import { createTowerAtmosphere } from './atmosphere.mjs';
@@ -1705,6 +1706,11 @@ export function createTowerScene(canvas, settings = {}) {
   // One observed, one-draw instanced stage across all supported viewports.
   let movingDeckSuspension = createTowerMovingDeckSuspension(THREE);
   scene.add(movingDeckSuspension.group);
+  // Real source-scheduled danger earns its own physical pre-activation language:
+  // one instanced 3D pressure stage, no authored collisions, future AI knowledge,
+  // screen text, animation clock or additional shadow pass.
+  let hazardPressure = createTowerHazardPressure(THREE);
+  scene.add(hazardPressure.group);
   let guardianCircuit = createTowerGuardianCircuit(THREE);
   scene.add(guardianCircuit.group);
   // True guardian charge -> projectile: one exterior world-space warning draw,
@@ -2036,6 +2042,7 @@ export function createTowerScene(canvas, settings = {}) {
     footingShadow.visible = false; observedFooting = null;
     movingDeckRide.reset(); observedRidePose = null;
     landingApproach.clear();
+    hazardPressure.clear();
     physicalTouchdown = null; touchdownDebris.count = 0; touchdownDebris.visible = false;
     recoveryTransfer.clear();
     atmosphere.clear();
@@ -2055,8 +2062,8 @@ export function createTowerScene(canvas, settings = {}) {
     releaseEnvironment();
     reflectionFirstFrame = true;
     clearActors();
-    scene.remove(world.group, climber.group, finale.group, passage.group, routeIntent.group, landingApproach.group, movingDeckSuspension.group, guardianCircuit.group, guardianShotStage.group, guardianGuardStage.group, atmosphere.group, recoveryTransfer.group);
-    world.dispose(); climber.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose(); landingApproach.dispose(); movingDeckSuspension.dispose(); guardianCircuit.dispose(); guardianShotStage.dispose(); guardianGuardStage.dispose(); atmosphere.dispose(); recoveryTransfer.dispose();
+    scene.remove(world.group, climber.group, finale.group, passage.group, routeIntent.group, landingApproach.group, movingDeckSuspension.group, hazardPressure.group, guardianCircuit.group, guardianShotStage.group, guardianGuardStage.group, atmosphere.group, recoveryTransfer.group);
+    world.dispose(); climber.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose(); landingApproach.dispose(); movingDeckSuspension.dispose(); hazardPressure.dispose(); guardianCircuit.dispose(); guardianShotStage.dispose(); guardianGuardStage.dispose(); atmosphere.dispose(); recoveryTransfer.dispose();
     skyGeometry.dispose(); skyMaterial.dispose();
     for (const geometry of sharedGeometry) geometry.dispose();
     for (const material of sharedMaterials) material.dispose();
@@ -2066,13 +2073,14 @@ export function createTowerScene(canvas, settings = {}) {
     routeIntent = createTowerRouteIntent(THREE);
     landingApproach = createTowerLandingApproach(THREE);
     movingDeckSuspension = createTowerMovingDeckSuspension(THREE);
+    hazardPressure = createTowerHazardPressure(THREE);
     guardianCircuit = createTowerGuardianCircuit(THREE);
     guardianShotStage = createTowerGuardianShotStage(THREE);
     guardianGuardStage = createObservedGuardianGuardStage(THREE);
     atmosphere = createTowerAtmosphere(THREE);
     recoveryTransfer = createTowerRecoveryTransfer(THREE);
     climber.group.name = 'ExpeditionClimber';
-    scene.add(world.group, climber.group, finale.group, passage.group, routeIntent.group, landingApproach.group, movingDeckSuspension.group, guardianCircuit.group, guardianShotStage.group, guardianGuardStage.group, atmosphere.group, recoveryTransfer.group);
+    scene.add(world.group, climber.group, finale.group, passage.group, routeIntent.group, landingApproach.group, movingDeckSuspension.group, hazardPressure.group, guardianCircuit.group, guardianShotStage.group, guardianGuardStage.group, atmosphere.group, recoveryTransfer.group);
     initialized = false;
     if (snapshot) updateEntities(snapshot);
   }
@@ -2310,6 +2318,7 @@ export function createTowerScene(canvas, settings = {}) {
     // non-colliding mechanical undercarriage; duplicate render frames do not
     // advance it, and live guardians retain visual priority.
     movingDeckSuspension.update(snapshot, options);
+    hazardPressure.update(snapshot, options);
     // Architectural depth and motion are shared across all five authored
     // biomes; the current source tick and character own every weather pose.
     atmosphere.update(snapshot, options);
@@ -3274,7 +3283,7 @@ export function createTowerScene(canvas, settings = {}) {
         ageSeconds: Math.max(0, Number((elapsed - authenticRestartSweep.began).toFixed(3))),
         cameraOnly: true, motionDisabled: !!options.reducedMotion,
       } : null,
-      routeIntent: routeIntent.diagnostics(), landingApproach: landingApproach.diagnostics(), movingDeckSuspension: movingDeckSuspension.diagnostics(), guardianCircuit: guardianCircuit.diagnostics(),
+      routeIntent: routeIntent.diagnostics(), landingApproach: landingApproach.diagnostics(), movingDeckSuspension: movingDeckSuspension.diagnostics(), hazardPressure: hazardPressure.diagnostics(), guardianCircuit: guardianCircuit.diagnostics(),
       guardianShotStage: guardianShotStage.diagnostics(),
       witnessedAirbornePulse: airbornePulse && airbornePulse.runToken === snapshot?.runToken &&
         airbornePulse.floor === snapshot?.floor && !options.stale &&
@@ -3324,7 +3333,7 @@ export function createTowerScene(canvas, settings = {}) {
     canvas.removeEventListener('pointerup', pointerUp); canvas.removeEventListener('pointercancel', pointerUp); canvas.removeEventListener('wheel', wheel);
     releaseEnvironment();
     sun.shadow.dispose(); sun.shadow.map = null; sun.shadow.mapPass = null;
-    clearActors(); climber.dispose(); world.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose(); landingApproach.dispose(); movingDeckSuspension.dispose(); guardianCircuit.dispose(); guardianShotStage.dispose(); guardianGuardStage.dispose(); atmosphere.dispose(); recoveryTransfer.dispose();
+    clearActors(); climber.dispose(); world.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose(); landingApproach.dispose(); movingDeckSuspension.dispose(); hazardPressure.dispose(); guardianCircuit.dispose(); guardianShotStage.dispose(); guardianGuardStage.dispose(); atmosphere.dispose(); recoveryTransfer.dispose();
     skyGeometry.dispose(); skyMaterial.dispose();
     for (const geometry of sharedGeometry) geometry.dispose();
     for (const material of sharedMaterials) material.dispose();
