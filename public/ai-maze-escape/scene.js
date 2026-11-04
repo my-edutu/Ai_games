@@ -423,6 +423,11 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       } else entry.encounterStart = null;
       entry.encounterBeat=entry.encounterStart===null?0
         :publicGuardianEncounterBeat(gateVisualTime-entry.encounterStart,settings.reducedMotion);
+      // Pass only the chosen CURRENT public warden's witnessed timeline to Pip.
+      // The per-actor clock never exists for an unseen/ended guardian.
+      if (entry.encounterStart!==null && closestThreat?.cell===entry.cell
+        && closestThreat?.strength===attentionStrength)
+        closestThreat.encounterBeat=entry.encounterBeat;
       const brace=Math.max(0,Math.min(1,(entry.encounterBeat-.24)/.36));
       // The existing, physically grounded contact shadow responds to the
       // actual armored body planting its feet. Its x/z/y always follow the
@@ -489,6 +494,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       time:elapsed,delta,moving:pose.moving&&!result,heading,
       attentionHeading:closestThreat?Math.atan2(closestThreat.x-pose.x,closestThreat.z-pose.z):undefined,
       attentionStrength:closestThreat?.strength??0,
+      guardianEncounterBeat:closestThreat?.encounterBeat,
       keyHeading:keyGateCue?.heading,keyStrength:keyGateCue?.strength??0,
       gateHeading,gateStrength,pickupStrength,
       fossilHeading:fossilCue
@@ -990,6 +996,14 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           cell: entry.cell, beat: entry.encounterBeat,
           bracedContact: entry.contact.scale.x,
         })),
+        // The matching original Pip rig must answer the ACTUAL disclosed
+        // Thornback timeline, not claim an unrelated ambient alert as acting.
+        witnessedExplorerGuardianBeat:closestThreat?.encounterBeat ?? null,
+        witnessedExplorerGuardianPhysicalPose:closestThreat?.encounterBeat!==undefined ? {
+          torsoY:explorer.group.getObjectByName('breathing torso')?.position.y ?? null,
+          headPitch:explorer.group.getObjectByName('curious head')?.rotation.x ?? null,
+          lanternShoulderX:explorer.group.getObjectByName('shoulder 1')?.rotation.x ?? null,
+        } : null,
         witnessedLanternConeVisible: lanternBeam.visible,
         witnessedLanternWarningVisible: lanternWarning.visible,
         // Read the real Three.js light and articulated cage after the actual
