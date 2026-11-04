@@ -163,6 +163,27 @@ export function sculptForestMosaicTile(x,z,width,height) {
   return { scale, rotation, chip };
 }
 
+/**
+ * An original shoreline amphitheatre, using the existing seven complete native
+ * woodland headlands and every original stone, tree and leaf. Pull their
+ * scene silhouettes into near/mid-ground stage space rather than losing them
+ * in distance fog; keep each headland safely outside ALL playable cells.
+ */
+export function stageHeadlandAnchors(width, height) {
+  if (!Number.isInteger(width) || !Number.isInteger(height) || width < 2 || height < 2)
+    throw new RangeError('Shoreline stage requires genuine integer board dimensions');
+  const W = width / 2, H = height / 2;
+  return [
+    { name:'northwest forest', edge:'north', x:-W-8.2, z:-H-10.2, rise:5.2, height:5.5, turn:-.35 },
+    { name:'northeast crown', edge:'north', x:W+8.1, z:-H-11.1, rise:6.8, height:6.1, turn:.48 },
+    { name:'western rooted cliffs', edge:'west', x:-W-9.3, z:-H*.15, rise:5.3, height:5.7, turn:.2 },
+    { name:'eastern fern terraces', edge:'east', x:W+9.7, z:H*.25, rise:5.9, height:5.1, turn:-.3 },
+    { name:'southwest overgrown ruins', edge:'south', x:-W-10.2, z:H+11.4, rise:6.2, height:5.6, turn:-.48 },
+    { name:'southeast sea garden', edge:'south', x:W+10.5, z:H+12, rise:7, height:6.3, turn:.35 },
+    { name:'backwater old growth', edge:'north', x:-2, z:-H-11.5, rise:5.6, height:5.8, turn:-.2 },
+  ];
+}
+
 /** Original procedural verdant-ruins diorama. No simulation state is retained or changed. */
 /**
  * T1 - authentic original continuous eroded island strata, beneath the unchanged
@@ -945,13 +966,8 @@ export function createWorld(THREE, {width, height}) {
   // The close camera can face any compass direction. Layered headlands and
   // wind-shaped groves replace the empty horizon without touching the board.
   // They reuse the existing stone/leaf batches: no extra textures or draw calls.
-  const headlands=[
-    [-W-13,-H-17,5.2,5.5,-.35], [W+14,-H-22,6.8,6.1,.48],
-    [-W-22,1,5.3,5.7,.2], [W+22,3,5.9,5.1,-.3],
-    [-W-12,H+30,6.2,5.6,-.48], [W+15,H+33,7.0,6.3,.35],
-    [-2,-H-34,5.6,5.8,-.2],
-  ];
-  for(const [x,z,rise,altitude,turn] of headlands){
+  const headlands=stageHeadlandAnchors(width,height);
+  for(const {x,z,rise,height:altitude,turn} of headlands){
     const top=-3.5+altitude;
     // Broad submerged foot, recessed middle stratum and an asymmetric grassy
     // shelf create a weighted landform, rather than disconnected floating rocks.
@@ -969,8 +985,11 @@ export function createWorld(THREE, {width, height}) {
         add(stem,distantRock,(tx+bx)*.5,by-.35,(tz+bz)*.5,.075,.8,.075,0,0,(b-1)*.55);
         for(let l=0;l<16;l++){
           const angle=l*2.399,spread=.2+Math.sqrt(l/16)*.8;
-          add(leaf,distantGreen,bx+Math.sin(angle)*spread,by+noise(l+t*19,b+37)*.24,bz+Math.cos(angle)*spread*.7,
-            .83,.95,.84,1.1+noise(l+4,t+3)*.55,angle,.13);
+          // Existing blades become overlapping leaf cups at broadcast camera
+          // distance, not pinhead dots hidden in thick fog.
+          add(leaf,distantGreen,bx+Math.sin(angle)*spread*1.18,
+            by+noise(l+t*19,b+37)*.30,bz+Math.cos(angle)*spread*.83,
+            1.09,1.22,1.06,1.1+noise(l+4,t+3)*.55,angle,.13);
         }
       }
     }
@@ -1011,11 +1030,22 @@ export function createWorld(THREE, {width, height}) {
               const corner = (localX > 0 ? 1 : 0) + (localZ > 0 ? 2 : 0);
               const stone=sculptForestMosaicTile(cellX,cellZ,width,height);
               const chip=stone.chip*(.52+.48*noise(cellX * 7 + corner + 103, cellZ * 11 + 67));
-              // Always chip inward: stone outline stays in the true cell.
-              // The original vertex is already rotated, so use the actual
-              // transformed sign rather than a fake gameplay-cell transform.
-              positionTemp.x -= Math.sign(positionTemp.x-item.matrix.elements[12]) * chip;
-              positionTemp.z -= Math.sign(positionTemp.z-item.matrix.elements[14]) * chip * .76;
+              // Preserve the original narrow quarry lip invariant even when
+              // the authored mosaic's tile transformations are more rugged.
+              // One seeded quiet corner keeps a legible natural stone joint;
+              // the other three remain visibly weathered without a false pit.
+              const coreX=item.matrix.elements[12],coreZ=item.matrix.elements[14];
+              const dirX=Math.sign(localX),dirZ=Math.sign(localZ);
+              const landmark=(cellX*7+cellZ*11)%4, originalTop=.487*.994;
+              if(corner===landmark){
+                positionTemp.x=coreX+dirX*originalTop;
+                positionTemp.z=coreZ+dirZ*originalTop;
+              } else {
+                const inwardX=Math.abs(positionTemp.x-coreX)-chip;
+                const inwardZ=Math.abs(positionTemp.z-coreZ)-chip*.76;
+                positionTemp.x=coreX+dirX*Math.max(originalTop-.076,Math.min(originalTop-.003,inwardX));
+                positionTemp.z=coreZ+dirZ*Math.max(originalTop-.056,Math.min(originalTop-.003,inwardZ));
+              }
             }
             // Keep each slab flat and above the original safety clearance.
             positionTemp.y += (noise(cellX + 211, cellZ + 43) - .5) * .018;
