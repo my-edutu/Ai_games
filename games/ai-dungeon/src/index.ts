@@ -31,6 +31,11 @@ export function damageThroughWardenSeal(s:DungeonState,target:Unit,raw:number):n
  * cinematic timer, guessed target, or generated recovery event grants damage.
  */
 export const WARDEN_COUNTER_MULTIPLIER=1.4;
+/** Three telegraph beats and two actual recovery beats leave a real, bounded pursuit/counterplay window.
+ * The previous four-beat final loop had zero usable Warden pursuit ticks: it kited forever.
+ * This cadence is shared by the authoritative strike planner and the actual enemy AI.
+ */
+export const WARDEN_ECLIPSE_INTERVAL=9;
 export function planWardenRecovery(s:Pick<DungeonState,'tick'|'units'>,boss?:Unit){
  const until=boss?.recoveryUntilTick;
  if(!boss||boss.kind!=='warden'||boss.hp<=0||!Number.isSafeInteger(s?.tick)||
@@ -48,7 +53,7 @@ export type WardenStrikeShape='NOVA'|'RIFT_CROSS'|'ECLIPSE_SWEEP';
 export interface WardenStrike {phase:WardenPhase;shape:WardenStrikeShape;axis:'NORTH_SOUTH'|'EAST_WEST';attackTick:number;turnsUntilImpact:number;warning:boolean;cells:{x:number;z:number}[]}
 export function planWardenStrike(s:Pick<DungeonState,'map'|'tick'>,boss:Unit):WardenStrike|null{
  if(boss.kind!=='warden'||boss.hp<=0)return null;
- const phase=wardenPhase(boss),interval=phase==='ECLIPSE'?4:6;
+ const phase=wardenPhase(boss),interval=phase==='ECLIPSE'?WARDEN_ECLIPSE_INTERVAL:6;
  const attackTick=Math.ceil(s.tick/interval)*interval;
  const axis=Math.floor(attackTick/interval)%2===0?'NORTH_SOUTH':'EAST_WEST';
  const shape:WardenStrikeShape=phase==='SENTINEL'?'NOVA':phase==='RUPTURE'?'RIFT_CROSS':'ECLIPSE_SWEEP';
@@ -730,7 +735,7 @@ export class DungeonRuntime {
    // nova, cardinal rifts and a rotating floor sweep. Collision and warned
    // floor geometry come from the same authoritative planner.
    const bossPhase=enemy.kind==='warden'?wardenPhase(enemy):'SENTINEL';
-   const interval=bossPhase==='ECLIPSE'?4:6,attackTick=s.tick%interval,warningTick=interval-2;
+   const interval=bossPhase==='ECLIPSE'?WARDEN_ECLIPSE_INTERVAL:6,attackTick=s.tick%interval;
    if(enemy.kind==='warden'){
     // His real post-impact recovery is a tactical opportunity, not a fake
     // VFX stagger: no boss melee, pursuit, or repeat cast during these turns.

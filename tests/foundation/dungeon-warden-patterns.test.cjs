@@ -19,10 +19,10 @@ test('Eclipse warning, reaction and actual strike agree on orientation and tiles
  const game=DungeonRuntime.create('warden-warning-fixed-M1'),s=game.state;
  const boss=s.units.find(u=>u.kind==='warden');boss.hp=Math.ceil(boss.maxHp*.2);
  const plan=[];
- for(const tick of [1,2,3,4]){s.tick=tick;plan.push(planWardenStrike(s,boss))}
+ for(const tick of [6,7,8,9]){s.tick=tick;plan.push(planWardenStrike(s,boss))}
  assert.deepEqual(plan.map(p=>p.warning),[true,true,true,false]);
  assert.deepEqual(plan[0].cells,plan[1].cells);assert.deepEqual(plan[1].cells,plan[2].cells);assert.deepEqual(plan[2].cells,plan[3].cells);
- s.tick=6;assert.notEqual(planWardenStrike(s,boss).axis,plan[0].axis);
+ s.tick=15;assert.notEqual(planWardenStrike(s,boss).axis,plan[0].axis);
 });
 test('a hero genuinely steps off a Rupture cross and avoids the real following attack',()=>{
  const game=DungeonRuntime.create('warden-real-flank-M1'),s=game.state;
@@ -58,7 +58,7 @@ test('Eclipse final act raises three true lanes and a legal three-beat escape, w
  const boss=s.units.find(u=>u.kind==='warden'),hero=s.units.find(u=>u.id==='vanguard');
  assert.ok(boss&&hero);boss.hp=Math.ceil(boss.maxHp*.2);
  for(const u of s.units)if(u!==boss&&u!==hero)u.hp=0;
- hero.x=boss.x+1;hero.z=boss.z;s.tick=1;
+ hero.x=boss.x+1;hero.z=boss.z;s.tick=6;
  const strike=planWardenStrike(s,boss);
  assert.equal(strike.shape,'ECLIPSE_SWEEP');assert.equal(strike.turnsUntilImpact,3);
  assert.ok(strike.cells.length>=18&&strike.cells.length<=27);
@@ -75,7 +75,7 @@ test('Eclipse final act raises three true lanes and a legal three-beat escape, w
   s.tick++;
  }
  assert.ok(moves>=2,'three-column curtain requires successive lawful footfalls from the centre');
- assert.equal(s.tick,4);assert.equal(planWardenStrike(s,boss).warning,false);
+ assert.equal(s.tick,9);assert.equal(planWardenStrike(s,boss).warning,false);
  assert.equal(strike.cells.some(p=>p.x===hero.x&&p.z===hero.z),false);
  assert.notDeepEqual({x:hero.x,z:hero.z},initial);
  assertDungeonState(s);
@@ -86,7 +86,7 @@ test('a living hero never voluntarily walks back into the final Warden curtain a
  const boss=s.units.find(u=>u.kind==='warden'),hero=s.units.find(u=>u.id==='vanguard');
  assert.ok(boss&&hero);boss.hp=Math.ceil(boss.maxHp*.20);
  for(const u of s.units)if(u!==boss&&u!==hero)u.hp=0;
- hero.x=boss.x+1;hero.z=boss.z;s.tick=0;
+ hero.x=boss.x+1;hero.z=boss.z;s.tick=5;
  const initialHp=hero.hp,checkpoint=game.save(),states=[];
  for(let i=0;i<4;i++){
   const snap=game.step();states.push(snap.checksum);
@@ -100,9 +100,38 @@ test('a living hero never voluntarily walks back into the final Warden curtain a
    }
   }
  }
- assert.equal(s.tick,4);
+ assert.equal(s.tick,9);
  assert.equal(hero.hp,initialHp,'a legal two-turn escape survives the fully sourced final strike');
  const replay=DungeonRuntime.restore(checkpoint);
  assert.deepEqual(states,Array.from({length:4},()=>replay.step().checksum));
+ assertDungeonState(s);
+});
+
+test('Eclipse is a living nine-beat boss duel, not an eternal warn/cast/recover treadmill',()=>{
+ const game=DungeonRuntime.create('eclipse-autonomous-pace-M1'),s=game.state;
+ const boss=s.units.find(u=>u.kind==='warden'),hero=s.units.find(u=>u.id==='vanguard');
+ assert.ok(boss&&hero);
+ for(const other of s.units)if(other!==boss&&other!==hero)other.hp=0;
+ boss.hp=Math.ceil(boss.maxHp*.29);
+ // A distant but legal court position: no fake player action or boss teleport.
+ const court=[[3,0],[-3,0],[0,3],[0,-3]]
+  .map(([dx,dz])=>({x:boss.x+dx,z:boss.z+dz}))
+  .find(p=>s.map[p.z]?.[p.x]==='.');
+ assert.ok(court);Object.assign(hero,court);hero.attack=1;hero.hp=hero.maxHp;s.tick=8;
+ const saved=game.save(),replay=DungeonRuntime.restore(saved);
+ const actions=[],positions=[];
+ for(let tick=9;tick<=17;tick++){
+  const actual=game.step(),same=replay.step();
+  assert.equal(actual.tick,tick);assert.equal(actual.checksum,same.checksum,'live boss phase replay divergence');
+  actions.push({tick,action:boss.action});
+  positions.push({tick,x:boss.x,z:boss.z});
+ }
+ const active=actions.filter(a=>a.tick>=12&&a.tick<=14&&['move','attack'].includes(a.action));
+ assert.ok(active.length>=1,'Eclipse must actually pursue or fight between genuine cast, recovery and warning: '+JSON.stringify(actions));
+ for(let i=1;i<positions.length;i++){
+  const before=positions[i-1],after=positions[i],d=Math.abs(before.x-after.x)+Math.abs(before.z-after.z);
+  assert.ok(d<=1,'Eclipse may only travel one legal grid step each tick');
+ }
+ assert.equal(planWardenStrike(s,boss).turnsUntilImpact,1,'three fixed source-backed warning turns close the cycle');
  assertDungeonState(s);
 });
