@@ -11,6 +11,8 @@ const { pathToFileURL } = require('node:url');
 
 const root = path.resolve(__dirname, '../..');
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'tower-guardian-seal-'));
+// Keep the shipping observer as an actual local ESM dependency for the copied world fixture.
+fs.copyFileSync(path.join(root, 'public/infinite-tower-climb/visuals/scene-hierarchy.mjs'), path.join(scratch, 'scene-hierarchy.mjs'));
 const threeUrl = pathToFileURL(path.join(root, 'node_modules/three/build/three.module.js')).href;
 const coordsUrl = pathToFileURL(path.join(root, 'public/infinite-tower-climb/visuals/coordinates.mjs')).href;
 const surfaceUrl = pathToFileURL(path.join(root, 'public/infinite-tower-climb/visuals/world-surface.mjs')).href;
