@@ -20,6 +20,10 @@ const CUES=Object.freeze({
  warning:   {hz:142,end:81,length:.66,peak:.125,type:'sawtooth'},
  'warning-rising':{hz:112,end:74,length:.35,peak:.074,type:'triangle'},
  'warning-final':{hz:172,end:62,length:.48,peak:.102,type:'sawtooth'},
+ // The real final-phase, three-lane Eclipse sounds weightier than an early nova,
+ // but remains an original, bounded low-level synth with no imported sample.
+ 'eclipse-rising':{hz:98,end:65,length:.48,peak:.090,type:'triangle'},
+ 'eclipse-final':{hz:164,end:39,length:.64,peak:.120,type:'sawtooth'},
  boss:      {hz:88,end:51,length:.64,peak:.13,type:'sawtooth'},
  'boss-fall':{hz:174,end:330,length:.88,peak:.105,type:'triangle'},
  opening:   {hz:260,end:118,length:.40,peak:.09,type:'triangle'},
@@ -43,7 +47,7 @@ const CUES=Object.freeze({
  footstep:  {hz:112,end:54,length:.10,peak:.041,type:'triangle'}
 });
 const PER_KIND_COOLDOWN=Object.freeze({
- weapon:.065,impact:.065,warning:.25,'warning-rising':.18,'warning-final':.18,boss:.22,'boss-fall':.7,opening:.35,interrupt:.25,breach:.20,cover:.24,'cover-impact':.25,reward:.20,guard:.13,footstep:.16
+ weapon:.065,impact:.065,warning:.25,'warning-rising':.18,'warning-final':.18,'eclipse-rising':.18,'eclipse-final':.18,boss:.22,'boss-fall':.7,opening:.35,interrupt:.25,breach:.20,cover:.24,'cover-impact':.25,reward:.20,guard:.13,footstep:.16
 });
 const safe=(v,min,max,fallback)=>Number.isFinite(v)?Math.max(min,Math.min(max,v)):fallback;
 const stopAndDisconnect=voice=>{
