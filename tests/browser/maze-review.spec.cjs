@@ -198,6 +198,20 @@ test('a real close public encounter frames both autonomous actors and saves date
     entry.beat === 1 && entry.bracedContact >= 1.30),
     'a genuinely disclosed close guardian must brace in rendered 3D, not only report danger')
     .toBe(eligibleWarning);
+  // A recorded guardian brace is not enough: the SAME real production frame
+  // must prove Pip's connected torso/head/lantern answered the public beat.
+  // These are actual rendered Three.js joints, not invented action captions.
+  expect(diagnostics.witnessedExplorerGuardianBeat,
+    'Pip must receive exactly the natural guardian's completed public beat')
+    .toBe(eligibleWarning ? 1 : null);
+  const pipReply=diagnostics.witnessedExplorerGuardianPhysicalPose;
+  expect(!!pipReply,'Pip rig evidence cannot be reported for unseen guardians')
+    .toBe(eligibleWarning);
+  if(pipReply) {
+    for(const joint of ['torsoY','headPitch','lanternShoulderX'])
+      expect(Number.isFinite(pipReply[joint]),`Pip's physically rendered ${joint} must be finite`)
+        .toBe(true);
+  }
   expect(diagnostics.explorerInFrame).toBe(true);
   expect(diagnostics.wayfindingCues.every(cue => cue.kind === 'planned' || cue.goal),
     'Autonomous 3D gameplay must not fill the floor with uncommitted legal-option arrows').toBe(true);
@@ -230,6 +244,8 @@ test('a real close public encounter frames both autonomous actors and saves date
       wardenGroundedContacts: diagnostics.wardenGroundedContacts,
       encounterAttention: diagnostics.encounterAttention,
       witnessedGuardianBeat: diagnostics.witnessedGuardianBeat,
+      witnessedExplorerGuardianBeat: diagnostics.witnessedExplorerGuardianBeat,
+      witnessedExplorerGuardianPhysicalPose: diagnostics.witnessedExplorerGuardianPhysicalPose,
       eligiblePublicLanternWarning: eligibleWarning,
       witnessedLanternWarningVisible: diagnostics.witnessedLanternWarningVisible,
       witnessedLanternConeVisible: diagnostics.witnessedLanternConeVisible,
