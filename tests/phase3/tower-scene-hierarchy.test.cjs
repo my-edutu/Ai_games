@@ -60,6 +60,27 @@ test('source-only quiet -> imminent danger -> real guardian -> outcome without p
     assert.equal(observe(f).focus, 0);
 });
 
+test('simultaneous source-authentic guardian and immediate shutter clear decorative crisis space',async()=>{
+  const { observedSceneHierarchy, observedImmediateTrap }=await sourceModule;
+  const base=frame();
+  const hero={...base.player,halfWidth:9000,halfHeight:14000};
+  const battle={...base,player:hero, enemies:[guardian()],hazards:[shutter()]};
+  const before=JSON.stringify(battle);
+  assert.deepEqual(observedImmediateTrap(battle),{id:'observed-shutter',x:242000,y:1350000});
+  assert.deepEqual(observedSceneHierarchy(battle),{kind:'crossfire',focus:1});
+  assert.equal(JSON.stringify(battle),before,'world layer cannot alter published source');
+  const far={...battle,hazards:[{...shutter(),x:60000}]};
+  assert.equal(observedImmediateTrap(far),null);
+  assert.equal(observedSceneHierarchy(far).kind,'guardian');
+  const dormant={...battle,hazards:[{...shutter(),active:false,chargeTicksRemaining:11}],
+    intent:{mode:'evading-hazard'}};
+  assert.equal(observedSceneHierarchy(dormant).kind,'guardian');
+  assert.equal(observedSceneHierarchy({...dormant,hazards:[{...dormant.hazards[0],chargeTicksRemaining:5}]}).kind,'crossfire');
+  assert.equal(observedImmediateTrap({...battle,stale:true}),null);
+  assert.equal(observedImmediateTrap({...battle,runToken:''}),null);
+  assert.equal(observedImmediateTrap({...battle,player:{...hero,halfWidth:NaN}}),null);
+});
+
 test('real 3D biome weather yields to source danger, clears on stale and keeps one draw', async () => {
   const [THREE, { createTowerAtmosphere }] = await visuals;
   const fx = createTowerAtmosphere(THREE);
