@@ -2298,7 +2298,7 @@
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
     "biggestRemainingGap": "Genuine game remains toy-like with crowded body contact; real Warden combat has no accepted fluid, original-audio full traversal and boss sequence. Carved 3-beat low-profile floor performance is a candidate, never a blind or motion win. Browser screenshot scene liveness can fall to zero during long capture, and exact-head safety is not green.",
     "currentWork": "M1 ongoing: actual 9b98c638 GitHub Actions real browser 41765710654 has 26/28 shard3, two blocking safety failures; 41765710825 visual PASS but catalogue CI 41765710846 FAILED. Browser NOVA failure from obsolete one-incision-per-tile expectation after real sparse 10-line composition; source milestone now integrates a low-relief original carved boss floor pulse on genuine warned cells and actual cast settling, strictly presentational. This is source candidate, not an accepted in-motion AFTER. Shared worker tunnel and local code runtime were unavailable. Preserve locked 281735d baseline and PR draft.",
-    "candidateCommit": "9b98c638f3c78d8c56f76b3310b54389df0aa84d",
+    "candidateCommit": "c72e58ca4e510fd1eda92bd284920733c120a53b",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
     "implementationEvents": [
@@ -4355,7 +4355,8 @@
         "feels": "UNVERIFIED",
         "plays": "UNVERIFIED",
         "verdict": "IN_PROGRESS — NOT_TRANSFORMED",
-        "next": "Inspect genuine new-head Warden NOVA desktop/mobile moving footage for visible relief and honest safe cells, fix remaining moment-to-moment character silhouette and near-wall congestion, capture full genuine seed-matched audible traversal→combat→boss→floor→defeat/restart, measure phone frame timing, obtain >=3 fresh blind pillar votes; never merge."
+        "next": "Inspect genuine new-head Warden NOVA desktop/mobile moving footage for visible relief and honest safe cells, fix remaining moment-to-moment character silhouette and near-wall congestion, capture full genuine seed-matched audible traversal→combat→boss→floor→defeat/restart, measure phone frame timing, obtain >=3 fresh blind pillar votes; never merge.",
+        "codeCommit": "c72e58ca4e510fd1eda92bd284920733c120a53b"
       }
     ]
   }
