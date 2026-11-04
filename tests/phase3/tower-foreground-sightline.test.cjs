@@ -93,7 +93,12 @@ test('the submitted follow camera stages source-observed foreground clarity afte
     scene.indexOf('actorRescueFraction = 0;\n    if (!overview'),
     'sightline protection uses settled actor/guardian recovery and the real last camera');
   assert.match(scene,/protectLiveRoute&&sourceGuardian\?guardianRescuePoint:null/);
-  assert.match(scene,/targetPlatform&&landingApproach\.diagnostics\(\)\.visible\?actorOrbitTarget:null/);
+  assert.match(scene,/const protectArrival=!!targetPlatform&&landingApproach\.diagnostics\(\)\.visible/);
+  assert.match(scene,/const protectImmediateTrap=actionStage\?\.kind==='hazard'/);
+  assert.match(scene,/protectLiveRoute&&\(protectArrival\|\|protectImmediateTrap\)\?actorOrbitTarget:null/);
+  assert.ok(scene.indexOf('const protectArrival=') <
+    scene.indexOf('const protectImmediateTrap='),
+    'an already visible real landing keeps precedence over decorative shielding');
 });
 
 test('the actual frame protects the BETWEEN-subject corridor, including the central gear axle, without changing replay facts',async()=>{
