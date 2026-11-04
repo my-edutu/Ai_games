@@ -3,7 +3,7 @@ import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
+import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -506,6 +506,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     let keyLockCloseup = false;
     let cameraAimLift = 0;
     let portraitEncounterOrbit = 0;
+    let fossilPerformanceShot = false;
     if (cameraMode === 'overview') {
       const positions = s.cells.map(cell => cellPosition(cell.cell, s.width, s.height));
       const minX = Math.min(...positions.map(p => p.x)), maxX = Math.max(...positions.map(p => p.x));
@@ -612,6 +613,26 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         if (!result && !cameraGate && !closestThreat?.strength
           && !nearObservedGoal && !settings.reducedMotion)
           targetHeight = publicCompactExplorationHalfHeight(aspect,targetHeight,s);
+        // Pass131: native images show the physically unfolding tide-organ and
+        // Pip's raised lantern remain small amid open water. Only the ACTUAL
+        // already-modeled, disclosed organ that Pip is reacting to may earn a
+        // shared landscape shot. Threat, witnessed pickup, known gate/key,
+        // near public objective, terminal event, overview/detail, reduced
+        // motion and narrow portrait retain their stricter stage cameras.
+        // No hidden maze knowledge, route command or physical actor movement.
+        if (!result && !cameraGate && !closestThreat?.strength
+          && !nearObservedGoal && !keyGateCue && !showPickup
+          && !settings.reducedMotion && aspect>=1.1
+          && fossilCue?.strength>.35) {
+          const lean=Math.min(.24,fossilCue.strength*.20);
+          desiredTarget.x+=clamp(fossilCue.x-pose.x,-3.6,3.6)*lean;
+          desiredTarget.z+=clamp(fossilCue.z-pose.z,-3.6,3.6)*lean;
+          const staged=publicFossilPerformanceHalfHeight(
+            aspect,targetHeight,fossilCue.strength,pose,fossilCue,
+            desiredTarget,cameraTarget);
+          fossilPerformanceShot=staged<targetHeight-.02;
+          targetHeight=staged;
+        }
         // At genuine disclosed close encounters a narrow portrait no longer
         // sacrifices all actor readability to the old in-page horizontal span.
         // Derive the safe tighter shot from BOTH actual public 3D positions.
@@ -873,6 +894,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         // attention exists only while a genuinely modeled, disclosed
         // non-passage fossil organ is near Pip. It cannot reveal hidden
         // cells, command the AI or claim an unobserved gameplay event.
+        fossilPerformanceShot,
         fossilActorPhysicalPose: fossilCue?.strength > .12 ? {
           strength: fossilCue.strength,
           torsoY: explorer.group.getObjectByName('breathing torso')?.position.y ?? null,
