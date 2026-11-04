@@ -127,3 +127,38 @@ test('source-imminent real crusher wins over an early guardian windup on the sam
   assert.equal(chooseTowerAction(earlyEnemy,earlyObs).intent.mode,'bracing-telegraph',
     'a non-published trap must never preempt a genuine observed hostile windup');
 });
+
+test('actual 20Hz streamed tower reaches a choice on its guardian gate: an observed charging shutter is NOT a distant decorative threat',()=>{
+  // The predecessor (5c242d) offered many real timed trap cycles, but not one
+  // source-observed nearby guardian/shutter clash because the crusher was
+  // attached to p6 and the playable guardian duel occurs on the upper cap.
+  // Exercise full fixed-step autonomous gameplay, not a posed model/fixture.
+  const {STREAM_CONFIG}=require('../../scripts/serve-tower-stream.cjs');
+  const runtime=TowerRuntime.create({...STREAM_CONFIG,launchFloor:8},
+    'tower-transformation-capture-v1',{policy:'autonomous'});
+  let realNearGuardianCharges=0, sourceChosenEscapes=0;
+  for(let i=0;i<3000;i++){
+    const state=runtime.state;
+    if(state.lifecycle==='running'){
+      const obs=createTowerObservation(state,{includeHazardWindup:true});
+      const guardian=obs.enemies.find(e=>e.kind==='guardian'&&e.active);
+      const crusher=obs.hazards.find(h=>h.id.endsWith(':guardian-shutter'));
+      if(guardian && crusher && obs.player.grounded &&
+         obs.player.groundedPlatformId===`f${obs.floor}:cap` &&
+         (crusher.chargeTicksRemaining??0)>=1 &&
+         Math.abs(obs.player.position.x-(crusher.x+crusher.width/2))<50000) {
+        realNearGuardianCharges++;
+        const choice=chooseTowerAction(state,obs);
+        if(choice.intent.mode==='evading-hazard'&&choice.action.move!==0)
+          sourceChosenEscapes++;
+      }
+    }
+    runtime.step();
+  }
+  assert.ok(realNearGuardianCharges>=12,
+    'real streamed pilot must physically spend a complete 12-tick warning near its living guardian; a distant trap cannot meet this');
+  assert.ok(sourceChosenEscapes>=4,
+    'actual autonomous pilot must exercise deterministic physical escape while live guardian and shutter overlap');
+  // This is a source integration/safety check, not full-motion camera,
+  // animation, device FPS, blind preference, or a Gauntlet quality PASS.
+});
