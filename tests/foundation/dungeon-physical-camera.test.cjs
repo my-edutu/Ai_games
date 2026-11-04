@@ -67,7 +67,7 @@ test('physical orbit checks real native shoulder lanes and preserves public auth
  assert.deepEqual(state,snap());
 });
 
-test('camera truly casts through both native shoulders, not just the body's central ray',async()=>{
+test('camera truly casts through both native shoulders instead of the narrow central ray',async()=>{
  const src=fs.readFileSync(source,'utf8');
  assert.ok(src.includes('blockedByStone(cam,point,point.y,grid,size,eyes,reveal,pad)'));
  assert.ok(!src.includes('blockedByStone(cam,p,point.y,grid,size,eyes,reveal,pad)'));

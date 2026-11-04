@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T16:54:12Z",
+  "generatedAt": "2026-11-04T17:16:00Z",
   "status": "IN PROGRESS — NOT TRANSFORMED: native-width body rays and physical orbit integrated in code; NEW-HEAD real gameplay UNVERIFIED",
   "reference": "Diablo IV: overall quality; No Rest for the Wicked: worlds; Path of Exile 2: contact and combat — NOT independently compared as matched motion",
   "metrics": {
@@ -211,16 +211,16 @@
   "visualVerdict": "Inspected real 7817fb4 Chromium desktop/mobile 3D shows Vanguard's head and blade above chunky stone; body obscured. Original source art still toy-like. The 05da9ae change is only a code candidate; no new-head AFTER or blinded preference evidence.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
-  "candidateCommit": "05da9ae111a727024093411e8de68b2c4cec279d",
-  "metricsProvenance": "The 24x900 deterministic campaign aggregate is HISTORICAL. Previous exact 7817fb4 visual/3 browser shards succeeded but authority 294/295 and broader CI failed stale facade signature; no new candidate authority, browser, performance or synchronized original audio verified.",
+  "candidateCommit": "39af50ef3aa0eebd0a6f5701dd7b3e822dd0c321",
+  "metricsProvenance": "Historical displayed aggregate not new candidate. Independent local 39af matched-source HEADLESS replay: 24x900 verified, 0 divergence, 174 floor advances, 4 natural restarts. Real Chrome on local workbench blocked by administrator; exact new-head GitHub browser pending. New test syntax error in catalogue CI is repaired by next source safety commit.",
   "transformation": {
     "milestone": "M1",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
     "locked": true,
-    "candidateSha": "05da9ae111a727024093411e8de68b2c4cec279d",
+    "candidateSha": "39af50ef3aa0eebd0a6f5701dd7b3e822dd0c321",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
-    "exactHeadSafety": "Previous exact source 7817fb4: real visual review 41865245118 PASSED and all three browser shards of 41865245158 PASSED. Dedicated authority FAILED 294/295 on a stale 5-argument facade source assertion (actual code passes f[4]); broad catalogue CI 41865245251 FAILED on the same case. Current 05da9ae new-head tests/Chromium performance and correct full journey are still PENDING / UNVERIFIED.",
+    "exactHeadSafety": "Source 39af50ef catalogue CI action 41875107725 reached 944 passed tests and 1 SyntaxError in newly added test description (unescaped apostrophe). Exact offending test corrected to parse, no gameplay/authority modification. New exact-head workflow safety pending.",
     "looks": "UNVERIFIED",
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
@@ -231,9 +231,9 @@
     },
     "fullDesktopMobileAudiovisualJourney": "UNVERIFIED",
     "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41865245118/artifacts/13341748845",
-    "exactHeadAction": "Review 05da9ae real browser desktop/mobile continuous gameplay and verify native shoulder visibility without camera hunting or visual flattening; current candidate exact-head safety UNVERIFIED.",
-    "biggestGap": "Native actors remain KayKit-style and toy-proportioned; real sword/body impact lacks reference-class weight, and last real video had no full-body view or synchronized adventure audio.",
-    "nextTask": "Inspect exact-05da9ae gameplay footage 1440x832 and 390x844, verify that the torso/boots become consistently visible and camera does not hunt or erase architecture; reject if not. Follow through with larger skinned character/anatomy/material/weapon-contact work and genuine full mobile+desktop organic episode, audio and 3 independent masked critics.",
+    "exactHeadAction": "Inspect new-head real desktop/mobile Chromium screenshots, confirm shoulders and legs genuinely clear of foreground, reject architecture flattening and camera hunting; develop better native character anatomy and physical sword contact as the next integrated scene chapter. Obtain true all-stage audiovisual clips, phone performance and independent 3-critic majority before acceptance.",
+    "biggestGap": "Actual KayKit character proportions, weapon-body contact and Gothic staging still fail authentic Diablo IV/No Rest for the Wicked/Path of Exile 2 quality bar; no current AFTER video/p95/3 critics.",
+    "nextTask": "Inspect new-head real desktop/mobile Chromium screenshots, confirm shoulders and legs genuinely clear of foreground, reject architecture flattening and camera hunting; develop better native character anatomy and physical sword contact as the next integrated scene chapter. Obtain true all-stage audiovisual clips, phone performance and independent 3-critic majority before acceptance.",
     "currentMilestoneLedger": "public/ai-dungeon/gauntlet-history.json"
   },
   "acceptanceStatus": "IN PROGRESS / NOT TRANSFORMED — LOOKS, FEELS and PLAYS UNVERIFIED; critics 0/3; exact-head new capture pending."

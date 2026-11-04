@@ -2202,7 +2202,7 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Real-source b8be04f 1440x832 browser screenshot from 41672587065 and Warden boss desktop/mobile screenshot/video artifacts 41672587022 were INSPECTED: new 14 anatomical joint cylinders made elongated opaque spindly/squid-like limbs. Warden encounter head-on 1440x832 has 3 heroes overlapping enemy bodies in the 58% HP boss arena, warning Rift Cross visible but contact indistinguishable; mobile capture progressed into floor 2 but large stylized ballheads persist. This is a NEGATIVE experiential finding compared with da492455 and exact locked baseline; source visual redesign at 71da2ea to cap spans remains unverified. No masked A/B victory.",
-      "latestCandidateWorkflow": "05da9ae exact-head workflows pending; do not import predecessor browser passes as current passes.",
+      "latestCandidateWorkflow": "39af50ef catalogue CI 41875107725 failed at one new test SyntaxError (944 passed); correct single-quote name in current commit. Dedicated Dungeon and visual review 39af remain outstanding.",
       "currentPredecessorWebgl": {
         "sourceHead": "7817fb4e2e77f33d90172dfe359a22f0632527b1",
         "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41865245118/artifacts/13341748845",
@@ -2396,9 +2396,9 @@
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Native actors remain KayKit-style and toy-proportioned; real sword/body impact lacks reference-class weight, and last real video had no full-body view or synchronized adventure audio.",
-    "currentWork": "M1 original baseline unchanged. New 05da9ae native shoulder-width ray and camera-stage integration is SOURCE IMPLEMENTED but running AFTER remains unverified. Genuine 7817fb4 browser negative evidence confirms torso behind fascia; dedicated authority and broad CI each failed one outdated safety signature, repaired in 05da9ae. Independent blind review remains 0/3.",
-    "candidateCommit": "05da9ae111a727024093411e8de68b2c4cec279d",
+    "biggestRemainingGap": "Actual KayKit character proportions, weapon-body contact and Gothic staging still fail authentic Diablo IV/No Rest for the Wicked/Path of Exile 2 quality bar; no current AFTER video/p95/3 critics.",
+    "currentWork": "M1 source production candidate 39af50ef uses true shoulder/foot rays in both native 3D camera grade and shared real wall clearance; previous 7817fb4 raw desktop/mob footage remains NEGATIVE. 39af exact-head CI 41875107725 FAILED ONLY one new test SyntaxError (single-quote apostrophe), repaired in next lease-safe commit. Locally mirrored production blobs match GitHub SHA1 and 23/23 original focused tests plus 24×900 headless seeded campaigns pass, 174 floor advances, 4 natural restarts; real running AFTER/phone audio and blind A/B remain UNVERIFIED.",
+    "candidateCommit": "39af50ef3aa0eebd0a6f5701dd7b3e822dd0c321",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -4938,6 +4938,25 @@
         "statusVerdict": "IN PROGRESS — NOT TRANSFORMED",
         "biggestRemainingGap": "Native actors remain KayKit-style and toy-proportioned; real sword/body impact lacks reference-class weight, and last real video had no full-body view or synchronized adventure audio.",
         "next": "Inspect exact-05da9ae gameplay footage 1440x832 and 390x844, verify that the torso/boots become consistently visible and camera does not hunt or erase architecture; reject if not. Follow through with larger skinned character/anatomy/material/weapon-contact work and genuine full mobile+desktop organic episode, audio and 3 independent masked critics."
+      },
+      {
+        "id": "M1-SHOULDER-WIDTH-SAFETY-20261104",
+        "date": "2026-11-04",
+        "status": "SOURCE_CORRECTED_EXPERIENTIAL_RESULT_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceSha": "39af50ef3aa0eebd0a6f5701dd7b3e822dd0c321",
+        "sourceMirrorVerification": "Local production files public/ai-dungeon/party-visibility-plan.js SHA1 fa11529fcd5bdff7b9694f8237733e6f32efaea1 and physical-camera-director.js SHA1 b343cdbd162c51a51e57537bf5d6d0ebb6456147 exactly equal GitHub blobs at 39af50ef.",
+        "tests": "Locally verified unchanged base mirror: 23/23 focused camera/party/wall test cases pass; 24 seeded headless campaigns ×900 turns = 0 deterministic failures, floor 10 highest, 174 floor advances, 4 natural restarts, from actual compiled game simulation. This is headless truth and NOT audiovisual or quality acceptance.",
+        "actualRenderer": "Local Chromium real browser capture attempted but blocked ERR_BLOCKED_BY_ADMINISTRATOR for localhost before page load; GitHub Actions exact-head browser and visual review still pending. 7817fb4 predecessor actual raw screenshot is negative; current AFTER unverified.",
+        "safety": "Source 39af50ef catalogue CI action 41875107725 reached 944 passed tests and 1 SyntaxError in newly added test description (unescaped apostrophe). Exact offending test corrected to parse, no gameplay/authority modification. New exact-head workflow safety pending.",
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "blindCritics": "0/3",
+        "fullJourney": "UNVERIFIED",
+        "mobileP95": "UNVERIFIED",
+        "statusVerdict": "IN PROGRESS — NOT TRANSFORMED",
+        "next": "Inspect new-head real desktop/mobile Chromium screenshots, confirm shoulders and legs genuinely clear of foreground, reject architecture flattening and camera hunting; develop better native character anatomy and physical sword contact as the next integrated scene chapter. Obtain true all-stage audiovisual clips, phone performance and independent 3-critic majority before acceptance."
       }
     ]
   }
