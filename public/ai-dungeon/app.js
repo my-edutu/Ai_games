@@ -310,7 +310,7 @@ let shakeStrength=0;
 function genuineWardenGroundEvent(event){
  return (event?.kind==='danger'||event?.kind==='evade')&&
   typeof event.text==='string'&&
-  /^The Warden (nova|rift cross|eclipse sweep) shockwave struck \\d+ hero(?:es)?$/.test(event.text);
+  /^The Warden (nova|rift cross|eclipse sweep) shockwave struck \d+ hero(?:es)?$/.test(event.text);
 }
 function pulseFX(event,s){
  if(reduced)return;
