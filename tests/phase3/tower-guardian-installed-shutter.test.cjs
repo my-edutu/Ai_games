@@ -43,10 +43,13 @@ test('installed shutter is strictly backed by the current real guardian-cap coll
   assert.equal(observedInstalledGuardianShutter(valid, valid.hazards[0]), true);
   assert.equal(JSON.stringify(valid), untouched);
   assert.equal(observedInstalledGuardianShutter(valid, valid.hazards[0]), true);
+  const beaten = { ...valid, enemies: [{ ...valid.enemies[0], health:0, active:false }] };
+  assert.equal(observedInstalledGuardianShutter(beaten, beaten.hazards[0]), true,
+    'source collision must not visually disappear between guardian death and floor handoff');
   const variants = [
     { ...valid, stale:true }, { ...valid, lifecycle:'result' },
     { ...valid, runToken:'' }, { ...valid, tick:-1 },
-    { ...valid, enemies:[] }, { ...valid, enemies:[{...valid.enemies[0],health:0}] },
+    { ...valid, enemies:[] }, { ...valid, enemies:[{...valid.enemies[0],health:NaN}] },
     { ...valid, platforms:[] }, { ...valid, floor:7 },
     { ...valid, hazards:[{...valid.hazards[0], id:'f8:unrelated'}] },
     { ...valid, hazards:[{...valid.hazards[0], kind:'heat'}] },
