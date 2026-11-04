@@ -2194,7 +2194,7 @@
         "playsMajority": false,
         "provenance": "No fresh independent critics available. Do not infer a blind preference from test results or real predecessor screenshots."
       },
-      "safetyChecks": "Code-level bounded confirmed impact witness ran, but new exact-head authority/replay/security workflows are QUEUED: Dungeon 41878892063, visual 41878891866, catalogue 41878891669. Do not infer pass. Historical 24x900, 174 floors, 4 natural restarts refer to PREDECESSOR only.",
+      "safetyChecks": "Source validation only. Corrected true-event predicate and regression fixture were inspected/parse-checked in current run. Latest exact-head authority, browser, security, replay and catalogue workflows still queued; predecessor results cannot be promoted.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED full synchronized game soundtrack and video: real original WAV from earlier Warden browser test may exist; do not infer from separate audio and silent WebM.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2397,8 +2397,8 @@
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
     "biggestRemainingGap": "Source character anatomy remains stylized; real moving sword-to-enemy contact and readable Gothic negative space are not AAA parity. New candidate not verified against pinned before screenshots. Five-stage synchronized desktop/mobile original-audio journey, phone p95 and 3 blind critics unavailable.",
-    "currentWork": "One M1 connected boss-combat aftermath candidate: true previous warning plus matching Warden ground-impact event now yields persistent original 3D floor fractures and restrained phase heat; committed 4e53df6a4c04c09a6edbb60b145e2840c34a71d8. Real new-head WebGL, authority CI and blind quality verdicts UNVERIFIED. No new Gauntlet round or baseline.",
-    "candidateCommit": "4e53df6a4c04c09a6edbb60b145e2840c34a71d8",
+    "currentWork": "One continuing M1 battlefield-combat scene candidate through 8fca839ad8d731fe5b45b0693a2aab8071022c03: actual Warden impact must be witnessed against its previous real warning; carved physical floor fractures persist, bounded stone chips rise/fall only after that strike, and original camera pulse remains on a genuine all-dodged shockwave. Browser motion/phone performance/critic judgment still UNVERIFIED; no new Gauntlet round.",
+    "candidateCommit": "8fca839ad8d731fe5b45b0693a2aab8071022c03",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -4972,9 +4972,17 @@
           "tests/foundation/dungeon-warden-impact-scars.test.cjs",
           "tests/browser/dungeon-warden-court.spec.cjs"
         ],
-        "safety": "Pure source parser and deterministic synthetic witness probe succeeded after correcting plural/singular 'hero(es)' and preserving recorded fatal shockwaves on intermission. NEW EXACT-HEAD CI/replay and browser work still QUEUED; no green claim.",
-        "browser": "UNVERIFIED candidate real desktop/mobile Warden visual; prior 7817fb4 Chrome proves body occlusion and toy source rigs. 4-second seeded boss clip test now includes authentic impact metrics in receipt; not a full-story audiovisual acceptance reel.",
-        "next": "Inspect true new-head browser Warden Court screenshots, real motion/audio and floor scar density on desktop/mobile; reject additional clutter or performance costs. Resume substantial native-skinned humanoid, enemy contact and coherent playable adventure reconstruction and independent blind matched M1 A/B."
+        "safety": "Live JavaScript V8 parsing passed original app, pure plan, new 3D scene module and foundation test. Pure runtime witnesses: one true naturally formatted attack, an avoided real strike and fatal ground shockwave recognized; unrelated event/replay and unearned warning do not produce marks. This is source-level only. NEW HEAD GitHub Actions still queued, and no real AFTER visual or blind panel has been examined.",
+        "browser": "Latest browser BEFORE from predecessor still shows stylized anatomy and torso occlusion. New SHA physical scar/airborne debris impact has not been rendered in captured desktop/mobile Chromium; A/B and p95 not measured.",
+        "next": "Review real browser Warden strike from current SHA for actual stone fractures, falling geometry, genuine zero-hit impact, camera composition and GPU costs. Reject material clutter, broken meshes or false strike timing. Then return to substantial character anatomy, native contact and movement/pacing, and obtain full continuous ORIGINAL-audio five-stage matched desktop/mobile blind reviews.",
+        "latestCodeSha": "8fca839ad8d731fe5b45b0693a2aab8071022c03",
+        "completedSourceSteps": [
+          "5a27f4d initial genuine strike fractures and original phase-heat surface",
+          "4e53df6 fatal/avoided strike witness correctly gated by old warning and authoritative event",
+          "a33748d bounded original true-shockwave 3D stone fragments and camera pulse even on an earned zero-hit dodge",
+          "882d90c corrected event predicate for live singular/plural Warden ground impacts",
+          "8fca839 new source contract verifies the real event phrase"
+        ]
       }
     ]
   }

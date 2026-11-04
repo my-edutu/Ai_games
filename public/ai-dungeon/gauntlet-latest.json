@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T17:31:00Z",
-  "status": "IN PROGRESS — NOT TRANSFORMED: genuine Warden ground-impact aftermath implemented in real 3D source; latest WebGL unverified",
+  "generatedAt": "2026-11-04T17:41:34.332Z",
+  "status": "IN PROGRESS — NOT TRANSFORMED: integrated Warden aftermath (real floor fractures, bounded falling stone and truthful dodge camera impulse) committed; actual gameplay quality unverified",
   "reference": "Diablo IV: overall quality; No Rest for the Wicked: worlds; Path of Exile 2: contact and combat — NOT independently compared as matched motion",
   "metrics": {
     "sample_seeds": 24,
@@ -208,19 +208,19 @@
       "elapsedMs": 158
     }
   ],
-  "visualVerdict": "New source plan is grounded in true previous telegraph and later authentic boss strike event; no fresh browser screenshot/motion yet. Last inspected predecessor 7817fb4 still has toy KayKit anatomy and lower-body masonry occlusion. LOOKS/FEELS/PLAYS UNVERIFIED.",
+  "visualVerdict": "Previous real Chromium remained toy-like and suffered real body occlusion. Current physical Warden impact/debris is source-only and its actual visual effect is UNVERIFIED, as are LOOKS/FEELS/PLAYS against the unchanged M1 baseline.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
-  "candidateCommit": "4e53df6a4c04c09a6edbb60b145e2840c34a71d8",
-  "metricsProvenance": "Historical 24x900 deterministic campaigns are predecessor evidence ONLY; not rerun for the new Warden-scar candidate. No actual HEAD browser frame, matched original audio or hardware mobile p95 has been observed.",
+  "candidateCommit": "8fca839ad8d731fe5b45b0693a2aab8071022c03",
+  "metricsProvenance": "Historical deterministic campaign aggregates refer to older code and were NOT rerun for 8fca839ad8d731fe5b45b0693a2aab8071022c03. Code-mode source parser and pure witness checks succeeded; no fresh actual WebGL, synchronized original audio, hardware phone p95 or independent critic result observed.",
   "transformation": {
     "milestone": "M1",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
     "locked": true,
-    "candidateSha": "4e53df6a4c04c09a6edbb60b145e2840c34a71d8",
+    "candidateSha": "8fca839ad8d731fe5b45b0693a2aab8071022c03",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
-    "exactHeadSafety": "New-head Dungeon workflow 41878892063, real-browser visual 41878891866 and catalogue CI 41878891669 QUEUED at ledger edit. No safety success invented.",
+    "exactHeadSafety": "New-head CI and browser workflows queued/unknown. The previously queued workflows for 879dcea are NOT the exact current source; no safety gates claimed as green.",
     "looks": "UNVERIFIED",
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
@@ -231,10 +231,10 @@
     },
     "fullDesktopMobileAudiovisualJourney": "UNVERIFIED",
     "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41865245118/artifacts/13341748845",
-    "exactHeadAction": "Review real browser-captured Warden combat desktop/mobile and scar density/performance; reject distraction, visual regression or unfaithful event timing. Then substantially rebuild human-scale native actors, coherent weapon impact and gothic depth, and gather full matched A/B plus independent critics.",
-    "biggestGap": "Source character anatomy remains stylized; real moving sword-to-enemy contact and readable Gothic negative space are not AAA parity. New candidate not verified against pinned before screenshots. Five-stage synchronized desktop/mobile original-audio journey, phone p95 and 3 blind critics unavailable.",
-    "nextTask": "Review real browser-captured Warden combat desktop/mobile and scar density/performance; reject distraction, visual regression or unfaithful event timing. Then substantially rebuild human-scale native actors, coherent weapon impact and gothic depth, and gather full matched A/B plus independent critics.",
+    "exactHeadAction": "Review real browser Warden strike from current SHA for actual stone fractures, falling geometry, genuine zero-hit impact, camera composition and GPU costs. Reject material clutter, broken meshes or false strike timing. Then return to substantial character anatomy, native contact and movement/pacing, and obtain full continuous ORIGINAL-audio five-stage matched desktop/mobile blind reviews.",
+    "biggestGap": "Professional human-scale native animated anatomy, readable sword-body contact and Gothic negative space remain far below authentic Diablo IV / No Rest for the Wicked / Path of Exile 2. No verified matched AFTER or p95/3 critics.",
+    "nextTask": "Review real browser Warden strike from current SHA for actual stone fractures, falling geometry, genuine zero-hit impact, camera composition and GPU costs. Reject material clutter, broken meshes or false strike timing. Then return to substantial character anatomy, native contact and movement/pacing, and obtain full continuous ORIGINAL-audio five-stage matched desktop/mobile blind reviews.",
     "currentMilestoneLedger": "public/ai-dungeon/gauntlet-history.json"
   },
-  "acceptanceStatus": "IN PROGRESS / NOT TRANSFORMED — source code integrated; new-head looks/feels/plays, coherent motion+original audio, performance and 0/3 blind critic majority UNVERIFIED."
+  "acceptanceStatus": "IN PROGRESS — NOT TRANSFORMED. LOOKS, FEELS, PLAYS UNVERIFIED; 0/3 blind critics; original-audio desktop/mobile five-stage journey, performance and safety gates unverified."
 }
