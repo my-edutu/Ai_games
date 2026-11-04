@@ -46,7 +46,15 @@ export function generateTowerChunk(config:TowerConfig,seed:string,floor:number,r
     // Don't introduce an impossible trap merely to meet a visual target.
     if (left <= right) {
       const approachX = approach.x + Math.floor(approach.width / 2);
-      const x = Math.max(left, Math.min(right, approachX));
+      // A seeded 3,000-tick real pilot smoke showed 38 near-guardian
+      // countdown ticks on the new cap, but no evasive decision: the jaw
+      // remained outside the actual combat approach. Put it one 60k-unit
+      // route step toward the cap's middle (from either approach side).
+      // Real source AI must now judge the *physical* lane and two exits.
+      // No enemy position tracking, scripted hit or time-based teleport.
+      const gateward = Math.sign(arena.x + arena.width / 2 - approachX);
+      const fightLaneX = approachX + gateward * 60000;
+      const x = Math.max(left, Math.min(right, fightLaneX));
       const shutter:TowerHazard = {
         id:`f${floor}:guardian-shutter`, kind:'crusher',
         x, y:arena.y + arena.height, width, height:9000,
