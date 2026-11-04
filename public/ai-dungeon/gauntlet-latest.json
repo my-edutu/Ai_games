@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedAt": "2026-11-04T12:58:17.000Z",
-  "status": "IN PROGRESS — NOT TRANSFORMED: native original heroes now wear skeleton-driven six-piece original armour; actual moving-game improvement UNVERIFIED",
+  "status": "IN PROGRESS — NOT TRANSFORMED: physical camera body-visibility candidate is source committed; real head/torso/boot quality and full gameplay verification UNVERIFIED",
   "reference": "Diablo IV: overall quality; No Rest for the Wicked: worlds; Path of Exile 2: contact and combat — NOT independently compared as matched motion",
   "metrics": {
     "sample_seeds": 24,
@@ -208,19 +208,19 @@
       "elapsedMs": 158
     }
   ],
-  "visualVerdict": "Before source from genuine Chromium still shows toy-like bodies and clutter. New code mounts six original forged pieces on each complete original skinned hero/enemy GLB, following genuine combat and locomotion. New-head moving pixels and matched critical comparisons remain UNVERIFIED; no superiority/AAA claim.",
+  "visualVerdict": "INSPECTED authentic e2ae292 pre-candidate desktop + 390px phone pixels (41836501700/artifacts/13327586616): original character torso/foot and weapon contact hidden by repetitive low facade stone; stylized head/armor. New physically scored orbit candidate may improve only real body visibility. No new-head moving AFTER capture or blind A/B, no benchmark parity.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
-  "candidateCommit": "952124708901079adc8629f90a4b4dc92d50f169",
-  "metricsProvenance": "Historic seeded 24×900 corpus only. At predecessor 63007fc, Action 41827268369 all Chromium shards PASS, foundation 285/286 FAIL inherited stale Warden import regex; visual 41827268510 PASS; catalogue 41827268792 FAIL. New 9521247 source safety runs queued/running; this receipt does not certify them.",
+  "candidateCommit": "e58f0bb3d42083c850ee2c82a86817d3cfe03e8a",
+  "metricsProvenance": "The 24×900 seed metrics above are historical; not rerun for new candidate. Predecessor e2ae292 Dungeon authority passed and Chromium 2/3 shards passed; shard 2 failed 20s live progress poll, visual review passed; catalogue CI failed 2. New head exact replay/security/browser/performance UNVERIFIED.",
   "transformation": {
     "milestone": "M1",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
     "locked": true,
-    "candidateSha": "952124708901079adc8629f90a4b4dc92d50f169",
+    "candidateSha": "e58f0bb3d42083c850ee2c82a86817d3cfe03e8a",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
-    "exactHeadSafety": "SOURCE implemented, latest 9521247 code actions 41836145783/41836145746/41836145851 PENDING at receipt. No new exact-head pass or complete real browser footage.",
+    "exactHeadSafety": "e58f0bb physical-camera source implemented and connected; no exact-head Dungeon/visual/full-catalogue safety acceptance yet. Predecessor 41836501713 authority PASS, browser 2/3 PASS and one browser poll FAIL; predecessor visual 41836501700 PASS, catalogue 41836501580 FAIL.",
     "looks": "UNVERIFIED",
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
@@ -230,10 +230,10 @@
       "majorityAllPillars": false
     },
     "fullDesktopMobileAudiovisualJourney": "UNVERIFIED",
-    "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41804451789/artifacts/13310177036",
-    "exactHeadAction": "Track candidate M1 code at https://github.com/my-edutu/Ai_games/commit/4f1bf12bcebbd39c0b2474b3162da7657ecbf5db and exact-head GitHub Actions, including real desktop/mobile video/screenshots.",
-    "biggestGap": "Toy-like source GLB anatomy, optical contacts and intrusive Gothic geometry still lack independently confirmed cinematic transformation. Six original forged armor components now follow true skinned arms, lower legs, pelvis and chest but could intersect in motion; real desktop/mobile video not yet reviewed.",
-    "nextTask": "Inspect new-head desktop/mobile moving hero-Warden contact, track original armor draw calls/frames and detect intersections; accept/revert based on actual image. Continue integrated human-scale native mesh/motion stage, record five organic encounter events with synchronized original audio, compare matched seed against immutable 281735d baseline and obtain ≥3 independent blind votes.",
+    "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41836501700/artifacts/13327586616",
+    "exactHeadAction": "Review the source candidate https://github.com/my-edutu/Ai_games/commit/e58f0bb3d42083c850ee2c82a86817d3cfe03e8a and its forthcoming browser/authority checks. No source tests or CI substitute for motion and critic gate.",
+    "biggestGap": "Actual new predecessor pixels show dwarf-like proportion, missing visible weapons and high-frequency near-wall masonry obstructing bodies; this new read-only director aims to reframe full-body head, torso and boots, but AFTER motion/quality is UNVERIFIED.",
+    "nextTask": "Critically view new exact-sha mobile/desktop actual combat camera and full bodies against exact e2ae predecessor and immutable 281735d M1 baseline. Reject hunting or occlusion; then substantially rebuild original character silhouette, animation/material and dungeon contact integration. Capture full synchronized organic audio/video and 3 fresh masked blind critic majorities.",
     "currentMilestoneLedger": "public/ai-dungeon/gauntlet-history.json"
   },
   "acceptanceStatus": "IN PROGRESS / NOT TRANSFORMED — all LOOKS, FEELS, PLAYS UNVERIFIED / 0 OF 3 BLIND CRITICS"

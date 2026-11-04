@@ -2217,7 +2217,7 @@
         "audio": "Real 3-second opt-in Warden audiovisual MediaRecorder produced no recorded frames in that workflow; UNSUPPORTED/UNVERIFIED",
         "fullGameReel": false
       },
-      "newCandidateSceneReview": "Articulated six-piece source-GLB forged shell implemented, NOT judged in new moving browser frames. Need reject on any clipping/deformation, performance or lost native silhouette.",
+      "newCandidateSceneReview": "4 Nov exact-source e2ae292 predecessor original desktop+phone Chromium [41836501700/artifacts/13327586616] INSPECTED: 1440x832 raw world hero partly obstructed from chest to feet behind brown cuboid stone, severely repetitive partitions and toy-like body geometry; phone mostly head visible behind stone. NEGATIVE; not matched visual improvement. New e58f0bb physical-camera director has no actual AFTER footage/critics.",
       "characterDrawBudget": "Previous exact 429e6b real Chromium had 265 cinematicMeshes at desktop versus <=240 test bound (shard1 failed). New 3aec189 fuses 4–5 head parts per figure and removes 1 gorget per figure but actual current head draw counts, performance and visual quality UNVERIFIED; do not infer from mesh arithmetic.",
       "externalReferenceAudit": "Compared qualitatively against 2023 Diablo IV Frozen Tunnel combat still (https://www.npr.org/2023/05/30/1178222988/diablo-iv-review-activision-blizzard), real No Rest for the Wicked 2026 cavern still (https://www.rpgsite.net/news/20518-no-rest-for-the-wicked-1-0-release-ps5-xbox-switch-2-cross-save-multiplayer-pc-october), and Path of Exile 2 Executioner combat still (https://www.mmorpg.com/reviews/path-of-exile-2-early-access-review-2000133606). Their negative space/material structure/impact clarity remain far ahead; they are references, NOT licensed or copied game assets. No direct synchronized/gameplay-balanced reference test or blind score.",
       "realBrowserFrameDeliveryPredecessor": "Actual d9e1c Chromium software WebGL shard 2 artifact 13238978845, artifacts/dungeon-raf-interval-evidence.json: foreground RAF intervals 15 samples, p50 733.3ms, p95 and worst 4549.9ms; other raster evidence sampled 8 frames, directRenderMs 3.9ms at 273136 pixels and downshift 2. Foreground RAF observations cannot establish standalone GPU render time or phone fps. Known scheduling / software runner risk, latest candidate performance UNVERIFIED.",
@@ -2383,12 +2383,28 @@
         "dungeonAction": "https://github.com/my-edutu/Ai_games/actions/runs/41812734100",
         "visualAction": "https://github.com/my-edutu/Ai_games/actions/runs/41812733829",
         "catalogueAction": "https://github.com/my-edutu/Ai_games/actions/runs/41812733954"
+      },
+      "physicalCameraDirectorCandidate": {
+        "codeCommit": "e58f0bb3d42083c850ee2c82a86817d3cfe03e8a",
+        "sourceFiles": [
+          "public/ai-dungeon/physical-camera-director.js",
+          "public/ai-dungeon/app.js",
+          "tests/foundation/dungeon-physical-camera.test.cjs"
+        ],
+        "predecessorArtifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41836501700/artifacts/13327586616",
+        "predecessorSourceSha": "e2ae292f98f6dcb38c381ba2170a7aff96115e81",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "localSyntheticTests": "Three Node planner scenarios passed; full integration CI/browser not yet claimed.",
+        "newHeadRealMotion": "UNVERIFIED",
+        "desktopMobileAfter": "UNVERIFIED",
+        "fullAudiovisualAndCritics": "UNVERIFIED / 0 of 3",
+        "risk": "Camera alternative must not create hunting, hero crop, Warden attack warning crop or unreconciled cutaway around moving camera; reject via actual new-head captures if so."
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Authentic previous gameplay still shows toy-like native faces, flat anatomy and hard-to-read weapon impact in busy Gothic camera composition. A six-piece articulated armour staging is now an unreviewed visual candidate; direct desktop/mobile video + GPU and weapon-contact judgment is essential. No claim of Diablo IV, No Rest for the Wicked or Path of Exile 2 parity.",
-    "currentWork": "M1 integrated candidate 952124708901079adc8629f90a4b4dc92d50f169: original six-piece class-specific 3D forged shell now mounts on the genuinely skinned native living cast, its authoritative combat/travel/hurt poses and continuous source clothing, rather than an opaque procedural duplicate. The existing Warden's original 24-piece native regalia remains. New-head real moving pixels, captured sound, organic five-stage reel, mobile p95 and independent A/B are UNVERIFIED.",
-    "candidateCommit": "952124708901079adc8629f90a4b4dc92d50f169",
+    "biggestRemainingGap": "Genuine 4 Nov desktop/phone Chromium still shows huge stylized heads, ordinary Gothic facade masonry bisecting actor bodies, and weak weapon contact. New camera is source implemented but actual improved full-body pixels, moving scene/phone performance, original audio and masked votes UNVERIFIED.",
+    "currentWork": "M1 integrated physical-camera and real-masonry/rig staging candidate e58f0bb3d42083c850ee2c82a86817d3cfe03e8a: score head/torso/feet physical sightlines for real cast against the SAME WebGL stone-cutaway policy; no more than six bounded camera orbits/elevation, only a meaningful actor-visibility improvement; retain warning, manual, reduced-motion and game authority. Authentic exact-candidate moving footage NOT YET INSPECTED.",
+    "candidateCommit": "e58f0bb3d42083c850ee2c82a86817d3cfe03e8a",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
     "implementationEvents": [
@@ -4790,6 +4806,39 @@
         "blindCritics": "0 of 3",
         "risks": "Five or six additional original armor draw objects per active non-boss figure may affect mobile performance; genuine rig ornament deformation or intersections must be rejected if real recordings show regressions. Unrealistic toy heads and hard-edged architecture remain.",
         "next": "Inspect actual new-head desktop/mobile coherent combat and Warden clips and runtime performance counters. If articulated armor intersects faces/bodies or degrades image, remove or refit. Continue original high-detail native body modelling/authoring and coherent camera/contact/audio, then capture organic five-stage A/V on same seed against fixed baseline and secure at least three independent blind critics. Never merge."
+      },
+      {
+        "id": "M1-PHYSICAL-CAMERA-OCCLUSION-20261104",
+        "date": "2026-11-04",
+        "status": "SOURCE_IMPLEMENTED_EXPERIENTIAL_RESULT_UNVERIFIED",
+        "sourceHeadAtStart": "e2ae292f98f6dcb38c381ba2170a7aff96115e81",
+        "codeCommit": "e58f0bb3d42083c850ee2c82a86817d3cfe03e8a",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "objective": "Read real hero full-body obstruction and regain actual meaningful combat framing using the physically cut-away Gothic scene rather than center-point metrics or cosmetic effects.",
+        "integration": [
+          "Real skinned imported protagonists, Warden, original articulated forged armor and current autonomous combat remain untouched; director reads the same five or fewer authoritative real actor positions as existing stone cutaways.",
+          "Score camera rays to actual head/chest/boots against wall height and identical render-only reveal geometry; evaluate at most six bounded positions and avoid more off-screen bodies.",
+          "Keep warning, intermission, reduced-motion and manual camera behavior, with per-real-tick stabilized decision, stage resets and browser visual metrics; no new rendering passes or authority mutation."
+        ],
+        "sourceFiles": [
+          "public/ai-dungeon/physical-camera-director.js",
+          "public/ai-dungeon/app.js",
+          "tests/foundation/dungeon-physical-camera.test.cjs"
+        ],
+        "predecessorEvidence": {
+          "sourceHead": "e2ae292f98f6dcb38c381ba2170a7aff96115e81",
+          "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41836501700/artifacts/13327586616",
+          "finding": "Real body visibly truncated by Gothic near-wall sections, toy-like head-to-body proportions and boxy stage despite source tests; negative visual evidence."
+        },
+        "safety": "New SHA dedicated authority/Chromium/catalogue CI NOT YET COMPLETED. Three synthetic Node candidate checks passed, integration checked by source linkage but not exact full-suite.",
+        "visuals": "NO NEW AFTER VIDEO OR INDEPENDENT A/B",
+        "audio": "UNVERIFIED",
+        "mobile": "UNVERIFIED AFTER",
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "blindCritics": "0 of 3",
+        "next": "Watch new exact-head organic desktop/mobile movement and Warden attack in WebGL. Reject camera if it oscillates or still covers feet; improve real 3D anatomy, cohesive scene and weapon contact, then assemble synchronized organic journey and blind comparisons against original locked baseline."
       }
     ]
   }
