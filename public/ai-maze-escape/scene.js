@@ -869,6 +869,17 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           lanternArmX:explorer.group.getObjectByName('shoulder 1')?.rotation.x ?? null,
           lanternCageScale:explorer.group.getObjectByName('lantern cage')?.scale.x ?? null,
         } : null,
+        // Real 3D character rig sampled AFTER this WebGL render. This public
+        // attention exists only while a genuinely modeled, disclosed
+        // non-passage fossil organ is near Pip. It cannot reveal hidden
+        // cells, command the AI or claim an unobserved gameplay event.
+        fossilActorPhysicalPose: fossilCue?.strength > .12 ? {
+          strength: fossilCue.strength,
+          torsoY: explorer.group.getObjectByName('breathing torso')?.position.y ?? null,
+          headYaw: explorer.group.getObjectByName('curious head')?.rotation.y ?? null,
+          lanternArmX: explorer.group.getObjectByName('shoulder 1')?.rotation.x ?? null,
+          lanternCageScale: explorer.group.getObjectByName('lantern cage')?.scale.x ?? null,
+        } : null,
         // Camera evidence is derived only from the source-disclosed gate,
         // with projected coordinates in normalized device space [-1,+1].
         nearbySealedGate: nearObservedGate ? {...nearObservedGate} : null,
