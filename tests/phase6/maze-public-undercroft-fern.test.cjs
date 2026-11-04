@@ -150,3 +150,81 @@ test('private history never grows scenery, and unsafe/public landmark cells do n
       'reset must clear the original real instanced geometry');
   } finally { world.dispose(); done(); }
 });
+
+test('physical closed tide-clock medallions articulate disclosed undercrofts without leaking private routes', async () => {
+  const {module, THREE, done} = await loadRealWorld();
+  const world = module.createMazeWorld({balanced:true});
+  const replay = module.createMazeWorld({balanced:true});
+  try {
+    const published = shot([cell(22)]);
+    const immutable = JSON.stringify(published);
+    world.update(published);
+    replay.update(shot([cell(22)], {runToken:'other-public-run', tick:991,
+      privateCells:[cell(3)], hiddenRoute:[3], privateExitCell:3}));
+    assert.equal(world.stats().closedTideMedallions, 2,
+      'one sealed physical dial belongs to each exposed east/south public safe facade');
+    assert.equal(replay.stats().closedTideMedallions, 2,
+      'a different run and inaccessible private history cannot shape a public facade');
+
+    const center = module.cellPosition(22,7,7);
+    const floor = module.cellHeight(22,7,7);
+    const expectedY = floor - .74 - (floor + 1.36) * .48;
+    const discs = [], bezels = [];
+    const matrix = new THREE.Matrix4(), point = new THREE.Vector3();
+    const size = new THREE.Vector3();
+    world.group.children[1].traverse(mesh => {
+      if (!mesh.isInstancedMesh) return;
+      if (!['CircleGeometry','TorusGeometry'].includes(mesh.geometry.type)) return;
+      for (let i=0;i<mesh.count;i++) {
+        mesh.getMatrixAt(i,matrix);
+        point.setFromMatrixPosition(matrix);
+        size.setFromMatrixScale(matrix);
+        const east = Math.abs(point.x-center.x-1.382)<.09
+          && Math.abs(point.z-center.z)<.05;
+        const south = Math.abs(point.z-center.z-1.382)<.09
+          && Math.abs(point.x-center.x)<.05;
+        if (!(east || south) || Math.abs(point.y-expectedY)>.005) continue;
+        if (mesh.geometry.type === 'CircleGeometry')
+          discs.push({face:east?'east':'south',radius:Math.max(size.x,size.y),
+            color:mesh.material.color.getHexString()});
+        if (mesh.geometry.type === 'TorusGeometry')
+          bezels.push({face:east?'east':'south',scale:Math.max(size.x,size.y,size.z),
+            color:mesh.material.color.getHexString()});
+      }
+    });
+    for (const face of ['east','south']) {
+      const faceDiscs = discs.filter(d=>d.face===face);
+      const faceBezel = bezels.filter(d=>d.face===face);
+      assert.equal(faceDiscs.length,2,face+' has two real nested closed glass surfaces');
+      assert.ok(faceDiscs.some(d=>d.color==='28574f') && faceDiscs.some(d=>d.color==='5d968e'),
+        face+' has a fully closed dark-jade backing with visible sea-glass material');
+      assert.equal(faceBezel.length,1,face+' has a physical modeled ivory rim');
+      assert.ok(faceBezel[0].scale>=.46,
+        face+' bezel must be a large legible 3D feature, not a thin pixel line');
+    }
+    assert.ok(world.stats().geometryCount<=16 && world.stats().materialCount<=26
+      && world.stats().textureCount<=3,
+      'closed undercroft story relieves the dark facade with existing GPU resource classes');
+    assert.equal(world.stats().instances,replay.stats().instances,
+      'same published stage is deterministic across runs and hidden truth');
+    assert.equal(JSON.stringify(published),immutable,
+      'presentation cannot mutate the AI-owned public snapshot');
+
+    for (const invalid of [
+      shot([],{privateCells:[cell(22)],hiddenRoute:[22]}),
+      shot([cell(22,{blocked:true})]),
+      shot([cell(22,{trap:true})]),
+      shot([cell(22,{checkpoint:true})]),
+      shot([cell(22)],{keys:[{id:'key',cell:22,collected:false}]}),
+      shot([cell(22)],{exitCell:22}),
+    ]) {
+      world.update(invalid);
+      assert.equal(world.stats().closedTideMedallions,0,
+        'no safe publicly disclosed exterior ordinary tile means no decorative dial');
+    }
+    world.update(shot([cell(22)]));
+    assert.equal(world.stats().closedTideMedallions,2,'published stage rebuild restores two real ornaments');
+    world.update(shot([],{runToken:'empty-reset'}));
+    assert.equal(world.stats().closedTideMedallions,0,'run reset must clear all physical dials');
+  } finally {world.dispose();replay.dispose();done();}
+});
