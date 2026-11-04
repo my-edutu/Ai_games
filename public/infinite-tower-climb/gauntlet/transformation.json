@@ -10,19 +10,19 @@
   "candidate": {
     "sha": null,
     "title": "SAME real 3D autonomous ascent, guardian and source-visible descending shutter landing — NOT EVALUATED",
-    "implementationSha": "8e2e89b50f78f973f9cefa2233ecd7543daabd9d",
-    "implementationEvidenceStatus": "Real 20Hz source-observed airborne velocity now unifies five-biome world-height atmospheric parallax, single-draw source-synchronized ascent/descent wake, existing lighting rig and original opt-in wind bed (4e2f7e18, eff2cd65, 835aa42d, d99eb2da, 0a8ec210; contract tests 2b58b764). Review of exact previous-head GitHub CI https://github.com/my-edutu/Ai_games/actions/runs/41870305218 found FIVE source tests failing from undefined unclutteredX in witnessedLandingX; original-host normal-speed https://github.com/my-edutu/Ai_games/actions/runs/41869991338 failed all FOUR candidate scenario jobs (desktop and portrait) with the same real Tower renderer ReferenceError. Fixed fatal game source variable on 8e2e89b50f78f973f9cefa2233ecd7543daabd9d. Latest candidate has NOT yet passed exact-head CI/normal-speed capture/hardware performance. Existing successful nine-job film https://github.com/my-edutu/Ai_games/actions/runs/41858927470 PRE-DATES this source. Event-paired source-authentic clips, five independent full-motion critics per LOOKS/FEELS/PLAYS, hardware p50/p95/p99 + memory are absent; browser/worker tunnel NOT_FOUND. CI safety veto, never a quality win. NOT EVALUATED."
+    "implementationSha": "dd21e9c103141814532a3a1dce62428f903df08d",
+    "implementationEvidenceStatus": "Same real Three.js Tower: real source-confirmed ascent/combat/hazard/outcome emphasis now consistently calms busy five-biome furnace glare, secondary weather, and decorative rotating clockwork while preserving true route/platform and guardian silhouette (playable 5f799e8, 9084633, dd21e9c). 9/9 prior original-host captures at https://github.com/my-edutu/Ai_games/actions/runs/41878838668 verify previous source 8e2e89b, NOT this candidate. New candidate capture at https://github.com/my-edutu/Ai_games/actions/runs/41889543364 was pending at inspection; current source has no reviewed event-matched video. Prior source integrity 41879218635 FAILED 24/951; test harness repaired but new-head CI pending. Blind 5x3 full-motion critic votes and supported-device frame p50/p95/p99, memory, accessibility, replay and robust recovery remain unavailable. Browser/worker tunnel NOT_FOUND. NOT EVALUATED."
   },
   "currentTransformation": {
     "title": "SAME 3D ascent → physical moving landing → two-body guardian/hazard staging → HP gate → authentic outcome/restart",
-    "state": "OPEN — SAME real 3D climb-to-guardian-to-outcome transformation; new world-height biome parallax and source-velocity synchronized lighting/optional wind deepen ascent/fall, and a previously fatal current-route ReferenceError was corrected. All new-source normal-speed capture, CI, critic votes and hardware performance remain unverified. NOT EVALUATED.",
+    "state": "OPEN — SAME real 3D climb-to-guardian-to-outcome transformation; added one cohesive source-owned five-biome quiet/crisis/release scene hierarchy, preserving gameplay truth. Previous native candidate capture 9/9 was successful but predates new presentation. Prior exact-head CI failed; new-head validation and blind real-motion quality are NOT EVALUATED.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "First verify that exact-head gameplay no longer crashes in witnessedLandingX; earlier 41869991338 video failed all four candidate scenario jobs and 41870305218 had five source-test failures from undefined unclutteredX. New corrective source 8e2e89b50f78f973f9cefa2233ecd7543daabd9d must pass real WebGL native 960×600 and portrait 390×844 capture with real ascent/world-depth, descending shutter decision, guardian and authentic complete outcome/restart. Pair each scenario >=60s with immutable baseline 1731b380851162741761c5569e2bc152a0869ca9 at matching seed/view/quality and source events; prior successful 41858927470 is PRE-change and cannot count. Then obtain >=5 randomized blind independent full-motion critics per LOOKS/FEELS/PLAYS (>=4/5 candidate in EACH), real device frame p50/p95/p99 + memory, accessibility/replay/privacy/recovery checks. Browser/worker tunnel unavailable. NOT EVALUATED.",
+    "nextDecision": "Review source-pinned native desktop/portrait videos of current playable scene hierarchy (exact source dd21e9c) against frozen baseline 1731b380851162741761c5569e2bc152a0869ca9, event-matched rather than clock-timestamp-matched, >=60 seconds each for ascent, trap/guardian danger, authentic outcome/restart; current capture https://github.com/my-edutu/Ai_games/actions/runs/41889543364 pending. Check full test safety gate after harness fixes and inspect any remaining genuine particle/regression failure. Run 5 separate fresh-context randomized full-motion critics per LOOKS/FEELS/PLAYS, >=4/5 candidate each, real-device frame-time tails and memory plus replay/accessibility/recovery. Do not count CI, screenshots or engineering self-reviews as experience success. NOT EVALUATED.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Biggest remaining gap: candidate runtime recovery and actual normal-speed experience quality are UNVERIFIED. Previous source's real candidate game crashed on undefined unclutteredX in the 3D route observer during EVERY scenario (41869991338), while baseline jobs succeeded; fix committed 8e2e89b. Confirm current-source WebGL stability first. Then test whether world-anchored parallax, source-synced airborne wake/light/wind, route decisions, guardian framing and real result/restart are readable and substantially better in normal-speed event-paired 60+ second desktop and phone videos. No current-source clips, blind 5×3 quality votes, hardware p50/p95/p99+memory or independently verified safety/performance evidence yet; critic/browser tunnel NOT_FOUND. NOT EVALUATED.",
-    "unverifiedImplementationBranchHead": "8e2e89b50f78f973f9cefa2233ecd7543daabd9d",
-    "currentVerticalSlice": "SAME full playable 3D climb: witnessed vertical-velocity ascent and descent now create world-fixed five-biome particle parallax plus source-synchronized near wake, rim/ambient light and optional wind bed; actual route stones, six-tick shutter/dock pressure, guardian HP machinery and authentic outcome/restart remain connected. Fixed current-source route observer undefined variable crashing real candidate WebGL. No predicted collision, RNG, new authority clock, extra draw/light, or HUD.",
-    "biggestGap": "Biggest remaining gap: candidate runtime recovery and actual normal-speed experience quality are UNVERIFIED. Previous source's real candidate game crashed on undefined unclutteredX in the 3D route observer during EVERY scenario (41869991338), while baseline jobs succeeded; fix committed 8e2e89b. Confirm current-source WebGL stability first. Then test whether world-anchored parallax, source-synced airborne wake/light/wind, route decisions, guardian framing and real result/restart are readable and substantially better in normal-speed event-paired 60+ second desktop and phone videos. No current-source clips, blind 5×3 quality votes, hardware p50/p95/p99+memory or independently verified safety/performance evidence yet; critic/browser tunnel NOT_FOUND. NOT EVALUATED."
+    "biggestRemainingExperienceGap": "Biggest remaining experience gap: action hierarchy looks plausibly more legible in code but is NOT VERIFIED in 60+ second event-paired real desktop/portrait source footage or five independent full-motion quality votes per LOOKS/FEELS/PLAYS. Source dd21e9c capture pending; prior 8e2e89b source 9/9 captures predate change. Previous 3d243fd technical CI failed 24/951 (mostly old VM ESM import fixtures, stale source tests and Three fixture omissions); latest CI not passed. Need actual supported-device frame p50/p95/p99/memory, authoritative replay/accessibility/robustness validation. Missing disconnected independent worker/browser. NOT EVALUATED.",
+    "unverifiedImplementationBranchHead": "dd21e9c103141814532a3a1dce62428f903df08d",
+    "currentVerticalSlice": "SAME full real 3D autonomous Tower: existing physically earned ascent, moving platforms, six/12-tick hazard machinery, HP-operated guardian and genuine outcome/restart remain the action; new public source observer simultaneously reduces optional weather, furnace glare, particle brightness, distant clouds and decorative gear/crystal spinning during real near danger or actual guardian encounter, with damped relief afterward. No new authority, route decision, collider, texture, material resource, draw call, visual flash or HUD.",
+    "biggestGap": "Biggest remaining experience gap: action hierarchy looks plausibly more legible in code but is NOT VERIFIED in 60+ second event-paired real desktop/portrait source footage or five independent full-motion quality votes per LOOKS/FEELS/PLAYS. Source dd21e9c capture pending; prior 8e2e89b source 9/9 captures predate change. Previous 3d243fd technical CI failed 24/951 (mostly old VM ESM import fixtures, stale source tests and Three fixture omissions); latest CI not passed. Need actual supported-device frame p50/p95/p99/memory, authoritative replay/accessibility/robustness validation. Missing disconnected independent worker/browser. NOT EVALUATED."
   },
   "scenarios": [
     {
@@ -62,11 +62,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Previous 5a4dc600 source safety https://github.com/my-edutu/Ai_games/actions/runs/41859326919 success; new complete source branch 6c44999b2c4e851b7ba9dc61055ac5034e21a823 and new source contract tests still require a fresh CI verdict. CI never scores experience.",
-    "replay": "Existing live tactical six-tick descending hazard policy unchanged; only immutable published snapshots feed camera/3D route/dock. Historical-v1 seed, policy, collisions, physics, RNG and source checksum unchanged. New exact-head deterministic replay equivalence still NOT VERIFIED.",
-    "accessibility": "Existing in-world amber warning is also conveyed by visibly angled raised physical vanes and routed stones, not only a color change; no extra HUD, text or audio. Reduced-motion receives the static source-confirmed danger silhouette; real phone/browser accessibility NOT VERIFIED.",
-    "performance": "No added render pass, draw call, geometry, light, texture, shader, physical collider or source simulation loop; only existing 12-instanced-dock matrices/color and route's existing material tint update when source warning changes. Supported-device p50/p95/p99 and memory NOT MEASURED; new-head test/capture unverified.",
-    "stability": "Stale source route/dock still clear, target ID guarded and existing 3D graphics restoration unchanged in code. New exact-head tests, actual recordings, restarts and WebGL recovery NOT independently verified; no false PASS."
+    "ci": "Prior candidate run https://github.com/my-edutu/Ai_games/actions/runs/41879218635 FAILED 24/951. Old CJS VM harnesses did not understand new ESM imports, stubbed Three tests omitted real traversal helper, and source survival regex was stale; source-compatible fixtures updated on transformation branch. One low-tier/high-tier particle upload assertion may still be genuine and must be inspected in latest exact-head CI. No CI PASS claimed. CI is experience-quality veto only.",
+    "replay": "New visual priority observes only published current valid source run/floor/tick, actual guardians and nearby pressure; does not mutate simulation tick, AI intent, collision, RNG, source snapshots or versioned replay. Exact-head deterministic replay equivalence NOT VERIFIED.",
+    "accessibility": "Reduced-motion keeps static source-authentic guardian/hazard silhouette and cues; new source visual hierarchy only suppresses optional decoration instead of demanding color or audio comprehension. Actual mobile accessibility review NOT EVALUATED.",
+    "performance": "No new renderer, geometric object, texture, material, draw pass, audio voice, light, shadow caster or collider for hierarchy. One pure per-frame source-observation and bound material updates add CPU work; real supported-device p50/p95/p99 frame-time, memory and stream recording benchmark NOT MEASURED.",
+    "stability": "No authority or recovery mutation, but exact current-source WebGL run, worker-browser reconnect, and full CI after test harness updates NOT VERIFIED. Prior 9/9 original-host success is older source. Avoid claiming robust recovery."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -2339,6 +2339,50 @@
       },
       "independentWorkerBlocker": "NOT_FOUND: tunnel-client has not been seen for 300 seconds",
       "biggestGap": "Unverified full-motion mobile action clarity: oversized decorative tower rotors had competed for space between the climber and guardian/destination. New source-true foreground corridor relief is UNFILMED/UNSCORED. Event-matched baseline/candidate >=60s clips for ascent, guardian and authentic result/restart (desktop + phone), five independent blind judgments per pillar and supported-device frame-time/memory/accessibility/replay evidence are still unavailable. NOT EVALUATED."
+    },
+    "sceneHierarchy20261104": {
+      "implementationSha": "dd21e9c103141814532a3a1dce62428f903df08d",
+      "reviewPath": "docs/reviews/2026-11-04-tower-pr68-biome-critical-action-hierarchy.md",
+      "realGameModules": [
+        "public/infinite-tower-climb/visuals/scene-hierarchy.mjs",
+        "public/infinite-tower-climb/visuals/world.mjs",
+        "public/infinite-tower-climb/visuals/atmosphere.mjs"
+      ],
+      "priorCompleteNativeCapture": {
+        "sourceSha": "8e2e89b50f78f973f9cefa2233ecd7543daabd9d",
+        "runUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41878838668",
+        "jobs": "9/9 success",
+        "scope": "Source-authentic baseline/candidate ascent, danger, moving, outcome 2 viewports; predates current slice; no independent full-motion comparison"
+      },
+      "pendingCurrentSourceNativeCapture": {
+        "sourceSha": "dd21e9c103141814532a3a1dce62428f903df08d",
+        "runUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41889543364",
+        "status": "PENDING at 2026-11-04T18:46Z; no reviewed videos"
+      },
+      "knownSafetyGate": {
+        "sourceSha": "3d243fdc71e41fae44ec44645a1c9b981ff49023",
+        "runUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41879218635",
+        "status": "FAILED 24/951; addressed outdated ESM fixture resolution and noted possible particle regression, current CI unverified"
+      },
+      "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "scenarioPairings": "NOT EVALUATED; source-pinned >=60s matched event/seed/viewport/quality baseline/candidate comparison not completed for new source",
+      "blindJudgments": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0,
+        "eachRequired": 5,
+        "minimumCandidatePreferencesPerPillar": 4,
+        "status": "NOT EVALUATED; no independent critics available"
+      },
+      "hardware": "NOT MEASURED: supported-device p50/p95/p99 frame-time tails, memory",
+      "blockers": [
+        "Independent browser/worker tunnel NOT_FOUND",
+        "New hierarchy source full-motion captures not reviewed",
+        "Exact current branch technical gate not passed",
+        "Independent 5x3 quality votes missing",
+        "Supported-device metrics missing"
+      ],
+      "outcome": "NOT EVALUATED; keep PR #68 draft, no merge, deploy or PR #58 edit"
     }
   }
 }
