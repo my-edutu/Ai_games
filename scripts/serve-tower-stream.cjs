@@ -38,6 +38,14 @@ function advance(session) {
       guardian: publicSnapshot.enemies.filter(e => e.active && e.kind === 'guardian')
         .map(e => ({ health: e.health, maxHealth: e.maxHealth })),
       routeTarget: publicSnapshot.intent.targetPlatformId || null,
+      // CI-only provenance: a real authored hazard must actually be charging
+      // before a 3D jaw animation can count as a source-backed observation.
+      // No seed, private rule state or speculative future events are exposed.
+      scheduledHazardCharges: publicSnapshot.hazards.filter(h =>
+        !h.active && Number.isSafeInteger(h.chargeTicksRemaining) &&
+        h.chargeTicksRemaining > 0 && h.chargeTicksRemaining <= 12)
+        .slice(0, 8).map(h => ({ id: h.id, kind: h.kind,
+          chargeTicksRemaining: h.chargeTicksRemaining })),
     });
     if (session.captureTrace.length > 2200) session.captureTrace.shift();
   }
