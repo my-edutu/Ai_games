@@ -179,19 +179,24 @@ export function createTowerHazardPressure(THREE) {
             clamp(1 - (snapshot.tick - releaseStarted) / RELEASE_TICKS, 0, 1));
         const width = clamp(hazard.width / SCALE / 6.4, .34, 1.9);
         const lift = .14 + .72 * progress;
+        // Keep the real source trap machinery on the camera-facing outer
+        // tower skin, rather than letting the opaque 24-unit tower bury the
+        // closing jaws. The full 26.74–27.78-unit band remains *behind* the
+        // climber's roughly 28-unit presentation lane; it creates no surface
+        // or collision and never projects a fake safe exit.
         for (let n = 0; n < PIECES_PER_HAZARD; n++) {
           if (n < 8) {
             const fraction = .15 + (n % 4) * .235;
             const point = pointFor(hazard.x + hazard.width * fraction,
               hazard.y, snapshot.chunkBaseY, snapshot.worldWidth,
-              n >= 4 ? 26.08 : 24.82);
+              n >= 4 ? 27.66 : 26.88);
             pose.position.set(point.x, point.y + lift, point.z);
             pose.rotation.set(0, point.angle,
               (n >= 4 ? -1 : 1) * (.12 + .24 * progress));
             pose.scale.set(width, .19 + .62 * progress, .25);
           } else if (n < 12) {
             const point = pointFor(hazard.x + hazard.width * (.11 + (n-8) * .26),
-              hazard.y, snapshot.chunkBaseY, snapshot.worldWidth, 25.45);
+              hazard.y, snapshot.chunkBaseY, snapshot.worldWidth, 27.18);
             pose.position.set(point.x, point.y + .08 + progress * .12, point.z);
             pose.rotation.set(0, point.angle, 0);
             pose.scale.set(width * 1.15, .09, .56 + .12 * progress);
@@ -199,7 +204,7 @@ export function createTowerHazardPressure(THREE) {
             const slot = n-12, fraction = slot < 2 ? .08 : .92;
             const point = pointFor(hazard.x + hazard.width * fraction,
               hazard.y, snapshot.chunkBaseY, snapshot.worldWidth,
-              slot % 2 === 0 ? 24.72 : 26.18);
+              slot % 2 === 0 ? 26.74 : 27.78);
             pose.position.set(point.x, point.y + .38 + progress * .32, point.z);
             pose.rotation.set(0, point.angle, slot % 2 === 0 ? -.12 : .12);
             pose.scale.set(width * .39, .26 + progress * .6, .30);
@@ -250,7 +255,8 @@ export function createTowerHazardPressure(THREE) {
       instances: shutters.count, extraDraws: shutters.visible ? 1 : 0,
       sourceBound: true, maximumInstances: MAX_HAZARDS * PIECES_PER_HAZARD,
       reducedMotion: 'Static charge and neutral unload, live attack remains visibly closed',
-      evidence: 'Published fixed-step warning -> actual active attack -> adjacent observed safe mechanical unload; one 3D draw, no forecast or gameplay/collision authority',
+      radialBand: [26.74, 27.78], // world-space exterior steel, behind the ~28-unit climber
+      evidence: 'Published fixed-step warning -> actual active attack -> adjacent observed safe mechanical unload; exterior 3D jaws, one draw, no forecast or gameplay/collision authority',
     };
   }
 
