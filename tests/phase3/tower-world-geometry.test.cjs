@@ -11,12 +11,14 @@ const SOURCE = path.join(ROOT, 'public/infinite-tower-climb/visuals/world.mjs');
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'tower-world-regression-'));
 const threeURL = pathToFileURL(path.join(ROOT, 'node_modules/three/build/three.module.js')).href;
 const surfaceURL = pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/world-surface.mjs')).href;
+const hierarchyURL = pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/scene-hierarchy.mjs')).href;
 const coordinatesURL = pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/coordinates.mjs')).href;
 // Exercise the shipped module. Only its browser import URLs are adapted.
 const source = fs.readFileSync(SOURCE, 'utf8')
   .replace("'/tower/vendor/three.module.js'", JSON.stringify(threeURL))
   .replace("'./coordinates.mjs'", JSON.stringify(coordinatesURL))
-  .replace("'./world-surface.mjs'", JSON.stringify(surfaceURL));
+  .replace("'./world-surface.mjs'", JSON.stringify(surfaceURL))
+  .replace("'./scene-hierarchy.mjs'", JSON.stringify(hierarchyURL));
 const localModule = path.join(scratch, 'world.mjs');
 fs.writeFileSync(localModule, source);
 const loaded = Promise.all([import(threeURL), import(pathToFileURL(localModule).href), import(coordinatesURL), import(surfaceURL)]);
