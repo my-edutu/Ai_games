@@ -60,12 +60,31 @@ for (const viewport of viewports) {
       const middleY = rect ? rect.top + rect.height / 2 : -1;
       const topmost = rect && middleX >= 0 && middleY >= 0
         ? document.elementFromPoint(middleX, middleY) : null;
-      const resultCardVisible = !!rect && !resultCard.hidden &&
-        style.display !== 'none' && style.visibility === 'visible' &&
-        Number(style.opacity) > 0 && rect.width > 80 && rect.height > 45 &&
+      // The ORIGINAL source has .event-stack { pointer-events: none } and
+      // a non-interactive, visually painted result-card child. Its computed
+      // pointer-events inherit "none", so elementFromPoint() SKIPS the card
+      // even while the authentic result is visibly rendered. The old strict
+      // hit test gave a false zero for ALL genuine baseline intermissions.
+      // For pointer-pass-through overlays verify the real cascade, geometry,
+      // visibility and viewport instead; NEVER modify baseline CSS/DOM or
+      // make the card interactive solely to manufacture capture evidence.
+      const ancestorsVisiblyPainted = (() => {
+        for (let element = resultCard; element; element = element.parentElement) {
+          const computed = getComputedStyle(element);
+          if (element.hidden || computed.display === 'none' ||
+            computed.visibility !== 'visible' ||
+            Number(computed.opacity) <= 0) return false;
+        }
+        return !!resultCard;
+      })();
+      const pointerPassThrough = style?.pointerEvents === 'none';
+      const hitTestPass = !!topmost &&
+        (topmost === resultCard || resultCard.contains(topmost));
+      const resultCardVisible = !!rect && ancestorsVisiblyPainted &&
+        rect.width > 80 && rect.height > 45 &&
         rect.left >= 0 && rect.top >= 0 &&
         rect.right <= innerWidth && rect.bottom <= innerHeight &&
-        !!topmost && (topmost === resultCard || resultCard.contains(topmost));
+        (pointerPassThrough || hitTestPass);
       return { atMs: Date.now(), tick: s?.tick, runToken: s?.runToken, checksum: s?.publicChecksum,
         floor: s?.floor, scene: s?.lifecycle, state: s?.player?.state, dangerPermille: s?.dangerPermille,
         sourceResult: s?.result || null, sourceFloorsCleared: s?.progress?.floorsCleared ?? null,
@@ -73,7 +92,8 @@ for (const viewport of viewports) {
           visible: resultCardVisible, runToken: s?.runToken ?? null,
           title: document.getElementById('result-title')?.textContent?.trim() || '',
           height: document.getElementById('result-height')?.textContent?.trim() || '',
-          note: 'Source-matched, topmost DOM-visible authentic result. Unedited video must still be independently watched.',
+          pointerPassThrough, hitTestPass, ancestorsVisiblyPainted,
+          note: 'Source-matched painted DOM/card geometry. Native non-interactive result overlay legitimately fails hit-testing; unedited video and full-viewport result stills MUST be visually watched.',
         },
         observedFinale: d?.finale || null, observedTerminalCamera: d?.terminalCamera || null,
         guardianActive: (s?.enemies || []).some(e => e.active && e.kind === 'guardian'),
@@ -139,6 +159,16 @@ for (const viewport of viewports) {
       observation.canvasHash = createHash('sha256').update(png).digest('hex');
       if (index === 0 || index === 20) await page.screenshot({
         path: path.join(dir, 'full-' + String(index).padStart(2, '0') + '.png'), timeout: 90000 });
+    }
+    // Real screenshot of the same LIVE and unmodified viewport at a genuine
+    // terminal observation. Capture no more than two such frames per outcome
+    // viewport: prove the non-interactive DOM card actually paints, rather
+    // than awarding integrity from source run-token transitions alone.
+    if (scenario === 'outcome' && observation.observedResultCard?.visible &&
+      observations.filter(o => o.observedResultCard?.fullViewportScreenshot).length < 2) {
+      const name = 'live-result-visible-' + String(index).padStart(3, '0') + '.png';
+      await page.screenshot({ path: path.join(dir, name), timeout: 90000 });
+      observation.observedResultCard.fullViewportScreenshot = name;
     }
     observations.push(observation);
   }
@@ -211,7 +241,11 @@ for (const viewport of viewports) {
     genuineDomResultSamples: observations.filter(item =>
       item.observedResultCard?.visible && item.sourceResult &&
       item.observedResultCard.runToken === item.runToken).length,
-    note: 'The source 50ms result may fall between samples while its authentic result card remains visible in intermission. DOM hit-testing does not certify WebM pixels; inspect original footage.',
+    nonInteractiveVisibleCards: observations.filter(item =>
+      item.observedResultCard?.visible && item.observedResultCard?.pointerPassThrough).length,
+    realFullViewportResultStillCount: observations.filter(item =>
+      item.observedResultCard?.fullViewportScreenshot).length,
+    note: 'Original source result-card is visually painted but non-interactive; inherited pointer-events:none makes elementFromPoint skip it. Verify ancestor cascade and actual viewport, archive 2 untouched full-frame result stills, and independently inspect original WebM. Source 50ms result may fall between samples; intermission is authentic.',
   };
   fs.writeFileSync(path.join(dir, 'motion.json'), JSON.stringify({
     method: 'Real live unmodified host at nominal 20 authoritative ticks/s; browser video and distinct WebGL canvas captures; CI software renderer, not intended device',
