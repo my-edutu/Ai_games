@@ -7653,6 +7653,7 @@ function getMarketTourAudit(){
    origin:marketTourCompletion?.origin?.slice()||null,
    travelledMeters:marketTourCompletion?.travelledMeters||0,
    lens:marketTourCompletion?.lens?{...marketTourCompletion.lens}:null,
+   arrival:marketTourCompletion?.arrival?{...marketTourCompletion.arrival}:null,
    waypoints:marketTourCompletion?.waypoints||0,
    reason:marketTourCompletion?.reason||null};
 }
@@ -7824,7 +7825,7 @@ function streetCameraFrameOcclusion(position,angle,tilt=streetTilt,prepared=null
   centralBlocked,tanHorizontal:optics.tanHorizontal,
   tanVertical:optics.tanVertical,viewportWidth:canvas.clientWidth};
 }
-function planMarketTourLens(position,heading,desired,remaining){
+function planMarketTourLens(position,heading,desired,remaining,actualTilt=streetTilt){
  const angleDistance=(a,b)=>Math.abs(Math.atan2(Math.sin(a-b),Math.cos(a-b)));
  const physicalRoofs=streetRoofs().filter(r=>
   Math.hypot(r.x-position[0],r.z-position[1])<9+Math.max(r.rx,r.rz))
@@ -7832,7 +7833,7 @@ function planMarketTourLens(position,heading,desired,remaining){
  const projected=angle=>{
   const sight=streetEyeVisibility(position[0],position[1],angle,STREET_EYE);
   const posts=streetEntrancePostAudit(position,angle);
-  const frame=streetCameraFrameOcclusion(position,angle,streetTilt,physicalRoofs);
+  const frame=streetCameraFrameOcclusion(position,angle,actualTilt,physicalRoofs);
   // A central post one metre away is much more damaging than an upright
   // at the frame edge. These penalties are presentation-only, based on
   // physical posts, not fictional geometry or a synthetic screenshot mask.
@@ -7899,6 +7900,45 @@ function planMarketTourLens(position,heading,desired,remaining){
   requestedObstructionScore:requested.obstructionScore,
   chosenObstructionScore:selected.obstructionScore};
 }
+// W29 Living Valley: at the actual reached market location, choose both yaw
+// AND pitch against the same 390px WebGL perspective used for the final render.
+// The W28 circuit checked roofs at its old travelling tilt, then instantly
+// changed tilt on arrival; an opaque cottage could fill the final film frame.
+// Never delete, fade, displace or replace buildings, stalls or real workers.
+function planPitchedMarketArrival(position,heading,desired,requestedTilt){
+ const clampTilt=v=>Math.max(-.48,Math.min(.38,v));
+ const tilt=clampTilt(requestedTilt);
+ const original=planMarketTourLens(position,heading,desired,.25,streetTilt);
+ const unrefinedFrame=streetCameraFrameOcclusion(position,original.bearing,tilt);
+ const deviation=(a,b)=>Math.abs(Math.atan2(Math.sin(a-b),Math.cos(a-b)));
+ const quality=(candidate,frame)=>frame.centralBlocked*30+
+  frame.blockedFraction*70+
+  deviation(candidate.bearing,desired)*5+
+  Math.abs(candidate.tilt-tilt)*3;
+ let selected={bearing:original.bearing,tilt,frame:unrefinedFrame};
+ let bestScore=quality(selected,unrefinedFrame);
+ const probeTilts=[0,-.14,.14,-.28,.28];
+ for(const delta of probeTilts){
+  const trialTilt=clampTilt(tilt+delta);
+  const lens=planMarketTourLens(position,heading,desired,.25,trialTilt);
+  const frame=streetCameraFrameOcclusion(position,lens.bearing,trialTilt);
+  // Physical frame checks must NEVER worsen central wall occlusion to
+  // improve some attractive but irrelevant angle. Retain W28 as fallback.
+  if(frame.centralBlocked>unrefinedFrame.centralBlocked||
+     frame.blockedFraction>unrefinedFrame.blockedFraction+.0005)continue;
+  const candidate={bearing:lens.bearing,tilt:trialTilt,frame};
+  const score=quality(candidate,frame);
+  if(score+1e-7<bestScore){selected=candidate;bestScore=score;}
+ }
+ const scoredFrame=streetCameraFrameOcclusion(position,selected.bearing,selected.tilt);
+ return {source:'pitched-physical-market-arrival',pitchProbes:probeTilts.length,
+  actualBearing:selected.bearing,actualTilt:selected.tilt,
+  frame:scoredFrame,scoredFrame,unrefinedFrame,
+  physicalSamples:scoredFrame.samples,
+  targetDeviation:Math.round(deviation(selected.bearing,desired)*1000)/1000,
+  hasClearCenter:scoredFrame.centralBlocked===0,
+  fullyReadable:scoredFrame.centralBlocked===0&&scoredFrame.blockedFraction<.20};
+}
 function advanceMarketTour(dt){
  if(!marketTour||!streetWalk||!marketVisitActive)return;
  const point=marketTour.path[marketTour.index];
@@ -7908,10 +7948,11 @@ function advanceMarketTour(dt){
   // The final camera is still at the visitor's REAL reached location.
   // Don't snap it back into the opaque roof seen at the end of W18 footage.
   // The architecturally checked alternative remains a spectator-only yaw.
-  const finalLens=planMarketTourLens(streetPosition,streetYaw,
-   done.plan.yaw,.25);
-  streetYaw=finalLens.bearing;streetTilt=done.plan.tilt;
+  const arrival=planPitchedMarketArrival(streetPosition,streetYaw,
+   done.plan.yaw,done.plan.tilt);
+  streetYaw=arrival.actualBearing;streetTilt=arrival.actualTilt;
   marketTourCompletion={completed:true,trade:done.plan.stall.trade,
+   arrival,
    origin:done.origin.slice(),travelledMeters:Math.round(done.travelledMeters*1000)/1000,
    lens:done.lens?{...done.lens}:null,waypoints:done.path.length,reason:null};
   marketTour=null;streetCaption();presentationEpoch++;
@@ -7951,7 +7992,11 @@ function advanceMarketTour(dt){
  const toStall=Math.atan2(Math.sin(marketTour.plan.yaw-heading),
   Math.cos(marketTour.plan.yaw-heading));
  const desired=heading+toStall*pan;
- const lens=planMarketTourLens(next,heading,desired,remaining);
+ // Follow the true optical pitch through the final metres of the real
+ // connected route so the moving shot and its 3D roof score agree.
+ const requestedTilt=marketTour.plan.tilt*pan;
+ streetTilt+=(requestedTilt-streetTilt)*Math.min(1,dt*5);
+ const lens=planMarketTourLens(next,heading,desired,remaining,streetTilt);
  marketTour.lens={forwardMetres:lens.forwardMetres,
   requestedMetres:lens.requestedMetres,routeMetres:lens.routeMetres,
   requestedScreenRoofCover:lens.requestedScreenRoofCover,
