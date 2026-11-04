@@ -1277,19 +1277,34 @@ function getArchitectureMaterialAudit(){
 // it consumes no simulation RNG and never manufactures jobs or trade.
 const GROUND_ATLAS_SIZE=512,GROUND_ATLAS_EXTENT=184;
 let groundAtlasTexture=null,groundAtlasHomes=-1,groundAtlasRebuilds=0;
+ // One original 512px base canvas, retained and reused through real growth;
+ // the composited canvas is per rebuild and eligible for garbage collection.
+ let groundAtlasBaseCanvas=null,groundAtlasBaseBuilds=0,groundAtlasBaseReuses=0;
 let groundSurfaceStats={
  renderer:gpuAvailable?'gpu-2d-albedo':'canvas2d-fallback',
  width:GROUND_ATLAS_SIZE,height:GROUND_ATLAS_SIZE,bytes:GROUND_ATLAS_SIZE*GROUND_ATLAS_SIZE*4,
  homes:0,farmPlots:0,roadSegments:0,rebuilds:0,gpuTextures:0,
+ baseBuilds:0,baseReuses:0,baseBytes:GROUND_ATLAS_SIZE*GROUND_ATLAS_SIZE*4,
  samples:{road:[0,0,0],field:[0,0,0],meadow:[0,0,0]}
 };
 function rebuildGroundAtlas(){
  if(!gpuAvailable)return;
- const size=GROUND_ATLAS_SIZE,canvasAtlas=document.createElement('canvas');
- canvasAtlas.width=size;canvasAtlas.height=size;
- const ctx=canvasAtlas.getContext('2d'),pixels=ctx.createImageData(size,size),arr=pixels.data;
+ const size=GROUND_ATLAS_SIZE;
+ let canvasAtlas=groundAtlasBaseCanvas||document.createElement('canvas');
+ if(!groundAtlasBaseCanvas){canvasAtlas.width=size;canvasAtlas.height=size;}
+ let ctx=canvasAtlas.getContext('2d');
  const world=p=>(p+92)*size/GROUND_ATLAS_EXTENT;
  const clamp=v=>Math.max(0,Math.min(255,Math.round(v)));
+ const drawPath=(points,worldWidth,paint)=>{
+  if(points.length<2)return 0;
+  ctx.beginPath();ctx.moveTo(world(points[0][0]),world(points[0][1]));
+  for(let i=1;i<points.length;i++)ctx.lineTo(world(points[i][0]),world(points[i][1]));
+  ctx.strokeStyle=paint;ctx.lineWidth=worldWidth*size/GROUND_ATLAS_EXTENT;
+  ctx.lineJoin='round';ctx.lineCap='round';ctx.stroke();
+  return points.length-1;
+ };
+ if(!groundAtlasBaseCanvas){
+  const pixels=ctx.createImageData(size,size),arr=pixels.data;
  // The broad, low-amplitude irregular patches are stable across camera
  // motion, growth, weather and snapshot/replay; no random() calls or assets.
  for(let z=0;z<size;z++)for(let x=0;x<size;x++){
@@ -1306,14 +1321,6 @@ function rebuildGroundAtlas(){
   arr[i+3]=255;
  }
  ctx.putImageData(pixels,0,0);
- const drawPath=(points,worldWidth,paint)=>{
-  if(points.length<2)return 0;
-  ctx.beginPath();ctx.moveTo(world(points[0][0]),world(points[0][1]));
-  for(let i=1;i<points.length;i++)ctx.lineTo(world(points[i][0]),world(points[i][1]));
-  ctx.strokeStyle=paint;ctx.lineWidth=worldWidth*size/GROUND_ATLAS_EXTENT;
-  ctx.lineJoin='round';ctx.lineCap='round';ctx.stroke();
-  return points.length-1;
- };
  // Moist ground around the authentic winding stream; actual 3D water
  // remains drawn by the existing river mesh, at its original coordinates.
  const river=[];
@@ -1331,6 +1338,16 @@ function rebuildGroundAtlas(){
    const x=px+w*row/rows;ctx.beginPath();ctx.moveTo(x,pz);ctx.lineTo(x,pz+h);ctx.stroke();
   }
  }
+ groundAtlasBaseCanvas=canvasAtlas;
+ groundAtlasBaseBuilds++;
+ }else groundAtlasBaseReuses++;
+ // The river, fields and all 262,144 noise texels are immutable. A real new
+ // house only needs the original footfall, road and market composite painted
+ // over the unchanged source, keeping the existing GPU texture resource.
+ canvasAtlas=document.createElement('canvas');
+ canvasAtlas.width=size;canvasAtlas.height=size;
+ ctx=canvasAtlas.getContext('2d');
+ ctx.drawImage(groundAtlasBaseCanvas,0,0);
  // Homes incrementally alter their real ground footprint as builders
  // actually add structures; do not paint a fictitious grown town on Day 1.
  for(let i=0;i<city.length;i++){
@@ -1382,6 +1399,8 @@ function rebuildGroundAtlas(){
  groundSurfaceStats={renderer:'gpu-2d-albedo',width:size,height:size,
   bytes:size*size*4,homes:city.length,farmPlots:FARMSTEAD.fields.length,
   roadSegments,rebuilds:groundAtlasRebuilds,gpuTextures:1,
+  baseBuilds:groundAtlasBaseBuilds,baseReuses:groundAtlasBaseReuses,
+  baseBytes:size*size*4,
   samples:{road:sample(-8,-4),field:sample(20.2,1),meadow:sample(38,-25)}};
 }
 if(gpuAvailable){
