@@ -52,3 +52,17 @@ const REGALIA=Object.freeze([
 ]);
 const EMPTY=Object.freeze([]);
 export function planWardenRegalia(kind){return kind==='warden'?REGALIA:EMPTY;}
+
+
+/** The vetted Warden sculpture follows its true animated native skeleton. */
+const REGALIA_BONE_TARGETS=Object.freeze(Object.fromEntries(REGALIA.map(p=>{
+ const id=p.id;
+ const joint=/(?:-horn|brow-diadem|crown-finial)$/.test(id)?'head':
+  /^(?:left|right)-(?:pauldron|rim|talon)$/.test(id)?
+   (id.startsWith('left-')?'leftUpperArm':'rightUpperArm'):
+  /-tasset$/.test(id)?'pelvis':'chest';
+ return [id,joint];
+})));
+export function planWardenRegaliaBone(id){
+ return typeof id==='string'&&Object.hasOwn(REGALIA_BONE_TARGETS,id)?REGALIA_BONE_TARGETS[id]:null;
+}
