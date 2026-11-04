@@ -2390,12 +2390,23 @@
         "desktopMobileAfter": "UNVERIFIED",
         "fullAudiovisualAndCritics": "UNVERIFIED / 0 of 3",
         "risk": "Camera alternative must not create hunting, hero crop, Warden attack warning crop or unreconciled cutaway around moving camera; reject via actual new-head captures if so."
+      },
+      "latestPhysicalStageCandidate": {
+        "sha": "0b2ffe7d97b75aaa5ef28b68458fa1dce24d820b",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceCommitted": true,
+        "realDesktopMobile": "UNVERIFIED",
+        "matchedBeforeAfter": "UNVERIFIED",
+        "motionAudio": "UNVERIFIED",
+        "independentCritics": "0/3",
+        "safetyCI": "UNVERIFIED",
+        "objective": "Retain rear Gothic world-height architecture while real camera/body-ray clears opaque foreground weapons; add 4 graded elevated rescue shots."
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Authentic current raw desktop/mobile show Vanguard body hidden behind high brown wall and mobile pillar; toy anatomy, weak credible weapon contact, 5-stage audiovisual/independent majority remain unverified.",
-    "currentWork": "Tracked native sword-to-body motion source implemented and tested; current real 49f875 WebGL captures examined with negative actor/architecture occlusion finding.",
-    "candidateCommit": "ed190ff94a89255faed6073d48e495ed9babfbf1",
+    "biggestRemainingGap": "Real browser shows obscured protagonist and flat toy anatomy; candidate aims to restore room-depth while exposing live bodies. Need true moving desktop/mobile Warden sword contact and 5-stage audio reel plus independent LOOKS/FEELS/PLAYS majority.",
+    "currentWork": "Integrated candidate: genuine rear Gothic masonry retained behind real animated party; actual-camera nine-candidate higher-oblique body visibility rescue. New running-game result and safety gates unverified.",
+    "candidateCommit": "0b2ffe7d97b75aaa5ef28b68458fa1dce24d820b",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -5087,6 +5098,38 @@
           "matchedBeforeAfter": false,
           "verdict": "NEGATIVE VISUAL OBSERVATION; QUALITY UNVERIFIED"
         }
+      },
+      {
+        "id": "M1-REAR-NAVE-AND-HIGH-OBLIQUE-STAGING-20261104",
+        "date": "2026-11-04",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "status": "SOURCE_COMMITTED_EXPERIENTIAL_RESULT_UNVERIFIED",
+        "codeSha": "0b2ffe7d97b75aaa5ef28b68458fa1dce24d820b",
+        "objective": "One playable Gothic combat corridor whose camera reveals the original moving skinned party and sword while full-height rear architecture provides believable world scale rather than a waist-high miniature stage.",
+        "integratedImplementation": [
+          "Actual rear walls more than 0.80m behind a skinned actor now retain their tall existing Gothic masonry instead of unconditionally being reduced to 0.43m. Physical camera-to-anatomy tests still clear genuinely obstructing foreground stone, and immediate near-shoulder facades still retreat for live weapon motion.",
+          "Existing per-tick physical director now scores nine bounded orbits including four high-oblique rescues (previously six total). Only a substantial measured body-visibility improvement without more cropping can win; chosen camera inherits existing hysteresis, boss warning priority, mobile constraints and reduced-motion fallback.",
+          "Changes share existing Three.js wall cutaway and camera scoring across base stone, facades, vaulted gallery, original characters; no new proprietary assets, no new GPU pass, no AI/damage/HP/collision/random stream/save/replay mutation.",
+          "Source-level assertion updates require intact rear backdrop and retained actual body sightlines. Candidate requires genuine browser evidence to distinguish architectural scale improvement from occlusion, static scenery clutter, camera oscillation or frame-time regressions."
+        ],
+        "files": [
+          "public/ai-dungeon/party-visibility-plan.js",
+          "public/ai-dungeon/physical-camera-director.js",
+          "tests/foundation/dungeon-party-visibility.test.cjs",
+          "tests/foundation/dungeon-physical-camera.test.cjs"
+        ],
+        "genuinePriorFinding": "Prior exact-head 1440px and 390px Chromium capture still showed the Vanguard as a floating helmet/sword behind brown stone and a dominant mobile column; no matched audiovisual reference A/B. Artifact: https://github.com/my-edutu/Ai_games/actions/runs/41903194224/artifacts/13358288876",
+        "newExactHeadBrowser": "UNVERIFIED — coding/browser tunnel unavailable; GitHub Actions results not inspected",
+        "sourceTests": "NOT EXECUTED — first-party tests changed but no working source runner; no CI green claim",
+        "motionAudio": "UNVERIFIED — original previous 13s WebM was silent and incomplete",
+        "performance": "UNVERIFIED — new shot candidates raise bounded CPU grading 6 to 9; mobile p95 and oscillator/hysteresis require measurement",
+        "independentBlindCritics": "0/3 — UNVERIFIED",
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "matchedFiveStageBeforeAfter": "UNVERIFIED",
+        "next": "Inspect same-seed exact head desktop/mobile raw canvas and continuous combat motion against baseline. Reject if towering rear walls conceal fighters or high-oblique camera switches hunt/crop, then improve original native weapon/body animation as one Warden expedition with full traversal/combat/boss/floor/defeat-restart and audible capture; obtain 3 blind independent critics.",
+        "verdict": "IN PROGRESS — NOT TRANSFORMED"
       }
     ]
   }
