@@ -120,3 +120,84 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    body:await page.screenshot(),contentType:'image/png'});
  });
 }
+
+
+// W35 actual-worker parcel handoff — the SAME true courier who delivers the
+// inventory must plant their boots and reach through successive real bundles.
+// This checks body IK, package continuity and unchanged authoritative replay,
+// not a scripted actor, a UI counter, or merely an animation-phase number.
+for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
+ test('W35 courier arms physically follow sequential escrowed bundles '+viewport.width+'px',async({page},testInfo)=>{
+  test.setTimeout(240000);
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.setViewportSize(viewport);await page.setContent(html);
+  await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0,null,{timeout:90000});
+  const observed=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;g.reset();g.setSpeed(0);
+   if(typeof g.getCourierTransferMotion!=='function')
+    return {error:'Missing W35 physical courier labor interface'};
+   let subject=null,early=null,carry=null,credited=null,load=null,readOnly=true;
+   for(let tick=0;tick<60000;tick++){
+    g.step(1/30);
+    if(!subject){
+     const active=g.getActiveDeliveries().find(d=>d.escrowed);
+     if(active){subject=active.citizen;load=active;}
+    }
+    if(!subject)continue;
+    const before=JSON.stringify(g.exportSnapshot());
+    const motion=g.getCourierTransferMotion(subject);
+    const p=g.getCitizenProfiles().find(p=>p.name===subject);
+    const navigation=g.getNavigation().find(p=>p.name===subject);
+    const index=g.getNavigation().findIndex(p=>p.name===subject);
+    const rig=index>=0?g.getRigPose(index):null;
+    const after=JSON.stringify(g.exportSnapshot());
+    if(before!==after)readOnly=false;
+    if(motion?.active&&motion.parcelIndex===0&&motion.cycle>.06&&motion.cycle<.30&&!early)
+     early={motion,rig,activity:p?.activity,position:navigation?.position,snapshot:g.exportSnapshot()};
+    if(motion?.active&&motion.parcelIndex===0&&motion.cycle>.63&&motion.cycle<.91&&!carry)
+     carry={motion,rig,activity:p?.activity,position:navigation?.position,snapshot:g.exportSnapshot()};
+    const receipt=g.getDeliveryReceipts().find(r=>r.id===load.id);
+    if(receipt){credited=receipt;break;}
+   }
+   return {load,early,carry,credited,readOnly,viewportWidth:document.documentElement.scrollWidth};
+  });
+  expect(observed.error||'').toBe('');
+  expect(observed.load,'A genuine escrowed courier must exist').toBeTruthy();
+  expect(observed.early,'Missing source-bundle reach').toBeTruthy();
+  expect(observed.carry,'Missing actual parcel carry-through').toBeTruthy();
+  const a=observed.early,b=observed.carry;
+  expect(a.motion.source).toBe('real-escrowed-courier-embodied-transfer');
+  expect(a.motion.stage).toBe('unloading');
+  expect(a.motion.bundles).toBeGreaterThanOrEqual(1);
+  expect(a.motion.bundles).toBeLessThanOrEqual(3);
+  expect(a.motion.bundles).toBe(b.motion.bundles);
+  expect(a.motion.parcelIndex).toBe(0);
+  expect(b.motion.parcelIndex).toBe(0);
+  expect(b.motion.cycle).toBeGreaterThan(a.motion.cycle);
+  expect(b.motion.targetRight[2]-a.motion.targetRight[2]).toBeGreaterThan(.30);
+  expect(Math.abs(b.motion.targetRight[1]-a.motion.targetRight[1])).toBeGreaterThan(.05);
+  const distance=(x,y)=>Math.hypot(...x.map((value,i)=>value-y[i]));
+  for(const sample of [a,b]){
+   expect(sample.rig.working).toBe(true);
+   expect(sample.rig.legs.every(leg=>leg.contact==='stance')).toBe(true);
+   expect(distance(sample.rig.arms[1].wrist,sample.motion.targetRight)).toBeLessThan(.04);
+   expect(distance(sample.rig.arms[0].wrist,sample.motion.targetLeft)).toBeLessThan(.04);
+   expect(sample.motion.altersAuthority).toBe(false);
+  }
+  expect(observed.credited?.id).toBe(observed.load.id);
+  expect(observed.readOnly).toBe(true);
+  expect(observed.viewportWidth).toBeLessThanOrEqual(viewport.width);
+  // Film the REAL mid-transfer world, including both actual arms and actual
+  // loaded cart. No fake snapshot, CSS overlay, or changed world authority.
+  await page.evaluate(snapshot=>{
+   const g=window.__tinyKingdom;g.restoreSnapshot(snapshot);
+   g.setSpeed(0);g.watchDelivery();
+  },observed.carry.snapshot);
+  await page.waitForTimeout(750);
+  expect(await page.evaluate(()=>
+   document.getElementById('world').getContext('webgl')?.getError()??-1)).toBe(0);
+  expect(errors).toEqual([]);
+  await testInfo.attach('W35-real-courier-transfer-'+viewport.width+'px',{
+   body:await page.screenshot(),contentType:'image/png'});
+ });
+}
