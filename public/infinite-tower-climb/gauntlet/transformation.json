@@ -17,7 +17,7 @@
     "title": "SAME 3D ascent → physical moving landing → two-body guardian/hazard staging → HP gate → authentic outcome/restart",
     "state": "OPEN — SAME real full Tower ascent → moving deck → physically source-visible multi-threat guardian/trap crossfire → HP gate → authentic outcome/restart. This increment repairs previous contradictory 3D shutter suppression while real source danger is staged; exact-source capture has completed normal-speed danger/outcome jobs and engineering CI passed, but entire crossfire is not yet evidenced by representative frame samples. No blind preference or device tails. NOT EVALUATED.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Use genuine source 51987 matched frozen 1731 gameplay recordings from https://github.com/my-edutu/Ai_games/actions/runs/41911963177 and source traces to locate actual immediate two-body shutter/guardian crossfire rather than relying on same timestamp or sparse 69-frame samples. Preserve same 960x600 desktop/390x844 phone, quality=low, seed=tower-transformation-capture-v1, source-unmodified Playwright WebM normal speed. Rendered source danger desktop128.534s/portrait116.500s; frozen danger desktop175.476s/portrait131.519s, all >60s, but chronological events diverge. Source candidate outcome desktop143.362s/phone114.106s includes actual game result cards and run-token transitions, not independently blind verified. Inspect full continuous footage, collect 5 fresh independent blind randomized opinions each pillar >=4/5, native hardware frame-time p50/p95/p99, memory, accessibility, replay. Independent worker/browser currently NOT_FOUND. 41911963228 technical PASS only. No quality PASS.",
+    "nextDecision": "Use COMPLETED 9/9 jobs of genuine source 51987 alongside frozen 1731 gameplay recordings from https://github.com/my-edutu/Ai_games/actions/runs/41911963177 and source traces to locate actual immediate two-body shutter/guardian crossfire rather than relying on same timestamp or sparse 69-frame samples. Preserve same 960x600 desktop/390x844 phone, quality=low, seed=tower-transformation-capture-v1, source-unmodified Playwright WebM normal speed. Rendered source danger desktop128.534s/portrait116.500s; frozen danger desktop175.476s/portrait131.519s, all >60s, but chronological events diverge. Source candidate outcome desktop143.362s/phone114.106s includes actual game result cards and run-token transitions, not independently blind verified. Inspect full continuous footage, collect 5 fresh independent blind randomized opinions each pillar >=4/5, native hardware frame-time p50/p95/p99, memory, accessibility, replay. Independent worker/browser currently NOT_FOUND. 41911963228 technical PASS only. No quality PASS.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
     "biggestRemainingExperienceGap": "The actual continuous 390×844 portrait and 960×600 desktop episodes still lack EVENT-MATCHED A/B comparisons proving simultaneous view of full skinned climber, live guardian AND near-body shutter at its authentic 6-tick closure, contact and recovery; 69-sample candidate danger diagnostics at implementation 51987aa84e683361f2b064ceb3a80cbfec621a21 found 0 crossfireWarnings and 0 crossfireReleases (sampling may miss 300ms beats), so the updated stage has not been directly witnessed during real overlapping danger. Also full terminal/restart comparison, fresh blind votes 0/5 for all three pillars and supported-hardware frame-time tails/memory missing. NOT EVALUATED.",
     "unverifiedImplementationBranchHead": "51987aa84e683361f2b064ceb3a80cbfec621a21",
@@ -66,7 +66,7 @@
     "replay": "No authoritative fixed-step, seeded RNG, AI route, HP/combat, collision, persistence, run-token, replay stream or result mutation in 51987. Source-owned snapshot only drives existing 16-piece-per-hazard instanced mesh with restricted immediate crossfire activation. Exact-head logic CI succeeded; independent recorded replay equivalence remains NOT EVALUATED.",
     "accessibility": "No new in-game text, flash, mandatory audio or camera move. Nearby physical shutter shape stages danger even with muted opt-in sound; reduced motion has static charge and static release and existing source-owned color plus geometry. Native portrait full accessibility and continuous first-person viewer/reader verdict NOT EVALUATED.",
     "performance": "One preexisting InstancedMesh stage, 16 pieces/hazard up to 6 on normal and 3 on low quality, still at most one pressure draw submission; plus bounded source proximity scans, no new geometry/light/shadow pass. Actual supported-device frame-time p50/p95/p99 and memory NOT MEASURED; browser software/WebGL frames are not physical device FPS.",
-    "stability": "At real source 51987, source-pinned https://github.com/my-edutu/Ai_games/actions/runs/41911963177 has completed baseline/candidate danger and outcome both desktop and phone plus all but some remaining capture jobs at direct inspection; full 9/9 completion was still in progress. Both candidate danger films showed zero logged errors, source SHA pinned, viewport native, >60s each; candidate outcome genuine visible result card and run transitions from public source; not proof of event-matched full-motion quality, simultaneous crossfire or full cycle critical review. Technical exact-source workflow https://github.com/my-edutu/Ai_games/actions/runs/41911963228 PASSED. Blind independent critics/browser unavailable, hence NOT EVALUATED."
+    "stability": "At real source 51987, source-pinned https://github.com/my-edutu/Ai_games/actions/runs/41911963177 COMPLETED ALL 9/9 normal-speed source-pinned capture jobs, frozen baseline and exact candidate desktop/phone ascent, danger, moving and outcome plus authentic ledge. Both candidate danger films showed zero logged errors, source SHA pinned, viewport native, >60s each; candidate outcome genuine visible result card and run transitions from public source; not proof of event-matched full-motion quality, simultaneous crossfire or full cycle critical review. Technical exact-source workflow https://github.com/my-edutu/Ai_games/actions/runs/41911963228 PASSED. Blind independent critics/browser unavailable, hence NOT EVALUATED."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -2519,7 +2519,7 @@
       "technicalSafetyRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41911963228",
       "technicalSafety": "SUCCESS",
       "realSourceDangerGuardiansAndScheduledCharges": "Prior source e452 frame-by-frame trace records overlapping guardian/charge, but NOT proof of near-body current urgent trap: two portrait/desktop last-six-tick contact windows may not appear in sparse motion samples.",
-      "currentRunNineJobs": "IN PROGRESS at evaluation; some still running",
+      "currentRunNineJobs": "COMPLETED SUCCESS all 9/9 source-pinned real browser capture jobs on https://github.com/my-edutu/Ai_games/actions/runs/41911963177; capture is a provenance/safety fact only. State-matched A/B and genuine blind continuous full-motion assessment remain NOT EVALUATED.",
       "independentVotes": {
         "looks": 0,
         "feels": 0,
@@ -2527,7 +2527,57 @@
       },
       "freshCriticBlocker": "Independent browser/worker workspace NOT_FOUND: no tunnel client for 300s",
       "supportedHardware": "NOT MEASURED",
-      "experienceVerdict": "NOT EVALUATED"
+      "experienceVerdict": "NOT EVALUATED",
+      "artifacts": {
+        "ascent": {
+          "baseline": {
+            "sha": "1731b380851162741761c5569e2bc152a0869ca9",
+            "artifactId": 13362204234
+          },
+          "candidate": {
+            "sha": "51987aa84e683361f2b064ceb3a80cbfec621a21",
+            "artifactId": 13364165470
+          },
+          "pairedByEvent": false
+        },
+        "danger": {
+          "baseline": {
+            "sha": "1731b380851162741761c5569e2bc152a0869ca9",
+            "artifactId": 13363531257
+          },
+          "candidate": {
+            "sha": "51987aa84e683361f2b064ceb3a80cbfec621a21",
+            "artifactId": 13362773415
+          },
+          "pairedByEvent": false
+        },
+        "outcome": {
+          "baseline": {
+            "sha": "1731b380851162741761c5569e2bc152a0869ca9",
+            "artifactId": 13362678882
+          },
+          "candidate": {
+            "sha": "51987aa84e683361f2b064ceb3a80cbfec621a21",
+            "artifactId": 13362733513
+          },
+          "pairedByEvent": false
+        },
+        "moving": {
+          "baseline": {
+            "sha": "1731b380851162741761c5569e2bc152a0869ca9",
+            "artifactId": 13364490291
+          },
+          "candidate": {
+            "sha": "51987aa84e683361f2b064ceb3a80cbfec621a21",
+            "artifactId": 13363292774
+          },
+          "pairedByEvent": false
+        },
+        "authenticLedge": {
+          "sourceSha": "51987aa84e683361f2b064ceb3a80cbfec621a21",
+          "artifactId": 13363412075
+        }
+      }
     }
   }
 }

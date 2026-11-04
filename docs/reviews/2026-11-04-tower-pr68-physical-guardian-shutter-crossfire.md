@@ -16,11 +16,11 @@ Crossfire physical contract: https://github.com/my-edutu/Ai_games/blob/51987aa84
 
 - Original frozen baseline: `1731b380851162741761c5569e2bc152a0869ca9`; unchanged, NOT reset.
 - Full exact-source logic safety workflow at `51987aa84e683361f2b064ceb3a80cbfec621a21`: [41911963228](https://github.com/my-edutu/Ai_games/actions/runs/41911963228) **SUCCESS**. This is strictly a safety veto check, not game quality.
-- Exact-source [source-pinned normal-speed video workflow 41911963177](https://github.com/my-edutu/Ai_games/actions/runs/41911963177) completed both baseline/candidate **danger** and candidate **outcome** jobs for desktop and phone at inspection. Further jobs were still running. Same seeded floor-8 danger and low-quality 960×600 / 390×844 actual WebGL.
+- Exact-source [source-pinned normal-speed video workflow 41911963177](https://github.com/my-edutu/Ai_games/actions/runs/41911963177) **COMPLETED all 9/9 source-pinned actual WebGL recording jobs**, including candidate/baseline ascent, danger, moving platforms, outcome and authentic ledge, each relevant desktop+phone clip. Browser capture success is not quality acceptance. Same seeded floor-8 danger and low-quality 960×600 / 390×844 actual WebGL.
 - Genuine **candidate danger**: desktop **128.534s**, portrait **116.500s**, no logged renderer errors. Frozen **baseline danger**: desktop **175.476s**, portrait **131.519s**. Candidate and baseline both exceed 60s, but their runs/floors/action beats differ at the same timestamp. These are **NOT event-matched blind A/B**.
 - Genuine **candidate outcome**: desktop **143.362s** and portrait **114.106s**, public-source health-depleted result and result/intermission recorded, two run-token transitions each, original result cards visible in browser observations. This is not a fresh-context full-motion opinion or proof of equivalent baseline outcome framing.
 - In each candidate danger file, 69 spaced observations include *zero* `crossfireWarnings` and *zero* `crossfireReleases` at their sampled instants. The true six-tick warning is only ~300 ms at source 20 Hz, so 1–2-second sampled observations can miss it; we cannot conclude the event never happened. But we **also cannot claim anyone has seen the new physical crossfire on a genuine concurrent contact episode**. A CI-native full-motion raster is needed.
-- The preceding e452 source video [41908496684](https://github.com/my-edutu/Ai_games/actions/runs/41908496684) did finish 9/9 jobs; those clips predate this change. One current-source capture job remains unverified until completion.
+- The preceding e452 source video [41908496684](https://github.com/my-edutu/Ai_games/actions/runs/41908496684) did finish 9/9 jobs; those clips predate this change. All nine current-source capture jobs now completed successfully; source/event comparability and independent quality are still NOT EVALUATED.
 - Fresh independent blind reviewer panel is unavailable (`NOT_FOUND` disconnected worker/browser). **LOOKS 0/5, FEELS 0/5, PLAYS 0/5 are missing judgments, not a poor score.** Supported-device frame-time p50/p95/p99, memory, accessibility and comparative replay also remain unmeasured/ungraded.
 
 ## Separate specification and quality review, and remaining decisive work
@@ -30,3 +30,14 @@ Crossfire physical contract: https://github.com/my-edutu/Ai_games/blob/51987aa84
 **Whole-experience quality:** NOT EVALUATED. Guardian and shutter can still be split across 390×844 portrait or occluded behind real gears. A clip's NDC projection does not prove raster visibility. New source film has not shown a fully evidenced simultaneous near-body warning→hit→release at normal speed. Matched-seed runs do not guarantee matched encounters, outcome and restart in the same moments. Do not promote a transformation.
 
 **Next:** locate genuine live source crossfire ticks (not a test-injected scene) and pin a continuous >=60-second event-matched desktop + portrait replay for both original baseline and candidate; inspect real moving pictures, helmet-to-boot framing, actual closing jaw mechanics and safe route, guardian HP, result/restart. If candidate is not better, transform that entire encounter again. Require >=4/5 actual blind fresh-context preferences in EACH LOOKS/FEELS/PLAYS, no material regressions, real supported-device tails/memory, accessibility and replay checks. Never force-push/merge/deploy. The current same initiative remains OPEN.
+
+## Exact-source capture artifact manifest (GitHub retention-limited)
+
+| Authentic scenario | Frozen baseline artifact | Playable candidate artifact | Event-matched? |
+| --- | ---: | ---: | --- |
+| Everyday ascent | 13362204234 | 13364165470 | No |
+| Danger/guardian | 13363531257 | 13362773415 | No |
+| Complete outcome/restart | 13362678882 | 13362733513 | No |
+| Supplemental moving platforms | 13364490291 | 13363292774 | No |
+
+Same seed `tower-transformation-capture-v1`, quality low, native 960×600 desktop and 390×844 phone, normal speed, game server Git blob left untouched for frozen baseline and candidate. Authentic ledge artifact 13363412075. All artifacts available from [run 41911963177](https://github.com/my-edutu/Ai_games/actions/runs/41911963177) at observation time, subject to 7-day GitHub retention. Outcome/restart authentic public source observations are genuine but not blind reviewed; scene pairs are not aligned by the same encounter events, do not fill acceptance clip objects or score preferences.
