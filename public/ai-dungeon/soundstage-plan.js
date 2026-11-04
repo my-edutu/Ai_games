@@ -11,7 +11,7 @@ const EVENT_KIND=Object.freeze({
  guard:'guard',cover:'cover',evade:'evade',block:'block',interrupt:'interrupt'
 });
 const PRIORITY=Object.freeze({
- defeat:6,renewal:5,transition:5,warning:5,'warning-rising':4,'warning-final':5,unseal:5,boss:4,danger:4,
+ defeat:6,renewal:5,transition:5,warning:5,'warning-rising':4,'warning-final':5,'eclipse-rising':4,'eclipse-final':5,unseal:5,boss:4,danger:4,
  opening:4,interrupt:4,breach:4,cover:4,'cover-impact':5,'boss-fall':5,impact:3,weapon:3,ranged:3,magic:3,heal:3,kill:3,
  reward:2,trap:2,disarm:2,guard:1,block:1,evade:1
 });
@@ -26,15 +26,18 @@ const near=(a,b,range)=>Number.isFinite(a?.x)&&Number.isFinite(a?.z)&&
 /** Music state uses only public phase, survival and actual enemy positions. */
 export function planSoundMood(snapshot){
  const floor=Number.isSafeInteger(snapshot?.floor)&&snapshot.floor>=1?snapshot.floor:1;
- const droneHz=BASE_HZ[(floor-1)%BASE_HZ.length],upperHz=droneHz*1.5;
+ const baseHz=BASE_HZ[(floor-1)%BASE_HZ.length];
  const units=Array.isArray(snapshot?.units)?snapshot.units.slice(0,96):[];
  const heroes=units.filter(u=>u?.faction==='party'&&u.hp>0);
  const boss=units.find(u=>u?.kind==='warden'&&u.hp>0);
  const endangered=heroes.some(u=>Number.isFinite(u.maxHp)&&u.maxHp>0&&u.hp/u.maxHp<=.3);
  const guardian=!!boss&&heroes.some(h=>near(h,boss,6));
+ // This is the genuine HP-driven final act, not a generated soundtrack timeline.
+ const eclipse=guardian&&Number.isFinite(boss.maxHp)&&boss.maxHp>0&&boss.hp/boss.maxHp<=.30;
+ const droneHz=baseHz*(eclipse?.80:1),upperHz=droneHz*(eclipse?1.375:1.5);
  const defeated=snapshot?.phase==='defeat'||(heroes.length===0&&units.some(u=>u?.faction==='party'));
- const mood=defeated?'defeat':snapshot?.phase==='intermission'?'intermission':guardian?'guardian':endangered?'danger':'exploration';
- const urgency={exploration:.24,danger:.56,guardian:.88,intermission:.08,defeat:.12}[mood];
+ const mood=defeated?'defeat':snapshot?.phase==='intermission'?'intermission':eclipse?'eclipse':guardian?'guardian':endangered?'danger':'exploration';
+ const urgency={exploration:.24,danger:.56,guardian:.88,eclipse:1.0,intermission:.08,defeat:.12}[mood];
  return Object.freeze({floor,biome:(floor-1)%4,mood,urgency,droneHz,upperHz});
 }
 const cmp=(a,b)=>b.priority-a.priority||a.tick-b.tick||
@@ -68,14 +71,17 @@ export function planSoundCues(previous,snapshot,resolveContact=()=>null){
   // load, synthetic target or stale repeated-poll sound can trigger a cue.
   const impending=snapshot.bossWarning,previousTell=previous.bossWarning;
   const livingWarden=snapshot.units.some(u=>u?.kind==='warden'&&u.hp>0);
-  if(livingWarden&&impending?.warning===true&&impending.shape==='NOVA'&&
+  if(livingWarden&&impending?.warning===true&&
+    (impending.shape==='NOVA'||impending.shape==='ECLIPSE_SWEEP')&&
     [1,2].includes(impending.turnsUntilImpact)&&
     Number.isSafeInteger(impending.attackTick)&&
     impending.attackTick===snapshot.tick+impending.turnsUntilImpact&&
     Array.isArray(impending.cells)&&impending.cells.length>0&&
     (!previousTell||previousTell.attackTick!==impending.attackTick||
       previousTell.turnsUntilImpact>impending.turnsUntilImpact))
-   push(impending.turnsUntilImpact===1?'warning-final':'warning-rising',snapshot.tick);
+   push(impending.shape==='ECLIPSE_SWEEP'?
+    (impending.turnsUntilImpact===1?'eclipse-final':'eclipse-rising'):
+    (impending.turnsUntilImpact===1?'warning-final':'warning-rising'),snapshot.tick);
   const events=Array.isArray(snapshot.events)?snapshot.events.slice(0,256):[];
   for(const e of events){
    if(!e||!Number.isSafeInteger(e.tick)||e.tick<=previous.tick||e.tick>snapshot.tick)continue;
