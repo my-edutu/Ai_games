@@ -17,6 +17,34 @@ const PALETTES = {
   clockwork:{stone:0x625e51,dark:0x25323b,metal:0xa06a35,edge:0xb8a47d,landing:0x8e8269,glow:0xffc35f},
   void:{stone:0x514963,dark:0x28233c,metal:0x6a577e,edge:0xb3a3c9,landing:0x726982,glow:0xc59bff}
 };
+// The giant decorative rotors can sit BETWEEN two true combat/traversal
+// subjects on a narrow phone without touching either center ray. Protect the
+// *visible* physical action corridor, not merely isolated actor projections.
+// This is a pure image-composition decision; never a hazard, collider or AI cue.
+export function observedStageCorridorOpacity({
+  aspect, gear, radius, gearDepth, from, to, fromDepth, toDepth, guardian = false,
+}) {
+  if (![aspect, radius, gearDepth, fromDepth, toDepth].every(Number.isFinite) ||
+      aspect <= 0 || aspect > 3 || radius < .075 || radius > 3 ||
+      ![gear, from, to].every(point => point &&
+        [point.x, point.y, point.z].every(Number.isFinite)) ||
+      gear.z < -1 || gear.z > 1 ||
+      [from, to].some(point => Math.abs(point.x) > .98 ||
+        Math.abs(point.y) > .94 || point.z < -1 || point.z > 1) ||
+      gearDepth <= 0 || gearDepth + .35 >= Math.min(fromDepth, toDepth)) return 1;
+  const ax = from.x * aspect, ay = from.y;
+  const dx = (to.x - from.x) * aspect, dy = to.y - from.y;
+  const squared = dx * dx + dy * dy;
+  if (squared < .025) return 1;
+  const t = ((gear.x * aspect - ax) * dx + (gear.y - ay) * dy) / squared;
+  // Only interstitial scenery. Endpoint protection remains handled by
+  // authentic world-space ray tests and conservative silhouette proximity.
+  if (t <= .12 || t >= .88) return 1;
+  const gap = Math.hypot(gear.x * aspect - ax - t * dx, gear.y - ay - t * dy);
+  if (gap > radius + Math.min(.14, radius * .35 + .055)) return 1;
+  return guardian ? .42 : .58;
+}
+
 const TAU = Math.PI*2;
 const dummy = new THREE.Object3D();
 const tint = new THREE.Color();
@@ -223,12 +251,15 @@ export function createTowerWorld(){
   let floorGroup=null,key='',theme='foundry',disposed=false,lastSnapshot=null;
   let materials={}, floorGeometries=new Set(),floorMaterials=new Set();
   const primitives=new Map(),platforms=new Map(),hazards=new Map(),rotors=[],floaters=[],foregroundGears=[];
-  let particles=null,vistaGroup=null,quality='normal',occludedGuardianCaps=0,occludedForegroundGears=0,occludedForegroundScreenGears=0,ruinsPortalVoussoirs=0,ruinsGateLeaves=0;
+  let particles=null,vistaGroup=null,quality='normal',occludedGuardianCaps=0,occludedForegroundGears=0,occludedForegroundScreenGears=0,occludedForegroundCorridorGears=0,ruinsPortalVoussoirs=0,ruinsGateLeaves=0;
   let ruinsSanctuaryArches=0,ruinsSanctuaryPlants=0,ruinsSanctuaryCascadePanels=0;
   const canopyRay = new THREE.Raycaster(), canopyDirection = new THREE.Vector3();
   // Reuse all projection scratch on the render path.
   const screenGearWorld = new THREE.Vector3(), screenGearCenter = new THREE.Vector3();
   const screenGearRight = new THREE.Vector3(), screenFocus = new THREE.Vector3();
+  const corridorFrom = new THREE.Vector3();
+  const corridorTo = [new THREE.Vector3(), new THREE.Vector3()];
+  const corridorDepths = [0, 0], corridorGuardians = [false, false];
   function geometry(name,build){if(!primitives.has(name))primitives.set(name,build());return primitives.get(name);}
   const box=()=>geometry('box',()=>new THREE.BoxGeometry(1,1,1));
   const sphere=()=>geometry('sphere',()=>new THREE.SphereGeometry(1,10,7));
@@ -386,6 +417,12 @@ export function createTowerWorld(){
     // rotor soften instead of making the entire tower translucent or hiding
     // meaningful combat geometry. No extra geometry, lights or shader passes.
     const alloy=m.clone();
+    // Even the small hub must fade with its teeth, otherwise a bright opaque
+    // axle still cuts through the skinned climber after the silhouette clears.
+    const trim=materials.edge.clone();
+    trim.name='SightlineResponsiveDecorativeTrim';
+    trim.transparent=true; trim.opacity=1; trim.depthWrite=true;
+    floorMaterials.add(trim);
     alloy.name='SightlineResponsiveDecorativeAlloy';
     alloy.transparent=true;
     alloy.opacity=1;
@@ -396,9 +433,9 @@ export function createTowerWorld(){
     const g=own(new THREE.ExtrudeGeometry(shape,{depth:thickness,bevelEnabled:true,bevelSize:.06,bevelThickness:.04,bevelSegments:1,steps:1,curveSegments:18}));
     const root=new THREE.Group();root.name='CameraResponsiveDecorativeGear';parent.add(root);
     mesh(root,g,alloy,[0,0,-thickness/2]);
-    mesh(root,cylinder(),materials.edge,[0,0,0],[r*.16,thickness*1.6,r*.16],[Math.PI/2,0,0]);
+    mesh(root,cylinder(),trim,[0,0,0],[r*.16,thickness*1.6,r*.16],[Math.PI/2,0,0]);
     for(let i=0;i<4;i++)block(root,alloy,[0,0,0],[r*1.42,r*.13,thickness],[0,0,i*Math.PI/4]);
-    foregroundGears.push({root,alloy,radius:r*1.55});
+    foregroundGears.push({root,alloy,trim,radius:r*1.55});
     return root;
   }
   function arch(parent,a,y,size=1){const root=new THREE.Group();radial(root,a,22.65,y);parent.add(root);
@@ -1143,7 +1180,7 @@ export function createTowerWorld(){
   function clearFloor(){
     if(floorGroup){group.remove(floorGroup);floorGroup.traverse(o=>{if(o.isInstancedMesh)o.dispose();});}
     for(const g of floorGeometries)g.dispose();for(const m of floorMaterials)m.dispose();
-    floorGeometries.clear();floorMaterials.clear();platforms.clear();hazards.clear();rotors.length=0;floaters.length=0;foregroundGears.length=0;particles=null;vistaGroup=null;floorGroup=null;occludedGuardianCaps=0;occludedForegroundGears=0;occludedForegroundScreenGears=0;ruinsPortalVoussoirs=0;ruinsGateLeaves=0;
+    floorGeometries.clear();floorMaterials.clear();platforms.clear();hazards.clear();rotors.length=0;floaters.length=0;foregroundGears.length=0;particles=null;vistaGroup=null;floorGroup=null;occludedGuardianCaps=0;occludedForegroundGears=0;occludedForegroundScreenGears=0;occludedForegroundCorridorGears=0;ruinsPortalVoussoirs=0;ruinsGateLeaves=0;
     ruinsSanctuaryArches=0;ruinsSanctuaryPlants=0;ruinsSanctuaryCascadePanels=0;
   }
   function rebuild(snapshot, requestedQuality='normal'){
@@ -1372,17 +1409,33 @@ export function createTowerWorld(){
   function protectRouteSightlines(camera, actor=null, guardian=null, landing=null, dt=0, options={}) {
     if(disposed)return {total:0,softened:0};
     if(!foregroundGears.length){
-      occludedForegroundGears=0;occludedForegroundScreenGears=0;
+      occludedForegroundGears=0;occludedForegroundScreenGears=0;occludedForegroundCorridorGears=0;
       return {total:0,softened:0};
     }
     const enabled=!!camera&&!!actor&&!options.stale&&
       Number.isFinite(camera.position?.x)&&Number.isFinite(camera.position?.y)&&
       Number.isFinite(camera.position?.z);
-    let softened=0, screenSoftened=0;
+    let softened=0, screenSoftened=0, corridorSoftened=0;
     const targets=enabled?[actor,guardian,landing]:[];
-    if(enabled)camera.updateMatrixWorld(true);
+    let corridorCount=0, actorDepth=0;
+    if(enabled){
+      camera.updateMatrixWorld(true);
+      corridorFrom.copy(actor).project(camera);
+      actorDepth=camera.position.distanceTo(actor);
+      // The guardian and actually selected landing are the only possible
+      // corridor endpoints. No route inference, future positions or extra ray
+      // collections. Preallocated projections keep work bounded at two.
+      for(let index=0;index<2;index++){
+        const partner=index===0?guardian:landing;
+        if(!partner||![partner.x,partner.y,partner.z].every(Number.isFinite))continue;
+        corridorTo[corridorCount].copy(partner).project(camera);
+        corridorDepths[corridorCount]=camera.position.distanceTo(partner);
+        corridorGuardians[corridorCount]=index===0;
+        corridorCount++;
+      }
+    }
     for(const entry of foregroundGears){
-      let requiredOpacity=1, softByProjection=false;
+      let requiredOpacity=1, softByProjection=false, softByCorridor=false;
       if(enabled){
         entry.root.updateWorldMatrix(true,true);
         entry.root.getWorldPosition(screenGearWorld);
@@ -1396,6 +1449,18 @@ export function createTowerWorld(){
           (screenGearRight.x-screenGearCenter.x)*camera.aspect,
           screenGearRight.y-screenGearCenter.y);
         const gearDepth=camera.position.distanceTo(screenGearWorld);
+        for(let index=0;index<corridorCount;index++){
+          const corridorOpacity=observedStageCorridorOpacity({
+            aspect:camera.aspect,gear:screenGearCenter,radius,gearDepth,
+            from:corridorFrom,to:corridorTo[index],
+            fromDepth:actorDepth,toDepth:corridorDepths[index],
+            guardian:corridorGuardians[index],
+          });
+          if(corridorOpacity<1){
+            requiredOpacity=Math.min(requiredOpacity,corridorOpacity);
+            softByProjection=true;softByCorridor=true;
+          }
+        }
         for(let index=0;index<targets.length;index++){
           const point=targets[index];
           if(!point||![point.x,point.y,point.z].every(Number.isFinite))continue;
@@ -1429,11 +1494,15 @@ export function createTowerWorld(){
         entry.alloy.opacity=requiredOpacity;
       const solid=entry.alloy.opacity>=.985;
       entry.alloy.depthWrite=solid;
+      entry.trim.opacity=entry.alloy.opacity;
+      entry.trim.depthWrite=solid;
       if(!solid)softened++;
       if(softByProjection)screenSoftened++;
+      if(softByCorridor)corridorSoftened++;
     }
     occludedForegroundGears=softened;
     occludedForegroundScreenGears=screenSoftened;
+    occludedForegroundCorridorGears=corridorSoftened;
     return {total:foregroundGears.length,softened};
   }
   function revealGuardianSightlines(camera, crestPoints=[]) {
@@ -1463,7 +1532,7 @@ export function createTowerWorld(){
     }
     occludedGuardianCaps=faded;
   }
-  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,activeHazardPressureFins:[...hazards.values()].reduce((n,h)=>n+(h.indicator.userData.activePressureTeeth||0),0),observedMovingDeckCranks:[...platforms.values()].filter(p=>p.traveler).length,observedMovingDeckDriveStages:[...platforms.values()].filter(p=>p.countergear&&p.actuator).length,observedMovingDeckGearBatches:[...platforms.values()].filter(p=>p.gearVisual?.count===2).length,observedMovingDeckDriveLastTick:[...platforms.values()].reduce((latest,p)=>Math.max(latest,p.motionSourceTick??-1),-1),ambientParticles:particles?.visible?48:0,floor:lastSnapshot?.floor??null,theme,quality,disposed,guardianGates:[...platforms.entries()].filter(([,p])=>p.guardianGate).map(([id,p])=>({id,unlocked:p.guardianGate.unlocked,opening:p.guardianGate.progress,conduitReach:p.guardianGate.conduit.scale.z,anchorX:p.guardianGate.anchorX})),occludedGuardianCaps,occludedForegroundGears,occludedForegroundScreenGears,decorativeSightlineGears:foregroundGears.length,ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
+  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,activeHazardPressureFins:[...hazards.values()].reduce((n,h)=>n+(h.indicator.userData.activePressureTeeth||0),0),observedMovingDeckCranks:[...platforms.values()].filter(p=>p.traveler).length,observedMovingDeckDriveStages:[...platforms.values()].filter(p=>p.countergear&&p.actuator).length,observedMovingDeckGearBatches:[...platforms.values()].filter(p=>p.gearVisual?.count===2).length,observedMovingDeckDriveLastTick:[...platforms.values()].reduce((latest,p)=>Math.max(latest,p.motionSourceTick??-1),-1),ambientParticles:particles?.visible?48:0,floor:lastSnapshot?.floor??null,theme,quality,disposed,guardianGates:[...platforms.entries()].filter(([,p])=>p.guardianGate).map(([id,p])=>({id,unlocked:p.guardianGate.unlocked,opening:p.guardianGate.progress,conduitReach:p.guardianGate.conduit.scale.z,anchorX:p.guardianGate.anchorX})),occludedGuardianCaps,occludedForegroundGears,occludedForegroundScreenGears,occludedForegroundCorridorGears,decorativeSightlineGears:foregroundGears.length,ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;clearFloor();for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
   return{group,update,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics};
 }

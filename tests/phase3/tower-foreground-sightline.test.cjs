@@ -93,3 +93,61 @@ test('the submitted follow camera stages source-observed foreground clarity afte
   assert.match(scene,/protectLiveRoute&&sourceGuardian\?guardianRescuePoint:null/);
   assert.match(scene,/targetPlatform&&landingApproach\.diagnostics\(\)\.visible\?actorOrbitTarget:null/);
 });
+
+test('the actual frame protects the BETWEEN-subject corridor, including the central gear axle, without changing replay facts',async()=>{
+  const [THREE,{createTowerWorld}]=await loaded;
+  const snapshot=sourceFrame('clockwork'), before=JSON.stringify(snapshot);
+  const world=createTowerWorld();
+  try{
+    world.update(snapshot,.016,0,{quality:'low'});
+    const root=gearRoot(world);
+    assert.ok(root);
+    world.group.updateMatrixWorld(true,true);
+    // A far exterior view frames BOTH true endpoints. Neither endpoint has
+    // a ray through the central rotor: the large rotor steals their shared
+    // approach corridor instead of directly hiding either actor's center.
+    const left=root.localToWorld(new THREE.Vector3(-25,3.4,-10));
+    const right=root.localToWorld(new THREE.Vector3(25,3.4,-10));
+    const center=root.localToWorld(new THREE.Vector3(0,3.4,-10));
+    const camera=new THREE.PerspectiveCamera(42,390/844,.2,1200);
+    camera.position.copy(root.localToWorld(new THREE.Vector3(0,3.4,180)));
+    camera.lookAt(center);
+    for(let i=0;i<12;i++)
+      world.protectRouteSightlines(camera,left,right,null,.05,{quality:'low'});
+    const parts=[];
+    root.traverse(node=>{
+      if(node.isMesh&&/^SightlineResponsiveDecorative/.test(node.material?.name||''))
+        parts.push(node.material);
+    });
+    assert.ok(parts.some(material=>material.name==='SightlineResponsiveDecorativeTrim'),
+      'opaque central axle no longer defeats hero/guardian line-of-action clarity');
+    assert.ok(parts.length>=2 && parts.every(material=>material.opacity<.8 && !material.depthWrite),
+      'the whole non-gameplay rotor, not only its spokes, yields to the shared action');
+    assert.ok(world.diagnostics().occludedForegroundCorridorGears>=1);
+    assert.equal(JSON.stringify(snapshot),before,'the renderer cannot rewrite the authoritative source');
+    world.protectRouteSightlines(camera,null,null,null,.01,{stale:true});
+    assert.ok(parts.every(material=>material.opacity===1&&material.depthWrite),
+      'stale/recovery restores all geometry with no phantom translucent hub');
+  }finally{world.dispose();}
+});
+
+test('pure screen-stage policy fades only visible foreground machinery BETWEEN actual action endpoints',async()=>{
+  const [,{observedStageCorridorOpacity}]=await loaded;
+  const scene={
+    aspect:390/844,gear:{x:0,y:.05,z:.2},radius:.12,gearDepth:25,
+    from:{x:-.76,y:.05,z:.35},to:{x:.76,y:.05,z:.35},
+    fromDepth:48,toDepth:49,guardian:true,
+  };
+  assert.equal(observedStageCorridorOpacity(scene),.42);
+  assert.equal(observedStageCorridorOpacity({...scene,guardian:false}),.58);
+  assert.equal(observedStageCorridorOpacity({...scene,gear:{x:0,y:.65,z:.2}}),1,
+    'decorative scenery outside actual action lane remains opaque');
+  assert.equal(observedStageCorridorOpacity({...scene,gearDepth:55}),1,
+    'scenery behind the actors cannot hide their source-present action');
+  assert.equal(observedStageCorridorOpacity({...scene,to:{x:1.8,y:.05,z:.35}}),1,
+    'an already offscreen destination does not trigger fake scene clearing');
+  assert.equal(observedStageCorridorOpacity({...scene,from:null}),1);
+  assert.equal(observedStageCorridorOpacity({...scene,radius:Infinity}),1);
+  assert.equal(observedStageCorridorOpacity({...scene,to:scene.from}),1,
+    'a single center point is not an observed two-subject story');
+});
