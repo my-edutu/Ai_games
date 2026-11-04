@@ -1,4 +1,5 @@
 import { pointFor } from './coordinates.mjs';
+import { observedLandingHazardPressure } from './landing-pressure.mjs';
 
 // A source-bound architectural threshold at the ACTUAL currently selected deck.
 // It is an observation of the autonomous pilot's intent, never a safe-landing
@@ -43,11 +44,9 @@ export function observedLandingApproach(snapshot, deck, selectedX) {
     player.x + player.halfWidth >= deck.x &&
     player.x - player.halfWidth <= deck.x + deck.width) return null;
   const overlap = (a, b) => a < right + player.halfWidth && b > left - player.halfWidth;
-  const danger = snapshot.hazards?.some(h => h?.active &&
-    [h.x, h.y, h.width, h.height].every(finite) &&
-    overlap(h.x, h.x + h.width) &&
-    h.y < top + player.halfHeight * 2 &&
-    h.y + h.height > top) || snapshot.enemies?.some(e => e?.active &&
+  const danger = snapshot.hazards?.some(h =>
+    observedLandingHazardPressure(snapshot, h, top) &&
+    overlap(h.x, h.x + h.width)) || snapshot.enemies?.some(e => e?.active &&
     [e.x, e.y, e.halfWidth, e.halfHeight].every(finite) &&
     overlap(e.x - e.halfWidth, e.x + e.halfWidth) &&
     e.y - e.halfHeight < top + player.halfHeight * 2 &&
