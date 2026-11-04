@@ -97,9 +97,11 @@ export function createTowerLandingApproach(THREE) {
       active.left === candidate.left && active.right === candidate.right &&
       active.top === candidate.top && active.pressured === candidate.pressured) return;
     active = candidate;
-    // A source-driven dock, not a predicted safe destination or gameplay collider.
-    // A pair of full-height piers and a continuous crossbar read at tower scale.
-    // Inset step stones acknowledge PRESENT distance and pressure only.
+    // Source-driven dock, not a predicted safe destination or collider.
+    // Its existing braces become distinctly open, raised WARNING vanes only
+    // while the observed landing footprint overlaps a genuinely active or
+    // last-six-tick descending shutter. This is physical shape, not color alone;
+    // all twelve metal pieces still share one instanced draw.
     const distance = Math.hypot(
       (snapshot.player.x - candidate.x) / 10000,
       (snapshot.player.y - snapshot.player.halfHeight - candidate.top) / 10000);
@@ -119,14 +121,16 @@ export function createTowerLandingApproach(THREE) {
       const world = pointFor(x, candidate.top, candidate.chunkBaseY,
         candidate.worldWidth, step ? 26.91 : 26.53);
       pose.position.set(world.x, world.y +
-        (post ? 1.10 : cap ? 2.24 : brace ? 1.80 : lintel ? 2.29 : .035), world.z);
-      pose.rotation.set(0, world.angle, brace ? (leftSide ? -.50 : .50) : 0);
+        (post ? 1.10 : cap ? 2.24 : brace ? (pressured ? 1.94 : 1.80) :
+          lintel ? (pressured ? 2.46 : 2.29) : .035), world.z);
+      pose.rotation.set(0, world.angle, brace ?
+        (leftSide ? -1 : 1) * (pressured ? .82 : .50) : 0);
       const span = (candidate.right - candidate.left) /
         candidate.worldWidth * 2.2 * 26.53;
       pose.scale.set(
         post ? .24 : cap ? .50 : brace ? .23 : lintel
           ? Math.min(3.5, Math.max(.60, span)) : .32,
-        post ? 2.20 : cap ? .19 : brace ? .74 : lintel ? .16 : .07,
+        post ? 2.20 : cap ? .19 : brace ? (pressured ? .98 : .74) : lintel ? .16 : .07,
         post ? .25 : cap ? .32 : brace ? .24 : lintel ? .23 : .30);
       pose.updateMatrix();
       mesh.setMatrixAt(i, pose.matrix);
