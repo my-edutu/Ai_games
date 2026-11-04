@@ -1516,39 +1516,47 @@ let scenicVisibilityStats={
 };
 function packSpatialScenery(mesh){
  if(mesh.length%30)throw Error('G105 triangle stride mismatch');
- // G154: two-pass stable, counted chunk packing. The previous version retained
- // an additional JS array of >130,000 triangle offsets and allocated a short
- // subarray for every triangle on every season/growth rebuild. Count, then
- // scatter directly into the one upload-ready Float32Array. Within each chunk
- // original winding, normals, colours, materials and draw order are unchanged.
+ // W18 lived-valley growth: scatter static scenery without allocating one JS
+ // chunk-key string and one typed subarray object FOR EVERY triangle. Settlement
+ // construction and seasonal change still render the exact original physical
+ // mesh; no citizens, materials, geometry, ordering or simulation are changed.
  const triangleCount=mesh.length/30;
- const triangleKeys=new Array(triangleCount);
- const counts=new Map();
+ const triangleChunkIds=new Uint32Array(triangleCount);
+ // Two-level integer cell map creates strings only for occupied CHUNKS,
+ // not for each triangle. Preserve the original lexicographic chunk ordering.
+ const cellRows=new Map(),chunks=[];
  for(let i=0;i<triangleCount;i++){
-  const o=i*30;
-  const x=(mesh[o]+mesh[o+10]+mesh[o+20])/3;
-  const z=(mesh[o+2]+mesh[o+12]+mesh[o+22])/3;
+  const o=i*30,x=(mesh[o]+mesh[o+10]+mesh[o+20])/3,
+   z=(mesh[o+2]+mesh[o+12]+mesh[o+22])/3;
   if(!Number.isFinite(x)||!Number.isFinite(z))
    throw Error('G105 nonfinite scene centroid');
-  const key=Math.floor(x/SCENIC_CHUNK_EDGE)+':'+Math.floor(z/SCENIC_CHUNK_EDGE);
-  triangleKeys[i]=key;
-  counts.set(key,(counts.get(key)||0)+1);
+  const cx=Math.floor(x/SCENIC_CHUNK_EDGE),cz=Math.floor(z/SCENIC_CHUNK_EDGE);
+  let row=cellRows.get(cx);
+  if(!row){row=new Map();cellRows.set(cx,row)}
+  let chunk=row.get(cz);
+  if(!chunk){
+   chunk={id:chunks.length,key:cx+':'+cz,count:0};
+   row.set(cz,chunk);chunks.push(chunk);
+  }
+  triangleChunkIds[i]=chunk.id;
+  chunk.count++;
  }
- const ranges=[],slots=new Map();
+ const ranges=[],slots=new Array(chunks.length);
  let cursor=0;
- for(const key of [...counts.keys()].sort()){
-  const count=counts.get(key);
-  const range={first:cursor/10,count:count*3,
-   minX:Infinity,minY:Infinity,minZ:Infinity,maxX:-Infinity,maxY:-Infinity,maxZ:-Infinity};
+ for(const chunk of chunks.sort((a,b)=>a.key<b.key?-1:a.key>b.key?1:0)){
+  const range={first:cursor/10,count:chunk.count*3,
+   minX:Infinity,minY:Infinity,minZ:Infinity,
+   maxX:-Infinity,maxY:-Infinity,maxZ:-Infinity};
   ranges.push(range);
-  slots.set(key,{next:cursor,range});
-  cursor+=count*30;
+  slots[chunk.id]={next:cursor,range};
+  cursor+=chunk.count*30;
  }
  if(cursor!==mesh.length)throw Error('G105 missing packed triangles');
  const packed=new Float32Array(mesh.length);
  for(let i=0;i<triangleCount;i++){
-  const o=i*30,slot=slots.get(triangleKeys[i]),dest=slot.next;
-  packed.set(mesh.subarray(o,o+30),dest);
+  const o=i*30,slot=slots[triangleChunkIds[i]],dest=slot.next;
+  // Direct copy: avoid temporary Float32Array.subarray for 120k triangles.
+  for(let j=0;j<30;j++)packed[dest+j]=mesh[o+j];
   slot.next+=30;
   const range=slot.range;
   for(let vertex=0;vertex<3;vertex++){
