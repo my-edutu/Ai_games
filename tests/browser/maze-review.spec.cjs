@@ -591,6 +591,108 @@ test('a real close public encounter frames both autonomous actors and saves date
   expect(orbitDiagnostic.canvas.width).toBeGreaterThan(380);
   expect(orbitDiagnostic.canvas.height).toBeGreaterThan(834);
 
+  // Native temporal Gauntlet gate: the original single static guardian
+  // screenshot proved only completed beat=1. Capture three REAL successive
+  // rendered phases for the SAME disclosed MazeRuntime snapshot in the SAME
+  // existing Chromium process. Do not invent an enemy, forge engine ticks,
+  // skip CPU-delayed visual frames or accept moving the camera as actor acting.
+  // Every original PNG and exact-source sidecar survives a later rejection.
+  activeFrame = frame;
+  await page.setViewportSize({width:390,height:844});
+  await page.goto(base+'/maze?camera=follow', {waitUntil:'domcontentloaded'});
+  const temporalPhases=[
+    {name:'notice',min:0,max:.24},
+    {name:'brace',min:.38,max:.58},
+    {name:'shell-release',min:.82,max:1.01},
+  ];
+  const renderedPhases=[];
+  for (const phase of temporalPhases) {
+    await page.waitForFunction(({tick,token,min,max})=>{
+      const d=window.__MAZE_3D__;
+      return d?.renderer==='webgl'&&d.cameraMode==='follow'
+        &&d.tick===tick&&d.runToken===token
+        &&document.getElementById('scene-card')?.hidden===true
+        &&d.witnessedGuardianBeat?.length>0
+        &&d.witnessedExplorerGuardianPhysicalPose
+        &&d.witnessedExplorerGuardianBeat>=min
+        &&d.witnessedExplorerGuardianBeat<max;
+    },{tick:frame.snapshot.tick,token:frame.snapshot.runToken,
+      min:phase.min,max:phase.max},{timeout:120000});
+    const prior=await page.evaluate(()=>{
+      const d=window.__MAZE_3D__,s=window.__MAZE_PUBLIC_STATE__;
+      const canvas=document.getElementById('maze').getBoundingClientRect();
+      return {renderer:d.renderer,runToken:d.runToken,tick:d.tick,
+        publicHeroCell:s.currentCell,publicThreatCells:s.threats.map(t=>t.cell),
+        beat:d.witnessedExplorerGuardianBeat,
+        guardianBeat:d.witnessedGuardianBeat,
+        pipPose:d.witnessedExplorerGuardianPhysicalPose,
+        guardianModelsFullyInFrame:d.guardianModelsFullyInFrame,
+        wardensInFrame:d.wardensInFrame,
+        explorerModelFullyInFrame:d.explorerModelFullyInFrame,
+        guardianPhysicalBounds:d.guardianPhysicalBounds,
+        explorerPhysicalBounds:d.explorerPhysicalBounds,
+        warningVisible:d.witnessedLanternWarningVisible,
+        coneVisible:d.witnessedLanternConeVisible,
+        stage:{width:canvas.width,height:canvas.height},
+        controls:[...document.querySelectorAll('.masthead .control-button')]
+          .filter(el=>getComputedStyle(el).display!=='none')
+          .map(el=>{const r=el.getBoundingClientRect();
+            return {width:r.width,height:r.height,left:r.left,right:r.right};})};
+    });
+    const image=path.join(dir,'guardian-real-beat-'+phase.name+'-390.png');
+    await page.screenshot({path:image,fullPage:true});
+    const post=await page.evaluate(()=>({
+      beat:window.__MAZE_3D__?.witnessedExplorerGuardianBeat,
+      guardianBeat:window.__MAZE_3D__?.witnessedGuardianBeat,
+      pipPose:window.__MAZE_3D__?.witnessedExplorerGuardianPhysicalPose,
+      tick:window.__MAZE_3D__?.tick,
+      runToken:window.__MAZE_3D__?.runToken,
+    }));
+    fs.writeFileSync(path.join(dir,'guardian-real-beat-'+phase.name+'-390.json'),JSON.stringify({
+      capturedAt:new Date().toISOString(),
+      source:'Natural public guardian at unchanged real tick; live reduced-motion OFF; original WebGL chronological pose, never a staged enemy',
+      seed:encounter.seed,tick:frame.snapshot.tick,runToken:frame.snapshot.runToken,
+      viewport:{width:390,height:844},phase:phase.name,
+      imageSha256:hash(image),sourceSha256:nativeSourceHashes,
+      beforeScreenshot:prior,afterScreenshot:post,
+      caveat:'CPU SwiftShader timings do not measure consumer GPU speed. Distinct source poses must still win a separate actual rendered image critique.',
+    },null,2));
+    renderedPhases.push(prior);
+    expect(prior.publicHeroCell,'no invented public hero move').toBe(frame.snapshot.currentCell);
+    expect(prior.publicThreatCells,'exact original disclosed threats').toEqual(frame.snapshot.threats.map(t=>t.cell));
+    expect(post.tick).toBe(frame.snapshot.tick);
+    expect(post.runToken).toBe(frame.snapshot.runToken);
+    expect(prior.guardianModelsFullyInFrame,'actual full armored shell is not cropped at any temporal phase')
+      .toBe(prior.wardensInFrame);
+    expect(prior.explorerModelFullyInFrame,'full physical Pip must remain in each action shot').toBe(true);
+    expect(prior.stage.width).toBeGreaterThan(380);
+    expect(prior.stage.height).toBeGreaterThan(834);
+    for (const bounds of [...prior.guardianPhysicalBounds,prior.explorerPhysicalBounds]) {
+      expect(bounds.left,'real physical model left crop').toBeGreaterThan(-.94);
+      expect(bounds.right,'real physical model right crop').toBeLessThan(.94);
+      expect(bounds.top,'real physical model top crop').toBeLessThan(.94);
+      expect(bounds.bottom,'real physical model bottom crop').toBeGreaterThan(-.94);
+    }
+    for(const control of prior.controls){
+      expect(control.width,'action control usable at every beat').toBeGreaterThanOrEqual(44);
+      expect(control.height,'action control usable at every beat').toBeGreaterThanOrEqual(44);
+      expect(control.left).toBeGreaterThanOrEqual(0);
+      expect(control.right).toBeLessThanOrEqual(390);
+    }
+    expect(prior.warningVisible,'only real public warning can trigger acting').toBe(eligibleWarning);
+    expect(prior.coneVisible,'2.236-cell warning cannot suggest an invented open passage').toBe(false);
+  }
+  expect(renderedPhases[0].beat).toBeLessThan(renderedPhases[1].beat);
+  expect(renderedPhases[1].beat).toBeLessThan(renderedPhases[2].beat);
+  expect(renderedPhases[2].guardianBeat[0].bracedContact-
+    renderedPhases[0].guardianBeat[0].bracedContact,
+    'actual physical guardian contact must plant across real witnessed frames').toBeGreaterThan(.10);
+  expect(Math.abs(renderedPhases[2].pipPose.lanternShoulderX-
+    renderedPhases[0].pipPose.lanternShoulderX),
+    'original connected Pip lantern arm must perform, not merely display a danger caption')
+    .toBeGreaterThan(.025);
+  await page.setViewportSize({width:1280,height:900});
+
   // Preserve the original desktop objective/lock captures; never move actors.
   await page.setViewportSize({width:1280,height:900});
 
