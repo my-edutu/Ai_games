@@ -202,7 +202,7 @@ test('a real close public encounter frames both autonomous actors and saves date
   // must prove Pip's connected torso/head/lantern answered the public beat.
   // These are actual rendered Three.js joints, not invented action captions.
   expect(diagnostics.witnessedExplorerGuardianBeat,
-    'Pip must receive exactly the natural guardian's completed public beat')
+    "Pip must receive exactly the natural guardian's completed public beat")
     .toBe(eligibleWarning ? 1 : null);
   const pipReply=diagnostics.witnessedExplorerGuardianPhysicalPose;
   expect(!!pipReply,'Pip rig evidence cannot be reported for unseen guardians')
