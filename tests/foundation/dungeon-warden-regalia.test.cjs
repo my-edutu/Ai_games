@@ -66,3 +66,52 @@ test('authored boss uses real model pivot, owns cosmetic resources, exposes diag
  assert.match(assets,/bossRegaliaParts:/);
  assert.ok(server.includes("['/dungeon/warden-regalia-plan.js','warden-regalia-plan.js']"));
 });
+
+test('M1 Warden native armour mounts move with real bones without changing original rest geometry',async()=>{
+ const THREE=require('three');
+ const {planWardenRegalia,planWardenRegaliaBone}=await planner();
+ const pieces=planWardenRegalia('warden');
+ assert.equal(pieces.length,24);
+ const counts=new Map();
+ for(const part of pieces){
+  const joint=planWardenRegaliaBone(part.id);
+  assert.ok(['head','chest','pelvis','leftUpperArm','rightUpperArm'].includes(joint),part.id);
+  counts.set(joint,(counts.get(joint)||0)+1);
+ }
+ assert.deepEqual(Object.fromEntries(counts),{
+  head:4,leftUpperArm:3,rightUpperArm:3,chest:11,pelvis:3
+ });
+ assert.equal(planWardenRegaliaBone('fake-damage-actor'),null);
+ assert.equal(planWardenRegaliaBone(undefined),null);
+ const parent=new THREE.Group(),skinned=new THREE.Group(),decor=new THREE.Group();
+ parent.position.set(3,0,-2);parent.scale.set(.84,1.08,.91);
+ parent.add(skinned,decor);
+ const neck=new THREE.Bone();neck.position.set(0,1.7,0);skinned.add(neck);
+ const piece=new THREE.Mesh(new THREE.BoxGeometry(.28,.22,.2));
+ piece.position.set(.25,1.88,-.17);decor.add(piece);
+ const mount=new THREE.Group();mount.matrixAutoUpdate=false;decor.add(mount);mount.add(piece);
+ parent.updateMatrixWorld(true);
+ const original=piece.getWorldPosition(new THREE.Vector3()).clone();
+ const inverseRest=neck.matrixWorld.clone().invert(),worldBind=decor.matrixWorld.clone();
+ const targetWorld=new THREE.Matrix4(),inverse=new THREE.Matrix4();
+ const sync=()=>{
+  parent.updateMatrixWorld(true);
+  targetWorld.multiplyMatrices(neck.matrixWorld,inverseRest).multiply(worldBind);
+  mount.matrix.multiplyMatrices(inverse.copy(decor.matrixWorld).invert(),targetWorld);
+  mount.matrixWorldNeedsUpdate=true;parent.updateMatrixWorld(true);
+ };
+ sync();
+ assert.ok(piece.getWorldPosition(new THREE.Vector3()).distanceTo(original)<1e-6);
+ neck.rotation.z=.35;sync();
+ assert.ok(piece.getWorldPosition(new THREE.Vector3()).distanceTo(original)>.03,
+  'the actual cranial swing must move fitted regalia, not hover at last cell');
+ neck.rotation.z=0;sync();
+ assert.ok(piece.getWorldPosition(new THREE.Vector3()).distanceTo(original)<1e-6,
+  'native animation recovery must not accumulate any presentation transform');
+ const source=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(source,/function syncWardenNativeRegalia\(actor\)/);
+ assert.match(source,/syncWardenNativeRegalia\(actor\);/);
+ assert.match(source,/bindBoneInverse:bone\.matrixWorld\.clone\(\)\.invert\(\)/);
+ assert.match(source,/bossNativeRiggedParts:/);
+ piece.geometry.dispose();piece.material.dispose();
+});
