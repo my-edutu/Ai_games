@@ -40,6 +40,20 @@ test('W15 real village growth reuses one immutable landscape albedo base, not fa
  expect(grown.world.buildings).toBeGreaterThan(initial.world.buildings);
  expect(grown.surface.homes).toBe(grown.world.buildings-2);
  expect(grown.surface.rebuilds).toBeGreaterThan(initial.surface.rebuilds);
+ // Real submitted WebGL workload sample from the same 1024x640 test. This is
+ // CPU wall timing (including driver stalls), never a claim of hardware FPS.
+ const observed=await page.evaluate(()=>({
+  renderer:window.__tinyKingdom.renderQuality().renderer,
+  software:window.__tinyKingdom.getSoftwareResolutionAudit().softwareWebGL,
+  frames:window.__tinyKingdom.getFrameProfile().totalFrames,
+  stages:window.__tinyKingdom.getFrameProfile().stages,
+  atlas:window.__tinyKingdom.getGroundSurfaceStats(),
+  settlement:window.__tinyKingdom.getSettlementResidentStats(),
+  world:window.__tinyKingdom.metrics()
+ }));
+ console.log('W15 actual representative render sample (CPU wall, not GPU FPS):',JSON.stringify(observed));
+ expect(observed.frames).toBeGreaterThan(1);
+
  expect(grown.surface.baseBuilds).toBe(1);
  expect(grown.surface.baseReuses).toBe(grown.surface.rebuilds-1);
  expect(grown.surface.baseBytes).toBe(512*512*4);
