@@ -6,6 +6,7 @@ const assert=require('node:assert/strict');
 const {NamedRng}=require('../../dist/packages/seeded-rng/src/index.js');
 const {parseTowerConfig}=require('../../dist/games/infinite-tower-climb/src/config/schema.js');
 const {generateTowerChunk}=require('../../dist/games/infinite-tower-climb/src/generation/chunks.js');
+const {generateTowerContent}=require('../../dist/games/infinite-tower-climb/src/generation/content.js');
 const {validateTowerChunk}=require('../../dist/games/infinite-tower-climb/src/generation/validator.js');
 const {TowerRuntime}=require('../../dist/games/infinite-tower-climb/src/runtime/run.js');
 const {createTowerObservation}=require('../../dist/games/infinite-tower-climb/src/ai/observation.js');
@@ -51,6 +52,73 @@ test('source guardian shutter challenges the ACTUAL upper gate approach rather t
   assert.ok(source.hazards.length<=config.maxHazardsPerChunk);
   assert.deepEqual(validateTowerChunk(source,config).issues,[]);
 });
+test('new-source guardian and cap crusher finally occupy ONE authentic supporting deck, legacy stays on p6',()=>{
+  const config=parseTowerConfig({
+    guardianInterval:8,launchFloor:8,guardianArenaHazards:true,
+  });
+  const chunk=generate(config);
+  const cap=chunk.platforms.find(p=>p.id==='f8:cap');
+  const p6=chunk.platforms.find(p=>p.id==='f8:p6');
+  const realCrusher=chunk.hazards.find(h=>h.id==='f8:guardian-shutter');
+  const content=generateTowerContent(chunk,config,SEED);
+  const guardian=content.enemies.find(e=>e.kind==='guardian');
+  assert.ok(cap&&p6&&realCrusher&&guardian);
+  assert.equal(guardian.position.y,cap.y+cap.height+guardian.halfHeight,
+    'the real boss must stand on the same support as the physical shutter');
+  assert.equal(realCrusher.y,cap.y+cap.height);
+  assert.notEqual(guardian.position.y,p6.y+p6.height+guardian.halfHeight,
+    'portrait source gameplay must not depict a false two-tier guardian/shutter duel');
+  assert.ok(guardian.patrolMinX>=cap.x&&
+    guardian.patrolMaxX<=cap.x+cap.width,
+    'guardian moves along the authentic cap, with real collision and room to escape');
+  assert.ok(guardian.patrolMaxX-guardian.patrolMinX>realCrusher.width+2*config.playerHalfWidth,
+    'the arena retains a nontrivial physical movement/escape span');
+  const historical=parseTowerConfig({guardianInterval:8,launchFloor:8});
+  const historicChunk=generate(historical);
+  const historicGuardian=generateTowerContent(historicChunk,historical,SEED)
+    .enemies.find(e=>e.kind==='guardian');
+  const historicP6=historicChunk.platforms.find(p=>p.id==='f8:p6');
+  assert.equal(historicGuardian.position.y,
+    historicP6.y+historicP6.height+historicGuardian.halfHeight,
+    'unset opt-in maintains exact historical guardian placement');
+  const off=parseTowerConfig({
+    guardianInterval:8,launchFloor:8,guardianArenaHazards:false,
+  });
+  assert.deepEqual(generateTowerContent(generate(off),off,SEED),
+    generateTowerContent(historicChunk,historical,SEED),
+    'explicitly false is unchanged for legacy replay payload/checksum');
+  const noHazards=parseTowerConfig({
+    guardianInterval:8,launchFloor:8,guardianArenaHazards:true,maxHazardsPerChunk:0,
+  });
+  const emptyChunk=generate(noHazards);
+  const emptyGuardian=generateTowerContent(emptyChunk,noHazards,SEED)
+    .enemies.find(e=>e.kind==='guardian');
+  const emptyP6=emptyChunk.platforms.find(p=>p.id==='f8:p6');
+  assert.equal(emptyGuardian.position.y,
+    emptyP6.y+emptyP6.height+emptyGuardian.halfHeight,
+    'no source crusher means no fabricated cap arena or guardian repositioning');
+});
+
+test('full source runtime truthfully presents guardian and existing 3D shutter on the same cap',()=>{
+  const {STREAM_CONFIG}=require('../../scripts/serve-tower-stream.cjs');
+  const state=TowerRuntime.create({...STREAM_CONFIG, launchFloor:8},
+    'tower-transformation-capture-v1',{policy:'autonomous'}).state;
+  const cap=state.chunks[0].platforms.find(p=>p.id==='f8:cap');
+  const sourceGuardian=state.enemies.find(e=>e.kind==='guardian');
+  const sourceCrusher=state.chunks[0].hazards.find(h=>h.id==='f8:guardian-shutter');
+  assert.ok(cap&&sourceGuardian&&sourceCrusher,
+    'live stream must enable actual cap arena sources, not test-only invented geometry');
+  assert.equal(sourceCrusher.y,cap.y+cap.height);
+  assert.equal(sourceGuardian.position.y,
+    cap.y+cap.height+sourceGuardian.halfHeight);
+  const snapshot=createTowerRenderSnapshot(state,{includeWindupTicks:true});
+  const sceneGuardian=snapshot.enemies.find(e=>e.kind==='guardian');
+  const sceneCrusher=snapshot.hazards.find(h=>h.id==='f8:guardian-shutter');
+  assert.equal(sceneGuardian.y-sceneGuardian.halfHeight,
+    sceneCrusher.y, 'source renderer sees genuine same-deck guardian, not a two-tier illusion');
+  assert.ok(sceneGuardian.active);
+});
+
 test('one-hazard and zero-hazard budgets never silently grow the guardian arena',()=>{
   for(const maximum of [0,1,2]){
     const config=parseTowerConfig({guardianInterval:8,launchFloor:8,guardianArenaHazards:true,
