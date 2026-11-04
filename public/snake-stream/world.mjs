@@ -794,11 +794,11 @@ export function createWorld(THREE, {width, height}) {
     // *existing* central sunstone and two naturally exposed limestone glades.
     // Readably traversable cell tops, UVs and actual event cues stay identical.
     const valleyWarp=.075*Math.sin(nx*8.7+nz*2.9)+.058*Math.sin(nz*9.2-nx*5.7);
-    const underCanopy=1-fade(.045,.395,Math.max(0,basinDistance+valleyWarp));
+    const underCanopy=1-fade(.025,.095,Math.max(0,basinDistance+valleyWarp));
     const stoneHeart=1-fade(.185,.445,Math.hypot(nx/.60,nz/.76));
     const gladeA=1-fade(.21,.49,Math.hypot((nx+.63)/.55,(nz-.35)/.58));
     const gladeB=1-fade(.22,.50,Math.hypot((nx-.69)/.58,(nz+.34)/.56));
-    const forest=underCanopy*(1-stoneHeart*.97)*(1-Math.max(gladeA,gladeB)*.48);
+    const forest=underCanopy*(1-stoneHeart*.97)*(1-Math.max(gladeA,gladeB)*.72);
     const forestEdge=1-fade(.12,.45,1-Math.max(Math.abs(nx),Math.abs(nz)));
     const dampStone=Math.min(1,Math.max(0,forest*1.12+forestEdge*.17));
     const shade=.952+.012*random()+.035*(.5+.5*Math.sin(nx*5.3+nz*3.7));
@@ -828,8 +828,8 @@ export function createWorld(THREE, {width, height}) {
     // terraces in the actual 3D flagstones, not an unrelated painted map.
     const habitat=sampleWeatheredTerrace((x+.5)/width,(z+.5)/height,width,height);
     const earthy=1-habitat.protectedSunstone*.97;
-    color.r*=1+earthy*(habitat.terrace*.12+habitat.litter*.045-habitat.coolSlate*.06);
-    color.g*=1+earthy*(-habitat.terrace*.045+habitat.litter*.01+habitat.coolSlate*.025);
+    color.r*=1+earthy*(habitat.terrace*.22+habitat.litter*.05-habitat.coolSlate*.06);
+    color.g*=1+earthy*(-habitat.terrace*.09+habitat.litter*.01+habitat.coolSlate*.025);
     color.b*=1+earthy*(-habitat.terrace*.12-habitat.litter*.09+habitat.coolSlate*.16);
     const mosaic=sculptForestMosaicTile(x,z,width,height);
     add(tile,tileMat,x-(width-1)/2,-.105,z-(height-1)/2,

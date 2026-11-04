@@ -138,12 +138,12 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
       // original world. No new game cells, shader, GPU object or obstruction.
       const forestWarp = .075 * Math.sin((u-.5)*17.4+(v-.5)*5.8)
         + .058 * Math.sin((v-.5)*18.4-(u-.5)*11.4);
-      const forestReach = 1 - smooth(.03, .455, Math.max(0, groveDistance + forestWarp));
+      const forestReach = 1 - smooth(.025, .095, Math.max(0, groveDistance + forestWarp));
       const gladeA = 1-smooth(.21,.49,Math.hypot(((u-.5)*2+.63)/.55,((v-.5)*2-.35)/.58));
       const gladeB = 1-smooth(.22,.50,Math.hypot(((u-.5)*2-.69)/.58,((v-.5)*2+.34)/.56));
       const twoGlades = Math.max(gladeA,gladeB);
       const evergreen = forestReach * (.90 + .10 * mineral)
-        * (1 - heart * .97) * (1-twoGlades*.48);
+        * (1 - heart * .97) * (1-twoGlades*.72);
       const grove = shoreMoss * (.79 + .21 * watershed)
         * (1 - heart * .88) * smooth(.055, .25, v * (1-v) * 4);
       if (Math.max(grove,evergreen) > .37) grovePixelCount++;
@@ -235,10 +235,10 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
       // Exposed sandstone benches and the two genuine limestone glades must
       // stay SUNLIT where physical vegetation thins. Branched forest shade
       // cannot erase the original warm mineral counterpoint across the frame.
-      const exposedLimestone = Math.max(biome.terrace*.86, limestoneBench*.91,
-        twoGlades*.75) * (1-smooth(.12,.67,biome.planted*.72+evergreen*.34));
-      targetR += 56 * exposedLimestone;
-      targetG += 6 * exposedLimestone;
+      const exposedLimestone = Math.max(biome.terrace, limestoneBench*.96,
+        twoGlades*.88) * (1-smooth(.23,.83,biome.planted*.59+evergreen*.25));
+      targetR += 84 * exposedLimestone;
+      targetG += 9 * exposedLimestone;
       targetB += 1.5 * exposedLimestone;
       // Cross-valley galleries are genuine shaded mineral-and-leaf bedding,
       // not more bright green decal strips. Their existing stone pigment
@@ -247,7 +247,7 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
       const galleryMoss = smooth(.10,.51,
         forestReach*.78 + biome.planted*.41 + nearEdge*.16)
         * (1-heart*.98) * (1-twoGlades*.32);
-      targetR -= galleryMoss * 56;
+      targetR -= galleryMoss * 34;
       targetG -= galleryMoss * 8;
       targetB -= galleryMoss * 27;
       // The original sunstone stays sunlit while the NEW surrounding natural
