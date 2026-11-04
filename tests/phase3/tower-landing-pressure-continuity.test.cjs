@@ -56,6 +56,12 @@ test('world-space route stones stage current intent, not a predicted or stale sh
   const effect=createTowerRouteIntent(THREE);
   try {
     const s=frame(), unchanged=JSON.stringify(s);
+    const {witnessedLandingX}=await route;
+    const warned=witnessedLandingX(s,deck);
+    const unwarned=witnessedLandingX(frame({hazards:[{...hazard,chargeTicksRemaining:8}]}),deck);
+    assert.equal(warned.sourceAirLane,true);
+    assert.equal(warned.x,155500,'source-confirmed charging obstacle moves the selected physical arrival outside its body');
+    assert.equal(unwarned.x,175000,'earlier warnings do not invent a safe lane beyond live pilot policy');
     effect.update(s,deck,{reducedMotion:true});
     const warning=effect.diagnostics();
     assert.equal(warning.sourceBound,true);
