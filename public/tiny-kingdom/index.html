@@ -6184,7 +6184,7 @@ function getCourierLoadPresentation(workerName){
  // Bundles are bounded visual subdivisions of the actual load, not a new
  // quantity or counterfeit currency. Three small packages is the ceiling.
  const bundles=Math.min(3,Math.max(1,Math.ceil(d.amount/1.5)));
- const visibleBundles=Math.max(0,bundles-Math.floor(progress*bundles+1e-9));
+ const visibleBundles=Math.max(0,bundles-Math.floor(progress*(bundles+1)+1e-9));
  return {source:'actual-escrowed-courier-load',
   id:d.id,citizen:p.name,resource:d.resource,amount:d.amount,
   stage:d.stage||'travel',escrowed:d.escrowed===true,
