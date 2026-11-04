@@ -28,6 +28,23 @@ Expected incremental rendering budget: no additional mesh, shader, material, lig
 
 Earlier technical safety CI for `9b291d35`: [passed](https://github.com/my-edutu/Ai_games/actions/runs/41932698867), before these edits. Exact-new-source technical CI [41935858049](https://github.com/my-edutu/Ai_games/actions/runs/41935858049) was pending at inspection, and real 3D source capture [41935836265](https://github.com/my-edutu/Ai_games/actions/runs/41935836265) pending. An earlier intermediate capture was cancelled by subsequent pushes. Do **not** treat a queued workflow or a green contract check as a transformation PASS.
 
+## Direct inspection of preceding genuine full-motion capture artifacts
+
+I downloaded the *actual candidate danger recording* ZIP from [source-pinned action 41932038446](https://github.com/my-edutu/Ai_games/actions/runs/41932038446/artifacts/13374345699). The action completed **9/9** jobs with actual baseline and candidate browser WebMs. The candidate portrait video is approximately **129 seconds** of recorded image, includes the real skinned climber, guardian, platforms and transitions; first ~2 seconds are startup/blank, around 4 seconds the WebGL scene appears with a loading hint. I sampled actual portrait video frames across 0, 1, 2, 4, 12, 30, 60, 90 and 120 seconds; **frame samples are not a full-motion independent critique**. The 960x600 desktop candidate and frozen-baseline videos were archived too but have not been independently judged.
+
+More importantly, I read the source's 50ms `crossfire-source-witness.json` from *inside the captured ZIP*, not guessed from test count:
+
+| Scope | Genuine near guardian + shutter source witnesses | Source prelude / imminent / active | Render-matched source phase ticks |
+| --- | ---: | --- | ---: |
+| Desktop | 7 | 1 / 5 / 1 | **0** |
+| Portrait 390×844 | 6 | 4 / 0 / 2 | **0** |
+
+The source-authored cap crusher **now participates in the real fight**, unlike the older 5c242d run where there were zero contact source witnesses. However, none of these thirteen source-danger observations had a same-phase 3D render witness. In concrete samples source was at tick 314 while render diagnostics still reported stage tick 307, or source recorded charge but the rendered pressure stage reported `instances: 0`. The CI/browser WebGL renderer and source snapshots can be temporally out of phase under load; the sampling observer is read-only and missed snapshots are possible. This is **not proof** that the physical scene is invisible in every video frame, nor that the new stable installed rest pose has solved it. It **is proof that the prior run cannot be passed as a demonstrated readable three-body crossfire**. This strengthens the need for exact-source normal-speed video inspection, event alignment, and real supported-device frame-time tails.
+
+The *new* installed-stage source capture [41935836265](https://github.com/my-edutu/Ai_games/actions/runs/41935836265) targets exact playable SHA `f05bd2c6` (with the frozen `1731b380` original host). Its images and source witness should reveal whether physical cap machinery stays legible even when the source/render tick phases diverge. No blind score is awarded to the new implementation.
+
+**Technical safety update:** [41936060056](https://github.com/my-edutu/Ai_games/actions/runs/41936060056) succeeded for documentary head `fee86fc5`. Its log includes the three new genuine Three.js source-stage tests as passing, and the full 976-test repository suite passed. This is a **safety veto cleared**, not a Gauntlet experience win.
+
 ## Experience review and unanswered questions
 
 The visual hypothesis is that an opt-in physical crusher should feel like a coherent part of a dangerous climb *before* it strikes. Its matte installed state should support navigation and its angular pose should distinguish danger even without color. This is **unverified** against normal-speed whole game video. Need watch genuine desktop 960×600 and portrait 390×844 captures for the actual guardian-cap simultaneous encounter, all ascent and movement, and honest outcome/restart at normal speed, paired to the same seed/quality frozen-source footage by actual encounter state, not matching elapsed seconds.
