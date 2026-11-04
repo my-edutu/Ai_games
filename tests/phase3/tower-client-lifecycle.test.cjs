@@ -17,8 +17,14 @@ const deferred = () => {
 // Execute the shipped modules; only browser-owned DOM, WebGL, audio and I/O
 // boundaries are controlled. No alternate copy of the client logic runs here.
 function moduleFunction(context, file, name) {
-  const source = fs.readFileSync(path.join(clientRoot, file), 'utf8').replace(/^export /gm, '');
-  return vm.runInContext(`(() => { ${source}\nreturn ${name}; })()`, context, { filename: file });
+  // Execute the *real* browser-shipped helper when testing audio in a VM,
+  // instead of treating its native ESM import as CommonJS or inventing a stub.
+  const helper = file === 'visuals/audio.mjs'
+    ? fs.readFileSync(path.join(clientRoot, 'visuals/traversal-kinetics.mjs'), 'utf8')
+      .replace(/^export /gm, '') : '';
+  const source = fs.readFileSync(path.join(clientRoot, file), 'utf8')
+    .replace(/^import .*;\n/gm, '').replace(/^export /gm, '');
+  return vm.runInContext(`(() => { ${helper}\n${source}\nreturn ${name}; })()`, context, { filename: file });
 }
 
 function audioEnvironment() {
