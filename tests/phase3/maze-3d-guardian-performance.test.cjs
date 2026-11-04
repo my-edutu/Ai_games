@@ -104,5 +104,53 @@ test('real scene wires the beat solely to public wardens and a grounded 3D conta
     'no stage can start merely from proximity: current public visibility, running lifecycle and disclosed threat must agree');
   assert.match(sceneSource,/encounterBeat:entry\.encounterBeat/,'actual actor consumes its witness timeline');
   assert.match(sceneSource,/witnessedGuardianBeat/,'original WebGL captures can report live physical cue');
+  assert.match(sceneSource,/guardianEncounterBeat:closestThreat\?\.encounterBeat/,
+    'Pip must consume the identical source-authenticated guardian clock');
+  assert.match(sceneSource,/closestThreat\.encounterBeat=entry\.encounterBeat/,
+    'guardian must publish its current witnessed beat, not previous frame or solver knowledge');
+  assert.match(sceneSource,/witnessedExplorerGuardianPhysicalPose/,
+    'native review must expose Pip actual connected rig pose rather than a HUD assertion');
   assert.doesNotMatch(sceneSource,/privateMaze.*encounterBeat|secret.*encounterBeat/i);
+});
+
+
+test('Pip physically answers the same public guardian beat, then fully withdraws', async () => {
+  const { createExplorer } = await charactersPromise;
+  for (const balanced of [false,true]) for (const reducedMotion of [false,true]) {
+    const pip=createExplorer({balanced});
+    const torso=pip.group.getObjectByName('breathing torso');
+    const head=pip.group.getObjectByName('curious head');
+    const lanternShoulder=pip.group.getObjectByName('shoulder 1');
+    assert.ok(torso && head && lanternShoulder,'the original connected explorer must own each action');
+    const cue={heading:0,attentionHeading:.4,attentionStrength:.8,moving:false,
+      danger:.8,time:2,delta:0,reducedMotion};
+    const pose=() => [torso.position.y,head.rotation.x,lanternShoulder.rotation.x];
+    pip.update({...cue,guardianEncounterBeat:0});
+    const recognized=pose();
+    pip.update({...cue,guardianEncounterBeat:.5});
+    const braced=pose();
+    assert.ok(braced[0]<recognized[0]-.07,
+      'Pip visibly plants its original torso before the warden opens its shell');
+    assert.ok(braced[1]>recognized[1]+.07,
+      'actual connected helmet looks down during the grounded brace');
+    pip.update({...cue,guardianEncounterBeat:1});
+    const answered=pose();
+    assert.ok(answered[2]<braced[2]-.3,
+      'Pip brings the original lantern arm forward after the public shell reveal');
+    assert.ok(answered[0]>braced[0]+.025,
+      'Pip comes up from the crouch for the authored lantern answer');
+    pip.update({...cue,guardianEncounterBeat:1});
+    assert.deepEqual(pose(),answered,'same witnessed frame and clock replay exactly');
+    pip.update({...cue,attentionHeading:undefined,attentionStrength:0,guardianEncounterBeat:1});
+    const withdrawn=pose();
+    pip.update({...cue,attentionHeading:undefined,attentionStrength:0});
+    assert.deepEqual(pose(),withdrawn,
+      'losing public threat visibility removes all special beat transforms immediately');
+    pip.update({...cue,result:'capture',guardianEncounterBeat:1});
+    const ended=pose();
+    pip.update({...cue,result:'capture'});
+    assert.deepEqual(pose(),ended,'terminal gameplay suppresses stale public visual cue');
+    pip.dispose();
+    assert.equal(pip.group.children.length,0,'all original physical resources dispose');
+  }
 });
