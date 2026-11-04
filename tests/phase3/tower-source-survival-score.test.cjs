@@ -9,7 +9,9 @@ const audio = fs.readFileSync(path.join(__dirname,
   '../../public/infinite-tower-climb/visuals/audio.mjs'), 'utf8');
 const atmosphere = fs.readFileSync(path.join(__dirname,
   '../../public/infinite-tower-climb/visuals/atmosphere.mjs'), 'utf8');
-const detect = vm.runInNewContext(audio.replace(/^export /gm, '') +
+// Native ESM imports are resolved by the browser; this narrow VM only invokes
+// the pure source-owned survival witness, so strip the unused import declaration.
+const detect = vm.runInNewContext(audio.replace(/^import .*;\n/gm, '').replace(/^export /gm, '') +
   '\nobservedSurvivalChange', {});
 const snap = (changes = {}) => ({ runToken: 'expedition', floor: 6, tick: 100,
   lifecycle: 'running', player: { health: 4, maxHealth: 8 }, ...changes });
@@ -36,6 +38,7 @@ test('one existing physical atmosphere draw and gesture-gated sound own survival
   assert.match(audio, /observedSurvivalChange\(lastSurvivalSnapshot, snapshot\)/);
   assert.match(audio, /voices\.size >= 12/);
   assert.match(atmosphere, /new THREE\.InstancedMesh\(geometry, material, MAX_MOTES\)/);
-  assert.match(atmosphere, /guardianWarning \? \.30 : \.65/);
+  assert.match(atmosphere, /guardianWarning \? \.28 : \.62/);
+  assert.match(atmosphere, /hierarchy\.focus/, 'source-authentic danger quiets optional ambience');
   assert.match(atmosphere, /i % 3 === 0 \? 30\.2/);
 });
