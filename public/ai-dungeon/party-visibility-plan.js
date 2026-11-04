@@ -30,12 +30,20 @@ export function planCameraBodyOcclusion(x,z,subjects,camera,wallHeight=2.6){
   // Preserve complete far nave and rear stone: only a genuine foreground
   // intersection within an adult body-sized staging corridor is eligible.
   if(length<.8||length>30||Math.hypot(x-subject.x,z-subject.z)>4.8)continue;
-  let span=bodyRaySlab(camera.x,dx,x-.54,x+.54,[.025,.975]);
-  if(!span)continue;
-  span=bodyRaySlab(camera.z,dz,z-.54,z+.54,span);
-  if(!span)continue;
-  for(const y of [.30,.98,1.63])
-   if(bodyRaySlab(camera.y,y-camera.y,.02,wallHeight,span))return true;
+  // Native shoulders, the shield arm and blade have physical width: one
+  // clear central ray can still leave the skinned fighter behind stone.
+  // Three body-width rays retain the existing near-wall/five-actor budget.
+  const rightX=-dz/length,rightZ=dx/length;
+  for(const side of [0,-.26,.26]){
+   const rayX=dx+rightX*side,rayZ=dz+rightZ*side;
+   let span=bodyRaySlab(camera.x,rayX,x-.56,x+.56,[.012,.995]);
+   if(!span)continue;
+   span=bodyRaySlab(camera.z,rayZ,z-.56,z+.56,span);
+   if(!span)continue;
+   const heights=side===0?[.24,.91,1.63]:[.91,1.36];
+   for(const y of heights)
+    if(bodyRaySlab(camera.y,y-camera.y,.02,wallHeight,span))return true;
+  }
  }
  return false;
 }

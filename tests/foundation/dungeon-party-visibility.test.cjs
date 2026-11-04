@@ -274,3 +274,15 @@ test('M1 anatomical stone clearance has finite read-only budgets, and source ren
  assert.match(dressing,/wallPad,f\[4\]/);
  assert.match(app,/fullBodyHeroes,partiallyVisibleHeroes,fullBodyBosses,bodySamples/);
 });
+
+test('native armour shoulder sightlines expose real near stone but keep a distant Gothic room',async()=>{
+ const {planCameraBodyOcclusion,planPartyWallReveal}=await load();
+ const hero=Object.freeze({x:0,z:0,silhouetteRecess:true}),camera=Object.freeze({x:7,y:2.2,z:0});
+ const original=JSON.stringify({hero,camera});
+ assert.equal(planCameraBodyOcclusion(4.4,.6,[hero],camera,2.6),true);
+ assert.equal(planPartyWallReveal(4.4,.6,[hero],camera,2.1,2.6),'sightline');
+ assert.equal(planCameraBodyOcclusion(4.4,.6,[{x:0,z:0}],camera,2.6),false);
+ assert.equal(planPartyWallReveal(5.1,.6,[hero],camera,2.1,2.6),'none');
+ assert.equal(planCameraBodyOcclusion(4.4,.6,[hero],{...camera,y:15},2.6),false);
+ assert.equal(JSON.stringify({hero,camera}),original);
+});

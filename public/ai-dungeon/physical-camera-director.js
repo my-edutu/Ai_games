@@ -14,7 +14,10 @@
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const finite=n=>typeof n==='number'&&Number.isFinite(n);
 const ANGLES=Object.freeze([0,-.40,.40,-.76,.76]);
-const BODY_SAMPLES=Object.freeze([{y:1.63,weight:2.7},{y:1.02,weight:2.3},{y:.26,weight:1.65}]);
+// Body width matters: a visible helmet does not prove visible weapon arms.
+const BODY_SAMPLES=Object.freeze([{y:1.63,weight:2.7,side:0},
+ {y:1.17,weight:1.35,side:-.26},{y:1.17,weight:1.35,side:.26},
+ {y:1.02,weight:2.3,side:0},{y:.26,weight:1.65,side:0}]);
 const FOV=Math.PI/180;
 
 function boundedWalls(positions,heights,size){
@@ -90,8 +93,11 @@ function grade(cam,look,eyes,grid,size,viewport,reveal,pad){
  let score=0,blocked=0,cropped=0,fullyVisible=0;
  for(const p of eyes){
   let bodyVisible=0;
+  const length=Math.max(.1,Math.hypot(p.x-cam.x,p.z-cam.z));
+  const rightX=-(p.z-cam.z)/length,rightZ=(p.x-cam.x)/length;
   for(const sample of BODY_SAMPLES){
-   const point={x:p.x,y:p.kind==='warden'?sample.y*1.32:sample.y,z:p.z};
+   const point={x:p.x+rightX*sample.side,
+    y:p.kind==='warden'?sample.y*1.32:sample.y,z:p.z+rightZ*sample.side};
    if(!projected(cam,look,point,aspect,fov)){
     score-=sample.weight*1.8;cropped++;continue;
    }
@@ -100,7 +106,7 @@ function grade(cam,look,eyes,grid,size,viewport,reveal,pad){
    }
    score+=sample.weight;bodyVisible++;
   }
-  if(bodyVisible===3){fullyVisible++;score+=.75;}
+  if(bodyVisible===BODY_SAMPLES.length){fullyVisible++;score+=.75;}
  }
  const origin=(size-1)/2,cx=Math.round(cam.x+origin),cz=Math.round(cam.z+origin);
  if(cx>=0&&cz>=0&&cx<size&&cz<size&&grid[cz*size+cx]>0)score-=2.5;

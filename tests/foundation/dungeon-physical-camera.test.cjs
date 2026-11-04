@@ -55,3 +55,14 @@ test('real scene hooks use one planner for camera, physical cutaways and diagnos
  assert.match(app,/cutawayWalls\(target,partySightlines/);
  for(const forbidden of ['Math.random(','Date.now(','fetch(','DungeonRuntime'])assert.equal(sourceText.includes(forbidden),false);
 });
+
+test('physical orbit checks real native shoulder lanes and preserves public authority',async()=>{
+ const code=fs.readFileSync(source,'utf8');
+ assert.ok(code.includes('side:-.26')&&code.includes('side:.26'));
+ assert.ok(code.includes('bodyVisible===BODY_SAMPLES.length'));
+ const {createPhysicalCameraDirector}=await load(),director=createPhysicalCameraDirector();
+ const state=snap(),result=director.resolve(state,base(),options([[0,2],[1,2],[0,3]],[2.5,2.5,2.5]));
+ if(result){assert.ok(result.occlusion.blockedAfter<=result.occlusion.blockedBefore);
+  assert.ok(result.occlusion.fullyVisibleAfter>=result.occlusion.fullyVisibleBefore);}
+ assert.deepEqual(state,snap());
+});
