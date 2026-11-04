@@ -14,13 +14,23 @@ const html24=execFileSync('git',['show',W24+':public/tiny-kingdom/index.html'],
 test('W25 matched W24 construction-growth CPU wall phases, replay truth and 390px physical pictures',async({browser})=>{
  test.setTimeout(360000);
  fs.mkdirSync(destination,{recursive:true});
- const results=[];
+ const results=[];let pinnedSnapshot=null,pinnedSnapshotHash=null;
  for(const [label,html] of [['W24',html24],['W25',html25]]){
   const page=await browser.newPage({viewport:{width:1024,height:640}});
   const pageErrors=[];page.on('pageerror',err=>pageErrors.push(err.message));
   await page.setContent(html);
   await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0,null,{timeout:90000});
   await page.locator('#pause').click();
+  // One EXACT authoritative snapshot for both source versions, not merely
+  // the same seed. CI software draws at different rates while page starts.
+  // Save/restore under pause prevents accidental timing-derived RNG drift.
+  if(label==='W24'){
+   pinnedSnapshot=await page.evaluate(()=>window.__tinyKingdom.exportSnapshot());
+   pinnedSnapshotHash=hash(JSON.stringify(pinnedSnapshot));
+  }else{
+   expect(await page.evaluate(snapshot=>window.__tinyKingdom.restoreSnapshot(snapshot),pinnedSnapshot)).toBe(true);
+   expect(await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()))).toBe(JSON.stringify(pinnedSnapshot));
+  }
   // A fixed inspected camera, then a frozen frame. The next fixed-step
   // authoritative construction changes the entire rendered town legitimately.
   const initialFrame=await page.evaluate(()=>window.__tinyKingdom.getFrameProfile().totalFrames);
@@ -82,7 +92,7 @@ test('W25 matched W24 construction-growth CPU wall phases, replay truth and 390p
   expect(mobile.width).toBeLessThanOrEqual(390);expect(mobile.gl).toBe(0);
   await page.locator('#world').screenshot({path:path.join(destination,label+'-mobile.png')});
   expect(pageErrors).toEqual([]);
-  results.push({label,source:label==='W24'?W24:W25,renderer:await page.evaluate(()=>window.__tinyKingdom.renderQuality().renderer),
+  results.push({label,source:label==='W24'?W24:W25,initialSnapshotSha256:pinnedSnapshotHash,renderer:await page.evaluate(()=>window.__tinyKingdom.renderQuality().renderer),
    baseline,growth,mobile});
   await page.close();
  }
