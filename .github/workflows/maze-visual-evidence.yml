@@ -34,6 +34,8 @@ jobs:
         run: npm run test:maze:phase3
       - name: Verify live Maze stream host
         run: npm run maze:stream:self-test
+      - name: Parse-check browser evidence before costly graphics setup
+        run: node --check tests/browser/maze-review.spec.cjs
       - name: Install Chromium once
         run: npx playwright install --with-deps chromium
       - name: Capture source-bound Maze browser evidence
