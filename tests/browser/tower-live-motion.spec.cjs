@@ -91,6 +91,10 @@ for (const viewport of viewports) {
         sourceMovingDecks: (s?.platforms || []).filter(p => p.kind === 'moving')
           .map(p => ({ id:p.id, x:p.x, y:p.y, width:p.width, height:p.height })),
         observedMovingSuspension: d.movingDeckSuspension || null,
+        // Real source transition plus currently occupied deck material.
+        // A brief impact may fall between samples; the FULL video remains
+        // necessary and this field is not a LOOKS/FEELS/PLAYS verdict.
+        observedPhysicalTouchdown: d.observedTouchdown || null,
         observedMovingCarriage: d?.world ? {
           cranks: d.world.observedMovingDeckCranks ?? null,
           driveStages: d.world.observedMovingDeckDriveStages ?? null,
@@ -164,6 +168,12 @@ for (const viewport of viewports) {
       String(o.runToken) + ':' + platform.id + ':' + platform.x + ':' + platform.y));
   const sourceMovingSummary = {
     sourceFramesWithMovingDeck: sourceMovingSamples.length,
+    sourceWitnessedPhysicalContactSamples: observations.filter(o =>
+      o.observedPhysicalTouchdown?.physicalDeckContact === true).length,
+    sourceWitnessedImpactDeckIds: [...new Set(observations
+      .map(o => o.observedPhysicalTouchdown?.platformId).filter(Boolean))],
+    sourceWitnessedImpactFragments: observations
+      .find(o => o.observedPhysicalTouchdown?.physicalDeckContact)?.observedPhysicalTouchdown?.fragmentInstances || 0,
     real3dSuspensionVisibleSamples: observations.filter(o => o.observedMovingSuspension?.visible).length,
     real3dSuspensionContactSamples: observations.filter(o =>
       Number.isSafeInteger(o.observedMovingSuspension?.authenticContactTick) &&
@@ -174,7 +184,7 @@ for (const viewport of viewports) {
       (o.observedMovingCarriage?.driveStages ?? 0) > 0 &&
       Number.isSafeInteger(o.observedMovingCarriage?.lastDriveTick) &&
       o.observedMovingCarriage.lastDriveTick >= 0).length,
-    note: 'Read-only source/scene samples only. A zero captured spring sample is not proof the event never occurred: the 1000ms video sampling may miss its 12-tick stroke. Judging visual contact, mechanics and comparative motion still requires untouched native WebM; no device FPS or blind score.',
+    note: 'Read-only source/scene samples only. A zero captured chassis or landing-fragment sample is NOT proof that no real touchdown occurred: the authentic 12-tick spring and <650ms physical debris can fall between samples. Evaluate untouched source-pinned WebM at normal speed for real impact, readable motion and deck occlusion; these diagnostics give no supported-device FPS or blind critic score.',
   };
   const sourcePhaseSummary = {
     available: !!trace, method: trace?.method || null,
