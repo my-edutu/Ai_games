@@ -2396,8 +2396,8 @@
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
     "biggestRemainingGap": "Native proportions and weapon contact still toy-like; genuine predecessor browser shows chest/boots behind Gothic fascia. New 3D clearance has not yet shown visual superiority in real moving WebGL.",
-    "currentWork": "One M1 continuing candidate: true camera-height 3D anatomical stone-ray clearing shared by base + dressed Gothic facades with honest full-body ray diagnostics; exact current-head browser footage, original A/V, performance and blind critic majorities UNVERIFIED.",
-    "candidateCommit": "9b4d3f2653d9bc0cad8382de2f5fa703b0b0982d",
+    "currentWork": "M1 single ongoing candidate e76c3d37: camera-height anatomical ray and shared real stone/facade/physical-camera clearance, with truthful full-body actor diagnostics and bounded mobile work. New exact-head browser/performance/audio and blind 3-person critic results UNVERIFIED. Original 281735d baseline unchanged.",
+    "candidateCommit": "e76c3d37ee07343cb3f07d5f961955ec2b51065e",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -4891,16 +4891,17 @@
         "status": "SOURCE_IMPLEMENTED_EXPERIENTIAL_RESULT_UNVERIFIED",
         "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
         "predecessorSha": "7cc4d0d1aea8f28fbc8711816c443a7f16420887",
-        "sourceCodeCommit": "9b4d3f2653d9bc0cad8382de2f5fa703b0b0982d",
+        "sourceCodeCommit": "e76c3d37ee07343cb3f07d5f961955ec2b51065e",
         "previousRealBrowserArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41854700657/artifacts/13338175429",
         "objective": "Reveal genuinely readable source-skinned boots, torso, head and weapon contact through camera-near Gothic walls without removing real distant architecture.",
         "genuineNegativeBefore": "Last inspected real Chromium predecessors show Vanguard head and blade above solid fascia while torso/legs obscured; unoccludedHeroes any-ray metric falsely suggests full actor readability.",
         "integratedImplementation": [
           "Pure bounded camera-to-boot/torso/head 3D stone-envelope ray intersection for up to 5 existing scene-flagged real actors, preserving higher or rear Gothic room mass.",
           "Use true base wall height and physical facade height in the same shared render-only clearance policy; retain existing authority grid, pathing, damage and deterministic seed.",
-          "Four-ray native 3D diagnostics now report fullBodyHeroes, partiallyVisibleHeroes and fullBodyBosses instead of accepting one visible face as full readability; old counts remain compatible."
+          "Four-ray native 3D diagnostics now report fullBodyHeroes, partiallyVisibleHeroes and fullBodyBosses instead of accepting one visible face as full readability; old counts remain compatible.",
+          "True stone height also feeds the existing physical-camera multi-orbit grader; a bounded near-stone prefilter and shared slab helper reduce per-frame allocations for the larger scene."
         ],
-        "safety": "Predecessor exact SHA 7cc4d0d passed dedicated authority/Chromium workflow 41854700253 and visual 41854700657, but catalogue 41854700728 failed because boss-sightline test source had an unescaped apostrophe; syntax repaired in 942d3be, targeted 3D plan tests added. Exact current-head workflows NOT VERIFIED.",
+        "safety": "Predecessor exact SHA 7cc4d0d passed dedicated authority/Chromium workflow 41854700253 and visual 41854700657, but catalogue 41854700728 failed because boss-sightline test source had an unescaped apostrophe; syntax repaired in 942d3be, targeted 3D plan tests added. Exact current-head workflows NOT VERIFIED. Source e76c3d37 exact-head Dungeon 41865005779, visual 41865005746 and full catalogue CI 41865005787 queued; outcomes UNVERIFIED.",
         "looks": "UNVERIFIED",
         "feels": "UNVERIFIED",
         "plays": "UNVERIFIED",
