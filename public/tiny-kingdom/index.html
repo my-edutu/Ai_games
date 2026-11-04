@@ -1577,24 +1577,24 @@ function packSpatialScenery(mesh){
   chunk.maxY=Math.max(chunk.maxY,triangleMaxY);
   chunk.maxZ=Math.max(chunk.maxZ,triangleMaxZ);
  }
- const ranges=[],slots=new Array(chunks.length);
+ const ranges=[],next=new Uint32Array(chunks.length);
  let cursor=0;
  for(const chunk of chunks.sort((a,b)=>a.key<b.key?-1:a.key>b.key?1:0)){
   const range={first:cursor/10,count:chunk.count*3,
    minX:chunk.minX,minY:chunk.minY,minZ:chunk.minZ,
    maxX:chunk.maxX,maxY:chunk.maxY,maxZ:chunk.maxZ};
   ranges.push(range);
-  slots[chunk.id]={next:cursor,range};
+  next[chunk.id]=cursor;
   cursor+=chunk.count*30;
  }
  if(cursor!==mesh.length)throw Error('G105 missing packed triangles');
  const packed=new Float32Array(mesh.length);
  for(let i=0;i<triangleCount;i++){
-  const o=i*30,slot=slots[triangleChunkIds[i]],dest=slot.next;
-  // No per-triangle typed-array views, strings, material changes or lost
+  const o=i*30,id=triangleChunkIds[i],dest=next[id];
+  // Bounded integer write cursors avoid 120k per-triangle slot-object lookups.\n // No per-triangle typed-array views, strings, material changes or lost
   // normals; the original 30 floats arrive in their exact original order.
   for(let j=0;j<30;j++)packed[dest+j]=mesh[o+j];
-  slot.next+=30;
+  next[id]=dest+30;
  }
  return {vertices:packed,ranges};
 }
