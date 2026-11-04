@@ -31,7 +31,8 @@ test('cutaway planner validates malformed maps and never changes gameplay truth'
 test('camera cutaway shrinks a blocking wall to rubble while keeping normal wall and near-wall identity',async()=>{
  const {planCutawayWallTransform}=await load();
  assert.deepEqual(planCutawayWallTransform('sightline',2.6),{height:.13,footprint:.32});
- assert.deepEqual(planCutawayWallTransform('nearby',2.6),{height:.27,footprint:.78});
+ assert.deepEqual(planCutawayWallTransform('nearby',2.6),{height:.43,footprint:.84},
+  'rear and flank carved ruins stay visible without rising across real hero torsos');
  assert.deepEqual(planCutawayWallTransform('none',2.6),{height:2.6,footprint:1.015});
  assert.deepEqual(planCutawayWallTransform('none',NaN),{height:2.6,footprint:1.015});
 });
