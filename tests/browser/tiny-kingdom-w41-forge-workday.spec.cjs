@@ -94,6 +94,18 @@ test('W41 autonomous smith reaches the physical outdoor forge and works on deskt
  expect(mobile.snapshot).toBe(original);
  expect(errors).toEqual([]);
  await page.screenshot({path:'artifacts/tiny-kingdom-w41/genuine-forge-workday-390px.png'});
+ // W42 test-first: the working craft yard needs an intentional, accessible
+ // world-camera entry point, not an unfindable distant ornamental landmark.
+ const forgeTour=page.locator('.world-tour [data-scenic="forge"]');
+ await expect(forgeTour).toHaveCount(1);
+ await forgeTour.click();
+ await expect(forgeTour).toHaveAttribute('aria-pressed','true');
+ const forgeFocus=await page.evaluate(()=>window.__tinyKingdom.getCamera().focus);
+ const yard=await page.evaluate(()=>window.__tinyKingdom.getForgeCraftCycleAudit().anvil);
+ expect(Math.hypot(forgeFocus[0]-yard[0],forgeFocus[1]-yard[1])).toBeLessThan(3.5);
+ await expect(page.locator('.world-tour')).toBeVisible();
+ await page.screenshot({path:'artifacts/tiny-kingdom-w41/genuine-forge-scenic-390px.png'});
+ expect(await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()))).toBe(original);
  console.log('W41 genuine forge workday',JSON.stringify({commute:witnessed.commute,
   tick:witnessed.ticks,worker:witnessed.arrived.citizen,day:witnessed.arrived.city.day,
   desktop:witnessed.arrived.audit,mobile:mobile.current,triangles:mobile.triangles}));
