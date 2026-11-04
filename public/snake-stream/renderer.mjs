@@ -123,7 +123,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   // T1 GARDEN LIGHT STUDY. Reduce flat green ambient wash while retaining
   // honest readable fruit/hazard/portal emissives and the original physical
   // sun, shadow map, ACES output and real full-desktop rendering budget.
-  renderer.toneMappingExposure = 1.02;
+  renderer.toneMappingExposure = 1.07;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -135,8 +135,8 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   scene.background = new THREE.Color('#7daca5');
   scene.fog = new THREE.Fog('#7daca5', 48, 110);
   const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 180);
-  const sky = new THREE.HemisphereLight(0xd3f4ec, 0x40554b, 1.88);
-  const sun = new THREE.DirectionalLight(0xffe6b3, 3.42);
+  const sky = new THREE.HemisphereLight(0xd3f4ec, 0x334d44, 1.52);
+  const sun = new THREE.DirectionalLight(0xffe6b3, 3.10);
   sun.position.set(-15, 26, 12);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);

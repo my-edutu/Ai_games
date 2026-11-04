@@ -115,7 +115,7 @@ export function cameraComposition({ width, height, aspect, mode = 'overview', he
     ? 0.20 + 0.32 * Math.max(0, Math.min(1, (aspect - 0.45) / 0.55))
     : 0.52;
   let outward = normalize(portrait ? { x: portraitOverviewX, y: 0.85, z: 0.02 }
-    : { x: 0.12, y: 0.77, z: 0.67 });
+    : { x: 0.12, y: 0.65, z: 0.77 });
   // END R56 PORTRAIT OVERVIEW STAGING
   const target = mode === 'overview' ? { x: 0, y: 0.4, z: 0 } : { x: head.x, y: 0.4, z: head.z };
   let distance;

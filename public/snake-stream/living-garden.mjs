@@ -179,7 +179,11 @@ export function createLivingGarden(THREE, {width,height}) {
     const front=s.axis==='x'&&s.near>0;
     const terraceWidth=Math.pow(Math.sin(Math.PI*v),1.18);
     const swell=.79+.21*Math.sin(t*.19+s.near*.11+v*.8);
-    const uplift=(front?.42:s.axis==='x'?2.58:2.34)*terraceWidth*swell;
+    // A wider forest gallery slopes away in overlapping terraces rather than
+    // blocking the garden with two tall, flat, same-height side ridges.
+    // Retain the original shore vertices, stream cuts and planted root seats.
+    const terraceRhythm=.86+.14*Math.cos(t*.31+v*3.8+s.start*.09);
+    const uplift=(front?.42:s.axis==='x'?2.02:1.49)*terraceWidth*swell*terraceRhythm;
     const y=-.43-.42*v-.54*v*v+.11*Math.sin(t*.24+2)*(.25+.75*v)+relief
       +coveLift*.52+erodedShelf+tidalValley+uplift;
     return [x,y,z];
@@ -482,10 +486,10 @@ export function createLivingGarden(THREE, {width,height}) {
   // near, mid and far depth, never over any authoritative cell or portal.
   // No canopy leaf, vine, triangle, material, pass, texture or draw removed.
   const forest=[
-    [-W-7.20,-H*.25,6.30,.2],[-W*.47,-H-7.15,6.5,1.4],
-    [-W*.11,-H-7.20,6.3,2.5],[W*.27,-H-7.25,6.65,3.7],
-    [W*.61,-H-7.10,6.3,4.8],[W+7.25,-H*.15,6.45,5.7],
-    [-W-7.15,H+6.0,5.65,.65],[W+7.35,H+5.95,5.85,2.3]
+    [-W-5.85,-H*.32,6.65,.2],[-W*.53,-H-6.05,6.65,1.4],
+    [-W*.14,-H-5.95,6.8,2.5],[W*.28,-H-6.18,6.85,3.7],
+    [W*.64,-H-6.10,6.60,4.8],[W+5.85,-H*.28,6.65,5.7],
+    [-W-5.65,H+5.35,6.20,.65],[W+5.80,H+5.45,6.30,2.3]
   ];
   // Seat real woodland trunks INTO their coast rather than letting an
   // identical -0.56 base float beside the newly sculpted bank. The bounded
@@ -864,8 +868,8 @@ export function createLivingGarden(THREE, {width,height}) {
   // Two large original branch-and-leaf canopies create near-camera parallax
   // on the OPEN wings; the authentic board and portal coordinates stay clear.
   for(const [x,z,h,phase] of [
-    [-W-7.40,H+6.90,7.05,8.1],
-    [W+7.4,H+6.85,7.30,9.2]
+    [-W-5.45,H+5.35,7.05,8.1],
+    [W+5.55,H+5.40,7.30,9.2]
   ]){
     canopyTree(x,z,h,phase);
     features.foregroundCanopies++;
