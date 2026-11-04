@@ -102,3 +102,17 @@ test('camera tests real facade volume that grid-only rays cannot see',async()=>{
  assert.match(app,/facades:world\.userData\.dressing\?\.occlusionFaces/);
  assert.match(environment,/occlusionFaces:wallFaces/);
 });
+
+test('rendered physical facades and camera share the same real-actor cutaway band',async()=>{
+ const {planFacadeBodyOcclusion}=await load();
+ const f=[[2.5,1.55,0,.84,3.05,.82]],camera={x:5,y:3.7,z:0},point={x:0,y:1.1,z:0};
+ const eyes=[{x:0,z:0,visibleActor:true}];
+ assert.equal(planFacadeBodyOcclusion(camera,point,f,eyes,()=> 'none'),true);
+ assert.equal(planFacadeBodyOcclusion(camera,point,f,eyes,()=> 'none',2.1,()=> 'sightline'),false);
+ assert.equal(planFacadeBodyOcclusion(camera,point,f,eyes,()=> 'sightline',2.1,()=> 'none'),true);
+ const environment=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ assert.match(environment,/const facadeReveal=/);
+ assert.match(environment,/reveal=facadeReveal\(f,eyes,camera,wallPad\)/);
+ assert.match(app,/facadeReveal:world\.userData\.dressing\?\.facadeReveal/);
+});

@@ -1102,6 +1102,7 @@ function animate(t){
   physicalCameraDirector.resolve(state,basePlannedCamera,{
    subjects:partySightlines,wallPositions:world.userData.wallPositions,
    wallHeights:world.userData.wallHeights,facades:world.userData.dressing?.occlusionFaces,
+   facadeReveal:world.userData.dressing?.facadeReveal,
    reveal:planPartyWallReveal,
    wallPad:storyStage?.wallPad??2.1,width:w,height:h,
    fov:cinematicLens?.fov??48,lookY:cinematicLens?.lookY??cinematicShot?.lookY??0,

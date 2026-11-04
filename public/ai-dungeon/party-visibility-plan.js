@@ -212,6 +212,43 @@ export function resolveRenderedSilhouetteSubjects(state,subjects,actors){
  return resolved;
 }
 
+/**
+ * A literal facade is a rectangular, opaque Three.js slab with a render-space
+ * center and scale. Its projection may cover real limbs even when its parent
+ * tile's approximate ray misses. Only genuine rooted living actors are granted
+ * an exact facade clearance. Rays must pass through the actual original stone,
+ * within the bounded nearby stage; nothing changes collision or AI vision.
+ */
+function facadeRayBox(camera,x,y,z,face){
+ let lo=.014,hi=.985;
+ const axes=[[camera.x,x,face[0]-face[3]/2,face[0]+face[3]/2],
+  [camera.y,y,face[1]-face[4]/2,face[1]+face[4]/2],
+  [camera.z,z,face[2]-face[5]/2,face[2]+face[5]/2]];
+ for(const [origin,end,min,max] of axes){
+  const d=end-origin;
+  if(Math.abs(d)<1e-8){if(origin<min||origin>max)return false;continue;}
+  const a=(min-origin)/d,b=(max-origin)/d;
+  lo=Math.max(lo,Math.min(a,b));hi=Math.min(hi,Math.max(a,b));
+  if(lo>hi)return false;
+ }
+ return true;
+}
+const FACADE_BODY_HEIGHTS=Object.freeze([.23,.88,1.18,1.63]);
+export function planLiveFacadeBodyReveal(face,subjects,camera){
+ if(!Array.isArray(face)||face.length<6||![...face.slice(0,6),camera?.x,camera?.y,camera?.z].every(Number.isFinite)||
+    face[3]<=0||face[4]<=.15||face[5]<=0||face[3]>4||face[4]>6||face[5]>4)return false;
+ for(const subject of Array.isArray(subjects)?subjects.slice(0,5):[]){
+  if(subject?.visibleActor!==true||![subject.x,subject.z].every(Number.isFinite)||
+     Math.hypot(face[0]-subject.x,face[2]-subject.z)>4.8)continue;
+  const dx=subject.x-camera.x,dz=subject.z-camera.z,distance=Math.hypot(dx,dz);
+  if(distance<.8||distance>30)continue;
+  const rightX=-dz/distance,rightZ=dx/distance;
+  for(const y of FACADE_BODY_HEIGHTS)for(const side of [-.24,0,.24])
+   if(facadeRayBox(camera,subject.x+rightX*side,y,subject.z+rightZ*side,face))return true;
+ }
+ return false;
+}
+
 export function createCutawayBandCache(count){
  if(!Number.isSafeInteger(count)||count<0||count>16384)return null;
  return new Uint8Array(count).fill(255);

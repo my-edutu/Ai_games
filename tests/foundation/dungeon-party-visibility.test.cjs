@@ -397,3 +397,16 @@ test('a true moving rendered body stays privileged between two legal cardinal ce
  assert.equal(resolveRenderedSilhouetteSubjects(state,[{x:0,z:0}],actors)[0].visibleActor,undefined);
  assert.equal(JSON.stringify(state.units),JSON.stringify(JSON.parse(original).units));
 });
+
+test('the actual opaque facade is physically removed only when it cuts a moving adult figure',async()=>{
+ const {planLiveFacadeBodyReveal}=await load();
+ const face=[2.5,1.55,0,.84,3.05,.82],camera={x:5,y:3.7,z:0};
+ const actual={x:0,z:0,visibleActor:true};
+ const original=JSON.stringify([face,camera,actual]);
+ assert.equal(planLiveFacadeBodyReveal(face,[actual],camera),true);
+ assert.equal(planLiveFacadeBodyReveal(face,[{x:0,z:0}],camera),false,'synthetic marker cannot clear a wall');
+ assert.equal(planLiveFacadeBodyReveal(face,[{x:0,z:0,visibleActor:false}],camera),false);
+ assert.equal(planLiveFacadeBodyReveal([-2,1.55,0,.84,3.05,.82],[actual],camera),false,'rear Gothic stone remains');
+ assert.equal(planLiveFacadeBodyReveal([7.5,1.55,0,.84,3.05,.82],[actual],camera),false,'stone beyond camera remains');
+ assert.deepEqual([face,camera,actual],JSON.parse(original));
+});

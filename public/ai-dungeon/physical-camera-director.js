@@ -110,7 +110,7 @@ function rayIntersectsBox(cam,point,x0,y0,z0,x1,y1,z1){
   lo=Math.max(lo,Math.min(a,b));hi=Math.min(hi,Math.max(a,b));}
  return lo<=hi;
 }
-export function planFacadeBodyOcclusion(cam,point,facades,eyes,reveal,pad=2.1){
+export function planFacadeBodyOcclusion(cam,point,facades,eyes,reveal,pad=2.1,facadeReveal=null){
  if(![cam?.x,cam?.y,cam?.z,point?.x,point?.y,point?.z].every(finite)||
     !Array.isArray(facades)||facades.length>2048||typeof reveal!=='function')return false;
  for(const f of facades){
@@ -122,7 +122,8 @@ export function planFacadeBodyOcclusion(cam,point,facades,eyes,reveal,pad=2.1){
   if(!rayIntersectsBox(cam,point,f[0]-f[3]/2,f[1]-f[4]/2,f[2]-f[5]/2,
                        f[0]+f[3]/2,f[1]+f[4]/2,f[2]+f[5]/2))continue;
   // These are precisely the facadeMesh.setMatrixAt dimensions in environment.js.
-  const band=reveal(f[0],f[2],eyes,cam,pad,f[4]);
+  const band=typeof facadeReveal==='function'?facadeReveal(f,eyes,cam,pad):
+   reveal(f[0],f[2],eyes,cam,pad,f[4]);
   const h=band==='sightline'?.13:band==='nearby'?.43:f[4];
   const cy=band==='sightline'?.115:band==='nearby'?.23:f[1];
   if(rayIntersectsBox(cam,point,f[0]-f[3]/2,cy-h/2,f[2]-f[5]/2,
@@ -142,7 +143,7 @@ function orbit(base,index,size){
   z:clamp(center.z+(dx*sin+dz*cos)*reach,-limit,limit)};
 }
 
-function grade(cam,look,eyes,grid,size,viewport,reveal,pad,facades){
+function grade(cam,look,eyes,grid,size,viewport,reveal,pad,facades,facadeReveal){
  const aspect=viewport.width/viewport.height;
  const fov=clamp(viewport.fov,32,66);
  let score=0,blocked=0,cropped=0,fullyVisible=0;
@@ -157,7 +158,7 @@ function grade(cam,look,eyes,grid,size,viewport,reveal,pad,facades){
     score-=sample.weight*1.8;cropped++;continue;
    }
    if(blockedByStone(cam,point,point.y,grid,size,eyes,reveal,pad)||
-      planFacadeBodyOcclusion(cam,point,facades,eyes,reveal,pad)){
+      planFacadeBodyOcclusion(cam,point,facades,eyes,reveal,pad,facadeReveal)){
     score-=sample.weight*1.45;blocked++;continue;
    }
    score+=sample.weight;bodyVisible++;
@@ -172,7 +173,7 @@ function grade(cam,look,eyes,grid,size,viewport,reveal,pad,facades){
 export function createPhysicalCameraDirector(){
  let scene=null,choice=0,switches=0,checks=0,improvements=0,last=null,grid=null,wallsRef=null,heightsRef=null,lastTick=null;
  function reset(){scene=null;choice=0;last=null;grid=null;wallsRef=null;heightsRef=null;lastTick=null;}
- function resolve(state,base,{subjects=[],wallPositions=[],wallHeights=[],facades=[],reveal=null,wallPad=2.1,
+ function resolve(state,base,{subjects=[],wallPositions=[],wallHeights=[],facades=[],facadeReveal=null,reveal=null,wallPad=2.1,
     width=1440,height=832,fov=48,lookY=1.05,reducedMotion=false}={}){
   if(reducedMotion||state?.bossWarning||state?.phase==='intermission'||typeof reveal!=='function'||
    !Number.isSafeInteger(state?.run)||!Number.isSafeInteger(state?.floor)||
@@ -198,7 +199,7 @@ export function createPhysicalCameraDirector(){
   for(let i=0;i<MAX_CANDIDATES;i++){
    const rescue=RESCUE_SHOTS[i-ANGLES.length];
    const angle=rescue?.angle??ANGLES[i]??0,camera=orbit(base,i,size);
-   const result=grade(camera,look,eyes,grid,size,viewport,reveal,wallPad,facades);
+   const result=grade(camera,look,eyes,grid,size,viewport,reveal,wallPad,facades,facadeReveal);
    // An elevated shot pays a real compositional cost: use it only when
    // more of the actual skinned bodies become visible without new cropping.
    const penalty=rescue?.lift!==undefined?
