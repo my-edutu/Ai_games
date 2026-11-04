@@ -7308,7 +7308,7 @@ function marketVisitCrowd(pos,door){
  // G158: the genuine Day-120 film showed 186/238 candidate viewpoints
  // rejected by bystanders EVEN BEHIND the camera. Judge 390px foreground
  // obstruction in portrait projection rather than global citizen distance.
- const portraitTan=Math.tan(Math.PI/6.4)*(390/844);
+ const portraitTan=physicalCameraProjection().tanHorizontal;
  let closestCitizenDistance=Infinity,closestFramedCitizenDistance=Infinity;
  let foregroundCitizenCount=0;
  for(const person of people){
@@ -7343,8 +7343,8 @@ function marketVisitCrowd(pos,door){
 function marketPostFrame(pos,door){
  const dx=door[0]-pos[0],dz=door[2]-pos[1],span=Math.hypot(dx,dz)||1;
  const fx=dx/span,fz=dz/span,rx=-fz,rz=fx;
- const aspect=Math.min(Math.max(.30,canvas.clientWidth/Math.max(1,canvas.clientHeight)),390/844);
- const tanHalf=Math.tan(Math.PI/6.4),centerBand=.38;
+ const {aspect,tanVertical:tanHalf}=physicalCameraProjection();
+ const centerBand=.38;
  let centralCover=0,postsInFrame=0,nearPost=Infinity;
  for(const stall of MARKET_STALLS){
   for(const sx of [-1,1])for(const sz of [-1,1]){
@@ -7374,8 +7374,7 @@ function marketVisitArchitecture(pos,door,stall){
  const right=[-forward[2]/flat,0,forward[0]/flat];
  const up=[-right[2]*forward[1],right[2]*forward[0]-right[0]*forward[2],
   right[0]*forward[1]];
- const aspect=Math.min(Math.max(.30,canvas.clientWidth/Math.max(1,canvas.clientHeight)),390/844);
- const tanHalf=Math.tan(Math.PI/6.4);
+ const {aspect,tanVertical:tanHalf}=physicalCameraProjection();
  const roofs=streetRoofs(),blockers=[];
  let nearestWallDistance=Infinity,largestForegroundCover=0,totalForegroundCover=0;
  let foregroundStructures=0;
@@ -8563,8 +8562,7 @@ function foregroundSceneProjection(eye,target,roofs){
  const right=[-f[2]/flat,0,f[0]/flat];
  const up=[right[1]*f[2]-right[2]*f[1],
   right[2]*f[0]-right[0]*f[2],right[0]*f[1]-right[1]*f[0]];
- const aspect=Math.max(.35,canvas.clientWidth/Math.max(1,canvas.clientHeight));
- const tanHalf=Math.tan(Math.PI/6.4);
+ const {aspect,tanVertical:tanHalf}=physicalCameraProjection();
  let cover=0,largest=0,volumes=0;
  for(const roof of roofs){
   if(!['market-stall','village-market','arcade','street-shop'].includes(roof.kind))continue;
@@ -8612,8 +8610,7 @@ function foregroundVegetationProjection(eye,target){
  const f=delta.map(v=>v/distance),flat=Math.hypot(f[0],f[2])||1;
  const right=[-f[2]/flat,0,f[0]/flat];
  const up=[-f[0]*f[1]/flat,flat,-f[2]*f[1]/flat];
- const aspect=Math.max(.35,canvas.clientWidth/Math.max(1,canvas.clientHeight));
- const tanHalf=Math.tan(Math.PI/6.4);
+ const {aspect,tanVertical:tanHalf}=physicalCameraProjection();
  // Audit the real head above the torso-level camera aim, not a fake actor.
  const face=[target[0],target[1]+.4,target[2]];
  const fd=face.map((v,i)=>v-eye[i]);
@@ -8752,12 +8749,13 @@ function projectedWorkerBodyFraction(eye,target,citizen){
  const flat=Math.hypot(forward[0],forward[2])||1;
  const vertical=[-forward[0]*forward[1]/flat,flat,
   -forward[2]*forward[1]/flat],ground=terrain(citizen.x,citizen.z);
+ const {tanVertical}=physicalCameraProjection();
  const screenY=height=>{
   const delta=[citizen.x-eye[0],ground+height-eye[1],citizen.z-eye[2]];
   const depth=delta.reduce((sum,n,i)=>sum+n*forward[i],0);
   if(depth<=.15)return null;
   return delta.reduce((sum,n,i)=>sum+n*vertical[i],0)/
-   (depth*Math.tan(Math.PI/6.4));
+   (depth*tanVertical);
  };
  const head=screenY(1.47),feet=screenY(.10);
  if(head===null||feet===null)return 0;
@@ -9596,6 +9594,24 @@ function cameraLensProfile(width=canvas.clientWidth,height=canvas.clientHeight){
   nativeHorizontalDegrees:nativeHorizontal*180/Math.PI,
   minimumHorizontalDegrees};
 }
+// W27 optical contract: use the exact responsive WebGL perspective for
+// physically scored market posts, cottage occlusion, canopy and real worker.
+// W24 widened portrait FOV, but the old plan still assumed a narrow 56°
+// lens and misjudged visible action. This changes observer geometry only.
+function physicalCameraProjection(){
+ const lens=cameraLensProfile(canvas.clientWidth,canvas.clientHeight);
+ const tanVertical=Math.tan(lens.verticalRadians/2);
+ return {...lens,tanVertical,tanHorizontal:tanVertical*lens.aspect};
+}
+function getPhysicalProjectionAudit(){
+ const lens=physicalCameraProjection();
+ const {tanVertical,tanHorizontal}=lens;
+ return {...lens,source:'actual-webgl-viewport-optics',
+  scorers:Object.fromEntries([
+   'marketCrowd','marketPosts','marketArchitecture','worksiteRoofs',
+   'worksiteFoliage','workerScreenHeight'
+  ].map(name=>[name,{tanVertical,tanHorizontal}]))};
+}
 function render(now){requestAnimationFrame(render);
  // The 159k-triangle scene was rebuilt/redrawn up to 12 times per second even
  // after Pause in Canvas2D and SwiftShader, starving camera-button input in CI.
@@ -9990,7 +10006,7 @@ gl.drawArrays(gl.TRIANGLES,0,data.length/10);if((frames++%14)===0){updateUI();dr
  lastFrozenFrameKey=frozenViewKey;
 }
 requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getCitizenAnatomy,getPopulationMotionAudit,getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getOccupationalPerformance:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData({citizen:people[index].name,job:people[index].job,...occupationalPerformance(people[index])}):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getWorkdayEvents:()=>cloneData(workdayEvents),getStreetCargoWitnesses:()=>cloneData(streetCargoWitnesses()),getActiveDeliveries:()=>cloneData(getActiveDeliveries()),getCourierTrailAudit,getDeliveryEconomyAudit:()=>cloneData(getDeliveryEconomyAudit()),getDeliveryReceipts:()=>cloneData(getDeliveryReceipts()),getMarketHandoffs:()=>cloneData(getMarketHandoffs()),getMarketHandoffRenderStats:()=>({...marketHandoffRenderStats}),watchDelivery,watchHomecoming,getHomecomingView,getWorkdayView,getActiveWorksites,getHarvestInteractionAudit,getHarvestAftermathAudit,getCitizenActingAudit,
-getDailyRhythmAudit:dailyRhythmAudit,getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getSoftwareResolutionAudit,getSimulationFrameDelta:simulationFrameDelta,getHouseholdLightAudit:()=>({...householdLightAudit}),getOccupiedHearthCount:()=>occupiedHearths,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getCameraMotionAudit:cameraMotionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getStreetWalkState,getStreetEntranceAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:civicGpuResidencyEnabled?3:gpuAvailable?2:1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length:0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getForestVisualStats:()=>({
+getDailyRhythmAudit:dailyRhythmAudit,getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getSoftwareResolutionAudit,getSimulationFrameDelta:simulationFrameDelta,getHouseholdLightAudit:()=>({...householdLightAudit}),getOccupiedHearthCount:()=>occupiedHearths,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getStreetWalkState,getStreetEntranceAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:civicGpuResidencyEnabled?3:gpuAvailable?2:1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length:0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getForestVisualStats:()=>({
  sourceTrees:trees.length,
  renderedTrees:forestVisualStats.deciduous+forestVisualStats.conifers,
  conifers:forestVisualStats.conifers,deciduous:forestVisualStats.deciduous,
