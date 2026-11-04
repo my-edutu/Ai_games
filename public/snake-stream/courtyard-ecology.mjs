@@ -70,7 +70,7 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
       const u = (x + .5) / W, gx = u * width, i = (y * W + x) * 4;
       const nearEdge = 1 - smooth(.035, .19, Math.min(u, 1-u, v, 1-v));
       const mineral = sample(u, v, 0), watershed = sample(u, v, 1);
-      const heart = 1 - smooth(.35, .86, Math.hypot((u - .52) / .46, (v - .51) / .48));
+      const heart = 1 - smooth(.25, .62, Math.hypot((u - .52) / .46, (v - .51) / .48));
       // Three irregular mossed edges embrace a legible warm central stone
       // clearing, rather than a single dark radial stain or literal green path.
       const marsh = smooth(.43, .69, watershed * .57 + mineral * .28 + nearEdge * .23);
