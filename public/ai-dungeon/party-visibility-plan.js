@@ -164,17 +164,34 @@ export function resolveRenderedSilhouetteSubjects(state,subjects,actors){
  const points=Array.isArray(subjects)?subjects.slice(0,5):[];
  if(!Array.isArray(state?.map)||!Array.isArray(state?.units)||!(actors instanceof Map))return points;
  const origin=(state.map.length-1)/2,claimed=new Set();
+ // The 3D body eases from its PREVIOUS legal cell into this snapshot's
+ // destination. The old <.49m gate revoked actual sightlines mid-stride,
+ // exactly when a planted torso could disappear behind camera-near stone.
+ // Authorize ONLY one cardinal step of continuous presentation travel,
+ // with both the current and the occupied prior cell walkable.
+ const anchored=unit=>{
+  const actor=actors.get(unit.id),root=actor?.root?.position;
+  if(!actor?.root?.visible||!Number.isInteger(unit.x)||!Number.isInteger(unit.z)||
+     ![root?.x,root?.z].every(Number.isFinite)||
+     state.map[unit.z]?.[unit.x]!=='.')return null;
+  const dx=root.x-(unit.x-origin),dz=root.z-(unit.z-origin);
+  if(Math.hypot(dx,dz)>1.08||Math.abs(dx)>.44&&Math.abs(dz)>.44)return null;
+  if(Math.hypot(dx,dz)>.49){
+   const cx=Math.round(root.x+origin),cz=Math.round(root.z+origin);
+   if(state.map[cz]?.[cx]!=='.'||Math.abs(cx-unit.x)+Math.abs(cz-unit.z)>1)return null;
+  }
+  return {x:Number(root.x.toFixed(3)),z:Number(root.z.toFixed(3))};
+ };
  const resolved=points.map(point=>{
   if(!Number.isFinite(point?.x)||!Number.isFinite(point?.z))return point;
   const unit=state.units.find(u=>u&&u.hp>0&&!claimed.has(u.id)&&
    Number.isInteger(u.x)&&Number.isInteger(u.z)&&
    u.x-origin===point.x&&u.z-origin===point.z);
   if(!unit)return point;
+  const at=anchored(unit);
+  if(!at)return point;
   claimed.add(unit.id);
-  const actor=actors.get(unit.id),root=actor?.root?.position;
-  if(!actor?.root?.visible||![root?.x,root?.z].every(Number.isFinite)||
-   Math.hypot(root.x-point.x,root.z-point.z)>.49)return point;
-  return {...point,x:Number(root.x.toFixed(3)),z:Number(root.z.toFixed(3)),visibleActor:true};
+  return {...point,...at,visibleActor:true};
  });
  // The director can follow a scenic/enemy subject and omit a living hero.
  // Preserve existing shot subjects first, then fill remaining 5-slot budget
@@ -185,12 +202,10 @@ export function resolveRenderedSilhouetteSubjects(state,subjects,actors){
   if(!unit||claimed.has(unit.id)||unit.hp<=0||
      (unit.faction!=='party'&&unit.kind!=='warden')||
      !Number.isInteger(unit.x)||!Number.isInteger(unit.z))continue;
-  const pointX=unit.x-origin,pointZ=unit.z-origin;
-  const actor=actors.get(unit.id),root=actor?.root?.position;
-  if(!actor?.root?.visible||![root?.x,root?.z].every(Number.isFinite)||
-     Math.hypot(root.x-pointX,root.z-pointZ)>.49)continue;
+  const at=anchored(unit);
+  if(!at)continue;
   claimed.add(unit.id);
-  resolved.push({x:Number(root.x.toFixed(3)),z:Number(root.z.toFixed(3)),
+  resolved.push({...at,
    visibleActor:true,silhouetteRecess:true,
    combatRecess:unit.action==='attack'||unit.action==='cast'});
  }

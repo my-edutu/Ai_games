@@ -88,6 +88,45 @@ function blockedByStone(cam,subject,y,grid,size,eyes,reveal,pad){
  return false;
 }
 
+/**
+ * Check the exact *rendered* facade blocks, not just the underlying tile grid.
+ * A whole-body camera ray can miss a thin ornamented stone slab while its
+ * actual pixels still hide a sword, thigh or boot. The renderer's same
+ * three-band cutaway is applied before testing the physical slab intersection.
+ * Zero extra WebGL passes or gameplay state. Bounded by actor proximity and
+ * a finite per-floor facade budget.
+ */
+function rayIntersectsBox(cam,point,x0,y0,z0,x1,y1,z1){
+ let lo=.014,hi=.987;
+ const dx=point.x-cam.x,dy=point.y-cam.y,dz=point.z-cam.z;
+ if(Math.abs(dx)<1e-8){if(cam.x<x0||cam.x>x1)return false;}
+ else{const a=(x0-cam.x)/dx,b=(x1-cam.x)/dx;
+  lo=Math.max(lo,Math.min(a,b));hi=Math.min(hi,Math.max(a,b));if(lo>hi)return false;}
+ if(Math.abs(dy)<1e-8){if(cam.y<y0||cam.y>y1)return false;}
+ else{const a=(y0-cam.y)/dy,b=(y1-cam.y)/dy;
+  lo=Math.max(lo,Math.min(a,b));hi=Math.min(hi,Math.max(a,b));if(lo>hi)return false;}
+ if(Math.abs(dz)<1e-8){if(cam.z<z0||cam.z>z1)return false;}
+ else{const a=(z0-cam.z)/dz,b=(z1-cam.z)/dz;
+  lo=Math.max(lo,Math.min(a,b));hi=Math.min(hi,Math.max(a,b));}
+ return lo<=hi;
+}
+export function planFacadeBodyOcclusion(cam,point,facades,eyes,reveal,pad=2.1){
+ if(![cam?.x,cam?.y,cam?.z,point?.x,point?.y,point?.z].every(finite)||
+    !Array.isArray(facades)||facades.length>2048||typeof reveal!=='function')return false;
+ for(const f of facades){
+  if(!Array.isArray(f)||f.length<6||![f[0],f[1],f[2],f[3],f[4],f[5]].every(finite)||
+     f[3]<=0||f[4]<=0||f[5]<=0||f[3]>4||f[4]>6||f[5]>4)continue;
+  if(Math.abs(f[0]-point.x)>5.8||Math.abs(f[2]-point.z)>5.8)continue;
+  // These are precisely the facadeMesh.setMatrixAt dimensions in environment.js.
+  const band=reveal(f[0],f[2],eyes,cam,pad,f[4]);
+  const h=band==='sightline'?.13:band==='nearby'?.43:f[4];
+  const cy=band==='sightline'?.115:band==='nearby'?.23:f[1];
+  if(rayIntersectsBox(cam,point,f[0]-f[3]/2,cy-h/2,f[2]-f[5]/2,
+                      f[0]+f[3]/2,cy+h/2,f[2]+f[5]/2))return true;
+ }
+ return false;
+}
+
 function orbit(base,index,size){
  const center=base.look,cam=base.position,dx=cam.x-center.x,dz=cam.z-center.z;
  const limit=(size-1)/2-.65;
@@ -99,7 +138,7 @@ function orbit(base,index,size){
   z:clamp(center.z+(dx*sin+dz*cos)*reach,-limit,limit)};
 }
 
-function grade(cam,look,eyes,grid,size,viewport,reveal,pad){
+function grade(cam,look,eyes,grid,size,viewport,reveal,pad,facades){
  const aspect=viewport.width/viewport.height;
  const fov=clamp(viewport.fov,32,66);
  let score=0,blocked=0,cropped=0,fullyVisible=0;
@@ -113,7 +152,8 @@ function grade(cam,look,eyes,grid,size,viewport,reveal,pad){
    if(!projected(cam,look,point,aspect,fov)){
     score-=sample.weight*1.8;cropped++;continue;
    }
-   if(blockedByStone(cam,point,point.y,grid,size,eyes,reveal,pad)){
+   if(blockedByStone(cam,point,point.y,grid,size,eyes,reveal,pad)||
+      planFacadeBodyOcclusion(cam,point,facades,eyes,reveal,pad)){
     score-=sample.weight*1.45;blocked++;continue;
    }
    score+=sample.weight;bodyVisible++;
@@ -128,7 +168,7 @@ function grade(cam,look,eyes,grid,size,viewport,reveal,pad){
 export function createPhysicalCameraDirector(){
  let scene=null,choice=0,switches=0,checks=0,improvements=0,last=null,grid=null,wallsRef=null,heightsRef=null,lastTick=null;
  function reset(){scene=null;choice=0;last=null;grid=null;wallsRef=null;heightsRef=null;lastTick=null;}
- function resolve(state,base,{subjects=[],wallPositions=[],wallHeights=[],reveal=null,wallPad=2.1,
+ function resolve(state,base,{subjects=[],wallPositions=[],wallHeights=[],facades=[],reveal=null,wallPad=2.1,
     width=1440,height=832,fov=48,lookY=1.05,reducedMotion=false}={}){
   if(reducedMotion||state?.bossWarning||state?.phase==='intermission'||typeof reveal!=='function'||
    !Number.isSafeInteger(state?.run)||!Number.isSafeInteger(state?.floor)||
@@ -154,7 +194,7 @@ export function createPhysicalCameraDirector(){
   for(let i=0;i<MAX_CANDIDATES;i++){
    const rescue=RESCUE_SHOTS[i-ANGLES.length];
    const angle=rescue?.angle??ANGLES[i]??0,camera=orbit(base,i,size);
-   const result=grade(camera,look,eyes,grid,size,viewport,reveal,wallPad);
+   const result=grade(camera,look,eyes,grid,size,viewport,reveal,wallPad,facades);
    // An elevated shot pays a real compositional cost: use it only when
    // more of the actual skinned bodies become visible without new cropping.
    const penalty=rescue?.lift!==undefined?

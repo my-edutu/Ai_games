@@ -82,3 +82,23 @@ test('camera truly casts through both native shoulders instead of the narrow cen
  assert.equal(candidate.occlusion.blockedAfter,0);
  assert.deepEqual(snapshot,snap());
 });
+
+test('camera tests real facade volume that grid-only rays cannot see',async()=>{
+ const {planFacadeBodyOcclusion}=await load();
+ const camera=Object.freeze({x:5,y:3.7,z:0});
+ const boot=Object.freeze({x:0,y:.26,z:0}),chest=Object.freeze({x:0,y:1.1,z:0});
+ const facade=Object.freeze([Object.freeze([2.5,1.55,0,.84,3.05,.82])]);
+ const eyes=Object.freeze([Object.freeze({x:0,z:0,visibleActor:true})]);
+ const original=JSON.stringify([camera,boot,facade,eyes]);
+ assert.equal(planFacadeBodyOcclusion(camera,chest,facade,eyes,()=> 'none'),true);
+ assert.equal(planFacadeBodyOcclusion(camera,boot,facade,eyes,()=> 'none'),true);
+ assert.equal(planFacadeBodyOcclusion(camera,chest,facade,eyes,()=> 'sightline'),false);
+ assert.equal(planFacadeBodyOcclusion(camera,chest,[[ -2,1.55,0,.84,3.05,.82]],eyes,()=> 'none'),false);
+ assert.equal(planFacadeBodyOcclusion(camera,chest,facade,eyes,()=> 'nearby'),false);
+ assert.equal(planFacadeBodyOcclusion(camera,chest,Array(2050).fill(facade[0]),eyes,()=> 'none'),false,'bound expensive views');
+ assert.equal(JSON.stringify([camera,boot,facade,eyes]),original);
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ const environment=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
+ assert.match(app,/facades:world\.userData\.dressing\?\.occlusionFaces/);
+ assert.match(environment,/occlusionFaces:wallFaces/);
+});

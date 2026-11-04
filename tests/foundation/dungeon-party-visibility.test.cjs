@@ -378,3 +378,22 @@ test('all legal living party rigs remain in the physical view when the director 
  assert.equal(JSON.stringify(state),original,'authoritative snapshot must never change');
  assert.deepEqual(points,[{x:0,z:0}]);
 });
+
+test('a true moving rendered body stays privileged between two legal cardinal cells',async()=>{
+ const {resolveRenderedSilhouetteSubjects}=await load();
+ const map=Array(19).fill('.'.repeat(19));
+ const state={map,units:[{id:'v',faction:'party',kind:'vanguard',hp:50,x:9,z:9}]};
+ const actors=new Map([['v',{root:{visible:true,position:{x:-.74,z:.02}}}]]);
+ const original=JSON.stringify(state);
+ const moved=resolveRenderedSilhouetteSubjects(state,[{x:0,z:0}],actors);
+ assert.equal(moved[0].visibleActor,true,'an actor traversing its real previous cell retains 3D sightlines');
+ assert.equal(moved[0].x,-.74);
+ // Walls, diagonal interpolation, teleports and dead people never earn a pocket.
+ state.map[9]=state.map[9].slice(0,8)+'#'+state.map[9].slice(9);
+ assert.equal(resolveRenderedSilhouetteSubjects(state,[{x:0,z:0}],actors)[0].visibleActor,undefined);
+ state.map=map;actors.get('v').root.position={x:-.72,z:.62};
+ assert.equal(resolveRenderedSilhouetteSubjects(state,[{x:0,z:0}],actors)[0].visibleActor,undefined);
+ actors.get('v').root.position={x:-2,z:0};
+ assert.equal(resolveRenderedSilhouetteSubjects(state,[{x:0,z:0}],actors)[0].visibleActor,undefined);
+ assert.equal(JSON.stringify(state.units),JSON.stringify(JSON.parse(original).units));
+});

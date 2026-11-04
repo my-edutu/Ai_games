@@ -1101,7 +1101,8 @@ function animate(t){
  const occlusionCamera=cameraType==='cinematic'&&autoDirector?
   physicalCameraDirector.resolve(state,basePlannedCamera,{
    subjects:partySightlines,wallPositions:world.userData.wallPositions,
-   wallHeights:world.userData.wallHeights,reveal:planPartyWallReveal,
+   wallHeights:world.userData.wallHeights,facades:world.userData.dressing?.occlusionFaces,
+   reveal:planPartyWallReveal,
    wallPad:storyStage?.wallPad??2.1,width:w,height:h,
    fov:cinematicLens?.fov??48,lookY:cinematicLens?.lookY??cinematicShot?.lookY??0,
    reducedMotion:reduced
