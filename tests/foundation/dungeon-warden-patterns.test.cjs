@@ -58,7 +58,7 @@ test('Eclipse final act raises three true lanes and a legal three-beat escape, w
  const boss=s.units.find(u=>u.kind==='warden'),hero=s.units.find(u=>u.id==='vanguard');
  assert.ok(boss&&hero);boss.hp=Math.ceil(boss.maxHp*.2);
  for(const u of s.units)if(u!==boss&&u!==hero)u.hp=0;
- hero.x=boss.x;hero.z=boss.z+1;s.tick=1;
+ hero.x=boss.x+1;hero.z=boss.z;s.tick=1;
  const strike=planWardenStrike(s,boss);
  assert.equal(strike.shape,'ECLIPSE_SWEEP');assert.equal(strike.turnsUntilImpact,3);
  assert.ok(strike.cells.length>=18&&strike.cells.length<=27);
