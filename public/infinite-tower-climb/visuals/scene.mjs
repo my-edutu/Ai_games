@@ -10,6 +10,7 @@ import { createTowerRouteIntent, witnessedHealthPickup } from './route-intent.mj
 import { createTowerLandingApproach } from './landing-approach.mjs';
 import { createTowerMovingDeckSuspension } from './moving-deck-suspension.mjs';
 import { createTowerHazardPressure, observedConcurrentHazardCluster } from './hazard-pressure.mjs';
+import { observedActionStage } from './action-staging.mjs';
 import { observedHealthRecovery, createTowerRecoveryTransfer } from './recovery-transfer.mjs';
 import { createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianRelayStage, observedGuardianPowerSpineStage } from './guardian-circuit.mjs';
 import { createTowerAtmosphere } from './atmosphere.mjs';
@@ -1693,6 +1694,13 @@ export function createTowerScene(canvas, settings = {}) {
   bounce.position.set(-18, -20, 32);
   scene.add(rim, rim.target, bounce, bounce.target);
   const observedStageLight = createObservedTowerLightDirector();
+  // Reuse the existing, shadow-free bounce to light a SOURCE-present action
+  // subject. No extra light, geometry, texture, shadow pass or HUD draw.
+  const actionLightTarget = new THREE.Vector3();
+  const actionHazardTint = new THREE.Color(0xff9d73);
+  const actionGuardianTint = new THREE.Color(0x9ddde7);
+  const actionLandingTint = new THREE.Color(0xf5d3a2);
+  let actionLightRunFloor = null, actionLightKind = 'none', actionLightSourceTick = -1;
   const warmRimTint = new THREE.Color(0xffc994);
   const interruptedRimTint = new THREE.Color(0x8be7e4);
   const operatorRimTint = new THREE.Color(0xb4aae9);
@@ -2385,6 +2393,8 @@ export function createTowerScene(canvas, settings = {}) {
     const lightCue = observedStageLight.sample(snapshot, dt,
       !!options.stale, !!options.reducedMotion);
     const targetPlatform = intendedLanding(snapshot);
+    const actionStage = !options.stale && !options.reducedMotion
+      ? observedActionStage(snapshot, targetPlatform) : null;
     // The rendered footprint is an actual beneath-feet SOURCE deck, including
     // an observed moving platform. The gap softens its shade as the hero rises;
     // no shadow survives a stale packet, dead actor, result or restart.
@@ -3136,9 +3146,37 @@ export function createTowerScene(canvas, settings = {}) {
     rim.position.set(climber.group.position.x + Math.sin(lightBearing) * 46,
       climber.group.position.y + 21,
       climber.group.position.z + Math.cos(lightBearing) * 46);
-    bounce.intensity = lighting.ground * (1 + lightCue.threat * .1);
-    bounce.target.position.set(0, targetY, 0);
-    bounce.position.set(-18, targetY - 22, 32);
+    // Direct the existing lower-cost fill toward the *actual* decision:
+    // live guardian, present charging shutter, selected touchdown, or climber.
+    // Soft, bounded staging provides depth/action hierarchy across climbing,
+    // danger, combat and recovery, without flicker or extra GPU lights.
+    const stagePose = actionStage ? pointFor(actionStage.x, actionStage.y,
+      snapshot.chunkBaseY, snapshot.worldWidth, 27.1) : null;
+    const nextStageX = stagePose?.x ?? 0, nextStageY = stagePose?.y ?? targetY,
+      nextStageZ = stagePose?.z ?? 0;
+    const stageKey = `${snapshot.runToken}:${snapshot.floor}`;
+    if (actionLightRunFloor !== stageKey) {
+      actionLightRunFloor = stageKey;
+      actionLightTarget.set(nextStageX, nextStageY, nextStageZ);
+    } else {
+      const lightBlend = Math.min(.35, 1 - Math.exp(-Math.min(.08,dt) * 3.6));
+      actionLightTarget.x += (nextStageX - actionLightTarget.x) * lightBlend;
+      actionLightTarget.y += (nextStageY - actionLightTarget.y) * lightBlend;
+      actionLightTarget.z += (nextStageZ - actionLightTarget.z) * lightBlend;
+    }
+    actionLightKind = actionStage?.kind || 'none';
+    actionLightSourceTick = actionStage?.sourceTick ?? -1;
+    bounce.color.set(lighting.bounce);
+    if (actionLightKind === 'hazard') bounce.color.lerp(actionHazardTint, .46);
+    else if (actionLightKind === 'guardian') bounce.color.lerp(actionGuardianTint, .4);
+    else if (actionLightKind === 'landing') bounce.color.lerp(actionLandingTint, .18);
+    bounce.intensity = lighting.ground * (1 + lightCue.threat * .1 +
+      (actionLightKind === 'hazard' ? .22 : actionLightKind === 'guardian' ? .2 : 0));
+    bounce.target.position.copy(actionLightTarget);
+    const lightAzimuth = Math.atan2(camera.position.x,camera.position.z) + .48;
+    bounce.position.set(actionLightTarget.x + Math.sin(lightAzimuth) * 34,
+      actionLightTarget.y + 16,
+      actionLightTarget.z + Math.cos(lightAzimuth) * 34);
   }
 
   function animate(now) {
@@ -3301,6 +3339,9 @@ export function createTowerScene(canvas, settings = {}) {
       observedMotionEcho: { visible: motionEcho.visible, sourceSamples: motionLedger.samples.length,
         instances: motionEcho.count, lastSourceTick: echoDrawnTick,
         extraDraws: motionEcho.visible && motionEcho.count ? 1 : 0 },
+      observedActionLighting: { kind: actionLightKind, sourceTick: actionLightSourceTick,
+        shadowLightsAdded: 0, drawsAdded: 0, authoritative: false,
+        evidence: 'Published current combat, hazard, or landing only; not a quality preference or measured hardware FPS' },
       observedStageLight: { guardian: observedStageLight.cue.guardian,
         threat: Number(observedStageLight.cue.threat.toFixed(4)),
         armor: Number(observedStageLight.cue.armor.toFixed(4)),

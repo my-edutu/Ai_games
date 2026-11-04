@@ -39,7 +39,7 @@ export function createTowerAudio() {
   let enabled = false, token = '', last = null, lastFloor = null, lastIntent = '', lastTargetPlatformId = null, lastLifecycle = 'running', stride = 0, noiseIndex = 0;
   let disposed = false, lastAmbient = 0, enableRequest = 0, enablePending = false;
   const voices = new Set(), heard = new Set(), pads = [];
-  let guardianWindups = new Map(), guardianStates = new Map(), hazardStates = new Map();
+  let guardianWindups = new Map(), guardianStates = new Map(), hazardStates = new Map(), hazardNearbyStates = new Map();
   let hazardChargeStates = new Map(), lastHazardTick = null;
   let lastSurvivalSnapshot = null;
   // One opt-in arrival tone for crossing the actual cap-approach threshold.
@@ -136,7 +136,7 @@ export function createTowerAudio() {
     const snapshot = frame.snapshot;
     if (snapshot.runToken !== token) {
       const verifiedRestart = !!token && ['result', 'intermission'].includes(lastLifecycle);
-      heard.clear(); last = null; lastFloor = null; lastIntent = ''; lastTargetPlatformId = null; lastLifecycle = 'running'; stride = 0; crownDistance = null; crownTick = -1; crownHeard = ''; guardianWindups.clear(); guardianStates.clear(); hazardStates.clear(); hazardChargeStates.clear(); lastHazardTick = null; lastSurvivalSnapshot = null; token = snapshot.runToken;
+      heard.clear(); last = null; lastFloor = null; lastIntent = ''; lastTargetPlatformId = null; lastLifecycle = 'running'; stride = 0; crownDistance = null; crownTick = -1; crownHeard = ''; guardianWindups.clear(); guardianStates.clear(); hazardStates.clear(); hazardNearbyStates.clear(); hazardChargeStates.clear(); lastHazardTick = null; lastSurvivalSnapshot = null; token = snapshot.runToken;
       if (verifiedRestart) tone(205, 365, .21, 'sine', .052);
     }
     for (const voice of frame.audio?.voices || []) if (!heard.has(voice.id)) {
@@ -185,7 +185,7 @@ export function createTowerAudio() {
       Number.isFinite(lastFloor) && snapshot.floor === lastFloor + 1 &&
       snapshot.lifecycle === 'running' &&
       [...guardianStates.values()].some(value => value.active === true);
-    if (!sameFloor) { guardianWindups.clear(); guardianStates.clear(); hazardStates.clear(); hazardChargeStates.clear(); lastHazardTick = null; }
+    if (!sameFloor) { guardianWindups.clear(); guardianStates.clear(); hazardStates.clear(); hazardNearbyStates.clear(); hazardChargeStates.clear(); lastHazardTick = null; }
     // Follow the actual guardian's fixed-step telegraph as the visible maul
     // winds up and its source-projected warning lane narrows. At most one
     // low-level preparation and one final cue per real windup; missing optional
@@ -308,6 +308,7 @@ export function createTowerAudio() {
     // this same floor and a nearby living climber. Never infer threat from a
     // first observation, floor switch, stale route or future hazard schedule.
     const observedHazards=new Map();
+    const observedNearby=new Map();
     const observedCharges=new Map();
     let nearbyHazardRaised=false, nearbyChargeRaised=false, nearbyRatchetRaised=false, nearbyHazardReleased=false;
     const adjacentCharge= sameFloor && Number.isSafeInteger(lastHazardTick) &&
@@ -317,6 +318,11 @@ export function createTowerAudio() {
       if(typeof hazard.id!=='string'||!hazard.id)continue;
       const active=hazard.active===true;
       const wasActive=sameFloor?hazardStates.get(hazard.id):undefined;
+      const nearNow = [hazard.x,hazard.y,hazard.width,hazard.height,actor.x,actor.y]
+        .every(Number.isFinite) &&
+        Math.abs(hazard.x + hazard.width * .5 - actor.x) <= Math.max(100000,hazard.width * 2) &&
+        Math.abs(hazard.y + hazard.height * .5 - actor.y) <= 120000;
+      const wasNearby = sameFloor && hazardNearbyStates.get(hazard.id) === true;
       if(active && wasActive===false && !nearbyHazardRaised
         && [hazard.x,hazard.y,hazard.width,actor.x,actor.y].every(Number.isFinite)
         && Math.abs(hazard.x+hazard.width*.5-actor.x)
@@ -327,7 +333,7 @@ export function createTowerAudio() {
       // timer, releases a soft return-clank when the climber survives nearby.
       // It is lower priority than genuine collision, warning or boss sound.
       if (!nearbyHazardReleased &&
-        witnessedPressureRelease(wasActive,active,adjacentCharge) &&
+        witnessedPressureRelease(wasActive,active,adjacentCharge) && wasNearby &&
         actor.health > 0 &&
         !snapshot.enemies?.some(enemy => enemy.active && enemy.telegraph) &&
         [hazard.x,hazard.y,hazard.width,hazard.height,actor.x,actor.y].every(Number.isFinite) &&
@@ -359,8 +365,10 @@ export function createTowerAudio() {
         nearbyRatchetRaised=true;
       observedCharges.set(hazard.id,charge);
       observedHazards.set(hazard.id,active);
+      observedNearby.set(hazard.id,active && nearNow);
     }
     hazardStates=observedHazards;
+    hazardNearbyStates=observedNearby;
     hazardChargeStates=observedCharges;
     lastHazardTick=Number.isSafeInteger(snapshot.tick)?snapshot.tick:null;
     if(nearbyChargeRaised){
@@ -506,7 +514,7 @@ export function createTowerAudio() {
     if (disposed) return;
     disposed = true; enabled = false; enablePending = false; enableRequest++;
     for (const voice of voices) { try { voice.stop(); voice.disconnect(); } catch {} }
-    voices.clear(); heard.clear(); guardianWindups.clear(); guardianStates.clear(); hazardStates.clear(); hazardChargeStates.clear(); lastHazardTick = null; lastSurvivalSnapshot = null; pads.length = 0; last = null; lastFloor = null; lastIntent = ''; lastTargetPlatformId = null; lastLifecycle = 'running'; stride = 0; crownDistance = null; crownTick = -1; crownHeard = '';
+    voices.clear(); heard.clear(); guardianWindups.clear(); guardianStates.clear(); hazardStates.clear(); hazardNearbyStates.clear(); hazardChargeStates.clear(); lastHazardTick = null; lastSurvivalSnapshot = null; pads.length = 0; last = null; lastFloor = null; lastIntent = ''; lastTargetPlatformId = null; lastLifecycle = 'running'; stride = 0; crownDistance = null; crownTick = -1; crownHeard = '';
     if (context) context.close().catch(() => {});
   }
   return { setEnabled, accept, dispose, diagnostics: () => ({ soundEnabled: enabled, soundPending: enablePending, voices: voices.size, context: context?.state || 'not-started' }) };

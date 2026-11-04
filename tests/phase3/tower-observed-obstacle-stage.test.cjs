@@ -147,6 +147,8 @@ test('opt-in nearby hazard cue requires inactive-to-active same-run source evide
     audio.accept(frame({tick:101,active:true,near:false}));
     assert.equal(pitches.length,0);
     audio.accept(frame({tick:102,active:false}));
+    assert.equal(pitches.filter(value=>value===225).length,0,
+      'a remote activation cannot become an audible release merely by moving near');
     audio.accept(frame({tick:103,active:true}));
     assert.ok(pitches.includes(470));
     const count=pitches.length;
