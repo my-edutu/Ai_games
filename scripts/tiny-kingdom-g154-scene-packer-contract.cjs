@@ -3,12 +3,24 @@
 // Render-only geometry must retain byte-identical order, chunk bounds and LOD.
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
+const {performance}=require('node:perf_hooks');
 const html=fs.readFileSync(path.join(__dirname,'../public/tiny-kingdom/index.html'),'utf8');
 const begin=html.indexOf('function packSpatialScenery(mesh){');
 const end=html.indexOf('function sceneFrustumPlanes(',begin);
 assert(begin>=0&&end>begin,'Locate the real in-game spatial packer');
 const edge=18;
 const pack=new Function('SCENIC_CHUNK_EDGE',html.slice(begin,end)+';return packSpatialScenery;')(edge);
+// W18 RED-before: growth and seasonal visits must no longer allocate a
+// per-triangle JS string or per-triangle typed-array view for 100k+ triangles.
+// Structural budget catches regressions deterministically; the runtime timings
+// below are diagnostic only, NEVER a performance-gate or hardware FPS claim.
+const source=html.slice(begin,end);
+assert.match(source,/const triangleChunkIds=new Uint32Array\(triangleCount\)/,
+ 'Use bounded packed integer chunk IDs rather than 120k JS string entries');
+assert.doesNotMatch(source,/triangleKeys=new Array\(triangleCount\)/,
+ 'No object/string entry per triangle in the settlement rebuild');
+assert.doesNotMatch(source,/\.subarray\(o,o\+30\)/,
+ 'No short typed-array allocation on every geometry triangle');
 
 function reference(mesh){
  assert.equal(mesh.length%30,0);
@@ -54,9 +66,14 @@ function sample(count,seed){
  }
  return arr;
 }
-for(const count of [0,1,8,257,2048,10000]){
+for(const count of [0,1,8,257,2048,10000,120000]){
  const src=sample(count,88311+count);
- const expected=reference(src),actual=pack(src);
+ const started=performance.now();
+ const expected=reference(src);const referenceMs=performance.now()-started;
+ const packedAt=performance.now(),actual=pack(src);
+ const candidateMs=performance.now()-packedAt;
+ if(count>=120000)console.log('W18 synthetic pack/legacy ms:',
+  candidateMs.toFixed(1),'/',referenceMs.toFixed(1),'(diagnostic, not FPS)');
  assert.deepEqual(actual.ranges,expected.ranges,'Bounds/order differ for '+count);
  assert.deepEqual(actual.vertices,expected.vertices,'Mesh changed for '+count);
  assert.equal(src.length,count*30,'Packer mutated input');
