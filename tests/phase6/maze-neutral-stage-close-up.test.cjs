@@ -13,7 +13,7 @@ const stage={
 test('neutral genuine public stage approaches the actual full-viewport camera without moving the game',async()=>{
   const {publicCompactExplorationHalfHeight:f,publicFullBleedFollowHalfHeight:full}=await load();
   const before=JSON.stringify(stage);
-  assert.equal(f(1280/900,7.3,stage),6.35,'landscape source-bound Follow sees a larger real stage');
+  assert.equal(f(1280/900,7.3,stage),5.85,'1280 neutral reciprocal public Follow uses the tighter native stage');
   const portraitBase=full(390/844,6.2);
   assert.equal(f(390/844,portraitBase,stage),8.05,'neutral portrait stage ceases to be a tiny ocean thumbnail');
   assert.equal(f(844/390,7.3,stage),6.35,'small landscape still stays physical, not a CSS crop');
