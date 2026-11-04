@@ -34,24 +34,39 @@ test('W14 live village reuses unchanged true citizen/worksite mesh across camera
  expect(steady.stats.entries).toBe(1);
  expect(steady.snapshot).toBe(before.snapshot);
  expect(steady.renderer).toBe('webgl');
- // Move to a different real work district; camera-aware near-human LOD
- // and worksite membership MUST be invalidated, not reuse an incorrect mesh.
+ // Move the camera to another genuine field without fabricating a worker.
+ // If all twelve real founders retain the same LOD/worksite membership, the
+ // exact physical dynamic mesh should remain cached despite the camera move.
  const result=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
   const b=g.getCameraDynamicCacheStats();
   document.querySelector('[data-scenic="farm"]').click();
   return {before:b,snapshot:JSON.stringify(g.exportSnapshot())};
  });
- await page.waitForFunction(b=>window.__tinyKingdom.getCameraDynamicCacheStats().builds>b.builds,
+ await page.waitForFunction(b=>window.__tinyKingdom.getCameraDynamicCacheStats().reuses>b.reuses,
   result.before,{timeout:90000,polling:200});
+ expect(await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot())))
+  .toBe(before.snapshot);
+ // A TRUE fixed-step move, unlike a spectator orbit, must immediately
+ // invalidate a previously resident occupational/actor mesh. This also
+ // protects the live cargo and worksite path against stale visual authority.
+ const tick=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;
+  const b=g.getCameraDynamicCacheStats();
+  g.step(1/30);
+  return {before:b,snapshot:JSON.stringify(g.exportSnapshot())};
+ });
+ expect(tick.snapshot).not.toBe(before.snapshot);
+ await page.waitForFunction(b=>window.__tinyKingdom.getCameraDynamicCacheStats().builds>b.builds,
+  tick.before,{timeout:90000,polling:200});
  const end=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
   return {stats:g.getCameraDynamicCacheStats(),snap:JSON.stringify(g.exportSnapshot()),
    render:g.renderStats(),gl:document.getElementById('world').getContext('webgl')?.getError(),
    overflow:document.documentElement.scrollWidth-innerWidth};
  });
- expect(end.stats.builds).toBeGreaterThan(result.before.builds);
- expect(end.snap).toBe(before.snapshot);
+ expect(end.stats.builds).toBeGreaterThan(tick.before.builds);
+ expect(end.snap).toBe(tick.snapshot);
  expect(end.render.lastFrameTriangles).toBeGreaterThan(0);
  expect(end.render.lastFrameTriangles).toBeLessThan(160000);
  expect(end.gl).toBe(0);
