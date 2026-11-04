@@ -9,6 +9,8 @@ const { test, after } = require('node:test');
 
 const ROOT = path.resolve(__dirname, '../..');
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'tower-composition-regression-'));
+// Keep the shipping observer as an actual local ESM dependency for the copied world fixture.
+fs.copyFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/scene-hierarchy.mjs'), path.join(scratch, 'scene-hierarchy.mjs'));
 after(() => fs.rmSync(scratch, { recursive: true, force: true }));
 const loaded = (async () => {
   const THREE = await import(pathToFileURL(path.join(ROOT, 'node_modules/three/build/three.module.js')).href);
