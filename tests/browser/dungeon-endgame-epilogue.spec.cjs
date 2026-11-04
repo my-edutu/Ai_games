@@ -11,7 +11,10 @@ fs.mkdirSync('artifacts',{recursive:true});
  */
 test('organic campaign death remains a legible 3D last stand on real desktop and mobile',async({page})=>{
  test.setTimeout(210000);
- const seed='dungeon-ui-round17',runtime=DungeonRuntime.create(seed);
+ // 92b06b2's actual 24-seed / 900-tick replay corpus recorded a genuine
+ // death for seed 0 (one of six authentic restarts). The old UI seed survived
+ // 2,500 ticks, so it cannot be used as a guaranteed natural last-stand fixture.
+ const seed='gauntlet-corpus-v1-0',runtime=DungeonRuntime.create(seed);
  let terminal=null,combat=0;const floors=new Set();
  for(let i=0;i<2500;i++){
   const s=runtime.step();floors.add(s.floor);
