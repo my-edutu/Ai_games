@@ -2194,7 +2194,7 @@
         "playsMajority": false,
         "provenance": "No fresh independent critics available. Do not infer a blind preference from test results or real predecessor screenshots."
       },
-      "safetyChecks": "Locally equivalent source: npm run dungeon:test 270/270 PASS with build; focused new source 3/3 green after genuine red. Previously global catalogue 41743453423 FAIL: two stale native-head / illegal 'IN PROGRESS' enum contracts. Updated real native-head test to require genuinely continuous source-skinned rig and corrected milestone machine enum to NOT_TRANSFORMED while retaining IN_PROGRESS status; focused 5/5 PASS. Latest exact-head browser and global CI PENDING; not claimed passed.",
+      "safetyChecks": "Predecessor cf5eb338: dedicated Dungeon authority PASS; all 3 real-browser shards FAIL (obsolete fake drapery expectation, low-wall scene/weathered spalls 0, and world-only no spalls); visual review PASS; full CI FAIL three unrelated Tiny Kingdom assertions. New candidate 27b5d336 includes camera-visibility and low-ruin repairs plus truthful native GLB browser checks. Standalone camera continuity prototype Node 4/4 PASS only; exact-head runs 41751379163 Dungeon, 41751379178 visual, 41751379010 catalogue IN PROGRESS / UNVERIFIED.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED: browser-original WebAudio has a new consent-gated PCM16 tap; no authentic non-silent candidate WAV has yet been retrieved. Prior audio/video MediaRecorder was zero bytes; available predecessor Playwright WebM has no audio track.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2202,7 +2202,7 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Real-source b8be04f 1440x832 browser screenshot from 41672587065 and Warden boss desktop/mobile screenshot/video artifacts 41672587022 were INSPECTED: new 14 anatomical joint cylinders made elongated opaque spindly/squid-like limbs. Warden encounter head-on 1440x832 has 3 heroes overlapping enemy bodies in the 58% HP boss arena, warning Rift Cross visible but contact indistinguishable; mobile capture progressed into floor 2 but large stylized ballheads persist. This is a NEGATIVE experiential finding compared with da492455 and exact locked baseline; source visual redesign at 71da2ea to cap spans remains unverified. No masked A/B victory.",
-      "latestCandidateWorkflow": "Exact f7964d desktop/world/mobile actual Chromium image artifact https://github.com/my-edutu/Ai_games/actions/runs/41699864342/artifacts/13262519453. Dungeon authority 41699864319 succeeded: 256/256 foundation, 20/20 interface/presentation, 24 x900 ticks, 0 replay divergence. All browser shards in progress at observation. Autonomous Games CI 41699864434 failed: GLB source asset missing on generic runner.",
+      "latestCandidateWorkflow": "27b5d336 head: Dungeon 41751379163, visual 41751379178, catalogue 41751379010 all IN PROGRESS at documentation. Any new screenshot or original PCM WAV is UNVERIFIED until inspected.",
       "currentPredecessorWebgl": {
         "sourceHead": "e886a0e0b94dce6b1bc137cecd7d1a5a3fc0f9cf",
         "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41740892204/artifacts/13281337312",
@@ -2293,9 +2293,9 @@
       "nativeContinuityCandidate": "Source commit 08338db is an unverified new 3D underlay candidate, not a demonstrated repair. Real after comparison/critics have not happened. Monitor additional native underbody draw calls and 3D anatomy material intersections."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Native humanoid proportions still feel toy-like; dense brown Gothic masonry overwhelms actual combat. New close stage/camera must be witnessed in motion and not imply false traversal. Genuine five-stage natural adventure, audible original audio waveform, matched pinned before/after and independent blind LOOKS/FEELS/PLAYS majority are all missing.",
-    "currentWork": "Same incomplete M1, now with genuine native actor-scale physical stage, camera and original opt-in WebAudio PCM audit. Original source skinned actors and all autonomous game rules preserved. Code candidate 9920571; awaiting actual after Chromium capture and audio waveform. Do not confuse existence of WAV capture code with recorded soundtrack.",
-    "candidateCommit": "9920571e4af4068ee07f53aee544b39126761b28",
+    "biggestRemainingGap": "Native original character proportions and convincing hand-to-target combat in motion remain stylized/toy-like; visual Gothic room depth still competes with actors. New native-duel orbit continuity and physically anchored low-wall material need genuine new-head moving WebGL verification. Complete original-audio five-scenario journey, pinned matched BEFORE/AFTER and 3 independent blind majorities remain absent.",
+    "currentWork": "Same unfinished M1: real same-pair camera-orbit continuity with immediate real danger override, and physically anchored weathered masonry on the actual low Gothic combat stage. Source-native CC0 skinned rigs and deterministic combat unchanged. Code 27b5d336; exact-head browser/authority/CI in progress, no accepted audiovisual evidence or critics.",
+    "candidateCommit": "27b5d33638933ddd8561ffd157d5bcfaf3fc8bbb",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -4267,6 +4267,23 @@
         "audio": "UNVERIFIED",
         "performance": "UNVERIFIED",
         "next": "Inspect latest desktop/phone real boss WAV output and full moving video; reject silent/no frame captures, correct physical stage/person scale, capture complete expedition at matching seed/camera, measure performance and commission >=3 blind critics. Never merge draft PR."
+      },
+      {
+        "id": "M1-REAL-DUEL-AND-LOW-RUIN-20261104",
+        "date": "2026-11-04",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "objective": "Sustain cinematic readability of real source-native two-body battle while restoring physical sculpted material detail to low Gothic ruins without concealing actual combat.",
+        "code": [
+          "public/ai-dungeon/combat-shot-continuity.js",
+          "public/ai-dungeon/app.js",
+          "public/ai-dungeon/stone-relief-plan.js",
+          "tests/foundation/dungeon-combat-shot-continuity.test.cjs",
+          "tests/foundation/dungeon-low-ruin-relief.test.cjs",
+          "tests/browser/dungeon-fabric-drape.spec.cjs",
+          "tests/browser/dungeon-setpieces.spec.cjs"
+        ],
+        "evidence": "Code commit 27b5d336, standalone camera continuity prototype 4/4 pure checks. New exact source real browser and professional blind critic: UNVERIFIED. Previous actual Chrome had 0 spalls and obsolete fake-drape expectations despite original native skins.",
+        "acceptance": "IN PROGRESS — NOT TRANSFORMED; no independent LOOKS/FEELS/PLAYS win."
       }
     ]
   }

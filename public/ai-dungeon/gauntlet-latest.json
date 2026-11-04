@@ -208,9 +208,9 @@
       "elapsedMs": 158
     }
   ],
-  "visualVerdict": "UNVERIFIED: new-head browser stills, complete motion/audio, and 3 blind judges required",
+  "visualVerdict": "UNVERIFIED at 27b5d336: new-head desktop/mobile original skinned character, physical stone weathering, Warden camera and audio require exact browser footage and blind matched comparison.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
-  "candidateCommit": "c66d936c04a73f32d1d3503b1e7b3ad9519890af",
-  "metricsProvenance": "Historical headless campaign from 2026-10-31; NOT evidence that candidate c66d936 passed a new headless campaign"
+  "candidateCommit": "27b5d33638933ddd8561ffd157d5bcfaf3fc8bbb",
+  "metricsProvenance": "Historical 2026-10-31 24x900 seed metrics, NOT a fresh 27b5d336 source campaign."
 }
