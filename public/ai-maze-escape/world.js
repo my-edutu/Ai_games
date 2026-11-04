@@ -890,8 +890,8 @@ export function createMazeWorld(options = {}) {
           if ((dx > 0 || dz > 0) && !c.blocked && !c.trap
             && !c.checkpoint && !c.clue && c.cell !== s.exitCell
             && !s.keys.some(key => key.cell === c.cell)) {
-            const ribY = -floorY / 2 - .80;
-            const ribHeight = floorY + 1.18;
+            const ribY = -floorY / 2 - .97;
+            const ribHeight = floorY + 1.50;
             for (const transverse of [-.70, .70]) {
               const px = x + dx * 1.235 + dz * transverse;
               const pz = z + dz * 1.235 + dx * transverse;
