@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updated": "2026-11-04",
+  "updated": "2026-11-05",
   "mode": "transformation-first",
   "baseline": {
     "sha": "1731b380851162741761c5569e2bc152a0869ca9",
@@ -9,20 +9,20 @@
   },
   "candidate": {
     "sha": null,
-    "title": "SAME playable source-authoritative 3D tower + genuinely generated guardian/closing-shutter sixth-deck encounter — NOT EVALUATED",
-    "implementationSha": "5c242d28dbaca40d817b67264a10bd17e4bf5acf",
-    "implementationEvidenceStatus": "Actual playable 3D stream now explicitly enables a SOURCE-GENERATED moving crusher on the real guardian's sixth ascent deck, with deterministic 12-tick warning, collision, bounded damage and two body-width escapes. Not a visual mock-up: real AI evasion, skinned response, existing Three.js jaw machinery, camera, lighting and audio all observe the same source. New authored arena playable source 5c242d28dbaca40d817b67264a10bd17e4bf5acf. Frozen previous configs and baseline 1731 unchanged. Prior original-host 590a normal-speed run 41917302381 completed 9/9 but its desktop AND portrait 50ms crossfire witness reported ZERO guardian+near-body pressure samples. Candidate new-arena run 41928548717 in progress at source edit; no new full-motion review. New tests 4/4 passed in initial CI, but total CI 970/971 FAILED on a stale anonymous-guardian fixture; corrected on 28d7b29, not yet verified by exact-head workflow. Independent votes 0/5, device performance missing; NOT EVALUATED."
+    "title": "SAME playable source-authoritative 3D tower — guardian cap crusher + real timed AI combat/escape in fighting lane; new continuous full-motion A/B NOT EVALUATED",
+    "implementationSha": "09be39ad9b0facb92d8e53c4ba9de89b6f6a62e6",
+    "implementationEvidenceStatus": "Real-source generated timed 20Hz collision crusher was relocated from the nonparticipating lower p6 platform onto the authentic upper cap combat support and positioned 60,000 source units gateward from the fixed approach. Existing AI prioritizes real published countdown physical evasion over early guardian brace, while immediate shots/hits retain precedence. Prior actual full-motion source 5c242d browser run 41928548717 succeeded 9/9 but its independent 50ms source/render witness found ZERO near-body guardian/crusher cooccurrences on desktop AND portrait. Locally compiled full source and simulated 3000 real deterministic live-source ticks with seeded autonomous pilot at floor8: 132 nearby guardian+cap shutter countdown ticks, 55 directional source-observed AI evasion choices. These are developer-operated source integration observations, NOT a video-quality win. Latest playable source 09be39ad and safety-test head b62fce06 need exact-source videos and CI; blind critics 0/5 each; device hardware missing."
   },
   "currentTransformation": {
     "title": "SAME 3D ascent → physical moving landing → two-body guardian/hazard staging → HP gate → authentic outcome/restart",
-    "state": "OPEN — SAME 3D ascent/guardian/terminal initiative. Identified why prior high-frequency authentic capture saw ZERO guardian+shutter co-occurrences: generator placed all random shutters below the actual sixth-deck guardian arena. SOURCE-AUTHORED opt-in real guardian-deck crusher is now live in playable 3D stream; exact new-source videos, blind critics, hardware and exact-head CI remain unverified. NOT EVALUATED.",
+    "state": "OPEN — SAME whole 3D ascent/guardian/terminal vertical slice. Actual prior browser captured charges but ZERO real near-body guardian-shutter crossfire because crusher was on wrong lower p6 deck. Fixed authored 20Hz collision trap onto the actual upper cap fight and adjusted into the source fighting lane; local authentic 3000-tick source pilot now physically selects evasion in the timed guardian encounter. Not yet compared by real normal-speed new-source desktop and portrait movie / independent critics / hardware. NOT EVALUATED.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Review actual normal-speed event-matched new-source candidate 5c242d and frozen baseline 1731 footage from source-pinned workflow 41928548717, especially native portrait guardian-deck shutter 12→1 tick charge, hit/escape choice, guardian sightline and physical collision. Compare against source 590a original-host videos/workflow 41917302381 whose 50ms desktop and portrait co-occurrence witness was zero. Inspect complete ascent and real result/restart as well. Collect five separate unbiased full-motion critic votes for EACH LOOKS/FEELS/PLAYS, 4/5 candidate preferences in each. Verify exact-head technical CI after fixed stale fixture, replay, accessibility, supported-device p50/p95/p99 and memory. Never promote 4/4 test passes into quality PASS.",
+    "nextDecision": "Inspect 09be39ad source-pinned new full-motion workflow https://github.com/my-edutu/Ai_games/actions/runs/41932038446 (when complete), compare unchanged baseline 1731 same seed, quality, viewport. Confirm exact real floor8 guardian upper cap charge 12->1 ticks, directional AI exit, physical Three.js shutter+guardian+player composition in 960x600 desktop and 390x844 portrait video, along with ascent, moving platforms, authentic outcome/restart. Validate new-source 50ms source/render witness and no unfair enemy contact/loss regression. Latest exact engineering-head CI https://github.com/my-edutu/Ai_games/actions/runs/41932358775 remains a safety veto. Five genuine independent blind full-motion critics must prefer candidate >=4/5 on EACH LOOKS/FEELS/PLAYS; verify accessible audio/motion, replay, p50/p95/p99 device frame time/memory. Never score source simulation, tests, commits or screenshots as quality.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Authored guardian/shutter encounter now exists in true source world, but unedited event-matched desktop/390×844 portrait full-motion source capture and independent critic review have not proved it more readable or enjoyable; combat/evade balance on physical deck unknown, plus authentic terminal and restart evidence, hardware frame tails, recovery and accessibility checks. NOT EVALUATED.",
-    "unverifiedImplementationBranchHead": "28d7b29f0cb5e12075b83aa6dce3863b7739c1dd",
-    "currentVerticalSlice": "Cohesive actual source play: deterministic authored guardian-deck timed crusher (not a fake threat), real 20 Hz collision/damage and AI escape, physical Three.js jaw/guardian stage, motion/lighting/camera/sound and authentic full expedition life cycle; before/after critic decision and hardware not yet evaluated.",
-    "biggestGap": "Authored guardian/shutter encounter now exists in true source world, but unedited event-matched desktop/390×844 portrait full-motion source capture and independent critic review have not proved it more readable or enjoyable; combat/evade balance on physical deck unknown, plus authentic terminal and restart evidence, hardware frame tails, recovery and accessibility checks. NOT EVALUATED."
+    "biggestRemainingExperienceGap": "ACTUAL source fight now contains a real opt-in cap crusher and 20Hz AI escape, but NO finished, event-matched normal-speed native desktop+phone video for the NEW playable source has been independently watched against frozen baseline; need inspect whether the full climber/guardian/shutter remains legible, enjoyable and balanced during contact/recovery and real outcome/restart. Five independent blind votes each LOOKS/FEELS/PLAYS (4/5 minimum) and supported-device frame-time/memory, replay and accessibility are missing. NOT EVALUATED.",
+    "unverifiedImplementationBranchHead": "b62fce067f9feb3fe4cdd92db748538bd7ee8648",
+    "currentVerticalSlice": "Same full 3D playable expedition: real 20Hz guardian-cap source collision pressure in the actually occupied combat lane, deterministic AI ground escape through two physical exits, source-observed 12-tick jaw choreography, existing cameras/lights/audio/route cues and real result/restart. This is the ongoing cohesive vertical slice, no experience acceptance yet.",
+    "biggestGap": "ACTUAL source fight now contains a real opt-in cap crusher and 20Hz AI escape, but NO finished, event-matched normal-speed native desktop+phone video for the NEW playable source has been independently watched against frozen baseline; need inspect whether the full climber/guardian/shutter remains legible, enjoyable and balanced during contact/recovery and real outcome/restart. Five independent blind votes each LOOKS/FEELS/PLAYS (4/5 minimum) and supported-device frame-time/memory, replay and accessibility are missing. NOT EVALUATED."
   },
   "scenarios": [
     {
@@ -62,11 +62,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Candidate source 5c242d exact safety workflow https://github.com/my-edutu/Ai_games/actions/runs/41928548597 FAILED 1 of 971 tests (970 passed): old phase3 anonymous telegraph fixture expected suppression despite real implementation requiring a nearby living guardian. Fixture corrected on 28d7b29; corrected exact-head CI still NOT VERIFIED. Four new authored arena tests passed. This remains a safety veto, never a quality signal.",
-    "replay": "The live server explicitly opts into guardianArenaHazards. Missing/false opt-in leaves old generation byte-equivalent, including original hazard stream, deterministic checksum, collision and historical replay. Opt-in uses named RNG keyed by floor, actual source collision and 20Hz countdown, existing AI/physics; new canonical cross-source replay still NOT EVALUATED. Four exact-source generation/AI safety tests PASSED; not release proof.",
-    "accessibility": "New real crusher uses existing physical closing 3D jaws, distinct silhouette and warning countdown independent of color or sound, and the game's existing reduced-motion and silent options. Real mobile legibility of multiple interacting hazards and muted colorblind comprehension NOT INDEPENDENTLY EVALUATED.",
-    "performance": "One extra source collision hazard only on every opted-in guardian floor, bounded by existing maxHazardsPerChunk (replace last if full), existing instanced pressure mesh budget and preexisting 3D world hazard geometry; no new 3D material types or postprocessing. Actual supported-device frame p50/p95/p99, memory and sustained thermal stability still NOT MEASURED.",
-    "stability": "Actual prior source-original 590a desktop/portrait capture run 41917302381 completed 9/9, but registered ZERO 50ms source witness samples of simultaneous nearby guardian and shutter. New authored arena source 5c242d capture workflow https://github.com/my-edutu/Ai_games/actions/runs/41928548717 was IN PROGRESS at evidence edit, not yet accepted. Initial safety CI 970/971 failed prior fixture, now corrected but exact latest CI pending. Genuine blind critics/worker NOT_FOUND."
+    "ci": "Previous 5c242d source workflow 41928548597 FAILED 970/971 (1 fixture); preceding 65b35a head 41929614638 technical workflow SUCCESS. New source 09be39ad quality workflow https://github.com/my-edutu/Ai_games/actions/runs/41932038350 and new test head b62fce06 https://github.com/my-edutu/Ai_games/actions/runs/41932358775 were in progress/pending at inspection, NOT a confirmed latest-head pass. Safety veto remains open.",
+    "replay": "Explicit live-only guardianArenaHazards opt-in keeps historical default chunks and seeded checksum identical when flag omitted/false; new real upper-cap collision and escape use existing fixed-step RNG/policy and public source observations. Local 3000-tick full-source scripted smoke exercised true autonomous decisions with real restarts, but canonical replay cross-source hash validation and broad regression gate are NOT FULLY EVALUATED.",
+    "accessibility": "Existing physical crusher has a tangible moving 3D jaw and source-validated countdown, with prior silent/reduced-motion game options; novel upper-cap combined boss/trap native-phone comprehension, color-independent warning and accessibility are NOT independently tested.",
+    "performance": "World pressure is one bounded source hazard on opt-in guardian floor, existing instanced geometry without new GPU light/mesh passes; true 960x600/390x844 software browser gameplay and device p50/p95/p99 frame-time tails, memory, thermal endurance not measured for new source. Do not invent FPS.",
+    "stability": "Original 5c242d full-motion browser workflow 41928548717 completed 9/9 with authentic baseline+candidate desktop/portrait WebMs, but BOTH crossfire-source-witness summaries were ZERO near-body guardian/shutter source/render samples; root cause physical support mismatch. New authored upper-cap fight source 09be39ad browser workflow https://github.com/my-edutu/Ai_games/actions/runs/41932038446 and new head safety workflow 41932358775 pending at evidence edit. Live source 3000-tick simulation observed real re-positioned trap/AI evasion, not full browser/supported-hardware proof; no independent critics."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -2618,7 +2618,7 @@
         "notQualityEvidence": true
       },
       "newSourceCapture": "https://github.com/my-edutu/Ai_games/actions/runs/41928548717",
-      "newCaptureStatus": "IN PROGRESS at evidence edit; does not prove 60s matched clips or experience win",
+      "newCaptureStatus": "COMPLETED SUCCESS 9/9 authentic original-source native clips for 5c242d capture https://github.com/my-edutu/Ai_games/actions/runs/41928548717. Actual archived candidate-danger crossfire-source-witness.json: ZERO source/render near-body guardian/shutter cooccurrences on desktop AND portrait, despite scheduled hazard charges. This motivates new upper-cap source fix, NOT an experience pass.",
       "technicalWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41928548597",
       "initialTechnicalResult": "FAILED 970/971 tests; 4/4 new arena source behavior tests PASSED, 1 existing phase3 fixture expected suppression on untyped fake guardian; fixture corrected 28d7b29, exact-head CI pending",
       "blockers": [
@@ -2630,6 +2630,73 @@
       ],
       "qualityVerdict": "NOT EVALUATED",
       "biggestRemainingExperienceGap": "Authored guardian/shutter encounter now exists in true source world, but unedited event-matched desktop/390×844 portrait full-motion source capture and independent critic review have not proved it more readable or enjoyable; combat/evade balance on physical deck unknown, plus authentic terminal and restart evidence, hardware frame tails, recovery and accessibility checks. NOT EVALUATED."
+    },
+    "latestGuardianCapCrossfire20261105": {
+      "verdict": "NOT EVALUATED — no independent video-quality votes, no supported-device performance",
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "priorOriginalSource": "5c242d28dbaca40d817b67264a10bd17e4bf5acf",
+      "originalSourceBrowserRun": "https://github.com/my-edutu/Ai_games/actions/runs/41928548717",
+      "originalSourceBrowserStatus": "COMPLETED 9/9 success, authentic normal-speed desktop 960x600 and phone 390x844 baseline/candidate clips, but all before new playable fix",
+      "originalCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41928548717/artifacts/13370901289",
+      "frozenBaselineDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41928548717/artifacts/13371670303",
+      "previousNearBodyCrossfireWitness": {
+        "desktop": 0,
+        "portrait": 0,
+        "sourceSha": "5c242d28dbaca40d817b67264a10bd17e4bf5acf"
+      },
+      "playableCodeShas": [
+        "6ec228fa6d2cbf019151f9623a46c6c857ad04b2",
+        "0ac2c819bc78a5267b0b77bc335fe7f81f539303",
+        "09be39ad9b0facb92d8e53c4ba9de89b6f6a62e6"
+      ],
+      "safetyTestShas": [
+        "e12fec292bbf2889ceb80df82f08d05c588f1e7a",
+        "b62fce067f9feb3fe4cdd92db748538bd7ee8648"
+      ],
+      "currentPlayableSourceSha": "09be39ad9b0facb92d8e53c4ba9de89b6f6a62e6",
+      "sourceFixedStepSmoke": {
+        "seed": "tower-transformation-capture-v1",
+        "launchFloor": 8,
+        "steps": 3000,
+        "sourceRealAutonomous": true,
+        "guardianCapGroundedTicks": 1027,
+        "guardianCapShutterScheduledTicks": 168,
+        "nearbyGuardianCapCountdownTicks": 132,
+        "sourceObservedDirectionalEvasionChoices": 55,
+        "method": "Original candidate repository locally compiled with precise new source modifications, real deterministic TowerRuntime and existing live stream config. Developer source-only smoke, NOT independent real 3D motion A/B nor performance test."
+      },
+      "currentSourceNormalSpeedCaptureWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41932038446",
+      "captureStatusAtWrite": "PENDING; no new source video / crossfire source-render witness independently verified",
+      "currentHeadSafetyWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41932358775",
+      "safetyStatusAtWrite": "PENDING, no latest exact-head CI pass claimed",
+      "scenarios": [
+        {
+          "id": "ascent",
+          "baselineClip": "NOT EVENT-MATCHED",
+          "candidateClip": "NOT VIEWED NEW SOURCE"
+        },
+        {
+          "id": "danger",
+          "baselineClip": "Prior authentic 5c frozen-source archival video available",
+          "candidateClip": "Current playable 09be original-source event-match NOT VIEWED"
+        },
+        {
+          "id": "outcome",
+          "baselineClip": "Prior authentic frozen source archival video available",
+          "candidateClip": "Current playable 09be restart NOT REVIEWED"
+        }
+      ],
+      "reviewerVotes": {
+        "looks": [],
+        "feels": [],
+        "plays": [],
+        "required": "5 independent reviewers, >=4/5 candidate preference each"
+      },
+      "supportedDeviceP50P95P99": "NOT MEASURED",
+      "supportedDeviceMemory": "NOT MEASURED",
+      "reviewerAvailability": "No independent fresh-context critic/browser worker available; cannot claim separate blind viewers",
+      "biggestGap": "ACTUAL source fight now contains a real opt-in cap crusher and 20Hz AI escape, but NO finished, event-matched normal-speed native desktop+phone video for the NEW playable source has been independently watched against frozen baseline; need inspect whether the full climber/guardian/shutter remains legible, enjoyable and balanced during contact/recovery and real outcome/restart. Five independent blind votes each LOOKS/FEELS/PLAYS (4/5 minimum) and supported-device frame-time/memory, replay and accessibility are missing. NOT EVALUATED.",
+      "review": "docs/reviews/2026-11-05-tower-pr68-real-guardian-cap-crossfire-and-fixed-step-proof.md"
     }
   }
 }
