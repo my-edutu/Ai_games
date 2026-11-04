@@ -89,6 +89,12 @@ test('actual production scene builds one reusable Three light volume with dispos
   assert.match(scene,/publicLanternEncounter\(s, closestThreat\.cell\)/);
   assert.match(scene,/explorer\.group\.getObjectByName\('lantern cage'\)/);
   assert.match(scene,/explorerLantern\.getWorldPosition\(lanternFocusOrigin\)/);
+  assert.match(scene,/lanternLight\.position\.copy\(lanternFocusOrigin\)/,
+    'Pip must cast warm 3D light from the modeled animated lantern cage');
+  assert.match(scene,/lanternPhysicalLightDistanceWorld: explorerLantern/,
+    'native WebGL screenshots must record physical emitter/light alignment');
+  assert.doesNotMatch(scene,/lanternLight\.position\.set\(pose\.x \+ \.25, ground \+ 1\.1, pose\.z \+ \.2\)/,
+    'do not reintroduce a floating light attached to an invented actor offset');
   assert.match(scene,/lanternBeamDirection\.copy\(lanternFocusOrigin\)/);
   assert.match(scene,/lanternBeam\.position\.copy\(lanternFocusOrigin\)/);
   assert.match(scene,/lanternBeam\.quaternion\.setFromUnitVectors\(lanternBeamAxis, lanternBeamDirection\)/);
