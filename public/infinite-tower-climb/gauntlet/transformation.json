@@ -9,20 +9,20 @@
   },
   "candidate": {
     "sha": null,
-    "title": "SAME 3D tower ascent, exterior trap warning/strike/release and source-driven physical sidestep, guardian and outcome — NOT EVALUATED",
-    "implementationSha": "e51732400a12ba1a2ee17905963c1e09f45eb753",
-    "implementationEvidenceStatus": "PLAYABLE SOURCE only: e517324 builds on b0d1e56 with real autonomous evasion rendered as signed lateral planted-foot/upper-body response, warning/strike/release chamber moved from stone-occluded radial band into outer 26.74–27.78 layer behind climber; existing source audio tied to warning/strike/release. Earlier exact-source 4500fca film https://github.com/my-edutu/Ai_games/actions/runs/41816549404 completed 9/9 jobs but does not film these new changes; e517 film 41821820798 pending at inspection. Test-only b76d703 plus review ce85c6d CI pending; all native film and quality not independently verified. No reviewer votes or supported-device performance."
+    "title": "SAME playable 3D Tower ascent, full-body portrait camera, source-led hazard escape, guardian and authentic result — NOT EVALUATED",
+    "implementationSha": "960b928e3fd3182b42eebcbe1148965ebd2736dc",
+    "implementationEvidenceStatus": "PLAYABLE SOURCE: 960b928 integrates published climber and guardian body heights into the final exterior portrait camera, protecting physical head/boots and real living opponent without authority changes. Earlier e517324 real gameplay capture https://github.com/my-edutu/Ai_games/actions/runs/41821820798 completed 9/9 jobs, but PRE-DATES current change and is not an event-matched assessed baseline/candidate pair. New source 960b928 capture https://github.com/my-edutu/Ai_games/actions/runs/41830661589 queued at inspection. Prior a6849b5 CI 41822259165 failed 1/935 due stale fixture miscounting audio texture as an oscillator; source-aligned test 3a389f2 committed, latest 9d31e31 exact-head safety CI 41830754774 queued. NO source-matched full-motion blind reviews, 0/5 votes each pillar or supported-device measurements. NOT EVALUATED."
   },
   "currentTransformation": {
     "title": "SAME cohesive real 3D ascent → live moving deck dock → guarded guardian counterplay → HP cap gate → authentic outcome and restart",
-    "state": "OPEN — SAME entire playable 3D Tower transformation across ascent, source-led danger/contact/release, guardian encounter, terminal and restart. Experience NOT EVALUATED.",
+    "state": "OPEN — SAME entire playable 3D tower across moving traversal, fixed-step pressure, genuine guardian counterplay, full-body phone framing and result/restart. NOT EVALUATED.",
     "promise": "One original source-authentic playable 3D expedition: readable destination, riding/landing weight, fixed-step trap activation communicated by physical warning machinery, real guardian tactics and gated outcome/restart. No fictional safety guarantee, HUD clutter or altered replay baseline.",
-    "nextDecision": "Inspect latest e517324 gameplay capture https://github.com/my-edutu/Ai_games/actions/runs/41821820798 and b76d703 safety workflow https://github.com/my-edutu/Ai_games/actions/runs/41821918012. Resolve any genuine regression (previous d58057 safety workflow failed 1 stale pressure-release sound fixture, now corrected); review native 390x844/960x600 full-motion for real hazard pressure and mirrored sidestep, honest source-matched baseline vs candidate three >=60s scenarios, five independent randomized blind reviewers per pillar, supported hardware frame time/memory and accessibility/replay.",
+    "nextDecision": "Inspect https://github.com/my-edutu/Ai_games/actions/runs/41830661589 (new 960b928 actual candidate 3D film) and https://github.com/my-edutu/Ai_games/actions/runs/41830754774 (latest exact-head CI after 3a389f2 sound test and 9d31e31 portrait geometry tests). Reconcile any CI failure. Independently watch new source and original-host frozen baseline at identical event windows (>=60s in each ascent/danger/outcome desktop+portrait). Five blind fresh-context critics each must review full motion for LOOKS, FEELS, PLAYS (>=4/5 candidate per pillar), plus supported-device p50/p95/p99 frame time, memory, accessibility, replay/recovery. No quality PASS until all exist.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Unverified actual mobile/desktop comprehension: new exterior 3D chamber might crowd portrait actor even behind their world radius, and lateral escape animation lacks actual full-motion inspection. Need source/event-matched baseline/candidate ascent, concurrent hazard/guardian and outcome/restart >=60s normal-speed each. 0/5 genuine LOOKS, FEELS, PLAYS judgments; no supported-device frame-time tail/memory data. Independent worker/browser disconnected. NOT EVALUATED.",
-    "unverifiedImplementationBranchHead": "e51732400a12ba1a2ee17905963c1e09f45eb753",
-    "currentVerticalSlice": "SAME connected 3D game experience: moving-deck travel, chosen landing, source-published trap countdown, actual active strike/confirmed release, planted-foot physical evasion linked to real velocity, guardian duel, genuine result/restart. This run strengthens hazard action readability, not an isolated quality result.",
-    "biggestGap": "Unverified actual mobile/desktop comprehension: new exterior 3D chamber might crowd portrait actor even behind their world radius, and lateral escape animation lacks actual full-motion inspection. Need source/event-matched baseline/candidate ascent, concurrent hazard/guardian and outcome/restart >=60s normal-speed each. 0/5 genuine LOOKS, FEELS, PLAYS judgments; no supported-device frame-time tail/memory data. Independent worker/browser disconnected. NOT EVALUATED."
+    "biggestRemainingExperienceGap": "Biggest systemic experience gap: source-authentic complete phone action (real full skinned protagonist, guardian, moving landing and concurrent threat) has not been demonstrated in matched FULL-MOTION baseline/candidate 60+ second ascent/high-stakes/outcome episodes. Latest source-height portrait framing may help but might compromise cinematography; unseen on current source. Full-body/head/boots and enemy readability plus event-matched original-host baseline remain to prove. Five independent blinded opinions 0/5 each, supported-device frame-time tails and memory missing, independent worker/browser tunnel NOT_FOUND. NOT EVALUATED.",
+    "unverifiedImplementationBranchHead": "960b928e3fd3182b42eebcbe1148965ebd2736dc",
+    "currentVerticalSlice": "SAME connected real playable 3D expedition: physically loaded moving deck, chosen landing, source-published trap closing/strike/release, observed full-body sidestep and portrait frame rescue, guardian tactics, genuine terminal and restart. Remains unassessed as a whole.",
+    "biggestGap": "Biggest systemic experience gap: source-authentic complete phone action (real full skinned protagonist, guardian, moving landing and concurrent threat) has not been demonstrated in matched FULL-MOTION baseline/candidate 60+ second ascent/high-stakes/outcome episodes. Latest source-height portrait framing may help but might compromise cinematography; unseen on current source. Full-body/head/boots and enemy readability plus event-matched original-host baseline remain to prove. Five independent blinded opinions 0/5 each, supported-device frame-time tails and memory missing, independent worker/browser tunnel NOT_FOUND. NOT EVALUATED."
   },
   "scenarios": [
     {
@@ -62,11 +62,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Previous d58057 workflow https://github.com/my-edutu/Ai_games/actions/runs/41816927773 FAILURE: 933/934 full repo tests, 1 stale opt-in release cue assertion (expected no sound when actual same-floor source hazard deactivated); focused fixture changed to demand exact recovered sound and duplicate/new-run suppression. New exact-head b76d703 workflow https://github.com/my-edutu/Ai_games/actions/runs/41821918012 PENDING; not marked green. CI a safety veto, NEVER quality evidence.",
-    "replay": "Unmodified deterministic fixed-step AI, collision, authoritative snapshot and historical replay. Visual body sidestep uses observed intent and signed current vx only, does not move root or modify gameplay. 3D chamber uses current published charge, actual active and adjacent source-proven release; stale/dead/terminal/floor changes clear. New source tests committed, full exact-head CI pending.",
-    "accessibility": "No extra HUD, overlay, flash, dynamic light or network. Source evasion pose has mirrored physical planted feet and asymmetric arms plus reduced-motion static silhouette (no body roll); active chamber shape closes and visibly recovers by actual tick, not color-only. Opt-in sound remains optional. Real desktop/mobile vision, captions, reduced motion and action comprehension still NOT EVALUATED.",
-    "performance": "Existing instanced single-draw 16-member hazard chamber 96 parts normal/48 low, now moved to exterior radial 26.74–27.78; no added parts/draws/geometry, textures/shadows or render passes. Pose changes only existing skinned bones with current real velocity. Supported-device p50/p95/p99 frame-time and memory NOT MEASURED, CI software WebGL frame timing is not device FPS.",
-    "stability": "Existing stage/actor graphics recovery, lifecycle disposal and stale-source clearing preserved. Source-specific pose/radial regression tests committed. Exact-head CI and native full-motion captures pending; original frozen baseline unchanged, no production or quality verdict."
+    "ci": "Prior exact source a6849b5 workflow https://github.com/my-edutu/Ai_games/actions/runs/41822259165 FAILED 1/935: test expected 300Hz texture oscillator, real source produces 225Hz oscillator and optional 300Hz filtered sampled texture (restricted fixture lacks sample buffers). Corrected source-observed fixture commit 3a389f2. New 9d31e31 exact-head https://github.com/my-edutu/Ai_games/actions/runs/41830754774 QUEUED at inspection; never count green until completed. CI veto only, never experience score.",
+    "replay": "No authoritative physics, AI, collision, RNG, seed, simulation camera controls or replay changes. Live portrait correction reads published real-body half heights and existing snapshot only; conservatively measures projected vertical bounds, then either improves both actor frame and the protected opponent or restores original gaze. Historical replay unaffected. New tests committed, exact-head CI pending.",
+    "accessibility": "The genuine portrait camera now protects source-height actor head/boots as well as live guardian head/boots and present landing when appropriate, not merely torso-center pixels. Corrective camera disabled in reduced-motion, preserving previously static behavior; no new HUD or flashing cues. Actual mobile human accessibility and full-motion comprehension NOT EVALUATED.",
+    "performance": "Live camera checks add bounded scalar perspective projection math only after pre-existing portrait safety gating. No extra mesh, draw, asset, shader, HUD, network, texture or shadow. The existing 3D trap chamber remains bounded by its prior instance budget. Supported-device p50/p95/p99 and memory NOT MEASURED; CI software renderer cannot substitute.",
+    "stability": "Existing camera rollback, core-clear sightline and real opponent/landing protections remain; full-body center-cropped case and guardian full-silhouette veto have dedicated geometry VM tests. Source-pinned 960b928 gameplay capture and 9d31e31 CI queued at inspection. No merge, force-push or deployment."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -147,9 +147,9 @@
         }
       }
     },
-    "newImplementationSha": "e51732400a12ba1a2ee17905963c1e09f45eb753",
+    "newImplementationSha": "960b928e3fd3182b42eebcbe1148965ebd2736dc",
     "newImplementationRecorded": false,
-    "reviewPath": "docs/reviews/2026-11-04-tower-pr68-trap-evasion-3d-silhouette-and-outer-chamber.md",
+    "reviewPath": "docs/reviews/2026-11-04-tower-pr68-source-height-portrait-action-continuity.md",
     "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41547983114",
     "followupStatus": "On 2026-11-03, source-pinned run 41547983114 completed 8/9 jobs: baseline+old-candidate desktop/portrait normal-speed ascent, danger, moving, outcome all SUCCESS as capture jobs; authentic-ledge FAILED because source play yielded no qualifying actual ledge event within 2500 fixed ticks (four desktop/portrait browser tests). Old candidate 133ce1a8, frozen baseline 1731b380. New candidate 4398a157 still awaits exact-source recorded gameplay, blind votes, supported-device measurements. No experience preference awarded.",
     "matchedCaptureSettings": {
@@ -2168,6 +2168,28 @@
       },
       "blocker": "Independent browser/worker tunnel NOT_FOUND (not seen for 300 seconds); real supported-device frame time/memory and blind full-motion reviews unavailable.",
       "mostConsequentialConcern": "Exterior-facing 3D chamber vs true 28-unit articulated climber/guardian visibility on narrow phone screen; not verified with new-source native film."
+    },
+    "latestWholeBodyPortrait20261104": {
+      "sourceSha": "960b928e3fd3182b42eebcbe1148965ebd2736dc",
+      "fixtureFixSha": "3a389f2a409545433ade62faf23d9488c3b05769",
+      "testSha": "9d31e31b7779d0d8c66cbfb0b61c1004b37a4629",
+      "reviewCommitSha": "cb973a661e181ac75085aca3938e28bcaeb26b99",
+      "captureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41830661589",
+      "captureStatus": "QUEUED on source 960b928 at inspection; not watched or independent",
+      "safetyRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41830754774",
+      "safetyStatus": "QUEUED at inspection, no exact-head CI PASS",
+      "previousCompleteRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41821820798",
+      "previousSourceSha": "e51732400a12ba1a2ee17905963c1e09f45eb753",
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "method": "Current actual 3D portrait camera bounded perspective checks for source-sized climber/guardian and real landing; original-host frozen baseline and matched normal-speed full-motion still require inspection.",
+      "independentCriticVotes": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "supportedDeviceFrameTimeMemory": "NOT MEASURED",
+      "criticAccess": "NOT_FOUND: Tunnel-client has not been seen for 300 seconds",
+      "verdict": "NOT EVALUATED"
     }
   }
 }
