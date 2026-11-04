@@ -257,3 +257,19 @@ test('actual lethal trap outranks warnings in low quality and survives simultane
   assert.equal(stage.diagnostics().instances, 0,
     'a new run must not resurrect old active or releasing hazards');
 });
+
+test('source-attested quiet mechanical disengagement cannot be forged or replayed', async () => {
+  const { witnessedPressureRelease } = await import(pathToFileURL(path.join(root,
+    'public/infinite-tower-climb/visuals/audio.mjs')).href);
+  assert.equal(witnessedPressureRelease(true,false,true), true);
+  for(const args of [
+    [undefined,false,true],[false,false,true],[true,true,true],
+    [true,false,false],[true,false,undefined],[true,0,true],
+    [1,false,true],[false,true,true],[true,false,null],
+  ]) assert.equal(witnessedPressureRelease(...args), false);
+  const audio = fs.readFileSync(path.join(root,
+    'public/infinite-tower-climb/visuals/audio.mjs'), 'utf8');
+  assert.match(audio, /witnessedPressureRelease\(wasActive,active,adjacentCharge\)/);
+  assert.match(audio, /nearbyHazardReleased/);
+  assert.match(audio, /actor\.health\s*>\s*0/);
+});
