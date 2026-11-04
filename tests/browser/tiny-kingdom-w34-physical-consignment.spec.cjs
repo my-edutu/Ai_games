@@ -36,7 +36,7 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
     if(current?.id===cargo.id&&current.stage==='unloading'){
      if(current.visibleBundles>previous)monotone=false;
      previous=current.visibleBundles;
-     if(current.progress>.37&&current.progress<.88&&!partial)
+     if(current.progress>.62&&current.progress<.88&&!partial)
       partial={...current};
     }
     receipt=g.getDeliveryReceipts().find(r=>r.id===cargo.id);
