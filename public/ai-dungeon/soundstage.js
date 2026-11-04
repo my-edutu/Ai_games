@@ -60,7 +60,7 @@ export function createDungeonSoundstage(ctx){
  let played=0,suppressed=0,peakVoices=0,sceneChanges=0,lastCue='none';
  const active=[],cooldown=new Map(),beds=[],nodes=[],pending=[];
  let contactCuesPlayed=0,contactCuesDropped=0;
- let master=null,bedBus=null,fxBus=null,capture=null,foley=null;
+ let master=null,bedBus=null,fxBus=null,capture=null,foley=null,pcmSession=null;
  const now=()=>safe(ctx.currentTime,0,Number.MAX_SAFE_INTEGER,0);
  function addBed(type){
   const oscillator=ctx.createOscillator(),gain=ctx.createGain();
@@ -165,6 +165,71 @@ export function createDungeonSoundstage(ctx){
   if(sceneMood){const old=sceneMood;sceneMood=null;setMood(old)}
   return true;
  }
+ /**
+  * Record ACTUAL opt-in live WebAudio output, not an offline invented score.
+  * Headless canvas MediaRecorder can return zero bytes while original game
+  * oscillators are audible. A bounded, SILENT-OUTPUT live processor captures
+  * the real synth mix independently; never touches microphones or uploads.
+  * Unsupported/silent graphs report UNAVAILABLE or SILENT, never a win.
+  */
+ function recordOriginalPcm(seconds=4){
+  if(disposed||!started||!enabled||ctx.state!=='running'||!master||
+   !Number.isFinite(seconds)||seconds<.5||seconds>10||
+   typeof ctx.createScriptProcessor!=='function'||pcmSession)
+   return Promise.resolve({status:'UNAVAILABLE',reason:'Audio must be opted in, active, bounded and not already recording'});
+  const sampleRate=ctx.sampleRate;
+  if(!Number.isFinite(sampleRate)||sampleRate<8000||sampleRate>96000)
+   return Promise.resolve({status:'UNAVAILABLE',reason:'Invalid live AudioContext sample rate'});
+  return new Promise(resolve=>{
+   let recorder=null,silence=null,frames=0,sumSquares=0,peak=0,settled=false;
+   const chunks=[],maxFrames=Math.ceil(seconds*sampleRate);
+   const finish=(reason='complete')=>{
+    if(settled)return;settled=true;
+    try{master.disconnect(recorder)}catch{}
+    try{recorder?.disconnect()}catch{}
+    try{silence?.disconnect()}catch{}
+    if(pcmSession?.finish===finish)pcmSession=null;
+    if(reason!=='complete'||frames<Math.min(2048,maxFrames*.20)){
+     resolve({status:'UNAVAILABLE',reason,frames,sampleRate});return;
+    }
+    const wav=new Uint8Array(44+frames*2),view=new DataView(wav.buffer);
+    const ascii=(at,v)=>{for(let i=0;i<v.length;i++)view.setUint8(at+i,v.charCodeAt(i));};
+    ascii(0,'RIFF');view.setUint32(4,wav.length-8,true);ascii(8,'WAVE');ascii(12,'fmt ');
+    view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,1,true);
+    view.setUint32(24,sampleRate,true);view.setUint32(28,sampleRate*2,true);
+    view.setUint16(32,2,true);view.setUint16(34,16,true);
+    ascii(36,'data');view.setUint32(40,frames*2,true);
+    let offset=44;
+    for(const chunk of chunks)for(let i=0;i<chunk.length;i++){
+     view.setInt16(offset,chunk[i],true);offset+=2;
+    }
+    const rms=Math.sqrt(sumSquares/Math.max(1,frames));
+    resolve({status:peak>.0005&&rms>.0001?'RECORDED':'SILENT',
+     sampleRate,channels:1,frames,durationSeconds:frames/sampleRate,
+     bytes:wav.length,peak,rms,format:'PCM16_LE_WAV',wav});
+   };
+   try{
+    recorder=ctx.createScriptProcessor(1024,1,1);
+    silence=ctx.createGain();silence.gain.value=0;
+    // Keep processor alive without doubling any real speaker output.
+    master.connect(recorder);recorder.connect(silence);silence.connect(ctx.destination);
+    recorder.onaudioprocess=e=>{
+     if(settled)return;
+     const input=e.inputBuffer.getChannelData(0),length=Math.min(input.length,maxFrames-frames);
+     if(length<=0){finish();return;}
+     const chunk=new Int16Array(length);
+     for(let i=0;i<length;i++){
+      const value=Math.max(-1,Math.min(1,Number.isFinite(input[i])?input[i]:0));
+      sumSquares+=value*value;peak=Math.max(peak,Math.abs(value));
+      chunk[i]=Math.round(value<0?value*32768:value*32767);
+     }
+     chunks.push(chunk);frames+=length;
+     if(frames>=maxFrames)finish();
+    };
+    pcmSession={finish};
+   }catch(e){finish('Audio capture processor unsupported: '+String(e));}
+  });
+ }
  function revokeCapture(){
   if(!capture)return;
   try{master?.disconnect(capture)}catch{}
@@ -173,6 +238,7 @@ export function createDungeonSoundstage(ctx){
   capture=null;
  }
  function disable(){
+  pcmSession?.finish?.('Audio disabled during recording');
   enabled=false;pending.length=0;
   for(const voice of active)stopAndDisconnect(voice);
   active.length=0;
@@ -253,5 +319,5 @@ export function createDungeonSoundstage(ctx){
   for(const node of nodes)try{node.disconnect()}catch{}
   nodes.length=beds.length=0;cooldown.clear();previous=null;
  }
- return {enable,disable,acceptSnapshot,advanceVisualFrame,cueWelcome,footstep,captureStream,stats,dispose};
+ return {enable,disable,acceptSnapshot,advanceVisualFrame,cueWelcome,footstep,captureStream,recordOriginalPcm,stats,dispose};
 }

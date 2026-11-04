@@ -596,6 +596,9 @@ let previousEventKey='',alertTimer=null,ambience=null,soundstage=null,splashTime
 // Test/review recording exposes only the spectator's already opt-in audio bus.
 // No simulated soundtrack, private game state, or recording network endpoint.
 window.__DUNGEON_CAPTURE_SOUND__=()=>soundstage?.captureStream()??null;
+ // The real browser-original soundtrack, explicitly opted-in, can be tapped
+ // without relying on zero-byte software-WebGL canvas MediaRecorder.
+ window.__DUNGEON_RECORD_ORIGINAL_PCM__=seconds=>soundstage?.recordOriginalPcm(seconds)??Promise.resolve({status:'UNAVAILABLE',reason:'Audio not opted in'});
 const classMeta={vanguard:{name:'ASHEN VANGUARD',title:'FRONT-LINE KNIGHT',icon:'⚔'},ranger:{name:'WILDSHADOW',title:'PHANTOM ARCHER',icon:'➶'},mystic:{name:'STARWEAVER',title:'ARCANE HEALER',icon:'✧'}};
 function drawMinimap(s){
  const N=s.map.length,W=minimap.width,H=minimap.height,cell=W/N,margin=0;
