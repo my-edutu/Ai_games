@@ -45,7 +45,13 @@ test('an entirely autonomous real campaign naturally traverses, fights, kills th
   if(current.run>lastRun&&!firstRestart){firstRestart=i+1;seen.add('restart');}
   highest=Math.max(highest,current.floor);lastFloor=current.floor;lastRun=current.run;
  }
- assert.deepEqual([...seen].sort(),['boss','combat','defeat','floor','restart','traversal']);
+ const summary=()=>({run:game.state.run,floor:game.state.floor,tick:game.state.tick,phase:game.state.phase,
+  intent:game.state.intent,exit:game.state.exit,
+  units:game.state.units.filter(u=>u.hp>0).map(u=>({id:u.id,kind:u.kind,faction:u.faction,
+   x:u.x,z:u.z,hp:u.hp,action:u.action,target:u.targetId})),
+  kills:game.state.kills,events:game.state.events.slice(-5)});
+ assert.deepEqual([...seen].sort(),['boss','combat','defeat','floor','restart','traversal'],
+  'organic adventure stages absent; final authoritative state: '+JSON.stringify(summary()));
  assert.ok(highest>3,'the real run must progress beyond the first cinematic encounter');
  assert.ok(firstRestart>firstDefeat,'a genuine defeat precedes autonomous restart');
 });
