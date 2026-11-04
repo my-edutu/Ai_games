@@ -6,7 +6,11 @@ const W24='9b4bdeb3dba591b09fe6906d6be234710e3fdb28';
 const W25='95f07bbc77287eb824140173ec74abf75e389d17';
 const destination=path.resolve(__dirname,'../../artifacts/tiny-kingdom');
 const hash=s=>crypto.createHash('sha256').update(s).digest('hex');
-const html25=fs.readFileSync(path.resolve(__dirname,'../../public/tiny-kingdom/index.html'),'utf8');
+// Pin the candidate to its ACTUAL executable source. Current draft PR #64
+// advances under parallel W26 development; loading HEAD here and labelling
+// it W25 would fabricate an obsolete historical benchmark.
+const html25=execFileSync('git',['show',W25+':public/tiny-kingdom/index.html'],
+ {encoding:'utf8',maxBuffer:20*1024*1024});
 // Fetch-depth=0 in the dedicated job so the prior source is an exact Git
 // object, not a guessed screenshot or asynchronously updated public website.
 const html24=execFileSync('git',['show',W24+':public/tiny-kingdom/index.html'],
