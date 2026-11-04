@@ -88,11 +88,11 @@ test('camera-facing nearby masonry now reveals full actor weapons but preserves 
  const text=fs.readFileSync(path.join(root,'public/ai-dungeon/cutaway-floor-plan.js'),'utf8');
  const {planCutawayWallTransform}=await import('data:text/javascript;base64,'+Buffer.from(text).toString('base64'));
  assert.ok(planCutawayWallTransform('nearby',2.6).height<=.48);
- assert.equal(planCutawayWallTransform('sightline',2.6).height,.16);
+ assert.equal(planCutawayWallTransform('sightline',2.6).height,.13);
  assert.equal(planCutawayWallTransform('none',2.6).height,2.6);
  const environment=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
- assert.match(environment,/reveal==='nearby'\?\.27/);
- assert.match(environment,/reveal==='nearby'\?\.15/);
+ assert.match(environment,/reveal==='nearby'\?\.43/);
+ assert.match(environment,/reveal==='nearby'\?\.23/);
 });
 
 test('real group camera clears only the foreground wedge in front of living characters',async()=>{
@@ -155,14 +155,46 @@ test('physical character-scale stage respects genuine travel and live melee cont
  const combat=Object.freeze({x:0,z:0,silhouetteRecess:true,combatRecess:true});
  const camera=Object.freeze({x:6,z:0});
  assert.equal(planPartyWallReveal(-2.3,1.2,[hero],camera),'nearby');
- assert.equal(planPartyWallReveal(-2.3,1.2,[combat],camera),'sightline');
+ assert.equal(planPartyWallReveal(-2.3,1.2,[combat],camera),'nearby',
+  'the rear Gothic arcade stays visible as dressed low ruins, not a flat empty hole');
  assert.equal(planPartyWallReveal(-2.8,1.8,[combat],camera),'none');
  assert.equal(planPartyWallReveal(0,3.6,[combat],camera),'none');
  assert.equal(planPartyWallReveal(0,2.8,[hero],camera),'none');
  const dressing=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
  const floorPlan=fs.readFileSync(path.join(root,'public/ai-dungeon/cutaway-floor-plan.js'),'utf8');
- assert.match(dressing,/reveal==='nearby'\?\.27/);
- assert.match(dressing,/reveal==='nearby'\?\.15/);
+ assert.match(dressing,/reveal==='nearby'\?\.43/);
+ assert.match(dressing,/reveal==='nearby'\?\.23/);
  assert.match(floorPlan,/height:\.27,footprint:\.78/);
  assert.match(floorPlan,/height:\.13,footprint:\.32/);
+});
+
+test('an actual combat stage clears frontal weapon contact while retaining architectural depth behind each hero',async()=>{
+ const {planPartyWallReveal}=await load();
+ const subject=Object.freeze({x:0,z:0,silhouetteRecess:true,combatRecess:true});
+ const right=Object.freeze({x:6,z:0}),left=Object.freeze({x:-6,z:0});
+ const front={x:2.1,z:.4},rear={x:-2.1,z:.4};
+ assert.equal(planPartyWallReveal(front.x,front.z,[subject],right),'sightline',
+  'foreground Warden contact needs a clear physical camera-side acting space');
+ assert.equal(planPartyWallReveal(rear.x,rear.z,[subject],right),'nearby',
+  'rear Gothic masonry must NOT be flattened into the same foundation tier');
+ assert.equal(planPartyWallReveal(front.x,front.z,[subject],left),'nearby',
+  'moving the REAL camera reverses which half of the cathedral remains intact');
+ assert.equal(planPartyWallReveal(rear.x,rear.z,[subject],left),'sightline');
+ assert.equal(planPartyWallReveal(-5,.4,[subject],right),'none',
+  'distant room boundaries must remain full height');
+ const second=Object.freeze({x:-3,z:0,silhouetteRecess:true});
+ assert.equal(planPartyWallReveal(-2.1,.4,[subject,second],right),'sightline',
+  'a second REAL hero may require a sightline even through the first hero\'s rear arcade');
+ assert.deepEqual(subject,{x:0,z:0,silhouetteRecess:true,combatRecess:true});
+ assert.deepEqual(second,{x:-3,z:0,silhouetteRecess:true});
+});
+
+test('real Gothic weathering is fitted to the near ruin rather than erased or floating above it',()=>{
+ const env=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
+ const floor=fs.readFileSync(path.join(root,'public/ai-dungeon/cutaway-floor-plan.js'),'utf8');
+ assert.match(env,/blockedBand=reveal==='sightline'\?2:reveal==='nearby'\?1:0/);
+ assert.match(env,/const hidden=band===2,ruin=band===1/);
+ assert.match(env,/Math\.min\(\.37,item\.y\*\.14\)/);
+ assert.match(env,/const obscures=.*==='sightline'/);
+ assert.match(floor,/height:\.43,footprint:\.84/);
 });
