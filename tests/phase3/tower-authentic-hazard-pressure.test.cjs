@@ -69,6 +69,16 @@ test('real gameplay uses one bounded depth-tested instance stage and never mutat
   effect.update(frame, { quality: 'normal' });
   assert.equal(JSON.stringify(frame), unchanged);
   assert.equal(mesh.count, 16);
+  // The opaque stone tower occupies the 24-unit radial core. World-space
+  // pressure jaws must actually inhabit the visible exterior 3D layer,
+  // yet stay behind the 28-unit climber, not block the playable silhouette.
+  for (const index of [0, 4, 8, 12, 15]) {
+    const transform = new THREE.Matrix4();
+    mesh.getMatrixAt(index, transform);
+    const radial = Math.hypot(transform.elements[12], transform.elements[14]);
+    assert.ok(radial >= 26.7 && radial <= 27.85,
+      `physical chamber member ${index} should clear opaque tower but sit behind actor: ${radial}`);
+  }
   assert.equal(effect.diagnostics().chargingHazards, 1);
   assert.equal(effect.diagnostics().extraDraws, 1);
   const early = Array.from(mesh.instanceMatrix.array.slice(0, 16 * 16));
