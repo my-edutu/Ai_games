@@ -69,6 +69,28 @@ test('real 3D dungeon keeps sound off until gesture and then runs original bound
   const later=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.soundstage);
   expect(later.voices).toBeLessThanOrEqual(10);
   expect(later.sceneChanges).toBeGreaterThanOrEqual(1);
+
+  // Same live, opted-in original WebAudio mixer, not an offline soundtrack.
+  // A raw PCM WAV can survive headless software-WebGL video-only recording.
+  const originalPcm=await page.evaluate(async()=>{
+   if(typeof window.__DUNGEON_RECORD_ORIGINAL_PCM__!=='function')
+    return {status:'UNAVAILABLE',reason:'No original game sound tap'};
+   const recording=window.__DUNGEON_RECORD_ORIGINAL_PCM__(2.5);
+   const result=await Promise.race([recording,new Promise(resolve=>
+    setTimeout(()=>resolve({status:'UNAVAILABLE',reason:'No AudioContext frames delivered'}),4400))]);
+   if(result?.status!=='RECORDED'||!result.wav)return result;
+   let binary='';
+   for(let i=0;i<result.wav.length;i+=32768)
+    binary+=String.fromCharCode(...result.wav.subarray(i,i+32768));
+   const {wav,...meta}=result;return {...meta,base64:btoa(binary)};
+  });
+  if(originalPcm?.status==='RECORDED'){
+   const {base64,...metadata}=originalPcm;
+   await test.info().attach('dungeon-live-original-sound.wav',{
+    body:Buffer.from(base64,'base64'),contentType:'audio/wav'});
+   await test.info().attach('dungeon-live-original-audio-measurement.json',{
+    body:Buffer.from(JSON.stringify(metadata,null,2)),contentType:'application/json'});
+  }else console.log('DUNGEON REAL LIVE AUDIO UNVERIFIED:',originalPcm?.reason||originalPcm?.status);
   if(recording.supported){
    const result=await page.evaluate(()=>window.__DUNGEON_REAL_CLIP__);
    if(result?.supported&&result.base64){

@@ -97,6 +97,25 @@ for(const device of [
    await test.info().attach('real-warden-court-'+device.name+'-motion-audio-track',
     {path:capturePath,contentType:'video/webm'});
   }
+
+  // Genuine current boss WebAudio, independently captured if canvas WebM is
+  // zero-byte. Never claim audio without a populated WAV and positive RMS.
+  const originalPcm=await page.evaluate(async()=>{
+   if(typeof window.__DUNGEON_RECORD_ORIGINAL_PCM__!=='function')
+    return {status:'UNAVAILABLE',reason:'No original game sound tap'};
+   const recording=window.__DUNGEON_RECORD_ORIGINAL_PCM__(2.5);
+   const result=await Promise.race([recording,new Promise(resolve=>
+    setTimeout(()=>resolve({status:'UNAVAILABLE',reason:'No AudioContext frames delivered'}),4400))]);
+   if(result?.status!=='RECORDED'||!result.wav)return result;
+   let binary='';
+   for(let i=0;i<result.wav.length;i+=32768)
+    binary+=String.fromCharCode(...result.wav.subarray(i,i+32768));
+   const {wav,...meta}=result;return {...meta,base64:btoa(binary)};
+  });
+  const {base64:pcmBase64,...pcmReceipt}=originalPcm||{status:'UNAVAILABLE'};
+  if(pcmReceipt.status==='RECORDED')await test.info().attach('dungeon-m1-court-'+device.name+'-original-audio.wav',{
+   body:Buffer.from(pcmBase64,'base64'),contentType:'audio/wav'});
+  else console.log('DUNGEON WARDEN ORIGINAL AUDIO UNVERIFIED:',pcmReceipt.reason||pcmReceipt.status);
   const after=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
   await page.locator('#world').screenshot({
    path:'artifacts/dungeon-m1-court-'+device.name+'.png',timeout:60000
@@ -104,7 +123,7 @@ for(const device of [
   const receipt={
    method:'Seeded DungeonRuntime public snapshots, stepped once per actual browser poll; no stage mutation',
    seed:'visual-room-art-18',firstTick,firstFloor,authorityPolls:served,device,
-   optInAudioControl:soundOptedIn,recording:captureMeta,
+   optInAudioControl:soundOptedIn,recording:captureMeta,originalPcmAudio:pcmReceipt,
    initialCourt:initial.dressing.wardenCourt,finalCourt:after.dressing.wardenCourt,
    initialBoss:initial.authored3D.authoredBosses,finalBoss:after.authored3D.authoredBosses,
    drawCalls:after.drawCalls,triangles:after.triangles,webgl:after.webgl,
