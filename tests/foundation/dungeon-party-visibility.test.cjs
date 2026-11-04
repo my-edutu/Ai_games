@@ -347,10 +347,10 @@ test('genuine close wall cutaway exposes a real skinned fighter but retains the 
   'real torso and sword clearance must not rely on an approximate synthetic centre ray');
  assert.equal(r(-1.9,.34,[hero],camera,2.1,2.9),'none',
   'full-height rear chapel masonry must survive the presentation pocket');
- assert.equal(r(.62,.34,[hero],camera,2.1,.43),'nearby',
-  'already lowered stones must not expand the body pocket');
- assert.equal(r(.62,.34,[hero],{...camera,y:15},2.1,2.9),'nearby',
-  'a high overhead camera does not delete unoccluding stone');
+ assert.equal(r(.62,.34,[hero],camera,2.1,.43),'sightline',
+  '43cm parapets can still conceal planted boots and must fully recess in the direct ray');
+ assert.equal(r(.62,.34,[hero],{...camera,y:15},2.1,2.9),'sightline',
+  'even high sightlines can be blocked at the planted foot');
  assert.equal(JSON.stringify({hero,camera}),original);
 });
 
