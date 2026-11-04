@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T06:19:45.000Z",
-  "status": "IN PROGRESS — NOT TRANSFORMED (M1 witnessed 3D contact candidate unverified)",
+  "generatedAt": "2026-11-04T07:15:00.000Z",
+  "status": "IN PROGRESS — NOT TRANSFORMED (M1 source-corrected real Warden playthrough stall; gate UNVERIFIED)",
   "reference": "Diablo IV: overall quality; No Rest for the Wicked: worlds; Path of Exile 2: contact and combat — NOT independently compared as matched motion",
   "metrics": {
     "sample_seeds": 24,
@@ -208,19 +208,19 @@
       "elapsedMs": 158
     }
   ],
-  "visualVerdict": "Previous genuine footage shows action-figure characters and low-impact contact. New skinned-chest physical armor fracture is source implemented, but no exact-head desktop/mobile moving gameplay or matched A/B was inspected.",
+  "visualVerdict": "An authentic 2500-tick expedition failed to reach boss death, floor change or defeat/restart at the predecessor head; source now contains a real 9-beat final-Warden mobility/counter rhythm, but exact-head gameplay, recorded sound and visuals still UNVERIFIED.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
-  "candidateCommit": "cd5bbfe05e7ec3e7cd82bfc5d8eca4c251e9b612",
-  "metricsProvenance": "Historical 2026-10-31 24x900 corpus only; NOT replay verification of this new candidate. New source motion/audio/CI awaiting browser evidence.",
+  "candidateCommit": "61f842415c7cfcf0f0931885d2ebfdfc79d64f51",
+  "metricsProvenance": "Existing 24x900 corpus numbers are historical ONLY; diagnostic 08b seed gauntlet-corpus-v1-0 at tick2500 did not complete floor1 (Warden HP66). New 9-beat candidate playthrough not replay-verified yet.",
   "transformation": {
     "milestone": "M1",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
     "locked": true,
-    "candidateSha": "cd5bbfe05e7ec3e7cd82bfc5d8eca4c251e9b612",
+    "candidateSha": "61f842415c7cfcf0f0931885d2ebfdfc79d64f51",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
-    "exactHeadSafety": "UNVERIFIED",
+    "exactHeadSafety": "UNVERIFIED (prior exact-head 08b authority 277/278 failed true organic run)",
     "looks": "UNVERIFIED",
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
@@ -231,9 +231,9 @@
     },
     "fullDesktopMobileAudiovisualJourney": "UNVERIFIED",
     "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41771366662/artifacts/13296445388",
-    "exactHeadAction": "https://github.com/my-edutu/Ai_games/actions/runs/41785504951",
-    "biggestGap": "The actual WebGL adventure still presents action-figure/miniature anatomy and intermittent physically illegible combat against crowded masonry. New exact-source 3D damage fracture is unreviewed in motion.",
-    "nextTask": "Inspect exact-source desktop/mobile real-browser hit shards, Warden boss, floor and defeat motion, then measure and compare with locked M1 baseline; correct any screen clutter and complete all five play stages.",
+    "exactHeadAction": "https://github.com/my-edutu/Ai_games/actions/runs/41790534415",
+    "biggestGap": "A real autonomous campaign stalled in its first Warden fight for 2500 source ticks (66 boss HP, all 3 heroes alive), preventing a complete coherent adventure. Nine-beat boss pursuit source candidate not yet proven to resolve it; character anatomy, contact and close Gothic composition still substantially below references.",
+    "nextTask": "Review candidate full actual 2500-tick organic campaign, ensure boss/floor/defeat/restart and replay; if still stalled, correct genuine tactics. Then collect desktop/mobile sound/motion and compare against the immutable before evidence with blind critics.",
     "currentMilestoneLedger": "public/ai-dungeon/gauntlet-history.json"
   }
 }

@@ -2194,7 +2194,7 @@
         "playsMajority": false,
         "provenance": "No fresh independent critics available. Do not infer a blind preference from test results or real predecessor screenshots."
       },
-      "safetyChecks": "New source cd5bbfe safety pending; no new gameplay/replay/CI result claimed. Only exact source JavaScript parse and deterministic shard planner sanity checks completed outside runtime. Reference predecessor 92b browser assertions had natural-death scenario failures; do not claim acceptance.",
+      "safetyChecks": "VERIFIED FAILURE at predecessor/diagnostic head 08b4975: Dungeon authority 277/278; true organic corpus seed at tick2500 remains floor1 run1 with Warden 66 HP; terminal browser and scene tests fail. Source correction at 61f8424 and associated new workflow 41790534415 queued at observation, so corrected candidate safety/gameplay UNVERIFIED; do not claim pass.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED synchronized full video+audio; predecessor Chromium Warden diagnostic 2.5s non-silent real PCM 44100Hz, peak .025445 RMS .00856, but browser video recorder reported zero bytes.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2202,7 +2202,7 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Real-source b8be04f 1440x832 browser screenshot from 41672587065 and Warden boss desktop/mobile screenshot/video artifacts 41672587022 were INSPECTED: new 14 anatomical joint cylinders made elongated opaque spindly/squid-like limbs. Warden encounter head-on 1440x832 has 3 heroes overlapping enemy bodies in the 58% HP boss arena, warning Rift Cross visible but contact indistinguishable; mobile capture progressed into floor 2 but large stylized ballheads persist. This is a NEGATIVE experiential finding compared with da492455 and exact locked baseline; source visual redesign at 71da2ea to cap spans remains unverified. No masked A/B victory.",
-      "latestCandidateWorkflow": "cd5bbfe original 3D hit fracture: Dungeon 41785504951, visual 41785505003, CI 41785504967 queued/pending, outcomes UNVERIFIED; source parse and pure fan math inspected in connected JS tool, NOT browser tests.",
+      "latestCandidateWorkflow": "Source candidate 61f8424: Dungeon https://github.com/my-edutu/Ai_games/actions/runs/41790534415; visual review 41790534414; catalogue CI 41790534420; all queued at handoff. Actual 08b diagnostic predecessor authority FAIL with detailed genuine final boss stasis.",
       "currentPredecessorWebgl": {
         "sourceHead": "938cf0c44726b7be5dd3441eb33f7c1226f2b872",
         "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41758062752/artifacts/13289962348",
@@ -2217,7 +2217,7 @@
         "audio": "Real 3-second opt-in Warden audiovisual MediaRecorder produced no recorded frames in that workflow; UNSUPPORTED/UNVERIFIED",
         "fullGameReel": false
       },
-      "newCandidateSceneReview": "Previous source 92b actual 1440x832 and desktop/mobile videos show miniature-like figures and insufficient physical impact. The new cd5bbfe instanced-material fracture, recoil/audio coordination, matched original-baseline motion and mobile readability have NOT BEEN OBSERVED in the actual running game.",
+      "newCandidateSceneReview": "UNVERIFIED: a live Warden pursuit and any original-A/V cinematic candidate footage have not yet been inspected. Prior genuine screenshots show toy-like native rigs and crowded dark Gothic masonry. Current AI source fixes a blocking playthrough defect; no LOOKS/FEELS/PLAYS A/B win established.",
       "characterDrawBudget": "Previous exact 429e6b real Chromium had 265 cinematicMeshes at desktop versus <=240 test bound (shard1 failed). New 3aec189 fuses 4–5 head parts per figure and removes 1 gorget per figure but actual current head draw counts, performance and visual quality UNVERIFIED; do not infer from mesh arithmetic.",
       "externalReferenceAudit": "Compared qualitatively against 2023 Diablo IV Frozen Tunnel combat still (https://www.npr.org/2023/05/30/1178222988/diablo-iv-review-activision-blizzard), real No Rest for the Wicked 2026 cavern still (https://www.rpgsite.net/news/20518-no-rest-for-the-wicked-1-0-release-ps5-xbox-switch-2-cross-save-multiplayer-pc-october), and Path of Exile 2 Executioner combat still (https://www.mmorpg.com/reviews/path-of-exile-2-early-access-review-2000133606). Their negative space/material structure/impact clarity remain far ahead; they are references, NOT licensed or copied game assets. No direct synchronized/gameplay-balanced reference test or blind score.",
       "realBrowserFrameDeliveryPredecessor": "Actual d9e1c Chromium software WebGL shard 2 artifact 13238978845, artifacts/dungeon-raf-interval-evidence.json: foreground RAF intervals 15 samples, p50 733.3ms, p95 and worst 4549.9ms; other raster evidence sampled 8 frames, directRenderMs 3.9ms at 273136 pixels and downshift 2. Foreground RAF observations cannot establish standalone GPU render time or phone fps. Known scheduling / software runner risk, latest candidate performance UNVERIFIED.",
@@ -2309,12 +2309,53 @@
         "safetyReadout": "92b Dungeon browser 2/28 failed terminal seed expectations; visual review failed same, catalogue 2/918 stale selectors. Natural 900-tick corpus 24 seeds, 0 divergences, 6 organic restarts.",
         "originalAudio": "Unverified synchronized full reel; previous short opt-in real PCM was non-silent but stored moving UI video was video-only.",
         "verdict": "NEGATIVE EXPERIENTIAL GAP; NO M1 ACCEPTANCE"
+      },
+      "organicWardenStall": {
+        "seed": "gauntlet-corpus-v1-0",
+        "tick": 2500,
+        "sourceSha": "08b4975b8247f83060c305a55ddddc18285d06d3",
+        "run": 1,
+        "floor": 1,
+        "phase": "exploring",
+        "wardenHp": 66,
+        "party": [
+          {
+            "id": "vanguard",
+            "hp": 69,
+            "x": 12,
+            "z": 13
+          },
+          {
+            "id": "ranger",
+            "hp": 69,
+            "x": 11,
+            "z": 17
+          },
+          {
+            "id": "mystic",
+            "hp": 60,
+            "x": 13,
+            "z": 12
+          }
+        ],
+        "observed": [
+          "traversal",
+          "combat"
+        ],
+        "missing": [
+          "boss",
+          "floor",
+          "defeat",
+          "restart"
+        ],
+        "workflow": "https://github.com/my-edutu/Ai_games/actions/runs/41789511530",
+        "reason": "Four-tick Eclipse had no legal pursuit interval, alternating 3 warnings/impact and 2 recovery turns."
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "The actual WebGL adventure still presents action-figure/miniature anatomy and intermittent physically illegible combat against crowded masonry. New exact-source 3D damage fracture is unreviewed in motion.",
-    "currentWork": "M1 continues: source-native contact now integrates genuine public HP-loss events, skinned chest anchor, physical instanced material debris, imported injury recoil, camera and opt-in original sound. Capture and critic gate remains OPEN; no new source-head game movie or blind A/B.",
-    "candidateCommit": "cd5bbfe05e7ec3e7cd82bfc5d8eca4c251e9b612",
+    "biggestRemainingGap": "A real autonomous campaign stalled in its first Warden fight for 2500 source ticks (66 boss HP, all 3 heroes alive), preventing a complete coherent adventure. Nine-beat boss pursuit source candidate not yet proven to resolve it; character anatomy, contact and close Gothic composition still substantially below references.",
+    "currentWork": "P1 actual first-Warden Eclipse deadlock confirmed at authoritative tick 2500. Implemented a coherent nine-beat Eclipse cadence that allows real boss pursuit/melee between two post-hit exposed beats and three exact-cell warning beats, retaining source-backed 3D/sound, deterministic AI, replay and original game truth. Post-correction organic journey and actual source motion remain UNVERIFIED.",
+    "candidateCommit": "61f842415c7cfcf0f0931885d2ebfdfc79d64f51",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
     "implementationEvents": [
@@ -4487,6 +4528,30 @@
         "verdict": "IN_PROGRESS — NOT_TRANSFORMED",
         "biggestGap": "The actual WebGL adventure still presents action-figure/miniature anatomy and intermittent physically illegible combat against crowded masonry. New exact-source 3D damage fracture is unreviewed in motion.",
         "next": "Review real exact-source desktop/mobile active melee and Warden encounter (including 3D shards); reject clutter or frame cost, then strengthen source-native proportions, contact and dungeon negative space, capture full five-stage audible adventure, require independent blind before/after majority."
+      },
+      {
+        "id": "M1-ECLIPSE-REAL-PURSUIT-20261104",
+        "date": "2026-11-04",
+        "milestone": "M1",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "codeCommit": "3b310dcf775f1ed787e2e61d0b52ee2ee38c7d30",
+        "browserFixtureCommit": "61f842415c7cfcf0f0931885d2ebfdfc79d64f51",
+        "verifiedRootFailure": "GitHub authority 41789511530: true run gauntlet-corpus-v1-0 stuck at tick 2500 on first floor (Warden66 HP, 3 living heroes), no endgame",
+        "objective": "Restore authentic boss confrontation, voluntary legal pursuit, tactical counter and actual adventure completion; not an artificial test result.",
+        "integratedImplementation": "One shared nine-beat final boss cadence joins actual authoritative HP/danger strike and lawful 19x19 grid AI to 3 true announced 3D/audio warning beats, 2 real exposed beats and 3 non-warning pursuit/attack beats. No fictional HP loss, authored death, scripted outcomes, imported proprietary assets or new RNG sources.",
+        "codeFiles": [
+          "games/ai-dungeon/src/index.ts",
+          "tests/foundation/dungeon-warden-patterns.test.cjs",
+          "tests/browser/dungeon-warden-patterns.spec.cjs",
+          "games/ai-dungeon/GAME_DESIGN.md"
+        ],
+        "safety": "Corrected new head CI, replay and full natural progression UNVERIFIED; preceding diagnostic head demonstrably failed.",
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "critics": "0/3",
+        "next": "Confirm one real full natural adventure and source-replayed boss pursuit in CI; inspect desktop/mobile motion and original soundtrack; correct any remaining stalling/degraded fidelity, obtain seed-matched full journey & blind 3-pillar votes."
       }
     ]
   }
