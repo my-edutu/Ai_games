@@ -2395,9 +2395,9 @@
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Actual torso and sword contact need full-body visibility in authentic 3D: 53fc069 Chromium still buries Vanguard behind live Gothic facade; skinned source body shape remains toy-like.",
-    "currentWork": "M1 original-body Gothic clearance candidate 3c90b7fdf01714d23f7be1f538989a25473cf67e; exact-head 53fc069 browser still hides Vanguard below head and the numerical unoccluded metric is misleading; original 281735d baseline unchanged, after motion unverified.",
-    "candidateCommit": "3c90b7fdf01714d23f7be1f538989a25473cf67e",
+    "biggestRemainingGap": "Native proportions and weapon contact still toy-like; genuine predecessor browser shows chest/boots behind Gothic fascia. New 3D clearance has not yet shown visual superiority in real moving WebGL.",
+    "currentWork": "One M1 continuing candidate: true camera-height 3D anatomical stone-ray clearing shared by base + dressed Gothic facades with honest full-body ray diagnostics; exact current-head browser footage, original A/V, performance and blind critic majorities UNVERIFIED.",
+    "candidateCommit": "9b4d3f2653d9bc0cad8382de2f5fa703b0b0982d",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -4884,6 +4884,32 @@
         "statusVerdict": "IN PROGRESS — NOT TRANSFORMED",
         "biggestRemainingGap": "Actual skinned protagonist still toy-proportioned; latest source had physical body obstruction and noncinematic blade impact. This near-body fascia candidate has not yet been observed in running WebGL.",
         "next": "Inspect real new-head 1440px/390px recording against 53fc069 and fixed M1 baseline, checking whether opaque facade still bisects Vanguard and whether the room retains Gothic depth; reject if visually unchanged. Continue native combat anatomy/weapon motion, organic full campaign audiovisual reels and 3 independent masked LOOKS/FEELS/PLAYS reviews."
+      },
+      {
+        "id": "M1-3D-BODY-RAY-STONE-20261104",
+        "date": "2026-11-04",
+        "status": "SOURCE_IMPLEMENTED_EXPERIENTIAL_RESULT_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "predecessorSha": "7cc4d0d1aea8f28fbc8711816c443a7f16420887",
+        "sourceCodeCommit": "9b4d3f2653d9bc0cad8382de2f5fa703b0b0982d",
+        "previousRealBrowserArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41854700657/artifacts/13338175429",
+        "objective": "Reveal genuinely readable source-skinned boots, torso, head and weapon contact through camera-near Gothic walls without removing real distant architecture.",
+        "genuineNegativeBefore": "Last inspected real Chromium predecessors show Vanguard head and blade above solid fascia while torso/legs obscured; unoccludedHeroes any-ray metric falsely suggests full actor readability.",
+        "integratedImplementation": [
+          "Pure bounded camera-to-boot/torso/head 3D stone-envelope ray intersection for up to 5 existing scene-flagged real actors, preserving higher or rear Gothic room mass.",
+          "Use true base wall height and physical facade height in the same shared render-only clearance policy; retain existing authority grid, pathing, damage and deterministic seed.",
+          "Four-ray native 3D diagnostics now report fullBodyHeroes, partiallyVisibleHeroes and fullBodyBosses instead of accepting one visible face as full readability; old counts remain compatible."
+        ],
+        "safety": "Predecessor exact SHA 7cc4d0d passed dedicated authority/Chromium workflow 41854700253 and visual 41854700657, but catalogue 41854700728 failed because boss-sightline test source had an unescaped apostrophe; syntax repaired in 942d3be, targeted 3D plan tests added. Exact current-head workflows NOT VERIFIED.",
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "blindCritics": "0/3",
+        "fullJourney": "UNVERIFIED",
+        "mobileP95": "UNVERIFIED",
+        "statusVerdict": "IN PROGRESS — NOT TRANSFORMED",
+        "biggestRemainingGap": "Actual original model anatomy and physical weapon contact remain far beneath Diablo IV, No Rest for the Wicked and Path of Exile 2; camera-height body reveal still lacks moving desktop/mobile AFTER proof.",
+        "next": "Inspect genuine current 1440/390 moving WebGL and original audio for clear full bodies, non-hunting camera and frame times; reject regressions then implement deeper skinned anatomical and combat-performance transformation, full organic journey and masked triple-critic A/B."
       }
     ]
   }
