@@ -1,5 +1,6 @@
 import * as THREE from '/tower/vendor/three.module.js';
 import { createTowerWorld, THEMES } from './world.mjs';
+import { observedLandingHazardPressure } from './landing-pressure.mjs';
 import { createClimber, createEnemy } from './characters.mjs';
 import { SCALE, pointFor, angleFor, guardianGateAnchorX } from './coordinates.mjs';
 import { snapshotVelocity } from './motion.mjs';
@@ -960,10 +961,12 @@ function observedSourceLandingX(snapshot, deck) {
   const top = deck.y + deck.height;
   let lanes = [{ left, right }];
   for (const hazard of snapshot.hazards) {
-    if (!hazard.active ||
-        ![hazard.x, hazard.y, hazard.width, hazard.height].every(Number.isFinite) ||
-        hazard.y >= top + 2 * (player.halfHeight || 0) ||
-        hazard.y + hazard.height <= top) continue;
+    if (!(typeof observedLandingHazardPressure === 'function'
+        ? observedLandingHazardPressure(snapshot, hazard, top)
+        : hazard.active === true &&
+          [hazard.x, hazard.y, hazard.width, hazard.height].every(Number.isFinite) &&
+          hazard.y < top + 2 * (player.halfHeight || 0) &&
+          hazard.y + hazard.height > top)) continue;
     const blockedLeft = hazard.x - halfWidth - 2500;
     const blockedRight = hazard.x + hazard.width + halfWidth + 2500;
     const remainder = [];
