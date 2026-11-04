@@ -118,8 +118,9 @@ test('new original camera grammar is actually wired into strict server, Warden r
  assert.match(app,/planCinematicShot\(state,heldImpact\|\|encounterFrame/);
  assert.match(app,/planWardenCharge\(state\?\.bossWarning,state\?\.tick,reduced\)/);
  assert.ok(server.includes("['/dungeon/cinematic-chapter-plan.js','cinematic-chapter-plan.js']"));
- assert.match(ritual,/warningEdges\.setMatrixAt/);
- assert.match(ritual,/warningEdges\.instanceMatrix\.needsUpdate/);
+ assert.match(ritual,/warningPerimeter\.setMatrixAt/,'real strike contour is drawn only around exposed danger cells');
+ assert.match(ritual,/warningPerimeter\.instanceMatrix\.needsUpdate/,'the contiguous strike shape reaches real WebGL');
+ assert.doesNotMatch(ritual,/warningEdges\.setMatrixAt/,'duplicate octagon halos may not obscure the genuine boss fight');
 });
 
 test('a distant wandering teammate no longer miniaturizes the real combat lens',async()=>{
