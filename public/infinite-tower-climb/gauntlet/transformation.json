@@ -10,19 +10,19 @@
   "candidate": {
     "sha": null,
     "title": "SAME complete playable 3D Tower transformation: live physical climb, actual moving decks, guardian duel and genuine 12-tick hazard escape — quality NOT EVALUATED",
-    "implementationSha": "8c1b5bd715a99d288c2ff824d3dab26b050ddea6",
-    "implementationEvidenceStatus": "Latest real Tower policy implementation ca785ee77e6a0d0eb08f40da9c31574933ec6b36 and exact source tests at 8c1b5bd715a99d288c2ff824d3dab26b050ddea6 now connect existing 3D 12-tick hazard shutter warning to full 12-tick tactical anticipation, current platform-edge/body-clear two-sided exit feasibility using 20Hz acceleration/velocity, and a real timely physical jump when no currently observed ground exit can clear before activation. Historical-v1 observation/snapshot and the immutable frozen source remain unchanged. An earlier CI caught and corrected a strict TypeScript boolean arithmetic issue; latest source exact-head technical CI and new authentic gameplay capture remain pending/unreviewed, NOT EVALUATED. Baseline original-host outcome desktop from run 41794292287 failed impartial same-run painted-result/restart verification after 2 visible result samples and 5 run transitions; do not infer absence of the result or weaken the gate. No event-matched 60s full-motion A/B independent critics (LOOKS/FEELS/PLAYS 0/5 each) and no real target device performance. NOT EVALUATED."
+    "implementationSha": "223d0c762ac9aa4a0738bf2caa960d795d261c5f",
+    "implementationEvidenceStatus": "Source code 223d0c762ac9aa4a0738bf2caa960d795d261c5f expands SAME playable 3D scheduled-hazard counterplay to both observed physical exits in the presence of simultaneous published warnings and currently active deck obstacles. The on-deck 20Hz acceleration/velocity controller now vetoes a threatened destination or path and preserves the real ordinary jump only when no observed exit can clear in time, not merely because 3 charge ticks remain. New source tests cover competing traps, both blocked exits, unarmed and remote machinery. Neutral, unmodified-source portrait result observer d41dceecdc8edbe2811bb8d79b68b99fcae9cb5e attempts to close baseline outcome capture integrity gap using genuine painted DOM at 200ms and a real subsequent run token. Pending exact-source CI and normal-speed actual capture. Full-motion, event-matched desktop+phone comparison of real simultaneous trap collision corridors and authentic outcome/restart remains unreviewed. Original frozen-host outcome capture 41802379200 had desktop PASS but portrait FAIL: only 3 painted result samples across four run transitions, zero >=500ms same-token pair. Neutral browser now watches genuine visible source-backed DOM at 200ms without altering original source; not yet verified by CI or real WebM viewing. No independent blind video critics or supported-device frame-time/memory. Quality NOT EVALUATED."
   },
   "currentTransformation": {
     "title": "SAME cohesive real 3D ascent → live moving deck dock → guarded guardian counterplay → HP cap gate → authentic outcome and restart",
     "state": "OPEN — SAME complete source-driven 3D ascent, live moving deck, physical arrival, authentic 12-tick scheduled hazard warning and physics-aware on-deck escape / ordinary jump, guardian duel and real outcome/restart. True complete-game quality NOT EVALUATED.",
     "promise": "One original source-authentic playable 3D expedition: readable destination, riding/landing weight, fixed-step trap activation communicated by physical warning machinery, real guardian tactics and gated outcome/restart. No fictional safety guarantee, HUD clutter or altered replay baseline.",
-    "nextDecision": "Confirm full exact-source CI and desktop+portrait live-motion capture of this code; compare genuine warning→footwork→body collision/recovery at matching source events; repair baseline complete painted terminal/intermission/restart evidence only in neutral capture harness, never frozen game; secure five independent blind real-video critics, each pillar ≥4/5; measure supported-device presented-frame p50/p95/p99, memory, replay, accessibility and robustness. No merge/deploy/force-push.",
+    "nextDecision": "Inspect CI for 223d0c7 and neutral witness harness d41dcee; check 41803900209 exact-source normal-speed full-motion capture desktop+portrait, especially original-host terminal/restart and simultaneous trap warning → physical pilot action. Require event-matched normal-speed baseline/candidate >=60s in each scenario, independently randomized five-critic >=4/5 in LOOKS/FEELS/PLAYS, supported-device p50/p95/p99+memory, accessibility/replay/recovery. Leave draft and frozen source intact.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "New real hazard response still lacks verified NORMAL-SPEED event-matched baseline/candidate film proving that the extra early reaction improves the actual playable experience without false retreat, mobile occlusion or progression regression. Frozen baseline desktop terminal/restart integrity is not yet established; no independent critic votes or real-device hardware metrics. NOT EVALUATED.",
-    "unverifiedImplementationBranchHead": "8c1b5bd715a99d288c2ff824d3dab26b050ddea6",
-    "currentVerticalSlice": "One coherent actual tower expedition: camera-readable moving dock, source-authentic 3D hazard jaws, deterministic 12-tick deck escape feasibility and earned physical jump, real guardian defensive stage, physical combat and terminal/restart; no separate micro-pass awarded.",
-    "biggestGap": "New real hazard response still lacks verified NORMAL-SPEED event-matched baseline/candidate film proving that the extra early reaction improves the actual playable experience without false retreat, mobile occlusion or progression regression. Frozen baseline desktop terminal/restart integrity is not yet established; no independent critic votes or real-device hardware metrics. NOT EVALUATED."
+    "biggestRemainingExperienceGap": "Full-motion, event-matched desktop+phone comparison of real simultaneous trap collision corridors and authentic outcome/restart remains unreviewed. Original frozen-host outcome capture 41802379200 had desktop PASS but portrait FAIL: only 3 painted result samples across four run transitions, zero >=500ms same-token pair. Neutral browser now watches genuine visible source-backed DOM at 200ms without altering original source; not yet verified by CI or real WebM viewing. No independent blind video critics or supported-device frame-time/memory. Quality NOT EVALUATED.",
+    "unverifiedImplementationBranchHead": "223d0c762ac9aa4a0738bf2caa960d795d261c5f",
+    "currentVerticalSlice": "ONE ongoing actual 3D ascent / moving arrival / genuine multi-trap 12-tick corridor decisions / guardian duel / full outcome and restart, with source pinned motion integrity repair; no individual edit earns a quality PASS.",
+    "biggestGap": "Full-motion, event-matched desktop+phone comparison of real simultaneous trap collision corridors and authentic outcome/restart remains unreviewed. Original frozen-host outcome capture 41802379200 had desktop PASS but portrait FAIL: only 3 painted result samples across four run transitions, zero >=500ms same-token pair. Neutral browser now watches genuine visible source-backed DOM at 200ms without altering original source; not yet verified by CI or real WebM viewing. No independent blind video critics or supported-device frame-time/memory. Quality NOT EVALUATED."
   },
   "scenarios": [
     {
@@ -62,11 +62,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Latest authoritative gameplay implementation ca785ee7 and test head 8c1b5bd7: technical workflow https://github.com/my-edutu/Ai_games/actions/runs/41800608806 pending at last check. Earlier source bdb9e8a7 failed TypeScript TS2362/TS2363 due Boolean comparator arithmetic; corrected at ca785ee7. This is an explicit safety veto until latest workflow completes, never a Gauntlet PASS.",
-    "replay": "Only current published charge ticks 1..12 and current scalar body/deck/velocity plus fixed config govern the tactical 12-step-per-exit escape; no hidden future schedules, mutation or RNG. Historical-v1 still receives no warning. Complete exact-source replay regression must confirm; NOT EVALUATED as quality.",
-    "accessibility": "No new gameplay HUD text or render object. Existing 3D shutter and synthesized opt-in warning, reduced-motion static shutter remain. Screen-readable real desktop/portrait hazard and action video has NOT been independently assessed. NOT EVALUATED.",
-    "performance": "Added only two maximum 12-step fixed scalar physics simulations per observed nearby supported charge; no new GPU draw, shadow, effects or allocations beyond existing bounded policy. This is a source budget, NOT actual hardware p50/p95/p99 or memory.",
-    "stability": "Latest exact-source CI, source-authentic gameplay and replay pending; policy retains prior projectile, real active trap and enemy windup priorities, preserves grounded support gate and deck-edge guardedEvasion; no quality promotion."
+    "ci": "Source and neutral harness HEAD d41dceec: quality workflow https://github.com/my-edutu/Ai_games/actions/runs/41803899991 IN PROGRESS at inspection; prior 081c source workflow 41802379141 SUCCESS but cannot certify new multi-trap code. CI is safety veto only, NOT Gauntlet experience result.",
+    "replay": "Live tactical policy reads only current public warning 1..12 and observed same-deck hazard collision bodies, performs two bounded at-most-12-tick fixed ground trajectories; historical-v1 unaltered. Needs exact-source replay and browser validation before claiming regression safety. No new random draws or renderer-to-authority data.",
+    "accessibility": "No new in-game HUD or renderer assets. Original reduced-motion static source-warning visuals and optional audio persist. Neutral browser result witness is read-only, native frame video still required. Actual accessibility and motion/contrast evaluation NOT EVALUATED.",
+    "performance": "No new GPU meshes/draw passes. Each source-observed on-deck warning evaluates at most two 12-step candidate paths against capped observed hazard array (max 24), O(24*24) worst in restricted alert state; no GPU frame-time claim. 200ms neutral browser witness runs only in outcome capture, not player application. Supported-device p50/p95/p99 and memory MISSING.",
+    "stability": "Source multi-trap test written, exact-head CI and new film pending. Passive result witness stores at most 120 source-matched observation objects; capture integrity still requires complete result/intermission/restart and full-motion review. No production safety or transformation PASS."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -147,7 +147,7 @@
         }
       }
     },
-    "newImplementationSha": "ca785ee77e6a0d0eb08f40da9c31574933ec6b36",
+    "newImplementationSha": "223d0c762ac9aa4a0738bf2caa960d795d261c5f",
     "newImplementationRecorded": false,
     "reviewPath": "docs/reviews/2026-11-04-tower-pr68-source-observed-escape-route-and-warning-window.md",
     "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41547983114",
@@ -2107,6 +2107,22 @@
       "blindPlaysVotes": 0,
       "hardwareFrameTimes": "NOT MEASURED",
       "blocker": "Independent browser/worker tunnel NOT_FOUND: Tunnel-client has not been seen for 300 seconds; no blind randomized full-motion reviewers. Complete matched outcome and intended-device measurements missing."
+    },
+    "latestMultiTrapAndOutcomeWitness": {
+      "sourceGameplaySha": "223d0c762ac9aa4a0738bf2caa960d795d261c5f",
+      "neutralHarnessSha": "d41dceecdc8edbe2811bb8d79b68b99fcae9cb5e",
+      "newFullMotionWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41803900209",
+      "exactHeadTechnicalWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41803899991",
+      "precedingFrozenSourceCapture": "https://github.com/my-edutu/Ai_games/actions/runs/41802379200",
+      "precedingFrozenOutcomeResult": "7/9 other scenario capture jobs plus ledge SUCCESS; baseline outcome desktop PASS, portrait FAIL: painted result observed but no >=500ms same-token pair in sparse 1s observations",
+      "status": "NOT EVALUATED — new source capture queued and exact-head technical test in progress",
+      "independentBlindVotes": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "deviceFrameTailsAndMemory": "NOT MEASURED",
+      "fairness": "Recordings are not yet event-aligned by floor/tick/hazard HP/position; no video-based source performance or quality claim."
     }
   }
 }
