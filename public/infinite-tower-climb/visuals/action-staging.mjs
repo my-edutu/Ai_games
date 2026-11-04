@@ -1,3 +1,4 @@
+import { observedImmediateTrap } from './scene-hierarchy.mjs';
 // A source-owned, non-authoritative subject for the tower's EXISTING fill light.
 // An active guardian is a combat subject, a charged trap is a danger subject,
 // and the real selected deck is an arrival subject. This never predicts a hit,
@@ -5,7 +6,7 @@
 const finite = (...values) => values.every(Number.isFinite);
 export function observedActionStage(snapshot, selectedDeck = null) {
   const actor = snapshot?.player;
-  if (snapshot?.lifecycle !== 'running' || !actor || actor.health <= 0 ||
+  if (snapshot?.stale || snapshot?.lifecycle !== 'running' || !actor || actor.health <= 0 ||
       !Number.isSafeInteger(snapshot.tick) || !Number.isSafeInteger(snapshot.floor) ||
       typeof snapshot.runToken !== 'string' || !snapshot.runToken ||
       !finite(actor.x, actor.y, snapshot.chunkBaseY, snapshot.worldWidth) ||
@@ -14,6 +15,12 @@ export function observedActionStage(snapshot, selectedDeck = null) {
     Math.abs(x - actor.x) <= dx && Math.abs(y - actor.y) <= dy;
   const combatIntent = ['engaging-enemy', 'bracing-telegraph',
     'evading-telegraph', 'evading-projectile'].includes(snapshot.intent?.mode);
+  // A genuine close-contact shutter owns the urgent fill-light subject,
+  // even when a guardian is simultaneously fighting nearby. This reuses the
+  // existing light and danger machinery, not a fabricated attack or extra draw.
+  const contact = observedImmediateTrap(snapshot);
+  if (contact) return { kind: 'hazard', x: contact.x, y: contact.y,
+    sourceTick: snapshot.tick, sourceId: contact.id };
   let guardian = null, bestGuardian = Infinity;
   for (const enemy of snapshot.enemies || []) {
     if (enemy?.kind !== 'guardian' || enemy.active !== true ||
