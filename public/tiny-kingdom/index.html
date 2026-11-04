@@ -3281,7 +3281,16 @@ function occupationalPerformance(p){
   craftsperson:'forge',gatherer:'forage'};
  const frequency={farmer:3.4,forester:5.6,builder:4.7,merchant:3.2,
   craftsperson:4.9,gatherer:3.7};
- const beat=active?.5+.5*Math.sin(p.phase*(frequency[job]||3.4)):0;
+ // W23: six trades share the same physical timing envelope, but never
+ // the same pace. Preparation is deliberately long; tool impact is quick,
+ // followed by visible recovery. The only clock is the real citizen phase.
+ // This remains a read-only presentation calculation and consumes no RNG.
+ const cycle=((p.phase*(frequency[job]||3.4)/(2*Math.PI))%1+1)%1;
+ const ease=t=>t*t*(3-2*t);
+ const beat=!active?0:cycle<.39?ease(cycle/.39):
+  cycle<.54?1-ease((cycle-.39)/.15):0;
+ const strike=active&&cycle>=.39&&cycle<.54;
+
  const crouch=unloading?.17+.085*beat:active?job==='farmer'?.10+.07*beat:
   job==='gatherer'?.12+.08*beat:job==='forester'?.015:
   job==='builder'?.035:.025:0;
@@ -3289,7 +3298,8 @@ function occupationalPerformance(p){
   job==='gatherer'?.27+.14*beat:job==='forester'?.065+.14*beat:
   job==='builder'?.11+.09*beat:job==='craftsperson'?.13+.11*beat:
   .06+.09*beat:0;
- return {active,action:unloading?'unload':active?names[job]||'work':'travel',beat,lean,crouch,
+ return {active,action:unloading?'unload':active?names[job]||'work':'travel',
+  beat,cycle,strike,lean,crouch,
   focus:unloading?[p.delivery.destination[0]+.28,p.delivery.destination[1]+.72]:
    active?[p.x+.62,p.z+.34]:(p.path?.length?p.path[0]:p.target).slice()};
 }
@@ -3424,7 +3434,8 @@ function citizenRigPose(p){
  });
  return {legs,arms,working,traveling,acting,stride:Math.sin(phase)*intensity,
   laborCadence:{source:'real-working-citizen',planted:working,
-   beat:acting.beat,primaryTarget:working?groundedWorkTarget(p,acting.beat):null}};
+   beat:acting.beat,cycle:acting.cycle,strike:acting.strike,
+   primaryTarget:working?groundedWorkTarget(p,acting.beat):null}};
 }
 // Read-only bridge exposing physical body-to-work contact for verification.
 // Jobs, progress, stocks, paths, named RNG and save state stay authoritative.
@@ -3437,6 +3448,7 @@ function getWorkContactAudit(){
   return {citizen:w.citizen,job:w.job,source:'actual-autonomous-shift',
    twoBone:true,working:rig.working,
    targetError:length(arm.wrist,target),
+   strokePhase:rig.laborCadence.cycle,strike:rig.laborCadence.strike,
    supportError:length(rig.arms[0].wrist,
     supportingWorkTarget(worker,rig.acting.beat)),
    upperArm:length(arm.shoulder,arm.elbow),
@@ -6116,12 +6128,19 @@ function emitWorkdayHandTool(p,rig,worldJoint,size){
  materialScope(MATERIAL.WOOD,()=>{
   if(p.job==='builder'){
    // Short mallet at the forward joint, not a floating face-high hammer.
+   // The same IK target governs the strike. Rise, turn, contact and recoil
+   // are readable in a worker close-up; no decorative second mallet.
    const beat=rig.acting.beat;
-   const end=[hand[0]+.01*size,hand[1]+(.15+.08*beat)*size,hand[2]+.17*size];
+   const end=[hand[0]+(.04-.10*beat)*size,
+    hand[1]+(.30-.23*beat)*size,
+    hand[2]+(.10+.17*beat)*size];
    limbSegment(hand,end,.023*size,rgb(0x755333),5);
    box(end[0],end[1],end[2],.29*size,.105*size,.15*size,rgb(0xa78e68));
   }else if(p.job==='forester'||p.job==='craftsperson'){
-   const end=[hand[0]+.15*size,hand[1]+.33*size,hand[2]+.08*size];
+   const beat=rig.acting.beat;
+   const end=[hand[0]+(.18-.11*beat)*size,
+    hand[1]+(.39-.27*beat)*size,
+    hand[2]+(.04+.19*beat)*size];
    limbSegment(hand,end,.022*size,rgb(0x755333),5);
    box(end[0],end[1],end[2],.26*size,.10*size,.14*size,rgb(0x7c8582));
   }else if(p.job==='farmer'||p.job==='gatherer'){
