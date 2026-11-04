@@ -127,6 +127,7 @@ for(const device of [
    initialCourt:initial.dressing.wardenCourt,finalCourt:after.dressing.wardenCourt,
    initialBoss:initial.authored3D.authoredBosses,finalBoss:after.authored3D.authoredBosses,
    drawCalls:after.drawCalls,triangles:after.triangles,webgl:after.webgl,
+   authenticStrikeScars:after.wardenImpactScars??null,
    limitations:'Not full unbroken organic campaign, audio track existence is not proof of audible sound; not baseline-matched; no blind critics, real-phone hardware performance or gameplay-quality verdict'
   };
   fs.writeFileSync('artifacts/dungeon-m1-court-'+device.name+'.json',JSON.stringify(receipt,null,2));
