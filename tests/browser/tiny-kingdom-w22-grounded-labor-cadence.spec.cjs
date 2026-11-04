@@ -76,6 +76,6 @@ for(const mobile of [false,true]){
  });
 }
 
-// W30: the same isolated real-labor GPU job now also checks moving boot
-// contact against world travel and terrain on desktop and portrait screens.
-require('./tiny-kingdom-w30-world-contact-footfall.spec.cjs');
+// W30 boot-ground contact is a separate, auto-discovered Playwright spec
+// with its OWN dedicated GPU job; requiring a *.spec.cjs file here breaks
+// Playwright suite discovery (test files must never import test files).
