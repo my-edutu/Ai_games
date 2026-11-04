@@ -922,15 +922,23 @@ export function createMazeWorld(options = {}) {
                 const rootZ = z + dz * 1.315 + dx * across;
                 add(bevel, moss, rootX, -.32, rootZ,
                   dx ? .065 : .18, .21, dz ? .065 : .18, c.cell);
+                // Actual 1280/390 native Pass132 screenshots showed the
+                // original narrow blades as near-invisible green strings.
+                // Substantial, broad, overlapping mineral fern fans grow
+                // downward IN the exterior facade plane, without crossing
+                // the tile boundary or consuming a new draw/material class.
+                // Root pads and foliage remain well below the playable top.
+                add(sphere, moss, rootX, -.46, rootZ,
+                  dx ? .07 : .20, .16, dz ? .07 : .20, c.cell);
                 for (let blade = 0; blade < 3; blade++) {
                   const lean = blade - 1;
                   add(leafGeometry, blade === 1 ? leaf : leafDark,
-                    rootX + dz * lean * .085, -.36,
-                    rootZ + dx * lean * .085,
-                    .27 + (blade === 1 ? .08 : 0),
-                    .94 + variation(c.cell * 13 + side * 19 + tuft * 7 + blade) * .43,
+                    rootX + dz * lean * .13, -.36,
+                    rootZ + dx * lean * .13,
+                    .68 + (blade === 1 ? .14 : 0),
+                    1.03 + variation(c.cell * 13 + side * 19 + tuft * 7 + blade) * .34,
                     1, c.cell, 0, dx ? Math.PI / 2 : 0,
-                    Math.PI + lean * .16);
+                    Math.PI + lean * .22);
                 }
               }
             }
