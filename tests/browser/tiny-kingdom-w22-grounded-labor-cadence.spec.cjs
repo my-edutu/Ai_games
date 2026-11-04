@@ -30,16 +30,24 @@ for(const mobile of [false,true]){
    const firstContact=g.getWorkContactAudit().find(c=>c.citizen===citizen);
    const unchanged=before===JSON.stringify(g.exportSnapshot());
    let secondPose=null,secondContact=null;
+   // W23: a periodic stroke can return near its starting hand position.
+   // Measure the WHOLE fixed-step work cycle, not two aliased end points.
+   // The selected real worker must remain on its actual shift.
+   const wristPath=[pose.arms[1].wrist],contactErrors=[];
    for(let i=0;i<18;i++){
     g.step(1/30);
     if(g.getActiveWorksites().some(w=>w.citizen===citizen)){
      secondPose=g.getRigPose(index);
      secondContact=g.getWorkContactAudit().find(c=>c.citizen===citizen);
+     wristPath.push(secondPose.arms[1].wrist);
+     contactErrors.push(Math.max(secondContact.targetError,secondContact.supportError));
     }else break;
    }
-   const movement=secondPose?Math.hypot(...pose.arms[1].wrist.map((n,k)=>n-secondPose.arms[1].wrist[k])):null;
+   const strokeExtent=Math.hypot(...[0,1,2].map(k=>
+    Math.max(...wristPath.map(v=>v[k]))-Math.min(...wristPath.map(v=>v[k]))));
+   const contactErrorMax=Math.max(0,...contactErrors);
    return {sites:sites.length,pose,secondPose,firstContact,secondContact,
-    unchanged,movement,
+    unchanged,strokeExtent,contactErrorMax,workSamples:wristPath.length,
     gl:document.getElementById('world').getContext('webgl')?.getError()??-1,
     width:document.documentElement.scrollWidth,
     triangles:g.renderStats().lastFrameTriangles};
@@ -57,7 +65,9 @@ for(const mobile of [false,true]){
    expect(sample.secondPose.laborCadence?.planted).toBe(true);
    expect(sample.secondContact.supportError).toBeLessThan(.04);
    expect(sample.secondPose.legs.every(leg=>leg.lift===0)).toBe(true);
-   expect(sample.movement).toBeGreaterThan(.035);
+   expect(sample.workSamples).toBeGreaterThan(8);
+   expect(sample.strokeExtent).toBeGreaterThan(.095);
+   expect(sample.contactErrorMax).toBeLessThan(.04);
   }
   expect(sample.triangles).toBeLessThan(160000);
   expect(sample.width).toBeLessThanOrEqual(mobile?390:1024);
