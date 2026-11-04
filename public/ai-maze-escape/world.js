@@ -471,14 +471,21 @@ export function createMazeWorld(options = {}) {
     mesh(resonator,ring,lightStone,0,0,0,.53,.57,.53);
     mesh(resonator,ring,seaGlass,0,0,.06,.37,.40,.37);
     mesh(resonator,sphere,inlay,0,0,.035,.18,.20,.12);
+    const resonatorMantles=[];
     for (const side of [-1,1]) {
       const mantle=new THREE.Group();
       mantle.name='Disclosed fossil breathing shell mantle '+cell+' '+side;
-      mantle.position.set(side*.42,-.09,.01);
+      mantle.position.set(side*.38,-.08,.01);
       resonator.add(mantle);
-      mesh(mantle,bevel,lightStone,side*.12,-.08,0,.29,.13,.14,0,0,side*.23);
+      // Native Pass139 revealed only a thin ivory hoop; wider solid connected
+      // shell flukes now articulate *outside* the inner rings, readable as
+      // stone mass at actual game size rather than another line ornament.
+      // No extra geometry class, shader pool or render draw call is created.
+      mesh(mantle,bevel,lightStone,side*.18,-.03,.04,.46,.30,.18,0,0,side*.24);
+      resonatorMantles.push({mantle,side});
     }
-    fossilOrgans.push({organ,organLeaves,resonator,x:organ.position.x,z:organ.position.z,dx});
+    fossilOrgans.push({organ,organLeaves,resonator,resonatorMantles,
+      x:organ.position.x,z:organ.position.z,dx});
     for (const side of [-1,1]) {
       const sail=new THREE.Group();
       sail.name='Disclosed fossil listening sail '+cell+' '+side;
@@ -2013,6 +2020,10 @@ export function createMazeWorld(options = {}) {
       relic.resonator.position.y=1.47+(reduced?.06:.21*near);
       relic.resonator.scale.setScalar(reduced?.92:.78+.29*near);
       relic.resonator.rotation.z=reduced?0:.20*near;
+      // Two additional *already modeled* hinges flare outward when the real
+      // public Pip approaches, and reset on withdrawal; not an AI signal.
+      for (const {mantle,side} of relic.resonatorMantles)
+        mantle.rotation.z=side*(reduced?.18:.08+.58*near);
     }
     waterTexture.offset.set(reduced ? 0 : t * .0012, reduced ? 0 : t * .0006);
     if (highContrast !== !!options.highContrast) { highContrast = !!options.highContrast; if (snapshot) refreshVisibility(snapshot, true); }
