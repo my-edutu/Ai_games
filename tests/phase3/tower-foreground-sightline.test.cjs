@@ -12,10 +12,12 @@ const scratch=fs.mkdtempSync(path.join(os.tmpdir(),'tower-foreground-sight-'));
 const threeURL=pathToFileURL(path.join(ROOT,'node_modules/three/build/three.module.js')).href;
 const coordinateURL=pathToFileURL(path.join(ROOT,'public/infinite-tower-climb/visuals/coordinates.mjs')).href;
 const surfaceURL=pathToFileURL(path.join(ROOT,'public/infinite-tower-climb/visuals/world-surface.mjs')).href;
+const hierarchyURL=pathToFileURL(path.join(ROOT,'public/infinite-tower-climb/visuals/scene-hierarchy.mjs')).href;
 const source=fs.readFileSync(path.join(ROOT,'public/infinite-tower-climb/visuals/world.mjs'),'utf8')
   .replace("'/tower/vendor/three.module.js'",JSON.stringify(threeURL))
   .replace("'./coordinates.mjs'",JSON.stringify(coordinateURL))
-  .replace("'./world-surface.mjs'",JSON.stringify(surfaceURL));
+  .replace("'./world-surface.mjs'",JSON.stringify(surfaceURL))
+  .replace("'./scene-hierarchy.mjs'",JSON.stringify(hierarchyURL));
 fs.writeFileSync(path.join(scratch,'world.mjs'),source);
 const loaded=Promise.all([
   import(threeURL),import(pathToFileURL(path.join(scratch,'world.mjs')).href),
