@@ -23,7 +23,10 @@ for(const portrait of [false,true]){
   });
   expect(seedProof.same,'A camera-only presentation must start from one exact reproducible G088 seed').toBe(true);
   expect(seedProof.firstChecksum).toBe(seedProof.secondChecksum);
-  for(let remaining=120*24*30;remaining>0;remaining-=7200)
+  // The previous RED execution sampled 07:00 when the real citizens were
+  // commuting: zero active worksite agents. Photograph an actual Day-121
+  // midday working shift, preserving every authentic navigation step.
+  for(let remaining=120*24*30+5*30;remaining>0;remaining-=7200)
    await page.evaluate(n=>{for(let i=0;i<n;i++)window.__tinyKingdom.step(1/30)},Math.min(remaining,7200));
   const story=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
