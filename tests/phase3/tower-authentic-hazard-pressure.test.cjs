@@ -68,16 +68,16 @@ test('real gameplay uses one bounded depth-tested instance stage and never mutat
   const frame = snapshot(12), unchanged = JSON.stringify(frame);
   effect.update(frame, { quality: 'normal' });
   assert.equal(JSON.stringify(frame), unchanged);
-  assert.equal(mesh.count, 8);
+  assert.equal(mesh.count, 16);
   assert.equal(effect.diagnostics().chargingHazards, 1);
   assert.equal(effect.diagnostics().extraDraws, 1);
-  const early = Array.from(mesh.instanceMatrix.array.slice(0, 8 * 16));
+  const early = Array.from(mesh.instanceMatrix.array.slice(0, 16 * 16));
   effect.update(snapshot(1), { quality: 'normal' });
-  const late = Array.from(mesh.instanceMatrix.array.slice(0, 8 * 16));
+  const late = Array.from(mesh.instanceMatrix.array.slice(0, 16 * 16));
   assert.notDeepEqual(late, early, 'the shutter rig physically closes during authentic charge');
   assert.ok(late.every(Number.isFinite));
   effect.update(snapshot(1), { quality: 'normal' });
-  assert.deepEqual(Array.from(mesh.instanceMatrix.array.slice(0, 8 * 16)), late,
+  assert.deepEqual(Array.from(mesh.instanceMatrix.array.slice(0, 16 * 16)), late,
     'render schedule is idempotent at the same source tick');
 });
 test('reduced motion shows static legible pressure; invalid/stale/result/guardian signals clear instantly', async t => {
@@ -85,9 +85,9 @@ test('reduced motion shows static legible pressure; invalid/stale/result/guardia
   const effect = createTowerHazardPressure(THREE); t.after(() => effect.dispose());
   const mesh = effect.group.getObjectByName('SourceTimedHazardChargingShutters');
   effect.update(snapshot(12), { reducedMotion: true });
-  const a = Array.from(mesh.instanceMatrix.array.slice(0, 8 * 16));
+  const a = Array.from(mesh.instanceMatrix.array.slice(0, 16 * 16));
   effect.update(snapshot(1), { reducedMotion: true });
-  assert.deepEqual(Array.from(mesh.instanceMatrix.array.slice(0, 8 * 16)), a);
+  assert.deepEqual(Array.from(mesh.instanceMatrix.array.slice(0, 16 * 16)), a);
   for (const [frame, options] of [
     [snapshot(0), {}], [snapshot(1, { lifecycle: 'result' }), {}],
     [snapshot(1, { player: { x: 175000, y: 320000, health: 0 } }), {}],
@@ -108,6 +108,8 @@ test('stage is integrated with the real world renderer, graphics recovery, audio
   const audio = fs.readFileSync(path.join(root,
     'public/infinite-tower-climb/visuals/audio.mjs'), 'utf8');
   assert.match(scene, /createTowerHazardPressure\(THREE\)/);
+  assert.match(scene, /observedConcurrentHazardCluster\(snapshot\)/);
+  assert.match(scene, /hazard\.chargeTicksRemaining <= 12/);
   assert.match(scene, /hazardPressure\.update\(snapshot, options\)/);
   assert.match(scene, /hazardPressure\.clear\(\)/);
   assert.match(scene, /hazardPressure\.dispose\(\)/);
@@ -115,4 +117,40 @@ test('stage is integrated with the real world renderer, graphics recovery, audio
   assert.match(audio, /hazardChargeStates/);
   assert.match(audio, /hazard\.chargeTicksRemaining/);
   assert.match(audio, /nearbyChargeRaised/);
+});
+
+test('simultaneous real pressure warnings make one bounded camera subject, not a safe-route promise', async () => {
+  const [, { observedConcurrentHazardCluster }] = await loaded;
+  const one=snapshot(12,{player:{x:175000,y:320000,health:5,state:'standing'},
+    intent:{mode:'evading-hazard'}});
+  const two={...one,hazards:[...one.hazards,{...one.hazards[0],
+    id:'f5:other',x:202000,width:49000,chargeTicksRemaining:9}]};
+  const untouched=JSON.stringify(two), cluster=observedConcurrentHazardCluster(two);
+  assert.equal(cluster.count,2);
+  assert.equal(cluster.x,(150000+251000)/2);
+  assert.equal(cluster.halfWidth,(251000-150000)/2);
+  assert.equal(JSON.stringify(two),untouched);
+  assert.deepEqual(observedConcurrentHazardCluster(two),cluster);
+  for(const frame of [one,{...two,stale:true},
+    {...two,lifecycle:'result'}, {...two,intent:{mode:'aligning'}},
+    {...two,player:{...two.player,state:'airborne'}},
+    {...two,hazards:[two.hazards[0],{...two.hazards[1],x:380000}]}])
+    assert.equal(observedConcurrentHazardCluster(frame),null);
+});
+test('source pressure chambers are pooled to one draw with bounded graphics tiers', async t => {
+  const [THREE,{createTowerHazardPressure}]=await loaded;
+  const effect=createTowerHazardPressure(THREE);t.after(()=>effect.dispose());
+  const frame=snapshot(9,{hazards:Array.from({length:8},(_,i)=>({
+    ...snapshot(9).hazards[0],id:'trap-'+i,x:130000+i*11000,
+  }))});
+  const untouched=JSON.stringify(frame);
+  effect.update(frame,{quality:'normal'});
+  assert.equal(effect.diagnostics().chargingHazards,6);
+  assert.equal(effect.diagnostics().instances,96);
+  assert.equal(effect.diagnostics().extraDraws,1);
+  effect.update(frame,{quality:'low',reducedMotion:true});
+  assert.equal(effect.diagnostics().chargingHazards,3);
+  assert.equal(effect.diagnostics().instances,48);
+  effect.clear();assert.equal(effect.diagnostics().instances,0);
+  assert.equal(JSON.stringify(frame),untouched);
 });

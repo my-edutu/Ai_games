@@ -9,7 +9,7 @@ import { observedGuardianPassage, createTowerGuardianPassage } from './guardian-
 import { createTowerRouteIntent, witnessedHealthPickup } from './route-intent.mjs';
 import { createTowerLandingApproach } from './landing-approach.mjs';
 import { createTowerMovingDeckSuspension } from './moving-deck-suspension.mjs';
-import { createTowerHazardPressure } from './hazard-pressure.mjs';
+import { createTowerHazardPressure, observedConcurrentHazardCluster } from './hazard-pressure.mjs';
 import { observedHealthRecovery, createTowerRecoveryTransfer } from './recovery-transfer.mjs';
 import { createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianRelayStage, observedGuardianPowerSpineStage } from './guardian-circuit.mjs';
 import { createTowerAtmosphere } from './atmosphere.mjs';
@@ -1059,10 +1059,16 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
     // actual evading-hazard decision can earn this short hazard camera anchor.
     // Keep the committed landing in frame while airborne; true combat and
     // source guardian framing still have their own higher-priority anchors.
+    // Compose both authentic, simultaneous pressure chambers as one physical
+    // threat while the pilot makes its actual escape decision. Existing enemy,
+    // landing and guardian subjects retain their priority.
+    const pairedPressure = observedConcurrentHazardCluster(snapshot);
+    if (pairedPressure) consider(pairedPressure.x,pairedPressure.y,
+      pairedPressure.halfWidth,pairedPressure.halfHeight,1.45);
     for (const hazard of snapshot.hazards || []) {
       const charging = snapshot.intent?.mode === 'evading-hazard' &&
         Number.isSafeInteger(hazard.chargeTicksRemaining) &&
-        hazard.chargeTicksRemaining >= 1 && hazard.chargeTicksRemaining <= 8;
+        hazard.chargeTicksRemaining >= 1 && hazard.chargeTicksRemaining <= 12;
       if (hazard.active || charging) consider(
         hazard.x + hazard.width / 2, hazard.y + hazard.height / 2,
         hazard.width / 2, hazard.height / 2, charging ? 1.3 : 1.2);
