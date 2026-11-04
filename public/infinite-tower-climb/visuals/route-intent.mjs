@@ -15,7 +15,7 @@ const UP = Object.freeze([0, 1, 0]);
 // decision. Historical-v1 and unrelated intent still aim at the source deck
 // center; presentation cannot invent a route. Same finite current hazard/body
 // clearance contract as the tactical pilot, no future positions/phases.
-function witnessedLandingX(snapshot, deck) {
+export function witnessedLandingX(snapshot, deck) {
   const center = deck.x + deck.width * .5;
   const mode = snapshot?.intent?.mode?.replace(/^oracle-/, '');
   const summary = snapshot?.intent?.summary;
