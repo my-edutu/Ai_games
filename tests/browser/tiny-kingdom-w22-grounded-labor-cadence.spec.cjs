@@ -75,3 +75,7 @@ for(const mobile of [false,true]){
   expect(errors).toEqual([]);
  });
 }
+
+// W30: the same isolated real-labor GPU job now also checks moving boot
+// contact against world travel and terrain on desktop and portrait screens.
+require('./tiny-kingdom-w30-world-contact-footfall.spec.cjs');
