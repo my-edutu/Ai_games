@@ -264,6 +264,12 @@ export function planTacticalStep(
  const boss=s.units.find(u=>u.kind==='warden'&&u.hp>0);
  const warning=boss?planWardenStrike(s,boss):null;
  const marked=new Set((warning?.warning?warning.cells:[]).map(p=>key(p.x,p.z)));
+ // A hero who has paid real steps to escape must not wander BACK onto
+ // advertised danger while searching for a new attack lane. This applies
+ // only to already-safe party members near the boss; actors still inside a
+ // threat can traverse marked tiles to reach the actual clear stone.
+ const preserveSafeFlank=actor.faction==='party'&&warning?.warning===true&&
+  Boolean(boss)&&dist(actor,boss!)<=5&&!marked.has(key(actor.x,actor.z));
  const traps=new Set(s.traps.filter(t=>t.active&&!t.disarmed).map(t=>key(t.x,t.z)));
  const risk=(p:TacticalCell)=>{
   const k=key(p.x,p.z);
@@ -295,7 +301,8 @@ export function planTacticalStep(
   }
   for(const [dx,dz] of DIRS){
    const next={x:p.x+dx,z:p.z+dz},k=key(next.x,next.z);
-   if(!walkable(s.map,next.x,next.z)||visited.has(k)||occupied.has(k))continue;
+   if(!walkable(s.map,next.x,next.z)||visited.has(k)||occupied.has(k)||
+   (preserveSafeFlank&&marked.has(k)))continue;
    visited.add(k);
    queue.push({p:next,first:first??next,steps:steps+1});
   }
