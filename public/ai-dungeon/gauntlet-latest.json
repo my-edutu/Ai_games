@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T10:14:05.973Z",
+  "generatedAt": "2026-11-04T11:00:00.000Z",
   "status": "IN PROGRESS — NOT TRANSFORMED: true organic authority campaign passed on predecessor; candidate full actor-scale 3D composition requires actual matched browser capture",
   "reference": "Diablo IV: overall quality; No Rest for the Wicked: worlds; Path of Exile 2: contact and combat — NOT independently compared as matched motion",
   "metrics": {
@@ -208,19 +208,19 @@
       "elapsedMs": 158
     }
   ],
-  "visualVerdict": "Inspected real exact-head 4cdd7bf world-only 1440x832 Chromium image: 3 live hero bodies visible, min projected 241px, but wall slabs visually sever limbs, dense masonry overwhelms fantasy staging, native CC0 rigs remain stylised/toy-like. 4cdd authority + browser shards 1 and 2 passed; browser shard 3 failed inherited obsolete Sentinel recovery assertion (3 expected vs genuine 2). New camera-side negative-space candidate f3e5a50 is committed but its real moving desktop/mobile AFTER is UNVERIFIED. No positive A/B or blind preference claimed.",
+  "visualVerdict": "Exact predecessor 121117b genuine seeded Chromium stage had ZERO nearby/intermediate stone (browser 27/28) despite earlier corrected leg clearance: an oversized blank fighting bowl, not believable Gothic scene. Camera-facing true-actor and real-contact stone cutaway now retains rear/flank dressed Gothic ruins at 766282bae5c32e01194e3aabb8938544f9987596, but exact new-head DESKTOP/MOBILE MOVING AFTER is NOT INSPECTED, no blind preference or reference parity. Previous source 4cdd7bf real 1440x832 screenshot had three live human forms with toy-like proportions.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
-  "candidateCommit": "f3e5a50f1de970d9691ed311c934f4f5e13ec443",
-  "metricsProvenance": "24×900 corpus historical only (not exact f3e5a50); 4cdd7bf auth PASS and shard 1/2 PASS, shard 3 27/28; first genuine 2500-tick full-organic sequence including Warden victory, descent and natural defeat/restart had passed at ab91ab7 and fc252c4. No synchronized full desktop/mobile motion+audio for this source.",
+  "candidateCommit": "766282bae5c32e01194e3aabb8938544f9987596",
+  "metricsProvenance": "Historical 24×900 replay corpus only; no current exact-head frame p95. Previous 121117b Action 41813003315 authority 282/283, browser shard2 27/28 real near-wall=0, other browser shards passed; staged source corrected through 766282bae5c32e01194e3aabb8938544f9987596, pending new-head run. First true 2500-tick organic five-stage authority play achieved on predecessor; audiovisual five-stage replay NOT VERIFIED.",
   "transformation": {
     "milestone": "M1",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
     "locked": true,
-    "candidateSha": "f3e5a50f1de970d9691ed311c934f4f5e13ec443",
+    "candidateSha": "766282bae5c32e01194e3aabb8938544f9987596",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
-    "exactHeadSafety": "UNVERIFIED f3e5a50; 4cdd7bf Dungeon 41804451789 authority+two browser shards PASS, third browser shard 27/28 (outdated Warden counter expectation); visual review 41804451786 PASS. After code changes require new exact-head jobs.",
+    "exactHeadSafety": "PREVIOUS 121117b Action 41813003315: authority 282/283 (stale 0.16 vs actual 0.13), browser shards1+3 PASS and shard2 27/28 (real no nearby walls). New M1 stage candidate 766282bae5c32e01194e3aabb8938544f9987596 safety/real after UNVERIFIED; Actions 41819131102, 41819131223, 41819131067 pending as of inspection.",
     "looks": "UNVERIFIED",
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
@@ -231,10 +231,10 @@
     },
     "fullDesktopMobileAudiovisualJourney": "UNVERIFIED",
     "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41804451789/artifacts/13310177036",
-    "exactHeadAction": "Queued Action 41812734100 (Dungeon), 41812733829 (real visual), 41812733954 (CI) as of source review; final head may differ after ledger commit",
-    "biggestGap": "Running WebGL screen still resembles a toy dungeon: real actors have oversized toy-like silhouettes behind near chest-height Gothic masonry. Current code opens bounded body-scale physical negative space around actual heroes/contact. Only original SOURCE and predecessor negative capture verified; exact candidate cinematic gameplay quality, synchronized A/V and independent critics UNVERIFIED.",
-    "nextTask": "Inspect full current-head 1440×832 + 390×844 Chromium genuine scene screenshots, all five event stages and original motion+audio; compare against locked 281735d real source with matched seed; reject undercut architecture that erases dungeon identity; proceed to substantial native-model anatomy/contact animation redesign; run blind 3+ critics, performance, accessibility and safety gates without merging.",
+    "exactHeadAction": "New source candidate Actions Dungeon https://github.com/my-edutu/Ai_games/actions/runs/41819131102 ; visual review https://github.com/my-edutu/Ai_games/actions/runs/41819131223 ; CI https://github.com/my-edutu/Ai_games/actions/runs/41819131067 . Subsequent ledger commits may supersede or cancel them.",
+    "biggestGap": "Real moving Warden still has stylized toy-sized human characters and limited physical weapon-contact; previous actor-sized 360-degree clearance erased intermediate nearby walls. Current source protects direct frontal actor stage and brings back dressed Gothic rear ruins without adding draws or affecting combat authority. Exact new-head visual merit and 5-stage original audio/motion, performance and independent critics UNVERIFIED.",
+    "nextTask": "Inspect actual current-branch desktop and 390px phone source screenshots/motion after stage correction, reject if Gothic arches conceal real feet or nearby cutaways still vanish; then undertake full native-human anatomy and true attack/contact movement redesign, finish continuous traversal→combat→Warden→descent→defeat/restart audiovisual reel, match against unchanged baseline and independent ≥3 blinded LOOKS/FEELS/PLAYS assessment.",
     "currentMilestoneLedger": "public/ai-dungeon/gauntlet-history.json"
   },
-  "acceptanceStatus": "LOOKS UNVERIFIED / FEELS UNVERIFIED / PLAYS UNVERIFIED / BLIND CRITICS 0 OF 3"
+  "acceptanceStatus": "IN PROGRESS / NOT TRANSFORMED — LOOKS, FEELS, PLAYS UNVERIFIED / 0 OF 3 BLIND CRITICS"
 }
