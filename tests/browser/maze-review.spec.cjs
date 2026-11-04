@@ -186,6 +186,9 @@ test('a real close public encounter frames both autonomous actors and saves date
   expect(diagnostics.witnessedLanternWarningVisible,
     'actual rendered 3D lamp must agree with the genuine public-only warning gate')
     .toBe(eligibleWarning);
+  expect(diagnostics.lanternPhysicalLightDistanceWorld,
+    'the rendered warm light source must be attached to Pip\'s real, animated cage')
+    .toBeLessThan(.015);
   expect(diagnostics.wardenContactShadows, 'Only public guardian actors get shadow meshes').toBe(diagnostics.disclosedThreats);
   expect(diagnostics.wardenGroundedContacts, 'The shadow must follow the true physical floor beneath each visible guardian').toBe(diagnostics.disclosedThreats);
   expect(diagnostics.explorerInFrame).toBe(true);
@@ -272,6 +275,9 @@ test('a real close public encounter frames both autonomous actors and saves date
   // The source-bound screenshot and SHA manifest are written before asserting,
   // so a failure keeps the authentic clipping evidence for the visual critic.
   expect(portraitEncounter.explorerInFrame, 'Native Detail must retain the real explorer').toBe(true);
+  expect(portraitEncounter.lanternPhysicalLightDistanceWorld,
+    '390px original WebGL lantern must emit from the physical cage, not the actor root')
+    .toBeLessThan(.015);
   expect(portraitEncounter.wardensInFrame, 'Native Detail warning must show at least one truly disclosed 3D guardian').toBeGreaterThanOrEqual(1);
   expect(portraitEncounter.wardenContactShadows).toBe(portraitEncounter.disclosedThreats);
   expect(portraitEncounter.wardenGroundedContacts).toBe(portraitEncounter.disclosedThreats);
