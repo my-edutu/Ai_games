@@ -804,7 +804,15 @@ export function createMazeWorld(options = {}) {
       const { x, z } = cellPosition(c.cell, s.width, s.height);
       const floorY = cellHeight(c.cell, s.width, s.height);
       // Terrace foundations always reach the same underwater bed, never float.
-      block(darkJade, x, -1.14 - floorY / 2, z, 2.38, 2.14 + floorY, 2.38, c.cell);
+      // Authored terraced-support mineral hierarchy: the original large,
+      // near-black undercroft swallowed the actor in authentic 1280/390 WebGL.
+      // The exposed HIGH court gets warm stone, the middle a glazed-jade
+      // retaining wall, and the tidal low court keeps its shaded footing.
+      // Only a genuinely disclosed cell's public elevation chooses the
+      // existing pooled material; footprint, collider, height, AI, route,
+      // source privacy, and all frame-time resource allocation stay intact.
+      const foundationMineral = floorY > 2.1 ? deepStone : floorY > .7 ? jade : darkJade;
+      block(foundationMineral, x, -1.14 - floorY / 2, z, 2.38, 2.14 + floorY, 2.38, c.cell);
       block(deepStone, x, -1.26, z, 2.39, .28, 2.39, c.cell);
       block(jade, x, -.85, z, 2.39, .13, 2.39, c.cell);
       block(deepStone, x, -.42, z, 2.39, .25, 2.39, c.cell);
