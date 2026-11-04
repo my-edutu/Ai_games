@@ -203,3 +203,48 @@ test('on-camera shell-fan tesserae are real disclosed-floor geometry and never e
     assert.deepEqual(fans(floor),[],'shells clear when a new run has no public map');
   }finally{floor.dispose();privateTwin.dispose();empty.dispose();cleanup()}
 });
+
+
+test('distant broken colonnade remains disconnected dimension-only original 3D, even with zero discovered cells',async()=>{
+  const {m,cleanup}=await realWorld();
+  const a=m.createMazeWorld({balanced:true}), b=m.createMazeWorld({balanced:true});
+  const zero=publicSnapshot(false), original=JSON.stringify(zero);
+  const name='Dimension-only detached drowned colonnade';
+  const observe=world=>{
+    const group=world.group.getObjectByName(name);
+    assert.ok(group?.isGroup,'genuine Three background monument, not a CSS or map overlay');
+    assert.equal(group.children.length,4,'four reusable instanced material/geometry batches only');
+    const out=[];
+    for(const child of group.children){
+      assert.ok(child.isInstancedMesh,'no unbounded decorative mesh per individual stone');
+      assert.ok(child.count>=10 && child.count<=20);
+      for(let i=0;i<child.count;i++){
+        const v=child.instanceMatrix.array, k=i*16;
+        const x=v[k+12],y=v[k+13],z=v[k+14];
+        assert.ok([x,y,z].every(Number.isFinite));
+        // The theater is behind the -X or -Z shore, detached by water.
+        const ex=zero.width*m.CELL_SIZE/2,ez=zero.height*m.CELL_SIZE/2;
+        assert.ok(x < -ex-4.6 || z < -ez-4.6,'never a false board passage or hidden tile');
+        out.push([child.name,x,y,z]);
+      }
+    }
+    return out;
+  };
+  try{
+    a.update(zero);
+    b.update({...zero,unpublishedMazeSeed:'secret',hiddenMazeRoute:[1,7,15],
+      privateThreatLocations:[2,9],secretExitCell:23,runToken:'another-run'});
+    const originalPoses=observe(a);
+    assert.deepEqual(observe(b),originalPoses,'unpublished game facts never place decorative geography');
+    assert.deepEqual(a.stats().renderedCells,[],'no unknown land is revealed');
+    assert.deepEqual(zero,JSON.parse(original),'cosmetic 3D must not edit public authority');
+    const budget=a.stats();
+    assert.ok(budget.geometryCount<=16 && budget.materialCount<=26 && budget.textureCount<=3,
+      'only previously shared GPU resources are used');
+    a.animate(10,{reducedMotion:true});
+    a.animate(11,{reducedMotion:false});
+    assert.deepEqual(observe(a),originalPoses,'no animation-frame allocation or positional leaking');
+    a.update({...zero,runToken:'fresh-run',cells:[],visibleCells:[]});
+    assert.deepEqual(observe(a),originalPoses,'identical public dimensions make identical backstage scenery');
+  }finally{a.dispose();b.dispose();cleanup();}
+});

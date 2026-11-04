@@ -1253,6 +1253,52 @@ export function createMazeWorld(options = {}) {
       offshore.add(batch);
     }
     backdrop.add(offshore);
+    // Behind the public north and west board boundaries, disconnected drowned
+    // colonnade pairs make a larger original skyline. Every foot is separated
+    // from the actual board by >=4.7 world units of water; no floor, bridge,
+    // key, passage, danger cue, or hidden tile is represented. Placement reads
+    // ONLY publicly known board dimensions and fixed cosmetic variation.
+    // Existing pooled geometry/materials plus four instanced draw calls:
+    // no frame allocations, fragment shader, texture or authority changes.
+    const colonnade=new THREE.Group();
+    colonnade.name='Dimension-only detached drowned colonnade';
+    const colonnadeParts=[
+      {name:'Disconnected submerged stone footings',geo:bevel,mat:deepStone,poses:[]},
+      {name:'Broken jade harbor columns',geo:cylinder,mat:jade,poses:[]},
+      {name:'Carved ivory broken capitals',geo:bevel,mat:lightStone,poses:[]},
+      {name:'Unlit sea-glass erosion bands',geo:bevel,mat:seaGlass,poses:[]}
+    ];
+    const colonnadePose=(part,x,y,z,sx,sy,sz,ry=0,rz=0)=>{
+      colonnadeParts[part].poses.push(transform(x,y,z,sx,sy,sz,0,ry,rz).clone());
+    };
+    for(let arm=0;arm<2;arm++)for(let i=0;i<5;i++){
+      const spacing=Math.max(2.9,(arm===0?s.width:s.height)*CELL_SIZE/5);
+      const along=(i-2)*spacing;
+      const offshoreGap=4.7+variation(8101+arm*71+i*19)*.9;
+      const x=arm===0?along:-extentX-offshoreGap;
+      const z=arm===0?-extentZ-offshoreGap:along;
+      // Submerged bases leave a substantial open-water gap: no traversable
+      // implied land connecting to any undiscovered portion of the maze.
+      colonnadePose(0,x,-1.40,z,1.49,.56,1.13);
+      for(const side of [-1,1]){
+        const px=x+(arm===0?side*.43:0);
+        const pz=z+(arm===1?side*.43:0);
+        const height=1.48+variation(9107+arm*61+i*23+side*3)*.65;
+        colonnadePose(1,px,-1.29+height/2,pz,.245,height,.245);
+        colonnadePose(2,px,-1.22+height,pz,.39,.16,.38,0,side*.16);
+        // A broad mineral erosion scar, not a signal or glowing collectible.
+        if(side===1)
+          colonnadePose(3,px,-1.02+height*.55,pz+.14,.26,.27,.10);
+      }
+    }
+    for(const part of colonnadeParts){
+      const batch=new THREE.InstancedMesh(part.geo,part.mat,part.poses.length);
+      batch.name=part.name;batch.castShadow=false;batch.receiveShadow=false;
+      part.poses.forEach((pose,i)=>batch.setMatrixAt(i,pose));
+      batch.instanceMatrix.needsUpdate=true;batch.computeBoundingSphere();
+      colonnade.add(batch);
+    }
+    backdrop.add(colonnade);
   }
   const propGroup = (cell, s) => {
     const p = new THREE.Group(), point = cellPosition(cell, s.width, s.height);
