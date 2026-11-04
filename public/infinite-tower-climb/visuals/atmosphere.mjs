@@ -1,4 +1,5 @@
 import { angleFor, SCALE } from './coordinates.mjs';
+import { observedTraversalKinetics } from './traversal-kinetics.mjs';
 
 // An original source-synchronised atmospheric volume surrounding the real
 // climbing lane, not a screen-space weather filter. Every instance is inside
@@ -62,6 +63,7 @@ export function createTowerAtmosphere(THREE) {
     const frame = snapshot.tick / 20;
     const heroAngle = angleFor(snapshot.player.x, snapshot.worldWidth);
     const heroHeight = (snapshot.player.y - snapshot.chunkBaseY) / SCALE;
+    const kinetics = observedTraversalKinetics(snapshot);
     const guardianWarning = snapshot.enemies?.some(enemy => enemy.active && enemy.telegraph) === true;
     // A physically layered weather stream responds to witnessed health and
     // velocity instead of floating at a constant, game-independent tempo.
@@ -72,10 +74,10 @@ export function createTowerAtmosphere(THREE) {
     const pressure = Math.max(0, Math.min(1, (.55 - ratio) / .35));
     const lateral = valid(snapshot.player.vx) ?
       Math.max(-1, Math.min(1, snapshot.player.vx / 10000)) : 0;
-    // Actual combat takes priority: subtle ambient volume stays behind the
-    // important characters rather than hiding a guardian windup in phone view.
-    material.opacity = style.opacity * (guardianWarning ? .30 : .65) *
-      (1 - .32 * pressure);
+    // A physical ascent/descent stretches nearby air, but a REAL guardian
+    // windup dims everything: danger and body silhouettes always win.
+    material.opacity = style.opacity * (guardianWarning ? .28 : .62) *
+      (1 - .32 * pressure) * (1 + kinetics.airflow * .09);
     if (currentTheme !== snapshot.theme) {
       tone.set(style.tint);
       for (let i = 0; i < MAX_MOTES; i++) {
@@ -90,20 +92,33 @@ export function createTowerAtmosphere(THREE) {
       // All source/playback variability comes from source floor/tick/position.
       // A ring of subtly independent shafts creates visible parallax on orbit.
       const seed = i * 19.17 + snapshot.floor * 11.73;
-      const bearing = heroAngle + (hash(seed + 2) - .5) * (2.15 - .38 * pressure);
+      const nearWake = i % 4 === 0 && kinetics.airflow > .08 && !guardianWarning;
+      const bearing = heroAngle + (hash(seed + 2) - .5) *
+        (nearWake ? 1.04 : 2.15 - .38 * pressure);
       const angle = bearing + frame * style.slant * .008 +
-        lateral * .055 * (i % 2 ? 1 : .65);
-      // Separate near/far exterior layers create camera-orbit parallax. Even
-      // at critical health the nearest weather is outside the climb radius.
-      const radius = (i % 3 === 0 ? 30.2 + hash(seed + 5) * 9 :
-        39 + hash(seed + 5) * 13) - pressure * .9;
-      const height = positiveMod(hash(seed + 9) * 46 +
-        frame * (style.rise + lateral * .17), 46) - 23;
-      const diameter = style.width * (.55 + hash(seed + 12) * 1.05);
-      const length = style.height * (.52 + hash(seed + 18));
+        (lateral + kinetics.shear * .32) * .055 * (i % 2 ? 1 : .65);
+      // Near wake follows the actual direction of a source-observed flight;
+      // the other three quarters remain distant world-volume landmarks.
+      // All particles stay outside the real 27.18-unit traversable shell.
+      const radius = nearWake ? 30.15 + hash(seed + 5) * 2.9 :
+        (i % 3 === 0 ? 30.2 + hash(seed + 5) * 9 :
+          39 + hash(seed + 5) * 13) - pressure * .9;
+      // CRITICAL: anchor each mote to the WORLD, not heroHeight + a cycling
+      // relative offset. Otherwise the entire weather field rides upward with
+      // the climber, deleting vertical motion parallax and the sense of scale.
+      // The world lattice repeats only at the 46-unit outer observation edge.
+      const worldPhase = hash(seed + 9) * 46 +
+        frame * (style.rise + lateral * .17);
+      const height = positiveMod(worldPhase - heroHeight + 23, 46) - 23;
+      const diameter = style.width * (.55 + hash(seed + 12) * 1.05) *
+        (nearWake ? .80 : 1);
+      const length = style.height * (.52 + hash(seed + 18)) *
+        (nearWake ? 1 + kinetics.airflow * 1.75 : 1 + kinetics.airflow * .16);
       dummy.position.set(Math.sin(angle) * radius, heroHeight + height,
         Math.cos(angle) * radius);
-      dummy.rotation.set(style.slant * .15, bearing, -style.slant * .18 - lateral * .09);
+      dummy.rotation.set(style.slant * .15, bearing,
+        -style.slant * .18 - lateral * .09 +
+        (nearWake ? (kinetics.ascent - kinetics.descent) * .18 : 0));
       dummy.scale.set(diameter, length, diameter);
       dummy.updateMatrix();
       motes.setMatrixAt(i, dummy.matrix);
@@ -119,7 +134,8 @@ export function createTowerAtmosphere(THREE) {
       sourceBound: true, theme: currentTheme || null, instances: motes.count,
       visible: motes.visible, lastSourceTick, lastFloor, drawCallsIfVisible: motes.visible ? 1 : 0,
       reducedMotionPolicy: 'hide atmospheric motion',
-      motionSource: 'public fixed-step tick, biome, player and floor; no new simulation RNG',
+      motionSource: 'public fixed-step tick, biome, fixed world-height lattice and actual vertical velocity; no new simulation RNG',
+      verticalParallax: 'world-anchored repeating exterior strata; source-vy only stretches near wake',
       physicalDevicePerformance: 'NOT MEASURED',
     };
   }
