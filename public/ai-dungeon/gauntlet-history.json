@@ -2194,15 +2194,15 @@
         "playsMajority": false,
         "provenance": "No fresh independent critics available. Do not infer a blind preference from test results or real predecessor screenshots."
       },
-      "safetyChecks": "Predecessor cf5eb338: dedicated Dungeon authority PASS; all 3 real-browser shards FAIL (obsolete fake drapery expectation, low-wall scene/weathered spalls 0, and world-only no spalls); visual review PASS; full CI FAIL three unrelated Tiny Kingdom assertions. New candidate 27b5d336 includes camera-visibility and low-ruin repairs plus truthful native GLB browser checks. Standalone camera continuity prototype Node 4/4 PASS only; exact-head runs 41751379163 Dungeon, 41751379178 visual, 41751379010 catalogue IN PROGRESS / UNVERIFIED.",
+      "safetyChecks": "Previous 13088c authority job passed but all browser viewing failed on HTTP 404 for new camera ESM. New exact head bc165793 routes 38/38 direct imported first-party app modules (static source inspection), with live import-coverage boot contract; tests/real browser pending.",
       "matchedExternalReference": "NOT_RUN",
-      "originalAudioMotionClip": "UNVERIFIED: browser-original WebAudio has a new consent-gated PCM16 tap; no authentic non-silent candidate WAV has yet been retrieved. Prior audio/video MediaRecorder was zero bytes; available predecessor Playwright WebM has no audio track.",
+      "originalAudioMotionClip": "UNVERIFIED",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
       "audioLoudnessAndClipping": "NOT_MEASURED: browser records positive original peak/RMS and populated WAV only when genuine real-time AudioContext frames exist; no candidate measurements yet.",
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Real-source b8be04f 1440x832 browser screenshot from 41672587065 and Warden boss desktop/mobile screenshot/video artifacts 41672587022 were INSPECTED: new 14 anatomical joint cylinders made elongated opaque spindly/squid-like limbs. Warden encounter head-on 1440x832 has 3 heroes overlapping enemy bodies in the 58% HP boss arena, warning Rift Cross visible but contact indistinguishable; mobile capture progressed into floor 2 but large stylized ballheads persist. This is a NEGATIVE experiential finding compared with da492455 and exact locked baseline; source visual redesign at 71da2ea to cap spans remains unverified. No masked A/B victory.",
-      "latestCandidateWorkflow": "27b5d336 head: Dungeon 41751379163, visual 41751379178, catalogue 41751379010 all IN PROGRESS at documentation. Any new screenshot or original PCM WAV is UNVERIFIED until inspected.",
+      "latestCandidateWorkflow": "New HTTP route safety fix bc165793: Dungeon 41757934216 and Chromium visual 41757934055 IN PROGRESS; actual LIVE AFTER evidence UNVERIFIED. Do not assume successful browser rendering. Last source head 13088c dedicated Dungeon and visual workflows FAILED.",
       "currentPredecessorWebgl": {
         "sourceHead": "e886a0e0b94dce6b1bc137cecd7d1a5a3fc0f9cf",
         "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41740892204/artifacts/13281337312",
@@ -2214,7 +2214,7 @@
         "worldViewport": "1440x832",
         "captureDescription": "Personally inspected actual source-native skinned green Ranger, silver Vanguard, purple Mystic in thick Gothic chapel; very large broken partitions, pillars and short stone bands visually compete with the bodies, despite live WebGL and existing cutaway. Real browser video 9.4s VP8 video-only, NO game audio. This is predecessor, not AFTER."
       },
-      "newCandidateSceneReview": "Genuine locked 281735d raw-world 1440x832 vs genuine ac82a5b raw-world 1440x832 visual review: predecessor looks worse, visually disconnected large dark orbs/tubular limbs and obstructive masonry. Same test route/viewport; tick not synchronized. Candidate c66d936 source aims to restore continuity; AFTER pixels uninspected.",
+      "newCandidateSceneReview": "UNVERIFIED; the last actual Chromium showed a blank scene with module fetch 404, not a quality win. Source head bc165793 may restore rendering and still requires physical game capture.",
       "characterDrawBudget": "Previous exact 429e6b real Chromium had 265 cinematicMeshes at desktop versus <=240 test bound (shard1 failed). New 3aec189 fuses 4–5 head parts per figure and removes 1 gorget per figure but actual current head draw counts, performance and visual quality UNVERIFIED; do not infer from mesh arithmetic.",
       "externalReferenceAudit": "Compared qualitatively against 2023 Diablo IV Frozen Tunnel combat still (https://www.npr.org/2023/05/30/1178222988/diablo-iv-review-activision-blizzard), real No Rest for the Wicked 2026 cavern still (https://www.rpgsite.net/news/20518-no-rest-for-the-wicked-1-0-release-ps5-xbox-switch-2-cross-save-multiplayer-pc-october), and Path of Exile 2 Executioner combat still (https://www.mmorpg.com/reviews/path-of-exile-2-early-access-review-2000133606). Their negative space/material structure/impact clarity remain far ahead; they are references, NOT licensed or copied game assets. No direct synchronized/gameplay-balanced reference test or blind score.",
       "realBrowserFrameDeliveryPredecessor": "Actual d9e1c Chromium software WebGL shard 2 artifact 13238978845, artifacts/dungeon-raf-interval-evidence.json: foreground RAF intervals 15 samples, p50 733.3ms, p95 and worst 4549.9ms; other raster evidence sampled 8 frames, directRenderMs 3.9ms at 273136 pixels and downshift 2. Foreground RAF observations cannot establish standalone GPU render time or phone fps. Known scheduling / software runner risk, latest candidate performance UNVERIFIED.",
@@ -2293,10 +2293,10 @@
       "nativeContinuityCandidate": "Source commit 08338db is an unverified new 3D underlay candidate, not a demonstrated repair. Real after comparison/critics have not happened. Monitor additional native underbody draw calls and 3D anatomy material intersections."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Native original character proportions and convincing hand-to-target combat in motion remain stylized/toy-like; visual Gothic room depth still competes with actors. New native-duel orbit continuity and physically anchored low-wall material need genuine new-head moving WebGL verification. Complete original-audio five-scenario journey, pinned matched BEFORE/AFTER and 3 independent blind majorities remain absent.",
-    "currentWork": "Same unfinished M1: real same-pair camera-orbit continuity with immediate real danger override, and physically anchored weathered masonry on the actual low Gothic combat stage. Source-native CC0 skinned rigs and deterministic combat unchanged. Code 27b5d336; exact-head browser/authority/CI in progress, no accepted audiovisual evidence or critics.",
-    "candidateCommit": "27b5d33638933ddd8561ffd157d5bcfaf3fc8bbb",
-    "candidateArtifactUrl": null,
+    "biggestRemainingGap": "Critical last actual-Chromium source head 13088c rendered zero world frames because /dungeon/combat-shot-continuity.js was 404; candidate route fixed but exact-head moving gameplay unverified. Once playable, source-native figures are still toy-like, Gothic foreground competes with readable contact, real non-silent audio and a full five-stage adventure are missing.",
+    "currentWork": "One uninterrupted M1 milestone: restored HTTP serving of actual combat-shot-continuity module after traced browser source failure left every live 3D scene blank. All 38 direct app modules are allowlisted at fixed exact head bc165793; true candidate WebGL, Warden, audio, mobile still require CI evidence.",
+    "candidateCommit": "bc165793ce3f42c9926859158eb3066246a67abe",
+    "candidateArtifactUrl": "",
     "acceptedAt": null,
     "implementationEvents": [
       {
@@ -4284,6 +4284,29 @@
         ],
         "evidence": "Code commit 27b5d336, standalone camera continuity prototype 4/4 pure checks. New exact source real browser and professional blind critic: UNVERIFIED. Previous actual Chrome had 0 spalls and obsolete fake-drape expectations despite original native skins.",
         "acceptance": "IN PROGRESS — NOT TRANSFORMED; no independent LOOKS/FEELS/PLAYS win."
+      },
+      {
+        "id": "M1-LIVE-BROWSER-IMPORT-RESCUE-20261104",
+        "date": "2026-11-04",
+        "milestone": "M1",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "13088c16529d3551fa4fd31bcffee53c747a2e09",
+        "codeCommit": "bc165793ce3f42c9926859158eb3066246a67abe",
+        "objective": "Restore the ACTUAL playable 3D adventure from catastrophic blank WebGL startup without overstating any looks/feels/plays win.",
+        "actualBefore": "https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
+        "verifiedFailureArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41751895058/artifacts/13286152247",
+        "verifiedFailure": "Real Playwright trace: GET /dungeon/combat-shot-continuity.js -> 404; no new WebGL frames, startup watchdog displays 3D EXPEDITION IS NOT READY; browser Dungeon, visual and global CI failures.",
+        "integratedImplementation": "Original authored combat camera module is served on the strict same-origin static route. Actual app import-closure test now guards all 38 first-party entry-module paths; complete ESM module graph can resolve. No AI/combat/replay change, no proprietary art.",
+        "staticSourceAudit": "38 of 38 direct first-party app JS imports reachable; NOT a real browser acceptance",
+        "browserEvidence": "UNVERIFIED pending exact-head workflow 41757934216 and 41757934055",
+        "audio": "UNVERIFIED; no original non-silent WAV and complete synchronized clip",
+        "performance": "UNVERIFIED",
+        "independentCritics": "0/3; no fresh blinded judgments",
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "next": "Inspect exact code desktop/mobile WebGL and motion/audio; prioritize coherent professional character scale, meaningful true combat contact and boss pacing; film full natural five-stage expedition, pinned matched BEFORE/AFTER, original audible soundtrack, performance and three independent blind majority votes. Preserve PR draft and baseline."
       }
     ]
   }
