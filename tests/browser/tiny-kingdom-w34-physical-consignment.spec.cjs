@@ -29,15 +29,16 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    const load=g.getCourierLoadPresentation(cargo.citizen);
    const economy=g.getDeliveryEconomyAudit();
    const after=JSON.stringify(g.exportSnapshot());
-   let partial=null,previous=load.visibleBundles,monotone=true,receipt=null;
+   let partial=null,partialSnapshot=null,previous=load.visibleBundles,monotone=true,receipt=null;
    for(let n=0;n<12000;n++){
     g.step(1/30);
     const current=g.getCourierLoadPresentation(cargo.citizen);
     if(current?.id===cargo.id&&current.stage==='unloading'){
      if(current.visibleBundles>previous)monotone=false;
      previous=current.visibleBundles;
-     if(current.progress>.62&&current.progress<.88&&!partial)
-      partial={...current};
+     if(current.progress>.62&&current.progress<.88&&!partial){
+      partial={...current};partialSnapshot=g.exportSnapshot();
+     }
     }
     receipt=g.getDeliveryReceipts().find(r=>r.id===cargo.id);
     if(receipt)break;
@@ -45,7 +46,9 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    const state=JSON.stringify(g.exportSnapshot());
    g.restoreSnapshot(saved);
    const restored=g.getCourierLoadPresentation(cargo.citizen);
-   return {cargo,load,partial,receipt,monotone,readOnly:before===after,
+   return {cargo,load,partial,receipt,realLoadedSnapshot:saved,
+    realUnloadingSnapshot:partialSnapshot,realReceivedSnapshot:JSON.parse(state),
+    monotone,readOnly:before===after,
     restored,unchangedLoad:JSON.stringify(restored)===JSON.stringify(load),
     economy,authorityAfter:state,viewportWidth:document.documentElement.scrollWidth};
   });
@@ -70,6 +73,27 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(journey.receipt?.amount).toBe(journey.cargo.amount);
   expect(journey.receipt?.creditedAtUnloading).toBe(true);
   expect(journey.viewportWidth).toBeLessThanOrEqual(viewport.width);
+  // These are three real autonomous-world states, not fabricated progress
+  // stages or CSS visualizations. Request actual WebGL presentation after
+  // snapshot restore; film the already-real actor, cart, and receiving yard.
+  for(const [name,snapshot] of [
+   ['loaded',journey.realLoadedSnapshot],
+   ['unloading',journey.realUnloadingSnapshot],
+   ['received',journey.realReceivedSnapshot]
+  ]){
+   await page.evaluate(({snapshot,name,citizen})=>{
+    const g=window.__tinyKingdom;g.restoreSnapshot(snapshot);g.setSpeed(0);
+    const carrier=g.getActiveDeliveries().find(d=>d.citizen===citizen);
+    const dest=carrier?[carrier.x,carrier.z]:[0,10.2];
+    g.setCamera({focus:dest,zoom:8,yaw:.64,pitch:.34});
+   },{snapshot,name,citizen:journey.cargo.citizen});
+   await page.waitForTimeout(700);
+   const glErrors=await page.evaluate(()=>
+    document.getElementById('world').getContext('webgl')?.getError()??-1);
+   expect(glErrors).toBe(0);
+   await testInfo.attach('W34-'+name+'-real-WebGL-'+viewport.width+'px',{
+    body:await page.screenshot(),contentType:'image/png'});
+  }
   const err=await page.evaluate(()=>document.getElementById('world').getContext('webgl')?.getError()??-1);
   expect(err).toBe(0);expect(errors).toEqual([]);
   await testInfo.attach('W34-authentic-consignment-'+viewport.width,{
