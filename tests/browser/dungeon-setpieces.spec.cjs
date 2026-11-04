@@ -37,10 +37,11 @@ test('route-led low masonry and tall Gothic landmarks free real character sightl
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wallProfiles?.exposedWalls??0),{timeout:30000}).toBeGreaterThan(20);
  const diagnostic=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
  expect(diagnostic.wallProfiles.distinctHeights).toBeGreaterThanOrEqual(3);
- // These are the REAL GPU wall-mass heights, not the older pure 2.5m tower
- // recipes. The source map stays impassable; actual actors must be in view.
- expect(diagnostic.wallProfiles.minHeight).toBeGreaterThanOrEqual(1.16);
- expect(diagnostic.wallProfiles.minHeight).toBeLessThanOrEqual(1.6);
+ // Real raised 0.78–1.02m arcade fragments preserve material landmarks while
+ // actual party-side 3D cutaways open the acting floor. Low wall mass is
+ // intentional; 1.16m was the obsolete pre-acting-space minimum.
+ expect(diagnostic.wallProfiles.minHeight).toBeGreaterThanOrEqual(.76);
+ expect(diagnostic.wallProfiles.minHeight).toBeLessThanOrEqual(1.10);
  expect(diagnostic.wallProfiles.maxHeight).toBeGreaterThanOrEqual(1.76);
  expect(diagnostic.wallProfiles.maxHeight).toBeLessThanOrEqual(2.10);
  expect(diagnostic.composition.visibleHeroes).toBeGreaterThan(0);

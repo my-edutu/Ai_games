@@ -14,9 +14,12 @@ export function planStoneRelief(faces,floor,limits={}){
  if(!maxSpalls&&!maxCoping)return {spalls,coping};
  for(let faceIndex=0;faceIndex<faces.length&&(spalls.length<maxSpalls||coping.length<maxCoping);faceIndex++){
   const f=faces[faceIndex];
-  if(!Array.isArray(f)||f.length<9||![f[0],f[2],f[4],f[7],f[8]].every(Number.isFinite)||f[4]<1.10)continue;
-  // Vaulted bays have actual empty upper volume: never hang a stone chip
-  // suspended in that negative space instead of on masonry.
+  if(!Array.isArray(f)||f.length<9||![f[0],f[2],f[4],f[7],f[8]].every(Number.isFinite)||f[4]<.76)continue;
+  // A physical 0.78-1.02m broken arcade still has REAL low masonry to
+  // weather. Earlier >=1.10m gating erased every carved spall and coping
+  // batch when the camera stage was lowered; the real-browser dungeon then
+  // looked like bare stockades. All chips remain anchored below the actual
+  // wall top, and existing camera cutaways clear the full parent group.
   const dx=f[7],dz=f[8];
   if(Math.abs(dx)+Math.abs(dz)!==1||Math.abs(f[0])>10||Math.abs(f[2])>10)continue;
   // Integer coordinate mix makes the surface breakup deterministic across
