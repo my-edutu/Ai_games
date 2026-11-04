@@ -7723,23 +7723,37 @@ function planMarketTourLens(position,heading,desired,remaining){
  };
  const requested=projected(desired),route=projected(heading);
  let selected=requested,bestScore=requested.obstructionScore;
- // Keep the true route readable at human height while approaching the REAL
- // selected stall. A narrow-angle search avoids rapid 180-degree pans. When
- // nothing is clearer, retain the original target instead of inventing one.
- if(remaining>.45){
+ // W20: actual source-matched W18 390px market-tour WebM ends with a wall
+ // dominating the view although the guided feet follow connected pavement.
+ // The old .82-radian survey cannot discover an open side street when the
+ // target bearing faces a real roof or a timber upright. Search a bounded
+ // wider street-side arc ONLY when the physical view is actually obstructed.
+ // All candidates sample original roofs/posts and never hide a real object.
+ const obstructed=requested.forwardMetres<1.65||
+  requested.centralPostCount>0||
+  (requested.nearestVisiblePost!==null&&requested.nearestVisiblePost<2.5);
+ const scanWidth=obstructed?1.45:.82;
+ if(remaining>0){
   const angles=[heading,desired-.24,desired+.24,desired-.48,
    desired+.48,heading-.30,heading+.30,desired-.68,desired+.68];
+  if(obstructed){
+   angles.push(desired-.98,desired+.98,desired-1.22,desired+1.22,
+    desired-1.45,desired+1.45,heading-.9,heading+.9);
+  }
   for(const angle of angles){
    const deviation=angleDistance(angle,desired);
-   if(deviation>.82)continue;
+   if(deviation>scanWidth)continue;
    const candidate=projected(angle);
-   const score=candidate.obstructionScore+deviation*2.25;
+   const score=candidate.obstructionScore+
+    deviation*(obstructed?1.1:2.25);
    if(score+.35<bestScore){
     selected=candidate;bestScore=score;
    }
   }
  }
  return {bearing:selected.bearing,forwardMetres:selected.forwardMetres,
+  scanWidth,emergencyVisibilityRepair:obstructed&&
+   selected.forwardMetres>requested.forwardMetres+.5,
   requestedMetres:requested.forwardMetres,routeMetres:route.forwardMetres,
   avoidedWall:selected.forwardMetres>requested.forwardMetres+.5,
   avoidedPost:selected.centralPostCount<requested.centralPostCount||
@@ -7758,7 +7772,12 @@ function advanceMarketTour(dt){
  if(!point){
   const done=marketTour;
   marketVisitFocus=done.plan;
-  streetYaw=done.plan.yaw;streetTilt=done.plan.tilt;
+  // The final camera is still at the visitor's REAL reached location.
+  // Don't snap it back into the opaque roof seen at the end of W18 footage.
+  // The architecturally checked alternative remains a spectator-only yaw.
+  const finalLens=planMarketTourLens(streetPosition,streetYaw,
+   done.plan.yaw,.25);
+  streetYaw=finalLens.bearing;streetTilt=done.plan.tilt;
   marketTourCompletion={completed:true,trade:done.plan.stall.trade,
    origin:done.origin.slice(),travelledMeters:Math.round(done.travelledMeters*1000)/1000,
    lens:done.lens?{...done.lens}:null,waypoints:done.path.length,reason:null};
@@ -7807,15 +7826,20 @@ function advanceMarketTour(dt){
   nearestVisiblePost:lens.nearestVisiblePost,
   aimDeviation:lens.aimDeviation,
   requestedObstructionScore:lens.requestedObstructionScore,
-  chosenObstructionScore:lens.chosenObstructionScore};
+  chosenObstructionScore:lens.chosenObstructionScore,
+  scanWidth:lens.scanWidth,
+  emergencyVisibilityRepair:lens.emergencyVisibilityRepair};
  const turn=Math.atan2(Math.sin(lens.bearing-streetYaw),
   Math.cos(lens.bearing-streetYaw));
  // At 2–3 software frames/s a lingering blocked lens lasts seconds.
  // Accelerate only when the physically projected view is obstructed;
  // otherwise preserve normal smooth turning. This cannot accelerate AI time.
  const currentPost=streetEntrancePostAudit(next,streetYaw);
- const emergency=currentPost.centralPosts>0&&
-  lens.centralPostCount<currentPost.centralPosts;
+ const currentSight=streetEyeVisibility(next[0],next[1],streetYaw,STREET_EYE);
+ const emergency=(currentPost.centralPosts>0&&
+  lens.centralPostCount<currentPost.centralPosts)||
+  (currentSight.forwardMetres<1.4&&
+   lens.forwardMetres>currentSight.forwardMetres+.5);
  const turnSpeed=emergency?11:3.5;
  streetYaw+=turn*Math.min(1,dt*turnSpeed);
  if(distance-portion<.06)marketTour.index++;
