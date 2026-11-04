@@ -24,7 +24,11 @@ function observedLandingCorridor(state:TowerState,obs:TowerObservation,target:To
   const top=target.y+target.height;
   let lanes=[{left,right}];
   for(const hazard of obs.hazards){
-    if(!hazard.active||hazard.y>=top+2*state.player.halfHeight||
+    // On the final visible 0.3s of a real trap charge, a descending climber
+    // aims beside it. Ordinary inactive traps and upward flights stay ignored.
+    const imminent=!obs.player.grounded&&obs.player.velocity.y<0&&
+      (hazard.chargeTicksRemaining??0)>0&&(hazard.chargeTicksRemaining??0)<=6;
+    if((!hazard.active&&!imminent)||hazard.y>=top+2*state.player.halfHeight||
       hazard.y+hazard.height<=top)continue;
     // Include the actual body's horizontal collision width and a small
     // clearance. A lane too narrow for believable steering is discarded.
@@ -272,6 +276,37 @@ function observedSafeLandingOwnsHazard(state:TowerState,obs:TowerObservation,
     p.position.y-state.player.halfHeight<hazard.y+hazard.height;
   return !overlapping&&observedLandingCorridor(state,obs,target).hazardRoute;
 }
+// An announced trap cannot be a fake future oracle: use only the exact
+// 1–8 fixed-step warning already visible to the spectator, current support,
+// current velocity and physical body width. Do not guess future trap cycles,
+// introduce an RNG stream, or make the historical-v1 pilot see this warning.
+function observedChargingHazard(state:TowerState,obs:TowerObservation){
+  const p=obs.player;
+  if(!p.grounded||p.health<=0||!Number.isFinite(p.velocity.x))return undefined;
+  const support=currentPlatform(obs,p.groundedPlatformId);
+  if(!support)return undefined;
+  const feet=p.position.y-state.player.halfHeight;
+  const margin=state.player.halfWidth+4000;
+  if(Math.abs(feet-support.y-support.height)>3000||
+    p.position.x<support.x+margin||
+    p.position.x>support.x+support.width-margin)return undefined;
+  return obs.hazards.filter(h=>{
+    const ticks=h.chargeTicksRemaining??0;
+    if(h.active||!Number.isSafeInteger(ticks)||ticks<1||ticks>8||
+      ![h.x,h.y,h.width,h.height].every(Number.isFinite)||
+      h.width<=0||h.height<=0||
+      h.y>=p.position.y+state.player.halfHeight||
+      h.y+h.height<=feet||
+      h.x>=support.x+support.width||h.x+h.width<=support.x)return false;
+    const projected=p.position.x+p.velocity.x*Math.min(4,ticks);
+    const clearance=state.player.halfWidth+6000;
+    return Math.min(p.position.x,projected)-clearance<h.x+h.width&&
+      Math.max(p.position.x,projected)+clearance>h.x;
+  }).sort((a,b)=>(a.chargeTicksRemaining??0)-(b.chargeTicksRemaining??0)||
+    Math.abs(a.x+a.width/2-p.position.x)-
+      Math.abs(b.x+b.width/2-p.position.x)||
+    a.id.localeCompare(b.id))[0];
+}
 function nearbyEnemy(obs:TowerObservation,reach:number){return obs.enemies.filter(e=>e.active&&Math.abs(e.position.y-obs.player.position.y)<36000&&Math.abs(e.position.x-obs.player.position.x)<=reach).sort((a,b)=>Math.abs(a.position.x-obs.player.position.x)-Math.abs(b.position.x-obs.player.position.x)||a.id.localeCompare(b.id))[0]}
 /**
  * Source combat melee checks the visible bodies, not an arbitrary 36,000-unit
@@ -469,6 +504,25 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
           counterShot?'Bracing and counter-firing earned pulse':
           move!==0?'Bracing while making room for incoming fire':`Bracing for ${charging.kind} fire`,
         confidence:.95,fallbackUsed:false}};
+  }
+  // Source-authentic danger response now connects the original 3D charging
+  // shutters to actual autonomous decisions. A nearby supported climber backs
+  // out of the *currently observed* charge lane, jumping only in the last
+  // three 20Hz ticks if its body still occupies the imminent collision zone.
+  // Enemy windups/projectiles and already-active traps retain priority.
+  const arming=tactical?observedChargingHazard(state,observation):undefined;
+  if(arming){
+    const p=observation.player,center=arming.x+arming.width/2;
+    const away:TowerAction['move']=center>=p.position.x?-1:1;
+    const move=guardedEvasion(state,observation,away);
+    const occupying=p.position.x+state.player.halfWidth>arming.x&&
+      p.position.x-state.player.halfWidth<arming.x+arming.width;
+    const jump=occupying&&(arming.chargeTicksRemaining??0)<=3;
+    return{action:action(move,{jump}),intent:{mode:'evading-hazard',
+      summary:jump?'Leaping clear of a genuinely charging hazard':
+        move===away?'Clearing the observed charging hazard lane':
+        'Bracing on safe support beside a charging hazard',
+      confidence:.96,fallbackUsed:false,targetPlatformId:p.groundedPlatformId}};
   }
   const emergencyRecovery=tactical?observedEmergencyHealthRetreat(state,observation):undefined;
   if(emergencyRecovery)return{action:action(emergencyRecovery.move),
