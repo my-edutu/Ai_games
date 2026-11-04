@@ -42,25 +42,39 @@ function assessTowerMotion(samples, options = {}) {
   // video. Require two DOM-visible real result observations >=500ms apart,
   // including an intermission, followed by a new AUTHENTIC running token.
   // Source trace alone never satisfies this rule, nor does run-token rollover.
-  const visibleOutcomeSamples = requireOutcomeRestart ? samples
-    .map((sample, index) => ({ sample, index }))
-    .filter(({ sample }) => ['result', 'intermission'].includes(sample.scene) &&
-      ['game', 'technical', 'operator'].includes(sample.sourceResult?.kind) &&
-      sample.observedResultCard?.visible === true &&
-      sample.observedResultCard.runToken === sample.runToken &&
-      typeof sample.observedResultCard.title === 'string' &&
-      sample.observedResultCard.title.length > 0 &&
-      typeof sample.observedResultCard.height === 'string' &&
-      sample.observedResultCard.height.length > 0) : [];
-  const observedOutcomeRestart = visibleOutcomeSamples.some(first =>
-    visibleOutcomeSamples.some(second =>
-      second.index > first.index && second.sample.runToken === first.sample.runToken &&
-      second.sample.sourceResult.kind === first.sample.sourceResult.kind &&
-      second.sample.sourceResult.reason === first.sample.sourceResult.reason &&
-      second.sample.atMs - first.sample.atMs >= 500 &&
-      (first.sample.scene === 'intermission' || second.sample.scene === 'intermission') &&
-      samples.some((next, index) => index > second.index &&
-        next.runToken !== first.sample.runToken && next.scene === 'running')));
+  // The 1-second diagnostic sampler can genuinely miss a short painted
+  // intermission. An OPTIONAL passive browser witness may observe the same
+  // unmodified source-backed DOM at 200ms cadence without screenshots, speed
+  // changes or source edits. Never accept a synthetic run-token change, card
+  // without authoritative sourceResult, or a witness beyond the recorded film.
+  const outcomeWitness = requireOutcomeRestart && Array.isArray(options.outcomeWitness)
+    ? options.outcomeWitness.filter(item =>
+      item && Number.isFinite(item.atMs) &&
+      item.atMs >= first.atMs && item.atMs <= last.atMs &&
+      typeof item.runToken === 'string' && item.runToken.length > 0 &&
+      samples.some(source => source.runToken === item.runToken))
+    : [];
+  const visibleOutcomeSamples = requireOutcomeRestart ?
+    [...samples, ...outcomeWitness]
+      .filter(sample => ['result', 'intermission'].includes(sample.scene) &&
+        ['game', 'technical', 'operator'].includes(sample.sourceResult?.kind) &&
+        sample.observedResultCard?.visible === true &&
+        sample.observedResultCard.runToken === sample.runToken &&
+        typeof sample.observedResultCard.title === 'string' &&
+        sample.observedResultCard.title.length > 0 &&
+        typeof sample.observedResultCard.height === 'string' &&
+        sample.observedResultCard.height.length > 0)
+      .sort((a,b) => a.atMs - b.atMs) : [];
+  const observedOutcomeRestart = visibleOutcomeSamples.some(firstVisible =>
+    visibleOutcomeSamples.some(secondVisible =>
+      secondVisible.atMs > firstVisible.atMs &&
+      secondVisible.runToken === firstVisible.runToken &&
+      secondVisible.sourceResult.kind === firstVisible.sourceResult.kind &&
+      secondVisible.sourceResult.reason === firstVisible.sourceResult.reason &&
+      secondVisible.atMs - firstVisible.atMs >= 500 &&
+      (firstVisible.scene === 'intermission' || secondVisible.scene === 'intermission') &&
+      samples.some(next => next.atMs > secondVisible.atMs &&
+        next.runToken !== firstVisible.runToken && next.scene === 'running')));
   if (requireOutcomeRestart && !observedOutcomeRestart) {
     blockers.push('complete-terminal-intermission-restart-not-observed');
   }
@@ -72,6 +86,7 @@ function assessTowerMotion(samples, options = {}) {
   return { scopedPass: blockers.length === 0, blockers, wallMs, minDurationMs, tickDelta, tickAdvance, runTransitions,
     transitionEvidence: 'OPEN: sampled restart is not proof of rendered death/intermission/restart',
     genuineDomResultSamples: visibleOutcomeSamples.length,
+    passiveOutcomeWitnessSamples: outcomeWitness.length,
     observedOutcomeRestart,
     outcomeVideoGate: 'OPEN: DOM visibility and valid source phases do not replace inspection of the full-motion original WebM',
     renderedDelta,
