@@ -56,9 +56,25 @@ test('W41 autonomous smith reaches the physical outdoor forge and works on deskt
  expect(witnessed.arrived.audit.provenance).toBe('genuine-craftsperson-forge-yard');
  expect(witnessed.arrived.same).toBe(true);
  expect(witnessed.arrived.workers.some(w=>w.citizen===witnessed.arrived.citizen)).toBe(true);
+ // W42 test-first: the visible metalworking sequence must be driven by the
+ // same real arrived citizen, with a reachable anvil and physical progress.
+ // Until the scene implements this read-only contract, RED is expected.
+ const craft=await page.evaluate(()=>window.__tinyKingdom.getForgeCraftCycleAudit?.()||null);
+ expect(craft?.source).toBe('actual-smith-shift-physical-forge-cycle');
+ expect(craft?.workers.some(w=>w.citizen===witnessed.arrived.citizen&&
+  w.reachableAnvil&&w.distanceToAnvil<1.2&&
+  ['stoking','hammering','quenching'].includes(w.phase))).toBe(true);
+ expect(craft?.altersAuthority).toBe(false);
  const original=await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()));
+ // W41 test harness repair: a paused, unchanged game intentionally reuses
+ // the frozen frame. Resize the real viewport to request a new actual draw;
+ // do not require an impossible extra animation on a frozen scene.
  const frames=await page.evaluate(()=>window.__tinyKingdom.getFrameProfile().totalFrames);
- await page.waitForFunction(n=>window.__tinyKingdom.getFrameProfile().totalFrames>n,frames,{timeout:85000});
+ await page.setViewportSize({width:1023,height:640});
+ await page.waitForFunction(n=>window.__tinyKingdom.getFrameProfile().totalFrames>n,frames,null,{timeout:85000});
+ await page.setViewportSize({width:1024,height:640});
+ const redrawn=await page.evaluate(()=>window.__tinyKingdom.getFrameProfile().totalFrames);
+ await page.waitForFunction(n=>window.__tinyKingdom.getFrameProfile().totalFrames>n,redrawn,null,{timeout:85000});
  fs.mkdirSync('artifacts/tiny-kingdom-w41',{recursive:true});
  await page.screenshot({path:'artifacts/tiny-kingdom-w41/genuine-forge-workday-desktop.png'});
  await page.setViewportSize({width:390,height:844});
