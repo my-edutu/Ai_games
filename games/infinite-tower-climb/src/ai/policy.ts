@@ -538,6 +538,25 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
   const windup=tactical?imminentTelegraph(state,observation):undefined;
   if(windup)return{action:action(guardedEvasion(state,observation,0),{jump:true}),
     intent:{mode:'evading-telegraph',summary:`Jumping clear of ${windup.kind} fire`,confidence:.96,fallbackUsed:false}};
+  // Same real 12-tick shutter source drives AI escape, world-space jaws,
+  // camera, route, light and sound. The former ordering allowed an EARLY
+  // guardian windup to consume the entire decision ahead of an imminent
+  // body-contact shutter. After real projectiles, ACTIVE hazards and imminent
+  // enemy shots, make this source-known physical exit the priority. Never
+  // use hidden future trap schedules or rewrite historical tactical-v1.
+  const arming=tactical?observedChargingHazard(state,observation):undefined;
+  if(arming){
+    const escape=observedTrapEscape(state,observation,arming);
+    return{action:action(escape.move,{jump:escape.jump}),
+      intent:{mode:'evading-hazard',
+        summary:escape.jump?'Leaping clear of a genuinely charging hazard':
+          escape.route==='no-deck-exit'?'Holding the edge as the trap closes':
+          escape.route==='ground-exit-too-late'?'Seeking cover before the trap closes':
+          escape.move!==0?'Clearing the observed charging hazard lane':
+          'Bracing on safe support beside a charging hazard',
+        confidence:.96,fallbackUsed:false,
+        targetPlatformId:observation.player.groundedPlatformId}};
+  }
   // During the first half of a REAL hostile charge, brace rather than charging
   // through it. A too-close climber makes deck-safe room; the final three
   // ticks retain the original authoritative evasive jump. Presentation may
@@ -573,23 +592,6 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
           counterShot?'Bracing and counter-firing earned pulse':
           move!==0?'Bracing while making room for incoming fire':`Bracing for ${charging.kind} fire`,
         confidence:.95,fallbackUsed:false}};
-  }
-  // The same physical 12-tick shutter charge drives the real 3D warning,
-  // deterministic on-deck exit selection, and an earned emergency jump if
-  // neither witnessed exit can be reached in time. Projectiles, active traps,
-  // and real enemy windups continue to outrank this response.
-  const arming=tactical?observedChargingHazard(state,observation):undefined;
-  if(arming){
-    const escape=observedTrapEscape(state,observation,arming);
-    return{action:action(escape.move,{jump:escape.jump}),
-      intent:{mode:'evading-hazard',
-        summary:escape.jump?'Leaping clear of a genuinely charging hazard':
-          escape.route==='no-deck-exit'?'Holding the edge as the trap closes':
-          escape.route==='ground-exit-too-late'?'Seeking cover before the trap closes':
-          escape.move!==0?'Clearing the observed charging hazard lane':
-          'Bracing on safe support beside a charging hazard',
-        confidence:.96,fallbackUsed:false,
-        targetPlatformId:observation.player.groundedPlatformId}};
   }
   const emergencyRecovery=tactical?observedEmergencyHealthRetreat(state,observation):undefined;
   if(emergencyRecovery)return{action:action(emergencyRecovery.move),
