@@ -58,6 +58,10 @@ test('actual production scene builds one reusable Three light volume with dispos
   assert.match(scene,/import \{ publicLanternEncounter \} from '\.\/public-lantern-encounter\.mjs'/);
   assert.match(scene,/new THREE\.CylinderGeometry\(\.055, \.47, 1, 16, 1, true\)/);
   assert.match(scene,/publicLanternEncounter\(s, closestThreat\.cell\)/);
+  assert.match(scene,/explorer\.group\.getObjectByName\('lantern cage'\)/);
+  assert.match(scene,/explorerLantern\.getWorldPosition\(lanternFocusOrigin\)/);
+  assert.match(scene,/lanternBeamDirection\.copy\(lanternFocusOrigin\)/);
+  assert.match(scene,/lanternBeam\.position\.copy\(lanternFocusOrigin\)/);
   assert.match(scene,/lanternBeam\.quaternion\.setFromUnitVectors\(lanternBeamAxis, lanternBeamDirection\)/);
   assert.match(scene,/lanternBeamGeometry\.dispose\(\); lanternBeamMaterial\.dispose\(\)/);
   assert.match(scene,/witnessedLanternConeVisible: lanternBeam\.visible/);

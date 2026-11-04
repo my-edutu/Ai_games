@@ -15,3 +15,6 @@ An isolated pure-public helper test rejects undisclosed threats, unseen cells, b
 
 ## Exact-source static server repair (same Pass141, 2026-11-04 UTC)
 Source review caught a real integration fault **before native acceptance**: the maze server uses an explicit `PUBLIC_ASSETS` route allowlist; a new browser-imported `.mjs` is unavailable until listed. The follow-up production server update permits `public-lantern-encounter.mjs`, and the standalone test now guards that actual route source. The pre-repair candidate WebGL run can fail to import even if its source/helper unit tests pass; judge only the corrected commit's screenshots. No visual acceptance or weakened assertions claimed.
+
+## Physical attachment correction (same Pass141)
+An exact source review caught another important visual-authenticity gap: anchoring the cone to the *approximate point light* would visibly detach it from Pip's articulated raised lantern. The corrected production scene caches the actual existing Three.js `lantern cage` object once, reads its true world position after each original Pip rig pose, and uses that same position for the tapered cone's geometry. The test now requires the production rig lookup and genuine world-space endpoint use. The pre-correction result is not accepted. The original gameplay authority, camera, HUD and privacy gates remain untouched.

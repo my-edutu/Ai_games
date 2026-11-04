@@ -92,6 +92,11 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   scene.add(lanternBeam);
 
   const explorer = createExplorer({ balanced });
+  // Hold the real articulated emissive crystal/cage, not a guessed Pip offset.
+  // World-space lamp tracking happens only after the actor's connected rig
+  // has performed its current public encounter pose.
+  const explorerLantern = explorer.group.getObjectByName('lantern cage');
+  const lanternFocusOrigin = new THREE.Vector3();
   scene.add(explorer.group);
   // Reusable modeled glass shards illustrate only a witnessed key pickup.
   // No per-frame GPU resource allocation, billboard, HUD text or new authority.
@@ -512,14 +517,15 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // open edge. Real models provide both endpoints; no hidden route, wall-
     // penetrating guessed focus, or promise that the autonomous AI will flee.
     lanternBeam.visible = false;
-    if (!result && closestThreat?.strength > .35
+    if (!result && explorerLantern && closestThreat?.strength > .35
       && publicLanternEncounter(s, closestThreat.cell)) {
+      explorerLantern.getWorldPosition(lanternFocusOrigin);
       lanternBeamEnd.set(closestThreat.x, closestThreat.y + .96, closestThreat.z);
-      lanternBeamDirection.copy(lanternLight.position).sub(lanternBeamEnd);
+      lanternBeamDirection.copy(lanternFocusOrigin).sub(lanternBeamEnd);
       const beamLength = lanternBeamDirection.length();
       if (beamLength > .65 && beamLength < CELL_SIZE * 1.7) {
         lanternBeam.visible = true;
-        lanternBeam.position.copy(lanternLight.position).add(lanternBeamEnd).multiplyScalar(.5);
+        lanternBeam.position.copy(lanternFocusOrigin).add(lanternBeamEnd).multiplyScalar(.5);
         lanternBeamDirection.multiplyScalar(1 / beamLength);
         // Tapered cylinder top is at the existing Pip lamp, wide base at the
         // real Thornback mask; never create or rotate an actor/game object.
