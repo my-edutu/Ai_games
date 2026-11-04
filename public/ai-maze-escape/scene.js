@@ -830,8 +830,21 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // before the witnessed fragments appeared, despite a correct 5.67 target.
     // Faster bounded easing acts on the public presentation camera alone;
     // keep the original camera safety framing, privacy and model-fit gates.
-    const blend = settings.reducedMotion ? 1
-      : 1 - Math.exp(-delta * (pickupCameraBeat ? 12 : openingStageView ? 8 : 4.5));
+    // Genuine danger scenes should settle on the real pair while their
+    // source-disclosed recognition/brace/release is still observable. Native
+    // chronological WebGL images showed slow generic camera drift competing
+    // with the connected character acting. Speed up ONLY the public Follow
+    // encounter; keep every portrait/landscape model-fit calculation above.
+    // On the first real render, start at the public focus rather than spending
+    // the encounter's first beat easing from the camera's default origin.
+    // Manual cameras, recovery, terminal scenes, key and gate choreography
+    // retain their established compositions. No AI time or authority changes.
+    const publicFollowEncounter = cameraMode === 'follow' && !result
+      && !cameraGate && !!closestThreat?.strength;
+    const blend = settings.reducedMotion || frames === 0 ? 1
+      : 1 - Math.exp(-delta * (pickupCameraBeat ? 12
+        : publicFollowEncounter ? 10
+          : openingStageView ? 8 : 4.5));
     cameraTarget.lerp(desiredTarget, blend);
     halfHeight += (targetHeight - halfHeight) * blend;
     camera.left = -halfHeight * aspect; camera.right = halfHeight * aspect;
