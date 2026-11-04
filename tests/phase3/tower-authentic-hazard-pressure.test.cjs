@@ -14,7 +14,11 @@ const end = snapshotSource.indexOf('// Legacy/default snapshots', begin);
 assert.ok(begin > 0 && end > begin,
   'published source schedule must provide its own bounded warning period');
 const charge = vm.runInNewContext(
-  snapshotSource.slice(begin, end).replace('export function ', 'function ') +
+  snapshotSource.slice(begin, end)
+    .replace('export function ', 'function ')
+    .replace('h:{activeFromTick:number;activeEvery:number;activeFor:number}', 'h')
+    .replace('tick:number,window=12', 'tick,window=12')
+    .replace('):number{', '){') +
   '\nobservedHazardChargeTicks', { Number, Math },
 );
 const THREE_URL = pathToFileURL(path.join(root, 'node_modules/three/build/three.module.js')).href;
@@ -24,7 +28,7 @@ const loaded = Promise.all([import(THREE_URL), import(MODULE_URL)]);
 const hazard = { id: 'f5:hot-vent', kind: 'heat', x: 150000, y: 300000,
   width: 54000, height: 15000, activeFromTick: 40, activeEvery: 80, activeFor: 24 };
 const snapshot = (remaining, more = {}) => ({
-  runToken: 'source-run', floor: 5, tick: 110, lifecycle: 'running',
+  runToken: 'source-run', floor: 5, tick: 120 - remaining, lifecycle: 'running',
   worldWidth: 480000, chunkBaseY: 200000, player: {
     x: 175000, y: 320000, health: 5,
   },
