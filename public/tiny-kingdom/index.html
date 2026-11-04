@@ -9066,6 +9066,54 @@ function recentObservedCourierReceipt(citizen){
  return deliveryReceipts.find(r=>r.citizen===citizen.name&&
   state.t>=r.time&&state.t-r.time<.42)||null;
 }
+// W37 original-market camera: project every actual stall upright and gateway
+// lantern into the close-up work image before selecting a real courier shot.
+// No new actors or scenery: only physically observed camera placement.
+function marketCourierPostSightline(eye,target){
+ const delta=target.map((v,i)=>v-eye[i]),distance=Math.hypot(...delta)||1;
+ const forward=delta.map(v=>v/distance),flat=Math.hypot(forward[0],forward[2])||1;
+ const right=[-forward[2]/flat,0,forward[0]/flat];
+ const up=[-forward[0]*forward[1]/flat,flat,-forward[2]*forward[1]/flat];
+ const {tanHorizontal,tanVertical}=physicalCameraProjection();
+ const tx=Math.max(.1,tanHorizontal),ty=Math.max(.1,tanVertical);
+ let total=0,postsInFrame=0,lanternsInFrame=0,nearestPost=Infinity;
+ const regionX=.49,regionY=.72;
+ function probe(x,z,bottomHeight,topHeight,radius,kind){
+  const ground=terrain(x,z),projected=[];
+  for(const y of [ground+bottomHeight,ground+topHeight]){
+   const d=[x-eye[0],y-eye[1],z-eye[2]],
+    depth=d.reduce((sum,v,i)=>sum+v*forward[i],0);
+   if(depth<=.18||depth>=distance-.15)continue;
+   projected.push({depth,
+    x:(d[0]*right[0]+d[2]*right[2])/(depth*tx),
+    y:d.reduce((sum,v,i)=>sum+v*up[i],0)/(depth*ty)});
+  }
+  if(!projected.length)return;
+  const near=Math.min(...projected.map(p=>p.depth));
+  const hx=radius/(near*tx),hy=radius/(near*ty);
+  const left=Math.min(...projected.map(p=>p.x))-hx;
+  const rightEdge=Math.max(...projected.map(p=>p.x))+hx;
+  const low=Math.min(...projected.map(p=>p.y))-hy;
+  const high=Math.max(...projected.map(p=>p.y))+hy;
+  const width=Math.max(0,Math.min(regionX,rightEdge)-Math.max(-regionX,left));
+  const height=Math.max(0,Math.min(regionY,high)-Math.max(-regionY,low));
+  if(width<=0||height<=0)return;
+  total+=width*height/(regionX*2*regionY*2);
+  if(kind==='post'){postsInFrame++;nearestPost=Math.min(nearestPost,near)}
+  else lanternsInFrame++;
+ }
+ for(const stall of MARKET_STALLS)
+  for(const sx of [-1,1])for(const sz of [-1,1])
+   probe(stall.x+sx*1.23,stall.z+sz*.84,.03,2.78,.105,'post');
+ for(const [x,z] of [[-3.67,13.03],[1.15,13.03]]){
+  probe(x,z,.03,1.85,.10,'post');
+  probe(x,z,1.65,2.29,.28,'lantern');
+ }
+ return {source:'original-market-uprights-and-lanterns',
+  modelledPosts:16,modelledLanterns:2,postsInFrame,lanternsInFrame,
+  nearestPostMetres:Number.isFinite(nearestPost)?Math.round(nearestPost*100)/100:null,
+  centerCover:Math.min(1,Math.round(total*1000)/1000)};
+}
 function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const realWork=isWorkingAtSite(citizen);
  const realReceipt=recentObservedCourierReceipt(citizen);
@@ -9109,12 +9157,13 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
    citizen.z+Math.cos(angle)*radius];
   const scenic=working?foregroundSceneProjection(eye,target,roofs):
    {cover:0,largest:0,volumes:0};
+  const marketPostSightline=unloading?marketCourierPostSightline(eye,target):null;
   return {yaw:angle,pitch,zoom,eye,target,
    projectedWorkerHeightFraction:projectedWorkerBodyFraction(eye,target,citizen),
    foregroundSceneCover:scenic.cover,foregroundSceneLargest:scenic.largest,
    foregroundSceneVolumes:scenic.volumes,
    foregroundVegetationCover:0,vegetationFaceBlockers:0,
-   blockers:followRayBlockers(eye,target,roofs)};
+   marketPostSightline,blockers:followRayBlockers(eye,target,roofs)};
  };
  const original=candidate(preferredYaw);
  const offsets=[0,Math.PI/10,-Math.PI/10,Math.PI/5,-Math.PI/5,
@@ -9156,7 +9205,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   const sizePenalty=working&&realWork?
    Math.max(0,(portraitLens?.27:.29)-shot.projectedWorkerHeightFraction)*5200:0;
   const coarse=shot.blockers*1000+oppositeYard+rearPenalty+crowd*325+
-   sizePenalty+
+   (shot.marketPostSightline?.centerCover||0)*6400+sizePenalty+
    shot.foregroundSceneCover*(portraitLens?2400:working?1500:0)+
    Math.abs(delta)*.9+Math.abs(z-normalZoom)*.35+
    Math.abs(p-normalPitch)*3;
@@ -9332,7 +9381,8 @@ function getCourierDocumentaryCameraAudit(){
    resource:receipt.resource,creditedAtUnloading:receipt.creditedAtUnloading}:null,
   builds:liveShotPlanBuilds,reuses:liveShotPlanReuses,
   camera:shot?{yaw:shot.yaw,pitch:shot.pitch,zoom:shot.zoom,
-   blockers:shot.blockers,foregroundCover:shot.foregroundSceneCover}:null,
+   blockers:shot.blockers,foregroundCover:shot.foregroundSceneCover,
+   marketPostSightline:shot.marketPostSightline||null}:null,
   authorityMutated:false};
 }
 function updateFollowCamera(preferredYaw=previousFollowCamera?.yaw??yaw){
