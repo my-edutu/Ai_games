@@ -30,6 +30,9 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    if(!loaded)return {error:'No authentic escrowed producer'};
    const cameraBefore=JSON.stringify(g.exportSnapshot());
    const selected=g.watchDelivery();
+   // Multiple real deliveries can overlap; select the actual watched cart,
+   // not an earlier unselected courier's inventory.
+   loaded=g.getActiveDeliveries().find(d=>d.id===selected?.id)||null;
    const travelA=g.getCourierDocumentaryCameraAudit();
    const travelB=g.getCourierDocumentaryCameraAudit();
    const cameraAfter=JSON.stringify(g.exportSnapshot());
@@ -75,14 +78,23 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(sample.receivedAudit?.camera?.zoom).toBeLessThanOrEqual(7.2);
   expect(sample.receivedAudit?.camera?.blockers).toBeGreaterThanOrEqual(0);
   expect(sample.width).toBeLessThanOrEqual(viewport.width);
-  for(const [name,snapshot] of [['unloading',sample.unloadSnapshot],['receipt',sample.receivedSnapshot]]){
-   await page.evaluate(s=>{const g=window.__tinyKingdom;g.restoreSnapshot(s);g.setSpeed(0);
-    g.watchDelivery();},snapshot);
-   await page.waitForTimeout(350);
-   expect(await page.evaluate(()=>document.getElementById('world').getContext('webgl')?.getError()??-1)).toBe(0);
-   await info.attach('W36-real-'+name+'-'+viewport.width+'px',{
-    body:await page.screenshot(),contentType:'image/png'});
-  }
+  // The authoritative receipt is held in a bounded presentation log and is
+  // deliberately NOT inside saved worlds. Film it in the actual live state
+  // BEFORE restoring a saved unloading checkpoint (which clears receipts).
+  await page.waitForTimeout(350);
+  expect(await page.evaluate(()=>window.__tinyKingdom.getDeliveryReceipts()
+   .some(r=>r.id===window.__tinyKingdom.getCourierDocumentaryCameraAudit().deliveryId))).toBe(true);
+  expect(await page.evaluate(()=>document.getElementById('world').getContext('webgl')?.getError()??-1)).toBe(0);
+  await info.attach('W36-real-credited-receipt-'+viewport.width+'px',{
+   body:await page.screenshot(),contentType:'image/png'});
+  await page.evaluate(s=>{
+   const g=window.__tinyKingdom;g.restoreSnapshot(s);g.setSpeed(0);
+   g.watchDelivery();
+  },sample.unloadSnapshot);
+  await page.waitForTimeout(350);
+  expect(await page.evaluate(()=>document.getElementById('world').getContext('webgl')?.getError()??-1)).toBe(0);
+  await info.attach('W36-real-unloading-'+viewport.width+'px',{
+   body:await page.screenshot(),contentType:'image/png'});
   expect(errors).toEqual([]);
  });
 }
