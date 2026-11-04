@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T16:10:21.768Z",
+  "generatedAt": "2026-11-04T16:13:52.012Z",
   "status": "IN PROGRESS — NOT TRANSFORMED: actual camera-height body-ray clearing integrated with Gothic walls/facades, NEW RUNNING AFTER UNVERIFIED",
   "reference": "Diablo IV: overall quality; No Rest for the Wicked: worlds; Path of Exile 2: contact and combat — NOT independently compared as matched motion",
   "metrics": {
@@ -211,16 +211,16 @@
   "visualVerdict": "Genuine predecessor browser art still shows toy-like original humanoids and Vanguard body obstructed by masonry despite unoccludedHeroes. New code integrates physical 3D camera-height boot/torso/head stone clearance and more truthful full-body audit; no exact-head running AFTER footage, motion/audio or blind majority witnessed. No substantial visual win claimed.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
-  "candidateCommit": "9b4d3f2653d9bc0cad8382de2f5fa703b0b0982d",
-  "metricsProvenance": "Historical 24×900 seeded data, NOT rerun at this exact head. 7cc4d0d predecessor Dungeon authority+Chromium workflow 41854700253 PASS and visual review 41854700657 PASS; catalogue CI 41854700728 FAILED because an unparseable boss-sightline safety assertion, now source-corrected. New candidate exact-head CI/visual full journey and mobile performance UNVERIFIED.",
+  "candidateCommit": "e76c3d37ee07343cb3f07d5f961955ec2b51065e",
+  "metricsProvenance": "The displayed 24×900 seeds are HISTORICAL, not rerun at e76c3d37. Previous 7cc4d0d Dungeon/visual passed; broad CI failed due to malformed test which is now repaired, new exact-head workflow conclusions pending. No full audio/video journey, phone p95 or critic majority.",
   "transformation": {
     "milestone": "M1",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
     "locked": true,
-    "candidateSha": "9b4d3f2653d9bc0cad8382de2f5fa703b0b0982d",
+    "candidateSha": "e76c3d37ee07343cb3f07d5f961955ec2b51065e",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
-    "exactHeadSafety": "7cc4d0d predecessor dedicated Dungeon/browser and visual review PASS; full catalogue CI FAIL due to SyntaxError in tests/foundation/dungeon-boss-sightline.test.cjs:59; corrected on branch at 942d3be. Latest 9b4d3f + ledger exact-head checks not verified.",
+    "exactHeadSafety": "Original baseline locked. Previous 7cc4d0d Dungeon+Chromium 41854700253 PASS, visual 41854700657 PASS, catalogue 41854700728 FAIL (a real test SyntaxError, corrected at 942d3be). Current source e76c3d37 exact-head workflows queued: Dungeon 41865005779, visual review 41865005746, catalogue 41865005787 — conclusions UNVERIFIED.",
     "looks": "UNVERIFIED",
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
@@ -231,7 +231,7 @@
     },
     "fullDesktopMobileAudiovisualJourney": "UNVERIFIED",
     "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41854700657/artifacts/13338175429",
-    "exactHeadAction": "Capture current source 1440px/390px continuous WebGL after the 3D ray + facade integration; inspect obstructing wall lowering, fullBodyHeroes/partiallyVisibleHeroes, camera motion, original audio and p95 FPS. Reject if anatomy still hidden or stage flattened.",
+    "exactHeadAction": "Inspect e76c3d37 authentic new-head browser video desktop/mobile and body-ray diagnostic after CI concludes; compare against same fixed original baseline and truthful same-seed scene, and reject if full anatomy remains hidden or frame performance worsens.",
     "biggestGap": "True source-skinned anatomy remains stylized and weapon contact visually light; last inspected full-body obstruction is now addressed by new geometric ray policy but has no authentic new-head motion validation.",
     "nextTask": "Review genuine exact-head moving WebGL and first repair any regressions; materially improve full native actor silhouette/combat animation and floor-to-wipe coherent adventure; collect real desktop/mobile audiovisual A/B against immutable source and 3 blinded critics.",
     "currentMilestoneLedger": "public/ai-dungeon/gauntlet-history.json"
