@@ -3421,20 +3421,38 @@ function citizenRigPose(p){
   const cycle=phase+(side<0?0:Math.PI);
   // Genuine work plants both feet while the real wrists perform the task.
   // The idle/travel gait remains animated and driven by actual route motion.
-  const footZ=working?(side<0?-.075:.085):Math.sin(cycle)*intensity*.34;
-  const lift=working?0:Math.max(0,Math.cos(cycle))*.115*intensity;
+  // W30 integrated Living Valley: distance-locked two-phase walking.
+  // The authoritative step adds 2.60 p.phase radians per physically travelled
+  // metre and this rig multiplies phase by 2.7. Stance therefore pushes the
+  // actual boot backwards at the same speed as the pelvis travels forward,
+  // planting its WORLD position. Only the returning swing leg lifts.
+  // Blocked couriers accumulate no phase and cannot skate in place.
+  const unit=((cycle%(Math.PI*2))+(Math.PI*2))%(Math.PI*2)/(Math.PI*2);
+  const stanceFraction=.62,grounded=unit<stanceFraction;
+  const stepMeters=(Math.PI*2)/(2.60*2.7);
+  const stanceMetres=stepMeters*stanceFraction;
+  const strideT=grounded?unit/stanceFraction:
+   (unit-stanceFraction)/(1-stanceFraction);
+  const footZ=working?(side<0?-.075:.085):
+   traveling?(strideT-.5)*stanceMetres*(grounded?-1:1):
+   Math.sin(cycle)*intensity*.34;
+  const lift=working?0:traveling?
+   (grounded?0:Math.sin(Math.PI*strideT)*.135):
+   Math.max(0,Math.cos(cycle))*.115*intensity;
   const footX=side*.125,bootZ=footZ+.095;
   const gx=p.x+(co*footX+si*bootZ)*scale;
   const gz=p.z+(-si*footX+co*bootZ)*scale;
   const groundOffset=(terrain(gx,gz)-rootGround)/scale;
-  const hip=[footX,.60,0],ankle=[footX,.11+groundOffset+lift,footZ];
+  // Each existing boot box extends .045 local units below this ankle.
+  // Plant the rendered sole at the sampled ground instead of hovering.
+  const hip=[footX,.60,0],ankle=[footX,.047+groundOffset+lift,footZ];
   const dz=ankle[2]-hip[2],dy=ankle[1]-hip[1],distance=Math.hypot(dz,dy);
   const reach=Math.max(.0001,Math.min(distance,upper+lower-.0001));
   const along=(upper*upper-lower*lower+reach*reach)/(2*reach);
   const bend=Math.sqrt(Math.max(0,upper*upper-along*along));
   const uz=dz/(distance||1),uy=dy/(distance||1);
   const knee=[footX,hip[1]+uy*along+uz*bend,hip[2]+uz*along-uy*bend];
-  return {hip,knee,ankle,lift,groundOffset};
+  return {hip,knee,ankle,lift,groundOffset,contact:working?'stance':traveling?(grounded?'stance':'swing'):'idle',stridePhase:unit,stanceMetres:traveling?stanceMetres:0};
  });
  const arms=[-1,1].map(side=>{
   // The task hand traces a large, job-specific silhouette while the other
