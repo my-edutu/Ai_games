@@ -30,11 +30,11 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npx playwright install --with-deps chromium
-      - name: W31 actual world click targets a visible citizen on desktop and 390px
+      - name: W31/W32 actual citizen selection and physical orbit on desktop and 390px
         env:
           CI: '1'
           LIBGL_ALWAYS_SOFTWARE: '1'
-        run: npx playwright test tests/browser/tiny-kingdom-w31-real-citizen-picking.spec.cjs --workers=1
+        run: npx playwright test tests/browser/tiny-kingdom-w31-real-citizen-picking.spec.cjs tests/browser/tiny-kingdom-w32-physical-citizen-orbit.spec.cjs --workers=1
       - uses: actions/upload-artifact@v4
         if: always()
         with:
