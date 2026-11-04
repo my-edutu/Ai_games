@@ -2246,14 +2246,21 @@ export function createTowerScene(canvas, settings = {}) {
       && previous.player.state === 'airborne' && previous.player.vy < -350
       && next.player.state === 'standing' && next.player.vy === 0 && next.player.health > 0;
     if (landed) {
-      const deck = pointFor(next.player.x, next.player.y - next.player.halfHeight,
-        next.chunkBaseY, next.worldWidth, 27.16);
-      landingHalo.position.set(deck.x, deck.y + .085, deck.z);
-      landingMoment = elapsed; landingRun = next.runToken; landingFloor = next.floor;
-      landingWeight = clamp(-previous.player.vy / 14000, .4, 1);
-      // Keep the already-established halo on the source state transition,
-      // but never raise masonry unless a real current deck bears the feet.
-      physicalTouchdown = observedPhysicalTouchdown(previous, next);
+      // The ring, fragments, camera weight and opt-in landing audio all refer
+      // to a genuine occupied deck. An airborne->standing flag alone may
+      // represent another lifecycle or recovery mechanism, not an impact.
+      const contact = observedPhysicalTouchdown(previous, next);
+      if (contact) {
+        const deck = pointFor(contact.x, contact.top,
+          next.chunkBaseY, next.worldWidth, 27.16);
+        landingHalo.position.set(deck.x, deck.y + .085, deck.z);
+        landingMoment = elapsed; landingRun = next.runToken;
+        landingFloor = next.floor; landingWeight = contact.strength;
+        physicalTouchdown = contact;
+      } else {
+        landingHalo.visible = false;
+        physicalTouchdown = null;
+      }
     }
     updateEntities(next);
     if (previous && next.player.health < previous.player.health) {
@@ -2624,29 +2631,39 @@ export function createTowerScene(canvas, settings = {}) {
     // never an invented attack. Reduced motion retains the world-space cues.
     const contactProgress=options.stale?0:clamp((contactUntil-elapsed)/.24,0,1);
     const landingProgress=clamp((elapsed-landingMoment)/.6,0,1);
-    landingHalo.visible=!options.stale && snapshot.lifecycle==='running'
-      && landingRun===snapshot.runToken && landingFloor===snapshot.floor && landingProgress<1;
-    if(landingHalo.visible){
+    const actual = physicalTouchdown;
+    // Moving decks carry their own real contact impression for its short
+    // lifetime; the original decal must not hang in empty air as the source
+    // platform travels. Never project from a guessed or vanished landing.
+    const actualDeck = actual && snapshot.platforms?.find(deck =>
+      deck.id === actual.platformId &&
+      [deck.x, deck.y, deck.width, deck.height].every(Number.isFinite) &&
+      deck.width > 0 && deck.height > 0);
+    const witnessedDeck = !!actualDeck && !options.stale &&
+      snapshot.lifecycle === 'running' && p.health > 0 &&
+      actual.runToken === snapshot.runToken && actual.floor === snapshot.floor &&
+      Number.isSafeInteger(snapshot.tick) &&
+      snapshot.tick >= actual.tick && snapshot.tick - actual.tick <= 16 &&
+      snapshot.worldWidth === actual.worldWidth &&
+      landingRun === snapshot.runToken && landingFloor === snapshot.floor;
+    const burstAge = elapsed - landingMoment;
+    const carriedX = witnessedDeck ? clamp(actual.x + actualDeck.x - actual.left,
+      actualDeck.x + actual.halfWidth, actualDeck.x + actualDeck.width - actual.halfWidth) : null;
+    const deckTop = witnessedDeck ? actualDeck.y + actualDeck.height : null;
+    landingHalo.visible = witnessedDeck && landingProgress < 1;
+    if (landingHalo.visible) {
+      const onDeck = pointFor(carriedX, deckTop, snapshot.chunkBaseY,
+        snapshot.worldWidth, 27.16);
+      landingHalo.position.set(onDeck.x, onDeck.y + .085, onDeck.z);
       landingHalo.scale.setScalar(options.reducedMotion ? .85 + landingWeight*.2
         : .55 + landingProgress*(1.15+landingWeight*.65));
       landingHalo.material.opacity=landingWeight*(options.reducedMotion ? .62
         : .78*(1-landingProgress)*(1-landingProgress));
     }
-    // A real contact has a physical ring and small stone/metal fragments
-    // traveling across the SAME observed walking surface. Cosmetic motion
-    // runs at presentation speed; event identity, platform and lifetime come
-    // exclusively from fixed-step source evidence, not an invented landing.
-    const actual = physicalTouchdown;
-    const burstAge = elapsed - landingMoment;
-    const hasDeck = !!actual && !options.stale &&
-      snapshot.lifecycle === 'running' && p.health > 0 &&
-      actual.runToken === snapshot.runToken && actual.floor === snapshot.floor &&
-      Number.isSafeInteger(snapshot.tick) &&
-      snapshot.tick >= actual.tick && snapshot.tick - actual.tick <= 16 &&
-      landingHalo.visible && burstAge >= 0 && burstAge < .65 &&
-      snapshot.platforms?.some(deck => deck.id === actual.platformId &&
-        [deck.x, deck.y, deck.width, deck.height].every(Number.isFinite) &&
-        Math.abs(deck.y + deck.height - actual.top) <= 2500);
+    // All three visible contact stages share the very same verified physical
+    // deck, even when it translates. Neither a dead/restarted run nor a stale
+    // source packet can retain a free-floating or counterfeit impact.
+    const hasDeck = landingHalo.visible && burstAge >= 0 && burstAge < .65;
     touchdownDebris.visible = hasDeck;
     touchdownDebris.count = 0;
     if (hasDeck) {
@@ -2655,13 +2672,13 @@ export function createTowerScene(canvas, settings = {}) {
       const progress = clamp(burstAge / .65, 0, 1);
       const travel = quiet ? .2 : .2 + .8 * progress;
       const spread = Math.min(14000, Math.max(1000,
-        (actual.right - actual.left - 2 * actual.halfWidth) * .28));
+        (actualDeck.width - 2 * actual.halfWidth) * .28));
       for (let i = 0; i < count; i++) {
         const theta = i * Math.PI * 2 / count;
-        const x = clamp(actual.x + Math.sin(theta) * spread * travel,
-          actual.left + 1000, actual.right - 1000);
+        const x = clamp(carriedX + Math.sin(theta) * spread * travel,
+          actualDeck.x + 1000, actualDeck.x + actualDeck.width - 1000);
         const radius = 25.6 + Math.cos(theta) * (quiet ? .22 : .24 + .46 * progress);
-        const at = pointFor(x, actual.top, snapshot.chunkBaseY, actual.worldWidth, radius);
+        const at = pointFor(x, deckTop, snapshot.chunkBaseY, actual.worldWidth, radius);
         const lift = quiet ? .12 : .09 + Math.sin(progress * Math.PI) *
           (.25 + actual.strength * .48);
         touchdownPose.position.set(at.x, at.y + lift, at.z);
@@ -3307,7 +3324,7 @@ export function createTowerScene(canvas, settings = {}) {
     canvas.removeEventListener('pointerup', pointerUp); canvas.removeEventListener('pointercancel', pointerUp); canvas.removeEventListener('wheel', wheel);
     releaseEnvironment();
     sun.shadow.dispose(); sun.shadow.map = null; sun.shadow.mapPass = null;
-    clearActors(); climber.dispose(); world.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose(); movingDeckSuspension.dispose(); guardianCircuit.dispose(); guardianShotStage.dispose(); guardianGuardStage.dispose(); atmosphere.dispose(); recoveryTransfer.dispose();
+    clearActors(); climber.dispose(); world.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose(); landingApproach.dispose(); movingDeckSuspension.dispose(); guardianCircuit.dispose(); guardianShotStage.dispose(); guardianGuardStage.dispose(); atmosphere.dispose(); recoveryTransfer.dispose();
     skyGeometry.dispose(); skyMaterial.dispose();
     for (const geometry of sharedGeometry) geometry.dispose();
     for (const material of sharedMaterials) material.dispose();
