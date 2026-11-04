@@ -2183,9 +2183,9 @@
       }
     },
     "evidence": {
-      "actualContinuousScenarioReel": "UNVERIFIED: completed natural Warden floor/restart authority previously, but no new-head synchronized desktop/mobile narrative audiovisual reel.",
-      "matchedBeforeAfter": "UNVERIFIED: no new-head matched moving Chromium BEFORE/AFTER or 3 independent blind critics.",
-      "mobileBeforeAfter": "UNVERIFIED: actual mobile WebGL candidate not yet captured/comparison scored.",
+      "actualContinuousScenarioReel": "UNVERIFIED: natural Warden, floor and restart confirmed previously by authority campaigns and browser tests, but no coherent contiguous five-stage desktop/mobile audio reel at new head.",
+      "matchedBeforeAfter": "UNVERIFIED: no controlled baseline-vs-5aa7c184 actual native-sculpt desktop/mobile moving A/B judgment.",
+      "mobileBeforeAfter": "UNVERIFIED: no actual 390px new-head motion/performance critic inspection.",
       "independentCriticPanel": {
         "status": "UNVERIFIED",
         "criticCount": 0,
@@ -2194,9 +2194,9 @@
         "playsMajority": false,
         "provenance": "No fresh independent critics available. Do not infer a blind preference from test results or real predecessor screenshots."
       },
-      "safetyChecks": "494f22a full catalogue 953/954, one newly introduced incorrect expectation, fixed in a2e561d alongside physical actor-only cutaway. Exact current source pending; no green safety claim.",
+      "safetyChecks": "Exact parent b84606c: AI Dungeon authority and all three actual Chromium browser shards passed in 41884012895; reproducible visual review 41884012109 passed; broad catalogue CI 41884013353 was CANCELLED, not a safety pass. New SHA 5aa7c184 new foundation/Chromium/catalogue/visual/replay/security results NOT VERIFIED at record time.",
       "matchedExternalReference": "NOT_RUN",
-      "originalAudioMotionClip": "UNVERIFIED full synchronized game soundtrack and video: real original WAV from earlier Warden browser test may exist; do not infer from separate audio and silent WebM.",
+      "originalAudioMotionClip": "UNVERIFIED: no five-stage synchronized original-audio capture matched to fixed M1 BEFORE and AFTER.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
       "audioLoudnessAndClipping": "NOT_MEASURED: browser records positive original peak/RMS and populated WAV only when genuine real-time AudioContext frames exist; no candidate measurements yet.",
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
@@ -2393,9 +2393,9 @@
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "True native adult-scaled bodies and convincing sword contact amid coherent Gothic architecture remain unaccepted. Real 1440x832 predecessor shows a head and blade rising over opaque wall while torso/boots remain hidden. Exact new-head physical ray clearance not yet captured.",
-    "currentWork": "One continuing M1 battlefield-combat scene candidate through 8fca839ad8d731fe5b45b0693a2aab8071022c03: actual Warden impact must be witnessed against its previous real warning; carved physical floor fractures persist, bounded stone chips rise/fall only after that strike, and original camera pulse remains on a genuine all-dodged shockwave. Browser motion/phone performance/critic judgment still UNVERIFIED; no new Gauntlet round.",
-    "candidateCommit": "a2e561d114db7b9ceccaa8eeb839152f0cde0755",
+    "biggestRemainingGap": "Original native figures are still far below Diablo IV / No Rest for the Wicked / Path of Exile 2 body and combat quality; the adult-contour candidate must be judged in actual desktop/mobile motion, particularly whether body, blade and boots remain concealed by foreground stone. Weapon-contact weight, credible anatomy and complete journey audio are unverified.",
+    "currentWork": "Live-source native 3D silhouette candidate 5aa7c184: once per loaded actor, sculpt the existing five CC0 skinned body/arm/leg geometries in their own bind space. Adult chest/waist, upper arm/forearm and thigh/calf contours remain texture-, UV-, skin-weight- and AnimationMixer-preserving; no extra meshes or simulation changes. Browser image and motion improvement not independently evaluated.",
+    "candidateCommit": "5aa7c1847d29934a5c15d55a8afe4f334603700d",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -5020,6 +5020,35 @@
         "biggestGap": "Original character silhouettes still cartoonish, with bulky heads and weak sword-to-body collision communication, even after repeated environment/presentation modules. New actor clearance must be confirmed on real footage.",
         "nextTask": "Inspect the exact new-head desktop/390px Chromium real skinned heroes, measure whether their chest, sword and boots are physically visible through foreground masonry without flattening rear Gothic arches; reject any motion/camera/CPU-raster regression. Then build substantially improved original native human-scale character anatomy and real weapon contact, while recording an organic Warden-to-restart desktop/mobile episode with original synchronized audio, matched baseline and 3 independent blind critics.",
         "statusVerdict": "IN PROGRESS — NOT TRANSFORMED"
+      },
+      {
+        "id": "M1-ORIGINAL-CONTINUOUS-NATIVE-SCULPT-20261104",
+        "date": "2026-11-04",
+        "milestoneId": "DUNGEON-TRANSFORMATION-01",
+        "status": "SOURCE_IMPLEMENTED; EXPERIENTIAL_RESULT_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "predecessorSha": "b84606cb940241406ba19a54858b327c404e2a74",
+        "codeSha": "5aa7c1847d29934a5c15d55a8afe4f334603700d",
+        "objective": "Transform the actual visible 3D hero/enemy anatomy of one coherent expedition using the five original texture-mapped, CC0 skinned GLB body/limb segments; do not reintroduce the rejected disconnected replacement figures.",
+        "sourceImplementation": [
+          "Source-continuous adult torso/chest-to-waist, biceps/forearm and thigh/calf shape prescriptions across six roles with bounded max horizontal displacement <=12.5% of local segment width; exact original seam endpoints and original UV/skin weights retained.",
+          "At GLB clone load, remould only actor-owned native SkinnedMesh geometry with fail-closed finite preflight; cached GLB master, original joint hierarchy, animation mixers, armor, gameplay and material maps are unmodified. Same draw call count, extra geometry clone memory bounded to 5 source segments/actor, disposed on actor retirement.",
+          "Exact runtime diagnostic counts sculpted original actors, meshes, raw modified vertices, and max source-unit displacement. Native real desktop/390px browser capture test now requires fitted skinned source and keeps detached cinematic replacement disabled.",
+          "True melee behavior, Warden warning/pressure, travel/loot/floor/defeat, original optional synthesized sound, deterministic replay and authority state are unchanged."
+        ],
+        "safety": "Module independently parsed in Code Mode and six-role pure sample vectors returned finite bounded positions; full Node foundation, GitHub Actions browser, catalogue security/replay and hardware frame-time checks at 5aa7c184 NOT YET VERIFIED. Parent b84606c three browser shards+authority pass; catalogue CI cancelled.",
+        "evidenceBefore": "https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
+        "genuineNegativeBefore": "Authentic inspected older Chromium captures showed floating helmet/sword above opaque foreground stone; original CC0 native proportions stylized and contact light; these are not a matched 5aa A/B.",
+        "evidenceAfter": "UNVERIFIED — new-head Chrome image/audio/3D motion unavailable for subjective assessment",
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "blindCritics": "0/3",
+        "matchedFullAdventureDesktopMobile": "UNVERIFIED",
+        "p95Mobile": "UNVERIFIED",
+        "biggestRemainingGap": "Even original re-profiled 3D skin may still look toy-like, and body occlusion and sword-to-body collision quality are unresolved; true synchronized motion compared to the baseline is required.",
+        "next": "Inspect exact 5aa7c184 real 1440×832 and 390×844 Chromium actor feet, body, sword movement, Warden contact, shadows and geometry seams. Reject/revert if torn skins, distorted knees, weak silhouette or performance regression. Then integrate further substantial native animation and combat contact with a contiguous real 5-stage desktop/mobile audio recording and 3 blinded critics.",
+        "verdict": "IN PROGRESS — NOT TRANSFORMED"
       }
     ]
   }
