@@ -208,11 +208,11 @@
       "elapsedMs": 158
     }
   ],
-  "visualVerdict": "New real-skinned contact source implementation not yet evaluated in moving actual desktop/mobile WebGL; last genuine predecessor still visually toy-like and blocked by stone.",
+  "visualVerdict": "Exact-source genuine raw WebGL desktop/mobile still hides Vanguard torso/legs behind Gothic block walls; mobile huge foreground pillar; flat stylized characters. Current short Chromium WebM has no audio, no confirmed sword contact, no complete journey; M1 NOT TRANSFORMED.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
   "candidateCommit": "ed190ff94a89255faed6073d48e495ed9babfbf1",
-  "metricsProvenance": "Historical headless campaign values retained, not rerun on this candidate. Source ed190ff 299/300 foundation (new 4/4 contact tests pass, one old import-regex mismatch corrected next commit); current exact browser/performance unknown.",
+  "metricsProvenance": "Local exact candidate source + corrected import check 300/300 Dungeon Foundation PASS. Real compiled 24x900 mirrored authority, 0 divergence, 174 floors, 4 natural restarts, deepest floor 10. This is not a perceptual win.",
   "transformation": {
     "milestone": "M1",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
@@ -220,7 +220,7 @@
     "candidateSha": "ed190ff94a89255faed6073d48e495ed9babfbf1",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
-    "exactHeadSafety": "Original ed190ff authority 299/300 (old import-symbol contract mismatched); corrected source integration test requires new native-body pose. Exact corrected head safety/browser/CI UNVERIFIED.",
+    "exactHeadSafety": "Local source Dungeon 300/300, 24x900 mirrored authority zero errors; original browser visual review pass, full GitHub corrected-head authority/catalogue still running at inspection.",
     "looks": "UNVERIFIED",
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
@@ -231,10 +231,12 @@
     },
     "fullDesktopMobileAudiovisualJourney": "UNVERIFIED",
     "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41879611471/artifacts/13348362663",
-    "exactHeadAction": "Inspect exact new head desktop/mobile gameplay, real wrist-to-sternum contact, weapon/body/stone clipping, reduced-motion and performance; reject if worse. Record complete 5-stage original-audio baseline A/B and obtain 3 independent masked critics.",
-    "biggestGap": "Believable humans, visible weapon-to-flesh contact and clear Gothic stage must be confirmed in genuine continuous after-head desktop/mobile gameplay; 5-stage audio and independent A/B missing.",
-    "nextTask": "Inspect exact new head desktop/mobile gameplay, real wrist-to-sternum contact, weapon/body/stone clipping, reduced-motion and performance; reject if worse. Record complete 5-stage original-audio baseline A/B and obtain 3 independent masked critics.",
-    "currentMilestoneLedger": "public/ai-dungeon/gauntlet-history.json"
+    "exactHeadAction": "Resolve full-body visual occlusion by opaque courtyard/facade near actual hero, integrate visible skinned contact and true boss motion, capture entire five-stage original audio across desktop/mobile with matched baseline and blind critic majority.",
+    "biggestGap": "Authentic current raw desktop/mobile show Vanguard body hidden behind high brown wall and mobile pillar; toy anatomy, weak credible weapon contact, 5-stage audiovisual/independent majority remain unverified.",
+    "nextTask": "Resolve full-body visual occlusion by opaque courtyard/facade near actual hero, integrate visible skinned contact and true boss motion, capture entire five-stage original audio across desktop/mobile with matched baseline and blind critic majority.",
+    "currentMilestoneLedger": "public/ai-dungeon/gauntlet-history.json",
+    "realAfterArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41903194224/artifacts/13358288876",
+    "realAfterObservation": "Exact-source genuine raw WebGL desktop/mobile still hides Vanguard torso/legs behind Gothic block walls; mobile huge foreground pillar; flat stylized characters. Current short Chromium WebM has no audio, no confirmed sword contact, no complete journey; M1 NOT TRANSFORMED."
   },
   "acceptanceStatus": "IN PROGRESS — NOT TRANSFORMED. LOOKS/FEELS/PLAYS UNVERIFIED; 0/3 critics; exact corrected-head browser, mobile p95 and full original-audio matched 5-stage run missing."
 }

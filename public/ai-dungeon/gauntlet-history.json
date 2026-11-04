@@ -2184,7 +2184,7 @@
     },
     "evidence": {
       "actualContinuousScenarioReel": "UNVERIFIED: natural Warden, floor and restart confirmed previously by authority campaigns and browser tests, but no coherent contiguous five-stage desktop/mobile audio reel at new head.",
-      "matchedBeforeAfter": "UNVERIFIED: no controlled matched 281735d BEFORE/ed190ff AFTER complete desktop/mobile audiovisual sequence.",
+      "matchedBeforeAfter": "UNVERIFIED: true baseline and candidate stills inspected, NOT identical seed/scene/camera or combat conditions; no blind preference.",
       "mobileBeforeAfter": "UNVERIFIED: no actual 390px new-head motion/performance critic inspection.",
       "independentCriticPanel": {
         "status": "UNVERIFIED",
@@ -2194,9 +2194,9 @@
         "playsMajority": false,
         "provenance": "No worker/critic session available, no masked verdicts."
       },
-      "safetyChecks": "ed190ff: 299/300 foundation, one stale exact import-symbol test; corrected next head. Exact corrected-head CI/replay/security and moving scene quality UNVERIFIED.",
+      "safetyChecks": "Local source ed190ff + 49f875 corrected import assertion: 300/300 Dungeon Foundation PASS. Compiled 24x900 mirrored game: 0 checksum divergence, 174 floor changes, 4 natural restarts, max floor 10. Actual corrected-head visual-review PASS; full GitHub authority/browser+CI results pending.",
       "matchedExternalReference": "NOT_RUN",
-      "originalAudioMotionClip": "UNVERIFIED: no five-stage synchronized original-audio capture matched to fixed M1 BEFORE and AFTER.",
+      "originalAudioMotionClip": "UNVERIFIED. Inspected raw world Chromium UI ~13s WebM has video-only stream.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
       "audioLoudnessAndClipping": "NOT_MEASURED: browser records positive original peak/RMS and populated WAV only when genuine real-time AudioContext frames exist; no candidate measurements yet.",
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
@@ -2208,7 +2208,7 @@
         "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41879611471/artifacts/13348362663",
         "observation": "Inspected real browser world-only 1440×832: oversize cartoon models and stone hide Vanguard torso/boots. Positive new-head visual result not proven."
       },
-      "newCandidateSceneReview": "4 Nov exact-source e2ae292 predecessor original desktop+phone Chromium [41836501700/artifacts/13327586616] INSPECTED: 1440x832 raw world hero partly obstructed from chest to feet behind brown cuboid stone, severely repetitive partitions and toy-like body geometry; phone mostly head visible behind stone. NEGATIVE; not matched visual improvement. New e58f0bb physical-camera director has no actual AFTER footage/critics.",
+      "newCandidateSceneReview": "https://github.com/my-edutu/Ai_games/actions/runs/41903194224/artifacts/13358288876 -- exact source real 1440x832 and 390x844 Chromium images+~13s video inspected; protagonist torso/boots covered by foreground blocks; no audio, Warden strike or matched A/B",
       "characterDrawBudget": "Previous exact 429e6b real Chromium had 265 cinematicMeshes at desktop versus <=240 test bound (shard1 failed). New 3aec189 fuses 4–5 head parts per figure and removes 1 gorget per figure but actual current head draw counts, performance and visual quality UNVERIFIED; do not infer from mesh arithmetic.",
       "externalReferenceAudit": "Compared qualitatively against 2023 Diablo IV Frozen Tunnel combat still (https://www.npr.org/2023/05/30/1178222988/diablo-iv-review-activision-blizzard), real No Rest for the Wicked 2026 cavern still (https://www.rpgsite.net/news/20518-no-rest-for-the-wicked-1-0-release-ps5-xbox-switch-2-cross-save-multiplayer-pc-october), and Path of Exile 2 Executioner combat still (https://www.mmorpg.com/reviews/path-of-exile-2-early-access-review-2000133606). Their negative space/material structure/impact clarity remain far ahead; they are references, NOT licensed or copied game assets. No direct synchronized/gameplay-balanced reference test or blind score.",
       "realBrowserFrameDeliveryPredecessor": "Actual d9e1c Chromium software WebGL shard 2 artifact 13238978845, artifacts/dungeon-raf-interval-evidence.json: foreground RAF intervals 15 samples, p50 733.3ms, p95 and worst 4549.9ms; other raster evidence sampled 8 frames, directRenderMs 3.9ms at 273136 pixels and downshift 2. Foreground RAF observations cannot establish standalone GPU render time or phone fps. Known scheduling / software runner risk, latest candidate performance UNVERIFIED.",
@@ -2393,8 +2393,8 @@
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Real native bodies, swords and Gothic fighting stage still appear toy-like/obscured in last genuine Chromium; new tracked-contact candidate has no measured desktop/mobile A/B yet.",
-    "currentWork": "Code ed190ff integrates one-cell genuine skinned wrist-to-sternum, anticipation, contact and recovery on the original existing 3D blade. Real new-head audiovisual quality not inspected.",
+    "biggestRemainingGap": "Authentic current raw desktop/mobile show Vanguard body hidden behind high brown wall and mobile pillar; toy anatomy, weak credible weapon contact, 5-stage audiovisual/independent majority remain unverified.",
+    "currentWork": "Tracked native sword-to-body motion source implemented and tested; current real 49f875 WebGL captures examined with negative actor/architecture occlusion finding.",
     "candidateCommit": "ed190ff94a89255faed6073d48e495ed9babfbf1",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
@@ -5077,7 +5077,16 @@
         "matchedAB": "UNVERIFIED",
         "mobileP95": "UNVERIFIED",
         "fullJourney": "UNVERIFIED",
-        "next": "Inspect authentic desktop/mobile source-head moving WebGL and audio (blade/clipping/stage/readability), reject regressions; build deeper entire encounter, capture true 5-stage sound-enabled expedition and blinded independent comparison."
+        "next": "Inspect authentic desktop/mobile source-head moving WebGL and audio (blade/clipping/stage/readability), reject regressions; build deeper entire encounter, capture true 5-stage sound-enabled expedition and blinded independent comparison.",
+        "actualAfter": {
+          "artifact": "https://github.com/my-edutu/Ai_games/actions/runs/41903194224/artifacts/13358288876",
+          "sourceSha": "49f875f885dda2eb55e46e6d475a7b029cff02af",
+          "desktop": "Genuine hero torso/feet still hidden behind blocks",
+          "mobile": "Genuine large foreground pillar and toy figures",
+          "video": "~13-second UI Playwright WebM; no original audio or boss",
+          "matchedBeforeAfter": false,
+          "verdict": "NEGATIVE VISUAL OBSERVATION; QUALITY UNVERIFIED"
+        }
       }
     ]
   }
