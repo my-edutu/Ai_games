@@ -69,7 +69,11 @@ export function createTowerAtmosphere(THREE) {
     const kinetics = observedTraversalKinetics(snapshot);
     const hierarchy = observedSceneHierarchy(snapshot);
     hierarchyKind = hierarchy.kind; hierarchyFocus = hierarchy.focus;
-    const guardianWarning = snapshot.enemies?.some(enemy => enemy.active && enemy.telegraph) === true;
+    const guardianWarning = (hierarchy.kind === 'guardian' || hierarchy.kind === 'crossfire') &&
+      snapshot.enemies?.some(enemy => enemy.active === true && enemy.telegraph === true &&
+        Number.isFinite(enemy.x) && Number.isFinite(enemy.y) &&
+        Math.abs(enemy.x - snapshot.player.x) <= 135000 &&
+        Math.abs(enemy.y - snapshot.player.y) <= 65000) === true;
     // A physically layered weather stream responds to witnessed health and
     // velocity instead of floating at a constant, game-independent tempo.
     // No new draw pass, random source, collider, HUD or fictional danger.
