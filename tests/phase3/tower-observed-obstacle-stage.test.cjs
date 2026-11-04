@@ -8,6 +8,8 @@ const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const root=path.resolve(__dirname,'../..');
 const temp=fs.mkdtempSync(path.join(os.tmpdir(),'tower-obstacle-stage-'));
+// Keep the shipping observer as an actual local ESM dependency for the copied world fixture.
+fs.copyFileSync(path.join(root, 'public/infinite-tower-climb/visuals/scene-hierarchy.mjs'), path.join(temp, 'scene-hierarchy.mjs'));
 after(()=>fs.rmSync(temp,{recursive:true,force:true}));
 const threeUrl=pathToFileURL(path.join(root,'node_modules/three/build/three.module.js')).href;
 const coordUrl=pathToFileURL(path.join(root,'public/infinite-tower-climb/visuals/coordinates.mjs')).href;
