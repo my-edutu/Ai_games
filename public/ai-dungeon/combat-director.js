@@ -1,6 +1,6 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
 import {combatCueDelay,MAX_PENDING_COMBAT_CUES} from '/dungeon/combat-cue-plan.js';
-import {canStageMeleeArc,planMeleeArcFrame,MELEE_ARC_DURATION} from '/dungeon/melee-arc-plan.js';
+import {canStageMeleeArc,planMeleeArcFrame,planBodyTrackedArcFrame,MELEE_ARC_DURATION} from '/dungeon/melee-arc-plan.js';
 import {isHealingCast,isDisarmCast} from '/dungeon/combat-intent-plan.js';
 import {planVisualContact} from '/dungeon/facing-plan.js';
 import {planCombatStage,stagePoint} from '/dungeon/combat-staging-plan.js';
@@ -73,31 +73,33 @@ function liveRangedOrigin(source,from,actorById){
 function stagedArcFrame(source,target,from,to,life,reducedMotion,actorById=null){
  const pose=planMeleeArcFrame(source,target,life,reducedMotion);
  if(!pose)return null;
- // Preserve the real adjacent-cell attack as the only legal source of an arc.
- // Small within-cell actor offsets move the *rendered* blade contact into the
- // visible body instead of leaving a ghost strike at an empty tile centre.
- const dx=target.x-source.x,dz=target.z-source.z;
- const travel=Math.max(0,Math.min(1,(pose.x-source.x)*dx+(pose.z-source.z)*dz));
  const liveFrom=liveActorCellPoint(source,from,actorById);
  const liveTo=liveActorCellPoint(target,to,actorById);
- pose.x+=(liveFrom.x-source.x)*(1-travel)+(liveTo.x-target.x)*travel;
- pose.z+=(liveFrom.z-source.z)*(1-travel)+(liveTo.z-target.z)*travel;
- // When a genuine skinned hand is close to the authorised cell, the first
- // half of the forged sweep travels with that wrist instead of hovering.
- const actor=typeof actorById==='function'&&source.id?actorById(source.id):null;
- const hand=actor?.rigHandBone;
- if(hand&&actor?.authored&&actor?.root?.visible){
-  hand.updateWorldMatrix(true,false);hand.getWorldPosition(handPosition);
-  if(Number.isFinite(handPosition.y)&&Math.hypot(handPosition.x-(from.x-9),handPosition.z-(from.z-9))<.9){
-   const progress=Math.min(1,Math.max(0,life/MELEE_ARC_DURATION));
-   const mix=progress<.65?.62:.62*Math.max(0,(1-progress)/.35);
-   pose.skinnedHand=true;
-   pose.x+=(handPosition.x+9-pose.x)*mix;
-   pose.z+=(handPosition.z+9-pose.z)*mix;
-   pose.y+=Math.max(-.45,Math.min(.45,handPosition.y-pose.y))*mix;
-  }
+ const attacker=typeof actorById==='function'?actorById(source.id):null;
+ const defender=typeof actorById==='function'?actorById(target.id):null;
+ let hand=null,chest=null;
+ // Local skinned samples are allowed only if the real GLB has remained in
+ // its unchanged authoritative source/target cell. Never connect a stale
+ // attacker to another floor, a restored ghost, or a distant victim.
+ if(attacker?.authored&&attacker.u?.id===source.id&&attacker.u.hp>0&&
+    attacker.root?.visible&&attacker.rigHandBone){
+  const bone=attacker.rigHandBone;
+  bone.updateWorldMatrix(true,false);bone.getWorldPosition(handPosition);
+  if(Number.isFinite(handPosition.y)&&handPosition.y>=.34&&handPosition.y<=2.8&&
+     Math.hypot(handPosition.x-(source.x-9),handPosition.z-(source.z-9))<=.84)
+   hand={x:handPosition.x+9,y:handPosition.y,z:handPosition.z+9};
  }
- return pose;
+ const spine=defender?.rigMeleeBones?.find(b=>b.part==='spine')?.bone;
+ if(defender?.authored&&defender.u?.id===target.id&&defender.u.hp>0&&
+    defender.root?.visible&&spine){
+  spine.updateWorldMatrix(true,false);spine.getWorldPosition(chestPosition);
+  if(Number.isFinite(chestPosition.y)&&chestPosition.y>=.34&&chestPosition.y<=3.1&&
+     Math.hypot(chestPosition.x-(target.x-9),chestPosition.z-(target.z-9))<=.72)
+   chest={x:chestPosition.x+9,y:chestPosition.y,z:chestPosition.z+9};
+ }
+ return planBodyTrackedArcFrame(source,target,life,reducedMotion,{
+  from:liveFrom,to:liveTo,hand,chest
+ })??pose;
 }
 function material(hex,opacity=.95){
  return new THREE.MeshBasicMaterial({color:hex,transparent:true,opacity,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending});
@@ -125,7 +127,7 @@ function poseDamageShards(effect){
 export function createCombatDirector(scene,{reducedMotion=false,actorById=null}={}){
  const projectiles=[],impacts=[],pendingCues=[],previous=new Map();let floorKey='',shots=0,bursts=0,releasedCues=0,droppedCues=0,healingCues=0,disarmCues=0,contactLockedCues=0,suppressedUnmatchedCues=0,meleeArcs=0;
  let stagePositions=Object.create(null),trueDamageCues=0,suppressedDamageCues=0,trueEvadeCues=0;
- let skinnedArcFrames=0,skinnedHitAnchors=0;
+ let skinnedArcFrames=0,skinnedChestArcFrames=0,skinnedHitAnchors=0;
  const cleanup=e=>{scene.remove(e.mesh);e.mesh.material.dispose()};
  function ensureBound(){
   while(projectiles.length>PROJECTILE_LIMIT)cleanup(projectiles.shift());
@@ -330,6 +332,7 @@ export function createCombatDirector(scene,{reducedMotion=false,actorById=null}=
     const frame=stagedArcFrame(effect.source,effect.target,effect.from,effect.to,effect.life,reducedMotion,actorById);
     if(frame){
      if(frame.skinnedHand)skinnedArcFrames=Math.min(1000000,skinnedArcFrames+1);
+      if(frame.skinnedChest)skinnedChestArcFrames=Math.min(1000000,skinnedChestArcFrames+1);
      effect.mesh.position.copy(V3(frame.x,frame.y,frame.z));
      effect.mesh.rotation.set(0,frame.yaw,frame.roll);
      effect.mesh.scale.setScalar(frame.scale*(effect.kind==='warden'?1.2:1));
@@ -348,5 +351,5 @@ export function createCombatDirector(scene,{reducedMotion=false,actorById=null}=
   for(const p of projectiles)cleanup(p);for(const p of impacts)cleanup(p);
   projectiles.length=impacts.length=pendingCues.length=0;previous.clear();stagePositions=Object.create(null);
  }
- return{accept,recordDamage,recordEvasions,animate,reset,stats:()=>({trueEvadeCues,activeEvadeDust:impacts.filter(e=>e.mode==='evade-dust').length,trueDamageCues,suppressedDamageCues,activeProjectiles:projectiles.length,activeImpacts:impacts.length,pendingCues:pendingCues.length,healingCues:healingCues,disarmCues:disarmCues,contactLockedCues:contactLockedCues,suppressedUnmatchedCues:suppressedUnmatchedCues,releasedCues:releasedCues,droppedCues:droppedCues,activeGroundRings:impacts.filter(e=>e.mode==='ring').length,activeHitFlashes:impacts.filter(e=>e.mode==='spark').length,activePhysicalDamageFans:impacts.filter(e=>e.mode==='true-shards').length,activePhysicalDamageChips:impacts.filter(e=>e.mode==='true-shards').reduce((n,e)=>n+e.shards.length,0),activeMeleeArcs:impacts.filter(e=>e.mode==='slash').length,totalMeleeArcs:meleeArcs,skinnedArcFrames,skinnedHitAnchors,totalShots:shots,totalBursts:bursts}),dispose(){reset();for(const geometry of Object.values(shared))geometry.dispose()}};
+ return{accept,recordDamage,recordEvasions,animate,reset,stats:()=>({trueEvadeCues,activeEvadeDust:impacts.filter(e=>e.mode==='evade-dust').length,trueDamageCues,suppressedDamageCues,activeProjectiles:projectiles.length,activeImpacts:impacts.length,pendingCues:pendingCues.length,healingCues:healingCues,disarmCues:disarmCues,contactLockedCues:contactLockedCues,suppressedUnmatchedCues:suppressedUnmatchedCues,releasedCues:releasedCues,droppedCues:droppedCues,activeGroundRings:impacts.filter(e=>e.mode==='ring').length,activeHitFlashes:impacts.filter(e=>e.mode==='spark').length,activePhysicalDamageFans:impacts.filter(e=>e.mode==='true-shards').length,activePhysicalDamageChips:impacts.filter(e=>e.mode==='true-shards').reduce((n,e)=>n+e.shards.length,0),activeMeleeArcs:impacts.filter(e=>e.mode==='slash').length,totalMeleeArcs:meleeArcs,skinnedArcFrames,skinnedChestArcFrames,skinnedHitAnchors,totalShots:shots,totalBursts:bursts}),dispose(){reset();for(const geometry of Object.values(shared))geometry.dispose()}};
 }
