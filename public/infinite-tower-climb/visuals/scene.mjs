@@ -339,21 +339,40 @@ function refineTowerActorSafeFrame(camera, gaze, actor, dt,
 // move the exterior camera through the solid tower. Roll back if the actual
 // projection fails to improve or an already-visible subject is cropped.
 function correctTowerPortraitFocus(camera,gaze,actor,guardian,landing,dt,
-    actorProjection,guardianProjection,landingProjection,oldGaze) {
+    actorProjection,guardianProjection,landingProjection,oldGaze,
+    actorHalfHeight=0,guardianHalfHeight=0) {
   if(!camera||!gaze||!actor||!actorProjection||!guardianProjection||
      !landingProjection||!oldGaze||!camera.position||!camera.matrixWorld||
      !Number.isFinite(camera.aspect)||camera.aspect<=0||camera.aspect>=.85||
      !Number.isFinite(camera.fov)||camera.fov<=0||camera.fov>=150||
      !Number.isFinite(dt)||dt<=0) return 0;
+  // A center point can fit on a phone while the real skinned climber's
+  // head and boots are both cropped. Include observed body half-height in
+  // the already-authoritative stage camera's framing contract. Conservative
+  // perspective bounds include camera pitch and never change gameplay state.
+  const bodySpan=(point,projected,halfHeight)=>{
+    if(!Number.isFinite(halfHeight)||halfHeight<=0)return 0;
+    const m=camera.matrixWorld.elements;
+    const dx=point.x-camera.position.x,dy=point.y-camera.position.y,
+      dz=point.z-camera.position.z;
+    const depth=-(dx*m[8]+dy*m[9]+dz*m[10]);
+    const tangent=Math.tan(camera.fov*Math.PI/360);
+    const nearDepth=depth-Math.abs(m[9]*halfHeight);
+    if(!Number.isFinite(nearDepth)||nearDepth<=1||tangent<=0)return Infinity;
+    return halfHeight*(Math.abs(m[5])+
+      Math.abs(projected.y)*tangent*Math.abs(m[9]))/(nearDepth*tangent);
+  };
   camera.lookAt(gaze);camera.updateMatrixWorld(true);
   actorProjection.copy(actor).project(camera);
   const {x,y,z}=actorProjection;
   if(!Number.isFinite(x)||!Number.isFinite(y)||!Number.isFinite(z)||
      Math.abs(x)>=1||Math.abs(y)>=1||z<=-1||z>=1||
      !towerCoreSightlineClear(camera.position,actor,23.5))return 0;
-  const before=Math.max(Math.abs(x)/.78,Math.abs(y)/.78);
+  const beforeSpan=bodySpan(actor,actorProjection,actorHalfHeight);
+  if(!Number.isFinite(beforeSpan))return 0;
+  const before=Math.max(Math.abs(x)/.78,(Math.abs(y)+beforeSpan)/.78);
   if(before<=1.015)return 0;
-  let protectGuardian=false,protectLanding=false;
+  let protectGuardian=false,protectLanding=false,guardianBeforePressure=0;
   if(guardian&&Number.isFinite(guardian.x)&&Number.isFinite(guardian.y)&&
      Number.isFinite(guardian.z)&&towerCoreSightlineClear(camera.position,guardian,23.5)){
     guardianProjection.copy(guardian).project(camera);
@@ -361,6 +380,13 @@ function correctTowerPortraitFocus(camera,gaze,actor,guardian,landing,dt,
       Number.isFinite(guardianProjection.y)&&Number.isFinite(guardianProjection.z)&&
       Math.abs(guardianProjection.x)<=.82&&Math.abs(guardianProjection.y)<=.80&&
       guardianProjection.z>=-1&&guardianProjection.z<=1;
+    if(protectGuardian){
+      const guardianSpan=bodySpan(guardian,guardianProjection,guardianHalfHeight);
+      if(!Number.isFinite(guardianSpan))return 0;
+      guardianBeforePressure=Math.max(
+        Math.abs(guardianProjection.x)/.82,
+        (Math.abs(guardianProjection.y)+guardianSpan)/.80);
+    }
   }
   if(landing&&Number.isFinite(landing.x)&&Number.isFinite(landing.y)&&
      Number.isFinite(landing.z)&&towerCoreSightlineClear(camera.position,landing,23.5)){
@@ -377,7 +403,12 @@ function correctTowerPortraitFocus(camera,gaze,actor,guardian,landing,dt,
   if(!Number.isFinite(span)||span<=0||depth<=1)return 0;
   const speed=Math.max(.35,Math.min(1,dt*22));
   const horizontal=Math.sign(x)*Math.max(0,Math.abs(x)-.68);
-  const vertical=Math.sign(y)*Math.max(0,Math.abs(y)-.70);
+  // Pan toward the genuinely clipped head OR boots, not merely the torso.
+  // A too-tall body cannot be rescued by inventing a zoom/camera cut; the
+  // before/after bound below rejects pan attempts that crop its opposite end.
+  const headOverflow=Math.max(0,y+beforeSpan-.70);
+  const bootOverflow=Math.max(0,-.70-y+beforeSpan);
+  const vertical=headOverflow>=bootOverflow?headOverflow:-bootOverflow;
   const sx=Math.max(-1.3,Math.min(1.3,horizontal*span*camera.aspect*speed));
   const sy=Math.max(-.9,Math.min(.9,vertical*span*speed));
   if(Math.abs(sx)+Math.abs(sy)<.001)return 0;
@@ -387,7 +418,9 @@ function correctTowerPortraitFocus(camera,gaze,actor,guardian,landing,dt,
   gaze.z+=m[2]*sx+m[6]*sy;
   camera.lookAt(gaze);camera.updateMatrixWorld(true);
   actorProjection.copy(actor).project(camera);
-  const after=Math.max(Math.abs(actorProjection.x)/.78,Math.abs(actorProjection.y)/.78);
+  const afterSpan=bodySpan(actor,actorProjection,actorHalfHeight);
+  const after=Math.max(Math.abs(actorProjection.x)/.78,
+    (Math.abs(actorProjection.y)+afterSpan)/.78);
   let good=Number.isFinite(after)&&after+.012<before&&
     Number.isFinite(actorProjection.z)&&
     Math.abs(actorProjection.x)<.96&&Math.abs(actorProjection.y)<.96&&
@@ -399,6 +432,11 @@ function correctTowerPortraitFocus(camera,gaze,actor,guardian,landing,dt,
       Number.isFinite(guardianProjection.z)&&
       Math.abs(guardianProjection.x)<=.82&&Math.abs(guardianProjection.y)<=.80&&
       guardianProjection.z>=-1&&guardianProjection.z<=1&&
+      Number.isFinite(guardianBeforePressure)&&
+      Math.max(Math.abs(guardianProjection.x)/.82,
+        (Math.abs(guardianProjection.y)+
+          bodySpan(guardian,guardianProjection,guardianHalfHeight))/.80)
+        <=Math.max(1,guardianBeforePressure)+.005&&
       towerCoreSightlineClear(camera.position,guardian,23.5);
   }
   if(good&&protectLanding){
@@ -3040,7 +3078,9 @@ export function createTowerScene(canvas, settings = {}) {
         protectGuardian?guardianRescuePoint:null,
         protectLanding?portraitAimLanding:null,dt,actorSafeProjection,
         portraitAimGuardianProjection,portraitAimLandingProjection,
-        portraitAimPreviousFocus);
+        portraitAimPreviousFocus,p.halfHeight/SCALE,
+        protectGuardian&&Number.isFinite(sourceGuardian.halfHeight)?
+          sourceGuardian.halfHeight/SCALE:0);
       if(portraitAimLastGain>0)portraitAimCorrections=Math.min(1000000,
         portraitAimCorrections+1);
     }
