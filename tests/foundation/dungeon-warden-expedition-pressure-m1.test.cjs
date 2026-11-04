@@ -63,6 +63,11 @@ test('natural deeper-floor attrition preserves earned respite without instant fu
  const ranger=s.units.find(u=>u.id==='ranger');
  s.floor=4;ranger.hp=35;
  for(const foe of s.units.filter(u=>u.faction==='enemy'))foe.hp=0;
+ // The party has actually assembled at the cleared portal; a support hero
+ // abandoned alone would correctly escort the distant leader instead.
+ const vanguard=s.units.find(u=>u.id==='vanguard');
+ Object.assign(vanguard,{x:s.exit.x+1,z:s.exit.z});
+ assert.equal(s.map[vanguard.z][vanguard.x],'.');
  Object.assign(ranger,s.exit);
  const mirror=DungeonRuntime.restore(game.save()),next=game.step();
  assert.equal(next.checksum,mirror.step().checksum);
