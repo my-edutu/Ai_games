@@ -5,7 +5,40 @@
  * exposing actual authored hero/enemy silhouettes and floor storytelling.
  * Returns one of three stable bands, never collision, AI or visibility truth.
  */
-export function planPartyWallReveal(x,z,subjects,camera,pad=2.1){
+
+/**
+ * Real camera-to-anatomy occlusion, evaluated against the 3D stone envelope.
+ * The former 2D foreground wedge misses obstructing walls in low cinematic
+ * shots even when the feet and torso are hidden. This bounded, visual-only
+ * test never changes the collision map, legal targets, AI, or replay state.
+ */
+export function planCameraBodyOcclusion(x,z,subjects,camera,wallHeight=2.6){
+ if(![x,z,camera?.x,camera?.y,camera?.z,wallHeight].every(Number.isFinite)||
+   camera.y<.5||camera.y>30||wallHeight<.15||wallHeight>4.5)return false;
+ const slab=(origin,delta,min,max,range)=>{
+  if(Math.abs(delta)<1e-7)return origin<min||origin>max?null:range;
+  const a=(min-origin)/delta,b=(max-origin)/delta;
+  const next=[Math.max(range[0],Math.min(a,b)),Math.min(range[1],Math.max(a,b))];
+  return next[0]<=next[1]?next:null;
+ };
+ for(const subject of Array.isArray(subjects)?subjects.slice(0,5):[]){
+  if(!(subject?.silhouetteRecess===true||subject?.combatRecess===true)||
+    !Number.isFinite(subject.x)||!Number.isFinite(subject.z))continue;
+  const dx=subject.x-camera.x,dz=subject.z-camera.z,length=Math.hypot(dx,dz);
+  // Preserve complete far nave and rear stone: only a genuine foreground
+  // intersection within an adult body-sized staging corridor is eligible.
+  if(length<.8||length>30||Math.hypot(x-subject.x,z-subject.z)>4.8)continue;
+  let span=slab(camera.x,dx,x-.54,x+.54,[.025,.975]);
+  if(!span)continue;
+  span=slab(camera.z,dz,z-.54,z+.54,span);
+  if(!span)continue;
+  for(const y of [.30,.98,1.63])
+   if(slab(camera.y,y-camera.y,.02,wallHeight,span))return true;
+ }
+ return false;
+}
+
+export function planPartyWallReveal(x,z,subjects,camera,pad=2.1,wallHeight=2.6){
  if(!Number.isFinite(x)||!Number.isFinite(z)||!Number.isFinite(camera?.x)||!Number.isFinite(camera?.z))return 'none';
  const eyes=Array.isArray(subjects)?subjects.slice(0,5):[];
  const width=Number.isFinite(pad)?Math.min(3.2,Math.max(.4,pad)):2.1;
@@ -29,6 +62,8 @@ export function planPartyWallReveal(x,z,subjects,camera,pad=2.1){
   if(distance<.001)continue;
   const progress=(dx*vx+dz*vz)/distance;
   const sideways=Math.abs(dx*vz-dz*vx)/distance;
+  // Physically obstructing stone must be cleared even beyond the flat 2D wedge.
+  if(planCameraBodyOcclusion(x,z,[subject],camera,wallHeight))return 'sightline';
   if(subject.silhouetteRecess===true||subject.combatRecess===true){
    const combat=subject.combatRecess===true;
    // Real Chromium 53fc069: a Vanguard's chest, guard and sword were still
