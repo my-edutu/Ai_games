@@ -17,7 +17,7 @@ test('a real chest/boot obstruction earns an alternate physical orbit, not a cos
  assert.ok(result.occlusion.blockedAfter<result.occlusion.blockedBefore);
  assert.ok(result.occlusion.after-result.occlusion.baseline>2.3);
  assert.ok(result.occlusion.fullyVisibleAfter>=result.occlusion.fullyVisibleBefore);
- assert.ok(result.occlusion.candidates<=6);
+ assert.ok(result.occlusion.candidates<=9);
  assert.ok(Math.hypot(result.position.x,result.position.z)<9);
  assert.deepEqual(s,snap());assert.deepEqual(b,base());
  // The same tick and camera target reuse the physical shot without evaluating
@@ -71,6 +71,8 @@ test('camera truly casts through both native shoulders instead of the narrow cen
  const src=fs.readFileSync(source,'utf8');
  assert.ok(src.includes('blockedByStone(cam,point,point.y,grid,size,eyes,reveal,pad)'));
  assert.ok(!src.includes('blockedByStone(cam,p,point.y,grid,size,eyes,reveal,pad)'));
+ assert.match(src,/const RESCUE_SHOTS=Object\.freeze/);
+ assert.match(src,/const MAX_CANDIDATES=ANGLES\.length\+RESCUE_SHOTS\.length/);
  const {createPhysicalCameraDirector}=await load();
  const snapshot=snap(),camera={look:{x:0,z:0},position:{x:1.1,y:3.6,z:7}};
  const walls={subjects:[{x:0,z:0,silhouetteRecess:true}],wallPositions:[[1,3]],wallHeights:[3.2],

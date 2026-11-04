@@ -12,7 +12,7 @@ test('the live camera opens a bounded waist-high pocket beside living heroes wit
  const subjects=[{x:0,z:0}],camera={x:6,z:0};
  assert.equal(planPartyWallReveal(3,0,subjects,camera),'sightline','camera-to-hero ray must still fully clear');
  assert.equal(planPartyWallReveal(0,2.4,subjects,camera),'nearby','side wall near a hero is low, not an opaque roof');
- assert.equal(planPartyWallReveal(-1.2,-1.2,subjects,camera),'nearby','other side of party receives equal clear room composition');
+ assert.equal(planPartyWallReveal(-1.2,-1.2,subjects,camera),'none','Gothic rear backdrop remains tall beyond the body clearance');
  assert.equal(planPartyWallReveal(0,3.5,subjects,camera),'none','distant room boundaries retain full height');
  assert.equal(planPartyWallReveal(-6,5,subjects,camera),'none','no global map transparency');
 });
@@ -154,9 +154,9 @@ test('physical character-scale stage respects genuine travel and live melee cont
  const hero=Object.freeze({x:0,z:0,silhouetteRecess:true});
  const combat=Object.freeze({x:0,z:0,silhouetteRecess:true,combatRecess:true});
  const camera=Object.freeze({x:6,z:0});
- assert.equal(planPartyWallReveal(-2.3,1.2,[hero],camera),'nearby');
- assert.equal(planPartyWallReveal(-2.3,1.2,[combat],camera),'nearby',
-  'the rear Gothic arcade stays visible as dressed low ruins, not a flat empty hole');
+ assert.equal(planPartyWallReveal(-2.3,1.2,[hero],camera),'none');
+ assert.equal(planPartyWallReveal(-2.3,1.2,[combat],camera),'none',
+  'rear Gothic arcade retains full adult architectural height');
  assert.equal(planPartyWallReveal(-2.8,1.8,[combat],camera),'none');
  assert.equal(planPartyWallReveal(0,3.6,[combat],camera),'none');
  assert.equal(planPartyWallReveal(0,2.8,[hero],camera),'none');
@@ -175,9 +175,9 @@ test('an actual combat stage clears frontal weapon contact while retaining archi
  const front={x:2.1,z:.4},rear={x:-2.1,z:.4};
  assert.equal(planPartyWallReveal(front.x,front.z,[subject],right),'sightline',
   'foreground Warden contact needs a clear physical camera-side acting space');
- assert.equal(planPartyWallReveal(rear.x,rear.z,[subject],right),'nearby',
-  'rear Gothic masonry must NOT be flattened into the same foundation tier');
- assert.equal(planPartyWallReveal(front.x,front.z,[subject],left),'nearby',
+ assert.equal(planPartyWallReveal(rear.x,rear.z,[subject],right),'none',
+  'rear Gothic masonry remains full-height, not a waist-high miniature wall');
+ assert.equal(planPartyWallReveal(front.x,front.z,[subject],left),'none',
   'moving the REAL camera reverses which half of the cathedral remains intact');
  assert.equal(planPartyWallReveal(rear.x,rear.z,[subject],left),'sightline');
  assert.equal(planPartyWallReveal(-5,.4,[subject],right),'none',
@@ -203,8 +203,8 @@ test('native full-body scene clears the actual near-side Gothic face but keeps t
   'an adjacent corner fascia must give the animated sword an acting pocket');
  assert.equal(planPartyWallReveal(-.85,.45,[wardenDuel],camera),'sightline',
   'the genuine Warden counter gets more full-body clearance');
- assert.equal(planPartyWallReveal(-1,0,[hero],camera),'nearby',
-  'the full rear wall core stays a visibly dressed Gothic ruin');
+ assert.equal(planPartyWallReveal(-1,0,[hero],camera),'none',
+  'rear wall core stays a full-height Gothic backdrop after the immediate shoulder clearance');
  assert.equal(planPartyWallReveal(-2.9,.3,[wardenDuel],camera),'none',
   'do not erase the rear cathedral to flatter one hero');
  assert.equal(planPartyWallReveal(0,3.7,[wardenDuel],camera),'none',
@@ -324,4 +324,16 @@ test('only real living, visible Three.js actor roots can request travel-time bod
  assert.equal(resolveRenderedSilhouetteSubjects(state,pts,actors)[0].visibleActor,undefined);
  assert.deepEqual(state.units[0],{id:'v',x:9,z:9,hp:75});
  assert.equal(pts[0].visibleActor,undefined);
+});
+
+test('the real 3D actor uses a foreground pocket but preserves its full cathedral rear wall',async()=>{
+ const {planPartyWallReveal,planCameraBodyOcclusion}=await load();
+ const subject=Object.freeze({x:0,z:0,silhouetteRecess:true,visibleActor:true});
+ const cam=Object.freeze({x:7,y:2.2,z:0});
+ assert.equal(planPartyWallReveal(-2.2,0,[subject],cam,2.1,2.6),'none');
+ assert.equal(planPartyWallReveal(-.52,0,[subject],cam,2.1,2.6),'sightline');
+ assert.equal(planCameraBodyOcclusion(4.5,0,[subject],cam,2.6),true);
+ assert.equal(planPartyWallReveal(4.5,0,[subject],cam,2.1,2.6),'sightline');
+ assert.equal(planPartyWallReveal(4.5,0,[subject],{...cam,y:12},2.1,2.6),'none');
+ assert.deepEqual(subject,{x:0,z:0,silhouetteRecess:true,visibleActor:true});
 });

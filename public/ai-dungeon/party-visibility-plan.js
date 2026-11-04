@@ -68,7 +68,6 @@ export function planPartyWallReveal(x,z,subjects,camera,pad=2.1,wallHeight=2.6){
   if(!Number.isFinite(subject?.x)||!Number.isFinite(subject?.z))continue;
   const dx=x-subject.x,dz=z-subject.z;
   const radial=dx*dx+dz*dz;
-  if(radial<=nearRadius*nearRadius)nearby=true;
   // The live actor is the subject, NOT the centre of a transparent
   // circular arena. Judge masonry in camera space: front and side pieces
   // can cut across real boots and weapon contact, while BACK walls must
@@ -80,6 +79,12 @@ export function planPartyWallReveal(x,z,subjects,camera,pad=2.1,wallHeight=2.6){
   if(distance<.001)continue;
   const progress=(dx*vx+dz*vz)/distance;
   const sideways=Math.abs(dx*vz-dz*vx)/distance;
+  // The rear wall is a backdrop, not a screen-space obstacle. The old
+  // omnidirectional 'nearby' band collapsed the entire Gothic nave behind
+  // every living fighter to a 43cm stump. Keep full-size rear architecture,
+  // except for the immediate 80cm shoulder/weapon clearance adjoining a
+  // real body; camera-facing stone still recedes through the physical ray.
+  if(radial<=nearRadius*nearRadius&&progress>=-.80)nearby=true;
   // Physically obstructing stone must be cleared even beyond the flat 2D wedge.
   // True native anatomy remains protected during travel, not only while a
   // combat/hero-close-up flag happens to be active. The camera-height ray

@@ -14,6 +14,16 @@
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const finite=n=>typeof n==='number'&&Number.isFinite(n);
 const ANGLES=Object.freeze([0,-.40,.40,-.76,.76]);
+// Escalating, bounded high-oblique rescues keep the real fighter in frame
+// while retaining the restored rear vault. Use the same physical wall and
+// anatomical ray score; never introduce an extra WebGL render pass.
+const RESCUE_SHOTS=Object.freeze([
+ {angle:0,lift:1.15,reach:1},
+ {angle:-.48,lift:2.0,reach:1.06},
+ {angle:.48,lift:2.0,reach:1.06},
+ {angle:0,lift:2.65,reach:1.1}
+]);
+const MAX_CANDIDATES=ANGLES.length+RESCUE_SHOTS.length;
 // Body width matters: a visible helmet does not prove visible weapon arms.
 const BODY_SAMPLES=Object.freeze([{y:1.63,weight:2.7,side:0},
  {y:1.17,weight:1.35,side:-.26},{y:1.17,weight:1.35,side:.26},
@@ -81,10 +91,12 @@ function blockedByStone(cam,subject,y,grid,size,eyes,reveal,pad){
 function orbit(base,index,size){
  const center=base.look,cam=base.position,dx=cam.x-center.x,dz=cam.z-center.z;
  const limit=(size-1)/2-.65;
- if(index===ANGLES.length)return {x:cam.x,y:clamp(cam.y+1.15,3,28),z:cam.z};
- const angle=ANGLES[index]??0,cos=Math.cos(angle),sin=Math.sin(angle);
- return {x:clamp(center.x+dx*cos-dz*sin,-limit,limit),y:cam.y,
-  z:clamp(center.z+dx*sin+dz*cos,-limit,limit)};
+ const rescue=RESCUE_SHOTS[index-ANGLES.length];
+ const angle=rescue?.angle??ANGLES[index]??0,cos=Math.cos(angle),sin=Math.sin(angle);
+ const reach=rescue?.reach??1;
+ return {x:clamp(center.x+(dx*cos-dz*sin)*reach,-limit,limit),
+  y:rescue?clamp(cam.y+rescue.lift,3,28):cam.y,
+  z:clamp(center.z+(dx*sin+dz*cos)*reach,-limit,limit)};
 }
 
 function grade(cam,look,eyes,grid,size,viewport,reveal,pad){
@@ -139,10 +151,14 @@ export function createPhysicalCameraDirector(){
   const candidates=[];
   // Preserve original composer distance and lens. Only bounded real orbit
   // choices compete, and one raised shot is available for a dense foreground.
-  for(let i=0;i<ANGLES.length+1;i++){
-   const angle=ANGLES[i]??0,camera=orbit(base,i,size);
+  for(let i=0;i<MAX_CANDIDATES;i++){
+   const rescue=RESCUE_SHOTS[i-ANGLES.length];
+   const angle=rescue?.angle??ANGLES[i]??0,camera=orbit(base,i,size);
    const result=grade(camera,look,eyes,grid,size,viewport,reveal,wallPad);
-   const penalty=(i===ANGLES.length?1.0:Math.abs(angle)*1.15);
+   // An elevated shot pays a real compositional cost: use it only when
+   // more of the actual skinned bodies become visible without new cropping.
+   const penalty=rescue?.lift!==undefined?
+    .70+Math.abs(angle)*.75+(rescue.lift-1.15)*.30:Math.abs(angle)*1.15;
    candidates.push({index:i,camera,...result,value:result.score-penalty});
   }
   checks++;
