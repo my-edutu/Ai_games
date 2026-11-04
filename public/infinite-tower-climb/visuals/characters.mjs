@@ -343,7 +343,10 @@ export function createClimber() {
     const airborne=state.state==='airborne',dash=state.state==='dashing',hurt=state.state==='hurt';
     // Intent, not visual randomness, drives this bounded defensive silhouette.
     const bracing=state.intentMode==='bracing-telegraph';
-    const defending=bracing||['evading-projectile','evading-hazard','evading-telegraph'].includes(state.intentMode);
+    // The actual autonomous guardian-shield choice has its own recognizable
+    // guarded footwork silhouette. This is NOT a scripted parry or second AI.
+    const shieldSpacing=state.intentMode==='bracing-guardian-shield';
+    const defending=bracing||shieldSpacing||['evading-projectile','evading-hazard','evading-telegraph'].includes(state.intentMode);
     const attacking=Boolean(state.attacking)&&!dead&&!hurt;
     // World-facing traversal, never follow-camera framing, owns boot stance.
     // Camera azimuth may expose the reaching hand but cannot swap the physical
@@ -459,6 +462,20 @@ export function createClimber() {
           legs[i].lower.rotation.x=bracing?.72:.6;
           arms[i].upper.rotation.set(bracing?-1.38:-1.18,0,(i?1:-1)*.44);
           arms[i].lower.rotation.x=-.82;
+        }
+        if(shieldSpacing){
+          // Counterbalance a REAL safe retreat with planted, low knees, a
+          // guarded visor and open forearms. Reduced-motion keeps this static
+          // silhouette; there is no fabricated shield clash or flashing HUD.
+          body.position.y-=.055;
+          body.rotation.x=-.10;
+          head.rotation.x=.25;
+          for(let i=0;i<2;i++){
+            legs[i].upper.rotation.x=-.47;
+            legs[i].lower.rotation.x=.73;
+            arms[i].upper.rotation.set(-.96,0,(i?1:-1)*.62);
+            arms[i].lower.rotation.x=-1.02;
+          }
         }
       }
     }
