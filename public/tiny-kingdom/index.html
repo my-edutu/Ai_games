@@ -6583,7 +6583,9 @@ function chooseFilmableWorker(rows,excluded=-1){
   // hid the new worker. Use an intentional real-actor documentary cut when
   // the selected workplace is distant; maintain easing for adjacent jobs.
   if(distance>8||window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-   updateFollowCamera();
+   // A cut to the next authentic shift should show the EXACT physical
+   // front surveyed by the director whenever that shot was genuinely clear.
+   if(!anchorSelectedWorkdayCamera(next))updateFollowCamera();
    if(distance>8)liveWorkCuts++;
   }
   updateLiveWorkdayUI();
@@ -9103,6 +9105,35 @@ function watchDelivery(){
  setCommandView('world');updateUI();updateDeliveryHUD();
  return cloneData(p.delivery);
 }
+// W21 documentary workday: the bounded physical visibility survey belongs
+// to the SAME real worker the director selected. Previous code discarded that
+// surveyed frame and immediately recomputed a camera from the old spectator
+// yaw, sometimes showing the real farmer from behind a roof instead of the
+// authentic handwork the selection had actually measured. Commit the surveyed
+// clear shot to the presentation only; never reposition an actor or job.
+// A missing or physically obstructed candidate must fall back to the normal
+// collision-aware camera rather than claiming an imaginary unobstructed view.
+function anchorSelectedWorkdayCamera(row){
+ if(!follow||!row||!row.clear||!row.shot||!row.person)return false;
+ const person=people[row.index],shot=row.shot;
+ if(!person||person!==row.person||!isWorkingAtSite(person)||
+    shot.blockers!==0||shot.facingAlignment<=.12||
+    shot.foregroundSceneCover>=.20||shot.foregroundVegetationCover>=.30||
+    shot.vegetationFaceBlockers>0||shot.handBlockers>1||
+    ![shot.yaw,shot.pitch,shot.zoom].every(Number.isFinite))return false;
+ yaw=shot.yaw;pitch=shot.pitch;zoom=shot.zoom;
+ focusPoint=[person.x,person.z];
+ lastFollowShot=shot;
+ // Preserve the exact chosen physical composition until the citizen moves,
+ // changes job/activity, the town grows, the viewport changes or the player
+ // explicitly turns the camera. This is a short-lived, bounded camera cache.
+ liveShotPlanCache={citizen:person.name,job:person.job,
+  mode:'workday',activity:person.activity,citySize:city.length,
+  x:person.x,z:person.z,at:performance.now(),
+  viewWidth:canvas.clientWidth,viewHeight:canvas.clientHeight,
+  requestZoom:actionCameraZoom,requestPitch:actionCameraPitch,shot};
+ return true;
+}
 function watchLiveWorkday(){
  if(document.body.dataset.workday==='homecoming')stopWorkdayWatch();
  const eligible=people.map((p,i)=>({person:p,index:i})).filter(row=>isWorkingAtSite(row.person));
@@ -9124,7 +9155,11 @@ function watchLiveWorkday(){
  selectedCitizen=selected.index;
  document.getElementById('workday-live').setAttribute('aria-pressed','true');
  document.getElementById('workday-watch').setAttribute('aria-pressed','false');
- setCitizenFollow(true);updateFollowCamera();
+ setCitizenFollow(true);
+ // Use the director's ALREADY measured front-facing worker shot, not a
+ // second survey based on whichever blocked yaw the spectator last used.
+ // Both chooseFilmableWorker and this commit are readonly for world state.
+ if(!anchorSelectedWorkdayCamera(selected))updateFollowCamera();
  if(oldShot){
   // The 2-3 SwiftShader FPS mobile recording showed long eased camera pans
   // behind market roofs. A deliberate documentary CUT between distinct real
