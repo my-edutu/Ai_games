@@ -100,6 +100,8 @@ test('real scene wires the beat solely to public wardens and a grounded 3D conta
   assert.match(sceneSource,/entry\.contact\.scale\.set\(1\.22\+brace\*\.16,\.96\+brace\*\.08,1\)/);
   assert.match(sceneSource,/entry\.encounterStart = null/,'context recovery must discard stale presentation');
   assert.match(sceneSource,/entry\.encounterStart === null/,'source truth must gate the visual clock');
+  assert.match(sceneSource,/!result && attentionStrength > \.35\s+&& publicLanternWarning\(s, entry\.cell\)/,
+    'no stage can start merely from proximity: current public visibility, running lifecycle and disclosed threat must agree');
   assert.match(sceneSource,/encounterBeat:entry\.encounterBeat/,'actual actor consumes its witness timeline');
   assert.match(sceneSource,/witnessedGuardianBeat/,'original WebGL captures can report live physical cue');
   assert.doesNotMatch(sceneSource,/privateMaze.*encounterBeat|secret.*encounterBeat/i);
