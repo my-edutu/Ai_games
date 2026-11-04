@@ -14,6 +14,35 @@ permissions:
   contents: read
 
 jobs:
+  # W41 RED-first: real smith must reach the original outdoor forge and be
+  # filmed there, with unchanged authority across desktop/mobile cameras.
+  w41-forge-workday:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: W41 real autonomous smith at original outdoor forge, desktop and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w41-forge-workday.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w41-genuine-forge-workday
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w41/
+          retention-days: 14
   # W40 continues the original real farm-to-market workday on Day-120.
   w40-day120-viewport-actor-budget:
     runs-on: ubuntu-latest
