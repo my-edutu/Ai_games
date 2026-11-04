@@ -243,6 +243,12 @@ export function createExplorer(options = {}) {
     // already-disclosed threat. Without it, Pip continues to face the route.
     const reacting=!s.win&&!s.lose&&Number.isFinite(options.attentionHeading);
     const alert=reacting?Math.max(0,Math.min(1,finite(options.attentionStrength))):0;
+    // Pip and Thornback share the SAME source-authentic, rendered encounter timeline.
+    // No unseen enemy, invented attack or private route drives this connected pose.
+    const witnessedBeat=reacting&&alert>.35&&Number.isFinite(options.guardianEncounterBeat)
+      ?Math.max(0,Math.min(1,options.guardianEncounterBeat)):null;
+    const guardianPlant=witnessedBeat===null?0:alert*Math.max(0,Math.min(1,(witnessedBeat-.16)/.34));
+    const guardianAnswer=witnessedBeat===null?0:alert*Math.max(0,Math.min(1,(witnessedBeat-.55)/.45));
     const relativeLook=reacting?Math.atan2(Math.sin(options.attentionHeading-group.rotation.y),Math.cos(options.attentionHeading-group.rotation.y)):0;
     const lookYaw=Math.max(-.72,Math.min(.72,relativeLook))*alert;
     // The key gesture has lower priority than a genuine nearby warden. Its
@@ -342,12 +348,12 @@ export function createExplorer(options = {}) {
     // no run movement, new gameplay ability or undisclosed target is invented.
     // The entire gesture clears as soon as public attention is withdrawn.
     body.position.x=-.025*rest;
-    body.position.y=.78+Math.abs(step)*.035+(s.lose?0:idle*.008)-alert*.11+gateCelebrate*.09+gatePerformance*.17+pickupCelebrate*.23+fossilFocus*.08;
+    body.position.y=.78+Math.abs(step)*.035+(s.lose?0:idle*.008)-alert*.11-guardianPlant*.11+guardianAnswer*.045+gateCelebrate*.09+gatePerformance*.17+pickupCelebrate*.23+fossilFocus*.08;
     body.position.z=alert>0?-alert*.105:gateCelebrate*.035+gatePerformance*.055;
     body.rotation.set(s.lose?.22:stride*.065-s.danger*.035-keyReach*.07-alert*.25-gateCelebrate*.12-gatePerformance*.11-pickupCelebrate*.13,
       lookYaw*.14+keyYaw*.08+pickupFaceTurn*.28+fossilYaw*.07,
       .035*rest-step*.05-Math.sign(lookYaw)*alert*.12);
-    head.rotation.set(s.lose?.28:-.04-s.danger*.08+idle*.018+alert*.10-keyReach*.06-gateCelebrate*.16-gatePerformance*.09-pickupCelebrate*.18-fossilFocus*.12,
+    head.rotation.set(s.lose?.28:-.04-s.danger*.08+idle*.018+alert*.10+guardianPlant*.12-guardianAnswer*.09-keyReach*.06-gateCelebrate*.16-gatePerformance*.09-pickupCelebrate*.18-fossilFocus*.12,
       (s.reduced?0:Math.max(-.42,Math.min(.42,turn*.7))+(Math.sin(s.time*.73)*.08+.12)*rest)*(1-alert-keyReach*.7-gateCelebrate*.55)+lookYaw+keyYaw+gateYaw+pickupFaceTurn*.72+fossilYaw*.28,
       s.win?-.13:s.lose?.07:-.065*rest+step*.035-Math.sign(lookYaw)*alert*.19);
     for (let i=0;i<2;i++) {
@@ -357,7 +363,7 @@ export function createExplorer(options = {}) {
       legs[i].hip.rotation.x=step*sign*.62-alert*.22;
       legs[i].hip.rotation.z=alert>0?-sign*alert*.3:-sign*gatePerformance*.14;
       legs[i].knee.rotation.x=Math.max(0,-step*sign)*.58+alert*.3+gatePerformance*.21+pickupCelebrate*.14;
-      arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0)-alert*(i===1?1.55:.95)-(i===0?keyReach*2.3:0)-gateCelebrate*(i===1?1.35:.64)-gatePerformance*(i===1?.34:.54)-pickupCelebrate*(i===1?1.43:1.38)-fossilFocus*(i===1?.76:.14);
+      arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0)-alert*(i===1?1.55:.95)-(i===1?guardianAnswer*.50:guardianPlant*.16)-(i===0?keyReach*2.3:0)-gateCelebrate*(i===1?1.35:.64)-gatePerformance*(i===1?.34:.54)-pickupCelebrate*(i===1?1.43:1.38)-fossilFocus*(i===1?.76:.14);
       // Aim the raised physical glove toward the publicly disclosed lock,
       // not just upward. Reduced-motion uses the same stable static pose.
       // A terminal result or nearby guardian suppresses keyYaw entirely.
@@ -405,7 +411,7 @@ export function createExplorer(options = {}) {
     if (s.win) body.position.y += amount*Math.max(0,Math.sin(s.time*5))*.075;
     // Scarf reacts to the same public startle, including a static pose when
     // reduced motion is requested; return to neutral without lingering cues.
-    tail.rotation.x=-stride*.28+step*.1-alert*.27+gateCelebrate*.22+gatePerformance*.21+pickupCelebrate*.24+fossilFocus*.10;
+    tail.rotation.x=-stride*.28+step*.1-alert*.27-guardianAnswer*.18+gateCelebrate*.22+gatePerformance*.21+pickupCelebrate*.24+fossilFocus*.10;
     tail.rotation.z=alert*.22-gateYaw*.16+gatePerformance*.13;
     // Keep the hanging cage upright beneath the outward arm; let it trail the stride.
     lantern.rotation.z=-arms[1].shoulder.rotation.z-step*.17;
@@ -414,8 +420,8 @@ export function createExplorer(options = {}) {
     // One existing physical lantern and emissive crystal now perform the
     // opening beat. No extra dynamic light, material, geometry, shader,
     // timer or unauthorized key/exit data is introduced.
-    lamp.scale.setScalar(1+gatePerformance*.17+fossilFocus*.10);
-    glow.emissiveIntensity=s.lose?.45:1.45+gatePerformance*.95+fossilFocus*.4;
+    lamp.scale.setScalar(1+gatePerformance*.17+fossilFocus*.10+guardianAnswer*.12);
+    glow.emissiveIntensity=s.lose?.45:1.45+gatePerformance*.95+fossilFocus*.4+guardianAnswer*.55;
   }};
 }
 
