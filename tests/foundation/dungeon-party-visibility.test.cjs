@@ -209,7 +209,7 @@ test('native full-body scene clears the actual near-side Gothic face but keeps t
   'do not erase the rear cathedral to flatter one hero');
  assert.equal(planPartyWallReveal(0,3.7,[wardenDuel],camera),'none',
   'distant sidelong architecture stays fully physical');
- assert.equal(planPartyWallReveal(-.52,0,[{x:0,z:0}],camera),'nearby',
+ assert.equal(planPartyWallReveal(-.62,0,[{x:0,z:0}],camera),'nearby',
   'generic unmarked subjects cannot manufacture the larger actor pocket');
  assert.equal(planPartyWallReveal(-.52,0,[hero],camera),
   planPartyWallReveal(-.52,0,[hero],camera));
