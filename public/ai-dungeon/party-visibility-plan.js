@@ -28,7 +28,11 @@ export function planCameraBodyOcclusion(x,z,subjects,camera,wallHeight=2.6){
  if(![x,z,camera?.x,camera?.y,camera?.z,wallHeight].every(Number.isFinite)||
    camera.y<.5||camera.y>30||wallHeight<.15||wallHeight>4.5)return false;
  for(const subject of Array.isArray(subjects)?subjects.slice(0,5):[]){
-  if(!(subject?.silhouetteRecess===true||subject?.combatRecess===true)||
+  // This also protects a genuinely rendered, living skinned actor even when
+  // the director has not marked that actor as a cinematic combat subject.
+  // Synthetic scenic points cannot claim this privilege; the caller sets
+  // visibleActor only after resolving an actual public unit and live root.
+  if(!(subject?.silhouetteRecess===true||subject?.combatRecess===true||subject?.visibleActor===true)||
     !Number.isFinite(subject.x)||!Number.isFinite(subject.z))continue;
   const dx=subject.x-camera.x,dz=subject.z-camera.z,length=Math.hypot(dx,dz);
   // Preserve complete far nave and rear stone: only a genuine foreground
@@ -77,7 +81,11 @@ export function planPartyWallReveal(x,z,subjects,camera,pad=2.1,wallHeight=2.6){
   const progress=(dx*vx+dz*vz)/distance;
   const sideways=Math.abs(dx*vz-dz*vx)/distance;
   // Physically obstructing stone must be cleared even beyond the flat 2D wedge.
-  if(radial<=4.8*4.8&&(subject.silhouetteRecess===true||subject.combatRecess===true)&&
+  // True native anatomy remains protected during travel, not only while a
+  // combat/hero-close-up flag happens to be active. The camera-height ray
+  // must actually intersect the 3D masonry before a live, unmarked actor
+  // can recess it: no whole-room flattening or unearned scenic cutaways.
+  if(radial<=4.8*4.8&&(subject.silhouetteRecess===true||subject.combatRecess===true||subject.visibleActor===true)&&
      planCameraBodyOcclusion(x,z,[subject],camera,wallHeight))return 'sightline';
   if(subject.silhouetteRecess===true||subject.combatRecess===true){
    const combat=subject.combatRecess===true;
@@ -149,7 +157,7 @@ export function resolveRenderedSilhouetteSubjects(state,subjects,actors){
   const actor=actors.get(unit.id),root=actor?.root?.position;
   if(!actor?.root?.visible||![root?.x,root?.z].every(Number.isFinite)||
    Math.hypot(root.x-point.x,root.z-point.z)>.49)return point;
-  return {...point,x:Number(root.x.toFixed(3)),z:Number(root.z.toFixed(3))};
+  return {...point,x:Number(root.x.toFixed(3)),z:Number(root.z.toFixed(3)),visibleActor:true};
  });
 }
 

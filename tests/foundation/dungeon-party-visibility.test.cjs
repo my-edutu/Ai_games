@@ -286,3 +286,41 @@ test('native armour shoulder sightlines expose real near stone but keep a distan
  assert.equal(planCameraBodyOcclusion(4.4,.6,[hero],{...camera,y:15},2.6),false);
  assert.equal(JSON.stringify({hero,camera}),original);
 });
+
+
+test('native full-body travel stays visible through physical stone even without a combat close-up',async()=>{
+ const {planPartyWallReveal,planCameraBodyOcclusion}=await load();
+ const hero=Object.freeze({x:0,z:0,visibleActor:true});
+ const camera=Object.freeze({x:7,y:2.2,z:0});
+ const undecorated=Object.freeze({x:0,z:0});
+ assert.equal(planCameraBodyOcclusion(4.5,0,[hero],camera,2.6),true,
+  'the real visible adult body is physically hidden by a foreground wall');
+ assert.equal(planPartyWallReveal(4.5,0,[hero],camera,2.1,2.6),'sightline',
+  'normal travel must not leave a real hero beneath an opaque 3D wall');
+ assert.equal(planCameraBodyOcclusion(4.5,0,[undecorated],camera,2.6),false,
+  'arbitrary scene coordinates cannot manufacture character sightlines');
+ assert.equal(planPartyWallReveal(4.5,0,[undecorated],camera,2.1,2.6),'none');
+ assert.equal(planPartyWallReveal(4.5,0,[hero],camera,2.1,.4),'none',
+  'already lowered ruins must not open the rest of the nave');
+ assert.equal(planPartyWallReveal(-4.5,0,[hero],camera),'none',
+  'the rear Gothic cathedral remains present');
+ assert.deepEqual(hero,{x:0,z:0,visibleActor:true});
+});
+
+test('only real living, visible Three.js actor roots can request travel-time body sightlines',async()=>{
+ const {resolveRenderedSilhouetteSubjects}=await load();
+ const state={map:Array(19).fill('.'.repeat(19)),units:[
+  {id:'v',x:9,z:9,hp:75},{id:'fallen',x:10,z:9,hp:0}]};
+ const pts=Object.freeze([{x:0,z:0},{x:1,z:0},{x:7,z:7}]);
+ const actors=new Map([['v',{root:{visible:true,position:{x:.18,z:-.12}}}],
+  ['fallen',{root:{visible:true,position:{x:1,z:0}}}]]);
+ const actual=resolveRenderedSilhouetteSubjects(state,pts,actors);
+ assert.equal(actual[0].visibleActor,true);
+ assert.equal(actual[0].x,.18);assert.equal(actual[0].z,-.12);
+ assert.equal(actual[1].visibleActor,undefined,'defeated actors must not carve the stage');
+ assert.equal(actual[2].visibleActor,undefined,'unmatched scenic subject is not an actor');
+ actors.get('v').root.visible=false;
+ assert.equal(resolveRenderedSilhouetteSubjects(state,pts,actors)[0].visibleActor,undefined);
+ assert.deepEqual(state.units[0],{id:'v',x:9,z:9,hp:75});
+ assert.equal(pts[0].visibleActor,undefined);
+});
