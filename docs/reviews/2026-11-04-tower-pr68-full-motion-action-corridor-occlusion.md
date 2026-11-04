@@ -1,0 +1,27 @@
+# Infinite Tower Climb — source-visible foreground action corridor
+**2026-11-04 · Draft PR #68 · same transformation, not a micro-Gauntlet pass · NOT EVALUATED**
+
+## Frozen source, comparison and actual game
+Inspected the latest PR68 source head, AGENTS.md, approved 2026-11-01 spec, GAUNTLET.md, transformation.json, original real-game world/scene/guardian/landing code, review and recent original-host normal-speed desktop/portrait full-motion capture. PR68 is based on draft PR58's unchanged `1731b380851162741761c5569e2bc152a0869ca9`; do not move it. New playable candidate **`5b3b337382123a5fe0ca76ef1dff990dd327ba07`** touches the actual clockwork world renderer and presentation tests, not a style mockup. PR58 not edited, no merge/force-push/deploy.
+
+## Biggest direct experience deficit and work
+The previous [native real danger video](https://github.com/my-edutu/Ai_games/actions/runs/41839077460) contains genuine guardian contact and traversals but occasional massive foreground gears overpower the narrow 390×844 image. Its last renderer used camera-to-world endpoint rays and projected near-miss fades: a decorative gear placed *between* protagonist and real guardian/landing could occupy their tactical reading corridor without intersecting either endpoint, and a bright central metal axle remained opaque after the surrounding teeth faded. This is a concrete, systemic staging problem across traversal and combat, not an animation mockup.
+
+The actual `public/infinite-tower-climb/visuals/world.mjs` now joins present, world-anchored climber and genuine guardian/selected landing in the last camera's projected image. Only if both existing endpoints project visibly, the gear is in front of both physical subjects, and its screen silhouette genuinely covers the **interior** of their line of action does the purely decorative rotor soften. A bounded .42 guardian or .58 landing opacity yields useful foreground depth without erasing the route. Direct obstruction and endpoint tests still have priority. The originally solid center axle shares a separately owned, disposable trim material and the same transition; real routes, guardians, pressure mechanisms, platform collisions, and moving-deck equipment remain opaque and authoritative. No fabricated endpoint, path prediction, HUD clutter, camera cut or extra draw/lighting stage.
+
+This is one connected continuation of the same existing 3D live-guardian/action-camera/landing transformation, not a new milestone and **not** verified by the existence of a patch.
+
+### Source and test changes
+- `public/infinite-tower-climb/visuals/world.mjs`: exported guard-only screen corridor math, preallocated actor/guardian/landing projections, same-gear private axle material, world-recovery cleanup and numeric occlusion diagnostic.
+- `tests/phase3/tower-foreground-sightline.test.cjs`: pure mobile screen-space policy tests for stage midpoint vs behind/offscreen/nonfinite/same-point cases; actual Three.js clockwork world test that positions two separate source subjects around the real rotor, verifies both gear body and hub soften, asserts source immutability and immediate stale reset.
+- `public/infinite-tower-climb/gauntlet/transformation.json`: exact head and pending evidence, unchanged assessor and frozen baseline.
+- Accepted design: reused projected camera/world transforms, at most two corridor endpoints, three existing decorative gear groups, no new collision, RNG, game object, texture, mesh, light, shadow or pass; three extra private trim materials on clockwork floor require graphics-resource/regression validation. Full visual/hardware acceptance stays OPEN.
+
+## Evidence truth and next source experiment
+Previous genuine [9-job original-source recording](https://github.com/my-edutu/Ai_games/actions/runs/41839077460) contains 60+s normal-speed baseline/candidate WebMs and trace JSON on 960×600 desktop and 390×844 phone, seed `tower-transformation-capture-v1`, low quality, motion enabled, sound muted. It **predates** this source and the episodes differ by state at equal seconds. It is NOT a blind matched comparison and cannot grade this code.
+
+At inspection the new-source [technical safety workflow](https://github.com/my-edutu/Ai_games/actions/runs/41848939619) and [source-pinned nine-job full-motion workflow](https://github.com/my-edutu/Ai_games/actions/runs/41848939999) were queued/in progress. Neither was graded or treated as a gameplay victory. When ready, inspect unmodified moving footage for **both** excessive gear fade (loss of scene depth) and remaining obscured action, across ordinary ascent, guardian and full result/restart, *then* align 60+s event-equivalent A/B windows in both aspect ratios. No simulated review scores.
+
+The external independent-worker/browser tunnel again returned `NOT_FOUND: Tunnel-client has not been seen for 300 seconds`. As a consequence there are **zero genuine blinded judgments** for LOOKS, FEELS and PLAYS (required ≥4/5 each), and no real supported-device p50/p95/p99 frametime/memory measurements, verified phone a11y, renderer-recovery or replay evidence. Quality **NOT EVALUATED**.
+
+**Highest-impact remaining gap:** full-motion proof that actors, selected route and hazards stay simultaneously readable on mobile *without* washing out the dramatic tower world; followed by three full event-matched scenes, five independent blinded critics and hardware/replay/a11y guardrails. Keep the transformation initiative OPEN.
