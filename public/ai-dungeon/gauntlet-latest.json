@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T12:14:00.000Z",
-  "status": "IN PROGRESS — NOT TRANSFORMED: original skinned Warden regalia now follows real native bones as a new 3D combat candidate; verified audio/video/critic superiority is absent",
+  "generatedAt": "2026-11-04T12:58:17.000Z",
+  "status": "IN PROGRESS — NOT TRANSFORMED: native original heroes now wear skeleton-driven six-piece original armour; actual moving-game improvement UNVERIFIED",
   "reference": "Diablo IV: overall quality; No Rest for the Wicked: worlds; Path of Exile 2: contact and combat — NOT independently compared as matched motion",
   "metrics": {
     "sample_seeds": 24,
@@ -208,19 +208,19 @@
       "elapsedMs": 158
     }
   ],
-  "visualVerdict": "Authentic predecessor 121117b Chromium shows toy-like 3D KayKit proportions and lower-body masonry obstruction. The current M1 source adds transform-only native Warden head/shoulder/chest/pelvis regalia that should follow actual attack, charge, recoil and death skeletal motion, while unchanged opaque cinematic replacements remain safely retired. Exact-head BEFORE/AFTER moving pixels have NOT been inspected; no visual improvement or Diablo IV parity is claimed.",
+  "visualVerdict": "Before source from genuine Chromium still shows toy-like bodies and clutter. New code mounts six original forged pieces on each complete original skinned hero/enemy GLB, following genuine combat and locomotion. New-head moving pixels and matched critical comparisons remain UNVERIFIED; no superiority/AAA claim.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
-  "candidateCommit": "4f1bf12bcebbd39c0b2474b3162da7657ecbf5db",
-  "metricsProvenance": "Historical 24×900 corpus only. Previous 597b7e source workflow 41819823607: all 3 Chromium browser shards PASS, authority 284/285 due an inherited stale stage-source height regex; visual workflow 41819823590 PASS; catalogue CI 41819823579 FAIL. Current exact code candidate full browser, replay, performance and security still require completed workflow and evidence inspection.",
+  "candidateCommit": "952124708901079adc8629f90a4b4dc92d50f169",
+  "metricsProvenance": "Historic seeded 24×900 corpus only. At predecessor 63007fc, Action 41827268369 all Chromium shards PASS, foundation 285/286 FAIL inherited stale Warden import regex; visual 41827268510 PASS; catalogue 41827268792 FAIL. New 9521247 source safety runs queued/running; this receipt does not certify them.",
   "transformation": {
     "milestone": "M1",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
     "locked": true,
-    "candidateSha": "4f1bf12bcebbd39c0b2474b3162da7657ecbf5db",
+    "candidateSha": "952124708901079adc8629f90a4b4dc92d50f169",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
-    "exactHeadSafety": "NEW code candidate 4f1bf12 Warden 3D bone-space regalia and source-test not yet verified in actual running browser or full CI. Latest candidate workflows may be queued/running; prior 597b7e browser shards passed 3/3, but authority 284/285 failed obsolete regex. No safety or quality passing claim at current head.",
+    "exactHeadSafety": "SOURCE implemented, latest 9521247 code actions 41836145783/41836145746/41836145851 PENDING at receipt. No new exact-head pass or complete real browser footage.",
     "looks": "UNVERIFIED",
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
@@ -232,8 +232,8 @@
     "fullDesktopMobileAudiovisualJourney": "UNVERIFIED",
     "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41804451789/artifacts/13310177036",
     "exactHeadAction": "Track candidate M1 code at https://github.com/my-edutu/Ai_games/commit/4f1bf12bcebbd39c0b2474b3162da7657ecbf5db and exact-head GitHub Actions, including real desktop/mobile video/screenshots.",
-    "biggestGap": "Native CC0/KayKit hero and enemy faces, body proportions and melee contact still read like toys against sculptural AAA dungeon worlds. New Warden rig-bound regalia is integrated original artwork and authentic animation-driven geometry, not a verified holistic experience win. Current head motion/audio, phone p95 frame time and independent blind critic acceptance are UNVERIFIED.",
-    "nextTask": "Inspect real exact-head Warden attack/recovery/victory in desktop and 390px mobile moving Chromium, reject if bones tear/ornament detaches, measure drawn rigs, poly/draw/memory budgets and actual audio. Continue M1 major proportional skinned hero/enemy model replacement or native anatomy refinement without recreating the previously rejected opaque rigid costume. Record true full organic traversal→combat→boss→descent→defeat/restart desktop/mobile A/V and match pinned baseline; obtain ≥3 masked independent LOOKS/FEELS/PLAYS critics.",
+    "biggestGap": "Toy-like source GLB anatomy, optical contacts and intrusive Gothic geometry still lack independently confirmed cinematic transformation. Six original forged armor components now follow true skinned arms, lower legs, pelvis and chest but could intersect in motion; real desktop/mobile video not yet reviewed.",
+    "nextTask": "Inspect new-head desktop/mobile moving hero-Warden contact, track original armor draw calls/frames and detect intersections; accept/revert based on actual image. Continue integrated human-scale native mesh/motion stage, record five organic encounter events with synchronized original audio, compare matched seed against immutable 281735d baseline and obtain ≥3 independent blind votes.",
     "currentMilestoneLedger": "public/ai-dungeon/gauntlet-history.json"
   },
   "acceptanceStatus": "IN PROGRESS / NOT TRANSFORMED — all LOOKS, FEELS, PLAYS UNVERIFIED / 0 OF 3 BLIND CRITICS"
