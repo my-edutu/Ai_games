@@ -38,6 +38,27 @@ const assert=require('node:assert/strict');
   await page.setContent(html,{waitUntil:'load'});
   await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0);
   await page.locator('#pause').click();
+  // W21 evidence-integrity repair: Chromium startup presents real simulation
+  // ticks before Pause can be clicked. W20 and W21 independently replayed
+  // exactly inside each run but had DIFFERENT starting/final checksums, so
+  // their nominal 120-day trials were not truly the same source seed/time.
+  // Rewind authority to the game's named, original deterministic seed only
+  // after Pause; never let browser load speed choose the scenario.
+  const startProof=await page.evaluate(()=>{
+    const g=window.__tinyKingdom;
+    g.reset();
+    const first=g.exportSnapshot();
+    g.reset();
+    const second=g.exportSnapshot();
+    return {first:JSON.stringify(first),second:JSON.stringify(second),
+      checksum:first.checksum,seedState:first.payload.seed,
+      hour:first.payload.state.t};
+  });
+  assert.equal(startProof.first,startProof.second,
+    'Real fixed-seed world reset must produce the same initial snapshot');
+  evidence.seededStart={checksum:startProof.checksum,
+    seedState:startProof.seedState,hour:startProof.hour,
+    exactResetReproducible:true};
   const start=await page.evaluate(()=>{
     const g=window.__tinyKingdom;
     return {renderer:g.renderer(),initialSnapshot:g.exportSnapshot(),
