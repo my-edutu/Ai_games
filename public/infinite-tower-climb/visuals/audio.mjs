@@ -310,6 +310,10 @@ export function createTowerAudio() {
     // The matching model pose remains visible when muted.
     if(sameFloor && intent!==lastIntent && intent==='bracing-telegraph')
       tone(235,360,.22,'triangle',.039);
+    // One opt-in material cue for an actually observed low-health shield
+    // counter-spacing decision; first packets and held intent never replay it.
+    if(sameFloor && intent!==lastIntent && intent==='bracing-guardian-shield')
+      tone(174,128,.19,'triangle',.034);
     if(sameFloor && intent!==lastIntent && ['evading-projectile','evading-hazard','evading-telegraph'].includes(intent))
       tone(440,280,.12,'triangle',.038);
     // One restrained opt-in tone identifies a genuine mid-floor REPLAN
