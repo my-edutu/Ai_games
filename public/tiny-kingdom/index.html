@@ -10230,20 +10230,102 @@ document.getElementById('atlas-map').addEventListener('pointerdown',e=>{if(follo
 // This only changes *presentation*: every genuine citizen remains in the
 // scene, in navigation, in save/replay and in the same seeded authority state.
 let citizenDetailPolicy={mode:'initial',budget:VILLAGE_LOD_LIMIT,anchorIncluded:true,shown:0,population:0};
+// W40 Living Valley: *genuine* viewport-projected character LOD.
+// The Day-120 follow-camera used eight costly sculpted near rigs chosen only
+// by world-map distance. Some were behind the camera, while the foreground
+// worker exceeded the 160k complete-scene budget. Reserve the original
+// human-scale sculpted face/IK/garment rig for the selected worker plus
+// genuinely screen-visible neighbours; every other REAL resident still gets
+// the existing fully articulated compact mesh and remains in navigation,
+// resource decisions, interaction, replay, restoration and render audits.
+// The selection only reads presentation position and optics: no new RNG,
+// animation clock, authority event or hidden/removed person.
+function citizenDetailCameraFrame(){
+ const lens=cameraLensProfile(canvas.clientWidth,canvas.clientHeight);
+ const radius=Math.cos(pitch)*zoom;
+ const eye=streetWalk?
+  [streetPosition[0],terrain(...streetPosition)+streetEyeHeight,streetPosition[1]]:
+  [focusPoint[0]+Math.sin(yaw)*radius,
+   (follow?terrain(focusPoint[0],focusPoint[1])+1.02:.25)+Math.sin(pitch)*zoom,
+   focusPoint[1]+Math.cos(yaw)*radius];
+ const target=streetWalk?
+  [eye[0]+Math.sin(streetYaw)*Math.cos(streetTilt)*8,
+   eye[1]+Math.sin(streetTilt)*8,
+   eye[2]+Math.cos(streetYaw)*Math.cos(streetTilt)*8]:
+  [focusPoint[0],follow?terrain(focusPoint[0],focusPoint[1])+1.02:.25,
+   focusPoint[1]];
+ const diff=target.map((v,i)=>v-eye[i]);
+ const magnitude=Math.hypot(...diff)||1;
+ const forward=diff.map(v=>v/magnitude);
+ const rightMagnitude=Math.hypot(forward[0],forward[2])||1;
+ const right=[-forward[2]/rightMagnitude,0,forward[0]/rightMagnitude];
+ const up=[right[1]*forward[2]-right[2]*forward[1],
+  right[2]*forward[0]-right[0]*forward[2],
+  right[0]*forward[1]-right[1]*forward[0]];
+ const tanVertical=Math.tan(lens.verticalRadians/2);
+ return {eye,forward,right,up,lens,
+  tanVertical,tanHorizontal:tanVertical*lens.aspect};
+}
+function projectRealCitizenDetail(p,frame){
+ const point=[p.x,terrain(p.x,p.z)+.93,p.z];
+ const rel=point.map((v,i)=>v-frame.eye[i]);
+ const dot=b=>rel[0]*b[0]+rel[1]*b[1]+rel[2]*b[2];
+ const depth=dot(frame.forward);
+ if(depth<=.35)return {visible:false,depth,heightFraction:0,
+  screenX:0,screenY:0};
+ const screenX=dot(frame.right)/(depth*frame.tanHorizontal);
+ const screenY=dot(frame.up)/(depth*frame.tanVertical);
+ // Actual authentic actor: head and ankles straddle its 0.93-metre centre.
+ const heightFraction=1.72/(2*depth*frame.tanVertical);
+ const visible=heightFraction>.045&&
+  Math.abs(screenX)<1.13&&
+  Math.abs(screenY)<1.12+heightFraction*.55;
+ return {visible,depth,heightFraction,screenX,screenY};
+}
 function selectVisibleCitizenDetail(){
  const n=people.length;
- if(n<=12)return {indices:new Set(people.map((_,i)=>i)),mode:'all',budget:n,anchorIndex:Math.min(selectedCitizen,n-1)};
- const mode=streetWalk?'street':follow?'follow':zoom>=18?'overview':zoom>=13?'mid':'close';
- const budget=mode==='overview'?3:mode==='street'?5:mode==='mid'?5:VILLAGE_LOD_LIMIT;
- const point=streetWalk?streetPosition:focusPoint;
- const ordered=people.map((p,i)=>({i,d:(p.x-point[0])**2+(p.z-point[1])**2}))
-  .sort((a,b)=>a.d-b.d||a.i-b.i);
- const nearby=ordered.slice(0,budget).map(row=>row.i);
+ const mode=n<=12?'all':streetWalk?'street':follow?'follow':
+  zoom>=18?'overview':zoom>=13?'mid':'close';
+ // Grown-town eyes and hand targets are costly; eight near rigs selected
+ // by 2D radial distance formerly spent full detail on offscreen people.
+ // Five real large-in-frame subjects still keep the scene inhabited, while
+ // compact neighbors preserve genuine gait, role gear, occupation and cargo.
+ const budget=n<=12?n:mode==='overview'?3:
+  mode==='street'?5:mode==='mid'?5:mode==='follow'?5:5;
  const activeIndex=streetWalk&&streetEncounterName?
   people.findIndex(p=>p.name===streetEncounterName):-1;
  const anchorIndex=activeIndex>=0?activeIndex:Math.min(selectedCitizen,n-1);
- if(anchorIndex>=0&&!nearby.includes(anchorIndex))nearby[nearby.length-1]=anchorIndex;
- return {indices:new Set(nearby),mode,budget,anchorIndex};
+ const frame=citizenDetailCameraFrame();
+ const projected=people.map((p,i)=>({i,...projectRealCitizenDetail(p,frame)}));
+ const onScreen=projected.filter(row=>row.visible)
+  .sort((a,b)=>b.heightFraction-a.heightFraction||
+   Math.abs(a.screenX)+Math.abs(a.screenY)-
+   Math.abs(b.screenX)-Math.abs(b.screenY)||a.i-b.i);
+ const selected=[];
+ if(anchorIndex>=0)selected.push(anchorIndex);
+ for(const row of onScreen){
+  if(selected.length>=budget)break;
+  if(!selected.includes(row.i))selected.push(row.i);
+ }
+ // A tiny founding village is always drawn with its original detailed
+ // figures, matching the established Day-1 authored visual baseline.
+ if(n<=12)for(let i=0;i<n;i++)if(!selected.includes(i))selected.push(i);
+ const indices=new Set(selected);
+ const offscreenFullDetail=selected.filter(i=>!projected[i]?.visible).length;
+ const audit={
+  source:'real-viewport-actor-detail',mode,
+  population:n,budget,fullDetailCount:indices.size,
+  compactCount:n-indices.size,anchorIndex,
+  anchorDetailed:anchorIndex<0||indices.has(anchorIndex),
+  visibleCandidates:onScreen.length,
+  detailedNames:selected.map(i=>people[i].name),
+  offscreenFullDetail,
+  viewport:[frame.lens.viewportWidth,frame.lens.viewportHeight],
+  optics:{verticalDegrees:frame.lens.verticalDegrees,
+   horizontalDegrees:frame.lens.horizontalDegrees},
+  proof:'all original citizens have real detailed or articulated compact meshes; no authoritative changes'
+ };
+ return {indices,mode,budget,anchorIndex,audit};
 }
 // W24 Living Valley camera: a portrait phone using the desktop vertical
 // field of view sees only ~27 degrees of road horizontally, so an original
@@ -10715,7 +10797,7 @@ getDailyRhythmAudit:dailyRhythmAudit,getOccupiedHouseholds:()=>cloneData(occupie
  totalCulledTriangles:scenicVisibilityStats.totalCulledTriangles,
  totalDrawCalls:scenicVisibilityStats.totalDrawCalls,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable}),getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,renderQuality,setRenderQuality,getFrameProfile,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCameraDynamicCacheStats,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable}),getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,renderQuality,setRenderQuality,getFrameProfile,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCameraDynamicCacheStats,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
  if(streetWalk)setStreetWalk(false);
 if(follow)setCitizenFollow(false);cinematic=false;document.getElementById('camera').classList.remove('active');
 yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2&&o.focus.every(Number.isFinite))focusPoint=o.focus.slice(0,2)}};
