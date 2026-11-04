@@ -287,8 +287,14 @@ test('Pass129 disclosed terrace undercroft is real submerged 3D, deterministic a
         for(let i=0;i<node.count;i++){
           const k=i*16, x=values[k+12]-origin.x, y=values[k+13],
             z=values[k+14]-origin.z, physicalHeight=Math.abs(values[k+5]);
-          if((Math.abs(x-1.235)<.003 && Math.abs(Math.abs(z)-.70)<.003)
-            ||(Math.abs(z-1.235)<.003 && Math.abs(Math.abs(x)-.70)<.003)) {
+          // The two REAL layers have distinct centers: the rooted dark
+          // stone at 1.235 and its outboard glass inset at 1.235 + .078.
+          // Do not accidentally test only the first four physical ribs.
+          const onEast=(Math.abs(x-1.235)<.003 || Math.abs(x-1.313)<.003)
+            && Math.abs(Math.abs(z)-.70)<.003;
+          const onSouth=(Math.abs(z-1.235)<.003 || Math.abs(z-1.313)<.003)
+            && Math.abs(Math.abs(x)-.70)<.003;
+          if(onEast || onSouth) {
             if (Math.abs(physicalHeight-(m.cellHeight(center,only.width,only.height)+1.50))<.01)
               assert.ok(y-physicalHeight/2 < -1.7,
                 'each real stone rib must embed below the lagoon water surface, not float');
@@ -299,7 +305,11 @@ test('Pass129 disclosed terrace undercroft is real submerged 3D, deterministic a
       return out.sort((p,q)=>JSON.stringify(p).localeCompare(JSON.stringify(q)));
     };
     const physical=faceMatrices(a);
-    assert.ok(physical.length>=8,'two shores must contain eight real connected stone/inset 3D rib instances');
+    assert.equal(physical.length,8,
+      'two public shores must have four rooted stone ribs AND four distinct, physically outboard glass insets');
+    assert.equal(physical.filter(p=>Math.abs(p[4]-
+      (m.cellHeight(center,only.width,only.height)+1.20))<.01).length,4,
+      'all four genuine sea-glass insets are modeled separately from the four main stone uprights');
     assert.equal(physical.filter(p=>Math.abs(p[4]-
       (m.cellHeight(center,only.width,only.height)+1.50))<.01).length,4,
       'all four thick physical stone uprights extend into the authentic waterline');
