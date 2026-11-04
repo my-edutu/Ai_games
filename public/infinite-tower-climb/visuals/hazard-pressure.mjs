@@ -8,6 +8,7 @@ import { pointFor, SCALE } from './coordinates.mjs';
 const PIECES_PER_HAZARD = 16;
 const MAX_HAZARDS = 6;
 const CHARGE_WINDOW_TICKS = 12;
+const PHASES = Object.freeze(['active', 'charging', 'release']);
 const valid = n => Number.isFinite(n);
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 
@@ -148,7 +149,7 @@ export function createTowerHazardPressure(THREE) {
     // real guardian winds up. Then anticipate new warnings; finally spend
     // any remaining low-tier budget on already-safe mechanical unloading.
     // Iterate unchanged source order within each phase, never mutate it.
-    for (const phase of ['active', 'charging', 'release']) {
+    for (const phase of PHASES) {
       if (guardianWindup && phase !== 'active') continue;
       for (const hazard of snapshot.hazards) {
         if (count >= maximum * PIECES_PER_HAZARD) break;
@@ -228,7 +229,6 @@ export function createTowerHazardPressure(THREE) {
     shutters.visible = count > 0;
     if (count) {
       shutters.instanceMatrix.needsUpdate = true;
-      shutters.instanceColor?.setUsage(THREE.DynamicDrawUsage);
       if (shutters.instanceColor) shutters.instanceColor.needsUpdate = true;
     }
     chargingHazards = charging;
