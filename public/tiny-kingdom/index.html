@@ -8887,6 +8887,7 @@ function projectedWorkerBodyFraction(eye,target,citizen){
 function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const realWork=isWorkingAtSite(citizen);
  const working=Boolean(forceWorkday||liveWorkday||
+  document.body.dataset.citizenInspect==='on'||
   (document.body.dataset.workday==='delivery'&&citizen.delivery));
  const unloading=Boolean(document.body.dataset.workday==='delivery'&&
   citizen.delivery?.stage==='unloading');
@@ -9173,6 +9174,7 @@ function setCitizenFollow(enabled){
   document.getElementById('camera').classList.remove('active');
  }else if(!enabled&&follow){
   follow=false;
+  document.body.dataset.citizenInspect='off';
   if(previousFollowCamera){
    ({yaw,pitch,zoom}=previousFollowCamera);focusPoint=previousFollowCamera.focus.slice();
    cinematic=previousFollowCamera.cinematic;
@@ -9228,9 +9230,11 @@ function inspectCitizenScreenPoint(screenX,screenY,source='tap'){
  if(!hit)return null;
  if(liveWorkday||document.body.dataset.workday!=='off')stopWorkdayWatch();
  selectedCitizen=hit.index;
+ // Commit inspection intent before camera planning so the initial frame
+ // physically surveys a worker-sized lens rather than the 12.8m bird's eye.
+ document.body.dataset.citizenInspect='on';
  if(!follow)setCitizenFollow(true);
  else updateFollowCamera();
- document.body.dataset.citizenInspect='on';
  refreshPickedCitizenCaption();updateUI();
  return hit.name;
 }
