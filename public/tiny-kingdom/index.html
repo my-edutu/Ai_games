@@ -7691,23 +7691,58 @@ function nextMarketStall(){
 // mobile film stare at opaque masonry while the journey was correctly routed.
 // Inspect real roof/headroom visibility near each camera step and prefer
 // unobstructed pavement until the authentic stall is close. Observer only.
+// W17 Living Valley camera: the actual mobile film exposed a moving lens
+// staring into timber and stone although the feet traversed a valid route.
+// A roof-clear ray is not enough: use the ORIGINAL market posts in portrait
+// projection and the ORIGINAL wall/headroom ray to direct every moving frame.
+// No merchant, stock, model, collider, path or authority state is modified.
 function planMarketTourLens(position,heading,desired,remaining){
- const view=angle=>streetEyeVisibility(position[0],position[1],angle,STREET_EYE).forwardMetres;
- const requested=view(desired),route=view(heading);
- let bearing=desired,clear=requested,avoided=false;
- if(remaining>1.2&&route>requested+.65&&requested<2.1){
-  bearing=heading;clear=route;avoided=true;
- }
- if(remaining>1.2&&clear<1.4){
-  for(const offset of [-.32,.32]){
-   const angle=heading+offset,metres=view(angle);
-   if(metres>clear+.5){
-    bearing=angle;clear=metres;avoided=true;
+ const angleDistance=(a,b)=>Math.abs(Math.atan2(Math.sin(a-b),Math.cos(a-b)));
+ const projected=angle=>{
+  const sight=streetEyeVisibility(position[0],position[1],angle,STREET_EYE);
+  const posts=streetEntrancePostAudit(position,angle);
+  // A central post one metre away is much more damaging than an upright
+  // at the frame edge. These penalties are presentation-only, based on
+  // physical posts, not fictional geometry or a synthetic screenshot mask.
+  const nearPost=posts.nearestVisiblePost===null?0:
+   Math.max(0,3.4-posts.nearestVisiblePost);
+  const obstructed=Math.max(0,2.25-sight.forwardMetres)*8+
+   posts.centralPosts*10+nearPost*5+posts.visiblePosts*.55;
+  return {bearing:angle,forwardMetres:sight.forwardMetres,
+   centralPostCount:posts.centralPosts,visiblePostCount:posts.visiblePosts,
+   nearestVisiblePost:posts.nearestVisiblePost,
+   obstructionScore:Math.round(obstructed*1000)/1000};
+ };
+ const requested=projected(desired),route=projected(heading);
+ let selected=requested,bestScore=requested.obstructionScore;
+ // Keep the true route readable at human height while approaching the REAL
+ // selected stall. A narrow-angle search avoids rapid 180-degree pans. When
+ // nothing is clearer, retain the original target instead of inventing one.
+ if(remaining>.45){
+  const angles=[heading,desired-.24,desired+.24,desired-.48,
+   desired+.48,heading-.30,heading+.30,desired-.68,desired+.68];
+  for(const angle of angles){
+   const deviation=angleDistance(angle,desired);
+   if(deviation>.82)continue;
+   const candidate=projected(angle);
+   const score=candidate.obstructionScore+deviation*2.25;
+   if(score+.35<bestScore){
+    selected=candidate;bestScore=score;
    }
   }
  }
- return {bearing,forwardMetres:clear,requestedMetres:requested,
-  routeMetres:route,avoidedWall:avoided};
+ return {bearing:selected.bearing,forwardMetres:selected.forwardMetres,
+  requestedMetres:requested.forwardMetres,routeMetres:route.forwardMetres,
+  avoidedWall:selected.forwardMetres>requested.forwardMetres+.5,
+  avoidedPost:selected.centralPostCount<requested.centralPostCount||
+   (selected.nearestVisiblePost!==null&&requested.nearestVisiblePost!==null&&
+    selected.nearestVisiblePost>requested.nearestVisiblePost+.45),
+  centralPostCount:selected.centralPostCount,
+  visiblePostCount:selected.visiblePostCount,
+  nearestVisiblePost:selected.nearestVisiblePost,
+  aimDeviation:Math.round(angleDistance(selected.bearing,desired)*1000)/1000,
+  requestedObstructionScore:requested.obstructionScore,
+  chosenObstructionScore:selected.obstructionScore};
 }
 function advanceMarketTour(dt){
  if(!marketTour||!streetWalk||!marketVisitActive)return;
@@ -7759,10 +7794,22 @@ function advanceMarketTour(dt){
  const lens=planMarketTourLens(next,heading,desired,remaining);
  marketTour.lens={forwardMetres:lens.forwardMetres,
   requestedMetres:lens.requestedMetres,routeMetres:lens.routeMetres,
-  avoidedWall:lens.avoidedWall};
+  avoidedWall:lens.avoidedWall,avoidedPost:lens.avoidedPost,
+  centralPostCount:lens.centralPostCount,visiblePostCount:lens.visiblePostCount,
+  nearestVisiblePost:lens.nearestVisiblePost,
+  aimDeviation:lens.aimDeviation,
+  requestedObstructionScore:lens.requestedObstructionScore,
+  chosenObstructionScore:lens.chosenObstructionScore};
  const turn=Math.atan2(Math.sin(lens.bearing-streetYaw),
   Math.cos(lens.bearing-streetYaw));
- streetYaw+=turn*Math.min(1,dt*3.5);
+ // At 2–3 software frames/s a lingering blocked lens lasts seconds.
+ // Accelerate only when the physically projected view is obstructed;
+ // otherwise preserve normal smooth turning. This cannot accelerate AI time.
+ const currentPost=streetEntrancePostAudit(next,streetYaw);
+ const emergency=currentPost.centralPosts>0&&
+  lens.centralPostCount<currentPost.centralPosts;
+ const turnSpeed=emergency?11:3.5;
+ streetYaw+=turn*Math.min(1,dt*turnSpeed);
  if(distance-portion<.06)marketTour.index++;
 }
 
