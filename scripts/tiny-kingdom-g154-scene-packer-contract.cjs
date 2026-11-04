@@ -22,6 +22,24 @@ assert.doesNotMatch(source,/triangleKeys=new Array\(triangleCount\)/,
 assert.doesNotMatch(source,/\.subarray\(o,o\+30\)/,
  'No short typed-array allocation on every geometry triangle');
 
+
+ // W38 growth-frame architecture: when an actual cottage or a seasonal forest
+ // changes, bucket bounds must be computed while reading source triangles.
+ // A second all-triangle AABB pass over the scattered destination caused
+ // avoidable work during already stalled SwiftShader construction frames.
+ // Keep exact original source order, full AABB (not centroid-only) and
+ // G154's byte-exact reference validation below. This is NOT a FPS claim.
+const scatterStart=source.indexOf('const packed=new Float32Array(mesh.length)');
+assert(scatterStart>0,'A bounded typed array stores every original triangle');
+const sourcePass=source.slice(0,scatterStart);
+const scatterPass=source.slice(scatterStart);
+assert.match(sourcePass,/triangleMinX/,
+ 'Compute full source triangle AABB before the scatter pass');
+assert.match(sourcePass,/chunk\.minX/,
+ 'Accumulate each chunk AABB during the source scan');
+assert.doesNotMatch(scatterPass,/range\.minX\s*=\s*Math\.min/,
+ 'Do not rescan each triangle for chunk bounds after bucketing');
+
 function reference(mesh){
  assert.equal(mesh.length%30,0);
  const buckets=new Map();
