@@ -117,6 +117,10 @@ export function planFacadeBodyOcclusion(cam,point,facades,eyes,reveal,pad=2.1){
   if(!Array.isArray(f)||f.length<6||![f[0],f[1],f[2],f[3],f[4],f[5]].every(finite)||
      f[3]<=0||f[4]<=0||f[5]<=0||f[3]>4||f[4]>6||f[5]>4)continue;
   if(Math.abs(f[0]-point.x)>5.8||Math.abs(f[2]-point.z)>5.8)continue;
+  // Reject slabs outside the real ray *before* costly five-actor cutaway.
+  // A selected facade cannot block if its original complete stone did not.
+  if(!rayIntersectsBox(cam,point,f[0]-f[3]/2,f[1]-f[4]/2,f[2]-f[5]/2,
+                       f[0]+f[3]/2,f[1]+f[4]/2,f[2]+f[5]/2))continue;
   // These are precisely the facadeMesh.setMatrixAt dimensions in environment.js.
   const band=reveal(f[0],f[2],eyes,cam,pad,f[4]);
   const h=band==='sightline'?.13:band==='nearby'?.43:f[4];

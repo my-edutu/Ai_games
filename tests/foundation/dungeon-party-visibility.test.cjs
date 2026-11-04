@@ -391,7 +391,7 @@ test('a true moving rendered body stays privileged between two legal cardinal ce
  // Walls, diagonal interpolation, teleports and dead people never earn a pocket.
  state.map[9]=state.map[9].slice(0,8)+'#'+state.map[9].slice(9);
  assert.equal(resolveRenderedSilhouetteSubjects(state,[{x:0,z:0}],actors)[0].visibleActor,undefined);
- state.map=map;actors.get('v').root.position={x:-.72,z:.62};
+ state.map[9]='.'.repeat(19);actors.get('v').root.position={x:-.72,z:.62};
  assert.equal(resolveRenderedSilhouetteSubjects(state,[{x:0,z:0}],actors)[0].visibleActor,undefined);
  actors.get('v').root.position={x:-2,z:0};
  assert.equal(resolveRenderedSilhouetteSubjects(state,[{x:0,z:0}],actors)[0].visibleActor,undefined);
