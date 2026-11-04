@@ -191,6 +191,13 @@ test('a real close public encounter frames both autonomous actors and saves date
     .toBeLessThan(.015);
   expect(diagnostics.wardenContactShadows, 'Only public guardian actors get shadow meshes').toBe(diagnostics.disclosedThreats);
   expect(diagnostics.wardenGroundedContacts, 'The shadow must follow the true physical floor beneath each visible guardian').toBe(diagnostics.disclosedThreats);
+  // This is an unchanged real produced public guardian, never an actor moved
+  // by the test. Reduced-motion must show its actual stable final 3D pose.
+  // The sequential full-motion beats remain a separate temporal evidence gate.
+  expect(diagnostics.witnessedGuardianBeat?.some(entry =>
+    entry.beat === 1 && entry.bracedContact >= 1.30),
+    'a genuinely disclosed close guardian must brace in rendered 3D, not only report danger')
+    .toBe(eligibleWarning);
   expect(diagnostics.explorerInFrame).toBe(true);
   expect(diagnostics.wayfindingCues.every(cue => cue.kind === 'planned' || cue.goal),
     'Autonomous 3D gameplay must not fill the floor with uncommitted legal-option arrows').toBe(true);
@@ -222,6 +229,7 @@ test('a real close public encounter frames both autonomous actors and saves date
       wardenContactShadows: diagnostics.wardenContactShadows,
       wardenGroundedContacts: diagnostics.wardenGroundedContacts,
       encounterAttention: diagnostics.encounterAttention,
+      witnessedGuardianBeat: diagnostics.witnessedGuardianBeat,
       eligiblePublicLanternWarning: eligibleWarning,
       witnessedLanternWarningVisible: diagnostics.witnessedLanternWarningVisible,
       witnessedLanternConeVisible: diagnostics.witnessedLanternConeVisible,
@@ -266,6 +274,7 @@ test('a real close public encounter frames both autonomous actors and saves date
       cameraHalfHeight:portraitEncounter.cameraHalfHeight,
       explorerProjection:portraitEncounter.explorerProjection,
       encounterAttention:portraitEncounter.encounterAttention,
+      witnessedGuardianBeat:portraitEncounter.witnessedGuardianBeat,
       explorerInFrame:portraitEncounter.explorerInFrame,
       frameP50Ms:portraitEncounter.frameP50Ms,
     },
