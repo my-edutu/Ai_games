@@ -344,7 +344,7 @@ function observedTrapEscape(state:TowerState,obs:TowerObservation,
         distance:Math.abs(option.goal-p.position.x),
         momentum:p.velocity.x*option.move>0?0:1};
     }).sort((a,b)=>
-      Number.isFinite(b.steps)-Number.isFinite(a.steps)||
+      Number(Number.isFinite(b.steps))-Number(Number.isFinite(a.steps))||
       a.steps-b.steps||a.distance-b.distance||a.momentum-b.momentum||
       a.move-b.move);
   const best=options[0];
