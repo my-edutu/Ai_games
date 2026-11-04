@@ -2194,7 +2194,7 @@
         "playsMajority": false,
         "provenance": "No fresh independent critics available. Do not infer a blind preference from test results or real predecessor screenshots."
       },
-      "safetyChecks": "Previous source 92b Dungeon authority PASS but browser shard 1 had two natural-defeat fixture failures, visual review failed same UI seed; catalogue failed 2/918 outdated plinth source selectors. Current 6f67af9 exact-head workflow statuses UNVERIFIED / QUEUED.",
+      "safetyChecks": "New source cd5bbfe safety pending; no new gameplay/replay/CI result claimed. Only exact source JavaScript parse and deterministic shard planner sanity checks completed outside runtime. Reference predecessor 92b browser assertions had natural-death scenario failures; do not claim acceptance.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED synchronized full video+audio; predecessor Chromium Warden diagnostic 2.5s non-silent real PCM 44100Hz, peak .025445 RMS .00856, but browser video recorder reported zero bytes.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2202,7 +2202,7 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Real-source b8be04f 1440x832 browser screenshot from 41672587065 and Warden boss desktop/mobile screenshot/video artifacts 41672587022 were INSPECTED: new 14 anatomical joint cylinders made elongated opaque spindly/squid-like limbs. Warden encounter head-on 1440x832 has 3 heroes overlapping enemy bodies in the 58% HP boss arena, warning Rift Cross visible but contact indistinguishable; mobile capture progressed into floor 2 but large stylized ballheads persist. This is a NEGATIVE experiential finding compared with da492455 and exact locked baseline; source visual redesign at 71da2ea to cap spans remains unverified. No masked A/B victory.",
-      "latestCandidateWorkflow": "6f67af9 source Eclipse integration committed; latest exact-head browser, visual, catalogue checks queued/unverified. A previous source 92b real review failed two organic-loss seed assumptions and two stale stone thresholds; no latest source workflow results claimed.",
+      "latestCandidateWorkflow": "cd5bbfe original 3D hit fracture: Dungeon 41785504951, visual 41785505003, CI 41785504967 queued/pending, outcomes UNVERIFIED; source parse and pure fan math inspected in connected JS tool, NOT browser tests.",
       "currentPredecessorWebgl": {
         "sourceHead": "938cf0c44726b7be5dd3441eb33f7c1226f2b872",
         "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41758062752/artifacts/13289962348",
@@ -2217,7 +2217,7 @@
         "audio": "Real 3-second opt-in Warden audiovisual MediaRecorder produced no recorded frames in that workflow; UNSUPPORTED/UNVERIFIED",
         "fullGameReel": false
       },
-      "newCandidateSceneReview": "Real 92b world screenshot/video inspected and critiqued negatively. Actual 6f67af9 source desktop/mobile three-lane warning, contact animation, synchronized original audio and blind review NOT VERIFIED.",
+      "newCandidateSceneReview": "Previous source 92b actual 1440x832 and desktop/mobile videos show miniature-like figures and insufficient physical impact. The new cd5bbfe instanced-material fracture, recoil/audio coordination, matched original-baseline motion and mobile readability have NOT BEEN OBSERVED in the actual running game.",
       "characterDrawBudget": "Previous exact 429e6b real Chromium had 265 cinematicMeshes at desktop versus <=240 test bound (shard1 failed). New 3aec189 fuses 4–5 head parts per figure and removes 1 gorget per figure but actual current head draw counts, performance and visual quality UNVERIFIED; do not infer from mesh arithmetic.",
       "externalReferenceAudit": "Compared qualitatively against 2023 Diablo IV Frozen Tunnel combat still (https://www.npr.org/2023/05/30/1178222988/diablo-iv-review-activision-blizzard), real No Rest for the Wicked 2026 cavern still (https://www.rpgsite.net/news/20518-no-rest-for-the-wicked-1-0-release-ps5-xbox-switch-2-cross-save-multiplayer-pc-october), and Path of Exile 2 Executioner combat still (https://www.mmorpg.com/reviews/path-of-exile-2-early-access-review-2000133606). Their negative space/material structure/impact clarity remain far ahead; they are references, NOT licensed or copied game assets. No direct synchronized/gameplay-balanced reference test or blind score.",
       "realBrowserFrameDeliveryPredecessor": "Actual d9e1c Chromium software WebGL shard 2 artifact 13238978845, artifacts/dungeon-raf-interval-evidence.json: foreground RAF intervals 15 samples, p50 733.3ms, p95 and worst 4549.9ms; other raster evidence sampled 8 frames, directRenderMs 3.9ms at 273136 pixels and downshift 2. Foreground RAF observations cannot establish standalone GPU render time or phone fps. Known scheduling / software runner risk, latest candidate performance UNVERIFIED.",
@@ -2312,9 +2312,9 @@
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Real Chromium 92b footage shows toy-scale human heads, cramped tightly cropped combat framing, brown masonry and limited weapon contact. The integrated final-phase Eclipse candidate materially changes tactical tension and original sound, but its actual new-head looks, feels, plays, phone performance and accepted full journey are UNVERIFIED.",
-    "currentWork": "M1 ongoing: three-lane 3-beat genuine Eclipse attack, safe-lane preserving autonomous AI, actual-countdown basalt relief and original low-HP soundtrack implemented on existing draft branch. Prior 92b genuine browser captures and natural-death corpus reviewed. Current candidate 6f67... latest workflows queued; never call this a transformation before matched original-audio desktop/mobile motion and blind votes.",
-    "candidateCommit": "6f67af9deeaee8f3814c5e02f042e9a4f662458a",
+    "biggestRemainingGap": "The actual WebGL adventure still presents action-figure/miniature anatomy and intermittent physically illegible combat against crowded masonry. New exact-source 3D damage fracture is unreviewed in motion.",
+    "currentWork": "M1 continues: source-native contact now integrates genuine public HP-loss events, skinned chest anchor, physical instanced material debris, imported injury recoil, camera and opt-in original sound. Capture and critic gate remains OPEN; no new source-head game movie or blind A/B.",
+    "candidateCommit": "cd5bbfe05e7ec3e7cd82bfc5d8eca4c251e9b612",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
     "implementationEvents": [
@@ -4453,6 +4453,40 @@
         },
         "biggestGap": "The three naturally proportioned heroes, physically grounded combat contact, broader atmospheric stage and clear moving 3D camera remain visually far below Diablo IV, No Rest for the Wicked and Path of Exile 2 in the latest genuine predecessor. Source code cannot prove improvement.",
         "next": "Inspect actual exact-source 6f67... desktop/mobile final Eclipse warning frames, two-step evasion and original audio; fix any real regressions. Then prioritize adult-body proportions, skinned weapon contact and spacious cinematic encounters; complete pinned seed-matched full audible journey, sustained performance profiling and 3 fresh independent blind looks/feels/plays votes. Never merge."
+      },
+      {
+        "id": "M1-SKINNED-TRUE-HIT-ARMOR-FRACTURE-20261104",
+        "date": "2026-11-04",
+        "milestone": "M1",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "926df75bee4599911e1f69a37fb03e2dee2f00d4",
+        "codeCommit": "cd5bbfe05e7ec3e7cd82bfc5d8eca4c251e9b612",
+        "objective": "Improve physically legible genuine melee/ranged hit impact on continuous original animated character bodies, not a detached flat geometric flash or fabricated damage.",
+        "integratedImplementation": "Actual positive public HP loss drives original contact-performance fan geometry. Chest-attached first frame is sampled from imported skinned actor; one instanced batch per blow emits 6 short-life 3D armor chips, 10 for genuine fatal loss, and world-space tumble/gravity plus muted metal/ember surface treatment. Real skinned injury recoil, camera hold, overlay HP flyups and consent-gated soundstage continue to share the same authoritative injury. Unique lawful incoming attack bearing directs visual debris; ambiguous damage has neutral radial coverage. Reduced motion preserves still HP/victim cue without debris flight; bounded 24-effect pool and shared geometry release across restart/floor.",
+        "observedRealPredecessor": {
+          "sourceSha": "92b06b2c2d9f6e1d044e6a35edd998c0acd8bdeb",
+          "worldArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41778065109/artifacts/13297429926",
+          "motionArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41778065193/artifacts/13297638912",
+          "finding": "Original actual running footage is still toy-scale, close-cropped and limited in clear visible contact; NOT a matched milestone BEFORE/AFTER blind comparison."
+        },
+        "codeFiles": [
+          "public/ai-dungeon/contact-performance.js",
+          "public/ai-dungeon/combat-director.js",
+          "tests/foundation/dungeon-contact-performance.test.cjs"
+        ],
+        "safety": "Source parse PASS and deterministic pure planner sanity checked (six ordinary, ten fatal, reduced-motion zero, invalid HP loss zero). Node foundation, full campaign, Chromium and integrated CI remain RUNNING/UNVERIFIED at the first new exact-head check.",
+        "newHeadWorkflowUrls": [
+          "https://github.com/my-edutu/Ai_games/actions/runs/41785504951",
+          "https://github.com/my-edutu/Ai_games/actions/runs/41785505003",
+          "https://github.com/my-edutu/Ai_games/actions/runs/41785504967"
+        ],
+        "originalAudio": "Prior 2.5s non-silent source PCM was not a synchronized full Warden clip; exact candidate audible motion UNVERIFIED",
+        "performance": "New 6–10 instances in one draw per actual HP-loss, <=24 shared total active effects by source cap; real phone p95/p99 and draw call profile UNVERIFIED.",
+        "blindCritics": "0/3; all LOOKS, FEELS, PLAYS UNVERIFIED",
+        "verdict": "IN_PROGRESS — NOT_TRANSFORMED",
+        "biggestGap": "The actual WebGL adventure still presents action-figure/miniature anatomy and intermittent physically illegible combat against crowded masonry. New exact-source 3D damage fracture is unreviewed in motion.",
+        "next": "Review real exact-source desktop/mobile active melee and Warden encounter (including 3D shards); reject clutter or frame cost, then strengthen source-native proportions, contact and dungeon negative space, capture full five-stage audible adventure, require independent blind before/after majority."
       }
     ]
   }
