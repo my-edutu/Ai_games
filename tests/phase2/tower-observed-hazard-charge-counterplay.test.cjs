@@ -112,8 +112,8 @@ test('the autonomous climber commits to an observed exit with real on-deck momen
   assert.equal(directed.intent.mode,'evading-hazard');
   assert.equal(directed.action.move,1,
     'an already rightward climber should not reverse into an equally distant left route');
-  assert.equal(directed.action.jump,true,
-    'when neither body-clear exit fits the remaining physics window, earn a timely leap');
+  assert.equal(directed.action.jump,false,
+    'a reachable observed deck exit preserves the ordinary grounded footwork');
   assert.deepEqual(directed,live(s),'fixed-step choices must be repeatable');
   assert.equal(p.position.x,center,'policy does not teleport or force a safe outcome');
 });
