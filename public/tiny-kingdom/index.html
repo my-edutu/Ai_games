@@ -5751,6 +5751,20 @@ function renderHouseholdThresholds(){
  }
  householdThresholdRenderStats.triangles=(data.length-first)/30;
 }
+// W14: the scene membership of real visible labor—not the camera's raw
+// subpixel position—decides whether the exact CPU/GPU citizen scene changed.
+// Walking past the SAME eight genuine workers must not rebuild 900k floats.
+// Crossing into another actual worksite does invalidate the residency key.
+function visibleActualWorksites(){
+ return getActiveWorksites().filter(w=>
+  Math.hypot(w.x-focusPoint[0],w.z-focusPoint[1])<25||
+  people[selectedCitizen]?.name===w.citizen
+ ).sort((a,b)=>{
+  const da=(a.x-focusPoint[0])**2+(a.z-focusPoint[1])**2;
+  const db=(b.x-focusPoint[0])**2+(b.z-focusPoint[1])**2;
+  return da-db||a.citizen.localeCompare(b.citizen);
+ }).slice(0,8);
+}
 function renderWorkdayTraces(){
  workdayRenderStats.sceneMarkers=0;
  const now=state.t;
@@ -5780,14 +5794,7 @@ function renderWorkdayTraces(){
  // G091: physical working props persist through each genuine job timer;
  // bounded to eight visible sites. This is visual-only geometry — the
  // authoritative output continues to come from work(), never here.
- const active=getActiveWorksites().filter(w=>
-  Math.hypot(w.x-focusPoint[0],w.z-focusPoint[1])<25||
-  people[selectedCitizen]?.name===w.citizen
- ).sort((a,b)=>{
-  const da=(a.x-focusPoint[0])**2+(a.z-focusPoint[1])**2;
-  const db=(b.x-focusPoint[0])**2+(b.z-focusPoint[1])**2;
-  return da-db||a.citizen.localeCompare(b.citizen);
- }).slice(0,8);
+ const active=visibleActualWorksites();
  workdayRenderStats.activeWorksites=active.length;
  const triangleStart=data.length;
  materialScope(MATERIAL.WOOD,()=>{
@@ -9462,7 +9469,7 @@ const detailPlan=selectVisibleCitizenDetail(),nearPeople=detailPlan.indices;
 const candidateCameraDynamicKey=gpuAvailable?[
  presentationEpoch,state.t,city.length,scenicMeshKey,detailPlan.mode,
  [...nearPeople].sort((a,b)=>a-b).join(','),selectedCitizen,
- follow?1:0,focusPoint[0],focusPoint[1],
+ follow?1:0,visibleActualWorksites().map(w=>w.citizen).join(','),
  document.body.dataset.workday||'off',liveWorkday?1:0,
  streetWalk?1:0,streetEncounterName||'',workdayEvents.length,
  deliveryReceipts.length
