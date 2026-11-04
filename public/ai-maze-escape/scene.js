@@ -524,7 +524,17 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     marker.position.set(pose.x, ground + .025, pose.z);
     marker.material.opacity = settings.highContrast ? 1 : .55;
     contact.position.set(pose.x, ground + .018, pose.z);
-    lanternLight.position.set(pose.x + .25, ground + 1.1, pose.z + .2);
+    // The previous approximate actor-root offset left the ONLY dynamic warm
+    // light behind the actual animated hand-held lantern as Pip gestured.
+    // Source-owned actor motion now positions the physical point light at
+    // its real modeled emitter; no secret state or gameplay authority added.
+    if (explorerLantern) {
+      explorerLantern.getWorldPosition(lanternFocusOrigin);
+      lanternLight.position.copy(lanternFocusOrigin);
+    } else {
+      // Defensive fallback if a future character LOD removes its lamp rig.
+      lanternLight.position.set(pose.x, ground + 1.1, pose.z);
+    }
     // The self-contained lantern glow signals a truly PUBLIC nearby threat.
     // An unknown/closed passage cannot justify a straight cone, but it can
     // justify Pip's own illuminated caution pose. No new AI action or text.
@@ -960,6 +970,11 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         encounterAttention: closestThreat?.strength ?? 0,
         witnessedLanternConeVisible: lanternBeam.visible,
         witnessedLanternWarningVisible: lanternWarning.visible,
+        // Read the real Three.js light and articulated cage after the actual
+        // WebGL render. Diagnostics cannot substitute for native image review.
+        lanternPhysicalLightDistanceWorld: explorerLantern
+          ? lanternLight.position.distanceTo(explorerLantern.getWorldPosition(lanternFocusOrigin))
+          : null,
         witnessedKeyPickupVisual: pickupBurst.visible,
         pickupShardsInFrame,pickupSpreadCssPx,
         keysInFrame, closedGatesInFrame,
