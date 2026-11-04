@@ -4,6 +4,7 @@ const path = require('node:path');
 const { createHash } = require('node:crypto');
 const { test, expect } = require('@playwright/test');
 const { assessTowerMotion } = require('../../scripts/tower-motion-evidence.cjs');
+const { summarizeTowerCrossfire } = require('../../scripts/tower-crossfire-evidence.cjs');
 
 // No intercepted snapshots, replay scrubbing, virtual time, time acceleration or
 // post-processed poses: this visits the live, seeded 20 Hz expedition host.
@@ -212,6 +213,57 @@ for (const viewport of viewports) {
       if (witnessed.length > 120) witnessed.shift();
     }, 200);
   });
+  // Observe genuine short crossfire at 50ms read-only cadence WHILE
+  // continuous native WebM records. No simulated event, clock override,
+  // source fixture, or rendered pose is injected into the real game.
+  if (scenario === 'danger') await page.evaluate(() => {
+    const witnessed = [];
+    window.__TOWER_CAPTURE_CROSSFIRE_WITNESSES__ = witnessed;
+    let lastKey = '';
+    window.__TOWER_CAPTURE_CROSSFIRE_TIMER__ = setInterval(() => {
+      const s = window.__TOWER_PUBLIC_STATE__;
+      const d = window.__TOWER_RENDER_DIAGNOSTICS__?.();
+      const p = s?.player;
+      if (s?.lifecycle !== 'running' || s.stale || !p || p.health <= 0 ||
+          !Number.isSafeInteger(s.tick) || !Number.isSafeInteger(s.floor) ||
+          typeof s.runToken !== 'string' || !s.runToken ||
+          ![p.x,p.y,p.halfWidth,p.halfHeight].every(Number.isFinite) ||
+          p.halfWidth <= 0 || p.halfHeight <= 0) return;
+      const guardian = (s.enemies || []).find(g =>
+        g?.kind === 'guardian' && g.active === true && g.telegraph === true &&
+        Number.isFinite(g.health) && g.health > 0 &&
+        [g.x,g.y].every(Number.isFinite) &&
+        Math.abs(g.x-p.x) <= 135000 && Math.abs(g.y-p.y) <= 65000);
+      if (!guardian) return;
+      const near = (s.hazards || []).filter(h =>
+        h && [h.x,h.y,h.width,h.height].every(Number.isFinite) &&
+        h.width > 0 && h.height > 0 &&
+        Math.abs(p.x-h.x-h.width/2) <= p.halfWidth+h.width/2+9000 &&
+        Math.abs(p.y-h.y-h.height/2) <= p.halfHeight+h.height/2+12000 &&
+        (h.active === true ||
+         (Number.isSafeInteger(h.chargeTicksRemaining) &&
+          h.chargeTicksRemaining >= 1 && h.chargeTicksRemaining <= 12) ||
+         (d?.hazardPressure?.crossfireReleases ?? 0) > 0));
+      if (!near.length) return;
+      const key=s.runToken+':'+s.floor+':'+s.tick;
+      if(key===lastKey) return;
+      lastKey=key;
+      witnessed.push({atMs:Date.now(),tick:s.tick,floor:s.floor,
+        runToken:s.runToken,guardianId:guardian.id||null,
+        intentMode:s.intent?.mode||null,
+        sourceHazards:near.map(h=>({id:h.id,active:h.active === true,
+          chargeTicksRemaining:Number.isSafeInteger(h.chargeTicksRemaining)?
+            h.chargeTicksRemaining:null})),
+        renderedPressure:d?.hazardPressure ? {
+          sourceTick:d.hazardPressure.sourceTick??null,
+          crossfirePrewarnings:d.hazardPressure.crossfirePrewarnings??0,
+          crossfireWarnings:d.hazardPressure.crossfireWarnings??0,
+          crossfireReleases:d.hazardPressure.crossfireReleases??0,
+          activeHazards:d.hazardPressure.activeHazards??0,
+          instances:d.hazardPressure.instances??0} : null});
+      if(witnessed.length>256) witnessed.shift();
+    },50);
+  });
   await sample(0);
   // The frozen baseline can have a one-tick terminal phase; an authentic
   // frame still may not be present in composited video. Do not imply a visible
@@ -231,6 +283,16 @@ for (const viewport of viewports) {
       clearInterval(window.__TOWER_CAPTURE_RESULT_WITNESS_TIMER__);
       return [...(window.__TOWER_CAPTURE_RESULT_WITNESSES__ || [])];
     }) : [];
+  const crossfireWitnesses = scenario === 'danger' ? await page.evaluate(() => {
+    clearInterval(window.__TOWER_CAPTURE_CROSSFIRE_TIMER__);
+    return [...(window.__TOWER_CAPTURE_CROSSFIRE_WITNESSES__ || [])];
+  }) : [];
+  const crossfireSummary = summarizeTowerCrossfire(crossfireWitnesses);
+  if(scenario === 'danger') fs.writeFileSync(
+    path.join(dir,'crossfire-source-witness.json'),
+    JSON.stringify({ sourceSha:process.env.TOWER_CAPTURE_SOURCE_SHA||
+      process.env.GITHUB_SHA||null, crossfireSummary,crossfireWitnesses,
+      note:'Read-only source+render telemetry. Not visual quality evidence or a substitute for native WebM.'},null,2));
   const assessment = assessTowerMotion(observations, {
     minDurationMs: 60000, requireOutcomeRestart: scenario === 'outcome',
     outcomeWitness,
@@ -309,7 +371,8 @@ for (const viewport of viewports) {
     sampledActorOffscreen: observations.filter(item => item.observedActor?.inPicture === false).length,
     sampledActorUnsafe: observations.filter(item => item.observedActor?.inSafeFrame === false).length,
     capturedAt: new Date().toISOString(), observations, assessment,
-    sourcePhaseSummary, sourceMovingSummary, outcomeWitness, errors,
+    sourcePhaseSummary, sourceMovingSummary, outcomeWitness,
+    crossfireSummary, crossfireWitnesses, errors,
     independentReview: false,
     gates: { captureIntegrity: assessment.scopedPass ? 'PASS' : 'FAIL',
       completeMotion: 'OPEN: manually review unedited normal-speed video for climbing, guardian danger, true result and restart',
