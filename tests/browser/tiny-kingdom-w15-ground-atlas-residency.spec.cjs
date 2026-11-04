@@ -21,7 +21,9 @@ test('W15 real village growth reuses one immutable landscape albedo base, not fa
  });
  expect(initial.surface.renderer).toBe('gpu-2d-albedo');
  expect(initial.surface.baseBuilds).toBe(1);
- expect(initial.surface.baseReuses).toBe(0);
+ // The autonomous village may construct genuine homes before the browser
+ // catches its first frame. Compare the same real base across all rebuilds.
+ expect(initial.surface.baseReuses).toBe(initial.surface.rebuilds-1);
  expect(initial.surface.baseBytes).toBe(512*512*4);
  expect(initial.surface.gpuTextures).toBe(1);
  expect(initial.gl).toBe(0);
