@@ -924,7 +924,7 @@ export function createMazeWorld(options = {}) {
                   dx ? .065 : .18, .21, dz ? .065 : .18, c.cell);
                 for (let blade = 0; blade < 3; blade++) {
                   const lean = blade - 1;
-                  add(leafGeometry, blade === 1 ? seaFern : leafDark,
+                  add(leafGeometry, blade === 1 ? leaf : leafDark,
                     rootX + dz * lean * .085, -.36,
                     rootZ + dx * lean * .085,
                     .27 + (blade === 1 ? .08 : 0),
