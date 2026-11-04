@@ -2194,7 +2194,7 @@
         "playsMajority": false,
         "provenance": "No fresh independent critics available. Do not infer a blind preference from test results or real predecessor screenshots."
       },
-      "safetyChecks": "Local candidate extracted source: Dungeon foundation 261/261 PASS. Exact-code Actions 41736374006 (dungeon), 41736374025 (visual) and 41736374029 (global) pending; do not imply full green.",
+      "safetyChecks": "Locally tested source candidate equivalent: 270/270 Dungeon foundation contracts PASS, including 3 test-first red-to-green physical acting-pocket and camera contracts; local real browser blocked by ERR_BLOCKED_BY_ADMINISTRATOR. Original prior-head e886a0e visual review PASS and catalogue CI FAIL; exact 91178b9 visual 41743453391, Dungeon 41743453498, catalogue CI 41743453423 PENDING, do NOT assume passed.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED: baseline and ac82a5b Chromium VP8 clips have NO audio track; candidate original audio not recorded.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2204,19 +2204,15 @@
       "actualWebglFramingRegression": "Real-source b8be04f 1440x832 browser screenshot from 41672587065 and Warden boss desktop/mobile screenshot/video artifacts 41672587022 were INSPECTED: new 14 anatomical joint cylinders made elongated opaque spindly/squid-like limbs. Warden encounter head-on 1440x832 has 3 heroes overlapping enemy bodies in the 58% HP boss arena, warning Rift Cross visible but contact indistinguishable; mobile capture progressed into floor 2 but large stylized ballheads persist. This is a NEGATIVE experiential finding compared with da492455 and exact locked baseline; source visual redesign at 71da2ea to cap spans remains unverified. No masked A/B victory.",
       "latestCandidateWorkflow": "Exact f7964d desktop/world/mobile actual Chromium image artifact https://github.com/my-edutu/Ai_games/actions/runs/41699864342/artifacts/13262519453. Dungeon authority 41699864319 succeeded: 256/256 foundation, 20/20 interface/presentation, 24 x900 ticks, 0 replay divergence. All browser shards in progress at observation. Autonomous Games CI 41699864434 failed: GLB source asset missing on generic runner.",
       "currentPredecessorWebgl": {
-        "sourceHead": "69e8f1fc338d4bf385577d64d1655d9a507b79dd",
-        "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41681708361/artifacts/13254845756",
+        "sourceHead": "e886a0e0b94dce6b1bc137cecd7d1a5a3fc0f9cf",
+        "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41740892204/artifacts/13281337312",
         "actualImages": [
           "artifacts/dungeon-immersive-world-only.png",
           "artifacts/dungeon-immersive-desktop.png",
           "artifacts/dungeon-immersive-mobile.png"
         ],
         "worldViewport": "1440x832",
-        "fullDesktop": "1440x900",
-        "fullMobile": "390x1317",
-        "genuineVisualCritique": "Actual rendered heroes have spherical dark heads, floating glove/forearm blobs disconnected from shoulders and blank under-arm spaces. Waist-height fences and stacked wall masonry dominate nearby traversal; not on par with benchmark. Source 69e8 genuinely runs, but failing subjective standard.",
-        "motion": "Browser test-results WebM present (silent); no controlled original audio/movie clip across journey",
-        "verdict": "NOT_TRANSFORMED_SOURCE_PROBLEM"
+        "captureDescription": "Personally inspected actual source-native skinned green Ranger, silver Vanguard, purple Mystic in thick Gothic chapel; very large broken partitions, pillars and short stone bands visually compete with the bodies, despite live WebGL and existing cutaway. Real browser video 9.4s VP8 video-only, NO game audio. This is predecessor, not AFTER."
       },
       "newCandidateSceneReview": "Genuine locked 281735d raw-world 1440x832 vs genuine ac82a5b raw-world 1440x832 visual review: predecessor looks worse, visually disconnected large dark orbs/tubular limbs and obstructive masonry. Same test route/viewport; tick not synchronized. Candidate c66d936 source aims to restore continuity; AFTER pixels uninspected.",
       "characterDrawBudget": "Previous exact 429e6b real Chromium had 265 cinematicMeshes at desktop versus <=240 test bound (shard1 failed). New 3aec189 fuses 4–5 head parts per figure and removes 1 gorget per figure but actual current head draw counts, performance and visual quality UNVERIFIED; do not infer from mesh arithmetic.",
@@ -2297,9 +2293,9 @@
       "nativeContinuityCandidate": "Source commit 08338db is an unverified new 3D underlay candidate, not a demonstrated repair. Real after comparison/critics have not happened. Monitor additional native underbody draw calls and 3D anatomy material intersections."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Native source figures are physically continuous again but cartoon-like versus the external Diablo IV/No Rest for the Wicked/Path of Exile 2 references, and foreground Gothic masonry still competes with combat. Fresh candidate audiovisual gameplay and blind preference majority are absent.",
-    "currentWork": "One integrated unaccepted M1 combat-stage candidate: original tapered, lancet-ribbed sculpted wall instancing; open broken junction masonry that retains actual solid map truth; and ambient wildlife/motes yielding near real attacking opponents and active Warden warnings. New real desktop/mobile video and original audio, p95/p99, blind judging UNVERIFIED.",
-    "candidateCommit": "e2496d6b7d9ca0597376d0b9d9c1be473a38d5c3",
+    "biggestRemainingGap": "Latest genuine source-predecessor WebGL still shows recognizable but toy-like skinned humans immersed in overpowering chopped stone walls, with poor fine-scale combat contact and no original recorded audio. Current 91178b9 camera+physical aperture must be inspected in full moving desktop/phone fights; no before/after preference claim.",
+    "currentWork": "Continued the SAME unaccepted M1 with actual actor-scale 3D scene composition: physically clearer 360° close-body and legal combat staging cutaways plus genuine journey/contact cinematic lens, wide real Warden warning preserved. Source commits 8bdd456 and 91178b9. Candidate exact-head live proof, phone motion/audio and independent critics PENDING.",
+    "candidateCommit": "91178b9e9334812a68b6858b02a36bce793b2937",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -4209,6 +4205,38 @@
         "plays": "UNVERIFIED",
         "biggestGap": "Cartoon character geometry, cramped chapel clutter and weak combat impact persist. New architectural lowerings may falsely imply traversable walls and lancet ribs might float; these are candidate risks requiring genuine footage and correction.",
         "next": "Inspect exact-code real desktop/mobile moving Warden and party; fix silhouette/staging, real wall floor-truth, original contact motion and audio; capture five-stage expedition same-seed versus locked BEFORE, measure render tails, obtain >=3 blind judge majorities. No merge."
+      },
+      {
+        "id": "M1-ACTOR-SPACE-20261104",
+        "date": "2026-11-04",
+        "milestone": "M1",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "e886a0e0b94dce6b1bc137cecd7d1a5a3fc0f9cf",
+        "codeCommit": "8bdd4564f7a7da219f46fe2facf4308d3d522933",
+        "browserEvidenceTestCommit": "91178b9e9334812a68b6858b02a36bce793b2937",
+        "objective": "Make actual animated party/hostile performance readable as 3D acting bodies throughout a coherent dungeon journey, not silhouetted behind loose knee-high construction blocks.",
+        "actualBefore": "https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
+        "genuinePredecessor": "https://github.com/my-edutu/Ai_games/actions/runs/41740892204/artifacts/13281337312",
+        "inspectedPredecessorVerdict": "Actual software-WebGL 1440x832 and mobile capture. Source-native characters read as real humanoids but remain toy-like with oversized architecture crowding action. Video-only 9.4s (VP8), zero original-audio track. Baseline same nominal seed but not synchronized exact tick or lens, no fair A/B win.",
+        "integratedImplementation": "Existing authoritative actor/real legal-contact staging now lowers source-solid nearby stone to its cutaway floor foundation from ALL camera angles within bounded radius (2.05m travel body, 2.55m actual contact). Unmarked unrelated walls stay intact. Cinematic travel, skirmish and contact lens carries larger real figure silhouettes; real Warden warning stays high/wide. Existing stone, facade, chapter-nave and real cutaway source uses same subject plan; source native CC0 skinned and AI combat untouched. Added reproducible unchanged-source seed/tick desktop and phone real-WebGL screenshots/diagnostic assertions, awaiting workflow.",
+        "sourceFiles": [
+          "public/ai-dungeon/party-visibility-plan.js",
+          "public/ai-dungeon/cinematic-chapter-plan.js",
+          "tests/foundation/dungeon-m1-battle-vista.test.cjs",
+          "tests/browser/dungeon-party-visibility.spec.cjs",
+          "package.json"
+        ],
+        "localSafety": "3 focused tests observed RED before code, then 3/3 PASS; npm run dungeon:test 270/270 PASS after code, TypeScript build PASS. Source-equivalent local tests; no new exact-head Actions green claimed.",
+        "newCandidateWebgl": "UNVERIFIED; 91178b9 exact-head Actions screenshot/video pending",
+        "audio": "UNVERIFIED; original 9.4s predecessor video-only VP8, full 5-stage audio/motion impossible to claim",
+        "performance": "UNVERIFIED; no new scene draw pass or gameplay workload, but camera changes can affect wall culling, frame tail and phone legibility. Need measured live desktop/phone capture and GPU/perceptual check.",
+        "critics": "0/3; worker tunnel unavailable",
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "blocker": "Local Playwright Chromium GET 127.0.0.1 blocked by host administrator. Genuine GitHub Actions Chromium is available; test written to collect matched authentic source seed/tick on desktop/phone.",
+        "next": "Inspect exact 91178b9 screenshots/real motion: ensure 360° aperture genuinely clears characters without showing fake traversable paths or vanishing rear walls; inspect true Warden boss contact, floor transition/restart and original sound. Preserve pinned before, measure phone render tails/accessibility and obtain >=3 blind LOOKS/FEELS/PLAYS majority. Never merge draft PR."
       }
     ]
   }
