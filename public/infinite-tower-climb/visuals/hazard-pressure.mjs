@@ -34,9 +34,13 @@ export function observedInstalledGuardianShutter(snapshot, hazard) {
       cap.width <= 0 || cap.height <= 0 ||
       hazard.x < cap.x || hazard.x + hazard.width > cap.x + cap.width ||
       Math.abs(hazard.y - (cap.y + cap.height)) > 2500) return false;
+  // A defeated guardian is still a real source-confirmed arena until the
+  // fixed-step floor changes. Its authored collision crusher does not vanish
+  // merely because the opponent reaches zero HP; otherwise the stage would
+  // visually pop out during the genuine HP-lock release and outcome handoff.
   return Array.isArray(snapshot.enemies) && snapshot.enemies.some(enemy =>
-    enemy?.kind === 'guardian' && enemy.active === true &&
-    valid(enemy.health) && enemy.health > 0 &&
+    enemy?.kind === 'guardian' &&
+    valid(enemy.health) && enemy.health >= 0 &&
     valid(enemy.x) && valid(enemy.y));
 }
 
