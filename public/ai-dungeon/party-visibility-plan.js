@@ -87,6 +87,10 @@ export function planPartyWallReveal(x,z,subjects,camera,pad=2.1,wallHeight=2.6){
   // can recess it: no whole-room flattening or unearned scenic cutaways.
   if(radial<=4.8*4.8&&(subject.silhouetteRecess===true||subject.combatRecess===true||subject.visibleActor===true)&&
      planCameraBodyOcclusion(x,z,[subject],camera,wallHeight))return 'sightline';
+  // Unmarked genuine actors receive strictly anatomical ray clearance,
+  // never the generic scenic foreground wedge (which would flatten rooms
+  // even when the original wall is below the fighter's chest).
+  if(subject.visibleActor===true)continue;
   if(subject.silhouetteRecess===true||subject.combatRecess===true){
    const combat=subject.combatRecess===true;
    // Real Chromium 53fc069: a Vanguard's chest, guard and sword were still

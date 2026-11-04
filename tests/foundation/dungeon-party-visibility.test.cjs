@@ -299,7 +299,8 @@ test('native full-body travel stays visible through physical stone even without 
   'normal travel must not leave a real hero beneath an opaque 3D wall');
  assert.equal(planCameraBodyOcclusion(4.5,0,[undecorated],camera,2.6),false,
   'arbitrary scene coordinates cannot manufacture character sightlines');
- assert.equal(planPartyWallReveal(4.5,0,[undecorated],camera,2.1,2.6),'none');
+ assert.equal(planPartyWallReveal(4.5,0,[undecorated],camera,2.1,2.6),'sightline',
+  'legacy scenic wedge remains separate from physically privileged visible actors');
  assert.equal(planPartyWallReveal(4.5,0,[hero],camera,2.1,.4),'none',
   'already lowered ruins must not open the rest of the nave');
  assert.equal(planPartyWallReveal(-4.5,0,[hero],camera),'none',
