@@ -100,6 +100,8 @@ test('twelve source-positioned dock pieces form a visible arrival silhouette and
   assert.ok(dock.matrices[0].s[1] > 2, 'piers remain distinct at a normal viewing distance');
   assert.ok(dock.matrices[11].s[0] > .6, 'crossbar spans the physical entrance');
   const beforeColors = dock.colors.slice();
+  const idleBraceAngle = dock.matrices[9].r[2];
+  const idleLintelHeight = dock.matrices[11].p[1];
   stage.update({...snapshot,tick:125,player:{...snapshot.player,x:125000,y:deck.y+deck.height+snapshot.player.halfHeight-2000}},deck,125000);
   assert.notDeepEqual(dock.colors,beforeColors, 'present approach distance illuminates additional inset stones');
   assert.equal(stage.diagnostics().drawCalls,1);
@@ -107,7 +109,21 @@ test('twelve source-positioned dock pieces form a visible arrival silhouette and
   stage.update({...snapshot,tick:126,hazards:[{id:'spike',active:true,x:122000,y:84000,width:8000,height:10000}]},
     deck,125000);
   assert.equal(stage.diagnostics().pressureObservedNow,true);
-  stage.update({...snapshot,tick:126},deck,125000,{stale:true});
+  assert.ok(Math.abs(dock.matrices[9].r[2]) > Math.abs(idleBraceAngle)+.2,
+    'real threat must unfold the physical 3D warning vanes, not just change their tint');
+  assert.ok(dock.matrices[11].p[1] > idleLintelHeight+.1,
+    'source-pressured dock has an elevated physical lintel with no new draw');
+  stage.update({...snapshot,tick:127,hazards:[{id:'spike',active:false,
+    chargeTicksRemaining:5,x:122000,y:84000,width:8000,height:10000}],
+    player:{...snapshot.player,vy:-5000}},deck,125000);
+  assert.equal(stage.diagnostics().pressureObservedNow,true,
+    'genuinely scheduled descending last-six-tick danger uses the same physical warning pose');
+  stage.update({...snapshot,tick:128,hazards:[{id:'spike',active:false,
+    chargeTicksRemaining:8,x:122000,y:84000,width:8000,height:10000}],
+    player:{...snapshot.player,vy:-5000}},deck,125000);
+  assert.equal(stage.diagnostics().pressureObservedNow,false,
+    'early safe source window must retract the warning vanes');
+  stage.update({...snapshot,tick:129},deck,125000,{stale:true});
   assert.equal(stage.diagnostics().visible,false);
   stage.update({...snapshot,lifecycle:'intermission',tick:127},deck,125000);
   assert.equal(stage.diagnostics().pieces,0);
