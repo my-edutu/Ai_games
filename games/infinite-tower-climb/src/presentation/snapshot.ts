@@ -23,7 +23,7 @@ export interface TowerRenderSnapshot{
   chunkHeight:number;
   player:{x:number;y:number;vx:number;vy:number;halfWidth:number;halfHeight:number;facing:-1|1;health:number;maxHealth:number;stamina:number;maxStamina:number;shieldCharges:number;state:string;score:number;attacking:boolean};
   platforms:Array<{id:string;kind:string;x:number;y:number;width:number;height:number}>;
-  hazards:Array<{id:string;kind:string;x:number;y:number;width:number;height:number;active:boolean}>;
+  hazards:Array<{id:string;kind:string;x:number;y:number;width:number;height:number;active:boolean;chargeTicksRemaining?:number}>;
   enemies:Array<{id:string;kind:string;x:number;y:number;halfWidth:number;halfHeight:number;health:number;maxHealth:number;active:boolean;telegraph:boolean;telegraphTicksRemaining?:number;telegraphTotalTicks?:number;staggerTicksRemaining?:number;facing:-1|1;attackCooldown:number}>;
   projectiles:Array<{id:string;owner:'player'|'enemy';x:number;y:number;vx:number;vy:number}>;
   pickups:Array<{id:string;kind:string;x:number;y:number;value:number}>;
@@ -37,6 +37,18 @@ export interface TowerRenderSnapshot{
   publicChecksum:string;
 }
 function activeHazard(h:{activeFromTick:number;activeEvery:number;activeFor:number},tick:number){return tick>=h.activeFromTick&&((tick-h.activeFromTick)%h.activeEvery)<h.activeFor}
+export function observedHazardChargeTicks(
+  h:{activeFromTick:number;activeEvery:number;activeFor:number},
+  tick:number,window=12
+):number{
+  if(![h.activeFromTick,h.activeEvery,h.activeFor,tick,window].every(Number.isSafeInteger)||
+    tick<0||h.activeFromTick<0||h.activeEvery<=0||h.activeFor<=0||
+    h.activeFor>=h.activeEvery||window<=0)return 0;
+  const remaining=tick<h.activeFromTick?h.activeFromTick-tick:
+    (()=>{const phase=(tick-h.activeFromTick)%h.activeEvery;
+      return phase<h.activeFor?0:h.activeEvery-phase;})();
+  return remaining>=1&&remaining<=window?remaining:0;
+}
 // Legacy/default snapshots keep their exact key order and pinned public checksum.
 // The live stream explicitly opts in to observed windup ticks; historical-v1
 // replay captures and their frozen provenance are not silently rewritten.
@@ -55,7 +67,7 @@ export function createTowerRenderSnapshot(state:TowerState,options:{includeWindu
     floor:state.floor,theme:chunk.theme,worldWidth:state.config.worldWidth,chunkBaseY:chunk.baseY,chunkHeight:chunk.height,
     player:{x:state.player.position.x,y:state.player.position.y,vx:state.player.velocity.x,vy:state.player.velocity.y,halfWidth:state.player.halfWidth,halfHeight:state.player.halfHeight,facing:state.player.facing,health:state.player.health,maxHealth:state.player.maxHealth,stamina:state.player.stamina,maxStamina:state.player.maxStamina,shieldCharges:state.player.shieldCharges,state:state.player.state,score:state.player.score,attacking:state.player.attackCooldown>0&&state.player.attackCooldown>=state.config.attackCooldownTicks-3},
     platforms:chunk.platforms.map(p=>platformAtTick(p,state.tick)).map(p=>({id:p.id,kind:p.kind,x:p.x,y:p.y,width:p.width,height:p.height})).sort((a,b)=>a.id.localeCompare(b.id)),
-    hazards:chunk.hazards.map(h=>({id:h.id,kind:h.kind,x:h.x,y:h.y,width:h.width,height:h.height,active:activeHazard(h,state.tick)})).sort((a,b)=>a.id.localeCompare(b.id)),
+    hazards:chunk.hazards.map(h=>({id:h.id,kind:h.kind,x:h.x,y:h.y,width:h.width,height:h.height,active:activeHazard(h,state.tick),...(options.includeWindupTicks?{chargeTicksRemaining:observedHazardChargeTicks(h,state.tick)}:{})})).sort((a,b)=>a.id.localeCompare(b.id)),
     enemies:state.enemies.filter(e=>e.floor===state.floor).map(e=>({id:e.id,kind:e.kind,x:e.position.x,y:e.position.y,halfWidth:e.halfWidth,halfHeight:e.halfHeight,health:e.health,maxHealth:e.maxHealth,active:e.active,telegraph:e.telegraphUntilTick>state.tick,...(options.includeWindupTicks?{telegraphTicksRemaining:Math.max(0,Math.min(8,e.telegraphUntilTick-state.tick)),...(e.kind==='guardian'?{staggerTicksRemaining:Math.max(0,Math.min(10,(e.staggerUntilTick??0)-state.tick)),...(state.config.guardianSecondWind===true?{telegraphTotalTicks:e.telegraphUntilTick>state.tick&&(e.telegraphDurationTicks===6||e.telegraphDurationTicks===8)?e.telegraphDurationTicks:(e.health>0&&e.health*2<=e.maxHealth?6:8)}:{})}:{})}:{}),...(options.includeWindupTicks&&state.config.guardianSecondWind===true&&e.kind==='guardian'?{guardTicksRemaining:Math.max(0,(e.guardUntilTick??0)-state.tick)}:{}),facing:e.facing,attackCooldown:e.cooldown})).sort((a,b)=>a.id.localeCompare(b.id)),
     projectiles:state.projectiles.filter(p=>p.floor===state.floor&&p.active).map(p=>({id:p.id,owner:p.owner,x:p.position.x,y:p.position.y,vx:p.velocity.x,vy:p.velocity.y})).sort((a,b)=>a.id.localeCompare(b.id)),
     pickups:state.pickups.filter(p=>p.floor===state.floor&&!p.collected).map(p=>({id:p.id,kind:p.kind,x:p.position.x,y:p.position.y,value:p.value})).sort((a,b)=>a.id.localeCompare(b.id)),
