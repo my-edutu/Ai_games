@@ -229,7 +229,7 @@ function cutawayWalls(target,subjects,wallPad=2.1){
  const wallBands=world.userData.wallCutawayBands;
  for(let i=0;i<positions.length;i++){
   const point=positions[i];
-  const reveal=planPartyWallReveal(point[0],point[1],subjects,camera.position,wallPad);
+  const reveal=planPartyWallReveal(point[0],point[1],subjects,camera.position,wallPad,world.userData.wallHeights?.[i]??2.6);
   const cutaway=planCutawayWallTransform(reveal,world.userData.wallHeights?.[i]??2.6);
   if(reveal!=='none')cut++;
   if(reveal==='nearby')nearbyCut++;
@@ -830,25 +830,37 @@ function actualHeroVisibility(s,at){
    ...(world.userData.authoredProps?.group?.children||[])
  ].filter(o=>o?.visible!==false);
  let tested=0,clear=0,blocked=0,bosses=0,clearBosses=0,blockedBosses=0,samples=0;
+ let fullBodyHeroes=0,partiallyVisibleHeroes=0,fullBodyBosses=0,bodySamples=0;
  camera.getWorldPosition(rayStart);
  for(const hero of s.units.filter(u=>u.hp>0&&(u.faction==='party'||u.kind==='warden'))){
   const actor=actors.get(hero.id);if(!actor||actor.root.visible===false)continue;
   if(hero.kind==='warden')bosses++;else tested++;
-  // Two ray tests let one partially visible shoulder/upper body count as visible.
-  let good=false;
-  for(const y of [1.85,1.05]){
+  // A visible helmet is NOT proof that armour, hands and feet are clear.
+  // Four anatomical rays retain the old any-visible metric while exposing
+  // genuinely partial silhouettes in actual camera motion and WebGL.
+  let visibleBodyPoints=0;
+  for(const y of [.30,.76,1.22,hero.kind==='warden'?2.28:1.78]){
    actor.root.getWorldPosition(rayEnd);rayEnd.y+=y*(actor.root.scale.y||1);
    rayDirection.subVectors(rayEnd,rayStart);const distance=rayDirection.length();
-   if(distance<.25){good=true;break}
+   if(distance<.25){visibleBodyPoints++;continue}
    raycaster.set(rayStart,rayDirection.multiplyScalar(1/distance));raycaster.near=.1;raycaster.far=Math.max(.2,distance-.33);
-   samples++;
+   samples++;bodySamples++;
    const hits=raycaster.intersectObjects(obstacles,true);
-   if(!hits.length){good=true;break}
+   if(!hits.length)visibleBodyPoints++;
   }
-  if(hero.kind==='warden'){if(good)clearBosses++;else blockedBosses++;}
-  else if(good)clear++;else blocked++;
+  const good=visibleBodyPoints>0;
+  if(hero.kind==='warden'){
+   if(good)clearBosses++;else blockedBosses++;
+   if(visibleBodyPoints===4)fullBodyBosses++;
+  }else{
+   if(good)clear++;else blocked++;
+   if(visibleBodyPoints===4)fullBodyHeroes++;
+   else if(good)partiallyVisibleHeroes++;
+  }
  }
- rayAudit={testedHeroes:tested,unoccludedHeroes:clear,occludedHeroes:blocked,testedBosses:bosses,unoccludedBosses:clearBosses,occludedBosses:blockedBosses,samples};
+ rayAudit={testedHeroes:tested,unoccludedHeroes:clear,occludedHeroes:blocked,testedBosses:bosses,unoccludedBosses:clearBosses,occludedBosses:blockedBosses,samples,
+  fullBodyHeroes,partiallyVisibleHeroes,fullBodyBosses,bodySamples,
+  bodyVisibilityMethod:'four anatomical 3D rays; not a pixel or blinded quality grade'};
  return rayAudit;
 }
 
