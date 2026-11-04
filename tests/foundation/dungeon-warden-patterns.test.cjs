@@ -1,6 +1,6 @@
 'use strict';
 const {test}=require('node:test'),assert=require('node:assert/strict');
-const {DungeonRuntime,planWardenStrike,planWardenEvasionStep,planTacticalStep,assertDungeonState}=require('../../dist/games/ai-dungeon/src/index.js');
+const {DungeonRuntime,planWardenStrike,planWardenEvasionStep,planWardenHuntTarget,planTacticalStep,assertDungeonState}=require('../../dist/games/ai-dungeon/src/index.js');
 const key=p=>p.x+','+p.z;
 test('real phase attacks have three distinct safe and dangerous footprints',()=>{
  const game=DungeonRuntime.create('three-warden-patterns-M1'),s=game.state;
@@ -133,5 +133,40 @@ test('Eclipse is a living nine-beat boss duel, not an eternal warn/cast/recover 
   assert.ok(d<=1,'Eclipse may only travel one legal grid step each tick');
  }
  assert.equal(planWardenStrike(s,boss).turnsUntilImpact,1,'three fixed source-backed warning turns close the cycle');
+ assertDungeonState(s);
+});
+
+test('Eclipse Warden chooses a genuinely nearby vulnerable backliner, never a phantom target',()=>{
+ const game=DungeonRuntime.create('eclipse-hunt-target-M1'),s=game.state;
+ const boss=s.units.find(u=>u.kind==='warden'),v=s.units.find(u=>u.id==='vanguard');
+ const ranger=s.units.find(u=>u.id==='ranger'),mystic=s.units.find(u=>u.id==='mystic');
+ boss.hp=Math.ceil(boss.maxHp*.20);
+ Object.assign(v,{x:boss.x+2,z:boss.z,hp:v.maxHp});
+ Object.assign(ranger,{x:boss.x,z:boss.z+2,hp:Math.floor(ranger.maxHp*.55)});
+ Object.assign(mystic,{x:1,z:2,hp:mystic.maxHp});
+ assert.equal(s.map[v.z][v.x],'.');assert.equal(s.map[ranger.z][ranger.x],'.');
+ assert.equal(planWardenHuntTarget(s,boss)?.id,'ranger','equidistant ranged ally draws fair visible pressure');
+ ranger.hp=0;
+ assert.equal(planWardenHuntTarget(s,boss)?.id,'vanguard','dead heroes never draw attacks');
+ boss.hp=0;
+ assert.equal(planWardenHuntTarget(s,boss),null,'a dead Warden never plans pursuit');
+});
+
+test('final Warden takes one lawful movement step on an odd non-warning turn',()=>{
+ const game=DungeonRuntime.create('eclipse-hunt-contact-M1'),s=game.state;
+ const boss=s.units.find(u=>u.kind==='warden'),hero=s.units.find(u=>u.id==='vanguard');
+ for(const other of s.units)if(other!==boss&&other!==hero)other.hp=0;
+ boss.hp=Math.ceil(boss.maxHp*.29);
+ hero.x=boss.x+3;hero.z=boss.z;hero.hp=hero.maxHp;
+ assert.equal(s.map[hero.z][hero.x],'.');
+ s.tick=12;const original={x:boss.x,z:boss.z},saved=game.save(),mirror=DungeonRuntime.restore(saved);
+ const view=game.step(),replayed=mirror.step();
+ assert.equal(view.checksum,replayed.checksum,'actual autonomous pursuit must replay from a signed checkpoint');
+ assert.equal(view.tick,13);
+ assert.equal(boss.action,'move','Warden must pursue on a genuine odd free turn, not idle through the gap');
+ assert.equal(Math.abs(boss.x-original.x)+Math.abs(boss.z-original.z),1,'one legal grid step only');
+ assert.equal(s.map[boss.z][boss.x],'.');
+ assert.equal(boss.targetId,hero.id,'animation faces the actual pursued hero');
+ assert.ok(view.events.some(e=>e.kind==='pursuit'),'the live journal observes real movement rather than a fake encounter');
  assertDungeonState(s);
 });
