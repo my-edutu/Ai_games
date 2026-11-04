@@ -462,6 +462,11 @@ test('a real close public encounter frames both autonomous actors and saves date
         explorerModelFullyInFrame:d.explorerModelFullyInFrame,
         explorerPhysicalBounds:d.explorerPhysicalBounds,
         explorerInFrame:d.explorerInFrame,explorerProjection:d.explorerProjection,
+        // Actual WebGL lantern output in the genuine source-bound FOLLOW
+        // encounter, not merely the earlier Detail camera.
+        witnessedLanternWarningVisible:d.witnessedLanternWarningVisible,
+        witnessedLanternConeVisible:d.witnessedLanternConeVisible,
+        lanternPhysicalLightDistanceWorld:d.lanternPhysicalLightDistanceWorld,
         cameraHalfHeight:d.cameraHalfHeight,cameraAspect:d.cameraAspect,
         stage:{width:stage.width,height:stage.height},
         canvas:{width:canvas.width,height:canvas.height},
@@ -492,6 +497,12 @@ test('a real close public encounter frames both autonomous actors and saves date
       .toBe(diagnostic.wardensInFrame);
     expect(diagnostic.explorerModelFullyInFrame,
       'real Pip helmet, arms, scarf and feet all fit the Follow viewport').toBe(true);
+    expect(diagnostic.witnessedLanternWarningVisible,
+      'native Follow physical lantern warning must agree with public-state eligibility, not private AI or a CSS caption')
+      .toBe(eligibleWarning);
+    expect(diagnostic.lanternPhysicalLightDistanceWorld,
+      'real Follow warm light must coincide with the articulated lantern cage at every native viewport')
+      .toBeLessThan(.015);
     expect(Math.abs(diagnostic.explorerProjection.x),'Pip retains a native Follow horizontal margin').toBeLessThan(.7);
     expect(diagnostic.stage.width).toBeGreaterThan(followWidth-10);
     expect(diagnostic.stage.height).toBeGreaterThan(followHeight-10);
