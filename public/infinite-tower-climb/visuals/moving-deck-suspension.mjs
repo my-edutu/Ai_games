@@ -4,10 +4,11 @@ import { pointFor } from './coordinates.mjs';
 // platform currently supporting the climber, or the one the autonomous pilot
 // explicitly selected. It does not add handholds, colliders or a route.
 // The twelve struts are a single depth-tested instanced draw behind the deck.
-const COUNT = 12;
+const COUNT = 16;
 const EDGES = Object.freeze([
   [0, 2], [2, 4], [1, 3], [3, 5], [0, 3], [1, 2],
   [2, 3], [4, 5], [0, 1], [6, 7], [2, 7], [3, 7],
+  [6, 4], [6, 5], [7, 4], [7, 5],
 ]);
 const valid = Number.isFinite;
 const validTick = n => Number.isSafeInteger(n) && n >= 0;
@@ -47,7 +48,11 @@ export function observedMovingDeckSuspension(snapshot, options = {}) {
     platformId: selected.id, x: selected.x, width: selected.width,
     top: selected.y + selected.height,
     worldWidth: snapshot.worldWidth, chunkBaseY: snapshot.chunkBaseY,
-    loaded: !!occupied, observedOnly: true,
+    loaded: !!occupied, playerState: player.state,
+    // Read-only authoritative vertical motion helps the sculpture react only
+    // after actual contact. It never feeds a force or landing prediction back.
+    verticalVelocity: valid(player.vy) ? player.vy : 0,
+    observedOnly: true,
   };
 }
 
@@ -76,10 +81,13 @@ export function createTowerMovingDeckSuspension(THREE) {
   const up = new THREE.Vector3(0, 1, 0);
   const color = new THREE.Color();
   let last = null, disposed = false, tintKey = null;
+  let impactTick = -1, impactStrength = 0, compression = 0;
+  let travelLean = 0, trueHorizontalDisplacement = 0;
   function clear() {
     group.visible = false;
     rods.count = 0;
-    last = null;
+    last = null; impactTick = -1; impactStrength = 0;
+    compression = 0; travelLean = 0; trueHorizontalDisplacement = 0;
   }
   function update(snapshot, options = {}) {
     if (disposed) return;
@@ -91,14 +99,43 @@ export function createTowerMovingDeckSuspension(THREE) {
       last.x === current.x && last.top === current.top &&
       last.width === current.width && last.loaded === current.loaded;
     if (identical) return;
+    // The load stroke is earned by TWO consecutive real source observations:
+    // airborne approach followed by actual standing foot contact on this
+    // exact moving deck. No timer, renderer frame or guessed collision can
+    // trigger a pump. Duplicate ticks, run changes and feed gaps cannot replay it.
+    const steps = last ? current.tick - last.tick : 0;
+    const continuous = last && last.runToken === current.runToken &&
+      last.floor === current.floor && last.platformId === current.platformId &&
+      steps > 0 && steps <= 8;
+    if (!continuous) { impactTick = -1; impactStrength = 0; }
+    if (continuous && !last.loaded && current.loaded &&
+      last.playerState === 'airborne' && current.playerState === 'standing') {
+      impactTick = current.tick;
+      impactStrength = Math.min(1, Math.max(.28,
+        Math.max(0, -last.verticalVelocity) / 22000));
+    }
+    if (!current.loaded) impactTick = -1;
+    const age = impactTick >= 0 ? current.tick - impactTick : Infinity;
+    const release = age >= 0 && age < 12 ? Math.pow(1 - age / 12, 2) : 0;
+    compression = current.loaded ? .10 + impactStrength * release * .82 : 0;
+    trueHorizontalDisplacement = continuous ? current.x - last.x : 0;
+    travelLean = continuous ? Math.max(-1, Math.min(1,
+      trueHorizontalDisplacement / (7000 * steps))) : 0;
     const left = current.x + current.width * .23;
     const right = current.x + current.width * .77;
     const middle = current.x + current.width * .5;
+    // Pair of under-floor tension spines rocks against witnessed deck travel;
+    // the near-deck struts compress in response to a genuine loaded stroke.
+    // All parts stay beneath the authoritative deck (never become a collider).
+    const massShift = travelLean * 3500;
+    const stroke = compression * 6300;
     const positions = [
       [left, -29000, 21.45], [right, -29000, 21.45],
-      [left, -19000, 23.35], [right, -19000, 23.35],
-      [left, -7800, 25.65], [right, -7800, 25.65],
-      [middle, -27000, 21.70], [middle, -11000, 24.55],
+      [left, -19000 + stroke * .35, 23.35],
+      [right, -19000 + stroke * .35, 23.35],
+      [left, -7800 - stroke, 25.65], [right, -7800 - stroke, 25.65],
+      [middle - massShift, -27000, 21.70],
+      [middle + massShift, -11000 - stroke * .45, 24.55],
     ];
     for (let i = 0; i < positions.length; i++) {
       const [x, offset, radius] = positions[i];
@@ -113,7 +150,7 @@ export function createTowerMovingDeckSuspension(THREE) {
       center.copy(nodes[start]).addScaledVector(vector, .5);
       pose.position.copy(center);
       pose.quaternion.setFromUnitVectors(up, vector.multiplyScalar(1 / Math.max(span, .001)));
-      const thickness = i < 4 ? .16 : i < 6 ? .12 : i < 9 ? .105 : .145;
+      const thickness = i < 4 ? .16 : i < 6 ? .12 : i < 9 ? .105 : i < 12 ? .145 : .095;
       pose.scale.set(thickness, span, thickness);
       pose.updateMatrix();
       rods.setMatrixAt(i, pose.matrix);
@@ -139,6 +176,10 @@ export function createTowerMovingDeckSuspension(THREE) {
       visible: true, platformId: last.platformId, sourceTick: last.tick,
       runToken: last.runToken, loadedByRealFootContact: last.loaded,
       pieces: rods.count, drawCalls: 1, extraShadowPasses: 0,
+      authenticContactTick: impactTick >= 0 ? impactTick : null,
+      sourceContactCompression: Number(compression.toFixed(4)),
+      signedSourceDisplacement: trueHorizontalDisplacement,
+      sourceTravelLean: Number(travelLean.toFixed(4)),
       observedOnly: true, collisionAndAIChanges: false,
     } : { visible: false, pieces: 0, drawCalls: 0, observedOnly: true };
   }

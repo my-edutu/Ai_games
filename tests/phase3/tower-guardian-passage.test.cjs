@@ -165,11 +165,13 @@ test('the actual scene consumes source transitions and owns passage lifecycle on
   assert.doesNotMatch(source, /passage\.begin\(previous, next, pointFor\(next\.player\.x/);
   // A world-space continuity cue must come from the defeated SOURCE gate,
   // never from the new player's arbitrary location after a floor transition.
-  assert.match(source, /scene\.remove\(world\.group, climber\.group, finale\.group, passage\.group, routeIntent\.group, landingApproach\.group, guardianCircuit\.group, guardianShotStage\.group, guardianGuardStage\.group, atmosphere\.group, recoveryTransfer\.group\)/,
+  assert.match(source, /scene\.remove\(world\.group, climber\.group, finale\.group, passage\.group, routeIntent\.group, landingApproach\.group, movingDeckSuspension\.group, guardianCircuit\.group, guardianShotStage\.group, guardianGuardStage\.group, atmosphere\.group, recoveryTransfer\.group\)/,
     'graphics recovery must retire all source-observed scene owners');
   assert.match(source, /passage\.dispose\(\)/);
   assert.match(source, /routeIntent\.dispose\(\)/, 'source choice trails must release their resources too');
   assert.match(source, /landingApproach\.dispose\(\)/, 'selected-deck architecture must retire on graphics recovery');
+  assert.match(source, /movingDeckSuspension\.dispose\(\)/,
+    'source-bound moving carriage must retire across GPU context loss');
   assert.match(source, /landingApproach\.clear\(\)/, 'selected-deck architecture clears on run restart');
   assert.match(source, /guardianCircuit\.dispose\(\)/, 'physical guardian/cap scene resources must dispose too');
   assert.match(source, /guardianShotStage\.dispose\(\)/, 'guardian shot telegraph resources must dispose too');

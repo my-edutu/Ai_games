@@ -58,7 +58,7 @@ test('one bounded world-space instanced truss follows actual source movement and
     truss.update(original, { quality: 'low' });
     let state = truss.diagnostics();
     assert.equal(state.visible, true);
-    assert.equal(state.pieces, 12);
+    assert.equal(state.pieces, 16);
     assert.equal(state.drawCalls, 1);
     assert.equal(state.extraShadowPasses, 0);
     assert.equal(state.loadedByRealFootContact, true);
@@ -83,6 +83,9 @@ test('one bounded world-space instanced truss follows actual source movement and
     assert.equal(state.sourceTick, 21);
     assert.equal(state.loadedByRealFootContact, true);
     assert.equal(state.platformId, 'f7:p2');
+    assert.equal(state.signedSourceDisplacement, 12000,
+      'the carriage counterweight answers real source displacement');
+    assert.ok(state.sourceTravelLean > 0, 'the mechanism reacts in the observed direction');
     truss.update(frame(22, 92000, { lifecycle: 'result' }));
     assert.equal(truss.diagnostics().visible, false);
     assert.equal(mesh.count, 0);
@@ -95,6 +98,46 @@ test('one bounded world-space instanced truss follows actual source movement and
     assert.equal(truss.diagnostics().visible, false);
   } finally { truss.dispose(); truss.dispose(); }
 });
+test('genuine source airborne-to-foot-contact compresses real undercarriage; duplicate packets, gaps and first frames do not fake a landing', async () => {
+  const [THREE, { createTowerMovingDeckSuspension }] = await loaded;
+  const effect = createTowerMovingDeckSuspension(THREE);
+  try {
+    const inFlight = frame(30, 80000, {
+      player: { ...frame().player, state: 'airborne',
+        y: 246000, vy: -18000 },
+    });
+    effect.update(inFlight);
+    assert.equal(effect.diagnostics().authenticContactTick, null);
+    const contact = frame(31, 82000, {
+      player: { ...frame().player, x: 122000, vy: 0 },
+    });
+    effect.update(contact);
+    const atContact = effect.diagnostics();
+    assert.equal(atContact.authenticContactTick, 31);
+    assert.ok(atContact.sourceContactCompression > .5,
+      'true rider arrival puts weight into the 3D suspension');
+    const rods = effect.group.getObjectByName('AuthenticMovingDeckUndercarriageTruss');
+    const loaded = new THREE.Matrix4(); rods.getMatrixAt(15, loaded);
+    effect.update(contact);
+    assert.equal(effect.diagnostics().sourceContactCompression, atContact.sourceContactCompression,
+      'duplicate source tick does not advance contact');
+    effect.update(frame(36, 84000));
+    const relaxed = new THREE.Matrix4(); rods.getMatrixAt(15, relaxed);
+    assert.equal(effect.diagnostics().authenticContactTick, 31);
+    assert.ok(effect.diagnostics().sourceContactCompression < atContact.sourceContactCompression);
+    assert.ok(!relaxed.equals(loaded), 'underdeck tension physically relaxes over real ticks');
+    effect.update(frame(50, 85000));
+    assert.equal(effect.diagnostics().authenticContactTick, null,
+      'unsupported source gaps cannot claim a continuing arrival event');
+    assert.equal(effect.diagnostics().sourceContactCompression, .1);
+    effect.update(frame(1, 92000, { runToken: 'reset' }));
+    assert.equal(effect.diagnostics().authenticContactTick, null,
+      'new runs must never inherit a previous landing');
+    effect.update(frame(2, 95000), { stale: true });
+    assert.equal(effect.diagnostics().visible, false);
+  } finally { effect.dispose(); }
+});
+
 test('real scene integrates the chassis across graphics recovery, diagnostics and disposal', () => {
   const src = fs.readFileSync(path.join(ROOT,
     'public/infinite-tower-climb/visuals/scene.mjs'), 'utf8');
