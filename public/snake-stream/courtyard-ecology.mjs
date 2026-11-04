@@ -138,7 +138,7 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
       // original world. No new game cells, shader, GPU object or obstruction.
       const forestWarp = .075 * Math.sin((u-.5)*17.4+(v-.5)*5.8)
         + .058 * Math.sin((v-.5)*18.4-(u-.5)*11.4);
-      const forestReach = 1 - smooth(.03, .235, Math.max(0, groveDistance + forestWarp));
+      const forestReach = 1 - smooth(.03, .455, Math.max(0, groveDistance + forestWarp));
       const gladeA = 1-smooth(.21,.49,Math.hypot(((u-.5)*2+.63)/.55,((v-.5)*2-.35)/.58));
       const gladeB = 1-smooth(.22,.50,Math.hypot(((u-.5)*2-.69)/.58,((v-.5)*2+.34)/.56));
       const twoGlades = Math.max(gladeA,gladeB);
@@ -150,7 +150,7 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
       const edgeUnderstory = nearEdge * (.43 + .25 * mineral);
       const planted = clamp01(Math.max(grove * 1.12, evergreen * 1.06)
         + marsh * .20 + edgeUnderstory * .31);
-      const canopyShade = smooth(.11, .69, planted) * (1 - heart * .92);
+      const canopyShade = smooth(.10, .57, planted) * (1 - heart * .92);
       const openStone = heart * (1 - canopyShade);
       const mineralLace = (.45 + .55 * Math.sin(gx * .79 + Math.sin(gz * .38) * 2.1))
         * (.35 + .65 * watershed) * canopyShade;
@@ -240,6 +240,16 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
       targetR += 56 * exposedLimestone;
       targetG += 6 * exposedLimestone;
       targetB += 1.5 * exposedLimestone;
+      // Cross-valley galleries are genuine shaded mineral-and-leaf bedding,
+      // not more bright green decal strips. Their existing stone pigment
+      // inherits watershed/forest root coverage and the old micrograin;
+      // keep warmer limestone in two glades and the illuminated sunstone.
+      const galleryMoss = smooth(.10,.51,
+        forestReach*.78 + biome.planted*.41 + nearEdge*.16)
+        * (1-heart*.98) * (1-twoGlades*.32);
+      targetR -= galleryMoss * 56;
+      targetG -= galleryMoss * 8;
+      targetB -= galleryMoss * 27;
       // The original sunstone stays sunlit while the NEW surrounding natural
       // terraces read in broad shapes through the grazing-light stone grain.
       // Retain directional raking-light/mortar contrast from ORIGINAL pixels.

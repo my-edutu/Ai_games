@@ -1,10 +1,15 @@
 {
   "updatedAt": "2026-11-04",
-  "status": "T1 BUILDING — 430 current 3D runtime FAILED (HTTP 404 watershed, 2D fallback); recovery candidate native checked / new Chromium PENDING; T4 HARD RED; NEVER MERGE/DEPLOY",
-  "detail": "Source-exact 430614562: real Chromium 41892277174 only 8/91 PASS; genuine Playwright browser trace HTTP 404 /garden-watersheds.mjs => 2D canvas-fallback for entire game, not 3D; original strict full WebGL frame submissions not measurable for this head. Node CI 666/702, whole-garden cover/forest/stone-seam tests failing. Last true WebGL source 094b91cd: 8 genuine complete desktop renderer submits / 1006ms vs mandatory >=17 HARD FAIL at 751x415; visually SELF-REJECTED. Current T1 recovery candidate adds missing restricted same-origin ES-module route+readiness and import graph/real host HTTP safety tests; 2 RED on frozen source -> 2 GREEN, six focused PASS, TS build and 900 authoritative restart/recovery ticks PASS. No current candidate WebGL, meaningful game quality or device frame acceptance. T0 baseline signoff and independent critique pending; T1 BUILDING, T4 HARD RED.",
+  "status": "T1 BUILDING — cfc genuine 3D restored but WHOLE GAME SELF-REJECTED; original strict 5/17 HARD RED; interwoven native-only candidate / NEVER MERGE/DEPLOY",
+  "detail": "Source-exact cfc65853 real Chromium 41898705743 60/91 PASS, real 3D restored, but actual 1080/phone and uncut 55s real game remain giant beige rectangular court with small angular serpent; SELF-REJECT vs official Snake Pass. Unchanged original strict 5 genuine complete full-desktop WebGL render submissions/1004.5ms vs >=17 at 751x415; 61 RAF callbacks and video FPS NOT renders/display presents. General CI 41898706036 668/704 PASS /36 FAIL. Same T1 native candidate connects two winding real 3D rooted forest galleries between original 3 beds, widens physically forest-tinted existing stones & original single 1024x512 atlas, irregular local stone seams, preserves 130 real ferns, 3020 triangles and unchanged resources/authority/cues. Native 28x16 green stone 40.4%->66.5%, original atlas green 33.4%->62.3%, data NOT browser quality. 2 exact-parent RED->2 candidate GREEN; broader targeted 18/22 with four parent-already-red heritage/geometry/camera assertions, build+900 authoritative recovery/restart ticks PASS. Source-exact 8 real Chromium WebGL A/B screenshots and 55s true autoplay recording requested by new browser test on next head, NOT YET VERIFIED. Independent judgement, device p95/FPS, full regressions and long soak OUTSTANDING.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "ARCHIVED landscape image from prior source only. Current 430 3D is broken by a missing ES-module route; no candidate 3D screen/film acceptance.",
+  "latestCaption": "ARCHIVED old source image; not new candidate visual proof. cfc actual 3D current whole-screen still visibly inadequate; new interwoven source awaits real Chromium.",
   "reviews": [
+    {
+      "area": "2026-11-04 exact cfc real 3D 5/17 strict FAIL and unfinished interwoven native T1 candidate",
+      "verdict": "Live original cfc actual browser 60/91 pass, general CI 668/704 pass, strict complete desktop 5/17, 751x415 and 55s authentic footage still giant beige tile field/too small stiff hero. T1 self-reject, T4 hard red. Source-exact 2 RED->2 GREEN native interwoven rooted 3D environmental mask and source atlas, 18/22 related checks; build and 900 ticks with recovery pass; new candidate Chromium & genuine 55s movie NOT verified.",
+      "gap": "New same-source 8 Chromium/WebGL full desktop+detail+portrait+HD actual before-after and true 55s live movie, dramatic whole-scene and serpent improvement, repeated original ≥17 complete desktop WebGL renders/1s useful raster, physical display presents/p95, full CI/browser, long soak+recovery/a11y/fairness/security, independent Snake Pass/ASTRO BOT criticism."
+    },
     {
       "area": "Nov 4 exact 430 original Chromium entire WebGL fallback incident and transitive module route recovery",
       "verdict": "Original 430 Chrome 8/91, source trace /garden-watersheds.mjs HTTP 404 => full 2D fallback; no genuine current 3D render-gate sample. CI 666/702; genuine whole-garden cover/forest/moss morphology red. Recovery code + real-host module closure native 2 RED->2 GREEN, selected 6/6 pass, TS and 900 authority ticks pass, not visually accepted.",
@@ -1113,9 +1118,9 @@
     "firstImplementationPlan": "docs/superpowers/plans/2026-11-01-autonomous-snake-transformation.md",
     "acceptance": "An independently evidenced, visibly substantial upgrade of the full running game in environment, character, animation, materials, game feel and sustainable frame delivery; CI is necessary but never sufficient.",
     "overall": "NOT ACCEPTED",
-    "milestone": "T0 matching baseline signoff PENDING. T1 BUILDING: exact 430 production full 3D fails at ES-module 404, current real browser shows only 2D fallback. Recovery candidate native verified only, own WebGL pending. T2/T3 NOT ACCEPTED. T4 HARD RED at last true WebGL 094b (8/17), device-present/soak independent pending.",
+    "milestone": "T0 not accepted / T1 BUILDING native-only interwoven garden; cfc 3D whole-game self-rejected / T2-T3 not accepted / T4 HARD RED strict real 5/17",
     "milestoneStatus": "BUILDING",
-    "latestKnownStrictBrowser": "430 source browser run 41892277174 did not render WebGL because new 3D import was HTTP 404. No valid current-head complete-render result. Last authentic valid strict source 094b91cd run 41867149982: 8 genuine complete desktop WebGL submits /1006ms vs original required >=17, real buffer 751x415. 61 RAF/film/fences != original gate or device presents.",
+    "latestKnownStrictBrowser": "Verified cfc 41898705743: 5 genuine complete full-desktop WebGL renders in 1004.5ms vs original mandatory >=17, 751x415 drawing buffer, 61 RAF callbacks not draws, device presents unmeasured.",
     "pillars": [
       {
         "name": "Living 3D world",
@@ -1139,8 +1144,8 @@
       }
     ],
     "baselineHead": "108e2e439aab1f3fe4cf49019c1aa9fe5630feb6",
-    "candidate": "Explicit 3D module delivery incident repair at same T1: register existing game-authored garden-watersheds.mjs in restrictive stream allowlist and host readiness; transitive module import graph + HTTP child host protection test. No art or simulation modification; NOT a new visual milestone.",
-    "candidateProof": "Source 430 browser genuine 404 and 2D fallback verified in Actions trace, 8/91 tests passed. New route native import graph and HTTP tests exact-source RED 2/2 -> GREEN 2/2; focused original watershed and host asset tests pass, 6/6 total; TS build & 900-tick authority/restart/recovery passed. Full native suite not green, exact new candidate Chromium 3D/motion/strict performance unverified.",
-    "review": "SELF REVIEW only. Root cause of 430 whole-game regression is server 404 for imported watershed module; real fallback capture not usable 3D evidence. Last valid 094b 3D WebGL whole-game self-rejected (giant rectangle/small hero, strict 8/17). T1 BUILDING, T4 HARD RED; independent fresh-context critic unavailable."
+    "candidate": "Exact-cfc parent: two winding shared root galleries joining 3 planted courses, original physical 3D stone forest tint and existing stone atlas coordinated with real rooted fern beds. Native 28x16 true forest-green physical 40.4 to 66.5%, atlas green 33.4 to 62.3%, 130 fern clumps and same assets, new source-exact A/B browser and 55s uncut real AI gameplay test queued.",
+    "candidateProof": "2 focused TDD RED parent to GREEN candidate, broader 18/22 native with four inherited red heritage/geometry/camera, TS build and 900 authoritative recovery ticks PASS. Native material fractions only; browser exact-source matched stills/motion and original ≥17 strict performance unverified for candidate.",
+    "review": "SELF REVIEW: cfc verified whole-game WebGL SELF-REJECTED, independent critic unavailable; candidate cannot be accepted without actual current WebGL views/video and strict performance. NEVER MERGE/DEPLOY."
   }
 }

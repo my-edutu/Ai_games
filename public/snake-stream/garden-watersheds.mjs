@@ -31,6 +31,22 @@ export function watercourseCentre(nx,course){
   return clamp((BASE[course]+long+cross+sweep+fork)*middleClearing+approach,-.86,.86);
 }
 
+/**
+ * Two deeply weathered, winding root galleries cross the old horizontal
+ * wetland channels and connect their lower, middle and upper growing zones.
+ * This is a physical habitat location, NOT a new path, hazard or portal.
+ * Both curves remain outside the protected sunstone and carry the SAME
+ * material, ground pigment and fern site system as the original three beds.
+ */
+export function rootBridgeCentre(nz,side){
+  if(!Number.isFinite(nz)||(side!==-1&&side!==1))
+    throw new RangeError('Cross-valley roots require finite elevation and an existing bank');
+  const z=clamp(nz,-1,1);
+  return side<0
+    ? -.56+.114*Math.sin(z*4.55+.32)+.067*Math.sin(z*9.15-.37)
+    : .55+.123*Math.sin(z*5.15+1.42)-.064*Math.sin(z*8.75+.83);
+}
+
 export function sampleGardenWatershed(nx,nz,width,height){
   if(![nx,nz,width,height].every(Number.isFinite)||width<2||height<2)
     throw new RangeError('A real planted garden needs finite public board dimensions');
@@ -56,5 +72,21 @@ export function sampleGardenWatershed(nx,nz,width,height){
       if(dist<distance){distance=dist;course=i;branch=true;}
     }
   }
-  return { distance, course, branch };
+  // Each gallery crosses and truly CONNECTS the three original wild beds.
+  // Convert X to the Z-domain metric so the planted banks retain comparable
+  // physical breadth at phone, 28x16 and 40x24 board dimensions.
+  let crosslink=false;
+  for(const side of [-1,1]){
+    const centre=rootBridgeCentre(z,side);
+    const dx=Math.abs(x-centre)*width/height;
+    const end=Math.max(0,Math.abs(z)-.89)*2.4;
+    const dist=Math.hypot(dx,end);
+    if(dist<.046)crosslink=true;
+    if(dist<distance){
+      distance=dist;
+      course=z<-.27?0:z>.30?2:1;
+      branch=true;
+    }
+  }
+  return { distance, course, branch, crosslink };
 }

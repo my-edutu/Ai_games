@@ -160,7 +160,15 @@ export function sculptForestMosaicTile(x,z,width,height) {
   const forest=1-Math.exp(-Math.pow(Math.max(0,Math.hypot(u/.80,v/.95)-.20)*2.0,2));
   const rotation=(hash(x+79,z+127)-.5)*.075;
   const extent=Math.cos(rotation)+Math.abs(Math.sin(rotation));
-  const base=.970+.018*hash(x+59,z+37)+.006*(1-forest);
+  // Actual wet forest beds weather and split their physical stone rims. Most
+  // slabs remain almost intact; deeper gaps gather along broad, *winding*
+  // watershed galleries, never in a regular checkerboard or a fake route.
+  // The cliff-derived substrate is always only .04 below real safe cell tops.
+  const root=sampleGardenWatershed(u,v,width,height).distance;
+  const rooted=1-Math.min(1,Math.max(0,(root-.07)/.32));
+  const contour=.5+.5*Math.sin(x*.61-z*.37+.70*Math.sin(z*.48));
+  const weatheredRim=rooted*Math.pow(contour,4)*.087;
+  const base=.979+.008*hash(x+59,z+37)-weatheredRim-.010*forest;
   const scale=Math.min(base,.990/extent);
   const chip=.025+.102*hash(x+173,z+211);
   return { scale, rotation, chip };
@@ -786,13 +794,13 @@ export function createWorld(THREE, {width, height}) {
     // *existing* central sunstone and two naturally exposed limestone glades.
     // Readably traversable cell tops, UVs and actual event cues stay identical.
     const valleyWarp=.075*Math.sin(nx*8.7+nz*2.9)+.058*Math.sin(nz*9.2-nx*5.7);
-    const underCanopy=1-fade(.045,.255,Math.max(0,basinDistance+valleyWarp));
+    const underCanopy=1-fade(.045,.395,Math.max(0,basinDistance+valleyWarp));
     const stoneHeart=1-fade(.185,.445,Math.hypot(nx/.60,nz/.76));
     const gladeA=1-fade(.21,.49,Math.hypot((nx+.63)/.55,(nz-.35)/.58));
     const gladeB=1-fade(.22,.50,Math.hypot((nx-.69)/.58,(nz+.34)/.56));
     const forest=underCanopy*(1-stoneHeart*.97)*(1-Math.max(gladeA,gladeB)*.48);
     const forestEdge=1-fade(.12,.45,1-Math.max(Math.abs(nx),Math.abs(nz)));
-    const dampStone=Math.min(1,Math.max(0,forest*.97+forestEdge*.19));
+    const dampStone=Math.min(1,Math.max(0,forest*1.12+forestEdge*.17));
     const shade=.952+.012*random()+.035*(.5+.5*Math.sin(nx*5.3+nz*3.7));
     // T1 honest real-frame correction: bright rainforest-green multiplied by
     // a bright atlas produced a fluorescent, uniform rectangular board on
