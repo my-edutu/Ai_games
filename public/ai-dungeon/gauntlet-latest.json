@@ -208,19 +208,19 @@
       "elapsedMs": 158
     }
   ],
-  "visualVerdict": "Inspected previous real Chromium footage remains negative: obstructing foreground stone, stylized native bodies and light sword contact. New-head original CC0 figure sculpt is source-implemented and NOT yet perceptually judged or A/B preferred.",
+  "visualVerdict": "New real-skinned contact source implementation not yet evaluated in moving actual desktop/mobile WebGL; last genuine predecessor still visually toy-like and blocked by stone.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
-  "candidateCommit": "5aa7c1847d29934a5c15d55a8afe4f334603700d",
-  "metricsProvenance": "Historical headless metric aggregates are retained unchanged; do NOT attribute them to 5aa7c184. Parent b84606c dedicated authority/browser passes with newer 24 ×900 campaigns (174 floor advances, 4 natural restarts). Exact new-head gameplay and audio acceptance unverified.",
+  "candidateCommit": "ed190ff94a89255faed6073d48e495ed9babfbf1",
+  "metricsProvenance": "Historical headless campaign values retained, not rerun on this candidate. Source ed190ff 299/300 foundation (new 4/4 contact tests pass, one old import-regex mismatch corrected next commit); current exact browser/performance unknown.",
   "transformation": {
     "milestone": "M1",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
     "locked": true,
-    "candidateSha": "5aa7c1847d29934a5c15d55a8afe4f334603700d",
+    "candidateSha": "ed190ff94a89255faed6073d48e495ed9babfbf1",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
-    "exactHeadSafety": "Previous b84606c Dungeon authority and browser shards PASSED; visual review PASSED; catalogue CI CANCELLED. Exact 5aa7c184 foundation/Chromium/full CI and performance UNVERIFIED.",
+    "exactHeadSafety": "Original ed190ff authority 299/300 (old import-symbol contract mismatched); corrected source integration test requires new native-body pose. Exact corrected head safety/browser/CI UNVERIFIED.",
     "looks": "UNVERIFIED",
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
@@ -231,10 +231,10 @@
     },
     "fullDesktopMobileAudiovisualJourney": "UNVERIFIED",
     "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41879611471/artifacts/13348362663",
-    "exactHeadAction": "Inspect exact 5aa7c184 real 1440×832 and 390×844 Chromium actor feet, body, sword movement, Warden contact, shadows and geometry seams. Reject/revert if torn skins, distorted knees, weak silhouette or performance regression. Then integrate further substantial native animation and combat contact with a contiguous real 5-stage desktop/mobile audio recording and 3 blinded critics.",
-    "biggestGap": "Original native figures are still far below Diablo IV / No Rest for the Wicked / Path of Exile 2 body and combat quality; the adult-contour candidate must be judged in actual desktop/mobile motion, particularly whether body, blade and boots remain concealed by foreground stone. Weapon-contact weight, credible anatomy and complete journey audio are unverified.",
-    "nextTask": "Inspect exact 5aa7c184 real 1440×832 and 390×844 Chromium actor feet, body, sword movement, Warden contact, shadows and geometry seams. Reject/revert if torn skins, distorted knees, weak silhouette or performance regression. Then integrate further substantial native animation and combat contact with a contiguous real 5-stage desktop/mobile audio recording and 3 blinded critics.",
+    "exactHeadAction": "Inspect exact new head desktop/mobile gameplay, real wrist-to-sternum contact, weapon/body/stone clipping, reduced-motion and performance; reject if worse. Record complete 5-stage original-audio baseline A/B and obtain 3 independent masked critics.",
+    "biggestGap": "Believable humans, visible weapon-to-flesh contact and clear Gothic stage must be confirmed in genuine continuous after-head desktop/mobile gameplay; 5-stage audio and independent A/B missing.",
+    "nextTask": "Inspect exact new head desktop/mobile gameplay, real wrist-to-sternum contact, weapon/body/stone clipping, reduced-motion and performance; reject if worse. Record complete 5-stage original-audio baseline A/B and obtain 3 independent masked critics.",
     "currentMilestoneLedger": "public/ai-dungeon/gauntlet-history.json"
   },
-  "acceptanceStatus": "IN PROGRESS — NOT TRANSFORMED. LOOKS/FEELS/PLAYS UNVERIFIED; 0/3 independent critics; full original-audio five-stage desktop/mobile matched A/B and mobile p95 missing."
+  "acceptanceStatus": "IN PROGRESS — NOT TRANSFORMED. LOOKS/FEELS/PLAYS UNVERIFIED; 0/3 critics; exact corrected-head browser, mobile p95 and full original-audio matched 5-stage run missing."
 }

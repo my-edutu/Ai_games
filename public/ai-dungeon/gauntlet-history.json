@@ -2184,7 +2184,7 @@
     },
     "evidence": {
       "actualContinuousScenarioReel": "UNVERIFIED: natural Warden, floor and restart confirmed previously by authority campaigns and browser tests, but no coherent contiguous five-stage desktop/mobile audio reel at new head.",
-      "matchedBeforeAfter": "UNVERIFIED: no controlled baseline-vs-5aa7c184 actual native-sculpt desktop/mobile moving A/B judgment.",
+      "matchedBeforeAfter": "UNVERIFIED: no controlled matched 281735d BEFORE/ed190ff AFTER complete desktop/mobile audiovisual sequence.",
       "mobileBeforeAfter": "UNVERIFIED: no actual 390px new-head motion/performance critic inspection.",
       "independentCriticPanel": {
         "status": "UNVERIFIED",
@@ -2192,9 +2192,9 @@
         "looksMajority": false,
         "feelsMajority": false,
         "playsMajority": false,
-        "provenance": "No fresh independent critics available. Do not infer a blind preference from test results or real predecessor screenshots."
+        "provenance": "No worker/critic session available, no masked verdicts."
       },
-      "safetyChecks": "Exact parent b84606c: AI Dungeon authority and all three actual Chromium browser shards passed in 41884012895; reproducible visual review 41884012109 passed; broad catalogue CI 41884013353 was CANCELLED, not a safety pass. New SHA 5aa7c184 new foundation/Chromium/catalogue/visual/replay/security results NOT VERIFIED at record time.",
+      "safetyChecks": "ed190ff: 299/300 foundation, one stale exact import-symbol test; corrected next head. Exact corrected-head CI/replay/security and moving scene quality UNVERIFIED.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED: no five-stage synchronized original-audio capture matched to fixed M1 BEFORE and AFTER.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2202,7 +2202,7 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Real-source b8be04f 1440x832 browser screenshot from 41672587065 and Warden boss desktop/mobile screenshot/video artifacts 41672587022 were INSPECTED: new 14 anatomical joint cylinders made elongated opaque spindly/squid-like limbs. Warden encounter head-on 1440x832 has 3 heroes overlapping enemy bodies in the 58% HP boss arena, warning Rift Cross visible but contact indistinguishable; mobile capture progressed into floor 2 but large stylized ballheads persist. This is a NEGATIVE experiential finding compared with da492455 and exact locked baseline; source visual redesign at 71da2ea to cap spans remains unverified. No masked A/B victory.",
-      "latestCandidateWorkflow": "494f22a catalogue 41882914858 FAILED one of 954 tests due incorrect new scenic fallback assertion. Exact corrected a2e561d CI, browser, mobile and security NOT YET VERIFIED.",
+      "latestCandidateWorkflow": "Dungeon 41902481688 source ed190ff authority 299/300 (4 new contact tests passed; old import regex mismatched); Chromium/visual/broader safety and matched true after-head media unverified.",
       "currentPredecessorWebgl": {
         "sourceSha": "d90e23e4b98dd162b563a34dcc215cbde5efdfdf",
         "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41879611471/artifacts/13348362663",
@@ -2393,9 +2393,9 @@
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Original native figures are still far below Diablo IV / No Rest for the Wicked / Path of Exile 2 body and combat quality; the adult-contour candidate must be judged in actual desktop/mobile motion, particularly whether body, blade and boots remain concealed by foreground stone. Weapon-contact weight, credible anatomy and complete journey audio are unverified.",
-    "currentWork": "Live-source native 3D silhouette candidate 5aa7c184: once per loaded actor, sculpt the existing five CC0 skinned body/arm/leg geometries in their own bind space. Adult chest/waist, upper arm/forearm and thigh/calf contours remain texture-, UV-, skin-weight- and AnimationMixer-preserving; no extra meshes or simulation changes. Browser image and motion improvement not independently evaluated.",
-    "candidateCommit": "5aa7c1847d29934a5c15d55a8afe4f334603700d",
+    "biggestRemainingGap": "Real native bodies, swords and Gothic fighting stage still appear toy-like/obscured in last genuine Chromium; new tracked-contact candidate has no measured desktop/mobile A/B yet.",
+    "currentWork": "Code ed190ff integrates one-cell genuine skinned wrist-to-sternum, anticipation, contact and recovery on the original existing 3D blade. Real new-head audiovisual quality not inspected.",
+    "candidateCommit": "ed190ff94a89255faed6073d48e495ed9babfbf1",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -5049,6 +5049,35 @@
         "biggestRemainingGap": "Even original re-profiled 3D skin may still look toy-like, and body occlusion and sword-to-body collision quality are unresolved; true synchronized motion compared to the baseline is required.",
         "next": "Inspect exact 5aa7c184 real 1440×832 and 390×844 Chromium actor feet, body, sword movement, Warden contact, shadows and geometry seams. Reject/revert if torn skins, distorted knees, weak silhouette or performance regression. Then integrate further substantial native animation and combat contact with a contiguous real 5-stage desktop/mobile audio recording and 3 blinded critics.",
         "verdict": "IN PROGRESS — NOT TRANSFORMED"
+      },
+      {
+        "id": "M1-BODY-TRACKED-MELEE-CONTACT-20261104",
+        "date": "2026-11-04",
+        "status": "SOURCE_IMPLEMENTED_EXPERIENCE_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceSha": "ed190ff94a89255faed6073d48e495ed9babfbf1",
+        "objective": "Make true one-cell skinned sword contact clearly cross from animated wrist through animated enemy torso into follow-through in actual WebGL gameplay.",
+        "integratedSource": [
+          "Existing legit authored adjacent attack triggers the one existing 3D forged crescent; source animated GLB hand and defender spine are sampled in verified live same-grid cells.",
+          "Bounded pure physical interpolation creates anticipation/contact/recovery; falls back on valid grid on missing or stale bone and freezes on reduced motion.",
+          "Original positive HP-loss rule alone owns true-hit shards; AI, collision, RNG, authoritative damage, simulation/replay, shaders/assets/audio and draw-batch count remain unchanged."
+        ],
+        "code": [
+          "public/ai-dungeon/melee-arc-plan.js",
+          "public/ai-dungeon/combat-director.js",
+          "tests/foundation/dungeon-body-contact-trajectory.test.cjs",
+          "tests/foundation/dungeon-melee-arc.test.cjs"
+        ],
+        "safety": "New 4/4 body-contact checks passed. Original exact source Dungeon foundation 299/300; one obsolete import regex corrected without relaxing reach/HP rules. Corrected SHA safety UNVERIFIED.",
+        "actualBefore": "Real predecessor Chromium image shows obscured lower body, stylized figures and weak physical sword contact; no matched AFTER recording exists.",
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "critics": "0/3",
+        "matchedAB": "UNVERIFIED",
+        "mobileP95": "UNVERIFIED",
+        "fullJourney": "UNVERIFIED",
+        "next": "Inspect authentic desktop/mobile source-head moving WebGL and audio (blade/clipping/stage/readability), reject regressions; build deeper entire encounter, capture true 5-stage sound-enabled expedition and blinded independent comparison."
       }
     ]
   }

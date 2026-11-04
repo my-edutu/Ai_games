@@ -54,7 +54,8 @@ test('3D weapon arc advances along genuine adjacent lane, remains body-height an
 test('real WebGL director stages and animates contact arcs without altering authoritative time or faking ranger sword swings',()=>{
  const src=fs.readFileSync(directorPath,'utf8');
  const host=fs.readFileSync(path.join(root,'scripts/serve-dungeon-stream.cjs'),'utf8');
- assert.match(src,/import \{canStageMeleeArc,planMeleeArcFrame,MELEE_ARC_DURATION\}/);
+ assert.match(src,/import \{canStageMeleeArc,planMeleeArcFrame,planBodyTrackedArcFrame,MELEE_ARC_DURATION\}/);
+ assert.match(src,/planBodyTrackedArcFrame\(source,target,life,reducedMotion/);
  assert.match(src,/canStageMeleeArc\(kind,action,source,target\)/);
  assert.match(src,/planMeleeArcFrame\(source,target,life,reducedMotion\)/);
  assert.match(src,/stagedArcFrame\(effect\.source,effect\.target,effect\.from,effect\.to,effect\.life,reducedMotion,actorById\)/,
