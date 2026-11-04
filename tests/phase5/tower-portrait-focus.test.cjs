@@ -70,6 +70,30 @@ test('real airborne landing across frame vetoes a hero-only crop',()=>{
  assert.equal(correct(a.camera,a.gaze,a.actor,null,landing,.05,...a.scratch),0);
  assert.deepEqual({...a.gaze},old);
 });
+test('portrait framing rescues source-height head and boots, not just a centered point',()=>{
+ const a=setup(.18);
+ const tangent=Math.tan(a.camera.fov*Math.PI/360);
+ a.actor.y=.62*40*tangent;
+ const before=a.projection(a.actor).y;
+ assert.ok(before<.78,'torso alone appears safely centered');
+ assert.ok(before+6/(40*tangent)>.78,'full body is actually clipped');
+ assert.ok(correct(a.camera,a.gaze,a.actor,null,null,.05,
+   ...a.scratch,6)>0,'gaze should respond to source body height');
+ assert.ok(a.projection(a.actor).y<before,'actor upper silhouette moves inward');
+ assert.equal(a.camera.position.z,40,'correction never dollies through the tower');
+});
+test('full-height guardian silhouette vetoes a hero-only portrait rescue',()=>{
+ const a=setup(.1),tangent=Math.tan(a.camera.fov*Math.PI/360);
+ a.actor.y=.86*40*tangent;
+ const guardian=new V(-.12*40*tangent*a.camera.aspect,
+   -.59*40*tangent,0);
+ const old={...a.gaze};
+ assert.ok(Math.abs(a.projection(guardian).y)+4/(40*tangent)<.8,
+   'opponent starts with both head and feet inside the safe image');
+ assert.equal(correct(a.camera,a.gaze,a.actor,guardian,null,.05,
+   ...a.scratch,6,4),0);
+ assert.deepEqual({...a.gaze},old,'keep two real combatants rather than crop one');
+});
 test('offscreen actor cannot provoke a presentation cut',()=>{
  const a=setup(1.15),old={...a.gaze};
  assert.equal(correct(a.camera,a.gaze,a.actor,null,null,.05,...a.scratch),0);
