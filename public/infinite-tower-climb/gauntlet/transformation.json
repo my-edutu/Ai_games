@@ -9,20 +9,20 @@
   },
   "candidate": {
     "sha": null,
-    "title": "SAME physically staged source-authentic Tower expedition: paired climber/guardian portrait continuity, NOT EVALUATED",
-    "implementationSha": "5a4dc6000519e6691575ee5fe3b2ef06a5449b51",
-    "implementationEvidenceStatus": "Real playable source 5a4dc6000519e6691575ee5fe3b2ef06a5449b51 adds conditional full-body, both-subject portrait camera correction toward the existing validated exterior guardian shot; source-selected airborne landing is protected, other camera work and occlusion are reused. Previous untouched-head original-host 9/9 capture https://github.com/my-edutu/Ai_games/actions/runs/41848939999 SUCCESS and safety https://github.com/my-edutu/Ai_games/actions/runs/41849559260 SUCCESS but PRE-DATE this implementation. Exact-source safety https://github.com/my-edutu/Ai_games/actions/runs/41858927820 IN PROGRESS and paired real normal-speed original-host desktop/portrait capture https://github.com/my-edutu/Ai_games/actions/runs/41858927470 IN PROGRESS at inspection. No candidate gameplay proof, event-matched video grading, fresh independent critics, supported-device frame-time or memory. NOT EVALUATED."
+    "title": "SAME real 3D autonomous ascent, guardian and source-visible descending shutter landing — NOT EVALUATED",
+    "implementationSha": "8de00974709ac4f4c062ffa8ae2ae08f6b38c34f",
+    "implementationEvidenceStatus": "NEW playable 3D camera + route-stones + physical arrival-dock source timing: 8de00974709ac4f4c062ffa8ae2ae08f6b38c34f, with shared landing-pressure helper 9330c625bddecde268b48c030f9257a809fc94ca. Real 5a4dc6000519e6691575ee5fe3b2ef06a5449b51 source baseline/candidate normal-speed capture https://github.com/my-edutu/Ai_games/actions/runs/41858927470 now completed 9/9 jobs successfully, but PREDATES this new source. Previous exact-source safety https://github.com/my-edutu/Ai_games/actions/runs/41859326919 success, also predates new code. Current-head browser film/CI NOT VERIFIED. No event-matched A/B independent grading or device frame-time/memory. NOT EVALUATED."
   },
   "currentTransformation": {
     "title": "SAME 3D ascent → physical moving landing → two-body guardian/hazard staging → HP gate → authentic outcome/restart",
-    "state": "OPEN — one continuing real playable 3D scene; current portrait dual-subject camera continuation committed, not yet filmed/independently graded. NOT EVALUATED.",
+    "state": "OPEN — same complete 3D climb; source-authenticated last-six-tick shutter pressure now agrees across real pilot, camera, route stones and physical destination staging. New output not yet filmed/independently judged. NOT EVALUATED.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Examine exact-source 9-job baseline/candidate normal-speed original-host film https://github.com/my-edutu/Ai_games/actions/runs/41858927470 for current 5a4dc6000519e6691575ee5fe3b2ef06a5449b51 against immutable 1731b380; inspect portrait 390x844 and desktop 960x600 at matching seed, quality and source events, especially real full-body crop vs physical guardian shot and airborne landing; verify new camera improves actual raster and does not cause jitter. Record event-equivalent >=60s ascent, danger and genuine outcome/restart, blind/randomize order and obtain >=5 genuinely independent critic votes per LOOKS/FEELS/PLAYS (>=4/5 candidate each). Hardware p50/p95/p99 frame-time/memory, a11y, replay and WebGL recovery still outstanding. External independent worker/browser tunnel NOT_FOUND. Quality remains NOT EVALUATED.",
+    "nextDecision": "Inspect the new exact-head original-host source-pinned normal-speed baseline/candidate 960×600 + 390×844 captures when available; compare genuine charging-on-descent → steering → correct dock and camera target and guardian outcome/restart against immutable 1731b380, not equal wall-clock seconds. Latest PRE-change 9/9 film https://github.com/my-edutu/Ai_games/actions/runs/41858927470 is authentic but not event-matched and must not count as a vote. Then obtain ≥5 independent fresh-context blind video critics per LOOKS/FEELS/PLAYS (≥4/5 each), verify actual supported-device frame-time p50/p95/p99 and memory plus a11y/replay/WebGL recovery. Browser/critic tunnel disconnected. Quality NOT EVALUATED.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "UNVERIFIED normal-speed portrait action readability over entire connected climb, particularly simultaneous skinned hero and actual guardian/landing. Source 5a4dc6000519e6691575ee5fe3b2ef06a5449b51 adds a bounded shared two-body camera escape from a deadlocked crop but has no exact-source assessed recording or 5 independent full-motion critics. Matching >=60s scenarios, supported-device frame-time tails/memory, replay/accessibility/recovery must all be collected. NOT EVALUATED.",
-    "unverifiedImplementationBranchHead": "5a4dc6000519e6691575ee5fe3b2ef06a5449b51",
-    "currentVerticalSlice": "One source-authentic 3D climb: exact route-selected moving decks/landings, real guardian/trap encounters with physical warning and HP, airborne contact, world occlusion relief, source-action lighting, and guarded shared portrait camera continuity protecting both physical combatants and real airborne touchdown.",
-    "biggestGap": "UNVERIFIED normal-speed portrait action readability over entire connected climb, particularly simultaneous skinned hero and actual guardian/landing. Source 5a4dc6000519e6691575ee5fe3b2ef06a5449b51 adds a bounded shared two-body camera escape from a deadlocked crop but has no exact-source assessed recording or 5 independent full-motion critics. Matching >=60s scenarios, supported-device frame-time tails/memory, replay/accessibility/recovery must all be collected. NOT EVALUATED."
+    "biggestRemainingExperienceGap": "Biggest remaining gap: normal-speed mobile/desktop causal action readability and experience preference are UNVERIFIED, especially whether the genuine last-six-tick descending shutter escape, 3D target dock, climber and guardian remain inside a readable portrait composition without jitter. The most recent 9/9 normal-speed actual film (source 5a4dc600, https://github.com/my-edutu/Ai_games/actions/runs/41858927470) predates new source; event-matched ≥60s scenario clips, blind 5 independent critics per LOOKS/FEELS/PLAYS, supported-device p50/p95/p99+memory, accessibility/replay/graphics recovery remain missing. Worker/browser tunnel NOT_FOUND. NOT EVALUATED.",
+    "unverifiedImplementationBranchHead": "8de00974709ac4f4c062ffa8ae2ae08f6b38c34f",
+    "currentVerticalSlice": "Same 3D autonomous ascent → genuinely observed moving/charging landing avoidance rendered as one camera/route/dock intention → physical guardian and hazard interaction → HP-operated gate → source-authentic result/restart. Six-tick airborne collision warnings appear as CURRENT-source environmental pressure, not a future safe-landing promise.",
+    "biggestGap": "Biggest remaining gap: normal-speed mobile/desktop causal action readability and experience preference are UNVERIFIED, especially whether the genuine last-six-tick descending shutter escape, 3D target dock, climber and guardian remain inside a readable portrait composition without jitter. The most recent 9/9 normal-speed actual film (source 5a4dc600, https://github.com/my-edutu/Ai_games/actions/runs/41858927470) predates new source; event-matched ≥60s scenario clips, blind 5 independent critics per LOOKS/FEELS/PLAYS, supported-device p50/p95/p99+memory, accessibility/replay/graphics recovery remain missing. Worker/browser tunnel NOT_FOUND. NOT EVALUATED."
   },
   "scenarios": [
     {
@@ -62,11 +62,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Current exact-source 5a4dc6000519e6691575ee5fe3b2ef06a5449b51 CI https://github.com/my-edutu/Ai_games/actions/runs/41858927820 in progress at final inspection. Previous real-game code 1731b380851162741761c5569e2bc152a0869ca9 original host baseline and earlier branch validations do not certify latest. CI safety veto only; NOT quality.",
-    "replay": "New camera repositions only the already-rendered camera and gaze on currently observed validated two-body source snapshots. Existing fixed-step physics, AI, collisions, RNG, seeds, net source truth, replay and persistence untouched. FULL replay equivalence still NOT VERIFIED for current SHA.",
-    "accessibility": "Source-observed paired-camera assistance disabled by reduced-motion, stale/terminal/overview view, or nondefault zoom. No HUD/text/color-only cues introduced. Real accessibility testing across mobile/browser NOT VERIFIED.",
-    "performance": "No extra render pass, mesh, GPU light, texture or draw. CPU-only pair of existing THREE vector projections, fixed-size preallocated body/camera arrays and bounded one-frame camera candidate/rollback when portrait real pair is cropped. Supported-device p50/p95/p99 and memory still NOT MEASURED; not an FPS claim.",
-    "stability": "Camera trial restores old physical camera position and focus precisely when full-body pair or current actual landing worsens. Render GL recovery, portrait actual raster visibility and 60s event-matched scene pairs still NOT TESTED at this SHA."
+    "ci": "Previous 5a4dc600 source-based safety https://github.com/my-edutu/Ai_games/actions/runs/41859326919 completed SUCCESS, but the new implementation 8de00974709ac4f4c062ffa8ae2ae08f6b38c34f with additional unit/contract tests has NOT yet had confirmed exact-head CI; no technical or experience PASS implied.",
+    "replay": "Existing live tactical six-tick descending hazard policy unchanged; only immutable published snapshots feed camera/3D route/dock. Historical-v1 seed, policy, collisions, physics, RNG and source checksum unchanged. New exact-head deterministic replay equivalence still NOT VERIFIED.",
+    "accessibility": "No new in-game text, motion mode, HUD, player input or color-only dependency; existing physical dock outlines remain and reduced motion holds static. Actual accessibility on target browser/phone NOT VERIFIED.",
+    "performance": "No additional draw calls, mesh, light, texture, shader, source physics loop or per-frame geometry allocation. Tiny pure 6-tick pressure predicate replaces duplicated visual collider checks. No supported device p50/p95/p99/memory measurements; NOT VERIFIED.",
+    "stability": "Stale source route/dock still clear, target ID guarded and existing 3D graphics restoration unchanged in code. New exact-head tests, actual recordings, restarts and WebGL recovery NOT independently verified; no false PASS."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -905,28 +905,12 @@
       "biggestRemainingExperienceGap": "Actual entire playable ascent, guardian encounter, and complete ending have source-pinned candidate and baseline normal-speed video artifacts (41557558393) but NO independent full-motion randomized assessment, device frame-time tails or observed all-scene quality preference. Movement still requires experiential verification of long-gap flight/earned air recovery, avoiding spikes, and readable portrait guardian/physical gate. No claimed quality win."
     },
     "latestCompletedSourceCapture": {
-      "workflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41587700834",
-      "sourceSha": "0799127dce732d3fb6fd8e069dea6fcdd81f9cf7",
+      "workflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41858927470",
+      "candidateImplementationSha": "5a4dc6000519e6691575ee5fe3b2ef06a5449b51",
       "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-      "captureJobs": "9/9 completed SUCCESS 2026-11-03; this certifies recording jobs only, not comparative experience",
-      "seed": "tower-transformation-capture-v1",
-      "quality": "low",
-      "viewports": [
-        "960x600 desktop",
-        "390x844 portrait"
-      ],
-      "artifacts": {
-        "baselineAscent": 13209206497,
-        "candidateAscent": 13208852004,
-        "baselineDanger": 13208982147,
-        "candidateDanger": 13209016870,
-        "baselineMoving": 13208912137,
-        "candidateMoving": 13208852138,
-        "baselineOutcome": 13209026845,
-        "candidateOutcome": 13208753374,
-        "authenticLedge": 13209221500
-      },
-      "notes": "All nine GitHub Actions artifacts contained source-pinned actual desktop and portrait normal-speed video/motion recordings, with successful workflow jobs. Event- and tick-aligned 60-second sequences NOT independently inspected; prior source lacks new 0e6ec42 warning/camera change. No 4/5 quality vote or hardware quality inference."
+      "jobCount": "9/9 SUCCESS",
+      "status": "CAPTURE COMPLETED, old candidate implementation, NO EVENT-MATCHED CRITICS",
+      "newCodeRecorded": false
     },
     "newSourceCombatFraming": {
       "implementationSha": "a2bd637e67e59a20f245af8954064ce7b4d1438f",
@@ -1653,12 +1637,11 @@
       "criticalConstraint": "Outcome recordings use different real source floor/tick episodes; event-matched blind comparison not ready."
     },
     "latestUnrecordedImplementation": {
-      "sourceSha": "f273cddb3b15b222aa0003145adf334a2ff87cc1",
-      "candidateCaptureUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41697565357",
-      "technicalWorkflowUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41697565643",
-      "sourceFeature": "Real 3D current camera-to-gear foreground visibility + source-bound airborne combat touchdown footprint",
-      "status": "NOT EVALUATED",
-      "criticBrowserBlocker": "NOT_FOUND: Tunnel-client has not been seen for 300 seconds; workers/browser unavailable"
+      "implementationSha": "8de00974709ac4f4c062ffa8ae2ae08f6b38c34f",
+      "reviewPath": "docs/reviews/2026-11-04-tower-pr68-source-observed-descending-landing-coherence.md",
+      "videoStatus": "NOT VERIFIED at new source SHA",
+      "criticStatus": "0 genuine independent votes",
+      "devicePerformance": "UNMEASURED"
     },
     "previousBaselineHostContamination": {
       "discoveredOn": "2026-11-03",
