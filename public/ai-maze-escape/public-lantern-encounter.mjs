@@ -44,3 +44,14 @@ export function publicLanternWarning(snapshot, guardianCell) {
   const dy=Math.floor(hero / width)-Math.floor(guardianCell / width);
   return dx*dx+dy*dy <= 5; // sqrt(5) cells; zero distance already rejected
 }
+
+// Three linked, authored PERFORMANCE beats, not new authoritative AI behavior.
+// 0-.24: notice; .24-.60: physically brace; .60-1: unfold shell.
+// Input is elapsed VISUAL time since the FIRST nearby PUBLIC witness; hidden
+// threats can never start a beat. CPU-delayed frames do not skip a real game tick.
+export function publicGuardianEncounterBeat(ageSeconds, reducedMotion = false) {
+  if (!Number.isFinite(ageSeconds) || ageSeconds < 0) return 0;
+  if (reducedMotion) return 1; // stable expressive pose, no flashing/tweening
+  const t = Math.min(1, ageSeconds / 1.35);
+  return t * t * (3 - 2 * t);
+}
