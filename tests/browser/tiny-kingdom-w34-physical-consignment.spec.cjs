@@ -28,8 +28,11 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    const saved=g.exportSnapshot(),before=JSON.stringify(saved);
    const load=g.getCourierLoadPresentation(cargo.citizen);
    const economy=g.getDeliveryEconomyAudit();
+   const sourceAudit=typeof g.getPhysicalMarketParcelAudit==='function'?
+    g.getPhysicalMarketParcelAudit(cargo.id):null;
    const after=JSON.stringify(g.exportSnapshot());
-   let partial=null,partialSnapshot=null,previous=load.visibleBundles,monotone=true,receipt=null;
+   let partial=null,partialSnapshot=null,partialParcelAudit=null,
+    previous=load.visibleBundles,monotone=true,receipt=null;
    for(let n=0;n<12000;n++){
     g.step(1/30);
     const current=g.getCourierLoadPresentation(cargo.citizen);
@@ -38,15 +41,18 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
      previous=current.visibleBundles;
      if(current.progress>.62&&current.progress<.88&&!partial){
       partial={...current};partialSnapshot=g.exportSnapshot();
+      partialParcelAudit=g.getPhysicalMarketParcelAudit?.(cargo.id)||null;
      }
     }
     receipt=g.getDeliveryReceipts().find(r=>r.id===cargo.id);
     if(receipt)break;
    }
    const state=JSON.stringify(g.exportSnapshot());
+   const receiptParcelAudit=g.getPhysicalMarketParcelAudit?.(cargo.id)||null;
    g.restoreSnapshot(saved);
    const restored=g.getCourierLoadPresentation(cargo.citizen);
-   return {cargo,load,partial,receipt,realLoadedSnapshot:saved,
+   return {cargo,load,partial,receipt,
+    sourceAudit,partialParcelAudit,receiptParcelAudit,realLoadedSnapshot:saved,
     realUnloadingSnapshot:partialSnapshot,realReceivedSnapshot:JSON.parse(state),
     monotone,readOnly:before===after,
     restored,unchangedLoad:JSON.stringify(restored)===JSON.stringify(load),
@@ -64,6 +70,20 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(journey.load.bundles).toBeGreaterThanOrEqual(1);
   expect(journey.load.bundles).toBeLessThanOrEqual(3);
   expect(journey.partial,'Authentic actor never reached mid-unload').toBeTruthy();
+  expect(journey.sourceAudit?.source).toBe('real-escrow-to-receipt-parcel-continuity');
+  expect(journey.sourceAudit.bundleCount).toBe(journey.load.bundles);
+  expect(journey.sourceAudit.visibleOnCart).toBe(journey.load.bundles);
+  expect(journey.sourceAudit.transferredButEscrowed).toBe(0);
+  expect(journey.partialParcelAudit?.stage).toBe('unloading');
+  expect(journey.partialParcelAudit.bundleCount).toBe(journey.load.bundles);
+  expect(journey.partialParcelAudit.visibleOnCart).toBe(journey.partial.visibleBundles);
+  expect(journey.partialParcelAudit.transferredButEscrowed).toBeGreaterThan(0);
+  expect(journey.partialParcelAudit.visibleOnCart+
+    journey.partialParcelAudit.transferredButEscrowed).toBe(journey.load.bundles);
+  expect(journey.receiptParcelAudit?.stage).toBe('received');
+  expect(journey.receiptParcelAudit.bundleCount).toBe(journey.load.bundles);
+  expect(journey.receiptParcelAudit.visibleOnCart).toBe(0);
+  expect(journey.receiptParcelAudit.transferredButEscrowed).toBe(0);
   expect(journey.partial.stage).toBe('unloading');
   expect(journey.partial.visibleBundles).toBeLessThan(journey.load.visibleBundles);
   expect(journey.partial.visibleBundles).toBeGreaterThanOrEqual(0);
