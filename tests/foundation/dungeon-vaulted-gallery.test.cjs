@@ -44,8 +44,8 @@ test('actual WebGL receives original vaulted-bay 3D batches and cutaway',()=>{
   'decorative Court receives the real authority exit and preserves vaulted galleries');
  const dressing=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
  assert.match(dressing,/vaultedFacadeOpenings:/);
- assert.match(dressing,/const windowFaces=wallFaces\.filter\(face=>face\[4\]>=1\.04&&face\[9\]!==1\)/,
-  'real 1.04m+ non-vault stone plinths must support colored Gothic glass without sealing genuine open galleries');
+ assert.match(dressing,/const windowFaces=wallFaces\.filter\(face=>face\[4\]>=\.88&&face\[9\]!==1\)/,
+  'real 0.88m+ non-vault stone plinths must support colored Gothic glass without sealing genuine open galleries');
  assert.match(dressing,/addDungeonWindows\(world,windowFaces,/);
  assert.match(dressing,/if\(!flames\.length\)/,'seeded halls must retain real light landmarks');
  assert.match(app,/vaultedGallery:world\.userData\.vaultedGallery\?\.metrics\(\)/);
@@ -86,7 +86,7 @@ test('low but genuine crypt walls support spaced 3D stained glass and original r
  const architecture=fs.readFileSync(path.join(root,'public/ai-dungeon/architecture.js'),'utf8');
  const dressing=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
  const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
- assert.match(architecture,/face\[4\]>=1\.04&&face\[9\]!==1/);
+ assert.match(architecture,/face\[4\]>=\.88&&face\[9\]!==1/);
  assert.match(architecture,/buttressFoot/);
  assert.match(architecture,/selected\.some\(p=>Math\.hypot/);
  assert.match(dressing,/const standing=wallFaces\.filter\(face=>face\[4\]>=1\.16\)/);
