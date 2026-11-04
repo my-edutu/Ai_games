@@ -2183,9 +2183,9 @@
       }
     },
     "evidence": {
-      "actualContinuousScenarioReel": "UNVERIFIED",
-      "matchedBeforeAfter": "UNVERIFIED",
-      "mobileBeforeAfter": "UNVERIFIED",
+      "actualContinuousScenarioReel": "UNVERIFIED: completed natural Warden floor/restart authority previously, but no new-head synchronized desktop/mobile narrative audiovisual reel.",
+      "matchedBeforeAfter": "UNVERIFIED: no new-head matched moving Chromium BEFORE/AFTER or 3 independent blind critics.",
+      "mobileBeforeAfter": "UNVERIFIED: actual mobile WebGL candidate not yet captured/comparison scored.",
       "independentCriticPanel": {
         "status": "UNVERIFIED",
         "criticCount": 0,
@@ -2194,9 +2194,9 @@
         "playsMajority": false,
         "provenance": "No fresh independent critics available. Do not infer a blind preference from test results or real predecessor screenshots."
       },
-      "safetyChecks": "Predecessor 121117b actual Dungeon workflow 41813003315 FAIL: 282/283 authority, stale .16 vs .13 cutaway source-height contract; browser shard2 27/28, exact seeded real Chromium 0 nearby walls. Source changes through 766282bae5c32e01194e3aabb8938544f9987596 require exact-code-head tests and authentic browser stage footage. Prior 2500-tick organic campaign had Warden victory, floor change, natural defeat and restart without bypass. Current replay and security NOT reverified.",
+      "safetyChecks": "Code-level bounded confirmed impact witness ran, but new exact-head authority/replay/security workflows are QUEUED: Dungeon 41878892063, visual 41878891866, catalogue 41878891669. Do not infer pass. Historical 24x900, 174 floors, 4 natural restarts refer to PREDECESSOR only.",
       "matchedExternalReference": "NOT_RUN",
-      "originalAudioMotionClip": "UNVERIFIED synchronized full video+audio; predecessor Chromium Warden diagnostic 2.5s non-silent real PCM 44100Hz, peak .025445 RMS .00856, but browser video recorder reported zero bytes.",
+      "originalAudioMotionClip": "UNVERIFIED full synchronized game soundtrack and video: real original WAV from earlier Warden browser test may exist; do not infer from separate audio and silent WebM.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
       "audioLoudnessAndClipping": "NOT_MEASURED: browser records positive original peak/RMS and populated WAV only when genuine real-time AudioContext frames exist; no candidate measurements yet.",
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
@@ -2396,9 +2396,9 @@
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Actual KayKit character proportions, weapon-body contact and Gothic staging still fail authentic Diablo IV/No Rest for the Wicked/Path of Exile 2 quality bar; no current AFTER video/p95/3 critics.",
-    "currentWork": "M1 source production candidate 39af50ef uses true shoulder/foot rays in both native 3D camera grade and shared real wall clearance; previous 7817fb4 raw desktop/mob footage remains NEGATIVE. 39af exact-head CI 41875107725 FAILED ONLY one new test SyntaxError (single-quote apostrophe), repaired in next lease-safe commit. Locally mirrored production blobs match GitHub SHA1 and 23/23 original focused tests plus 24×900 headless seeded campaigns pass, 174 floor advances, 4 natural restarts; real running AFTER/phone audio and blind A/B remain UNVERIFIED.",
-    "candidateCommit": "39af50ef3aa0eebd0a6f5701dd7b3e822dd0c321",
+    "biggestRemainingGap": "Source character anatomy remains stylized; real moving sword-to-enemy contact and readable Gothic negative space are not AAA parity. New candidate not verified against pinned before screenshots. Five-stage synchronized desktop/mobile original-audio journey, phone p95 and 3 blind critics unavailable.",
+    "currentWork": "One M1 connected boss-combat aftermath candidate: true previous warning plus matching Warden ground-impact event now yields persistent original 3D floor fractures and restrained phase heat; committed 4e53df6a4c04c09a6edbb60b145e2840c34a71d8. Real new-head WebGL, authority CI and blind quality verdicts UNVERIFIED. No new Gauntlet round or baseline.",
+    "candidateCommit": "4e53df6a4c04c09a6edbb60b145e2840c34a71d8",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -4957,6 +4957,24 @@
         "mobileP95": "UNVERIFIED",
         "statusVerdict": "IN PROGRESS — NOT TRANSFORMED",
         "next": "Inspect new-head real desktop/mobile Chromium screenshots, confirm shoulders and legs genuinely clear of foreground, reject architecture flattening and camera hunting; develop better native character anatomy and physical sword contact as the next integrated scene chapter. Obtain true all-stage audiovisual clips, phone performance and independent 3-critic majority before acceptance."
+      },
+      {
+        "id": "M1-CONFIRMED-WARDEN-GROUND-AFTERMATH-20261104",
+        "date": "2026-11-04",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "objective": "Actual boss shockwaves leave original, persistent 3D floor fractures from prior real warned cells and subsequent authoritative event. No fake hits, map damage, simulation changes, new audio bus or third-party assets.",
+        "codeSha": "4e53df6a4c04c09a6edbb60b145e2840c34a71d8",
+        "code": [
+          "public/ai-dungeon/warden-impact-plan.js",
+          "public/ai-dungeon/warden-impact-scars.js",
+          "public/ai-dungeon/app.js",
+          "scripts/serve-dungeon-stream.cjs",
+          "tests/foundation/dungeon-warden-impact-scars.test.cjs",
+          "tests/browser/dungeon-warden-court.spec.cjs"
+        ],
+        "safety": "Pure source parser and deterministic synthetic witness probe succeeded after correcting plural/singular 'hero(es)' and preserving recorded fatal shockwaves on intermission. NEW EXACT-HEAD CI/replay and browser work still QUEUED; no green claim.",
+        "browser": "UNVERIFIED candidate real desktop/mobile Warden visual; prior 7817fb4 Chrome proves body occlusion and toy source rigs. 4-second seeded boss clip test now includes authentic impact metrics in receipt; not a full-story audiovisual acceptance reel.",
+        "next": "Inspect true new-head browser Warden Court screenshots, real motion/audio and floor scar density on desktop/mobile; reject additional clutter or performance costs. Resume substantial native-skinned humanoid, enemy contact and coherent playable adventure reconstruction and independent blind matched M1 A/B."
       }
     ]
   }
