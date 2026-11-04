@@ -9,9 +9,36 @@ import { observedImmediateTrap } from './scene-hierarchy.mjs';
 const PIECES_PER_HAZARD = 16;
 const MAX_HAZARDS = 6;
 const CHARGE_WINDOW_TICKS = 12;
-const PHASES = Object.freeze(['active', 'charging', 'release']);
+const PHASES = Object.freeze(['active', 'charging', 'release', 'rest']);
 const valid = n => Number.isFinite(n);
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+
+// The physical combat shutter must be a landmark BEFORE its short 12-tick
+// warning. Otherwise the real collider seemingly materializes from empty
+// stone when a guardian and the autonomous climber are already fighting.
+// Show a LOW, visibly OPEN alloy mechanism only for an existing source
+// guardian-cap crusher; do not treat rest as danger, promise a refuge, predict
+// activation or create a collision. Non-guardian traps retain prior behavior.
+export function observedInstalledGuardianShutter(snapshot, hazard) {
+  if (snapshot?.stale || snapshot?.lifecycle !== 'running' ||
+      !Number.isSafeInteger(snapshot?.tick) || snapshot.tick < 0 ||
+      !Number.isSafeInteger(snapshot?.floor) ||
+      typeof snapshot?.runToken !== 'string' || !snapshot.runToken ||
+      !hazard || hazard.id !== `f${snapshot.floor}:guardian-shutter` ||
+      hazard.kind !== 'crusher' ||
+      ![hazard.x, hazard.y, hazard.width, hazard.height].every(valid) ||
+      hazard.width <= 0 || hazard.height <= 0) return false;
+  const cap = snapshot.platforms?.find(platform =>
+    platform.id === `f${snapshot.floor}:cap`);
+  if (!cap || ![cap.x, cap.y, cap.width, cap.height].every(valid) ||
+      cap.width <= 0 || cap.height <= 0 ||
+      hazard.x < cap.x || hazard.x + hazard.width > cap.x + cap.width ||
+      Math.abs(hazard.y - (cap.y + cap.height)) > 2500) return false;
+  return Array.isArray(snapshot.enemies) && snapshot.enemies.some(enemy =>
+    enemy?.kind === 'guardian' && enemy.active === true &&
+    valid(enemy.health) && enemy.health > 0 &&
+    valid(enemy.x) && valid(enemy.y));
+}
 
 // Two simultaneously observed physical threats should be staged as ONE
 // source-authentic escape dilemma on a narrow phone screen, never as a
@@ -77,6 +104,7 @@ export function createTowerHazardPressure(THREE) {
   const strikingRail = new THREE.Color(0xad4938);
   const strikingWeight = new THREE.Color(0xffba82);
   const releasedSteel = new THREE.Color(0x87999a);
+  const restingAlloy = new THREE.Color(0x769195);
   const RELEASE_TICKS = 6;
   // Last-observed real activation can own a short, purely mechanical unload
   // AFTER source deactivation. Neither wall time nor render frames invent a
@@ -84,7 +112,7 @@ export function createTowerHazardPressure(THREE) {
   const previousActive = new Set();
   const releaseTickById = new Map();
   let lastRun = null, lastFloor = null, lastTick = null;
-  let chargingHazards = 0, activeHazards = 0, releasingHazards = 0;
+  let chargingHazards = 0, activeHazards = 0, releasingHazards = 0, restingHazards = 0;
   let crossfireWarnings = 0, crossfirePrewarnings = 0, crossfireReleases = 0;
   let sourceTick = null, observedFloor = null, disposed = false;
 
@@ -94,6 +122,7 @@ export function createTowerHazardPressure(THREE) {
     chargingHazards = 0;
     activeHazards = 0;
     releasingHazards = 0;
+    restingHazards = 0;
     crossfireWarnings = 0; crossfirePrewarnings = 0; crossfireReleases = 0;
     sourceTick = null;
     observedFloor = null;
@@ -159,7 +188,7 @@ export function createTowerHazardPressure(THREE) {
     const immediateTrap = observedImmediateTrap(snapshot);
     const priorityTrapId = typeof immediateTrap?.id === 'string' ? immediateTrap.id : null;
     const maximum = options.quality === 'low' ? 3 : MAX_HAZARDS;
-    let count = 0, charging = 0, active = 0, releasing = 0;
+    let count = 0, charging = 0, active = 0, releasing = 0, resting = 0;
     let concurrentWarnings = 0, concurrentPrewarnings = 0, concurrentReleases = 0;
     // Source-active collision has absolute priority, including when another
     // real guardian winds up. Then anticipate new warnings; finally spend
@@ -188,6 +217,8 @@ export function createTowerHazardPressure(THREE) {
           Number.isSafeInteger(releaseStarted) &&
           snapshot.tick >= releaseStarted &&
           snapshot.tick - releaseStarted < RELEASE_TICKS;
+        const isResting = phase === 'rest' && !isActive && !isCharging &&
+          !isReleasing && observedInstalledGuardianShutter(snapshot, hazard);
         // Crossfire is a visible physical sequence, not guardian OR shutter.
         // Show only the last-six-tick currently evaded contact warning during
         // a guardian telegraph, then retain source-confirmed nearby recovery.
@@ -214,7 +245,8 @@ export function createTowerHazardPressure(THREE) {
         if (guardianWindup && phase === 'release' && !nearBody) continue;
         if ((phase === 'active' && !isActive) ||
           (phase === 'charging' && !isCharging) ||
-          (phase === 'release' && !isReleasing)) continue;
+          (phase === 'release' && !isReleasing) ||
+          (phase === 'rest' && !isResting)) continue;
         const progress = isActive ? 1 : isCharging
           ? (options.reducedMotion ? 1 :
             clamp((CHARGE_WINDOW_TICKS + 1 - hazard.chargeTicksRemaining) /
@@ -222,7 +254,7 @@ export function createTowerHazardPressure(THREE) {
           : (options.reducedMotion ? 0 :
             clamp(1 - (snapshot.tick - releaseStarted) / RELEASE_TICKS, 0, 1));
         const width = clamp(hazard.width / SCALE / 6.4, .34, 1.9);
-        const lift = .14 + .72 * progress;
+        const lift = isResting ? .065 : .14 + .72 * progress;
         // Keep the real source trap machinery on the camera-facing outer
         // tower skin, rather than letting the opaque 24-unit tower bury the
         // closing jaws. The full 26.74–27.78-unit band remains *behind* the
@@ -236,29 +268,29 @@ export function createTowerHazardPressure(THREE) {
               n >= 4 ? 27.66 : 26.88);
             pose.position.set(point.x, point.y + lift, point.z);
             pose.rotation.set(0, point.angle,
-              (n >= 4 ? -1 : 1) * (.12 + .24 * progress));
-            pose.scale.set(width, .19 + .62 * progress, .25);
+              (n >= 4 ? -1 : 1) * (isResting ? .66 : .12 + .24 * progress));
+            pose.scale.set(width, isResting ? .13 : .19 + .62 * progress, .25);
           } else if (n < 12) {
             const point = pointFor(hazard.x + hazard.width * (.11 + (n-8) * .26),
               hazard.y, snapshot.chunkBaseY, snapshot.worldWidth, 27.18);
-            pose.position.set(point.x, point.y + .08 + progress * .12, point.z);
+            pose.position.set(point.x, point.y + (isResting ? .035 : .08 + progress * .12), point.z);
             pose.rotation.set(0, point.angle, 0);
-            pose.scale.set(width * 1.15, .09, .56 + .12 * progress);
+            pose.scale.set(width * 1.15, isResting ? .07 : .09, .56 + .12 * progress);
           } else {
             const slot = n-12, fraction = slot < 2 ? .08 : .92;
             const point = pointFor(hazard.x + hazard.width * fraction,
               hazard.y, snapshot.chunkBaseY, snapshot.worldWidth,
               slot % 2 === 0 ? 26.74 : 27.78);
-            pose.position.set(point.x, point.y + .38 + progress * .32, point.z);
+            pose.position.set(point.x, point.y + (isResting ? .19 : .38 + progress * .32), point.z);
             pose.rotation.set(0, point.angle, slot % 2 === 0 ? -.12 : .12);
-            pose.scale.set(width * .39, .26 + progress * .6, .30);
+            pose.scale.set(width * .39, isResting ? .16 : .26 + progress * .6, .30);
           }
           pose.updateMatrix();
           shutters.setMatrixAt(count, pose.matrix);
           // Continuous chamber closure at the exact source activation:
           // shape stays fixed at the hit; a warm strike tint replaces amber.
           // Post-collision metal cools and physically reopens, no flash.
-          const tint = isReleasing ? releasedSteel : isActive
+          const tint = isResting ? restingAlloy : isReleasing ? releasedSteel : isActive
             ? (n < 8 ? strikingJaw : n < 12 ? strikingRail : strikingWeight)
             : (n < 8 ? bronze : n < 12 ? darkSteel : counterweight);
           shutters.setColorAt(count, tint);
@@ -276,9 +308,11 @@ export function createTowerHazardPressure(THREE) {
             if (realPrelude) concurrentPrewarnings++;
             else concurrentWarnings++;
           }
-        } else {
+        } else if (isReleasing) {
           releasing++;
           if (guardianWindup) concurrentReleases++;
+        } else if (isResting) {
+          resting++;
         }
       }
       }
@@ -292,6 +326,7 @@ export function createTowerHazardPressure(THREE) {
     chargingHazards = charging;
     activeHazards = active;
     releasingHazards = releasing;
+    restingHazards = resting;
     crossfireWarnings = concurrentWarnings;
     crossfirePrewarnings = concurrentPrewarnings;
     crossfireReleases = concurrentReleases;
@@ -305,14 +340,15 @@ export function createTowerHazardPressure(THREE) {
   function diagnostics() {
     return {
       sourceTick, observedFloor, chargingHazards, activeHazards,
-      releasingHazards, crossfireWarnings, crossfirePrewarnings, crossfireReleases,
+      releasingHazards, restingHazards, crossfireWarnings, crossfirePrewarnings, crossfireReleases,
       phase: activeHazards ? 'active' :
-        chargingHazards ? 'charging' : releasingHazards ? 'release' : 'idle',
+        chargingHazards ? 'charging' : releasingHazards ? 'release' :
+        restingHazards ? 'installed-open' : 'idle',
       instances: shutters.count, extraDraws: shutters.visible ? 1 : 0,
       sourceBound: true, maximumInstances: MAX_HAZARDS * PIECES_PER_HAZARD,
       reducedMotion: 'Static charge and neutral unload, live attack remains visibly closed',
       radialBand: [26.74, 27.78], // world-space exterior steel, behind the ~28-unit climber
-      evidence: 'Source-attested 12-tick physical prelude under near-body real guardian combat -> final-six-tick camera/light priority -> actual active attack -> adjacent observed unload; no forecast or authority change',
+      evidence: 'Source-attested guardian-cap shutter remains physically open at rest, then 12-tick prelude -> last-six-tick urgency -> actual impact -> witnessed unload; non-guardian traps unchanged; no forecast or authority change',
     };
   }
 
