@@ -1928,6 +1928,26 @@ export function createMazeWorld(options = {}) {
     for (const t of textures) t.dispose(); textures.clear();
     geometries.clear(); materials.clear(); batches = []; animations = []; ripples = []; fossilSails = []; fossilOrgans = []; batchData.clear(); snapshot = null; renderedCells = []; stairEdges = []; stairBalustrades = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0; gateForecourtParapets = 0; gateCourtRosettes = 0; tideFossilGroves = 0; tideFossilAlcoves = 0; fossilGalleryEdges = 0; undercroftButtresses = 0; group.clear();
   }
+  // Actual modeled, PUBLICLY disclosed fossil-organ attention. The living
+  // sculpture exists only when a safe published tile and its closed wall are
+  // already on screen; hidden map cells, seeds, engine goals and AI commands
+  // are never queried. A small physical Pip reaction can share the same
+  // observed proximity that already unfolds these real Three hinges.
+  function publicFossilAttention(explorerPosition) {
+    if (disposed || !snapshot || !explorerPosition
+      || !Number.isFinite(explorerPosition.x)
+      || !Number.isFinite(explorerPosition.z)) return null;
+    let nearest = null;
+    for (const relic of fossilOrgans) {
+      const distance = Math.hypot(explorerPosition.x - relic.x,
+        explorerPosition.z - relic.z);
+      if (distance >= 3.6 || (nearest && distance >= nearest.distance)) continue;
+      nearest = { x: relic.x, z: relic.z, distance };
+    }
+    if (!nearest) return null;
+    return {x: nearest.x, z: nearest.z,
+      strength: Math.min(1, (1 - nearest.distance / 3.6) * 2)};
+  }
   function stats() {
     let meshes = 0, instances = 0;
     group.traverse(item => { if (item.isMesh) meshes++; if (item.isInstancedMesh) instances += item.count; });
@@ -1944,5 +1964,5 @@ export function createMazeWorld(options = {}) {
         ? sail.object.rotation.x : sail.object.rotation.z))) : 0;
     return { fossilMotionMaxRadians, renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), stairBalustrades, tideFossilGroves, tideFossilAlcoves, fossilGalleryEdges, undercroftButtresses, responsiveFossilSails: fossilSails.length, responsiveFossilOrgans: fossilOrgans.length, coastalGardens, wallGardens, coastCanopies, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, windcatcherTowers, wallWindcatchers, gateForecourtParapets, gateCourtRosettes, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
   }
-  return { group, update, animate, dispose, stats, matchingPublicSocket };
+  return { group, update, animate, dispose, stats, matchingPublicSocket, publicFossilAttention };
 }
