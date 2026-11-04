@@ -10,7 +10,7 @@ export function planConfirmedWardenImpact(before,after){
   !Array.isArray(after.events)||!Number.isSafeInteger(before.tick)||
   !Number.isSafeInteger(after.tick)||after.tick<=before.tick||
   before.run!==after.run||before.floor!==after.floor||
-  before.phase!=='exploring'||after.phase!=='exploring')return null;
+  before.phase!=='exploring'||!['exploring','intermission'].includes(after.phase))return null;
  const warning=before.bossWarning;
  if(!warning||!SHAPES.has(warning.shape)||!Array.isArray(warning.cells)||
   !Number.isSafeInteger(warning.attackTick)||warning.attackTick<=before.tick||
@@ -19,7 +19,7 @@ export function planConfirmedWardenImpact(before,after){
  const text='The Warden '+warning.shape.toLowerCase().replaceAll('_',' ')+' shockwave struck ';
  if(!after.events.some(e=>e?.tick===warning.attackTick&&
   (e.kind==='danger'||e.kind==='evade')&&typeof e.text==='string'&&
-  e.text.startsWith(text)&&/^\d+ heroes?$/.test(e.text.slice(text.length))))return null;
+  e.text.startsWith(text)&&/^\d+ hero(?:es)?$/.test(e.text.slice(text.length))))return null;
  const map=before.map,n=map.length;
  if(n<7||n>41||map.some(row=>typeof row!=='string'||row.length!==n))return null;
  const seen=new Set(),cells=[];
