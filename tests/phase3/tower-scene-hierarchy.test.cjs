@@ -1,0 +1,88 @@
+'use strict';
+// Engineering safety only. Source-authentic full-motion A/B and independent
+// LOOKS/FEELS/PLAYS judgments remain the transformation acceptance gate.
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const path = require('node:path');
+const { pathToFileURL } = require('node:url');
+const ROOT = path.resolve(__dirname, '../..');
+const url = file => pathToFileURL(path.join(ROOT, file)).href;
+const sourceModule = import(url('public/infinite-tower-climb/visuals/scene-hierarchy.mjs'));
+const visuals = Promise.all([
+  import(url('node_modules/three/build/three.module.js')),
+  import(url('public/infinite-tower-climb/visuals/atmosphere.mjs')),
+]);
+const frame = () => ({
+  lifecycle: 'running', runToken: 'staged-42', tick: 382, floor: 5,
+  theme: 'foundry', worldWidth: 480000, chunkBaseY: 1000000,
+  player: { x: 240000, y: 1350000, health: 5, maxHealth: 6,
+    state: 'airborne', vy: 14000, vx: 1800, attacking: false },
+  enemies: [], hazards: [], intent: { mode: 'air-control' },
+});
+const guardian = () => ({ id: 'real-boss', kind: 'guardian', active: true,
+  x: 260000, y: 1350000, health: 8, maxHealth: 8, telegraph: true });
+const shutter = () => ({ id: 'observed-shutter', x: 227000, y: 1345000,
+  width: 30000, height: 10000, active: true, chargeTicksRemaining: 0 });
+
+test('source-only quiet -> imminent danger -> real guardian -> outcome without phantom focus', async () => {
+  const { observedSceneHierarchy: observe } = await sourceModule;
+  const base = frame(), before = JSON.stringify(base);
+  assert.deepEqual(observe(base), { kind: 'ascent', focus: 0 });
+  assert.equal(JSON.stringify(base), before, 'source snapshots remain immutable');
+  const active = { ...base, hazards: [shutter()] };
+  assert.deepEqual(observe(active), { kind: 'hazard', focus: .82 });
+  const distant = { ...base, hazards: [{ ...shutter(), x: 10000 }] };
+  assert.deepEqual(observe(distant), { kind: 'ascent', focus: 0 });
+  const earlyCharge = { ...base, hazards: [{ ...shutter(),
+    active: false, chargeTicksRemaining: 18 }],
+    intent: { mode: 'evading-hazard' } };
+  assert.deepEqual(observe(earlyCharge), { kind: 'ascent', focus: 0 });
+  const imminent = { ...earlyCharge, hazards: [{
+    ...shutter(), active: false, chargeTicksRemaining: 8 }] };
+  assert.equal(observe(imminent).kind, 'hazard');
+  assert.equal(observe({ ...imminent, intent: { mode: 'aligning' } }).focus, 0);
+  assert.equal(observe({ ...active, enemies: [guardian()] }).kind, 'guardian',
+    'present boss encounter outranks even immediate shutter danger');
+  assert.equal(observe({ ...base, enemies: [{ ...guardian(), x: 10000 }] }).focus, 0,
+    'untouched distant boss must not dim ordinary ascent');
+  assert.equal(observe({ ...base, enemies: [{ ...guardian(), telegraph: false }] }).focus, 0);
+  assert.equal(observe({ ...base, enemies: [{ ...guardian(), telegraph: false,
+    health: 6 }] }).kind, 'guardian', 'witnessed HP loss establishes a real duel');
+  assert.equal(observe({ ...base, enemies: [{ ...guardian(), telegraph: false }],
+    intent: { mode: 'engaging-enemy' } }).kind, 'guardian');
+  const ended = { ...base, lifecycle: 'result',
+    result: { kind: 'game', reason: 'health-depleted' } };
+  assert.deepEqual(observe(ended), { kind: 'terminal', focus: .86 });
+  assert.deepEqual(observe({ ...ended, result: null }), { kind: 'ascent', focus: 0 },
+    'do not fabricate a win, failure or result from a phase alone');
+  for (const f of [{ ...base, stale: true }, { ...base, runToken: '' },
+    { ...base, tick: -1 }, { ...base, player: { ...base.player, health: 0 } }])
+    assert.equal(observe(f).focus, 0);
+});
+
+test('real 3D biome weather yields to source danger, clears on stale and keeps one draw', async () => {
+  const [THREE, { createTowerAtmosphere }] = await visuals;
+  const fx = createTowerAtmosphere(THREE);
+  const mesh = fx.group.getObjectByName('SourceBoundBiomeAtmosphere');
+  try {
+    const base = frame(), before = JSON.stringify(base);
+    fx.update(base, { quality: 'high' });
+    const ordinary = mesh.material.opacity;
+    const count = mesh.count;
+    fx.update({ ...base, hazards: [shutter()] }, { quality: 'high' });
+    assert.ok(mesh.material.opacity < ordinary * .6,
+      'source-owned danger suppresses high-contrast ambience, not hazard cues');
+    assert.equal(fx.diagnostics().encounterHierarchy.kind, 'hazard');
+    assert.equal(mesh.count, count, 'no allocation/draw budget change');
+    fx.update({ ...base, enemies: [guardian()] }, { quality: 'high' });
+    assert.equal(fx.diagnostics().encounterHierarchy.kind, 'guardian');
+    assert.ok(mesh.material.opacity < ordinary * .4);
+    assert.equal(fx.diagnostics().drawCallsIfVisible, 1);
+    assert.equal(JSON.stringify(base), before);
+    fx.update(base, { stale: true });
+    assert.equal(mesh.visible, false);
+    assert.equal(fx.diagnostics().encounterHierarchy.focus, 0);
+    fx.update(base, { reducedMotion: true });
+    assert.equal(mesh.count, 0);
+  } finally { fx.dispose(); }
+});
