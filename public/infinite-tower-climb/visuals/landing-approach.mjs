@@ -5,7 +5,7 @@ import { pointFor } from './coordinates.mjs';
 // promise, force field, extra collider, scripted recovery or new HUD element.
 // All seven original metal pieces share one draw; no extra dynamic lights.
 const ROUTE_MODES = new Set(['aligning', 'settling-launch', 'jumping', 'air-control', 'settling-landing']);
-const PIECES = 7;
+const PIECES = 12;
 const finite = Number.isFinite;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
 
@@ -81,7 +81,7 @@ export function createTowerLandingApproach(THREE) {
   group.add(mesh);
   const pose = new THREE.Object3D();
   const tint = new THREE.Color();
-  let active = null, paintedPressure = null, disposed = false;
+  let active = null, disposed = false;
   function clear() {
     group.visible = false;
     mesh.count = 0;
@@ -98,29 +98,48 @@ export function createTowerLandingApproach(THREE) {
       active.left === candidate.left && active.right === candidate.right &&
       active.top === candidate.top && active.pressured === candidate.pressured) return;
     active = candidate;
-    const paint = candidate.pressured;
-    if (paintedPressure !== paint) {
-      const metal = tint.set(paint ? 0xffae71 : 0x91f5db);
-      const bright = tint.clone().set(paint ? 0xffdb9d : 0xdbfff3);
-      for (let i = 0; i < PIECES; i++) mesh.setColorAt(i, i < 2 ? bright : metal);
-      mesh.instanceColor.needsUpdate = true;
-      paintedPressure = paint;
-    }
+    // A source-driven dock, not a predicted safe destination or gameplay collider.
+    // A pair of full-height piers and a continuous crossbar read at tower scale.
+    // Inset step stones acknowledge PRESENT distance and pressure only.
+    const distance = Math.hypot(
+      (snapshot.player.x - candidate.x) / 10000,
+      (snapshot.player.y - snapshot.player.halfHeight - candidate.top) / 10000);
+    const litSteps = Math.floor(clamp(1 - distance / 16, 0, 1) * 5 + .00001);
+    const pressured = candidate.pressured;
     for (let i = 0; i < PIECES; i++) {
-      const post = i < 2;
-      const x = post ? (i === 0 ? candidate.left : candidate.right)
-        : candidate.left + (candidate.right - candidate.left) * (i - 1) / 6;
+      // Two piers, two capstones, five step stones, two shoulder braces,
+      // one connecting lintel: all 12 use ONE instanced mesh/material.
+      const post = i < 2, cap = i >= 2 && i < 4;
+      const step = i >= 4 && i < 9;
+      const brace = i >= 9 && i < 11, lintel = i === 11;
+      const leftSide = i === 0 || i === 2 || i === 10;
+      const x = step
+        ? candidate.left + (candidate.right - candidate.left) * (i - 4) / 4
+        : lintel ? (candidate.left + candidate.right) * .5
+        : leftSide ? candidate.left : candidate.right;
       const world = pointFor(x, candidate.top, candidate.chunkBaseY,
-        candidate.worldWidth, post ? 26.76 : 26.91);
-      pose.position.set(world.x, world.y + (post ? .48 : .035), world.z);
-      pose.rotation.set(0, world.angle, 0);
-      // Two squat uprights + five inset illuminated threshold stones. These
-      // shape cues work in monochrome and reduced motion, and never obstruct
-      // the climber's real feet or the enemy's collision shape.
-      pose.scale.set(post ? .20 : .32, post ? .96 : .07, post ? .21 : .30);
+        candidate.worldWidth, step ? 26.91 : 26.53);
+      pose.position.set(world.x, world.y +
+        (post ? 1.10 : cap ? 2.24 : brace ? 1.80 : lintel ? 2.29 : .035), world.z);
+      pose.rotation.set(0, world.angle, brace ? (leftSide ? -.50 : .50) : 0);
+      const span = (candidate.right - candidate.left) /
+        candidate.worldWidth * 2.2 * 26.53;
+      pose.scale.set(
+        post ? .24 : cap ? .50 : brace ? .23 : lintel
+          ? Math.min(3.5, Math.max(.60, span)) : .32,
+        post ? 2.20 : cap ? .19 : brace ? .74 : lintel ? .16 : .07,
+        post ? .25 : cap ? .32 : brace ? .24 : lintel ? .23 : .30);
       pose.updateMatrix();
       mesh.setMatrixAt(i, pose.matrix);
+      const hex = post ? (pressured ? 0xb78161 : 0x668b8b)
+        : cap || lintel ? (pressured ? 0xffd49b : 0xc9fff0)
+        : brace ? (pressured ? 0xca8c61 : 0x8fbbb0)
+        : (i - 4) < litSteps
+          ? (pressured ? 0xfff0c4 : 0xf2fff8)
+          : (pressured ? 0xb8764e : 0x61998c);
+      mesh.setColorAt(i, tint.set(hex));
     }
+    mesh.instanceColor.needsUpdate = true;
     mesh.count = PIECES;
     mesh.instanceMatrix.needsUpdate = true;
     group.visible = true;

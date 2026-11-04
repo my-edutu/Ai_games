@@ -71,7 +71,7 @@ test('danger, terminal states, health recovery and completed landings outrank de
   assert.equal(get({...snapshot,platforms:[]}),null);
 });
 
-test('seven source-positioned physical pieces use a single owned draw and retire on stale/restart', async () => {
+test('twelve source-positioned dock pieces form a visible arrival silhouette and retire on stale/restart', async () => {
   const { createTowerLandingApproach } = await loaded;
   class Geo { dispose(){this.disposed=true;} }
   class Material { constructor(p){Object.assign(this,p);} dispose(){this.disposed=true;} }
@@ -95,10 +95,16 @@ test('seven source-positioned physical pieces use a single owned draw and retire
   assert.equal(stage.diagnostics().visible,false);
   stage.update(snapshot,deck,125000);
   assert.equal(stage.diagnostics().visible,true);
-  assert.equal(stage.diagnostics().pieces,7);
+  assert.equal(stage.diagnostics().pieces,12);
+  const dock = stage.group.children[0];
+  assert.ok(dock.matrices[0].s[1] > 2, 'piers remain distinct at a normal viewing distance');
+  assert.ok(dock.matrices[11].s[0] > .6, 'crossbar spans the physical entrance');
+  const beforeColors = dock.colors.slice();
+  stage.update({...snapshot,tick:125,player:{...snapshot.player,x:125000,y:deck.y+deck.height+snapshot.player.halfHeight-2000}},deck,125000);
+  assert.notDeepEqual(dock.colors,beforeColors, 'present approach distance illuminates additional inset stones');
   assert.equal(stage.diagnostics().drawCalls,1);
   assert.equal(stage.diagnostics().selectedX,125000);
-  stage.update({...snapshot,tick:125,hazards:[{id:'spike',active:true,x:122000,y:84000,width:8000,height:10000}]},
+  stage.update({...snapshot,tick:126,hazards:[{id:'spike',active:true,x:122000,y:84000,width:8000,height:10000}]},
     deck,125000);
   assert.equal(stage.diagnostics().pressureObservedNow,true);
   stage.update({...snapshot,tick:126},deck,125000,{stale:true});

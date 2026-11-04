@@ -2893,7 +2893,7 @@ export function createTowerScene(canvas, settings = {}) {
           snapshot.chunkBaseY,snapshot.worldWidth,27.15);
         guardianRescuePoint.set(observed.x,observed.y,observed.z);
       }
-      if(p.state==='airborne'&&targetPlatform){
+      if(targetPlatform&&landingApproach.diagnostics().visible){
         const landing=pointFor(observedSourceLandingX(snapshot,targetPlatform),
           targetPlatform.y+targetPlatform.height,snapshot.chunkBaseY,
           snapshot.worldWidth,26.7);
@@ -2903,7 +2903,7 @@ export function createTowerScene(canvas, settings = {}) {
     world.protectRouteSightlines(camera,
       protectLiveRoute?actorFramePoint:null,
       protectLiveRoute&&sourceGuardian?guardianRescuePoint:null,
-      protectLiveRoute&&p.state==='airborne'&&targetPlatform?actorOrbitTarget:null,
+      protectLiveRoute&&targetPlatform&&landingApproach.diagnostics().visible?actorOrbitTarget:null,
       dt,options);
     updateLandingBeacon(landingBeacon, targetPlatform, snapshot, camera);
     sky.position.copy(camera.position);

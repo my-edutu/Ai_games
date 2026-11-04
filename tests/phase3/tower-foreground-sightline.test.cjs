@@ -91,5 +91,5 @@ test('the submitted follow camera stages source-observed foreground clarity afte
     scene.indexOf('actorRescueFraction = 0;\n    if (!overview'),
     'sightline protection uses settled actor/guardian recovery and the real last camera');
   assert.match(scene,/protectLiveRoute&&sourceGuardian\?guardianRescuePoint:null/);
-  assert.match(scene,/p\.state==='airborne'&&targetPlatform\?actorOrbitTarget:null/);
+  assert.match(scene,/targetPlatform&&landingApproach\.diagnostics\(\)\.visible\?actorOrbitTarget:null/);
 });
