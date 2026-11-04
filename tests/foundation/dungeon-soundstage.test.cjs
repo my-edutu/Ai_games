@@ -168,3 +168,19 @@ test('authentic three-beat Warden NOVA earns rising and final opt-in cues, never
  const bad={...t2,bossWarning:{...t2.bossWarning,attackTick:100}};
  assert.equal(planSoundCues(t3,bad).some(c=>c.kind==='warning-rising'),false);
 });
+
+test('a genuine Eclipse HP phase earns original rising and final cues over three fixed source beats',async()=>{
+ const {planSoundMood,planSoundCues}=await plan();
+ const boss={...unit('boss','guard',1,'warden','enemy'),x:3,z:3,hp:2,maxHp:12};
+ const state=(tick,remaining)=>snap(tick,{units:[unit('hero'),boss],
+  bossWarning:{shape:'ECLIPSE_SWEEP',warning:true,attackTick:4,turnsUntilImpact:remaining,cells:[{x:3,z:3}]}});
+ const first=state(1,3),second=state(2,2),last=state(3,1);
+ assert.equal(planSoundMood(first).mood,'eclipse');
+ assert.ok(planSoundMood(first).droneHz<planSoundMood(snap(1,{units:[unit('hero'),{...boss,hp:12}]})).droneHz);
+ assert.equal(planSoundCues(first,second).filter(c=>c.kind==='eclipse-rising').length,1);
+ assert.equal(planSoundCues(second,last).filter(c=>c.kind==='eclipse-final').length,1);
+ assert.deepEqual(planSoundCues(last,last),[]);
+ assert.deepEqual(planSoundCues(null,last),[]);
+ assert.equal(planSoundCues(first,{...second,bossWarning:null}).some(c=>c.kind==='eclipse-rising'),false);
+ assert.equal(planSoundCues(first,{...second,units:[unit('hero')]}).some(c=>c.kind==='eclipse-rising'),false);
+});
