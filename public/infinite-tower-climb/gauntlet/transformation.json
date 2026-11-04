@@ -9,20 +9,20 @@
   },
   "candidate": {
     "sha": null,
-    "title": "SAME 3D Tower expedition transformation: source-timed danger->actual strike->mechanical recovery, guardian and ascent; NOT EVALUATED",
-    "implementationSha": "4500fca94a8a064c7c0a45af09d301033da9f18f",
-    "implementationEvidenceStatus": "Implemented in actual scene source 4500fca94a8a064c7c0a45af09d301033da9f18f: previously source-timed 16-part trap chamber now persists into real source active collider and unloads only on adjacent same-run/floor active->inactive source observation; active danger always prioritized over nearby warnings on low tier and guardian windup. Connected subdued optional release sound, stable 1-draw 6 normal/3 low cap, updated focused source test fixtures. New-current-source CI/film PENDING; earlier 7bec8887 full capture 9/9 success is real video but predates audio/final code and is not event-aligned or independently watched. No hardware FPS or critic votes."
+    "title": "SAME 3D tower ascent, exterior trap warning/strike/release and source-driven physical sidestep, guardian and outcome — NOT EVALUATED",
+    "implementationSha": "e51732400a12ba1a2ee17905963c1e09f45eb753",
+    "implementationEvidenceStatus": "PLAYABLE SOURCE only: e517324 builds on b0d1e56 with real autonomous evasion rendered as signed lateral planted-foot/upper-body response, warning/strike/release chamber moved from stone-occluded radial band into outer 26.74–27.78 layer behind climber; existing source audio tied to warning/strike/release. Earlier exact-source 4500fca film https://github.com/my-edutu/Ai_games/actions/runs/41816549404 completed 9/9 jobs but does not film these new changes; e517 film 41821820798 pending at inspection. Test-only b76d703 plus review ce85c6d CI pending; all native film and quality not independently verified. No reviewer votes or supported-device performance."
   },
   "currentTransformation": {
     "title": "SAME cohesive real 3D ascent → live moving deck dock → guarded guardian counterplay → HP cap gate → authentic outcome and restart",
     "state": "OPEN — SAME entire playable 3D Tower transformation across ascent, source-led danger/contact/release, guardian encounter, terminal and restart. Experience NOT EVALUATED.",
     "promise": "One original source-authentic playable 3D expedition: readable destination, riding/landing weight, fixed-step trap activation communicated by physical warning machinery, real guardian tactics and gated outcome/restart. No fictional safety guarantee, HUD clutter or altered replay baseline.",
-    "nextDecision": "Inspect exact source CI/real native WebM for current gameplay code 4500fca94a8a064c7c0a45af09d301033da9f18f (capture action https://github.com/my-edutu/Ai_games/actions/runs/41816549404); compare source-pinned baseline 1731b380851162741761c5569e2bc152a0869ca9 with candidate by matching real events in each >=60-second normal-speed desktop 960x600 and portrait 390x844 scenario. Inspect full motion for hazard-to-impact physical continuity and any mobile camera occlusion, then independent randomized 5 critic reviews per pillar and actual device frame-time/memory/accessibility/replay.",
+    "nextDecision": "Inspect latest e517324 gameplay capture https://github.com/my-edutu/Ai_games/actions/runs/41821820798 and b76d703 safety workflow https://github.com/my-edutu/Ai_games/actions/runs/41821918012. Resolve any genuine regression (previous d58057 safety workflow failed 1 stale pressure-release sound fixture, now corrected); review native 390x844/960x600 full-motion for real hazard pressure and mirrored sidestep, honest source-matched baseline vs candidate three >=60s scenarios, five independent randomized blind reviewers per pillar, supported hardware frame time/memory and accessibility/replay.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Unbiased normal-speed source/event-MATCHED full-motion mobile and desktop comparisons remain unreviewed: complete everyday ascent, multi-hazard warning->actual lethal contact/recovery plus guardian, and authentic result/restart. Newly added physical pressure through activation and 6-source-tick release may still obstruct portrait silhouette. Five independent blind reviewers per LOOKS/FEELS/PLAYS and real supported-device p50/p95/p99 frame times/memory plus accessibility/replay/recovery are missing. No quality preference or PASS.",
-    "unverifiedImplementationBranchHead": "4500fca94a8a064c7c0a45af09d301033da9f18f",
-    "currentVerticalSlice": "One connected 3D expedition: actual autonomous ascent, chosen landings/moving decks, published 12-tick multi-trap warning, physical closing/ACTIVE strike/source-confirmed 6-tick mechanical unloading, meaningful guardian duel and authentic result/restart; optional sound tied to the same real phase. Implementation is underway, no source-only feature gets a Gauntlet PASS.",
-    "biggestGap": "Unbiased normal-speed source/event-MATCHED full-motion mobile and desktop comparisons remain unreviewed: complete everyday ascent, multi-hazard warning->actual lethal contact/recovery plus guardian, and authentic result/restart. Newly added physical pressure through activation and 6-source-tick release may still obstruct portrait silhouette. Five independent blind reviewers per LOOKS/FEELS/PLAYS and real supported-device p50/p95/p99 frame times/memory plus accessibility/replay/recovery are missing. No quality preference or PASS."
+    "biggestRemainingExperienceGap": "Unverified actual mobile/desktop comprehension: new exterior 3D chamber might crowd portrait actor even behind their world radius, and lateral escape animation lacks actual full-motion inspection. Need source/event-matched baseline/candidate ascent, concurrent hazard/guardian and outcome/restart >=60s normal-speed each. 0/5 genuine LOOKS, FEELS, PLAYS judgments; no supported-device frame-time tail/memory data. Independent worker/browser disconnected. NOT EVALUATED.",
+    "unverifiedImplementationBranchHead": "e51732400a12ba1a2ee17905963c1e09f45eb753",
+    "currentVerticalSlice": "SAME connected 3D game experience: moving-deck travel, chosen landing, source-published trap countdown, actual active strike/confirmed release, planted-foot physical evasion linked to real velocity, guardian duel, genuine result/restart. This run strengthens hazard action readability, not an isolated quality result.",
+    "biggestGap": "Unverified actual mobile/desktop comprehension: new exterior 3D chamber might crowd portrait actor even behind their world radius, and lateral escape animation lacks actual full-motion inspection. Need source/event-matched baseline/candidate ascent, concurrent hazard/guardian and outcome/restart >=60s normal-speed each. 0/5 genuine LOOKS, FEELS, PLAYS judgments; no supported-device frame-time tail/memory data. Independent worker/browser disconnected. NOT EVALUATED."
   },
   "scenarios": [
     {
@@ -62,11 +62,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Prior d407be7 safety workflow 41809433350 SUCCESS. Current gameplay head 4500fca94a8a064c7c0a45af09d301033da9f18f quality workflow https://github.com/my-edutu/Ai_games/actions/runs/41816549384 running/queued at inspection; docs/evidence exact-head validation will trigger separately. Technical success is only a safety veto, not cinematic or gameplay experience quality.",
-    "replay": "Physical warning, active strike and mechanical recovery consume immutable fixed-step source snapshots only; visual release requires same run/floor, adjacent forward source tick and real active->inactive transition. Invalid/old/terminal/disconnected or new run clears physical state. AI, RNG, collision, authority and historical snapshots unmodified. Focused tests committed; exact current-source replay/regression CI still pending.",
-    "accessibility": "No new HUD text, full-screen overlay, flash, dynamic light or network. Real attack remains distinguishable by closed physical 16-part jaws and alloy tint; reduced-motion warning static and release opens without animation, with source strike still closed. Optional disengagement sound follows existing mute/gesture gate and is not essential to hazard recognition. Representative actual desktop/phone comprehension and accessibility NOT EVALUATED.",
-    "performance": "Single source-observed instanced draw max 96 physical parts normal/48 low (6/3 hazards); strict active priority and stable phase array, no extra draw, texture, shadow, light or UI. SetColorAt reuses per-instance colors; release history bounded to observed nearby active hazard IDs. Actual target-device p50/p95/p99 frame-time tails and memory NOT MEASURED; never equate CI GL submissions to supported hardware FPS.",
-    "stability": "World and stage own explicit renderer disposal/rebuild; stale, terminal, disconnected, dead/restart and run/floor source history clear. Ongoing actual-source capture needed for mobile active-hit silhouettes, lifecycle and render stability. Exact-head CI pending; no quality or production verdict."
+    "ci": "Previous d58057 workflow https://github.com/my-edutu/Ai_games/actions/runs/41816927773 FAILURE: 933/934 full repo tests, 1 stale opt-in release cue assertion (expected no sound when actual same-floor source hazard deactivated); focused fixture changed to demand exact recovered sound and duplicate/new-run suppression. New exact-head b76d703 workflow https://github.com/my-edutu/Ai_games/actions/runs/41821918012 PENDING; not marked green. CI a safety veto, NEVER quality evidence.",
+    "replay": "Unmodified deterministic fixed-step AI, collision, authoritative snapshot and historical replay. Visual body sidestep uses observed intent and signed current vx only, does not move root or modify gameplay. 3D chamber uses current published charge, actual active and adjacent source-proven release; stale/dead/terminal/floor changes clear. New source tests committed, full exact-head CI pending.",
+    "accessibility": "No extra HUD, overlay, flash, dynamic light or network. Source evasion pose has mirrored physical planted feet and asymmetric arms plus reduced-motion static silhouette (no body roll); active chamber shape closes and visibly recovers by actual tick, not color-only. Opt-in sound remains optional. Real desktop/mobile vision, captions, reduced motion and action comprehension still NOT EVALUATED.",
+    "performance": "Existing instanced single-draw 16-member hazard chamber 96 parts normal/48 low, now moved to exterior radial 26.74–27.78; no added parts/draws/geometry, textures/shadows or render passes. Pose changes only existing skinned bones with current real velocity. Supported-device p50/p95/p99 frame-time and memory NOT MEASURED, CI software WebGL frame timing is not device FPS.",
+    "stability": "Existing stage/actor graphics recovery, lifecycle disposal and stale-source clearing preserved. Source-specific pose/radial regression tests committed. Exact-head CI and native full-motion captures pending; original frozen baseline unchanged, no production or quality verdict."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -147,9 +147,9 @@
         }
       }
     },
-    "newImplementationSha": "4500fca94a8a064c7c0a45af09d301033da9f18f",
+    "newImplementationSha": "e51732400a12ba1a2ee17905963c1e09f45eb753",
     "newImplementationRecorded": false,
-    "reviewPath": "docs/reviews/2026-11-04-tower-pr68-source-pressure-contact-and-recovery-continuity.md",
+    "reviewPath": "docs/reviews/2026-11-04-tower-pr68-trap-evasion-3d-silhouette-and-outer-chamber.md",
     "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41547983114",
     "followupStatus": "On 2026-11-03, source-pinned run 41547983114 completed 8/9 jobs: baseline+old-candidate desktop/portrait normal-speed ascent, danger, moving, outcome all SUCCESS as capture jobs; authentic-ledge FAILED because source play yielded no qualifying actual ledge event within 2500 fixed ticks (four desktop/portrait browser tests). Old candidate 133ce1a8, frozen baseline 1731b380. New candidate 4398a157 still awaits exact-source recorded gameplay, blind votes, supported-device measurements. No experience preference awarded.",
     "matchedCaptureSettings": {
@@ -2150,6 +2150,24 @@
       "workerBrowser": "NOT_FOUND: tunnel-client has not been seen for 300 seconds",
       "performance": "Actual supported-device p50/p95/p99 and memory NOT MEASURED",
       "verdict": "NOT EVALUATED"
+    },
+    "latest3dTrapEvasion20261104": {
+      "sourceGameplaySha": "e51732400a12ba1a2ee17905963c1e09f45eb753",
+      "sourceProof": "https://github.com/my-edutu/Ai_games/commit/e51732400a12ba1a2ee17905963c1e09f45eb753",
+      "exactHeadTestsSha": "b76d70301937e255e02acca0867993c707b147af",
+      "exactSourceCapture": "https://github.com/my-edutu/Ai_games/actions/runs/41821820798",
+      "exactHeadCI": "https://github.com/my-edutu/Ai_games/actions/runs/41821918012",
+      "sourceCaptureStatus": "PENDING at inspection; not yet examined as moving native gameplay",
+      "evidenceStatus": "NOT EVALUATED",
+      "sourceBoundPose": true,
+      "originalHostBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "blindVotes": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "blocker": "Independent browser/worker tunnel NOT_FOUND (not seen for 300 seconds); real supported-device frame time/memory and blind full-motion reviews unavailable.",
+      "mostConsequentialConcern": "Exterior-facing 3D chamber vs true 28-unit articulated climber/guardian visibility on narrow phone screen; not verified with new-source native film."
     }
   }
 }
