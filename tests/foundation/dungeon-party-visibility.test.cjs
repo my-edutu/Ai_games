@@ -164,7 +164,7 @@ test('physical character-scale stage respects genuine travel and live melee cont
  const floorPlan=fs.readFileSync(path.join(root,'public/ai-dungeon/cutaway-floor-plan.js'),'utf8');
  assert.match(dressing,/reveal==='nearby'\?\.43/);
  assert.match(dressing,/reveal==='nearby'\?\.23/);
- assert.match(floorPlan,/height:\.27,footprint:\.78/);
+ assert.match(floorPlan,/height:\.43,footprint:\.84/);
  assert.match(floorPlan,/height:\.13,footprint:\.32/);
 });
 
