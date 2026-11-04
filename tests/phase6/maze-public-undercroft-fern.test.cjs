@@ -42,7 +42,7 @@ function realRootPositions(world, THREE) {
   const out = [], matrix = new THREE.Matrix4(), point = new THREE.Vector3();
   world.group.children[1].traverse(mesh => {
     if (!mesh.isInstancedMesh || mesh.geometry.type !== 'ShapeGeometry'
-      || mesh.material.color.getHexString() !== 'a1c66c') return;
+      || mesh.material.color.getHexString() !== '8caf44') return;
     for (let i = 0; i < mesh.count; i++) {
       mesh.getMatrixAt(i, matrix);
       point.setFromMatrixPosition(matrix);
