@@ -1354,7 +1354,8 @@ function rebuildGroundAtlas(){
  }else groundAtlasBaseReuses++;
  // The river, fields and all 262,144 noise texels are immutable. A real new
  // house only needs the original footfall, road and market composite painted
- // over the unchanged source, keeping the exist // Each real cottage is stamped once into a retained transparent layer.
+ // over the unchanged source, keeping the existing GPU texture resource.
+ // Each real cottage is stamped once into a retained transparent layer.
  // Rewind/restore of a different lot list deliberately repaints genuine homes,
  // never leaves ghosts from an earlier world.
  if(!groundAtlasHouseCanvas){
@@ -1464,7 +1465,6 @@ function rebuildGroundAtlas(){
  ctx.drawImage(groundAtlasHouseCanvas,0,0);
  ctx.drawImage(groundAtlasRoadCanvas,0,0);
  roadSegments=groundAtlasRoadSegments;
-123,102,.45)';ctx.fill();
  const sample=(x,z)=>{
   const a=ctx.getImageData(Math.max(0,Math.min(size-1,Math.floor(world(x)))),
    Math.max(0,Math.min(size-1,Math.floor(world(z)))),1,1).data;
