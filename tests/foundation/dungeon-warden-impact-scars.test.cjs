@@ -44,7 +44,7 @@ test('real 3D renderer attaches historical impact to scene, runtime route and ho
  assert.ok(renderer.includes('const MAX_DEBRIS=20'));
  assert.ok(renderer.includes('falling=plan.cells.slice(0,MAX_DEBRIS)'));
  assert.match(app,/genuineWardenGroundEvent\(event\)/);
- assert.ok(app.includes(String.raw`shockwave struck \\d+ hero`),
+ assert.ok(app.includes(String.raw`shockwave struck \d+ hero`),
   'actual Warden combat must trigger physical FX even after every hero dodges');
  assert.ok(server.includes("['/dungeon/warden-impact-scars.js','warden-impact-scars.js']"));
  assert.ok(server.includes("['/dungeon/warden-impact-plan.js','warden-impact-plan.js']"));
