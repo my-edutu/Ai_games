@@ -59,7 +59,7 @@ test('all regalia geometry is finite, bounded and behind a renderer-only contrac
 test('authored boss uses real model pivot, owns cosmetic resources, exposes diagnostic count and routes the strict CSP module',()=>{
  const assets=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  const server=fs.readFileSync(path.join(root,'scripts/serve-dungeon-stream.cjs'),'utf8');
- assert.match(assets,/import \{planWardenRegalia\} from '\/dungeon\/warden-regalia-plan\.js'/);
+ assert.match(assets,/import \{planWardenRegalia,planWardenRegaliaBone\} from '\/dungeon\/warden-regalia-plan\.js'/);
  assert.match(assets,/actor\.visualPivot\.add\(group\)/);
  assert.match(assets,/actor\.assetGeometries/);
  assert.match(assets,/for\(const g of actor\.assetGeometries\|\|\[\]\)g\.dispose\(\)/);

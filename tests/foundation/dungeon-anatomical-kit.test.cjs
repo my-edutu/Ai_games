@@ -67,7 +67,10 @@ test('the actual GLB renderer must merge only static torso detail and dispose ow
  const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(renderer,/import \{mergeGeometries\} from '\/dungeon\/vendor\/addons\/utils\/BufferGeometryUtils\.js'/);
  assert.match(renderer,/planAnatomicalDrawGroups\(actor\.u\.kind\)/);
- assert.match(renderer,/joint\.attach\(mesh\)/,'real limb fittings still follow genuine cloned bones');
+ assert.match(renderer,/function syncNativeArmour\(actor\)/,'native bones must drive skin-connected armour');
+ assert.match(renderer,/syncNativeArmour\(actor\);/);
+ assert.match(renderer,/else if\(actor\.nativePresentation\.complete\)addAnatomicalKit\(actor\)/);
+ assert.doesNotMatch(renderer,/joint\.attach\(mesh\)/,'nonuniform fitted bones cannot receive rigid mesh attach');
  assert.match(renderer,/mergeGeometries\(fragments,false\)/);
  assert.match(renderer,/actor\.assetGeometries\.push\(merged\)/,'merged geometry must be owned and released');
  assert.match(renderer,/anatomicalDetailMeshes:/);
@@ -84,4 +87,33 @@ test('five genuine forged armor types use an original bounded shared surface, ne
  assert.match(model,/forgedMicrotextures:/);
  const source=model.slice(model.indexOf('const forgedMicrotextureCache='),model.indexOf('function addAnatomicalKit(actor)'));
  assert.doesNotMatch(source,/Math\.random|fetch\(|https?:|requestAnimationFrame|DungeonRuntime/);
+});
+
+test('M1 live cast silhouette uses restrained six-piece original armour, never the rejected rigid replacement',()=>{
+ const source=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(source,/const selected=new Set\(\['forged-cuirass','left-bracer','right-bracer'/);
+ assert.match(source,/planAnatomicalKit\(actor\.u\.kind\)\.filter\(p=>selected\.has\(p\.id\)\)/);
+ assert.match(source,/if\(isBoss\)addWardenRegalia\(actor\);\s*else if\(actor\.nativePresentation\.complete\)addAnatomicalKit\(actor\)/);
+ assert.match(source,/actor\.assetRoot\.traverse\(obj=>\{\s*if\(!obj\.isMesh\)return;\s*obj\.visible=true;/);
+ assert.match(source,/mount\.targetWorld\.multiplyMatrices\(mount\.bone\.matrixWorld,mount\.bindBoneInverse\)/);
+});
+test('actual Three.js nonuniform-fitted bone plate recovers exact bind position after attack',()=>{
+ const THREE=require('three'),root=new THREE.Group(),rig=new THREE.Group(),plates=new THREE.Group();
+ root.scale.set(.82,1.12,.87);root.position.set(2,0,-3);root.add(rig,plates);
+ const bone=new THREE.Bone();bone.position.set(.33,1.35,0);rig.add(bone);
+ const mesh=new THREE.Mesh(new THREE.BoxGeometry(.27,.32,.14));
+ mesh.position.set(.45,1.25,-.17);plates.add(mesh);root.updateMatrixWorld(true);
+ const initial=mesh.getWorldPosition(new THREE.Vector3()).clone();
+ const inverseBind=bone.matrixWorld.clone().invert(),groupBind=plates.matrixWorld.clone();
+ const stage=new THREE.Group();stage.matrixAutoUpdate=false;plates.add(stage);stage.add(mesh);
+ const target=new THREE.Matrix4(),inv=new THREE.Matrix4();
+ const sync=()=>{bone.updateWorldMatrix(true,false);plates.updateWorldMatrix(true,false);
+  target.multiplyMatrices(bone.matrixWorld,inverseBind).multiply(groupBind);
+  stage.matrix.multiplyMatrices(inv.copy(plates.matrixWorld).invert(),target);
+  stage.matrixWorldNeedsUpdate=true;root.updateMatrixWorld(true);
+ };
+ sync();assert.ok(mesh.getWorldPosition(new THREE.Vector3()).distanceTo(initial)<1e-7);
+ bone.rotation.z=.42;sync();assert.ok(mesh.getWorldPosition(new THREE.Vector3()).distanceTo(initial)>.03);
+ bone.rotation.z=0;sync();assert.ok(mesh.getWorldPosition(new THREE.Vector3()).distanceTo(initial)<1e-7);
+ mesh.geometry.dispose();mesh.material.dispose();
 });

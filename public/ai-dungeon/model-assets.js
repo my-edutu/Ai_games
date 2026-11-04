@@ -294,7 +294,12 @@ function originalForgedMicrotexture(finish){
 }
 
 function addAnatomicalKit(actor){
- const plan=planAnatomicalKit(actor.u.kind);
+ // The live 1.82m GLB retains its continuous skinned face, fabric and
+ // original weapons. Six sculpted class-specific forged plates reinforce
+ // anatomy without the previously rejected opaque costume replacement.
+ const selected=new Set(['forged-cuirass','left-bracer','right-bracer',
+  'left-shin','right-shin','hip-mail'].map(part=>actor.u.kind+'-'+part));
+ const plan=planAnatomicalKit(actor.u.kind).filter(p=>selected.has(p.id));
  if(!plan.length||!actor.visualPivot)return;
  const group=new THREE.Group();group.name='Original '+actor.u.kind+' anatomical armour';
  const materials=planForgedFinishes(actor.u.kind);
@@ -324,9 +329,13 @@ function addAnatomicalKit(actor){
  actor.visualPivot.updateWorldMatrix(true,true);
  actor.assetRoot.updateWorldMatrix(true,true);
  let attached=0,renderMeshes=0,mergedParts=0;
+ const mounts=[];
+ const chest=actor.rigMeleeBones?.find(m=>m.part==='spine')?.bone;
  const {staticGroups,jointPieces}=planAnatomicalDrawGroups(actor.u.kind);
  // Equivalent static T*R*S transforms and face normals; only cosmetics change.
- for(const {finish,parts} of staticGroups){
+ for(const {finish,parts:sourceParts} of staticGroups){
+  const parts=sourceParts.filter(p=>selected.has(p.id));
+  if(!parts.length)continue;
   const fragments=[];
   for(const piece of parts){
    const fragment=forms[piece.shape].clone();
@@ -347,6 +356,7 @@ function addAnatomicalKit(actor){
     mesh.scale.set(piece.sx,piece.sy,piece.sz);mesh.rotation.z=piece.rz;
     mesh.castShadow=false;mesh.receiveShadow=true;group.add(mesh);
     renderMeshes++;
+    if(chest?.isBone)mounts.push({mesh,bone:chest});
    }
    continue;
   }
@@ -355,17 +365,34 @@ function addAnatomicalKit(actor){
   mesh.castShadow=false;mesh.receiveShadow=true;group.add(mesh);
   actor.assetGeometries.push(merged);
   mergedParts+=parts.length;renderMeshes++;
+  if(chest?.isBone)mounts.push({mesh,bone:chest});
  }
  // Genuine arm/shin fittings stay separate and follow cloned skeletal joints.
  for(const piece of jointPieces){
+  if(!selected.has(piece.id))continue;
   const mesh=new THREE.Mesh(forms[piece.shape],finishes[piece.finish]);
   mesh.name=piece.id;mesh.position.set(piece.x,piece.y,piece.z);
   mesh.scale.set(piece.sx,piece.sy,piece.sz);mesh.rotation.z=piece.rz;
   mesh.castShadow=false;mesh.receiveShadow=true;group.add(mesh);
   const joint=joints[piece.mount];
-  if(joint){group.updateWorldMatrix(true,true);joint.attach(mesh);attached++;}
+  if(joint?.isBone){mounts.push({mesh,bone:joint});attached++;}
   renderMeshes++;
  }
+ // Nonuniform source GLB fitting makes Object3D.attach() shear rigid plate
+ // meshes. Pre-bind native joint matrices and animate cosmetic world deltas.
+ group.updateWorldMatrix(true,true);actor.assetRoot.updateWorldMatrix(true,true);
+ const groupBind=group.matrixWorld.clone(),stages=[];
+ for(const {mesh,bone} of mounts){
+  bone.updateWorldMatrix(true,false);
+  if(!bone.matrixWorld.elements.every(Number.isFinite))continue;
+  const stage=new THREE.Group();stage.matrixAutoUpdate=false;
+  stage.name='Original native forged armour '+mesh.name;
+  group.add(stage);stage.add(mesh);
+  stages.push({bone,stage,bindBoneInverse:bone.matrixWorld.clone().invert(),
+   groupBind:groupBind.clone(),targetWorld:new THREE.Matrix4()});
+ }
+ actor.nativeArmourRoot=group;actor.nativeArmourMounts=stages;
+ actor.nativeArmourInverse=new THREE.Matrix4();
  actor.anatomicalParts=plan.length;actor.anatomicalJointParts=attached;
  actor.anatomicalDetailMeshes=renderMeshes;
  actor.anatomicalStaticMergedParts=mergedParts;
@@ -770,7 +797,7 @@ function attachCharacter(actor){
    instance.position.set(-center.x*fitX,-bounds.min.y*sourceScale,-center.z*fitZ);
   }
   const pivot=new THREE.Group();(actor.impactPivot||actor.root).add(pivot);pivot.add(instance);
-  actor.visualPivot=pivot;actor.motionPeak=0;actor.evasionFrame=null;actor.evasionPosePeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.anatomicalParts=0;actor.anatomicalJointParts=0;actor.anatomicalDetailMeshes=0;actor.anatomicalStaticMergedParts=0;actor.sculptedArmorProfile=null;actor.sculptedArmorVertices=0;actor.rigBoundAccessoryParts=0;actor.cinematicFigure=null;actor.rigWardrobeParts=0;actor.anatomicalStaticMountedCount=0;actor.rigHandBoneName=null;actor.rigHandBone=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigCranial=null;actor.rigPelvisBone=null;actor.rigPelvisBearing=null;actor.rigBearing=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.wardenChargeShoulderPeak=0;actor.wardenCharge=null;actor.rigForearms=[];actor.rigForearmPeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;actor.rigMeleeBones=[];actor.rigMeleePeak=0;actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;actor.rigRangedActive=false;actor.rigRangedPeak=0;actor.skinnedHitWeight=0;actor.skinnedHitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.draperyPoseKey=null;actor.draperyFramesSkipped=0;actor.draperyNormalRebuilds=0;actor.draperyVertexUploads=0;
+  actor.visualPivot=pivot;actor.motionPeak=0;actor.evasionFrame=null;actor.evasionPosePeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.anatomicalParts=0;actor.anatomicalJointParts=0;actor.anatomicalDetailMeshes=0;actor.anatomicalStaticMergedParts=0;actor.sculptedArmorProfile=null;actor.sculptedArmorVertices=0;actor.rigBoundAccessoryParts=0;actor.cinematicFigure=null;actor.rigWardrobeParts=0;actor.anatomicalStaticMountedCount=0;actor.nativeArmourRoot=null;actor.nativeArmourMounts=[];actor.nativeArmourInverse=null;actor.rigHandBoneName=null;actor.rigHandBone=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigCranial=null;actor.rigPelvisBone=null;actor.rigPelvisBearing=null;actor.rigBearing=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.wardenChargeShoulderPeak=0;actor.wardenCharge=null;actor.rigForearms=[];actor.rigForearmPeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;actor.rigMeleeBones=[];actor.rigMeleePeak=0;actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;actor.rigRangedActive=false;actor.rigRangedPeak=0;actor.skinnedHitWeight=0;actor.skinnedHitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.draperyPoseKey=null;actor.draperyFramesSkipped=0;actor.draperyNormalRebuilds=0;actor.draperyVertexUploads=0;
   actor.body.visible=false;actor.authored=true;actor.detail?.setAuthored?.(true);actor.mixer=new THREE.AnimationMixer(instance);
   actor.availableClips=gltf.animations||[];actor.currentAction='';actor.currentActionTick=null;
   actor.textureReadiness=textureReadiness.get(gltf);
@@ -816,6 +843,7 @@ function attachCharacter(actor){
   // Original Warden ritual identity sits on the same genuine skinned rig;
   // its authored warning/phase cues and genuine combat choreography survive.
   if(isBoss)addWardenRegalia(actor);
+  else if(actor.nativePresentation.complete)addAnatomicalKit(actor);
   changeAction(actor,actor.u.action||'idle');
   return true;
  }).catch(e=>{failures.add(asset);return false});
@@ -850,6 +878,21 @@ function changeAction(actor,action){
 }
 // Called after real GLB mixer and hit/contact/root poses; only adjusts
 // presentation matrices. Cached temporary matrices avoid per-frame GC.
+// Each inherited GLB bone drives its original body plating without changing
+// hitboxes, stamina, action timing, AI, seeded replay or private data.
+function syncNativeArmour(actor){
+ const group=actor.nativeArmourRoot,mounts=actor.nativeArmourMounts;
+ if(!group||!mounts?.length||!actor.nativeArmourInverse)return;
+ group.updateWorldMatrix(true,false);
+ const inverse=actor.nativeArmourInverse.copy(group.matrixWorld).invert();
+ for(const mount of mounts){
+  mount.bone.updateWorldMatrix(true,false);
+  mount.targetWorld.multiplyMatrices(mount.bone.matrixWorld,mount.bindBoneInverse)
+   .multiply(mount.groupBind);
+  mount.stage.matrix.multiplyMatrices(inverse,mount.targetWorld);
+  mount.stage.matrixWorldNeedsUpdate=true;
+ }
+}
 function syncWardenNativeRegalia(actor){
  const group=actor.wardenRegaliaRoot,mounts=actor.wardenRegaliaMounts;
  if(!group||!mounts?.length||!actor.wardenRegaliaInverse)return;
@@ -1007,6 +1050,7 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
   }
  }
  actor.cinematicFigure?.sync?.();
+ syncNativeArmour(actor);
  syncWardenNativeRegalia(actor);
 }
 function disposeActorAsset(actor){
@@ -1022,7 +1066,7 @@ function disposeActorAsset(actor){
  else if(actor.assetRoot){actor.root.remove(actor.assetRoot)}
  for(const m of actor.assetMaterials||[])m.dispose();
  for(const g of actor.assetGeometries||[])g.dispose();
- actor.mixer=null;actor.assetRoot=null;actor.visualPivot=null;actor.motionPeak=0;actor.evasionFrame=null;actor.evasionPosePeak=0;actor.assetMaterials=[];actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.anatomicalParts=0;actor.anatomicalJointParts=0;actor.anatomicalDetailMeshes=0;actor.anatomicalStaticMergedParts=0;actor.sculptedArmorProfile=null;actor.sculptedArmorVertices=0;actor.rigBoundAccessoryParts=0;actor.cinematicFigure=null;actor.rigWardrobeParts=0;actor.anatomicalStaticMountedCount=0;actor.rigHandBoneName=null;actor.rigHandBone=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigCranial=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.wardenChargeShoulderPeak=0;actor.wardenCharge=null;actor.rigForearms=[];actor.rigForearmPeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;actor.rigMeleeBones=[];actor.rigMeleePeak=0;actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;actor.rigRangedActive=false;actor.rigRangedPeak=0;actor.skinnedHitWeight=0;actor.skinnedHitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.draperyPoseKey=null;actor.draperyFramesSkipped=0;actor.draperyNormalRebuilds=0;actor.draperyVertexUploads=0;actor.authored=false;actor.textureReadiness=null;
+ actor.mixer=null;actor.assetRoot=null;actor.visualPivot=null;actor.motionPeak=0;actor.evasionFrame=null;actor.evasionPosePeak=0;actor.assetMaterials=[];actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.anatomicalParts=0;actor.anatomicalJointParts=0;actor.anatomicalDetailMeshes=0;actor.anatomicalStaticMergedParts=0;actor.sculptedArmorProfile=null;actor.sculptedArmorVertices=0;actor.rigBoundAccessoryParts=0;actor.cinematicFigure=null;actor.rigWardrobeParts=0;actor.anatomicalStaticMountedCount=0;actor.nativeArmourRoot=null;actor.nativeArmourMounts=[];actor.nativeArmourInverse=null;actor.rigHandBoneName=null;actor.rigHandBone=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigCranial=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.wardenChargeShoulderPeak=0;actor.wardenCharge=null;actor.rigForearms=[];actor.rigForearmPeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;actor.rigMeleeBones=[];actor.rigMeleePeak=0;actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;actor.rigRangedActive=false;actor.rigRangedPeak=0;actor.skinnedHitWeight=0;actor.skinnedHitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.draperyPoseKey=null;actor.draperyFramesSkipped=0;actor.draperyNormalRebuilds=0;actor.draperyVertexUploads=0;actor.authored=false;actor.textureReadiness=null;
 }
 function putEnvironment(world,sceneKey,map){
  // Authored GLB masonry and prop dressing complements the instanced procedural
