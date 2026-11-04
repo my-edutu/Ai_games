@@ -74,7 +74,7 @@ test('authoritative ward, focused pursuit and real presentation are wired withou
  assert.ok(Number.isInteger(game.publicState().defendersRemaining));
 });
 
-test('real Warden shockwave opens a two-turn playable counterattack, with deterministic restore',()=>{
+test('real Sentinel Warden shockwave opens one playable counterattack before lawful pursuit, with deterministic restore',()=>{
  const {planWardenRecovery}=require('../../dist/games/ai-dungeon/src/index.js');
  const game=DungeonRuntime.create('warden-counterwindow-M1'),s=game.state;
  const boss=s.units.find(u=>u.kind==='warden'),hero=s.units.find(u=>u.id==='vanguard');
@@ -84,23 +84,21 @@ test('real Warden shockwave opens a two-turn playable counterattack, with determ
  assert.equal(planWardenRecovery(s,boss),null);
  const strike=game.step();
  assert.equal(strike.tick,6);
- assert.equal(strike.bossRecovery?.remaining,3,'the actual Warden impact starts its exposed recovery');
+ assert.equal(strike.bossRecovery?.remaining,2,'actual early Warden impact creates a single earned vulnerable counter turn');
  assert.ok(strike.events.some(e=>e.kind==='opening'&&e.tick===6));
  const health=boss.hp;
  const counter=game.step();
  const raw=hero.attack+(s.level-1)*2;
  assert.equal(health-boss.hp,damageThroughWardenSeal(s,boss,Math.ceil(raw*1.4)));
- assert.equal(counter.bossRecovery?.remaining,2,'the first counterattack is still a genuine Warden recovery turn');
+ assert.equal(counter.bossRecovery?.remaining,1,'hero is still permitted the genuine exposed counter');
  assert.equal(boss.action,'hurt','a struck exposed boss must remain visibly injured');
  const checkpoint=game.save(),restored=DungeonRuntime.restore(checkpoint);
  assert.deepEqual(restored.publicState(),game.publicState());
- const next=game.step(),replayNext=restored.step();
- assert.equal(next.bossRecovery?.remaining,1,'the second real recovery turn remains exposed');
- assert.equal(next.checksum,replayNext.checksum);
  const recovered=game.step(),replayRecovered=restored.step();
- assert.equal(recovered.bossRecovery,null,'the next turn clears the vulnerability and resets the boss');
+ assert.equal(recovered.bossRecovery,null,'the next turn clears the vulnerability and grants a true boss AI beat');
+ assert.ok(['move','attack'].includes(boss.action),'the recovered boss must be able to challenge the hero in real movement/contact');
  assert.equal(recovered.checksum,replayRecovered.checksum);
  for(let i=0;i<25;i++)assert.equal(game.step().checksum,restored.step().checksum,
-  'the restored actual campaign follows the same sequence');
+  'the restored actual campaign follows the same source-authoritative sequence');
  assertDungeonState(game.state);
 });
