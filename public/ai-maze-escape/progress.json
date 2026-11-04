@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-04T03:10:56Z",
+  "updatedAt": "2026-11-04T03:43:00Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass128 ORIGINAL 3D WORLD CANDIDATE (2026-11-04 UTC): 41c27b8 adds ten physically modeled, entirely off-board drowned rear colonnade plinths and twenty sculpted columns in four pooled instanced batches behind public -X/-Z shores, to address excess empty water and poor level silhouette. f6dece8 corrects submerged physical root waterline and adds real installed Three matrix/waterline/private-state tests. Full CI 41763812629 and exact-source visual 41763812655 were IN PROGRESS; no new render inspection or artistic win claimed. Last independently hash-verified full-resolution native baseline remains Pass126 (25/25, 41743221508); Pass127 focused source passed (41760244263) but ZIP hash/pixel review blocked by Redis ResponseError. Shared coding/subagent tunnel/Ultracode disconnected. No change to privacy/deterministic authority/HUD/native actor framing/44px controls/accessibility. CPU SwiftShader is not hardware FPS. Fixed Nintendo Captain Toad benchmark NOT MET. PR #53 OPEN DRAFT; no merge/deploy."
+    "summary": "Pass130 PUBLIC FOSSIL–PIP 3D GAMEPLAY ACTING CANDIDATE (2026-11-04 UTC): starting from independently hash-matched 25/25 genuine Pass129 1280/390/320/844/gate WebGL pixels (focused 41765952127, original artifact 13292743595), direct full-frame critic ACCEPTED small on-camera stone foundation ribs but REJECTED Nintendo Captain Toad parity: excessive water/dark slab, small Pip, weak character/world engagement. New branch commits 0c47c61/eafe8db/688079f/530292c introduce low-priority physically connected Pip head/lantern/scarf reaction ONLY to the true, already-rendered publicly disclosed safe fossil tide-organ; added installed-Three deterministic/privacy/reset/priority tests. Commits d0a290e/1416e02 add actual-post-WebGL actor joint diagnostics and source-bound desktop/390 portrait PNG physical-acting assertions. Latest full CI and focused exact-head original captures MUST COMPLETE before art acceptance; no new true PNG or independent blind visual win claimed. Guardian/gate/key viewport, 44px full-screen game-first HUD, AI authority, hidden-map privacy, reduced motion and strict tests preserved. Coding subagent/Ultracode tunnel unavailable (300s unseen), CPU SwiftShader slowdown is not device GPU evidence. Fixed official Nintendo benchmark NOT MET. PR #53 OPEN DRAFT; no merge/deploy."
   },
   "captures": [
     {
@@ -246,6 +246,13 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass130 physically connected Pip–tide-organ acting, source + real native image acceptance pending",
+      "reviewer": "Separate installed-Three source critic and existing genuine native WebGL capture contracts; fresh-context blind visual critic unavailable (workspace tunnel disconnected)",
+      "verdict": "PENDING actual Pass130 1280/390/320/844 original rendered image and exact-head CI; Nintendo fixed bar NOT MET",
+      "date": "2026-11-04T03:43:00Z",
+      "summary": "Pass129 actual 25/25 source/hash matched original screenshots demonstrate small authentic architectural gain but still weak autonomous character performance and large lagoon. Pass130 builder gives Pip a low-priority curiosity pose and one brighter real lantern only when nearest genuine disclosed fossil organ physically unfolds; genuine threat, key, gate, pickup, result always override. Source tests explicitly prohibit hidden/private state, fabrication and dynamic GPU allocations. Exact WebGL desktop+portrait diagnostics and 44px/no-crop privacy bars remain strict. No merge/deploy."
+    },
     {
       "title": "Pass127 independently judgeable original fossil tide-organ source candidate",
       "reviewer": "Separate installed-Three test authored; independent fresh-context visual judge unavailable while workspace tunnel disconnected",
