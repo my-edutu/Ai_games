@@ -198,6 +198,51 @@ export function buildErodedIslandShelfGeometry(THREE, width, height, layer) {
   return geometry;
 }
 
+/**
+ * Original T1 wave-battered masonry remnant positions. Reclaim the actual
+ * existing rectangular three-course apron as irregular outboard ruins with
+ * broad, distinct silhouette, without placing obstacles in public cells.
+ * Stable and independent of frame ticks and the game's seeded simulation.
+ */
+export function sculptCoastCourse(width, height, edge, tier, along) {
+  const W = width / 2, H = height / 2, horizontal = edge < 2;
+  const len = horizontal ? width + 2 : height + 2;
+  const shoulder = .25 + .40 * (.5 + .5 * Math.sin(along * .84 + edge * 2.19 + tier * .73))
+    + tier * (.32 + .11 * Math.sin(along * .48 + edge * .67));
+  const rim = 1 + shoulder;
+  const stagger = .20 * Math.sin(along * 1.19 + tier * 2.17 + edge * 1.71);
+  const cross = along - len / 2 + .8 + stagger;
+  const x = horizontal ? cross : (edge === 2 ? -W - rim : W + rim);
+  const z = horizontal ? (edge === 0 ? -H - rim : H + rim) : cross;
+  const broad = 1.28 + .25 * (.5 + .5 * Math.sin(along * .79 + tier * 1.7));
+  const narrow = .85 + .14 * (.5 + .5 * Math.cos(along * 1.13 + edge));
+  return {
+    x, y: -.65 - tier * .87 + .11 * Math.sin(along * .79 + edge * 2.01), z,
+    sx: horizontal ? broad : narrow,
+    sy: .62 + .16 * (.5 + .5 * Math.cos(along * .93 + tier * 1.31)),
+    sz: horizontal ? narrow : broad,
+    ry: .12 * Math.sin(along * .59 + edge * 1.21),
+    rz: .07 * Math.sin(along * .73 + tier * 1.51),
+  };
+}
+
+/** A worn safe exterior coping: board corners remain legible, rail is no longer uniform. */
+export function sculptCopeStone(width, height, edge, along) {
+  const W = width / 2, H = height / 2, horizontal = edge < 2;
+  const wave = .5 + .5 * Math.sin(along * .71 + edge * 1.9);
+  const finer = .5 + .5 * Math.cos(along * 1.43 - edge * 1.2);
+  const outward = .36 + .22 * wave + .06 * finer;
+  return {
+    x: horizontal ? along - W : (edge === 2 ? -W - outward : W + outward),
+    y: -.11 + .033 * Math.sin(along * .83 + edge * 1.72),
+    z: horizontal ? (edge === 0 ? -H - outward : H + outward) : along - H,
+    sx: horizontal ? .91 + .06 * finer : .39 + .07 * wave,
+    sy: .28 + .045 * finer,
+    sz: horizontal ? .39 + .07 * wave : .91 + .06 * finer,
+    ry: .07 * Math.sin(along * .49 + edge * .7),
+  };
+}
+
 export function createWorld(THREE, {width, height}) {
   if (!Number.isInteger(width) || !Number.isInteger(height) || width < 2 || height < 2) throw new Error('World requires integer board dimensions');
   const group = new THREE.Group(); group.name = 'Verdant ruins';
@@ -726,21 +771,33 @@ export function createWorld(THREE, {width, height}) {
   const rootedMantle = geometry(buildErodedIslandShelfGeometry(THREE, width, height, 'moss'));
   add(erodedCliff, cliff, 0, 0, 0);
   add(rootedMantle, moss, 0, 0, 0);
-  // The rear terrace physically supports the arch and tree roots.
-  add(cube,cliff,0,-1.55,-H-2.2,width+2.6,2.8,4.5);
-  add(cube,moss,0,-.3,-H-2.2,width+2.9,.24,4.55);
+  // T1 EXPOSED COAST REMNANTS — the giant straight rear shelf previously
+  // hid the island geology behind another box. The same two original static
+  // material instances now form low, original asymmetric rock/moss shoulders,
+  // behind the grid and beneath the existing real arch and forest roots.
+  add(rock,cliff,-W*.25,-1.45,-H-3.1,width*.36,1.5,2.4,0,.23,-.09);
+  add(rock,moss,W*.22,-.62,-H-3.05,width*.41,.65,2.3,0,-.19,.08);
   for(let x=-W;x<=W;x+=1.8) {
     add(cube,stone,x,-.6,-H-4.3,1.7,.75,.7,0,(random()-.5)*.05,0);
     add(cube,cliff,x,-1.5,-H-4.15,1.7,.92,.8,0,(random()-.5)*.04,0);
   }
+  // The old continuous rectangular masonry courses also overpainted the
+  // native organic cliff. Keep their entire original stone count/materials,
+  // but ground each piece at a different shoreline depth, irregular outward
+  // offset, bevel, and pitch. No missing architectural detail or GPU batch.
   for(let tier=0;tier<3;tier++){
-    const y=-.6-tier*.87;
     for(let edge=0;edge<4;edge++){
-      const horizontal=edge<2,len=horizontal?width+2:height+2;
-      for(let i=0;i<len;i+=1.6){const spread=1.4+random()*.5;
-        const x=horizontal?i-len/2+.8:(edge===2?-W-1:W+1);
-        const z=horizontal?(edge===0?-H-1:H+1):i-len/2+.8;
-        add(cube,tier===0?stone:cliff,x+(random()-.5)*.17,y,z+(random()-.5)*.17,horizontal?spread:1.05,.69+random()*.18,horizontal?1.05:spread,0,(random()-.5)*.07,(random()-.5)*.035);
+      const len=edge<2?width+2:height+2;
+      for(let i=0;i<len;i+=1.6){
+        const spread=1.4+random()*.5;
+        const jitterX=random()-.5,jitterZ=random()-.5;
+        const heightJitter=random()-.5,turn=random()-.5,tilt=random()-.5;
+        const coastalBreak = sculptCoastCourse(width,height,edge,tier,i);
+        add(cube,tier===0?stone:cliff,
+          coastalBreak.x+jitterX*.07,coastalBreak.y,coastalBreak.z+jitterZ*.07,
+          coastalBreak.sx*(.92+.06*spread),coastalBreak.sy+heightJitter*.05,
+          coastalBreak.sz*(.92+.06*spread),0,coastalBreak.ry+turn*.036,
+          coastalBreak.rz+tilt*.025);
       }
     }
   }
@@ -750,9 +807,16 @@ export function createWorld(THREE, {width, height}) {
     add(ring,stone,x,-1.48,H+1.57,.58,.58,.35,0,0,Math.PI/4);
     add(cube,gold,x,-1.48,H+1.6,.08,.23,.04,0,0,.65);
   }
-  // A narrow dressed-stone coping makes board limits unambiguous.
-  for(let x=-W+.5;x<W;x+=1){add(cube,stone,x,-.09,-H-.32,.97,.34,.49);add(cube,stone,x,-.09,H+.32,.97,.34,.49);}
-  for(let z=-H+.5;z<H;z+=1){add(cube,stone,-W-.32,-.09,z,.49,.34,.97);add(cube,stone,W+.32,-.09,z,.49,.34,.97);}
+  // Preserve the same one-stone-per-cell visual board boundary, with a
+  // battered coastal contour instead of four brilliant straight parallel bars.
+  for(let edge=0;edge<4;edge++){
+    const len=edge<2?width:height;
+    for(let i=.5;i<len;i++){
+      const coping = sculptCopeStone(width,height,edge,i);
+      add(cube,stone,coping.x,coping.y,coping.z,
+        coping.sx,coping.sy,coping.sz,0,coping.ry,0);
+    }
+  }
   // Shallow incised brass corners connect the ruins and board aesthetic.
   for(const sx of [-1,1])for(const sz of [-1,1]){
     add(cube,gold,sx*(W-.7),.016,sz*(H-.1),1.2,.028,.045);add(cube,gold,sx*(W-.1),.016,sz*(H-.7),.045,.028,1.2);
