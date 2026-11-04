@@ -154,17 +154,29 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
       const sunBroken=(.55+.45*mineral)*(.81+.19*Math.sin(gx*.48-gz*.34));
       const mineralBench=limestoneBench*sunBroken*(.82+.18*(1-canopyShade));
       const darkBank=(1-limestoneBench)*evergreen*.25;
+      // A more physical system of native forest alluvium and bright
+      // fractured rock follows the ACTUALLY rooted gullies. The two
+      // broad eroded channels share the same coordinates as the planted
+      // interstitial leaves. Understory builds a shaded mineral shoulder
+      // rather than a uniform neon lawn or a fictional route cue.
+      const rainCut=shoreMoss * (1-heart*.78)
+        *(.62+.38*watershed) * (1-limestoneBench*.45);
+      const stoneLip=limestoneBench * (1-grove*.46)
+        *(.62+.38*mineral) * (1-heart*.32);
+      const stoneOxide=(.5+.5*Math.sin(gz*.44+gx*.25+mineral*2.1))
+        *rainCut*(1-smooth(.25,.70,Math.hypot((u-.52)*2,(v-.51)*2))*.25);
       const targetR = 204 + 16 * openStone + silt * .68
         - canopyShade * 153 - rooted * 25 + loamStrata*24 - slateStrata*7
-        - mineralLace * 7 - riverWeather * 13 + mineralBench*77 - darkBank*9;
+        - mineralLace * 7 - riverWeather * 13 + mineralBench*77 - darkBank*9
+        - rainCut*37 + stoneLip*13 + stoneOxide*13;
       const targetG = 184 + 11 * openStone + silt * .42
         - canopyShade * 57 - rooted * 12 - loamStrata*8
         + slateStrata*4 + mineralLace * 3 + riverWeather * 5
-        + mineralBench*57 - darkBank*13;
+        + mineralBench*57 - darkBank*13 - rainCut*29 + stoneLip*11 - stoneOxide*6;
       const targetB = 155 + 8 * openStone + silt * .47
         - canopyShade * 105 - rooted * 23 - loamStrata*12
         + slateStrata*5 - mineralLace * 8 + riverWeather * 6
-        + mineralBench*38 - darkBank*12;
+        + mineralBench*38 - darkBank*12 - rainCut*24 + stoneLip*6 - stoneOxide*11;
       // Retain directional raking-light/mortar contrast from ORIGINAL pixels.
       // Lift only the muddy compression range, without bleaching real ruin
       // greenery or painting over portal/fruit/hazard geometry.
@@ -312,13 +324,17 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
     const z = (noise(5, i + 57) * 1.74 - .87) * (H - .9);
     const radiusX = .31 + noise(i + 16, 7) * .39;
     const radiusZ = .20 + noise(i + 91, 4) * .29;
-    const centre = [x, .0165, z], sides = 9;
+    // T1 RAIN-CUT STONE ISLANDS: genuine near-ground, worn 3D limestone relief in
+    // the existing 216 triangles, not painted island decals. A weathered
+    // crown falls to the original flush stone at the edges; neither the
+    // playable grid nor the real food / danger / portal markers move.
+    const centre = [x, .0196 + noise(i+41,71)*.0012, z], sides = 9;
     for (let k = 0; k < sides; k++) {
       const a = k * 2 * Math.PI / sides, b = (k + 1) * 2 * Math.PI / sides;
       const r0 = .84 + noise(i * 9 + k, 27) * .31;
       const r1 = .84 + noise(i * 9 + k + 1, 27) * .31;
-      const edgeA = [x + Math.cos(a) * radiusX * r0, .0125, z + Math.sin(a) * radiusZ * r0];
-      const edgeB = [x + Math.cos(b) * radiusX * r1, .0125, z + Math.sin(b) * radiusZ * r1];
+      const edgeA = [x + Math.cos(a) * radiusX * r0, .0125 + noise(i,k+53)*.003, z + Math.sin(a) * radiusZ * r0];
+      const edgeB = [x + Math.cos(b) * radiusX * r1, .0125 + noise(i,k+54)*.003, z + Math.sin(b) * radiusZ * r1];
       triangle(centre, edgeB, edgeA, 'island', i * .05);
     }
   }

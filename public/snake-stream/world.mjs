@@ -639,10 +639,19 @@ export function createWorld(THREE, {width, height}) {
     // public cues or draw calls. Maintain the sunlit limestone heart.
     const mineralRift = .5+.5*Math.sin(nx*12.7+nz*4.1+
       .56*Math.sin(nz*11.3-nx*3.2));
+    // T1 RAINFOREST BEDROCK COMPOSITION. Actual forest coasts and the
+    // genuinely planted three fern catchments must read as one original
+    // earth/mineral system in both full-board and face-detail views. Keep
+    // every exact cell centre, every original bevel, every true cue and
+    // the same material batch; only the once-baked stone tint is graded.
     const forestLoam = dampStone*(.35+.65*mineralRift);
-    color.setRGB(shade*(1-dampStone*.61+forestLoam*.045),
-      shade*(1-dampStone*.20-forestLoam*.020),
-      shade*(1-dampStone*.47+forestLoam*.030));
+    const greySlate = forestLoam*(.5+.5*Math.sin(nx*6.6-nz*4.8))
+      * (1-stoneHeart*.86);
+    const mineralRim=(1-dampStone)*(.4+.6*mineralRift)
+      * (1-stoneHeart*.50);
+    color.setRGB(shade*(1-dampStone*.69+forestLoam*.036 + mineralRim*.045 -greySlate*.048),
+      shade*(1-dampStone*.27-forestLoam*.022 + mineralRim*.030 +greySlate*.022),
+      shade*(1-dampStone*.52+forestLoam*.022 + mineralRim*.015 +greySlate*.048));
     add(tile,tileMat,x-(width-1)/2,-.105,z-(height-1)/2,.994,.21,.994,0,0,0,color.clone());
   }
   // Terraced structural stone, rubble and topsoil form one coherent island silhouette.

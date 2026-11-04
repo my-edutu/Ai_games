@@ -58,11 +58,15 @@ export function createLivingGarden(THREE, {width,height}) {
     const U=u*u*(3-2*u),V=v*v*(3-2*v);
     return (hash(a,b)*(1-U)+hash(a+1,b)*U)*(1-V)+(hash(a,b+1)*(1-U)+hash(a+1,b+1)*U)*V;
   };
+  // T1 RAIN-WASHED LIVING MASONRY: deepen cool shadows under the existing
+  // complete forest crowns, retain warm ancient stone in the same four
+  // physically authored batches and preserve every leaf, root and arch.
+  // This is a material study, not a new shader, asset, light or texture.
   const palette={
-    moss:[0x335b36,0x56894a,0x79a65a,0xa2b877,0x7a8355],
-    cliff:[0x53665a,0x7d8775,0xa3a497,0xc1b69b,0x677c6e],
-    ruin:[0x66786d,0x929e8b,0xbec0ac,0xd6c9aa,0x8c956e],
-    foliage:[0x2d5a3e,0x3c8653,0x81a54c,0xa8be68,0x4c7952]
+    moss:[0x254831,0x3d7042,0x6d9655,0xa1b36e,0x697c4e],
+    cliff:[0x435852,0x6c7b70,0xa09f8e,0xc3b39a,0x60766a],
+    ruin:[0x647469,0x919988,0xc3c0ab,0xd8c7a6,0x87956a],
+    foliage:[0x1d4435,0x34784a,0x73a055,0xb4c477,0x3a6b48]
   };
   const rgb=new Map();
   for(const [key,arr] of Object.entries(palette))

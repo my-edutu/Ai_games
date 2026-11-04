@@ -120,7 +120,10 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.12;
+  // T1 GARDEN LIGHT STUDY. Reduce flat green ambient wash while retaining
+  // honest readable fruit/hazard/portal emissives and the original physical
+  // sun, shadow map, ACES output and real full-desktop rendering budget.
+  renderer.toneMappingExposure = 1.02;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -132,15 +135,15 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   scene.background = new THREE.Color('#7daca5');
   scene.fog = new THREE.Fog('#7daca5', 48, 110);
   const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 180);
-  const sky = new THREE.HemisphereLight(0xd3f4ec, 0x40554b, 2.25);
-  const sun = new THREE.DirectionalLight(0xffe6b3, 3.4);
+  const sky = new THREE.HemisphereLight(0xd3f4ec, 0x40554b, 1.88);
+  const sun = new THREE.DirectionalLight(0xffe6b3, 3.42);
   sun.position.set(-15, 26, 12);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
   Object.assign(sun.shadow.camera, { left: -25, right: 25, top: 23, bottom: -23, near: 1, far: 80 });
   sun.shadow.bias = -0.0003;
   sun.shadow.normalBias = 0.045;
-  const rim = new THREE.DirectionalLight(0xb1e8ee, 0.9);
+  const rim = new THREE.DirectionalLight(0xb1e8ee, 0.98);
   rim.position.set(8, 12, -16);
   for (const light of [sky, sun, rim]) {
     light.layers.enable(STATIC_LAYER);
