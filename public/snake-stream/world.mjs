@@ -133,6 +133,71 @@ export function bakeWaterEdgeGeometry(THREE, source, transforms) {
 }
 
 /** Original procedural verdant-ruins diorama. No simulation state is retained or changed. */
+/**
+ * T1 - authentic original continuous eroded island strata, beneath the unchanged
+ * playable slab grid. This replaces the old two orthogonal foundation boxes.
+ * It is static, deterministic, original geometry: no game cells, props, water
+ * motion, shaders, textures, draw passes or authoritative state are changed.
+ * The low landward top is always BELOW the real playable floor at y=0.
+ */
+export function buildErodedIslandShelfGeometry(THREE, width, height, layer) {
+  if (!Number.isInteger(width) || !Number.isInteger(height) || width < 2 || height < 2)
+    throw new RangeError('Island shelf requires positive integer board dimensions');
+  if (layer !== 'cliff' && layer !== 'moss')
+    throw new RangeError('Island shelf layer must be cliff or moss');
+  const sectorCount = 96, ringCount = 4, W = width / 2, H = height / 2;
+  const cliff = layer === 'cliff';
+  // Old identical four vertical sides become fully continuous irregular rock
+  // shelves, grounded below the water surface -3.62. The narrow living moss
+  // mantle still sits under real coping and never rises above the board top.
+  const rings = cliff
+    ? [[0, -.225], [.44, -1.12], [1.65, -2.42], [3.32, -3.80]]
+    : [[0, -.208], [.18, -.36], [.47, -.60], [.86, -.88]];
+  const positions = [0, -.225, 0], uvs = [.5, .5], indices = [];
+  for (let ring = 0; ring < ringCount; ring++) {
+    const [shelf, depth] = rings[ring];
+    for (let k = 0; k < sectorCount; k++) {
+      const a = k * Math.PI * 2 / sectorCount;
+      const cx = Math.cos(a), cz = Math.sin(a);
+      // Rectangular playable geometry is enclosed, not reshaped or faked.
+      // Every shell is wider than the actual last playable cell and coping.
+      const boundary = Math.min(
+        (W + (cliff ? 1.26 : 1.39)) / Math.max(1e-6, Math.abs(cx)),
+        (H + (cliff ? 1.31 : 1.45)) / Math.max(1e-6, Math.abs(cz)));
+      const erosion = .14 * Math.sin(a * 5 + .32)
+        + .092 * Math.sin(a * 11 - .65)
+        + .041 * Math.cos(a * 19 + .76);
+      const grain = .05 * Math.sin(a * 17 + ring * .71)
+        + .025 * Math.sin(a * 29 - ring * 1.16);
+      const radius = boundary + shelf + erosion + grain;
+      const y = depth - (ring === 0 ? 0 : .065 * Math.sin(a * 7 - ring * .65) ** 2)
+        - .020 * Math.sin(a * 13 + ring * .4) ** 2;
+      const x = radius * cx, z = radius * cz;
+      positions.push(x, y, z);
+      uvs.push(x / 5 + .5, z / 5 + .5);
+    }
+  }
+  for (let k = 0; k < sectorCount; k++) {
+    const next = (k + 1) % sectorCount;
+    // Counterclockwise in XZ has a +Y normal in this winding.
+    indices.push(0, 1 + next, 1 + k);
+    for (let ring = 0; ring < ringCount - 1; ring++) {
+      const a = 1 + ring * sectorCount + k;
+      const b = 1 + ring * sectorCount + next;
+      const c = 1 + (ring + 1) * sectorCount + next;
+      const d = 1 + (ring + 1) * sectorCount + k;
+      indices.push(a, b, c, a, c, d);
+    }
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  geometry.computeBoundingSphere();
+  return geometry;
+}
+
 export function createWorld(THREE, {width, height}) {
   if (!Number.isInteger(width) || !Number.isInteger(height) || width < 2 || height < 2) throw new Error('World requires integer board dimensions');
   const group = new THREE.Group(); group.name = 'Verdant ruins';
@@ -654,9 +719,13 @@ export function createWorld(THREE, {width, height}) {
       shade*(1-dampStone*.52+forestLoam*.022 + mineralRim*.015 +greySlate*.048));
     add(tile,tileMat,x-(width-1)/2,-.105,z-(height-1)/2,.994,.21,.994,0,0,0,color.clone());
   }
-  // Terraced structural stone, rubble and topsoil form one coherent island silhouette.
-  add(cube,cliff,0,-1.6,0,width+2.3,2.8,height+2.4);
-  add(cube,moss,0,-.39,0,width+2.6,.38,height+2.8);
+  // T1 physical island silhouette. Reuse BOTH original static cliff/moss
+  // batches and original stone/moss materials: no additional WebGL pass,
+  // shader, texture, light, live draw or gameplay-cell mutation.
+  const erodedCliff = geometry(buildErodedIslandShelfGeometry(THREE, width, height, 'cliff'));
+  const rootedMantle = geometry(buildErodedIslandShelfGeometry(THREE, width, height, 'moss'));
+  add(erodedCliff, cliff, 0, 0, 0);
+  add(rootedMantle, moss, 0, 0, 0);
   // The rear terrace physically supports the arch and tree roots.
   add(cube,cliff,0,-1.55,-H-2.2,width+2.6,2.8,4.5);
   add(cube,moss,0,-.3,-H-2.2,width+2.9,.24,4.55);
