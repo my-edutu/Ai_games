@@ -66,6 +66,11 @@ jobs:
           CI: '1'
           LIBGL_ALWAYS_SOFTWARE: '1'
         run: npx playwright test tests/browser/tiny-kingdom-w12-pedestrian-input.spec.cjs --workers=1
+      - name: W14 RED-first live citizen-mesh camera residency and true authority at 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w14-live-motion-residency.spec.cjs --workers=1
       - name: W13 observed true field production to physical receiving with camera, 390px, immutable authority
         env:
           CI: '1'
