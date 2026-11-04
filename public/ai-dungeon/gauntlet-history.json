@@ -2194,7 +2194,7 @@
         "playsMajority": false,
         "provenance": "No fresh independent critics available. Do not infer a blind preference from test results or real predecessor screenshots."
       },
-      "safetyChecks": "At fc252c4 exact-head Dungeon Action 41804139402 authority 281/282 PASS; genuine untouched 2500-tick organic adventure test PASSED with actual defeat/restart, 3 new phase/recovery checks PASSED. One new fixture failed because the Ranger logically left the portal to escort a distant Vanguard; the true portal logic was correct. Candidate test fixture now puts the leader in the actual cleared courtyard, retaining normal autonomous movement and legal descent. New exact-head required. Full real-browser/CI and 3 blind LOOKS/FEELS/PLAYS remain unverified.",
+      "safetyChecks": "Predecessor 121117b actual Dungeon workflow 41813003315 FAIL: 282/283 authority, stale .16 vs .13 cutaway source-height contract; browser shard2 27/28, exact seeded real Chromium 0 nearby walls. Source changes through 766282bae5c32e01194e3aabb8938544f9987596 require exact-code-head tests and authentic browser stage footage. Prior 2500-tick organic campaign had Warden victory, floor change, natural defeat and restart without bypass. Current replay and security NOT reverified.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED synchronized full video+audio; predecessor Chromium Warden diagnostic 2.5s non-silent real PCM 44100Hz, peak .025445 RMS .00856, but browser video recorder reported zero bytes.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2202,7 +2202,7 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Real-source b8be04f 1440x832 browser screenshot from 41672587065 and Warden boss desktop/mobile screenshot/video artifacts 41672587022 were INSPECTED: new 14 anatomical joint cylinders made elongated opaque spindly/squid-like limbs. Warden encounter head-on 1440x832 has 3 heroes overlapping enemy bodies in the 58% HP boss arena, warning Rift Cross visible but contact indistinguishable; mobile capture progressed into floor 2 but large stylized ballheads persist. This is a NEGATIVE experiential finding compared with da492455 and exact locked baseline; source visual redesign at 71da2ea to cap spans remains unverified. No masked A/B victory.",
-      "latestCandidateWorkflow": "PENDING new exact-head after tests updated; previous Action https://github.com/my-edutu/Ai_games/actions/runs/41803810318 completed authority 277/278 with genuine organic adventure stage PASS, old Warden counter contract mismatch. Real browser/visual/CI ongoing on prior candidate and cannot verify the next source head.",
+      "latestCandidateWorkflow": "At 766282bae5c32e01194e3aabb8938544f9987596: Dungeon Action 41819131102 pending, visual review 41819131223 pending, catalogue CI 41819131067 in progress; head may change with ledger commits. Source-predecessor 121117b Action 41813003315 authority 282/283 stale height, browser shard2 27/28 zero near walls, other shards passed; visual review 41813003252 passed (not acceptance).",
       "currentPredecessorWebgl": {
         "sourceHead": "938cf0c44726b7be5dd3441eb33f7c1226f2b872",
         "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41758062752/artifacts/13289962348",
@@ -2217,7 +2217,7 @@
         "audio": "Real 3-second opt-in Warden audiovisual MediaRecorder produced no recorded frames in that workflow; UNSUPPORTED/UNVERIFIED",
         "fullGameReel": false
       },
-      "newCandidateSceneReview": "UNVERIFIED: no new-head desktop/mobile genuine moving Warden attack/evade chase, original synchronized audio or independent critics. Prior actual footage still depicts toy-looking bodies and crowded Gothic masonry.",
+      "newCandidateSceneReview": "Source revised at 766282bae5c32e01194e3aabb8938544f9987596 following genuine 121117b Chromium near-wall 0 and original clumsy toy-looking Warden footage. True new-head visual composition/motion/audio NOT YET INSPECTED; retain old negative findings and do not score a visual win.",
       "characterDrawBudget": "Previous exact 429e6b real Chromium had 265 cinematicMeshes at desktop versus <=240 test bound (shard1 failed). New 3aec189 fuses 4–5 head parts per figure and removes 1 gorget per figure but actual current head draw counts, performance and visual quality UNVERIFIED; do not infer from mesh arithmetic.",
       "externalReferenceAudit": "Compared qualitatively against 2023 Diablo IV Frozen Tunnel combat still (https://www.npr.org/2023/05/30/1178222988/diablo-iv-review-activision-blizzard), real No Rest for the Wicked 2026 cavern still (https://www.rpgsite.net/news/20518-no-rest-for-the-wicked-1-0-release-ps5-xbox-switch-2-cross-save-multiplayer-pc-october), and Path of Exile 2 Executioner combat still (https://www.mmorpg.com/reviews/path-of-exile-2-early-access-review-2000133606). Their negative space/material structure/impact clarity remain far ahead; they are references, NOT licensed or copied game assets. No direct synchronized/gameplay-balanced reference test or blind score.",
       "realBrowserFrameDeliveryPredecessor": "Actual d9e1c Chromium software WebGL shard 2 artifact 13238978845, artifacts/dungeon-raf-interval-evidence.json: foreground RAF intervals 15 samples, p50 733.3ms, p95 and worst 4549.9ms; other raster evidence sampled 8 frames, directRenderMs 3.9ms at 273136 pixels and downshift 2. Foreground RAF observations cannot establish standalone GPU render time or phone fps. Known scheduling / software runner risk, latest candidate performance UNVERIFIED.",
@@ -2386,9 +2386,9 @@
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Actual 1440x832 scene still has toy-like genuine CC0 human proportions and dense square masonry crossing legs, undermining continuous combat body language. Physical negative-space acting stage is candidate source committed, not confirmed moving WebGL. Full synchronized original desktop/mobile audiovisual journey, matched baseline/references and 3+ blind majorities are absent.",
-    "currentWork": "Inspected exact 4cdd7bf native screenshot and last Actions; preserved first organic 2500-tick genuine Warden-kill, descent, natural defeat/restart achieved on predecessors. Integrated actor-sized cutaways across real walls, facade, capped ruins at source commit f3e5a50; corrected a stale browser Sentinel recovery check (counter phases themselves unchanged). Await actual exact-head 3D evidence and separate fresh-context critics. Do not claim transformed.",
-    "candidateCommit": "f3e5a50f1de970d9691ed311c934f4f5e13ec443",
+    "biggestRemainingGap": "Toy-like humanoid silhouettes and weak weapon-contact movement still dominate real earlier Warden video; the latest stage correction may retain cathedral depth and show bodies but has not been judged by real new-head desktop/mobile moving footage or independent critics. Full true synchronized campaign audiovisual reel and frame-time evidence absent.",
+    "currentWork": "Genuine exact-head Chromium 121117b failure: all-direction actor clearance removed ALL intermediate low stone walls in seeded party camera scene; authority 282/283 due inherited stale .16m assumption, browser 27/28 on shard2. Implemented scene-level camera-facing hero/true-combat physical stone clearance, retained and redressed rear Gothic 0.43m ruins in same instanced buffers, backed by deterministic two-sided/multi-hero safety contracts through 766282bae5c32e01194e3aabb8938544f9987596. Exact AFTER visual, original synchronized audio, critics UNVERIFIED. Not a new milestone or victory.",
+    "candidateCommit": "766282bae5c32e01194e3aabb8938544f9987596",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
     "implementationEvents": [
@@ -4683,6 +4683,45 @@
         "safety": "UNVERIFIED at candidate source; 4cdd7bf authority and 2 browser shards passed, one old assertion failed",
         "criticVerdict": "NO CRITICS 0/3; LOOKS/FEELS/PLAYS UNVERIFIED",
         "next": "Inspect actual exact-new-head desktop/mobile scenes, boss recovery video/audio, full true game journey and compare against permanently locked baseline; iterate substantial actor material/animation and fighting-stage corrections rather than relying on new test counts."
+      },
+      {
+        "id": "M1-CAMERA-SIDE-GOTHIC-STAGE-20261104-1100",
+        "date": "2026-11-04",
+        "status": "SOURCE_IMPLEMENTED_EXACT_AFTER_UNVERIFIED",
+        "sourceHeadAtStart": "121117baf03706160571ca8078376a94a0488364",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceCandidateSha": "766282bae5c32e01194e3aabb8938544f9987596",
+        "objective": "Protect visible hero/boss contact and *retain actual sculptural Gothic rear space* in one coherent scene, not flatten the dungeon to a stage or add decoration.",
+        "actualPredecessor": {
+          "sourceSha": "121117baf03706160571ca8078376a94a0488364",
+          "workflow": "https://github.com/my-edutu/Ai_games/actions/runs/41813003315",
+          "realBrowserNegative": "Seeded Chromium cutawayNearbyWalls 0; browser shard2 27/28 failure; visual-review workflow 41813003252 passed; prior authentic Warden motion shows small toy actors and crowding.",
+          "authority": "282/283; inherited expected 0.16m versus actual 0.13m foundational stone."
+        },
+        "integratedWork": [
+          "Real hero and legitimate contacted enemy now define camera-FRONT body clearance and a narrow direct camera sightline; all nearby rear stone is no longer deleted by an omnidirectional 3.04m disk.",
+          "Base rear/flank masonry remains visible as 0.43m / 0.84-footprint carved ruins while directly masking stone falls to 0.13m / 0.32; no authoritative map/collision changes.",
+          "Matching actual instanced decorative facade retains/relocates existing spall and coping surfaces at low elevation rather than erasing every nearby mark or allowing full-height floating debris.",
+          "Real camera reversing, two true hero priorities, browser-preserved nonzero rear-wall cutaway and unchanged authority/replay/accessibility requirements protected by tests; no new draw batch or copy-proprietary art."
+        ],
+        "code": [
+          "public/ai-dungeon/party-visibility-plan.js",
+          "public/ai-dungeon/cutaway-floor-plan.js",
+          "public/ai-dungeon/environment.js",
+          "tests/foundation/dungeon-party-visibility.test.cjs",
+          "tests/foundation/dungeon-cutaway-floor-backing.test.cjs"
+        ],
+        "codeCommits": [
+          "6653486d8c91ae57c8534fafc77f7aee92bf0d18",
+          "a4afe13e9532978090b514f44e8197689ced137c",
+          "51a3b81214cefdb359ef7fdd464ba912fbaa4c89",
+          "766282bae5c32e01194e3aabb8938544f9987596"
+        ],
+        "sourceProbe": "Eight pure seeded front/back/camera-reversal/multi-actor geometry decisions passed locally in V8, NOT a real browser quality gate.",
+        "safety": "PENDING new exact-head Actions 41819131102 Dungeon, 41819131223 visual, 41819131067 catalogue; no green claim.",
+        "actualAfter": "UNVERIFIED exact candidate desktop/mobile motion/audible soundtrack/performance",
+        "blindCritics": "0/3; all LOOKS/FEELS/PLAYS UNVERIFIED",
+        "next": "Inspect NEW exact-head moving Warden desktop/mobile footage; reject or fix obscuring rear blocks or lost dungeon identity, verify campaign/replay and mobile draw times, then execute native-rig character/contact overhaul and matched 5-stage original-audio baseline critique."
       }
     ]
   }
