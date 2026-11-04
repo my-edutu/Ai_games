@@ -1561,6 +1561,46 @@ function createTowerResolutionPolicy() {
   };
 }
 
+// Presentational evidence for an ACTUAL boot/deck collision. Never creates
+// a landing, target or platform: only consecutive source ticks may earn it.
+function observedPhysicalTouchdown(before, after) {
+  if (!before || !after || before.lifecycle !== 'running' ||
+    after.lifecycle !== 'running' || typeof after.runToken !== 'string' ||
+    !after.runToken || before.runToken !== after.runToken ||
+    !Number.isSafeInteger(before.floor) || before.floor !== after.floor ||
+    !Number.isSafeInteger(before.tick) || !Number.isSafeInteger(after.tick) ||
+    after.tick <= before.tick || after.tick - before.tick > 8 ||
+    before.player?.state !== 'airborne' || after.player?.state !== 'standing' ||
+    !Number.isFinite(before.player.vy) || before.player.vy >= -350 ||
+    after.player.vy !== 0 || !(after.player.health > 0) ||
+    ![after.player.x, after.player.y, after.player.halfWidth,
+      after.player.halfHeight, after.chunkBaseY, after.worldWidth].every(Number.isFinite) ||
+    after.player.halfWidth <= 0 || after.player.halfHeight <= 0 ||
+    after.worldWidth <= 0 || !Array.isArray(after.platforms)) return null;
+  const feet = after.player.y - after.player.halfHeight;
+  let landing = null, smallestError = Infinity;
+  for (const platform of after.platforms) {
+    if (!platform || typeof platform.id !== 'string' || !platform.id ||
+      ![platform.x, platform.y, platform.width, platform.height].every(Number.isFinite) ||
+      platform.width <= 0 || platform.height <= 0 ||
+      after.player.x + after.player.halfWidth < platform.x ||
+      after.player.x - after.player.halfWidth > platform.x + platform.width) continue;
+    const error = Math.abs(feet - (platform.y + platform.height));
+    if (error <= 2500 && error < smallestError) {
+      landing = platform; smallestError = error;
+    }
+  }
+  return landing ? {
+    runToken: after.runToken, floor: after.floor, tick: after.tick,
+    platformId: landing.id, kind: landing.kind,
+    x: after.player.x, left: landing.x, right: landing.x + landing.width,
+    top: landing.y + landing.height, halfWidth: after.player.halfWidth,
+    strength: Math.max(.4, Math.min(1, -before.player.vy / 14000)),
+    worldWidth: after.worldWidth, observedOnly: true,
+  } : null;
+}
+// End observed physical touchdown.
+
 export function createTowerScene(canvas, settings = {}) {
   const options = { camera: 'follow', quality: innerWidth < 700 ? 'low' : 'high', reducedMotion: false, ...settings };
   const scene = new THREE.Scene();
@@ -1784,6 +1824,27 @@ export function createTowerScene(canvas, settings = {}) {
   landingHalo.rotation.x = -Math.PI / 2;
   landingHalo.visible = false;
   scene.add(landingHalo);
+  // One source-earned, depth-tested 3D impact cluster integrated with the
+  // existing contact halo, weighty camera and opt-in landing audio.
+  // No extra collider, HUD, sound, light or shadow pass.
+  const touchdownDebris = new THREE.InstancedMesh(
+    ownGeometry(new THREE.IcosahedronGeometry(.26, 0)),
+    ownMaterial(new THREE.MeshStandardMaterial({
+      color: 0xffffff, metalness: .15, roughness: .76,
+      emissive: 0x243839, emissiveIntensity: .2,
+      depthTest: true, depthWrite: true,
+    })), 16);
+  touchdownDebris.name = 'WitnessedPhysicalDeckImpact';
+  touchdownDebris.count = 0; touchdownDebris.visible = false;
+  touchdownDebris.frustumCulled = false;
+  touchdownDebris.castShadow = false; touchdownDebris.receiveShadow = false;
+  touchdownDebris.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  const touchdownPose = new THREE.Object3D();
+  const touchdownTint = new THREE.Color();
+  for (let i = 0; i < 16; i++) touchdownDebris.setColorAt(i,
+    touchdownTint.setHex(i % 3 === 0 ? 0xf4e4bc : i % 3 === 1 ? 0x85d7cc : 0x9a9e9c));
+  touchdownDebris.instanceColor.needsUpdate = true;
+  scene.add(touchdownDebris);
 
   // One original shader-only deck footprint provides a consistent physical
   // depth reference through regular jumping, moving decks and guardian action.
@@ -1888,6 +1949,7 @@ export function createTowerScene(canvas, settings = {}) {
   let elapsed = 0, lastTime = 0, renderErrors = 0, contextLost = false, disposed = false;
   let contactUntil=0,contactHero=false,contactEnemyId=null;
   let landingMoment=-Infinity,landingRun=null,landingFloor=null,landingWeight=0;
+  let physicalTouchdown = null;
   let baseY = 0, themeKey = '', cameraAngle = .15, lastRevision = '', orbit = 0, zoom = 1;
   const renderProgress = createRenderProgress();
   const actorTarget = new THREE.Vector3();
@@ -1974,6 +2036,7 @@ export function createTowerScene(canvas, settings = {}) {
     footingShadow.visible = false; observedFooting = null;
     movingDeckRide.reset(); observedRidePose = null;
     landingApproach.clear();
+    physicalTouchdown = null; touchdownDebris.count = 0; touchdownDebris.visible = false;
     recoveryTransfer.clear();
     atmosphere.clear();
     guardianShotStage.clear();
@@ -2188,6 +2251,9 @@ export function createTowerScene(canvas, settings = {}) {
       landingHalo.position.set(deck.x, deck.y + .085, deck.z);
       landingMoment = elapsed; landingRun = next.runToken; landingFloor = next.floor;
       landingWeight = clamp(-previous.player.vy / 14000, .4, 1);
+      // Keep the already-established halo on the source state transition,
+      // but never raise masonry unless a real current deck bears the feet.
+      physicalTouchdown = observedPhysicalTouchdown(previous, next);
     }
     updateEntities(next);
     if (previous && next.player.health < previous.player.health) {
@@ -2565,6 +2631,49 @@ export function createTowerScene(canvas, settings = {}) {
         : .55 + landingProgress*(1.15+landingWeight*.65));
       landingHalo.material.opacity=landingWeight*(options.reducedMotion ? .62
         : .78*(1-landingProgress)*(1-landingProgress));
+    }
+    // A real contact has a physical ring and small stone/metal fragments
+    // traveling across the SAME observed walking surface. Cosmetic motion
+    // runs at presentation speed; event identity, platform and lifetime come
+    // exclusively from fixed-step source evidence, not an invented landing.
+    const actual = physicalTouchdown;
+    const burstAge = elapsed - landingMoment;
+    const hasDeck = !!actual && !options.stale &&
+      snapshot.lifecycle === 'running' && p.health > 0 &&
+      actual.runToken === snapshot.runToken && actual.floor === snapshot.floor &&
+      Number.isSafeInteger(snapshot.tick) &&
+      snapshot.tick >= actual.tick && snapshot.tick - actual.tick <= 16 &&
+      landingHalo.visible && burstAge >= 0 && burstAge < .65 &&
+      snapshot.platforms?.some(deck => deck.id === actual.platformId &&
+        [deck.x, deck.y, deck.width, deck.height].every(Number.isFinite) &&
+        Math.abs(deck.y + deck.height - actual.top) <= 2500);
+    touchdownDebris.visible = hasDeck;
+    touchdownDebris.count = 0;
+    if (hasDeck) {
+      const quiet = !!options.reducedMotion;
+      const count = quiet ? 4 : options.quality === 'low' ? 8 : 16;
+      const progress = clamp(burstAge / .65, 0, 1);
+      const travel = quiet ? .2 : .2 + .8 * progress;
+      const spread = Math.min(14000, Math.max(1000,
+        (actual.right - actual.left - 2 * actual.halfWidth) * .28));
+      for (let i = 0; i < count; i++) {
+        const theta = i * Math.PI * 2 / count;
+        const x = clamp(actual.x + Math.sin(theta) * spread * travel,
+          actual.left + 1000, actual.right - 1000);
+        const radius = 25.6 + Math.cos(theta) * (quiet ? .22 : .24 + .46 * progress);
+        const at = pointFor(x, actual.top, snapshot.chunkBaseY, actual.worldWidth, radius);
+        const lift = quiet ? .12 : .09 + Math.sin(progress * Math.PI) *
+          (.25 + actual.strength * .48);
+        touchdownPose.position.set(at.x, at.y + lift, at.z);
+        touchdownPose.scale.setScalar(quiet ? .28 :
+          (.42 - .28 * progress) * (.65 + .35 * actual.strength));
+        touchdownPose.rotation.set(0, theta,
+          quiet ? 0 : progress * (i % 2 ? -1.3 : 1.3));
+        touchdownPose.updateMatrix();
+        touchdownDebris.setMatrixAt(i, touchdownPose.matrix);
+      }
+      touchdownDebris.count = count;
+      touchdownDebris.instanceMatrix.needsUpdate = true;
     }
     for (const pick of snapshot.pickups) {
       const group = pickups.get(pick.id);
@@ -3130,7 +3239,12 @@ export function createTowerScene(canvas, settings = {}) {
         visualLean: observedRidePose.lean, physicallyGrounded: observedRidePose.grounded,
         proof: 'Occupied moving deck and observed source ticks, not hardware visual quality' } : null,
       observedTouchdown: landingHalo.visible ? { runToken: landingRun, floor: landingFloor,
-        strength: landingWeight, position: landingHalo.position.toArray() } : null,
+        strength: landingWeight, position: landingHalo.position.toArray(),
+        physicalDeckContact: !!touchdownDebris.visible,
+        platformId: touchdownDebris.visible ? physicalTouchdown.platformId : null,
+        fragmentInstances: touchdownDebris.count,
+        fragmentDraws: touchdownDebris.visible ? 1 : 0,
+        evidence: 'Real source deck contact and bounded cosmetic 3D material; NOT video, GPU FPS or quality score' } : null,
       activeTelegraphLanes: [...enemies.values()].filter(entry => entry.threatLane.visible).length,
       activeWindupArcs: [...enemies.values()].filter(entry => entry.chargeArc.visible).length,
       contactPulse: !options.stale && elapsed<contactUntil ? { hero:contactHero, enemyId:contactEnemyId } : null, frameMs,
