@@ -1,4 +1,5 @@
 import { pointFor, SCALE } from './coordinates.mjs';
+import { observedImmediateTrap } from './scene-hierarchy.mjs';
 
 // An original, physical pre-activation mechanism for SOURCE-SCHEDULED hazards.
 // The fixed-step server publishes the 1–12 tick countdown; this stage cannot
@@ -84,6 +85,7 @@ export function createTowerHazardPressure(THREE) {
   const releaseTickById = new Map();
   let lastRun = null, lastFloor = null, lastTick = null;
   let chargingHazards = 0, activeHazards = 0, releasingHazards = 0;
+  let crossfireWarnings = 0, crossfireReleases = 0;
   let sourceTick = null, observedFloor = null, disposed = false;
 
   function clear() {
@@ -92,6 +94,7 @@ export function createTowerHazardPressure(THREE) {
     chargingHazards = 0;
     activeHazards = 0;
     releasingHazards = 0;
+    crossfireWarnings = 0; crossfireReleases = 0;
     sourceTick = null;
     observedFloor = null;
     lastRun = null; lastFloor = null; lastTick = null;
@@ -143,15 +146,25 @@ export function createTowerHazardPressure(THREE) {
 
     const guardianWindup = snapshot.enemies?.some(
       enemy => enemy.active && enemy.telegraph) || false;
+    // An ACTUAL source-near shutter must remain physically readable during
+    // guardian windup: previously the blanket suppression removed every
+    // warning jaw exactly when the climber faced both threats at once.
+    const immediateTrap = observedImmediateTrap(snapshot);
+    const priorityTrapId = typeof immediateTrap?.id === 'string' ? immediateTrap.id : null;
     const maximum = options.quality === 'low' ? 3 : MAX_HAZARDS;
     let count = 0, charging = 0, active = 0, releasing = 0;
+    let concurrentWarnings = 0, concurrentReleases = 0;
     // Source-active collision has absolute priority, including when another
     // real guardian winds up. Then anticipate new warnings; finally spend
     // any remaining low-tier budget on already-safe mechanical unloading.
-    // Iterate unchanged source order within each phase, never mutate it.
+    // Preserve true phase priority. Within a phase the live contact shutter
+    // receives the first bounded instance slot, even when another trap came
+    // first in the snapshot. Never reorder or mutate the authority array.
     for (const phase of PHASES) {
-      if (guardianWindup && phase !== 'active') continue;
+      for (let priority = 0; priority < (priorityTrapId ? 2 : 1); priority++) {
       for (const hazard of snapshot.hazards) {
+        if (priorityTrapId &&
+          ((hazard?.id === priorityTrapId) !== (priority === 0))) continue;
         if (count >= maximum * PIECES_PER_HAZARD) break;
         if (!hazard ||
           ![hazard.x, hazard.y, hazard.width, hazard.height].every(valid) ||
@@ -168,6 +181,20 @@ export function createTowerHazardPressure(THREE) {
           Number.isSafeInteger(releaseStarted) &&
           snapshot.tick >= releaseStarted &&
           snapshot.tick - releaseStarted < RELEASE_TICKS;
+        // Crossfire is a visible physical sequence, not guardian OR shutter.
+        // Show only the last-six-tick currently evaded contact warning during
+        // a guardian telegraph, then retain source-confirmed nearby recovery.
+        // Distant/unrelated early warnings still yield to the real guardian.
+        const nearBody = Number.isFinite(player.halfWidth) &&
+          Number.isFinite(player.halfHeight) && player.halfWidth > 0 &&
+          player.halfHeight > 0 &&
+          Math.abs(player.x - (hazard.x + hazard.width / 2)) <=
+            player.halfWidth + hazard.width / 2 + 9000 &&
+          Math.abs(player.y - (hazard.y + hazard.height / 2)) <=
+            player.halfHeight + hazard.height / 2 + 12000;
+        if (guardianWindup && phase === 'charging' &&
+            (!priorityTrapId || hazard.id !== priorityTrapId)) continue;
+        if (guardianWindup && phase === 'release' && !nearBody) continue;
         if ((phase === 'active' && !isActive) ||
           (phase === 'charging' && !isCharging) ||
           (phase === 'release' && !isReleasing)) continue;
@@ -226,8 +253,14 @@ export function createTowerHazardPressure(THREE) {
             previousActive.add(hazard.id);
             releaseTickById.delete(hazard.id);
           }
-        } else if (isCharging) charging++;
-        else releasing++;
+        } else if (isCharging) {
+          charging++;
+          if (guardianWindup) concurrentWarnings++;
+        } else {
+          releasing++;
+          if (guardianWindup) concurrentReleases++;
+        }
+      }
       }
     }
     shutters.count = count;
@@ -239,6 +272,8 @@ export function createTowerHazardPressure(THREE) {
     chargingHazards = charging;
     activeHazards = active;
     releasingHazards = releasing;
+    crossfireWarnings = concurrentWarnings;
+    crossfireReleases = concurrentReleases;
     sourceTick = count ? snapshot.tick : null;
     observedFloor = count ? snapshot.floor : null;
     lastRun = snapshot.runToken;
@@ -249,7 +284,7 @@ export function createTowerHazardPressure(THREE) {
   function diagnostics() {
     return {
       sourceTick, observedFloor, chargingHazards, activeHazards,
-      releasingHazards,
+      releasingHazards, crossfireWarnings, crossfireReleases,
       phase: activeHazards ? 'active' :
         chargingHazards ? 'charging' : releasingHazards ? 'release' : 'idle',
       instances: shutters.count, extraDraws: shutters.visible ? 1 : 0,
