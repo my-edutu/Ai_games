@@ -32,7 +32,9 @@ test('actual desktop and mobile WebGL show real warning tiles and subsequent War
  expect(warningLens?.mode).toBe('warden-warning');
  expect(warningLens?.fov).toBeGreaterThan(48);
  expect(warningLens?.dangerPriority).toBe(true);
- expect(await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wardenRitual?.warningEdgedTiles)).toBeGreaterThan(8);
+ expect(await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wardenRitual?.warningEdgedTiles)).toBe(0);
+ expect(await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wardenRitual?.warningBoundaryEdges)).toBeGreaterThan(8);
+ expect(await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wardenRitual?.warningIncisions)).toBeLessThanOrEqual(10);
  const court=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wardenRitual);
  expect(court?.sculptedCourtSlabs).toBe(28);
  expect(court?.originalEngravings).toBe(18);

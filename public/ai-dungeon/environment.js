@@ -179,7 +179,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
    const ax=px+face.dx*.511,az=pz+face.dz*.511;
    const gallery=vaultedTiles.has(z*N+x);
    const faceHeight=gallery?1.04:Math.max(.88,(claddingHeightByTile.get(z*N+x)??1.42)-.045);
-   wallFaces.push([ax,faceHeight*.5,az,face.dz!==0?.88:.024,faceHeight,face.dx!==0?.88:.024,0,face.dx,face.dz]);
+   wallFaces.push([ax,faceHeight*.5,az,face.dz!==0?.88:.024,faceHeight,face.dx!==0?.88:.024,0,face.dx,face.dz,Number(gallery)]);
    if(!gallery&&h%5===0){columnCap.push([ax,faceHeight+.065,az,face.dz!==0?.72:.09,.115,face.dx!==0?.72:.09]);columnCapParents.push(wallFaces.length-1);}
    if(h%21===0){pillars.push([ax,az,face.yaw,h]);}
    if(h%31===0){banners.push([ax,az,face.yaw,h]);}
@@ -302,7 +302,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
  // shallow walkable-side cladding was introduced. Mount the same original
  // stained-glass ensembles on intact non-gallery masonry only, leaving the
  // genuinely open vaults free of opaque panes and respecting camera cutaway.
- const windowFaces=wallFaces.filter(face=>face[4]>=1.25);
+ const windowFaces=wallFaces.filter(face=>face[4]>=1.04&&face[9]!==1);
  const archWindows=addDungeonWindows(world,windowFaces,floor,biome,materials,geometries,textures,foregroundGroups);
  const pillarsCount=pillars.length,bannersCount=banners.length,ruins=worldAnchors.length;
  const totalDecor=floorDetails.length+wallFaces.length+columnCap.length+mossPatches.length+runeInlays.length+rubble.length+pillarsCount+bannersCount+ruins;
