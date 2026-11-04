@@ -17,6 +17,19 @@ export function wardenPhase(boss?:Pick<Unit,'hp'|'maxHp'>):WardenPhase{
  return fraction>.65?'SENTINEL':fraction>.30?'RUPTURE':'ECLIPSE';
 }
 /** The Warden's first-phase barrier is paid for by living defenders, never a hidden timer. */
+/** The last-act Warden hunts an exposed living backliner when the route is
+ * genuinely close. Distance remains primary: he cannot magically target a
+ * remote healer or skip an adjacent defender. No seeded randomness.
+ */
+export function planWardenHuntTarget(s:Pick<DungeonState,'units'>,boss:Unit):Unit|null{
+ if(!s||!Array.isArray(s.units)||!boss||boss.kind!=='warden'||boss.hp<=0)return null;
+ const final=wardenPhase(boss)==='ECLIPSE';
+ const pressure=(hero:Unit)=>dist(boss,hero)*12+
+  (final&&hero.kind==='vanguard'?9:0)+
+  (final?Math.floor(6*hero.hp/hero.maxHp):0);
+ return s.units.filter(u=>u.faction==='party'&&u.hp>0)
+  .sort((a,b)=>pressure(a)-pressure(b)||a.id.localeCompare(b.id))[0]??null;
+}
 export function wardenSealActive(s:Pick<DungeonState,'units'>):boolean {
  const guardian=s.units.find(u=>u.kind==='warden'&&u.hp>0);
  return Boolean(guardian&&wardenPhase(guardian)==='SENTINEL'&&s.units.some(u=>u.faction==='enemy'&&u.kind!=='warden'&&u.hp>0));
@@ -729,7 +742,10 @@ export class DungeonRuntime {
   }
   // Enemies pursue only within a bounded aggro distance. Cooldowns prevent unavoidable stun-lock.
   for(const enemy of s.units.filter(u=>u.faction==='enemy'&&u.hp>0)){
-   const nearest=party.filter(u=>u.hp>0).sort((a,b)=>dist(a,enemy)-dist(b,enemy)||a.id.localeCompare(b.id))[0];if(!nearest)break;
+   const nearestLiving=party.filter(u=>u.hp>0)
+     .sort((a,b)=>dist(a,enemy)-dist(b,enemy)||a.id.localeCompare(b.id))[0];
+    const nearest=enemy.kind==='warden'?planWardenHuntTarget(s,enemy)??nearestLiving:nearestLiving;
+    if(!nearest)break;
    const distance=dist(enemy,nearest);
    // Three true boss threats with separate legible dodge tactics: a diamond
    // nova, cardinal rifts and a rotating floor sweep. Collision and warned
@@ -863,9 +879,19 @@ export class DungeonRuntime {
      if(enemy.cooldown>0)enemy.cooldown--;continue}
    }
    if(distance<=1){if(enemy.cooldown===0){const braced=nearest.action==='guard'||nearest.guardTick===s.tick;const dealt=braced?Math.max(1,Math.ceil(enemy.attack*.4)):enemy.attack;nearest.hp=Math.max(0,nearest.hp-dealt);enemy.cooldown=2;enemy.action='attack';enemy.targetId=nearest.id;nearest.action=braced?'guard':'hurt';if(braced)push(s,'block',nearest.kind+' blocked '+(enemy.attack-dealt)+' melee damage');else push(s,'danger',enemy.kind+' hit '+nearest.kind+' for '+dealt)}}
-   else if(distance<=5&&s.tick%2===0){
+   else if(distance<=(enemy.kind==='warden'&&bossPhase!=='SENTINEL'?7:5)&&
+     (enemy.kind==='warden'&&bossPhase!=='SENTINEL'||s.tick%2===0)){
+     // The final Warden must use each earned non-warning, non-recovery turn
+     // to hunt; otherwise the faster squad kites his rare moves indefinitely.
+     // One legal grid step, no special immunity, teleport or invented damage.
      const next=planTacticalStep(s,enemy,nearest,'engage');
-     if(next){enemy.x=next.x;enemy.z=next.z;enemy.action='move'}
+     if(next){
+      enemy.x=next.x;enemy.z=next.z;enemy.action='move';enemy.targetId=nearest.id;
+      if(enemy.kind==='warden'&&bossPhase!=='SENTINEL'){
+       s.intent='The Warden pursues '+nearest.kind+' between real ritual strikes';
+       if(s.tick%9===4)push(s,'pursuit','WARDEN ADVANCES — '+nearest.kind.toUpperCase()+' UNDER PRESSURE');
+      }
+     }
     }
    if(enemy.cooldown>0)enemy.cooldown--;
   }
