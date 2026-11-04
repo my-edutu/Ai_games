@@ -324,7 +324,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
   const obscures=(x,z,pad)=>planPartyWallReveal(x,z,eyes,camera,pad)==='sightline';
   let cleared=0,facadeMatrixWrites=0,weatheredChanged=false;q.identity();
   for(let i=0;i<wallFaces.length;i++){
-   const f=wallFaces[i],reveal=planPartyWallReveal(f[0],f[2],eyes,camera,wallPad);
+   const f=wallFaces[i],reveal=planPartyWallReveal(f[0],f[2],eyes,camera,wallPad,f[4]);
    const blockedBand=reveal==='sightline'?2:reveal==='nearby'?1:0;
    if(blockedFaces[i]!==blockedBand){weatheredChanged=true;blockedFaces[i]=blockedBand;}
    if(!shouldUploadCutawayBand(facadeBands,i,reveal==='sightline'?2:reveal==='nearby'?1:0))continue;
