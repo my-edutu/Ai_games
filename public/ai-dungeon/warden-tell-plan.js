@@ -39,3 +39,27 @@ export function planWardenReliefBeat(stage,impactAge=0,reducedMotion=false){
   impact:!warning&&impact>0
  });
 }
+
+/**
+ * A single continuous, original basalt shock-front moves out through the
+ * ALREADY authoritatively marked Warden cells. The map and attack geometry are
+ * never generated here. All marked stones remain visible from the first
+ * warning; a tiny radial crest makes the three honest countdown beats feel
+ * like one physical event instead of 25 unrelated flashing HUD squares.
+ * Reduced motion exposes the complete hazard with no vertical wave or tilt.
+ */
+export function planWardenReliefTile(stage,impactAge=0,radialDistance=0,reducedMotion=false){
+ if(!Number.isFinite(radialDistance)||radialDistance<0||radialDistance>7)
+  return Object.freeze({lift:0,tilt:0,footprint:0});
+ const base=planWardenReliefBeat(stage,impactAge,reducedMotion);
+ if(!base.active)return Object.freeze({lift:0,tilt:0,footprint:base.footprint});
+ if(reducedMotion)return Object.freeze({lift:base.lift,tilt:0,footprint:base.footprint});
+ const warning=stage?.warning===true;
+ const center=warning?(stage.shape==='NOVA'?3:4)*clip(stage.progress,0,1):0;
+ const crest=warning?clip(1-Math.abs(radialDistance-center)/1.25,0,1):0;
+ const decay=warning?0:clip(impactAge,0,.42)/.42;
+ const lift=base.lift+.026*crest+.014*decay;
+ const tilt=.045*crest+.035*decay;
+ return Object.freeze({lift:Number(lift.toFixed(4)),tilt:Number(tilt.toFixed(4)),
+  footprint:base.footprint});
+}

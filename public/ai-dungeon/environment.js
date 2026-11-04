@@ -302,7 +302,10 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
  // shallow walkable-side cladding was introduced. Mount the same original
  // stained-glass ensembles on intact non-gallery masonry only, leaving the
  // genuinely open vaults free of opaque panes and respecting camera cutaway.
- const windowFaces=wallFaces.filter(face=>face[4]>=1.04&&face[9]!==1);
+ // A real 0.88m impassable stone plinth can bear a narrow buttressed lancet.
+ // The previous 1.04m threshold silently removed every non-gallery window
+ // from genuine low-ruin seeds: keep meaningful original chapter landmarks.
+ const windowFaces=wallFaces.filter(face=>face[4]>=.88&&face[9]!==1);
  const archWindows=addDungeonWindows(world,windowFaces,floor,biome,materials,geometries,textures,foregroundGroups);
  const pillarsCount=pillars.length,bannersCount=banners.length,ruins=worldAnchors.length;
  const totalDecor=floorDetails.length+wallFaces.length+columnCap.length+mossPatches.length+runeInlays.length+rubble.length+pillarsCount+bannersCount+ruins;

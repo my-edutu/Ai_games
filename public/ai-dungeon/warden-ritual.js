@@ -1,6 +1,6 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
 import {planWardenCourtChapter,planWardenCourtStone,planWardenRift,WARDEN_COURT_STONES,WARDEN_RIFT_SEGMENTS} from '/dungeon/warden-chapter-plan.js';
-import {planWardenTellStage,planWardenReliefBeat} from '/dungeon/warden-tell-plan.js';
+import {planWardenTellStage,planWardenReliefBeat,planWardenReliefTile} from '/dungeon/warden-tell-plan.js';
 // Read-only original Warden ritual art. All beams, rings and shatter effects
 // derive exclusively from the real public boss/defender/simulation state.
 const UP=new THREE.Vector3(0,1,0),LIMIT=3,MAX_RANGE=7,SHATTER_TIME=1.05,MAX_WARNING_TILES=48;
@@ -221,8 +221,12 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
  warningIncisions.frustumCulled=false;group.add(warningIncisions);
  // Render a LOW physical perimeter on the exact authoritative danger cells.
  // One bounded instanced draw call, no copied assets or fictional collision.
- const perimeterMaterial=new THREE.MeshBasicMaterial({color:'#ffe0a1',transparent:true,
-  opacity:.55,depthWrite:false,side:THREE.DoubleSide});
+ // A physically scored, ember-lined union contour instead of a technical
+ // white grid. The raised basalt tiles still delineate ALL true threatened
+ // cells; only exterior edges receive these recessed iron seams.
+ const perimeterMaterial=new THREE.MeshStandardMaterial({color:'#a47859',
+  emissive:'#612d20',emissiveIntensity:.22,roughness:.74,metalness:.26,
+  transparent:true,opacity:.68,depthWrite:false,side:THREE.DoubleSide});
  const warningPerimeter=new THREE.InstancedMesh(
   new THREE.BoxGeometry(.87,.03,.052),perimeterMaterial,MAX_WARNING_TILES*4);
  warningPerimeter.name='Authoritative Warden strike perimeter in stone';
@@ -259,9 +263,12 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
     // stages the true countdown without misleading the AI hitbox or escape.
     const ox=p.x-boss.x,oz=p.z-boss.z;
     warningOffsets[i]={x:ox,z:oz};
-    marker.position.set(ox,.055+stoneBeat.lift,oz);
-    marker.rotation.set(0,(i%4)*Math.PI/2,0);
-    marker.scale.set(stoneBeat.footprint,1,stoneBeat.footprint);
+    const tile=planWardenReliefTile(warningStage,impactAge,Math.abs(ox)+Math.abs(oz),reducedMotion);
+    marker.position.set(ox,.055+tile.lift,oz);
+    // A signed tiny real-stone cant introduces a propagating physical
+    // strike wave without lifting a safe cell or modifying collision.
+    marker.rotation.set(0,(i%4)*Math.PI/2,(ox+oz<0?-1:1)*tile.tilt);
+    marker.scale.set(tile.footprint,1,tile.footprint);
     marker.updateMatrix();warningTiles.setMatrixAt(i,marker.matrix);
    }
    // The *union* of actual danger cells has exactly one readable edge.
@@ -372,9 +379,10 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
   if(stoneBeat.impact&&warningCount>0){
    for(let i=0;i<warningCount&&i<warningOffsets.length;i++){
     const p=warningOffsets[i];
-    marker.position.set(p.x,.055+stoneBeat.lift,p.z);
-    marker.rotation.set(0,(i%4)*Math.PI/2,0);
-    marker.scale.set(stoneBeat.footprint,1,stoneBeat.footprint);
+    const tile=planWardenReliefTile(warningStage,impactAge,Math.abs(p.x)+Math.abs(p.z),reducedMotion);
+    marker.position.set(p.x,.055+tile.lift,p.z);
+    marker.rotation.set(0,(i%4)*Math.PI/2,(p.x+p.z<0?-1:1)*tile.tilt);
+    marker.scale.set(tile.footprint,1,tile.footprint);
     marker.updateMatrix();warningTiles.setMatrixAt(i,marker.matrix);
    }
    warningTiles.instanceMatrix.needsUpdate=true;
@@ -384,7 +392,8 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
   warningTiles.visible=warningIncisions.visible=warningPerimeter.visible=warningCount>0&&(impactAge>0||warningTiles.count>0);
   warningMaterial.opacity=impactAge>0?Math.min(.48,.24+impactAge*.52):
    reducedMotion?.25:.19+.07*(1+Math.sin(time*6.2))*.5;
-  perimeterMaterial.opacity=impactAge>0?.82:warningStage.warning?.35+.42*warningStage.progress:0;
+  perimeterMaterial.opacity=impactAge>0?.82:warningStage.warning?.47+.30*warningStage.progress:0;
+  perimeterMaterial.emissiveIntensity=impactAge>0?.72:warningStage.warning?.18+.42*warningStage.progress:.1;
   // Material glow progresses with the real impact countdown. Even with
   // prefers-reduced-motion, the marks remain continuously visible and stable.
   incisionMaterial.emissiveIntensity=impactAge>0?.52:warningStage.glow;

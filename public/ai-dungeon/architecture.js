@@ -45,17 +45,18 @@ export function addDungeonWindows(world,faces,floor,biome,materials,geometries,t
  // without erecting a full opaque slab that hides the moving party.
  const buttressFoot=new THREE.BoxGeometry(.22,.64,.30);
  geometries.push(jamb,arch,pane,keystone,sill,pier,finial,tracery,peakRib,corbel,buttressFoot);
- // Each pane rises from a real impassable wall plinth at least 1.04m tall.
+ // Each pane rises from a real impassable 0.88m+ stone wall plinth.
  // The original narrow buttress foot carries the upper mullions and arch:
  // a low open ruin is no longer falsely treated as unsupported empty air.
- // Six widely spaced windows are actual 3D landmarks, not opaque walls.
- const mounted=faces.filter(face=>Array.isArray(face)&&face[4]>=1.04&&face[9]!==1&&
+ // Four spatially separated windows add atmosphere without flooding the
+ // software renderer with translucent panels or obscuring the actual party.
+ const mounted=faces.filter(face=>Array.isArray(face)&&face[4]>=.88&&face[9]!==1&&
   Number.isFinite(face[0])&&Number.isFinite(face[2])&&
   Math.abs(face[0])<=10&&Math.abs(face[2])<=10);
  let count=0;
  const selected=[];
- const stride=Math.max(1,Math.ceil(mounted.length/6));
- for(let i=0;i<mounted.length&&count<6;i+=stride){
+ const stride=Math.max(1,Math.ceil(mounted.length/4));
+ for(let i=0;i<mounted.length&&count<4;i+=stride){
   const face=mounted[i];
   // Original windows should orient a journey, not create a continuous
   // repetitive wall of glass or mask a single combat sightline.

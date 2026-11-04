@@ -55,7 +55,7 @@ test('physical 3D tell synchronizes visible warning countdown to authority and r
  assert.equal(planWardenTellStage({shape:'NOVA',turnsUntilImpact:0,warning:false},false).warning,false);
 });
 
-test('a healthy real Vanguard holds the marked frontline for a nearby ally while solo and wounded tanks dodge',()=>{
+test('Vanguard protects allies with real interception, but does not waste boss warning turns standing in unprotective blast',()=>{
  const create=(seed)=>{const g=DungeonRuntime.create(seed),s=g.state,boss=s.units.find(u=>u.kind==='warden'),hero=s.units.find(u=>u.id==='vanguard'),ranger=s.units.find(u=>u.id==='ranger');
   for(const u of s.units)if(u!==boss&&u!==hero&&u!==ranger)u.hp=0;
   Object.assign(hero,{x:boss.x+1,z:boss.z});Object.assign(ranger,{x:boss.x+2,z:boss.z});
@@ -64,14 +64,15 @@ test('a healthy real Vanguard holds the marked frontline for a nearby ally while
  };
  const front=create('vanguard-frontline-stage-0'),start={x:front.hero.x,z:front.hero.z};
  let t=front.g.step();assert.equal(t.bossWarning?.turnsUntilImpact,3);
- assert.deepEqual({x:front.hero.x,z:front.hero.z},start);
- assert.equal(front.hero.action,'guard','the healthy tank deliberately pays the action cost of holding the line');
- assert.equal(front.hero.guardTick,front.s.tick+1);
+ assert.notDeepEqual({x:front.hero.x,z:front.hero.z},start);
+ assert.equal(front.hero.action,'move','the healthy tank uses a genuine legal step rather than pretending an area guard protects allies');
+ assert.equal(Math.abs(front.hero.x-start.x)+Math.abs(front.hero.z-start.z),1);
+ assert.equal(front.s.map[front.hero.z][front.hero.x],'.');
  const replay=DungeonRuntime.restore(front.g.save());
  for(let i=0;i<5;i++)assert.equal(front.g.step().checksum,replay.step().checksum);
  const solo=create('vanguard-frontline-stage-0');solo.ranger.hp=0;
  t=solo.g.step();assert.equal(t.bossWarning?.turnsUntilImpact,3);
- assert.equal(solo.hero.action,'move','without a living ally the same tank must escape');
+ assert.equal(solo.hero.action,'move','a lone survivor can take the same legal escape');
  const wounded=create('vanguard-frontline-stage-0');wounded.hero.hp=Math.ceil(wounded.hero.maxHp*.42);
  wounded.g.step();assert.equal(wounded.hero.action,'move','the wounded tank must preserve its actual life');
 });

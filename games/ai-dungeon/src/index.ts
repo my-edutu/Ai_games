@@ -586,19 +586,18 @@ export class DungeonRuntime {
    // autonomous fighter can take a legal path while the Warden anchors his
    // cast. A blocked escape remains a real guard, never a ghost dodge.
    if(warned?.warning&&warned.cells.some(p=>p.x===hero.x&&p.z===hero.z)){
-    // A healthy Vanguard can deliberately hold the actual frontline while
-    // endangered allies retreat. This spends true action economy and absorbs
-    // real (guard-reduced) damage: no free perfect dodge and no fake taunt.
-    // A lone survivor or wounded tank values self-preservation instead.
-    const frontline=hero.kind==='vanguard'&&hero.hp>=Math.ceil(hero.maxHp*.52)&&
-     s.units.some(u=>u.faction==='party'&&u.hp>0&&u.id!==hero.id&&dist(hero,u)<=3);
-    const escape=frontline?null:planWardenEvasionStep(s,hero,warned);
+    // Every frontline fighter pays the SAME lawful movement cost to leave the
+    // actual marked stone. Holding a blast does not shield allies: the real
+    // oathguard interception above is the only ability that absorbs for them.
+    // Preserve the Warden's post-strike opening by escaping toward legal
+    // counterattack positions rather than wasting three turns on false tanking.
+    const escape=planWardenEvasionStep(s,hero,warned);
     if(escape){
      hero.x=escape.x;hero.z=escape.z;hero.action='move';
      s.intent=hero.kind+' retreating from the '+warned.shape.toLowerCase().replaceAll('_',' ');
      push(s,'evade',hero.kind+' moved toward clear stone before the Warden strike');continue;
     }
-    if(warned.turnsUntilImpact===1||frontline){
+    if(warned.turnsUntilImpact===1){
      hero.guardTick=s.tick+1;hero.action='guard';
      s.intent='Bracing for the marked '+warned.shape.toLowerCase().replaceAll('_',' ');
      push(s,'guard',hero.kind+' braced against the oncoming attack');continue;
