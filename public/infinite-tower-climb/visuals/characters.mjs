@@ -477,6 +477,32 @@ export function createClimber() {
             arms[i].lower.rotation.x=-1.02;
           }
         }
+        // The same autonomous escape that responds to a published shutter
+        // countdown needs to read as a deliberate sideways *push*, not as
+        // idle guardian blocking. Only the actual observed velocity can lean
+        // the articulated torso: there is no guessed exit, injected impulse,
+        // future hazard phase, movement root offset or extra animation clock.
+        // One boot plants against the direction of travel while the leading
+        // arm clears the closing machinery. Reduced motion keeps the clear
+        // asymmetric silhouette but removes the dynamic lateral body roll.
+        if(state.intentMode==='evading-hazard'&&!stale&&speed>.08){
+          const direction=Math.sign(vx);
+          const lead=direction>0?1:0,trail=1-lead;
+          const lean=clamp(Math.abs(vx)/9000,0,1);
+          body.position.y-=.065*lean;
+          body.rotation.x=-.08;
+          body.rotation.z+=direction*(reducedMotion?0:.22*lean);
+          head.rotation.z-=direction*(reducedMotion?0:.13*lean);
+          legs[lead].upper.rotation.x=-.62;
+          legs[lead].lower.rotation.x=1.02;
+          legs[trail].upper.rotation.x=.16;
+          legs[trail].lower.rotation.x=.54;
+          legs[trail].foot.rotation.x=-.19;
+          arms[lead].upper.rotation.set(-.82,0,(lead?1:-1)*.74);
+          arms[trail].upper.rotation.set(-1.34,0,(trail?1:-1)*.31);
+          arms[lead].lower.rotation.x=-.58;
+          arms[trail].lower.rotation.x=-.96;
+        }
       }
     }
     if(airborne){
