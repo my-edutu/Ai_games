@@ -179,9 +179,9 @@ test('shield spacing never freezes a distant encounter or crosses an observed li
     'a far shield cannot stall a viable ascent or approach');
   boss.position.x=p.position.x+27000;
   floor.hazards.push({
-    id:'guard-spacing-danger',kind:'spike',x:p.position.x-20000,
+    id:'guard-spacing-danger',kind:'spikes',x:p.position.x-20000,
     y:p.position.y-p.halfHeight-1000,width:20000,height:25000,
-    activeFromTick:0,activeEvery:20,activeFor:20
+    activeFromTick:0,activeEvery:20,activeFor:20,damage:1
   });
   const guarded=chooseTowerAction(state,createTowerObservation(state));
   assert.equal(guarded.intent.mode,'evading-hazard',
