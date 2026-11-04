@@ -219,7 +219,7 @@ test('native full-body scene clears the actual near-side Gothic face but keeps t
  const dressing=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
  const nave=fs.readFileSync(path.join(root,'public/ai-dungeon/chapter-nave.js'),'utf8');
  assert.match(app,/cutawayWalls\(target,partySightlines,/);
- assert.match(dressing,/planPartyWallReveal\(f\[0\],f\[2\],eyes,camera,wallPad\)/);
+ assert.match(dressing,/planPartyWallReveal\(f\[0\],f\[2\],eyes,camera,wallPad,f\[4\]\)/);
  assert.match(nave,/planPartyWallReveal\(p\.x,p\.z,eyes,camera,pad\)/);
 });
 
