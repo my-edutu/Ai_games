@@ -3,7 +3,7 @@ import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicLanternEncounter } from './public-lantern-encounter.mjs';
+import { publicLanternEncounter, publicLanternWarning } from './public-lantern-encounter.mjs';
 import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
@@ -96,6 +96,18 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   // World-space lamp tracking happens only after the actor's connected rig
   // has performed its current public encounter pose.
   const explorerLantern = explorer.group.getObjectByName('lantern cage');
+  // A real, local lamp warning remains observable when a nearby PUBLIC
+  // guardian is behind a closed passage. It never draws a path through it.
+  // One mesh, allocated once and attached to Pip's actual moving lantern.
+  const lanternWarningGeometry = new THREE.SphereGeometry(.34, 12, 8);
+  const lanternWarningMaterial = new THREE.MeshBasicMaterial({
+    color:'#ffe5ab', transparent:true, opacity:.23, depthWrite:false,
+    blending:THREE.AdditiveBlending,
+  });
+  const lanternWarning = new THREE.Mesh(lanternWarningGeometry, lanternWarningMaterial);
+  lanternWarning.name='Observed guardian lantern self-warning';
+  lanternWarning.visible=false;
+  explorerLantern?.add(lanternWarning);
   const lanternFocusOrigin = new THREE.Vector3();
   scene.add(explorer.group);
   // Reusable modeled glass shards illustrate only a witnessed key pickup.
@@ -513,9 +525,20 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     marker.material.opacity = settings.highContrast ? 1 : .55;
     contact.position.set(pose.x, ground + .018, pose.z);
     lanternLight.position.set(pose.x + .25, ground + 1.1, pose.z + .2);
-    // Illuminate ONLY a currently visible guardian on a reciprocal known
-    // open edge. Real models provide both endpoints; no hidden route, wall-
-    // penetrating guessed focus, or promise that the autonomous AI will flee.
+    // The self-contained lantern glow signals a truly PUBLIC nearby threat.
+    // An unknown/closed passage cannot justify a straight cone, but it can
+    // justify Pip's own illuminated caution pose. No new AI action or text.
+    lanternWarning.visible = Boolean(!result && explorerLantern
+      && closestThreat?.strength > .35
+      && publicLanternWarning(s, closestThreat.cell));
+    if (lanternWarning.visible) {
+      const pulse = settings.reducedMotion ? 0 : Math.sin(elapsed * 6.5) * .10;
+      lanternWarning.scale.setScalar(1.1 + closestThreat.strength * .2 + pulse);
+      lanternWarningMaterial.opacity = (settings.highContrast ? .32 : .23)
+        + (settings.reducedMotion ? 0 : .04 * Math.sin(elapsed * 6.5));
+    }
+    // Only a genuinely visible reciprocal OPEN EDGE justifies a projected
+    // cone. Real models provide both endpoints; no hidden route/wall guessing.
     lanternBeam.visible = false;
     if (!result && explorerLantern && closestThreat?.strength > .35
       && publicLanternEncounter(s, closestThreat.cell)) {
@@ -936,6 +959,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         wardenGroundedContacts,
         encounterAttention: closestThreat?.strength ?? 0,
         witnessedLanternConeVisible: lanternBeam.visible,
+        witnessedLanternWarningVisible: lanternWarning.visible,
         witnessedKeyPickupVisual: pickupBurst.visible,
         pickupShardsInFrame,pickupSpreadCssPx,
         keysInFrame, closedGatesInFrame,
@@ -1026,6 +1050,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     if (disposed) return; disposed = true;
     canvas.removeEventListener('webglcontextlost', contextLost);
     canvas.removeEventListener('webglcontextrestored', contextRestored);
+    explorerLantern?.remove(lanternWarning);
+    lanternWarningGeometry.dispose(); lanternWarningMaterial.dispose();
     world.dispose(); explorer.dispose();
     scene.remove(pickupBurst); pickupGeometry.dispose(); pickupMaterial.dispose(); pickupBurst.clear();
     scene.remove(lanternBeam); lanternBeamGeometry.dispose(); lanternBeamMaterial.dispose();

@@ -50,12 +50,41 @@ test('private future information cannot create an encounter and wrap-around cell
     visibleCells:[6,7],threats:[{id:'warden',cell:7}]});
   assert.equal(cue(wrapped,7),false);
 });
+test('nearby PUBLIC guardian makes only the real lamp glow; no straight path implied',async()=>{
+  const {publicLanternWarning:warning,publicLanternEncounter:beam}=await loaded;
+  // This real public geometry matches the original 320px guardian screenshot:
+  // sqrt(5) cells separates Pip and Thornback, not a legal straight beam.
+  const diagonal=publicFrame({
+    cells:[cell(10,[]),cell(19,[])],
+    visibleCells:[10,19],threats:[{id:'warden-a',cell:19}],
+    doors:[{a:10,b:11,open:false}]
+  });
+  const unmodified=JSON.stringify(diagonal);
+  assert.equal(warning(diagonal,19),true);
+  assert.equal(beam(diagonal,19),false,'no invented reciprocal, direct light path');
+  assert.equal(JSON.stringify(diagonal),unmodified,'public simulation stays immutable');
+  for(const changed of [
+    {visibleCells:[10]},{visibleCells:[19]},{threats:[]},
+    {cells:[cell(10,[])]},{cells:[cell(10,[]),{...cell(19,[]),blocked:true}]},
+    {lifecycle:'result'},{result:{reason:'capture'}},
+    {currentCell:10,width:0},{height:0},{currentCell:49},
+  ]) assert.equal(warning({...diagonal,...changed},19),false,JSON.stringify(changed));
+  assert.equal(warning(diagonal,26),false,'far or undisclosed actor cannot shine');
+  const far=publicFrame({
+    cells:[cell(10,[]),cell(26,[])],visibleCells:[10,26],
+    threats:[{id:'warden-a',cell:26}]
+  });
+  assert.equal(warning(far,26),false,'2.83 cells is too far');
+  const secret={...diagonal,privateThreatCell:37,hiddenRoute:[10,19,37]};
+  assert.equal(warning(secret,19),warning(diagonal,19));
+  assert.equal(warning({...diagonal,visibleCells:[10],privateThreatCell:19},19),false);
+});
 test('actual production scene builds one reusable Three light volume with disposal and public-only gate',()=>{
   const scene=fs.readFileSync(scenePath,'utf8');
   const server=fs.readFileSync(path.join(root,'scripts/serve-maze-stream.cjs'),'utf8');
   assert.match(server,/['"]public-lantern-encounter\.mjs['"]/,
     'production HTTP asset allowlist must serve the real imported helper');
-  assert.match(scene,/import \{ publicLanternEncounter \} from '\.\/public-lantern-encounter\.mjs'/);
+  assert.match(scene,/import \{ publicLanternEncounter, publicLanternWarning \} from '\.\/public-lantern-encounter\.mjs'/);
   assert.match(scene,/new THREE\.CylinderGeometry\(\.055, \.47, 1, 16, 1, true\)/);
   assert.match(scene,/publicLanternEncounter\(s, closestThreat\.cell\)/);
   assert.match(scene,/explorer\.group\.getObjectByName\('lantern cage'\)/);
@@ -65,5 +94,9 @@ test('actual production scene builds one reusable Three light volume with dispos
   assert.match(scene,/lanternBeam\.quaternion\.setFromUnitVectors\(lanternBeamAxis, lanternBeamDirection\)/);
   assert.match(scene,/lanternBeamGeometry\.dispose\(\); lanternBeamMaterial\.dispose\(\)/);
   assert.match(scene,/witnessedLanternConeVisible: lanternBeam\.visible/);
+  assert.match(scene,/publicLanternWarning\(s, closestThreat\.cell\)/);
+  assert.match(scene,/explorerLantern\?\.add\(lanternWarning\)/);
+  assert.match(scene,/lanternWarningGeometry\.dispose\(\); lanternWarningMaterial\.dispose\(\)/);
+  assert.match(scene,/witnessedLanternWarningVisible: lanternWarning\.visible/);
   assert.doesNotMatch(scene,/privateThreatCell|hiddenRoute|hiddenExitCell/);
 });

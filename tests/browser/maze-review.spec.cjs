@@ -156,12 +156,15 @@ test('a real close public encounter frames both autonomous actors and saves date
   const { createHash } = require('node:crypto');
   const { scenarios } = require('../../scripts/capture-maze-3d.cjs');
   const { encounter, sequences } = scenarios();
+  const {publicLanternWarning}=await import('../../public/ai-maze-escape/public-lantern-encounter.mjs');
   // Never fabricate or move a guardian into place just to obtain a screenshot.
   expect(encounter, 'A production run must expose two nearby, distinct real actors').toBeTruthy();
   const frame = encounter.frame;
   expect(frame.snapshot.threats.length).toBeGreaterThan(0);
   expect(encounter.distanceCells).toBeGreaterThanOrEqual(1);
   expect(encounter.distanceCells).toBeLessThanOrEqual(2.25);
+  const eligibleWarning=frame.snapshot.threats.some(threat =>
+    publicLanternWarning(frame.snapshot,threat.cell));
 
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -180,6 +183,9 @@ test('a real close public encounter frames both autonomous actors and saves date
   expect(diagnostics.characterCount).toBeGreaterThan(1);
   expect(diagnostics.wardensInFrame, 'At least one disclosed guardian must actually share the camera with Pip').toBeGreaterThan(0);
   expect(diagnostics.encounterAttention).toBeGreaterThan(0);
+  expect(diagnostics.witnessedLanternWarningVisible,
+    'actual rendered 3D lamp must agree with the genuine public-only warning gate')
+    .toBe(eligibleWarning);
   expect(diagnostics.wardenContactShadows, 'Only public guardian actors get shadow meshes').toBe(diagnostics.disclosedThreats);
   expect(diagnostics.wardenGroundedContacts, 'The shadow must follow the true physical floor beneath each visible guardian').toBe(diagnostics.disclosedThreats);
   expect(diagnostics.explorerInFrame).toBe(true);
@@ -201,7 +207,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     publicThreatDistanceCells: encounter.distanceCells,
     imageSha256: hash(imagePath),
     sourceSha256: Object.fromEntries(
-      ['app.js', 'scene.js','pickup-story-camera.mjs', 'characters.js', 'world.js','gate-moment.mjs']
+      ['app.js', 'scene.js','public-lantern-encounter.mjs','pickup-story-camera.mjs', 'characters.js', 'world.js','gate-moment.mjs']
         .map(name => [name, hash(path.join(sourceDir, name))])
     ),
     diagnostics: {
@@ -213,6 +219,9 @@ test('a real close public encounter frames both autonomous actors and saves date
       wardenContactShadows: diagnostics.wardenContactShadows,
       wardenGroundedContacts: diagnostics.wardenGroundedContacts,
       encounterAttention: diagnostics.encounterAttention,
+      eligiblePublicLanternWarning: eligibleWarning,
+      witnessedLanternWarningVisible: diagnostics.witnessedLanternWarningVisible,
+      witnessedLanternConeVisible: diagnostics.witnessedLanternConeVisible,
       explorerInFrame: diagnostics.explorerInFrame,
       frameP50Ms: diagnostics.frameP50Ms,
     },
@@ -274,7 +283,7 @@ test('a real close public encounter frames both autonomous actors and saves date
   // WARM true WebGL production encounter, not a second CPU-throttled browser.
   // Maintain the identical real public actor pose, source and engine snapshot.
   const nativeSourceHashes=Object.fromEntries(
-    ['index.html','app.js','gameplay-hud.css','map-view.mjs','scene.js','pickup-story-camera.mjs','characters.js','world.js','gate-moment.mjs']
+    ['index.html','app.js','gameplay-hud.css','map-view.mjs','scene.js','public-lantern-encounter.mjs','pickup-story-camera.mjs','characters.js','world.js','gate-moment.mjs']
       .map(name=>[name,hash(path.join(sourceDir,name))]));
   for(const [narrowWidth,narrowHeight,narrowName] of [
     [320,740,'guardian-320-portrait'],

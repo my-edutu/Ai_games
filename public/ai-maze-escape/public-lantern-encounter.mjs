@@ -20,3 +20,27 @@ export function publicLanternEncounter(snapshot, guardianCell) {
     && ((door.a === hero && door.b === guardianCell)
       || (door.b === hero && door.a === guardianCell)));
 }
+
+// A nearby disclosed guardian can make Pip's own lantern shine even across
+// a sealed or unknown turn. This is strictly LOCAL to the lamp, unlike the
+// straight focus beam above: it never implies an open route or line of sight.
+export function publicLanternWarning(snapshot, guardianCell) {
+  const width=snapshot?.width, height=snapshot?.height, hero=snapshot?.currentCell;
+  if (!Number.isSafeInteger(width) || width < 2
+    || !Number.isSafeInteger(height) || height < 2
+    || !Number.isSafeInteger(hero) || !Number.isSafeInteger(guardianCell)
+    || hero < 0 || guardianCell < 0 || hero >= width*height
+    || guardianCell >= width*height || hero === guardianCell
+    || snapshot.lifecycle !== 'running' || snapshot.result) return false;
+  if (!Array.isArray(snapshot.cells) || !Array.isArray(snapshot.visibleCells)
+    || !Array.isArray(snapshot.threats)
+    || !snapshot.visibleCells.includes(hero)
+    || !snapshot.visibleCells.includes(guardianCell)
+    || !snapshot.threats.some(threat => threat?.cell === guardianCell)) return false;
+  const knownHero=snapshot.cells.find(cell => cell.cell === hero && !cell.blocked);
+  const knownGuardian=snapshot.cells.find(cell => cell.cell === guardianCell && !cell.blocked);
+  if (!knownHero || !knownGuardian) return false;
+  const dx=(hero % width)-(guardianCell % width);
+  const dy=Math.floor(hero / width)-Math.floor(guardianCell / width);
+  return dx*dx+dy*dy <= 5; // sqrt(5) cells; zero distance already rejected
+}
