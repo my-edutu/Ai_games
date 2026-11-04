@@ -458,7 +458,27 @@ export function createMazeWorld(options = {}) {
         dz?.095:.065,.45,dx?.095:.065);
       organLeaves.push({hinge,side:leafSide});
     }
-    fossilOrgans.push({organ,organLeaves,x:organ.position.x,z:organ.position.z,dx});
+    // Pass139: a third, genuinely articulated ceramic resonator bridges the
+    // paired leaves. The concentric physical rings and broad attached mantle
+    // are rooted high on the known NON-PASSAGE wall, never on a route. They
+    // breathe only when Pip is actually beside this public Three sculpture.
+    // This is a ceremonial shell, not a compass, clue, switch, or collectible.
+    const resonator=new THREE.Group();
+    resonator.name='Disclosed fossil tide-organ breathing shell '+cell;
+    resonator.position.set(0,1.47,0);
+    resonator.rotation.y=dx?Math.PI/2:0;
+    organ.add(resonator);
+    mesh(resonator,ring,lightStone,0,0,0,.53,.57,.53);
+    mesh(resonator,ring,seaGlass,0,0,.06,.37,.40,.37);
+    mesh(resonator,sphere,inlay,0,0,.035,.18,.20,.12);
+    for (const side of [-1,1]) {
+      const mantle=new THREE.Group();
+      mantle.name='Disclosed fossil breathing shell mantle '+cell+' '+side;
+      mantle.position.set(side*.42,-.09,.01);
+      resonator.add(mantle);
+      mesh(mantle,bevel,lightStone,side*.12,-.08,0,.29,.13,.14,0,0,side*.23);
+    }
+    fossilOrgans.push({organ,organLeaves,resonator,x:organ.position.x,z:organ.position.z,dx});
     for (const side of [-1,1]) {
       const sail=new THREE.Group();
       sail.name='Disclosed fossil listening sail '+cell+' '+side;
@@ -1988,6 +2008,11 @@ export function createMazeWorld(options = {}) {
         if (relic.dx) leaf.hinge.rotation.x=leaf.side*open;
         else leaf.hinge.rotation.z=leaf.side*open;
       }
+      // An actual third joint lifts and blooms the installed ivory shell.
+      // No frame allocations; reduced motion is a fixed, settled gesture.
+      relic.resonator.position.y=1.47+(reduced?.06:.21*near);
+      relic.resonator.scale.setScalar(reduced?.92:.78+.29*near);
+      relic.resonator.rotation.z=reduced?0:.20*near;
     }
     waterTexture.offset.set(reduced ? 0 : t * .0012, reduced ? 0 : t * .0006);
     if (highContrast !== !!options.highContrast) { highContrast = !!options.highContrast; if (snapshot) refreshVisibility(snapshot, true); }
