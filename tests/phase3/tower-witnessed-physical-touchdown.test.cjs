@@ -87,9 +87,18 @@ test('one original depth-tested instanced impact belongs to the real Tower scene
   assert.match(scene, /touchdownDebris\.name = 'WitnessedPhysicalDeckImpact'/);
   assert.match(scene, /touchdownDebris\.castShadow = false/);
   assert.match(scene, /touchdownDebris\.receiveShadow = false/);
-  assert.match(scene, /physicalTouchdown = observedPhysicalTouchdown\(previous, next\)/);
+  assert.match(scene, /const contact = observedPhysicalTouchdown\(previous, next\)/);
+  assert.match(scene, /physicalTouchdown = contact/);
+  assert.match(scene, /if \(contact\) \{/);
+  assert.match(scene, /const actualDeck = actual && snapshot\.platforms\?\.find\(deck =>/);
+  assert.match(scene, /deck\.id === actual\.platformId/);
   assert.match(scene, /actual\.runToken === snapshot\.runToken && actual\.floor === snapshot\.floor/);
-  assert.match(scene, /snapshot\.platforms\?\.some\(deck => deck\.id === actual\.platformId/);
+  assert.match(scene, /carriedX = witnessedDeck \? clamp\(actual\.x \+ actualDeck\.x - actual\.left/);
+  assert.match(scene, /const deckTop = witnessedDeck \? actualDeck\.y \+ actualDeck\.height : null/);
+  assert.match(scene, /landingHalo\.visible = witnessedDeck && landingProgress < 1/);
+  assert.match(scene, /pointFor\(carriedX, deckTop, snapshot\.chunkBaseY/);
+  assert.match(scene, /landingApproach\.dispose\(\)/,
+    'terminal scene cleanup must dispose the physical landing architecture');
   assert.match(scene, /const count = quiet \? 4 : options\.quality === 'low' \? 8 : 16/);
   assert.match(scene, /touchdownDebris\.instanceMatrix\.needsUpdate = true/);
   assert.match(scene, /physicalTouchdown = null; touchdownDebris\.count = 0/);
