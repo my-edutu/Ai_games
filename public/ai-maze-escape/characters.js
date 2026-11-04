@@ -666,18 +666,21 @@ export function createWarden(options = {}) {
     // This is a connected defensive reveal, never a new AI attack or route.
     const shellOpen=hasWitnessBeat ? .23+.77*display : 1;
     warningSpines.visible=alert>.24;
-    warningSpines.scale.y=1+alert*.4+(s.reduced?0:Math.sin(s.time*4.1)*.04);
+    // The actual release visibly raises the connected ember spine, not a HUD icon.
+    warningSpines.scale.y=1+alert*.4+display*.25+(s.reduced?0:Math.sin(s.time*4.1)*.04);
     // The public close encounter unfolds the two connected armor fins and
     // opens the real hinged coral mouth. Full and reduced-motion share
     // the same deterministic silhouette; terminal/withdrawn truth returns
     // every hinge to its neutral physical pose with exact positive zero.
     const encounter=alert>.24?alert:0;
     for (const {vane,side} of tailVanes) {
-      vane.rotation.z=encounter?side*encounter*.64:0;
-      vane.rotation.y=encounter?-side*encounter*.27:0;
+      // First sight keeps the armored tail close. The PUBLIC brace fans the
+      // rooted vanes out before the shell unseals; no invented enemy action.
+      vane.rotation.z=encounter?side*encounter*(.16+.56*brace):0;
+      vane.rotation.y=encounter?-side*encounter*(.08+.26*brace):0;
       vane.rotation.x=encounter?-.12-encounter*.18:0;
     }
-    lowerJaw.rotation.x=encounter?.22+encounter*.47+brace*.08+display*.15:0;
+    lowerJaw.rotation.x=encounter?.10+encounter*.35+brace*.09+display*.28:0;
     openMaw.visible=encounter>0;
     // A real physical encounter unveils the internal lantern-heart through
     // the opening shell. Keep the reduced-motion pose steady and clear the
@@ -706,6 +709,12 @@ export function createWarden(options = {}) {
       // not a new attack or an undisclosed move. Reduced motion leaves one
       // steady pose; terminal/withdrawn attention hides the complete crest.
       shellHalf.fronds.visible=alert>.24;
+      // Original 390px chronological PNGs showed almost no readable change
+      // across recognition, planting and final shell release. The same RIGGED
+      // physical sail now UNFURLS through height and spread, only during the
+      // genuinely witnessed public stage. Hidden/terminal returns to neutral.
+      shellHalf.fronds.scale.y=alert>.24&&hasWitnessBeat?.54+.75*display:1;
+      shellHalf.fronds.rotation.z=encounter?shellHalf.side*(.05+.25*display):0;
       shellHalf.fronds.rotation.y=alert>0&&!s.reduced
         ?shellHalf.side*Math.sin(s.time*1.3)*alert*.075:0;
       // Real hinge flex is slow and capped, with no new frame allocations.
