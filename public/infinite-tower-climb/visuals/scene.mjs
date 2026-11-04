@@ -1054,7 +1054,19 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
           sourceX: enemy.x, sourceY: enemy.y, guardianId: enemy.id, healthRatio };
       }
     }
-    for (const hazard of snapshot.hazards || []) if (hazard.active) consider(hazard.x + hazard.width / 2, hazard.y + hazard.height / 2, hazard.width / 2, hazard.height / 2, 1.2);
+    // A physically charging trap is meaningful to the live climber BEFORE
+    // activation. Only the exact published fixed-step warning AND the pilot's
+    // actual evading-hazard decision can earn this short hazard camera anchor.
+    // Keep the committed landing in frame while airborne; true combat and
+    // source guardian framing still have their own higher-priority anchors.
+    for (const hazard of snapshot.hazards || []) {
+      const charging = snapshot.intent?.mode === 'evading-hazard' &&
+        Number.isSafeInteger(hazard.chargeTicksRemaining) &&
+        hazard.chargeTicksRemaining >= 1 && hazard.chargeTicksRemaining <= 8;
+      if (hazard.active || charging) consider(
+        hazard.x + hazard.width / 2, hazard.y + hazard.height / 2,
+        hazard.width / 2, hazard.height / 2, charging ? 1.3 : 1.2);
+    }
     // A fired bolt already moving farther from the climber is no longer an
     // immediate tactical threat; do not let it crop the contact source.
     for (const bolt of snapshot.projectiles || []) if (bolt.owner === 'enemy'
@@ -1064,7 +1076,7 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
   // existing world-space landing beacon remains visible; only camera fitting
   // temporarily favors actual attackers and their observed telegraph.
   const encounter = !!contactGuardian || (!!threat && (threat.imminentWindup
-    || ['engaging-enemy', 'bracing-telegraph', 'evading-telegraph', 'evading-projectile'].includes(snapshot.intent?.mode)));
+    || ['engaging-enemy', 'bracing-telegraph', 'evading-telegraph', 'evading-projectile', 'evading-hazard'].includes(snapshot.intent?.mode)));
   // A source-observed mid-air duel may SHARE the camera with the guardian,
   // but may never erase the already committed physical landing destination.
   const routeLanding = encounter && player.state !== 'airborne' ? null : landing;
