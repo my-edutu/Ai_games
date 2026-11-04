@@ -276,10 +276,9 @@ function observedSafeLandingOwnsHazard(state:TowerState,obs:TowerObservation,
     p.position.y-state.player.halfHeight<hazard.y+hazard.height;
   return !overlapping&&observedLandingCorridor(state,obs,target).hazardRoute;
 }
-// An announced trap cannot be a fake future oracle: use only the exact
-// 1–8 fixed-step warning already visible to the spectator, current support,
-// current velocity and physical body width. Do not guess future trap cycles,
-// introduce an RNG stream, or make the historical-v1 pilot see this warning.
+// A 12-tick scheduled shutter warning is already visible in the real 3D
+// world. React from that same public observation instead of wasting the
+// first four 20-Hz ticks. No future trap cycles, hidden RNG, or legacy input.
 function observedChargingHazard(state:TowerState,obs:TowerObservation){
   const p=obs.player;
   if(!p.grounded||p.health<=0||!Number.isFinite(p.velocity.x))return undefined;
@@ -292,7 +291,7 @@ function observedChargingHazard(state:TowerState,obs:TowerObservation){
     p.position.x>support.x+support.width-margin)return undefined;
   return obs.hazards.filter(h=>{
     const ticks=h.chargeTicksRemaining??0;
-    if(h.active||!Number.isSafeInteger(ticks)||ticks<1||ticks>8||
+    if(h.active||!Number.isSafeInteger(ticks)||ticks<1||ticks>12||
       ![h.x,h.y,h.width,h.height].every(Number.isFinite)||
       h.width<=0||h.height<=0||
       h.y>=p.position.y+state.player.halfHeight||
@@ -306,6 +305,57 @@ function observedChargingHazard(state:TowerState,obs:TowerObservation){
     Math.abs(a.x+a.width/2-p.position.x)-
       Math.abs(b.x+b.width/2-p.position.x)||
     a.id.localeCompare(b.id))[0];
+}
+// Current-body escape plan for a REAL published 12-tick trap charge.
+// Both exits must fit entirely on today's observed supporting deck. Test each
+// option with the very same bounded acceleration/speed as the authoritative
+// ground step; never change the character position or predict a hazard cycle.
+// Where neither exit is reachable before the current warning expires, an
+// ORDINARY earned jump starts earlier rather than a scripted immunity.
+function observedTrapEscape(state:TowerState,obs:TowerObservation,
+  hazard:TowerObservation['hazards'][number]){
+  const p=obs.player;
+  const support=currentPlatform(obs,p.groundedPlatformId);
+  if(!support)return {move:0 as TowerAction['move'],jump:false,route:'no-support'};
+  const halfWidth=state.player.halfWidth;
+  const margin=halfWidth+Math.min(6000,Math.floor(support.width/10));
+  const minX=support.x+margin,maxX=support.x+support.width-margin;
+  const padding=halfWidth+6000;
+  const ticks=hazard.chargeTicksRemaining??0;
+  const options=([
+    {move:-1 as TowerAction['move'],goal:hazard.x-padding},
+    {move:1 as TowerAction['move'],goal:hazard.x+hazard.width+padding},
+  ]).filter(option=>option.goal>=minX&&option.goal<=maxX)
+    .map(option=>{
+      let x=p.position.x,v=p.velocity.x;
+      let steps=Infinity;
+      for(let step=1;step<=Math.min(12,ticks);step++){
+        v=Math.max(-state.config.maxRunSpeed,Math.min(state.config.maxRunSpeed,
+          v+option.move*state.config.moveAcceleration));
+        x+=v;
+        if(x<minX||x>maxX)break;
+        if(option.move<0?x<=option.goal:x>=option.goal){
+          steps=step;break;
+        }
+      }
+      return {...option,steps,
+        // A non-reachable lane is still a better grounded retreat than running
+        // toward the trap centre. Preserve existing momentum as a tie-breaker.
+        distance:Math.abs(option.goal-p.position.x),
+        momentum:p.velocity.x*option.move>0?0:1};
+    }).sort((a,b)=>
+      Number.isFinite(b.steps)-Number.isFinite(a.steps)||
+      a.steps-b.steps||a.distance-b.distance||a.momentum-b.momentum||
+      a.move-b.move);
+  const best=options[0];
+  const wanted=best?.move??0;
+  const move=guardedEvasion(state,obs,wanted);
+  const occupying=p.position.x+halfWidth>hazard.x&&
+    p.position.x-halfWidth<hazard.x+hazard.width;
+  const cannotClear=!options.some(option=>option.steps<=ticks);
+  const jump=occupying&&(ticks<=3||(cannotClear&&ticks<=6));
+  return {move,jump,route:!best?'no-deck-exit':
+    cannotClear?'ground-exit-too-late':'ground-exit-observed'};
 }
 function nearbyEnemy(obs:TowerObservation,reach:number){return obs.enemies.filter(e=>e.active&&Math.abs(e.position.y-obs.player.position.y)<36000&&Math.abs(e.position.x-obs.player.position.x)<=reach).sort((a,b)=>Math.abs(a.position.x-obs.player.position.x)-Math.abs(b.position.x-obs.player.position.x)||a.id.localeCompare(b.id))[0]}
 /**
@@ -505,24 +555,22 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
           move!==0?'Bracing while making room for incoming fire':`Bracing for ${charging.kind} fire`,
         confidence:.95,fallbackUsed:false}};
   }
-  // Source-authentic danger response now connects the original 3D charging
-  // shutters to actual autonomous decisions. A nearby supported climber backs
-  // out of the *currently observed* charge lane, jumping only in the last
-  // three 20Hz ticks if its body still occupies the imminent collision zone.
-  // Enemy windups/projectiles and already-active traps retain priority.
+  // The same physical 12-tick shutter charge drives the real 3D warning,
+  // deterministic on-deck exit selection, and an earned emergency jump if
+  // neither witnessed exit can be reached in time. Projectiles, active traps,
+  // and real enemy windups continue to outrank this response.
   const arming=tactical?observedChargingHazard(state,observation):undefined;
   if(arming){
-    const p=observation.player,center=arming.x+arming.width/2;
-    const away:TowerAction['move']=center>=p.position.x?-1:1;
-    const move=guardedEvasion(state,observation,away);
-    const occupying=p.position.x+state.player.halfWidth>arming.x&&
-      p.position.x-state.player.halfWidth<arming.x+arming.width;
-    const jump=occupying&&(arming.chargeTicksRemaining??0)<=3;
-    return{action:action(move,{jump}),intent:{mode:'evading-hazard',
-      summary:jump?'Leaping clear of a genuinely charging hazard':
-        move===away?'Clearing the observed charging hazard lane':
-        'Bracing on safe support beside a charging hazard',
-      confidence:.96,fallbackUsed:false,targetPlatformId:p.groundedPlatformId}};
+    const escape=observedTrapEscape(state,observation,arming);
+    return{action:action(escape.move,{jump:escape.jump}),
+      intent:{mode:'evading-hazard',
+        summary:escape.jump?'Leaping clear of a genuinely charging hazard':
+          escape.route==='no-deck-exit'?'Holding the edge as the trap closes':
+          escape.route==='ground-exit-too-late'?'Seeking cover before the trap closes':
+          escape.move!==0?'Clearing the observed charging hazard lane':
+          'Bracing on safe support beside a charging hazard',
+        confidence:.96,fallbackUsed:false,
+        targetPlatformId:observation.player.groundedPlatformId}};
   }
   const emergencyRecovery=tactical?observedEmergencyHealthRetreat(state,observation):undefined;
   if(emergencyRecovery)return{action:action(emergencyRecovery.move),
