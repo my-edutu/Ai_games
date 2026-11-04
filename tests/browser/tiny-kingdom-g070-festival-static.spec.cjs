@@ -16,7 +16,8 @@ test('G070 seasonal festival decoration lives in cached static scenery, not per-
  const before=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
   return {festival:g.getFestivalVisualStats(),geometry:g.getGeometryAudit(),
-   stats:g.renderStats(),profile:g.getFrameProfile(),authority:JSON.stringify(g.exportSnapshot()),
+   stats:g.renderStats(),profile:g.getFrameProfile(),
+   dynamic:g.getCameraDynamicCacheStats(),authority:JSON.stringify(g.exportSnapshot()),
    population:g.metrics().citizens,camera:g.getCamera(),
    webgl:Boolean(document.getElementById('world').getContext('webgl'))};
  });
@@ -40,7 +41,7 @@ test('G070 seasonal festival decoration lives in cached static scenery, not per-
  const after=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
   return {festival:g.getFestivalVisualStats(),geometry:g.getGeometryAudit(),
-   stats:g.renderStats(),authority:JSON.stringify(g.exportSnapshot()),
+   stats:g.renderStats(),dynamic:g.getCameraDynamicCacheStats(),authority:JSON.stringify(g.exportSnapshot()),
    glError:document.getElementById('world').getContext('webgl')?.getError()||0};
  });
  expect(after.festival.staticMeshTriangles).toBe(before.festival.staticMeshTriangles);
@@ -48,7 +49,9 @@ test('G070 seasonal festival decoration lives in cached static scenery, not per-
  if(before.webgl){
   expect(after.geometry.totalTriangles).toBe(before.geometry.totalTriangles);
   expect(after.stats.staticGpuUploads).toBe(before.stats.staticGpuUploads);
-  expect(after.stats.dynamicGpuUploads).toBeGreaterThan(before.stats.dynamicGpuUploads);
+  // Paused camera-only redraw reuses the existing actual citizen mesh.
+  expect(after.stats.dynamicGpuUploads).toBe(before.stats.dynamicGpuUploads);
+  expect(after.dynamic.skippedUploads).toBeGreaterThan(before.dynamic.skippedUploads);
  }
  expect(after.authority).toBe(before.authority);
  expect(after.glError).toBe(0);

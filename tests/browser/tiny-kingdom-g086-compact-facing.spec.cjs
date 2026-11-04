@@ -12,7 +12,10 @@ test('G086 compact citizens turn their emitted geometry toward their waypoint at
  expect(compact).toContain('const look=p.path?.length?p.path[0]:p.target;');
  expect(compact).toContain('Math.atan2(look[0]-x,look[1]-z)');
  expect(compact).toContain('for(let v=vertexStart;v<data.length;v+=10)');
- expect(compact).toContain('data[v+3]=co*nx+si*nz');
+ // W29 transfers upper-body weight and normalizes after actual waypoint
+ // rotation; the obsolete unnormalized source-string was not a behavior test.
+ expect(compact).toContain('data[v+3]=(co*nx+si*nz)/mag');
+ expect(compact).toContain('data[v+5]=(-si*nx+co*nz)/mag');
  const errors=[];page.on('pageerror',err=>errors.push(err.message));
  await page.setContent(html);
  await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>10000);

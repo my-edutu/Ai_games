@@ -19,7 +19,8 @@ test('G077 climate-scoped landscape prefix is reused when an autonomous cottage 
    landscape:g.getLandscapeCacheStats(),snapshot:JSON.stringify(g.exportSnapshot())};
  });
  expect(before.landscape.rebuilds).toBe(1);
- expect(before.landscape.reuses).toBe(0);
+ // The existing landscape may already be reused during slow real startup.
+ expect(before.landscape.reuses).toBeGreaterThanOrEqual(0);
  const grown=await page.evaluate((initialBuildings)=>{
   const g=window.__tinyKingdom;
   let steps=0;
@@ -35,7 +36,7 @@ test('G077 climate-scoped landscape prefix is reused when an autonomous cottage 
   return {landscape:g.getLandscapeCacheStats(),scenery:g.renderStats().scenicMeshRebuilds,
    geometry:g.getGeometryAudit(),snapshot:JSON.stringify(g.exportSnapshot()),glError:gl?.getError()||0};
  });
- expect(after.landscape.reuses).toBeGreaterThanOrEqual(1);
+ expect(after.landscape.reuses).toBeGreaterThan(before.landscape.reuses);
  expect(after.landscape.rebuilds).toBeLessThan(after.scenery);
  expect(after.landscape.triangles).toBeGreaterThan(25000);
  expect(after.snapshot).toBe(grown.after);

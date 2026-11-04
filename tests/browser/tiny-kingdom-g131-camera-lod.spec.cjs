@@ -46,7 +46,9 @@ test('G131 wide town uses camera-aware detailed-citizen LOD while retaining all 
   const g=window.__tinyKingdom;return {lod:g.getVillageVisualLod(),
    policy:g.getCitizenDetailPolicy(),snapshot:JSON.stringify(g.exportSnapshot())};
  });
- expect(close.policy.budget).toBe(8);
+ // W40 retained every genuine citizen in the 390px Day-120 close-up,
+ // while five detailed rigs kept the measured scene under 160k triangles.
+ expect(close.policy.budget).toBe(5);
  expect(close.lod.detailedCitizens).toBeGreaterThan(wide.lod.detailedCitizens);
  expect(close.lod.detailedCitizens+close.lod.compactCitizens).toBe(grown.citizens);
  expect(close.snapshot).toBe(grown.snapshot);

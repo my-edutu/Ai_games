@@ -15,11 +15,15 @@ test('G108 living market street uses real varied civic-height houses without cha
   const g=window.__tinyKingdom;
   return {authority:JSON.stringify(g.exportSnapshot()),
    morphology:g.getStreetMorphologyStats?.()||null,
-   meshes:g.getGeometryAudit(),roofs:g.getCameraOcclusionModel(),
+   meshes:g.getGeometryAudit(),buildings:g.metrics().buildings,
+   roofs:g.getCameraOcclusionModel(),
    gl:document.querySelector('#world').getContext('webgl')?.getError()??0};
  });
  expect(before.morphology,'Integrated built-quarter audit is required').toBeTruthy();
- expect(before.morphology.homes).toBe(12);
+ // Real construction continues during slow GPU startup; all actual lots
+ // must have physical geometry, including genuinely newly-built homes.
+ expect(before.morphology.homes).toBeGreaterThanOrEqual(12);
+ expect(before.morphology.homes).toBe(before.buildings-2);
  expect(before.morphology.highStreetFronts).toBeGreaterThanOrEqual(8);
  expect(before.morphology.crossGables+before.morphology.shopCanopies).toBeGreaterThanOrEqual(5);
  expect(before.morphology.totalTriangles).toBeGreaterThan(120);

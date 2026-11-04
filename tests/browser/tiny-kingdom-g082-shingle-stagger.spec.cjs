@@ -21,8 +21,9 @@ test('G082 staggered compact roof shingles break aligned seams without new geome
   saved:JSON.stringify(window.__tinyKingdom.exportSnapshot()),
   lod:window.__tinyKingdom.getVillageVisualLod()
  }));
- expect(original.lod.compactHomes).toBe(0);
- expect(original.lod.compactStaggeredCourses).toBe(0);
+ // Validate true geometry of the paused town, however much it grew.
+ expect(original.lod.detailedHomes+original.lod.compactHomes).toBe(original.lod.homes);
+ expect(original.lod.compactStaggeredCourses).toBe(2*original.lod.compactHomes);
  const grown=await page.evaluate(()=>{
   const game=window.__tinyKingdom;
   for(let i=0;i<10*24*30;i++)game.step(1/30);

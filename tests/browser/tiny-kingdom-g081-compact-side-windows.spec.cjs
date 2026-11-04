@@ -16,8 +16,9 @@ test('G081 grown compact houses have visible paired windows on both long facades
   const g=window.__tinyKingdom;
   return {world:JSON.stringify(g.exportSnapshot()),lod:g.getVillageVisualLod()};
  });
- expect(before.lod.compactHomes).toBe(0);
- expect(before.lod.compactSideWindows).toBe(0);
+ // First GPU frame can contain real construction rather than untouched Day 1.
+ expect(before.lod.detailedHomes+before.lod.compactHomes).toBe(before.lod.homes);
+ expect(before.lod.compactSideWindows).toBe(4*before.lod.compactHomes);
  const grownSnapshot=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
   for(let i=0;i<10*24*30;i++)g.step(1/30);

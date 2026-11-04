@@ -208,9 +208,12 @@ test('G103 unobstructed receiving courtyard lets a real unload be the shot, not 
  expect(seen.chosen).toBe(staging.courier.citizen);
  expect(seen.plan.blockers).toBe(0);
  expect(seen.camera.zoom).toBeLessThan(9);
- // The first view looks *into* the unloading yard, placing the retired gate
- // behind the worker, rather than filming through its columns from the road.
- expect(Math.cos(seen.camera.yaw)).toBeLessThan(-.25);
+ // W37 can select a clearer opposite-side documentary angle. Judge the
+ // original timber and lantern projected foreground, not fixed compass yaw.
+ expect(seen.plan.marketPostSightline).toMatchObject({
+  source:'original-market-uprights-and-lanterns',modelledPosts:16,modelledLanterns:2
+ });
+ expect(seen.plan.marketPostSightline.centerCover).toBeLessThan(.45);
  expect(Math.hypot(seen.camera.focus[0]-staging.courier.x,
   seen.camera.focus[1]-staging.courier.z)).toBeLessThan(.15);
  expect(seen.after).toBe(staging.before);

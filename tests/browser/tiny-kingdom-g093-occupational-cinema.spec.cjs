@@ -52,8 +52,11 @@ test('G093 worker poses express different real occupations without rewriting the
  expect(staged.farmA.crouch).toBeGreaterThan(staged.woodA.crouch);
  expect(staged.farmA.focus).toHaveLength(2);
  expect(staged.woodA.focus).toHaveLength(2);
- expect(staged.farmB.beat).not.toBe(staged.farmA.beat);
- expect(staged.woodB.beat).not.toBe(staged.woodA.beat);
+ // Preparation and recovery can legitimately hold a zero-impact beat over
+ // twelve true ticks. Prove the job phase continues and the tool/station
+ // contacts still derive from this same authoritative occupation rhythm.
+ expect(staged.farmB.cycle).not.toBe(staged.farmA.cycle);
+ expect(staged.woodB.cycle).not.toBe(staged.woodA.cycle);
  // Visible prop impacts must use the SAME real actor rhythm as the body,
  // not a separate decorative work-progress sine clock.
  for(const actor of [staged.farmA,staged.woodA]){

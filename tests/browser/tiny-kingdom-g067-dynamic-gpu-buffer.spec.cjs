@@ -15,7 +15,8 @@ test('G067 live and camera-only frames reuse bounded GPU dynamic vertex storage 
  const before=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
   return {stats:g.renderStats(),geometry:g.getGeometryAudit(),
-   authority:JSON.stringify(g.exportSnapshot()),camera:g.getCamera()};
+   authority:JSON.stringify(g.exportSnapshot()),camera:g.getCamera(),
+   frame:g.getFrameProfile().totalFrames,dynamic:g.getCameraDynamicCacheStats()};
  });
  // Fail immediately on absent counters, rather than polling undefined values.
  expect(before.stats.dynamicGpuAllocations).toBeGreaterThanOrEqual(1);
@@ -25,20 +26,23 @@ test('G067 live and camera-only frames reuse bounded GPU dynamic vertex storage 
  await page.evaluate(camera=>window.__tinyKingdom.setCamera({
   yaw:camera.yaw+.28,pitch:camera.pitch,zoom:camera.zoom,focus:camera.focus
  }),before.camera);
+ // G160 reuses actual tick-keyed dynamic geometry on camera-only orbit.
  await page.waitForFunction(previous=>
-  window.__tinyKingdom.renderStats().dynamicGpuUploads>previous,
-  before.stats.dynamicGpuUploads,{timeout:30000});
+  window.__tinyKingdom.getFrameProfile().totalFrames>previous,
+  before.frame,{timeout:30000});
  const after=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
   return {stats:g.renderStats(),geometry:g.getGeometryAudit(),
-   authority:JSON.stringify(g.exportSnapshot())};
+   authority:JSON.stringify(g.exportSnapshot()),dynamic:g.getCameraDynamicCacheStats()};
  });
  expect(before.stats.dynamicGpuAllocations).toBeGreaterThanOrEqual(1);
  expect(before.stats.dynamicGpuUploads).toBeGreaterThanOrEqual(3);
  expect(before.stats.dynamicGpuCapacityFloats).toBeGreaterThanOrEqual(before.geometry.dynamic.floats);
  expect(after.stats.dynamicGpuCapacityFloats).toBeGreaterThanOrEqual(after.geometry.dynamic.floats);
  expect(after.stats.dynamicGpuAllocations).toBe(before.stats.dynamicGpuAllocations);
- expect(after.stats.dynamicGpuUploads).toBeGreaterThan(before.stats.dynamicGpuUploads);
+ expect(after.stats.dynamicGpuUploads).toBe(before.stats.dynamicGpuUploads);
+ expect(after.dynamic.skippedUploads).toBeGreaterThan(before.dynamic.skippedUploads);
+ expect(after.dynamic.reuses).toBeGreaterThan(before.dynamic.reuses);
  expect(after.stats.staticGpuUploads).toBe(before.stats.staticGpuUploads);
  expect(after.geometry.totalTriangles).toBeLessThan(160000);
  expect(after.authority).toBe(before.authority);

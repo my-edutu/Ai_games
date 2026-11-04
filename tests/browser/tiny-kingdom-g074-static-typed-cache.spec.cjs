@@ -14,7 +14,11 @@ test('G074 WebGL scenic cache does not duplicate a 130k-triangle JS array before
  const build=html.slice(start,end);
  expect(build).toMatch(/scenicMeshCache\s*=\s*gpuAvailable\s*\?\s*new Float32Array\(data\)\s*:\s*data\.slice\(\)/);
  expect(build).toMatch(/const packed=packSpatialScenery\(scenicMeshCache\)/);
- expect(build).toMatch(/gl\.bufferData\(gl\.ARRAY_BUFFER,\s*packed\.vertices,\s*gl\.STATIC_DRAW\)/);
+ // G140 retains a bounded growable original settlement VBO instead of
+ // reallocating packed STATIC_DRAW storage on each genuine new cottage.
+ expect(build).toMatch(/uploadGrowingSettlement\(packed,staticKey\)/);
+ expect(html).toMatch(/gl\.bufferSubData\(gl\.ARRAY_BUFFER,0,packed\.vertices\)/);
+ expect(html).toMatch(/capacityFloats\*Float32Array\.BYTES_PER_ELEMENT/);
  expect(build).not.toMatch(/new Float32Array\(scenicMeshCache\)/);
 });
 
