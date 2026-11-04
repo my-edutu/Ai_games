@@ -34,11 +34,12 @@ export function witnessedLandingX(snapshot, deck) {
   const left = deck.x + margin, right = deck.x + deck.width - margin;
   if (left >= right) return { x: center, sourceAirLane: false };
   const top = deck.y + deck.height;
-  let lanes = [{ left, right }];
+  let lanes = [{ left, right }], hazardObservedInLanding = false;
   for (const hazard of snapshot.hazards) {
     if (!observedLandingHazardPressure(snapshot, hazard, top)) continue;
     const blockedLeft = hazard.x - halfWidth - 2500;
     const blockedRight = hazard.x + hazard.width + halfWidth + 2500;
+    if (blockedLeft < right && blockedRight > left) hazardObservedInLanding = true;
     const next = [];
     for (const lane of lanes) {
       if (blockedRight <= lane.left || blockedLeft >= lane.right) {
@@ -89,6 +90,7 @@ export function witnessedLandingX(snapshot, deck) {
     }
   }
   return { x: bestX, sourceAirLane: true,
+    sourceHazardClearance: hazardObservedInLanding && bestX !== unclutteredX,
     sourceEnemyClearance: enemyAvoided && bestX !== Math.max(left, Math.min(right, player.x)) };
 }
 // Recovery is a real autonomous choice, not a second jump or promised heal.
@@ -171,7 +173,8 @@ export function createTowerRouteIntent(THREE) {
   const observedDeckPositions = [];
   let observedDeckX = null, observedDeckY = null;
   let observedMovement = 0, observedDeckKind = null;
-  let observedLandingX = null, sourceClearLane = false, sourceEnemyClearance = false;
+  let observedLandingX = null, sourceClearLane = false,
+    sourceHazardClearance = false, sourceEnemyClearance = false;
   let sourceHealthPickupId = null;
   const forward = new THREE.Vector3();
   const up = new THREE.Vector3(...UP);
@@ -189,6 +192,7 @@ export function createTowerRouteIntent(THREE) {
     observedDeckKind = null;
     observedLandingX = null;
     sourceClearLane = false;
+    sourceHazardClearance = false;
     sourceEnemyClearance = false;
     sourceHealthPickupId = null;
     observedDeckPositions.length = 0;
@@ -249,12 +253,15 @@ export function createTowerRouteIntent(THREE) {
     observedDeckKind = platform.kind;
     observedLandingX = landed.x;
     sourceClearLane = landed.sourceAirLane;
+    sourceHazardClearance = !!landed.sourceHazardClearance;
     sourceEnemyClearance = !!landed.sourceEnemyClearance;
     sourceHealthPickupId = recoveryPickup?.id || null;
-    // Reuse the existing world-space stones. Warm alloy means a PRESENT
-    // enemy-occupied landing was avoided; green remains real health recovery.
+    // Reuse the existing world-space stones. Amber is a PRESENT source
+    // shutter-clear escape, pale copper means an observed occupied enemy lane;
+    // green remains real health recovery. Geometry stays readable without color.
     material.color.setHex(recoveryPickup ? 0xa7df9b :
-      sourceEnemyClearance ? 0xffd7a2 : 0x9cefe5);
+      sourceEnemyClearance ? 0xffd7a2 :
+      sourceHazardClearance ? 0xffb987 : 0x9cefe5);
     reduced = stationary;
 
     // Map authoritative x/y onto the OUTSIDE of the cylinder. The rising
@@ -320,6 +327,7 @@ export function createTowerRouteIntent(THREE) {
       observedLandingX: group.visible ? observedLandingX : null,
       sourceClearLane: group.visible && sourceClearLane,
       sourceEnemyClearance: group.visible && sourceEnemyClearance,
+      sourceHazardClearance: group.visible && sourceHazardClearance,
       sourceHealthPickupId: group.visible ? sourceHealthPickupId : null,
       echoedSourcePositionsOnly: true, movingDeckKind: observedDeckKind,
       opaqueTowerOccludes: material.depthTest,
