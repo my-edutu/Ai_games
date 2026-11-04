@@ -153,8 +153,16 @@ test('opt-in nearby hazard cue requires inactive-to-active same-run source evide
     audio.accept(frame({tick:103,active:true}));
     assert.equal(pitches.length,count);
     audio.accept(frame({tick:104,active:false}));
+    // An observed same-run active -> inactive trap now produces TWO soft
+    // source-authenticated release notes. Old test treated them as spurious;
+    // require exactly one recovery event instead of silencing real feedback.
+    assert.equal(pitches.length,count+2);
+    assert.deepEqual(pitches.slice(count),[300,225]);
+    const releasedCount=pitches.length;
+    audio.accept(frame({tick:104,active:false}));
+    assert.equal(pitches.length,releasedCount,'duplicate source tick never repeats release');
     audio.accept(frame({tick:105,active:true,runToken:'runB'}));
-    assert.equal(pitches.length,count);
+    assert.equal(pitches.length,releasedCount,'new run cannot inherit old source contact');
     audio.setEnabled(false);
     audio.accept(frame({tick:106,active:false,runToken:'runB'}));
     audio.accept(frame({tick:107,active:true,runToken:'runB'}));
