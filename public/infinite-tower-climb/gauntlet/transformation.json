@@ -9,20 +9,20 @@
   },
   "candidate": {
     "sha": null,
-    "title": "SAME active playable 3D tower transformation: real source-selected landing plus mechanically supported moving carriage; quality NOT EVALUATED",
-    "implementationSha": "fec33943c9824a8b5561883a69eba7f476191981",
-    "implementationEvidenceStatus": "Playable truss integrated at fec33943, source-only moving-deck selection and video diagnostics guarded by test source 06c80c2. Previous unmodified-host capture 41769420556 completed 9/9 for OLD candidate ee35c7c3 and frozen baseline 1731b380; two real ascent portrait WebMs >=106 s and earlier moving portrait 98 s, NOT for this implementation, not event matched. Exact-head new-source CI https://github.com/my-edutu/Ai_games/actions/runs/41774673596 QUEUED at review; current module has no native full-motion capture, no supported-device hardware tails. Independent LOOKS/FEELS/PLAYS 0/5 each. Whole-game quality NOT EVALUATED."
+    "title": "SAME open 3D Tower transformation — real source-witnessed 16-strut moving-carriage landing and quiet reduced-motion variant; quality NOT EVALUATED",
+    "implementationSha": "9525995d6494efc924b5714d2fbe93965ba412cc",
+    "implementationEvidenceStatus": "Exact-source playable candidate 9525995d6494efc924b5714d2fbe93965ba412cc; technical safety workflow https://github.com/my-edutu/Ai_games/actions/runs/41781484026 SUCCESS; real desktop/portrait baseline vs candidate recording https://github.com/my-edutu/Ai_games/actions/runs/41781483591 9/9 SUCCESS, but full-motion independent viewing, event-matching and supported-device hardware profiling are missing. Quality NOT EVALUATED."
   },
   "currentTransformation": {
     "title": "SAME cohesive real 3D ascent → live moving deck dock → guarded guardian counterplay → HP cap gate → authentic outcome and restart",
-    "state": "OPEN, same playable climb→moving deck→guardian→cap→outcome initiative. Source ee35c7 native original-host capture 41769420556 completed 9/9 (builder inspected selected real portrait frames), exposing remaining floating-carriage/scale issue. New source fec33943 adds grounded/source-selected moving carriage truss beneath real 3D platform, with graphics recovery and bounded single instanced draw. Its own technical run 41774673596 queued, new-source native video and independent blind review missing; NOT EVALUATED.",
-    "promise": "Original original-source physical 3D movement continues: one observed selected 12-piece landing threshold and scene-camera foreground protection; NEW one-draw 12-member braced carriage under a genuinely occupied or source-targeted moving deck, coupled to existing actual rider lean/gear/piston, then guarded guardian, HP-gate, authentic outcome/restart. Visual geometry cannot invent colliders, safe landings, hits, win events or AI commands.",
-    "nextDecision": "Verify the queued new-source CI https://github.com/my-edutu/Ai_games/actions/runs/41774673596, then capture REAL original-host WebMs for fec33943/06c80c2 (desktop 960x600 + portrait 390x844, >=60s each) and compare with frozen original-source 1731b380 by matched EVENTS for ascent, moving obstacle/guardian and real outcome/restart. Diagnose whether the world-space carriage clears actor/obstacle silhouettes at camera angles. Five independent fresh-context blind full-motion voters must favor candidate 4/5 EACH LOOKS, FEELS, PLAYS. Target-device true p50/p95/p99/memory and accessibility/replay/recovery also pending. Independent worker/browser not available here.",
+    "state": "OPEN. Cohesive original 3D ascent -> physical moving-deck carriage landing -> guardian counterplay -> HP-gated cap -> authentic terminal/restart. New source 9525995d6494efc924b5714d2fbe93965ba412cc: 16-member source-linked load spring and reduced-motion presentation. Exact-source CI and 9/9 original-host capture SUCCESS; no independent video votes/hardware. NOT EVALUATED.",
+    "promise": "One source-authentic playable 3D journey: actual moving-deck world/gear/piston, signed rider counterbalance, 16-member contact-loaded source-linked truss and landing architecture, guarded guardian and HP circuit, earned terminal outcome/restart. No new collisions, AI authority or fake HUD progress.",
+    "nextDecision": "Watch the unedited desktop/portrait source-authentic recordings from https://github.com/my-edutu/Ai_games/actions/runs/41781483591 for 9525995d6494efc924b5714d2fbe93965ba412cc vs frozen 1731b380851162741761c5569e2bc152a0869ca9, align real observed ascent/moving/guardian/outcome events before blind randomization, inspect actor/route/guardian occlusion, verify complete visible outcome/restart and a true moving-platform rider landing, then obtain 5 fresh independent full-motion critic verdicts for EACH LOOKS, FEELS, PLAYS (4/5 preferred) and real device frame-time/memory/replay/accessibility. Independent browser/worker unavailable in this execution.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Unverified full-motion mobile and desktop readability/feeling of the NEW source-driven moving carriage and live approach. Existing source-authentic footage is from ee35c7, not latest fec33943, and ascent/outcome episodes are not event-matched for a blind critic. 0/5 genuine votes per pillar; supported-device frame-time tails and memory unknown. NOT EVALUATED.",
-    "unverifiedImplementationBranchHead": "96a6bd18f656366eab9c1e075dc27443a41ecf0e",
-    "currentVerticalSlice": "SAME open comprehensive autonomous 3D expedition: world-space observed route and rising landing threshold, original moving-deck gear/piston/loaded rider PLUS NEW 12-member fixed-budget dynamically source-anchored suspended chassis, cinematic guardian shield/counterattack, HP-cap mechanism, real outcome/restart. No fabricated quality milestone.",
-    "biggestGap": "Unverified full-motion mobile and desktop readability/feeling of the NEW source-driven moving carriage and live approach. Existing source-authentic footage is from ee35c7, not latest fec33943, and ascent/outcome episodes are not event-matched for a blind critic. 0/5 genuine votes per pillar; supported-device frame-time tails and memory unknown. NOT EVALUATED."
+    "biggestRemainingExperienceGap": "The latest source-pinned clips exist but no external fresh-context critic has watched complete matching full-motion play; do the 16-strut landing and world scale improve readability and weight on portrait/desktop without hiding action? Genuine votes 0/5 on each pillar, supported-device p50/p95/p99 and memory absent. NOT EVALUATED.",
+    "unverifiedImplementationBranchHead": "9525995d6494efc924b5714d2fbe93965ba412cc",
+    "currentVerticalSlice": "SAME whole-game tower transformation: source-grounded moving-deck gear/piston/skinned rider plus new 16-strut compressive world-space carriage, correct quiet reduced-motion mode, real 3D destination, guardian shield/counterplay, HP-cap passage, authentic result/restart. Source-authentic clips recorded for current implementation but still not independently judged.",
+    "biggestGap": "The latest source-pinned clips exist but no external fresh-context critic has watched complete matching full-motion play; do the 16-strut landing and world scale improve readability and weight on portrait/desktop without hiding action? Genuine votes 0/5 on each pillar, supported-device p50/p95/p99 and memory absent. NOT EVALUATED."
   },
   "scenarios": [
     {
@@ -62,11 +62,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Previous source ee35c7 passed exact-source technical workflow https://github.com/my-edutu/Ai_games/actions/runs/41769420689, and its authentic 9/9 video recording https://github.com/my-edutu/Ai_games/actions/runs/41769420556 completed. NEW source fec33943 plus tests 06c80c2 workflow https://github.com/my-edutu/Ai_games/actions/runs/41774673596 was QUEUED at review. CI safety only; no candidate quality pass.",
-    "replay": "New suspension reads only the existing moving source platform's x/y/width/height and player's current feet/intent, and never changes fixed-step authority, collision, guardian damage, replay bytes, RNG, paid events or route decisions. Module re-creates/disposes on graphics recovery and resets on stale/terminal/restart. New-source CI not yet complete; realistic replay/restore and native motion must be confirmed.",
-    "accessibility": "No new text, flash, sound, input, interaction or HUD. Paired structural rods and load braces distinguish a moving platform without color-only interpretation; no shadow budget or added light. Strong windup/guardian telegraph suppresses stage; reduced-motion geometry remains static at observed source. Physical phone portrait contrast/visual occlusion not verified.",
-    "performance": "New mechanical truss is only ONE no-shadow instanced draw with 12 cylinders, one reusable geometry/material and 8 reused vectors, behind real platform (code-level budget, not measured GPU time). Existing source capture software-GL submission intervals are NOT phone FPS. Supported-device presented-frame p50/p95/p99 and memory remain NOT MEASURED; no sustained FPS claim.",
-    "stability": "Native original-host capture for previous candidate ee35c7 41769420556 all 9 jobs SUCCESS, including normal-speed desktop/portrait ascent, moving, danger, outcome, ledge; not validation of NEW source fec33943. Source-frozen baseline 1731b380 unchanged. Technical workflow 41774673596 QUEUED; new-source gameplay, accessibility, restart, GL recovery and independent critic remain open."
+    "ci": "Exact playable source 9525995d6494efc924b5714d2fbe93965ba412cc technical safety contract https://github.com/my-edutu/Ai_games/actions/runs/41781484026 completed SUCCESS, including full repository logic/Tower authority/browser safety. Earlier pre-fix bfd79fce failed four stale fixture/graphics recovery assertions; repaired and revalidated. CI is a VETO only, not a quality score.",
+    "replay": "Physical moving deck spring reads immutable authoritative snapshots and derives impact from consecutive same-run/floor/platform airborne-to-standing fixed ticks, previous source velocity and real deck displacement. Duplicate ticks, discontinuities, inactive state and graphics loss retire or reset. No collision/AI/replay authority is modified. Exact-source CI safety passed; full hardware/player replay acceptance still open.",
+    "accessibility": "An explicit same-tick reduced-motion preference now suppresses all cosmetic truss pumping and counter-sway, retaining the real platform structure and true route even during a source-witnessed impact. No new HUD, flashing overlays, controls, voice or sound. Tests passed; real mobile legibility, contrast and accessibility review remain open.",
+    "performance": "Budget from code only: one depth-tested, no-shadow instanced draw with 16 structural cylinders and reused resources; no new dynamic lights/colliders/pass. Source-driven matrices change only with real observations/preferences. CI success is not a supported-device performance win. Real physical phone/Desktop GPU presented-frame p50/p95/p99, memory and stability soak remain unmeasured.",
+    "stability": "Exact-source technical CI SUCCESS https://github.com/my-edutu/Ai_games/actions/runs/41781484026; source-host original full-motion desktop+portrait 9/9 jobs SUCCESS https://github.com/my-edutu/Ai_games/actions/runs/41781483591, including four baseline/candidate scenario pairs and ledge job. This validates workflow/capture integrity but not event-matched comparative viewing, human film criticism, or supported-device recovery/performance."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -77,9 +77,9 @@
   },
   "policy": "Requires matched real gameplay in all three scenes and 4/5 independent blind critics preferring new game in LOOKS, FEELS and PLAYS; technical checks are vetoes, not quality wins.",
   "captureEvidence": {
-    "workflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41758366800",
-    "sourceSha": "dffecaacbb3375453d47b40073b4d4c9f46b6508",
-    "assessed": "Historical original-host baseline and dff candidate 9/9 full-motion footage https://github.com/my-edutu/Ai_games/actions/runs/41758366800 remains valid for dff (portrait outcome one unsafe actor in 69 samples). NEW playable source 769a2e0939de0e0d0a02c1ff33ac0404eb35440f cue not yet verified by authentic source film; source-matched workflow https://github.com/my-edutu/Ai_games/actions/runs/41761825208 pending. No event-aligned independent blind review, quality SHA null, LOOKS/FEELS/PLAYS 0/5, target device frame tails and memory unmeasured. NOT EVALUATED.",
+    "workflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41781483591",
+    "sourceSha": "9525995d6494efc924b5714d2fbe93965ba412cc",
+    "assessed": false,
     "scope": "VALID prior 2c original-host source videos https://github.com/my-edutu/Ai_games/actions/runs/41703680427: danger desktop baseline175.678/candidate129.663s, portrait baseline130.041/candidate106.19s; outcome desktop baseline145.39/candidate178.499s and portrait baseline128.445/candidate125.15s. Both source checkouts retain own game-server Git blobs; all >=60s. Candidate 2c danger portrait 2/69 unsafe hero observations vs frozen baseline 0/69; no event-matched blind scores. Historical older 41700545283 frozen host was overwritten and remains INVALID for original-host A/B. Current playable camera 4127f665ed97e6952ea19f41dcfbcbd398975085 source video 41704072954 pending.",
     "jobs": {
       "ascent": {
@@ -147,9 +147,9 @@
         }
       }
     },
-    "newImplementationSha": "fec33943c9824a8b5561883a69eba7f476191981",
-    "newImplementationRecorded": false,
-    "reviewPath": "docs/reviews/2026-11-04-tower-pr68-source-moving-carriage-suspension.md",
+    "newImplementationSha": "9525995d6494efc924b5714d2fbe93965ba412cc",
+    "newImplementationRecorded": true,
+    "reviewPath": "docs/reviews/2026-11-04-tower-pr68-witnessed-load-bearing-carriage-and-original-source-evidence.md",
     "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41547983114",
     "followupStatus": "On 2026-11-03, source-pinned run 41547983114 completed 8/9 jobs: baseline+old-candidate desktop/portrait normal-speed ascent, danger, moving, outcome all SUCCESS as capture jobs; authentic-ledge FAILED because source play yielded no qualifying actual ledge event within 2500 fixed ticks (four desktop/portrait browser tests). Old candidate 133ce1a8, frozen baseline 1731b380. New candidate 4398a157 still awaits exact-source recorded gameplay, blind votes, supported-device measurements. No experience preference awarded.",
     "matchedCaptureSettings": {
@@ -847,7 +847,7 @@
       "reviewPath": "docs/reviews/2026-11-02-tower-pr68-guardian-camera-continuity-and-complete-source-recordings.md",
       "quality": "NOT EVALUATED"
     },
-    "latestCurrentSourceCIUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41733725687",
+    "latestCurrentSourceCIUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41781484026",
     "latestCurrentSourceCapture": "https://github.com/my-edutu/Ai_games/actions/runs/41733725691",
     "latestSourceEvidence": {
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
@@ -1615,9 +1615,9 @@
       "builderVideoReview": "Observed old-source terminal portrait/desktop t=8/30/60/90; wide figure / terminal memorial. This is only builder-sampled output, not 60s blind full film.",
       "baselineMismatch": "Older source baseline outcome starts floor1 running; candidate starts floor4 result, so same wall-time offsets are not comparable source states."
     },
-    "latestCandidateCaptureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41685391041",
-    "latestCandidateSourceSha": "5b5894708ecec849c953774d96552a285616a5f7",
-    "latestCandidateClipStatus": "PENDING at 2026-11-03 inspection; NO true head-bound baseline/candidate matched gameplay, outcome or independent A/B review.",
+    "latestCandidateCaptureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41781483591",
+    "latestCandidateSourceSha": "9525995d6494efc924b5714d2fbe93965ba412cc",
+    "latestCandidateClipStatus": "9/9 authentic recording jobs SUCCESS; clips exist but independent full-motion review NOT EVALUATED",
     "latestCompletedRun": {
       "runUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41685391041",
       "captureJobs": "9/9 SUCCESS (authentic-ledge included; recording only)",
@@ -1825,8 +1825,8 @@
       "integrationTestSha": "3581c066c2f30fd58dc591f1f60355db3bb1f076",
       "audioSourceTickRepairSha": "3fdec390c38eff398858e7a4d5c0006fc9f4c1ea"
     },
-    "latestSourceCaptureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41758366800",
-    "latestSourceCaptureStatus": "PENDING at record update, source b1940df8d5cf76f16d315da371221103a56c346a. Do not infer PASS from prior source videos. Earlier 41724418295 for source 3fdec390 was 8/9 PASS as individual capture jobs, candidate portrait outcome FAILED source/DOM complete cycle integrity.",
+    "latestSourceCaptureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41781483591",
+    "latestSourceCaptureStatus": "9/9 SUCCESS for exact code 9525995, baseline frozen 1731b380; unreviewed full-motion, NOT EVALUATED",
     "latestSourceQualityRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41758732549",
     "sourceDefenseCapture": {
       "status": "Completed unaltered latest playable-source dff capture 9/9 jobs; full-motion independent event-matched critique NOT EVALUATED",
@@ -1981,6 +1981,61 @@
         "newImplementationVideo": false
       },
       "sourceVideoReview": "Builder inspected still frames and original motion/source traces, not the required separate blind randomized full-motion reviewer cohort.",
+      "qualityStatus": "NOT EVALUATED"
+    },
+    "latestMovingDeckLoadArrival": {
+      "implementationSha": "9525995d6494efc924b5714d2fbe93965ba412cc",
+      "priorCodeSourceSha": "e9bf18007d5a248ab7cead81d29b2b53a51a1d6b",
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "technicalWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41781484026",
+      "technicalConclusion": "SUCCESS (safety only)",
+      "normalSpeedGameplayWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41781483591",
+      "normalSpeedGameplayConclusion": "9/9 successful jobs (capture integrity only)",
+      "seed": "tower-transformation-capture-v1",
+      "quality": "low",
+      "reducedMotion": false,
+      "soundEnabled": false,
+      "viewports": [
+        {
+          "width": 960,
+          "height": 600,
+          "device": "desktop browser capture"
+        },
+        {
+          "width": 390,
+          "height": 844,
+          "device": "portrait browser capture (not physical phone)"
+        }
+      ],
+      "minimumActualWallClockSecondsPerRecording": 68,
+      "sourcePinnedOriginalGameHost": true,
+      "scenarioArtifacts": {
+        "baseline": {
+          "ascent": 13299591875,
+          "danger": 13299791162,
+          "moving": 13299955760,
+          "outcome": 13299212860
+        },
+        "candidate": {
+          "ascent": 13299057782,
+          "danger": 13299292537,
+          "moving": 13299407311,
+          "outcome": 13299541926
+        },
+        "ledge": 13299179014
+      },
+      "sourceMotionDiagnosticsRecorded": true,
+      "crossVersionEventAligned": false,
+      "normalSpeedFilmIndependentlyWatched": false,
+      "independentBlindVotes": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0,
+        "requiredEach": 5,
+        "candidatePreferenceThreshold": 4
+      },
+      "hardwarePresentedFrameTimeAndMemory": "NOT MEASURED",
+      "biggestRemainingExperienceGap": "The latest source-pinned clips exist but no external fresh-context critic has watched complete matching full-motion play; do the 16-strut landing and world scale improve readability and weight on portrait/desktop without hiding action? Genuine votes 0/5 on each pillar, supported-device p50/p95/p99 and memory absent. NOT EVALUATED.",
       "qualityStatus": "NOT EVALUATED"
     }
   }
