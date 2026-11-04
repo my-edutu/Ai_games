@@ -14,6 +14,35 @@ permissions:
   contents: read
 
 jobs:
+  # W25 same-seed actual worker-led housing builds on one software WebGL
+  # runner, earlier W24 exact git object versus new W25. CPU wall timings and
+  # real screenshots only; NEVER assert quality or GPU hardware FPS.
+  w25-growth-profile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Source-matched W24 vs W25 true house-build frame timing and real 390px pictures
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w25-growth-profile.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w25-matched-growth-profile
+          path: artifacts/tiny-kingdom/
+          retention-days: 14
   # W25: physical civic quarter is retained in its own GPU VBO through
   # real settlement growth; never replace it with an impostor.
   w25-civic-residency:
