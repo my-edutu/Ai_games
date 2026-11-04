@@ -1,4 +1,5 @@
 import { pointFor } from './coordinates.mjs';
+import { observedLandingHazardPressure } from './landing-pressure.mjs';
 
 // An autonomous route is a choice, not a predicted jump trajectory. These
 // twelve small, depth-tested, world-space direction stones show the real
@@ -35,9 +36,7 @@ function witnessedLandingX(snapshot, deck) {
   const top = deck.y + deck.height;
   let lanes = [{ left, right }];
   for (const hazard of snapshot.hazards) {
-    if (!hazard.active || ![hazard.x, hazard.y, hazard.width, hazard.height].every(Number.isFinite) ||
-        hazard.y >= top + 2 * (player.halfHeight || 0) ||
-        hazard.y + hazard.height <= top) continue;
+    if (!observedLandingHazardPressure(snapshot, hazard, top)) continue;
     const blockedLeft = hazard.x - halfWidth - 2500;
     const blockedRight = hazard.x + hazard.width + halfWidth + 2500;
     const next = [];
