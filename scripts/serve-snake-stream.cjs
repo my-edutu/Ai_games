@@ -49,7 +49,7 @@ function advance(session) {
 }
 
 function assetPaths() {
-  return ['index.html', 'styles.css', 'ux-v2.css', 'viewer-overlays.css', 'app.js', 'renderer.mjs', 'living-garden.mjs', 'courtyard-ecology.mjs', 'garden-biomes.mjs', 'cinematic-director.mjs', 'motion.mjs', 'camera.mjs', 'world.mjs', 'serpent.mjs', 'fallback.mjs', 'audio.mjs', 'view-copy.mjs', 'overview.mjs'].map(name => path.join(PUBLIC_ROOT, name));
+  return ['index.html', 'styles.css', 'ux-v2.css', 'viewer-overlays.css', 'app.js', 'renderer.mjs', 'living-garden.mjs', 'courtyard-ecology.mjs', 'garden-biomes.mjs', 'garden-watersheds.mjs', 'cinematic-director.mjs', 'motion.mjs', 'camera.mjs', 'world.mjs', 'serpent.mjs', 'fallback.mjs', 'audio.mjs', 'view-copy.mjs', 'overview.mjs'].map(name => path.join(PUBLIC_ROOT, name));
 }
 
 function isSnapshotPrivacySafe(snapshot, seed) {
@@ -240,6 +240,7 @@ function serve() {
       '/living-garden.mjs': 'living-garden.mjs',
       '/courtyard-ecology.mjs': 'courtyard-ecology.mjs',
       '/garden-biomes.mjs': 'garden-biomes.mjs',
+      '/garden-watersheds.mjs': 'garden-watersheds.mjs',
       '/cinematic-director.mjs': 'cinematic-director.mjs',
       '/motion.mjs': 'motion.mjs',
       '/camera.mjs': 'camera.mjs',
