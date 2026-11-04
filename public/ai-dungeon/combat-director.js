@@ -5,7 +5,7 @@ import {isHealingCast,isDisarmCast} from '/dungeon/combat-intent-plan.js';
 import {planVisualContact} from '/dungeon/facing-plan.js';
 import {planCombatStage,stagePoint} from '/dungeon/combat-staging-plan.js';
 import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
-import {createBladeRibbonGeometry,createImpactSpallGeometry,planTrueDamageCue} from '/dungeon/contact-performance.js';
+import {createBladeRibbonGeometry,createImpactSpallGeometry,planTrueDamageCue,planContactShardFan} from '/dungeon/contact-performance.js';
 import {createRangedProjectileGeometry,rangedProjectileProfile} from '/dungeon/ranged-encounter-plan.js';
 
 /**
@@ -15,9 +15,10 @@ import {createRangedProjectileGeometry,rangedProjectileProfile} from '/dungeon/r
 const TINT={vanguard:'#62cbff',ranger:'#a5ff95',mystic:'#be8aff',revenant:'#ff9659',cultist:'#ff70b3',warden:'#ffbd57'};
 const PROJECTILE_LIMIT=26,IMPACT_LIMIT=24;
 const V3=(x,y,z)=>new THREE.Vector3(x-9,y,z-9);
-const shared={orb:new THREE.IcosahedronGeometry(.13,1),slash:createBladeRibbonGeometry(THREE),spall:createImpactSpallGeometry(THREE),dust:new THREE.SphereGeometry(.5,8,5),ring:new THREE.RingGeometry(.6,.69,45),spark:new THREE.OctahedronGeometry(.07,0),arrow:createRangedProjectileGeometry(THREE,'arrow'),glyph:createRangedProjectileGeometry(THREE,'glyph')};
+const shared={orb:new THREE.IcosahedronGeometry(.13,1),slash:createBladeRibbonGeometry(THREE),spall:createImpactSpallGeometry(THREE),chip:new THREE.TetrahedronGeometry(.073,0),dust:new THREE.SphereGeometry(.5,8,5),ring:new THREE.RingGeometry(.6,.69,45),spark:new THREE.OctahedronGeometry(.07,0),arrow:createRangedProjectileGeometry(THREE,'arrow'),glyph:createRangedProjectileGeometry(THREE,'glyph')};
 const color=(kind)=>TINT[kind]||'#83fff0';
 const handPosition=new THREE.Vector3(),chestPosition=new THREE.Vector3();
+const shardPose=new THREE.Object3D();
 /**
  * Trust actual visible 3D actor positions only inside their authoritative
  * cell. Camera lerp after a missed poll, restore or floor swap must never
@@ -101,6 +102,26 @@ function stagedArcFrame(source,target,from,to,life,reducedMotion,actorById=null)
 function material(hex,opacity=.95){
  return new THREE.MeshBasicMaterial({color:hex,transparent:true,opacity,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending});
 }
+
+// Animate a single original 3D, one-draw-call material fracture at a true
+// injury. The start position is sampled from the skinned chest exactly once:
+// fragments then move through the world, rather than sticking to a victim.
+// Reduced-motion never builds the fracture and keeps the primary injury
+// cue/accessible HP change intact.
+function poseDamageShards(effect){
+ const t=Math.min(1,effect.life/effect.duration),age=effect.life;
+ for(let i=0;i<effect.shards.length;i++){
+  const v=effect.shards[i];
+  shardPose.position.set(v.vx*age,v.vy*age-1.35*age*age,v.vz*age);
+  shardPose.rotation.set(v.spin*age,v.spin*age*.64,-v.spin*age*.38);
+  shardPose.scale.setScalar(Math.max(.0001,v.size*(1-t)*(.95+.1*Math.sin(t*Math.PI))));
+  shardPose.updateMatrix();
+  effect.mesh.setMatrixAt(i,shardPose.matrix);
+ }
+ effect.mesh.instanceMatrix.needsUpdate=true;
+ effect.mesh.material.opacity=.82*Math.min(1,(1-t)*4);
+}
+
 export function createCombatDirector(scene,{reducedMotion=false,actorById=null}={}){
  const projectiles=[],impacts=[],pendingCues=[],previous=new Map();let floorKey='',shots=0,bursts=0,releasedCues=0,droppedCues=0,healingCues=0,disarmCues=0,contactLockedCues=0,suppressedUnmatchedCues=0,meleeArcs=0;
  let stagePositions=Object.create(null),trueDamageCues=0,suppressedDamageCues=0,trueEvadeCues=0;
@@ -225,6 +246,23 @@ export function createCombatDirector(scene,{reducedMotion=false,actorById=null}=
    scene.add(mesh);impacts.push({mesh,life:0,duration:hit.duration,mode:'true-hit',
     startScale:hit.scale,beat:{id:beat.id,x:beat.x,z:beat.z},hit:{x:hit.x,y:hit.y,z:hit.z}});
    if(anchor.skinned)skinnedHitAnchors=Math.min(1000000,skinnedHitAnchors+1);
+   // An actual HP decrease owns this entire 3D contact fan. Single instanced
+   // draw, six chips ordinarily or ten for a fatal blow, with a .62s cap.
+   // All visual offsets are cosmetic and the hit coordinates stay authoritative.
+   const shards=planContactShardFan(beat,reducedMotion);
+   if(shards.length){
+    const fracture=new THREE.InstancedMesh(shared.chip,new THREE.MeshStandardMaterial({
+     color:beat.faction==='party'?'#d4b6a1':'#e9c18a',metalness:.4,roughness:.53,
+     emissive:hit.color,emissiveIntensity:.11,transparent:true,opacity:.82,
+     depthWrite:false,side:THREE.DoubleSide
+    }),shards.length);
+    fracture.position.copy(V3(anchor.x,anchor.y,anchor.z));
+    fracture.frustumCulled=false;
+    fracture.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    const fractureEffect={mesh:fracture,life:0,duration:beat.fatal?.68:.52,mode:'true-shards',shards};
+    poseDamageShards(fractureEffect);
+    scene.add(fracture);impacts.push(fractureEffect);
+   }
    trueDamageCues=Math.min(1000000,trueDamageCues+1);ensureBound();
   }
  }
@@ -273,7 +311,9 @@ export function createCombatDirector(scene,{reducedMotion=false,actorById=null}=
    const effect=impacts[i];effect.life+=dt;
    if(effect.life>=effect.duration){cleanup(effect);impacts.splice(i,1);continue;}
    const t=effect.life/effect.duration;
-   if(effect.mode==='evade-dust'){
+   if(effect.mode==='true-shards'){
+    poseDamageShards(effect);
+   }else if(effect.mode==='evade-dust'){
     effect.mesh.material.opacity=.28*(1-t)*(1-t);
     effect.mesh.position.x+=effect.dx*.18*dt/effect.duration;
     effect.mesh.position.z+=effect.dz*.18*dt/effect.duration;
@@ -308,5 +348,5 @@ export function createCombatDirector(scene,{reducedMotion=false,actorById=null}=
   for(const p of projectiles)cleanup(p);for(const p of impacts)cleanup(p);
   projectiles.length=impacts.length=pendingCues.length=0;previous.clear();stagePositions=Object.create(null);
  }
- return{accept,recordDamage,recordEvasions,animate,reset,stats:()=>({trueEvadeCues,activeEvadeDust:impacts.filter(e=>e.mode==='evade-dust').length,trueDamageCues,suppressedDamageCues,activeProjectiles:projectiles.length,activeImpacts:impacts.length,pendingCues:pendingCues.length,healingCues:healingCues,disarmCues:disarmCues,contactLockedCues:contactLockedCues,suppressedUnmatchedCues:suppressedUnmatchedCues,releasedCues:releasedCues,droppedCues:droppedCues,activeGroundRings:impacts.filter(e=>e.mode==='ring').length,activeHitFlashes:impacts.filter(e=>e.mode==='spark').length,activeMeleeArcs:impacts.filter(e=>e.mode==='slash').length,totalMeleeArcs:meleeArcs,skinnedArcFrames,skinnedHitAnchors,totalShots:shots,totalBursts:bursts}),dispose(){reset();for(const geometry of Object.values(shared))geometry.dispose()}};
+ return{accept,recordDamage,recordEvasions,animate,reset,stats:()=>({trueEvadeCues,activeEvadeDust:impacts.filter(e=>e.mode==='evade-dust').length,trueDamageCues,suppressedDamageCues,activeProjectiles:projectiles.length,activeImpacts:impacts.length,pendingCues:pendingCues.length,healingCues:healingCues,disarmCues:disarmCues,contactLockedCues:contactLockedCues,suppressedUnmatchedCues:suppressedUnmatchedCues,releasedCues:releasedCues,droppedCues:droppedCues,activeGroundRings:impacts.filter(e=>e.mode==='ring').length,activeHitFlashes:impacts.filter(e=>e.mode==='spark').length,activePhysicalDamageFans:impacts.filter(e=>e.mode==='true-shards').length,activePhysicalDamageChips:impacts.filter(e=>e.mode==='true-shards').reduce((n,e)=>n+e.shards.length,0),activeMeleeArcs:impacts.filter(e=>e.mode==='slash').length,totalMeleeArcs:meleeArcs,skinnedArcFrames,skinnedHitAnchors,totalShots:shots,totalBursts:bursts}),dispose(){reset();for(const geometry of Object.values(shared))geometry.dispose()}};
 }

@@ -50,3 +50,43 @@ export function planTrueDamageCue(b,stage){
  return Object.freeze({x,z,y:fatal?1.22:1.05,scale:(.95+.53*power)*(fatal?1.13:1),
   duration:fatal?.44:.30,color:b.faction==='party'?'#ffc29f':'#f0d2a3',fatal});
 }
+
+/**
+ * Finite, original three-dimensional armor/soul splinters for *witnessed*
+ * HP loss. Real positive damage is the gate, never proximity, an attack
+ * animation, a projectile arriving, or a speculative target. These
+ * deterministic directions are purely visual; an incoming lane describes
+ * a possible bearing but does NOT attribute causation.
+ *
+ * A single InstancedMesh renders this entire bounded fan on the real rig
+ * contact frame. No seeded authority RNG, extra geometry per shard, or
+ * run-to-run accumulation is allowed.
+ */
+export function planContactShardFan(beat,reducedMotion=false){
+ if(reducedMotion||!planTrueDamageCue(beat,{x:beat?.x,z:beat?.z}))return Object.freeze([]);
+ const power=Math.min(1,Math.max(0,beat.damage/beat.maxHp));
+ const fatal=beat.fatal===true;
+ const count=fatal?10:6;
+ const dx=beat.incoming?.dx,dz=beat.incoming?.dz;
+ const bearing=Number.isInteger(dx)&&Number.isInteger(dz)&&
+  Math.abs(dx)+Math.abs(dz)>=1&&Math.abs(dx)+Math.abs(dz)<=4?
+  Math.atan2(dz,dx):null;
+ const out=[];
+ for(let i=0;i<count;i++){
+  // A known legal cardinal incoming lane narrows the observed spray.
+  // Ambiguous damage is an omnidirectional material shock, never a
+  // falsely identified attacker or an invented hit location.
+  const angle=bearing===null?
+   (i+.5)*Math.PI*2/count:
+   bearing+(i-(count-1)/2)*2.05/(count-1);
+  const speed=(.44+power*.48)*(1+(i%3)*.13);
+  out.push(Object.freeze({
+   vx:Number((Math.cos(angle)*speed).toFixed(5)),
+   vz:Number((Math.sin(angle)*speed).toFixed(5)),
+   vy:Number((.35+power*.27+(i%4)*.075).toFixed(5)),
+   spin:Number(((i%2?1:-1)*(4.8+(i%5)*1.25)).toFixed(5)),
+   size:Number((.65+(i%3)*.16+power*.27).toFixed(5))
+  }));
+ }
+ return Object.freeze(out);
+}

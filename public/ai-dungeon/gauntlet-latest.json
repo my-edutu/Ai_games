@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T04:56:25.000Z",
-  "status": "IN PROGRESS — NOT TRANSFORMED (new 00c81196 candidate experience UNVERIFIED)",
+  "generatedAt": "2026-11-04T06:19:45.000Z",
+  "status": "IN PROGRESS — NOT TRANSFORMED (M1 witnessed 3D contact candidate unverified)",
   "reference": "Diablo IV: overall quality; No Rest for the Wicked: worlds; Path of Exile 2: contact and combat — NOT independently compared as matched motion",
   "metrics": {
     "sample_seeds": 24,
@@ -208,11 +208,11 @@
       "elapsedMs": 158
     }
   ],
-  "visualVerdict": "Authentic predecessor 372f85d desktop/mobile Warden and world-only captures show cartoonishly stylized characters and crowded arena; 00c81196 integrated tactical/stone/window redesign exact-head WebGL and player experience UNVERIFIED. No blind A/B victory.",
+  "visualVerdict": "Previous genuine footage shows action-figure characters and low-impact contact. New skinned-chest physical armor fracture is source implemented, but no exact-head desktop/mobile moving gameplay or matched A/B was inspected.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
   "candidateCommit": "00c81196001d306c5b77590d0ba5a8ce0d252506",
-  "metricsProvenance": "Historical 2026-10-31 24x900 corpus metrics only; not a new-head 00c81196 campaign. Exact prior source-head 372f85d authority PASS, Chromium shard3 27/28 FAIL, full CI FAIL. New candidate workflows running; do not count them as passing.",
+  "metricsProvenance": "Historical 2026-10-31 24x900 corpus only; NOT replay verification of this new candidate. New source motion/audio/CI awaiting browser evidence.",
   "transformation": {
     "milestone": "M1",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
@@ -220,7 +220,7 @@
     "candidateSha": "00c81196001d306c5b77590d0ba5a8ce0d252506",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
-    "exactHeadSafety": "RUNNING_UNVERIFIED",
+    "exactHeadSafety": "UNVERIFIED",
     "looks": "UNVERIFIED",
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
@@ -232,6 +232,7 @@
     "fullDesktopMobileAudiovisualJourney": "UNVERIFIED",
     "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41771366662/artifacts/13296445388",
     "exactHeadAction": "https://github.com/my-edutu/Ai_games/actions/runs/41777544297",
-    "biggestGap": "Human anatomy and physical impact in actual continuous combat motion; styled low-poly figures still trail references."
+    "biggestGap": "Convincing anatomical silhouettes and sustained readable impact in real motion; authentic moving candidate capture and reference A/B missing.",
+    "nextTask": "Inspect exact-source desktop/mobile real-browser hit shards, Warden boss, floor and defeat motion, then measure and compare with locked M1 baseline; correct any screen clutter and complete all five play stages."
   }
 }

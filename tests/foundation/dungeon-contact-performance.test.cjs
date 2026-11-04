@@ -57,3 +57,36 @@ test('the live attack-to-injury renderer follows legitimate animated skinned act
  assert.match(code,/Math\.hypot\(x-beat\.x,z-beat\.z\)>\.58/);
  assert.doesNotMatch(code,/DungeonRuntime|Math\.random|Date\.now/);
 });
+
+test('real injury produces a bounded deterministic world-space fracture, never an invented hit',async()=>{
+ const {planContactShardFan}=await load();
+ const beat={id:'warden',kind:'warden',faction:'enemy',x:9,z:9,damage:36,maxHp:90,
+  fatal:false,incoming:{dx:1,dz:0,sourceId:'vanguard'}};
+ const contact=planContactShardFan(beat);
+ assert.equal(contact.length,6);
+ assert.ok(Object.isFrozen(contact)&&contact.every(Object.isFrozen));
+ assert.deepEqual(contact,planContactShardFan({...beat}));
+ for(const shard of contact){
+  for(const key of ['vx','vz','vy','spin','size'])assert.ok(Number.isFinite(shard[key]));
+  assert.ok(Math.abs(shard.vx)<2&&Math.abs(shard.vz)<2&&
+   shard.vy>0&&shard.vy<1.2&&shard.size>0&&shard.size<1.5);
+ }
+ assert.ok(contact.every(v=>v.vx>0),'explicit legal bearing narrows the visual plume');
+ assert.equal(planContactShardFan({...beat,fatal:true}).length,10);
+ assert.equal(planContactShardFan({...beat,incoming:undefined}).length,6);
+ assert.deepEqual(planContactShardFan(beat,true),[]);
+ for(const damage of [0,-1,Infinity,NaN])
+  assert.deepEqual(planContactShardFan({...beat,damage}),[]);
+});
+test('true-HP contact uses original 3D instancing, one pulse per real observed blow, and complete release',()=>{
+ const director=fs.readFileSync(path.join(root,'public/ai-dungeon/combat-director.js'),'utf8');
+ assert.match(director,/new THREE\.InstancedMesh\(shared\.chip/);
+ assert.match(director,/planContactShardFan\(beat,reducedMotion\)/);
+ assert.match(director,/mode:'true-shards'/);
+ assert.match(director,/poseDamageShards\(effect\)/);
+ assert.match(director,/fracture\.instanceMatrix\.setUsage\(THREE\.DynamicDrawUsage\)/);
+ assert.match(director,/activePhysicalDamageChips/);
+ assert.match(director,/while\(impacts\.length>IMPACT_LIMIT\)cleanup\(impacts\.shift\(\)\)/);
+ assert.match(director,/for\(const p of impacts\)cleanup\(p\)/);
+ assert.doesNotMatch(director,/Math\.random|Date\.now|DungeonRuntime/);
+});
