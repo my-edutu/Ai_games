@@ -1,0 +1,27 @@
+# Tower PR #68 — source-witnessed two-beat guardian/shutter scene and genuine event capture
+2026-11-04 · SAME open transformation initiative · draft PR #68, branch feat/tower-transformation-gauntlet-20261101
+
+## Actual playable experience targeted
+Real native phone danger footage from the previous source (51987) contained >60s of autonomous climbing and guardian action, but 69 sampled frames per layout captured zero synchronized 6-tick guardian/shutter warnings or releases. At the live 20Hz authority rate that warning is only ~300ms: a readable reaction can be missed amid a nearby guardian. This is a major unresolved high-stakes clarity gap, **not** grounds for declaring the game worse or better.
+
+## Connected playable change
+- `public/infinite-tower-climb/visuals/hazard-pressure.mjs` at **97a31bc3**: a genuinely present, near-body shutter scheduled by the existing authoritative 12-tick source countdown and observed evasive intent can now begin its 3D mechanical warning for source ticks 12→7 even while a **real nearby living guardian** is telegraphing. The urgent 6→1 interval still owns the established camera/light/audio priority, so the earlier subdued warning does not jerk the camera away from the boss. Source-active closure and adjacent observed release keep their actual timing. Other ranged/distant/invalid telegraphs do not suppress local hazard geometry.
+- This reuses the same 16-piece/shutter, single instanced draw stage, 3 low-tier/6 normal-tier caps, physical positions, biome light, viewport and material. No fabricated hit, future safe lane, new collision, additional draw, shader pass, animation tick or text is introduced. Stale source and reduced-motion recovery remain gated.
+- Tests for near-body prelude, urgent conversion, living guardian source, unrelated enemy, reduced motion, and stale reset now protect the physical timing. **Tests are veto checks, not independent viewer preferences.**
+
+## Evidence integrity added to the SAME source-pinned capture
+- At **590a8b56** the neutral Playwright original-host danger recording adds a bounded read-only 50ms source+renderer observer inside the continuous *unmodified native WebM* session. It writes `crossfire-source-witness.json`, with exact run token, floor, source tick, true near-body hazard/guardian provenance and same-tick 3D stage diagnostics.
+- It reports source 12→7 prelude, 6→1 imminent, active contact and adjacent visual release **separately**; missing stages remain missing, and each event is only a timing witness, never visual appearance proof.
+- The frozen original SHA is **1731b380851162741761c5569e2bc152a0869ca9**. The baseline capture installs the SAME neutral helper while retaining its original game host unmodified. Same source seed `tower-transformation-capture-v1`, low quality, 960×600 and 390×844 native layout, 20Hz source and normal speed. Baseline and candidate outcomes remain distinct unless event-aligned after full video inspection.
+
+## Validation and independent quality status
+- Prior playable 51987 technical safety run [41911963228](https://github.com/my-edutu/Ai_games/actions/runs/41911963228) **passed**, and earlier actual 9/9 paired scenario capture [41911963177](https://github.com/my-edutu/Ai_games/actions/runs/41911963177) completed. Both predate this new 97a playable change.
+- At evidence authoring, playable-head quality [41916889907](https://github.com/my-edutu/Ai_games/actions/runs/41916889907) and capture [41916889908](https://github.com/my-edutu/Ai_games/actions/runs/41916889908) were in progress. New exact evidence-head CI [41917302340](https://github.com/my-edutu/Ai_games/actions/runs/41917302340) and native full-motion [41917302381](https://github.com/my-edutu/Ai_games/actions/runs/41917302381) were **pending**. Do not infer results.
+- Fresh-context worker/browser tunnel returned **NOT_FOUND**. Hence **NOT EVALUATED**, LOOKS 0/5, FEELS 0/5 and PLAYS 0/5 (missing reviews), with no real supported-device p50/p95/p99 and memory measurements. Capture success does not equate to a transformation.
+
+## Two separate reviews and largest remaining risk
+**Spec/architecture:** no deterministic authority/replay, physics, AI, HP, seed, client privacy, result, or PR58 mutation. The source has to authenticate any physical prelude; source-only diagnostics cannot claim a shown scene. No force-push, merge or deploy.
+
+**Experience/critical risk:** The earlier prelude could visually clutter the live boss's body or introduce sustained warm machinery behind the character at 390×844. 50ms observer events may still miss a true 20Hz source tick; an absent observer is not proof the game never produced the event. The filmed event might be entirely absent in the chosen natural seed. Verify the candidate's exact event window in the untouched full-motion WebM and compare state-aligned frozen video before celebrating. Preserve the freeze even if authentic generated encounters differ; never inject mock hits into an acceptance film.
+
+Continue the SAME game-wide playable slice: source-authentic ascent, moving deck, real guardian/trap combat, earned terminal and actual restart. The quality gate requires 60s+ matched normal-speed before/after each of three scenes on native desktop/phone, 5 independent blind fresh-context reviewers with ≥4/5 candidate preference separately on LOOKS/FEELS/PLAYS, and hardware frame-time tails/memory plus accessibility/replay/stability. **No quality PASS or AAA parity.**
