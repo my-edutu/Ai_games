@@ -31,6 +31,18 @@ export function planPartyWallReveal(x,z,subjects,camera,pad=2.1){
   const sideways=Math.abs(dx*vz-dz*vx)/distance;
   if(subject.silhouetteRecess===true||subject.combatRecess===true){
    const combat=subject.combatRecess===true;
+   // Real Chromium 53fc069: a Vanguard's chest, guard and sword were still
+   // hidden by the immediately adjacent, camera-near Gothic wall FACE.
+   // A centre-based foreground wedge clears the distant wall core but can
+   // leave the face just BEHIND a skinned body's planted origin fully opaque.
+   // Preserve the rear room-scale core (> one tile away), but give the actual
+   // 1.82 m character an adult body-width pocket across the near wall fascia
+   // and its real relief/buttress, regardless of its small combat stance shift.
+   // All render layers consume this same policy; never change solid map cells.
+   const shoulderReach=combat?1.38:1.24;
+   const rearFaceReach=combat?.88:.74;
+   if(radial<=shoulderReach*shoulderReach&&progress>=-rearFaceReach&&
+      sideways<=shoulderReach)return 'sightline';
    const bodyRadius=combat?3.04:2.46;
    const focusRadius=combat?3.65:3.05;
    const focusDepth=combat?3.40:2.65;

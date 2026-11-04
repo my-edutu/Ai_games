@@ -189,6 +189,40 @@ test('an actual combat stage clears frontal weapon contact while retaining archi
  assert.deepEqual(second,{x:-3,z:0,silhouetteRecess:true});
 });
 
+test('native full-body scene clears the actual near-side Gothic face but keeps the rear stone nave',async()=>{
+ const {planPartyWallReveal}=await load();
+ const camera=Object.freeze({x:6,z:0});
+ const hero=Object.freeze({x:0,z:0,silhouetteRecess:true});
+ const wardenDuel=Object.freeze({x:0,z:0,silhouetteRecess:true,combatRecess:true});
+ // A source-skinned hero's face is close to BOTH sides of a .51m-thick
+ // impassable facade. The previous front-only test missed its rear shoulder
+ // and left an opaque panel across the actual Chromium Vanguard's chest.
+ assert.equal(planPartyWallReveal(-.52,0,[hero],camera),'sightline',
+  'a half-cell back-face cannot stand across the camera-facing shoulders');
+ assert.equal(planPartyWallReveal(-.68,.55,[hero],camera),'sightline',
+  'an adjacent corner fascia must give the animated sword an acting pocket');
+ assert.equal(planPartyWallReveal(-.85,.45,[wardenDuel],camera),'sightline',
+  'the genuine Warden counter gets more full-body clearance');
+ assert.equal(planPartyWallReveal(-1,0,[hero],camera),'nearby',
+  'the full rear wall core stays a visibly dressed Gothic ruin');
+ assert.equal(planPartyWallReveal(-2.9,.3,[wardenDuel],camera),'none',
+  'do not erase the rear cathedral to flatter one hero');
+ assert.equal(planPartyWallReveal(0,3.7,[wardenDuel],camera),'none',
+  'distant sidelong architecture stays fully physical');
+ assert.equal(planPartyWallReveal(-.52,0,[{x:0,z:0}],camera),'nearby',
+  'generic unmarked subjects cannot manufacture the larger actor pocket');
+ assert.equal(planPartyWallReveal(-.52,0,[hero],camera),
+  planPartyWallReveal(-.52,0,[hero],camera));
+ assert.deepEqual(hero,{x:0,z:0,silhouetteRecess:true},
+  'the render policy must not mutate the public game snapshot');
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ const dressing=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
+ const nave=fs.readFileSync(path.join(root,'public/ai-dungeon/chapter-nave.js'),'utf8');
+ assert.match(app,/cutawayWalls\(target,partySightlines,/);
+ assert.match(dressing,/planPartyWallReveal\(f\[0\],f\[2\],eyes,camera,wallPad\)/);
+ assert.match(nave,/planPartyWallReveal\(p\.x,p\.z,eyes,camera,pad\)/);
+});
+
 test('real Gothic weathering is fitted to the near ruin rather than erased or floating above it',()=>{
  const env=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
  const floor=fs.readFileSync(path.join(root,'public/ai-dungeon/cutaway-floor-plan.js'),'utf8');
