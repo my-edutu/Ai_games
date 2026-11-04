@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T09:00:00.000Z",
-  "status": "IN PROGRESS — NOT TRANSFORMED (organic full-game authority stage newly observed; integrated audiovisual gate unverified)",
+  "generatedAt": "2026-11-04T10:14:05.973Z",
+  "status": "IN PROGRESS — NOT TRANSFORMED: true organic authority campaign passed on predecessor; candidate full actor-scale 3D composition requires actual matched browser capture",
   "reference": "Diablo IV: overall quality; No Rest for the Wicked: worlds; Path of Exile 2: contact and combat — NOT independently compared as matched motion",
   "metrics": {
     "sample_seeds": 24,
@@ -208,19 +208,19 @@
       "elapsedMs": 158
     }
   ],
-  "visualVerdict": "Candidate fc252c4 passed original 2,500-tick organic all-stage adventure at 281/282 foundation. One new floor-respite fixture erroneously left its exit-occupying Ranger far from the living leader; AI correctly escorted leader instead of descending. Corrected fixture to stage genuinely reunited party. New exact-head source safety/browser, real audiovisual before/after and independent critics UNVERIFIED.",
+  "visualVerdict": "Inspected real exact-head 4cdd7bf world-only 1440x832 Chromium image: 3 live hero bodies visible, min projected 241px, but wall slabs visually sever limbs, dense masonry overwhelms fantasy staging, native CC0 rigs remain stylised/toy-like. 4cdd authority + browser shards 1 and 2 passed; browser shard 3 failed inherited obsolete Sentinel recovery assertion (3 expected vs genuine 2). New camera-side negative-space candidate f3e5a50 is committed but its real moving desktop/mobile AFTER is UNVERIFIED. No positive A/B or blind preference claimed.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
-  "candidateCommit": "a99794b50fc22507e42649c4885fa8dbba29f835",
-  "metricsProvenance": "Historical 24x900 corpus measurements only; do not apply them to the candidate. Exact predecessor b78a8bf at tick 2500 run1 floor3, 23 real kills, 3 surviving heroes, floor3 Warden 362/362 HP, still no natural defeat or restart, Dungeon 41790973479 FAILED.",
+  "candidateCommit": "f3e5a50f1de970d9691ed311c934f4f5e13ec443",
+  "metricsProvenance": "24×900 corpus historical only (not exact f3e5a50); 4cdd7bf auth PASS and shard 1/2 PASS, shard 3 27/28; first genuine 2500-tick full-organic sequence including Warden victory, descent and natural defeat/restart had passed at ab91ab7 and fc252c4. No synchronized full desktop/mobile motion+audio for this source.",
   "transformation": {
     "milestone": "M1",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
     "locked": true,
-    "candidateSha": "152e5d7f1bd28bf4d5a5143d377ebc3cb0a649ae",
+    "candidateSha": "f3e5a50f1de970d9691ed311c934f4f5e13ec443",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
-    "exactHeadSafety": "UNVERIFIED at new pursuit implementation; predecessor Dungeon 41790973479 failed actual organic terminal (floor3 after 2500 ticks), browser terminal and visual review 41790973481 failed",
+    "exactHeadSafety": "UNVERIFIED f3e5a50; 4cdd7bf Dungeon 41804451789 authority+two browser shards PASS, third browser shard 27/28 (outdated Warden counter expectation); visual review 41804451786 PASS. After code changes require new exact-head jobs.",
     "looks": "UNVERIFIED",
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
@@ -230,10 +230,10 @@
       "majorityAllPillars": false
     },
     "fullDesktopMobileAudiovisualJourney": "UNVERIFIED",
-    "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41771366662/artifacts/13296445388",
-    "exactHeadAction": "PENDING / UNVERIFIED — GitHub Actions checks triggered by new code on draft PR #49",
-    "biggestGap": "Actual-source M1 journey reaches floor 3 yet has no natural defeat/restart within 2500 ticks; final boss pressure and readable physically meaningful contact remain too weak. Late-phase real chase and close living-backliner selection is source committed, not accepted in moving gameplay.",
-    "nextTask": "Inspect exact new-head natural source run with floor-by-floor timings and replay; correct if real defeat/restart still missing without faking losses. Review actual desktop/mobile boss pursuit/character contact with original audio, benchmark performance and obtain matched baseline blind majority.",
+    "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41804451789/artifacts/13310177036",
+    "exactHeadAction": "Queued Action 41812734100 (Dungeon), 41812733829 (real visual), 41812733954 (CI) as of source review; final head may differ after ledger commit",
+    "biggestGap": "Running WebGL screen still resembles a toy dungeon: real actors have oversized toy-like silhouettes behind near chest-height Gothic masonry. Current code opens bounded body-scale physical negative space around actual heroes/contact. Only original SOURCE and predecessor negative capture verified; exact candidate cinematic gameplay quality, synchronized A/V and independent critics UNVERIFIED.",
+    "nextTask": "Inspect full current-head 1440×832 + 390×844 Chromium genuine scene screenshots, all five event stages and original motion+audio; compare against locked 281735d real source with matched seed; reject undercut architecture that erases dungeon identity; proceed to substantial native-model anatomy/contact animation redesign; run blind 3+ critics, performance, accessibility and safety gates without merging.",
     "currentMilestoneLedger": "public/ai-dungeon/gauntlet-history.json"
   },
   "acceptanceStatus": "LOOKS UNVERIFIED / FEELS UNVERIFIED / PLAYS UNVERIFIED / BLIND CRITICS 0 OF 3"

@@ -2350,12 +2350,45 @@
         ],
         "workflow": "https://github.com/my-edutu/Ai_games/actions/runs/41789511530",
         "reason": "Four-tick Eclipse had no legal pursuit interval, alternating 3 warnings/impact and 2 recovery turns."
+      },
+      "exactFourCddEvidence": {
+        "sourceSha": "4cdd7bf4b5e3169f276879772f7efcd9b1d8d55a",
+        "dungeonWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41804451789",
+        "visualWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41804451786",
+        "realWorldOnly": "https://github.com/my-edutu/Ai_games/actions/runs/41804451789/artifacts/13310177036",
+        "actualFrame": {
+          "width": 1440,
+          "height": 832,
+          "visibleHeroes": 3,
+          "minHeroPixels": 241,
+          "triangles": 119427,
+          "nativeContinuousActors": 9
+        },
+        "observation": "INSPECTED actual Chromium original 3D pixels: large square near-camera walls obscure animated actor legs, densely repeated chest-high Gothic masonry dominates the image; colorful imported figures still have toy-like proportions. Center-ray test unoccludedHeroes 3/3 does not mean whole-body visibility. Negative subjective review; never a blind A/B win.",
+        "authority": "PASS",
+        "browser": "shards 1 and 2 PASS; shard 3 27 PASS / 1 FAIL at inherited Sentinel recovery assertion expecting obsolete 3 instead of actual authoritative 2 turns",
+        "fullAudiovisual": "UNVERIFIED",
+        "blindCritics": "0/3"
+      },
+      "currentSourceCandidate": {
+        "sha": "f3e5a50f1de970d9691ed311c934f4f5e13ec443",
+        "codeCommit": "https://github.com/my-edutu/Ai_games/commit/f3e5a50f1de970d9691ed311c934f4f5e13ec443",
+        "change": "Render-only integrated body-scale foreground masonry clearance and lower decorative facade, preserves source-true playable walls, sparse physical cutaways, deterministic cache and original 3D actor rigs. Adjust inherited browser safety expectation to match already implemented 1-turn Sentinel phase recovery. No gameplay-authority modification.",
+        "actualAfterDesktop": "UNVERIFIED",
+        "actualAfterMobile": "UNVERIFIED",
+        "motionAudio": "UNVERIFIED",
+        "matchedBaseline": "UNVERIFIED",
+        "performance": "UNVERIFIED",
+        "looksFeelsPlaysCritics": "UNVERIFIED",
+        "dungeonAction": "https://github.com/my-edutu/Ai_games/actions/runs/41812734100",
+        "visualAction": "https://github.com/my-edutu/Ai_games/actions/runs/41812733829",
+        "catalogueAction": "https://github.com/my-edutu/Ai_games/actions/runs/41812733954"
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Organic campaign now has a first TRUE completion in a new authoritative run after fixing boss free-turn tempo and depth respite, but full gameplay balance across seeds and real desktop/mobile synchronized audiovisual evidence is not verified. Characters still toy-scale, impact and Gothic composition remain badly below the reference quality bar.",
-    "currentWork": "Genuine 2500-tick natural adventure now passes at both ab91ab7 and fc252c4. Source boss cadence and earned recovery fixed the former endless almost-invulnerable Warden, and depth respite preserves attrition. fc252c4 authority 281/282 revealed a legitimate portal fixture issue; corrected to stage a real gathered squad rather than forcing a ranger to abandon an expedition leader. Reverify source/organic/browser, then devote work to unacceptable character/environment audiovisual fidelity.",
-    "candidateCommit": "152e5d7f1bd28bf4d5a5143d377ebc3cb0a649ae",
+    "biggestRemainingGap": "Actual 1440x832 scene still has toy-like genuine CC0 human proportions and dense square masonry crossing legs, undermining continuous combat body language. Physical negative-space acting stage is candidate source committed, not confirmed moving WebGL. Full synchronized original desktop/mobile audiovisual journey, matched baseline/references and 3+ blind majorities are absent.",
+    "currentWork": "Inspected exact 4cdd7bf native screenshot and last Actions; preserved first organic 2500-tick genuine Warden-kill, descent, natural defeat/restart achieved on predecessors. Integrated actor-sized cutaways across real walls, facade, capped ruins at source commit f3e5a50; corrected a stale browser Sentinel recovery check (counter phases themselves unchanged). Await actual exact-head 3D evidence and separate fresh-context critics. Do not claim transformed.",
+    "candidateCommit": "f3e5a50f1de970d9691ed311c934f4f5e13ec443",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
     "implementationEvents": [
@@ -4623,6 +4656,33 @@
           "tests/foundation/dungeon-warden-expedition-pressure-m1.test.cjs"
         ],
         "next": "Inspect next exact head; no test skip; preserve source-original organic test, desktop/mobile real endgame and independent visual gates pending."
+      },
+      {
+        "id": "M1-REAL-ACTOR-NEGATIVE-SPACE-20261104",
+        "date": "2026-11-04",
+        "status": "SOURCE_IMPLEMENTED_REAL_AFTER_UNVERIFIED",
+        "sourceHeadAtStart": "4cdd7bf4b5e3169f276879772f7efcd9b1d8d55a",
+        "candidateCommit": "f3e5a50f1de970d9691ed311c934f4f5e13ec443",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "objective": "Make genuine animated hero legs and melee contacts legible beneath the crowded real Gothic camera, without destroying the map or concealing the reference quality gap.",
+        "implementation": [
+          "Open physically bounded actual hero 2.46m and contact 3.04m low-wall negative-space pockets in party-visibility-plan.js",
+          "Recompose true base-wall foreground stone to 0.13m sightline and narrow 0.27m nearby carved ruins; match 3D decorative facades",
+          "Maintain all capstone, weathered, underfloor instanced stone masks with existing deterministic GPU caching; original wall grid, movement, boss threats and combat unchanged",
+          "Resolve obsolete genuine Warden exposure Playwright 3/2 recovery assumptions to exact 2/1 for Sentinel; preserve organic authority acceptance"
+        ],
+        "actualBefore": {
+          "sourceSha": "4cdd7bf4b5e3169f276879772f7efcd9b1d8d55a",
+          "artifact": "https://github.com/my-edutu/Ai_games/actions/runs/41804451789/artifacts/13310177036",
+          "negativeObservation": "Actual screenshot with cropped feet and toy-like actors"
+        },
+        "originalBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "actualAfter": "UNVERIFIED",
+        "audio": "UNVERIFIED",
+        "performance": "UNVERIFIED",
+        "safety": "UNVERIFIED at candidate source; 4cdd7bf authority and 2 browser shards passed, one old assertion failed",
+        "criticVerdict": "NO CRITICS 0/3; LOOKS/FEELS/PLAYS UNVERIFIED",
+        "next": "Inspect actual exact-new-head desktop/mobile scenes, boss recovery video/audio, full true game journey and compare against permanently locked baseline; iterate substantial actor material/animation and fighting-stage corrections rather than relying on new test counts."
       }
     ]
   }
