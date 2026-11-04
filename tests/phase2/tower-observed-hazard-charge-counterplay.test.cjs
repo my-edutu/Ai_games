@@ -41,9 +41,13 @@ test('live pilot sees the same genuine 20Hz charge as the physical 3D stage, not
   assert.equal(createTowerRenderSnapshot(s).hazards[0].chargeTicksRemaining,undefined);
   assert.deepEqual(s,{...before,tick:4},'observation and rendering never mutate gameplay authority');
 });
-test('genuine charge produces retreat, then a last-three-tick earned jump only if still inside',()=>{
+test('visible 12-tick charge produces retreat, then a physically earned last-chance jump',()=>{
   const {s}=imminent(),unchanged=structuredClone(s);
-  assert.notEqual(live(s).intent.mode,'evading-hazard','no early invented forecast at 12 ticks');
+  const first=live(s);
+  assert.equal(first.intent.mode,'evading-hazard',
+    'already visible 12-tick shutter charge should give the actual climber time to react');
+  assert.equal(first.action.move,-1,'equal deck exits use deterministic tie-breaking');
+  assert.equal(first.action.jump,false,'early warning is for steering, not an unearned leap');
   s.tick=4;
   const early=live(s);
   assert.equal(early.intent.mode,'evading-hazard');
@@ -98,4 +102,34 @@ test('descending into an imminently charging landing takes a genuinely clear lan
   assert.match(warned.intent.summary,/clear landing lane/i);
   const legacy=chooseTowerAction(s,createTowerObservation(s),{tactical:false});
   assert.equal(legacy.action.move,0,'historical source trajectory remains unchanged');
+});
+
+test('the autonomous climber commits to an observed exit with real on-deck momentum, not a decorative hazard midpoint',()=>{
+  const {s,p,center}=imminent();
+  s.tick=6; // six genuinely published ticks to activation
+  p.velocity.x=s.config.maxRunSpeed;
+  const directed=live(s);
+  assert.equal(directed.intent.mode,'evading-hazard');
+  assert.equal(directed.action.move,1,
+    'an already rightward climber should not reverse into an equally distant left route');
+  assert.equal(directed.action.jump,true,
+    'when neither body-clear exit fits the remaining physics window, earn a timely leap');
+  assert.deepEqual(directed,live(s),'fixed-step choices must be repeatable');
+  assert.equal(p.position.x,center,'policy does not teleport or force a safe outcome');
+});
+test('full-width live shutter charge has no fictional safe deck exit and forces an ordinary early leap',()=>{
+  const {s,p,deck}=imminent();
+  const hazard=s.chunks[0].hazards[0];
+  hazard.x=deck.x;
+  hazard.width=deck.width;
+  s.tick=6;
+  const before=structuredClone(s);
+  const result=live(s);
+  assert.equal(result.intent.mode,'evading-hazard');
+  assert.equal(result.action.jump,true,'a witnessed blocked deck must be tackled before the last 0.15 seconds');
+  assert.equal(result.action.dash,false);
+  assert.deepEqual(s,before,'failed escape must not change collision or authority');
+  p.grounded=false;p.groundedPlatformId=undefined;
+  assert.notEqual(live(s).intent.mode,'evading-hazard',
+    'the grounded emergency cannot grant a fake second jump in mid-air');
 });
