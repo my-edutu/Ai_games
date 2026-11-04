@@ -7,6 +7,7 @@ import { createRenderProgress } from './render-progress.mjs';
 import { createTowerFinale } from './finale.mjs';
 import { observedGuardianPassage, createTowerGuardianPassage } from './guardian-passage.mjs';
 import { createTowerRouteIntent, witnessedHealthPickup } from './route-intent.mjs';
+import { createTowerLandingApproach } from './landing-approach.mjs';
 import { observedHealthRecovery, createTowerRecoveryTransfer } from './recovery-transfer.mjs';
 import { createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianRelayStage, observedGuardianPowerSpineStage } from './guardian-circuit.mjs';
 import { createTowerAtmosphere } from './atmosphere.mjs';
@@ -1654,6 +1655,10 @@ export function createTowerScene(canvas, settings = {}) {
   // retired during combat, terminal states, restart and graphics recovery.
   let routeIntent = createTowerRouteIntent(THREE);
   scene.add(routeIntent.group);
+  // The same observed source intent physically identifies the next actual
+  // 3D landing deck, without forecasting a collision-safe arrival.
+  let landingApproach = createTowerLandingApproach(THREE);
+  scene.add(landingApproach.group);
   let guardianCircuit = createTowerGuardianCircuit(THREE);
   scene.add(guardianCircuit.group);
   // True guardian charge -> projectile: one exterior world-space warning draw,
@@ -1962,6 +1967,7 @@ export function createTowerScene(canvas, settings = {}) {
     motionLedger.reset(); motionEcho.count = 0; motionEcho.visible = false;
     footingShadow.visible = false; observedFooting = null;
     movingDeckRide.reset(); observedRidePose = null;
+    landingApproach.clear();
     recoveryTransfer.clear();
     atmosphere.clear();
     guardianShotStage.clear();
@@ -1980,8 +1986,8 @@ export function createTowerScene(canvas, settings = {}) {
     releaseEnvironment();
     reflectionFirstFrame = true;
     clearActors();
-    scene.remove(world.group, climber.group, finale.group, passage.group, routeIntent.group, guardianCircuit.group, guardianShotStage.group, guardianGuardStage.group, atmosphere.group, recoveryTransfer.group);
-    world.dispose(); climber.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose(); guardianCircuit.dispose(); guardianShotStage.dispose(); guardianGuardStage.dispose(); atmosphere.dispose(); recoveryTransfer.dispose();
+    scene.remove(world.group, climber.group, finale.group, passage.group, routeIntent.group, landingApproach.group, guardianCircuit.group, guardianShotStage.group, guardianGuardStage.group, atmosphere.group, recoveryTransfer.group);
+    world.dispose(); climber.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose(); landingApproach.dispose(); guardianCircuit.dispose(); guardianShotStage.dispose(); guardianGuardStage.dispose(); atmosphere.dispose(); recoveryTransfer.dispose();
     skyGeometry.dispose(); skyMaterial.dispose();
     for (const geometry of sharedGeometry) geometry.dispose();
     for (const material of sharedMaterials) material.dispose();
@@ -1989,13 +1995,14 @@ export function createTowerScene(canvas, settings = {}) {
     world = createTowerWorld(); climber = createClimber(); finale = createTowerFinale(THREE);
     passage = createTowerGuardianPassage(THREE);
     routeIntent = createTowerRouteIntent(THREE);
+    landingApproach = createTowerLandingApproach(THREE);
     guardianCircuit = createTowerGuardianCircuit(THREE);
     guardianShotStage = createTowerGuardianShotStage(THREE);
     guardianGuardStage = createObservedGuardianGuardStage(THREE);
     atmosphere = createTowerAtmosphere(THREE);
     recoveryTransfer = createTowerRecoveryTransfer(THREE);
     climber.group.name = 'ExpeditionClimber';
-    scene.add(world.group, climber.group, finale.group, passage.group, routeIntent.group, guardianCircuit.group, guardianShotStage.group, guardianGuardStage.group, atmosphere.group, recoveryTransfer.group);
+    scene.add(world.group, climber.group, finale.group, passage.group, routeIntent.group, landingApproach.group, guardianCircuit.group, guardianShotStage.group, guardianGuardStage.group, atmosphere.group, recoveryTransfer.group);
     initialized = false;
     if (snapshot) updateEntities(snapshot);
   }
@@ -2249,6 +2256,12 @@ export function createTowerScene(canvas, settings = {}) {
     const recoverySupport = snapshot.intent?.mode?.replace(/^oracle-/, '') === 'collecting-resource'
       ? snapshot.platforms?.find(deck => deck.id === snapshot.intent?.targetPlatformId) : null;
     routeIntent.update(snapshot, recoverySupport || targetPlatform, options);
+    // The current selected deck retains a readable physical threshold even
+    // while its source-driven moving carriage changes world position.
+    // Real health detours and guardian windups yield to higher-priority cues.
+    landingApproach.update(snapshot, recoverySupport ? null : targetPlatform,
+      !recoverySupport && targetPlatform
+        ? observedSourceLandingX(snapshot, targetPlatform) : null, options);
     // HP-operated real-world lock: one depth-tested architectural twin-rail
     // connection from the live guardian to its existing cap anchor.
     guardianCircuit.update(snapshot, options);
@@ -3119,7 +3132,7 @@ export function createTowerScene(canvas, settings = {}) {
         ageSeconds: Math.max(0, Number((elapsed - authenticRestartSweep.began).toFixed(3))),
         cameraOnly: true, motionDisabled: !!options.reducedMotion,
       } : null,
-      routeIntent: routeIntent.diagnostics(), guardianCircuit: guardianCircuit.diagnostics(),
+      routeIntent: routeIntent.diagnostics(), landingApproach: landingApproach.diagnostics(), guardianCircuit: guardianCircuit.diagnostics(),
       guardianShotStage: guardianShotStage.diagnostics(),
       witnessedAirbornePulse: airbornePulse && airbornePulse.runToken === snapshot?.runToken &&
         airbornePulse.floor === snapshot?.floor && !options.stale &&
