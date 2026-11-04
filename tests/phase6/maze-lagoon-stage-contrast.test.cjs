@@ -24,7 +24,7 @@ async function actualWorld() {
 }
 const cell=(id)=>({cell:id,neighbors:[],blocked:false,trap:false,checkpoint:false,clue:false});
 const shot=(cells,extras={})=>({runToken:'public-sea',tick:1,width:7,height:7,
-  currentCell:22,cells,doors:[],keys:[],inventory:[],threats:[],exitCell:null,
+  currentCell:22,cells,visibleCells:cells.map(c=>c.cell),doors:[],keys:[],inventory:[],threats:[],exitCell:null,
   result:null,...extras});
 function realSeaPixels(world) {
   const ocean=world.group.children[0].children.find(m=>m.isMesh&&m.material?.map?.isDataTexture);
