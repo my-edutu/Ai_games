@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T17:41:34.332Z",
-  "status": "IN PROGRESS — NOT TRANSFORMED: integrated Warden aftermath (real floor fractures, bounded falling stone and truthful dodge camera impulse) committed; actual gameplay quality unverified",
+  "generatedAt": "2026-11-04T18:07:27.203Z",
+  "status": "IN PROGRESS — NOT TRANSFORMED: genuine living actor body-height stone clearance during traversal integrated; latest moving desktop/mobile quality UNVERIFIED.",
   "reference": "Diablo IV: overall quality; No Rest for the Wicked: worlds; Path of Exile 2: contact and combat — NOT independently compared as matched motion",
   "metrics": {
     "sample_seeds": 24,
@@ -208,19 +208,19 @@
       "elapsedMs": 158
     }
   ],
-  "visualVerdict": "Previous real Chromium remained toy-like and suffered real body occlusion. Current physical Warden impact/debris is source-only and its actual visual effect is UNVERIFIED, as are LOOKS/FEELS/PLAYS against the unchanged M1 baseline.",
+  "visualVerdict": "Personally inspected exact d90e23e genuine Chromium 1440×832: original Vanguard helmet and sword visible but torso and boots concealed by blocky masonry; other native figures remain toy-like. Current candidate a2e561d changes connected body-ray scene clearance, but no matched actual AFTER capture, original synchronized audio or independent quality judgment yet.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
-  "candidateCommit": "8fca839ad8d731fe5b45b0693a2aab8071022c03",
+  "candidateCommit": "a2e561d114db7b9ceccaa8eeb839152f0cde0755",
   "metricsProvenance": "Historical deterministic campaign aggregates refer to older code and were NOT rerun for 8fca839ad8d731fe5b45b0693a2aab8071022c03. Code-mode source parser and pure witness checks succeeded; no fresh actual WebGL, synchronized original audio, hardware phone p95 or independent critic result observed.",
   "transformation": {
     "milestone": "M1",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
     "locked": true,
-    "candidateSha": "8fca839ad8d731fe5b45b0693a2aab8071022c03",
+    "candidateSha": "a2e561d114db7b9ceccaa8eeb839152f0cde0755",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
-    "exactHeadSafety": "New-head CI and browser workflows queued/unknown. The previously queued workflows for 879dcea are NOT the exact current source; no safety gates claimed as green.",
+    "exactHeadSafety": "494f22a predecessor full catalogue 953/954; one incorrect new test expected no scenic cutaway, corrected alongside stricter living-actor guard at a2e561d. Exact a2e561d CI, browser, replay, security and mobile results UNVERIFIED.",
     "looks": "UNVERIFIED",
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
@@ -230,11 +230,11 @@
       "majorityAllPillars": false
     },
     "fullDesktopMobileAudiovisualJourney": "UNVERIFIED",
-    "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41865245118/artifacts/13341748845",
-    "exactHeadAction": "Review real browser Warden strike from current SHA for actual stone fractures, falling geometry, genuine zero-hit impact, camera composition and GPU costs. Reject material clutter, broken meshes or false strike timing. Then return to substantial character anatomy, native contact and movement/pacing, and obtain full continuous ORIGINAL-audio five-stage matched desktop/mobile blind reviews.",
-    "biggestGap": "Professional human-scale native animated anatomy, readable sword-body contact and Gothic negative space remain far below authentic Diablo IV / No Rest for the Wicked / Path of Exile 2. No verified matched AFTER or p95/3 critics.",
-    "nextTask": "Review real browser Warden strike from current SHA for actual stone fractures, falling geometry, genuine zero-hit impact, camera composition and GPU costs. Reject material clutter, broken meshes or false strike timing. Then return to substantial character anatomy, native contact and movement/pacing, and obtain full continuous ORIGINAL-audio five-stage matched desktop/mobile blind reviews.",
+    "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41879611471/artifacts/13348362663",
+    "exactHeadAction": "Inspect the exact new-head desktop/390px Chromium real skinned heroes, measure whether their chest, sword and boots are physically visible through foreground masonry without flattening rear Gothic arches; reject any motion/camera/CPU-raster regression. Then build substantially improved original native human-scale character anatomy and real weapon contact, while recording an organic Warden-to-restart desktop/mobile episode with original synchronized audio, matched baseline and 3 independent blind critics.",
+    "biggestGap": "Real source figures still KayKit toy-proportioned, weak contact and obscuring oversized stone. First verify the integrated actual-body clearance in moving exact-head Chromium, then materially improve original native character anatomy and real impacts, not another styling tweak.",
+    "nextTask": "Inspect the exact new-head desktop/390px Chromium real skinned heroes, measure whether their chest, sword and boots are physically visible through foreground masonry without flattening rear Gothic arches; reject any motion/camera/CPU-raster regression. Then build substantially improved original native human-scale character anatomy and real weapon contact, while recording an organic Warden-to-restart desktop/mobile episode with original synchronized audio, matched baseline and 3 independent blind critics.",
     "currentMilestoneLedger": "public/ai-dungeon/gauntlet-history.json"
   },
-  "acceptanceStatus": "IN PROGRESS — NOT TRANSFORMED. LOOKS, FEELS, PLAYS UNVERIFIED; 0/3 blind critics; original-audio desktop/mobile five-stage journey, performance and safety gates unverified."
+  "acceptanceStatus": "IN PROGRESS — NOT TRANSFORMED. LOOKS/FEELS/PLAYS UNVERIFIED, 0/3 blind critics. Organic travel→combat→boss→floor→defeat/restart with original synchronized audio on desktop/mobile and matched baseline, p95 and CI not yet accepted."
 }

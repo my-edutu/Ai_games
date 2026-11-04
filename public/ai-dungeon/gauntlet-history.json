@@ -2194,7 +2194,7 @@
         "playsMajority": false,
         "provenance": "No fresh independent critics available. Do not infer a blind preference from test results or real predecessor screenshots."
       },
-      "safetyChecks": "Source validation only. Corrected true-event predicate and regression fixture were inspected/parse-checked in current run. Latest exact-head authority, browser, security, replay and catalogue workflows still queued; predecessor results cannot be promoted.",
+      "safetyChecks": "494f22a full catalogue 953/954, one newly introduced incorrect expectation, fixed in a2e561d alongside physical actor-only cutaway. Exact current source pending; no green safety claim.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED full synchronized game soundtrack and video: real original WAV from earlier Warden browser test may exist; do not infer from separate audio and silent WebM.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2202,14 +2202,11 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Real-source b8be04f 1440x832 browser screenshot from 41672587065 and Warden boss desktop/mobile screenshot/video artifacts 41672587022 were INSPECTED: new 14 anatomical joint cylinders made elongated opaque spindly/squid-like limbs. Warden encounter head-on 1440x832 has 3 heroes overlapping enemy bodies in the 58% HP boss arena, warning Rift Cross visible but contact indistinguishable; mobile capture progressed into floor 2 but large stylized ballheads persist. This is a NEGATIVE experiential finding compared with da492455 and exact locked baseline; source visual redesign at 71da2ea to cap spans remains unverified. No masked A/B victory.",
-      "latestCandidateWorkflow": "39af50ef catalogue CI 41875107725 failed at one new test SyntaxError (944 passed); correct single-quote name in current commit. Dedicated Dungeon and visual review 39af remain outstanding.",
+      "latestCandidateWorkflow": "494f22a catalogue 41882914858 FAILED one of 954 tests due incorrect new scenic fallback assertion. Exact corrected a2e561d CI, browser, mobile and security NOT YET VERIFIED.",
       "currentPredecessorWebgl": {
-        "sourceHead": "7817fb4e2e77f33d90172dfe359a22f0632527b1",
-        "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41865245118/artifacts/13341748845",
-        "rawWorldScreenshot": "artifacts/dungeon-immersive-world-only.png",
-        "mobileScreenshot": "artifacts/dungeon-immersive-mobile-default.png",
-        "observation": "Genuine exact-predecessor 1440x832 WebGL from successful run 41865245118, artifact 13341748845, inspected: Vanguard head and sword float over an opaque chest-high fascia while torso/boots remain concealed; other skinned actors are bright and toy-like. Real Chromium motion is short UI footage without an audio track, not a complete adventure.",
-        "safety": "Previous exact source 7817fb4: real visual review 41865245118 PASSED and all three browser shards of 41865245158 PASSED. Dedicated authority FAILED 294/295 on a stale 5-argument facade source assertion (actual code passes f[4]); broad catalogue CI 41865245251 FAILED on the same case. Current 05da9ae new-head tests/Chromium performance and correct full journey are still PENDING / UNVERIFIED."
+        "sourceSha": "d90e23e4b98dd162b563a34dcc215cbde5efdfdf",
+        "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41879611471/artifacts/13348362663",
+        "observation": "Inspected real browser world-only 1440×832: oversize cartoon models and stone hide Vanguard torso/boots. Positive new-head visual result not proven."
       },
       "newCandidateSceneReview": "4 Nov exact-source e2ae292 predecessor original desktop+phone Chromium [41836501700/artifacts/13327586616] INSPECTED: 1440x832 raw world hero partly obstructed from chest to feet behind brown cuboid stone, severely repetitive partitions and toy-like body geometry; phone mostly head visible behind stone. NEGATIVE; not matched visual improvement. New e58f0bb physical-camera director has no actual AFTER footage/critics.",
       "characterDrawBudget": "Previous exact 429e6b real Chromium had 265 cinematicMeshes at desktop versus <=240 test bound (shard1 failed). New 3aec189 fuses 4–5 head parts per figure and removes 1 gorget per figure but actual current head draw counts, performance and visual quality UNVERIFIED; do not infer from mesh arithmetic.",
@@ -2396,9 +2393,9 @@
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Source character anatomy remains stylized; real moving sword-to-enemy contact and readable Gothic negative space are not AAA parity. New candidate not verified against pinned before screenshots. Five-stage synchronized desktop/mobile original-audio journey, phone p95 and 3 blind critics unavailable.",
+    "biggestRemainingGap": "True native adult-scaled bodies and convincing sword contact amid coherent Gothic architecture remain unaccepted. Real 1440x832 predecessor shows a head and blade rising over opaque wall while torso/boots remain hidden. Exact new-head physical ray clearance not yet captured.",
     "currentWork": "One continuing M1 battlefield-combat scene candidate through 8fca839ad8d731fe5b45b0693a2aab8071022c03: actual Warden impact must be witnessed against its previous real warning; carved physical floor fractures persist, bounded stone chips rise/fall only after that strike, and original camera pulse remains on a genuine all-dodged shockwave. Browser motion/phone performance/critic judgment still UNVERIFIED; no new Gauntlet round.",
-    "candidateCommit": "8fca839ad8d731fe5b45b0693a2aab8071022c03",
+    "candidateCommit": "a2e561d114db7b9ceccaa8eeb839152f0cde0755",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -4983,6 +4980,46 @@
           "882d90c corrected event predicate for live singular/plural Warden ground impacts",
           "8fca839 new source contract verifies the real event phrase"
         ]
+      },
+      {
+        "id": "M1-LIVE-TRAVEL-NATIVE-BODY-RAYS-20261104",
+        "date": "2026-11-04",
+        "status": "SOURCE_IMPLEMENTED; EXPERIENCE_UNVERIFIED",
+        "milestoneId": "DUNGEON-TRANSFORMATION-01",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "firstCodeSha": "494f22a51bc4267bf2c7f4d43c4a4d5551dcbaf3",
+        "correctionSha": "a2e561d114db7b9ceccaa8eeb839152f0cde0755",
+        "objective": "Make the actual running 3D protagonist's full body physically visible during ordinary expedition travel, not just when the director declares cinematic combat: the camera, stone, facade and chapel should honor the same genuine, height-aware actor sightline while preserving architectural depth.",
+        "observedBefore": {
+          "sourceSha": "d90e23e4b98dd162b563a34dcc215cbde5efdfdf",
+          "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41879611471/artifacts/13348362663",
+          "observation": "Personally inspected the genuine exact-predecessor 1440×832 Chromium world-only frame. Original KayKit Vanguard head and sword protrude above tall cuboid stone while torso and boots are hidden; two other stylized heroes remain crowded left. Repeated heavy raised masonry and bright low-detail figures strongly lag authentic Diablo IV composition. This is observed BEFORE, not a matched blind quality score."
+        },
+        "integratedSource": [
+          "Only a living unit with a matching currently visible Three.js actor root bounded within its public grid cell receives a visibleActor presentation mark. Defeated, missing, off-cell and arbitrary scenic points cannot request privileges.",
+          "Shared physical camera-to-body head/chest/shoulder/foot rays now protect these real walking actors from occluding stones, used by live walls, weathered facades and nave cutaways; no new render pass, damage, state, RNG, collision, navigation or save change.",
+          "Real ordinary travel actors use ONLY confirmed 3D ray intersections, not the generic broad scenic cutaway. Already low ruins and the far rear nave retain Gothic height. Regression tests cover real visible vs fallen roots, near-body contact, and unearned scenic points."
+        ],
+        "safety": {
+          "firstCandidateCI": "At 494f22a the full catalogue 41882914858 ran 954 software tests, 953 passes and exactly 1 new test failure: a generic scenic foreground expectation contradicted legacy behavior. That test was corrected and real-actor ray policy made stricter at a2e561d. This failed predecessor CI is not a pass.",
+          "exactCorrectedHead": "Unverified — no exact a2e561d Chromium, catalogue, security, deterministic campaign or accessibility completion observed at record time.",
+          "worker": "coding/critic/ultracode tunnel unavailable"
+        },
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "critics": {
+          "look": 0,
+          "feel": 0,
+          "play": 0,
+          "required": 3
+        },
+        "completeFiveStageAudio": "UNVERIFIED",
+        "performanceP95": "UNVERIFIED",
+        "comparison": "No authentic matched AFTER screenshots or synchronized 5-phase clips at new head, and no majority preference; a world-only source image does not prove transformation.",
+        "biggestGap": "Original character silhouettes still cartoonish, with bulky heads and weak sword-to-body collision communication, even after repeated environment/presentation modules. New actor clearance must be confirmed on real footage.",
+        "nextTask": "Inspect the exact new-head desktop/390px Chromium real skinned heroes, measure whether their chest, sword and boots are physically visible through foreground masonry without flattening rear Gothic arches; reject any motion/camera/CPU-raster regression. Then build substantially improved original native human-scale character anatomy and real weapon contact, while recording an organic Warden-to-restart desktop/mobile episode with original synchronized audio, matched baseline and 3 independent blind critics.",
+        "statusVerdict": "IN PROGRESS — NOT TRANSFORMED"
       }
     ]
   }
