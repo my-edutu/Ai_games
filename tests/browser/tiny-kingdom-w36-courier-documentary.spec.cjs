@@ -71,6 +71,18 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(sample.unloadAudit?.stage).toBe('unloading');
   expect(sample.unloadAudit?.deliveryId).toBe(sample.loaded.id);
   expect(sample.unloadAudit?.camera?.zoom).toBeLessThanOrEqual(7.2);
+  // W37 RED contract: no winning courier shot may place the physical original
+  // market stall columns/lamps across the central work-and-receipt view.
+  // Camera-only; all 16 timber uprights, both lanterns and citizens remain.
+  expect(sample.unloadAudit?.camera?.marketPostSightline?.source)
+   .toBe('original-market-uprights-and-lanterns');
+  expect(sample.unloadAudit?.camera?.marketPostSightline?.modelledPosts)
+   .toBeGreaterThanOrEqual(16);
+  expect(sample.unloadAudit?.camera?.marketPostSightline?.modelledLanterns)
+   .toBe(2);
+  expect(sample.unloadAudit?.camera?.marketPostSightline?.centerCover)
+   .toBeLessThan(0.16);
+
   expect(sample.receipt?.creditedAtUnloading).toBe(true);
   expect(sample.receipt?.amount).toBe(sample.loaded.amount);
   expect(sample.receivedAudit?.stage).toBe('received');
