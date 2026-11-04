@@ -60,3 +60,50 @@ test('actual desktop and mobile WebGL show real warning tiles and subsequent War
   threeFreshCritics:false,verifiedAudibleOutput:false,desktopMobileRealWebGL:true
  },null,2)),contentType:'application/json'});
 });
+
+/** Real staged final-HP authoritative battle in desktop/mobile WebGL. This
+ * fixture is NOT an organic full campaign and never counts as a blind A/B win.
+ */
+test('Eclipse three-lane stone pressure is genuine moving desktop/mobile gameplay',async({page,request})=>{
+ test.setTimeout(190000);
+ const game=DungeonRuntime.create('eclipse-pressure-browser-M1'),s=game.state;
+ const boss=s.units.find(u=>u.kind==='warden'),hero=s.units.find(u=>u.id==='vanguard');
+ boss.hp=Math.ceil(boss.maxHp*.2);
+ for(const u of s.units)if(u!==boss&&u!==hero)u.hp=0;
+ hero.x=boss.x+1;hero.z=boss.z;s.tick=0;
+ let current=game.publicState();const errors=[];
+ page.on('pageerror',e=>errors.push(String(e)));
+ await page.route('**/dungeon/state',route=>route.fulfill({json:current}));
+ expect((await request.get('/dungeon')).status()).toBe(200);
+ await page.setViewportSize({width:1440,height:832});await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.webgl),{timeout:90000}).toBe(true);
+ const beats=[];
+ for(const remaining of [3,2,1]){
+  current=game.step();
+  expect(current.bossWarning?.shape).toBe('ECLIPSE_SWEEP');
+  expect(current.bossWarning?.turnsUntilImpact).toBe(remaining);
+  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick),{timeout:27000}).toBe(current.tick);
+  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wardenRitual?.warningTellProgress),
+   {timeout:27000}).toBeCloseTo((4-remaining)/3,2);
+  const ritual=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wardenRitual);
+  expect(ritual?.warningTiles).toBe(current.bossWarning.cells.length);
+  expect(ritual.warningTiles).toBeGreaterThan(18);
+  expect(ritual.warningTiles).toBeLessThanOrEqual(48);
+  const p=current.units.find(u=>u.id==='vanguard');
+  beats.push({tick:current.tick,x:p.x,z:p.z,phase:current.bossPhase,tiles:ritual.warningTiles});
+  if(remaining===3)await page.locator('#world').screenshot({path:'artifacts/dungeon-m1-eclipse-first-beat-desktop-real.png',timeout:90000});
+ }
+ await page.setViewportSize({width:390,height:844});
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.cinematicLens?.portrait),{timeout:30000}).toBe(true);
+ await page.locator('#world').screenshot({path:'artifacts/dungeon-m1-eclipse-final-warning-mobile-real.png',timeout:90000});
+ const priorHp=hero.hp;
+ current=game.step();expect(current.bossWarning).toBeNull();
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick),{timeout:30000}).toBe(current.tick);
+ expect(hero.hp).toBe(priorHp,'two real steps to clear stone must survive the honest Warden cast');
+ expect(errors).toEqual([]);
+ await test.info().attach('real-eclipse-combat-fixture',{body:Buffer.from(JSON.stringify({
+  seed:'eclipse-pressure-browser-M1',fixture:'authentic seeded dungeon with Warden placed at legitimate low HP and one hero at a legal centre-lane tile',
+  beats,impactTick:current.tick,baselineSha:'281735d0910c6b2443648af976003d50412ee324',
+  organicFullJourney:false,synchronizedAudioMotion:false,independentBlindCritics:0
+ },null,2)),contentType:'application/json'});
+});
