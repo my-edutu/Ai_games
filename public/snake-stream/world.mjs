@@ -185,13 +185,13 @@ export function stageHeadlandAnchors(width, height) {
     throw new RangeError('Shoreline stage requires genuine integer board dimensions');
   const W = width / 2, H = height / 2;
   return [
-    { name:'northwest forest', edge:'north', x:-W-8.2, z:-H-10.2, rise:5.2, height:5.5, turn:-.35 },
-    { name:'northeast crown', edge:'north', x:W+8.1, z:-H-11.1, rise:6.8, height:6.1, turn:.48 },
-    { name:'western rooted cliffs', edge:'west', x:-W-9.3, z:-H*.15, rise:5.3, height:5.7, turn:.2 },
-    { name:'eastern fern terraces', edge:'east', x:W+9.7, z:H*.25, rise:5.9, height:5.1, turn:-.3 },
-    { name:'southwest overgrown ruins', edge:'south', x:-W-10.2, z:H+11.4, rise:6.2, height:5.6, turn:-.48 },
-    { name:'southeast sea garden', edge:'south', x:W+10.5, z:H+12, rise:7, height:6.3, turn:.35 },
-    { name:'backwater old growth', edge:'north', x:-2, z:-H-11.5, rise:5.6, height:5.8, turn:-.2 },
+    { name:'northwest forest', edge:'north', x:-W-7.8, z:-H-9.6, rise:5.2, height:5.5, turn:-.35 },
+    { name:'northeast crown', edge:'north', x:W+7.9, z:-H-9.5, rise:6.8, height:6.1, turn:.48 },
+    { name:'western rooted cliffs', edge:'west', x:-W-8.1, z:-H*.15, rise:5.3, height:5.7, turn:.2 },
+    { name:'eastern fern terraces', edge:'east', x:W+8.2, z:H*.25, rise:5.9, height:5.1, turn:-.3 },
+    { name:'southwest overgrown ruins', edge:'south', x:-W-10.2, z:H+9.4, rise:6.2, height:5.6, turn:-.48 },
+    { name:'southeast sea garden', edge:'south', x:W+10.5, z:H+10, rise:7, height:6.3, turn:.35 },
+    { name:'backwater old growth', edge:'north', x:-2, z:-H-9.7, rise:5.6, height:5.8, turn:-.2 },
   ];
 }
 

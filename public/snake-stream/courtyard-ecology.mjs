@@ -302,6 +302,35 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
       .map(([key, count]) => [key, count / (W * H)])) };
 }
 
+/**
+ * Original planted riparian terraces, authored as connected low relief rather
+ * than three straight graphical stripes. An opening oxbow broadens into a
+ * shaded moss pool and narrows into a braided rooted throat on every course.
+ * The underlying public cells are unchanged. Every bank is drawn as part of
+ * the one already existing static ecology mesh; no new draw or update pass.
+ *
+ * Pure in immutable public board dimensions; no unseeded random or clock.
+ */
+export function sculptRiparianBank(x, channel, width, height, progress) {
+  if (![x, width, height, progress].every(Number.isFinite)
+      || !Number.isInteger(width) || !Number.isInteger(height)
+      || width < 2 || height < 2 || !Number.isInteger(channel)
+      || channel < 0 || channel > 2 || progress < 0 || progress > 1)
+    throw new RangeError('Riparian bank needs a valid real board and course');
+  const H = height / 2, W = width / 2;
+  const phase = channel * 2.31;
+  const halfSpan = Math.max(.25, Math.min(H * .075, .42 + H * .028));
+  const edgeTaper = Math.min(1, Math.max(.09, Math.sin(Math.PI * progress) * 1.4));
+  const oxbow = .5 + .5 * Math.sin(x * .81 + phase * .72
+    + Math.sin(x * .33 - phase * .44) * 1.13);
+  const estuary = .5 + .5 * Math.cos(x * .34 - phase * .88);
+  const widthAt = Math.max(.036, halfSpan * edgeTaper * (.13 + 1.13 * oxbow ** 2.3)
+    * (.86 + .21 * estuary));
+  const centre = H * watercourseCentre(x / W, channel)
+    + .11 * Math.sin(x * .53 + phase * 1.39) * Math.sin(Math.PI * progress);
+  return { centre, widthAt, phase, oxbow, estuary };
+}
+
 export function createCourtyardEcology(THREE, { width, height, world = null }) {
   if (!Number.isInteger(width) || !Number.isInteger(height) ||
       width < 2 || height < 2) throw new Error('Courtyard ecology requires a valid public board size');
@@ -347,13 +376,45 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
       : clamp(.24 + shadow * 3.5 + mineral * 1.35 + salt * .12, 0, palette.length - 1.001);
     const a = swatches[Math.floor(shade)], b = swatches[Math.ceil(shade)];
     const mix = shade - Math.floor(shade);
-    colour.push(a.r * (1 - mix) + b.r * mix,
-      a.g * (1 - mix) + b.g * mix,
-      a.b * (1 - mix) + b.b * mix);
+    if (flora) {
+      colour.push(a.r * (1 - mix) + b.r * mix,
+        a.g * (1 - mix) + b.g * mix,
+        a.b * (1 - mix) + b.b * mix);
+    } else {
+      // The real planted bank is an ancient sediment shelf, not a bright
+      // translucent line painted over the quarry. Coordinate its existing
+      // vertex pigment with the same original limestone/leaf-litter/slate
+      // beds as the true stone atlas. This happens only at world creation.
+      const habitat = sampleWeatheredTerrace(
+        clamp((point[0] + W) / width, 0, 1),
+        clamp((point[2] + H) / height, 0, 1), width, height);
+      const base = [a.r * (1 - mix) + b.r * mix,
+        a.g * (1 - mix) + b.g * mix,
+        a.b * (1 - mix) + b.b * mix];
+      const loam = clamp(habitat.litter * .58 + habitat.planted * .19, 0, .62);
+      const slate = clamp(habitat.coolSlate * .37, 0, .40);
+      const chalk = clamp(habitat.terrace * .25
+        * (1 - habitat.planted * .75), 0, .23);
+      // Linear three.js RGB, matching existing scene materials; mix values
+      // are physically restrained so the roots no longer read as neon cues.
+      const loamColor = [0.095, .084, .049], slateColor = [.065, .15, .145];
+      const limestone = [.35, .28, .18];
+      for (let c = 0; c < 3; c++) {
+        const root = base[c] * (1 - loam) + loamColor[c] * loam;
+        const wet = root * (1 - slate) + slateColor[c] * slate;
+        colour.push(wet * (1 - chalk) + limestone[c] * chalk);
+      }
+    }
   }
   let braidTriangles = 0, islandTriangles = 0, mosaicTriangles = 0;
   function triangle(a, b, c, type, salt = 0) {
     if (![a, b, c].every(safe) || [a, b, c].some(landmark)) return;
+    // At a pinched river throat adjacent samples sometimes collapse into
+    // virtually zero-area sheet triangles. Discard only that invisible,
+    // numerically fragile root geometry instead of spending the very strict
+    // original 3100-triangle budget on paper-thin faces rather than ferns.
+    if (type === 'braid' && Math.abs(
+      (b[0]-a[0])*(c[2]-a[2])-(b[2]-a[2])*(c[0]-a[0])) < .00009) return;
     // Overgrowth is a thin presentation skin below the existing contact
     // shadows (y=.022) and the serpent belly, not a new obstacle or route.
     vertex(a, salt); vertex(b, salt); vertex(c, salt);
@@ -365,23 +426,24 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
   // The old ~three-cell-wide opaque ribbons eclipsed actual stone/cues in
   // every overview screenshot. Fine, irregular capillaries show *within*
   // the original paving and preserve its mineral/grazing-light response.
-  const cross = 6, halfSpan = Math.max(.25, Math.min(H * .075, .42 + H * .028));
+  const cross = 6;
   for (let channel = 0; channel < 3; channel++) {
-    const phase = channel * 2.31;
     const rows = [];
     for (let i = 0; i <= samples; i++) {
-      const x = -W + .86 + (width - 1.72) * i / samples;
-      const centre = H * watercourseCentre(x / W,channel);
-      const edgeTaper = Math.min(1, Math.max(.09, Math.sin(Math.PI * i / samples) * 1.4));
-      const widthAt = halfSpan * edgeTaper * (.78 + .20 * Math.sin(x * .31 - phase)
-        + .12 * Math.sin(x * .69 + 1.5 * phase));
+      const progress = i / samples;
+      const x = -W + .86 + (width - 1.72) * progress;
+      const { centre, widthAt, phase, oxbow } = sculptRiparianBank(
+        x, channel, width, height, progress);
       const row = [];
       for (let j = 0; j <= cross; j++) {
         const t = -1 + 2 * j / cross;
-        const bend = Math.sin(x * .39 + t * 2.7 + phase) * .12 * Math.abs(t);
+        // Broken marsh edges, rooted throats and mossed oxbows SHARE the same
+        // watercourse and maintain both edge winding and safe low elevation.
+        const bend = Math.sin(x * .39 + t * 2.7 + phase) * .13 * Math.abs(t)
+          + .045 * Math.sin(x * .77 + phase * 1.3 + t * 4.0) * Math.abs(t);
         const z = clamp(centre + t * widthAt + bend, -H + .69, H - .69);
         const heightAboveCourt = .0125 + .0065 * (1 - t * t)
-          + .0007 * Math.sin(x * .65 + z * .45);
+          * (.75 + .25 * oxbow) + .0007 * Math.sin(x * .65 + z * .45);
         row.push([x, heightAboveCourt, z]);
       }
       rows.push(row);
