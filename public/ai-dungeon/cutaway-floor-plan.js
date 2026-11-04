@@ -18,10 +18,11 @@ export function planCutawayFloorBacking(map,floor){
  return Object.freeze(result);
 }
 export function planCutawayWallTransform(reveal,originalHeight){
- // Preserve shallow original stone without hiding real animated feet.
+ // Foreground stone clears real moving feet; rear and flank ruins retain a
+ // legible, dressed ankle-height silhouette for cathedral-scale room depth.
  // No change to the authoritative dungeon collision grid or AI routes.
  if(reveal==='sightline')return {height:.13,footprint:.32};
- if(reveal==='nearby')return {height:.27,footprint:.78};
+ if(reveal==='nearby')return {height:.43,footprint:.84};
  const height=Number.isFinite(originalHeight)&&originalHeight>=.5&&originalHeight<=4?originalHeight:2.6;
  return {height,footprint:1.015};
 }
