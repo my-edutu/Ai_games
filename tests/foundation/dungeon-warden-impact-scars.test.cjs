@@ -41,6 +41,9 @@ test('real 3D renderer attaches historical impact to scene, runtime route and ho
  assert.match(app,/wardenImpactScars\?\.dispose\(\)/);
  assert.ok(renderer.includes('const LIMIT=72'));
  assert.ok(renderer.includes('new THREE.InstancedMesh'));
+ assert.ok(renderer.includes('const MAX_DEBRIS=20'));
+ assert.ok(renderer.includes('falling=plan.cells.slice(0,MAX_DEBRIS)'));
+ assert.match(app,/genuineWardenGroundEvent\(event\)/);
  assert.ok(server.includes("['/dungeon/warden-impact-scars.js','warden-impact-scars.js']"));
  assert.ok(server.includes("['/dungeon/warden-impact-plan.js','warden-impact-plan.js']"));
 });

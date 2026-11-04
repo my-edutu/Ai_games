@@ -307,11 +307,16 @@ function cutawayWalls(target,subjects,wallPad=2.1){
 const particles=[],MAX_PARTICLES=72;const seenEventIds=new Set();
 const effects=[],MAX_EFFECTS=12,ringGeometry=new THREE.RingGeometry(.92,1,56),shockGeometry=new THREE.RingGeometry(2.5,2.7,64);
 let shakeStrength=0;
+function genuineWardenGroundEvent(event){
+ return (event?.kind==='danger'||event?.kind==='evade')&&
+  typeof event.text==='string'&&
+  /^The Warden (nova|rift cross|eclipse sweep) shockwave struck \\d+ hero(?:es)?$/.test(event.text);
+}
 function pulseFX(event,s){
  if(reduced)return;
  let origin,theme='#51fff0',big=false;
- if(event.kind==='phase'||event.kind==='unseal'||event.kind==='telegraph'||(event.kind==='danger'&&event.text.includes('Warden'))){
-  origin=s.units.find(u=>u.kind==='warden');theme=event.kind==='unseal'?'#ffe7a1':event.kind==='phase'?'#e19aff':event.kind==='danger'?'#ff4d86':'#ffba70';big=true;shakeStrength=event.kind==='danger'?.11:shakeStrength;
+ if(event.kind==='phase'||event.kind==='unseal'||event.kind==='telegraph'||genuineWardenGroundEvent(event)){
+  origin=s.units.find(u=>u.kind==='warden');theme=event.kind==='unseal'?'#ffe7a1':event.kind==='phase'?'#e19aff':genuineWardenGroundEvent(event)?'#d39472':'#ffba70';big=true;shakeStrength=genuineWardenGroundEvent(event)?.12:shakeStrength;
  }else if(event.kind==='kill'&&event.text?.startsWith('WARDEN DEFEATED')){
   // Only the genuine boss death and its public kill event anchor this
   // physical stone-level original 3D ring. No made-up target or fake hit.
@@ -334,7 +339,8 @@ function cue(event,s){
  const colors={unseal:'#ffe7a1',kill:'#ffe3a0',combat:'#e99159',danger:'#ef5864',phase:'#efb7ff',guard:'#72ffdf',evade:'#88b9ff',block:'#92eaff',trap:'#ff646c',disarm:'#74f8be',telegraph:'#ffb77b',healing:'#58ebba',loot:'#66d7e5',floor:'#d7bbff'};
  const color=colors[event.kind];if(!color)return;
  const bossFall=event.kind==='kill'&&event.text?.startsWith('WARDEN DEFEATED');
- const target=bossFall?s.units.find(u=>u.kind==='warden'&&u.hp===0):
+ const target=genuineWardenGroundEvent(event)?s.units.find(u=>u.kind==='warden'):
+  bossFall?s.units.find(u=>u.kind==='warden'&&u.hp===0):
   event.kind==='unseal'?s.units.find(u=>u.kind==='warden'):
   event.kind==='danger'?s.units.find(u=>u.faction==='party'&&u.hp>0):
   event.kind==='kill'?s.units.find(u=>u.faction==='enemy'&&u.hp===0):
@@ -534,7 +540,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
  const shield=new THREE.Mesh(new THREE.TorusGeometry(1.32,.04,8,72),new THREE.MeshBasicMaterial({color:theme.accent,transparent:true,opacity:.24,depthWrite:false,side:THREE.DoubleSide}));shield.rotation.x=-Math.PI/2;shield.position.y=.12;court.add(shield);
  world.add(court);world.userData.court=court;world.userData.courtShield=shield;
  world.userData.wardenRitual=createWardenRitual(world,s.exit,{reducedMotion:reduced,map:s.map});
- world.userData.wardenImpactScars=createWardenImpactScars(world,s.map);
+ world.userData.wardenImpactScars=createWardenImpactScars(world,s.map,{reducedMotion:reduced});
  // Interactive hazard meshes directly reflect authoritative trap state.
  const hazardMeshes=new Map();
  for(const t of s.traps||[]){
