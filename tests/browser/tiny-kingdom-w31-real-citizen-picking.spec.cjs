@@ -39,6 +39,9 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   await page.mouse.click(before.candidate.x,before.candidate.y);
   await expect.poll(()=>page.evaluate(()=>window.__tinyKingdom.getSelectedCitizen())).toBe(before.candidate.name);
   await expect.poll(()=>page.evaluate(()=>window.__tinyKingdom.getCamera().follow)).toBe(true);
+  // A user inspecting a citizen needs a HUMAN-SCALE 3D portrait, not the
+  // existing tiny 12.8m overview follow lens.
+  await expect.poll(()=>page.evaluate(()=>window.__tinyKingdom.getCamera().zoom)).toBeLessThan(9);
   await expect(page.locator('#citizen-pick-caption')).toContainText(before.candidate.name);
   await expect(page.locator('#citizen-pick-caption')).toContainText(before.candidate.job);
   expect(await page.evaluate(()=>window.__tinyKingdom.exportSnapshot().checksum)).toBe(before.checksum);
@@ -108,6 +111,7 @@ test('W31 real touchscreen pointer selects a physically visible citizen at 390px
   await expect.poll(()=>page.evaluate(()=>window.__tinyKingdom.getSelectedCitizen()))
    .toBe(before.person.name);
   expect(await page.evaluate(()=>window.__tinyKingdom.getCamera().follow)).toBe(true);
+  expect(await page.evaluate(()=>window.__tinyKingdom.getCamera().zoom)).toBeLessThan(9);
   expect(await page.evaluate(()=>window.__tinyKingdom.exportSnapshot().checksum)).toBe(before.checksum);
   expect(await page.evaluate(()=>window.__tinyKingdom.getCitizenPickAudit().source)).toBe('pointer');
   expect(errors).toEqual([]);
