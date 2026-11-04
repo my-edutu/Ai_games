@@ -64,7 +64,7 @@ function blockedByStone(cam,subject,y,grid,size,eyes,reveal,pad){
   const key=row*size+col;if(key===last)continue;last=key;
   const stone=grid[key];if(stone<=0)continue;
   const wx=col-origin,wz=row-origin;
-  const band=reveal(wx,wz,eyes,cam,pad);
+  const band=reveal(wx,wz,eyes,cam,pad,stone);
   const height=band==='sightline'?.13:band==='nearby'?.43:stone;
   const lineY=cam.y+(y-cam.y)*t;
   // Lower the false-positive rate near a cell corner; the actual stone is
