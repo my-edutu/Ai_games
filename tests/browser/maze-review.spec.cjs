@@ -1258,6 +1258,19 @@ test('a real close public encounter frames both autonomous actors and saves date
   expect(fossilDiagnostic.world.renderedCells).toEqual(fossilSnapshot.cells.map(c=>c.cell));
   expect(fossilDiagnostic.explorerModelFullyInFrame,
     'no physical fossil should justify cropping Pip').toBe(true);
+  // Inspect the ACTUAL existing Three rig in the same exact-source PNG
+  // rather than accepting new prose, a mocked close-up, or a pose counter.
+  const fossilAct=fossilDiagnostic.fossilActorPhysicalPose;
+  expect(fossilAct,
+    'a true disclosed, near active fossil organ must earn a physical Pip reaction in this original WebGL frame').toBeTruthy();
+  expect(fossilAct.strength,'only a nearby actual published organ can earn attention').toBeGreaterThan(.12);
+  expect(fossilAct.lanternCageScale,
+    'actual already-modeled lantern should physically respond, not only a caption').toBeGreaterThan(1.012);
+  expect(Number.isFinite(fossilAct.headYaw),
+    'true animated connected head joint is present and finite').toBe(true);
+  expect(Number.isFinite(fossilAct.lanternArmX),
+    'true animated connected shoulder joint is present and finite').toBe(true);
+  expect(fossilAct.torsoY,'actual 3D torso performs near the living sculpture').toBeGreaterThan(.80);
 
   const priorFossilFrames=fossilDiagnostic.frames;
   await page.setViewportSize({width:390,height:844});
@@ -1286,6 +1299,9 @@ test('a real close public encounter frames both autonomous actors and saves date
   expect(fossilPortrait.world.fossilMotionMaxRadians).toBeGreaterThan(.03);
   expect(fossilPortrait.explorerModelFullyInFrame).toBe(true);
   expect(fossilPortrait.cameraAspect).toBeCloseTo(390/844,2);
+  expect(fossilPortrait.fossilActorPhysicalPose?.lanternCageScale,
+    'native portrait must contain the SAME physical, visible Pip/fossil reaction, not a desktop-only stand-in')
+    .toBeGreaterThan(1.012);
 
 });
 
