@@ -8731,23 +8731,30 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  let best=null,bestScore=Infinity,bestFraming=null;
  let frontBest=null,frontScore=Infinity,frontFraming=null;
  let readableBest=null,readableScore=Infinity,readableFraming=null;
+ let usableFrontBest=null,usableFrontScore=Infinity,usableFrontFraming=null;
  let clearFrontCandidates=0,readableFrontCandidates=0;
- // G139: reserve part of the SAME bounded survey for genuinely work-facing
- // mobile angles. A zero-crowd side silhouette must not exhaust every probe
- // before a real worker's face AND IK wrists can both enter the frame.
- // Screenshots of G138 on 390px proved that all-hand-clear was insufficient.
+ // W19: real G135 Day-120 footage failed because the 56 cheapest survey
+ // candidates all faced away from their worker (measured alignment -0.5).
+ // Reserve the SAME bounded camera-probe budget on desktop AND 390px for
+ // workers' authentic forward-facing side. This is not a fake pose or actor:
+ // every ray is checked against real roofs, bystanders, forest and work hands.
+ // Keep nearby alternatives when fronts are physically blocked.
  const surveyMax=portraitLens?78:56;
- const probes=possibilities.slice(0,portraitLens?58:56);
- if(portraitLens){
-  for(const option of possibilities){
-   if(probes.length>=surveyMax)break;
-   if(option.alignment>.24&&option.shot.blockers===0&&
-      !probes.includes(option))probes.push(option);
+ const probes=possibilities.slice(0,portraitLens?40:28);
+ const reserved=portraitLens?24:22;
+ let includedFront=0;
+ for(const option of possibilities){
+  if(probes.length>=surveyMax||includedFront>=reserved)break;
+  if(option.alignment>(portraitLens?.24:.12)&&option.shot.blockers===0&&
+     !probes.includes(option)){
+   probes.push(option);includedFront++;
   }
-  for(const option of possibilities){
-   if(probes.length>=surveyMax)break;
-   if(!probes.includes(option))probes.push(option);
-  }
+ }
+ // Fronts may genuinely be inaccessible. Do not force a view through walls:
+ // fill all unused budget with the best legal alternate camera positions.
+ for(const option of possibilities){
+  if(probes.length>=surveyMax)break;
+  if(!probes.includes(option))probes.push(option);
  }
  for(const {shot,coarse,alignment} of probes){
   const canopy=working&&realWork?foregroundVegetationProjection(shot.eye,target):
@@ -8781,6 +8788,21 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
    if(score<frontScore){frontBest=shot;frontScore=score;
     frontFraming=framing;}
   }
+  // The fully-clear premium threshold also rejects harmless edge-of-frame
+  // village life. A front close-up with physically uncovered face, body and
+  // working hands is more legible than a mathematically cleaner rear view.
+  // Require measured physical clearances; never hide a tree, house or citizen.
+  const usableFront=working&&realWork&&
+   alignment>(portraitLens?.24:.12)&&shot.blockers===0&&
+   framing.handBlockers<=(portraitLens?0:1)&&
+   framing.foregroundCitizenBlockers===0&&
+   framing.foregroundSceneCover<.20&&canopy.cover<.28&&
+   canopy.faceBlockers===0&&framing.blockedBodyRays<=2&&
+   framing.projectedWorksitePosts===(portraitLens?0:framing.projectedWorksitePosts)&&
+   shot.projectedWorkerHeightFraction>(portraitLens?.18:.21);
+  if(usableFront&&score<usableFrontScore){
+   usableFrontBest=shot;usableFrontScore=score;usableFrontFraming=framing;
+  }
   // Strict composition excludes a genuinely front-facing close-up whenever
   // a passer-by merely enters the EDGE of portrait. Test the actual face and
   // jointing hands separately: no physical citizen may cover those landmarks,
@@ -8803,11 +8825,14 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
     readableFraming=framing;}
   }
  }
- const chosen=frontBest||readableBest||best,
-  framing=frontBest?frontFraming:readableBest?readableFraming:bestFraming;
+ const chosen=frontBest||readableBest||usableFrontBest||best,
+  framing=frontBest?frontFraming:readableBest?readableFraming:
+   usableFrontBest?usableFrontFraming:bestFraming;
  return {...chosen,...framing,
-  compositionScore:frontBest?frontScore:readableBest?readableScore:bestScore,
-  workFacingMode:frontBest?'clear-front':readableBest?'face-and-hands':'obstructed',
+  compositionScore:frontBest?frontScore:readableBest?readableScore:
+   usableFrontBest?usableFrontScore:bestScore,
+  workFacingMode:frontBest?'clear-front':readableBest?'face-and-hands':
+   usableFrontBest?'visible-front':'obstructed',
   readableFrontCandidates,
   facingAlignment:realWork?Math.cos(chosen.yaw-facing):null,
   walkingFacingAlignment:homecoming?Math.cos(chosen.yaw-facing):null,
