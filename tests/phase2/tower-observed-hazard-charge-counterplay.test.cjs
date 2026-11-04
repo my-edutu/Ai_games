@@ -133,3 +133,48 @@ test('full-width live shutter charge has no fictional safe deck exit and forces 
   assert.notEqual(live(s).intent.mode,'evading-hazard',
     'the grounded emergency cannot grant a fake second jump in mid-air');
 });
+
+test('two genuine simultaneous shutters do not lure the climber into the other closing lane',()=>{
+  const {s,center,top}=imminent();
+  // Main 12-tick trap covers the climber. The left platform exit leads into
+  // another REAL published 8-tick trap, not a fabricated predicted hazard.
+  s.chunks[0].hazards.push({id:'other-left-shutter',kind:'crusher',
+    x:center-57000,y:top,width:20000,height:12000,
+    activeFromTick:8,activeEvery:80,activeFor:18,damage:1});
+  const observed=createTowerObservation(s,{includeHazardWindup:true});
+  assert.equal(observed.hazards.find(h=>h.id==='other-left-shutter').chargeTicksRemaining,8);
+  const before=structuredClone(s);
+  const decision=live(s);
+  assert.equal(decision.intent.mode,'evading-hazard');
+  assert.equal(decision.action.move,1,'choose the reachable source-clear right exit');
+  assert.equal(decision.action.jump,false,'a clear physical route is better than a panic jump');
+  assert.deepEqual(s,before,'multi-hazard planning is read-only');
+  assert.deepEqual(decision,live(s),'the same source must give the same choice');
+});
+test('when two genuine charging traps close both exits, use an earned jump instead of false safe footing',()=>{
+  const {s,center,top}=imminent();
+  s.chunks[0].hazards.push(
+    {id:'other-left-shutter',kind:'crusher',x:center-57000,y:top,
+      width:20000,height:12000,activeFromTick:8,activeEvery:80,activeFor:18,damage:1},
+    {id:'other-right-shutter',kind:'heat',x:center+37000,y:top,
+      width:20000,height:12000,activeFromTick:8,activeEvery:80,activeFor:18,damage:1}
+  );
+  s.tick=6; // primary has 6 real ticks; both neighbours have 2
+  const decision=live(s);
+  assert.equal(decision.intent.mode,'evading-hazard');
+  assert.equal(decision.action.jump,true,
+    'neither current grounded exit clears the published collision bodies before closure');
+  assert.equal(decision.action.dash,false,'no scripted dash or immunity');
+});
+test('unarmed and off-deck machinery cannot invent a second threat or redirect the ascent',()=>{
+  const {s,center,top}=imminent();
+  s.chunks[0].hazards.push(
+    {id:'dormant-left',kind:'crusher',x:center-57000,y:top,
+      width:20000,height:12000,activeFromTick:60,activeEvery:80,activeFor:18,damage:1},
+    {id:'remote-left',kind:'crusher',x:center-57000,y:top+200000,
+      width:20000,height:12000,activeFromTick:8,activeEvery:80,activeFor:18,damage:1}
+  );
+  assert.equal(live(s).action.move,-1,'only actually relevant on-deck warnings may veto the nearest exit');
+  assert.equal(chooseTowerAction(s,createTowerObservation(s),{tactical:false}).intent.mode!=='evading-hazard',
+    true,'historical policy remains unaware of unpublished tactical countdowns');
+});

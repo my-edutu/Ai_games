@@ -306,12 +306,12 @@ function observedChargingHazard(state:TowerState,obs:TowerObservation){
       Math.abs(b.x+b.width/2-p.position.x)||
     a.id.localeCompare(b.id))[0];
 }
-// Current-body escape plan for a REAL published 12-tick trap charge.
-// Both exits must fit entirely on today's observed supporting deck. Test each
-// option with the very same bounded acceleration/speed as the authoritative
-// ground step; never change the character position or predict a hazard cycle.
-// Where neither exit is reachable before the current warning expires, an
-// ORDINARY earned jump starts earlier rather than a scripted immunity.
+// A real warning is useful only if the autonomous climber can ESCAPE without
+// charging into a second observed shutter. Evaluate both current-deck exits
+// under actual 20Hz ground acceleration and ALL current overlapping hazard
+// bodies. Only presently active traps and published countdowns are considered;
+// no private schedule, RNG, future enemy motion, teleport or new collider.
+// Deliberately conservative: current moving-deck bounds are not extrapolated.
 function observedTrapEscape(state:TowerState,obs:TowerObservation,
   hazard:TowerObservation['hazards'][number]){
   const p=obs.player;
@@ -322,38 +322,57 @@ function observedTrapEscape(state:TowerState,obs:TowerObservation,
   const minX=support.x+margin,maxX=support.x+support.width-margin;
   const padding=halfWidth+6000;
   const ticks=hazard.chargeTicksRemaining??0;
+  const feet=p.position.y-state.player.halfHeight;
+  const head=p.position.y+state.player.halfHeight;
+  const relevant=obs.hazards.filter(h=>
+    [h.x,h.y,h.width,h.height].every(Number.isFinite)&&
+    h.width>0&&h.height>0&&h.y<head&&h.y+h.height>feet&&
+    h.x<support.x+support.width&&h.x+h.width>support.x&&
+    (h.active||(Number.isSafeInteger(h.chargeTicksRemaining)&&
+      (h.chargeTicksRemaining??0)>0&&(h.chargeTicksRemaining??0)<=12))
+  ).sort((a,b)=>a.id.localeCompare(b.id));
+  const overlapping=(x:number,h:TowerObservation['hazards'][number])=>
+    x+halfWidth>h.x&&x-halfWidth<h.x+h.width;
+  // Never label an exit safe when another published shutter will close over
+  // that landing spot before the currently selected warning completes.
+  const blockedAt=(x:number,step:number)=>relevant.some(h=>
+    overlapping(x,h)&&(h.active||(h.chargeTicksRemaining??Infinity)<=step));
+  const destinationBlocked=(x:number)=>relevant.some(h=>
+    overlapping(x,h)&&(h.active||(h.chargeTicksRemaining??Infinity)<=ticks));
   const options=([
     {move:-1 as TowerAction['move'],goal:hazard.x-padding},
     {move:1 as TowerAction['move'],goal:hazard.x+hazard.width+padding},
   ]).filter(option=>option.goal>=minX&&option.goal<=maxX)
     .map(option=>{
-      let x=p.position.x,v=p.velocity.x;
-      let steps=Infinity;
-      for(let step=1;step<=Math.min(12,ticks);step++){
-        v=Math.max(-state.config.maxRunSpeed,Math.min(state.config.maxRunSpeed,
-          v+option.move*state.config.moveAcceleration));
-        x+=v;
-        if(x<minX||x>maxX)break;
-        if(option.move<0?x<=option.goal:x>=option.goal){
-          steps=step;break;
+      let x=p.position.x,v=p.velocity.x,steps=Infinity,safeSteps=0;
+      if(!destinationBlocked(option.goal)){
+        for(let step=1;step<=Math.min(12,ticks);step++){
+          v=Math.max(-state.config.maxRunSpeed,Math.min(state.config.maxRunSpeed,
+            v+option.move*state.config.moveAcceleration));
+          x+=v;
+          if(x<minX||x>maxX||blockedAt(x,step))break;
+          safeSteps=step;
+          if(option.move<0?x<=option.goal:x>=option.goal){
+            steps=step;break;
+          }
         }
       }
-      return {...option,steps,
-        // A non-reachable lane is still a better grounded retreat than running
-        // toward the trap centre. Preserve existing momentum as a tie-breaker.
+      return {...option,steps,safeSteps,
         distance:Math.abs(option.goal-p.position.x),
         momentum:p.velocity.x*option.move>0?0:1};
     }).sort((a,b)=>
       Number(Number.isFinite(b.steps))-Number(Number.isFinite(a.steps))||
-      a.steps-b.steps||a.distance-b.distance||a.momentum-b.momentum||
+      a.steps-b.steps||b.safeSteps-a.safeSteps||
+      a.distance-b.distance||a.momentum-b.momentum||
       a.move-b.move);
   const best=options[0];
-  const wanted=best?.move??0;
-  const move=guardedEvasion(state,obs,wanted);
-  const occupying=p.position.x+halfWidth>hazard.x&&
-    p.position.x-halfWidth<hazard.x+hazard.width;
-  const cannotClear=!options.some(option=>option.steps<=ticks);
-  const jump=occupying&&(ticks<=3||(cannotClear&&ticks<=6));
+  const move=guardedEvasion(state,obs,best?.move??0);
+  const occupying=overlapping(p.position.x,hazard);
+  const cannotClear=!options.some(option=>Number.isFinite(option.steps));
+  // Jumping while a safe physical deck exit is still reachable needlessly
+  // breaks climbing rhythm and can land back on an armed shutter. An ordinary
+  // jump is the last available action only when BOTH observed routes fail.
+  const jump=occupying&&cannotClear&&ticks<=6;
   return {move,jump,route:!best?'no-deck-exit':
     cannotClear?'ground-exit-too-late':'ground-exit-observed'};
 }
