@@ -9249,9 +9249,10 @@ function citizenOrbitVisibility(angle,tilt,range,roofs=followCameraRoofs()){
  if(!p||!follow)return {source:'real-selected-citizen-orbit',active:false,
   blockers:0,foregroundSceneCover:0,clear:true};
  const ground=terrain(p.x,p.z),radius=Math.cos(tilt)*range;
- const eye=[p.x+Math.sin(angle)*radius,
-  ground+1.02+Math.sin(tilt)*range,
-  p.z+Math.cos(angle)*radius];
+ // Match the actual WebGL eye, whose focus eases toward the live actor.
+ const eye=[focusPoint[0]+Math.sin(angle)*radius,
+  terrain(focusPoint[0],focusPoint[1])+1.02+Math.sin(tilt)*range,
+  focusPoint[1]+Math.cos(angle)*radius];
  const face=[p.x,ground+1.35,p.z];
  const blockers=followRayBlockers(eye,face,roofs);
  // A clear centre ray is not enough: a large market canopy still obscures
@@ -9280,14 +9281,16 @@ function constrainSelectedCitizenOrbit(requestYaw,requestPitch,requestZoom){
  const raises=[0,.12,-.08,.25];
  const lenses=[requestZoom,Math.min(13.5,requestZoom+1.35)];
  let best=null,bestDistance=Infinity;
- for(const z of lenses)for(const raise of raises)for(const turn of turns){
+ survey:for(const z of lenses)for(const raise of raises)for(const turn of turns){
   const a=requestYaw+turn,t=Math.max(.17,Math.min(1.24,requestPitch+raise));
   const shot=inspect(a,t,z);
   if(!shot.clear)continue;
   const distance=Math.abs(turn)+Math.abs(raise)*1.4+
    Math.abs(z-requestZoom)*.22+shot.foregroundSceneCover*.04;
   if(distance<bestDistance){bestDistance=distance;best=shot}
-  if(bestDistance<.18)break;
+  // The first physically clear near-angle is already good enough to avoid
+  // spending 80 costly roof/foreground surveys during a single pointer move.
+  if(bestDistance<.18)break survey;
  }
  if(!best&&lastClearCitizenOrbit?.name===person.name&&
     lastClearCitizenOrbit.citySize===city.length){
