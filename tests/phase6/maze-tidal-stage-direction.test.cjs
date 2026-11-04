@@ -286,16 +286,23 @@ test('Pass129 disclosed terrace undercroft is real submerged 3D, deterministic a
         const values=node.instanceMatrix.array;
         for(let i=0;i<node.count;i++){
           const k=i*16, x=values[k+12]-origin.x, y=values[k+13],
-            z=values[k+14]-origin.z;
+            z=values[k+14]-origin.z, physicalHeight=Math.abs(values[k+5]);
           if((Math.abs(x-1.235)<.003 && Math.abs(Math.abs(z)-.70)<.003)
-            ||(Math.abs(z-1.235)<.003 && Math.abs(Math.abs(x)-.70)<.003))
-            out.push([node.material.color.getHexString(),x,y,z]);
+            ||(Math.abs(z-1.235)<.003 && Math.abs(Math.abs(x)-.70)<.003)) {
+            if (Math.abs(physicalHeight-(m.cellHeight(center,only.width,only.height)+1.50))<.01)
+              assert.ok(y-physicalHeight/2 < -1.7,
+                'each real stone rib must embed below the lagoon water surface, not float');
+            out.push([node.material.color.getHexString(),x,y,z,physicalHeight]);
+          }
         }
       });
       return out.sort((p,q)=>JSON.stringify(p).localeCompare(JSON.stringify(q)));
     };
     const physical=faceMatrices(a);
     assert.ok(physical.length>=8,'two shores must contain eight real connected stone/inset 3D rib instances');
+    assert.equal(physical.filter(p=>Math.abs(p[4]-
+      (m.cellHeight(center,only.width,only.height)+1.50))<.01).length,4,
+      'all four thick physical stone uprights extend into the authentic waterline');
     assert.deepEqual(faceMatrices(b),physical,
       'published stage relief must be pixel-stable against private seed/plan changes');
     assert.ok(a.stats().geometryCount<=16 && a.stats().materialCount<=26
