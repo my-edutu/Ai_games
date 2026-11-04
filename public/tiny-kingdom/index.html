@@ -1824,8 +1824,31 @@ const settlementSeasonCache=new Map();
 let settlementSeasonFloats=0,settlementSeasonHits=0,settlementSeasonMisses=0;
 let settlementSeasonEvictions=0,settlementSeasonBufferCreations=0;
 let settlementSeasonBufferDisposals=0;
+// W39: no GPU buffer belonging to an obsolete town topology may remain
+// cached after real construction changes the town. Recycle a valid WebGL
+// handle and its preallocated capacity instead of allocating a new large
+// VBO for every additional genuine cottage. Render-only, bounded and
+// independent of seeded citizen behaviour or save snapshots.
+let settlementSeasonBufferReuses=0,settlementSeasonBufferHandleRecycles=0;
+let settlementSeasonStaleDisposals=0;
+function settlementTopology(key){return key.slice(key.lastIndexOf(':')+1)}
+function settlementCachedGpuFloats(){
+ let floats=0;
+ for(const entry of settlementSeasonCache.values())
+  floats+=entry.capacityFloats||entry.mesh.length;
+ return floats;
+}
 function getSettlementResidentStats(){
+ const generation=settlementTopology(scenicMeshKey);
+ let stale=0;
+ for(const key of settlementSeasonCache.keys())
+  if(settlementTopology(key)!==generation)stale++;
  return {activeKey:scenicMeshKey,entries:settlementSeasonCache.size,
+  staleTopologyEntries:stale,staleTopologyDisposals:settlementSeasonStaleDisposals,
+  bufferReuses:settlementSeasonBufferReuses,
+  bufferHandleRecycles:settlementSeasonBufferHandleRecycles,
+  cachedGpuFloats:settlementCachedGpuFloats(),
+  cachedGpuBytes:settlementCachedGpuFloats()*Float32Array.BYTES_PER_ELEMENT,
   cachedKeys:[...settlementSeasonCache.keys()],cachedFloats:settlementSeasonFloats,
   cachedBytes:settlementSeasonFloats*Float32Array.BYTES_PER_ELEMENT,
   floatBudget:SETTLEMENT_SEASON_FLOAT_BUDGET,
@@ -1868,7 +1891,48 @@ function recallSettlementSeason(key){
  settlementSeasonHits++;
  return true;
 }
-function retainSettlementSeason(key,mesh,ranges,buffer){
+function uploadGrowingSettlement(packed,key){
+ // A new topology invalidates EVERY previous topology's season cache;
+ // none can be recalled unless the user restores a saved world, which
+ // explicitly clears residency already. Avoid up to five dead town VBOs.
+ const generation=settlementTopology(key);
+ let reusable=null;
+ for(const [priorKey,prior] of settlementSeasonCache){
+  if(settlementTopology(priorKey)===generation)continue;
+  settlementSeasonCache.delete(priorKey);
+  settlementSeasonFloats-=prior.mesh.length;
+  const capacity=prior.capacityFloats||prior.mesh.length;
+  if(!reusable||capacity>reusable.capacity){
+   if(reusable){
+    gl.deleteBuffer(reusable.buffer);
+    settlementSeasonBufferDisposals++;
+    settlementSeasonStaleDisposals++;
+   }
+   reusable={buffer:prior.buffer,capacity};
+  }else{
+   gl.deleteBuffer(prior.buffer);
+   settlementSeasonBufferDisposals++;
+   settlementSeasonStaleDisposals++;
+  }
+ }
+ const reusedCapacity=Boolean(reusable&&reusable.capacity>=packed.vertices.length);
+ const buffer=reusable?reusable.buffer:gl.createBuffer();
+ if(reusable)settlementSeasonBufferHandleRecycles++;
+ else settlementSeasonBufferCreations++;
+ bindGeometry(buffer);
+ let capacityFloats=reusable?.capacity||0;
+ if(!reusedCapacity){
+  // Preallocate modest headroom for the next genuine house, but keep
+  // every GPU byte under the same existing bounded seasonal float budget.
+  capacityFloats=Math.min(SETTLEMENT_SEASON_FLOAT_BUDGET,
+   Math.ceil(packed.vertices.length*1.25/300)*300);
+  gl.bufferData(gl.ARRAY_BUFFER,capacityFloats*Float32Array.BYTES_PER_ELEMENT,gl.DYNAMIC_DRAW);
+ }else settlementSeasonBufferReuses++;
+ gl.bufferSubData(gl.ARRAY_BUFFER,0,packed.vertices);
+ staticGpuUploads++;
+ return {buffer,capacityFloats};
+}
+function retainSettlementSeason(key,mesh,ranges,buffer,capacityFloats=mesh.length){
  if(!gpuAvailable)return;
  if(mesh.length>SETTLEMENT_SEASON_FLOAT_BUDGET)
   throw Error('G140 settlement residency exceeds the bounded scene budget');
@@ -1877,7 +1941,7 @@ function retainSettlementSeason(key,mesh,ranges,buffer){
   settlementSeasonCache.delete(key);settlementSeasonFloats-=prior.mesh.length;
   if(prior.buffer!==buffer){gl.deleteBuffer(prior.buffer);settlementSeasonBufferDisposals++;}
  }
- const entry={mesh,ranges,buffer,
+ const entry={mesh,ranges,buffer,capacityFloats,
   lod:{...villageVisualLod,
    compactRoofPaletteCounts:villageVisualLod.compactRoofPaletteCounts.slice()},
   facade:{...cottageFacadeStats,styles:cottageFacadeStats.styles.slice()},
@@ -1890,7 +1954,8 @@ function retainSettlementSeason(key,mesh,ranges,buffer){
  settlementSeasonFloats+=mesh.length;settlementSeasonMisses++;
  while(settlementSeasonCache.size>1&&(
   settlementSeasonCache.size>SETTLEMENT_SEASON_MAX_ENTRIES||
-  settlementSeasonFloats>SETTLEMENT_SEASON_FLOAT_BUDGET)){
+  settlementSeasonFloats>SETTLEMENT_SEASON_FLOAT_BUDGET||
+  settlementCachedGpuFloats()>SETTLEMENT_SEASON_FLOAT_BUDGET)){
   const oldest=settlementSeasonCache.keys().next().value;
   const evicted=settlementSeasonCache.get(oldest);
   settlementSeasonCache.delete(oldest);
@@ -10479,9 +10544,9 @@ for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,
  // Canvas2D still needs its ordinary mutable Array for dynamic append.
  scenicMeshCache=gpuAvailable?new Float32Array(data):data.slice();scenicMeshKey=staticKey;scenicMeshTriangles=(scenicMeshCache.length+(gpuAvailable?landscapeMeshCache.length+activeCivicMesh().length:0))/30;scenicMeshRebuilds++;
  if(gpuAvailable){const packed=packSpatialScenery(scenicMeshCache);settlementChunkRanges=packed.ranges;
- settlementBuffer=gl.createBuffer();settlementSeasonBufferCreations++;
- bindGeometry(settlementBuffer);gl.bufferData(gl.ARRAY_BUFFER,packed.vertices,gl.STATIC_DRAW);
- staticGpuUploads++;retainSettlementSeason(staticKey,scenicMeshCache,settlementChunkRanges,settlementBuffer);}
+ const uploaded=uploadGrowingSettlement(packed,staticKey);
+ settlementBuffer=uploaded.buffer;
+ retainSettlementSeason(staticKey,scenicMeshCache,settlementChunkRanges,settlementBuffer,uploaded.capacityFloats);}
 
 }
 const frameDynamicStart=performance.now();
