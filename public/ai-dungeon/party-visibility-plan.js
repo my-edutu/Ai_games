@@ -18,38 +18,41 @@ export function planPartyWallReveal(x,z,subjects,camera,pad=2.1){
   const dx=x-subject.x,dz=z-subject.z;
   const radial=dx*dx+dz*dz;
   if(radial<=nearRadius*nearRadius)nearby=true;
-  // Keep real animated bodies readable from every cinematic angle. Physical
-  // walls immediately surrounding a REAL hero (or legal combat pair) become
-  // shallow foundations rather than chest-high blocks bisecting their limbs.
-  // Unmarked scenery, distant Gothic enclosures and the solid grid stay intact.
-  // The real full-height body needs a physical acting floor, not masonry
-  // compressed only on a one-dimensional camera ray. An actual 1440x832
-  // Chromium capture still divided the heroes through their calves.
-  // Only genuine live party and true-contact positions get this stage;
-  // all distant solid Gothic walls retain their original height and collision.
-  const actingRadius=subject.combatRecess===true?3.04:
-   subject.silhouetteRecess===true?2.46:0;
-  if(actingRadius>0&&radial<=actingRadius*actingRadius)return 'sightline';
+  // The live actor is the subject, NOT the centre of a transparent
+  // circular arena. Judge masonry in camera space: front and side pieces
+  // can cut across real boots and weapon contact, while BACK walls must
+  // retain physical height and carved depth. The previous all-directions
+  // 3.04m radius flattened almost every nearby wall during real Chromium
+  // Warden footage and eliminated the intermediate wall relief entirely.
   const vx=camera.x-subject.x,vz=camera.z-subject.z;
   const distance=Math.hypot(vx,vz);
   if(distance<.001)continue;
   const progress=(dx*vx+dz*vz)/distance;
   const sideways=Math.abs(dx*vz-dz*vx)/distance;
-  // Physical scenic blocking, not opacity or a cosmetic full-screen effect:
-  // in the real shot, dismantle foreground stone between the camera and an
-  // animated hero. In a genuine legal fight, grant ONE actual opponent and
-  // defender a slightly deeper contact stage. Preserve all rear/distant
-  // architecture, the source wall grid, warnings and collision unchanged.
-  if(subject.combatRecess===true&&progress>=-.25&&progress<3.40&&
-     radial<3.65*3.65&&sideways<3.10)return 'sightline';
-  if(subject.silhouetteRecess===true&&progress>=-.10&&progress<2.65&&
-     radial<3.05*3.05&&sideways<2.65)return 'sightline';
-  // In a physical low camera shot, a knee-high pier can hide a hero's face
-  // even when its centre is just outside the narrow geometric ray. Open a
-  // tightly bounded camera-facing foreground wedge for the *actual* party.
-  // Behind the hero and outside 3.1m, retain the full dungeon silhouette.
+  if(subject.silhouetteRecess===true||subject.combatRecess===true){
+   const combat=subject.combatRecess===true;
+   const bodyRadius=combat?3.04:2.46;
+   const focusRadius=combat?3.65:3.05;
+   const focusDepth=combat?3.40:2.65;
+   const focusWidth=combat?3.10:2.65;
+   // A genuine legal contact has more fighting room than exploration,
+   // but both clear only stone on the camera-facing HALF of the actor.
+   if(progress>=-.05&&radial<=bodyRadius*bodyRadius&&sideways<focusWidth)
+    return 'sightline';
+   if(progress>=0&&progress<focusDepth&&radial<focusRadius*focusRadius&&sideways<focusWidth)
+    return 'sightline';
+   // One NARROW corridor can clear a more distant direct obstruction;
+   // a full-screen wedge must not wipe out the rear Gothic nave.
+   if(progress>.2&&progress<Math.min(distance+.35,4.0)&&sideways<.84)
+    return 'sightline';
+   // Other nearby stone stays as physically broken, dressed low ruins.
+   // Another living subject can still require a genuine sightline.
+   continue;
+  }
+  // Ordinary unmarked scenic subjects preserve their established, bounded
+  // foreground cutaway. Combat subjects receive the stricter stage above.
   const foregroundRadius=Math.min(3.1,nearRadius+.25);
-  if(progress>.12&&progress<3.1&&dx*dx+dz*dz<foregroundRadius*foregroundRadius&&
+  if(progress>.12&&progress<3.1&&radial<foregroundRadius*foregroundRadius&&
      sideways<Math.min(3.05,width+1.0))return 'sightline';
   if(progress>-.55&&progress<distance+.7&&sideways<width+progress*.13)return 'sightline';
  }
