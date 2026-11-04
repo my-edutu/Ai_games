@@ -111,14 +111,19 @@ export function createMazeWorld(options = {}) {
     // Keep water gradients below foreground character/goal contrast.
     // The first full-size screenshot showed bright net-like lines; soften
     // both families instead of merely passing the source/viewport tests.
-    const pale = Math.pow(Math.max(0, first), 17) * 14
-      + Math.pow(Math.max(0, second), 23) * 7;
-    const body = Math.sin(u * 2 + v) * 4.9 + Math.sin(v * 2 - u * 3) * 3.1;
-    const shade = body + pale + (variation(x + y * 128) - .5) * 2.2 - 5;
+    // Original Pass135 full-resolution WebGL revealed a large, saturated
+    // green pool competing with the small playable actors. Subdue the two
+    // caustic families and shift the *dimension-only* sea toward mineral
+    // blue-grey so the warm terraced game stage retains visual priority.
+    // This texture never reads public/private route or objective data.
+    const pale = Math.pow(Math.max(0, first), 17) * 8
+      + Math.pow(Math.max(0, second), 23) * 4;
+    const body = Math.sin(u * 2 + v) * 3.1 + Math.sin(v * 2 - u * 3) * 2.1;
+    const shade = body + pale + (variation(x + y * 128) - .5) * 1.6 - 4;
     const i = (y * 128 + x) * 4;
-    waterPixels[i] = Math.round(37 + shade * .71);
-    waterPixels[i + 1] = Math.round(114 + shade);
-    waterPixels[i + 2] = Math.round(111 + shade * .92);
+    waterPixels[i] = Math.round(55 + shade * .58);
+    waterPixels[i + 1] = Math.round(108 + shade * .69);
+    waterPixels[i + 2] = Math.round(116 + shade * .72);
     waterPixels[i + 3] = 255;
   }
   const waterTexture = new THREE.DataTexture(waterPixels, 128, 128);
