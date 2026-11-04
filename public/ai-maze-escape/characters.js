@@ -659,7 +659,12 @@ export function createWarden(options = {}) {
     const beat=hasWitnessBeat?Math.max(0,Math.min(1,options.encounterBeat)):1;
     const brace=alert>.24 && hasWitnessBeat?Math.max(0,Math.min(1,(beat-.24)/.36)):0;
     const display=alert>.24 && hasWitnessBeat?Math.max(0,Math.min(1,(beat-.60)/.40)):0;
-    const shellOpen=hasWitnessBeat?.38+.62*display:1;
+    // Real 390px chronological WebGL review: the old .38-open initial
+    // wings looked nearly the same as the release beat at gameplay scale.
+    // Keep the physically recognizable first armor silhouette, then open
+    // decisively only after the actual publicly witnessed shell-release age.
+    // This is a connected defensive reveal, never a new AI attack or route.
+    const shellOpen=hasWitnessBeat ? .23+.77*display : 1;
     warningSpines.visible=alert>.24;
     warningSpines.scale.y=1+alert*.4+(s.reduced?0:Math.sin(s.time*4.1)*.04);
     // The public close encounter unfolds the two connected armor fins and
@@ -672,7 +677,7 @@ export function createWarden(options = {}) {
       vane.rotation.y=encounter?-side*encounter*.27:0;
       vane.rotation.x=encounter?-.12-encounter*.18:0;
     }
-    lowerJaw.rotation.x=encounter?.22+encounter*.47+brace*.08:0;
+    lowerJaw.rotation.x=encounter?.22+encounter*.47+brace*.08+display*.15:0;
     openMaw.visible=encounter>0;
     // A real physical encounter unveils the internal lantern-heart through
     // the opening shell. Keep the reduced-motion pose steady and clear the
@@ -707,7 +712,7 @@ export function createWarden(options = {}) {
       // Reduced motion holds the disclosed pose; withdrawal/terminal restores
       // exact +0, never leaving a ghost danger cue in the hidden maze.
       shellHalf.tideSail.rotation.z=alert>0
-        ?shellHalf.side*(.16+alert*.25+(s.reduced?0:Math.sin(s.time*1.2)*.035*alert)):0;
+        ?shellHalf.side*(.16+alert*.25+(s.reduced?0:Math.sin(s.time*1.2)*.035*alert))*shellOpen:0;
     }
     stride=approach(stride,s.moving?1:0,12,s.delta); gait+=s.delta*(10+s.danger*3)*stride;
     body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018)-brace*.065+display*.025;
