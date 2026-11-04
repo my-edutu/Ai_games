@@ -321,17 +321,16 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
   // World cladding, banners, stained-glass windows and statuary share the
   // multi-hero camera clearance, instead of tracking only the focus actor.
   const eyes=Array.isArray(subjects)?subjects:[subjects];
-  const obscures=(x,z,pad)=>planPartyWallReveal(x,z,eyes,camera,pad)!=='none';
+  const obscures=(x,z,pad)=>planPartyWallReveal(x,z,eyes,camera,pad)==='sightline';
   let cleared=0,facadeMatrixWrites=0,weatheredChanged=false;q.identity();
   for(let i=0;i<wallFaces.length;i++){
    const f=wallFaces[i],reveal=planPartyWallReveal(f[0],f[2],eyes,camera,wallPad);
-   const blocked=reveal!=='none';
-   const blockedBand=Number(blocked);
+   const blockedBand=reveal==='sightline'?2:reveal==='nearby'?1:0;
    if(blockedFaces[i]!==blockedBand){weatheredChanged=true;blockedFaces[i]=blockedBand;}
    if(!shouldUploadCutawayBand(facadeBands,i,reveal==='sightline'?2:reveal==='nearby'?1:0))continue;
    facadeMatrixWrites++;
-   const h=reveal==='sightline'?.13:reveal==='nearby'?.27:f[4];
-   p.set(f[0],reveal==='sightline'?.115:reveal==='nearby'?.15:f[1]);
+   const h=reveal==='sightline'?.13:reveal==='nearby'?.43:f[4];
+   p.set(f[0],reveal==='sightline'?.115:reveal==='nearby'?.23:f[1]);
    scale.set(f[3],h,f[5]);matrix.compose(p,q,scale);
    facadeMesh.setMatrixAt(i,matrix);
   }
@@ -344,10 +343,17 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
    function cutPieces(mesh,pieces){
    if(!mesh)return;
    for(let i=0;i<pieces.length;i++){
-    const item=pieces[i],blocked=Boolean(blockedFaces[item.faceIndex]);
-    if(blocked)weatheringCleared++;
-    p.set(item.x,blocked?.018:item.y,item.z);
-    scale.set(blocked?.001:item.sx,blocked?.001:item.sy,blocked?.001:item.sz);
+    const item=pieces[i],band=blockedFaces[item.faceIndex];
+    const hidden=band===2,ruin=band===1;
+    if(hidden)weatheringCleared++;
+    // Re-seat real chip and coping geometry onto the now-shorter *physical*
+    // rear ruin. Retaining its original full-height Y produced floating
+    // stones; hiding every detail made a bare box. No new meshes or draws.
+    const lowY=Math.max(.08,Math.min(.37,item.y*.14));
+    p.set(item.x,hidden?.018:ruin?lowY:item.y,item.z);
+    scale.set(hidden?.001:ruin?item.sx*.84:item.sx,
+      hidden?.001:ruin?Math.min(.12,item.sy*.38):item.sy,
+      hidden?.001:ruin?item.sz*.84:item.sz);
     q.setFromAxisAngle(yAxis,item.yaw);
     matrix.compose(p,q,scale);mesh.setMatrixAt(i,matrix);weatheredMatrixWrites++;
    }
@@ -364,7 +370,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
   let clearedCapstones=0,capMatrixWrites=0;
   if(columnCapMesh){
    for(let i=0;i<columnCap.length;i++){
-    const blocked=blockedFaces[columnCapParents[i]]===1;
+    const blocked=blockedFaces[columnCapParents[i]]>0;
     if(blocked)clearedCapstones++;
     if(!shouldUploadCutawayBand(capBands,i,blocked?2:0))continue;
     const transform=planCutawayCapTransform(blocked?'sightline':'none',columnCap[i]);
