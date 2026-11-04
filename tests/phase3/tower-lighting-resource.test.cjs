@@ -19,6 +19,7 @@ async function main() {
   const { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue } = await import(pathToFileURL(`${root}/public/infinite-tower-climb/visuals/guardian-camera-safety.mjs`).href);
   const { createTowerAtmosphere } = await import(pathToFileURL(`${root}/public/infinite-tower-climb/visuals/atmosphere.mjs`).href);
   const { createTowerGuardianShotStage } = await import(pathToFileURL(`${root}/public/infinite-tower-climb/visuals/guardian-shot-stage.mjs`).href);
+  const { createObservedGuardianGuardStage } = await import(pathToFileURL(`${root}/public/infinite-tower-climb/visuals/guardian-guard-stage.mjs`).href);
   const { createObservedMovingDeckRide } = await import(pathToFileURL(`${root}/public/infinite-tower-climb/visuals/moving-deck-ride.mjs`).href);
   const { createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage } = await import(pathToFileURL(`${root}/public/infinite-tower-climb/visuals/guardian-circuit.mjs`).href);
   const { observedGuardianPassage, createTowerGuardianPassage } = await import(pathToFileURL(`${root}/public/infinite-tower-climb/visuals/guardian-passage.mjs`).href);
@@ -62,7 +63,7 @@ async function main() {
     // must satisfy the real scene's camera-to-cap visibility interface too.
     const world = () => ({ group: new real.Group(), update() {}, revealGuardianSightlines() {}, protectRouteSightlines() {}, dispose() {}, diagnostics: () => ({}) });
     const context = {
-      THREE, createRenderProgress, createTowerFinale, createTowerRouteIntent, witnessedHealthPickup, createTowerAtmosphere, createTowerGuardianShotStage, createObservedMovingDeckRide, observedHealthRecovery, createTowerRecoveryTransfer, guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue, createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianPassage, createTowerGuardianPassage, createTowerWorld: world, createClimber: actor, createEnemy: actor,
+      THREE, createRenderProgress, createTowerFinale, createTowerRouteIntent, witnessedHealthPickup, createTowerAtmosphere, createTowerGuardianShotStage, createObservedGuardianGuardStage, createObservedMovingDeckRide, observedHealthRecovery, createTowerRecoveryTransfer, guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue, createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianPassage, createTowerGuardianPassage, createTowerWorld: world, createClimber: actor, createEnemy: actor,
       THEMES: { foundry: { sun: 0xffdfbc, ambient: 0xe8e0d3, fog: 0x99796d } },
       SCALE: 10000, pointFor: (x, y, base) => ({ x: 0, y: (y-base)/10000, z: 25, angle: 0 }), angleFor: () => 0, snapshotVelocity: () => 0,
       innerWidth: 640, devicePixelRatio: 1, document,
