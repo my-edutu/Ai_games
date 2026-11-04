@@ -220,30 +220,38 @@ export function resolveRenderedSilhouetteSubjects(state,subjects,actors){
  * within the bounded nearby stage; nothing changes collision or AI vision.
  */
 function facadeRayBox(camera,x,y,z,face){
+ // Allocation-free slab clipping: the 3D camera calls this for several
+ // anatomical samples per exposed original wall, every rendered frame.
  let lo=.014,hi=.985;
- const axes=[[camera.x,x,face[0]-face[3]/2,face[0]+face[3]/2],
-  [camera.y,y,face[1]-face[4]/2,face[1]+face[4]/2],
-  [camera.z,z,face[2]-face[5]/2,face[2]+face[5]/2]];
- for(const [origin,end,min,max] of axes){
-  const d=end-origin;
-  if(Math.abs(d)<1e-8){if(origin<min||origin>max)return false;continue;}
-  const a=(min-origin)/d,b=(max-origin)/d;
-  lo=Math.max(lo,Math.min(a,b));hi=Math.min(hi,Math.max(a,b));
-  if(lo>hi)return false;
- }
- return true;
+ const dx=x-camera.x,dy=y-camera.y,dz=z-camera.z;
+ let a,b;
+ if(Math.abs(dx)<1e-8){if(camera.x<face[0]-face[3]/2||camera.x>face[0]+face[3]/2)return false;}
+ else{a=(face[0]-face[3]/2-camera.x)/dx;b=(face[0]+face[3]/2-camera.x)/dx;
+  lo=Math.max(lo,Math.min(a,b));hi=Math.min(hi,Math.max(a,b));if(lo>hi)return false;}
+ if(Math.abs(dy)<1e-8){if(camera.y<face[1]-face[4]/2||camera.y>face[1]+face[4]/2)return false;}
+ else{a=(face[1]-face[4]/2-camera.y)/dy;b=(face[1]+face[4]/2-camera.y)/dy;
+  lo=Math.max(lo,Math.min(a,b));hi=Math.min(hi,Math.max(a,b));if(lo>hi)return false;}
+ if(Math.abs(dz)<1e-8){if(camera.z<face[2]-face[5]/2||camera.z>face[2]+face[5]/2)return false;}
+ else{a=(face[2]-face[5]/2-camera.z)/dz;b=(face[2]+face[5]/2-camera.z)/dz;
+  lo=Math.max(lo,Math.min(a,b));hi=Math.min(hi,Math.max(a,b));}
+ return lo<=hi;
 }
 const FACADE_BODY_HEIGHTS=Object.freeze([.23,.88,1.18,1.63]);
+const FACADE_BODY_WIDTHS=Object.freeze([-.24,0,.24]);
 export function planLiveFacadeBodyReveal(face,subjects,camera){
- if(!Array.isArray(face)||face.length<6||![...face.slice(0,6),camera?.x,camera?.y,camera?.z].every(Number.isFinite)||
+ if(!Array.isArray(face)||face.length<6||
+    !Number.isFinite(camera?.x)||!Number.isFinite(camera?.y)||!Number.isFinite(camera?.z)||
     face[3]<=0||face[4]<=.15||face[5]<=0||face[3]>4||face[4]>6||face[5]>4)return false;
- for(const subject of Array.isArray(subjects)?subjects.slice(0,5):[]){
-  if(subject?.visibleActor!==true||![subject.x,subject.z].every(Number.isFinite)||
+ for(let j=0;j<6;j++)if(!Number.isFinite(face[j]))return false;
+ const n=Array.isArray(subjects)?Math.min(5,subjects.length):0;
+ for(let i=0;i<n;i++){
+  const subject=subjects[i];
+  if(subject?.visibleActor!==true||!Number.isFinite(subject.x)||!Number.isFinite(subject.z)||
      Math.hypot(face[0]-subject.x,face[2]-subject.z)>4.8)continue;
   const dx=subject.x-camera.x,dz=subject.z-camera.z,distance=Math.hypot(dx,dz);
   if(distance<.8||distance>30)continue;
   const rightX=-dz/distance,rightZ=dx/distance;
-  for(const y of FACADE_BODY_HEIGHTS)for(const side of [-.24,0,.24])
+  for(const y of FACADE_BODY_HEIGHTS)for(const side of FACADE_BODY_WIDTHS)
    if(facadeRayBox(camera,subject.x+rightX*side,y,subject.z+rightZ*side,face))return true;
  }
  return false;
