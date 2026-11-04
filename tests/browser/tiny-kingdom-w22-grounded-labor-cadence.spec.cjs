@@ -39,7 +39,7 @@ for(const mobile of [false,true]){
    }
    const movement=secondPose?Math.hypot(...pose.arms[1].wrist.map((n,k)=>n-secondPose.arms[1].wrist[k])):null;
    return {sites:sites.length,pose,secondPose,firstContact,secondContact,
-    unchanged,movement,readOnly:before===before,
+    unchanged,movement,
     gl:document.getElementById('world').getContext('webgl')?.getError()??-1,
     width:document.documentElement.scrollWidth,
     triangles:g.renderStats().lastFrameTriangles};
