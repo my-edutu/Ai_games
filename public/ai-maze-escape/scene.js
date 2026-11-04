@@ -431,12 +431,19 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     const showPickup = !result && pickupAge >= 0 && pickupAge < PUBLIC_PICKUP_VISUAL_SECONDS;
     const pickupStrength = showPickup
       ? (settings.reducedMotion ? 1 : clamp(1-pickupAge/(PUBLIC_PICKUP_VISUAL_SECONDS-.55),0,1)) : 0;
+    // Only an original public Three fossil organ that actually exists in
+    // the disclosed stage can earn this small connected head/lantern gesture.
+    // No solver state, unknown tile, gameplay movement or fabricated event.
+    const fossilCue=!result ? world.publicFossilAttention(explorer.group.position) : null;
     explorer.update({
       time:elapsed,delta,moving:pose.moving&&!result,heading,
       attentionHeading:closestThreat?Math.atan2(closestThreat.x-pose.x,closestThreat.z-pose.z):undefined,
       attentionStrength:closestThreat?.strength??0,
       keyHeading:keyGateCue?.heading,keyStrength:keyGateCue?.strength??0,
       gateHeading,gateStrength,pickupStrength,
+      fossilHeading:fossilCue
+        ? Math.atan2(fossilCue.x-pose.x,fossilCue.z-pose.z) : undefined,
+      fossilStrength:fossilCue?.strength??0,
       keyTarget,
       keyCameraPosition: camera.position,
       danger:s.dangerPermille/1000,result,reducedMotion:settings.reducedMotion,
