@@ -34,6 +34,10 @@ export function witnessedLandingX(snapshot, deck) {
   const left = deck.x + margin, right = deck.x + deck.width - margin;
   if (left >= right) return { x: center, sourceAirLane: false };
   const top = deck.y + deck.height;
+  // Record the source player's originally reachable arrival coordinate before
+  // we subtract currently blocked hazard/enemy intervals. This must remain
+  // defined for ordinary, hazard-free airborne route observations as well.
+  const unclutteredX = Math.max(left, Math.min(right, player.x));
   let lanes = [{ left, right }], hazardObservedInLanding = false;
   for (const hazard of snapshot.hazards) {
     if (!observedLandingHazardPressure(snapshot, hazard, top)) continue;
