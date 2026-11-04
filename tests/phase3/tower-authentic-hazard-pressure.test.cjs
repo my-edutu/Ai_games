@@ -253,6 +253,11 @@ test('actual lethal trap outranks warnings in low quality and survives simultane
   assert.equal(stage.diagnostics().instances, 48);
   assert.equal(stage.diagnostics().extraDraws, 1);
   stage.update({ ...group, enemies: [{active:true, telegraph:true}] }, {quality:'low'});
+  assert.equal(stage.diagnostics().chargingHazards, 2,
+    'an untyped telegraph cannot erase actual authored shutter anticipation');
+  stage.update({ ...group, enemies: [{ id:'nearby-source-guardian',
+    kind:'guardian', x:175000, y:320000, health:8,
+    active:true, telegraph:true }] }, {quality:'low'});
   assert.equal(stage.diagnostics().activeHazards, 1,
     'a guardian windup cannot make a separate active trap become invisible');
   assert.equal(stage.diagnostics().chargingHazards, 0,
