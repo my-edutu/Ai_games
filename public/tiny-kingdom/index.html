@@ -9060,13 +9060,21 @@ function projectedWorkerBodyFraction(eye,target,citizen){
  if(head===null||feet===null)return 0;
  return Math.max(0,Math.min(1,Math.abs(head-feet)/2));
 }
+// The camera may briefly witness a REAL credited delivery, never imagined stock.
+function recentObservedCourierReceipt(citizen){
+ if(!citizen||document.body.dataset.workday!=='delivery')return null;
+ return deliveryReceipts.find(r=>r.citizen===citizen.name&&
+  state.t>=r.time&&state.t-r.time<.42)||null;
+}
 function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const realWork=isWorkingAtSite(citizen);
+ const realReceipt=recentObservedCourierReceipt(citizen);
+ const marketStory=document.body.dataset.workday==='delivery'&&
+  Boolean(citizen.delivery||realReceipt);
  const working=Boolean(forceWorkday||liveWorkday||
-  document.body.dataset.citizenInspect==='on'||
-  (document.body.dataset.workday==='delivery'&&citizen.delivery));
- const unloading=Boolean(document.body.dataset.workday==='delivery'&&
-  citizen.delivery?.stage==='unloading');
+  document.body.dataset.citizenInspect==='on'||marketStory);
+ const unloading=Boolean(marketStory&&
+  (citizen.delivery?.stage==='unloading'||realReceipt));
  const homecoming=document.body.dataset.workday==='homecoming';
  const journeyCamera=homecoming||Boolean(liveWorkday&&citizen.delivery);
  const waypoint=citizen.path?.length?citizen.path[0]:citizen.target;
@@ -9076,7 +9084,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  // and actor, not empty air a metre above the task. Ordinary Follow is intact.
  // Frame the REAL worker and receiving stall together, rather than the
  // previous distant head-only courier shot that concealed the handoff.
- const yard=citizen.delivery?.destination;
+ const yard=citizen.delivery?.destination||realReceipt?.destination;
  const centre=unloading&&yard?[
   Math.max(-.25,Math.min(.25,(yard[0]-citizen.x)*.22)),
   Math.max(-.25,Math.min(.25,(yard[1]-citizen.z)*.22))]:[0,0];
@@ -9274,31 +9282,58 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
 let liveShotPlanCache=null,liveShotPlanBuilds=0,liveShotPlanReuses=0;
 function observedWorkdayCameraPlan(citizen,preferredYaw){
  const observeHome=document.body.dataset.workday==='homecoming';
- if((!liveWorkday&&!observeHome)||(liveWorkday&&!isWorkingAtSite(citizen))){
+ const receipt=recentObservedCourierReceipt(citizen);
+ const observeDelivery=document.body.dataset.workday==='delivery'&&
+  Boolean(citizen.delivery||receipt);
+ const observeWorkday=liveWorkday&&isWorkingAtSite(citizen);
+ if(!observeHome&&!observeDelivery&&!observeWorkday){
   liveShotPlanCache=null;
   return planCitizenCamera(citizen,preferredYaw);
  }
+ const mode=observeHome?'homecoming':observeDelivery?'delivery':'workday';
+ const deliveryId=observeDelivery?(citizen.delivery?.id||receipt?.id):null;
+ const stage=observeDelivery?(citizen.delivery?.stage||'received'):null;
  const now=performance.now(),cache=liveShotPlanCache;
- const turn=cache?Math.abs(Math.atan2(
-  Math.sin(preferredYaw-cache.shot.yaw),
-  Math.cos(preferredYaw-cache.shot.yaw))):Infinity;
- if(cache&&cache.mode===(observeHome?'homecoming':'workday')&&
-  cache.activity===citizen.activity&&cache.citizen===citizen.name&&
-  cache.citySize===city.length&&cache.job===citizen.job&&
-  cache.requestZoom===actionCameraZoom&&cache.requestPitch===actionCameraPitch&&
+ const turn=cache?Math.min(
+  Math.abs(Math.atan2(Math.sin(preferredYaw-cache.requestedYaw),
+   Math.cos(preferredYaw-cache.requestedYaw))),
+  Math.abs(Math.atan2(Math.sin(preferredYaw-cache.shot.yaw),
+   Math.cos(preferredYaw-cache.shot.yaw)))):Infinity;
+ // Reuse the same expensive roof/citizen/hand visibility survey only while
+ // the real courier's location, activity, cargo stage and optics are stable.
+ if(cache&&cache.mode===mode&&cache.deliveryId===deliveryId&&
+  cache.stage===stage&&cache.activity===citizen.activity&&
+  cache.citizen===citizen.name&&cache.citySize===city.length&&
+  cache.job===citizen.job&&cache.requestZoom===actionCameraZoom&&
+  cache.requestPitch===actionCameraPitch&&
   cache.viewWidth===canvas.clientWidth&&cache.viewHeight===canvas.clientHeight&&
   now-cache.at<1100&&
-  Math.hypot(citizen.x-cache.x,citizen.z-cache.z)<.25&&turn<1.2){
+  Math.hypot(citizen.x-cache.x,citizen.z-cache.z)<.25&&turn<.24){
   liveShotPlanReuses++;return cache.shot;
  }
- const shot=planCitizenCamera(citizen,preferredYaw,true);
+ const shot=planCitizenCamera(citizen,preferredYaw,observeWorkday);
  liveShotPlanBuilds++;
- liveShotPlanCache={citizen:citizen.name,job:citizen.job,
-  mode:observeHome?'homecoming':'workday',activity:citizen.activity,
+ liveShotPlanCache={citizen:citizen.name,job:citizen.job,mode,
+  deliveryId,stage,requestedYaw:preferredYaw,activity:citizen.activity,
   citySize:city.length,x:citizen.x,z:citizen.z,at:now,
   viewWidth:canvas.clientWidth,viewHeight:canvas.clientHeight,
   requestZoom:actionCameraZoom,requestPitch:actionCameraPitch,shot};
  return shot;
+}
+function getCourierDocumentaryCameraAudit(){
+ const p=people[selectedCitizen],receipt=recentObservedCourierReceipt(p);
+ const active=Boolean(follow&&p&&document.body.dataset.workday==='delivery'&&
+  (p.delivery||receipt));
+ const shot=active?observedWorkdayCameraPlan(p,yaw):null;
+ return {source:'real-authoritative-delivery-documentary',active,
+  citizen:p?.name||null,deliveryId:p?.delivery?.id||receipt?.id||null,
+  stage:p?.delivery?.stage||(receipt?'received':'none'),
+  realReceipt:receipt?{id:receipt.id,amount:receipt.amount,
+   resource:receipt.resource,creditedAtUnloading:receipt.creditedAtUnloading}:null,
+  builds:liveShotPlanBuilds,reuses:liveShotPlanReuses,
+  camera:shot?{yaw:shot.yaw,pitch:shot.pitch,zoom:shot.zoom,
+   blockers:shot.blockers,foregroundCover:shot.foregroundSceneCover}:null,
+  authorityMutated:false};
 }
 function updateFollowCamera(preferredYaw=previousFollowCamera?.yaw??yaw){
  const person=people[Math.min(selectedCitizen,people.length-1)];if(!person)return;
@@ -9661,7 +9696,19 @@ function watchLatestWork(){
 function updateDeliveryHUD(){
  if(document.body.dataset.workday!=='delivery')return;
  const p=people[selectedCitizen];
- if(!p?.delivery)return;
+ if(!p?.delivery){
+  const receipt=recentObservedCourierReceipt(p);
+  if(receipt){
+   const meter=document.getElementById('workday-progress');
+   meter.value=100;
+   meter.setAttribute('aria-valuetext','Real market delivery received and credited');
+   const label=p.name+' · market received '+receipt.amount+' '+receipt.resource+
+    ' · inventory credited';
+   const status=document.getElementById('workday-activity');
+   if(status.textContent!==label)status.textContent=label;
+  }
+  return;
+ }
  const unloading=isMarketUnloading(p);
  const distance=unloading?0:routeRemainingDistance(p);
  const total=Math.max(distance,p.delivery.routeLength||distance,1);
@@ -10159,7 +10206,8 @@ function render(now){requestAnimationFrame(render);
  if(follow){
  const citizen=people[Math.min(selectedCitizen,people.length-1)];
  const observingAction=Boolean(liveWorkday||document.body.dataset.workday==='homecoming'||
-  (document.body.dataset.workday==='delivery'&&citizen.delivery));
+  (document.body.dataset.workday==='delivery'&&
+   (citizen.delivery||recentObservedCourierReceipt(citizen))));
  const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
  const ease=reduceMotion?1:cameraWallEase(wallDt,observingAction?6.5:CAMERA_FOLLOW_RATE);
  focusPoint[0]+=(citizen.x-focusPoint[0])*ease;
@@ -10538,7 +10586,7 @@ getDailyRhythmAudit:dailyRhythmAudit,getOccupiedHouseholds:()=>cloneData(occupie
  totalCulledTriangles:scenicVisibilityStats.totalCulledTriangles,
  totalDrawCalls:scenicVisibilityStats.totalDrawCalls,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable}),getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,renderQuality,setRenderQuality,getFrameProfile,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCameraDynamicCacheStats,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable}),getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,renderQuality,setRenderQuality,getFrameProfile,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCameraDynamicCacheStats,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
  if(streetWalk)setStreetWalk(false);
 if(follow)setCitizenFollow(false);cinematic=false;document.getElementById('camera').classList.remove('active');
 yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2&&o.focus.every(Number.isFinite))focusPoint=o.focus.slice(0,2)}};
