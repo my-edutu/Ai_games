@@ -46,6 +46,34 @@ jobs:
           name: tiny-kingdom-w15-ground-residency
           path: test-results/
           retention-days: 14
+  # W21 lived-in-workday documentary camera gate. The selected, physically
+  # filmable worker must be the worker the observer actually sees on desktop
+  # and portrait, without rewriting a simulation event or hidden structure.
+  w21-real-workday-camera:
+    runs-on: ubuntu-latest
+    timeout-minutes: 13
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Real worker selected equals real camera shown at desktop and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w21-workday-director-camera.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w21-workday-camera
+          path: test-results/
+          retention-days: 14
   # W17 mobile moving-film regression, kept short and independent of the
   # catalogue's slower legacy browser assertions.  This is a rendering/camera
   # correctness floor, never an independent LOOK/FEEL/PLAY quality verdict.
