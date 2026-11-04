@@ -17,11 +17,25 @@ test('W40 real Day-120 workday spends character triangles on visible people with
  await page.setContent(html);
  await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0,null,{timeout:75000});
  await page.locator('#pause').click();
- await page.evaluate(()=>{
+ // The morning immediately after accelerating 120 days can contain only
+ // authentic commuters. Wait through bounded real fixed-step decisions until
+ // a worker physically reaches a site. Never manufacture or teleport work.
+ const staged=await page.evaluate(()=>{
   const g=window.__tinyKingdom;g.reset();
   for(let i=0;i<86400;i++)g.step(1/30);
-  g.watchLiveWorkday();
+  let extraTicks=0;
+  while(g.getActiveWorksites().length===0&&extraTicks<2880){
+   g.step(1/30);extraTicks++;
+  }
+  const sites=g.getActiveWorksites();
+  const observed=sites.length?g.watchLiveWorkday():null;
+  return {day:g.metrics().day,extraTicks,siteCount:sites.length,
+   observed:observed?.active===true,citizen:observed?.citizen??null};
  });
+ console.log('W40 genuine workday staging',JSON.stringify(staged));
+ expect(staged.day).toBeGreaterThanOrEqual(120);
+ expect(staged.siteCount,'Day-120 populated world must produce genuine on-site labor').toBeGreaterThan(0);
+ expect(staged.observed,'Workday camera must select a genuine on-site worker').toBe(true);
  const before=await page.evaluate(()=>window.__tinyKingdom.getFrameProfile().totalFrames);
  await page.waitForFunction(n=>window.__tinyKingdom.getFrameProfile().totalFrames>n,before,{timeout:85000});
  const desktop=await page.evaluate(()=>{
