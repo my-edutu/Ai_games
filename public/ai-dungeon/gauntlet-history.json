@@ -2194,7 +2194,7 @@
         "playsMajority": false,
         "provenance": "No fresh independent critics available. Do not infer a blind preference from test results or real predecessor screenshots."
       },
-      "safetyChecks": "Exact predecessor b78a8bf [Dungeon 41790973479] FAILED 1/278 organic endgame despite legitimate progress to floor3 after tick2500 (all 3 heroes alive; fresh Warden 362 HP). Its visual workflow 41790973481 FAILED natural terminal. Later source a99794b and focused safety 152e5d7 committed; new workflow results PENDING, not verified.",
+      "safetyChecks": "Observed exact predecessor 81ca6c3 Dungeon Action https://github.com/my-edutu/Ai_games/actions/runs/41797282641: 277/278 authority (one truthful organic terminal failure); 2/3 real Chromium shards passed; visual Action 41797282766 failed terminal; catalogue 41797282629 also failed. New phase-aware boss recovery and depth respite source are NOT YET EXACT-HEAD VERIFIED; do not confuse precedent failures with new-head results.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED synchronized full video+audio; predecessor Chromium Warden diagnostic 2.5s non-silent real PCM 44100Hz, peak .025445 RMS .00856, but browser video recorder reported zero bytes.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2202,7 +2202,7 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Real-source b8be04f 1440x832 browser screenshot from 41672587065 and Warden boss desktop/mobile screenshot/video artifacts 41672587022 were INSPECTED: new 14 anatomical joint cylinders made elongated opaque spindly/squid-like limbs. Warden encounter head-on 1440x832 has 3 heroes overlapping enemy bodies in the 58% HP boss arena, warning Rift Cross visible but contact indistinguishable; mobile capture progressed into floor 2 but large stylized ballheads persist. This is a NEGATIVE experiential finding compared with da492455 and exact locked baseline; source visual redesign at 71da2ea to cap spans remains unverified. No masked A/B victory.",
-      "latestCandidateWorkflow": "PENDING: https://github.com/my-edutu/Ai_games/actions/runs/41797186315 (queued at first inspection; separate code head CI may be superseded).",
+      "latestCandidateWorkflow": "PENDING: new candidate runtime source, browser, replay, visual review and CI. No new-head action result yet.",
       "currentPredecessorWebgl": {
         "sourceHead": "938cf0c44726b7be5dd3441eb33f7c1226f2b872",
         "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41758062752/artifacts/13289962348",
@@ -2353,8 +2353,8 @@
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Predecessor's source-authoritative 2500-tick experience failed full terminal/restart even after reaching floor 3; Warden encounters lack sustained meaningful threat and skinned combat still looks toy-scale in real predecessor video. New chase may improve play but has no exact-head motion or benchmark evidence.",
-    "currentWork": "Predecessor b78a8bf organic run improved to floor 3 (23 kills) at tick 2500, but no genuine defeat/restart. Real later-phase Warden now moves on every lawful free pursuit turn, hunts nearby living backline pressure targets, and records an actual movement intention/event. Browser and source replay check at new head pending; no transformation claimed.",
+    "biggestRemainingGap": "The latest 2500-tick organic campaign reached floor 5 with all three heroes healthy and a fresh Warden at full 430 HP, never producing an honest defeat/restart. Phase-early boss encounters lack sustained bodily pressure while free +26HP every floor erases real attrition; toy-scale character contact and obstructed Gothic composition are also unresolved in predecessor footage.",
+    "currentWork": "Exact predecessor 81ca6c3 organically reached floor 5 and killed 43 enemies by tick 2500, but no defeat/restart (277/278 authority tests, browser terminal failure). M1 candidate changes genuine early Warden shock/recovery/engagement pacing and makes floor-rest HP gains decrease with depth, protecting deterministic replay and the true organic gate. AFTER visuals/organic completion remain UNVERIFIED.",
     "candidateCommit": "152e5d7f1bd28bf4d5a5143d377ebc3cb0a649ae",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
@@ -4582,6 +4582,21 @@
         "evidence": "No matched new-head original audio/video or blind critic comparison; 0/3, LOOKS/FEELS/PLAYS UNVERIFIED",
         "verdict": "IN_PROGRESS — NOT_TRANSFORMED",
         "next": "Inspect exact-head full organic campaign, identify natural floor-by-floor timing and casualty; if no real terminal, correct encounter pressure rather than weakening tests. Then review genuine original-audio desktop/mobile rendering, perform baseline A/B and 3 blind critics. Never merge."
+      },
+      {
+        "id": "M1-AUTHENTIC-WARDEN-PRESSURE-20261104",
+        "date": "2026-11-04",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "sourceHeadAtStart": "81ca6c31530cc477a7e75ae8d515ff5027c36d90",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "objective": "Connect actual boss pursuit/contact timing with earned expedition attrition so a real autonomous five-stage adventure can naturally resolve rather than endlessly snowball to full-health later floors.",
+        "code": [
+          "games/ai-dungeon/src/index.ts",
+          "tests/foundation/dungeon-warden-expedition-pressure-m1.test.cjs"
+        ],
+        "observedPredecessor": "81ca6c3 organic campaign, 2500 deterministic ticks: floor5, 43 kills, 3 living healthy heroes, boss 430HP, missing defeat/restart; https://github.com/my-edutu/Ai_games/actions/runs/41797282641",
+        "implementation": "Sentinel and Rupture retain real original marked attacks and one earned vulnerable recovery beat, opening one lawful AI contact/pursuit beat before next warning; Eclipse retains two-beat final recovery. Actual floor sanctuary HP restoration scales from 26 on floor2 to 13 floor3 and 9 floor5, minimum6, rather than full flat26 at arbitrary depth. No fabricated defeat, special damage, teleport, randomness, fake VFX or skipped acceptance.",
+        "next": "Check new exact-head 2500-tick true organic campaign, deterministic replay, full real desktop/mobile browser and A/V; if still no natural defeat, critique genuine AI decision loops and challenge without cheating. Then transform skinned art/scene and request independent 3-critic masked before/after."
       }
     ]
   }

@@ -39,7 +39,8 @@ export function damageThroughWardenSeal(s:DungeonState,target:Unit,raw:number):n
  if(wardenSealActive(s))return Math.max(1,Math.ceil(raw*.24));
  return wardenPhase(target)==='SENTINEL'?Math.max(1,Math.ceil(raw*.7)):raw;
 }
-/** The real unsealed Warden rests for two tactical turns after a shockwave.
+/** Unsealed Sentinel/Rupture recover for one real turn; Eclipse keeps two. Each
+ * phase has at least one lawful pursuit/contact beat before the next warning.
  * This optional saved field is written only by the genuine combat step; no
  * cinematic timer, guessed target, or generated recovery event grants damage.
  */
@@ -49,6 +50,13 @@ export const WARDEN_COUNTER_MULTIPLIER=1.4;
  * This cadence is shared by the authoritative strike planner and the actual enemy AI.
  */
 export const WARDEN_ECLIPSE_INTERVAL=9;
+/** Actual earned shelter between deeper floors becomes progressively scarce. A floor
+ * may restore wounded and fallen companions, but cannot erase attrition forever.
+ * The amount is fixed by depth (never by clock, renderer or random draws). */
+export function planDungeonRespite(nextFloor:number):number{
+ if(!Number.isSafeInteger(nextFloor)||nextFloor<2)return 0;
+ return Math.max(6,Math.ceil(26/Math.ceil(nextFloor/2)));
+}
 export function planWardenRecovery(s:Pick<DungeonState,'tick'|'units'>,boss?:Unit){
  const until=boss?.recoveryUntilTick;
  if(!boss||boss.kind!=='warden'||boss.hp<=0||!Number.isSafeInteger(s?.tick)||
@@ -771,7 +779,7 @@ export class DungeonRuntime {
      }
      enemy.action='cast';
      if(!wardenSealActive(s)){
-      enemy.recoveryUntilTick=s.tick+2;
+      enemy.recoveryUntilTick=s.tick+(bossPhase==='ECLIPSE'?2:1);
       push(s,'opening','WARDEN EXPOSED — the party can counter the recovering guardian');
      }
      push(s,affected.length?'danger':'evade','The Warden '+strike.shape.replaceAll('_',' ').toLowerCase()+
@@ -930,7 +938,8 @@ export class DungeonRuntime {
    // is permitted to enter. No free kills, fabricated teleport or RNG.
    alive.some(u=>dist(u,s.exit)===0)){
    const nextFloor=s.floor+1;const next=createFloor(this.seed,nextFloor,this.rng,s.run,s);
-   next.units.filter(u=>u.faction==='party').forEach(u=>u.hp=Math.min(u.maxHp,u.hp+26));
+   const respite=planDungeonRespite(nextFloor);
+   next.units.filter(u=>u.faction==='party').forEach(u=>u.hp=Math.min(u.maxHp,u.hp+respite));
    this.state=next;push(next,'floor','FLOOR '+nextFloor+' · '+next.theme);
   }
   assertDungeonState(this.state);return this.publicState();
