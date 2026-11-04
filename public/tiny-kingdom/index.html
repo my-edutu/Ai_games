@@ -715,14 +715,16 @@ let presentationEpoch=0,lastFrozenFrameKey=null,idleFrames=0;
 const CAMERA_DYNAMIC_FLOAT_BUDGET=960000;
 let cameraDynamicCache=null,cameraDynamicKey='',cameraDynamicBuilds=0,
  cameraDynamicReuses=0,cameraDynamicSkippedUploads=0;
+let liveMotionCacheBuilds=0,liveMotionCacheReuses=0;
 function getCameraDynamicCacheStats(){
  return {entries:cameraDynamicCache?1:0,
   cachedFloats:cameraDynamicCache?.length||0,
   estimatedBytes:(cameraDynamicCache?.length||0)*8,
   floatBudget:CAMERA_DYNAMIC_FLOAT_BUDGET,
   builds:cameraDynamicBuilds,reuses:cameraDynamicReuses,
+  liveBuilds:liveMotionCacheBuilds,liveReuses:liveMotionCacheReuses,
   skippedUploads:cameraDynamicSkippedUploads,
-  kind:'render-only exact-mesh reuse; moving-world simulation never cached'};
+  kind:'render-only exact-mesh reuse keyed by authoritative fixed tick; never cached across world motion'};
 }
 // G069: fixed-size CPU phase timings for actual presented frames, not fake GPU
 // timestamps. Sampling never touches authoritative state or named RNG streams.
@@ -9448,9 +9450,19 @@ for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,
 }
 const frameDynamicStart=performance.now();
 const detailPlan=selectVisibleCitizenDetail(),nearPeople=detailPlan.indices;
-const candidateCameraDynamicKey=(gpuAvailable&&(frozen||speed===0))?[
+// W14 Living Valley motion architecture: camera frames outnumber simulation
+// ticks on capable GPUs. Rebuild articulated citizens, actual carts, labor
+// tools and market receipts ONLY after a real fixed-step world change or a
+// presentational dependency changes. This is never a time-throttled fake
+// worker snapshot: presentationEpoch increments in every authoritative step,
+// including rapid growth and every real navigation / unloading update.
+// On slow SwiftShader every frame generally advances state and stays fresh.
+// Focus is part of the key because visible physical worksites are selected
+// from the camera's current focus, while near-human LOD follows the viewpoint.
+const candidateCameraDynamicKey=gpuAvailable?[
  presentationEpoch,state.t,city.length,scenicMeshKey,detailPlan.mode,
  [...nearPeople].sort((a,b)=>a-b).join(','),selectedCitizen,
+ follow?1:0,focusPoint[0],focusPoint[1],
  document.body.dataset.workday||'off',liveWorkday?1:0,
  streetWalk?1:0,streetEncounterName||'',workdayEvents.length,
  deliveryReceipts.length
@@ -9460,7 +9472,9 @@ const cameraMeshReused=Boolean(candidateCameraDynamicKey&&
 if(cameraMeshReused){
  data=cameraDynamicCache;
  cameraDynamicReuses++;
+ if(!frozen&&speed>0)liveMotionCacheReuses++;
 }else{
+ if(candidateCameraDynamicKey&&!frozen&&speed>0)liveMotionCacheBuilds++;
  data=gpuAvailable?[]:scenicMeshCache.slice();
 directionalCastShadows(state.t);
 workdayRenderStats.animatedTools=0;
