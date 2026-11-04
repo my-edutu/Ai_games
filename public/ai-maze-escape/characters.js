@@ -305,6 +305,12 @@ export function createExplorer(options = {}) {
       ? Math.max(-.8,Math.min(.8,Math.atan2(
         Math.sin(options.fossilHeading-group.rotation.y),
         Math.cos(options.fossilHeading-group.rotation.y))))*fossilFocus : 0;
+    // Native Pass130 FULL 1280 and 390 PNG pixel review found that the first
+    // fossil glance turned Pip's entire face away from the actual camera:
+    // the eyes disappeared even though the real arm/lantern gesture worked.
+    // Limit torso/head yaw to a readable 3/4 glance, retaining an expressive
+    // physical response while preserving actual original eye/helmet silhouette.
+    // Do not crop the camera, change visibility tests or write more HUD text.
     // The SAME physical key also appears briefly when the public runtime
     // actually records its collection and matching inventory. A pickup is
     // witnessed, never predicted from a goal or unrevealed key position.
@@ -339,10 +345,10 @@ export function createExplorer(options = {}) {
     body.position.y=.78+Math.abs(step)*.035+(s.lose?0:idle*.008)-alert*.11+gateCelebrate*.09+gatePerformance*.17+pickupCelebrate*.23+fossilFocus*.08;
     body.position.z=alert>0?-alert*.105:gateCelebrate*.035+gatePerformance*.055;
     body.rotation.set(s.lose?.22:stride*.065-s.danger*.035-keyReach*.07-alert*.25-gateCelebrate*.12-gatePerformance*.11-pickupCelebrate*.13,
-      lookYaw*.14+keyYaw*.08+pickupFaceTurn*.28+fossilYaw*.24,
+      lookYaw*.14+keyYaw*.08+pickupFaceTurn*.28+fossilYaw*.07,
       .035*rest-step*.05-Math.sign(lookYaw)*alert*.12);
     head.rotation.set(s.lose?.28:-.04-s.danger*.08+idle*.018+alert*.10-keyReach*.06-gateCelebrate*.16-gatePerformance*.09-pickupCelebrate*.18-fossilFocus*.12,
-      (s.reduced?0:Math.max(-.42,Math.min(.42,turn*.7))+(Math.sin(s.time*.73)*.08+.12)*rest)*(1-alert-keyReach*.7-gateCelebrate*.55)+lookYaw+keyYaw+gateYaw+pickupFaceTurn*.72+fossilYaw*.88,
+      (s.reduced?0:Math.max(-.42,Math.min(.42,turn*.7))+(Math.sin(s.time*.73)*.08+.12)*rest)*(1-alert-keyReach*.7-gateCelebrate*.55)+lookYaw+keyYaw+gateYaw+pickupFaceTurn*.72+fossilYaw*.28,
       s.win?-.13:s.lose?.07:-.065*rest+step*.035-Math.sign(lookYaw)*alert*.19);
     for (let i=0;i<2;i++) {
       const sign=i===0?1:-1;
