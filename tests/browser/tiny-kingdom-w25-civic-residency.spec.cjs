@@ -23,13 +23,15 @@ test('W25 real civic quarter stays GPU resident during authentic new home growth
  expect(before.civic.gpuTriangles).toBeGreaterThan(1000);
  expect(before.visibility.civic.visibleTriangles).toBeGreaterThan(0);
  expect(before.geometry.totalTriangles).toBe(before.triangles);
+ const oldFrames=await page.evaluate(()=>window.__tinyKingdom.getFrameProfile().totalFrames);
  const grown=await page.evaluate(buildings=>{
   const g=window.__tinyKingdom;let ticks=0;
   while(g.metrics().buildings<=buildings&&ticks<7200){g.step(1/30);ticks++;}
   return {ticks,buildings:g.metrics().buildings,authority:JSON.stringify(g.exportSnapshot())};
  },before.buildings);
  expect(grown.buildings).toBeGreaterThan(before.buildings);
- const oldFrames=await page.evaluate(()=>window.__tinyKingdom.getFrameProfile().totalFrames);
+ // Sample BEFORE the fixed-step world advance. A frozen frame may already
+ // finish before evaluating the new cursor, causing a false 90-second hang.
  await page.waitForFunction(n=>window.__tinyKingdom.getFrameProfile().totalFrames>n,oldFrames,{timeout:90000});
  const after=await page.evaluate(()=>{
   const g=window.__tinyKingdom;

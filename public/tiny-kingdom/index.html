@@ -1705,7 +1705,13 @@ let landscapeMeshCache=null,landscapeMeshKey='',landscapeMeshRebuilds=0,landscap
 // not regenerate the unchanged guildhall, bridge, market, farm and high street.
 // The first twelve lots are part of the key because imported valid snapshots
 // may relocate those yards. The cache never enters authority or replay data.
-const CIVIC_CACHE_MAX_ENTRIES=2,CIVIC_CACHE_FLOAT_BUDGET=3500000;
+// W25: the original quarterly town has four seasonal appearances plus a
+// bounded snowy variant. Keeping only two civic keys invalidated the existing
+// full-town seasonal cache, creating MORE growth stalls, not less. Five physical
+// versions fit a finite device-aware budget, retaining all original geometry.
+const CIVIC_CACHE_MAX_ENTRIES=5;
+const CIVIC_CACHE_FLOAT_BUDGET=
+ (navigator.deviceMemory&&navigator.deviceMemory<=4)?6500000:8000000;
 const civicSceneryCache=new Map();
 let civicCacheBuilds=0,civicCacheReuses=0,civicCacheEvictions=0,civicActiveKey='';
 let civicBuffer=null,civicChunkRanges=[],civicGpuUploads=0,civicGpuDisposals=0;
