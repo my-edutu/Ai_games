@@ -598,10 +598,30 @@ test('a real close public encounter frames both autonomous actors and saves date
   // skip CPU-delayed visual frames or accept moving the camera as actor acting.
   // Every original PNG and exact-source sidecar survives a later rejection.
   activeFrame = frame;
-  // Playwright's clock pauses only after a frame really renders at its natural
-  // phase. This preserves the source-bound WebGL picture while a CPU-slow PNG
-  // is captured; it does NOT synthesize an actor, tick, position or pose.
-  await page.clock.install();
+  // A real Pass149 regression showed that Playwright's fake clock could
+  // strand requestAnimationFrame after a paused WebGL screenshot. Instead,
+  // preserve the actual ALREADY RENDERED canvas by parking ONLY our game's
+  // named 'animate' callback. Browser/Playwright rAFs remain native, so the
+  // screenshot itself cannot deadlock. Resuming the parked game callback
+  // continues the authentic renderer clock, with no synthetic 3D pose or AI.
+  await page.addInitScript(() => {
+    const nativeRaf=window.requestAnimationFrame.bind(window);
+    let held=false,parked=null;
+    window.requestAnimationFrame=callback=>{
+      if(callback?.name!=='animate') return nativeRaf(callback);
+      return nativeRaf(time=>{
+        if(held){parked=callback;return;}
+        callback(time);
+      });
+    };
+    window.__MAZE_EVIDENCE_HOLD__={
+      hold(){held=true;},
+      resume(){
+        held=false;
+        if(parked){const callback=parked;parked=null;nativeRaf(callback);}
+      },
+    };
+  });
   await page.setViewportSize({width:390,height:844});
   await page.goto(base+'/maze?camera=follow', {waitUntil:'domcontentloaded'});
   const temporalPhases=[
@@ -610,47 +630,21 @@ test('a real close public encounter frames both autonomous actors and saves date
     {name:'shell-release',min:.82,max:1.01},
   ];
   const renderedPhases=[];
-  let timelinePaused=false;
   for (const phase of temporalPhases) {
-    if (!timelinePaused) {
-      // Let the real browser render the first public notice naturally, then
-      // freeze its actual WebGL image before the CPU-expensive screenshot.
-      await page.waitForFunction(({tick,token,min,max})=>{
-        const d=window.__MAZE_3D__;
-        return d?.renderer==='webgl'&&d.cameraMode==='follow'
-          &&d.tick===tick&&d.runToken===token
-          &&document.getElementById('scene-card')?.hidden===true
-          &&d.witnessedGuardianBeat?.length>0
-          &&d.witnessedExplorerGuardianPhysicalPose
-          && d.witnessedExplorerGuardianBeat>=min
-          && d.witnessedExplorerGuardianBeat<max;
-      },{tick:frame.snapshot.tick,token:frame.snapshot.runToken,
-        min:phase.min,max:phase.max},{timeout:120000});
-      await page.clock.pauseAt(new Date());
-      timelinePaused=true;
-    } else {
-      // Real Pass149 WebGL 41916850578 proved that pauseAt -> resume
-      // stranded rAF after the genuine notice PNG. This is a Playwright
-      // clock limitation, NOT a game animation or CPU rendering defect.
-      // Stay paused between images and advance EVERY scheduled rAF/render,
-      // without fastForward, a fake state, or manually writing actor joints.
-      // These are native WebGL frames at genuine intermediate visual ages;
-      // controlled pacing is evidence ONLY, never a hardware FPS claim.
-      let reached=false;
-      for (let i=0;i<42;i++) {
-        const d=await page.evaluate(()=>window.__MAZE_3D__);
-        const beat=d?.witnessedExplorerGuardianBeat;
-        if (d?.renderer==='webgl' && d.tick===frame.snapshot.tick
-          && d.runToken===frame.snapshot.runToken && Number.isFinite(beat)) {
-          if (beat>=phase.min && beat<phase.max) { reached=true; break; }
-          if (beat>=phase.max) break; // truthful MISS, never relabel an image
-        }
-        await page.clock.runFor(64);
-      }
-      expect(reached,
-        'A real source-bound guardian render must visit '+phase.name+' without skipping the physical phase')
-        .toBe(true);
-    }
+    await page.waitForFunction(({tick,token,min,max})=>{
+      const d=window.__MAZE_3D__;
+      return d?.renderer==='webgl'&&d.cameraMode==='follow'
+        &&d.tick===tick&&d.runToken===token
+        &&document.getElementById('scene-card')?.hidden===true
+        &&d.witnessedGuardianBeat?.length>0
+        &&d.witnessedExplorerGuardianPhysicalPose
+        && d.witnessedExplorerGuardianBeat>=min
+        && d.witnessedExplorerGuardianBeat<max;
+    },{tick:frame.snapshot.tick,token:frame.snapshot.runToken,
+      min:phase.min,max:phase.max},{timeout:120000});
+    // Only stop the NEXT game update after this real frame was seen.
+    // The already composed WebGL pixels remain untouched during capture.
+    await page.evaluate(()=>window.__MAZE_EVIDENCE_HOLD__?.hold());
     const prior=await page.evaluate(()=>{
       const d=window.__MAZE_3D__,s=window.__MAZE_PUBLIC_STATE__;
       const canvas=document.getElementById('maze').getBoundingClientRect();
@@ -683,12 +677,12 @@ test('a real close public encounter frames both autonomous actors and saves date
     }));
     fs.writeFileSync(path.join(dir,'guardian-real-beat-'+phase.name+'-390.json'),JSON.stringify({
       capturedAt:new Date().toISOString(),
-      source:'Real published guardian at unchanged authoritative tick; reduced-motion OFF, actual Three.js rAF frames with controlled evidence pacing between native PNGs; no staged enemy, synthetic pose or private state',
+      source:'Real original public guardian tick with naturally running Three.js motion between images; temporarily parked only the already-rendered game callback for exact native PNG capture; no staged enemy or synthetic pose',
       seed:encounter.seed,tick:frame.snapshot.tick,runToken:frame.snapshot.runToken,
       viewport:{width:390,height:844},phase:phase.name,
       imageSha256:hash(image),sourceSha256:nativeSourceHashes,
       beforeScreenshot:prior,afterScreenshot:post,
-      caveat:'Clock pacing was controlled ONLY to preserve already-rendered WebGL phases during CPU-slow PNG capture. It cannot prove real-time FPS, naturally paced playback or Nintendo parity; distinct original images still require independent critique.',
+      caveat:'Only the already-rendered game frame is held during screenshot acquisition; the real browser visual clock resumes naturally between frames. This does NOT measure GPU FPS or prove Nintendo parity; source-bound visual critique still required.',
     },null,2));
     renderedPhases.push(prior);
     expect(prior.beat,'actual captured phase must match its native PNG label').toBeGreaterThanOrEqual(phase.min);
@@ -717,9 +711,9 @@ test('a real close public encounter frames both autonomous actors and saves date
     }
     expect(prior.warningVisible,'only real public warning can trigger acting').toBe(eligibleWarning);
     expect(prior.coneVisible,'2.236-cell warning cannot suggest an invented open passage').toBe(false);
-    // Deliberately KEEP the clock paused for the next controlled rAF pass.
-    // The original images have already been captured; no artificial pose
-    // is inserted, and no screenshot is labelled with the wrong time beat.
+    // Release this exact game renderer after its native image is safely
+    // stored; Playwright/screenshot animation callbacks never stopped.
+    await page.evaluate(()=>window.__MAZE_EVIDENCE_HOLD__?.resume());
   }
   expect(renderedPhases[0].beat).toBeLessThan(renderedPhases[1].beat);
   expect(renderedPhases[1].beat).toBeLessThan(renderedPhases[2].beat);
