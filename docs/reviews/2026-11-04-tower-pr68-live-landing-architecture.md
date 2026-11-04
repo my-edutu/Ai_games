@@ -1,0 +1,24 @@
+# Infinite Tower Climb — source-owned 3D landing architecture continuation
+
+**Date:** 2026-11-04. **PR:** [draft #68](https://github.com/my-edutu/Ai_games/pull/68); **active branch:** `feat/tower-transformation-gauntlet-20261101`. **Frozen baseline remains:** `1731b380851162741761c5569e2bc152a0869ca9`. **Playable source:** [`769a2e0`](https://github.com/my-edutu/Ai_games/commit/769a2e0939de0e0d0a02c1ff33ac0404eb35440f), with [source contracts `11394dec`](https://github.com/my-edutu/Ai_games/commit/11394dec7ec0dfc6caf57d562508df297c995b44). This is the **SAME OPEN** ascent → guardian counterplay → HP gate → actual outcome/restart transformation, not a separate Gauntlet victory.
+
+## Real-experience problem and selected cohesive change
+
+The latest source-authentic [dff normal-speed real-game films](https://github.com/my-edutu/Ai_games/actions/runs/41758366800) have valid original-host baseline and candidate for desktop and portrait; the builder inspected actual frames and fixed-step traces. The current game still frames monumental machinery more strongly than the small physical climber during some phone and desktop ascents. Prior route-intent stones show an intention in midair, but the selected, possibly moving **actual destination deck** itself does not have a salient near-rim threshold. In full-motion viewing, the route can become hard to read even when camera safety says the climber is in frame.
+
+Rather than add more HUD copy, this change makes the **actual chosen deck visibly different in world-space**, following the source-owned target and source-tick movement. Two original metal uprights and five illuminated inset threshold stones share one bounded instanced draw. The pieces use the current source-selected landing X already used by the real follow camera, are depth-tested, and rest on the observed curved physical platform. Presently active hazard/enemy overlap changes the threshold from mint to amber (shape cues remain in monochrome), without declaring the landing safe or forecasting patrols. An authentic telegraphed enemy, real resource detour, current deck arrival, stale frame, terminal state or restart suppresses this lower-priority cue. A moving carriage updates the stage from its present authoritative deck position, never future predicted motion. No physics, AI, hitbox, RNG, replay checksum, authority or HUD state changes.
+
+## Specification compliance pass
+
+- **Truth:** `observedLandingApproach` requires current matching target ID, run token, integer source tick, live source platform, valid player and active source route mode. It never asserts future safety. Pressure color is a present-only overlap signal.
+- **Presentation:** physical near-side geometric goal, no screen-space text or fabricated ability. Seven instances / one additional draw while active; no new light, shadow, animation clock, per-frame geometry or audio. Reduced motion naturally uses the same static threshold.
+- **Recovery:** stale/death/result/windup/new target clear the cue; graphics context recreation disposes and reconstructs owned materials, instancing and geometry. Full renderer/asset recovery still needs browser validation.
+- **Evidence:** [new-source quality workflow](https://github.com/my-edutu/Ai_games/actions/runs/41761915422) queued; [real-game motion recapture](https://github.com/my-edutu/Ai_games/actions/runs/41761825208) initially pending for the playable source. These are NOT experience proof.
+
+## Independent experience/engineering review posture
+
+No independent fresh-context reviewer or supported hardware was reachable in this execution. The worker tunnel reported **'Tunnel-client has not been seen for 300 seconds'**. The added source tests exercise target identity, real moving decks, current hazard signal, precedence and single-draw ownership; exact-source CI results were pending at recording. Tests and commit counts cannot satisfy the Gauntlet.
+
+The largest remaining gap is the **actual observed mobile readability of the climber, landing and guardian in matched full-motion scenes**; an attractive small decorative threshold is not sufficient to declare the game substantially better. A legitimate next pass must inspect at least 60 seconds of desktop and portrait original-source ascent, guardian danger and authentic result/restart from both frozen baseline and new source, align on real source events rather than wall-clock offsets, and gather five independent blind votes on LOOKS/FEELS/PLAYS separately (4/5 per pillar). Supported-device frame-time p50/p95/p99, memory, accessibility and deterministic replay/chaos remain gate blockers. **Gauntlet quality: NOT EVALUATED.**
+
+**Rollback:** revert the landing-approach module, its scene bindings and tests on PR #68; the authority and PR #58 remain untouched. Do not merge, deploy, force-push or promote quality state.
