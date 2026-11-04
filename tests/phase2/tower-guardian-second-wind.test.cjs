@@ -164,3 +164,27 @@ test('the real shield spacing ends when exposed; earned pulse is never suppresse
   const old=chooseTowerAction(historical,createTowerObservation(historical));
   assert.notEqual(old.intent.mode,'bracing-guardian-shield','frozen replay policy never opts in');
 });
+
+test('shield spacing never freezes a distant encounter or crosses an observed live spike',()=>{
+  const state=encounter(true,4),boss=state.enemies[0],p=state.player;
+  const floor=state.chunks.find(c=>c.floor===state.floor);
+  const cap=floor.platforms.find(x=>x.id===`f${state.floor}:cap`);
+  p.position={x:cap.x+cap.width/2,y:cap.y+cap.height+p.halfHeight};
+  p.grounded=true;p.groundedPlatformId=cap.id;p.facing=1;
+  p.velocity={x:0,y:0};p.health=p.maxHealth;
+  boss.position={x:p.position.x+125000,y:p.position.y};
+  boss.guardUntilTick=state.tick+18;boss.telegraphUntilTick=0;
+  const distant=chooseTowerAction(state,createTowerObservation(state));
+  assert.notEqual(distant.intent.mode,'bracing-guardian-shield',
+    'a far shield cannot stall a viable ascent or approach');
+  boss.position.x=p.position.x+27000;
+  floor.hazards.push({
+    id:'guard-spacing-danger',kind:'spike',x:p.position.x-20000,
+    y:p.position.y-p.halfHeight-1000,width:20000,height:25000,
+    activeFromTick:0,activeEvery:20,activeFor:20
+  });
+  const guarded=chooseTowerAction(state,createTowerObservation(state));
+  assert.equal(guarded.intent.mode,'bracing-guardian-shield');
+  assert.equal(guarded.action.move,0,'do not counterstep into an actual active spike');
+  assert.equal(guarded.action.attack,false);
+});
