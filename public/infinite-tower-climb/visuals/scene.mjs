@@ -19,6 +19,7 @@ import { createObservedGuardianGuardStage } from './guardian-guard-stage.mjs';
 import { witnessedAirbornePulse, witnessedGuardianCounterPulse } from './airborne-pulse.mjs';
 import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue } from './guardian-camera-safety.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
+import { guardedJointShotGain, observedJointBodyPressure } from './joint-shot.mjs';
 import { createObservedMovingDeckRide } from './moving-deck-ride.mjs';
 // A tiny 3D attack lane follows only a REAL enemy telegraph. The curved ribbon
 // traces the same cylindrical projection as authoritative horizontal shots and
@@ -2055,6 +2056,14 @@ export function createTowerScene(canvas, settings = {}) {
   const duelActorBefore = [0, 0, 0, 0], duelActorAfter = [0, 0, 0, 0];
   const duelGuardianBefore = [0, 0, 0, 0], duelGuardianAfter = [0, 0, 0, 0];
   let duelDollyApplications = 0, duelDollyLastStep = 0;
+  // One joint camera safety path for a REAL two-body portrait deadlock.
+  // The previously approved, source-selected exterior shot is the only
+  // destination; the actual rendered frame judges every proposed move.
+  const jointPreviousCamera = new THREE.Vector3(), jointPreviousFocus = new THREE.Vector3();
+  const jointActorBefore = [0,0,0,0], jointActorAfter = [0,0,0,0];
+  const jointGuardianBefore = [0,0,0,0], jointGuardianAfter = [0,0,0,0];
+  const jointLandingBefore = [0,0,0], jointLandingAfter = [0,0,0];
+  let jointShotApplications = 0, jointShotLastGain = 0;
   const guardianSightPoints=[];
   const climberCapSightPoint = new THREE.Vector3();
   const lookAt = new THREE.Vector3();
@@ -3094,6 +3103,89 @@ export function createTowerScene(canvas, settings = {}) {
       if(portraitAimLastGain>0)portraitAimCorrections=Math.min(1000000,
         portraitAimCorrections+1);
     }
+    // Earlier unilateral rescues cannot always resolve the real phone case
+    // where BOTH the climber and guardian have drifted outside safe bounds.
+    // Make one bounded, continuous follow toward the already validated
+    // TWO-body exterior composition. Accept only a measurable FULL-BODY
+    // crop improvement; an observed airborne landing remains protected.
+    // This never changes a source tick, gameplay decision or geometry.
+    jointShotLastGain = 0;
+    if (!overview && !options.reducedMotion && !options.stale &&
+      options.camera === 'follow' && snapshot.lifecycle === 'running' &&
+      p.health > 0 && zoom <= 1.02 && camera.aspect > 0 &&
+      camera.aspect < .85 && Number.isFinite(dt) && dt > 0 &&
+      sourceGuardian?.health > 0 && sourceGuardian.active === true &&
+      Number.isFinite(sourceGuardian.halfHeight) && sourceGuardian.halfHeight > 0 &&
+      Number.isFinite(p.halfHeight) && p.halfHeight > 0 &&
+      followComposition?.guardianStaged && followComposition.clear &&
+      followComposition.guardianFramed) {
+      actorFramePoint.copy(climber.group.position);
+      actorFramePoint.y += p.halfHeight / SCALE;
+      const position = pointFor(sourceGuardian.x, sourceGuardian.y,
+        snapshot.chunkBaseY, snapshot.worldWidth, 27.15);
+      guardianRescuePoint.set(position.x, position.y, position.z);
+      camera.lookAt(lookAt); camera.updateMatrixWorld(true);
+      measureDuelBodyNdc(actorFramePoint, p.halfHeight / SCALE,
+        camera, duelTop, duelBottom, jointActorBefore);
+      measureDuelBodyNdc(guardianRescuePoint, sourceGuardian.halfHeight / SCALE,
+        camera, duelTop, duelBottom, jointGuardianBefore);
+      const startWorst = Math.max(
+        observedJointBodyPressure(jointActorBefore, camera.aspect),
+        observedJointBodyPressure(jointGuardianBefore, camera.aspect, 'guardian'));
+      if (startWorst > .065 && Number.isFinite(startWorst)) {
+        let preserveLanding = false;
+        if (p.state === 'airborne' && targetPlatform &&
+          [targetPlatform.x, targetPlatform.y, targetPlatform.width,
+            targetPlatform.height].every(Number.isFinite) &&
+          targetPlatform.width > 0 && targetPlatform.height > 0) {
+          const landed = pointFor(observedSourceLandingX(snapshot,targetPlatform),
+            targetPlatform.y + targetPlatform.height,
+            snapshot.chunkBaseY, snapshot.worldWidth, 26.7);
+          portraitAimLanding.set(landed.x,landed.y,landed.z).project(camera);
+          jointLandingBefore[0] = portraitAimLanding.x;
+          jointLandingBefore[1] = portraitAimLanding.y;
+          jointLandingBefore[2] = portraitAimLanding.z;
+          portraitAimLanding.set(landed.x,landed.y,landed.z);
+          preserveLanding = true;
+        }
+        jointPreviousCamera.copy(camera.position);
+        jointPreviousFocus.copy(lookAt);
+        const jointBlend = Math.min(.23,
+          1 - Math.exp(-Math.min(.06, dt) * 12));
+        followTowerCamera(camera.position, destination, jointBlend);
+        followTowerFocus(lookAt, focus, jointBlend);
+        camera.lookAt(lookAt); camera.updateMatrixWorld(true);
+        measureDuelBodyNdc(actorFramePoint, p.halfHeight / SCALE,
+          camera, duelTop, duelBottom, jointActorAfter);
+        measureDuelBodyNdc(guardianRescuePoint, sourceGuardian.halfHeight / SCALE,
+          camera, duelTop, duelBottom, jointGuardianAfter);
+        if (preserveLanding) {
+          portraitAimLandingProjection.copy(portraitAimLanding).project(camera);
+          jointLandingAfter[0] = portraitAimLandingProjection.x;
+          jointLandingAfter[1] = portraitAimLandingProjection.y;
+          jointLandingAfter[2] = portraitAimLandingProjection.z;
+        }
+        const gain = guardedJointShotGain({
+          aspect: camera.aspect, actorBefore: jointActorBefore,
+          actorAfter: jointActorAfter, guardianBefore: jointGuardianBefore,
+          guardianAfter: jointGuardianAfter,
+          landingBefore: preserveLanding ? jointLandingBefore : null,
+          landingAfter: preserveLanding ? jointLandingAfter : null,
+          actorCoreClear: towerCoreSightlineClear(camera.position, actorFramePoint, 23.5),
+          guardianCoreClear: towerCoreSightlineClear(camera.position, guardianRescuePoint, 23.5),
+          landingCoreClear: !preserveLanding ||
+            towerCoreSightlineClear(camera.position, portraitAimLanding, 23.5),
+        });
+        if (gain > 0) {
+          jointShotLastGain = gain;
+          jointShotApplications = Math.min(1000000, jointShotApplications + 1);
+        } else {
+          camera.position.copy(jointPreviousCamera);
+          lookAt.copy(jointPreviousFocus);
+          camera.lookAt(lookAt); camera.updateMatrixWorld(true);
+        }
+      }
+    }
     camera.lookAt(lookAt);
     world.revealGuardianSightlines(camera,guardianSightPoints);
     // Foreground visibility is tested against the very same ACTUAL smoothed
@@ -3321,6 +3413,9 @@ export function createTowerScene(canvas, settings = {}) {
       camera: options.camera, quality: options.quality, reducedMotion: options.reducedMotion, stale: !!options.stale, contextLost, renderErrors,
       actorSafeRefinements,
       portraitAimCorrections,
+      jointShotApplications,
+      jointShotLastGain: Number(jointShotLastGain.toFixed(4)),
+      jointShotEvidence: 'Measured same-frame source-body camera-crop relief only; not full-motion A/B quality, GPU FPS or hardware proof',
       portraitAimLastGain: Number(portraitAimLastGain.toFixed(4)),
       portraitAimEvidence: 'Post-action actual source projection; not raster visibility, A/B quality or device FPS',
       duelDollyApplications, duelDollyLastStep: Number(duelDollyLastStep.toFixed(4)),
