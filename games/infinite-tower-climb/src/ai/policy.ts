@@ -1,5 +1,5 @@
 import type{TowerAction,TowerPlatform,TowerState}from'../state/types';import{chooseTowerUpgrade}from'../progression/builds';import{nextTowerPlatform,nextTowerTacticalPlatform}from'./graph';import type{TowerObservation}from'./observation';import{detectTowerStuck}from'./stuck';
-export interface TowerIntent{mode:'choosing-upgrade'|'evading-projectile'|'evading-hazard'|'evading-telegraph'|'bracing-telegraph'|'engaging-enemy'|'recovering'|'collecting-resource'|'aligning'|'jumping'|'air-control'|'settling-landing'|'settling-launch'|'waiting';summary:string;confidence:number;fallbackUsed:boolean;targetPlatformId?:string}
+export interface TowerIntent{mode:'choosing-upgrade'|'evading-projectile'|'evading-hazard'|'evading-telegraph'|'bracing-telegraph'|'bracing-guardian-shield'|'engaging-enemy'|'recovering'|'collecting-resource'|'aligning'|'jumping'|'air-control'|'settling-landing'|'settling-launch'|'waiting';summary:string;confidence:number;fallbackUsed:boolean;targetPlatformId?:string}
 export interface TowerDecision{action:TowerAction;intent:TowerIntent}
 function action(move:TowerAction['move']=0,extra:Partial<TowerAction>={}):TowerAction{return{move,jump:false,dash:false,attack:false,ability:false,...extra}}
 function moveSign(delta:number):TowerAction['move']{return Math.abs(delta)<4000?0:delta>0?1:-1}
@@ -368,6 +368,46 @@ function pulseReady(state:TowerState,obs:TowerObservation,enemy:TowerObservation
     Math.abs(delta)<=210000&&Math.abs(enemy.position.y-p.position.y)<enemy.halfHeight+3500&&
     p.facing===(delta>=0?1:-1);
 }
+// A visible low-health guardian shield is a tactical beat, not 22 ticks of
+// motionless melee. The climber opens a safe gap on its ACTUAL support deck,
+// then re-enters on the observed windup. No predicted guardian position,
+// invisible cover, free parry, cooldown bypass, or historical-policy change.
+function observedGuardianGuardSpacing(state:TowerState,obs:TowerObservation,
+  guardian:TowerObservation['enemies'][number]) {
+  const p=obs.player,guard=guardian.guardTicksRemaining??0;
+  if(state.config.guardianSecondWind!==true||!p.grounded||p.health<=0||
+     !guardian.active||guardian.kind!=='guardian'||guard<=0||
+     guardian.telegraphUntilTick>obs.tick||pulseReady(state,obs,guardian))return null;
+  const deck=currentPlatform(obs,p.groundedPlatformId);
+  if(!deck||Math.abs(guardian.position.y-p.position.y)>
+      state.player.halfHeight+guardian.halfHeight+10000)return null;
+  const left=deck.x+state.player.halfWidth+6000;
+  const right=deck.x+deck.width-state.player.halfWidth-6000;
+  if(right<=left||p.position.x<left||p.position.x>right||
+     guardian.position.x<deck.x-state.config.attackReach||
+     guardian.position.x>deck.x+deck.width+state.config.attackReach)return null;
+  const delta=guardian.position.x-p.position.x;
+  const gap=Math.abs(delta),threshold=Math.max(65000,
+    state.config.attackReach+14000);
+  const away:TowerAction['move']=delta>=0?-1:1;
+  const wanted:TowerAction['move']=gap<threshold?away:0;
+  const safe=guardedEvasion(state,obs,wanted);
+  let move:TowerAction['move']=safe===wanted?safe:0;
+  if(move!==0){
+    // A retreat must not become a dodge *into* a present live floor spike.
+    // The real next-step ground controller remains the final authority.
+    const vx=Math.max(-state.config.maxRunSpeed,Math.min(state.config.maxRunSpeed,
+      p.velocity.x+move*state.config.moveAcceleration));
+    const nextX=p.position.x+vx;
+    const x0=Math.min(nextX,p.position.x)-state.player.halfWidth-1000;
+    const x1=Math.max(nextX,p.position.x)+state.player.halfWidth+1000;
+    const y0=p.position.y-state.player.halfHeight;
+    const y1=p.position.y+state.player.halfHeight;
+    if(obs.hazards.some(h=>h.active&&h.x<x1&&h.x+h.width>x0&&
+      h.y<y1&&h.y+h.height>y0))move=0;
+  }
+  return {move,guardTicks:guard};
+}
 // Tactical v2 is the live policy. Historical v1 is retained for pinned replay
 // evidence; it is never silently substituted into a new live expedition.
 export function chooseTowerAction(state:TowerState,observation:TowerObservation,options:{tactical?:boolean}={}):TowerDecision{
@@ -408,6 +448,17 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
   // The cap exit is deliberately locked while its guardian lives. Do not treat
   // standing on that cap as the end of the route: the guardian patrols the
   // penultimate deck and must be defeated by ordinary, range-checked combat.
+  const guardedGuardian=tactical&&state.config.guardianSecondWind===true
+    ?observation.enemies.find(e=>e.active&&e.kind==='guardian'&&
+      (e.guardTicksRemaining??0)>0):undefined;
+  const shieldSpace=guardedGuardian
+    ?observedGuardianGuardSpacing(state,observation,guardedGuardian):null;
+  if(shieldSpace)return{action:action(shieldSpace.move),
+    intent:{mode:'bracing-guardian-shield',
+      summary:shieldSpace.move!==0?'Making room for the observed guardian shield':
+        'Holding safe footing until the observed guardian shield opens',
+      confidence:.95,fallbackUsed:false,
+      targetPlatformId:observation.player.groundedPlatformId}};
   const cap=observation.platforms.find(p=>p.id===`f${observation.floor}:cap`);
   const guardian=observation.enemies.find(e=>e.active&&e.kind==='guardian');
   if(cap&&guardian&&observation.player.grounded&&observation.player.groundedPlatformId===cap.id){
