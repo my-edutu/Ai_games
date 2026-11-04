@@ -496,7 +496,8 @@ export function createTowerAudio() {
     // and skinned jump. Reuse the OWNED opt-in wind buffer/filter; do not create
     // an oscillator or synthesize a jump from intended motion. Muted output
     // remains silent. A stale/terminal frame immediately retires the air cue.
-    const kineticAirflow = observedTraversalKinetics(snapshot).airflow;
+    const kineticAirflow = frame.stale || snapshot.stale ? 0 :
+      observedTraversalKinetics(snapshot).airflow;
     if (enabled && context && windGain) {
       const windMood = frame.audio?.musicState || 'ascent';
       const windBase = lifecycle === 'running' ?
