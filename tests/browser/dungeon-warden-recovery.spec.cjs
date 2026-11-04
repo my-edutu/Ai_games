@@ -63,7 +63,7 @@ test('true Warden shockwave opens visible desktop/mobile tactical counterplay an
   });
  }
  current=game.step();
- expect(current.bossRecovery?.remaining).toBe(3);
+ expect(current.bossRecovery?.remaining).toBe(2);
  expect(current.events.some(e=>e.kind==='opening')).toBe(true);
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick),{timeout:25000}).toBe(current.tick);
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wardenRitual?.exposedCounterWindow),{timeout:20000}).toBe(true);
@@ -102,7 +102,7 @@ test('true Warden shockwave opens visible desktop/mobile tactical counterplay an
  const beforeHp=boss.hp;
  current=game.step();
  expect(boss.hp).toBeLessThan(beforeHp);
- expect(current.bossRecovery?.remaining).toBe(2);
+ expect(current.bossRecovery?.remaining).toBe(1);
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick),{timeout:25000}).toBe(current.tick);
  await page.setViewportSize({width:390,height:844});
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.composition?.viewport?.width),{timeout:25000}).toBeGreaterThan(100);

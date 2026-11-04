@@ -22,8 +22,13 @@ export function planPartyWallReveal(x,z,subjects,camera,pad=2.1){
   // walls immediately surrounding a REAL hero (or legal combat pair) become
   // shallow foundations rather than chest-high blocks bisecting their limbs.
   // Unmarked scenery, distant Gothic enclosures and the solid grid stay intact.
-  const actingRadius=subject.combatRecess===true?2.55:
-   subject.silhouetteRecess===true?2.05:0;
+  // The real full-height body needs a physical acting floor, not masonry
+  // compressed only on a one-dimensional camera ray. An actual 1440x832
+  // Chromium capture still divided the heroes through their calves.
+  // Only genuine live party and true-contact positions get this stage;
+  // all distant solid Gothic walls retain their original height and collision.
+  const actingRadius=subject.combatRecess===true?3.04:
+   subject.silhouetteRecess===true?2.46:0;
   if(actingRadius>0&&radial<=actingRadius*actingRadius)return 'sightline';
   const vx=camera.x-subject.x,vz=camera.z-subject.z;
   const distance=Math.hypot(vx,vz);

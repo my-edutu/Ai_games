@@ -91,8 +91,8 @@ test('camera-facing nearby masonry now reveals full actor weapons but preserves 
  assert.equal(planCutawayWallTransform('sightline',2.6).height,.16);
  assert.equal(planCutawayWallTransform('none',2.6).height,2.6);
  const environment=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
- assert.match(environment,/reveal==='nearby'\?\.42/);
- assert.match(environment,/reveal==='nearby'\?\.22/);
+ assert.match(environment,/reveal==='nearby'\?\.27/);
+ assert.match(environment,/reveal==='nearby'\?\.15/);
 });
 
 test('real group camera clears only the foreground wedge in front of living characters',async()=>{
@@ -147,4 +147,22 @@ test('real-camera acting-space is a shallow physical stone removal, not wall del
   'distant walls cannot disappear to flatter a close combat shot');
  assert.equal(planPartyWallReveal(0,2.5,[{x:0,z:0}],cam),'nearby',
   'unmarked scene behavior remains backward-compatible');
+});
+
+test('physical character-scale stage respects genuine travel and live melee contact without deleting the Gothic room',async()=>{
+ const {planPartyWallReveal}=await load();
+ const hero=Object.freeze({x:0,z:0,silhouetteRecess:true});
+ const combat=Object.freeze({x:0,z:0,silhouetteRecess:true,combatRecess:true});
+ const camera=Object.freeze({x:6,z:0});
+ assert.equal(planPartyWallReveal(-2.3,1.2,[hero],camera),'nearby');
+ assert.equal(planPartyWallReveal(-2.3,1.2,[combat],camera),'sightline');
+ assert.equal(planPartyWallReveal(-2.8,1.8,[combat],camera),'none');
+ assert.equal(planPartyWallReveal(0,3.6,[combat],camera),'none');
+ assert.equal(planPartyWallReveal(0,2.8,[hero],camera),'none');
+ const dressing=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
+ const floorPlan=fs.readFileSync(path.join(root,'public/ai-dungeon/cutaway-floor-plan.js'),'utf8');
+ assert.match(dressing,/reveal==='nearby'\?\.27/);
+ assert.match(dressing,/reveal==='nearby'\?\.15/);
+ assert.match(floorPlan,/height:\.27,footprint:\.78/);
+ assert.match(floorPlan,/height:\.13,footprint:\.32/);
 });

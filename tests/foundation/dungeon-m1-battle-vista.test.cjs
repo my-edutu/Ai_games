@@ -13,8 +13,11 @@ test('real bodies have a 360-degree physical acting pocket without losing distan
 test('real contact has more room than travel; unmarked or remote space is retained',async()=>{
  const {planPartyWallReveal:r}=await load('party-visibility-plan.js');
  const c={x:6,z:0},hero={x:0,z:0,silhouetteRecess:true};
+ assert.equal(r(-2.3,1.2,[{...hero,combatRecess:true}],c),'sightline');
  assert.equal(r(-1.8,1.3,[{...hero,combatRecess:true}],c),'sightline');
- assert.equal(r(-1.8,1.3,[hero],c),'nearby');
+ assert.equal(r(-2.3,1.2,[hero],c),'nearby');
+ assert.equal(r(-1.8,1.3,[hero],c),'sightline',
+  'real actor boots remain readable even beside close masonry');
  assert.equal(r(-2.9,1.8,[{...hero,combatRecess:true}],c),'none');
  assert.equal(r(0,5,[{...hero,combatRecess:true}],c),'none');
  assert.equal(r(-1.8,1.3,[{x:0,z:0,combatRecess:false}],c),'nearby');

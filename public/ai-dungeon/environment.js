@@ -330,8 +330,8 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
    if(blockedFaces[i]!==blockedBand){weatheredChanged=true;blockedFaces[i]=blockedBand;}
    if(!shouldUploadCutawayBand(facadeBands,i,reveal==='sightline'?2:reveal==='nearby'?1:0))continue;
    facadeMatrixWrites++;
-   const h=reveal==='sightline'?.15:reveal==='nearby'?.42:f[4];
-   p.set(f[0],reveal==='sightline'?.13:reveal==='nearby'?.22:f[1]);
+   const h=reveal==='sightline'?.13:reveal==='nearby'?.27:f[4];
+   p.set(f[0],reveal==='sightline'?.115:reveal==='nearby'?.15:f[1]);
    scale.set(f[3],h,f[5]);matrix.compose(p,q,scale);
    facadeMesh.setMatrixAt(i,matrix);
   }
