@@ -26,7 +26,7 @@ test('W41 autonomous smith reaches the physical outdoor forge and works on deskt
   for(;ticks<24000;ticks++){
    g.step(1/30);
    if(ticks%8!==0)continue;
-   const navigation=g.getNavigation().filter(p=>p.job==='craftsperson');
+   const navigation=g.getNavigation().filter(p=>crafts.includes(p.name));
    const audit=g.getForgeWorkdayAudit();
    const walking=navigation.find(p=>p.activity.startsWith('Traveling to craftsperson'));
    if(walking&&!commute)commute={target:walking.target,
