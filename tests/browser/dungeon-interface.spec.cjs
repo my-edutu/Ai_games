@@ -76,7 +76,9 @@ test('clean view never hides a real connection failure',async({page})=>{
  await expect(page.locator('#recovery')).toBeVisible({timeout:12000});
 });
 test('a real terminal run has an explicit result and no live hero selection',async({page})=>{
- const game=DungeonRuntime.create('dungeon-ui-round17');let snapshot;
+ // 24-seed real campaign corpus at 92b06b2: this seed organically lost
+ // within 900 ticks; the earlier UI seed did not die even after 2,500.
+ const game=DungeonRuntime.create('gauntlet-corpus-v1-0');let snapshot;
  for(let i=0;i<2500;i++){game.step();if(game.publicState().phase==='intermission'){snapshot=game.publicState();break}}
  expect(snapshot).toBeTruthy();await page.route('**/dungeon/state',route=>route.fulfill({json:snapshot}));await page.goto('/dungeon');
  await expect(page.locator('#run-result')).toBeVisible();await expect(page.locator('#result-summary')).toContainText('Depth '+snapshot.floor);
