@@ -214,6 +214,39 @@ for (const kind of ['climber', 'sentinel', 'shooter', 'guardian']) {
   });
 }
 
+test('real trap escape makes the articulated climber plant and sidestep both directions without a fake displacement', async t => {
+  const [api, THREE] = await loadCharacters();
+  const model = api.createClimber(); t.after(() => model.dispose());
+  const root = rootTransform(model.group);
+  const torso = model.group.getObjectByName('articulated-body');
+  assert.ok(torso, 'actual skinned climber torso exists');
+  const defending = Object.freeze({ ...standing, vx: 6500, intentMode: 'evading-projectile' });
+  model.animate(defending, 1 / 60, 0, { reducedMotion: false });
+  const ordinary = torso.rotation.z;
+  const ordinaryFoot = posedVertices(model, '1-knee', THREE);
+  const escape = Object.freeze({ ...defending, intentMode: 'evading-hazard' });
+  model.animate(escape, 1 / 60, 1 / 60, { reducedMotion: false });
+  assert.ok(torso.rotation.z > ordinary + .1,
+    'genuine rightward escape leans into observed velocity');
+  const planted = posedVertices(model, '1-knee', THREE);
+  assert.ok(planted.some((point, i) => point.distanceTo(ordinaryFoot[i]) > .06),
+    'physical leg mesh, not a debug label, establishes planted-foot silhouette');
+  model.animate({ ...escape, vx: -6500 }, 1 / 60, 2 / 60, { reducedMotion: false });
+  assert.ok(torso.rotation.z < ordinary - .1,
+    'real leftward escape mirrors its torso response');
+  model.animate(escape, 1 / 60, 3 / 60, { reducedMotion: true });
+  assert.ok(Math.abs(torso.rotation.z) < .0001,
+    'reduced motion keeps static asymmetric defense without rolling the torso');
+  model.animate(escape, 1 / 60, 4 / 60, { stale: true });
+  assert.ok(Math.abs(torso.rotation.z) < .0001,
+    'stale source cannot drive a simulated escape animation');
+  model.animate(defending, 1 / 60, 5 / 60, { reducedMotion: false });
+  assert.ok(Math.abs(torso.rotation.z) < .0001,
+    'unrelated defensive intent clears hazard-only animation immediately');
+  assert.deepEqual(rootTransform(model.group), root,
+    'pose cannot translate authoritative player root or collision');
+});
+
 test('climber attacks deform the rendered fist, preserve airborne legs and recover in both motion modes', async t => {
   const [api, THREE] = await loadCharacters();
   const model = api.createClimber(); t.after(() => model.dispose());
