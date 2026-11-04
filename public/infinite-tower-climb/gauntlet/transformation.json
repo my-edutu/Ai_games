@@ -11,18 +11,18 @@
     "sha": null,
     "title": "SAME whole-game 3D Tower transformation — source-earned climb/deck/guardian plus original pre-activation hazard machinery; quality NOT EVALUATED",
     "implementationSha": "1a091fc0ed0f6022241993cd1894ffb15c32dff9",
-    "implementationEvidenceStatus": "Actual Tower source 1a091fc0ed0f6022241993cd1894ffb15c32dff9 connects original source-observed 12-tick mechanical hazard charge to 8-tick bounded tactical retreat, 3-tick last-chance physical jump, a descending 6-tick clear landing corridor, and the real 3D action camera. Tactical-only snapshot opt-in preserves historical-v1 observation shape. Source tests commit 9d795cede0376078090b7e54a68bb17b4de5531e. Code has NOT undergone exact-source full CI, replay, authentic WebM inspection or independent review yet. Earlier source c009bd0d capture run 41789685910 has an observed frozen-baseline outcome job FAILURE; that source and its clips do not verify this new behavior. No votes and no physical-device performance evidence. NOT EVALUATED."
+    "implementationEvidenceStatus": "Actual Tower source 1a091fc0ed0f6022241993cd1894ffb15c32dff9 connects original source-observed 12-tick mechanical hazard charge to 8-tick bounded tactical retreat, 3-tick last-chance physical jump, a descending 6-tick clear landing corridor, and the real 3D action camera. Tactical-only snapshot opt-in preserves historical-v1 observation shape. Source tests commit 9d795cede0376078090b7e54a68bb17b4de5531e. Code has NOT undergone exact-source full CI, replay, authentic WebM inspection or independent review yet. Earlier source c009bd0d capture run 41789685910 has an observed frozen-baseline outcome job FAILURE; that source and its clips do not verify this new behavior. No votes and no physical-device performance evidence. NOT EVALUATED. Neutral original-host video observation found a specific inherited CSS pointer-events:none hit-test false negative (NOT proof that the baseline never showed outcomes); impartial capture correction 3e3c7360 requires new authentic baseline/candidate complete-run evidence before any result/restart acceptance. Scope only neutral harness, no baseline edits. Latest head exact-source CI NOT VERIFIED. NOT EVALUATED."
   },
   "currentTransformation": {
     "title": "SAME cohesive real 3D ascent → live moving deck dock → guarded guardian counterplay → HP cap gate → authentic outcome and restart",
     "state": "OPEN: SAME real 3D ascent → moving deck landing → source-scheduled trap charge and actually responsive safe-footing autonomy → guardian duel / HP gate → outcome/restart. Latest code connects physical 3D warning, 20 Hz AI and camera. No independent complete game comparison; NOT EVALUATED.",
     "promise": "One original source-authentic playable 3D expedition: readable destination, riding/landing weight, fixed-step trap activation communicated by physical warning machinery, real guardian tactics and gated outcome/restart. No fictional safety guarantee, HUD clutter or altered replay baseline.",
-    "nextDecision": "First check exact-source safety and new normal-speed game recordings for 1a091fc0. Independently observe real hazard charge to AI retreat/jump, physically unobstructed portrait camera and clear descent lane, high stakes and complete outcome/restart. The earlier frozen-source baseline outcome capture in 41789685910 failed, so do not claim paired completion. Reproduce valid >=60s source-pinned desktop and phone 3-scenario A/B, matching events before five blind randomized reviewers, supported-device p50/p95/p99 and memory, accessibility/replay/recovery. Keep baseline unchanged. No quality PASS.",
+    "nextDecision": "Verify current complete technical suite after regression fixture repair; acquire fresh exact-source real desktop+phone baseline/candidate normal-speed 60s+ ascent/danger/outcome, with fixed neutral pointer-pass-through result screenshot witness and ORIGINAL videos; require event-matched full motion, 5 genuine independent blind critics LOOKS/FEELS/PLAYS ≥4/5 each, replay/robustness/accessibility plus supported-device p50/p95/p99/memory. No change to frozen baseline.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Genuine event-aligned normal-speed full-motion before/after across ascent, guardian/trap encounters and true result/restart has NOT been independently watched; latest hazard reaction/camera has no exact-source video, and the prior frozen-baseline outcome capture failed. Mobile clarity and actual device smoothness unknown. Independent LOOKS/FEELS/PLAYS 0/5 each and no hardware frame-time/memory. NOT EVALUATED.",
+    "biggestRemainingExperienceGap": "There is STILL no independent native full-motion quality comparison, no complete baseline/candidate terminal/restart footage validated with corrected neutral noninteractive-card witness, and no supported-device performance. Real code 1a091fc0 warning-to-action-to-3D camera remains unfilmed/unedited-review pending. Zero genuine independent judgments; NOT EVALUATED.",
     "unverifiedImplementationBranchHead": "1a091fc0ed0f6022241993cd1894ffb15c32dff9",
     "currentVerticalSlice": "SAME whole playable expedition: source-driven moving deck and physical landing, actual 12-tick trap jaws + 8-tick autonomous safe-footing retreat + last 3-tick jump + clear landing steering + observed hazard camera, guardian shield/pulse/HP gate, terminal/restart.",
-    "biggestGap": "Genuine event-aligned normal-speed full-motion before/after across ascent, guardian/trap encounters and true result/restart has NOT been independently watched; latest hazard reaction/camera has no exact-source video, and the prior frozen-baseline outcome capture failed. Mobile clarity and actual device smoothness unknown. Independent LOOKS/FEELS/PLAYS 0/5 each and no hardware frame-time/memory. NOT EVALUATED."
+    "biggestGap": "There is STILL no independent native full-motion quality comparison, no complete baseline/candidate terminal/restart footage validated with corrected neutral noninteractive-card witness, and no supported-device performance. Real code 1a091fc0 warning-to-action-to-3D camera remains unfilmed/unedited-review pending. Zero genuine independent judgments; NOT EVALUATED."
   },
   "scenarios": [
     {
@@ -62,9 +62,9 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "New code source 1a091fc0 and new test 9d795ced: exact-head GitHub Actions NOT VERIFIED at this inspection (push workflow may run after the source write). The previous 41790120876 workflow for prior b995d45 source was CANCELLED; do not carry its previous historical successes forward. CI is a technical safety veto, never an experience score.",
+    "ci": "Technical suite at 41793043583 ran 914 tests: 910 pass, four VM scene fixture failures from prior hazard factory, none among new 5 gameplay hazard tests. Fixtures now repaired at source 0e883d85; latest exact source technical workflow is in progress, NOT verified. Verdict gate alone passed. No quality PASS.",
     "replay": "Autonomous trap response derives solely from current fixed-step state and the same authored, public 1–12 tick schedule as the 3D shutter. Historical-v1 observation remains unchanged; no new RNG or direct state mutation. Requires full exact-source deterministic replay checks and fresh CI before claiming safety.",
-    "accessibility": "Actual source hazard action is shown by existing guarded climber stance, ground retreat and earned jumps, and a bounded source charge camera anchor; no new HUD text. Reduced-motion stage still shows a fixed warning posture. Full phone view, caption experience and no-discomfort judgment NOT independently inspected.",
+    "accessibility": "New hazard response consumes the same publicly published fixed-step charge as physical shutter; no new HUD text; reduced-motion static source stage persists. Neutral capture fixed result-card paint witness for inherited pointer-events:none without any baseline game or UI modification. Real mobile/on-device visual clarity remains NOT INDEPENDENTLY EVALUATED.",
     "performance": "At most eight currently charging hazards x eight solid metal pieces = 64 total instances in ONE extra depth-tested draw, low tier max four hazards (32 instances), no new light or shadow pass. CPU and renderer budget is bounded by source observation; actual presented-frame p50/p95/p99 and memory/thermal unavailable and NOT EVALUATED.",
     "stability": "Integrates dedicated effect across live scene, clear, graphics rebuild, destroy and diagnostics; hides on transport stale, result, death and guardian windup. 2ff prior-source technical PASS is not evidence that new source or original-host capture passed. New exact implementation CI/capture pending."
   },
@@ -2076,7 +2076,7 @@
       ],
       "testFile": "tests/phase2/tower-observed-hazard-charge-counterplay.test.cjs",
       "intendedPlayableDifference": "A physical trap visibly charges; actual autonomous climber braces and retreats along existing deck, jumps if collision zone still occupied in last three 20Hz ticks, descending route picks physically clear deck, live camera follows genuine danger without interrupting airborne committed landing. All hazards remain authentic source collision, no scripted outcome.",
-      "newSourceCapture": "NOT YET VERIFIED / NOT INDEPENDENTLY VIEWED",
+      "newSourceCapture": "Gameplay implementation source 1a091fc0 source video job 41792930757 still in progress at investigation; NEITHER full clips NOR current evidence harness have been independently inspected.",
       "oldSourceCapture": "https://github.com/my-edutu/Ai_games/actions/runs/41789685910",
       "oldCaptureIntegrity": "Old-source candidate ascent, danger, outcome and moving mostly succeeded, but frozen baseline outcome job FAILED at inspection, and prior source c009bd0 does not include new counterplay. NOT comparable acceptance.",
       "independentFullMotionCritic": "UNAVAILABLE: source worker/browser tunnel NOT_FOUND: Tunnel-client has not been seen for 300 seconds.",
@@ -2087,9 +2087,13 @@
       },
       "sourceMatchedAblation": "NOT EVALUATED",
       "supportedDeviceFrameTimeMemory": "NOT MEASURED",
-      "exactSourceTechnicalCI": "PENDING / UNVERIFIED",
+      "exactSourceTechnicalCI": "The prior 41793043583 test run passed 910/914 checks; 4 scene VM fixture failures were traced and updated in 58765170,6f32874f,4859e7a4,0e883d85. Exact latest head CI pending/unverified; test green can only veto, not PASS.",
       "biggestRemainingGap": "Genuine event-aligned normal-speed full-motion before/after across ascent, guardian/trap encounters and true result/restart has NOT been independently watched; latest hazard reaction/camera has no exact-source video, and the prior frozen-baseline outcome capture failed. Mobile clarity and actual device smoothness unknown. Independent LOOKS/FEELS/PLAYS 0/5 each and no hardware frame-time/memory. NOT EVALUATED.",
-      "quality": "NOT EVALUATED"
+      "quality": "NOT EVALUATED",
+      "reviewPath": "docs/reviews/2026-11-04-tower-pr68-source-visible-hazard-counterplay-and-action-framing.md",
+      "neutralOutcomeWitnessCommit": "3e3c7360f28486f558b3fb3b9294f0a0a02b3e8a",
+      "outcomeWitnessFixStatus": "UNCHANGED BASELINE: neutral capture's prior elementFromPoint hit-test falsely rejected non-interactive visually painted #result-card due inherited .event-stack {pointer-events:none}. Fix verifies real ancestor CSS & viewport and captures up to 2 authentic full-viewport result stills. Latest outcome evidence with the fix NOT YET CAPTURED/INSPECTED; no quality or video pass.",
+      "newHarnessCapture": "PENDING new source-pinned baseline + candidate 9-job workflow generated by neutral evidence change; must inspect original WebM and real result stills."
     }
   }
 }
