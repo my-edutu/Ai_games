@@ -713,7 +713,7 @@ export function createWarden(options = {}) {
       // across recognition, planting and final shell release. The same RIGGED
       // physical sail now UNFURLS through height and spread, only during the
       // genuinely witnessed public stage. Hidden/terminal returns to neutral.
-      shellHalf.fronds.scale.y=alert>.24&&hasWitnessBeat?.54+.75*display:1;
+      shellHalf.fronds.scale.y=(alert>.24 && hasWitnessBeat) ? (.54+.75*display) : 1;
       shellHalf.fronds.rotation.z=encounter?shellHalf.side*(.05+.25*display):0;
       shellHalf.fronds.rotation.y=alert>0&&!s.reduced
         ?shellHalf.side*Math.sin(s.time*1.3)*alert*.075:0;
