@@ -92,9 +92,17 @@ export function planPartyWallReveal(x,z,subjects,camera,pad=2.1,wallHeight=2.6){
   // can recess it: no whole-room flattening or unearned scenic cutaways.
   if(radial<=4.8*4.8&&(subject.silhouetteRecess===true||subject.combatRecess===true||subject.visibleActor===true)&&
      planCameraBodyOcclusion(x,z,[subject],camera,wallHeight))return 'sightline';
-  // Unmarked genuine actors receive strictly anatomical ray clearance,
-  // never the generic scenic foreground wedge (which would flatten rooms
-  // even when the original wall is below the fighter's chest).
+  // Real Chromium still showed a native Vanguard helmet above adjacent
+  // opaque masonry while approximate anatomical rays reported full visibility.
+  // Only ACTUAL rooted living figures earn a tightly bounded immediate
+  // fighting pocket. Cut true 3D walls AND relief, not an x-ray overlay;
+  // high camera shots, ankle-high ruins and the cathedral rear stay intact.
+  // The same real policy drives base stone, façade and Gothic gallery.
+  if(subject.visibleActor===true&&wallHeight>=.55&&
+     Number.isFinite(camera.y)&&camera.y>=.5&&camera.y<=8.5&&
+     radial<=2.20*2.20&&progress>=-.45&&progress<=1.65&&
+     sideways<=1.34)return 'sightline';
+  // Live but unmarked actors never inherit the broader scenic wedge.
   if(subject.visibleActor===true)continue;
   if(subject.silhouetteRecess===true||subject.combatRecess===true){
    const combat=subject.combatRecess===true;
@@ -156,7 +164,7 @@ export function resolveRenderedSilhouetteSubjects(state,subjects,actors){
  const points=Array.isArray(subjects)?subjects.slice(0,5):[];
  if(!Array.isArray(state?.map)||!Array.isArray(state?.units)||!(actors instanceof Map))return points;
  const origin=(state.map.length-1)/2,claimed=new Set();
- return points.map(point=>{
+ const resolved=points.map(point=>{
   if(!Number.isFinite(point?.x)||!Number.isFinite(point?.z))return point;
   const unit=state.units.find(u=>u&&u.hp>0&&!claimed.has(u.id)&&
    Number.isInteger(u.x)&&Number.isInteger(u.z)&&
@@ -168,6 +176,25 @@ export function resolveRenderedSilhouetteSubjects(state,subjects,actors){
    Math.hypot(root.x-point.x,root.z-point.z)>.49)return point;
   return {...point,x:Number(root.x.toFixed(3)),z:Number(root.z.toFixed(3)),visibleActor:true};
  });
+ // The director can follow a scenic/enemy subject and omit a living hero.
+ // Preserve existing shot subjects first, then fill remaining 5-slot budget
+ // from the actual visible, alive party or boss within its authoritative cell.
+ // No invented combatant, teleport, path correction or simulation mutation.
+ for(const unit of state.units){
+  if(resolved.length>=5)break;
+  if(!unit||claimed.has(unit.id)||unit.hp<=0||
+     (unit.faction!=='party'&&unit.kind!=='warden')||
+     !Number.isInteger(unit.x)||!Number.isInteger(unit.z))continue;
+  const pointX=unit.x-origin,pointZ=unit.z-origin;
+  const actor=actors.get(unit.id),root=actor?.root?.position;
+  if(!actor?.root?.visible||![root?.x,root?.z].every(Number.isFinite)||
+     Math.hypot(root.x-pointX,root.z-pointZ)>.49)continue;
+  claimed.add(unit.id);
+  resolved.push({x:Number(root.x.toFixed(3)),z:Number(root.z.toFixed(3)),
+   visibleActor:true,silhouetteRecess:true,
+   combatRecess:unit.action==='attack'||unit.action==='cast'});
+ }
+ return resolved;
 }
 
 export function createCutawayBandCache(count){

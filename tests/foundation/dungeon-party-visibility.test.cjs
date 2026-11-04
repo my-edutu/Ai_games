@@ -337,3 +337,44 @@ test('the real 3D actor uses a foreground pocket but preserves its full cathedra
  assert.equal(planPartyWallReveal(4.5,0,[subject],{...cam,y:12},2.1,2.6),'none');
  assert.deepEqual(subject,{x:0,z:0,silhouetteRecess:true,visibleActor:true});
 });
+
+test('genuine close wall cutaway exposes a real skinned fighter but retains the Gothic rear',async()=>{
+ const {planPartyWallReveal:r}=await load();
+ const hero=Object.freeze({x:0,z:0,visibleActor:true});
+ const camera=Object.freeze({x:6,y:5.8,z:1});
+ const original=JSON.stringify({hero,camera});
+ assert.equal(r(.62,.34,[hero],camera,2.1,2.9),'sightline',
+  'real torso and sword clearance must not rely on an approximate synthetic centre ray');
+ assert.equal(r(-1.9,.34,[hero],camera,2.1,2.9),'none',
+  'full-height rear chapel masonry must survive the presentation pocket');
+ assert.equal(r(.62,.34,[hero],camera,2.1,.43),'nearby',
+  'already lowered stones must not expand the body pocket');
+ assert.equal(r(.62,.34,[hero],{...camera,y:15},2.1,2.9),'nearby',
+  'a high overhead camera does not delete unoccluding stone');
+ assert.equal(JSON.stringify({hero,camera}),original);
+});
+
+test('all legal living party rigs remain in the physical view when the director omits them',async()=>{
+ const {resolveRenderedSilhouetteSubjects}=await load();
+ const state={map:Array(19).fill('.'.repeat(19)),units:[
+  {id:'v',faction:'party',kind:'vanguard',x:9,z:9,hp:50},
+  {id:'r',faction:'party',kind:'ranger',x:10,z:9,hp:50,action:'attack'},
+  {id:'m',faction:'party',kind:'mystic',x:9,z:10,hp:50},
+  {id:'fallen',faction:'party',kind:'vanguard',x:8,z:9,hp:0},
+  {id:'ghost',faction:'party',kind:'ranger',x:11,z:9,hp:25}]};
+ const actors=new Map([
+  ['v',{root:{visible:true,position:{x:.16,z:0}}}],
+  ['r',{root:{visible:true,position:{x:1.1,z:-.08}}}],
+  ['m',{root:{visible:true,position:{x:0,z:1.12}}}],
+  ['fallen',{root:{visible:true,position:{x:-1,z:0}}}],
+  ['ghost',{root:{visible:false,position:{x:2,z:0}}}]]);
+ const points=Object.freeze([{x:0,z:0}]), original=JSON.stringify(state);
+ const out=resolveRenderedSilhouetteSubjects(state,points,actors);
+ assert.equal(out.length,3);
+ assert.deepEqual(out.map(p=>p.visibleActor),[true,true,true]);
+ assert.deepEqual(out.map(p=>[p.x,p.z]),[[.16,0],[1.1,-.08],[0,1.12]]);
+ assert.equal(out[1].combatRecess,true);
+ assert.equal(out[2].silhouetteRecess,true);
+ assert.equal(JSON.stringify(state),original,'authoritative snapshot must never change');
+ assert.deepEqual(points,[{x:0,z:0}]);
+});
