@@ -14,6 +14,34 @@ permissions:
   contents: read
 
 jobs:
+  # W40 continues the original real farm-to-market workday on Day-120.
+  w40-day120-viewport-actor-budget:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: W40 real Day-120 desktop and 390px character-budget evidence
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w40-viewport-character-lod.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w40-viewport-workday
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w40/
+          retention-days: 14
   # W39 live growth: no out-of-date smaller-settlement GPU generations.
   # Independent RED-before / GREEN-after on the same true 120-day world.
   w39-growing-settlement-gpu-lifetime:
