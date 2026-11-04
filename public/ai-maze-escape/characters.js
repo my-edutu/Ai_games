@@ -645,6 +645,15 @@ export function createWarden(options = {}) {
     const alert=reacting?Math.max(0,Math.min(1,finite(options.attentionStrength))):0;
     const relativeLook=reacting?Math.atan2(Math.sin(options.attentionHeading-group.rotation.y),Math.cos(options.attentionHeading-group.rotation.y)):0;
     const lookYaw=Math.max(-.58,Math.min(.58,relativeLook))*alert;
+    // A real public encounter should read as a sequence: sight/recognition,
+    // grounded brace, then two physical shell halves opening. The optional
+    // beat is derived upstream solely from OBSERVED proximity, never AI truth.
+    // Standalone character use without this cue preserves the original pose.
+    const hasWitnessBeat=Number.isFinite(options.encounterBeat);
+    const beat=hasWitnessBeat?Math.max(0,Math.min(1,options.encounterBeat)):1;
+    const brace=alert>.24 && hasWitnessBeat?Math.max(0,Math.min(1,(beat-.24)/.36)):0;
+    const display=alert>.24 && hasWitnessBeat?Math.max(0,Math.min(1,(beat-.60)/.40)):0;
+    const shellOpen=hasWitnessBeat?.38+.62*display:1;
     warningSpines.visible=alert>.24;
     warningSpines.scale.y=1+alert*.4+(s.reduced?0:Math.sin(s.time*4.1)*.04);
     // The public close encounter unfolds the two connected armor fins and
@@ -657,7 +666,7 @@ export function createWarden(options = {}) {
       vane.rotation.y=encounter?-side*encounter*.27:0;
       vane.rotation.x=encounter?-.12-encounter*.18:0;
     }
-    lowerJaw.rotation.x=encounter?.22+encounter*.47:0;
+    lowerJaw.rotation.x=encounter?.22+encounter*.47+brace*.08:0;
     openMaw.visible=encounter>0;
     // A real physical encounter unveils the internal lantern-heart through
     // the opening shell. Keep the reduced-motion pose steady and clear the
@@ -677,9 +686,9 @@ export function createWarden(options = {}) {
       // The previous 0.68-rad/full-strength opening barely changed the
       // source-verified warden silhouette. Separate the halves farther, then
       // expose a physically attached dorsal seam while the threat is public.
-      shellHalf.wing.rotation.z=alert>0?shellHalf.side*Math.min(1.12,alert*1.18):0;
-      shellHalf.wing.rotation.y=alert>0?-shellHalf.side*alert*.45:0;
-      shellHalf.wing.rotation.x=alert>0?-alert*.12:0;
+      shellHalf.wing.rotation.z=alert>0?shellHalf.side*Math.min(1.12,alert*1.18)*shellOpen:0;
+      shellHalf.wing.rotation.y=alert>0?-shellHalf.side*alert*.45*shellOpen:0;
+      shellHalf.wing.rotation.x=alert>0?-alert*.12*shellOpen:0;
       shellHalf.lining.visible=alert>.24;
       shellHalf.seam.visible=alert>.24;
       // The moving blades mark the original guardian's *visible* uncoiling,
@@ -695,7 +704,7 @@ export function createWarden(options = {}) {
         ?shellHalf.side*(.16+alert*.25+(s.reduced?0:Math.sin(s.time*1.2)*.035*alert)):0;
     }
     stride=approach(stride,s.moving?1:0,12,s.delta); gait+=s.delta*(10+s.danger*3)*stride;
-    body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018);
+    body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018)-brace*.065+display*.025;
     body.rotation.x=-s.danger*.055-alert*.11;
     body.rotation.y=lookYaw*.4;
     body.rotation.z=Math.sin(relativeLook)*alert*.06;
@@ -704,7 +713,7 @@ export function createWarden(options = {}) {
       leg.hip.rotation.y=Math.sin(phase)*stride*.24*amount;
       leg.hip.rotation.z=leg.side*Math.max(0,Math.cos(phase))*stride*.15*amount;
       leg.knee.rotation.z=-leg.side*Math.max(0,Math.cos(phase))*stride*.16*amount;
-      leg.hip.rotation.x=leg.index===0?-alert*.32:leg.index===2?alert*.08:0;
+      leg.hip.rotation.x=leg.index===0?-alert*.32-brace*.12:leg.index===2?alert*.08:0;
       leg.knee.rotation.x=leg.index===0?alert*.20:0;
       if (leg.pincer) leg.pincer.rotation.y=alert>0?leg.side*alert*.42:0;
     }
@@ -714,7 +723,7 @@ export function createWarden(options = {}) {
     // No new mesh, material, random draw, network fact or game command runs
     // in this render loop.
     head.position.z=.62+alert*.07;
-    head.rotation.x=s.win?.16:s.lose?-.13:-.045-s.danger*.065;
+    head.rotation.x=s.win?.16:s.lose?-.13:-.045-s.danger*.065-brace*.08+display*.04;
     head.rotation.y=Math.sin(s.time*.8)*.08*(1-stride)*amount*(1-alert)+lookYaw;
     for (const {antenna,side} of antennae) {
       antenna.rotation.z=side*(.08+alert*.40)+(s.reduced?0:Math.sin(s.time*1.7+side)*.04)*(1-alert*.5);
