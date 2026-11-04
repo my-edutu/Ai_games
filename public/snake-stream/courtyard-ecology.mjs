@@ -94,7 +94,7 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
       // lower-root shade. This is baked once into the EXISTING owned stone
       // texture, not a second mesh, tile, light, water surface or dynamic pass.
       // Preserve the ancient central limestone clearing and all live markers.
-      const shoreMoss = 1 - smooth(.075, .35,
+      const shoreMoss = 1 - smooth(.035, .18,
         groveDistance + (mineral - .5) * .15 + (watershed - .5) * .105);
       // T1 WHOLE-GARDEN FOREST SUBSTRATE: three actually planted 3D fern
       // courses flow into a continuous darker rain-cut living mineral field,
@@ -102,7 +102,7 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
       // original world. No new game cells, shader, GPU object or obstruction.
       const forestWarp = .075 * Math.sin((u-.5)*17.4+(v-.5)*5.8)
         + .058 * Math.sin((v-.5)*18.4-(u-.5)*11.4);
-      const forestReach = 1 - smooth(.12, .79, Math.max(0, groveDistance + forestWarp));
+      const forestReach = 1 - smooth(.03, .235, Math.max(0, groveDistance + forestWarp));
       const gladeA = 1-smooth(.21,.49,Math.hypot(((u-.5)*2+.63)/.55,((v-.5)*2-.35)/.58));
       const gladeB = 1-smooth(.22,.50,Math.hypot(((u-.5)*2-.69)/.58,((v-.5)*2+.34)/.56));
       const twoGlades = Math.max(gladeA,gladeB);

@@ -759,8 +759,12 @@ export function createWorld(THREE, {width, height}) {
     const key=stem.uuid+wood.uuid; if(!batches.has(key))batches.set(key,{g:stem,m:wood,items:[]});batches.get(key).items.push({matrix:obj.matrix.clone()});
   }
   const W=width/2,H=height/2;
-  // A quiet, exact playing field with very fine joints; no foliage is placed inside it.
-  add(cube,darkStone,0,-.27,0,width+.18,.46,height+.18);
+  // The real ancient limestone/cliff substrate is visible only in the narrow,
+  // safe gaps between true rooted flagstones. Reuse the EXISTING cliff atlas
+  // instead of a near-black seamless cuboid: no geometry, GPU assets, passes,
+  // cells, collider or planted-site changes. This gives the raincut gullies
+  // grounded low-contrast physical seams rather than a black checkerboard.
+  add(cube,cliff,0,-.27,0,width+.18,.46,height+.18);
   // T1 continuous sculpted garden stage: the existing rooted stone atlas
   // already paints three eroded watersheds, but its uniform near-white stone
   // vertex multiplier washed those colours back to a giant pale rectangle.
@@ -785,7 +789,7 @@ export function createWorld(THREE, {width, height}) {
     // *existing* central sunstone and two naturally exposed limestone glades.
     // Readably traversable cell tops, UVs and actual event cues stay identical.
     const valleyWarp=.075*Math.sin(nx*8.7+nz*2.9)+.058*Math.sin(nz*9.2-nx*5.7);
-    const underCanopy=1-fade(.15,.66,Math.max(0,basinDistance+valleyWarp));
+    const underCanopy=1-fade(.045,.255,Math.max(0,basinDistance+valleyWarp));
     const stoneHeart=1-fade(.185,.445,Math.hypot(nx/.60,nz/.76));
     const gladeA=1-fade(.21,.49,Math.hypot((nx+.63)/.55,(nz-.35)/.58));
     const gladeB=1-fade(.22,.50,Math.hypot((nx-.69)/.58,(nz+.34)/.56));
