@@ -1,5 +1,6 @@
 import { angleFor, SCALE } from './coordinates.mjs';
 import { observedTraversalKinetics } from './traversal-kinetics.mjs';
+import { observedSceneHierarchy } from './scene-hierarchy.mjs';
 
 // An original source-synchronised atmospheric volume surrounding the real
 // climbing lane, not a screen-space weather filter. Every instance is inside
@@ -39,12 +40,14 @@ export function createTowerAtmosphere(THREE) {
   const dummy = new THREE.Object3D();
   const tone = new THREE.Color();
   let currentTheme = '', lastSourceTick = null, lastFloor = null;
+  let hierarchyKind = 'ascent', hierarchyFocus = 0;
   let disposed = false;
   function clear() {
     motes.count = 0;
     motes.visible = false;
     lastSourceTick = null;
     lastFloor = null;
+    hierarchyKind = 'ascent'; hierarchyFocus = 0;
   }
   function update(snapshot, options = {}) {
     if (disposed || options.stale || options.reducedMotion ||
@@ -64,6 +67,8 @@ export function createTowerAtmosphere(THREE) {
     const heroAngle = angleFor(snapshot.player.x, snapshot.worldWidth);
     const heroHeight = (snapshot.player.y - snapshot.chunkBaseY) / SCALE;
     const kinetics = observedTraversalKinetics(snapshot);
+    const hierarchy = observedSceneHierarchy(snapshot);
+    hierarchyKind = hierarchy.kind; hierarchyFocus = hierarchy.focus;
     const guardianWarning = snapshot.enemies?.some(enemy => enemy.active && enemy.telegraph) === true;
     // A physically layered weather stream responds to witnessed health and
     // velocity instead of floating at a constant, game-independent tempo.
@@ -77,7 +82,8 @@ export function createTowerAtmosphere(THREE) {
     // A physical ascent/descent stretches nearby air, but a REAL guardian
     // windup dims everything: danger and body silhouettes always win.
     material.opacity = style.opacity * (guardianWarning ? .28 : .62) *
-      (1 - .32 * pressure) * (1 + kinetics.airflow * .09);
+      (1 - .32 * pressure) * (1 + kinetics.airflow * .09) *
+      (1 - .64 * hierarchy.focus);
     if (currentTheme !== snapshot.theme) {
       tone.set(style.tint);
       for (let i = 0; i < MAX_MOTES; i++) {
@@ -92,7 +98,10 @@ export function createTowerAtmosphere(THREE) {
       // All source/playback variability comes from source floor/tick/position.
       // A ring of subtly independent shafts creates visible parallax on orbit.
       const seed = i * 19.17 + snapshot.floor * 11.73;
-      const nearWake = i % 4 === 0 && kinetics.airflow > .08 && !guardianWarning;
+      // Protect a physically threatened landing/combat lane from bright
+      // airborne streaks. World-anchored distant motes retain the scale cue.
+      const nearWake = i % 4 === 0 && kinetics.airflow > .08 &&
+        !guardianWarning && hierarchy.focus < .7;
       const bearing = heroAngle + (hash(seed + 2) - .5) *
         (nearWake ? 1.04 : 2.15 - .38 * pressure);
       const angle = bearing + frame * style.slant * .008 +
@@ -136,6 +145,8 @@ export function createTowerAtmosphere(THREE) {
       reducedMotionPolicy: 'hide atmospheric motion',
       motionSource: 'public fixed-step tick, biome, fixed world-height lattice and actual vertical velocity; no new simulation RNG',
       verticalParallax: 'world-anchored repeating exterior strata; source-vy only stretches near wake',
+      encounterHierarchy: { kind: hierarchyKind, focus: hierarchyFocus,
+        sourceOwned: true, addedDrawCalls: 0 },
       physicalDevicePerformance: 'NOT MEASURED',
     };
   }
