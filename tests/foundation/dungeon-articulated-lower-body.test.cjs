@@ -19,5 +19,12 @@ test('all six roles mount thigh and waist art to genuine imported leg joints',as
  const renderer=fs.readFileSync(path.join(dir,'model-assets.js'),'utf8');
  assert.match(renderer,/actor\.rigPelvisBone=selectPelvisBone\(bones\)/);
  assert.match(renderer,/hips:actor\.rigPelvisBone/);
- assert.match(renderer,/joint\.attach\(mesh\)/);
+ assert.match(renderer,/if\(joint\?\.isBone\)\{mounts\.push\(\{mesh,bone:joint\}\);attached\+\+;\}/,
+  'genuine native hip/leg skeletal joints must still own their forged armour');
+ assert.match(renderer,/bindBoneInverse:bone\.matrixWorld\.clone\(\)\.invert\(\)/,
+  'skinned attachment must retain the real joint bind inverse');
+ assert.match(renderer,/mount\.targetWorld\.multiplyMatrices\(mount\.bone\.matrixWorld,mount\.bindBoneInverse\)/,
+  'every displayed frame must update the real bone-driven armour stage');
+ assert.doesNotMatch(renderer,/joint\.attach\(mesh\)/,
+  'unsafe nonuniform GLB parent attach would shear animated fittings');
 });

@@ -56,7 +56,14 @@ test('real skinned GLB characters use sculpted forms without changing authority 
  assert.match(renderer,/createForgedArmorForms\(THREE,actor\.u\.kind\)/);
  assert.match(renderer,/planAnatomicalDrawGroups\(actor\.u\.kind\)/);
  assert.match(renderer,/mergeGeometries\(fragments,false\)/);
- assert.match(renderer,/joint\.attach\(mesh\)/,'the moving bracers and greaves remain on real skeleton joints');
+ assert.match(renderer,/if\(joint\?\.isBone\)\{mounts\.push\(\{mesh,bone:joint\}\);attached\+\+;\}/,
+  'genuine native hip/leg skeletal joints must still own their forged armour');
+ assert.match(renderer,/bindBoneInverse:bone\.matrixWorld\.clone\(\)\.invert\(\)/,
+  'skinned attachment must retain the real joint bind inverse');
+ assert.match(renderer,/mount\.targetWorld\.multiplyMatrices\(mount\.bone\.matrixWorld,mount\.bindBoneInverse\)/,
+  'every displayed frame must update the real bone-driven armour stage');
+ assert.doesNotMatch(renderer,/joint\.attach\(mesh\)/,
+  'unsafe nonuniform GLB parent attach would shear animated fittings');
  assert.match(renderer,/sculptedArmorVertices:/);
  assert.match(renderer,/for\(const g of actor\.assetGeometries\|\|\[\]\)g\.dispose\(\)/);
  assert.ok(host.includes("['/dungeon/forged-armor.js','forged-armor.js']"));
