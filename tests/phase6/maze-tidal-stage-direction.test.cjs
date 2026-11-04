@@ -253,3 +253,56 @@ test('distant broken colonnade remains disconnected dimension-only original 3D, 
     assert.deepEqual(observe(a),originalPoses,'identical public dimensions make identical backstage scenery');
   }finally{a.dispose();b.dispose();cleanup();}
 });
+
+
+test('Pass129 disclosed terrace undercroft is real submerged 3D, deterministic and not a hidden route',async()=>{
+  const {m,cleanup}=await realWorld();
+  const a=m.createMazeWorld({balanced:true});
+  const b=m.createMazeWorld({balanced:true});
+  const center=12, base=publicSnapshot(false), only={
+    ...base,cells:[{cell:center,neighbors:[],blocked:false,trap:false,
+      checkpoint:false,clue:false}],visibleCells:[center]
+  };
+  const original=JSON.stringify(only);
+  try {
+    a.update(base);
+    assert.equal(a.stats().undercroftButtresses,0,
+      'undisclosed stage cannot have architecturally decorated gameplay terrain');
+    a.update(only);
+    b.update({...only,hiddenMazeRoute:[6,7,8],
+      privateThreatLocations:[20],unpublishedMazeSeed:'secret',secretExitCell:22});
+    assert.equal(a.stats().undercroftButtresses,2,
+      'a single observed walkable island has exactly east and south exposed undercroft faces');
+    assert.equal(b.stats().undercroftButtresses,2,
+      'no private maze input may alter public stone carving');
+    // Inspect installed Three meshes and their actual matrices, not a marker
+    // count or a source regex. Both observed sides have two rooted ribs and
+    // two distinct sea-glass insets, genuinely attached to the public tile.
+    const origin=m.cellPosition(center,only.width,only.height);
+    const faceMatrices=world=>{
+      const out=[];
+      world.group.children[1].traverse(node=>{
+        if(!node.isInstancedMesh||node.geometry.type!=='ExtrudeGeometry')return;
+        const values=node.instanceMatrix.array;
+        for(let i=0;i<node.count;i++){
+          const k=i*16, x=values[k+12]-origin.x, y=values[k+13],
+            z=values[k+14]-origin.z;
+          if((Math.abs(x-1.235)<.003 && Math.abs(Math.abs(z)-.70)<.003)
+            ||(Math.abs(z-1.235)<.003 && Math.abs(Math.abs(x)-.70)<.003))
+            out.push([node.material.color.getHexString(),x,y,z]);
+        }
+      });
+      return out.sort((p,q)=>JSON.stringify(p).localeCompare(JSON.stringify(q)));
+    };
+    const physical=faceMatrices(a);
+    assert.ok(physical.length>=8,'two shores must contain eight real connected stone/inset 3D rib instances');
+    assert.deepEqual(faceMatrices(b),physical,
+      'published stage relief must be pixel-stable against private seed/plan changes');
+    assert.ok(a.stats().geometryCount<=16 && a.stats().materialCount<=26
+      && a.stats().textureCount<=3,'no additional GPU geometry/material/texture class');
+    assert.equal(JSON.stringify(only),original,'architectural rendering may not mutate public authority');
+    a.update({...only,runToken:'next-run',cells:[],visibleCells:[]});
+    assert.equal(a.stats().undercroftButtresses,0,
+      'unrevealed next-run terrain must not retain the old undercroft');
+  }finally{a.dispose();b.dispose();cleanup()}
+});
