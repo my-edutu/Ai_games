@@ -1,3 +1,5 @@
+import { sampleWeatheredTerrace } from './garden-biomes.mjs';
+
 /**
  * Original distant rock formation, authored as irregular weathered bedding.
  * Deterministic, closed at the angular seam and shared by every scenery
@@ -818,6 +820,14 @@ export function createWorld(THREE, {width, height}) {
     color.setRGB(shade*(1-dampStone*.69+forestLoam*.036 + mineralRim*.045 -greySlate*.048),
       shade*(1-dampStone*.27-forestLoam*.022 + mineralRim*.030 +greySlate*.022),
       shade*(1-dampStone*.52+forestLoam*.022 + mineralRim*.015 +greySlate*.048));
+    // Share the *same* authored physical habitat masks as the original
+    // world-owned atlas: coherent weathered, leaf-littered and cool flooded
+    // terraces in the actual 3D flagstones, not an unrelated painted map.
+    const habitat=sampleWeatheredTerrace((x+.5)/width,(z+.5)/height,width,height);
+    const earthy=1-habitat.protectedSunstone*.97;
+    color.r*=1+earthy*(habitat.terrace*.12+habitat.litter*.045-habitat.coolSlate*.06);
+    color.g*=1+earthy*(-habitat.terrace*.045+habitat.litter*.01+habitat.coolSlate*.025);
+    color.b*=1+earthy*(-habitat.terrace*.12-habitat.litter*.09+habitat.coolSlate*.16);
     const mosaic=sculptForestMosaicTile(x,z,width,height);
     add(tile,tileMat,x-(width-1)/2,-.105,z-(height-1)/2,
       mosaic.scale,.21,mosaic.scale,0,mosaic.rotation,0,color.clone());

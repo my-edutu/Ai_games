@@ -1,3 +1,5 @@
+import { sampleWeatheredTerrace } from './garden-biomes.mjs';
+
 /**
  * T1 living-courtyard ecology: continuous low relief over the ACTUAL playable
  * stage. Cosmetic and deterministic from public board dimensions alone.
@@ -63,12 +65,47 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
     const b = lattice[off + latticeW * 2] * (1 - dx) + lattice[off + latticeW * 2 + 2] * dx;
     return a * (1 - dz) + b * dz;
   };
+  // T1 production performance: sample the deterministic terrain only on a
+  // fine static lattice. Bilinear interpolation keeps the same continuous
+  // terrain/stone material boundaries without evaluating expensive trig 524k
+  // times per board load. It neither alters geometry nor the dynamic renderer.
+  const biomeW = 129, biomeH = 65, biomeChannels = 4;
+  const biomeLattice = new Float32Array(biomeW * biomeH * biomeChannels);
+  for (let z=0; z<biomeH; z++) for (let x=0; x<biomeW; x++) {
+    const habitat = sampleWeatheredTerrace(x/(biomeW-1),z/(biomeH-1),width,height);
+    const at = (z*biomeW+x)*biomeChannels;
+    biomeLattice[at] = habitat.terrace;
+    biomeLattice[at+1] = habitat.litter;
+    biomeLattice[at+2] = habitat.coolSlate;
+    biomeLattice[at+3] = habitat.planted;
+  }
+  const sampleBiome = (u,v) => {
+    const fx=u*(biomeW-1), fz=v*(biomeH-1);
+    const x=Math.min(biomeW-2,Math.max(0,Math.floor(fx)));
+    const z=Math.min(biomeH-2,Math.max(0,Math.floor(fz)));
+    const dx=fx-x,dz=fz-z,at=(z*biomeW+x)*biomeChannels;
+    const out=[];
+    for(let c=0;c<biomeChannels;c++){
+      const a=biomeLattice[at+c]*(1-dx)+biomeLattice[at+c+biomeChannels]*dx;
+      const b=biomeLattice[at+c+biomeW*biomeChannels]*(1-dx)
+        +biomeLattice[at+c+biomeW*biomeChannels+biomeChannels]*dx;
+      out[c]=a*(1-dz)+b*dz;
+    }
+    return { terrace:out[0], litter:out[1], coolSlate:out[2], planted:out[3] };
+  };
   let grovePixelCount = 0;
+  const biomePixelCounts = { terrace: 0, litter: 0, coolSlate: 0 };
   for (let y = 0; y < H; y++) {
     const v = (y + .5) / H, gz = v * height;
     for (let x = 0; x < W; x++) {
       const u = (x + .5) / W, gx = u * width, i = (y * W + x) * 4;
       const nearEdge = 1 - smooth(.035, .19, Math.min(u, 1-u, v, 1-v));
+      // T1 physical habitat direction: sampled at the *same world coordinates*
+      // as the flagstone vertices. No new surface, texture or live shader.
+      const biome = sampleBiome(u,v);
+      for (const key of ['terrace','litter','coolSlate']) {
+        if (biome[key] > .36) biomePixelCounts[key]++;
+      }
       const mineral = sample(u, v, 0), watershed = sample(u, v, 1);
       const heart = 1 - smooth(.25, .62, Math.hypot((u - .52) / .46, (v - .51) / .48));
       // Three irregular mossed edges embrace a legible warm central stone
@@ -165,18 +202,39 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
         *(.62+.38*mineral) * (1-heart*.32);
       const stoneOxide=(.5+.5*Math.sin(gz*.44+gx*.25+mineral*2.1))
         *rainCut*(1-smooth(.25,.70,Math.hypot((u-.52)*2,(v-.51)*2))*.25);
-      const targetR = 204 + 16 * openStone + silt * .68
+      let targetR = 204 + 16 * openStone + silt * .68
         - canopyShade * 153 - rooted * 25 + loamStrata*24 - slateStrata*7
         - mineralLace * 7 - riverWeather * 13 + mineralBench*77 - darkBank*9
         - rainCut*37 + stoneLip*13 + stoneOxide*13;
-      const targetG = 184 + 11 * openStone + silt * .42
+      let targetG = 184 + 11 * openStone + silt * .42
         - canopyShade * 57 - rooted * 12 - loamStrata*8
         + slateStrata*4 + mineralLace * 3 + riverWeather * 5
         + mineralBench*57 - darkBank*13 - rainCut*29 + stoneLip*11 - stoneOxide*6;
-      const targetB = 155 + 8 * openStone + silt * .47
+      let targetB = 155 + 8 * openStone + silt * .47
         - canopyShade * 105 - rooted * 23 - loamStrata*12
         + slateStrata*5 - mineralLace * 8 + riverWeather * 6
         + mineralBench*38 - darkBank*12 - rainCut*24 + stoneLip*6 - stoneOxide*11;
+      // T1 LIFE-SIZE WEATHERED GARDEN: the warm existing limestone terraces,
+      // cool damp slate shelves and leaf-rich forest floor are one *physical*
+      // set of native places across the entire board. This is NOT a false
+      // collectible or a path overlay: real cell positions/landmarks/hazards
+      // and the one world-owned 1024x512 atlas stay exactly as before.
+      const originalLivingForest = smooth(.22,.65,biome.planted);
+      const terraceMix = biome.terrace * .65 * (1-originalLivingForest*.57);
+      const litterMix = biome.litter * .49 * (1-originalLivingForest*.62);
+      const slateMix = biome.coolSlate * (1-biome.terrace*.6) * .40 * (1-originalLivingForest*.62);
+      const grainRock = (mineral-.5)*23+(watershed-.5)*17;
+      targetR = targetR * (1-terraceMix) + (172+grainRock) * terraceMix;
+      targetG = targetG * (1-terraceMix) + (136+grainRock*.72) * terraceMix;
+      targetB = targetB * (1-terraceMix) + (103+grainRock*.49) * terraceMix;
+      targetR = targetR * (1-litterMix) + (103+grainRock*.51) * litterMix;
+      targetG = targetG * (1-litterMix) + (103+grainRock*.47) * litterMix;
+      targetB = targetB * (1-litterMix) + (66+grainRock*.38) * litterMix;
+      targetR = targetR * (1-slateMix) + (78+grainRock*.38) * slateMix;
+      targetG = targetG * (1-slateMix) + (117+grainRock*.36) * slateMix;
+      targetB = targetB * (1-slateMix) + (119+grainRock*.48) * slateMix;
+      // The original sunstone stays sunlit while the NEW surrounding natural
+      // terraces read in broad shapes through the grazing-light stone grain.
       // Retain directional raking-light/mortar contrast from ORIGINAL pixels.
       // Lift only the muddy compression range, without bleaching real ruin
       // greenery or painting over portal/fruit/hazard geometry.
@@ -222,7 +280,9 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
   }
   map.needsUpdate = true; // one replacement on scene creation; never per tick
   return { regraded: true, pixels: W * H, textureAdded: 0, sunstoneEtching: true,
-    groveFraction: grovePixelCount / (W * H) };
+    groveFraction: grovePixelCount / (W * H),
+    biomeFractions: Object.fromEntries(Object.entries(biomePixelCounts)
+      .map(([key, count]) => [key, count / (W * H)])) };
 }
 
 export function createCourtyardEcology(THREE, { width, height, world = null }) {
