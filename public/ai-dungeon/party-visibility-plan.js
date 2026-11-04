@@ -14,6 +14,10 @@
  */
 // One shared pure slab helper, rather than allocating a closure for every
 // dressed stone face in every genuine WebGL frame.
+// Reuse fixed anatomical sampling arrays across hot render frames.
+const BODY_WIDTH_SAMPLES=Object.freeze([0,-.26,.26]);
+const CENTER_BODY_SAMPLES=Object.freeze([.24,.91,1.63]);
+const SHOULDER_BODY_SAMPLES=Object.freeze([.91,1.36]);
 const bodyRaySlab=(origin,delta,min,max,range)=>{
  if(Math.abs(delta)<1e-7)return origin<min||origin>max?null:range;
  const a=(min-origin)/delta,b=(max-origin)/delta;
@@ -34,13 +38,13 @@ export function planCameraBodyOcclusion(x,z,subjects,camera,wallHeight=2.6){
   // clear central ray can still leave the skinned fighter behind stone.
   // Three body-width rays retain the existing near-wall/five-actor budget.
   const rightX=-dz/length,rightZ=dx/length;
-  for(const side of [0,-.26,.26]){
+  for(const side of BODY_WIDTH_SAMPLES){
    const rayX=dx+rightX*side,rayZ=dz+rightZ*side;
    let span=bodyRaySlab(camera.x,rayX,x-.56,x+.56,[.012,.995]);
    if(!span)continue;
    span=bodyRaySlab(camera.z,rayZ,z-.56,z+.56,span);
    if(!span)continue;
-   const heights=side===0?[.24,.91,1.63]:[.91,1.36];
+   const heights=side===0?CENTER_BODY_SAMPLES:SHOULDER_BODY_SAMPLES;
    for(const y of heights)
     if(bodyRaySlab(camera.y,y-camera.y,.02,wallHeight,span))return true;
   }

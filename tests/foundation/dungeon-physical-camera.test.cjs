@@ -66,3 +66,17 @@ test('physical orbit checks real native shoulder lanes and preserves public auth
   assert.ok(result.occlusion.fullyVisibleAfter>=result.occlusion.fullyVisibleBefore);}
  assert.deepEqual(state,snap());
 });
+
+test('camera truly casts through both native shoulders, not just the body's central ray',async()=>{
+ const src=fs.readFileSync(source,'utf8');
+ assert.ok(src.includes('blockedByStone(cam,point,point.y,grid,size,eyes,reveal,pad)'));
+ assert.ok(!src.includes('blockedByStone(cam,p,point.y,grid,size,eyes,reveal,pad)'));
+ const {createPhysicalCameraDirector}=await load();
+ const snapshot=snap(),camera={look:{x:0,z:0},position:{x:1.1,y:3.6,z:7}};
+ const walls={subjects:[{x:0,z:0,silhouetteRecess:true}],wallPositions:[[1,3]],wallHeights:[3.2],
+  reveal:()=>'none',width:1440,height:832,fov:48,lookY:1};
+ const candidate=createPhysicalCameraDirector().resolve(snapshot,camera,walls);
+ assert.ok(candidate&&candidate.occlusion.blockedBefore>=4);
+ assert.equal(candidate.occlusion.blockedAfter,0);
+ assert.deepEqual(snapshot,snap());
+});

@@ -101,7 +101,7 @@ function grade(cam,look,eyes,grid,size,viewport,reveal,pad){
    if(!projected(cam,look,point,aspect,fov)){
     score-=sample.weight*1.8;cropped++;continue;
    }
-   if(blockedByStone(cam,p,point.y,grid,size,eyes,reveal,pad)){
+   if(blockedByStone(cam,point,point.y,grid,size,eyes,reveal,pad)){
     score-=sample.weight*1.45;blocked++;continue;
    }
    score+=sample.weight;bodyVisible++;
