@@ -26,6 +26,13 @@ export function witnessedPressureRatchet(previous, current, adjacent) {
     current >= 1 && current <= 4 && current < previous;
 }
 
+// A physical chamber may unload only after a SAME run/floor adjacent source
+// packet proves active -> inactive. Pure and strict: no first-frame, loss,
+// skipped-tick or duplicate-packet mechanical relief cue.
+export function witnessedPressureRelease(previousActive, currentActive, adjacent) {
+  return adjacent === true && previousActive === true && currentActive === false;
+}
+
 // A bounded synthesized soundscape. No audio is started until a viewer enables it.
 export function createTowerAudio() {
   let context = null, master = null, bed = null, wind = null, windFilter = null, windGain = null;
@@ -302,7 +309,7 @@ export function createTowerAudio() {
     // first observation, floor switch, stale route or future hazard schedule.
     const observedHazards=new Map();
     const observedCharges=new Map();
-    let nearbyHazardRaised=false, nearbyChargeRaised=false, nearbyRatchetRaised=false;
+    let nearbyHazardRaised=false, nearbyChargeRaised=false, nearbyRatchetRaised=false, nearbyHazardReleased=false;
     const adjacentCharge= sameFloor && Number.isSafeInteger(lastHazardTick) &&
       Number.isSafeInteger(snapshot.tick) && snapshot.tick > lastHazardTick &&
       snapshot.tick-lastHazardTick<=8;
@@ -316,6 +323,18 @@ export function createTowerAudio() {
           <=Math.max(48000,hazard.width*1.8)
         && Math.abs(hazard.y-actor.y)<=80000
         && actor.health>0)nearbyHazardRaised=true;
+      // The real ACTIVE -> INACTIVE transition, not a guessed future trap
+      // timer, releases a soft return-clank when the climber survives nearby.
+      // It is lower priority than genuine collision, warning or boss sound.
+      if (!nearbyHazardReleased &&
+        witnessedPressureRelease(wasActive,active,adjacentCharge) &&
+        actor.health > 0 &&
+        !snapshot.enemies?.some(enemy => enemy.active && enemy.telegraph) &&
+        [hazard.x,hazard.y,hazard.width,hazard.height,actor.x,actor.y].every(Number.isFinite) &&
+        Math.abs(hazard.x + hazard.width * .5 - actor.x)
+          <= Math.max(100000,hazard.width * 2) &&
+        Math.abs(hazard.y + hazard.height * .5 - actor.y) <= 120000)
+        nearbyHazardReleased = true;
       // The live source alone declares the scheduled windup. A previous
       // authenticated zero followed by 1–12 charge ticks authorizes ONE
       // restrained preparatory material sound when the climber is nearby.
@@ -355,6 +374,12 @@ export function createTowerAudio() {
     if(nearbyHazardRaised){
       texture(720,.13,.045);
       tone(470,190,.18,'triangle',.058);
+    }
+    if(nearbyHazardReleased && !nearbyHazardRaised &&
+      !nearbyChargeRaised && !nearbyRatchetRaised){
+      // Soft source-proven mechanical recovery, never a healing/reward chime.
+      texture(300,.08,.018);
+      tone(225,152,.13,'triangle',.028);
     }
     // Cap proximity is a real ascent milestone, unlike a planned landing.
     // A single restrained material tone joins the 3D crown to the climbing
