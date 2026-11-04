@@ -68,3 +68,45 @@ test('actual scene gates the fossil camera below threat, key, gate, pickup, goal
   assert.ok(scene.includes('fossilPerformanceShot,'),
     'exact-source full-resolution browser screenshots retain camera activation evidence');
 });
+
+test('real disclosed portrait fossil performance can zoom while protecting both physical models',async()=>{
+  const {publicPortraitFossilPerformanceHalfHeight:frame}=await load;
+  const aspect=390/844, hero={x:0,z:0},organ={x:.8,z:.5};
+  const focus={x:.22,z:.12},previous={x:0,z:0};
+  const neutral=frame(aspect,8.05,.3,hero,organ,focus,previous);
+  const engaged=frame(aspect,8.05,1,hero,organ,focus,previous);
+  assert.equal(neutral,8.05,'no invented engagement');
+  assert.ok(engaged>=6.45 && engaged<neutral,
+    'portrait stage actually enlarges the original 3D acting pair');
+  for(const f of [focus,previous])for(const [p,reserve] of [[hero,1.18],[organ,1.65]]){
+    const screen=((p.x-f.x)*18-(p.z-f.z)*15)/Math.hypot(18,15);
+    assert.ok((Math.abs(screen)+reserve)/(engaged*aspect)<=.90+1e-9,
+      'both full physical silhouettes fit at either eased camera focus');
+  }
+  assert.equal(frame(aspect,8.05,1,hero,{x:40,z:0},focus,previous),8.05,
+    'distant disclosed scenery cannot cause an actor crop');
+  for(const badAspect of [.2,.6,1280/900,NaN])
+    assert.equal(frame(badAspect,8.05,1,hero,organ,focus,previous),8.05);
+  for(const strength of [0,.35,.45,NaN])
+    assert.equal(frame(aspect,8.05,strength,hero,organ,focus,previous),8.05);
+  assert.equal(frame(aspect,8.05,1,hero,{x:NaN,z:0},focus,previous),8.05);
+  const before=JSON.stringify({hero,organ,focus,previous});
+  frame(aspect,8.05,1,hero,organ,focus,previous);
+  assert.equal(JSON.stringify({hero,organ,focus,previous}),before,
+    'the camera is forbidden from mutating a source snapshot');
+});
+
+test('portrait source performance is subordinate to every source-authority and actor-safety guard',()=>{
+  const src=fs.readFileSync(scenePath,'utf8');
+  const start=src.indexOf('// Unlike the landscape fossil camera');
+  const end=src.indexOf('// At genuine disclosed close encounters',start);
+  assert.ok(start>=0&&end>start,'new camera must be integrated before guardian framing');
+  const gate=src.slice(start,end);
+  for(const guard of ['!result','!cameraGate','!closestThreat?.strength',
+    '!nearObservedGoal','!keyGateCue','!showPickup','!settings.reducedMotion',
+    'aspect>=.35','aspect<.60','fossilCue?.strength>.45',
+    'publicPortraitFossilPerformanceHalfHeight','desiredTarget.x','desiredTarget.z'])
+    assert.ok(gate.includes(guard),'must retain strict original public-only '+guard);
+  assert.match(src,/fossilPerformanceShot=staged<targetHeight-\.02;/,
+    'source-bound native WebGL capture must expose the real activated camera');
+});

@@ -3,7 +3,7 @@ import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
+import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -628,6 +628,24 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           desiredTarget.x+=clamp(fossilCue.x-pose.x,-3.6,3.6)*lean;
           desiredTarget.z+=clamp(fossilCue.z-pose.z,-3.6,3.6)*lean;
           const staged=publicFossilPerformanceHalfHeight(
+            aspect,targetHeight,fossilCue.strength,pose,fossilCue,
+            desiredTarget,cameraTarget);
+          fossilPerformanceShot=staged<targetHeight-.02;
+          targetHeight=staged;
+        }
+        // Unlike the landscape fossil camera, narrow portrait must protect
+        // the FULL original Pip silhouette and the physical moving organ at
+        // both ends of real camera easing. The new close performance uses
+        // only a modeled, disclosed prop actually responding to the public
+        // autonomous hero. It cannot affect a guardian, key, gate or goal.
+        if (!result && !cameraGate && !closestThreat?.strength
+          && !nearObservedGoal && !keyGateCue && !showPickup
+          && !settings.reducedMotion && aspect>=.35 && aspect<.60
+          && fossilCue?.strength>.45) {
+          const lean=Math.min(.13,fossilCue.strength*.10);
+          desiredTarget.x+=clamp(fossilCue.x-pose.x,-3.6,3.6)*lean;
+          desiredTarget.z+=clamp(fossilCue.z-pose.z,-3.6,3.6)*lean;
+          const staged=publicPortraitFossilPerformanceHalfHeight(
             aspect,targetHeight,fossilCue.strength,pose,fossilCue,
             desiredTarget,cameraTarget);
           fossilPerformanceShot=staged<targetHeight-.02;

@@ -283,6 +283,37 @@ export function publicFossilPerformanceHalfHeight(aspect, selectedHalfHeight,
   return Math.min(base,Math.max(desired,safeHeight));
 }
 
+
+/**
+ * A publicly modeled tide-organ may share a closer PORTRAIT performance with
+ * Pip, but only after genuine near-range public attention. Preserve both
+ * actors' entire physical horizontal silhouette through camera easing.
+ * The caller excludes guardians, keys, gates, objectives, terminal states,
+ * Overview/Detail and reduced motion. This function never reads private AI.
+ */
+export function publicPortraitFossilPerformanceHalfHeight(aspect, selectedHalfHeight,
+  attention, hero, organ, focus, previousFocus=focus) {
+  const base=Number.isFinite(selectedHalfHeight)&&selectedHalfHeight>0
+    ?selectedHalfHeight:8.05;
+  if (!(Number.isFinite(aspect)&&aspect>=.35&&aspect<.60)
+    || !(Number.isFinite(attention)&&attention>.45)
+    || ![hero?.x,hero?.z,organ?.x,organ?.z,
+      focus?.x,focus?.z,previousFocus?.x,previousFocus?.z].every(Number.isFinite))
+    return base;
+  const length=Math.hypot(18,15);
+  const horizontal=(point,target)=>
+    ((point.x-target.x)*18-(point.z-target.z)*15)/length;
+  const extent=target=>Math.max(
+    Math.abs(horizontal(hero,target))+1.18,
+    Math.abs(horizontal(organ,target))+1.65);
+  // Reserve 10% outside the complete modeled explorer + articulated leaves,
+  // at BOTH the current and requested focus. Never crop an existing actor.
+  const safe=Math.max(extent(focus),extent(previousFocus))/(aspect*.90);
+  const strength=clamp((attention-.45)/.55,0,1);
+  const desired=Math.max(6.45,base*(1-.22*strength));
+  return Math.min(base,Math.max(desired,safe));
+}
+
 export function publicDetailEncounterHalfHeight(aspect, disclosedAttention) {
   if (!(Number.isFinite(aspect) && aspect > 0 && aspect < .9)
     || !(Number.isFinite(disclosedAttention) && disclosedAttention > 0)) return 4.6;
