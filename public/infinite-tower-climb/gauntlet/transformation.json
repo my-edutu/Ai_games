@@ -9,20 +9,20 @@
   },
   "candidate": {
     "sha": null,
-    "title": "SAME whole-game 3D Tower transformation — actual deck impact, source-verified moving carriage and guardian / result continuity; quality NOT EVALUATED",
-    "implementationSha": "84baec7dc999b7680fe5af68b8e57ca6e83f3cae",
-    "implementationEvidenceStatus": "Actual playable scene source 84baec7dc999b7680fe5af68b8e57ca6e83f3cae adds one original instanced deck-impact stage keyed to genuine source landing, physically integrated with camera, moving-deck chassis and audio. New code syntactically inspected and pure landing predicate checked, but exact-new-source technical workflow and original full-motion capture have not been verified here. Older source 9525995 CI SUCCESS and 9/9 recordings are historical only. Blind event-matched comparison, independent votes and real hardware still absent. Quality NOT EVALUATED."
+    "title": "SAME whole-game 3D Tower transformation — source-earned climb/deck/guardian plus original pre-activation hazard machinery; quality NOT EVALUATED",
+    "implementationSha": "c009bd0df2f2e06283818c836ccbebf23b908b3b",
+    "implementationEvidenceStatus": "Real playable 3D hazard pressure implementation c009bd0df2f2e06283818c836ccbebf23b908b3b: opt-in fixed-step 1–12 tick published hazard charge, one depth-tested instanced mechanism tied to actual nearby inactive traps, one opt-in adjacent-source acoustic warning, real renderer lifecycle/diagnostics and no invented collision or simulator alteration. New test-source correction b995d45ac8b9a41783440e00d6a5ce1df476ccde. Prior branch CI 2ff38f2 SUCCESS, prior capture b682d676 9/9 jobs SUCCESS but neither validates the new source. New exact implementation video workflow 41789685910 and latest test-source CI 41790120876 PENDING/UNVERIFIED at this inspection. Same seed is not yet event-matched video; original baseline outcome incomplete. Independent votes 0/5 for all pillars; supported-device p50/p95/p99 and memory not measured. NOT EVALUATED."
   },
   "currentTransformation": {
     "title": "SAME cohesive real 3D ascent → live moving deck dock → guarded guardian counterplay → HP cap gate → authentic outcome and restart",
-    "state": "OPEN. Whole-game real 3D traversal, moving carriage, source-selected landing, guardian counterplay, result/restart; newest playable code 84baec7dc999b7680fe5af68b8e57ca6e83f3cae makes the landing physically visible via real-deck source verification and one bounded 3D instanced burst. Tests and actual new-source capture not independently verified. NOT EVALUATED.",
-    "promise": "One original playable 3D journey with source-earned moving machinery, physical landing moment and skinned climber response, real guardian/shield and HP gate, authentic outcome/restart. No invented colliders, AI changes or fake HUD progress.",
-    "nextDecision": "Inspect exact-new-source CI and source-host desktop/portrait WebM of 84baec7dc999b7680fe5af68b8e57ca6e83f3cae (and neutral harness on the same current code) against unchanged frozen 1731b380851162741761c5569e2bc152a0869ca9; check actual contact moments at full normal speed, guardian and outcome/restart, event align all before/after pairs; require 5 fresh blind randomized critics per LOOKS/FEELS/PLAYS (at least 4/5 candidate preference each), supported-device GPU-presented frame-time tails/memory, accessibility/replay and rollback if impact fragments occlude action. Independent browser/worker inaccessible during this execution.",
+    "state": "OPEN: SAME whole-game 3D ascent → actual moving-deck landing → physically sourced hazard anticipation → guarded guardian counterplay → HP gate → authentic result/restart. New implementation c009bd0df2f2e06283818c836ccbebf23b908b3b introduces 3D metal jaw charge and muted optional sound for witnessed imminent danger, not a new collider or AI oracle. Full new-source gameplay and independent quality pending. NOT EVALUATED.",
+    "promise": "One original source-authentic playable 3D expedition: readable destination, riding/landing weight, fixed-step trap activation communicated by physical warning machinery, real guardian tactics and gated outcome/restart. No fictional safety guarantee, HUD clutter or altered replay baseline.",
+    "nextDecision": "Inspect source-authentic browser desktop/portrait normal-speed capture https://github.com/my-edutu/Ai_games/actions/runs/41789685910 (implementation c009bd0df2f2e06283818c836ccbebf23b908b3b) and exact source technical workflow https://github.com/my-edutu/Ai_games/actions/runs/41790120876 (test source b995d45ac8b9a41783440e00d6a5ce1df476ccde). Check whether hazard 1–12 countdown actually reads at full motion without foreground obstruction, whether all three source outcomes and restarts are authentic, then produce real event-matched >=60s baseline/candidate sets for ascent, guardian/danger, outcome/restart. Require five fresh blind randomized independent critics (>=4/5 in LOOKS, FEELS, PLAYS separately) and actual supported-device frame-time/memory, accessibility and replay. Browser/worker tunnel offline in this execution; do NOT award quality.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "The new source-verified 3D touchdown may increase perceptual weight or may obstruct a narrow phone frame; source-pinned actual full-motion video, event-matched baseline/candidate sequences and independent human judgments are still missing. Independent LOOKS 0/5, FEELS 0/5, PLAYS 0/5. Physical phone/desktop p50/p95/p99 and memory NOT MEASURED. NOT EVALUATED.",
-    "unverifiedImplementationBranchHead": "84baec7dc999b7680fe5af68b8e57ca6e83f3cae",
-    "currentVerticalSlice": "SAME entire game transformation: a coherent original 3D world, moving platform gear and loaded 16-strut carriage, a newly source-witnessed physical impact on the actual deck with reduced-motion quiet variant, AI guardian combat, earned HP gate, genuine terminal and restart. Current source not independently compared to frozen video.",
-    "biggestGap": "The new source-verified 3D touchdown may increase perceptual weight or may obstruct a narrow phone frame; source-pinned actual full-motion video, event-matched baseline/candidate sequences and independent human judgments are still missing. Independent LOOKS 0/5, FEELS 0/5, PLAYS 0/5. Physical phone/desktop p50/p95/p99 and memory NOT MEASURED. NOT EVALUATED."
+    "biggestRemainingExperienceGap": "No independently inspected event-matched full-motion desktop/portrait comparison of the SAME completed climbing experience, including real hazard/guardian cues and a fully visible baseline outcome/restart; mobile clutter/perceived warning usability and visual improvement remain unknown. Genuine blind LOOKS 0/5, FEELS 0/5, PLAYS 0/5; supported-device p50/p95/p99, memory, accessibility and reviewer browser unavailable. NOT EVALUATED.",
+    "unverifiedImplementationBranchHead": "c009bd0df2f2e06283818c836ccbebf23b908b3b",
+    "currentVerticalSlice": "SAME entire source-driven Tower experience: moving platform suspension, real deck impacts, 3D source-timed hazard shutters/audio, autonomous ascent and guardian phases, HP gate and source terminal/restart. Current danger stage awaiting real normal-speed playback and independent comparison.",
+    "biggestGap": "No independently inspected event-matched full-motion desktop/portrait comparison of the SAME completed climbing experience, including real hazard/guardian cues and a fully visible baseline outcome/restart; mobile clutter/perceived warning usability and visual improvement remain unknown. Genuine blind LOOKS 0/5, FEELS 0/5, PLAYS 0/5; supported-device p50/p95/p99, memory, accessibility and reviewer browser unavailable. NOT EVALUATED."
   },
   "scenarios": [
     {
@@ -62,11 +62,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Historic 9525995d source CI https://github.com/my-edutu/Ai_games/actions/runs/41781484026 SUCCESS after four stale fixture issues; this is a historical safety guardrail, not a quality score. Fresh source 84baec7dc999b7680fe5af68b8e57ca6e83f3cae and latest video-harness head CI result NOT VERIFIED in this execution.",
-    "replay": "New 3D impact requires real same-token/floor consecutive airborne->standing authoritative snapshots, verified occupied finite deck and negative prior vy. Does not write AI/state/physics/seed or replay. Pure predicate checks exercised, but full exact-source replay/test workflow not yet verified.",
-    "accessibility": "Reduced motion shows up to four stationary authentic contact fragments instead of 8/16 moving shards; no forced audio, flashing text, extra controls or HUD. Existing motion preference suppresses impact camera shake. Real-device contrast and accessibility approval are pending.",
-    "performance": "New source adds one bounded 16-instance 3D depth-tested draw active only for witnessed <650ms landing and no new shadow/light pass. Low tier at most 8 instances, high at most 16, reduced motion 4; source/geometry resource cleanup checked statically. No supported-device presented-frame p50/p95/p99, memory or thermal proof; NOT EVALUATED.",
-    "stability": "Older source 9525995d CI and original-host 9/9 video capture confirmed; these do not validate the new physical touchdown. Current new-source full logic, Chromium output/restart, GPU recovery and performance status NOT VERIFIED. CI is safety veto only."
+    "ci": "Historic EXACT earlier source 2ff38f2 technical workflow https://github.com/my-edutu/Ai_games/actions/runs/41788093441 completed SUCCESS (guardrail only). New-source test commit b995d45 exact technical workflow https://github.com/my-edutu/Ai_games/actions/runs/41790120876 PENDING/UNVERIFIED at last inspection. CI is never positive quality evidence.",
+    "replay": "12-tick hazard arming is computed only from authored fixed-step activeFromTick/activeEvery/activeFor and public tick in opt-in live snapshot. Default/historical snapshot retains previous keys and checksum. Cosmetic stage and optional muted sound never mutate authority or seed. Full exact-source replay guardrail not yet verified.",
+    "accessibility": "Pressure shutters retain a static warn posture under reduced-motion; audio is opt-in, no new text/controls/HUD or flashing pass. On actual portrait video warn geometry, contrast and comfort are NOT independently inspected.",
+    "performance": "At most eight currently charging hazards x eight solid metal pieces = 64 total instances in ONE extra depth-tested draw, low tier max four hazards (32 instances), no new light or shadow pass. CPU and renderer budget is bounded by source observation; actual presented-frame p50/p95/p99 and memory/thermal unavailable and NOT EVALUATED.",
+    "stability": "Integrates dedicated effect across live scene, clear, graphics rebuild, destroy and diagnostics; hides on transport stale, result, death and guardian windup. 2ff prior-source technical PASS is not evidence that new source or original-host capture passed. New exact implementation CI/capture pending."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -147,9 +147,9 @@
         }
       }
     },
-    "newImplementationSha": "9525995d6494efc924b5714d2fbe93965ba412cc",
-    "newImplementationRecorded": true,
-    "reviewPath": "docs/reviews/2026-11-04-tower-pr68-witnessed-load-bearing-carriage-and-original-source-evidence.md",
+    "newImplementationSha": "c009bd0df2f2e06283818c836ccbebf23b908b3b",
+    "newImplementationRecorded": false,
+    "reviewPath": "docs/reviews/2026-11-04-tower-pr68-source-scheduled-hazard-pressure.md",
     "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41547983114",
     "followupStatus": "On 2026-11-03, source-pinned run 41547983114 completed 8/9 jobs: baseline+old-candidate desktop/portrait normal-speed ascent, danger, moving, outcome all SUCCESS as capture jobs; authentic-ledge FAILED because source play yielded no qualifying actual ledge event within 2500 fixed ticks (four desktop/portrait browser tests). Old candidate 133ce1a8, frozen baseline 1731b380. New candidate 4398a157 still awaits exact-source recorded gameplay, blind votes, supported-device measurements. No experience preference awarded.",
     "matchedCaptureSettings": {
@@ -2059,6 +2059,9 @@
       "workerBrowserCriticAccess": "UNAVAILABLE in this run",
       "biggestRemainingExperienceGap": "The new source-verified 3D touchdown may increase perceptual weight or may obstruct a narrow phone frame; source-pinned actual full-motion video, event-matched baseline/candidate sequences and independent human judgments are still missing. Independent LOOKS 0/5, FEELS 0/5, PLAYS 0/5. Physical phone/desktop p50/p95/p99 and memory NOT MEASURED. NOT EVALUATED.",
       "quality": "NOT EVALUATED"
-    }
+    },
+    "latestNewImplementationWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41789685910",
+    "latestExactHeadQualityWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41790120876",
+    "latestNewImplementationStatus": "UNVERIFIED / PENDING at inspection; previous real source video 41787502056 completed 9/9 jobs for earlier b682d676 source, cannot certify new 3D hazard."
   }
 }
