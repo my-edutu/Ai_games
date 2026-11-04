@@ -14,6 +14,33 @@ permissions:
   contents: read
 
 jobs:
+  # W15 ground-under-actual-homes is independently bounded. The enormous
+  # legacy catalogue suite can time out without hiding this vertical gate.
+  w15-ground-atlas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: W15 real growing homes reuse immutable albedo without synthetic buildings
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w15-ground-atlas-residency.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w15-ground-residency
+          path: test-results/
+          retention-days: 14
   # Independent short-running W04/W05 browser gate. The legacy full GPU
   # suite exceeds its time limit and contains known older failures; it must
   # not hide a genuine harvested-field / autonomy regression.
