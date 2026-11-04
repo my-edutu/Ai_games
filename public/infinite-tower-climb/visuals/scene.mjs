@@ -12,6 +12,7 @@ import { createTowerLandingApproach } from './landing-approach.mjs';
 import { createTowerMovingDeckSuspension } from './moving-deck-suspension.mjs';
 import { createTowerHazardPressure, observedConcurrentHazardCluster } from './hazard-pressure.mjs';
 import { observedActionStage } from './action-staging.mjs';
+import { observedTraversalKinetics } from './traversal-kinetics.mjs';
 import { observedHealthRecovery, createTowerRecoveryTransfer } from './recovery-transfer.mjs';
 import { createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianRelayStage, observedGuardianPowerSpineStage } from './guardian-circuit.mjs';
 import { createTowerAtmosphere } from './atmosphere.mjs';
@@ -2404,6 +2405,11 @@ export function createTowerScene(canvas, settings = {}) {
     const p = snapshot.player;
     const lightCue = observedStageLight.sample(snapshot, dt,
       !!options.stale, !!options.reducedMotion);
+    // Same authoritative, public airborne velocity owns the visual weather
+    // and opt-in wind; the existing lights add a restrained continuous
+    // traversal accent, not an extra draw or a fictional success signal.
+    const liveAirflow = options.stale || options.reducedMotion ? 0 :
+      observedTraversalKinetics(snapshot).airflow;
     const targetPlatform = intendedLanding(snapshot);
     const actionStage = !options.stale && !options.reducedMotion
       ? observedActionStage(snapshot, targetPlatform) : null;
@@ -3229,8 +3235,8 @@ export function createTowerScene(canvas, settings = {}) {
     // combat flash or a false victory bloom. Different genuine result KINDS
     // remain distinguishable from the world, even with the HUD hidden.
     sun.intensity = lighting.key * (1 - lightCue.threat * .075) * (terminalStaged ? .78 : 1);
-    hemi.intensity = lighting.ambient * (1 + lightCue.motion * .055) * (terminalStaged ? .88 : 1);
-    rim.intensity = lighting.rim * (1 + lightCue.armor * .18 + lightCue.threat * .2) *
+    hemi.intensity = lighting.ambient * (1 + lightCue.motion * .055 + liveAirflow * .04) * (terminalStaged ? .88 : 1);
+    rim.intensity = lighting.rim * (1 + lightCue.armor * .18 + lightCue.threat * .2 + liveAirflow * .10) *
       (terminalStaged ? 1.08 : 1);
     const endingTint = snapshot.result?.kind === 'technical' ? interruptedRimTint :
       snapshot.result?.kind === 'operator' ? operatorRimTint : warmRimTint;
