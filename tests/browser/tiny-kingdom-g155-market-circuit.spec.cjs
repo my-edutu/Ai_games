@@ -272,7 +272,11 @@ test('G162 moving market viewpoint preserves real street travel and unobstructed
    const t=g.getMarketTourAudit(),s=g.getStreetWalkState();
    if(t.lens)frames.push({position:s.position,forward:t.lens.forwardMetres,
     requested:t.lens.requestedMetres,route:t.lens.routeMetres,
-    avoided:t.lens.avoidedWall,travelled:t.travelledMeters});
+    avoided:t.lens.avoidedWall,travelled:t.travelledMeters,
+    scanWidth:t.lens.scanWidth,
+    emergency:t.lens.emergencyVisibilityRepair,
+    requestedScore:t.lens.requestedObstructionScore,
+    chosenScore:t.lens.chosenObstructionScore});
    if(t.completed||(!t.active&&i>0))break;
   }
   return {frames,tour:g.getMarketTourAudit(),visit:g.getMarketVisitAudit(),
@@ -295,6 +299,16 @@ test('G162 moving market viewpoint preserves real street travel and unobstructed
   expect(sample.forward).toBeGreaterThanOrEqual(0);
   expect(sample.forward).toBeLessThanOrEqual(6);
   expect(Number.isFinite(sample.route)).toBe(true);
+  // W20 RED-first: if a photographed view faces masonry at walking eye
+  // height, the lens must physically survey a wider street-side arc.
+  // No camera assertion can authorize hiding actual buildings or workers.
+  expect(Number.isFinite(sample.scanWidth)).toBe(true);
+  expect(sample.scanWidth).toBeGreaterThan(0);
+  expect(sample.chosenScore).toBeLessThanOrEqual(sample.requestedScore+0.001);
+  if(sample.requested<1.4){
+   expect(sample.scanWidth).toBeGreaterThanOrEqual(1.1);
+   expect(typeof sample.emergency).toBe('boolean');
+  }
  }
  expect(playback.visit.safe).toBe(true);
  expect(playback.authority).toBe(entrance.authority);
