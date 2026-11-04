@@ -1532,37 +1532,57 @@ let scenicVisibilityStats={
 };
 function packSpatialScenery(mesh){
  if(mesh.length%30)throw Error('G105 triangle stride mismatch');
- // W18 lived-valley growth: scatter static scenery without allocating one JS
- // chunk-key string and one typed subarray object FOR EVERY triangle. Settlement
- // construction and seasonal change still render the exact original physical
- // mesh; no citizens, materials, geometry, ordering or simulation are changed.
+ // W38 Living Valley: new genuine cottages and climate transitions previously
+ // scanned every triangle twice for its spatial extrema, with 18 per-vertex
+ // Math.min/max calls in the *scatter* pass. Accumulate full conservative
+ // triangle bounds during the first source scan and make the second pass
+ // pure ordered copying. Keep the exact original mesh, material, all citizens,
+ // 18m chunk layout, and stable lexicographic draw ordering.
  const triangleCount=mesh.length/30;
  const triangleChunkIds=new Uint32Array(triangleCount);
- // Two-level integer cell map creates strings only for occupied CHUNKS,
- // not for each triangle. Preserve the original lexicographic chunk ordering.
  const cellRows=new Map(),chunks=[];
  for(let i=0;i<triangleCount;i++){
-  const o=i*30,x=(mesh[o]+mesh[o+10]+mesh[o+20])/3,
-   z=(mesh[o+2]+mesh[o+12]+mesh[o+22])/3;
+  const o=i*30,ax=mesh[o],ay=mesh[o+1],az=mesh[o+2],
+   bx=mesh[o+10],by=mesh[o+11],bz=mesh[o+12],
+   cx=mesh[o+20],cy=mesh[o+21],czv=mesh[o+22];
+  const x=(ax+bx+cx)/3,z=(az+bz+czv)/3;
   if(!Number.isFinite(x)||!Number.isFinite(z))
    throw Error('G105 nonfinite scene centroid');
-  const cx=Math.floor(x/SCENIC_CHUNK_EDGE),cz=Math.floor(z/SCENIC_CHUNK_EDGE);
-  let row=cellRows.get(cx);
-  if(!row){row=new Map();cellRows.set(cx,row)}
-  let chunk=row.get(cz);
+  const cellX=Math.floor(x/SCENIC_CHUNK_EDGE),
+   cellZ=Math.floor(z/SCENIC_CHUNK_EDGE);
+  let row=cellRows.get(cellX);
+  if(!row){row=new Map();cellRows.set(cellX,row)}
+  let chunk=row.get(cellZ);
   if(!chunk){
-   chunk={id:chunks.length,key:cx+':'+cz,count:0};
-   row.set(cz,chunk);chunks.push(chunk);
+   chunk={id:chunks.length,key:cellX+':'+cellZ,count:0,
+    minX:Infinity,minY:Infinity,minZ:Infinity,
+    maxX:-Infinity,maxY:-Infinity,maxZ:-Infinity};
+   row.set(cellZ,chunk);chunks.push(chunk);
   }
   triangleChunkIds[i]=chunk.id;
   chunk.count++;
+  // The AABB must enclose every emitted vertex, not just its centroid.
+  // Per-triangle extrema use three coordinate samples; six updates
+  // include every original point while avoiding repeated target lookups.
+  const triangleMinX=Math.min(ax,bx,cx),
+   triangleMinY=Math.min(ay,by,cy),
+   triangleMinZ=Math.min(az,bz,czv);
+  const triangleMaxX=Math.max(ax,bx,cx),
+   triangleMaxY=Math.max(ay,by,cy),
+   triangleMaxZ=Math.max(az,bz,czv);
+  chunk.minX=Math.min(chunk.minX,triangleMinX);
+  chunk.minY=Math.min(chunk.minY,triangleMinY);
+  chunk.minZ=Math.min(chunk.minZ,triangleMinZ);
+  chunk.maxX=Math.max(chunk.maxX,triangleMaxX);
+  chunk.maxY=Math.max(chunk.maxY,triangleMaxY);
+  chunk.maxZ=Math.max(chunk.maxZ,triangleMaxZ);
  }
  const ranges=[],slots=new Array(chunks.length);
  let cursor=0;
  for(const chunk of chunks.sort((a,b)=>a.key<b.key?-1:a.key>b.key?1:0)){
   const range={first:cursor/10,count:chunk.count*3,
-   minX:Infinity,minY:Infinity,minZ:Infinity,
-   maxX:-Infinity,maxY:-Infinity,maxZ:-Infinity};
+   minX:chunk.minX,minY:chunk.minY,minZ:chunk.minZ,
+   maxX:chunk.maxX,maxY:chunk.maxY,maxZ:chunk.maxZ};
   ranges.push(range);
   slots[chunk.id]={next:cursor,range};
   cursor+=chunk.count*30;
@@ -1571,16 +1591,10 @@ function packSpatialScenery(mesh){
  const packed=new Float32Array(mesh.length);
  for(let i=0;i<triangleCount;i++){
   const o=i*30,slot=slots[triangleChunkIds[i]],dest=slot.next;
-  // Direct copy: avoid temporary Float32Array.subarray for 120k triangles.
+  // No per-triangle typed-array views, strings, material changes or lost
+  // normals; the original 30 floats arrive in their exact original order.
   for(let j=0;j<30;j++)packed[dest+j]=mesh[o+j];
   slot.next+=30;
-  const range=slot.range;
-  for(let vertex=0;vertex<3;vertex++){
-   const at=o+vertex*10,x=mesh[at],y=mesh[at+1],z=mesh[at+2];
-   range.minX=Math.min(range.minX,x);range.maxX=Math.max(range.maxX,x);
-   range.minY=Math.min(range.minY,y);range.maxY=Math.max(range.maxY,y);
-   range.minZ=Math.min(range.minZ,z);range.maxZ=Math.max(range.maxZ,z);
-  }
  }
  return {vertices:packed,ranges};
 }
