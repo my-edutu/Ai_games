@@ -83,13 +83,39 @@ test('near-contact source warning outranks unrelated warning without leaking fut
     stage.group.getObjectByName('SourceTimedHazardChargingShutters')),
     physicalJaws, 'the first physical chamber must be the genuine close threat');
   stage.update(frame(101, 11), { quality: 'low' });
-  assert.equal(stage.diagnostics().chargingHazards, 0,
-    '11-tick speculative crossfire must not displace the guardian');
-  stage.update({ ...frame(102, 5), intent: {mode: 'aligning'} },
+  assert.equal(stage.diagnostics().chargingHazards, 1,
+    'true scheduled near-body danger must have a physical prelude before the six-tick emergency');
+  assert.equal(stage.diagnostics().crossfirePrewarnings, 1);
+  assert.equal(stage.diagnostics().crossfireWarnings, 0,
+    'early physical prelude must not take the urgent camera/light slot');
+  stage.update(frame(102, 5), { quality: 'low' });
+  assert.equal(stage.diagnostics().crossfirePrewarnings, 0);
+  assert.equal(stage.diagnostics().crossfireWarnings, 1);
+  stage.update({ ...frame(103, 5), intent: {mode: 'aligning'} },
     { quality: 'low' });
   assert.equal(stage.diagnostics().chargingHazards, 0,
     'without observed evasion, only the boss earns cinematic attention');
   stage.update({ ...source, stale: true });
   assert.equal(stage.diagnostics().instances, 0);
   assert.equal(stage.diagnostics().crossfireWarnings, 0);
+});
+test('distant guardian or unrelated hostile telegraphs cannot steal nearby honest trap warning; bounded reset', async t => {
+  const [THREE,{ createTowerHazardPressure }] = await loaded;
+  const stage=createTowerHazardPressure(THREE); t.after(()=>stage.dispose());
+  const near=frame(140,11);
+  const noGuardian={...near,enemies:[{id:'remote',kind:'guardian',active:true,
+    telegraph:true,x:450000,y:420000,health:8,maxHealth:8}]};
+  stage.update(noGuardian,{quality:'low'});
+  assert.equal(stage.diagnostics().chargingHazards,1);
+  assert.equal(stage.diagnostics().crossfirePrewarnings,0);
+  const hostile={...near,enemies:[{id:'grunt',kind:'ranged',active:true,
+    telegraph:true,x:190000,y:320000,health:5,maxHealth:5}]};
+  stage.update(hostile,{quality:'low'});
+  assert.equal(stage.diagnostics().chargingHazards,1);
+  assert.equal(stage.diagnostics().crossfireWarnings,0);
+  stage.update(frame(141,11),{quality:'low',reducedMotion:true});
+  assert.equal(stage.diagnostics().crossfirePrewarnings,1);
+  stage.update({...frame(142,11),stale:true});
+  assert.equal(stage.diagnostics().crossfirePrewarnings,0);
+  assert.equal(stage.diagnostics().instances,0);
 });

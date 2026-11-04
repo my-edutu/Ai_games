@@ -85,7 +85,7 @@ export function createTowerHazardPressure(THREE) {
   const releaseTickById = new Map();
   let lastRun = null, lastFloor = null, lastTick = null;
   let chargingHazards = 0, activeHazards = 0, releasingHazards = 0;
-  let crossfireWarnings = 0, crossfireReleases = 0;
+  let crossfireWarnings = 0, crossfirePrewarnings = 0, crossfireReleases = 0;
   let sourceTick = null, observedFloor = null, disposed = false;
 
   function clear() {
@@ -94,7 +94,7 @@ export function createTowerHazardPressure(THREE) {
     chargingHazards = 0;
     activeHazards = 0;
     releasingHazards = 0;
-    crossfireWarnings = 0; crossfireReleases = 0;
+    crossfireWarnings = 0; crossfirePrewarnings = 0; crossfireReleases = 0;
     sourceTick = null;
     observedFloor = null;
     lastRun = null; lastFloor = null; lastTick = null;
@@ -144,8 +144,15 @@ export function createTowerHazardPressure(THREE) {
         releaseTickById.delete(id);
     }
 
-    const guardianWindup = snapshot.enemies?.some(
-      enemy => enemy.active && enemy.telegraph) || false;
+    // Only a REAL, nearby living guardian owns combat visual priority.
+    // An unrelated ranged enemy or nameless/distant telegraph cannot erase
+    // actionable shutter information from the climber's local scene.
+    const guardianWindup = snapshot.enemies?.some(enemy =>
+      enemy?.kind === 'guardian' && enemy.active === true &&
+      enemy.telegraph === true && valid(enemy.x) && valid(enemy.y) &&
+      valid(enemy.health) && enemy.health > 0 &&
+      Math.abs(enemy.x - player.x) <= 135000 &&
+      Math.abs(enemy.y - player.y) <= 65000) || false;
     // An ACTUAL source-near shutter must remain physically readable during
     // guardian windup: previously the blanket suppression removed every
     // warning jaw exactly when the climber faced both threats at once.
@@ -153,7 +160,7 @@ export function createTowerHazardPressure(THREE) {
     const priorityTrapId = typeof immediateTrap?.id === 'string' ? immediateTrap.id : null;
     const maximum = options.quality === 'low' ? 3 : MAX_HAZARDS;
     let count = 0, charging = 0, active = 0, releasing = 0;
-    let concurrentWarnings = 0, concurrentReleases = 0;
+    let concurrentWarnings = 0, concurrentPrewarnings = 0, concurrentReleases = 0;
     // Source-active collision has absolute priority, including when another
     // real guardian winds up. Then anticipate new warnings; finally spend
     // any remaining low-tier budget on already-safe mechanical unloading.
@@ -192,8 +199,18 @@ export function createTowerHazardPressure(THREE) {
             player.halfWidth + hazard.width / 2 + 9000 &&
           Math.abs(player.y - (hazard.y + hazard.height / 2)) <=
             player.halfHeight + hazard.height / 2 + 12000;
+        // Twelve honest source-timed ticks offer a half-second readable
+        // mechanical prelude when the autonomous climber is ALREADY evading
+        // this near-body obstacle. The boss keeps camera/light priority until
+        // the final six ticks; only the existing physical pressure jaws appear.
+        // Never promote a distant, speculative or idle shutter to crossfire.
+        const realPrelude = guardianWindup && phase === 'charging' &&
+          isCharging && nearBody && !priorityTrapId &&
+          /^((oracle-)?evading-hazard)$/.test(snapshot.intent?.mode ?? '') &&
+          hazard.chargeTicksRemaining > 6;
         if (guardianWindup && phase === 'charging' &&
-            (!priorityTrapId || hazard.id !== priorityTrapId)) continue;
+            (!priorityTrapId || hazard.id !== priorityTrapId) &&
+            !realPrelude) continue;
         if (guardianWindup && phase === 'release' && !nearBody) continue;
         if ((phase === 'active' && !isActive) ||
           (phase === 'charging' && !isCharging) ||
@@ -255,7 +272,10 @@ export function createTowerHazardPressure(THREE) {
           }
         } else if (isCharging) {
           charging++;
-          if (guardianWindup) concurrentWarnings++;
+          if (guardianWindup) {
+            if (realPrelude) concurrentPrewarnings++;
+            else concurrentWarnings++;
+          }
         } else {
           releasing++;
           if (guardianWindup) concurrentReleases++;
@@ -273,6 +293,7 @@ export function createTowerHazardPressure(THREE) {
     activeHazards = active;
     releasingHazards = releasing;
     crossfireWarnings = concurrentWarnings;
+    crossfirePrewarnings = concurrentPrewarnings;
     crossfireReleases = concurrentReleases;
     sourceTick = count ? snapshot.tick : null;
     observedFloor = count ? snapshot.floor : null;
@@ -284,14 +305,14 @@ export function createTowerHazardPressure(THREE) {
   function diagnostics() {
     return {
       sourceTick, observedFloor, chargingHazards, activeHazards,
-      releasingHazards, crossfireWarnings, crossfireReleases,
+      releasingHazards, crossfireWarnings, crossfirePrewarnings, crossfireReleases,
       phase: activeHazards ? 'active' :
         chargingHazards ? 'charging' : releasingHazards ? 'release' : 'idle',
       instances: shutters.count, extraDraws: shutters.visible ? 1 : 0,
       sourceBound: true, maximumInstances: MAX_HAZARDS * PIECES_PER_HAZARD,
       reducedMotion: 'Static charge and neutral unload, live attack remains visibly closed',
       radialBand: [26.74, 27.78], // world-space exterior steel, behind the ~28-unit climber
-      evidence: 'Published fixed-step warning -> actual active attack -> adjacent observed safe mechanical unload; exterior 3D jaws, one draw, no forecast or gameplay/collision authority',
+      evidence: 'Source-attested 12-tick physical prelude under near-body real guardian combat -> final-six-tick camera/light priority -> actual active attack -> adjacent observed unload; no forecast or authority change',
     };
   }
 
