@@ -1279,7 +1279,7 @@ export function createMazeWorld(options = {}) {
       const z=arm===0?-extentZ-offshoreGap:along;
       // Submerged bases leave a substantial open-water gap: no traversable
       // implied land connecting to any undiscovered portion of the maze.
-      colonnadePose(0,x,-1.40,z,1.49,.56,1.13);
+      colonnadePose(0,x,-1.57,z,1.49,.72,1.13);
       for(const side of [-1,1]){
         const px=x+(arm===0?side*.43:0);
         const pz=z+(arm===1?side*.43:0);

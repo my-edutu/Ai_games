@@ -222,6 +222,11 @@ test('distant broken colonnade remains disconnected dimension-only original 3D, 
         const v=child.instanceMatrix.array, k=i*16;
         const x=v[k+12],y=v[k+13],z=v[k+14];
         assert.ok([x,y,z].every(Number.isFinite));
+        if(child.name==='Disconnected submerged stone footings'){
+          const halfHeight=v[k+5]/2,waterSurface=-1.7;
+          assert.ok(y-halfHeight<waterSurface-.1 && y+halfHeight>waterSurface+.2,
+            'every offshore stone footing is physically immersed rather than floating');
+        }
         // The theater is behind the -X or -Z shore, detached by water.
         const ex=zero.width*m.CELL_SIZE/2,ez=zero.height*m.CELL_SIZE/2;
         assert.ok(x < -ex-4.6 || z < -ez-4.6,'never a false board passage or hidden tile');
