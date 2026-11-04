@@ -132,6 +132,37 @@ export function bakeWaterEdgeGeometry(THREE, source, transforms) {
   return baked;
 }
 
+/**
+ * T1 large-scale physical forest-stone mosaic. Every real game cell keeps the
+ * same x/z centre and its original safe, flat stone surface, but the stone
+ * outline is no longer a near edge-to-edge repeating square. Low moss-filled
+ * seams, broken corners and bounded small rotation form a coherent field of
+ * weathered flagstones instead of the tiled green spreadsheet visible in the
+ * actual 3c48 Chromium overview. This is PURE visual authorship: only existing
+ * static stone transforms/vertices change, not the snake or game authority.
+ *
+ * Strict max visual extent < 0.5 of the unchanged cell pitch, even after
+ * rotation, so every food/portal/danger centre remains on its own real stone.
+ * The existing subsurface sits just 0.04 units below the original top, never
+ * leaving a false pit. No additional mesh, material, draw pass or texture.
+ */
+export function sculptForestMosaicTile(x,z,width,height) {
+  if (![x,z,width,height].every(Number.isInteger) || width < 2 || height < 2
+      || x < 0 || z < 0 || x >= width || z >= height)
+    throw new RangeError('Mosaic stone requires a real bounded integer game cell');
+  const hash = (a,b) => { const v=Math.sin(a*127.1+b*311.7)*43758.5453; return v-Math.floor(v); };
+  // Wider clear limestone stones at the heart, more broken, densely rooted
+  // green stone near woodland catchments. Both still cover their exact cells.
+  const u=(x+.5)/width*2-1, v=(z+.5)/height*2-1;
+  const forest=1-Math.exp(-Math.pow(Math.max(0,Math.hypot(u/.80,v/.95)-.20)*2.0,2));
+  const rotation=(hash(x+79,z+127)-.5)*.205;
+  const extent=Math.cos(rotation)+Math.abs(Math.sin(rotation));
+  const base=.898+.062*hash(x+59,z+37)+.019*(1-forest);
+  const scale=Math.min(base,.990/extent);
+  const chip=.025+.102*hash(x+173,z+211);
+  return { scale, rotation, chip };
+}
+
 /** Original procedural verdant-ruins diorama. No simulation state is retained or changed. */
 /**
  * T1 - authentic original continuous eroded island strata, beneath the unchanged
@@ -762,7 +793,9 @@ export function createWorld(THREE, {width, height}) {
     color.setRGB(shade*(1-dampStone*.69+forestLoam*.036 + mineralRim*.045 -greySlate*.048),
       shade*(1-dampStone*.27-forestLoam*.022 + mineralRim*.030 +greySlate*.022),
       shade*(1-dampStone*.52+forestLoam*.022 + mineralRim*.015 +greySlate*.048));
-    add(tile,tileMat,x-(width-1)/2,-.105,z-(height-1)/2,.994,.21,.994,0,0,0,color.clone());
+    const mosaic=sculptForestMosaicTile(x,z,width,height);
+    add(tile,tileMat,x-(width-1)/2,-.105,z-(height-1)/2,
+      mosaic.scale,.21,mosaic.scale,0,mosaic.rotation,0,color.clone());
   }
   // T1 physical island silhouette. Reuse BOTH original static cliff/moss
   // batches and original stone/moss materials: no additional WebGL pass,
@@ -976,10 +1009,13 @@ export function createWorld(THREE, {width, height}) {
             const localX = p.getX(v), localZ = p.getZ(v);
             if (Math.abs(localX) > .45 && Math.abs(localZ) > .45) {
               const corner = (localX > 0 ? 1 : 0) + (localZ > 0 ? 2 : 0);
-              const worn = noise(cellX * 17 + corner * 31, cellZ * 13 + 29) > .38;
-              const chip = worn ? .02 + .055 * noise(cellX * 7 + corner + 103, cellZ * 11 + 67) : .003;
-              positionTemp.x -= Math.sign(localX) * chip;
-              positionTemp.z -= Math.sign(localZ) * chip * .76;
+              const stone=sculptForestMosaicTile(cellX,cellZ,width,height);
+              const chip=stone.chip*(.52+.48*noise(cellX * 7 + corner + 103, cellZ * 11 + 67));
+              // Always chip inward: stone outline stays in the true cell.
+              // The original vertex is already rotated, so use the actual
+              // transformed sign rather than a fake gameplay-cell transform.
+              positionTemp.x -= Math.sign(positionTemp.x-item.matrix.elements[12]) * chip;
+              positionTemp.z -= Math.sign(positionTemp.z-item.matrix.elements[14]) * chip * .76;
             }
             // Keep each slab flat and above the original safety clearance.
             positionTemp.y += (noise(cellX + 211, cellZ + 43) - .5) * .018;
