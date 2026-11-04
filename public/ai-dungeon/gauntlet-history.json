@@ -2202,7 +2202,7 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Real-source b8be04f 1440x832 browser screenshot from 41672587065 and Warden boss desktop/mobile screenshot/video artifacts 41672587022 were INSPECTED: new 14 anatomical joint cylinders made elongated opaque spindly/squid-like limbs. Warden encounter head-on 1440x832 has 3 heroes overlapping enemy bodies in the 58% HP boss arena, warning Rift Cross visible but contact indistinguishable; mobile capture progressed into floor 2 but large stylized ballheads persist. This is a NEGATIVE experiential finding compared with da492455 and exact locked baseline; source visual redesign at 71da2ea to cap spans remains unverified. No masked A/B victory.",
-      "latestCandidateWorkflow": "7e47b7e Dungeon Foundation 41765110980 QUEUED, actual visual review 41765111004 QUEUED, catalogue CI 41765110979 IN PROGRESS at last observation. No verdict yet.",
+      "latestCandidateWorkflow": "Verified predecessor 9b98c638: Dungeon Actions 41765710654 authority PASS, browser shards 1/2 PASS, shard3 26/28 PASS (world-only post-capture living hero count 0, stale Warden incision equal tile count). Visual review 41765710825 PASS. Catalogue CI 41765710846 FAIL from 3 Tiny Kingdom browser assertions, 916/916 core tests pass. This source candidate's new Actions/browser/phone/audio: UNVERIFIED.",
       "currentPredecessorWebgl": {
         "sourceHead": "938cf0c44726b7be5dd3441eb33f7c1226f2b872",
         "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41758062752/artifacts/13289962348",
@@ -2217,7 +2217,7 @@
         "audio": "Real 3-second opt-in Warden audiovisual MediaRecorder produced no recorded frames in that workflow; UNSUPPORTED/UNVERIFIED",
         "fullGameReel": false
       },
-      "newCandidateSceneReview": "UNVERIFIED current 7e47b7e real browser motion/photos not reviewed. Predecessor exact 938cf0c real Chromium Warden NOVA and RIFT_CROSS screenshots personally inspected: 10+ bright white octagonal rings occupy each attack tile, obscuring one living Vanguard and actual Warden, with stacked HUD and overlapping original GLB bodies. Corrected source path must be judged against that same actual seed/view.",
+      "newCandidateSceneReview": "Fresh source candidate actual original low-relief Warden floor in correct 3-beat warning and physical settle at cast: UNVERIFIED. Genuine predecessor shots are available from 41765710654 but current workspace cannot inspect artifact bytes. Never claim A/B or authentic sound success.",
       "characterDrawBudget": "Previous exact 429e6b real Chromium had 265 cinematicMeshes at desktop versus <=240 test bound (shard1 failed). New 3aec189 fuses 4–5 head parts per figure and removes 1 gorget per figure but actual current head draw counts, performance and visual quality UNVERIFIED; do not infer from mesh arithmetic.",
       "externalReferenceAudit": "Compared qualitatively against 2023 Diablo IV Frozen Tunnel combat still (https://www.npr.org/2023/05/30/1178222988/diablo-iv-review-activision-blizzard), real No Rest for the Wicked 2026 cavern still (https://www.rpgsite.net/news/20518-no-rest-for-the-wicked-1-0-release-ps5-xbox-switch-2-cross-save-multiplayer-pc-october), and Path of Exile 2 Executioner combat still (https://www.mmorpg.com/reviews/path-of-exile-2-early-access-review-2000133606). Their negative space/material structure/impact clarity remain far ahead; they are references, NOT licensed or copied game assets. No direct synchronized/gameplay-balanced reference test or blind score.",
       "realBrowserFrameDeliveryPredecessor": "Actual d9e1c Chromium software WebGL shard 2 artifact 13238978845, artifacts/dungeon-raf-interval-evidence.json: foreground RAF intervals 15 samples, p50 733.3ms, p95 and worst 4549.9ms; other raster evidence sampled 8 frames, directRenderMs 3.9ms at 273136 pixels and downshift 2. Foreground RAF observations cannot establish standalone GPU render time or phone fps. Known scheduling / software runner risk, latest candidate performance UNVERIFIED.",
@@ -2296,9 +2296,9 @@
       "nativeContinuityCandidate": "Source commit 08338db is an unverified new 3D underlay candidate, not a demonstrated repair. Real after comparison/critics have not happened. Monitor additional native underbody draw calls and 3D anatomy material intersections."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "In authentic current-predecessor browser boss footage, overly repeated high-contrast white hazard-ring geometry and overlapping miniature-like protagonist/enemy bodies bury real tactical contact. New unified Warden contour candidate is unverified in motion. Beyond that, source character fidelity, complete natural gameplay/audio journey, phone frame delivery and independently masked 3-pillar comparison remain outstanding.",
-    "currentWork": "Actual 4 Nov Chromium Warden footage exposed a thick carpet of per-cell white octagonal rings obscuring real bodies and safe escape routes. Source candidate 7e47b7e removes those duplicate halos, retains only real union-perimeter danger outlines and at most 10 physical frontier incisions with same authoritative strike cells/telegraph timing; on the same travel-to-boss path restores Gothic stained glass on truly blocked non-vault masonry by supporting lower original plinths. True exact-head moving desktop/phone game and original A/V still pending; no looks/feels/plays win.",
-    "candidateCommit": "7e47b7e2da495deed163035c28d1dc45560a90c2",
+    "biggestRemainingGap": "Genuine game remains toy-like with crowded body contact; real Warden combat has no accepted fluid, original-audio full traversal and boss sequence. Carved 3-beat low-profile floor performance is a candidate, never a blind or motion win. Browser screenshot scene liveness can fall to zero during long capture, and exact-head safety is not green.",
+    "currentWork": "M1 ongoing: actual 9b98c638 GitHub Actions real browser 41765710654 has 26/28 shard3, two blocking safety failures; 41765710825 visual PASS but catalogue CI 41765710846 FAILED. Browser NOVA failure from obsolete one-incision-per-tile expectation after real sparse 10-line composition; source milestone now integrates a low-relief original carved boss floor pulse on genuine warned cells and actual cast settling, strictly presentational. This is source candidate, not an accepted in-motion AFTER. Shared worker tunnel and local code runtime were unavailable. Preserve locked 281735d baseline and PR draft.",
+    "candidateCommit": "9b98c638f3c78d8c56f76b3310b54389df0aa84d",
     "candidateArtifactUrl": "",
     "acceptedAt": null,
     "implementationEvents": [
@@ -4332,6 +4332,30 @@
         "sourceSafety": "Presentation only; retains actual seeded boss strike cells, AI and HP/evade authority, map, RNG, save/replay; original art and Three.js only. New code not yet verified by source-head browser/authority or frame-time check.",
         "liveCandidateEvidence": "UNVERIFIED; new 41765110980 and 41765111004 running/queued at observation; 0 fresh independent blind critics, original game WAV and full journey UNVERIFIED",
         "next": "Inspect real exact-head moving desktop/phone NOVA/RIFT_CROSS and world-only glass, confirm hazard readability, reduce any remaining clutter/overdraw, preserve phone FPS; build a complete non-staged journey clip with actual audible original gameplay, compare fixed same-seed baseline, and require three independent blind all-pillar majorities."
+      },
+      {
+        "id": "M1-WARDEN-PHYSICAL-STRIKE-RHYTHM-20261104",
+        "date": "2026-11-04",
+        "milestone": "M1",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "9b98c638f3c78d8c56f76b3310b54389df0aa84d",
+        "objective": "Replace a merely flat hazard overlay with a physically legible three-beat original stone rise and true-impact settle in the same Warden combat vertical slice, while retaining sparse genuine threat perimeter and meaningful tactical warning.",
+        "integration": "Bevelled original low-relief basalt in a single instanced bounded draw on 48 MAX real authority-backed warning cells; source-timed NOVA and phase count governs 1–6cm stone lift plus subtle ember, actual cast settles same stones inside .42s, reduced-motion keeps stable static raised tiles; no fabricated hit/escape or changes to AI/combat/save/replay. New pure beat contracts and correct sparse-incision browser assertion; no hidden test skips.",
+        "sourceFiles": [
+          "public/ai-dungeon/warden-tell-plan.js",
+          "public/ai-dungeon/warden-ritual.js",
+          "tests/foundation/dungeon-warden-ground-beat.test.cjs",
+          "tests/browser/dungeon-warden-nova.spec.cjs"
+        ],
+        "realCandidate": "UNVERIFIED; no new exact-head desktop/mobile original-audio clips or rendered-frame critique",
+        "safety": "UNVERIFIED on new source; predecessor 9b98c638 Dungeon shard3 26/28, visual review pass, CI failed unrelated Tiny Kingdom browser contracts",
+        "independentCritics": "0/3, UNVERIFIED",
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "verdict": "IN_PROGRESS — NOT_TRANSFORMED",
+        "next": "Inspect genuine new-head Warden NOVA desktop/mobile moving footage for visible relief and honest safe cells, fix remaining moment-to-moment character silhouette and near-wall congestion, capture full genuine seed-matched audible traversal→combat→boss→floor→defeat/restart, measure phone frame timing, obtain >=3 fresh blind pillar votes; never merge."
       }
     ]
   }

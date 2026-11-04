@@ -17,3 +17,25 @@ export function planWardenTellStage(warning,reducedMotion=false){
   glow:clip(.24+shift*.36,0,.48),warning:true,
   ornamentScale:clip(.7+shift*.45,.7,1)});
 }
+
+/**
+ * Physical rhythm for a REAL, public-state Warden strike. All three NOVA
+ * beats (or two narrower-attack beats) lift the SAME threatened floor cells.
+ * Actual impact settles those stones; reduced motion keeps a static, visible
+ * warning with no extra presentation movement. Never creates danger, damage,
+ * a false safe lane or a gameplay clock.
+ */
+export function planWardenReliefBeat(stage,impactAge=0,reducedMotion=false){
+ const warning=stage?.warning===true&&Number.isFinite(stage.progress);
+ const progress=warning?clip(stage.progress,0,1):0;
+ const impact=!warning?clip(impactAge,0,.42)/.42:0;
+ const lift=warning?(reducedMotion?.018:.011+.047*progress):
+  reducedMotion?0:impact>0?.012+.033*impact:0;
+ return Object.freeze({
+  active:warning||impact>0,
+  lift:Number(lift.toFixed(4)),
+  footprint:warning?Number((.92+.035*progress).toFixed(4)):.945,
+  ember:warning?Number((.13+.36*progress).toFixed(4)):Number((.11+.34*impact).toFixed(4)),
+  impact:!warning&&impact>0
+ });
+}
