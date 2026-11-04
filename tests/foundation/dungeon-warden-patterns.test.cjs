@@ -1,6 +1,6 @@
 'use strict';
 const {test}=require('node:test'),assert=require('node:assert/strict');
-const {DungeonRuntime,planWardenStrike,planWardenEvasionStep,assertDungeonState}=require('../../dist/games/ai-dungeon/src/index.js');
+const {DungeonRuntime,planWardenStrike,planWardenEvasionStep,planTacticalStep,assertDungeonState}=require('../../dist/games/ai-dungeon/src/index.js');
 const key=p=>p.x+','+p.z;
 test('real phase attacks have three distinct safe and dangerous footprints',()=>{
  const game=DungeonRuntime.create('three-warden-patterns-M1'),s=game.state;
@@ -78,5 +78,31 @@ test('Eclipse final act raises three true lanes and a legal three-beat escape, w
  assert.equal(s.tick,4);assert.equal(planWardenStrike(s,boss).warning,false);
  assert.equal(strike.cells.some(p=>p.x===hero.x&&p.z===hero.z),false);
  assert.notDeepEqual({x:hero.x,z:hero.z},initial);
+ assertDungeonState(s);
+});
+
+test('a living hero never voluntarily walks back into the final Warden curtain after genuine evasion',()=>{
+ const game=DungeonRuntime.create('eclipse-counterplay-stays-safe-M1'),s=game.state;
+ const boss=s.units.find(u=>u.kind==='warden'),hero=s.units.find(u=>u.id==='vanguard');
+ assert.ok(boss&&hero);boss.hp=Math.ceil(boss.maxHp*.20);
+ for(const u of s.units)if(u!==boss&&u!==hero)u.hp=0;
+ hero.x=boss.x+1;hero.z=boss.z;s.tick=0;
+ const initialHp=hero.hp,checkpoint=game.save(),states=[];
+ for(let i=0;i<4;i++){
+  const snap=game.step();states.push(snap.checksum);
+  const strike=planWardenStrike(s,boss);
+  if(i>=1&&i<=2&&strike.warning){
+   const alreadySafe=!strike.cells.some(p=>p.x===hero.x&&p.z===hero.z);
+   if(alreadySafe){
+    const next=planTacticalStep(s,hero,boss,'engage');
+    if(next)assert.equal(strike.cells.some(p=>p.x===next.x&&p.z===next.z),false,
+     'the real attack-lane planner must preserve the earned clear stone');
+   }
+  }
+ }
+ assert.equal(s.tick,4);
+ assert.equal(hero.hp,initialHp,'a legal two-turn escape survives the fully sourced final strike');
+ const replay=DungeonRuntime.restore(checkpoint);
+ assert.deepEqual(states,Array.from({length:4},()=>replay.step().checksum));
  assertDungeonState(s);
 });
