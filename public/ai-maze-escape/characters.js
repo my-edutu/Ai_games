@@ -676,11 +676,14 @@ export function createWarden(options = {}) {
     for (const {vane,side} of tailVanes) {
       // First sight keeps the armored tail close. The PUBLIC brace fans the
       // rooted vanes out before the shell unseals; no invented enemy action.
-      vane.rotation.z=encounter?side*encounter*(.16+.56*brace):0;
-      vane.rotation.y=encounter?-side*encounter*(.08+.26*brace):0;
+      // Existing standalone character users provide no witnessed clock:
+      // preserve their original readable, disclosed full-open anatomy.
+      vane.rotation.z=encounter?side*encounter*(hasWitnessBeat ? .16+.56*brace : .64):0;
+      vane.rotation.y=encounter?-side*encounter*(hasWitnessBeat ? .08+.26*brace : .27):0;
       vane.rotation.x=encounter?-.12-encounter*.18:0;
     }
-    lowerJaw.rotation.x=encounter?.10+encounter*.35+brace*.09+display*.28:0;
+    lowerJaw.rotation.x=encounter
+      ?(hasWitnessBeat ? (.10+encounter*.35+brace*.09+display*.28) : (.22+encounter*.47)):0;
     openMaw.visible=encounter>0;
     // A real physical encounter unveils the internal lantern-heart through
     // the opening shell. Keep the reduced-motion pose steady and clear the
