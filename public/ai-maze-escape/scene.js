@@ -417,7 +417,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // a bounded visual timeline. Clearing/ending public attention resets it.
       // This never sets AI intent or creates movement and cannot track a hidden
       // warden because only the public 'wardens' map is iterated.
-      if (!result && attentionStrength > .35) {
+      if (!result && attentionStrength > .35
+        && publicLanternWarning(s, entry.cell)) {
         if (entry.encounterStart === null) entry.encounterStart = gateVisualTime;
       } else entry.encounterStart = null;
       entry.encounterBeat=entry.encounterStart===null?0
