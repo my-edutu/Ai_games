@@ -70,7 +70,7 @@ test('Eclipse three-lane stone pressure is genuine moving desktop/mobile gamepla
  const boss=s.units.find(u=>u.kind==='warden'),hero=s.units.find(u=>u.id==='vanguard');
  boss.hp=Math.ceil(boss.maxHp*.2);
  for(const u of s.units)if(u!==boss&&u!==hero)u.hp=0;
- hero.x=boss.x+1;hero.z=boss.z;s.tick=0;
+ hero.x=boss.x+1;hero.z=boss.z;s.tick=5; // first genuine Eclipse warning arrives on tick 6 in the nine-beat phase
  let current=game.publicState();const errors=[];
  page.on('pageerror',e=>errors.push(String(e)));
  await page.route('**/dungeon/state',route=>route.fulfill({json:current}));
