@@ -35,6 +35,7 @@ test('live mobile encounter camera keeps actual HP, physically bounded foregroun
  assert.match(css,/data-encounter-stage="warden"/);
  assert.match(css,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
  assert.match(css,/height:78svh/);
+ assert.match(css,/\.party\{grid-template-columns:1fr;gap:5px\}/);
  assert.match(app,/planPortraitStageClearance\(world\.userData\.authoredPropVolumes/);
  assert.match(stone,/Math\.hypot\(actor\.x-cx,actor\.z-cz\)>7\.1/);
  assert.ok(server.includes("['/dungeon/encounter-viewport-plan.js','encounter-viewport-plan.js']"));

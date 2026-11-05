@@ -59,3 +59,18 @@ body[data-epilogue=true] .run-result h2{font-size:21px;margin:5px 0 10px}
  body:is([data-encounter-stage="combat"],[data-encounter-stage="warden"]) .hero-heading>small{font-size:10px}
  body:is([data-encounter-stage="combat"],[data-encounter-stage="warden"]) .life{min-height:4px}
 }
+
+/* M1: readable real-time combat roster without sacrificing the expanded stage.
+   Every living hero's health remains a full-width touch target on phones. */
+@media(max-width:759px){
+ body:is([data-encounter-stage="combat"],[data-encounter-stage="warden"]) .party{grid-template-columns:1fr;gap:5px}
+ body:is([data-encounter-stage="combat"],[data-encounter-stage="warden"]) .hero-card{min-height:60px;padding:6px 10px;gap:10px}
+ body:is([data-encounter-stage="combat"],[data-encounter-stage="warden"]) .hero-icon{display:grid;width:32px;height:36px;flex-basis:32px;font-size:20px}
+ body:is([data-encounter-stage="combat"],[data-encounter-stage="warden"]) .hero-heading{flex-direction:row;align-items:center;gap:6px}
+ body:is([data-encounter-stage="combat"],[data-encounter-stage="warden"]) .hero-heading>b{font-size:12px;min-width:0;overflow:hidden;text-overflow:ellipsis}
+ body:is([data-encounter-stage="combat"],[data-encounter-stage="warden"]) .hero-heading>small{font-size:11px;white-space:nowrap}
+ body:is([data-encounter-stage="combat"],[data-encounter-stage="warden"]) .hero-sub{display:flex;margin:3px 0 4px}
+ body:is([data-encounter-stage="combat"],[data-encounter-stage="warden"]) .hero-sub span{display:none}
+ body:is([data-encounter-stage="combat"],[data-encounter-stage="warden"]) .hero-sub b{font-size:9px}
+ body:is([data-encounter-stage="combat"],[data-encounter-stage="warden"]) .life{height:4px}
+}
