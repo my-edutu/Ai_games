@@ -316,14 +316,18 @@ function cutawayWalls(target,subjects,wallPad=2.1,view=null,forceWalls=null){
  }
  world.userData.cutawayParapets=clearedParapets;
  world.userData.parapetMatrixWrites=parapetMatrixWrites;
- let removed=0;
+ let removed=0,portraitCleared=0;
  for(const [i,group] of (world.userData.foregroundProps||[]).entries()){
   const hidden=sightlineClearance(group.position.x,group.position.z,subjects,camera.position,wallPad)||
    planForegroundBodyClearance(world.userData.foregroundPropVolumes?.[i],subjects,camera.position)||
    planProjectedBodyAperture(world.userData.foregroundPropVolumes?.[i],subjects,camera.position,view);
-  group.visible=!hidden;if(hidden)removed++;
+  const portrait=planPortraitStageClearance(world.userData.foregroundPropVolumes?.[i],subjects,camera.position,view);
+  group.visible=!(hidden||portrait);
+  if(hidden||portrait)removed++;
+  if(portrait&&!hidden)portraitCleared++;
  }
- world.userData.hiddenForegroundProps=removed;\n  world.userData.portraitStagePropsCleared=portraitCleared;
+ world.userData.hiddenForegroundProps=removed;
+ world.userData.portraitStagePropsCleared=portraitCleared;
  if(wallMatrixWrites)mesh.instanceMatrix.needsUpdate=true;
 }
 
@@ -1285,15 +1289,19 @@ function animate(t){
   renderedBodyView,physicalStage.facades);
   world.userData.chapterNaves?.cutaway(partySightlines,camera.position,storyStage?.wallPad??2.1);
   world.userData.wardenRitual?.setSightlines(partySightlines,camera.position);
+ let portraitAuthoredCleared=0;
  if(world.userData.authoredProps?.group){
   for(const [i,prop] of world.userData.authoredProps.group.children.entries()){
+   const portrait=planPortraitStageClearance(world.userData.authoredPropVolumes?.[i],partySightlines,camera.position,renderedBodyView);
    prop.visible=!(sightlineClearance(prop.position.x,prop.position.z,partySightlines,camera.position,2.4)||
     planForegroundBodyClearance(world.userData.authoredPropVolumes?.[i],partySightlines,camera.position)||
-    planProjectedBodyAperture(world.userData.authoredPropVolumes?.[i],partySightlines,camera.position,renderedBodyView));
+    planProjectedBodyAperture(world.userData.authoredPropVolumes?.[i],partySightlines,camera.position,renderedBodyView)||portrait);
+   if(portrait)portraitAuthoredCleared++;
   }
  }
 
- world.userData.portraitStageAuthoredCleared=portraitAuthoredCleared;\n  if(shakeStrength>.008&&!reduced){camera.position.x+=Math.sin(time*57)*shakeStrength;camera.position.y+=Math.cos(time*43)*shakeStrength*.5;}
+ world.userData.portraitStageAuthoredCleared=portraitAuthoredCleared;
+ if(shakeStrength>.008&&!reduced){camera.position.x+=Math.sin(time*57)*shakeStrength;camera.position.y+=Math.cos(time*43)*shakeStrength*.5;}
  partyGlow.position.set(target.x,2,target.z);
  const heroAt=leader?.root.position??target;
  const towardX=camera.position.x-heroAt.x,towardZ=camera.position.z-heroAt.z;

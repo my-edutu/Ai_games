@@ -563,4 +563,6 @@ test('portrait camera clears only significant actual foreground props across the
  assert.match(app,/portraitStageClearance:\{props:/);
  assert.match(app,/planPortraitStageClearance\(world\.userData\.authoredPropVolumes/);
  assert.match(env,/planPortraitStageClearance\(foregroundVolumes\[i\]/);
+ assert.match(app,/planPortraitStageClearance\(world\.userData\.foregroundPropVolumes/);
+ assert.doesNotMatch(app,/\\n  world\.userData\.portraitStage/);
 });

@@ -428,7 +428,10 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
    const blocked=obscures(group.position.x,group.position.z,wallPad)||
     planForegroundBodyClearance(foregroundVolumes[i],eyes,camera)||
     planProjectedBodyAperture(foregroundVolumes[i],eyes,camera,view);
-   group.visible=!blocked;if(blocked)cleared++;
+   const portrait=planPortraitStageClearance(foregroundVolumes[i],eyes,camera,view);
+    group.visible=!(blocked||portrait);
+    if(blocked||portrait)cleared++;
+    if(portrait&&!blocked)portraitCleared++;
   }
   sceneMetrics.clearedForeground=cleared;sceneMetrics.portraitStagePropsCleared=portraitCleared;
   wardenCourt.cutaway(eyes,camera,wallPad);
