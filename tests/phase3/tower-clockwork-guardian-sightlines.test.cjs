@@ -74,8 +74,8 @@ test('matching gear/case opacity clears the real fight corridor and recovers all
   assert.equal(sync({alloy:{opacity:.2},sceneryMaterials:[]}),false);
 });
 test('actual original clockwork scene links its backing to the existing authenticated actor/guardian/landing sightline', () => {
-  assert.match(source,/linkClockFaceScenery\(main,clock,floorMaterials\)/);
-  assert.match(source,/linkClockFaceScenery\(g,root,floorMaterials\)/);
+  assert.match(source,/linkClockFaceScenery\(foregroundGears\.find\(entry => entry\.root===main\),clock,floorMaterials\)/);
+  assert.match(source,/linkClockFaceScenery\(foregroundGears\.find\(entry => entry\.root===g\),root,floorMaterials\)/);
   assert.match(source,/const protectedClockFace=syncClockFaceSightline\(entry\)/);
   assert.match(source,/occludedForegroundClockFaces=clockFacesSoftened/);
   assert.match(source,/entry\.alloy\.opacity\+=\(requiredOpacity-entry\.alloy\.opacity\)\*strength/);
