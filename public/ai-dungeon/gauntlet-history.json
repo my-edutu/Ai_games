@@ -2194,9 +2194,9 @@
         "playsMajority": false,
         "provenance": "No worker/critic session available, no masked verdicts."
       },
-      "safetyChecks": "Current corrected 5917e0d exact-head Dungeon/browser/replay/visual/CI pending results; initial 67bcf6e authority 319/320 passed and one genuine new source-integration assertion failed; repaired in candidate. No safety green claimed, no acceptance.",
+      "safetyChecks": "Source a02eff2 committed lease-safe; new-head authority, Chromium, replay, catalogue and audio recording UNVERIFIED. Parent f4598d3 visual-review SUCCESS, Dungeon/CI CANCELLED. Not a safety pass.",
       "matchedExternalReference": "NOT_RUN",
-      "originalAudioMotionClip": "UNVERIFIED: reviewed prior workflow has short video-only clips; need original browser sound stream and measured audio with real combat.",
+      "originalAudioMotionClip": "UNVERIFIED: aligned source planner and unit/mock audio only; no actual post-change opted-in synchronized WebGL+PCM in browser.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
       "audioLoudnessAndClipping": "NOT_MEASURED: browser records positive original peak/RMS and populated WAV only when genuine real-time AudioContext frames exist; no candidate measurements yet.",
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
@@ -2493,9 +2493,9 @@
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Toy-like adult-scale character anatomy and cramped real Warden duel; verify actual skinned blade-to-body moment on moving desktop and phone before deciding whether synced contact improved the experience.",
+    "biggestRemainingGap": "Toy-like native characters, partial body occlusion, noncredible moving Warden contact/tactics; no full opt-in audiovisual comparison or independent masked critic verdict.",
     "currentWork": "Source-level integrated candidate at 1589a8c: keep truthful immediate HP while converging real native sword contact, animated recoil, physical armor fragments and original opt-in impact sound on 215ms rendered-frame contact. Browser moving effect is unverified.",
-    "candidateCommit": "1589a8c6b4bc58a6dfd28b29d6918fa9533a6f13",
+    "candidateCommit": "a02eff231c52b5105a9f41fee78227c85720b40b",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -5513,6 +5513,24 @@
         "verification": "GitHub lease-safe commit confirmed. Prior parent Dungeon authority + 3 Chromium shards + visual review PASS; parent full CI CANCELLED. Exact new-head authority succeeded, new-head browser shards/visual/full CI pending. No verified new-head moving A/B, original audio or blind critics.",
         "experientialVerdict": "IN_PROGRESS / NOT_TRANSFORMED. LOOKS FEELS PLAYS UNVERIFIED, independent critics 0/3.",
         "next": "Inspect actual exact-head moving native Warden/ordinary combat and real opt-in audio sync on desktop/mobile, verify authoritative snapshots against displayed contact and no effect leakage. Fix failed browser checks if any; improve full-body proportions and encounter consequence. Capture continuous five-stage matched baseline reel and commission >=3 independent blind critics."
+      },
+      {
+        "id": "M1-TRUE-HP-AUDIO-CONTACT-20261105",
+        "date": "2026-11-05",
+        "sourceCommit": "a02eff231c52b5105a9f41fee78227c85720b40b",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "status": "SOURCE_CANDIDATE_UNVERIFIED",
+        "objective": "Make actual damage in travel, combat and death audible even without a 'hurt' pose, synchronize real adjacent sword/body/shard/opt-in impact on one proven contact onset, leave authority untouched.",
+        "files": [
+          "public/ai-dungeon/soundstage-plan.js",
+          "public/ai-dungeon/soundstage.js",
+          "public/ai-dungeon/app.js",
+          "tests/foundation/dungeon-soundstage.test.cjs",
+          "tests/foundation/dungeon-impact-contact-sync.test.cjs"
+        ],
+        "verification": "Code branch lease-safe push succeeded; exact-head code tests and authentic 1440px/390px Chromium/audio after candidate UNVERIFIED. Parent visual review success, Dungeon and CI cancelled. No real opted-in motion+PCM, no independent blind critics.",
+        "experientialVerdict": "IN_PROGRESS / NOT_TRANSFORMED. LOOKS FEELS PLAYS UNVERIFIED; critics 0/3.",
+        "next": "Inspect real exact-head opted-in sword/body/impact clips and prevent false audio; complete coherent boss adventure with 5-stage desktop/mobile matched A/B and blind critics."
       }
     ],
     "implementationContinuation": {
@@ -5529,15 +5547,15 @@
     "latestImplementation": {
       "date": "2026-11-05",
       "milestone": "M1 ongoing",
-      "sourceParentSha": "c1299bb72e511fe3bfa7fb4ac3e1e53c72eacbcb",
-      "codeCommit": "1589a8c6b4bc58a6dfd28b29d6918fa9533a6f13",
-      "stage": "authentic source-skinned, impact and original opt-in sound onset",
+      "sourceParentSha": "f4598d3666ef0895da06d377c1968c04cb2abacf",
+      "codeCommit": "a02eff231c52b5105a9f41fee78227c85720b40b",
+      "stage": "real HP-delta original audio synchronized to skinned 3D contact and fatal/reduced-motion fallback",
       "status": "EXACT_HEAD_BROWSER_MOTION_UNVERIFIED",
       "qualityVerdict": "UNVERIFIED"
     },
-    "lastCandidateSha": "1589a8c6b4bc58a6dfd28b29d6918fa9533a6f13",
+    "lastCandidateSha": "a02eff231c52b5105a9f41fee78227c85720b40b",
     "experienceVerdict": "M1 IN PROGRESS — NOT TRANSFORMED. LOOKS, FEELS and PLAYS UNVERIFIED; 0/3 independent critics; no matched complete five-stage audio/video.",
     "criticReadiness": "0/3; exact-head desktop/mobile moving sound captures, matched fixed-baseline A/B and natural progression unverified",
-    "nextImplementationTask": "Inspect exact 1589a8c moving desktop/mobile rendered-frame synchrony (real HP, blade, skinned recoil, fragment, original recorded sound), identify visible defects and rework Warden duel and characters; complete locked-seed five-stage BEFORE/AFTER plus independent critic panel."
+    "nextImplementationTask": "Inspect actual opted-in current-head audio+motion on desktop/mobile, verify damage sound and sword/body contact coherence and no hardware regressions; overhaul native figure and Warden staging, then five-stage fixed-baseline blind A/B."
   }
 }
