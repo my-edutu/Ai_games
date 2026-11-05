@@ -7,6 +7,7 @@ const {TowerRuntime}=require('../../dist/games/infinite-tower-climb/src/runtime/
 const {chooseTowerAction}=require('../../dist/games/infinite-tower-climb/src/ai/policy.js');
 const {createTowerObservation}=require('../../dist/games/infinite-tower-climb/src/ai/observation.js');
 const {stepTowerCombat}=require('../../dist/games/infinite-tower-climb/src/combat/step.js');
+const {stepTowerPhysics}=require('../../dist/games/infinite-tower-climb/src/physics/step.js');
 const {createTowerRenderSnapshot}=require('../../dist/games/infinite-tower-climb/src/presentation/snapshot.js');
 const {NamedRng}=require('../../dist/packages/seeded-rng/src/index.js');
 const idle={move:0,jump:false,dash:false,attack:false,ability:false};
@@ -116,4 +117,47 @@ test('source-timed last-three-tick evasive jump and cooldown still outrank count
   notInRange.player.attackCooldown=0;
   notInRange.enemies[0].position.x=notInRange.player.position.x+175000;
   assert.equal(chooseTowerAction(notInRange,createTowerObservation(notInRange)).action.attack,false);
+});
+
+test('live guardian windup permits a safe physical facing turn and real melee counter after retreat',()=>{
+  const {source,guardian,player}=duel();
+  player.facing=-1;
+  guardian.telegraphUntilTick=source.tick+6;
+  const frozen=structuredClone(source);
+  const decision=chooseTowerAction(source,createTowerObservation(source,{includeHazardWindup:true}));
+  assert.equal(decision.intent.mode,'bracing-telegraph');
+  assert.equal(decision.action.move,1,'earned counter must physically turn toward the observed live guardian');
+  assert.equal(decision.action.attack,true,'do not discard a source-earned opening because of preceding retreat');
+  const physics=stepTowerPhysics(source,decision.action);
+  assert.equal(physics.state.player.facing,1,'real physics resolves the attempted turn before melee');
+  const result=stepTowerCombat(physics.state,decision.action,rng());
+  const boss=result.state.enemies.find(e=>e.id===guardian.id);
+  assert.equal(boss.health,7,'physical turn earns exactly one ordinary range-checked hit');
+  assert.ok(result.events.some(e=>e.type==='guardian-windup-interrupted'&&
+    e.data.counter==='melee'),'the genuine charge is interrupted only on hit');
+  assert.deepEqual(source,frozen,'observed pilot and source physics leave the input immutable');
+  assert.deepEqual(stepTowerCombat(physics.state,decision.action,rng()),result,
+    'repeated counter input and named seed replay identically');
+});
+
+test('live guardian windup makes early contact room on cooldown without turning off the cap',()=>{
+  const {source,guardian,player}=duel();
+  guardian.position.x=player.position.x+42000;
+  guardian.telegraphUntilTick=source.tick+7;
+  player.attackCooldown=6;
+  const frozen=structuredClone(source);
+  const decision=chooseTowerAction(source,createTowerObservation(source,{includeHazardWindup:true}));
+  assert.equal(decision.intent.mode,'bracing-telegraph');
+  assert.equal(decision.action.move,-1,'six real cooldown ticks require room before the approaching body overlaps');
+  assert.equal(decision.action.attack,false,'never invent an unavailable strike');
+  assert.deepEqual(source,frozen);
+  const edge=structuredClone(source),cap=edge.chunks[0].platforms.at(-1);
+  edge.player.position.x=cap.x+edge.player.halfWidth+6000;
+  edge.enemies[0].position.x=edge.player.position.x+42000;
+  const safe=chooseTowerAction(edge,createTowerObservation(edge,{includeHazardWindup:true}));
+  assert.notEqual(safe.action.move,-1,'no protective retreat may abandon live cap support');
+  const legacy=structuredClone(source);
+  legacy.config.guardianArenaHazards=false;
+  const historical=chooseTowerAction(legacy,createTowerObservation(legacy,{includeHazardWindup:true}));
+  assert.equal(historical.action.move,0,'unflagged guardian windup retains original ready stance');
 });
