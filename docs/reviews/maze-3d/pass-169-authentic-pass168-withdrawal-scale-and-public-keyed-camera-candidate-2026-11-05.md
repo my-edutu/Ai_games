@@ -31,3 +31,22 @@ The *smallest verified failure* is a legitimate public keyed-gate plus diagonal 
 **Pending:** exact-new-head 320/390 three-phase natural chronology screenshots + SHA sidecars, no-crop full jaw/Pip/gate (strict ±.95), 44px controls, 844×390/1280×900 and real full-frame critical comparison. If any actor or gate crops, reject candidate and repair the physical camera. Shared `chat_on_steriod` tunnel returned `NOT_FOUND` again; no detached subagent, Ultracode, independent blind-critic or consumer-GPU FPS claim.
 
 **Final status: source candidate only, not render-approved. Fixed Nintendo benchmark remains NOT MET; draft PR open, unmerged and undeployed; Gauntlet active.**
+
+## Pass169b — verified new real WebGL screenshot verdict (2026-11-05 UTC)
+
+**Source exactly `ffe1e443ce343ac33349a6cca03a873b7e87bf5e`**: [focused CI run 42030090607](https://github.com/my-edutu/Ai_games/actions/runs/42030090607) **SUCCESS** on original authored-source build + installed Three tests + stream + real Chrome WebGL evidence. Recovered the [unedited dated ZIP artifact 13416351509](https://github.com/my-edutu/Ai_games/actions/runs/42030090607/artifacts/13416351509) and independently recalculated **37/37 original PNG SHA-256 hashes** from corresponding sidecars / actual gate transition manifest. **Zero mismatches.** 320×740, 390×844, 844×390 and 1280×900 production screenshot paths are present; no synthetic model positioning, image cropping or fake AI state. Whole-repo CI [42030090542](https://github.com/my-edutu/Ai_games/actions/runs/42030090542) remained in progress at review; **do not infer its result from focused CI**.
+
+| Authentic same source trap59/run | Before source `ce40ae1` | Corrected source `ffe1e44` | Fixed condition |
+| --- | ---: | ---: | --- |
+| 390×844 approach tick5 full jaw width NDC | .705058 | .705058 | >.70 PASS |
+| 390×844 pressure tick6 full jaw width NDC | .777679 | .777679 | >.70 PASS |
+| 390×844 withdrawal tick7 full jaw width NDC | **.662126 FAIL** | **.719703 PASS** | **unchanged >.70** |
+| 320×740 withdrawal tick7 full jaw right NDC | .808186 | **.878463 PASS** | unchanged <+.95 |
+| 320×740 pressure tick6 full jaw right NDC | .931939 | **.931939 PASS** | unchanged <+.95 |
+| 390×844 withdrawal Pip full physical model | PASS | **PASS** | original full-silhouette bounds |
+
+**Immutable original new capture hashes:** real 320×740 withdrawal tick7 2026-11-05T12:51:52.728Z SHA-256 `a2fff03281000f18438ee9df0fc906bf71c0ad0d718df9654b7bb9a7fb62e22b`; original 390×844 withdrawal tick7 2026-11-05T12:52:06.815Z SHA-256 `0400a0f4ca41214c77c8fb3add3ec3cbbb1d4eff080cbefed95b048132837bff`. The exact same-run 320/390 approach and pressure original PNGs also match all their recorded SHA checks. Real physical camera half-height for 390 withdrawal **7.119897 → 6.550306**, without scaling Pip or tide-shear meshes. Public matching-key one-cell pressure remains **7.119897**, so the previously crowded +.932 pressure jaw is untouched. Source authoritative replay, public knowledge and strict physical crop tests preserved.
+
+**Full original-size visual critic:** I directly inspected authentic new 320 and 390 withdrawal screenshot pixels side-by-side with old originals, and compared the framed game against official Nintendo *Captain Toad* reference imagery. The extra actor/jaw size is real, but only a modest composition correction. Tide-shear still merges into masonry, physical open→closed cause/effect is not visually obvious, and original stage silhouette/character action variety still trails Nintendo markedly. **Fixed Nintendo bar NOT MET; no independent blind A/B victory.** The fresh-context agent tool again returned `NOT_FOUND`, so an independent critic, Ultracode and blind review were unavailable. CI uses heavily CPU-throttled SwiftShader, not consumer GPU measurements.
+
+**Decision:** accept this one measurable **native phone physical-scale and no-crop repair**, NOT the overall Gauntlet. Preserve draft PR, no merge/deploy; next independently judgeable artistic piece should make the publicly authoritative tide-shear puzzle read as an unmistakable playable moving obstacle at both phone sizes, while maintaining realistic action framing and deterministic source rules.
