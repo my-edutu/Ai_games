@@ -178,3 +178,47 @@ test('unarmed and off-deck machinery cannot invent a second threat or redirect t
   assert.equal(chooseTowerAction(s,createTowerObservation(s),{tactical:false}).intent.mode!=='evading-hazard',
     true,'historical policy remains unaware of unpublished tactical countdowns');
 });
+
+
+test('guardian-cap escape avoids the PRESENT guardian body instead of directing the hero into contact',()=>{
+  const {s,center,top,deck}=imminent();
+  const guardian={
+    id:'f0:guardian',kind:'guardian',floor:s.floor,
+    position:{x:center-31000,y:top+18000},velocity:{x:0,y:0},
+    halfWidth:16000,halfHeight:18000,health:8,maxHealth:8,
+    facing:1,patrolMinX:deck.x+16000,patrolMaxX:deck.x+deck.width-16000,
+    cooldown:20,telegraphUntilTick:0,active:true,damage:2,
+  };
+  s.enemies=[guardian];s.tick=4;
+  const before=structuredClone(s),escape=live(s);
+  assert.equal(escape.intent.mode,'evading-hazard');
+  assert.equal(escape.action.move,1,
+    'a left trap exit occupied by a real guardian is not a safe escape');
+  assert.equal(escape.action.jump,false,
+    'use the unoccupied physical right lane before spending a jump');
+  assert.deepEqual(s,before,'the route selection may not move the source enemy');
+  assert.deepEqual(live(s),escape,'source-only guardian spacing is repeatable');
+  guardian.position.y=top+150000;
+  assert.equal(live(s).action.move,-1,
+    'a guardian on another level cannot falsify an occupied cap lane');
+});
+
+test('both exits occupied by source enemy bodies demand earned aerial counterplay',()=>{
+  const {s,center,top,deck}=imminent();
+  const guardian=(id,x)=>({
+    id,kind:'guardian',floor:s.floor,
+    position:{x,y:top+18000},velocity:{x:0,y:0},
+    halfWidth:16000,halfHeight:18000,health:8,maxHealth:8,
+    facing:-1,patrolMinX:deck.x+16000,patrolMaxX:deck.x+deck.width-16000,
+    cooldown:20,telegraphUntilTick:0,active:true,damage:2,
+  });
+  s.enemies=[guardian('cap-guardian-left',center-31000),
+    guardian('cap-guardian-right',center+31000)];
+  s.tick=6;
+  const before=structuredClone(s),escape=live(s);
+  assert.equal(escape.intent.mode,'evading-hazard');
+  assert.equal(escape.action.jump,true,
+    'the physical deck is not safe when a shutter closes and both exits touch living enemies');
+  assert.equal(escape.action.dash,false,'no fake boost or invulnerability');
+  assert.deepEqual(s,before,'combat positioning remains immutable');
+});
