@@ -9,20 +9,20 @@
   },
   "candidate": {
     "sha": null,
-    "title": "OPEN same playable 3D Tower guardian/crusher encounter → real source-earned armor/circuit/gateway → cap promenade and continuous floor-nine ascent/outcome; NOT EVALUATED",
-    "implementationSha": "ed03943ec404238341767ca7fb27ae72e6eb57dc",
-    "implementationEvidenceStatus": "NOT EVALUATED: same real 3D guardian victory-to-floor-nine slice now builds a source-anchored 12-instance metal wayfinding lane inside the ACTUAL cap deck annulus radius 22.4..27.18, at radius 26.35 (corrected from floating 27.78), with source-measured progress/camera. Source ed03943, camera 0addd13, finite-player guard a4e1166, latest tests 127c0cd. Historical ae6986 safety 42087625640 FAILED one bounded-frame test; corrected contract 53f014c; latest exact-head safety queued, final-source gameplay video https://github.com/my-edutu/Ai_games/actions/runs/42097818611 PENDING. No independent votes (0/5 each) or device metrics; quality NOT EVALUATED."
+    "title": "OPEN same actual playable 3D Tower guardian/crusher → source-earned dual-depth physical threshold → floor-nine ascent/outcome; NOT EVALUATED",
+    "implementationSha": "8fd9018fbe53196c34f41f3e9260b2d6fa1b459e",
+    "implementationEvidenceStatus": "NOT EVALUATED: real cap gateway had exterior decorative lock radius 27.78 and y=capTop+2, whereas original skinned grounded hero walks radius 25 on cap deck radius 22.4..27.18. New source-owned companion inner doorway rests at real cap top, radius 25; shared 6-stone + 2 bronze-leaf instances (2 draws), synchronized to existing genuinely defeated guardian opening, with inner-deck camera focus; no collider, replay or AI change. Implementation 8fd9018; tests 8eb0e87. Previous exact-head CI 42098245713 SUCCESS; new exact-code safety 42104896843 and original-host desktop/portrait gameplay 42104896643 PENDING. Original frozen baseline 1731b380 unchanged. Independent blind LOOKS/FEELS/PLAYS 0/5 each; source-exact full motion not assessed; supported-device tails absent."
   },
   "currentTransformation": {
     "title": "SAME playable real 3D Tower climb and authentic upper-cap guardian/crusher encounter: earned armor-opening, damage feedback, safe movement and eventual floor-nine continuation",
-    "state": "OPEN — same real guardian/crusher combat through source-earned defeat and unlocked physical doorway, now with an actual curved cap promenade and continuous passage-escort camera. NOT EVALUATED.",
+    "state": "OPEN — same original real 3D guardian encounter through defeat, external lock, grounded inner walk-through threshold, earned floor-nine continuation, outcome/restart; NOT EVALUATED.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Inspect the original-host final-code desktop/portrait normal-speed recording https://github.com/my-edutu/Ai_games/actions/runs/42097818611 (source ed03943), and exact-head safety https://github.com/my-edutu/Ai_games/actions/runs/42097910510 (test source 127c0cd), noting newer docs commits can supersede CI. Verify physical inlay rests at 26.35 inside real cap 22.4..27.18 and entire uninterrupted guardian/door/floor-nine/outcome action, event-align baseline (not wall time), collect five genuine blind critics for EACH LOOKS, FEELS and PLAYS with >=4/5 preferring candidate, and supported-device frame-time p50/p95/p99/memory plus replay/accessibility/recovery. No graded quality win yet.",
+    "nextDecision": "Inspect source-pinned real Chrome desktop 960×600 and portrait 390×844 candidate/baseline normal-speed videos from https://github.com/my-edutu/Ai_games/actions/runs/42104896643, including physical walk through INNER radius25 bronze threshold and floor-nine continuation, comparing by actual source event rather than wall-clock seconds. Check safety https://github.com/my-edutu/Ai_games/actions/runs/42104896843 exact implementation 8fd9018; run and evaluate supported device frame time p50/p95/p99, memory, replay/accessibility/recovery; collect 5 fresh-context blind full-motion judgments per pillar, >=4/5 preference each. Never award quality based on tests.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Final source ed03943 curved metal cap route and continuous camera are committed but no full-motion source-exact desktop+portrait film has finished or been inspected, and no event-matched blind critic sees real guardian defeat→physical source cap→open threshold→floor-nine→full outcome/restart. Source-pinned candidate filming 42097818611 PENDING. Frozen baseline 1731b380 immutable. Looks/Feels/Plays 0/5 each, device metrics absent; CI still unresolved after previous 1/1044 failure.",
-    "unverifiedImplementationBranchHead": "0396cb6b8577fa0b0dba6544499d7519a033f681",
-    "currentVerticalSlice": "SAME real 3D upper Tower transformation: authentic floor-eight guardian/crusher duel, source-observed defeat armor and power disconnection, physically open bronze exit, 12 shallow source-cap metallic inlays at radius 26.35 on the original walkable deck, source-real walking highlights, bounded continuous camera escort, floor-nine and final outcome/restart. Code ed03943 and camera 0addd13, tests 127c0cd; simulation unchanged, no independent rating.",
-    "biggestGap": "Final source ed03943 curved metal cap route and continuous camera are committed but no full-motion source-exact desktop+portrait film has finished or been inspected, and no event-matched blind critic sees real guardian defeat→physical source cap→open threshold→floor-nine→full outcome/restart. Source-pinned candidate filming 42097818611 PENDING. Frozen baseline 1731b380 immutable. Looks/Feels/Plays 0/5 each, device metrics absent; CI still unresolved after previous 1/1044 failure."
+    "biggestRemainingExperienceGap": "The actual hero walks at world radius 25 but the previously rendered bronze lock stood outside the cap at 27.78 and 2m above its top. New dual-depth gateway architecture now aligns a noncolliding synchronized frame with hero's real supported deck while retaining exterior powered lock, but live normal-speed desktop/portrait clips at source 8fd9018 have not completed/been inspected. Need event-matched full guardian defeat, threshold crossing, next-floor and outcome/restart footage; frozen baseline 1731b380 unchanged, genuine independent Looks/Feels/Plays 0/5, supported-device metrics absent.",
+    "unverifiedImplementationBranchHead": "8fd9018fbe53196c34f41f3e9260b2d6fa1b459e",
+    "currentVerticalSlice": "SAME upper Tower guardian/crusher combat → actual source-defeated armor/power → physically unlocked exterior bronze lock + complementary interior walk-through gate on ACTUAL cap deck at radius 25 and cap top, tied by original 3D braces and two synchronized retracting leaves, existing 12 floor inlays and bounded inward camera escort → floor-nine and terminal/restart. No authority/collider/HUD changes; quality NOT EVALUATED.",
+    "biggestGap": "The actual hero walks at world radius 25 but the previously rendered bronze lock stood outside the cap at 27.78 and 2m above its top. New dual-depth gateway architecture now aligns a noncolliding synchronized frame with hero's real supported deck while retaining exterior powered lock, but live normal-speed desktop/portrait clips at source 8fd9018 have not completed/been inspected. Need event-matched full guardian defeat, threshold crossing, next-floor and outcome/restart footage; frozen baseline 1731b380 unchanged, genuine independent Looks/Feels/Plays 0/5, supported-device metrics absent."
   },
   "scenarios": [
     {
@@ -62,11 +62,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Previous confirmed exact-head safety workflow https://github.com/my-edutu/Ai_games/actions/runs/42087625640 FAILED 1 of 1044 tests due one oversized 1.1s presentation test update beyond real 0.5s per-frame limit. Bounded-frame assertion fixed 53f014c. New cap route source ed03943 and source-real tests 127c0cd latest guardrail run https://github.com/my-edutu/Ai_games/actions/runs/42097910510 PENDING at inspection; later docs commits trigger newer safety head, so no pass claimed. CI vetoes experience acceptance.",
-    "replay": "Fixed-step Tower RNG, source authority, combat, guardian health, AI policy, collisions, floor progression, deterministic replay and score untouched. Source-earned cap architecture uses actual cap.x/y/width/height, player.x, run/floor/tick and 3D cylindrical world mapping, with no invented platform/collision. 12 original bronze inlays sit at radial 26.35 within world deck 22.4..27.18, not at 27.78 exterior lock. Stale/nonfinite player positions cannot drive material colors; floor transition clears old inlay.",
-    "accessibility": "Reduced-motion mode retains a static genuinely earned cap path while suppressing optional continuous camera escort and impact motion; existing audio remains opt-in and HUD unchanged. The path uses silhouette/physical inlays and warm-to-pale metal cues rather than adding instructions; color-accessibility, phone visibility and actual comprehension not yet independently assessed.",
-    "performance": "One extra 12-instance standard-material source-cap inlay draw and one disposable material, sharing existing box geometry. At most twelve instance-color writes per advancing source tick, no new dynamic lights/shadows/textures/colliders/post-processing or per-frame geometry allocations. Actual hardware p50/p95/p99 frame-time and memory NOT MEASURED; budget not certified.",
-    "stability": "Final playable code ed03943 pending genuine source-pinned real WebM capture https://github.com/my-edutu/Ai_games/actions/runs/42097818611; latest exact-head safety https://github.com/my-edutu/Ai_games/actions/runs/42097910510 pending. External independent-worker/browser tool NOT_FOUND: tunnel client not seen for >300s. No blind videos or supported-phone measurements assessed. PR68 draft, PR58 untouched, baseline SHA preserved; no merge, force push or deployment."
+    "ci": "Last completed exact-head CI https://github.com/my-edutu/Ai_games/actions/runs/42098245713 SUCCESS at prior head 15b510cb (NOT verification of new gateway). New test source 8eb0e87 and implement source 8fd9018, JS syntax parsed in isolated V8 only; exact-code safety https://github.com/my-edutu/Ai_games/actions/runs/42104896843 PENDING at inspection. CI remains veto, never an experience score.",
+    "replay": "Fixed-step Tower RNG, source authority, combat, guardian health, AI policy, collisions, floor progression, deterministic replay and score untouched. Source-earned cap architecture uses actual cap.x/y/width/height, player.x, run/floor/tick and 3D cylindrical world mapping, with no invented platform/collision. 12 original bronze inlays sit at radial 26.35 within world deck 22.4..27.18, not at 27.78 exterior lock. Stale/nonfinite player positions cannot drive material colors; floor transition clears old inlay. The new companion arch is only constructed by the original source-earned guardian `unlock`/adjacent-floor `begin`; a pure projected world-space focus rejects nonfinite/mismatched exterior anchors, and opens both gates on the same present original source observations. No simulation, AI, physics, replay, score, or new collision.",
+    "accessibility": "Reduced-motion mode retains a static genuinely earned cap path while suppressing optional continuous camera escort and impact motion; existing audio remains opt-in and HUD unchanged. The path uses silhouette/physical inlays and warm-to-pale metal cues rather than adding instructions; color-accessibility, phone visibility and actual comprehension not yet independently assessed. Reduced motion poses the interior bronze leaves already open alongside exterior; no new HUD, flashing screen effect or forced camera cut. Real-color and phone comprehension still require independent full-motion checking.",
+    "performance": "Existing inlay one draw remains. Added six world-space stone instanced pieces + two bronze leaves in two extra unshadowed submissions using EXISTING box geometry, stone and bronze materials; only two pose matrices update while physical leaves open (threshold camera computation constant time). No geometry/textures/materials/lights/post effects or per-frame allocations added. No supported-hardware FPS/p50/p95/p99/memory measurement; NOT VERIFIED.",
+    "stability": "Source 8fd9018 has static syntax inspection only; new exact-source safety https://github.com/my-edutu/Ai_games/actions/runs/42104896843 pending and real Chrome original-host video https://github.com/my-edutu/Ai_games/actions/runs/42104896643 pending. `chat_on_steriod` code/browser worker connection attempted 2026-11-05 and returned NOT_FOUND tunnel client unseen for >300 seconds, so local Playwright and independent workers inaccessible. PR68 remains draft, PR58 untouched, frozen baseline unchanged; no merge/deploy/force push."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -147,9 +147,9 @@
         }
       }
     },
-    "newImplementationSha": "06c72e6c74a6eac4ef640aaf9a59d7f78402798e",
+    "newImplementationSha": "8fd9018fbe53196c34f41f3e9260b2d6fa1b459e",
     "newImplementationRecorded": false,
-    "reviewPath": "docs/reviews/2026-11-05-tower-pr68-original-boss-circuit-exit-lighting-continuation.md",
+    "reviewPath": "docs/reviews/2026-11-05-tower-pr68-grounded-inner-threshold-and-outer-lock.md",
     "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41547983114",
     "followupStatus": "On 2026-11-03, source-pinned run 41547983114 completed 8/9 jobs: baseline+old-candidate desktop/portrait normal-speed ascent, danger, moving, outcome all SUCCESS as capture jobs; authentic-ledge FAILED because source play yielded no qualifying actual ledge event within 2500 fixed ticks (four desktop/portrait browser tests). Old candidate 133ce1a8, frozen baseline 1731b380. New candidate 4398a157 still awaits exact-source recorded gameplay, blind votes, supported-device measurements. No experience preference awarded.",
     "matchedCaptureSettings": {
@@ -3629,6 +3629,23 @@
         "exteriorLockRadius": 27.78,
         "source": "public/infinite-tower-climb/visuals/world.mjs"
       }
+    },
+    "nextCandidateCapture": {
+      "workflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42104896643",
+      "sourceSha": "8fd9018fbe53196c34f41f3e9260b2d6fa1b459e",
+      "status": "PENDING",
+      "assessed": false,
+      "desktop": {
+        "width": 960,
+        "height": 600,
+        "quality": "low"
+      },
+      "portrait": {
+        "width": 390,
+        "height": 844,
+        "quality": "low"
+      },
+      "note": "Same seed and source-pinned Chrome normal-speed workflow queued; real stage and event-aligned baseline/candidate video NOT YET inspected. Do not treat a queued artifact as capture or a grade."
     }
   }
 }
