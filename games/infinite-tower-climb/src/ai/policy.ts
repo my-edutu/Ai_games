@@ -441,7 +441,18 @@ function reachableHealthOnSupport(state:TowerState,obs:TowerObservation){
 // body-width collision lanes and the visible supporting deck authorize this.
 function observedEmergencyHealthRetreat(state:TowerState,obs:TowerObservation){
   const p=obs.player;
-  if(p.health<=0||p.health>Math.max(1,Math.floor(p.maxHealth/3)))return undefined;
+  // In the fully opted-in guardian CAP, losing half of real health is an
+  // actionable choice: the single-use flank cache is otherwise reached only
+  // when a second body hit would already be terminal. The player must STILL
+  // traverse to and physically collect it; no health or collision is granted
+  // here. Unflagged/historical fights retain the earlier emergency threshold.
+  const capRecovery=state.config.guardianArenaHazards===true&&
+    state.config.guardianSecondWind===true&&
+    p.groundedPlatformId===`f${obs.floor}:cap`&&
+    obs.enemies.some(e=>e.active&&e.kind==='guardian');
+  const threshold=capRecovery?Math.max(2,Math.floor(p.maxHealth/2)):
+    Math.max(1,Math.floor(p.maxHealth/3));
+  if(p.health<=0||p.health>threshold)return undefined;
   const pickup=reachableHealthOnSupport(state,obs);
   if(!pickup)return undefined;
   const wanted=moveSign(pickup.position.x-p.position.x);
@@ -451,7 +462,15 @@ function observedEmergencyHealthRetreat(state:TowerState,obs:TowerObservation){
   const bottom=p.position.y-state.player.halfHeight,top=p.position.y+state.player.halfHeight;
   // A pickup across a live spike, moving enemy body or open deck edge is not
   // a safe recovery plan. Existing projectile/telegraph reflexes still win.
-  if(obs.hazards.some(h=>h.active&&h.x<right&&h.x+h.width>left&&
+  // Do not steer toward a restorative cache through a SHUTTER ALREADY
+  // TELEGRAPHING in public 20Hz source. Earlier recovery only rejected
+  // active jaws and could drive wounded climbers into a closing corridor.
+  // This observes the same published <=12-tick charge as world art/audio,
+  // not hidden future schedules. Other reflexes still take priority.
+  if(obs.hazards.some(h=>(h.active||
+      (Number.isSafeInteger(h.chargeTicksRemaining)&&
+       (h.chargeTicksRemaining??0)>0&&(h.chargeTicksRemaining??0)<=12))&&
+    h.x<right&&h.x+h.width>left&&
     h.y<top&&h.y+h.height>bottom))return undefined;
   if(obs.enemies.some(e=>e.active&&
     Math.abs(e.position.y-p.position.y)<state.player.halfHeight+e.halfHeight+10000&&

@@ -248,8 +248,17 @@ test('actual 20Hz streamed tower reaches a choice on its guardian gate: an obser
         if(exposed){
           observedExposures++;
           const choice=chooseTowerAction(state,obs);
-          if(choice.intent.mode==='evading-hazard'&&
-             (choice.action.move!==0||choice.action.jump))observedResponses++;
+          // A genuine arriving projectile outranks the shutter in the
+          // source reflex stack. When that response uses an ordinary grounded
+          // leap, it is also a physical departure from the closing shutter,
+          // not an unhandled exposure merely because intent names the shot.
+          // Count only an actual jump command from supported feet: never
+          // silently treat bracing, stationary intent or missing response
+          // as escape. Keep every diagnostic exposed tick in the record.
+          if((choice.intent.mode==='evading-hazard'&&
+               (choice.action.move!==0||choice.action.jump))||
+             (choice.intent.mode==='evading-projectile'&&
+               obs.player.grounded&&choice.action.jump))observedResponses++;
           else if(unhandledSourceExposures.length<12)unhandledSourceExposures.push({
             tick:state.tick,chargeTicks:crusher.chargeTicksRemaining,
             playerX:obs.player.position.x,playerVelocityX:obs.player.velocity.x,

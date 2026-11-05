@@ -27,6 +27,8 @@ jobs:
         run: npm run build
       - name: Test transformation verdict gate
         run: node --test tests/phase3/tower-transformation-acceptance.test.cjs
+      - name: Observe actual 3200-tick guardian survival, pickups and progress (not quality)
+        run: node scripts/tower-guardian-source-witness.cjs
       - name: Verify full repository logic (guardrail only)
         run: npm test
       - name: Verify Tower authority (guardrail only)

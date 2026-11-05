@@ -69,3 +69,56 @@ test('non-arena, old-policy and non-guardian floors do not inherit the cache',()
   assert.equal(ordinary.pickups.some(p=>p.id.endsWith(':guardian-recovery')),false);
   assert.deepEqual(run({guardianArenaHazards:false}),old);
 });
+
+test('mid-health cap guardian survival can seek the physically earned flank cache before a lethal spiral',()=>{
+  const state=structuredClone(run()),cap=state.chunks[0].platforms.find(p=>p.id==='f8:cap');
+  const cache=state.pickups.find(p=>p.id==='f8:guardian-recovery');
+  const boss=state.enemies.find(e=>e.active&&e.kind==='guardian');
+  assert.ok(cap&&cache&&boss);
+  const p=state.player,away=cache.position.x<cap.x+cap.width/2?1:-1;
+  p.position={x:cache.position.x+away*50000,y:cap.y+cap.height+p.halfHeight};
+  p.velocity={x:0,y:0};p.facing=-away;
+  p.health=4;p.maxHealth=8;p.grounded=true;p.groundedPlatformId=cap.id;
+  boss.position={x:cache.position.x+away*145000,y:p.position.y};
+  boss.telegraphUntilTick=0;boss.cooldown=24;
+  state.projectiles=[];state.chunks[0].hazards=[];
+  const before=structuredClone(state);
+  const choice=chooseTowerAction(state,createTowerObservation(state,{includeHazardWindup:true}));
+  assert.equal(choice.intent.mode,'collecting-resource',
+    'a four-of-eight HP survivor should have a real chance to secure the one-use cache');
+  assert.equal(choice.action.move,-away);
+  assert.equal(choice.action.jump,false);
+  assert.deepEqual(state,before,'recovery decision never grants healing or mutates authority');
+  const historic=structuredClone(state);
+  historic.config.guardianArenaHazards=false;
+  const old=chooseTowerAction(historic,createTowerObservation(historic,{includeHazardWindup:true}));
+  assert.notEqual(old.intent.mode,'collecting-resource',
+    'the safer early-recovery threshold belongs ONLY to opted-in guardian-cap combat');
+});
+
+test('a visible closing shutter vetoes mid-health cache traversal without inventing healing',()=>{
+  const state=structuredClone(run()),cap=state.chunks[0].platforms.find(p=>p.id==='f8:cap');
+  const cache=state.pickups.find(p=>p.id==='f8:guardian-recovery');
+  const boss=state.enemies.find(e=>e.active&&e.kind==='guardian');
+  assert.ok(cap&&cache&&boss);
+  const p=state.player,away=cache.position.x<cap.x+cap.width/2?1:-1;
+  p.position={x:cache.position.x+away*50000,y:cap.y+cap.height+p.halfHeight};
+  p.velocity={x:0,y:0};p.facing=-away;
+  p.health=4;p.maxHealth=8;p.grounded=true;p.groundedPlatformId=cap.id;
+  boss.position={x:cache.position.x+away*145000,y:p.position.y};
+  boss.cooldown=24;boss.telegraphUntilTick=0;
+  state.projectiles=[];state.tick=0;
+  state.chunks[0].hazards=[{
+    id:'published-cache-shutter',kind:'crusher',
+    x:Math.min(p.position.x,cache.position.x)+13000,
+    y:cap.y+cap.height,width:20000,height:12000,
+    activeFromTick:6,activeEvery:80,activeFor:18,damage:1
+  }];
+  const observed=createTowerObservation(state,{includeHazardWindup:true});
+  assert.equal(observed.hazards[0].chargeTicksRemaining,6);
+  const before=structuredClone(state);
+  const choice=chooseTowerAction(state,observed);
+  assert.notEqual(choice.intent.mode,'collecting-resource',
+    'published charging jaws may not be crossed just to reach a visible healing item');
+  assert.deepEqual(state,before);
+});
