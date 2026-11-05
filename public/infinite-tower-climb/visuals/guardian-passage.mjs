@@ -304,8 +304,12 @@ export function createTowerGuardianPassage(THREE) {
       const x=fromX+(exitX-fromX)*(i+.5)/capInlay.count;
       // Every bar is laid onto the EXISTING authoritative cap's top, at
       // the exterior render depth of its visible bronze threshold.
-      const p=pointFor(x,cap.y+cap.height+1000,source.chunkBaseY,
-        source.worldWidth,27.78);
+      // The cap's actual render deck spans radius 22.4..27.18. The 27.78
+      // exterior lock surface is OUTSIDE that walking sector, so a rail laid
+      // there would visibly float beside the climber. Recess the metal into
+      // the real deck, preserving the separate outer gate anchor.
+      const p=pointFor(x,cap.y+cap.height+500,source.chunkBaseY,
+        source.worldWidth,26.35);
       const dx=p.x-anchor.x,dz=p.z-anchor.z;
       inlayPose.position.set(cs*dx-sn*dz,p.y-anchor.y,sn*dx+cs*dz);
       inlayPose.rotation.set(0,p.angle-anchor.angle,0);
