@@ -43,7 +43,26 @@ export function stepTowerCombat(input:TowerState,action:TowerAction,rng:NamedRng
       enemy.health-=amount;state.stats.damageDealt+=amount;
       events.push({tick:state.tick,type:'melee-hit',data:{id:enemy.id,amount,health:enemy.health}});
       if(enemy.health<=0)defeat(state,enemy,events);
-      else engageGuardianShield(state,enemy);
+      else {
+        engageGuardianShield(state,enemy);
+        // The real opt-in cap duel makes a successful, grounded-or-airborne
+        // range-checked MELEE counter during a living guardian's actual
+        // windup matter: the announced shot is interrupted and the stagger
+        // is reused by the existing articulated model and audio witnesses.
+        // No effect for blocked strikes, misses, dead foes or legacy arenas.
+        // Physical guardian contact still hurts while it is staggered.
+        if(state.config.guardianArenaHazards===true&&
+           state.config.guardianSecondWind===true&&
+           enemy.kind==='guardian'&&enemy.telegraphUntilTick>state.tick){
+          const remainingChargeTicks=enemy.telegraphUntilTick-state.tick;
+          enemy.telegraphUntilTick=0;
+          enemy.staggerUntilTick=state.tick+GUARDIAN_COUNTER_STAGGER_TICKS;
+          enemy.cooldown=Math.max(enemy.cooldown,GUARDIAN_COUNTER_RECOVERY_TICKS);
+          events.push({tick:state.tick,type:'guardian-windup-interrupted',
+            data:{id:enemy.id,remainingChargeTicks,
+              staggerTicks:GUARDIAN_COUNTER_STAGGER_TICKS,counter:'melee'}});
+        }
+      }
     }}else events.push({tick:state.tick,type:'melee-miss'})}
   if(action.ability&&p.abilityCooldown===0&&state.build.upgradeIds.includes('pulse-shot')){p.abilityCooldown=24;spawnProjectile(state,'player',p.id,p.position,p.facing,state.build.attackDamage,events)}
   for(const enemy of state.enemies.sort((a,b)=>a.id.localeCompare(b.id))){if(!enemy.active||enemy.floor!==state.floor)continue;if(enemy.cooldown>0)enemy.cooldown--;

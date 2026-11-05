@@ -585,14 +585,16 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
   if(charging){
     const proximity=Math.abs(charging.position.x-observation.player.position.x);
     const away:TowerAction['move']=charging.position.x>observation.player.position.x?-1:1;
-    // The SECOND-WIND guardian genuinely opens its shield during a 20Hz
-    // windup. A grounded, already-facing climber can use an earned melee
-    // strike in the actual contact lane, instead of idling through the only
-    // visible opening. No forward prediction or invulnerability is granted.
-    // This opt-in opportunity never changes frozen tactical-v1 replay.
+    // A real 20Hz guardian windup exposes a counterstrike window: on the
+    // opt-in physical cap arena an earned melee hit may interrupt the charge,
+    // even before the second-wind shield rises. Non-arena second-wind keeps
+    // its original guard-only strike contract and historical v1 is unchanged.
+    // A grounded climber still needs correct facing, live melee reach, and
+    // a genuinely ready cooldown. Imminent shots and active hazards win first.
     const p=observation.player;
     const exposedCore=state.config.guardianSecondWind===true&&
-      charging.kind==='guardian'&&(charging.guardTicksRemaining??0)>0&&
+      charging.kind==='guardian'&&
+      ((charging.guardTicksRemaining??0)>0||state.config.guardianArenaHazards===true)&&
       p.attackCooldown===0&&p.health>0&&
       p.facing===(charging.position.x>=p.position.x?1:-1)&&
       proximity<=state.config.attackReach+state.build.attackReachBonus-4000&&
@@ -608,7 +610,7 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
       (move===0||move===observation.player.facing);
     return{action:action(move,{attack:counterMelee,ability:counterShot}),
       intent:{mode:'bracing-telegraph',
-        summary:counterMelee?'Striking the observed open guardian shield':
+        summary:counterMelee?'Counter-striking the observed guardian windup':
           counterShot?'Bracing and counter-firing earned pulse':
           move!==0?'Bracing while making room for incoming fire':`Bracing for ${charging.kind} fire`,
         confidence:.95,fallbackUsed:false}};
