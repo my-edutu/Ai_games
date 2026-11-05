@@ -420,3 +420,37 @@ test('a nearby waist-high real ruin remains when it no longer intersects the ski
   '43cm background retains its geometry if the actual ray clears');
  assert.equal(planLiveFacadeBodyReveal(face,real,camera,'sightline'),false);
 });
+
+test('M1 high cinematic 3D camera retains REAL full-body fighting aperture without opening rear nave',async()=>{
+ const {planPartyWallReveal}=await load();
+ const camera=Object.freeze({x:6,y:10.2,z:0});
+ const actor=Object.freeze({x:0,z:0,visibleActor:true,silhouetteRecess:true});
+ const fighting=Object.freeze({x:0,z:0,visibleActor:true,silhouetteRecess:true,combatRecess:true});
+ // Prior 8.5m cap + visibleActor early-continue silently reduced real skinned
+ // heroes to ankle-obscuring 43cm parapets, as seen in Nov 5 Chromium pixels.
+ for(const subject of [actor,fighting]){
+  assert.equal(planPartyWallReveal(1.5,1.35,[subject],camera,2.1,.43),'sightline',
+   'front shoulder/boot room must be physically clear at actual high-oblique camera height');
+  assert.equal(planPartyWallReveal(-1.7,.4,[subject],camera),'none',
+   'genuine rear nave stays tall');
+  assert.equal(planPartyWallReveal(0,3.8,[subject],camera),'none',
+   'distant side walls must stay intact');
+ }
+ assert.equal(planPartyWallReveal(1.5,1.35,[{x:0,z:0}],camera,2.1,.43),'sightline',
+  'pre-existing verified cinematic scenic staging is retained separately from living actors');
+ assert.deepEqual(actor,{x:0,z:0,visibleActor:true,silhouetteRecess:true});
+});
+
+test('M1 real bodies retain combat shoulder clearance across camera-angle and motion continuity',async()=>{
+ const {planPartyWallReveal}=await load();
+ const camera=Object.freeze({x:4.6,y:9.1,z:4.6});
+ const hero=Object.freeze({x:.32,z:-.1,visibleActor:true,silhouetteRecess:true,combatRecess:true});
+ assert.equal(planPartyWallReveal(1.5,1.55,[hero],camera,2.1,2.6),'sightline',
+  'animated authentic combat rig must not be surrounded by a half-height masonry cage');
+ assert.equal(planPartyWallReveal(-1.3,-1.5,[hero],camera,2.1,2.6),'none',
+  'rear walls remain rich Gothic architecture');
+ assert.equal(planPartyWallReveal(5,4,[hero],camera,2.1,2.6),'none',
+  'far camera-side stone remains solid');
+ assert.equal(planPartyWallReveal(1.5,1.55,[{x:.32,z:-.1,visibleActor:true}],camera,2.1,2.6),'sightline',
+  'an actual validated but temporarily unmarked skinned actor must also be readable');
+});

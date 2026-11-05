@@ -3,7 +3,16 @@ const {test}=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
 const root=path.resolve(__dirname,'../..');
 const source=path.join(root,'public/ai-dungeon/physical-camera-director.js');
-const load=()=>import('data:text/javascript;base64,'+Buffer.from(fs.readFileSync(source,'utf8')).toString('base64'));
+// Node's data: imports cannot resolve browser-root /dungeon/* specifiers.
+// Inline the actual unmodified dependency bytes, preserving real policy and
+// preventing false CI failures before any of the physical-camera assertions run.
+const load=()=>{
+ const dependency=fs.readFileSync(path.join(root,'public/ai-dungeon/foreground-sightline-plan.js'),'utf8');
+ const depUrl='data:text/javascript;base64,'+Buffer.from(dependency).toString('base64');
+ const cameraCode=fs.readFileSync(source,'utf8').replace(
+  "'/dungeon/foreground-sightline-plan.js'",JSON.stringify(depUrl));
+ return import('data:text/javascript;base64,'+Buffer.from(cameraCode).toString('base64'));
+};
 const map=Array.from({length:19},(_,z)=>Array.from({length:19},(_,x)=>z===0||z===18||x===0||x===18?'#':'.').join(''));
 const snap=()=>({map,run:1,floor:1,tick:42,phase:'exploring',units:[{id:'vanguard',x:9,z:9,hp:100},{id:'ranger',x:10,z:9,hp:80},{id:'mystic',x:8,z:9,hp:70}]});
 const base=()=>({look:{x:0,z:0},position:{x:0,y:6.2,z:7}});

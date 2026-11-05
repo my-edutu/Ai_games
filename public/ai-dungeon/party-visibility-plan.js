@@ -98,12 +98,28 @@ export function planPartyWallReveal(x,z,subjects,camera,pad=2.1,wallHeight=2.6){
   // fighting pocket. Cut true 3D walls AND relief, not an x-ray overlay;
   // high camera shots, ankle-high ruins and the cathedral rear stay intact.
   // The same real policy drives base stone, façade and Gothic gallery.
-  if(subject.visibleActor===true&&wallHeight>=.55&&
-     Number.isFinite(camera.y)&&camera.y>=.5&&camera.y<=8.5&&
-     radial<=2.20*2.20&&progress>=-.45&&progress<=1.65&&
-     sideways<=1.34)return 'sightline';
-  // Live but unmarked actors never inherit the broader scenic wedge.
-  if(subject.visibleActor===true)continue;
+  // M1 whole-body fighting aperture: authentic source-skinned figures were
+  // repeatedly hidden by 43cm foreground ruins under the real high-oblique
+  // cinematic camera (9–11m). The old 8.5m cap, tall-stone-only check and
+  // unconditional live-actor early continue formed an opaque masonry cage
+  // around their boots despite a nominal 3/3 ray-visibility score.
+  // Preserve the rear cathedral and all distant floor architecture: only a
+  // camera-facing, *bounded* shoulder-and-weapon pocket around a verified
+  // live actor is eligible. Combat widens it slightly for actual sword reach.
+  // No actor position, collision, hit, AI, authority or replay is touched.
+  if(subject.visibleActor===true){
+   const fighting=subject.combatRecess===true;
+   const radius=fighting?2.40:2.15;
+   const side=fighting?2.02:1.82;
+   if(Number.isFinite(camera.y)&&camera.y>=.5&&camera.y<=28&&
+      radial<=radius*radius&&progress>=-.55&&progress<=2.18&&
+      sideways<=side&&(wallHeight>=.55||
+        (radial<=2.15*2.15&&
+         (subject.silhouetteRecess===true||fighting))))return 'sightline';
+   // Unmarked legitimate actors retain the exact ray-based cutaway above,
+   // but cannot borrow the scenic/combat wedge intended for other subjects.
+   continue;
+  }
   if(subject.silhouetteRecess===true||subject.combatRecess===true){
    const combat=subject.combatRecess===true;
    // Real Chromium 53fc069: a Vanguard's chest, guard and sword were still
