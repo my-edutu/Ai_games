@@ -334,11 +334,11 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
   let cleared=0,facadeMatrixWrites=0,weatheredChanged=false,screenSpaceClearedFacades=0;q.identity();
   for(let i=0;i<wallFaces.length;i++){
    const f=wallFaces[i],coarse=facadeReveal(f,eyes,camera,wallPad);
-   const h=coarse==='nearby'?.43:f[4],cy=coarse==='nearby'?.23:f[1];
+   const projectedHeight=coarse==='nearby'?.43:f[4],projectedY=coarse==='nearby'?.23:f[1];
    const projected=coarse!=='sightline'&&eyes.some(p=>p.visibleActor===true&&
     Math.hypot(f[0]-p.x,f[2]-p.z)<4.6)&&
-    planProjectedBodyAperture([f[0]-f[3]/2,cy-h/2,f[2]-f[5]/2,
-     f[0]+f[3]/2,cy+h/2,f[2]+f[5]/2],eyes,camera,view);
+    planProjectedBodyAperture([f[0]-f[3]/2,projectedY-projectedHeight/2,f[2]-f[5]/2,
+     f[0]+f[3]/2,projectedY+projectedHeight/2,f[2]+f[5]/2],eyes,camera,view);
    const reveal=projected?'sightline':coarse;
    if(projected)screenSpaceClearedFacades++;
    const blockedBand=reveal==='sightline'?2:reveal==='nearby'?1:0;

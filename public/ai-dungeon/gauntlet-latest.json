@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T01:57:00Z",
-  "status": "IN PROGRESS — NOT TRANSFORMED (integrated source geometry visibility candidate; in-motion AFTER unverified)",
+  "generatedAt": "2026-11-05T03:56:00Z",
+  "status": "IN PROGRESS — NOT TRANSFORMED (integrated true-body projected 3D clearance candidate; real AFTER unverified)",
   "reference": "Diablo IV quality, No Rest for the Wicked worlds, Path of Exile 2 combat: authentic comparison targeted; matched A/B UNVERIFIED",
   "metrics": {
     "sample_seeds": 24,
@@ -208,19 +208,19 @@
       "elapsedMs": 818
     }
   ],
-  "visualVerdict": "NEGATIVE previous authentic desktop/mobile pixels: Vanguard torso and boots behind architecture. Corrected late GLB volume capture candidate; new visual result UNVERIFIED.",
+  "visualVerdict": "NEGATIVE inspected predecessor WebGL 0b29acd: authentic Vanguard body hidden despite 3/3 synthetic unoccluded rays. New source candidate projection AFTER unverified.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
-  "candidateCommit": "9af59bc91ed0e73634a85b620f67b701cd06a262",
+  "candidateCommit": "1ae107b96c062ed46d4445934c966bbc0736c2e9",
   "metricsProvenance": "Local current-source 9af59bc npm run dungeon:test 309/309, npm run dungeon:gauntlet 24 seeds ×900 ticks: 174 advances, 4 restarts, 0 determinism mismatches. No claim for visual quality.",
   "transformation": {
     "milestone": "M1",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
     "locked": true,
-    "candidateSha": "9af59bc91ed0e73634a85b620f67b701cd06a262",
+    "candidateSha": "1ae107b96c062ed46d4445934c966bbc0736c2e9",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
-    "exactHeadSafety": "Original actor-only 3D foreground module registered in strict CSP-safe server routes; exact-head Dungeon 41939121537, visual 41939121529 and catalogue 41939121568 queued. UNVERIFIED runtime.",
+    "exactHeadSafety": "Predecessor 0b29acd Dungeon+visual workflow succeeded, broader CI cancelled; new projected-body source head workflow UNVERIFIED.",
     "looks": "UNVERIFIED",
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
@@ -230,14 +230,14 @@
       "majorityAllPillars": false
     },
     "fullDesktopMobileAudiovisualJourney": "UNVERIFIED",
-    "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41939276286/artifacts/13375489665",
+    "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41952935424/artifacts/13382899444",
     "exactHeadAction": "Physically inspect real desktop/mobile WebGL after facade-and-moving-body code; verify full-body visibility and relief before advancing realistic native combat and coherent Warden episode.",
-    "biggestGap": "Genuine previous Chromium hero torso/boots invisible behind stone; believable adult rigs, weapon contact and Warden traversal-to-restart experience unresolved.",
-    "nextTask": "Inspect exact current mobile/desktop source-GLB volumes and moving body/sword visibility, compare fixed original M1 baseline; reject pop/fps issues; continue full coherent Warden confrontation and original audible 5-stage A/B with 3 blind critics.",
+    "biggestGap": "Actual sampled fighter bodies hidden by masonry and low-poly character silhouettes, no convincing genuine moving sword contact or fully coherent boss confrontation.",
+    "nextTask": "Inspect exact candidate real 1440 desktop and 390 mobile clips incl Warden melee, reject frame/popping or still-hidden body, develop deeper original native animated physical contact with honest audio, capture matched 5-phase campaign and blind 3-critic A/B.",
     "currentMilestoneLedger": "public/ai-dungeon/gauntlet-history.json",
     "realAfterArtifact": null,
-    "realAfterObservation": "UNVERIFIED — not yet inspected exact-head real desktop/mobile moving gameplay",
-    "integratedImplementation": "Original asynchronously loaded GLB walls, pillars and crates now reindex finite source-world AABBs once per actual arrival for BOTH physical cinematic camera and live-body source-prop cutaway. Scene-key guard prevents old-floor leaks. No new GPU passes or authority changes.",
+    "realAfterObservation": "UNVERIFIED — no genuine new-head screenshot yet inspected.",
+    "integratedImplementation": "Render-only camera FOV/aspect/depth projection of real verified living actor boots/torso/shoulders/head over physical base walls, façade cutaways, foreground Gothic props and imported source GLB bounds; preserves rear cathedral and genuine AI/seed/save/replay. New screen-space counters for real browser comparison.",
     "latestPredecessorReview": {
       "sourceSha": "3b2025a619cc6c113e28dd463224e90205fd2476",
       "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41922629878/artifacts/13368532950",
@@ -246,5 +246,5 @@
     },
     "sourceStatus": "INTEGRATED SOURCE CANDIDATE — MOTION/AUDIO/CRITICS/CI UNVERIFIED"
   },
-  "acceptanceStatus": "IN PROGRESS — NOT TRANSFORMED. Original head 84053a8 authority and two Chromium shards PASS, one shard failed obsolete 43cm-wall expectation; visual workflow PASS; catalogue CI CANCELLED. New head software/browser/performance/audio/matched A/B/critics UNVERIFIED."
+  "acceptanceStatus": "IN PROGRESS — NOT TRANSFORMED. Latest projected-body runtime quality, continuous five-phase original-audio desktop/mobile, matched M1 baseline, mobile p95, independent majority critics and exact new-head CI all UNVERIFIED."
 }

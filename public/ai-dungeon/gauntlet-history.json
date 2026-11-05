@@ -2202,12 +2202,13 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Real-source b8be04f 1440x832 browser screenshot from 41672587065 and Warden boss desktop/mobile screenshot/video artifacts 41672587022 were INSPECTED: new 14 anatomical joint cylinders made elongated opaque spindly/squid-like limbs. Warden encounter head-on 1440x832 has 3 heroes overlapping enemy bodies in the 58% HP boss arena, warning Rift Cross visible but contact indistinguishable; mobile capture progressed into floor 2 but large stylized ballheads persist. This is a NEGATIVE experiential finding compared with da492455 and exact locked baseline; source visual redesign at 71da2ea to cap spans remains unverified. No masked A/B victory.",
-      "latestCandidateWorkflow": "Corrected head 520adc2 physically stages original foreground Gothic objects and adds the missing strict allowlist module route. Dungeon 41939121537 / visual 41939121529 / catalogue 41939121568 pending. No exact-head gameplay evidence or win.",
+      "latestCandidateWorkflow": "Live finite projected full-body masonry clearance now integrated as source. New exact-head live/browser/AI encounter, mobile and reviewer verdict UNVERIFIED.",
       "currentPredecessorWebgl": {
-        "sourceSha": "3b2025a619cc6c113e28dd463224e90205fd2476",
-        "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41922629878/artifacts/13368532950",
-        "observation": "Actual desktop real Three.js rendered 1440x832 inspected: Vanguard helmet and sword protrude over an opaque Gothic facade while torso/boots remain invisible; two other heroes appear toy-like. Three/three synthetic ray visibility score is false positive. No active enemy in this frame.",
-        "technicalSafety": "All 4 Dungeon browser/authority checks PASS and visual-review workflow PASS for predecessor SHA; broad catalogue CI FAILURE. No visual transformation accepted."
+        "sourceSha": "0b29acd785f363483a73481623e86944cb66d184",
+        "worldArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41952935424/artifacts/13382899444",
+        "mobileArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41952935503/artifacts/13381629983",
+        "observation": "Actually inspected 1440x832 WebGL: Vanguard helmet and sword visible but torso/boots behind opaque Gothic masonry; 3/3 synthetic ray full-body counts contradicted by pixels. 127109 triangles, no active enemies.",
+        "verification": "Exact source predecessor Dungeon and visual Actions passed, full catalogue CI cancelled. Not an A/B win."
       },
       "newCandidateSceneReview": "https://github.com/my-edutu/Ai_games/actions/runs/41903194224/artifacts/13358288876 -- exact source real 1440x832 and 390x844 Chromium images+~13s video inspected; protagonist torso/boots covered by foreground blocks; no audio, Warden strike or matched A/B",
       "characterDrawBudget": "Previous exact 429e6b real Chromium had 265 cinematicMeshes at desktop versus <=240 test bound (shard1 failed). New 3aec189 fuses 4–5 head parts per figure and removes 1 gorget per figure but actual current head draw counts, performance and visual quality UNVERIFIED; do not infer from mesh arithmetic.",
@@ -5246,6 +5247,30 @@
         "blindCritics": "0/3",
         "largestGap": "Actual believable full-body hero and weapon contact in a coherent Gothic Warden adventure",
         "next": "Inspect real exact-head desktop/390 phone native moving contact and asset-index diagnostics; reject if props pop, visual still clips, or performance drops; build entire audible traversal/combat/Warden/floor/restart sequence and 3 independent matched blind reviews; never merge draft."
+      },
+      {
+        "id": "M1-LIVE-SILHOUETTE-APERTURE-20261105",
+        "date": "2026-11-05",
+        "milestone": "M1",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceSha": "1ae107b96c062ed46d4445934c966bbc0736c2e9",
+        "status": "SOURCE_INTEGRATED_EXPERIENCE_UNVERIFIED",
+        "objective": "Resolve genuine pixel-hidden native fighter bodies even when optimistic 3D ray samples declare them fully visible",
+        "priorRealArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41952935424/artifacts/13382899444",
+        "priorFinding": "Real helmet-only Vanguard blocked by foreground stone in original pixel capture; 3/3 synthetic ray counts false-positive.",
+        "implementation": [
+          "Camera FOV/aspect and near-face depth projection of true living boots/chest/arms/head onto bounded 3D original Gothic masonry, retaining distant/behind stone",
+          "Same stage projection integrated with base instanced walls, real dressed facades and asynchronously inserted source props; new screen-space diagnostics, no AI/collision/RNG/replay mutations"
+        ],
+        "currentHeadSafety": "UNVERIFIED — exact candidate CI and browser not yet inspected",
+        "realAfter": "UNVERIFIED",
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "blindCritics": "0/3",
+        "mobilePerformance": "UNVERIFIED",
+        "fiveStageAudioMotion": "UNVERIFIED",
+        "next": "Inspect exact new-head desktop/mobile moving WebGL, full fighters and facades and CPU frame time, reject pop/perf or hidden body, then coherent human-scale rig contact and original audible Warden 5-stage campaign matched to M1 baseline plus three masked critics."
       }
     ],
     "implementationContinuation": {
