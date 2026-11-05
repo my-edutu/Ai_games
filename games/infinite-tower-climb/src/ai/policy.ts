@@ -333,11 +333,30 @@ function observedTrapEscape(state:TowerState,obs:TowerObservation,
   ).sort((a,b)=>a.id.localeCompare(b.id));
   const overlapping=(x:number,h:TowerObservation['hazards'][number])=>
     x+halfWidth>h.x&&x-halfWidth<h.x+h.width;
-  // Never label an exit safe when another published shutter will close over
-  // that landing spot before the currently selected warning completes.
-  const blockedAt=(x:number,step:number)=>relevant.some(h=>
+  // The opt-in guardian now genuinely patrols THIS cap beside its crusher.
+  // Escaping the jaws into its present physical body (or another living foe)
+  // is not a safe route: contact is an authoritative two-damage attack.
+  // Observe ONLY the currently overlapping vertical collider, never assume
+  // where a moving guardian will be at a future simulation tick. Legacy
+  // tactical-v1 never calls this source-visible escape chooser.
+  const enemiesOnDeck=obs.enemies.filter(enemy=>
+    enemy.active&&enemy.health>0&&
+    [enemy.position.x,enemy.position.y,enemy.halfWidth,enemy.halfHeight]
+      .every(Number.isFinite)&&
+    enemy.halfWidth>0&&enemy.halfHeight>0&&
+    enemy.position.y-enemy.halfHeight<head&&
+    enemy.position.y+enemy.halfHeight>feet&&
+    enemy.position.x+enemy.halfWidth>minX&&
+    enemy.position.x-enemy.halfWidth<maxX);
+  const enemyOccupies=(x:number)=>enemiesOnDeck.some(enemy=>
+    Math.abs(x-enemy.position.x)<
+      halfWidth+enemy.halfWidth+4000);
+  // Never label an exit safe when another published shutter closes over it
+  // OR a source-observed enemy already occupies the escape lane. The current
+  // source body check is intentionally conservative, not a future guarantee.
+  const blockedAt=(x:number,step:number)=>enemyOccupies(x)||relevant.some(h=>
     overlapping(x,h)&&(h.active||(h.chargeTicksRemaining??Infinity)<=step));
-  const destinationBlocked=(x:number)=>relevant.some(h=>
+  const destinationBlocked=(x:number)=>enemyOccupies(x)||relevant.some(h=>
     overlapping(x,h)&&(h.active||(h.chargeTicksRemaining??Infinity)<=ticks));
   const options=([
     {move:-1 as TowerAction['move'],goal:hazard.x-padding},
