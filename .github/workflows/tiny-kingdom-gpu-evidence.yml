@@ -20,6 +20,35 @@ permissions:
   contents: read
 
 jobs:
+  # W62: real village chimney emission is tied to actual night residents,
+  # never a pseudo-random house subset; assert both dusk and dawn at 390px.
+  w62-real-household-hearth-cycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: W62 actual smoke and home occupation, night to day, desktop/mobile
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w62-true-hearth-cycle.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w62-true-household-hearths
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w62/
+          retention-days: 14
   # W60: physical closed oak leaf at a real resting household, plus a
   # stable, roof/foliage-cleared spectator camera on 1024px and 390px.
   w60-true-cottage-rest:
