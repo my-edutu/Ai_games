@@ -1944,7 +1944,7 @@ export function createMazeWorld(options = {}) {
   }
   function rebuildObjects(s) {
     publicClosedSockets.clear(); retractingGates.clear();
-    clear(objects); animations = []; trapJaws = [];
+    clear(objects); animations = []; trapJaws = []; trapSignals = [];
     for (const key of s.keys) keyProp(key, s);
     for (const door of s.doors) doorProp(door, s);
     for (const c of s.cells) {
