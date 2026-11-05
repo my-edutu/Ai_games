@@ -2183,7 +2183,7 @@
       }
     },
     "evidence": {
-      "actualContinuousScenarioReel": "UNVERIFIED: no single coherent traversal, active combat, Warden confrontation, floor transition and defeat/restart with synchronized original sound for both desktop and mobile.",
+      "actualContinuousScenarioReel": "UNVERIFIED: no continuous full organic traversal, active combat, Warden, floor, defeat/restart synchronized original audio for desktop and phone.",
       "matchedBeforeAfter": "UNVERIFIED: baseline 281735d retained; no matched after desktop/phone artifact or blinded looks/feels/plays majority yet.",
       "mobileBeforeAfter": "UNVERIFIED: no matched new-head desktop/390px original motion and frame p95 evidence.",
       "independentCriticPanel": {
@@ -2194,7 +2194,7 @@
         "playsMajority": false,
         "provenance": "No worker/critic session available, no masked verdicts."
       },
-      "safetyChecks": "LOCAL SOURCE CHECK: 312/312 Dungeon foundation passed; 33/33 focused tests; two new expected-red scene cases verified before implementation; 24 seeds x 900 ticks with 0 replay differences, 174 floor advances and 4 restarts. Exact-head 232ffd45 dedicated Chromium workflow 41966238624, visual 41966238616 and full CI 41966238640 were IN PROGRESS at inspection, not safety PASSED.",
+      "safetyChecks": "Local pure ray-stage checks 3/3 passed; exact new-head Dungeon 41979234510, visual 41979234448 and full CI 41979234533 were queued/running. Prior-head Dungeon/visual PASS, full CI FAIL. Gameplay/replay/performance on new exact head UNVERIFIED.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED: reviewed prior workflow has short video-only clips; need original browser sound stream and measured audio with real combat.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2202,7 +2202,7 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Real-source b8be04f 1440x832 browser screenshot from 41672587065 and Warden boss desktop/mobile screenshot/video artifacts 41672587022 were INSPECTED: new 14 anatomical joint cylinders made elongated opaque spindly/squid-like limbs. Warden encounter head-on 1440x832 has 3 heroes overlapping enemy bodies in the 58% HP boss arena, warning Rift Cross visible but contact indistinguishable; mobile capture progressed into floor 2 but large stylized ballheads persist. This is a NEGATIVE experiential finding compared with da492455 and exact locked baseline; source visual redesign at 71da2ea to cap spans remains unverified. No masked A/B victory.",
-      "latestCandidateWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41966238624 — candidate 232ffd45; new-head results pending. No after evidence claim.",
+      "latestCandidateWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41979234510 — raycast-staging source candidate 288fe33; final outcome not verified at documentation commit.",
       "currentPredecessorWebgl": {
         "sourceSha": "9c2b51c41a6a4b70494a86306b21055860456e27",
         "worldArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41962716364/artifacts/13387136348",
@@ -2436,7 +2436,31 @@
           "criticPanel": "UNVERIFIED (0 independent fresh critics)",
           "next": "Inspect Chromium shot, model/proportion and Warden action clips; correct any persisting full-body occlusion; complete playable expedition audiovisual comparison."
         }
-      ]
+      ],
+      "latestInspectedPrechangeWorld": {
+        "sourceSha": "ba403a9d65c7c2439e6cb7df959480cc97dd2431",
+        "artifact": "https://github.com/my-edutu/Ai_games/actions/runs/41972664128/artifacts/13390932627",
+        "inspectedAt": "2026-11-05",
+        "visualFinding": "Genuine 1440x832 Three.js WebGL: Vanguard torso and boots concealed by opaque foreground stone despite helmet/sword visible; rear arches and companions remain miniature-style; no active enemies.",
+        "metrics": {
+          "triangles": 126945,
+          "activeEnemies": 0,
+          "reportedFullBodyHeroes": 3
+        },
+        "verdict": "NEGATIVE — renderer's 3/3 claimed full-body hero visibility is misleading. Not a matched locked-baseline A/B."
+      },
+      "latestSourceCode": {
+        "candidateSha": "288fe332876392bec3364ba3939adb9ca43370f3",
+        "change": "Actual Three.js instanced masonry and facade ray-hit actor-body clearance; shared scene matrix cutaways, floor reset, bounded 5Hz sampling and source tests. Visual-only.",
+        "status": "INTEGRATED CODE CANDIDATE; RUNNING AFTER UNVERIFIED",
+        "newHeadActions": {
+          "dungeon": 41979234510,
+          "visual": 41979234448,
+          "ci": 41979234533
+        },
+        "criticCount": 0,
+        "next": "Inspect exact-head real desktop/mobile live footage and adverse stone-pop/performance; continue integrated animated native sword/Warden adventure, original synchronized audiovisual journey, locked matched A/B and blind critics."
+      }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
     "biggestRemainingGap": "Real browser screenshot of 9c2b51c still visibly conceals the Vanguard torso and boots while misleading four-point ray diagnostics claimed 3/3 full bodies. Cohesive adult-scale protagonists, original weapon-to-target impact, pacing and complete filmed boss-to-restart remain incomplete.",
