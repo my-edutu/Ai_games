@@ -20,6 +20,35 @@ permissions:
   contents: read
 
 jobs:
+  # W64: same inhabited-workday scene, visible original grain movement and
+  # organic cultivated rows; protect true crop/worker state and 390px WebGL.
+  w64-live-growing-field:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: W64 real growing field wind, worker continuity, GL and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w64-living-field-wind.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w64-original-wheat-wind
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w64/
+          retention-days: 14
   # W63 integrated citizen/visual workday: a real near worker and all
   # compact Day-120 residents receive animated cloth, never fake NPCs.
   w63-real-draped-clothing:
