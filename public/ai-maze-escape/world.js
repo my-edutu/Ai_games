@@ -844,6 +844,26 @@ export function createMazeWorld(options = {}) {
       } else for (let row = 0; row < 2; row++) for (let col = 0; col < 2; col++) {
         block(floorMaterial, x + (col - .5) * 1.17, -.035, z + (row - .5) * 1.17, 1.145, .07, 1.145, c.cell);
       }
+      // A genuinely PUBLIC trap has its own broad physical pressure court.
+      // Exact 320/390px WebGL review found the moving jade/ivory mechanism
+      // visually lost in repeat beige tiling and neighboring masonry. This
+      // DARK mineral + terracotta ground plane gives the real known hazard
+      // a single authored silhouette, while leaving all raised jaw hardware,
+      // Pip's footpath and the actual walkable cell height untouched.
+      // Flush decoration only: no new trigger, collision, route, clue, AI
+      // signal, hidden-cell query, GPU class or frame-time mesh allocation.
+      if (c.trap && !c.blocked) {
+        block(deepStone, x, -.010, z, 2.12, .030, 2.12, c.cell);
+        block(clay, x, .009, z, 1.94, .012, 1.94, c.cell);
+        // Four symmetric ceramic pressure-corner clamps read as one device,
+        // not an arrow pointing to an undiscovered passage or an extra key.
+        for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
+          add(box, darkMetal, x + sx * .74, .018, z + sz * .74,
+            .36, .012, .36, c.cell, 0, Math.PI / 4);
+          add(box, danger, x + sx * .74, .026, z + sz * .74,
+            .16, .008, .16, c.cell, 0, Math.PI / 4);
+        }
+      }
       // Low, symmetric ivory-jade edge engraving separates the sea-glass
       // lower walkable terrace from the lagoon without suggesting a corridor.
       // The relief is flush (under 2cm in scene units), has no collision or
