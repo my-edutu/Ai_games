@@ -156,9 +156,13 @@ function grade(cam,look,eyes,grid,size,viewport,reveal,pad,facades,facadeReveal,
   let bodyVisible=0;
   const length=Math.max(.1,Math.hypot(p.x-cam.x,p.z-cam.z));
   const rightX=-(p.z-cam.z)/length,rightZ=(p.x-cam.x)/length;
-  for(const sample of BODY_SAMPLES){
-   const point={x:p.x+rightX*sample.side,
-    y:p.kind==='warden'?sample.y*1.32:sample.y,z:p.z+rightZ*sample.side};
+  const native=Array.isArray(p.bodyPoints)&&p.bodyPoints.length>=3&&p.bodyPoints.length<=8?
+   p.bodyPoints.filter(q=>finite(q?.x)&&finite(q?.y)&&finite(q?.z)):null;
+  const samples=native?.length>=3?native.map((q,i)=>({...q,weight:i===0?2.7:i===1?2.3:1.35})):
+   BODY_SAMPLES.map(sample=>({x:p.x+rightX*sample.side,
+    y:p.kind==='warden'?sample.y*1.32:sample.y,z:p.z+rightZ*sample.side,weight:sample.weight}));
+  for(const sample of samples){
+   const point=sample;
    if(!projected(cam,look,point,aspect,fov)){
     score-=sample.weight*1.8;cropped++;continue;
    }
@@ -169,7 +173,7 @@ function grade(cam,look,eyes,grid,size,viewport,reveal,pad,facades,facadeReveal,
    }
    score+=sample.weight;bodyVisible++;
   }
-  if(bodyVisible===BODY_SAMPLES.length){fullyVisible++;score+=.75;}
+  if(bodyVisible===samples.length){fullyVisible++;score+=.75;}
  }
  const origin=(size-1)/2,cx=Math.round(cam.x+origin),cz=Math.round(cam.z+origin);
  if(cx>=0&&cz>=0&&cx<size&&cz<size&&grid[cz*size+cx]>0)score-=2.5;

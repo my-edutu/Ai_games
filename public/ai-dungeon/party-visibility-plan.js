@@ -42,6 +42,15 @@ export function planCameraBodyOcclusion(x,z,subjects,camera,wallHeight=2.6){
   // clear central ray can still leave the skinned fighter behind stone.
   // Three body-width rays retain the existing near-wall/five-actor budget.
   const rightX=-dz/length,rightZ=dx/length;
+  const native=subject.visibleActor===true&&Array.isArray(subject.bodyPoints)&&
+   subject.bodyPoints.length>=3&&subject.bodyPoints.length<=8?
+    subject.bodyPoints.filter(p=>[p?.x,p?.y,p?.z].every(Number.isFinite)):null;
+  if(native?.length>=3)for(const point of native){
+   let span=bodyRaySlab(camera.x,point.x-camera.x,x-.56,x+.56,[.012,.995]);
+   if(!span)continue;
+   span=bodyRaySlab(camera.z,point.z-camera.z,z-.56,z+.56,span);
+   if(span&&bodyRaySlab(camera.y,point.y-camera.y,.02,wallHeight,span))return true;
+  }
   for(const side of BODY_WIDTH_SAMPLES){
    const rayX=dx+rightX*side,rayZ=dz+rightZ*side;
    let span=bodyRaySlab(camera.x,rayX,x-.56,x+.56,[.012,.995]);
@@ -368,8 +377,12 @@ export function planProjectedBodyAperture(box,subjects,camera,view){
    bounds={minX,maxX,minY,maxY,near};
   }
   const rx=-dz/len,rz=dx/len,scale=actor.kind==='warden'?1.32:1;
-  for(const y of PROJECTION_BODY_Y)for(const side of PROJECTION_BODY_SIDES){
-   const p=projectionPoint(camera,b,actor.x+side*rx,y*scale,actor.z+side*rz);
+  const native=Array.isArray(actor.bodyPoints)&&actor.bodyPoints.length>=3&&actor.bodyPoints.length<=8?
+   actor.bodyPoints.filter(p=>[p?.x,p?.y,p?.z].every(Number.isFinite)):null;
+  const points=native?.length>=3?native:
+   PROJECTION_BODY_Y.flatMap(y=>PROJECTION_BODY_SIDES.map(side=>({x:actor.x+side*rx,y:y*scale,z:actor.z+side*rz})));
+  for(const point of points){
+   const p=projectionPoint(camera,b,point.x,point.y,point.z);
    if(!p||bounds.near>=p.depth-.08)continue;
    if(p.x>=bounds.minX-.012&&p.x<=bounds.maxX+.012&&
       p.y>=bounds.minY-.018&&p.y<=bounds.maxY+.018&&
