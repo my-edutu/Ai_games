@@ -49,6 +49,10 @@ test('W46 optional authentic guild forge audio follows an actual smith, not a sy
  expect(baseline.audit.hammerStrikes).toBe(0);
  await expect(page.locator('#forge-sound')).toBeVisible();
  await expect(page.locator('#forge-sound')).toHaveAttribute('aria-pressed','false');
+ // Resume presentation without advancing authority. Audio belongs to an
+ // active viewed game, never a frozen/paused screenshot or fake work state.
+ await page.evaluate(()=>window.__tinyKingdom.setSpeed(0));
+ await page.locator('#pause').click();
  await page.locator('#forge-follow').click();
  await page.locator('#forge-sound').click();
  await expect(page.locator('#forge-sound')).toHaveAttribute('aria-pressed','true');
