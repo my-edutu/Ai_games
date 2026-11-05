@@ -6930,10 +6930,10 @@ function renderHouseholdThresholds(){
 // W57: return-home doors operate ONLY when a real navigation actor reaches
 // their assigned original home. No fictional inhabitants, detached camera
 // props, generated production credits or changes to seeded world authority.
-const cottageDoorRenderAudit={panels:0,frames:0,thresholdSteps:0,litRecesses:0,triangles:0,
+const cottageDoorRenderAudit={panels:0,closedPanels:0,frames:0,thresholdSteps:0,litRecesses:0,triangles:0,
  source:'genuine-dusk-physical-door-motion'};
 function getCottageHomecomingAudit(){
- const doors=new Map();
+ const doors=new Map(),closedDoors=new Map();
  for(const p of people){
   if(p.activity!=='Returning home at dusk'&&p.activity!=='Resting at home')continue;
   const homeIndex=citizenHomeIndex(p),lot=city[homeIndex];
@@ -6946,7 +6946,7 @@ function getCottageHomecomingAudit(){
   const swing=resting?
    Math.max(0,1-Math.max(0,p.workTimer)/2.4):
    Math.max(0,1-distanceToTarget/2.4);
-  if(swing<=.025||(!resting&&distanceToTarget>2.4))continue;
+  if(!resting&&distanceToTarget>2.4)continue;
   const alongZ=Math.abs(dz)/Math.max(.01,d*.5)>=
    Math.abs(dx)/Math.max(.01,w*.5);
   const sign=alongZ?(dz>=0?1:-1):(dx>=0?1:-1);
@@ -6957,19 +6957,28 @@ function getCottageHomecomingAudit(){
    distanceToTarget,swing,doorX,doorZ,alongZ,sign,
    tx:alongZ?1:0,tz:alongZ?0:1,
    nx:alongZ?0:sign,nz:alongZ?sign:0};
+  if(swing<=.025){
+   if(resting)closedDoors.set(homeIndex,entry);
+   continue;
+  }
   const prior=doors.get(homeIndex);
   if(!prior||entry.swing>prior.swing)doors.set(homeIndex,entry);
  }
  return {source:'real-physical-homecoming-entry',
   totalHomes:city.length,realCitizens:people.length,
   doors:[...doors.values()].sort((a,b)=>a.homeIndex-b.homeIndex),
+  closedDoors:[...closedDoors.values()].filter(d=>!doors.has(d.homeIndex))
+   .sort((a,b)=>a.homeIndex-b.homeIndex),
   modifiesAuthority:false};
 }
 function renderCottageHomecomingDoors(){
- const start=data.length,doors=getCottageHomecomingAudit().doors;
- cottageDoorRenderAudit.panels=0;cottageDoorRenderAudit.frames=0;
+ const start=data.length,{doors,closedDoors}=getCottageHomecomingAudit();
+ cottageDoorRenderAudit.panels=0;cottageDoorRenderAudit.closedPanels=0;
+ cottageDoorRenderAudit.frames=0;
  cottageDoorRenderAudit.thresholdSteps=0;cottageDoorRenderAudit.litRecesses=0;
- for(const entry of doors){
+ // A real resident must not lose their physical oak leaf when it shuts.
+ // Closed panels remain world geometry only during that person's true rest.
+ for(const entry of [...doors,...closedDoors]){
   const {doorX,doorZ,tx,tz,nx,nz,swing}=entry;
   const y=terrain(doorX,doorZ)+.15,h=1.18,w=.57;
   const leftX=doorX-tx*w*.5,leftZ=doorZ-tz*w*.5;
@@ -7020,6 +7029,7 @@ function renderCottageHomecomingDoors(){
    }
   });
   cottageDoorRenderAudit.panels++;
+  if(swing<=.025)cottageDoorRenderAudit.closedPanels++;
   cottageDoorRenderAudit.litRecesses++;
  }
  cottageDoorRenderAudit.triangles=(data.length-start)/30;
@@ -10500,7 +10510,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  * cottage, looks at both worker and the physical leaf, checks true building
  * sightlines, and never moves the citizen, their destination or the clock. */
 function planHomecomingThresholdCamera(citizen,entry){
- if(!entry||entry.citizen!==citizen.name||entry.swing<.26)return null;
+ if(!entry||entry.citizen!==citizen.name||
+  (entry.swing<.26&&citizen.activity!=='Resting at home'))return null;
  const roofs=followCameraRoofs();
  const door=[entry.doorX+entry.nx*.48,
   terrain(entry.doorX,entry.doorZ)+.87,
@@ -10549,7 +10560,8 @@ function planHomecomingThresholdCamera(citizen,entry){
       vegetationFaceBlockers:foliage.faceBlockers,
       projectedWorkerHeightFraction:workerFraction,
       workFacingMode:'real-threshold-witness',
-      witnessMode:'threshold',portraitLens:portrait};
+      witnessMode:citizen.activity==='Resting at home'?'resting-threshold':'threshold',
+      portraitLens:portrait};
     }
    }
   }
@@ -10566,39 +10578,49 @@ function continuousHomecomingWitness(citizen,entry,now){
  const homeIndex=citizenHomeIndex(citizen);
  if(entry&&entry.swing>=.26){
   const shot=planHomecomingThresholdCamera(citizen,entry);
-  if(shot&&shot.vegetationFaceBlockers===0&&
-     shot.foregroundVegetationCover<.30){
-   homecomingWitnessHold={citizen:citizen.name,homeIndex,
-    at:now,x:citizen.x,z:citizen.z,doorX:entry.doorX,doorZ:entry.doorZ,shot};
-  }
+  // Store ONE actual observed physical doorway. It is evidence of the
+  // resident's arrival, never a fabricated work event or world entity.
+  if(shot&&shot.doorRayBlockers===0&&shot.vegetationFaceBlockers===0)
+   homecomingWitnessHold={citizen:citizen.name,homeIndex,at:now,
+    doorX:entry.doorX,doorZ:entry.doorZ,shot};
   return shot;
  }
  const hold=homecomingWitnessHold;
  if(!hold||hold.citizen!==citizen.name||hold.homeIndex!==homeIndex||
-    citizen.activity!=='Resting at home'||now-hold.at>18000||
-    Math.hypot(citizen.x-hold.x,citizen.z-hold.z)>1.8)return null;
- // Recheck actual roofs and visible foliage, not just the cached score.
- // No hiding branches, teleporting the camera, or masking 3D structures.
- const {yaw:angle,pitch:p,zoom:z,target}=hold.shot;
- const radius=Math.cos(p)*z;
- const eye=[citizen.x+Math.sin(angle)*radius,
-  terrain(citizen.x,citizen.z)+1.02+Math.sin(p)*z,
-  citizen.z+Math.cos(angle)*radius];
- const roofs=followCameraRoofs(),
-  foliage=foregroundVegetationProjection(eye,target),
-  scenic=foregroundSceneProjection(eye,target,roofs);
- if(followRayBlockers(eye,target,roofs)>0||
-    foliage.faceBlockers>0||foliage.cover>=.30||scenic.cover>=.30)
+    citizen.activity!=='Resting at home'||!entry||
+    entry.citizen!==citizen.name||entry.homeIndex!==homeIndex||
+    entry.swing>.025)return null;
+ // A slow 390px software renderer must not lose a true citizen's story
+ // just because 18 seconds of wall-clock time passed while rendering.
+ // The lifecycle is bounded by genuine resting activity and one selection.
+ // Keep the original clear eye and aim fixed at the REAL doorway: chasing
+ // the actor's post-arrival location drifts the camera into foreground trees.
+ const roofs=followCameraRoofs(),eye=hold.shot.eye,target=hold.shot.target;
+ const doorAim=[entry.doorX,terrain(entry.doorX,entry.doorZ)+.87,entry.doorZ];
+ const foliage=foregroundVegetationProjection(eye,target);
+ const scenic=foregroundSceneProjection(eye,target,roofs);
+ const safe=followRayBlockers(eye,target,roofs)===0&&
+  followRayBlockers(eye,doorAim,roofs)===0&&
+  foliage.faceBlockers===0&&foliage.cover<.30&&scenic.cover<.30;
+ let shot=safe?{...hold.shot,eye,target,
+   foregroundVegetationCover:foliage.cover,
+   vegetationFaceBlockers:foliage.faceBlockers,
+   foregroundSceneCover:scenic.cover,
+   foregroundCargoCover:scenic.cargoCover||0}:
+   planHomecomingThresholdCamera(citizen,entry);
+ // If an actual roof or canopy obstructs every genuine exterior position,
+ // report the shot as unavailable; never hide the tree or wall.
+ if(!shot||shot.vegetationFaceBlockers>0||
+    shot.foregroundVegetationCover>=.30||shot.foregroundSceneCover>=.30)
   return null;
- return {...hold.shot,eye,witnessMode:'resting-threshold',doorSwing:0,
-  foregroundVegetationCover:foliage.cover,
-  vegetationFaceBlockers:foliage.faceBlockers,
-  foregroundSceneCover:scenic.cover,
-  foregroundCargoCover:scenic.cargoCover||0};
+ if(!safe)hold.shot=shot;
+ return {...shot,witnessMode:'resting-threshold',doorSwing:0,
+  outsideDoor:true,doorRayBlockers:0};
 }
 function getHomecomingThresholdCameraAudit(){
  const citizen=people[selectedCitizen];
- const entry=citizen?getCottageHomecomingAudit().doors.find(
+ const doors=citizen?getCottageHomecomingAudit():null;
+ const entry=doors?[...doors.doors,...doors.closedDoors].find(
   door=>door.citizen===citizen.name):null;
  const shot=lastFollowShot;
  const restingWitness=Boolean(citizen?.activity==='Resting at home'&&
@@ -10632,7 +10654,9 @@ function getHomecomingThresholdCameraAudit(){
 let liveShotPlanCache=null,liveShotPlanBuilds=0,liveShotPlanReuses=0;
 function observedWorkdayCameraPlan(citizen,preferredYaw){
  const observeHome=document.body.dataset.workday==='homecoming';
- const doorEntry=observeHome?getCottageHomecomingAudit().doors.find(d=>d.citizen===citizen.name):null;
+ const observedEntries=observeHome?getCottageHomecomingAudit():null;
+ const doorEntry=observedEntries?[...observedEntries.doors,...observedEntries.closedDoors]
+  .find(d=>d.citizen===citizen.name):null;
  const homecomingEntryBand=doorEntry?Math.round(doorEntry.swing*8):0;
  const receipt=recentObservedCourierReceipt(citizen);
  const observeDelivery=document.body.dataset.workday==='delivery'&&
