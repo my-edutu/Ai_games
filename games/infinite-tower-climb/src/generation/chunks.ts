@@ -46,14 +46,18 @@ export function generateTowerChunk(config:TowerConfig,seed:string,floor:number,r
     // Don't introduce an impossible trap merely to meet a visual target.
     if (left <= right) {
       const approachX = approach.x + Math.floor(approach.width / 2);
-      // A seeded 3,000-tick real pilot smoke showed 38 near-guardian
-      // countdown ticks on the new cap, but no evasive decision: the jaw
-      // remained outside the actual combat approach. Put it one 60k-unit
-      // route step toward the cap's middle (from either approach side).
-      // Real source AI must now judge the *physical* lane and two exits.
+      // The actual 3,000-tick source-pinned pilot witnessed only 7 of its
+      // required 12 guardian+shutter near-body warning ticks even though
+      // it spent 229 ticks on this cap and 43 in same-deck warning windows.
+      // Its nearest recorded x centres were hero 238500, guardian 240000,
+      // shutter 196883: the physical hazard sat ~42k from the real duel.
+      // Move the existing bounded jaw 25k into the actual observed fighting
+      // lane while keeping BOTH player-width escape routes and the original
+      // 12-tick runtime witness gate. This is real source geometry, not a
+      // posed encounter or lowered acceptance threshold.
       // No enemy position tracking, scripted hit or time-based teleport.
       const gateward = Math.sign(arena.x + arena.width / 2 - approachX);
-      const fightLaneX = approachX + gateward * 60000;
+      const fightLaneX = approachX + gateward * 85000;
       const x = Math.max(left, Math.min(right, fightLaneX));
       const shutter:TowerHazard = {
         id:`f${floor}:guardian-shutter`, kind:'crusher',
