@@ -24,7 +24,7 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    return JSON.stringify(g.exportSnapshot());
   });
   await page.waitForFunction(()=>window.__tinyKingdom.getBurgageMaterialAudit().homes>=
-   window.__tinyKingdom.getVillageVisualLod().homes,null,{timeout:95000});
+   window.__tinyKingdom.metrics().buildings,null,{timeout:95000});
   const actual=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
    return {audit:g.getBurgageMaterialAudit(),lod:g.getVillageVisualLod(),
