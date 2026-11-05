@@ -78,3 +78,55 @@ test('missed, blocked and unflagged guardian hits do not invent recoil',()=>{
  const out=stepTowerCombat(missed,{...idle,attack:true},rng()).state.enemies[0];
  assert.equal(out.health,4);assert.equal(out.velocity.x,0);
 });
+
+test('source-earned cap counter opens a real contact-safe punish window, then restores pressure',()=>{
+  const state=duel(),boss=state.enemies[0];
+  state.player.invulnerableTicks=0;
+  assert.ok(Math.abs(state.player.position.x-boss.position.x)<
+    state.player.halfWidth+boss.halfWidth,'initial real bodies genuinely overlap');
+  const counter=stepTowerCombat(state,{...idle,attack:true},rng());
+  assert.equal(counter.state.enemies[0].health,3);
+  assert.equal(counter.state.player.health,state.player.health,
+    'the interrupted, recoiling guardian cannot still inflict its contact attack on the earned counter tick');
+  assert.equal(counter.events.some(e=>e.type==='player-damage'),false);
+  const follow=structuredClone(counter.state),target=follow.enemies[0];
+  follow.tick++;follow.player.attackCooldown=0;follow.player.invulnerableTicks=0;
+  follow.player.facing=1;follow.player.position.x=target.position.x-20000;
+  follow.player.position.y=target.position.y;target.velocity.x=0;
+  const punished=stepTowerCombat(follow,{...idle,attack:true},rng());
+  assert.equal(punished.state.enemies[0].health,2,
+    'only a second ordinary range-checked, cooldown-ready melee strike damages');
+  assert.ok(punished.events.some(e=>e.type==='melee-hit'));
+  assert.equal(punished.state.enemies[0].guardUntilTick<=punished.state.tick,true,
+    'an earned exposed core cannot instantly re-arm armor before its source stagger resolves');
+  assert.equal(punished.state.player.health,follow.player.health,
+    'a recoiling guardian cannot make an unavoidable body-contact counterattack');
+  const recovered=structuredClone(punished.state);
+  recovered.tick=state.tick+14;recovered.player.attackCooldown=0;
+  recovered.player.invulnerableTicks=0;recovered.player.facing=1;
+  recovered.player.position.x=recovered.enemies[0].position.x-20000;
+  recovered.player.position.y=recovered.enemies[0].position.y;
+  recovered.enemies[0].cooldown=20;recovered.enemies[0].telegraphUntilTick=0;
+  const resumed=stepTowerCombat(recovered,{...idle,attack:true},rng());
+  assert.equal(resumed.state.enemies[0].health,1);
+  assert.ok(resumed.state.enemies[0].guardUntilTick>resumed.state.tick,
+    'second-wind armor returns when the physically earned stagger is over');
+  assert.ok(resumed.events.some(e=>e.type==='player-damage'),
+    'the dangerous guardian contact attack resumes, so the mechanic is not invulnerability');
+  assert.deepEqual(stepTowerCombat(recovered,{...idle,attack:true},rng()),resumed,
+    'exposure, recovery and contact events reproduce exactly from the same source');
+});
+test('only the fully opted-in living guardian may lose contact pressure while staggered',()=>{
+  const old=duel({guardianSecondWind:true}),p=old.player,guardian=old.enemies[0];
+  p.invulnerableTicks=0;guardian.staggerUntilTick=old.tick+14;guardian.telegraphUntilTick=0;
+  guardian.guardUntilTick=old.tick;
+  const historical=stepTowerCombat(old,idle,rng());
+  assert.ok(historical.events.some(e=>e.type==='player-damage'),
+    'an unflagged guardian retains historical contact lethality');
+  const cap=duel();
+  cap.player.invulnerableTicks=0;cap.enemies[0].staggerUntilTick=cap.tick;
+  cap.enemies[0].telegraphUntilTick=0;cap.enemies[0].guardUntilTick=cap.tick;
+  const expired=stepTowerCombat(cap,idle,rng());
+  assert.ok(expired.events.some(e=>e.type==='player-damage'),
+    'expired source stun cannot suppress the ordinary body attack');
+});
