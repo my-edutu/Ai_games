@@ -217,6 +217,29 @@ export function resolveRenderedSilhouetteSubjects(state,subjects,actors){
   }
   return {x:Number(root.x.toFixed(3)),z:Number(root.z.toFixed(3))};
  };
+ // Combat framing is earned by two LIVE, rooted, walkable opponents inside
+ // the real authority's current cells. Never derive a sword lane from
+ // decorative marks, a dead unit, a distant target or a guessed skeleton.
+ // This is a presentation aperture, not evidence of a hit or AI target.
+ const duel=unit=>{
+  if(unit?.hp<=0||(unit.faction!=='party'&&unit.faction!=='enemy'))return null;
+  let best=null,bestDistance=Infinity;
+  for(const other of state.units){
+   if(!other||other.hp<=0||other.faction===unit.faction||
+      (other.faction!=='party'&&other.faction!=='enemy'))continue;
+   const steps=Math.abs(unit.x-other.x)+Math.abs(unit.z-other.z);
+   if(steps>3||steps<1||steps>=bestDistance)continue;
+   const at=anchored(other);
+   if(!at)continue;
+   best={x:at.x,z:at.z};bestDistance=steps;
+  }
+  return best;
+ };
+ const fighting=unit=>{
+  const partner=duel(unit);
+  return {combatRecess:Boolean(partner||unit.action==='attack'||unit.action==='cast'),
+   duelPartner:partner?Object.freeze(partner):null};
+ };
  const resolved=points.map(point=>{
   if(!Number.isFinite(point?.x)||!Number.isFinite(point?.z))return point;
   const unit=state.units.find(u=>u&&u.hp>0&&!claimed.has(u.id)&&
@@ -226,7 +249,9 @@ export function resolveRenderedSilhouetteSubjects(state,subjects,actors){
   const at=anchored(unit);
   if(!at)return point;
   claimed.add(unit.id);
-  return {...point,...at,kind:unit.kind,visibleActor:true};
+  return {...point,...at,kind:unit.kind,unitId:unit.id,visibleActor:true,
+   combatRecess:Boolean(point.combatRecess||fighting(unit).combatRecess),
+   duelPartner:fighting(unit).duelPartner};
  });
  // The director can follow a scenic/enemy subject and omit a living hero.
  // Preserve existing shot subjects first, then fill remaining 5-slot budget
@@ -239,9 +264,8 @@ export function resolveRenderedSilhouetteSubjects(state,subjects,actors){
   const at=anchored(unit);
   if(!at)continue;
   claimed.add(unit.id);
-  const live={...at,kind:unit.kind,
-   visibleActor:true,silhouetteRecess:true,
-   combatRecess:unit.action==='attack'||unit.action==='cast'};
+  const live={...at,kind:unit.kind,unitId:unit.id,
+   visibleActor:true,silhouetteRecess:true,...fighting(unit)};
   // At crowded boss shots the five director slots can already contain scenic
   // focus marks. They must not crowd out the REAL visible skinned party:
   // otherwise no renderer, facade or camera gets privileged full-body data.
@@ -381,6 +405,17 @@ export function planProjectedBodyAperture(box,subjects,camera,view){
    actor.bodyPoints.filter(p=>[p?.x,p?.y,p?.z].every(Number.isFinite)):null;
   const points=native?.length>=3?native:
    PROJECTION_BODY_Y.flatMap(y=>PROJECTION_BODY_SIDES.map(side=>({x:actor.x+side*rx,y:y*scale,z:actor.z+side*rz})));
+  // A giant opaque arch can leave BOTH helmets visible while severing the
+  // genuine adjacent melee lane. Sample the REAL space between two rooted,
+  // opposing living bodies, not an invented strike or projected VFX. This
+  // also works on desktop and shares the existing foreground instance cache.
+  const partner=actor.combatRecess===true?actor.duelPartner:null;
+  if(partner&&[partner.x,partner.z].every(Number.isFinite)&&
+     Math.hypot(partner.x-actor.x,partner.z-actor.z)<=3.15){
+   for(const t of [.27,.52,.77])for(const y of [.38,1.00,1.48])
+    points.push({x:actor.x+(partner.x-actor.x)*t,y:y*scale,
+     z:actor.z+(partner.z-actor.z)*t});
+  }
   for(const point of points){
    const p=projectionPoint(camera,b,point.x,point.y,point.z);
    if(!p||bounds.near>=p.depth-.08)continue;
@@ -453,6 +488,16 @@ export function planPortraitStageClearance(box,subjects,camera,view){
   const samples=native?.length>=3?native:
    PROJECTION_BODY_Y.flatMap(y=>PROJECTION_BODY_SIDES.map(side=>({
     x:actor.x+side*sideX,y:y*scale,z:actor.z+side*sideZ})));
+  const partner=actor.combatRecess===true?actor.duelPartner:null;
+  if(partner&&[partner.x,partner.z].every(Number.isFinite)&&
+     Math.hypot(partner.x-actor.x,partner.z-actor.z)<=3.15){
+   // Protect a living hero/enemy's attack and evasion space as a single
+   // narrow silhouette. A body-only test repeatedly left the sword lane
+   // behind a full-height column in authentic phone Chromium frames.
+   for(const t of [.26,.50,.74])for(const y of [.42,1.05,1.50])
+    samples.push({x:actor.x+(partner.x-actor.x)*t,y:y*scale,
+     z:actor.z+(partner.z-actor.z)*t});
+  }
   let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
   for(const point of samples){
    const p=projectionPoint(camera,basis,point.x,point.y,point.z);
