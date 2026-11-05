@@ -66,6 +66,36 @@ test('W44 real smith documentary exposes autonomous forge work at desktop and 39
  expect(mobile.gl).toBe(0);
  expect(errors).toEqual([]);
  await page.screenshot({path:'artifacts/tiny-kingdom-w44/genuine-smith-390px.png'});
+ // Verify touch discovery without horizontal swiping: the key workday
+ // action must be visible in the first 390px strip, not hidden offscreen.
+ await page.evaluate(()=>{document.querySelector('.world-tour').scrollLeft=0});
+ const controlBounds=await control.boundingBox();
+ expect(controlBounds,'Forge watch control must exist in initial mobile strip').toBeTruthy();
+ expect(controlBounds.x).toBeGreaterThanOrEqual(-1);
+ expect(controlBounds.x+controlBounds.width).toBeLessThanOrEqual(391);
+ // Capture actual resumed WebGL movement and authentic in-game time; a
+ // paused screenshot alone is not evidence of a living workday.
+ const liveStart=await page.evaluate(()=>({
+  time:window.__tinyKingdom.getState().state.t,
+  frames:window.__tinyKingdom.getFrameProfile().totalFrames
+ }));
+ await page.locator('#pause').click();
+ await page.waitForFunction(start=>{
+  const g=window.__tinyKingdom;
+  return g.getState().state.t>start.time+.13 &&
+   g.getFrameProfile().totalFrames>start.frames+2;
+ },liveStart,{timeout:70000});
+ const moving=await page.evaluate(()=>({
+  real:window.__tinyKingdom.getForgeWitnessAudit(),
+  frames:window.__tinyKingdom.getFrameProfile().totalFrames,
+  time:window.__tinyKingdom.getState().state.t
+ }));
+ expect(moving.real.citizen).toBe(stage.smith.citizen);
+ expect(moving.real.following).toBe(true);
+ expect(moving.real.realCitizen).toBe(true);
+ await page.screenshot({path:'artifacts/tiny-kingdom-w44/genuine-smith-moving-390px.png'});
+ console.log('W44 genuine moving forge',JSON.stringify({timeDelta:moving.time-liveStart.time,
+  newFrames:moving.frames-liveStart.frames}));
  console.log('W44 actual forge spectator',JSON.stringify({
   actor:mobile.audit.citizen,phase:mobile.audit.phase,
   zoom:mobile.audit.camera.zoom,triangles:mobile.triangles,ticks:stage.ticks
