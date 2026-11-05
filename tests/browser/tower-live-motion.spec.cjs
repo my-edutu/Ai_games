@@ -230,11 +230,30 @@ for (const viewport of viewports) {
           ![p.x,p.y,p.halfWidth,p.halfHeight].every(Number.isFinite) ||
           p.halfWidth <= 0 || p.halfHeight <= 0) return;
       const guardian = (s.enemies || []).find(g =>
-        g?.kind === 'guardian' && g.active === true && g.telegraph === true &&
+        g?.kind === 'guardian' && g.active === true &&
         Number.isFinite(g.health) && g.health > 0 &&
-        [g.x,g.y].every(Number.isFinite) &&
-        Math.abs(g.x-p.x) <= 135000 && Math.abs(g.y-p.y) <= 65000);
+        [g.x,g.y,g.halfHeight].every(Number.isFinite) &&
+        g.halfHeight > 0 && Math.abs(g.x-p.x) <= 135000 &&
+        Math.abs(g.y-p.y) <= 65000);
       if (!guardian) return;
+      // The old capture only witnessed charge while guardian.telegraph=true.
+      // A REAL fired bolt survives AFTER telegraph ends, exactly when the
+      // moving crusher + counterplay can happen. Observe it independently,
+      // without claiming the nearby guardian fired it (no shooter ID in
+      // the immutable public enemy projectile).
+      const liveBolt = (s.projectiles || []).find(shot =>
+        shot?.owner === 'enemy' && typeof shot.id === 'string' && !!shot.id &&
+        [shot.x,shot.y,shot.vx,shot.vy].every(Number.isFinite) &&
+        shot.vx !== 0 &&
+        Math.abs(shot.y-p.y) <= p.halfHeight+3500 &&
+        (p.x-shot.x)*Math.sign(shot.vx) > 0 &&
+        (p.x-shot.x)*Math.sign(shot.vx) <= 80000 &&
+        Math.abs(shot.y-guardian.y) <= guardian.halfHeight+3500 &&
+        (shot.x-guardian.x)*shot.vx >= 0 &&
+        Math.abs(shot.x-guardian.x) <= 135000 &&
+        Math.abs(p.x-guardian.x) <= 90000 &&
+        Math.abs(p.y-guardian.y) <= p.halfHeight+guardian.halfHeight+3500);
+      if (guardian.telegraph !== true && !liveBolt) return;
       const near = (s.hazards || []).filter(h =>
         h && [h.x,h.y,h.width,h.height].every(Number.isFinite) &&
         h.width > 0 && h.height > 0 &&
@@ -244,13 +263,27 @@ for (const viewport of viewports) {
          (Number.isSafeInteger(h.chargeTicksRemaining) &&
           h.chargeTicksRemaining >= 1 && h.chargeTicksRemaining <= 12) ||
          (d?.hazardPressure?.crossfireReleases ?? 0) > 0));
-      if (!near.length) return;
+      if (!near.length && !liveBolt) return;
       const key=s.runToken+':'+s.floor+':'+s.tick;
       if(key===lastKey) return;
       lastKey=key;
       witnessed.push({atMs:Date.now(),tick:s.tick,floor:s.floor,
         runToken:s.runToken,guardianId:guardian.id||null,
+        sourceGuardianTelegraph:guardian.telegraph === true,
         intentMode:s.intent?.mode||null,
+        sourceLiveEnemyBolt:liveBolt ? {
+          id:liveBolt.id,x:liveBolt.x,y:liveBolt.y,vx:liveBolt.vx,vy:liveBolt.vy,
+          coincidentNotAttributed:true
+        } : null,
+        // Renderer state may lag 50ms source sampling: only matching ticks
+        // can certify 3D submitted stage provenance, never video legibility.
+        renderedLiveHostile:d?.guardianShotStage ? {
+          sourceTick:d.guardianShotStage.liveHostileSourceTick??null,
+          projectileId:d.guardianShotStage.liveHostileBoltId??null,
+          coincidentGuardianId:d.guardianShotStage.liveHostileGuardianId??null,
+          instancedMarkers:d.guardianShotStage.liveHostileMarkerCount??0
+        } : null,
+        observedCamera:d?.encounterCamera || null,
         sourceHazards:near.map(h=>({id:h.id,active:h.active === true,
           chargeTicksRemaining:Number.isSafeInteger(h.chargeTicksRemaining)?
             h.chargeTicksRemaining:null})),
