@@ -55,7 +55,10 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(after.triangles).toBeLessThan(160000);
   expect(after.glError).toBe(0);
   expect(after.overflow).toBeLessThanOrEqual(0);
-  expect(after.lod.compactHomes).toBeGreaterThan(0);
+  // This first authentic dusk return may precede the first new cottage.
+  // W56 independently tests grown housing at Day 10; W57 must not fabricate
+  // growth or require a non-existent compact home before its true arrival.
+  expect(after.lod.detailedHomes+after.lod.compactHomes).toBeGreaterThan(0);
   expect(errors).toEqual([]);
   fs.mkdirSync('artifacts/tiny-kingdom-w57',{recursive:true});
   await page.screenshot({path:'artifacts/tiny-kingdom-w57/'+viewport.width+'-real-homecoming-doors.png'});
