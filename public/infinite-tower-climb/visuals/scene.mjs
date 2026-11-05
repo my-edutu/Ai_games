@@ -2898,15 +2898,28 @@ export function createTowerScene(canvas, settings = {}) {
     const arrivalFraming = liveExit &&
       passage.diagnostics().stage === 'earned-open'
       ? observedPassageApproach(snapshot, liveExit) : 0;
-    if (!overview && releaseWeight > 0) {
-      destination.y += releaseWeight * 1.4;
-      focus.y += releaseWeight * .65;
+    // A gateway that first appears after defeating the guardian is not
+    // enough: the genuine cap crossing must remain readable through the
+    // *walk*, rather than re-entering the lens only in the final few steps.
+    // The cap promenade has a source-tick-backed position; it provides a
+    // bounded camera escort as the real climber approaches the earned door.
+    // Actor, guardian and destination safety still outrank this optional
+    // composition. No separate camera, cut or gameplay control is created.
+    const sourceWalkProgress = liveExit &&
+      passage.diagnostics().stage === 'earned-open' && !options.reducedMotion
+      ? passage.diagnostics().inlayProgress : 0;
+    const walkwayLead = Math.max(0, Math.min(.34,
+      (sourceWalkProgress - .18) / .65 * .34));
+    const physicalEscort = Math.max(releaseWeight, walkwayLead);
+    if (!overview && physicalEscort > 0) {
+      destination.y += physicalEscort * 1.4;
+      focus.y += physicalEscort * .65;
       // A source-witnessed glance begins as an unobtrusive elevated escort,
       // then keeps the ACTUAL passage in frame as the actor walks through.
       // The later live actor-projection rescue vetoes an unsafe crop.
       const releaseFocus = passage.focusPoint();
       if (releaseFocus) focus.lerp(releaseFocus,
-        Math.max(Math.min(.18, releaseWeight * .15),
+        Math.max(Math.min(.18, physicalEscort * .15),
           arrivalFraming * (portrait ? .30 : .24)));
     }
     // The authentic result/intermission needs a COMPLETE visual sentence.
