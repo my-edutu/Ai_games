@@ -420,7 +420,7 @@ export function planPortraitStageClearance(box,subjects,camera,view){
  for(const actor of subjects){
   if(actor?.visibleActor!==true||actor?.combatRecess!==true||
      ![actor.x,actor.z].every(Number.isFinite)||
-     Math.hypot(actor.x-cx,actor.z-cz)>4.2)continue;
+     Math.hypot(actor.x-cx,actor.z-cz)>7.1)continue;
   const dx=actor.x-camera.x,dz=actor.z-camera.z;
   const distance=Math.hypot(dx,dz);
   if(distance<.8||distance>28)continue;

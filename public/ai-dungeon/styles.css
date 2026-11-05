@@ -42,3 +42,20 @@ body[data-epilogue=true] .run-result h2{font-size:21px;margin:5px 0 10px}
  }
  body[data-epilogue=true] .recovery small{font-size:9px}
 }
+
+/* M1 genuine living combat gets the majority of the mobile screen for real 3D
+   animation, while the source-truth HP of all three heroes remains visible. */
+@media(max-width:759px){
+ body[data-encounter-stage="combat"] .arena{height:74svh;min-height:500px}
+ body[data-encounter-stage="warden"] .arena{height:78svh;min-height:525px}
+ body:is([data-encounter-stage="combat"],[data-encounter-stage="warden"]) .party{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+ body:is([data-encounter-stage="combat"],[data-encounter-stage="warden"]) .squad-panel{margin:9px 10px 12px}
+ body:is([data-encounter-stage="combat"],[data-encounter-stage="warden"]) .squad-panel .panel-title{margin-bottom:6px}
+ body:is([data-encounter-stage="combat"],[data-encounter-stage="warden"]) .hero-card{min-height:69px;padding:10px 8px;gap:0}
+ body:is([data-encounter-stage="combat"],[data-encounter-stage="warden"]) .hero-icon,
+ body:is([data-encounter-stage="combat"],[data-encounter-stage="warden"]) .hero-sub{display:none}
+ body:is([data-encounter-stage="combat"],[data-encounter-stage="warden"]) .hero-heading{flex-direction:column;align-items:flex-start;gap:3px}
+ body:is([data-encounter-stage="combat"],[data-encounter-stage="warden"]) .hero-heading>b{font-size:10px;width:100%;max-width:100%}
+ body:is([data-encounter-stage="combat"],[data-encounter-stage="warden"]) .hero-heading>small{font-size:10px}
+ body:is([data-encounter-stage="combat"],[data-encounter-stage="warden"]) .life{min-height:4px}
+}

@@ -30,6 +30,7 @@ import {planCombatStage,stagePoint,MAX_STAGE_OFFSET,inspectBattlefieldCrowding} 
 import {createCombatShotContinuity} from '/dungeon/combat-shot-continuity.js';
 import {createPhysicalCameraDirector} from '/dungeon/physical-camera-director.js';
 import {createActorOcclusionStage} from '/dungeon/actor-occlusion-stage.js';
+import {planEncounterViewport} from '/dungeon/encounter-viewport-plan.js';
 import {captureForegroundVolumes,planForegroundBodyClearance} from '/dungeon/foreground-sightline-plan.js';
 import {createDungeonSoundstage} from '/dungeon/soundstage.js';
 import {createWardenRitual} from '/dungeon/warden-ritual.js';
@@ -717,6 +718,9 @@ $('audio-toggle').addEventListener('click',async()=>{
  }
 });
 function renderDashboard(s){
+ // Real living combat earns a legible full-height mobile 3D stage.
+ // Rendering only; the authoritative expedition is unchanged.
+ document.body.dataset.encounterStage=planEncounterViewport(s);
  const biome=['sunken','ember','obsidian','hollow'][(s.floor-1)%4];if(biome!==lastBiome){document.body.dataset.biome=biome;lastBiome=biome;}
  const heroes=s.units.filter(u=>u.faction==='party'),alive=heroes.filter(u=>u.hp>0).length,foes=s.units.filter(u=>u.faction==='enemy'&&u.hp>0);
  const boss=s.units.find(u=>u.kind==='warden'),nearBoss=boss&&boss.hp>0&&heroes.some(h=>h.hp>0&&Math.abs(h.x-boss.x)+Math.abs(h.z-boss.z)<6);
