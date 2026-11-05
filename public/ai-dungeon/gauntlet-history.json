@@ -2194,7 +2194,7 @@
         "playsMajority": false,
         "provenance": "No worker/critic session available, no masked verdicts."
       },
-      "safetyChecks": "Parent head 6d8ec86: Dungeon authority passed, browser 2 shards pass and shard2 failed 27/28 on 20s real autonomy; catalogue CI failed, visual review passed. New 851c4a3 safety NOT_VERIFIED at commit.",
+      "safetyChecks": "Parent 7c635ed: authority PASS, visual review PASS, Chromium browser shards 2+3 PASS; shard1 28/29 with real 7-versus-4 chapter draw-batch failure; full catalogue CI CANCELLED. Candidate 0fc87fe fuses four original 3D relief geometries into one chapter draw; exact-head browser/authority/security/replay results UNVERIFIED.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED: reviewed prior workflow has short video-only clips; need original browser sound stream and measured audio with real combat.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2477,9 +2477,9 @@
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Genuine adult-scale skinned body visibility and believable contact in moving Warden combat; real five-stage audiovisual matched A/B and blind panel still missing",
-    "currentWork": "Source M1 swordcourts: original floor-flush wrought-iron medallions, real contested-room physical key lighting and authentic same-run positive HP-loss stage accent. No authoritative position/combat changes.",
-    "candidateCommit": "1b9bbc3e92af93a52531fba3466935dbd41ae475",
+    "biggestRemainingGap": "Native believable adult-scale whole-body characters, differentiated readable Warden weapon impact, unoccluded moving combat; matched five-stage original desktop/mobile audiovisual journey and 3 fresh blind critics still missing.",
+    "currentWork": "Actual native forged swordcourt architecture preserved in a four-instanced-batch 3D surface with physical multi-ring/blade relief, live encounter key lighting and true HP wound accent; code committed but real exact-head visual results unverified.",
+    "candidateCommit": "0fc87fea2da9620d9448a6d23627a2b862e7245d",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -5448,6 +5448,20 @@
         "critics": "0/3",
         "largestGap": "Native full-body adult character realism and moving sword-to-foe impact especially against Warden; continued chapter/boss pacing proof",
         "next": "Inspect real new-head 1440 desktop and 390 mobile chapel combat plus Warden motion/audio; quantify actual chapter fights, actor visibility, p95 and progression, then build entire 5-stage reel and independent matched blind A/B."
+      },
+      {
+        "id": "M1-FORGED-COURT-REAL-WEBGL-BUDGET-20261105",
+        "date": "2026-11-05",
+        "milestone": "DUNGEON-TRANSFORMATION-01",
+        "codeCommit": "0fc87fea2da9620d9448a6d23627a2b862e7245d",
+        "status": "SOURCE_COMMITTED_EXACT_HEAD_RUNTIME_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "priorBrowser": "https://github.com/my-edutu/Ai_games/actions/runs/42016357398",
+        "priorOutcome": "Actual current-predecessor Chromium shard1 28 PASS / 1 FAIL, chapter-naves.spec.cjs expected <=4 scene draws; observed 7. Chromium shards2+3 and authority passed; visual-review passed; repository-wide CI was cancelled.",
+        "integratedWork": "Preserved actual carved/raised 3D stone court, physical dual forged iron rings, and swordpoint emblem by joining four native-buffer geometry surfaces into one vertex-coloured original instanced PBR chapter floor. Returned scene chapter to four physical batches, without deleting the art or changing authority, camera, AI, damage, seeded replay, traps, saves, accessibility or licensing.",
+        "performance": "Actual latest-head GPU or mobile performance NOT MEASURED. Source-level draw-batch count contract restored; real desktop/mobile WebGL and browser suite must verify.",
+        "next": "Review matched real desktop/mobile gameplay and the Warden confrontation; reject changes if fused PBR reliefs clip, darken unreadably or reduce motion. Build coherent full five-stage audio+video reel, original locked-baseline A/B and 3 independent blind looks/feels/plays critics.",
+        "experienceVerdict": "IN_PROGRESS / NOT_TRANSFORMED; LOOKS, FEELS, PLAYS UNVERIFIED; 0/3 critics. No aesthetic victory or full CI pass claimed."
       }
     ],
     "implementationContinuation": {
@@ -5464,14 +5478,15 @@
     "latestImplementation": {
       "date": "2026-11-05",
       "milestone": "M1 ongoing",
-      "sourceParentSha": "d9b2d2ac992409a2e9cb1fe1307ee1fb7ea1ad23",
-      "stage": "live contested-room physical chapel and measured real duo lighting",
-      "status": "SOURCE_CANDIDATE_ONLY",
+      "sourceParentSha": "7c635ed6c46ab65c7ad0f286cf3254d88a465bab",
+      "codeCommit": "0fc87fea2da9620d9448a6d23627a2b862e7245d",
+      "stage": "physical forged chapter inlays batched onto raised real walkable court",
+      "status": "SOURCE_CANDIDATE_EXACT_HEAD_BROWSER_UNVERIFIED",
       "qualityVerdict": "UNVERIFIED"
     },
-    "lastCandidateSha": "5dfe82639b256ae3a9605d3ce302e6f0cc020fc8",
+    "lastCandidateSha": "0fc87fea2da9620d9448a6d23627a2b862e7245d",
     "experienceVerdict": "M1 NOT TRANSFORMED — LOOKS / FEELS / PLAYS UNVERIFIED; zero independent critics",
     "criticReadiness": "0/3; exact-head desktop/mobile moving sound captures, matched fixed-baseline A/B and natural progression unverified",
-    "nextImplementationTask": "Inspect source-head authentic desktop/mobile chapter fights and Warden scene with original audio, reject wrong-room light or stalling, then build full five-stage motion and masked critic panel"
+    "nextImplementationTask": "Check exact-head Chromium desktop/mobile relief and moving Warden combat versus fixed baseline 281735d; reject clipping/darkening, measure chapter draw-batches and frame delivery, then develop original skinned body/contact and entire authentic 5-stage audiovisual reel for blinded critics."
   }
 }
