@@ -218,8 +218,10 @@ for (const viewport of viewports) {
   // source fixture, or rendered pose is injected into the real game.
   if (scenario === 'danger') await page.evaluate(() => {
     const witnessed = [];
+    const aftermath = [];
     window.__TOWER_CAPTURE_CROSSFIRE_WITNESSES__ = witnessed;
-    let lastKey = '';
+    window.__TOWER_CAPTURE_GUARDIAN_RELEASE_WITNESSES__ = aftermath;
+    let lastKey = '', lastReleaseKey = '', previousSource = null;
     window.__TOWER_CAPTURE_CROSSFIRE_TIMER__ = setInterval(() => {
       const s = window.__TOWER_PUBLIC_STATE__;
       const d = window.__TOWER_RENDER_DIAGNOSTICS__?.();
@@ -229,6 +231,43 @@ for (const viewport of viewports) {
           typeof s.runToken !== 'string' || !s.runToken ||
           ![p.x,p.y,p.halfWidth,p.halfHeight].every(Number.isFinite) ||
           p.halfWidth <= 0 || p.halfHeight <= 0) return;
+      // The prior danger observer returned as soon as the guardian DIED,
+      // precisely when its physical collapse and the real unlocked gate
+      // should be witnessed. Preserve those unaltered 50ms source events
+      // separately from the active-guardian crossfire telemetry.
+      const prior=previousSource;
+      previousSource={runToken:s.runToken,floor:s.floor,tick:s.tick};
+      const passage=d?.passage;
+      const defeated=(s.enemies||[]).find(g => g?.kind==='guardian' &&
+        g.active===false && Number.isFinite(g.health) && g.health<=0 &&
+        typeof g.id==='string' && !!g.id && [g.x,g.y].every(Number.isFinite));
+      const advance=prior?.runToken===s.runToken && s.floor===prior.floor+1 &&
+        s.tick>prior.tick;
+      const releaseKey=s.runToken+':'+s.floor+':'+s.tick+':'+
+        (defeated?.id || (advance ? 'floor-advance' : 'none'));
+      if((defeated||advance) && releaseKey!==lastReleaseKey){
+        lastReleaseKey=releaseKey;
+        aftermath.push({
+          kind: defeated ? 'source-defeated-guardian' : 'real-floor-advance',
+          atMs:Date.now(),runToken:s.runToken,floor:s.floor,tick:s.tick,
+          sourceGuardianId:defeated?.id||null,
+          sourceGuardianHP:defeated?.health??null,
+          sourceBody:defeated ? {x:defeated.x,y:defeated.y} : null,
+          previousFloor:advance ? prior.floor : null,
+          observed3dPassage:passage?.active ? {
+            stage:passage.stage,runToken:passage.runToken,
+            floor:passage.floor,sourceTick:passage.sourceTick,
+            guardianDefeatPieces:passage.guardianDefeatPieces,
+            sourceBodyPosition:passage.guardianDefeatSourcePosition,
+            guardianDefeatShockwave:passage.guardianDefeatShockwave??null,
+            guardianPowerReelProgress:passage.guardianPowerReelProgress??null,
+            powerSegmentCount:passage.guardianPowerSegments??0,
+            sourceTickMatches:passage.sourceTick===s.tick
+          } : null,
+          note:'Unaltered 50ms source event and sampled render diagnostics, NOT proof that a WebM frame visually shows it'
+        });
+        if(aftermath.length>256)aftermath.shift();
+      }
       const guardian = (s.enemies || []).find(g =>
         g?.kind === 'guardian' && g.active === true &&
         Number.isFinite(g.health) && g.health > 0 &&
@@ -321,6 +360,22 @@ for (const viewport of viewports) {
     return [...(window.__TOWER_CAPTURE_CROSSFIRE_WITNESSES__ || [])];
   }) : [];
   const crossfireSummary = summarizeTowerCrossfire(crossfireWitnesses);
+  const guardianReleaseWitnesses = scenario === 'danger' ?
+    await page.evaluate(() => [...(window.__TOWER_CAPTURE_GUARDIAN_RELEASE_WITNESSES__ || [])]) : [];
+  if(scenario === 'danger') fs.writeFileSync(
+    path.join(dir,'guardian-release-source-witness.json'),
+    JSON.stringify({
+      sourceSha:process.env.TOWER_CAPTURE_SOURCE_SHA||process.env.GITHUB_SHA||null,
+      guardianReleaseWitnesses,
+      witnessedSourceDefeatTicks:guardianReleaseWitnesses.filter(w=>
+        w.kind==='source-defeated-guardian').length,
+      observedSampledPassageTicks:guardianReleaseWitnesses.filter(w=>
+        w.observed3dPassage?.sourceTickMatches===true).length,
+      witnessedPhysicalFloorAdvance:guardianReleaseWitnesses.some(w=>
+        w.kind==='real-floor-advance'),
+      verdict:'NOT EVALUATED',
+      caveat:'Evidence is read-only original-game source+renderer telemetry. Short authentic events can be missed. Independently inspect original uninterrupted WebM and event-align before/after scenes; no fabricated quality win or source mutation.'
+    },null,2));
   if(scenario === 'danger') fs.writeFileSync(
     path.join(dir,'crossfire-source-witness.json'),
     JSON.stringify({ sourceSha:process.env.TOWER_CAPTURE_SOURCE_SHA||
@@ -405,7 +460,7 @@ for (const viewport of viewports) {
     sampledActorUnsafe: observations.filter(item => item.observedActor?.inSafeFrame === false).length,
     capturedAt: new Date().toISOString(), observations, assessment,
     sourcePhaseSummary, sourceMovingSummary, outcomeWitness,
-    crossfireSummary, crossfireWitnesses, errors,
+    crossfireSummary, crossfireWitnesses, guardianReleaseWitnesses, errors,
     independentReview: false,
     gates: { captureIntegrity: assessment.scopedPass ? 'PASS' : 'FAIL',
       completeMotion: 'OPEN: manually review unedited normal-speed video for climbing, guardian danger, true result and restart',
