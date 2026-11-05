@@ -2407,8 +2407,8 @@
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
     "biggestRemainingGap": "Exact original WebGL still hides protagonist torso/boots; even if physical cutaway improves, adult source model anatomy, trustworthy animated contact and five-stage mobile audiovisual coherent combat still fall far below authentic Diablo IV/No Rest for the Wicked/Path of Exile 2.",
-    "currentWork": "Full-body actor-only near-pocket source correction committed at c0fed55; original unlocked baseline preserved; actual new-head gameplay/matched motion and judges unverified. Previous broad CI module loader fixed without changing assert requirements.",
-    "candidateCommit": "c0fed55f910ab9f57f35f758df86b4b7949d56d9",
+    "currentWork": "Source candidate 9af59bc physically clears near-stage stone for genuine live source-skinned actors during both traversal and boss combat at high-oblique camera heights; rear nave/distant ruins preserved. 309/309 local foundation, 24-seed headless safety passed; moving AFTER quality and independent judges UNVERIFIED.",
+    "candidateCommit": "9af59bc91ed0e73634a85b620f67b701cd06a262",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -5208,17 +5208,21 @@
         "fivePhaseOriginalAudio": "UNVERIFIED",
         "sameSeedMatchedBeforeAfter": "UNVERIFIED",
         "mobileP95": "UNVERIFIED",
-        "next": "Inspect exact-head full-body moving Warden fight on desktop and mobile; reject if torso remains hidden/camera hunts, then rebuild native rig contact and authentic choreography; record 5-stage audiovisual and obtain three blind critics."
+        "next": "Inspect exact-head full-body moving Warden fight on desktop and mobile; reject if torso remains hidden/camera hunts, then rebuild native rig contact and authentic choreography; record 5-stage audiovisual and obtain three blind critics.",
+        "cumulativeSourceSha": "9af59bc91ed0e73634a85b620f67b701cd06a262",
+        "integrationRefinement": "Genuine unmarked strolling actors now gain the immediate foreground low-ruin knee/boot clearance; no combat or cinematic flag required; no broader area flattening. Same M1 milestone, one integrated playable-stage objective.",
+        "cumulativeChecks": "309/309 local Dungeon foundation, fresh 24-seed×900-tick deterministic corpus with 174 floor advances, 4 real restarts, 0 replay failures.",
+        "afterCurrentBranchStatus": "Real browser/audio performance exact new source head UNVERIFIED; independent blind LOOKS/FEELS/PLAYS 0/3."
       }
     ],
     "implementationContinuation": {
       "date": "2026-11-05",
       "milestone": "M1",
-      "sourceCommit": "c0fed55f910ab9f57f35f758df86b4b7949d56d9",
-      "changes": "Original live source-skinned actor full-body fighting stage near its actual 3D position, physical wall and low masonry under high oblique camera, shared with original world/camera cutaways. Previous full CI data: imports failed from Node data URI; actual dependency now inlined into test loader, no assertion removed.",
-      "evaluation": "308/308 local Dungeon foundation, 24-seed/900-tick original headless campaign passed; exact-source browser and judge remain UNVERIFIED",
+      "sourceCommit": "9af59bc91ed0e73634a85b620f67b701cd06a262",
+      "changes": "Source candidate 9af59bc contains complete living-body high camera fighting/ordinary walking aperture, near genuine low ruins and tall Gothic 3D stone through original shared physical camera/facade gallery; trustworthy tests, deterministic authority untouched.",
+      "evaluation": "309/309 local Dungeon foundation, 24×900 tick deterministic gameplay 174 floor transitions / 4 natural restarts / zero replay mismatches. Moving/new-head visual remains UNVERIFIED.",
       "largestGap": "Source GLB still stylized; actual pixels show body/boots behind masonry and incomplete Warden moving combat. Missing matched five-phase audio video and 3 blind critics.",
-      "nextTask": "Inspect exact-head moving desktop/390px Warden fight from Actions, then integrated original character anatomy/kinetics, encounter pacing, full original-audio 5-stage journey and blind before/after critics."
+      "nextTask": "Inspect newly run 9af59bc real desktop and mobile captures, check full body during walk and Warden melee, reject pop-in/fps regressions; then integrated original realistic character movement/contact, five-stage original-audio reel, 3 independent blind critics."
     }
   }
 }

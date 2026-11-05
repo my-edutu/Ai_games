@@ -211,13 +211,13 @@
   "visualVerdict": "NEGATIVE authentic previous WebGL 419dbef: Vanguard head/sword above stone, torso/boots hidden; c0fed55 new full-body clearance candidate UNVERIFIED.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
-  "candidateCommit": "c0fed55f910ab9f57f35f758df86b4b7949d56d9",
-  "metricsProvenance": "Fresh local candidate-checked npm run dungeon:gauntlet 2026-11-05 24 seeds x 900 ticks, 0 deterministic failures; 308/308 Dungeon foundation passed. Does NOT verify browser motion, audio, visual quality or p95.",
+  "candidateCommit": "9af59bc91ed0e73634a85b620f67b701cd06a262",
+  "metricsProvenance": "Local current-source 9af59bc npm run dungeon:test 309/309, npm run dungeon:gauntlet 24 seeds ×900 ticks: 174 advances, 4 restarts, 0 determinism mismatches. No claim for visual quality.",
   "transformation": {
     "milestone": "M1",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
     "locked": true,
-    "candidateSha": "c0fed55f910ab9f57f35f758df86b4b7949d56d9",
+    "candidateSha": "9af59bc91ed0e73634a85b620f67b701cd06a262",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
     "exactHeadSafety": "Original actor-only 3D foreground module registered in strict CSP-safe server routes; exact-head Dungeon 41939121537, visual 41939121529 and catalogue 41939121568 queued. UNVERIFIED runtime.",
@@ -233,7 +233,7 @@
     "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41939276286/artifacts/13375489665",
     "exactHeadAction": "Physically inspect real desktop/mobile WebGL after facade-and-moving-body code; verify full-body visibility and relief before advancing realistic native combat and coherent Warden episode.",
     "biggestGap": "Visually complete original adult actors and believable sword contact in coherent Gothic boss combat; previous exact head still hides Vanguard torso/boots",
-    "nextTask": "Inspect exact c0fed55 original browser 1440/390 action recordings and reject/continue. Record complete sound-enabled traversal/combat/boss/floor/restart and seek ≥3 fresh blind critics.",
+    "nextTask": "Inspect exact latest-head original desktop/mobile real scenes and contact with Warden, then build higher fidelity native anatomy and coherent tactical audiovisual adventure plus 3 independent blind critics.",
     "currentMilestoneLedger": "public/ai-dungeon/gauntlet-history.json",
     "realAfterArtifact": null,
     "realAfterObservation": "UNVERIFIED at c0fed55; no current moving gameplay/critic comparison",
@@ -243,7 +243,8 @@
       "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41922629878/artifacts/13368532950",
       "observation": "Actual desktop real Three.js rendered 1440x832 inspected: Vanguard helmet and sword protrude over an opaque Gothic facade while torso/boots remain invisible; two other heroes appear toy-like. Three/three synthetic ray visibility score is false positive. No active enemy in this frame.",
       "technicalSafety": "All 4 Dungeon browser/authority checks PASS and visual-review workflow PASS for predecessor SHA; broad catalogue CI FAILURE. No visual transformation accepted."
-    }
+    },
+    "sourceStatus": "INTEGRATED SOURCE CANDIDATE — REAL AFTER MOVING PLAY UNVERIFIED"
   },
-  "acceptanceStatus": "IN PROGRESS — NOT TRANSFORMED. LOOKS/FEELS/PLAYS UNVERIFIED, 0/3 critics. New head real moving desktop/mobile original audio, matched BEFORE/AFTER, p95, 5-stage continuous journey not established."
+  "acceptanceStatus": "IN PROGRESS — NOT TRANSFORMED. 309/309 local Dungeon foundation; 24×900 tick headless verified. Exact new source 9af59bc browser/mobile combat, five-phase audio reel, performance p95, matched BEFORE/AFTER and 3 independent blind critics remain UNVERIFIED."
 }
