@@ -6930,7 +6930,7 @@ function renderHouseholdThresholds(){
 // W57: return-home doors operate ONLY when a real navigation actor reaches
 // their assigned original home. No fictional inhabitants, detached camera
 // props, generated production credits or changes to seeded world authority.
-const cottageDoorRenderAudit={panels:0,litRecesses:0,triangles:0,
+const cottageDoorRenderAudit={panels:0,frames:0,thresholdSteps:0,litRecesses:0,triangles:0,
  source:'genuine-dusk-physical-door-motion'};
 function getCottageHomecomingAudit(){
  const doors=new Map();
@@ -6967,13 +6967,33 @@ function getCottageHomecomingAudit(){
 }
 function renderCottageHomecomingDoors(){
  const start=data.length,doors=getCottageHomecomingAudit().doors;
- cottageDoorRenderAudit.panels=0;cottageDoorRenderAudit.litRecesses=0;
+ cottageDoorRenderAudit.panels=0;cottageDoorRenderAudit.frames=0;
+ cottageDoorRenderAudit.thresholdSteps=0;cottageDoorRenderAudit.litRecesses=0;
  for(const entry of doors){
   const {doorX,doorZ,tx,tz,nx,nz,swing}=entry;
   const y=terrain(doorX,doorZ)+.15,h=1.18,w=.57;
   const leftX=doorX-tx*w*.5,leftZ=doorZ-tz*w*.5;
   const rightX=doorX+tx*w*.5,rightZ=doorZ+tz*w*.5;
   const oak=rgb(0x604530),dark=rgb(0x382d26),iron=rgb(0x66665a);
+  // Exterior jambs, timber lintel and landing belong to the exact living
+  // person's existing footprint. No game collision or new housing added.
+  const spanX=tx?.78:.12,spanZ=tz?.78:.12;
+  const stone=rgb(0xaaa18d),frame=rgb(0x76553c);
+  materialScope(MATERIAL.STONE,()=>{
+   box(doorX+nx*.18,terrain(doorX,doorZ)+.034,doorZ+nz*.18,
+    tx?.81:.41,.075,tz?.81:.41,stone);
+  });
+  materialScope(MATERIAL.WOOD,()=>{
+   for(const side of [-1,1]){
+    const ax=doorX+side*tx*(w*.5+.065)+nx*.035;
+    const az=doorZ+side*tz*(w*.5+.065)+nz*.035;
+    box(ax,y,az,tx?.085:.14,h+.08,tz?.085:.14,frame);
+   }
+   box(doorX+nx*.035,y+h+.03,doorZ+nz*.035,
+    spanX,.115,spanZ,frame);
+  });
+  cottageDoorRenderAudit.frames++;
+  cottageDoorRenderAudit.thresholdSteps++;
   // The original lime-plaster wall stays in the immutable resident city.
   // Warm light is bounded to a physically occupied real threshold at dusk.
   materialScope(MATERIAL.LANTERN_GLOW,()=>{
