@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updated": "2026-11-05",
+  "updated": "2026-11-06",
   "mode": "transformation-first",
   "baseline": {
     "sha": "1731b380851162741761c5569e2bc152a0869ca9",
@@ -17,9 +17,9 @@
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
     "state": "OPEN — source-derived whole-ascent jump/landing audiovisual transformation added to the SAME guardian-cap completion initiative; NOT EVALUATED.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Inspect CI/source-pinned 8 original WebM + newly generated source-event-pair manifest from https://github.com/my-edutu/Ai_games/actions/runs/42126700099. If baseline videos work, independently locate matching guardian HP→defeat→physically crossed gate→floor-nine, source-real moving-deck touchdown, and outcome card/restart. Do not treat source-event matches as video-frame alignment. Fix the largest observed gameplay/photo framing defect; collect genuine blind LOOKS/FEELS/PLAYS 5 critics each and actual device metrics. Retain frozen SHA and draft PR.",
+    "nextDecision": "P0 OPEN: retrieve 8 candidate/frozen 60+ second source-pinned WebM recordings and per-episode event index from exact-head runner. The original capture 42126700099 still had 0 jobs/artifacts at 2026-11-06 inspection. Inspect old 6c61 authentic portrait failure (guardian only 5/13 relevant samples, gate 0/13), then film current 4cce real ascent/guardian crush and earned gate approach/floor-nine, moving deck and outcome/restart. SOURCE-ONLY earned approach/handoff search events are now labelled and run-episode matched, never treated as film proof. Fix largest frame-visible issue; obtain device tails and independent blind 5× each LOOKS, FEELS, PLAYS.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "The source-authentic leap/landing and guardian full-body earned gateway were implemented, but not verified by matched continuous desktop/portrait actual footage. Prior source-pinned videos often missed guardian/gate in portrait; baseline/candidate source events occur at different seconds. The frozen baseline capture harness was missing its new event-index dependency; P0 instrumentation fix committed, capture and human film inspection PENDING. Independent full-motion votes (0/5 each) and supported-hardware frame-time/memory missing.",
+    "biggestRemainingExperienceGap": "P0 evidence run queued without jobs/artifacts. Previous authentic portrait samples at older source framed guardian 5/13 and gate 0/13; never claim current 4cce improves that without watching original normal-speed footage. New evidence event index isolates run episodes and distinguishes source-supported cap approach from physically seen body crossing, but is still an ungraded event search aid.",
     "unverifiedImplementationBranchHead": "4cce1ded8e4ee7213c6bb0f773e7297fbd6275e8",
     "currentVerticalSlice": "One source-backed traversal beat shared by the original articulated climber, original moving-platform landing architecture, continuous 3D follow lens, existing weather/light and opt-in audio. Airborne apex/posture, real descending deck brace and landing crossbar/stepping stones now respond to immutable source conditions. Existing source-earned guardian, crusher, physical threshold, next floor and restart remain part of SAME experience and are not independently accepted.",
     "biggestGap": "No source-exact full-motion or independent proof yet that the newly unified jump arc and physical landing anticipation materially improve everyday/portrait climbing alongside the earned guardian gateway loop. Previous source CI for the guardian clearance was cancelled or failed; current safety and capture are pending. Representative real event-matched clips, complete gateway-to-next-floor, five independent critics per LOOKS/FEELS/PLAYS, and hardware performance metrics remain missing."
@@ -62,11 +62,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Previous 4cce, aa04 and 033e quality checks were CANCELLED by later pushes; this does not establish a pass. New source-authentic pairing 658cad code ran four targeted in-isolate logic cases, with one failing expected count (5 rather than 4 provenance defects) corrected in follow-up test. Full Node/npm browser suite and exact-head source-pinned workflows remain PENDING; CI is a veto, never a quality score.",
+    "ci": "2026-11-06 P0 instrument 7b3718f58fedd422268695bc0af8770df518ea80: isolated V8 evaluation of real helper source and adapted assert/node:test mocks passed 14/14 focused cases; browser recorder syntax parsed. This is NOT Node CI, npm build, live browser, source-pinned WebM or game acceptance. Last checked 42126700099 candidate/baseline capture 0 jobs and 0 artifacts; 42127152654 quality job queued. Exact new commit workflow NOT VERIFIED; previous unrelated checks cancelled/queued.",
     "replay": "The new 20Hz observer reads run/floor/tick, public player velocity, currently selected deck footprint and true vertical gap ONLY. No source mutation, AI action, physics force, collision, damage, score, RNG or save format change. The familiar guardian gateway authority is unchanged in this commit. Presentation values are immediately zero on stale, terminal, inactive, invalid or standing source. Exact-source replay, gateway and system test still require verification.",
     "accessibility": "Continuous camera apex lead is suppressed for reduced-motion; the original skinned silhouette retains only a limited static grounded brace, with live key risk/guardian cues taking priority. Apex cue is optional, sourced only from a same-floor airborne positive-to-nonpositive VY transition and silent under mute/stale; no forced zoom, overlay or additional in-game HUD. Device readability and color/assistive review remain unverified.",
     "performance": "Reuses original articulated bones, original 12-instance one-draw landing threshold, one existing camera and original wind/sound resources; no new 3D geometry, materials, lights, texture, extra GPU draw or draw pass. Source-selected deck lookup and bounded arithmetic are presentation only. Actual supported-device FPS/frame-time p50/p95/p99 and memory remain NOT MEASURED.",
-    "stability": "Frozen original game/stream host bytes preserved by workflow staging; only neutral test/spec/helper files copied to baseline checkout. Event pairs are non-editing, read-only source-sidecar indexes; they cannot assert video-frame visibility. Real desktop/portrait capture from exact source and supported-device hardware performance are NOT EVALUATED. Draft PR68; PR58 unchanged; non-force commits only."
+    "stability": "Same neutral read-only browser capture spec, no modification of frozen game/stream host; new sampled source player/cap readout, earned nearby cap envelope, guarded 8-to-9 source handoff and run-episode identity. Physical crossing cannot be proved from the previous source snapshot, and source tick gaps may miss authentic events. No mutation to simulation, UI, renderer or video. Baseline SHA frozen; no merge/deploy/force-push; PR68 draft."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -3669,6 +3669,28 @@
       "supportedDeviceP50P95P99Memory": "NOT EVALUATED",
       "reviewPath": "docs/reviews/2026-11-05-tower-pr68-source-event-harness-baseline-unblocker.md",
       "next": "Observe real workflow outcomes; fix any importer/provenance failures; use unedited WebM to inspect portrait guardian, bronze gate, earned crossing, floor nine and result/restart; then source-event-matched full-film independent review."
+    },
+    "latestEpisodeBoundEarnedSourceObserver20261106": {
+      "stage": "P0 evidence and gameplay-loop truth — OPEN",
+      "codeSha": "7b3718f58fedd422268695bc0af8770df518ea80",
+      "originalGameplayImplementationSha": "4cce1ded8e4ee7213c6bb0f773e7297fbd6275e8",
+      "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "reviewPath": "docs/reviews/2026-11-06-tower-pr68-episode-bound-earned-gateway-evidence.md",
+      "impact": "Verified source-observer gap: identical guardian/defeat event names from different authentic run episodes could be greedily matched as one sequence; no neutral cap-footing + defeated-guardian approach or 8-to-9 preceding cap witness existed. Implemented run-episode indexing, source-dead-guardian + deck-contact envelope proximity events, and same-run 8->9 source handoff observer. New read-only player/cap fields in identical baseline/candidate recorder. Neither event proves rendered gateway crossing.",
+      "isolatedTests": "14 of 14 source-backed helper tests executed in V8 with mock node:test/assert/require; no Node/npm/browser CI, independent critic or true film inspection. Browser CJS syntax parsed.",
+      "lastCheckedCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/42126700099",
+      "lastCheckedCaptureJobs": 0,
+      "lastCheckedCaptureArtifacts": 0,
+      "lastCheckedQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/42127152654",
+      "lastCheckedQualityStatus": "QUEUED one quality job; not passed; post-code-head CI not verified",
+      "matchedPairs": "NOT EVALUATED: no exact current-source event-matched, reviewed baseline/candidate native film",
+      "oldestMaterialFilmDefect": "Older authentic candidate portrait danger guardian in 5/13 source observations; physical gate in 0/13; current 4cce not inspected.",
+      "genuineIndependentLookVotes": 0,
+      "genuineIndependentFeelVotes": 0,
+      "genuineIndependentPlayVotes": 0,
+      "supportedHardwareP50P95P99Memory": "NOT MEASURED",
+      "next": "Examine actual 9-job capture plus event-pair manifest and original browser films when runners execute; do not turn source-event co-occurrence into visible footage. Prioritize portrait guardian and bronze threshold staying inside shot, then verify earned floor nine and result/restart. Run all exact-head CI and mobile device performance tests; commission genuinely independent 5×3 anonymous full-motion critics.",
+      "verdict": "NOT EVALUATED"
     }
   },
   "roadmapStage": "P0 — evidence + game-loop truth (OPEN; no blind acceptance)"
