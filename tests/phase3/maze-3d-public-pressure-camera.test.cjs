@@ -31,3 +31,16 @@ test('diagonal trap composition never reads hidden traps, persists after results
  const closer=focus(s,{x:CELL*.24,z:CELL*.24},CELL,ASPECT);
  assert.ok(closer.weight<.57&&closer.weight>0,'continuous public approach pan');
 });
+
+test('real public pressure camera catches autonomous diagonal staging without altering other modes',async()=>{
+ const {publicCameraSettleRate:rate}=await load();
+ const eased=(value)=>1-Math.exp(-.18*value); // one real 180ms public update
+ assert.equal(rate(false,false,false,false),4.5,'neutral exploration remains unchanged');
+ assert.equal(rate(false,false,false,true),8,'witnessed opening retains its own camera speed');
+ assert.equal(rate(false,true,false,false),10,'public guardian keeps its verified response');
+ assert.equal(rate(false,false,true,false),10,'actual published pressure stage receives fast framing');
+ assert.equal(rate(true,false,true,false),12,'witnessed pickup retains priority');
+ assert.equal(rate(false,false,true,true),10,'pressure shot outranks generic gate transition');
+ assert.ok(eased(rate(false,false,true,false))>.83,'camera settles over 83% within a normal public poll interval');
+ assert.ok(eased(rate(false,false,false,false))<.56,'unrelated maze discovery keeps calm settling');
+});
