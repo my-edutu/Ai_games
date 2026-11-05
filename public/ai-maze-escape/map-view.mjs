@@ -80,6 +80,19 @@ export function publicObservedTrapCameraFocus(snapshot, hero, cellSize, aspect) 
   return {...closest,weight:(.44+.13*diagonalReach)*departureFade};
 }
 
+/** Camera-only response speed for ACTUALLY witnessed public scene partners.
+ * The previously generic 4.5/s camera can lag a real 320px autonomous
+ * diagonal approach to a known physical pressure mechanism. Use guardian
+ * settling only for the selected published pressure stage, never for hidden
+ * traps, and retain pickup/gate/neutral priorities without changing AI.
+ */
+export function publicCameraSettleRate(pickup=false, encounter=false, pressure=false, opening=false) {
+  if (pickup) return 12;
+  if (encounter || pressure) return 10;
+  if (opening) return 8;
+  return 4.5;
+}
+
 /**
  * Native gameplay camera staging is derived only from an ALREADY DISCLOSED
  * guardian's bounded visual attention. Detail mode must not silently ignore
