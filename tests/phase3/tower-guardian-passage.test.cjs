@@ -384,7 +384,7 @@ test('source-defeated guardian crumbles during earned cap traversal, not after t
     const age = effect.diagnostics().defeatAgeSeconds;
     assert.equal(effect.unlock({ ...source, tick: 215 }, anchor), true);
     assert.equal(effect.diagnostics().defeatAgeSeconds, age,
-      'duplicate real snapshots must never restart the defeated body's fall');
+      'duplicate source snapshots cannot replay a defeated guardian collapse');
     const next = { runToken: source.runToken, floor: 9, tick: 222,
       lifecycle: 'running', enemies: [] };
     const rebase = source.chunkBaseY + 360000;
