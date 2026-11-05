@@ -75,9 +75,17 @@ export function publicObservedTrapCameraFocus(snapshot, hero, cellSize, aspect) 
   // Fade continuously outside the close interaction; do not zoom Pip out,
   // move hazards/actors, leak hidden cells or modify autonomous decisions.
   const cellsAway = closest.distance / cellSize;
-  const diagonalReach = clamp((cellsAway-1)/.35,0,1);
+  // The old distance-only boost mistook a collinear 1.33-cell departure for
+  // a diagonal encounter, increasing the pan instead of fading it. Treat
+  // actual X/Z separation as the published diagonal evidence, while an
+  // axis-aligned approach keeps its original .44 one-cell weight and fades
+  // continuously to zero by 1.5 cells. This never reads a planned route.
+  const diagonal = clamp(Math.min(Math.abs(closest.x-hero.x),
+    Math.abs(closest.z-hero.z))/cellSize,0,1);
+  const axisWeight = .44*clamp((1.5-cellsAway)/.5,0,1);
+  const diagonalWeight = (.44+.13*diagonal)*diagonal;
   const departureFade = clamp((1.82-cellsAway)/.30,0,1);
-  return {...closest,weight:(.44+.13*diagonalReach)*departureFade};
+  return {...closest,weight:Math.max(axisWeight,diagonalWeight)*departureFade};
 }
 
 /** Camera-only response speed for ACTUALLY witnessed public scene partners.
