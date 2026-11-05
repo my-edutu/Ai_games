@@ -533,8 +533,8 @@ function observedGuardianGuardSpacing(state:TowerState,obs:TowerObservation,
   // CURRENT legal ground steps separate us from the observed strike pocket.
   // No future enemy position, RNG, cooldown bypass or gameplay teleport.
   const capArena=state.config.guardianArenaHazards===true;
-  const approachTicks=Math.max(4,Math.min(12,
-    Math.ceil(Math.max(0,gap-strikeGap)/Math.max(1,state.config.maxRunSpeed))+4));
+  const approachTicks=Math.max(8,Math.min(12,
+    Math.ceil(Math.max(0,gap-strikeGap)/Math.max(1,state.config.maxRunSpeed))+6));
   const capCounterstep=capArena&&guard<=approachTicks&&
     p.attackCooldown<=guard+1&&gap>strikeGap+4000&&
     gap<=strikeGap+state.config.maxRunSpeed*12;

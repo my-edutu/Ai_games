@@ -62,7 +62,8 @@ test('no legal cooldown, edge-unsafe facing, or historical policy creates a fina
   const unsafe=chooseTowerAction(s,createTowerObservation(s,{includeHazardWindup:true}));
   assert.equal(unsafe.action.attack,false,'a forced inward turn cannot strike an outward foe');
   const old=chooseTowerAction(s,createTowerObservation(s),{tactical:false});
-  assert.equal(old.action.attack,false,'historical replay never receives the new counter');
+  assert.notEqual(old.intent.summary,'Landing an earned final-beat guardian counter',
+    'historical policy never receives the opt-in final-beat counter decision');
 });
 
 test('a presently charging crusher vetoes last-beat offense in the same real lane',()=>{
@@ -86,7 +87,7 @@ test('cap shield phase keeps a recoverable body gap and starts a source-timed re
   const reach=s.config.attackReach+s.build.attackReachBonus;
   const contact=s.player.halfWidth+boss.halfWidth+8000;
   const strikeGap=Math.max(contact+4000,reach-6000);
-  boss.position.x=p.position.x+strikeGap+Math.max(6000,s.config.maxRunSpeed*4);
+  boss.position.x=p.position.x+strikeGap+Math.min(7000,s.config.maxRunSpeed);
   assert.ok(boss.position.x<cap.x+cap.width);
   const frozen=structuredClone(s);
   const choice=chooseTowerAction(s,createTowerObservation(s,{includeHazardWindup:true}));

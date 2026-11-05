@@ -4,6 +4,7 @@
 // for the same named seed and launch floor as the normal-speed danger film.
 const {TowerRuntime}=require('../dist/games/infinite-tower-climb/src/runtime/run.js');
 const {STREAM_CONFIG}=require('./serve-tower-stream.cjs');
+const {observedHazardChargeTicks}=require('../dist/games/infinite-tower-climb/src/presentation/snapshot.js');
 const run=TowerRuntime.create({...STREAM_CONFIG,launchFloor:8},
   'tower-transformation-capture-v1',{policy:'autonomous'});
 const out={kind:'source-only-guardian-campaign',quality:'NOT EVALUATED',
@@ -11,7 +12,8 @@ const out={kind:'source-only-guardian-campaign',quality:'NOT EVALUATED',
   livesCompleted:0,maxFloor:8,guardianDefeats:0,
   sourceMeleeHits:0,sourceCoreHits:0,sourceCounterInterrupts:0,
   sourceGuardianShieldBlocks:0,healthDepleted:0,otherOutcomes:0,
-  capTicks:0,guardianMinimumHp:null,activeCrusherWarnings:0};
+  capTicks:0,guardianMinimumHp:null,sourceShutterWarningTicks:0,
+  sourceCloseCrossfireTicks:0};
 for(let i=0;i<out.steps;i++){
   const before=run.state;
   out.maxFloor=Math.max(out.maxFloor,before.floor);
@@ -28,10 +30,20 @@ for(let i=0;i<out.steps;i++){
     const h=before.chunks.find(c=>c.floor===before.floor)?.hazards.find(
       h=>h.id===`f${before.floor}:guardian-shutter`);
     if(h){
-      const chargeTick=before.tick-h.activeFromTick;
-      if(chargeTick<0&&chargeTick>=-12)out.activeCrusherWarnings++;
-      else if(chargeTick>=0&&((chargeTick%h.activeEvery)+h.activeEvery)%h.activeEvery>=h.activeEvery-12)
-        out.activeCrusherWarnings++;
+      const charge=observedHazardChargeTicks(h,before.tick);
+      if(charge>0){
+        out.sourceShutterWarningTicks++;
+        const hero=before.player;
+        const boss=before.enemies.find(e=>e.active&&e.kind==='guardian'&&e.floor===before.floor);
+        const center=h.x+h.width/2,top=h.y+h.height;
+        const vertical=Math.abs(hero.position.y-(h.y+hero.halfHeight))<=
+          hero.halfHeight+h.height+8000;
+        if(boss&&vertical&&
+          Math.abs(hero.position.x-center)<=50000&&
+          Math.abs(boss.position.x-center)<=50000&&
+          Math.abs(boss.position.y-hero.position.y)<=boss.halfHeight+hero.halfHeight+10000)
+          out.sourceCloseCrossfireTicks++;
+      }
     }
   }
   run.step();
