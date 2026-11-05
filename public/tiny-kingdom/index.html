@@ -10556,22 +10556,72 @@ function planHomecomingThresholdCamera(citizen,entry){
  }
  return best?{...best,clearShots,checkedShots:checked}:null;
 }
+// W59: keep one genuinely clear exterior witness while the SAME resident
+// finishes entering a REAL cottage. In W58's uncut mobile film the shot was
+// suddenly abandoned when the swinging leaf closed; the generic camera then
+// drifted through a huge foreground conifer as daylight resumed. This
+// temporary shot is presentation-only: no actor, home, time or stock changes.
+let homecomingWitnessHold=null;
+function continuousHomecomingWitness(citizen,entry,now){
+ const homeIndex=citizenHomeIndex(citizen);
+ if(entry&&entry.swing>=.26){
+  const shot=planHomecomingThresholdCamera(citizen,entry);
+  if(shot&&shot.vegetationFaceBlockers===0&&
+     shot.foregroundVegetationCover<.30){
+   homecomingWitnessHold={citizen:citizen.name,homeIndex,
+    at:now,x:citizen.x,z:citizen.z,shot};
+  }
+  return shot;
+ }
+ const hold=homecomingWitnessHold;
+ if(!hold||hold.citizen!==citizen.name||hold.homeIndex!==homeIndex||
+    citizen.activity!=='Resting at home'||now-hold.at>18000||
+    Math.hypot(citizen.x-hold.x,citizen.z-hold.z)>1.8)return null;
+ // Recheck actual roofs and visible foliage, not just the cached score.
+ // No hiding branches, teleporting the camera, or masking 3D structures.
+ const {yaw:angle,pitch:p,zoom:z,target}=hold.shot;
+ const radius=Math.cos(p)*z;
+ const eye=[citizen.x+Math.sin(angle)*radius,
+  terrain(citizen.x,citizen.z)+1.02+Math.sin(p)*z,
+  citizen.z+Math.cos(angle)*radius];
+ const roofs=followCameraRoofs(),
+  foliage=foregroundVegetationProjection(eye,target),
+  scenic=foregroundSceneProjection(eye,target,roofs);
+ if(followRayBlockers(eye,target,roofs)>0||
+    foliage.faceBlockers>0||foliage.cover>=.30||scenic.cover>=.30)
+  return null;
+ return {...hold.shot,eye,witnessMode:'resting-threshold',doorSwing:0,
+  foregroundVegetationCover:foliage.cover,
+  vegetationFaceBlockers:foliage.faceBlockers,
+  foregroundSceneCover:scenic.cover,
+  foregroundCargoCover:scenic.cargoCover||0};
+}
 function getHomecomingThresholdCameraAudit(){
  const citizen=people[selectedCitizen];
  const entry=citizen?getCottageHomecomingAudit().doors.find(
   door=>door.citizen===citizen.name):null;
  const shot=lastFollowShot;
+ const restingWitness=Boolean(citizen?.activity==='Resting at home'&&
+  shot?.witnessMode==='resting-threshold'&&shot.homeIndex===citizenHomeIndex(citizen));
+ const openWitness=Boolean(entry&&shot?.witnessMode==='threshold'&&
+  shot.homeIndex===entry.homeIndex);
  const active=Boolean(follow&&document.body.dataset.workday==='homecoming'&&
-  entry&&shot?.witnessMode==='threshold'&&shot.homeIndex===entry.homeIndex);
+  (openWitness||restingWitness));
  return {source:'real-dusk-cottage-threshold-camera',active,
+  phase:active?(restingWitness?'resting-at-real-home':'real-door-opening'):'inactive',
   citizen:citizen?.name||null,door:entry?{
    homeIndex:entry.homeIndex,swing:entry.swing,
-   x:entry.doorX,z:entry.doorZ}:null,
+   x:entry.doorX,z:entry.doorZ}:restingWitness?{
+    homeIndex:shot.homeIndex,swing:0,x:homecomingWitnessHold?.shot?.target?.[0],
+    z:homecomingWitnessHold?.shot?.target?.[2]}:null,
   camera:active?{yaw:shot.yaw,pitch:shot.pitch,zoom:shot.zoom,
    outsideDoor:shot.outsideDoor,doorRayBlockers:shot.doorRayBlockers,
    visibleAlternativeShots:shot.clearShots,
    projectedWorkerHeightFraction:shot.projectedWorkerHeightFraction,
-   foregroundSceneCover:shot.foregroundSceneCover}:null,
+   foregroundSceneCover:shot.foregroundSceneCover,
+   foregroundVegetationCover:shot.foregroundVegetationCover,
+   vegetationFaceBlockers:shot.vegetationFaceBlockers,
+   witnessMode:shot.witnessMode}:null,
   readOnly:true};
 }
 
@@ -10613,7 +10663,7 @@ function observedWorkdayCameraPlan(citizen,preferredYaw){
   Math.hypot(citizen.x-cache.x,citizen.z-cache.z)<.25&&turn<.24){
   liveShotPlanReuses++;return cache.shot;
  }
- const shot=(observeHome&&doorEntry?planHomecomingThresholdCamera(citizen,doorEntry):null)||
+ const shot=(observeHome?continuousHomecomingWitness(citizen,doorEntry,now):null)||
   planCitizenCamera(citizen,preferredYaw,observeWorkday);
  liveShotPlanBuilds++;
  liveShotPlanCache={citizen:citizen.name,job:citizen.job,mode,
@@ -10986,6 +11036,7 @@ function setReferenceCapture(enabled){
 }
 
 function stopWorkdayWatch(){
+ homecomingWitnessHold=null;
  villageDocumentary=null;document.body.dataset.villageDocumentary='off';
  document.getElementById('workday-activity').removeAttribute('data-story-stage');
  document.getElementById('homecoming-follow').setAttribute('aria-pressed','false');
@@ -11751,6 +11802,19 @@ function render(now){requestAnimationFrame(render);
  // Continue an actual workday across real occupations after a shift ends.
  if(follow&&liveWorkday)advanceLiveWorkdayDirector();
  pollForgeSound();
+ // The recorded W58 movie ended with the observer still following a former
+ // homecomer back to their daytime job, behind vegetation. End the genuine
+ // dusk-to-dawn documentary when THIS citizen actually resumes working.
+ // Restore the spectator's previous overview; never change the simulation.
+ if(follow&&document.body.dataset.workday==='homecoming'){
+  const observed=people[selectedCitizen];
+  if(!observed||!['Returning home at dusk','Resting at home'].includes(observed.activity)){
+   setCitizenFollow(false);
+   stopWorkdayWatch();
+   setCommandView('world');
+   showToast('Daybreak · villagers resume their actual work');
+  }
+ }
  if(follow){
  const citizen=people[Math.min(selectedCitizen,people.length-1)];
  const observingAction=Boolean(liveWorkday||document.body.dataset.workday==='homecoming'||

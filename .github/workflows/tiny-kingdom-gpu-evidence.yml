@@ -20,6 +20,35 @@ permissions:
   contents: read
 
 jobs:
+  # W59: an authentic homecoming must make a complete, readable
+  # dusk-to-dawn scene on desktop and mobile, without fake simulation.
+  w59-lived-homecoming-continuity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: W59 real door rest and daybreak on 1024px and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w59-homecoming-continuity.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w59-homecoming-continuity
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w59/
+          retention-days: 14
   # W58: human-scale, external sightline to the REAL W57 hinged door
   # during a returning citizen's genuine journey. This is correctness
   # evidence, not proof that the art/gameplay meets the experience gate.
