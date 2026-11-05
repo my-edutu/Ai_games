@@ -90,7 +90,7 @@ test('the real event creates a separated 3D bronze passage with bounded resource
       assert.equal(object.receiveShadow, false);
       assert.equal(object.userData.collider, undefined);
     });
-    assert.equal(meshCount, 15);
+    assert.equal(meshCount, 16, 'source-defeat ground wave reuses a geometry without adding a collider');
     assert.equal(effect.diagnostics().fragmentInstances, 8);
     assert.ok(effect.focusPoint()?.y > anchor.y + 2);
     assert.equal(effect.diagnostics().shadows, 0);
@@ -238,7 +238,16 @@ test('real source-defeated guardian collapses as a rig while the power connectio
     assert.equal(fx.unlock(source,anchor),true);
     const armor=fx.group.getObjectByName('WitnessedGuardianDefeatArmor');
     const conduit=fx.group.getObjectByName('WitnessedGuardianPowerBreak');
+    const shockwave=fx.group.getObjectByName('WitnessedGuardianDefeatShockwave');
+    assert.ok(shockwave?.isMesh);
     assert.equal(armor.count,12);assert.equal(conduit.count,8);
+    assert.equal(shockwave.visible,true);
+    assert.equal(shockwave.castShadow,false);
+    assert.equal(shockwave.userData.collider,undefined);
+    assert.equal(shockwave.position.x,armor.position.x,
+      'the release impulse belongs to the observed defeated body, not the new floor');
+    assert.equal(shockwave.position.z,armor.position.z);
+    const originalRadius=shockwave.scale.x, originalOpacity=shockwave.material.opacity;
     assert.equal(conduit.castShadow,false);assert.equal(conduit.userData.collider,undefined);
     const first=new THREE.Matrix4(),second=new THREE.Matrix4();
     armor.getMatrixAt(0,first);armor.getMatrixAt(10,second);
@@ -248,17 +257,24 @@ test('real source-defeated guardian collapses as a rig while the power connectio
     const before=[...first.elements];
     fx.update(.55);
     conduit.getMatrixAt(7,first);
-    assert.notDeepEqual(first.elements,before,'source defeat breaks 3D connection');
+    assert.notDeepEqual(first.elements,before,'the last source-released segment physically reels to the gate');
+    assert.ok(shockwave.scale.x>originalRadius && shockwave.material.opacity<originalOpacity,
+      'physical defeat has an expanding, dissipating on-floor impact');
+    const radius=shockwave.scale.x, opacity=shockwave.material.opacity;
     const age=fx.diagnostics().defeatAgeSeconds;
     fx.update(.45,{stale:true});
     assert.equal(fx.diagnostics().defeatAgeSeconds,age,
       'stale observations cannot advance a staged defeat');
+    assert.equal(shockwave.scale.x,radius);
+    assert.equal(shockwave.material.opacity,opacity);
     fx.update(1.1);
     assert.equal(conduit.visible,false);
     assert.equal(conduit.count,0);
+    assert.equal(shockwave.visible,false, 'defeat impulse retires while permanent armor remains');
     assert.equal(armor.count,12,'fallen original armor remains during real walking');
     fx.clear();
     assert.equal(armor.count,0);assert.equal(conduit.count,0);
+    assert.equal(shockwave.visible,false, 'restart clears all source-earned visual state');
     assert.equal(fx.diagnostics().guardianDefeatSourcePosition,null);
     assert.equal(fx.unlock({...source,tick:221,
       enemies:[{...guardian,active:true,health:1}]},anchor),false,
@@ -275,6 +291,8 @@ test('reduced motion presents a still, real defeat and no motion after stale tra
     effect.update(.1, { reducedMotion: true });
     const armor = effect.group.getObjectByName('WitnessedGuardianDefeatArmor');
     const still = Array.from(armor.instanceMatrix.array);
+    assert.equal(effect.group.getObjectByName('WitnessedGuardianDefeatShockwave').visible,false,
+      'reduced motion retains the static defeated armor without a traveling flash');
     effect.update(.45, { reducedMotion: true });
     effect.update(.3, { stale: true, reducedMotion: true });
     assert.deepEqual(Array.from(armor.instanceMatrix.array), still);
