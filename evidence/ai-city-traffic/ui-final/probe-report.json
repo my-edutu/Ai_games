@@ -1,0 +1,4186 @@
+{
+  "startedAt": "2026-10-30T21:05:01.945Z",
+  "sourcesBefore": {
+    "index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+    "styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+    "main.mjs": "0c8210d1e7d78d256f3e62961280835c961900d93bf5ac5db377aa6a12623f78",
+    "world.mjs": "2057b018c7be23c37c6b986a99f653477e2af06335a76095e8c621f779d1555a"
+  },
+  "checks": [
+    {
+      "name": "390 no horizontal page overflow",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "390 panel open numeric count equals current busiest queue",
+      "actual": 3,
+      "expected": 3,
+      "passed": true
+    },
+    {
+      "name": "390 panel open location names current busiest signal",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "390 panel open View button has 44 px target",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "390 panel open summary location is not occluded",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "390 panel open summary numeric count is not occluded",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "390 panel open View button is not occluded",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "390 panel open summary fits viewport",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "390 View closes Experiment",
+      "actual": false,
+      "expected": false,
+      "passed": true
+    },
+    {
+      "name": "390 View focuses city canvas",
+      "actual": "CANVAS",
+      "expected": "CANVAS",
+      "passed": true
+    },
+    {
+      "name": "390 View selects aerial mode",
+      "actual": "aerial",
+      "expected": "aerial",
+      "passed": true
+    },
+    {
+      "name": "390 map count equals summary",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "390 map cue remains visible",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "390 focused cue centered on screen",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "keyboard opening focuses demand slider",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "Escape closes Experiment from focused slider",
+      "actual": false,
+      "expected": false,
+      "passed": true
+    },
+    {
+      "name": "Escape returns focus to Experiment",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "Close button returns focus to Experiment",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "native help closes on Escape",
+      "actual": false,
+      "expected": false,
+      "passed": true
+    },
+    {
+      "name": "native help returns focus",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "320 no horizontal page overflow",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "320 panel open numeric count equals current busiest queue",
+      "actual": 3,
+      "expected": 3,
+      "passed": true
+    },
+    {
+      "name": "320 panel open location names current busiest signal",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "320 panel open View button has 44 px target",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "320 panel open summary location is not occluded",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "320 panel open summary numeric count is not occluded",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "320 panel open View button is not occluded",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "320 panel open summary fits viewport",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "320 panel scrolled numeric count equals current busiest queue",
+      "actual": 3,
+      "expected": 3,
+      "passed": true
+    },
+    {
+      "name": "320 panel scrolled location names current busiest signal",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "320 panel scrolled View button has 44 px target",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "320 panel scrolled summary location is not occluded",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "320 panel scrolled summary numeric count is not occluded",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "320 panel scrolled View button is not occluded",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "320 panel scrolled summary fits viewport",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "320 panel actually scrolled",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "320 View closes Experiment",
+      "actual": false,
+      "expected": false,
+      "passed": true
+    },
+    {
+      "name": "320 map cue remains visible",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "320 focused cue centered on screen",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "no uncaught page errors",
+      "actual": [],
+      "expected": [],
+      "passed": true
+    }
+  ],
+  "scenes": [
+    {
+      "name": "390-default",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scrollWidth": 390,
+      "tick": 363,
+      "metrics": {
+        "active": 40,
+        "waiting": 22,
+        "pending": 0,
+        "queued": 22,
+        "completed": 0,
+        "generated": 40,
+        "rejected": 0,
+        "meanSpeed": 2.1637068000000004,
+        "meanWait": 3.148333333333333,
+        "flow": 0,
+        "meanTripTime": 0,
+        "pedestrianCompleted": 0,
+        "pedestrianCrossings": 0,
+        "turns": 10,
+        "reroutes": 0,
+        "maxWait": 8.5
+      },
+      "signals": [
+        {
+          "id": "j0",
+          "x": -72,
+          "z": -72,
+          "phase": "ew",
+          "remaining": 9.2,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j1",
+          "x": -24,
+          "z": -72,
+          "phase": "walk",
+          "remaining": 13.7,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j2",
+          "x": 24,
+          "z": -72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 1,
+          "reservedVehicleId": 6
+        },
+        {
+          "id": "j3",
+          "x": 72,
+          "z": -72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 3,
+          "reservedVehicleId": 33
+        },
+        {
+          "id": "j4",
+          "x": -72,
+          "z": -24,
+          "phase": "ew",
+          "remaining": 6.4,
+          "queue": 1,
+          "reservedVehicleId": 27
+        },
+        {
+          "id": "j5",
+          "x": -24,
+          "z": -24,
+          "phase": "walk",
+          "remaining": 13.233333333333333,
+          "queue": 0,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j6",
+          "x": 24,
+          "z": -24,
+          "phase": "ew",
+          "remaining": 8.3,
+          "queue": 1,
+          "reservedVehicleId": 11
+        },
+        {
+          "id": "j7",
+          "x": 72,
+          "z": -24,
+          "phase": "clearance",
+          "remaining": 1.3666666666666667,
+          "queue": 2,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j8",
+          "x": -72,
+          "z": 24,
+          "phase": "ew",
+          "remaining": 6.4,
+          "queue": 2,
+          "reservedVehicleId": 29
+        },
+        {
+          "id": "j9",
+          "x": -24,
+          "z": 24,
+          "phase": "walk",
+          "remaining": 13.5,
+          "queue": 0,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j10",
+          "x": 24,
+          "z": 24,
+          "phase": "clearance",
+          "remaining": 0.06666666666666667,
+          "queue": 1,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j11",
+          "x": 72,
+          "z": 24,
+          "phase": "ew",
+          "remaining": 0.13333333333333333,
+          "queue": 1,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j12",
+          "x": -72,
+          "z": 72,
+          "phase": "ew",
+          "remaining": 9,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j13",
+          "x": -24,
+          "z": 72,
+          "phase": "walk",
+          "remaining": 14.166666666666666,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j14",
+          "x": 24,
+          "z": 72,
+          "phase": "clearance",
+          "remaining": 0.3333333333333333,
+          "queue": 1,
+          "reservedVehicleId": 22
+        },
+        {
+          "id": "j15",
+          "x": 72,
+          "z": 72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 2,
+          "reservedVehicleId": 16
+        }
+      ],
+      "diagnostics": {
+        "rendererCalls": 75,
+        "triangles": 363154,
+        "geometries": 39,
+        "textures": 9,
+        "fps": 0,
+        "cameraMode": "aerial",
+        "cameraPosition": {
+          "x": 212.50000000000003,
+          "y": 200,
+          "z": 237.5
+        },
+        "paused": true,
+        "night": false,
+        "trafficOverlay": false,
+        "speed": 1,
+        "reducedMotion": true,
+        "webgl": true,
+        "failed": false,
+        "pixelRatio": 1,
+        "graphics": {
+          "mode": "standard",
+          "reductions": 0,
+          "staticShadowResolution": 1024,
+          "staticShadowsCached": true,
+          "movingShadows": "contact",
+          "distanceLOD": true,
+          "pausedRendering": "on-demand",
+          "renderedFrames": 4
+        },
+        "droppedSimulationSeconds": 0,
+        "simulationTick": 363,
+        "selectedVehicleId": null,
+        "audio": {
+          "supported": true,
+          "enabled": false,
+          "suspended": true,
+          "state": "not-started",
+          "activeVoices": 0,
+          "continuousSources": 0,
+          "voiceLimit": 6,
+          "outputPeak": 0,
+          "error": null
+        },
+        "world": {
+          "artVersion": "marina-district-3",
+          "staticBatches": 72,
+          "staticInstances": 28456,
+          "dynamicBatches": 91,
+          "buildingsByType": {
+            "heritage": 15,
+            "arcade": 10,
+            "terrace": 11,
+            "commercial": 10
+          },
+          "contextBlocks": 24,
+          "vehicles": 40,
+          "pedestrians": 48,
+          "detailedVehicles": 0,
+          "detailedPedestrians": 0,
+          "nearDetailInstances": 0,
+          "truncatedVehicles": 0,
+          "truncatedPedestrians": 0,
+          "vehicleCapacity": 512,
+          "pedestrianCapacity": 512,
+          "materials": 34,
+          "geometries": 130,
+          "textures": 8,
+          "motionEntries": 40
+        },
+        "recovered": false
+      },
+      "boxes": {
+        ".masthead": {
+          "x": 16,
+          "y": 16,
+          "width": 213.359375,
+          "height": 32,
+          "visible": true,
+          "centerHit": false,
+          "text": "CITY/FLOW 11 AI CITY TRAFFIC EXPERIMENT NORTHSHORECOASTAL DISTRICT",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        ".stats-panel": {
+          "x": 12,
+          "y": 66,
+          "width": 366,
+          "height": 62.90625,
+          "visible": true,
+          "centerHit": false,
+          "text": "On the road40vehicles Arrived0trips completed Avg. speed8km/h In a queue22vehicles",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(250, 251, 243, 0.94)"
+        },
+        ".scene-tools": {
+          "x": 12,
+          "y": 140,
+          "width": 194,
+          "height": 44,
+          "visible": true,
+          "centerHit": false,
+          "text": "Traffic Night Sound Help",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#experiment-panel": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "centerHit": false,
+          "text": "SMALL CHANGES. CITYWIDE EFFECTS.Shape the city. Traffic demand1.0× QuietRush hour Bring on rush hour Signal timingResponds to queues AdaptiveFixed cycle RoadworksAll roads are open Watch the queues. Let the city find its rhythm.",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgb(250, 251, 243)"
+        },
+        "#overlay-legend": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "centerHit": false,
+          "text": "JUNCTION QUEUESClearBusy BUSIEST JUNCTIONJunctions clear 0queued View",
+          "fontSize": "10px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(250, 251, 243, 0.94)"
+        },
+        "#queue-summary": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "centerHit": false,
+          "text": "BUSIEST JUNCTIONJunctions clear 0queued View",
+          "fontSize": "10px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-summary-location": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": true,
+          "centerHit": false,
+          "text": "Junctions clear",
+          "fontSize": "12px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-summary-count": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": true,
+          "centerHit": false,
+          "text": "0",
+          "fontSize": "20px",
+          "color": "rgb(26, 119, 95)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-focus": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": true,
+          "centerHit": false,
+          "text": "View",
+          "fontSize": "11px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgb(229, 238, 227)"
+        },
+        "#queue-callout": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "centerHit": false,
+          "text": "0queued",
+          "fontSize": "10px",
+          "color": "rgb(110, 73, 29)",
+          "background": "rgb(255, 250, 240)"
+        },
+        "#city-controls": {
+          "x": 12,
+          "y": 711,
+          "width": 366,
+          "height": 121,
+          "visible": true,
+          "centerHit": true,
+          "text": "AerialStreetFollow 1×2×4× Experiment",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(250, 251, 243, 0.94)"
+        },
+        "#experiment-toggle": {
+          "x": 251.84375,
+          "y": 779,
+          "width": 117.15625,
+          "height": 44,
+          "visible": true,
+          "centerHit": true,
+          "text": "Experiment",
+          "fontSize": "11px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#pause-toggle": {
+          "x": 21,
+          "y": 779,
+          "width": 44,
+          "height": 44,
+          "visible": true,
+          "centerHit": true,
+          "text": "",
+          "fontSize": "16px",
+          "color": "rgb(250, 251, 243)",
+          "background": "rgb(168, 123, 57)"
+        },
+        "#demand-range": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": true,
+          "centerHit": false,
+          "text": "",
+          "fontSize": "13.3333px",
+          "color": "rgb(157, 150, 142)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#experiment-close": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": true,
+          "centerHit": false,
+          "text": "",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      },
+      "focus": {
+        "id": "",
+        "tag": "BODY"
+      },
+      "panelScroll": {
+        "top": 0,
+        "height": 0,
+        "scrollHeight": 0
+      }
+    },
+    {
+      "name": "390-experiment-overlay",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scrollWidth": 390,
+      "tick": 363,
+      "metrics": {
+        "active": 40,
+        "waiting": 22,
+        "pending": 0,
+        "queued": 22,
+        "completed": 0,
+        "generated": 40,
+        "rejected": 0,
+        "meanSpeed": 2.1637068000000004,
+        "meanWait": 3.148333333333333,
+        "flow": 0,
+        "meanTripTime": 0,
+        "pedestrianCompleted": 0,
+        "pedestrianCrossings": 0,
+        "turns": 10,
+        "reroutes": 0,
+        "maxWait": 8.5
+      },
+      "signals": [
+        {
+          "id": "j0",
+          "x": -72,
+          "z": -72,
+          "phase": "ew",
+          "remaining": 9.2,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j1",
+          "x": -24,
+          "z": -72,
+          "phase": "walk",
+          "remaining": 13.7,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j2",
+          "x": 24,
+          "z": -72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 1,
+          "reservedVehicleId": 6
+        },
+        {
+          "id": "j3",
+          "x": 72,
+          "z": -72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 3,
+          "reservedVehicleId": 33
+        },
+        {
+          "id": "j4",
+          "x": -72,
+          "z": -24,
+          "phase": "ew",
+          "remaining": 6.4,
+          "queue": 1,
+          "reservedVehicleId": 27
+        },
+        {
+          "id": "j5",
+          "x": -24,
+          "z": -24,
+          "phase": "walk",
+          "remaining": 13.233333333333333,
+          "queue": 0,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j6",
+          "x": 24,
+          "z": -24,
+          "phase": "ew",
+          "remaining": 8.3,
+          "queue": 1,
+          "reservedVehicleId": 11
+        },
+        {
+          "id": "j7",
+          "x": 72,
+          "z": -24,
+          "phase": "clearance",
+          "remaining": 1.3666666666666667,
+          "queue": 2,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j8",
+          "x": -72,
+          "z": 24,
+          "phase": "ew",
+          "remaining": 6.4,
+          "queue": 2,
+          "reservedVehicleId": 29
+        },
+        {
+          "id": "j9",
+          "x": -24,
+          "z": 24,
+          "phase": "walk",
+          "remaining": 13.5,
+          "queue": 0,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j10",
+          "x": 24,
+          "z": 24,
+          "phase": "clearance",
+          "remaining": 0.06666666666666667,
+          "queue": 1,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j11",
+          "x": 72,
+          "z": 24,
+          "phase": "ew",
+          "remaining": 0.13333333333333333,
+          "queue": 1,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j12",
+          "x": -72,
+          "z": 72,
+          "phase": "ew",
+          "remaining": 9,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j13",
+          "x": -24,
+          "z": 72,
+          "phase": "walk",
+          "remaining": 14.166666666666666,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j14",
+          "x": 24,
+          "z": 72,
+          "phase": "clearance",
+          "remaining": 0.3333333333333333,
+          "queue": 1,
+          "reservedVehicleId": 22
+        },
+        {
+          "id": "j15",
+          "x": 72,
+          "z": 72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 2,
+          "reservedVehicleId": 16
+        }
+      ],
+      "diagnostics": {
+        "rendererCalls": 76,
+        "triangles": 363186,
+        "geometries": 39,
+        "textures": 9,
+        "fps": 0,
+        "cameraMode": "aerial",
+        "cameraPosition": {
+          "x": 212.50000000000003,
+          "y": 200,
+          "z": 237.5
+        },
+        "paused": true,
+        "night": false,
+        "trafficOverlay": true,
+        "speed": 1,
+        "reducedMotion": true,
+        "webgl": true,
+        "failed": false,
+        "pixelRatio": 1,
+        "graphics": {
+          "mode": "standard",
+          "reductions": 0,
+          "staticShadowResolution": 1024,
+          "staticShadowsCached": true,
+          "movingShadows": "contact",
+          "distanceLOD": true,
+          "pausedRendering": "on-demand",
+          "renderedFrames": 5
+        },
+        "droppedSimulationSeconds": 0,
+        "simulationTick": 363,
+        "selectedVehicleId": null,
+        "audio": {
+          "supported": true,
+          "enabled": false,
+          "suspended": true,
+          "state": "not-started",
+          "activeVoices": 0,
+          "continuousSources": 0,
+          "voiceLimit": 6,
+          "outputPeak": 0,
+          "error": null
+        },
+        "world": {
+          "artVersion": "marina-district-3",
+          "staticBatches": 72,
+          "staticInstances": 28456,
+          "dynamicBatches": 91,
+          "buildingsByType": {
+            "heritage": 15,
+            "arcade": 10,
+            "terrace": 11,
+            "commercial": 10
+          },
+          "contextBlocks": 24,
+          "vehicles": 40,
+          "pedestrians": 48,
+          "detailedVehicles": 0,
+          "detailedPedestrians": 0,
+          "nearDetailInstances": 0,
+          "truncatedVehicles": 0,
+          "truncatedPedestrians": 0,
+          "vehicleCapacity": 512,
+          "pedestrianCapacity": 512,
+          "materials": 34,
+          "geometries": 130,
+          "textures": 8,
+          "motionEntries": 40
+        },
+        "recovered": false
+      },
+      "boxes": {
+        ".masthead": {
+          "x": 16,
+          "y": 16,
+          "width": 213.359375,
+          "height": 32,
+          "visible": true,
+          "centerHit": false,
+          "text": "CITY/FLOW 11 AI CITY TRAFFIC EXPERIMENT NORTHSHORECOASTAL DISTRICT",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        ".stats-panel": {
+          "x": 12,
+          "y": 66,
+          "width": 366,
+          "height": 62.90625,
+          "visible": true,
+          "centerHit": false,
+          "text": "On the road40vehicles Arrived0trips completed Avg. speed8km/h In a queue22vehicles",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(250, 251, 243, 0.94)"
+        },
+        ".scene-tools": {
+          "x": 12,
+          "y": 140,
+          "width": 194,
+          "height": 44,
+          "visible": true,
+          "centerHit": false,
+          "text": "Traffic Night Sound Help",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#experiment-panel": {
+          "x": 12,
+          "y": 250,
+          "width": 366,
+          "height": 450,
+          "visible": true,
+          "centerHit": true,
+          "text": "SMALL CHANGES. CITYWIDE EFFECTS.Shape the city. JUNCTION QUEUESClearBusy BUSIEST JUNCTIONJ0 · Northwest 3queued View Traffic demand1.0× QuietRush hour Bring on rush hour Signal timingResponds to queues AdaptiveFixed cycle RoadworksAll roads are open Watch the queues. Let the city find its rhythm.",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgb(250, 251, 243)"
+        },
+        "#overlay-legend": {
+          "x": 29,
+          "y": 319,
+          "width": 332,
+          "height": 87,
+          "visible": true,
+          "centerHit": true,
+          "text": "JUNCTION QUEUESClearBusy BUSIEST JUNCTIONJ0 · Northwest 3queued View",
+          "fontSize": "10px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgb(237, 241, 229)"
+        },
+        "#queue-summary": {
+          "x": 39,
+          "y": 346,
+          "width": 312,
+          "height": 51,
+          "visible": true,
+          "centerHit": true,
+          "text": "BUSIEST JUNCTIONJ0 · Northwest 3queued View",
+          "fontSize": "10px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-summary-location": {
+          "x": 39,
+          "y": 374.5,
+          "width": 185.359375,
+          "height": 14,
+          "visible": true,
+          "centerHit": true,
+          "text": "J0 · Northwest",
+          "fontSize": "12px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-summary-count": {
+          "x": 248.65625,
+          "y": 359,
+          "width": 13.328125,
+          "height": 20,
+          "visible": true,
+          "centerHit": true,
+          "text": "3",
+          "fontSize": "20px",
+          "color": "rgb(26, 119, 95)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-focus": {
+          "x": 286.28125,
+          "y": 353,
+          "width": 64.71875,
+          "height": 44,
+          "visible": true,
+          "centerHit": true,
+          "text": "View",
+          "fontSize": "11px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgb(229, 238, 227)"
+        },
+        "#queue-callout": {
+          "x": 135.46875,
+          "y": 258,
+          "width": 95.0625,
+          "height": 30,
+          "visible": true,
+          "centerHit": false,
+          "text": "J03queued",
+          "fontSize": "10px",
+          "color": "rgb(110, 73, 29)",
+          "background": "rgb(255, 250, 240)"
+        },
+        "#city-controls": {
+          "x": 12,
+          "y": 711,
+          "width": 366,
+          "height": 121,
+          "visible": true,
+          "centerHit": true,
+          "text": "AerialStreetFollow 1×2×4× Experiment",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(250, 251, 243, 0.94)"
+        },
+        "#experiment-toggle": {
+          "x": 251.84375,
+          "y": 779,
+          "width": 117.15625,
+          "height": 44,
+          "visible": true,
+          "centerHit": true,
+          "text": "Experiment",
+          "fontSize": "11px",
+          "color": "rgb(27, 91, 73)",
+          "background": "rgb(229, 238, 227)"
+        },
+        "#pause-toggle": {
+          "x": 21,
+          "y": 779,
+          "width": 44,
+          "height": 44,
+          "visible": true,
+          "centerHit": true,
+          "text": "",
+          "fontSize": "16px",
+          "color": "rgb(250, 251, 243)",
+          "background": "rgb(168, 123, 57)"
+        },
+        "#demand-range": {
+          "x": 29,
+          "y": 439,
+          "width": 332,
+          "height": 44,
+          "visible": true,
+          "centerHit": true,
+          "text": "",
+          "fontSize": "13.3333px",
+          "color": "rgb(157, 150, 142)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#experiment-close": {
+          "x": 325,
+          "y": 265,
+          "width": 44,
+          "height": 44,
+          "visible": true,
+          "centerHit": true,
+          "text": "",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      },
+      "focus": {
+        "id": "experiment-toggle",
+        "tag": "BUTTON"
+      },
+      "panelScroll": {
+        "top": 0,
+        "height": 448,
+        "scrollHeight": 511
+      }
+    },
+    {
+      "name": "390-view-junction",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scrollWidth": 390,
+      "tick": 363,
+      "metrics": {
+        "active": 40,
+        "waiting": 22,
+        "pending": 0,
+        "queued": 22,
+        "completed": 0,
+        "generated": 40,
+        "rejected": 0,
+        "meanSpeed": 2.1637068000000004,
+        "meanWait": 3.148333333333333,
+        "flow": 0,
+        "meanTripTime": 0,
+        "pedestrianCompleted": 0,
+        "pedestrianCrossings": 0,
+        "turns": 10,
+        "reroutes": 0,
+        "maxWait": 8.5
+      },
+      "signals": [
+        {
+          "id": "j0",
+          "x": -72,
+          "z": -72,
+          "phase": "ew",
+          "remaining": 9.2,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j1",
+          "x": -24,
+          "z": -72,
+          "phase": "walk",
+          "remaining": 13.7,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j2",
+          "x": 24,
+          "z": -72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 1,
+          "reservedVehicleId": 6
+        },
+        {
+          "id": "j3",
+          "x": 72,
+          "z": -72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 3,
+          "reservedVehicleId": 33
+        },
+        {
+          "id": "j4",
+          "x": -72,
+          "z": -24,
+          "phase": "ew",
+          "remaining": 6.4,
+          "queue": 1,
+          "reservedVehicleId": 27
+        },
+        {
+          "id": "j5",
+          "x": -24,
+          "z": -24,
+          "phase": "walk",
+          "remaining": 13.233333333333333,
+          "queue": 0,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j6",
+          "x": 24,
+          "z": -24,
+          "phase": "ew",
+          "remaining": 8.3,
+          "queue": 1,
+          "reservedVehicleId": 11
+        },
+        {
+          "id": "j7",
+          "x": 72,
+          "z": -24,
+          "phase": "clearance",
+          "remaining": 1.3666666666666667,
+          "queue": 2,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j8",
+          "x": -72,
+          "z": 24,
+          "phase": "ew",
+          "remaining": 6.4,
+          "queue": 2,
+          "reservedVehicleId": 29
+        },
+        {
+          "id": "j9",
+          "x": -24,
+          "z": 24,
+          "phase": "walk",
+          "remaining": 13.5,
+          "queue": 0,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j10",
+          "x": 24,
+          "z": 24,
+          "phase": "clearance",
+          "remaining": 0.06666666666666667,
+          "queue": 1,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j11",
+          "x": 72,
+          "z": 24,
+          "phase": "ew",
+          "remaining": 0.13333333333333333,
+          "queue": 1,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j12",
+          "x": -72,
+          "z": 72,
+          "phase": "ew",
+          "remaining": 9,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j13",
+          "x": -24,
+          "z": 72,
+          "phase": "walk",
+          "remaining": 14.166666666666666,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j14",
+          "x": 24,
+          "z": 72,
+          "phase": "clearance",
+          "remaining": 0.3333333333333333,
+          "queue": 1,
+          "reservedVehicleId": 22
+        },
+        {
+          "id": "j15",
+          "x": 72,
+          "z": 72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 2,
+          "reservedVehicleId": 16
+        }
+      ],
+      "diagnostics": {
+        "rendererCalls": 81,
+        "triangles": 368724,
+        "geometries": 52,
+        "textures": 10,
+        "fps": 0,
+        "cameraMode": "aerial",
+        "cameraPosition": {
+          "x": 1.920000000000016,
+          "y": 91.84,
+          "z": 8.640000000000029
+        },
+        "paused": true,
+        "night": false,
+        "trafficOverlay": true,
+        "speed": 1,
+        "reducedMotion": true,
+        "webgl": true,
+        "failed": false,
+        "pixelRatio": 1,
+        "graphics": {
+          "mode": "standard",
+          "reductions": 0,
+          "staticShadowResolution": 1024,
+          "staticShadowsCached": true,
+          "movingShadows": "contact",
+          "distanceLOD": true,
+          "pausedRendering": "on-demand",
+          "renderedFrames": 6
+        },
+        "droppedSimulationSeconds": 0,
+        "simulationTick": 363,
+        "selectedVehicleId": null,
+        "audio": {
+          "supported": true,
+          "enabled": false,
+          "suspended": true,
+          "state": "not-started",
+          "activeVoices": 0,
+          "continuousSources": 0,
+          "voiceLimit": 6,
+          "outputPeak": 0,
+          "error": null
+        },
+        "world": {
+          "artVersion": "marina-district-3",
+          "staticBatches": 72,
+          "staticInstances": 28456,
+          "dynamicBatches": 91,
+          "buildingsByType": {
+            "heritage": 15,
+            "arcade": 10,
+            "terrace": 11,
+            "commercial": 10
+          },
+          "contextBlocks": 24,
+          "vehicles": 40,
+          "pedestrians": 48,
+          "detailedVehicles": 0,
+          "detailedPedestrians": 0,
+          "nearDetailInstances": 92,
+          "truncatedVehicles": 0,
+          "truncatedPedestrians": 0,
+          "vehicleCapacity": 512,
+          "pedestrianCapacity": 512,
+          "materials": 34,
+          "geometries": 130,
+          "textures": 8,
+          "motionEntries": 40
+        },
+        "recovered": false
+      },
+      "boxes": {
+        ".masthead": {
+          "x": 16,
+          "y": 16,
+          "width": 213.359375,
+          "height": 32,
+          "visible": true,
+          "centerHit": false,
+          "text": "CITY/FLOW 11 AI CITY TRAFFIC EXPERIMENT NORTHSHORECOASTAL DISTRICT",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        ".stats-panel": {
+          "x": 12,
+          "y": 66,
+          "width": 366,
+          "height": 62.90625,
+          "visible": true,
+          "centerHit": false,
+          "text": "On the road40vehicles Arrived0trips completed Avg. speed8km/h In a queue22vehicles",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(250, 251, 243, 0.94)"
+        },
+        ".scene-tools": {
+          "x": 12,
+          "y": 140,
+          "width": 194,
+          "height": 44,
+          "visible": true,
+          "centerHit": false,
+          "text": "Traffic Night Sound Help",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#experiment-panel": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "centerHit": false,
+          "text": "SMALL CHANGES. CITYWIDE EFFECTS.Shape the city. Traffic demand1.0× QuietRush hour Bring on rush hour Signal timingResponds to queues AdaptiveFixed cycle RoadworksAll roads are open Watch the queues. Let the city find its rhythm.",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgb(250, 251, 243)"
+        },
+        "#overlay-legend": {
+          "x": 56,
+          "y": 609,
+          "width": 278,
+          "height": 91,
+          "visible": true,
+          "centerHit": false,
+          "text": "JUNCTION QUEUESClearBusy BUSIEST JUNCTIONJ0 · Northwest 3queued View",
+          "fontSize": "10px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(250, 251, 243, 0.94)"
+        },
+        "#queue-summary": {
+          "x": 70,
+          "y": 638,
+          "width": 250,
+          "height": 51,
+          "visible": true,
+          "centerHit": false,
+          "text": "BUSIEST JUNCTIONJ0 · Northwest 3queued View",
+          "fontSize": "10px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-summary-location": {
+          "x": 70,
+          "y": 666.5,
+          "width": 123.359375,
+          "height": 14,
+          "visible": true,
+          "centerHit": false,
+          "text": "J0 · Northwest",
+          "fontSize": "12px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-summary-count": {
+          "x": 217.65625,
+          "y": 651,
+          "width": 13.328125,
+          "height": 20,
+          "visible": true,
+          "centerHit": false,
+          "text": "3",
+          "fontSize": "20px",
+          "color": "rgb(26, 119, 95)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-focus": {
+          "x": 255.28125,
+          "y": 645,
+          "width": 64.71875,
+          "height": 44,
+          "visible": true,
+          "centerHit": true,
+          "text": "View",
+          "fontSize": "11px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgb(229, 238, 227)"
+        },
+        "#queue-callout": {
+          "x": 147.46875,
+          "y": 376,
+          "width": 95.0625,
+          "height": 30,
+          "visible": true,
+          "centerHit": false,
+          "text": "J03queued",
+          "fontSize": "10px",
+          "color": "rgb(110, 73, 29)",
+          "background": "rgb(255, 250, 240)"
+        },
+        "#city-controls": {
+          "x": 12,
+          "y": 711,
+          "width": 366,
+          "height": 121,
+          "visible": true,
+          "centerHit": true,
+          "text": "AerialStreetFollow 1×2×4× Experiment",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(250, 251, 243, 0.94)"
+        },
+        "#experiment-toggle": {
+          "x": 251.84375,
+          "y": 779,
+          "width": 117.15625,
+          "height": 44,
+          "visible": true,
+          "centerHit": true,
+          "text": "Experiment",
+          "fontSize": "11px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#pause-toggle": {
+          "x": 21,
+          "y": 779,
+          "width": 44,
+          "height": 44,
+          "visible": true,
+          "centerHit": true,
+          "text": "",
+          "fontSize": "16px",
+          "color": "rgb(250, 251, 243)",
+          "background": "rgb(168, 123, 57)"
+        },
+        "#demand-range": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": true,
+          "centerHit": false,
+          "text": "",
+          "fontSize": "13.3333px",
+          "color": "rgb(157, 150, 142)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#experiment-close": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": true,
+          "centerHit": false,
+          "text": "",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      },
+      "focus": {
+        "id": "",
+        "tag": "CANVAS"
+      },
+      "panelScroll": {
+        "top": 0,
+        "height": 0,
+        "scrollHeight": 0
+      }
+    },
+    {
+      "name": "390-follow",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scrollWidth": 390,
+      "tick": 363,
+      "metrics": {
+        "active": 40,
+        "waiting": 22,
+        "pending": 0,
+        "queued": 22,
+        "completed": 0,
+        "generated": 40,
+        "rejected": 0,
+        "meanSpeed": 2.1637068000000004,
+        "meanWait": 3.148333333333333,
+        "flow": 0,
+        "meanTripTime": 0,
+        "pedestrianCompleted": 0,
+        "pedestrianCrossings": 0,
+        "turns": 10,
+        "reroutes": 0,
+        "maxWait": 8.5
+      },
+      "signals": [
+        {
+          "id": "j0",
+          "x": -72,
+          "z": -72,
+          "phase": "ew",
+          "remaining": 9.2,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j1",
+          "x": -24,
+          "z": -72,
+          "phase": "walk",
+          "remaining": 13.7,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j2",
+          "x": 24,
+          "z": -72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 1,
+          "reservedVehicleId": 6
+        },
+        {
+          "id": "j3",
+          "x": 72,
+          "z": -72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 3,
+          "reservedVehicleId": 33
+        },
+        {
+          "id": "j4",
+          "x": -72,
+          "z": -24,
+          "phase": "ew",
+          "remaining": 6.4,
+          "queue": 1,
+          "reservedVehicleId": 27
+        },
+        {
+          "id": "j5",
+          "x": -24,
+          "z": -24,
+          "phase": "walk",
+          "remaining": 13.233333333333333,
+          "queue": 0,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j6",
+          "x": 24,
+          "z": -24,
+          "phase": "ew",
+          "remaining": 8.3,
+          "queue": 1,
+          "reservedVehicleId": 11
+        },
+        {
+          "id": "j7",
+          "x": 72,
+          "z": -24,
+          "phase": "clearance",
+          "remaining": 1.3666666666666667,
+          "queue": 2,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j8",
+          "x": -72,
+          "z": 24,
+          "phase": "ew",
+          "remaining": 6.4,
+          "queue": 2,
+          "reservedVehicleId": 29
+        },
+        {
+          "id": "j9",
+          "x": -24,
+          "z": 24,
+          "phase": "walk",
+          "remaining": 13.5,
+          "queue": 0,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j10",
+          "x": 24,
+          "z": 24,
+          "phase": "clearance",
+          "remaining": 0.06666666666666667,
+          "queue": 1,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j11",
+          "x": 72,
+          "z": 24,
+          "phase": "ew",
+          "remaining": 0.13333333333333333,
+          "queue": 1,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j12",
+          "x": -72,
+          "z": 72,
+          "phase": "ew",
+          "remaining": 9,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j13",
+          "x": -24,
+          "z": 72,
+          "phase": "walk",
+          "remaining": 14.166666666666666,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j14",
+          "x": 24,
+          "z": 72,
+          "phase": "clearance",
+          "remaining": 0.3333333333333333,
+          "queue": 1,
+          "reservedVehicleId": 22
+        },
+        {
+          "id": "j15",
+          "x": 72,
+          "z": 72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 2,
+          "reservedVehicleId": 16
+        }
+      ],
+      "diagnostics": {
+        "rendererCalls": 145,
+        "triangles": 502752,
+        "geometries": 105,
+        "textures": 11,
+        "fps": 0,
+        "cameraMode": "follow",
+        "cameraPosition": {
+          "x": -63.7,
+          "y": 10.5,
+          "z": -71.134571
+        },
+        "paused": true,
+        "night": false,
+        "trafficOverlay": false,
+        "speed": 1,
+        "reducedMotion": true,
+        "webgl": true,
+        "failed": false,
+        "pixelRatio": 1,
+        "graphics": {
+          "mode": "standard",
+          "reductions": 0,
+          "staticShadowResolution": 1024,
+          "staticShadowsCached": true,
+          "movingShadows": "contact",
+          "distanceLOD": true,
+          "pausedRendering": "on-demand",
+          "renderedFrames": 8
+        },
+        "droppedSimulationSeconds": 0,
+        "simulationTick": 363,
+        "selectedVehicleId": 2,
+        "audio": {
+          "supported": true,
+          "enabled": false,
+          "suspended": true,
+          "state": "not-started",
+          "activeVoices": 0,
+          "continuousSources": 0,
+          "voiceLimit": 6,
+          "outputPeak": 0,
+          "error": null
+        },
+        "world": {
+          "artVersion": "marina-district-3",
+          "staticBatches": 72,
+          "staticInstances": 28456,
+          "dynamicBatches": 91,
+          "buildingsByType": {
+            "heritage": 15,
+            "arcade": 10,
+            "terrace": 11,
+            "commercial": 10
+          },
+          "contextBlocks": 24,
+          "vehicles": 40,
+          "pedestrians": 48,
+          "detailedVehicles": 11,
+          "detailedPedestrians": 10,
+          "nearDetailInstances": 1255,
+          "truncatedVehicles": 0,
+          "truncatedPedestrians": 0,
+          "vehicleCapacity": 512,
+          "pedestrianCapacity": 512,
+          "materials": 34,
+          "geometries": 130,
+          "textures": 8,
+          "motionEntries": 40
+        },
+        "recovered": false
+      },
+      "boxes": {
+        ".masthead": {
+          "x": 16,
+          "y": 16,
+          "width": 213.359375,
+          "height": 32,
+          "visible": true,
+          "centerHit": false,
+          "text": "CITY/FLOW 11 AI CITY TRAFFIC EXPERIMENT NORTHSHORECOASTAL DISTRICT",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        ".stats-panel": {
+          "x": 12,
+          "y": 66,
+          "width": 366,
+          "height": 62.90625,
+          "visible": true,
+          "centerHit": false,
+          "text": "On the road40vehicles Arrived0trips completed Avg. speed8km/h In a queue22vehicles",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(250, 251, 243, 0.94)"
+        },
+        ".scene-tools": {
+          "x": 12,
+          "y": 140,
+          "width": 194,
+          "height": 44,
+          "visible": true,
+          "centerHit": false,
+          "text": "Traffic Night Sound Help",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#experiment-panel": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "centerHit": false,
+          "text": "SMALL CHANGES. CITYWIDE EFFECTS.Shape the city. Traffic demand1.0× QuietRush hour Bring on rush hour Signal timingResponds to queues AdaptiveFixed cycle RoadworksAll roads are open Watch the queues. Let the city find its rhythm.",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgb(250, 251, 243)"
+        },
+        "#overlay-legend": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "centerHit": false,
+          "text": "JUNCTION QUEUESClearBusy BUSIEST JUNCTIONJ0 · Northwest 3queued View",
+          "fontSize": "10px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(250, 251, 243, 0.94)"
+        },
+        "#queue-summary": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "centerHit": false,
+          "text": "BUSIEST JUNCTIONJ0 · Northwest 3queued View",
+          "fontSize": "10px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-summary-location": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": true,
+          "centerHit": false,
+          "text": "J0 · Northwest",
+          "fontSize": "12px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-summary-count": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": true,
+          "centerHit": false,
+          "text": "3",
+          "fontSize": "20px",
+          "color": "rgb(26, 119, 95)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-focus": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": true,
+          "centerHit": false,
+          "text": "View",
+          "fontSize": "11px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgb(229, 238, 227)"
+        },
+        "#queue-callout": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "centerHit": false,
+          "text": "J03queued",
+          "fontSize": "10px",
+          "color": "rgb(110, 73, 29)",
+          "background": "rgb(255, 250, 240)"
+        },
+        "#city-controls": {
+          "x": 12,
+          "y": 711,
+          "width": 366,
+          "height": 121,
+          "visible": true,
+          "centerHit": true,
+          "text": "AerialStreetFollow 1×2×4× Experiment",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(250, 251, 243, 0.94)"
+        },
+        "#experiment-toggle": {
+          "x": 251.84375,
+          "y": 779,
+          "width": 117.15625,
+          "height": 44,
+          "visible": true,
+          "centerHit": true,
+          "text": "Experiment",
+          "fontSize": "11px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#pause-toggle": {
+          "x": 21,
+          "y": 779,
+          "width": 44,
+          "height": 44,
+          "visible": true,
+          "centerHit": true,
+          "text": "",
+          "fontSize": "16px",
+          "color": "rgb(250, 251, 243)",
+          "background": "rgb(168, 123, 57)"
+        },
+        "#demand-range": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": true,
+          "centerHit": false,
+          "text": "",
+          "fontSize": "13.3333px",
+          "color": "rgb(157, 150, 142)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#experiment-close": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": true,
+          "centerHit": false,
+          "text": "",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      },
+      "focus": {
+        "id": "",
+        "tag": "BUTTON"
+      },
+      "panelScroll": {
+        "top": 0,
+        "height": 0,
+        "scrollHeight": 0
+      }
+    },
+    {
+      "name": "320-experiment-overlay",
+      "viewport": {
+        "width": 320,
+        "height": 700
+      },
+      "scrollWidth": 320,
+      "tick": 363,
+      "metrics": {
+        "active": 40,
+        "waiting": 22,
+        "pending": 0,
+        "queued": 22,
+        "completed": 0,
+        "generated": 40,
+        "rejected": 0,
+        "meanSpeed": 2.1637068000000004,
+        "meanWait": 3.148333333333333,
+        "flow": 0,
+        "meanTripTime": 0,
+        "pedestrianCompleted": 0,
+        "pedestrianCrossings": 0,
+        "turns": 10,
+        "reroutes": 0,
+        "maxWait": 8.5
+      },
+      "signals": [
+        {
+          "id": "j0",
+          "x": -72,
+          "z": -72,
+          "phase": "ew",
+          "remaining": 9.2,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j1",
+          "x": -24,
+          "z": -72,
+          "phase": "walk",
+          "remaining": 13.7,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j2",
+          "x": 24,
+          "z": -72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 1,
+          "reservedVehicleId": 6
+        },
+        {
+          "id": "j3",
+          "x": 72,
+          "z": -72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 3,
+          "reservedVehicleId": 33
+        },
+        {
+          "id": "j4",
+          "x": -72,
+          "z": -24,
+          "phase": "ew",
+          "remaining": 6.4,
+          "queue": 1,
+          "reservedVehicleId": 27
+        },
+        {
+          "id": "j5",
+          "x": -24,
+          "z": -24,
+          "phase": "walk",
+          "remaining": 13.233333333333333,
+          "queue": 0,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j6",
+          "x": 24,
+          "z": -24,
+          "phase": "ew",
+          "remaining": 8.3,
+          "queue": 1,
+          "reservedVehicleId": 11
+        },
+        {
+          "id": "j7",
+          "x": 72,
+          "z": -24,
+          "phase": "clearance",
+          "remaining": 1.3666666666666667,
+          "queue": 2,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j8",
+          "x": -72,
+          "z": 24,
+          "phase": "ew",
+          "remaining": 6.4,
+          "queue": 2,
+          "reservedVehicleId": 29
+        },
+        {
+          "id": "j9",
+          "x": -24,
+          "z": 24,
+          "phase": "walk",
+          "remaining": 13.5,
+          "queue": 0,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j10",
+          "x": 24,
+          "z": 24,
+          "phase": "clearance",
+          "remaining": 0.06666666666666667,
+          "queue": 1,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j11",
+          "x": 72,
+          "z": 24,
+          "phase": "ew",
+          "remaining": 0.13333333333333333,
+          "queue": 1,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j12",
+          "x": -72,
+          "z": 72,
+          "phase": "ew",
+          "remaining": 9,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j13",
+          "x": -24,
+          "z": 72,
+          "phase": "walk",
+          "remaining": 14.166666666666666,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j14",
+          "x": 24,
+          "z": 72,
+          "phase": "clearance",
+          "remaining": 0.3333333333333333,
+          "queue": 1,
+          "reservedVehicleId": 22
+        },
+        {
+          "id": "j15",
+          "x": 72,
+          "z": 72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 2,
+          "reservedVehicleId": 16
+        }
+      ],
+      "diagnostics": {
+        "rendererCalls": 76,
+        "triangles": 363186,
+        "geometries": 105,
+        "textures": 11,
+        "fps": 0,
+        "cameraMode": "aerial",
+        "cameraPosition": {
+          "x": 212.50000000000003,
+          "y": 200,
+          "z": 237.5
+        },
+        "paused": true,
+        "night": false,
+        "trafficOverlay": true,
+        "speed": 1,
+        "reducedMotion": true,
+        "webgl": true,
+        "failed": false,
+        "pixelRatio": 1,
+        "graphics": {
+          "mode": "standard",
+          "reductions": 0,
+          "staticShadowResolution": 1024,
+          "staticShadowsCached": true,
+          "movingShadows": "contact",
+          "distanceLOD": true,
+          "pausedRendering": "on-demand",
+          "renderedFrames": 11
+        },
+        "droppedSimulationSeconds": 0,
+        "simulationTick": 363,
+        "selectedVehicleId": 2,
+        "audio": {
+          "supported": true,
+          "enabled": false,
+          "suspended": true,
+          "state": "not-started",
+          "activeVoices": 0,
+          "continuousSources": 0,
+          "voiceLimit": 6,
+          "outputPeak": 0,
+          "error": null
+        },
+        "world": {
+          "artVersion": "marina-district-3",
+          "staticBatches": 72,
+          "staticInstances": 28456,
+          "dynamicBatches": 91,
+          "buildingsByType": {
+            "heritage": 15,
+            "arcade": 10,
+            "terrace": 11,
+            "commercial": 10
+          },
+          "contextBlocks": 24,
+          "vehicles": 40,
+          "pedestrians": 48,
+          "detailedVehicles": 0,
+          "detailedPedestrians": 0,
+          "nearDetailInstances": 0,
+          "truncatedVehicles": 0,
+          "truncatedPedestrians": 0,
+          "vehicleCapacity": 512,
+          "pedestrianCapacity": 512,
+          "materials": 34,
+          "geometries": 130,
+          "textures": 8,
+          "motionEntries": 40
+        },
+        "recovered": false
+      },
+      "boxes": {
+        ".masthead": {
+          "x": 16,
+          "y": 12,
+          "width": 198.171875,
+          "height": 29,
+          "visible": true,
+          "centerHit": false,
+          "text": "CITY/FLOW 11 AI CITY TRAFFIC EXPERIMENT NORTHSHORECOASTAL DISTRICT",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        ".stats-panel": {
+          "x": 12,
+          "y": 58,
+          "width": 296,
+          "height": 60.828125,
+          "visible": true,
+          "centerHit": false,
+          "text": "On the road40vehicles Arrived0trips completed Avg. speed8km/h In a queue22vehicles",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(250, 251, 243, 0.94)"
+        },
+        ".scene-tools": {
+          "x": 12,
+          "y": 132,
+          "width": 194,
+          "height": 44,
+          "visible": true,
+          "centerHit": false,
+          "text": "Traffic Night Sound Help",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#experiment-panel": {
+          "x": 12,
+          "y": 190,
+          "width": 296,
+          "height": 366,
+          "visible": true,
+          "centerHit": true,
+          "text": "SMALL CHANGES. CITYWIDE EFFECTS.Shape the city. JUNCTION QUEUESClearBusy BUSIEST JUNCTIONJ0 · Northwest 3queued View Traffic demand1.0× QuietRush hour Bring on rush hour Signal timingResponds to queues AdaptiveFixed cycle RoadworksAll roads are open Watch the queues. Let the city find its rhythm.",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgb(250, 251, 243)"
+        },
+        "#overlay-legend": {
+          "x": 29,
+          "y": 259,
+          "width": 262,
+          "height": 87,
+          "visible": true,
+          "centerHit": true,
+          "text": "JUNCTION QUEUESClearBusy BUSIEST JUNCTIONJ0 · Northwest 3queued View",
+          "fontSize": "10px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgb(237, 241, 229)"
+        },
+        "#queue-summary": {
+          "x": 39,
+          "y": 286,
+          "width": 242,
+          "height": 51,
+          "visible": true,
+          "centerHit": true,
+          "text": "BUSIEST JUNCTIONJ0 · Northwest 3queued View",
+          "fontSize": "10px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-summary-location": {
+          "x": 39,
+          "y": 314.5,
+          "width": 115.359375,
+          "height": 14,
+          "visible": true,
+          "centerHit": true,
+          "text": "J0 · Northwest",
+          "fontSize": "12px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-summary-count": {
+          "x": 178.65625,
+          "y": 299,
+          "width": 13.328125,
+          "height": 20,
+          "visible": true,
+          "centerHit": true,
+          "text": "3",
+          "fontSize": "20px",
+          "color": "rgb(26, 119, 95)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-focus": {
+          "x": 216.28125,
+          "y": 293,
+          "width": 64.71875,
+          "height": 44,
+          "visible": true,
+          "centerHit": true,
+          "text": "View",
+          "fontSize": "11px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgb(229, 238, 227)"
+        },
+        "#queue-callout": {
+          "x": 102.46875,
+          "y": 207,
+          "width": 95.0625,
+          "height": 30,
+          "visible": true,
+          "centerHit": false,
+          "text": "J03queued",
+          "fontSize": "10px",
+          "color": "rgb(110, 73, 29)",
+          "background": "rgb(255, 250, 240)"
+        },
+        "#city-controls": {
+          "x": 12,
+          "y": 567,
+          "width": 296,
+          "height": 121,
+          "visible": true,
+          "centerHit": true,
+          "text": "AerialStreetFollow 1×2×4× Experiment",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(250, 251, 243, 0.94)"
+        },
+        "#experiment-toggle": {
+          "x": 255,
+          "y": 635,
+          "width": 44,
+          "height": 44,
+          "visible": true,
+          "centerHit": true,
+          "text": "Experiment",
+          "fontSize": "11px",
+          "color": "rgb(27, 91, 73)",
+          "background": "rgb(229, 238, 227)"
+        },
+        "#pause-toggle": {
+          "x": 21,
+          "y": 635,
+          "width": 44,
+          "height": 44,
+          "visible": true,
+          "centerHit": true,
+          "text": "",
+          "fontSize": "16px",
+          "color": "rgb(250, 251, 243)",
+          "background": "rgb(168, 123, 57)"
+        },
+        "#demand-range": {
+          "x": 29,
+          "y": 379,
+          "width": 262,
+          "height": 44,
+          "visible": true,
+          "centerHit": true,
+          "text": "",
+          "fontSize": "13.3333px",
+          "color": "rgb(157, 150, 142)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#experiment-close": {
+          "x": 255,
+          "y": 205,
+          "width": 44,
+          "height": 44,
+          "visible": true,
+          "centerHit": true,
+          "text": "",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      },
+      "focus": {
+        "id": "experiment-toggle",
+        "tag": "BUTTON"
+      },
+      "panelScroll": {
+        "top": 0,
+        "height": 364,
+        "scrollHeight": 511
+      }
+    },
+    {
+      "name": "320-experiment-scrolled",
+      "viewport": {
+        "width": 320,
+        "height": 700
+      },
+      "scrollWidth": 320,
+      "tick": 363,
+      "metrics": {
+        "active": 40,
+        "waiting": 22,
+        "pending": 0,
+        "queued": 22,
+        "completed": 0,
+        "generated": 40,
+        "rejected": 0,
+        "meanSpeed": 2.1637068000000004,
+        "meanWait": 3.148333333333333,
+        "flow": 0,
+        "meanTripTime": 0,
+        "pedestrianCompleted": 0,
+        "pedestrianCrossings": 0,
+        "turns": 10,
+        "reroutes": 0,
+        "maxWait": 8.5
+      },
+      "signals": [
+        {
+          "id": "j0",
+          "x": -72,
+          "z": -72,
+          "phase": "ew",
+          "remaining": 9.2,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j1",
+          "x": -24,
+          "z": -72,
+          "phase": "walk",
+          "remaining": 13.7,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j2",
+          "x": 24,
+          "z": -72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 1,
+          "reservedVehicleId": 6
+        },
+        {
+          "id": "j3",
+          "x": 72,
+          "z": -72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 3,
+          "reservedVehicleId": 33
+        },
+        {
+          "id": "j4",
+          "x": -72,
+          "z": -24,
+          "phase": "ew",
+          "remaining": 6.4,
+          "queue": 1,
+          "reservedVehicleId": 27
+        },
+        {
+          "id": "j5",
+          "x": -24,
+          "z": -24,
+          "phase": "walk",
+          "remaining": 13.233333333333333,
+          "queue": 0,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j6",
+          "x": 24,
+          "z": -24,
+          "phase": "ew",
+          "remaining": 8.3,
+          "queue": 1,
+          "reservedVehicleId": 11
+        },
+        {
+          "id": "j7",
+          "x": 72,
+          "z": -24,
+          "phase": "clearance",
+          "remaining": 1.3666666666666667,
+          "queue": 2,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j8",
+          "x": -72,
+          "z": 24,
+          "phase": "ew",
+          "remaining": 6.4,
+          "queue": 2,
+          "reservedVehicleId": 29
+        },
+        {
+          "id": "j9",
+          "x": -24,
+          "z": 24,
+          "phase": "walk",
+          "remaining": 13.5,
+          "queue": 0,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j10",
+          "x": 24,
+          "z": 24,
+          "phase": "clearance",
+          "remaining": 0.06666666666666667,
+          "queue": 1,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j11",
+          "x": 72,
+          "z": 24,
+          "phase": "ew",
+          "remaining": 0.13333333333333333,
+          "queue": 1,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j12",
+          "x": -72,
+          "z": 72,
+          "phase": "ew",
+          "remaining": 9,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j13",
+          "x": -24,
+          "z": 72,
+          "phase": "walk",
+          "remaining": 14.166666666666666,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j14",
+          "x": 24,
+          "z": 72,
+          "phase": "clearance",
+          "remaining": 0.3333333333333333,
+          "queue": 1,
+          "reservedVehicleId": 22
+        },
+        {
+          "id": "j15",
+          "x": 72,
+          "z": 72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 2,
+          "reservedVehicleId": 16
+        }
+      ],
+      "diagnostics": {
+        "rendererCalls": 76,
+        "triangles": 363186,
+        "geometries": 105,
+        "textures": 11,
+        "fps": 0,
+        "cameraMode": "aerial",
+        "cameraPosition": {
+          "x": 212.50000000000003,
+          "y": 200,
+          "z": 237.5
+        },
+        "paused": true,
+        "night": false,
+        "trafficOverlay": true,
+        "speed": 1,
+        "reducedMotion": true,
+        "webgl": true,
+        "failed": false,
+        "pixelRatio": 1,
+        "graphics": {
+          "mode": "standard",
+          "reductions": 0,
+          "staticShadowResolution": 1024,
+          "staticShadowsCached": true,
+          "movingShadows": "contact",
+          "distanceLOD": true,
+          "pausedRendering": "on-demand",
+          "renderedFrames": 11
+        },
+        "droppedSimulationSeconds": 0,
+        "simulationTick": 363,
+        "selectedVehicleId": 2,
+        "audio": {
+          "supported": true,
+          "enabled": false,
+          "suspended": true,
+          "state": "not-started",
+          "activeVoices": 0,
+          "continuousSources": 0,
+          "voiceLimit": 6,
+          "outputPeak": 0,
+          "error": null
+        },
+        "world": {
+          "artVersion": "marina-district-3",
+          "staticBatches": 72,
+          "staticInstances": 28456,
+          "dynamicBatches": 91,
+          "buildingsByType": {
+            "heritage": 15,
+            "arcade": 10,
+            "terrace": 11,
+            "commercial": 10
+          },
+          "contextBlocks": 24,
+          "vehicles": 40,
+          "pedestrians": 48,
+          "detailedVehicles": 0,
+          "detailedPedestrians": 0,
+          "nearDetailInstances": 0,
+          "truncatedVehicles": 0,
+          "truncatedPedestrians": 0,
+          "vehicleCapacity": 512,
+          "pedestrianCapacity": 512,
+          "materials": 34,
+          "geometries": 130,
+          "textures": 8,
+          "motionEntries": 40
+        },
+        "recovered": false
+      },
+      "boxes": {
+        ".masthead": {
+          "x": 16,
+          "y": 12,
+          "width": 198.171875,
+          "height": 29,
+          "visible": true,
+          "centerHit": false,
+          "text": "CITY/FLOW 11 AI CITY TRAFFIC EXPERIMENT NORTHSHORECOASTAL DISTRICT",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        ".stats-panel": {
+          "x": 12,
+          "y": 58,
+          "width": 296,
+          "height": 60.828125,
+          "visible": true,
+          "centerHit": false,
+          "text": "On the road40vehicles Arrived0trips completed Avg. speed8km/h In a queue22vehicles",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(250, 251, 243, 0.94)"
+        },
+        ".scene-tools": {
+          "x": 12,
+          "y": 132,
+          "width": 194,
+          "height": 44,
+          "visible": true,
+          "centerHit": false,
+          "text": "Traffic Night Sound Help",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#experiment-panel": {
+          "x": 12,
+          "y": 190,
+          "width": 296,
+          "height": 366,
+          "visible": true,
+          "centerHit": true,
+          "text": "SMALL CHANGES. CITYWIDE EFFECTS.Shape the city. JUNCTION QUEUESClearBusy BUSIEST JUNCTIONJ0 · Northwest 3queued View Traffic demand1.0× QuietRush hour Bring on rush hour Signal timingResponds to queues AdaptiveFixed cycle RoadworksAll roads are open Watch the queues. Let the city find its rhythm.",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgb(250, 251, 243)"
+        },
+        "#overlay-legend": {
+          "x": 29,
+          "y": 253,
+          "width": 262,
+          "height": 87,
+          "visible": true,
+          "centerHit": true,
+          "text": "JUNCTION QUEUESClearBusy BUSIEST JUNCTIONJ0 · Northwest 3queued View",
+          "fontSize": "10px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgb(237, 241, 229)"
+        },
+        "#queue-summary": {
+          "x": 39,
+          "y": 280,
+          "width": 242,
+          "height": 51,
+          "visible": true,
+          "centerHit": true,
+          "text": "BUSIEST JUNCTIONJ0 · Northwest 3queued View",
+          "fontSize": "10px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-summary-location": {
+          "x": 39,
+          "y": 308.5,
+          "width": 115.359375,
+          "height": 14,
+          "visible": true,
+          "centerHit": true,
+          "text": "J0 · Northwest",
+          "fontSize": "12px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-summary-count": {
+          "x": 178.65625,
+          "y": 293,
+          "width": 13.328125,
+          "height": 20,
+          "visible": true,
+          "centerHit": true,
+          "text": "3",
+          "fontSize": "20px",
+          "color": "rgb(26, 119, 95)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-focus": {
+          "x": 216.28125,
+          "y": 287,
+          "width": 64.71875,
+          "height": 44,
+          "visible": true,
+          "centerHit": true,
+          "text": "View",
+          "fontSize": "11px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgb(229, 238, 227)"
+        },
+        "#queue-callout": {
+          "x": 102.46875,
+          "y": 207,
+          "width": 95.0625,
+          "height": 30,
+          "visible": true,
+          "centerHit": false,
+          "text": "J03queued",
+          "fontSize": "10px",
+          "color": "rgb(110, 73, 29)",
+          "background": "rgb(255, 250, 240)"
+        },
+        "#city-controls": {
+          "x": 12,
+          "y": 567,
+          "width": 296,
+          "height": 121,
+          "visible": true,
+          "centerHit": true,
+          "text": "AerialStreetFollow 1×2×4× Experiment",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(250, 251, 243, 0.94)"
+        },
+        "#experiment-toggle": {
+          "x": 255,
+          "y": 635,
+          "width": 44,
+          "height": 44,
+          "visible": true,
+          "centerHit": true,
+          "text": "Experiment",
+          "fontSize": "11px",
+          "color": "rgb(27, 91, 73)",
+          "background": "rgb(229, 238, 227)"
+        },
+        "#pause-toggle": {
+          "x": 21,
+          "y": 635,
+          "width": 44,
+          "height": 44,
+          "visible": true,
+          "centerHit": true,
+          "text": "",
+          "fontSize": "16px",
+          "color": "rgb(250, 251, 243)",
+          "background": "rgb(168, 123, 57)"
+        },
+        "#demand-range": {
+          "x": 29,
+          "y": 232,
+          "width": 262,
+          "height": 44,
+          "visible": true,
+          "centerHit": false,
+          "text": "",
+          "fontSize": "13.3333px",
+          "color": "rgb(157, 150, 142)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#experiment-close": {
+          "x": 255,
+          "y": 205,
+          "width": 44,
+          "height": 44,
+          "visible": true,
+          "centerHit": true,
+          "text": "",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      },
+      "focus": {
+        "id": "experiment-toggle",
+        "tag": "BUTTON"
+      },
+      "panelScroll": {
+        "top": 147,
+        "height": 364,
+        "scrollHeight": 511
+      }
+    },
+    {
+      "name": "320-view-junction",
+      "viewport": {
+        "width": 320,
+        "height": 700
+      },
+      "scrollWidth": 320,
+      "tick": 363,
+      "metrics": {
+        "active": 40,
+        "waiting": 22,
+        "pending": 0,
+        "queued": 22,
+        "completed": 0,
+        "generated": 40,
+        "rejected": 0,
+        "meanSpeed": 2.1637068000000004,
+        "meanWait": 3.148333333333333,
+        "flow": 0,
+        "meanTripTime": 0,
+        "pedestrianCompleted": 0,
+        "pedestrianCrossings": 0,
+        "turns": 10,
+        "reroutes": 0,
+        "maxWait": 8.5
+      },
+      "signals": [
+        {
+          "id": "j0",
+          "x": -72,
+          "z": -72,
+          "phase": "ew",
+          "remaining": 9.2,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j1",
+          "x": -24,
+          "z": -72,
+          "phase": "walk",
+          "remaining": 13.7,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j2",
+          "x": 24,
+          "z": -72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 1,
+          "reservedVehicleId": 6
+        },
+        {
+          "id": "j3",
+          "x": 72,
+          "z": -72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 3,
+          "reservedVehicleId": 33
+        },
+        {
+          "id": "j4",
+          "x": -72,
+          "z": -24,
+          "phase": "ew",
+          "remaining": 6.4,
+          "queue": 1,
+          "reservedVehicleId": 27
+        },
+        {
+          "id": "j5",
+          "x": -24,
+          "z": -24,
+          "phase": "walk",
+          "remaining": 13.233333333333333,
+          "queue": 0,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j6",
+          "x": 24,
+          "z": -24,
+          "phase": "ew",
+          "remaining": 8.3,
+          "queue": 1,
+          "reservedVehicleId": 11
+        },
+        {
+          "id": "j7",
+          "x": 72,
+          "z": -24,
+          "phase": "clearance",
+          "remaining": 1.3666666666666667,
+          "queue": 2,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j8",
+          "x": -72,
+          "z": 24,
+          "phase": "ew",
+          "remaining": 6.4,
+          "queue": 2,
+          "reservedVehicleId": 29
+        },
+        {
+          "id": "j9",
+          "x": -24,
+          "z": 24,
+          "phase": "walk",
+          "remaining": 13.5,
+          "queue": 0,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j10",
+          "x": 24,
+          "z": 24,
+          "phase": "clearance",
+          "remaining": 0.06666666666666667,
+          "queue": 1,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j11",
+          "x": 72,
+          "z": 24,
+          "phase": "ew",
+          "remaining": 0.13333333333333333,
+          "queue": 1,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j12",
+          "x": -72,
+          "z": 72,
+          "phase": "ew",
+          "remaining": 9,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j13",
+          "x": -24,
+          "z": 72,
+          "phase": "walk",
+          "remaining": 14.166666666666666,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j14",
+          "x": 24,
+          "z": 72,
+          "phase": "clearance",
+          "remaining": 0.3333333333333333,
+          "queue": 1,
+          "reservedVehicleId": 22
+        },
+        {
+          "id": "j15",
+          "x": 72,
+          "z": 72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 2,
+          "reservedVehicleId": 16
+        }
+      ],
+      "diagnostics": {
+        "rendererCalls": 81,
+        "triangles": 368724,
+        "geometries": 105,
+        "textures": 11,
+        "fps": 0,
+        "cameraMode": "aerial",
+        "cameraPosition": {
+          "x": 1.920000000000016,
+          "y": 91.84,
+          "z": 8.640000000000029
+        },
+        "paused": true,
+        "night": false,
+        "trafficOverlay": true,
+        "speed": 1,
+        "reducedMotion": true,
+        "webgl": true,
+        "failed": false,
+        "pixelRatio": 1,
+        "graphics": {
+          "mode": "standard",
+          "reductions": 0,
+          "staticShadowResolution": 1024,
+          "staticShadowsCached": true,
+          "movingShadows": "contact",
+          "distanceLOD": true,
+          "pausedRendering": "on-demand",
+          "renderedFrames": 12
+        },
+        "droppedSimulationSeconds": 0,
+        "simulationTick": 363,
+        "selectedVehicleId": 2,
+        "audio": {
+          "supported": true,
+          "enabled": false,
+          "suspended": true,
+          "state": "not-started",
+          "activeVoices": 0,
+          "continuousSources": 0,
+          "voiceLimit": 6,
+          "outputPeak": 0,
+          "error": null
+        },
+        "world": {
+          "artVersion": "marina-district-3",
+          "staticBatches": 72,
+          "staticInstances": 28456,
+          "dynamicBatches": 91,
+          "buildingsByType": {
+            "heritage": 15,
+            "arcade": 10,
+            "terrace": 11,
+            "commercial": 10
+          },
+          "contextBlocks": 24,
+          "vehicles": 40,
+          "pedestrians": 48,
+          "detailedVehicles": 0,
+          "detailedPedestrians": 0,
+          "nearDetailInstances": 92,
+          "truncatedVehicles": 0,
+          "truncatedPedestrians": 0,
+          "vehicleCapacity": 512,
+          "pedestrianCapacity": 512,
+          "materials": 34,
+          "geometries": 130,
+          "textures": 8,
+          "motionEntries": 40
+        },
+        "recovered": false
+      },
+      "boxes": {
+        ".masthead": {
+          "x": 16,
+          "y": 12,
+          "width": 198.171875,
+          "height": 29,
+          "visible": true,
+          "centerHit": false,
+          "text": "CITY/FLOW 11 AI CITY TRAFFIC EXPERIMENT NORTHSHORECOASTAL DISTRICT",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        ".stats-panel": {
+          "x": 12,
+          "y": 58,
+          "width": 296,
+          "height": 60.828125,
+          "visible": true,
+          "centerHit": false,
+          "text": "On the road40vehicles Arrived0trips completed Avg. speed8km/h In a queue22vehicles",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(250, 251, 243, 0.94)"
+        },
+        ".scene-tools": {
+          "x": 12,
+          "y": 132,
+          "width": 194,
+          "height": 44,
+          "visible": true,
+          "centerHit": false,
+          "text": "Traffic Night Sound Help",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#experiment-panel": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "centerHit": false,
+          "text": "SMALL CHANGES. CITYWIDE EFFECTS.Shape the city. Traffic demand1.0× QuietRush hour Bring on rush hour Signal timingResponds to queues AdaptiveFixed cycle RoadworksAll roads are open Watch the queues. Let the city find its rhythm.",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgb(250, 251, 243)"
+        },
+        "#overlay-legend": {
+          "x": 21,
+          "y": 465,
+          "width": 278,
+          "height": 91,
+          "visible": true,
+          "centerHit": false,
+          "text": "JUNCTION QUEUESClearBusy BUSIEST JUNCTIONJ0 · Northwest 3queued View",
+          "fontSize": "10px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(250, 251, 243, 0.94)"
+        },
+        "#queue-summary": {
+          "x": 35,
+          "y": 494,
+          "width": 250,
+          "height": 51,
+          "visible": true,
+          "centerHit": false,
+          "text": "BUSIEST JUNCTIONJ0 · Northwest 3queued View",
+          "fontSize": "10px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-summary-location": {
+          "x": 35,
+          "y": 522.5,
+          "width": 123.359375,
+          "height": 14,
+          "visible": true,
+          "centerHit": false,
+          "text": "J0 · Northwest",
+          "fontSize": "12px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-summary-count": {
+          "x": 182.65625,
+          "y": 507,
+          "width": 13.328125,
+          "height": 20,
+          "visible": true,
+          "centerHit": false,
+          "text": "3",
+          "fontSize": "20px",
+          "color": "rgb(26, 119, 95)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-focus": {
+          "x": 220.28125,
+          "y": 501,
+          "width": 64.71875,
+          "height": 44,
+          "visible": true,
+          "centerHit": true,
+          "text": "View",
+          "fontSize": "11px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgb(229, 238, 227)"
+        },
+        "#queue-callout": {
+          "x": 112.46875,
+          "y": 304,
+          "width": 95.0625,
+          "height": 30,
+          "visible": true,
+          "centerHit": false,
+          "text": "J03queued",
+          "fontSize": "10px",
+          "color": "rgb(110, 73, 29)",
+          "background": "rgb(255, 250, 240)"
+        },
+        "#city-controls": {
+          "x": 12,
+          "y": 567,
+          "width": 296,
+          "height": 121,
+          "visible": true,
+          "centerHit": true,
+          "text": "AerialStreetFollow 1×2×4× Experiment",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(250, 251, 243, 0.94)"
+        },
+        "#experiment-toggle": {
+          "x": 255,
+          "y": 635,
+          "width": 44,
+          "height": 44,
+          "visible": true,
+          "centerHit": true,
+          "text": "Experiment",
+          "fontSize": "11px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#pause-toggle": {
+          "x": 21,
+          "y": 635,
+          "width": 44,
+          "height": 44,
+          "visible": true,
+          "centerHit": true,
+          "text": "",
+          "fontSize": "16px",
+          "color": "rgb(250, 251, 243)",
+          "background": "rgb(168, 123, 57)"
+        },
+        "#demand-range": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": true,
+          "centerHit": false,
+          "text": "",
+          "fontSize": "13.3333px",
+          "color": "rgb(157, 150, 142)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#experiment-close": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": true,
+          "centerHit": false,
+          "text": "",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      },
+      "focus": {
+        "id": "",
+        "tag": "CANVAS"
+      },
+      "panelScroll": {
+        "top": 0,
+        "height": 0,
+        "scrollHeight": 0
+      }
+    },
+    {
+      "name": "1440-follow",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "scrollWidth": 1440,
+      "tick": 363,
+      "metrics": {
+        "active": 40,
+        "waiting": 22,
+        "pending": 0,
+        "queued": 22,
+        "completed": 0,
+        "generated": 40,
+        "rejected": 0,
+        "meanSpeed": 2.1637068000000004,
+        "meanWait": 3.148333333333333,
+        "flow": 0,
+        "meanTripTime": 0,
+        "pedestrianCompleted": 0,
+        "pedestrianCrossings": 0,
+        "turns": 10,
+        "reroutes": 0,
+        "maxWait": 8.5
+      },
+      "signals": [
+        {
+          "id": "j0",
+          "x": -72,
+          "z": -72,
+          "phase": "ew",
+          "remaining": 9.2,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j1",
+          "x": -24,
+          "z": -72,
+          "phase": "walk",
+          "remaining": 13.7,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j2",
+          "x": 24,
+          "z": -72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 1,
+          "reservedVehicleId": 6
+        },
+        {
+          "id": "j3",
+          "x": 72,
+          "z": -72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 3,
+          "reservedVehicleId": 33
+        },
+        {
+          "id": "j4",
+          "x": -72,
+          "z": -24,
+          "phase": "ew",
+          "remaining": 6.4,
+          "queue": 1,
+          "reservedVehicleId": 27
+        },
+        {
+          "id": "j5",
+          "x": -24,
+          "z": -24,
+          "phase": "walk",
+          "remaining": 13.233333333333333,
+          "queue": 0,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j6",
+          "x": 24,
+          "z": -24,
+          "phase": "ew",
+          "remaining": 8.3,
+          "queue": 1,
+          "reservedVehicleId": 11
+        },
+        {
+          "id": "j7",
+          "x": 72,
+          "z": -24,
+          "phase": "clearance",
+          "remaining": 1.3666666666666667,
+          "queue": 2,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j8",
+          "x": -72,
+          "z": 24,
+          "phase": "ew",
+          "remaining": 6.4,
+          "queue": 2,
+          "reservedVehicleId": 29
+        },
+        {
+          "id": "j9",
+          "x": -24,
+          "z": 24,
+          "phase": "walk",
+          "remaining": 13.5,
+          "queue": 0,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j10",
+          "x": 24,
+          "z": 24,
+          "phase": "clearance",
+          "remaining": 0.06666666666666667,
+          "queue": 1,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j11",
+          "x": 72,
+          "z": 24,
+          "phase": "ew",
+          "remaining": 0.13333333333333333,
+          "queue": 1,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j12",
+          "x": -72,
+          "z": 72,
+          "phase": "ew",
+          "remaining": 9,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j13",
+          "x": -24,
+          "z": 72,
+          "phase": "walk",
+          "remaining": 14.166666666666666,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j14",
+          "x": 24,
+          "z": 72,
+          "phase": "clearance",
+          "remaining": 0.3333333333333333,
+          "queue": 1,
+          "reservedVehicleId": 22
+        },
+        {
+          "id": "j15",
+          "x": 72,
+          "z": 72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 2,
+          "reservedVehicleId": 16
+        }
+      ],
+      "diagnostics": {
+        "rendererCalls": 146,
+        "triangles": 503088,
+        "geometries": 105,
+        "textures": 11,
+        "fps": 0,
+        "cameraMode": "follow",
+        "cameraPosition": {
+          "x": -63.7,
+          "y": 10.5,
+          "z": -71.134571
+        },
+        "paused": true,
+        "night": false,
+        "trafficOverlay": false,
+        "speed": 1,
+        "reducedMotion": true,
+        "webgl": true,
+        "failed": false,
+        "pixelRatio": 1,
+        "graphics": {
+          "mode": "standard",
+          "reductions": 0,
+          "staticShadowResolution": 1024,
+          "staticShadowsCached": true,
+          "movingShadows": "contact",
+          "distanceLOD": true,
+          "pausedRendering": "on-demand",
+          "renderedFrames": 14
+        },
+        "droppedSimulationSeconds": 0,
+        "simulationTick": 363,
+        "selectedVehicleId": 2,
+        "audio": {
+          "supported": true,
+          "enabled": false,
+          "suspended": true,
+          "state": "not-started",
+          "activeVoices": 0,
+          "continuousSources": 0,
+          "voiceLimit": 6,
+          "outputPeak": 0,
+          "error": null
+        },
+        "world": {
+          "artVersion": "marina-district-3",
+          "staticBatches": 72,
+          "staticInstances": 28456,
+          "dynamicBatches": 91,
+          "buildingsByType": {
+            "heritage": 15,
+            "arcade": 10,
+            "terrace": 11,
+            "commercial": 10
+          },
+          "contextBlocks": 24,
+          "vehicles": 40,
+          "pedestrians": 48,
+          "detailedVehicles": 11,
+          "detailedPedestrians": 10,
+          "nearDetailInstances": 1255,
+          "truncatedVehicles": 0,
+          "truncatedPedestrians": 0,
+          "vehicleCapacity": 512,
+          "pedestrianCapacity": 512,
+          "materials": 34,
+          "geometries": 130,
+          "textures": 8,
+          "motionEntries": 40
+        },
+        "recovered": false
+      },
+      "boxes": {
+        ".masthead": {
+          "x": 30,
+          "y": 29,
+          "width": 254,
+          "height": 92,
+          "visible": true,
+          "centerHit": false,
+          "text": "CITY/FLOW 11 AI CITY TRAFFIC EXPERIMENT NORTHSHORECOASTAL DISTRICT",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        ".stats-panel": {
+          "x": 985,
+          "y": 28,
+          "width": 427,
+          "height": 92.15625,
+          "visible": true,
+          "centerHit": false,
+          "text": "On the road40vehicles Arrived0trips completed Avg. speed8km/h In a queue22vehicles",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(250, 251, 243, 0.94)"
+        },
+        ".scene-tools": {
+          "x": 1367,
+          "y": 659,
+          "width": 44,
+          "height": 203,
+          "visible": true,
+          "centerHit": false,
+          "text": "Traffic Night Sound Help",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#experiment-panel": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "centerHit": false,
+          "text": "SMALL CHANGES. CITYWIDE EFFECTS.Shape the city. Traffic demand1.0× QuietRush hour Bring on rush hour Signal timingResponds to queues AdaptiveFixed cycle RoadworksAll roads are open Watch the queues. Let the city find its rhythm.",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(250, 251, 243, 0.94)"
+        },
+        "#overlay-legend": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "centerHit": false,
+          "text": "JUNCTION QUEUESClearBusy BUSIEST JUNCTIONJ0 · Northwest 3queued View",
+          "fontSize": "9px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(250, 251, 243, 0.94)"
+        },
+        "#queue-summary": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "centerHit": false,
+          "text": "BUSIEST JUNCTIONJ0 · Northwest 3queued View",
+          "fontSize": "9px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-summary-location": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": true,
+          "centerHit": false,
+          "text": "J0 · Northwest",
+          "fontSize": "11px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-summary-count": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": true,
+          "centerHit": false,
+          "text": "3",
+          "fontSize": "20px",
+          "color": "rgb(26, 119, 95)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-focus": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": true,
+          "centerHit": false,
+          "text": "View",
+          "fontSize": "10px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgb(229, 238, 227)"
+        },
+        "#queue-callout": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "centerHit": false,
+          "text": "J03queued",
+          "fontSize": "10px",
+          "color": "rgb(110, 73, 29)",
+          "background": "rgb(255, 250, 240)"
+        },
+        "#city-controls": {
+          "x": 409.921875,
+          "y": 917,
+          "width": 620.15625,
+          "height": 58,
+          "visible": true,
+          "centerHit": true,
+          "text": "AerialStreetFollow 1×2×4× Experiment",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(250, 251, 243, 0.94)"
+        },
+        "#experiment-toggle": {
+          "x": 889.921875,
+          "y": 927,
+          "width": 129.15625,
+          "height": 38,
+          "visible": true,
+          "centerHit": true,
+          "text": "Experiment",
+          "fontSize": "11px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#pause-toggle": {
+          "x": 723.921875,
+          "y": 928,
+          "width": 36,
+          "height": 36,
+          "visible": true,
+          "centerHit": true,
+          "text": "",
+          "fontSize": "16px",
+          "color": "rgb(250, 251, 243)",
+          "background": "rgb(168, 123, 57)"
+        },
+        "#demand-range": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": true,
+          "centerHit": false,
+          "text": "",
+          "fontSize": "13.3333px",
+          "color": "rgb(157, 150, 142)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#experiment-close": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": true,
+          "centerHit": false,
+          "text": "",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      },
+      "focus": {
+        "id": "",
+        "tag": "BUTTON"
+      },
+      "panelScroll": {
+        "top": 0,
+        "height": 0,
+        "scrollHeight": 0
+      }
+    },
+    {
+      "name": "1440-follow-night",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "scrollWidth": 1440,
+      "tick": 363,
+      "metrics": {
+        "active": 40,
+        "waiting": 22,
+        "pending": 0,
+        "queued": 22,
+        "completed": 0,
+        "generated": 40,
+        "rejected": 0,
+        "meanSpeed": 2.1637068000000004,
+        "meanWait": 3.148333333333333,
+        "flow": 0,
+        "meanTripTime": 0,
+        "pedestrianCompleted": 0,
+        "pedestrianCrossings": 0,
+        "turns": 10,
+        "reroutes": 0,
+        "maxWait": 8.5
+      },
+      "signals": [
+        {
+          "id": "j0",
+          "x": -72,
+          "z": -72,
+          "phase": "ew",
+          "remaining": 9.2,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j1",
+          "x": -24,
+          "z": -72,
+          "phase": "walk",
+          "remaining": 13.7,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j2",
+          "x": 24,
+          "z": -72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 1,
+          "reservedVehicleId": 6
+        },
+        {
+          "id": "j3",
+          "x": 72,
+          "z": -72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 3,
+          "reservedVehicleId": 33
+        },
+        {
+          "id": "j4",
+          "x": -72,
+          "z": -24,
+          "phase": "ew",
+          "remaining": 6.4,
+          "queue": 1,
+          "reservedVehicleId": 27
+        },
+        {
+          "id": "j5",
+          "x": -24,
+          "z": -24,
+          "phase": "walk",
+          "remaining": 13.233333333333333,
+          "queue": 0,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j6",
+          "x": 24,
+          "z": -24,
+          "phase": "ew",
+          "remaining": 8.3,
+          "queue": 1,
+          "reservedVehicleId": 11
+        },
+        {
+          "id": "j7",
+          "x": 72,
+          "z": -24,
+          "phase": "clearance",
+          "remaining": 1.3666666666666667,
+          "queue": 2,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j8",
+          "x": -72,
+          "z": 24,
+          "phase": "ew",
+          "remaining": 6.4,
+          "queue": 2,
+          "reservedVehicleId": 29
+        },
+        {
+          "id": "j9",
+          "x": -24,
+          "z": 24,
+          "phase": "walk",
+          "remaining": 13.5,
+          "queue": 0,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j10",
+          "x": 24,
+          "z": 24,
+          "phase": "clearance",
+          "remaining": 0.06666666666666667,
+          "queue": 1,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j11",
+          "x": 72,
+          "z": 24,
+          "phase": "ew",
+          "remaining": 0.13333333333333333,
+          "queue": 1,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j12",
+          "x": -72,
+          "z": 72,
+          "phase": "ew",
+          "remaining": 9,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j13",
+          "x": -24,
+          "z": 72,
+          "phase": "walk",
+          "remaining": 14.166666666666666,
+          "queue": 3,
+          "reservedVehicleId": null
+        },
+        {
+          "id": "j14",
+          "x": 24,
+          "z": 72,
+          "phase": "clearance",
+          "remaining": 0.3333333333333333,
+          "queue": 1,
+          "reservedVehicleId": 22
+        },
+        {
+          "id": "j15",
+          "x": 72,
+          "z": 72,
+          "phase": "clearance",
+          "remaining": 0,
+          "queue": 2,
+          "reservedVehicleId": 16
+        }
+      ],
+      "diagnostics": {
+        "rendererCalls": 148,
+        "triangles": 503386,
+        "geometries": 105,
+        "textures": 11,
+        "fps": 0,
+        "cameraMode": "follow",
+        "cameraPosition": {
+          "x": -63.7,
+          "y": 10.5,
+          "z": -71.134571
+        },
+        "paused": true,
+        "night": true,
+        "trafficOverlay": false,
+        "speed": 1,
+        "reducedMotion": true,
+        "webgl": true,
+        "failed": false,
+        "pixelRatio": 1,
+        "graphics": {
+          "mode": "standard",
+          "reductions": 0,
+          "staticShadowResolution": 1024,
+          "staticShadowsCached": true,
+          "movingShadows": "contact",
+          "distanceLOD": true,
+          "pausedRendering": "on-demand",
+          "renderedFrames": 15
+        },
+        "droppedSimulationSeconds": 0,
+        "simulationTick": 363,
+        "selectedVehicleId": 2,
+        "audio": {
+          "supported": true,
+          "enabled": false,
+          "suspended": true,
+          "state": "not-started",
+          "activeVoices": 0,
+          "continuousSources": 0,
+          "voiceLimit": 6,
+          "outputPeak": 0,
+          "error": null
+        },
+        "world": {
+          "artVersion": "marina-district-3",
+          "staticBatches": 72,
+          "staticInstances": 28456,
+          "dynamicBatches": 91,
+          "buildingsByType": {
+            "heritage": 15,
+            "arcade": 10,
+            "terrace": 11,
+            "commercial": 10
+          },
+          "contextBlocks": 24,
+          "vehicles": 40,
+          "pedestrians": 48,
+          "detailedVehicles": 11,
+          "detailedPedestrians": 10,
+          "nearDetailInstances": 1255,
+          "truncatedVehicles": 0,
+          "truncatedPedestrians": 0,
+          "vehicleCapacity": 512,
+          "pedestrianCapacity": 512,
+          "materials": 34,
+          "geometries": 130,
+          "textures": 8,
+          "motionEntries": 40
+        },
+        "recovered": false
+      },
+      "boxes": {
+        ".masthead": {
+          "x": 30,
+          "y": 29,
+          "width": 254,
+          "height": 92,
+          "visible": true,
+          "centerHit": false,
+          "text": "CITY/FLOW 11 AI CITY TRAFFIC EXPERIMENT NORTHSHORECOASTAL DISTRICT",
+          "fontSize": "16px",
+          "color": "rgb(238, 242, 221)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        ".stats-panel": {
+          "x": 985,
+          "y": 28,
+          "width": 427,
+          "height": 92.15625,
+          "visible": true,
+          "centerHit": false,
+          "text": "On the road40vehicles Arrived0trips completed Avg. speed8km/h In a queue22vehicles",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(247, 249, 239, 0.94)"
+        },
+        ".scene-tools": {
+          "x": 1367,
+          "y": 659,
+          "width": 44,
+          "height": 203,
+          "visible": true,
+          "centerHit": false,
+          "text": "Traffic Day Sound Help",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#experiment-panel": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "centerHit": false,
+          "text": "SMALL CHANGES. CITYWIDE EFFECTS.Shape the city. Traffic demand1.0× QuietRush hour Bring on rush hour Signal timingResponds to queues AdaptiveFixed cycle RoadworksAll roads are open Watch the queues. Let the city find its rhythm.",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(247, 249, 239, 0.94)"
+        },
+        "#overlay-legend": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "centerHit": false,
+          "text": "JUNCTION QUEUESClearBusy BUSIEST JUNCTIONJ0 · Northwest 3queued View",
+          "fontSize": "9px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(247, 249, 239, 0.94)"
+        },
+        "#queue-summary": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "centerHit": false,
+          "text": "BUSIEST JUNCTIONJ0 · Northwest 3queued View",
+          "fontSize": "9px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-summary-location": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": true,
+          "centerHit": false,
+          "text": "J0 · Northwest",
+          "fontSize": "11px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-summary-count": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": true,
+          "centerHit": false,
+          "text": "3",
+          "fontSize": "20px",
+          "color": "rgb(26, 119, 95)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#queue-focus": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": true,
+          "centerHit": false,
+          "text": "View",
+          "fontSize": "10px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgb(229, 238, 227)"
+        },
+        "#queue-callout": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "centerHit": false,
+          "text": "J03queued",
+          "fontSize": "10px",
+          "color": "rgb(110, 73, 29)",
+          "background": "rgb(255, 250, 240)"
+        },
+        "#city-controls": {
+          "x": 409.921875,
+          "y": 917,
+          "width": 620.15625,
+          "height": 58,
+          "visible": true,
+          "centerHit": true,
+          "text": "AerialStreetFollow 1×2×4× Experiment",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(247, 249, 239, 0.94)"
+        },
+        "#experiment-toggle": {
+          "x": 889.921875,
+          "y": 927,
+          "width": 129.15625,
+          "height": 38,
+          "visible": true,
+          "centerHit": true,
+          "text": "Experiment",
+          "fontSize": "11px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#pause-toggle": {
+          "x": 723.921875,
+          "y": 928,
+          "width": 36,
+          "height": 36,
+          "visible": true,
+          "centerHit": true,
+          "text": "",
+          "fontSize": "16px",
+          "color": "rgb(250, 251, 243)",
+          "background": "rgb(168, 123, 57)"
+        },
+        "#demand-range": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": true,
+          "centerHit": false,
+          "text": "",
+          "fontSize": "13.3333px",
+          "color": "rgb(157, 150, 142)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        "#experiment-close": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": true,
+          "centerHit": false,
+          "text": "",
+          "fontSize": "16px",
+          "color": "rgb(25, 60, 52)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      },
+      "focus": {
+        "id": "night-toggle",
+        "tag": "BUTTON"
+      },
+      "panelScroll": {
+        "top": 0,
+        "height": 0,
+        "scrollHeight": 0
+      }
+    }
+  ],
+  "errors": [],
+  "sourcesAfter": {
+    "index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+    "styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+    "main.mjs": "0c8210d1e7d78d256f3e62961280835c961900d93bf5ac5db377aa6a12623f78",
+    "world.mjs": "2057b018c7be23c37c6b986a99f653477e2af06335a76095e8c621f779d1555a"
+  },
+  "uiSourceStable": true,
+  "finishedAt": "2026-10-30T21:05:28.998Z"
+}

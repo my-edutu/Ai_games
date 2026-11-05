@@ -1,0 +1,11 @@
+evidence/ai-city-traffic/probes/*.json linguist-generated=true
+evidence/ai-city-traffic/probes/reviewed-source/* linguist-generated=true
+evidence/ai-city-traffic/fairness-final/*.json linguist-generated=true
+# Preserve recorded output and reviewed snapshots byte-for-byte.
+evidence/ai-city-traffic/** -whitespace
+evidence/ai-city-traffic/**/*.json linguist-generated=true
+evidence/ai-city-traffic/**/*.tap linguist-generated=true
+evidence/ai-city-traffic/**/*.txt linguist-generated=true
+evidence/ai-city-traffic/runtime-reviewed-source/* linguist-generated=true
+evidence/ai-city-traffic/runtime-closure/reviewed-tests/* linguist-generated=true
+evidence/ai-city-traffic/fairness-final/reviewed-source/* linguist-generated=true

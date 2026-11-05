@@ -1,0 +1,2930 @@
+{
+  "buildDirectory": "/workspace/scratch/f951d9074684/traffic-fairness-final-compiled",
+  "oldDirectory": "/workspace/scratch/f951d9074684/traffic-fairness-final-baseline-compiled",
+  "method": "Counterfactual fixtures retain identical production physical, random-stream, signal, and route state. Only age fields are removed and the old configuration hash installed for the pre-fix authority. This is a test adapter, not a supported checkpoint migration.",
+  "witnesses": [
+    {
+      "tick": 929,
+      "corner": 18,
+      "older": 34,
+      "later": 6,
+      "kind": "sidewalk_corner",
+      "ages": [
+        {
+          "id": 34,
+          "since": 786,
+          "entered": 179,
+          "from": 23,
+          "to": 18,
+          "position": 29
+        },
+        {
+          "id": 6,
+          "since": 911,
+          "entered": 256,
+          "from": 33,
+          "to": 18,
+          "position": 29
+        }
+      ],
+      "previousOwner": null,
+      "oldOwner": 6,
+      "newOwner": 34,
+      "oldBypassesOlder": true,
+      "currentServesOlder": true
+    },
+    {
+      "tick": 1740,
+      "corner": 19,
+      "older": 48,
+      "later": 12,
+      "kind": "crossing_landing",
+      "ages": [
+        {
+          "id": 48,
+          "since": 1143,
+          "entered": 1114,
+          "from": 18,
+          "to": 19,
+          "position": 1.4
+        },
+        {
+          "id": 12,
+          "since": 1730,
+          "entered": 1701,
+          "from": 16,
+          "to": 19,
+          "position": 1.4
+        }
+      ],
+      "previousOwner": null,
+      "oldOwner": 12,
+      "newOwner": 48,
+      "oldBypassesOlder": true,
+      "currentServesOlder": true
+    }
+  ],
+  "tail": {
+    "id": 7,
+    "startTick": 12127,
+    "endTick": 18948,
+    "stationaryTicks": 6822,
+    "stationarySeconds": 227.4,
+    "method": "Public pose/speed directly observed each tick; dependency explanations below are derived from recorded production state and movement guards.",
+    "frames": [
+      {
+        "tick": 12126,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0.29424,
+        "waiting": false,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          },
+          {
+            "id": 32,
+            "from": 25,
+            "to": 26,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11950
+          }
+        ]
+      },
+      {
+        "tick": 12127,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          },
+          {
+            "id": 32,
+            "from": 25,
+            "to": 26,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11950
+          }
+        ]
+      },
+      {
+        "tick": 12300,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          },
+          {
+            "id": 32,
+            "from": 25,
+            "to": 26,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11950
+          }
+        ]
+      },
+      {
+        "tick": 12600,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          },
+          {
+            "id": 32,
+            "from": 25,
+            "to": 26,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11950
+          }
+        ]
+      },
+      {
+        "tick": 12900,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 24,
+        "ownerAge": 11857,
+        "exitBlockers": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          }
+        ]
+      },
+      {
+        "tick": 13200,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          }
+        ]
+      },
+      {
+        "tick": 13500,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          }
+        ]
+      },
+      {
+        "tick": 13800,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          }
+        ]
+      },
+      {
+        "tick": 14100,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 15,
+        "ownerAge": 12146,
+        "exitBlockers": [],
+        "signal": null,
+        "nearby": []
+      },
+      {
+        "tick": 14400,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 15,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 15,
+            "from": 25,
+            "to": 24,
+            "position": 1.0885,
+            "speed": 1.632745,
+            "since": null
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 15,
+            "from": 25,
+            "to": 24,
+            "position": 1.0885,
+            "speed": 1.632745,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 14700,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 15,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 14406
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 15,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 14406
+          }
+        ]
+      },
+      {
+        "tick": 15000,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 15,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 14406
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 15,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 14406
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 15300,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 15,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 14406
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 15,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 14406
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 15600,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 15,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 14406
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 15,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 14406
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 15900,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 15,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 14406
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 15,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 14406
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 16200,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 15,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 14406
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 15,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 14406
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 16500,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 36,
+        "ownerAge": 16054,
+        "exitBlockers": [],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 16800,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 36,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.222776,
+            "speed": 1.358635,
+            "since": null
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.222776,
+            "speed": 1.358635,
+            "since": null
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 17100,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 16804
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 16804
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 17400,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 16804
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 16804
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 45,
+            "from": 28,
+            "to": 25,
+            "position": 26.41665,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 17700,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 22,
+        "ownerAge": 16842,
+        "exitBlockers": [
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 16804
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 16804
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 45,
+            "from": 28,
+            "to": 25,
+            "position": 26.41665,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 18000,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 16804
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 16804
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 45,
+            "from": 28,
+            "to": 25,
+            "position": 26.41665,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 18300,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 16804
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 16804
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 45,
+            "from": 28,
+            "to": 25,
+            "position": 26.41665,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 18600,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 23,
+        "ownerAge": 17867,
+        "exitBlockers": [],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 45,
+            "from": 28,
+            "to": 25,
+            "position": 26.41665,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 18900,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 23,
+        "ownerAge": 17867,
+        "exitBlockers": [],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 23,
+            "from": 24,
+            "to": 25,
+            "position": 16.82072,
+            "speed": 1.376837,
+            "since": 17867
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 45,
+            "from": 28,
+            "to": 25,
+            "position": 26.41665,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 18948,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 23,
+            "from": 25,
+            "to": 28,
+            "position": 1.422745,
+            "speed": 1.376837,
+            "since": null
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 45,
+            "from": 28,
+            "to": 25,
+            "position": 26.41665,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 18949,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29.047062,
+        "x": 34.152938000000006,
+        "z": -32.349999999999994,
+        "speed": 1.411861,
+        "waiting": false,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 7,
+        "ownerAge": 12125,
+        "exitBlockers": [],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 23,
+            "from": 25,
+            "to": 28,
+            "position": 1.46864,
+            "speed": 1.376837,
+            "since": null
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.189362,
+            "speed": 1.293085,
+            "since": null
+          },
+          {
+            "id": 45,
+            "from": 28,
+            "to": 25,
+            "position": 26.41665,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 18950,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29.094124,
+        "x": 34.105876,
+        "z": -32.349999999999994,
+        "speed": 1.411861,
+        "waiting": false,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 7,
+        "ownerAge": 12125,
+        "exitBlockers": [],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.317593,
+            "speed": 1.572997,
+            "since": null
+          },
+          {
+            "id": 23,
+            "from": 25,
+            "to": 28,
+            "position": 1.514535,
+            "speed": 1.376837,
+            "since": null
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.232465,
+            "speed": 1.293085,
+            "since": null
+          },
+          {
+            "id": 45,
+            "from": 28,
+            "to": 25,
+            "position": 26.4615,
+            "speed": 1.3455,
+            "since": null
+          }
+        ]
+      }
+    ],
+    "changes": [
+      {
+        "tick": 12126,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0.29424,
+        "waiting": false,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          },
+          {
+            "id": 32,
+            "from": 25,
+            "to": 26,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11950
+          }
+        ]
+      },
+      {
+        "tick": 12852,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 24,
+        "ownerAge": 11857,
+        "exitBlockers": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          },
+          {
+            "id": 32,
+            "from": 25,
+            "to": 26,
+            "position": 1.448759,
+            "speed": 1.46277,
+            "since": 11950
+          }
+        ]
+      },
+      {
+        "tick": 12890,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 24,
+        "ownerAge": 11857,
+        "exitBlockers": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          }
+        ]
+      },
+      {
+        "tick": 13106,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 24,
+        "ownerAge": 11857,
+        "exitBlockers": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          },
+          {
+            "id": 24,
+            "from": 26,
+            "to": 25,
+            "position": 14.82065,
+            "speed": 1.578894,
+            "since": 11857
+          }
+        ]
+      },
+      {
+        "tick": 13186,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          },
+          {
+            "id": 24,
+            "from": 25,
+            "to": 10,
+            "position": 1.42101,
+            "speed": 1.578894,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 13196,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 11892
+          }
+        ]
+      },
+      {
+        "tick": 14066,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 15,
+        "ownerAge": 12146,
+        "exitBlockers": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.44236,
+            "speed": 1.270791,
+            "since": 11892
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.44236,
+            "speed": 1.270791,
+            "since": 11892
+          }
+        ]
+      },
+      {
+        "tick": 14070,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 15,
+        "ownerAge": 12146,
+        "exitBlockers": [
+          {
+            "id": 17,
+            "from": 25,
+            "to": 24,
+            "position": 1.6118,
+            "speed": 1.270791,
+            "since": 11892
+          }
+        ],
+        "signal": null,
+        "nearby": []
+      },
+      {
+        "tick": 14088,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 15,
+        "ownerAge": 12146,
+        "exitBlockers": [],
+        "signal": null,
+        "nearby": []
+      },
+      {
+        "tick": 14336,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 15,
+        "ownerAge": 12146,
+        "exitBlockers": [],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 15,
+            "from": 24,
+            "to": 25,
+            "position": 16.149175,
+            "speed": 1.632745,
+            "since": 12146
+          }
+        ]
+      },
+      {
+        "tick": 14363,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 15,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 15,
+            "from": 25,
+            "to": 24,
+            "position": 0,
+            "speed": 1.07325,
+            "since": null
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 15,
+            "from": 25,
+            "to": 24,
+            "position": 0,
+            "speed": 1.07325,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 14406,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 15,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 1.18125,
+            "since": 14406
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 15,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 1.18125,
+            "since": 14406
+          }
+        ]
+      },
+      {
+        "tick": 14749,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 15,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 14406
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 15,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 14406
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 26.034212,
+            "speed": 1.293085,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 15781,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 15,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 14406
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 26.006768,
+            "speed": 1.572997,
+            "since": null
+          },
+          {
+            "id": 15,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 14406
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 16401,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 36,
+        "ownerAge": 16054,
+        "exitBlockers": [
+          {
+            "id": 15,
+            "from": 25,
+            "to": 24,
+            "position": 1.454425,
+            "speed": 1.632745,
+            "since": 14406
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 15,
+            "from": 25,
+            "to": 24,
+            "position": 1.454425,
+            "speed": 1.632745,
+            "since": 14406
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 16404,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 36,
+        "ownerAge": 16054,
+        "exitBlockers": [
+          {
+            "id": 15,
+            "from": 25,
+            "to": 24,
+            "position": 1.6177,
+            "speed": 1.632745,
+            "since": 14406
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 16418,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 36,
+        "ownerAge": 16054,
+        "exitBlockers": [],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 16696,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 36,
+        "ownerAge": 16054,
+        "exitBlockers": [],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 36,
+            "from": 26,
+            "to": 25,
+            "position": 14.805248,
+            "speed": 1.358635,
+            "since": 16054
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 16758,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 36,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 0,
+            "speed": 0.96552,
+            "since": null
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 0,
+            "speed": 0.96552,
+            "since": null
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 16804,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 1.2408,
+            "since": 16804
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 1.2408,
+            "since": 16804
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 17245,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 16804
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 16804
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 45,
+            "from": 28,
+            "to": 25,
+            "position": 26.013,
+            "speed": 1.3455,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 17470,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 22,
+        "ownerAge": 16842,
+        "exitBlockers": [
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 16804
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 16804
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 45,
+            "from": 28,
+            "to": 25,
+            "position": 26.41665,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 17785,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 22,
+        "ownerAge": 16842,
+        "exitBlockers": [
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 16804
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 22,
+            "from": 26,
+            "to": 25,
+            "position": 14.815464,
+            "speed": 1.27362,
+            "since": 16842
+          },
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 16804
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 45,
+            "from": 28,
+            "to": 25,
+            "position": 26.41665,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 17884,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 16804
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 22,
+            "from": 25,
+            "to": 10,
+            "position": 1.400982,
+            "speed": 1.27362,
+            "since": null
+          },
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 16804
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 45,
+            "from": 28,
+            "to": 25,
+            "position": 26.41665,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 17897,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 16804
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "speed": 0,
+            "since": 16804
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 45,
+            "from": 28,
+            "to": 25,
+            "position": 26.41665,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 18565,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 23,
+        "ownerAge": 17867,
+        "exitBlockers": [
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.445288,
+            "speed": 1.358635,
+            "since": 16804
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.445288,
+            "speed": 1.358635,
+            "since": 16804
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 45,
+            "from": 28,
+            "to": 25,
+            "position": 26.41665,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 18569,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 23,
+        "ownerAge": 17867,
+        "exitBlockers": [
+          {
+            "id": 36,
+            "from": 25,
+            "to": 24,
+            "position": 1.62644,
+            "speed": 1.358635,
+            "since": 16804
+          }
+        ],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 45,
+            "from": 28,
+            "to": 25,
+            "position": 26.41665,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 18585,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 23,
+        "ownerAge": 17867,
+        "exitBlockers": [],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 45,
+            "from": 28,
+            "to": 25,
+            "position": 26.41665,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 18886,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 23,
+        "ownerAge": 17867,
+        "exitBlockers": [],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 23,
+            "from": 24,
+            "to": 25,
+            "position": 16.17819,
+            "speed": 1.376837,
+            "since": 17867
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 45,
+            "from": 28,
+            "to": 25,
+            "position": 26.41665,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 18948,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29,
+        "x": 34.2,
+        "z": -32.349999999999994,
+        "speed": 0,
+        "waiting": true,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": null,
+        "ownerAge": null,
+        "exitBlockers": [],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 23,
+            "from": 25,
+            "to": 28,
+            "position": 1.422745,
+            "speed": 1.376837,
+            "since": null
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.146259,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 45,
+            "from": 28,
+            "to": 25,
+            "position": 26.41665,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      },
+      {
+        "tick": 18949,
+        "id": 7,
+        "from": 28,
+        "to": 25,
+        "next": 24,
+        "crossingEdge": false,
+        "position": 29.047062,
+        "x": 34.152938000000006,
+        "z": -32.349999999999994,
+        "speed": 1.411861,
+        "waiting": false,
+        "since": 12125,
+        "entered": 11495,
+        "toCornerOwner": 7,
+        "ownerAge": 12125,
+        "exitBlockers": [],
+        "signal": null,
+        "nearby": [
+          {
+            "id": 5,
+            "from": 28,
+            "to": 25,
+            "position": 27.26516,
+            "speed": 0,
+            "since": null
+          },
+          {
+            "id": 23,
+            "from": 25,
+            "to": 28,
+            "position": 1.46864,
+            "speed": 1.376837,
+            "since": null
+          },
+          {
+            "id": 41,
+            "from": 28,
+            "to": 25,
+            "position": 28.189362,
+            "speed": 1.293085,
+            "since": null
+          },
+          {
+            "id": 45,
+            "from": 28,
+            "to": 25,
+            "position": 26.41665,
+            "speed": 0,
+            "since": null
+          }
+        ]
+      }
+    ],
+    "counts": {
+      "stoppedTicks": 6822,
+      "hasExitBlocker": 5843,
+      "ownsTargetCorner": 0,
+      "otherCornerOwner": 1874,
+      "freeCorner": 4948
+    },
+    "trackedPositions": []
+  },
+  "publicSnapshotKeys": {
+    "current": [
+      "color",
+      "crossing",
+      "id",
+      "junctionId",
+      "speed",
+      "waiting",
+      "walkPhase",
+      "x",
+      "yaw",
+      "z"
+    ],
+    "prior": [
+      "color",
+      "crossing",
+      "id",
+      "junctionId",
+      "speed",
+      "waiting",
+      "walkPhase",
+      "x",
+      "yaw",
+      "z"
+    ]
+  },
+  "pass": true
+}

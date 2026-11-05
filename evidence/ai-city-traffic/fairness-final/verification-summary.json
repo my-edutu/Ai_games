@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "scope": "Q1 causal ordering and age persistence, retained C1/C2/C3 integrity gates",
+  "spec": "PASS",
+  "quality": "PASS within scope; full latency and commercial quality not established",
+  "totalGrants": 2190,
+  "contestedGrants": 245,
+  "olderEligibleBypasses": 0,
+  "agePreservingReleases": 16,
+  "sameApproachChecks": 1837901,
+  "atomicMalformedOld": 10,
+  "atomicMalformedAge": 15,
+  "atomicOldConfig": 1,
+  "genuineRestoreCases": 16,
+  "focusedTestsPassed": 6,
+  "causalWitnesses": 2,
+  "remainingHighTailSeconds": 227.4,
+  "sourceAndBuildHashesRechecked": true,
+  "legacyProbeRelocationVerified": true
+}

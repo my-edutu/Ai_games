@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-30T20:58:04.185887+00:00",
+  "protocol": "Fresh critic saw anonymous candidate A and B before being told which iteration was newer. Candidate camera, resolution and pixel ratio matched; vehicle ticks and PNG/JPEG encoding differed slightly. Commercial references were explicitly identified, so this is not a fully blind commercial-reference comparison.",
+  "mapping": {
+    "A": "public/ai-city-traffic/progress/captures/iteration-3-aerial.jpg",
+    "B": "public/ai-city-traffic/progress/captures/iteration-2-aerial.png"
+  },
+  "preUnblindingPreference": "A",
+  "preUnblindingReasons": [
+    "More varied massing, terraces, balconies and roof silhouettes.",
+    "Connected background district instead of isolated coarse blocks."
+  ],
+  "commercialVerdict": "Reference still leads",
+  "criticReport": "evidence/ai-city-traffic/visual-review-3.md",
+  "sha256": {
+    "A": "6005d9cc2fe38a817728ad835178c6e05cf170d5a80407f2efcb9cfa70413a55",
+    "B": "8c3f74adbf9dd2bacddf982a0325e1347e7e9ab15d1714374b0bdedb2db37c29"
+  }
+}

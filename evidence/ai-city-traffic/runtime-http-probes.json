@@ -1,0 +1,419 @@
+{
+  "reviewedAt": "2026-10-30T21:14:46.589Z",
+  "origin": "http://127.0.0.1:4311",
+  "checks": [
+    {
+      "name": "live local assets match disk bytes",
+      "pass": true,
+      "detail": {
+        "assets": [
+          {
+            "route": "/traffic/",
+            "status": 200,
+            "bytes": 16821,
+            "sha256": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+            "milliseconds": 38
+          },
+          {
+            "route": "/traffic/main.mjs",
+            "status": 200,
+            "bytes": 41483,
+            "sha256": "0c8210d1e7d78d256f3e62961280835c961900d93bf5ac5db377aa6a12623f78",
+            "milliseconds": 4.55
+          },
+          {
+            "route": "/traffic/world.mjs",
+            "status": 200,
+            "bytes": 111747,
+            "sha256": "549980ee6c365d8a5cb03eb0b9ed232bc7a5a6b438e7a62150cfe9879e84b09e",
+            "milliseconds": 4.78
+          },
+          {
+            "route": "/traffic/world-assets.mjs",
+            "status": 200,
+            "bytes": 30999,
+            "sha256": "b06b3a8af08990aab5a1cb4a49295b38794e2fcd3eb1e19c0fae2feec7c66524",
+            "milliseconds": 5.3
+          },
+          {
+            "route": "/traffic/audio.mjs",
+            "status": 200,
+            "bytes": 10246,
+            "sha256": "9b797345abccb9b2a86bf4f49b9f8173349a88315ed0896361e22a7391d87eac",
+            "milliseconds": 3.4
+          },
+          {
+            "route": "/traffic/styles.css",
+            "status": 200,
+            "bytes": 32194,
+            "sha256": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+            "milliseconds": 8.11
+          },
+          {
+            "route": "/traffic/runtime/simulation.js",
+            "status": 200,
+            "bytes": 64219,
+            "sha256": "eaf9310053ada75e204b30a05c614d06d4ed601170d7630c556b1ae6ff066e48",
+            "milliseconds": 7.09
+          },
+          {
+            "route": "/traffic/runtime/traffic-network.js",
+            "status": 200,
+            "bytes": 13160,
+            "sha256": "cdc8d092dd9f8c28dfb433a2b16982107c97aaf5c136b56172977f3cfabe2a69",
+            "milliseconds": 9.25
+          },
+          {
+            "route": "/traffic/vendor/three.module.js",
+            "status": 200,
+            "bytes": 662772,
+            "sha256": "9052042d676cb0fdc1ddfefe193053f34b7ac0513a616fdac4535d49987812ea",
+            "milliseconds": 28.65
+          },
+          {
+            "route": "/traffic/vendor/three.core.js",
+            "status": 200,
+            "bytes": 1458113,
+            "sha256": "9edde002b066a9a05676a6127f67735b62baf399bdea529f2f7e31657da769e6",
+            "milliseconds": 59.49
+          },
+          {
+            "route": "/traffic/vendor/addons/controls/OrbitControls.js",
+            "status": 200,
+            "bytes": 40755,
+            "sha256": "3d79d07ecb686b4e5d93232eedab255331c1beef711e13164eaa1f68655a5f2b",
+            "milliseconds": 2.15
+          },
+          {
+            "route": "/traffic/progress/",
+            "status": 200,
+            "bytes": 2699,
+            "sha256": "94c5e79c225dc38b1b7345a30845722224b4dbd418e128b31609b3bb199ecd1f",
+            "milliseconds": 1.44
+          },
+          {
+            "route": "/traffic/progress/progress.mjs",
+            "status": 200,
+            "bytes": 3415,
+            "sha256": "6471294271c4932f623672a91373f36f7ea034f289d2d693b1e9099f3f254bd3",
+            "milliseconds": 1.57
+          },
+          {
+            "route": "/traffic/progress/progress.css",
+            "status": 200,
+            "bytes": 5298,
+            "sha256": "656e5bf2f595757cf4a113a7a3cee58f1b1d5ba166c89d6da9ce8d9ba5d52b79",
+            "milliseconds": 1.16
+          },
+          {
+            "route": "/traffic/progress/data.json",
+            "status": 200,
+            "bytes": 12077,
+            "sha256": "1ec666817d108b9bc36f657d6a223b017dd6dfc60a41df16c1135a2dc4b6bded",
+            "milliseconds": 2.23
+          }
+        ],
+        "freshCompilerMatches": [
+          "simulation.js",
+          "traffic-network.js"
+        ]
+      }
+    },
+    {
+      "name": "inline import map and bootstrap covered by exact CSP hashes",
+      "pass": true,
+      "detail": {
+        "inlineScripts": 2,
+        "csp": "default-src 'self'; script-src 'self' 'sha256-1YEv448Zgl0f6sen+2sO6P0v1YoeKsfJAzSwU0ARHZo=' 'sha256-k8kp02jcAhxF3yueyB4iJ7vfSCZVDrbCIHkAbYEgLC8='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"
+      }
+    },
+    {
+      "name": "raw repository and traversal probes rejected",
+      "pass": true,
+      "detail": [
+        {
+          "route": "/package.json",
+          "status": 404,
+          "body": "Not found"
+        },
+        {
+          "route": "/AGENTS.md",
+          "status": 404,
+          "body": "Not found"
+        },
+        {
+          "route": "/.git/config",
+          "status": 404,
+          "body": "Not found"
+        },
+        {
+          "route": "/traffic/.git/config",
+          "status": 404,
+          "body": "Not found"
+        },
+        {
+          "route": "/traffic/../package.json",
+          "status": 404,
+          "body": "Not found"
+        },
+        {
+          "route": "/traffic/%2e%2e%2fpackage.json",
+          "status": 404,
+          "body": "Not found"
+        },
+        {
+          "route": "/traffic/%252e%252e%252fpackage.json",
+          "status": 404,
+          "body": "Not found"
+        },
+        {
+          "route": "/traffic/vendor/../../package.json",
+          "status": 404,
+          "body": "Not found"
+        },
+        {
+          "route": "/traffic/vendor/%2e%2e%2fpackage.json",
+          "status": 404,
+          "body": "Not found"
+        },
+        {
+          "route": "/traffic/vendor/package.json",
+          "status": 404,
+          "body": "Not found"
+        },
+        {
+          "route": "/traffic/vendor/addons/../../../package.json",
+          "status": 404,
+          "body": "Not found"
+        },
+        {
+          "route": "/traffic/vendor/addons/%2e%2e%2f%2e%2e%2f%2e%2e%2fpackage.json",
+          "status": 404,
+          "body": "Not found"
+        },
+        {
+          "route": "/traffic/runtime/%2e%2e%2f%2e%2e%2fpackage.json",
+          "status": 404,
+          "body": "Not found"
+        },
+        {
+          "route": "/traffic/%5c..%5cpackage.json",
+          "status": 400,
+          "body": "Malformed path"
+        },
+        {
+          "route": "/traffic/%00main.mjs",
+          "status": 400,
+          "body": "Malformed path"
+        },
+        {
+          "route": "/traffic/%ZZ",
+          "status": 400,
+          "body": "Malformed path"
+        },
+        {
+          "route": "/traffic/%C0%AF",
+          "status": 400,
+          "body": "Malformed path"
+        },
+        {
+          "route": "/traffic//main.mjs",
+          "status": 404,
+          "body": "Not found"
+        },
+        {
+          "route": "/traffic/missing.mjs",
+          "status": 404,
+          "body": "Not found"
+        },
+        {
+          "route": "/traffic/world.mjs.map",
+          "status": 404,
+          "body": "Not found"
+        }
+      ]
+    },
+    {
+      "name": "HTTP mutations rejected with Allow header and no file change",
+      "pass": true,
+      "detail": [
+        {
+          "method": "POST",
+          "status": 405
+        },
+        {
+          "method": "PUT",
+          "status": 405
+        },
+        {
+          "method": "PATCH",
+          "status": 405
+        },
+        {
+          "method": "DELETE",
+          "status": 405
+        },
+        {
+          "method": "OPTIONS",
+          "status": 405
+        },
+        {
+          "method": "TRACE",
+          "status": 405
+        }
+      ]
+    },
+    {
+      "name": "redirects and HEAD responses",
+      "pass": true,
+      "detail": [
+        {
+          "route": "/",
+          "status": 302,
+          "location": "/traffic/"
+        },
+        {
+          "route": "/traffic",
+          "status": 302,
+          "location": "/traffic/"
+        },
+        {
+          "route": "/traffic/progress",
+          "status": 302,
+          "location": "/traffic/progress/"
+        },
+        {
+          "route": "/traffic/",
+          "headStatus": 200,
+          "contentLength": "16821",
+          "bodyLength": 0
+        },
+        {
+          "route": "/traffic/main.mjs",
+          "headStatus": 200,
+          "contentLength": "41483",
+          "bodyLength": 0
+        },
+        {
+          "route": "/traffic/health",
+          "headStatus": 200,
+          "contentLength": "91",
+          "bodyLength": 0
+        },
+        {
+          "route": "/traffic/missing.mjs",
+          "headStatus": 404,
+          "contentLength": "9",
+          "bodyLength": 0
+        }
+      ]
+    },
+    {
+      "name": "health and all published capture links",
+      "pass": true,
+      "detail": {
+        "health": {
+          "game": "ai-city-traffic",
+          "status": "development",
+          "buildReady": true,
+          "productionReady": false
+        },
+        "progressUpdatedAt": "2026-10-30T20:58:04.185887+00:00",
+        "benchmark": {
+          "status": "REFERENCE LEADS",
+          "bar": "Beat representative actual Cities: Skylines II gameplay at matched aerial/street views, resolution, scene scale and traffic density.",
+          "reason": "A fresh critic inspected the actual aerial, street, night and mobile captures beside the pinned Cities: Skylines II references. Repeated architectural massing and simplified foreground assets remain the largest visual gap. The commercial benchmark has not been met."
+        },
+        "captures": [
+          {
+            "file": "iteration-2-aerial.png",
+            "bytes": 1812278
+          },
+          {
+            "file": "iteration-2-street.png",
+            "bytes": 1346702
+          },
+          {
+            "file": "iteration-2-night.png",
+            "bytes": 1409898
+          },
+          {
+            "file": "iteration-2-mobile.png",
+            "bytes": 309265
+          },
+          {
+            "file": "iteration-2-mobile-experiment.png",
+            "bytes": 169632
+          },
+          {
+            "file": "iteration-3-aerial.jpg",
+            "bytes": 656315
+          },
+          {
+            "file": "iteration-3-street.jpg",
+            "bytes": 437366
+          },
+          {
+            "file": "iteration-3-follow.jpg",
+            "bytes": 482722
+          },
+          {
+            "file": "iteration-3-night.jpg",
+            "bytes": 508156
+          },
+          {
+            "file": "iteration-3-mobile.jpg",
+            "bytes": 146251
+          },
+          {
+            "file": "iteration-3-mobile-experiment.jpg",
+            "bytes": 87991
+          }
+        ]
+      }
+    },
+    {
+      "name": "bounded invalid-request and small-concurrency behavior",
+      "pass": true,
+      "detail": {
+        "oversizedURL": 431,
+        "oversizedHeader": 431,
+        "concurrentRequests": 32,
+        "batchMilliseconds": 27.92,
+        "requestTimeout": 15000,
+        "headersTimeout": 10000,
+        "keepAliveTimeout": 5000,
+        "connectionsCheckingInterval": 30000
+      }
+    },
+    {
+      "name": "partial build readiness failure injection",
+      "pass": true,
+      "detail": {
+        "reproduced": true,
+        "health": {
+          "game": "ai-city-traffic",
+          "status": "development",
+          "buildReady": true,
+          "productionReady": false
+        },
+        "missingMainStatus": 404,
+        "missingDependencyStatus": 404
+      }
+    }
+  ],
+  "observations": [
+    {
+      "finding": "partial-build-ready",
+      "health": {
+        "game": "ai-city-traffic",
+        "status": "development",
+        "buildReady": true,
+        "productionReady": false
+      },
+      "missingMainStatus": 404,
+      "missingDependencyStatus": 404
+    }
+  ],
+  "failedChecks": 0
+}

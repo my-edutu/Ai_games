@@ -1,0 +1,189 @@
+TAP version 13
+# Subtest: capture succeeds only with complete, stable, error-free evidence
+not ok 1 - capture succeeds only with complete, stable, error-free evidence
+  ---
+  duration_ms: 14.882603
+  type: 'test'
+  location: '/workspace/scratch/f951d9074684/ai-games-city-traffic/tests/foundation/city-traffic-capture.test.cjs:35:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + undefined
+    - true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/workspace/scratch/f951d9074684/ai-games-city-traffic/tests/foundation/city-traffic-capture.test.cjs:36:91)
+    process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+  ...
+# Subtest: capture rejects error and retains diagnostics
+not ok 2 - capture rejects error and retains diagnostics
+  ---
+  duration_ms: 2.937048
+  type: 'test'
+  location: '/workspace/scratch/f951d9074684/ai-games-city-traffic/tests/foundation/city-traffic-capture.test.cjs:38:58'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/workspace/scratch/f951d9074684/ai-games-city-traffic/tests/foundation/city-traffic-capture.test.cjs:39:33)
+    process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: capture rejects failed-diagnostics and retains diagnostics
+not ok 3 - capture rejects failed-diagnostics and retains diagnostics
+  ---
+  duration_ms: 2.981419
+  type: 'test'
+  location: '/workspace/scratch/f951d9074684/ai-games-city-traffic/tests/foundation/city-traffic-capture.test.cjs:38:58'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/workspace/scratch/f951d9074684/ai-games-city-traffic/tests/foundation/city-traffic-capture.test.cjs:39:33)
+    process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: capture rejects drift and retains diagnostics
+not ok 4 - capture rejects drift and retains diagnostics
+  ---
+  duration_ms: 3.183751
+  type: 'test'
+  location: '/workspace/scratch/f951d9074684/ai-games-city-traffic/tests/foundation/city-traffic-capture.test.cjs:38:58'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/workspace/scratch/f951d9074684/ai-games-city-traffic/tests/foundation/city-traffic-capture.test.cjs:39:33)
+    process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: interrupted capture retains partial evidence and closes the browser
+not ok 5 - interrupted capture retains partial evidence and closes the browser
+  ---
+  duration_ms: 1.932772
+  type: 'test'
+  location: '/workspace/scratch/f951d9074684/ai-games-city-traffic/tests/foundation/city-traffic-capture.test.cjs:41:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'complete')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (/workspace/scratch/f951d9074684/ai-games-city-traffic/tests/foundation/city-traffic-capture.test.cjs:42:112)
+    process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: missing source fingerprint cannot leak a launched browser
+not ok 6 - missing source fingerprint cannot leak a launched browser
+  ---
+  duration_ms: 7.081762
+  type: 'test'
+  location: '/workspace/scratch/f951d9074684/ai-games-city-traffic/tests/foundation/city-traffic-capture.test.cjs:44:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+    
+      assert.ok(!r.launched||r.closed)
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (/workspace/scratch/f951d9074684/ai-games-city-traffic/tests/foundation/city-traffic-capture.test.cjs:45:72)
+    process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: traffic page serves the actual local game and local Three.js modules
+ok 7 - traffic page serves the actual local game and local Three.js modules
+  ---
+  duration_ms: 66.042585
+  type: 'test'
+  ...
+# Subtest: traffic server rejects mutations and repository-file exposure
+ok 8 - traffic server rejects mutations and repository-file exposure
+  ---
+  duration_ms: 11.003897
+  type: 'test'
+  ...
+# Subtest: traffic health reports build availability without claiming production readiness
+ok 9 - traffic health reports build availability without claiming production readiness
+  ---
+  duration_ms: 1.882814
+  type: 'test'
+  ...
+# Subtest: traffic server handles missing and malformed paths without process failure
+ok 10 - traffic server handles missing and malformed paths without process failure
+  ---
+  duration_ms: 18.892305
+  type: 'test'
+  ...
+# Subtest: traffic readiness rejects a partial or empty required-asset build
+not ok 11 - traffic readiness rejects a partial or empty required-asset build
+  ---
+  duration_ms: 11.052109
+  type: 'test'
+  location: '/workspace/scratch/f951d9074684/ai-games-city-traffic/tests/foundation/city-traffic-server.test.cjs:35:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/workspace/scratch/f951d9074684/ai-games-city-traffic/tests/foundation/city-traffic-server.test.cjs:46:10)
+    process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 4
+# fail 7
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 179.173127

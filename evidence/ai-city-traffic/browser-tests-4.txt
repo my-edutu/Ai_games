@@ -1,0 +1,18 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+Running 8 tests using 1 worker
+
+(node:199411) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:199411) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/city-traffic.spec.cjs:8:1 › real 3D city loads local assets and autonomous traffic advances (6.1s)
+  ✓  2 tests/browser/city-traffic.spec.cjs:20:1 › pause and speed controls change scheduling without changing traffic while paused (12.5s)
+  ✓  3 tests/browser/city-traffic.spec.cjs:31:1 › experiment controls change actual demand, signal policy and roadworks (13.0s)
+  ✓  4 tests/browser/city-traffic.spec.cjs:44:1 › camera, lighting, queue overlay and sound controls are connected (24.8s)
+  ✓  5 tests/browser/city-traffic.spec.cjs:53:1 › mobile reduced-motion layout keeps real controls within the viewport (8.2s)
+  ✓  6 tests/browser/city-traffic.spec.cjs:71:1 › WebGL failure gives a visible recovery action instead of a blank game (867ms)
+  ✓  7 tests/browser/city-traffic.spec.cjs:75:1 › lost graphics context restores the saved real simulation after reload (10.4s)
+  ✓  8 tests/browser/city-traffic.spec.cjs:83:1 › live progress page exposes evidence and preserves the independently recorded benchmark verdict (3.7s)
+
+  8 passed (1.4m)

@@ -1,0 +1,13 @@
+{
+  "protocol": "Fresh critic viewed anonymous actual follow captures A and B before reading sources or mapping; mapping disclosed only after choice. Same 1920x1080 preset and internal pixel ratio1; different candidate timestamps/ticks. This is a local candidate comparison, not a blind commercial win.",
+  "choice": "B",
+  "mapping": {
+    "A": "iteration-3-follow.jpg",
+    "B": "iteration-4-follow.jpg"
+  },
+  "reason": "B has framed glazing, layered bus rear details, shaped bumpers and separated tire/rim detail. Commercial materials and character detail remain in review.",
+  "sha256": {
+    "A": "bc0b418a61d302ca032c1d443c1e4310c9982a51090ab41e7143589825f47e60",
+    "B": "bb97285ee56290e3a82118d60d5de8d0d3f8aa8a892c5e0fb87700a78575ba21"
+  }
+}

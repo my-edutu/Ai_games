@@ -1,0 +1,11 @@
+First render: {"rendererCalls":238,"triangles":2214204,"geometries":91,"textures":9,"fps":0.4,"cameraMode":"aerial","cameraPosition":{"x":170,"y":159.99999999999997,"z":189.99999999999997},"paused":false,"night":false,"trafficOverlay":false,"speed":1,"reducedMotion":false,"webgl":true,"failed":false,"pixelRatio":1,"droppedSimulationSeconds":0,"simulationTick":363,"selectedVehicleId":null,"audio":{"supported":true,"enabled":false,"suspended":false,"state":"not-started","activeVoices":0,"continuousSources":0,"voiceLimit":6,"outputPeak":0,"error":null},"world":{"artVersion":"marina-district-1","staticBatches":62,"staticInstances":27208,"dynamicBatches":75,"vehicles":40,"pedestrians":48,"truncatedVehicles":0,"truncatedPedestrians":0,"vehicleCapacity":512,"pedestrianCapacity":512,"materials":33,"geometries":114,"textures":7,"motionEntries":40},"recovered":false}
+locator.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('#pause-toggle')[22m
+[2m    - locator resolved to <button id="pause-toggle" class="play-button" aria-pressed="false" aria-label="Pause simulation" title="Pause / resume · Space">…</button>[22m
+[2m  - attempting click action[22m
+[2m    - waiting for element to be visible, enabled and stable[22m
+
+    at main (/workspace/scratch/f951d9074684/ai-games-city-traffic/scripts/capture-city-traffic.cjs:19:39) {
+  name: 'TimeoutError'
+}
