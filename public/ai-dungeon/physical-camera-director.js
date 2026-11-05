@@ -11,6 +11,7 @@
  * movement occur here. Decision changes are latched per real run / floor and
  * limited to the existing director's cinematic shot (manual views untouched).
  */
+import {planForegroundPointRisk} from '/dungeon/foreground-sightline-plan.js';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const finite=n=>typeof n==='number'&&Number.isFinite(n);
 const ANGLES=Object.freeze([0,-.40,.40,-.76,.76]);
@@ -143,7 +144,7 @@ function orbit(base,index,size){
   z:clamp(center.z+(dx*sin+dz*cos)*reach,-limit,limit)};
 }
 
-function grade(cam,look,eyes,grid,size,viewport,reveal,pad,facades,facadeReveal){
+function grade(cam,look,eyes,grid,size,viewport,reveal,pad,facades,facadeReveal,propVolumes){
  const aspect=viewport.width/viewport.height;
  const fov=clamp(viewport.fov,32,66);
  let score=0,blocked=0,cropped=0,fullyVisible=0;
@@ -158,7 +159,8 @@ function grade(cam,look,eyes,grid,size,viewport,reveal,pad,facades,facadeReveal)
     score-=sample.weight*1.8;cropped++;continue;
    }
    if(blockedByStone(cam,point,point.y,grid,size,eyes,reveal,pad)||
-      planFacadeBodyOcclusion(cam,point,facades,eyes,reveal,pad,facadeReveal)){
+      planFacadeBodyOcclusion(cam,point,facades,eyes,reveal,pad,facadeReveal)||
+       planForegroundPointRisk(propVolumes,cam,point,p)){
     score-=sample.weight*1.45;blocked++;continue;
    }
    score+=sample.weight;bodyVisible++;
@@ -173,7 +175,7 @@ function grade(cam,look,eyes,grid,size,viewport,reveal,pad,facades,facadeReveal)
 export function createPhysicalCameraDirector(){
  let scene=null,choice=0,switches=0,checks=0,improvements=0,last=null,grid=null,wallsRef=null,heightsRef=null,lastTick=null;
  function reset(){scene=null;choice=0;last=null;grid=null;wallsRef=null;heightsRef=null;lastTick=null;}
- function resolve(state,base,{subjects=[],wallPositions=[],wallHeights=[],facades=[],facadeReveal=null,reveal=null,wallPad=2.1,
+ function resolve(state,base,{subjects=[],wallPositions=[],wallHeights=[],facades=[],facadeReveal=null,propVolumes=[],reveal=null,wallPad=2.1,
     width=1440,height=832,fov=48,lookY=1.05,reducedMotion=false}={}){
   if(reducedMotion||state?.bossWarning||state?.phase==='intermission'||typeof reveal!=='function'||
    !Number.isSafeInteger(state?.run)||!Number.isSafeInteger(state?.floor)||
@@ -199,7 +201,7 @@ export function createPhysicalCameraDirector(){
   for(let i=0;i<MAX_CANDIDATES;i++){
    const rescue=RESCUE_SHOTS[i-ANGLES.length];
    const angle=rescue?.angle??ANGLES[i]??0,camera=orbit(base,i,size);
-   const result=grade(camera,look,eyes,grid,size,viewport,reveal,wallPad,facades,facadeReveal);
+   const result=grade(camera,look,eyes,grid,size,viewport,reveal,wallPad,facades,facadeReveal,propVolumes);
    // An elevated shot pays a real compositional cost: use it only when
    // more of the actual skinned bodies become visible without new cropping.
    const penalty=rescue?.lift!==undefined?

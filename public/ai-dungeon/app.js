@@ -29,6 +29,7 @@ import {createCombatDirector} from '/dungeon/combat-director.js';
 import {planCombatStage,stagePoint,MAX_STAGE_OFFSET,inspectBattlefieldCrowding} from '/dungeon/combat-staging-plan.js';
 import {createCombatShotContinuity} from '/dungeon/combat-shot-continuity.js';
 import {createPhysicalCameraDirector} from '/dungeon/physical-camera-director.js';
+import {captureForegroundVolumes,planForegroundBodyClearance} from '/dungeon/foreground-sightline-plan.js';
 import {createDungeonSoundstage} from '/dungeon/soundstage.js';
 import {createWardenRitual} from '/dungeon/warden-ritual.js';
 import {createWardenImpactScars} from '/dungeon/warden-impact-scars.js';
@@ -296,8 +297,9 @@ function cutawayWalls(target,subjects,wallPad=2.1){
  world.userData.cutawayParapets=clearedParapets;
  world.userData.parapetMatrixWrites=parapetMatrixWrites;
  let removed=0;
- for(const group of world.userData.foregroundProps||[]){
-  const hidden=sightlineClearance(group.position.x,group.position.z,subjects,camera.position,wallPad);
+ for(const [i,group] of (world.userData.foregroundProps||[]).entries()){
+  const hidden=sightlineClearance(group.position.x,group.position.z,subjects,camera.position,wallPad)||
+   planForegroundBodyClearance(world.userData.foregroundPropVolumes?.[i],subjects,camera.position);
   group.visible=!hidden;if(hidden)removed++;
  }
  world.userData.hiddenForegroundProps=removed;
@@ -558,6 +560,12 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
  world.userData.atmosphere=createBiomeAtmosphere(world,s.map,s.floor,s.exit);
  world.userData.livingWorld=createLivingWorld(world,s.map,s.floor);
  world.userData.authoredProps=putEnvironment(world,worldFloor,s.map);
+ // Cache original geometry ONCE per floor; no per-frame geometry scans.
+ world.userData.foregroundPropVolumes=captureForegroundVolumes(THREE,world.userData.foregroundProps);
+ world.userData.authoredPropVolumes=captureForegroundVolumes(THREE,world.userData.authoredProps?.group?.children||[]);
+ world.userData.cameraPropVolumes=[...world.userData.foregroundPropVolumes,
+  ...(world.userData.dressing?.occlusionPropVolumes||[]),
+  ...world.userData.authoredPropVolumes].filter(Boolean).slice(0,160);
 }
 function rig(u){const colors=palette[u.kind],main=mat(colors[0],.5,.4),light=mat(colors[1],.45,.4),accent=mat(colors[2],.55,.3),enemy=u.faction==='enemy',boss=u.kind==='warden';
  const root=new THREE.Group(),impactPivot=new THREE.Group(),body=new THREE.Group();root.add(impactPivot);impactPivot.add(body);const scale=boss?WARDEN_STAGE_PROFILE.worldScale:enemy?1.04:1;root.scale.setScalar(scale);
@@ -1103,6 +1111,7 @@ function animate(t){
    subjects:partySightlines,wallPositions:world.userData.wallPositions,
    wallHeights:world.userData.wallHeights,facades:world.userData.dressing?.occlusionFaces,
    facadeReveal:world.userData.dressing?.facadeReveal,
+   propVolumes:world.userData.cameraPropVolumes,
    reveal:planPartyWallReveal,
    wallPad:storyStage?.wallPad??2.1,width:w,height:h,
    fov:cinematicLens?.fov??48,lookY:cinematicLens?.lookY??cinematicShot?.lookY??0,
@@ -1171,8 +1180,9 @@ function animate(t){
  cutawayWalls(target,partySightlines,storyStage?.wallPad??2.1);world.userData.dressing?.cutaway(partySightlines,camera.position,storyStage?.wallPad??2.1);world.userData.chapterNaves?.cutaway(partySightlines,camera.position,storyStage?.wallPad??2.1);
   world.userData.wardenRitual?.setSightlines(partySightlines,camera.position);
  if(world.userData.authoredProps?.group){
-  for(const prop of world.userData.authoredProps.group.children){
-   prop.visible=!sightlineClearance(prop.position.x,prop.position.z,partySightlines,camera.position,2.4);
+  for(const [i,prop] of world.userData.authoredProps.group.children.entries()){
+   prop.visible=!(sightlineClearance(prop.position.x,prop.position.z,partySightlines,camera.position,2.4)||
+    planForegroundBodyClearance(world.userData.authoredPropVolumes?.[i],partySightlines,camera.position));
   }
  }
 

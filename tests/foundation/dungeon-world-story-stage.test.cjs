@@ -56,7 +56,7 @@ test('the same stage width cuts facade, masonry and existing foreground props wi
  assert.match(app,/cutawayWalls\(target,partySightlines,storyStage\?\.wallPad/);
  assert.match(app,/world\.userData\.dressing\?\.cutaway\(partySightlines,camera\.position,storyStage\?\.wallPad/);
  assert.match(app,/storyStage:storyStage\?\?null/);
- assert.match(env,/planPartyWallReveal\(f\[0\],f\[2\],eyes,camera,wallPad,f\[4\]\)/);
+ assert.match(env,/planPartyWallReveal\(face\[0\],face\[2\],eyes,camera,wallPad,face\[4\]\)/);
  assert.ok(host.includes("['/dungeon/world-story-stage-plan.js','world-story-stage-plan.js']"));
 });
 test('hero-first boss tableau separates an actual defender in place while aligning the visible blade origin',async()=>{

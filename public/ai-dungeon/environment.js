@@ -5,6 +5,7 @@ import {planCutawayFloorBacking,planCutawayCapTransform} from '/dungeon/cutaway-
 import {planPartyWallReveal,planLiveFacadeBodyReveal,createCutawayBandCache,shouldUploadCutawayBand} from '/dungeon/party-visibility-plan.js';
 import {planDungeonWallProfiles,planLegibleWallMass} from '/dungeon/wall-profile-plan.js';
 import {createWardenCourt} from '/dungeon/warden-court.js';
+import {captureForegroundVolumes,planForegroundBodyClearance} from '/dungeon/foreground-sightline-plan.js';
 
 // Purely cosmetic, reproducible procedural dressing. This code never touches game authority.
 // All geometry is batched or tightly budgeted so a streaming run can regenerate indefinitely.
@@ -313,6 +314,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
  const facadeBands=createCutawayBandCache(wallFaces.length);
  // Instanced caps begin intact, so band zero already matches their GPU matrices.
  const capBands=new Uint8Array(columnCap.length);
+ const foregroundVolumes=captureForegroundVolumes(THREE,foregroundGroups);
  const sceneMetrics={clearedForeground:0,clearedWeatheredPieces:0,clearedCapstones:0,matrixWrites:{facade:0,weathered:0,capstone:0}};
  const matrix=new THREE.Matrix4(),p=new THREE.Vector3(),q=new THREE.Quaternion(),scale=new THREE.Vector3();
  const yAxis=new THREE.Vector3(0,1,0),blockedFaces=new Uint8Array(wallFaces.length);
@@ -393,8 +395,12 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
   sceneMetrics.clearedWeatheredPieces=weatheringCleared;
   sceneMetrics.matrixWrites.facade=facadeMatrixWrites;
   sceneMetrics.matrixWrites.weathered=weatheredMatrixWrites;
-  for(const group of foregroundGroups){
-   const blocked=obscures(group.position.x,group.position.z,wallPad);
+  for(let i=0;i<foregroundGroups.length;i++){
+   const group=foregroundGroups[i];
+   // Clear only the physical arch wing across a real full-body sightline,
+   // even when the source prop's origin is behind the old 2D camera wedge.
+   const blocked=obscures(group.position.x,group.position.z,wallPad)||
+    planForegroundBodyClearance(foregroundVolumes[i],eyes,camera);
    group.visible=!blocked;if(blocked)cleared++;
   }
   sceneMetrics.clearedForeground=cleared;
@@ -418,6 +424,6 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
   p.fire.scale.y=scale;p.inner.scale.setScalar(.91+Math.sin(t+1.3)*.14);
   if(p.light)p.light.intensity=2.1*(1+encounterLight)*(1+.035*Math.sin(time*2.5+p.phase));
  }};
- return {animate,accept,cutaway,facadeReveal,occlusionFaces:wallFaces,occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{wardenCourt:wardenCourt.metrics,biome:floor,vaultedFacadeOpenings:wallFaces.filter(f=>f[4]<1.2).length,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,wovenRugs:rugs.length,cutawayFloorBackings:backing.length,columnCapstones:columnCap.length,texturedSurfaces:floorDetails.length+wallFaces.length,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{wardenCourt.dispose();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
+ return {animate,accept,cutaway,facadeReveal,occlusionFaces:wallFaces,occlusionPropVolumes:foregroundVolumes.filter(Boolean),occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{wardenCourt:wardenCourt.metrics,biome:floor,vaultedFacadeOpenings:wallFaces.filter(f=>f[4]<1.2).length,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,wovenRugs:rugs.length,cutawayFloorBackings:backing.length,columnCapstones:columnCap.length,texturedSurfaces:floorDetails.length+wallFaces.length,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{wardenCourt.dispose();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
 }
 
