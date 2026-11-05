@@ -20,6 +20,36 @@ permissions:
   contents: read
 
 jobs:
+  # W57: explicit original 3D door contact, only when a true citizen has
+  # walked to its assigned home. Night arrival, PC and 390px are exercised
+  # on the actual WebGL game and checked against unchanged saved authority.
+  w57-real-cottage-homecoming:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: W57 true homecoming and hinged cottage doors on desktop/390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w57-lived-homecoming-doors.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w57-real-homecoming
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w57/
+          retention-days: 14
   w54-genuine-workday-world-first:
     runs-on: ubuntu-latest
     timeout-minutes: 12
