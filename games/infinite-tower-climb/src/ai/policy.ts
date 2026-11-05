@@ -613,6 +613,29 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
      (!tactical||!observedSafeLandingOwnsHazard(state,observation,hazard))){const center=hazard.x+hazard.width/2,away:TowerAction['move']=center>=observation.player.position.x?-1:1,move=tactical?guardedEvasion(state,observation,away):away;return{action:action(move,{jump:observation.player.grounded}),intent:{mode:'evading-hazard',summary:move!==away?'Jumping clear without abandoning the deck':`Avoiding ${hazard.kind}`,confidence:.96,fallbackUsed:false}}}
   const windup=tactical?imminentTelegraph(state,observation):undefined;
   if(windup){
+    // An overlapping 1–3-tick SOURCE crusher can strike BEFORE an imminent
+    // guardian projectile. The old last-beat reflex always jumped toward
+    // the announced shot, abandoning an actual reachable ground exit and
+    // sometimes landing in closing jaws. The same published 20 Hz charge
+    // now wins only when physical deck geometry offers an escape (or proves
+    // that an ordinary vault is the last resort). This exact evading-hazard
+    // intent also drives the existing world-space jaws, camera, animation
+    // and opt-in danger sound in the SAME real encounter. No forecast,
+    // invulnerability, free counterattack, action-clock or legacy-v1 change.
+    const crushingNow=tactical&&state.config.guardianArenaHazards===true
+      ?observedChargingHazard(state,observation):undefined;
+    if(crushingNow&&Number.isSafeInteger(crushingNow.chargeTicksRemaining)&&
+       crushingNow.chargeTicksRemaining<=3){
+      const escape=observedTrapEscape(state,observation,crushingNow);
+      if(escape.move!==0||escape.jump)return {
+        action:action(escape.move,{jump:escape.jump}),
+        intent:{mode:'evading-hazard',
+          summary:escape.jump?'Vaulting from real closing jaws beneath guardian fire':
+            'Using a source-clear deck exit before simultaneous guardian fire',
+          confidence:.99,fallbackUsed:false,
+          targetPlatformId:observation.player.groundedPlatformId},
+      };
+    }
     const p=observation.player;
     const cap=observation.platforms.find(deck=>deck.id===`f${observation.floor}:cap`);
     const dx=windup.position.x-p.position.x;
