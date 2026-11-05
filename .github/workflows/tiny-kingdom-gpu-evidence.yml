@@ -20,6 +20,37 @@ permissions:
   contents: read
 
 jobs:
+  # W68: test the original genuinely inhabited town at 1024px and 390px;
+  # every actual cottage receives static side-wall materiality, and 120-day
+  # growth must keep all real residents and structures with no false production.
+  w68-lived-street-materiality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: W68 authentic grown burgages, garden masonry, replay-safe mobile WebGL
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w68-lived-street-materiality.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w68-real-growing-streets
+          path: |
+            artifacts/tiny-kingdom-w68/
+            test-results/
+          retention-days: 14
   # W64: same inhabited-workday scene, visible original grain movement and
   # organic cultivated rows; protect true crop/worker state and 390px WebGL.
   w64-live-growing-field:
