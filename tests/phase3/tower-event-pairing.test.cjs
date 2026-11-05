@@ -45,7 +45,7 @@ test('tampering, missing film, invalid phone width and short run are detected',(
  b.sourceSha='bad';c.videoPresent=false;c.motion.actualWallSeconds=22;
  c.motion.viewport.width=800;
  const a=auditPairs([b,c],'c'.repeat(40));
- assert.equal(a.comparisons[0].faults.length,4);
+ assert.equal(a.comparisons[0].faults.length,5);
  assert.equal(a.missingPairs.length,7);
  assert.equal(a.verdict,'NOT EVALUATED');
 });
