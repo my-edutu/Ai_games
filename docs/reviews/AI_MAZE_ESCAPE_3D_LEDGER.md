@@ -1,3 +1,13 @@
+# Pass169 — real native trap chronology, strict action-scale failure and source candidate (2026-11-05 UTC)
+
+**Benchmark: NOT MET.** Fixed reference: [official Nintendo *Captain Toad: Treasure Tracker* gameplay](https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/), supporting *Luigi's Mansion 3* and *ASTRO BOT*. The existing PR stays DRAFT; **do not merge or deploy**.
+
+
+- **Actual 2026-11-05 390px WebGL defect:** [Pass168 artifact 13411484632](https://github.com/my-edutu/Ai_games/actions/runs/42019525908/artifacts/13411484632), 37/37 original full PNG SHA256 matches. Same actual public trap59 tick5/6/7: complete physical jaw spans at 390px **.705058 / .777679 / .662126 NDC**, last **FAIL** unchanged >.70 action-scale assertion. All 320px jaws now **uncropped** (+.898330/+.931939/+.808186 vs strict +.95); earlier Pass168 320 pressure crop is resolved on this exact source, **not** a Nintendo artistic win. Full and focused CI both failed; whole CI also has separate Maze CPU timing and unrelated Tiny Kingdom assertions.
+- **Source candidate:** use public actual matching key-at-lock plus diagonal visible trap only to apply a bounded 8% optical half-height adjustment at true withdrawal; preserve one-cell pressure +.932 no-crop, privacy, autonomous authority, reduced motion, full HUD, 44px and unchanged strict tests. Original latest screenshots visually remain below Nintendo on a clear interactive puzzle, environment silhouette and acting. Pending new exact-head WebGL verification and detached critic unavailable (workspace NOT_FOUND). [Detailed native review](./maze-3d/pass-169-authentic-pass168-withdrawal-scale-and-public-keyed-camera-candidate-2026-11-05.md). **OPEN DRAFT, no merge/deploy, benchmark NOT MET.**
+
+---
+
 ### Pass168 — authentic same-run 320px gate/pressure failure and scoped camera repair (2026-11-05 UTC)
 
 - **Real 33/33 originals independently SHA-256 verified** from [source `378a84c4` WebGL run 42008466319](https://github.com/my-edutu/Ai_games/actions/runs/42008466319), [original artifact 13406384408](https://github.com/my-edutu/Ai_games/actions/runs/42008466319/artifacts/13406384408). Same public trap59/run, actual 320×740: diagonal approach tick5 right +.898330 **PASS**, true pressure tick6 right **+1.050267 FAIL** unchanged +.95 silhouette. Pip full in both; second frame legitimately triggered **public sealed matching-key camera** that outranked pressure framing, not a SwiftShader timing problem. Native full-image critic still prefers [official Nintendo Captain Toad](https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/) on acting, authored puzzle readability, original scenery and frame composition. No independent blind A/B victory.

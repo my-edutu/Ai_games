@@ -77,3 +77,34 @@ test('tie-breaking and replay remain deterministic across public source frames',
   assert.deepEqual(first,second,'public cell enumeration order cannot shift the camera');
   assert.deepEqual(focus(a,pose,size,390/844),first,'same state always gives same framing');
 });
+
+test('public keyed diagonal trap restores genuine phone-size physical action without zooming the tight pressure beat',async()=>{
+  const {publicObservedTrapCameraFocus:focus,
+    publicKeyedPressureStageHalfHeight:stage}=await camera();
+  const original=7.119897435897436; // source-bound 390px original half-height at the public keyed gate
+  const published=grid([tile(40,false),tile(50,true)],[40,50]);
+  const jaw=focus(published,{x:0,z:0},size,390/844);
+  const before=JSON.stringify(published);
+  assert.ok(jaw && jaw.weight>=.35 && Math.abs(jaw.distance/size-Math.SQRT2)<1e-9);
+  const atKeyhole=stage(390/844,original,1,jaw,size);
+  assert.ok(atKeyhole<6.58 && atKeyhole>6.5,
+    'only a real fully disclosed near-keyhole diagonal composition receives a modest camera close-up');
+  assert.ok(.6621263750241755*original/atKeyhole>.70,
+    'the ORIGINAL actual withdrawal silhouette size requires a real optical correction, not a relaxed test');
+  assert.equal(stage(390/844,original,.38196601125,jaw,size),original,
+    'the tighter one-cell pressure/key-look stage cannot be shrunk into a crop');
+  const oneCell=focus(grid([tile(40,false),tile(41,true)],[40,41]),
+    {x:0,z:0},size,390/844);
+  assert.equal(stage(390/844,original,1,oneCell,size),original,
+    'do not zoom the actual one-cell jaw already close to the physical right boundary');
+  assert.equal(stage(844/390,original,1,jaw,size),original,
+    'do not alter landscape action scale');
+  assert.equal(stage(390/844,original,1,jaw,size,true),original,
+    'reduced motion remains on the original stable camera');
+  assert.equal(stage(390/844,original,1,null,size),original,
+    'no unknown, private or undisclosed trap earns a stage');
+  assert.equal(stage(390/844,original,1,jaw,size),atKeyhole,
+    'replaying an identical public snapshot yields exactly the same optical size');
+  assert.equal(JSON.stringify(published),before,
+    'presentation does not mutate published knowledge or autonomous authority');
+});

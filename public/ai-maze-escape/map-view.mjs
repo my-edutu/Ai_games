@@ -88,6 +88,35 @@ export function publicObservedTrapCameraFocus(snapshot, hero, cellSize, aspect) 
   return {...closest,weight:Math.max(axisWeight,diagonalWeight)*departureFade};
 }
 
+
+/**
+ * Keep the actual 3D tide-shear jaws at their original native action scale
+ * when Pip presents a genuinely carried matching key to a disclosed sealed
+ * gate with a *simultaneously visible diagonal trap*. The 2026-11-05 source-
+ * bound 390px withdrawal screenshot measured full physical jaw span .662 NDC
+ * (strict existing >.70), while both complete models had ample edge margin.
+ *
+ * This tiny optical move is reserved for public key/lock strength >= .8 and
+ * a known diagonal 1.3-1.55-cell stage. The nearer one-cell pressure beat
+ * already has only .068 NDC physical right margin and must NOT be zoomed.
+ * No hidden hazard, route, AI plan, model resizing or camera-test threshold.
+ * Full model and gate must pass independent real WebGL framing again.
+ */
+export function publicKeyedPressureStageHalfHeight(aspect, halfHeight,
+  keyLockStrength, publicTrap, cellSize, reducedMotion=false) {
+  if (reducedMotion
+    || !(Number.isFinite(aspect) && aspect >= .35 && aspect < .60)
+    || !(Number.isFinite(halfHeight) && halfHeight > 0)
+    || !(Number.isFinite(keyLockStrength) && keyLockStrength >= .8)
+    || !(Number.isFinite(cellSize) && cellSize > 0)
+    || !(Number.isFinite(publicTrap?.distance) && Number.isFinite(publicTrap?.weight))
+    || publicTrap.weight < .35
+    || publicTrap.distance < cellSize * 1.3
+    || publicTrap.distance > cellSize * 1.55)
+    return halfHeight;
+  return Math.max(5.8, halfHeight * .92);
+}
+
 /** Camera-only response speed for ACTUALLY witnessed public scene partners.
  * The previously generic 4.5/s camera can lag a real 320px autonomous
  * diagonal approach to a known physical pressure mechanism. Use guardian

@@ -4,7 +4,7 @@ import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZ
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianEncounterBeat } from './public-lantern-encounter.mjs';
-import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicCameraSettleRate, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
+import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicKeyedPressureStageHalfHeight, publicCameraSettleRate, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -736,6 +736,17 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // without altering object scale, AI, hidden cells or route direction.
       if (cameraMode === 'follow' && height >= 340) {
         targetHeight = publicFullBleedFollowHalfHeight(aspect, targetHeight);
+        // Genuine same-source 390px trap chronology: approach .705, pressure
+        // .778, but public key-at-lock diagonal withdrawal only .662 full-jaw
+        // NDC. Preserve one-cell pressure framing (+.932 at 390), and enlarge
+        // ONLY the real keyed-gate / published diagonal dual-stage view.
+        // Entire connected physical models, arch, and 44px HUD still require
+        // the unchanged real-browser no-crop gate; this is not approval.
+        if (!result && keyLockCloseup && !openingGateBeat
+          && publicPressureTrap && !closestThreat?.strength && !showPickup)
+          targetHeight = publicKeyedPressureStageHalfHeight(
+            aspect,targetHeight,keyGateCue?.strength,
+            publicPressureTrap,CELL_SIZE,settings.reducedMotion);
         // Pass121: neutral autonomous discovery should not be a tiny
         // postage-stamp island inside the full-screen ocean. Only a current
         // PUBLIC, reciprocally connected stage with no gate, guardian,
