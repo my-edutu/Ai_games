@@ -50,7 +50,7 @@ test('the actual autonomous cap pilot earns an early-window melee interrupt and 
   const boss=result.state.enemies[0];
   assert.equal(boss.health,7,'only an actual melee hit spends real guardian HP');
   assert.equal(boss.telegraphUntilTick,0,'earned strike stops the not-yet-fired real projectile');
-  assert.equal(boss.staggerUntilTick,source.tick+10);
+  assert.equal(boss.staggerUntilTick,source.tick+14);
   assert.ok(boss.cooldown>=18);
   assert.ok(result.events.some(e=>e.type==='melee-hit'&&e.data.id===boss.id));
   assert.ok(result.events.some(e=>e.type==='guardian-windup-interrupted'&&
@@ -58,7 +58,7 @@ test('the actual autonomous cap pilot earns an early-window melee interrupt and 
   assert.ok(!result.events.some(e=>e.type==='projectile-fired'&&e.data.owner==='enemy'));
   const rendered=createTowerRenderSnapshot(result.state,{includeWindupTicks:true});
   const shown=rendered.enemies.find(e=>e.id===boss.id);
-  assert.equal(shown.staggerTicksRemaining,10,'existing 3D model/audio receive the real source counter');
+  assert.equal(shown.staggerTicksRemaining,14,'existing 3D model/audio receive the real source counter');
   assert.equal(shown.telegraph,false);
   assert.deepEqual(stepTowerCombat(source,decision.action,rng()),result,'same fixed-step input replays exactly');
   assert.deepEqual(source,frozen,'combat does not mutate source');
