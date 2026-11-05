@@ -769,7 +769,7 @@ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):no
   max-width:calc(100vw - 14px);justify-content:space-between;gap:2px;
  }
  body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) .bottom .btn{
-  min-width:0;min-height:41px!important;font-size:10px!important;padding:8px 9px!important;
+  min-width:0;min-height:41px!important;font-size:11px!important;padding:8px 9px!important;
  }
 }
 @media(prefers-reduced-motion:reduce){
@@ -797,6 +797,8 @@ body[data-command="world"]:not([data-street="on"]):is([data-workday="live"],[dat
 /* Documentary labels already carry the same truthful name/activity as the
    original W50 world actor tag; show one readable narrator, not two copies. */
 body[data-village-documentary="on"] #world-actor-tag{display:none!important}
+/* W55 avoid duplicating the truthful workday subject caption. */
+:is(body[data-workday="live"],body[data-workday="delivery"],body[data-workday="homecoming"]) #world-actor-tag{display:none!important}
 @media(max-width:520px){
  body[data-command="world"]:not([data-street="on"]):is([data-workday="live"],[data-workday="delivery"],[data-workday="homecoming"]) .top{top:6px!important;left:7px!important;right:7px!important;gap:4px!important}
  body[data-command="world"]:not([data-street="on"]):is([data-workday="live"],[data-workday="delivery"],[data-workday="homecoming"]) .brand{padding:7px 8px!important;min-width:0!important;flex:0 1 auto!important}
@@ -806,8 +808,8 @@ body[data-village-documentary="on"] #world-actor-tag{display:none!important}
  body[data-command="world"]:not([data-street="on"]):is([data-workday="live"],[data-workday="delivery"],[data-workday="homecoming"]) .world-tour{top:44px!important;left:7px!important;width:calc(100vw - 14px)!important;max-width:calc(100vw - 14px)!important}
  body[data-command="world"]:not([data-street="on"]):is([data-workday="live"],[data-workday="delivery"],[data-workday="homecoming"]) .world-tour .tour-btn{min-height:40px!important;font-size:11px!important;padding:7px 10px!important}
  body[data-command="world"]:not([data-street="on"]):is([data-workday="live"],[data-workday="delivery"],[data-workday="homecoming"]) .bottom{bottom:8px!important;left:7px!important;right:7px!important;transform:none!important;width:auto!important;max-width:calc(100vw - 14px)!important;justify-content:space-between!important;gap:2px!important}
- body[data-command="world"]:not([data-street="on"]):is([data-workday="live"],[data-workday="delivery"],[data-workday="homecoming"]) .bottom .btn{min-width:0!important;min-height:41px!important;font-size:10px!important;padding:8px 9px!important}
- body[data-command="world"]:not([data-street="on"]):is([data-workday="live"],[data-workday="delivery"],[data-workday="homecoming"]) #workday-activity{bottom:101px!important;max-width:calc(100vw - 22px)!important;padding:6px 9px!important;font-size:10px!important}
+ body[data-command="world"]:not([data-street="on"]):is([data-workday="live"],[data-workday="delivery"],[data-workday="homecoming"]) .bottom .btn{min-width:0!important;min-height:41px!important;font-size:11px!important;padding:8px 9px!important}
+ body[data-command="world"]:not([data-street="on"]):is([data-workday="live"],[data-workday="delivery"],[data-workday="homecoming"]) #workday-activity{bottom:101px!important;max-width:calc(100vw - 22px)!important;padding:6px 9px!important;font-size:11px!important}
  body[data-command="world"]:not([data-street="on"]):is([data-workday="live"],[data-workday="delivery"],[data-workday="homecoming"]) #workday-progress{bottom:84px!important}
 }
 @media(prefers-reduced-motion:reduce){
@@ -5438,7 +5440,7 @@ function farmTreeClearanceStats(){
  return {forestSourceCount:trees.length,farmTreeOverlap:inFarm.length,
   renderedForestCount:farmForestRendered,renderedFarmTreeOverlap:farmForestRenderedOverlap};
 }
-let farmScene={rows:0,stalks:0,bundles:0,granaries:0,waterSegments:0};
+let farmScene={rows:0,stalks:0,seedHeads:0,stalkTriangles:0,stalkVisualModel:'w55-tapered-crossed-stems-grain-ears',bundles:0,granaries:0,waterSegments:0};
 function farmSoil(x0,x1,z0,z1,rowIndex){
  const soil=[rgb(0x655341),rgb(0x79604b),rgb(0x69513e)];
  const trough=rgb(0x4b4938),grassEdge=rgb(0x7d8d56);
@@ -5456,29 +5458,54 @@ function farmSoil(x0,x1,z0,z1,rowIndex){
  });
  farmScene.rows++;
 }
+// W55 original inhabited grain field: physically bending three-dimensional
+// cereals from existing deterministic planted coordinates, not new inventory.
 function farmStalk(x,z,index,season){
- const base=terrain(x,z)+.077;
+ const first=data.length,base=terrain(x,z)+.077;
  const sig=biomeHash(index*7+64),sig2=biomeHash(index*11+413);
+ const sig3=biomeHash(index*17+271),sig4=biomeHash(index*19+577);
  const h=(season===3?.26:season===0?.66:season===1?1.20:1.06)*(.86+sig*.28);
  const stalk=rgb(season===3?0xb1ae8e:season===0?0x638c46:season===1?0xa89545:0xb69a57);
  const head=rgb(season===3?0x96998c:season===0?0x9eb45d:season===1?0xd7bd6a:0xc8a762);
  const leaf=rgb(season===3?0x7e8872:season===0?0x518b52:0x899052);
- const sway=.095*(sig-.5),tip=[x+sway,base+h,z+.035*(sig2-.5)];
- // Tapered three-dimensional straw and two intentionally non-coplanar leaves.
- taperedBranch([x,base,z],[x+sway*.5,base+h*.7,z],.025,.014,stalk,5);
- taperedBranch([x+sway*.5,base+h*.7,z],tip,.014,.009,stalk,5);
+ const dx=(sig-.5)*.20,dz=(sig2-.5)*.16,at=t=>[x+dx*t*t,base+h*t,z+dz*t*t];
+ const bottom=at(0),upper=at(.86),tip=at(1),w=.012+sig3*.007;
+ // Two perpendicular tapered, bent shaft planes instead of stacked cylinders.
+ quad([bottom[0]-w,bottom[1],bottom[2]],[bottom[0]+w,bottom[1],bottom[2]],
+  [upper[0]+w*.47,upper[1],upper[2]],[upper[0]-w*.47,upper[1],upper[2]],stalk);
+ quad([bottom[0],bottom[1],bottom[2]-w],[bottom[0],bottom[1],bottom[2]+w],
+  [upper[0],upper[1],upper[2]+w*.47],[upper[0],upper[1],upper[2]-w*.47],stalk);
  if(season!==3){
-  const leafA=[x-.16,base+h*.52,z+.07],leafB=[x+.15,base+h*.38,z-.11];
-  tri([x,base+h*.36,z],leafA,[x,base+h*.69,z],leaf);
-  tri([x,base+h*.36,z],leafB,[x,base+h*.66,z],leaf);
-  const awn=season===0?.14:.22;
-  cone(tip[0],tip[1]-.045,tip[2],.067,awn,head,5);
-  for(const side of [-1,1])for(let g=0;g<3;g++){
-   const gy=tip[1]+g*.062,dx=(.045+g*.002)*side;
-   tri([tip[0],gy,tip[2]],[tip[0]+dx,gy+.063,tip[2]+.016],[tip[0],gy+.064,tip[2]],head);
+  for(const side of [-1,1]){
+   const attach=at(side===1?.35:.53),reach=(.13+sig4*.08)*side;
+   const mid=[attach[0]+reach*.55,attach[1]+h*.10,attach[2]+side*.04];
+   const end=[attach[0]+reach,attach[1]+h*(side===1?.13:.17),attach[2]+side*.08];
+   const fold=[attach[0]+reach*.43,attach[1]+h*.055,attach[2]-.05*side];
+   tri(attach,mid,fold,leaf);tri(mid,end,fold,leaf);
   }
+  // Eight alternating grains with four cross-facing kernels: 3D ears that
+  // narrow naturally toward the tip, not flat plastic cones.
+  for(let g=0;g<4;g++){
+   const p=at(.74+g*.058),kernel=(.064-g*.009)*(.86+sig3*.30);
+   for(const side of [-1,1]){
+    tri([p[0],p[1]-.017,p[2]],
+     [p[0]+side*kernel,p[1]+.020,p[2]+side*.009],
+     [p[0]+side*.011,p[1]+.084,p[2]],head);
+    if(g%2===1)tri([p[0],p[1]-.015,p[2]],
+     [p[0]+side*.008,p[1]+.013,p[2]+side*kernel*.75],
+     [p[0],p[1]+.082,p[2]+side*.006],head);
+   }
+  }
+  const awn=season===0?.105:.14;
+  for(const side of [-1,1]){
+   tri([tip[0]+side*.009,tip[1]-.055,tip[2]],
+    [tip[0]+side*(.036+sig4*.02),tip[1]+awn,tip[2]+side*.013],
+    [tip[0],tip[1]-.030,tip[2]+.007],head);
+  }
+  farmScene.seedHeads++;
  }
  farmScene.stalks++;
+ farmScene.stalkTriangles+=(data.length-first)/30;
 }
 function ripeningField(bounds,plotIndex,season){
  const [x0,x1,z0,z1,rows,columns]=bounds,span=(z1-z0)/rows;
@@ -5651,7 +5678,7 @@ function farmIrrigation(){
 }
 function farmstead(){
  const season=climateAt(state.t).season;
- farmScene={rows:0,stalks:0,bundles:0,granaries:0,waterSegments:0};
+ farmScene={rows:0,stalks:0,seedHeads:0,stalkTriangles:0,stalkVisualModel:'w55-tapered-crossed-stems-grain-ears',bundles:0,granaries:0,waterSegments:0};
  for(let i=0;i<FARMSTEAD.fields.length;i++)ripeningField(FARMSTEAD.fields[i],i,season);
  granaryArchitecture();
  grainShocks();fieldScarecrow();farmIrrigation();
