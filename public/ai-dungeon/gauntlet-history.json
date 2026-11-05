@@ -2194,7 +2194,7 @@
         "playsMajority": false,
         "provenance": "No worker/critic session available, no masked verdicts."
       },
-      "safetyChecks": "Local pure ray-stage checks 3/3 passed; exact new-head Dungeon 41979234510, visual 41979234448 and full CI 41979234533 were queued/running. Prior-head Dungeon/visual PASS, full CI FAIL. Gameplay/replay/performance on new exact head UNVERIFIED.",
+      "safetyChecks": "Previous exact head 8e20352 failed strict TS compile (due,x,z optional). Intermediate c94f9a0 TS narrowed due but CI detected x/z; repaired at 091c6f0. Current integrated real-nave + Warden-negative-space source 5dfe826 GitHub checks queued at inspection; safety and real gameplay result UNVERIFIED.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED: reviewed prior workflow has short video-only clips; need original browser sound stream and measured audio with real combat.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2472,9 +2472,9 @@
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Real browser screenshot of 9c2b51c still visibly conceals the Vanguard torso and boots while misleading four-point ray diagnostics claimed 3/3 full bodies. Cohesive adult-scale protagonists, original weapon-to-target impact, pacing and complete filmed boss-to-restart remain incomplete.",
-    "currentWork": "Integrated genuine rooted fighter priority, a camera-facing 3D sword/contact clearance aperture, and a physical shot director that does not score already-receding Gothic props as opaque. 232ffd45 is SOURCE-LEVEL ONLY; exact-head Chromium/phone/Warden footage and blind reference A/B pending.",
-    "candidateCommit": "780a8b0f932085efbac765bf0d0fd674f7cd42b1",
+    "biggestRemainingGap": "Authentic desktop/mobile moving full-body heroes, visible true weapon-body contact and engaging autonomous Warden encounter remain substantially below AAA references. New real traversed naves/court visual and challenge effects unverified.",
+    "currentWork": "IN PROGRESS source candidate at 5dfe82639: true 3x3 playable stone combat naves placed across the real route, early cultist/revenant encounters staged in those navigable chambers, and original Warden court generic clutter subdued for clearer contact. Previous exact-head 8e20352 CI build failed optional TypeScript guards; patched source CI and authentic desktop/mobile motion not verified. No looks/feels/plays victory.",
+    "candidateCommit": "5dfe82639b256ae3a9605d3ce302e6f0cc020fc8",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -5350,6 +5350,32 @@
         "independentCritics": 0,
         "realAfterEvidence": "UNVERIFIED",
         "note": "Actual prior-head screenshot visibly conceals Vanguard; real native skinned bone world points now feed scene and camera. No visual A/B victory claimed."
+      },
+      {
+        "at": "2026-11-05",
+        "kind": "integrated-real-combat-room-candidate",
+        "sourceCommit": "5dfe82639b256ae3a9605d3ce302e6f0cc020fc8",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "status": "IN_PROGRESS",
+        "verdict": "NOT_TRANSFORMED",
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "independentCritics": 0,
+        "objective": "Genuine fightable journey: stop relying on hypothetical camera-only masonry clearing by opening actual spatially legible battle naves along the authority route and uncluttering the true Warden confrontation.",
+        "integratedSource": [
+          "Physically carve up to three nine-cell 3D fightable naves on the real routed maze at 28%, 51% and 74% travel, preserve at least 12 legal steps to boss and true collision, navigation, seeded replay.",
+          "Place the first ordinary adversaries at eligible living combat bays on the real seeded floor while consuming exactly the existing encounter RNG draw count.",
+          "Preserve Warden arena's 7x7 real navigable court and unique court art, suppress only common loose clutter and sightline-breaking wall ornaments nearby.",
+          "Narrow optional threat due/target coordinates explicitly for strict TypeScript."
+        ],
+        "observedFailure": "Previous 8e20352 workflows 41986486012 Dungeon, 41986486135 visual and 41986485926 catalogue failed with optional due/x/z TS compile errors. Intermediate c94f9a0 CI also failed on optional x/z TS2345; now patched at 091c6f0. Latest integrated source exact-head workflow results not completed.",
+        "liveAfter": "UNVERIFIED",
+        "audio": "UNVERIFIED",
+        "mobile": "UNVERIFIED",
+        "matchedBeforeAfter": "UNVERIFIED",
+        "criticPanel": "0/3",
+        "next": "Inspect latest exact-head build/tests and authentic 1440 desktop/390 mobile WebGL movement/audio. Reject new chambers if enemies stall/collision mismatch or Warden remains unreadable; capture unbroken five-stage journey, baseline-matched A/B and independent 3-critic evaluation before acceptance."
       }
     ],
     "implementationContinuation": {
@@ -5368,9 +5394,9 @@
       "regressionCommit": "08db0542156b1081f293e424ab6925184324b9ea",
       "summary": "Real autonomous Vanguard vacates the only Warden safe escape tile for a companion; physically observed two-body tile handoff earns 3D ground moment and opt-in original metal cue; soundstage counter verifies prior earned recovery. Running-game/critic gate UNVERIFIED."
     },
-    "lastCandidateSha": "08db0542156b1081f293e424ab6925184324b9ea",
-    "experienceVerdict": "M1 NOT TRANSFORMED — LOOKS, FEELS and PLAYS UNVERIFIED; 0/3 critics",
+    "lastCandidateSha": "5dfe82639b256ae3a9605d3ce302e6f0cc020fc8",
+    "experienceVerdict": "M1 NOT TRANSFORMED — LOOKS / FEELS / PLAYS UNVERIFIED; zero independent critics",
     "criticReadiness": "0/3; exact-head desktop/mobile moving sound captures, matched fixed-baseline A/B and natural progression unverified",
-    "nextImplementationTask": "Verify real full-body, true combat and performance on exact head; build complete Warden-to-restart audiovisual vertical slice, obtain masked majority in all three pillars."
+    "nextImplementationTask": "Read exact source-head GitHub Actions authority/browser/visual/full CI. Inspect real moving desktop+phone imagery of first three nave fights and Warden court, true sword-to-body audio and tactical pacing. Resolve visual occlusion/performance regressions, collect original five-stage reel and >=3 blind critics; keep PR draft."
   }
 }

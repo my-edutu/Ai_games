@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedAt": "2026-11-05",
-  "status": "IN PROGRESS — NOT TRANSFORMED (real Warden safe-lane teamwork + physically witnessed 3D/audible handoff; entire experience UNVERIFIED)",
+  "status": "IN PROGRESS — NOT TRANSFORMED (authentic playable combat naves and Warden negative-space candidate; real running AFTER remains UNVERIFIED)",
   "reference": "Diablo IV quality, No Rest for the Wicked worlds, Path of Exile 2 combat: authentic comparison targeted; matched A/B UNVERIFIED",
   "metrics": {
     "sample_seeds": 24,
@@ -208,19 +208,19 @@
       "elapsedMs": 818
     }
   ],
-  "visualVerdict": "UNVERIFIED: previous inspected genuine WebGL conceals full-body hero; new-head moving desktop/mobile visual acceptance and blind critics 0/3 outstanding.",
+  "visualVerdict": "UNVERIFIED — authentic previous Chromium VGA image obscures Vanguard body and melee; integrated new source screenshot/motion not inspected, independent critics 0/3.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
-  "candidateCommit": "08db0542156b1081f293e424ab6925184324b9ea",
+  "candidateCommit": "5dfe82639b256ae3a9605d3ce302e6f0cc020fc8",
   "metricsProvenance": "Local current-source 9af59bc npm run dungeon:test 309/309, npm run dungeon:gauntlet 24 seeds ×900 ticks: 174 advances, 4 restarts, 0 determinism mismatches. No claim for visual quality.",
   "transformation": {
     "milestone": "M1",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
     "locked": true,
-    "candidateSha": "08db0542156b1081f293e424ab6925184324b9ea",
+    "candidateSha": "5dfe82639b256ae3a9605d3ce302e6f0cc020fc8",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
-    "exactHeadSafety": "NEW exact-head authority/CI/browser results not inspected; prior a516b90 visual-review PASS is a technical check only.",
+    "exactHeadSafety": "Previous head failed TypeScript due/x/z narrowing. New integrated code checks queued: https://github.com/my-edutu/Ai_games/actions/runs/41993379390; visual https://github.com/my-edutu/Ai_games/actions/runs/41993379645; CI https://github.com/my-edutu/Ai_games/actions/runs/41993379508. No pass claimed.",
     "looks": "UNVERIFIED",
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
@@ -231,20 +231,20 @@
     },
     "fullDesktopMobileAudiovisualJourney": "UNVERIFIED",
     "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41972664128/artifacts/13390932627",
-    "exactHeadAction": "Inspect Actions on PR #49 at 08db0542156b1081f293e424ab6925184324b9ea for foundation, browser, visual-review and CI; source writes are not evidence of actual quality.",
-    "biggestGap": "Real previously inspected Vanguard body still partly hidden by Gothic masonry; toy-like source characters, incomplete readable weapon-body contact and Warden coherence. Exact new-head artwork and natural team-tactic frequency UNVERIFIED.",
-    "nextTask": "Inspect new-head REAL desktop/mobile screenshots and motion/audio, assess actual tactical decisions and p95 frame cost; record matched fixed M1 baseline five-stage BEFORE/AFTER, independent three blind critics.",
+    "exactHeadAction": "Inspect source exact-head 5dfe826 GitHub Actions Dungeon authority/browser shards, visual-review and catalogue CI. Work remains in draft PR #49.",
+    "biggestGap": "Still-obscured real Vanguard body, toy-scale anatomy, insufficient clearly visible skinned blade contact in the Warden fight; authentic mobile/desktop stage comparison, audio and tactical pressure still unverified.",
+    "nextTask": "Inspect exact-head real desktop/mobile combat movement at each natural nave and Warden boss, record authentic five-stage motion with original audio, evaluate natural tactics, p95 performance/replay and three blinded critics against locked baseline.",
     "currentMilestoneLedger": "public/ai-dungeon/gauntlet-history.json",
     "realAfterArtifact": null,
-    "realAfterObservation": "UNVERIFIED: new source/regression SHA 08db0542156b1081f293e424ab6925184324b9ea has no inspected real Chromium desktop/mobile moving BEFORE/AFTER evidence.",
-    "integratedImplementation": "True legal one-tick Vanguard Warden warning flank: moves off the single previously occupied safe escape tile, allowing companion to actually dodge. Real same-tick tile handoff exclusively triggers a bounded 3D ground ring, semantic event and optional original metal sound. No fake defense/damage. Lightweight audio cache now retains verified prior Warden recovery for authentic counter scoring.",
+    "realAfterObservation": "UNVERIFIED: no inspected source-head post-integration Chromium capture yet; previously inspected actual image was negative.",
+    "integratedImplementation": "Actual seeded navigable 3x3 encounter naves in the true deterministic 19x19 maze across the route; same-grid cultist/revenant placement and authentic 7x7 Warden arena negative space preserve fight readability without false collision or cosmetic-only camera tricks. Built on existing chapter-nave Three.js and Warden architecture. Both visual/audible quality and natural tactics still UNVERIFIED.",
     "latestPredecessorReview": {
       "sourceSha": "3b2025a619cc6c113e28dd463224e90205fd2476",
       "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41922629878/artifacts/13368532950",
       "observation": "Actual desktop real Three.js rendered 1440x832 inspected: Vanguard helmet and sword protrude over an opaque Gothic facade while torso/boots remain invisible; two other heroes appear toy-like. Three/three synthetic ray visibility score is false positive. No active enemy in this frame.",
       "technicalSafety": "All 4 Dungeon browser/authority checks PASS and visual-review workflow PASS for predecessor SHA; broad catalogue CI FAILURE. No visual transformation accepted."
     },
-    "sourceStatus": "COOPERATIVE ACTUAL-AI DODGE + REAL 3D MARKER + ORIGINAL OPT-IN SOUND CANDIDATE — NOT VERIFIED"
+    "sourceStatus": "SOURCE COMMITTED: REAL WALKABLE NAVE COMBAT AND WARDEN COURT VISUAL CLEARANCE — RUNNING GAME ACCEPTANCE UNVERIFIED"
   },
   "acceptanceStatus": "NOT TRANSFORMED — 0/3 independent critics, no complete matched audiovisual adventure verification"
 }
