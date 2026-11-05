@@ -1,5 +1,5 @@
 import { sampleGardenWatershed } from './garden-watersheds.mjs';
-import { sampleWeatheredTerrace } from './garden-biomes.mjs';
+import { sampleWeatheredTerrace, sampleGardenEcotone } from './garden-biomes.mjs';
 
 /**
  * Original distant rock formation, authored as irregular weathered bedding.
@@ -167,8 +167,8 @@ export function sculptForestMosaicTile(x,z,width,height) {
   const root=sampleGardenWatershed(u,v,width,height).distance;
   const rooted=1-Math.min(1,Math.max(0,(root-.07)/.32));
   const contour=.5+.5*Math.sin(x*.61-z*.37+.70*Math.sin(z*.48));
-  const weatheredRim=rooted*Math.pow(contour,4)*.087;
-  const base=.979+.008*hash(x+59,z+37)-weatheredRim-.010*forest;
+  const weatheredRim=rooted*Math.pow(contour,4)*.062;
+  const base=.986+.007*hash(x+59,z+37)-weatheredRim-.006*forest;
   const scale=Math.min(base,.990/extent);
   const chip=.025+.102*hash(x+173,z+211);
   return { scale, rotation, chip };
@@ -703,6 +703,32 @@ export function createWorld(THREE, {width, height}) {
       data[i+1]=Math.max(0,data[i+1]-Math.round(3*greenCut+9*warmLedge));
       data[i+2]=Math.max(0,data[i+2]-Math.round(24*greenCut+17*warmLedge));
       // END T1 COAST-TO-COURT BIOME CHROMA
+      // T1 COHERENT GARDEN ECOTONE. The same geographic field shades the
+      // actual real 3D slab vertices below. Dark leaf litter, green sheltered
+      // moss and three irregular original limestone glades occupy the WHOLE
+      // court, not just narrow stripes. Weathering/grain and planted water
+      // bodies remain in the existing original atlas, with zero GPU resources.
+      const ecotone=sampleGardenEcotone(streamU,streamV,width,height);
+      const leafNoise=.5+.5*Math.sin(gx*.43-gz*.33+cloud*2.1);
+      const mossBlend=fade(.43,.77,ecotone.forest)*(.83+.08*leafNoise);
+      const mossR=70+16*mineral+11*leafNoise;
+      const mossG=116+10*mineral+9*cloud;
+      const mossB=67+12*mineral+8*leafNoise;
+      data[i]=Math.round(data[i]*(1-mossBlend)+mossR*mossBlend);
+      data[i+1]=Math.round(data[i+1]*(1-mossBlend)+mossG*mossBlend);
+      data[i+2]=Math.round(data[i+2]*(1-mossBlend)+mossB*mossBlend);
+      // The ancient center is a genuine existing material landmark, never an
+      // extra emissive marker/obstacle. Re-expose the original limestone while
+      // preserving the initial source stone albedo as its brightness ceiling.
+      const sunBlend=fade(.38,.92,ecotone.sunstone)*.985;
+      if(sunBlend>0){
+        const paleR=170+16*(mineral-.5)+6*(cloud-.5);
+        const paleG=151+10*(mineral-.5)+7*(cloud-.5);
+        const paleB=113+10*(mineral-.5);
+        data[i]=Math.min(priorStoneR,Math.round(data[i]*(1-sunBlend)+paleR*sunBlend));
+        data[i+1]=Math.min(priorStoneG,Math.round(data[i+1]*(1-sunBlend)+paleG*sunBlend));
+        data[i+2]=Math.min(priorStoneB,Math.round(data[i+2]*(1-sunBlend)+paleB*sunBlend));
+      }
       // END T1 BRAIDED ESTUARY WHOLE-FIELD
       // END T1 RECLAIMED GARDEN COMPOSITION
       // END T1 SUNLIT SCARRED TERRACES
@@ -831,6 +857,15 @@ export function createWorld(THREE, {width, height}) {
     color.r*=1+earthy*(habitat.terrace*.22+habitat.litter*.05-habitat.coolSlate*.06);
     color.g*=1+earthy*(-habitat.terrace*.09+habitat.litter*.01+habitat.coolSlate*.025);
     color.b*=1+earthy*(-habitat.terrace*.12-habitat.litter*.09+habitat.coolSlate*.16);
+    // Join the real flagstone pigmentation to the SAME complete garden
+    // ecotone that colors the original material map. Dark forest moss and
+    // sunlit limestone both keep the existing stone vertices/actual cells.
+    const ecotone=sampleGardenEcotone((x+.5)/width,(z+.5)/height,width,height);
+    const forestBlend=fade(.40,.70,ecotone.forest)*.94;
+    const brokenLeaves=.5+.5*Math.sin(nx*8.2+nz*6.1+mineralRift*1.4);
+    color.r=color.r*(1-forestBlend)+(.43+.10*brokenLeaves)*forestBlend;
+    color.g=color.g*(1-forestBlend)+(.76+.085*brokenLeaves)*forestBlend;
+    color.b=color.b*(1-forestBlend)+(.41+.095*brokenLeaves)*forestBlend;
     const mosaic=sculptForestMosaicTile(x,z,width,height);
     add(tile,tileMat,x-(width-1)/2,-.105,z-(height-1)/2,
       mosaic.scale,.21,mosaic.scale,0,mosaic.rotation,0,color.clone());

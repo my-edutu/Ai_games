@@ -1,5 +1,5 @@
 import { watercourseCentre, sampleGardenWatershed } from './garden-watersheds.mjs';
-import { sampleWeatheredTerrace } from './garden-biomes.mjs';
+import { sampleWeatheredTerrace, sampleGardenEcotone } from './garden-biomes.mjs';
 
 /**
  * T1 living-courtyard ecology: continuous low relief over the ACTUAL playable
@@ -293,6 +293,31 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
         (targetG + grain + sunstoneLimestone*4.1 - sunstoneWear*27) * (1-keep))));
       data[i+2] = Math.max(0, Math.min(255, Math.round(oldB * keep +
         (targetB + grain + sunstoneLimestone*1.1 - sunstoneWear*20) * (1-keep))));
+      // Physical integration, NOT a second texture or an emissive scene prop:
+      // the original owned stone atlas and the REAL flagstone vertex colours
+      // share the same pure forest-to-limestone geography. Retain the existing
+      // incision/lichen noise and subdued moss/litter under every real cue.
+      const ecotone = sampleGardenEcotone(u,v,width,height);
+      const forestBedding = smooth(.42,.81,ecotone.forest)
+        * (.78 + .08 * mineral) * (1 - ecotone.sunstone*.96);
+      const grainMoss = (mineral-.5)*12 + (watershed-.5)*9 + grain*.28;
+      const bedR = 71 + grainMoss + rainCut*5;
+      const bedG = 124 + grainMoss*.70 - slateStrata*6;
+      const bedB = 66 + grainMoss*.68 + slateStrata*7;
+      data[i] = Math.max(0,Math.round(data[i]*(1-forestBedding)+bedR*forestBedding));
+      data[i+1] = Math.max(0,Math.round(data[i+1]*(1-forestBedding)+bedG*forestBedding));
+      data[i+2] = Math.max(0,Math.round(data[i+2]*(1-forestBedding)+bedB*forestBedding));
+      // Keep the original engraved sundial's actual carved rings and natural
+      // grain. A true open central rock is essential for honest food/portal
+      // contrast; its no-glow mineral material never changes gameplay truth.
+      const openSunstone = smooth(.25,.71,ecotone.sunstone)*.982;
+      if(openSunstone>0){
+        const scar = sunstoneWear*23 + (mineral-.5)*10 + grain*.24;
+        const limeR = 177 - scar, limeG = 154 - scar*.81, limeB = 111 - scar*.64;
+        data[i] = Math.min(255,Math.max(0,Math.round(data[i]*(1-openSunstone)+limeR*openSunstone)));
+        data[i+1] = Math.min(255,Math.max(0,Math.round(data[i+1]*(1-openSunstone)+limeG*openSunstone)));
+        data[i+2] = Math.min(255,Math.max(0,Math.round(data[i+2]*(1-openSunstone)+limeB*openSunstone)));
+      }
     }
   }
   map.needsUpdate = true; // one replacement on scene creation; never per tick
