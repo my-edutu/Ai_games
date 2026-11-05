@@ -783,11 +783,16 @@ export function createMazeWorld(options = {}) {
     const pressureSightlines = new Set();
     for (const known of s.cells) {
       if (!known.trap || known.blocked) continue;
-      pressureSightlines.add(known.cell);
-      for (const other of [known.cell - s.width, known.cell + s.width,
-        known.cell - 1, known.cell + 1]) {
-        if (knownByCell.has(other) && adjacent(known.cell, other))
-          pressureSightlines.add(other);
+      // Real, unchanged 390px WebGL proved the first adjacent-cell pass
+      // cleared only small foreground details; two-cell ruins still swallow
+      // the diaphragm. Reserve the smallest larger public visual court,
+      // without suppressing a known wall/gate/stair or assuming a safe route.
+      const trapCol = known.cell % s.width;
+      const trapRow = Math.floor(known.cell / s.width);
+      for (const other of s.cells) {
+        const gridDistance = Math.abs(trapCol - other.cell % s.width)
+          + Math.abs(trapRow - Math.floor(other.cell / s.width));
+        if (gridDistance <= 2) pressureSightlines.add(other.cell);
       }
     }
     for (const door of Array.isArray(s.doors) ? s.doors : []) {
