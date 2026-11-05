@@ -20,6 +20,36 @@ permissions:
   contents: read
 
 jobs:
+  # W47: natural human-scale commute belongs to the real autonomous society.
+  # Independent browser gate: genuine travel stance/swing with rolling boots,
+  # real planted jobs, unchanged snapshots, and 390px rendering.
+  w47-real-commuter-gait:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Genuine heel-to-toe citizen locomotion on desktop and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w47-natural-gait.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w47-real-citizen-gait
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w47/
+          retention-days: 14
   # W46: witness-only opt-in audio must be driven by physical smith cycles.
   # A full WebGL/mobile regression verifies no invented work or economy delta.
   w46-genuine-forge-audio:
