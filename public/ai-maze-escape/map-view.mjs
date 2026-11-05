@@ -50,7 +50,10 @@ export function publicObservedTrapCameraFocus(snapshot, hero, cellSize, aspect) 
     || !Array.isArray(snapshot.cells) || !Array.isArray(snapshot.visibleCells))
     return null;
   const visible = new Set(snapshot.visibleCells);
-  const maxDistance = cellSize * 1.50;
+  // Real native 320px diagonal public approach (2026-11-05): a full
+  // physical jaw can be visible in the published world yet clipped by the
+  // old weak 1.414-cell follow-camera aim. Only use known public traps.
+  const maxDistance = cellSize * 1.82;
   let closest = null;
   for (const cell of snapshot.cells) {
     const id = cell?.cell;
@@ -66,11 +69,15 @@ export function publicObservedTrapCameraFocus(snapshot, hero, cellSize, aspect) 
     closest = {cell:id,x,z,distance};
   }
   if (!closest) return null;
-  // One cell apart earns the whole 0.44 shared-stage correction.
-  // It diminishes continuously to zero at 1.5 cells, preventing a pop when
-  // autonomous Pip approaches/leaves the *already disclosed* mechanism.
-  const proximity = clamp((maxDistance-closest.distance)/(cellSize*.50),0,1);
-  return {...closest,weight:.44 * proximity};
+  // Preserve the prior verified .44 one-cell pan. A disclosed diagonal
+  // mechanism farther from Pip needs a stronger shared target instead of
+  // clipping its right jaw at +1.4567 NDC (unchanged silhouette gate +.95).
+  // Fade continuously outside the close interaction; do not zoom Pip out,
+  // move hazards/actors, leak hidden cells or modify autonomous decisions.
+  const cellsAway = closest.distance / cellSize;
+  const diagonalReach = clamp((cellsAway-1)/.35,0,1);
+  const departureFade = clamp((1.82-cellsAway)/.30,0,1);
+  return {...closest,weight:(.44+.13*diagonalReach)*departureFade};
 }
 
 /**
