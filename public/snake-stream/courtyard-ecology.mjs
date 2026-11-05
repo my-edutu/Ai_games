@@ -488,13 +488,23 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
           // rhythm than a game cell.  Dry ochre islands and planted moss share
           // the same genuine habitat as the once-baked limestone field map.
           const wetMoss = sun * (1 - dryShelf * .46);
+          // Keep every real bank vertex living moss/loam instead of painting
+          // arid red clay over the rooted canopy: ochre remains in the dry
+          // *grain*, while the shaded moss retains its green-dominant hue.
+          // This is one pre-existing static mesh/vertex colour, not a cue.
           const pigment = c === 0
-            ? .046 + dryShelf * .19 + (1-sun) * .042 + marbled * .025
+            ? .047 + dryShelf * .085 + (1-sun) * .020 + marbled * .017
             : c === 1
-              ? .077 + wetMoss * .205 + bedShadow * .050 + dryShelf * .050
+              ? .095 + wetMoss * .180 + bedShadow * .050 + dryShelf * .090
               : .044 + habitat.coolSlate * .049 + bedShadow * .060
                 + marbled * .020;
-          colour.push(wornStone * (1 - leaf) + pigment * leaf);
+          // Creek-throat and endpoint stones sit beneath the rooted shore.
+          // Darken the existing complete RGB value equally so its moss hue,
+          // not a fabricated red path, remains truthful across all 3 boards.
+          // This changes only baked physical vertex colours, never geometry.
+          const bankShade = 1 - .32 * clamp(
+            (Math.abs(point[0]) / W - .48) / .21, 0, 1);
+          colour.push((wornStone * (1 - leaf) + pigment * leaf) * bankShade);
         } else colour.push(wornStone);
       }
     }
