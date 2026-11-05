@@ -1,5 +1,5 @@
 import type{TowerAction,TowerPlatform,TowerState}from'../state/types';
-import{TOWER_GUARDIAN_PATROL_SPEED}from'../combat/step';import{chooseTowerUpgrade}from'../progression/builds';import{nextTowerPlatform,nextTowerTacticalPlatform}from'./graph';import{guardianArenaExitX}from'../generation/chunks';import type{TowerObservation}from'./observation';import{detectTowerStuck}from'./stuck';
+import{TOWER_GUARDIAN_PATROL_SPEED}from'../combat/step';import{chooseTowerUpgrade}from'../progression/builds';import{nextTowerPlatform,nextTowerTacticalPlatform}from'./graph';import{guardianArenaClearanceX}from'../generation/chunks';import type{TowerObservation}from'./observation';import{detectTowerStuck}from'./stuck';
 export interface TowerIntent{mode:'choosing-upgrade'|'evading-projectile'|'evading-hazard'|'evading-telegraph'|'bracing-telegraph'|'bracing-guardian-shield'|'engaging-enemy'|'recovering'|'collecting-resource'|'aligning'|'jumping'|'air-control'|'settling-landing'|'settling-launch'|'waiting';summary:string;confidence:number;fallbackUsed:boolean;targetPlatformId?:string}
 export interface TowerDecision{action:TowerAction;intent:TowerIntent}
 function action(move:TowerAction['move']=0,extra:Partial<TowerAction>={}):TowerAction{return{move,jump:false,dash:false,attack:false,ability:false,...extra}}
@@ -854,14 +854,18 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
     // High-priority projectile/shutter evasion above this remains authoritative.
     // No teleport, free shield, scripted floor change, hidden future enemy
     // state or extra HUD instruction. Unflagged/historical pilot is unchanged.
-    const p=observation.player,delta=guardianArenaExitX(cap)-p.position.x;
+    const p=observation.player;
+    const clearance=guardianArenaClearanceX(cap,p.halfWidth);
+    const delta=clearance-p.position.x;
     const stopDistance=p.velocity.x*p.velocity.x/
       (2*Math.max(1,state.config.groundFriction));
-    const toward:TowerAction['move']=delta>=0?1:-1;
-    const braking=Math.abs(delta)<stopDistance+14000&&
-      Math.sign(p.velocity.x)===toward&&Math.abs(p.velocity.x)>state.config.groundFriction;
-    const requested:TowerAction['move']=Math.abs(delta)<=5500&&
-      Math.abs(p.velocity.x)<=state.config.groundFriction?0:braking?(toward===1?-1:1):toward;
+    // Brake on the long approach, but commit to the final threshold crossing.
+    // Stopping inside the old 5.5k dead-zone could hold the climber forever
+    // before its FULL silhouette cleared the doorway. An actual grounded
+    // source step, not proximity or cinematic progress, earns floor nine.
+    const braking=delta>18000&&delta<stopDistance+14000&&
+      p.velocity.x>state.config.groundFriction;
+    const requested:TowerAction['move']=delta<=0?0:braking?-1:1;
     const move=guardedEvasion(state,observation,requested);
     return {action:action(move),intent:{mode:'aligning',
       summary:'Crossing the earned physical guardian passage',

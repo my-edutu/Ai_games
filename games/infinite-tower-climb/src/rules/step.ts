@@ -1,4 +1,4 @@
-import{checksum}from'../../../../packages/replay/src/index';import{NamedRng}from'../../../../packages/seeded-rng/src/index';import{stepTowerCombat}from'../combat/step';import{generateTowerChunk,guardianArenaExitX}from'../generation/chunks';import{generateTowerContent}from'../generation/content';import{validateTowerChunk}from'../generation/validator';import{stepTowerPhysics}from'../physics/step';import{applyTowerUpgrade,offerTowerUpgrades}from'../progression/builds';import type{TowerAction,TowerEvent,TowerResultReason,TowerState}from'../state/types';
+import{checksum}from'../../../../packages/replay/src/index';import{NamedRng}from'../../../../packages/seeded-rng/src/index';import{stepTowerCombat}from'../combat/step';import{generateTowerChunk,guardianArenaExitX,guardianArenaClearanceX}from'../generation/chunks';import{generateTowerContent}from'../generation/content';import{validateTowerChunk}from'../generation/validator';import{stepTowerPhysics}from'../physics/step';import{applyTowerUpgrade,offerTowerUpgrades}from'../progression/builds';import type{TowerAction,TowerEvent,TowerResultReason,TowerState}from'../state/types';
 export interface TowerRuleResult{state:TowerState;events:Omit<TowerEvent,'seq'>[];accepted:boolean;reason?:string}
 export function normalizeTowerAction(action:Partial<TowerAction>|undefined):TowerAction{const move=action?.move??0;if(move!==-1&&move!==0&&move!==1)throw new RangeError('move');const upgradeChoice=action?.upgradeChoice;if(upgradeChoice!==undefined&&typeof upgradeChoice!=='string')throw new TypeError('upgradeChoice');return{move,jump:Boolean(action?.jump),dash:Boolean(action?.dash),attack:Boolean(action?.attack),ability:Boolean(action?.ability),upgradeChoice}}
 export function makeTowerTerminal(input:TowerState,reason:TowerResultReason,kind:'game'|'technical'|'operator'='game'){const state=structuredClone(input);state.player.state='dead';state.lifecycle='result';
@@ -30,10 +30,11 @@ export function applyTowerAction(input:TowerState,actionInput:Partial<TowerActio
   }else holdAtGuardian(state,events)
 }else if(physicalPassage&&cap&&
   (!state.player.grounded||state.player.groundedPlatformId!==cap.id||
-    Math.abs(state.player.position.x-guardianArenaExitX(cap))>18000)){
-  // A fallen boss unlocks a REAL traverse to the right-hand bronze gate.
-  // Formerly merely hitting the boss immediately teleported the climber to
-  // the next floor while the 3D door had no time to become fully open.
+    state.player.position.x<guardianArenaClearanceX(cap,state.player.halfWidth))){
+  // The real body, including its trailing edge, must pass the inner
+  // gateway's center before the next floor loads. The prior symmetric
+  // +/-18k finish window could advance while the player was still in
+  // FRONT of the physical bronze leaves; no cosmetic animation earns a floor.
   // No script carries the hero there: physics, existing crusher, pickups and
   // health damage remain live until ordinary grounded arrival at the opening.
   // Publish the unlock only on a true living-to-defeated source transition.

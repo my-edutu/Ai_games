@@ -7,6 +7,17 @@ function themeFor(floor:number):TowerTheme{return TOWER_THEMES[floor%TOWER_THEME
 export function guardianArenaExitX(cap:Pick<TowerPlatform,'x'|'width'>):number{
   return cap.x+Math.floor(cap.width*.76);
 }
+// The unlock plane is NOT the finish trigger: the climber's trailing edge
+// must travel through the center of the physical inner doorway. The extra
+// 4,000 source units make the passage legible instead of teleporting while
+// the body still straddles its threshold. Existing source/legacy arenas keep
+// guardianArenaExitX, but only opted-in arenas require this full clearance.
+export function guardianArenaClearanceX(
+  cap:Pick<TowerPlatform,'x'|'width'>,playerHalfWidth:number):number{
+  if(!Number.isSafeInteger(playerHalfWidth)||playerHalfWidth<0)
+    throw new RangeError('playerHalfWidth');
+  return guardianArenaExitX(cap)+playerHalfWidth+4000;
+}
 export function generateTowerChunk(config:TowerConfig,seed:string,floor:number,rng=NamedRng.fromSeed(`${seed}:floor:${floor}`)):TowerChunk{
   if(!Number.isInteger(floor)||floor<0)throw new RangeError('floor');
   const baseY=floor*config.chunkHeight,groundHeight=12000,stepHeight=Math.floor((config.chunkHeight-60000)/6);

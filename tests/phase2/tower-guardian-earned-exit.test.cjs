@@ -5,7 +5,7 @@ const {test}=require('node:test'),assert=require('node:assert/strict');
 const {TowerRuntime}=require('../../dist/games/infinite-tower-climb/src/runtime/run.js');
 const {createTowerObservation}=require('../../dist/games/infinite-tower-climb/src/ai/observation.js');
 const {chooseTowerAction}=require('../../dist/games/infinite-tower-climb/src/ai/policy.js');
-const {guardianArenaExitX}=require('../../dist/games/infinite-tower-climb/src/generation/chunks.js');
+const {guardianArenaExitX,guardianArenaClearanceX}=require('../../dist/games/infinite-tower-climb/src/generation/chunks.js');
 const {STREAM_CONFIG}=require('../../scripts/serve-tower-stream.cjs');
 const {pathToFileURL}=require('node:url');
 const path=require('node:path');
@@ -32,12 +32,31 @@ test('earned gate cannot teleport a hero standing anywhere above exitY',()=>{
   assert.equal(step.stats.floorsCleared,0);
   const absent=runtime.drainEvents().filter(e=>e.type==='floor-complete');
   assert.equal(absent.length,0);
-  runtime.state.player.position.x=guardianArenaExitX(cap);
+  const plane=guardianArenaExitX(cap);
+  const clearance=guardianArenaClearanceX(cap,runtime.state.player.halfWidth);
+  assert.equal(clearance,plane+runtime.state.player.halfWidth+4000);
+  for(const x of [plane-18000,plane,clearance-1]){
+    runtime.state.player.position.x=x;
+    runtime.state.player.velocity.x=0;
+    const stillOnCap=runtime.step({move:0});
+    assert.equal(stillOnCap.floor,8,
+      'a center touching the gate is NOT proof the whole body passed through');
+    assert.equal(stillOnCap.stats.floorsCleared,0);
+  }
+  runtime.state.player.position.x=clearance;
   runtime.state.player.velocity.x=0;
   const win=runtime.step({move:0});
   assert.equal(win.floor,9);
   assert.equal(win.stats.floorsCleared,1);
 });
+test('full-body guardian clearance is always inside the real platform footprint',()=>{
+  const {state,cap}=arena();
+  const clearance=guardianArenaClearanceX(cap,state.player.halfWidth);
+  assert.ok(clearance>guardianArenaExitX(cap)+state.player.halfWidth);
+  assert.ok(clearance+state.player.halfWidth<cap.x+cap.width);
+  assert.throws(()=>guardianArenaClearanceX(cap,NaN),RangeError);
+});
+
 test('live tactical climber elects a deterministic source-observed actual exit walk',()=>{
   const {state,cap}=arena();
   const before=JSON.stringify(state);
@@ -50,6 +69,32 @@ test('live tactical climber elects a deterministic source-observed actual exit w
   assert.match(decision.intent.summary,/physical guardian passage/);
   assert.equal(JSON.stringify(state),before);
   assert.deepEqual(decision,chooseTowerAction(state,input));
+  // The door's center cannot be a stop zone: the pilot must keep walking
+  // while its trailing edge remains in FRONT of the actual bronze arch.
+  state.player.position.x=guardianArenaExitX(cap)+state.player.halfWidth;
+  state.player.velocity.x=0;
+  const almost=createTowerObservation(state,{includeHazardWindup:true});
+  assert.equal(chooseTowerAction(state,almost).action.move,1);
+});
+
+test('autonomous guardian victory requires a grounded real full-silhouette crossing',()=>{
+  const {runtime,cap}=arena();
+  const clearance=guardianArenaClearanceX(cap,runtime.state.player.halfWidth);
+  let floorChange=null;
+  for(let i=0;i<100;i++){
+    const prior=runtime.state;
+    const observed=runtime.step();
+    if(observed.floor===9){floorChange={prior,observed};break;}
+  }
+  assert.ok(floorChange,'autonomous source policy must actually complete the earned walk');
+  assert.ok(floorChange.prior.player.grounded);
+  assert.equal(floorChange.prior.player.groundedPlatformId,cap.id);
+  // The action's fixed-step physics crosses the plane before authority
+  // advances. No timed victory, camera pose, or 3D mesh causes this event.
+  const events=runtime.drainEvents().filter(event=>event.type==='floor-complete');
+  assert.equal(events.length,1);
+  assert.equal(events[0].data.floor,9);
+  assert.ok(clearance>guardianArenaExitX(cap));
 });
 test('historical gates, non-guardian floors and airborne players do not receive a free source exit',()=>{
   const {runtime,cap}=arena({guardianArenaHazards:false});
