@@ -741,7 +741,7 @@ export function createWarden(options = {}) {
       leg.hip.rotation.y=Math.sin(phase)*stride*.24*amount;
       leg.hip.rotation.z=leg.side*Math.max(0,Math.cos(phase))*stride*.15*amount;
       leg.knee.rotation.z=-leg.side*Math.max(0,Math.cos(phase))*stride*.16*amount;
-      leg.hip.rotation.x=leg.index===0?-alert*.32-plantedClaws*.60:leg.index===2?alert*.08:0;
+      leg.hip.rotation.x=leg.index===0 && alert>0?-alert*.32-plantedClaws*.60:leg.index===2?alert*.08:0;
       leg.knee.rotation.x=leg.index===0?alert*.20+plantedClaws*.45:0;
       if (leg.pincer) leg.pincer.rotation.y=alert>0?leg.side*(alert*.42+plantedClaws*.35):0;
     }
