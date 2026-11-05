@@ -208,29 +208,29 @@
       "elapsedMs": 818
     }
   ],
-  "visualVerdict": "UNVERIFIED: real parent Chromium chapter test measured seven draw batches against an original four-batch safety budget; source candidate fuses original raised stone, nested 3D iron rings and 3D sword relief into one inlaid instanced floor without removing art. Actual new-head pixels, motion and audience A/B not inspected.",
+  "visualVerdict": "UNVERIFIED: same-seed authentic moving gameplay and original recorded sound from exact new head unavailable; source-only 215ms contact synchronization, not established visual transformation.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
-  "candidateCommit": "0fc87fea2da9620d9448a6d23627a2b862e7245d",
+  "candidateCommit": "1589a8c6b4bc58a6dfd28b29d6918fa9533a6f13",
   "metricsProvenance": "Local current-source 9af59bc npm run dungeon:test 309/309, npm run dungeon:gauntlet 24 seeds ×900 ticks: 174 advances, 4 restarts, 0 determinism mismatches. No claim for visual quality.",
   "transformation": {
     "milestoneId": "DUNGEON-TRANSFORMATION-01",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
-    "candidateCodeCommit": "5917e0d4177292f57421c83b191abf2c00877a24",
+    "candidateCodeCommit": "1589a8c6b4bc58a6dfd28b29d6918fa9533a6f13",
     "looks": "UNVERIFIED",
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
     "critics": 0,
     "originalAudioMotion": "UNVERIFIED",
     "afterBrowser": "UNVERIFIED",
-    "nextTask": "Validate native portrait combat scene, then build credible original sword-to-body Warden duel and matched five-stage audiovisual critic gate."
+    "nextTask": "Inspect exact-head truthful 215ms skinned sword/body/audio synchrony in real browser; fix visible character and Warden encounter gaps, then original 5-stage audio/video and blind critics."
   },
-  "acceptanceStatus": "NOT TRANSFORMED — 0/3 independent critics, no complete matched audiovisual adventure verification",
-  "latestCandidateSha": "0fc87fea2da9620d9448a6d23627a2b862e7245d",
-  "latestImplementation": "Native raised stone, forged concentric 3D rings and swordpoint fused into existing chapter draw batch, preserving physical geometry and genuine hero/foe encounter light. Source only.",
-  "biggestRemainingGap": "Native adult-scale whole-body actor silhouette and legible sword-to-body Warden combat, plus continuous five-stage audiovisual matched A/B",
-  "nextImplementationTask": "Capture and inspect new-head desktop/mobile original video+audio of real chapel fights and Warden, detect stalls/performance/occlusion; obtain real matched baseline and ≥3 independent critics",
-  "candidateSafety": "PRIOR 7c635ed: 28/29 real browser shard1 (7 batches > 4 budget), shards2+3 PASS, authority PASS, visual review PASS, repo CI CANCELLED; NEW SOURCE UNVERIFIED."
+  "acceptanceStatus": "NOT TRANSFORMED — 0/3 blind independent critics; no matched continuous desktop/mobile audiovisual 5-stage adventure.",
+  "latestCandidateSha": "1589a8c6b4bc58a6dfd28b29d6918fa9533a6f13",
+  "latestImplementation": "A verified legal same-tick melee HP drop now initiates original 3D fragment, imported-rig recoil and existing opt-in impact audio at a single rendered-frame ~215ms contact onset; public HP, RNG, replay and all authority remain immediate. Browser visual experience UNVERIFIED.",
+  "biggestRemainingGap": "Toy-like adult-scale character anatomy and cramped real Warden duel; verify actual skinned blade-to-body moment on moving desktop and phone before deciding whether synced contact improved the experience.",
+  "nextImplementationTask": "Inspect exact 1589a8c moving desktop/mobile rendered-frame synchrony (real HP, blade, skinned recoil, fragment, original recorded sound), identify visible defects and rework Warden duel and characters; complete locked-seed five-stage BEFORE/AFTER plus independent critic panel.",
+  "candidateSafety": "Parent c1299bb: all 3 Dungeon Chromium shards and authority PASSED, Dungeon visual review PASSED; full catalogue CI CANCELLED. Source commit 1589a8c exact-head authority PASSED, exact-head browser+visual+CI pending. Never infer visual/audio win."
 }

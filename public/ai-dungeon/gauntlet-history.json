@@ -2493,9 +2493,9 @@
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Still toy-like native figures, ambiguous blade/body contact and cluttered Warden fight; portrait combat clearance is a source-level candidate, not a full five-stage transformation.",
-    "currentWork": "Authentic portrait-only live combat acting-space physically clears obstructive original 3D foreground props around rendered, living skinned fighters; attached to scene dressing, local and asynchronous authored models. Exact-head running-game effect UNVERIFIED.",
-    "candidateCommit": "5917e0d4177292f57421c83b191abf2c00877a24",
+    "biggestRemainingGap": "Toy-like adult-scale character anatomy and cramped real Warden duel; verify actual skinned blade-to-body moment on moving desktop and phone before deciding whether synced contact improved the experience.",
+    "currentWork": "Source-level integrated candidate at 1589a8c: keep truthful immediate HP while converging real native sword contact, animated recoil, physical armor fragments and original opt-in impact sound on 215ms rendered-frame contact. Browser moving effect is unverified.",
+    "candidateCommit": "1589a8c6b4bc58a6dfd28b29d6918fa9533a6f13",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -5495,6 +5495,24 @@
         ],
         "verification": "First code 1/320 authority test failed because actual integration was missing; repaired source committed. New exact-head browser/authority/CI and real A/B pending. Critics 0/3.",
         "next": "Inspect original motion from current exact-head mobile+desktop; continue native character and boss encounter quality and complete five-stage audiovisual A/B."
+      },
+      {
+        "id": "M1-TRUTHFUL-MELEE-AUDIO-CONTACT-20261105",
+        "date": "2026-11-05",
+        "sourceCommit": "1589a8c6b4bc58a6dfd28b29d6918fa9533a6f13",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "status": "SOURCE_CANDIDATE_UNVERIFIED",
+        "objective": "Synchronize skinned sword swing, authority-proven body recoil, 3D armor fragments and opt-in original impact audio at one contact moment in the genuine game, without delaying HP truth.",
+        "files": [
+          "public/ai-dungeon/impact-choreography-plan.js",
+          "public/ai-dungeon/app.js",
+          "public/ai-dungeon/combat-director.js",
+          "tests/foundation/dungeon-impact-contact-sync.test.cjs"
+        ],
+        "implementation": "For one explicitly matching, legal, adjacent, same-tick living native sword attacker and a witnessed nonfatal HP drop, use the same 215ms rendered-frame onset for physical full-body recoil, spalls/fragments and original impact sound. HUD HP is authoritative and immediate. Ambiguous, stale, ranged, fatal and reduced-motion injuries remain immediate. Correct scene reset and limited effects reuse preexisting mechanics.",
+        "verification": "GitHub lease-safe commit confirmed. Prior parent Dungeon authority + 3 Chromium shards + visual review PASS; parent full CI CANCELLED. Exact new-head authority succeeded, new-head browser shards/visual/full CI pending. No verified new-head moving A/B, original audio or blind critics.",
+        "experientialVerdict": "IN_PROGRESS / NOT_TRANSFORMED. LOOKS FEELS PLAYS UNVERIFIED, independent critics 0/3.",
+        "next": "Inspect actual exact-head moving native Warden/ordinary combat and real opt-in audio sync on desktop/mobile, verify authoritative snapshots against displayed contact and no effect leakage. Fix failed browser checks if any; improve full-body proportions and encounter consequence. Capture continuous five-stage matched baseline reel and commission >=3 independent blind critics."
       }
     ],
     "implementationContinuation": {
@@ -5511,15 +5529,15 @@
     "latestImplementation": {
       "date": "2026-11-05",
       "milestone": "M1 ongoing",
-      "sourceParentSha": "7c635ed6c46ab65c7ad0f286cf3254d88a465bab",
-      "codeCommit": "0fc87fea2da9620d9448a6d23627a2b862e7245d",
-      "stage": "physical forged chapter inlays batched onto raised real walkable court",
-      "status": "SOURCE_CANDIDATE_EXACT_HEAD_BROWSER_UNVERIFIED",
+      "sourceParentSha": "c1299bb72e511fe3bfa7fb4ac3e1e53c72eacbcb",
+      "codeCommit": "1589a8c6b4bc58a6dfd28b29d6918fa9533a6f13",
+      "stage": "authentic source-skinned, impact and original opt-in sound onset",
+      "status": "EXACT_HEAD_BROWSER_MOTION_UNVERIFIED",
       "qualityVerdict": "UNVERIFIED"
     },
-    "lastCandidateSha": "5917e0d4177292f57421c83b191abf2c00877a24",
-    "experienceVerdict": "M1 NOT TRANSFORMED — LOOKS / FEELS / PLAYS UNVERIFIED; zero independent critics",
+    "lastCandidateSha": "1589a8c6b4bc58a6dfd28b29d6918fa9533a6f13",
+    "experienceVerdict": "M1 IN PROGRESS — NOT TRANSFORMED. LOOKS, FEELS and PLAYS UNVERIFIED; 0/3 independent critics; no matched complete five-stage audio/video.",
     "criticReadiness": "0/3; exact-head desktop/mobile moving sound captures, matched fixed-baseline A/B and natural progression unverified",
-    "nextImplementationTask": "Inspect original 1440 desktop and 390 mobile moving game after exact 5917e0d, verify authored-prop clearance without excessive environment erasure or frame-time regression, then integrate native adult-scale skinned contact and Warden tactics, create genuine original-audio complete scenario reel, masked A/B and >=3 independent critics."
+    "nextImplementationTask": "Inspect exact 1589a8c moving desktop/mobile rendered-frame synchrony (real HP, blade, skinned recoil, fragment, original recorded sound), identify visible defects and rework Warden duel and characters; complete locked-seed five-stage BEFORE/AFTER plus independent critic panel."
   }
 }
