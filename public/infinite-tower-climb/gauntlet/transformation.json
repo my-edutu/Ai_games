@@ -9,20 +9,20 @@
   },
   "candidate": {
     "sha": null,
-    "title": "OPEN same real 3D guardian/shutter duel: source-legitimate mid-health retreat, physical flank cache and two-threat reactions; NOT EVALUATED",
-    "implementationSha": "55fde7f8002d54a394cd51744e1906053f258bbf",
-    "implementationEvidenceStatus": "Playable opt-in guardian-cap source code at 55fde7f8002d54a394cd51744e1906053f258bbf selects the already-physical one-use 2HP flank cache at or below half health, refuses published charging shutter corridors, preserves historical mode; normal incoming projectile grounded jump remains physical defense in simultaneous shutter/proj frames. No recorded current-head victory or floor-nine progression. Last completed CI 41986240450 FAILED 1/1010 from dual-threat response attribution; updated test requires genuine jump, not arbitrary intent. New CI 41987921187 queued, original full-motion capture 41987921445 pending, source snapshot 41987921115 queued. Evidence absent, blind reviews 0/5 each, device frames/memory unmeasured. NOT EVALUATED."
+    "title": "OPEN guardian-cap original 3D physical duel: locked gate retains earned locomotion and recovery; NOT EVALUATED",
+    "implementationSha": "af2e6d87d9067a4e0d1a01ca3434ac0f819b8dc1",
+    "implementationEvidenceStatus": "EXACT SOURCE SOURCE-ONLY 3200-TICK WITNESS at af2e6d87: 4 completed lives (all health-depleted), 2 authentic guardian defeats, maxFloor 10, 3 collected physical recovery caches, 51 real melee hits, 4 core hits, 5 earned interruptions, 28 near crossfire warning ticks. PREDECESSOR source 75e4de14 had 9 health-depleted lives, ZERO guardian defeats, maxFloor 8 and zero collected physical recovery caches in same source-only witness. Root cause was authoritative guardian gate resetting all real movement on every cap tick; fixed only opt-in physical duel. Exact code CI 41995421918 success 1014/1014 tests; not quality PASS. Before/after source-pinned 60s desktop/portrait current playable video 41995421907 QUEUED, no independent full-motion votes, no supported-hardware p50/p95/p99/memory. NOT EVALUATED."
   },
   "currentTransformation": {
     "title": "SAME playable real 3D Tower climb and authentic upper-cap guardian/crusher encounter: earned armor-opening, damage feedback, safe movement and eventual floor-nine continuation",
-    "state": "OPEN — one unfinished guardian-cap recovery, combat, physical crusher and authentic floor-nine progression initiative. Implementation 55fde7f8002d54a394cd51744e1906053f258bbf not independently reviewed or recorded at normal speed. NOT EVALUATED.",
+    "state": "OPEN — same unfinished coherent real cap physics, guardian combat, crusher and floor-nine continuation initiative. Real 3200-tick source witness now OBSERVES guardian defeats, recovery and floor 10 under the playable af2e6d87 gate correction, but genuine current-source normal-speed visual confirmation and blind quality acceptance remain NOT EVALUATED.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "First inspect newly instrumented 3200-step authentic source campaign in CI 41987921187 (health pickup collected, guardian body/projectile/shutter damage, shield vaults, earned counters, guardian kills and maxFloor). Examine any exact-head failing safety test without weakening true collision checks. Then compare real unchanged baseline 1731b380 with candidate 55fde7f8002d54a394cd51744e1906053f258bbf in >=60-second matched desktop/portrait ascent, danger and complete outcome/restart clips. Five independent fresh-context full-motion critics in LOOKS, FEELS and PLAYS plus device frame-time p50/p95/p99 and memory remain obligatory.",
+    "nextDecision": "Inspect exact-current source-pinned original desktop 960x600 and portrait 390x844 gameplay capture from 41995421907, with frozen baseline 1731b380; confirm guardian defeat, shutter escape, continuous physical jump and 9/10 progression plus genuine outcome/restart in >=60-second matched normal-speed WebM. Investigate any new serious combat/visual regressions. Preserve the same 3-scene transformation until five independent fresh-context blind critics each score LOOKS, FEELS and PLAYS (minimum 4/5 per pillar) and supported device p50/p95/p99 frame-time/memory measurements are available.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Despite new grounded recovery tactics, the current playable guardian fight still has NO source-matched normal-speed proof of surviving guardian, earning guardian defeat, escaping actual shutter and entering floor nine. Previous original 3200-tick candidate bc5c10f4: 10/10 health-depleted lives, 0 guardian kills, max floor 8; new exact-head source campaign, CI and original-host desktop/mobile recording pending. Historical baseline/candidate videos are not event-matched blind A/B. LOOKS/FEELS/PLAYS 0/5 independent reviews collected, supported-device p50/p95/p99 and memory missing. NOT EVALUATED.",
-    "unverifiedImplementationBranchHead": "55fde7f8002d54a394cd51744e1906053f258bbf",
-    "currentVerticalSlice": "ONE ongoing real source-governed 3D cap fight: guardian armor opening and physical recoil, source-reactive AI counter/melee/escape, single-use physically placed health pickup selected before lethal HP, recovery route refuses actual live or visible charging crusher, reuses true animation/camera/audio. No scripted victories, new hidden information or fake gameplay evidence.",
-    "biggestGap": "Despite new grounded recovery tactics, the current playable guardian fight still has NO source-matched normal-speed proof of surviving guardian, earning guardian defeat, escaping actual shutter and entering floor nine. Previous original 3200-tick candidate bc5c10f4: 10/10 health-depleted lives, 0 guardian kills, max floor 8; new exact-head source campaign, CI and original-host desktop/mobile recording pending. Historical baseline/candidate videos are not event-matched blind A/B. LOOKS/FEELS/PLAYS 0/5 independent reviews collected, supported-device p50/p95/p99 and memory missing. NOT EVALUATED."
+    "biggestRemainingExperienceGap": "The newly unlocked source-authentic physical cap fight achieved 2 guardian defeats and max floor10 in a 3200-step deterministic no-render witness; the prior implementation had 0 and max8. But there is still NO current-head normal-speed real desktop/portrait evidence of full battle/floor-nine/restart being visually readable and balanced; older frozen/current pair was inspected only in selected original WebM frames and source traces, not independently blind-scored. Guardian defeat is not yet repeatably established across seeds, crusher physical-hit avoidance not independently proven, and full LOOKS/FEELS/PLAYS votes, hardware frame-time tails/memory and accessibility legibility remain missing. QUALITY NOT EVALUATED.",
+    "unverifiedImplementationBranchHead": "af2e6d87d9067a4e0d1a01ca3434ac0f819b8dc1",
+    "currentVerticalSlice": "ONE source-driven physical cap duel continuing across runs: prior real armor-opening/guardian recoil, timed shard/projectile/shutter choices and single-use flank recovery now retain full 20Hz physical ascent/evasion/momentum while guardian gate remains locked; source witness confirms actual boss death and floor-10 continuation, not video quality acceptance.",
+    "biggestGap": "The newly unlocked source-authentic physical cap fight achieved 2 guardian defeats and max floor10 in a 3200-step deterministic no-render witness; the prior implementation had 0 and max8. But there is still NO current-head normal-speed real desktop/portrait evidence of full battle/floor-nine/restart being visually readable and balanced; older frozen/current pair was inspected only in selected original WebM frames and source traces, not independently blind-scored. Guardian defeat is not yet repeatably established across seeds, crusher physical-hit avoidance not independently proven, and full LOOKS/FEELS/PLAYS votes, hardware frame-time tails/memory and accessibility legibility remain missing. QUALITY NOT EVALUATED."
   },
   "scenarios": [
     {
@@ -62,11 +62,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Previous exact-head CI at ffe053e6 / run 41986240450 failed 1 of 1010 tests: a real source simultaneous projectile + shutter escape with grounded jump was incorrectly counted as unhandled because its intent said 'evading-projectile'. Integration witness now only recognizes source-grounded jump as dual physical response, not arbitrary bracing; new exact-head contract workflow https://github.com/my-edutu/Ai_games/actions/runs/41987921187 QUEUED. Still safety VETO until completed pass. Source 3200-step campaign added before npm test to report original gameplay results, never certify experience.",
-    "replay": "Only fully opted-in guardian cap changes mid-health recovery priority, using observed source position, remaining health, 20Hz hazard warnings and actual collision pickup. One-use health still requires real traversal and collision. Unflagged/historical threshold and combat unaffected, replay version for opted-in configuration will change but same-seed deterministic authority must pass exact-head tests. No scripted wins or free safety.",
-    "accessibility": "Existing original authored in-world health pickup, autonomous movement, 3D camera, shield and hazard cues used. No additional HUD clutter or mandatory sound. Exact-current desktop, phone, captions, reduced motion and real full-motion legibility NOT EVALUATED.",
-    "performance": "Uses existing source-level selection/scalar path collision checks and existing one instance of already-authored recovery pickup; no new 3D scene graph, draw call or light. Real supported-device frame-time p50/p95/p99 and memory NOT MEASURED; don't infer FPS from CI.",
-    "stability": "Current exact-playable source 55fde7f8002d54a394cd51744e1906053f258bbf: new actual gameplay evidence run 41987921445 PENDING with frozen baseline 1731b380; source archive run 41987921115 QUEUED. Historical source film 41974857441 completed but predates latest gameplay changes, with no observed guardian defeat/floor nine. No genuine current-source full-motion critic or real-device soak. NOT EVALUATED."
+    "ci": "Exact playable SHA af2e6d87 / Quality Contract workflow 41995421918 COMPLETED SUCCESS: build, verdict structural contract, original 3200-tick gameplay witness and 1014/1014 complete repo tests, plus subsequent browser guardrails reported workflow success. These are only technical safety veto checks, NEVER quality votes. Prior 75e4de14 source run 41988089918 failed 1/1012 because authentic telegraph-grounded physical jumps were missing from source-witness response modes; test now counts only an actual grounded jump. Original new two-tick locomotion/locked-gate invariants included.",
+    "replay": "Original historical/unflagged guardian gate retains its old position/velocity reset behavior. Fully opt-in second-wind guardian/cap now preserves ordinary immutable authoritative physics across the already-reached cap exit threshold; does not change hazard damages, enemy health, RNG or produce scripted victories. Explicit historical and living-gate source tests pass in exact SHA CI 41995421918. Opt-in replay output changes by design, but same-seed invariance checked by repository guardrails.",
+    "accessibility": "No added in-game prose, HUD controls, mandatory audio, flashing new render effects or changed accessibility preference; gameplay source now allows real jump/grounded transitions to persist. However actual current gameplay across portrait/desktop, captions, color contrast and reduced motion are NOT independently reviewed. Browser guardrails passing is not an accessibility quality endorsement.",
+    "performance": "No new Three.js geometry/material/light/draw call; correction removes per-tick cap teleport/zero-velocity while genuine fixed-step physics proceeds normally. Supported-device p50/p95/p99 presented frame times and memory remain NOT MEASURED; native recording submitted-frame intervals are NOT performance proof.",
+    "stability": "Exact-head Quality Contract 41995421918 passed; source archive 41995421944 completed. Current playable normal-speed desktop/mobile source-pinned video workflow 41995421907 QUEUED at inspection; no current-source footage assessed. Worker/browser tunnel-client NOT_FOUND >300s, so independent critics/real device measurements unavailable. PR68 DRAFT and PR58 unchanged; no merge/deploy. Quality NOT EVALUATED."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -3101,9 +3101,80 @@
       "targetDeviceFrameTimesMemory": "NOT MEASURED",
       "quality": "NOT EVALUATED"
     },
-    "currentSourceRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41987921115",
-    "currentCandidateVideoRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41987921445",
-    "currentSafetyRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41987921187",
-    "currentQualityVerdict": "NOT EVALUATED — actual matched normal-speed candidate gameplay, independent blind critics and supported-device performance missing"
+    "currentSourceRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41995421944",
+    "currentCandidateVideoRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41995421907",
+    "currentSafetyRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41995421918",
+    "currentQualityVerdict": "NOT EVALUATED — genuine improvement in authoritative gameplay source witness only; matched current real video, independent blind criticisms and supported-device performance remain unassessed",
+    "latestPhysicalGuardianGate20261105": {
+      "playableSha": "af2e6d87d9067a4e0d1a01ca3434ac0f819b8dc1",
+      "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "priorReadOnlySourceOnly": {
+        "sourceSha": "75e4de148ac7f19368963def5802a8f850acd309",
+        "workflow": "https://github.com/my-edutu/Ai_games/actions/runs/41988089918",
+        "fixedStepTicks": 3200,
+        "completedLives": 9,
+        "healthDepletions": 9,
+        "guardianDefeats": 0,
+        "maxFloor": 8,
+        "recoveryCachesCollected": 0,
+        "coreHits": 4,
+        "closeCrossfireTicks": 36,
+        "technicalResult": "1011/1012 FAIL"
+      },
+      "currentReadOnlySourceOnly": {
+        "sourceSha": "af2e6d87d9067a4e0d1a01ca3434ac0f819b8dc1",
+        "workflow": "https://github.com/my-edutu/Ai_games/actions/runs/41995421918",
+        "fixedStepTicks": 3200,
+        "completedLives": 4,
+        "healthDepletions": 4,
+        "guardianDefeats": 2,
+        "maxFloor": 10,
+        "recoveryCachesCollected": 3,
+        "meleeHits": 51,
+        "coreHits": 4,
+        "counterInterrupts": 5,
+        "closeCrossfireTicks": 28,
+        "shutterDamage": 0,
+        "technicalResult": "1014/1014 PASS"
+      },
+      "originalMatchedDangerFilmFromPreviousSource": {
+        "workflow": "https://github.com/my-edutu/Ai_games/actions/runs/41987921445",
+        "baselineArtifactId": 13397595536,
+        "candidateArtifactId": 13396714395,
+        "candidateRecordedSha": "55fde7f8002d54a394cd51744e1906053f258bbf",
+        "seed": "tower-transformation-capture-v1",
+        "tier": "low",
+        "audioEnabled": false,
+        "viewports": [
+          {
+            "width": 960,
+            "height": 600,
+            "baselineSeconds": 150.56,
+            "candidateSeconds": 125.88
+          },
+          {
+            "width": 390,
+            "height": 844,
+            "baselineSeconds": 130.16,
+            "candidateSeconds": 119.12
+          }
+        ],
+        "builderObservation": "Unmodified original baseline/candidate WebM stored and sampled at a handful of time positions; prior candidate portrait 20Hz source-trace recorded floor-9 on two separate run tokens and floor-10 on one, while desktop trace did not record floor-9 during this specific film. These old films predate the physical guardian gate fix; no quality judgment or blind full-motion conclusion."
+      },
+      "currentFullMotionCandidate": {
+        "sourceSha": "af2e6d87d9067a4e0d1a01ca3434ac0f819b8dc1",
+        "workflow": "https://github.com/my-edutu/Ai_games/actions/runs/41995421907",
+        "status": "QUEUED/NOT INSPECTED at publication; exact original desktop/portrait and baseline candidates remain unverified"
+      },
+      "codeReview": "docs/reviews/2026-11-05-tower-pr68-real-physics-guardian-gate.md",
+      "independentBlindVotes": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "supportedDeviceP50P95P99Memory": "NOT MEASURED",
+      "independentWorker": "NOT_FOUND: workspace tunnel-client has not been seen >300 seconds",
+      "qualityVerdict": "NOT EVALUATED"
+    }
   }
 }
