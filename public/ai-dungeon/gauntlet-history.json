@@ -5542,6 +5542,17 @@
         "verifiedAfter": "UNVERIFIED",
         "critics": "0/3",
         "pinnedBaselineRetained": true
+      },
+      {
+        "id": "M1-WARDEN-REAL-STRIKE-SIGHTLINE-20261105",
+        "at": "2026-11-05",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceParentSha": "c1bab8d629760cc667f1b72da8b7ac1289aa887a",
+        "work": "Wired new authority-cast release scene into actual native 3D subject fitting and physical cutaway targets, no collision/render authority change.",
+        "experienceVerdict": "IN_PROGRESS_NOT_TRANSFORMED",
+        "verifiedAfter": "UNVERIFIED",
+        "critics": "0/3",
+        "pinnedBaselineRetained": true
       }
     ],
     "implementationContinuation": {
@@ -5559,14 +5570,15 @@
       "date": "2026-11-05",
       "milestone": "M1 continuing; no new round",
       "sourceParentSha": "04f8339d91ab92988e2370865772cf5555ec7947",
-      "stage": "Genuine boss release as a connected camera/physical stage/lighting/readability chapter between real warning and earned counter",
-      "status": "SOURCE_COMMITTED_PENDING_EXACT_HEAD_BROWSER",
+      "stage": "Genuine boss release as a connected camera/physical stage/lighting/readability chapter between real warning and earned counter; living Warden and nearest defender get genuine source 3D physical camera/foreground weapon apertures",
+      "status": "SOURCE_COMMITTED_PENDING_EXACT_HEAD_BROWSER_AND_CRITICS",
       "sourceFiles": [
         "public/ai-dungeon/cinematic-chapter-plan.js",
         "public/ai-dungeon/world-story-stage-plan.js",
         "public/ai-dungeon/encounter-lighting-plan.js",
         "public/ai-dungeon/app.js",
-        "tests/foundation/dungeon-warden-release-cinematography.test.cjs"
+        "tests/foundation/dungeon-warden-release-cinematography.test.cjs",
+        "public/ai-dungeon/encounter-sightlines.js"
       ],
       "verification": {
         "precedingDungeon": "https://github.com/my-edutu/Ai_games/actions/runs/42063793787; 321/321 foundation and three real Chromium shards passed, progress schema failed 1/20",

@@ -143,13 +143,18 @@ export function planCinematicSilhouetteRecess(state,base){
  const candidates=[];
  if(state.phase==='exploring')for(const h of live)for(const foe of foes){
   const d=Math.abs(h.x-foe.x)+Math.abs(h.z-foe.z);
-  if(d<1||d>4||!lane(h,foe))continue;
+  // On the actual authority-cast tick the Warden's native upper-body rig
+  // releases a large ritual strike. Its real nearest defender needs the
+  // same physical body/weapon aperture as contact, not an empty camera label.
+  const trueRelease=foe.kind==='warden'&&Number.isSafeInteger(state.tick)&&
+   foe.action==='cast'&&foe.actionTick===state.tick&&d<=5;
+  if(d<1||d>(trueRelease?5:4)||!lane(h,foe))continue;
   const actualContact=(h.action==='attack'||h.action==='cast')&&h.targetId===foe.id&&
    Number.isSafeInteger(h.actionTick)&&Number.isSafeInteger(state.tick)&&
    h.actionTick<=state.tick&&state.tick-h.actionTick<=3;
   const bossDanger=foe.kind==='warden'&&Boolean(state.bossWarning)&&d<=5;
-  if(!actualContact&&!bossDanger&&d>2)continue;
-  candidates.push({h,foe,d,priority:actualContact?0:bossDanger?1:2});
+  if(!actualContact&&!bossDanger&&!trueRelease&&d>2)continue;
+  candidates.push({h,foe,d,priority:actualContact?0:trueRelease?1:bossDanger?2:3});
  }
  candidates.sort((a,b)=>a.priority-b.priority||a.d-b.d||
   String(a.h.id).localeCompare(String(b.h.id),'en')||
