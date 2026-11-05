@@ -50,7 +50,7 @@ test('real 3D tide diaphragm telescopes and opens both rooted shields on publicl
     assert.equal(carriage.position.y,.16);
     assert.ok(shields.every(leaf=>Math.abs(Math.abs(leaf.rotation.z)-.08)<1e-9));
     world.animate(0,{explorerPosition:hero,reducedMotion:false});
-    assert.equal(carriage.position.y,.44,'actual public pressure visibly extends the piston');
+    assert.ok(Math.abs(carriage.position.y-.44)<1e-9,'actual public pressure visibly extends the piston');
     assert.ok(shields.every(leaf=>Math.abs(Math.abs(leaf.rotation.z)-.78)<1e-9));
     assert.equal(shields[0].rotation.z,-shields[1].rotation.z,
       'matching public positions yield an entirely symmetrical diaphragm');
@@ -81,7 +81,7 @@ test('a remembered, hidden, fabricated or previous-run trap cannot perform a fre
     assert.equal(piston.position.y,.16,'remembered-only hazard stays still');
     world.update(published({visibleCells:[4]}));
     world.animate(0,{explorerPosition:hero,reducedMotion:false});
-    assert.equal(piston.position.y,.44,'current public sight restores real physical action');
+    assert.ok(Math.abs(piston.position.y-.44)<1e-9,'current public sight restores real physical action');
     world.update(published({cells:[],visibleCells:[],privateTrapCells:[4],privateMap:{4:'danger'}}));
     assert.equal(world.group.getObjectByName('Published tide-shear pressure mast 4'),undefined);
     assert.equal(world.stats().responsiveTrapSignals,0,
