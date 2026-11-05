@@ -5870,10 +5870,16 @@ function forgeSmoke(time){
 // Read the existing path, occupation and 3D citizen phase at the real forge.
 // No new actor, inventory credit, job result or random draw is permitted.
 let forgeWorkdayRender={activeWorkers:0,bellows:0,sparks:0,triangles:0};
+// Real smithyard worker occupancy has one authoritative source. Use it for
+// both physical forge effects and suppression of the old generic duplicate
+// workbench/anvil, which previously stood between the worker and the camera.
+function worksInsideOriginalForgeYard(w){
+ return w.job==='craftsperson'&&
+  Math.hypot(w.x-CRAFT_YARD[0],w.z-CRAFT_YARD[1])<3.8;
+}
 function getForgeWorkdayAudit(){
  const fx=CRAFT_DISTRICT.x-3.30,fz=CRAFT_DISTRICT.z-4.37;
- const activeWorkers=people.filter(p=>p.job==='craftsperson'&&
-  isWorkingAtSite(p)&&Math.hypot(p.x-CRAFT_YARD[0],p.z-CRAFT_YARD[1])<3.8)
+ const activeWorkers=people.filter(p=>isWorkingAtSite(p)&&worksInsideOriginalForgeYard(p))
  .map(p=>{
   const action=occupationalPerformance(p);
   return {citizen:p.name,position:[p.x,p.z],activity:p.activity,
@@ -6502,6 +6508,8 @@ function visibleActualWorksites(){
 }
 function renderWorkdayTraces(){
  workdayRenderStats.sceneMarkers=0;
+ workdayRenderStats.integratedForgeWorkcells=0;
+ workdayRenderStats.duplicateForgeStations=0;
  const now=state.t;
  for(const event of workdayEvents){
   const age=now-event.time;
@@ -6539,6 +6547,15 @@ function renderWorkdayTraces(){
    // were stuck at +[.62,.34] in WORLD axes irrespective of actor facing.
    const station=workerLocalWorksite(w);
    if(!station)continue;
+   // W45: one real foundry, one real anvil. The old all-profession stage
+   // created a SECOND generic anvil and wooden block right in front of
+   // every smith, including the forge courier's actual hammer. Keep all
+   // other occupational stations, but let the original guild courtyard and
+   // physical iron billet stage the smith whose route actually reaches it.
+   if(worksInsideOriginalForgeYard(w)){
+    workdayRenderStats.integratedForgeWorkcells++;
+    continue;
+   }
    const x=station.localX,z=station.localZ;
    const y=station.groundHeight,siteStart=data.length;
    // One performance clock drives wrist and prop impacts, so chips, tools
@@ -6559,7 +6576,8 @@ function renderWorkdayTraces(){
     box(x,y+.08,z,.70,.17,.45,rgb(0x8c684b));
     box(x-.17,y+.22,z,.25,.25,.30,rgb(0xad8255));
     box(x+.18,y+.18,z,.22,.17,.27,rgb(0xc59b61));
-   }else if(w.job==='craftsperson'){
+    }else if(w.job==='craftsperson'){
+    if(worksInsideOriginalForgeYard(w))workdayRenderStats.duplicateForgeStations++;
     box(x,y+.09,z,.68,.20,.43,rgb(0x795c4b));
     box(x,y+.28,z,.36,.17,.26,rgb(0x777b77));
     box(x+.26,y+.34+pulse*.035,z,.08,.20,.09,rgb(0xb3a180));
@@ -7033,7 +7051,7 @@ function clearLiveWorkdayState(){
  if(progress){progress.value=0;progress.setAttribute('aria-label',
   "Progress through the selected villager's actual working shift")}
 }
-const workdayRenderStats={sceneMarkers:0,animatedTools:0,activeWorksites:0,activeTriangles:0};
+const workdayRenderStats={sceneMarkers:0,animatedTools:0,activeWorksites:0,activeTriangles:0,integratedForgeWorkcells:0,duplicateForgeStations:0};
 function workdayDelta(before){
  return {food:Math.round((state.food-before.food)*1000)/1000,
   wood:Math.round((state.wood-before.wood)*1000)/1000,
