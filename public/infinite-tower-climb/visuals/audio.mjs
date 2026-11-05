@@ -125,6 +125,7 @@ export function createTowerAudio() {
   const cue = name => {
     if (name === 'impact' || name === 'fall-end') { texture(200, .22, .13); tone(130, 38, .32, 'triangle', .2); }
     else if (name === 'melee-hit') { texture(950, .11, .095); tone(220, 55, .17, 'triangle', .16); tone(780, 310, .085, 'square', .035); }
+    else if (name === 'guardian-core-hit') { texture(750, .14, .08); tone(185, 92, .19, 'triangle', .12); tone(720, 260, .13, 'sine', .055); }
     else if (name === 'shield-block') { tone(690, 235, .25, 'sine', .105); tone(1040, 620, .14, 'triangle', .045); }
     else if (name === 'pickup') { tone(590, 880, .12, 'sine', .065); }
     else if (name === 'warning') { texture(1250, .13, .06); tone(320, 170, .19, 'triangle', .08); }
