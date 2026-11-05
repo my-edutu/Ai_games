@@ -33,7 +33,8 @@ test('W49 real producer-to-market film avoids physical freight foreground at des
   const after=JSON.stringify(g.exportSnapshot());
   return {found,watching,audit,camera,repeated,readOnly:before===after,
    widths:document.documentElement.scrollWidth,
-   citizens:g.getCitizenProfiles().length};
+   citizens:g.getCitizenProfiles().length,
+   snapshotCitizens:g.exportSnapshot().people.length};
  });
  expect(desktop.error||'').toBe('');
  expect(desktop.readOnly).toBe(true);
@@ -50,7 +51,10 @@ test('W49 real producer-to-market film avoids physical freight foreground at des
  expect(desktop.camera?.foregroundCargoCover).toBeLessThan(.44);
  expect(desktop.audit?.plannedForegroundCargoCover).toBe(desktop.camera?.foregroundCargoCover);
  expect(desktop.repeated?.observedForegroundCargoCover).toBe(desktop.audit?.observedForegroundCargoCover);
- expect(desktop.citizens).toBeGreaterThanOrEqual(20);
+ // The first authentic credited courier can occur at the initial twelve
+ // founders. Preserve the real population rather than hardcoding Day-120.
+ expect(desktop.citizens).toBeGreaterThan(0);
+ expect(desktop.citizens).toBe(desktop.snapshotCitizens);
  expect(desktop.widths).toBeLessThanOrEqual(1024);
  await page.waitForTimeout(450);
  fs.mkdirSync('artifacts/tiny-kingdom-w49',{recursive:true});
