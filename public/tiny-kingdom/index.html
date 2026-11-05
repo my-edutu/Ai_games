@@ -5591,6 +5591,14 @@ const CRAFT_YARD=Object.freeze([CRAFT_DISTRICT.x-2.30,CRAFT_DISTRICT.z-4.72]);
 // craft yard. They never change navigation, jobs or the deterministic economy.
 const CRAFT_ANVIL=Object.freeze([CRAFT_YARD[0]+.20,CRAFT_YARD[1]-.36]);
 const CRAFT_QUENCH=Object.freeze([CRAFT_YARD[0]+1.04,CRAFT_YARD[1]-.73]);
+// W45: a coherent guild court; timber posts sit outside the genuine smith's
+// physical work circle and the pitched canopy shelters only the rear bay.
+const GUILD_COURT_POSTS=Object.freeze([
+ Object.freeze([CRAFT_DISTRICT.x-5.45,CRAFT_DISTRICT.z-3.62]),
+ Object.freeze([CRAFT_DISTRICT.x+1.15,CRAFT_DISTRICT.z-3.62]),
+ Object.freeze([CRAFT_DISTRICT.x-5.45,CRAFT_DISTRICT.z-7.44]),
+ Object.freeze([CRAFT_DISTRICT.x+1.15,CRAFT_DISTRICT.z-7.44])
+]);
 const craftCounters={pieces:0,cartWheels:0,smokePuffs:0};
 function forgeBarrel(x,z,r=.29,barrelHeight=.78){
  const y=terrain(x,z),oak=rgb(0x936940),iron=rgb(0x484d4b),head=rgb(0x715738);
@@ -5659,9 +5667,110 @@ function forgeRoof(x,y,z){
  });
  box(x,y+5.16,z,.17,.13,6.8,rgb(0xb5a994));
 }
+// W45 Living Valley: authored physical shopfront, slate roof, cobbled
+// workcourt and actual forge tools. All render-only: not extra workers,
+// authoritative buildings, inventory, navigation obstacles or hidden AI.
+function forgeCourtyard(){
+ const posts=GUILD_COURT_POSTS,oak=rgb(0x634934),pale=rgb(0xa38662),
+  iron=rgb(0x4a4c4c),left=posts[0][0],right=posts[1][0],
+  center=(left+right)/2,back=posts[0][1]-.12,front=back-1.17,
+  base=terrain(CRAFT_YARD[0],CRAFT_YARD[1]);
+ materialScope(MATERIAL.WOOD,()=>{
+  for(const [x,z] of posts){
+   const y=terrain(x,z);
+   box(x,y+1.56,z,.23,3.12,.23,oak);
+   box(x,y+3.04,z,.35,.17,.35,pale);
+   craftCounters.courtyardPosts++;
+  }
+  for(const z of [posts[0][1],posts[2][1]]){
+   limbSegment([left,base+3.14,z],[right,base+3.14,z],.12,oak,6);
+   for(const [x,sign] of [[left,1],[right,-1]])
+    limbSegment([x,base+2.45,z],[x+sign*.81,base+3.13,z],.08,pale,5);
+  }
+  for(const x of [left,right])
+   limbSegment([x,base+3.14,posts[0][1]],
+    [x,base+3.14,posts[2][1]],.09,oak,5);
+  limbSegment([center,base+4.08,back],
+   [center,base+4.08,front],.095,pale,5);
+ });
+ // A low-cost, two-sided slate roof over the BACK of the yard. The front
+ // exposure protects moving hammer hands from occlusion in workday footage.
+ materialScope(MATERIAL.ROOF,()=>{
+  for(const side of [-1,1])for(let row=0;row<4;row++){
+   const x0=center+side*(right-left)*.5*(1-row/4),
+    x1=center+side*(right-left)*.5*(1-(row+1)/4);
+   const y0=base+3.14+.94*row/4,y1=base+3.14+.94*(row+1)/4;
+   for(let col=0;col<9;col++){
+    const z0=back+(front-back)*col/9,z1=back+(front-back)*(col+1)/9;
+    const color=rgb([0x726b66,0x887970,0x68615f,0xa08d7d][(col+row*3+side+5)%4]);
+    const a=[x0,y0,z0],b=[x1,y1,z0],d=[x0,y0,z1],e=[x1,y1,z1];
+    quad(a,b,e,d,color);quad(d,e,b,a,color);
+    craftCounters.courtyardRoofTiles++;
+   }
+  }
+ });
+ // Variegated physical flagstones: no synthetic foot traffic or fake paths.
+ materialScope(MATERIAL.STONE,()=>{
+  const palette=[0x988d7a,0xb3a28b,0x8d8273,0xa29a8a,0x867b6a,0xb0a38e];
+  for(let row=0;row<6;row++)for(let col=0;col<6;col++){
+   const x=left+.74+col*.94+(row%2)*.19;
+   const z=posts[0][1]-.50-row*.54,y=terrain(x,z)+.032;
+   box(x,y,z,.79,.054,.43,rgb(palette[(row*7+col*3)%6]));
+   craftCounters.courtyardPavers++;
+  }
+ });
+ materialScope(MATERIAL.WOOD,()=>{
+  // Rack and hanging iron tools are lateral to both smith and anvil.
+  const rx=right-.47,rz=back-.45,ry=terrain(rx,rz);
+  for(const sign of [-1,1])
+   box(rx,ry+.86,rz+sign*.53,.14,1.71,.16,oak);
+  box(rx,ry+1.52,rz,.16,.13,1.29,pale);
+  box(rx,ry+.31,rz,.34,.13,1.29,oak);
+  for(let i=0;i<4;i++){
+   const z=rz-.42+i*.28;
+   limbSegment([rx-.08,ry+1.41,z],[rx-.21,ry+.87-(i%2)*.10,z],
+    .029,iron,5);
+   if(i%2===0)box(rx-.23,ry+.83,z,.18,.07,.09,iron);
+  }
+  craftCounters.courtyardDetails++;
+  // Small fuel pile stays clear of real authored work positions.
+  const lx=left+.57,lz=posts[2][1]+.65;
+  for(let i=0;i<7;i++){
+   const x=lx+(i%3)*.26,z=lz+(i>3?.18:0);
+   const y=terrain(x,z)+.14+Math.floor(i/3)*.19;
+   limbSegment([x,y,z-.38],[x,y,z+.32],.078,
+    rgb(i%2?0x70533c:0x85674a),6);
+  }
+  craftCounters.courtyardDetails++;
+  // Guild horseshoe silhouetted on its original wooden trade plaque.
+  const sz=posts[0][1]-.04,sy=base+3.03;
+  box(center,sy,sz,.62,.43,.10,oak);
+  for(let k=0;k<7;k++){
+   const a=.12*Math.PI+k*.76*Math.PI/7,
+    b=.12*Math.PI+(k+1)*.76*Math.PI/7;
+   limbSegment([center+.14*Math.cos(a),sy+.13*Math.sin(a),sz-.07],
+    [center+.14*Math.cos(b),sy+.13*Math.sin(b),sz-.07],.021,iron,5);
+  }
+  craftCounters.courtyardDetails++;
+ });
+}
+function getForgeCourtyardAudit(){
+ const posts=GUILD_COURT_POSTS.map(p=>p.slice());
+ return {source:'original-open-guild-court',altersAuthority:false,
+  anvil:CRAFT_ANVIL.slice(),yard:CRAFT_YARD.slice(),
+  pavingStones:craftCounters.courtyardPavers||0,
+  courtDetails:craftCounters.courtyardDetails||0,
+  realWorkerNames:getForgeCraftCycleAudit().workers.map(w=>w.citizen),
+  shelter:{posts,minimumAnvilPostClearance:Math.min(...posts.map(p=>
+   Math.hypot(p[0]-CRAFT_ANVIL[0],p[1]-CRAFT_ANVIL[1]))),
+   roofTiles:craftCounters.courtyardRoofTiles||0,
+   pitchedTimberRoof:true,openFront:true},presentationOnly:true};
+}
 function forgeWorkshop(){
  const {x,z,width,depth}=CRAFT_DISTRICT,y=terrain(x,z);
  craftCounters.pieces=0;craftCounters.cartWheels=0;
+ craftCounters.courtyardPosts=0;craftCounters.courtyardPavers=0;
+ craftCounters.courtyardDetails=0;craftCounters.courtyardRoofTiles=0;
  const stone=rgb(0xbeaf99),oak=rgb(0x6c503c),brick=rgb(0xa68a76),plaster=rgb(0xd3c6aa);
  box(x,y-.10,z,width,.38,depth,stone);
  box(x,y+.22,z,width-.65,3.18,depth-.52,plaster);
@@ -5739,6 +5848,7 @@ function forgeWorkshop(){
  materialScope(MATERIAL.WOOD,()=>timberCart(x+5.65,z-5.18));
  guildBanner(x-3.27,z-4.32);
  guildBanner(x+3.21,z-4.32);
+ forgeCourtyard();
  craftCounters.pieces+=72;
 }
 function forgeSmoke(time){
@@ -11071,7 +11181,7 @@ gl.drawArrays(gl.TRIANGLES,0,data.length/10);refreshPickedCitizenCaption();if((f
 }
 requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getCitizenAnatomy,getCitizenEmbodiment,getPopulationMotionAudit,getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getOccupationalPerformance:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData({citizen:people[index].name,job:people[index].job,...occupationalPerformance(people[index])}):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getSelectedCitizenTaskAudit,getCitizenPickCandidates,getCitizenOrbitAudit,getCitizenPickAudit:()=>({...citizenPickAudit}),getWorkdayEvents:()=>cloneData(workdayEvents),getStreetCargoWitnesses:()=>cloneData(streetCargoWitnesses()),getActiveDeliveries:()=>cloneData(getActiveDeliveries()),getPhysicalMarketParcelAudit:id=>cloneData(getPhysicalMarketParcelAudit(id)),getCourierLoadPresentation:workerName=>cloneData(getCourierLoadPresentation(workerName)),getCourierTransferMotion:workerName=>cloneData(courierTransferMotion(workerName)),getCourierTrailAudit,getDeliveryEconomyAudit:()=>cloneData(getDeliveryEconomyAudit()),getDeliveryReceipts:()=>cloneData(getDeliveryReceipts()),getMarketHandoffs:()=>cloneData(getMarketHandoffs()),getMarketHandoffRenderStats:()=>({...marketHandoffRenderStats}),watchDelivery,watchHomecoming,getHomecomingView,getWorkdayView,getActiveWorksites,getHarvestInteractionAudit,getHarvestAftermathAudit,getCitizenActingAudit,
 getDailyRhythmAudit:dailyRhythmAudit,getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getSoftwareResolutionAudit,getSimulationFrameDelta:simulationFrameDelta,getHouseholdLightAudit:()=>({...householdLightAudit}),getOccupiedHearthCount:()=>occupiedHearths,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,
-getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getStreetWalkState,getStreetEntranceAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:civicGpuResidencyEnabled?3:gpuAvailable?2:1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length:0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getForestVisualStats:()=>({
+getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeCourtyardAudit:()=>cloneData(getForgeCourtyardAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getStreetWalkState,getStreetEntranceAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:civicGpuResidencyEnabled?3:gpuAvailable?2:1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length:0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getForestVisualStats:()=>({
  sourceTrees:trees.length,
  renderedTrees:forestVisualStats.deciduous+forestVisualStats.conifers,
  conifers:forestVisualStats.conifers,deciduous:forestVisualStats.deciduous,
