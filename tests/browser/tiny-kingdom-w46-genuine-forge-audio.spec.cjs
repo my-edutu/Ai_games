@@ -23,6 +23,7 @@ test('W46 optional authentic guild forge audio follows an actual smith, not a sy
     linearRampToValueAtTime(){}},connect(){}}}
    resume(){this.state='running';return Promise.resolve()}
    suspend(){this.state='suspended';return Promise.resolve()}
+   close(){this.state='closed';return Promise.resolve()}
   };
  });
  const baseline=await page.evaluate(()=>{
