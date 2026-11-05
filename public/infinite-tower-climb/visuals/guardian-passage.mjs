@@ -167,6 +167,16 @@ export function createTowerGuardianPassage(THREE) {
   // The source-defeated machine's visible power connection retracts into
   // the earned real bronze gateway. Eight luminous segments reuse the owned
   // box/glow resources: one instanced draw, zero new geometry or lights.
+  // The actual defeated source body emits one short, ground-level release wave.
+  // It shares the existing torus geometry; its owned fading material avoids
+  // dimming the simultaneously open bronze gate. Zero collider/light passes.
+  const defeatWakeMaterial = glow.clone();
+  defeatWakeMaterial.opacity = .48;
+  ownedMaterials.push(defeatWakeMaterial);
+  const defeatWake = add('WitnessedGuardianDefeatShockwave',
+    groundGeometry, defeatWakeMaterial, [0, .13, 0], [.55, .55, .55]);
+  defeatWake.rotation.x = Math.PI / 2;
+  defeatWake.visible = false;
   const powerBreak = new THREE.InstancedMesh(box, glow, 8);
   powerBreak.name = 'WitnessedGuardianPowerBreak';
   powerBreak.frustumCulled = false;
@@ -202,6 +212,15 @@ export function createTowerGuardianPassage(THREE) {
     }
     fallenArmor.instanceMatrix.needsUpdate = true;
   }
+  function poseDefeatWake(seconds, still) {
+    defeatWake.visible = witnessedGuardian && !still && seconds < 1.25;
+    if (!defeatWake.visible) return;
+    const t = unit(seconds / 1.25);
+    // The impulse expands FROM the real defeated body and then dissipates,
+    // rather than showing a future gate unlock or predicting a combat hit.
+    defeatWake.scale.setScalar(.55 + 3.2 * (1 - Math.pow(1 - t, 2)));
+    defeatWakeMaterial.opacity = .48 * (1 - t) * (1 - t);
+  }
   function posePowerBreak(seconds, still) {
     powerBreak.visible = witnessedGuardian && !still &&
       Number.isFinite(powerLength) && powerLength>.4 && seconds<1.4;
@@ -210,10 +229,16 @@ export function createTowerGuardianPassage(THREE) {
     const retreat = unit(seconds/1.3);
     for(let i=0;i<8;i++){
       const u=(i+.5)/8, intact=unit((u-retreat)*12);
-      powerPose.position.copy(powerStart).addScaledVector(powerDirection,u);
+      // Each segment reels physically toward the earned bronze gate as the
+      // live power conduit disconnects from the fallen guardian. Even its
+      // last surviving section moves rather than popping out on a timer.
+      const reel = retreat * retreat * (3 - 2 * retreat);
+      const advancedU = u + (1 - u) * reel * .38;
+      const thickness = intact * (1 - reel * .36);
+      powerPose.position.copy(powerStart).addScaledVector(powerDirection,advancedU);
       powerPose.quaternion.copy(powerOrientation);
-      powerPose.scale.set(.115*intact,
-        Math.max(.001,powerLength*.084*intact),.115*intact);
+      powerPose.scale.set(.115*thickness,
+        Math.max(.001,powerLength*.084*thickness),.115*thickness);
       powerPose.updateMatrix();
       powerBreak.setMatrixAt(i,powerPose.matrix);
     }
@@ -250,6 +275,8 @@ export function createTowerGuardianPassage(THREE) {
     fragments.visible = false;
     fallenArmor.visible = false; fallenArmor.count = 0;
     powerBreak.visible = false; powerBreak.count = 0;
+    defeatWake.visible = false; defeatWake.scale.setScalar(.55);
+    defeatWakeMaterial.opacity = .48;
     powerLength = 0; powerStart.set(0,0,0);
     witnessedGuardian = false; guardianWorld.set(0, 0, 0);
     runToken = null;
@@ -272,6 +299,7 @@ export function createTowerGuardianPassage(THREE) {
     if (!witnessedGuardian) {
       guardianWorld.set(0,0,0);
       powerBreak.visible = false; powerBreak.count = 0; powerLength = 0;
+      defeatWake.visible = false;
       return;
     }
     guardianWorld.set(guardianAnchor.x, guardianAnchor.y, guardianAnchor.z);
@@ -279,6 +307,9 @@ export function createTowerGuardianPassage(THREE) {
     const cs = Math.cos(anchor.angle), sn = Math.sin(anchor.angle);
     fallenArmor.position.set(cs * dx - sn * dz,
       guardianAnchor.y - anchor.y, sn * dx + cs * dz);
+    defeatWake.position.copy(fallenArmor.position);
+    defeatWake.position.y += .13;
+    poseDefeatWake(0, false);
     powerStart.copy(fallenArmor.position);
     powerStart.y += 2.85;
     powerDirection.copy(powerEnd).sub(powerStart);
@@ -364,6 +395,7 @@ export function createTowerGuardianPassage(THREE) {
     const still = options.reducedMotion === true;
     poseFragments(age, still);
     poseFallenArmor(defeatAge, still);
+    poseDefeatWake(defeatAge, still);
     posePowerBreak(defeatAge, still);
     const opened = still ? 1 : Math.max(approachOpen,
       1 - Math.pow(1 - clamp(age / .95), 3));
