@@ -913,6 +913,17 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       };
       const visibleGuardianSilhouettes=[...wardens.values()]
         .map(({model})=>physicalSilhouette(model.group));
+      // Public-only original trap geometry evidence: measure its actual hinged
+      // full-mesh 3D envelope in the same source-bound WebGL screenshot.
+      // This never enumerates hidden hazards or commands the autonomous agent.
+      const observedTrapPhysicalBounds = s.cells
+        .filter(cell => cell.trap && s.visibleCells.includes(cell.cell))
+        .map(cell => {
+          const root = world.group.getObjectByName('Disclosed tide-shear pressure hazard ' + cell.cell);
+          const bounds = root ? physicalSilhouette(root) : null;
+          return bounds ? {cell:cell.cell,...bounds} : null;
+        }).filter(Boolean);
+
       const guardianModelsFullyInFrame=visibleGuardianSilhouettes.filter(bounds=>bounds?.fullyInFrame).length;
       const explorerSilhouette=physicalSilhouette(explorer.group);
       // Native WebGL evidence must measure physical 3D pickup fragments,
@@ -1011,6 +1022,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         routeQueue: cells.length, world: stats, contextLost: false,
         disclosedThreats: wardens.size, wardensInFrame, wardensWithMargin,
         guardianModelsFullyInFrame, guardianPhysicalBounds:visibleGuardianSilhouettes,
+        observedTrapPhysicalBounds,
         explorerModelFullyInFrame:!!explorerSilhouette?.fullyInFrame,
         explorerPhysicalBounds:explorerSilhouette,
         wardenContactShadows: [...wardens.values()].filter(entry => entry.contact?.parent === scene).length,
