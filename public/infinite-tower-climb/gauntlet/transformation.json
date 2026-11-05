@@ -9,20 +9,20 @@
   },
   "candidate": {
     "sha": null,
-    "title": "OPEN guardian-cap original 3D physical duel: locked gate retains earned locomotion and recovery; NOT EVALUATED",
-    "implementationSha": "af2e6d87d9067a4e0d1a01ca3434ac0f819b8dc1",
-    "implementationEvidenceStatus": "EXACT SOURCE SOURCE-ONLY 3200-TICK WITNESS at af2e6d87: 4 completed lives (all health-depleted), 2 authentic guardian defeats, maxFloor 10, 3 collected physical recovery caches, 51 real melee hits, 4 core hits, 5 earned interruptions, 28 near crossfire warning ticks. PREDECESSOR source 75e4de14 had 9 health-depleted lives, ZERO guardian defeats, maxFloor 8 and zero collected physical recovery caches in same source-only witness. Root cause was authoritative guardian gate resetting all real movement on every cap tick; fixed only opt-in physical duel. Exact code CI 41995421918 success 1014/1014 tests; not quality PASS. Before/after source-pinned 60s desktop/portrait current playable video 41995421907 QUEUED, no independent full-motion votes, no supported-hardware p50/p95/p99/memory. NOT EVALUATED."
+    "title": "OPEN authentic guardian-cap duel, source-earned 3D doorway and grounded exit traversal — NOT EVALUATED",
+    "implementationSha": "c5ded7ef68b92e4d9be8b237029e6194e47a6219",
+    "implementationEvidenceStatus": "LATEST RENDER/PLAYABLE CODE c5ded7ef: source-earned physical 3D door remains visibly open DURING the real guardian-cap grounded walk, then hands off without re-closing on floor advancement; skinned climber tracks actual passage. At 2026-11-05 inspection NO completed source-pinned c5 video, full-motion independent A/B, blind votes or supported-device p50/p95/p99/memory. Prior REAL native recording run 41995421907 successfully captured original frozen 1731b380 and preceding playable af2e6d87 (not the new gate); prior 3200-tick no-render fixed-step witness af2e6d87 reports 2 real guardian defeats and floor 10, but cannot certify rendered candidate. Old 6c61a1 Quality Contract 42004566456 failed 3 stale source-geometry assertions, amended in d302f0a; latest exact head 25a9470 quality workflow pending. NOT EVALUATED."
   },
   "currentTransformation": {
     "title": "SAME playable real 3D Tower climb and authentic upper-cap guardian/crusher encounter: earned armor-opening, damage feedback, safe movement and eventual floor-nine continuation",
-    "state": "OPEN — same unfinished coherent real cap physics, guardian combat, crusher and floor-nine continuation initiative. Real 3200-tick source witness now OBSERVES guardian defeats, recovery and floor 10 under the playable af2e6d87 gate correction, but genuine current-source normal-speed visual confirmation and blind quality acceptance remain NOT EVALUATED.",
+    "state": "OPEN — SAME unfinished physical guardian/crusher/combat-to-floor-nine transformation. 3D exit portal now opens from source-observed dead guardian before the climber reaches the actual cap passage, stays open through physical travel, and hands off without re-closing; no authentic current-source full-motion quality verdict. NOT EVALUATED.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Inspect exact-current source-pinned original desktop 960x600 and portrait 390x844 gameplay capture from 41995421907, with frozen baseline 1731b380; confirm guardian defeat, shutter escape, continuous physical jump and 9/10 progression plus genuine outcome/restart in >=60-second matched normal-speed WebM. Investigate any new serious combat/visual regressions. Preserve the same 3-scene transformation until five independent fresh-context blind critics each score LOOKS, FEELS and PLAYS (minimum 4/5 per pillar) and supported device p50/p95/p99 frame-time/memory measurements are available.",
+    "nextDecision": "Inspect completed exact-source c5ded7ef real WebM capture 42007783650, then source current 25a9470 when available; compare source-pinned authentic guardian death→bronze portal opening→physical grounded exit→floor-nine→outcome/restart. Prior successful baseline/af2 native run 41995421907 is evidence provenance ONLY, not footage of c5. Address substantive occlusion, physical survival or flow regressions. Preserve frozen 1731b380 and fixed seed/tier/viewport; stage state/event-matched >=60s original gameplay across all three scenes, mobile and desktop. Obtain fresh-context blind randomized independent critics and real target-device tails/memory; do not assign PASS from source witnesses, build or tests.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "The newly unlocked source-authentic physical cap fight achieved 2 guardian defeats and max floor10 in a 3200-step deterministic no-render witness; the prior implementation had 0 and max8. But there is still NO current-head normal-speed real desktop/portrait evidence of full battle/floor-nine/restart being visually readable and balanced; older frozen/current pair was inspected only in selected original WebM frames and source traces, not independently blind-scored. Guardian defeat is not yet repeatably established across seeds, crusher physical-hit avoidance not independently proven, and full LOOKS/FEELS/PLAYS votes, hardware frame-time tails/memory and accessibility legibility remain missing. QUALITY NOT EVALUATED.",
-    "unverifiedImplementationBranchHead": "af2e6d87d9067a4e0d1a01ca3434ac0f819b8dc1",
-    "currentVerticalSlice": "ONE source-driven physical cap duel continuing across runs: prior real armor-opening/guardian recoil, timed shard/projectile/shutter choices and single-use flank recovery now retain full 20Hz physical ascent/evasion/momentum while guardian gate remains locked; source witness confirms actual boss death and floor-10 continuation, not video quality acceptance.",
-    "biggestGap": "The newly unlocked source-authentic physical cap fight achieved 2 guardian defeats and max floor10 in a 3200-step deterministic no-render witness; the prior implementation had 0 and max8. But there is still NO current-head normal-speed real desktop/portrait evidence of full battle/floor-nine/restart being visually readable and balanced; older frozen/current pair was inspected only in selected original WebM frames and source traces, not independently blind-scored. Guardian defeat is not yet repeatably established across seeds, crusher physical-hit avoidance not independently proven, and full LOOKS/FEELS/PLAYS votes, hardware frame-time tails/memory and accessibility legibility remain missing. QUALITY NOT EVALUATED."
+    "biggestRemainingExperienceGap": "New earned-open 3D passage (c5ded7ef) plus physical grounded final walk are not yet in the completed original-host normal-speed gameplay clips: 41995421907 records only af2e6d87 and frozen 1731b380. Existing actual baseline/candidate danger source videos last 181.637/158.609 seconds desktop and 134.960/125.452 portrait, but same-seed wall time does NOT align comparable combat events and portrait cropping/readability may still obscure true guardian/gate action. Need >60s state/event-matched before/after all ascent, danger, outcome/restart on both viewports, five genuinely independent blind full-motion critics (4/5 preference for LOOKS, FEELS, PLAYS), actual device p50/p95/p99/memory, accessibility and robust multi-seed survival. Quality NOT EVALUATED.",
+    "unverifiedImplementationBranchHead": "25a9470d54e88a8465f9c77235c99024e2bab5c8",
+    "currentVerticalSlice": "ONE continuous physically playable 3D tower guardian-cap duel: original 20Hz jump/evasion/combat/recovery remains authoritative until real guardian defeat; newly earned bronze 3D portal and animated skinned gaze remain visible during the traversable post-boss cap instead of first appearing as floor changes; the old floor persists until authentic grounded passage contact. This is unverified code continuation, NOT an independent transformed-game acceptance.",
+    "biggestGap": "New earned-open 3D passage (c5ded7ef) plus physical grounded final walk are not yet in the completed original-host normal-speed gameplay clips: 41995421907 records only af2e6d87 and frozen 1731b380. Existing actual baseline/candidate danger source videos last 181.637/158.609 seconds desktop and 134.960/125.452 portrait, but same-seed wall time does NOT align comparable combat events and portrait cropping/readability may still obscure true guardian/gate action. Need >60s state/event-matched before/after all ascent, danger, outcome/restart on both viewports, five genuinely independent blind full-motion critics (4/5 preference for LOOKS, FEELS, PLAYS), actual device p50/p95/p99/memory, accessibility and robust multi-seed survival. Quality NOT EVALUATED."
   },
   "scenarios": [
     {
@@ -62,11 +62,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Exact playable SHA af2e6d87 / Quality Contract workflow 41995421918 COMPLETED SUCCESS: build, verdict structural contract, original 3200-tick gameplay witness and 1014/1014 complete repo tests, plus subsequent browser guardrails reported workflow success. These are only technical safety veto checks, NEVER quality votes. Prior 75e4de14 source run 41988089918 failed 1/1012 because authentic telegraph-grounded physical jumps were missing from source-witness response modes; test now counts only an actual grounded jump. Original new two-tick locomotion/locked-gate invariants included.",
-    "replay": "Original historical/unflagged guardian gate retains its old position/velocity reset behavior. Fully opt-in second-wind guardian/cap now preserves ordinary immutable authoritative physics across the already-reached cap exit threshold; does not change hazard damages, enemy health, RNG or produce scripted victories. Explicit historical and living-gate source tests pass in exact SHA CI 41995421918. Opt-in replay output changes by design, but same-seed invariance checked by repository guardrails.",
-    "accessibility": "No added in-game prose, HUD controls, mandatory audio, flashing new render effects or changed accessibility preference; gameplay source now allows real jump/grounded transitions to persist. However actual current gameplay across portrait/desktop, captions, color contrast and reduced motion are NOT independently reviewed. Browser guardrails passing is not an accessibility quality endorsement.",
-    "performance": "No new Three.js geometry/material/light/draw call; correction removes per-tick cap teleport/zero-velocity while genuine fixed-step physics proceeds normally. Supported-device p50/p95/p99 presented frame times and memory remain NOT MEASURED; native recording submitted-frame intervals are NOT performance proof.",
-    "stability": "Exact-head Quality Contract 41995421918 passed; source archive 41995421944 completed. Current playable normal-speed desktop/mobile source-pinned video workflow 41995421907 QUEUED at inspection; no current-source footage assessed. Worker/browser tunnel-client NOT_FOUND >300s, so independent critics/real device measurements unavailable. PR68 DRAFT and PR58 unchanged; no merge/deploy. Quality NOT EVALUATED."
+    "ci": "Last fully successful recorded exact playable-source Quality Contract was af2e6d87 run 41995421918 (1014/1014) and 816597ca run 41996553222, both PREVIOUS code, NOT new earned portal. At 6c61a17 run 42004566456 FAILED 3 of 1018 phase3 source-passage assertions because older tests expected a live previousLock and midpoint gate fixture, not new on-cap/dead-guardian actual state. d302f0a source-geometry tests were updated; 25a9470 adds full 3D earned-open lifespan/handoff safety test. New branch-head Quality Contract pending, not claimed green. Technical CI is a safety veto and never an experience vote.",
+    "replay": "Retained fixed 20Hz deterministic authoritative guardian second-wind arena and historical opt-outs; post-guardian exit still needs genuine grounded arrival at one source-derived cap X, no invented floor teleport, zero new source RNG. New 3D portal/camera/visor use immutable public snapshots, per-run/lifecycle checks, existing reusable meshes, non-colliding stage; run-replay/video and legacy opt-outs remain technical safety vetoes to reverify at new head.",
+    "accessibility": "No new HUD text, required sound, flashing lights, controls or camera cuts; source-earned portal has reducedMotion still-open geometry, stage resets on restart/context recovery. Real portrait legibility, captions, contrast, reduced-motion device footage and accessibility input checks NOT independently reviewed.",
+    "performance": "3D earned-open stage reuses existing bounded owned geometry/material/instancing, no extra renderer loop, light, shadow, collision or draw passes; updates small deterministic already-owned presentation state. No actual supported-device p50/p95/p99 frame-time tails, memory or target-hardware stability measurements; CI software WebGL submission intervals are not device FPS.",
+    "stability": "At 2026-11-05 inspection 42007783650 current c5 gameplay video PENDING, 42004566700 old 6c video QUEUED, exact-head 25a9470 safety pending; run 41995421907 earlier af2 real original desktop/portrait capture completed 9/9 source workflow jobs but is NOT video of the current 3D gate. Separate worker/browser tunnel unavailable (NOT_FOUND >300 sec), so five fresh independent video critics and hardware profiling BLOCKED. PR68 draft unchanged; PR58 untouched; no merge/deploy/force push. QUALITY NOT EVALUATED."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -3174,6 +3174,68 @@
       },
       "supportedDeviceP50P95P99Memory": "NOT MEASURED",
       "independentWorker": "NOT_FOUND: workspace tunnel-client has not been seen >300 seconds",
+      "qualityVerdict": "NOT EVALUATED"
+    },
+    "latestEarnedOpenPhysicalPassage20261105": {
+      "initiative": "same guardian/crusher/physical cap duel and earned floor-nine passage, not a separate Gauntlet round",
+      "playableImplementationSha": "c5ded7ef68b92e4d9be8b237029e6194e47a6219",
+      "sourceInterfaceTestsSha": "d302f0a302ea7977f754863222a49f57d7a62f6e",
+      "new3dRuntimeTestSha": "25a9470d54e88a8465f9c77235c99024e2bab5c8",
+      "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "lastCompletedOriginalHostCapture": {
+        "run": "https://github.com/my-edutu/Ai_games/actions/runs/41995421907",
+        "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+        "candidateRecordedSha": "af2e6d87d9067a4e0d1a01ca3434ac0f819b8dc1",
+        "baselineDangerArtifactId": 13401025046,
+        "candidateDangerArtifactId": 13399569753,
+        "seed": "tower-transformation-capture-v1",
+        "graphicsTier": "low",
+        "soundEnabled": false,
+        "captureMethod": "source-pinned native 20Hz browser WebGL, actual original game normal speed, NOT target hardware",
+        "viewports": [
+          {
+            "name": "desktop",
+            "width": 960,
+            "height": 600,
+            "baselineWallSeconds": 181.637,
+            "candidateWallSeconds": 158.609,
+            "candidateSampledActorUnsafe": 0,
+            "candidateSampledActorOffscreen": 0
+          },
+          {
+            "name": "portrait",
+            "width": 390,
+            "height": 844,
+            "baselineWallSeconds": 134.96,
+            "candidateWallSeconds": 125.452,
+            "candidateSampledActorUnsafe": 0,
+            "candidateSampledActorOffscreen": 0
+          }
+        ],
+        "builderInspection": "Downloaded original desktop/portrait baseline and af2 candidate danger WebM + motion/source traces; inspected sparse authentic frames and read source transitions. Baseline and candidate at same wall seconds often represent different life/floor state and are NOT event-matched. Candidate desktop source advanced floor 8→9→10, but frozen baseline also advanced floors in its own different scenario. No quality comparison, no independent full-motion critic, no commercial quality claim.",
+        "outcomeEvidence": "Source result/intermission phases exist; recording metadata explicitly says outcome/restart rendered visibility remains OPEN, full original video not judged by blind critics."
+      },
+      "current3dSourceRecording": {
+        "run": "https://github.com/my-edutu/Ai_games/actions/runs/42007783650",
+        "sourceSha": "c5ded7ef68b92e4d9be8b237029e6194e47a6219",
+        "status": "PENDING at inspection; do NOT count as evaluated",
+        "matchingFrozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9"
+      },
+      "currentHeadSafety": {
+        "oldRun": "https://github.com/my-edutu/Ai_games/actions/runs/42004566456",
+        "oldResult": "FAIL 3/1018 assertion fixtures, amended but not yet retested at new head",
+        "newStatus": "NOT CONFIRMED",
+        "sourceCodeSha": "c5ded7ef68b92e4d9be8b237029e6194e47a6219",
+        "relevantTestHeadSha": "25a9470d54e88a8465f9c77235c99024e2bab5c8"
+      },
+      "reviewPath": "docs/reviews/2026-11-05-tower-pr68-earned-physical-door-source-film-builder-inspection.md",
+      "blindIndependentVotesCollected": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "targetDevicePerformance": "NOT MEASURED",
+      "workerBarrier": "NOT_FOUND: Tunnel-client has not been seen for 300 seconds",
       "qualityVerdict": "NOT EVALUATED"
     }
   }
