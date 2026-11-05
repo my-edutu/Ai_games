@@ -450,8 +450,18 @@ export function createTowerGuardianPassage(THREE) {
       // motion; no fabricated win, private event or gameplay mutation.
       anchorPosition: group.visible ? group.position.toArray() : null,
       focusPosition: group.visible ? focusPosition.toArray() : null,
-      meshes: 15, fragmentInstances: 8, fragmentsVisible: fragments.visible,
+      meshes: 16, fragmentInstances: 8, fragmentsVisible: fragments.visible,
       guardianDefeatPieces: fallenArmor.count,
+      // Source-anchored original-world visual samples for current full-motion
+      // evidence; source+render agreement never proves raster legibility.
+      guardianDefeatShockwave: group.visible && witnessedGuardian ? {
+        visible: defeatWake.visible,
+        radius: Number(defeatWake.scale.x.toFixed(4)),
+        opacity: Number(defeatWakeMaterial.opacity.toFixed(4)),
+        sourceTick, floor
+      } : null,
+      guardianPowerReelProgress: group.visible && witnessedGuardian
+        ? Number(Math.min(1, defeatAge / 1.3).toFixed(4)) : null,
       guardianPowerSegments: powerBreak.count,
       guardianPowerBreakVisible: powerBreak.visible,
       guardianDefeatSourcePosition: group.visible && witnessedGuardian ? guardianWorld.toArray() : null,
