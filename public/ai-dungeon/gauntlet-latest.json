@@ -1,223 +1,223 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T00:56:00+01:00",
-  "status": "IN PROGRESS — NOT TRANSFORMED: original 3D foreground architecture body-occlusion planner integrated, real visual result unverified.",
-  "reference": "Diablo IV: overall quality; No Rest for the Wicked: worlds; Path of Exile 2: contact and combat — NOT independently compared as matched motion",
+  "generatedAt": "2026-11-05T01:14:47.465Z",
+  "status": "IN PROGRESS — NOT TRANSFORMED (local headless safety passed; exact-head browser/critics pending)",
+  "reference": "Diablo IV quality, No Rest for the Wicked worlds, Path of Exile 2 combat: authentic comparison targeted; matched A/B UNVERIFIED",
   "metrics": {
     "sample_seeds": 24,
     "ticks_per_seed": 900,
     "verified_seed_runs": 24,
     "determinism_failures": 0,
-    "highest_floor_seen": 9,
-    "total_floor_advances": 401,
-    "total_restarts": 89,
-    "max_seed_elapsed_ms": 318
+    "highest_floor_seen": 10,
+    "total_floor_advances": 174,
+    "total_restarts": 4,
+    "max_seed_elapsed_ms": 1169
   },
   "failures": [],
   "runs": [
     {
       "seed": "gauntlet-corpus-v1-0",
       "highestFloor": 8,
-      "deaths": 2,
-      "floorsAdvanced": 17,
-      "kills": 4,
-      "elapsedMs": 318
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 78,
+      "elapsedMs": 1169
     },
     {
       "seed": "gauntlet-corpus-v1-1",
-      "highestFloor": 6,
-      "deaths": 4,
-      "floorsAdvanced": 17,
-      "kills": 6,
-      "elapsedMs": 196
+      "highestFloor": 8,
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 73,
+      "elapsedMs": 952
     },
     {
       "seed": "gauntlet-corpus-v1-2",
-      "highestFloor": 6,
-      "deaths": 5,
-      "floorsAdvanced": 17,
-      "kills": 11,
-      "elapsedMs": 200
+      "highestFloor": 8,
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 78,
+      "elapsedMs": 970
     },
     {
       "seed": "gauntlet-corpus-v1-3",
-      "highestFloor": 6,
-      "deaths": 4,
-      "floorsAdvanced": 19,
-      "kills": 25,
-      "elapsedMs": 179
+      "highestFloor": 5,
+      "deaths": 1,
+      "floorsAdvanced": 7,
+      "kills": 23,
+      "elapsedMs": 957
     },
     {
       "seed": "gauntlet-corpus-v1-4",
-      "highestFloor": 8,
-      "deaths": 3,
-      "floorsAdvanced": 16,
-      "kills": 0,
-      "elapsedMs": 191
+      "highestFloor": 5,
+      "deaths": 1,
+      "floorsAdvanced": 6,
+      "kills": 17,
+      "elapsedMs": 826
     },
     {
       "seed": "gauntlet-corpus-v1-5",
-      "highestFloor": 5,
-      "deaths": 5,
-      "floorsAdvanced": 16,
-      "kills": 0,
-      "elapsedMs": 170
+      "highestFloor": 9,
+      "deaths": 0,
+      "floorsAdvanced": 8,
+      "kills": 89,
+      "elapsedMs": 897
     },
     {
       "seed": "gauntlet-corpus-v1-6",
-      "highestFloor": 6,
-      "deaths": 4,
-      "floorsAdvanced": 17,
-      "kills": 7,
-      "elapsedMs": 164
+      "highestFloor": 8,
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 78,
+      "elapsedMs": 846
     },
     {
       "seed": "gauntlet-corpus-v1-7",
-      "highestFloor": 9,
-      "deaths": 2,
-      "floorsAdvanced": 16,
-      "kills": 21,
-      "elapsedMs": 190
+      "highestFloor": 10,
+      "deaths": 0,
+      "floorsAdvanced": 9,
+      "kills": 100,
+      "elapsedMs": 900
     },
     {
       "seed": "gauntlet-corpus-v1-8",
-      "highestFloor": 7,
-      "deaths": 4,
-      "floorsAdvanced": 19,
-      "kills": 6,
-      "elapsedMs": 166
+      "highestFloor": 9,
+      "deaths": 0,
+      "floorsAdvanced": 8,
+      "kills": 85,
+      "elapsedMs": 824
     },
     {
       "seed": "gauntlet-corpus-v1-9",
-      "highestFloor": 9,
-      "deaths": 3,
-      "floorsAdvanced": 16,
-      "kills": 4,
-      "elapsedMs": 176
+      "highestFloor": 8,
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 77,
+      "elapsedMs": 849
     },
     {
       "seed": "gauntlet-corpus-v1-10",
       "highestFloor": 8,
-      "deaths": 4,
-      "floorsAdvanced": 17,
-      "kills": 5,
-      "elapsedMs": 176
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 78,
+      "elapsedMs": 871
     },
     {
       "seed": "gauntlet-corpus-v1-11",
-      "highestFloor": 6,
-      "deaths": 5,
-      "floorsAdvanced": 16,
-      "kills": 11,
-      "elapsedMs": 170
+      "highestFloor": 1,
+      "deaths": 0,
+      "floorsAdvanced": 0,
+      "kills": 5,
+      "elapsedMs": 655
     },
     {
       "seed": "gauntlet-corpus-v1-12",
-      "highestFloor": 8,
-      "deaths": 4,
-      "floorsAdvanced": 18,
-      "kills": 9,
-      "elapsedMs": 176
+      "highestFloor": 9,
+      "deaths": 0,
+      "floorsAdvanced": 8,
+      "kills": 89,
+      "elapsedMs": 867
     },
     {
       "seed": "gauntlet-corpus-v1-13",
-      "highestFloor": 6,
-      "deaths": 3,
-      "floorsAdvanced": 14,
-      "kills": 10,
-      "elapsedMs": 167
+      "highestFloor": 7,
+      "deaths": 0,
+      "floorsAdvanced": 6,
+      "kills": 67,
+      "elapsedMs": 861
     },
     {
       "seed": "gauntlet-corpus-v1-14",
-      "highestFloor": 7,
-      "deaths": 3,
-      "floorsAdvanced": 16,
-      "kills": 4,
-      "elapsedMs": 180
+      "highestFloor": 8,
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 80,
+      "elapsedMs": 868
     },
     {
       "seed": "gauntlet-corpus-v1-15",
-      "highestFloor": 5,
-      "deaths": 4,
-      "floorsAdvanced": 18,
-      "kills": 5,
-      "elapsedMs": 162
+      "highestFloor": 9,
+      "deaths": 0,
+      "floorsAdvanced": 8,
+      "kills": 89,
+      "elapsedMs": 868
     },
     {
       "seed": "gauntlet-corpus-v1-16",
-      "highestFloor": 7,
-      "deaths": 3,
-      "floorsAdvanced": 17,
-      "kills": 22,
-      "elapsedMs": 179
+      "highestFloor": 9,
+      "deaths": 0,
+      "floorsAdvanced": 8,
+      "kills": 89,
+      "elapsedMs": 839
     },
     {
       "seed": "gauntlet-corpus-v1-17",
-      "highestFloor": 7,
-      "deaths": 4,
-      "floorsAdvanced": 18,
-      "kills": 5,
-      "elapsedMs": 166
+      "highestFloor": 9,
+      "deaths": 0,
+      "floorsAdvanced": 8,
+      "kills": 88,
+      "elapsedMs": 831
     },
     {
       "seed": "gauntlet-corpus-v1-18",
-      "highestFloor": 6,
-      "deaths": 4,
-      "floorsAdvanced": 17,
-      "kills": 5,
-      "elapsedMs": 158
+      "highestFloor": 8,
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 68,
+      "elapsedMs": 782
     },
     {
       "seed": "gauntlet-corpus-v1-19",
-      "highestFloor": 5,
-      "deaths": 4,
-      "floorsAdvanced": 16,
-      "kills": 6,
-      "elapsedMs": 160
+      "highestFloor": 8,
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 78,
+      "elapsedMs": 802
     },
     {
       "seed": "gauntlet-corpus-v1-20",
-      "highestFloor": 6,
-      "deaths": 3,
-      "floorsAdvanced": 17,
-      "kills": 6,
-      "elapsedMs": 167
+      "highestFloor": 10,
+      "deaths": 0,
+      "floorsAdvanced": 9,
+      "kills": 92,
+      "elapsedMs": 918
     },
     {
       "seed": "gauntlet-corpus-v1-21",
-      "highestFloor": 7,
-      "deaths": 3,
-      "floorsAdvanced": 17,
-      "kills": 6,
-      "elapsedMs": 173
+      "highestFloor": 6,
+      "deaths": 1,
+      "floorsAdvanced": 9,
+      "kills": 26,
+      "elapsedMs": 801
     },
     {
       "seed": "gauntlet-corpus-v1-22",
       "highestFloor": 6,
-      "deaths": 4,
-      "floorsAdvanced": 15,
-      "kills": 7,
-      "elapsedMs": 164
+      "deaths": 1,
+      "floorsAdvanced": 8,
+      "kills": 23,
+      "elapsedMs": 797
     },
     {
       "seed": "gauntlet-corpus-v1-23",
-      "highestFloor": 5,
-      "deaths": 5,
-      "floorsAdvanced": 15,
-      "kills": 5,
-      "elapsedMs": 158
+      "highestFloor": 10,
+      "deaths": 0,
+      "floorsAdvanced": 9,
+      "kills": 96,
+      "elapsedMs": 818
     }
   ],
-  "visualVerdict": "NEGATIVE predecessor WebGL: torso/boots hidden; latest original geometry-based stage is a code candidate, NOT a matched AFTER visual victory.",
+  "visualVerdict": "NEGATIVE authentic previous WebGL 419dbef: Vanguard head/sword above stone, torso/boots hidden; c0fed55 new full-body clearance candidate UNVERIFIED.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
-  "candidateCommit": "520adc2d4bbfca14fddc2f7b9cd3190139c10680",
-  "metricsProvenance": "Historical 24-seed corpus metrics retained, NOT newly measured. Exact predecessor c9324bd foundation 303/306 fails 3 old source regex tests, browser shards 3/3 pass, visual review passes, broader CI fails. New c8cdef5 source+tests committed, CI, real WebGL, mobile p95 and critics pending. Updated exact-head 520adc2 registers the new ES module through the strict allowlist; corresponding three jobs pending.",
+  "candidateCommit": "c0fed55f910ab9f57f35f758df86b4b7949d56d9",
+  "metricsProvenance": "Fresh local candidate-checked npm run dungeon:gauntlet 2026-11-05 24 seeds x 900 ticks, 0 deterministic failures; 308/308 Dungeon foundation passed. Does NOT verify browser motion, audio, visual quality or p95.",
   "transformation": {
     "milestone": "M1",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
     "locked": true,
-    "candidateSha": "520adc2d4bbfca14fddc2f7b9cd3190139c10680",
+    "candidateSha": "c0fed55f910ab9f57f35f758df86b4b7949d56d9",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
     "exactHeadSafety": "Original actor-only 3D foreground module registered in strict CSP-safe server routes; exact-head Dungeon 41939121537, visual 41939121529 and catalogue 41939121568 queued. UNVERIFIED runtime.",
@@ -230,13 +230,13 @@
       "majorityAllPillars": false
     },
     "fullDesktopMobileAudiovisualJourney": "UNVERIFIED",
-    "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41922629878/artifacts/13368532950",
+    "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41939276286/artifacts/13375489665",
     "exactHeadAction": "Physically inspect real desktop/mobile WebGL after facade-and-moving-body code; verify full-body visibility and relief before advancing realistic native combat and coherent Warden episode.",
-    "biggestGap": "Real WebGL at 3b2025a still hides Vanguard torso and boots behind a Gothic facade while the native bodies look stylized; exact body contact and boss pacing remain below benchmark.",
-    "nextTask": "Inspect b5e6f4d new-head desktop and mobile real moving game for true entire protagonist bodies, rear Gothic depth, stable camera, source impact and p95; reject if worse; continue native-character/combat transformation, record 5-stage original-audio matched reel and 3 blind critics.",
+    "biggestGap": "Visually complete original adult actors and believable sword contact in coherent Gothic boss combat; previous exact head still hides Vanguard torso/boots",
+    "nextTask": "Inspect exact c0fed55 original browser 1440/390 action recordings and reject/continue. Record complete sound-enabled traversal/combat/boss/floor/restart and seek ≥3 fresh blind critics.",
     "currentMilestoneLedger": "public/ai-dungeon/gauntlet-history.json",
     "realAfterArtifact": null,
-    "realAfterObservation": "UNVERIFIED — current b5e6f4d desktop/mobile browser game capture and independent critique not yet inspected",
+    "realAfterObservation": "UNVERIFIED at c0fed55; no current moving gameplay/critic comparison",
     "integratedImplementation": "Cohesive real world facades + true physical-camera body rays + rooted real actor interpolation; no gameplay damage/AI/seed change, no extra GPU pass. Low-height ruin preservation for actual body rays.",
     "latestPredecessorReview": {
       "sourceSha": "3b2025a619cc6c113e28dd463224e90205fd2476",
@@ -245,5 +245,5 @@
       "technicalSafety": "All 4 Dungeon browser/authority checks PASS and visual-review workflow PASS for predecessor SHA; broad catalogue CI FAILURE. No visual transformation accepted."
     }
   },
-  "acceptanceStatus": "IN PROGRESS — NOT TRANSFORMED. LOOKS/FEELS/PLAYS UNVERIFIED; 0/3 critics; after-source real desktop/mobile audiovisual, performance, exact CI, full 5-stage matched journey missing."
+  "acceptanceStatus": "IN PROGRESS — NOT TRANSFORMED. LOOKS/FEELS/PLAYS UNVERIFIED, 0/3 critics. New head real moving desktop/mobile original audio, matched BEFORE/AFTER, p95, 5-stage continuous journey not established."
 }

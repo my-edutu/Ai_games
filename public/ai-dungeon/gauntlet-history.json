@@ -2406,9 +2406,9 @@
       "realAfterArtifact": null
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Actual adult anatomy, body and sword-to-target legibility, plus readable continuous full dungeon journey remain unverified against authentic gameplay and are far below reference quality.",
-    "currentWork": "Real original 3D foreground actor-body staging committed, physical camera synced, and strict module route registered. Desktop/mobile pixels, long-form motion, audio and critics remain UNVERIFIED.",
-    "candidateCommit": "520adc2d4bbfca14fddc2f7b9cd3190139c10680",
+    "biggestRemainingGap": "Exact original WebGL still hides protagonist torso/boots; even if physical cutaway improves, adult source model anatomy, trustworthy animated contact and five-stage mobile audiovisual coherent combat still fall far below authentic Diablo IV/No Rest for the Wicked/Path of Exile 2.",
+    "currentWork": "Full-body actor-only near-pocket source correction committed at c0fed55; original unlocked baseline preserved; actual new-head gameplay/matched motion and judges unverified. Previous broad CI module loader fixed without changing assert requirements.",
+    "candidateCommit": "c0fed55f910ab9f57f35f758df86b4b7949d56d9",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -5178,16 +5178,47 @@
         "next": "Inspect current exact-head desktop/mobile ACTUAL WebGL, reject if props flicker/pop, disappear unnecessarily, or silhouettes remain occluded; inspect sustained frame p95 and truthful boss combat contact, then build a coherent full Warden expedition with full genuine traversal/combat/boss/floor/defeat/restart motion and original opt-in audio; seek three fresh-context blind critics.",
         "routeFixSha": "520adc2d4bbfca14fddc2f7b9cd3190139c10680",
         "candidateSha": "520adc2d4bbfca14fddc2f7b9cd3190139c10680"
+      },
+      {
+        "id": "M1-REAL-CHROMIUM-FULL-BODY-APERTURE-20261105",
+        "date": "2026-11-05",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceSha": "c0fed55f910ab9f57f35f758df86b4b7949d56d9",
+        "status": "SOURCE_INTEGRATED_EXPERIENCE_UNVERIFIED",
+        "objective": "Correct the real living 3D fighter head-only masonry cage at cinematic height without deleting Gothic depth or changing gameplay authority.",
+        "realPreviousHead": "419dbef66af8c7a7fdc42a358a5480299be571a6",
+        "actualBrowserArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41939276286/artifacts/13375489665",
+        "actualMobileArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41939276139/artifacts/13376491144",
+        "negativePixels": "Direct real WebGL 1440x832 current head 419dbef (2026-11-05) still depicts Vanguard helmet and sword protruding above square opaque masonry, with torso/boots buried; real 390px capture contains dominating fore-column and poor body separation. Existing synthetic 3/3 fully-visible rays are contradicted by pixels.",
+        "integratedImplementation": [
+          "Restore a bounded camera-facing full-body close combat aperture to actual living skinned rigs at high-angle source cameras, with low parapet foot-sightline clearance.",
+          "Use the existing unified physical camera/stone/facade/vault render policy and preserve rear nave/distant architecture; no additional render passes, fake actors or simulation changes.",
+          "Fix failed Node:data module test loader by inlining exact dependency module, retain all 6 full physical-camera assertions and strict runtime CSP route."
+        ],
+        "directChecks": "308/308 full Dungeon foundation passing in local exact-predecessor source with staged source diff. Fresh 24x900-tick expedition zero replay divergences, 174 advances, 4 restarts, highest floor 10.",
+        "githubWorkflows": [
+          "https://github.com/my-edutu/Ai_games/actions/runs/41947116971",
+          "https://github.com/my-edutu/Ai_games/actions/runs/41947116948",
+          "https://github.com/my-edutu/Ai_games/actions/runs/41947116892"
+        ],
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "critics": "0/3",
+        "fivePhaseOriginalAudio": "UNVERIFIED",
+        "sameSeedMatchedBeforeAfter": "UNVERIFIED",
+        "mobileP95": "UNVERIFIED",
+        "next": "Inspect exact-head full-body moving Warden fight on desktop and mobile; reject if torso remains hidden/camera hunts, then rebuild native rig contact and authentic choreography; record 5-stage audiovisual and obtain three blind critics."
       }
     ],
     "implementationContinuation": {
       "date": "2026-11-05",
       "milestone": "M1",
-      "sourceCommit": "520adc2d4bbfca14fddc2f7b9cd3190139c10680",
-      "changes": "New finite actor-only camera-to-3D-prop body rays sample actual cached THREE.Box3 world-space volumes of arches, pillars, torches, windows and authored scene fixtures, rather than just prop roots. The real floor dressing, authored foreground props and cinematic camera director share those measured bounds, stage only legitimate rooted living figures, and avoid scanning geometry per frame. New source and headless tests cover true foreground occlusion, untouched rear architecture, fake actors and bounded volumes. Existing stale source-string test expectations corrected to test the true facadeReveal helper.",
-      "evaluation": "UNVERIFIED: new-head original desktop/mobile and critics unavailable",
-      "largestGap": "Realistic adult full-body rigs, weapon impact and coherent Gothic combat; previous real screenshots still show torso occlusion",
-      "nextTask": "Wait for real current-head WebGL captures, validate true full-body Gothic prop clearance without pop/flicker/camera hunt; then original rig anatomy, real blade impact, AI/boss encounter with five-stage sound-enabled desktop/mobile reel and blind 3-critic panel."
+      "sourceCommit": "c0fed55f910ab9f57f35f758df86b4b7949d56d9",
+      "changes": "Original live source-skinned actor full-body fighting stage near its actual 3D position, physical wall and low masonry under high oblique camera, shared with original world/camera cutaways. Previous full CI data: imports failed from Node data URI; actual dependency now inlined into test loader, no assertion removed.",
+      "evaluation": "308/308 local Dungeon foundation, 24-seed/900-tick original headless campaign passed; exact-source browser and judge remain UNVERIFIED",
+      "largestGap": "Source GLB still stylized; actual pixels show body/boots behind masonry and incomplete Warden moving combat. Missing matched five-phase audio video and 3 blind critics.",
+      "nextTask": "Inspect exact-head moving desktop/390px Warden fight from Actions, then integrated original character anatomy/kinetics, encounter pacing, full original-audio 5-stage journey and blind before/after critics."
     }
   }
 }
