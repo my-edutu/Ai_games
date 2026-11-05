@@ -14,6 +14,35 @@ permissions:
   contents: read
 
 jobs:
+  # W45 RED-first: the open human-scale work courtyard is an actual authored
+  # 3D place with genuine smith work and 390px evidence, never cosmetic claims.
+  w45-open-forge-court:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Genuine anvil-clear guild court and smith at desktop and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w45-open-forge-court.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w45-open-guild-court
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w45/
+          retention-days: 14
   # W44 RED-first: genuine forge apprentice is NOT a static sightseeing point.
   # A real smith must be observable performing their actual authorized work.
   w44-real-forge-witness:
