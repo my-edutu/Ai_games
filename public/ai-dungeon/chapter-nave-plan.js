@@ -68,3 +68,36 @@ export function planChapterTension(snapshot){
  const phase=['SENTINEL','RUPTURE','ECLIPSE'].includes(snapshot.bossPhase)?snapshot.bossPhase:'SENTINEL';
  return Object.freeze({phase,warning,light:warning?.42:phase==='ECLIPSE'?.26:phase==='RUPTURE'?.16:.085});
 }
+
+/**
+ * Live chapter scene beat derived only from authentic source units and
+ * positive HP decreases on the SAME authoritative run and floor.
+ * This never creates a move, attack, injury, trigger or navigable cell.
+ */
+export function planChapterEncounterBeat(snapshot,previous,rooms){
+ const empty=Object.freeze({rooms:Object.freeze([]),focusRoom:-1,contestedRooms:0,authenticWounds:0,authorityChanged:false});
+ if(!Array.isArray(snapshot?.units)||!Array.isArray(rooms)||rooms.length>3||
+  !Number.isSafeInteger(snapshot.run)||!Number.isSafeInteger(snapshot.floor))return empty;
+ const same=previous?.run===snapshot.run&&previous?.floor===snapshot.floor;
+ const previousHP=new Map(same?(previous.units||[]).filter(u=>
+  typeof u?.id==='string'&&Number.isFinite(u.hp)).map(u=>[u.id,u.hp]):[]);
+ const units=snapshot.units.filter(u=>u&&typeof u.id==='string'&&
+  Number.isInteger(u.x)&&Number.isInteger(u.z)&&Number.isFinite(u.hp)&&
+  (u.faction==='party'||u.faction==='enemy'));
+ const wounded=units.filter(u=>previousHP.has(u.id)&&previousHP.get(u.id)>u.hp);
+ let focusRoom=-1,contestedRooms=0,authenticWounds=0;
+ const stages=rooms.map((room,i)=>{
+  if(!Number.isInteger(room?.gridX)||!Number.isInteger(room?.gridZ))
+   return Object.freeze({index:i,phase:'QUIET',party:0,enemies:0,wounds:0,intensity:0});
+  const near=u=>Math.max(Math.abs(u.x-room.gridX),Math.abs(u.z-room.gridZ))<=2;
+  const party=units.filter(u=>u.faction==='party'&&u.hp>0&&near(u)).length;
+  const enemies=units.filter(u=>u.faction==='enemy'&&u.hp>0&&near(u)).length;
+  const wounds=wounded.filter(near).length;
+  const contested=party>0&&enemies>0;
+  if(contested){contestedRooms++;if(focusRoom<0)focusRoom=i;}
+  authenticWounds+=wounds;
+  return Object.freeze({index:i,phase:contested?'CONTESTED':enemies?'THREATENED':party?'EXPEDITION':'QUIET',
+   party,enemies,wounds,intensity:contested?1:enemies?.45:party?.22:0});
+ });
+ return Object.freeze({rooms:Object.freeze(stages),focusRoom,contestedRooms,authenticWounds,authorityChanged:false});
+}

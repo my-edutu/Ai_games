@@ -1131,6 +1131,9 @@ function animate(t){
  if(world.userData.dressing&&!reduced)world.userData.dressing.animate(time);
  if(world.userData.atmosphere&&!reduced)world.userData.atmosphere.update(time);
  if(world.userData.livingWorld&&!reduced)world.userData.livingWorld.update(time);
+ // One bounded physical chamber light reflects genuine party/enemy combat and
+ // confirmed HP loss, without adding navigation, authority or fake injuries.
+ world.userData.chapterNaves?.animate(dt);
  // Camera composition must favour real readable characters over empty skyline.
  // Focus stays locked on the chosen AI protagonist and widens only if party
  // members truly diverge. These are 3D metre offsets, not CSS zoom tricks.

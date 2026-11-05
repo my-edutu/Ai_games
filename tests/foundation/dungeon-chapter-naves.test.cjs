@@ -47,3 +47,40 @@ test('physical original nave is integrated into actual game build, current autho
  for(const route of ["['/dungeon/chapter-nave.js','chapter-nave.js']",
   "['/dungeon/chapter-nave-plan.js','chapter-nave-plan.js']"])assert.ok(host.includes(route));
 });
+
+test('M1 chapter staging proves real room enemies and true same-run HP loss',async()=>{
+ const {planChapterEncounterBeat}=await load();
+ const rooms=[{gridX:7,gridZ:7},{gridX:12,gridZ:12}];
+ const a=(id,faction,x,z,hp)=>({id,faction,x,z,hp});
+ const before={run:1,floor:1,units:[a('hero','party',7,7,60),
+  a('enemy','enemy',8,7,30),a('far','enemy',18,18,20)]};
+ const initial=planChapterEncounterBeat(before,null,rooms);
+ assert.equal(initial.focusRoom,0);assert.equal(initial.contestedRooms,1);
+ assert.equal(initial.authenticWounds,0);assert.equal(initial.rooms[1].phase,'QUIET');
+ const after={...before,units:before.units.map(u=>({...u,
+  hp:u.id==='enemy'?23:u.hp}))};
+ const contact=planChapterEncounterBeat(after,before,rooms);
+ assert.equal(contact.authenticWounds,1);assert.equal(contact.rooms[0].wounds,1);
+ assert.equal(planChapterEncounterBeat(after,{...before,run:2},rooms).authenticWounds,0);
+ const dead={...before,units:before.units.map(u=>({...u,
+  hp:u.id==='enemy'?0:u.hp}))};
+ const ended=planChapterEncounterBeat(dead,before,rooms);
+ assert.equal(ended.focusRoom,-1);assert.equal(ended.rooms[0].phase,'EXPEDITION');
+ assert.equal(ended.authenticWounds,1,'a witnessed fatal loss remains true');
+ assert.equal(before.units[1].hp,30,'presentation never changes authority');
+ assert.deepEqual(planChapterEncounterBeat({run:1,floor:1,units:[]},null,
+  Array(5).fill(rooms[0])).rooms,[]);
+});
+test('M1 real playable chambers own physical local contact lighting, without phantom AI or collision',()=>{
+ const path=require('node:path'),fs=require('node:fs');
+ const base=path.resolve(__dirname,'../..');
+ const render=fs.readFileSync(base+'/public/ai-dungeon/chapter-nave.js','utf8');
+ const app=fs.readFileSync(base+'/public/ai-dungeon/app.js','utf8');
+ assert.match(render,/planChapterEncounterBeat\(snapshot,previous,plan\.rooms\)/);
+ assert.match(render,/const chapterKey=new THREE\.PointLight/);
+ assert.match(render,/verifiedWoundFlashes/);
+ assert.match(render,/bladeRelief/);
+ assert.match(render,/chapterKey\.castShadow=false/);
+ assert.match(app,/chapterNaves\?\.animate\(dt\)/);
+ assert.doesNotMatch(render,/Math\.random|createFloor\(|DungeonRuntime\(|fetch\(/);
+});
