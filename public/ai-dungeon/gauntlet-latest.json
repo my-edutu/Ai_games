@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T07:27:00+01:00",
-  "status": "IN PROGRESS — NOT TRANSFORMED (genuine overlapping Warden counterplay and original audio candidate; real AFTER gameplay UNVERIFIED)",
+  "generatedAt": "2026-11-05",
+  "status": "IN PROGRESS — NOT TRANSFORMED (real Warden safe-lane teamwork + physically witnessed 3D/audible handoff; entire experience UNVERIFIED)",
   "reference": "Diablo IV quality, No Rest for the Wicked worlds, Path of Exile 2 combat: authentic comparison targeted; matched A/B UNVERIFIED",
   "metrics": {
     "sample_seeds": 24,
@@ -211,13 +211,13 @@
   "visualVerdict": "UNVERIFIED: previous inspected genuine WebGL conceals full-body hero; new-head moving desktop/mobile visual acceptance and blind critics 0/3 outstanding.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
-  "candidateCommit": "bc60f3a90b4587b5d8976248e7e7bbe736ef2970",
+  "candidateCommit": "08db0542156b1081f293e424ab6925184324b9ea",
   "metricsProvenance": "Local current-source 9af59bc npm run dungeon:test 309/309, npm run dungeon:gauntlet 24 seeds ×900 ticks: 174 advances, 4 restarts, 0 determinism mismatches. No claim for visual quality.",
   "transformation": {
     "milestone": "M1",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
     "locked": true,
-    "candidateSha": "bc60f3a90b4587b5d8976248e7e7bbe736ef2970",
+    "candidateSha": "08db0542156b1081f293e424ab6925184324b9ea",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
     "exactHeadSafety": "NEW exact-head authority/CI/browser results not inspected; prior a516b90 visual-review PASS is a technical check only.",
@@ -231,20 +231,20 @@
     },
     "fullDesktopMobileAudiovisualJourney": "UNVERIFIED",
     "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41972664128/artifacts/13390932627",
-    "exactHeadAction": "Review Dungeon https://github.com/my-edutu/Ai_games/actions/runs/41979234510 and visual https://github.com/my-edutu/Ai_games/actions/runs/41979234448, full CI https://github.com/my-edutu/Ai_games/actions/runs/41979234533; inspect actual desktop/mobile media, not simply pass status.",
-    "biggestGap": "Actual preceding image still hides Vanguard torso/boots behind opaque Gothic stone while other characters remain toy-like; need believable full-body sword-to-target contact and autonomous Warden pacing in a visually coherent world.",
-    "nextTask": "Inspect exact-head desktop/mobile real WebGL and consented original audio; accept/reject physical stone-ray scene, capture continuous traversal/combat/Warden/floor/defeat-restart and score matched fixed-baseline blind critics.",
+    "exactHeadAction": "Inspect Actions on PR #49 at 08db0542156b1081f293e424ab6925184324b9ea for foundation, browser, visual-review and CI; source writes are not evidence of actual quality.",
+    "biggestGap": "Real previously inspected Vanguard body still partly hidden by Gothic masonry; toy-like source characters, incomplete readable weapon-body contact and Warden coherence. Exact new-head artwork and natural team-tactic frequency UNVERIFIED.",
+    "nextTask": "Inspect new-head REAL desktop/mobile screenshots and motion/audio, assess actual tactical decisions and p95 frame cost; record matched fixed M1 baseline five-stage BEFORE/AFTER, independent three blind critics.",
     "currentMilestoneLedger": "public/ai-dungeon/gauntlet-history.json",
     "realAfterArtifact": null,
-    "realAfterObservation": "UNVERIFIED: no inspected Chromium real motion at candidate bc60f3a.",
-    "integratedImplementation": "Real seeded multi-threat Warden escape selects legal survival paths avoiding saved caster locks; valid counterlanes permit authentic pursuit/recovery strikes, with public true-HP counter event, spectator event feed and opt-in original synthesized counter impact. No fabricated harm/cast, no damage multiplier or AI RNG changes; full running experience acceptance UNVERIFIED.",
+    "realAfterObservation": "UNVERIFIED: new source/regression SHA 08db0542156b1081f293e424ab6925184324b9ea has no inspected real Chromium desktop/mobile moving BEFORE/AFTER evidence.",
+    "integratedImplementation": "True legal one-tick Vanguard Warden warning flank: moves off the single previously occupied safe escape tile, allowing companion to actually dodge. Real same-tick tile handoff exclusively triggers a bounded 3D ground ring, semantic event and optional original metal sound. No fake defense/damage. Lightweight audio cache now retains verified prior Warden recovery for authentic counter scoring.",
     "latestPredecessorReview": {
       "sourceSha": "3b2025a619cc6c113e28dd463224e90205fd2476",
       "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41922629878/artifacts/13368532950",
       "observation": "Actual desktop real Three.js rendered 1440x832 inspected: Vanguard helmet and sword protrude over an opaque Gothic facade while torso/boots remain invisible; two other heroes appear toy-like. Three/three synthetic ray visibility score is false positive. No active enemy in this frame.",
       "technicalSafety": "All 4 Dungeon browser/authority checks PASS and visual-review workflow PASS for predecessor SHA; broad catalogue CI FAILURE. No visual transformation accepted."
     },
-    "sourceStatus": "COHERENT TACTICS + TRUTHFUL AUDIO CANDIDATE — NOT VISUALLY VERIFIED"
+    "sourceStatus": "COOPERATIVE ACTUAL-AI DODGE + REAL 3D MARKER + ORIGINAL OPT-IN SOUND CANDIDATE — NOT VERIFIED"
   },
-  "acceptanceStatus": "NOT TRANSFORMED — real scene/music/motion critics pending"
+  "acceptanceStatus": "NOT TRANSFORMED — 0/3 independent critics, no complete matched audiovisual adventure verification"
 }
