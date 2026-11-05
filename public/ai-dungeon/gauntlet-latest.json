@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedAt": "2026-11-05",
-  "status": "IN PROGRESS — NOT TRANSFORMED (real shot-subject/filmed-hero continuity candidate; actual desktop/mobile AFTER unverified)",
+  "status": "IN PROGRESS — NOT TRANSFORMED (real chapter swordcourt 3D source candidate; actual desktop/mobile AFTER and sound unverified)",
   "reference": "Diablo IV quality, No Rest for the Wicked worlds, Path of Exile 2 combat: authentic comparison targeted; matched A/B UNVERIFIED",
   "metrics": {
     "sample_seeds": 24,
@@ -246,5 +246,10 @@
     },
     "sourceStatus": "SOURCE COMMITTED: REAL WALKABLE NAVE COMBAT AND WARDEN COURT VISUAL CLEARANCE — RUNNING GAME ACCEPTANCE UNVERIFIED"
   },
-  "acceptanceStatus": "NOT TRANSFORMED — 0/3 independent critics, no complete matched audiovisual adventure verification"
+  "acceptanceStatus": "NOT TRANSFORMED — 0/3 independent critics, no complete matched audiovisual adventure verification",
+  "latestCandidateSha": "851c4a377d7b4a240797c300a806035cb2f69feb",
+  "latestImplementation": "M1 real 3x3 walkable Gothic chapters have shallow original forged floor 3D rings/insignia, and one true party-enemy occupancy-driven nonshadow light with verified same-run HP-loss accent; no fake combat",
+  "biggestRemainingGap": "Small stylized real-native figures and poorly readable blade-to-body contact amid Gothic foreground; actual five-stage audiovisual encounter still not verified",
+  "nextImplementationTask": "Review new exact-head real desktop/390px mobile Chromium motion, opt-in live sound, staged cast/weapon contact and 20s autonomy stall; compare fixed SHA baseline and obtain independent blind critiques",
+  "candidateSafety": "NOT_VERIFIED. Parent exact 6d8ec86 browser shard2 failed 1/28 due 20-second autonomous progression timeout; authority passed and other two shards passed; full catalogue CI failed."
 }

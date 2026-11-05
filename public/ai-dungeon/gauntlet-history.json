@@ -2184,7 +2184,7 @@
     },
     "evidence": {
       "actualContinuousScenarioReel": "UNVERIFIED: no continuous full organic traversal, active combat, Warden, floor, defeat/restart synchronized original audio for desktop and phone.",
-      "matchedBeforeAfter": "UNVERIFIED: pinned baseline unchanged at 281735d0910c6b2443648af976003d50412ee324; browser captures produced for predecessor but no source 1b9bbc3 exact-head matched desktop/mobile proof or blind preference yet.",
+      "matchedBeforeAfter": "UNVERIFIED, pinned original SHA 281735d0910c6b2443648af976003d50412ee324 unchanged. Latest original screenshot reviewed but not a matched new AFTER.",
       "mobileBeforeAfter": "UNVERIFIED: no matched new-head desktop/390px original motion and frame p95 evidence.",
       "independentCriticPanel": {
         "status": "UNVERIFIED",
@@ -2194,7 +2194,7 @@
         "playsMajority": false,
         "provenance": "No worker/critic session available, no masked verdicts."
       },
-      "safetyChecks": "Verified former exact-head 7654a48 authority PASS, Dungeon browser 2 shards PASS / shard 3 26 PASS 2 FAIL due actual focused hero being offscreen while visible heroes existed; former full CI failed 3 Tiny Kingdom visual checks. New head 1b9bbc3 revalidation in progress, no success claimed.",
+      "safetyChecks": "Parent head 6d8ec86: Dungeon authority passed, browser 2 shards pass and shard2 failed 27/28 on 20s real autonomy; catalogue CI failed, visual review passed. New 851c4a3 safety NOT_VERIFIED at commit.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED: reviewed prior workflow has short video-only clips; need original browser sound stream and measured audio with real combat.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2469,11 +2469,16 @@
         "video": "UNVERIFIED",
         "audio": "UNVERIFIED",
         "critics": 0
+      },
+      "latestRealBrowserSource": {
+        "sha": "6d8ec86f4ecb4dc376cc4b26dee41aabe20e3b1d",
+        "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41998886303/artifacts/13402137562",
+        "finding": "Inspected actual 1440x832 original world-only Chromium frame with tiny stylized native actors, close Gothic dark pillar occlusion, repetitive square floor art and broken group composition. Source-only candidate 851c4a3 is not demonstrated superior."
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Real native adult-scale character readability, full-body wall clearance and visible weapon-to-body contact in engaging boss combat. Earlier true browser camera subject mismatch is now addressed in source but NOT verified in moving AFTER.",
-    "currentWork": "IN PROGRESS — source candidate 1b9bbc3e: film the genuinely engaged living hero rather than a prior wandering hero when boss/duel camera centers on another fighter; physically fit actual close-contact/breach combatant bodies. Old 7654a48 live Chromium browser shard3 FAILED 2 subjectOnscreen assertions (26 pass), CI FAILED 3 Tiny Kingdom G057/G058/G063 visual assertions. New candidate exact-head browser/CI, authentic AFTER moving visuals, original audio and critics remain UNVERIFIED. No transformation claimed.",
+    "biggestRemainingGap": "Authentic screenshot still shows stylized small source-native fighters, visually overcrowded Gothic approach and weak 3D weapon/body contact; full real five-stage video/audio and masked critics unavailable.",
+    "currentWork": "Source M1 swordcourts: original floor-flush wrought-iron medallions, real contested-room physical key lighting and authentic same-run positive HP-loss stage accent. No authoritative position/combat changes.",
     "candidateCommit": "1b9bbc3e92af93a52531fba3466935dbd41ae475",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
@@ -5410,6 +5415,14 @@
           }
         },
         "next": "Review actual source-head 1440px/390px browser motion, confirm offscreen focus fixed without zoom wobble/crop; continue character/body visibility and true Warden contact; capture five-phase journey with consented original audio and 3 masked independent critics."
+      },
+      {
+        "date": "2026-11-05",
+        "sourceSha": "851c4a377d7b4a240797c300a806035cb2f69feb",
+        "milestone": "DUNGEON-TRANSFORMATION-01 continuing, NOT a new round",
+        "work": "Connected real walkable 3×3 chapter arena forged-iron 3D floor, authority-proven contested-room lighting, actual same-run positive HP-loss feedback, authored scene loop and tests.",
+        "verification": "NEW exact-head browser/motion/audio, mobile performance, safety and blind critics UNVERIFIED",
+        "verdict": "IN PROGRESS / NOT TRANSFORMED"
       }
     ],
     "implementationContinuation": {
@@ -5424,13 +5437,15 @@
       "nextTask": "Inspect exact new-head 1440px and 390px real WebGL moving gameplay + opt-in actual sound; measure natural team handoffs, reject scene/body occlusion and camera instability; capture 5-stage journey and independent blind A/B."
     },
     "latestImplementation": {
-      "sha": "9a1a0c6473ea6ecb5865f5d4600cd2a6a35bb3fd",
-      "regressionCommit": "08db0542156b1081f293e424ab6925184324b9ea",
-      "summary": "Real autonomous Vanguard vacates the only Warden safe escape tile for a companion; physically observed two-body tile handoff earns 3D ground moment and opt-in original metal cue; soundstage counter verifies prior earned recovery. Running-game/critic gate UNVERIFIED."
+      "date": "2026-11-05",
+      "sourceSha": "851c4a377d7b4a240797c300a806035cb2f69feb",
+      "milestone": "M1 ongoing",
+      "status": "SOURCE_CANDIDATE_ONLY",
+      "qualityVerdict": "UNVERIFIED"
     },
     "lastCandidateSha": "5dfe82639b256ae3a9605d3ce302e6f0cc020fc8",
     "experienceVerdict": "M1 NOT TRANSFORMED — LOOKS / FEELS / PLAYS UNVERIFIED; zero independent critics",
     "criticReadiness": "0/3; exact-head desktop/mobile moving sound captures, matched fixed-baseline A/B and natural progression unverified",
-    "nextImplementationTask": "Read exact source-head GitHub Actions authority/browser/visual/full CI. Inspect real moving desktop+phone imagery of first three nave fights and Warden court, true sword-to-body audio and tactical pacing. Resolve visual occlusion/performance regressions, collect original five-stage reel and >=3 blind critics; keep PR draft."
+    "nextImplementationTask": "Actual new head desktop+mobile original gameplay video/audio and matched baseline, physical blade/body study, CI regression and autonomous 20s browser stall, then original native-character/encounter transformation."
   }
 }
