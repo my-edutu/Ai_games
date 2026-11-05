@@ -59,16 +59,20 @@ test('real Warden source camera, stage, body clearance, original lights and sema
 
 test('verified boss release keeps physical anatomy/weapon clearance and camera fit without invented contact',async()=>{
  const {planCinematicSilhouetteRecess,planEncounterSightlines}=await load('public/ai-dungeon/encounter-sightlines.js');
- const s=fixture(),original=JSON.stringify(s);
+ const s=fixture();
+ // A 3-cell lawful lane needs the actual boss cast to claim combat clearance;
+ // ordinary two-cell proximity is intentionally protected separately.
+ s.units[2].x=13;
+ const original=JSON.stringify(s);
  const base=planEncounterSightlines(s,{x:0,z:0},true);
  const recess=planCinematicSilhouetteRecess(s,base);
  assert.equal(recess.length,3);
- assert.ok(recess.some(p=>p.x===3&&p.z===0&&p.combatRecess===true),'real Warden body needs foreground aperture');
+ assert.ok(recess.some(p=>p.x===4&&p.z===0&&p.combatRecess===true),'real Warden body needs foreground aperture');
  assert.ok(recess.some(p=>p.x===1&&p.z===0&&p.combatRecess===true),'actual nearest defender needs a physical weapon lane');
  assert.equal(JSON.stringify(s),original);
  s.units[2].actionTick=17;
  const stale=planCinematicSilhouetteRecess(s,base);
- assert.ok(!stale.some(p=>p.x===3&&p.z===0&&p.combatRecess===true),'stale cast cannot forge a near-weapon chapter');
+ assert.ok(!stale.some(p=>p.x===4&&p.z===0&&p.combatRecess===true),'stale cast cannot forge a near-weapon chapter');
  const app=read('public/ai-dungeon/app.js');
  assert.match(app,/'warden-contact','warden-approach','warden-exposed','warden-warning','warden-release'\]\.includes\(cinematicShot\.mode\)/);
 });
