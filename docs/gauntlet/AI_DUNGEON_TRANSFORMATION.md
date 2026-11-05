@@ -1316,3 +1316,17 @@ and coherent traversal → combat → boss → floor → defeat/restart.
 Complete same-seed locked-baseline video/audio comparison with >=3
 fresh blinded reviewers preferring AFTER on LOOKS/FEELS/PLAYS,
 and preserve replay, accessibility, security and frame performance.
+
+
+**Authenticated preceding source visual inspection (Nov 5, 2026):**
+https://github.com/my-edutu/Ai_games/actions/runs/42063793563/artifacts/13433063052
+contains real 1440×832 world-only and 390px mobile WebGL screenshots. Adult
+anatomy remains stylized; on mobile a tall opaque foreground pillar occupies
+the central weapon lane while heroes and enemies are behind it. This is an
+observed PREVIOUS-head deficiency, NOT an AFTER success. New Warden-camera
+release source is in [c1bab8d](https://github.com/my-edutu/Ai_games/commit/c1bab8d629760cc667f1b72da8b7ac1289aa887a), actor-clearance integration
+in [aa77a69](https://github.com/my-edutu/Ai_games/commit/aa77a69265b29580754ece1572250a9ff146ed4c), and the exact-range
+test repair in [0128c17](https://github.com/my-edutu/Ai_games/commit/0128c1766ba729aaa2bf51c9431ded156e146869).
+New moving desktop/mobile capture, synchronous original audio, baseline-matched
+A/B and 3 blinded critics remain **UNVERIFIED**. No source test or screenshot
+alone can promote this M1.

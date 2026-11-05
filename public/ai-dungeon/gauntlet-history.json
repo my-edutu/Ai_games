@@ -2490,12 +2490,20 @@
         "dungeonWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42032452761",
         "visualWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42032452500",
         "catalogueWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42032452909"
+      },
+      "lastPredecessorVisual": {
+        "sourceSha": "04f8339d91ab92988e2370865772cf5555ec7947",
+        "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42063793563/artifacts/13433063052",
+        "desktop": "Authenticated 1440x832 real world-only WebGL screenshot inspected: cartoony small bodies, oversized heads and obstructing freestanding architecture; inconsistent premium action-game anatomy.",
+        "mobile": "Authenticated 390px mobile screenshot inspected: a large full-height central dark pillar obscures characters and weapon lane. New body-clearance candidate not yet confirmed to solve it in a matched capture.",
+        "comparison": "Against actual Diablo IV circular dungeon boss scene, No Rest for the Wicked carved cavern, and Path of Exile 2 boss gameplay screenshot, original head lacks negative space, adult silhouette readability and high-impact contact.",
+        "accepted": "NO. Exact-head AFTER A/B and real synchronized audio unavailable."
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
     "biggestRemainingGap": "Native character realism, convincing moving Warden blade/body contact and meaningful multi-phase tactics still under benchmark. New Warden impact stage not filmed; complete five-stage matched audiovisual evidence and independent critics absent.",
     "currentWork": "Source candidate: genuine Warden cast-release now owns an integrated flank camera, true stage/body clearance, existing physical light and authoritative HUD cue before actual counter/recovery; quality must be judged in real desktop and mobile footage.",
-    "candidateCommit": "b34630e62c8bcebba01c0643e6722f7901408ba6",
+    "candidateCommit": "aa77a69265b29580754ece1572250a9ff146ed4c",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -5591,11 +5599,13 @@
         "criticVotes": "0/3",
         "gameplayPerformance": "UNVERIFIED"
       },
-      "next": "Film new real cast-release in real Warden encounter at 1440 and 390 px; detect camera jump, occlusion and sound mismatch; improve native character performance and strategic boss pacing. Capture continuous five-stage desktop/mobile opt-in AV, matched locked baseline, and 3 independent blind verdicts. Never merge."
+      "next": "Film new real cast-release in real Warden encounter at 1440 and 390 px; detect camera jump, occlusion and sound mismatch; improve native character performance and strategic boss pacing. Capture continuous five-stage desktop/mobile opt-in AV, matched locked baseline, and 3 independent blind verdicts. Never merge.",
+      "sourceCandidateSha": "aa77a69265b29580754ece1572250a9ff146ed4c",
+      "testCorrectionSha": "0128c1766ba729aaa2bf51c9431ded156e146869"
     },
-    "lastCandidateSha": "b34630e62c8bcebba01c0643e6722f7901408ba6",
+    "lastCandidateSha": "aa77a69265b29580754ece1572250a9ff146ed4c",
     "experienceVerdict": "M1 IN PROGRESS — NOT TRANSFORMED. LOOKS, FEELS, PLAYS UNVERIFIED; 0/3 independent critics. CI safety is not the success gate.",
     "criticReadiness": "0/3; exact-head desktop/mobile moving sound captures, matched fixed-baseline A/B and natural progression unverified",
-    "nextImplementationTask": "Inspect exact source-head desktop/mobile original Warden warning → actual strike → earned counter audiovisual continuity, correct physical actor contact/camera defects and continue transformative character/combat work; complete continuous five-stage matched evidence and blind critics."
+    "nextImplementationTask": "Inspect exact new-head real browser desktop/mobile release action and central black-pillar occlusion; reject if fight stays obscured; improve genuine model quality and boss tactics with synchronized AV; complete pinned-seed five-stage A/B and 3 blind critics."
   }
 }
