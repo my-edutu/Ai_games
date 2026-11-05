@@ -592,20 +592,57 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
     // A grounded climber still needs correct facing, live melee reach, and
     // a genuinely ready cooldown. Imminent shots and active hazards win first.
     const p=observation.player;
+    // In the live guardian-cap arena a correctly faced strike is earned by
+    // the same real ground/physics turn used by ordinary combat. Previously,
+    // retreating on cooldown left the pilot facing AWAY for the entire next
+    // eight-tick guardian charge even when the exposed core was within reach.
+    // This stage reads only current source position, telegraph and cooldown.
+    const arena=state.config.guardianSecondWind===true&&
+      state.config.guardianArenaHazards===true&&
+      p.grounded&&p.groundedPlatformId===`f${observation.floor}:cap`;
+    const toward:TowerAction['move']=charging.position.x>=p.position.x?1:-1;
     const exposedCore=state.config.guardianSecondWind===true&&
       charging.kind==='guardian'&&
       ((charging.guardTicksRemaining??0)>0||state.config.guardianArenaHazards===true)&&
       p.attackCooldown===0&&p.health>0&&
-      p.facing===(charging.position.x>=p.position.x?1:-1)&&
+      (p.facing===toward||arena)&&
       proximity<=state.config.attackReach+state.build.attackReachBonus-4000&&
       Math.abs(charging.position.y-p.position.y)<=
         state.player.halfHeight+charging.halfHeight+10000;
-    const retreat:TowerAction['move']=exposedCore?0:
+    // While an actual melee cooldown is still running, start escaping the
+    // approaching live body before it contacts the climber. Keep the gap
+    // inside the existing strike envelope so a counter remains reachable.
+    // An observed current charge is the upper bound, not a future prediction.
+    const contactGap=state.player.halfWidth+charging.halfWidth+8000;
+    const cooling=Math.min(state.config.attackCooldownTicks,
+      Math.max(0,p.attackCooldown));
+    const ticksVisible=Math.max(0,charging.telegraphUntilTick-observation.tick);
+    const warningGap=Math.min(state.config.attackReach+state.build.attackReachBonus-4000,
+      contactGap+TOWER_GUARDIAN_PATROL_SPEED*Math.min(cooling,ticksVisible));
+    const retreat:TowerAction['move']=exposedCore?
+      (p.facing===toward?0:toward):
+      arena&&cooling>0&&proximity<warningGap?away:
       proximity<state.config.attackReach*.7?away:0;
-    const move=guardedEvasion(state,observation,retreat);
-    // Defensive corrections still outrank attack. Real charging fire keeps
-    // its original final-three-tick evasive jump and earned ranged option.
-    const counterMelee=exposedCore&&move===0;
+    let move=guardedEvasion(state,observation,retreat);
+    if(arena&&move!==0){
+      // A retreat or turn is not a legal escape through a currently LIVE
+      // physical jaw. Earlier hazard checks still take precedence.
+      const nextV=Math.max(-state.config.maxRunSpeed,
+        Math.min(state.config.maxRunSpeed,
+          p.velocity.x+move*state.config.moveAcceleration));
+      const nextX=p.position.x+nextV;
+      const x0=Math.min(nextX,p.position.x)-state.player.halfWidth;
+      const x1=Math.max(nextX,p.position.x)+state.player.halfWidth;
+      const y0=p.position.y-state.player.halfHeight;
+      const y1=p.position.y+state.player.halfHeight;
+      if(observation.hazards.some(h=>h.active&&
+        h.x<x1&&h.x+h.width>x0&&h.y<y1&&h.y+h.height>y0))move=0;
+    }
+    // Physics sets facing on a legal movement BEFORE authoritative melee.
+    // If cap-edge or active-trap safety vetoes the turn, no fictional hit.
+    // Final-three-tick emergency shot evasion was handled above.
+    const counterMelee=exposedCore&&
+      (move===toward||(move===0&&p.facing===toward));
     const counterShot=pulseReady(state,observation,charging)&&
       (move===0||move===observation.player.facing);
     return{action:action(move,{attack:counterMelee,ability:counterShot}),
