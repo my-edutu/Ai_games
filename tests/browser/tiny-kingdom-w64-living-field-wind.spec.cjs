@@ -39,6 +39,7 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(evidence.glError).toBe(0);
   expect(evidence.overflow).toBeLessThanOrEqual(0);
   expect(errors).toEqual([]);
+  fs.mkdirSync('artifacts/tiny-kingdom-w64',{recursive:true});
   await page.screenshot({path:'artifacts/tiny-kingdom-w64/'+viewport.width+'-living-farm.png'});
  });
 }
