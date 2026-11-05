@@ -1514,7 +1514,7 @@ test('a real close public encounter frames both autonomous actors and saves date
   activeFrame=trapCase.sample.frame;
   // Reuse this SAME warmed WebGL page: no additional CPU-heavy Chromium
   // process, no screenshot mock, no manipulated simulation tick or private map.
-  for(const [nativeWidth,nativeHeight] of [[390,844],[1280,900]]){
+  for(const [nativeWidth,nativeHeight] of [[320,740],[390,844],[1280,900]]){
     await page.setViewportSize({width:nativeWidth,height:nativeHeight});
     await page.goto(base+'/maze?camera=follow',{waitUntil:'domcontentloaded'});
     await page.waitForFunction(({tick,token,cell,aspect})=>{
@@ -1556,6 +1556,18 @@ test('a real close public encounter frames both autonomous actors and saves date
       'genuine physical Pip must remain completely framed during true trap interaction').toBe(true);
     expect(trapBound?.fullyInFrame,
       'entire original modeled tide-shear pressure mechanism must remain on screen, not hide outside the portrait viewport').toBe(true);
+    // Passing a physical no-crop test by zooming both actors out is not
+    // adequate game-first art. The prior +1.082 cropped 390 screen showed a
+    // readable Pip (~.549 NDC wide); the first safe reframe shrank Pip
+    // to .440. Restore genuine full-size portrait staging with both models
+    // intact, rather than relaxing the original ±.95 silhouette contract.
+    if (nativeWidth === 390) {
+      const hero=stage.diagnostic.explorerPhysicalBounds;
+      expect(hero.right-hero.left,
+        'original Pip must stay legible in the FULL native 390 gameplay shot, not recede to a tiny safely framed speck').toBeGreaterThan(.49);
+      expect(trapBound.right-trapBound.left,
+        'the complete physical pressure jaws must be visible at useful action scale, not made tiny to pass crop').toBeGreaterThan(.70);
+    }
     expect(stage.diagnostic.world.trapJawOpenMaxRadians,
       'the authentic WebGL PNG must capture a genuinely opened physical hinge, not a dashboard claim').toBeGreaterThan(.12);
     expect(stage.diagnostic.world.responsiveTrapJaws,
