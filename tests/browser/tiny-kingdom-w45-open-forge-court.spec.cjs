@@ -41,6 +41,12 @@ test('W45 a physically open craft courtyard films genuine smith work without inv
  await page.waitForFunction(n=>window.__tinyKingdom.getFrameProfile().totalFrames>n,
   before,{timeout:85000});
  fs.mkdirSync('artifacts/tiny-kingdom-w45',{recursive:true});
+ // W45 same-workstream RED-first: the original anvil and hearth are
+ // already present, so a generic second mobile/desk workbox must NOT be
+ // generated directly on top of the real smith's physical hands.
+ const labor=await page.evaluate(()=>window.__tinyKingdom.getWorkdayRenderStats());
+ expect(labor.integratedForgeWorkcells).toBeGreaterThan(0);
+ expect(labor.duplicateForgeStations).toBe(0);
  await page.screenshot({path:'artifacts/tiny-kingdom-w45/open-guild-court-desktop.png'});
  await page.setViewportSize({width:390,height:844});
  const previous=await page.evaluate(()=>window.__tinyKingdom.getFrameProfile().totalFrames);
