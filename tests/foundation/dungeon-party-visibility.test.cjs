@@ -534,3 +534,33 @@ test('the real high-angle close-combat camera clears the near flank and weapon l
  assert.equal(reveal(5.8,4.1,[fighter],camera,2.1,2.65),'none',
   'the next room must never be flattened for a hero close-up');
 });
+
+
+test('portrait camera clears only significant actual foreground props across the living combat acting lane',async()=>{
+ const {planPortraitStageClearance}=await load();
+ const camera=Object.freeze({x:0,y:5,z:8});
+ const view=Object.freeze({look:{x:0,y:1,z:0},fov:48,aspect:390/844});
+ const combat=Object.freeze({x:0,z:0,kind:'vanguard',visibleActor:true,combatRecess:true});
+ const front=Object.freeze([-.18,0,2.45,.18,2.35,2.85]);
+ assert.equal(planPortraitStageClearance(front,[combat],camera,view),true,
+  'a tall close foreground pillar must not hide a living fighter on a narrow phone');
+ assert.equal(planPortraitStageClearance(front,[{...combat,combatRecess:false}],camera,view),false,
+  'ordinary travel retains the architectural landmark outside actual combat');
+ assert.equal(planPortraitStageClearance(front,[{...combat,visibleActor:false}],camera,view),false,
+  'a scenic marker cannot erase a physically rendered stone column');
+ assert.equal(planPortraitStageClearance(front,[combat],camera,{...view,aspect:1440/832}),false,
+  'desktop keeps its wider environmental composition');
+ assert.equal(planPortraitStageClearance([-.18,0,-2.85,.18,2.35,-2.45],[combat],camera,view),false,
+  'rear stone stays as the true depth backdrop of the encounter');
+ assert.equal(planPortraitStageClearance([3.75,0,2.45,4.1,2.35,2.85],[combat],camera,view),false,
+  'side architecture away from the fighter keeps a distinctive scene');
+ assert.equal(planPortraitStageClearance([-.01,0,2.45,.01,.08,2.5],[combat],camera,view),false,
+  'a minuscule stage fitting cannot be removed as a giant prop');
+ assert.equal(planPortraitStageClearance(front,[combat],camera,view),true);
+ assert.deepEqual(combat,{x:0,z:0,kind:'vanguard',visibleActor:true,combatRecess:true});
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ const env=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
+ assert.match(app,/portraitStageClearance:\{props:/);
+ assert.match(app,/planPortraitStageClearance\(world\.userData\.authoredPropVolumes/);
+ assert.match(env,/planPortraitStageClearance\(foregroundVolumes\[i\]/);
+});

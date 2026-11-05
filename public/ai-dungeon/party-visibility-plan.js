@@ -331,7 +331,7 @@ function projectionBasis(camera,view){
  const look=view?.look;
  if(![camera?.x,camera?.y,camera?.z,look?.x,look?.y,look?.z,
   view?.fov,view?.aspect].every(Number.isFinite)||camera.y<.4||camera.y>30||
-  view.fov<28||view.fov>75||view.aspect<.35||view.aspect>3.2)return null;
+  view.fov<28||view.fov>84||view.aspect<.35||view.aspect>3.2)return null;
  const dx=look.x-camera.x,dy=look.y-camera.y,dz=look.z-camera.z;
  const len=Math.hypot(dx,dy,dz),hz=Math.hypot(dx,dz);
  if(len<.4||hz<.1)return null;
@@ -388,6 +388,84 @@ export function planProjectedBodyAperture(box,subjects,camera,view){
       p.y>=bounds.minY-.018&&p.y<=bounds.maxY+.018&&
       Math.abs(p.x)<1.05&&Math.abs(p.y)<1.08)return true;
   }
+ }
+ return false;
+}
+
+
+/**
+ * Portrait combat stage, for *freestanding foreground props only*.
+ *
+ * A large column can leave every helmet ray clear yet consume the entire
+ * narrow phone composition and conceal the next sword/evade. A read-only
+ * camera-space envelope protects genuinely rendered combat bodies, including
+ * their shoulder/weapon acting space. Rear architecture remains intact: only
+ * bounded foreground geometry, physically nearer than a live actor and close
+ * to that actor in the actual dungeon, can recede. Never use this policy on
+ * authoritative walls, collision, AI vision or enemy state.
+ *
+ * The live caller also uses the strict native body aperture for normal-sized
+ * obstructions. This wider version is deliberately limited to portrait shots
+ * and actors in a real combat staging mode; no extra WebGL pass is performed.
+ */
+export function planPortraitStageClearance(box,subjects,camera,view){
+ if(!Array.isArray(box)||box.length!==6||!box.every(Number.isFinite)||
+    box[3]-box[0]<.006||box[4]-box[1]<.006||box[5]-box[2]<.006||
+    box[3]-box[0]>8||box[4]-box[1]>8||box[5]-box[2]>8||
+    !Array.isArray(subjects)||subjects.length>5||view?.aspect>=.86)return false;
+ const basis=projectionBasis(camera,view);
+ if(!basis)return false;
+ const cx=(box[0]+box[3])*.5,cz=(box[2]+box[5])*.5;
+ let prop=null;
+ for(const actor of subjects){
+  if(actor?.visibleActor!==true||actor?.combatRecess!==true||
+     ![actor.x,actor.z].every(Number.isFinite)||
+     Math.hypot(actor.x-cx,actor.z-cz)>4.2)continue;
+  const dx=actor.x-camera.x,dz=actor.z-camera.z;
+  const distance=Math.hypot(dx,dz);
+  if(distance<.8||distance>28)continue;
+  // Front-of-actor only. Columns behind an opponent remain environmental
+  // context even when a narrow perspective superimposes their screen pixels.
+  if((cx-actor.x)*dx+(cz-actor.z)*dz>.2*distance)continue;
+  const focus=projectionPoint(camera,basis,actor.x,actor.kind==='warden'?1.5:1.05,actor.z);
+  if(!focus||Math.abs(focus.x)>1.08||Math.abs(focus.y)>1.08)continue;
+  if(!prop){
+   let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity,near=Infinity;
+   for(const x of [box[0],box[3]])for(const y of [box[1],box[4]])
+    for(const z of [box[2],box[5]]){
+     const p=projectionPoint(camera,basis,x,y,z);
+     if(!p)continue;
+     minX=Math.min(minX,p.x);maxX=Math.max(maxX,p.x);
+     minY=Math.min(minY,p.y);maxY=Math.max(maxY,p.y);
+     near=Math.min(near,p.depth);
+    }
+   if(!Number.isFinite(minX))return false;
+   prop={minX,maxX,minY,maxY,near};
+   // Tiny fittings should not disappear merely because their pixels touch
+   // the actor's cape. This is for physically significant foreground pieces.
+   if((maxX-minX)<.065||(maxY-minY)<.075)return false;
+  }
+  if(prop.near>=focus.depth-.1)continue;
+  const sideX=-dz/distance,sideZ=dx/distance;
+  const scale=actor.kind==='warden'?1.32:1;
+  const native=Array.isArray(actor.bodyPoints)&&actor.bodyPoints.length>=3&&actor.bodyPoints.length<=8?
+   actor.bodyPoints.filter(p=>[p?.x,p?.y,p?.z].every(Number.isFinite)):null;
+  const samples=native?.length>=3?native:
+   PROJECTION_BODY_Y.flatMap(y=>PROJECTION_BODY_SIDES.map(side=>({
+    x:actor.x+side*sideX,y:y*scale,z:actor.z+side*sideZ})));
+  let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+  for(const point of samples){
+   const p=projectionPoint(camera,basis,point.x,point.y,point.z);
+   if(!p)continue;
+   minX=Math.min(minX,p.x);maxX=Math.max(maxX,p.x);
+   minY=Math.min(minY,p.y);maxY=Math.max(maxY,p.y);
+  }
+  if(!Number.isFinite(minX))continue;
+  // In narrow viewports protect an actual weapon/evade lane beyond the
+  // sampled skeleton, but not an arbitrary screen-centre column.
+  minX-=.14;maxX+=.14;minY-=.085;maxY+=.085;
+  if(Math.min(prop.maxX,maxX)-Math.max(prop.minX,minX)>.025&&
+     Math.min(prop.maxY,maxY)-Math.max(prop.minY,minY)>.035)return true;
  }
  return false;
 }

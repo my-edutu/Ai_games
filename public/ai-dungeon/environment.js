@@ -2,7 +2,7 @@ import * as THREE from '/dungeon/vendor/three.module.js';
 import {addDungeonWindows} from '/dungeon/architecture.js';
 import {planStoneRelief} from '/dungeon/stone-relief-plan.js';
 import {planCutawayFloorBacking,planCutawayCapTransform} from '/dungeon/cutaway-floor-plan.js';
-import {planPartyWallReveal,planLiveFacadeBodyReveal,createCutawayBandCache,shouldUploadCutawayBand,planProjectedBodyAperture} from '/dungeon/party-visibility-plan.js';
+import {planPartyWallReveal,planLiveFacadeBodyReveal,createCutawayBandCache,shouldUploadCutawayBand,planProjectedBodyAperture,planPortraitStageClearance} from '/dungeon/party-visibility-plan.js';
 import {planDungeonWallProfiles,planLegibleWallMass} from '/dungeon/wall-profile-plan.js';
 import {createWardenCourt} from '/dungeon/warden-court.js';
 import {planWardenCourtNegativeSpace} from '/dungeon/warden-court-plan.js';
@@ -333,7 +333,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
  // Instanced caps begin intact, so band zero already matches their GPU matrices.
  const capBands=new Uint8Array(columnCap.length);
  const foregroundVolumes=captureForegroundVolumes(THREE,foregroundGroups);
- const sceneMetrics={clearedForeground:0,screenSpaceClearedFacades:0,clearedWeatheredPieces:0,clearedCapstones:0,matrixWrites:{facade:0,weathered:0,capstone:0}};
+ const sceneMetrics={clearedForeground:0,portraitStagePropsCleared:0,screenSpaceClearedFacades:0,clearedWeatheredPieces:0,clearedCapstones:0,matrixWrites:{facade:0,weathered:0,capstone:0}};
  const matrix=new THREE.Matrix4(),p=new THREE.Vector3(),q=new THREE.Quaternion(),scale=new THREE.Vector3();
  const yAxis=new THREE.Vector3(0,1,0),blockedFaces=new Uint8Array(wallFaces.length);
  // This exact physical slab plan drives BOTH what the GPU renders and the
@@ -349,7 +349,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
   // multi-hero camera clearance, instead of tracking only the focus actor.
   const eyes=Array.isArray(subjects)?subjects:[subjects];
   const obscures=(x,z,pad)=>planPartyWallReveal(x,z,eyes,camera,pad)==='sightline';
-  let cleared=0,facadeMatrixWrites=0,weatheredChanged=false,screenSpaceClearedFacades=0;q.identity();
+  let cleared=0,portraitCleared=0,facadeMatrixWrites=0,weatheredChanged=false,screenSpaceClearedFacades=0;q.identity();
   for(let i=0;i<wallFaces.length;i++){
    const f=wallFaces[i],coarse=facadeReveal(f,eyes,camera,wallPad);
    const projectedHeight=coarse==='nearby'?.43:f[4],projectedY=coarse==='nearby'?.23:f[1];
@@ -430,7 +430,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
     planProjectedBodyAperture(foregroundVolumes[i],eyes,camera,view);
    group.visible=!blocked;if(blocked)cleared++;
   }
-  sceneMetrics.clearedForeground=cleared;
+  sceneMetrics.clearedForeground=cleared;sceneMetrics.portraitStagePropsCleared=portraitCleared;
   wardenCourt.cutaway(eyes,camera,wallPad);
  }
 
