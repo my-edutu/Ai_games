@@ -1,5 +1,5 @@
 import type{TowerAction,TowerPlatform,TowerState}from'../state/types';
-import{TOWER_GUARDIAN_PATROL_SPEED}from'../combat/step';import{chooseTowerUpgrade}from'../progression/builds';import{nextTowerPlatform,nextTowerTacticalPlatform}from'./graph';import type{TowerObservation}from'./observation';import{detectTowerStuck}from'./stuck';
+import{TOWER_GUARDIAN_PATROL_SPEED}from'../combat/step';import{chooseTowerUpgrade}from'../progression/builds';import{nextTowerPlatform,nextTowerTacticalPlatform}from'./graph';import{guardianArenaExitX}from'../generation/chunks';import type{TowerObservation}from'./observation';import{detectTowerStuck}from'./stuck';
 export interface TowerIntent{mode:'choosing-upgrade'|'evading-projectile'|'evading-hazard'|'evading-telegraph'|'bracing-telegraph'|'bracing-guardian-shield'|'engaging-enemy'|'recovering'|'collecting-resource'|'aligning'|'jumping'|'air-control'|'settling-landing'|'settling-launch'|'waiting';summary:string;confidence:number;fallbackUsed:boolean;targetPlatformId?:string}
 export interface TowerDecision{action:TowerAction;intent:TowerIntent}
 function action(move:TowerAction['move']=0,extra:Partial<TowerAction>={}):TowerAction{return{move,jump:false,dash:false,attack:false,ability:false,...extra}}
@@ -769,6 +769,29 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
       targetPlatformId:observation.player.groundedPlatformId}};
   const cap=observation.platforms.find(p=>p.id===`f${observation.floor}:cap`);
   const guardian=observation.enemies.find(e=>e.active&&e.kind==='guardian');
+  const defeatedGuardian=observation.enemies.find(e=>e.kind==='guardian'&&!e.active&&e.health<=0);
+  if(tactical&&state.config.guardianArenaHazards===true&&
+    state.config.guardianSecondWind===true&&cap&&defeatedGuardian&&
+    observation.player.grounded&&observation.player.groundedPlatformId===cap.id&&
+    observation.player.health>0){
+    // A source-confirmed defeat now opens a physically walkable exit.
+    // Braking accounts for actual 20Hz horizontal momentum and friction.
+    // High-priority projectile/shutter evasion above this remains authoritative.
+    // No teleport, free shield, scripted floor change, hidden future enemy
+    // state or extra HUD instruction. Unflagged/historical pilot is unchanged.
+    const p=observation.player,delta=guardianArenaExitX(cap)-p.position.x;
+    const stopDistance=p.velocity.x*p.velocity.x/
+      (2*Math.max(1,state.config.groundFriction));
+    const toward:TowerAction['move']=delta>=0?1:-1;
+    const braking=Math.abs(delta)<stopDistance+14000&&
+      Math.sign(p.velocity.x)===toward&&Math.abs(p.velocity.x)>state.config.groundFriction;
+    const requested:TowerAction['move']=Math.abs(delta)<=5500&&
+      Math.abs(p.velocity.x)<=state.config.groundFriction?0:braking?-toward:toward;
+    const move=guardedEvasion(state,observation,requested);
+    return {action:action(move),intent:{mode:'aligning',
+      summary:'Crossing the earned physical guardian passage',
+      confidence:.97,fallbackUsed:false,targetPlatformId:cap.id}};
+  }
   if(cap&&guardian&&observation.player.grounded&&observation.player.groundedPlatformId===cap.id){
     const verticalReach=state.player.halfHeight+guardian.halfHeight+10000;
     const reach=state.config.attackReach+state.build.attackReachBonus;

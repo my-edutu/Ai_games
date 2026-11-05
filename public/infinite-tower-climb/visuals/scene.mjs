@@ -2327,16 +2327,27 @@ export function createTowerScene(canvas, settings = {}) {
     // center. Simply using the deck top would bury the opening two world
     // units below the actual bronze lock, even with the correct radius.
     const previousLock = clearedGuardian ? observedGuardianCircuit(previous) : null;
-    if (guardianCap && previousLock && Number.isFinite(next.worldWidth) && next.worldWidth > 0) {
+    // The earned passage persists for several real movement ticks after the
+    // guardian's death. An inactive zero-HP source body is still authoritative
+    // proof of defeat, whereas observedGuardianCircuit intentionally stops
+    // rendering its live health conduit. Reconstruct ONLY the original cap
+    // anchor and defeated body position from that previous source snapshot.
+    const defeated = clearedGuardian ? previous.enemies?.find(enemy =>
+      enemy.kind === 'guardian' && enemy.active === false &&
+      Number.isFinite(enemy.health) && enemy.health <= 0 &&
+      [enemy.x, enemy.y, enemy.halfHeight].every(Number.isFinite)) : null;
+    if (guardianCap && (previousLock || defeated) &&
+        Number.isFinite(next.worldWidth) && next.worldWidth > 0) {
       const gateAnchorX = guardianGateAnchorX(previous, guardianCap);
-      // No invented lock when the source lacks enough authentic evidence;
-      // both the x anchor and elevated y belong to the same old-floor lock.
-      if (gateAnchorX === previousLock.toX) {
-        // The old guardian's source-observed coordinates live in the same
-        // previous-floor space as the mechanical release; no new-floor enemy.
+      if (!previousLock || gateAnchorX === previousLock.toX) {
+        const gateY = previousLock?.toY ??
+          guardianCap.y + guardianCap.height + 20000;
+        const guardianX = previousLock?.fromX ?? defeated.x;
+        const guardianY = previousLock?.fromY ??
+          defeated.y - defeated.halfHeight + 9000;
         passage.begin(previous, next, pointFor(gateAnchorX,
-          previousLock.toY, next.chunkBaseY, next.worldWidth, 27.78),
-          pointFor(previousLock.fromX, previousLock.fromY,
+          gateY, next.chunkBaseY, next.worldWidth, 27.78),
+          pointFor(guardianX, guardianY,
             next.chunkBaseY, next.worldWidth, 27.65));
       }
     }

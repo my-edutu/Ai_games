@@ -24,6 +24,13 @@ export function guardianGateAnchorX(snapshot, cap) {
     Number.isFinite(enemy.y));
   if (!guardian) return midpoint;
   const feet = guardian.y - (Number.isFinite(guardian.halfHeight) ? guardian.halfHeight : 18000);
+  // The new real guardian fight occurs ON the cap, rather than p6 below.
+  // Its far-side exit is an actual 20Hz player movement objective after
+  // defeat, with the same .76 platform fraction as the authoritative rules.
+  // A dead guardian retains its source body coordinates for a stable gate.
+  // Legacy p6 guardians still use the prior fixed approach-door algorithm.
+  if (Math.abs(feet - (cap.y + cap.height)) <= 14000)
+    return cap.x + Math.floor(cap.width * .76);
   let approach = null, error = Infinity;
   for (const platform of snapshot.platforms) {
     if (platform.id === cap.id || !Number.isFinite(platform.x) ||

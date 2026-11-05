@@ -7,8 +7,15 @@ export function observedGuardianPassage(previous, next) {
     previous.lifecycle !== 'running' || next.lifecycle !== 'running' ||
     !Number.isSafeInteger(previous.tick) || !Number.isSafeInteger(next.tick) ||
     next.tick <= previous.tick || next.floor !== previous.floor + 1) return false;
+  // Immediate old-style transitions observe a living guardian in the
+  // preceding snapshot. The new physical exit requires a few real traversal
+  // ticks AFTER the source defeated that guardian, so the prior snapshot
+  // instead contains its inactive, zero-HP body. Both are genuine floor
+  // advancements; an absent/unknown foe never fabricates this victory.
   return Array.isArray(previous.enemies) &&
-    previous.enemies.some(enemy => enemy.kind === 'guardian' && enemy.active === true);
+    previous.enemies.some(enemy => enemy.kind === 'guardian' &&
+      (enemy.active === true ||
+        (enemy.active === false && Number.isFinite(enemy.health) && enemy.health <= 0)));
 }
 
 export function createTowerGuardianPassage(THREE) {

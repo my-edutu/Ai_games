@@ -383,9 +383,18 @@ test('opt-in living cap guardian locks floor without zeroing authentic 20Hz jump
   assert.equal(second.floor,8,'jumping cannot bypass the living guardian');
   assert.ok(!runtime.events.some(e=>e.type==='floor-complete'));
   // Manual enemy state here asserts ONLY the gate invariant, not a real win.
-  runtime.state.enemies.find(e=>e.kind==='guardian').active=false;
+  const fallen=runtime.state.enemies.find(e=>e.kind==='guardian');
+  fallen.active=false;fallen.health=0;
+  const open=runtime.step({move:0});
+  assert.equal(open.floor,8,'the unlocked gate still requires real grounded traversal');
+  const {guardianArenaExitX}=require('../../dist/games/infinite-tower-climb/src/generation/chunks.js');
+  runtime.state.player.position.x=guardianArenaExitX(cap);
+  runtime.state.player.position.y=cap.y+cap.height+runtime.state.player.halfHeight;
+  runtime.state.player.grounded=true;
+  runtime.state.player.groundedPlatformId=cap.id;
+  runtime.state.player.velocity={x:0,y:0};
   const cleared=runtime.step({move:0});
-  assert.equal(cleared.floor,9,'a defeated guardian releases progression');
+  assert.equal(cleared.floor,9,'a defeated guardian permits a physical gate crossing');
   assert.equal(cleared.stats.floorsCleared,1);
 });
 

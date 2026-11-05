@@ -1,6 +1,12 @@
 import{checksum}from'../../../../packages/replay/src/index';import{NamedRng}from'../../../../packages/seeded-rng/src/index';
 import type{TowerConfig,TowerTheme}from'../config/schema';import{TOWER_THEMES}from'../config/schema';import type{TowerChunk,TowerHazard,TowerPlatform}from'../state/types';
 function themeFor(floor:number):TowerTheme{return TOWER_THEMES[floor%TOWER_THEMES.length]}
+// A physical destination on the far side of the opt-in guardian cap.
+// The fixed-step rules, autonomous pilot and 3D door use the same deterministic
+// percentage of the actual platform. This is not an invisible finish trigger.
+export function guardianArenaExitX(cap:Pick<TowerPlatform,'x'|'width'>):number{
+  return cap.x+Math.floor(cap.width*.76);
+}
 export function generateTowerChunk(config:TowerConfig,seed:string,floor:number,rng=NamedRng.fromSeed(`${seed}:floor:${floor}`)):TowerChunk{
   if(!Number.isInteger(floor)||floor<0)throw new RangeError('floor');
   const baseY=floor*config.chunkHeight,groundHeight=12000,stepHeight=Math.floor((config.chunkHeight-60000)/6);

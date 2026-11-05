@@ -1,0 +1,84 @@
+'use strict';
+// The opt-in guardian escape is a playable cap traverse, never an invented
+// win, forced teleport, replay rewrite or a positive quality vote.
+const {test}=require('node:test'),assert=require('node:assert/strict');
+const {TowerRuntime}=require('../../dist/games/infinite-tower-climb/src/runtime/run.js');
+const {createTowerObservation}=require('../../dist/games/infinite-tower-climb/src/ai/observation.js');
+const {chooseTowerAction}=require('../../dist/games/infinite-tower-climb/src/ai/policy.js');
+const {guardianArenaExitX}=require('../../dist/games/infinite-tower-climb/src/generation/chunks.js');
+const {STREAM_CONFIG}=require('../../scripts/serve-tower-stream.cjs');
+const {pathToFileURL}=require('node:url');
+const path=require('node:path');
+function arena(overrides={}){
+  const runtime=TowerRuntime.create({...STREAM_CONFIG,launchFloor:8,...overrides},
+    'earned-physical-cap-passage',{policy:'autonomous'});
+  const state=structuredClone(runtime.state),cap=state.chunks[0].platforms.find(p=>p.id==='f8:cap');
+  const guardian=state.enemies.find(e=>e.kind==='guardian');
+  assert.ok(cap&&guardian);
+  const p=state.player;
+  p.position={x:cap.x+24000,y:cap.y+cap.height+p.halfHeight};
+  p.velocity={x:0,y:0};p.grounded=true;p.groundedPlatformId=cap.id;p.facing=1;
+  guardian.health=0;guardian.active=false;
+  state.projectiles=[];state.chunks[0].hazards=[];state.pickups=[];
+  runtime.state=state;
+  return {runtime,state,cap};
+}
+test('earned gate cannot teleport a hero standing anywhere above exitY',()=>{
+  const {runtime,cap}=arena();
+  const start=runtime.state.player.position.x;
+  const step=runtime.step({move:1});
+  assert.equal(step.floor,8);
+  assert.ok(step.player.position.x>start&&step.player.position.x<guardianArenaExitX(cap));
+  assert.equal(step.stats.floorsCleared,0);
+  const absent=runtime.drainEvents().filter(e=>e.type==='floor-complete');
+  assert.equal(absent.length,0);
+  runtime.state.player.position.x=guardianArenaExitX(cap);
+  runtime.state.player.velocity.x=0;
+  const win=runtime.step({move:0});
+  assert.equal(win.floor,9);
+  assert.equal(win.stats.floorsCleared,1);
+});
+test('live tactical climber elects a deterministic source-observed actual exit walk',()=>{
+  const {state,cap}=arena();
+  const before=JSON.stringify(state);
+  const input=createTowerObservation(state,{includeHazardWindup:true});
+  const decision=chooseTowerAction(state,input);
+  assert.equal(decision.intent.mode,'aligning');
+  assert.equal(decision.action.move,1);
+  assert.equal(decision.action.jump,false);
+  assert.equal(decision.intent.targetPlatformId,cap.id);
+  assert.match(decision.intent.summary,/physical guardian passage/);
+  assert.equal(JSON.stringify(state),before);
+  assert.deepEqual(decision,chooseTowerAction(state,input));
+});
+test('historical gates, non-guardian floors and airborne players do not receive a free source exit',()=>{
+  const {runtime,cap}=arena({guardianArenaHazards:false});
+  const old=runtime.step({move:0});
+  assert.equal(old.floor,9,'unflagged legacy remains immediate');
+  const {runtime:live}=arena();
+  live.state.player.position.x=guardianArenaExitX(cap);
+  live.state.player.grounded=false;
+  live.state.player.groundedPlatformId=undefined;
+  live.state.player.position.y+=9000;
+  live.state.player.velocity.y=6000;
+  const jump=live.step({move:0});
+  assert.equal(jump.floor,8,'the portal requires real cap contact');
+});
+test('a real post-defeat clearance has a stable 3D gate anchor and passage source',async()=>{
+  const coords=await import(pathToFileURL(path.resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/coordinates.mjs')).href);
+  const passage=await import(pathToFileURL(path.resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/guardian-passage.mjs')).href);
+  const {state,cap}=arena();
+  const snapshot={platforms:state.chunks[0].platforms,enemies:[{
+    kind:'guardian',active:false,health:0,halfHeight:18000,
+    y:cap.y+cap.height+18000,x:cap.x+cap.width/2}]};
+  assert.equal(coords.guardianGateAnchorX(snapshot,cap),guardianArenaExitX(cap));
+  assert.equal(passage.observedGuardianPassage({
+    runToken:'same',tick:100,floor:8,lifecycle:'running',enemies:snapshot.enemies
+  },{runToken:'same',tick:101,floor:9,lifecycle:'running'}),true);
+  assert.equal(passage.observedGuardianPassage({
+    runToken:'same',tick:100,floor:8,lifecycle:'running',
+    enemies:[{kind:'guardian',active:false,health:1}]
+  },{runToken:'same',tick:101,floor:9,lifecycle:'running'}),false);
+});
