@@ -51,6 +51,8 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   });
   expect(after.world).toBe(snapshotBefore);
   expect(after.render.panels).toBeGreaterThan(0);
+  expect(after.render.frames).toBe(after.render.panels);
+  expect(after.render.thresholdSteps).toBe(after.render.panels);
   expect(after.render.panels).toBeLessThanOrEqual(result.population);
   expect(after.triangles).toBeLessThan(160000);
   expect(after.glError).toBe(0);
