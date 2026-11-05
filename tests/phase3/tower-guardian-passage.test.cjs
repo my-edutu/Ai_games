@@ -333,14 +333,14 @@ test('a fast source-earned cap crossing opens the physical leaves ahead of the c
 // Real portrait/desktop footage must still show actor AND unlocked passage.
 test('source-earned cap arrival leads the same continuous portrait/desktop camera without predicting a victory', () => {
   const scene = fs.readFileSync(path.join(root, 'public/infinite-tower-climb/visuals/scene.mjs'), 'utf8');
-  assert.match(scene, /const liveExit = !overview && !options\\.stale &&[\\s\\S]*?observedUnlockedGuardianCap\\(snapshot\\)/,
+  assert.match(scene, /const liveExit = !overview && !options\.stale &&[\s\S]*?observedUnlockedGuardianCap\(snapshot\)/,
     'only a live running climber observing a defeated guardian may lead the exit');
-  assert.match(scene, /passage\\.diagnostics\\(\\)\\.stage === 'earned-open'[\\s\\S]*?observedPassageApproach\\(snapshot, liveExit\\)/,
+  assert.match(scene, /passage\.diagnostics\(\)\.stage === 'earned-open'[\s\S]*?observedPassageApproach\(snapshot, liveExit\)/,
     'camera approach is source-measured and stays on the genuine current floor');
-  assert.match(scene, /arrivalFraming \\* \\(portrait \\? \\.30 : \\.24\\)/,
+  assert.match(scene, /arrivalFraming \* \(portrait \? \.30 : \.24\)/,
     'the narrow portrait lens needs extra doorway lead without a camera cut');
-  assert.match(scene, /cameraRate = Math\\.max\\(cameraRate, 3\\.8 \\+ arrivalFraming \\* 2\\.4\\)/,
+  assert.match(scene, /cameraRate = Math\.max\(cameraRate, 3\.8 \+ arrivalFraming \* 2\.4\)/,
     'genuine near-contact unlock accelerates only the camera response');
-  assert.match(scene, /actorRescueFraction = recoverTowerActorView\\(/,
+  assert.match(scene, /actorRescueFraction = recoverTowerActorView\(/,
     'the live actor rescue remains in control if the doorway shot crops the hero');
 });
