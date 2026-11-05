@@ -1779,7 +1779,12 @@ export function createMazeWorld(options = {}) {
     // tile, behind Pip's central footpath, and never changes gameplay rules.
     const pressureMast = new THREE.Group();
     pressureMast.name = 'Published tide-shear pressure mast ' + c.cell;
-    pressureMast.position.set(0, .12, -.54);
+    // Exact-source 320px pressure WebGL exposed +.980 physical jaw NDC after
+    // adding the rear carriage (original unchanged in-frame limit +.95).
+    // The long -Z base enlarged the complete trap model's projected
+    // silhouette. Re-seat the REAL mast within the existing paired jaws'
+    // tile footprint instead of cropping the game or weakening the gate.
+    pressureMast.position.set(0, .12, -.12);
     p.add(pressureMast);
     mesh(pressureMast, cylinder, darkMetal, 0, .08, 0, .30, .16, .28);
     mesh(pressureMast, ring, gold, 0, .19, 0, .35, .35, .35, Math.PI / 2);
