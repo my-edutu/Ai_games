@@ -19,7 +19,9 @@ export class TowerAudioDirector{
   setMuted(muted:boolean){this.muted=muted}
   reset(){this.voices=[];this.captions=[];this.tick=0}
   consume(events:TowerEvent[],context:{danger?:number;guardian?:boolean;result?:boolean}={}):TowerAudioFrame{
-    for(const event of events){this.tick=Math.max(this.tick,event.tick);const spec=mapping[event.type];if(!spec)continue;const id=`${event.seq}:${event.type}`;this.captions.push({id,text:spec.text,priority:spec.priority,expiresTick:event.tick+spec.ttl});if(!this.muted)this.voices.push({id,cue:spec.cue,priority:spec.priority,expiresTick:event.tick+Math.min(spec.ttl,36)})}
+    for(const event of events){this.tick=Math.max(this.tick,event.tick);const spec=event.type==='melee-hit'&&event.data?.coreBonus===1
+      ?{cue:'guardian-core-hit',text:'Exposed core struck',priority:9,ttl:26}
+      :mapping[event.type];if(!spec)continue;const id=`${event.seq}:${event.type}`;this.captions.push({id,text:spec.text,priority:spec.priority,expiresTick:event.tick+spec.ttl});if(!this.muted)this.voices.push({id,cue:spec.cue,priority:spec.priority,expiresTick:event.tick+Math.min(spec.ttl,36)})}
     this.voices=this.voices.filter(v=>v.expiresTick>=this.tick).sort((a,b)=>b.priority-a.priority||a.id.localeCompare(b.id)).slice(0,this.maxVoices);
     this.captions=this.captions.filter(v=>v.expiresTick>=this.tick).sort((a,b)=>b.priority-a.priority||a.id.localeCompare(b.id)).slice(0,8);
     const musicState=context.result?'result':context.guardian?'guardian':(context.danger??0)>=800?'danger':this.tick%200<70?'calm':'ascent';
