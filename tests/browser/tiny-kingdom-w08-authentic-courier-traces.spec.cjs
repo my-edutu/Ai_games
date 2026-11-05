@@ -24,7 +24,12 @@ test('W08 real courier wheels leave physical finite traces without manufacturing
    game.step(1/30);
    const active=game.getActiveDeliveries().filter(d=>d.stage==='travel');
    seen=game.getCourierTrailAudit();
-   if(active.length&&seen.segments>=3){traveling=active[0];break;}
+   // Three short segments across different real carts need not form the
+   // longer, uninterrupted wheel witness this assertion requires.
+   if(active.length&&seen.segments>=3&&
+      seen.tracks.some(t=>t.samples>=4&&t.realActor)){
+    traveling=active[0];break;
+   }
   }
   if(!traveling)return {missing:'no genuine moving courier with wheel tracks'};
   const before=JSON.stringify(game.exportSnapshot());
