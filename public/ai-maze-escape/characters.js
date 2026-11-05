@@ -690,7 +690,11 @@ export function createWarden(options = {}) {
     // neutral rotations, with no new objects in the animation loop.
     for (const {guard,side} of shoulderGuards) {
       guard.rotation.x=defensiveSweep>0?-defensiveSweep*1.45:0;
-      guard.rotation.z=defensiveSweep>0?side*defensiveSweep*.28:0;
+      // Real native Pass159 braces showed these upper shields as one flat
+      // horizontal bar. Fan the two *connected* panels into a strong V,
+      // not an extra enemy, attack or UI warning. Retain the full x-axis
+      // plant: neither safety bounds nor the fixed visual bar is relaxed.
+      guard.rotation.z=defensiveSweep>0?side*defensiveSweep*1.35:0;
     }
     // Real 390px chronological WebGL review: the old .38-open initial
     // wings looked nearly the same as the release beat at gameplay scale.
