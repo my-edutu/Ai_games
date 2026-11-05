@@ -619,6 +619,19 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // The guardian world position exists only in public snapshot models.
       const frameThreat=publicEncounterFrameWeight(closestThreat?.strength,cameraMode,result,aspect);
       desiredTarget.set(pose.x+(closestThreat?.x-pose.x||0)*frameThreat,ground+.25,pose.z+(closestThreat?.z-pose.z||0)*frameThreat);
+      // Actual exact-source 320×740 WebGL (2026-11-04, tick 13) exposed
+      // Thornback's articulated right sail at +0.974 NDC: its center passed
+      // while its complete physical silhouette failed the strict ±.95 gate.
+      // Share the *existing* public-pair envelope aim with narrow Detail too,
+      // not only Follow. This shifts the real optical target, never the actor,
+      // and preserves the readable close-up instead of shrinking both models.
+      if (cameraMode === 'detail' && !result && closestThreat?.strength
+        && aspect >= .35 && aspect < .60) {
+        const pairBalance = publicPortraitGuardianBalance(
+          aspect,closestThreat.strength,pose,closestThreat,desiredTarget,followCameraOffset);
+        desiredTarget.x += pairBalance.x;
+        desiredTarget.z += pairBalance.z;
+      }
       // On a public coastline, a hero-only camera can leave half the screen
       // empty water. Rebalance toward the *known nearby stage* but keep Pip
       // visible, and avoid fighting the threat-encounter framing.
