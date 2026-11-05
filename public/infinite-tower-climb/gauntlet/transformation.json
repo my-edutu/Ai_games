@@ -9,20 +9,20 @@
   },
   "candidate": {
     "sha": null,
-    "title": "OPEN same real 3D Tower guardian/crusher battle → source-earned falling armor, physically open gate, floor-nine ascent and outcome/restart; NOT EVALUATED",
-    "implementationSha": "f1e1b9ef70c4ed52ac7793b7f3e2897a51169d4d",
-    "implementationEvidenceStatus": "NOT EVALUATED: source-earned 3D guardian ground shockwave + reeling power connection f49a7b4, current-source render diagnostics f1e1b9e and real normal-speed 50ms neutral defeat/floor-advance recording harness 454b9b0. Previous c90ba6 CI FAILED 1/1044 on static conduit endpoint. New exact-head 454b9b CI queued; matched video pending; blind 0/5 each and hardware unavailable."
+    "title": "OPEN same playable 3D Tower guardian/crusher encounter → real source-earned armor/circuit/gateway → cap promenade and continuous floor-nine ascent/outcome; NOT EVALUATED",
+    "implementationSha": "a4e1166fecd6aa51d05b768f843031157430324b",
+    "implementationEvidenceStatus": "NOT EVALUATED: new 12-instance source-grounded cap promenade 409be4f/finite-snapshot guard a4e1166; source-walk escort camera 0addd13 and original boss/circuit/doorway remain on same vertical slice. Earlier source ae6986 safety CI 42087625640 FAILED 1/1044 due test overlarge dt; bounded-frame test corrected 53f014c. New exact-head quality run pending; candidate film 42096602329 was requested at pre-guard SHA 0addd13, NOT final implementation. No matched final-source footage, no independent critics (0/5 each), no supported-device tails/memory."
   },
   "currentTransformation": {
     "title": "SAME playable real 3D Tower climb and authentic upper-cap guardian/crusher encounter: earned armor-opening, damage feedback, safe movement and eventual floor-nine continuation",
-    "state": "OPEN — same guardian/crusher battle through source-authentic armor collapse, ground shockwave, severing circuit, earned bronze doorway, floor-nine continuation/restart. Quality NOT EVALUATED.",
+    "state": "OPEN — same real guardian/crusher combat through source-earned defeat and unlocked physical doorway, now with an actual curved cap promenade and continuous passage-escort camera. NOT EVALUATED.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Verify pending quality workflow https://github.com/my-edutu/Ai_games/actions/runs/42087182787 against prior one-test failure; inspect native normal-speed desktop/phone WebM from original-host capture https://github.com/my-edutu/Ai_games/actions/runs/42087182925 and its new source-defeat/floor-advance witness. Match actual events, NOT clock seconds. Then recruit five genuinely independent randomized full-motion critics per LOOKS/FEELS/PLAYS, requiring 4/5 candidate on each, and collect supported-device p50/p95/p99/memory, accessibility, replay and stability. All still NOT EVALUATED.",
+    "nextDecision": "Check latest exact-head source safety (https://github.com/my-edutu/Ai_games/actions/runs/42096809345) and pending native original-host desktop/portrait source film (https://github.com/my-edutu/Ai_games/actions/runs/42096602329) explicitly against their pinned SHAs. Re-record final a4e1166+source because the pending film does not include finite-position hardening. Inspect continuous 60s+ actual ascent, guardian/crusher contact and result/restart clips at matching seed/viewport/quality, align events, then five truly independent blind critic judgments each LOOKS/FEELS/PLAYS (>=4/5 candidate EACH), plus device p50/p95/p99/memory and accessibility/replay/recovery. All still NOT EVALUATED.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "At newest source f1e1b9e and full-motion harness 454b9b0, successful 60s+ desktop + native portrait ascent/high-stakes/outcome recordings, event-matched to immutable baseline 1731b380, are not yet assessed. Real guardian collapse→power break→open gate→floor-nine/outcome must be readable across continuous motion; 0/5 blind votes per pillar, hardware performance unknown, prior c90 exact-head CI FAILED one source visual contract.",
-    "unverifiedImplementationBranchHead": "454b9b07696c9e9e45b54305a4db5d87f88ce9fd",
-    "currentVerticalSlice": "Same original playable 3D upper Tower transformation: source-authentic floor-eight guardian duel, defeated body 12-plate collapse, original ground impact, gateward-reeling eight-segment physical power disconnection, true unlocked bronze portal, floor-nine continuation/outcome; independent event-bound 50ms real capture observer. f49a7b4 playable motion, f1e1b9e source diagnostics, 454b9b0 capture harness. No simulation/replay/score/AI mutation.",
-    "biggestGap": "The entire source-earned guardian defeat, visible armor collapse, opening and crossing the real gate, floor-nine continuation and authentic outcome/restart must appear in continuous, source-matched original-browser desktop and portrait footage; matched-seed older clips predate this work. No independent blind full-motion judgments (LOOKS/FEELS/PLAYS 0/5 each) or supported-device frame-time p50/p95/p99 and memory evidence. No claim of experience superiority."
+    "biggestRemainingExperienceGap": "The physical inlays and source-walk camera have not been observed in genuine final-source native desktop/portrait full-motion gameplay, and must prove the real guardian defeat→cap promenade→unlocked bronze door→floor nine→outcome/restart is actually easier to follow. Frozen baseline 1731b380 unchanged. Older recordings show earlier scenes only; 0/5 critic judgments in all pillars, device metrics missing; current CI pending after previous 1/1044 safety failure.",
+    "unverifiedImplementationBranchHead": "e0cc6e1aec6a35ce7e0c986c1032b55ee9149ad6",
+    "currentVerticalSlice": "SAME original real 3D upper Tower transformation: original guardian/crusher battle, source-defeated 12-piece armor, authored impact and power-break, earned bronze gate, curved original cap-floor 12-piece metal promenade, real-position color/walk feedback, source-bounded continuous camera and floor-nine continuation/outcome. Source implementations 409be4f, 0addd13, a4e1166; no gameplay authority/replay/control mutation. No independent visual grading.",
+    "biggestGap": "Demonstrate through completed normal-speed source-pinned original-host desktop and phone video (>=60s scenario each) that the physically earned guardian defeat and unlocked cap route remain visible and legible across the entire actual walk, floor-nine handoff and result/restart; independent blind reviewers (LOOKS/FEELS/PLAYS 0/5 each), supported-device p50/p95/p99 and memory absent. Current exact-head safety pending, not a quality score."
   },
   "scenarios": [
     {
@@ -62,11 +62,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Confirmed c90ba6f full Node suite https://github.com/my-edutu/Ai_games/actions/runs/42077566105 FAILED 1 of 1044 tests (far power segment did not move in first .55s). Revised source physically reels to gate at f49a7b4, new focused contract 70c6d74, current source diagnostics f1e1b9e and neutral full-motion harness 454b9b0. Latest exact-head gate https://github.com/my-edutu/Ai_games/actions/runs/42087182787 QUEUED; no new safety PASS. CI is a veto, not experience quality.",
-    "replay": "No changes to fixed-step Tower authority, AI policy, combat, damage, collisions, floor progression, RNG or replay. Source zero-health inactive guardian is required to emit one short decorative impact and sever the power conduit. Stale transport does not advance presentation age; reduced motion suppresses traveling effect. No future result inferred.",
-    "accessibility": "Reduced-motion mode hides the traveling impact impulse, retains settled source-defeated armor and already-unlocked static gateway; existing audio remains opt-in and mutable; minimal HUD unchanged. Phone legibility and accessibility not yet independently verified.",
-    "performance": "One additional short-lived unshadowed original torus mesh draw with its own disposable material; uses existing ground torus geometry. Eight-segment power conduit continues as one pre-existing instanced draw; no new lights/shadow passes, colliders, geometry or model assets. Actual supported-device p50/p95/p99 frame-time and memory NOT MEASURED.",
-    "stability": "New original-host real-motion capture https://github.com/my-edutu/Ai_games/actions/runs/42087182925 PENDING at source 454b9b0; no current-source videos or reviewers inspected. Earlier source output is NOT evidence for this work. Branch PR68 draft, PR58 protected, frozen baseline intact; no merge/force push/deploy. Stale and source-tick mismatched read-only observations cannot be accepted as video quality evidence."
+    "ci": "The preceding exact-head https://github.com/my-edutu/Ai_games/actions/runs/42087625640 FAILED 1 of 1044 tests: guardian passage effect uses bounded <=0.5s update but test passed 1.1s once. Fixed contract to use bounded frames 53f014c. New inlay source/scene and test commits through 017c296, docs e0cc6e1; exact-head workflow https://github.com/my-edutu/Ai_games/actions/runs/42096809345 was QUEUED at inspection, not validated. CI may veto, never establish a transformation quality win.",
+    "replay": "No changes to fixed-step authority, seeds, AI hazard policy, guardian HP, collisions, combat damage, floor progression, replay or score. The existing source-defeated guardian and real cap authorize only decorative inlays. Inlay updates follow monotonically increasing source ticks; out-of-order snapshots do not rewind highlights, incomplete player x does not produce nonfinite render colors. Camera escort is capped and actor framing/obstacle safety retains priority.",
+    "accessibility": "Reduced-motion mode retains a static genuinely earned cap path while suppressing optional continuous camera escort and impact motion; existing audio remains opt-in and HUD unchanged. The path uses silhouette/physical inlays and warm-to-pale metal cues rather than adding instructions; color-accessibility, phone visibility and actual comprehension not yet independently assessed.",
+    "performance": "One additional 12-instance instanced standard-material draw and one owned material, reusing original box geometry. Twelve small instance-color updates per valid source tick. No new lights/shadow passes, textures, colliders, geometry allocations per frame or new passes. Real supported-device p50/p95/p99 frame-time tails and memory NOT MEASURED.",
+    "stability": "Current-source capture https://github.com/my-edutu/Ai_games/actions/runs/42096602329 PENDING, pinned to 0addd13, which predates followup finite-position guard a4e1166. No final-source full-motion blind reviews. Independent browser/worker connector NOT_FOUND: Tunnel-client has not been seen for 300 seconds at 2026-11-05 inspection. PR68 stays draft; PR58 protected; baseline unchanged; no merge/deploy/force push."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -3591,6 +3591,35 @@
       "exactHeadSafetyRun": "https://github.com/my-edutu/Ai_games/actions/runs/42087182787",
       "exactHeadSafetyRunStatus": "QUEUED; last confirmed c90 source CI FAIL",
       "defeatWitnessArtifact": "artifacts/tower-motion/danger/{desktop,portrait}/guardian-release-source-witness.json (generated only by source-pinned browser run; not yet confirmed)"
+    },
+    "latestEarnedCapPromenade20261105": {
+      "sourceImplementationSha": "a4e1166fecd6aa51d05b768f843031157430324b",
+      "cameraSourceSha": "0addd133d607c362f87c2e82e6dd10339b40a4a8",
+      "sourceInlaySha": "409be4f3f997cfb27389b388c01065d151756628",
+      "contractSourceSha": "017c296f75bbe61403967766564fd1765e016e24",
+      "evidenceReviewPath": "docs/reviews/2026-11-05-tower-pr68-source-earned-cap-promenade-and-camera.md",
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "gameplaySource": "public/infinite-tower-climb/visuals/guardian-passage.mjs and scene.mjs",
+      "sourceBoundExperience": "Observed zero-HP inactive floor-eight guardian unlocks 3D bronze cap; 12 original no-collider metal inlays lie on actual cap at curved tower exterior and source player x illuminates true walking; same running camera follows bounded progress, then normal floor-nine passage and outcome.",
+      "previousExactHeadSafety": {
+        "runUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42087625640",
+        "conclusion": "FAILURE 1/1044 source-guardian conduit retirement test; oversize dt assumption corrected in 53f014c"
+      },
+      "newSafetyRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42096809345",
+      "newSafetyStatus": "QUEUED at inspection; NOT a quality verdict",
+      "candidateRecordingUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42096602329",
+      "candidateRecordingStatus": "PENDING, pre-a4e1166 source; not final exact-source evidence",
+      "finalCandidateRecorded": false,
+      "baselineAndCandidatePairedEventMatched": false,
+      "independentBlindVotes": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "supportedHardwareFrameTimeMemory": "NOT MEASURED",
+      "qualityVerdict": "NOT EVALUATED",
+      "independentBrowserBlocker": "NOT_FOUND tunnel client offline over 300 seconds",
+      "largestRemainingGap": "Only real, matched, continuous desktop and native phone footage plus five independent full-motion blind critics for EACH pillar can establish improvement; verify viewer follows full guardian→cap→gate→floor-nine→outcome/restart through normal action."
     }
   }
 }
