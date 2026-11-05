@@ -989,6 +989,91 @@ function simulationFrameDelta(elapsedSeconds){
  if(!Number.isFinite(elapsedSeconds))throw Error('Invalid renderer elapsed seconds');
  return Math.min(.75,Math.max(0,elapsedSeconds));
 }
+
+// W70: real WebGL GPU elapsed time is NOT the synchronous CPU draw-submission
+// measurement above. EXT_disjoint_timer_query is optional (no extension on
+// many devices and never presumed to represent consumer hardware in SwiftShader).
+// Queries are polled only after RESULT_AVAILABLE, never blocking the game.
+const GPU_TIMER_PENDING_MAX=4,GPU_TIMER_SAMPLE_MAX=48;
+const gpuTimerExtension=gpuAvailable&&!swiftGpu?
+ gl.getExtension('EXT_disjoint_timer_query'):null;
+const gpuTimerPending=[],gpuTimerSamples=[];
+let gpuTimerDisabled=false,gpuTimerDropped=0,gpuTimerDisjoints=0,
+ gpuTimerFailures=0,gpuTimerCompleted=0;
+function abandonGpuTimerQueries(){
+ if(!gpuTimerExtension)return;
+ while(gpuTimerPending.length){
+  const query=gpuTimerPending.pop();
+  try{gpuTimerExtension.deleteQueryEXT(query)}catch(_){}
+ }
+}
+function pollGpuFrameTimer(){
+ if(!gpuTimerExtension||gpuTimerDisabled)return;
+ try{
+  if(gl.getParameter(gpuTimerExtension.GPU_DISJOINT_EXT)){
+   // All outstanding measurements cross an invalid GPU timing interval.
+   gpuTimerDisjoints++;abandonGpuTimerQueries();gpuTimerSamples.length=0;
+   return;
+  }
+  while(gpuTimerPending.length){
+   const query=gpuTimerPending[0];
+   if(!gpuTimerExtension.getQueryObjectEXT(query,
+     gpuTimerExtension.QUERY_RESULT_AVAILABLE_EXT))break;
+   gpuTimerPending.shift();
+   const nanos=gpuTimerExtension.getQueryObjectEXT(query,
+     gpuTimerExtension.QUERY_RESULT_EXT);
+   gpuTimerExtension.deleteQueryEXT(query);
+   const ms=Number(nanos)/1000000;
+   if(Number.isFinite(ms)&&ms>=0&&ms<60000){
+    gpuTimerSamples.push(ms);
+    if(gpuTimerSamples.length>GPU_TIMER_SAMPLE_MAX)gpuTimerSamples.shift();
+    gpuTimerCompleted++;
+   }
+  }
+ }catch(_){
+  gpuTimerFailures++;gpuTimerDisabled=true;abandonGpuTimerQueries();
+ }
+}
+function beginGpuFrameTimer(){
+ if(!gpuTimerExtension||gpuTimerDisabled)return null;
+ pollGpuFrameTimer();
+ if(gpuTimerDisabled)return null;
+ if(gpuTimerPending.length>=GPU_TIMER_PENDING_MAX){gpuTimerDropped++;return null}
+ try{
+  const query=gpuTimerExtension.createQueryEXT();
+  if(!query){gpuTimerFailures++;gpuTimerDisabled=true;return null}
+  gpuTimerExtension.beginQueryEXT(gpuTimerExtension.TIME_ELAPSED_EXT,query);
+  return query;
+ }catch(_){gpuTimerFailures++;gpuTimerDisabled=true;return null}
+}
+function endGpuFrameTimer(query){
+ if(!query)return;
+ try{
+  gpuTimerExtension.endQueryEXT(gpuTimerExtension.TIME_ELAPSED_EXT);
+  gpuTimerPending.push(query);
+ }catch(_){
+  gpuTimerFailures++;gpuTimerDisabled=true;
+  try{gpuTimerExtension.deleteQueryEXT(query)}catch(_){}
+  abandonGpuTimerQueries();
+ }
+}
+function getGpuFrameTimerAudit(){
+ const sorted=gpuTimerSamples.slice().sort((a,b)=>a-b);
+ const percentile=p=>sorted.length?sorted[Math.ceil(sorted.length*p)-1]:null;
+ const status=!gpuAvailable?'no-webgl':swiftGpu?'software-renderer':
+  gpuTimerDisabled?'context-failed':
+  gpuTimerExtension?'available':'extension-unavailable';
+ return {kind:'webgl-nonblocking-time-elapsed',unit:'milliseconds',
+  source:'EXT_disjoint_timer_query',status,renderer:gpuName,
+  softwareWebGL:swiftGpu,available:status==='available',
+  maxPending:GPU_TIMER_PENDING_MAX,pending:gpuTimerPending.length,
+  maxSamples:GPU_TIMER_SAMPLE_MAX,samples:gpuTimerSamples.length,
+  completed:gpuTimerCompleted,dropped:gpuTimerDropped,
+  disjointIntervals:gpuTimerDisjoints,failures:gpuTimerFailures,
+  p50Ms:percentile(.50),p95Ms:percentile(.95),p99Ms:percentile(.99),
+  lastGpuMs:gpuTimerSamples.length?gpuTimerSamples[gpuTimerSamples.length-1]:null,
+  blockingRead:false,cpuWallFpsClaim:false,hardwareFpsClaim:false};
+}
 function renderQuality(){const automated=swiftGpu||!gpuAvailable;return {tier:graphicsTier,renderer:gpuName,scale:qualityOverride??(swiftGpu?softwareAutoScale:automated?.65:1),targetFps:automated?12:60,materialNoise:swiftGpu?'projected-bilinear-software':'volumetric-trilinear',architectureTier:swiftGpu?'architectural-atlas-fast':'hardware-layered-original',framesDrawn,framesSkipped,idleFrames}}
 function setRenderQuality(scale){if(!Number.isFinite(scale)||scale<.35||scale>1.5)throw Error('Render scale must be between 0.35 and 1.5');qualityOverride=scale;return renderQuality()}
 
@@ -12297,6 +12382,7 @@ function render(now){requestAnimationFrame(render);
  const minFrameMs=(swiftGpu||!gpuAvailable)?1000/12:0;
  if(minFrameMs&&frameGateTime&&now-frameGateTime<minFrameMs){framesSkipped++;return}
  frameGateTime=now;framesDrawn++;const frameProfileStart=performance.now();
+ const frameGpuQuery=beginGpuFrameTimer();
  // Keep simulation dt clamped for deterministic tick safety, but advance
  // the camera on actual elapsed wall time with bounded collision substeps.
  const wallDt=Math.max(0,Math.min(.75,(now-(timer||now))/1000));
@@ -12726,7 +12812,8 @@ if(gpuAvailable){
  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);
 }
 dynamicPhaseTimes.gpuUpload=performance.now()-gpuUploadStart;
-gl.drawArrays(gl.TRIANGLES,0,data.length/10);refreshPickedCitizenCaption();if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal();updateWorldRibbon()}
+gl.drawArrays(gl.TRIANGLES,0,data.length/10);
+ endGpuFrameTimer(frameGpuQuery);refreshPickedCitizenCaption();if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal();updateWorldRibbon()}
  // These are synchronous CPU wall phases and may include WebGL driver stalls;
  // they are not GPU elapsed queries, frame presentation timestamps or FPS.
  const frameProfileEnd=performance.now();
@@ -12763,7 +12850,7 @@ getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStr
  totalCulledTriangles:scenicVisibilityStats.totalCulledTriangles,
  totalDrawCalls:scenicVisibilityStats.totalDrawCalls,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable}),getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,renderQuality,setRenderQuality,getFrameProfile,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getDynamicVertexPoolAudit,getCameraDynamicCacheStats,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable}),getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,renderQuality,setRenderQuality,getFrameProfile,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getDynamicVertexPoolAudit,getCameraDynamicCacheStats,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
  if(streetWalk)setStreetWalk(false);
 if(follow)setCitizenFollow(false);cinematic=false;document.getElementById('camera').classList.remove('active');
 yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2&&o.focus.every(Number.isFinite))focusPoint=o.focus.slice(0,2)}};
