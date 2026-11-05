@@ -2,12 +2,17 @@ import * as THREE from './vendor/three.module.js';
 
 // Original Garden Expedition models. Local +Z is forward; the host owns position.
 // All animation is cosmetic, derived only from the supplied public presentation state.
+// Pip and Thornback may coexist while a run resets. Identical immutable
+// primitive buffers are shared between their rigs, and released only after
+// the final rig lets go; rigid merged animation buffers remain per-rig.
+// This reduces live WebGL geometry pressure without changing a silhouette.
+const sharedRigPrimitives = new Map();
 const TAU = Math.PI * 2;
 const finite = (value, fallback = 0) => Number.isFinite(value) ? value : fallback;
 const approach = (a, b, speed, delta) => a + (b - a) * (1 - Math.exp(-speed * delta));
 function rig(name, { balanced = false } = {}) {
   const group = new THREE.Group(); group.name = name;
-  const geometries = new Set(), materials = new Set(), cache = new Map();
+  const geometries = new Set(), materials = new Set(), cache = new Map(), sharedKeys = new Set();
   // At gameplay scale, fewer samples retain each modeled detail and its silhouette.
   const sphereWidth = balanced ? 12 : 20, sphereHeight = balanced ? 8 : 14;
   const radial = balanced ? 8 : 16, ringRadial = balanced ? 5 : 8, ringLength = balanced ? 12 : 24;
@@ -17,7 +22,19 @@ function rig(name, { balanced = false } = {}) {
     materials.add(m); return m;
   }
   function geometry(key, make) {
-    if (!cache.has(key)) { const g = make(); cache.set(key, g); geometries.add(g); }
+    if (!cache.has(key)) {
+      // Keys are quality-specific because balanced and full modes have
+      // different curve sampling. One reference per rig, not per limb.
+      const sharedKey = `${balanced ? 'balanced' : 'full'}:${key}`;
+      let entry = sharedRigPrimitives.get(sharedKey);
+      if (!entry) {
+        entry = {shape: make(), refs: 0};
+        sharedRigPrimitives.set(sharedKey, entry);
+      }
+      entry.refs++;
+      sharedKeys.add(sharedKey);
+      cache.set(key, entry.shape);
+    }
     return cache.get(key);
   }
   function mesh(parent, g, material, pos = [0,0,0], scale = [1,1,1]) {
@@ -77,8 +94,16 @@ function rig(name, { balanced = false } = {}) {
     if (disposed) return; disposed = true;
     group.removeFromParent(); group.clear();
     for (const g of geometries) g.dispose();
+    for (const key of sharedKeys) {
+      const entry = sharedRigPrimitives.get(key);
+      if (!entry) continue;
+      if (--entry.refs === 0) {
+        entry.shape.dispose();
+        sharedRigPrimitives.delete(key);
+      }
+    }
     for (const m of materials) m.dispose();
-    geometries.clear(); materials.clear(); cache.clear();
+    geometries.clear(); materials.clear(); cache.clear(); sharedKeys.clear();
   }
   return {group,material,ball,tube,ring,rounded,pivot,bar,finish,dispose,isDisposed:()=>disposed};
 }
