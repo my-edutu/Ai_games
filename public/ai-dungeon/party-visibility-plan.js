@@ -225,9 +225,19 @@ export function resolveRenderedSilhouetteSubjects(state,subjects,actors){
   const at=anchored(unit);
   if(!at)continue;
   claimed.add(unit.id);
-  resolved.push({...at,kind:unit.kind,
+  const live={...at,kind:unit.kind,
    visibleActor:true,silhouetteRecess:true,
-   combatRecess:unit.action==='attack'||unit.action==='cast'});
+   combatRecess:unit.action==='attack'||unit.action==='cast'};
+  // At crowded boss shots the five director slots can already contain scenic
+  // focus marks. They must not crowd out the REAL visible skinned party:
+  // otherwise no renderer, facade or camera gets privileged full-body data.
+  // Retain early cinematic marks, evict only unverified marks from the END.
+  if(resolved.length<5){resolved.push(live);continue;}
+  let evict=-1;
+  for(let i=resolved.length-1;i>=0;i--)
+   if(resolved[i]?.visibleActor!==true){evict=i;break;}
+  if(evict>=0)resolved[evict]=live;
+  else break; // Five genuinely rooted actors already own the fixed budget.
  }
  return resolved;
 }

@@ -122,6 +122,7 @@ test('rendered physical facades and camera share the same real-actor cutaway ban
  const environment=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
  const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
  assert.match(environment,/const facadeReveal=/);
- assert.match(environment,/reveal=facadeReveal\(f,eyes,camera,wallPad\)/);
+ assert.match(environment,/coarse=facadeReveal\(f,eyes,camera,wallPad\)/);
+ assert.match(environment,/const reveal=projected\?'sightline':coarse/);
  assert.match(app,/facadeReveal:world\.userData\.dressing\?\.facadeReveal/);
 });

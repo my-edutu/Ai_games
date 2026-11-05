@@ -490,3 +490,34 @@ test('whole-body projection rejects rear Gothic stone and fictional living figur
  assert.match(app,/planProjectedBodyAperture\(world\.userData\.authoredPropVolumes/);
  assert.match(env,/screenSpaceClearedFacades/);
 });
+
+test('five scenic shot slots cannot starve real party bodies from camera and stone clearance',async()=>{
+ const {resolveRenderedSilhouetteSubjects}=await load();
+ const map=Array(19).fill('.'.repeat(19));
+ const units=[
+  {id:'v',faction:'party',kind:'vanguard',x:9,z:9,hp:75},
+  {id:'r',faction:'party',kind:'ranger',x:10,z:9,hp:55,action:'attack'},
+  {id:'m',faction:'party',kind:'mystic',x:9,z:10,hp:40}
+ ];
+ const state=Object.freeze({map,units:units.map(u=>Object.freeze(u))});
+ const actors=new Map([
+  ['v',{root:{visible:true,position:{x:.1,z:0}}}],
+  ['r',{root:{visible:true,position:{x:1,z:.1}}}],
+  ['m',{root:{visible:true,position:{x:.08,z:1}}}]
+ ]);
+ const scenic=Object.freeze(Array.from({length:5},(_,i)=>Object.freeze({x:7+i,z:-6+i})));
+ const original=JSON.stringify(state);
+ const out=resolveRenderedSilhouetteSubjects(state,scenic,actors);
+ assert.equal(out.length,5,'camera/cutaway remains bounded to five');
+ assert.deepEqual(out.slice(0,2),scenic.slice(0,2),'primary scene focus survives');
+ assert.deepEqual(out.slice(2).map(p=>p.kind),['mystic','ranger','vanguard'],
+  'only secondary unverified stage marks are replaced by genuine bodies');
+ assert.ok(out.slice(2).every(p=>p.visibleActor===true),'all three skinned heroes receive physical cutaway');
+ assert.ok(out.some(p=>p.kind==='ranger'&&p.combatRecess===true));
+ actors.get('r').root.visible=false;
+ const hidden=resolveRenderedSilhouetteSubjects(state,scenic,actors);
+ assert.equal(hidden.filter(p=>p.visibleActor===true).length,2,
+  'an invisible root cannot displace a scenic marker or earn transparency');
+ assert.equal(JSON.stringify(state),original);
+ assert.deepEqual(scenic,Array.from({length:5},(_,i)=>({x:7+i,z:-6+i})));
+});
