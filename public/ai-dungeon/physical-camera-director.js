@@ -11,7 +11,7 @@
  * movement occur here. Decision changes are latched per real run / floor and
  * limited to the existing director's cinematic shot (manual views untouched).
  */
-import {planForegroundPointRisk} from '/dungeon/foreground-sightline-plan.js';
+import {planForegroundPointRisk,planDrawableForegroundVolumes} from '/dungeon/foreground-sightline-plan.js';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const finite=n=>typeof n==='number'&&Number.isFinite(n);
 const ANGLES=Object.freeze([0,-.40,.40,-.76,.76]);
@@ -145,6 +145,10 @@ function orbit(base,index,size){
 }
 
 function grade(cam,look,eyes,grid,size,viewport,reveal,pad,facades,facadeReveal,propVolumes){
+ // Each proposed shot is graded against the scene it would REALLY display:
+ // foreground models culled by a genuine skinned actor are not still opaque
+ // to this camera. Keep the original bounded point-ray test for the rest.
+ propVolumes=planDrawableForegroundVolumes(propVolumes,eyes,cam);
  const aspect=viewport.width/viewport.height;
  const fov=clamp(viewport.fov,32,66);
  let score=0,blocked=0,cropped=0,fullyVisible=0;

@@ -51,6 +51,21 @@ export function planForegroundPointRisk(boxes,camera,point,subject){
  }
  return false;
 }
+/**
+ * A camera cannot call an arch opaque if the running renderer has already
+ * hidden that same arch around a verified living fighter. Derive the camera's
+ * remaining, genuinely drawable obstacles from the very same bounded body
+ * cutaway used for loaded authored props, Gothic cladding and vault ribs.
+ * Preserve all rear/uncleared stone. This is a per-shot CPU plan, not an
+ * extra render pass, AI decision, scene mutation or WebGL allocation.
+ */
+export function planDrawableForegroundVolumes(volumes,subjects,camera){
+ if(!Array.isArray(volumes)||volumes.length>160||
+   !Array.isArray(subjects)||subjects.length>5)return [];
+ return volumes.filter(box=>valid(box)&&
+  !planForegroundBodyClearance(box,subjects,camera));
+}
+
 /** Floor-cached geometry AABBs aligned exactly with the THREE.Group list. */
 export function captureForegroundVolumes(T,objects){
  if(!T?.Box3||!Array.isArray(objects)||objects.length>160)return [];

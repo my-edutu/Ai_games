@@ -109,10 +109,16 @@ export function planPartyWallReveal(x,z,subjects,camera,pad=2.1,wallHeight=2.6){
   // No actor position, collision, hit, AI, authority or replay is touched.
   if(subject.visibleActor===true){
    const fighting=subject.combatRecess===true;
-   const radius=fighting?2.40:2.15;
-   const side=fighting?2.02:1.82;
+   // True live combat needs an adult-length weapon lane, not only the
+   // character's centre tile. In genuine high-oblique WebGL captures, the
+   // nearest side-facing stone fascia was 2.5-3m from the actor yet still
+   // painted a solid fence across the chest and sword. Expand ONLY the
+   // camera-facing live-body aperture, never the rear cathedral or a
+   // scenic/unverified mark. This is an actual 3D geometry cutaway.
+   const radius=fighting?3.05:2.60;
+   const side=fighting?2.35:1.95;
    if(Number.isFinite(camera.y)&&camera.y>=.5&&camera.y<=28&&
-      radial<=radius*radius&&progress>=-.55&&progress<=2.18&&
+      radial<=radius*radius&&progress>=-.55&&progress<=(fighting?3.0:2.55)&&
       sideways<=side&&(wallHeight>=.55||
         // Ordinary autonomous traversal is ALSO real gameplay. A living
         // unmarked actor's boots cannot disappear behind the immediately
@@ -218,7 +224,6 @@ export function resolveRenderedSilhouetteSubjects(state,subjects,actors){
  // from the actual visible, alive party or boss within its authoritative cell.
  // No invented combatant, teleport, path correction or simulation mutation.
  for(const unit of state.units){
-  if(resolved.length>=5)break;
   if(!unit||claimed.has(unit.id)||unit.hp<=0||
      (unit.faction!=='party'&&unit.kind!=='warden')||
      !Number.isInteger(unit.x)||!Number.isInteger(unit.z))continue;

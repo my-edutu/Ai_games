@@ -521,3 +521,16 @@ test('five scenic shot slots cannot starve real party bodies from camera and sto
  assert.equal(JSON.stringify(state),original);
  assert.deepEqual(scenic,Array.from({length:5},(_,i)=>({x:7+i,z:-6+i})));
 });
+
+
+test('the real high-angle close-combat camera clears the near flank and weapon lane but retains rear Gothic mass',async()=>{
+ const {planPartyWallReveal:reveal}=await load();
+ const camera=Object.freeze({x:7,y:10,z:2});
+ const fighter=Object.freeze({x:0,z:0,kind:'vanguard',visibleActor:true,combatRecess:true});
+ assert.equal(reveal(2.55,1.10,[fighter],camera,2.1,2.65),'sightline',
+  'the actual near-flank figure must be readable at this real 3D camera height');
+ assert.equal(reveal(-3.5,-1,[fighter],camera,2.1,2.65),'none',
+  'distant Gothic rear architecture remains full-height');
+ assert.equal(reveal(5.8,4.1,[fighter],camera,2.1,2.65),'none',
+  'the next room must never be flattened for a hero close-up');
+});
