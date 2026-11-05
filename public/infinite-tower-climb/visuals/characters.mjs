@@ -1120,10 +1120,18 @@ export function createEnemy(kind='sentinel') {
     // staged reveal is persistent across presentation frames and therefore
     // legible even when a short hit flash would be missed by software GL.
     // Death takes priority; a restore with full HP closes both shells.
-    const guardianExposure=guardian
+    // The actual contact-safe stagger is an earned attack opportunity.
+    // Unhinge the existing armor in the SAME source window as its collision
+    // and shield rules. The outline closes again after recovery, unless real
+    // lost HP has already left a more permanent scar. No extra render pass.
+    const counterOpening=guardian&&!dead&&!stale&&
+      Number.isFinite(state.staggerTicksRemaining)&&
+      state.staggerTicksRemaining>0 ? .9 : 0;
+    const attritionExposure=guardian
       ? dead ? 1 : Number.isFinite(health)&&Number.isFinite(state.maxHealth)&&state.maxHealth>0
         ? THREE.MathUtils.smoothstep(1-clamp(health/state.maxHealth,0,1),.09,.82) : 0
       : 0;
+    const guardianExposure=Math.max(attritionExposure,counterOpening);
     const tookDamage=!dead&&Number.isFinite(health)&&previousHealth!==null&&health<previousHealth;
     if(tookDamage||(hurt&&!wasHurt))hurtAge=0;
     else hurtAge=Math.min(1,hurtAge+dt);
@@ -1259,7 +1267,11 @@ export function createEnemy(kind='sentinel') {
       head.rotation.x-=.2*interrupt;
       arms[1].upper.rotation.x=mix(arms[1].upper.rotation.x,-.2,interrupt);
       arms[1].lower.rotation.x=mix(arms[1].lower.rotation.x,-.75,interrupt);
-      arms[0].upper.rotation.z-=.25*interrupt;
+      // Let the shield arm fall OPEN along with the core: a readable
+      // physical opportunity rather than a generic backward flinch.
+      arms[0].upper.rotation.z-=.40*interrupt;
+      arms[0].upper.rotation.x+=.34*interrupt;
+      arms[0].lower.rotation.x+=.25*interrupt;
       for(let i=0;i<2;i++){
         legs[i].upper.rotation.x-=.38*interrupt;
         legs[i].lower.rotation.x+=.52*interrupt;
