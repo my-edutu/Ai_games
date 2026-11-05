@@ -33,6 +33,24 @@ test('real public one-cell pressure trap earns a continuous shared mobile stage 
   assert.deepEqual(hero,{x:0,z:0},'never move or steer Pip');
 });
 
+test('only a genuinely diagonal published jaw gets extra pan, while axial departure fades',async()=>{
+  const {publicObservedTrapCameraFocus:focus}=await camera();
+  const actual=grid([tile(40,false),tile(50,true)],[40,50]);
+  const realDiagonal=focus(actual,{x:0,z:0},size,320/740);
+  assert.equal(realDiagonal.cell,50);
+  assert.ok(Math.abs(realDiagonal.weight-.57)<1e-10,
+    'genuine one-by-one diagonal 320px trap preserves its stronger shared camera');
+  const axis=grid([tile(40,false),tile(41,true)],[40,41]);
+  assert.ok(Math.abs(focus(axis,{x:0,z:0},size,320/740).weight-.44)<1e-10);
+  const axialDeparture=focus(axis,{x:-.8,z:0},size,320/740);
+  assert.ok(axialDeparture.weight>0&&axialDeparture.weight<.44,
+    'axial departure must not masquerade as a diagonal encounter');
+  const outer=focus(axis,{x:-1.2,z:0},size,320/740);
+  assert.equal(outer.weight,0,'camera returns continuously to ordinary exploration');
+  assert.deepEqual(focus(actual,{x:0,z:0},size,320/740),realDiagonal,
+    'source-bound identical public frames remain deterministic');
+});
+
 test('private, merely remembered or invalid trap cannot take over the public camera',async()=>{
   const {publicObservedTrapCameraFocus:focus}=await camera();
   const hero={x:0,z:0},seen=grid([tile(40,false),tile(41,true)],[40,41]);
