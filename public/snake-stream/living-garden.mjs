@@ -63,10 +63,14 @@ export function createLivingGarden(THREE, {width,height}) {
   // physically authored batches and preserve every leaf, root and arch.
   // This is a material study, not a new shader, asset, light or texture.
   const palette={
-    moss:[0x254831,0x3d7042,0x6d9655,0xa1b36e,0x697c4e],
+    moss:[0x254831,0x3d7042,0x648b50,0x899f68,0x62754d],
     cliff:[0x435852,0x6c7b70,0xa09f8e,0xc3b39a,0x60766a],
     ruin:[0x647469,0x919988,0xc3c0ab,0xd8c7a6,0x87956a],
-    foliage:[0x1d4435,0x34784a,0x73a055,0xb4c477,0x3a6b48]
+    // The old uniformly high-value yellow crowns read fluorescent in the
+    // authentic full 1920p capture. Retain the SAME 40k existing leaf vertices
+    // and original foliar faces, grading living jade, shaded blue-green and
+    // sunward sage instead of acid-lime billboard foliage.
+    foliage:[0x193f35,0x2b6748,0x598c58,0x88aa70,0x326747]
   };
   const rgb=new Map();
   for(const [key,arr] of Object.entries(palette))
@@ -85,7 +89,13 @@ export function createLivingGarden(THREE, {width,height}) {
       :layer==='cliff'?.62+cloud*2.75-wet*.45+(lichen-.5)*.16
       :layer==='ruin'?1.11+cloud*1.67+(lichen-.5)*.30
       :.43+cloud*2.24+(lichen-.5)*.42 + clamp((point[1]-2.5)/6,0,1)*1.05;
-    shade=clamp(shade+faceShade,0,colors.length-1);
+    // Broad continuous crown lighting follows actual world-position foliage,
+    // not arbitrary triangle order. It is baked ONCE into the original four
+    // static batches; no new lighting pass, draw call or per-frame GPU work.
+    const crownDapple=layer==='foliage'
+      ? .26*Math.sin(point[0]*.47+point[2]*.32+point[1]*.19)
+      : 0;
+    shade=clamp(shade+faceShade+crownDapple,0,colors.length-1);
     const low=Math.floor(shade),high=Math.min(colors.length-1,low+1),mix=shade-low;
     const a=colors[low],c=colors[high];
     b.p.push(point[0],point[1],point[2]);

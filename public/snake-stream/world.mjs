@@ -372,14 +372,22 @@ export function createWorld(THREE, {width, height}) {
       // larger than grain without implying a different playable elevation.
       const toneIndex=(cz*width+cx)*5,cloud=smoothNoise(gx*.19+5,gz*.20+17);
       const mineral=smoothNoise(gx*2.8+23,gz*2.8+41),warmth=slabTones[toneIndex+1];
-      const recess=(1-fade(.006,.045,edge))*.045;
+      // River-polished limestone has alternating raised and broken seams.
+      // This one-time original atlas relief follows quarry cell provenance;
+      // each seam is interrupted by local mineral patches rather than a
+      // continuous black graph-paper grid in the real whole-stage overview.
+      const jointWear=.45+.55*noise(cx+121,cz+89);
+      const recess=(1-fade(.006,.054,edge))*(.087+.058*jointWear);
       const chalk=(fade(.018,.05,edge)-fade(.05,.095,edge))*(.012+fade(.35,.7,mineral)*.03);
       const patina=(1-fade(.25,2,border))*(.025+smoothNoise(gx*.8+60,gz*.8+80)*.055);
       // Short wandering seams end before the slab edge. Scar placement and
       // bending are stable per cell and use the already sampled mineral field.
       const crackPath=slabTones[toneIndex+3]+(u-.5)*slabTones[toneIndex+4]+(mineral-.5)*.045;
-      const fracture=slabTones[toneIndex+2]>.54
-        ? (1-fade(.007,.044,Math.abs(v-crackPath)))*.105*fade(.04,.13,u)*(1-fade(.74,.91,u))
+      // Wider interrupted fracture valleys keep believable worn limestone
+      // visible beneath the complete forest material. They are an original
+      // baked color response, never collider cracks or false gameplay routes.
+      const fracture=slabTones[toneIndex+2]>.18
+        ? (1-fade(.009,.087,Math.abs(v-crackPath)))*.35*fade(.055,.16,u)*(1-fade(.76,.91,u))
         : 0;
       // Patchy green patina follows incised joins and natural mineral clouds;
       // it never changes board height or the location of any hazard/food.

@@ -475,13 +475,25 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
           // but shaded rooted loam now holds irregular deep moss, olive
           // sediment and rain-polished slate. The darker real river banks
           // give food, dangers, portals and serpent their true cue contrast.
-          const leaf = Math.max(0, Math.min(1,
-            .78 + .13 * (sun - .5) + .14 * (marbled - .5) + .08 * (shadow - .5)));
+          // Authored river-to-quarry ecotone on the ACTUAL existing rock skin:
+          // broad dark pools, silver-green exposed moss and wind-dried ochre
+          // sediment break the former almost uniform mint overlay.  Every
+          // original bank triangle and its safely low relief stays intact.
+          const dryShelf = clamp(Math.max(habitat.terrace * .82,
+            floor.leafLitter * .90), 0, 1);
+          const leaf = clamp(.84 + .08 * sun + .04 * (shadow - .5), .78, .96);
           const bedShadow = .5 + .5 * Math.sin(point[0] * .83 - point[2] * 1.31
             + Math.sin(point[2] * .67) * .95 + salt);
-          const pigment = c === 0 ? .049 + sun * .036 + bedShadow * .020
-            : c === 1 ? .116 + marbled * .075 + bedShadow * .055
-              : .055 + shadow * .027 + (1-bedShadow) * .030;
+          // The wide, connected wet/dry gradient has a slower world-space
+          // rhythm than a game cell.  Dry ochre islands and planted moss share
+          // the same genuine habitat as the once-baked limestone field map.
+          const wetMoss = sun * (1 - dryShelf * .46);
+          const pigment = c === 0
+            ? .046 + dryShelf * .19 + (1-sun) * .042 + marbled * .025
+            : c === 1
+              ? .077 + wetMoss * .205 + bedShadow * .050 + dryShelf * .050
+              : .044 + habitat.coolSlate * .049 + bedShadow * .060
+                + marbled * .020;
           colour.push(wornStone * (1 - leaf) + pigment * leaf);
         } else colour.push(wornStone);
       }
