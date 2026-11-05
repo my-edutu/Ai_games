@@ -169,7 +169,7 @@ export function createMazeWorld(options = {}) {
   let tideFossilGroves = 0, tideFossilAlcoves = 0, fossilGalleryEdges = 0, undercroftButtresses = 0, hangingFacadeGardens = 0, closedTideMedallions = 0;
   // Authored, disclosed wall-side fossils react only to the PUBLIC explorer pose.
   // These are live Three groups, not hidden route markers or a new game system.
-  let fossilSails = [], fossilOrgans = [], publicHeroX = 0, publicHeroZ = 0;
+  let fossilSails = [], fossilOrgans = [], trapJaws = [], publicHeroX = 0, publicHeroZ = 0;
   let batchData = new Map();
   const clear = (target) => {
     for (const child of [...target.children]) {
@@ -1757,15 +1757,37 @@ export function createMazeWorld(options = {}) {
     }
   }
   function trapProp(c, s) {
+    // The PUBLIC trap cell has a substantial, authored 3D pressure-shell stage
+    // instead of six almost invisible spikes. This is only the appearance of
+    // an already-published hazard, not a new trigger, damage event or route.
+    // Two stone/bronze hinged jaws live at the edges of the real cell, leaving
+    // the playable centre open for Pip and never revealing a hidden neighbor.
     const p = propGroup(c.cell, s);
-    mesh(p, cylinder, deepStone, 0, .012, 0, .69, .024, .69);
-    mesh(p, ring, danger, 0, .035, 0, .62, .62, .62, Math.PI / 2);
+    p.name = 'Disclosed tide-shear pressure hazard ' + c.cell;
+    mesh(p, cylinder, deepStone, 0, .012, 0, .72, .024, .72);
+    mesh(p, ring, danger, 0, .035, 0, .66, .66, .66, Math.PI / 2);
+    mesh(p, bevel, darkMetal, 0, .07, 0, .45, .08, .45);
     for (let j = 0; j < 6; j++) {
       const a = j * TAU / 6;
-      mesh(p, cone, darkMetal, Math.cos(a) * .35, .14, Math.sin(a) * .35, .075, .26, .075);
-      mesh(p, bevel, danger, Math.cos(a) * .75, .03, Math.sin(a) * .75, .14, .045, .14, 0, -a);
+      mesh(p, bevel, danger, Math.cos(a) * .73, .032,
+        Math.sin(a) * .73, .15, .05, .11, 0, -a);
     }
-    mesh(p, cone, danger, 0, .19, 0, .11, .36, .11);
+    // Connected pivots and broad ceramic silhouettes, not emissive billboards.
+    // They unfold in response to Pip's ACTUAL published presentation position
+    // near this disclosed hazard; they never modify the authoritative engine.
+    for (const side of [-1, 1]) {
+      const jaw = new THREE.Group();
+      jaw.name = 'Disclosed tide-shear hinged jaw ' + c.cell + ' ' + side;
+      jaw.position.set(side * .68, .12, 0);
+      p.add(jaw);
+      mesh(jaw, cylinder, darkMetal, 0, .03, 0, .14, .24, .14);
+      mesh(jaw, bevel, side < 0 ? seaGlass : jade,
+        -side * .12, .34, 0, .47, .62, .67);
+      mesh(jaw, bevel, lightStone, -side * .12, .68, 0, .52, .12, .76);
+      mesh(jaw, bevel, danger, -side * .14, .36, .344, .23, .39, .075);
+      mesh(jaw, cone, gold, -side * .12, .83, 0, .12, .23, .12);
+      trapJaws.push({object: jaw, side, cell: c.cell, x: p.position.x, z: p.position.z});
+    }
   }
   function checkpointProp(c, s) {
     const p = propGroup(c.cell, s); pedestal(p, jade, .48);
@@ -1860,7 +1882,7 @@ export function createMazeWorld(options = {}) {
   }
   function rebuildObjects(s) {
     publicClosedSockets.clear(); retractingGates.clear();
-    clear(objects); animations = [];
+    clear(objects); animations = []; trapJaws = [];
     for (const key of s.keys) keyProp(key, s);
     for (const door of s.doors) doorProp(door, s);
     for (const c of s.cells) {
@@ -1908,7 +1930,7 @@ export function createMazeWorld(options = {}) {
       // otherwise old renderedCells diagnostics can survive with no meshes.
       runToken = s.runToken; terrainSignature = null; objectSignature = ''; backdropSignature = ''; lastVisibility = '';
       clear(terrain); clear(objects); clear(backdrop); publicClosedSockets.clear(); gateOpeningAt.clear(); retractingGates.clear(); keyPickupAt.clear();
-      batches = []; animations = []; ripples = []; fossilSails = []; fossilOrgans = []; renderedCells = []; stairEdges = []; stairBalustrades = 0;
+      batches = []; animations = []; ripples = []; fossilSails = []; fossilOrgans = []; trapJaws = []; renderedCells = []; stairEdges = []; stairBalustrades = 0;
       tideFossilGroves = 0; tideFossilAlcoves = 0; fossilGalleryEdges = 0; hangingFacadeGardens = 0; undercroftButtresses = 0; closedTideMedallions = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0;
     }
     const backgroundKey = `${s.width}:${s.height}`;
@@ -1978,6 +2000,20 @@ export function createMazeWorld(options = {}) {
         retractingGates.delete(edge);
         gateOpeningAt.delete(edge);
       }
+    }
+    // True PUBLIC pressure-hazard contact is readable as a physical scene
+    // consequence, not a fake collision or a new game mechanic. The hinges
+    // flare OUTWARD, away from the centre path, as the actual autonomous Pip
+    // approaches an already-visible trap. Unknown/remembered-only hazards do
+    // not animate. Reduced motion gives both jaws a stable, recognizable pose.
+    // All objects were allocated at rebuild time; this loop creates nothing.
+    for (const jaw of trapJaws) {
+      const visible = Array.isArray(snapshot?.visibleCells)
+        && snapshot.visibleCells.includes(jaw.cell);
+      const distance = Math.hypot(hx - jaw.x, hz - jaw.z);
+      const near = visible ? Math.max(0, 1 - distance / (CELL_SIZE * 1.2)) : 0;
+      const angle = reduced ? .24 : .06 + .60 * Math.min(1, near * 1.7);
+      jaw.object.rotation.z = -jaw.side * angle;
     }
     // Ambient living masonry gives a disclosed alcove a small physical
     // relationship with Pip. Proximity is measured against the REAL public
@@ -2063,7 +2099,7 @@ export function createMazeWorld(options = {}) {
     for (const g of geometries) g.dispose();
     for (const m of materials) m.dispose();
     for (const t of textures) t.dispose(); textures.clear();
-    geometries.clear(); materials.clear(); batches = []; animations = []; ripples = []; fossilSails = []; fossilOrgans = []; batchData.clear(); snapshot = null; renderedCells = []; stairEdges = []; stairBalustrades = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0; gateForecourtParapets = 0; gateCourtRosettes = 0; tideFossilGroves = 0; tideFossilAlcoves = 0; fossilGalleryEdges = 0; undercroftButtresses = 0; hangingFacadeGardens = 0; closedTideMedallions = 0; group.clear();
+    geometries.clear(); materials.clear(); batches = []; animations = []; ripples = []; fossilSails = []; fossilOrgans = []; trapJaws = []; batchData.clear(); snapshot = null; renderedCells = []; stairEdges = []; stairBalustrades = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0; gateForecourtParapets = 0; gateCourtRosettes = 0; tideFossilGroves = 0; tideFossilAlcoves = 0; fossilGalleryEdges = 0; undercroftButtresses = 0; hangingFacadeGardens = 0; closedTideMedallions = 0; group.clear();
   }
   // Actual modeled, PUBLICLY disclosed fossil-organ attention. The living
   // sculpture exists only when a safe published tile and its closed wall are
@@ -2099,7 +2135,7 @@ export function createMazeWorld(options = {}) {
     const fossilMotionMaxRadians = fossilSails.length
       ? Math.max(...fossilSails.map(sail => Math.abs(sail.dx
         ? sail.object.rotation.x : sail.object.rotation.z))) : 0;
-    return { fossilMotionMaxRadians, renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), stairBalustrades, tideFossilGroves, tideFossilAlcoves, fossilGalleryEdges, undercroftButtresses, hangingFacadeGardens, closedTideMedallions, responsiveFossilSails: fossilSails.length, responsiveFossilOrgans: fossilOrgans.length, coastalGardens, wallGardens, coastCanopies, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, windcatcherTowers, wallWindcatchers, gateForecourtParapets, gateCourtRosettes, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
+    return { fossilMotionMaxRadians, renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), stairBalustrades, tideFossilGroves, tideFossilAlcoves, fossilGalleryEdges, undercroftButtresses, hangingFacadeGardens, closedTideMedallions, responsiveFossilSails: fossilSails.length, responsiveFossilOrgans: fossilOrgans.length, responsiveTrapJaws: trapJaws.length, coastalGardens, wallGardens, coastCanopies, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, windcatcherTowers, wallWindcatchers, gateForecourtParapets, gateCourtRosettes, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
   }
   return { group, update, animate, dispose, stats, matchingPublicSocket, publicFossilAttention };
 }
