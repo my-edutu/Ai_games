@@ -2410,7 +2410,7 @@
         "furtherEvidenceNeeded": "authentic browser moving desktop/mobile hero/boss image and frame performance; reject popping/occlusion; three independent blind critics",
         "status": "INTEGRATED_SOURCE_UNVERIFIED"
       },
-      "realAfterObservation": "UNVERIFIED — inspect exact-head 232ffd45 raw Chromium canvas/motion in desktop and mobile and compare matched seed dungeon-ui-round17 with original pinned baseline.",
+      "realAfterObservation": "UNVERIFIED — exact 780a8b0 new-head browser compared to immutable baseline not yet inspected. Source candidate only.",
       "integratedMilestoneSlices": [
         {
           "date": "2026-11-05",
@@ -2441,7 +2441,7 @@
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
     "biggestRemainingGap": "Real browser screenshot of 9c2b51c still visibly conceals the Vanguard torso and boots while misleading four-point ray diagnostics claimed 3/3 full bodies. Cohesive adult-scale protagonists, original weapon-to-target impact, pacing and complete filmed boss-to-restart remain incomplete.",
     "currentWork": "Integrated genuine rooted fighter priority, a camera-facing 3D sword/contact clearance aperture, and a physical shot director that does not score already-receding Gothic props as opaque. 232ffd45 is SOURCE-LEVEL ONLY; exact-head Chromium/phone/Warden footage and blind reference A/B pending.",
-    "candidateCommit": "232ffd4513f4e4b48e3ef7206ffdf8848ec62be9",
+    "candidateCommit": "780a8b0f932085efbac765bf0d0fd674f7cd42b1",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -5303,16 +5303,30 @@
         "mobilePerformance": "UNVERIFIED",
         "fiveStageAudioMotion": "UNVERIFIED",
         "next": "Inspect exact new-head desktop/mobile moving WebGL, full fighters and facades and CPU frame time, reject pop/perf or hidden body, then coherent human-scale rig contact and original audible Warden 5-stage campaign matched to M1 baseline plus three masked critics."
+      },
+      {
+        "at": "2026-11-05",
+        "kind": "integrated-skeletal-visibility-source-candidate",
+        "commit": "780a8b0f932085efbac765bf0d0fd674f7cd42b1",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "status": "IN_PROGRESS",
+        "verdict": "NOT_TRANSFORMED",
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "independentCritics": 0,
+        "realAfterEvidence": "UNVERIFIED",
+        "note": "Actual prior-head screenshot visibly conceals Vanguard; real native skinned bone world points now feed scene and camera. No visual A/B victory claimed."
       }
     ],
     "implementationContinuation": {
       "date": "2026-11-05",
       "milestone": "M1",
-      "sourceCommit": "9af59bc91ed0e73634a85b620f67b701cd06a262",
-      "changes": "Source candidate 9af59bc contains complete living-body high camera fighting/ordinary walking aperture, near genuine low ruins and tall Gothic 3D stone through original shared physical camera/facade gallery; trustworthy tests, deterministic authority untouched.",
-      "evaluation": "309/309 local Dungeon foundation, 24×900 tick deterministic gameplay 174 floor transitions / 4 natural restarts / zero replay mismatches. Moving/new-head visual remains UNVERIFIED.",
-      "largestGap": "Source GLB still stylized; actual pixels show body/boots behind masonry and incomplete Warden moving combat. Missing matched five-phase audio video and 3 blind critics.",
-      "nextTask": "Inspect newly run 9af59bc real desktop and mobile captures, check full body during walk and Warden melee, reject pop-in/fps regressions; then integrated original realistic character movement/contact, five-stage original-audio reel, 3 independent blind critics."
+      "sourceCommit": "780a8b0f932085efbac765bf0d0fd674f7cd42b1",
+      "changes": "Integrated true skinned bone poses with shared cinematic camera grade, 3D wall occlusion, facade and prop projection; the running rendered GLB drives visual sightlines, not static root placeholders. Limited five actors and seven bone points each. Zero authoritative gameplay edits.",
+      "evaluation": "Pre-change exact-head authentic Chromium static screenshot NEGATIVE; 4/4 nominal root-ray visibility false-positive. Pre-change dedicated Dungeon+three browser shards PASS, visual review PASS; full catalogue CI FAIL. 780a8b0 new-head browser motion and all CI UNVERIFIED, blind critics 0/3.",
+      "largestGap": "Full 3D body readability, grounded anatomy and convincing real weapon-contact in rich visible Gothic Warden encounter; complete original audio video and mobile p95 performance not proven.",
+      "nextTask": "Inspect new-head 780a8b0 real browser desktop/mobile and actual moving original 3D skeletal silhouettes; reject geometry/camera pop-in and high frame-cost; progress one integrated Warden encounter toward real 5-stage recorded acceptance, 3 fresh critics."
     }
   }
 }

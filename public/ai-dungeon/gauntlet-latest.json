@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05",
-  "status": "IN PROGRESS — NOT TRANSFORMED (integrated source body/camera stage at 232ffd45; real AFTER experience unverified)",
+  "generatedAt": "2026-11-05T05:57:38+01:00",
+  "status": "IN PROGRESS — NOT TRANSFORMED (real animated skeleton camera/occlusion integration candidate; new-head visuals UNVERIFIED)",
   "reference": "Diablo IV quality, No Rest for the Wicked worlds, Path of Exile 2 combat: authentic comparison targeted; matched A/B UNVERIFIED",
   "metrics": {
     "sample_seeds": 24,
@@ -211,16 +211,16 @@
   "visualVerdict": "UNVERIFIED — actual source build requires full body, sword contact, Warden and responsive desktop/phone A/B evidence",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
-  "candidateCommit": "232ffd4513f4e4b48e3ef7206ffdf8848ec62be9",
+  "candidateCommit": "780a8b0f932085efbac765bf0d0fd674f7cd42b1",
   "metricsProvenance": "Local current-source 9af59bc npm run dungeon:test 309/309, npm run dungeon:gauntlet 24 seeds ×900 ticks: 174 advances, 4 restarts, 0 determinism mismatches. No claim for visual quality.",
   "transformation": {
     "milestone": "M1",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
     "locked": true,
-    "candidateSha": "232ffd4513f4e4b48e3ef7206ffdf8848ec62be9",
+    "candidateSha": "780a8b0f932085efbac765bf0d0fd674f7cd42b1",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
-    "exactHeadSafety": "Local focused 33/33, full Dungeon foundation 312/312, 24x900 mirrored replay 0 divergences. Head workflow 41966238624, visual 41966238616, catalogue 41966238640 in progress; safety NOT independently complete.",
+    "exactHeadSafety": "Pre-change c00a70e: Dungeon authority+3 browser jobs PASS, visual review PASS, full catalogue CI FAIL. New 780a8b0 jobs queued; exact-head safety UNVERIFIED.",
     "looks": "UNVERIFIED",
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
@@ -231,20 +231,20 @@
     },
     "fullDesktopMobileAudiovisualJourney": "UNVERIFIED",
     "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41962716364/artifacts/13387136348",
-    "exactHeadAction": "Observe workflows 41966238624 / 41966238616 / 41966238640 and inspect genuine evidence, not test green as transformation",
-    "biggestGap": "Real browser screenshot of 9c2b51c still visibly conceals the Vanguard torso and boots while misleading four-point ray diagnostics claimed 3/3 full bodies. Cohesive adult-scale protagonists, original weapon-to-target impact, pacing and complete filmed boss-to-restart remain incomplete.",
-    "nextTask": "Inspect exact-head browser shots and long gameplay desktop/phone with seed pinned to original M1; specifically validate full Vanguard body, full Warden duel, non-popping real props and audio/frame p95. Reject if worse, extend original-character combat geometry, complete 5-stage reel, obtain 3 fresh blind critics.",
+    "exactHeadAction": "Check GitHub Actions Dungeon https://github.com/my-edutu/Ai_games/actions/runs/41972510729 and visual https://github.com/my-edutu/Ai_games/actions/runs/41972510652; full CI https://github.com/my-edutu/Ai_games/actions/runs/41972510754 is safety prerequisite.",
+    "biggestGap": "Authentic c00a70e world-only screenshot still shows Vanguard helmet/sword over wall while torso/boots are concealed, despite inaccurate 3/3 full-body root-ray score. New exact skinned anatomy camera and scene aperture have not been visually accepted. Original character realism, impact, Warden audiovisual continuity remain far from target.",
+    "nextTask": "Inspect exact-head 780a8b0 actual desktop/mobile WebGL motion, count real rig bone subjects, check hero chest/feet visibility without loss of Gothic architecture or FPS. Reject visual regressions. Continue complete contact/Warden cinematic+AI slice and five-stage original-audio evidence + blind critics.",
     "currentMilestoneLedger": "public/ai-dungeon/gauntlet-history.json",
     "realAfterArtifact": null,
-    "realAfterObservation": "UNVERIFIED: new exact-head desktop and mobile real WebGL/motion not inspected.",
-    "integratedImplementation": "One integrated true-body and camera-facing 3D fighting stage: real live actors displace five-slot scenic markers, physical base wall/ornamental facade/foreground clear near sword and foot lanes in a bounded camera-facing space, physical camera now scores only foreground geometry that WebGL still draws. Rear cathedral and game AI/physics/replay preserved. Candidate 232ffd45.",
+    "realAfterObservation": "UNVERIFIED: new candidate head has no inspected authentic AFTER matched browser capture.",
+    "integratedImplementation": "Real Three.js skinned cranial/spine/pelvis/shoulder/leg joint world points are graded in the same camera ray and physical Gothic wall, facade and foreground occlusion plan. Fallback remains nominal for unrigged actors; no authority or 3D asset copying. Current candidate 780a8b0; NOT a demonstrated quality win.",
     "latestPredecessorReview": {
       "sourceSha": "3b2025a619cc6c113e28dd463224e90205fd2476",
       "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41922629878/artifacts/13368532950",
       "observation": "Actual desktop real Three.js rendered 1440x832 inspected: Vanguard helmet and sword protrude over an opaque Gothic facade while torso/boots remain invisible; two other heroes appear toy-like. Three/three synthetic ray visibility score is false positive. No active enemy in this frame.",
       "technicalSafety": "All 4 Dungeon browser/authority checks PASS and visual-review workflow PASS for predecessor SHA; broad catalogue CI FAILURE. No visual transformation accepted."
     },
-    "sourceStatus": "INTEGRATED SOURCE CANDIDATE — NEW-HEAD RUNNING GAME / CI / CRITICS UNVERIFIED"
+    "sourceStatus": "INTEGRATED REAL-SKELETON CAMERA/RENDER CANDIDATE — NEEDS REAL GAME VERIFICATION"
   },
   "acceptanceStatus": "NOT TRANSFORMED — real scene/music/motion critics pending"
 }
