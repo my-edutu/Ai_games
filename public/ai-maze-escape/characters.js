@@ -639,6 +639,11 @@ export function createWarden(options = {}) {
       pincer=pivot(knee,`foreleg pincer ${side}`,[side*.13,-.55,.055]);
       bar(pincer,claw,[0,0,0],[side*.12,-.06,.22],.047);
       bar(pincer,claw,[side*.12,-.06,.22],[side*.01,-.16,.30],.032);
+      // A small original bronze buckler travels with the real front hinge.
+      // Its permanently modeled surface leaks no private guardian knowledge.
+      const buckler=rounded(pincer,plates,[side*.08,-.04,.12],[.23,.18,.29],.047);
+      buckler.rotation.y=side*.13;
+      rounded(pincer,claw,[side*.11,-.025,.24],[.12,.06,.17],.025);
     }
     legs.push({hip,knee,side,index:i,pincer});
   }
@@ -664,6 +669,10 @@ export function createWarden(options = {}) {
     // the late release relaxes this crouch as the genuine elytra unfold.
     // This is a local cosmetic response, not enemy navigation or an attack.
     const plantedClaws=brace*(1-.85*display);
+    // Native 390px review: widen an EXISTING connected defensive guard
+    // during the publicly witnessed middle beat; retract on shell release.
+    // No solver, collision, secret-state or authority changes.
+    const defensiveSweep=plantedClaws*alert;
     // Real 390px chronological WebGL review: the old .38-open initial
     // wings looked nearly the same as the release beat at gameplay scale.
     // Keep the physically recognizable first armor silhouette, then open
@@ -739,11 +748,19 @@ export function createWarden(options = {}) {
     for (const leg of legs) {
       const phase=gait+(leg.index%2===0?0:Math.PI)+(leg.side===1?Math.PI:0);
       leg.hip.rotation.y=Math.sin(phase)*stride*.24*amount;
-      leg.hip.rotation.z=leg.side*Math.max(0,Math.cos(phase))*stride*.15*amount;
-      leg.knee.rotation.z=-leg.side*Math.max(0,Math.cos(phase))*stride*.16*amount;
+      const hipSplay=Math.max(0,Math.cos(phase))*stride*.15*amount
+        +(leg.index===0?defensiveSweep*.48:0);
+      const kneeCounter=Math.max(0,Math.cos(phase))*stride*.16*amount
+        +(leg.index===0?defensiveSweep*.24:0);
+      // Both sides explicitly reset to +0 when the event disappears.
+      leg.hip.rotation.z=hipSplay>0?leg.side*hipSplay:0;
+      leg.knee.rotation.z=kneeCounter>0?-leg.side*kneeCounter:0;
       leg.hip.rotation.x=leg.index===0 && alert>0?-alert*.32-plantedClaws*.60:leg.index===2?alert*.08:0;
       leg.knee.rotation.x=leg.index===0?alert*.20+plantedClaws*.45:0;
-      if (leg.pincer) leg.pincer.rotation.y=alert>0?leg.side*(alert*.42+plantedClaws*.35):0;
+      if (leg.pincer) {
+        leg.pincer.rotation.y=alert>0?leg.side*(alert*.42+plantedClaws*.35):0;
+        leg.pincer.rotation.z=alert>0?leg.side*defensiveSweep*.50:0;
+      }
     }
     // An encounter is a physical performance: the already-modeled front
     // legs plant outward, antennae track the publicly visible explorer and

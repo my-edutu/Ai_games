@@ -67,3 +67,54 @@ test('witnessed guardian brace physically plants connected forelegs before late 
     assert.equal(guardian.group.children.length,0);
   }
 });
+
+test('public brace sweeps both existing armored foreclaws sideways and withdraws at release',async()=>{
+  const {createWarden}=await production;
+  for(const balanced of [false,true]) for(const reducedMotion of [false,true]){
+    const warden=createWarden({balanced});
+    const pair=[-1,1].map(side=>{
+      const hip=warden.group.getObjectByName(`leg ${side} 0`);
+      const knee=hip?.getObjectByName('claw knee');
+      const pincer=knee?.getObjectByName(`foreleg pincer ${side}`);
+      assert.ok(hip&&knee&&pincer,'existing connected foreclaw hierarchy remains intact');
+      assert.ok(pincer.children.some(child=>child.isMesh
+        && child.material?.color?.getHexString()==='a17b5b'),
+        'physical bronze buckler stays connected to the modeled pincer');
+      return {side,hip,knee,pincer};
+    });
+    const cue={heading:0,attentionHeading:.5,attentionStrength:.8,
+      danger:1,moving:false,time:1,delta:0,reducedMotion};
+    const pose=()=>pair.map(({side,hip,knee,pincer})=>[
+      hip.rotation.z*side,knee.rotation.z*side,pincer.rotation.z*side
+    ]);
+    warden.update({...cue,encounterBeat:0});
+    const recognition=pose();
+    warden.update({...cue,encounterBeat:.5});
+    const brace=pose();
+    warden.update({...cue,encounterBeat:1});
+    const release=pose();
+    for(let i=0;i<2;i++){
+      assert.ok(brace[i][0]>recognition[i][0]+.25,'front shoulder widens in the middle beat');
+      assert.ok(brace[i][1]<recognition[i][1]-.12,'connected knee counter-rotates');
+      assert.ok(brace[i][2]>recognition[i][2]+.25,'armored pincer swings outward');
+      assert.ok(release[i][0]<brace[i][0]-.19,'foreclaw retracts for shell release');
+      assert.ok(release[i][2]<brace[i][2]-.19,'bronze buckler clears on release');
+    }
+    warden.update({...cue,encounterBeat:1});
+    assert.deepEqual(pose(),release,'same public clock gives exactly the same rig pose');
+    warden.update({...cue,attentionHeading:undefined,attentionStrength:0,encounterBeat:1});
+    for(const {hip,knee,pincer} of pair){
+      assert.equal(hip.rotation.z,0,'withdrawal clears the flared foreleg');
+      assert.equal(knee.rotation.z,0,'withdrawal clears the planted knee');
+      assert.equal(pincer.rotation.z,0,'withdrawal clears the physical guard');
+    }
+    warden.update({...cue,result:'capture',encounterBeat:1});
+    for(const {hip,knee,pincer} of pair){
+      assert.equal(hip.rotation.z,0,'terminal outcome cancels the foreleg spread');
+      assert.equal(knee.rotation.z,0,'terminal outcome cancels the counter-fold');
+      assert.equal(pincer.rotation.z,0,'terminal outcome cancels the buckler sweep');
+    }
+    warden.dispose();
+    assert.equal(warden.group.children.length,0);
+  }
+});
