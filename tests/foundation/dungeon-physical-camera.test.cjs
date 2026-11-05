@@ -9,8 +9,11 @@ const source=path.join(root,'public/ai-dungeon/physical-camera-director.js');
 const load=()=>{
  const dependency=fs.readFileSync(path.join(root,'public/ai-dungeon/foreground-sightline-plan.js'),'utf8');
  const depUrl='data:text/javascript;base64,'+Buffer.from(dependency).toString('base64');
+ const projection=fs.readFileSync(path.join(root,'public/ai-dungeon/party-visibility-plan.js'),'utf8');
+ const projectionUrl='data:text/javascript;base64,'+Buffer.from(projection).toString('base64');
  const cameraCode=fs.readFileSync(source,'utf8').replace(
-  "'/dungeon/foreground-sightline-plan.js'",JSON.stringify(depUrl));
+  "'/dungeon/foreground-sightline-plan.js'",JSON.stringify(depUrl)).replace(
+  "'/dungeon/party-visibility-plan.js'",JSON.stringify(projectionUrl));
  return import('data:text/javascript;base64,'+Buffer.from(cameraCode).toString('base64'));
 };
 const map=Array.from({length:19},(_,z)=>Array.from({length:19},(_,x)=>z===0||z===18||x===0||x===18?'#':'.').join(''));

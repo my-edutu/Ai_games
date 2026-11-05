@@ -96,9 +96,9 @@ test('true Warden shockwave opens visible desktop/mobile tactical counterplay an
  expect(boss.hp).toBeLessThan(beforeHp);
  expect(current.bossRecovery?.remaining).toBe(1);
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick),{timeout:25000}).toBe(current.tick);
- await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.cinematicShot?.mode),{timeout:25000}).toBe('warden-exposed');
- // Check the ACTUAL post-impact hero-forward stage, after the release has
- // played, rather than judging the strike camera as the recovery camera.
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.cinematicShot?.mode),{timeout:25000}).toBe('warden-counter');
+ // Check the ACTUAL hero-forward counterstrike stage, after the release
+ // played, not a generic idle recovery shot hiding real blade contact.
  const recovered=await page.evaluate(()=>{
   const d=window.__DUNGEON_RENDER_DIAGNOSTICS__,s=window.__DUNGEON_PUBLIC_STATE__;
   const b=s.units.find(u=>u.kind==='warden'&&u.hp>0),h=s.units.find(u=>u.id==='vanguard');
@@ -106,11 +106,11 @@ test('true Warden shockwave opens visible desktop/mobile tactical counterplay an
   return {mode:d.cinematicShot?.mode,nearSide:(o[0]*dx+o[2]*dz)/
    (Math.hypot(o[0],o[2])*Math.hypot(dx,dz))};
  });
- expect(recovered.mode).toBe('warden-exposed');
+ expect(recovered.mode).toBe('warden-counter');
  expect(recovered.nearSide).toBeLessThan(-.2);
  const physicalSightline=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.duelSightline);
  expect(physicalSightline?.heroId).toBe('vanguard');
- expect(physicalSightline?.mode).toBe('warden-exposed');
+ expect(physicalSightline?.mode).toBe('warden-counter');
  expect(physicalSightline?.heroDepthLead).toBeGreaterThan(0);
  expect(physicalSightline?.projectedSeparation).toBeGreaterThan(0);
  expect(physicalSightline?.renderedActorStaging).toBe(true);

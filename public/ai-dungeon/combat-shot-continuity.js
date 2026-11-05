@@ -7,7 +7,7 @@
  */
 const CLIP=(n,a,b)=>Math.max(a,Math.min(b,n));
 const IMMEDIATE=new Set(['warden-warning','breach-warning','last-stand','descent','portal-descent']);
-const CONTACT=new Set(['contact','warden-contact','warden-exposed','warden-approach','skirmish-approach']);
+const CONTACT=new Set(['contact','warden-contact','warden-counter','warden-exposed','warden-approach','skirmish-approach']);
 const validShot=shot=>shot&&Array.isArray(shot.offsets)&&shot.offsets.length===3&&
  shot.offsets.every(Number.isFinite)&&Array.isArray(shot.subjects)&&
  shot.subjects.length>0&&shot.subjects.every(id=>typeof id==='string'&&id.length>0)&&

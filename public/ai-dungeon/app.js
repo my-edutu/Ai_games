@@ -1270,7 +1270,7 @@ function animate(t){
  let criticalCameraFit=null;
  if(cameraType==='cinematic'&&cinematicShot&&
   ['contact','skirmish-approach','breach-warning','oathguard-cover',
-   'warden-contact','warden-approach','warden-exposed','warden-warning','warden-release'].includes(cinematicShot.mode)){
+   'warden-contact','warden-counter','warden-approach','warden-exposed','warden-warning','warden-release'].includes(cinematicShot.mode)){
   camera.updateMatrixWorld(true);
   const subjects=[];
   for(const id of cinematicShot.subjects.slice(0,3)){

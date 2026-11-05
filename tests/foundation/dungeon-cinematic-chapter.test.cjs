@@ -90,8 +90,13 @@ test('real Warden counter and contact place the living hero in front while real 
  assert.ok(depthRatio(exposed)<-.20,'a genuine counter window must show the attacker');
  const contact=planCinematicShot(s,{mode:'contact',actorId:hero.id,targetId:boss.id,
   x:(hero.x+boss.x)/2,z:(hero.z+boss.z)/2});
- assert.equal(contact.mode,'warden-contact');
+ assert.equal(contact.mode,'warden-counter','genuine exposed counter damage deserves a close 3D chapter');
  assert.ok(depthRatio(contact)<-.20,'Warden contact must reveal the weapon-side hero');
+ delete s.bossRecovery;
+ assert.equal(planCinematicShot(s,{mode:'contact',actorId:hero.id,targetId:boss.id,
+  x:(hero.x+boss.x)/2,z:(hero.z+boss.z)/2}).mode,'warden-contact',
+  'no recovery means no invented counterstrike');
+ s.bossRecovery={remaining:3};
  s.bossWarning={attackTick:s.tick+1,cells:[{x:boss.x,z:boss.z}],shape:'NOVA'};
  const warning=planCinematicShot(s);
  assert.equal(warning.mode,'warden-warning');

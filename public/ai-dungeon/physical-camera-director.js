@@ -12,6 +12,7 @@
  * limited to the existing director's cinematic shot (manual views untouched).
  */
 import {planForegroundPointRisk,planDrawableForegroundVolumes} from '/dungeon/foreground-sightline-plan.js';
+import {planProjectedBodyAperture,planPortraitStageClearance} from '/dungeon/party-visibility-plan.js';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const finite=n=>typeof n==='number'&&Number.isFinite(n);
 const ANGLES=Object.freeze([0,-.40,.40,-.76,.76]);
@@ -148,7 +149,13 @@ function grade(cam,look,eyes,grid,size,viewport,reveal,pad,facades,facadeReveal,
  // Each proposed shot is graded against the scene it would REALLY display:
  // foreground models culled by a genuine skinned actor are not still opaque
  // to this camera. Keep the original bounded point-ray test for the rest.
- propVolumes=planDrawableForegroundVolumes(propVolumes,eyes,cam);
+ // Judge the physically DRAWN set after the real actor/body projection
+ // cutaways, particularly the mobile sword/evasion corridor. The renderer
+ // uses these exact policies; this CPU-only plan never changes the dungeon.
+ const view={look,aspect:viewport.width/viewport.height,fov:viewport.fov};
+ propVolumes=planDrawableForegroundVolumes(propVolumes,eyes,cam).filter(box=>
+  !planProjectedBodyAperture(box,eyes,cam,view)&&
+  !planPortraitStageClearance(box,eyes,cam,view));
  const aspect=viewport.width/viewport.height;
  const fov=clamp(viewport.fov,32,66);
  let score=0,blocked=0,cropped=0,fullyVisible=0;

@@ -175,10 +175,15 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
  }else if(realContact){
   const foe=enemies.find(u=>u.id===encounter.targetId)||fallenFoe;
   const hero=heroes.find(u=>u.id===encounter.actorId);
-  mode=foe?.kind==='warden'?'warden-contact':'contact';
+  // Genuine contact during the authority's boss recovery earns a distinct
+  // hero-forward counterstrike chapter; never infer damage from mere range.
+  const realCounter=foe?.kind==='warden'&&!s.guardianWard&&
+   Number.isSafeInteger(s.bossRecovery?.remaining)&&s.bossRecovery.remaining>0&&
+   s.bossRecovery.remaining<=6;
+  mode=foe?.kind==='warden'?(realCounter?'warden-counter':'warden-contact'):'contact';
   position=foe?.kind==='warden'?heroLed(hero,foe):mean(hero,foe);
   offsets=planDuelCameraOffset(hero,foe,foe?.kind==='warden'?8.15:6.6,foe?.kind==='warden'?7.25:5.85,{heroForeground:foe?.kind==='warden'&&!s.guardianWard&&!s.bossWarning&&Number.isSafeInteger(s.bossRecovery?.remaining)&&s.bossRecovery.remaining>=1&&s.bossRecovery.remaining<=6?'recovery':foe?.kind==='warden'})||[4.6,7.35,5.05];
-  lookY=foe?.kind==='warden'?.76:.91;subjects=[hero.id,foe.id];
+  lookY=foe?.kind==='warden'?(realCounter?1.02:.76):.91;subjects=[hero.id,foe.id];
  }else if(boss&&closeBoss&&distance(closeBoss,boss)<=6){
   mode='warden-approach';position=heroLed(closeBoss,boss);
   offsets=planDuelCameraOffset(closeBoss,boss,8.65,7.8,{heroForeground:true})||[4.4,7.45,5.0];lookY=.70;subjects=[closeBoss.id,boss.id];
@@ -231,6 +236,8 @@ const DIRECTOR_LENS=Object.freeze({
  'skirmish-approach':Object.freeze({radius:5.28,height:4.87,fov:41,aim:.81,follow:6.0,key:1.11}),
  contact:          Object.freeze({radius:4.96,height:4.70,fov:40,aim:.93,follow:7.5,key:1.16}),
  'warden-contact': Object.freeze({radius:6.75,height:6.45,fov:44,aim:.88,follow:7.5,key:1.15}),
+ // Reward a real 3D counter blow with readable full-body weapon contact.
+ 'warden-counter': Object.freeze({radius:6.35,height:6.2,fov:44,aim:1.02,follow:8.5,key:1.25}),
  'oathguard-cover':Object.freeze({radius:5.7,height:6.9,fov:44,aim:.86,follow:7.4,key:1.20}),
  'warden-approach':Object.freeze({radius:7.90,height:7.10,fov:45,aim:.84,follow:6.2,key:1.11}),
  'warden-release': Object.freeze({radius:8.02,height:8.12,fov:47,aim:.71,follow:8.2,key:1.18}),
@@ -406,7 +413,7 @@ export function planCriticalSubjectFit(cameraPoints,aspect,preferredFov=44){
 export function planBossDuelSightline(s,shot,look,offsets,{width=1440,height=832,fov=48,visualActors=null}={}){
  const n=Array.isArray(s?.map)?s.map.length:0;
  if(n<5||n>63||n%2!==1||!Array.isArray(s.units)||
-  !shot||!['warden-exposed','warden-approach','warden-contact','warden-release'].includes(shot.mode)||
+  !shot||!['warden-exposed','warden-approach','warden-contact','warden-counter','warden-release'].includes(shot.mode)||
   !Array.isArray(shot.subjects)||!look||!Number.isFinite(look.x)||!Number.isFinite(look.z)||
   !Array.isArray(offsets)||offsets.length!==3||!offsets.every(Number.isFinite)||
   s.bossWarning||shot.warning)return null;
@@ -431,7 +438,7 @@ export function planBossDuelSightline(s,shot,look,offsets,{width=1440,height=832
  const startAngle=Math.atan2(offsets[2],offsets[0]);
  const aspect=clip(Number.isFinite(width)&&Number.isFinite(height)&&height>0?width/height:1.73,.35,3.2);
  const horizontalTan=Math.tan(clip(fov,35,82)*Math.PI/360)*aspect;
- const recovered=shot.mode==='warden-exposed'||(shot.mode==='warden-contact'&&
+ const recovered=shot.mode==='warden-exposed'||shot.mode==='warden-counter'||(shot.mode==='warden-contact'&&
   !s.guardianWard&&Number.isSafeInteger(s.bossRecovery?.remaining)&&
   s.bossRecovery.remaining>=1&&s.bossRecovery.remaining<=6);
  let best=null;
