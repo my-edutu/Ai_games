@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-05T13:41:51.254Z",
+  "updatedAt": "2026-11-05T15:06:09.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass171b new-source real WebGL 42036530749 SUCCESS, 37/37 original full PNG SHA-256 verified incl real 320/390/844/1280, changed world.js hash 286b1a38; true 320 pressure physical right .931939 <= unchanged .95, 390 jaw withdrawal span .719703 > unchanged .70. Direct full original pixel comparison: new authored terracotta public pressure court visible and actor fully framed, but stage puzzle choreography remains cluttered/repetitive, still below fixed Nintendo Captain Toad benchmark. Whole CI and latest journal-head WebGL pending; no independent blind subagent (tunnel NOT_FOUND), no SwiftShader consumer FPS claim, no privacy/44px/HUD/crop relaxation, PR open draft unmerged/undeployed."
+    "summary": "Pass172 genuine exact-head WebGL 42048796113 SUCCESS: original artifact 13428095251 rehashed 37/37 full native PNGs against UTC/source manifests, 320 public trap +.898 approach / +.932 pressure / +.878 withdrawal under unchanged +.95, genuine 390 withdrawal jaw width .719703 >.70, Pip visible, mobile/landscape/desktop and strict game-first HUD. Direct full-frame critic: two-cell pressure sightline clearer, but Pip-to-mechanism action still difficult to read against fixed official Nintendo Captain Toad; quality bar NOT MET. Pass173 connected paired physical floor shutter builder 1268bf72 + source privacy/replay tests 3f47479a + no-crop stage inset 97a9b518 are NEW SOURCE CANDIDATE only; post-change exact-source WebGL and whole CI currently IN PROGRESS (42051542408/42051542474). Fresh independent subagents/Ultracode unavailable (workspace tunnel NOT_FOUND). CPU-throttled SwiftShader is not product GPU timing. No acceptance relaxation, no merge/deploy."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass173 2026-11-05 UTC: DIRECTLY reviewed 37/37 authentic original Pass172 WebGL PNG SHA-256 values from run 42048796113 (artifact 13428095251) including full 390 approach→pressure→withdrawal, 320, 844 landscape, 1280 desktop, gate/key and guardian. Physical 320 trap right +.898/.932/.878 <= original +.95 and true 390 withdrawal width .720 >.70. Two-cell public pressure sightline reduces clutter, yet actual one-cell pressure motion remains unclear relative to official Nintendo Captain Toad. Built new source-bound paired 3D floor shutters (1268bf72), strict installed-Three public-only motion/privacy/resource/reset tests (3f47479a), inset original trap footprint (97a9b518). New original post-shutter images and CI unverified, no independent agent/Ultracode (tunnel NOT_FOUND), benchmark FAIL, draft PR unmerged/undeployed. Review docs/reviews/maze-3d/pass-172-native-sightline-and-pass-173-physical-pressure-shutters-2026-11-05.md.",
     "Pass171b 2026-11-05 UTC: VERIFIED new source e386074 WebGL 42036530749 SUCCESS with original artifact 13419395693 independently 37/37 full native PNG hashes matching. World source SHA 286b1a38fc665349aff814c9531a6a3d41c47534632b6c6271ec0244f0bc18c3. Real 320 trap right .931939 and .878463 within unchanged +.95; real same-run 390 approach/pressure/withdrawal widths .705058/.777679/.719703, final >.70. Direct uncropped before/after critic sees new physical dark/terracotta court but weak improvement; gate/paving obscures device, fixed Nintendo art/gameplay bar still unmet. Full CI and journal-head WebGL still processing, no fresh blind worker (NOT_FOUND), no merge/deploy.",
     "Pass171 2026-11-05 UTC: exact-head d6eafb prior physical public tide-shear WebGL SUCCESS 42033788889 original artifact 13418251858, independently 37/37 actual dated full-size PNG SHA256 checked and 320/390/1280 real screens viewed. 320 pressure +.931939 and withdrawal +.878463 NDC in unchanged ±.95; 390 final jaw span .719703 > unchanged .70. Critic rejects Nintendo art/puzzle legibility due repeated paving and gate clutter. Pass171 source candidate 15660c3 adds original real publicly disclosed trap terracotta stage; e386074 installed-Three privacy/reset/resource test. Current head WebGL 42036908567 and whole CI 42036908162 pending; no new visual approval, no subagent/Ultracode (NOT_FOUND), no merge/deploy.",
     "Pass170 2026-11-05 UTC: connected original 3D public-trap pressure mast/carriage and paired ivory/red/gold opening shields source committed 45b53f1; rebuild reset repaired 5209d7e. Public true proximity raises .16→.44 and unfolds ±.08→±.78; real installed Three regression added; no hidden hazards, AI steering, collision, rule, or per-frame allocations. Last APPROVED visual source is old Pass169b 37/37 originals; current head WebGL and independent real-image art critic PENDING. Nintendo fixed bar NOT MET, detached agent tunnel NOT_FOUND, PR draft unmerged/undeployed.",
@@ -283,6 +284,13 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass172 original 37/37 native source image critic and Pass173 physical shutter source gate",
+      "reviewer": "Lead source-verified native full-WebGL image critic; fresh-context independent agent unavailable (NOT_FOUND)",
+      "verdict": "37/37 Pass172 PNG hashes PASS, full-viewport source/crop PASS; original Nintendo qualitative bar FAIL; Pass173 current physical shutter candidate requires source-head WebGL and separate CI verification.",
+      "date": "2026-11-05T15:06:09.000Z",
+      "summary": "Inspect exact original source-bound pressure chronology + real phone/landscape/desktop actor and trap bounds, new bilateral connected floor shutters must visibly part/return without cropping, hidden-state leaks or new mechanics. See docs/reviews/maze-3d/pass-172-native-sightline-and-pass-173-physical-pressure-shutters-2026-11-05.md"
+    },
     {
       "title": "Pass168 verified native same-run physical jaw cropping and camera priority source review",
       "reviewer": "Direct independent original full-PNG hash and real WebGL image critic; detached fresh-context independent worker unavailable",
@@ -748,6 +756,13 @@
   ],
   "verification": [
     {
+      "name": "Pass173 original physical shutter motion and visual authenticity",
+      "status": "SOURCE CANDIDATE; CI and new-source native WebGL PENDING; Nintendo bar NOT PASSED",
+      "detail": "Pass172 original real WebGL 42048796113 (37/37 authentic native PNG SHA verified) is pre-Pass173 evidence, not approval for the shutters. New connected floor shutter 1268bf72, installed-Three tests 3f47479a, footprint correction 97a9b518. Focused next screenshot run 42051542408; whole CI 42051542474. Keep strict genuine 320/390/844/1280, no-crop +.95, 44px, on-demand Details/Map, authentic guardian/gate/key, public-only motion, reduced motion and no SwiftShader FPS inference.",
+      "sourceCommit": "97a9b5189e4f5eb8ded22cbe4a1b554e68bbba5e",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42051542408"
+    },
+    {
       "name": "Pass168 authentic 320px pressure+key-lock visual crop and strict source correction",
       "status": "Prior genuine original WebGL 42008466319 FAIL +1.050267 vs +.95; full 42008466125 FAIL axial continuity; new source candidate screenshots/CI PENDING",
       "detail": "Verified all 33 original source-bound PNG SHA-256 hashes from original artifact 13406384408 incl gate manifest. Same public source run tick5 diagonal approach trap59 +.898330 safe, tick6 near trap +1.050267 cropped due real public sealed matching-key gate camera priority; hero full. Fixed public axial/diagonal continuity 29be8b6, co-framed genuine key-lock and one-cell threat 24e31c5, deterministic tests a2fcde2. Original +.95 bounds, 44px controls, hidden-state privacy, world AI, deterministic/reduced-motion and gate opening priority untouched. Current source fresh browser/whole repo not completed; no visual/art quality win. Unavailable independent blind workers/Ultracode. Dated full review docs/reviews/maze-3d/pass-168-authentic-pass167-camera-gate-pressure-dual-stage-candidate-2026-11-05.md.",
@@ -1203,6 +1218,14 @@
     }
   ],
   "references": [
+    {
+      "title": "Pass172 genuine full-resolution native critic and Pass173 physical shutters pending gate",
+      "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-172-native-sightline-and-pass-173-physical-pressure-shutters-2026-11-05.md"
+    },
+    {
+      "title": "Pass172 37 genuine exact-head original full WebGL captures, UTC source hashes",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/42048796113/artifacts/13428095251"
+    },
     {
       "title": "Pass167 genuine full-source native 33/33 PNGs with UTC hashes; honest 320 pressure failure",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/42008466319/artifacts/13406384408"
