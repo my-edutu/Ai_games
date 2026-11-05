@@ -408,3 +408,42 @@ test('source-defeated guardian crumbles during earned cap traversal, not after t
       'living, unearned guardian cannot create a defeat memorial');
   } finally { effect.dispose(); }
 });
+
+
+test('one continuous source-owned camera escort observes defeated body, then the physical exit', async () => {
+  const [THREE, { createTowerGuardianPassage }] = await loaded;
+  const cap = { id: 'f8:cap', x: 115200, y: 8 * 360000 + 332000,
+    width: 249600, height: 12000 };
+  const defeated = { id: 'f8:guardian', kind: 'guardian', active: false,
+    health: 0, x: cap.x + 54000,
+    y: cap.y + cap.height + 18000, halfHeight: 18000 };
+  const snapshot = {
+    runToken: 'source-camera-escort', lifecycle: 'running',
+    tick: 240, floor: 8, worldWidth: 480000,
+    chunkBaseY: 8 * 360000, player: {
+      health: 5, x: cap.x + 90000,
+    }, platforms: [cap], enemies: [defeated],
+  };
+  const effect = createTowerGuardianPassage(THREE);
+  try {
+    assert.equal(effect.unlock(snapshot, anchor), true);
+    assert.ok(effect.diagnostics().sourceMeasuredDefeatFocusWeight > .1);
+    const early = effect.focusPoint().clone();
+    assert.ok(early.distanceTo(new THREE.Vector3(anchor.x,
+      anchor.y + 2.6, anchor.z)) > .1,
+      'early camera acknowledges the real defeated guardian');
+    effect.update(1.45);
+    assert.equal(effect.diagnostics().sourceMeasuredDefeatFocusWeight, 0);
+    assert.deepEqual(effect.focusPoint().toArray(), [
+      anchor.x, anchor.y + 2.6, anchor.z,
+    ], 'continuous camera focus hands back to the earned gate');
+    assert.equal(effect.unlock({ ...snapshot, tick: 241,
+      player: { health: 5, x: cap.x + Math.floor(cap.width * .76) } },
+      anchor), true);
+    assert.equal(effect.diagnostics().sourceMeasuredApproachOpen, 1);
+    assert.equal(effect.diagnostics().sourceMeasuredDefeatFocusWeight, 0);
+    effect.clear();
+    assert.equal(effect.focusPoint(), null);
+    assert.equal(effect.diagnostics().sourceMeasuredDefeatFocusWeight, 0);
+  } finally { effect.dispose(); }
+});
