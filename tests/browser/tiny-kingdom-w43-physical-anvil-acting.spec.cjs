@@ -45,12 +45,19 @@ test('W43 genuine smith aligns hand and gaze to existing anvil on desktop and mo
  expect(subject.footPlanted).toBe(true);
  expect(subject.physicalTarget).toBe(true);
  const forge=page.locator('.world-tour [data-scenic="forge"]');
+ const desktopFrame=await page.evaluate(()=>window.__tinyKingdom.getFrameProfile().totalFrames);
  await forge.click();
  await expect(forge).toHaveAttribute('aria-pressed','true');
- await page.waitForFunction(()=>window.__tinyKingdom.getFrameProfile().totalFrames>0);
+ // Frozen WebGL must render the ACTUAL requested camera, not screenshot the
+ // previous frame while awaiting an unrelated historical frame count.
+ await page.waitForFunction(n=>window.__tinyKingdom.getFrameProfile().totalFrames>n,
+  desktopFrame,{timeout:85000});
  fs.mkdirSync('artifacts/tiny-kingdom-w43',{recursive:true});
  await page.screenshot({path:'artifacts/tiny-kingdom-w43/forge-hammering-desktop.png'});
+ const portraitFrame=await page.evaluate(()=>window.__tinyKingdom.getFrameProfile().totalFrames);
  await page.setViewportSize({width:390,height:844});
+ await page.waitForFunction(n=>window.__tinyKingdom.getFrameProfile().totalFrames>n,
+  portraitFrame,{timeout:85000});
  const mobile=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
   return {overflow:document.documentElement.scrollWidth>390,
