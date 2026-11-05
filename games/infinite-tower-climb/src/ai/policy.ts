@@ -795,9 +795,31 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
           if(observation.hazards.some(h=>h.active&&
             h.x<x1&&h.x+h.width>x0&&h.y<y1&&h.y+h.height>y0))move=0;
         }
-        return{action:action(move),intent:{
+        // A real cap edge sometimes denies both lateral retreat and a
+        // strike while cooldown is still active. Instead of standing
+        // motionless inside a closing body collider, vault on legitimate
+        // grounded jump physics. Ordinary gravity, aerial steering and
+        // collision remain authoritative. No free defense or old-policy
+        // change, and no vault directly through a live shutter body.
+        const nextVelocity=move===0
+          ?observation.player.velocity.x-Math.sign(observation.player.velocity.x)*
+            Math.min(Math.abs(observation.player.velocity.x),state.config.groundFriction)
+          :Math.max(-state.config.maxRunSpeed,Math.min(state.config.maxRunSpeed,
+            observation.player.velocity.x+move*state.config.moveAcceleration));
+        const vaultX=observation.player.position.x+nextVelocity;
+        const vaultLeft=Math.min(vaultX,observation.player.position.x)-state.player.halfWidth;
+        const vaultRight=Math.max(vaultX,observation.player.position.x)+state.player.halfWidth;
+        const vaultBottom=observation.player.position.y-state.player.halfHeight;
+        const vaultTop=observation.player.position.y+state.player.halfHeight;
+        const vaultHazard=observation.hazards.some(h=>h.active&&
+          h.x<vaultRight&&h.x+h.width>vaultLeft&&h.y<vaultTop&&h.y+h.height>vaultBottom);
+        const cornered=move!==away&&observation.player.grounded&&
+          Math.abs(dx)<contactClearance+3*TOWER_GUARDIAN_PATROL_SPEED&&
+          !vaultHazard;
+        return{action:action(move,{jump:cornered}),intent:{
           mode:'engaging-enemy',
-          summary:move===away?'Preserving a strike-ready gap from the advancing guardian':
+          summary:cornered?'Vaulting from an observed cornered guardian collision':
+            move===away?'Preserving a strike-ready gap from the advancing guardian':
             'Holding safe cap footing as the guardian approaches',
           confidence:.96,fallbackUsed:false,
           targetPlatformId:observation.player.groundedPlatformId}};
