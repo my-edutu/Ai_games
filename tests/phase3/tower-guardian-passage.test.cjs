@@ -432,7 +432,9 @@ test('one continuous source-owned camera escort observes defeated body, then the
     assert.ok(early.distanceTo(new THREE.Vector3(anchor.x,
       anchor.y + 2.6, anchor.z)) > .1,
       'early camera acknowledges the real defeated guardian');
-    effect.update(1.45);
+    // A renderer rejects oversized elapsed slices; measure a normal-speed
+    // sequence instead of assuming one huge delta advances presentation time.
+    for (let i = 0; i < 3; i++) effect.update(.5);
     assert.equal(effect.diagnostics().sourceMeasuredDefeatFocusWeight, 0);
     assert.deepEqual(effect.focusPoint().toArray(), [
       anchor.x, anchor.y + 2.6, anchor.z,
