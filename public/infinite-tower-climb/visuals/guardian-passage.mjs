@@ -145,6 +145,30 @@ export function createTowerGuardianPassage(THREE) {
   fallenArmor.frustumCulled = false;
   fallenArmor.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   group.add(fallenArmor);
+  // Real cap-floor wayfinding, not a fictitious collision bridge. Twelve
+  // shallow metal inlays follow the existing curved, walkable cap from the
+  // defeated guardian's platform toward the source-authorized bronze exit.
+  // The hero's actual observed X lights them in sequence. One instanced draw,
+  // no new geometry, no texture, no dynamic light or additional render pass.
+  const inlayMaterial = new THREE.MeshStandardMaterial({
+    color: 0xffffff, metalness: .72, roughness: .28,
+    emissive: 0x123329, emissiveIntensity: .19, depthTest: true,
+  });
+  ownedMaterials.push(inlayMaterial);
+  const capInlay = new THREE.InstancedMesh(box, inlayMaterial, 12);
+  capInlay.name = 'WitnessedGuardianCapWalkwayInlay';
+  capInlay.count = 0;
+  capInlay.visible = false;
+  capInlay.castShadow = false;
+  capInlay.receiveShadow = false;
+  capInlay.frustumCulled = false;
+  capInlay.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  group.add(capInlay);
+  const inlayPose = new THREE.Object3D();
+  const inlayUnlit = new THREE.Color(0x8e694b);
+  const inlayLit = new THREE.Color(0xb9f2d1);
+  const inlayTint = new THREE.Color();
+  let inlayProgress = 0, inlaySourceTick = -1;
   const fallenPose = new THREE.Object3D();
   const guardianWorld = new THREE.Vector3();
   // Original rigid-plate silhouette with a helmet, crest, chest, waist,
@@ -248,6 +272,49 @@ export function createTowerGuardianPassage(THREE) {
   const focusPosition = new THREE.Vector3();
   const defeatFocus = new THREE.Vector3();
   const clampUnit = v => Math.max(0, Math.min(1, v));
+  function updateInlaySourceProgress(source, earned) {
+    if (!capInlay.visible || source.tick <= inlaySourceTick) return;
+    const cap = earned.cap;
+    const fromX = cap.x + cap.width * .38;
+    const exitX = cap.x + Math.floor(cap.width * .76);
+    inlayProgress = clampUnit((source.player.x-fromX)/Math.max(1,exitX-fromX));
+    // The lit portion follows real source walking; the pale edge ahead of
+    // the climber is a quiet visual wayfinder, not a made-up future action.
+    for (let i=0; i<capInlay.count; i++) {
+      const fraction=(i+.5)/capInlay.count;
+      const walked=fraction <= inlayProgress ? .86 : 0;
+      const leading=Math.max(0,1-Math.abs(fraction-inlayProgress)*11);
+      inlayTint.copy(inlayUnlit).lerp(inlayLit,Math.max(walked,.28*leading));
+      capInlay.setColorAt(i,inlayTint);
+    }
+    if (capInlay.instanceColor) capInlay.instanceColor.needsUpdate = true;
+    inlaySourceTick = source.tick;
+  }
+  function placeEarnedCapInlay(source, earned, anchor) {
+    const cap=earned.cap;
+    const fromX=cap.x+cap.width*.38;
+    const exitX=cap.x+Math.floor(cap.width*.76);
+    const cs=Math.cos(anchor.angle), sn=Math.sin(anchor.angle);
+    capInlay.count=12;
+    capInlay.visible=true;
+    inlayProgress=0;
+    inlaySourceTick=-1;
+    for(let i=0;i<capInlay.count;i++) {
+      const x=fromX+(exitX-fromX)*(i+.5)/capInlay.count;
+      // Every bar is laid onto the EXISTING authoritative cap's top, at
+      // the exterior render depth of its visible bronze threshold.
+      const p=pointFor(x,cap.y+cap.height+1000,source.chunkBaseY,
+        source.worldWidth,27.78);
+      const dx=p.x-anchor.x,dz=p.z-anchor.z;
+      inlayPose.position.set(cs*dx-sn*dz,p.y-anchor.y,sn*dx+cs*dz);
+      inlayPose.rotation.set(0,p.angle-anchor.angle,0);
+      inlayPose.scale.set(.68,.07,.47);
+      inlayPose.updateMatrix();
+      capInlay.setMatrixAt(i,inlayPose.matrix);
+    }
+    capInlay.instanceMatrix.needsUpdate=true;
+    updateInlaySourceProgress(source,earned);
+  }
   function poseFragments(seconds, still) {
     fragments.visible = !still && seconds < 1.7;
     if (!fragments.visible) return;
@@ -275,6 +342,8 @@ export function createTowerGuardianPassage(THREE) {
     fragments.visible = false;
     fallenArmor.visible = false; fallenArmor.count = 0;
     powerBreak.visible = false; powerBreak.count = 0;
+    capInlay.visible = false; capInlay.count = 0;
+    inlayProgress = 0; inlaySourceTick = -1;
     defeatWake.visible = false; defeatWake.scale.setScalar(.55);
     defeatWakeMaterial.opacity = .48;
     powerLength = 0; powerStart.set(0,0,0);
@@ -330,6 +399,7 @@ export function createTowerGuardianPassage(THREE) {
       // a victory. A stale/out-of-order sample does not rewind source time.
       if (source.tick >= sourceTick) {
         approachOpen = Math.max(approachOpen, observedPassageApproach(source, earned));
+        updateInlaySourceProgress(source, earned);
         sourceTick = source.tick;
       }
       return true;
@@ -344,6 +414,7 @@ export function createTowerGuardianPassage(THREE) {
     placeDefeatedArmor(anchor, pointFor(body.x,
       body.y - body.halfHeight + 9000, source.chunkBaseY,
       source.worldWidth, 27.65));
+    placeEarnedCapInlay(source, earned, anchor);
     fragments.visible = false;
     group.visible = true;
     runToken = source.runToken;
@@ -369,6 +440,12 @@ export function createTowerGuardianPassage(THREE) {
     focusPosition.set(anchor.x, anchor.y + 2.6, anchor.z);
     group.rotation.y = anchor.angle;
     placeDefeatedArmor(anchor, guardianAnchor);
+    // Once the same run advances, old cap bars must not be carried onto
+    // the new floor as a false platform or a second path to follow.
+    capInlay.visible = false;
+    capInlay.count = 0;
+    inlayProgress = 0;
+    inlaySourceTick = -1;
     group.visible = true;
     runToken = source.runToken;
     floor = source.floor;
@@ -450,7 +527,10 @@ export function createTowerGuardianPassage(THREE) {
       // motion; no fabricated win, private event or gameplay mutation.
       anchorPosition: group.visible ? group.position.toArray() : null,
       focusPosition: group.visible ? focusPosition.toArray() : null,
-      meshes: 16, fragmentInstances: 8, fragmentsVisible: fragments.visible,
+      meshes: 17, fragmentInstances: 8, fragmentsVisible: fragments.visible,
+      inlayPieces: capInlay.count,
+      inlayProgress: Number(inlayProgress.toFixed(4)),
+      inlaySourceTick,
       guardianDefeatPieces: fallenArmor.count,
       // Source-anchored original-world visual samples for current full-motion
       // evidence; source+render agreement never proves raster legibility.
