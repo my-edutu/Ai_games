@@ -11,7 +11,7 @@
     "sha": null,
     "title": "OPEN authentic guardian-cap combat, earned physical gateway and depth-safe decorative clockwork; NOT EVALUATED",
     "implementationSha": "6ee3e488c2d9a0ee775dc1cf73806f407bbe0e14",
-    "implementationEvidenceStatus": "IMPLEMENTED, NOT FILMED/ASSESSED: 6ee3e488 links original non-colliding large clock dial/backings to the already source-observed actor/guardian/landing foreground gear visibility logic, restoring solid depth outside the protected corridor. New source-contract test cfeb568a, review 7c1db7ea. Previous real 390x844 c5 WebM exposed actors blocked by large foreground gear/case, but it and unfinished b7 source capture 42019891717 PRECEDE this change. Exact new-head Actions/capture and full-motion independent critics required. No hardware FPS or memory measurement."
+    "implementationEvidenceStatus": "IMPLEMENTED, NOT FILMED/ASSESSED: 6ee3e488 links original non-colliding large clock dial/backings to the already source-observed actor/guardian/landing foreground gear visibility logic, restoring solid depth outside the protected corridor. New source-contract test cfeb568a, review 7c1db7ea. Previous real 390x844 c5 WebM exposed actors blocked by large foreground gear/case, but it and unfinished b7 source capture 42019891717 PRECEDE this change. Exact new-head Actions/capture and full-motion independent critics required. No hardware FPS or memory measurement. Earlier b7 actual-game film has now completed 9/9 recording jobs (run 42019891717), but still pre-dates this playable world update and has no independent full-motion verdict."
   },
   "currentTransformation": {
     "title": "SAME playable real 3D Tower climb and authentic upper-cap guardian/crusher encounter: earned armor-opening, damage feedback, safe movement and eventual floor-nine continuation",
@@ -66,7 +66,7 @@
     "replay": "Frozen baseline 1731b380 unchanged. Clock face only clones decorative rendering materials at floor construction and updates their opacity/depthWrite from the existing observed camera actor/guardian/landing ray/projection logic. It does not mutate source simulation, replay or RNG; actual current-head replay checks still pending.",
     "accessibility": "No added HUD, controls, flashing effects or new audio dependency. Non-gameplay clock face remains visible except when source-observed combat/traversal corridor needs it to soften, and recovers after; reduced-motion retains existing immediate visual updates. Need real native phone/desktop contrast/visibility and accessibility assessment.",
     "performance": "No new geometry meshes, geometry updates, renderer passes or source AI computations. One floor-owned alpha material clone per clock face material and per-frame syncing of at most three faces; pre-existing sightline rays/projections are reused. These are design claims about code, NOT supported-device performance results. p50/p95/p99 and memory remain NOT MEASURED.",
-    "stability": "Current branch includes 6ee3e488 playable clock-face change; no exact-source visual capture or full CI independently observed. Earlier b7 source video run 42019891717 was in progress and is superseded for this change. Independent browser/worker tool returned NOT_FOUND (tunnel client offline >300 seconds) on 2026-11-05; no blind votes. PR68 remains draft, PR58 untouched, no merge/deploy/force-push."
+    "stability": "Previous b7 source film run 42019891717 now 9/9 completed real browser recording jobs, but precedes current 6ee3e488 world change. Current video not captured or independently watched. Worker tunnel returned NOT_FOUND; no judges/hardware measurements. No current-head safety confirmation. PR68 draft, PR58 untouched; no merge/deploy/force-push."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -3285,7 +3285,17 @@
       "moreRecentPreChangeCapture": {
         "runUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42019891717",
         "sourceSha": "b7a550460497ebf877d7a84a6ecba17c167edf4b",
-        "status": "IN PROGRESS at inspection; superseded source for current world geometry"
+        "status": "COMPLETED 9/9 source-pinned normal-speed baseline/candidate browser jobs; artifacts accessible; no blind review; superseded by playable source 6ee3e488",
+        "artifacts": {
+          "baselineAscent": 13413285100,
+          "candidateAscent": 13412263424,
+          "baselineDanger": 13412722200,
+          "candidateDanger": 13412996026,
+          "baselineOutcome": 13412782763,
+          "candidateOutcome": 13412787443,
+          "baselineMoving": 13412377768,
+          "candidateMoving": 13412937407
+        }
       },
       "currentExactSourceVideo": "NOT CAPTURED / NOT EVALUATED",
       "currentCI": "NOT VERIFIED on 6ee3e488 or subsequent evidence head",
