@@ -205,12 +205,29 @@ test('actual 20Hz streamed tower reaches a choice on its guardian gate: an obser
   const runtime=TowerRuntime.create({...STREAM_CONFIG,launchFloor:8},
     'tower-transformation-capture-v1',{policy:'autonomous'});
   let realNearGuardianCharges=0, observedExposures=0, observedResponses=0, observedSafeWarnings=0;
+  let nearestObservedChargeDistance=Infinity, guardianChargeDeckTicks=0;
+  let capTicks=0, guardianMinimumHealth=Infinity, maxFloor=8, chargeDistanceAtClosest=null;
   for(let i=0;i<3000;i++){
     const state=runtime.state;
     if(state.lifecycle==='running'){
       const obs=createTowerObservation(state,{includeHazardWindup:true});
       const guardian=obs.enemies.find(e=>e.kind==='guardian'&&e.active);
       const crusher=obs.hazards.find(h=>h.id.endsWith(':guardian-shutter'));
+      maxFloor=Math.max(maxFloor,obs.floor);
+      if(guardian)guardianMinimumHealth=Math.min(guardianMinimumHealth,guardian.health);
+      if(obs.player.grounded&&obs.player.groundedPlatformId===`f${obs.floor}:cap`)capTicks++;
+      if(guardian&&crusher&&obs.player.grounded &&
+         obs.player.groundedPlatformId===`f${obs.floor}:cap` &&
+         (crusher.chargeTicksRemaining??0)>=1){
+        guardianChargeDeckTicks++;
+        const distance=Math.abs(obs.player.position.x-(crusher.x+crusher.width/2));
+        if(distance<nearestObservedChargeDistance){
+          nearestObservedChargeDistance=distance;
+          chargeDistanceAtClosest={playerX:obs.player.position.x,crusherX:crusher.x,
+            guardianX:guardian.position.x,chargeTicks:crusher.chargeTicksRemaining,
+            playerHealth:obs.player.health,tick:state.tick};
+        }
+      }
       if(guardian && crusher && obs.player.grounded &&
          obs.player.groundedPlatformId===`f${obs.floor}:cap` &&
          (crusher.chargeTicksRemaining??0)>=1 &&
@@ -238,7 +255,7 @@ test('actual 20Hz streamed tower reaches a choice on its guardian gate: an obser
     runtime.step();
   }
   assert.ok(realNearGuardianCharges>=12,
-    'real streamed pilot must physically spend a complete 12-tick warning near its living guardian; a distant trap cannot meet this');
+    `real pilot needs 12 near-body guardian/shutter warning ticks; observed ${realNearGuardianCharges}, capTicks=${capTicks}, capChargeTicks=${guardianChargeDeckTicks}, nearestChargeDistance=${nearestObservedChargeDistance}, guardianMinHealth=${guardianMinimumHealth}, maxFloor=${maxFloor}, closest=${JSON.stringify(chargeDistanceAtClosest)}`);
   assert.ok(observedExposures+observedSafeWarnings>=realNearGuardianCharges,
     'source-warning accounting must not silently lose an observed guardian-shutter frame');
   assert.equal(observedResponses,observedExposures,
