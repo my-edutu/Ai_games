@@ -10,19 +10,19 @@
   "candidate": {
     "sha": null,
     "title": "OPEN: real 3D guardian/crusher -> earned gate -> floor-nine ascent, full-body clockwork sightlines and source-safe last-beat crossfire; NOT EVALUATED",
-    "implementationSha": "5735c28db0b59e4f2822370c552fa44bea554410",
-    "implementationEvidenceStatus": "IMPLEMENTED and EXACT-HEAD ENGINEERING VALIDATED, STILL NOT QUALITY EVALUATED. 279bb9e6 implemented published last-beat source crusher escape ahead of simultaneous guardian projectile, with cross-modal 3D jaw/defensive pose/action-stage/opt-in audio from existing evading-hazard intent; 5c40ff16 real scenario tests; 5735c28d narrows optional TypeScript charge field. SOURCE SHA 5735c28d passed quality-contract technical workflow 42039500584 (CI safety only). Local identical 3200-tick source campaign: 2 guardian defeats, max floor 11, 5 completed health-depleted lives; unchanged by this rarely encountered source reflex, so do NOT claim survival win. Exact-head original-host footage 42039500699 still queued; earlier recorded WebM 42029455454 covers candidate 8564a07d, not new source. 0 blind reviews and no supported-phone frame-time tails or memory."
+    "implementationSha": "450e90c8e11455f7ae912e9c7534bb9e74b6e3ad",
+    "implementationEvidenceStatus": "UNASSESSED NEW LIVE SOURCE: 44d5ec47 + 5f68fc25 + 450e90c8 distinguish already-IN-FLIGHT physical enemy projectiles from 1-4-tick publicly charging guardian-cap crusher. An earlier/simultaneous crusher wins only with a genuinely source-reachable ground exit or ordinary trapped-body vault; imminent faster shots retain original projectile safety. The SAME existing evading-hazard intent drives real 3D jaws, defensive pose, stage/light and optional audio. Tests c9d9abbd commit but have NOT been executed/verified on this exact head in this run. Frozen baseline 1731b380 unchanged. The newest actual candidate HAS NO source-pinned filmed clips, event-matched blind reviews, device FPS/memory or quality PASS. Previous 5735c28d engineering run 42039500584 SUCCESS does not certify the newer source."
   },
   "currentTransformation": {
     "title": "SAME playable real 3D Tower climb and authentic upper-cap guardian/crusher encounter: earned armor-opening, damage feedback, safe movement and eventual floor-nine continuation",
     "state": "OPEN — one upper-cap guardian/crusher survival, 3D full-body readability and real physical doorway continuation initiative; last-beat double-threat arbitration integrated into existing source-driven stage/sound/animation; NOT EVALUATED.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Current exact-source 5735c28d technical CI PASSED (guardrail only), but full-motion original-host recording workflow 42039500699 remains queued. Inspect source-pinned guardian+shutter final beat vs original 1731b380 at identical capture conditions; event-match and review 60+s ascent, combat and outcome/restart in desktop 960×600 and portrait 390×844. Supported-device performance, separate five randomized independent critics/pillar and all regression checks must still pass.",
+    "nextDecision": "First validate EXACT source 450e90c8 via current-head build/replay and native desktop+portrait normal-speed source-pinned recordings. Extract real observed in-flight bolt + published shutter charge + guardian body footage and whether physical arbitration actually survives; compare frozen 1731b380 using matching seed, 960x600 / 390x844, low tier and event-aligned episodes. Preserve completion/restart. 5 fresh independent blind whole-motion critics and actual supported-device p50/p95/p99+memory are still missing.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Recorded last-beat guardian+shutter 3D source↔render correspondence on mobile and real gameplay difference NOT PROVEN. Source-only 3200-tick campaign currently unchanged by this rarely encountered arbitration; 5 health deaths, 2 guardian victories, floor 11. No blind votes or hardware performance evidence.",
-    "unverifiedImplementationBranchHead": "5735c28db0b59e4f2822370c552fa44bea554410",
-    "currentVerticalSlice": "ONE OPEN cohesive source-authentic combat-to-physical-gateway-to-continued-floor-ascent experience: guardian counterplay and recoil, continuous lens, earned door, and full-body mobile readability against the live source-linked clock gear AND sibling dial backings. No geometry, collision or simulation authority changed by latest sightline work; no independent quality win.",
-    "biggestGap": "Real previous portrait gameplay showed living climber and guardian obscured by enormous decorative clock backings and moving gears. Candidate body-sized case ray tests may improve this but newest 8564 source has no verified video critique. Most consequential next step is event-matched 60s desktop/mobile full-motion original-game sightline evaluation, real earned guardian victory/gateway/cycle, blind 5-critic views and actual hardware tails. No confirmed experiential win."
+    "biggestRemainingExperienceGap": "Actual in-flight bolt/guardian/shutter simultaneous combat, physical victory/doorway and body visibility remain unfilmed and independently unreviewed at the newest playable head, especially portrait. Supported-device frame-time tails absent.",
+    "unverifiedImplementationBranchHead": "450e90c8e11455f7ae912e9c7534bb9e74b6e3ad",
+    "currentVerticalSlice": "ONE OPEN substantive guardian-cap 3D experience: source-authentic combat and earned damage, physical door/floor progression, full-body portrait clockwork sightlines, last-beat guardian telegraph vs jaw and now ALREADY-FIRED incoming bolt vs faster real crusher arbitration. No scripted win, model mockup, teleport, extra HUD or independent quality score.",
+    "biggestGap": "The physically grounded guardian-cap duel now arbitrates observed closing jaws against both announced fire and already-live projectiles, but this source change is only code and source-compatible regression fixtures. Highest-impact next work is continuous <=actual live danger> source film with all characters/jaws visible, true victory/gateway continuation, 5 blind LOOKS/FEELS/PLAYS judgments and hardware tails. No Gauntlet quality win."
   },
   "scenarios": [
     {
@@ -62,11 +62,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Exact playable-head 5735c28d workflow https://github.com/my-edutu/Ai_games/actions/runs/42039500584 completed SUCCESS, including build, source campaign, repository authority/experience guardrails. Engineering-only veto cleared on that source SHA, NOT an experience PASS. Earlier TypeScript build failure at source 325a6170 resolved by 5735c28d. Latest evidence-only commits are not counted as gameplay improvement.",
-    "replay": "Frozen baseline SHA 1731b380 unchanged. Existing last-beat source code compiled at 5735c28d and targeted 26 real source/test assertions passed locally, including real floor-eight shutter and guardian scenarios. Source-only 3200-tick campaign same as before this rarely triggered input change: maxFloor 11, guardianDefeats 2, healthDepleted 5; no fictional quality gain. Historical-v1 unchanged. Exact-head CI passed.",
-    "accessibility": "No new HUD, captions, flash, forced camera, audio gate or controls. Existing real 3D jaw contours and defensive body poses respond to the source hazard intent even when the guardian also telegraphs, while muted/reduced-motion users retain geometry. Device contrast / simultaneous legibility not yet independently verified.",
-    "performance": "Zero new meshes, draw passes, raycasts or lights from last-beat arbitration; existing full-body clockwork raycast implementation still needs supported-device p50/p95/p99 frame time and memory. Browser software renderer submitted intervals are NOT target hardware FPS.",
-    "stability": "Source-head 5735c28d exact quality/authority safety workflow 42039500584 SUCCESS, but latest gameplay recording 42039500699 QUEUED. Nine-job genuine baseline/candidate original-host film run 42029455454 was SUCCESS for earlier candidate 8564a07d, and is not valid quality evidence for 5735c28d. Reviewer workers unavailable (tunnel NOT_FOUND). No independent votes, target hardware FPS/memory, merge, force push or deployment."
+    "ci": "NEW playable head 450e90c8 plus regression c9d9abbd (source commits 44d5ec47, 5f68fc25) committed to draft PR68; exact-head build/replay/full technical safety workflow NOT YET VERIFIED in this run. Older 5735c28d quality-contract workflow https://github.com/my-edutu/Ai_games/actions/runs/42039500584 completed SUCCESS, but safety CI does not score the experience. Verdict stays NOT EVALUATED.",
+    "replay": "Published observation-only incoming projectile speed/direction, body width and live crusher countdown drive deterministic deadline ordering only in opted-in guardian cap; existing guarded support route and physical vault are reused. No authority mutation, hidden RNG, altered physics or historical-v1 behavior. New tests assert repeated actions and immutable state, but latest exact-head compile/replay remains UNVERIFIED.",
+    "accessibility": "No new HUD, captions, flashing, forced camera angle, controls or additional audio. Existing defensive 3D pose, jaw lights/stage and opt-in sound receive the hazard intent when a physical crusher precedes a live bolt. Muted/reduced-motion remain existing contracts. Current-source narrow portrait whole-motion comprehension NOT EVALUATED.",
+    "performance": "No new geometry, lights, draw passes, raycasts or source physics steps. New comparison is bounded per incoming projectile and uses existing hazard/ground geometry. Real supported-device p50/p95/p99 frame time and memory STILL NOT MEASURED; do not interpret software WebGL submissions as hardware FPS.",
+    "stability": "Prior source-pinned original host run 42029455454 completed 9/9 desktop+portrait baseline 1731b380 vs older candidate 8564a07d, not source/event-matched current comparison. Latest source 450e90c8 not recorded or independently reviewed. Worker/browser tunnel remains disconnected: NOT_FOUND Tunnel-client has not been seen for 300 seconds. 0/5 genuine independent votes for each LOOKS/FEELS/PLAYS. PR68 draft, PR58 unchanged, no merge/force-push/deploy."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -3373,6 +3373,29 @@
         "comparisonToPreArbitration": "identical source outcomes; branch addresses physically authentic but rarely reached last-beat double threat; no claimed improvement"
       },
       "rejectedExperimentalWork": "A separate uncommitted aerial-guardian steering prototype improved the fixed capture seed but regressed several different source seeds and was NOT pushed. Do not mistake local experiments for PR changes."
+    },
+    "latestLiveBoltCrusherIteration": {
+      "implementationSha": "450e90c8e11455f7ae912e9c7534bb9e74b6e3ad",
+      "testsCommitSha": "c9d9abbde1d90617793d89193748e8d769cb6edb",
+      "sourceCommits": [
+        "44d5ec47ac8340604583c8026e6dc33208e15d69",
+        "5f68fc255743e3c8d018b85f83c69f9cae243f18",
+        "450e90c8e11455f7ae912e9c7534bb9e74b6e3ad"
+      ],
+      "reviewPath": "docs/reviews/2026-11-05-tower-pr68-live-bolt-shutter-deadline-arbitration.md",
+      "sourceCaptureStatus": "NOT FILMED AT NEW SOURCE SHA",
+      "exactHeadBuildReplayStatus": "NOT VERIFIED",
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "priorVideoRun": "https://github.com/my-edutu/Ai_games/actions/runs/42029455454",
+      "priorVideoCandidateSha": "8564a07de226ec6e3084c99952837b8536a77c8b",
+      "verifiedQuality": "NOT EVALUATED",
+      "independentVotes": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "supportedHardware": "NOT MEASURED",
+      "blocker": "Independent worker/browser tunnel NOT_FOUND >300s; new-source continuous captures and fresh blind critic judgments unavailable"
     }
   }
 }
