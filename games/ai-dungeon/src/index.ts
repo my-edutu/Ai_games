@@ -134,6 +134,7 @@ export function planWardenEvasionStep(
   const x=hex?foe.channelX:foe.breachX,z=hex?foe.channelZ:foe.breachZ;
   if(victim!==hero.id||typeof due!=='number'||!Number.isSafeInteger(due)||
    due<s.tick||due>strike.attackTick||
+   typeof x!=='number'||typeof z!=='number'||
    !Number.isInteger(x)||!Number.isInteger(z)||!walkable(s.map,x,z))continue;
   otherLocked.add(key(x,z));
  }
