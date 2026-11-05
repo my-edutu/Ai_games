@@ -1,5 +1,24 @@
 import { pointFor } from './coordinates.mjs';
 
+// The original bronze guardian lock is an OUTSIDE mechanism at radius 27.78,
+// while the skinned grounded climber walks at radius 25 on the actual cap deck
+// (22.4..27.18). A doorway only at the former is never physically crossed.
+// Keep the original exterior lock, but connect it to a second, properly
+// grounded interior threshold. Both remain presentation-only.
+export const GUARDIAN_PASSAGE_RADII = Object.freeze({
+  lock: 27.78, deck: 25, deckMin: 22.4, deckMax: 27.18,
+});
+export function observedWalkablePassageFocus(anchor) {
+  if (!anchor || ![anchor.x, anchor.y, anchor.z, anchor.angle]
+    .every(Number.isFinite) ||
+    Math.abs(Math.hypot(anchor.x, anchor.z) - GUARDIAN_PASSAGE_RADII.lock) > .025)
+    return null;
+  const inset = GUARDIAN_PASSAGE_RADII.lock - GUARDIAN_PASSAGE_RADII.deck;
+  return { x: anchor.x - inset * Math.sin(anchor.angle),
+    y: anchor.y - 2 + 2.6,
+    z: anchor.z - inset * Math.cos(anchor.angle) };
+}
+
 // A source-witnessed piece of the guardian encounter, not an invented exit.
 // The fixed-step tower can advance its floor on the SAME tick as the final hit:
 // this short, floor-local 3D passage lets viewers SEE that authentic outcome.
@@ -121,6 +140,64 @@ export function createTowerGuardianPassage(THREE) {
     add('ClearedPassageRib', box, stone, [side * 1.19, 2.1, .32], [.11, 3.66, .07], wing);
     wings.push({ side, wing });
   }
+  // The exterior capstan is a visible LOCK, not the walkable doorway.
+  // Build an original inset stone/bronze arch at the skinned climber's real
+  // standing radius, with two tensile overhead braces linking both frames.
+  // The raised exterior lock sits 2 world units above the cap. Lower the
+  // inner arch onto the deck itself: there is no fake bridge/collision here.
+  // Reuse the original box/materials: 2 unshadowed instanced draw submissions
+  // and zero new geometry, textures, emissive lights or postprocessing.
+  const threshold = new THREE.Group();
+  threshold.name = 'ObservedWalkableGuardianThreshold';
+  threshold.position.set(0, -2, GUARDIAN_PASSAGE_RADII.deck - GUARDIAN_PASSAGE_RADII.lock);
+  const thresholdStones = new THREE.InstancedMesh(box, stone, 6);
+  thresholdStones.name = 'WalkableSourceCapArchAndBraces';
+  thresholdStones.castShadow = false;
+  thresholdStones.receiveShadow = false;
+  thresholdStones.frustumCulled = false;
+  const thresholdPose = new THREE.Object3D();
+  const braceAngle = Math.atan2(GUARDIAN_PASSAGE_RADII.lock - GUARDIAN_PASSAGE_RADII.deck, 2);
+  const thresholdShapes = [
+    [-3.22, 2.35, 0, .46, 4.7, .55, 0],
+    [3.22, 2.35, 0, .46, 4.7, .55, 0],
+    [0, 4.72, 0, 6.8, .46, .55, 0],
+    [0, .075, .1, 6.0, .15, .42, 0],
+    [-3.22, 5.72, 1.39, .28, 3.45, .3, braceAngle],
+    [3.22, 5.72, 1.39, .28, 3.45, .3, braceAngle],
+  ];
+  thresholdShapes.forEach(([x,y,z,sx,sy,sz,rx], index) => {
+    thresholdPose.position.set(x,y,z);
+    thresholdPose.rotation.set(rx,0,0);
+    thresholdPose.scale.set(sx,sy,sz);
+    thresholdPose.updateMatrix();
+    thresholdStones.setMatrixAt(index,thresholdPose.matrix);
+  });
+  thresholdStones.instanceMatrix.needsUpdate = true;
+  const thresholdLeaves = new THREE.InstancedMesh(box, bronze, 2);
+  thresholdLeaves.name = 'WalkableSourceCapRetractingBronzeLeaves';
+  thresholdLeaves.castShadow = false;
+  thresholdLeaves.receiveShadow = false;
+  thresholdLeaves.frustumCulled = false;
+  thresholdLeaves.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  threshold.add(thresholdStones,thresholdLeaves);
+  group.add(threshold);
+  const thresholdLeafPose = new THREE.Object3D();
+  let lastWalkableOpening = -1;
+  function poseWalkableLeaves(opened) {
+    if (Math.abs(opened-lastWalkableOpening) < .0001) return;
+    for (let index=0;index<2;index++) {
+      const side = index === 0 ? -1 : 1;
+      thresholdLeafPose.position.set(side * (1.46 + opened * 2.05), 2.12, .15);
+      thresholdLeafPose.rotation.set(0, -side * opened * .27,
+        side * opened * .025);
+      thresholdLeafPose.scale.set(2.87, 4.13, .22);
+      thresholdLeafPose.updateMatrix();
+      thresholdLeaves.setMatrixAt(index,thresholdLeafPose.matrix);
+    }
+    thresholdLeaves.instanceMatrix.needsUpdate = true;
+    lastWalkableOpening = opened;
+  }
+  poseWalkableLeaves(0);
   const emblem = add('ClearedPassageObservedLock', crownGeometry, glow,
     [0, 4.75, .48], [1, .72, .65]);
   const arc = add('ClearedPassageAscendingLight', openingGeometry, glow,
@@ -355,6 +432,7 @@ export function createTowerGuardianPassage(THREE) {
     defeatWakeMaterial.opacity = .48;
     powerLength = 0; powerStart.set(0,0,0);
     witnessedGuardian = false; guardianWorld.set(0, 0, 0);
+    lastWalkableOpening = -1;
     runToken = null;
     floor = null;
     sourceTick = -1;
@@ -400,6 +478,8 @@ export function createTowerGuardianPassage(THREE) {
     if (!earned || disposed || !anchor ||
       ![anchor.x, anchor.y, anchor.z, anchor.angle].every(Number.isFinite))
       return false;
+    const thresholdFocus = observedWalkablePassageFocus(anchor);
+    if (!thresholdFocus) return false;
     if (stage === 'earned-open' && group.visible &&
       runToken === source.runToken && floor === source.floor) {
       // Repeated frames must not replay the mechanical release or recreate
@@ -412,7 +492,7 @@ export function createTowerGuardianPassage(THREE) {
       return true;
     }
     group.position.set(anchor.x, anchor.y, anchor.z);
-    focusPosition.set(anchor.x, anchor.y + 2.6, anchor.z);
+    focusPosition.set(thresholdFocus.x, thresholdFocus.y, thresholdFocus.z);
     group.rotation.y = anchor.angle;
     // The real zero-HP body remains observable during physical gate
     // traversal. Honor that source position now, at the decisive combat beat;
@@ -428,6 +508,7 @@ export function createTowerGuardianPassage(THREE) {
     floor = source.floor;
     sourceTick = source.tick;
     stage = 'earned-open';
+    lastWalkableOpening = -1;
     approachOpen = observedPassageApproach(source, earned);
     age = 0;
     defeatAge = 0;
@@ -439,12 +520,14 @@ export function createTowerGuardianPassage(THREE) {
       !Number.isSafeInteger(source.tick) || !Number.isSafeInteger(source.floor) ||
       typeof source.runToken !== 'string' || !source.runToken ||
       ![anchor.x, anchor.y, anchor.z, anchor.angle].every(Number.isFinite)) return false;
+    const thresholdFocus = observedWalkablePassageFocus(anchor);
+    if (!thresholdFocus) return false;
     const carryOpen = stage === 'earned-open' && group.visible &&
       runToken === previous.runToken && floor === previous.floor;
     const carriedAge = age;
     const carriedDefeatAge = defeatAge;
     group.position.set(anchor.x, anchor.y, anchor.z);
-    focusPosition.set(anchor.x, anchor.y + 2.6, anchor.z);
+    focusPosition.set(thresholdFocus.x, thresholdFocus.y, thresholdFocus.z);
     group.rotation.y = anchor.angle;
     placeDefeatedArmor(anchor, guardianAnchor);
     // Once the same run advances, old cap bars must not be carried onto
@@ -458,6 +541,7 @@ export function createTowerGuardianPassage(THREE) {
     floor = source.floor;
     sourceTick = source.tick;
     stage = 'handoff';
+    lastWalkableOpening = -1;
     approachOpen = carryOpen ? 1 : 0;
     // The real door already opened during the hero's grounded walk. Do
     // not visibly slam it shut and re-open upon the authoritative floor
@@ -483,6 +567,7 @@ export function createTowerGuardianPassage(THREE) {
     posePowerBreak(defeatAge, still);
     const opened = still ? 1 : Math.max(approachOpen,
       1 - Math.pow(1 - clamp(age / .95), 3));
+    poseWalkableLeaves(opened);
     const fade = stage === 'earned-open' ? 1 :
       1 - .9 * clamp((age - 1.75) / (duration - 1.75));
     for (const { side, wing } of wings) {
@@ -535,6 +620,16 @@ export function createTowerGuardianPassage(THREE) {
       anchorPosition: group.visible ? group.position.toArray() : null,
       focusPosition: group.visible ? focusPosition.toArray() : null,
       meshes: 17, fragmentInstances: 8, fragmentsVisible: fragments.visible,
+      physicallyWalkableThreshold: group.visible ? {
+        sourceAnchored: true, innerRadius: GUARDIAN_PASSAGE_RADII.deck,
+        capDeckRadialBand: [GUARDIAN_PASSAGE_RADII.deckMin, GUARDIAN_PASSAGE_RADII.deckMax],
+        originalExteriorLockRadius: GUARDIAN_PASSAGE_RADII.lock,
+        gateOpen: Number(Math.max(0,lastWalkableOpening).toFixed(4)),
+        archInstances: thresholdStones.count, retractingLeaves: thresholdLeaves.count,
+        extraDraws: 2, collider: false,
+        focusPosition: focusPosition.toArray(),
+        proof: 'World-space inner deck doorway mirrors actual source-earned exterior unlock; raster/collision quality NOT verified',
+      } : null,
       inlayPieces: capInlay.count,
       inlayProgress: Number(inlayProgress.toFixed(4)),
       inlaySourceTick,
