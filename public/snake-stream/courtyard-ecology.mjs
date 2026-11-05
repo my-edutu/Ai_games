@@ -441,11 +441,18 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
         if (surface === 'braid') {
           const sun = .5 + .5 * Math.sin(point[0] * .53 + point[2] * .37 + salt);
           const marbled = .5 + .5 * Math.sin(point[0] * 1.71 - point[2] * 1.43);
+          // A former pale mint road-marking crossed the entire playable
+          // world. Its original physical bank topology and 3D fronds stay,
+          // but shaded rooted loam now holds irregular deep moss, olive
+          // sediment and rain-polished slate. The darker real river banks
+          // give food, dangers, portals and serpent their true cue contrast.
           const leaf = Math.max(0, Math.min(1,
-            .63 + .15 * (sun - .5) + .17 * (marbled - .5) + .08 * (shadow - .5)));
-          const pigment = c === 0 ? .078 + sun * .038
-            : c === 1 ? .30 + marbled * .12
-              : .082 + shadow * .045;
+            .78 + .13 * (sun - .5) + .14 * (marbled - .5) + .08 * (shadow - .5)));
+          const bedShadow = .5 + .5 * Math.sin(point[0] * .83 - point[2] * 1.31
+            + Math.sin(point[2] * .67) * .95 + salt);
+          const pigment = c === 0 ? .049 + sun * .036 + bedShadow * .020
+            : c === 1 ? .116 + marbled * .075 + bedShadow * .055
+              : .055 + shadow * .027 + (1-bedShadow) * .030;
           colour.push(wornStone * (1 - leaf) + pigment * leaf);
         } else colour.push(wornStone);
       }

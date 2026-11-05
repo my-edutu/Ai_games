@@ -304,6 +304,13 @@ export function createSerpent(THREE) {
     return mesh;
   }
   const head = new THREE.Group(); head.name = 'Expressive head'; group.add(head);
+  // T2 whole-game hero silhouette: the previously beautiful detailed skull
+  // became a pinhead at authentic 28×16 / 40×24 overview scale. Enlarge the
+  // EXISTING one-piece skull, jaw, brows, eyes and tongue together, keeping
+  // every existing material, draw/triangle count, public route, gap and cue.
+  // At 1.28 the rear skull half-width (0.215) becomes 0.275, blending into
+  // the unchanged ~0.319 3D neck radius rather than a detached cartoon mask.
+  head.scale.setScalar(1.28);
   const headPose = new THREE.Group(); head.add(headPose);
   // A single longitudinally lofted skull replaces separate muzzle/crown balls.
   // Eyes sit below its crown and into its cheeks, not above it on stalks.

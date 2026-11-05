@@ -861,11 +861,23 @@ export function createWorld(THREE, {width, height}) {
     // ecotone that colors the original material map. Dark forest moss and
     // sunlit limestone both keep the existing stone vertices/actual cells.
     const ecotone=sampleGardenEcotone((x+.5)/width,(z+.5)/height,width,height);
+    // T1 physically shaded understory. Previous bright jade vertex paint
+    // multiplied the original planted field atlas into a uniform fluorescent
+    // rectangle under the full sun. Retain the continuous native ecotone,
+    // exposed sunstone and EVERY exact game tile, but give deep fern hollows,
+    // blue-green forest shade and leaf-littered margins a full value range.
+    // This is the EXISTING 3D flagstone buffer, not a screenshot or overlay.
     const forestBlend=fade(.40,.70,ecotone.forest)*.94;
     const brokenLeaves=.5+.5*Math.sin(nx*8.2+nz*6.1+mineralRift*1.4);
-    color.r=color.r*(1-forestBlend)+(.43+.10*brokenLeaves)*forestBlend;
-    color.g=color.g*(1-forestBlend)+(.76+.085*brokenLeaves)*forestBlend;
-    color.b=color.b*(1-forestBlend)+(.41+.095*brokenLeaves)*forestBlend;
+    const leafShadow=.5+.5*Math.sin(nx*13.1-nz*7.7+
+      Math.sin(nz*8.3+nx*2.6)*1.7);
+    const wetShade=.55+.45*leafShadow;
+    const rootedR=.265+.082*brokenLeaves+.031*leafShadow;
+    const rootedG=.492+.109*brokenLeaves+.040*wetShade;
+    const rootedB=.242+.067*brokenLeaves+.056*(1-leafShadow);
+    color.r=color.r*(1-forestBlend)+rootedR*forestBlend;
+    color.g=color.g*(1-forestBlend)+rootedG*forestBlend;
+    color.b=color.b*(1-forestBlend)+rootedB*forestBlend;
     const mosaic=sculptForestMosaicTile(x,z,width,height);
     add(tile,tileMat,x-(width-1)/2,-.105,z-(height-1)/2,
       mosaic.scale,.21,mosaic.scale,0,mosaic.rotation,0,color.clone());
