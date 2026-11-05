@@ -22,7 +22,16 @@ function frames() {
   });
   return { previous, next };
 }
-const anchor = Object.freeze({ x: 8.2, y: 17.5, z: 19.8, angle: .24 });
+// Real exterior guardian-lock geometry. The inner walk-through threshold
+// rejects older synthetic anchors floating at radius ~21.4, as it should.
+const anchorAngle = .24, outerLockRadius = 27.78;
+const anchor = Object.freeze({ x: Math.sin(anchorAngle)*outerLockRadius,
+  y: 17.5, z: Math.cos(anchorAngle)*outerLockRadius, angle: anchorAngle });
+const expectedWalkableFocus = () => [
+  anchor.x - (outerLockRadius - 25)*Math.sin(anchor.angle),
+  anchor.y - 2 + 2.6,
+  anchor.z - (outerLockRadius - 25)*Math.cos(anchor.angle),
+];
 
 test('a witnessed living guardian and exact next-floor source are required; no fake clearance', async () => {
   const [, { observedGuardianPassage }] = await loaded;
@@ -79,7 +88,7 @@ test('the real event creates a separated 3D bronze passage with bounded resource
     assert.equal(effect.diagnostics().sourceTick, next.tick);
     assert.deepEqual(effect.diagnostics().anchorPosition, [anchor.x, anchor.y, anchor.z],
       'full-motion provenance reports the exact source-bound gate anchor and elevation');
-    assert.deepEqual(effect.diagnostics().focusPosition, [anchor.x, anchor.y + 2.6, anchor.z]);
+    assert.deepEqual(effect.diagnostics().focusPosition, expectedWalkableFocus());
     assert.equal(effect.diagnostics().floor, next.floor);
     assert.ok(effect.cameraWeight() > 0 && effect.cameraWeight() < 1);
     let meshCount = 0;
@@ -90,9 +99,9 @@ test('the real event creates a separated 3D bronze passage with bounded resource
       assert.equal(object.receiveShadow, false);
       assert.equal(object.userData.collider, undefined);
     });
-    assert.equal(meshCount, 17, 'the source-grounded cap inlay is one additional bounded instanced draw, never a collider');
+    assert.equal(meshCount, 19, 'the source-grounded cap inlay plus walkable threshold stone and bronze meshes are bounded and non-colliding');
     assert.equal(effect.diagnostics().fragmentInstances, 8);
-    assert.ok(effect.focusPoint()?.y > anchor.y + 2);
+    assert.ok(effect.focusPoint()?.y > anchor.y + .5);
     assert.equal(effect.diagnostics().shadows, 0);
     for(let step=0;step<11;step++)effect.update(.25);
     assert.equal(effect.group.visible, false, 'the passage retires without a run/authority mutation');
@@ -547,16 +556,14 @@ test('one continuous source-owned camera escort observes defeated body, then the
     assert.equal(effect.unlock(snapshot, anchor), true);
     assert.ok(effect.diagnostics().sourceMeasuredDefeatFocusWeight > .1);
     const early = effect.focusPoint().clone();
-    assert.ok(early.distanceTo(new THREE.Vector3(anchor.x,
-      anchor.y + 2.6, anchor.z)) > .1,
+    assert.ok(early.distanceTo(new THREE.Vector3(...expectedWalkableFocus())) > .1,
       'early camera acknowledges the real defeated guardian');
     // A renderer rejects oversized elapsed slices; measure a normal-speed
     // sequence instead of assuming one huge delta advances presentation time.
     for (let i = 0; i < 3; i++) effect.update(.5);
     assert.equal(effect.diagnostics().sourceMeasuredDefeatFocusWeight, 0);
-    assert.deepEqual(effect.focusPoint().toArray(), [
-      anchor.x, anchor.y + 2.6, anchor.z,
-    ], 'continuous camera focus hands back to the earned gate');
+    assert.deepEqual(effect.focusPoint().toArray(), expectedWalkableFocus(),
+      'continuous camera focus returns to the actual radius-25 walk-through opening');
     assert.equal(effect.unlock({ ...snapshot, tick: 241,
       player: { health: 5, x: cap.x + Math.floor(cap.width * .76) } },
       anchor), true);
