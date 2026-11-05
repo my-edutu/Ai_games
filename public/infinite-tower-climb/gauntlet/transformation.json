@@ -9,20 +9,20 @@
   },
   "candidate": {
     "sha": null,
-    "title": "OPEN authentic guardian-cap combat, earned physical gateway and depth-safe decorative clockwork; NOT EVALUATED",
-    "implementationSha": "6ee3e488c2d9a0ee775dc1cf73806f407bbe0e14",
-    "implementationEvidenceStatus": "IMPLEMENTED, NOT FILMED/ASSESSED: 6ee3e488 links original non-colliding large clock dial/backings to the already source-observed actor/guardian/landing foreground gear visibility logic, restoring solid depth outside the protected corridor. New source-contract test cfeb568a, review 7c1db7ea. Previous real 390x844 c5 WebM exposed actors blocked by large foreground gear/case, but it and unfinished b7 source capture 42019891717 PRECEDE this change. Exact new-head Actions/capture and full-motion independent critics required. No hardware FPS or memory measurement. Earlier b7 actual-game film has now completed 9/9 recording jobs (run 42019891717), but still pre-dates this playable world update and has no independent full-motion verdict."
+    "title": "OPEN original 3D guardian/crusher -> earned physical gate -> continued ascent, with clockwork full-body legibility work; NOT EVALUATED",
+    "implementationSha": "8564a07de226ec6e3084c99952837b8536a77c8b",
+    "implementationEvidenceStatus": "IMPLEMENTED, NOT YET CURRENT-SOURCE FILMED/BLIND-ASSESSSED: 8564a07d registers real sibling static clockwork-case meshes for PRESENT camera ray checks in addition to the moving teeth, and samples bounded real-world head/center/feet of the living climber and guardian using published half-height. Render-only, owned materials, source-derived. Previous genuine 9/9 source-pinned normal-speed films 42024165702 captured 6ee3e488 and PRECEDE 8564a07d; new source video run 42029455454 in progress at update. Safety run 42029455515 in progress. Independent votes and supported-device frame-time/memory still missing."
   },
   "currentTransformation": {
     "title": "SAME playable real 3D Tower climb and authentic upper-cap guardian/crusher encounter: earned armor-opening, damage feedback, safe movement and eventual floor-nine continuation",
-    "state": "OPEN — SAME authentic Tower guardian/crusher duel, earned physical gate and floor-nine continuation, now with whole decorative clock-face foreground yielding during real source-visible action; NOT EVALUATED until matched exact-source films, blind reviews and hardware safety are available.",
+    "state": "OPEN — same authentic guardian-to-gateway-to-floor-nine gameplay, now extending the single camera/world visibility initiative to complete physical hero/guardian silhouettes and actual static clock-case occluders; NOT EVALUATED.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "First inspect completed b7 original source gameplay recording 42019891717 (pending at latest inspection) for baseline camera and actionable pixel-obstruction; then record exact playable 6ee3e488 normal-speed native desktop/portrait 60+s ascent, guardian/crusher, outcome/restart, same frozen seed/tier/viewport. Event-align genuine actions, check case translucency and recoveries without hiding real hazard, geometry, combatants or gateway. Collect >=5 genuinely independent blind randomized full-motion assessments with >=4/5 preference on EACH of LOOKS, FEELS, PLAYS; verify accessibility, replay, supported-device frame-time p50/p95/p99 and memory. No PASS before evidence.",
+    "nextDecision": "Inspect exact-source normal-speed WebM from current PR68 run 42029455454 after completion and compare to frozen 1731b380 desktop 960x600 and mobile 390x844 matched seed/quality: watch the full living guardian and climber silhouettes against the actual clock backing during melee, shutter warnings, earned gate crossing, continued ascent and outcome/restart. Do not claim better visuals from code inspection. Segment event-matched >=60s ascent/guardian/outcome scenes and obtain five randomized blind independent full-motion judgments per LOOKS/FEELS/PLAYS, requiring 4/5 each, plus actual supported-device frame-time p50/p95/p99, memory, accessibility, replay, and quality safety CI. Keep same transformation open.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Old real portrait source c5 WebM showed living guardian/climber concealed by broad wheel and foreground supports despite in-frame NDC. Newly linked decorative clock-face backdrop may relieve one layer but has NOT been observed in a new full-motion film; structural pylons and camera occlusion might persist. Genuine event-matched desktop+phone scenario recordings and independent reviewers are absent.",
-    "unverifiedImplementationBranchHead": "6ee3e488c2d9a0ee775dc1cf73806f407bbe0e14",
-    "currentVerticalSlice": "ONE OPEN source-authentic Tower guardian/crusher combat-to-earned gateway-to-floor-nine slice. Real source damage/defeat and physical door + continuous follow shot are joined by world-scale case-aware decorative clockwork relief, preserving true colliders, bosses, hazard warnings, source-derived movement and outcome/restart. No new exact-source full-motion quality review yet.",
-    "biggestGap": "Old real portrait source c5 WebM showed living guardian/climber concealed by broad wheel and foreground supports despite in-frame NDC. Newly linked decorative clock-face backdrop may relieve one layer but has NOT been observed in a new full-motion film; structural pylons and camera occlusion might persist. Genuine event-matched desktop+phone scenario recordings and independent reviewers are absent."
+    "biggestRemainingExperienceGap": "Real previous portrait gameplay showed living climber and guardian obscured by enormous decorative clock backings and moving gears. Candidate body-sized case ray tests may improve this but newest 8564 source has no verified video critique. Most consequential next step is event-matched 60s desktop/mobile full-motion original-game sightline evaluation, real earned guardian victory/gateway/cycle, blind 5-critic views and actual hardware tails. No confirmed experiential win.",
+    "unverifiedImplementationBranchHead": "8564a07de226ec6e3084c99952837b8536a77c8b",
+    "currentVerticalSlice": "ONE OPEN cohesive source-authentic combat-to-physical-gateway-to-continued-floor-ascent experience: guardian counterplay and recoil, continuous lens, earned door, and full-body mobile readability against the live source-linked clock gear AND sibling dial backings. No geometry, collision or simulation authority changed by latest sightline work; no independent quality win.",
+    "biggestGap": "Real previous portrait gameplay showed living climber and guardian obscured by enormous decorative clock backings and moving gears. Candidate body-sized case ray tests may improve this but newest 8564 source has no verified video critique. Most consequential next step is event-matched 60s desktop/mobile full-motion original-game sightline evaluation, real earned guardian victory/gateway/cycle, blind 5-critic views and actual hardware tails. No confirmed experiential win."
   },
   "scenarios": [
     {
@@ -62,11 +62,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Prior b7 exact-head run 42019891637 was CANCELLED at inspection, not PASS. New test cfeb568a and playable world 6ee3e488 plus review 7c1db7ea are committed; no completed exact-current-head safety workflow inspected. CI remains a safety veto, never quality score.",
-    "replay": "Frozen baseline 1731b380 unchanged. Clock face only clones decorative rendering materials at floor construction and updates their opacity/depthWrite from the existing observed camera actor/guardian/landing ray/projection logic. It does not mutate source simulation, replay or RNG; actual current-head replay checks still pending.",
-    "accessibility": "No added HUD, controls, flashing effects or new audio dependency. Non-gameplay clock face remains visible except when source-observed combat/traversal corridor needs it to soften, and recovers after; reduced-motion retains existing immediate visual updates. Need real native phone/desktop contrast/visibility and accessibility assessment.",
-    "performance": "No new geometry meshes, geometry updates, renderer passes or source AI computations. One floor-owned alpha material clone per clock face material and per-frame syncing of at most three faces; pre-existing sightline rays/projections are reused. These are design claims about code, NOT supported-device performance results. p50/p95/p99 and memory remain NOT MEASURED.",
-    "stability": "Previous b7 source film run 42019891717 now 9/9 completed real browser recording jobs, but precedes current 6ee3e488 world change. Current video not captured or independently watched. Worker tunnel returned NOT_FOUND; no judges/hardware measurements. No current-head safety confirmation. PR68 draft, PR58 untouched; no merge/deploy/force-push."
+    "ci": "Previous exact-head quality contract 42025095875 was SUCCESS on old e8f570e2 (technical integrity only); NEW 8564a07d safety workflow 42029455515 in progress at inspection, no current-head safety verdict. CI can veto but never confer LOOKS/FEELS/PLAYS PASS.",
+    "replay": "Frozen baseline 1731b380 unchanged. 8564a07d affects only 3D presentation (current immutable actor/guardian half-height and camera rays, privately owned decorative case materials). No authoritative RNG, physics, AI or snapshots changed; exact-head replay/build checks pending.",
+    "accessibility": "No new HUD, screen text, flash, forced camera cut, audio dependency or altered controls. Reduced-motion uses existing immediate scene softness rather than timed camera/silhouette animation. Must verify real mobile contrast and full-body visibility in continuous footage.",
+    "performance": "No new render passes, meshes, lights or geometries. Existing at most three clockwork gears now evaluate bounded head/center/feet ray samples and the registered decorative case siblings; this can increase CPU raycast costs on phone. Actual supported device p50/p95/p99 frame-time tails, memory and no-regression visual results are NOT MEASURED. Performance is a safety gate.",
+    "stability": "Original 6ee3e488 candidate + frozen 1731b380 full original-host gameplay capture run 42024165702 completed 9/9 browser jobs (including desktop+portrait), but predates new head. Latest 8564 source capture 42029455454 in progress, no films independently viewed. Browser/reviewer worker tunnel previously NOT_FOUND; 0 independent judgments collected. PR68 draft, PR58 untouched; no merge/force-push/deploy."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -3307,6 +3307,35 @@
       "supportedDeviceFrameTimeP50P95P99AndMemory": "NOT MEASURED",
       "workerAccess": "NOT_FOUND tunnel-client >300s; no independent full-motion critic available",
       "biggestGap": "Need verify the actual 3D silhouettes AND unchanged guardian/shutter/earned gateway are clearly readable in continuous portrait+desktop pixels, not merely source NDC geometry.",
+      "qualityVerdict": "NOT EVALUATED"
+    },
+    "latestSilhouetteVisibility": {
+      "implementationSha": "8564a07de226ec6e3084c99952837b8536a77c8b",
+      "reviewPath": "docs/reviews/2026-11-05-tower-pr68-full-physical-silhouette-clockwork.md",
+      "priorSourcePinnedCapture": {
+        "runId": 42024165702,
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42024165702",
+        "candidateSha": "6ee3e488c2d9a0ee775dc1cf73806f407bbe0e14",
+        "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+        "jobs": "9/9 success, desktop 960x600 and native portrait 390x844 original-game recordings; NOT current-source visual quality proof"
+      },
+      "currentSourcePinnedCapture": {
+        "runId": 42029455454,
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42029455454",
+        "status": "IN PROGRESS at evidence update; cannot yet validate implementation"
+      },
+      "currentSafety": {
+        "runId": 42029455515,
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42029455515",
+        "status": "IN PROGRESS, not quality assessment"
+      },
+      "judgedFullMotion": false,
+      "independentVotes": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "supportedDeviceP50P95P99Memory": "NOT MEASURED",
       "qualityVerdict": "NOT EVALUATED"
     }
   }
