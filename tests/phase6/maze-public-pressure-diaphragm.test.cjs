@@ -82,6 +82,14 @@ test('a remembered, hidden, fabricated or previous-run trap cannot perform a fre
     assert.ok(piston);
     world.animate(0,{explorerPosition:hero,reducedMotion:false});
     assert.equal(piston.position.y,.16,'remembered-only hazard stays still');
+    world.animate(0,{explorerPosition:hero,reducedMotion:true});
+    assert.equal(piston.position.y,.16,
+      'reduced-motion static pose must not visually disclose a remembered-only hazard');
+    for (const side of [-1,1]) {
+      const leaf=piston.getObjectByName('Published tide-shear diaphragm '+side);
+      assert.ok(Math.abs(Math.abs(leaf.rotation.z)-.08)<1e-9,
+        'hidden-only ceramic shields remain at rest even in reduced motion');
+    }
     world.update(published({visibleCells:[4]}));
     world.animate(0,{explorerPosition:hero,reducedMotion:false});
     assert.ok(Math.abs(piston.position.y-.44)<1e-9,'current public sight restores real physical action');
