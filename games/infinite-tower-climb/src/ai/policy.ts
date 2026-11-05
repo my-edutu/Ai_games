@@ -624,7 +624,8 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
     // invulnerability, free counterattack, action-clock or legacy-v1 change.
     const crushingNow=tactical&&state.config.guardianArenaHazards===true
       ?observedChargingHazard(state,observation):undefined;
-    if(crushingNow&&Number.isSafeInteger(crushingNow.chargeTicksRemaining)&&
+    if(crushingNow&&crushingNow.chargeTicksRemaining!==undefined&&
+       Number.isSafeInteger(crushingNow.chargeTicksRemaining)&&
        crushingNow.chargeTicksRemaining<=3){
       const escape=observedTrapEscape(state,observation,crushingNow);
       if(escape.move!==0||escape.jump)return {
