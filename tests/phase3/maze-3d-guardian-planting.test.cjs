@@ -169,3 +169,52 @@ test('real paired shoulder guards rise during a witnessed brace and fold before 
     assert.equal(guardian.group.children.length,0);
   }
 });
+
+
+test('Pip physically guards its face at the same witnessed Thornback middle beat without a false action',async()=>{
+  const {createExplorer}=await production;
+  for(const balanced of [false,true]) for(const reducedMotion of [false,true]){
+    const pip=createExplorer({balanced});
+    const shoulder=pip.group.getObjectByName('shoulder -1');
+    const elbow=pip.group.getObjectByName('elbow -1');
+    const eye=pip.group.getObjectByName('eye -1');
+    assert.ok(shoulder&&elbow&&eye,'connected original glove, shoulder and eyes exist in the real rig');
+    const resources=new Set();
+    pip.group.traverse(node=>{
+      if(node.geometry) resources.add(node.geometry);
+      if(node.material) resources.add(node.material);
+    });
+    const cue={heading:0,attentionHeading:.5,attentionStrength:.8,
+      danger:1,moving:false,time:1,delta:0,reducedMotion};
+    const pose=()=>[shoulder.rotation.x,shoulder.rotation.z,elbow.rotation.x,eye.scale.y];
+    pip.update({...cue,guardianEncounterBeat:0});
+    const notice=pose();
+    pip.update({...cue,guardianEncounterBeat:.5});
+    const brace=pose();
+    assert.ok(brace[0]<notice[0]-.55,'connected off-hand rises into an actual defensive pose');
+    assert.ok(brace[1]>notice[1]+.80,'forearm crosses toward Pip rather than expanding the viewport edge');
+    assert.ok(brace[2]<notice[2]-.30,'connected wrist folds toward the face');
+    assert.ok(brace[3]<notice[3]-.30,'physical eyes react by narrowing during the same public brace');
+    pip.update({...cue,guardianEncounterBeat:1});
+    const shell=pose();
+    assert.ok(shell[0]>brace[0]+.35 && shell[1]<brace[1]-.55,
+      'Pip withdraws the guard as the actually disclosed carapace releases');
+    pip.update({...cue,guardianEncounterBeat:1});
+    assert.deepEqual(pose(),shell,'same public source beat replays without drift');
+    pip.update({...cue,attentionHeading:undefined,attentionStrength:0,
+      guardianEncounterBeat:1});
+    const withdrawn=pose();
+    pip.update({...cue,attentionHeading:undefined,attentionStrength:0});
+    assert.deepEqual(pose(),withdrawn,'hidden guardian clock must not affect the character');
+    pip.update({...cue,result:'capture',guardianEncounterBeat:.5});
+    assert.deepEqual(pose(),withdrawn,'terminal action cannot preserve an unseen defense');
+    const after=new Set();
+    pip.group.traverse(node=>{
+      if(node.geometry) after.add(node.geometry);
+      if(node.material) after.add(node.material);
+    });
+    assert.deepEqual(after,resources,'render update cannot allocate new geometry or materials');
+    pip.dispose();
+    assert.equal(pip.group.children.length,0);
+  }
+});
