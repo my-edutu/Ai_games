@@ -34,3 +34,11 @@ Updated focused source contracts for an actual zero-HP inactive source guardian,
 4. Actual supported-device frame-time tails and memory; accessibility, replay and resilience gates. Engineering CI can veto, never award a quality PASS.
 
 **Rollback:** revert this branch's two new source/test commits only, leaving PR58 untouched. **No merge, force push or deployment.**
+
+## Source-pinned full-motion inspection upgrade
+
+The existing danger capture sampled live guardians but stopped *exactly on their defeat* (`if (!guardian) return`), leaving the new original armor/circuit/doorway scene under-observed. Current neutral 50ms browser capture now separately witnesses a real inactive zero-HP guardian, its old-floor ID/position, the source-tick-matched actual 3D armor/impact/power presentation and authentic same-run floor advancement. It writes `guardian-release-source-witness.json` and adds read-only `guardianReleaseWitnesses` to `motion.json`. The renderer reports its actual temporary 3D defeat-ring radius/opacity and power-reel age; an unmatched render tick is explicitly flagged, not counted as a visible outcome.
+
+**Evidence-harness source:** `454b9b07696c9e9e45b54305a4db5d87f88ce9fd`. Source/contract syntax parsed in isolated JavaScript verification; the local checkout, actual browser/WebM, GPU and genuine independent critics remain unavailable in this execution. Any browser testimony remains telemetry, never substitute for full-motion visual inspection. Latest exact-head [quality gate](https://github.com/my-edutu/Ai_games/actions/runs/42087182787) queued and [original normal-speed recording](https://github.com/my-edutu/Ai_games/actions/runs/42087182925) pending at this inspection. Prior c90 failure remains the last confirmed exact-head outcome.
+
+**Current conclusion:** one continuous original-game guardian-to-floor-nine vertical slice is enhanced and its evidence recorder better aligned to meaningful *source events*, while **LOOKS / FEELS / PLAYS remain NOT EVALUATED**.

@@ -10,18 +10,18 @@
   "candidate": {
     "sha": null,
     "title": "OPEN same real 3D Tower guardian/crusher battle → source-earned falling armor, physically open gate, floor-nine ascent and outcome/restart; NOT EVALUATED",
-    "implementationSha": "f49a7b4ce1eb277ff4a62f834cf727d6594b56b3",
-    "implementationEvidenceStatus": "NOT EVALUATED — source-earned original 3D defeated guardian impact and physically reeling circuit committed at f49a7b4; source contracts committed at 70c6d74; matched full-motion current-source capture, blind LOOKS/FEELS/PLAYS and hardware frame-time evidence absent. Earlier c90ba6f full suite FAILED 1/1044 (last power segment did not move); fix unverified in new CI."
+    "implementationSha": "f1e1b9ef70c4ed52ac7793b7f3e2897a51169d4d",
+    "implementationEvidenceStatus": "NOT EVALUATED: source-earned 3D guardian ground shockwave + reeling power connection f49a7b4, current-source render diagnostics f1e1b9e and real normal-speed 50ms neutral defeat/floor-advance recording harness 454b9b0. Previous c90ba6 CI FAILED 1/1044 on static conduit endpoint. New exact-head 454b9b CI queued; matched video pending; blind 0/5 each and hardware unavailable."
   },
   "currentTransformation": {
     "title": "SAME playable real 3D Tower climb and authentic upper-cap guardian/crusher encounter: earned armor-opening, damage feedback, safe movement and eventual floor-nine continuation",
     "state": "OPEN — same guardian/crusher battle through source-authentic armor collapse, ground shockwave, severing circuit, earned bronze doorway, floor-nine continuation/restart. Quality NOT EVALUATED.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Verify exact updated source CI against prior c90 workflow failure, obtain 960x600 desktop and 390x844 portrait original-game source-pinned 60s+ recordings for all three scenarios; use matched seed/quality, inspect real combat-event alignment. Collect >=5 separate fresh-context randomized blind critics with >=4/5 candidate preference in each LOOKS/FEELS/PLAYS and supported-device frame-time p50/p95/p99/memory; do not score based on CI. Keep PR68 draft.",
+    "nextDecision": "Verify pending quality workflow https://github.com/my-edutu/Ai_games/actions/runs/42087182787 against prior one-test failure; inspect native normal-speed desktop/phone WebM from original-host capture https://github.com/my-edutu/Ai_games/actions/runs/42087182925 and its new source-defeat/floor-advance witness. Match actual events, NOT clock seconds. Then recruit five genuinely independent randomized full-motion critics per LOOKS/FEELS/PLAYS, requiring 4/5 candidate on each, and collect supported-device p50/p95/p99/memory, accessibility, replay and stability. All still NOT EVALUATED.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Full-motion source-matched, normal-speed desktop and native portrait footage at candidate f49a7b4 is missing for three 60s+ scenes; prove readable real source guardian collapse, pulse, reeling power break, gate crossing, floor-nine continuation and outcome/restart. Earlier c90 CI FAILED 1/1044 on static last power segment; updated source CI not yet confirmed. Independent blind LOOKS/FEELS/PLAYS 0/5 each and supported hardware p50/p95/p99/memory NOT MEASURED.",
-    "unverifiedImplementationBranchHead": "54a533ca89d18354c247158f1a60e56531038353",
-    "currentVerticalSlice": "Source-grounded guardian defeat to earned portal across existing authored 3D scene/camera/audio: 12-part fallen armor, additional timed physical impact ring at true defeated body, eight-segment power conduit fully reeling to the earned gate, unlocked real bronze passage and physically traversed next floor. Source code f49a7b4, source contracts 70c6d74. No simulation authority/AI/health/replay change and no quality PASS.",
+    "biggestRemainingExperienceGap": "At newest source f1e1b9e and full-motion harness 454b9b0, successful 60s+ desktop + native portrait ascent/high-stakes/outcome recordings, event-matched to immutable baseline 1731b380, are not yet assessed. Real guardian collapse→power break→open gate→floor-nine/outcome must be readable across continuous motion; 0/5 blind votes per pillar, hardware performance unknown, prior c90 exact-head CI FAILED one source visual contract.",
+    "unverifiedImplementationBranchHead": "454b9b07696c9e9e45b54305a4db5d87f88ce9fd",
+    "currentVerticalSlice": "Same original playable 3D upper Tower transformation: source-authentic floor-eight guardian duel, defeated body 12-plate collapse, original ground impact, gateward-reeling eight-segment physical power disconnection, true unlocked bronze portal, floor-nine continuation/outcome; independent event-bound 50ms real capture observer. f49a7b4 playable motion, f1e1b9e source diagnostics, 454b9b0 capture harness. No simulation/replay/score/AI mutation.",
     "biggestGap": "The entire source-earned guardian defeat, visible armor collapse, opening and crossing the real gate, floor-nine continuation and authentic outcome/restart must appear in continuous, source-matched original-browser desktop and portrait footage; matched-seed older clips predate this work. No independent blind full-motion judgments (LOOKS/FEELS/PLAYS 0/5 each) or supported-device frame-time p50/p95/p99 and memory evidence. No claim of experience superiority."
   },
   "scenarios": [
@@ -62,11 +62,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "2026-11-05 exact-head c90ba6f workflow https://github.com/my-edutu/Ai_games/actions/runs/42077566105 FAILED (1/1044 Node tests), source 3D circuit end segment static despite test. New source f49a7b4 reels all segments, regression 70c6d74 tests new shockwave/stale/reduced motion; new exact-head CI not yet verified. CI safety veto, not experience acceptance.",
+    "ci": "Confirmed c90ba6f full Node suite https://github.com/my-edutu/Ai_games/actions/runs/42077566105 FAILED 1 of 1044 tests (far power segment did not move in first .55s). Revised source physically reels to gate at f49a7b4, new focused contract 70c6d74, current source diagnostics f1e1b9e and neutral full-motion harness 454b9b0. Latest exact-head gate https://github.com/my-edutu/Ai_games/actions/runs/42087182787 QUEUED; no new safety PASS. CI is a veto, not experience quality.",
     "replay": "No changes to fixed-step Tower authority, AI policy, combat, damage, collisions, floor progression, RNG or replay. Source zero-health inactive guardian is required to emit one short decorative impact and sever the power conduit. Stale transport does not advance presentation age; reduced motion suppresses traveling effect. No future result inferred.",
     "accessibility": "Reduced-motion mode hides the traveling impact impulse, retains settled source-defeated armor and already-unlocked static gateway; existing audio remains opt-in and mutable; minimal HUD unchanged. Phone legibility and accessibility not yet independently verified.",
     "performance": "One additional short-lived unshadowed original torus mesh draw with its own disposable material; uses existing ground torus geometry. Eight-segment power conduit continues as one pre-existing instanced draw; no new lights/shadow passes, colliders, geometry or model assets. Actual supported-device p50/p95/p99 frame-time and memory NOT MEASURED.",
-    "stability": "Prior c90ba6f CI failure confirmed in exact original-host logs (1/1044). New source code/test committed via GitHub but local Node/browser runner checkout unavailable; exact-current-head CI and video not yet confirmed. PR68 remains draft, PR58 untouched, frozen baseline unchanged. No merge, deployment or force push."
+    "stability": "New original-host real-motion capture https://github.com/my-edutu/Ai_games/actions/runs/42087182925 PENDING at source 454b9b0; no current-source videos or reviewers inspected. Earlier source output is NOT evidence for this work. Branch PR68 draft, PR58 protected, frozen baseline intact; no merge/force push/deploy. Stale and source-tick mismatched read-only observations cannot be accepted as video quality evidence."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -3544,7 +3544,7 @@
     },
     "latestGuardianPhysicalImpulse20261105": {
       "status": "NOT EVALUATED",
-      "sourceSha": "f49a7b4ce1eb277ff4a62f834cf727d6594b56b3",
+      "sourceSha": "f1e1b9ef70c4ed52ac7793b7f3e2897a51169d4d",
       "safetyTestSha": "70c6d74d66ae677d0ee94e0ff403f303b9c13072",
       "sourceRef": "feat/tower-transformation-gauntlet-20261101",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
@@ -3584,7 +3584,13 @@
       "actualSupportedDeviceP50P95P99Memory": "NOT MEASURED",
       "reviewPath": "docs/reviews/2026-11-05-tower-pr68-source-defeat-ground-impulse-and-power-reel.md",
       "biggestGap": "Record and assess full continuous actual playable crossing/guardian outcome/restart vs immutable frozen source; independent blind full-motion critics and supported hardware evidence absent.",
-      "qualityVerdict": "NOT EVALUATED"
+      "qualityVerdict": "NOT EVALUATED",
+      "candidateSourceCaptureHarnessSha": "454b9b07696c9e9e45b54305a4db5d87f88ce9fd",
+      "sourcePinnedMotionRun": "https://github.com/my-edutu/Ai_games/actions/runs/42087182925",
+      "sourcePinnedMotionRunStatus": "PENDING; not visually evaluated",
+      "exactHeadSafetyRun": "https://github.com/my-edutu/Ai_games/actions/runs/42087182787",
+      "exactHeadSafetyRunStatus": "QUEUED; last confirmed c90 source CI FAIL",
+      "defeatWitnessArtifact": "artifacts/tower-motion/danger/{desktop,portrait}/guardian-release-source-witness.json (generated only by source-pinned browser run; not yet confirmed)"
     }
   }
 }
