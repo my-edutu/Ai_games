@@ -1,0 +1,11 @@
+# Infinite Tower Climb — physical-body and clock-case visibility continuation
+**Date:** 2026-11-05 · **PR:** #68 draft · **Frozen baseline:** `1731b380851162741761c5569e2bc152a0869ca9`
+
+## Finding and cause
+The last source-pinned original-game desktop/portrait capture (run 42024165702, candidate 6ee3e488) completed all nine recording jobs. The earlier portrait footage exposed large foreground clockwork masking the climber and guardian. The preceding gear/case material change still sampled only an actor/guardian center ray against the **rotating gear subtree**; decorative static backings are siblings of the gear, so ray checks could miss opaque clock-case pixels. Single-point sampling could also miss the real skinned head/legs.
+
+## Connected playable implementation
+The actual 3D world now registers those specific non-colliding decorative backing meshes under their existing per-floor owned material lifecycle and ray-tests them, together with rotating teeth, against the **current** source-sized climber and living guardian silhouettes. Three bounded observations (center, head, feet) use immutable published half-height; the real selected landing remains a single point. Softening is tied to the existing source-first visibility policy; it recovers with existing opacity/depth-write rules. No simulated combat, collision, replay, hazard, route, world geometry, draw pass, light, audio or HUD is added. All observations stop when source is stale or not live. Tests cover mesh ownership, invalid sizes and the actual scene-to-world source bindings.
+
+## Open assessment and vetoes
+These source changes are not yet evidence of a better rendering. Required: exact source-head desktop 960×600/portrait 390×844, normal-speed matched 60s+ guardian/ascent/outcome films against frozen baseline, visually inspect clock-case, hero body and guardian during contact, plus separate randomized fresh-context 5-critic full-motion judgments for LOOKS/FEELS/PLAYS (4/5 each). Run exact-head CI, replay/accessibility and actual supported-device p50/p95/p99 frame-time and memory. The prior recordings predate this change. No user-visible quality PASS or unsupported FPS claim is permitted. PR #58 must remain untouched, with no merge, deployment or force-push.

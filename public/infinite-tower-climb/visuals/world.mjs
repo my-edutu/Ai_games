@@ -56,6 +56,7 @@ export function observedStageCorridorOpacity({
 export function linkClockFaceScenery(entry, parent, ownedMaterials) {
   if (!entry || !parent?.children?.includes(entry.root) || !ownedMaterials) return 0;
   const cloned = new Map();
+  const sceneryMeshes = [];
   for (const child of parent.children) {
     if (child === entry.root) continue; // moving gear already has its own alloy
     child.traverse(object => {
@@ -68,17 +69,29 @@ export function linkClockFaceScenery(entry, parent, ownedMaterials) {
         cloned.set(object.material, material); ownedMaterials.add(material);
       }
       object.material = material;
+      sceneryMeshes.push(object);
       object.userData.ambientDetail = true;
       object.castShadow = false; object.receiveShadow = false;
     });
   }
   entry.sceneryMaterials = [...cloned.values()];
+  // Keep the physical sibling surfaces, not only the rotating teeth, in the
+  // present camera sightline query. These meshes have no gameplay collider.
+  entry.sceneryMeshes = sceneryMeshes;
+  entry.sceneryParent = parent;
   return entry.sceneryMaterials.length;
 }
 
 // Reuse the already measured actor/guardian/corridor opacity. The static clock
 // surround must never stay fully opaque when the gear becomes transparent.
 // This does not change source ticks, physics, AI, source platforms or hazards.
+// A source-sized physical silhouette, not the render camera or an imagined
+// threat, supplies only two additional bounded sightline samples (head/feet).
+export function observedSilhouetteSpan(halfHeight) {
+  return Number.isFinite(halfHeight) && halfHeight > 0
+    ? Math.min(3.2, halfHeight * .82) : 0;
+}
+
 export function syncClockFaceSightline(entry) {
   const faces = entry?.sceneryMaterials;
   if (!faces?.length) return false;
@@ -305,6 +318,7 @@ export function createTowerWorld(){
   // Reuse all projection scratch on the render path.
   const screenGearWorld = new THREE.Vector3(), screenGearCenter = new THREE.Vector3();
   const screenGearRight = new THREE.Vector3(), screenFocus = new THREE.Vector3();
+  const silhouettePoint = new THREE.Vector3();
   const corridorFrom = new THREE.Vector3();
   const corridorTo = [new THREE.Vector3(), new THREE.Vector3()];
   const corridorDepths = [0, 0], corridorGuardians = [false, false];
@@ -483,7 +497,8 @@ export function createTowerWorld(){
     mesh(root,g,alloy,[0,0,-thickness/2]);
     mesh(root,cylinder(),trim,[0,0,0],[r*.16,thickness*1.6,r*.16],[Math.PI/2,0,0]);
     for(let i=0;i<4;i++)block(root,alloy,[0,0,0],[r*1.42,r*.13,thickness],[0,0,i*Math.PI/4]);
-    foregroundGears.push({root,alloy,trim,radius:r*1.55,sceneryMaterials:[]});
+    foregroundGears.push({root,alloy,trim,radius:r*1.55,
+      sceneryMaterials:[],sceneryMeshes:[],sceneryParent:null});
     return root;
   }
   function arch(parent,a,y,size=1){const root=new THREE.Group();radial(root,a,22.65,y);parent.add(root);
@@ -1497,7 +1512,8 @@ export function createTowerWorld(){
   // if no exact center-ray hits the climber. Treat only NON-GAMEPLAY decorative
   // gear teeth as progressively translucent near an authentic subject; actual
   // platforms, guardian, hazards and moving-deck machinery remain opaque.
-  function protectRouteSightlines(camera, actor=null, guardian=null, landing=null, dt=0, options={}) {
+  function protectRouteSightlines(camera, actor=null, guardian=null, landing=null, dt=0, options={},
+      actorHalfHeight=0, guardianHalfHeight=0) {
     if(disposed)return {total:0,softened:0};
     if(!foregroundGears.length){
       occludedForegroundGears=0;occludedForegroundScreenGears=0;occludedForegroundCorridorGears=0;occludedForegroundClockFaces=0;
@@ -1528,7 +1544,10 @@ export function createTowerWorld(){
     for(const entry of foregroundGears){
       let requiredOpacity=1, softByProjection=false, softByCorridor=false;
       if(enabled){
-        entry.root.updateWorldMatrix(true,true);
+        // Sibling clock backings share the gear's sightline, but not its
+        // scene subtree. Refresh their matrices before authentic ray queries.
+        if (entry.sceneryParent) entry.sceneryParent.updateWorldMatrix(true,true);
+        else entry.root.updateWorldMatrix(true,true);
         entry.root.getWorldPosition(screenGearWorld);
         screenGearCenter.copy(screenGearWorld).project(camera);
         const right=camera.matrixWorld.elements;
@@ -1555,26 +1574,42 @@ export function createTowerWorld(){
         for(let index=0;index<targets.length;index++){
           const point=targets[index];
           if(!point||![point.x,point.y,point.z].every(Number.isFinite))continue;
-          canopyDirection.copy(point).sub(camera.position);
-          const length=canopyDirection.length();
-          if(!Number.isFinite(length)||length<=.25)continue;
-          canopyRay.set(camera.position,canopyDirection.multiplyScalar(1/length));
-          canopyRay.near=0;canopyRay.far=length-.20;
-          if(canopyRay.intersectObject(entry.root,true).length){
-            requiredOpacity=Math.min(requiredOpacity,index===2?.48:.24);
-          }else if(gearDepth+.4<length&&radius>0&&Number.isFinite(radius)&&
-            screenGearCenter.z>=-1&&screenGearCenter.z<=1){
-            // Real projected radius + modest safe margin, never a fabricated
-            // threat or collision. Near-miss gears retain identifiable metal.
-            screenFocus.copy(point).project(camera);
-            const gap=Math.hypot(
-              (screenGearCenter.x-screenFocus.x)*camera.aspect,
-              screenGearCenter.y-screenFocus.y);
-            if(screenFocus.z>=-1&&screenFocus.z<=1&&
-              gap<Math.min(2.2,radius)+(index===2?.14:.22)){
-              requiredOpacity=Math.min(requiredOpacity,index===2?.70:.52);
-              softByProjection=true;
+          // The existing center ray missed genuine hero/guardian legs behind
+          // clock cases in portrait. Protect their real full-body silhouettes,
+          // sampled from source half-height; landings remain a single point.
+          const span=observedSilhouetteSpan(index===0?actorHalfHeight:
+            index===1?guardianHalfHeight:0);
+          for(let sample=0;sample<(span>0?3:1);sample++){
+            const subject=sample===0?point:silhouettePoint.copy(point);
+            if(sample>0)subject.y+=(sample===1?-span:span);
+            canopyDirection.copy(subject).sub(camera.position);
+            const length=canopyDirection.length();
+            if(!Number.isFinite(length)||length<=.25)continue;
+            canopyRay.set(camera.position,canopyDirection.multiplyScalar(1/length));
+            canopyRay.near=0;canopyRay.far=length-.20;
+            // A registered decorative backing can obscure the visible body
+            // even when its rotating teeth miss the exact center ray.
+            const gearHit=canopyRay.intersectObject(entry.root,true).length>0;
+            const caseHit=!gearHit&&entry.sceneryMeshes?.length>0&&
+              canopyRay.intersectObjects(entry.sceneryMeshes,false).length>0;
+            if(gearHit||caseHit){
+              requiredOpacity=Math.min(requiredOpacity,index===2?.48:.24);
+            }else if(gearDepth+.4<length&&radius>0&&Number.isFinite(radius)&&
+              screenGearCenter.z>=-1&&screenGearCenter.z<=1){
+              // Only the present physical silhouette, not a speculative route.
+              screenFocus.copy(subject).project(camera);
+              const gap=Math.hypot(
+                (screenGearCenter.x-screenFocus.x)*camera.aspect,
+                screenGearCenter.y-screenFocus.y);
+              if(screenFocus.z>=-1&&screenFocus.z<=1&&
+                gap<Math.min(2.2,radius)+(index===2?.14:.22)){
+                requiredOpacity=Math.min(requiredOpacity,index===2?.70:.52);
+                softByProjection=true;
+              }
             }
+            // Exact occlusion of the most important physical actor already
+            // requests the maximum softness; avoid redundant rays on mobile.
+            if(requiredOpacity<=.24)break;
           }
         }
       }

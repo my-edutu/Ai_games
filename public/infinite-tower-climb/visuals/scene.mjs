@@ -3404,7 +3404,10 @@ export function createTowerScene(canvas, settings = {}) {
       protectLiveRoute?actorFramePoint:null,
       protectLiveRoute&&sourceGuardian?guardianRescuePoint:null,
       protectLiveRoute&&(protectArrival||protectImmediateTrap)?actorOrbitTarget:null,
-      dt,options);
+      dt,options,
+      protectLiveRoute?p.halfHeight/SCALE:0,
+      protectLiveRoute&&sourceGuardian&&Number.isFinite(sourceGuardian.halfHeight)
+        ?sourceGuardian.halfHeight/SCALE:0);
     updateLandingBeacon(landingBeacon, targetPlatform, snapshot, camera);
     sky.position.copy(camera.position);
     sun.target.position.set(0, targetY, 0);

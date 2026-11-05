@@ -52,6 +52,10 @@ test('only original decorative clock backings yield; live gear and gameplay mate
     assert.equal(visual.material.depthWrite,true);
   }
   assert.equal(entry.sceneryMaterials.length,2);
+  assert.equal(entry.sceneryMeshes.length,3,
+    'real dial/rim/hand meshes remain registered as physical foreground occluders');
+  assert.equal(entry.sceneryParent,face);
+  assert.equal(entry.sceneryMeshes[0],backing);
   assert.equal(link({root:{}},face,new Set()),0,
     'only a registered rotor may own its own clock-face materials');
   assert.equal(face.children.length,4,'no hidden or deleted gameplay scene geometry');
@@ -84,4 +88,20 @@ test('actual original clockwork scene links its backing to the existing authenti
   assert.doesNotMatch(source,/for\(const target of snapshot\.enemies/);
   assert.match(source,/floorMaterials\.clear\(\)/,
     'owned clock-face clones must dispose at every floor transition');
+});
+
+test('physical head/feet protection is bounded, ignores stale or invalid body geometry', () => {
+  const span = helper('observedSilhouetteSpan');
+  assert.equal(span(2), 1.64);
+  assert.equal(span(30), 3.2);
+  for (const invalid of [0, -2, NaN, Infinity, -Infinity])
+    assert.equal(span(invalid), 0);
+  // The real render path samples present climber and guardian bodies, not
+  // predicted jumps or a billboard: these are source-sized world coordinates.
+  assert.match(source,/const span=observedSilhouetteSpan\(index===0\?actorHalfHeight:/);
+  assert.match(source,/index===1\?guardianHalfHeight:0\)/);
+  assert.match(source,/sample===1\?-span:span/);
+  assert.match(source,/canopyRay\.intersectObjects\(entry\.sceneryMeshes,false\)/);
+  assert.match(source,/entry\.sceneryParent\.updateWorldMatrix\(true,true\)/);
+  assert.doesNotMatch(source,/source\.player\.x\s*=/);
 });
