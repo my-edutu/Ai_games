@@ -249,9 +249,10 @@ export function resolveRenderedSilhouetteSubjects(state,subjects,actors){
   const at=anchored(unit);
   if(!at)return point;
   claimed.add(unit.id);
+  const combat=fighting(unit);
   return {...point,...at,kind:unit.kind,unitId:unit.id,visibleActor:true,
-   combatRecess:Boolean(point.combatRecess||fighting(unit).combatRecess),
-   duelPartner:fighting(unit).duelPartner};
+   combatRecess:Boolean(point.combatRecess||combat.combatRecess),
+   duelPartner:combat.duelPartner};
  });
  // The director can follow a scenic/enemy subject and omit a living hero.
  // Preserve existing shot subjects first, then fill remaining 5-slot budget
