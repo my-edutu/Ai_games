@@ -90,7 +90,7 @@ test('the real event creates a separated 3D bronze passage with bounded resource
       assert.equal(object.receiveShadow, false);
       assert.equal(object.userData.collider, undefined);
     });
-    assert.equal(meshCount, 16, 'source-defeat ground wave reuses a geometry without adding a collider');
+    assert.equal(meshCount, 17, 'the source-grounded cap inlay is one additional bounded instanced draw, never a collider');
     assert.equal(effect.diagnostics().fragmentInstances, 8);
     assert.ok(effect.focusPoint()?.y > anchor.y + 2);
     assert.equal(effect.diagnostics().shadows, 0);
@@ -192,6 +192,12 @@ test('the actual scene consumes source transitions and owns passage lifecycle on
   assert.match(source, /atmosphere\.dispose\(\)/, 'source-bound biome weather must release all GPU owners');
   assert.match(source, /guardianCircuit\.update\(snapshot, options\)/);
   assert.match(source, /passage\.update\(dt, options\)/);
+  assert.match(source, /sourceWalkProgress = liveExit &&[\s\S]*?passage\.diagnostics\(\)\.inlayProgress/,
+    'the continuous guardian-to-gate camera lead must come from actual unlocked source walking');
+  assert.match(source, /const physicalEscort = Math\.max\(releaseWeight, walkwayLead\)/,
+    'physical source walking may extend, but must not displace, the original defeat framing');
+  assert.match(source, /const walkwayLead = Math\.max\(0, Math\.min\(\.34,/,
+    'the source-derived escort remains deliberately bounded and cannot command an arbitrary camera cut');
   assert.match(source, /passage: passage\.diagnostics\(\)/);
 });
 
