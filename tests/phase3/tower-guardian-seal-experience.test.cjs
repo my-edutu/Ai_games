@@ -276,7 +276,13 @@ test('the actual world gate gives earned grounded arrival a clear bronze thresho
     const nextRun=frame({active:true,runToken:'fresh-second-run'});
     nextRun.player={x:cap.x};
     world.update(nextRun,.05,.066,{quality:'low'});
-    assert.ok(wing.position.x > -2.7,
-      'a newly active guardian immediately removes the earned clearance');
+    // A new run rebuilds the floor-owned meshes. The previously captured wing
+    // is intentionally detached; inspect the ACTIVE gate, not stale geometry.
+    const freshWing=named(world.group,'GuardianSealWingLeft');
+    assert.ok(freshWing && freshWing!==wing,
+      'a genuine restart owns a fresh source-locked gateway');
+    assert.equal(freshWing.position.x,0,
+      'a newly active guardian starts with fully closed live bronze leaves');
+    assert.equal(world.diagnostics().guardianGates[0].unlocked,false);
   }finally{world.dispose();}
 });
