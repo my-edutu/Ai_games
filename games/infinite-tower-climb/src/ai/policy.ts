@@ -719,8 +719,12 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
         TOWER_GUARDIAN_PATROL_SPEED*cooling,
         Math.max(0,reach-4000-contactClearance));
       const warningGap=contactClearance+approachBudget;
+      // An earned source-stagger briefly makes contact with THIS guardian
+      // safe. Maintain a legitimate attack range rather than retreating out
+      // of the only exposed-core window. Cooldowns, range, physical facing,
+      // safety priorities and all other enemies/hazards remain authoritative.
       if(tactical&&state.config.guardianArenaHazards===true&&inReach&&
-         cooling>0&&Math.abs(dx)<warningGap){
+         cooling>0&&!openFollowThrough&&Math.abs(dx)<warningGap){
         const away:TowerAction['move']=dx>=0?-1:1;
         let move=guardedEvasion(state,observation,away);
         if(move!==0){
