@@ -12,6 +12,8 @@ const out={kind:'source-only-guardian-campaign',quality:'NOT EVALUATED',
   livesCompleted:0,maxFloor:8,guardianDefeats:0,
   sourceMeleeHits:0,sourceCoreHits:0,sourceCounterInterrupts:0,
   sourceGuardianShieldBlocks:0,healthDepleted:0,otherOutcomes:0,
+  guardianBodyDamage:0,guardianProjectileDamage:0,shutterDamage:0,
+  otherDamage:0,guardianBodyHitEvents:0,guardianProjectileHitEvents:0,
   capTicks:0,guardianMinimumHp:null,sourceShutterWarningTicks:0,
   sourceCloseCrossfireTicks:0};
 for(let i=0;i<out.steps;i++){
@@ -53,6 +55,19 @@ for(let i=0;i<out.steps;i++){
     if(e.type==='guardian-windup-interrupted'&&e.data?.counter==='melee')
       out.sourceCounterInterrupts++;
     if(e.type==='guardian-shield-block')out.sourceGuardianShieldBlocks++;
+    if(e.type==='player-damage'){
+      const source=typeof e.data?.source==='string'?e.data.source:'';
+      const amount=Number.isFinite(e.data?.amount)?e.data.amount:0;
+      // Source-truth diagnosis only: distinguish unannounced body contact,
+      // clearly telegraphed projectiles and physical shutter exposure. These
+      // are NOT FPS/quality scores or a synthetic win-rate estimate.
+      if(/^f[0-9]+:guardian$/.test(source)){
+        out.guardianBodyDamage+=amount;out.guardianBodyHitEvents++;
+      }else if(/^f[0-9]+:guardian:projectile:/.test(source)){
+        out.guardianProjectileDamage+=amount;out.guardianProjectileHitEvents++;
+      }else if(/guardian-shutter$/.test(source))out.shutterDamage+=amount;
+      else out.otherDamage+=amount;
+    }
     if(e.type==='game-terminal'){
       out.livesCompleted++;
       if(e.data?.reason==='health-depleted')out.healthDepleted++;
