@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T07:00:00+01:00",
-  "status": "IN PROGRESS — NOT TRANSFORMED (actual ray-hit 3D masonry/facade stage candidate; new-head running visuals UNVERIFIED)",
+  "generatedAt": "2026-11-05T07:27:00+01:00",
+  "status": "IN PROGRESS — NOT TRANSFORMED (genuine overlapping Warden counterplay and original audio candidate; real AFTER gameplay UNVERIFIED)",
   "reference": "Diablo IV quality, No Rest for the Wicked worlds, Path of Exile 2 combat: authentic comparison targeted; matched A/B UNVERIFIED",
   "metrics": {
     "sample_seeds": 24,
@@ -208,19 +208,19 @@
       "elapsedMs": 818
     }
   ],
-  "visualVerdict": "UNVERIFIED: genuine predecessor 1440px WebGL still obscures Vanguard chest/boots despite 3/3 nominal ray diagnostic. Exact raycast-stage AFTER image/video required.",
+  "visualVerdict": "UNVERIFIED: previous inspected genuine WebGL conceals full-body hero; new-head moving desktop/mobile visual acceptance and blind critics 0/3 outstanding.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
-  "candidateCommit": "288fe332876392bec3364ba3939adb9ca43370f3",
+  "candidateCommit": "bc60f3a90b4587b5d8976248e7e7bbe736ef2970",
   "metricsProvenance": "Local current-source 9af59bc npm run dungeon:test 309/309, npm run dungeon:gauntlet 24 seeds ×900 ticks: 174 advances, 4 restarts, 0 determinism mismatches. No claim for visual quality.",
   "transformation": {
     "milestone": "M1",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
     "locked": true,
-    "candidateSha": "288fe332876392bec3364ba3939adb9ca43370f3",
+    "candidateSha": "bc60f3a90b4587b5d8976248e7e7bbe736ef2970",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
-    "exactHeadSafety": "Predecessor ba403a9 Dungeon/visual PASS, catalogue CI FAIL. Candidate 288fe33 local pure raycast-stage checks 3/3 PASS; exact-head Dungeon/visual/CI queued or in progress, NOT verified passed.",
+    "exactHeadSafety": "NEW exact-head authority/CI/browser results not inspected; prior a516b90 visual-review PASS is a technical check only.",
     "looks": "UNVERIFIED",
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
@@ -232,19 +232,19 @@
     "fullDesktopMobileAudiovisualJourney": "UNVERIFIED",
     "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41972664128/artifacts/13390932627",
     "exactHeadAction": "Review Dungeon https://github.com/my-edutu/Ai_games/actions/runs/41979234510 and visual https://github.com/my-edutu/Ai_games/actions/runs/41979234448, full CI https://github.com/my-edutu/Ai_games/actions/runs/41979234533; inspect actual desktop/mobile media, not simply pass status.",
-    "biggestGap": "Actual ba403a9 1440x832 screenshot remains strongly negative: oversized heads and an opaque stone fence conceal Vanguard chest/boots while diagnostics falsely claim 3/3 full-body heroes. Believable native full-body combat contact, Warden tactics and original audiovisual continuity are not yet visually demonstrated.",
-    "nextTask": "Review exact 288fe33 desktop/mobile WebGL animation and original audio, physically verify ray-hit cutaways do not pop/crop or regress performance; reject if needed. Build integrated full-body contact, Warden threat/counterplay and audible natural traversal→combat→boss→floor→defeat/restart. Match to locked 281735d baseline and invite >=3 blind critics.",
+    "biggestGap": "Actual preceding image still hides Vanguard torso/boots behind opaque Gothic stone while other characters remain toy-like; need believable full-body sword-to-target contact and autonomous Warden pacing in a visually coherent world.",
+    "nextTask": "Inspect exact-head desktop/mobile real WebGL and consented original audio; accept/reject physical stone-ray scene, capture continuous traversal/combat/Warden/floor/defeat-restart and score matched fixed-baseline blind critics.",
     "currentMilestoneLedger": "public/ai-dungeon/gauntlet-history.json",
     "realAfterArtifact": null,
-    "realAfterObservation": "UNVERIFIED: no reviewed Chromium image or motion at candidate 288fe33.",
-    "integratedImplementation": "Five-actor five-bone bounded direct Three.js Raycaster detects actual blocking wall/facade InstancedMesh instance IDs in front of live source-skinned bodies. Existing wall, facade, foundation and stone dressing cutaway matrices consume those IDs with mild hysteresis and floor reset, no extra GPU passes or gameplay-authority writes. Code candidate 288fe33; no demonstrated quality win.",
+    "realAfterObservation": "UNVERIFIED: no inspected Chromium real motion at candidate bc60f3a.",
+    "integratedImplementation": "Real seeded multi-threat Warden escape selects legal survival paths avoiding saved caster locks; valid counterlanes permit authentic pursuit/recovery strikes, with public true-HP counter event, spectator event feed and opt-in original synthesized counter impact. No fabricated harm/cast, no damage multiplier or AI RNG changes; full running experience acceptance UNVERIFIED.",
     "latestPredecessorReview": {
       "sourceSha": "3b2025a619cc6c113e28dd463224e90205fd2476",
       "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41922629878/artifacts/13368532950",
       "observation": "Actual desktop real Three.js rendered 1440x832 inspected: Vanguard helmet and sword protrude over an opaque Gothic facade while torso/boots remain invisible; two other heroes appear toy-like. Three/three synthetic ray visibility score is false positive. No active enemy in this frame.",
       "technicalSafety": "All 4 Dungeon browser/authority checks PASS and visual-review workflow PASS for predecessor SHA; broad catalogue CI FAILURE. No visual transformation accepted."
     },
-    "sourceStatus": "ACTUAL INSTANCED-STONE-RAYCAST CANDIDATE — RUNNING GAME ACCEPTANCE UNVERIFIED"
+    "sourceStatus": "COHERENT TACTICS + TRUTHFUL AUDIO CANDIDATE — NOT VISUALLY VERIFIED"
   },
   "acceptanceStatus": "NOT TRANSFORMED — real scene/music/motion critics pending"
 }
