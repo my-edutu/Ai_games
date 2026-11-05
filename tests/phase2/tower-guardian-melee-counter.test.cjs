@@ -18,6 +18,10 @@ function duel(flags={guardianSecondWind:true,guardianArenaHazards:true}){
   const cap=source.chunks.find(c=>c.floor===source.floor).platforms.at(-1);
   assert.ok(guardian&&cap);
   source.enemies=[guardian];source.projectiles=[];source.pickups=[];
+  // Isolate the genuine telegraph/collision phase without an unrelated
+  // seeded floor spike stealing the AI's higher-priority safety decision.
+  // The real source guardian stays on its original supporting cap.
+  for(const chunk of source.chunks)chunk.hazards=[];
   const p=source.player;
   p.position={x:cap.x+Math.floor(cap.width*.43),
     y:cap.y+cap.height+p.halfHeight};
