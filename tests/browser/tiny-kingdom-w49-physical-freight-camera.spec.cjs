@@ -34,7 +34,7 @@ test('W49 real producer-to-market film avoids physical freight foreground at des
   return {found,watching,audit,camera,repeated,readOnly:before===after,
    widths:document.documentElement.scrollWidth,
    citizens:g.getCitizenProfiles().length,
-   snapshotCitizens:g.exportSnapshot().people.length};
+   snapshotCitizens:g.getState().people.length};
  });
  expect(desktop.error||'').toBe('');
  expect(desktop.readOnly).toBe(true);
