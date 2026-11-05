@@ -1,4 +1,5 @@
 import {planSoundCues,planSoundMood} from '/dungeon/soundstage-plan.js';
+import {planAuthorityDamageBeats,planVerifiedMeleeImpactDelay} from '/dungeon/impact-choreography-plan.js';
 import {planVisualContact} from '/dungeon/facing-plan.js';
 import {createMaterialFoley} from '/dungeon/material-foley.js';
 
@@ -11,7 +12,7 @@ import {createMaterialFoley} from '/dungeon/material-foley.js';
 const MAX_VOICES=10;
 const MASTER_GAIN=.15;
 const MAX_PENDING_CONTACT=12;
-const VISUAL_CONTACT_DELAYS=Object.freeze({weapon:.185,ranged:.14,magic:.19,impact:.215,kill:.235});
+const VISUAL_CONTACT_DELAYS=Object.freeze({weapon:.185,ranged:.14,magic:.19,kill:.235});
 const CUES=Object.freeze({
  defeat:    {hz:185,end:46,length:1.08,peak:.12,type:'triangle'},
  renewal:   {hz:262,end:440,length:.70,peak:.08,type:'sine'},
@@ -60,7 +61,7 @@ const stopAndDisconnect=voice=>{
  try{voice.gain.disconnect()}catch{}
  try{voice.foley?.stop()}catch{}
 };
-export function createDungeonSoundstage(ctx){
+export function createDungeonSoundstage(ctx,{reducedMotion=false}={}){
  if(!ctx||typeof ctx.createGain!=='function'||typeof ctx.createOscillator!=='function')return null;
  let started=false,enabled=false,previous=null,sceneMood=null,disposed=false;
  let played=0,suppressed=0,peakVoices=0,sceneChanges=0,lastCue='none';
@@ -256,19 +257,25 @@ export function createDungeonSoundstage(ctx){
   if(previous&&(previous.run!==s.run||previous.floor!==s.floor))pending.length=0;
   const mood=planSoundMood(s);setMood(mood);
   const cues=planSoundCues(previous,s,(u,current)=>planVisualContact(u,current));
+  // Share the exact true-HP-loss / legal-sword-contact proof used by the skinned
+  // hit reaction and physical debris. Melee contact waits for the blade; all
+  // fatal, ranged, ambiguous and reduced-motion damage is audible immediately.
+  const contactDelays=new Map(planAuthorityDamageBeats(previous,s).map(beat=>[
+   beat.id,planVerifiedMeleeImpactDelay(beat,s,{reducedMotion})
+  ]));
   // Keep only the public fields used by the next comparison; no giant snapshots.
   previous={
    tick:s.tick,run:s.run,floor:s.floor,
    units:(Array.isArray(s.units)?s.units:[]).slice(0,96).map(u=>({
     id:u.id,kind:u.kind,action:u.action,actionTick:u.actionTick,
-    faction:u.faction,hp:u.hp,x:u.x,z:u.z,
+    faction:u.faction,hp:u.hp,maxHp:u.maxHp,x:u.x,z:u.z,
      recoveryUntilTick:u.recoveryUntilTick
    })),
    bossWarning:s.bossWarning?{warning:s.bossWarning.warning,shape:s.bossWarning.shape,
     attackTick:s.bossWarning.attackTick,turnsUntilImpact:s.bossWarning.turnsUntilImpact}:null
   };
   if(enabled)for(const cue of cues){
-   const delay=VISUAL_CONTACT_DELAYS[cue.kind];
+   const delay=cue.kind==='impact'?(contactDelays.get(cue.actorId)??0):VISUAL_CONTACT_DELAYS[cue.kind];
    if(delay&&Number.isSafeInteger(cue.tick)&&cue.tick>=s.tick-3){
     if(pending.length>=MAX_PENDING_CONTACT){pending.shift();contactCuesDropped++;}
     pending.push({cue,remaining:delay});

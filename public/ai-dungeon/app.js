@@ -707,7 +707,7 @@ $('audio-toggle').addEventListener('click',async()=>{
  try{
   await settleAudio(ambience.resume());
   if(ambience.state!=='running')throw Error('Audio output remains suspended');
-  if(!soundstage)soundstage=createDungeonSoundstage(ambience);
+  if(!soundstage)soundstage=createDungeonSoundstage(ambience,{reducedMotion:reduced});
   if(!soundstage?.enable())throw Error('Original soundstage failed to initialize');
   if(state)soundstage.acceptSnapshot(state);
   setEnabled(true);button.removeAttribute('title');soundstage.cueWelcome();

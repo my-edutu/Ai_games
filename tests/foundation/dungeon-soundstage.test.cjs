@@ -34,6 +34,22 @@ test('actual public combat actions generate priority-gated cues, never guessed c
  assert.deepEqual(planSoundCues(null,after,valid),[],'first page load never replays old actions');
  assert.deepEqual(before.units[0],unit('hero','idle',9),'plans cannot mutate authoritative snapshots');
 });
+test('only real HP loss scores impacts even during travel, fatal collapse or unchanged action',async()=>{
+ const {planSoundCues}=await plan();
+ const before=snap(11,{units:[unit('hero','idle',11),unit('enemy','idle',11,'revenant','enemy')]});
+ const traveling=snap(12,{units:[unit('hero','idle',11),{...unit('enemy','move',11,'revenant','enemy'),hp:6}]});
+ const cues=planSoundCues(before,traveling,()=>null);
+ assert.deepEqual(cues.filter(c=>c.kind==='impact').map(c=>c.actorId),['enemy']);
+ assert.equal(cues.find(c=>c.kind==='impact').tick,12);
+ const fatal=snap(12,{units:[unit('hero','idle',11),{...unit('enemy','idle',11,'revenant','enemy'),hp:0}]});
+ assert.deepEqual(planSoundCues(before,fatal,()=>null).filter(c=>c.kind==='impact').map(c=>c.actorId),['enemy']);
+ const falseHurt=snap(12,{units:[unit('hero','idle',11),unit('enemy','hurt',12,'revenant','enemy')]});
+ assert.equal(planSoundCues(before,falseHurt,()=>null).some(c=>c.kind==='impact'),false);
+ assert.equal(planSoundCues(before,{...traveling,tick:18},()=>null).some(c=>c.kind==='impact'),false,'stale comparison has no causally supported contact');
+ assert.equal(planSoundCues(before,{...traveling,floor:2},()=>null).some(c=>c.kind==='impact'),false,'floor transitions cannot import old damage');
+ assert.deepEqual(planSoundCues(traveling,traveling,()=>null),[]);
+ assert.equal(before.units[1].hp,12,'source snapshots remain untouched');
+});
 test('events, transitions and missed polls produce bounded, semantic, text-independent audio',async()=>{
  const {planSoundCues,MAX_SOUND_CUES}=await plan();
  const before=snap(19);
@@ -86,9 +102,11 @@ test('real opt-in audio stops active voices on mute and revokes capture, not gam
  const planUrl='data:text/javascript;base64,'+Buffer.from(fs.readFileSync(file,'utf8')).toString('base64');
  const faceUrl='data:text/javascript;base64,'+Buffer.from(fs.readFileSync(path.join(root,'public/ai-dungeon/facing-plan.js'),'utf8')).toString('base64');
  const foleyUrl='data:text/javascript;base64,'+Buffer.from(fs.readFileSync(path.join(root,'public/ai-dungeon/material-foley.js'),'utf8')).toString('base64');
+ const impactUrl='data:text/javascript;base64,'+Buffer.from(fs.readFileSync(path.join(root,'public/ai-dungeon/impact-choreography-plan.js'),'utf8')).toString('base64');
  const code=original.replace("'/dungeon/soundstage-plan.js'","'"+planUrl+"'")
   .replace("'/dungeon/facing-plan.js'","'"+faceUrl+"'")
-  .replace("'/dungeon/material-foley.js'","'"+foleyUrl+"'");
+  .replace("'/dungeon/material-foley.js'","'"+foleyUrl+"'")
+  .replace("'/dungeon/impact-choreography-plan.js'","'"+impactUrl+"'");
  const {createDungeonSoundstage}=await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));
  const param=()=>({
   value:0,setValueAtTime(){},exponentialRampToValueAtTime(){},setTargetAtTime(){},cancelScheduledValues(){}
@@ -106,6 +124,23 @@ test('real opt-in audio stops active voices on mute and revokes capture, not gam
  assert.equal(stage.enable(),true);
  assert.equal(stage.cueWelcome(),true);
  assert.equal(stage.stats().voices,1);
+ const floor=Array.from({length:7},()=>'.'.repeat(7));
+ const old={tick:11,run:1,floor:1,phase:'exploring',map:floor,events:[],units:[
+  {...unit('vanguard','idle',11),x:2,z:2,hp:30,maxHp:30},
+  {...unit('revenant','idle',11,'revenant','enemy'),x:3,z:2,hp:30,maxHp:30}
+ ]};
+ const next={...old,tick:12,units:[
+  {...old.units[0],action:'attack',actionTick:12,targetId:'revenant'},
+  {...old.units[1],hp:19}
+ ]};
+ stage.acceptSnapshot(old);
+ stage.acceptSnapshot(next);
+ assert.equal(stage.stats().pendingContactCues>=1,true,'real sword contact has pending opt-in audio');
+ for(let i=0;i<4;i++)stage.advanceVisualFrame(.05);
+ assert.equal(stage.stats().pendingContactCues>=1,true,'impact waits until the real skinned contact frame');
+ stage.advanceVisualFrame(.05);
+ assert.equal(stage.stats().pendingContactCues,0);
+ assert.equal(stage.stats().lastCue,'impact','true contact releases original sound on the shared 215ms beat');
  assert.ok(stage.captureStream()?.getAudioTracks().length);
  assert.ok(stage.captureStream()?.getAudioTracks().length);
  assert.equal(captures,1,'reuse only one recording output');

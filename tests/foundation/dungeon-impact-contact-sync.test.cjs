@@ -47,5 +47,8 @@ test('actual game shares verified onset across body recoil and physical shard/fa
  assert.match(director,/impacts\.push\(\{mesh,life:-delay,duration:hit\.duration,mode:'true-hit'/);
  assert.match(director,/fractureEffect=\{mesh:fracture,life:-delay/);
  assert.match(director,/if\(effect\.life<0\)continue/);
- assert.match(sound,/impact:\.215/);
+ assert.match(sound,/planAuthorityDamageBeats\(previous,s\)/);
+ assert.match(sound,/planVerifiedMeleeImpactDelay\(beat,s,\{reducedMotion\}\)/);
+ assert.match(sound,/cue\.kind==='impact'\?\(contactDelays\.get\(cue\.actorId\)\?\?0\)/);
+ assert.match(app,/createDungeonSoundstage\(ambience,\{reducedMotion:reduced\}\)/);
 });

@@ -112,8 +112,19 @@ export function planSoundCues(previous,snapshot,resolveContact=()=>null){
   const old=new Map((Array.isArray(previous.units)?previous.units:[]).slice(0,96)
    .filter(validUnit).map(u=>[u.id,u]));
   for(const u of snapshot.units.slice(0,96)){
-   if(!validUnit(u)||(u.hp<=0&&u.action!=='hurt'))continue;
+   if(!validUnit(u))continue;
    const prior=old.get(u.id);
+   // An impact is the sound of witnessed HP loss, not a guessed 'hurt'
+   // animation: walking, casting and defeated actors can all be injured.
+   // Preserve the same bounded consecutive-snapshot proof as 3D contact.
+   if(prior&&snapshot.tick-previous.tick<=5&&
+      prior.kind===u.kind&&prior.faction===u.faction&&
+      Number.isInteger(prior.hp)&&Number.isInteger(prior.maxHp)&&
+      Number.isInteger(u.hp)&&Number.isInteger(u.maxHp)&&
+      prior.maxHp>0&&u.maxHp>0&&prior.hp>=0&&prior.hp<=prior.maxHp&&
+      u.hp>=0&&u.hp<=u.maxHp&&prior.hp>u.hp)
+    push('impact',snapshot.tick,u.id);
+   if(u.hp<=0&&u.action!=='hurt')continue;
    if(!prior||prior.actionTick===u.actionTick||u.actionTick<previous.tick||u.actionTick>snapshot.tick)continue;
    switch(u.action){
     case 'attack':{
@@ -131,7 +142,7 @@ export function planSoundCues(previous,snapshot,resolveContact=()=>null){
      if(target?.targetId&&target.distance>=1&&target.distance<=3)push('magic',u.actionTick,u.id);
      break;
     }
-    case 'hurt':if(Number.isFinite(prior.hp)&&prior.hp>u.hp)push('impact',u.actionTick,u.id);break;
+    case 'hurt':break; // HP deltas above own the truth; animation alone never scores an impact.
     case 'guard':push('guard',u.actionTick,u.id);break;
    }
   }
