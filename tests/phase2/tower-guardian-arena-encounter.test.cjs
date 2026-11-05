@@ -280,7 +280,7 @@ test('contact spacing respects cap edges and never modifies the unflagged duel',
   s.tick=hazard.activeFromTick+hazard.activeFor+25;
   s.enemies=[guardian];s.projectiles=[];s.pickups=[];
   const p=s.player;
-  p.position={x:cap.x+p.halfWidth+2000,
+  p.position={x:cap.x+p.halfWidth+6100,
     y:cap.y+cap.height+p.halfHeight};
   p.velocity={x:0,y:0};p.facing=1;
   p.grounded=true;p.groundedPlatformId=cap.id;p.state='standing';
