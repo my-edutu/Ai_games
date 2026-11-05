@@ -8021,6 +8021,11 @@ let forgeWitness=false;
  });
 
 // G109: the observer chooses only existing workers; no synthetic shift or AI decision.
+// W68: honest LIVE WORKER cinematography stays with a genuine person long
+// enough for the spectator to recognize the shift after accelerated world time.
+// Wall-clock camera dwell only, with ZERO control over 30Hz world authority.
+const LIVE_WORKER_MIN_SHOT_MS=4200;
+let liveWorkerPresentedAt=0;
 let liveWorkSwitchHour=-Infinity,liveWorkTransitions=0,liveWorkCuts=0;
 function clearLiveWorkdayState(){
  forgeWitness=false;document.body.dataset.forgeWitness='off';
@@ -8028,6 +8033,7 @@ function clearLiveWorkdayState(){
  if(forgeFollow)forgeFollow.setAttribute('aria-pressed','false');
  liveWorkday=false;liveWorkCursor=-1;liveWorkCommandBefore=null;
  liveWorkSwitchHour=-Infinity;liveWorkTransitions=0;liveWorkCuts=0;
+ liveWorkerPresentedAt=0;
  const control=document.getElementById('workday-live');
  if(control)control.setAttribute('aria-pressed','false');
  const progress=document.getElementById('workday-progress');
@@ -8271,6 +8277,9 @@ function chooseFilmableWorker(rows,excluded=-1){
 }
  function getLiveWorkDirectorStats(){
   return {active:liveWorkday,transitions:liveWorkTransitions,cameraCuts:liveWorkCuts,
+   minDwellMs:LIVE_WORKER_MIN_SHOT_MS,
+   remainingDwellMs:liveWorkday?Math.max(0,Math.round(
+    LIVE_WORKER_MIN_SHOT_MS-(performance.now()-liveWorkerPresentedAt))):0,
    citizen:people[selectedCitizen]?.name||null,
    liveWorkers:getActiveWorksites().length,
    selection:realWorkdaySelectionAudit?{...realWorkdaySelectionAudit}:null,
@@ -8284,6 +8293,10 @@ function chooseFilmableWorker(rows,excluded=-1){
   const current=people[selectedCitizen],journey=getLiveWorkJourneyAudit();
   // Keep observing the SAME genuine producer throughout physical delivery.
   if(current&&(isWorkingAtSite(current)||current.delivery||journey.stage==='received'))return false;
+  // Observed W67 moving footage abandoned a real field worker for a dark
+  // stream-side shot too quickly at accelerated sim speed. Keep the original
+  // subject through a readable real-time camera shot without freezing work.
+  if(performance.now()-liveWorkerPresentedAt<LIVE_WORKER_MIN_SHOT_MS)return false;
   if(state.t-liveWorkSwitchHour<.09)return false;
   const candidates=people.map((person,index)=>({person,index}))
    .filter(row=>row.index!==selectedCitizen&&isWorkingAtSite(row.person));
@@ -8301,6 +8314,7 @@ function chooseFilmableWorker(rows,excluded=-1){
    distance=nearest(next);
   selectedCitizen=next.index;liveWorkCursor=next.index;
   liveWorkSwitchHour=state.t;liveWorkTransitions++;
+  liveWorkerPresentedAt=performance.now();
   actionCameraZoom=null;actionCameraPitch=null;lastFollowShot=null;
   // A long eased pan at 2 SwiftShader FPS moved the lens through roofs and
   // hid the new worker. Use an intentional real-actor documentary cut when
@@ -11615,6 +11629,7 @@ function watchLiveWorkday(){
  if(!selected){liveWorkday=false;document.body.dataset.workday='off';return null;}
  liveWorkCursor=selected.index;liveWorkSwitchHour=state.t;
  selectedCitizen=selected.index;
+ liveWorkerPresentedAt=performance.now();
  document.getElementById('workday-live').setAttribute('aria-pressed','true');
  document.getElementById('workday-watch').setAttribute('aria-pressed','false');
  setCitizenFollow(true);
@@ -11858,6 +11873,7 @@ function watchHarvestShift(){
  if(liveWorkday||document.body.dataset.workday!=='off')stopWorkdayWatch();
  liveWorkCommandBefore=commandView;
  liveWorkCursor=index;liveWorkSwitchHour=state.t;
+ liveWorkerPresentedAt=performance.now();
  liveWorkTransitions=0;liveWorkCuts=0;
  liveWorkday=true;forgeWitness=false;workdaySelected=-1;
  selectedCitizen=index;document.body.dataset.workday='live';
@@ -11886,6 +11902,7 @@ function watchForgeShift(){
  if(liveWorkday||document.body.dataset.workday!=='off')stopWorkdayWatch();
  liveWorkCommandBefore=commandView;liveWorkCursor=row.index;
  liveWorkSwitchHour=state.t;liveWorkTransitions=0;liveWorkCuts=0;
+ liveWorkerPresentedAt=performance.now();
  liveWorkday=true;forgeWitness=true;workdaySelected=-1;
  selectedCitizen=row.index;
  document.body.dataset.workday='live';
