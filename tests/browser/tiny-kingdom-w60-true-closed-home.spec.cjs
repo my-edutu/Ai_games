@@ -61,6 +61,10 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(result.shot.camera.vegetationFaceBlockers).toBe(0);
   expect(result.shot.camera.foregroundVegetationCover).toBeLessThan(.30);
   expect(result.renderer.closedPanels).toBeGreaterThan(0);
+  // W61: the genuinely shut door must have visible rotating timber thickness,
+  // individual oak planks and forged fittings on the SAME real household.
+  expect(result.renderer.plankFaces).toBeGreaterThanOrEqual(result.renderer.panels*16);
+  expect(result.renderer.ironFittings).toBeGreaterThanOrEqual(result.renderer.panels*3);
   expect(result.triangles).toBeLessThan(160000);
   expect(result.overflow).toBeLessThanOrEqual(0);
   expect(result.glError).toBe(0);
