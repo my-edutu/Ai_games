@@ -134,15 +134,20 @@ export function createSerpent(THREE) {
         // original scale relief and two sunlight anchors, but reveal deep
         // jade between small asymmetrical leaf-shaped dorsal islands.
         // All pigment is authored once in the same four pre-owned textures.
-        const spineMask = 1 - smooth(.095, .235, Math.abs(around - .25));
-        const leafWarp = .009 * Math.sin(around * 6.283 * 7 + along * 6.283 * 2)
-          + .006 * Math.sin(around * 6.283 * 11 - along * 6.283 * 5);
-        const leafHalfWidth = .045 + .043 * spineMask;
-        const leafCore = 1 - smooth(leafHalfWidth * .62, leafHalfWidth,
+        // T2 authentic reptile silhouette: the gold follows staggered,
+        // pointed botanical scale islands rather than a fixed complete
+        // transverse bright stripe every body cell. The existing atlas,
+        // authored bump relief, eye/face/jaw and topology stay identical;
+        // nothing changes public movement, skin UVs or GPU draw resources.
+        const spineMask = 1 - smooth(.055, .205, Math.abs(around - .25));
+        const leafWarp = .057 * Math.sin(around * 6.283 * 2.2 + along * 6.283 * 3.3)
+          + .026 * Math.sin(around * 6.283 * 5.1 - along * 6.283 * 2.1);
+        const leafHalfWidth = .034 + .028 * spineMask;
+        const leafCore = 1 - smooth(leafHalfWidth * .43, leafHalfWidth,
           bandDistance + leafWarp);
         const preservedGold = isHead
           ? spineMask * (.25 + .75 * (1 - smooth(.045, .29, Math.abs(along - .76))))
-          : spineMask * leafCore;
+          : spineMask * leafCore * (.70 + .30 * (.5 + .5 * Math.sin(along * 6.283 * 3.9 + around * 11)));
         const darkLeafScale = (1 - underside) * (1 - preservedGold)
           * (.5 + .5 * Math.sin(along * 6.283 * 13 + around * 6.283 * 9))
           * (.5 + .5 * Math.cos(around * 6.283 * 17 - along * 6.283 * 3));

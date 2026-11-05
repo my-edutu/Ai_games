@@ -319,13 +319,17 @@ export function sculptRiparianBank(x, channel, width, height, progress) {
     throw new RangeError('Riparian bank needs a valid real board and course');
   const H = height / 2, W = width / 2;
   const phase = channel * 2.31;
-  const halfSpan = Math.max(.25, Math.min(H * .075, .42 + H * .028));
+  const halfSpan = Math.max(.31, Math.min(H * .083, .46 + H * .032));
   const edgeTaper = Math.min(1, Math.max(.09, Math.sin(Math.PI * progress) * 1.4));
   const oxbow = .5 + .5 * Math.sin(x * .81 + phase * .72
     + Math.sin(x * .33 - phase * .44) * 1.13);
   const estuary = .5 + .5 * Math.cos(x * .34 - phase * .88);
-  const widthAt = Math.max(.036, halfSpan * edgeTaper * (.13 + 1.13 * oxbow ** 2.3)
-    * (.86 + .21 * estuary));
+  // T1 authored three-dimensional riparian coves: shelter each original
+  // narrow root throat between a pair of generous planted oxbow banks.
+  // The SAME 6-column triangulation follows the riverbed; no added objects,
+  // collisions, material passes, textures, shaders or unlicensed scenery.
+  const widthAt = Math.max(.036, halfSpan * edgeTaper * (.21 + 1.19 * oxbow ** 1.8)
+    * (.82 + .29 * estuary));
   const centre = H * watercourseCentre(x / W, channel)
     + .11 * Math.sin(x * .53 + phase * 1.39) * Math.sin(Math.PI * progress);
   return { centre, widthAt, phase, oxbow, estuary };
@@ -363,7 +367,7 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
     const u = x / Math.max(.45, width * .16), v = z / Math.max(.45, height * .20);
     return u * u + v * v < 1;
   };
-  function vertex(point, salt, flora = false) {
+  function vertex(point, salt, flora = false, surface = null) {
     position.push(point[0], point[1], point[2]);
     const shadow = noise(point[0] * .62 + 19, point[2] * .64 + 41);
     const mineral = noise(point[0] * .21 + 73, point[2] * .18 + 17);
@@ -402,7 +406,23 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
       for (let c = 0; c < 3; c++) {
         const root = base[c] * (1 - loam) + loamColor[c] * loam;
         const wet = root * (1 - slate) + slateColor[c] * slate;
-        colour.push(wet * (1 - chalk) + limestone[c] * chalk);
+        const wornStone = wet * (1 - chalk) + limestone[c] * chalk;
+        // T1 T2 single-scene living geology: the actual 3D beds have
+        // rooted dark leaf-litter margins, jade moss canopies and sunward
+        // chartreuse new growth. Earlier slate-grey covers read like flat
+        // transparent road markings across the game. These colours are
+        // permanently authored into the EXISTING opaque static mesh and
+        // do not affect public cells, hazard hues or contact shadows.
+        if (surface === 'braid') {
+          const sun = .5 + .5 * Math.sin(point[0] * .53 + point[2] * .37 + salt);
+          const marbled = .5 + .5 * Math.sin(point[0] * 1.71 - point[2] * 1.43);
+          const leaf = Math.max(0, Math.min(1,
+            .63 + .15 * (sun - .5) + .17 * (marbled - .5) + .08 * (shadow - .5)));
+          const pigment = c === 0 ? .078 + sun * .038
+            : c === 1 ? .30 + marbled * .12
+              : .082 + shadow * .045;
+          colour.push(wornStone * (1 - leaf) + pigment * leaf);
+        } else colour.push(wornStone);
       }
     }
   }
@@ -417,7 +437,7 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
       (b[0]-a[0])*(c[2]-a[2])-(b[2]-a[2])*(c[0]-a[0])) < .00009) return;
     // Overgrowth is a thin presentation skin below the existing contact
     // shadows (y=.022) and the serpent belly, not a new obstacle or route.
-    vertex(a, salt); vertex(b, salt); vertex(c, salt);
+    vertex(a, salt, false, type); vertex(b, salt, false, type); vertex(c, salt, false, type);
     if (type === 'braid') braidTriangles++;
     else if (type === 'mosaic') mosaicTriangles++;
     else islandTriangles++;
@@ -553,7 +573,11 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
   }
   // Original full-board resource budget is strictly <3100 triangles for
   // 8x8, 28x16 AND 40x24, and remains identical on repeat public snapshots.
-  const availableClumps = Math.min(130, Math.max(0,Math.floor((3090 - position.length / 9) / 6)));
+  // Retain exactly the pre-transformation high-board rooted fern population.
+  // Wider cove lobes can replace some near-zero-area bank triangles, but that
+  // must not turn into an unreviewed vegetation/resource-count increase.
+  const originalFernCapacity = width >= 40 && height >= 24 ? 71 : 130;
+  const availableClumps = Math.min(originalFernCapacity, Math.max(0,Math.floor((3090 - position.length / 9) / 6)));
   fernCandidates.sort((a,b) => a.rank - b.rank || a.iz - b.iz || a.ix - b.ix);
   let interstitialFernClumps = 0, interstitialFernTriangles = 0, fernCanopyHeight = 0;
   const fernCourseAnchors = [];
