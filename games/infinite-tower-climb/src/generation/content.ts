@@ -15,4 +15,27 @@ export function generateTowerContent(chunk:TowerChunk,config:TowerConfig,seed:st
     h.y===chunk.platforms[chunk.platforms.length-1].y+
       chunk.platforms[chunk.platforms.length-1].height);
   const point=platformTop(chunk,capArena?chunk.platforms.length-1:chunk.platforms.length-2);
-  enemies.push({id:`f${chunk.floor}:guardian`,kind:'guardian',floor:chunk.floor,position:{x:point.x,y:point.y+18000},velocity:{x:0,y:0},halfWidth:16000,halfHeight:18000,health:8+Math.floor(chunk.floor/10),maxHealth:8+Math.floor(chunk.floor/10),facing:-1,patrolMinX:point.platform.x+16000,patrolMaxX:point.platform.x+point.platform.width-16000,cooldown:25,telegraphUntilTick:0,active:true,damage:2})}const pickupKinds:TowerPickup['kind'][]=['health','stamina','shard'];for(let i=0;i<Math.min(3,2+(chunk.floor%2));i++){const point=platformTop(chunk,1+((i*2)%Math.max(1,chunk.platforms.length-2))),kind=pickupKinds[(chunk.floor+i)%pickupKinds.length];pickups.push({id:`f${chunk.floor}:pickup:${i}`,kind,floor:chunk.floor,position:{x:point.x,y:point.y+8000},value:kind==='health'?1:kind==='stamina'?25:10,collected:false})}const base={enemies,pickups};return{...base,checksum:checksum(base)}}
+  enemies.push({id:`f${chunk.floor}:guardian`,kind:'guardian',floor:chunk.floor,position:{x:point.x,y:point.y+18000},velocity:{x:0,y:0},halfWidth:16000,halfHeight:18000,health:8+Math.floor(chunk.floor/10),maxHealth:8+Math.floor(chunk.floor/10),facing:-1,patrolMinX:point.platform.x+16000,patrolMaxX:point.platform.x+point.platform.width-16000,cooldown:25,telegraphUntilTick:0,active:true,damage:2})}const pickupKinds:TowerPickup['kind'][]=['health','stamina','shard'];for(let i=0;i<Math.min(3,2+(chunk.floor%2));i++){const point=platformTop(chunk,1+((i*2)%Math.max(1,chunk.platforms.length-2))),kind=pickupKinds[(chunk.floor+i)%pickupKinds.length];pickups.push({id:`f${chunk.floor}:pickup:${i}`,kind,floor:chunk.floor,position:{x:point.x,y:point.y+8000},value:kind==='health'?1:kind==='stamina'?25:10,collected:false})}// A genuinely collectible recovery resource changes the high-stakes
+  // opt-in cap duel: the wounded pilot must reach a supported flank through
+  // real movement, risk, enemy decisions and ordinary pickup collision.
+  // One use per floor, no hidden regeneration, free health or win scripting.
+  // Historical/unflagged content and non-guardian floors remain unchanged.
+  if(config.guardianArenaHazards===true&&config.guardianSecondWind===true&&
+    chunk.guardian&&chunk.hazards.some(h=>
+      h.kind==='crusher'&&h.id===`f${chunk.floor}:guardian-shutter`)){
+    const cap=chunk.platforms[chunk.platforms.length-1];
+    const trap=chunk.hazards.find(h=>h.id===`f${chunk.floor}:guardian-shutter`)!;
+    const inset=Math.max(config.playerHalfWidth+12000,Math.floor(cap.width/8));
+    const flankLeft=cap.x+inset,flankRight=cap.x+cap.width-inset;
+    const center=trap.x+trap.width/2;
+    const retreatX=Math.abs(flankLeft-center)>Math.abs(flankRight-center)
+      ?flankLeft:flankRight;
+    if(flankRight>flankLeft&&Math.abs(retreatX-center)>
+      trap.width/2+config.playerHalfWidth+8000){
+      pickups.push({id:`f${chunk.floor}:guardian-recovery`,
+        kind:'health',floor:chunk.floor,
+        position:{x:retreatX,y:cap.y+cap.height+8000},
+        value:2,collected:false});
+    }
+  }
+  const base={enemies,pickups};return{...base,checksum:checksum(base)}}

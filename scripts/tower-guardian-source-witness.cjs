@@ -11,7 +11,8 @@ const out={kind:'source-only-guardian-campaign',quality:'NOT EVALUATED',
   fixedStepHz:20,steps:3200,launchFloor:8,viewport:'none (no rendering)',
   livesCompleted:0,maxFloor:8,guardianDefeats:0,
   sourceMeleeHits:0,sourceCoreHits:0,sourceCounterInterrupts:0,
-  sourceGuardianShieldBlocks:0,healthDepleted:0,otherOutcomes:0,
+  sourceGuardianShieldBlocks:0,sourceRecoveryCachesCollected:0,
+  healthDepleted:0,otherOutcomes:0,
   guardianBodyDamage:0,guardianProjectileDamage:0,shutterDamage:0,
   otherDamage:0,guardianBodyHitEvents:0,guardianProjectileHitEvents:0,
   capTicks:0,sourceGuardianShieldVaults:0,
@@ -62,6 +63,7 @@ for(let i=0;i<out.steps;i++){
     if(e.type==='guardian-windup-interrupted'&&e.data?.counter==='melee')
       out.sourceCounterInterrupts++;
     if(e.type==='guardian-shield-block')out.sourceGuardianShieldBlocks++;
+    if(e.type==='pickup-collected'&&/guardian-recovery$/.test(e.data?.id||''))out.sourceRecoveryCachesCollected++;
     if(e.type==='player-damage'){
       const source=typeof e.data?.source==='string'?e.data.source:'';
       const amount=Number.isFinite(e.data?.amount)?e.data.amount:0;
