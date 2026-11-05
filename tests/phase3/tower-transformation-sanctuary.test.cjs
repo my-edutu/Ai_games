@@ -11,7 +11,13 @@ const { pathToFileURL } = require('node:url');
 const ROOT = path.resolve(__dirname, '../..');
 const fixtureDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tower-transform-'));
 // Keep the shipping observer as an actual local ESM dependency for the copied world fixture.
-fs.copyFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/scene-hierarchy.mjs'), path.join(fixtureDir, 'scene-hierarchy.mjs'));
+// Load the actual shipping source hierarchy and its transitive guardian dependency.
+// The isolated world fixture moves ESM files into /tmp, so resolve only the
+// relative guardian-stage import back to the unchanged repository module.
+fs.writeFileSync(path.join(fixtureDir, 'scene-hierarchy.mjs'),
+  fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/scene-hierarchy.mjs'), 'utf8')
+    .replace("'./guardian-shot-stage.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT,
+      'public/infinite-tower-climb/visuals/guardian-shot-stage.mjs')).href)));
 const srcPath = path.join(ROOT, 'public/infinite-tower-climb/visuals/world.mjs');
 const threeURL = pathToFileURL(path.join(ROOT, 'node_modules/three/build/three.module.js')).href;
 const source = fs.readFileSync(srcPath, 'utf8')

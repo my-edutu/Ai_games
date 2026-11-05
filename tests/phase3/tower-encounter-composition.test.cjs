@@ -10,7 +10,13 @@ const { test, after } = require('node:test');
 const ROOT = path.resolve(__dirname, '../..');
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'tower-composition-regression-'));
 // Keep the shipping observer as an actual local ESM dependency for the copied world fixture.
-fs.copyFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/scene-hierarchy.mjs'), path.join(scratch, 'scene-hierarchy.mjs'));
+// Load the actual shipping source hierarchy and its transitive guardian dependency.
+// The isolated world fixture moves ESM files into /tmp, so resolve only the
+// relative guardian-stage import back to the unchanged repository module.
+fs.writeFileSync(path.join(scratch, 'scene-hierarchy.mjs'),
+  fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/scene-hierarchy.mjs'), 'utf8')
+    .replace("'./guardian-shot-stage.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT,
+      'public/infinite-tower-climb/visuals/guardian-shot-stage.mjs')).href)));
 after(() => fs.rmSync(scratch, { recursive: true, force: true }));
 const loaded = (async () => {
   const THREE = await import(pathToFileURL(path.join(ROOT, 'node_modules/three/build/three.module.js')).href);

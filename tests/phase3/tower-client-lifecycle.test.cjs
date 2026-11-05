@@ -19,9 +19,13 @@ const deferred = () => {
 function moduleFunction(context, file, name) {
   // Execute the *real* browser-shipped helper when testing audio in a VM,
   // instead of treating its native ESM import as CommonJS or inventing a stub.
+  // Reuse the actual shipping source observers when evaluating audio in the VM.
+  // Real crossfire audio now depends on scene-hierarchy -> guardian-shot-stage.
   const helper = file === 'visuals/audio.mjs'
-    ? fs.readFileSync(path.join(clientRoot, 'visuals/traversal-kinetics.mjs'), 'utf8')
-      .replace(/^export /gm, '') : '';
+    ? ['traversal-kinetics.mjs', 'guardian-shot-stage.mjs', 'scene-hierarchy.mjs']
+      .map(name => fs.readFileSync(path.join(clientRoot, 'visuals', name), 'utf8')
+        .replace(/^import .*;\n/gm, '').replace(/^export /gm, '')).join('\n')
+    : '';
   const source = fs.readFileSync(path.join(clientRoot, file), 'utf8')
     .replace(/^import .*;\n/gm, '').replace(/^export /gm, '');
   return vm.runInContext(`(() => { ${helper}\n${source}\nreturn ${name}; })()`, context, { filename: file });
@@ -104,6 +108,7 @@ function appHarness({ width = 1440, search = '', renderProgress = { state: 'curr
   document.fullscreenElement = null;
   let timerId = 0;
   const globals = { document, location: { search }, innerWidth: width, innerHeight: 844, URLSearchParams, AbortController,
+    performance: { now: () => 1000 },
     matchMedia: () => ({ matches: false }), console,
     AudioContext: environment.AudioContext,
     addEventListener: lifecycle.addEventListener.bind(lifecycle),
