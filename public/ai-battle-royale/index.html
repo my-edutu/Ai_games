@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#10191a"><meta name="description" content="Last Light: an autonomous 3D battle royale. Watch twelve original contenders adapt, fight and survive on a coastal outpost.">
+  <title>LAST LIGHT — AI Battle Royale</title><link rel="stylesheet" href="/royale/styles.css">
+</head>
+<body>
+  <main id="app" aria-label="Last Light autonomous battle royale">
+    <canvas id="arena" aria-label="3D arena with autonomous contenders and an advancing storm"></canvas>
+    <div class="vignette" aria-hidden="true"></div>
+    <header class="masthead hud">
+      <a class="wordmark" href="/royale/" aria-label="Last Light home"><span class="brand-symbol" aria-hidden="true"><svg viewBox="0 0 31 43" fill="none"><path d="M18 2h11L13 41H2z" fill="currentColor"/><path d="M29 24L22 41h7z" fill="currentColor"/></svg></span><span>LAST<span class="light-word">LIGHT</span><small>AI BATTLE ROYALE</small></span></a>
+      <div class="match-identity"><span class="live-dot" aria-hidden="true"></span><span>AUTONOMOUS MATCH <b id="match-id">01</b></span></div>
+      <div class="header-controls"><button id="sound" class="icon-button" aria-label="Enable sound" aria-pressed="false" title="Toggle sound (M)">♪<span>SOUND OFF</span></button><button id="clean" class="icon-button" aria-label="Hide interface" title="Clean feed (H)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg></button><button id="settings" class="icon-button" aria-expanded="false" aria-label="View settings" title="Settings">⚙</button></div>
+    </header>
+
+    <section class="match-status hud" aria-label="Match status">
+      <div class="status-primary"><span class="tiny-label">CONTENDERS</span><div><strong id="remaining">12</strong><span class="out-of">/ 12</span><span class="status-label">REMAINING</span></div></div>
+      <div class="status-divider"></div><div class="storm-status"><span class="tiny-label"><span class="storm-icon">◈</span> <span id="zone-label">STORM APPROACHING</span></span><div><strong id="zone-time">01:00</strong><span id="zone-stage" class="phase-label">PHASE 01</span></div></div>
+    </section>
+
+    <aside class="roster-panel hud" aria-label="Contender roster">
+      <div class="section-heading"><h2>THE CONTENDERS</h2><button id="roster-toggle" class="text-button" aria-expanded="true" aria-controls="roster">−</button></div>
+      <div id="roster" role="list"></div><div class="roster-foot"><span class="small-dot"></span> INDEPENDENT AI · ONE SURVIVOR</div>
+    </aside>
+
+    <aside class="map-panel hud" aria-label="Tactical map"><div class="section-heading"><span>CINDER COAST</span><span class="map-coordinate">OUTPOST / 06</span></div><canvas id="minimap" width="400" height="400" aria-label="Positions of contenders and the safe zone"></canvas><div class="map-legend"><span><i class="legend-dot"></i> SAFE ZONE</span><span id="match-clock">00:00</span></div></aside>
+    <section class="event-feed hud" aria-label="Recent match events"><div class="section-heading"><span>FIELD REPORT</span><span class="small-dot"></span></div><div id="events"></div></section>
+
+    <section id="focus-card" class="focus-card hud" aria-label="Observed contender">
+      <div class="focus-emblem" id="focus-emblem" aria-hidden="true">V</div>
+      <div class="focus-details"><span class="tiny-label">NOW OBSERVING <span id="focus-type">SCOUT</span></span><div class="focus-name"><h1 id="focus-name">CONNECTING</h1><span id="focus-kills">0 ELIMS</span></div><div class="vitals"><div class="vital-track shield-track"><i id="shield-bar"></i></div><div class="vital-track health-track"><i id="health-bar"></i></div><span id="health-value">100 HP</span></div><p id="focus-intent">Entering the arena</p></div>
+    </section>
+
+    <nav class="camera-controls hud" aria-label="Spectator camera"><span class="camera-label">CAMERA</span><button class="active" data-camera="director" aria-pressed="true"><span>◉</span> DIRECTOR</button><button data-camera="follow" aria-pressed="false"><span>◎</span> FOLLOW</button><button data-camera="tactical" aria-pressed="false"><span>▧</span> TACTICAL</button><button id="next-agent" aria-label="Observe next contender" title="Next contender (Right arrow)">→</button></nav>
+    <section class="weapon-card hud" aria-label="Observed loadout"><span class="tiny-label">LOADOUT</span><svg viewBox="0 0 170 45" aria-hidden="true"><path d="M6 14h22l10-7h60l6 8h56v5h-55v7H77l-3 13H61l-2-13H42l-7 6h-9V22H6z"/><path class="weapon-detail" d="M43 11h41v6H43zM111 16h36v2h-36z"/></svg><div><strong id="weapon-name">PULSE CARBINE</strong><span id="ammo">30 <small>ROUNDS</small></span></div></section>
+
+    <div id="announcement" class="announcement hud" hidden><span id="announce-kicker">THE STORM IS MOVING</span><strong id="announce-title">STAY IN THE LIGHT</strong></div>
+    <div id="result" class="result-screen" hidden><span class="result-mark" aria-hidden="true">✦</span><p>LAST ONE STANDING</p><h2 id="winner-name">VICTORY</h2><div id="winner-detail"></div><span class="next-match">NEXT MATCH IN <b id="restart-time">8</b></span></div>
+    <div id="connection" class="connection" role="status">Preparing the arena…</div>
+    <button id="restore-ui" hidden>SHOW INTERFACE · H</button>
+    <section id="settings-panel" class="settings-panel hud" hidden aria-label="View settings"><h2>YOUR VIEW</h2><label><input id="reduced-motion" type="checkbox"> Reduced camera motion</label><label><input id="low-quality" type="checkbox"> Lower graphics load</label><p>These settings affect your view. The match keeps running independently.</p><button id="close-settings">DONE</button></section>
+    <footer class="bottom-note hud"><span>12 CONTENDERS. ONE LAST LIGHT.</span><span>SELECT A CONTENDER TO FOLLOW · H TO HIDE HUD</span></footer>
+  </main>
+  <script type="module" src="/royale/app.js"></script>
+</body>
+</html>

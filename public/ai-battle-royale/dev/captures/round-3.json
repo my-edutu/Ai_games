@@ -1,0 +1,68 @@
+{
+  "capturedAt": "2026-10-30T20:39:31.210Z",
+  "source": "http://127.0.0.1:4286/royale/",
+  "quality": "high",
+  "captures": [
+    {
+      "filename": "round-3-game.png",
+      "matchId": 5,
+      "tick": 1818,
+      "metrics": {
+        "frames": 4,
+        "renderedMatch": 5,
+        "renderedTick": 1818,
+        "frozen": true,
+        "renderState": "healthy",
+        "recoveryAttempts": 0,
+        "frameMs": 1490.8999999985099,
+        "buildMs": 3890.9000000003725,
+        "fps": 0,
+        "drawCalls": 805,
+        "triangles": 600994,
+        "geometries": 588,
+        "textures": 28
+      }
+    },
+    {
+      "filename": "round-3-character.png",
+      "matchId": 5,
+      "tick": 1818,
+      "metrics": {
+        "frames": 4,
+        "renderedMatch": 5,
+        "renderedTick": 1818,
+        "frozen": true,
+        "renderState": "healthy",
+        "recoveryAttempts": 0,
+        "frameMs": 1490.8999999985099,
+        "buildMs": 3890.9000000003725,
+        "fps": 0,
+        "drawCalls": 448,
+        "triangles": 512736,
+        "geometries": 588,
+        "textures": 30
+      }
+    },
+    {
+      "filename": "round-3-phone.png",
+      "matchId": 5,
+      "tick": 2294,
+      "metrics": {
+        "frames": 18,
+        "renderedMatch": 5,
+        "renderedTick": 2294,
+        "frozen": true,
+        "renderState": "healthy",
+        "recoveryAttempts": 0,
+        "frameMs": 2040.5,
+        "buildMs": 4193.39999999851,
+        "fps": 1,
+        "drawCalls": 576,
+        "triangles": 539364,
+        "geometries": 431,
+        "textures": 14
+      }
+    }
+  ],
+  "pageErrors": []
+}
