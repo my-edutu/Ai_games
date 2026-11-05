@@ -4121,62 +4121,80 @@ function limbSegment(a,b,radius,col,sides=7){
 // trigonometry for all four corners and append a triangle in one 30-float
 // batch, avoiding three iterator/array-spread pushes per animated face.
 function ellipsoid(x,y,z,rx,ry,rz,col,segments=9){
-  if(!(rx>0&&ry>0&&rz>0)||!Number.isInteger(segments)||segments<3)return;
-  // W65: reuse exact five-ring unit tessellation across the real moving
-  // population. No faces or materials are removed. Every animated person
-  // still has fresh position and surface normals each rendered world state.
-  const cache=ellipsoid._shellCache||(ellipsoid._shellCache=new Map());
-  const audit=ellipsoid._shellAudit||(ellipsoid._shellAudit={
-   builds:0,hits:0,vertexTransforms:0,emittedTriangles:0});
-  let shell=cache.get(segments);
-  if(shell){
-   audit.hits++;
-   cache.delete(segments);cache.set(segments,shell);
-  }else{
-   audit.builds++;
-   shell=[];
-   for(let ring=0;ring<=5;ring++){
-    const latitude=Math.PI*ring/5;
-    const st=latitude===0||latitude===Math.PI?0:Math.sin(latitude);
-    const ct=Math.cos(latitude),row=[];
-    for(let slice=0;slice<=segments;slice++){
-     const azimuth=slice*Math.PI*2/segments;
-     row.push([st,ct,Math.cos(azimuth),Math.sin(azimuth)]);
-    }
-    shell.push(row);
-   }
-   // No unbounded global geometry or cached actor poses.
-   if(segments<=24){
-    cache.set(segments,shell);
-    if(cache.size>16)cache.delete(cache.keys().next().value);
+ if(!(rx>0&&ry>0&&rz>0)||!Number.isInteger(segments)||segments<3)return;
+ // W66: the same original five-ring human/anatomy mesh is generated using
+ // bounded persistent topology AND a reusable transform scratchpad. W65
+ // cached sin/cos but still created hundreds of point/normal arrays for each
+ // actual villager every advancing frame; no actor, face or limb is removed.
+ const cache=ellipsoid._shellCache||(ellipsoid._shellCache=new Map());
+ const audit=ellipsoid._shellAudit||(ellipsoid._shellAudit={
+  builds:0,hits:0,vertexTransforms:0,emittedTriangles:0});
+ let shell=cache.get(segments);
+ if(shell){
+  audit.hits++;
+  cache.delete(segments);cache.set(segments,shell);
+ }else{
+  audit.builds++;
+  const stride=segments+1,pointCount=6*stride;
+  const unit=new Float64Array(pointCount*4);
+  for(let ring=0;ring<=5;ring++){
+   const latitude=Math.PI*ring/5;
+   const st=latitude===0||latitude===Math.PI?0:Math.sin(latitude);
+   const ct=Math.cos(latitude);
+   for(let slice=0;slice<=segments;slice++){
+    const azimuth=slice*Math.PI*2/segments,o=(ring*stride+slice)*4;
+    unit[o]=st;unit[o+1]=ct;
+    unit[o+2]=Math.cos(azimuth);unit[o+3]=Math.sin(azimuth);
    }
   }
-  // Transform shared polar vertices once rather than repeatedly recomputing
-  // positions, scaled normals and sin/cos for every adjacent triangle.
-  const vertices=shell.map(row=>row.map(([st,ct,ca,sa])=>{
-   const normal=[st*ca/rx,ct/ry,st*sa/rz];
-   const size=Math.hypot(...normal)||1;
-   return {p:[x+st*ca*rx,y+ct*ry,z+st*sa*rz],
-    n:normal.map(v=>v/size)};
-  }));
-  audit.vertexTransforms+=6*(segments+1);
-  const emit=(a,b,c)=>{
-   const ap=a.p,an=a.n,bp=b.p,bn=b.n,cp=c.p,cn=c.n;
-   const r=col[0],g=col[1],blue=col[2],material=currentMaterial;
-   data.push(ap[0],ap[1],ap[2],an[0],an[1],an[2],r,g,blue,material,
-    bp[0],bp[1],bp[2],bn[0],bn[1],bn[2],r,g,blue,material,
-    cp[0],cp[1],cp[2],cn[0],cn[1],cn[2],r,g,blue,material);
-  };
-  for(let ring=0;ring<5;ring++){
-   for(let slice=0;slice<segments;slice++){
-    const a=vertices[ring][slice],b=vertices[ring][slice+1];
-    const c=vertices[ring+1][slice],d=vertices[ring+1][slice+1];
-    if(ring===0)emit(a,d,c);
-    else if(ring===4)emit(a,b,c);
-    else {emit(a,b,d);emit(a,d,c);}
+  // Indices retain the original top/bottom pole and body winding.
+  // A large unsupported segment count still receives a correctly sized
+  // transient Uint32 index buffer rather than silently wrapping vertices.
+  const triangleIndices=segments>10921?
+   new Uint32Array(8*segments*3):new Uint16Array(8*segments*3);
+  let k=0;
+  for(let ring=0;ring<5;ring++)for(let slice=0;slice<segments;slice++){
+   const a=ring*stride+slice,b=a+1,c=a+stride,d=c+1;
+   if(ring===0){triangleIndices[k++]=a;triangleIndices[k++]=d;triangleIndices[k++]=c;}
+   else if(ring===4){triangleIndices[k++]=a;triangleIndices[k++]=b;triangleIndices[k++]=c;}
+   else{
+    triangleIndices[k++]=a;triangleIndices[k++]=b;triangleIndices[k++]=d;
+    triangleIndices[k++]=a;triangleIndices[k++]=d;triangleIndices[k++]=c;
    }
   }
-  audit.emittedTriangles+=8*segments;
+  shell={unit,triangleIndices,scratch:new Float64Array(pointCount*6)};
+  // Bound resident GPU-CPU staging to 16 original <=24-side variants.
+  // Huge optional meshes never persist between calls.
+  if(segments<=24){
+   cache.set(segments,shell);
+   if(cache.size>16)cache.delete(cache.keys().next().value);
+  }
+ }
+ const unit=shell.unit,scratch=shell.scratch;
+ // Float64 keeps the exact original JavaScript math until WebGL upload.
+ // One scratch buffer is re-filled synchronously for each genuine actor;
+ // output is copied immediately to the existing 10-float vertex stream.
+ for(let i=0;i<unit.length;i+=4){
+  const st=unit[i],ct=unit[i+1],ca=unit[i+2],sa=unit[i+3];
+  const nx=st*ca/rx,ny=ct/ry,nz=st*sa/rz;
+  const size=Math.hypot(nx,ny,nz)||1,o=i/4*6;
+  scratch[o]=x+st*ca*rx;
+  scratch[o+1]=y+ct*ry;
+  scratch[o+2]=z+st*sa*rz;
+  scratch[o+3]=nx/size;scratch[o+4]=ny/size;scratch[o+5]=nz/size;
+ }
+ audit.vertexTransforms+=6*(segments+1);
+ const triangleIndices=shell.triangleIndices;
+ const r=col[0],g=col[1],blue=col[2],material=currentMaterial;
+ for(let i=0;i<triangleIndices.length;i+=3){
+  const a=triangleIndices[i]*6,b=triangleIndices[i+1]*6,
+   c=triangleIndices[i+2]*6;
+  data.push(
+   scratch[a],scratch[a+1],scratch[a+2],scratch[a+3],scratch[a+4],scratch[a+5],r,g,blue,material,
+   scratch[b],scratch[b+1],scratch[b+2],scratch[b+3],scratch[b+4],scratch[b+5],r,g,blue,material,
+   scratch[c],scratch[c+1],scratch[c+2],scratch[c+3],scratch[c+4],scratch[c+5],r,g,blue,material);
+ }
+ audit.emittedTriangles+=8*segments;
 }
 // Gauntlet 040: authored, five-ring medieval coat; procedural but not a box torso.
 // The only inputs are a stable citizen identity and read-only render gait.
@@ -4197,22 +4215,36 @@ function garmentProfile(p,idx,rig){
 }
 function tailoredGarment(x,y,z,size,cloth,trim,profile){
  const rings=profile.rings,n=profile.panelCount;
- const vertex=(r,i)=>{const a=i*2*Math.PI/n;return [x+Math.sin(a)*r.rx*size,y+r.y*size,z+(Math.cos(a)*r.rz+r.z)*size];};
+ // W66: resolve every fitted ring once, rather than repeating sin/cos and
+ // allocating four vertices for each of 32 cloth quads, collar and two belts.
+ // Vertices, seams, normals and render-only gait sway are unchanged.
+ const circles=tailoredGarment._circles||(tailoredGarment._circles=new Map());
+ let circle=circles.get(n);
+ if(!circle){
+  circle=Array.from({length:n+1},(_,i)=>{
+   const a=i*2*Math.PI/n;return [Math.sin(a),Math.cos(a)];
+  });
+  if(n<=24){circles.set(n,circle);if(circles.size>16)circles.delete(circles.keys().next().value);}
+ }else{circles.delete(n);circles.set(n,circle);}
+ const verticesFor=r=>circle.map(([sa,ca])=>[
+  x+sa*r.rx*size,y+r.y*size,z+(ca*r.rz+r.z)*size]);
+ const shell=rings.map(verticesFor);
  const shade=(c,f)=>c.map(v=>Math.max(0,Math.min(1,v*f)));
- // Four shaped transitions: hem, waist, shoulders and fitted collar.
  for(let i=0;i<n;i++)for(let j=0;j<rings.length-1;j++){
   const tint=1+(i%2===0?.045:-.045)-(j===0?.055:0);
-  quad(vertex(rings[j],i),vertex(rings[j],i+1),vertex(rings[j+1],i+1),vertex(rings[j+1],i),shade(cloth,tint));
+  quad(shell[j][i],shell[j][i+1],shell[j+1][i+1],shell[j+1][i],shade(cloth,tint));
  }
  const top=rings[rings.length-1],center=[x,y+top.y*size,z];
- for(let i=0;i<n;i++)tri(center,vertex(top,i),vertex(top,i+1),shade(cloth,.92));
- // Closed garment hem and belt bands track the tapered profile, not a cube.
+ for(let i=0;i<n;i++)tri(center,shell[shell.length-1][i],
+  shell[shell.length-1][i+1],shade(cloth,.92));
  const hem=rings[0],hemBand={...hem,y:.465,rx:hem.rx*.99,rz:hem.rz*.99};
  const beltLow={y:.685,rx:rings[1].rx*.955,rz:rings[1].rz*.97,z:rings[1].z};
  const beltHigh={y:.755,rx:rings[2].rx*1.035,rz:rings[2].rz*1.04,z:rings[2].z};
+ const hemShell=verticesFor(hemBand),beltLowShell=verticesFor(beltLow),
+  beltHighShell=verticesFor(beltHigh);
  for(let i=0;i<n;i++){
-  quad(vertex(hem,i),vertex(hem,i+1),vertex(hemBand,i+1),vertex(hemBand,i),shade(trim,.70));
-  quad(vertex(beltLow,i),vertex(beltLow,i+1),vertex(beltHigh,i+1),vertex(beltHigh,i),rgb(0x69513a));
+  quad(shell[0][i],shell[0][i+1],hemShell[i+1],hemShell[i],shade(trim,.70));
+  quad(beltLowShell[i],beltLowShell[i+1],beltHighShell[i+1],beltHighShell[i],rgb(0x69513a));
  }
 }
 // W63: real medieval fabric for every living resident, at either visual LOD.
@@ -4233,19 +4265,26 @@ function renderRealVillageWorkwear(p,index,x,y,z,size,rig,cloth,compact){
    {y:.98,rx:.273,rz:.208,d:sway*.12},
    {y:1.17,rx:.157,rz:.146,d:0}
   ];
-  const point=(r,j)=>{const a=j*Math.PI/4;return [
-   x+Math.sin(a)*r.rx*size,y+r.y*size,
-   z+(Math.cos(a)*r.rz+r.d)*size];};
+  // W66: resolve authentic compact wool rings once for the entire shift.
+  // Original panel normals, hem and visible 3D citizen count remain intact.
+  const circle=renderRealVillageWorkwear._circle8||(
+   renderRealVillageWorkwear._circle8=Array.from({length:9},(_,j)=>{
+    const a=j*Math.PI/4;return [Math.sin(a),Math.cos(a)];
+   }));
+  const verticesFor=r=>circle.map(([sa,ca])=>[
+   x+sa*r.rx*size,y+r.y*size,z+(ca*r.rz+r.d)*size]);
+  const shell=rings.map(verticesFor);
   materialScope(MATERIAL.GENERAL,()=>{
    for(let band=0;band<3;band++)
     for(let panel=0;panel<8;panel++)
-     quad(point(rings[band],panel),point(rings[band],panel+1),
-      point(rings[band+1],panel+1),point(rings[band+1],panel),
+     quad(shell[band][panel],shell[band][panel+1],
+      shell[band+1][panel+1],shell[band+1][panel],
       shade(cloth,1+((panel%3)-1)*.075-(band===0?.06:0)));
    const hem={...rings[0],y:.435,rx:rings[0].rx*.98,rz:rings[0].rz*.98};
+   const hemShell=verticesFor(hem);
    for(let panel=0;panel<8;panel++)
-    quad(point(rings[0],panel),point(rings[0],panel+1),
-     point(hem,panel+1),point(hem,panel),shade(cloth,.75));
+    quad(shell[0][panel],shell[0][panel+1],
+     hemShell[panel+1],hemShell[panel],shade(cloth,.75));
   });
   villageClothStats.compactResidents++;villageClothStats.compactHemPanels+=8;
  }else villageClothStats.detailedResidents++;
