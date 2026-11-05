@@ -24,7 +24,11 @@ export function createChapterNaves(world,map,exit,floor,{reducedMotion=false,enc
  const iron=ownedMat(new THREE.MeshStandardMaterial({color:palette.metal,roughness:.58,metalness:.43}));
  const reliefLight=ownedMat(new THREE.MeshStandardMaterial({color:palette.lumen,roughness:.62,metalness:.19,
   emissive:palette.lumen,emissiveIntensity:.045}));
- const floorStone=ownedMat(new THREE.MeshStandardMaterial({color:palette.stone,roughness:.97,metalness:0,
+ // Single PBR batch with per-vertex stone/brass tones; a physical forged
+ // seal, double iron ring and actual sword relief remain visible inside it.
+ // Fusing floor and inlays avoids three extra draw calls in live combat.
+ const courtFinish=ownedMat(new THREE.MeshStandardMaterial({color:'#ffffff',vertexColors:true,
+  roughness:.78,metalness:.22,emissive:'#43372e',emissiveIntensity:.055,
   polygonOffset:true,polygonOffsetFactor:-1,side:THREE.DoubleSide}));
  const dais=ownedGeo(new THREE.CylinderGeometry(.77,.82,.045,24,1));
  // Physical original hand-forged swordcourt inlays, flush in real walkable
@@ -39,12 +43,43 @@ export function createChapterNaves(world,map,exit,floor,{reducedMotion=false,enc
  bladeShape.lineTo(.10,.13);bladeShape.lineTo(.05,.13);
  bladeShape.lineTo(.05,-.32);bladeShape.closePath();
  const bladeRelief=ownedGeo(new THREE.ShapeGeometry(bladeShape,8).rotateX(-Math.PI/2));
- const forgedFinish=ownedMat(new THREE.MeshStandardMaterial({color:'#a9957a',roughness:.52,
-  metalness:.38,emissive:'#ad7655',emissiveIntensity:.10,side:THREE.DoubleSide,
-  polygonOffset:true,polygonOffsetFactor:-2}));
- const etchedFinish=ownedMat(new THREE.MeshStandardMaterial({color:'#ab9475',roughness:.63,
-  metalness:.30,emissive:'#d7986b',emissiveIntensity:.10,side:THREE.DoubleSide,
-  polygonOffset:true,polygonOffsetFactor:-2}));
+ /**
+  * Assemble genuine raised stone and forged reliefs in ONE closed Three.js
+  * instanced surface. The authored stone dais, double 3D rings and swordpoint
+  * all retain their vertices/normals (not texture decals or fake UI). Four
+  * chapter batches means less CPU/WebGL pressure during live sword contact.
+  * This builds once at floor load, not once per animation frame.
+  */
+ function fuseCourtGeometry(parts){
+  const positions=[],normals=[],colors=[],uvs=[];
+  for(const {geometry,color,y} of parts){
+   const expanded=geometry.index?geometry.toNonIndexed():geometry;
+   const pos=expanded.getAttribute('position'),normal=expanded.getAttribute('normal');
+   const tex=expanded.getAttribute('uv'),tint=new THREE.Color(color);
+   for(let i=0;i<pos.count;i++){
+    positions.push(pos.getX(i),pos.getY(i)+y,pos.getZ(i));
+    normals.push(normal.getX(i),normal.getY(i),normal.getZ(i));
+    colors.push(tint.r,tint.g,tint.b);
+    uvs.push(tex?.getX(i)??0,tex?.getY(i)??0);
+   }
+   if(expanded!==geometry)expanded.dispose();
+  }
+  const fused=new THREE.BufferGeometry();
+  fused.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+  fused.setAttribute('normal',new THREE.Float32BufferAttribute(normals,3));
+  fused.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
+  fused.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
+  fused.computeBoundingSphere();
+  return fused;
+ }
+ // Each offset is relative to the original dais origin at world Y=-.047.
+ // Old individual rings stood at .024/.026, and the blade at .028.
+ const forgedCourt=ownedGeo(fuseCourtGeometry([
+  {geometry:dais,color:palette.stone,y:0},
+  {geometry:outerSeal,color:'#c7a782',y:.071},
+  {geometry:innerSeal,color:'#bda180',y:.073},
+  {geometry:bladeRelief,color:'#dfbd8f',y:.075}
+ ]));
  // Each petal has a curved, beveled real stone outline and profile.
  const petalShape=new THREE.Shape();
  petalShape.moveTo(-.083,0);petalShape.lineTo(-.059,.20);
@@ -86,16 +121,10 @@ export function createChapterNaves(world,map,exit,floor,{reducedMotion=false,enc
   items.forEach((entry,i)=>mesh.setMatrixAt(i,place(entry)));
   mesh.instanceMatrix.needsUpdate=true;group.add(mesh);meshes.push(mesh);return mesh;
  };
- batch(dais,floorStone,plan.rooms,'Raised chapter stonework',
-  r=>pose(r.x,-.047,r.z,0));
+ const sealRings=batch(forgedCourt,courtFinish,plan.rooms,'Fused forged stone-and-sword courts',
+  room=>pose(room.x,-.047,room.z,((floor+room.gridX+room.gridZ)%4)*Math.PI/2));
  batch(petal,reliefLight,plan.rosettes,'Carved 3D chapter rosettes',
   p=>pose(p.x,.017,p.z,p.yaw));
- const sealRings=batch(outerSeal,forgedFinish,plan.rooms,'Hand-forged swordcourt perimeter',
-  room=>pose(room.x,.024,room.z,0));
- batch(innerSeal,etchedFinish,plan.rooms,'Nested interior ironwork',
-  room=>pose(room.x,.026,room.z,0));
- batch(bladeRelief,forgedFinish,plan.rooms,'Three chapter swordpoint reliefs',
-  room=>pose(room.x,.028,room.z,((floor+room.gridX+room.gridZ)%4)*Math.PI/2,.62,1,.62));
  const windows=batch(arch,stone,plan.reliefs,'Original nave lancet apertures',
   p=>pose(p.x,.97,p.z,p.yaw));
  const pillars=batch(buttress,iron,plan.reliefs,'Recessed sculpted Gothic buttresses',
@@ -108,6 +137,7 @@ export function createChapterNaves(world,map,exit,floor,{reducedMotion=false,enc
  const bands=createCutawayBandCache(plan.reliefs.length);
  const metrics={roomCount:plan.rooms.length,rosettes:plan.rosettes.length,
   wallLancets:plan.reliefs.length,drawBatches:meshes.length,
+  forgedCourtElements:plan.rooms.length*4,courtBatches:sealRings?1:0,
   source:'real-connected-walkable-floor-and-walls',authorityChanged:false,
   foeAnchoredChapters:plan.rooms.filter(room=>room.chapterSource==='living-foe').length,
   liveDuelPresent:false,liveDuelDistance:null,chapterFacingPair:null,
@@ -139,7 +169,7 @@ export function createChapterNaves(world,map,exit,floor,{reducedMotion=false,enc
   }
   if(sealRings?.instanceColor)sealRings.instanceColor.needsUpdate=true;
   reliefLight.emissiveIntensity=Math.min(.45,tension.light+(staged?.intensity??0)*.12);
-  etchedFinish.emissiveIntensity=.10+(staged?.intensity??0)*.16;
+  courtFinish.emissiveIntensity=.055+(staged?.intensity??0)*.065;
   metrics.warning=tension.warning;metrics.phase=tension.phase;
   metrics.contestedRooms=beat.contestedRooms;metrics.authenticWounds=beat.authenticWounds;
   metrics.stageMode=staged?.phase??'QUIET';
