@@ -786,7 +786,7 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
     const braking=Math.abs(delta)<stopDistance+14000&&
       Math.sign(p.velocity.x)===toward&&Math.abs(p.velocity.x)>state.config.groundFriction;
     const requested:TowerAction['move']=Math.abs(delta)<=5500&&
-      Math.abs(p.velocity.x)<=state.config.groundFriction?0:braking?-toward:toward;
+      Math.abs(p.velocity.x)<=state.config.groundFriction?0:braking?(toward===1?-1:1):toward;
     const move=guardedEvasion(state,observation,requested);
     return {action:action(move),intent:{mode:'aligning',
       summary:'Crossing the earned physical guardian passage',
