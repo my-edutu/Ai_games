@@ -84,26 +84,39 @@ test('true Warden shockwave opens visible desktop/mobile tactical counterplay an
   return {mode:d.cinematicShot?.mode,nearSide:(o[0]*dx+o[2]*dz)/(
    Math.hypot(o[0],o[2])*Math.hypot(dx,dz)),recovery:d.wardenExposure?.weight};
  });
- expect(duelStage.mode).toBe('warden-exposed');
- expect(duelStage.nearSide).toBeLessThan(-.2);
- // Judge the physical view AFTER wall-bounded orbit, not merely a source
- // offset that may be reversed at the dungeon perimeter.
+ // The cast and the new two-turn opening happen on the SAME authority
+ // tick. The real 3D strike must get its release shot before the recovery
+ // camera; an immediate EXPOSED requirement hid the boss's true impact.
+ expect(duelStage.mode).toBe('warden-release');
+ await test.info().attach('real-Warden-authoritative-strike-stage',{
+  body:Buffer.from(JSON.stringify(duelStage)),contentType:'application/json'});
+ await page.locator('#world').screenshot({path:'artifacts/dungeon-m1-true-strike-real-desktop.png',timeout:90000});
+ const beforeHp=boss.hp;
+ current=game.step();
+ expect(boss.hp).toBeLessThan(beforeHp);
+ expect(current.bossRecovery?.remaining).toBe(1);
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick),{timeout:25000}).toBe(current.tick);
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.cinematicShot?.mode),{timeout:25000}).toBe('warden-exposed');
+ // Check the ACTUAL post-impact hero-forward stage, after the release has
+ // played, rather than judging the strike camera as the recovery camera.
+ const recovered=await page.evaluate(()=>{
+  const d=window.__DUNGEON_RENDER_DIAGNOSTICS__,s=window.__DUNGEON_PUBLIC_STATE__;
+  const b=s.units.find(u=>u.kind==='warden'&&u.hp>0),h=s.units.find(u=>u.id==='vanguard');
+  const o=d.cinematicShot?.offsets||[0,0,0],dx=b.x-h.x,dz=b.z-h.z;
+  return {mode:d.cinematicShot?.mode,nearSide:(o[0]*dx+o[2]*dz)/
+   (Math.hypot(o[0],o[2])*Math.hypot(dx,dz))};
+ });
+ expect(recovered.mode).toBe('warden-exposed');
+ expect(recovered.nearSide).toBeLessThan(-.2);
  const physicalSightline=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.duelSightline);
  expect(physicalSightline?.heroId).toBe('vanguard');
  expect(physicalSightline?.mode).toBe('warden-exposed');
  expect(physicalSightline?.heroDepthLead).toBeGreaterThan(0);
  expect(physicalSightline?.projectedSeparation).toBeGreaterThan(0);
  expect(physicalSightline?.renderedActorStaging).toBe(true);
- await test.info().attach('real-Warden-physical-camera-sightline',{
-  body:Buffer.from(JSON.stringify(physicalSightline)),contentType:'application/json'});
- await test.info().attach('real-Warden-hero-forward-counter-stage',{
-  body:Buffer.from(JSON.stringify(duelStage)),contentType:'application/json'});
+ await test.info().attach('real-Warden-physical-counter-camera',{
+  body:Buffer.from(JSON.stringify({physicalSightline,recovered})),contentType:'application/json'});
  await page.locator('#world').screenshot({path:'artifacts/dungeon-m1-counter-open-real-desktop.png',timeout:90000});
- const beforeHp=boss.hp;
- current=game.step();
- expect(boss.hp).toBeLessThan(beforeHp);
- expect(current.bossRecovery?.remaining).toBe(1);
- await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick),{timeout:25000}).toBe(current.tick);
  await page.setViewportSize({width:390,height:844});
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.composition?.viewport?.width),{timeout:25000}).toBeGreaterThan(100);
  await expect(page.locator('#boss-phase')).toContainText('EXPOSED');
