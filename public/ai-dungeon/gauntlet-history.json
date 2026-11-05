@@ -2202,7 +2202,7 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Real-source b8be04f 1440x832 browser screenshot from 41672587065 and Warden boss desktop/mobile screenshot/video artifacts 41672587022 were INSPECTED: new 14 anatomical joint cylinders made elongated opaque spindly/squid-like limbs. Warden encounter head-on 1440x832 has 3 heroes overlapping enemy bodies in the 58% HP boss arena, warning Rift Cross visible but contact indistinguishable; mobile capture progressed into floor 2 but large stylized ballheads persist. This is a NEGATIVE experiential finding compared with da492455 and exact locked baseline; source visual redesign at 71da2ea to cap spans remains unverified. No masked A/B victory.",
-      "latestCandidateWorkflow": "c8cdef5 integrated original foreground physical 3D volume/camera stage committed. Exact-head Dungeon 41938817457, visual 41938817459, catalogue 41938817428 in progress at review; predecessor c9324bd 303/306 authority failure due stale regex, 3 browser shards passed. No pixel/motion wins inferred.",
+      "latestCandidateWorkflow": "Corrected head 520adc2 physically stages original foreground Gothic objects and adds the missing strict allowlist module route. Dungeon 41939121537 / visual 41939121529 / catalogue 41939121568 pending. No exact-head gameplay evidence or win.",
       "currentPredecessorWebgl": {
         "sourceSha": "3b2025a619cc6c113e28dd463224e90205fd2476",
         "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41922629878/artifacts/13368532950",
@@ -2407,8 +2407,8 @@
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
     "biggestRemainingGap": "Actual adult anatomy, body and sword-to-target legibility, plus readable continuous full dungeon journey remain unverified against authentic gameplay and are far below reference quality.",
-    "currentWork": "Physical Gothic foreground 3D prop volumes now inform live full-body staging and nine-shot camera, while combat authority remains untouched. Source committed; exact-head original WebGL A/B pending.",
-    "candidateCommit": "c8cdef5886423239970c64ecaab9930812d1520e",
+    "currentWork": "Real original 3D foreground actor-body staging committed, physical camera synced, and strict module route registered. Desktop/mobile pixels, long-form motion, audio and critics remain UNVERIFIED.",
+    "candidateCommit": "520adc2d4bbfca14fddc2f7b9cd3190139c10680",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -5165,26 +5165,29 @@
         "integration": [
           "New finite actor-only camera-to-3D-prop body rays sample actual cached THREE.Box3 world-space volumes of arches, pillars, torches, windows and authored scene fixtures, rather than just prop roots.",
           "The real floor dressing, authored foreground props and cinematic camera director share those measured bounds, stage only legitimate rooted living figures, and avoid scanning geometry per frame.",
-          "New source and headless tests cover true foreground occlusion, untouched rear architecture, fake actors and bounded volumes. Existing stale source-string test expectations corrected to test the true facadeReveal helper."
+          "New source and headless tests cover true foreground occlusion, untouched rear architecture, fake actors and bounded volumes. Existing stale source-string test expectations corrected to test the true facadeReveal helper.",
+          "Strict /dungeon module allowlist now explicitly serves foreground-sightline-plan.js; added a browser-route regression assertion, without weakening CSP."
         ],
         "previousHeadSafety": "Exact predecessor c9324bd: Dungeon browser shards 3/3 passed, authority 303/306 failed on three stale facade-inline-source regex assertions; visual-review passed, broader catalogue CI failed.",
-        "candidateChecks": "Source and foundation tests COMMITTED but no exact-head test, Chromium capture, mobile p95, blind A/B or synchronized original audio yet; GitHub workflows 41938817457/41938817459/41938817428 running when authored.",
+        "candidateChecks": "Corrected head 520adc2 pushed; Dungeon 41939121537, visual 41939121529, catalogue 41939121568 pending; no exact-head successes claimed.",
         "matching": "UNVERIFIED — no identical-seed current vs locked original desktop/mobile multi-scene clips yet",
         "looks": "UNVERIFIED",
         "feels": "UNVERIFIED",
         "plays": "UNVERIFIED",
         "critics": "0/3",
-        "next": "Inspect current exact-head desktop/mobile ACTUAL WebGL, reject if props flicker/pop, disappear unnecessarily, or silhouettes remain occluded; inspect sustained frame p95 and truthful boss combat contact, then build a coherent full Warden expedition with full genuine traversal/combat/boss/floor/defeat/restart motion and original opt-in audio; seek three fresh-context blind critics."
+        "next": "Inspect current exact-head desktop/mobile ACTUAL WebGL, reject if props flicker/pop, disappear unnecessarily, or silhouettes remain occluded; inspect sustained frame p95 and truthful boss combat contact, then build a coherent full Warden expedition with full genuine traversal/combat/boss/floor/defeat/restart motion and original opt-in audio; seek three fresh-context blind critics.",
+        "routeFixSha": "520adc2d4bbfca14fddc2f7b9cd3190139c10680",
+        "candidateSha": "520adc2d4bbfca14fddc2f7b9cd3190139c10680"
       }
     ],
     "implementationContinuation": {
       "date": "2026-11-05",
       "milestone": "M1",
-      "sourceCommit": "c8cdef5886423239970c64ecaab9930812d1520e",
+      "sourceCommit": "520adc2d4bbfca14fddc2f7b9cd3190139c10680",
       "changes": "New finite actor-only camera-to-3D-prop body rays sample actual cached THREE.Box3 world-space volumes of arches, pillars, torches, windows and authored scene fixtures, rather than just prop roots. The real floor dressing, authored foreground props and cinematic camera director share those measured bounds, stage only legitimate rooted living figures, and avoid scanning geometry per frame. New source and headless tests cover true foreground occlusion, untouched rear architecture, fake actors and bounded volumes. Existing stale source-string test expectations corrected to test the true facadeReveal helper.",
       "evaluation": "UNVERIFIED: new-head original desktop/mobile and critics unavailable",
       "largestGap": "Realistic adult full-body rigs, weapon impact and coherent Gothic combat; previous real screenshots still show torso occlusion",
-      "nextTask": "Inspect current exact-head desktop/mobile ACTUAL WebGL, reject if props flicker/pop, disappear unnecessarily, or silhouettes remain occluded; inspect sustained frame p95 and truthful boss combat contact, then build a coherent full Warden expedition with full genuine traversal/combat/boss/floor/defeat/restart motion and original opt-in audio; seek three fresh-context blind critics."
+      "nextTask": "Wait for real current-head WebGL captures, validate true full-body Gothic prop clearance without pop/flicker/camera hunt; then original rig anatomy, real blade impact, AI/boss encounter with five-stage sound-enabled desktop/mobile reel and blind 3-critic panel."
     }
   }
 }
