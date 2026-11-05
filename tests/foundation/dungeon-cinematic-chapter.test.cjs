@@ -351,3 +351,13 @@ test('real edge-of-map aftermath preserves bounded camera and no imaginary boss'
  assert.ok(shot.spread>0);
  assert.equal(planLastStandTableau(s,[]),null);
 });
+
+test('3D safe-lane glow requires an actual completed living two-hero foot-tile handoff',()=>{
+ const source=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ assert.match(source,/oathguardEscapeMark\.visible=oathguardEscapeAge<\.72/);
+ assert.match(source,/ally\?\.action==='move'&&ally\.x===oldVanguard\.x&&ally\.z===oldVanguard\.z/);
+ assert.match(source,/e\.kind==='cover-advance'&&e\.tick===s\.tick/);
+ assert.match(source,/oathguardCompletedLaneVisible:oathguardEscapeMark\.visible/);
+ assert.match(source,/oathguardImpactRing\.visible=oathguardAegis\.visible&&!reduced&&impactProgress<1/,
+  'preparatory teamwork cannot fabricate a shield impact');
+});

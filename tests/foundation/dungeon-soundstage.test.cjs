@@ -200,3 +200,16 @@ test('original Warden counter sound requires true previous recovery and HP loss'
  const source=fs.readFileSync(path.join(root,'public/ai-dungeon/soundstage.js'),'utf8');
  assert.match(source,/counter:\s*\{hz:/);
 });
+
+test('a real Vanguard tile handoff earns low-volume original opt-in sound; counter audit retains the earned prior window',async()=>{
+ const {planSoundCues}=await plan();
+ const before=snap(10,{units:[unit('vanguard','idle',10)]});
+ const after=snap(11,{units:[unit('vanguard','move',11)],events:[
+  {kind:'cover-advance',tick:11,text:'Ashen Vanguard opened safe stone for ranger'}]});
+ assert.equal(planSoundCues(before,after).filter(c=>c.kind==='lane-clear').length,1);
+ assert.equal(planSoundCues(after,after).some(c=>c.kind==='lane-clear'),false);
+ const src=fs.readFileSync(path.join(root,'public/ai-dungeon/soundstage.js'),'utf8');
+ assert.match(src,/recoveryUntilTick:u\.recoveryUntilTick/,
+  'the live stage caches genuine Warden prior recovery for counter audio verification');
+ assert.match(src,/'lane-clear':\{hz:/);
+});
