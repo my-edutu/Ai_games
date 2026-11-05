@@ -1,5 +1,6 @@
 import { pointFor } from './coordinates.mjs';
 import { observedLandingHazardPressure } from './landing-pressure.mjs';
+import { observedTraversalKinetics } from './traversal-kinetics.mjs';
 
 // A source-bound architectural threshold at the ACTUAL currently selected deck.
 // It is an observation of the autonomous pilot's intent, never a safe-landing
@@ -54,6 +55,7 @@ export function observedLandingApproach(snapshot, deck, selectedX) {
   return {
     runToken: snapshot.runToken, floor: snapshot.floor, tick: snapshot.tick,
     targetId: deck.id, x, left, right, top, pressured: !!danger,
+    landingReadiness: danger ? 0 : observedTraversalKinetics(snapshot).landingReadiness,
     chunkBaseY: snapshot.chunkBaseY, worldWidth: snapshot.worldWidth,
     // Current danger can move/change before touchdown. This is not a forecast.
     observedOnly: true,
@@ -95,7 +97,8 @@ export function createTowerLandingApproach(THREE) {
       active.floor === candidate.floor && active.tick === candidate.tick &&
       active.targetId === candidate.targetId && active.x === candidate.x &&
       active.left === candidate.left && active.right === candidate.right &&
-      active.top === candidate.top && active.pressured === candidate.pressured) return;
+      active.top === candidate.top && active.pressured === candidate.pressured &&
+      active.landingReadiness === candidate.landingReadiness) return;
     active = candidate;
     // Source-driven dock, not a predicted safe destination or collider.
     // Its existing braces become distinctly open, raised WARNING vanes only
@@ -107,6 +110,7 @@ export function createTowerLandingApproach(THREE) {
       (snapshot.player.y - snapshot.player.halfHeight - candidate.top) / 10000);
     const litSteps = Math.floor(clamp(1 - distance / 16, 0, 1) * 5 + .00001);
     const pressured = candidate.pressured;
+    const arrival = pressured ? 0 : candidate.landingReadiness;
     for (let i = 0; i < PIECES; i++) {
       // Two piers, two capstones, five step stones, two shoulder braces,
       // one connecting lintel: all 12 use ONE instanced mesh/material.
@@ -122,9 +126,9 @@ export function createTowerLandingApproach(THREE) {
         candidate.worldWidth, step ? 26.91 : 26.53);
       pose.position.set(world.x, world.y +
         (post ? 1.10 : cap ? 2.24 : brace ? (pressured ? 1.94 : 1.80) :
-          lintel ? (pressured ? 2.46 : 2.29) : .035), world.z);
+          lintel ? (pressured ? 2.46 : 2.29 + arrival * .24) : .035), world.z);
       pose.rotation.set(0, world.angle, brace ?
-        (leftSide ? -1 : 1) * (pressured ? .82 : .50) : 0);
+        (leftSide ? -1 : 1) * (pressured ? .82 : .50 + arrival * .30) : 0);
       const span = (candidate.right - candidate.left) /
         candidate.worldWidth * 2.2 * 26.53;
       pose.scale.set(
@@ -137,7 +141,7 @@ export function createTowerLandingApproach(THREE) {
       const hex = post ? (pressured ? 0xb78161 : 0x668b8b)
         : cap || lintel ? (pressured ? 0xffd49b : 0xc9fff0)
         : brace ? (pressured ? 0xca8c61 : 0x8fbbb0)
-        : (i - 4) < litSteps
+        : (i - 4) < Math.max(litSteps, Math.floor(arrival * 5))
           ? (pressured ? 0xfff0c4 : 0xf2fff8)
           : (pressured ? 0xb8764e : 0x61998c);
       mesh.setColorAt(i, tint.set(hex));
@@ -151,7 +155,8 @@ export function createTowerLandingApproach(THREE) {
     return active ? {
       visible: group.visible, sourceTick: active.tick,
       targetId: active.targetId, selectedX: active.x,
-      pressureObservedNow: active.pressured, pieces: mesh.count,
+      pressureObservedNow: active.pressured,
+      landingReadiness: active.landingReadiness, pieces: mesh.count,
       drawCalls: 1, observedOnly: true, depthTest: material.depthTest,
     } : { visible: false, pieces: 0, drawCalls: 0, observedOnly: true };
   }

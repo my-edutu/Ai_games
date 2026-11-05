@@ -467,6 +467,16 @@ export function createTowerAudio() {
       tone(180, 410, .13, 'sine', .055);
       texture(680, .08, .034);
     }
+    if (sameFloor && snapshot.lifecycle === 'running' &&
+      !frame.stale && !snapshot.stale &&
+      last?.state === 'airborne' && actor.state === 'airborne' &&
+      Number.isFinite(last.vy) && Number.isFinite(actor.vy) &&
+      last.vy > 1100 && actor.vy <= 1100 && actor.vy >= -6000 &&
+      !/evading-projectile/.test(snapshot.intent?.mode || '')) {
+      // One genuine adjacent-snapshot apex transition, never a timed music
+      // swell, invented jump, network rewind or extra long-lived voice.
+      tone(395, 225, .14, 'sine', .025);
+    }
     if (sameFloor && actor.state === 'standing' && last.state === 'airborne') {
       // Source-observed touchdown, not a clock-driven footstep. A steep genuine
       // descent sounds denser than a soft hop and coincides with the real

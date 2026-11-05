@@ -568,6 +568,44 @@ export function createClimber() {
         legs[i].lower.rotation.x=mix(legs[i].lower.rotation.x,.86,.23*lean);
       }
     }
+    // The whole visible jump now has a source-observed physical sentence:
+    // a light airborne hang around the *actual* zero-VY apex, then boots and
+    // forearms prepare for a physically nearby selected deck. This lives on
+    // the SAME skeleton as grip IK, melee and defense (which retain priority).
+    // It never translates the root, predicts a safe landing or adds new meshes.
+    const traversalBeat = state.traversalBeat;
+    if(airborne && !defending && !attacking && !hurt && !dead && !stale
+      && !state.ledgeTarget && traversalBeat){
+      const apex = Number.isFinite(traversalBeat.apex)
+        ? clamp(traversalBeat.apex,0,1) * (reducedMotion ? 0 : 1) : 0;
+      const brace = Number.isFinite(traversalBeat.landingReadiness)
+        ? clamp(traversalBeat.landingReadiness,0,1) * (reducedMotion ? .38 : 1) : 0;
+      if(apex>.001){
+        body.rotation.x=mix(body.rotation.x,-.04,apex*.55);
+        head.rotation.x=mix(head.rotation.x,-.07,apex*.42);
+        for(let i=0;i<2;i++){
+          const side=i?1:-1;
+          arms[i].upper.rotation.x=mix(arms[i].upper.rotation.x,-.67,apex*.45);
+          arms[i].upper.rotation.z+=side*.36*apex;
+          arms[i].lower.rotation.x=mix(arms[i].lower.rotation.x,-.46,apex*.32);
+          legs[i].upper.rotation.x=mix(legs[i].upper.rotation.x,-.35,apex*.43);
+          legs[i].lower.rotation.x=mix(legs[i].lower.rotation.x,.72,apex*.35);
+        }
+      }
+      if(brace>.001){
+        // The actual descending velocity and selected deck's current height
+        // determine the reach. A disappearing/moving deck clears it next tick.
+        body.rotation.x+=.12*brace;
+        head.rotation.x=mix(head.rotation.x,.24,brace*.5);
+        for(let i=0;i<2;i++){
+          const side=i?1:-1;
+          arms[i].upper.rotation.x=mix(arms[i].upper.rotation.x,-.96,brace*.50);
+          arms[i].upper.rotation.z+=side*.26*brace;
+          legs[i].upper.rotation.x=mix(legs[i].upper.rotation.x,-.67,brace*.70);
+          legs[i].lower.rotation.x=mix(legs[i].lower.rotation.x,1.08,brace*.65);
+        }
+      }
+    }
     // The platformer's physics remains unchanged. Only a nearby genuine deck
     // can pull the raised fingertip into physical contact during an ascent.
     const touch=state.ledgeTarget;

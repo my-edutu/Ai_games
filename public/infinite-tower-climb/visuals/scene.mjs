@@ -2455,8 +2455,9 @@ export function createTowerScene(canvas, settings = {}) {
     // Same authoritative, public airborne velocity owns the visual weather
     // and opt-in wind; the existing lights add a restrained continuous
     // traversal accent, not an extra draw or a fictional success signal.
+    const traversalBeat = observedTraversalKinetics(snapshot);
     const liveAirflow = options.stale || options.reducedMotion ? 0 :
-      observedTraversalKinetics(snapshot).airflow;
+      traversalBeat.airflow;
     const targetPlatform = intendedLanding(snapshot);
     const actionStage = !options.stale && !options.reducedMotion
       ? observedActionStage(snapshot, targetPlatform) : null;
@@ -2642,6 +2643,7 @@ export function createTowerScene(canvas, settings = {}) {
         snapshot.lifecycle === 'running' && p.health > 0
         ? elapsed - observedPulse.startedAt : null,
       platformRide: observedRidePose,
+      traversalBeat,
       // The same authentic floor-advance gate memory can weight the skinned
       // ascent handoff. No invented win: only the adjacent source guardian
       // passage exposes a nonzero weight, then retires on its own.
@@ -2945,6 +2947,23 @@ export function createTowerScene(canvas, settings = {}) {
         focus.copy(shot.focus);
         targetY = focus.y;
       }
+    }
+    // An actual upward arc should briefly feel lighter near zero vertical
+    // velocity, then regain deck scale as the descending climber approaches
+    // a *currently selected, observed* supporting surface. This is a subtle
+    // camera-weight layer over the same uncut exterior follow shot; guardian,
+    // crusher, genuine landing and terminal shots retain precedence. The
+    // portrait/full-body rescue below still vetoes unsafe composition.
+    if (!overview && !terminalStaged && !options.stale &&
+        !options.reducedMotion && snapshot.lifecycle === 'running' &&
+        p.health > 0 && p.state === 'airborne' && !sourceGuardian &&
+        (!actionStage || actionStage.kind === 'climber' ||
+          actionStage.kind === 'landing')) {
+      const hang = traversalBeat.apex;
+      const approach = traversalBeat.landingReadiness;
+      destination.y += hang * (portrait ? 1.35 : 1.05) -
+        approach * (portrait ? .68 : .43);
+      focus.y += hang * (portrait ? .54 : .41) - approach * .22;
     }
     // Follow source-observed guardian action a little faster than exploration:
     // a real HP change should not be over before the camera catches its actor.

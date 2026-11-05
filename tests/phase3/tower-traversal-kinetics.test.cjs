@@ -23,7 +23,8 @@ const source = (player = {}, overrides = {}) => ({
 test('a present 20Hz airborne velocity, never an intent, authorizes the kinetic stage', async () => {
   const [, , { observedTraversalKinetics: observe }] = await modules;
   const calm = observe(source({ state: 'standing', vy: 20000 }));
-  assert.deepEqual(calm, { ascent: 0, descent: 0, airflow: 0, shear: 0 });
+  assert.deepEqual(calm, { ascent: 0, descent: 0, airflow: 0, shear: 0,
+    launch: 0, apex: 0, landingReadiness: 0 });
   const rise = observe(source({ state: 'airborne', vy: 18000, vx: 6000 }));
   assert.equal(rise.ascent, 1);
   assert.equal(rise.descent, 0);
