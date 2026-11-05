@@ -4,6 +4,12 @@ on:
   pull_request:
     paths:
       - 'public/tiny-kingdom/**'
+      # W45: 1.37 MB evidence history and visual scorecard text updates do
+      # not alter the playable renderer. Avoid launching 20 GPU jobs just
+      # because an honest PASS/FAIL link was refreshed. Real source, image,
+      # asset, JS and CSS changes still trigger the full suite as before.
+      - '!public/tiny-kingdom/progress.html'
+      - '!public/tiny-kingdom/experience.html'
       - 'tests/browser/tiny-kingdom*.spec.cjs'
       - 'scripts/tiny-kingdom-gpu-evidence.cjs'
       - 'scripts/tiny-kingdom-g154-scene-packer-contract.cjs'
