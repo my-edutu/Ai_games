@@ -11600,11 +11600,27 @@ let citizenDetailPolicy={mode:'initial',budget:VILLAGE_LOD_LIMIT,anchorIncluded:
 // resource decisions, interaction, replay, restoration and render audits.
 // The selection only reads presentation position and optics: no new RNG,
 // animation clock, authority event or hidden/removed person.
+// The actual WebGL view, near-citizen LOD and read-only sightline audit
+// must share ONE real exterior shot. A camera survey that is never used by
+// the renderer misrepresents visible evidence, especially on 390px screens.
+// Manual pointer/wheel lens adjustments still use the ordinary orbit.
+function actualHomecomingWitnessShot(){
+ const shot=lastFollowShot;
+ return follow&&!streetWalk&&!dragging&&
+  actionCameraZoom===null&&actionCameraPitch===null&&
+  document.body.dataset.workday==='homecoming'&&
+  (shot?.witnessMode==='threshold'||shot?.witnessMode==='resting-threshold')?
+  shot:null;
+}
 function citizenDetailCameraFrame(){
  const lens=cameraLensProfile(canvas.clientWidth,canvas.clientHeight);
  const radius=Math.cos(pitch)*zoom;
+ // W60: near-character LOD must use the same physically surveyed view
+ // as the actual WebGL picture, not a separate synthetic orbit.
+ const threshold=actualHomecomingWitnessShot();
  const eye=streetWalk?
   [streetPosition[0],terrain(...streetPosition)+streetEyeHeight,streetPosition[1]]:
+  threshold?threshold.eye.slice():
   [focusPoint[0]+Math.sin(yaw)*radius,
    (follow?terrain(focusPoint[0],focusPoint[1])+1.02:.25)+Math.sin(pitch)*zoom,
    focusPoint[1]+Math.cos(yaw)*radius];
@@ -11612,6 +11628,7 @@ function citizenDetailCameraFrame(){
   [eye[0]+Math.sin(streetYaw)*Math.cos(streetTilt)*8,
    eye[1]+Math.sin(streetTilt)*8,
    eye[2]+Math.cos(streetYaw)*Math.cos(streetTilt)*8]:
+  threshold?threshold.target.slice():
   [focusPoint[0],follow?terrain(focusPoint[0],focusPoint[1])+1.02:.25,
    focusPoint[1]];
  const diff=target.map((v,i)=>v-eye[i]);
@@ -12131,7 +12148,10 @@ if(candidateCameraDynamicKey&&data.length<=CAMERA_DYNAMIC_FLOAT_BUDGET){
 } // End uncached animation and occupation-geometry generation.
 const frameSubmitStart=performance.now();
 const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,focusHeight=follow?terrain(focusPoint[0],focusPoint[1])+1.02:.25;
- const eye=streetWalk?[streetPosition[0],terrain(...streetPosition)+streetEyeHeight,streetPosition[1]]:[focusPoint[0]+Math.sin(yaw)*rad,elevation+focusHeight,focusPoint[1]+Math.cos(yaw)*rad];
+ const threshold=actualHomecomingWitnessShot();
+ const eye=streetWalk?[streetPosition[0],terrain(...streetPosition)+streetEyeHeight,streetPosition[1]]:
+  threshold?threshold.eye.slice():
+  [focusPoint[0]+Math.sin(yaw)*rad,elevation+focusHeight,focusPoint[1]+Math.cos(yaw)*rad];
  // Use the real worker's reachable bench as the actual WebGL view target,
  // not just as a goal in the orbit planner. Camera movement remains cosmetic.
  const activeWorker=follow&&(liveWorkday||document.body.dataset.workday==='delivery')&&
@@ -12146,7 +12166,7 @@ const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,focusHeight=follow
   eye[0]+Math.sin(streetYaw)*Math.cos(streetTilt)*8,
   eye[1]+Math.sin(streetTilt)*8,
   eye[2]+Math.cos(streetYaw)*Math.cos(streetTilt)*8
- ]:workTarget;
+ ]:threshold?threshold.target.slice():workTarget;
  const lens=cameraLensProfile(w,h);
  let m=mat4multiply(perspective(lens.verticalRadians,w/h,.1,190),lookAt(eye,cameraTarget,[0,1,0]));lastCitizenPickFrame={matrix:m,eye:eye.slice(),width:w,height:h};updateWorldActorTag(m);gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);const radiance=lightingProfile(state.t);gl.uniform1f(uniforms.sunStrength,radiance.solar);gl.uniform1f(uniforms.ambientBlend,radiance.ambientBlend);gl.uniform1f(uniforms.worldTime,state.t);gl.uniform1f(uniforms.weatherWetness,climateMaterialProfile(state.t).precipitation);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));const activeLight=observedWorkLightProfile();gl.uniform3f(uniforms.workLightPosition,activeLight.x,activeLight.y,activeLight.z);gl.uniform1f(uniforms.workLightStrength,activeLight.strength);
 const farmContact=getHarvestInteractionAudit();
