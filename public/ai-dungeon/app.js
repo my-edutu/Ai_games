@@ -14,7 +14,7 @@ import {planCombatSightlineExtension,planCinematicSilhouetteRecess} from '/dunge
 import {planEncounterLighting} from '/dungeon/encounter-lighting-plan.js';
 import {planEncounterFrame} from '/dungeon/encounter-frame-plan.js';
 import {planCinematicShot,planReadableExpeditionLens,planCriticalSubjectFit,planWardenCharge,planOathguardPose,planBossDuelSightline,planPartyVistaSightline} from '/dungeon/cinematic-chapter-plan.js';
-import {planPartyWallReveal,createCutawayBandCache,shouldUploadCutawayBand,resolveRenderedSilhouetteSubjects} from '/dungeon/party-visibility-plan.js';
+import {planPartyWallReveal,createCutawayBandCache,shouldUploadCutawayBand,resolveRenderedSilhouetteSubjects,planProjectedBodyAperture} from '/dungeon/party-visibility-plan.js';
 import {planBoundaryCamera} from '/dungeon/camera-boundary-plan.js';
 import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
 import {planExpeditionStep,advanceExpeditionFootfall,planGroundedAnimation} from '/dungeon/expedition-locomotion-plan.js';
@@ -222,16 +222,23 @@ const cachedVec=new THREE.Vector3(),cachedQuat=new THREE.Quaternion(),cachedScal
 function sightlineClearance(x,z,subjects,cameraPosition,pad=2.1){
  return planPartyWallReveal(x,z,subjects,cameraPosition,pad)!=='none';
 }
-function cutawayWalls(target,subjects,wallPad=2.1){
+function cutawayWalls(target,subjects,wallPad=2.1,view=null){
  const positions=world.userData.wallPositions,mesh=world.userData.walls;
  if(!mesh||!positions)return;
  // Every frame is intentional: a rounded key previously skipped critical
  // updates while the camera and party moved within a tile.
- let cut=0,nearbyCut=0,wallMatrixWrites=0;
+ let cut=0,nearbyCut=0,wallMatrixWrites=0,screenSpaceWallReveals=0;
  const wallBands=world.userData.wallCutawayBands;
  for(let i=0;i<positions.length;i++){
   const point=positions[i];
-  const reveal=planPartyWallReveal(point[0],point[1],subjects,camera.position,wallPad,world.userData.wallHeights?.[i]??2.6);
+  const coarse=planPartyWallReveal(point[0],point[1],subjects,camera.position,wallPad,world.userData.wallHeights?.[i]??2.6);
+  const projected=coarse!=='sightline'&&subjects.some(p=>p.visibleActor===true&&
+   Math.hypot(p.x-point[0],p.z-point[1])<4.6)&&
+   planProjectedBodyAperture([point[0]-.525,0,point[1]-.525,
+    point[0]+.525,world.userData.wallHeights?.[i]??2.6,point[1]+.525],
+    subjects,camera.position,view);
+  const reveal=projected?'sightline':coarse;
+  if(projected)screenSpaceWallReveals++;
   const cutaway=planCutawayWallTransform(reveal,world.userData.wallHeights?.[i]??2.6);
   if(reveal!=='none')cut++;
   if(reveal==='nearby')nearbyCut++;
@@ -245,6 +252,7 @@ function cutawayWalls(target,subjects,wallPad=2.1){
  cachedQuat.identity();
  world.userData.vaultedGallery?.cutaway(wallBands);
  world.userData.cutawayWalls=cut;world.userData.cutawayNearbyWalls=nearbyCut;
+ world.userData.screenSpaceWallReveals=screenSpaceWallReveals;
  world.userData.wallMatrixWrites=wallMatrixWrites;
  // Foundation courses use the same cached parent wall bands to avoid drawing
  // enormous black 1x1 tiles over the textured under-wall floor when the
@@ -299,7 +307,8 @@ function cutawayWalls(target,subjects,wallPad=2.1){
  let removed=0;
  for(const [i,group] of (world.userData.foregroundProps||[]).entries()){
   const hidden=sightlineClearance(group.position.x,group.position.z,subjects,camera.position,wallPad)||
-   planForegroundBodyClearance(world.userData.foregroundPropVolumes?.[i],subjects,camera.position);
+   planForegroundBodyClearance(world.userData.foregroundPropVolumes?.[i],subjects,camera.position)||
+   planProjectedBodyAperture(world.userData.foregroundPropVolumes?.[i],subjects,camera.position,view);
   group.visible=!hidden;if(hidden)removed++;
  }
  world.userData.hiddenForegroundProps=removed;
@@ -1188,12 +1197,16 @@ function animate(t){
  world.userData.recessActors=partySightlines.filter(p=>p.silhouetteRecess===true).length;
  world.userData.recessCombatants=partySightlines.filter(p=>p.combatRecess===true).length;
  world.userData.bossCutawayActive=Boolean(bossDistance&&boss&&partySightlines.some(({x,z})=>x===boss.x-origin&&z===boss.z-origin));
- cutawayWalls(target,partySightlines,storyStage?.wallPad??2.1);world.userData.dressing?.cutaway(partySightlines,camera.position,storyStage?.wallPad??2.1);world.userData.chapterNaves?.cutaway(partySightlines,camera.position,storyStage?.wallPad??2.1);
+ const renderedBodyView={look:cameraAim,fov:camera.fov,aspect:camera.aspect};
+  cutawayWalls(target,partySightlines,storyStage?.wallPad??2.1,renderedBodyView);
+  world.userData.dressing?.cutaway(partySightlines,camera.position,storyStage?.wallPad??2.1,renderedBodyView);
+  world.userData.chapterNaves?.cutaway(partySightlines,camera.position,storyStage?.wallPad??2.1);
   world.userData.wardenRitual?.setSightlines(partySightlines,camera.position);
  if(world.userData.authoredProps?.group){
   for(const [i,prop] of world.userData.authoredProps.group.children.entries()){
    prop.visible=!(sightlineClearance(prop.position.x,prop.position.z,partySightlines,camera.position,2.4)||
-    planForegroundBodyClearance(world.userData.authoredPropVolumes?.[i],partySightlines,camera.position));
+    planForegroundBodyClearance(world.userData.authoredPropVolumes?.[i],partySightlines,camera.position)||
+    planProjectedBodyAperture(world.userData.authoredPropVolumes?.[i],partySightlines,camera.position,renderedBodyView));
   }
  }
 
@@ -1269,7 +1282,7 @@ function animate(t){
   }
  }}
  catch(error){console.warn('[DUNGEON] post effect fault, restoring WebGL:',String(error));try{composer?.dispose()}catch{}composer=null;bloomPass=null;postFXStatus='fallback';postFXEnabled=false;fxButton.title='Glow unavailable: direct rendering remains active';fxButton.setAttribute('aria-pressed','false');fxButton.querySelector('span').textContent='DIRECT 3D';renderer.info.reset();renderer.render(scene,camera)}
- combatOverlay.render(state,actors,camera,time,focusedHeroId);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,cultistTellCount:cultistTell.count,revenantTellCount:breachDiamond.count,oathguardVisible:oathguardAegis.visible,oathguardPhysicalPanels:oathguardAegis.children.filter(o=>o.isMesh).length,oathguardImpactVisible:oathguardImpactRing.visible,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,encounterFrame:encounterFrame??null,cinematicShot:cinematicShot??null,cinematicContinuity:combatShotContinuity.metrics(),cinematicLens:cinematicLens??null,storyStage:storyStage??null,wardenExposure:[...actors.values()].find(a=>a.u.kind==='warden'&&a.u.hp>0)?.wardenExposure??null,criticalCameraFit,cameraFrameDt:cameraDt,cinematicAim:{x:cameraAim.x,y:cameraAim.y,z:cameraAim.z},duelSightline:duelCamera?.sightline??null,cameraRig:{mode:cameraType,desiredPosition:plannedCamera.position,actualPosition:{x:camera.position.x,y:camera.position.y,z:camera.position.z},turn:plannedCamera.turn,boundaryLimit:plannedCamera.boundaryLimit},cameraOcclusion:physicalCameraDirector.metrics(),focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,wallMatrixWrites:world.userData.wallMatrixWrites??0,parapetMatrixWrites:world.userData.parapetMatrixWrites??0,cutawayNearbyWalls:world.userData.cutawayNearbyWalls??0,cutawaySubjects:world.userData.cutawaySubjectCount??0,recessActors:world.userData.recessActors??0,recessCombatants:world.userData.recessCombatants??0,bossCutawayActive:world.userData.bossCutawayActive??false,cutawayParapets:world.userData.cutawayParapets??0,foundationBricks:world.userData.foundationBrickPositions?.length??0,clearedFoundationBricks:world.userData.clearedFoundationBricks??0,foundationMatrixWrites:world.userData.foundationMatrixWrites??0,wallProfiles:world.userData.wallProfileMetrics??null,wallSculpture:world.userData.wallSculpture??null,openWardenGate:world.userData.openWardenGate===true,chapterNaves:world.userData.chapterNaves?.metrics??null,vaultedGallery:world.userData.vaultedGallery?.metrics()??null,stoneGrade:{biome:floorThemes[(state.floor-1)%floorThemes.length].biome,wallTint:stone.color.getHexString(),floorTint:floorMat.color.getHexString(),trimTint:stoneEdge.color.getHexString(),keyFill:moon.color.getHexString(),partyFill:partyGlow.color.getHexString(),partyIntensity:partyGlow.intensity,wallTextureMapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture)},wallMasonry:{size:wallMasonryTexture?.image?.width??0,mapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture),bump:Boolean(wallMasonryTexture&&stone.bumpMap===wallMasonryTexture),bumpScale:stone.bumpScale},floorRuins:world.userData.floorRuins?.metrics??null,expeditionStonework:world.userData.expeditionStonework?.metrics??null,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,
+ combatOverlay.render(state,actors,camera,time,focusedHeroId);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,cultistTellCount:cultistTell.count,revenantTellCount:breachDiamond.count,oathguardVisible:oathguardAegis.visible,oathguardPhysicalPanels:oathguardAegis.children.filter(o=>o.isMesh).length,oathguardImpactVisible:oathguardImpactRing.visible,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,encounterFrame:encounterFrame??null,cinematicShot:cinematicShot??null,cinematicContinuity:combatShotContinuity.metrics(),cinematicLens:cinematicLens??null,storyStage:storyStage??null,wardenExposure:[...actors.values()].find(a=>a.u.kind==='warden'&&a.u.hp>0)?.wardenExposure??null,criticalCameraFit,cameraFrameDt:cameraDt,cinematicAim:{x:cameraAim.x,y:cameraAim.y,z:cameraAim.z},duelSightline:duelCamera?.sightline??null,cameraRig:{mode:cameraType,desiredPosition:plannedCamera.position,actualPosition:{x:camera.position.x,y:camera.position.y,z:camera.position.z},turn:plannedCamera.turn,boundaryLimit:plannedCamera.boundaryLimit},cameraOcclusion:physicalCameraDirector.metrics(),focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,screenSpaceWallReveals:world.userData.screenSpaceWallReveals??0,wallMatrixWrites:world.userData.wallMatrixWrites??0,parapetMatrixWrites:world.userData.parapetMatrixWrites??0,cutawayNearbyWalls:world.userData.cutawayNearbyWalls??0,cutawaySubjects:world.userData.cutawaySubjectCount??0,recessActors:world.userData.recessActors??0,recessCombatants:world.userData.recessCombatants??0,bossCutawayActive:world.userData.bossCutawayActive??false,cutawayParapets:world.userData.cutawayParapets??0,foundationBricks:world.userData.foundationBrickPositions?.length??0,clearedFoundationBricks:world.userData.clearedFoundationBricks??0,foundationMatrixWrites:world.userData.foundationMatrixWrites??0,wallProfiles:world.userData.wallProfileMetrics??null,wallSculpture:world.userData.wallSculpture??null,openWardenGate:world.userData.openWardenGate===true,chapterNaves:world.userData.chapterNaves?.metrics??null,vaultedGallery:world.userData.vaultedGallery?.metrics()??null,stoneGrade:{biome:floorThemes[(state.floor-1)%floorThemes.length].biome,wallTint:stone.color.getHexString(),floorTint:floorMat.color.getHexString(),trimTint:stoneEdge.color.getHexString(),keyFill:moon.color.getHexString(),partyFill:partyGlow.color.getHexString(),partyIntensity:partyGlow.intensity,wallTextureMapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture)},wallMasonry:{size:wallMasonryTexture?.image?.width??0,mapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture),bump:Boolean(wallMasonryTexture&&stone.bumpMap===wallMasonryTexture),bumpScale:stone.bumpScale},floorRuins:world.userData.floorRuins?.metrics??null,expeditionStonework:world.userData.expeditionStonework?.metrics??null,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,
  authoredProps:{loaded:world.userData.authoredProps?.group?.children.length??0,
   indexed:world.userData.authoredPropVolumes?.filter(Boolean).length??0,
   cameraVolumes:world.userData.cameraPropVolumes?.length??0,

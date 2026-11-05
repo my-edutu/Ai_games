@@ -467,3 +467,26 @@ test('M1 living wandering hero retains feet and sword lane through nearest ruins
  assert.equal(planPartyWallReveal(1.36,.65,[{x:0,z:0,visibleActor:false}],highCamera,2.1,.43),'sightline',
   'previous cinematic background staging stays intact and is not reclassified as a live rig');
 });
+
+
+test('whole-body projection rejects rear Gothic stone and fictional living figures',async()=>{
+ const {planProjectedBodyAperture:aperture}=await load();
+ const camera=Object.freeze({x:7,y:7,z:7});
+ const view=Object.freeze({look:{x:0,y:1,z:0},fov:48,aspect:1440/832});
+ const actor=Object.freeze({x:0,z:0,kind:'vanguard',visibleActor:true});
+ const front=Object.freeze([1,0,1,2,2.6,2]),rear=Object.freeze([-3,0,-3,-2,2.6,-2]);
+ const original=JSON.stringify([camera,view,actor,front,rear]);
+ assert.equal(aperture(front,[actor],camera,view),true);
+ assert.equal(aperture(rear,[actor],camera,view),false);
+ assert.equal(aperture(front,[{x:0,z:0}],camera,view),false);
+ assert.equal(aperture(front,Array(6).fill(actor),camera,view),false);
+ assert.equal(aperture([0,0,0,100,2,1],[actor],camera,view),false);
+ assert.equal(aperture(front,[actor],camera,{...view,fov:NaN}),false);
+ assert.equal(JSON.stringify([camera,view,actor,front,rear]),original);
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8'),
+  env=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
+ assert.match(app,/screenSpaceWallReveals/);
+ assert.match(app,/renderedBodyView=\{look:cameraAim,fov:camera\.fov,aspect:camera\.aspect\}/);
+ assert.match(app,/planProjectedBodyAperture\(world\.userData\.authoredPropVolumes/);
+ assert.match(env,/screenSpaceClearedFacades/);
+});

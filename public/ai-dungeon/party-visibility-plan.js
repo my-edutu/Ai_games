@@ -211,7 +211,7 @@ export function resolveRenderedSilhouetteSubjects(state,subjects,actors){
   const at=anchored(unit);
   if(!at)return point;
   claimed.add(unit.id);
-  return {...point,...at,visibleActor:true};
+  return {...point,...at,kind:unit.kind,visibleActor:true};
  });
  // The director can follow a scenic/enemy subject and omit a living hero.
  // Preserve existing shot subjects first, then fill remaining 5-slot budget
@@ -225,7 +225,7 @@ export function resolveRenderedSilhouetteSubjects(state,subjects,actors){
   const at=anchored(unit);
   if(!at)continue;
   claimed.add(unit.id);
-  resolved.push({...at,
+  resolved.push({...at,kind:unit.kind,
    visibleActor:true,silhouetteRecess:true,
    combatRecess:unit.action==='attack'||unit.action==='cast'});
  }
@@ -293,4 +293,73 @@ export function shouldUploadCutawayBand(cache,index,band){
  if(cache[index]===band)return false;
  cache[index]=band;
  return true;
+}
+
+
+/** Projection-space physical visibility of actual adult-scale living 3D figures.
+ * A full native torso can hide behind a wide opaque facade while thin 3D rays
+ * still pass. Judge real nearby stone box, camera FOV and shoulder/boot pixels.
+ * Strictly visual: original navigation, collision, AI, seeds, saves untouched.
+ */
+const PROJECTION_BODY_Y=Object.freeze([.22,.56,.99,1.42,1.78]);
+const PROJECTION_BODY_SIDES=Object.freeze([-.29,0,.29]);
+function projectionBasis(camera,view){
+ const look=view?.look;
+ if(![camera?.x,camera?.y,camera?.z,look?.x,look?.y,look?.z,
+  view?.fov,view?.aspect].every(Number.isFinite)||camera.y<.4||camera.y>30||
+  view.fov<28||view.fov>75||view.aspect<.35||view.aspect>3.2)return null;
+ const dx=look.x-camera.x,dy=look.y-camera.y,dz=look.z-camera.z;
+ const len=Math.hypot(dx,dy,dz),hz=Math.hypot(dx,dz);
+ if(len<.4||hz<.1)return null;
+ const fx=dx/len,fy=dy/len,fz=dz/len,rx=-dz/hz,rz=dx/hz;
+ return {fx,fy,fz,rx,rz,ux:-rz*fy,uy:hz/len,uz:rx*fy,
+  tan:Math.tan(view.fov*Math.PI/360),aspect:view.aspect};
+}
+function projectionPoint(camera,b,x,y,z){
+ const dx=x-camera.x,dy=y-camera.y,dz=z-camera.z;
+ const depth=dx*b.fx+dy*b.fy+dz*b.fz;
+ if(depth<.18||depth>45)return null;
+ const h=depth*b.tan;
+ return {x:(dx*b.rx+dz*b.rz)/(h*b.aspect),
+  y:(dx*b.ux+dy*b.uy+dz*b.uz)/h,depth};
+}
+/** box is an actual finite rendered-world [minx,miny,minz,maxx,maxy,maxz]. */
+export function planProjectedBodyAperture(box,subjects,camera,view){
+ if(!Array.isArray(box)||box.length!==6||!box.every(Number.isFinite)||
+  box[3]-box[0]<.006||box[4]-box[1]<.006||box[5]-box[2]<.006||
+  box[3]-box[0]>8||box[4]-box[1]>8||box[5]-box[2]>8||
+  !Array.isArray(subjects)||subjects.length>5)return false;
+ const b=projectionBasis(camera,view);
+ if(!b)return false;
+ const cx=(box[0]+box[3])/2,cz=(box[2]+box[5])/2;
+ let bounds=null;
+ for(const actor of subjects){
+  if(actor?.visibleActor!==true||![actor.x,actor.z].every(Number.isFinite)||
+   Math.hypot(actor.x-cx,actor.z-cz)>4.6)continue;
+  const dx=actor.x-camera.x,dz=actor.z-camera.z,len=Math.hypot(dx,dz);
+  if(len<.7||len>30)continue;
+  // Rear Gothic scenery MUST NOT recede just because it projects on a head.
+  if((cx-actor.x)*dx+(cz-actor.z)*dz>.32*len)continue;
+  if(!bounds){
+   let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity,near=Infinity;
+   for(const x of [box[0],box[3]])for(const y of [box[1],box[4]])
+    for(const z of [box[2],box[5]]){
+     const p=projectionPoint(camera,b,x,y,z);
+     if(!p)continue;
+     minX=Math.min(minX,p.x);maxX=Math.max(maxX,p.x);
+     minY=Math.min(minY,p.y);maxY=Math.max(maxY,p.y);near=Math.min(near,p.depth);
+    }
+   if(!Number.isFinite(minX))return false;
+   bounds={minX,maxX,minY,maxY,near};
+  }
+  const rx=-dz/len,rz=dx/len,scale=actor.kind==='warden'?1.32:1;
+  for(const y of PROJECTION_BODY_Y)for(const side of PROJECTION_BODY_SIDES){
+   const p=projectionPoint(camera,b,actor.x+side*rx,y*scale,actor.z+side*rz);
+   if(!p||bounds.near>=p.depth-.08)continue;
+   if(p.x>=bounds.minX-.012&&p.x<=bounds.maxX+.012&&
+      p.y>=bounds.minY-.018&&p.y<=bounds.maxY+.018&&
+      Math.abs(p.x)<1.05&&Math.abs(p.y)<1.08)return true;
+  }
+ }
+ return false;
 }

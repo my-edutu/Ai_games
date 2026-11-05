@@ -2,7 +2,7 @@ import * as THREE from '/dungeon/vendor/three.module.js';
 import {addDungeonWindows} from '/dungeon/architecture.js';
 import {planStoneRelief} from '/dungeon/stone-relief-plan.js';
 import {planCutawayFloorBacking,planCutawayCapTransform} from '/dungeon/cutaway-floor-plan.js';
-import {planPartyWallReveal,planLiveFacadeBodyReveal,createCutawayBandCache,shouldUploadCutawayBand} from '/dungeon/party-visibility-plan.js';
+import {planPartyWallReveal,planLiveFacadeBodyReveal,createCutawayBandCache,shouldUploadCutawayBand,planProjectedBodyAperture} from '/dungeon/party-visibility-plan.js';
 import {planDungeonWallProfiles,planLegibleWallMass} from '/dungeon/wall-profile-plan.js';
 import {createWardenCourt} from '/dungeon/warden-court.js';
 import {captureForegroundVolumes,planForegroundBodyClearance} from '/dungeon/foreground-sightline-plan.js';
@@ -315,7 +315,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
  // Instanced caps begin intact, so band zero already matches their GPU matrices.
  const capBands=new Uint8Array(columnCap.length);
  const foregroundVolumes=captureForegroundVolumes(THREE,foregroundGroups);
- const sceneMetrics={clearedForeground:0,clearedWeatheredPieces:0,clearedCapstones:0,matrixWrites:{facade:0,weathered:0,capstone:0}};
+ const sceneMetrics={clearedForeground:0,screenSpaceClearedFacades:0,clearedWeatheredPieces:0,clearedCapstones:0,matrixWrites:{facade:0,weathered:0,capstone:0}};
  const matrix=new THREE.Matrix4(),p=new THREE.Vector3(),q=new THREE.Quaternion(),scale=new THREE.Vector3();
  const yAxis=new THREE.Vector3(0,1,0),blockedFaces=new Uint8Array(wallFaces.length);
  // This exact physical slab plan drives BOTH what the GPU renders and the
@@ -325,15 +325,22 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
   return coarse==='sightline'||planLiveFacadeBodyReveal(face,eyes,camera,coarse)?
    'sightline':coarse;
  };
- function cutaway(subjects,camera,wallPad=2.1){
+ function cutaway(subjects,camera,wallPad=2.1,view=null){
   if(!facadeMesh)return;
   // World cladding, banners, stained-glass windows and statuary share the
   // multi-hero camera clearance, instead of tracking only the focus actor.
   const eyes=Array.isArray(subjects)?subjects:[subjects];
   const obscures=(x,z,pad)=>planPartyWallReveal(x,z,eyes,camera,pad)==='sightline';
-  let cleared=0,facadeMatrixWrites=0,weatheredChanged=false;q.identity();
+  let cleared=0,facadeMatrixWrites=0,weatheredChanged=false,screenSpaceClearedFacades=0;q.identity();
   for(let i=0;i<wallFaces.length;i++){
-   const f=wallFaces[i],reveal=facadeReveal(f,eyes,camera,wallPad);
+   const f=wallFaces[i],coarse=facadeReveal(f,eyes,camera,wallPad);
+   const h=coarse==='nearby'?.43:f[4],cy=coarse==='nearby'?.23:f[1];
+   const projected=coarse!=='sightline'&&eyes.some(p=>p.visibleActor===true&&
+    Math.hypot(f[0]-p.x,f[2]-p.z)<4.6)&&
+    planProjectedBodyAperture([f[0]-f[3]/2,cy-h/2,f[2]-f[5]/2,
+     f[0]+f[3]/2,cy+h/2,f[2]+f[5]/2],eyes,camera,view);
+   const reveal=projected?'sightline':coarse;
+   if(projected)screenSpaceClearedFacades++;
    const blockedBand=reveal==='sightline'?2:reveal==='nearby'?1:0;
    if(blockedFaces[i]!==blockedBand){weatheredChanged=true;blockedFaces[i]=blockedBand;}
    if(!shouldUploadCutawayBand(facadeBands,i,reveal==='sightline'?2:reveal==='nearby'?1:0))continue;
@@ -391,6 +398,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
    if(capMatrixWrites)columnCapMesh.instanceMatrix.needsUpdate=true;
   }
   sceneMetrics.clearedCapstones=clearedCapstones;
+  sceneMetrics.screenSpaceClearedFacades=screenSpaceClearedFacades;
   sceneMetrics.matrixWrites.capstone=capMatrixWrites;
   sceneMetrics.clearedWeatheredPieces=weatheringCleared;
   sceneMetrics.matrixWrites.facade=facadeMatrixWrites;
@@ -400,7 +408,8 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
    // Clear only the physical arch wing across a real full-body sightline,
    // even when the source prop's origin is behind the old 2D camera wedge.
    const blocked=obscures(group.position.x,group.position.z,wallPad)||
-    planForegroundBodyClearance(foregroundVolumes[i],eyes,camera);
+    planForegroundBodyClearance(foregroundVolumes[i],eyes,camera)||
+    planProjectedBodyAperture(foregroundVolumes[i],eyes,camera,view);
    group.visible=!blocked;if(blocked)cleared++;
   }
   sceneMetrics.clearedForeground=cleared;
