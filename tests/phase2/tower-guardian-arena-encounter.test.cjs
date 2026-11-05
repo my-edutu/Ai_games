@@ -230,3 +230,70 @@ test('actual 20Hz streamed tower reaches a choice on its guardian gate: an obser
   // This is a source integration/safety check, not full-motion camera,
   // animation, device FPS, blind preference, or a Gauntlet quality PASS.
 });
+
+
+test('real cap guardian keeps a contact-safe attack rhythm between physical melee cooldowns',()=>{
+  const {STREAM_CONFIG}=require('../../scripts/serve-tower-stream.cjs');
+  const runtime=TowerRuntime.create({...STREAM_CONFIG,launchFloor:8},
+    'tower-transformation-capture-v1',{policy:'autonomous'});
+  const s=structuredClone(runtime.state);
+  const cap=s.chunks[0].platforms.find(p=>p.id==='f8:cap');
+  const guardian=s.enemies.find(e=>e.kind==='guardian'&&e.active);
+  const shutter=s.chunks[0].hazards.find(h=>h.id==='f8:guardian-shutter');
+  assert.ok(cap&&guardian&&shutter);
+  s.tick=shutter.activeFromTick+shutter.activeFor+25;
+  s.enemies=[guardian];s.projectiles=[];s.pickups=[];
+  const p=s.player;
+  p.position={x:cap.x+Math.floor(cap.width*.40),
+    y:cap.y+cap.height+p.halfHeight};
+  p.velocity={x:0,y:0};p.facing=1;
+  p.grounded=true;p.groundedPlatformId=cap.id;p.state='standing';
+  guardian.position={x:p.position.x+37000,y:p.position.y};
+  guardian.facing=-1;guardian.telegraphUntilTick=0;guardian.cooldown=25;
+  p.attackCooldown=5;p.abilityCooldown=20;
+  const before=structuredClone(s);
+  const response=chooseTowerAction(s,createTowerObservation(s,{includeHazardWindup:true}));
+  assert.equal(response.intent.mode,'engaging-enemy');
+  assert.equal(response.action.move,-1,
+    'while a melee cooldown runs, make real space before the patrolling boss collides');
+  assert.equal(response.action.attack,false,
+    'spacing is physical retreat, not a simultaneous backward-facing fake hit');
+  assert.deepEqual(s,before,'no authority/patrol mutation or hidden future intent');
+  assert.deepEqual(chooseTowerAction(s,createTowerObservation(s,{includeHazardWindup:true})),
+    response,'repeated same source gives the same combat decision');
+  p.attackCooldown=0;
+  const strike=chooseTowerAction(s,createTowerObservation(s,{includeHazardWindup:true}));
+  assert.equal(strike.action.attack,true,
+    'the real melee opportunity is still spent when its cooldown has finished');
+  assert.equal(strike.action.move,0,
+    'stay facing the observed guardian for an actual collision-checked strike');
+});
+
+test('contact spacing respects cap edges and never modifies the unflagged duel',()=>{
+  const {STREAM_CONFIG}=require('../../scripts/serve-tower-stream.cjs');
+  const runtime=TowerRuntime.create({...STREAM_CONFIG,launchFloor:8},
+    'tower-transformation-capture-v1',{policy:'autonomous'});
+  const s=structuredClone(runtime.state);
+  const cap=s.chunks[0].platforms.find(p=>p.id==='f8:cap');
+  const guardian=s.enemies.find(e=>e.kind==='guardian');
+  const hazard=s.chunks[0].hazards.find(h=>h.id==='f8:guardian-shutter');
+  s.tick=hazard.activeFromTick+hazard.activeFor+25;
+  s.enemies=[guardian];s.projectiles=[];s.pickups=[];
+  const p=s.player;
+  p.position={x:cap.x+p.halfWidth+2000,
+    y:cap.y+cap.height+p.halfHeight};
+  p.velocity={x:0,y:0};p.facing=1;
+  p.grounded=true;p.groundedPlatformId=cap.id;p.state='standing';
+  p.attackCooldown=5;
+  guardian.position={x:p.position.x+37000,y:p.position.y};
+  guardian.telegraphUntilTick=0;guardian.cooldown=25;
+  const obs=createTowerObservation(s,{includeHazardWindup:true});
+  const choice=chooseTowerAction(s,obs);
+  assert.equal(choice.intent.mode,'engaging-enemy');
+  assert.notEqual(choice.action.move,-1,
+    'the cap edge vetoes a backwards fall even while making safe contact space');
+  const noFlag=structuredClone(s);noFlag.config={...s.config,guardianArenaHazards:false};
+  const legacy=chooseTowerAction(noFlag,createTowerObservation(noFlag,{includeHazardWindup:true}));
+  assert.equal(legacy.action.move,0,
+    'existing unflagged live guardian combat must retain its old stationary timing');
+});
