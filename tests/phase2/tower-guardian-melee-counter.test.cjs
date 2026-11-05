@@ -102,12 +102,12 @@ test('historical/unflagged arenas keep old melee and charging truth',()=>{
     assert.ok(!outcome.events.some(e=>e.type==='guardian-windup-interrupted'));
   }
 });
-test('source-timed last-three-tick evasive jump and cooldown still outrank counter melee',()=>{
+test('a safe last-beat earned counter is allowed, but cooldown and unreachable enemies still veto it',()=>{
   const {source}=duel();
   source.enemies[0].telegraphUntilTick=source.tick+2;
   const late=chooseTowerAction(source,createTowerObservation(source));
-  assert.equal(late.action.attack,false);
-  assert.equal(late.action.jump,true);
+  assert.equal(late.action.attack,true,'actual cap counter remains legal during the final two warning ticks');
+  assert.equal(late.action.jump,false,'earned strike cancels the shot without a premature jump');
   const cooling=structuredClone(source);
   cooling.enemies[0].telegraphUntilTick=cooling.tick+5;
   cooling.player.attackCooldown=6;
