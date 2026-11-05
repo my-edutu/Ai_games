@@ -679,6 +679,21 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         }
         desiredTarget.x += focus.x;
         desiredTarget.z += focus.z;
+        // Real Pass167 native 320px pressure tick6 caught an ACTUAL framed
+        // key/lock close-up with a simultaneously published tide-shear jaw
+        // extending to +1.0503 NDC (unchanged safe limit +.95). The gate
+        // camera legitimately outranks an ordinary hazard close-up, but it
+        // must not crop a second already-visible danger on the same stage.
+        // Give the nearby PUBLIC one-cell jaw a small secondary aim within
+        // the genuine key/lock composition. Leave gate-opening choreography,
+        // unknown traps, landscape, manual cameras and AI authority alone.
+        if (keyLockCloseup && !openingGateBeat && publicPressureTrap
+          && aspect >= .35 && aspect < .60
+          && publicPressureTrap.distance <= CELL_SIZE*1.05) {
+          const coexistWeight = Math.min(.21,publicPressureTrap.weight*.45);
+          desiredTarget.x += (publicPressureTrap.x-pose.x)*coexistWeight;
+          desiredTarget.z += (publicPressureTrap.z-pose.z)*coexistWeight;
+        }
         // Actual pass-27 portrait and desktop captures show the arch cut by the
         // tighter key/lock shot. Raise only that truthful encounter's aim,
         // retaining Pip and the physical barrier within the existing frame.
