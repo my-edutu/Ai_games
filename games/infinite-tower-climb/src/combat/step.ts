@@ -2,6 +2,10 @@ import{NamedRng}from'../../../../packages/seeded-rng/src/index';import type{Towe
 // A counter-shot must hit while the source guardian is still winding up.
 // Ten fixed 20Hz ticks give a real punish window; a longer cooldown prevents
 // pulse-spam stun-lock. All timestamps are authoritative, replayable integers.
+// One authoritative speed constant shared by real guardian motion and the
+// live tactical pilot's current-source contact spacing. Historical and
+// opt-in simulations retain the exact same 1,800-unit fixed-step movement.
+export const TOWER_GUARDIAN_PATROL_SPEED=1800;
 const GUARDIAN_COUNTER_STAGGER_TICKS=10;
 const GUARDIAN_COUNTER_RECOVERY_TICKS=18;
 // Live second-wind guardian defense follows *actual* successful HP loss.
@@ -49,7 +53,7 @@ export function stepTowerCombat(input:TowerState,action:TowerAction,rng:NamedRng
       if(overlap(p,enemy))damagePlayer(state,enemy.damage,enemy.id,events);
       continue;
     }
-    const speed=enemy.kind==='guardian'?1800:enemy.kind==='sentinel'?1200:700;enemy.position.x+=enemy.facing*speed;if(enemy.position.x<=enemy.patrolMinX){enemy.position.x=enemy.patrolMinX;enemy.facing=1}else if(enemy.position.x>=enemy.patrolMaxX){enemy.position.x=enemy.patrolMaxX;enemy.facing=-1}const dx=p.position.x-enemy.position.x;if(enemy.kind!=='sentinel'&&Math.abs(dx)<220000){enemy.facing=dx>=0?1:-1;if(enemy.telegraphUntilTick===0&&enemy.cooldown===0){enemy.telegraphUntilTick=state.tick+guardianWindupTicks(state,enemy);
+    const speed=enemy.kind==='guardian'?TOWER_GUARDIAN_PATROL_SPEED:enemy.kind==='sentinel'?1200:700;enemy.position.x+=enemy.facing*speed;if(enemy.position.x<=enemy.patrolMinX){enemy.position.x=enemy.patrolMinX;enemy.facing=1}else if(enemy.position.x>=enemy.patrolMaxX){enemy.position.x=enemy.patrolMaxX;enemy.facing=-1}const dx=p.position.x-enemy.position.x;if(enemy.kind!=='sentinel'&&Math.abs(dx)<220000){enemy.facing=dx>=0?1:-1;if(enemy.telegraphUntilTick===0&&enemy.cooldown===0){enemy.telegraphUntilTick=state.tick+guardianWindupTicks(state,enemy);
         // Capture the ORIGINAL 20Hz source duration at initiation: an HP
         // threshold crossed mid-charge must not retime an ongoing attack.
         if(enemy.kind==='guardian'&&state.config.guardianSecondWind===true)
