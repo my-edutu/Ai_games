@@ -6,7 +6,7 @@ import { SCALE, pointFor, angleFor, guardianGateAnchorX } from './coordinates.mj
 import { snapshotVelocity } from './motion.mjs';
 import { createRenderProgress } from './render-progress.mjs';
 import { createTowerFinale } from './finale.mjs';
-import { observedGuardianPassage, observedUnlockedGuardianCap, createTowerGuardianPassage } from './guardian-passage.mjs';
+import { observedGuardianPassage, observedUnlockedGuardianCap, observedPassageApproach, createTowerGuardianPassage } from './guardian-passage.mjs';
 import { createTowerRouteIntent, witnessedHealthPickup } from './route-intent.mjs';
 import { createTowerLandingApproach } from './landing-approach.mjs';
 import { createTowerMovingDeckSuspension } from './moving-deck-suspension.mjs';
@@ -2875,13 +2875,27 @@ export function createTowerScene(canvas, settings = {}) {
     // passage behind the climber while the follow camera acknowledges the
     // ascent. Do not alter overview or reduced-motion camera conventions.
     const releaseWeight = options.stale || options.reducedMotion ? 0 : passage.cameraWeight();
+    // Keep the SAME continuous follow shot through a genuinely unlocked cap.
+    // The old time-only glance could look away before the climber physically
+    // reached the bronze doorway, particularly in a narrow portrait camera.
+    // Public cap geometry and the REAL current player x decide the lead; no
+    // guessed win, hidden route data or second camera/renderer is involved.
+    const liveExit = !overview && !options.stale &&
+      snapshot.lifecycle === 'running' && p.health > 0
+      ? observedUnlockedGuardianCap(snapshot) : null;
+    const arrivalFraming = liveExit &&
+      passage.diagnostics().stage === 'earned-open'
+      ? observedPassageApproach(snapshot, liveExit) : 0;
     if (!overview && releaseWeight > 0) {
       destination.y += releaseWeight * 1.4;
       focus.y += releaseWeight * .65;
-      // A source-witnessed glance at the released lock keeps the real climber
-      // in view and never replaces the authoritative camera/floor change.
+      // A source-witnessed glance begins as an unobtrusive elevated escort,
+      // then keeps the ACTUAL passage in frame as the actor walks through.
+      // The later live actor-projection rescue vetoes an unsafe crop.
       const releaseFocus = passage.focusPoint();
-      if (releaseFocus) focus.lerp(releaseFocus, Math.min(.18, releaseWeight * .15));
+      if (releaseFocus) focus.lerp(releaseFocus,
+        Math.max(Math.min(.18, releaseWeight * .15),
+          arrivalFraming * (portrait ? .30 : .24)));
     }
     // The authentic result/intermission needs a COMPLETE visual sentence.
     // Frame the climber + the physical source-earned floor-rung memorial, not
@@ -2913,6 +2927,10 @@ export function createTowerScene(canvas, settings = {}) {
     let cameraRate = towerCameraRate(camera.position, destination,
       !overview && !!followComposition?.guardianStaged, overview);
     if (terminalStaged) cameraRate = Math.max(cameraRate, 6.5);
+    // Source-near crossing deserves a responsive continuous lens, but NEVER
+    // alters simulation time or overrides the actor/guardian safety checks.
+    if (arrivalFraming > 0 && !options.reducedMotion)
+      cameraRate = Math.max(cameraRate, 3.8 + arrivalFraming * 2.4);
     if (!overview && !options.reducedMotion && initialized) {
       // Project the real current climber into the camera image from the
       // previous submitted pose. This catches a fast dash, launch or new-floor
