@@ -98,6 +98,50 @@ export function observedGuardianPulseFlight(snapshot) {
   return best;
 }
 
+
+/** Physical enemy-owned projectile coincident with a live guardian corridor.
+ * The snapshot does NOT identify its shooter, so guardianId means a nearby
+ * living combat subject, never proof that the guardian fired the projectile.
+ * Positions and directions are already-observed, not future hit predictions.
+ */
+export function observedNearbyGuardianCrossfire(frame) {
+  const p = frame?.player;
+  if (frame?.stale || frame?.lifecycle !== 'running' ||
+      !Number.isSafeInteger(frame.tick) || frame.tick < 0 ||
+      !Number.isSafeInteger(frame.floor) || frame.floor < 0 ||
+      typeof frame.runToken !== 'string' || !frame.runToken ||
+      !Number.isFinite(frame.worldWidth) || frame.worldWidth <= 0 ||
+      !Number.isFinite(frame.chunkBaseY) || !p || p.health <= 0 ||
+      ![p.x,p.y,p.halfHeight].every(Number.isFinite) || p.halfHeight <= 0 ||
+      !Array.isArray(frame.enemies) || !Array.isArray(frame.projectiles)) return null;
+  let best = null, nearest = Infinity;
+  for (const shot of frame.projectiles) {
+    if (shot?.owner !== 'enemy' || typeof shot.id !== 'string' || !shot.id ||
+        ![shot.x,shot.y,shot.vx,shot.vy].every(Number.isFinite) ||
+        shot.vx === 0 || Math.abs(shot.y-p.y)>p.halfHeight+3500) continue;
+    const remaining=(p.x-shot.x)*Math.sign(shot.vx);
+    if (remaining <= 0 || remaining > 80000) continue;
+    for (const enemy of frame.enemies) {
+      if (enemy?.kind !== 'guardian' || enemy.active !== true ||
+          typeof enemy.id !== 'string' || !enemy.id ||
+          ![enemy.x,enemy.y,enemy.health,enemy.halfHeight].every(Number.isFinite) ||
+          enemy.health <= 0 || enemy.halfHeight <= 0 ||
+          Math.abs(shot.y-enemy.y) > enemy.halfHeight+3500 ||
+          (shot.x-enemy.x)*shot.vx < 0 ||
+          Math.abs(shot.x-enemy.x)>135000 ||
+          Math.abs(p.x-enemy.x)>90000 ||
+          Math.abs(p.y-enemy.y)>p.halfHeight+enemy.halfHeight+3500 ||
+          remaining>=nearest) continue;
+      nearest=remaining;
+      best={runToken:frame.runToken,floor:frame.floor,tick:frame.tick,
+        guardianId:enemy.id,projectileId:shot.id,
+        x:shot.x,y:shot.y,vx:shot.vx,baseY:frame.chunkBaseY,
+        worldWidth:frame.worldWidth,coincidentNotAttributed:true};
+    }
+  }
+  return best;
+}
+
 export function createTowerGuardianShotStage(THREE) {
   const group = new THREE.Group();
   group.name = 'RealGuardianShotWarningStage';
@@ -141,10 +185,13 @@ export function createTowerGuardianShotStage(THREE) {
   pulses.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   group.add(arrows, pulses);
   group.visible = false;
-  let source = null, pulseSource = null, lastKey = '', disposed = false;
+  let source = null, pulseSource = null, liveSource = null, lastKey = '', disposed = false;
+  let warningCount = 0, liveCount = 0;
   function clear() {
     source = null;
     pulseSource = null;
+    liveSource = null;
+    warningCount = 0; liveCount = 0;
     lastKey = '';
     arrows.count = 0;
     pulses.count = 0;
@@ -154,7 +201,8 @@ export function createTowerGuardianShotStage(THREE) {
     if (disposed) return;
     const next = options.stale ? null : observedGuardianShotCorridor(snapshot);
     const flight = options.stale ? null : observedGuardianPulseFlight(snapshot);
-    if (!next && !flight) { clear(); return; }
+    const live = options.stale ? null : observedNearbyGuardianCrossfire(snapshot);
+    if (!next && !flight && !live) { clear(); return; }
     const reduced = options.reducedMotion === true;
     // At close quarters there is not enough physical lane to space eight
     // large vanes: show one substantial warning instead of a flickering
@@ -162,17 +210,22 @@ export function createTowerGuardianShotStage(THREE) {
     const budget = options.quality === 'low' ? 8 : MAX_MARKERS;
     const count = next ? Math.min(budget, Math.max(1,
       Math.floor(next.length / 11500))) : 0;
+    const visibleLive = live ? Math.min(4, budget - count) : 0;
     const pulseCount = flight ? (options.quality === 'low' ? 4 : 6) : 0;
     const key = [next?.runToken, next?.floor, next?.tick, next?.guardianId,
       next?.x, next?.y, next?.playerX, next?.remainingChargeTicks,
       next?.facing, next?.startGap, next?.length, count, reduced,
       flight?.runToken, flight?.floor, flight?.tick, flight?.projectileId,
-      flight?.guardianId, flight?.x, flight?.y, flight?.vx, pulseCount].join(':');
+      flight?.guardianId, flight?.x, flight?.y, flight?.vx, pulseCount,
+      live?.runToken, live?.floor, live?.tick, live?.projectileId,
+      live?.guardianId, live?.x, live?.y, live?.vx, visibleLive].join(':');
     if (key === lastKey) return;
     source = next;
     pulseSource = flight;
+    liveSource = live;
+    warningCount = count; liveCount = visibleLive;
     lastKey = key;
-    arrows.count = count;
+    arrows.count = count + visibleLive;
     const heat = next?.charge ?? 0;
     for (let index = 0; index < count; index++) {
       const t = (index + .5) / count;
@@ -198,7 +251,29 @@ export function createTowerGuardianShotStage(THREE) {
       color.copy(warm).lerp(urgent, heat);
       arrows.setColorAt(index, color);
     }
-    if (count) {
+    if (visibleLive) {
+      // Reuse the EXISTING single instanced metal draw for the present hostile
+      // shot's already-travelled one-tick trail; no extra passes or future hit.
+      const travelled = Math.min(14500, Math.abs(live.vx));
+      const sign = Math.sign(live.vx);
+      for (let index = 0; index < visibleLive; index++) {
+        const x = clamp(live.x - sign * travelled * (index+.5)/visibleLive,
+          0, live.worldWidth);
+        const xAhead = clamp(x+sign*1600,0,live.worldWidth);
+        const here=pointFor(x,live.y,live.baseY,live.worldWidth,27.82);
+        const ahead=pointFor(xAhead,live.y,live.baseY,live.worldWidth,27.82);
+        pose.position.set(here.x,here.y+.12,here.z);
+        direction.set(ahead.x-here.x,0,ahead.z-here.z);
+        if(direction.lengthSq()>1e-8)
+          pose.quaternion.setFromUnitVectors(along,direction.normalize());
+        else pose.quaternion.identity();
+        pose.scale.setScalar(.76-index*.11);
+        pose.updateMatrix();
+        arrows.setMatrixAt(count+index,pose.matrix);
+        arrows.setColorAt(count+index,color.set(0xff9668));
+      }
+    }
+    if (count || visibleLive) {
       arrows.instanceMatrix.needsUpdate = true;
       if (arrows.instanceColor) arrows.instanceColor.needsUpdate = true;
     }
@@ -231,6 +306,11 @@ export function createTowerGuardianShotStage(THREE) {
       (source.startGap + source.length * .45), 0, source.worldWidth);
     return pointFor(x, source.y, source.baseY, source.worldWidth, 27.75);
   }
+  function liveHostileFocusPoint() {
+    if (!group.visible || !liveSource) return null;
+    return pointFor(liveSource.x,liveSource.y,liveSource.baseY,
+      liveSource.worldWidth,27.82);
+  }
   function pulseFocusPoint() {
     if (!group.visible || !pulseSource) return null;
     return pointFor(pulseSource.x, pulseSource.y, pulseSource.baseY,
@@ -242,7 +322,12 @@ export function createTowerGuardianShotStage(THREE) {
       runToken: source?.runToken ?? null, floor: source?.floor ?? null,
       tick: source?.tick ?? null, guardianId: source?.guardianId ?? null,
       remainingChargeTicks: source?.remainingChargeTicks ?? null,
-      facing: source?.facing ?? null, markerCount: group.visible ? arrows.count : 0,
+      facing: source?.facing ?? null, markerCount: group.visible ? warningCount : 0,
+      liveHostileBoltId: liveSource?.projectileId ?? null,
+      liveHostileGuardianId: liveSource?.guardianId ?? null,
+      liveHostileSourceTick: liveSource?.tick ?? null,
+      liveHostileMarkerCount: group.visible ? liveCount : 0,
+      liveHostileCoincidentNotAttributed: !!liveSource,
       presentLaneLength: source?.length ?? null, startGap: source?.startGap ?? null,
       pulseGuardianId: pulseSource?.guardianId ?? null,
       witnessedPlayerProjectileId: pulseSource?.projectileId ?? null,
@@ -262,5 +347,6 @@ export function createTowerGuardianShotStage(THREE) {
     pulseGeometry.dispose();
     pulseMaterial.dispose();
   }
-  return { group, update, clear, focusPoint, pulseFocusPoint, diagnostics, dispose };
+  return { group, update, clear, focusPoint, pulseFocusPoint,
+    liveHostileFocusPoint, diagnostics, dispose };
 }

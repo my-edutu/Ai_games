@@ -1022,7 +1022,7 @@ function observedSourceLandingX(snapshot, deck) {
 // Fit a small local encounter, preserving the hero's 18%-high baseline whenever
 // the actual route fits. A long portrait crossing may require a wider view;
 // that tradeoff is preferable to cropping the real destination or opponent.
-function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previousGuardianLean = null, threatenedGuardianId = null, threatenedShotPoint = null, rangedGuardianId = null, actualPulsePoint = null) {
+function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previousGuardianLean = null, threatenedGuardianId = null, threatenedShotPoint = null, rangedGuardianId = null, actualPulsePoint = null, liveGuardianId = null, liveShotPoint = null) {
   const player = snapshot.player, height = player.halfHeight * 2 / SCALE;
   const heroAngle = angleFor(player.x, snapshot.worldWidth);
   const body = { x: hero.x, y: hero.y + height * .52, z: hero.z };
@@ -1084,9 +1084,16 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
           // A live mid-air shot deserves a physical two-body frame only when
           // nearby. The real landing must remain the first aerial objective.
           (player.state === 'airborne' && dx <= 90000));
-      const activeContact = (player.state !== 'airborne' || witnessedAirShot || witnessedRangedDuel) &&
+      // True in-flight enemy-owned bolt keeps the adjacent living guardian in
+      // this continuous 3D encounter. Shooter ID is unavailable: coincidence
+      // does not claim this guardian fired it, and landing remains protected.
+      const witnessedLiveCrossfire = enemy.id === liveGuardianId &&
+        !!liveShotPoint && dx <= 90000 &&
+        Math.abs(player.y-enemy.y) <= player.halfHeight+enemy.halfHeight+3500;
+      const activeContact = (player.state !== 'airborne' || witnessedAirShot ||
+        witnessedRangedDuel || witnessedLiveCrossfire) &&
         (approachingLockedGate || healthRatio < 1 || enemy.telegraph ||
-        witnessedAirShot || witnessedRangedDuel || player.attacking ||
+        witnessedAirShot || witnessedRangedDuel || witnessedLiveCrossfire || player.attacking ||
         ['engaging-enemy', 'bracing-telegraph', 'evading-telegraph'].includes(snapshot.intent?.mode));
       if (!activeContact || dx > (witnessedRangedDuel ? 135000 : 90000) ||
           dy > 60000) continue;
@@ -1157,7 +1164,8 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
   // encounter or a different source guardian's projectile.
   const shotFocus = contactGuardian && threatenedGuardianId === contactGuardian.guardianId
     ? threatenedShotPoint : contactGuardian &&
-      rangedGuardianId === contactGuardian.guardianId ? actualPulsePoint : null;
+      rangedGuardianId === contactGuardian.guardianId ? actualPulsePoint :
+      contactGuardian && liveGuardianId === contactGuardian.guardianId ? liveShotPoint : null;
   const gatePoints = lockStage
     ? [lockStage.center, ...lockStage.bolts.slice(2, 6)] : [];
   const center = { ...body };
@@ -1321,7 +1329,8 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
   if (contactGuardian && routeLanding && player.state === 'airborne' &&
       best.heroFraction < .15 &&
       (contactGuardian.guardianId === rangedGuardianId ||
-       contactGuardian.guardianId === threatenedGuardianId)) {
+       contactGuardian.guardianId === threatenedGuardianId ||
+       contactGuardian.guardianId === liveGuardianId)) {
     const normalCenter = { ...center };
     center.x = lerp(body.x, contactGuardian.x, .48);
     center.y = lerp(body.y, contactGuardian.y, .48);
@@ -2576,7 +2585,9 @@ export function createTowerScene(canvas, settings = {}) {
         !options.stale && guardianWarning.visible ? guardianShotStage.focusPoint() : null,
         !options.stale ? guardianWarning.pulseGuardianId : null,
         !options.stale && typeof guardianShotStage.pulseFocusPoint === 'function'
-          ? guardianShotStage.pulseFocusPoint() : null);
+          ? guardianShotStage.pulseFocusPoint() : null,
+        !options.stale ? guardianWarning.liveHostileGuardianId : null,
+        !options.stale ? guardianShotStage.liveHostileFocusPoint() : null);
     guardianShotLean = !options.stale && followComposition?.guardianStaged
       ? followComposition.lean : null;
     const viewPosition = initialized ? camera.position : followComposition?.position || camera.position;
