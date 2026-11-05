@@ -273,7 +273,8 @@ export function createTowerGuardianPassage(THREE) {
   const defeatFocus = new THREE.Vector3();
   const clampUnit = v => Math.max(0, Math.min(1, v));
   function updateInlaySourceProgress(source, earned) {
-    if (!capInlay.visible || source.tick <= inlaySourceTick) return;
+    if (!capInlay.visible || source.tick <= inlaySourceTick ||
+      !Number.isFinite(source.player?.x)) return;
     const cap = earned.cap;
     const fromX = cap.x + cap.width * .38;
     const exitX = cap.x + Math.floor(cap.width * .76);
@@ -311,8 +312,10 @@ export function createTowerGuardianPassage(THREE) {
       inlayPose.scale.set(.68,.07,.47);
       inlayPose.updateMatrix();
       capInlay.setMatrixAt(i,inlayPose.matrix);
+      capInlay.setColorAt(i,inlayUnlit);
     }
     capInlay.instanceMatrix.needsUpdate=true;
+    if (capInlay.instanceColor) capInlay.instanceColor.needsUpdate=true;
     updateInlaySourceProgress(source,earned);
   }
   function poseFragments(seconds, still) {
