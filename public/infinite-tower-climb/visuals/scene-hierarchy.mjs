@@ -7,6 +7,7 @@ import { observedNearbyGuardianCrossfire } from './guardian-shot-stage.mjs';
 const QUIET = Object.freeze({ kind: 'ascent', focus: 0 });
 const TERMINAL = Object.freeze({ kind: 'terminal', focus: .86 });
 const GUARDIAN = Object.freeze({ kind: 'guardian', focus: 1 });
+const RELEASE = Object.freeze({ kind: 'guardian-release', focus: .93 });
 const DANGER = Object.freeze({ kind: 'hazard', focus: .82 });
 const CROSSFIRE = Object.freeze({ kind: 'crossfire', focus: 1 });
 const finite = (...values) => values.every(Number.isFinite);
@@ -72,11 +73,22 @@ export function observedSceneHierarchy(source) {
   const combat = combatModes.has(mode) || actor.attacking === true;
   const contact = observedImmediateTrap(source);
   for (const enemy of source.enemies || []) {
-    if (enemy?.kind !== 'guardian' || enemy.active !== true ||
+    if (enemy?.kind !== 'guardian' ||
         !finite(enemy.x, enemy.y, enemy.health, enemy.maxHealth) ||
-        enemy.health <= 0 || enemy.maxHealth <= 0 ||
+        enemy.maxHealth <= 0 ||
         Math.abs(enemy.x - actor.x) > 135000 ||
         Math.abs(enemy.y - actor.y) > 65000) continue;
+    // After the REAL source guardian dies, the player still has to traverse
+    // its unlocked cap. Do not let foreground machinery suddenly become
+    // opaque at the decisive visual beat. No fabricated victory: require
+    // inactive zero HP AND the source's actual same-floor upper-cap deck.
+    // An urgent surviving crusher still owns the danger visual hierarchy.
+    if (enemy.active === false && enemy.health <= 0 &&
+        source.platforms?.some(p => p?.id === `f${source.floor}:cap` &&
+          finite(p.x, p.y, p.width, p.height) &&
+          p.width > 0 && p.height > 0))
+      return contact ? DANGER : RELEASE;
+    if (enemy.active !== true || enemy.health <= 0) continue;
     // No generic guardian suppression from a far-away, untouched boss.
     if (enemy.telegraph === true || enemy.guardTicksRemaining > 0 ||
         enemy.health < enemy.maxHealth || combat) return contact ? CROSSFIRE : GUARDIAN;
