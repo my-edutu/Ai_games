@@ -14,7 +14,8 @@ const out={kind:'source-only-guardian-campaign',quality:'NOT EVALUATED',
   sourceGuardianShieldBlocks:0,healthDepleted:0,otherOutcomes:0,
   guardianBodyDamage:0,guardianProjectileDamage:0,shutterDamage:0,
   otherDamage:0,guardianBodyHitEvents:0,guardianProjectileHitEvents:0,
-  capTicks:0,guardianMinimumHp:null,sourceShutterWarningTicks:0,
+  capTicks:0,sourceGuardianShieldVaults:0,
+  guardianMinimumHp:null,sourceShutterWarningTicks:0,
   sourceCloseCrossfireTicks:0};
 for(let i=0;i<out.steps;i++){
   const before=run.state;
@@ -49,6 +50,12 @@ for(let i=0;i<out.steps;i++){
     }
   }
   run.step();
+  // Only count legitimate SOURCE grounded -> airborne jumps actually chosen
+  // during the living shield-phase duel. This is diagnostic instrumentation,
+  // neither a rendered-frame assertion nor an experience-quality score.
+  if(before.player.grounded&&run.state.ai.mode==='bracing-guardian-shield'&&
+    !run.state.player.grounded&&run.state.stats.jumps>before.stats.jumps)
+    out.sourceGuardianShieldVaults++;
   for(const e of run.drainEvents()){
     if(e.type==='enemy-defeated'&&e.data?.kind==='guardian')out.guardianDefeats++;
     if(e.type==='melee-hit'){out.sourceMeleeHits++;if(e.data?.coreBonus)out.sourceCoreHits++;}

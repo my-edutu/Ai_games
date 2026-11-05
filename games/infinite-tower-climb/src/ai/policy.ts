@@ -560,7 +560,29 @@ function observedGuardianGuardSpacing(state:TowerState,obs:TowerObservation,
     if(obs.hazards.some(h=>h.active&&h.x<x1&&h.x+h.width>x0&&
       h.y<y1&&h.y+h.height>y0))move=0;
   }
-  return {move,guardTicks:guard,closing:counterstep&&move===toward};
+  // When a living second-wind guardian corners the climber while its armor
+  // is visibly raised, the ground controller sometimes has NO real lateral
+  // escape: moving away would leave the source cap. Waiting would invite a
+  // repeated body collision. Spend an ordinary, source-legal grounded jump
+  // instead. Its full ballistic arc, contact, next-tick air steering and 3D
+  // pose are still decided by the existing authoritative game. This is NOT
+  // an invulnerable dodge or a scripted guardian defeat.
+  // Only the opt-in cap uses this rhythm; historical policy and ordinary
+  // wide-deck shield spacing do not acquire any new jump.
+  const cornered=capArena&&deck.id===`f${obs.floor}:cap`&&
+    wanted===away&&move!==away&&guardedEvasion(state,obs,0)===0&&
+    gap<=contactGap+TOWER_GUARDIAN_PATROL_SPEED*6&&guard>=6;
+  const feet=p.position.y-state.player.halfHeight;
+  const head=p.position.y+state.player.halfHeight;
+  const launchBlocked=cornered&&obs.hazards.some(h=>
+    h.x<p.position.x+state.player.halfWidth+2500&&
+    h.x+h.width>p.position.x-state.player.halfWidth-2500&&
+    h.y<head&&h.y+h.height>feet&&
+    (h.active||((h.chargeTicksRemaining??0)>0&&
+      (h.chargeTicksRemaining??0)<=6)));
+  const vault=cornered&&!launchBlocked;
+  return {move:vault?0:move,jump:vault,guardTicks:guard,
+    closing:counterstep&&move===toward};
 }
 // Tactical v2 is the live policy. Historical v1 is retained for pinned replay
 // evidence; it is never silently substituted into a new live expedition.
@@ -719,9 +741,9 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
       (e.guardTicksRemaining??0)>0):undefined;
   const shieldSpace=guardedGuardian
     ?observedGuardianGuardSpacing(state,observation,guardedGuardian):null;
-  if(shieldSpace)return{action:action(shieldSpace.move),
+  if(shieldSpace)return{action:action(shieldSpace.move,{jump:shieldSpace.jump}),
     intent:{mode:'bracing-guardian-shield',
-      summary:shieldSpace.closing?'Counterstepping toward the observed shield opening':
+      summary:shieldSpace.jump?'Vaulting from a real cornered guardian shield':shieldSpace.closing?'Counterstepping toward the observed shield opening':
         shieldSpace.move!==0?'Making room for the observed guardian shield':
         'Holding safe footing until the observed guardian shield opens',
       confidence:.95,fallbackUsed:false,
