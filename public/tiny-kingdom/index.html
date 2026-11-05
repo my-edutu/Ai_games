@@ -906,6 +906,48 @@ const CAMERA_DYNAMIC_FLOAT_BUDGET=960000;
 let cameraDynamicCache=null,cameraDynamicKey='',cameraDynamicBuilds=0,
  cameraDynamicReuses=0,cameraDynamicSkippedUploads=0;
 let liveMotionCacheBuilds=0,liveMotionCacheReuses=0;
+// W69: one reusable WebGL numeric vertex stream for the entire REAL moving
+// village. The former path allocated another ~0.8–1M-element JS Array on
+// almost every simulation step, then promoted it into a GPU staging buffer.
+// A camera-only redraw still reuses the exact existing cached mesh above;
+// an advancing world resets and refills this bounded scratch Array in place.
+// It never drops or reorders citizens, jobs, cargo or geometry. No snapshots.
+let dynamicVertexScratch=null,dynamicVertexPoolAllocations=0;
+let dynamicVertexPoolReusedBuilds=0,dynamicVertexOverBudgetReleases=0;
+let dynamicVertexPeakFloats=0;
+function acquireDynamicVertexStream(){
+ if(!dynamicVertexScratch){
+  dynamicVertexScratch=[];
+  dynamicVertexPoolAllocations++;
+ }else dynamicVertexPoolReusedBuilds++;
+ // Old cached geometry is invalid whenever this function is called.
+ // Avoid churning an enormous JS Array on every authoritative tick.
+ dynamicVertexScratch.length=0;
+ return dynamicVertexScratch;
+}
+function finishDynamicVertexStream(){
+ if(!gpuAvailable||data!==dynamicVertexScratch)return;
+ dynamicVertexPeakFloats=Math.max(dynamicVertexPeakFloats,data.length);
+ if(data.length>CAMERA_DYNAMIC_FLOAT_BUDGET){
+  // Do not retain a pathological world beyond the existing cache budget.
+  // The CURRENT geometry still renders; only the next frame reallocates.
+  dynamicVertexScratch=null;
+  dynamicVertexOverBudgetReleases++;
+ }
+}
+function getDynamicVertexPoolAudit(){
+ return {
+  kind:'bounded-reusable-world-vertices',allocations:dynamicVertexPoolAllocations,
+  reusedBuilds:dynamicVertexPoolReusedBuilds,
+  maxLiveArrays:dynamicVertexScratch?1:0,
+  currentFloats:dynamicVertexScratch?.length||0,
+  peakFloats:dynamicVertexPeakFloats,
+  budgetFloats:CAMERA_DYNAMIC_FLOAT_BUDGET,
+  overBudgetReleases:dynamicVertexOverBudgetReleases,
+  authorityChanged:false,
+  method:'repopulate original animated mesh in one bounded JS Array; no lost actors'
+ };
+}
 function getCameraDynamicCacheStats(){
  return {entries:cameraDynamicCache?1:0,
   cachedFloats:cameraDynamicCache?.length||0,
@@ -929,7 +971,7 @@ function getEllipsoidShellAudit(){
 // G069: fixed-size CPU phase timings for actual presented frames, not fake GPU
 // timestamps. Sampling never touches authoritative state or named RNG streams.
 const FRAME_PROFILE_LIMIT=48,frameProfileSamples=[];
-const FRAME_PROFILE_KEYS=['simulationAndSky','staticGeometry','dynamicGeometry','drawSubmission','total'];
+const FRAME_PROFILE_KEYS=['simulationAndSky','staticGeometry','dynamicGeometry','drawSubmission','total','worksiteGeometry','householdGeometry','economyGeometry','ambientGeometry','citizenGeometry','weatherGeometry','gpuUpload'];
 let frameProfileCount=0;
 function getFrameProfile(){
  const stages={};
@@ -12497,6 +12539,10 @@ for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,
 
 }
 const frameDynamicStart=performance.now();
+const dynamicPhaseTimes={
+ worksiteGeometry:0,householdGeometry:0,economyGeometry:0,
+ ambientGeometry:0,citizenGeometry:0,weatherGeometry:0,gpuUpload:0
+};
 const detailPlan=selectVisibleCitizenDetail(),nearPeople=detailPlan.indices;
 // W14 Living Valley motion architecture: camera frames outnumber simulation
 // ticks on capable GPUs. Rebuild articulated citizens, actual carts, labor
@@ -12523,22 +12569,29 @@ if(cameraMeshReused){
  if(!frozen&&speed>0)liveMotionCacheReuses++;
 }else{
  if(candidateCameraDynamicKey&&!frozen&&speed>0)liveMotionCacheBuilds++;
- data=gpuAvailable?[]:scenicMeshCache.slice();
+ data=gpuAvailable?acquireDynamicVertexStream():scenicMeshCache.slice();
 directionalCastShadows(state.t);
 workdayRenderStats.animatedTools=0;
+const worksiteGeometryStart=performance.now();
 renderWorkdayTraces();
 renderOccupiedForgeYard();
 renderRealCourierWheelTrails();
 renderCompletedHarvestWitnesses();
+dynamicPhaseTimes.worksiteGeometry=performance.now()-worksiteGeometryStart;
+const householdGeometryStart=performance.now();
 renderOccupiedHearths();
 renderHouseholdThresholds();
 renderCottageHomecomingDoors();
+dynamicPhaseTimes.householdGeometry=performance.now()-householdGeometryStart;
+const economyGeometryStart=performance.now();
 renderMarketStock();
 renderGranaryStores();
 renderMarketOperatingShutters();
 renderDeliveryReceipts();
 renderMarketHandoffs();
 renderObservedWorkLight(observedWorkLightProfile());
+dynamicPhaseTimes.economyGeometry=performance.now()-economyGeometryStart;
+const ambientGeometryStart=performance.now();
 currentMaterial=MATERIAL.FOLIAGE;
 windmill(-27,-18,state.t);forgeSmoke(state.t);
 activeChimneys=0;smokePuffs=0;smokeTriangles=0;smokeMaxRadius=0;
@@ -12576,14 +12629,20 @@ villageVisualLod.detailedCitizens=0;villageVisualLod.compactCitizens=0;
  compactCitizenAnimation.lastWorksiteWorkers=0;
  compactCitizenAnimation.lastAnimatedCartWheels=0;
  compactCitizenAnimation.roleCounts={};
+dynamicPhaseTimes.ambientGeometry=performance.now()-ambientGeometryStart;
 villageVisualLod.compactFacingCount=0;villageVisualLod.compactTurnedCitizens=0;villageVisualLod.compactFacingVertexError=0;
  villageClothStats={compactResidents:0,detailedResidents:0,compactHemPanels:0,
   workAprons:0,geometryTriangles:0,roles:new Set()};
+const citizenGeometryStart=performance.now();
 for(let i=0;i<people.length;i++){
  if(nearPeople.has(i)){villager(people[i]);villageVisualLod.detailedCitizens++}
  else{compactVillager(people[i]);villageVisualLod.compactCitizens++}
 }
+dynamicPhaseTimes.citizenGeometry=performance.now()-citizenGeometryStart;
+const weatherGeometryStart=performance.now();
 currentMaterial=MATERIAL.GENERAL;weatherParticles(atmosphere);
+dynamicPhaseTimes.weatherGeometry=performance.now()-weatherGeometryStart;
+finishDynamicVertexStream();
 if(candidateCameraDynamicKey&&data.length<=CAMERA_DYNAMIC_FLOAT_BUDGET){
  cameraDynamicCache=data;cameraDynamicKey=candidateCameraDynamicKey;
  cameraDynamicBuilds++;
@@ -12647,6 +12706,7 @@ if(gpuAvailable){
   solarShadowGpuDrawCalls++;
  }
 }
+const gpuUploadStart=performance.now();
 bindGeometry(buffer);
 if(gpuAvailable){
  if(!cameraMeshReused&&data.length){
@@ -12665,11 +12725,13 @@ if(gpuAvailable){
  // The no-WebGL Canvas2D fallback consumes a real typed vertex array.
  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);
 }
+dynamicPhaseTimes.gpuUpload=performance.now()-gpuUploadStart;
 gl.drawArrays(gl.TRIANGLES,0,data.length/10);refreshPickedCitizenCaption();if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal();updateWorldRibbon()}
  // These are synchronous CPU wall phases and may include WebGL driver stalls;
  // they are not GPU elapsed queries, frame presentation timestamps or FPS.
  const frameProfileEnd=performance.now();
  frameProfileSamples.push({
+  ...dynamicPhaseTimes,
   simulationAndSky:Math.max(0,frameStaticStart-frameProfileStart),
   staticGeometry:Math.max(0,frameDynamicStart-frameStaticStart),
   dynamicGeometry:Math.max(0,frameSubmitStart-frameDynamicStart),
@@ -12701,7 +12763,7 @@ getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStr
  totalCulledTriangles:scenicVisibilityStats.totalCulledTriangles,
  totalDrawCalls:scenicVisibilityStats.totalDrawCalls,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable}),getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,renderQuality,setRenderQuality,getFrameProfile,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCameraDynamicCacheStats,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable}),getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,renderQuality,setRenderQuality,getFrameProfile,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getDynamicVertexPoolAudit,getCameraDynamicCacheStats,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
  if(streetWalk)setStreetWalk(false);
 if(follow)setCitizenFollow(false);cinematic=false;document.getElementById('camera').classList.remove('active');
 yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2&&o.focus.every(Number.isFinite))focusPoint=o.focus.slice(0,2)}};
