@@ -107,3 +107,33 @@ test('real 3D biome weather yields to source danger, clears on stale and keeps o
     assert.equal(mesh.count, 0);
   } finally { fx.dispose(); }
 });
+
+
+test('real same-floor guardian death keeps clockwork sightlines and hazard hierarchy legible', async () => {
+  const { observedSceneHierarchy: observe } = await sourceModule;
+  const base = frame(), body = guardian(), cap = {
+    id: 'f5:cap', x: 170000, y: 1340000, width: 180000, height: 12000,
+  };
+  const released = Object.freeze({
+    ...base, player: Object.freeze({ ...base.player, halfWidth: 10000,
+      halfHeight: 16000 }),
+    enemies: Object.freeze([Object.freeze({ ...body, active: false, health: 0 })]),
+    platforms: Object.freeze([Object.freeze(cap)]),
+  });
+  const unchanged = JSON.stringify(released);
+  assert.deepEqual(observe(released), { kind: 'guardian-release', focus: .93 },
+    'the physical body and authentic cap must remain visible through its earned doorway');
+  assert.equal(JSON.stringify(released), unchanged, 'the scene director cannot edit replay');
+  assert.deepEqual(observe({ ...released, enemies: [{ ...body, active: true, health: 0 }] }),
+    { kind: 'ascent', focus: 0 }, 'an invalid still-active zero-HP boss is not a victory');
+  assert.deepEqual(observe({ ...released, platforms: [] }), { kind: 'ascent', focus: 0 },
+    'the victory emphasis needs the real source floor cap');
+  assert.deepEqual(observe({ ...released, enemies: [{ ...body, active: false,
+    health: 0, x: 8000 }] }), { kind: 'ascent', focus: 0 },
+    'a remote defeated boss may not darken routine ascent');
+  assert.deepEqual(observe({ ...released, hazards: [shutter()] }),
+    { kind: 'hazard', focus: .82 }, 'immediate true crusher remains legible after defeat');
+  assert.deepEqual(observe({ ...released, stale: true }), { kind: 'ascent', focus: 0 });
+  assert.deepEqual(observe({ ...released, floor: 6, enemies: [], platforms: [] }),
+    { kind: 'ascent', focus: 0 }, 'new floor is never declared an ongoing victory');
+});
