@@ -872,14 +872,14 @@ export function createWorld(THREE, {width, height}) {
     const leafShadow=.5+.5*Math.sin(nx*13.1-nz*7.7+
       Math.sin(nz*8.3+nx*2.6)*1.7);
     const wetShade=.55+.45*leafShadow;
-    const rootedR=.265+.082*brokenLeaves+.031*leafShadow;
-    const rootedG=.492+.109*brokenLeaves+.040*wetShade;
-    const rootedB=.242+.067*brokenLeaves+.056*(1-leafShadow);
+    const rootedR=.205+.058*brokenLeaves+.025*leafShadow;
+    const rootedG=.532+.083*brokenLeaves+.022*wetShade;
+    const rootedB=.234+.045*brokenLeaves+.038*(1-leafShadow);
     const floor=sampleForestFloorMaterials((x+.5)/width,(z+.5)/height,ecotone);
     // The existing real 3D stone vertices and once-baked map now agree on
     // mineral limestone, shaded moss, and two warm fallen-leaf woodland basins.
     // No new draw material, geometry, shader, collision or gameplay waypoint.
-    const leafFall=forestBlend*floor.leafLitter*.91;
+    const leafFall=forestBlend*floor.leafLitter*.64;
     const limestoneLift=floor.limestone*.055*(1-ecotone.sunstone*.89);
     color.r=(color.r*(1-forestBlend)+rootedR*forestBlend)*(1-leafFall)
       +(.58+brokenLeaves*.07)*leafFall+limestoneLift;

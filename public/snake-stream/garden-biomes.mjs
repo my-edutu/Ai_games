@@ -104,5 +104,15 @@ export function sampleForestFloorMaterials(u,v,ecotone){
     *(1-leafLitter*.78));
   const limestone=clamp(Math.max(ecotone.limestone,
     (1-forest)*.5)*(1-.23*mossCanopy));
-  return {leafLitter,mossCanopy,limestone};
+  // The outer coastal forest is a genuine continuous place, rather than
+  // an equally green grid across the entire traversable court. A broad,
+  // softly warped shoulder roots all four shores back into the old ruins;
+  // the two interior leaf-fall basins and exposed sunstone remain distinct.
+  // This same immutable geography is consumed by physical slab vertices,
+  // the original albedo and the low-relief planted riverbanks.
+  const distance=Math.min(u,1-u,v,1-v);
+  const shoreWarp=.023*Math.sin(x*8.2+z*3.7)+.017*Math.sin(z*11.1-x*2.4);
+  const coastalCanopy=clamp((1-smooth(.045,.215,distance+shoreWarp))
+    *smooth(.30,.71,forest)*(1-sunstone*.99));
+  return {leafLitter,mossCanopy,limestone,coastalCanopy};
 }

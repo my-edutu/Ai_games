@@ -314,6 +314,21 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
       data[i] = Math.max(0,Math.round(data[i]*(1-forestBedding)+bedR*forestBedding));
       data[i+1] = Math.max(0,Math.round(data[i+1]*(1-forestBedding)+bedG*forestBedding));
       data[i+2] = Math.max(0,Math.round(data[i+2]*(1-forestBedding)+bedB*forestBedding));
+      // T1 native linked coast: soften the real atlas into a continuous
+      // low-value moss-and-loam collar all around the original playing court.
+      // It connects the planted bank colours to the actual forest rim,
+      // without covering the weathered limestone heart, warming glades,
+      // true game cues or adding a second texture/draw. All values are baked.
+      const coastalShade = floor.coastalCanopy * (.88+.08*watershed)
+        * (1-ecotone.sunstone*.99);
+      if (coastalShade>0) {
+        const shoreR=61+grainMoss*.65+leafFall*10;
+        const shoreG=115+grainMoss*.43+leafFall*4;
+        const shoreB=60+grainMoss*.49;
+        data[i]=Math.round(data[i]*(1-coastalShade)+shoreR*coastalShade);
+        data[i+1]=Math.round(data[i+1]*(1-coastalShade)+shoreG*coastalShade);
+        data[i+2]=Math.round(data[i+2]*(1-coastalShade)+shoreB*coastalShade);
+      }
       // Keep the original engraved sundial's actual carved rings and natural
       // grain. A true open central rock is essential for honest food/portal
       // contrast; its no-glow mineral material never changes gameplay truth.
