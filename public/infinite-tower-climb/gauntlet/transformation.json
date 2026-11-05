@@ -10,19 +10,19 @@
   "candidate": {
     "sha": null,
     "title": "SAME unfinished guardian-cap transformation: genuine attack/space/escape decisions, cinematic 3D scene and source-true result/restart — quality NOT EVALUATED",
-    "implementationSha": "12bed170f40d1313eaca5240ae1821b99e07e8c8",
-    "implementationEvidenceStatus": "REAL 57d5b547 candidate native danger full-motion recorded run 41939822623 SUCCESS 9/9, but source confirms zero guardian defeats in inspected first 2200 ticks per layout, lowest guardian HP 4/8, no source-matched 3D crossfire witnesses. New 12bed170 live melee cooldown envelope plus d489f6f source safety checks committed; new real footage and final CI not yet complete. No independent reviews, supported-device frame-time/memory, full A/B or quality PASS."
+    "implementationSha": "43f9b75e031b2ddc13185be750023b19424480d0",
+    "implementationEvidenceStatus": "2026-11-05: original 57d5 candidate real-game run 41939822623 reported no guardian kills/first 2200 ticks and repeated health-depleted outcomes; source-pinned prior 12bed capture 41943534848 SUCCESS (9/9 capture jobs), but NOT independently reviewed for guardian win. New opt-in full-HP windup melee counter + earned successful-hit guardian stagger at 43f9b75 committed; current 43f9 candidate capture 41950383062 QUEUED, technical 41950383204 QUEUED, source 41950383104 QUEUED. No real 43f9 video inspected, no event-matched A/B, no blind votes or supported-device performance. NOT EVALUATED."
   },
   "currentTransformation": {
     "title": "SAME 3D tower ascent and readable, winnable physical guardian-cap duel: installed crusher, real body-aware escape and authentic strike/spacing/recovery",
-    "state": "OPEN — SAME transformation, source-authentic 3D cap duel. Native pre-change 3c evidence found 15/15 real completed danger lives ending health-depleted without guardian defeat. Current 39c/57d tactical source changes have NO completed exact-source gameplay/independent quality comparison. NOT EVALUATED.",
+    "state": "OPEN — same guardian-cap playable transformation. Prior candidate films showed repeated terminal deaths before defeating guardian. New opt-in legitimate melee windup → source-stagger → existing 3D/audio response is committed at 43f9b75 but NOT yet visually or independently validated. NOT EVALUATED.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Inspect active exact-source 57d gameplay capture and current-head CI; determine real guardian defeat vs repeat deaths, safe contact lanes, actual source-to-render crossfire, full outcome/restart on desktop+portrait. Pre-change complete 3c run 41937330552 has genuine films but 15/15 health-depleted completed lives. Preserve frozen 1731 baseline, don't award a quality vote without five independent fresh-context full-motion blind critics and supported-device data.",
+    "nextDecision": "Review exact 43f9b75 native desktop/portrait candidate capture 41950383062 and technical safety run 41950383204. Source-check legal melee interrupts, guardian defeats and progression to floor 9 over declared seeds and inspect continuous source-matched 60s danger/outcome/restarters against frozen 1731b380. Do not conflate capture success with a blind experience win; obtain five independent critics in each LOOKS/FEELS/PLAYS and real hardware performance.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Actual original-source browser 3c normal-speed danger films and fixed-step trace show 7/7 desktop plus 8/8 portrait completed lives ending health-depleted and no guardian clear. New real-body-aware escape and strike/space AI still need exact-source real 60s matched before/after review to prove winnable, readable full guardian+shutter encounter and genuine outcome/restart at 960×600 & 390×844. Independent five blind critics per pillar (>=4/5), supported-device p50/p95/p99/memory, replay/accessibility and latest CI unresolved. NOT EVALUATED.",
-    "unverifiedImplementationBranchHead": "57d5b5470f99cd364f0bf482531850da8039bf13",
-    "currentVerticalSlice": "One coherent real playable 3D guardian-cap encounter: real guardian and shutter on cap; source-timed installed shutter and environment; deterministic body-aware actual exit choice; real melee cooldown contact-space counterplay; existing camera, lighting, sound, animations, compact HUD, honest outcome and restart. Full experience not yet validated.",
-    "biggestGap": "Actual original-source browser 3c normal-speed danger films and fixed-step trace show 7/7 desktop plus 8/8 portrait completed lives ending health-depleted and no guardian clear. New real-body-aware escape and strike/space AI still need exact-source real 60s matched before/after review to prove winnable, readable full guardian+shutter encounter and genuine outcome/restart at 960×600 & 390×844. Independent five blind critics per pillar (>=4/5), supported-device p50/p95/p99/memory, replay/accessibility and latest CI unresolved. NOT EVALUATED."
+    "biggestRemainingExperienceGap": "Winnable, readable complete real guardian-and-crusher duel is still UNPROVEN: prior authentic desktop/portrait footage showed repeated death and 0 guardian clears. New source-authentic melee interrupt may improve tactical counterplay but has no completed 43f9b75 film review, no multi-seed defeat/progression evidence, no >=60s event-matched A/B, no five independent blind judgments per pillar, no supported-device p50/p95/p99/memory. NOT EVALUATED.",
+    "unverifiedImplementationBranchHead": "43f9b75e031b2ddc13185be750023b19424480d0",
+    "currentVerticalSlice": "SAME real 3D guardian-cap experience: truthful cap guardian+installed timed crusher, source-bodied escape and cooldown spacing, now earnable source-replayed melee interruption of an announced guardian attack, existing articulated stagger/gesture-gated audio/camera, progression/health and complete true outcomes; full experience remains NOT EVALUATED.",
+    "biggestGap": "Winnable, readable complete real guardian-and-crusher duel is still UNPROVEN: prior authentic desktop/portrait footage showed repeated death and 0 guardian clears. New source-authentic melee interrupt may improve tactical counterplay but has no completed 43f9b75 film review, no multi-seed defeat/progression evidence, no >=60s event-matched A/B, no five independent blind judgments per pillar, no supported-device p50/p95/p99/memory. NOT EVALUATED."
   },
   "scenarios": [
     {
@@ -62,11 +62,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Previous completed PR68 head 2eff571 source-integrity workflow https://github.com/my-edutu/Ai_games/actions/runs/41940093589 FAILED 1/982: a near-guardian countdown test incorrectly assumed 50k proximity implied actual collision exposure. d489f6f test now checks physical projected exposure while preserving positioned positive source evasion; exact latest committed-head technical validation PENDING. CI is a safety veto, never a quality pass.",
-    "replay": "12bed170 uses only current immutable tactical observation and existing authority action controls, shares guardian 1800-unit/tick speed; guardianArenaHazards opt-in preserves unflagged/historical policy. Full exact-new-source seeded replay and multi-seed combat outcome not yet verified by completed CI.",
+    "ci": "Previous exact 3a0155e safety workflow 41943914629 completed SUCCESS (structural/technical safety only). NEW 43f9b75 exact source safety 41950383204 QUEUED at last inspection; source snapshot 41950383104 QUEUED; no new safety PASS. CI never establishes experiential quality.",
+    "replay": "New opt-in guardianSecondWind && guardianArenaHazards counter uses the existing actual source melee hit and fixed-step interruption; unflagged historical behavior unchanged, no new RNG. Tests committed at 43f9b75 for deterministic combat and render witness; exact SHA CI/replay not yet complete. Independent replay evidence remains unverified.",
     "accessibility": "No HUD, new animation, audio or flashes in this combat change; old independent mobile accessibility/reduced-motion/color-safe/full-motion comprehension remains NOT EVALUATED.",
-    "performance": "Fixed bounded math and current active observed-hazard scan in optional guardian combat; no added draw calls, lighting, shaders or pass. Supported-device p50/p95/p99/memory STILL NOT MEASURED; software renderer submit intervals cannot substitute.",
-    "stability": "Source-pinned run 41939822623 SUCCESS 9/9 actual full-motion desktop/portrait videos for 57d5; danger ~114s desktop and ~106s phone. Builder inspected native frame sequence and 2200-tick source traces per viewport: repeated health-depleted lives, no guardian kills, lowest HP4/8. Crossfire witness 0 per layout. Candidate 12bed gameplay and 2fa57 documentation are not yet verified by new-source continuous recordings, 5 blind critics or device stability."
+    "performance": "Only bounded additional branch work in opt-in melee processing and observed tactical action; reuses existing rendered stagger and optional source audio with no new geometry or draw calls. Supported-device p50/p95/p99 and memory NOT MEASURED; CI WebGL recording is not real device FPS.",
+    "stability": "Prior normal-speed frozen/candidate capture 41943534848 completed 9/9 jobs for 12bed source, not inspected to certify a win. NEW 43f9 head capture 41950383062 QUEUED at inspection; no 43f9 continuous desktop/portrait visual outcome verified, no independent full-motion criticism."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -2846,6 +2846,34 @@
       "playsVotes": 0,
       "deviceFrameTimeAndMemory": "NOT MEASURED",
       "quality": "NOT EVALUATED"
+    },
+    "latestGuardianCounterRun": {
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "candidateSourceSha": "43f9b75e031b2ddc13185be750023b19424480d0",
+      "newCaptureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41950383062",
+      "newCaptureStatusAtInspection": "QUEUED — no completed latest-head video observed",
+      "previousSourceCaptureUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41943534848",
+      "previousSourceSha": "12bed170f40d1313eaca5240ae1821b99e07e8c8",
+      "priorCaptureStatus": "9/9 jobs completed, but source video not independently reviewed and predates new 43f9 gameplay",
+      "technicalSafetyRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41950383204",
+      "technicalSafetyAtInspection": "QUEUED — no current-head safety PASS",
+      "reviewPath": "docs/reviews/2026-11-05-tower-pr68-earned-melee-windup-interrupt.md",
+      "captureSettings": {
+        "seed": "tower-transformation-capture-v1",
+        "quality": "low",
+        "desktop": "960x600",
+        "mobile": "390x844",
+        "speed": "normal 20Hz live fixed-step gameplay",
+        "soundEnabled": false
+      },
+      "pairedSourceMatchedClips": "NOT VERIFIED — real source-normal event alignment incomplete",
+      "independentBlindVotes": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "supportedHardwareFrameTimeMemory": "NOT MEASURED",
+      "qualityVerdict": "NOT EVALUATED"
     }
   }
 }
