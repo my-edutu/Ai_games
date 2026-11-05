@@ -1849,7 +1849,29 @@ export function createMazeWorld(options = {}) {
       mesh(leaf, cone, gold, side * .13, .55, 0, .11, .22, .10);
       diaphragms.push({object: leaf, side});
     }
-    trapSignals.push({carriage, diaphragms, cell: c.cell, x: p.position.x, z: p.position.z});
+    // Two broad, hinged mineral shutters belong to the SAME published
+    // pressure tile. Their inset, contrasting faces physically part as the
+    // witnessed explorer approaches, revealing the original dark pressure
+    // socket. This is a visual response to the existing hazard, not a new
+    // collision, passage, key, damage rule or hidden-route hint. The full
+    // mechanism remains inside the known floor footprint at every pose.
+    const shutters = [];
+    for (const side of [-1, 1]) {
+      const shutter = new THREE.Group();
+      shutter.name = 'Published tide-shear floor shutter ' + side;
+      shutter.position.set(side * .52, .085, .13);
+      p.add(shutter);
+      mesh(shutter, bevel, darkMetal, -side * .23, .045, .20,
+        .55, .10, .83);
+      mesh(shutter, bevel, clay, -side * .23, .11, .20,
+        .48, .055, .72);
+      mesh(shutter, bevel, danger, -side * .23, .147, .30,
+        .43, .045, .13);
+      mesh(shutter, bevel, gold, -side * .23, .185, .52,
+        .28, .075, .10);
+      shutters.push({object: shutter, side});
+    }
+    trapSignals.push({carriage, diaphragms, shutters, cell: c.cell, x: p.position.x, z: p.position.z});
     // Connected pivots and broad ceramic silhouettes, not emissive billboards.
     // They unfold in response to Pip's ACTUAL published presentation position
     // near this disclosed hazard; they never modify the authoritative engine.
@@ -2144,6 +2166,14 @@ export function createMazeWorld(options = {}) {
       signal.carriage.position.y = reduced ? .29 : .16 + .28 * opening;
       for (const leaf of signal.diaphragms)
         leaf.object.rotation.z = -leaf.side * (reduced ? .34 : .08 + .70 * opening);
+      // Physical, source-bound open/close beat: these are connected floor
+      // shutters, not a CSS flash or a simulated engine state. Their centres
+      // spread out while their inner edges rise; a retreat or lost public
+      // visibility restores the exact resting pose in the same render tick.
+      for (const shutter of signal.shutters) {
+        shutter.object.position.x = shutter.side * (.52 + (reduced ? .09 : .18 * opening));
+        shutter.object.rotation.z = -shutter.side * (reduced ? .24 : .03 + .78 * opening);
+      }
     }
     for (const relic of fossilSails) {
       const near=Math.max(0,1-Math.hypot(hx-relic.x,hz-relic.z)/3.2);
