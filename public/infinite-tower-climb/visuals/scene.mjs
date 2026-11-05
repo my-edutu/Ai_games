@@ -1713,6 +1713,7 @@ export function createTowerScene(canvas, settings = {}) {
   const actionLightTarget = new THREE.Vector3();
   const actionHazardTint = new THREE.Color(0xff9d73);
   const actionGuardianTint = new THREE.Color(0x9ddde7);
+  const actionGateTint = new THREE.Color(0xb6f0d3);
   const actionLandingTint = new THREE.Color(0xf5d3a2);
   let actionLightRunFloor = null, actionLightKind = 'none', actionLightSourceTick = -1;
   const warmRimTint = new THREE.Color(0xffc994);
@@ -3466,9 +3467,11 @@ export function createTowerScene(canvas, settings = {}) {
     bounce.color.set(lighting.bounce);
     if (actionLightKind === 'hazard') bounce.color.lerp(actionHazardTint, .46);
     else if (actionLightKind === 'guardian') bounce.color.lerp(actionGuardianTint, .4);
+    else if (actionLightKind === 'earned-gate') bounce.color.lerp(actionGateTint, .32);
     else if (actionLightKind === 'landing') bounce.color.lerp(actionLandingTint, .18);
     bounce.intensity = lighting.ground * (1 + lightCue.threat * .1 +
-      (actionLightKind === 'hazard' ? .22 : actionLightKind === 'guardian' ? .2 : 0));
+      (actionLightKind === 'hazard' ? .22 : actionLightKind === 'guardian' ? .2 :
+       actionLightKind === 'earned-gate' ? .16 : 0));
     bounce.target.position.copy(actionLightTarget);
     const lightAzimuth = Math.atan2(camera.position.x,camera.position.z) + .48;
     bounce.position.set(actionLightTarget.x + Math.sin(lightAzimuth) * 34,

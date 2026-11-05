@@ -60,3 +60,31 @@ test('physical near-contact shutter takes urgent 3D light priority over guardian
   assert.equal(observedActionStage({...snap,stale:true}),null);
   assert.equal(observedActionStage({...snap,player:{...snap.player,health:0}}),null);
 });
+
+test('earned guardian defeat lights the exact physical gate, never a phantom victory',async()=>{
+  const {observedActionStage}=await stage;
+  const f=frame();
+  const cap={id:'f3:cap',x:210000,y:1300000,width:65000,height:8000};
+  const fallen={id:'f3:guardian',kind:'guardian',active:false,health:0,
+    maxHealth:8,x:221000,y:1325000,halfHeight:18000};
+  const snapshot={...f,platforms:[cap],enemies:[fallen],
+    intent:{mode:'aligning',targetPlatformId:'f3:cap'}};
+  const original=JSON.stringify(snapshot);
+  const actual=observedActionStage(snapshot,cap);
+  assert.equal(actual?.kind,'earned-gate');
+  assert.equal(actual.sourceId,'f3:cap');
+  assert.equal(actual.sourceTick,45);
+  assert.equal(JSON.stringify(snapshot),original,'source snapshot must remain immutable');
+  assert.notEqual(observedActionStage({...snapshot,
+    enemies:[{...fallen,health:1,active:true}]},cap)?.kind,'earned-gate',
+    'living guardian cannot claim that gate has been earned');
+  assert.notEqual(observedActionStage({...snapshot,
+    platforms:[{...cap,id:'f3:wrong'}]},cap)?.kind,'earned-gate',
+    'unknown cap cannot trigger victory light');
+  assert.notEqual(observedActionStage({...snapshot,lifecycle:'intermission'},cap)?.kind,'earned-gate');
+  const shutter={id:'near-shutter',x:230000,y:1275000,width:23000,height:13000,
+    active:true,chargeTicksRemaining:0};
+  assert.equal(observedActionStage({...snapshot,hazards:[shutter],
+    player:{...snapshot.player,halfWidth:9000,halfHeight:14000}},cap)?.kind,'hazard',
+    'imminent collision must outrank celebratory exit illumination');
+});

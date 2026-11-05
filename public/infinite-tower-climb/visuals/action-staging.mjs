@@ -1,4 +1,6 @@
 import { observedImmediateTrap } from './scene-hierarchy.mjs';
+import { observedUnlockedGuardianCap } from './guardian-passage.mjs';
+import { guardianGateAnchorX } from './coordinates.mjs';
 // A source-owned, non-authoritative subject for the tower's EXISTING fill light.
 // An active guardian is a combat subject, a charged trap is a danger subject,
 // and the real selected deck is an arrival subject. This never predicts a hit,
@@ -54,6 +56,20 @@ export function observedActionStage(snapshot, selectedDeck = null) {
     }
   }
   if (pressure) return pressure;
+  // After the REAL zero-health guardian has unlocked its exact cap, hand the
+  // existing shadow-free light to the physical bronze doorway. This joins the
+  // falling armor, broken power conduit and traversable exit in one readable
+  // 3D cause/effect scene, rather than inventing a reward or UI label.
+  // A live attacking enemy or an urgent physical hazard retains priority.
+  const earned = observedUnlockedGuardianCap(snapshot);
+  if (earned) {
+    const x = guardianGateAnchorX(snapshot, earned.cap);
+    const y = earned.cap.y + earned.cap.height + 20000;
+    if (within(x, y, 220000, 140000)) return {
+      kind: 'earned-gate', x, y, sourceTick: snapshot.tick,
+      sourceId: earned.cap.id,
+    };
+  }
   if (selectedDeck?.id && selectedDeck.id === snapshot.intent?.targetPlatformId &&
       finite(selectedDeck.x, selectedDeck.y, selectedDeck.width, selectedDeck.height) &&
       selectedDeck.width > 0 && selectedDeck.height > 0) {
