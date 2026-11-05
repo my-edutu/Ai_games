@@ -10,19 +10,19 @@
   "candidate": {
     "sha": null,
     "title": "SAME unfinished guardian-cap transformation: genuine attack/space/escape decisions, cinematic 3D scene and source-true result/restart — quality NOT EVALUATED",
-    "implementationSha": "43f9b75e031b2ddc13185be750023b19424480d0",
-    "implementationEvidenceStatus": "2026-11-05: original 57d5 candidate real-game run 41939822623 reported no guardian kills/first 2200 ticks and repeated health-depleted outcomes; source-pinned prior 12bed capture 41943534848 SUCCESS (9/9 capture jobs), but NOT independently reviewed for guardian win. New opt-in full-HP windup melee counter + earned successful-hit guardian stagger at 43f9b75 committed; current 43f9 candidate capture 41950383062 QUEUED, technical 41950383204 QUEUED, source 41950383104 QUEUED. No real 43f9 video inspected, no event-matched A/B, no blind votes or supported-device performance. NOT EVALUATED."
+    "implementationSha": "6e88615645cd58b9869932b02e8086f6dc59e38d",
+    "implementationEvidenceStatus": "2026-11-05: source-pinned 43f9b75e real-game browser run 41950383062 completed 9/9 recordings. Inspected 2,200 actual fixed-step source observations per desktop+portrait danger recording; 8/8 desktop and 7/7 portrait completed lives ended health-depleted, zero guardian defeats and zero progress to floor 9, minimum observed living boss HP 4/8; 0 truly co-present guardian/shutter witness samples. These prior clips predate new opt-in earned melee armor-break and physical 14-tick recoil at b10eb2ef plus live observer/pilot at 835a6638/6e886156. Old 568 safety run 41950820191 failed 1/988 due missing 12 real near-guardian/shutter source ticks. New exact-head CI and film unverified. Quality NOT EVALUATED: missing event-matched blind A/B, independent 5 votes per LOOKS/FEELS/PLAYS, and supported-hardware frame-time/memory."
   },
   "currentTransformation": {
     "title": "SAME 3D tower ascent and readable, winnable physical guardian-cap duel: installed crusher, real body-aware escape and authentic strike/spacing/recovery",
-    "state": "OPEN — same guardian-cap playable transformation. Prior candidate films showed repeated terminal deaths before defeating guardian. New opt-in legitimate melee windup → source-stagger → existing 3D/audio response is committed at 43f9b75 but NOT yet visually or independently validated. NOT EVALUATED.",
+    "state": "OPEN — SAME guardian-cap physical combat/ascent/outcome initiative. 43f9 native desktop/portrait film showed real progression attrition and no boss clear. New legitimate melee guard-break, bounded source-body recoil and observed follow-through committed, but exact-source gameplay quality and safety remain unverified. NOT EVALUATED.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Review exact 43f9b75 native desktop/portrait candidate capture 41950383062 and technical safety run 41950383204. Source-check legal melee interrupts, guardian defeats and progression to floor 9 over declared seeds and inspect continuous source-matched 60s danger/outcome/restarters against frozen 1731b380. Do not conflate capture success with a blind experience win; obtain five independent critics in each LOOKS/FEELS/PLAYS and real hardware performance.",
+    "nextDecision": "Inspect current code exact-source capture/CI; in ≥60s actual normal-speed matching desktop and portrait, watch a real guardian win, moving shutter escape, floor-9 progression, outcome/restart. Previous captured 43f9 candidate failed all observed 15 completed lives. Former 568 head CI has a real source encounter coverage failure. Keep baseline frozen, no artificial win/evidence. Independent randomized 5 reviews each LOOKS/FEELS/PLAYS and real hardware p50/p95/p99/memory still required.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Winnable, readable complete real guardian-and-crusher duel is still UNPROVEN: prior authentic desktop/portrait footage showed repeated death and 0 guardian clears. New source-authentic melee interrupt may improve tactical counterplay but has no completed 43f9b75 film review, no multi-seed defeat/progression evidence, no >=60s event-matched A/B, no five independent blind judgments per pillar, no supported-device p50/p95/p99/memory. NOT EVALUATED.",
-    "unverifiedImplementationBranchHead": "43f9b75e031b2ddc13185be750023b19424480d0",
-    "currentVerticalSlice": "SAME real 3D guardian-cap experience: truthful cap guardian+installed timed crusher, source-bodied escape and cooldown spacing, now earnable source-replayed melee interruption of an announced guardian attack, existing articulated stagger/gesture-gated audio/camera, progression/health and complete true outcomes; full experience remains NOT EVALUATED.",
-    "biggestGap": "Winnable, readable complete real guardian-and-crusher duel is still UNPROVEN: prior authentic desktop/portrait footage showed repeated death and 0 guardian clears. New source-authentic melee interrupt may improve tactical counterplay but has no completed 43f9b75 film review, no multi-seed defeat/progression evidence, no >=60s event-matched A/B, no five independent blind judgments per pillar, no supported-device p50/p95/p99/memory. NOT EVALUATED."
+    "biggestRemainingExperienceGap": "Authentic complete guardian victory, cap-shutter counterplay and floor-9 continuation remain UNPROVEN: 43f9 actual browser footage had 15/15 completed lives health depleted (8 desktop, 7 portrait), zero real guardian clears and zero observed simultaneous guardian/shutter source windows. New earned melee recoil/guard-break has not been reviewed in exact-source film. No matched event-normalized before/after three-scenario evidence, no 5 blind critics per pillar, no supported-device p50/p95/p99/memory. NOT EVALUATED.",
+    "unverifiedImplementationBranchHead": "c24ca63c691421f95861722703dd9d7002802912",
+    "currentVerticalSlice": "SAME 3D source-authentic guardian cap: installed timed physical shutter, legal hit with earned interrupt and armor crack, bounded living guardian body recoil, 14-tick opening for ordinary cooldown-earned follow-up, AI source-observed counterplay, and existing camera/3D animations/audio, real floor progression and honest result/restart. Whole experience NOT EVALUATED.",
+    "biggestGap": "Authentic complete guardian victory, cap-shutter counterplay and floor-9 continuation remain UNPROVEN: 43f9 actual browser footage had 15/15 completed lives health depleted (8 desktop, 7 portrait), zero real guardian clears and zero observed simultaneous guardian/shutter source windows. New earned melee recoil/guard-break has not been reviewed in exact-source film. No matched event-normalized before/after three-scenario evidence, no 5 blind critics per pillar, no supported-device p50/p95/p99/memory. NOT EVALUATED."
   },
   "scenarios": [
     {
@@ -62,11 +62,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Previous exact 3a0155e safety workflow 41943914629 completed SUCCESS (structural/technical safety only). NEW 43f9b75 exact source safety 41950383204 QUEUED at last inspection; source snapshot 41950383104 QUEUED; no new safety PASS. CI never establishes experiential quality.",
-    "replay": "New opt-in guardianSecondWind && guardianArenaHazards counter uses the existing actual source melee hit and fixed-step interruption; unflagged historical behavior unchanged, no new RNG. Tests committed at 43f9b75 for deterministic combat and render witness; exact SHA CI/replay not yet complete. Independent replay evidence remains unverified.",
-    "accessibility": "No HUD, new animation, audio or flashes in this combat change; old independent mobile accessibility/reduced-motion/color-safe/full-motion comprehension remains NOT EVALUATED.",
-    "performance": "Only bounded additional branch work in opt-in melee processing and observed tactical action; reuses existing rendered stagger and optional source audio with no new geometry or draw calls. Supported-device p50/p95/p99 and memory NOT MEASURED; CI WebGL recording is not real device FPS.",
-    "stability": "Prior normal-speed frozen/candidate capture 41943534848 completed 9/9 jobs for 12bed source, not inspected to certify a win. NEW 43f9 head capture 41950383062 QUEUED at inspection; no 43f9 continuous desktop/portrait visual outcome verified, no independent full-motion criticism."
+    "ci": "Previous exact branch 56866202 CI 41950820191 FAILED: 987/988 technical tests passed; failing real cap-window integration observed fewer than twelve genuine adjacent guardian/shutter source countdown ticks over 3000 steps. New current-source CI run 41957666267 on c24ca63c was pending when reviewed, later review commit newer. Do not count a safety PASS or quality win.",
+    "replay": "New fully opt-in source hit with shield-break and bounded physical recoil; deterministic named RNG and old non-arena/ranged branches unchanged by intent. Added tests for input immutability, replay, true body pose, blocked/missed/unflagged cases. Exact-head CI and broader historical checksum/regression not yet verified.",
+    "accessibility": "No in-game text additions. Source real body recoil is motion on already animated 3D enemy, existing reduced-motion effects unchanged. Genuine whole mobile accessibility, captions and visual clarity NOT EVALUATED.",
+    "performance": "No extra Three.js geometry/lights/passes introduced in this combat slice; fixed-step opt-in scalar branch and position/velocity clamp. Actual supported-device frame time p50/p95/p99 and memory NOT MEASURED. CI software WebGL video frames do NOT establish FPS.",
+    "stability": "Previous 43f9 native browser danger source films recorded desktop 161.785s and phone 129.937s, no boss clear/progression and crossfire witness absent. 9/9 capture jobs succeed ONLY as evidence collection. New earned-physical-recoil source had no completed after-film or independent blind full-motion review at evidence update."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -2874,6 +2874,43 @@
       },
       "supportedHardwareFrameTimeMemory": "NOT MEASURED",
       "qualityVerdict": "NOT EVALUATED"
+    },
+    "earnedGuardianRecoil20261105": {
+      "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "olderCandidateSha": "43f9b75e031b2ddc13185be750023b19424480d0",
+      "sourcePinnedRealGameRun": "https://github.com/my-edutu/Ai_games/actions/runs/41950383062",
+      "candidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41950383062/artifacts/13381941211",
+      "oldCandidateNormalSpeedDesktopSeconds": 161.785,
+      "oldCandidateNormalSpeedPortraitSeconds": 129.937,
+      "viewports": [
+        {
+          "width": 960,
+          "height": 600
+        },
+        {
+          "width": 390,
+          "height": 844
+        }
+      ],
+      "actualSourceObservationsPerViewport": 2200,
+      "desktopCompletedHealthDepletedLives": 8,
+      "portraitCompletedHealthDepletedLives": 7,
+      "confirmedGuardianDefeats": 0,
+      "confirmedFloor9Progressions": 0,
+      "coPresentGuardianShutterWitnessSamples": 0,
+      "candidateNewSourceCodeSha": "6e88615645cd58b9869932b02e8086f6dc59e38d",
+      "candidateNewTestsSha": "c24ca63c691421f95861722703dd9d7002802912",
+      "exactSourceCaptureStatus": "NOT YET INSPECTED; earlier 43f9 native source video predates physical recoil",
+      "earlierFailedSafetyRun": "https://github.com/my-edutu/Ai_games/actions/runs/41950820191",
+      "newerSafetyRun": "https://github.com/my-edutu/Ai_games/actions/runs/41957666267",
+      "independentCritics": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "supportedDeviceMeasurements": "NOT MEASURED",
+      "verdict": "NOT EVALUATED",
+      "biggestOpenGap": "Prove legitimate boss defeat/shutter escape/next floor in genuine continuous desktop and mobile; verify CI, matched baseline and independent randomized critics."
     }
   }
 }
