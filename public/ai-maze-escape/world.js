@@ -1863,8 +1863,12 @@ export function createMazeWorld(options = {}) {
       p.add(shutter);
       mesh(shutter, bevel, darkMetal, -side * .23, .045, .20,
         .55, .10, .83);
-      mesh(shutter, bevel, clay, -side * .23, .11, .20,
+      // The old clay surface disappeared against the clay pressure court in
+      // authentic 320/390px WebGL. An ivory enamel face is a real moving
+      // ceramic part, so the full opening beat is legible without a HUD cue.
+      const enamel = mesh(shutter, bevel, lightStone, -side * .23, .11, .20,
         .48, .055, .72);
+      enamel.name = 'Published tide-shear ivory moving face';
       mesh(shutter, bevel, danger, -side * .23, .147, .30,
         .43, .045, .13);
       mesh(shutter, bevel, gold, -side * .23, .185, .52,
@@ -2151,7 +2155,7 @@ export function createMazeWorld(options = {}) {
         && snapshot.visibleCells.includes(jaw.cell);
       const distance = Math.hypot(hx - jaw.x, hz - jaw.z);
       const near = visible ? Math.max(0, 1 - distance / (CELL_SIZE * 1.2)) : 0;
-      const angle = reduced ? .24 : .06 + .60 * Math.min(1, near * 2.2);
+      const angle = reduced && visible ? .24 : .06 + .60 * Math.min(1, near * 2.2);
       jaw.object.rotation.z = -jaw.side * angle;
     }
     // The same REAL visible public trap contact drives the grounded piston
@@ -2168,16 +2172,23 @@ export function createMazeWorld(options = {}) {
       // and exact rest beyond 1.45 cells. Never change game authority.
       const opening = visible ? Math.min(1, Math.max(0,
         (1.45 - distance / CELL_SIZE) * 2.2)) : 0;
-      signal.carriage.position.y = reduced ? .29 : .16 + .28 * opening;
+      // Reduced motion holds the readable pose ONLY for a currently visible
+      // hazard. A remembered-only trap must remain at rest even if motion
+      // reduction is enabled; public visibility is the sole gate.
+      signal.carriage.position.y = reduced && visible ? .29 : .16 + .28 * opening;
       for (const leaf of signal.diaphragms)
-        leaf.object.rotation.z = -leaf.side * (reduced ? .34 : .08 + .70 * opening);
+        leaf.object.rotation.z = -leaf.side * (reduced && visible ? .34 : .08 + .70 * opening);
       // Physical, source-bound open/close beat: these are connected floor
       // shutters, not a CSS flash or a simulated engine state. Their centres
       // spread out while their inner edges rise; a retreat or lost public
       // visibility restores the exact resting pose in the same render tick.
       for (const shutter of signal.shutters) {
-        shutter.object.position.x = shutter.side * (.52 + (reduced ? .09 : .18 * opening));
-        shutter.object.rotation.z = -shutter.side * (reduced ? .24 : .03 + .78 * opening);
+        shutter.object.position.x = shutter.side * (.52 + (reduced && visible ? .09 : .18 * opening));
+        // The original .81rad opening still looked almost flat under the
+        // real elevated camera. A stronger 1.11rad physical hinge and ivory
+        // face create a distinct adjacent-cell visual beat, without expanding
+        // the known tile footprint, changing Pip, or inventing a new hazard.
+        shutter.object.rotation.z = -shutter.side * (reduced && visible ? .24 : .03 + 1.08 * opening);
       }
     }
     for (const relic of fossilSails) {
