@@ -1,4 +1,5 @@
-import type{TowerAction,TowerPlatform,TowerState}from'../state/types';import{chooseTowerUpgrade}from'../progression/builds';import{nextTowerPlatform,nextTowerTacticalPlatform}from'./graph';import type{TowerObservation}from'./observation';import{detectTowerStuck}from'./stuck';
+import type{TowerAction,TowerPlatform,TowerState}from'../state/types';
+import{TOWER_GUARDIAN_PATROL_SPEED}from'../combat/step';import{chooseTowerUpgrade}from'../progression/builds';import{nextTowerPlatform,nextTowerTacticalPlatform}from'./graph';import type{TowerObservation}from'./observation';import{detectTowerStuck}from'./stuck';
 export interface TowerIntent{mode:'choosing-upgrade'|'evading-projectile'|'evading-hazard'|'evading-telegraph'|'bracing-telegraph'|'bracing-guardian-shield'|'engaging-enemy'|'recovering'|'collecting-resource'|'aligning'|'jumping'|'air-control'|'settling-landing'|'settling-launch'|'waiting';summary:string;confidence:number;fallbackUsed:boolean;targetPlatformId?:string}
 export interface TowerDecision{action:TowerAction;intent:TowerIntent}
 function action(move:TowerAction['move']=0,extra:Partial<TowerAction>={}):TowerAction{return{move,jump:false,dash:false,attack:false,ability:false,...extra}}
@@ -662,14 +663,39 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
       // The same ground-edge guard vetoes retreat off the actual cap.
       const contactClearance=state.player.halfWidth+guardian.halfWidth+
         Math.max(6000,Math.min(14000,Math.floor(reach/4)));
+      // A real patrol continues to close while the player's earned melee
+      // cooldown is unavailable. Begin moving on PRESENT evidence before
+      // bodies overlap: a bounded approach envelope, not future-patrol
+      // prediction. Never kite outside current melee reach and never create
+      // free damage or altered physics. Opt-in arena only; replay v1 unchanged.
+      const cooling=Math.min(state.config.attackCooldownTicks,
+        Math.max(0,observation.player.attackCooldown));
+      const approachBudget=Math.min(
+        TOWER_GUARDIAN_PATROL_SPEED*cooling,
+        Math.max(0,reach-4000-contactClearance));
+      const warningGap=contactClearance+approachBudget;
       if(tactical&&state.config.guardianArenaHazards===true&&inReach&&
-         observation.player.attackCooldown>0&&
-         Math.abs(dx)<contactClearance){
+         cooling>0&&Math.abs(dx)<warningGap){
         const away:TowerAction['move']=dx>=0?-1:1;
-        const move=guardedEvasion(state,observation,away);
+        let move=guardedEvasion(state,observation,away);
+        if(move!==0){
+          // Reject even a safe deck-bound retreat when its actual next
+          // contact corridor would intersect a currently active shutter.
+          // Does not inspect the next enemy turn or unrevealed trap phase.
+          const nextV=Math.max(-state.config.maxRunSpeed,
+            Math.min(state.config.maxRunSpeed,
+              observation.player.velocity.x+move*state.config.moveAcceleration));
+          const nextX=observation.player.position.x+nextV;
+          const x0=Math.min(nextX,observation.player.position.x)-state.player.halfWidth;
+          const x1=Math.max(nextX,observation.player.position.x)+state.player.halfWidth;
+          const y0=observation.player.position.y-state.player.halfHeight;
+          const y1=observation.player.position.y+state.player.halfHeight;
+          if(observation.hazards.some(h=>h.active&&
+            h.x<x1&&h.x+h.width>x0&&h.y<y1&&h.y+h.height>y0))move=0;
+        }
         return{action:action(move),intent:{
           mode:'engaging-enemy',
-          summary:move===away?'Making room between genuine guardian strikes':
+          summary:move===away?'Preserving a strike-ready gap from the advancing guardian':
             'Holding safe cap footing as the guardian approaches',
           confidence:.96,fallbackUsed:false,
           targetPlatformId:observation.player.groundedPlatformId}};
