@@ -2495,7 +2495,7 @@
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
     "biggestRemainingGap": "Real-world character anatomy and authored boss-to-hero weapon contact remain short of Diablo IV / PoE2. Complete five-stage matched audiovisual review and independent critics absent.",
     "currentWork": "Integrate true threat-to-release native Warden full-body performance; evaluate in actual mobile and desktop gameplay",
-    "candidateCommit": "a02eff231c52b5105a9f41fee78227c85720b40b",
+    "candidateCommit": "b34630e62c8bcebba01c0643e6722f7901408ba6",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -5555,9 +5555,19 @@
         "public/ai-dungeon/cinematic-chapter-plan.js",
         "public/ai-dungeon/model-assets.js",
         "public/ai-dungeon/app.js"
-      ]
+      ],
+      "codeCommit": "b34630e62c8bcebba01c0643e6722f7901408ba6",
+      "verification": {
+        "sourceCommit": "CONFIRMED",
+        "browserDesktopMobile": "UNVERIFIED",
+        "originalAudio": "UNVERIFIED",
+        "beforeAfter": "UNVERIFIED",
+        "criticVotes": "0/3",
+        "gameplayPerformance": "UNVERIFIED",
+        "tests": "Queued, unverified (pending exact code SHA GitHub Actions)"
+      }
     },
-    "lastCandidateSha": "a02eff231c52b5105a9f41fee78227c85720b40b",
+    "lastCandidateSha": "b34630e62c8bcebba01c0643e6722f7901408ba6",
     "experienceVerdict": "M1 IN PROGRESS — NOT TRANSFORMED. LOOKS, FEELS and PLAYS UNVERIFIED; 0/3 independent critics; no matched complete five-stage audio/video.",
     "criticReadiness": "0/3; exact-head desktop/mobile moving sound captures, matched fixed-baseline A/B and natural progression unverified",
     "nextImplementationTask": "Capture actual native Warden warning-to-attack release in live desktop/mobile browser with sound and matched pinned M1 before; fix motion/geometry defects, build continuous progression-to-restart, commission 3 fresh independent critics."

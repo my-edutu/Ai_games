@@ -1264,3 +1264,5 @@ readable boss-to-hero contact in the filmed continuous Warden confrontation.
 1440px and 390px Chromium videos with audio; if it plays naturally, integrate
 character fidelity and floor-to-restart journey, then blinded looks/feels/plays
 review. Reject if release snaps or combat frames are less readable.
+
+**Source candidate receipt:** [b34630e](https://github.com/my-edutu/Ai_games/commit/b34630e62c8bcebba01c0643e6722f7901408ba6); full M1 acceptance remains UNVERIFIED. Native Warden release, source-test adjustments and live progress were atomically committed; safety workflows [Dungeon](https://github.com/my-edutu/Ai_games/actions/runs/42063282794), [visual review](https://github.com/my-edutu/Ai_games/actions/runs/42063282862) and [catalogue CI](https://github.com/my-edutu/Ai_games/actions/runs/42063283335) had been queued, not passed, at ledger receipt time.
