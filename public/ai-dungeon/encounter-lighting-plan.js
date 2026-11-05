@@ -9,7 +9,7 @@ const valid=(u,map)=>u&&typeof u.id==='string'&&u.id.length>0&&u.id.length<=128&
  Number.isInteger(u.x)&&Number.isInteger(u.z)&&u.z>=0&&u.z<map.length&&
  u.x>=0&&u.x<map.length&&map[u.z]?.[u.x]==='.';
 const modes=new Set(['contact','skirmish-approach','breach-warning','oathguard-cover',
- 'warden-contact','warden-warning','warden-approach','warden-exposed']);
+ 'warden-contact','warden-warning','warden-approach','warden-exposed','warden-release']);
 const fix=n=>Math.round(n*1000)/1000;
 export function planEncounterLighting(s,shot,{damageBeat=null,reducedMotion=false}={}){
  const map=s?.map;
@@ -38,9 +38,11 @@ export function planEncounterLighting(s,shot,{damageBeat=null,reducedMotion=fals
  const boss=enemies.find(u=>u.kind==='warden')??null;
  const warning=Boolean(boss&&s.bossWarning&&Number.isInteger(s.bossWarning.attackTick)&&
   Number.isInteger(s.tick)&&s.bossWarning.attackTick>=s.tick&&s.bossWarning.attackTick<=s.tick+3);
+ const release=Boolean(boss&&!warning&&Number.isSafeInteger(s.tick)&&
+  boss.action==='cast'&&boss.actionTick===s.tick);
  const threat=boss??(duel?foe:null);
  const bossLight=threat?Object.freeze({x:fix(threat.x-origin),y:2.34,z:fix(threat.z-origin),
-  intensity:boss?(warning?3.2:s.bossRecovery?.remaining?1.95:2.25):1.30,
+  intensity:boss?(warning?3.2:release?2.86:s.bossRecovery?.remaining?1.95:2.25):1.30,
   distance:boss?9.5:5.8}):null;
  const injury=damageBeat?.id===hero.id&&Number.isFinite(damageBeat.damage)&&
   Number.isFinite(damageBeat.maxHp)&&damageBeat.damage>0&&damageBeat.maxHp>0&&!reducedMotion?

@@ -1266,3 +1266,53 @@ character fidelity and floor-to-restart journey, then blinded looks/feels/plays
 review. Reject if release snaps or combat frames are less readable.
 
 **Source candidate receipt:** [b34630e](https://github.com/my-edutu/Ai_games/commit/b34630e62c8bcebba01c0643e6722f7901408ba6); full M1 acceptance remains UNVERIFIED. Native Warden release, source-test adjustments and live progress were atomically committed; safety workflows [Dungeon](https://github.com/my-edutu/Ai_games/actions/runs/42063282794), [visual review](https://github.com/my-edutu/Ai_games/actions/runs/42063282862) and [catalogue CI](https://github.com/my-edutu/Ai_games/actions/runs/42063283335) had been queued, not passed, at ledger receipt time.
+
+## M1 continuation — cast-gated Warden strike chapter (5 November 2026)
+
+**Still one transformation milestone; NOT_TRANSFORMED.** Immutable real
+baseline `281735d0910c6b2443648af976003d50412ee324`, original desktop/mobile
+browser artifact https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898.
+The exact preceding source was `04f8339d91ab92988e2370865772cf5555ec7947`; keep the existing draft PR open and
+never merge or deploy.
+
+**Largest observed experience discontinuity:** the authoritative Warden
+can inflict a real ritual strike and immediately enter a vulnerable recovery
+window, but its cinematic priority jumped from a high tactical warning
+to a low counterattack view *on the impact tick*, making the new native
+Warden three-shape release difficult to see and the UI incorrectly call
+the strike a counter window.
+
+**Integrated source candidate:** a distinct `warden-release` 3D filming
+chapter is admitted only for the *actual living nearby Warden*
+with `action='cast'` and `actionTick===tick`. A genuine warning retains
+higher priority; the counter camera resumes after the cast. Existing
+Three.js side-flank camera, original bones/animation and anatomy cutaways,
+current limited dynamic lights, physical room clearance and boss HUD now
+share one meaningful strike moment, without inventing a victim, damage,
+combat clock, spell, AI action, animation asset or RNG. Stale/dead/far
+casts cannot claim the film. Reduced motion remains supported by the
+existing cinematic fallback and original warning/floor UI.
+
+**Source and exact-head evidence state:** preceding CI at
+https://github.com/my-edutu/Ai_games/actions/runs/42063793787
+passed 321/321 foundation and 3/3 real Chromium browser shards, but
+failed 1/20 progress-contract checks due to an invalid human sentence
+in the machine-readable transformation verdict. Catalogue
+https://github.com/my-edutu/Ai_games/actions/runs/42063793740
+failed that same contract (1008/1009 software tests). The legitimate
+machine verdict is restored to `NOT_TRANSFORMED` and the user-facing
+progress page still says IN PROGRESS — NOT TRANSFORMED. Prior
+https://github.com/my-edutu/Ai_games/actions/runs/42063793563
+real browser visual review passed; this new implementation's exact-head
+software/browser, synchronized opted-in audio, desktop+mobile moving
+Warden battle, matched A/B, AI challenge and sustained p95 remain
+**UNVERIFIED**. Independent fresh critics: **0/3**. Do not interpret
+CI or code inspections as an experiential acceptance win.
+
+**Next:** inspect real 1440×832 and 390×844 warning → strike → recovery
+motion and original audio, reject abrupt camera shifts or hidden bodies,
+then continue adult-scale original characters, tactical Warden encounter
+and coherent traversal → combat → boss → floor → defeat/restart.
+Complete same-seed locked-baseline video/audio comparison with >=3
+fresh blinded reviewers preferring AFTER on LOOKS/FEELS/PLAYS,
+and preserve replay, accessibility, security and frame performance.

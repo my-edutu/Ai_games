@@ -111,6 +111,11 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
  const warning=!!boss&&s.bossWarning&&Number.isSafeInteger(s.bossWarning.attackTick)&&
   s.bossWarning.attackTick>=s.tick&&s.bossWarning.attackTick<=s.tick+3&&
   Array.isArray(s.bossWarning.cells)&&s.bossWarning.cells.length>0;
+ // A true Warden ritual strike is a distinct filmed chapter between a
+ // warned floor and the earned counterattack. Never promote a generic cast,
+ // old action tick or out-of-range boss into this release chapter.
+ const bossRelease=Boolean(boss&&closeBoss&&distance(closeBoss,boss)<=5&&
+  Number.isSafeInteger(s.tick)&&boss.action==='cast'&&boss.actionTick===s.tick);
  const revenantWarning=Array.isArray(s.revenantWarnings)?s.revenantWarnings.slice(0,8)
   .map(mark=>({mark,source:enemies.find(u=>u.id===mark.sourceId&&u.kind==='revenant'),
    hero:heroes.find(u=>u.id===mark.targetId)}))
@@ -133,6 +138,12 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
   // The center remains between the real boss and the closest living hero.
   mode='warden-warning';position=mean(boss,closeBoss);
   offsets=planDuelCameraOffset(closeBoss,boss,11.0,9.15)||[6.3,11.2,6.55];lookY=.25;subjects=[boss.id,closeBoss.id];
+ }else if(bossRelease){
+  // Wide warning -> observable actual strike -> close post-strike counter.
+  // See both skinned bodies and the physical floor, even when HP didn't drop.
+  mode='warden-release';position=mean(boss,closeBoss);
+  offsets=planDuelCameraOffset(closeBoss,boss,8.9,7.95,{heroForeground:true})||[5.2,8.9,5.5];
+  lookY=.69;subjects=[boss.id,closeBoss.id];
  }else if(revenantWarning&&(!boss||distance(closeBoss,boss)>5)){
   const {source,hero}=revenantWarning;
   mode='breach-warning';position=mean(source,hero);
@@ -222,6 +233,7 @@ const DIRECTOR_LENS=Object.freeze({
  'warden-contact': Object.freeze({radius:6.75,height:6.45,fov:44,aim:.88,follow:7.5,key:1.15}),
  'oathguard-cover':Object.freeze({radius:5.7,height:6.9,fov:44,aim:.86,follow:7.4,key:1.20}),
  'warden-approach':Object.freeze({radius:7.90,height:7.10,fov:45,aim:.84,follow:6.2,key:1.11}),
+ 'warden-release': Object.freeze({radius:8.02,height:8.12,fov:47,aim:.71,follow:8.2,key:1.18}),
  'warden-exposed':Object.freeze({radius:6.85,height:6.65,fov:46,aim:1.08,follow:7.6,key:1.23}),
  'warden-warning': Object.freeze({radius:9.05,height:10.55,fov:51,aim:.35,follow:10.0,key:.92}),
  'breach-warning': Object.freeze({radius:6.55,height:7.5,fov:46,aim:.45,follow:8.0,key:1.04}),
@@ -394,7 +406,7 @@ export function planCriticalSubjectFit(cameraPoints,aspect,preferredFov=44){
 export function planBossDuelSightline(s,shot,look,offsets,{width=1440,height=832,fov=48,visualActors=null}={}){
  const n=Array.isArray(s?.map)?s.map.length:0;
  if(n<5||n>63||n%2!==1||!Array.isArray(s.units)||
-  !shot||!['warden-exposed','warden-approach','warden-contact'].includes(shot.mode)||
+  !shot||!['warden-exposed','warden-approach','warden-contact','warden-release'].includes(shot.mode)||
   !Array.isArray(shot.subjects)||!look||!Number.isFinite(look.x)||!Number.isFinite(look.z)||
   !Array.isArray(offsets)||offsets.length!==3||!offsets.every(Number.isFinite)||
   s.bossWarning||shot.warning)return null;

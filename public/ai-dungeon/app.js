@@ -720,21 +720,28 @@ function renderDashboard(s){
  const biome=['sunken','ember','obsidian','hollow'][(s.floor-1)%4];if(biome!==lastBiome){document.body.dataset.biome=biome;lastBiome=biome;}
  const heroes=s.units.filter(u=>u.faction==='party'),alive=heroes.filter(u=>u.hp>0).length,foes=s.units.filter(u=>u.faction==='enemy'&&u.hp>0);
  const boss=s.units.find(u=>u.kind==='warden'),nearBoss=boss&&boss.hp>0&&heroes.some(h=>h.hp>0&&Math.abs(h.x-boss.x)+Math.abs(h.z-boss.z)<6);
+ // Follow the authoritative boss's real release tick; recovery can begin
+ // immediately on that SAME tick, but its counter label must not erase the hit.
+ const wardenRelease=Boolean(nearBoss&&Number.isSafeInteger(s.tick)&&
+  boss.action==='cast'&&boss.actionTick===s.tick);
  $('floor').textContent=String(s.floor).padStart(2,'0');$('chapter').textContent=String(s.floor).padStart(2,'0');
  $('theme').textContent=s.theme;$('run').textContent=String(s.run).padStart(3,'0');$('tick').textContent='TICK '+String(s.tick).padStart(5,'0');
  $('kills').textContent=s.kills.toLocaleString();$('gold').textContent=s.gold.toLocaleString();$('level').textContent=s.level;
  $('intent').textContent=s.intent;$('reasoning').textContent=s.intent;
  $('party-count').textContent=alive+' / '+heroes.length;$('party-condition').textContent=alive===heroes.length?'READY':alive?'COMPROMISED':'FALLEN';
  $('status').textContent=s.phase==='intermission'?'THE NEXT EXPEDITION IS FORMING':'AI HEROES EXPLORING THE UNKNOWN';
- $('floor-status').textContent=s.phase==='intermission'?'REASSEMBLING':s.guardianWard?'BINDING GUARDS · '+s.defendersRemaining:nearBoss?'WARDEN EXPOSED':foes.length?'CLEARING THE CRYPT':'PORTAL UNLOCKED';
+ $('floor-status').textContent=s.phase==='intermission'?'REASSEMBLING':s.guardianWard?'BINDING GUARDS · '+s.defendersRemaining:
+  nearBoss?(s.bossWarning?'DODGE THE WARDEN':wardenRelease?'WARDEN STRIKING':s.bossRecovery?.remaining?'COUNTER WINDOW':'WARDEN ENGAGED'):
+  foes.length?'CLEARING THE CRYPT':'PORTAL UNLOCKED';
  const remaining=s.units.filter(u=>u.faction==='enemy'&&u.hp>0).length;
  $('depth-fill').style.width=Math.max(8,Math.min(100,100-(remaining/(s.units.filter(u=>u.faction==='enemy').length||1)*92)))+'%';
  const bossStrip=$('boss-strip');bossStrip.hidden=!nearBoss;
  document.body.dataset.wardenFocus=nearBoss?'true':'false';
  if(boss){const percent=Math.max(0,Math.round(boss.hp/boss.maxHp*100));$('boss-hp').textContent=percent+'%';$('boss-bar').style.width=percent+'%';
   const phase=s.bossPhase||'SENTINEL',exposed=Number.isInteger(s.bossRecovery?.remaining)&&s.bossRecovery.remaining>0;
-  $('boss-phase').textContent=s.bossWarning?'DODGE '+s.bossWarning.shape.replaceAll('_',' ')+' · '+(s.bossWarning.attackTick-s.tick):exposed?'EXPOSED · COUNTER +40% DAMAGE':s.guardianWard?'SEALED · '+phase:phase;
+  $('boss-phase').textContent=s.bossWarning?'DODGE '+s.bossWarning.shape.replaceAll('_',' ')+' · '+(s.bossWarning.attackTick-s.tick):wardenRelease?'WARDEN STRIKE · TAKE COVER':exposed?'EXPOSED · COUNTER +40% DAMAGE':s.guardianWard?'SEALED · '+phase:phase;
   bossStrip.dataset.phase=phase;bossStrip.dataset.warded=String(Boolean(s.guardianWard));bossStrip.dataset.recovery=String(exposed);
+  bossStrip.dataset.striking=String(wardenRelease);
   const attackInterval=phase==='ECLIPSE'?4:6;
   bossStrip.dataset.warning=String(Boolean(s.bossWarning));
  }
