@@ -626,10 +626,12 @@ function stageRigMeleeAfterMixer(actor,since,reducedMotion){
   const dodge=mount.part==='spine'?(actor.evasionFrame?.spine||RIG_ZERO):RIG_ZERO;
   const bearing=mount.part==='spine'?(actor.rigBearing?.chest||RIG_ZERO):RIG_ZERO;
   const stride=mount.part==='spine'?(actor.rigFullBodyStride?.chest||RIG_ZERO):RIG_ZERO;
+  const threat=actor.u.kind==='warden'&&actor.u.hp>0&&!reducedMotion&&mount.part==='spine'?
+   actor.wardenCharge?.threatPerformance:null;
   mount.next.setFromEuler(mount.euler.set(
    Math.max(-.55,Math.min(.55,joint.pitch+extra.pitch+dodge.pitch+bearing.pitch+stride.pitch)),
-   Math.max(-.48,Math.min(.48,joint.yaw+extra.yaw+dodge.yaw+bearing.yaw+stride.yaw)),
-   Math.max(-.46,Math.min(.46,joint.roll+extra.roll+dodge.roll+bearing.roll+stride.roll)),'YXZ'));
+   Math.max(-.48,Math.min(.48,joint.yaw+extra.yaw+dodge.yaw+bearing.yaw+stride.yaw+(threat?.torsoYaw??0))),
+   Math.max(-.46,Math.min(.46,joint.roll+extra.roll+dodge.roll+bearing.roll+stride.roll+(threat?.torsoRoll??0))),'YXZ'));
   mount.bone.quaternion.multiply(mount.next);
   mount.last.copy(mount.next);
   actor.rigMeleeCurrentPeak=Math.max(actor.rigMeleeCurrentPeak,
@@ -661,20 +663,25 @@ function stageRigArmsAfterMixer(actor,since,reducedMotion){
  // Keep legacy/no-bone rigs lightweight and compatible with offline fallback.
  if(!actor.rigUpperArms?.length)return;
  const pose=planRigArmGesture(actor.u.kind,actor.u.action||'idle',since,reducedMotion);
- // A real Warden warning raises both imported shoulder bones. This gesture
- // is reversed before every mixer frame; no staged pose survives the warning.
+ // Real Warden warnings articulate the original imported shoulders in three
+ // distinct attack silhouettes. All deltas are reversed before the next mixer frame.
  const warningLift=actor.u.kind==='warden'&&actor.u.hp>0&&!reducedMotion&&
   Number.isFinite(actor.wardenCharge?.armRaise)?
   Math.max(-.64,Math.min(0,actor.wardenCharge.armRaise)):0;
  const exposure=actor.u.kind==='warden'&&actor.u.hp>0?actor.wardenExposure:null;
  const stagger=exposure?.shoulderPitch??0;
- actor.wardenChargeShoulderPeak=Math.max(actor.wardenChargeShoulderPeak||0,Math.abs(warningLift));
+ const threat=actor.u.kind==='warden'&&actor.u.hp>0&&!reducedMotion?
+  actor.wardenCharge?.threatPerformance:null;
+ actor.wardenChargeShoulderPeak=Math.max(actor.wardenChargeShoulderPeak||0,
+  Math.abs(threat?.shoulders?.left?.pitch??warningLift),
+  Math.abs(threat?.shoulders?.right?.pitch??warningLift));
  for(const mount of actor.rigUpperArms||[]){
   const joint=pose[mount.side],extra=actor.performanceBeat?.arms?.[mount.side]||RIG_ZERO;
   const stride=actor.rigFullBodyStride?.arms?.[mount.side];
+  const physicalTell=threat?.shoulders?.[mount.side];
   mount.next.setFromEuler(mount.euler.set(
-   Math.max(-.62,Math.min(.62,joint.pitch+warningLift+stagger+extra.pitch+(stride?.pitch??0)+(actor.evasionFrame?.arms?.[mount.side]?.pitch??0))),0,
-   Math.max(-.38,Math.min(.38,joint.roll+extra.roll+(stride?.roll??0)+(mount.side==='left'?-1:1)*(exposure?.shoulderRoll??0)+(actor.evasionFrame?.arms?.[mount.side]?.roll??0))),'XYZ'));
+   Math.max(-.62,Math.min(.62,joint.pitch+(physicalTell?.pitch??warningLift)+stagger+extra.pitch+(stride?.pitch??0)+(actor.evasionFrame?.arms?.[mount.side]?.pitch??0))),0,
+   Math.max(-.38,Math.min(.38,joint.roll+(physicalTell?.roll??0)+extra.roll+(stride?.roll??0)+(mount.side==='left'?-1:1)*(exposure?.shoulderRoll??0)+(actor.evasionFrame?.arms?.[mount.side]?.roll??0))),'XYZ'));
   mount.bone.quaternion.multiply(mount.next);
   mount.last.copy(mount.next);
   actor.rigGesturePeak=Math.max(actor.rigGesturePeak||0,Math.abs(joint.pitch),Math.abs(joint.roll));
@@ -689,8 +696,10 @@ function stageRigForearmsAfterMixer(actor,since,reducedMotion){
   // One anatomical elbow has a single mechanical envelope. Two truthful
   // visual cues (authored clip and contact beat) must not accidentally stack
   // into a rubber-jointed arm or fool the browser diagnostic with a raw sum.
+  const threat=actor.u.kind==='warden'&&actor.u.hp>0&&!reducedMotion?
+   (actor.wardenCharge?.threatPerformance?.forearms?.[mount.side]??0):0;
   const angle=Math.max(-.445,Math.min(.445,
-   pose[mount.side]+(actor.performanceBeat?.elbows?.[mount.side]||0)+(actor.evasionFrame?.elbows?.[mount.side]??0)));
+   pose[mount.side]+threat+(actor.performanceBeat?.elbows?.[mount.side]||0)+(actor.evasionFrame?.elbows?.[mount.side]??0)));
   mount.next.setFromEuler(mount.euler.set(angle,0,0,'XYZ'));
   mount.bone.quaternion.multiply(mount.next);
   mount.last.copy(mount.next);

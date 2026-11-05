@@ -259,6 +259,41 @@ export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMo
 }
 
 const STILL=Object.freeze({lift:0,pitch:0,armRaise:0,charge:0});
+/** Original distinct physical boss combat vocabulary, driven only by the
+ * real Warden attack's shape, threatened cells, axis and authority tick.
+ * Pure read-only animation; it never changes collision, HP, RNG or AI. */
+export function planWardenThreatPerformance(warning,tick,reducedMotion=false){
+ if(reducedMotion||!Number.isSafeInteger(tick)||!Number.isSafeInteger(warning?.attackTick)||
+  warning.warning===false||!Array.isArray(warning.cells)||!warning.cells.length||
+  !['NOVA','RIFT_CROSS','ECLIPSE_SWEEP'].includes(warning.shape))return null;
+ const turns=warning.attackTick-tick,max=warning.shape==='RIFT_CROSS'?2:3;
+ if(turns<1||turns>max||warning.cells.length>64||
+  !warning.cells.every(c=>Number.isSafeInteger(c?.x)&&Number.isSafeInteger(c?.z)&&
+   c.x>=0&&c.x<64&&c.z>=0&&c.z<64))return null;
+ const weight=clip(.32+.60*(max-turns+1)/max,.32,.92);
+ const side=warning.axis==='NORTH_SOUTH'?-1:1;
+ let left,right,elbowLeft,elbowRight,torsoYaw=0,torsoRoll=0;
+ if(warning.shape==='NOVA'){
+  left={pitch:-.51*weight,roll:-.12*weight};
+  right={pitch:-.51*weight,roll:.12*weight};
+  elbowLeft=.15*weight;elbowRight=.15*weight;
+ }else if(warning.shape==='RIFT_CROSS'){
+  left={pitch:-.18*weight,roll:-.27*weight*side};
+  right={pitch:-.58*weight,roll:.21*weight*side};
+  elbowLeft=.23*weight;elbowRight=-.22*weight;
+  torsoYaw=.16*weight*side;torsoRoll=-.10*weight*side;
+ }else{
+  left={pitch:-.37*weight,roll:-.32*weight*side};
+  right={pitch:-.34*weight,roll:.32*weight*side};
+  elbowLeft=-.20*weight;elbowRight=.24*weight;
+  torsoYaw=-.18*weight*side;torsoRoll=.11*weight*side;
+ }
+ const rounded=p=>Object.freeze({pitch:round(p.pitch),roll:round(p.roll)});
+ return Object.freeze({shape:warning.shape,weight:round(weight),
+  shoulders:Object.freeze({left:rounded(left),right:rounded(right)}),
+  forearms:Object.freeze({left:round(elbowLeft),right:round(elbowRight)}),
+  torsoYaw:round(torsoYaw),torsoRoll:round(torsoRoll)});
+}
 /** A true imminent Warden warning charges the real rig; no warning, no pose. */
 export function planWardenCharge(warning,tick,reducedMotion=false){
  if(reducedMotion||!Number.isSafeInteger(tick)||!Number.isSafeInteger(warning?.attackTick))return STILL;
@@ -268,9 +303,11 @@ export function planWardenCharge(warning,tick,reducedMotion=false){
  // Genuine 3-beat Warden windup: weight shifts on the same saved legal tile.
  const beat=remaining>=3?0:remaining===2?1:2;
  const coil=[-.085,.12,-.16][beat],brace=[.09,.14,.22][beat];
+ const threatPerformance=planWardenThreatPerformance(warning,tick,reducedMotion);
  return Object.freeze({lift:round(-.035*charge-.02*beat),
   pitch:round(-.09*charge-.018*beat),armRaise:round(-.62*charge),
-  charge:round(charge),coil:round(coil*charge),brace:round(brace)});
+  charge:round(charge),coil:round(coil*charge),brace:round(brace),
+  ...(threatPerformance?{threatPerformance}:{})});
 }
 
 
