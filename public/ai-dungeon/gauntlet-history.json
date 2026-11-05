@@ -2183,26 +2183,26 @@
       }
     },
     "evidence": {
-      "actualContinuousScenarioReel": "UNVERIFIED: no exact-head matched complete organic five-stage desktop/mobile journey with captured synchronized original audio.",
-      "matchedBeforeAfter": "UNVERIFIED; fixed baseline 281735d0910c6b2443648af976003d50412ee324 not reset. Prior real phone screenshot is evidence of a problem, not new AFTER success.",
-      "mobileBeforeAfter": "UNVERIFIED: no matched new-head desktop/390px original motion and frame p95 evidence.",
+      "actualContinuousScenarioReel": "UNVERIFIED: original continuous five-stage desktop/mobile reel (travel/combat/Warden/floor/defeat-restart) with synchronized game audio not captured on exact new head.",
+      "matchedBeforeAfter": "UNVERIFIED: no valid same-seed original baseline vs candidate complete moving scenario; fixed locked baseline remains 281735d0910c6b2443648af976003d50412ee324",
+      "mobileBeforeAfter": "UNVERIFIED: previous actual mobile screenshot shows obstruction; new native duel-lane candidate not yet observed, sustained phone performance not measured.",
       "independentCriticPanel": {
         "status": "UNVERIFIED",
         "criticCount": 0,
         "looksMajority": false,
         "feelsMajority": false,
         "playsMajority": false,
-        "provenance": "No worker/critic session available, no masked verdicts."
+        "provenance": "No actual fresh independent blind looks/feels/plays critics; coding/browser worker tunnel disconnected."
       },
       "safetyChecks": "c444570 Dungeon authority passed but browser shards 1,2,3 and visual-review failed. Measured 120px mobile hero cards at 390px, inconsistent boss exposure/cast HUD. Source 2913d4c committed for actual integration; new browser/authority/catalogue CI queued, results UNVERIFIED.",
       "matchedExternalReference": "NOT_RUN",
-      "originalAudioMotionClip": "UNVERIFIED: no new opted-in synchronized desktop/mobile sound recording. No audio or critic result invented.",
+      "originalAudioMotionClip": "UNVERIFIED: no new synchronized original Warden WebGL motion + original WebAudio candidate recording.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
       "audioLoudnessAndClipping": "NOT_MEASURED: browser records positive original peak/RMS and populated WAV only when genuine real-time AudioContext frames exist; no candidate measurements yet.",
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Real-source b8be04f 1440x832 browser screenshot from 41672587065 and Warden boss desktop/mobile screenshot/video artifacts 41672587022 were INSPECTED: new 14 anatomical joint cylinders made elongated opaque spindly/squid-like limbs. Warden encounter head-on 1440x832 has 3 heroes overlapping enemy bodies in the 58% HP boss arena, warning Rift Cross visible but contact indistinguishable; mobile capture progressed into floor 2 but large stylized ballheads persist. This is a NEGATIVE experiential finding compared with da492455 and exact locked baseline; source visual redesign at 71da2ea to cap spans remains unverified. No masked A/B victory.",
-      "latestCandidateWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41979234510 — raycast-staging source candidate 288fe33; final outcome not verified at documentation commit.",
+      "latestCandidateWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42100092595 -- queued candidate branch checks, not validated at update",
       "currentPredecessorWebgl": {
         "sourceSha": "9c2b51c41a6a4b70494a86306b21055860456e27",
         "worldArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41962716364/artifacts/13387136348",
@@ -2498,7 +2498,11 @@
         "mobile": "Authenticated 390px mobile screenshot inspected: a large full-height central dark pillar obscures characters and weapon lane. New body-clearance candidate not yet confirmed to solve it in a matched capture.",
         "comparison": "Against actual Diablo IV circular dungeon boss scene, No Rest for the Wicked carved cavern, and Path of Exile 2 boss gameplay screenshot, original head lacks negative space, adult silhouette readability and high-impact contact.",
         "accepted": "NO. Exact-head AFTER A/B and real synchronized audio unavailable."
-      }
+      },
+      "latestIntegratedCandidate": "2026-11-05 M1 candidate e3a0b4e + d23aee7: original projected 3D foreground-cutaway guards the bounded real attack/evasion space between two currently living opposing rooted walkable actors, including motion beats. Reuses real Three.js wall/prop geometry. Desktop/mobile actual new-head visible improvement UNVERIFIED; no matched A/B.",
+      "latestEncounterChronology": "2026-11-05 browser-shard3 preceding head 42090636249 failed 1/28 because legitimate same-tick Warden cast/recovery must show real warden-release FIRST; committed 4113723 now captures cast tick then next-tick warden-exposed counter and validates HP. Full exact-head browser verification pending.",
+      "latestSafetyFinding": "Preceding GitHub Dungeon authority + browser shards 1/2 pass; browser shard3 27/28 due stale recovery camera assertion; catalogue CI 42090636206 failed obsolete HUD text source assertion corrected in 8d107af. Latest new-head checks QUEUED / UNVERIFIED, do not infer success.",
+      "latestRealPreviousHead": "Original Chromium desktop 1440 + mobile 390 screenshots artifact https://github.com/my-edutu/Ai_games/actions/runs/42090636357/artifacts/13447062976; actual toy-like figures and opaque major front pillar; preceding-head only, NO new after evidence."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
     "biggestRemainingGap": "Real original adult-scale skinned anatomy, clearly observable native blade-to-body contact, coherent tactical Warden confrontation, world richness and organic journey; no matched full A/B or independent critics.",
