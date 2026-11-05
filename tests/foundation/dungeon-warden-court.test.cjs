@@ -37,3 +37,21 @@ test('natural seven-cell cleared Warden arena still has original carved enclosin
  assert.ok(court.tiles.length>0&&court.facades.length>0&&court.facades.length<=14);
  assert.ok(court.facades.every(face=>Number.isFinite(face.x)&&Number.isFinite(face.z)&&Number.isFinite(face.yaw)));
 });
+
+test('Warden court keeps its actual 7x7 traversable duel clear of sightline-breaking loose scenery',async()=>{
+ const {planWardenCourtNegativeSpace:plan}=await import('data:text/javascript,'+encodeURIComponent(source));
+ const rows=Array.from({length:19},()=>Array(19).fill('#'));
+ for(let z=6;z<=12;z++)for(let x=6;x<=12;x++)rows[z][x]='.';
+ const map=rows.map(r=>r.join('')),exit={x:9,z:9};
+ assert.deepEqual(plan(map,exit,9,9),{clearInterior:true,quietPerimeter:true});
+ assert.deepEqual(plan(map,exit,12,12),{clearInterior:true,quietPerimeter:true});
+ assert.deepEqual(plan(map,exit,13,9),{clearInterior:false,quietPerimeter:true});
+ assert.deepEqual(plan(map,exit,14,9),{clearInterior:false,quietPerimeter:false});
+ assert.deepEqual(plan(map,{x:0,z:0},9,9),{clearInterior:false,quietPerimeter:false});
+ assert.equal(map[9][9],'.','no real walkable court cell is removed');
+ const environment=fs.readFileSync('public/ai-dungeon/environment.js','utf8');
+ assert.match(environment,/bossCourtLooseClutterSuppressed/);
+ assert.match(environment,/bossCourtTallFixturesSuppressed/);
+ assert.match(environment,/court\.quietPerimeter/);
+ assert.match(environment,/court\.clearInterior/);
+});

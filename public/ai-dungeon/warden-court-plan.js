@@ -43,3 +43,22 @@ export function planWardenCourt(map,exit,floor){
  }
  return Object.freeze({origin,tiles,facades});
 }
+
+/**
+ * The Warden duel is the authored negative space, not an impassable prop
+ * obstacle course. The real 7x7 walkable court keeps its original chapter
+ * reliefs, procession and genuine hazards; only generic large freestanding
+ * clutter is withheld inside it, and tall wall-side furnishings are kept
+ * outside the immediately surrounding masonry. No collision or AI changes.
+ */
+export function planWardenCourtNegativeSpace(map,exit,x,z){
+ const rest=Object.freeze({clearInterior:false,quietPerimeter:false});
+ if(!Array.isArray(map)||map.length<7||map.length>64||
+  !Number.isInteger(exit?.x)||!Number.isInteger(exit?.z)||
+  map[exit.z]?.[exit.x]!=='.'||!Number.isInteger(x)||!Number.isInteger(z)||
+  z<0||z>=map.length||x<0||x>=map.length||
+  typeof map[z]!=='string'||map[z].length!==map.length)return rest;
+ const chebyshev=Math.max(Math.abs(x-exit.x),Math.abs(z-exit.z));
+ return Object.freeze({clearInterior:chebyshev<=3&&map[z][x]==='.',
+  quietPerimeter:chebyshev<=4});
+}

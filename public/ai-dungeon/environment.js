@@ -5,6 +5,7 @@ import {planCutawayFloorBacking,planCutawayCapTransform} from '/dungeon/cutaway-
 import {planPartyWallReveal,planLiveFacadeBodyReveal,createCutawayBandCache,shouldUploadCutawayBand,planProjectedBodyAperture} from '/dungeon/party-visibility-plan.js';
 import {planDungeonWallProfiles,planLegibleWallMass} from '/dungeon/wall-profile-plan.js';
 import {createWardenCourt} from '/dungeon/warden-court.js';
+import {planWardenCourtNegativeSpace} from '/dungeon/warden-court-plan.js';
 import {captureForegroundVolumes,planForegroundBodyClearance} from '/dungeon/foreground-sightline-plan.js';
 
 // Purely cosmetic, reproducible procedural dressing. This code never touches game authority.
@@ -160,8 +161,9 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
  const rugs=[],rugCandidates=[];
  const pillars=[],banners=[],statues=[],worldAnchors=[],foregroundGroups=[];
  const open=(x,z)=>x>=0&&z>=0&&x<N&&z<N&&map[z][x]==='.';
+ let bossCourtLooseClutterSuppressed=0,bossCourtTallFixturesSuppressed=0;
  for(let z=1;z<N-1;z++)for(let x=1;x<N-1;x++){
-  const px=x-O,pz=z-O,h=hash(x,z,floor);
+  const px=x-O,pz=z-O,h=hash(x,z,floor),court=planWardenCourtNegativeSpace(map,exit,x,z);
   if(open(x,z)){
    floorDetails.push([px,-.005,pz,.965,.035,.965,(h%4)*Math.PI/2]);
    if(x>2&&z>2&&x<N-3&&z<N-3&&open(x-1,z)&&open(x+1,z)&&open(x,z-1)&&open(x,z+1)){
@@ -170,9 +172,16 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
    }
    if(h%9===0)mossPatches.push([px+.2,.016,pz-.21,.42,.018,.23]);
    if(h%13===0)runeInlays.push([px,.02,pz,.45,.017,.075,(h%4)*Math.PI/2]);
-   if(h%23===0&&x>2&&z>2&&x<N-3&&z<N-3)rubble.push([px-.27,.08,pz+.28,.27,.16,.19,(h%8)*Math.PI/4]);
-   if(h%47===0)vases.push([px+.28,.18,pz-.25,.24,.37,.24]);
-   if(h%31===0&&x>2&&z>2&&x<N-3&&z<N-3)worldAnchors.push([px,pz,h]);
+   if(h%23===0&&x>2&&z>2&&x<N-3&&z<N-3){
+    if(court.clearInterior)bossCourtLooseClutterSuppressed++;
+    else rubble.push([px-.27,.08,pz+.28,.27,.16,.19,(h%8)*Math.PI/4]);
+   }
+   if(h%47===0){if(court.clearInterior)bossCourtLooseClutterSuppressed++;
+    else vases.push([px+.28,.18,pz-.25,.24,.37,.24]);}
+   if(h%31===0&&x>2&&z>2&&x<N-3&&z<N-3){
+    if(court.clearInterior)bossCourtLooseClutterSuppressed++;
+    else worldAnchors.push([px,pz,h]);
+   }
    continue;
   }
   const faces=[{dx:1,dz:0,yaw:Math.PI/2},{dx:-1,dz:0,yaw:Math.PI/2},{dx:0,dz:1,yaw:0},{dx:0,dz:-1,yaw:0}];
@@ -182,8 +191,10 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
    const faceHeight=gallery?1.04:Math.max(.88,(claddingHeightByTile.get(z*N+x)??1.42)-.045);
    wallFaces.push([ax,faceHeight*.5,az,face.dz!==0?.88:.024,faceHeight,face.dx!==0?.88:.024,0,face.dx,face.dz,Number(gallery)]);
    if(!gallery&&h%5===0){columnCap.push([ax,faceHeight+.065,az,face.dz!==0?.72:.09,.115,face.dx!==0?.72:.09]);columnCapParents.push(wallFaces.length-1);}
-   if(h%21===0){pillars.push([ax,az,face.yaw,h]);}
-   if(h%31===0){banners.push([ax,az,face.yaw,h]);}
+   if(h%21===0){if(court.quietPerimeter)bossCourtTallFixturesSuppressed++;
+    else pillars.push([ax,az,face.yaw,h]);}
+   if(h%31===0){if(court.quietPerimeter)bossCourtTallFixturesSuppressed++;
+    else banners.push([ax,az,face.yaw,h]);}
   }
  }
  // Real camera sightlines may compress opaque masonry; paint the *same*
@@ -277,7 +288,14 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
   // low, open ruin junctions leave no pillar-based torches. Deliberately
   // spread the two anchors across the level, not over the nearest hero.
   const standing=wallFaces.filter(face=>face[4]>=1.16);
-  const available=standing.length?standing:wallFaces;
+  const candidates=standing.length?standing:wallFaces;
+  const clearStage=candidates.filter(face=>{
+   // Offset from world units back into the genuine integer tile stage;
+   // torch-bearing near-court masonry must not obscure the Warden duel.
+   const x=Math.round(face[0]+O),z=Math.round(face[2]+O);
+   return !planWardenCourtNegativeSpace(map,exit,x,z).quietPerimeter;
+  });
+  const available=clearStage.length?clearStage:candidates;
   const stride=Math.max(1,Math.ceil(available.length/2));
   for(let i=0;i<available.length&&flames.length<3;i+=stride){
    const face=available[i];
@@ -433,6 +451,6 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
   p.fire.scale.y=scale;p.inner.scale.setScalar(.91+Math.sin(t+1.3)*.14);
   if(p.light)p.light.intensity=2.1*(1+encounterLight)*(1+.035*Math.sin(time*2.5+p.phase));
  }};
- return {animate,accept,cutaway,facadeReveal,occlusionFaces:wallFaces,occlusionPropVolumes:foregroundVolumes.filter(Boolean),occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{wardenCourt:wardenCourt.metrics,biome:floor,vaultedFacadeOpenings:wallFaces.filter(f=>f[4]<1.2).length,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,wovenRugs:rugs.length,cutawayFloorBackings:backing.length,columnCapstones:columnCap.length,texturedSurfaces:floorDetails.length+wallFaces.length,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{wardenCourt.dispose();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
+ return {animate,accept,cutaway,facadeReveal,occlusionFaces:wallFaces,occlusionPropVolumes:foregroundVolumes.filter(Boolean),occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{wardenCourt:wardenCourt.metrics,biome:floor,vaultedFacadeOpenings:wallFaces.filter(f=>f[4]<1.2).length,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,bossCourtLooseClutterSuppressed,bossCourtTallFixturesSuppressed,wovenRugs:rugs.length,cutawayFloorBackings:backing.length,columnCapstones:columnCap.length,texturedSurfaces:floorDetails.length+wallFaces.length,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{wardenCourt.dispose();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
 }
 
