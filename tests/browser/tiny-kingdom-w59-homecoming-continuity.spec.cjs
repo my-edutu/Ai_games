@@ -58,6 +58,8 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   const quiet=await page.evaluate(()=>window.__tinyKingdom.getHomecomingThresholdCameraAudit());
   expect(quiet.camera.vegetationFaceBlockers).toBe(0);
   expect(quiet.camera.foregroundVegetationCover).toBeLessThan(.30);
+  expect(quiet.door.x).toBeCloseTo(dusk.door.doorX,3);
+  expect(quiet.door.z).toBeCloseTo(dusk.door.doorZ,3);
   const morning=await page.evaluate(()=>{
    const g=window.__tinyKingdom,name=g.getHomecomingView().citizen;
    for(let n=0;n<24*30*2;n++){

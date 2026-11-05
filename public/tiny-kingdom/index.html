@@ -10569,7 +10569,7 @@ function continuousHomecomingWitness(citizen,entry,now){
   if(shot&&shot.vegetationFaceBlockers===0&&
      shot.foregroundVegetationCover<.30){
    homecomingWitnessHold={citizen:citizen.name,homeIndex,
-    at:now,x:citizen.x,z:citizen.z,shot};
+    at:now,x:citizen.x,z:citizen.z,doorX:entry.doorX,doorZ:entry.doorZ,shot};
   }
   return shot;
  }
@@ -10612,8 +10612,8 @@ function getHomecomingThresholdCameraAudit(){
   citizen:citizen?.name||null,door:entry?{
    homeIndex:entry.homeIndex,swing:entry.swing,
    x:entry.doorX,z:entry.doorZ}:restingWitness?{
-    homeIndex:shot.homeIndex,swing:0,x:homecomingWitnessHold?.shot?.target?.[0],
-    z:homecomingWitnessHold?.shot?.target?.[2]}:null,
+    homeIndex:shot.homeIndex,swing:0,x:homecomingWitnessHold?.doorX,
+    z:homecomingWitnessHold?.doorZ}:null,
   camera:active?{yaw:shot.yaw,pitch:shot.pitch,zoom:shot.zoom,
    outsideDoor:shot.outsideDoor,doorRayBlockers:shot.doorRayBlockers,
    visibleAlternativeShots:shot.clearShots,
