@@ -1239,16 +1239,19 @@ export function createEnemy(kind='sentinel') {
       arms[1].upper.rotation.x-=.34*weight;
       arms[1].lower.rotation.x+=.24*weight;
     }
-    // A successful earned Pulse Shot can now interrupt a LIVE guardian charge.
-    // Source-authentic stagger lasts ten fixed ticks. The original rig physically
-    // gives ground, lowers the armed shoulder and braces its boots; no fake shot,
-    // per-frame source damage, extra mesh or timer-driven gameplay is created.
-    // Reduced-motion retains a stable crouched silhouette without oscillation.
+    // Two source-authoritative physical hits share the guardian's original
+    // rig: ordinary pulse disruption holds for ten ticks, while a legitimate
+    // live-arena melee armor-break opens fourteen. The first four melee-only
+    // ticks add a brief asymmetric whole-body impact, then recover into the
+    // existing grounded stagger pose. No invented timer, mesh or gameplay.
+    // Reduced-motion retains the same stable stance for both source events.
     const interruptTicks=guardian&&!dead&&!stale&&
       Number.isFinite(state.staggerTicksRemaining)
-        ?clamp(state.staggerTicksRemaining,0,10):0;
+        ?clamp(state.staggerTicksRemaining,0,14):0;
+    const meleeImpact=interruptTicks>10&&!reducedMotion
+      ?clamp((interruptTicks-10)/4,0,1):0;
     const interrupt=interruptTicks>0
-      ?(reducedMotion?.72:.76+.24*interruptTicks/10):0;
+      ?(reducedMotion?.72:.76+.24*Math.min(10,interruptTicks)/10):0;
     if(interrupt>0){
       rig.position.y-=.13*interrupt;
       rig.rotation.x+=.22*interrupt;
@@ -1261,6 +1264,16 @@ export function createEnemy(kind='sentinel') {
         legs[i].upper.rotation.x-=.38*interrupt;
         legs[i].lower.rotation.x+=.52*interrupt;
         legs[i].foot.rotation.x-=.08*interrupt;
+      }
+      if(meleeImpact>0){
+        // The earned physical counter opens a four-tick angular reaction before
+        // settling into the unchanged ten-tick pulse-style stagger. A mirrored
+        // recoil keeps left- and right-facing guardian hits equally readable.
+        const side=state.facing===-1?-1:1;
+        rig.rotation.z+=side*.13*meleeImpact;
+        head.rotation.z-=side*.10*meleeImpact;
+        arms[1].upper.rotation.x-=.18*meleeImpact;
+        legs[0].lower.rotation.x+=.14*meleeImpact;
       }
     }
     // This impulse follows a real shot/attack edge, rather than free-running
