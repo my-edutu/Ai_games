@@ -1,4 +1,5 @@
 import { observedTraversalKinetics } from './traversal-kinetics.mjs';
+import { observedImmediateTrap } from './scene-hierarchy.mjs';
 
 // Only adjacent, same-run/floor fixed-step HP crossings can earn optional
 // critical-health or relief audio. No inferred pickup, result or restart.
@@ -313,6 +314,10 @@ export function createTowerAudio() {
     const observedHazards=new Map();
     const observedNearby=new Map();
     const observedCharges=new Map();
+    // Shared exact physical contact witness with the exterior 3D shutter and
+    // existing combat lens. In live projectile evasion the AI may not say
+    // "evading-hazard", but a real closing shutter still demands its ratchet.
+    const urgentContact = observedImmediateTrap(snapshot);
     let nearbyHazardRaised=false, nearbyChargeRaised=false, nearbyRatchetRaised=false, nearbyHazardReleased=false;
     const adjacentCharge= sameFloor && Number.isSafeInteger(lastHazardTick) &&
       Number.isSafeInteger(snapshot.tick) && snapshot.tick > lastHazardTick &&
@@ -356,14 +361,10 @@ export function createTowerAudio() {
       // shutter physically touching the climber's immediate collision
       // corridor. An unrelated or distant boss never masks a lethal ratchet.
       const nearBody = charge>=1 && charge<=6 &&
-        snapshot.intent?.mode?.replace(/^oracle-/,'')==='evading-hazard' &&
-        [hazard.x,hazard.y,hazard.width,hazard.height,actor.x,actor.y,
-          actor.halfWidth,actor.halfHeight].every(Number.isFinite) &&
-        actor.halfWidth>0 && actor.halfHeight>0 &&
-        Math.abs(hazard.x+hazard.width*.5-actor.x)
-          <=actor.halfWidth+hazard.width*.5+9000 &&
-        Math.abs(hazard.y+hazard.height*.5-actor.y)
-          <=actor.halfHeight+hazard.height*.5+12000;
+        urgentContact?.id === hazard.id;
+      // Shared source proof is the same presentation trigger as the 3D
+      // pressure stage. No duplicate hazard-vs-bolt guessing, extra voice
+      // during mute, replay timing change or false shooter attribution.
       const nearbyPublishedCharge = actor.health>0 &&
         (!snapshot.enemies?.some(enemy=>enemy.active&&enemy.telegraph) || nearBody) &&
         [hazard.x,hazard.y,hazard.width,hazard.height,actor.x,actor.y].every(Number.isFinite) &&
