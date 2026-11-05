@@ -1488,6 +1488,89 @@ test('a real close public encounter frames both autonomous actors and saves date
     'native portrait must contain the SAME physical, visible Pip/fossil reaction, not a desktop-only stand-in')
     .toBeGreaterThan(1.012);
 
+  // Another real authored game-world event, NOT a CSS decoration:
+  // only source-produced public trap cells near the true autonomous Pip may
+  // show the original two-jaw tide-shear mechanism. No test may fabricate
+  // hazard positions, alter the MazeRuntime snapshot or move the explorer.
+  const realTrapCandidates=[];
+  for(const sequence of sequences)for(const sample of sequence){
+    const state=sample.frame.snapshot;
+    if(state.lifecycle!=='running'||state.result||state.threats.length)continue;
+    const heroCol=state.currentCell%state.width;
+    const heroRow=Math.floor(state.currentCell/state.width);
+    for(const c of state.cells){
+      if(!c.trap || !state.visibleCells.includes(c.cell))continue;
+      const distance=Math.hypot(c.cell%state.width-heroCol,
+        Math.floor(c.cell/state.width)-heroRow);
+      if(distance<=1.01)realTrapCandidates.push({sample,cell:c.cell,distance});
+    }
+  }
+  realTrapCandidates.sort((a,b)=>a.distance-b.distance
+    || a.sample.frame.snapshot.tick-b.sample.frame.snapshot.tick);
+  expect(realTrapCandidates.length,
+    'real source seeds must produce a publicly disclosed trap close enough for a source-authentic gameplay capture').toBeGreaterThan(0);
+  const trapCase=realTrapCandidates[0];
+  const trapSnapshot=trapCase.sample.frame.snapshot;
+  activeFrame=trapCase.sample.frame;
+  // Reuse this SAME warmed WebGL page: no additional CPU-heavy Chromium
+  // process, no screenshot mock, no manipulated simulation tick or private map.
+  for(const [nativeWidth,nativeHeight] of [[390,844],[1280,900]]){
+    await page.setViewportSize({width:nativeWidth,height:nativeHeight});
+    await page.goto(base+'/maze?camera=follow',{waitUntil:'domcontentloaded'});
+    await page.waitForFunction(({tick,token,cell,aspect})=>{
+      const d=window.__MAZE_3D__;
+      return d?.renderer==='webgl' && d.frames>=3 && d.tick===tick
+        &&d.runToken===token&&d.cameraMode==='follow'
+        &&Math.abs(d.cameraAspect-aspect)<.01
+        &&d.world?.responsiveTrapJaws>=2
+        &&d.world?.trapJawOpenMaxRadians>.12
+        &&d.observedTrapPhysicalBounds?.some(value=>value.cell===cell);
+    },{tick:trapSnapshot.tick,token:trapSnapshot.runToken,
+      cell:trapCase.cell,aspect:nativeWidth/nativeHeight},{timeout:45000});
+    const stage=await page.evaluate(()=>({
+      diagnostic:window.__MAZE_3D__,
+      canvas:document.getElementById('maze').getBoundingClientRect().toJSON(),
+      controls:[...document.querySelectorAll('.masthead .control-button')]
+        .filter(el=>getComputedStyle(el).display!=='none')
+        .map(el=>el.getBoundingClientRect().toJSON()),
+      map:document.querySelector('#map-panel>summary').getBoundingClientRect().toJSON(),
+      details:document.querySelector('#intent-details>summary').getBoundingClientRect().toJSON(),
+      scrollWidth:document.documentElement.scrollWidth
+    }));
+    const trapBound=stage.diagnostic.observedTrapPhysicalBounds.find(v=>v.cell===trapCase.cell);
+    const filename='public-tide-shear-'+nativeWidth+'.png';
+    const image=path.join(dir,filename);
+    await page.screenshot({path:image,fullPage:true});
+    fs.writeFileSync(path.join(dir,'public-tide-shear-'+nativeWidth+'.json'),JSON.stringify({
+      capturedAt:new Date().toISOString(),
+      source:'Genuine seeded source-authoritative MazeRuntime public trap and actual autonomous Pip; original WebGL native full screen, no inserted hazard or event',
+      seed:trapCase.sample.seed,tick:trapSnapshot.tick,runToken:trapSnapshot.runToken,
+      publicTrapCell:trapCase.cell,publicDistanceCells:trapCase.distance,
+      viewport:{width:nativeWidth,height:nativeHeight},
+      imageSha256:hash(image),sourceSha256:nativeSourceHashes,
+      diagnostic:stage.diagnostic,physicalHazardBounds:trapBound,
+      controls:[...stage.controls,stage.map,stage.details],
+      caveat:'Native original candidate awaiting direct independent image critique against Nintendo, not a proved art win or hardware-GPU benchmark.'
+    },null,2));
+    expect(stage.diagnostic.explorerModelFullyInFrame,
+      'genuine physical Pip must remain completely framed during true trap interaction').toBe(true);
+    expect(trapBound?.fullyInFrame,
+      'entire original modeled tide-shear pressure mechanism must remain on screen, not hide outside the portrait viewport').toBe(true);
+    expect(stage.diagnostic.world.trapJawOpenMaxRadians,
+      'the authentic WebGL PNG must capture a genuinely opened physical hinge, not a dashboard claim').toBeGreaterThan(.12);
+    expect(stage.diagnostic.world.responsiveTrapJaws,
+      'there must be two complete connected original sculptures for every current public trap').toBeGreaterThanOrEqual(2);
+    expect(stage.canvas.width).toBeGreaterThan(nativeWidth-10);
+    expect(stage.canvas.height).toBeGreaterThan(nativeHeight-10);
+    expect(stage.scrollWidth).toBe(nativeWidth);
+    for(const target of [...stage.controls,stage.map,stage.details]){
+      expect(target.width,'real touch control remains usable with the 3D action').toBeGreaterThanOrEqual(44);
+      expect(target.height,'real touch control remains usable with the 3D action').toBeGreaterThanOrEqual(44);
+      expect(target.left).toBeGreaterThanOrEqual(-1);
+      expect(target.right).toBeLessThanOrEqual(nativeWidth+1);
+    }
+  }
+
 });
 
 
