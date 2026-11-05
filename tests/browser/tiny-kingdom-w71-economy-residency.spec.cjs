@@ -56,12 +56,16 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(resident.scene.static.invalidComponents).toBe(0);
   expect(resident.glError).toBe(0);
   expect(resident.overflow).toBeLessThanOrEqual(0);
+  fs.mkdirSync('artifacts/tiny-kingdom-w71',{recursive:true});
+  await page.screenshot({path:'artifacts/tiny-kingdom-w71/'+viewport.width+'-resident-market.png'});
   const again=await page.evaluate(()=>{
    const g=window.__tinyKingdom,prior=g.getEconomyResidencyAudit();
    g.step(1/30);return {before:prior,snapshot:JSON.stringify(g.exportSnapshot())};
   });
   await page.waitForFunction(()=>window.__tinyKingdom.getEconomyResidencyAudit().reusedUploads>0,
    null,{timeout:110000});
+  const afterStep=await page.evaluate(()=>({triangles:window.__tinyKingdom.renderStats().lastFrameTriangles,
+    snapshot:JSON.stringify(window.__tinyKingdom.exportSnapshot())}));
   const next=await page.evaluate(()=>window.__tinyKingdom.getEconomyResidencyAudit());
   expect(again.snapshot).not.toBe(original.snapshot);
   expect(next.buffers).toBeLessThanOrEqual(1);
@@ -79,11 +83,10 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   });
   expect(fallback.glError).toBe(0);
   expect(fallback.snapshot).toBe(again.snapshot);
-  expect(fallback.tris).toBe(resident.tris);
+  expect(fallback.tris).toBe(afterStep.triangles);
   expect(pageErrors).toEqual([]);
-  fs.mkdirSync('artifacts/tiny-kingdom-w71',{recursive:true});
   fs.writeFileSync('artifacts/tiny-kingdom-w71/'+viewport.width+'-resident-inventory.json',
    JSON.stringify({viewport,original,resident,after:next,fallback},null,2));
-  await page.screenshot({path:'artifacts/tiny-kingdom-w71/'+viewport.width+'-resident-market.png'});
+  await page.screenshot({path:'artifacts/tiny-kingdom-w71/'+viewport.width+'-fallback-market.png'});
  });
 }
