@@ -1,5 +1,5 @@
 import { watercourseCentre, sampleGardenWatershed } from './garden-watersheds.mjs';
-import { sampleWeatheredTerrace, sampleGardenEcotone } from './garden-biomes.mjs';
+import { sampleWeatheredTerrace, sampleGardenEcotone, sampleForestFloorMaterials } from './garden-biomes.mjs';
 
 /**
  * T1 living-courtyard ecology: continuous low relief over the ACTUAL playable
@@ -298,12 +298,19 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
       // share the same pure forest-to-limestone geography. Retain the existing
       // incision/lichen noise and subdued moss/litter under every real cue.
       const ecotone = sampleGardenEcotone(u,v,width,height);
+      const floor = sampleForestFloorMaterials(u,v,ecotone);
       const forestBedding = smooth(.42,.81,ecotone.forest)
         * (.78 + .08 * mineral) * (1 - ecotone.sunstone*.96);
       const grainMoss = (mineral-.5)*12 + (watershed-.5)*9 + grain*.28;
-      const bedR = 71 + grainMoss + rainCut*5;
-      const bedG = 124 + grainMoss*.70 - slateStrata*6;
-      const bedB = 66 + grainMoss*.68 + slateStrata*7;
+      // Two real catchments of ochre leaf fall interrupt the green ground
+      // without opaque tile decals, and the SAME material masks pigment the
+      // existing stone geometry / original rooted riparian triangles.
+      // Retain a brighter moss seam in humid stretches while the dry fallen
+      // canopy reads as brown umber rather than a vivid route-like stripe.
+      const leafFall = floor.leafLitter;
+      const bedR = 71 + grainMoss + rainCut*5 + leafFall*106;
+      const bedG = 124 + grainMoss*.70 - slateStrata*6 - leafFall*27;
+      const bedB = 66 + grainMoss*.68 + slateStrata*7 + leafFall*12;
       data[i] = Math.max(0,Math.round(data[i]*(1-forestBedding)+bedR*forestBedding));
       data[i+1] = Math.max(0,Math.round(data[i+1]*(1-forestBedding)+bedG*forestBedding));
       data[i+2] = Math.max(0,Math.round(data[i+2]*(1-forestBedding)+bedB*forestBedding));
@@ -420,13 +427,20 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
       const base = [a.r * (1 - mix) + b.r * mix,
         a.g * (1 - mix) + b.g * mix,
         a.b * (1 - mix) + b.b * mix];
-      const loam = clamp(habitat.litter * .58 + habitat.planted * .19, 0, .62);
+      const ecotone=sampleGardenEcotone(
+        clamp((point[0] + W) / width,0,1),
+        clamp((point[2] + H) / height,0,1),width,height);
+      const floor=sampleForestFloorMaterials(
+        clamp((point[0] + W) / width,0,1),
+        clamp((point[2] + H) / height,0,1),ecotone);
+      const loam = clamp(habitat.litter * .58 + habitat.planted * .19
+        +floor.leafLitter*.28, 0, .78);
       const slate = clamp(habitat.coolSlate * .37, 0, .40);
       const chalk = clamp(habitat.terrace * .25
         * (1 - habitat.planted * .75), 0, .23);
       // Linear three.js RGB, matching existing scene materials; mix values
       // are physically restrained so the roots no longer read as neon cues.
-      const loamColor = [0.095, .084, .049], slateColor = [.065, .15, .145];
+      const loamColor = [.17, .105, .054], slateColor = [.065, .15, .145];
       const limestone = [.35, .28, .18];
       for (let c = 0; c < 3; c++) {
         const root = base[c] * (1 - loam) + loamColor[c] * loam;

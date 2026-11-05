@@ -1,5 +1,5 @@
 import { sampleGardenWatershed } from './garden-watersheds.mjs';
-import { sampleWeatheredTerrace, sampleGardenEcotone } from './garden-biomes.mjs';
+import { sampleWeatheredTerrace, sampleGardenEcotone, sampleForestFloorMaterials } from './garden-biomes.mjs';
 
 /**
  * Original distant rock formation, authored as irregular weathered bedding.
@@ -875,9 +875,18 @@ export function createWorld(THREE, {width, height}) {
     const rootedR=.265+.082*brokenLeaves+.031*leafShadow;
     const rootedG=.492+.109*brokenLeaves+.040*wetShade;
     const rootedB=.242+.067*brokenLeaves+.056*(1-leafShadow);
-    color.r=color.r*(1-forestBlend)+rootedR*forestBlend;
-    color.g=color.g*(1-forestBlend)+rootedG*forestBlend;
-    color.b=color.b*(1-forestBlend)+rootedB*forestBlend;
+    const floor=sampleForestFloorMaterials((x+.5)/width,(z+.5)/height,ecotone);
+    // The existing real 3D stone vertices and once-baked map now agree on
+    // mineral limestone, shaded moss, and two warm fallen-leaf woodland basins.
+    // No new draw material, geometry, shader, collision or gameplay waypoint.
+    const leafFall=forestBlend*floor.leafLitter*.91;
+    const limestoneLift=floor.limestone*.055*(1-ecotone.sunstone*.89);
+    color.r=(color.r*(1-forestBlend)+rootedR*forestBlend)*(1-leafFall)
+      +(.58+brokenLeaves*.07)*leafFall+limestoneLift;
+    color.g=(color.g*(1-forestBlend)+rootedG*forestBlend)*(1-leafFall)
+      +(.34+leafShadow*.035)*leafFall+limestoneLift*.69;
+    color.b=(color.b*(1-forestBlend)+rootedB*forestBlend)*(1-leafFall)
+      +(.19+leafShadow*.035)*leafFall+limestoneLift*.37;
     const mosaic=sculptForestMosaicTile(x,z,width,height);
     add(tile,tileMat,x-(width-1)/2,-.105,z-(height-1)/2,
       mosaic.scale,.21,mosaic.scale,0,mosaic.rotation,0,color.clone());

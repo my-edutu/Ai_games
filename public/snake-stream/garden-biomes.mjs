@@ -76,3 +76,33 @@ export function sampleGardenEcotone(u,v,width,height){
     -exposedNorth*.52-exposedSouth*.49);
   return {forest,limestone,sunstone};
 }
+
+/**
+ * The original stone and rooted bank share these broad, legible physical
+ * habitats. The still-authoritative public board only supplies normalized
+ * coordinates; no events, route predictions, unseeded randomness or frame
+ * time enters the garden. Sampled once on scene construction, never per tick.
+ * Moss is deliberately not synonymous with a uniformly jade-green floor:
+ * accumulated dry leaves and exposed rain-cut rock need a distinct value and
+ * hue in the SAME existing 3D stone and single owned colour atlas.
+ */
+export function sampleForestFloorMaterials(u,v,ecotone){
+  if(![u,v,ecotone?.forest,ecotone?.limestone,ecotone?.sunstone].every(Number.isFinite)
+      ||u<0||u>1||v<0||v>1)
+    throw new RangeError('Forest-floor materials require finite current public-board habitat coordinates');
+  const x=u*2-1,z=v*2-1;
+  // A north-west leaf-fall hollow, a deeper south-east woodland basin, and
+  // eroded intervals share the actual original old planted stone geography.
+  const hollowA=1-smooth(.29,.82,Math.hypot((x+.52)/.79,(z+.36)/.82));
+  const hollowB=1-smooth(.26,.81,Math.hypot((x-.49)/.81,(z-.50)/.77));
+  const brokenLeaves=.58+.42*(.5+.5*Math.sin(x*10.1+z*4.7)
+    * Math.cos(z*8.3-x*3.9));
+  const forest=clamp(ecotone.forest),sunstone=clamp(ecotone.sunstone);
+  const leafLitter=clamp(Math.max(hollowA,hollowB)*brokenLeaves
+    *smooth(.31,.64,forest)*(1-sunstone*.995));
+  const mossCanopy=clamp(smooth(.34,.77,forest)*(1-sunstone*.99)
+    *(1-leafLitter*.78));
+  const limestone=clamp(Math.max(ecotone.limestone,
+    (1-forest)*.5)*(1-.23*mossCanopy));
+  return {leafLitter,mossCanopy,limestone};
+}
