@@ -1061,6 +1061,36 @@ jobs:
           name: tiny-kingdom-w05-harvest-witness
           path: test-results/
           retention-days: 14
+  # W65: same authentic population, identical five-ring face/limb contours
+  # but shared bounded polar topology for lower CPU mesh generation cost.
+  # These tests are a correctness floor, not experience acceptance.
+  w65-dynamic-sculptor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Exact original citizen shell vertex order, real desktop/390px and immutable seeded world
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w65-sculptor-residency.spec.cjs tests/browser/tiny-kingdom-g073-ellipsoid-emission.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w65-dynamic-sculptor
+          path: |
+            artifacts/tiny-kingdom-w65/
+            test-results/
+          retention-days: 14
   w56-grown-lived-burgage:
     runs-on: ubuntu-latest
     timeout-minutes: 15
