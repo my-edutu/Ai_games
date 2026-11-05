@@ -27,8 +27,11 @@ test('W48 active human-height farmer parts standing wheat and carries a real wor
   const before=JSON.stringify(g.exportSnapshot());
   for(let i=0;i<8;i++)g.getHarvestVisibilityAudit();
   const unchanged=JSON.stringify(g.exportSnapshot())===before;
-  g.setCamera({focus:[audit.contact[0],audit.contact[1]],yaw:-.64,pitch:.22,zoom:7.5});
-  return {audit,unchanged,citizens:g.getCitizenProfiles().length,
+  if(typeof g.watchHarvestShift!=='function')
+   return {error:'W48 real farmer documentary camera absent'};
+  const view=g.watchHarvestShift(),camera=g.getCitizenCameraPlan();
+  const composition=g.getWorkdayCompositionAudit();
+  return {audit,view,camera,composition,unchanged,citizens:g.getCitizenProfiles().length,
    realFarmers:g.getCitizenProfiles().filter(p=>p.job==='farmer').length};
  });
  expect(sample.error||'').toBe('');
@@ -45,6 +48,14 @@ test('W48 active human-height farmer parts standing wheat and carries a real wor
  expect(sample.audit.progress).toBeGreaterThan(.12);
  expect(sample.citizens).toBeGreaterThan(0);
  expect(sample.realFarmers).toBeGreaterThan(0);
+ expect(sample.view.active).toBe(true);
+ expect(sample.view.job).toBe('farmer');
+ expect(sample.view.citizen).toBe(sample.audit.citizen);
+ expect(sample.camera).toBeTruthy();
+ expect(sample.camera.blockers).toBe(0);
+ expect(sample.camera.foregroundSceneCover).toBeLessThan(.20);
+ expect(sample.composition.active).toBe(true);
+ expect(sample.composition.projectedWorkerHeightFraction).toBeGreaterThan(.17);
  await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0);
  const desktop=await page.evaluate(()=>({
   triangles:window.__tinyKingdom.renderStats().lastFrameTriangles,
@@ -57,11 +68,19 @@ test('W48 active human-height farmer parts standing wheat and carries a real wor
  await page.setViewportSize({width:390,height:844});
  expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
  await expect(page.locator('#pause')).toBeVisible();
- const mobile=await page.evaluate(()=>({
-  audit:window.__tinyKingdom.getHarvestVisibilityAudit(),
-  gl:document.getElementById('world').getContext('webgl')?.getError()??-1
- }));
+ const mobile=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;
+  const view=g.watchHarvestShift(),camera=g.getCitizenCameraPlan();
+  return {view,camera,audit:g.getHarvestVisibilityAudit(),
+   composition:g.getWorkdayCompositionAudit(),
+   gl:document.getElementById('world').getContext('webgl')?.getError()??-1};
+ });
  expect(mobile.audit.active).toBe(true);
+ expect(mobile.view?.active).toBe(true);
+ expect(mobile.view?.job).toBe('farmer');
+ expect(mobile.camera?.blockers).toBe(0);
+ expect(mobile.camera?.foregroundSceneCover).toBeLessThan(.20);
+ expect(mobile.composition?.projectedWorkerHeightFraction).toBeGreaterThan(.17);
  expect(mobile.audit.citizen).toBe(sample.audit.citizen);
  expect(mobile.gl).toBe(0);
  expect(errors).toEqual([]);
