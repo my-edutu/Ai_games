@@ -2001,6 +2001,14 @@ export function createMazeWorld(options = {}) {
         gateOpeningAt.delete(edge);
       }
     }
+    // Ambient living masonry gives a disclosed alcove a small physical
+    // relationship with Pip. Proximity is measured against the REAL public
+    // presentation pose; it cannot infer an undiscovered neighbor or change
+    // any navigation, hazards, doors, inventory or AI state. Reduced-motion
+    // settles the hinges completely, including when the actor moves.
+    const hero=options.explorerPosition;
+    const hx=hero?.isVector3 && Number.isFinite(hero.x) ? hero.x : publicHeroX;
+    const hz=hero?.isVector3 && Number.isFinite(hero.z) ? hero.z : publicHeroZ;
     // True PUBLIC pressure-hazard contact is readable as a physical scene
     // consequence, not a fake collision or a new game mechanic. The hinges
     // flare OUTWARD, away from the centre path, as the actual autonomous Pip
@@ -2015,14 +2023,6 @@ export function createMazeWorld(options = {}) {
       const angle = reduced ? .24 : .06 + .60 * Math.min(1, near * 1.7);
       jaw.object.rotation.z = -jaw.side * angle;
     }
-    // Ambient living masonry gives a disclosed alcove a small physical
-    // relationship with Pip. Proximity is measured against the REAL public
-    // presentation pose; it cannot infer an undiscovered neighbor or change
-    // any navigation, hazards, doors, inventory or AI state. Reduced-motion
-    // settles the hinges completely, including when the actor moves.
-    const hero=options.explorerPosition;
-    const hx=hero?.isVector3 && Number.isFinite(hero.x) ? hero.x : publicHeroX;
-    const hz=hero?.isVector3 && Number.isFinite(hero.z) ? hero.z : publicHeroZ;
     for (const relic of fossilSails) {
       const near=Math.max(0,1-Math.hypot(hx-relic.x,hz-relic.z)/3.2);
       const angle=reduced ? .07
