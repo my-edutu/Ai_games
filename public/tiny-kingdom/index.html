@@ -2838,7 +2838,7 @@ let streetMorphologyStats={homes:0,highStreetFronts:0,upperJetties:0,
  crossGables:0,shopCanopies:0,framedUpperCasements:0,physicalSignboards:0,
  totalTriangles:0,archetypes:[0,0,0,0]};
 const VILLAGE_LOD_LIMIT=8;
-const villageVisualLod={detailedHomes:0,compactHomes:0,detailedCitizens:0,compactCitizens:0,compactRoofTiles:0,compactFramedWindows:0,compactGableBraces:0,compactSideWindows:0,compactSideTimberQuads:0,compactStaggeredCourses:0,compactFacingCount:0,compactTurnedCitizens:0,compactFacingVertexError:0,compactDormers:0,compactDormerTriangles:0,compactGuildLofts:0,compactRoofPaletteCounts:[0,0,0,0]};
+const villageVisualLod={detailedHomes:0,compactHomes:0,detailedCitizens:0,compactCitizens:0,compactRoofTiles:0,compactFramedWindows:0,compactGableBraces:0,compactSideWindows:0,compactSideTimberQuads:0,compactStaggeredCourses:0,compactFacingCount:0,compactTurnedCitizens:0,compactFacingVertexError:0,compactDormers:0,compactDormerTriangles:0,compactGuildLofts:0,compactPorchFrames:0,compactWeatheredFootings:0,compactRainCasks:0,compactFrontageTriangles:0,compactRoofPaletteCounts:[0,0,0,0]};
 // G153: reuse each ORIGINAL per-home roof, walls, windows and street facade
 // when a growing inhabited settlement or a new season rebuilds static scenery.
 // This bounded presentation cache preserves the exact authored triangle order
@@ -3111,6 +3111,77 @@ function compactHouse(x,z,variant){
   });
   villageVisualLod.compactGuildLofts++;
  }
+ // W56: an entire grown street of real, locally sourced cottages acquires
+ // threshold depth and sheltered entrances, not a decorative display home.
+ compactBurgageFrontage(x,z,variant,y,w,d,h,roofStyle);
+}
+
+// Render-only, per-home authored medieval threshold architecture. Kept inside
+// the established house render cache; no changes to city collision, saved
+// authority, citizens, jobs, production or seeded replay.
+function compactBurgageFrontage(x,z,variant,y,w,d,h,roofStyle){
+ const first=data.length,front=z-d*.5-.35,wall=z-d*.5-.10;
+ const timber=rgb([0x654936,0x594739,0x69513f,0x57483a][roofStyle]);
+ const sill=rgb([0xb1a18b,0xa69b8a,0xb5ae9b,0x9c9588][roofStyle]);
+ const roof=rgb(COMPACT_ROOF_PALETTES[roofStyle][(variant+2)%4]);
+ // A staggered masonry plinth gives weight and human-scale relief to every
+ // compact facade; 2D facing quads avoid hundreds of opaque stone cubes.
+ materialScope(MATERIAL.STONE,()=>{
+  for(const faceSign of [-1,1]){
+   const zf=z+faceSign*(d*.5+.026);
+   for(let course=0;course<2;course++){
+    for(let tile=0;tile<6;tile++){
+     const xa=x-w*.5+tile*w/6,xb=x-w*.5+(tile+1)*w/6;
+     const ya=y+.035+course*.115,yb=ya+.102+(tile%3)*.008;
+     const color=rgb(((tile+course+variant)%3===0)?0x9f9688:
+      ((tile+course)%2?0xada28d:0x938e81));
+     if(faceSign<0)quad([xa,ya,zf],[xb,ya,zf],[xb,yb,zf],[xa,yb,zf],color);
+     else quad([xb,ya,zf],[xa,ya,zf],[xa,yb,zf],[xb,yb,zf],color);
+    }
+   }
+  }
+ });
+ villageVisualLod.compactWeatheredFootings++;
+ // Recessed oak doorway with genuine load-bearing porch posts and rail.
+ // Rain protection stays just beyond the door, below the main gable. The
+ // existing alternate shop canopy is retained instead of doubled.
+ materialScope(MATERIAL.WOOD,()=>{
+  for(const side of [-1,1]){
+   const px=x+side*.65;
+   box(px,y+.06,front,.12,1.45,.12,timber);
+   box(px,y+1.49,front,.23,.10,.18,sill);
+  }
+  box(x,y+1.52,front,1.46,.13,.15,timber);
+  for(const side of [-1,1]){
+   const px=x+side*.66;
+   quad([px,y+1.14,front-.072],[px,y+1.49,front-.072],
+     [px-side*.21,y+1.49,front-.072],[px-side*.21,y+1.40,front-.072],sill);
+  }
+ });
+ if(roofStyle===0||roofStyle===2){
+  const outer=front-.16,inner=wall+.10,low=y+1.64,high=y+1.93;
+  materialScope(MATERIAL.ROOF,()=>{
+   quad([x-.83,low,outer],[x,high,outer],[x,high,inner],[x-.83,low,inner],roof);
+   quad([x,high,outer],[x+.83,low,outer],[x+.83,low,inner],[x,high,inner],roof);
+  });
+  materialScope(MATERIAL.WOOD,()=>{
+   tri([x-.80,low-.025,outer-.014],[x+.80,low-.025,outer-.014],
+     [x,high-.025,outer-.014],timber);
+   box(x,high-.035,front-.02,.09,.08,.75,sill);
+  });
+ }
+ villageVisualLod.compactPorchFrames++;
+ // One roof-water cask at the back corner, INSIDE the house's original
+ // occupied lot. It reads as everyday domestic equipment, never as grain
+ // inventory or an extra trading actor.
+ const cx=x+w*.37,cz=z+d*.31,ground=terrain(cx,cz);
+ materialScope(MATERIAL.WOOD,()=>{
+  cylinder(cx,ground,cz,.18,.49,rgb(0x78563b),7);
+  for(const band of [.16,.39])
+   box(cx,ground+band,cz,.405,.045,.405,rgb(0x514f49));
+ });
+ villageVisualLod.compactRainCasks++;
+ villageVisualLod.compactFrontageTriangles+=(data.length-first)/30;
 }
 
 // G108: physical, town-wide inhabited architecture. Every house, not one
