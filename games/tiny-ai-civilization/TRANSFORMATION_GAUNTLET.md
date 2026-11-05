@@ -1,6 +1,6 @@
 # Tiny Kingdom — Experience Transformation Gauntlet
 
-**Latest live evidence and two independent gates:** [W42 experience scorecard — G088 versus running candidate; commercial Manor Lords FAIL](EXPERIENCE_SCORECARD_W42.md). The original chronological `public/tiny-kingdom/progress.html` remains intact. W42 is NOT PROVEN; the pre-existing >1 MB progress file cannot be safely round-tripped by the connected content-edit API.
+**Current two-gate scorecard and complete chronology:** [W46 live experience scorecard](../../public/tiny-kingdom/experience.html) and [full chronological ledger](../../public/tiny-kingdom/progress.html). W46 is **NOT PROVEN**, and commercial Manor Lords reference is **FAIL**. The 1.37 MB progress page is preserved and updated through conflict-checked Git tree commits; it must never be truncated or replaced with a summary. Exact source SHA, CI and matched baseline/candidate evidence belong in those linked scorecards. The historical [W42 independent scorecard](EXPERIENCE_SCORECARD_W42.md) remains available.
 
 
 **Effective 2026-11-01.** This contract supersedes the old G001–G088 micro-improvement acceptance method on draft PR #64. Read root `AGENTS.md` first. Use this file with the existing chronological `public/tiny-kingdom/progress.html` ledger. This is a change to *what counts as success*, not a claim that the current game has already improved.
