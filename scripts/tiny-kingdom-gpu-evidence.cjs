@@ -511,13 +511,15 @@ const path = require('node:path');
       headingPx:parseFloat(getComputedStyle(document.querySelector('.name')).fontSize),
       panelGradient:getComputedStyle(document.querySelector('.sidebar .panel')).backgroundImage.includes('gradient'),
       scenicChoices:document.querySelectorAll('.tour-btn[data-scenic]').length,
+      forgeDestination:!!document.querySelector('.world-tour [data-scenic="forge"]'),
       liveLaborControl:!!document.getElementById('workday-live'),
       workHistoryControl:!!document.getElementById('workday-watch')
     }));
     if(evidence.meadow.clusters<240||evidence.meadow.triangles!==evidence.meadow.clusters*8||!evidence.meadow.cached)
       throw Error('Gauntlet 034 meadow budget or static-cache contract failed');
     if(evidence.visualHud.worldFilter!=='none'||evidence.visualHud.headingPx<25||
-       !evidence.visualHud.panelGradient||evidence.visualHud.scenicChoices!==7||
+       !evidence.visualHud.panelGradient||evidence.visualHud.scenicChoices<8||
+       !evidence.visualHud.forgeDestination||
        !evidence.visualHud.liveLaborControl||!evidence.visualHud.workHistoryControl)
       throw Error('Gauntlet 033 visual HUD contract failed');
     evidence.skyDaybreak=await page.evaluate(()=>{
