@@ -24,6 +24,29 @@ function restoreBendParent(source) {
   if(old.split(removed).length!==2 || old.split(updated).length!==2)
     throw new Error('T2 exact-source curvature reversal drift');
   old=old.replace(removed,'').replace(updated,previous);
+  // These later T2 head adaptations are NOT present in the immutable
+  // df113 bend-density parent. Reverse exact fragments, never weaken SHA.
+  const scaled = "  // T2 whole-game hero silhouette: the previously beautiful detailed skull\n"+
+    "  // became a pinhead at authentic 28×16 / 40×24 overview scale. Enlarge the\n"+
+    "  // EXISTING one-piece skull, jaw, brows, eyes and tongue together, keeping\n"+
+    "  // every existing material, draw/triangle count, public route, gap and cue.\n"+
+    "  // At 1.28 the rear skull half-width (0.215) becomes 0.275, blending into\n"+
+    "  // the unchanged ~0.319 3D neck radius rather than a detached cartoon mask.\n"+
+    "  head.scale.setScalar(1.28);\n";
+  if (old.split(scaled).length !== 2)
+    throw new Error('T2 exact-source head-scale reversal drift');
+  old = old.replace(scaled, '');
+  const lifted = "    // Keep the enlarged complete head grounded against the exact unchanged\n"+
+    "    // body surface. Without the compensating lift the scaled lower-jaw,\n"+
+    "    // eyes and chin penetrate the board even with reduced motion enabled.\n"+
+    "    // This is presentation-only: no public route, scoring or physics changes.\n"+
+    "    const headGroundingLift = (head.scale.y - 1) * 0.38;\n"+
+    "    head.position.set(first.x, fullBodyHeight + 0.065 + headGroundingLift +\n"+
+    "      (reduced ? 0 : eaten * 0.065 + Math.sin(time * 3.1) * 0.015), first.z);";
+  const oldPosition = "    head.position.set(first.x, fullBodyHeight + 0.065 + (reduced ? 0 : eaten * 0.065 + Math.sin(time * 3.1) * 0.015), first.z);";
+  if (old.split(lifted).length !== 2)
+    throw new Error('T2 exact-source head grounding reversal drift');
+  old = old.replace(lifted, oldPosition);
   const p='// BEGIN T2 BOTANICAL DORSAL PIGMENT\n',q='// END T2 BOTANICAL DORSAL PIGMENT\n';
   const s=old.indexOf(p),e=old.indexOf(q);
   if(s<0||e<s||old.indexOf(p,s+1)>=0||old.indexOf(q,e+1)>=0)

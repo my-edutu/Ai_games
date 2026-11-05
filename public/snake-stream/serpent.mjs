@@ -754,7 +754,13 @@ export function createSerpent(THREE) {
     previousHeadX = first.x; previousHeadZ = first.z;
     // Keep the rear skull aligned with the grounded neck. Compensate for the
     // chewing pitch so the low rear cheek cannot rotate through the stone.
-    head.position.set(first.x, fullBodyHeight + 0.065 + (reduced ? 0 : eaten * 0.065 + Math.sin(time * 3.1) * 0.015), first.z);
+    // Keep the enlarged complete head grounded against the exact unchanged
+    // body surface. Without the compensating lift the scaled lower-jaw,
+    // eyes and chin penetrate the board even with reduced motion enabled.
+    // This is presentation-only: no public route, scoring or physics changes.
+    const headGroundingLift = (head.scale.y - 1) * 0.38;
+    head.position.set(first.x, fullBodyHeight + 0.065 + headGroundingLift +
+      (reduced ? 0 : eaten * 0.065 + Math.sin(time * 3.1) * 0.015), first.z);
     head.rotation.y = heading;
     headPose.rotation.x = reduced ? 0 : -eaten * 0.11 + dangerEase * 0.025;
     headPose.rotation.z = reduced ? 0 : clamp(curveLean - angleDifference * 0.055, -0.105, 0.105);
