@@ -20,6 +20,35 @@ permissions:
   contents: read
 
 jobs:
+  # W46: witness-only opt-in audio must be driven by physical smith cycles.
+  # A full WebGL/mobile regression verifies no invented work or economy delta.
+  w46-genuine-forge-audio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Muted-by-default physical smith sound and mobile integrity
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w46-genuine-forge-audio.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w46-real-forge-audio
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w46/
+          retention-days: 14
   # W45 RED-first: the open human-scale work courtyard is an actual authored
   # 3D place with genuine smith work and 390px evidence, never cosmetic claims.
   w45-open-forge-court:
