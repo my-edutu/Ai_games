@@ -32,8 +32,8 @@ test('rendering uses genuine rig hand, HP-delta guard, and restricted local asse
  const host=fs.readFileSync(path.join(root,'scripts/serve-dungeon-stream.cjs'),'utf8');
  assert.match(director,/createBladeRibbonGeometry\(THREE\)/);
  assert.match(director,/planTrueDamageCue\(beat/);
- assert.match(director,/recordDamage\(beats\)/);
- assert.match(app,/combatDirector\.recordDamage\(damageBeats\)/);
+ assert.match(director,/recordDamage\(beats,snapshot=null\)/);
+ assert.match(app,/combatDirector\.recordDamage\(damageBeats,s\)/);
  assert.match(app,/actorById:id=>actors\.get\(id\)/);
  assert.match(model,/actor\.rigHandBone=handBone/);
  assert.match(model,/actor\.rigHandBone=null/);
