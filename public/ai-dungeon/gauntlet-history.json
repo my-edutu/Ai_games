@@ -2194,7 +2194,7 @@
         "playsMajority": false,
         "provenance": "No worker/critic session available, no masked verdicts."
       },
-      "safetyChecks": "Source 043b359 committed on existing draft. Planner in-memory smoke only; new exact-head Node tests, browser, authority, replay, catalogue CI and mobile performance UNVERIFIED.",
+      "safetyChecks": "c444570 Dungeon authority passed but browser shards 1,2,3 and visual-review failed. Measured 120px mobile hero cards at 390px, inconsistent boss exposure/cast HUD. Source 2913d4c committed for actual integration; new browser/authority/catalogue CI queued, results UNVERIFIED.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED: no new opted-in synchronized desktop/mobile sound recording. No audio or critic result invented.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2501,8 +2501,8 @@
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Convincing full-body 3D character and Warden attack contact, foreground film and boss challenge in genuine continuous autonomous desktop/mobile gameplay; true combat viewport remains unverified in motion.",
-    "currentWork": "Living combat and Warden now own a larger physically rendered mobile battle stage, with compact true three-hero HP UI and bounded actual projection-based foreground prop clearance. Source candidate, moving AFTER UNVERIFIED.",
+    "biggestRemainingGap": "Real original adult-scale skinned anatomy, clearly observable native blade-to-body contact, coherent tactical Warden confrontation, world richness and organic journey; no matched full A/B or independent critics.",
+    "currentWork": "Continue one M1. 2913d4c candidate repairs observed 390px readable party and source-true guarded/warning/release/recovery Warden tactical UI during the real skinned boss encounter. New-head audiovisual accept/reject still pending.",
     "candidateCommit": "043b3591e49d8585fa5024f9d38f6a4b400d1602",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
@@ -5573,6 +5573,23 @@
         "verifiedAfter": "UNVERIFIED",
         "critics": "0/3",
         "pinnedBaselineRetained": true
+      },
+      {
+        "id": "M1-LIVE-WARDEN-TACTICS-FULL-WIDTH-20261105",
+        "at": "2026-11-05",
+        "milestone": "DUNGEON-TRANSFORMATION-01",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceCommit": "2913d4c6878361d8f00f6188c7f19bdf9ec80efe",
+        "status": "IN_PROGRESS_NOT_TRANSFORMED",
+        "predecessorWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42081783804",
+        "observedFailure": "Actual Chromium: 390px portrait hero cards shrank to 120px; Warden genuine cast+counter tick showed TAKE COVER instead of EXPOSED; post-unseal ENGAGED instead of EXPOSED.",
+        "implementation": "Same live true Warden semantics drive HP-stage HUD and exposure message; 74/78svh 3D viewport with three compact full-width HP/action touch cards.",
+        "safety": "NEW_HEAD_UNVERIFIED",
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "critics": 0,
+        "next": "Inspect exact-head running 1440/390 actual combat+audio, correct observed physical/anatomical gaps, complete continuous five-stage M1 baseline comparison and blind review."
       }
     ],
     "implementationContinuation": {
@@ -5587,15 +5604,17 @@
       "nextTask": "Inspect exact new-head 1440px and 390px real WebGL moving gameplay + opt-in actual sound; measure natural team handoffs, reject scene/body occlusion and camera instability; capture 5-stage journey and independent blind A/B."
     },
     "latestImplementation": {
-      "sourceSha": "043b3591e49d8585fa5024f9d38f6a4b400d1602",
-      "description": "Real-unit-driven mobile combat viewport at 74svh and Warden at 78svh with compact three-person real HP cards; extend depth- and body-projection-gated physical portrait foreground prop removal to 7.1m; no game authority edits.",
+      "sourceSha": "2913d4c6878361d8f00f6188c7f19bdf9ec80efe",
+      "description": "Real authority-driven Warden exposure/counter-status synchronized to existing skinned strike choreography, plus full-width legible mobile hero HP/action roster while retaining actual 74/78svh live 3D stage.",
       "status": "IN_PROGRESS_NOT_TRANSFORMED",
       "afterMotion": "UNVERIFIED",
-      "actualAudio": "UNVERIFIED"
+      "actualAudio": "UNVERIFIED",
+      "predecessorChromium": "REPRODUCED_FAILURE: 120px party cards and boss strike/exposure contradictions at c444570; 3 browser shards plus visual-review failed",
+      "exactNewHeadBrowser": "QUEUED / UNVERIFIED"
     },
-    "lastCandidateSha": "043b3591e49d8585fa5024f9d38f6a4b400d1602",
-    "experienceVerdict": "IN PROGRESS — NOT TRANSFORMED; LOOKS/FEELS/PLAYS UNVERIFIED; 0/3 independent blinded critics",
-    "criticReadiness": "0/3; exact-head desktop/mobile moving sound captures, matched fixed-baseline A/B and natural progression unverified",
-    "nextImplementationTask": "Watch exact 043b359 real desktop/390px boss release and normal combat (audio enabled), inspect 74/78svh stage and obscured column, verify module/CI/seed/replay and performance, then develop full-body and boss encounter quality and compare pinned baseline continuous five-stage A/B with 3 independent blind critics."
+    "lastCandidateSha": "2913d4c6878361d8f00f6188c7f19bdf9ec80efe",
+    "experienceVerdict": "IN PROGRESS — NOT TRANSFORMED; LOOKS/FEELS/PLAYS UNVERIFIED; 0/3 blinded critics.",
+    "criticReadiness": "0/3; original fully matched desktop/mobile moving audiovisual journey not captured; source-only candidate.",
+    "nextImplementationTask": "Inspect 2913d4c exact-head desktop and mobile WebGL Warden motion and audio; verify new full-width party cards and actual counter exposure UI; reject remaining occlusion, anatomy and contact flaws, then complete 5-stage baseline-matched audiovisual and 3 fresh blind critics."
   }
 }
