@@ -1,3 +1,5 @@
+import { observedNearbyGuardianCrossfire } from './guardian-shot-stage.mjs';
+
 // A cross-biome action hierarchy for the real Tower. This is an observation
 // only: it cannot choose a route, change a collider, predict an impact or
 // invent a guardian fight. The same source fact quiets decorative architecture
@@ -26,12 +28,23 @@ export function observedImmediateTrap(source) {
       !actor || actor.health <= 0 ||
       !finite(actor.x, actor.y, actor.halfWidth, actor.halfHeight) ||
       actor.halfWidth <= 0 || actor.halfHeight <= 0) return null;
-  const evasive = /^((oracle-)?evading-hazard)$/.test(source.intent?.mode ?? '');
+  const mode = source.intent?.mode ?? '';
+  const evasive = /^((oracle-)?evading-hazard)$/.test(mode);
+  // The pilot may be dodging a REAL already-fired bolt while a published
+  // shutter countdown closes. Its AI intent says "evading-projectile", not
+  // "evading-hazard"; withholding the physical shutter until impact leaves
+  // a crucial boss+crusher beat visually and sonically unreadable.
+  // Only a live approaching enemy-owned shot coincident with a living nearby
+  // guardian can authorize this additional presentation path. The source
+  // cannot attribute the projectile's shooter and neither do we.
+  const liveCrossfire = /^((oracle-)?evading-projectile)$/.test(mode)
+    ? observedNearbyGuardianCrossfire(source) : null;
   let closest = null, distance = Infinity;
   for (const hazard of source.hazards || []) {
     if (!hazard || !finite(hazard.x, hazard.y, hazard.width, hazard.height) ||
         hazard.width <= 0 || hazard.height <= 0) continue;
-    const charging = evasive && Number.isSafeInteger(hazard.chargeTicksRemaining) &&
+    const charging = (evasive || liveCrossfire) &&
+      Number.isSafeInteger(hazard.chargeTicksRemaining) &&
       hazard.chargeTicksRemaining >= 1 && hazard.chargeTicksRemaining <= 6;
     if (hazard.active !== true && !charging) continue;
     const x = hazard.x + hazard.width / 2, y = hazard.y + hazard.height / 2;
