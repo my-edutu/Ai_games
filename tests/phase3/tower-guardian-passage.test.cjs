@@ -344,3 +344,67 @@ test('source-earned cap arrival leads the same continuous portrait/desktop camer
   assert.match(scene, /actorRescueFraction = recoverTowerActorView\(/,
     'the live actor rescue remains in control if the doorway shot crops the hero');
 });
+
+
+test('source-defeated guardian crumbles during earned cap traversal, not after the new floor', async () => {
+  const [THREE, { createTowerGuardianPassage, observedUnlockedGuardianCap }] = await loaded;
+  const cap = { id: 'f8:cap', x: 115200, y: 8 * 360000 + 332000,
+    width: 249600, height: 12000 };
+  const guardian = { id: 'f8:guardian', kind: 'guardian', active: false,
+    health: 0, x: cap.x + 65000,
+    y: cap.y + cap.height + 18000, halfHeight: 18000 };
+  const source = Object.freeze({
+    runToken: 'real-armor-landing', floor: 8, tick: 214, lifecycle: 'running',
+    chunkBaseY: 8 * 360000, worldWidth: 480000,
+    player: Object.freeze({ x: cap.x + 110000, health: 3 }),
+    platforms: Object.freeze([Object.freeze(cap)]),
+    enemies: Object.freeze([Object.freeze(guardian)]),
+  });
+  assert.ok(observedUnlockedGuardianCap(source));
+  const effect = createTowerGuardianPassage(THREE);
+  try {
+    assert.equal(effect.unlock(source, anchor), true);
+    assert.equal(effect.diagnostics().stage, 'earned-open');
+    assert.equal(effect.diagnostics().guardianDefeatPieces, 12,
+      'a genuine source-zero-HP body produces physical defeat on the same floor');
+    const r = 27.65, theta = (guardian.x / source.worldWidth - .5) * 2.2;
+    const expected = [Math.sin(theta) * r,
+      (guardian.y - guardian.halfHeight + 9000 - source.chunkBaseY) / 10000,
+      Math.cos(theta) * r];
+    for (const [index, value] of expected.entries())
+      assert.ok(Math.abs(effect.diagnostics().guardianDefeatSourcePosition[index] - value) < 1e-7);
+    const pieces = effect.group.getObjectByName('WitnessedGuardianDefeatArmor');
+    const matrix = new THREE.Matrix4();
+    pieces.getMatrixAt(8, matrix);
+    const first = [...matrix.elements];
+    effect.update(.45);
+    pieces.getMatrixAt(8, matrix);
+    assert.notDeepEqual(matrix.elements, first,
+      'the real armor falls before the actual source floor transition');
+    const age = effect.diagnostics().defeatAgeSeconds;
+    assert.equal(effect.unlock({ ...source, tick: 215 }, anchor), true);
+    assert.equal(effect.diagnostics().defeatAgeSeconds, age,
+      'duplicate real snapshots must never restart the defeated body's fall');
+    const next = { runToken: source.runToken, floor: 9, tick: 222,
+      lifecycle: 'running', enemies: [] };
+    const rebase = source.chunkBaseY + 360000;
+    const rebasedGuardian = { x: expected[0],
+      y: expected[1] - 36, z: expected[2] };
+    assert.equal(effect.begin(source, next, anchor, rebasedGuardian), true);
+    assert.equal(effect.diagnostics().defeatAgeSeconds, age,
+      'cross-floor passage cannot reset guardian defeat presentation time');
+    effect.group.updateMatrixWorld(true);
+    assert.ok(pieces.getWorldPosition(new THREE.Vector3()).distanceTo(
+      new THREE.Vector3(rebasedGuardian.x, rebasedGuardian.y,
+        rebasedGuardian.z)) < 1e-5);
+    effect.update(.2);
+    assert.ok(effect.diagnostics().defeatAgeSeconds > age);
+    effect.clear();
+    assert.equal(effect.diagnostics().guardianDefeatPieces, 0);
+    assert.equal(effect.diagnostics().defeatAgeSeconds, 0);
+    assert.equal(effect.unlock({ ...source, enemies: [{ ...guardian, active: true, health: 1 }] },
+      anchor), false);
+    assert.equal(effect.group.visible, false,
+      'living, unearned guardian cannot create a defeat memorial');
+  } finally { effect.dispose(); }
+});
