@@ -1062,6 +1062,36 @@ jobs:
           path: test-results/
           retention-days: 14
 
+  # W67 keeps the SAME genuine harvest worker/field on screen without
+  # hiding crops, moving the actor or inventing food; real GPU and 390px.
+  w67-actual-field-witness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: W67 actual farming hands and crop-depth clear camera in 1024px/390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w67-actual-field-witness.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w67-actual-field-witness
+          path: |
+            artifacts/tiny-kingdom-w67/
+            test-results/
+          retention-days: 14
   # W66: exactly sourced genuine residents and wool before/after W65.
   # RED/GREEN browser and filmed experience remain independently required.
   w66-resident-workday:
