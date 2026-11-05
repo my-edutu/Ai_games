@@ -5652,6 +5652,21 @@
     "lastCandidateSha": "4a599c56500bd3db4064808536b219748338d5c3",
     "experienceVerdict": "IN PROGRESS — NOT TRANSFORMED; LOOKS/FEELS/PLAYS UNVERIFIED; 0/3 blinded critics.",
     "criticReadiness": "0/3; original fully matched desktop/mobile moving audiovisual journey not captured; source-only candidate.",
-    "nextImplementationTask": "Inspect exact 4a599c5 desktop/mobile native GLB duels with actual original sound and p95 timing; reject deformation or clip jerk, improve original anatomy/body silhouettes, then collect five-stage pinned original BEFORE/AFTER and >=3 blind critics."
+    "nextImplementationTask": "Inspect exact 4a599c5 desktop/mobile native GLB duels with actual original sound and p95 timing; reject deformation or clip jerk, improve original anatomy/body silhouettes, then collect five-stage pinned original BEFORE/AFTER and >=3 blind critics.",
+    "integrationReview": {
+      "at": "2026-11-05",
+      "sourceHead": "fe61765a43fda660f75ab5004688113517fcbd78",
+      "status": "IN_PROGRESS / NOT TRANSFORMED",
+      "finding": "New native full-body duel was added on top of existing physical body, arm/forearm, leg and wrist/root attack layers: risk of exaggerated double/quadruple animation and foot slide.",
+      "correction": "Genuine adjacent native duel now owns those melee layers exclusively; authored GLB and source boss warning/evasion/recoil remain. No authoritative replay/combat/state change.",
+      "next": "Inspect exact-head desktop and 390px mobile real moving Warden/hero contact, evaluate against fixed 281735d baseline, repair clipping, then pursue integrated adult-scale original character art.",
+      "evidence": "Source + regression test candidate, true full motion/audio capture, performance and independent critic evaluation UNVERIFIED.",
+      "pillars": {
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED"
+      },
+      "critics": 0
+    }
   }
 }

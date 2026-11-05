@@ -620,13 +620,22 @@ function restoreRigMeleeBeforeMixer(actor){
  }
 }
 const RIG_ZERO=Object.freeze({pitch:0,yaw:0,roll:0});
+const NATIVE_MELEE_NO_BRACE=Object.freeze({
+ left:Object.freeze({upper:0,lower:0,foot:0}),
+ right:Object.freeze({upper:0,lower:0,foot:0})
+});
+const NATIVE_MELEE_NO_ROOT=Object.freeze({x:0,y:0,z:0,pitch:0,roll:0,yaw:0});
 function stageRigMeleeAfterMixer(actor,since,reducedMotion){
  actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;
  if(!actor.rigMeleeBones?.length)return;
  const pose=planRigMeleeFollowThrough(actor.u.kind,actor.u.action||'idle',since,
   actor.combatFacing?.distance,actor.combatFacing?.targetId,reducedMotion||actor.u.hp<=0);
  for(const mount of actor.rigMeleeBones){
-  const joint=pose[mount.part],extra=actor.performanceBeat?.[mount.part]||RIG_ZERO;
+  // One genuine imported bone receives ONE original melee performance,
+  // not legacy follow-through + secondary beat + native duel stacked.
+  const nativeMelee=actor.nativeDuel?.mode&&actor.nativeDuel.mode!=='rest';
+  const joint=nativeMelee?RIG_ZERO:pose[mount.part],
+   extra=nativeMelee?RIG_ZERO:(actor.performanceBeat?.[mount.part]||RIG_ZERO);
   const native=actor.nativeDuel?.[mount.part]||RIG_ZERO;
   const dodge=mount.part==='spine'?(actor.evasionFrame?.spine||RIG_ZERO):RIG_ZERO;
   const bearing=mount.part==='spine'?(actor.rigBearing?.chest||RIG_ZERO):RIG_ZERO;
@@ -641,7 +650,9 @@ function stageRigMeleeAfterMixer(actor,since,reducedMotion){
   mount.bone.quaternion.multiply(mount.next);
   mount.last.copy(mount.next);
   actor.rigMeleeCurrentPeak=Math.max(actor.rigMeleeCurrentPeak,
-   Math.abs(joint.pitch),Math.abs(joint.yaw),Math.abs(joint.roll));
+   Math.abs(joint.pitch+extra.pitch+native.pitch),
+   Math.abs(joint.yaw+extra.yaw+native.yaw),
+   Math.abs(joint.roll+extra.roll+native.roll));
  }
  actor.rigMeleePeak=Math.max(actor.rigMeleePeak||0,actor.rigMeleeCurrentPeak);
  actor.rigMeleeActive=actor.rigMeleeCurrentPeak>.08;
@@ -682,7 +693,9 @@ function stageRigArmsAfterMixer(actor,since,reducedMotion){
   Math.abs(threat?.shoulders?.left?.pitch??warningLift),
   Math.abs(threat?.shoulders?.right?.pitch??warningLift));
  for(const mount of actor.rigUpperArms||[]){
-  const joint=pose[mount.side],extra=actor.performanceBeat?.arms?.[mount.side]||RIG_ZERO;
+  const nativeMelee=actor.nativeDuel?.mode&&actor.nativeDuel.mode!=='rest';
+  const joint=nativeMelee?RIG_ZERO:pose[mount.side],
+   extra=nativeMelee?RIG_ZERO:(actor.performanceBeat?.arms?.[mount.side]||RIG_ZERO);
   const native=actor.nativeDuel?.arms?.[mount.side]||RIG_ZERO;
   const stride=actor.rigFullBodyStride?.arms?.[mount.side];
   const physicalTell=threat?.shoulders?.[mount.side];
@@ -706,8 +719,11 @@ function stageRigForearmsAfterMixer(actor,since,reducedMotion){
   // into a rubber-jointed arm or fool the browser diagnostic with a raw sum.
   const threat=actor.u.kind==='warden'&&actor.u.hp>0&&!reducedMotion?
    (actor.wardenCharge?.threatPerformance?.forearms?.[mount.side]??0):0;
+  const nativeMelee=actor.nativeDuel?.mode&&actor.nativeDuel.mode!=='rest';
   const angle=Math.max(-.445,Math.min(.445,
-   pose[mount.side]+threat+(actor.wardenStrikePose?.forearms?.[mount.side]??0)+(actor.performanceBeat?.elbows?.[mount.side]||0)+(actor.nativeDuel?.forearms?.[mount.side]??0)+(actor.evasionFrame?.elbows?.[mount.side]??0)));
+   (nativeMelee?0:pose[mount.side])+threat+(actor.wardenStrikePose?.forearms?.[mount.side]??0)+
+   (nativeMelee?0:(actor.performanceBeat?.elbows?.[mount.side]||0))+
+   (actor.nativeDuel?.forearms?.[mount.side]??0)+(actor.evasionFrame?.elbows?.[mount.side]??0)));
   mount.next.setFromEuler(mount.euler.set(angle,0,0,'XYZ'));
   mount.bone.quaternion.multiply(mount.next);
   mount.last.copy(mount.next);
@@ -740,7 +756,10 @@ function stageRigLegsAfterMixer(actor,since,reducedMotion){
  const pose=actor.rigLegStride||planRigLegGesture(0,0,true);
  // Never invent a melee target: the app supplies only a grid-validated,
  // unobstructed public facing, and we require exactly one-cell contact.
- const brace=planRigContactBrace(actor.u.kind,actor.u.action||'idle',since,
+ const nativeMelee=actor.nativeDuel?.mode&&actor.nativeDuel.mode!=='rest';
+ // The source-rig attack's own real planted footwork supersedes the old
+ // independent knee/ankle contact brace instead of rubber-stacking it.
+ const brace=nativeMelee?NATIVE_MELEE_NO_BRACE:planRigContactBrace(actor.u.kind,actor.u.action||'idle',since,
   actor.combatFacing?.distance,reducedMotion||actor.u.hp<=0);
  // The actual 3-beat public NOVA plants genuine imported leg bones, without
  // additional grid steps or persistent changes to the animation mixer.
@@ -1057,13 +1076,19 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
  stageSkinnedDefeatAfterMixer(actor,reducedMotion);
  stageWardenChapterRegalia(actor,reducedMotion);
  if(actor.visualPivot){
-  const pose=planAuthoredMotion(actor.u.kind,actor.u.action||'idle',since,reducedMotion);
-  // Read-only additive torso drive is shared with the real skinned weapon arc.
-  const contact=planContactBodyLanguage(actor.u.kind,actor.u.action||'idle',since,{
-   targetId:actor.combatFacing?.targetId,distance:actor.combatFacing?.distance,
-   reducedMotion:reducedMotion||actor.u.hp<=0
-  });
-  const beat=actor.performanceBeat.root,dodge=actor.evasionFrame.root,native=actor.nativeDuel?.root;
+  // A single unified physical sword phrase owns root translation when live.
+  // Legacy pivot lunge + contact recoil + secondary lunge must NOT accumulate
+  // over the genuine bone-planted stance (which already owns this weight shift).
+  const nativeMelee=actor.nativeDuel?.mode&&actor.nativeDuel.mode!=='rest';
+  const pose=nativeMelee?NATIVE_MELEE_NO_ROOT:
+   planAuthoredMotion(actor.u.kind,actor.u.action||'idle',since,reducedMotion);
+  const contact=nativeMelee?NATIVE_MELEE_NO_ROOT:
+   planContactBodyLanguage(actor.u.kind,actor.u.action||'idle',since,{
+    targetId:actor.combatFacing?.targetId,distance:actor.combatFacing?.distance,
+    reducedMotion:reducedMotion||actor.u.hp<=0
+   });
+  const beat=nativeMelee?NATIVE_MELEE_NO_ROOT:actor.performanceBeat.root,
+   dodge=actor.evasionFrame.root,native=actor.nativeDuel?.root;
   const ground=actor.groundedPerformance;
   actor.visualPivot.position.set(pose.x+contact.x+beat.x+dodge.x+(native?.x??0),
    pose.y+contact.y+beat.y+dodge.y+(native?.y??0)+(ground?.bodyLift??0),pose.z+contact.z+beat.z+dodge.z+(native?.z??0));

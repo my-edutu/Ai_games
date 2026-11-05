@@ -71,3 +71,16 @@ test('actual skinned rig mixer integrates head, hips, arms, blade, feet and diag
  ])assert.ok(model.includes(token),'missing native rig stage: '+token);
  assert.ok(server.includes("['/dungeon/native-duel-performance.js','native-duel-performance.js']"));
 });
+
+test('native source-skinned attack owns one coherent bone/root layer, not three simultaneous legacy strikes',()=>{
+ const source=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(source,/nativeMelee\?RIG_ZERO:pose\[mount\.part\]/);
+ assert.match(source,/nativeMelee\?RIG_ZERO:\(actor\.performanceBeat\?\.\[mount\.part\]/);
+ assert.match(source,/nativeMelee\?RIG_ZERO:pose\[mount\.side\]/);
+ assert.match(source,/nativeMelee\?NATIVE_MELEE_NO_BRACE:planRigContactBrace/);
+ assert.match(source,/nativeMelee\?NATIVE_MELEE_NO_ROOT:\s*planAuthoredMotion/);
+ assert.match(source,/nativeMelee\?NATIVE_MELEE_NO_ROOT:actor\.performanceBeat\.root/);
+ assert.match(source,/actor\.nativeDuel\?\.forearms/);
+ assert.match(source,/actor\.nativeDuel\?\.legs/);
+ assert.match(source,/restoreRigArmsBeforeMixer[\s\S]*?actor\.mixer\.update[\s\S]*?stageRigMeleeAfterMixer/);
+});
