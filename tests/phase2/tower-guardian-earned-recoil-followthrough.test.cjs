@@ -130,3 +130,27 @@ test('only the fully opted-in living guardian may lose contact pressure while st
   assert.ok(expired.events.some(e=>e.type==='player-damage'),
     'expired source stun cannot suppress the ordinary body attack');
 });
+
+test('autonomous guardian duel spends earned exposed ticks preparing a real second strike, not running away',()=>{
+  const original=duel();
+  original.player.invulnerableTicks=0;
+  const counter=stepTowerCombat(original,{...idle,attack:true},rng()).state;
+  const exposed=structuredClone(counter);
+  exposed.tick++;
+  const boss=exposed.enemies[0],p=exposed.player;
+  p.position.x=boss.position.x-30000;
+  p.position.y=boss.position.y;p.facing=1;p.velocity.x=0;
+  p.attackCooldown=6;
+  const before=structuredClone(exposed);
+  const choice=chooseTowerAction(exposed,createTowerObservation(exposed,{includeHazardWindup:true}));
+  assert.equal(choice.intent.mode,'engaging-enemy');
+  assert.equal(choice.action.attack,false,'the observed six-tick cooldown remains authoritative');
+  assert.notEqual(choice.action.move,-1,
+    'do not turn an earned source-stagger punish beat into a retreat that wastes the only opening');
+  assert.deepEqual(exposed,before,'source observation and tactical choice remain immutable');
+  const recovered=structuredClone(exposed);
+  recovered.enemies[0].staggerUntilTick=recovered.tick;
+  const regular=chooseTowerAction(recovered,createTowerObservation(recovered,{includeHazardWindup:true}));
+  assert.equal(regular.action.move,-1,
+    'outside an earned opening, ordinary physical contact-avoidance resumes');
+});
