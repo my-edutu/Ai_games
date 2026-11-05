@@ -20,6 +20,35 @@ permissions:
   contents: read
 
 jobs:
+  # W60: physical closed oak leaf at a real resting household, plus a
+  # stable, roof/foliage-cleared spectator camera on 1024px and 390px.
+  w60-true-cottage-rest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: W60 real closed door, camera clarity, 390px, and unaltered world
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w60-true-closed-home.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w60-true-cottage-rest
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w60/
+          retention-days: 14
   # W59: an authentic homecoming must make a complete, readable
   # dusk-to-dawn scene on desktop and mobile, without fake simulation.
   w59-lived-homecoming-continuity:
