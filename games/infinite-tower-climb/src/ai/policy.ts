@@ -651,6 +651,12 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
       &&guardian.position.x>=safeLeft-reach&&guardian.position.x<=safeRight+reach;
     const pulseLane=tactical&&pulseReady(state,observation,guardian);
     if(meleeLane||pulseLane){
+      // The actual source stagger is a short, earned exposed-core window.
+      // The existing guarded move/strike and hazard precedence remain intact.
+      const openFollowThrough=tactical&&state.config.guardianArenaHazards===true&&
+        state.config.guardianSecondWind===true&&
+        (guardian.staggerTicksRemaining??0)>0&&
+        (guardian.guardTicksRemaining??0)===0;
       const dx=guardian.position.x-observation.player.position.x;
       const facing:TowerAction['move']=dx>=0?1:-1;
       const inReach=Math.abs(dx)<=reach-4000;
@@ -717,7 +723,9 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
         // backward at a guardian beyond the cap.
         ability:tactical&&facingGuardian&&pulseLane}),
         intent:{mode:'engaging-enemy',summary:inReach&&tactical&&(guardian.guardTicksRemaining??0)>0&&guardian.telegraphUntilTick<=observation.tick?
-          'Holding for the guardian shield to open':inReach?'Fighting the guardian at the gate':
+          'Holding for the guardian shield to open':openFollowThrough?
+          'Following through on the earned physical guardian recoil':
+          inReach?'Fighting the guardian at the gate':
           tactical&&move!==wanted?'Holding safe footing during the guardian duel':'Closing on the guardian at the gate',
           confidence:.96,fallbackUsed:false}};
     }
