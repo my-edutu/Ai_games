@@ -302,6 +302,12 @@ export function createTowerAudio() {
       tone(104,42,.28,'triangle',.055);
     }
     if(witnessedSameFloorDefeat || witnessedGuardianPass){
+      // The visual broken conduit and its optional mechanical discharge
+      // share the same real same-floor active-to-inactive guardian event.
+      if(witnessedSameFloorDefeat){
+        texture(270,.29,.055);
+        tone(265,78,.25,'sawtooth',.036);
+      }
       texture(550,.20,.065);
       tone(220,330,.22,'triangle',.064);
       tone(330,440,.31,'sine',.053);

@@ -147,23 +147,77 @@ export function createTowerGuardianPassage(THREE) {
   group.add(fallenArmor);
   const fallenPose = new THREE.Object3D();
   const guardianWorld = new THREE.Vector3();
+  // Original rigid-plate silhouette with a helmet, crest, chest, waist,
+  // shoulders, gauntlets, thighs and boots. These remain solely cosmetic:
+  // their 12 metal plates share one bounded instanced mesh and source anchor.
+  const armorSilhouette = [
+    [0,3.64,.13,1.12,.78,.86,-.14,.20,-.83], // helmet
+    [0,4.12,.06,.50,.47,.58,.20,.54,.77], // crest
+    [0,2.81,.02,1.82,1.38,.86,-.16,.24,-.39], // chest
+    [0,1.96,.10,1.22,.75,.80,.24,.32,.33], // waist
+    [-1.25,3.07,.05,.95,.90,.76,-.82,.39,-.78], // shoulder L
+    [1.25,3.07,.05,.95,.90,.76,.88,.36,.84], // shoulder R
+    [-1.43,2.04,.19,.64,1.24,.62,-1.12,.55,-.95], // arm L
+    [1.43,2.04,.19,.64,1.24,.62,1.02,.57,1.01], // arm R
+    [-.49,1.20,.08,.70,1.14,.70,-.55,.64,-.56], // thigh L
+    [.49,1.20,.08,.70,1.14,.70,.62,.65,.58], // thigh R
+    [-.50,.37,.28,.65,.70,.85,-.67,.75,-1.11], // boot L
+    [.50,.37,.28,.65,.70,.85,.67,.70,1.12], // boot R
+  ];
+  // The source-defeated machine's visible power connection retracts into
+  // the earned real bronze gateway. Eight luminous segments reuse the owned
+  // box/glow resources: one instanced draw, zero new geometry or lights.
+  const powerBreak = new THREE.InstancedMesh(box, glow, 8);
+  powerBreak.name = 'WitnessedGuardianPowerBreak';
+  powerBreak.frustumCulled = false;
+  powerBreak.castShadow = false;
+  powerBreak.receiveShadow = false;
+  powerBreak.visible = false;
+  powerBreak.count = 0;
+  powerBreak.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  group.add(powerBreak);
+  const powerPose = new THREE.Object3D();
+  const powerStart = new THREE.Vector3();
+  const powerEnd = new THREE.Vector3(0,4.45,.48);
+  const powerDirection = new THREE.Vector3();
+  const powerAxis = new THREE.Vector3(0,1,0);
+  const powerOrientation = new THREE.Quaternion();
+  let powerLength = 0;
   let witnessedGuardian = false;
+  const unit = value => Math.max(0,Math.min(1,value));
   function poseFallenArmor(seconds, still) {
     if (!witnessedGuardian) return;
-    const t = still ? 1 : Math.min(1, Math.max(0, seconds / 1.25));
-    const drop = 1 - Math.pow(1 - t, 3);
-    for (let i = 0; i < 12; i++) {
-      const side = i % 2 ? 1 : -1, tier = Math.floor(i / 2);
-      fallenPose.position.set(side * (.46 + drop * (.18 + tier * .13)),
-        Math.max(.26, .44 + tier * .45 - drop * (.24 + tier * .28)),
-        .08 + drop * (.14 + tier * .075));
-      fallenPose.rotation.set(side * drop * .22,
-        -side * drop * .42, side * drop * (.24 + tier * .09));
-      fallenPose.scale.set(1 + tier * .045, 1 - drop * .20, 1);
+    const t = still ? 1 : unit(seconds / 1.35);
+    for (let i = 0; i < armorSilhouette.length; i++) {
+      const [x,y,z,sx,sy,sz,driftX,driftZ,spin] = armorSilhouette[i];
+      const fall = unit((t-(i===1?.06:i>=10?.10:0))/.90);
+      const settle = 1-Math.pow(1-fall,3);
+      fallenPose.position.set(x+driftX*settle,
+        y*(1-settle)+(.2+i%4*.12)*settle,z+driftZ*settle);
+      fallenPose.rotation.set(settle*(i%2?-.29:.31),
+        settle*spin*.47,settle*spin);
+      fallenPose.scale.set(sx,sy*(1-settle*.13),sz);
       fallenPose.updateMatrix();
-      fallenArmor.setMatrixAt(i, fallenPose.matrix);
+      fallenArmor.setMatrixAt(i,fallenPose.matrix);
     }
     fallenArmor.instanceMatrix.needsUpdate = true;
+  }
+  function posePowerBreak(seconds, still) {
+    powerBreak.visible = witnessedGuardian && !still &&
+      Number.isFinite(powerLength) && powerLength>.4 && seconds<1.4;
+    powerBreak.count = powerBreak.visible ? 8 : 0;
+    if (!powerBreak.visible) return;
+    const retreat = unit(seconds/1.3);
+    for(let i=0;i<8;i++){
+      const u=(i+.5)/8, intact=unit((u-retreat)*12);
+      powerPose.position.copy(powerStart).addScaledVector(powerDirection,u);
+      powerPose.quaternion.copy(powerOrientation);
+      powerPose.scale.set(.115*intact,
+        Math.max(.001,powerLength*.084*intact),.115*intact);
+      powerPose.updateMatrix();
+      powerBreak.setMatrixAt(i,powerPose.matrix);
+    }
+    powerBreak.instanceMatrix.needsUpdate = true;
   }
   const shardTransform = new THREE.Object3D();
   const focusPosition = new THREE.Vector3();
@@ -195,6 +249,8 @@ export function createTowerGuardianPassage(THREE) {
     group.visible = false;
     fragments.visible = false;
     fallenArmor.visible = false; fallenArmor.count = 0;
+    powerBreak.visible = false; powerBreak.count = 0;
+    powerLength = 0; powerStart.set(0,0,0);
     witnessedGuardian = false; guardianWorld.set(0, 0, 0);
     runToken = null;
     floor = null;
@@ -213,13 +269,24 @@ export function createTowerGuardianPassage(THREE) {
       [guardianAnchor.x, guardianAnchor.y, guardianAnchor.z].every(Number.isFinite);
     fallenArmor.visible = witnessedGuardian;
     fallenArmor.count = witnessedGuardian ? 12 : 0;
-    if (!witnessedGuardian) { guardianWorld.set(0, 0, 0); return; }
+    if (!witnessedGuardian) {
+      guardianWorld.set(0,0,0);
+      powerBreak.visible = false; powerBreak.count = 0; powerLength = 0;
+      return;
+    }
     guardianWorld.set(guardianAnchor.x, guardianAnchor.y, guardianAnchor.z);
     const dx = guardianAnchor.x - anchor.x, dz = guardianAnchor.z - anchor.z;
     const cs = Math.cos(anchor.angle), sn = Math.sin(anchor.angle);
     fallenArmor.position.set(cs * dx - sn * dz,
       guardianAnchor.y - anchor.y, sn * dx + cs * dz);
-    poseFallenArmor(0, false);
+    powerStart.copy(fallenArmor.position);
+    powerStart.y += 2.85;
+    powerDirection.copy(powerEnd).sub(powerStart);
+    powerLength = powerDirection.length();
+    if(powerLength>.4) powerOrientation.setFromUnitVectors(powerAxis,
+      powerDirection.clone().normalize());
+    poseFallenArmor(0,false);
+    posePowerBreak(0,false);
   }
   function unlock(source, anchor) {
     const earned = observedUnlockedGuardianCap(source);
@@ -297,6 +364,7 @@ export function createTowerGuardianPassage(THREE) {
     const still = options.reducedMotion === true;
     poseFragments(age, still);
     poseFallenArmor(defeatAge, still);
+    posePowerBreak(defeatAge, still);
     const opened = still ? 1 : Math.max(approachOpen,
       1 - Math.pow(1 - clamp(age / .95), 3));
     const fade = stage === 'earned-open' ? 1 :
@@ -350,8 +418,10 @@ export function createTowerGuardianPassage(THREE) {
       // motion; no fabricated win, private event or gameplay mutation.
       anchorPosition: group.visible ? group.position.toArray() : null,
       focusPosition: group.visible ? focusPosition.toArray() : null,
-      meshes: 14, fragmentInstances: 8, fragmentsVisible: fragments.visible,
+      meshes: 15, fragmentInstances: 8, fragmentsVisible: fragments.visible,
       guardianDefeatPieces: fallenArmor.count,
+      guardianPowerSegments: powerBreak.count,
+      guardianPowerBreakVisible: powerBreak.visible,
       guardianDefeatSourcePosition: group.visible && witnessedGuardian ? guardianWorld.toArray() : null,
       guardianDefeatPresentationOnly: true,
       geometries: ownedGeometry.length, shadows: 0, disposed };

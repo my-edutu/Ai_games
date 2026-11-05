@@ -90,7 +90,7 @@ test('the real event creates a separated 3D bronze passage with bounded resource
       assert.equal(object.receiveShadow, false);
       assert.equal(object.userData.collider, undefined);
     });
-    assert.equal(meshCount, 14);
+    assert.equal(meshCount, 15);
     assert.equal(effect.diagnostics().fragmentInstances, 8);
     assert.ok(effect.focusPoint()?.y > anchor.y + 2);
     assert.equal(effect.diagnostics().shadows, 0);
@@ -223,6 +223,47 @@ test('source-earned defeat retains the actual old guardian world position throug
     assert.equal(effect.begin(previous, next, anchor), true);
     assert.equal(armor.visible, false, 'missing real guardian anchor cannot fabricate armor');
   } finally { effect.dispose(); }
+});
+
+test('real source-defeated guardian collapses as a rig while the power connection breaks toward the gate', async () => {
+  const [THREE,{createTowerGuardianPassage}] = await loaded;
+  const cap={id:'f8:cap',x:115200,y:3212000,width:249600,height:12000};
+  const guardian={id:'f8:guardian',kind:'guardian',active:false,
+    health:0,x:176000,y:3250000,halfHeight:18000};
+  const source={runToken:'earned-break',floor:8,tick:220,lifecycle:'running',
+    worldWidth:480000,chunkBaseY:2880000,player:{health:4,x:cap.x},
+    platforms:[cap],enemies:[guardian]};
+  const fx=createTowerGuardianPassage(THREE);
+  try{
+    assert.equal(fx.unlock(source,anchor),true);
+    const armor=fx.group.getObjectByName('WitnessedGuardianDefeatArmor');
+    const conduit=fx.group.getObjectByName('WitnessedGuardianPowerBreak');
+    assert.equal(armor.count,12);assert.equal(conduit.count,8);
+    assert.equal(conduit.castShadow,false);assert.equal(conduit.userData.collider,undefined);
+    const first=new THREE.Matrix4(),second=new THREE.Matrix4();
+    armor.getMatrixAt(0,first);armor.getMatrixAt(10,second);
+    assert.notDeepEqual(first.elements,second.elements,
+      'helmet and boots are distinct physical parts of a complete boss silhouette');
+    conduit.getMatrixAt(7,first);
+    const before=[...first.elements];
+    fx.update(.55);
+    conduit.getMatrixAt(7,first);
+    assert.notDeepEqual(first.elements,before,'source defeat breaks 3D connection');
+    const age=fx.diagnostics().defeatAgeSeconds;
+    fx.update(.45,{stale:true});
+    assert.equal(fx.diagnostics().defeatAgeSeconds,age,
+      'stale observations cannot advance a staged defeat');
+    fx.update(1.1);
+    assert.equal(conduit.visible,false);
+    assert.equal(conduit.count,0);
+    assert.equal(armor.count,12,'fallen original armor remains during real walking');
+    fx.clear();
+    assert.equal(armor.count,0);assert.equal(conduit.count,0);
+    assert.equal(fx.diagnostics().guardianDefeatSourcePosition,null);
+    assert.equal(fx.unlock({...source,tick:221,
+      enemies:[{...guardian,active:true,health:1}]},anchor),false,
+      'living guardian cannot fabricate a defeat or power rupture');
+  }finally{fx.dispose();}
 });
 
 test('reduced motion presents a still, real defeat and no motion after stale transport', async () => {
