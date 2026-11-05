@@ -240,3 +240,48 @@ test('reduced motion presents a still, real defeat and no motion after stale tra
     assert.equal(effect.diagnostics().guardianDefeatPieces, 12);
   } finally { effect.dispose(); }
 });
+
+test('source-earned 3D gate stays visibly open during authentic cap traversal, then hands off without a false second closing', async () => {
+  const [THREE, { createTowerGuardianPassage }] = await loaded;
+  const effect = createTowerGuardianPassage(THREE);
+  const cap = { id:'f8:cap',x:115200,y:8*360000+332000,width:249600,height:12000 };
+  const earned = Object.freeze({
+    runToken:'authentic-run',floor:8,tick:210,lifecycle:'running',
+    worldWidth:480000,chunkBaseY:8*360000,player:{health:2},
+    platforms:[cap],enemies:[{id:'f8:guardian',kind:'guardian',
+      active:false,health:0,x:cap.x+60000,
+      y:cap.y+cap.height+18000,halfHeight:18000}],
+  });
+  const next = {runToken:'authentic-run',floor:9,tick:225,
+    lifecycle:'running',enemies:[]};
+  try {
+    assert.equal(effect.unlock({...earned,enemies:[{
+      ...earned.enemies[0],active:true,health:1}]},anchor),false,
+      'living guardian must not open the door');
+    assert.equal(effect.group.visible,false);
+    assert.equal(effect.unlock(earned,anchor),true);
+    assert.equal(effect.diagnostics().stage,'earned-open');
+    assert.equal(effect.diagnostics().floor,8,
+      'an earned physical exit must remain on the current playable floor');
+    effect.update(.5);
+    let left = effect.group.getObjectByName('ClearedPassageLeftLeaf');
+    assert.ok(left.position.x < -3,'the actual entrance opens before floor advancement');
+    const aged=effect.diagnostics().ageSeconds;
+    assert.equal(effect.unlock(earned,anchor),true,
+      'duplicate public snapshot does not trigger another opening animation');
+    assert.equal(effect.diagnostics().ageSeconds,aged);
+    for(let step=0;step<12;step++)effect.update(.5);
+    assert.equal(effect.group.visible,true,
+      'door remains physically discoverable during a longer ordinary grounded walk');
+    assert.ok(left.position.x < -3.5);
+    assert.equal(effect.begin(earned,next,anchor),true);
+    assert.equal(effect.diagnostics().stage,'handoff');
+    effect.update(.05);
+    assert.ok(left.position.x < -3.5,
+      'the hard-earned gate does not snap shut on the real floor transition');
+    for(let step=0;step<10;step++)effect.update(.5);
+    assert.equal(effect.group.visible,false,
+      'only the completed passage memory expires after a real floor transition');
+    assert.equal(effect.cameraWeight(),0);
+  } finally { effect.dispose(); }
+});
