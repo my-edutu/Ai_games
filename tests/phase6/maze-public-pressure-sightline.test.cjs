@@ -21,7 +21,7 @@ async function loadWorld() {
       cleanup:()=>fs.rmSync(temp,{recursive:true,force:true})};
   } catch(error){fs.rmSync(temp,{recursive:true,force:true});throw error;}
 }
-const cells=[38,39,40,41,42,50];
+const cells=[20,38,39,40,41,42,50,70];
 function published({pressure=false,privateOnly=false}={}) {
   return {
     runToken:'public-pressure-breathing-room',tick:1,width:9,height:9,
@@ -39,7 +39,7 @@ test('genuine disclosed pressure stage keeps flanking scenic organs out of its p
     const ordinary=published();
     const unmodified=JSON.stringify(ordinary);
     world.update(ordinary);
-    for(const cell of [38,39,41,50])
+    for(const cell of [20,38,39,41,50,70])
       assert.ok(world.group.getObjectByName('Disclosed fossil tide-organ '+cell),
         'baseline known wall '+cell+' still owns its rooted physical fossil');
     const plainCount=world.stats().tideFossilAlcoves;
@@ -50,12 +50,12 @@ test('genuine disclosed pressure stage keeps flanking scenic organs out of its p
     assert.ok(world.group.getObjectByName('Published tide-shear pressure mast 40'),
       'the real disclosed mechanical hazard and jaws are retained');
     assert.equal(world.stats().responsiveTrapSignals,1);
-    for(const cell of [39,41])
+    for(const cell of [38,39,41,50])
       assert.equal(world.group.getObjectByName('Disclosed fossil tide-organ '+cell),undefined,
-        'adjacent known tile '+cell+' must not hide Pip or the public trap behind repeat tall scenery');
-    for(const cell of [38,50])
+        'published one- and two-cell court '+cell+' must not hide the real pressure mechanism');
+    for(const cell of [20,70])
       assert.ok(world.group.getObjectByName('Disclosed fossil tide-organ '+cell),
-        'ordinary distant public ruins must retain their own physical sculpture');
+        'distant already-known ruins retain identity beyond the pressure court');
     assert.ok(world.stats().tideFossilAlcoves<plainCount,
       'this is a genuine reduction of foreground stage clutter, not merely a changed color');
 
@@ -74,7 +74,7 @@ test('private-only trap data cannot change the disclosed 3D sightline',async()=>
   try{
     const state=published({privateOnly:true}),frozen=JSON.stringify(state);
     world.update(state);
-    for(const cell of [39,41])
+    for(const cell of [20,38,39,41,50,70])
       assert.ok(world.group.getObjectByName('Disclosed fossil tide-organ '+cell),
         'a secret-only hazard cannot remove scenery or reveal its footprint');
     assert.equal(world.stats().responsiveTrapSignals,0);
