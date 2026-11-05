@@ -1859,7 +1859,7 @@ export function createMazeWorld(options = {}) {
     for (const side of [-1, 1]) {
       const shutter = new THREE.Group();
       shutter.name = 'Published tide-shear floor shutter ' + side;
-      shutter.position.set(side * .52, .085, .13);
+      shutter.position.set(side * .52, .085, -.02);
       p.add(shutter);
       mesh(shutter, bevel, darkMetal, -side * .23, .045, .20,
         .55, .10, .83);
