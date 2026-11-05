@@ -35,4 +35,7 @@ test('floor-captured volumes are indexed, frozen and reject giant or infinite ge
  assert.match(env,/captureForegroundVolumes\(THREE,foregroundGroups\)/);
  assert.match(env,/planForegroundBodyClearance\(foregroundVolumes\[i\]/);
  assert.match(camera,/planForegroundPointRisk\(propVolumes,cam,point,p\)/);
+ const host=src('scripts/serve-dungeon-stream.cjs');
+ assert.ok(host.includes("['/dungeon/foreground-sightline-plan.js','foreground-sightline-plan.js']"),
+  'the new real WebGL module must be publicly served under the strict allowlist');
 });
