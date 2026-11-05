@@ -7,6 +7,13 @@ import * as THREE from './vendor/three.module.js';
 // the final rig lets go; rigid merged animation buffers remain per-rig.
 // This reduces live WebGL geometry pressure without changing a silhouette.
 const sharedRigPrimitives = new Map();
+// Aggregate presentation resource counts only; no game state, hidden cells,
+// identities or camera information is exposed by this diagnostic.
+export function rigPrimitiveResourceStats() {
+  let references = 0;
+  for (const entry of sharedRigPrimitives.values()) references += entry.refs;
+  return {unique: sharedRigPrimitives.size, references};
+}
 const TAU = Math.PI * 2;
 const finite = (value, fallback = 0) => Number.isFinite(value) ? value : fallback;
 const approach = (a, b, speed, delta) => a + (b - a) * (1 - Math.exp(-speed * delta));
