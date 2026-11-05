@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedAt": "2026-11-05",
-  "status": "IN PROGRESS — NOT TRANSFORMED (authentic playable combat naves and Warden negative-space candidate; real running AFTER remains UNVERIFIED)",
+  "status": "IN PROGRESS — NOT TRANSFORMED (real shot-subject/filmed-hero continuity candidate; actual desktop/mobile AFTER unverified)",
   "reference": "Diablo IV quality, No Rest for the Wicked worlds, Path of Exile 2 combat: authentic comparison targeted; matched A/B UNVERIFIED",
   "metrics": {
     "sample_seeds": 24,
@@ -208,19 +208,19 @@
       "elapsedMs": 818
     }
   ],
-  "visualVerdict": "UNVERIFIED — authentic previous Chromium VGA image obscures Vanguard body and melee; integrated new source screenshot/motion not inspected, independent critics 0/3.",
+  "visualVerdict": "UNVERIFIED: predecessor authentic Chromium detected two actual offscreen-focused-hero assertions despite other living heroes visible; new source prioritizes true shot defender and physical body framing but no real AFTER inspection or critics.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
-  "candidateCommit": "5dfe82639b256ae3a9605d3ce302e6f0cc020fc8",
+  "candidateCommit": "1b9bbc3e92af93a52531fba3466935dbd41ae475",
   "metricsProvenance": "Local current-source 9af59bc npm run dungeon:test 309/309, npm run dungeon:gauntlet 24 seeds ×900 ticks: 174 advances, 4 restarts, 0 determinism mismatches. No claim for visual quality.",
   "transformation": {
     "milestone": "M1",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
     "locked": true,
-    "candidateSha": "5dfe82639b256ae3a9605d3ce302e6f0cc020fc8",
+    "candidateSha": "1b9bbc3e92af93a52531fba3466935dbd41ae475",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
-    "exactHeadSafety": "Previous head failed TypeScript due/x/z narrowing. New integrated code checks queued: https://github.com/my-edutu/Ai_games/actions/runs/41993379390; visual https://github.com/my-edutu/Ai_games/actions/runs/41993379645; CI https://github.com/my-edutu/Ai_games/actions/runs/41993379508. No pass claimed.",
+    "exactHeadSafety": "Former source 7654a48 Dungeon browser shard3 26 pass/2 fail actual subjectOnscreen; authority passed. Full CI failed unrelated Tiny Kingdom G057/G058/G063 visual checks. New candidate Dungeon https://github.com/my-edutu/Ai_games/actions/runs/41998648814, visual https://github.com/my-edutu/Ai_games/actions/runs/41998648883, catalogue https://github.com/my-edutu/Ai_games/actions/runs/41998648863 in progress; results UNVERIFIED.",
     "looks": "UNVERIFIED",
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
@@ -231,8 +231,8 @@
     },
     "fullDesktopMobileAudiovisualJourney": "UNVERIFIED",
     "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41972664128/artifacts/13390932627",
-    "exactHeadAction": "Inspect source exact-head 5dfe826 GitHub Actions Dungeon authority/browser shards, visual-review and catalogue CI. Work remains in draft PR #49.",
-    "biggestGap": "Still-obscured real Vanguard body, toy-scale anatomy, insufficient clearly visible skinned blade contact in the Warden fight; authentic mobile/desktop stage comparison, audio and tactical pressure still unverified.",
+    "exactHeadAction": "Inspect source 1b9bbc3e92af93a52531fba3466935dbd41ae475 genuine desktop/mobile 3D focus and combat with sound, reject camera jitter, mobile crop and body occlusion. Follow full journey and blind A/B before acceptance.",
+    "biggestGap": "Real native adult-scale character readability, full-body wall clearance and visible weapon-to-body contact in engaging boss combat. Earlier true browser camera subject mismatch is now addressed in source but NOT verified in moving AFTER.",
     "nextTask": "Inspect exact-head real desktop/mobile combat movement at each natural nave and Warden boss, record authentic five-stage motion with original audio, evaluate natural tactics, p95 performance/replay and three blinded critics against locked baseline.",
     "currentMilestoneLedger": "public/ai-dungeon/gauntlet-history.json",
     "realAfterArtifact": null,

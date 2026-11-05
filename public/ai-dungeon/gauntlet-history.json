@@ -2184,7 +2184,7 @@
     },
     "evidence": {
       "actualContinuousScenarioReel": "UNVERIFIED: no continuous full organic traversal, active combat, Warden, floor, defeat/restart synchronized original audio for desktop and phone.",
-      "matchedBeforeAfter": "UNVERIFIED: baseline 281735d retained; no matched after desktop/phone artifact or blinded looks/feels/plays majority yet.",
+      "matchedBeforeAfter": "UNVERIFIED: pinned baseline unchanged at 281735d0910c6b2443648af976003d50412ee324; browser captures produced for predecessor but no source 1b9bbc3 exact-head matched desktop/mobile proof or blind preference yet.",
       "mobileBeforeAfter": "UNVERIFIED: no matched new-head desktop/390px original motion and frame p95 evidence.",
       "independentCriticPanel": {
         "status": "UNVERIFIED",
@@ -2194,7 +2194,7 @@
         "playsMajority": false,
         "provenance": "No worker/critic session available, no masked verdicts."
       },
-      "safetyChecks": "Previous exact head 8e20352 failed strict TS compile (due,x,z optional). Intermediate c94f9a0 TS narrowed due but CI detected x/z; repaired at 091c6f0. Current integrated real-nave + Warden-negative-space source 5dfe826 GitHub checks queued at inspection; safety and real gameplay result UNVERIFIED.",
+      "safetyChecks": "Verified former exact-head 7654a48 authority PASS, Dungeon browser 2 shards PASS / shard 3 26 PASS 2 FAIL due actual focused hero being offscreen while visible heroes existed; former full CI failed 3 Tiny Kingdom visual checks. New head 1b9bbc3 revalidation in progress, no success claimed.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED: reviewed prior workflow has short video-only clips; need original browser sound stream and measured audio with real combat.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2472,9 +2472,9 @@
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Authentic desktop/mobile moving full-body heroes, visible true weapon-body contact and engaging autonomous Warden encounter remain substantially below AAA references. New real traversed naves/court visual and challenge effects unverified.",
-    "currentWork": "IN PROGRESS source candidate at 5dfe82639: true 3x3 playable stone combat naves placed across the real route, early cultist/revenant encounters staged in those navigable chambers, and original Warden court generic clutter subdued for clearer contact. Previous exact-head 8e20352 CI build failed optional TypeScript guards; patched source CI and authentic desktop/mobile motion not verified. No looks/feels/plays victory.",
-    "candidateCommit": "5dfe82639b256ae3a9605d3ce302e6f0cc020fc8",
+    "biggestRemainingGap": "Real native adult-scale character readability, full-body wall clearance and visible weapon-to-body contact in engaging boss combat. Earlier true browser camera subject mismatch is now addressed in source but NOT verified in moving AFTER.",
+    "currentWork": "IN PROGRESS — source candidate 1b9bbc3e: film the genuinely engaged living hero rather than a prior wandering hero when boss/duel camera centers on another fighter; physically fit actual close-contact/breach combatant bodies. Old 7654a48 live Chromium browser shard3 FAILED 2 subjectOnscreen assertions (26 pass), CI FAILED 3 Tiny Kingdom G057/G058/G063 visual assertions. New candidate exact-head browser/CI, authentic AFTER moving visuals, original audio and critics remain UNVERIFIED. No transformation claimed.",
+    "candidateCommit": "1b9bbc3e92af93a52531fba3466935dbd41ae475",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -5376,6 +5376,40 @@
         "matchedBeforeAfter": "UNVERIFIED",
         "criticPanel": "0/3",
         "next": "Inspect latest exact-head build/tests and authentic 1440 desktop/390 mobile WebGL movement/audio. Reject new chambers if enemies stall/collision mismatch or Warden remains unreadable; capture unbroken five-stage journey, baseline-matched A/B and independent 3-critic evaluation before acceptance."
+      },
+      {
+        "id": "M1-FILMED-REAL-COMBAT-20261105",
+        "date": "2026-11-05",
+        "status": "INTEGRATED_SOURCE_UNVERIFIED",
+        "candidateSha": "1b9bbc3e92af93a52531fba3466935dbd41ae475",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "objective": "Integrate real autonomous Warden/foe confrontation into coherent readable cinematic actor follow and physically framed skinned contact.",
+        "observedPredecessor": {
+          "sourceSha": "7654a48901389d51110aa574cee7c0838cf79021",
+          "dungeonAction": "https://github.com/my-edutu/Ai_games/actions/runs/41993631520",
+          "authority": "PASS",
+          "browserShard3": "26 PASS / 2 FAIL: subjectOnscreen=false despite real heroes visible",
+          "catalogue": "FAILED: three unrelated Tiny Kingdom visual assertions"
+        },
+        "implementation": [
+          "Read-only filmed-hero resolver chooses genuine living party member among authoritative shot subjects, with dead and invented IDs excluded",
+          "Automatic cinematography syncs real protagonist label/selection with the actual two-actor Warden/melee shot, without overriding manual choice",
+          "Physical camera fit now checks actual body coordinates of real close-contact, skirmish and breach subjects as well as Warden and cover scenes; no simulated hits or movement"
+        ],
+        "evidence": {
+          "realAfterDesktop": "UNVERIFIED",
+          "realAfterMobile": "UNVERIFIED",
+          "motionAudio": "UNVERIFIED",
+          "realGameplay": "UNVERIFIED",
+          "matchedAB": "UNVERIFIED",
+          "blindCritics": 0,
+          "actions": {
+            "dungeon": "https://github.com/my-edutu/Ai_games/actions/runs/41998648814",
+            "visual": "https://github.com/my-edutu/Ai_games/actions/runs/41998648883",
+            "ci": "https://github.com/my-edutu/Ai_games/actions/runs/41998648863"
+          }
+        },
+        "next": "Review actual source-head 1440px/390px browser motion, confirm offscreen focus fixed without zoom wobble/crop; continue character/body visibility and true Warden contact; capture five-phase journey with consented original audio and 3 masked independent critics."
       }
     ],
     "implementationContinuation": {
