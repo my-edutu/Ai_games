@@ -631,7 +631,11 @@ function observedProjectileCrusherEscape(state:TowerState,obs:TowerObservation,
     separation-state.player.halfWidth-5000)/speed));
   if(countdown>impactTicks)return undefined;
   const escape=observedTrapEscape(state,obs,hazard);
-  return escape.move!==0||escape.jump?escape:undefined;
+  // Do not trade a real imminent bolt for a ground lane the source physics
+  // cannot clear before the jaws close. An ordinary last-resort vault is
+  // allowed when already inside the shutter; otherwise honor the projectile.
+  return escape.jump||(escape.route==='ground-exit-observed'&&escape.move!==0)
+    ?escape:undefined;
 }
 
 // Tactical v2 is the live policy. Historical v1 is retained for pinned replay
