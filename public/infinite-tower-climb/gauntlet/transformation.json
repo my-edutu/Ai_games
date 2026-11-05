@@ -9,9 +9,9 @@
   },
   "candidate": {
     "sha": null,
-    "title": "SAME real 3D guardian-cap encounter — source collision plus visible installed-open → timed charge → impact → authentic recovery; full-motion A/B NOT EVALUATED",
-    "implementationSha": "57d5b5470f99cd364f0bf482531850da8039bf13",
-    "implementationEvidenceStatus": "NEW live-source guardian-body-aware hazard avoidance 39c1d556 and source-observed cooldown spacing 57d5b547 committed. Earlier REAL source-pinned 3c9ce858 desktop/portrait danger WebMs in run 41937330552 showed 7/7 desktop and 8/8 portrait completed lives ended health-depleted, ZERO guardian victories. New code video and actual counterplay quality not yet reviewed. Blind critics/hardware NOT EVALUATED."
+    "title": "SAME unfinished guardian-cap transformation: genuine attack/space/escape decisions, cinematic 3D scene and source-true result/restart — quality NOT EVALUATED",
+    "implementationSha": "12bed170f40d1313eaca5240ae1821b99e07e8c8",
+    "implementationEvidenceStatus": "REAL 57d5b547 candidate native danger full-motion recorded run 41939822623 SUCCESS 9/9, but source confirms zero guardian defeats in inspected first 2200 ticks per layout, lowest guardian HP 4/8, no source-matched 3D crossfire witnesses. New 12bed170 live melee cooldown envelope plus d489f6f source safety checks committed; new real footage and final CI not yet complete. No independent reviews, supported-device frame-time/memory, full A/B or quality PASS."
   },
   "currentTransformation": {
     "title": "SAME 3D tower ascent and readable, winnable physical guardian-cap duel: installed crusher, real body-aware escape and authentic strike/spacing/recovery",
@@ -62,11 +62,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Exact code SHA 57d5b547 new-source full-repository CI PENDING AT EVIDENCE WRITE, do not claim pass. Previously completed PR68 documentary SHA 914ce4a5 quality contract workflow https://github.com/my-edutu/Ai_games/actions/runs/41937574176 SUCCESS before these gameplay changes. CI is a safety veto only.",
-    "replay": "The opt-in guardianArenaHazards true source tactical policy reads currently alive enemies and uses only ordinary moving/attacking/jumping actions. Historic no-opt-in and historical-v1 untouched. Deterministic/frozen authoritative checksums and exact-current-source full replay not yet verified by completed current CI.",
-    "accessibility": "Installed shutter visibly open at rest by geometry and neutral tone; live countdown and active strike use differing physical positions, and reduced-motion retains static source-dependent states. Authentic mobile color-safe comprehension, observer captions and reduced-flash independent review NOT EVALUATED.",
-    "performance": "Source AI only loops currently observed nearby enemy bodies during existing live shutter retreat, and uses standard fixed-step action; no geometry/light/shader pass increase from this code. Existing 3D installed shutter render remains bounded, but 3c CI renderer submitted intervals are NOT supported-device frame times. Supported-device p50/p95/p99/memory NOT MEASURED.",
-    "stability": "Original 3c real native 960x600 and 390x844 candidate danger WebMs 135.52s/123.79s, source pinned 41937330552 SUCCESS 9/9, 7 desktop+8 portrait completed real life cycles all health-depleted, zero boss defeats. Source-render crossfire witness 0 desktop and 2 portrait active samples, both source/render phase mismatches. New 57d simulation and 3D video NOT EVALUATED; exact-new-source CI pending."
+    "ci": "Previous completed PR68 head 2eff571 source-integrity workflow https://github.com/my-edutu/Ai_games/actions/runs/41940093589 FAILED 1/982: a near-guardian countdown test incorrectly assumed 50k proximity implied actual collision exposure. d489f6f test now checks physical projected exposure while preserving positioned positive source evasion; exact latest committed-head technical validation PENDING. CI is a safety veto, never a quality pass.",
+    "replay": "12bed170 uses only current immutable tactical observation and existing authority action controls, shares guardian 1800-unit/tick speed; guardianArenaHazards opt-in preserves unflagged/historical policy. Full exact-new-source seeded replay and multi-seed combat outcome not yet verified by completed CI.",
+    "accessibility": "No HUD, new animation, audio or flashes in this combat change; old independent mobile accessibility/reduced-motion/color-safe/full-motion comprehension remains NOT EVALUATED.",
+    "performance": "Fixed bounded math and current active observed-hazard scan in optional guardian combat; no added draw calls, lighting, shaders or pass. Supported-device p50/p95/p99/memory STILL NOT MEASURED; software renderer submit intervals cannot substitute.",
+    "stability": "Source-pinned run 41939822623 SUCCESS 9/9 actual full-motion desktop/portrait videos for 57d5; danger ~114s desktop and ~106s phone. Builder inspected native frame sequence and 2200-tick source traces per viewport: repeated health-depleted lives, no guardian kills, lowest HP4/8. Crossfire witness 0 per layout. Candidate 12bed gameplay and 2fa57 documentation are not yet verified by new-source continuous recordings, 5 blind critics or device stability."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -2819,6 +2819,33 @@
       "supportedHardwareMemory": "NOT MEASURED",
       "mostConsequentialExperienceGap": "Actual original-source browser 3c normal-speed danger films and fixed-step trace show 7/7 desktop plus 8/8 portrait completed lives ending health-depleted and no guardian clear. New real-body-aware escape and strike/space AI still need exact-source real 60s matched before/after review to prove winnable, readable full guardian+shutter encounter and genuine outcome/restart at 960×600 & 390×844. Independent five blind critics per pillar (>=4/5), supported-device p50/p95/p99/memory, replay/accessibility and latest CI unresolved. NOT EVALUATED.",
       "technicalReview": "docs/reviews/2026-11-05-tower-pr68-real-guardian-cap-survival-and-body-aware-evasion.md"
+    },
+    "latestGuardianContactEnvelope20261105": {
+      "observedCandidateSha": "57d5b5470f99cd364f0bf482531850da8039bf13",
+      "priorCaptureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41939822623",
+      "candidateDangerArtifactId": 13376436779,
+      "observedConditions": "Original native Chrome candidate danger: 960x600 desktop/390x844 portrait; seed tower-transformation-capture-v1, low quality, normal-speed, no sound, reducedMotion=false. Builder examined native video samples and genuine per-tick public source trace, NOT independent blind evaluation.",
+      "originalCandidateDangerSeconds": {
+        "desktop": 114,
+        "portrait": 106
+      },
+      "actualGuardianDefeats": "zero in each inspected 2200-tick source window; min guardian health 4/8; no proved progression beyond floor 8",
+      "crossfireSourceWitnesses": {
+        "desktop": 0,
+        "portrait": 0
+      },
+      "previousExactHeadSafetyFailure": "https://github.com/my-edutu/Ai_games/actions/runs/41940093589 (981/982 tests, source-near hazard assertion incorrectly equated 50k nearness with physical exposure)",
+      "newGameplaySha": "12bed170f40d1313eaca5240ae1821b99e07e8c8",
+      "newTestSha": "d489f6f3a6a81f3047b058ada1a6d3ed6d8f0f07",
+      "initialNewSourceCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/41943534848",
+      "headIntegrityRun": "https://github.com/my-edutu/Ai_games/actions/runs/41943686071",
+      "reviewPath": "docs/reviews/2026-11-05-tower-pr68-guardian-contact-envelope-and-genuine-danger-film.md",
+      "nextBiggestGap": "Real opt-in climber still needs a source-pinned authentic full-motion guardian victory/progression and visually readable concurrent trap action before deciding if changed combat improves LOOKS, FEELS and PLAYS.",
+      "looksVotes": 0,
+      "feelsVotes": 0,
+      "playsVotes": 0,
+      "deviceFrameTimeAndMemory": "NOT MEASURED",
+      "quality": "NOT EVALUATED"
     }
   }
 }
