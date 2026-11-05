@@ -6665,11 +6665,29 @@ function emitWorkdayHandTool(p,rig,worldJoint,size){
    box(end[0],end[1],end[2],.29*size,.105*size,.15*size,rgb(0xa78e68));
   }else if(p.job==='forester'||p.job==='craftsperson'){
    const beat=rig.acting.beat;
-   const end=[hand[0]+(.18-.11*beat)*size,
-    hand[1]+(.39-.27*beat)*size,
-    hand[2]+(.04+.19*beat)*size];
-   limbSegment(hand,end,.022*size,rgb(0x755333),5);
-   box(end[0],end[1],end[2],.26*size,.10*size,.14*size,rgb(0x7c8582));
+   const actualSmith=p.job==='craftsperson'?actualForgeHandTarget(p):null;
+   const shift=actualSmith?Math.max(0,Math.min(1,p.workTimer/workDuration(p))):null;
+   if(actualSmith&&shift<.28){
+    // A live heating shift uses a long-handled iron poker, NOT an invisible
+    // hammer stroke at the charcoal hearth. The work clock is authoritative.
+    const end=[hand[0]+.14*size,hand[1]-.23*size,hand[2]+.26*size];
+    limbSegment(hand,end,.020*size,rgb(0x67635b),5);
+    box(end[0],end[1],end[2],.12*size,.085*size,.08*size,rgb(0x41403b));
+   }else if(actualSmith&&shift>=.84){
+    // Unfinished iron cools in the actual guild water trough. A real smith
+    // holds narrow two-pronged tongs rather than a swinging forester's axe.
+    for(const sign of [-1,1]){
+     const end=[hand[0]+sign*.058*size,
+      hand[1]-.18*size,hand[2]+.25*size];
+     limbSegment(hand,end,.015*size,rgb(0x555e60),5);
+    }
+   }else{
+    const end=[hand[0]+(.18-.11*beat)*size,
+     hand[1]+(.39-.27*beat)*size,
+     hand[2]+(.04+.19*beat)*size];
+    limbSegment(hand,end,.022*size,rgb(0x755333),5);
+    box(end[0],end[1],end[2],.26*size,.10*size,.14*size,rgb(0x7c8582));
+   }
   }else if(p.job==='farmer'||p.job==='gatherer'){
    const held=[hand[0]+.08*size,hand[1]+.07*size,hand[2]+.12*size];
    box(held[0],held[1],held[2],.26*size,.16*size,.21*size,rgb(0xa47d49));
