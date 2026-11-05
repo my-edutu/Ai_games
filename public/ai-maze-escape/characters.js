@@ -249,6 +249,11 @@ export function createExplorer(options = {}) {
       ?Math.max(0,Math.min(1,options.guardianEncounterBeat)):null;
     const guardianPlant=witnessedBeat===null?0:alert*Math.max(0,Math.min(1,(witnessedBeat-.16)/.34));
     const guardianAnswer=witnessedBeat===null?0:alert*Math.max(0,Math.min(1,(witnessedBeat-.55)/.45));
+    // Pip's OTHER hand now answers Thornback's genuine middle defensive brace.
+    // Plant at the witnessed center beat, then unfold the raised forearm when
+    // the real public shell releases. Nothing moves the authoritative root,
+    // claims a shield ability, predicts danger or allocates a render resource.
+    const defensiveFlinch=guardianPlant*(1-.9*guardianAnswer);
     const relativeLook=reacting?Math.atan2(Math.sin(options.attentionHeading-group.rotation.y),Math.cos(options.attentionHeading-group.rotation.y)):0;
     const lookYaw=Math.max(-.72,Math.min(.72,relativeLook))*alert;
     // The key gesture has lower priority than a genuine nearby warden. Its
@@ -352,10 +357,10 @@ export function createExplorer(options = {}) {
     body.position.z=alert>0?-alert*.105:gateCelebrate*.035+gatePerformance*.055;
     body.rotation.set(s.lose?.22:stride*.065-s.danger*.035-keyReach*.07-alert*.25-gateCelebrate*.12-gatePerformance*.11-pickupCelebrate*.13,
       lookYaw*.14+keyYaw*.08+pickupFaceTurn*.28+fossilYaw*.07,
-      .035*rest-step*.05-Math.sign(lookYaw)*alert*.12);
+      .035*rest-step*.05-Math.sign(lookYaw)*alert*.12+defensiveFlinch*.14);
     head.rotation.set(s.lose?.28:-.04-s.danger*.08+idle*.018+alert*.10+guardianPlant*.12-guardianAnswer*.09-keyReach*.06-gateCelebrate*.16-gatePerformance*.09-pickupCelebrate*.18-fossilFocus*.12,
       (s.reduced?0:Math.max(-.42,Math.min(.42,turn*.7))+(Math.sin(s.time*.73)*.08+.12)*rest)*(1-alert-keyReach*.7-gateCelebrate*.55)+lookYaw+keyYaw+gateYaw+pickupFaceTurn*.72+fossilYaw*.28,
-      s.win?-.13:s.lose?.07:-.065*rest+step*.035-Math.sign(lookYaw)*alert*.19);
+      s.win?-.13:s.lose?.07:-.065*rest+step*.035-Math.sign(lookYaw)*alert*.19-defensiveFlinch*.10);
     for (let i=0;i<2;i++) {
       const sign=i===0?1:-1;
       // Two planted, widened knees sell a real physical startle without
@@ -363,19 +368,19 @@ export function createExplorer(options = {}) {
       legs[i].hip.rotation.x=step*sign*.62-alert*.22;
       legs[i].hip.rotation.z=alert>0?-sign*alert*.3:-sign*gatePerformance*.14;
       legs[i].knee.rotation.x=Math.max(0,-step*sign)*.58+alert*.3+gatePerformance*.21+pickupCelebrate*.14;
-      arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0)-alert*(i===1?1.55:.95)-(i===1?guardianAnswer*.50:guardianPlant*.16)-(i===0?keyReach*2.3:0)-gateCelebrate*(i===1?1.35:.64)-gatePerformance*(i===1?.34:.54)-pickupCelebrate*(i===1?1.43:1.38)-fossilFocus*(i===1?.76:.14);
+      arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0)-alert*(i===1?1.55:.95)-(i===1?guardianAnswer*.50:guardianPlant*.16)-(i===0?defensiveFlinch*.72:0)-(i===0?keyReach*2.3:0)-gateCelebrate*(i===1?1.35:.64)-gatePerformance*(i===1?.34:.54)-pickupCelebrate*(i===1?1.43:1.38)-fossilFocus*(i===1?.76:.14);
       // Aim the raised physical glove toward the publicly disclosed lock,
       // not just upward. Reduced-motion uses the same stable static pose.
       // A terminal result or nearby guardian suppresses keyYaw entirely.
       arms[i].shoulder.rotation.y=i===0?keyYaw*1.1:0;
-      arms[i].shoulder.rotation.z=(i===0?-1:1)*(s.win?.95:i===1?.34:.15)+(i===0?keyYaw*.25:0)+(i===0?-1:1)*alert*.65+gateCelebrate*(i===1?.36:-.21)+gatePerformance*(i===1?.28:-.35)-(i===0?pickupCelebrate*.56:0)+fossilFocus*(i===1?.22:-.10);
-      arms[i].elbow.rotation.x=-.16-(i===1?.22:0)-(s.danger*.3)-(i===0?keyReach*.7:0)-alert*(i===1?.38:.24)-gateCelebrate*(i===1?.3:.12)-gatePerformance*.26-pickupCelebrate*(i===1?.23:.18)-fossilFocus*(i===1?.19:0);
+      arms[i].shoulder.rotation.z=(i===0?-1:1)*(s.win?.95:i===1?.34:.15)+(i===0?keyYaw*.25:0)+(i===0?-1:1)*alert*.65+(i===0?defensiveFlinch*1.24:0)+gateCelebrate*(i===1?.36:-.21)+gatePerformance*(i===1?.28:-.35)-(i===0?pickupCelebrate*.56:0)+fossilFocus*(i===1?.22:-.10);
+      arms[i].elbow.rotation.x=-.16-(i===1?.22:0)-(s.danger*.3)-(i===0?keyReach*.7:0)-alert*(i===1?.38:.24)-(i===0?defensiveFlinch*.42:0)-gateCelebrate*(i===1?.3:.12)-gatePerformance*.26-pickupCelebrate*(i===1?.23:.18)-fossilFocus*(i===1?.19:0);
       // Counter-turn the connected wrist as the shoulder aims at the known lock.
       // Keep the actual glove/key face visible rather than twisting its bow
       // behind the sealed gate's foreground masonry. No hidden-state input.
       arms[i].elbow.rotation.y=i===0&&keyYaw!==0?-keyYaw*.9:0;
       eyes[i].position.x=(i===0?-1:1)*.145+Math.max(-.024,Math.min(.024,(lookYaw+keyYaw+gateYaw+fossilYaw)*.032+(s.reduced?0:(Math.max(-.016,Math.min(.016,turn*.045))+.006*rest)*(1-alert))));
-      eyes[i].scale.y=s.lose?.32:s.danger>.45||alert>.4?1.13:(s.reduced?1:Math.pow(Math.max(0,Math.cos(s.time*.83)),60)>.88?.12:1);
+      eyes[i].scale.y=s.lose?.32:s.danger>.45||alert>.4?1.13-defensiveFlinch*.48:(s.reduced?1:Math.pow(Math.max(0,Math.cos(s.time*.83)),60)>.88?.12:1);
     }
     // Aim the existing connected tooth at the real closed socket; do NOT
     // extend it across a cell, move Pip or imply an authoritative unlock.
