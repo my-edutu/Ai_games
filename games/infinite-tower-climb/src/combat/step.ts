@@ -18,14 +18,27 @@ const GUARDIAN_MELEE_RECOIL_FRICTION_PERMILLE=750;
 // interval meets the visibly raised shield. A genuine projectile or an
 // attack during windup still reaches the vulnerable core.
 const GUARDIAN_SECOND_WIND_GUARD_TICKS=22;
+// A legitimately interrupted cap attack opens an earned physical window.
+// The source stagger suppresses ONLY this guardian's body-contact attack and
+// second-wind armor. It is not player invulnerability: hazards, projectiles,
+// other enemies and the recovered guardian keep ordinary damage. Every tick
+// and outcome remains part of deterministic authority, never a render trick.
+function guardianEarnedExposure(state:TowerState,enemy:TowerEnemy){
+  return state.config.guardianSecondWind===true&&
+    state.config.guardianArenaHazards===true&&
+    enemy.kind==='guardian'&&enemy.active&&
+    (enemy.staggerUntilTick??0)>state.tick;
+}
 function engageGuardianShield(state:TowerState,enemy:TowerEnemy){
   if(state.config.guardianSecondWind===true&&enemy.kind==='guardian'&&
-     enemy.active&&enemy.health>0&&enemy.health*2<=enemy.maxHealth)
+     enemy.active&&enemy.health>0&&enemy.health*2<=enemy.maxHealth&&
+      !guardianEarnedExposure(state,enemy))
     enemy.guardUntilTick=state.tick+GUARDIAN_SECOND_WIND_GUARD_TICKS;
 }
 function guardianShieldBlocksMelee(state:TowerState,enemy:TowerEnemy){
   return state.config.guardianSecondWind===true&&enemy.kind==='guardian'&&
-    (enemy.guardUntilTick??0)>state.tick&&enemy.telegraphUntilTick<=state.tick;
+    (enemy.guardUntilTick??0)>state.tick&&enemy.telegraphUntilTick<=state.tick&&
+      !guardianEarnedExposure(state,enemy);
 }
 // A real low-HP guardian earns faster pressure but a longer opening between
 // charges: six fixed ticks followed by 40 recovery, not eight then 28.
@@ -55,7 +68,8 @@ export function stepTowerCombat(input:TowerState,action:TowerAction,rng:NamedRng
         // windup matter: the announced shot is interrupted and the stagger
         // is reused by the existing articulated model and audio witnesses.
         // No effect for blocked strikes, misses, dead foes or legacy arenas.
-        // Physical guardian contact still hurts while it is staggered.
+        // The interrupted cap guardian cannot deal a simultaneous contact
+         // attack while truly staggered; all other damage remains live.
         if(state.config.guardianArenaHazards===true&&
            state.config.guardianSecondWind===true&&
            enemy.kind==='guardian'&&enemy.telegraphUntilTick>state.tick){
@@ -87,7 +101,8 @@ export function stepTowerCombat(input:TowerState,action:TowerAction,rng:NamedRng
         enemy.velocity.x=enemy.position.x===from?0:
           Math.trunc(enemy.velocity.x*GUARDIAN_MELEE_RECOIL_FRICTION_PERMILLE/1000);
       }
-      if(overlap(p,enemy))damagePlayer(state,enemy.damage,enemy.id,events);
+      if(!guardianEarnedExposure(state,enemy)&&overlap(p,enemy))
+        damagePlayer(state,enemy.damage,enemy.id,events);
       continue;
     }
     const speed=enemy.kind==='guardian'?TOWER_GUARDIAN_PATROL_SPEED:enemy.kind==='sentinel'?1200:700;enemy.position.x+=enemy.facing*speed;if(enemy.position.x<=enemy.patrolMinX){enemy.position.x=enemy.patrolMinX;enemy.facing=1}else if(enemy.position.x>=enemy.patrolMaxX){enemy.position.x=enemy.patrolMaxX;enemy.facing=-1}const dx=p.position.x-enemy.position.x;if(enemy.kind!=='sentinel'&&Math.abs(dx)<220000){enemy.facing=dx>=0?1:-1;if(enemy.telegraphUntilTick===0&&enemy.cooldown===0){enemy.telegraphUntilTick=state.tick+guardianWindupTicks(state,enemy);
