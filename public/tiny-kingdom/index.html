@@ -6930,7 +6930,7 @@ function renderHouseholdThresholds(){
 // W57: return-home doors operate ONLY when a real navigation actor reaches
 // their assigned original home. No fictional inhabitants, detached camera
 // props, generated production credits or changes to seeded world authority.
-const cottageDoorRenderAudit={panels:0,closedPanels:0,frames:0,thresholdSteps:0,litRecesses:0,triangles:0,
+const cottageDoorRenderAudit={panels:0,closedPanels:0,plankFaces:0,ironFittings:0,frames:0,thresholdSteps:0,litRecesses:0,triangles:0,
  source:'genuine-dusk-physical-door-motion'};
 function getCottageHomecomingAudit(){
  const doors=new Map(),closedDoors=new Map();
@@ -6943,9 +6943,13 @@ function getCottageHomecomingAudit(){
   if(Math.hypot(dx,dz)>4.5)continue;
   const distanceToTarget=Math.hypot(p.x-p.target[0],p.z-p.target[1]);
   const resting=p.activity==='Resting at home';
-  const swing=resting?
+  const rawSwing=resting?
    Math.max(0,1-Math.max(0,p.workTimer)/2.4):
    Math.max(0,1-distanceToTarget/2.4);
+  // Once the real resident is within the physical closing tolerance, the
+  // oak slab must be fully shut on screen AND in the read-only audit.
+  // A partially open leaf must never masquerade as a closed doorway.
+  const swing=resting&&rawSwing<=.025?0:rawSwing;
   if(!resting&&distanceToTarget>2.4)continue;
   const alongZ=Math.abs(dz)/Math.max(.01,d*.5)>=
    Math.abs(dx)/Math.max(.01,w*.5);
@@ -6974,6 +6978,7 @@ function getCottageHomecomingAudit(){
 function renderCottageHomecomingDoors(){
  const start=data.length,{doors,closedDoors}=getCottageHomecomingAudit();
  cottageDoorRenderAudit.panels=0;cottageDoorRenderAudit.closedPanels=0;
+ cottageDoorRenderAudit.plankFaces=0;cottageDoorRenderAudit.ironFittings=0;
  cottageDoorRenderAudit.frames=0;
  cottageDoorRenderAudit.thresholdSteps=0;cottageDoorRenderAudit.litRecesses=0;
  // A real resident must not lose their physical oak leaf when it shuts.
@@ -7011,22 +7016,54 @@ function renderCottageHomecomingDoors(){
     [rightX+nx*.013,y+h,rightZ+nz*.013],
     [leftX+nx*.013,y+h,leftZ+nz*.013],[.77,.49,.20]);
   });
-  const angle=swing*1.08,cos=Math.cos(angle),sin=Math.sin(angle);
-  const ex=leftX+(tx*cos+nx*sin)*w+.035*nx;
-  const ez=leftZ+(tz*cos+nz*sin)*w+.035*nz;
+  // W61: a solid, turning four-plank oak leaf, not a paper-thin quad.
+  // Both faces, gaps, thickness and iron straps rotate on the SAME real
+  // hinge while the real resident enters. Geometry is capped per true home,
+  // with no new simulation fields, RNG, or fake household animation.
+  const angle=swing*1.08,ca=Math.cos(angle),sa=Math.sin(angle);
+  const dirX=tx*ca+nx*sa,dirZ=tz*ca+nz*sa;
+  const faceX=nx*ca-tx*sa,faceZ=nz*ca-tz*sa;
   const hx=leftX+nx*.035,hz=leftZ+nz*.035;
+  const slabPoint=(u,height,side)=>[
+   hx+dirX*u+faceX*side*.032,y+height*h,
+   hz+dirZ*u+faceZ*side*.032];
   materialScope(MATERIAL.WOOD,()=>{
-   // One 3D leaf rotates about a fixed real hinge, visible from both sides
-   // of a moving camera rather than an animated world-label or fake cutscene.
-   const a=[hx,y,hz],b=[ex,y,ez],c=[ex,y+h,ez],d=[hx,y+h,hz];
-   quad(a,b,c,d,oak);quad(d,c,b,a,dark);
-   for(const t of [.24,.74]){
-    const yy=y+t*h;
-    const ax=hx+(ex-hx)*.05,az=hz+(ez-hz)*.05;
-    const bx=hx+(ex-hx)*.95,bz=hz+(ez-hz)*.95;
-    quad([ax,yy-.026,az],[bx,yy-.026,bz],
-     [bx,yy+.026,bz],[ax,yy+.026,az],iron);
+   const boardTones=[rgb(0x604530),rgb(0x715036),
+    rgb(0x573e2d),rgb(0x674b34)];
+   for(let plank=0;plank<4;plank++){
+    const u0=plank*w/4+.003,u1=(plank+1)*w/4-.003;
+    const tone=boardTones[plank];
+    quad(slabPoint(u0,0,1),slabPoint(u1,0,1),
+     slabPoint(u1,1,1),slabPoint(u0,1,1),tone);
+    quad(slabPoint(u1,0,-1),slabPoint(u0,0,-1),
+     slabPoint(u0,1,-1),slabPoint(u1,1,-1),dark);
+    // Exposed plank edges give readable thickness at an oblique workday lens.
+    quad(slabPoint(u0,0,-1),slabPoint(u0,0,1),
+     slabPoint(u0,1,1),slabPoint(u0,1,-1),tone);
+    quad(slabPoint(u1,0,1),slabPoint(u1,0,-1),
+     slabPoint(u1,1,-1),slabPoint(u1,1,1),tone);
+    cottageDoorRenderAudit.plankFaces+=4;
    }
+   quad(slabPoint(0,1,-1),slabPoint(w,1,-1),
+    slabPoint(w,1,1),slabPoint(0,1,1),oak);
+   quad(slabPoint(0,0,1),slabPoint(w,0,1),
+    slabPoint(w,0,-1),slabPoint(0,0,-1),dark);
+  });
+  // Horizontal forged straps and latch stay attached to the moving slab.
+  materialScope(MATERIAL.GENERAL,()=>{
+   for(const level of [.23,.75]){
+    quad(slabPoint(.025,level-.020,1.12),
+     slabPoint(w-.025,level-.020,1.12),
+     slabPoint(w-.025,level+.020,1.12),
+     slabPoint(.025,level+.020,1.12),iron);
+    cottageDoorRenderAudit.ironFittings++;
+   }
+   const latchX=w*.84;
+   quad(slabPoint(latchX-.023,.43,1.17),
+    slabPoint(latchX+.023,.43,1.17),
+    slabPoint(latchX+.023,.52,1.17),
+    slabPoint(latchX-.023,.52,1.17),iron);
+   cottageDoorRenderAudit.ironFittings++;
   });
   cottageDoorRenderAudit.panels++;
   if(swing<=.025)cottageDoorRenderAudit.closedPanels++;
