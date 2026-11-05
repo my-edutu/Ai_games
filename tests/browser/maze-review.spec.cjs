@@ -1583,6 +1583,156 @@ test('a real close public encounter frames both autonomous actors and saves date
     }
   }
 
+  // Chronological source-authentic motion gate for the paired physical tide-shear.
+  // This supplements (never replaces) the strict 320/390/1280 single-frame
+  // tests above. Select only real consecutive-run PUBLIC snapshots; do not
+  // place Pip or a trap by hand, reveal hidden tiles, or invent a before frame.
+  const publicTrapDistance=(sample,cell,runToken)=>{
+    const state=sample?.frame?.snapshot;
+    if(!state||state.runToken!==runToken||state.lifecycle!=='running'
+      ||state.result||state.threats.length
+      ||!state.visibleCells.includes(cell)
+      ||!state.cells.some(c=>c.cell===cell&&c.trap))return null;
+    return Math.hypot(cell%state.width-state.currentCell%state.width,
+      Math.floor(cell/state.width)-Math.floor(state.currentCell/state.width));
+  };
+  let chronology=null, chronologyRank=-Infinity;
+  for(const candidate of realTrapCandidates){
+    const series=sequences.find(items=>items.includes(candidate.sample));
+    if(!series)continue;
+    const nearIndex=series.indexOf(candidate.sample);
+    const token=candidate.sample.frame.snapshot.runToken;
+    const nearTick=candidate.sample.frame.snapshot.tick;
+    const searchFar=(step)=>{
+      for(let i=nearIndex+step;i>=0&&i<series.length;i+=step){
+        const state=series[i].frame.snapshot;
+        if(state.runToken!==token||Math.abs(state.tick-nearTick)>24)break;
+        const distance=publicTrapDistance(series[i],candidate.cell,token);
+        if(distance!==null&&distance>=1.75&&distance<=2.5){
+          return {sample:series[i],distance,cell:candidate.cell};
+        }
+      }
+      return null;
+    };
+    const before=searchFar(-1),after=searchFar(1);
+    if(!before&&!after)continue;
+    // A real approach AND withdrawal pair outranks a one-sided approach;
+    // among equal source trajectories prefer the shortest unedited action.
+    const span=(before?nearTick-before.sample.frame.snapshot.tick:0)
+      +(after?after.sample.frame.snapshot.tick-nearTick:0);
+    const rank=(before&&after?1000:100)-span;
+    if(rank>chronologyRank){
+      chronologyRank=rank;
+      chronology={before,near:candidate,after,seed:candidate.sample.seed,
+        runToken:token,publicTrapCell:candidate.cell};
+    }
+  }
+  const chronologyManifest=path.join(dir,'public-tide-shear-chronology.json');
+  if(!chronology){
+    // An absent autonomous approach/withdrawal is an EVIDENCE BLOCKER, not
+    // permission to manufacture an animation or to award a visual pass.
+    fs.writeFileSync(chronologyManifest,JSON.stringify({
+      capturedAt:new Date().toISOString(),captured:false,
+      reason:'No same-run nearby/withdrawn published tide-shear trajectory within 24 genuine ticks; visual motion NOT verified.',
+      source:'Source-authoritative MazeRuntime public frames only',
+      testedSeeds:sequences.map(items=>items[0]?.seed).filter(Boolean),
+      sourceSha256:nativeSourceHashes,
+      verdict:'No chronology evidence; Nintendo quality bar NOT MET'
+    },null,2));
+  }else{
+    const motionPhases=[['approach',chronology.before],['pressure',chronology.near],
+      ['withdrawal',chronology.after]].filter(([,phase])=>phase);
+    const chronologicalTicks=motionPhases.map(([,phase])=>phase.sample.frame.snapshot.tick);
+    expect(chronologicalTicks).toEqual([...chronologicalTicks].sort((a,b)=>a-b));
+    expect(new Set(motionPhases.map(([,phase])=>phase.sample.frame.snapshot.runToken)).size)
+      .toBe(1);
+    const records=[];
+    // One warmed page and browser only: SwiftShader is severely throttled in
+    // shared CI, but no test uses wall-clock latency as a gameplay metric.
+    for(const [nativeWidth,nativeHeight] of [[320,740],[390,844]]){
+      for(const [phase,entry] of motionPhases){
+        activeFrame=entry.sample.frame;
+        const state=activeFrame.snapshot;
+        await page.setViewportSize({width:nativeWidth,height:nativeHeight});
+        await page.goto(base+'/maze?camera=follow',{waitUntil:'domcontentloaded'});
+        await page.waitForFunction(({tick,token,cell,aspect})=>{
+          const d=window.__MAZE_3D__;
+          return d?.renderer==='webgl'&&d.frames>=3&&d.tick===tick
+            &&d.runToken===token&&d.cameraMode==='follow'
+            &&Math.abs(d.cameraAspect-aspect)<.01
+            &&d.observedTrapPhysicalBounds?.some(v=>v.cell===cell);
+        },{tick:state.tick,token:chronology.runToken,
+          cell:chronology.publicTrapCell,aspect:nativeWidth/nativeHeight},
+        {timeout:45000});
+        const native=await page.evaluate(()=>({
+          diagnostic:window.__MAZE_3D__,
+          canvas:document.getElementById('maze').getBoundingClientRect().toJSON(),
+          controls:[...document.querySelectorAll('.masthead .control-button')]
+            .filter(el=>getComputedStyle(el).display!=='none')
+            .map(el=>el.getBoundingClientRect().toJSON()),
+          map:document.querySelector('#map-panel>summary').getBoundingClientRect().toJSON(),
+          details:document.querySelector('#intent-details>summary').getBoundingClientRect().toJSON(),
+          scrollWidth:document.documentElement.scrollWidth
+        }));
+        const bound=native.diagnostic.observedTrapPhysicalBounds
+          .find(v=>v.cell===chronology.publicTrapCell);
+        const filename='public-tide-shear-'+phase+'-'+nativeWidth+'.png';
+        const image=path.join(dir,filename);
+        await page.screenshot({path:image,fullPage:true});
+        const observation={
+          phase,capturedAt:new Date().toISOString(),seed:entry.sample.seed,
+          tick:state.tick,runToken:state.runToken,
+          publicTrapCell:chronology.publicTrapCell,
+          publicDistanceCells:entry.distance,viewport:{width:nativeWidth,height:nativeHeight},
+          image:filename,imageSha256:hash(image),sourceSha256:nativeSourceHashes,
+          physicalHazardBounds:bound,
+          observedPhysicalHingeRadians:native.diagnostic.world?.trapJawOpenMaxRadians,
+          explorerPhysicalBounds:native.diagnostic.explorerPhysicalBounds,
+          diagnostic:native.diagnostic,
+          source:'Unedited genuine same-run MazeRuntime published trap, actual Pip, exact-production WebGL; no fabricated hazard or autonomous action',
+          caveat:'Motion still requires independent FULL native-image Nintendo comparison; CPU SwiftShader timing is not consumer GPU FPS.'
+        };
+        fs.writeFileSync(path.join(dir,filename.replace('.png','.json')),
+          JSON.stringify(observation,null,2));
+        records.push(observation);
+        expect(native.diagnostic.explorerModelFullyInFrame,
+          phase+' real Pip must remain fully in native portrait').toBe(true);
+        expect(bound?.fullyInFrame,
+          phase+' complete real hinge must remain fully in native portrait').toBe(true);
+        if(nativeWidth===390){
+          const hero=native.diagnostic.explorerPhysicalBounds;
+          expect(hero.right-hero.left,
+            'chronological 390 hero must retain original readable scale').toBeGreaterThan(.49);
+          expect(bound.right-bound.left,
+            'chronological 390 full hazard must retain original action scale').toBeGreaterThan(.70);
+        }
+        expect(native.canvas.width).toBeGreaterThan(nativeWidth-10);
+        expect(native.canvas.height).toBeGreaterThan(nativeHeight-10);
+        expect(native.scrollWidth).toBe(nativeWidth);
+        for(const rect of [...native.controls,native.map,native.details]){
+          expect(rect.width).toBeGreaterThanOrEqual(44);
+          expect(rect.height).toBeGreaterThanOrEqual(44);
+          expect(rect.left).toBeGreaterThanOrEqual(-1);
+          expect(rect.right).toBeLessThanOrEqual(nativeWidth+1);
+        }
+      }
+    }
+    fs.writeFileSync(chronologyManifest,JSON.stringify({
+      captured:true,capturedAt:new Date().toISOString(),seed:chronology.seed,
+      runToken:chronology.runToken,publicTrapCell:chronology.publicTrapCell,
+      containsRealApproach:!!chronology.before,
+      containsRealWithdrawal:!!chronology.after,
+      originalChronologicalTicks:chronologicalTicks,
+      sourceSha256:nativeSourceHashes,
+      images:records.map(({phase,tick,viewport,image,imageSha256,
+        publicDistanceCells,observedPhysicalHingeRadians,physicalHazardBounds})=>({
+          phase,tick,viewport,image,imageSha256,
+          publicDistanceCells,observedPhysicalHingeRadians,physicalHazardBounds
+        })),
+      verdict:'Native chronology candidate for independent full-frame visual critique; NOT a Nintendo benchmark win'
+    },null,2));
+  }
+
 });
 
 
