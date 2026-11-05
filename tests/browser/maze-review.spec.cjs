@@ -1608,7 +1608,13 @@ test('a real close public encounter frames both autonomous actors and saves date
         const state=series[i].frame.snapshot;
         if(state.runToken!==token||Math.abs(state.tick-nearTick)>24)break;
         const distance=publicTrapDistance(series[i],candidate.cell,token);
-        if(distance!==null&&distance>=1.75&&distance<=2.5){
+        // A diagonal neighbor can show a genuinely RESTING (.06 rad)
+        // physical jaw while remaining close enough for a meaningful
+        // native-phone actor/mechanism composition. A published but distant
+        // 2.236-cell hazard is correctly outside the normal FOLLOW camera;
+        // treating that as a cropped close-up was a bad evidence selection,
+        // not permission to zoom the real hero into a speck or relax bounds.
+        if(distance!==null&&distance>=1.35&&distance<=1.5){
           return {sample:series[i],distance,cell:candidate.cell};
         }
       }
