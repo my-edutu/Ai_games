@@ -20,6 +20,36 @@ permissions:
   contents: read
 
 jobs:
+  # W48: prove a REAL incomplete farmer shift exposes the actual worker in
+  # standing crop, with a wrist-mounted sickle and 390px accessible framing.
+  # Still only a technical floor; moving A/B and harsh critics decide quality.
+  w48-authentic-harvest-visibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Genuine active harvest and legible close-up on desktop and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w48-readable-harvest-workday.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w48-real-farmer-visibility
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w48/
+          retention-days: 14
   # W47: natural human-scale commute belongs to the real autonomous society.
   # Independent browser gate: genuine travel stance/swing with rolling boots,
   # real planted jobs, unchanged snapshots, and 390px rendering.
