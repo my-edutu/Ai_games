@@ -2477,7 +2477,7 @@
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Authentic screenshot still shows stylized small source-native fighters, visually overcrowded Gothic approach and weak 3D weapon/body contact; full real five-stage video/audio and masked critics unavailable.",
+    "biggestRemainingGap": "Genuine adult-scale skinned body visibility and believable contact in moving Warden combat; real five-stage audiovisual matched A/B and blind panel still missing",
     "currentWork": "Source M1 swordcourts: original floor-flush wrought-iron medallions, real contested-room physical key lighting and authentic same-run positive HP-loss stage accent. No authoritative position/combat changes.",
     "candidateCommit": "1b9bbc3e92af93a52531fba3466935dbd41ae475",
     "candidateArtifactUrl": null,
@@ -5423,6 +5423,31 @@
         "work": "Connected real walkable 3×3 chapter arena forged-iron 3D floor, authority-proven contested-room lighting, actual same-run positive HP-loss feedback, authored scene loop and tests.",
         "verification": "NEW exact-head browser/motion/audio, mobile performance, safety and blind critics UNVERIFIED",
         "verdict": "IN PROGRESS / NOT TRANSFORMED"
+      },
+      {
+        "id": "M1-REAL-ENCOUNTER-CHAPTER-20261105",
+        "date": "2026-11-05",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceParentSha": "d9b2d2ac992409a2e9cb1fe1307ee1fb7ea1ad23",
+        "milestone": "M1",
+        "status": "SOURCE_CANDIDATE_ONLY_NOT_TRANSFORMED",
+        "objective": "Physically authored Gothic combat chapels must be where real AI enemies and heroes actually fight, not unoccupied independent rooms.",
+        "integratedChanges": [
+          "Pick up to three valid 3x3 walkable, separated chapels using alive genuine non-boss enemy locations; fallback preserves authored topology without fake rooms.",
+          "Connect current floor's public authoritative fighters to true Three.js 3D location of original swordcourts.",
+          "Light the measured midpoint of a real live hero/foe duo with one existing non-shadow 3D light; true positive same-run HP decrease remains mandatory for actual injury accents.",
+          "Preserve deterministic authoritative combat, AI, state, replay, audio consent, navigation and asset/licensing policy."
+        ],
+        "safety": "UNVERIFIED exact-head; no new test execution observed",
+        "realAfter": "UNVERIFIED",
+        "mobileMotionAudio": "UNVERIFIED",
+        "matchedBeforeAfter": "UNVERIFIED",
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "critics": "0/3",
+        "largestGap": "Native full-body adult character realism and moving sword-to-foe impact especially against Warden; continued chapter/boss pacing proof",
+        "next": "Inspect real new-head 1440 desktop and 390 mobile chapel combat plus Warden motion/audio; quantify actual chapter fights, actor visibility, p95 and progression, then build entire 5-stage reel and independent matched blind A/B."
       }
     ],
     "implementationContinuation": {
@@ -5438,14 +5463,15 @@
     },
     "latestImplementation": {
       "date": "2026-11-05",
-      "sourceSha": "851c4a377d7b4a240797c300a806035cb2f69feb",
       "milestone": "M1 ongoing",
+      "sourceParentSha": "d9b2d2ac992409a2e9cb1fe1307ee1fb7ea1ad23",
+      "stage": "live contested-room physical chapel and measured real duo lighting",
       "status": "SOURCE_CANDIDATE_ONLY",
       "qualityVerdict": "UNVERIFIED"
     },
     "lastCandidateSha": "5dfe82639b256ae3a9605d3ce302e6f0cc020fc8",
     "experienceVerdict": "M1 NOT TRANSFORMED — LOOKS / FEELS / PLAYS UNVERIFIED; zero independent critics",
     "criticReadiness": "0/3; exact-head desktop/mobile moving sound captures, matched fixed-baseline A/B and natural progression unverified",
-    "nextImplementationTask": "Actual new head desktop+mobile original gameplay video/audio and matched baseline, physical blade/body study, CI regression and autonomous 20s browser stall, then original native-character/encounter transformation."
+    "nextImplementationTask": "Inspect source-head authentic desktop/mobile chapter fights and Warden scene with original audio, reject wrong-room light or stalling, then build full five-stage motion and masked critic panel"
   }
 }

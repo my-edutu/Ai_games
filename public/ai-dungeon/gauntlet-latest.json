@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedAt": "2026-11-05",
-  "status": "IN PROGRESS — NOT TRANSFORMED (real chapter swordcourt 3D source candidate; actual desktop/mobile AFTER and sound unverified)",
+  "status": "IN PROGRESS — NOT TRANSFORMED (living-foe anchored 3D chapels and actual real-pair lighting source candidate; current-head browser, sound and independent criticism UNVERIFIED)",
   "reference": "Diablo IV quality, No Rest for the Wicked worlds, Path of Exile 2 combat: authentic comparison targeted; matched A/B UNVERIFIED",
   "metrics": {
     "sample_seeds": 24,
@@ -208,7 +208,7 @@
       "elapsedMs": 818
     }
   ],
-  "visualVerdict": "UNVERIFIED: predecessor authentic Chromium detected two actual offscreen-focused-hero assertions despite other living heroes visible; new source prioritizes true shot defender and physical body framing but no real AFTER inspection or critics.",
+  "visualVerdict": "UNVERIFIED — source-level visual staging now aims the physically constructed 3D chapter at actual living opponents instead of independent empty rooms; no observed matched AFTER or majority A/B.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
   "candidateCommit": "1b9bbc3e92af93a52531fba3466935dbd41ae475",
@@ -232,12 +232,12 @@
     "fullDesktopMobileAudiovisualJourney": "UNVERIFIED",
     "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41972664128/artifacts/13390932627",
     "exactHeadAction": "Inspect source 1b9bbc3e92af93a52531fba3466935dbd41ae475 genuine desktop/mobile 3D focus and combat with sound, reject camera jitter, mobile crop and body occlusion. Follow full journey and blind A/B before acceptance.",
-    "biggestGap": "Real native adult-scale character readability, full-body wall clearance and visible weapon-to-body contact in engaging boss combat. Earlier true browser camera subject mismatch is now addressed in source but NOT verified in moving AFTER.",
-    "nextTask": "Inspect exact-head real desktop/mobile combat movement at each natural nave and Warden boss, record authentic five-stage motion with original audio, evaluate natural tactics, p95 performance/replay and three blinded critics against locked baseline.",
+    "biggestGap": "Native adult-scale whole-body actor silhouette and legible sword-to-body Warden combat, plus continuous five-stage audiovisual matched A/B",
+    "nextTask": "Capture and inspect new-head desktop/mobile original video+audio of real chapel fights and Warden, detect stalls/performance/occlusion; obtain real matched baseline and ≥3 independent critics",
     "currentMilestoneLedger": "public/ai-dungeon/gauntlet-history.json",
     "realAfterArtifact": null,
-    "realAfterObservation": "UNVERIFIED: no inspected source-head post-integration Chromium capture yet; previously inspected actual image was negative.",
-    "integratedImplementation": "Actual seeded navigable 3x3 encounter naves in the true deterministic 19x19 maze across the route; same-grid cultist/revenant placement and authentic 7x7 Warden arena negative space preserve fight readability without false collision or cosmetic-only camera tricks. Built on existing chapter-nave Three.js and Warden architecture. Both visual/audible quality and natural tactics still UNVERIFIED.",
+    "realAfterObservation": "UNVERIFIED: actual current-head authenticated browser pixels/motion not yet inspected.",
+    "integratedImplementation": "Living ordinary authority enemies preferentially anchor three physically walkable, visually forged 3D chapels; live legal hero/opponent positions aim one original physical practical in real contested rooms. No new AI damage, fake impact, authority RNG, save format or replay change.",
     "latestPredecessorReview": {
       "sourceSha": "3b2025a619cc6c113e28dd463224e90205fd2476",
       "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41922629878/artifacts/13368532950",
@@ -248,8 +248,8 @@
   },
   "acceptanceStatus": "NOT TRANSFORMED — 0/3 independent critics, no complete matched audiovisual adventure verification",
   "latestCandidateSha": "851c4a377d7b4a240797c300a806035cb2f69feb",
-  "latestImplementation": "M1 real 3x3 walkable Gothic chapters have shallow original forged floor 3D rings/insignia, and one true party-enemy occupancy-driven nonshadow light with verified same-run HP-loss accent; no fake combat",
-  "biggestRemainingGap": "Small stylized real-native figures and poorly readable blade-to-body contact amid Gothic foreground; actual five-stage audiovisual encounter still not verified",
-  "nextImplementationTask": "Review new exact-head real desktop/390px mobile Chromium motion, opt-in live sound, staged cast/weapon contact and 20s autonomy stall; compare fixed SHA baseline and obtain independent blind critiques",
-  "candidateSafety": "NOT_VERIFIED. Parent exact 6d8ec86 browser shard2 failed 1/28 due 20-second autonomous progression timeout; authority passed and other two shards passed; full catalogue CI failed."
+  "latestImplementation": "Original 3D swordcourts now preferentially occupy legal 3x3 cells containing actual living ordinary foes, and existing physical room light follows authentic hero/foe midpoint; no fake hits, AI or collision",
+  "biggestRemainingGap": "Native adult-scale whole-body actor silhouette and legible sword-to-body Warden combat, plus continuous five-stage audiovisual matched A/B",
+  "nextImplementationTask": "Capture and inspect new-head desktop/mobile original video+audio of real chapel fights and Warden, detect stalls/performance/occlusion; obtain real matched baseline and ≥3 independent critics",
+  "candidateSafety": "UNVERIFIED current-head test/Chromium/security/replay until exact workflow finishes; original prior exact-head workflows queued, not passed"
 }

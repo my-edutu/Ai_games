@@ -6,7 +6,7 @@ const motifs=Object.freeze(['OSSUARY','FORGE','ASTRAL','SCRIPTORIUM']);
 const hash=(x,z,s)=>{let v=Math.imul(x+73,374761393)^Math.imul(z+19,668265263)^Math.imul(s+41,1274126177);v=Math.imul(v^(v>>>13),1274126177);return(v^(v>>>16))>>>0;};
 const dist=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.z-b.z);
 const immutable=a=>Object.freeze(a.map(entry=>Object.freeze(entry)));
-export function planChapterNaves(map,exit,floor){
+export function planChapterNaves(map,exit,floor,encounterUnits=[]){
  const empty=Object.freeze({rooms:Object.freeze([]),reliefs:Object.freeze([]),rosettes:Object.freeze([])});
  if(!Array.isArray(map)||map.length<9||map.length>64||
     !Number.isInteger(floor)||floor<1||!Number.isInteger(exit?.x)||!Number.isInteger(exit?.z))return empty;
@@ -21,17 +21,51 @@ export function planChapterNaves(map,exit,floor){
   if(count===9)candidates.push({x,z,distance:dist({x,z},exit),grain:hash(x,z,floor)});
  }
  candidates.sort((a,b)=>a.distance-b.distance||a.grain-b.grain||a.z-b.z||a.x-b.x);
+ // Locate real chapter battles first. Previously three handsome Gothic naves
+ // were often assembled over EMPTY rooms while the actual spawned cultists
+ // fought elsewhere. Prefer genuine living, non-Warden enemies occupying
+ // legal walkable 3x3 courts. This is presentation-only: real units, floor,
+ // movement, save/replay and collision remain entirely authoritative.
  const chosen=[];
- if(candidates.length)chosen.push(candidates[0]);
- const remote=candidates.slice().sort((a,b)=>b.distance-a.distance||a.grain-b.grain||a.z-b.z||a.x-b.x);
+ const threats=Array.isArray(encounterUnits)?encounterUnits.slice(0,24).filter(u=>
+  u&&typeof u.id==='string'&&u.id.length<=128&&u.faction==='enemy'&&
+  u.kind!=='warden'&&Number.isInteger(u.hp)&&u.hp>0&&
+  Number.isInteger(u.x)&&Number.isInteger(u.z)&&open(u.x,u.z)&&
+  dist(u,exit)>=5&&dist(u,{x:1,z:1})>=5):[];
+ const chapterFights=[];
+ for(const candidate of candidates){
+  if(candidate.distance<5||dist(candidate,{x:1,z:1})<5)continue;
+  const near=threats.map(u=>({u,steps:Math.max(Math.abs(u.x-candidate.x),
+   Math.abs(u.z-candidate.z))})).filter(entry=>entry.steps<=1)
+   .sort((a,b)=>a.steps-b.steps||a.u.id.localeCompare(b.u.id,'en'))[0];
+  if(near)chapterFights.push({...candidate,sourceThreatId:near.u.id,
+   sourceThreatSteps:near.steps});
+ }
+ chapterFights.sort((a,b)=>a.sourceThreatSteps-b.sourceThreatSteps||
+  dist(a,{x:1,z:1})-dist(b,{x:1,z:1})||
+  a.grain-b.grain||a.z-b.z||a.x-b.x);
+ for(const court of chapterFights){
+  if(chosen.length>=3)break;
+  if(chosen.every(room=>Math.hypot(room.x-court.x,room.z-court.z)>=5))
+   chosen.push(court);
+ }
+ // No live ordinary foe? Keep the original deterministic architectural tour.
+ // A near-Warden room stays a legitimate final chapter when there are fewer
+ // than three actual minor engagements on the floor.
+ if(candidates.length&&!chosen.length)chosen.push(candidates[0]);
+ const remote=candidates.slice().sort((a,b)=>b.distance-a.distance||
+  a.grain-b.grain||a.z-b.z||a.x-b.x);
  for(const candidate of remote){
   if(chosen.length>=3)break;
-  if(chosen.every(room=>Math.hypot(room.x-candidate.x,room.z-candidate.z)>=5))chosen.push(candidate);
+  if(chosen.every(room=>Math.hypot(room.x-candidate.x,room.z-candidate.z)>=5))
+   chosen.push(candidate);
  }
  const center=(n-1)/2,rooms=[],reliefs=[],rosettes=[],used=new Set();
  for(let i=0;i<chosen.length;i++){
   const room=chosen[i];
-  rooms.push({x:room.x-center,z:room.z-center,gridX:room.x,gridZ:room.z,kind:motifs[(floor-1+i)%4]});
+  rooms.push({x:room.x-center,z:room.z-center,gridX:room.x,gridZ:room.z,
+   kind:motifs[(floor-1+i)%4],chapterSource:room.sourceThreatId?'living-foe':'walkable-topology',
+   ...(room.sourceThreatId?{sourceThreatId:room.sourceThreatId}:{})});
   for(let j=0;j<16;j++){
    const theta=(j+(room.grain%7)*.032)*2*Math.PI/16;
    rosettes.push({x:room.x-center+Math.cos(theta)*.59,z:room.z-center+Math.sin(theta)*.59,yaw:theta,room:i});
@@ -90,14 +124,28 @@ export function planChapterEncounterBeat(snapshot,previous,rooms){
   if(!Number.isInteger(room?.gridX)||!Number.isInteger(room?.gridZ))
    return Object.freeze({index:i,phase:'QUIET',party:0,enemies:0,wounds:0,intensity:0});
   const near=u=>Math.max(Math.abs(u.x-room.gridX),Math.abs(u.z-room.gridZ))<=2;
-  const party=units.filter(u=>u.faction==='party'&&u.hp>0&&near(u)).length;
-  const enemies=units.filter(u=>u.faction==='enemy'&&u.hp>0&&near(u)).length;
+  const allies=units.filter(u=>u.faction==='party'&&u.hp>0&&near(u));
+  const hostiles=units.filter(u=>u.faction==='enemy'&&u.hp>0&&near(u));
+  const party=allies.length,enemies=hostiles.length;
   const wounds=wounded.filter(near).length;
   const contested=party>0&&enemies>0;
+  // Track only actual living bodies in this very court. A dramatic practical
+  // must light their midpoint, never a decorative chamber with no combat.
+  // This is NOT a claim that these actors attacked or that damage occurred.
+  let pairing=null;
+  for(const hero of allies)for(const foe of hostiles){
+   const steps=dist(hero,foe);
+   const candidate={heroId:hero.id,enemyId:foe.id,steps,
+    gridX:(hero.x+foe.x)/2,gridZ:(hero.z+foe.z)/2};
+   if(!pairing||steps<pairing.steps||
+    steps===pairing.steps&&(hero.id+'|'+foe.id)<(pairing.heroId+'|'+pairing.enemyId))
+    pairing=candidate;
+  }
   if(contested){contestedRooms++;if(focusRoom<0)focusRoom=i;}
   authenticWounds+=wounds;
   return Object.freeze({index:i,phase:contested?'CONTESTED':enemies?'THREATENED':party?'EXPEDITION':'QUIET',
-   party,enemies,wounds,intensity:contested?1:enemies?.45:party?.22:0});
+   party,enemies,wounds,intensity:contested?1:enemies?.45:party?.22:0,
+   livePair:pairing?Object.freeze(pairing):null});
  });
  return Object.freeze({rooms:Object.freeze(stages),focusRoom,contestedRooms,authenticWounds,authorityChanged:false});
 }

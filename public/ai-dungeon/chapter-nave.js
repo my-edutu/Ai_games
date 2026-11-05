@@ -8,8 +8,8 @@ import {planPartyWallReveal,createCutawayBandCache,shouldUploadCutawayBand} from
  * Engraved Gothic roses are on real traversable floor; stone lancets and
  * buttresses cling to genuine, impassable wall faces. Source-only staging.
  */
-export function createChapterNaves(world,map,exit,floor,{reducedMotion=false}={}){
- const plan=planChapterNaves(map,exit,floor),group=new THREE.Group();
+export function createChapterNaves(world,map,exit,floor,{reducedMotion=false,encounterUnits=[]}={}){
+ const plan=planChapterNaves(map,exit,floor,encounterUnits),group=new THREE.Group();
  group.name='Original sculpted nave chapters';world.add(group);
  const geometries=[],materials=[],meshes=[],up=new THREE.Vector3(0,1,0);
  const ownedGeo=g=>(geometries.push(g),g);
@@ -109,6 +109,8 @@ export function createChapterNaves(world,map,exit,floor,{reducedMotion=false}={}
  const metrics={roomCount:plan.rooms.length,rosettes:plan.rosettes.length,
   wallLancets:plan.reliefs.length,drawBatches:meshes.length,
   source:'real-connected-walkable-floor-and-walls',authorityChanged:false,
+  foeAnchoredChapters:plan.rooms.filter(room=>room.chapterSource==='living-foe').length,
+  liveDuelPresent:false,liveDuelDistance:null,chapterFacingPair:null,
   cutawayLancets:0,matrixWrites:0,warning:false,phase:'NONE',
   contestedRooms:0,authenticWounds:0,verifiedWoundFlashes:0,
   stageMode:'QUIET',dynamicPracticals:1,authorityChanged:false};
@@ -118,7 +120,17 @@ export function createChapterNaves(world,map,exit,floor,{reducedMotion=false}={}
   const focus=beat.focusRoom,staged=beat.rooms[focus];
   if(staged?.wounds>0){combatAge=0;metrics.verifiedWoundFlashes+=staged.wounds;}
   chapterKey.visible=focus>=0;
-  if(chapterKey.visible)chapterKey.position.set(plan.rooms[focus].x,1.54,plan.rooms[focus].z);
+  if(chapterKey.visible){
+   const pair=staged.livePair,half=(map.length-1)/2;
+   // Exact real living fighter midpoint rather than an empty decorative
+   // floor emblem. The single existing non-shadow light carries duel form.
+   chapterKey.position.set(pair?pair.gridX-half:plan.rooms[focus].x,1.72,
+    pair?pair.gridZ-half:plan.rooms[focus].z);
+  }
+  metrics.liveDuelPresent=Boolean(staged?.livePair);
+  metrics.liveDuelDistance=staged?.livePair?.steps??null;
+  metrics.chapterFacingPair=staged?.livePair?
+   staged.livePair.heroId+' / '+staged.livePair.enemyId:null;
   chapterKey.intensity=chapterKey.visible?.62:0;
   for(let i=0;i<plan.rooms.length;i++){
    const activity=beat.rooms[i]?.intensity??0;
