@@ -1,0 +1,69 @@
+'use strict';
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const {pathToFileURL}=require('node:url');
+
+// Exercise the actual connected, batched production Three.js rig. No stub
+// posture function, fake encounter frame, solver data, or screenshot substitute.
+const root=path.resolve(__dirname,'../..');
+const source=fs.readFileSync(path.join(root,'public/ai-maze-escape/characters.js'),'utf8');
+const three=pathToFileURL(path.join(root,'node_modules/three/build/three.module.js')).href;
+const production=import('data:text/javascript;base64,'+
+  Buffer.from(source.replace("'./vendor/three.module.js'",JSON.stringify(three))).toString('base64'));
+
+test('witnessed guardian brace physically plants connected forelegs before late shell release',async()=>{
+  const {createWarden}=await production;
+  for(const balanced of [false,true]) for(const reducedMotion of [false,true]){
+    const guardian=createWarden({balanced});
+    const body=guardian.group.getObjectByName('armored body');
+    const head=guardian.group.getObjectByName('warden mask');
+    const hip=guardian.group.getObjectByName('leg 1 0');
+    const knee=hip?.getObjectByName('claw knee');
+    const pincer=knee?.getObjectByName('foreleg pincer 1');
+    const wing=guardian.group.getObjectByName('flared elytron 1');
+    assert.ok(body&&head&&hip&&knee&&pincer&&wing,'the full original articulated guardian is required');
+    const resourceSet=()=>{
+      const resources=new Set();
+      guardian.group.traverse(object=>{if(object.geometry)resources.add(object.geometry);if(object.material)resources.add(object.material)});
+      return resources;
+    };
+    const originalResources=resourceSet();
+    const cue={heading:0,attentionHeading:.5,attentionStrength:.8,
+      moving:false,danger:1,time:1,delta:0,reducedMotion};
+    const pose=()=>[hip.rotation.x,knee.rotation.x,pincer.rotation.y,
+      head.rotation.x,body.position.y,wing.rotation.z];
+    guardian.update({...cue,encounterBeat:0});
+    const noticed=pose();
+    guardian.update({...cue,encounterBeat:.5});
+    const planted=pose();
+    assert.ok(planted[0]<noticed[0]-.35,'original foreleg must visibly fold in a true brace');
+    assert.ok(planted[1]>noticed[1]+.25,'connected knee counters the planted foreleg');
+    assert.ok(planted[2]>noticed[2]+.20,'modeled physical pincer joins the defensive plant');
+    assert.ok(planted[3]<noticed[3]-.12,'original bronze mask crouches before release');
+    assert.ok(planted[4]<noticed[4]-.08,'body visibly settles in its connected contact');
+    guardian.update({...cue,encounterBeat:1});
+    const released=pose();
+    assert.ok(released[0]>planted[0]+.2,'foreclaws lift after shell release begins');
+    assert.ok(released[3]>planted[3]+.12,'mask raises after the grounded brace');
+    assert.ok(released[5]>planted[5]+.55,'existing armor still gives its dominant late reveal');
+    guardian.update({...cue,encounterBeat:1});
+    assert.deepEqual(pose(),released,'same public clock must replay precisely');
+    guardian.update({...cue,attentionStrength:0,attentionHeading:undefined,encounterBeat:1});
+    const withdrawn=pose();
+    guardian.update({...cue,attentionStrength:0,attentionHeading:undefined});
+    assert.deepEqual(pose(),withdrawn,'missing witness clears all new physical cues');
+    assert.equal(hip.rotation.x,0,'old motion must not persist in unseen guardians');
+    assert.equal(knee.rotation.x,0);
+    assert.equal(pincer.rotation.y,0);
+    assert.equal(wing.rotation.z,0);
+    guardian.update({...cue,result:'capture',encounterBeat:1});
+    assert.equal(hip.rotation.x,0,'real terminal state overrides cosmetic actions');
+    assert.equal(pincer.rotation.y,0);
+    assert.equal(wing.rotation.z,0);
+    assert.deepEqual(resourceSet(),originalResources,'render updates must allocate no new graphics resources');
+    guardian.dispose();
+    assert.equal(guardian.group.children.length,0);
+  }
+});

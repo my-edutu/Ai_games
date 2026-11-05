@@ -659,6 +659,11 @@ export function createWarden(options = {}) {
     const beat=hasWitnessBeat?Math.max(0,Math.min(1,options.encounterBeat)):1;
     const brace=alert>.24 && hasWitnessBeat?Math.max(0,Math.min(1,(beat-.24)/.36)):0;
     const display=alert>.24 && hasWitnessBeat?Math.max(0,Math.min(1,(beat-.60)/.40)):0;
+    // Native 390px chronology showed recognition and brace almost identical.
+    // Plant the EXISTING foreclaws and mask before the observed shell release;
+    // the late release relaxes this crouch as the genuine elytra unfold.
+    // This is a local cosmetic response, not enemy navigation or an attack.
+    const plantedClaws=brace*(1-.85*display);
     // Real 390px chronological WebGL review: the old .38-open initial
     // wings looked nearly the same as the release beat at gameplay scale.
     // Keep the physically recognizable first armor silhouette, then open
@@ -727,8 +732,8 @@ export function createWarden(options = {}) {
         ?shellHalf.side*(.16+alert*.25+(s.reduced?0:Math.sin(s.time*1.2)*.035*alert))*shellOpen:0;
     }
     stride=approach(stride,s.moving?1:0,12,s.delta); gait+=s.delta*(10+s.danger*3)*stride;
-    body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018)-brace*.065+display*.025;
-    body.rotation.x=-s.danger*.055-alert*.11;
+    body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018)-plantedClaws*.13+display*.025;
+    body.rotation.x=-s.danger*.055-alert*.11-plantedClaws*.16;
     body.rotation.y=lookYaw*.4;
     body.rotation.z=Math.sin(relativeLook)*alert*.06;
     for (const leg of legs) {
@@ -736,17 +741,17 @@ export function createWarden(options = {}) {
       leg.hip.rotation.y=Math.sin(phase)*stride*.24*amount;
       leg.hip.rotation.z=leg.side*Math.max(0,Math.cos(phase))*stride*.15*amount;
       leg.knee.rotation.z=-leg.side*Math.max(0,Math.cos(phase))*stride*.16*amount;
-      leg.hip.rotation.x=leg.index===0?-alert*.32-brace*.12:leg.index===2?alert*.08:0;
-      leg.knee.rotation.x=leg.index===0?alert*.20:0;
-      if (leg.pincer) leg.pincer.rotation.y=alert>0?leg.side*alert*.42:0;
+      leg.hip.rotation.x=leg.index===0?-alert*.32-plantedClaws*.60:leg.index===2?alert*.08:0;
+      leg.knee.rotation.x=leg.index===0?alert*.20+plantedClaws*.45:0;
+      if (leg.pincer) leg.pincer.rotation.y=alert>0?leg.side*(alert*.42+plantedClaws*.35):0;
     }
     // An encounter is a physical performance: the already-modeled front
     // legs plant outward, antennae track the publicly visible explorer and
     // mandibles flare. Neutral, result and reduced-motion poses stay stable.
     // No new mesh, material, random draw, network fact or game command runs
     // in this render loop.
-    head.position.z=.62+alert*.07;
-    head.rotation.x=s.win?.16:s.lose?-.13:-.045-s.danger*.065-brace*.08+display*.04;
+    head.position.z=.62+alert*.07+plantedClaws*.08;
+    head.rotation.x=s.win?.16:s.lose?-.13:-.045-s.danger*.065-plantedClaws*.22+display*.07;
     head.rotation.y=Math.sin(s.time*.8)*.08*(1-stride)*amount*(1-alert)+lookYaw;
     for (const {antenna,side} of antennae) {
       antenna.rotation.z=side*(.08+alert*.40)+(s.reduced?0:Math.sin(s.time*1.7+side)*.04)*(1-alert*.5);
