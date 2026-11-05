@@ -2076,6 +2076,13 @@ function geometryAudit(){
   for(const key of ['floats','vertices','triangles','invalidComponents','invalidNormals','invalidColors','outOfBounds'])fixed[key]+=part[key];
   fixed.aligned=fixed.aligned&&part.aligned;
  }
+ // Actual resident shadows stay included in the scene budget and integrity.
+ if(gpuAvailable&&solarShadowActive?.buffer){
+  const resident=inspectMeshGeometry(solarShadowActive.vertices);
+  for(const key of ['floats','vertices','triangles','invalidComponents',
+   'invalidNormals','invalidColors','outOfBounds'])fixed[key]+=resident[key];
+  fixed.aligned=fixed.aligned&&resident.aligned;
+ }
  const animated=inspectMeshGeometry(data);
  return {static:fixed,dynamic:animated,
   totalTriangles:fixed.triangles+animated.triangles};
@@ -2348,17 +2355,25 @@ function appendOuterRiverReaches(){
 let castShadowTriangles=0,castShadowStart=0;
 // Read-only: inspect the real dynamic vertex buffer; no shader metadata fiction.
 function shadowGradientAudit(){
+ // W52: inspect the actual static resident shadow mesh AND real live footprints.
  let gradientTriangles=0,wrongMaterials=0,inspected=0;
- const end=Math.min(data.length,castShadowStart+castShadowTriangles*30);
- for(let i=castShadowStart;i+29<end;i+=30){
-  inspected++;
-  if(data[i+9]!==MATERIAL.GRASS||data[i+19]!==MATERIAL.GRASS||data[i+29]!==MATERIAL.GRASS)wrongMaterials++;
-  const gradient=Math.abs(data[i+6]-data[i+16])+Math.abs(data[i+7]-data[i+17])+
-   Math.abs(data[i+8]-data[i+18])+Math.abs(data[i+6]-data[i+26])+
-   Math.abs(data[i+7]-data[i+27])+Math.abs(data[i+8]-data[i+28]);
-  if(gradient>1e-4)gradientTriangles++;
- }
- return {triangles:castShadowTriangles,inspected,gradientTriangles,wrongMaterials};
+ const inspect=(mesh,first,end)=>{
+  for(let i=first;i+29<end;i+=30){
+   inspected++;
+   if(mesh[i+9]!==MATERIAL.GRASS||mesh[i+19]!==MATERIAL.GRASS||
+     mesh[i+29]!==MATERIAL.GRASS)wrongMaterials++;
+   const gradient=Math.abs(mesh[i+6]-mesh[i+16])+Math.abs(mesh[i+7]-mesh[i+17])+
+    Math.abs(mesh[i+8]-mesh[i+18])+Math.abs(mesh[i+6]-mesh[i+26])+
+    Math.abs(mesh[i+7]-mesh[i+27])+Math.abs(mesh[i+8]-mesh[i+28]);
+   if(gradient>1e-4)gradientTriangles++;
+  }
+ };
+ const resident=gpuAvailable&&solarShadowActive?.buffer?solarShadowActive:null;
+ if(resident)inspect(resident.vertices,0,resident.vertices.length);
+ const dynamicTriangles=castShadowTriangles-(resident?.triangles||0);
+ inspect(data,castShadowStart,Math.min(data.length,castShadowStart+dynamicTriangles*30));
+ return {triangles:castShadowTriangles,inspected,gradientTriangles,wrongMaterials,
+  residentTriangles:resident?.triangles||0};
 }
 function sunShadow(time){
  const hour=((time%24)+24)%24,atmosphere=skyConditions(time);
@@ -2417,9 +2432,15 @@ const solarShadowCache=new Map();
 let solarShadowCachedFloats=0,solarShadowHits=0,solarShadowBuilds=0;
 let solarShadowEvictions=0,solarShadowInvalidations=0;
 let solarShadowLiveCitizenFrames=0;
+// Static real tree/house solar shadows remain in bounded resident GPU buffers.
+// Every authoritative moving citizen retains a fresh dynamic footprint.
+let solarShadowActive=null,solarShadowGpuUploads=0,solarShadowGpuDrawCalls=0;
+let solarShadowGpuDisposals=0,solarShadowDynamicStaticCopies=0;
 function clearStaticShadowCache(){
+ if(gpuAvailable)for(const entry of solarShadowCache.values())
+  if(entry.buffer){gl.deleteBuffer(entry.buffer);solarShadowGpuDisposals++;}
  solarShadowCache.clear();solarShadowCachedFloats=0;
- solarShadowInvalidations++;
+ solarShadowActive=null;solarShadowInvalidations++;
 }
 function getShadowCacheAudit(){
  return {kind:'static-mesh-solar-buckets',
@@ -2428,11 +2449,18 @@ function getShadowCacheAudit(){
   hits:solarShadowHits,builds:solarShadowBuilds,
   evictions:solarShadowEvictions,invalidations:solarShadowInvalidations,
   liveCitizenFrames:solarShadowLiveCitizenFrames,
+  gpuResident:Boolean(gpuAvailable&&solarShadowActive?.buffer),
+  activeResidentTriangles:gpuAvailable&&solarShadowActive?.buffer?
+   solarShadowActive.triangles:0,
+  gpuUploads:solarShadowGpuUploads,gpuDrawCalls:solarShadowGpuDrawCalls,
+  gpuDisposals:solarShadowGpuDisposals,
+  dynamicStaticCopies:solarShadowDynamicStaticCopies,
   citizenShadowsLive:true,sceneAuthorityUnchanged:true,
   approximation:'five-minute solar bins for buildings/trees; real-time workers'};
 }
 function directionalCastShadows(time){
  const sun=sunShadow(time);castShadowTriangles=0;castShadowStart=data.length;
+ solarShadowActive=null;
  if(sun.strength<=.01)return;
  const old=currentMaterial;currentMaterial=MATERIAL.GRASS;
  try{
@@ -2443,9 +2471,12 @@ function directionalCastShadows(time){
   const saved=solarShadowCache.get(key);
   if(saved){
    solarShadowCache.delete(key);solarShadowCache.set(key,saved);
-   // Replay the ORIGINAL authored gradient triangles; do not replace the
-   // settlement with sprites or remove trees, structures or cast shadows.
-   appendCivicCachedVertices(saved.vertices);
+   // WebGL draws genuine gradient triangles from the retained static buffer.
+   if(gpuAvailable&&saved.buffer)solarShadowActive=saved;
+   else{
+    appendCivicCachedVertices(saved.vertices);
+    if(gpuAvailable)solarShadowDynamicStaticCopies+=saved.vertices.length;
+   }
    castShadowTriangles+=saved.triangles;solarShadowHits++;
   }else{
    const first=data.length;
@@ -2466,12 +2497,31 @@ function directionalCastShadows(time){
    const len=data.length-first;
    if(len<=SOLAR_SHADOW_MAX_FLOATS){
     const vertices=new Float32Array(data.slice(first));
-    solarShadowCache.set(key,{vertices,triangles:len/30});
-    solarShadowCachedFloats+=len;
+    let buffer=null;
+    if(gpuAvailable){
+     buffer=gl.createBuffer();
+     if(buffer){
+      bindGeometry(buffer);
+      gl.bufferData(gl.ARRAY_BUFFER,vertices,gl.STATIC_DRAW);
+      solarShadowGpuUploads++;
+     }
+    }
+    const entry={vertices,triangles:len/30,buffer};
+    if(buffer){
+     solarShadowActive=entry;
+     // Omit ONLY resident permanent shadows from animated CPU upload;
+     // genuine citizen contact follows below, built every moving frame.
+     data.length=first;
+    }
+    solarShadowCache.set(key,entry);solarShadowCachedFloats+=len;
     while(solarShadowCache.size>SOLAR_SHADOW_MAX_ENTRIES||
       solarShadowCachedFloats>SOLAR_SHADOW_MAX_FLOATS){
      const oldest=solarShadowCache.keys().next().value;
-     solarShadowCachedFloats-=solarShadowCache.get(oldest).vertices.length;
+     const obsolete=solarShadowCache.get(oldest);
+     solarShadowCachedFloats-=obsolete.vertices.length;
+     if(obsolete.buffer&&gpuAvailable){
+      gl.deleteBuffer(obsolete.buffer);solarShadowGpuDisposals++;
+     }
      solarShadowCache.delete(oldest);solarShadowEvictions++;
     }
    }
@@ -11572,7 +11622,9 @@ if(gpuAvailable){
  gl.uniform4f(uniforms.completedHarvestA,...(a?[a.x,a.z,a.floor,a.strength]:none));
  gl.uniform4f(uniforms.completedHarvestB,...(b?[b.x,b.z,b.floor,b.strength]:none));
 }
-lastFrameTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.length+activeCivicMesh().length+data.length:data.length)/30;
+lastFrameTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.length+
+ activeCivicMesh().length+data.length+
+ (solarShadowActive?.buffer?solarShadowActive.vertices.length:0):data.length)/30;
 if(gpuAvailable){
  const planes=sceneFrustumPlanes(m);
  scenicVisibilityStats.landscape=drawVisibleStaticChunks(landscapeBuffer,landscapeChunkRanges,planes);
@@ -11586,6 +11638,11 @@ if(gpuAvailable){
   scenicVisibilityStats.settlement.culledTriangles+scenicVisibilityStats.civic.culledTriangles;
  scenicVisibilityStats.totalDrawCalls=scenicVisibilityStats.landscape.drawCalls+
   scenicVisibilityStats.settlement.drawCalls+scenicVisibilityStats.civic.drawCalls;
+ if(solarShadowActive?.buffer){
+  bindGeometry(solarShadowActive.buffer);
+  gl.drawArrays(gl.TRIANGLES,0,solarShadowActive.triangles*3);
+  solarShadowGpuDrawCalls++;
+ }
 }
 bindGeometry(buffer);
 if(gpuAvailable){
