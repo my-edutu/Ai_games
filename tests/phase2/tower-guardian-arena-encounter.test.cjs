@@ -207,6 +207,7 @@ test('actual 20Hz streamed tower reaches a choice on its guardian gate: an obser
   let realNearGuardianCharges=0, observedExposures=0, observedResponses=0, observedSafeWarnings=0;
   let nearestObservedChargeDistance=Infinity, guardianChargeDeckTicks=0;
   let capTicks=0, guardianMinimumHealth=Infinity, maxFloor=8, chargeDistanceAtClosest=null;
+  const unhandledSourceExposures=[];
   for(let i=0;i<3000;i++){
     const state=runtime.state;
     if(state.lifecycle==='running'){
@@ -249,6 +250,13 @@ test('actual 20Hz streamed tower reaches a choice on its guardian gate: an obser
           const choice=chooseTowerAction(state,obs);
           if(choice.intent.mode==='evading-hazard'&&
              (choice.action.move!==0||choice.action.jump))observedResponses++;
+          else if(unhandledSourceExposures.length<12)unhandledSourceExposures.push({
+            tick:state.tick,chargeTicks:crusher.chargeTicksRemaining,
+            playerX:obs.player.position.x,playerVelocityX:obs.player.velocity.x,
+            crusherX:crusher.x,crusherWidth:crusher.width,
+            guardianX:guardian.position.x,guardianTelegraph:guardian.telegraphUntilTick,
+            intent:choice.intent.mode,action:choice.action,
+          });
         }else observedSafeWarnings++;
       }
     }
@@ -259,7 +267,7 @@ test('actual 20Hz streamed tower reaches a choice on its guardian gate: an obser
   assert.ok(observedExposures+observedSafeWarnings>=realNearGuardianCharges,
     'source-warning accounting must not silently lose an observed guardian-shutter frame');
   assert.equal(observedResponses,observedExposures,
-    'every ACTUALLY approaching real source shutter must receive a physical escape response');
+    'every ACTUALLY approaching real source shutter must receive a physical escape response; '+JSON.stringify(unhandledSourceExposures));
   // If all filmed source windows were safely separated, zero escape inputs
   // are correct. A real overlap/3D source-matched crossfire sequence remains
   // an OPEN experience gate rather than an invented CI victory.

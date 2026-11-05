@@ -25,6 +25,12 @@ function liveDuel(flags={guardianSecondWind:true,guardianArenaHazards:true}){
   p.velocity={x:0,y:0};p.grounded=true;p.groundedPlatformId=cap.id;
   p.facing=1;p.invulnerableTicks=0;p.health=p.maxHealth;
   guardian.position={x:p.position.x+10000,y:p.position.y};
+  // The historical unflagged guardian spawned on p6, not this cap.
+  // Rebase its ACTUAL patrol to the test's physical contact deck: otherwise
+  // source combat clamps it back to the distant original p6 x-range and the
+  // test wrongly expects damage from two non-overlapping bodies.
+  guardian.patrolMinX=p.position.x-60000;
+  guardian.patrolMaxX=p.position.x+80000;
   guardian.facing=-1;guardian.cooldown=24;
   guardian.telegraphUntilTick=0;
   return {s,p,guardian,cap};
