@@ -713,3 +713,33 @@ test('Thornback has a real hinged tail silhouette and coral gape only for a disc
     assert.equal(warden.group.children.length,0,'new joints and materials must clean up with the original rig');
   }
 });
+
+
+test('Pip and Thornback share immutable primitive buffers with exact last-owner disposal', async () => {
+  const {createExplorer, createWarden, rigPrimitiveResourceStats} = await modulePromise;
+  const baseline = rigPrimitiveResourceStats();
+  for (const balanced of [true, false]) {
+    const pip = createExplorer({balanced});
+    const first = rigPrimitiveResourceStats();
+    assert.ok(first.unique > baseline.unique && first.references > baseline.references,
+      'a live Pip owns modeled primitive buffers');
+    const thornback = createWarden({balanced});
+    const together = rigPrimitiveResourceStats();
+    assert.ok(together.references > first.references,
+      'a live guardian has its own reference to actual primitive geometry');
+    assert.ok(together.unique < first.unique + together.references - first.references,
+      'at least one identical 3D primitive is genuinely shared, not silently duplicated');
+    pip.dispose();
+    const guardianOnly = rigPrimitiveResourceStats();
+    assert.ok(guardianOnly.references > baseline.references,
+      'disposing Pip cannot prematurely release Thornback geometry');
+    thornback.group.traverse(child => {
+      if (child.geometry) assert.ok(child.geometry.attributes.position.count > 0,
+        'the remaining guardian retains valid source mesh buffers');
+    });
+    thornback.dispose();
+    pip.dispose(); thornback.dispose();
+    assert.deepEqual(rigPrimitiveResourceStats(), baseline,
+      'final rig release returns primitive resource counts to their exact baseline');
+  }
+});
