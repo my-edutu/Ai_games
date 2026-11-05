@@ -20,6 +20,33 @@ permissions:
   contents: read
 
 jobs:
+  # W51: renderer-level static sun-shadow reuse, actual moving citizen
+  # contact, reset/restore invalidation and strictly bounded 390px resources.
+  w51-solar-shadow-residency:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Run real workday shadow residency and 390px WebGL replay safety
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w51-static-solar-shadow-cache.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w51-solar-shadows
+          path: test-results/
+          retention-days: 14
   # W50 — the existing actor and real economic activity stay readable
   # in world-space when watched on desktop and 390px. No invented citizen.
   w50-real-world-work-label:
