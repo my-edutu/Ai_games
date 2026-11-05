@@ -4,7 +4,7 @@ import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZ
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianEncounterBeat } from './public-lantern-encounter.mjs';
-import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
+import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicCameraSettleRate, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -610,6 +610,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     let cameraAimLift = 0;
     let portraitEncounterOrbit = 0;
     let fossilPerformanceShot = false;
+    let pressureCameraBeat = false;
     if (cameraMode === 'overview') {
       const positions = s.cells.map(cell => cellPosition(cell.cell, s.width, s.height));
       const minX = Math.min(...positions.map(p => p.x)), maxX = Math.max(...positions.map(p => p.x));
@@ -738,6 +739,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         // Public guardian, goal, key, gate and pickup stories take priority.
         if (publicPressureTrap && !cameraGate && !nearObservedGoal
           && !keyGateCue && !showPickup) {
+          pressureCameraBeat = true;
           desiredTarget.x += (publicPressureTrap.x-pose.x)*publicPressureTrap.weight;
           desiredTarget.z += (publicPressureTrap.z-pose.z)*publicPressureTrap.weight;
           // Pass162 native 390x844: the pan repaired the actual +1.082
@@ -880,10 +882,13 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // retain their established compositions. No AI time or authority changes.
     const publicFollowEncounter = cameraMode === 'follow' && !result
       && !cameraGate && !!closestThreat?.strength;
+    // A real, published pressure jaw deserves the same quick camera response
+    // as an actual guardian; the generic 4.5/s glide can trail Pip's
+    // autonomous 180ms diagonal step on the full-width 320px stage. Apply
+    // only when that public hazard stage is selected, never for hidden traps.
     const blend = settings.reducedMotion || frames === 0 ? 1
-      : 1 - Math.exp(-delta * (pickupCameraBeat ? 12
-        : publicFollowEncounter ? 10
-          : openingStageView ? 8 : 4.5));
+      : 1 - Math.exp(-delta * publicCameraSettleRate(
+        pickupCameraBeat, publicFollowEncounter, pressureCameraBeat, openingStageView));
     cameraTarget.lerp(desiredTarget, blend);
     halfHeight += (targetHeight - halfHeight) * blend;
     camera.left = -halfHeight * aspect; camera.right = halfHeight * aspect;
