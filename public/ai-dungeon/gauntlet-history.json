@@ -2194,7 +2194,7 @@
         "playsMajority": false,
         "provenance": "No worker/critic session available, no masked verdicts."
       },
-      "safetyChecks": "Current correction copied into exact predecessor Actions workspace locally passed npm run dungeon:test (303/303); first aa1b994 exact-head workflow results running at check; corrected asserted ankle occlusion now committed. This is a source safety check, never a LOOKS/FEELS/PLAYS or mobile performance win.",
+      "safetyChecks": "At predecessor de842c full catalogue CI 974/975: sole stale projected facade string regex failure; code a984576e adds oversubscribed live-actor priority and updates source assertion. New exact-head CI and moving browser proof UNVERIFIED.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED. Inspected raw world Chromium UI ~13s WebM has video-only stream.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2202,7 +2202,7 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Real-source b8be04f 1440x832 browser screenshot from 41672587065 and Warden boss desktop/mobile screenshot/video artifacts 41672587022 were INSPECTED: new 14 anatomical joint cylinders made elongated opaque spindly/squid-like limbs. Warden encounter head-on 1440x832 has 3 heroes overlapping enemy bodies in the 58% HP boss arena, warning Rift Cross visible but contact indistinguishable; mobile capture progressed into floor 2 but large stylized ballheads persist. This is a NEGATIVE experiential finding compared with da492455 and exact locked baseline; source visual redesign at 71da2ea to cap spans remains unverified. No masked A/B victory.",
-      "latestCandidateWorkflow": "Live finite projected full-body masonry clearance now integrated as source. New exact-head live/browser/AI encounter, mobile and reviewer verdict UNVERIFIED.",
+      "latestCandidateWorkflow": "Source stage-priority implementation a984576e committed to draft PR #49; exact-head workflows 41962545123/41962545126/41962545177 queued. No actual new-head gameplay, mobile motion, original audio or blind A/B acceptance verified.",
       "currentPredecessorWebgl": {
         "sourceSha": "0b29acd785f363483a73481623e86944cb66d184",
         "worldArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41952935424/artifacts/13382899444",
@@ -2404,7 +2404,13 @@
         "safetyCI": "UNVERIFIED",
         "objective": "Retain rear Gothic world-height architecture while real camera/body-ray clears opaque foreground weapons; add 4 graded elevated rescue shots."
       },
-      "realAfterArtifact": null
+      "realAfterArtifact": null,
+      "stagePriorityCandidate": {
+        "sourceSha": "a984576e45e70440e5e32b727658dd08b95ea6b0",
+        "observation": "Five scenic camera/cutaway slots previously could exclude genuine rooted heroes; bounded render-only resolver now gives real live bodies priority; after pixels still UNVERIFIED",
+        "furtherEvidenceNeeded": "authentic browser moving desktop/mobile hero/boss image and frame performance; reject popping/occlusion; three independent blind critics",
+        "status": "INTEGRATED_SOURCE_UNVERIFIED"
+      }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
     "biggestRemainingGap": "Exact original WebGL still hides protagonist torso/boots; even if physical cutaway improves, adult source model anatomy, trustworthy animated contact and five-stage mobile audiovisual coherent combat still fall far below authentic Diablo IV/No Rest for the Wicked/Path of Exile 2.",

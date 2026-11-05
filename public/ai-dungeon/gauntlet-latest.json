@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-05T03:56:00Z",
-  "status": "IN PROGRESS — NOT TRANSFORMED (integrated true-body projected 3D clearance candidate; real AFTER unverified)",
+  "generatedAt": "2026-11-05T03:36:43.487Z",
+  "status": "IN PROGRESS — NOT TRANSFORMED (real actor priority over scenic shot slots; running-game gain unverified)",
   "reference": "Diablo IV quality, No Rest for the Wicked worlds, Path of Exile 2 combat: authentic comparison targeted; matched A/B UNVERIFIED",
   "metrics": {
     "sample_seeds": 24,
@@ -208,19 +208,19 @@
       "elapsedMs": 818
     }
   ],
-  "visualVerdict": "NEGATIVE inspected predecessor WebGL 0b29acd: authentic Vanguard body hidden despite 3/3 synthetic unoccluded rays. New source candidate projection AFTER unverified.",
+  "visualVerdict": "Authentic predecessor WebGL showed obscured body; new five-slot real-body priority not yet visually evaluated on a genuine AFTER screenshot/clip.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
-  "candidateCommit": "1ae107b96c062ed46d4445934c966bbc0736c2e9",
+  "candidateCommit": "a984576e45e70440e5e32b727658dd08b95ea6b0",
   "metricsProvenance": "Local current-source 9af59bc npm run dungeon:test 309/309, npm run dungeon:gauntlet 24 seeds ×900 ticks: 174 advances, 4 restarts, 0 determinism mismatches. No claim for visual quality.",
   "transformation": {
     "milestone": "M1",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
     "locked": true,
-    "candidateSha": "1ae107b96c062ed46d4445934c966bbc0736c2e9",
+    "candidateSha": "a984576e45e70440e5e32b727658dd08b95ea6b0",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
-    "exactHeadSafety": "Predecessor 0b29acd Dungeon+visual workflow succeeded, broader CI cancelled; new projected-body source head workflow UNVERIFIED.",
+    "exactHeadSafety": "Previous de842c visual workflow passed; prior broad CI 974/975 failed stale physical facade regex, updated in a984576e. New exact-head browser, CI and audio UNVERIFIED.",
     "looks": "UNVERIFIED",
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
@@ -237,14 +237,14 @@
     "currentMilestoneLedger": "public/ai-dungeon/gauntlet-history.json",
     "realAfterArtifact": null,
     "realAfterObservation": "UNVERIFIED — no genuine new-head screenshot yet inspected.",
-    "integratedImplementation": "Render-only camera FOV/aspect/depth projection of real verified living actor boots/torso/shoulders/head over physical base walls, façade cutaways, foreground Gothic props and imported source GLB bounds; preserves rear cathedral and genuine AI/seed/save/replay. New screen-space counters for real browser comparison.",
+    "integratedImplementation": "Render-only camera FOV/aspect/depth projection of real verified living actor boots/torso/shoulders/head over physical base walls, façade cutaways, foreground Gothic props and imported source GLB bounds; preserves rear cathedral and genuine AI/seed/save/replay. New screen-space counters for real browser comparison. M1 candidate a984576e also reserves scarce bounded cinematic visibility subjects for genuine living skinned fighters over scenic markers, shared by camera, walls, facade and Gothic prop cutaways.",
     "latestPredecessorReview": {
       "sourceSha": "3b2025a619cc6c113e28dd463224e90205fd2476",
       "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41922629878/artifacts/13368532950",
       "observation": "Actual desktop real Three.js rendered 1440x832 inspected: Vanguard helmet and sword protrude over an opaque Gothic facade while torso/boots remain invisible; two other heroes appear toy-like. Three/three synthetic ray visibility score is false positive. No active enemy in this frame.",
       "technicalSafety": "All 4 Dungeon browser/authority checks PASS and visual-review workflow PASS for predecessor SHA; broad catalogue CI FAILURE. No visual transformation accepted."
     },
-    "sourceStatus": "INTEGRATED SOURCE CANDIDATE — MOTION/AUDIO/CRITICS/CI UNVERIFIED"
+    "sourceStatus": "INTEGRATED SOURCE CANDIDATE — NEW-HEAD RUNNING GAME / CI / CRITICS UNVERIFIED"
   },
-  "acceptanceStatus": "IN PROGRESS — NOT TRANSFORMED. Latest projected-body runtime quality, continuous five-phase original-audio desktop/mobile, matched M1 baseline, mobile p95, independent majority critics and exact new-head CI all UNVERIFIED."
+  "acceptanceStatus": "IN PROGRESS — NOT TRANSFORMED; no accepted BEFORE/AFTER physical render quality; authentic full five-stage desktop/mobile motion/audio and independent critics outstanding."
 }
