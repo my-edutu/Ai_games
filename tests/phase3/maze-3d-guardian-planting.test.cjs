@@ -145,7 +145,7 @@ test('real paired shoulder guards rise during a witnessed brace and fold before 
     const brace=pose();
     assert.ok(brace.every(pair=>pair[0]<-.55),
       'the center 390px public encounter should lift both connected plates');
-    assert.ok(brace[0][1]<-.08 && brace[1][1]>.08,
+    assert.ok(brace[0][1]<-.60 && brace[1][1]>.60,
       'rooted armor must fan outward on opposite sides, not simply glow');
     guardian.update({...cue,encounterBeat:1});
     const release=pose();
