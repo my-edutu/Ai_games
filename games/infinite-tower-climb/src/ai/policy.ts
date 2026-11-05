@@ -651,6 +651,29 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
       const dx=guardian.position.x-observation.player.position.x;
       const facing:TowerAction['move']=dx>=0?1:-1;
       const inReach=Math.abs(dx)<=reach-4000;
+      // The NEW physical guardian-cap arena revealed a repeated genuine
+      // health-depleted outcome before the boss fell: the stationary pilot
+      // keeps swinging during its 10-tick cooldown while the actual 1.8k/tick
+      // guardian patrol walks straight into the player's contact collider.
+      // On the opt-in arena ONLY, spend otherwise unusable cooldown ticks
+      // making space from the PRESENT living opponent's body. An available
+      // melee hit still has priority; emergency projectiles, active shutter
+      // and its published countdown already won above this normal duel.
+      // The same ground-edge guard vetoes retreat off the actual cap.
+      const contactClearance=state.player.halfWidth+guardian.halfWidth+
+        Math.max(6000,Math.min(14000,Math.floor(reach/4)));
+      if(tactical&&state.config.guardianArenaHazards===true&&inReach&&
+         observation.player.attackCooldown>0&&
+         Math.abs(dx)<contactClearance){
+        const away:TowerAction['move']=dx>=0?-1:1;
+        const move=guardedEvasion(state,observation,away);
+        return{action:action(move),intent:{
+          mode:'engaging-enemy',
+          summary:move===away?'Making room between genuine guardian strikes':
+            'Holding safe cap footing as the guardian approaches',
+          confidence:.96,fallbackUsed:false,
+          targetPlatformId:observation.player.groundedPlatformId}};
+      }
       const wanted:TowerAction['move']=inReach?(observation.player.facing===facing?0:facing):facing;
       // The guardian can patrol beyond the cap's physical edge. The tactical
       // AI must not walk off observed support merely to reach an opponent;
