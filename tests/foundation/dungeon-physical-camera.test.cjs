@@ -68,7 +68,7 @@ test('real scene hooks use one planner for camera, physical cutaways and diagnos
 test('physical orbit checks real native shoulder lanes and preserves public authority',async()=>{
  const code=fs.readFileSync(source,'utf8');
  assert.ok(code.includes('side:-.26')&&code.includes('side:.26'));
- assert.ok(code.includes('bodyVisible===BODY_SAMPLES.length'));
+ assert.ok(code.includes('bodyVisible===samples.length'), 'camera evaluates the actual available skinned bone samples or bounded fallback, not only static five-ray samples');
  const {createPhysicalCameraDirector}=await load(),director=createPhysicalCameraDirector();
  const state=snap(),result=director.resolve(state,base(),options([[0,2],[1,2],[0,3]],[2.5,2.5,2.5]));
  if(result){assert.ok(result.occlusion.blockedAfter<=result.occlusion.blockedBefore);
@@ -123,6 +123,6 @@ test('rendered physical facades and camera share the same real-actor cutaway ban
  const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
  assert.match(environment,/const facadeReveal=/);
  assert.match(environment,/coarse=facadeReveal\(f,eyes,camera,wallPad\)/);
- assert.match(environment,/const reveal=projected\?'sightline':coarse/);
+ assert.match(environment,/const reveal=forceFacades\?\.has\(i\)\?'sightline':projected\?'sightline':coarse/, 'actual source Raycaster facade hits take priority over approximate projection and retain existing band fallbacks');
  assert.match(app,/facadeReveal:world\.userData\.dressing\?\.facadeReveal/);
 });
