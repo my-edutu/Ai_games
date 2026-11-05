@@ -361,3 +361,33 @@ test('3D safe-lane glow requires an actual completed living two-hero foot-tile h
  assert.match(source,/oathguardImpactRing\.visible=oathguardAegis\.visible&&!reduced&&impactProgress<1/,
   'preparatory teamwork cannot fabricate a shield impact');
 });
+
+
+test('the actual filmed Warden or melee defender owns automatic spectator focus',async()=>{
+ const {planCinematicShot,planCinematicVisibleHero}=await planner();
+ const s=scene(),before=JSON.stringify(s);
+ const warden=planCinematicShot(s,null,{focusedHeroId:'mystic'});
+ assert.deepEqual(warden.subjects,['ranger','warden']);
+ assert.equal(planCinematicVisibleHero(s,warden,'mystic'),'ranger');
+ s.bossWarning={shape:'NOVA',attackTick:5,cells:[{x:11,z:9}]};
+ const warning=planCinematicShot(s,null,{focusedHeroId:'mystic'});
+ assert.deepEqual(warning.subjects,['warden','ranger']);
+ assert.equal(planCinematicVisibleHero(s,warning,'mystic'),'ranger');
+ assert.equal(planCinematicVisibleHero(s,{subjects:['ghost','warden','vanguard']},'mystic'),'vanguard');
+ s.units.find(u=>u.id==='vanguard').hp=0;
+ assert.equal(planCinematicVisibleHero(s,{subjects:['vanguard','warden','ranger']},'mystic'),'ranger');
+ assert.equal(planCinematicVisibleHero(s,{subjects:['invented']},'mystic'),'mystic');
+ s.units.filter(u=>u.faction==='party').forEach(u=>u.hp=0);
+ assert.equal(planCinematicVisibleHero(s,warning,'ranger'),null);
+ assert.ok(before.includes('"hp":100'),'setup must contain live real hero');
+});
+
+test('the live cinematic camera keeps coherent focus and physically fits both true combatants',()=>{
+ const fs=require('node:fs'),path=require('node:path');
+ const app=fs.readFileSync(path.resolve(__dirname,'../../public/ai-dungeon/app.js'),'utf8');
+ assert.match(app,/planCinematicVisibleHero\(state,rawCinematicShot,focusedHeroId\)/);
+ assert.match(app,/if\(filmedHero&&filmedHero!==focusedHeroId\)/);
+ assert.match(app,/'contact','skirmish-approach','breach-warning','oathguard-cover'/);
+ assert.match(app,/planCriticalSubjectFit\(subjects,camera.aspect,wantedFov\)/);
+ assert.match(app,/const point=camera.worldToLocal\(actor.root.localToWorld/);
+});

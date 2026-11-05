@@ -13,7 +13,7 @@ import {planEncounterSightlines} from '/dungeon/encounter-sightlines.js';
 import {planCombatSightlineExtension,planCinematicSilhouetteRecess} from '/dungeon/encounter-sightlines.js';
 import {planEncounterLighting} from '/dungeon/encounter-lighting-plan.js';
 import {planEncounterFrame} from '/dungeon/encounter-frame-plan.js';
-import {planCinematicShot,planReadableExpeditionLens,planCriticalSubjectFit,planWardenCharge,planOathguardPose,planBossDuelSightline,planPartyVistaSightline} from '/dungeon/cinematic-chapter-plan.js';
+import {planCinematicShot,planCinematicVisibleHero,planReadableExpeditionLens,planCriticalSubjectFit,planWardenCharge,planOathguardPose,planBossDuelSightline,planPartyVistaSightline} from '/dungeon/cinematic-chapter-plan.js';
 import {planPartyWallReveal,createCutawayBandCache,shouldUploadCutawayBand,resolveRenderedSilhouetteSubjects,planProjectedBodyAperture} from '/dungeon/party-visibility-plan.js';
 import {planBoundaryCamera} from '/dungeon/camera-boundary-plan.js';
 import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
@@ -989,6 +989,19 @@ function animate(t){
  const encounterFrame=autoDirector&&cameraModes[cameraIndex]==='cinematic'?planEncounterFrame(state):null;
  const heldImpact=impactCameraHold?.age<(impactCameraHold?.encounter.mode==='final-blow'?.72:.43)&&!state?.bossWarning?impactCameraHold.encounter:null;
  const rawCinematicShot=autoDirector&&cameraModes[cameraIndex]==='cinematic'?planCinematicShot(state,heldImpact||encounterFrame,{width:w,height:h,focusedHeroId}):null;
+ // The spectator's labelled hero must be a real party subject of the shot
+ // we are actually filming. A Warden warning or true contact should not
+ // follow a distant hero selected by unrelated earlier actions.
+ // Do not override manual spectator selection or fake character positions.
+ const filmedHero=autoDirector&&rawCinematicShot?
+  planCinematicVisibleHero(state,rawCinematicShot,focusedHeroId):null;
+ if(filmedHero&&filmedHero!==focusedHeroId){
+  focusedHeroId=filmedHero;lastAutoSwitch=performance.now();
+  const subject=state.units.find(u=>u.id===filmedHero);
+  $('focus-label').textContent='DIRECTOR FOLLOW · '+
+   (classMeta[subject?.kind]?.name||subject?.kind||'HERO').toUpperCase();
+ }
+
   // Sustain the camera side through an ACTUAL ongoing two-body engagement;
   // emergency ground telegraphs, death, floor changes and new targets always
   // override immediately. The shot mode/aim/subjects still come from NOW.
@@ -1219,7 +1232,9 @@ function animate(t){
  // Three.js skeletal/body coordinates AFTER the physical boundary orbit.
  // No simulated boss action, duplicated model or extra draw pass is involved.
  let criticalCameraFit=null;
- if(cameraType==='cinematic'&&(cinematicShot?.mode?.startsWith('warden-')||cinematicShot?.mode==='oathguard-cover')){
+ if(cameraType==='cinematic'&&cinematicShot&&
+  ['contact','skirmish-approach','breach-warning','oathguard-cover',
+   'warden-contact','warden-approach','warden-exposed','warden-warning'].includes(cinematicShot.mode)){
   camera.updateMatrixWorld(true);
   const subjects=[];
   for(const id of cinematicShot.subjects.slice(0,3)){

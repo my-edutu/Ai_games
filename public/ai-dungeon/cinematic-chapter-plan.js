@@ -535,3 +535,28 @@ export function planPartyVistaSightline(s,look,offsets,{width=1440,height=832,fo
    cropped:best.crop>.001,foregroundWalls:best.foregroundWalls,groupAimShift:round(aimShift)})
  });
 }
+
+
+/**
+ * Resolve the actual party protagonist of the director's CURRENT shot.
+ * A Warden warning may be correctly centred on the boss and nearest defender
+ * while the old periodic action-based follow selector still labels a distant
+ * ranger as the camera subject. Choose only a genuinely living party member
+ * inside the existing authoritative shot; never invent actor coordinates.
+ *
+ * This is presentation-only, preserves explicit manual spectator focus, and
+ * changes no action/AI/turn/RNG/save/replay data.
+ */
+export function planCinematicVisibleHero(state,shot,currentId){
+ const alive=Array.isArray(state?.units)?
+  state.units.filter(u=>u?.faction==='party'&&u.hp>0&&typeof u.id==='string'&&
+   Number.isInteger(u.x)&&Number.isInteger(u.z)):[];
+ if(!alive.length)return null;
+ if(Array.isArray(shot?.subjects)&&shot.subjects.length<=8){
+  for(const id of shot.subjects){
+   const found=alive.find(u=>u.id===id);
+   if(found)return found.id;
+  }
+ }
+ return alive.find(u=>u.id===currentId)?.id??alive[0].id;
+}
