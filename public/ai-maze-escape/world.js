@@ -1786,6 +1786,21 @@ export function createMazeWorld(options = {}) {
       mesh(jaw, bevel, lightStone, -side * .12, .68, 0, .52, .12, .76);
       mesh(jaw, bevel, danger, -side * .14, .36, .344, .23, .39, .075);
       mesh(jaw, cone, gold, -side * .12, .83, 0, .12, .23, .12);
+      // Original 390px WebGL critique: the existing short clay jaws vanish
+      // among nearby fossil fronds and read as anonymous masonry. Give each
+      // REAL hinged jaw a tall physical warning vane with a warm, pointed
+      // silhouette. The vane is parented to the SAME joint, so an already-
+      // published pressure threat visibly opens rather than merely changing
+      // a HUD badge. Reuse shared geometry/materials, never inspect hidden
+      // neighbors or add a synthetic collision or damage event.
+      const vane = mesh(jaw, bevel, danger,
+        -side * .18, 1.17, .29, .24, .67, .23, 0, 0, side * .12);
+      vane.name = 'Published tide-shear warning vane';
+      mesh(jaw, bevel, gold,
+        -side * .18, 1.55, .30, .29, .10, .26);
+      const fang = mesh(jaw, cone, amber,
+        -side * .18, 1.77, .30, .15, .40, .15);
+      fang.name = 'Published tide-shear warning fang';
       trapJaws.push({object: jaw, side, cell: c.cell, x: p.position.x, z: p.position.z});
     }
   }
@@ -2020,7 +2035,7 @@ export function createMazeWorld(options = {}) {
         && snapshot.visibleCells.includes(jaw.cell);
       const distance = Math.hypot(hx - jaw.x, hz - jaw.z);
       const near = visible ? Math.max(0, 1 - distance / (CELL_SIZE * 1.2)) : 0;
-      const angle = reduced ? .24 : .06 + .60 * Math.min(1, near * 1.7);
+      const angle = reduced ? .24 : .06 + .60 * Math.min(1, near * 2.2);
       jaw.object.rotation.z = -jaw.side * angle;
     }
     for (const relic of fossilSails) {
