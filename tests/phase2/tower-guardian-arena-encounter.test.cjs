@@ -257,7 +257,8 @@ test('actual 20Hz streamed tower reaches a choice on its guardian gate: an obser
           // as escape. Keep every diagnostic exposed tick in the record.
           if((choice.intent.mode==='evading-hazard'&&
                (choice.action.move!==0||choice.action.jump))||
-             (choice.intent.mode==='evading-projectile'&&
+             ((choice.intent.mode==='evading-projectile'||
+               choice.intent.mode==='evading-telegraph')&&
                obs.player.grounded&&choice.action.jump))observedResponses++;
           else if(unhandledSourceExposures.length<12)unhandledSourceExposures.push({
             tick:state.tick,chargeTicks:crusher.chargeTicksRemaining,
@@ -349,4 +350,59 @@ test('contact spacing respects cap edges and never modifies the unflagged duel',
   const legacy=chooseTowerAction(noFlag,createTowerObservation(noFlag,{includeHazardWindup:true}));
   assert.equal(legacy.action.move,0,
     'existing unflagged live guardian combat must retain its old stationary timing');
+});
+
+
+test('opt-in living cap guardian locks floor without zeroing authentic 20Hz jumps and evasive motion',()=>{
+  const {STREAM_CONFIG}=require('../../scripts/serve-tower-stream.cjs');
+  const runtime=TowerRuntime.create({...STREAM_CONFIG,launchFloor:8},
+    'tower-real-cap-gate-flight',{policy:'autonomous'});
+  const s=structuredClone(runtime.state);
+  const cap=s.chunks[0].platforms.find(p=>p.id==='f8:cap');
+  const guardian=s.enemies.find(e=>e.active&&e.kind==='guardian');
+  assert.ok(s.config.guardianArenaHazards&&s.config.guardianSecondWind&&cap&&guardian);
+  s.enemies=[guardian];s.chunks[0].hazards=[];s.projectiles=[];s.pickups=[];
+  guardian.position.x=cap.x+cap.width-guardian.halfWidth-2000;
+  const p=s.player;
+  p.position={x:cap.x+42000,y:cap.y+cap.height+p.halfHeight};
+  p.velocity={x:0,y:0};p.grounded=true;p.groundedPlatformId=cap.id;
+  p.jumpCharges=1;p.facing=1;
+  assert.ok(p.position.y>=s.chunks[0].exitY,
+    'reproduce original gate bug: merely standing on the cap passes exitY');
+  runtime.state=s;
+  const first=runtime.step({move:1,jump:true});
+  assert.equal(first.floor,8,'guardian still blocks advancement');
+  assert.ok(first.player.position.x>p.position.x,'real motion must survive');
+  assert.ok(first.player.position.y>p.position.y&&first.player.velocity.y>0,
+    'genuine evasive leap cannot be erased by the gate');
+  assert.equal(first.player.grounded,false);
+  assert.equal(first.stats.jumps,s.stats.jumps+1);
+  const second=runtime.step({move:1});
+  assert.ok(second.player.position.y>first.player.position.y,
+    'source-authoritative ascent arc must continue on the next tick');
+  assert.equal(second.floor,8,'jumping cannot bypass the living guardian');
+  assert.ok(!runtime.events.some(e=>e.type==='floor-complete'));
+  // Manual enemy state here asserts ONLY the gate invariant, not a real win.
+  runtime.state.enemies.find(e=>e.kind==='guardian').active=false;
+  const cleared=runtime.step({move:0});
+  assert.equal(cleared.floor,9,'a defeated guardian releases progression');
+  assert.equal(cleared.stats.floorsCleared,1);
+});
+
+test('unflagged guardian cap retains frozen original gate and replay behavior',()=>{
+  const runtime=TowerRuntime.create({launchFloor:8,guardianInterval:8},
+    'tower-historical-cap-gate',{policy:'historical-v1'});
+  const s=structuredClone(runtime.state),cap=s.chunks[0].platforms.at(-1);
+  assert.ok(cap&&s.enemies.some(e=>e.active&&e.kind==='guardian'));
+  assert.notEqual(s.config.guardianArenaHazards,true);
+  const p=s.player;
+  p.position={x:cap.x+42000,y:cap.y+cap.height+p.halfHeight};
+  p.velocity={x:0,y:0};p.grounded=true;p.groundedPlatformId=cap.id;
+  runtime.state=s;
+  const out=runtime.step({move:1,jump:true});
+  assert.equal(out.floor,8);
+  assert.equal(out.player.position.y,p.position.y);
+  assert.equal(out.player.velocity.y,0);
+  assert.equal(out.player.velocity.x,0);
+  assert.equal(out.player.grounded,true);
 });
