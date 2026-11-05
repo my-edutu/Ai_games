@@ -55,8 +55,11 @@ test('real 3D tide diaphragm telescopes and opens both rooted shields on publicl
     assert.equal(shields[0].rotation.z,-shields[1].rotation.z,
       'matching public positions yield an entirely symmetrical diaphragm');
     world.animate(0,{explorerPosition:new THREE.Vector3(pos.x+game.CELL_SIZE,0,pos.z),reducedMotion:false});
-    assert.ok(carriage.position.y>.25 && carriage.position.y<.27,
-      'adjacent true public contact drives intermediate physical travel');
+    assert.ok(carriage.position.y>.43 && carriage.position.y<.45,
+      'the real one-cell public pressure beat extends the rooted piston');
+    world.animate(0,{explorerPosition:new THREE.Vector3(pos.x+game.CELL_SIZE,0,pos.z+game.CELL_SIZE),reducedMotion:false});
+    assert.ok(carriage.position.y>.17 && carriage.position.y<.20,
+      'real diagonal approach shows smaller preliminary motion than adjacent pressure');
     world.animate(0,{explorerPosition:far,reducedMotion:false});
     assert.equal(carriage.position.y,.16,'withdrawal restores the physical resting silhouette');
     world.animate(42,{explorerPosition:hero,reducedMotion:true});

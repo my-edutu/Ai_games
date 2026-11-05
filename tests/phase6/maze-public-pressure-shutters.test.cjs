@@ -59,8 +59,11 @@ test('published pressure cell owns two physically distinct, rooted hinged floor 
     }
     close(shutters[0].rotation.z,-shutters[1].rotation.z,'symmetric opening');
     world.animate(0,{explorerPosition:new THREE.Vector3(point.x+game.CELL_SIZE,0,point.z),reducedMotion:false});
-    assert.ok(Math.abs(shutters[0].rotation.z)>.3 && Math.abs(shutters[0].rotation.z)<.4,
-      'one disclosed-cell proximity must trigger a meaningful intermediate physical beat');
+    assert.ok(Math.abs(shutters[0].rotation.z)>.79 && Math.abs(shutters[0].rotation.z)<.81,
+      'the true one-cell published approach must OPEN the physical floor, not just wiggle it');
+    world.animate(0,{explorerPosition:new THREE.Vector3(point.x+game.CELL_SIZE,0,point.z+game.CELL_SIZE),reducedMotion:false});
+    assert.ok(Math.abs(shutters[0].rotation.z)>.08 && Math.abs(shutters[0].rotation.z)<.11,
+      'real diagonal approach produces a small early warning without revealing a distant trap');
     world.animate(0,{explorerPosition:far,reducedMotion:false});
     close(shutters[0].position.x,-.52,'withdrawal closes left shutter');
     close(shutters[1].position.x,.52,'withdrawal closes right shutter');

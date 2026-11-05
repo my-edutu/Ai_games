@@ -2161,8 +2161,13 @@ export function createMazeWorld(options = {}) {
       const visible = Array.isArray(snapshot?.visibleCells)
         && snapshot.visibleCells.includes(signal.cell);
       const distance = Math.hypot(hx - signal.x, hz - signal.z);
-      const near = visible ? Math.max(0, 1 - distance / (CELL_SIZE * 1.2)) : 0;
-      const opening = Math.min(1, near * 2.2);
+      // At the real adjacent-cell encounter the old broad falloff opened the
+      // physical shutters only ~37%, so native phone chronology barely
+      // distinguished approach from pressure. Presentation-only: reserve
+      // a full beat for a VISIBLE one-cell approach, small diagonal warning,
+      // and exact rest beyond 1.45 cells. Never change game authority.
+      const opening = visible ? Math.min(1, Math.max(0,
+        (1.45 - distance / CELL_SIZE) * 2.2)) : 0;
       signal.carriage.position.y = reduced ? .29 : .16 + .28 * opening;
       for (const leaf of signal.diaphragms)
         leaf.object.rotation.z = -leaf.side * (reduced ? .34 : .08 + .70 * opening);
