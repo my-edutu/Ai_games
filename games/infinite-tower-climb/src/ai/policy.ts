@@ -603,12 +603,59 @@ function observedGuardianGuardSpacing(state:TowerState,obs:TowerObservation,
   return {move:vault?0:move,jump:vault,guardTicks:guard,
     closing:counterstep&&move===toward};
 }
+// The SAME original guardian-cap encounter can contain a real incoming enemy
+// bolt AND an imminently closing source-visible crusher. Previously the bolt
+// consumed the entire action reflex before the public crusher warning was
+// considered. Compare the two actual collision deadlines before choosing an
+// existing physical response. A safer present ground exit is not immunity:
+// both attacks retain their normal authoritative collision and damage.
+// Restrict to the fully opted-in physical guardian cap. Frozen tactical-v1,
+// other floors and mere unannounced hazards remain unaffected.
+function observedProjectileCrusherEscape(state:TowerState,obs:TowerObservation,
+  projectile:TowerObservation['projectiles'][number]) {
+  const p=obs.player;
+  if(state.config.guardianArenaHazards!==true||
+    state.config.guardianSecondWind!==true||!p.grounded||
+    p.groundedPlatformId!==`f${obs.floor}:cap`)return undefined;
+  const hazard=observedChargingHazard(state,obs);
+  const countdown=hazard?.chargeTicksRemaining;
+  if(countdown===undefined||!Number.isSafeInteger(countdown)||
+    countdown<1||countdown>4)return undefined;
+  // The observed shot's real present velocity and the climber's actual body
+  // define a conservative impact horizon. No enemy intention, future hazard
+  // schedule or additional simulation state is inspected.
+  const separation=Math.abs(projectile.position.x-p.position.x);
+  const speed=Math.abs(projectile.velocity.x);
+  if(!Number.isFinite(speed)||speed===0)return undefined;
+  const impactTicks=Math.max(1,Math.ceil(Math.max(0,
+    separation-state.player.halfWidth-5000)/speed));
+  if(countdown>impactTicks)return undefined;
+  const escape=observedTrapEscape(state,obs,hazard);
+  return escape.move!==0||escape.jump?escape:undefined;
+}
+
 // Tactical v2 is the live policy. Historical v1 is retained for pinned replay
 // evidence; it is never silently substituted into a new live expedition.
 export function chooseTowerAction(state:TowerState,observation:TowerObservation,options:{tactical?:boolean}={}):TowerDecision{
   const tactical=options.tactical!==false;
   if(observation.upgradeOffers.length){const selected=chooseTowerUpgrade(state);return{action:action(0,{upgradeChoice:selected?.id}),intent:{mode:'choosing-upgrade',summary:selected?`Selecting ${selected.name}`:'Waiting for a valid upgrade',confidence:1,fallbackUsed:false}}}
-  const projectile=tactical?incomingCollisionLaneProjectile(state,observation):incomingProjectile(observation);if(projectile){const away=moveSign(observation.player.position.x-projectile.position.x),move=tactical?guardedEvasion(state,observation,away):away;return{action:action(move,{jump:observation.player.grounded,dash:!observation.player.grounded&&observation.player.dashCooldown===0}),intent:{mode:'evading-projectile',summary:move!==away?'Guarding against a shot without leaving the deck':'Evading an incoming projectile',confidence:.98,fallbackUsed:false}}}
+  const projectile=tactical?incomingCollisionLaneProjectile(state,observation):incomingProjectile(observation);if(projectile){
+    const crossfire=tactical?observedProjectileCrusherEscape(state,observation,projectile):undefined;
+    if(crossfire)return{
+      action:action(crossfire.move,{jump:crossfire.jump}),
+      intent:{mode:'evading-hazard',
+        summary:crossfire.jump?'Vaulting from source closing jaws during real incoming fire':
+          'Clearing the imminent physical crusher before the approaching bolt',
+        confidence:.99,fallbackUsed:false,targetPlatformId:observation.player.groundedPlatformId},
+    };
+    const away=moveSign(observation.player.position.x-projectile.position.x),
+      move=tactical?guardedEvasion(state,observation,away):away;
+    return{action:action(move,{jump:observation.player.grounded,
+      dash:!observation.player.grounded&&observation.player.dashCooldown===0}),
+      intent:{mode:'evading-projectile',
+        summary:move!==away?'Guarding against a shot without leaving the deck':'Evading an incoming projectile',
+        confidence:.98,fallbackUsed:false}};
+  }
   const hazard=immediateHazard(observation);if(hazard&&
      (!tactical||!observedSafeLandingOwnsHazard(state,observation,hazard))){const center=hazard.x+hazard.width/2,away:TowerAction['move']=center>=observation.player.position.x?-1:1,move=tactical?guardedEvasion(state,observation,away):away;return{action:action(move,{jump:observation.player.grounded}),intent:{mode:'evading-hazard',summary:move!==away?'Jumping clear without abandoning the deck':`Avoiding ${hazard.kind}`,confidence:.96,fallbackUsed:false}}}
   const windup=tactical?imminentTelegraph(state,observation):undefined;
