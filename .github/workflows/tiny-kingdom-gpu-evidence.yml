@@ -28,6 +28,8 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
+      # Playwright's shared web servers import compiled replay packages.
+      - run: npm run build
       - run: npx playwright install --with-deps chromium
       - name: W43 actual smith facing and hammer contact, 390px
         env:
