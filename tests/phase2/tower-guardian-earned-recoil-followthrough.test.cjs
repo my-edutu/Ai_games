@@ -21,8 +21,10 @@ function duel(flags={guardianSecondWind:true,guardianArenaHazards:true}){
  p.position={x:cap.x+Math.floor(cap.width*.40),y:cap.y+cap.height+p.halfHeight};
  p.grounded=true;p.groundedPlatformId=cap.id;p.velocity={x:0,y:0};
  p.facing=1;p.attackCooldown=0;p.health=p.maxHealth;
- boss.position={x:p.position.x+27000,y:p.position.y};
+ boss.position={x:p.position.x+26000,y:p.position.y};
  boss.patrolMinX=p.position.x-80000;boss.patrolMaxX=p.position.x+110000;
+ // A true 26k horizontal collider overlap (11k hero + 16k boss), not the
+ // previous exactly-touching 27k strict-overlap boundary.
  boss.health=4;boss.maxHealth=8;boss.guardUntilTick=state.tick+18;
  boss.telegraphUntilTick=state.tick+5;boss.cooldown=20;
  return state;
