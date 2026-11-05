@@ -76,3 +76,34 @@ test('Vanguard protects allies with real interception, but does not waste boss w
  const wounded=create('vanguard-frontline-stage-0');wounded.hero.hp=Math.ceil(wounded.hero.maxHp*.42);
  wounded.g.step();assert.equal(wounded.hero.action,'move','the wounded tank must preserve its actual life');
 });
+
+test('overlapping saved cultist hex cannot funnel an evader back into its charged tile',()=>{
+ const s=arena(),strike=planWardenStrike(s,s.boss);
+ s.units.push({id:'hexer',kind:'cultist',faction:'enemy',x:15,z:13,
+  hp:18,maxHp:18,attack:5,cooldown:0,channelUntilTick:4,
+  channelTargetId:'vanguard',channelX:11,channelZ:9});
+ const step=planWardenEvasionStep(s,s.hero,strike);
+ assert.ok(step,'the alternate legal flank still allows the real Warden escape');
+ assert.notDeepEqual(step,{x:11,z:9},'recorded overlapping hit is not a safe escape corridor');
+ assert.equal(Math.abs(s.hero.x-step.x)+Math.abs(s.hero.z-step.z),1);
+ assert.equal(s.hero.x,10,'the planner does not move authority actors');
+ assert.equal(s.hero.z,9);
+});
+test('genuine Warden recovery damage earns a visible counter and exact save/replay',()=>{
+ const game=DungeonRuntime.create('m1-warden-counter-commitment'),s=game.state;
+ const boss=s.units.find(u=>u.kind==='warden'),hero=s.units.find(u=>u.id==='vanguard');
+ for(const u of s.units)if(u!==boss&&u!==hero)u.hp=0;
+ const legal=[{x:boss.x+1,z:boss.z},{x:boss.x-1,z:boss.z},
+  {x:boss.x,z:boss.z+1},{x:boss.x,z:boss.z-1}]
+  .find(p=>s.map[p.z]?.[p.x]==='.');
+ assert.ok(legal,'Warden room has a lawful adjacent attack lane');
+ Object.assign(hero,{...legal,hp:hero.maxHp});
+ boss.hp=Math.ceil(boss.maxHp*.48);s.tick=6;
+ boss.recoveryUntilTick=8;
+ const previousHp=boss.hp,checkpoint=game.save(),next=game.step();
+ assert.ok(boss.hp<previousHp,'actual exposed damage changes authoritative HP');
+ assert.ok(next.events.some(e=>e.kind==='counter'&&e.text.includes('Warden')));
+ const mirror=DungeonRuntime.restore(checkpoint);
+ assert.equal(mirror.step().checksum,next.checksum,'counter event replays exactly');
+ for(let i=0;i<8;i++)assert.equal(mirror.step().checksum,game.step().checksum);
+});

@@ -184,3 +184,19 @@ test('a genuine Eclipse HP phase earns original rising and final cues over three
  assert.equal(planSoundCues(first,{...second,bossWarning:null}).some(c=>c.kind==='eclipse-rising'),false);
  assert.equal(planSoundCues(first,{...second,units:[unit('hero')]}).some(c=>c.kind==='eclipse-rising'),false);
 });
+
+test('original Warden counter sound requires true previous recovery and HP loss',async()=>{
+ const {planSoundCues}=await plan();
+ const boss=(hp,recoveryUntilTick)=>({...unit('warden','guard',40,'warden','enemy'),hp,
+  maxHp:90,recoveryUntilTick});
+ const before=snap(40,{units:[unit('hero'),boss(60,41)]});
+ const event={kind:'counter',tick:41,text:'vanguard countered the exposed Warden for 20 damage'};
+ const after=snap(41,{units:[unit('hero'),boss(40,41)],events:[event]});
+ assert.equal(planSoundCues(before,after).filter(c=>c.kind==='counter').length,1);
+ assert.equal(planSoundCues(before,{...after,units:[unit('hero'),boss(60,41)]}).some(c=>c.kind==='counter'),false);
+ assert.deepEqual(planSoundCues(after,after),[],'same poll cannot repeat a hit');
+ const noRecovery=snap(40,{units:[unit('hero'),boss(60,undefined)]});
+ assert.equal(planSoundCues(noRecovery,after).some(c=>c.kind==='counter'),false,'no fake exposed window');
+ const source=fs.readFileSync(path.join(root,'public/ai-dungeon/soundstage.js'),'utf8');
+ assert.match(source,/counter:\s*\{hz:/);
+});

@@ -120,6 +120,23 @@ export function planWardenEvasionStep(
  if(!marked.has(key(hero.x,hero.z)))return null;
  const occupied=new Set(s.units.filter(u=>u.hp>0&&u.id!==hero.id).map(u=>key(u.x,u.z)));
  const traps=new Set(s.traps.filter(t=>t.active&&!t.disarmed).map(t=>key(t.x,t.z)));
+ // A genuine elite may have locked this fighter's earlier tile before the
+ // Warden's overlapping threat. Preserve a future-safe route, rather than
+ // retreating straight back into a saved incoming hex or shield-break.
+ // Only the actual targeted fighter and live enemy can create that risk.
+ const otherLocked=new Set<number>();
+ for(const foe of s.units.slice(0,18)){
+  if(foe.hp<=0||foe.faction!=='enemy')continue;
+  const hex=foe.kind==='cultist',breach=foe.kind==='revenant';
+  if(!hex&&!breach)continue;
+  const due=hex?foe.channelUntilTick:foe.breachUntilTick;
+  const victim=hex?foe.channelTargetId:foe.breachTargetId;
+  const x=hex?foe.channelX:foe.breachX,z=hex?foe.channelZ:foe.breachZ;
+  if(victim!==hero.id||!Number.isSafeInteger(due)||
+   due<s.tick||due>strike.attackTick||
+   !Number.isInteger(x)||!Number.isInteger(z)||!walkable(s.map,x,z))continue;
+  otherLocked.add(key(x,z));
+ }
  // Breadth-first search finds the shortest genuine turn sequence, and stable
  // row/column tie-breaks make every restored run choose the same legal feet.
  const nodes=[{x:hero.x,z:hero.z,steps:0,first:null as {x:number;z:number}|null}];
@@ -132,7 +149,7 @@ export function planWardenEvasionStep(
   if(node.steps===remaining)continue;
   for(const [dx,dz] of DIRS){
    const x=node.x+dx,z=node.z+dz,k=key(x,z);
-   if(seen.has(k)||!walkable(s.map,x,z)||occupied.has(k)||traps.has(k))continue;
+   if(seen.has(k)||!walkable(s.map,x,z)||occupied.has(k)||traps.has(k)||otherLocked.has(k))continue;
    seen.add(k);nodes.push({x,z,steps:node.steps+1,first:node.first??{x,z}});
   }
  }
@@ -140,7 +157,18 @@ export function planWardenEvasionStep(
  // Preserve the post-dodge counter opportunity: favour proximity to the
  // genuine boss once safely outside the attack, not an arbitrary retreat.
  const boss=s.units.find(u=>u.kind==='warden'&&u.hp>0);
+ // Among equally short REAL escapes, favour an unobstructed lawful ranger
+ // or mystic counter lane over a flank that immediately strands the party.
+ // Movement still consumes the same real tiles before any actual strike.
+ const counterLane=(p:{x:number;z:number})=>{
+  if(!boss)return 1;
+  const range=hero.kind==='ranger'?4:hero.kind==='mystic'?3:1;
+  const distance=dist(p,boss);
+  return distance>=1&&distance<=range&&
+   clearTacticalLane(s,p,boss,hero.id)?0:1;
+ };
  candidates.sort((a,b)=>a.steps-b.steps||
+  counterLane(a.final)-counterLane(b.final)||
   (boss?dist(a.final,boss)-dist(b.final,boss):0)||
   a.final.z-b.final.z||a.final.x-b.final.x||
   a.first.z-b.first.z||a.first.x-b.first.x);
@@ -709,8 +737,10 @@ export class DungeonRuntime {
      delete target.breachX;delete target.breachZ;
      push(s,'interrupt',hero.kind+' interrupted the revenant breach with a real hit');
     }
+    if(recovery&&target.kind==='warden'&&damage>0)
+     push(s,'counter',hero.kind+' countered the exposed Warden for '+damage+' damage');
     if(target.hp===0){s.kills++;s.gold+=12;s.level=1+Math.floor(s.kills/5);push(s,'kill',(target.kind==='warden'?'WARDEN DEFEATED':'Enemy defeated')+' · +12 gold')}
-    else if(s.tick%4===0)push(s,'combat',hero.kind+' struck '+target.kind+' for '+damage);
+    else if(s.tick%4===0&&!recovery)push(s,'combat',hero.kind+' struck '+target.kind+' for '+damage);
     continue;
    }
    // Intercept nearby minions rather than marching past them to the Warden.

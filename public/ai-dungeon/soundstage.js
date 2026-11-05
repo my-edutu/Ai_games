@@ -27,6 +27,7 @@ const CUES=Object.freeze({
  boss:      {hz:88,end:51,length:.64,peak:.13,type:'sawtooth'},
  'boss-fall':{hz:174,end:330,length:.88,peak:.105,type:'triangle'},
  opening:   {hz:260,end:118,length:.40,peak:.09,type:'triangle'},
+ counter:   {hz:410,end:102,length:.29,peak:.103,type:'triangle'},
  interrupt: {hz:535,end:91,length:.31,peak:.105,type:'triangle'},
  danger:    {hz:118,end:74,length:.43,peak:.10,type:'triangle'},
  breach:    {hz:106,end:42,length:.42,peak:.115,type:'sawtooth'},
@@ -47,7 +48,7 @@ const CUES=Object.freeze({
  footstep:  {hz:112,end:54,length:.10,peak:.041,type:'triangle'}
 });
 const PER_KIND_COOLDOWN=Object.freeze({
- weapon:.065,impact:.065,warning:.25,'warning-rising':.18,'warning-final':.18,'eclipse-rising':.18,'eclipse-final':.18,boss:.22,'boss-fall':.7,opening:.35,interrupt:.25,breach:.20,cover:.24,'cover-impact':.25,reward:.20,guard:.13,footstep:.16
+ weapon:.065,impact:.065,warning:.25,'warning-rising':.18,'warning-final':.18,'eclipse-rising':.18,'eclipse-final':.18,boss:.22,'boss-fall':.7,opening:.35,counter:.22,interrupt:.25,breach:.20,cover:.24,'cover-impact':.25,reward:.20,guard:.13,footstep:.16
 });
 const safe=(v,min,max,fallback)=>Number.isFinite(v)?Math.max(min,Math.min(max,v)):fallback;
 const stopAndDisconnect=voice=>{
