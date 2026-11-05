@@ -142,12 +142,16 @@ export function createSerpent(THREE) {
         const spineMask = 1 - smooth(.055, .205, Math.abs(around - .25));
         const leafWarp = .057 * Math.sin(around * 6.283 * 2.2 + along * 6.283 * 3.3)
           + .026 * Math.sin(around * 6.283 * 5.1 - along * 6.283 * 2.1);
-        const leafHalfWidth = .034 + .028 * spineMask;
-        const leafCore = 1 - smooth(leafHalfWidth * .43, leafHalfWidth,
+        const leafHalfWidth = .036 + .029 * spineMask;
+        const leafCore = 1 - smooth(leafHalfWidth * .84, leafHalfWidth,
           bandDistance + leafWarp);
+        // Lateral leaflets follow the dorsal saddle at an offset, not a
+        // complete transverse ring. The original warm ventral scutes remain.
+        const shoulderLeaf = Math.exp(-Math.pow((around - .429) * 15, 2))
+          * (1 - smooth(.074, .135, bandDistance + leafWarp));
         const preservedGold = isHead
           ? spineMask * (.25 + .75 * (1 - smooth(.045, .29, Math.abs(along - .76))))
-          : spineMask * leafCore * (.70 + .30 * (.5 + .5 * Math.sin(along * 6.283 * 3.9 + around * 11)));
+          : Math.max(spineMask * leafCore, shoulderLeaf * .97);
         const darkLeafScale = (1 - underside) * (1 - preservedGold)
           * (.5 + .5 * Math.sin(along * 6.283 * 13 + around * 6.283 * 9))
           * (.5 + .5 * Math.cos(around * 6.283 * 17 - along * 6.283 * 3));

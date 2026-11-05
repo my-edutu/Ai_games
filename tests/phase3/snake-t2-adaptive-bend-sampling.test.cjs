@@ -1,21 +1,8 @@
 'use strict';
 const {test}=require('node:test'),assert=require('node:assert/strict');
-const fs=require('node:fs'),crypto=require('node:crypto');
+const fs=require('node:fs');
 const source=fs.readFileSync(require('node:path').resolve(__dirname,'../../public/snake-stream/serpent.mjs'),'utf8');
-const a='// BEGIN T2 CURVATURE-ALLOCATED BODY RINGS\n',b='// END T2 CURVATURE-ALLOCATED BODY RINGS\n';
-function exactParent(){
-  assert.equal(source.split(a).length,2);assert.equal(source.split(b).length,2);
-  let old=source.slice(0,source.indexOf(a))+source.slice(source.indexOf(b)+b.length);
-  old=old.replace('      // Curvature budgets are fragment-local. Portal breaks cannot be used\n'+
-    '      // as invented neighbors to round across a discontinuity.\n'+
-    '      const overviewRings = lowDetail ? distributeSerpentBendRings(path) : null;\n','');
-  old=old.replace('        const subdivisions = lowDetail ? overviewRings[s]\n'+
-    '          : clamp(Math.ceil(segmentLength * 7), 2, 14);',
-    '        const subdivisions = clamp(Math.ceil(segmentLength * (lowDetail ? 3 : 7)), 2, 14);');
-  assert.equal(crypto.createHash('sha1').update('blob '+Buffer.byteLength(old)+'\0').update(old).digest('hex'),
-    'c8af8e31e827cb50addabb2782f7f1f4e36faa12');
-  return old;
-}
+const {restoreBendParent}=require('../fixtures/snake-t2-restore-bend-parent.cjs');
 test('T2 exact-parent RED -> GREEN: true body curves spend unchanged original ring/triangle budget at public corners, never across portals',async()=>{
   const {createSerpent,distributeSerpentBendRings}=await import('../../public/snake-stream/serpent.mjs');
   const THREE=await import('three');
@@ -33,7 +20,7 @@ test('T2 exact-parent RED -> GREEN: true body curves spend unchanged original ri
   const sampled=distributeSerpentBendRings(turns);
   assert.ok(Math.min(...[2,3,5,6,8,9,11,12].map(i=>sampled[i]))>
     Math.min(...[0,1,4,7,10,13,14].map(i=>sampled[i])));
-  const {createSerpent:baseline}=await import('data:text/javascript;base64,'+Buffer.from(exactParent()).toString('base64'));
+  const {createSerpent:baseline}=await import('data:text/javascript;base64,'+Buffer.from(restoreBendParent(source)).toString('base64'));
   const previous=baseline(THREE),candidate=createSerpent(THREE);
   try{
     for(const detail of ['low','high']){

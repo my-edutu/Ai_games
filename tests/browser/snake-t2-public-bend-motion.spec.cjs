@@ -6,26 +6,8 @@ const source=fs.readFileSync(path.join(root,'public/snake-stream/serpent.mjs'),'
 const blob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0').update(s).digest('hex');
 const sha256=s=>crypto.createHash('sha256').update(s).digest('hex');
 const out=n=>{const d=path.join(root,'artifacts/phase3');fs.mkdirSync(d,{recursive:true});return path.join(d,n);};
-const beforeBlob='c8af8e31e827cb50addabb2782f7f1f4e36faa12';
-function restoreExactParent(current){
-  const a='// BEGIN T2 CURVATURE-ALLOCATED BODY RINGS\n';
-  const b='// END T2 CURVATURE-ALLOCATED BODY RINGS\n';
-  const i=current.indexOf(a),j=current.indexOf(b);
-  if(i<0||j<i||current.indexOf(a,i+1)>=0||current.indexOf(b,j+1)>=0)
-    throw new Error('T2 exact-source bracket missing or ambiguous');
-  let old=current.slice(0,i)+current.slice(j+b.length);
-  const remove='      // Curvature budgets are fragment-local. Portal breaks cannot be used\n'+
-    '      // as invented neighbors to round across a discontinuity.\n'+
-    '      const overviewRings = lowDetail ? distributeSerpentBendRings(path) : null;\n';
-  const updated='        const subdivisions = lowDetail ? overviewRings[s]\n'+
-    '          : clamp(Math.ceil(segmentLength * 7), 2, 14);';
-  const previous='        const subdivisions = clamp(Math.ceil(segmentLength * (lowDetail ? 3 : 7)), 2, 14);';
-  if(!old.includes(remove)||!old.includes(updated))throw new Error('T2 source restoration drift');
-  old=old.replace(remove,'').replace(updated,previous);
-  if(blob(old)!==beforeBlob)throw new Error('Original exact Git source hash mismatch');
-  return old;
-}
-const prior=restoreExactParent(source);
+const {restoreBendParent,previousBlob:beforeBlob}=require('../fixtures/snake-t2-restore-bend-parent.cjs');
+const prior=restoreBendParent(source);
 test.use({trace:'off',video:'off',launchOptions:{executablePath:process.env.SNAKE_SYSTEM_CHROMIUM||undefined,
   args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']}});
 
