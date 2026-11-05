@@ -2505,9 +2505,9 @@
       "latestRealPreviousHead": "Original Chromium desktop 1440 + mobile 390 screenshots artifact https://github.com/my-edutu/Ai_games/actions/runs/42090636357/artifacts/13447062976; actual toy-like figures and opaque major front pillar; preceding-head only, NO new after evidence."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Credibly adult-scale skinned protagonists/enemies with visible moving sword contact and a compelling unobstructed 3D Warden boss encounter, then a complete matched authentic audiovisual journey; still no independent blinded critic verdict.",
+    "biggestRemainingGap": "Convincing source-character anatomy and genuine readable blade-to-body contact in an unobstructed mobile/Desktop Warden duel, demonstrated via actual moving footage.",
     "currentWork": "Continuing M1: 22504a2 candidate integrates actual earned Warden counterstrike close shot with native physical duel camera, fight-to-fight continuity and identical renderer/camera foreground cutaways; 48e0300 predecessor had 27/28 Chromium with real counter-frame misclassification. No accepted A/B or new-head moving evidence yet.",
-    "candidateCommit": "22504a247fc743002564ce40a6bf3ffdf6e2cd7b",
+    "candidateCommit": "4a599c56500bd3db4064808536b219748338d5c3",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -5611,6 +5611,23 @@
         "plays": "UNVERIFIED",
         "critics": 0,
         "next": "Review exact-head desktop/mobile moving Warden strike and earned contact, correct camera continuity/foreground props on actual footage, tackle source GLB anatomy, capture matched five-stage original-audio expedition and blind critic A/B."
+      },
+      {
+        "id": "M1-NATIVE-SKINNED-DUEL-20261105",
+        "at": "2026-11-05",
+        "milestone": "DUNGEON-TRANSFORMATION-01",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceCommit": "4a599c56500bd3db4064808536b219748338d5c3",
+        "status": "IN_PROGRESS_NOT_TRANSFORMED",
+        "predecessorWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42100587947",
+        "observedFailure": "Prior real desktop/mobile Chromium shows stylized toy-scale party, obscuring foreground masonry, and weak sword contact; no matched new-head audiovisual evidence.",
+        "implementation": "One role-specific original source-rig physical duel now aligns source-clip one-shot timing, head/hips/torso/shoulders/elbows/wrist/lead foot and root through windup/215ms contact/recovery for genuine adjacent melee; original source meshes/animations retained, reduced motion supported.",
+        "safety": "Source-only smoke/syntax checks passed; exact-head Dungeon/browser/visual/catalogue workflow queued; authoritative simulation unchanged; replay, audio, frame-time and accessibility on this exact SHA remain UNVERIFIED.",
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "critics": 0,
+        "next": "Inspect new-head real desktop/mobile moving strike, foot sliding, source clip timing, rendered armour and Warden counter; correct observed problems, then source-level geometry/rig art leap, complete five-stage matched original audiovisual A/B and three fresh blind critics."
       }
     ],
     "implementationContinuation": {
@@ -5625,17 +5642,16 @@
       "nextTask": "Inspect exact new-head 1440px and 390px real WebGL moving gameplay + opt-in actual sound; measure natural team handoffs, reject scene/body occlusion and camera instability; capture 5-stage journey and independent blind A/B."
     },
     "latestImplementation": {
-      "sourceSha": "22504a247fc743002564ce40a6bf3ffdf6e2cd7b",
-      "description": "Integrated actual boss-recovery Warden counterstrike cinematic and matched visible-body camera/renderer occlusion logic for desktop and portrait; native weapon contact remains genuine only.",
+      "sourceSha": "4a599c56500bd3db4064808536b219748338d5c3",
+      "description": "Connected full-body source-GLB native duel choreography and one-shot clip envelope (three real melee roles), original 215 ms visual contact, reusable joint poses/rig diagnostics; source-only candidate.",
       "status": "IN_PROGRESS_NOT_TRANSFORMED",
       "afterMotion": "UNVERIFIED",
       "actualAudio": "UNVERIFIED",
-      "predecessorChromium": "27/28 (one Warden camera-mode assertion) on 48e0300; authority 100% and visual review passed.",
       "exactNewHeadBrowser": "QUEUED / UNVERIFIED"
     },
-    "lastCandidateSha": "22504a247fc743002564ce40a6bf3ffdf6e2cd7b",
+    "lastCandidateSha": "4a599c56500bd3db4064808536b219748338d5c3",
     "experienceVerdict": "IN PROGRESS — NOT TRANSFORMED; LOOKS/FEELS/PLAYS UNVERIFIED; 0/3 blinded critics.",
     "criticReadiness": "0/3; original fully matched desktop/mobile moving audiovisual journey not captured; source-only candidate.",
-    "nextImplementationTask": "Inspect 22504a2 exact-head 1440×832 and portrait mobile Chromium Warden warning→strike→earned counter with original audio, verify counter shot and physical foreground match, correct observed defects, deepen GLB physical character/combat animation, then capture same-seed five-stage baseline/AFTER original audio and 3 fresh blind critics."
+    "nextImplementationTask": "Inspect exact 4a599c5 desktop/mobile native GLB duels with actual original sound and p95 timing; reject deformation or clip jerk, improve original anatomy/body silhouettes, then collect five-stage pinned original BEFORE/AFTER and >=3 blind critics."
   }
 }

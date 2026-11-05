@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedAt": "2026-11-05",
-  "status": "IN PROGRESS — NOT TRANSFORMED (truth-linked mobile 3D combat staging source candidate; genuine AFTER audiovisual A/B unavailable)",
+  "status": "IN PROGRESS — NOT TRANSFORMED (native GLB full-body duel implementation; new-head motion and masked A/B unverified)",
   "reference": "Diablo IV dungeon presentation / No Rest for the Wicked sculpted worlds / Path of Exile 2 attack clarity; no matched baseline A/B or official fidelity score",
   "metrics": {
     "sample_seeds": 24,
@@ -211,26 +211,26 @@
   "visualVerdict": "UNVERIFIED: actual new-head 74/78svh mobile battle/column cutaway, continuous audiovisual film, same-seed baseline A/B and blinded critic preference absent.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
-  "candidateCommit": "043b3591e49d8585fa5024f9d38f6a4b400d1602",
+  "candidateCommit": "4a599c56500bd3db4064808536b219748338d5c3",
   "metricsProvenance": "Local current-source 9af59bc npm run dungeon:test 309/309, npm run dungeon:gauntlet 24 seeds ×900 ticks: 174 advances, 4 restarts, 0 determinism mismatches. No claim for visual quality.",
   "transformation": {
     "milestoneId": "DUNGEON-TRANSFORMATION-01",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
-    "candidateCodeCommit": "043b3591e49d8585fa5024f9d38f6a4b400d1602",
+    "candidateCodeCommit": "4a599c56500bd3db4064808536b219748338d5c3",
     "looks": "UNVERIFIED",
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
     "critics": 0,
     "originalAudioMotion": "UNVERIFIED",
     "afterBrowser": "UNVERIFIED",
-    "nextTask": "Watch exact 043b359 real desktop/390px boss release and normal combat (audio enabled), inspect 74/78svh stage and obscured column, verify module/CI/seed/replay and performance, then develop full-body and boss encounter quality and compare pinned baseline continuous five-stage A/B with 3 independent blind critics."
+    "nextTask": "Inspect 4a599c5 exact desktop/390px moving melee and Warden footage with original audio, reject deformations/frame regressions, then significantly advance native model geometry/materials and capture full five-stage matched A/B with 3 independent critics."
   },
   "acceptanceStatus": "NOT TRANSFORMED — 0/3 blind independent critics; no matched continuous desktop/mobile audiovisual 5-stage adventure.",
-  "latestCandidateSha": "043b3591e49d8585fa5024f9d38f6a4b400d1602",
-  "latestImplementation": "Real-unit-driven mobile combat viewport at 74svh and Warden at 78svh with compact three-person real HP cards; extend depth- and body-projection-gated physical portrait foreground prop removal to 7.1m; no game authority edits. Full desktop/mobile moving game UNVERIFIED.",
-  "biggestRemainingGap": "Convincing full-body 3D character and Warden attack contact, foreground film and boss challenge in genuine continuous autonomous desktop/mobile gameplay; true combat viewport remains unverified in motion.",
-  "nextImplementationTask": "Watch exact 043b359 real desktop/390px boss release and normal combat (audio enabled), inspect 74/78svh stage and obscured column, verify module/CI/seed/replay and performance, then develop full-body and boss encounter quality and compare pinned baseline continuous five-stage A/B with 3 independent blind critics.",
-  "candidateSafety": "Source 043b359 committed on existing draft. Planner in-memory smoke only; new exact-head Node tests, browser, authority, replay, catalogue CI and mobile performance UNVERIFIED."
+  "latestCandidateSha": "4a599c56500bd3db4064808536b219748338d5c3",
+  "latestImplementation": "Single genuine adjacent-melee source-rig performance stages role-specific head, hips, torso, both arms, wrist, lead/rear feet plus tightly bounded body centre through windup → 215ms contact → recovery; imported GLB one-shot speed normalized. Source-only candidate, AFTER not captured.",
+  "biggestRemainingGap": "Original character quality and truthful moving sword-to-body contact in dense Gothic combat, especially Warden and mobile; no verified new-head audiovisual improvement.",
+  "nextImplementationTask": "Inspect 4a599c5 exact desktop/390px moving melee and Warden footage with original audio, reject deformations/frame regressions, then significantly advance native model geometry/materials and capture full five-stage matched A/B with 3 independent critics.",
+  "candidateSafety": "Direct pure-source pose/syntax smoke passed (3 roles, bounded age, valid adjacent targets, reduced motion). New exact-head authority/browser, catalogue, replay, performance and original audio still QUEUED/UNVERIFIED; no experience win."
 }
