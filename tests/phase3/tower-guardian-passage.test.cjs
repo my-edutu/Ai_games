@@ -267,7 +267,9 @@ test('real source-defeated guardian collapses as a rig while the power connectio
       'stale observations cannot advance a staged defeat');
     assert.equal(shockwave.scale.x,radius);
     assert.equal(shockwave.material.opacity,opacity);
-    fx.update(1.1);
+    // The renderer deliberately limits every presentation update to 0.5s.
+    // Advance real bounded frames instead of assuming a large dt skips time.
+    fx.update(.5); fx.update(.5); fx.update(.2);
     assert.equal(conduit.visible,false);
     assert.equal(conduit.count,0);
     assert.equal(shockwave.visible,false, 'defeat impulse retires while permanent armor remains');
@@ -280,6 +282,49 @@ test('real source-defeated guardian collapses as a rig while the power connectio
       enemies:[{...guardian,active:true,health:1}]},anchor),false,
       'living guardian cannot fabricate a defeat or power rupture');
   }finally{fx.dispose();}
+});
+
+test('earned guardian exit embeds a source-aligned 3D cap inlay which follows actual walking, not animation time', async () => {
+  const [THREE,{createTowerGuardianPassage}] = await loaded;
+  const cap={id:'f8:cap',x:115200,y:3212000,width:249600,height:12000};
+  const guardian={id:'f8:guardian',kind:'guardian',active:false,
+    health:0,x:176000,y:3250000,halfHeight:18000};
+  const source={runToken:'earned-inlay',floor:8,tick:220,lifecycle:'running',
+    worldWidth:480000,chunkBaseY:2880000,
+    player:{health:4,x:cap.x+cap.width*.38},platforms:[cap],enemies:[guardian]};
+  const fx=createTowerGuardianPassage(THREE);
+  try {
+    assert.equal(fx.unlock(source,anchor),true);
+    const inlay=fx.group.getObjectByName('WitnessedGuardianCapWalkwayInlay');
+    assert.ok(inlay?.isInstancedMesh,'the earned source cap has actual 3D wayfinding architecture');
+    assert.equal(inlay.count,12);
+    assert.equal(inlay.userData.collider,undefined,'wayfinding metal cannot fabricate platform collisions');
+    assert.equal(inlay.castShadow,false);
+    fx.group.updateMatrixWorld(true);
+    const local=new THREE.Matrix4(),world=new THREE.Matrix4();
+    inlay.getMatrixAt(0,local);
+    world.multiplyMatrices(inlay.matrixWorld,local);
+    const actual=new THREE.Vector3().setFromMatrixPosition(world);
+    const y=(cap.y+cap.height+1000-source.chunkBaseY)/10000;
+    assert.ok(Math.abs(actual.y-y)<.0001,
+      'the guide lies on the witnessed platform top, not above an invented bridge');
+    assert.equal(fx.diagnostics().inlaySourceTick,220);
+    assert.ok(fx.diagnostics().inlayProgress<.01);
+    const next={...source,tick:223,player:{...source.player,x:cap.x+cap.width*.74}};
+    assert.equal(fx.unlock(next,anchor),true);
+    assert.ok(fx.diagnostics().inlayProgress>.9,
+      'the real climber moving toward the unlocked exit advances the physical path light');
+    assert.equal(fx.diagnostics().inlaySourceTick,223);
+    assert.equal(fx.unlock({...source,tick:221},anchor),true);
+    assert.equal(fx.diagnostics().inlaySourceTick,223,
+      'late source frames cannot visually rewind earned walking');
+    assert.ok(fx.diagnostics().inlayProgress>.9);
+    fx.clear();
+    assert.equal(inlay.visible,false);
+    assert.equal(inlay.count,0);
+    assert.equal(fx.diagnostics().inlayProgress,0);
+    assert.equal(fx.diagnostics().inlaySourceTick,-1);
+  } finally { fx.dispose(); }
 });
 
 test('reduced motion presents a still, real defeat and no motion after stale transport', async () => {
