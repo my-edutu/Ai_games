@@ -755,9 +755,12 @@ export function createWorld(THREE, {width, height}) {
   const darkStone=material({color:0x475957,map:stoneMap,roughness:.91});
   const moss=material({color:0x4d702c,map:mossMap,roughness:1});
   const wood=material({color:0x655744,map:stoneMap,roughness:1});
-  const leafMat=material({color:0x78a939,roughness:.76,side:THREE.DoubleSide});
+  // T1 full-scene canopy grading: a physically shaded sage-to-jade forest
+  // rather than fluorescent leaves framing a flat green board. Both existing
+  // authored leaf meshes, materials and casts remain in the SAME GPU batches.
+  const leafMat=material({color:0x638b4a,roughness:.82,side:THREE.DoubleSide});
   const leafDark=material({color:0x2d663a,roughness:.84,side:THREE.DoubleSide});
-  const leafLight=material({color:0xa7bf43,roughness:.72,side:THREE.DoubleSide});
+  const leafLight=material({color:0x779e5d,roughness:.78,side:THREE.DoubleSide});
   const flower=material({color:0xefb0c0,roughness:.65});
   const gold=material({color:0xe8c374,metalness:.28,roughness:.43});
   // A bevel around the stone top with an open hidden underside: 18 triangles, versus

@@ -375,7 +375,14 @@ export function sculptRiparianBank(x, channel, width, height, progress) {
   // narrow root throat between a pair of generous planted oxbow banks.
   // The SAME 6-column triangulation follows the riverbed; no added objects,
   // collisions, material passes, textures, shaders or unlicensed scenery.
-  const widthAt = Math.max(.036, halfSpan * edgeTaper * (.21 + 1.19 * oxbow ** 1.8)
+  // Branching bays become planted moss pools instead of three uniform
+  // translucent tracks. Reuse every existing triangle and collision limit.
+  const widthAt = Math.max(.036, halfSpan * edgeTaper * // T1 deeper oxbow stage: physical shaded rooted bays and dry
+    // limestone coves, rather than six parallel pale painted tracks. This
+    // is the SAME existing rooted river mesh and exactly the same safe
+    // public cell/hazard/portal coordinates. It neither paints a false
+    // collectible nor allocates another GPU resource.
+    (.14 + 1.92 * oxbow ** 2.12)
     * (.82 + .29 * estuary));
   const centre = H * watercourseCentre(x / W, channel)
     + .11 * Math.sin(x * .53 + phase * 1.39) * Math.sin(Math.PI * progress);
@@ -493,9 +500,10 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
           // *grain*, while the shaded moss retains its green-dominant hue.
           // This is one pre-existing static mesh/vertex colour, not a cue.
           const pigment = c === 0
-            ? .047 + dryShelf * .085 + (1-sun) * .020 + marbled * .017
+            ? .037 + dryShelf * .058 + (1-sun) * .020 + marbled * .012
             : c === 1
-              ? .095 + wetMoss * .180 + bedShadow * .050 + dryShelf * .090
+              ? .116 + .014 * clamp((Math.min(width,height) - 8) / 8, 0, 1)
+                + wetMoss * .196 + bedShadow * .055 + dryShelf * .090
               : .044 + habitat.coolSlate * .049 + bedShadow * .060
                 + marbled * .020;
           // Creek-throat and endpoint stones sit beneath the rooted shore.
@@ -542,8 +550,10 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
         const t = -1 + 2 * j / cross;
         // Broken marsh edges, rooted throats and mossed oxbows SHARE the same
         // watercourse and maintain both edge winding and safe low elevation.
-        const bend = Math.sin(x * .39 + t * 2.7 + phase) * .13 * Math.abs(t)
-          + .045 * Math.sin(x * .77 + phase * 1.3 + t * 4.0) * Math.abs(t);
+        // A real two-frequency physical meander connects the planted bays
+        // to their narrow throats; the original safe bounds remain unchanged.
+        const bend = Math.sin(x * .39 + t * 2.7 + phase) * .215 * Math.abs(t)
+          + .067 * Math.sin(x * .77 + phase * 1.3 + t * 4.0) * Math.abs(t);
         const z = clamp(centre + t * widthAt + bend, -H + .69, H - .69);
         const heightAboveCourt = .0125 + .0065 * (1 - t * t)
           * (.75 + .25 * oxbow) + .0007 * Math.sin(x * .65 + z * .45);

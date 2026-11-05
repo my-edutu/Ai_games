@@ -1,10 +1,16 @@
 {
-  "updatedAt": "2026-11-05",
-  "status": "T1 BUILDING / parent 67f native rooted-bank regression correction candidate / original strict 7 of required 17 WebGL FULL DESKTOP still HARD RED / DRAFT NEVER MERGE OR DEPLOY",
-  "detail": "Completed real source-exact 67f browser #42096393282 62/95, strict 1s complete desktop WebGL 7/17 at 751x415, 61 RAF callbacks != genuine renders, 288 GPU-queue skips. Full 55s genuine current gameplay/screenshots exist, not yet visually judged or independently accepted. Native 682/720, real root-bank moss pigment RED; source-exact tested blob 3379939c source-corrects actual rooted 3D bank pigment without any geometry/assets, tests or gate weakened, isolated 3-board test RED->GREEN, related 4/5, TS/900-tick authority/recovery pass; new candidate full native/WebGL pending. T0 UNSIGNED; T1 BUILDING, original whole frame previously SELF-REJECTED vs Snake Pass; T2/T3 unaccepted; T4 HARD RED. Physical device displayed FPS/p95, full scene strict >=17 repeated, 40+ soak, official reference comparison and independent critic ALL OPEN. DRAFT NEVER MERGE/DEPLOY.",
+  "updatedAt": "2026-11-06",
+  "status": "T1 BUILDING / isolated integrated original-rooted 3D oxbow/canopy/light candidate RED->GREEN native only; live ab94 HEAD unchanged while all Actions queued; unchanged strict 7/17 last completed HARD RED; DRAFT no merge/deploy",
+  "detail": "Nov 6 isolated candidate sourced from exact live ab94 head: three original physically sculpted riverbank courses expand to rooted oxbows and retain original public cell/fruit/portal/hazard placement, 13 static draw batches, 4 textures, 1 ecology mesh and unchanged <=3100 triangles (1197/3022/3088 on 8x8/28x16/40x24). Connected sage/jade forest and actual lighting were integrated into same world. Focused RED parent->GREEN candidate 2/2; original river and stone guard 8/8, TypeScript and 900-tick authority/privacy/recovery PASS. Inherited historical limestone fixture remains RED before and after; full CI not passed. Head ab94 original jobs 42116412101/42116412055/42116412142 queued and MUST NOT be cancelled with branch movement. Last COMPLETED prior real Chromium remains 67f strict 7/17, 62/95 at 751x415. New candidate has NO authentic browser screenshots/video, no physical present FPS/p95, no independent review; full-frame visual REJECTED/acceptance pending. T0 unsigned T1 BUILDING T2/T3 unaccepted T4 HARD RED. No merge/deploy.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Current 67f true browser 7/17 original strict completed full-desktop WebGL; staged T1 rooted-bank source correction is NOT accepted or benchmark proven.",
   "reviews": [
+    {
+      "area": "Nov 6 isolated true physical T1 oxbow/canopy/light source candidate on ab94 parent",
+      "verdict": "T1 BUILDING / UNREFERENCED candidate native RED->GREEN, no verified matched actual current-candidate Chromium evidence, original strict full-desktop 7/17 HARD RED, prior full scene SELF-REJECTED, independent acceptance pending",
+      "sourceHead": "ab94d8307c017518f908c22e13a493161e3acb39",
+      "branchAdvanced": false
+    },
     {
       "area": "Nov 5 source-exact 67f real Chromium full-game GPU gate and native rooted bank repair",
       "verdict": "Browser 62/95; original unchanged strict full-desktop gate 7 genuine complete renders vs >=17. CI 682/720 38 failures including real bank moss colour regression. Previous exact-source isolated tested source blob 3379939 restores bank green on 3 boards RED->GREEN and TypeScript/900 tick passed; no new head real benchmark pass, visual approval or source-to-video inspection.",
