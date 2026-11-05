@@ -14,6 +14,45 @@ export function signedPublicTurn(a,b,c) {
   if(la<.001||lb<.001||la>1.5||lb>1.5)return 0;
   return Math.max(-1,Math.min(1,(ax*bz-az*bx)/(la*lb)));
 }
+// BEGIN T2 CURVATURE-ALLOCATED BODY RINGS
+/**
+ * T2 full-length public-path articulation, with the ORIGINAL overview GPU ring
+ * budget. Long straight stretches have zero second derivative and do not need
+ * the same sampling as a quarter turn. Spend exactly the budget that the
+ * previous 3-rings/unit design already used, prioritising true public bends.
+ * Never look across separately supplied portal fragments. No RNG or state.
+ * Detail/follow retain their original seven-rings/unit geometry unchanged.
+ */
+export function distributeSerpentBendRings(path, overview = true) {
+  if (!Array.isArray(path) || path.length < 2) return [];
+  const count = path.length - 1;
+  if (!overview) return Array.from({length:count}, (_, i) =>
+    Math.max(2, Math.min(14, Math.ceil(Math.hypot(
+      path[i+1].x-path[i].x,path[i+1].z-path[i].z)*7))));
+  const budget = Array.from({length:count}, (_, i) =>
+    Math.max(2, Math.min(14, Math.ceil(Math.hypot(
+      path[i+1].x-path[i].x,path[i+1].z-path[i].z)*3))));
+  const segments = budget.map(() => 2);
+  let remaining = budget.reduce((n,v)=>n+v-2,0);
+  const weights = budget.map((_, i) =>
+    Math.abs(signedPublicTurn(path[i-1],path[i],path[i+1]))
+      + Math.abs(signedPublicTurn(path[i],path[i+1],path[i+2])));
+  const order = weights.map((weight,i)=>({weight,i}))
+    .sort((a,b)=>b.weight-a.weight||a.i-b.i);
+  // Bank the first two available extras on actual bend entrances/exits;
+  // adjacent straight spans then receive what the unchanged total allows.
+  // A straight snake gets precisely its original three samples per unit.
+  for(let pass=0;pass<4&&remaining>0;pass++) {
+    for(const {i,weight} of order) {
+      if(!remaining)break;
+      if(pass<2 && weight<=0)continue;
+      if(segments[i]>=6 || segments[i]>pass+2)continue;
+      segments[i]++;remaining--;
+    }
+  }
+  return segments;
+}
+// END T2 CURVATURE-ALLOCATED BODY RINGS
 /** Reuses four output slots: radius, lateral sway, lift, cross-section camber.
  * No new per-ring allocations, GPU objects, shader programs or draw calls. */
 export function sampleSerpentActing(distance,localDistance,remaining,bend,time,neck,reduced,out) {
@@ -572,6 +611,9 @@ export function createSerpent(THREE) {
         distance += 0.27;
         continue;
       }
+      // Curvature budgets are fragment-local. Portal breaks cannot be used
+      // as invented neighbors to round across a discontinuity.
+      const overviewRings = lowDetail ? distributeSerpentBendRings(path) : null;
       // Each portal-separated fragment has its own anchored leading end.
       const pathStartDistance = distance;
       for (let s = 0; s < path.length - 1; s++) {
@@ -579,7 +621,8 @@ export function createSerpent(THREE) {
         const turnIn = s > 0 ? signedPublicTurn(path[s-1],path[s],path[s+1]) : 0;
         const turnOut = s+2 < path.length ? signedPublicTurn(path[s],path[s+1],path[s+2]) : 0;
         const segmentLength = Math.hypot(path[s + 1].x - path[s].x, path[s + 1].z - path[s].z);
-        const subdivisions = clamp(Math.ceil(segmentLength * (lowDetail ? 3 : 7)), 2, 14);
+        const subdivisions = lowDetail ? overviewRings[s]
+          : clamp(Math.ceil(segmentLength * 7), 2, 14);
         const end = s === path.length - 2 ? subdivisions : subdivisions - 1;
         for (let k = 0; k <= end; k++) {
           evaluate(path, s, k / subdivisions);
