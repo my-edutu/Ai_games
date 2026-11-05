@@ -2407,7 +2407,7 @@
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
     "biggestRemainingGap": "Exact original WebGL still hides protagonist torso/boots; even if physical cutaway improves, adult source model anatomy, trustworthy animated contact and five-stage mobile audiovisual coherent combat still fall far below authentic Diablo IV/No Rest for the Wicked/Path of Exile 2.",
-    "currentWork": "Source candidate 9af59bc physically clears near-stage stone for genuine live source-skinned actors during both traversal and boss combat at high-oblique camera heights; rear nave/distant ruins preserved. 309/309 local foundation, 24-seed headless safety passed; moving AFTER quality and independent judges UNVERIFIED.",
+    "currentWork": "M1 single integrated actor/scene/camera visibility candidate: original GLB prop loads now update actual finite physical cutaway and camera volumes; real moving AFTER remains UNVERIFIED.",
     "candidateCommit": "9af59bc91ed0e73634a85b620f67b701cd06a262",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
@@ -5213,6 +5213,39 @@
         "integrationRefinement": "Genuine unmarked strolling actors now gain the immediate foreground low-ruin knee/boot clearance; no combat or cinematic flag required; no broader area flattening. Same M1 milestone, one integrated playable-stage objective.",
         "cumulativeChecks": "309/309 local Dungeon foundation, fresh 24-seed×900-tick deterministic corpus with 174 floor advances, 4 real restarts, 0 replay failures.",
         "afterCurrentBranchStatus": "Real browser/audio performance exact new source head UNVERIFIED; independent blind LOOKS/FEELS/PLAYS 0/3."
+      },
+      {
+        "id": "M1-LATE-SOURCE-GLB-STAGING-20261105",
+        "date": "2026-11-05",
+        "milestone": "M1",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "status": "SOURCE_CANDIDATE_EXPERIENTIAL_RESULT_UNVERIFIED",
+        "objective": "Genuine original imported Gothic arches, pillars and masonry cannot conceal live fighter anatomy while the physical camera judges an empty corridor.",
+        "rootCause": "Async GLB loads complete after buildWorld caches authoredPropVolumes and cameraPropVolumes: the real asset geometry never entered the previously sealed physical camera sightline list.",
+        "changes": [
+          "Actual source GLB insertion invokes a scene-key-guarded one-time per-load bound capture for all currently inserted children, not per-frame geometry scanning.",
+          "Capped frozen physical volume list now includes loaded original architecture in the shared actual actor cutaway and camera scoring.",
+          "Browser safety tracks source-load/count and real 3D clearance instead of stale required 43cm intermediate stone band; original scene depth and simulation stay intact."
+        ],
+        "predecessor": {
+          "head": "84053a851e474093123e7fe06fd6f1247b42cb17",
+          "run": "https://github.com/my-edutu/Ai_games/actions/runs/41947839553",
+          "authority": "PASS",
+          "browser": "2 shards PASS, 1 FAIL obsolete nearby-band assertion",
+          "visualReview": "PASS",
+          "catalogueCI": "CANCELLED"
+        },
+        "exactHeadCI": "UNVERIFIED",
+        "newDesktopMobileMotion": "UNVERIFIED",
+        "genuineBeforeAfter": "UNVERIFIED",
+        "originalAudio": "UNVERIFIED",
+        "mobilePerformance": "UNVERIFIED",
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "blindCritics": "0/3",
+        "largestGap": "Actual believable full-body hero and weapon contact in a coherent Gothic Warden adventure",
+        "next": "Inspect real exact-head desktop/390 phone native moving contact and asset-index diagnostics; reject if props pop, visual still clips, or performance drops; build entire audible traversal/combat/Warden/floor/restart sequence and 3 independent matched blind reviews; never merge draft."
       }
     ],
     "implementationContinuation": {

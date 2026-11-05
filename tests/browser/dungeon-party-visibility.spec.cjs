@@ -16,7 +16,9 @@ test('real seeded Chromium WebGL reveals near-party masonry but retains distant 
  await page.route('**/dungeon/state',route=>route.fulfill({json:state}));
  await page.goto('/dungeon');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.texturedCharacters??0),{timeout:60000}).toBeGreaterThanOrEqual(3);
- await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.cutawayNearbyWalls??0),{timeout:20000}).toBeGreaterThan(0);
+ // Real whole-body protection may shrink stone to 13cm directly, leaving
+ // zero in the intermediate 43cm band. Assert actual active foreground cuts.
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.cutawayWalls??0),{timeout:20000}).toBeGreaterThan(0);
  // Use the real seeded authority snapshot and actual WebGL frame loop. Once
  // the camera/party are steady, a repeated image must not reupload unchanged
  // instanced masonry buffers each rendered frame.
@@ -26,7 +28,13 @@ test('real seeded Chromium WebGL reveals near-party masonry but retains distant 
    d.dressing?.matrixWrites?.facade===0&&d.dressing?.matrixWrites?.weathered===0);
  }),{timeout:40000}).toBe(true);
  const diagnostics=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
- expect(diagnostics.cutawayNearbyWalls).toBeGreaterThan(0);
+ expect(diagnostics.cutawayWalls).toBeGreaterThan(0);
+ // Native imported Gothic models arrive after buildWorld. Their geometry
+ // must join the same true 3D camera AND cutaway plan, not remain invisible
+ // to the sightline director when a tall pillar hides a skinned protagonist.
+ expect(diagnostics.authoredProps.indexed).toBeLessThanOrEqual(diagnostics.authoredProps.loaded);
+ if(diagnostics.authoredProps.loaded>0)
+  expect(diagnostics.authoredProps.indexed).toBeGreaterThan(0);
  expect(diagnostics.cutawayNearbyWalls).toBeLessThan(diagnostics.wallProfiles.totalWalls);
  expect(diagnostics.visibility.unoccludedHeroes).toBeGreaterThanOrEqual(2);
  expect(diagnostics.composition.visibleHeroes).toBeGreaterThanOrEqual(2);
