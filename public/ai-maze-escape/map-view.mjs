@@ -29,6 +29,51 @@ export const MAX_TRAIL = 240;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
 /**
+ * Camera-only composition for the ACTUAL visible, published pressure hazard.
+ * The 2026-11-05 native 390x844 WebGL trap PNG exposed a real physical
+ * right-edge crop (+1.082 NDC) despite Pip remaining centered. The public
+ * trap and Pip deserve one shared stage, not a hidden-data-informed map pan.
+ *
+ * Strict inputs: only a current published non-blocked trap in visibleCells,
+ * and the public interpolated hero position. Never consult secret seeds,
+ * private-map fields, AI plans or future traps. Return a bounded continuous
+ * pan fraction, not a gameplay command, a camera zoom or an invented event.
+ * Detail, overview, landscape, and non-portrait layouts are untouched.
+ */
+export function publicObservedTrapCameraFocus(snapshot, hero, cellSize, aspect) {
+  if (!snapshot || snapshot.result
+    || !(Number.isFinite(aspect) && aspect >= .35 && aspect < .60)
+    || !(Number.isFinite(cellSize) && cellSize > 0)
+    || !(Number.isFinite(hero?.x) && Number.isFinite(hero?.z))
+    || !Number.isSafeInteger(snapshot.width) || snapshot.width < 2
+    || !Number.isSafeInteger(snapshot.height) || snapshot.height < 2
+    || !Array.isArray(snapshot.cells) || !Array.isArray(snapshot.visibleCells))
+    return null;
+  const visible = new Set(snapshot.visibleCells);
+  const maxDistance = cellSize * 1.50;
+  let closest = null;
+  for (const cell of snapshot.cells) {
+    const id = cell?.cell;
+    if (cell?.trap !== true || cell.blocked === true
+      || !Number.isSafeInteger(id) || id < 0
+      || id >= snapshot.width * snapshot.height || !visible.has(id)) continue;
+    const x = (id % snapshot.width - (snapshot.width-1)/2) * cellSize;
+    const z = (Math.floor(id/snapshot.width) - (snapshot.height-1)/2) * cellSize;
+    const distance = Math.hypot(x-hero.x,z-hero.z);
+    if (distance > maxDistance || (closest
+      && (distance > closest.distance
+        || (distance === closest.distance && id >= closest.cell)))) continue;
+    closest = {cell:id,x,z,distance};
+  }
+  if (!closest) return null;
+  // One cell apart earns the whole 0.44 shared-stage correction.
+  // It diminishes continuously to zero at 1.5 cells, preventing a pop when
+  // autonomous Pip approaches/leaves the *already disclosed* mechanism.
+  const proximity = clamp((maxDistance-closest.distance)/(cellSize*.50),0,1);
+  return {...closest,weight:.44 * proximity};
+}
+
+/**
  * Native gameplay camera staging is derived only from an ALREADY DISCLOSED
  * guardian's bounded visual attention. Detail mode must not silently ignore
  * that threat: authentic tick-13 screenshots placed Thornback near the right
