@@ -39,6 +39,8 @@ test('real seeded Chromium WebGL reveals near-party masonry but retains distant 
  expect(diagnostics.visibility.unoccludedHeroes).toBeGreaterThanOrEqual(2);
  expect(diagnostics.composition.visibleHeroes).toBeGreaterThanOrEqual(2);
  expect(diagnostics.drawCalls).toBeLessThan(1600);
+ expect(diagnostics.physicalActorStage?.maxActors).toBe(5);
+ expect(diagnostics.physicalActorStage?.authorityChanged).toBe(false);
  expect(diagnostics.authored3D.missingAssets).toBe(0);
  expect(errors).toEqual([]);
  await page.locator('.arena').evaluate(el=>el.classList.add('world-only-audit'));
