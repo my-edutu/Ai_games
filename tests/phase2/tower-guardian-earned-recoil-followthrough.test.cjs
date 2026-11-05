@@ -7,6 +7,7 @@ const {chooseTowerAction}=require('../../dist/games/infinite-tower-climb/src/ai/
 const {stepTowerCombat}=require('../../dist/games/infinite-tower-climb/src/combat/step.js');
 const {createTowerRenderSnapshot}=require('../../dist/games/infinite-tower-climb/src/presentation/snapshot.js');
 const {NamedRng}=require('../../dist/packages/seeded-rng/src/index.js');
+const {TowerAudioDirector}=require('../../dist/games/infinite-tower-climb/src/presentation/audio.js');
 const idle={move:0,jump:false,dash:false,attack:false,ability:false};
 const rng=()=>NamedRng.fromSeed('guardian-physical-recoil');
 function duel(flags={guardianSecondWind:true,guardianArenaHazards:true}){
@@ -83,11 +84,12 @@ test('missed, blocked and unflagged guardian hits do not invent recoil',()=>{
 
 test('source-earned cap counter opens a real contact-safe punish window, then restores pressure',()=>{
   const state=duel(),boss=state.enemies[0];
+  boss.health=5; // Two earned melee contacts can now meaningfully punish its opened core.
   state.player.invulnerableTicks=0;
   assert.ok(Math.abs(state.player.position.x-boss.position.x)<
     state.player.halfWidth+boss.halfWidth,'initial real bodies genuinely overlap');
   const counter=stepTowerCombat(state,{...idle,attack:true},rng());
-  assert.equal(counter.state.enemies[0].health,3);
+  assert.equal(counter.state.enemies[0].health,4);
   assert.equal(counter.state.player.health,state.player.health,
     'the interrupted, recoiling guardian cannot still inflict its contact attack on the earned counter tick');
   assert.equal(counter.events.some(e=>e.type==='player-damage'),false);
@@ -97,7 +99,13 @@ test('source-earned cap counter opens a real contact-safe punish window, then re
   follow.player.position.y=target.position.y;target.velocity.x=0;
   const punished=stepTowerCombat(follow,{...idle,attack:true},rng());
   assert.equal(punished.state.enemies[0].health,2,
-    'only a second ordinary range-checked, cooldown-ready melee strike damages');
+    'the ordinary range-checked second strike earns one bonus only while real armor is open');
+  assert.ok(punished.events.some(e=>e.type==='melee-hit'&&e.data.amount===2&&
+    e.data.coreBonus===1),'source impact proves exactly one genuine core bonus');
+  const director=new TowerAudioDirector();
+  const coreCue=director.consume([{seq:1,...punished.events.find(e=>e.type==='melee-hit')}]);
+  assert.equal(coreCue.voices[0].cue,'guardian-core-hit');
+  assert.equal(coreCue.captions[0].text,'Exposed core struck');
   assert.ok(punished.events.some(e=>e.type==='melee-hit'));
   assert.equal(punished.state.enemies[0].guardUntilTick<=punished.state.tick,true,
     'an earned exposed core cannot instantly re-arm armor before its source stagger resolves');
@@ -118,6 +126,36 @@ test('source-earned cap counter opens a real contact-safe punish window, then re
   assert.deepEqual(stepTowerCombat(recovered,{...idle,attack:true},rng()),resumed,
     'exposure, recovery and contact events reproduce exactly from the same source');
 });
+test('exposed-core bonus cannot escape its source timer or affect historical guardian',()=>{
+  const earned=duel();earned.enemies[0].staggerUntilTick=earned.tick+8;
+  earned.enemies[0].telegraphUntilTick=0;
+  earned.enemies[0].guardUntilTick=earned.tick+20;
+  const original=structuredClone(earned);
+  const first=stepTowerCombat(earned,{...idle,attack:true},rng());
+  assert.equal(first.state.enemies[0].health,2);
+  assert.ok(first.events.some(e=>e.type==='melee-hit'&&e.data.coreBonus===1&&
+    e.data.amount===2));
+  assert.deepEqual(earned,original,'core damage cannot mutate input source');
+  assert.deepEqual(stepTowerCombat(earned,{...idle,attack:true},rng()),first,
+    'critical hits are deterministic');
+  const expired=duel();expired.enemies[0].telegraphUntilTick=0;
+  expired.enemies[0].staggerUntilTick=expired.tick;
+  expired.enemies[0].guardUntilTick=expired.tick;
+  const normal=stepTowerCombat(expired,{...idle,attack:true},rng());
+  assert.equal(normal.state.enemies[0].health,3);
+  assert.equal(normal.events.some(e=>e.type==='melee-hit'&&
+    Object.hasOwn(e.data,'coreBonus')),false);
+  const historical=duel({guardianSecondWind:true});
+  historical.enemies[0].staggerUntilTick=historical.tick+8;
+  historical.enemies[0].telegraphUntilTick=0;
+  historical.enemies[0].guardUntilTick=historical.tick;
+  const old=stepTowerCombat(historical,{...idle,attack:true},rng());
+  assert.equal(old.state.enemies[0].health,3,
+    'historical guardian keeps exactly its original melee damage');
+  assert.equal(old.events.some(e=>e.type==='melee-hit'&&
+    Object.hasOwn(e.data,'coreBonus')),false);
+});
+
 test('only the fully opted-in living guardian may lose contact pressure while staggered',()=>{
   const old=duel({guardianSecondWind:true}),p=old.player,guardian=old.enemies[0];
   p.invulnerableTicks=0;guardian.staggerUntilTick=old.tick+14;guardian.telegraphUntilTick=0;
