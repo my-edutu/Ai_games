@@ -311,9 +311,12 @@ test('earned guardian exit embeds a source-aligned 3D cap inlay which follows ac
     inlay.getMatrixAt(0,local);
     world.multiplyMatrices(inlay.matrixWorld,local);
     const actual=new THREE.Vector3().setFromMatrixPosition(world);
-    const y=(cap.y+cap.height+1000-source.chunkBaseY)/10000;
+    const y=(cap.y+cap.height+500-source.chunkBaseY)/10000;
     assert.ok(Math.abs(actual.y-y)<.0001,
       'the guide lies on the witnessed platform top, not above an invented bridge');
+    const radius=Math.hypot(actual.x,actual.z);
+    assert.ok(radius>=22.4 && radius<=27.18,
+      'the lit lane is embedded inside the real cap render deck, never outside its radial edge');
     assert.equal(fx.diagnostics().inlaySourceTick,220);
     assert.ok(fx.diagnostics().inlayProgress<.01);
     const next={...source,tick:223,player:{...source.player,x:cap.x+cap.width*.74}};
@@ -324,6 +327,11 @@ test('earned guardian exit embeds a source-aligned 3D cap inlay which follows ac
     assert.equal(fx.unlock({...source,tick:221},anchor),true);
     assert.equal(fx.diagnostics().inlaySourceTick,223,
       'late source frames cannot visually rewind earned walking');
+    assert.equal(fx.unlock({...next,tick:224,
+      player:{health:4,x:Number.NaN}},anchor),true,
+      'an incomplete transport sample must not suppress the genuine earned gate');
+    assert.equal(fx.diagnostics().inlaySourceTick,223,
+      'nonfinite movement cannot poison instanced render colors');
     assert.ok(fx.diagnostics().inlayProgress>.9);
     fx.clear();
     assert.equal(inlay.visible,false);
