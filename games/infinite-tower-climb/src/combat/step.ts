@@ -48,6 +48,14 @@ function guardianWindupTicks(state:TowerState,enemy:TowerEnemy){
     enemy.health>0&&enemy.health*2<=enemy.maxHealth?6:8;
 }
 function overlap(a:{position:{x:number;y:number};halfWidth:number;halfHeight:number},b:{position:{x:number;y:number};halfWidth:number;halfHeight:number},padding=0){return Math.abs(a.position.x-b.position.x)<a.halfWidth+b.halfWidth+padding&&Math.abs(a.position.y-b.position.y)<a.halfHeight+b.halfHeight+padding}
+// Source-authored opt-in guardian arena: a patrol-body brush costs less
+// than the clearly announced full-power projectile. Neither contact
+// geometry, event truth, i-frames, enemy damage nor historical replays change.
+function guardianContactDamage(state:TowerState,enemy:TowerEnemy){
+  return state.config.guardianSecondWind===true&&
+    state.config.guardianArenaHazards===true&&enemy.kind==='guardian'
+    ?Math.max(1,enemy.damage-1):enemy.damage;
+}
 function damagePlayer(state:TowerState,amount:number,source:string,events:Omit<TowerEvent,'seq'>[]){const p=state.player;if(p.invulnerableTicks>0)return;if(p.shieldCharges>0){p.shieldCharges--;p.invulnerableTicks=10;events.push({tick:state.tick,type:'shield-block',data:{source,remaining:p.shieldCharges}});return}p.health=Math.max(0,p.health-amount);p.invulnerableTicks=20;p.state='hurt';state.stats.damageTaken+=amount;events.push({tick:state.tick,type:'player-damage',data:{source,amount,health:p.health}})}
 function defeat(state:TowerState,enemy:TowerEnemy,events:Omit<TowerEvent,'seq'>[]){if(!enemy.active)return;enemy.active=false;state.stats.enemiesDefeated++;if(enemy.kind==='guardian')state.stats.guardiansDefeated++;const points=Math.floor((enemy.kind==='guardian'?100:20)*state.build.scoreMultiplierPermille/1000);state.player.score+=points;state.meaningfulEventTick=state.tick;events.push({tick:state.tick,type:'enemy-defeated',data:{id:enemy.id,kind:enemy.kind,points}})}
 function spawnProjectile(state:TowerState,owner:'player'|'enemy',sourceId:string,position:{x:number;y:number},facing:-1|1,damage:number,events:Omit<TowerEvent,'seq'>[]){if(state.projectiles.filter(p=>p.active).length>=state.config.maxProjectiles)return;const id=`${sourceId}:projectile:${state.tick}:${state.stats.projectilesFired}`;state.projectiles.push({id,owner,floor:state.floor,position:{...position},velocity:{x:facing*state.config.projectileSpeed,y:0},halfWidth:5000,halfHeight:3500,damage,ttl:80,active:true,hitIds:[]});state.stats.projectilesFired++;events.push({tick:state.tick,type:'projectile-fired',data:{id,owner,sourceId}})}
@@ -108,7 +116,7 @@ export function stepTowerCombat(input:TowerState,action:TowerAction,rng:NamedRng
           Math.trunc(enemy.velocity.x*GUARDIAN_MELEE_RECOIL_FRICTION_PERMILLE/1000);
       }
       if(!guardianEarnedExposure(state,enemy)&&overlap(p,enemy))
-        damagePlayer(state,enemy.damage,enemy.id,events);
+        damagePlayer(state,guardianContactDamage(state,enemy),enemy.id,events);
       continue;
     }
     const speed=enemy.kind==='guardian'?TOWER_GUARDIAN_PATROL_SPEED:enemy.kind==='sentinel'?1200:700;enemy.position.x+=enemy.facing*speed;if(enemy.position.x<=enemy.patrolMinX){enemy.position.x=enemy.patrolMinX;enemy.facing=1}else if(enemy.position.x>=enemy.patrolMaxX){enemy.position.x=enemy.patrolMaxX;enemy.facing=-1}const dx=p.position.x-enemy.position.x;if(enemy.kind!=='sentinel'&&Math.abs(dx)<220000){enemy.facing=dx>=0?1:-1;if(enemy.telegraphUntilTick===0&&enemy.cooldown===0){enemy.telegraphUntilTick=state.tick+guardianWindupTicks(state,enemy);
@@ -116,7 +124,7 @@ export function stepTowerCombat(input:TowerState,action:TowerAction,rng:NamedRng
         // threshold crossed mid-charge must not retime an ongoing attack.
         if(enemy.kind==='guardian'&&state.config.guardianSecondWind===true)
           enemy.telegraphDurationTicks=guardianWindupTicks(state,enemy);
-        events.push({tick:state.tick,type:'enemy-telegraph',data:{id:enemy.id}})}else if(enemy.telegraphUntilTick>0&&state.tick>=enemy.telegraphUntilTick){spawnProjectile(state,'enemy',enemy.id,enemy.position,enemy.facing,enemy.damage,events);enemy.telegraphUntilTick=0;enemy.cooldown=enemy.kind==='guardian'?(state.config.guardianSecondWind===true&&enemy.telegraphDurationTicks===6?40:28):42+rng.nextInt(`tower:enemy:fire:${enemy.id}:${state.tick}`,12)}}if(overlap(p,enemy))damagePlayer(state,enemy.damage,enemy.id,events)}
+        events.push({tick:state.tick,type:'enemy-telegraph',data:{id:enemy.id}})}else if(enemy.telegraphUntilTick>0&&state.tick>=enemy.telegraphUntilTick){spawnProjectile(state,'enemy',enemy.id,enemy.position,enemy.facing,enemy.damage,events);enemy.telegraphUntilTick=0;enemy.cooldown=enemy.kind==='guardian'?(state.config.guardianSecondWind===true&&enemy.telegraphDurationTicks===6?40:28):42+rng.nextInt(`tower:enemy:fire:${enemy.id}:${state.tick}`,12)}}if(overlap(p,enemy))damagePlayer(state,guardianContactDamage(state,enemy),enemy.id,events)}
   for(const projectile of state.projectiles.sort((a,b)=>a.id.localeCompare(b.id))){if(!projectile.active)continue;projectile.position.x+=projectile.velocity.x;projectile.position.y+=projectile.velocity.y;projectile.ttl--;if(projectile.ttl<=0||projectile.position.x<-20000||projectile.position.x>state.config.worldWidth+20000){projectile.active=false;continue}if(projectile.owner==='enemy'){if(!projectile.hitIds.includes(p.id)&&overlap(p,projectile)){projectile.hitIds.push(p.id);projectile.active=false;damagePlayer(state,projectile.damage,projectile.id,events)}}else{const enemy=state.enemies.filter(e=>e.active&&!projectile.hitIds.includes(e.id)&&e.floor===state.floor&&overlap(e,projectile)).sort((a,b)=>a.id.localeCompare(b.id))[0];if(enemy){projectile.hitIds.push(enemy.id);projectile.active=false;enemy.health-=projectile.damage;state.stats.damageDealt+=projectile.damage;events.push({tick:state.tick,type:'projectile-hit',data:{id:enemy.id,amount:projectile.damage}});
       // A genuine ranged hit can puncture the current guard. Re-arming the
       // next guarded interval is source-authentic, not immunity to projectiles.
