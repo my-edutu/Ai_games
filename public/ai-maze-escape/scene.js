@@ -740,6 +740,15 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           && !keyGateCue && !showPickup) {
           desiredTarget.x += (publicPressureTrap.x-pose.x)*publicPressureTrap.weight;
           desiredTarget.z += (publicPressureTrap.z-pose.z)*publicPressureTrap.weight;
+          // Pass162 native 390x844: the pan repaired the actual +1.082
+          // cropped jaw, but disabling fossil staging left Pip 20% smaller
+          // and weakened the encounter. Restore a bounded ACTUAL 3D close
+          // view of the already visible hero/trap pair, without changing
+          // physical models, gameplay or the original strict silhouette bar.
+          // Never force a zoom for terminal, reduced-motion, hidden, gate,
+          // pickup, guardian, overview or landscape frames.
+          if (!settings.reducedMotion && aspect >= .35 && aspect < .60)
+            targetHeight = Math.max(5.8, targetHeight * .86);
         }
         // Pass131: native images show the physically unfolding tide-organ and
         // Pip's raised lantern remain small amid open water. Only the ACTUAL
