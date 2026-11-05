@@ -114,6 +114,10 @@ export function planPartyWallReveal(x,z,subjects,camera,pad=2.1,wallHeight=2.6){
    if(Number.isFinite(camera.y)&&camera.y>=.5&&camera.y<=28&&
       radial<=radius*radius&&progress>=-.55&&progress<=2.18&&
       sideways<=side&&(wallHeight>=.55||
+        // Ordinary autonomous traversal is ALSO real gameplay. A living
+        // unmarked actor's boots cannot disappear behind the immediately
+        // adjoining 43cm ruin just because no combat/close-up is active.
+        (radial<=1.85*1.85&&wallHeight>=.28)||
         (radial<=2.15*2.15&&
          (subject.silhouetteRecess===true||fighting))))return 'sightline';
    // Unmarked legitimate actors retain the exact ray-based cutaway above,

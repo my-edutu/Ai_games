@@ -454,3 +454,16 @@ test('M1 real bodies retain combat shoulder clearance across camera-angle and mo
  assert.equal(planPartyWallReveal(1.5,1.55,[{x:.32,z:-.1,visibleActor:true}],camera,2.1,2.6),'sightline',
   'an actual validated but temporarily unmarked skinned actor must also be readable');
 });
+
+test('M1 living wandering hero retains feet and sword lane through nearest ruins without cinematic flags',async()=>{
+ const {planPartyWallReveal}=await load();
+ const highCamera={x:6,y:10.2,z:0},wandering={x:0,z:0,visibleActor:true};
+ assert.equal(planPartyWallReveal(1.36,.65,[wandering],highCamera,2.1,.43),'sightline',
+  'real idle exploration retains leg/boot clearance, not just a marked battle shot');
+ assert.equal(planPartyWallReveal(2.5,1.75,[wandering],highCamera,2.1,.43),'none',
+  'further scenic low ruins survive as textured spatial depth');
+ assert.equal(planPartyWallReveal(-1.36,-.65,[wandering],highCamera,2.1,.43),'none',
+  'living actor cannot flatten the rear nave');
+ assert.equal(planPartyWallReveal(1.36,.65,[{x:0,z:0,visibleActor:false}],highCamera,2.1,.43),'sightline',
+  'previous cinematic background staging stays intact and is not reclassified as a live rig');
+});
