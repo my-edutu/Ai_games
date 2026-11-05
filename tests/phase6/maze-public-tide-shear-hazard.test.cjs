@@ -47,6 +47,13 @@ test('published trap owns TWO connected sculpted 3D jaws that respond to actual 
       assert.ok(Math.abs(jaw.position.x)> .6 && Math.abs(jaw.position.x)< .8,
         'hinges stay on actual cell margins, not across the central playable route');
       assert.equal(jaw.position.z,0);
+      const vane=jaw.getObjectByName('Published tide-shear warning vane');
+      const fang=jaw.getObjectByName('Published tide-shear warning fang');
+      assert.ok(vane?.isMesh && fang?.isMesh,
+        'the ACTUAL hinge must own a readable tall colored physical hazard silhouette');
+      assert.equal(vane.parent,jaw,'signal follows the real hinge, not a HUD or a floating marker');
+      assert.ok(vane.position.y>1 && fang.position.y>vane.position.y,
+        'original signal must remain tall enough to stand apart from same-color miniature masonry');
     }
     const pos=source.cellPosition(4,3,3),ground=source.cellHeight(4,3,3);
     const hero=new THREE.Vector3(pos.x,ground,pos.z);
@@ -57,6 +64,14 @@ test('published trap owns TWO connected sculpted 3D jaws that respond to actual 
     world.animate(0,{gateTime:0,reducedMotion:false,explorerPosition:hero});
     assert.equal(parts[0].rotation.z,-parts[1].rotation.z,
       'same public pose yields symmetrical deterministic positions');
+    // The genuine native capture shows autonomous Pip adjacent to the
+    // published trap, not standing on it. Require a physical signal at one
+    // whole public tile of separation, without altering any engine hazard.
+    world.animate(0,{gateTime:0,reducedMotion:false,
+      explorerPosition:new THREE.Vector3(pos.x+source.CELL_SIZE,ground,pos.z)});
+    assert.ok(parts.every(jaw=>Math.abs(jaw.rotation.z)>.27
+      && Math.abs(jaw.rotation.z)<.29),
+      'adjacent public pressure must cause a substantially visible hinge gesture');
     world.animate(0,{gateTime:0,reducedMotion:false,
       explorerPosition:new THREE.Vector3(pos.x+40,ground,pos.z+40)});
     assert.ok(parts.every(jaw=>Math.abs(Math.abs(jaw.rotation.z)-.06)<1e-9),
