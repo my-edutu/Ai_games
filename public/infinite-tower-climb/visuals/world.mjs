@@ -46,6 +46,51 @@ export function observedStageCorridorOpacity({
   return guardian ? .42 : .58;
 }
 
+// A physical clock face can cover the same narrow PHONE corridor as the
+// guardian even after its rotating gear teeth fade. Its rigid dial, posts and
+// backing are decorative only: they have no authored collider or gameplay
+// authority. Give these existing draw surfaces private precompiled alpha
+// materials so the actual source-observed hero/guardian/landing sightline can
+// clear the WHOLE silhouette, not merely the spokes of a translucent wheel.
+// Keep the meshes, outlines and world-space art: no x-ray actors or fake HUD.
+export function linkClockFaceScenery(entry, parent, ownedMaterials) {
+  if (!entry || !parent?.children?.includes(entry.root) || !ownedMaterials) return 0;
+  const cloned = new Map();
+  for (const child of parent.children) {
+    if (child === entry.root) continue; // moving gear already has its own alloy
+    child.traverse(object => {
+      if (!object.isMesh || !object.material || Array.isArray(object.material)) return;
+      let material = cloned.get(object.material);
+      if (!material) {
+        material = object.material.clone();
+        material.name = 'SightlineResponsiveClockFace';
+        material.transparent = true; material.opacity = 1; material.depthWrite = true;
+        cloned.set(object.material, material); ownedMaterials.add(material);
+      }
+      object.material = material;
+      object.userData.ambientDetail = true;
+      object.castShadow = false; object.receiveShadow = false;
+    });
+  }
+  entry.sceneryMaterials = [...cloned.values()];
+  return entry.sceneryMaterials.length;
+}
+
+// Reuse the already measured actor/guardian/corridor opacity. The static clock
+// surround must never stay fully opaque when the gear becomes transparent.
+// This does not change source ticks, physics, AI, source platforms or hazards.
+export function syncClockFaceSightline(entry) {
+  const faces = entry?.sceneryMaterials;
+  if (!faces?.length) return false;
+  const opacity = entry.alloy.opacity;
+  const solid = opacity >= .985;
+  for (const material of faces) {
+    material.opacity = opacity;
+    material.depthWrite = solid;
+  }
+  return !solid;
+}
+
 const TAU = Math.PI*2;
 const dummy = new THREE.Object3D();
 const tint = new THREE.Color();
@@ -254,7 +299,7 @@ export function createTowerWorld(){
   const primitives=new Map(),platforms=new Map(),hazards=new Map(),rotors=[],floaters=[],foregroundGears=[];
   // Source-observed semantic emphasis; decorative scenery yields to the actors.
   let sceneFocus=0, sceneFocusKind='ascent';
-  let particles=null,vistaGroup=null,quality='normal',occludedGuardianCaps=0,occludedForegroundGears=0,occludedForegroundScreenGears=0,occludedForegroundCorridorGears=0,ruinsPortalVoussoirs=0,ruinsGateLeaves=0;
+  let particles=null,vistaGroup=null,quality='normal',occludedGuardianCaps=0,occludedForegroundGears=0,occludedForegroundScreenGears=0,occludedForegroundCorridorGears=0,occludedForegroundClockFaces=0,ruinsPortalVoussoirs=0,ruinsGateLeaves=0;
   let ruinsSanctuaryArches=0,ruinsSanctuaryPlants=0,ruinsSanctuaryCascadePanels=0;
   const canopyRay = new THREE.Raycaster(), canopyDirection = new THREE.Vector3();
   // Reuse all projection scratch on the render path.
@@ -438,7 +483,7 @@ export function createTowerWorld(){
     mesh(root,g,alloy,[0,0,-thickness/2]);
     mesh(root,cylinder(),trim,[0,0,0],[r*.16,thickness*1.6,r*.16],[Math.PI/2,0,0]);
     for(let i=0;i<4;i++)block(root,alloy,[0,0,0],[r*1.42,r*.13,thickness],[0,0,i*Math.PI/4]);
-    foregroundGears.push({root,alloy,trim,radius:r*1.55});
+    foregroundGears.push({root,alloy,trim,radius:r*1.55,sceneryMaterials:[]});
     return root;
   }
   function arch(parent,a,y,size=1){const root=new THREE.Group();radial(root,a,22.65,y);parent.add(root);
@@ -766,11 +811,16 @@ export function createTowerWorld(){
     for(const [a,y,size,speed]of [[-.66,7,3.6,-.11],[.75,31,3.1,.15]]){
       const root=new THREE.Group();radial(root,a,21.3,y);floorGroup.add(root);const g=gear(root,size,.42,materials.copper);rotors.push({o:g,speed});
       block(root,materials.dark,[0,0,-.6],[size*1.9,size*2.1,1.1]);
+      linkClockFaceScenery(foregroundGears.find(entry => entry.root===g),root,floorMaterials);
     }
     const rack=new THREE.Group();radial(rack,-.32,20.4,15);floorGroup.add(rack);
     block(rack,materials.dark,[0,0,-.2],[1.1,42,1.2]);
     const teeth=[];for(let y=-20;y<22;y+=.85)teeth.push({p:[0,y,.5],s:[1.65,.3,.45]});instanced(rack,box(),materials.copper,teeth);
     for(const x of [-6.7,6.7]){mesh(clock,cylinder(),materials.metal,[x,-7,.2],[.35,20,.35]);mesh(clock,cylinder(),materials.copper,[x,-13,.2],[.75,5,.75]);}
+    // Decorative dial, rim and pillars are NOT gameplay-obstacle surfaces.
+    // In portrait combat their opaque backing used to defeat the existing
+    // gear-only sightline protection even after the rotating teeth cleared.
+    linkClockFaceScenery(foregroundGears.find(entry => entry.root===main),clock,floorMaterials);
   }
   function buildVoid(height){
     const vault=new THREE.Group();radial(vault,.03,18.4,20);floorGroup.add(vault);
@@ -1183,7 +1233,7 @@ export function createTowerWorld(){
   function clearFloor(){
     if(floorGroup){group.remove(floorGroup);floorGroup.traverse(o=>{if(o.isInstancedMesh)o.dispose();});}
     for(const g of floorGeometries)g.dispose();for(const m of floorMaterials)m.dispose();
-    floorGeometries.clear();floorMaterials.clear();platforms.clear();hazards.clear();rotors.length=0;floaters.length=0;foregroundGears.length=0;particles=null;vistaGroup=null;floorGroup=null;occludedGuardianCaps=0;occludedForegroundGears=0;occludedForegroundScreenGears=0;occludedForegroundCorridorGears=0;ruinsPortalVoussoirs=0;ruinsGateLeaves=0;
+    floorGeometries.clear();floorMaterials.clear();platforms.clear();hazards.clear();rotors.length=0;floaters.length=0;foregroundGears.length=0;particles=null;vistaGroup=null;floorGroup=null;occludedGuardianCaps=0;occludedForegroundGears=0;occludedForegroundScreenGears=0;occludedForegroundCorridorGears=0;occludedForegroundClockFaces=0;ruinsPortalVoussoirs=0;ruinsGateLeaves=0;
     ruinsSanctuaryArches=0;ruinsSanctuaryPlants=0;ruinsSanctuaryCascadePanels=0;
     sceneFocus=0;sceneFocusKind='ascent';
   }
@@ -1450,13 +1500,13 @@ export function createTowerWorld(){
   function protectRouteSightlines(camera, actor=null, guardian=null, landing=null, dt=0, options={}) {
     if(disposed)return {total:0,softened:0};
     if(!foregroundGears.length){
-      occludedForegroundGears=0;occludedForegroundScreenGears=0;occludedForegroundCorridorGears=0;
+      occludedForegroundGears=0;occludedForegroundScreenGears=0;occludedForegroundCorridorGears=0;occludedForegroundClockFaces=0;
       return {total:0,softened:0};
     }
     const enabled=!!camera&&!!actor&&!options.stale&&
       Number.isFinite(camera.position?.x)&&Number.isFinite(camera.position?.y)&&
       Number.isFinite(camera.position?.z);
-    let softened=0, screenSoftened=0, corridorSoftened=0;
+    let softened=0, screenSoftened=0, corridorSoftened=0, clockFacesSoftened=0;
     const targets=enabled?[actor,guardian,landing]:[];
     let corridorCount=0, actorDepth=0;
     if(enabled){
@@ -1537,6 +1587,8 @@ export function createTowerWorld(){
       entry.alloy.depthWrite=solid;
       entry.trim.opacity=entry.alloy.opacity;
       entry.trim.depthWrite=solid;
+      const protectedClockFace=syncClockFaceSightline(entry);
+      if(protectedClockFace)clockFacesSoftened++;
       if(!solid)softened++;
       if(softByProjection)screenSoftened++;
       if(softByCorridor)corridorSoftened++;
@@ -1544,6 +1596,7 @@ export function createTowerWorld(){
     occludedForegroundGears=softened;
     occludedForegroundScreenGears=screenSoftened;
     occludedForegroundCorridorGears=corridorSoftened;
+    occludedForegroundClockFaces=clockFacesSoftened;
     return {total:foregroundGears.length,softened};
   }
   function revealGuardianSightlines(camera, crestPoints=[]) {
@@ -1573,7 +1626,7 @@ export function createTowerWorld(){
     }
     occludedGuardianCaps=faded;
   }
-  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,activeHazardPressureFins:[...hazards.values()].reduce((n,h)=>n+(h.indicator.userData.activePressureTeeth||0),0),observedMovingDeckCranks:[...platforms.values()].filter(p=>p.traveler).length,observedMovingDeckDriveStages:[...platforms.values()].filter(p=>p.countergear&&p.actuator).length,observedMovingDeckGearBatches:[...platforms.values()].filter(p=>p.gearVisual?.count===2).length,observedMovingDeckDriveLastTick:[...platforms.values()].reduce((latest,p)=>Math.max(latest,p.motionSourceTick??-1),-1),ambientParticles:particles?.visible?48:0,sceneHierarchy:{sourceBound:true,kind:sceneFocusKind,decorativeFocus:Number(sceneFocus.toFixed(4)),addsDraws:0,physicsUnchanged:true},floor:lastSnapshot?.floor??null,theme,quality,disposed,guardianGates:[...platforms.entries()].filter(([,p])=>p.guardianGate).map(([id,p])=>({id,unlocked:p.guardianGate.unlocked,opening:p.guardianGate.progress,conduitReach:p.guardianGate.conduit.scale.z,anchorX:p.guardianGate.anchorX})),occludedGuardianCaps,occludedForegroundGears,occludedForegroundScreenGears,occludedForegroundCorridorGears,decorativeSightlineGears:foregroundGears.length,ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
+  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,activeHazardPressureFins:[...hazards.values()].reduce((n,h)=>n+(h.indicator.userData.activePressureTeeth||0),0),observedMovingDeckCranks:[...platforms.values()].filter(p=>p.traveler).length,observedMovingDeckDriveStages:[...platforms.values()].filter(p=>p.countergear&&p.actuator).length,observedMovingDeckGearBatches:[...platforms.values()].filter(p=>p.gearVisual?.count===2).length,observedMovingDeckDriveLastTick:[...platforms.values()].reduce((latest,p)=>Math.max(latest,p.motionSourceTick??-1),-1),ambientParticles:particles?.visible?48:0,sceneHierarchy:{sourceBound:true,kind:sceneFocusKind,decorativeFocus:Number(sceneFocus.toFixed(4)),addsDraws:0,physicsUnchanged:true},floor:lastSnapshot?.floor??null,theme,quality,disposed,guardianGates:[...platforms.entries()].filter(([,p])=>p.guardianGate).map(([id,p])=>({id,unlocked:p.guardianGate.unlocked,opening:p.guardianGate.progress,conduitReach:p.guardianGate.conduit.scale.z,anchorX:p.guardianGate.anchorX})),occludedGuardianCaps,occludedForegroundGears,occludedForegroundScreenGears,occludedForegroundCorridorGears,occludedForegroundClockFaces,decorativeSightlineGears:foregroundGears.length,ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;clearFloor();for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
   return{group,update,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics};
 }
