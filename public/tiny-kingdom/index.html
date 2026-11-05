@@ -658,6 +658,123 @@ body[data-citizen-inspect="on"]:not([data-hud="cinema"]) #citizen-pick-caption{d
  border:5px solid transparent;border-top-color:#e8c588;transform:translateX(-50%)}
 @media(max-width:520px){#world-actor-tag{padding:6px 9px;font-size:10px;
  max-width:min(200px,calc(100vw - 24px))}}
+
+/* W53: cinema-first inhabited-valley HUD: the village, real work and
+ * readable navigation own the picture rather than stacked application bars.
+ * Only spectator presentation changes. Command Desk and its save/replay,
+ * speed, accessibility and full economic telemetry remain one action away. */
+body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) .top{
+  top:8px;left:12px;right:12px;gap:10px;align-items:flex-start;
+}
+body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) .brand{
+ padding:6px 10px;background:rgba(17,39,35,.88);border:1px solid rgba(221,203,166,.54);
+ border-radius:10px;box-shadow:0 5px 16px rgba(5,15,12,.28);gap:5px;
+}
+body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) .brand .seal,
+body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) .brand :is(.overline,.subtitle){display:none}
+body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) .brand .name{
+ font:600 16px/1.2 Georgia,serif;letter-spacing:0;
+}
+body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) .top .pill{
+ padding:8px 11px;gap:8px;background:rgba(17,39,35,.88);
+ border:1px solid rgba(221,203,166,.54);box-shadow:0 5px 16px rgba(5,15,12,.28);
+ font-size:10px;letter-spacing:.01em;border-radius:10px;
+}
+/* One shallow explorations strip instead of a full-width wall of controls.
+ * All actions remain horizontally scrollable with native keyboard focus. */
+body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) .world-tour{
+ position:fixed;top:50px;bottom:auto;left:12px;right:auto;
+ transform:none;width:max-content;max-width:min(740px,calc(100vw - 24px));
+ padding:4px 6px;gap:3px;display:flex;flex-wrap:nowrap;justify-content:flex-start;
+ background:rgba(18,43,36,.91);border:1px solid rgba(219,193,147,.48);
+ border-radius:10px;box-shadow:0 5px 18px rgba(4,17,14,.35);
+ overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;
+ overscroll-behavior-x:contain;
+}
+body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) .world-tour small{display:none}
+body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) .world-tour .tour-btn{
+ flex:0 0 auto;min-height:36px!important;white-space:nowrap;line-height:1.2;
+ border-radius:7px;font-size:11px!important;padding:7px 9px!important;
+}
+/* The truthful economy stays legible in one thin at-a-glance strip. */
+body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) #world-ribbon{
+ position:fixed;top:auto!important;bottom:64px!important;left:50%;right:auto;
+ transform:translateX(-50%);width:max-content;max-width:calc(100vw - 20px);
+ min-height:40px;padding:5px 9px;gap:9px;flex-wrap:nowrap;justify-content:center;
+ border-radius:10px;box-shadow:0 5px 16px rgba(4,17,14,.32);
+ background:rgba(18,43,36,.91);border:1px solid rgba(219,193,147,.48);
+ backdrop-filter:none;
+}
+body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) #world-ribbon :is(.world-identity,#world-story){display:none}
+body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) #world-ribbon .world-measure{
+ gap:4px;font-size:11px;
+}
+body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) #world-ribbon .world-measure strong{
+ font:700 16px/1 Georgia,serif;
+}
+body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) #world-open-command,
+body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) #world-watch-life{
+ min-height:34px;font-size:10px;padding:7px 9px;
+}
+/* In World view, the central dock is a fast control cluster only.
+ * Everything including save, restore, zoom, more speeds and camera remains
+ * in the existing keyboard-accessible Command Desk (U). */
+body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) .bottom{
+ position:fixed;bottom:10px;left:50%;right:auto;top:auto;
+ transform:translateX(-50%);width:max-content;max-width:calc(100vw - 20px);
+ display:flex;flex-wrap:nowrap;overflow:hidden;padding:5px;gap:3px;
+ border-radius:11px;background:rgba(18,43,36,.93);
+ border:1px solid rgba(219,193,147,.48);backdrop-filter:none;
+ box-shadow:0 5px 18px rgba(4,17,14,.35);
+}
+body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) .bottom > :not(#pause):not(#speed1):not(#focus):not(#command-toggle){display:none!important}
+body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) .bottom .btn{
+ flex:0 1 auto;min-height:39px!important;font-size:11px!important;
+ padding:8px 12px!important;line-height:1.2;white-space:nowrap;border-radius:8px;
+}
+@media(max-width:520px){
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) .top{
+  top:6px;left:7px;right:7px;gap:4px
+ }
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) .brand{
+  padding:7px 8px;min-width:0;flex:0 1 auto
+ }
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) .brand .name{
+  font-size:13px;white-space:nowrap
+ }
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) .top .pill{
+  padding:7px 8px;min-width:0;flex:0 1 auto;gap:4px;font-size:9px;
+  white-space:nowrap;overflow:hidden;
+ }
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) .top .pill #weather{display:none}
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) .world-tour{
+  top:44px;left:7px;max-width:calc(100vw - 14px);width:calc(100vw - 14px);
+ }
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) .world-tour .tour-btn{
+  min-height:40px!important;font-size:11px!important;padding:7px 10px!important;
+ }
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) #world-ribbon{
+  bottom:63px!important;left:7px;right:7px;transform:none;
+  width:auto;max-width:calc(100vw - 14px);
+  gap:6px;min-height:42px;padding:4px 7px;
+  justify-content:space-between;overflow:hidden
+ }
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) #world-ribbon .world-measure:nth-of-type(n+4){display:none}
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) #world-ribbon #world-open-command{display:none}
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) #world-ribbon #world-watch-life{
+  min-height:36px;font-size:10px;padding:7px 8px;white-space:nowrap
+ }
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) .bottom{
+  bottom:8px;left:7px;right:7px;transform:none;width:auto;
+  max-width:calc(100vw - 14px);justify-content:space-between;gap:2px;
+ }
+ body[data-command="world"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) .bottom .btn{
+  min-width:0;min-height:41px!important;font-size:10px!important;padding:8px 9px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-command="world"] .world-tour{scroll-behavior:auto!important}
+}
 </style></head><body>
 <canvas id="world" tabindex="0" aria-label="Live 3D medieval valley. Tap a visible villager to follow their real work; drag to orbit. Press Enter to select a visible citizen."></canvas><div id="citizen-pick-caption" role="status" aria-live="polite" aria-atomic="true"><span id="citizen-pick-copy"></span><progress id="citizen-pick-meter" value="0" max="100" aria-label="Observed citizen's actual shift or delivery progress" hidden></progress></div><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
