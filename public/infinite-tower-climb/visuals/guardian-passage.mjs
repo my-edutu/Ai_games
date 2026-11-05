@@ -1,3 +1,5 @@
+import { pointFor } from './coordinates.mjs';
+
 // A source-witnessed piece of the guardian encounter, not an invented exit.
 // The fixed-step tower can advance its floor on the SAME tick as the final hit:
 // this short, floor-local 3D passage lets viewers SEE that authentic outcome.
@@ -185,7 +187,7 @@ export function createTowerGuardianPassage(THREE) {
   }
 
   let runToken = null, floor = null, sourceTick = -1;
-  let age = 0, disposed = false, stage = 'none', approachOpen = 0;
+  let age = 0, defeatAge = 0, disposed = false, stage = 'none', approachOpen = 0;
   const duration = 2.9;
   const clamp = v => Math.max(0, Math.min(1, v));
   function clear() {
@@ -197,8 +199,26 @@ export function createTowerGuardianPassage(THREE) {
     floor = null;
     sourceTick = -1;
     age = 0;
+    defeatAge = 0;
     approachOpen = 0;
     stage = 'none';
+  }
+  // Make the defeated guardian physically crumble WHILE the player walks
+  // toward its actually unlocked source gate, not just after changing floors.
+  // Only the inactive zero-HP source body or an observed floor-transition
+  // guardian anchor may place these non-colliding original metal fragments.
+  function placeDefeatedArmor(anchor, guardianAnchor) {
+    witnessedGuardian = !!guardianAnchor &&
+      [guardianAnchor.x, guardianAnchor.y, guardianAnchor.z].every(Number.isFinite);
+    fallenArmor.visible = witnessedGuardian;
+    fallenArmor.count = witnessedGuardian ? 12 : 0;
+    if (!witnessedGuardian) { guardianWorld.set(0, 0, 0); return; }
+    guardianWorld.set(guardianAnchor.x, guardianAnchor.y, guardianAnchor.z);
+    const dx = guardianAnchor.x - anchor.x, dz = guardianAnchor.z - anchor.z;
+    const cs = Math.cos(anchor.angle), sn = Math.sin(anchor.angle);
+    fallenArmor.position.set(cs * dx - sn * dz,
+      guardianAnchor.y - anchor.y, sn * dx + cs * dz);
+    poseFallenArmor(0, false);
   }
   function unlock(source, anchor) {
     const earned = observedUnlockedGuardianCap(source);
@@ -218,11 +238,13 @@ export function createTowerGuardianPassage(THREE) {
     group.position.set(anchor.x, anchor.y, anchor.z);
     focusPosition.set(anchor.x, anchor.y + 2.6, anchor.z);
     group.rotation.y = anchor.angle;
-    // The genuine defeated character still exists in this floor's scene.
-    // Reserve decorative fallen-armor memory for the next floor only.
-    witnessedGuardian = false;
-    fallenArmor.visible = false;
-    fallenArmor.count = 0;
+    // The real zero-HP body remains observable during physical gate
+    // traversal. Honor that source position now, at the decisive combat beat;
+    // do not defer its visible consequence until an unrelated new floor.
+    const body = earned.guardian;
+    placeDefeatedArmor(anchor, pointFor(body.x,
+      body.y - body.halfHeight + 9000, source.chunkBaseY,
+      source.worldWidth, 27.65));
     fragments.visible = false;
     group.visible = true;
     runToken = source.runToken;
@@ -231,6 +253,7 @@ export function createTowerGuardianPassage(THREE) {
     stage = 'earned-open';
     approachOpen = observedPassageApproach(source, earned);
     age = 0;
+    defeatAge = 0;
     return true;
   }
   function begin(previous, source, anchor, guardianAnchor = null) {
@@ -242,21 +265,11 @@ export function createTowerGuardianPassage(THREE) {
     const carryOpen = stage === 'earned-open' && group.visible &&
       runToken === previous.runToken && floor === previous.floor;
     const carriedAge = age;
+    const carriedDefeatAge = defeatAge;
     group.position.set(anchor.x, anchor.y, anchor.z);
     focusPosition.set(anchor.x, anchor.y + 2.6, anchor.z);
     group.rotation.y = anchor.angle;
-    witnessedGuardian = !!guardianAnchor &&
-      [guardianAnchor.x, guardianAnchor.y, guardianAnchor.z].every(Number.isFinite);
-    fallenArmor.visible = witnessedGuardian;
-    fallenArmor.count = witnessedGuardian ? 12 : 0;
-    if (witnessedGuardian) {
-      guardianWorld.set(guardianAnchor.x, guardianAnchor.y, guardianAnchor.z);
-      const dx = guardianAnchor.x - anchor.x, dz = guardianAnchor.z - anchor.z;
-      const cs = Math.cos(anchor.angle), sn = Math.sin(anchor.angle);
-      fallenArmor.position.set(cs * dx - sn * dz,
-        guardianAnchor.y - anchor.y, sn * dx + cs * dz);
-      poseFallenArmor(0, false);
-    }
+    placeDefeatedArmor(anchor, guardianAnchor);
     group.visible = true;
     runToken = source.runToken;
     floor = source.floor;
@@ -267,15 +280,22 @@ export function createTowerGuardianPassage(THREE) {
     // not visibly slam it shut and re-open upon the authoritative floor
     // switch. Historical immediate clearances still use the old cue.
     age = carryOpen ? Math.max(1.05, Math.min(1.65, carriedAge)) : 0;
+    // The real guardian's armor keeps falling continuously across the
+    // old/new-floor boundary; replay/slow passage staging cannot rewind it.
+    defeatAge = carryOpen ? carriedDefeatAge : 0;
     return true;
   }
   function update(dt = 0, options = {}) {
     if (disposed || !group.visible) return;
-    if (!options.stale) age += Math.min(.5, Math.max(0, Number.isFinite(dt) ? dt : 0));
+    if (!options.stale) {
+      const advance = Math.min(.5, Math.max(0, Number.isFinite(dt) ? dt : 0));
+      age += advance;
+      defeatAge += advance;
+    }
     if (stage === 'handoff' && age >= duration) { clear(); return; }
     const still = options.reducedMotion === true;
     poseFragments(age, still);
-    poseFallenArmor(age, still);
+    poseFallenArmor(defeatAge, still);
     const opened = still ? 1 : Math.max(approachOpen,
       1 - Math.pow(1 - clamp(age / .95), 3));
     const fade = stage === 'earned-open' ? 1 :
@@ -310,7 +330,8 @@ export function createTowerGuardianPassage(THREE) {
   }
   function diagnostics() {
     return { sourceBound: true, active: group.visible, stage, runToken,
-      floor, sourceTick, ageSeconds: age, durationSeconds: duration,
+      floor, sourceTick, ageSeconds: age, defeatAgeSeconds: defeatAge,
+      durationSeconds: duration,
       sourceMeasuredApproachOpen: approachOpen,
       // Public world-space source-pinned anchor for inspecting actual full
       // motion; no fabricated win, private event or gameplay mutation.
