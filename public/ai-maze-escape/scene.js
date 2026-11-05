@@ -4,7 +4,7 @@ import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZ
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianEncounterBeat } from './public-lantern-encounter.mjs';
-import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
+import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -592,6 +592,11 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     guide.material.opacity = settings.highContrast ? .95 : .65;
 
     const aspect = width / Math.max(1, height);
+    // A genuine near, currently visible public hazard is a scene partner,
+    // not an off-screen text marker. This is camera composition ONLY.
+    const publicPressureTrap = cameraMode === 'follow' && !result
+      && !closestThreat?.strength
+      ? publicObservedTrapCameraFocus(s,pose,CELL_SIZE,aspect) : null;
     // The previous close-up used to immediately snap back to a wide water
     // shot as soon as the real gate opened. Keep the SAME disclosed arch and
     // Pip readable briefly while its actual bronze grille withdraws.
@@ -724,6 +729,18 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         if (!result && !cameraGate && !closestThreat?.strength
           && !nearObservedGoal && !settings.reducedMotion)
           targetHeight = publicCompactExplorationHalfHeight(aspect,targetHeight,s);
+        // Original Pass161 390x844 native screenshot: the full connected
+        // tide-shear jaws reached +1.082 NDC (strict limit +.95), while
+        // Pip remained wholly framed. Center the AUTHENTIC published
+        // Pip/hazard pair in a continuous, bounded portrait pan, never
+        // crop the jaws or loosen acceptance. The actor, terrain, hazard
+        // authority, camera scale and autonomous AI remain unchanged.
+        // Public guardian, goal, key, gate and pickup stories take priority.
+        if (publicPressureTrap && !cameraGate && !nearObservedGoal
+          && !keyGateCue && !showPickup) {
+          desiredTarget.x += (publicPressureTrap.x-pose.x)*publicPressureTrap.weight;
+          desiredTarget.z += (publicPressureTrap.z-pose.z)*publicPressureTrap.weight;
+        }
         // Pass131: native images show the physically unfolding tide-organ and
         // Pip's raised lantern remain small amid open water. Only the ACTUAL
         // already-modeled, disclosed organ that Pip is reacting to may earn a
@@ -734,7 +751,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         if (!result && !cameraGate && !closestThreat?.strength
           && !nearObservedGoal && !keyGateCue && !showPickup
           && !settings.reducedMotion && aspect>=1.1
-          && fossilCue?.strength>.35) {
+          && !publicPressureTrap && fossilCue?.strength>.35) {
           const lean=Math.min(.24,fossilCue.strength*.20);
           desiredTarget.x+=clamp(fossilCue.x-pose.x,-3.6,3.6)*lean;
           desiredTarget.z+=clamp(fossilCue.z-pose.z,-3.6,3.6)*lean;
@@ -752,7 +769,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         if (!result && !cameraGate && !closestThreat?.strength
           && !nearObservedGoal && !keyGateCue && !showPickup
           && !settings.reducedMotion && aspect>=.35 && aspect<.60
-          && fossilCue?.strength>.45) {
+          && !publicPressureTrap && fossilCue?.strength>.45) {
           const lean=Math.min(.13,fossilCue.strength*.10);
           desiredTarget.x+=clamp(fossilCue.x-pose.x,-3.6,3.6)*lean;
           desiredTarget.z+=clamp(fossilCue.z-pose.z,-3.6,3.6)*lean;
