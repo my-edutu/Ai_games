@@ -517,7 +517,7 @@ const path = require('node:path');
     }));
     if(evidence.meadow.clusters<240||evidence.meadow.triangles!==evidence.meadow.clusters*8||!evidence.meadow.cached)
       throw Error('Gauntlet 034 meadow budget or static-cache contract failed');
-    if(evidence.visualHud.worldFilter!=='none'||evidence.visualHud.headingPx<25||
+    if(evidence.visualHud.worldFilter!=='none'||(evidence.visualHud.headingPx<12||evidence.visualHud.headingPx>20)||
        !evidence.visualHud.panelGradient||evidence.visualHud.scenicChoices<8||
        !evidence.visualHud.forgeDestination||
        !evidence.visualHud.liveLaborControl||!evidence.visualHud.workHistoryControl)
