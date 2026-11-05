@@ -45,6 +45,23 @@ export function observedUnlockedGuardianCap(snapshot) {
   } : null;
 }
 
+// Source-measured distance to the real earned cap exit, not a cosmetic clock.
+// A fast physical approach must never run through visually closed bronze
+// leaves while the authoritative, already-unlocked exit is traversable.
+// The familiar cap-width ratios are presentation-only. No future path,
+// hidden combat state, collision or additional draw call is consulted.
+export function observedPassageApproach(source, earned) {
+  if (!source || !earned || source.runToken !== earned.runToken ||
+    source.floor !== earned.floor || !Number.isFinite(source.player?.x) ||
+    !Number.isFinite(earned.cap?.x) ||
+    !Number.isFinite(earned.cap?.width) || earned.cap.width <= 0) return 0;
+  const cap = earned.cap;
+  const exitX = cap.x + Math.floor(cap.width * .76);
+  const gap = Math.abs(source.player.x - exitX);
+  return Math.max(0, Math.min(1,
+    (cap.width * .36 - gap) / (cap.width * .24)));
+}
+
 export function createTowerGuardianPassage(THREE) {
   const group = new THREE.Group();
   group.name = 'ObservedGuardianPassage';
@@ -168,7 +185,7 @@ export function createTowerGuardianPassage(THREE) {
   }
 
   let runToken = null, floor = null, sourceTick = -1;
-  let age = 0, disposed = false, stage = 'none';
+  let age = 0, disposed = false, stage = 'none', approachOpen = 0;
   const duration = 2.9;
   const clamp = v => Math.max(0, Math.min(1, v));
   function clear() {
@@ -180,6 +197,7 @@ export function createTowerGuardianPassage(THREE) {
     floor = null;
     sourceTick = -1;
     age = 0;
+    approachOpen = 0;
     stage = 'none';
   }
   function unlock(source, anchor) {
@@ -191,7 +209,10 @@ export function createTowerGuardianPassage(THREE) {
       runToken === source.runToken && floor === source.floor) {
       // Repeated frames must not replay the mechanical release or recreate
       // a victory. A stale/out-of-order sample does not rewind source time.
-      sourceTick = Math.max(sourceTick, source.tick);
+      if (source.tick >= sourceTick) {
+        approachOpen = Math.max(approachOpen, observedPassageApproach(source, earned));
+        sourceTick = source.tick;
+      }
       return true;
     }
     group.position.set(anchor.x, anchor.y, anchor.z);
@@ -208,6 +229,7 @@ export function createTowerGuardianPassage(THREE) {
     floor = source.floor;
     sourceTick = source.tick;
     stage = 'earned-open';
+    approachOpen = observedPassageApproach(source, earned);
     age = 0;
     return true;
   }
@@ -240,6 +262,7 @@ export function createTowerGuardianPassage(THREE) {
     floor = source.floor;
     sourceTick = source.tick;
     stage = 'handoff';
+    approachOpen = carryOpen ? 1 : 0;
     // The real door already opened during the hero's grounded walk. Do
     // not visibly slam it shut and re-open upon the authoritative floor
     // switch. Historical immediate clearances still use the old cue.
@@ -253,7 +276,8 @@ export function createTowerGuardianPassage(THREE) {
     const still = options.reducedMotion === true;
     poseFragments(age, still);
     poseFallenArmor(age, still);
-    const opened = still ? 1 : 1 - Math.pow(1 - clamp(age / .95), 3);
+    const opened = still ? 1 : Math.max(approachOpen,
+      1 - Math.pow(1 - clamp(age / .95), 3));
     const fade = stage === 'earned-open' ? 1 :
       1 - .9 * clamp((age - 1.75) / (duration - 1.75));
     for (const { side, wing } of wings) {
@@ -278,7 +302,8 @@ export function createTowerGuardianPassage(THREE) {
   }
   function cameraWeight() {
     return !group.visible ? 0 : stage === 'earned-open'
-      ? .55 * clamp(1 - age / 2.4) : clamp(1 - age / 1.35);
+      ? Math.max(.55 * clamp(1 - age / 2.4), .32 * approachOpen)
+      : clamp(1 - age / 1.35);
   }
   function focusPoint() {
     return group.visible ? focusPosition : null;
@@ -286,6 +311,7 @@ export function createTowerGuardianPassage(THREE) {
   function diagnostics() {
     return { sourceBound: true, active: group.visible, stage, runToken,
       floor, sourceTick, ageSeconds: age, durationSeconds: duration,
+      sourceMeasuredApproachOpen: approachOpen,
       // Public world-space source-pinned anchor for inspecting actual full
       // motion; no fabricated win, private event or gameplay mutation.
       anchorPosition: group.visible ? group.position.toArray() : null,

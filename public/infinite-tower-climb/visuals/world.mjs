@@ -1364,6 +1364,15 @@ export function createTowerWorld(){
             Number.isFinite(guardian.maxHealth)&&guardian.maxHealth>0
             ? THREE.MathUtils.clamp(guardian.health/guardian.maxHealth,0,1):1;
           const target=unlocked?1:(1-healthRatio)*.72;
+          // A living, physically walking climber can arrive at the
+          // AUTHENTICALLY defeated gate faster than presentation easing.
+          // Clear the source-open leaves by physical arrival, while keeping
+          // the ordinary slow HP-driven counterweights for distant viewers.
+          // Never anticipate defeat or bypass the real collider/rules.
+          const arrivalOpen=unlocked&&Number.isFinite(snapshot.player?.x)&&
+            Number.isFinite(p.width)&&p.width>0
+            ? THREE.MathUtils.clamp((p.width*.36-
+              Math.abs(snapshot.player.x-anchorX))/(p.width*.24),0,1):0;
           if(gate.progress===null || options.reducedMotion)gate.progress=target;
           else if(!options.stale){
             // Calibrated to real displayed dt: a slow render still catches
@@ -1372,6 +1381,7 @@ export function createTowerWorld(){
             const step=Math.min(Math.max(dt,0),.25)*1.8;
             gate.progress+=Math.sign(target-gate.progress)*Math.min(Math.abs(target-gate.progress),step);
           }
+          if(unlocked&&!options.stale)gate.progress=Math.max(gate.progress,arrivalOpen);
           gate.unlocked=unlocked;
           for(const {side,wing} of gate.wings)wing.position.x=gate.progress===0?0:side*gate.progress*2.8;
           for(const {side,carriage} of gate.counterweights){

@@ -254,3 +254,28 @@ test('guardian approach anchors one stationary physical gate without relocating 
       'the actual on-cap guardian shares its source-derived exit with fixed-step game rules');
   } finally { world.dispose(); }
 });
+
+test('the actual world gate gives earned grounded arrival a clear bronze threshold before presentation time catches up', async () => {
+  const {createTowerWorld}=await loaded;
+  const world=createTowerWorld();
+  try {
+    const live=frame(), cap=live.platforms[0];
+    live.player={x:cap.x};
+    world.update(live,.016,0,{quality:'low'});
+    const wing=named(world.group,'GuardianSealWingLeft');
+    assert.ok(wing);
+    const sourceClear=frame({active:false});
+    const realExit=cap.x+Math.floor(cap.width*.76);
+    sourceClear.player={x:realExit-8000};
+    world.update(sourceClear,.016,.016,{quality:'low'});
+    assert.ok(wing.position.x < -2.7,
+      'source-confirmed defeat + authentic arrival opens real 3D masonry immediately');
+    assert.equal(world.diagnostics().guardianGates[0].unlocked,true);
+    assert.equal(sourceClear.player.x,realExit-8000);
+    const nextRun=frame({active:true,runToken:'fresh-second-run'});
+    nextRun.player={x:cap.x};
+    world.update(nextRun,.05,.066,{quality:'low'});
+    assert.ok(wing.position.x > -2.7,
+      'a newly active guardian immediately removes the earned clearance');
+  }finally{world.dispose();}
+});

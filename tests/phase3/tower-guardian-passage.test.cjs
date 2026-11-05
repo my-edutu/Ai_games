@@ -285,3 +285,46 @@ test('source-earned 3D gate stays visibly open during authentic cap traversal, t
     assert.equal(effect.cameraWeight(),0);
   } finally { effect.dispose(); }
 });
+
+test('a fast source-earned cap crossing opens the physical leaves ahead of the climber, without time or replay cheats', async () => {
+  const [THREE, { createTowerGuardianPassage, observedPassageApproach,
+    observedUnlockedGuardianCap }] = await loaded;
+  const cap = Object.freeze({id:'f8:cap',x:115200,y:3212000,width:249600,height:12000});
+  const guardian = Object.freeze({id:'f8:guardian',kind:'guardian',active:false,
+    health:0,x:176000,y:3250000,halfHeight:18000});
+  const far = {runToken:'earned-traverse',floor:8,tick:210,lifecycle:'running',
+    worldWidth:480000,chunkBaseY:2880000,
+    player:{health:2,x:cap.x},platforms:[cap],enemies:[guardian]};
+  const atDoor = {...far,tick:211,player:{health:2,
+    x:cap.x+Math.floor(cap.width*.76)-8000}};
+  const frozen = JSON.stringify(atDoor);
+  assert.equal(observedPassageApproach(far,observedUnlockedGuardianCap(far)),0);
+  assert.equal(observedPassageApproach(atDoor,observedUnlockedGuardianCap(atDoor)),1);
+  assert.equal(observedPassageApproach({...atDoor,runToken:'another'},
+    observedUnlockedGuardianCap(far)),0,'another run cannot open a previous gate');
+  const effect = createTowerGuardianPassage(THREE);
+  try {
+    assert.equal(effect.unlock(far,anchor),true);
+    effect.update(.025);
+    const leaf=effect.group.getObjectByName('ClearedPassageLeftLeaf');
+    assert.ok(leaf.position.x> -3.4,'distant initial source release still has visible weight');
+    assert.equal(effect.unlock(atDoor,anchor),true);
+    effect.update(0);
+    assert.ok(leaf.position.x< -3.49,
+      'source-confirmed near contact clears the full 3D threshold before collision');
+    assert.equal(effect.diagnostics().sourceMeasuredApproachOpen,1);
+    assert.ok(effect.cameraWeight()>=.32,
+      'the earned approach preserves a bounded real-door camera acknowledgment');
+    effect.unlock({...far,tick:209},anchor);
+    effect.update(.01);
+    assert.ok(leaf.position.x< -3.49,'old or retreated snapshots never slam the door');
+    assert.equal(JSON.stringify(atDoor),frozen,'source input remains immutable');
+    assert.equal(effect.begin(atDoor,{runToken:'earned-traverse',floor:9,
+      tick:212,lifecycle:'running',enemies:[]},anchor),true);
+    effect.update(0);
+    assert.ok(leaf.position.x< -3.49,'handoff retains the actual opened corridor');
+    effect.clear();
+    assert.equal(effect.diagnostics().sourceMeasuredApproachOpen,0);
+    assert.equal(effect.cameraWeight(),0);
+  } finally { effect.dispose(); }
+});
