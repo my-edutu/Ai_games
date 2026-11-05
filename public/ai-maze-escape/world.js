@@ -774,6 +774,22 @@ export function createMazeWorld(options = {}) {
     const gateApproachCells = new Set(), gateEdges = new Set(), gateCourtCells = new Set();
     const adjacent = (a, b) => Math.abs(a % s.width - b % s.width)
       + Math.abs(Math.floor(a / s.width) - Math.floor(b / s.width)) === 1;
+    // Authentic portrait WebGL showed the real trap swallowed by repeated
+    // fossil organs, greenery and column silhouettes one public tile away.
+    // Reserve ONE disclosed-cell ring as visual breathing room, so Pip's
+    // physically moving pressure jaws remain the landmark. This reads ONLY
+    // published cell/trap flags, not unknown neighbors, routes or private AI.
+    // Keep every real wall, stair, gate, terrain foundation and collision.
+    const pressureSightlines = new Set();
+    for (const known of s.cells) {
+      if (!known.trap || known.blocked) continue;
+      pressureSightlines.add(known.cell);
+      for (const other of [known.cell - s.width, known.cell + s.width,
+        known.cell - 1, known.cell + 1]) {
+        if (knownByCell.has(other) && adjacent(known.cell, other))
+          pressureSightlines.add(other);
+      }
+    }
     for (const door of Array.isArray(s.doors) ? s.doors : []) {
       if (!Number.isSafeInteger(door?.a) || !Number.isSafeInteger(door?.b)
         || door.a < 0 || door.b < 0 || !adjacent(door.a, door.b)
@@ -803,6 +819,7 @@ export function createMazeWorld(options = {}) {
     for (const c of s.cells) {
       const { x, z } = cellPosition(c.cell, s.width, s.height);
       const floorY = cellHeight(c.cell, s.width, s.height);
+      const pressureSightline = pressureSightlines.has(c.cell);
       // Terrace foundations always reach the same underwater bed, never float.
       // Authored terraced-support mineral hierarchy: the original large,
       // near-black undercroft swallowed the actor in authentic 1280/390 WebGL.
@@ -924,7 +941,7 @@ export function createMazeWorld(options = {}) {
       // walkable tile can own a low fossil alcove near its publicly confirmed
       // NON-PASSAGE side. Keep the real tile center and true route open.
       // This is a deterministic presentation variation, not an extra obstacle.
-      const fossilSide = !c.blocked && !c.trap && !c.checkpoint && !c.clue
+      const fossilSide = !pressureSightline && !c.blocked && !c.trap && !c.checkpoint && !c.clue
         && c.cell!==s.exitCell
         && !gateCourt && !gateApproachCells.has(c.cell)
         && !s.keys.some(key=>key.cell===c.cell)
@@ -1150,24 +1167,24 @@ export function createMazeWorld(options = {}) {
         // silhouette. Keep its actual hinged faces in view instead of planting
         // a tall raised garden on the same observed NON-PASSAGE edge. Other
         // walls retain their verdant profile; public navigation is untouched.
-        if (n >= 0 && !fossilStageEdge && gardenPatch(c.cell) > .38
+        if (!pressureSightline && n >= 0 && !fossilStageEdge && gardenPatch(c.cell) > .38
           && variation(faceSeed) > (dx + dz > 0 ? .29 : .56)) {
           if (gateApproachCells.has(c.cell)) gateForecourtPlanter(x, z, dx, dz, c.cell);
           else coastalGarden(x, z, dx, dz, c.cell * 71 + side * 19, c.cell, 1.05);
         }
         const region = `${Math.floor(col / 6)}:${Math.floor(row / 6)}`;
-        if (side === 0 && landmarkSites.get(region)?.cell === c.cell) {
+        if (!pressureSightline && side === 0 && landmarkSites.get(region)?.cell === c.cell) {
           const wide = landmarkSites.get(region).wide;
           gardenLandmark(x + (wide ? 1.2 : 0), z - 1.2, c.cell, c.cell * 19, wide);
         }
         // Cap a limited number of wall intersections with taller ruined columns.
-        if (!gateApproachCells.has(c.cell) && variation(c.cell * 31 + side) > .76) {
+        if (!pressureSightline && !gateApproachCells.has(c.cell) && variation(c.cell * 31 + side) > .76) {
           const px = x + (dx || (side === 0 ? -1 : 1)) * 1.2;
           const pz = z + (dz || (side === 1 ? -1 : 1)) * 1.2;
           const ck = `${px.toFixed(2)}:${pz.toFixed(2)}`;
           if (!columns.has(ck)) { column(px, pz, c.cell, c.cell * 6 + side); columns.add(ck); }
         }
-        if (!fossilStageEdge && !gateApproachCells.has(c.cell)
+        if (!pressureSightline && !fossilStageEdge && !gateApproachCells.has(c.cell)
           && gardenPatch(c.cell) > .65 && variation(c.cell + side * 41) > .55)
           plant(x + dx * .98 + dz * .64, .015, z + dz * .98 + dx * .64, c.cell * 17 + side, c.cell, 1.05);
       }
@@ -1201,7 +1218,7 @@ export function createMazeWorld(options = {}) {
         // Two-cell grouping creates planted terraces with unplanted breathing
         // spaces rather than one identical tuft repeated around every tile.
         const patch = Math.floor(col / 2) * 47 + Math.floor(row / 2) * 97 + (dx ? 67 : 31);
-        if (variation(patch) > (dx + dz > 0 ? .24 : .47)) {
+        if (!pressureSightline && variation(patch) > (dx + dz > 0 ? .24 : .47)) {
           coastalGarden(x, z, dx, dz, c.cell * 71 + (dx + 2) * 13 + (dz + 2) * 23, c.cell);
         }
       }
