@@ -166,7 +166,10 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   // One reusable 3D landmark pin. It appears only when the *public* map
   // already contains an open, reciprocal corridor chain to an observed key/exit.
   // Amber marks an observed key; mint marks an observed exit, not a safe path.
-  const beaconGemGeometry = new THREE.OctahedronGeometry(.27, 0);
+  // The pickup shards and the public landmark are the SAME octahedral solid.
+  // Share its immutable buffer; a static scale preserves the original .27
+  // landmark radius against the .16 pickup-shard radius exactly.
+  const beaconGemGeometry = pickupGeometry;
   const beaconRingGeometry = new THREE.TorusGeometry(.46, .05, 6, 28);
   const beaconFootGeometry = new THREE.RingGeometry(.47, .57, 28);
   const beaconAmber = new THREE.MeshBasicMaterial({color: '#ffe09b', transparent: true, opacity: .96, side: THREE.DoubleSide});
@@ -174,6 +177,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   const objectiveBeacon = new THREE.Group();
   objectiveBeacon.name = 'Disclosed reachable landmark';
   const beaconGem = new THREE.Mesh(beaconGemGeometry, beaconAmber);
+  beaconGem.scale.setScalar(.27 / .16);
   beaconGem.position.y = 3.18;
   const beaconRing = new THREE.Mesh(beaconRingGeometry, beaconAmber);
   beaconRing.position.y = 3.18;
@@ -1205,7 +1209,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     wardens.clear(); guide.geometry.dispose(); guideMaterial.dispose(); markerGeometry.dispose(); markerMaterial.dispose();
     arrowGeometry.dispose(); plannedArrowMaterial.dispose(); knownArrowMaterial.dispose();
     keyGoalArrowMaterial.dispose(); exitGoalArrowMaterial.dispose();
-    beaconGemGeometry.dispose(); beaconRingGeometry.dispose(); beaconFootGeometry.dispose();
+    // beaconGemGeometry aliases pickupGeometry, already disposed above once.
+    beaconRingGeometry.dispose(); beaconFootGeometry.dispose();
     beaconAmber.dispose(); beaconMint.dispose(); scene.remove(objectiveBeacon); objectiveCue = null;
     for (const {pivot} of wayfindingArrows) scene.remove(pivot);
     wayfindingCues = [];
