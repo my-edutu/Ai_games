@@ -150,6 +150,16 @@ oathguardImpactRing.position.z=.19;oathguardImpactRing.visible=false;
 oathguardImpactRing.name='true-cover-impact-wave';oathguardAegis.add(oathguardImpactRing);
 let oathguardImpactAge=10;
 oathguardAegis.visible=false;oathguardAegis.frustumCulled=false;scene.add(oathguardAegis);
+// Real, completed two-hero handoff only: authentic Ranger/Mystic feet step
+// onto the square the Vanguard vacated this same authority tick. Never a
+// speculative immunity indicator or a second fake Warden danger footprint.
+const oathguardEscapeMark=new THREE.Mesh(new THREE.RingGeometry(.28,.41,32),
+ new THREE.MeshBasicMaterial({color:'#b0e1c5',transparent:true,opacity:.61,
+  depthWrite:false,side:THREE.DoubleSide}));
+oathguardEscapeMark.name='real-vanguard-escape-lane-handoff';
+oathguardEscapeMark.rotation.x=-Math.PI/2;oathguardEscapeMark.visible=false;
+scene.add(oathguardEscapeMark);
+let oathguardEscapeAge=10;
 const camera=new THREE.PerspectiveCamera(50,1,.1,110);
 const cameraAim=new THREE.Vector3();
 // Deferred, optional 3D post-processing: selective emissive bloom adds light without
@@ -771,6 +781,17 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
   oldVanguard&&newVanguard&&oldVanguard.hp>newVanguard.hp&&
   s.events.some(e=>e.kind==='cover'&&e.tick>previousState.tick&&e.tick<=s.tick&&
    typeof e.text==='string'&&e.text.includes('intercepted')))oathguardImpactAge=0;
+ if(previousState?.run===s.run&&previousState?.floor===s.floor&&
+    s.tick===previousState.tick+1&&oldVanguard&&newVanguard&&newVanguard.hp>0&&
+    newVanguard.action==='move'&&
+    Math.abs(newVanguard.x-oldVanguard.x)+Math.abs(newVanguard.z-oldVanguard.z)===1&&
+    s.events.some(e=>e.kind==='cover-advance'&&e.tick===s.tick)){
+  const ally=s.units.find(u=>u.id===newVanguard.targetId&&u.faction==='party'&&u.hp>0);
+  if(ally?.action==='move'&&ally.x===oldVanguard.x&&ally.z===oldVanguard.z){
+   oathguardEscapeAge=0;
+   oathguardEscapeMark.position.set(oldVanguard.x-9,.092,oldVanguard.z-9);
+  }
+ }
  // Authority polling is independent of the browser's WebGL lifecycle. Never
  // hide a graphics failure merely because the autonomous game keeps ticking.
  if(!['context-lost','recovering','stalled','failed'].includes(document.body.dataset.rendererStatus))$('recovery').hidden=true;
@@ -935,6 +956,13 @@ function animate(t){
  }else frameDeliveryProbe.resetClock();
  requestAnimationFrame(animate);const time=t/1000,frameInterval=Math.max(0,time-lastFrameTime),dt=Math.min(.05,frameInterval);lastFrameTime=time;
  oathguardImpactAge=Math.min(10,oathguardImpactAge+dt);
+ oathguardEscapeAge=Math.min(10,oathguardEscapeAge+dt);
+ oathguardEscapeMark.visible=oathguardEscapeAge<.72;
+ if(oathguardEscapeMark.visible){
+  const progress=oathguardEscapeAge/.72;
+  oathguardEscapeMark.scale.setScalar(reduced?1:1+.25*progress);
+  oathguardEscapeMark.material.opacity=.61*(1-.72*progress);
+ }
  // Real software WebGL may render only once every few seconds. Preserve
  // frame-bound action animation, but let cinematic framing catch up with
  // the actual current boss and heroes in one bounded camera update.
@@ -1317,7 +1345,7 @@ function animate(t){
   }
  }}
  catch(error){console.warn('[DUNGEON] post effect fault, restoring WebGL:',String(error));try{composer?.dispose()}catch{}composer=null;bloomPass=null;postFXStatus='fallback';postFXEnabled=false;fxButton.title='Glow unavailable: direct rendering remains active';fxButton.setAttribute('aria-pressed','false');fxButton.querySelector('span').textContent='DIRECT 3D';renderer.info.reset();renderer.render(scene,camera)}
- combatOverlay.render(state,actors,camera,time,focusedHeroId);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,cultistTellCount:cultistTell.count,revenantTellCount:breachDiamond.count,oathguardVisible:oathguardAegis.visible,oathguardPhysicalPanels:oathguardAegis.children.filter(o=>o.isMesh).length,oathguardImpactVisible:oathguardImpactRing.visible,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,encounterFrame:encounterFrame??null,cinematicShot:cinematicShot??null,cinematicContinuity:combatShotContinuity.metrics(),cinematicLens:cinematicLens??null,storyStage:storyStage??null,wardenExposure:[...actors.values()].find(a=>a.u.kind==='warden'&&a.u.hp>0)?.wardenExposure??null,criticalCameraFit,cameraFrameDt:cameraDt,cinematicAim:{x:cameraAim.x,y:cameraAim.y,z:cameraAim.z},duelSightline:duelCamera?.sightline??null,cameraRig:{mode:cameraType,desiredPosition:plannedCamera.position,actualPosition:{x:camera.position.x,y:camera.position.y,z:camera.position.z},turn:plannedCamera.turn,boundaryLimit:plannedCamera.boundaryLimit},cameraOcclusion:physicalCameraDirector.metrics(),physicalActorStage:actorOcclusionStage.metrics(),focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,screenSpaceWallReveals:world.userData.screenSpaceWallReveals??0,wallMatrixWrites:world.userData.wallMatrixWrites??0,parapetMatrixWrites:world.userData.parapetMatrixWrites??0,cutawayNearbyWalls:world.userData.cutawayNearbyWalls??0,cutawaySubjects:world.userData.cutawaySubjectCount??0,realRigSightlineActors:partySightlines.filter(p=>p.bodyPoints?.length>=3).length,realRigSightlineSamples:partySightlines.reduce((n,p)=>n+(p.bodyPoints?.length||0),0),recessActors:world.userData.recessActors??0,recessCombatants:world.userData.recessCombatants??0,bossCutawayActive:world.userData.bossCutawayActive??false,cutawayParapets:world.userData.cutawayParapets??0,foundationBricks:world.userData.foundationBrickPositions?.length??0,clearedFoundationBricks:world.userData.clearedFoundationBricks??0,foundationMatrixWrites:world.userData.foundationMatrixWrites??0,wallProfiles:world.userData.wallProfileMetrics??null,wallSculpture:world.userData.wallSculpture??null,openWardenGate:world.userData.openWardenGate===true,chapterNaves:world.userData.chapterNaves?.metrics??null,vaultedGallery:world.userData.vaultedGallery?.metrics()??null,stoneGrade:{biome:floorThemes[(state.floor-1)%floorThemes.length].biome,wallTint:stone.color.getHexString(),floorTint:floorMat.color.getHexString(),trimTint:stoneEdge.color.getHexString(),keyFill:moon.color.getHexString(),partyFill:partyGlow.color.getHexString(),partyIntensity:partyGlow.intensity,wallTextureMapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture)},wallMasonry:{size:wallMasonryTexture?.image?.width??0,mapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture),bump:Boolean(wallMasonryTexture&&stone.bumpMap===wallMasonryTexture),bumpScale:stone.bumpScale},floorRuins:world.userData.floorRuins?.metrics??null,expeditionStonework:world.userData.expeditionStonework?.metrics??null,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,
+ combatOverlay.render(state,actors,camera,time,focusedHeroId);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,cultistTellCount:cultistTell.count,revenantTellCount:breachDiamond.count,oathguardVisible:oathguardAegis.visible,oathguardPhysicalPanels:oathguardAegis.children.filter(o=>o.isMesh).length,oathguardImpactVisible:oathguardImpactRing.visible,oathguardCompletedLaneVisible:oathguardEscapeMark.visible,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,encounterFrame:encounterFrame??null,cinematicShot:cinematicShot??null,cinematicContinuity:combatShotContinuity.metrics(),cinematicLens:cinematicLens??null,storyStage:storyStage??null,wardenExposure:[...actors.values()].find(a=>a.u.kind==='warden'&&a.u.hp>0)?.wardenExposure??null,criticalCameraFit,cameraFrameDt:cameraDt,cinematicAim:{x:cameraAim.x,y:cameraAim.y,z:cameraAim.z},duelSightline:duelCamera?.sightline??null,cameraRig:{mode:cameraType,desiredPosition:plannedCamera.position,actualPosition:{x:camera.position.x,y:camera.position.y,z:camera.position.z},turn:plannedCamera.turn,boundaryLimit:plannedCamera.boundaryLimit},cameraOcclusion:physicalCameraDirector.metrics(),physicalActorStage:actorOcclusionStage.metrics(),focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,screenSpaceWallReveals:world.userData.screenSpaceWallReveals??0,wallMatrixWrites:world.userData.wallMatrixWrites??0,parapetMatrixWrites:world.userData.parapetMatrixWrites??0,cutawayNearbyWalls:world.userData.cutawayNearbyWalls??0,cutawaySubjects:world.userData.cutawaySubjectCount??0,realRigSightlineActors:partySightlines.filter(p=>p.bodyPoints?.length>=3).length,realRigSightlineSamples:partySightlines.reduce((n,p)=>n+(p.bodyPoints?.length||0),0),recessActors:world.userData.recessActors??0,recessCombatants:world.userData.recessCombatants??0,bossCutawayActive:world.userData.bossCutawayActive??false,cutawayParapets:world.userData.cutawayParapets??0,foundationBricks:world.userData.foundationBrickPositions?.length??0,clearedFoundationBricks:world.userData.clearedFoundationBricks??0,foundationMatrixWrites:world.userData.foundationMatrixWrites??0,wallProfiles:world.userData.wallProfileMetrics??null,wallSculpture:world.userData.wallSculpture??null,openWardenGate:world.userData.openWardenGate===true,chapterNaves:world.userData.chapterNaves?.metrics??null,vaultedGallery:world.userData.vaultedGallery?.metrics()??null,stoneGrade:{biome:floorThemes[(state.floor-1)%floorThemes.length].biome,wallTint:stone.color.getHexString(),floorTint:floorMat.color.getHexString(),trimTint:stoneEdge.color.getHexString(),keyFill:moon.color.getHexString(),partyFill:partyGlow.color.getHexString(),partyIntensity:partyGlow.intensity,wallTextureMapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture)},wallMasonry:{size:wallMasonryTexture?.image?.width??0,mapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture),bump:Boolean(wallMasonryTexture&&stone.bumpMap===wallMasonryTexture),bumpScale:stone.bumpScale},floorRuins:world.userData.floorRuins?.metrics??null,expeditionStonework:world.userData.expeditionStonework?.metrics??null,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,
  authoredProps:{loaded:world.userData.authoredProps?.group?.children.length??0,
   indexed:world.userData.authoredPropVolumes?.filter(Boolean).length??0,
   cameraVolumes:world.userData.cameraPropVolumes?.length??0,

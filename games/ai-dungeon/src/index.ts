@@ -429,6 +429,46 @@ export function planOathguardIntercept(
  }
  return null;
 }
+
+/**
+ * One-beat, real Warden team tactic: the Vanguard vacates a safe floor tile
+ * which currently BLOCKS the only legal escape of a warned companion.
+ * Simulate the partner's actual one-step tactical planner on a read-only
+ * candidate. No artificial immunity, free step, saved field or altered RNG.
+ */
+export function planOathguardClearLane(
+ s:Pick<DungeonState,'map'|'units'|'traps'|'tick'>,guardian:Unit
+):{x:number;z:number;allyId:string}|null{
+ if(!s||!Array.isArray(s.units)||!Array.isArray(s.map)||!Array.isArray(s.traps)||
+  !Number.isSafeInteger(s.tick)||guardian?.kind!=='vanguard'||guardian.faction!=='party'||
+  guardian.hp<=0||!walkable(s.map,guardian.x,guardian.z))return null;
+ const boss=s.units.find(u=>u.kind==='warden'&&u.hp>0);
+ const strike=boss?planWardenStrike(s,boss):null;
+ if(!strike?.warning||strike.attackTick!==s.tick+1||dist(guardian,boss!)>7)return null;
+ const marked=new Set(strike.cells.map(p=>key(p.x,p.z)));
+ if(marked.has(key(guardian.x,guardian.z)))return null;
+ const occupied=new Set(s.units.filter(u=>u.hp>0&&u.id!==guardian.id).map(u=>key(u.x,u.z)));
+ const traps=new Set(s.traps.filter(t=>t.active&&!t.disarmed).map(t=>key(t.x,t.z)));
+ const blocked=s.units.filter(u=>u.faction==='party'&&u.id!==guardian.id&&
+  u.hp>0&&walkable(s.map,u.x,u.z)&&dist(u,guardian)===1&&
+  marked.has(key(u.x,u.z))&&!planWardenEvasionStep(s,u,strike))
+  .sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp||a.id.localeCompare(b.id,'en'));
+ if(!blocked.length)return null;
+ const escapes=DIRS.map(([dx,dz])=>({x:guardian.x+dx,z:guardian.z+dz}))
+  .filter(p=>walkable(s.map,p.x,p.z)&&!occupied.has(key(p.x,p.z))&&
+   !marked.has(key(p.x,p.z))&&!traps.has(key(p.x,p.z)))
+  .sort((a,b)=>dist(b,boss!)-dist(a,boss!)||a.z-b.z||a.x-b.x);
+ for(const ally of blocked)for(const step of escapes){
+  const trial={...s,units:s.units.map(u=>u.id===guardian.id?
+   {...u,x:step.x,z:step.z}:u)};
+  const dodge=planWardenEvasionStep(trial,ally,strike);
+  // The companion must GENUINELY be able to enter the vacated safe tile.
+  if(dodge?.x===guardian.x&&dodge.z===guardian.z)
+   return {x:step.x,z:step.z,allyId:ally.id};
+ }
+ return null;
+}
+
 /** The real Vanguard absorbs some *locked* strike HP loss at a cost. The ally
  * still takes damage. Ordinary melee cannot silently trigger this protection.
  */
@@ -617,6 +657,13 @@ export class DungeonRuntime {
      hero.guardTick=s.tick;hero.targetId=cover.allyId;hero.action='guard';
      s.intent='Ashen Vanguard covering '+cover.allyId;
      push(s,'cover','ASHEN VANGUARD · COVERING '+cover.allyId.toUpperCase()+' FROM '+cover.threat);
+     continue;
+    }
+    const cleared=planOathguardClearLane(s,hero);
+    if(cleared){
+     hero.x=cleared.x;hero.z=cleared.z;hero.action='move';hero.targetId=cleared.allyId;
+     s.intent='Ashen Vanguard clearing a lawful escape lane for '+cleared.allyId;
+     push(s,'cover-advance','Ashen Vanguard opened safe stone for '+cleared.allyId);
      continue;
     }
    }
