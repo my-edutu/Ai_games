@@ -2871,6 +2871,21 @@ const villageVisualLod={detailedHomes:0,compactHomes:0,detailedCitizens:0,compac
 // when a growing inhabited settlement or a new season rebuilds static scenery.
 // This bounded presentation cache preserves the exact authored triangle order
 // and per-home inspection counters. Authority and navigation remain untouched.
+// W68 Living Valley: all original household lots keep their believable side-wall
+// equipment and hand-tended window gardens. The counters ride the existing
+// exact original-mesh cache, never the authoritative city or economy.
+for(const key of ['burgageMaterialHomes','burgageMaterialWallPairs',
+ 'burgageMaterialGardenBoxes','burgageMaterialDownspouts',
+ 'burgageMaterialTriangles'])villageVisualLod[key]=0;
+function getBurgageMaterialAudit(){
+ return {source:'original-inhabited-burgage-side-materiality',
+  homes:villageVisualLod.burgageMaterialHomes,
+  wallPairs:villageVisualLod.burgageMaterialWallPairs,
+  windowGardenBoxes:villageVisualLod.burgageMaterialGardenBoxes,
+  rainSpouts:villageVisualLod.burgageMaterialDownspouts,
+  addedTriangles:villageVisualLod.burgageMaterialTriangles,
+  noArtificialProduction:true,authoritativeStateChanged:false};
+}
 const HOUSE_GEOMETRY_CACHE_MAX_ENTRIES=120;
 const HOUSE_GEOMETRY_CACHE_FLOAT_BUDGET=
  (navigator.deviceMemory&&navigator.deviceMemory<=4)?1600000:3200000;
@@ -2936,6 +2951,7 @@ function renderCachedHomeLot(x,z,k,index,isCompact,climateKey){
   villageVisualLod.detailedHomes++;
  }
  medievalStreetMorphology(x,z,k,index,isCompact);
+ renderLivedBurgageSideMateriality(x,z,k,index,isCompact);
  houseGeometryBuilds++;
  if(!gpuAvailable)return; // The Canvas2D fallback bakes changing daylight.
  const vertices=new Float32Array(data.slice(first));
@@ -3222,6 +3238,68 @@ function compactBurgageFrontage(x,z,variant,y,w,d,h,roofStyle){
   }
  });
  villageVisualLod.compactFrontageTriangles+=(data.length-first)/30;
+}
+
+// W68 original inhabited street: physical side-wall detail on EVERY real home,
+// not one cinematic prop. Paired plaster wear, deep wooden flower trays, and
+// functional-looking rainwater channels share the already-existing house
+// footprint. No new world objects, crops, housing, citizens, RNG or stock.
+function renderLivedBurgageSideMateriality(x,z,variant,index,isCompact){
+ const first=data.length,y=terrain(x,z),w=2.4+variant*.42,
+  d=2.1+variant*.18,style=compactHouseArchetype(x,z,variant);
+ const timber=rgb([0x74543d,0x594a3a,0x74604a,0x68533f][style]);
+ const pale=rgb([0xd2bda1,0xbcae94,0xd8c5a4,0xbab09d][style]);
+ const copper=rgb([0x777567,0x716f61,0x776f5f,0x646e69][style]);
+ const leaf=rgb([0x607753,0x78925b,0x657e52,0x7d8450][style]);
+ for(const side of [-1,1]){
+  const face=x+side*(w/2+.059);
+  materialScope(MATERIAL.PLASTER,()=>{
+   for(const slot of [-1,1]){
+    const zz=z+slot*d*.26,ra=zz-.285,rb=zz+.285;
+    // Slightly irregular limewash patches sit BELOW the original window
+    // glass; no wall billboard or replacement of original house geometry.
+    const a=[face+side*.007,y+.38,ra],b=[face+side*.007,y+.38,rb],
+     c=[face+side*.007,y+.59,rb],d0=[face+side*.007,y+.59,ra];
+    if(side>0)quad(a,b,c,d0,pale);else quad(d0,c,b,a,pale);
+   }
+  });
+  materialScope(MATERIAL.WOOD,()=>{
+   for(const slot of [-1,1]){
+    const zz=z+slot*d*.26;
+    // Real solid timber flower boxes align with both of the original side
+    // casements. Low profiles preserve the near-ground approach and visibility.
+    box(face+side*.126,y+.695,zz,.25,.14,.49,timber);
+    box(face+side*.160,y+.765,zz,.29,.042,.54,rgb(0xaa906c));
+   }
+  });
+  materialScope(MATERIAL.STONE,()=>{
+   // Cast downpipes stay fixed to the wall, not crossing roads or walkable
+   // thresholds, and are cached with their actual owner house.
+   const drainX=face+side*.052,drainZ=z+d*.435;
+   box(drainX,y+.27,drainZ,.085,1.32,.085,copper);
+  });
+  materialScope(MATERIAL.FOLIAGE,()=>{
+   // Two restrained crossed clusters per original side casement. No extra
+   // collectible herb or crop yield: these are domestic window gardens only.
+   for(const slot of [-1,1]){
+    const zz=z+slot*d*.26;
+    for(let sprig=0;sprig<3;sprig++){
+     const tz=zz+(sprig-1)*.125,
+      cx=face+side*.19,
+      base=y+.79,top=base+.17+(sprig%2)*.07;
+     quad([cx-side*.042,base,tz-.055],[cx+side*.08,top,tz-.025],
+      [cx+side*.074,top+.025,tz+.048],[cx-side*.035,base,tz+.059],leaf);
+     quad([cx+side*.028,base,tz-.078],[cx+side*.058,top+.01,tz+.075],
+      [cx+side*.060,top+.035,tz+.084],[cx+side*.028,base,tz-.055],leaf);
+    }
+   }
+  });
+ }
+ villageVisualLod.burgageMaterialHomes++;
+ villageVisualLod.burgageMaterialWallPairs+=2;
+ villageVisualLod.burgageMaterialGardenBoxes+=4;
+ villageVisualLod.burgageMaterialDownspouts+=2;
+ villageVisualLod.burgageMaterialTriangles+=(data.length-first)/30;
 }
 
 // G108: physical, town-wide inhabited architecture. Every house, not one
@@ -12350,6 +12428,9 @@ currentMaterial=MATERIAL.STONE;
  const fullHomes=detailedHomeSet();
 villageVisualLod.detailedHomes=0;villageVisualLod.compactHomes=0;
 villageVisualLod.compactRoofTiles=0;villageVisualLod.compactFramedWindows=0;villageVisualLod.compactGableBraces=0;villageVisualLod.compactSideWindows=0;villageVisualLod.compactSideTimberQuads=0;villageVisualLod.compactStaggeredCourses=0;villageVisualLod.compactDormers=0;villageVisualLod.compactDormerTriangles=0;villageVisualLod.compactGuildLofts=0;villageVisualLod.compactPorchFrames=0;villageVisualLod.compactWeatheredFootings=0;villageVisualLod.compactRainCasks=0;villageVisualLod.compactFrontageTriangles=0;villageVisualLod.compactRoofPaletteCounts.fill(0);
+for(const key of ['burgageMaterialHomes','burgageMaterialWallPairs',
+ 'burgageMaterialGardenBoxes','burgageMaterialDownspouts','burgageMaterialTriangles'])
+ villageVisualLod[key]=0;
 streetMorphologyStats={homes:0,highStreetFronts:0,upperJetties:0,
  crossGables:0,shopCanopies:0,framedUpperCasements:0,physicalSignboards:0,
  totalTriangles:0,archetypes:[0,0,0,0]};
@@ -12603,7 +12684,7 @@ getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStr
  totalCulledTriangles:scenicVisibilityStats.totalCulledTriangles,
  totalDrawCalls:scenicVisibilityStats.totalDrawCalls,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable}),getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,renderQuality,setRenderQuality,getFrameProfile,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCameraDynamicCacheStats,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable}),getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,renderQuality,setRenderQuality,getFrameProfile,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCameraDynamicCacheStats,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
  if(streetWalk)setStreetWalk(false);
 if(follow)setCitizenFollow(false);cinematic=false;document.getElementById('camera').classList.remove('active');
 yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2&&o.focus.every(Number.isFinite))focusPoint=o.focus.slice(0,2)}};
