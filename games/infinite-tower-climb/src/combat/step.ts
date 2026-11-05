@@ -8,6 +8,11 @@ import{NamedRng}from'../../../../packages/seeded-rng/src/index';import type{Towe
 export const TOWER_GUARDIAN_PATROL_SPEED=1800;
 const GUARDIAN_COUNTER_STAGGER_TICKS=10;
 const GUARDIAN_COUNTER_RECOVERY_TICKS=18;
+// Only an earned, opt-in melee counter opens a normal strike cooldown.
+// Existing ranged and historical counters keep their ten-tick recovery.
+const GUARDIAN_MELEE_COUNTER_STAGGER_TICKS=14;
+const GUARDIAN_MELEE_RECOIL_SPEED=7200;
+const GUARDIAN_MELEE_RECOIL_FRICTION_PERMILLE=750;
 // Live second-wind guardian defense follows *actual* successful HP loss.
 // Its armor is not extra HP: a grounded melee hit inside this recovery
 // interval meets the visibly raised shield. A genuine projectile or an
@@ -56,19 +61,32 @@ export function stepTowerCombat(input:TowerState,action:TowerAction,rng:NamedRng
            enemy.kind==='guardian'&&enemy.telegraphUntilTick>state.tick){
           const remainingChargeTicks=enemy.telegraphUntilTick-state.tick;
           enemy.telegraphUntilTick=0;
-          enemy.staggerUntilTick=state.tick+GUARDIAN_COUNTER_STAGGER_TICKS;
+          // Source-authentic cracked armor and fixed-step physical recoil.
+          // No teleport, extra damage, invulnerability or scripted victory.
+          enemy.guardUntilTick=state.tick;
+          enemy.staggerUntilTick=state.tick+GUARDIAN_MELEE_COUNTER_STAGGER_TICKS;
+          enemy.velocity.x=(enemy.position.x>=p.position.x?1:-1)*GUARDIAN_MELEE_RECOIL_SPEED;
           enemy.cooldown=Math.max(enemy.cooldown,GUARDIAN_COUNTER_RECOVERY_TICKS);
           events.push({tick:state.tick,type:'guardian-windup-interrupted',
             data:{id:enemy.id,remainingChargeTicks,
-              staggerTicks:GUARDIAN_COUNTER_STAGGER_TICKS,counter:'melee'}});
+              staggerTicks:GUARDIAN_MELEE_COUNTER_STAGGER_TICKS,counter:'melee',
+              physicalRecoil:true,guardBroken:true}});
         }
       }
     }}else events.push({tick:state.tick,type:'melee-miss'})}
   if(action.ability&&p.abilityCooldown===0&&state.build.upgradeIds.includes('pulse-shot')){p.abilityCooldown=24;spawnProjectile(state,'player',p.id,p.position,p.facing,state.build.attackDamage,events)}
   for(const enemy of state.enemies.sort((a,b)=>a.id.localeCompare(b.id))){if(!enemy.active||enemy.floor!==state.floor)continue;if(enemy.cooldown>0)enemy.cooldown--;
     if(enemy.kind==='guardian'&&(enemy.staggerUntilTick??0)>state.tick){
-      // The interrupted guardian holds its actual position and attack;
-      // physical contact still hurts, so this is counterplay, not invincibility.
+      // Only fully opted-in melee counters recoil: ranged/historical
+      // stuns retain their stationary body. Contact remains dangerous.
+      if(state.config.guardianArenaHazards===true&&
+         state.config.guardianSecondWind===true&&enemy.velocity.x!==0){
+        const from=enemy.position.x;
+        enemy.position.x=Math.max(enemy.patrolMinX,Math.min(enemy.patrolMaxX,
+          from+enemy.velocity.x));
+        enemy.velocity.x=enemy.position.x===from?0:
+          Math.trunc(enemy.velocity.x*GUARDIAN_MELEE_RECOIL_FRICTION_PERMILLE/1000);
+      }
       if(overlap(p,enemy))damagePlayer(state,enemy.damage,enemy.id,events);
       continue;
     }
