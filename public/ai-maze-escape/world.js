@@ -1801,6 +1801,22 @@ export function createMazeWorld(options = {}) {
       const fang = mesh(jaw, cone, amber,
         -side * .18, 1.77, .30, .15, .40, .15);
       fang.name = 'Published tide-shear warning fang';
+      // The original 320/390px WebGL review found that only one warning
+      // vane read from the isometric camera: the opposite pivot disappeared
+      // into the masonry. A pair of *front-facing*, inward-rooted blades
+      // makes the existing TWO hinges read as one pressure mechanism. Each
+      // permanently joined arm swings OUTWARD with its real jaw as Pip
+      // approaches, exposing the open route between them. These are physical
+      // Three meshes inside an already-disclosed cell, never a new hazard or
+      // a hint about undiscovered tiles. Inset the near edges rather than
+      // extending the cell bounds to preserve the narrow portrait framing.
+      const forearm = mesh(jaw, bevel, darkMetal,
+        -side * .30, .60, .48, .58, .15, .18, 0, 0, -side * .22);
+      forearm.name = 'Published tide-shear inward brace';
+      const blade = mesh(jaw, bevel, danger,
+        -side * .43, 1.04, .49, .17, .83, .14, 0, 0, side * .16);
+      blade.name = 'Published tide-shear front blade';
+      mesh(jaw, bevel, gold, -side * .43, 1.47, .50, .25, .09, .20);
       trapJaws.push({object: jaw, side, cell: c.cell, x: p.position.x, z: p.position.z});
     }
   }
