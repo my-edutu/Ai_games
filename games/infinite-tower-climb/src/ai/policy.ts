@@ -526,9 +526,24 @@ function observedGuardianGuardSpacing(state:TowerState,obs:TowerObservation,
   // still outrank this optional counterstep. No future enemy position is used.
   const contactGap=state.player.halfWidth+guardian.halfWidth+8000;
   const strikeGap=Math.max(contactGap+4000,meleeReach-6000);
-  const counterstep=guard<=4&&p.attackCooldown<=guard+1&&
+  // An authentic counterattack needs a spatial setup, not a scripted hit.
+  // In the opted-in cap duel the old pilot backed away for the entire shield
+  // period and tried to recover lost ground in just four 50ms ticks. Keep a
+  // body-safe pocket while the armor is up, then re-enter based on how many
+  // CURRENT legal ground steps separate us from the observed strike pocket.
+  // No future enemy position, RNG, cooldown bypass or gameplay teleport.
+  const capArena=state.config.guardianArenaHazards===true;
+  const approachTicks=Math.max(4,Math.min(12,
+    Math.ceil(Math.max(0,gap-strikeGap)/Math.max(1,state.config.maxRunSpeed))+4));
+  const capCounterstep=capArena&&guard<=approachTicks&&
+    p.attackCooldown<=guard+1&&gap>strikeGap+4000&&
+    gap<=strikeGap+state.config.maxRunSpeed*12;
+  const oldCounterstep=guard<=4&&p.attackCooldown<=guard+1&&
     gap>strikeGap+4000&&gap<=strikeGap+state.config.maxRunSpeed*5;
-  const wanted:TowerAction['move']=counterstep?toward:gap<threshold?away:0;
+  const counterstep=capArena?capCounterstep:oldCounterstep;
+  const bodyPressure=gap<contactGap+Math.max(10000,TOWER_GUARDIAN_PATROL_SPEED*5);
+  const wanted:TowerAction['move']=counterstep?toward:
+    capArena?(bodyPressure?away:0):gap<threshold?away:0;
   // Preserve an inward correction when current momentum would otherwise
   // carry the protagonist over a ledge: safety outranks the bracing pose.
   let move:TowerAction['move']=guardedEvasion(state,obs,wanted);
@@ -556,8 +571,46 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
   const hazard=immediateHazard(observation);if(hazard&&
      (!tactical||!observedSafeLandingOwnsHazard(state,observation,hazard))){const center=hazard.x+hazard.width/2,away:TowerAction['move']=center>=observation.player.position.x?-1:1,move=tactical?guardedEvasion(state,observation,away):away;return{action:action(move,{jump:observation.player.grounded}),intent:{mode:'evading-hazard',summary:move!==away?'Jumping clear without abandoning the deck':`Avoiding ${hazard.kind}`,confidence:.96,fallbackUsed:false}}}
   const windup=tactical?imminentTelegraph(state,observation):undefined;
-  if(windup)return{action:action(guardedEvasion(state,observation,0),{jump:true}),
-    intent:{mode:'evading-telegraph',summary:`Jumping clear of ${windup.kind} fire`,confidence:.96,fallbackUsed:false}};
+  if(windup){
+    const p=observation.player;
+    const cap=observation.platforms.find(deck=>deck.id===`f${observation.floor}:cap`);
+    const dx=windup.position.x-p.position.x;
+    const toward:TowerAction['move']=dx>=0?1:-1;
+    const move=guardedEvasion(state,observation,p.facing===toward?0:toward);
+    const facingAfterStep=move===0?p.facing:move;
+    const nextVelocity=move===0
+      ?p.velocity.x-Math.sign(p.velocity.x)*Math.min(Math.abs(p.velocity.x),state.config.groundFriction)
+      :Math.max(-state.config.maxRunSpeed,Math.min(state.config.maxRunSpeed,
+        p.velocity.x+move*state.config.moveAcceleration));
+    const nextX=p.position.x+nextVelocity;
+    const left=Math.min(p.position.x,nextX)-state.player.halfWidth;
+    const right=Math.max(p.position.x,nextX)+state.player.halfWidth;
+    const feet=p.position.y-state.player.halfHeight;
+    const head=p.position.y+state.player.halfHeight;
+    const intoActiveJaw=observation.hazards.some(h=>h.active&&
+      h.x<right&&h.x+h.width>left&&h.y<head&&h.y+h.height>feet);
+    // A two/three-tick announced shot used to force a jump EVEN when a
+    // legitimate, already available, safely faced melee strike would
+    // interrupt the real attack before its projectile spawned. Permit that
+    // earned last-beat counter on the opt-in physical cap ONLY. The fixed-
+    // step combat rule decrements a one-tick melee cooldown before attack;
+    // no invented shot, free hit or immunity is granted. Real projectiles,
+    // active hazards and any physically threatening charging jaw still win.
+    const capCounter=tactical&&state.config.guardianSecondWind===true&&
+      state.config.guardianArenaHazards===true&&windup.kind==='guardian'&&
+      p.health>0&&p.grounded&&cap&&p.groundedPlatformId===cap.id&&
+      p.attackCooldown<=1&&facingAfterStep===toward&&
+      Math.abs(dx)<=state.config.attackReach+state.build.attackReachBonus-4000&&
+      Math.abs(windup.position.y-p.position.y)<=
+        state.player.halfHeight+windup.halfHeight+10000&&
+      !intoActiveJaw&&!observedChargingHazard(state,observation);
+    if(capCounter)return{action:action(move,{attack:true}),
+      intent:{mode:'bracing-telegraph',summary:'Landing an earned final-beat guardian counter',
+        confidence:.97,fallbackUsed:false,targetPlatformId:cap.id}};
+    return{action:action(guardedEvasion(state,observation,0),{jump:true}),
+      intent:{mode:'evading-telegraph',summary:`Jumping clear of ${windup.kind} fire`,
+        confidence:.96,fallbackUsed:false}};
+  }
   // Same real 12-tick shutter source drives AI escape, world-space jaws,
   // camera, route, light and sound. The former ordering allowed an EARLY
   // guardian windup to consume the entire decision ahead of an imminent

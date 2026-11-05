@@ -34,6 +34,8 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npm run build
+      - name: Report original fixed-step guardian progress without awarding game quality
+        run: node scripts/tower-guardian-source-witness.cjs
       - name: Visual resources and geometry safety (not a quality score)
         run: node --test tests/phase3/tower-transformation-sanctuary.test.cjs tests/phase3/tower-vista-environment.test.cjs tests/phase3/tower-world-geometry.test.cjs
       - run: npx playwright install --with-deps chromium
