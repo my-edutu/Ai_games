@@ -68,3 +68,50 @@ test('an unannounced shutter and historical-v1 cannot manufacture new physical c
   assert.notEqual(legacy.intent.mode,'evading-hazard',
     'frozen historical policy has no published shutter countdown and no new reflex');
 });
+
+
+// A physically incoming enemy bolt and charging real crusher share the cap. A threat ordering
+// decision is made from published present positions/countdowns, not from a
+// simulated future or special immunity.
+function addIncomingBolt(state, collisionTicks) {
+  const vx = 12000;
+  const distance = state.player.halfWidth + 5000 + vx * collisionTicks - 100;
+  state.projectiles = [{
+    id:'guardian-visible-projectile',owner:'enemy',floor:state.floor,
+    position:{x:state.player.position.x-distance,y:state.player.position.y},
+    velocity:{x:vx,y:0},halfWidth:3500,halfHeight:3500,
+    damage:1,ttl:20,active:true,hitIds:[],
+  }];
+}
+
+test('closing source crusher outranks a slower genuine incoming guardian bolt',()=>{
+  const {state,crusher} = collisionWindow(2);
+  addIncomingBolt(state,3);
+  const observation=createTowerObservation(state,{includeHazardWindup:true});
+  assert.equal(observation.hazards.find(x=>x.id===crusher.id).chargeTicksRemaining,2);
+  assert.equal(observation.projectiles.length,1,'real incoming combat shot is observed');
+  const before=structuredClone(state);
+  const decision=chooseTowerAction(state,observation);
+  assert.equal(decision.intent.mode,'evading-hazard',
+    'do not reflexively jump into faster-closing jaws just because a projectile already exists');
+  assert.ok(decision.action.move!==0||decision.action.jump,
+    'ordinary physics must supply a genuine escape action');
+  assert.equal(decision.action.attack,false);
+  assert.equal(decision.action.ability,false);
+  assert.deepEqual(state,before,'neither source nor combat physics can be fabricated');
+  assert.deepEqual(chooseTowerAction(state,observation),decision,'deterministic replay action');
+});
+
+test('a faster incoming bolt keeps projectile priority; historical v1 is unchanged',()=>{
+  const {state}=collisionWindow(3);
+  addIncomingBolt(state,1);
+  const observation=createTowerObservation(state,{includeHazardWindup:true});
+  assert.equal(chooseTowerAction(state,observation).intent.mode,'evading-projectile',
+    'a bolt striking before the shutters must not be ignored');
+  assert.equal(chooseTowerAction(state,createTowerObservation(state),{tactical:false}).intent.mode,
+    'evading-projectile','historical observation without new countdown retains the original reflex');
+  const unflagged=structuredClone(state);
+  unflagged.config.guardianArenaHazards=false;
+  assert.equal(chooseTowerAction(unflagged,createTowerObservation(unflagged,{includeHazardWindup:true})).intent.mode,
+    'evading-projectile','only fully opted-in source encounter receives crossfire arbitration');
+});
