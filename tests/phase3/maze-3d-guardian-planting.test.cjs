@@ -118,3 +118,54 @@ test('public brace sweeps both existing armored foreclaws sideways and withdraws
     assert.equal(warden.group.children.length,0);
   }
 });
+
+
+test('real paired shoulder guards rise during a witnessed brace and fold before shell release',async()=>{
+  const {createWarden}=await production;
+  for(const balanced of [false,true]) for(const reducedMotion of [false,true]){
+    const guardian=createWarden({balanced});
+    const guards=[-1,1].map(side=>{
+      const guard=guardian.group.getObjectByName('articulated guardian shoulder guard '+side);
+      assert.ok(guard && guard.children.filter(child=>child.isMesh).length>=2,
+        'each guard is permanent connected 3D geometry, not a HUD effect');
+      return guard;
+    });
+    const resources=new Set();
+    guardian.group.traverse(node=>{
+      if(node.geometry) resources.add(node.geometry);
+      if(node.material) resources.add(node.material);
+    });
+    const cue={heading:0,attentionHeading:.5,attentionStrength:.8,
+      moving:false,danger:1,time:1,delta:0,reducedMotion};
+    const pose=()=>guards.map(guard=>[guard.rotation.x,guard.rotation.z]);
+    guardian.update({...cue,encounterBeat:0});
+    const first=pose();
+    assert.deepEqual(first,[[0,0],[0,0]],'ordinary recognized guard begins folded');
+    guardian.update({...cue,encounterBeat:.5});
+    const brace=pose();
+    assert.ok(brace.every(pair=>pair[0]<-.55),
+      'the center 390px public encounter should lift both connected plates');
+    assert.ok(brace[0][1]<-.08 && brace[1][1]>.08,
+      'rooted armor must fan outward on opposite sides, not simply glow');
+    guardian.update({...cue,encounterBeat:1});
+    const release=pose();
+    assert.ok(release.every((pair,i)=>pair[0]>brace[i][0]+.45),
+      'paired panels fold again when the real carapace releases');
+    guardian.update({...cue,encounterBeat:1});
+    assert.deepEqual(pose(),release,'same public clock replays without drift');
+    guardian.update({...cue,attentionHeading:undefined,attentionStrength:0,encounterBeat:1});
+    assert.deepEqual(pose(),[[0,0],[0,0]],
+      'lost public guardian testimony must reset both physical shields');
+    guardian.update({...cue,result:'capture',encounterBeat:1});
+    assert.deepEqual(pose(),[[0,0],[0,0]],
+      'terminal result cannot expose an unwitnessed threat through the rig');
+    const after=new Set();
+    guardian.group.traverse(node=>{
+      if(node.geometry) after.add(node.geometry);
+      if(node.material) after.add(node.material);
+    });
+    assert.deepEqual(after,resources,'updates do not allocate geometry or material');
+    guardian.dispose();
+    assert.equal(guardian.group.children.length,0);
+  }
+});
