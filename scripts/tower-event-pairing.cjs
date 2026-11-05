@@ -6,11 +6,12 @@ const FROZEN='1731b380851162741761c5569e2bc152a0869ca9';
 const SCENARIOS=['ascent','danger','moving','outcome'],VIEWPORTS=['desktop','portrait'];
 const KINDS=new Set(['route-selection','guardian-present','guardian-hp-decrease',
  'guardian-source-defeated','floor-transition','hazard-charge-begin',
- 'observed-moving-deck-position-change','source-result-phase','source-run-token-change']);
+ 'observed-moving-deck-position-change','source-result-phase','source-run-token-change',
+ 'source-supported-gate-approach','guardian-earned-floor-nine-handoff']);
 function signature(e){
  if(!e||!KINDS.has(e.kind)||!Number.isSafeInteger(e.floor))return null;
  const parts=[e.kind,e.floor];
- if(e.kind==='floor-transition')parts.push(e.fromFloor,e.toFloor);
+ if(e.kind==='floor-transition'||e.kind==='guardian-earned-floor-nine-handoff')parts.push(e.fromFloor,e.toFloor);
  if(e.kind==='route-selection')parts.push(e.selectedPlatformId);
  if(e.kind==='hazard-charge-begin')parts.push(e.hazardId);
  if(e.kind==='observed-moving-deck-position-change')parts.push(e.platformId);
@@ -20,16 +21,23 @@ function signature(e){
 function matchSourceEvents(a,b){
  const old=(Array.isArray(a)?a:[]).filter(e=>signature(e)&&Number.isFinite(e.atMs));
  const current=(Array.isArray(b)?b:[]).filter(e=>signature(e)&&Number.isFinite(e.atMs));
+ // Never silently splice a second post-death attempt onto the first attempt.
+ // Missing episode fields in historical indexes remain explicitly ambiguous.
+ const episode=e=>Number.isSafeInteger(e.observedEpisode)&&e.observedEpisode>=0
+   ? e.observedEpisode : null;
+ const sameEvent=(l,r)=>signature(l)===signature(r)&&episode(l)===episode(r);
  let cursor=0;const pairs=[],missingFromCandidate=[],missingFromBaseline=[];
  for(const e of old){
   const key=signature(e);
-  const i=current.findIndex((v,j)=>j>=cursor&&signature(v)===key);
+  const i=current.findIndex((v,j)=>j>=cursor&&sameEvent(e,v));
   if(i<0){missingFromCandidate.push(key);continue;}
   for(let j=cursor;j<i;j++)missingFromBaseline.push(signature(current[j]));
   pairs.push({event:key,kind:e.kind,floor:e.floor,
    baselineObservationMs:e.atMs,candidateObservationMs:current[i].atMs,
    baselineApproxOffsetMs:e.relativeToFirstBrowserObservationMs??null,
    candidateApproxOffsetMs:current[i].relativeToFirstBrowserObservationMs??null,
+   baselineObservedEpisode:episode(e),candidateObservedEpisode:episode(current[i]),
+   observedEpisodeProvenance:episode(e)!==null,
    uneditedVideoTimecodeVerified:false,visuallyMatched:false});
   cursor=i+1;
  }
@@ -75,7 +83,22 @@ function auditPairs(recordings,candidateSha){
   if(!(before.index?.sourceTicksObserved>1&&after.index?.sourceTicksObserved>1))
    faults.push('missing passive source ticks');
   const aligned=matchSourceEvents(before.index.events,after.index.events);
-  result.comparisons.push({scenario,viewport,provenanceVerified:faults.length===0,faults,
+  // Source-story gaps are inspection priorities, not film failures or quality
+  // votes. Baseline naturally need not contain the new physical threshold.
+  const sourceKinds=record=>new Set((record.index?.events||[]).map(e=>e.kind));
+  const expected=scenario==='danger'
+    ?['guardian-present','guardian-hp-decrease','guardian-source-defeated',
+      'source-supported-gate-approach','guardian-earned-floor-nine-handoff']
+    :scenario==='moving'?['observed-moving-deck-position-change']
+    :scenario==='outcome'?['source-result-phase','source-run-token-change']
+    :['route-selection'];
+  const candidateObserved=sourceKinds(after),baselineObserved=sourceKinds(before);
+  const sourceStory={requiredSearchEvents:expected,
+    missingCandidateSearchEvents:expected.filter(k=>!candidateObserved.has(k)),
+    missingBaselineSearchEvents:expected.filter(k=>!baselineObserved.has(k)),
+    exactFilmMatchVerified:false,
+    caveat:'50ms passive source observer can skip real events; no event proves a frame was displayed or that a physical crossing was filmed'};
+  result.comparisons.push({scenario,viewport,provenanceVerified:faults.length===0,faults,sourceStory,
    baselineArtifact:before.artifact,candidateArtifact:after.artifact,
    baselineVideo:before.videoPath,candidateVideo:after.videoPath,
    sourceEventPairs:aligned.pairs,missingFromBaseline:aligned.missingFromBaseline,

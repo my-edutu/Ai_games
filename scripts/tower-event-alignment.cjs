@@ -20,16 +20,38 @@ function indexTowerCaptureEvents(sourceTicks, browserObservations, options = {})
   const defeatedGuardian = s => (Array.isArray(s.guardians) ? s.guardians : [])
     .find(g => g && g.active === false && Number.isFinite(g.health) &&
       g.health <= 0 && typeof g.id === 'string' && g.id);
+  let observedEpisode = 0;
   function record(kind, s, detail = {}) {
     if (events.length >= CAP || (counts[kind] || 0) >= PER_KIND_CAP) return;
     counts[kind] = (counts[kind] || 0) + 1;
     events.push({
       kind, atMs: s.atMs, observedRunToken: s.runToken,
+      observedEpisode,
       floor: s.floor, sourceTick: s.tick,
       relativeToFirstBrowserObservationMs: videoAnchor === null
         ? null : Math.round(s.atMs - videoAnchor),
       ...detail,
     });
+  }
+  // Captures are a search index, not ground-truth video. A second run's
+  // identical event names must never be silently aligned with the first.
+  function supportedEarnedCap(s) {
+    const p=s?.player,c=s?.cap;
+    if(s?.lifecycle!=='running'||!p||!c||
+      ![p.x,p.y,p.halfWidth,p.halfHeight,p.health,c.x,c.y,c.width,c.height]
+        .every(Number.isFinite)||p.health<=0||p.halfWidth<=0||
+      p.halfHeight<=0||c.width<=0||c.height<=0||
+      c.id!=='f'+s.floor+':cap'||
+      !Array.isArray(s.guardians)||!s.guardians.some(g=>g &&
+        g.active===false&&g.health<=0&&typeof g.id==='string'&&g.id))return null;
+    // Source snapshot does not expose groundedPlatformId. This is an
+    // OBSERVED support-envelope check, not proof of authoritative collision.
+    const feet=p.y-p.halfHeight,deckTop=c.y+c.height;
+    if(Math.abs(feet-deckTop)>3000||
+      p.x-p.halfWidth<c.x||p.x+p.halfWidth>c.x+c.width)return null;
+    const plane=c.x+Math.floor(c.width*.76);
+    return {plane,clearanceX:plane+p.halfWidth+4000,
+      distanceToClearance:plane+p.halfWidth+4000-p.x};
   }
   for (const s of ticks) {
     if (!validSample(s)) { malformed++; continue; }
@@ -43,6 +65,7 @@ function indexTowerCaptureEvents(sourceTicks, browserObservations, options = {})
     const sameRun = previous?.runToken === s.runToken;
     if (!previous || !sameRun) distinctRuns++;
     if (previous && !sameRun) {
+      observedEpisode++;
       record('source-run-token-change', s, {
         previousFloor: previous.floor,
         interpretation: 'authentic source restart/rollover; visible result and restart NOT proven',
@@ -56,7 +79,27 @@ function indexTowerCaptureEvents(sourceTicks, browserObservations, options = {})
         fromFloor: previous.floor, toFloor: s.floor,
         interpretation: 'source floor changed; physically seen gateway crossing NOT proven',
       });
+      const nearEarned=s.floor===9&&previous.floor===8
+        ?supportedEarnedCap(previous):null;
+      if(nearEarned&&nearEarned.distanceToClearance>=0&&
+        nearEarned.distanceToClearance<=90000)
+        record('guardian-earned-floor-nine-handoff', s, {
+          fromFloor:8,toFloor:9,precedingEarnedCapTick:previous.tick,
+          precedingObservedClearanceGap:nearEarned.distanceToClearance,
+          interpretation:'same-run 8-to-9 authority transition preceded by defeated guardian and cap-supported player NEAR gate; no frame-visible or trailing-edge crossing proof',
+        });
     }
+    const arrival=s.floor===8?supportedEarnedCap(s):null;
+    const wasNear=sameRun&&s.floor===previous?.floor
+      ?supportedEarnedCap(previous):null;
+    if(arrival&&arrival.distanceToClearance>=0&&
+      arrival.distanceToClearance<=90000&&
+      (!wasNear||wasNear.distanceToClearance>90000))
+      record('source-supported-gate-approach', s, {
+        exitPlaneX:arrival.plane,bodyClearanceX:arrival.clearanceX,
+        observedClearanceGap:arrival.distanceToClearance,
+        interpretation:'dead source guardian + real cap footprint + observed feet on deck near gate; NOT a sampled crossing, rendered doorway or video-verified win',
+      });
     const oldGuardian = sameRun && s.floor === previous.floor
       ? liveGuardian(previous) : null;
     const guardian = liveGuardian(s);

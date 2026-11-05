@@ -49,3 +49,23 @@ test('tampering, missing film, invalid phone width and short run are detected',(
  assert.equal(a.missingPairs.length,7);
  assert.equal(a.verdict,'NOT EVALUATED');
 });
+
+test('identical events in separate authentic run episodes are not spliced together',()=>{
+ const b=[{kind:'guardian-present',floor:8,atMs:1000,observedEpisode:0},
+   {kind:'guardian-source-defeated',floor:8,atMs:2000,observedEpisode:0}];
+ const c=[{kind:'guardian-present',floor:8,atMs:1200,observedEpisode:0},
+   {kind:'guardian-source-defeated',floor:8,atMs:9000,observedEpisode:1}];
+ const r=matchSourceEvents(b,c);
+ assert.equal(r.pairs.length,1);
+ assert.equal(r.missingFromCandidate.length,1);
+ assert.equal(r.missingFromBaseline.length,1);
+ assert.equal(r.pairs[0].observedEpisodeProvenance,true);
+});
+test('danger source story discloses absent earned gate in original clips without assigning a film verdict',()=>{
+ const b=rec('baseline'),c=rec('candidate');
+ c.index.events.push({kind:'source-supported-gate-approach',floor:8,atMs:5000,observedEpisode:0});
+ const a=auditPairs([b,c],'c'.repeat(40));
+ assert.ok(a.comparisons[0].sourceStory.missingCandidateSearchEvents.includes('guardian-earned-floor-nine-handoff'));
+ assert.ok(a.comparisons[0].sourceStory.missingBaselineSearchEvents.includes('source-supported-gate-approach'));
+ assert.equal(a.comparisons[0].verdict.startsWith('NOT EVALUATED'),true);
+});

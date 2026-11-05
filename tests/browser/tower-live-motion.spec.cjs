@@ -357,6 +357,18 @@ for (const viewport of viewports) {
         atMs: Date.now(), tick:s.tick, floor:s.floor,
         runToken:s.runToken, lifecycle:s.lifecycle,
         checksum:typeof s.publicChecksum==='string'?s.publicChecksum:null,
+        // Read-only, source-issued geometry. DO NOT infer grounded state or
+        // a visible threshold crossing from a single sampled position.
+        player:s.player && [s.player.x,s.player.y,s.player.halfWidth,
+          s.player.halfHeight,s.player.health].every(Number.isFinite)
+          ?{x:s.player.x,y:s.player.y,halfWidth:s.player.halfWidth,
+            halfHeight:s.player.halfHeight,health:s.player.health}:null,
+        cap:(s.platforms||[]).filter(platform=>
+          platform?.id==='f'+s.floor+':cap' &&
+          [platform.x,platform.y,platform.width,platform.height]
+            .every(Number.isFinite)).slice(0,1)
+          .map(platform=>({id:platform.id,x:platform.x,y:platform.y,
+            width:platform.width,height:platform.height}))[0]||null,
         result:s.result ? {kind:s.result.kind,reason:s.result.reason}:null,
         routeTarget:typeof s.intent?.targetPlatformId==='string'
           ? s.intent.targetPlatformId:null,

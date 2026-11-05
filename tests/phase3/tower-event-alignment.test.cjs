@@ -37,7 +37,7 @@ test('event index locates real route, hazard, HP, defeat and floor progression w
 test('source guardian disappearing or a run rollover never fabricates death or victory', () => {
   const result = indexTowerCaptureEvents([source(1),
     source(2,{guardians:[]}),source(3,{guardians:[]}),
-    source(0,{runToken:'run-b',floor:0,guardians:[]})],[]);
+    source(0,{runToken:'run-b',floor:0,guardians:[],atMs:1200})],[]);
   assert.equal(result.events.some(e=>e.kind==='guardian-source-defeated'),false);
   assert.equal(result.eventCounts['source-run-token-change'],1);
   assert.equal(result.eventCounts['floor-transition'] || 0,0);
@@ -57,7 +57,7 @@ test('recorded outcome is a source phase, not a displayed result card', () => {
       result:{kind:'game',reason:'health-depleted'}}),
     source(11,{floor:0,guardians:[],lifecycle:'intermission',
       result:{kind:'game',reason:'health-depleted'}}),
-    source(0,{runToken:'run-b',floor:0,guardians:[]}),
+    source(0,{runToken:'run-b',floor:0,guardians:[],atMs:1600}),
   ],[]);
   assert.equal(result.eventCounts['source-result-phase'],1);
   assert.equal(result.eventCounts['source-run-token-change'],1);
@@ -80,4 +80,36 @@ test('sampled rendered contacts remain distinct from authoritative physical cros
   assert.equal(r.eventCounts['floor-transition']||0,0);
   assert.ok(r.events.find(e=>e.kind==='sampled-render-deck-contact')
     .interpretation.includes('independent film review'));
+});
+
+test('earned cap approach is sampled geometry, and a same-run floor-nine handoff is NOT visual crossing proof',()=>{
+ const cap={id:'f8:cap',x:100000,y:700000,width:400000,height:16000};
+ const p=x=>({x,y:cap.y+cap.height+18000,halfWidth:12000,halfHeight:18000,health:5});
+ const dead={id:'guardian',active:false,health:0};
+ const base={cap,player:p(350000),guardians:[dead],routeTarget:'f8:cap'};
+ const ticks=[source(1,{...base,player:p(360000)}),
+   source(2,{...base,player:p(401000)}),
+   source(3,{...base,player:p(408000)}),
+   source(4,{floor:9,cap:null,player:p(0),guardians:[],routeTarget:'f9:p0'})];
+ const r=indexTowerCaptureEvents(ticks,[]);
+ const arrival=r.events.find(e=>e.kind==='source-supported-gate-approach');
+ const advance=r.events.find(e=>e.kind==='guardian-earned-floor-nine-handoff');
+ assert.ok(arrival,'physical, defeated, supported cap approach');
+ assert.ok(advance,'source earned floor transition observed after supported approach');
+ assert.equal(arrival.observedEpisode,0);
+ assert.equal(advance.observedEpisode,0);
+ assert.equal(advance.precedingObservedClearanceGap,12000);
+ assert.match(advance.interpretation,/no frame-visible/);
+});
+test('alive guardian, unsupported body, or different episode cannot invent earned source handoff',()=>{
+ const cap={id:'f8:cap',x:100000,y:700000,width:400000,height:16000};
+ const player={x:400000,y:cap.y+cap.height+18000,halfWidth:12000,halfHeight:18000,health:5};
+ const bad=source(1,{cap,player,guardians:[{id:'guardian',active:true,health:2}]});
+ const next=source(2,{floor:9,cap:null,guardians:[]});
+ const unsupported=source(3,{cap,player:{...player,y:player.y+19000},guardians:[{id:'guardian',active:false,health:0}]});
+ const another=source(0,{runToken:'second-run',floor:9,cap:null,guardians:[],atMs:1200});
+ const r=indexTowerCaptureEvents([bad,next,unsupported,another],[]);
+ assert.equal(r.events.some(e=>e.kind==='guardian-earned-floor-nine-handoff'),false);
+ assert.equal(r.events.some(e=>e.kind==='source-supported-gate-approach'),false);
+ assert.equal(r.events.find(e=>e.kind==='source-run-token-change').observedEpisode,1);
 });
