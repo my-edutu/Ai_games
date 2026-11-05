@@ -39,7 +39,7 @@ test('every actual countdown escalates without changing game truth or inventing 
  }
  for(const bad of [null,{},threat('FAKE',3),{...threat('NOVA',3),warning:false},
   {...threat('NOVA',3),cells:[]},{...threat('NOVA',3),cells:[{x:NaN,z:9}]},
-  {...threat('NOVA',3),attackTick:19}])assert.equal(p(bad,18),null);
+  {...threat('NOVA',3),attackTick:18}])assert.equal(p(bad,18),null);
  const f=p(threat('ECLIPSE_SWEEP',2,'NORTH_SOUTH'),18);
  const e=p(threat('ECLIPSE_SWEEP',2,'EAST_WEST'),18);
  assert.equal(f.torsoYaw,-e.torsoYaw,'authority strike axis determines sword coil');

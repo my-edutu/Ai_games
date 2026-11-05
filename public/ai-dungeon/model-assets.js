@@ -628,10 +628,11 @@ function stageRigMeleeAfterMixer(actor,since,reducedMotion){
   const stride=mount.part==='spine'?(actor.rigFullBodyStride?.chest||RIG_ZERO):RIG_ZERO;
   const threat=actor.u.kind==='warden'&&actor.u.hp>0&&!reducedMotion&&mount.part==='spine'?
    actor.wardenCharge?.threatPerformance:null;
+  const strike=mount.part==='spine'&&!reducedMotion?actor.wardenStrikePose?.spine:null;
   mount.next.setFromEuler(mount.euler.set(
-   Math.max(-.55,Math.min(.55,joint.pitch+extra.pitch+dodge.pitch+bearing.pitch+stride.pitch)),
-   Math.max(-.48,Math.min(.48,joint.yaw+extra.yaw+dodge.yaw+bearing.yaw+stride.yaw+(threat?.torsoYaw??0))),
-   Math.max(-.46,Math.min(.46,joint.roll+extra.roll+dodge.roll+bearing.roll+stride.roll+(threat?.torsoRoll??0))),'YXZ'));
+   Math.max(-.55,Math.min(.55,joint.pitch+extra.pitch+dodge.pitch+bearing.pitch+stride.pitch+(strike?.pitch??0))),
+   Math.max(-.48,Math.min(.48,joint.yaw+extra.yaw+dodge.yaw+bearing.yaw+stride.yaw+(threat?.torsoYaw??0)+(strike?.yaw??0))),
+   Math.max(-.46,Math.min(.46,joint.roll+extra.roll+dodge.roll+bearing.roll+stride.roll+(threat?.torsoRoll??0)+(strike?.roll??0))),'YXZ'));
   mount.bone.quaternion.multiply(mount.next);
   mount.last.copy(mount.next);
   actor.rigMeleeCurrentPeak=Math.max(actor.rigMeleeCurrentPeak,
@@ -679,9 +680,10 @@ function stageRigArmsAfterMixer(actor,since,reducedMotion){
   const joint=pose[mount.side],extra=actor.performanceBeat?.arms?.[mount.side]||RIG_ZERO;
   const stride=actor.rigFullBodyStride?.arms?.[mount.side];
   const physicalTell=threat?.shoulders?.[mount.side];
+  const strike=actor.wardenStrikePose?.shoulders?.[mount.side];
   mount.next.setFromEuler(mount.euler.set(
-   Math.max(-.62,Math.min(.62,joint.pitch+(physicalTell?.pitch??warningLift)+stagger+extra.pitch+(stride?.pitch??0)+(actor.evasionFrame?.arms?.[mount.side]?.pitch??0))),0,
-   Math.max(-.38,Math.min(.38,joint.roll+(physicalTell?.roll??0)+extra.roll+(stride?.roll??0)+(mount.side==='left'?-1:1)*(exposure?.shoulderRoll??0)+(actor.evasionFrame?.arms?.[mount.side]?.roll??0))),'XYZ'));
+   Math.max(-.62,Math.min(.62,joint.pitch+(physicalTell?.pitch??warningLift)+(strike?.pitch??0)+stagger+extra.pitch+(stride?.pitch??0)+(actor.evasionFrame?.arms?.[mount.side]?.pitch??0))),0,
+   Math.max(-.38,Math.min(.38,joint.roll+(physicalTell?.roll??0)+(strike?.roll??0)+extra.roll+(stride?.roll??0)+(mount.side==='left'?-1:1)*(exposure?.shoulderRoll??0)+(actor.evasionFrame?.arms?.[mount.side]?.roll??0))),'XYZ'));
   mount.bone.quaternion.multiply(mount.next);
   mount.last.copy(mount.next);
   actor.rigGesturePeak=Math.max(actor.rigGesturePeak||0,Math.abs(joint.pitch),Math.abs(joint.roll));
@@ -699,7 +701,7 @@ function stageRigForearmsAfterMixer(actor,since,reducedMotion){
   const threat=actor.u.kind==='warden'&&actor.u.hp>0&&!reducedMotion?
    (actor.wardenCharge?.threatPerformance?.forearms?.[mount.side]??0):0;
   const angle=Math.max(-.445,Math.min(.445,
-   pose[mount.side]+threat+(actor.performanceBeat?.elbows?.[mount.side]||0)+(actor.evasionFrame?.elbows?.[mount.side]??0)));
+   pose[mount.side]+threat+(actor.wardenStrikePose?.forearms?.[mount.side]??0)+(actor.performanceBeat?.elbows?.[mount.side]||0)+(actor.evasionFrame?.elbows?.[mount.side]??0)));
   mount.next.setFromEuler(mount.euler.set(angle,0,0,'XYZ'));
   mount.bone.quaternion.multiply(mount.next);
   mount.last.copy(mount.next);
@@ -740,7 +742,8 @@ function stageRigLegsAfterMixer(actor,since,reducedMotion){
   Math.max(0,Math.min(.24,actor.wardenCharge?.brace??0)):0;
  for(const mount of actor.rigGaitBones){
   const contact=brace[mount.side][mount.part];
-  const plant=warningBrace*(mount.part==='upper'?(mount.side==='left'?.72:1):
+  const releaseBrace=actor.u.kind==='warden'&&!reducedMotion?(actor.wardenStrikePose?.brace??0):0;
+  const plant=(warningBrace+releaseBrace)*(mount.part==='upper'?(mount.side==='left'?.72:1):
    mount.part==='lower'?-1.05:.28);
   const angle=Math.max(-.30,Math.min(.30,pose[mount.side][mount.part]+contact+plant+(actor.evasionFrame?.legs?.[mount.side]?.[mount.part]??0)));
   actor.rigContactBracePeak=Math.max(actor.rigContactBracePeak||0,Math.abs(contact));

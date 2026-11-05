@@ -217,7 +217,7 @@ test('real Warden warning poses imported shoulders as well as torso, without per
  const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
  assert.match(app,/a\.wardenCharge=a\.u\.kind==='warden'&&a\.u\.hp>0\?planWardenCharge\(state\?\.bossWarning,state\?\.tick,reduced\):null/);
  assert.match(model,/actor\.wardenCharge\?\.armRaise/);
- assert.match(model,/joint\.pitch\+warningLift/);
+ assert.ok(model.includes('joint.pitch+(physicalTell?.pitch??warningLift)'));
  assert.match(model,/restoreRigArmsBeforeMixer\(actor\)/);
  assert.match(model,/mount\.last\.identity\(\)/);
  assert.match(model,/wardenChargeShoulderPeakRad:/);

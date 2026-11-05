@@ -258,6 +258,39 @@ export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMo
  });
 }
 
+
+/**
+ * The Warden does not simply snap from three truthful warning poses to idle.
+ * Only an actual corresponding authoritative cast releases that same weapon
+ * performance, with a recoil that smoothly returns to the imported GLB clip.
+ * No invented damage, game tick, strike location or hitbox.
+ */
+export function planWardenTrueStrikeRelease(prior,unit,seconds,reducedMotion=false){
+ if(reducedMotion||unit?.kind!=='warden'||unit.hp<=0||unit.action!=='cast'||
+  !Number.isSafeInteger(unit.actionTick)||!Number.isSafeInteger(prior?.attackTick)||
+  prior.attackTick!==unit.actionTick||!['NOVA','RIFT_CROSS','ECLIPSE_SWEEP'].includes(prior.shape)||
+  !Number.isFinite(seconds)||seconds<0||seconds>=.62)return null;
+ const power=round(Math.pow(Math.sin(Math.PI*seconds/.62),1.25));
+ const axis=prior.axis==='NORTH_SOUTH'?-1:1;
+ let left,right,elbows,pitch,yaw=0,roll=0;
+ if(prior.shape==='NOVA'){
+  left={pitch:.29*power,roll:-.07*power};right={pitch:.29*power,roll:.07*power};
+  elbows={left:-.18*power,right:-.18*power};pitch=.21*power;
+ }else if(prior.shape==='RIFT_CROSS'){
+  left={pitch:.09*power,roll:-.11*power*axis};right={pitch:.39*power,roll:.17*power*axis};
+  elbows={left:-.12*power,right:.16*power};pitch=.15*power;yaw=-.17*power*axis;roll=.08*power*axis;
+ }else{
+  left={pitch:.24*power,roll:.24*power*axis};right={pitch:.20*power,roll:-.24*power*axis};
+  elbows={left:.16*power,right:-.17*power};pitch=.12*power;yaw=.16*power*axis;roll=-.12*power*axis;
+ }
+ const joint=o=>Object.freeze({pitch:round(o.pitch),roll:round(o.roll)});
+ return Object.freeze({shape:prior.shape,weight:power,
+  shoulders:Object.freeze({left:joint(left),right:joint(right)}),
+  forearms:Object.freeze({left:round(elbows.left),right:round(elbows.right)}),
+  spine:Object.freeze({pitch:round(pitch),yaw:round(yaw),roll:round(roll)}),
+  brace:round(.12*power),rootLift:round(-.028*power),rootPitch:round(.052*power)});
+}
+
 const STILL=Object.freeze({lift:0,pitch:0,armRaise:0,charge:0});
 /** Original distinct physical boss combat vocabulary, driven only by the
  * real Warden attack's shape, threatened cells, axis and authority tick.

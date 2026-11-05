@@ -1235,3 +1235,32 @@ STATUS: IN PROGRESS / NOT TRANSFORMED; LOOKS, FEELS, PLAYS UNVERIFIED; fresh bli
 **Observed gates, not inferred results:** GitHub lease-safe push succeeded; prior `f4598d3` exact-head [visual review](https://github.com/my-edutu/Ai_games/actions/runs/42041905743) **passed**, but [Dungeon workflow](https://github.com/my-edutu/Ai_games/actions/runs/42041905813) and [catalogue CI](https://github.com/my-edutu/Ai_games/actions/runs/42041905712) were **cancelled**. New exact-head tests, Chromium playback, mobile performance, actual opted-in PCM/synchronized video and three fresh masked critics are **UNVERIFIED**; cannot call the source improvement a gameplay or sensory win. The connected coding/browser worker tunnel was unavailable with a transient connection error. Existing before/after views are not matched and original WebGL still exhibits toy-like figures and obstructive architecture.
 
 **Largest experiential gap and next move:** the real adult-scale native silhouettes, contact choreography, coherent Warden phase tactics and mobile sightlines remain below the Diablo IV / No Rest for the Wicked / Path of Exile 2 quality bars. Test this exact implementation with real opted-in 1440px + 390px movement/audio, measure frame cost, check for delayed phantom/repeated sounds and visible HP/contact mismatch, then redesign native full-body Warden confrontation while preserving truthful AI. Capture same-seed traversal → active combat → Warden → floor advancement → defeat/restart BEFORE/AFTER reels and obtain at least 3 independent blinded critics; until then LOOKS, FEELS and PLAYS are **UNVERIFIED**, critics **0/3**.
+
+
+### M1 integrated Warden release candidate — 5 November 2026
+
+The immutable M1 baseline remains `281735d0910c6b2443648af976003d50412ee324`.
+This *source candidate*, not a new round or accepted transformation, extends the
+actual Warden's genuine authority-counted NOVA/RIFT_CROSS/ECLIPSE_SWEEP
+skinned wind-up into three distinct, bounded cast releases and returning recoil.
+The same authoritative cast tick gates both the warning history and current
+action. Original imported bones and original GLB animation retain control;
+visual-only shoulder/chest/elbow/leg/root deltas restore before the next mixer
+frame, while the existing authoritative floor warning and verified combat
+soundstage remain unchanged. Reduced motion and missing/stale warnings fail
+closed. No new assets, geometry or gameplay RNG are introduced.
+
+**Verification:** pure/source tests added but NOT EXECUTED here; actual exact
+head browser desktop/mobile moving game, original opt-in sound, full five-stage
+matched baseline replay, GPU p95 and independent 3-critic preference are
+UNVERIFIED. The previous exact-head CI had two failing assertions about the
+new warning grammar; stale wiring assertion and expired-time fixture have been
+corrected in this source candidate. Fresh CI is mandatory before any safety
+claim. Do not merge or mark transformed.
+
+**Largest gap:** genuinely believable adult-scale skinned characters and
+readable boss-to-hero contact in the filmed continuous Warden confrontation.
+**Next action:** inspect real native boss release and telemetry in same-seed
+1440px and 390px Chromium videos with audio; if it plays naturally, integrate
+character fidelity and floor-to-restart journey, then blinded looks/feels/plays
+review. Reject if release snaps or combat frames are less readable.

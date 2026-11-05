@@ -13,7 +13,7 @@ import {planEncounterSightlines} from '/dungeon/encounter-sightlines.js';
 import {planCombatSightlineExtension,planCinematicSilhouetteRecess} from '/dungeon/encounter-sightlines.js';
 import {planEncounterLighting} from '/dungeon/encounter-lighting-plan.js';
 import {planEncounterFrame} from '/dungeon/encounter-frame-plan.js';
-import {planCinematicShot,planCinematicVisibleHero,planReadableExpeditionLens,planCriticalSubjectFit,planWardenCharge,planOathguardPose,planBossDuelSightline,planPartyVistaSightline} from '/dungeon/cinematic-chapter-plan.js';
+import {planCinematicShot,planCinematicVisibleHero,planReadableExpeditionLens,planCriticalSubjectFit,planWardenCharge,planWardenTrueStrikeRelease,planOathguardPose,planBossDuelSightline,planPartyVistaSightline} from '/dungeon/cinematic-chapter-plan.js';
 import {planPartyWallReveal,createCutawayBandCache,shouldUploadCutawayBand,resolveRenderedSilhouetteSubjects,planProjectedBodyAperture,planPortraitStageClearance} from '/dungeon/party-visibility-plan.js';
 import {planBoundaryCamera} from '/dungeon/camera-boundary-plan.js';
 import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
@@ -1061,6 +1061,16 @@ function animate(t){
   // Imported Warden shoulders and torso share one genuine public warning.
   // Once the real telegraph clears, the rig pose returns to the mixer output.
   a.wardenCharge=a.u.kind==='warden'&&a.u.hp>0?planWardenCharge(state?.bossWarning,state?.tick,reduced):null;
+   // Retain only the most recent genuine authority-backed cast warning; a
+   // subsequent cast must match its attackTick to animate release. This data
+   // belongs to the disposable visual actor, never saved gameplay authority.
+   const genuineThreat=state?.bossWarning;
+   if(a.u.kind==='warden'&&a.u.hp>0&&a.wardenCharge?.threatPerformance&&
+    Number.isSafeInteger(genuineThreat?.attackTick)&&genuineThreat.attackTick>state.tick)
+    a.wardenPriorThreat={attackTick:genuineThreat.attackTick,
+     shape:genuineThreat.shape,axis:genuineThreat.axis};
+   a.wardenStrikePose=a.u.kind==='warden'&&a.u.hp>0?
+    planWardenTrueStrikeRelease(a.wardenPriorThreat,a.u,since,reduced):null;
   a.wardenExposure=a.u.kind==='warden'&&a.u.hp>0?
    planWardenExposurePose(state?.bossRecovery,state?.guardianWard,Boolean(state?.bossWarning)):null;
   if(!a.authored)a.detail?.update(time,a.u.action||'idle');a.ground?.update(time,a.u.action||'idle',a.u.hp>0);a.defeatIntermission=Boolean(state?.phase==='intermission'&&a.u.faction==='party'&&a.u.hp===0);updateActor(a,dt,since,reduced);
@@ -1090,14 +1100,14 @@ function animate(t){
   if(a.u.kind==='warden'&&a.u.hp>0){
    const anticipation=a.wardenCharge,exposed=a.wardenExposure;
    if(a.authored&&a.visualPivot){
-    a.visualPivot.position.y+=anticipation.lift-(exposed?.dip??0);
-    a.visualPivot.rotation.x+=anticipation.pitch+(exposed?.torsoPitch??0);
+    a.visualPivot.position.y+=anticipation.lift-(exposed?.dip??0)+(a.wardenStrikePose?.rootLift??0);
+    a.visualPivot.rotation.x+=anticipation.pitch+(exposed?.torsoPitch??0)+(a.wardenStrikePose?.rootPitch??0);
     a.visualPivot.rotation.z+=anticipation.coil??0;
    }else{
-    a.body.rotation.x+=anticipation.pitch+(exposed?.torsoPitch??0);
+    a.body.rotation.x+=anticipation.pitch+(exposed?.torsoPitch??0)+(a.wardenStrikePose?.rootPitch??0);
     a.body.rotation.z+=anticipation.coil??0;
-    a.leftArm.rotation.x+=anticipation.armRaise+(exposed?.shoulderPitch??0);
-    a.rightArm.rotation.x+=anticipation.armRaise+(exposed?.shoulderPitch??0);
+    a.leftArm.rotation.x+=anticipation.armRaise+(exposed?.shoulderPitch??0)+(a.wardenStrikePose?.shoulders?.left?.pitch??0);
+    a.rightArm.rotation.x+=anticipation.armRaise+(exposed?.shoulderPitch??0)+(a.wardenStrikePose?.shoulders?.right?.pitch??0);
    }
   }
   const visualYaw=a.combatFacing?.yaw??(moving?planMovementFacing(a.root.position.x,a.root.position.z,a.at.x,a.at.z):null);

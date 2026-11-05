@@ -2151,7 +2151,7 @@
     "title": "From Prototype to Believable 3D Adventure",
     "adoptedOn": "2026-11-01",
     "status": "IN_PROGRESS",
-    "verdict": "NOT_TRANSFORMED",
+    "verdict": "IN PROGRESS — NOT TRANSFORMED",
     "baseline": {
       "sha": "281735d0910c6b2443648af976003d50412ee324",
       "locked": true,
@@ -2493,8 +2493,8 @@
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Toy-like native characters, partial body occlusion, noncredible moving Warden contact/tactics; no full opt-in audiovisual comparison or independent masked critic verdict.",
-    "currentWork": "Source-level integrated candidate at 1589a8c: keep truthful immediate HP while converging real native sword contact, animated recoil, physical armor fragments and original opt-in impact sound on 215ms rendered-frame contact. Browser moving effect is unverified.",
+    "biggestRemainingGap": "Real-world character anatomy and authored boss-to-hero weapon contact remain short of Diablo IV / PoE2. Complete five-stage matched audiovisual review and independent critics absent.",
+    "currentWork": "Integrate true threat-to-release native Warden full-body performance; evaluate in actual mobile and desktop gameplay",
     "candidateCommit": "a02eff231c52b5105a9f41fee78227c85720b40b",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
@@ -5547,15 +5547,19 @@
     "latestImplementation": {
       "date": "2026-11-05",
       "milestone": "M1 ongoing",
-      "sourceParentSha": "f4598d3666ef0895da06d377c1968c04cb2abacf",
-      "codeCommit": "a02eff231c52b5105a9f41fee78227c85720b40b",
-      "stage": "real HP-delta original audio synchronized to skinned 3D contact and fatal/reduced-motion fallback",
-      "status": "EXACT_HEAD_BROWSER_MOTION_UNVERIFIED",
-      "qualityVerdict": "UNVERIFIED"
+      "sourceParentSha": "c7dcde4a520588fb370d266f2095cee48ef3f948",
+      "stage": "True authority-cast-matched Warden body/weapon release, three distinct skinned attack shapes and original recorded impact pipeline",
+      "status": "SOURCE_CANDIDATE_EXACT_HEAD_BROWSER_UNVERIFIED",
+      "qualityVerdict": "UNVERIFIED",
+      "sourceFiles": [
+        "public/ai-dungeon/cinematic-chapter-plan.js",
+        "public/ai-dungeon/model-assets.js",
+        "public/ai-dungeon/app.js"
+      ]
     },
     "lastCandidateSha": "a02eff231c52b5105a9f41fee78227c85720b40b",
     "experienceVerdict": "M1 IN PROGRESS — NOT TRANSFORMED. LOOKS, FEELS and PLAYS UNVERIFIED; 0/3 independent critics; no matched complete five-stage audio/video.",
     "criticReadiness": "0/3; exact-head desktop/mobile moving sound captures, matched fixed-baseline A/B and natural progression unverified",
-    "nextImplementationTask": "Inspect actual opted-in current-head audio+motion on desktop/mobile, verify damage sound and sword/body contact coherence and no hardware regressions; overhaul native figure and Warden staging, then five-stage fixed-baseline blind A/B."
+    "nextImplementationTask": "Capture actual native Warden warning-to-attack release in live desktop/mobile browser with sound and matched pinned M1 before; fix motion/geometry defects, build continuous progression-to-restart, commission 3 fresh independent critics."
   }
 }
