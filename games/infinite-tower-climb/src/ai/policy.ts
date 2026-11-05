@@ -619,7 +619,7 @@ function observedProjectileCrusherEscape(state:TowerState,obs:TowerObservation,
     p.groundedPlatformId!==`f${obs.floor}:cap`)return undefined;
   const hazard=observedChargingHazard(state,obs);
   const countdown=hazard?.chargeTicksRemaining;
-  if(countdown===undefined||!Number.isSafeInteger(countdown)||
+  if(!hazard||countdown===undefined||!Number.isSafeInteger(countdown)||
     countdown<1||countdown>4)return undefined;
   // The observed shot's real present velocity and the climber's actual body
   // define a conservative impact horizon. No enemy intention, future hazard
