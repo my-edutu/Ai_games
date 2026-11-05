@@ -265,6 +265,7 @@ test('the actual world gate gives earned grounded arrival a clear bronze thresho
     const wing=named(world.group,'GuardianSealWingLeft');
     assert.ok(wing);
     const sourceClear=frame({active:false});
+    sourceClear.enemies[0].health=0; // A real observed defeated body, not merely an inactive fixture.
     const realExit=cap.x+Math.floor(cap.width*.76);
     sourceClear.player={x:realExit-8000};
     world.update(sourceClear,.016,.016,{quality:'low'});

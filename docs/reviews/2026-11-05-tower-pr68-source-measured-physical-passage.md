@@ -1,0 +1,26 @@
+# Infinite Tower Climb — source-measured guardian passage arrival continuity
+**Date:** 2026-11-05 · **Draft PR:** [#68](https://github.com/my-edutu/Ai_games/pull/68) · **Play code source:** [8811f4da](https://github.com/my-edutu/Ai_games/commit/8811f4daccd712db7e4bfbcd64a0379ec311d6a6)  
+**Frozen baseline:** `1731b380851162741761c5569e2bc152a0869ca9` — unchanged.
+
+## Connected playable experience (still one OPEN transformation)
+The genuine fixed-step guardian fight, shutter pressure, earned floor-eight cap exit and floor-nine continuity already exist in this long-running slice. Previous public 3D doorway code opened its bronze leaves over 0.95 *render seconds* after a verified guardian defeat. The actual autonomous climber, however, can physically reach its earned source exit faster than a presentation tween. On that valid path the avatar could **visually cross a bronze leaf before it had finished retracting**. This is a code-level collision/readability risk deduced from the source contract, NOT an observed current-source WebM defect or a quality verdict.
+
+The change retains the existing source-determined floor 8 guardian defeat and grounded travel, then couples the original 3D world gate, separate outward architectural passage and already-owning follow camera to a single real, current-floor, cap-width-scaled *player-to-exit distance*. At 36% cap width the existing slow mechanical opening continues; at 12% distance, the leaves must be visibly fully separated even if fewer than 0.95 render seconds have elapsed. Passage openness can increase with source ticks but never rewind on a duplicate, old or retreated snapshot; same-run floor advance hands off the already-open geometry. The camera's existing source-earned lock acknowledgement retains a small bounded weight as the climber physically reaches it, instead of fading solely on time. This continues one guardian victory-to-traversal **gameplay** narrative; no menu polish or fictitious celebration.
+
+## Source safety and implementation
+- `public/infinite-tower-climb/visuals/guardian-passage.mjs` — public same-run, same-floor observed arrival helper, monotonic source tick / open fraction, age-or-approach mechanical pose, bounded focus weight, read-only diagnostics.
+- `public/infinite-tower-climb/visuals/world.mjs` — the actual 3D guardian lock and counterweights clear their existing reusable bronze leaves when an already-defeated guardian and *current* player position establish imminent physical arrival. Nothing unlocks a living guardian.
+- `tests/phase3/tower-guardian-passage.test.cjs` and `tests/phase3/tower-guardian-seal-experience.test.cjs` — safety probes for the near approach, duplicate/stale/retreated source, genuine handoff, renderer-stage clearing and absence of extra mesh/collision or new rendering passes. These tests are **not** blind video preference votes.
+
+Immutable snapshots are never written; no new authoritative physics, AI, RNG, combat, replay version, stamina, health or floor transitions. The world and passage own the same bounded existing geometry, no new lights, shadows, particle pools, GPU passes, frame loops, rays or HUD. Reduced-motion retains a fully separated static threshold and input access is unchanged. Recovery restores from actual source snapshots; stale frames cannot drive a false transition.
+
+## Evidence and explicit blockers
+- [Previous original real-game capture 42004566700](https://github.com/my-edutu/Ai_games/actions/runs/42004566700) **SUCCESS**, but source **6c61a17f**, predating this anti-clipping/passage code. These desktop/portrait artifacts cannot be claimed as after film for 8811f4da.
+- [c5 doorway original game capture 42007783650](https://github.com/my-edutu/Ai_games/actions/runs/42007783650) was queued at inspection; not current head.
+- [Current playable-source normal-speed capture 42012717952](https://github.com/my-edutu/Ai_games/actions/runs/42012717952) **PENDING**; [exact-head safety workflow 42012717781](https://github.com/my-edutu/Ai_games/actions/runs/42012717781) **QUEUED** at inspection. No claim of CI pass or better motion from a pending workflow.
+- Independent browser/critic worker connection returned `NOT_FOUND: Tunnel-client has not been seen for 300 seconds`. No fresh-context full-motion reviews. LOOKS 0/5, FEELS 0/5, PLAYS 0/5 **judgments collected** (not 0-quality scores). Real target-device frame-time percentiles/memory and full input/accessibility review not measured.
+
+## Biggest remaining systemic quality gap
+Need to actually **watch** source-pinned 8811f4da >=60-second NORMAL-SPEED desktop and portrait episodes with true on-screen guardian, crusher, floor-eight combat/defeat, physical cap crossing and a readable floor-nine handoff, then event-match all three scenarios against frozen 1731b380 footage (same seed/viewport/quality, not same arbitrary wall-clock second). Full outcome/restart must be visible. Obtain five real independent randomized blind full-motion critics **per LOOKS, FEELS and PLAYS**, >=4/5 candidate preference on every pillar, and veto any actual gameplay, replay, accessibility, supported-device frame-time tail or robustness regression. No quality PASS or AAA claim.
+
+**Status: NOT EVALUATED.** Keep PR68 draft and preserve PR58. Never merge, deploy or force-push here.
