@@ -6,6 +6,7 @@ import {planVisualContact} from '/dungeon/facing-plan.js';
 import {planCombatStage,stagePoint} from '/dungeon/combat-staging-plan.js';
 import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
 import {createBladeRibbonGeometry,createImpactSpallGeometry,planTrueDamageCue,planContactShardFan} from '/dungeon/contact-performance.js';
+import {planVerifiedMeleeImpactDelay} from '/dungeon/impact-choreography-plan.js';
 import {createRangedProjectileGeometry,rangedProjectileProfile} from '/dungeon/ranged-encounter-plan.js';
 
 /**
@@ -237,15 +238,19 @@ export function createCombatDirector(scene,{reducedMotion=false,actorById=null}=
   for(const id of [...previous.keys()])if(!current.has(id))previous.delete(id);
  }
  // Damage-only proof from consecutive genuine authority frames.
- function recordDamage(beats){
+ function recordDamage(beats,snapshot=null){
   if(!Array.isArray(beats))return;
   for(const beat of beats.slice(0,18)){
    const hit=planTrueDamageCue(beat,stagePoint(stagePositions,beat));
    if(!hit){suppressedDamageCues++;continue;}
+   // Rendered-frames contact sync is only for validated REAL sword strikes.
+   // Health, combat authority, and accessible HUD never wait for this cue.
+   const delay=planVerifiedMeleeImpactDelay(beat,snapshot,{reducedMotion});
    const mesh=new THREE.Mesh(shared.spall,material(hit.color,.88));
+   mesh.visible=delay===0;
    const anchor=liveInjuryAnchor(beat,hit,actorById);
    mesh.position.copy(V3(anchor.x,anchor.y,anchor.z));mesh.scale.setScalar(hit.scale);
-   scene.add(mesh);impacts.push({mesh,life:0,duration:hit.duration,mode:'true-hit',
+   scene.add(mesh);impacts.push({mesh,life:-delay,duration:hit.duration,mode:'true-hit',
     startScale:hit.scale,beat:{id:beat.id,x:beat.x,z:beat.z},hit:{x:hit.x,y:hit.y,z:hit.z}});
    if(anchor.skinned)skinnedHitAnchors=Math.min(1000000,skinnedHitAnchors+1);
    // An actual HP decrease owns this entire 3D contact fan. Single instanced
@@ -261,8 +266,9 @@ export function createCombatDirector(scene,{reducedMotion=false,actorById=null}=
     fracture.position.copy(V3(anchor.x,anchor.y,anchor.z));
     fracture.frustumCulled=false;
     fracture.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-    const fractureEffect={mesh:fracture,life:0,duration:beat.fatal?.68:.52,mode:'true-shards',shards};
-    poseDamageShards(fractureEffect);
+    const fractureEffect={mesh:fracture,life:-delay,duration:beat.fatal?.68:.52,mode:'true-shards',shards};
+    fracture.visible=delay===0;
+    if(!delay)poseDamageShards(fractureEffect);
     scene.add(fracture);impacts.push(fractureEffect);
    }
    trueDamageCues=Math.min(1000000,trueDamageCues+1);ensureBound();
@@ -311,6 +317,8 @@ export function createCombatDirector(scene,{reducedMotion=false,actorById=null}=
   }
   for(let i=impacts.length-1;i>=0;i--){
    const effect=impacts[i];effect.life+=dt;
+   if(effect.life<0)continue; // Never show a pre-contact injury on a validated melee stroke.
+   effect.mesh.visible=true;
    if(effect.life>=effect.duration){cleanup(effect);impacts.splice(i,1);continue;}
    const t=effect.life/effect.duration;
    if(effect.mode==='true-shards'){

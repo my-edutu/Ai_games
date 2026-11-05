@@ -39,6 +39,41 @@ function matchedIncomingLane(snapshot,victim){
  const source=candidates[0];
  return Object.freeze({dx:victim.x-source.x,dz:victim.z-source.z,sourceId:source.id});
 }
+/**
+ * The authentic live-snapshot HP drop is immediate (including HUD and replay),
+ * but the source-skinned melee swing takes a short, visible wind-up before
+ * its blade reaches the opponent. Reconcile ONLY a witnessed non-fatal injury
+ * with a single explicitly targeted, legal adjacent real melee attack. This
+ * never asserts that the attacker caused the HP loss: a simultaneous hazard
+ * may still have dealt it. Ambiguous/ranged/fatal damage is never delayed.
+ *
+ * 215ms matches the existing opt-in true-impact audio presentation clock.
+ * Slow software WebGL advances this delay in capped RENDERED frames, not wall
+ * time, so the spectator does not miss contact during a long raster stall.
+ */
+export const VERIFIED_MELEE_CONTACT_DELAY=.215;
+export function planVerifiedMeleeImpactDelay(beat,snapshot,{reducedMotion=false}={}){
+ if(reducedMotion||beat?.fatal===true||
+    !Number.isSafeInteger(snapshot?.tick)||!Array.isArray(snapshot?.units)||
+    !Array.isArray(snapshot?.map)||!beat?.incoming||
+    !Number.isInteger(beat.x)||!Number.isInteger(beat.z)||
+    !Number.isInteger(beat.incoming.dx)||!Number.isInteger(beat.incoming.dz)||
+    typeof beat.id!=='string'||beat.id.length<1||beat.id.length>128||
+    typeof beat.incoming.sourceId!=='string')return 0;
+ const source=snapshot.units.find(u=>u?.id===beat.incoming.sourceId);
+ if(!source||source.hp<=0||source.faction===beat.faction||
+    !['vanguard','revenant','warden'].includes(source.kind)||
+    source.action!=='attack'||source.actionTick!==snapshot.tick||
+    source.targetId!==beat.id||
+    !Number.isInteger(source.x)||!Number.isInteger(source.z)||
+    snapshot.map[source.z]?.[source.x]!=='.'||
+    snapshot.map[beat.z]?.[beat.x]!=='.')return 0;
+ const dx=beat.x-source.x,dz=beat.z-source.z;
+ if(Math.abs(dx)+Math.abs(dz)!==1||
+    dx!==beat.incoming.dx||dz!==beat.incoming.dz)return 0;
+ return VERIFIED_MELEE_CONTACT_DELAY;
+}
+
 /** Signed, physically oriented flinch across the actual animated body. */
 export function resolveImpactSide(incoming,yaw=0){
  if(!incoming||!Number.isInteger(incoming.dx)||!Number.isInteger(incoming.dz)||

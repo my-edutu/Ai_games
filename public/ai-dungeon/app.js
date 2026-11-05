@@ -18,7 +18,7 @@ import {planPartyWallReveal,createCutawayBandCache,shouldUploadCutawayBand,resol
 import {planBoundaryCamera} from '/dungeon/camera-boundary-plan.js';
 import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
 import {planExpeditionStep,advanceExpeditionFootfall,planGroundedAnimation} from '/dungeon/expedition-locomotion-plan.js';
-import {planAuthorityDamageBeats,planDamageReaction,resolveImpactSide,planDefeatTableauPose,planImpactCameraHold,DAMAGE_BEAT_DURATION,DEATH_BEAT_DURATION} from '/dungeon/impact-choreography-plan.js';
+import {planAuthorityDamageBeats,planDamageReaction,resolveImpactSide,planDefeatTableauPose,planImpactCameraHold,planVerifiedMeleeImpactDelay,DAMAGE_BEAT_DURATION,DEATH_BEAT_DURATION} from '/dungeon/impact-choreography-plan.js';
 import {planAuthorityEvasions,EVASION_BEAT_DURATION} from '/dungeon/evasion-performance-plan.js';
 import {planPostFXBudget,adaptPostFXPixelCap,postFXStallAction,isSoftwareWebGLRenderer,createFrameIntervalProbe,planDirectRenderBudget,adaptDirectRenderPixelCap} from '/dungeon/postfx-budget.js';
 import {planCombatFacing,planMovementFacing,approachCharacterYaw,shortestYawDelta} from '/dungeon/facing-plan.js';
@@ -844,7 +844,7 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
  for(const [id,a] of actors)if(!seen.has(id)){disposeActor(a);actors.delete(id)}
  for(const u of s.units){let a=actors.get(u.id);if(!a){a=rig(u);a.ground=addContactProjection(a,{reducedMotion:reduced});actors.set(u.id,a);a.root.position.set(u.x-9,0,u.z-9);attachCharacter(a)}
   const damage=damageById.get(u.id);
-  if(damage)a.damageBeat={...damage,age:0};
+  if(damage)a.damageBeat={...damage,age:-planVerifiedMeleeImpactDelay(damage,s,{reducedMotion:reduced})};
   else if(u.hp>0&&a.damageBeat?.fatal)a.damageBeat=null;
   if(evadeById.has(u.id))a.evasionBeat={...evadeById.get(u.id),age:0};
   else if(sceneChanged||u.hp<=0)a.evasionBeat=null;
@@ -856,7 +856,7 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
    a.telegraph.material.color.set(s.bossPhase==='ECLIPSE'?'#c97aff':s.bossPhase==='RUPTURE'?'#ff9f62':'#ff7049');
   }}
  combatDirector.accept(s,camera.position);
- combatDirector.recordDamage(damageBeats);
+ combatDirector.recordDamage(damageBeats,s);
  combatDirector.recordEvasions(evasionBeats);
  world.userData.wardenRitual?.accept(s);
  world.userData.dressing?.accept?.(s);
@@ -1073,7 +1073,11 @@ function animate(t){
    a.impactPivot.position.set(lastStand.x,lastStand.y,lastStand.z);
    a.impactPivot.rotation.set(lastStand.pitch,0,lastStand.roll);
   }else if(a.damageBeat){
-   a.damageBeat.age=advancePresentationActionAge(a.damageBeat.age,dt);
+   // Preserve the short pre-contact (negative) presentation age. The HUD
+   // already shows real HP loss immediately; only physical body recoil waits
+   // for the source-skinned sword and the opt-in impact sound.
+   a.damageBeat.age=Math.min(5,(Number.isFinite(a.damageBeat.age)?a.damageBeat.age:0)+
+    Math.min(.05,Math.max(0,dt)));
    const recoil=planDamageReaction(a.u.kind,a.damageBeat.damage,a.damageBeat.maxHp,a.damageBeat.age,a.damageBeat.fatal,reduced,
     resolveImpactSide(a.damageBeat.incoming,a.root.rotation.y));
    a.impactPivot.position.set(recoil.x,recoil.y,recoil.z);
