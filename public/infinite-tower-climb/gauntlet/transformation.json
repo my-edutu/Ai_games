@@ -10,16 +10,16 @@
   "candidate": {
     "sha": null,
     "title": "OPEN same real 3D Tower guardian/crusher battle → source-earned falling armor, physically open gate, floor-nine ascent and outcome/restart; NOT EVALUATED",
-    "implementationSha": "087ef572904467362db715fbb103c03619d5fab3",
-    "implementationEvidenceStatus": "NOT EVALUATED. Real 3D implementation commits 21e86e6c (source-defeated armor physically collapses before floor advance), a84a7554 (actual dead-guardian and cap sightline hierarchy, real crusher retains urgent priority), 087ef572 (shared physical camera briefly acknowledges true defeated body before returning to already earned gate). Focused regression commits 702ad841, 419e0701, 27149218 with syntax repair 3bf2e11cf4947c38e74a812a7fba63432b2bee55. Older completed original-host 9/9 source film https://github.com/my-edutu/Ai_games/actions/runs/42066993923 on 76f61147 predates changes, not event-aligned or independently reviewed. Exact new-source normal-speed desktop/portrait recording https://github.com/my-edutu/Ai_games/actions/runs/42070503927 IN PROGRESS at last inspection. Source CI https://github.com/my-edutu/Ai_games/actions/runs/42070590850 FAILED due missing quote escape in newly written test (1030/1031 passed); syntax fixed at 3bf2e11cf4947c38e74a812a7fba63432b2bee55, fresh exact-head CI pending. Independent reviewer/browser tunnel disconnected, no blind votes, no supported-device frame-time tails or memory measurements. No quality PASS."
+    "implementationSha": "6e7a771745e6996fb68e5e71d98d4a4f0954ee17",
+    "implementationEvidenceStatus": "NOT EVALUATED: 6e7a7717 adds a recognizably articulated source-defeated 12-plate guardian, one eight-segment instanced broken power connection between authentic defeated body and earned bronze gate, and opt-in same-floor physical discharge sound. The full original-host source-pinned 9/9 desktop+portrait WebM captures at https://github.com/my-edutu/Ai_games/actions/runs/42070503927 succeeded but capture PREVIOUS source 087ef572904467362db715fbb103c03619d5fab3. No real full-motion capture or blind grading of new 6e7a7717 source. Exact-head technical CI pending; prior 27149218 test syntax failure fixed at 3bf2e11c, previous 905873b1 CI queued. Browser/worker tunnel disconnected (NOT_FOUND), supported-device hardware frame time and memory unmeasured. Baseline unchanged, no independent score or PASS."
   },
   "currentTransformation": {
     "title": "SAME playable real 3D Tower climb and authentic upper-cap guardian/crusher encounter: earned armor-opening, damage feedback, safe movement and eventual floor-nine continuation",
-    "state": "OPEN — same playable real upper-cap guardian/crusher/bolt encounter through genuine source-zero-HP armor collapse, readable clockwork scene, existing physical bronze door, floor nine, outcome/restart; NORMAL-SPEED REAL FOOTAGE/BLIND REVIEW NOT EVALUATED.",
+    "state": "OPEN — same real 3D Tower guardian/crusher/bolt encounter through source-zero-HP articulated armor collapse, physical power break, earned bronze door and floor-nine continuation. Experience acceptance NOT EVALUATED.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Inspect complete normal-speed source-pinned desktop 960×600 / portrait 390×844 recordings of 087ef572904467362db715fbb103c03619d5fab3 at https://github.com/my-edutu/Ai_games/actions/runs/42070503927; confirm 3 required >=60s old/new clips show authentic guardian-zero-HP armor fall and physical doorway crossing, not merely source logs. Earlier complete 9/9 original-host source https://github.com/my-edutu/Ai_games/actions/runs/42066993923 is old. Verify new CI after syntax fix 3bf2e11cf4947c38e74a812a7fba63432b2bee55; last https://github.com/my-edutu/Ai_games/actions/runs/42070590850 failed one syntax test before the fix. No independent worker/browser tunnel (NOT FOUND). Obtain >=5 genuine blind independent full-motion judgments with >=4/5 preference EACH in LOOKS, FEELS, PLAYS and supported-device p50/p95/p99+memory; no regressions.",
+    "nextDecision": "Capture and inspect original source-pinned normal-speed desktop 960×600 and portrait 390×844 actual 6e7a771745e6996fb68e5e71d98d4a4f0954ee17 gameplay across three complete scenarios; previous 9/9 baseline+candidate recording https://github.com/my-edutu/Ai_games/actions/runs/42070503927 predates the newest playable source. Check latest exact-head CI, then independent randomized fresh-context 5-person blind review on actual full-motion event-matched clips and supported-device tails; no quality win until all pillars >=4/5 and guardrails pass.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "The entire source-earned guardian defeat, visible armor collapse, opening and crossing the real gate, floor-nine continuation and authentic outcome/restart must appear in continuous, source-matched original-browser desktop and portrait footage; matched-seed older clips predate this work. No independent blind full-motion judgments (LOOKS/FEELS/PLAYS 0/5 each) or supported-device frame-time p50/p95/p99 and memory evidence. No claim of experience superiority.",
+    "biggestRemainingExperienceGap": "Actual native full-motion desktop+portrait 60s+ playback must demonstrate that the new recognizable defeated guardian body, broken power conduit, safe crusher dodge and physically opened cap form a legible continuous victory->gate crossing->floor-nine->outcome/restart, compared at event-matched source moments with unchanged baseline. Independent randomized critics LOOKS/FEELS/PLAYS 0/5 each; device p50/p95/p99 and memory not measured.",
     "unverifiedImplementationBranchHead": "3bf2e11cf4947c38e74a812a7fba63432b2bee55",
     "currentVerticalSlice": "One cohesive 3D victory-to-ascent continuation: deterministic guardian fight, physically observed collapse at the inactive zero-health source body, still-clear stage sightlines, existing source-unlocked bronze exit, bounded shared camera body acknowledgment and continuous old/new-floor pose. The scene is a presentation adapter only; physics/AI/floors/HUD/replay remain source-owned. Actual source 087ef572904467362db715fbb103c03619d5fab3; contracts 3bf2e11cf4947c38e74a812a7fba63432b2bee55.",
     "biggestGap": "The entire source-earned guardian defeat, visible armor collapse, opening and crossing the real gate, floor-nine continuation and authentic outcome/restart must appear in continuous, source-matched original-browser desktop and portrait footage; matched-seed older clips predate this work. No independent blind full-motion judgments (LOOKS/FEELS/PLAYS 0/5 each) or supported-device frame-time p50/p95/p99 and memory evidence. No claim of experience superiority."
@@ -62,11 +62,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Exact-head safety on previous 76f61147 source at https://github.com/my-edutu/Ai_games/actions/runs/42066993932 SUCCESS. New guardian-collapse test branch 27149218 safety https://github.com/my-edutu/Ai_games/actions/runs/42070590850 FAILED one SyntaxError from a newly written test; source and other tests had 1030/1031 passes, not a green safety gate. Syntax corrected 3bf2e11cf4947c38e74a812a7fba63432b2bee55; new exact-head CI pending. CI always only a veto, never a quality score.",
-    "replay": "Pure visual observation of source-owned inactive, zero-health, current-floor guardian and exact cap, real source position, same run/floor/tick. Armor/camera clock continues between already-observed source packets and across authentic floor transition; duplicate/stale reset cannot fabricate death, current simulation or hit. Tests added and CI rerun pending after syntax repair. Deterministic source authority unchanged.",
-    "accessibility": "Existing minimal HUD, sound opt-in/mute, actual source cues and full-body camera safe-frame remain. Source-earned armor geometry and entrance are depth-tested, world-space, not color-only marker; reduced-motion shows static settled armor. No independent full-motion portrait/desktop accessibility acceptance yet.",
-    "performance": "Existing bounded 12 instanced cosmetic armor blocks, reused camera focus vector and existing scenery hierarchy and lights, no extra shader pass, collider, shadow light or geometry per frame. Actual supported-device desktop/mobile p50/p95/p99 and memory NOT MEASURED; CI software WebGL submission numbers are not native FPS.",
-    "stability": "Source-pinned earlier https://github.com/my-edutu/Ai_games/actions/runs/42066993923 9/9 jobs succeeded at frozen baseline versus 76f61147 old candidate, not the 087ef572904467362db715fbb103c03619d5fab3 source. New https://github.com/my-edutu/Ai_games/actions/runs/42070503927 in progress at last inspection; no full-motion criticism. Test syntax failure from https://github.com/my-edutu/Ai_games/actions/runs/42070590850 repaired 3bf2e11cf4947c38e74a812a7fba63432b2bee55, later final CI not yet known. PR68 draft; PR58 untouched; no merge/deploy/force-push; reviewers/browser/hardware disconnected."
+    "ci": "Safety gate for NEW 6e7a7717 source is not yet known. Prior head 905873b1 workflow https://github.com/my-edutu/Ai_games/actions/runs/42071649409 was queued on last check. Earlier CI https://github.com/my-edutu/Ai_games/actions/runs/42070590850 FAILED one new-test syntax error, corrected at 3bf2e11c. New code adds one physical guardian-power conduit instanced render draw and contract checks. Technical CI is veto only, never a quality score.",
+    "replay": "Guardian death model and power link derive only from source-owned current-run, current-floor, inactive zero-HP guardian and actual cap position; same-run witnessed transition carries local armor age without restarting it. Render presentation changes no damage, path, progression, clock ticks or fixed-step replay checksums. Stale observations do not advance effect, duplicate source does not invent extra defeat.",
+    "accessibility": "One original recognizable 12-plate body collapse and visually distinct 8-segment power link connect real boss with earned doorway. Reduced motion displays a settled static body and hides animated link; cue remains opt-in/mute with the existing source/audio lifecycle; essential door opening remains physical, not color-only. Actual desktop/portrait accessibility inspection outstanding.",
+    "performance": "One additional short-lived original InstancedMesh draw of eight segments, reusing existing box geometry and glow material; no new geometry, lights, shadows or simulation collision. No measured supported-device p50/p95/p99 frame times or memory; no native FPS claim.",
+    "stability": "Earlier complete 9/9 original-host desktop+portrait capture https://github.com/my-edutu/Ai_games/actions/runs/42070503927 SUCCESS at previous 087ef572 source, NOT a validation of new 6e7a7717 source. No direct local terminal/browser test because worker tunnel NOT_FOUND. New-source CI and capture pending, PR68 draft and PR58 untouched; no merge, force-push or deployment."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -147,9 +147,9 @@
         }
       }
     },
-    "newImplementationSha": "087ef572904467362db715fbb103c03619d5fab3",
+    "newImplementationSha": "6e7a771745e6996fb68e5e71d98d4a4f0954ee17",
     "newImplementationRecorded": false,
-    "reviewPath": "docs/reviews/2026-11-05-tower-pr68-physical-guardian-defeat-into-earned-ascent.md",
+    "reviewPath": "docs/reviews/2026-11-05-tower-pr68-articulated-guardian-power-break-continuation.md",
     "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41547983114",
     "followupStatus": "On 2026-11-03, source-pinned run 41547983114 completed 8/9 jobs: baseline+old-candidate desktop/portrait normal-speed ascent, danger, moving, outcome all SUCCESS as capture jobs; authentic-ledge FAILED because source play yielded no qualifying actual ledge event within 2500 fixed ticks (four desktop/portrait browser tests). Old candidate 133ce1a8, frozen baseline 1731b380. New candidate 4398a157 still awaits exact-source recorded gameplay, blind votes, supported-device measurements. No experience preference awarded.",
     "matchedCaptureSettings": {
@@ -3526,6 +3526,21 @@
       "blocked": "Disconnected worker/browser tunnel; no fresh-context blind randomized full-motion critic or local supported-device observations",
       "biggestRemainingExperienceGap": "The entire source-earned guardian defeat, visible armor collapse, opening and crossing the real gate, floor-nine continuation and authentic outcome/restart must appear in continuous, source-matched original-browser desktop and portrait footage; matched-seed older clips predate this work. No independent blind full-motion judgments (LOOKS/FEELS/PLAYS 0/5 each) or supported-device frame-time p50/p95/p99 and memory evidence. No claim of experience superiority.",
       "review": "docs/reviews/2026-11-05-tower-pr68-physical-guardian-defeat-into-earned-ascent.md"
+    },
+    "latestGuardianAftermath": {
+      "sourceSha": "6e7a771745e6996fb68e5e71d98d4a4f0954ee17",
+      "recordingStatus": "NOT EVALUATED / NOT YET RECORDED ON NEW SOURCE",
+      "olderSuccessfulRun": "https://github.com/my-edutu/Ai_games/actions/runs/42070503927",
+      "olderSuccessfulRunSourceSha": "087ef572904467362db715fbb103c03619d5fab3",
+      "implementation": "Source-owned articulated 12-plate boss physical collapse, 8-part instanced guardian-to-gate power break, one opt-in same-floor power-snap audio cue; original 3D authored assets only",
+      "realSourceVideo": "MISSING",
+      "independentBlindVotes": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "deviceFrameTimeAndMemory": "NOT MEASURED",
+      "browserCriticBlocker": "NOT_FOUND tunnel client disconnected >300s"
     }
   }
 }
