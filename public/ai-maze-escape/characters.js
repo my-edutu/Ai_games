@@ -619,6 +619,18 @@ export function createWarden(options = {}) {
     ball(antenna,red,[side*.2,.49,.23],[.036,.047,.035]);
     antennae.push({antenna,side});
   }
+  // Guard panels sit folded against Thornback's existing forecarapace.
+  // On a CURRENTLY WITNESSED brace their real hinges rise above the shell,
+  // so a mobile camera reads an actual silhouette rather than tiny feet.
+  // These are original permanent meshes, not threat indicators or new AI.
+  const shoulderGuards=[];
+  for (const side of [-1,1]) {
+    const guard=pivot(body,`articulated guardian shoulder guard ${side}`,[side*.35,.22,.22]);
+    rounded(guard,plates,[side*.15,.07,.29],[.45,.12,.59],.065);
+    rounded(guard,bronze,[side*.15,.14,.29],[.30,.055,.37],.028);
+    bar(guard,claw,[0,0,0],[side*.15,.10,.25],.041);
+    shoulderGuards.push({guard,side});
+  }
   const legs=[];
   for (const side of [-1,1]) for (let i=0;i<3;i++) {
     const z=.36-i*.36;
@@ -673,6 +685,13 @@ export function createWarden(options = {}) {
     // during the publicly witnessed middle beat; retract on shell release.
     // No solver, collision, secret-state or authority changes.
     const defensiveSweep=plantedClaws*alert;
+    // The connected forward guards lift on the middle public beat and
+    // fold flat when shell-release begins. Rest and withdrawal are exact
+    // neutral rotations, with no new objects in the animation loop.
+    for (const {guard,side} of shoulderGuards) {
+      guard.rotation.x=defensiveSweep>0?-defensiveSweep*1.45:0;
+      guard.rotation.z=defensiveSweep>0?side*defensiveSweep*.28:0;
+    }
     // Real 390px chronological WebGL review: the old .38-open initial
     // wings looked nearly the same as the release beat at gameplay scale.
     // Keep the physically recognizable first armor silhouette, then open
