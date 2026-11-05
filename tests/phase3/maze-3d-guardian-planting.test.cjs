@@ -207,7 +207,11 @@ test('Pip physically guards its face at the same witnessed Thornback middle beat
     pip.update({...cue,attentionHeading:undefined,attentionStrength:0});
     assert.deepEqual(pose(),withdrawn,'hidden guardian clock must not affect the character');
     pip.update({...cue,result:'capture',guardianEncounterBeat:.5});
-    assert.deepEqual(pose(),withdrawn,'terminal action cannot preserve an unseen defense');
+    const terminal=pose();
+    assert.deepEqual(terminal.slice(0,3),withdrawn.slice(0,3),
+      'terminal result clears all newly staged shoulder/elbow defense');
+    assert.equal(terminal[3],.32,
+      'the existing real loss expression closes Pip eyes; do not replace it with a neutral gaze');
     const after=new Set();
     pip.group.traverse(node=>{
       if(node.geometry) after.add(node.geometry);
