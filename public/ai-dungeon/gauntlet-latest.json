@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedAt": "2026-11-05",
-  "status": "IN PROGRESS — NOT TRANSFORMED (truth-locked HP injury audio + shared melee contact sound implementation candidate; no exact-head audiovisual A/B)",
+  "status": "IN PROGRESS — NOT TRANSFORMED (truth-linked mobile 3D combat staging source candidate; genuine AFTER audiovisual A/B unavailable)",
   "reference": "Diablo IV dungeon presentation / No Rest for the Wicked sculpted worlds / Path of Exile 2 attack clarity; no matched baseline A/B or official fidelity score",
   "metrics": {
     "sample_seeds": 24,
@@ -208,29 +208,29 @@
       "elapsedMs": 818
     }
   ],
-  "visualVerdict": "UNVERIFIED: no matched authentic continuous desktop/mobile 3D footage with original sound and no blind majority versus immutable baseline.",
+  "visualVerdict": "UNVERIFIED: actual new-head 74/78svh mobile battle/column cutaway, continuous audiovisual film, same-seed baseline A/B and blinded critic preference absent.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
-  "candidateCommit": "a02eff231c52b5105a9f41fee78227c85720b40b",
+  "candidateCommit": "043b3591e49d8585fa5024f9d38f6a4b400d1602",
   "metricsProvenance": "Local current-source 9af59bc npm run dungeon:test 309/309, npm run dungeon:gauntlet 24 seeds ×900 ticks: 174 advances, 4 restarts, 0 determinism mismatches. No claim for visual quality.",
   "transformation": {
     "milestoneId": "DUNGEON-TRANSFORMATION-01",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
     "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
-    "candidateCodeCommit": "a02eff231c52b5105a9f41fee78227c85720b40b",
+    "candidateCodeCommit": "043b3591e49d8585fa5024f9d38f6a4b400d1602",
     "looks": "UNVERIFIED",
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
     "critics": 0,
     "originalAudioMotion": "UNVERIFIED",
     "afterBrowser": "UNVERIFIED",
-    "nextTask": "Capture actual exact-head opted-in desktop/mobile 3D movement and PCM to prove injury-contact sound sync; address native hero/foe and Warden combat quality, complete all five organic stages, obtain >=3 blinded critics against locked M1 BEFORE."
+    "nextTask": "Watch exact 043b359 real desktop/390px boss release and normal combat (audio enabled), inspect 74/78svh stage and obscured column, verify module/CI/seed/replay and performance, then develop full-body and boss encounter quality and compare pinned baseline continuous five-stage A/B with 3 independent blind critics."
   },
   "acceptanceStatus": "NOT TRANSFORMED — 0/3 blind independent critics; no matched continuous desktop/mobile audiovisual 5-stage adventure.",
-  "latestCandidateSha": "a02eff231c52b5105a9f41fee78227c85720b40b",
-  "latestImplementation": "Original opted-in sound now scores verified HP loss during all real actions and true deaths; same legal adjacent melee proof stages sound and skinned recoil/3D fragments on the shared 215ms rendered beat. Unreal/fatal/ranged/motion-reduced damage remains immediate. Running-game experience UNVERIFIED.",
-  "biggestRemainingGap": "Native full-body adult silhouettes, readable physical Warden confrontation and actual long-form mobile/desktop combat sound/motion; source-level audio correctness alone is not transformation.",
-  "nextImplementationTask": "Capture actual exact-head opted-in desktop/mobile 3D movement and PCM to prove injury-contact sound sync; address native hero/foe and Warden combat quality, complete all five organic stages, obtain >=3 blinded critics against locked M1 BEFORE.",
-  "candidateSafety": "Current a02eff2 code pushed safely; exact-head Dungeon/browser/replay/CI and real audio clip UNVERIFIED. Prior f4598d3 visual-review PASSED, Dungeon/CI CANCELLED. Original seed campaign numbers are historical, not this code-head validation."
+  "latestCandidateSha": "043b3591e49d8585fa5024f9d38f6a4b400d1602",
+  "latestImplementation": "Real-unit-driven mobile combat viewport at 74svh and Warden at 78svh with compact three-person real HP cards; extend depth- and body-projection-gated physical portrait foreground prop removal to 7.1m; no game authority edits. Full desktop/mobile moving game UNVERIFIED.",
+  "biggestRemainingGap": "Convincing full-body 3D character and Warden attack contact, foreground film and boss challenge in genuine continuous autonomous desktop/mobile gameplay; true combat viewport remains unverified in motion.",
+  "nextImplementationTask": "Watch exact 043b359 real desktop/390px boss release and normal combat (audio enabled), inspect 74/78svh stage and obscured column, verify module/CI/seed/replay and performance, then develop full-body and boss encounter quality and compare pinned baseline continuous five-stage A/B with 3 independent blind critics.",
+  "candidateSafety": "Source 043b359 committed on existing draft. Planner in-memory smoke only; new exact-head Node tests, browser, authority, replay, catalogue CI and mobile performance UNVERIFIED."
 }
