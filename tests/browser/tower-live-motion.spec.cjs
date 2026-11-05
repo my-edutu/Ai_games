@@ -5,6 +5,7 @@ const { createHash } = require('node:crypto');
 const { test, expect } = require('@playwright/test');
 const { assessTowerMotion } = require('../../scripts/tower-motion-evidence.cjs');
 const { summarizeTowerCrossfire } = require('../../scripts/tower-crossfire-evidence.cjs');
+const { indexTowerCaptureEvents } = require('../../scripts/tower-event-alignment.cjs');
 
 // No intercepted snapshots, replay scrubbing, virtual time, time acceleration or
 // post-processed poses: this visits the live, seeded 20 Hz expedition host.
@@ -336,6 +337,51 @@ for (const viewport of viewports) {
       if(witnessed.length>256) witnessed.shift();
     },50);
   });
+  // Read-only event locator for ALL eight source-pinned recordings, including
+  // the immutable baseline host (which has no /tower/capture-trace endpoint).
+  // Never alter frozen source, its 20Hz clock, AI decisions or video pixels.
+  await page.evaluate(() => {
+    const samples = [];
+    window.__TOWER_CAPTURE_PUBLIC_TICKS__ = samples;
+    window.__TOWER_CAPTURE_PUBLIC_TICK_DROPS__ = 0;
+    let lastKey = '';
+    window.__TOWER_CAPTURE_PUBLIC_TICK_TIMER__ = setInterval(() => {
+      const s = window.__TOWER_PUBLIC_STATE__;
+      if (!s || typeof s.runToken !== 'string' || !s.runToken ||
+        !Number.isSafeInteger(s.tick) || !Number.isSafeInteger(s.floor) ||
+        typeof s.lifecycle !== 'string') return;
+      const key = s.runToken + ':' + s.tick + ':' + s.lifecycle;
+      if (key === lastKey) return;
+      lastKey = key;
+      samples.push({
+        atMs: Date.now(), tick:s.tick, floor:s.floor,
+        runToken:s.runToken, lifecycle:s.lifecycle,
+        checksum:typeof s.publicChecksum==='string'?s.publicChecksum:null,
+        result:s.result ? {kind:s.result.kind,reason:s.result.reason}:null,
+        routeTarget:typeof s.intent?.targetPlatformId==='string'
+          ? s.intent.targetPlatformId:null,
+        guardians:(s.enemies||[]).filter(g=>g?.kind==='guardian' &&
+          Number.isFinite(g.health)).map(g=>({
+          id:typeof g.id==='string'?g.id:null,active:g.active===true,
+          health:g.health,maxHealth:Number.isFinite(g.maxHealth)?g.maxHealth:null,
+        })),
+        scheduledHazardCharges:(s.hazards||[]).filter(h=>
+          !h.active && typeof h.id==='string' && h.id &&
+          Number.isSafeInteger(h.chargeTicksRemaining) &&
+          h.chargeTicksRemaining>=1 && h.chargeTicksRemaining<=12)
+          .slice(0,8).map(h=>({id:h.id,kind:h.kind,
+            chargeTicksRemaining:h.chargeTicksRemaining})),
+        movingDecks:(s.platforms||[]).filter(p=>p?.kind==='moving' &&
+          typeof p.id==='string' && Number.isFinite(p.x) &&
+          Number.isFinite(p.y)).slice(0,8)
+          .map(p=>({id:p.id,x:p.x,y:p.y})),
+      });
+      if (samples.length > 2200) {
+        samples.shift();
+        window.__TOWER_CAPTURE_PUBLIC_TICK_DROPS__++;
+      }
+    }, 50);
+  });
   await sample(0);
   // The frozen baseline can have a one-tick terminal phase; an authentic
   // frame still may not be present in composited video. Do not imply a visible
@@ -350,6 +396,11 @@ for (const viewport of viewports) {
     await page.waitForTimeout(cadenceMs);
     await sample(i);
   }
+  const passiveSourceTicks = await page.evaluate(() => {
+    clearInterval(window.__TOWER_CAPTURE_PUBLIC_TICK_TIMER__);
+    return {ticks:[...(window.__TOWER_CAPTURE_PUBLIC_TICKS__||[])],
+      dropped:window.__TOWER_CAPTURE_PUBLIC_TICK_DROPS__||0};
+  });
   const outcomeWitness = scenario === 'outcome' ?
     await page.evaluate(() => {
       clearInterval(window.__TOWER_CAPTURE_RESULT_WITNESS_TIMER__);
@@ -395,6 +446,20 @@ for (const viewport of viewports) {
   if (trace) fs.writeFileSync(path.join(dir, 'source-trace.json'),
     JSON.stringify(trace, null, 2));
   const sourceTicks = Array.isArray(trace?.ticks) ? trace.ticks : [];
+  // Same passive public-state method for BOTH builds: the frozen source host
+  // cannot supply the newer candidate-only /tower/capture-trace endpoint.
+  // Source event offsets are search handles, NOT calibrated WebM timecodes.
+  const eventIndex = indexTowerCaptureEvents(passiveSourceTicks.ticks,
+    observations, {
+      sourceSha:process.env.TOWER_CAPTURE_SOURCE_SHA||process.env.GITHUB_SHA||null,
+      scenario, viewport, seed:process.env.TOWER_SEED||'tower-stream-reference',
+      quality:'low',
+    });
+  eventIndex.passiveSampleDrops = passiveSourceTicks.dropped;
+  eventIndex.hostFixedStepTraceAvailable = !!trace;
+  fs.writeFileSync(path.join(dir,'event-index.json'),
+    JSON.stringify(eventIndex,null,2));
+
   const sourceMovingSamples = observations.filter(o => o.sourceMovingDecks?.length);
   const observedMovingPositions = sourceMovingSamples.flatMap(o =>
     o.sourceMovingDecks.map(platform =>
@@ -460,6 +525,10 @@ for (const viewport of viewports) {
     sampledActorUnsafe: observations.filter(item => item.observedActor?.inSafeFrame === false).length,
     capturedAt: new Date().toISOString(), observations, assessment,
     sourcePhaseSummary, sourceMovingSummary, outcomeWitness,
+    eventIndexSummary: {sourceTicksObserved:eventIndex.sourceTicksObserved,
+      sourceUnobservedTicks:eventIndex.unobservedFixedStepTicks,
+      eventCounts:eventIndex.eventCounts, eventMatched:false,
+      eventIndexFile:'event-index.json'},
     crossfireSummary, crossfireWitnesses, guardianReleaseWitnesses, errors,
     independentReview: false,
     gates: { captureIntegrity: assessment.scopedPass ? 'PASS' : 'FAIL',
