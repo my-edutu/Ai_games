@@ -167,6 +167,7 @@ export function createTowerGuardianPassage(THREE) {
   }
   const shardTransform = new THREE.Object3D();
   const focusPosition = new THREE.Vector3();
+  const defeatFocus = new THREE.Vector3();
   const clampUnit = v => Math.max(0, Math.min(1, v));
   function poseFragments(seconds, still) {
     fragments.visible = !still && seconds < 1.7;
@@ -325,14 +326,26 @@ export function createTowerGuardianPassage(THREE) {
       ? Math.max(.55 * clamp(1 - age / 2.4), .32 * approachOpen)
       : clamp(1 - age / 1.35);
   }
+  // The first authentic post-defeat camera beat acknowledges the actual
+  // fallen enemy BEFORE turning fully toward the unlocked summit door. The
+  // old exterior camera still protects the actor's safe frame; this bounded
+  // shared target never commands a cut, zoom, future path or simulation tick.
+  function defeatFocusWeight() {
+    return group.visible && stage === 'earned-open' && witnessedGuardian
+      ? .52 * clamp(1 - defeatAge / 1.45) * (1 - approachOpen) : 0;
+  }
   function focusPoint() {
-    return group.visible ? focusPosition : null;
+    if (!group.visible) return null;
+    const weight = defeatFocusWeight();
+    if (!weight) return focusPosition;
+    return defeatFocus.copy(focusPosition).lerp(guardianWorld, weight);
   }
   function diagnostics() {
     return { sourceBound: true, active: group.visible, stage, runToken,
       floor, sourceTick, ageSeconds: age, defeatAgeSeconds: defeatAge,
       durationSeconds: duration,
       sourceMeasuredApproachOpen: approachOpen,
+      sourceMeasuredDefeatFocusWeight: Number(defeatFocusWeight().toFixed(4)),
       // Public world-space source-pinned anchor for inspecting actual full
       // motion; no fabricated win, private event or gameplay mutation.
       anchorPosition: group.visible ? group.position.toArray() : null,
