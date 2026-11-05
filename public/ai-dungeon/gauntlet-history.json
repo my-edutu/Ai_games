@@ -2194,7 +2194,7 @@
         "playsMajority": false,
         "provenance": "No worker/critic session available, no masked verdicts."
       },
-      "safetyChecks": "Parent 7c635ed: authority PASS, visual review PASS, Chromium browser shards 2+3 PASS; shard1 28/29 with real 7-versus-4 chapter draw-batch failure; full catalogue CI CANCELLED. Candidate 0fc87fe fuses four original 3D relief geometries into one chapter draw; exact-head browser/authority/security/replay results UNVERIFIED.",
+      "safetyChecks": "Current corrected 5917e0d exact-head Dungeon/browser/replay/visual/CI pending results; initial 67bcf6e authority 319/320 passed and one genuine new source-integration assertion failed; repaired in candidate. No safety green claimed, no acceptance.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "UNVERIFIED: reviewed prior workflow has short video-only clips; need original browser sound stream and measured audio with real combat.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
@@ -2474,12 +2474,28 @@
         "sha": "6d8ec86f4ecb4dc376cc4b26dee41aabe20e3b1d",
         "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41998886303/artifacts/13402137562",
         "finding": "Inspected actual 1440x832 original world-only Chromium frame with tiny stylized native actors, close Gothic dark pillar occlusion, repetitive square floor art and broken group composition. Source-only candidate 851c4a3 is not demonstrated superior."
+      },
+      "latestPortraitSource": {
+        "codeCommit": "5917e0d4177292f57421c83b191abf2c00877a24",
+        "initialCommit": "67bcf6e399065fcf36d6417a837311f02b159e26",
+        "sourceParent": "43a5e8e8447bdbb5a32ea43dbe29af2216f93318",
+        "originalBrowserBefore": "https://github.com/my-edutu/Ai_games/actions/runs/42024712117/artifacts/13413418181",
+        "after": "UNVERIFIED",
+        "desktop": "UNVERIFIED",
+        "mobile": "UNVERIFIED",
+        "audio": "UNVERIFIED",
+        "frameP95": "UNVERIFIED",
+        "critics": "0/3",
+        "firstCandidateAuthority": "FAILED: 1/320 — unconnected authored-prop source assertion, fixed in follow-up commit",
+        "dungeonWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42032452761",
+        "visualWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42032452500",
+        "catalogueWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42032452909"
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Native believable adult-scale whole-body characters, differentiated readable Warden weapon impact, unoccluded moving combat; matched five-stage original desktop/mobile audiovisual journey and 3 fresh blind critics still missing.",
-    "currentWork": "Actual native forged swordcourt architecture preserved in a four-instanced-batch 3D surface with physical multi-ring/blade relief, live encounter key lighting and true HP wound accent; code committed but real exact-head visual results unverified.",
-    "candidateCommit": "0fc87fea2da9620d9448a6d23627a2b862e7245d",
+    "biggestRemainingGap": "Still toy-like native figures, ambiguous blade/body contact and cluttered Warden fight; portrait combat clearance is a source-level candidate, not a full five-stage transformation.",
+    "currentWork": "Authentic portrait-only live combat acting-space physically clears obstructive original 3D foreground props around rendered, living skinned fighters; attached to scene dressing, local and asynchronous authored models. Exact-head running-game effect UNVERIFIED.",
+    "candidateCommit": "5917e0d4177292f57421c83b191abf2c00877a24",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -5462,6 +5478,23 @@
         "performance": "Actual latest-head GPU or mobile performance NOT MEASURED. Source-level draw-batch count contract restored; real desktop/mobile WebGL and browser suite must verify.",
         "next": "Review matched real desktop/mobile gameplay and the Warden confrontation; reject changes if fused PBR reliefs clip, darken unreadably or reduce motion. Build coherent full five-stage audio+video reel, original locked-baseline A/B and 3 independent blind looks/feels/plays critics.",
         "experienceVerdict": "IN_PROGRESS / NOT_TRANSFORMED; LOOKS, FEELS, PLAYS UNVERIFIED; 0/3 critics. No aesthetic victory or full CI pass claimed."
+      },
+      {
+        "id": "M1-PORTRAIT-COMBAT-ACTING-20261105",
+        "date": "2026-11-05",
+        "sourceCommit": "5917e0d4177292f57421c83b191abf2c00877a24",
+        "initialCommit": "67bcf6e399065fcf36d6417a837311f02b159e26",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "status": "SOURCE_CANDIDATE_UNVERIFIED",
+        "objective": "Keep genuinely living native 3D fighters and weapon/dodge lanes visible amid original tall monument geometry in real mobile combat without deleting rear dungeon or changing AI.",
+        "files": [
+          "public/ai-dungeon/party-visibility-plan.js",
+          "public/ai-dungeon/environment.js",
+          "public/ai-dungeon/app.js",
+          "tests/foundation/dungeon-party-visibility.test.cjs"
+        ],
+        "verification": "First code 1/320 authority test failed because actual integration was missing; repaired source committed. New exact-head browser/authority/CI and real A/B pending. Critics 0/3.",
+        "next": "Inspect original motion from current exact-head mobile+desktop; continue native character and boss encounter quality and complete five-stage audiovisual A/B."
       }
     ],
     "implementationContinuation": {
@@ -5484,9 +5517,9 @@
       "status": "SOURCE_CANDIDATE_EXACT_HEAD_BROWSER_UNVERIFIED",
       "qualityVerdict": "UNVERIFIED"
     },
-    "lastCandidateSha": "0fc87fea2da9620d9448a6d23627a2b862e7245d",
+    "lastCandidateSha": "5917e0d4177292f57421c83b191abf2c00877a24",
     "experienceVerdict": "M1 NOT TRANSFORMED — LOOKS / FEELS / PLAYS UNVERIFIED; zero independent critics",
     "criticReadiness": "0/3; exact-head desktop/mobile moving sound captures, matched fixed-baseline A/B and natural progression unverified",
-    "nextImplementationTask": "Check exact-head Chromium desktop/mobile relief and moving Warden combat versus fixed baseline 281735d; reject clipping/darkening, measure chapter draw-batches and frame delivery, then develop original skinned body/contact and entire authentic 5-stage audiovisual reel for blinded critics."
+    "nextImplementationTask": "Inspect original 1440 desktop and 390 mobile moving game after exact 5917e0d, verify authored-prop clearance without excessive environment erasure or frame-time regression, then integrate native adult-scale skinned contact and Warden tactics, create genuine original-audio complete scenario reel, masked A/B and >=3 independent critics."
   }
 }

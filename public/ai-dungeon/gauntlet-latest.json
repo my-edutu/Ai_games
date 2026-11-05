@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "generatedAt": "2026-11-05",
-  "status": "IN PROGRESS — NOT TRANSFORMED (genuine existing 3D forged courtyard batched in original four-instanced-draw chapter budget; actual exact-head browser and critics UNVERIFIED)",
-  "reference": "Diablo IV quality, No Rest for the Wicked worlds, Path of Exile 2 combat: authentic comparison targeted; matched A/B UNVERIFIED",
+  "status": "IN PROGRESS — NOT TRANSFORMED (portrait combat 3D foreground clearance source candidate 5917e0d; exact-head live AFTER and critics UNVERIFIED)",
+  "reference": "Diablo IV dungeon presentation / No Rest for the Wicked sculpted worlds / Path of Exile 2 attack clarity; no matched baseline A/B or official fidelity score",
   "metrics": {
     "sample_seeds": 24,
     "ticks_per_seed": 900,
@@ -214,37 +214,18 @@
   "candidateCommit": "0fc87fea2da9620d9448a6d23627a2b862e7245d",
   "metricsProvenance": "Local current-source 9af59bc npm run dungeon:test 309/309, npm run dungeon:gauntlet 24 seeds ×900 ticks: 174 advances, 4 restarts, 0 determinism mismatches. No claim for visual quality.",
   "transformation": {
-    "milestone": "M1",
-    "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
-    "locked": true,
-    "candidateSha": "0fc87fea2da9620d9448a6d23627a2b862e7245d",
+    "milestoneId": "DUNGEON-TRANSFORMATION-01",
     "status": "IN_PROGRESS",
     "verdict": "NOT_TRANSFORMED",
-    "exactHeadSafety": "Parent 7c635ed: authority PASS, Chromium shard2+shard3 PASS, shard1 28/29 FAIL due actual 7 chapter draw batches versus budget 4; visual-review PASS; full catalogue CI CANCELLED. Source candidate 0fc87fe browser, mobile, replay/security/performance UNVERIFIED.",
+    "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+    "candidateCodeCommit": "5917e0d4177292f57421c83b191abf2c00877a24",
     "looks": "UNVERIFIED",
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
-    "blindCritics": {
-      "observed": 0,
-      "required": 3,
-      "majorityAllPillars": false
-    },
-    "fullDesktopMobileAudiovisualJourney": "UNVERIFIED",
-    "realPredecessorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41972664128/artifacts/13390932627",
-    "exactHeadAction": "Inspect source 1b9bbc3e92af93a52531fba3466935dbd41ae475 genuine desktop/mobile 3D focus and combat with sound, reject camera jitter, mobile crop and body occlusion. Follow full journey and blind A/B before acceptance.",
-    "biggestGap": "Native adult-scale whole-body actor silhouette and legible sword-to-body Warden combat, plus continuous five-stage audiovisual matched A/B",
-    "nextTask": "Inspect actual current-head desktop and mobile WebGL, including physical relief contrast and 4 capped draws; match pinned SHA 281735d gameplay and build true multi-stage synchronized audio/motion journey, then 3 independent blind critics.",
-    "currentMilestoneLedger": "public/ai-dungeon/gauntlet-history.json",
-    "realAfterArtifact": null,
-    "realAfterObservation": "UNVERIFIED: actual current-head authenticated browser pixels/motion not yet inspected.",
-    "integratedImplementation": "Actual original Gothic chapter environment and genuine living-foe encounter composition with source-level single-batch authored 3D floor surface: raised stone, nested iron perimeter, physically embossed swordpoint, 16-petal rosette court, Lancet and buttress architecture. One direct physical practical stays bound to true living fighter pair with verified HP loss accent. No authority, collision, random, AI or save change.",
-    "latestPredecessorReview": {
-      "sourceSha": "3b2025a619cc6c113e28dd463224e90205fd2476",
-      "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41922629878/artifacts/13368532950",
-      "observation": "Actual desktop real Three.js rendered 1440x832 inspected: Vanguard helmet and sword protrude over an opaque Gothic facade while torso/boots remain invisible; two other heroes appear toy-like. Three/three synthetic ray visibility score is false positive. No active enemy in this frame.",
-      "technicalSafety": "All 4 Dungeon browser/authority checks PASS and visual-review workflow PASS for predecessor SHA; broad catalogue CI FAILURE. No visual transformation accepted."
-    },
-    "sourceStatus": "SOURCE COMMITTED: FUSED ORIGINAL PHYSICAL CHAPTER ART ON ONE INSTANCED COURT DRAW — exact-head visual safety and transformation ACCEPTANCE UNVERIFIED"
+    "critics": 0,
+    "originalAudioMotion": "UNVERIFIED",
+    "afterBrowser": "UNVERIFIED",
+    "nextTask": "Validate native portrait combat scene, then build credible original sword-to-body Warden duel and matched five-stage audiovisual critic gate."
   },
   "acceptanceStatus": "NOT TRANSFORMED — 0/3 independent critics, no complete matched audiovisual adventure verification",
   "latestCandidateSha": "0fc87fea2da9620d9448a6d23627a2b862e7245d",
