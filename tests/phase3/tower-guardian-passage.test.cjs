@@ -139,8 +139,12 @@ test('the authentic guardian release stays aligned with the exposed source HP lo
     'the real guardian HP lock already occupies the outer tower surface');
   assert.match(scene, /const previousLock = clearedGuardian \? observedGuardianCircuit\(previous\) : null/,
     'a source-witnessed guardian and cap must exist before a visual release');
-  assert.match(scene, /passage\.begin\(previous, next, pointFor\(gateAnchorX,[\s\S]*?previousLock\.toY, next\.chunkBaseY, next\.worldWidth, 27\.78\),[\s\S]*?previousLock\.fromX, previousLock\.fromY,[\s\S]*?next\.chunkBaseY, next\.worldWidth, 27\.65\)\)/,
-    'earned gate passage must preserve both the elevated HP-lock center and exterior radius');
+  assert.match(scene, /const gateY = previousLock\?\.toY \?\?\s+guardianCap\.y \+ guardianCap\.height \+ 20000/,
+    'a living-lock handoff retains the source HP-lock elevation; defeated-body source retains the same cap height');
+  assert.match(scene, /const guardianX = previousLock\?\.fromX \?\? defeated\.x/,
+    'the source guardian body remains the old-floor anchor after its HP lock retires');
+  assert.match(scene, /passage\.begin\(previous, next, pointFor\(gateAnchorX,\s+gateY, next\.chunkBaseY, next\.worldWidth, 27\.78\),[\s\S]*?pointFor\(guardianX, guardianY,[\s\S]*?next\.chunkBaseY, next\.worldWidth, 27\.65\)\)/,
+    'both the source-linked old guardian and the physically earned exit use the same exterior depth');
   assert.match(scene, /guardianReleaseWeight: !options\.stale[\s\S]*?passage\.cameraWeight\(\)/,
     'only the source-witnessed passage provides the climber release weight');
   assert.match(rig, /const releasedGate = !dead && !hurt && !stale && !terminalKind &&[\s\S]*?!reducedMotion &&[\s\S]*?state\.guardianReleaseWeight/,
@@ -158,8 +162,14 @@ test('the actual scene consumes source transitions and owns passage lifecycle on
   assert.match(source, /platform\.id === `f\$\{previous\.floor\}:cap`/);
   assert.match(source, /const gateAnchorX = guardianGateAnchorX\(previous, guardianCap\)/);
   assert.match(source, /passage\.begin\(previous, next, pointFor\(gateAnchorX/);
-  assert.match(source, /previousLock\.toY, next\.chunkBaseY/,
-    'true gate release must retain the old source HP-lock height across a floor transition');
+  assert.match(source, /observedUnlockedGuardianCap\(next\)/,
+    'an actual guardian death must show an earned, still-to-be-crossed exit before floor transition');
+  assert.match(source, /passage\.unlock\(next, pointFor\(guardianGateAnchorX\(next, cap\)/,
+    'the visual portal may never invent its own future passage destination');
+  assert.match(source, /const gateY = previousLock\?\.toY \?\?\s+guardianCap\.y \+ guardianCap\.height \+ 20000/,
+    'the old live HP-lock height survives the transition; after defeat its immutable cap is the source-backed fallback');
+  assert.match(source, /passage\.begin\(previous, next, pointFor\(gateAnchorX,\s+gateY, next\.chunkBaseY/,
+    'handoff must use the old source cap and its exterior gate—not the newly spawned climber');
   assert.doesNotMatch(source, /guardianCap\.y \+ guardianCap\.height, next\.chunkBaseY/,
     'the previous physical lock is elevated above the old platform');
   assert.doesNotMatch(source, /passage\.begin\(previous, next, pointFor\(next\.player\.x/);

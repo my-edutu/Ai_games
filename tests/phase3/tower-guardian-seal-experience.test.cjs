@@ -246,7 +246,11 @@ test('guardian approach anchors one stationary physical gate without relocating 
     assert.equal(world.diagnostics().guardianGates[0].anchorX, x,
       'quality rebuild and still-motion presentation reconstruct the same authentic gate');
     assert.equal(JSON.stringify(sourceFrame), original, 'camera/world may not mutate replay snapshots');
-    assert.equal(guardianGateAnchorX(frame(), cap), cap.x + cap.width / 2,
-      'legacy source with no approach evidence retains its original safe gate center');
+    assert.equal(guardianGateAnchorX(frame({guardian:false}), cap),
+      cap.x + cap.width / 2,
+      'legacy source WITHOUT a guardian cannot invent the new earned cap exit');
+    assert.equal(guardianGateAnchorX(frame(), cap),
+      cap.x + Math.floor(cap.width * .76),
+      'the actual on-cap guardian shares its source-derived exit with fixed-step game rules');
   } finally { world.dispose(); }
 });
