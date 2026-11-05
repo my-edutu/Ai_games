@@ -20,6 +20,35 @@ permissions:
   contents: read
 
 jobs:
+  # W52: test-first real GPU residency of original tree/building sunlight,
+  # while every actual moving citizen keeps a live physical ground contact.
+  w52-real-solar-shadow-gpu-residency:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: W52 real sunlight GPU buffer and fresh citizen shadows at 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w52-resident-solar-shadows.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w52-real-solar-shadow-residency
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w52/
+          retention-days: 14
   # W51: renderer-level static sun-shadow reuse, actual moving citizen
   # contact, reset/restore invalidation and strictly bounded 390px resources.
   w51-solar-shadow-residency:
