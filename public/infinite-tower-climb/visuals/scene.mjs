@@ -6,7 +6,7 @@ import { SCALE, pointFor, angleFor, guardianGateAnchorX } from './coordinates.mj
 import { snapshotVelocity } from './motion.mjs';
 import { createRenderProgress } from './render-progress.mjs';
 import { createTowerFinale } from './finale.mjs';
-import { observedGuardianPassage, createTowerGuardianPassage } from './guardian-passage.mjs';
+import { observedGuardianPassage, observedUnlockedGuardianCap, createTowerGuardianPassage } from './guardian-passage.mjs';
 import { createTowerRouteIntent, witnessedHealthPickup } from './route-intent.mjs';
 import { createTowerLandingApproach } from './landing-approach.mjs';
 import { createTowerMovingDeckSuspension } from './moving-deck-suspension.mjs';
@@ -2312,8 +2312,20 @@ export function createTowerScene(canvas, settings = {}) {
     // non-colliding bronze passage memory, witnessed in adjacent real source
     // snapshots. Never infer a victory from animation time, a new run or a
     // missing guardian. The new floor's autonomous physics stay untouched.
+    const earnedOpenCap = !options.stale ? observedUnlockedGuardianCap(next) : null;
+    if (earnedOpenCap) {
+      // Display the real, still-to-be-crossed doorway as soon as source
+      // proves a guardian defeat. Never turn this into an auto-win, camera
+      // cut, fabricated collision or UI instruction.
+      const cap = earnedOpenCap.cap;
+      passage.unlock(next, pointFor(guardianGateAnchorX(next, cap),
+        cap.y + cap.height + 20000, next.chunkBaseY,
+        next.worldWidth, 27.78));
+    } else if (next.lifecycle !== 'running' &&
+        passage.diagnostics().stage === 'earned-open') passage.clear();
     const clearedGuardian = observedGuardianPassage(previous, next);
-    if (previous && previous.floor !== next.floor) passage.clear();
+    if (previous && previous.floor !== next.floor && !clearedGuardian)
+      passage.clear();
     // The old source-driven lock existed at the PREVIOUS floor's fixed
     // guardian-approach anchor on its actual cap, not the new climber or
     // an arbitrary center. Preserve that exact world location through the
@@ -2573,6 +2585,10 @@ export function createTowerScene(canvas, settings = {}) {
     // An actual low-health resource detour is a visible autonomous decision.
     // Aim the skinned visor at the public health pickup instead of the stale
     // ascent target. This changes no physics or collision and draws no HUD.
+    const earnedGate = !options.stale ? observedUnlockedGuardianCap(snapshot) : null;
+    const earnedExitX = earnedGate ? guardianGateAnchorX(snapshot, earnedGate.cap) : null;
+    const earnedExitY = earnedGate
+      ? earnedGate.cap.y + earnedGate.cap.height + 20000 : null;
     const resourceTarget = snapshot.intent?.mode === 'collecting-resource'
       ? snapshot.pickups.filter(item => item.kind === 'health')
         .sort((a, b) => Math.abs(a.x - p.x) - Math.abs(b.x - p.x) || a.id.localeCompare(b.id))[0]
@@ -2622,8 +2638,8 @@ export function createTowerScene(canvas, settings = {}) {
       incomingGuardianCharge: witnessedShot
         ? clamp((8 - guardianWarning.remainingChargeTicks) / 7, 0, 1) : null,
       incomingGuardianSide: witnessedShot ? Math.sign(sourceGuardian.x - p.x) : 0,
-      targetDx: duelFocus ? sourceGuardian.x - p.x : resourceTarget ? resourceTarget.x - p.x : targetPlatform ? targetPlatform.x + targetPlatform.width / 2 - p.x : 0,
-      targetDy: duelFocus ? sourceGuardian.y - p.y : resourceTarget ? resourceTarget.y - p.y : targetPlatform ? targetPlatform.y + targetPlatform.height - p.y : 0,
+      targetDx: duelFocus ? sourceGuardian.x - p.x : earnedGate ? earnedExitX - p.x : resourceTarget ? resourceTarget.x - p.x : targetPlatform ? targetPlatform.x + targetPlatform.width / 2 - p.x : 0,
+      targetDy: duelFocus ? sourceGuardian.y - p.y : earnedGate ? earnedExitY - p.y : resourceTarget ? resourceTarget.y - p.y : targetPlatform ? targetPlatform.y + targetPlatform.height - p.y : 0,
       // Real snapshot platform top, inside the existing radial walking surface.
       // No grab, pause, lift or authoritative collision is fabricated.
       ledgeTarget,

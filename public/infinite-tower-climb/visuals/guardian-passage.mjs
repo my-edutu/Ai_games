@@ -18,6 +18,33 @@ export function observedGuardianPassage(previous, next) {
         (enemy.active === false && Number.isFinite(enemy.health) && enemy.health <= 0)));
 }
 
+// The defeated guardian and the current source cap authorize the unlocked
+// doorway BEFORE floor advance. An inactive zero-HP enemy is not evidence
+// of a completed run, only of an earned physical exit still to traverse.
+export function observedUnlockedGuardianCap(snapshot) {
+  if (!snapshot || snapshot.lifecycle !== 'running' ||
+    !Number.isSafeInteger(snapshot.tick) ||
+    !Number.isSafeInteger(snapshot.floor) ||
+    !Number.isFinite(snapshot.worldWidth) || snapshot.worldWidth <= 0 ||
+    !Number.isFinite(snapshot.chunkBaseY) ||
+    typeof snapshot.runToken !== 'string' || !snapshot.runToken ||
+    !snapshot.player || !Number.isFinite(snapshot.player.health) ||
+    snapshot.player.health <= 0) return null;
+  const cap = snapshot.platforms?.find(platform =>
+    platform.id === 'f' + snapshot.floor + ':cap' &&
+    [platform.x, platform.y, platform.width, platform.height]
+      .every(Number.isFinite) && platform.width > 0 && platform.height > 0);
+  const guardian = snapshot.enemies?.find(enemy =>
+    enemy.kind === 'guardian' && enemy.active === false &&
+    typeof enemy.id === 'string' && !!enemy.id &&
+    [enemy.x, enemy.y, enemy.halfHeight, enemy.health].every(Number.isFinite) &&
+    enemy.health <= 0 && enemy.halfHeight > 0);
+  return cap && guardian ? {
+    runToken: snapshot.runToken, floor: snapshot.floor,
+    tick: snapshot.tick, guardianId: guardian.id, cap, guardian,
+  } : null;
+}
+
 export function createTowerGuardianPassage(THREE) {
   const group = new THREE.Group();
   group.name = 'ObservedGuardianPassage';
@@ -141,7 +168,7 @@ export function createTowerGuardianPassage(THREE) {
   }
 
   let runToken = null, floor = null, sourceTick = -1;
-  let age = 0, disposed = false;
+  let age = 0, disposed = false, stage = 'none';
   const duration = 2.9;
   const clamp = v => Math.max(0, Math.min(1, v));
   function clear() {
@@ -153,6 +180,36 @@ export function createTowerGuardianPassage(THREE) {
     floor = null;
     sourceTick = -1;
     age = 0;
+    stage = 'none';
+  }
+  function unlock(source, anchor) {
+    const earned = observedUnlockedGuardianCap(source);
+    if (!earned || disposed || !anchor ||
+      ![anchor.x, anchor.y, anchor.z, anchor.angle].every(Number.isFinite))
+      return false;
+    if (stage === 'earned-open' && group.visible &&
+      runToken === source.runToken && floor === source.floor) {
+      // Repeated frames must not replay the mechanical release or recreate
+      // a victory. A stale/out-of-order sample does not rewind source time.
+      sourceTick = Math.max(sourceTick, source.tick);
+      return true;
+    }
+    group.position.set(anchor.x, anchor.y, anchor.z);
+    focusPosition.set(anchor.x, anchor.y + 2.6, anchor.z);
+    group.rotation.y = anchor.angle;
+    // The genuine defeated character still exists in this floor's scene.
+    // Reserve decorative fallen-armor memory for the next floor only.
+    witnessedGuardian = false;
+    fallenArmor.visible = false;
+    fallenArmor.count = 0;
+    fragments.visible = false;
+    group.visible = true;
+    runToken = source.runToken;
+    floor = source.floor;
+    sourceTick = source.tick;
+    stage = 'earned-open';
+    age = 0;
+    return true;
   }
   function begin(previous, source, anchor, guardianAnchor = null) {
     if (!observedGuardianPassage(previous, source)) return false;
@@ -160,6 +217,9 @@ export function createTowerGuardianPassage(THREE) {
       !Number.isSafeInteger(source.tick) || !Number.isSafeInteger(source.floor) ||
       typeof source.runToken !== 'string' || !source.runToken ||
       ![anchor.x, anchor.y, anchor.z, anchor.angle].every(Number.isFinite)) return false;
+    const carryOpen = stage === 'earned-open' && group.visible &&
+      runToken === previous.runToken && floor === previous.floor;
+    const carriedAge = age;
     group.position.set(anchor.x, anchor.y, anchor.z);
     focusPosition.set(anchor.x, anchor.y + 2.6, anchor.z);
     group.rotation.y = anchor.angle;
@@ -179,18 +239,23 @@ export function createTowerGuardianPassage(THREE) {
     runToken = source.runToken;
     floor = source.floor;
     sourceTick = source.tick;
-    age = 0;
+    stage = 'handoff';
+    // The real door already opened during the hero's grounded walk. Do
+    // not visibly slam it shut and re-open upon the authoritative floor
+    // switch. Historical immediate clearances still use the old cue.
+    age = carryOpen ? Math.max(1.05, Math.min(1.65, carriedAge)) : 0;
     return true;
   }
   function update(dt = 0, options = {}) {
     if (disposed || !group.visible) return;
     if (!options.stale) age += Math.min(.5, Math.max(0, Number.isFinite(dt) ? dt : 0));
-    if (age >= duration) { clear(); return; }
+    if (stage === 'handoff' && age >= duration) { clear(); return; }
     const still = options.reducedMotion === true;
     poseFragments(age, still);
     poseFallenArmor(age, still);
     const opened = still ? 1 : 1 - Math.pow(1 - clamp(age / .95), 3);
-    const fade = 1 - .9 * clamp((age - 1.75) / (duration - 1.75));
+    const fade = stage === 'earned-open' ? 1 :
+      1 - .9 * clamp((age - 1.75) / (duration - 1.75));
     for (const { side, wing } of wings) {
       // The actual bronze gate is no longer in this floor's world; these
       // separated leaves are a short, non-colliding passage memory.
@@ -212,13 +277,14 @@ export function createTowerGuardianPassage(THREE) {
     glow.opacity = .65 * fade;
   }
   function cameraWeight() {
-    return group.visible ? clamp(1 - age / 1.35) : 0;
+    return !group.visible ? 0 : stage === 'earned-open'
+      ? .55 * clamp(1 - age / 2.4) : clamp(1 - age / 1.35);
   }
   function focusPoint() {
     return group.visible ? focusPosition : null;
   }
   function diagnostics() {
-    return { sourceBound: true, active: group.visible, runToken,
+    return { sourceBound: true, active: group.visible, stage, runToken,
       floor, sourceTick, ageSeconds: age, durationSeconds: duration,
       // Public world-space source-pinned anchor for inspecting actual full
       // motion; no fabricated win, private event or gameplay mutation.
@@ -238,5 +304,5 @@ export function createTowerGuardianPassage(THREE) {
     for (const geometry of ownedGeometry) geometry.dispose();
     for (const material of ownedMaterials) material.dispose();
   }
-  return { group, begin, update, clear, cameraWeight, focusPoint, diagnostics, dispose };
+  return { group, unlock, begin, update, clear, cameraWeight, focusPoint, diagnostics, dispose };
 }

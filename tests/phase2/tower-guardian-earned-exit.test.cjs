@@ -82,3 +82,35 @@ test('a real post-defeat clearance has a stable 3D gate anchor and passage sourc
     enemies:[{kind:'guardian',active:false,health:1}]
   },{runToken:'same',tick:101,floor:9,lifecycle:'running'}),false);
 });
+
+test('defeated guardian opens the source-authentic 3D doorway before earned floor exit', async () => {
+  const passage=await import(pathToFileURL(path.resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/guardian-passage.mjs')).href);
+  const {state,cap}=arena();
+  const base={
+    runToken:'observed-cap-clearance',tick:121,floor:8,lifecycle:'running',
+    chunkBaseY:state.chunks[0].baseY,worldWidth:state.config.worldWidth,
+    player:{health:2},platforms:[cap],
+    enemies:[{id:'f8:boss',kind:'guardian',active:false,health:0,
+      x:cap.x+cap.width/2,y:cap.y+cap.height+18000,halfHeight:18000}],
+  };
+  const unlock=passage.observedUnlockedGuardianCap(base);
+  assert.equal(unlock.cap.id,cap.id);
+  assert.equal(unlock.guardianId,'f8:boss');
+  assert.equal(unlock.floor,8,'the guardian is dead but the floor remains active');
+  assert.equal(passage.observedUnlockedGuardianCap({
+    ...base,enemies:[{...base.enemies[0],active:true,health:1}]
+  }),null,'a living guardian cannot display an unearned open gate');
+  assert.equal(passage.observedUnlockedGuardianCap({...base,player:{health:0}}),
+    null,'a dead climber cannot trigger the living clearance stage');
+  assert.equal(passage.observedUnlockedGuardianCap({
+    ...base,platforms:[{...cap,width:NaN}]
+  }),null,'invalid scene geometry cannot create a fictional gate');
+  assert.equal(passage.observedUnlockedGuardianCap({...base,lifecycle:'result'}),
+    null,'a result screen cannot resurrect an old portal');
+  assert.equal(passage.observedUnlockedGuardianCap({
+    ...base,enemies:[{...base.enemies[0],active:false,health:1}]
+  }),null,'inactivity alone is not a witnessed guardian defeat');
+  assert.deepEqual(passage.observedUnlockedGuardianCap(base),unlock,
+    'same immutable source snapshot creates a deterministic stage');
+});
