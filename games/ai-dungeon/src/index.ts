@@ -132,7 +132,7 @@ export function planWardenEvasionStep(
   const due=hex?foe.channelUntilTick:foe.breachUntilTick;
   const victim=hex?foe.channelTargetId:foe.breachTargetId;
   const x=hex?foe.channelX:foe.breachX,z=hex?foe.channelZ:foe.breachZ;
-  if(victim!==hero.id||!Number.isSafeInteger(due)||
+  if(victim!==hero.id||typeof due!=='number'||!Number.isSafeInteger(due)||
    due<s.tick||due>strike.attackTick||
    !Number.isInteger(x)||!Number.isInteger(z)||!walkable(s.map,x,z))continue;
   otherLocked.add(key(x,z));
@@ -488,6 +488,51 @@ function applyOathguardIntercept(s:DungeonState,victim:Unit,dealt:number):number
  return dealt-diverted;
 }
 
+/**
+ * REAL playable nave staging: open three spaced fighting chambers *on the
+ * traversed route*, not translucent camera-only cutaways. Both characters
+ * and enemy AI receive exactly the same walkable masonry changes. The
+ * procedural dungeon remains connected and retains a meaningful approach
+ * to its guardian. No cosmetic random calls or extra authoritative RNG.
+ */
+export function planExpeditionCombatNaves(
+ rows:string[],spawn:{x:number;z:number},exit:{x:number;z:number}
+):{map:string[];centers:{x:number;z:number}[]}{
+ const empty={map:rows,centers:[] as {x:number;z:number}[]};
+ if(!Array.isArray(rows)||rows.length!==MAP_SIZE||
+  rows.some(r=>typeof r!=='string'||r.length!==MAP_SIZE)||
+  !walkable(rows,spawn?.x,spawn?.z)||!walkable(rows,exit?.x,exit?.z))return empty;
+ const route=shortestPath(rows,spawn,exit);
+ if(route.length<12)return empty;
+ const out=rows.map(row=>row.split(''));
+ const centers:{x:number;z:number}[]=[];
+ // Physical chambers are staged at three points along the *actual* route.
+ // Candidate order, separation, and fallback are stable after save/restore.
+ for(const fraction of [.28,.51,.74]){
+  const target=Math.floor((route.length-1)*fraction);
+  const candidates=route.map((p,i)=>({p,i}))
+   .filter(({p})=>p.x>=2&&p.x<=MAP_SIZE-3&&p.z>=2&&p.z<=MAP_SIZE-3&&
+    dist(p,spawn)>=5&&dist(p,exit)>=5&&
+    centers.every(c=>dist(c,p)>=5))
+   .sort((a,b)=>Math.abs(a.i-target)-Math.abs(b.i-target)||a.i-b.i);
+  for(const {p} of candidates){
+   const changed:{x:number;z:number}[]=[];
+   for(let dz=-1;dz<=1;dz++)for(let dx=-1;dx<=1;dx++){
+    const x=p.x+dx,z=p.z+dz;
+    if(out[z][x]==='#'){out[z][x]='.';changed.push({x,z});}
+   }
+   const trial=out.map(row=>row.join(''));
+   // Preserve a proper expedition length. A shortcut through the new hall
+   // may never turn an earned boss confrontation into an immediate spawn.
+   if(shortestPath(trial,spawn,exit).length>=12){
+    centers.push({x:p.x,z:p.z});break;
+   }
+   for(const tile of changed)out[tile.z][tile.x]='#';
+  }
+ }
+ return {map:out.map(row=>row.join('')),centers};
+}
+
 function createFloor(seed:string,floor:number,rng:NamedRng,run:number,previous?:DungeonState):DungeonState {
  const map=Array.from({length:MAP_SIZE},()=>Array(MAP_SIZE).fill('#'));
  const stack=[{x:1,z:1}];map[1][1]='.';
@@ -537,6 +582,10 @@ function createFloor(seed:string,floor:number,rng:NamedRng,run:number,previous?:
   const x=exit.x+dx,z=exit.z+dz;
   if(x>0&&z>0&&x<MAP_SIZE-1&&z<MAP_SIZE-1)map[z][x]='.';
  }
+ // Actual navigable naves, not merely a cinematic false-positive: enemies
+ // and party can both flank around genuine stone and fight within the rooms.
+ const expeditionNaves=planExpeditionCombatNaves(map.map(r=>r.join('')),spawn,exit);
+ for(let z=0;z<MAP_SIZE;z++)map[z]=expeditionNaves.map[z].split('');
  rows=map.map(r=>r.join(''));measure=distances(rows,spawn);
  tiles=[...measure.entries()].map(([k,d])=>({x:k%MAP_SIZE,z:Math.floor(k/MAP_SIZE),d})).sort((a,b)=>b.d-a.d||a.z-b.z||a.x-b.x);
  const occupied=new Set([key(spawn.x,spawn.z),key(exit.x,exit.z)]);
@@ -549,7 +598,15 @@ function createFloor(seed:string,floor:number,rng:NamedRng,run:number,previous?:
  // Place enemies on distant navigable tiles, away from the spawn and boss.
  const eligible=tiles.filter(p=>p.d>5&&dist(p,exit)>3);
  for(let i=0;i<Math.min(7,3+Math.floor(floor/2))&&eligible.length;i++){
-  const index=rng.nextInt('encounters:'+floor+':'+run,eligible.length),p=eligible.splice(index,1)[0],k=key(p.x,p.z);
+  // The first real cultist/revenant confrontations belong inside the
+  // traversed naves rather than an invisible random single-cell passage.
+  // Draw the same seeded stream regardless of whether a staging bay exists.
+  const roll=rng.nextInt('encounters:'+floor+':'+run,eligible.length);
+  const court=expeditionNaves.centers[i];
+  const choices=court?eligible.map((p,j)=>({p,j,d:dist(p,court)}))
+   .filter(c=>c.d<=1).sort((a,b)=>a.d-b.d||a.p.z-b.p.z||a.p.x-b.p.x):[];
+  const index=choices.length?choices[0].j:roll;
+  const p=eligible.splice(index,1)[0],k=key(p.x,p.z);
   if(occupied.has(k))continue;occupied.add(k);
   const kind:UnitKind=i%3===0?'cultist':'revenant',hp=kind==='cultist'?36+floor*3:44+floor*4;
   units.push({id:'enemy-'+floor+'-'+i,kind,faction:'enemy',x:p.x,z:p.z,hp,maxHp:hp,attack:kind==='cultist'?8+Math.min(10,Math.floor(floor/2)):10+Math.min(14,Math.floor(floor/2)),cooldown:0});
