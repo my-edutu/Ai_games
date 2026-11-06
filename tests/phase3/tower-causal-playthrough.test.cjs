@@ -28,6 +28,8 @@ test('one authentic episode links guardian, grounded cap, floor nine, result and
  const record=w.summary();
  assert.equal(record.fullSourceChainObserved,true);
  assert.equal(record.episodes[0].firstMissing,null);
+ assert.equal(record.episodes[0].markers.floorNineContinues.tick,6,
+  'floor-nine continuation requires a later real fixed-step tick, not just the exit teleport');
  assert.equal(record.episodes[0].markers.earnedFloorNine.capId,'f8:cap');
 });
 test('different lives cannot splice defeat, result, or restart together',()=>{

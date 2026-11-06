@@ -53,7 +53,8 @@ function createTowerCausalWitness(limit = 16) {
         priorGroundedX: before.player.position.x, capId: priorCap.id,
         physicalFullBodyClearance: 'AUTHORITY RULE ONLY: requires source rule and replay inspection',
       });
-    if (sameRun && ep.earnedFloorNine && floorNine(after))
+    if (sameRun && ep.earnedFloorNine && before.floor >= 9 &&
+        after.tick > ep.earnedFloorNine.tick && floorNine(after))
       record(ep, 'floorNineContinues', after);
     if (sameRun && ep.floorNineContinues &&
         ['result', 'intermission'].includes(after.lifecycle) && after.result &&
