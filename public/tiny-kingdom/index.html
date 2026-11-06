@@ -14412,6 +14412,13 @@ actorFrameCitizens=people.length;
 if(gpuAvailable&&actorStreamSplitEnabled){
  actorFrameData=data;
  data=worldPropsStream;
+ if(actorFrameData.length+data.length>CAMERA_DYNAMIC_FLOAT_BUDGET){
+  // Keep every genuine citizen and delivery. Overflow uses the original
+  // combined world VBO rather than allocating an unbounded actor ring.
+  for(const vertex of actorFrameData)data.push(vertex);
+  actorFrameData=[];
+  actorDynamicVertexScratch.length=0;
+ }
 }else actorFrameData=[];
 dynamicPhaseTimes.citizenGeometry=performance.now()-citizenGeometryStart;
 const weatherGeometryStart=performance.now();
