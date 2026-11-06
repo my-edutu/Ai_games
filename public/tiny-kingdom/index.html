@@ -8887,7 +8887,8 @@ function prepareWorksiteFixtureResidentMesh(sites){
  if(!worksiteFixtureBuffer)throw Error('W92 worksite resident GPU buffer allocation failed');
  bindGeometry(worksiteFixtureBuffer);
  if(mesh.length>worksiteFixtureCapacity){
-  worksiteFixtureCapacity=Math.ceil(Math.max(1,mesh.length)/8192)*8192;
+  worksiteFixtureCapacity=Math.min(WORKSITE_FIXTURE_FLOAT_BUDGET,
+   Math.ceil(Math.max(1,mesh.length)/8192)*8192);
   gl.bufferData(gl.ARRAY_BUFFER,worksiteFixtureCapacity*4,gl.DYNAMIC_DRAW);
  }
  if(mesh.length)gl.bufferSubData(gl.ARRAY_BUFFER,0,mesh);
