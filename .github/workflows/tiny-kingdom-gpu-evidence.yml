@@ -20,6 +20,12 @@ on:
 permissions:
   contents: read
 
+# Preserve evidence from the latest exact source; cancel superseded PR jobs
+# rather than indefinitely queueing 30 parallel GPU installations per edit.
+concurrency:
+  group: tiny-kingdom-gpu-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   # W83: source-following original granary-to-market medieval carriageway
   # and the real barn loading porch, with NO added citizen or navigation edge.
@@ -47,7 +53,7 @@ jobs:
         env:
           CI: '1'
           LIBGL_ALWAYS_SOFTWARE: '1'
-        run: npx playwright test tests/browser/tiny-kingdom-w83-farm-market-continuity.spec.cjs tests/browser/tiny-kingdom-w84-granary-loft.spec.cjs tests/browser/tiny-kingdom-w85-gpu-dynamic-ring.spec.cjs tests/browser/tiny-kingdom-w86-resident-multi-draw.spec.cjs tests/browser/tiny-kingdom-w87-market-to-home.spec.cjs tests/browser/tiny-kingdom-w88-conservative-culling.spec.cjs tests/browser/tiny-kingdom-w89-physical-courier-contact.spec.cjs tests/browser/tiny-kingdom-w90-physical-daybreak-flight.spec.cjs tests/browser/tiny-kingdom-w91-resident-ambient-animation.spec.cjs tests/browser/tiny-kingdom-w92-resident-workstations.spec.cjs tests/browser/tiny-kingdom-w93-independent-actor-stream.spec.cjs tests/browser/tiny-kingdom-w94-first-frame.spec.cjs tests/browser/tiny-kingdom-w96-resident-market-shutters.spec.cjs tests/browser/tiny-kingdom-w97-true-supply-trail.spec.cjs --workers=1
+        run: npx playwright test tests/browser/tiny-kingdom-w83-farm-market-continuity.spec.cjs tests/browser/tiny-kingdom-w84-granary-loft.spec.cjs tests/browser/tiny-kingdom-w85-gpu-dynamic-ring.spec.cjs tests/browser/tiny-kingdom-w86-resident-multi-draw.spec.cjs tests/browser/tiny-kingdom-w87-market-to-home.spec.cjs tests/browser/tiny-kingdom-w88-conservative-culling.spec.cjs tests/browser/tiny-kingdom-w89-physical-courier-contact.spec.cjs tests/browser/tiny-kingdom-w90-physical-daybreak-flight.spec.cjs tests/browser/tiny-kingdom-w91-resident-ambient-animation.spec.cjs tests/browser/tiny-kingdom-w92-resident-workstations.spec.cjs tests/browser/tiny-kingdom-w93-independent-actor-stream.spec.cjs tests/browser/tiny-kingdom-w94-first-frame.spec.cjs tests/browser/tiny-kingdom-w96-resident-market-shutters.spec.cjs tests/browser/tiny-kingdom-w97-true-supply-trail.spec.cjs tests/browser/tiny-kingdom-w98-lived-jetty.spec.cjs --workers=1
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -59,6 +65,7 @@ jobs:
             artifacts/tiny-kingdom-w86/
             artifacts/tiny-kingdom-w87/
             artifacts/tiny-kingdom-w88/
+            artifacts/tiny-kingdom-w98/
             test-results/
           retention-days: 14
   # W81: real 120-day town roof reconstruction must reclaim triangles without
