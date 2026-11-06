@@ -73,14 +73,45 @@ for source in baseline candidate; do
   printf '%s\n' "$SHA" > "$OUTPUT/$source-source-sha.txt"
   printf '%s\n' "$ORIGIN_HOST" > "$OUTPUT/$source-original-host-blob.txt"
   echo "Installing/building the unmodified $source gameplay at $SHA"
+  INTEGRITY_TESTS=(tests/phase3/tower-motion-evidence.test.cjs tests/phase3/tower-event-alignment.test.cjs)
+  if [[ "$source" == candidate ]]; then INTEGRITY_TESTS+=(tests/phase3/tower-campaign-audit.test.cjs); fi
   (cd "$DIR" && npm ci --no-audit --no-fund && npm run build &&
-    node --test tests/phase3/tower-motion-evidence.test.cjs tests/phase3/tower-event-alignment.test.cjs) \
+    node --test "${INTEGRITY_TESTS[@]}") \
     > "$OUTPUT/$source-build-and-integrity.log" 2>&1 ||
     { echo "$source build or source-integrity tests failed; see $OUTPUT/$source-build-and-integrity.log" >&2; exit 4; }
 done
+# The previous offline fallback only recorded film and source-event names.
+# When hosted jobs cannot start, we must ALSO run the unmodified candidate's
+# real 3,200-tick guardian expedition twice. Exact JSON replay equality checks
+# deterministic game truth; a failed floor-nine/restart causal episode is
+# retained as a BLOCKER, not rewritten as completion. Never alter the seed,
+# replay clock, authority, or frozen baseline to make these probes pass.
+FAILED=0
+for replica in 1 2; do
+  echo "Source-only 3,200-tick candidate guardian expedition, replica $replica"
+  if ! (cd "$NEW_DIR" && node scripts/tower-guardian-source-witness.cjs) \
+      > "$OUTPUT/candidate-guardian-campaign-$replica.json" \
+      2> "$OUTPUT/candidate-guardian-campaign-$replica.stderr"; then
+    echo "Source campaign replica $replica failed; preserving stderr and any partial output." >&2
+    FAILED=1
+  fi
+done
+if [[ -s "$OUTPUT/candidate-guardian-campaign-1.json" &&
+      -s "$OUTPUT/candidate-guardian-campaign-2.json" ]]; then
+  if ! (cd "$NEW_DIR" && node scripts/tower-campaign-audit.cjs \
+       "$OUTPUT/candidate-guardian-campaign-1.json" \
+       "$OUTPUT/candidate-guardian-campaign-2.json" \
+       "$OUTPUT/candidate-source-campaign-audit.json" "$CANDIDATE") \
+       > "$OUTPUT/source-campaign-audit.log" 2>&1; then
+    echo "Incomplete/non-deterministic real source episode; inspect candidate-source-campaign-audit.json." >&2
+    FAILED=1
+  fi
+else
+  echo 'NO COMPLETE SOURCE CAMPAIGN RESULTS — NOT EVALUATED' > "$OUTPUT/source-campaign-audit.log"
+  FAILED=1
+fi
 (cd "$NEW_DIR" && npx playwright install chromium) > "$OUTPUT/chromium-install.log" 2>&1 ||
   { echo "Chromium unavailable; see $OUTPUT/chromium-install.log" >&2; exit 4; }
-FAILED=0
 for scenario in ascent danger outcome moving; do
   case "$scenario" in danger) FLOOR=8;; moving) FLOOR=7;; *) FLOOR=0;; esac
   for source in baseline candidate; do
@@ -124,6 +155,9 @@ Frozen baseline: $FROZEN
 Candidate: $CANDIDATE
 Video: original real-time Chromium WebM, desktop 960x600 + portrait 390x844
 Gameplay source hosts: original git blobs recorded above
+3200-tick same-run floor-eight guardian/crusher -> floor-nine -> outcome/restart:
+  AUDIT AT candidate-source-campaign-audit.json (source-only, two unchanged expeditions).
+  Missing real events or divergent replicas BLOCK completion; source chain is not painted video.
 Independent LOOKS / FEELS / PLAYS reviews: 0/5, 0/5, 0/5
 Actual supported-device p50 / p95 / p99 and memory: NOT EVALUATED
 Video visual continuity and timecode review: NOT EVALUATED
