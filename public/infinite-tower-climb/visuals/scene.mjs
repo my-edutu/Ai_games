@@ -6,7 +6,7 @@ import { SCALE, pointFor, angleFor, guardianGateAnchorX } from './coordinates.mj
 import { snapshotVelocity } from './motion.mjs';
 import { createRenderProgress } from './render-progress.mjs';
 import { createTowerFinale } from './finale.mjs';
-import { observedGuardianPassage, observedUnlockedGuardianCap, observedPassageApproach, createTowerGuardianPassage } from './guardian-passage.mjs';
+import { observedGuardianPassage, observedLockedGuardianCap, observedUnlockedGuardianCap, observedPassageApproach, createTowerGuardianPassage } from './guardian-passage.mjs';
 import { createTowerRouteIntent, witnessedHealthPickup } from './route-intent.mjs';
 import { createTowerLandingApproach } from './landing-approach.mjs';
 import { createTowerMovingDeckSuspension } from './moving-deck-suspension.mjs';
@@ -2339,8 +2339,23 @@ export function createTowerScene(canvas, settings = {}) {
       passage.unlock(next, pointFor(guardianGateAnchorX(next, cap),
         cap.y + cap.height + 20000, next.chunkBaseY,
         next.worldWidth, 27.78));
-    } else if (next.lifecycle !== 'running' &&
-        passage.diagnostics().stage === 'earned-open') passage.clear();
+    } else {
+      // The living guardian blocks this exact source cap plane in physics.
+      // Stage the SAME on-deck closed leaves and vertical energy barrier
+      // before any source-authorized HP defeat, on both desktop and phone.
+      // No second ghost gateway or independent animation clock.
+      const lockedCap = !options.stale ? observedLockedGuardianCap(next) : null;
+      if (lockedCap) {
+        const cap = lockedCap.cap;
+        passage.lock(next, pointFor(guardianGateAnchorX(next, cap),
+          cap.y + cap.height + 20000, next.chunkBaseY,
+          next.worldWidth, 27.78));
+      } else if (passage.diagnostics().stage === 'guardian-locked' ||
+          (next.lifecycle !== 'running' &&
+          passage.diagnostics().stage === 'earned-open')) {
+        passage.clear();
+      }
+    }
     const clearedGuardian = observedGuardianPassage(previous, next);
     if (previous && previous.floor !== next.floor && !clearedGuardian)
       passage.clear();
