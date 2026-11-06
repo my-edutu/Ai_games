@@ -64,3 +64,24 @@ test('injured-but-physically-footed hero retains doorway lens; unsupported or wr
   source.player.grounded=true;source.player.groundedPlatformId='f8:p6';
   assert.equal(lens(source,earned,390/844),null);
 });
+
+test('earned walk dolly approaches both silhouettes without going through the solid clockwork core',async()=>{
+  const {safeEarnedGatewayDollyRadius}=await modulePromise;
+  const camera={x:0,y:28,z:70}, actor={x:0,y:4,z:25}, gate={x:1,y:5,z:25};
+  const unobstructed=safeEarnedGatewayDollyRadius(camera,44,actor,gate);
+  assert.ok(unobstructed<=44.01 && unobstructed>=44);
+  // An opposite-side target is behind the opaque core: do not make the
+  // gameplay hero larger at the cost of hiding the earned real doorway.
+  const occluded=safeEarnedGatewayDollyRadius(
+    {x:70,y:28,z:0},44,{x:-25,y:4,z:0},{x:-25,y:5,z:2});
+  assert.equal(occluded,70);
+});
+test('no unsafe or malformed earned-camera radius can enter the 3D lens',async()=>{
+  const {safeEarnedGatewayDollyRadius}=await modulePromise;
+  const camera={x:0,y:28,z:70},actor={x:0,y:4,z:25},gate={x:1,y:5,z:25};
+  assert.equal(safeEarnedGatewayDollyRadius(camera,90,actor,gate),70);
+  assert.equal(safeEarnedGatewayDollyRadius(camera,44,actor,gate,-1),null);
+  assert.equal(safeEarnedGatewayDollyRadius({...camera,z:NaN},44,actor,gate),null);
+  assert.equal(safeEarnedGatewayDollyRadius(camera,44,{...actor,x:NaN},gate),null);
+  assert.equal(safeEarnedGatewayDollyRadius(camera,0,actor,gate),null);
+});
