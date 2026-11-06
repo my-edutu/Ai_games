@@ -1,4 +1,26 @@
-# Tiny Kingdom — single persistent transformation backlog (W77)
+# Tiny Kingdom — single persistent transformation backlog (W78)
+
+Status: **ACTIVE — Rendering spine; no LOOK / FEEL / PLAY acceptance yet**. One continuing authentic farmer → loaded courier → market receipt → inhabited cottage experience; include grown Day-120 and 390px. Continue ONLY DRAFT PR #64, never merge or integrate unrelated branches. G088 stays pinned to `2f6deb43feb1a1557848d44def53a6109deb1ab1`.
+
+## W78 — independent stationary original civic scene during REAL house growth (6 November 2026)
+
+**Dominant measured blocker:** Actual W68 SwiftShader 120-day game evidence [run 42111123464](https://github.com/my-edutu/Ai_games/actions/runs/42111123464) recorded 28 actual citizens, 37 structures, deterministic replay, but only 3.31 SOFTWARE FPS, static CPU p95 272ms, total p95 314ms and p99 820ms; these are diagnostic software timings, not GPU hardware speed. Source-matched W77/W78 hardware timing is unavailable.
+
+**Source-level architectural change:** [W78 playable renderer `f61bf6d689782aeefc58a257366970a17f86361b`](https://github.com/my-edutu/Ai_games/commit/f61bf6d689782aeefc58a257366970a17f86361b) stops using **every new cottage** to invalidate the entire stationary WebGL settlement VBO when the actual first 12 founding lots and climate have not changed. The real farm, granary, market, bridge, guildhall, river approaches and civic architecture are retained. The genuine new roof/wall/timber/planter cluster instead rebuilds ONLY the affected original 16-metre GPU housing block via W76/W77. The renderer compares real climate and founder signatures on each render; a change to the founding lots still dirties the civic scene. When the same civic cached mesh remains valid, the real housing group is refreshed separately and seasonal resident metadata now remembers the updated exact original home keys/counters. This is a rendering-only transformation and preserves complete physical world objects, agents, construction rules and fixed-step replay.
+
+**Test-first and local verification:** [W78 browser 1024px/390px 120-day live-growth contract](https://github.com/my-edutu/Ai_games/commit/ef15e520cef705b496e148482054477bdd63137d) was authored BEFORE the renderer update, but an actual browser RED was NOT witnessed. An extracted-source V8 contract passed five logical cases: (1) a thirteenth physical cottage preserves original civic key, (2) its independent housing group refreshes, (3) resident home signatures advance, (4) a relocated founding lot invalidates civic, (5) original non-partitioned rendering continues normal growth invalidation. The full updated inline JavaScript compiled in V8. These tests are NOT software/WebGL rendering, frame timing, full replay or visual evidence.
+
+**Actual W68 failed browser CI findings (inspected job logs):**
+- [W68 GPU run 42111123337](https://github.com/my-edutu/Ai_games/actions/runs/42111123337) **FAILED**. The W68 inhabited-street test had an impossible wait comparing real cottage count to `metrics().buildings`, which also counts guildhall and farm. [Corrected test `d2855ba`](https://github.com/my-edutu/Ai_games/commit/d2855ba51cf4ed1ab0a3af59b0daacc52d9e1234) now checks the exact actual home count against `buildings-2` without weakening population/material checks. The correction itself has not yet run green.
+- The same prior exact W68 `w40-day120-viewport-actor-budget` check **FAILED** with **160,092 original triangles** versus strict less-than 160,000. This is a genuine 92-triangle budget breach, **NOT fixed or passed by W78**. Preserve strict contract; reduce noncritical rendering work within visible-quality constraints, never hide people/houses.
+
+**Queued evidence and next implementation:** [W78 registered GPU/mobile run 42160773785](https://github.com/my-edutu/Ai_games/actions/runs/42160773785), [120-day soak 42160773776](https://github.com/my-edutu/Ai_games/actions/runs/42160773776) and [matched moving gameplay 42160773738](https://github.com/my-edutu/Ai_games/actions/runs/42160773738) were QUEUED on workflow commit `e1dad46af5c83ef02e66f8029bcc20bb8ed00548`. Inspect real screenshots, video, full 120-day growth, housing/civic VBO counts, GL, memory and frame p50/p95/p99 before claiming any speedup. Profile genuine W78 foreground worker+handoff and Day-120 against same-source partition disabled. Next build actor/occupation residency and original physical streets/materials/animation only after correcting frame stalls. No independent fresh-context critics or physical GPU evidence available; both experience scorecards unchanged.
+
+**Independent A:** LOOK NOT PROVEN / FEEL FAIL / PLAY NOT PROVEN. **B commercial Manor Lords reference:** FAIL. No subjective percentage increase, no source-level performance PASS, no merge.
+
+---
+
+# Historical checkpoint — W77
 
 Status: **ACTIVE — WORK IN PROGRESS, NOT AN EXPERIENCE MILESTONE**.
 Repository: `my-edutu/Ai_games`; **open draft PR #64 only**, branch `feat/tiny-kingdom-post-main-gauntlet-20261031`.
