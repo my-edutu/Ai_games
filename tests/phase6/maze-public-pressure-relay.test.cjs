@@ -184,3 +184,44 @@ test('a hidden public tick resets a full pressure encounter without a render fra
       assert.equal(world.stats()[key],budget[key],'public visibility changes allocate no GPU resources');
   } finally {world.dispose();cleanup()}
 });
+
+test('real 360ms public step completes connected 3D pressure mechanism before retreat',async()=>{
+  const {THREE,game,world,cleanup}=await build();
+  try {
+    const state=publicState(),frozen=JSON.stringify(state);
+    world.update(state);
+    const cell=game.cellPosition(4,3,3);
+    const center=new THREE.Vector3(cell.x,0,cell.z);
+    const far=new THREE.Vector3(cell.x+50,0,cell.z+50);
+    const relay=world.group.getObjectByName('Published tide-shear staged relay 4 -1');
+    const shutter=world.group.getObjectByName('Published tide-shear floor shutter -1');
+    const piston=world.group.getObjectByName('Published tide-shear rising carriage');
+    assert.ok(relay?.isGroup && shutter?.isGroup && piston?.isGroup);
+    const budget=world.stats();
+    const contact={explorerPosition:center,reducedMotion:false,stepDurationMs:360};
+    world.animate(0,contact);
+    near(relay.rotation.z,.70,'near contact first raises bronze relay');
+    near(Math.abs(shutter.rotation.z),.03,'ivory plate remains shut during warning');
+    near(piston.position.y,.16,'piston grounded during warning');
+    world.animate(.15,contact);
+    assert.ok(Math.abs(shutter.rotation.z)>.40 && Math.abs(shutter.rotation.z)<1.11,
+      'actual ivory mesh opens as separate middle physical beat');
+    near(piston.position.y,.16,'carriage must wait until shutter phase');
+    world.animate(.28,contact);
+    assert.ok(piston.position.y>.18 && piston.position.y<.44,
+      'real third stage already begins inside current public movement step');
+    world.animate(.36,contact);
+    near(Math.abs(shutter.rotation.z),1.11,'full opened physical ivory stage');
+    near(piston.position.y,.44,'full raised physical piston');
+    world.animate(.37,{...contact,explorerPosition:far});
+    near(piston.position.y,.16,'retreat immediately returns piston');
+    near(Math.abs(shutter.rotation.z),.03,'retreat immediately closes floor');
+    world.update({...state,tick:2,visibleCells:[]});
+    world.update({...state,tick:3,visibleCells:[4]});
+    world.animate(.50,contact);
+    near(piston.position.y,.16,'unseen public interim still revokes elapsed stage');
+    for(const key of ['geometryCount','materialCount','textureCount','instances'])
+      assert.equal(world.stats()[key],budget[key],'fast staging allocates no new GPU resources');
+    assert.equal(JSON.stringify(state),frozen,'engine authority and public data untouched');
+  } finally {world.dispose();cleanup()}
+});

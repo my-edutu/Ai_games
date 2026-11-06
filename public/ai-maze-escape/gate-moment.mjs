@@ -15,10 +15,19 @@ export const MAX_GATE_VISUAL_FRAME_SECONDS = 0.035;
 // shutters and rising carriage then receive distinct visible time windows.
 // Pure scalar maths: no per-frame objects, hidden map, RNG or game clock.
 export const PUBLIC_PRESSURE_VISUAL_SECONDS = 1.25;
-export function observedPressureProgress(target, elapsedSeconds) {
+// Real autonomous steps can move Pip past a published pressure cell in 360ms.
+// Keep three ordered physical acts, but finish while that encounter is visible.
+// The cadence is from the public presentation, never hidden AI or topology.
+export function publicPressureSequenceSeconds(stepDurationMs) {
+  const ms = Number.isFinite(stepDurationMs) && stepDurationMs > 0 ? stepDurationMs : 360;
+  return Math.min(PUBLIC_PRESSURE_VISUAL_SECONDS, Math.max(.40, ms / 1000 * 1.2));
+}
+export function observedPressureProgress(target, elapsedSeconds, visualSeconds = PUBLIC_PRESSURE_VISUAL_SECONDS) {
   if (!Number.isFinite(target) || target <= 0) return 0;
   const seconds = Number.isFinite(elapsedSeconds) && elapsedSeconds > 0 ? elapsedSeconds : 0;
-  return Math.min(1, target, .20 + seconds / PUBLIC_PRESSURE_VISUAL_SECONDS);
+  const duration = Number.isFinite(visualSeconds) && visualSeconds > 0
+    ? visualSeconds : PUBLIC_PRESSURE_VISUAL_SECONDS;
+  return Math.min(1, target, .20 + seconds / duration);
 }
 export function advanceGateVisualClock(previous, frameSeconds) {
   if (!Number.isFinite(previous) || previous < 0) return 0;

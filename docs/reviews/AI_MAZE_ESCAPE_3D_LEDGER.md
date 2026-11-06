@@ -1,3 +1,9 @@
+### Pass187 — live-step-paced physical pressure encounter candidate (2026-11-06 UTC)
+
+- **Player-visible pacing gap:** the public autonomous step is typically 360ms, but the three-stage pressure scene previously required 1.25s of uninterrupted close contact. A moving Pip can leave before the real linked piston completes. This is a source-grounded diagnosis, not a new native screenshot.
+- **Source candidate:** pass the already-published frame.stepDurationMs into world.animate. A 360ms step now presents relay, ivory shutters and piston within 432ms (full lift at 345.6ms), bounded to 400–1250ms; standalone world callers retain the existing 1.25s contract. Visibility, retreat, hidden-tick reset, AI, collision, resource ownership, framing, 44px controls, HUD and thresholds unchanged.
+- **Verification:** standalone Node arithmetic smoke checked eight prospective scalar invariants. Exact-source pure test and installed-Three physical regression authored, **not executed** because coding workspace and worker service are disconnected. Current-head native WebGL and strict six-reset <100 geometries (earlier 102) remain UNVERIFIED; independent Nintendo visual benchmark NOT MET. [Dated review](./maze-3d/pass-187-live-step-pressure-cadence-candidate-2026-11-06.md). PR #53 remains OPEN DRAFT, unmerged and undeployed.
+
 ### Pass186 — public hidden-tick pressure invalidation on nonrendered updates (2026-11-06 UTC)
 
 - **Genuine encounter integrity fix:** an unseen public tick could leave the pressure piston/shutters fully extended if the object cache never rebuilt and the browser skipped that render frame. In `world.update()`, every published loss of visibility now clears both pressure timestamps immediately, so renewed exposure starts a truthful three-stage physical sequence; continuously visible hazards preserve their witnessed clock.

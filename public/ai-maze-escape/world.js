@@ -1,5 +1,5 @@
 import * as THREE from './vendor/three.module.js';
-import { GATE_RETRACTION_SECONDS, observedGateOpenings, gateRetractionPose, observedPressureProgress } from './gate-moment.mjs';
+import { GATE_RETRACTION_SECONDS, PUBLIC_PRESSURE_VISUAL_SECONDS, observedGateOpenings, gateRetractionPose, observedPressureProgress, publicPressureSequenceSeconds } from './gate-moment.mjs';
 import { publicKeyCollectionMoment } from './map-view.mjs';
 
 export const CELL_SIZE = 2.4;
@@ -2216,6 +2216,12 @@ export function createMazeWorld(options = {}) {
     // The same REAL visible public trap contact drives the grounded piston
     // and two connected shields. Hidden or remembered traps rest, never
     // hint at a private hazard. Reduced motion holds one readable static pose.
+    // The published movement step controls how quickly the complete visible
+    // pressure action can play; standalone callers retain the prior 1.25s.
+    const pressureSequenceSeconds = Number.isFinite(options.stepDurationMs)
+      && options.stepDurationMs > 0
+      ? publicPressureSequenceSeconds(options.stepDurationMs)
+      : PUBLIC_PRESSURE_VISUAL_SECONDS;
     for (const signal of trapSignals) {
       const visible = Array.isArray(snapshot?.visibleCells)
         && snapshot.visibleCells.includes(signal.cell);
@@ -2252,7 +2258,7 @@ export function createMazeWorld(options = {}) {
       const age = nearContact && signal.pressureSince !== null
         ? Math.max(0, presentationTime - signal.pressureSince) : 0;
       const stagedPressure = !visible ? 0 : nearContact
-        ? observedPressureProgress(opening, age) : Math.min(opening, .20);
+        ? observedPressureProgress(opening, age, pressureSequenceSeconds) : Math.min(opening, .20);
       // Three distinct physical phases, never a synthetic engine action:
       // relay warning → two ceramic floor leaves → elevated piston/diaphragm.
       // Source-limited visual clock avoids one positional tick skipping all

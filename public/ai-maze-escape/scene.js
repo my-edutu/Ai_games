@@ -510,7 +510,10 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     });
     // Live carved scenery responds to Pip's actual interpolated PUBLIC pose.
     // No hidden map, authoritative AI input or extra animation clock.
-    world.animate(elapsed, {...settings, gateTime:gateVisualTime, explorerPosition:explorer.group.position});
+    // Share the public AI movement cadence with the connected 3D pressure
+    // mechanism so its physical beats finish during real visible contact.
+    world.animate(elapsed, {...settings, gateTime:gateVisualTime,
+      stepDurationMs:frame.stepDurationMs, explorerPosition:explorer.group.position});
     // A physical release needs visible dwell, not a one-frame flash. Real CI
     // 41445025939 verified KEY FOUND but failed the *after screenshot* shard
     // presence because .82 s of visual time elapsed during CPU-rendered PNG.

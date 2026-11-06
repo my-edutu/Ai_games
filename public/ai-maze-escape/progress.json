@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-06T11:06:53.000Z",
+  "updatedAt": "2026-11-06T14:10:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass186 (2026-11-06) physical pressure encounter source fix: a hidden public tick now revokes in-flight warning/shutter/piston animation even without a render frame or object rebuild. New installed-Three regression would catch stale full-open piston on re-visibility; NOT executed due disconnected workspace. Head-matched CI, native WebGL, independent Nintendo comparison and strict <100 six-run geometry limit (previous measured 102) remain UNVERIFIED. Fixed official benchmark NOT MET, PR #53 open draft/unmerged/undeployed."
+    "summary": "Pass187 (2026-11-06) source-level 3D pressure encounter pacing candidate: public 360ms movement steps now allow the actual bronze relays, ivory floor shutters and linked piston to finish during witnessed close contact (432ms total sequence, full extension at 345.6ms). Keeps the original standalone 1.25s contract, public visibility/retreat/reset protection, deterministic AI and pooled geometry. Prospective scalar smoke passed; installed-Three, current-head native WebGL, strict <100 six-run geometry gate (previously 102), accessibility/framing and independent Nintendo comparison remain UNVERIFIED due disconnected coding workspace. Official reference NOT MET; draft PR #53 is open, unmerged, undeployed."
   },
   "captures": [
     {
