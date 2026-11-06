@@ -28,18 +28,29 @@ export function stepTowerPhysics(input:TowerState,action:TowerAction):{state:Tow
   // renderer-side collider; legacy/unflagged replay retains its exact path.
   const activeChunk=state.chunks.find(ch=>ch.floor===state.floor);
   if(c.guardianArenaHazards===true&&c.guardianSecondWind===true&&
-    activeChunk?.guardian&&p.velocity.x>0&&
+    activeChunk?.guardian&&
     state.enemies.some(enemy=>enemy.floor===state.floor&&
       enemy.kind==='guardian'&&enemy.active&&enemy.health>0)){
     const cap=activeChunk.platforms.find(platform=>
       platform.id===`f${state.floor}:cap`);
     if(cap){
       const plane=guardianArenaExitX(cap),top=cap.y+cap.height;
-      const nearVertical=p.position.y+p.halfHeight>top&&
-        p.position.y-p.halfHeight<top+140000;
-      const oldFront=p.position.x+p.halfWidth;
+      // Horizontal and vertical movement share this SAME fixed step. Looking
+      // only at the previous Y lets a diagonal jump/dash rise through the
+      // bottom of the rendered seal in the very tick it crosses its plane;
+      // descending from above the lattice has the symmetric tunnel. Test
+      // both Y endpoints conservatively before accepting a forward crossing.
+      const nextY=p.position.y+p.velocity.y;
+      const sweptBottom=Math.min(p.position.y,nextY)-p.halfHeight;
+      const sweptTop=Math.max(p.position.y,nextY)+p.halfHeight;
+      const entersLockHeight=sweptTop>top&&sweptBottom<top+140000;
+      // An already-overlapping body must not continue pushing through the
+      // bronze while the guardian lives. Backing away stays free, and a
+      // completely past-the-plane state is never teleported by this guard.
+      const oldBack=p.position.x-p.halfWidth;
       const proposedFront=newX+p.halfWidth;
-      if(nearVertical&&oldFront<=plane&&proposedFront>plane){
+      if(entersLockHeight&&oldBack<=plane&&proposedFront>plane&&
+          newX>=p.position.x){
         newX=plane-p.halfWidth;
         p.velocity.x=0;
         contacts.push({kind:'wall',entityId:`f${state.floor}:guardian-seal`,

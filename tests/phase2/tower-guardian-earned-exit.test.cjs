@@ -338,3 +338,82 @@ test('short-rig physical exit never bypasses living, missing or airborne guardia
   assert.equal(legacy.runtime.step({ move: 0 }).floor, 8,
     'the frozen unflagged vertical exit requirement is not changed');
 });
+
+test('living guardian seal blocks diagonal rising and falling crossings on the SAME fixed tick', () => {
+  const {stepTowerPhysics}=require('../../dist/games/infinite-tower-climb/src/physics/step.js');
+  for (const phase of ['rising','falling']) {
+    const {runtime,cap}=arena();
+    const guardian=runtime.state.enemies.find(e=>e.kind==='guardian');
+    guardian.active=true;guardian.health=4;
+    const p=runtime.state.player,top=cap.y+cap.height;
+    const stop=guardianArenaExitX(cap)-p.halfWidth;
+    p.position.x=stop-1200;
+    p.velocity.x=6000;
+    p.grounded=false;p.groundedPlatformId=undefined;
+    if (phase==='rising') {
+      // The previous Y is BELOW the visible lattice, but the same jump
+      // reaches its volume while the front edge crosses the lock plane.
+      p.position.y=top-p.halfHeight-800;
+      p.velocity.y=0;p.jumpCharges=1;
+    } else {
+      // The previous Y is ABOVE its top, and a genuine falling fixed tick
+      // intersects the same obstacle from above.
+      p.position.y=top+140000+p.halfHeight+800;
+      p.velocity.y=-20000;
+    }
+    const out=stepTowerPhysics(runtime.state,{
+      move:1,jump:phase==='rising',dash:false,attack:false,ability:false
+    });
+    assert.equal(out.state.player.position.x,stop,
+      phase+' cannot phase across the guardian seal between Y samples');
+    assert.equal(out.state.player.velocity.x,0);
+    assert.ok(out.contacts.some(c=>c.kind==='wall'&&
+      c.entityId==='f8:guardian-seal'),phase+' must be a real source contact');
+  }
+});
+
+test('living gate resolves partial overlap but never teleports a fully far-side climber', () => {
+  const {stepTowerPhysics}=require('../../dist/games/infinite-tower-climb/src/physics/step.js');
+  const {runtime,cap}=arena();
+  const boss=runtime.state.enemies.find(e=>e.kind==='guardian');
+  boss.active=true;boss.health=5;
+  const p=runtime.state.player,plane=guardianArenaExitX(cap);
+  const stop=plane-p.halfWidth;
+  p.position.x=stop+3500;p.velocity.x=6000;
+  const advance={move:1,jump:false,dash:false,attack:false,ability:false};
+  const contained=stepTowerPhysics(runtime.state,advance);
+  assert.equal(contained.state.player.position.x,stop,
+    'an overlap cannot advance through a still-solid threshold');
+  assert.ok(contained.contacts.some(c=>c.entityId==='f8:guardian-seal'));
+  p.position.x=plane+p.halfWidth+2000;
+  const farSide=stepTowerPhysics(runtime.state,advance);
+  assert.ok(farSide.state.player.position.x>plane+p.halfWidth,
+    'the collider must not teleport an already far-side state backwards');
+});
+
+test('swept guardian lock does not invent a below-cap wall or rewrite legacy jump physics', () => {
+  const {stepTowerPhysics}=require('../../dist/games/infinite-tower-climb/src/physics/step.js');
+  for (const legacy of [false,true]) {
+    const {runtime,cap}=arena(legacy?{guardianArenaHazards:false}:{});
+    const boss=runtime.state.enemies.find(e=>e.kind==='guardian');
+    boss.active=true;boss.health=4;
+    const p=runtime.state.player,stop=guardianArenaExitX(cap)-p.halfWidth;
+    p.position.x=stop-1200;p.velocity.x=6000;
+    p.grounded=false;p.groundedPlatformId=undefined;
+    p.position.y=cap.y+cap.height-p.halfHeight-800;
+    p.velocity.y=0;p.jumpCharges=1;
+    const result=stepTowerPhysics(runtime.state,{
+      move:1,jump:!legacy,dash:false,attack:false,ability:false
+    });
+    if (legacy) {
+      assert.ok(result.state.player.position.x>stop,
+        'historical opt-out never acquires the new guardian collider');
+    } else {
+      // Without a jump the body remains WELL below the visual lock volume:
+      // lower route movement must not be stopped by a fictitious full-tower wall.
+      assert.ok(result.state.player.position.x>stop,
+        'an under-cap, non-rising path must remain physically traversable');
+    }
+    assert.ok(!result.contacts.some(c=>c.entityId==='f8:guardian-seal'));
+  }
+});
