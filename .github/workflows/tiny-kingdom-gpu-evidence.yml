@@ -44,7 +44,7 @@ jobs:
         env:
           CI: '1'
           LIBGL_ALWAYS_SOFTWARE: '1'
-        run: npx playwright test tests/browser/tiny-kingdom-w83-farm-market-continuity.spec.cjs tests/browser/tiny-kingdom-w84-granary-loft.spec.cjs tests/browser/tiny-kingdom-w85-gpu-dynamic-ring.spec.cjs tests/browser/tiny-kingdom-w86-resident-multi-draw.spec.cjs tests/browser/tiny-kingdom-w87-market-to-home.spec.cjs tests/browser/tiny-kingdom-w88-conservative-culling.spec.cjs tests/browser/tiny-kingdom-w89-physical-courier-contact.spec.cjs tests/browser/tiny-kingdom-w90-physical-daybreak-flight.spec.cjs tests/browser/tiny-kingdom-w91-resident-ambient-animation.spec.cjs --workers=1
+        run: npx playwright test tests/browser/tiny-kingdom-w83-farm-market-continuity.spec.cjs tests/browser/tiny-kingdom-w84-granary-loft.spec.cjs tests/browser/tiny-kingdom-w85-gpu-dynamic-ring.spec.cjs tests/browser/tiny-kingdom-w86-resident-multi-draw.spec.cjs tests/browser/tiny-kingdom-w87-market-to-home.spec.cjs tests/browser/tiny-kingdom-w88-conservative-culling.spec.cjs tests/browser/tiny-kingdom-w89-physical-courier-contact.spec.cjs tests/browser/tiny-kingdom-w90-physical-daybreak-flight.spec.cjs tests/browser/tiny-kingdom-w91-resident-ambient-animation.spec.cjs tests/browser/tiny-kingdom-w92-resident-workstations.spec.cjs --workers=1
       - uses: actions/upload-artifact@v4
         if: always()
         with:
