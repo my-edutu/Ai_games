@@ -2928,6 +2928,49 @@ function directionalCastShadows(time){
  }finally{currentMaterial=old}
 }
 
+// W81: real hand-laid clay COURSES with raised drip lips and existing
+// original mipmapped shingle atlas: detailed 252->48 and compact 48->24
+// overlay triangles/house. Preserve full roofs, people, simulation and save.
+function originalClayRoofCourses(x,eave,peak,halfW,front,back,palette,courses,variant,compact){
+ const start=data.length,shades=palette.map(t=>Array.isArray(t)?t:rgb(t));
+ materialScope(MATERIAL.ROOF,()=>{
+  for(const side of [-1,1])for(let course=0;course<courses;course++){
+   const lo=course/courses,hi=(course+1)/courses;
+   const x0=x+side*halfW*(1-lo),x1=x+side*halfW*(1-hi);
+   const lift=.026+.002*((course+variant)%3);
+   const y0=eave+(peak-eave)*lo+lift,y1=eave+(peak-eave)*hi+lift;
+   const pigment=shades[(course*3+(side+1)+variant)%shades.length];
+   const dark=shades[(course+variant+2)%shades.length].map(v=>v*.73);
+   if(side<0){
+    quad([x0,y0,front],[x0,y0,back],[x1,y1,back],[x1,y1,front],pigment);
+    quad([x0,y0+.014,front],[x0,y0-.032,front],
+     [x0,y0-.032,back],[x0,y0+.014,back],dark);
+   }else{
+    quad([x0,y0,front],[x1,y1,front],[x1,y1,back],[x0,y0,back],pigment);
+    quad([x0,y0+.014,back],[x0,y0-.032,back],
+     [x0,y0-.032,front],[x0,y0+.014,front],dark);
+   }
+  }
+ });
+ if(compact){
+  villageVisualLod.compactRoofCourses+=courses*2;
+  // The original atlas still depicts four shingle patches per compact row.
+  villageVisualLod.compactRoofTiles+=courses*2*4;
+ }else villageVisualLod.detailedRoofCourses+=courses*2;
+ if((data.length-start)/30!==courses*2*4)throw Error('W81 invalid clay-course mesh');
+}
+function getRoofCoursingAudit(){
+ const detailedHomes=villageVisualLod.detailedHomes;
+ const compactHomes=villageVisualLod.compactHomes;
+ return {source:'physical-handlaid-roof-courses-and-original-clay-atlas',
+  renderer:gpuAvailable?'webgl':'canvas2d',
+  atlasShingles:Boolean(gpuAvailable),detailedHomes,compactHomes,
+  detailedCourses:villageVisualLod.detailedRoofCourses,
+  compactCourses:villageVisualLod.compactRoofCourses,
+  patternedCompactShingles:villageVisualLod.compactRoofTiles,
+  reclaimedTriangles:gpuAvailable?detailedHomes*204+compactHomes*24:0,
+  fullHouseCount:city.length,noRemovedResidents:true,noAuthorityChanges:true};
+}
 // G055: remove permanent opaque green house/windmill floor decals.
 function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale,h=1.9*scale;
  // G054c: plaster is not stacked granite. Preserve stone in the footings,
@@ -2948,7 +2991,9 @@ materialScope(MATERIAL.PLASTER,()=>{
 // Each row is staggered; subtle raised edges catch directional sunlight. The
 // deterministic pattern depends only on building variant and tile coordinates.
 const roofTileColors=[rgb(0xa96d50),rgb(0xb27c56),rgb(0x825143),rgb(0xc18b61),rgb(0x97634b)];
-for(let slope=0;slope<2;slope++){
+if(gpuAvailable){
+ originalClayRoofCourses(x,y+h,y+ridge,(xr-xx)*.5,zy,zz,roofTileColors,6,variant,false);
+}else for(let slope=0;slope<2;slope++){
  const edge=slope===0?xx:xr;
  const roofWidth=x-edge;
  for(let row=0;row<7;row++){
@@ -3071,7 +3116,7 @@ let streetMorphologyStats={homes:0,highStreetFronts:0,upperJetties:0,
  crossGables:0,shopCanopies:0,framedUpperCasements:0,physicalSignboards:0,
  totalTriangles:0,archetypes:[0,0,0,0]};
 const VILLAGE_LOD_LIMIT=8;
-const villageVisualLod={detailedHomes:0,compactHomes:0,detailedCitizens:0,compactCitizens:0,compactRoofTiles:0,compactFramedWindows:0,compactGableBraces:0,compactSideWindows:0,compactSideTimberQuads:0,compactStaggeredCourses:0,compactFacingCount:0,compactTurnedCitizens:0,compactFacingVertexError:0,compactDormers:0,compactDormerTriangles:0,compactGuildLofts:0,compactPorchFrames:0,compactWeatheredFootings:0,compactRainCasks:0,compactFrontageTriangles:0,compactRoofPaletteCounts:[0,0,0,0]};
+const villageVisualLod={detailedHomes:0,compactHomes:0,detailedRoofCourses:0,compactRoofCourses:0,detailedCitizens:0,compactCitizens:0,compactRoofTiles:0,compactFramedWindows:0,compactGableBraces:0,compactSideWindows:0,compactSideTimberQuads:0,compactStaggeredCourses:0,compactFacingCount:0,compactTurnedCitizens:0,compactFacingVertexError:0,compactDormers:0,compactDormerTriangles:0,compactGuildLofts:0,compactPorchFrames:0,compactWeatheredFootings:0,compactRainCasks:0,compactFrontageTriangles:0,compactRoofPaletteCounts:[0,0,0,0]};
 // G153: reuse each ORIGINAL per-home roof, walls, windows and street facade
 // when a growing inhabited settlement or a new season rebuilds static scenery.
 // This bounded presentation cache preserves the exact authored triangle order
@@ -3388,6 +3433,7 @@ function stationarySceneKey(climate,light){
 function resetHomeVisualStats(){
  cottageFacadeStats={homes:0,styles:[0,0,0,0],plasterPanels:0,sideWindows:0,diagonalBraces:0,meshTriangles:0};
  villageVisualLod.detailedHomes=0;villageVisualLod.compactHomes=0;
+villageVisualLod.detailedRoofCourses=0;villageVisualLod.compactRoofCourses=0;
 villageVisualLod.compactRoofTiles=0;villageVisualLod.compactFramedWindows=0;villageVisualLod.compactGableBraces=0;villageVisualLod.compactSideWindows=0;villageVisualLod.compactSideTimberQuads=0;villageVisualLod.compactStaggeredCourses=0;villageVisualLod.compactDormers=0;villageVisualLod.compactDormerTriangles=0;villageVisualLod.compactGuildLofts=0;villageVisualLod.compactPorchFrames=0;villageVisualLod.compactWeatheredFootings=0;villageVisualLod.compactRainCasks=0;villageVisualLod.compactFrontageTriangles=0;villageVisualLod.compactRoofPaletteCounts.fill(0);
 for(const key of ['burgageMaterialHomes','burgageMaterialWallPairs',
  'burgageMaterialGardenBoxes','burgageMaterialDownspouts','burgageMaterialTriangles'])
@@ -3457,6 +3503,9 @@ function compactHouse(x,z,variant){
  materialScope(MATERIAL.ROOF,()=>{
   quad([x-halfW,eave,roofFront],[x,peak,roofFront],[x,peak,roofBack],[x-halfW,eave,roofBack],roof);
   quad([x,peak,roofFront],[x+halfW,eave,roofFront],[x+halfW,eave,roofBack],[x,peak,roofBack],roof);
+  if(gpuAvailable){
+   originalClayRoofCourses(x,eave,peak,halfW,roofFront,roofBack,palette,3,variant,true);
+  }else{
   // G066: actual lightweight pitched shingle surfaces, not a decorative
   // texture or a dense full-detail copy. 2 faces * 3 courses * 4 tiles.
   // G088 palette is fixed per physical cottage, not per-frame or world RNG.
@@ -3480,6 +3529,7 @@ function compactHouse(x,z,variant){
      villageVisualLod.compactRoofTiles++;
     }
    }
+  }
   }
  });
  materialScope(MATERIAL.WOOD,()=>{
@@ -13587,7 +13637,7 @@ getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStr
  totalSavedDrawCalls:scenicVisibilityStats.totalSavedDrawCalls,
  batchMode:scenicVisibilityStats.batchMode,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable}),getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,setStaticBatchBridgingForTesting,getCourierPostCameraAudit,evaluateCourierPostRepairPolicy,getDaybreakReturnAudit,getCameraDynamicCacheStats,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable}),getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,setStaticBatchBridgingForTesting,getCourierPostCameraAudit,evaluateCourierPostRepairPolicy,getDaybreakReturnAudit,getCameraDynamicCacheStats,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
  if(streetWalk)setStreetWalk(false);
 if(follow)setCitizenFollow(false);cinematic=false;document.getElementById('camera').classList.remove('active');
 yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2&&o.focus.every(Number.isFinite))focusPoint=o.focus.slice(0,2)}};
