@@ -21,6 +21,8 @@ assert(game.includes('marketShutterResidentActive?marketShutterResidentMesh?.len
  'Must count resident geometry in original triangle budget');
 assert(game.includes('marketShutterResidentMesh.length/30'),
  'Original eight door leaves must be audited');
+assert(game.includes('const shutters=inspectMeshGeometry(marketShutterResidentMesh)'),
+ 'Resident market door geometry must be included in complete mesh integrity audit');
 assert(game.includes('if(materialId>14.0&&materialId<14.5)'),
  'Real GLSL market shutters must rotate in vertex shader');
 assert(game.includes('surfaceMaterial=6.0'),
