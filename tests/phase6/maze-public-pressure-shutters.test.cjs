@@ -54,19 +54,29 @@ test('published pressure cell owns two physically distinct, rooted hinged floor 
       close(shutters[index].position.x,side*.52,'resting hinge X');
       close(shutters[index].rotation.z,-side*.03,'resting plate tilt');
     }
+    // Production now stages three real connected mechanisms, rather than
+    // snapping every piece fully open on first contact.
     world.animate(0,{explorerPosition:near,reducedMotion:false});
     for(const [index,side] of [-1,1].entries()){
-      close(shutters[index].position.x,side*.70,'approaching hinge opens outward');
-      close(shutters[index].rotation.z,-side*1.11,'ivory plate opens into an upright physical silhouette');
+      close(shutters[index].position.x,side*.52,'first public contact keeps floor closed during relay warning');
+      close(shutters[index].rotation.z,-side*.03,'warning precedes ivory shutter lift');
       assert.ok(shutters[index].children.every(mesh=>mesh.parent===shutters[index]));
     }
-    close(shutters[0].rotation.z,-shutters[1].rotation.z,'symmetric opening');
-    world.animate(0,{explorerPosition:new THREE.Vector3(point.x+game.CELL_SIZE,0,point.z),reducedMotion:false});
+    world.animate(.30,{explorerPosition:near,reducedMotion:false});
+    assert.ok(Math.abs(shutters[0].rotation.z)>.25 && Math.abs(shutters[0].rotation.z)<.45,
+      'the second physical beat begins opening the genuine ceramic shutters');
+    world.animate(.65,{explorerPosition:near,reducedMotion:false});
+    for(const [index,side] of [-1,1].entries()){
+      close(shutters[index].position.x,side*.70,'completed hinge slides outward');
+      close(shutters[index].rotation.z,-side*1.11,'ivory plate becomes upright after the warning beat');
+    }
+    close(shutters[0].rotation.z,-shutters[1].rotation.z,'symmetric completed opening');
+    world.animate(.65,{explorerPosition:new THREE.Vector3(point.x+game.CELL_SIZE,0,point.z),reducedMotion:false});
     assert.ok(Math.abs(shutters[0].rotation.z)>1.08 && Math.abs(shutters[0].rotation.z)<1.11,
-      'the true one-cell published approach must reveal a near-upright ivory pressure plate');
-    world.animate(0,{explorerPosition:new THREE.Vector3(point.x+game.CELL_SIZE,0,point.z+game.CELL_SIZE),reducedMotion:false});
-    assert.ok(Math.abs(shutters[0].rotation.z)>.10 && Math.abs(shutters[0].rotation.z)<.13,
-      'real diagonal approach produces a small early warning without revealing a distant trap');
+      'continued witnessed one-cell approach retains the open physical shutter');
+    world.animate(.65,{explorerPosition:new THREE.Vector3(point.x+game.CELL_SIZE,0,point.z+game.CELL_SIZE),reducedMotion:false});
+    close(Math.abs(shutters[0].rotation.z),.03,
+      'diagonal observation warns via the bronze relay, without prematurely opening the floor');
     world.animate(0,{explorerPosition:far,reducedMotion:false});
     close(shutters[0].position.x,-.52,'withdrawal closes left shutter');
     close(shutters[1].position.x,.52,'withdrawal closes right shutter');
@@ -97,8 +107,10 @@ test('unpublished danger, remembered-only trap and next-run reset cannot animate
     close(right.rotation.z,-.03,'reduced motion must preserve unseen trap rest');
     world.update(published());
     world.animate(0,{explorerPosition:hero,reducedMotion:false});
+    close(right.rotation.z,-.03,'first re-visible public contact starts warning, not instant full lift');
+    world.animate(1.35,{explorerPosition:hero,reducedMotion:false});
     assert.ok(Math.abs(right.rotation.z)>1.1,
-      'publicly visible contact alone drives physical shutters');
+      'only continued genuinely visible contact completes the physical shutter sequence');
     world.update(published({runToken:'new-world',cells:[],visibleCells:[]}));
     assert.equal(world.group.getObjectByName('Published tide-shear floor shutter 1'),undefined,
       'old-run pressure floor must disappear completely');

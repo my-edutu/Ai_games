@@ -50,16 +50,24 @@ test('real 3D tide diaphragm telescopes and opens both rooted shields on publicl
     assert.equal(carriage.position.y,.16);
     assert.ok(shields.every(leaf=>Math.abs(Math.abs(leaf.rotation.z)-.08)<1e-9));
     world.animate(0,{explorerPosition:hero,reducedMotion:false});
-    assert.ok(Math.abs(carriage.position.y-.44)<1e-9,'actual public pressure visibly extends the piston');
+    assert.equal(carriage.position.y,.16,'first contact warns without prematurely lifting piston');
+    assert.ok(shields.every(leaf=>Math.abs(Math.abs(leaf.rotation.z)-.08)<1e-9));
+    world.animate(.30,{explorerPosition:hero,reducedMotion:false});
+    assert.equal(carriage.position.y,.16,'ceramic opening beat must precede piston rise');
+    world.animate(.95,{explorerPosition:hero,reducedMotion:false});
+    assert.ok(carriage.position.y>.38 && carriage.position.y<.41,
+      'third physically witnessed beat raises the rooted piston after shutter action');
+    world.animate(1.35,{explorerPosition:hero,reducedMotion:false});
+    assert.ok(Math.abs(carriage.position.y-.44)<1e-9,'complete sustained public pressure lifts piston fully');
     assert.ok(shields.every(leaf=>Math.abs(Math.abs(leaf.rotation.z)-.78)<1e-9));
     assert.equal(shields[0].rotation.z,-shields[1].rotation.z,
-      'matching public positions yield an entirely symmetrical diaphragm');
-    world.animate(0,{explorerPosition:new THREE.Vector3(pos.x+game.CELL_SIZE,0,pos.z),reducedMotion:false});
-    assert.ok(carriage.position.y>.43 && carriage.position.y<.45,
-      'the real one-cell public pressure beat extends the rooted piston');
-    world.animate(0,{explorerPosition:new THREE.Vector3(pos.x+game.CELL_SIZE,0,pos.z+game.CELL_SIZE),reducedMotion:false});
-    assert.ok(carriage.position.y>.17 && carriage.position.y<.20,
-      'real diagonal approach shows smaller preliminary motion than adjacent pressure');
+      'matching publicly observed positions yield symmetrical linked diaphragms');
+    world.animate(1.35,{explorerPosition:new THREE.Vector3(pos.x+game.CELL_SIZE,0,pos.z),reducedMotion:false});
+    assert.ok(carriage.position.y>.42 && carriage.position.y<.44,
+      'sustained one-cell encounter keeps the consequential piston action readable');
+    world.animate(1.35,{explorerPosition:new THREE.Vector3(pos.x+game.CELL_SIZE,0,pos.z+game.CELL_SIZE),reducedMotion:false});
+    assert.equal(carriage.position.y,.16,
+      'diagonal observation may warn, but cannot fabricate a full pressure contact');
     world.animate(0,{explorerPosition:far,reducedMotion:false});
     assert.equal(carriage.position.y,.16,'withdrawal restores the physical resting silhouette');
     world.animate(42,{explorerPosition:hero,reducedMotion:true});
@@ -92,7 +100,9 @@ test('a remembered, hidden, fabricated or previous-run trap cannot perform a fre
     }
     world.update(published({visibleCells:[4]}));
     world.animate(0,{explorerPosition:hero,reducedMotion:false});
-    assert.ok(Math.abs(piston.position.y-.44)<1e-9,'current public sight restores real physical action');
+    assert.equal(piston.position.y,.16,'newly seen hazard cannot skip the warning and shutter beats');
+    world.animate(1.35,{explorerPosition:hero,reducedMotion:false});
+    assert.ok(Math.abs(piston.position.y-.44)<1e-9,'continued current public sight completes real physical piston action');
     world.update(published({cells:[],visibleCells:[],privateTrapCells:[4],privateMap:{4:'danger'}}));
     assert.equal(world.group.getObjectByName('Published tide-shear pressure mast 4'),undefined);
     assert.equal(world.stats().responsiveTrapSignals,0,
