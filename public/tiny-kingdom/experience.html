@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Tiny Kingdom — Experience Transformation Scorecard W95</title>
+<title>Tiny Kingdom — Experience Transformation Scorecard W96</title>
 <style>
 :root{color-scheme:dark;--ink:#101a18;--paper:#eee3cc;--muted:#bdb9a8;--gold:#dcb879}*{box-sizing:border-box}body{margin:0;background:#111b18;color:#eee9d9;font:16px/1.6 system-ui,-apple-system,Segoe UI,sans-serif}main{max-width:1040px;margin:auto;padding:clamp(18px,4vw,52px)}header{border-bottom:1px solid #8d765255;padding-bottom:24px;margin-bottom:28px}.eyebrow{letter-spacing:.17em;text-transform:uppercase;color:var(--gold);font-size:12px;font-weight:700}h1{font:clamp(30px,5vw,54px)/1.1 Georgia,serif;letter-spacing:-.025em;margin:8px 0}h2{font:29px Georgia,serif;margin:0 0 12px}h3{margin:6px 0;font-size:17px;color:#f3dfb9}p{margin:8px 0 16px}a{color:#ebc98d;text-underline-offset:3px}nav{display:flex;flex-wrap:wrap;gap:14px;margin-top:20px}.lead{max-width:800px;color:#e3dfd0;font-size:17px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 30px}article{border:1px solid #bfa98042;background:#20302b;border-radius:13px;padding:18px;min-width:0}article p{color:#c7d0c5;font-size:14px}.status{color:#f3d39b;font-size:12px;font-weight:800;letter-spacing:.09em}.failure{color:#f1ad96}section{margin:28px 0}.compare{display:grid;grid-template-columns:1fr 1fr;gap:14px}.compare article{background:#1c2924}.meta{color:#b7baae;font-size:13px}.data{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:560px}th,td{border-bottom:1px solid #a4b5a431;padding:11px;text-align:left}th{color:var(--gold);font-weight:600}strong{color:#f4e5c8}code{overflow-wrap:anywhere;font-size:.85em;color:#e2c897}footer{border-top:1px solid #917a5055;margin-top:38px;padding-top:20px;color:#bfc6b9;font-size:13px}@media(max-width:700px){.grid,.compare{grid-template-columns:1fr}}
 </style></head><body><main>
-<header><div class="eyebrow">Living Valley · independent experience scorecards · W95</div>
+<header><div class="eyebrow">Living Valley · independent experience scorecards · W96</div>
 <h1>Is the running game substantially better?</h1>
 <p class="lead">Technical correctness is the floor, not the finish line. The existing autonomous medieval village is being rebuilt as a believable lived-in world. No graphics, animation or commercial-quality milestone is awarded without complete real-game comparisons.</p>
 <nav aria-label="Related pages"><a href="index.html">Play Tiny Kingdom</a><a href="progress.html">Chronological Gauntlet history</a><a href="https://github.com/my-edutu/Ai_games/pull/64">Open draft PR #64</a></nav></header>
@@ -13,6 +13,23 @@
 
 
 
+
+<section id="w96" style="border-top:4px solid #d5ad68;padding-top:24px" aria-label="W96 resident original market shutters; strict unproven experience">
+<p class="eyebrow">CURRENT · W96 · 6 NOVEMBER 2026 · PHASE 1 · SAME farmer → loaded courier → receiving market → inhabited home</p>
+<h2>One GPU stream for the original four trading stalls' eight real clock-operated shutters — source work, NOT a transformation milestone</h2>
+<p><a href="https://github.com/my-edutu/Ai_games/commit/851a9e47c3fb54b013a08dc2c6e026108e4bb947">Original game-source change</a> bakes the unchanged real doors once and animates their hinge rotations, normals and wooden materials in the vertex shader at the real village clock. Original merchant inventory and citizen actions are not replaced. Legacy/WebGL software fallback stays unpruned. A source RED/parse GREEN and unique hinge-tag checks ran; Node hinge/clock contract and desktop/390px Playwright regression are committed and registered but <strong>not executed</strong>.</p>
+<div class="compare"><article><h3>BEFORE · immutable G088 game</h3><p>Original source <code>2f6deb43feb1a1557848d44def53a6109deb1ab1</code> · <a href="https://github.com/my-edutu/Ai_games/actions/runs/41301740489/artifacts/13081531738">baseline Day-1</a> · <a href="https://github.com/my-edutu/Ai_games/actions/runs/41301740495/artifacts/13081222556">baseline Day-120</a>.</p></article>
+<article><h3>AFTER · W96 playable-source candidate, no fresh complete recording</h3><p>Source commit <code>851a9e47c3fb54b013a08dc2c6e026108e4bb947</code>. An earlier candidate <a href="https://github.com/my-edutu/Ai_games/actions/runs/42173219539">failed its first WebGL frame</a>. Exact-new W96 town / real workday / Day-120 / 390px video and physical mobile/desktop GPU metrics are absent.</p></article></div>
+<div class="data"><table><thead><tr><th>Independent scorecard</th><th>Verdict</th><th>Remaining critical failure</th></tr></thead><tbody>
+<tr><td>A LOOK materially better than G088</td><td>NOT PROVEN</td><td>No current matched running shots or independent critic; same old structures and low-detail people</td></tr>
+<tr><td>A FEEL, hardware 30+fps and p95 ≤33.3 ms</td><td>FAIL</td><td>No current physical desktop/mobile frame timing; older 1.709 SwiftShader FPS not hardware</td></tr>
+<tr><td>A PLAY authentic farm→courier→market→occupied home</td><td>NOT PROVEN</td><td>No uninterrupted current-source economy and touch-camera film</td></tr>
+<tr><td>First frame / no GL errors / deterministic 120-day / &lt;160k</td><td>NOT PROVEN</td><td>W95 GPU <a href="https://github.com/my-edutu/Ai_games/actions/runs/42279098868">queue</a>, <a href="https://github.com/my-edutu/Ai_games/actions/runs/42279098949">soak queue</a>; historical 160,092 breach unresolved</td></tr>
+<tr><td>Blinded genuinely separate critics</td><td>NOT PROVEN</td><td>No independent completed reviews</td></tr>
+<tr><td>B Manor Lords commercial-quality reference</td><td>FAIL</td><td>Architecture, motion and observed scene-wide richness short of commercial reference</td></tr>
+</tbody></table></div>
+<p><strong>Next integrated work:</strong> get an actual first WebGL frame and same-source Day-1/real-workday/Day-120/390px video; profile CPU/driver/GPU/soak; continue persistent animated architectural and citizen spine with original connected street. <a href="https://github.com/my-edutu/Ai_games/pull/64">PR #64 remains OPEN/DRAFT, unmerged.</a></p>
+</section>
 
 <section id="w95" style="border-top:4px solid #d5ad68;padding-top:24px" aria-label="W95 genuinely deferred startup, unverified live gate">
 <p class="eyebrow">CURRENT · W95 · 6 NOVEMBER 2026 · PHASE 1 first-frame safety · SAME farmer → genuine loaded courier → receiving market → inhabited home</p>
