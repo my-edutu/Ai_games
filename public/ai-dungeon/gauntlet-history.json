@@ -2183,7 +2183,7 @@
       }
     },
     "evidence": {
-      "actualContinuousScenarioReel": "UNVERIFIED: original continuous five-stage desktop/mobile reel (travel/combat/Warden/floor/defeat-restart) with synchronized game audio not captured on exact new head.",
+      "actualContinuousScenarioReel": "UNVERIFIED: dedicated source-to-Chromium uninterrupted desktop/mobile organic audiovisual recorder now added; no exact-source head film or decoded original sound reviewed.",
       "matchedBeforeAfter": "UNVERIFIED: no valid same-seed original baseline vs candidate complete moving scenario; fixed locked baseline remains 281735d0910c6b2443648af976003d50412ee324",
       "mobileBeforeAfter": "UNVERIFIED: previous actual mobile screenshot shows obstruction; new native duel-lane candidate not yet observed, sustained phone performance not measured.",
       "independentCriticPanel": {
@@ -2196,13 +2196,13 @@
       },
       "safetyChecks": "c444570 Dungeon authority passed but browser shards 1,2,3 and visual-review failed. Measured 120px mobile hero cards at 390px, inconsistent boss exposure/cast HUD. Source 2913d4c committed for actual integration; new browser/authority/catalogue CI queued, results UNVERIFIED.",
       "matchedExternalReference": "NOT_RUN",
-      "originalAudioMotionClip": "UNVERIFIED: no new synchronized original Warden WebGL motion + original WebAudio candidate recording.",
+      "originalAudioMotionClip": "UNVERIFIED: original WebAudio capture opt-in in new recorder, no decoded audible soundtrack or synchronized proof.",
       "soundstageBrowser": "UNVERIFIED for actual Warden exposed event; original audio remains click-opt-in only.",
       "audioLoudnessAndClipping": "NOT_MEASURED: browser records positive original peak/RMS and populated WAV only when genuine real-time AudioContext frames exist; no candidate measurements yet.",
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Real-source b8be04f 1440x832 browser screenshot from 41672587065 and Warden boss desktop/mobile screenshot/video artifacts 41672587022 were INSPECTED: new 14 anatomical joint cylinders made elongated opaque spindly/squid-like limbs. Warden encounter head-on 1440x832 has 3 heroes overlapping enemy bodies in the 58% HP boss arena, warning Rift Cross visible but contact indistinguishable; mobile capture progressed into floor 2 but large stylized ballheads persist. This is a NEGATIVE experiential finding compared with da492455 and exact locked baseline; source visual redesign at 71da2ea to cap spans remains unverified. No masked A/B victory.",
-      "latestCandidateWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42100092595 -- queued candidate branch checks, not validated at update",
+      "latestCandidateWorkflow": "PENDING: Dungeon M1 Authentic Organic Journey Evidence (desktop/mobile matrix) on candidate head; do not assert run completion before checking Actions.",
       "currentPredecessorWebgl": {
         "sourceSha": "9c2b51c41a6a4b70494a86306b21055860456e27",
         "worldArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41962716364/artifacts/13387136348",
@@ -5641,14 +5641,7 @@
       "largestGap": "Native full body visibility, adult-scale silhouettes, genuinely readable skinned sword/body contact and coherent immersive Warden chamber; full five-stage audiovisual A/B not recorded.",
       "nextTask": "Inspect exact new-head 1440px and 390px real WebGL moving gameplay + opt-in actual sound; measure natural team handoffs, reject scene/body occlusion and camera instability; capture 5-stage journey and independent blind A/B."
     },
-    "latestImplementation": {
-      "sourceSha": "4a599c56500bd3db4064808536b219748338d5c3",
-      "description": "Connected full-body source-GLB native duel choreography and one-shot clip envelope (three real melee roles), original 215 ms visual contact, reusable joint poses/rig diagnostics; source-only candidate.",
-      "status": "IN_PROGRESS_NOT_TRANSFORMED",
-      "afterMotion": "UNVERIFIED",
-      "actualAudio": "UNVERIFIED",
-      "exactNewHeadBrowser": "QUEUED / UNVERIFIED"
-    },
+    "latestImplementation": "Candidate: separate desktop/mobile real-Chromium end-to-end natural journey recorder with original audio opt-in; source-only, execution NOT VERIFIED.",
     "lastCandidateSha": "0fb23004fe7e7b91f327392b1da5ce4b82682fb7",
     "experienceVerdict": "IN PROGRESS — NOT TRANSFORMED; LOOKS/FEELS/PLAYS UNVERIFIED; 0/3 independent masked critics.",
     "criticReadiness": "0/3; original fully matched desktop/mobile moving audiovisual journey not captured; source-only candidate.",
@@ -5702,6 +5695,30 @@
       "feels": "UNVERIFIED",
       "plays": "UNVERIFIED",
       "next": "Exact-new-head real 1440px/390px seeded Chromium audiovisual battle + compare pinned baseline; verify no new occlusion/camera jitter, then original adult-scale native rig/Warden melee integration and five-stage organic reel."
-    }
+    },
+    "currentStage": "A — original five-stage audiovisual evidence incomplete",
+    "executableNextTask": "Check exact-head 42157746113/42157746206; run and inspect dedicated 1440x832 and 390x844 natural-journey films, verify audio channels/real motion/camera and checksum, matched immutable baseline; fix largest observed visual defect, then B/C full-body/contact slice.",
+    "phasePlan": [
+      {
+        "phase": "A",
+        "acceptance": "Both seeded real-WebGL organic five-stage videos/audio and frame/occlusion metrics, original immutable baseline matched",
+        "status": "UNVERIFIED"
+      },
+      {
+        "phase": "B",
+        "acceptance": "Native adult-scale Vanguard/Revenant/Warden original anatomy and coherent skinned motion, filmed live",
+        "status": "IN_PROGRESS_SOURCE_ONLY"
+      },
+      {
+        "phase": "C-F",
+        "acceptance": "True hit/recovery, connected room journey, autonomous tactical behavior, accessible performant spectator audio",
+        "status": "NOT_VERIFIED"
+      },
+      {
+        "phase": "G",
+        "acceptance": "3+ independent blinded LOOKS/FEELS/PLAYS majorities, no regression and valid replay/CI",
+        "status": "NOT_VERIFIED"
+      }
+    ]
   }
 }
