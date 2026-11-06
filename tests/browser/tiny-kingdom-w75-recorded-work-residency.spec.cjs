@@ -56,9 +56,13 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(on.snapshot).toBe(before.snapshot);
   fs.mkdirSync('artifacts/tiny-kingdom-w75',{recursive:true});
   await page.screenshot({path:'artifacts/tiny-kingdom-w75/'+viewport.width+'-resident-work.png'});
+  const previousFrames=await page.evaluate(()=>window.__tinyKingdom.getFrameProfile().totalFrames);
   await page.evaluate(()=>window.__tinyKingdom.setRecordedWorkResidencyForTesting(false));
-  await page.waitForFunction(()=>!window.__tinyKingdom.getRecordedWorkResidencyAudit().active,
-   null,{timeout:110000});
+  await page.waitForFunction(previous=>{
+   const g=window.__tinyKingdom;
+   return g.getFrameProfile().totalFrames>previous &&
+    !g.getRecordedWorkResidencyAudit().active;
+  },previousFrames,{timeout:110000});
   const off=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
    return {tris:g.getGeometryAudit().totalTriangles,
