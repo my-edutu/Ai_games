@@ -21,7 +21,7 @@ export interface TowerRenderSnapshot{
   worldWidth:number;
   chunkBaseY:number;
   chunkHeight:number;
-  player:{x:number;y:number;vx:number;vy:number;halfWidth:number;halfHeight:number;facing:-1|1;health:number;maxHealth:number;stamina:number;maxStamina:number;shieldCharges:number;state:string;score:number;attacking:boolean};
+  player:{x:number;y:number;vx:number;vy:number;halfWidth:number;halfHeight:number;facing:-1|1;health:number;maxHealth:number;stamina:number;maxStamina:number;shieldCharges:number;state:string;score:number;attacking:boolean;grounded?:boolean;groundedPlatformId?:string};
   // Published only for the opt-in physical cap guardian. Same source exit as AI and rules.
   guardianExitX?:number;
   platforms:Array<{id:string;kind:string;x:number;y:number;width:number;height:number}>;
@@ -77,7 +77,11 @@ export function createTowerRenderSnapshot(state:TowerState,options:{includeWindu
     version:1 as const,
     runToken:checksum({runId:state.runId}),revision:(state.tick*1000+state.stats.floorsCleared)*3+lifecycleRevision,tick:state.tick,lifecycle:state.lifecycle,
     floor:state.floor,theme:chunk.theme,worldWidth:state.config.worldWidth,chunkBaseY:chunk.baseY,chunkHeight:chunk.height,
-    player:{x:state.player.position.x,y:state.player.position.y,vx:state.player.velocity.x,vy:state.player.velocity.y,halfWidth:state.player.halfWidth,halfHeight:state.player.halfHeight,facing:state.player.facing,health:state.player.health,maxHealth:state.player.maxHealth,stamina:state.player.stamina,maxStamina:state.player.maxStamina,shieldCharges:state.player.shieldCharges,state:state.player.state,score:state.player.score,attacking:state.player.attackCooldown>0&&state.player.attackCooldown>=state.config.attackCooldownTicks-3},
+    player:{x:state.player.position.x,y:state.player.position.y,vx:state.player.velocity.x,vy:state.player.velocity.y,halfWidth:state.player.halfWidth,halfHeight:state.player.halfHeight,facing:state.player.facing,health:state.player.health,maxHealth:state.player.maxHealth,stamina:state.player.stamina,maxStamina:state.player.maxStamina,shieldCharges:state.player.shieldCharges,state:state.player.state,score:state.player.score,attacking:state.player.attackCooldown>0&&state.player.attackCooldown>=state.config.attackCooldownTicks-3,
+      // Opt-in source-owned cap contact (not a cosmetic Y/state guess).
+      // Omitted from frozen historical/default public snapshots and checksums.
+      ...(state.config.guardianArenaHazards===true&&state.config.guardianSecondWind===true
+        ?{grounded:state.player.grounded,groundedPlatformId:state.player.groundedPlatformId}:{})},
     platforms:chunk.platforms.map(p=>platformAtTick(p,state.tick)).map(p=>({id:p.id,kind:p.kind,x:p.x,y:p.y,width:p.width,height:p.height})).sort((a,b)=>a.id.localeCompare(b.id)),
     hazards:chunk.hazards.map(h=>({id:h.id,kind:h.kind,x:h.x,y:h.y,width:h.width,height:h.height,active:activeHazard(h,state.tick),...(options.includeWindupTicks?{chargeTicksRemaining:observedHazardChargeTicks(h,state.tick)}:{})})).sort((a,b)=>a.id.localeCompare(b.id)),
     enemies:state.enemies.filter(e=>e.floor===state.floor).map(e=>({id:e.id,kind:e.kind,x:e.position.x,y:e.position.y,halfWidth:e.halfWidth,halfHeight:e.halfHeight,health:e.health,maxHealth:e.maxHealth,active:e.active,telegraph:e.telegraphUntilTick>state.tick,...(options.includeWindupTicks?{telegraphTicksRemaining:Math.max(0,Math.min(8,e.telegraphUntilTick-state.tick)),...(e.kind==='guardian'?{staggerTicksRemaining:Math.max(0,Math.min(state.config.guardianSecondWind===true&&state.config.guardianArenaHazards===true?14:10,(e.staggerUntilTick??0)-state.tick)),...(state.config.guardianSecondWind===true?{telegraphTotalTicks:e.telegraphUntilTick>state.tick&&(e.telegraphDurationTicks===6||e.telegraphDurationTicks===8)?e.telegraphDurationTicks:(e.health>0&&e.health*2<=e.maxHealth?6:8)}:{})}:{})}:{}),...(options.includeWindupTicks&&state.config.guardianSecondWind===true&&e.kind==='guardian'?{guardTicksRemaining:Math.max(0,(e.guardUntilTick??0)-state.tick)}:{}),facing:e.facing,attackCooldown:e.cooldown})).sort((a,b)=>a.id.localeCompare(b.id)),

@@ -49,7 +49,9 @@ export function observedGroundedGatewayShot(snapshot, earned, aspect, zoom = 1) 
       earned?.runToken !== snapshot?.runToken ||
       earned?.floor !== snapshot?.floor ||
       cap?.id !== ('f' + snapshot.floor + ':cap') ||
-      p?.state !== 'standing' || !(p?.health > 0) ||
+      (p?.state !== 'standing' && p?.state !== 'hurt') ||
+      p?.grounded !== true || p?.groundedPlatformId !== cap?.id ||
+      !(p?.health > 0) ||
       ![aspect, zoom, snapshot.tick, snapshot.worldWidth,
         p?.x, p?.y, p?.halfHeight,
         cap?.x, cap?.y, cap?.width, cap?.height].every(Number.isFinite) ||

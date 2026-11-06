@@ -27,7 +27,21 @@ export function stepTowerPhysics(input:TowerState,action:TowerAction):{state:Tow
     if(p.velocity.y<=0&&oldB>=top-1&&newB<=top){newY=top+p.halfHeight;p.velocity.y=0;landed=platform;contacts.push({kind:'land',entityId:platform.id,normal:{x:0,y:1}})}
     else if(p.velocity.y>0&&platform.kind!=='oneway'&&oldT<=platform.y&&newT>=platform.y){newY=platform.y-p.halfHeight;p.velocity.y=0;contacts.push({kind:'head',entityId:platform.id,normal:{x:0,y:-1}})}
   }
-  p.position.y=newY;p.grounded=Boolean(landed);p.groundedPlatformId=landed?.id;if(landed){p.jumpCharges=1;if(p.state!=='hurt')p.state='standing'}else if(p.state!=='dashing'&&p.state!=='hurt')p.state='airborne';
+  p.position.y=newY;p.grounded=Boolean(landed);p.groundedPlatformId=landed?.id;
+  // New opt-in 20Hz guardian route: a real hit interrupts for five ticks
+  // (250ms), then restores visible locomotion on the player's ACTUAL support
+  // while invulnerability continues. The old 'hurt' state otherwise persisted
+  // indefinitely after damage until another jump/dash, hiding the run cycle
+  // and preventing the gateway camera from tracking earned cap traversal.
+  // Frozen unflagged simulation/replay retains identical state transitions.
+  const recoveredFromImpact=c.guardianArenaHazards===true&&
+    c.guardianSecondWind===true&&p.state==='hurt'&&
+    p.health>0&&p.invulnerableTicks<=15;
+  if(landed){
+    p.jumpCharges=1;
+    if(p.state!=='hurt'||recoveredFromImpact)p.state='standing';
+  }else if((p.state!=='dashing'&&p.state!=='hurt')||recoveredFromImpact)
+    p.state='airborne';
   const currentChunk=state.chunks.find(ch=>ch.floor===state.floor)??state.chunks[state.chunks.length-1];
   for(const h of currentChunk.hazards){if(!activeHazard(h,state.tick))continue;const l=p.position.x-p.halfWidth,r=p.position.x+p.halfWidth,b=p.position.y-p.halfHeight,t=p.position.y+p.halfHeight;if(overlap1(l,r,h.x,h.x+h.width)&&overlap1(b,t,h.y,h.y+h.height))contacts.push({kind:'hazard',entityId:h.id,normal:{x:0,y:1}})}
   if(!Number.isSafeInteger(p.position.x)||!Number.isSafeInteger(p.position.y)||!Number.isSafeInteger(p.velocity.x)||!Number.isSafeInteger(p.velocity.y))return{state,contacts,integrityFailure:'unsafe-number'};
