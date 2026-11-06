@@ -47,10 +47,20 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    const actualReceipt=g.getDeliveryReceipts().find(r=>r.id===first.deliveryId);
    received=Boolean(actualReceipt);
    return {steps,identity,first,final,seen,preserved,received,
-    citizens:g.metrics().citizens,triangles:g.renderStats().lastFrameTriangles,
-    glError:document.querySelector('#world').getContext('webgl')?.getError(),
-    overflow:document.documentElement.scrollWidth-innerWidth};
+    citizens:g.metrics().citizens,
+    frameCountBefore:g.getFrameProfile().totalFrames};
   });
+  // The 120-day game was advanced synchronously; inspect a NEW actual
+  // WebGL frame after releasing the main thread, never a stale Day-1 count.
+  await page.waitForFunction(before=>
+   window.__tinyKingdom.getFrameProfile().totalFrames>before,
+   run.frameCountBefore,{timeout:110000});
+  const presentation=await page.evaluate(()=>({
+   triangles:window.__tinyKingdom.renderStats().lastFrameTriangles,
+   geometry:window.__tinyKingdom.getGeometryAudit(),
+   glError:document.querySelector('#world').getContext('webgl')?.getError(),
+   overflow:document.documentElement.scrollWidth-innerWidth
+  }));
   expect(run.missingRealCourier).toBeUndefined();
   expect(run.noWitness).toBeUndefined();
   expect(run.first.active).toBe(true);
@@ -62,13 +72,15 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(run.final.continuityTransitions).toBeGreaterThanOrEqual(1);
   expect(run.final.following).toBe(true);
   expect(run.citizens).toBeGreaterThan(0);
-  expect(run.triangles).toBeLessThan(160000);
-  expect(run.glError).toBe(0);
-  expect(run.overflow).toBeLessThanOrEqual(0);
+  expect(presentation.triangles).toBeLessThan(160000);
+  expect(presentation.geometry.static.invalidComponents).toBe(0);
+  expect(presentation.geometry.dynamic.invalidComponents).toBe(0);
+  expect(presentation.glError).toBe(0);
+  expect(presentation.overflow).toBeLessThanOrEqual(0);
   expect(errors).toEqual([]);
   fs.mkdirSync('artifacts/tiny-kingdom-w80',{recursive:true});
   fs.writeFileSync('artifacts/tiny-kingdom-w80/'+viewport.width+'-true-handoff.json',
-   JSON.stringify({viewport,actual:run},null,2));
+   JSON.stringify({viewport,actual:run,presentation},null,2));
   await page.screenshot({path:'artifacts/tiny-kingdom-w80/'+viewport.width+'-real-market-handoff.png'});
  });
 }
