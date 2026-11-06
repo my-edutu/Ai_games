@@ -23,6 +23,69 @@ function arena(overrides={}){
   runtime.state=state;
   return {runtime,state,cap};
 }
+test('living upper-cap guardian physically seals the authored walkway until genuine defeat',()=>{
+  const {runtime,cap}=arena();
+  const guardian=runtime.state.enemies.find(e=>e.kind==='guardian');
+  guardian.active=true;guardian.health=4;
+  const plane=guardianArenaExitX(cap),p=runtime.state.player;
+  const stop=plane-p.halfWidth;
+  p.position.x=stop-1200;
+  p.velocity.x=5000;
+  const locked=runtime.step({move:1});
+  assert.equal(locked.floor,8);
+  assert.equal(locked.player.position.x,stop,
+    'ordinary horizontal physics cannot run through the visibly locked cap seal');
+  assert.equal(locked.player.velocity.x,0,'sealed doorway dissipates forward momentum');
+  assert.ok(runtime.drainEvents().some(e=>e.type==='contact-wall'&&
+    e.data?.entityId==='f8:guardian-seal'),
+    'real collision must produce a source contact, not an imaginary HUD warning');
+  assert.equal(locked.player.groundedPlatformId,cap.id);
+
+  // Authoritative defeat opens the SAME collision lane; movement still must
+  // clear the full trailing edge at ordinary fixed-step speed.
+  const fallen=runtime.state.enemies.find(e=>e.kind==='guardian');
+  fallen.active=false;fallen.health=0;
+  let passage;
+  for(let tick=0;tick<24;tick++){
+    const before=runtime.state.player.position.x;
+    const after=runtime.step({move:1});
+    if(after.floor===9){passage={before,after};break;}
+  }
+  assert.ok(passage,'ordinary post-defeat walking must reach floor nine');
+  assert.ok(passage.before>=stop,'exit followed the physical seal release');
+  const event=runtime.drainEvents().find(e=>e.type==='floor-complete');
+  assert.ok(event?.data?.guardianPassage);
+  assert.ok(event.data.guardianPassage.crossingX>=
+    guardianArenaClearanceX(cap,p.halfWidth));
+});
+
+test('sealed guardian collision holds a jump but does not modify historical physics',()=>{
+  const {stepTowerPhysics}=require('../../dist/games/infinite-tower-climb/src/physics/step.js');
+  const active=arena();
+  const boss=active.runtime.state.enemies.find(e=>e.kind==='guardian');
+  boss.active=true;boss.health=4;
+  const plane=guardianArenaExitX(active.cap),p=active.runtime.state.player;
+  const stop=plane-p.halfWidth;
+  p.position.x=stop-1200;p.position.y+=25000;
+  p.velocity.x=5000;p.velocity.y=2000;
+  p.grounded=false;p.groundedPlatformId=undefined;
+  const movement={move:1,jump:false,dash:false,attack:false,ability:false};
+  const flight=stepTowerPhysics(active.runtime.state,movement);
+  assert.equal(flight.state.player.position.x,stop,
+    'jumping through the near-cap guardian lock cannot bypass the seal');
+  assert.ok(flight.contacts.some(e=>e.kind==='wall'&&
+    e.entityId==='f8:guardian-seal'));
+  const legacy=arena({guardianArenaHazards:false});
+  const old=legacy.runtime.state.player;
+  old.position.x=stop-1200;old.velocity.x=5000;
+  legacy.runtime.state.enemies.find(e=>e.kind==='guardian').active=true;
+  legacy.runtime.state.enemies.find(e=>e.kind==='guardian').health=4;
+  const original=stepTowerPhysics(legacy.runtime.state,movement);
+  assert.ok(original.state.player.position.x>stop,
+    'frozen unflagged source physics must never receive the new seal collider');
+  assert.ok(!original.contacts.some(e=>e.entityId==='f8:guardian-seal'));
+});
+
 test('earned gate cannot teleport a hero standing anywhere above exitY',()=>{
   const {runtime,cap}=arena();
   const start=runtime.state.player.position.x;
