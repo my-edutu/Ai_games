@@ -15,7 +15,7 @@
     "cameraImplementationSha": "5997c76b0317b76cf89dde878f0301ad11f22687",
     "cameraEvidenceStatus": "NOT EVALUATED: P0 source-earned grounded gateway walk lens landed at 5997c76b. 3/3 standalone pure helper scenarios passed in local Node 22 and four integrated repository fixtures committed but exact checked-out suite, actual browser, original WebM and devices unexecuted. Existing source guardian threshold mechanics remain at 723870847; no quality or source-causal proof inferred from camera code.",
     "visualGateImplementationSha": "95a5deac5fc9e4ae9b0d0daf397d86635a07e52c",
-    "visualGateEvidenceStatus": "NOT EVALUATED: code-verified occluded seal radius 21.8 -> 24.25 outside core 23.5, source-driven conduit kept on real supported cap; inactive positive-HP guardian can no longer visually unlock. New focused source-linked regressions committed but not executed in Node/Chromium. GitHub exact-source workflows queued at 42175504850 and 42175504772. No new footage, independent reviews or device result."
+    "visualGateEvidenceStatus": "NOT EVALUATED: code-verified occluded seal radius 21.8 -> 24.25 outside core 23.5, source-driven conduit kept on real supported cap; inactive positive-HP guardian can no longer visually unlock. New focused source-linked regressions committed but not executed in Node/Chromium. GitHub exact-source workflows queued at 42175504772 (capture) and 42175504850 (quality). No new footage, independent reviews or device result."
   },
   "currentTransformation": {
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
@@ -3883,8 +3883,8 @@
     "implemented": "World and passage share corridor geometry constants from coordinates.mjs: source seal 24.25 radially outside core, climber walk/earned passage at radius 25, source-HP conduit max outer tip 26.78 within deck 27.18. World renderer unlock requires active===false AND finite health<=0; no gameplay or collision changes, no new mesh/draw pass.",
     "checks": "Three numeric source-geometry scenarios executed in isolated V8: closed/wounded/defeated conduit tip remains inside cap, seal visible outside core and behind walker. Committed regression tests updated and one positive-HP inactive-guardian assertion added, but NOT RUN under Node/Three/Chromium. This is not film or game-cycle verification.",
     "workflow": {
-      "sourceCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42175504850",
-      "exactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42175504772",
+      "sourceCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42175504772",
+      "exactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42175504850",
       "sourceCaptureStatus": "QUEUED, jobs unstarted; artifact count 0 at inspection; 60s baseline/candidate matches not available",
       "exactHeadQualityStatus": "QUEUED, not pass"
     },
