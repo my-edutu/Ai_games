@@ -28,7 +28,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: tower-transformation-visual-${{ github.ref }}
+  group: tower-transformation-visual-${{ github.sha }}
   cancel-in-progress: false
 jobs:
   authentic-ledge:
