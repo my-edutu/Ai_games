@@ -20,7 +20,7 @@ import { createTowerGuardianShotStage } from './guardian-shot-stage.mjs';
 import { createObservedGuardianGuardStage } from './guardian-guard-stage.mjs';
 import { witnessedAirbornePulse, witnessedGuardianCounterPulse } from './airborne-pulse.mjs';
 import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue } from './guardian-camera-safety.mjs';
-import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot } from './guardian-gateway-framing.mjs';
+import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { guardedJointShotGain, observedJointBodyPressure } from './joint-shot.mjs';
 import { createObservedMovingDeckRide } from './moving-deck-ride.mjs';
@@ -2917,15 +2917,26 @@ export function createTowerScene(canvas, settings = {}) {
     // authentic grounded approach shorten only its exterior-orbit radius.
     // This makes the protagonist visibly grow as the unlocked doorway nears.
     // The normal actor/core/gateway projection vetoes remain downstream.
-    if (sourceEarnedWalk) {
+    if (sourceEarnedWalk && Array.isArray(earnedPassageStage?.focusPosition) &&
+        earnedPassageStage.focusPosition.length === 3 &&
+        earnedPassageStage.focusPosition.every(Number.isFinite)) {
+      // The prior blind radial contraction brought the climber closer, but
+      // could put the actual moving camera behind the opaque tower core.
+      // The authorized gateway focus is the PHYSICAL inner doorway, not
+      // the temporary guardian-defeat memorial gaze. Every proposed
+      // intermediate position needs an unobstructed hero AND door.
+      earnedGatewayFocus.set(...earnedPassageStage.focusPosition);
       const currentRadius = Math.hypot(destination.x, destination.z);
       if (currentRadius > sourceEarnedWalk.radius) {
-        const contraction = sourceEarnedWalk.radius / currentRadius;
-        destination.x *= contraction;
-        destination.z *= contraction;
+        const safeRadius = safeEarnedGatewayDollyRadius(destination,
+          sourceEarnedWalk.radius, climber.group.position, earnedGatewayFocus);
+        if (safeRadius !== null && safeRadius < currentRadius) {
+          const contraction = safeRadius / currentRadius;
+          destination.x *= contraction;
+          destination.z *= contraction;
+        }
       }
-      const actualGateway = passage.focusPoint();
-      if (actualGateway) focus.lerp(actualGateway, sourceEarnedWalk.focusWeight);
+      focus.lerp(earnedGatewayFocus, sourceEarnedWalk.focusWeight);
     }
     const arrivalFraming = liveExit &&
       earnedPassageStage?.stage === 'earned-open'
