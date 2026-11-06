@@ -39,7 +39,7 @@ jobs:
           node-version: '22'
           cache: npm
       - name: W94/W95 check genuine first-frame boot order before costly GPU setup
-        run: node scripts/tiny-kingdom-w94-boot-contract.cjs && node scripts/tiny-kingdom-w95-boot-order-contract.cjs
+        run: node scripts/tiny-kingdom-w94-boot-contract.cjs && node scripts/tiny-kingdom-w95-boot-order-contract.cjs && node scripts/tiny-kingdom-w96-market-shutters-contract.cjs
       - run: npm ci
       - run: npm run build
       - run: npx playwright install --with-deps chromium
@@ -47,7 +47,7 @@ jobs:
         env:
           CI: '1'
           LIBGL_ALWAYS_SOFTWARE: '1'
-        run: npx playwright test tests/browser/tiny-kingdom-w83-farm-market-continuity.spec.cjs tests/browser/tiny-kingdom-w84-granary-loft.spec.cjs tests/browser/tiny-kingdom-w85-gpu-dynamic-ring.spec.cjs tests/browser/tiny-kingdom-w86-resident-multi-draw.spec.cjs tests/browser/tiny-kingdom-w87-market-to-home.spec.cjs tests/browser/tiny-kingdom-w88-conservative-culling.spec.cjs tests/browser/tiny-kingdom-w89-physical-courier-contact.spec.cjs tests/browser/tiny-kingdom-w90-physical-daybreak-flight.spec.cjs tests/browser/tiny-kingdom-w91-resident-ambient-animation.spec.cjs tests/browser/tiny-kingdom-w92-resident-workstations.spec.cjs tests/browser/tiny-kingdom-w93-independent-actor-stream.spec.cjs tests/browser/tiny-kingdom-w94-first-frame.spec.cjs --workers=1
+        run: npx playwright test tests/browser/tiny-kingdom-w83-farm-market-continuity.spec.cjs tests/browser/tiny-kingdom-w84-granary-loft.spec.cjs tests/browser/tiny-kingdom-w85-gpu-dynamic-ring.spec.cjs tests/browser/tiny-kingdom-w86-resident-multi-draw.spec.cjs tests/browser/tiny-kingdom-w87-market-to-home.spec.cjs tests/browser/tiny-kingdom-w88-conservative-culling.spec.cjs tests/browser/tiny-kingdom-w89-physical-courier-contact.spec.cjs tests/browser/tiny-kingdom-w90-physical-daybreak-flight.spec.cjs tests/browser/tiny-kingdom-w91-resident-ambient-animation.spec.cjs tests/browser/tiny-kingdom-w92-resident-workstations.spec.cjs tests/browser/tiny-kingdom-w93-independent-actor-stream.spec.cjs tests/browser/tiny-kingdom-w94-first-frame.spec.cjs tests/browser/tiny-kingdom-w96-resident-market-shutters.spec.cjs --workers=1
       - uses: actions/upload-artifact@v4
         if: always()
         with:
