@@ -20,6 +20,36 @@ permissions:
   contents: read
 
 jobs:
+  # W78: original stationary civic/farm/market is retained while real grown
+  # cottages receive independent GPU updates. Both widths simulate 120 days.
+  w78-real-civic-cluster-independence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: W78 authentic 120-day original civic + housing buffers and mobile
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w78-independent-civic-street.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w78-stationary-civic-real-growth
+          path: |
+            artifacts/tiny-kingdom-w78/
+            test-results/
+          retention-days: 14
   # W77: the SAME original inhabited blocks reuse WebGL storage after real
   # construction and across 390px camera views; no missing people or houses.
   w77-inplace-real-home-growth:
