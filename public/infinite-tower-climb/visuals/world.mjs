@@ -1420,7 +1420,11 @@ export function createTowerWorld(){
         // directly to the current observed state without replaying a cue.
         const guardian=(snapshot.enemies||[]).find(enemy=>enemy.kind==='guardian');
         if(guardian){
-          const unlocked=!guardian.active;
+          // Inactive does not automatically mean beaten: only a genuine
+          // source-observed zero-HP guardian can fully open the crest and
+          // leaves. This matches the authoritative gate and earned passage.
+          const unlocked=guardian.active===false &&
+            Number.isFinite(guardian.health) && guardian.health<=0;
           const gate=entry.guardianGate;
           // Real guardian health is the encounter's visible progression
           // currency. The source often moves straight from final hit to the

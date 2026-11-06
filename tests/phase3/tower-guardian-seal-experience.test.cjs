@@ -42,7 +42,8 @@ function frame({active = true, floor = 8, guardian = true, runToken = 'genuine-g
     hazards: [],
     enemies: guardian ? [{
       id: `f${floor}:guardian`, kind: 'guardian',
-      x: 230000, y: base + 350000, health: 8, maxHealth: 8, active,
+      x: 230000, y: base + 350000, health: active ? 8 : 0,
+      maxHealth: 8, active,
     }] : [],
   };
 }
@@ -175,6 +176,13 @@ test('an authentic guardian defeat opens BOTH world-space doors and its distinct
     assert.equal(world.diagnostics().guardianGates[0].unlocked, false,
       'damaging an active enemy cannot claim the guardian gate is cleared');
     assert.equal(JSON.stringify(hurt), beforeHurt);
+    // An inactive but still-living guardian cannot masquerade as victory:
+    // authority and the 3D lock must require the SAME zero-HP defeat.
+    const interrupted = frame({ active: false });
+    interrupted.enemies[0].health = 3;
+    world.update(interrupted, .05, .4, { quality: 'low' });
+    assert.equal(world.diagnostics().guardianGates[0].unlocked, false,
+      'inactive positive-HP guardian never grants the visible earned doorway');
     const release = frame({ active: false });
     const before = JSON.stringify(release);
     for (let i = 0; i < 20; i++) world.update(release, .05, i * .05, { quality: 'low' });
