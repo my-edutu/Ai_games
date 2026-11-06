@@ -79,8 +79,12 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(afterFollow.snapshot).toBe(initial.prior);
   expect(afterFollow.geometry).toBeGreaterThan(0);
   expect(afterFollow.glError).toBe(0);
-  if(initial.flow.cargo)
+  if(initial.flow.cargo){
    expect(afterFollow.workday).toBe('delivery');
+   // An observer must follow the EXACT real cart displayed in the trail,
+   // not silently switch to another loaded villager.
+   expect(afterFollow.selected).toBe(initial.flow.cargo.citizen);
+  }
   else if(initial.flow.farmer)
    expect(afterFollow.workday).toBe('live');
   expect(pageErrors).toEqual([]);
