@@ -12538,6 +12538,8 @@ document.body.dataset.command='world';
    realWork:Boolean(p&&isWorkingAtSite(p)),actualLoad:Boolean(d),
    stagesSeen:villageDocumentary.stagesSeen.slice(),
    cameraCuts:villageDocumentary.cameraCuts,
+   continuityTransitions:villageDocumentary.continuityTransitions,
+   cameraMode:'continuous-physical-follow-with-occlusion-repair',
    transitions:villageDocumentary.transitions,
    following:follow,observedOnly:true};
  }
@@ -12553,7 +12555,7 @@ document.body.dataset.command='world';
    // Live-shift director can move to another real producer between tasks;
    // never assign one citizen's load or receipt to a different actor.
    villageDocumentary={citizen:p.name,stage:'observing',deliveryId:null,
-    stagesSeen:[],cameraCuts:0,transitions:0};
+    stagesSeen:[],cameraCuts:0,continuityTransitions:0,transitions:0};
   }
   const d=p.delivery;
   if(d&&d.id!==villageDocumentary.deliveryId)
@@ -12569,11 +12571,17 @@ document.body.dataset.command='world';
    villageDocumentary.transitions++;
    if(!villageDocumentary.stagesSeen.includes(stage))
     villageDocumentary.stagesSeen.push(stage);
-   // A real stage transition prompts one camera reframe; citizens, jobs,
-   // carts and stock remain entirely under deterministic authority.
+   // W80 — real production → saved load → physical unloading → real
+   // receipt must remain ONE uninterrupted 3D shot. The previous director
+   // synchronously teleported its lens on each stage change, defeating the
+   // original moving market work and W79's clear authentic receiving gate.
+   // Follow mode already recalculates a physical collision/market-post-aware
+   // viewpoint EVERY rendered frame and eases or snaps only if genuinely
+   // obstructed. Invalidate a stale plan; do not forcibly updateFollowCamera
+   // or interrupt the fixed-step jobs, goods and real courier.
    if(follow&&(stage==='hauling'||stage==='unloading'||stage==='received')){
-    updateFollowCamera(stage==='unloading'?Math.PI:undefined);
-    villageDocumentary.cameraCuts++;
+    liveShotPlanCache=null;
+    villageDocumentary.continuityTransitions++;
    }
   }
   const label=document.getElementById('workday-activity');
@@ -12591,7 +12599,7 @@ document.body.dataset.command='world';
    watchDelivery():watchLiveWorkday();
   if(!result)return null;
   villageDocumentary={citizen:people[selectedCitizen].name,stage:'observing',
-   deliveryId:null,stagesSeen:[],cameraCuts:0,transitions:0};
+   deliveryId:null,stagesSeen:[],cameraCuts:0,continuityTransitions:0,transitions:0};
   document.body.dataset.villageDocumentary='on';
   advanceVillageDocumentary();
   return getVillageDocumentaryAudit();
