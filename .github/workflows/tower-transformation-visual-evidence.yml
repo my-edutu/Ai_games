@@ -13,6 +13,7 @@ on:
       - tests/browser/tower-ledge-contact.spec.cjs
       - tests/browser/tower-live-motion.spec.cjs
       - tests/phase3/tower-transformation-sanctuary.test.cjs
+      - tests/phase3/tower-earned-gateway-frame.test.cjs
       - scripts/tower-motion-evidence.cjs
   workflow_dispatch:
 permissions:
@@ -37,7 +38,7 @@ jobs:
       - name: Report original fixed-step guardian progress without awarding game quality
         run: node scripts/tower-guardian-source-witness.cjs
       - name: Visual resources and geometry safety (not a quality score)
-        run: node --test tests/phase3/tower-transformation-sanctuary.test.cjs tests/phase3/tower-vista-environment.test.cjs tests/phase3/tower-world-geometry.test.cjs
+        run: node --test tests/phase3/tower-transformation-sanctuary.test.cjs tests/phase3/tower-vista-environment.test.cjs tests/phase3/tower-world-geometry.test.cjs tests/phase3/tower-earned-gateway-frame.test.cjs
       - run: npx playwright install --with-deps chromium
       - name: Record real source-matched desktop and phone climb stills
         run: |

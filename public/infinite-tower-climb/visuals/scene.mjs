@@ -20,6 +20,7 @@ import { createTowerGuardianShotStage } from './guardian-shot-stage.mjs';
 import { createObservedGuardianGuardStage } from './guardian-guard-stage.mjs';
 import { witnessedAirbornePulse, witnessedGuardianCounterPulse } from './airborne-pulse.mjs';
 import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue } from './guardian-camera-safety.mjs';
+import { gatewayScreenError, acceptEarnedGatewayEscort } from './guardian-gateway-framing.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { guardedJointShotGain, observedJointBodyPressure } from './joint-shot.mjs';
 import { createObservedMovingDeckRide } from './moving-deck-ride.mjs';
@@ -2092,6 +2093,13 @@ export function createTowerScene(canvas, settings = {}) {
   const crossfireHazardBefore = [0,0,0], crossfireHazardAfter = [0,0,0];
   const crossfireLandingBefore = [0,0,0], crossfireLandingAfter = [0,0,0];
   let crossfireAimApplications = 0, crossfireAimLastGain = 0;
+  // Reused projections keep the earned-door escort inside the one real lens.
+  const earnedGatewayFocus = new THREE.Vector3();
+  const earnedGatewayProjection = new THREE.Vector3();
+  const earnedGatewayPreviousFocus = new THREE.Vector3();
+  const earnedGatewayActorBefore = [0,0,0,0], earnedGatewayActorAfter = [0,0,0,0];
+  const earnedGatewayBefore = [0,0,0], earnedGatewayAfter = [0,0,0];
+  let earnedGatewayEscortLastGain = 0, earnedGatewayEscortApplications = 0;
   const guardianSightPoints=[];
   const climberCapSightPoint = new THREE.Vector3();
   const lookAt = new THREE.Vector3();
@@ -3412,6 +3420,86 @@ export function createTowerScene(canvas, settings = {}) {
         }
       }
     }
+    // The source-earned bronze doorway is a real walkable threshold, but
+    // portrait views can frame the climber while its route disappears behind
+    // a decorative clock or the screen edge. Escort that very same physical
+    // gate through the grounded post-guardian walk. An already safe body and
+    // exterior sightline are vetoes; no invented victory or camera cut.
+    earnedGatewayEscortLastGain = 0;
+    const earnedStage = !overview && !options.stale && !!liveExit &&
+      snapshot.floor === 8 ? passage.diagnostics() : null;
+    const gatewayEarned = !!earnedStage?.active &&
+      earnedStage.stage === 'earned-open' &&
+      earnedStage.runToken === snapshot.runToken &&
+      earnedStage.floor === snapshot.floor &&
+      Array.isArray(earnedStage.focusPosition) &&
+      earnedStage.focusPosition.length === 3 &&
+      earnedStage.focusPosition.every(Number.isFinite);
+    if (gatewayEarned) earnedGatewayFocus.set(...earnedStage.focusPosition);
+    if (gatewayEarned && !options.reducedMotion &&
+        options.camera === 'follow' && p.state === 'standing' &&
+        camera.aspect > 0 && camera.aspect < .85 &&
+        Number.isFinite(dt) && dt > 0 && zoom <= 1.1 &&
+        (arrivalFraming > .16 || sourceWalkProgress > .24)) {
+      actorFramePoint.copy(climber.group.position);
+      actorFramePoint.y += p.halfHeight / SCALE;
+      camera.lookAt(lookAt); camera.updateMatrixWorld(true);
+      earnedGatewayProjection.copy(earnedGatewayFocus).project(camera);
+      earnedGatewayBefore[0] = earnedGatewayProjection.x;
+      earnedGatewayBefore[1] = earnedGatewayProjection.y;
+      earnedGatewayBefore[2] = earnedGatewayProjection.z;
+      const sourceError = gatewayScreenError(earnedGatewayBefore);
+      if (Number.isFinite(sourceError) && sourceError > .05 &&
+          towerCoreSightlineClear(camera.position, earnedGatewayFocus, 23.5)) {
+        const matrix = camera.matrixWorld.elements;
+        const dx = earnedGatewayFocus.x - camera.position.x;
+        const dy = earnedGatewayFocus.y - camera.position.y;
+        const dz = earnedGatewayFocus.z - camera.position.z;
+        const depth = -(dx * matrix[8] + dy * matrix[9] + dz * matrix[10]);
+        const tangent = Math.tan(camera.fov * Math.PI / 360);
+        if (Number.isFinite(depth) && depth > 1 &&
+            Number.isFinite(tangent) && tangent > 0) {
+          measureDuelBodyNdc(actorFramePoint, p.halfHeight / SCALE,
+            camera, duelTop, duelBottom, earnedGatewayActorBefore);
+          earnedGatewayPreviousFocus.copy(lookAt);
+          const response = Math.min(.2,
+            1 - Math.exp(-Math.min(dt, .06) * 8));
+          const sx = clamp(earnedGatewayBefore[0] -
+              clamp(earnedGatewayBefore[0], -.66, .66), -1.25, 1.25) *
+            depth * tangent * camera.aspect * response;
+          const sy = clamp(earnedGatewayBefore[1] -
+              clamp(earnedGatewayBefore[1], -.68, .68), -1, 1) *
+            depth * tangent * response;
+          lookAt.x += matrix[0] * sx + matrix[4] * sy;
+          lookAt.y += matrix[1] * sx + matrix[5] * sy;
+          lookAt.z += matrix[2] * sx + matrix[6] * sy;
+          camera.lookAt(lookAt); camera.updateMatrixWorld(true);
+          earnedGatewayProjection.copy(earnedGatewayFocus).project(camera);
+          earnedGatewayAfter[0] = earnedGatewayProjection.x;
+          earnedGatewayAfter[1] = earnedGatewayProjection.y;
+          earnedGatewayAfter[2] = earnedGatewayProjection.z;
+          measureDuelBodyNdc(actorFramePoint, p.halfHeight / SCALE,
+            camera, duelTop, duelBottom, earnedGatewayActorAfter);
+          const gain = acceptEarnedGatewayEscort({
+            gateBefore: earnedGatewayBefore, gateAfter: earnedGatewayAfter,
+            actorBefore: earnedGatewayActorBefore,
+            actorAfter: earnedGatewayActorAfter,
+            actorCoreClear: towerCoreSightlineClear(camera.position,
+              actorFramePoint, 23.5),
+            gatewayCoreClear: towerCoreSightlineClear(camera.position,
+              earnedGatewayFocus, 23.5),
+          });
+          if (gain > 0) {
+            earnedGatewayEscortLastGain = gain;
+            earnedGatewayEscortApplications = Math.min(1000000,
+              earnedGatewayEscortApplications + 1);
+          } else {
+            lookAt.copy(earnedGatewayPreviousFocus);
+            camera.lookAt(lookAt); camera.updateMatrixWorld(true);
+          }
+        }
+      }
+    }
     camera.lookAt(lookAt);
     world.revealGuardianSightlines(camera,guardianSightPoints);
     // Foreground visibility is tested against the very same ACTUAL smoothed
@@ -3440,14 +3528,19 @@ export function createTowerScene(canvas, settings = {}) {
         const hazard=pointFor(actionStage.x,actionStage.y,
           snapshot.chunkBaseY,snapshot.worldWidth,27.1);
         actorOrbitTarget.set(hazard.x,hazard.y,hazard.z);
+      } else if (gatewayEarned) {
+        // Use the EXISTING gear sightline corridor for the defeated boss's
+        // real deck threshold after enemy, landing and hazard protection.
+        actorOrbitTarget.copy(earnedGatewayFocus);
       }
     }
     const protectArrival=!!targetPlatform&&landingApproach.diagnostics().visible;
     const protectImmediateTrap=actionStage?.kind==='hazard';
+    const protectEarnedGate=gatewayEarned&&!protectArrival&&!protectImmediateTrap;
     world.protectRouteSightlines(camera,
       protectLiveRoute?actorFramePoint:null,
       protectLiveRoute&&sourceGuardian?guardianRescuePoint:null,
-      protectLiveRoute&&(protectArrival||protectImmediateTrap)?actorOrbitTarget:null,
+      protectLiveRoute&&(protectArrival||protectImmediateTrap||protectEarnedGate)?actorOrbitTarget:null,
       dt,options,
       protectLiveRoute?p.halfHeight/SCALE:0,
       protectLiveRoute&&sourceGuardian&&Number.isFinite(sourceGuardian.halfHeight)
@@ -3646,6 +3739,35 @@ export function createTowerScene(canvas, settings = {}) {
         gateReleaseFraction: lockStage?.releaseFraction ?? null,
         metric: 'Actual smoothed-camera projection of the LIVE exterior cap teeth, not the inner recessed cap; NDC/core sightline are NOT raster visibility, quality or supported-device FPS' };
     }
+    // Source-bound actual projected doorway, NEVER proof of visible WebM
+    // pixels, collision/crossing or hardware frame-time.
+    let earnedGatewayCamera = null;
+    const earnedSource = snapshot?.floor === 8 && !options.stale &&
+      snapshot?.lifecycle === 'running' && snapshot?.player?.health > 0
+      ? observedUnlockedGuardianCap(snapshot) : null;
+    const earnedProof = earnedSource ? passage.diagnostics() : null;
+    if (earnedProof?.active && earnedProof.stage === 'earned-open' &&
+        earnedProof.runToken === snapshot.runToken &&
+        earnedProof.floor === snapshot.floor &&
+        Array.isArray(earnedProof.focusPosition) &&
+        earnedProof.focusPosition.length === 3 &&
+        earnedProof.focusPosition.every(Number.isFinite)) {
+      const point = new THREE.Vector3(...earnedProof.focusPosition);
+      const pixel = point.clone().project(camera);
+      const ndc = [pixel.x,pixel.y,pixel.z]
+        .map(v => Number(v.toFixed(4)));
+      earnedGatewayCamera = {
+        sourceTick: snapshot.tick, runToken: snapshot.runToken,
+        floor: snapshot.floor, gateNdc: ndc,
+        gateInSafeCrop: gatewayScreenError(ndc) === 0,
+        gateCoreClear: towerCoreSightlineClear(camera.position,point,23.5),
+        escortGain: Number(earnedGatewayEscortLastGain.toFixed(4)),
+        escortApplications: earnedGatewayEscortApplications,
+        actorInSafeCrop: actorCamera.inSafeFrame,
+        source: 'source-defeated-guardian-and-real-cap-threshold',
+        limitation: 'Actual camera projection, NOT native video pixels or physical crossing',
+      };
+    }
     // "frames" remains a compatibility alias for renderer submissions. The
     // accepted snapshot below can be newer than lastSubmitted; neither proves
     // GPU completion or visibility in a captured/composited output.
@@ -3758,7 +3880,7 @@ export function createTowerScene(canvas, settings = {}) {
       guardianRescueBlend: Number(guardianRescueBlend.toFixed(4)),
       guardianRescueApplications,
       guardianRescueEvidence: 'Approved dual-subject source projection + exterior-core guards; NOT raster visibility or quality score',
-      encounterCamera, actorCamera, cameraPosition: camera.position.toArray(), climberPosition: climber.group.position.toArray() };
+      encounterCamera, actorCamera, earnedGatewayCamera, cameraPosition: camera.position.toArray(), climberPosition: climber.group.position.toArray() };
   }
   function dispose() {
     if (disposed) return;

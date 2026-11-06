@@ -139,6 +139,7 @@ for (const viewport of viewports) {
         // continuous desktop/portrait video camera crop.
         observedCamera: d.encounterCamera || null,
         observedActor: d.actorCamera || null,
+        observedEarnedGatewayFrame: d.earnedGatewayCamera || null,
         // Captured alongside genuine source tick/HP and camera crop; telemetry
         // is not a substitute for watching the unmodified full-motion video.
         observedMotionEcho: d.observedMotionEcho || null,
