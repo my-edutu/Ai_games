@@ -1,6 +1,6 @@
 import{checksum}from'../../../../packages/replay/src/index';
 import type{TowerState}from'../state/types';
-import{platformAtTick}from'../generation/chunks';
+import{platformAtTick,guardianArenaExitX}from'../generation/chunks';
 
 function deepFreeze<T>(value:T):Readonly<T>{
   if(value&&typeof value==='object'&&!Object.isFrozen(value)){
@@ -22,6 +22,8 @@ export interface TowerRenderSnapshot{
   chunkBaseY:number;
   chunkHeight:number;
   player:{x:number;y:number;vx:number;vy:number;halfWidth:number;halfHeight:number;facing:-1|1;health:number;maxHealth:number;stamina:number;maxStamina:number;shieldCharges:number;state:string;score:number;attacking:boolean};
+  // Published only for the opt-in physical cap guardian. Same source exit as AI and rules.
+  guardianExitX?:number;
   platforms:Array<{id:string;kind:string;x:number;y:number;width:number;height:number}>;
   hazards:Array<{id:string;kind:string;x:number;y:number;width:number;height:number;active:boolean;chargeTicksRemaining?:number}>;
   enemies:Array<{id:string;kind:string;x:number;y:number;halfWidth:number;halfHeight:number;health:number;maxHealth:number;active:boolean;telegraph:boolean;telegraphTicksRemaining?:number;telegraphTotalTicks?:number;staggerTicksRemaining?:number;facing:-1|1;attackCooldown:number}>;
@@ -61,6 +63,16 @@ export function createTowerRenderSnapshot(state:TowerState,options:{includeWindu
   const floorHeight=Math.max(1,chunk.exitY-chunk.baseY),floorProgress=Math.max(0,Math.min(1000,Math.floor((state.player.position.y-chunk.baseY)*1000/floorHeight)));
   const nextGuardianFloor=state.floor>0&&state.floor%state.config.guardianInterval===0?state.floor:state.floor+state.config.guardianInterval-state.floor%state.config.guardianInterval;
   const lifecycleRevision={running:0,result:1,intermission:2}[state.lifecycle];
+  // The genuine 20-Hz cap-exit plane is immutable world geometry, not a
+  // projection of the guardian's current height. A recoil, knock-up or death
+  // must never shift the rendered bronze gate away from the walkable exit.
+  // Historical/unflagged public snapshots keep their original keys/checksum.
+  const arenaCap=state.config.guardianArenaHazards===true&&
+    state.config.guardianSecondWind===true&&chunk.guardian
+    ?chunk.platforms.find(p=>p.id===`f${state.floor}:cap`):undefined;
+  const guardianExitX=arenaCap&&state.enemies.some(e=>e.floor===state.floor&&
+    e.kind==='guardian'&&(e.active||(e.health<=0&&!e.active)))
+    ?guardianArenaExitX(arenaCap):undefined;
   const base={
     version:1 as const,
     runToken:checksum({runId:state.runId}),revision:(state.tick*1000+state.stats.floorsCleared)*3+lifecycleRevision,tick:state.tick,lifecycle:state.lifecycle,
@@ -76,6 +88,7 @@ export function createTowerRenderSnapshot(state:TowerState,options:{includeWindu
     progress:{height:state.stats.maxHeight,floorProgressPermille:floorProgress,nextGuardianFloor,recordDelta:state.stats.maxHeight-state.config.launchFloor*state.config.chunkHeight,floorsCleared:state.stats.floorsCleared},
     dangerPermille:dangerousProjectile||dangerousHazard?1000:dangerousEnemy?750:state.player.health<=2?650:150,
     result:state.result?{reason:state.result.reason,kind:state.result.kind}:undefined,
+    ...(guardianExitX!==undefined?{guardianExitX}:{}),
     authorityChecksum:checksum({tick:state.tick,floor:state.floor,player:state.player,enemies:state.enemies,projectiles:state.projectiles,pickups:state.pickups,build:state.build,result:state.result})
   };
   const snapshot={...base,publicChecksum:checksum(base)};

@@ -23,6 +23,17 @@ export function guardianGateAnchorX(snapshot, cap) {
   const guardian = snapshot.enemies?.find(enemy => enemy.kind === 'guardian' &&
     Number.isFinite(enemy.y));
   if (!guardian) return midpoint;
+  // The opt-in fixed-step simulation now publishes its exact clearance-door
+  // center. Use this *before* judging the guardian's current feet: a real
+  // knock-up, stagger or fallen body can move vertically during the fight,
+  // but the physical threshold is bolted to its immutable source cap.
+  // Guard against malformed/foreign data; older unflagged snapshots retain
+  // the existing deck-proximity/legacy-approach placement below.
+  const publishedExit = snapshot.guardianExitX;
+  if (Number.isSafeInteger(publishedExit) &&
+      publishedExit === cap.x + Math.floor(cap.width * .76) &&
+      publishedExit > cap.x && publishedExit < cap.x + cap.width)
+    return publishedExit;
   const feet = guardian.y - (Number.isFinite(guardian.halfHeight) ? guardian.halfHeight : 18000);
   // The new real guardian fight occurs ON the cap, rather than p6 below.
   // Its far-side exit is an actual 20Hz player movement objective after

@@ -80,7 +80,9 @@ export function observedPassageApproach(source, earned) {
     !Number.isFinite(earned.cap?.x) ||
     !Number.isFinite(earned.cap?.width) || earned.cap.width <= 0) return 0;
   const cap = earned.cap;
-  const exitX = cap.x + Math.floor(cap.width * .76);
+  const physicalExit = cap.x + Math.floor(cap.width * .76);
+  const exitX = Number.isSafeInteger(source.guardianExitX) &&
+    source.guardianExitX === physicalExit ? source.guardianExitX : physicalExit;
   const gap = Math.abs(source.player.x - exitX);
   return Math.max(0, Math.min(1,
     (cap.width * .36 - gap) / (cap.width * .24)));

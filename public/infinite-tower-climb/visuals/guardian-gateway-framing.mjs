@@ -59,7 +59,9 @@ export function observedGroundedGatewayShot(snapshot, earned, aspect, zoom = 1) 
   const feet = p.y - p.halfHeight;
   if (Math.abs(feet - (cap.y + cap.height)) > 4500 ||
       p.x < cap.x || p.x > cap.x + cap.width) return null;
-  const exitX = cap.x + Math.floor(cap.width * .76);
+  const physicalExit = cap.x + Math.floor(cap.width * .76);
+  const exitX = Number.isSafeInteger(snapshot.guardianExitX) &&
+    snapshot.guardianExitX === physicalExit ? snapshot.guardianExitX : physicalExit;
   const distance = Math.abs(exitX - p.x);
   const approachWindow = Math.min(85000, cap.width * .32);
   if (approachWindow <= 10000 || distance >= approachWindow) return null;

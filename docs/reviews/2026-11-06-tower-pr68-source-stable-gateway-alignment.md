@@ -1,0 +1,15 @@
+# Infinite Tower Climb PR #68 — source-fixed gate alignment through living guardian recoil
+
+**Date:** 2026-11-06. **Stage:** P0 remains OPEN. **Verdict:** NOT EVALUATED. **Frozen baseline:** `1731b380851162741761c5569e2bc152a0869ca9`.
+
+## Why this is a connected gameplay experience fix
+
+The historical 390×844 normal-speed video at [workflow 42104896643](https://github.com/my-edutu/Ai_games/actions/runs/42104896643) did not show an unambiguous grounded gate crossing. Source inspection found a *different independently reproducible alignment risk*: `guardianGateAnchorX` previously placed the gate at the cap midpoint whenever a moving/defeated guardian's feet were more than 14,000 source units from its deck. The real rules, the pilot and the required full-body crossing still use `guardianArenaExitX(cap)` at 76% of that cap. For the real 249,600-wide test cap this changes the visual lock center from **304,896** to **240,000** — a 64,896-unit / 6.4896-world-unit error. A world-space 3D gate at the wrong location can hide the otherwise earned passage even when the camera is repaired.
+
+The fixed-step render snapshot now *conditionally* publishes the exact source cap exit on opted-in physical guardian floors. The world bronze gate, earned physical passage and continuous follow lens all consume that source-derived position. A living guardian's vertical recoil, stagger, or already defeated body cannot shift the door. Missing guardian, malformed exit and older/unflagged snapshots retain safe existing fallbacks. Physics, collision, enemy health, seed, AI and actual floor progression are untouched. This addresses a real source-code defect, **not yet a demonstrated pixel-level improvement**.
+
+## Engineering evidence and uncompromised gates
+
+Pre-change isolated exact-code V8 red case: raised guardian with source-published exit `304896` caused old anchor `240000`; red reproduced. Post-change focused exact-source pure-code probes must verify invariance and rejection of altered exit. Repository-integrated Node tests added at `tests/phase3/tower-source-gateway-alignment.test.cjs`; pending exact-head runner execution. No original Chromium WebMs or 3,200-tick campaign produced here. Nine-job [capture run 42175504772](https://github.com/my-edutu/Ai_games/actions/runs/42175504772) and [integrity run 42175504850](https://github.com/my-edutu/Ai_games/actions/runs/42175504850) still show queued jobs (last inspected 2026-11-06). Any new commits require *new* exact-source footage; those older runs cannot validate this implementation.
+
+**Biggest experience gap:** real same-run floor-eight guardian/crusher defeat to visibly grounded exit, actual floor-nine traversal, result/restart and match baseline events in both viewports. Capture backlogs prevent visual proof. **Next action:** run source-only actual simulation if workers become available; inspect unedited 960×600 and 390×844 clips; fix the largest remaining visible gameplay/shot defect, measure device p50/p95/p99 and memory, and seek 5 independent blinded reviews for LOOKS, FEELS and PLAYS each (currently 0/5 each). No stage pass, merge, deploy or PR ready transition.
