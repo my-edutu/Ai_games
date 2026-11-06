@@ -86,6 +86,51 @@ test('sealed guardian collision holds a jump but does not modify historical phys
   assert.ok(!original.contacts.some(e=>e.entityId==='f8:guardian-seal'));
 });
 
+test('source-bound locked guardian doorway shares its exact physical cap plane',async()=>{
+  const {observedLockedGuardianCap}=await import(pathToFileURL(path.resolve(
+    __dirname,'../../public/infinite-tower-climb/visuals/guardian-passage.mjs')).href);
+  const {createTowerRenderSnapshot}=require(
+    '../../dist/games/infinite-tower-climb/src/presentation/snapshot.js');
+  const {runtime,cap}=arena();
+  const guardian=runtime.state.enemies.find(e=>e.kind==='guardian');
+  guardian.active=true;guardian.health=4;
+  const live=createTowerRenderSnapshot(runtime.state);
+  const sealed=observedLockedGuardianCap(live);
+  assert.ok(sealed,'real living opt-in guardian must display its cap seal');
+  assert.equal(live.guardianExitX,guardianArenaExitX(cap));
+  assert.equal(sealed.cap.id,cap.id);
+  assert.equal(sealed.guardian.id,guardian.id);
+  assert.equal(observedLockedGuardianCap({
+    ...live,guardianExitX:undefined
+  }),null,'old unflagged snapshots never acquire a fictional cap collider');
+  assert.equal(observedLockedGuardianCap({
+    ...live,guardianExitX:live.guardianExitX+1
+  }),null,'a renderer cannot shift the lock away from authoritative rules');
+  assert.equal(observedLockedGuardianCap({
+    ...live,enemies:[{...live.enemies.find(e=>e.kind==='guardian'),
+      active:false,health:0}]
+  }),null,'only a still-living source guardian keeps bronze leaves shut');
+  assert.equal(observedLockedGuardianCap({
+    ...live,enemies:[]
+  }),null,'missing guardian cannot create a permanent invisible wall');
+});
+
+test('guardian seal stops an actual dash at a swept physical threshold',()=>{
+  const {runtime,cap}=arena();
+  const guardian=runtime.state.enemies.find(e=>e.kind==='guardian');
+  guardian.active=true;guardian.health=5;
+  const stop=guardianArenaExitX(cap)-runtime.state.player.halfWidth;
+  runtime.state.player.position.x=stop-200;
+  runtime.state.player.velocity.x=1000;
+  runtime.state.player.dashCooldown=0;
+  runtime.state.player.stamina=runtime.state.player.maxStamina;
+  const next=runtime.step({move:1,dash:true});
+  assert.equal(next.player.position.x,stop,'dash cannot tunnel through locked gate');
+  assert.equal(next.floor,8);
+  assert.ok(runtime.drainEvents().some(e=>
+    e.type==='contact-wall'&&e.data?.entityId==='f8:guardian-seal'));
+});
+
 test('earned gate cannot teleport a hero standing anywhere above exitY',()=>{
   const {runtime,cap}=arena();
   const start=runtime.state.player.position.x;
