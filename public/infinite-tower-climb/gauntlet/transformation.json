@@ -4218,7 +4218,7 @@
       "nextAction": "Run npm run build and node --test tests/phase3/tower-earned-cap-reacquisition.test.cjs on exact HEAD; run two original 3200-tick campaigns and inspect firstMissing in source audit; obtain normal-speed source-pinned 960x600 and 390x844 footage of post-victory recovery, guardian/crusher -> true gate -> floor-nine deck -> outcome/restart. Fix largest actual filmed defect before P1."
     }
   },
-  "roadmapStage": "P0 OPEN — source-earned core-safe guardian doorway camera implemented but runtime/capture and independent acceptance NOT EVALUATED",
+  "roadmapStage": "P0 OPEN — exact-source continuous-Y guardian seal authored at 54b4606f; original runtime, matched motion/video and independent acceptance NOT EVALUATED",
   "latestP0GatewayVisibility20261106": {
     "stage": "P0 OPEN",
     "verdict": "NOT EVALUATED",
@@ -4277,5 +4277,28 @@
     "biggestObservedFootageDefect": "Only older candidate 8fd9018f portrait: undersized upper-cap hero and unclear grounded gateway; no current-source video to validate this fix.",
     "nextHighestImpactAction": "Run exact-head committed camera test, quality/build and two genuine 3,200-tick campaigns; watch 60s+ 960x600 and 390x844 event-matched normal-speed source films of ascent, crusher/guardian victory, grounded inner crossing, floor-nine onward and outcome/restart. If core-safe camera still shrinks actor or occludes gate, rebuild the exterior orbit/composition based on full motion. Keep P0 OPEN.",
     "safety": "PR68 same open DRAFT branch; PR58 left untouched. Frozen baseline preserved, no merge/deploy/force-push or invented verdict."
+  },
+  "latestP0SweptGuardianGateway20261106": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "sourceBaseSha": "66e8494d8e06c732ed378b895790709bcfe12c73",
+    "implementationSha": "54b4606f6f7236a750d476a35b49066ed63f17ff",
+    "reviewPath": "docs/reviews/2026-11-06-tower-pr68-guardian-gateway-swept-vertical-continuity.md",
+    "playableSourceChange": "In opted-in living guardian encounter, fixed-step collision now sweeps both Y endpoints and X forward front, blocking diagonal jump/fall tunneling and partially overlapping forward advances at the same physical locked bronze plane. Retreat, below-cap travel, far-side non-teleport, historical gameplay, actual source guardian kill and grounded full-body floor-nine passage remain unchanged.",
+    "causalDefect": "Prior physical lock checked pre-step Y only while x and y both changed in the same 50ms tick, and required the old leading edge to be entirely on the near side; a rising/falling/overlapping body could cross a visually solid locked gate.",
+    "testStatus": "3 new source-original-runtime regression tests authored, NOT EXECUTED because connected terminal tunnel is unavailable. No original red/green run or TypeScript build.",
+    "sourcePinnedNineJobCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42290154229 — 9 queued, zero artifacts, previous candidate SHA 1c540144 only",
+    "priorHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42290886181 — queued previous SHA 66e8494d, no checks executed",
+    "originalRuntime3200TickDoubleCampaign": "NOT EVALUATED",
+    "exactShaDesktopPortraitNormalSpeedFullMotion": "NOT EVALUATED — no 60+s WebMs at 960x600 and 390x844 with matched source events",
+    "biggestFootageDefect": "Historical 8fd9018f portrait footage shows undersized hero/guardian and unclear genuine gateway crossing; current source not inspected on full motion",
+    "independentBlindReviews": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "actualDeviceFrameTimeP50P95P99AndMemory": "NOT EVALUATED",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "nextHighImpactAction": "Restore exact-head Node22/Chromium worker or Actions runner; execute authored tests and dual unchanged 3,200-tick campaigns. Watch matched 60+s real source desktop/portrait for guardian+crusher earned victory, open gate, grounded passage, floor nine onward, real outcome/restart; fix largest observed defect before P1, then collect independent blind LOOKS/FEELS/PLAYS and device budget evidence.",
+    "safety": "Baseline 1731b380851162741761c5569e2bc152a0869ca9 unchanged; PR58 untouched; PR68 open draft; no merge, deploy or force-push."
   }
 }
