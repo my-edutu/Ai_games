@@ -1,5 +1,5 @@
 import * as THREE from '/tower/vendor/three.module.js';
-import { SCALE, ARC, angleFor, pointFor, guardianGateAnchorX } from './coordinates.mjs';
+import { SCALE, ARC, angleFor, pointFor, guardianGateAnchorX, GUARDIAN_CAP_CORRIDOR } from './coordinates.mjs';
 import { createStoneSurfaceAsset, applyStoneSurface } from './world-surface.mjs';
 import { observedSceneHierarchy } from './scene-hierarchy.mjs';
 
@@ -1010,8 +1010,11 @@ export function createTowerWorld(){
     }
     // An original, physically modeled guardian seal makes the boss gate's
     // authoritative lock/unlock legible even without HUD text or sound.
-    // Its near-core radius is INSIDE the 22.4..27.18 walkable annulus; unlike
-    // a fake blocker it has no collider and never moves an autonomous actor.
+    // The old seal at radius 21.8 was hidden INSIDE the solid radius-23.5
+    // core from normal exterior camera sightlines. Its new cap-side mounting
+    // stays behind the radius-25 skinned climber, OUTSIDE the occluding core,
+    // and INSIDE the actual 22.4..27.18 walkable cap. It remains non-colliding
+    // and never moves an autonomous actor or opens a source-locked floor.
     // Animated leaves are excluded from static floor batching and shadow
     // multiplication. Ordinary floors have no added portal/draw overhead.
     let guardianGate = null;
@@ -1023,7 +1026,7 @@ export function createTowerWorld(){
       floorGroup.add(frame);
       const doorway=new THREE.Group();
       doorway.name='GuardianGateInset';
-      doorway.position.z=21.8;frame.add(doorway);
+      doorway.position.z=GUARDIAN_CAP_CORRIDOR.visibleSealRadius;frame.add(doorway);
       for(const side of [-1,1]){
         block(doorway,materials.dark,[side*3.38,2.35,0],[.58,4.8,.78]);
         block(doorway,materials.edge,[side*3.38,4.77,.12],[.8,.25,.95]);
@@ -1469,7 +1472,10 @@ export function createTowerWorld(){
           gate.crest.scale.x=1+gate.progress*.2;
           // The path advances with the HP-driven lock, never invented clearance.
           // It ends inside the real deck's outer rim and has no collider.
-          gate.conduit.scale.z=.18+gate.progress*4.52;
+          // The core-visible frame starts radially farther out than the
+          // historical inset. Keep its HP-fed conduit entirely over the cap,
+          // not dangling beyond the support ring after a true defeat.
+          gate.conduit.scale.z=.18+gate.progress*GUARDIAN_CAP_CORRIDOR.conduitReach;
           gate.conduit.scale.x=.18+gate.progress*.12;
           gate.conduit.position.z=.25+gate.conduit.scale.z*.5;
           gate.crest.material=unlocked?materials.mint:materials.warning;

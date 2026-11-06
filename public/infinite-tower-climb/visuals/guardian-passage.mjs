@@ -1,4 +1,4 @@
-import { pointFor } from './coordinates.mjs';
+import { pointFor, GUARDIAN_CAP_CORRIDOR } from './coordinates.mjs';
 
 // The original bronze guardian lock is an OUTSIDE mechanism at radius 27.78,
 // while the skinned grounded climber walks at radius 25 on the actual cap deck
@@ -6,7 +6,8 @@ import { pointFor } from './coordinates.mjs';
 // Keep the original exterior lock, but connect it to a second, properly
 // grounded interior threshold. Both remain presentation-only.
 export const GUARDIAN_PASSAGE_RADII = Object.freeze({
-  lock: 27.78, deck: 25, deckMin: 22.4, deckMax: 27.18,
+  lock: 27.78, deck: GUARDIAN_CAP_CORRIDOR.climberPathRadius,
+  deckMin: GUARDIAN_CAP_CORRIDOR.deckMin, deckMax: GUARDIAN_CAP_CORRIDOR.deckMax,
 });
 export function observedWalkablePassageFocus(anchor) {
   if (!anchor || ![anchor.x, anchor.y, anchor.z, anchor.angle]

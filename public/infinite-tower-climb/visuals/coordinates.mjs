@@ -47,3 +47,14 @@ export function guardianGateAnchorX(snapshot, cap) {
   return Math.max(cap.x + margin, Math.min(cap.x + cap.width - margin,
     approach.x + approach.width * .5));
 }
+
+// One cap-level architectural corridor from the living guardian seal to the
+// earned walk-through door. The original lock stays outside at radius 27.78;
+// the source-linked seal must stay outside the solid 23.5 core *and* inside
+// the physical 22.4..27.18 deck, where an exterior camera can actually see it.
+// Values affect presentation geometry only; no collision or floor progression.
+export const GUARDIAN_CAP_CORRIDOR = Object.freeze({
+  coreOcclusionRadius: 23.5, deckMin: 22.4, deckMax: 27.18,
+  visibleSealRadius: 24.25, climberPathRadius: 25,
+  conduitReach: 2.1,
+});

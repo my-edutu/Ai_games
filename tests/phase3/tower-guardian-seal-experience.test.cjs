@@ -87,8 +87,14 @@ test('a genuine living guardian owns a closed, dimensional world-space seal, not
     inset.updateWorldMatrix(true, false);
     const THREE = await import(threeUrl);
     const anchor = inset.getWorldPosition(new THREE.Vector3());
-    assert.ok(Math.hypot(anchor.x, anchor.z) < 22.4,
-      'the physical gate is inward of the real walkable deck, not a fake collider');
+    const { GUARDIAN_CAP_CORRIDOR: corridor } = await import(coordsUrl);
+    const sealRadius = Math.hypot(anchor.x, anchor.z);
+    assert.ok(Math.abs(sealRadius - corridor.visibleSealRadius) < 1e-9,
+      'the source-powered living seal is physically mounted at the shared cap corridor');
+    assert.ok(sealRadius > corridor.coreOcclusionRadius &&
+      sealRadius >= corridor.deckMin && sealRadius < corridor.climberPathRadius &&
+      corridor.climberPathRadius < corridor.deckMax,
+      'the seal is visible outside the occluding tower core but behind the source walker');
     assert.equal(world.diagnostics().guardianGates[0].unlocked, false);
     assert.equal(JSON.stringify(sourceFrame), before, '3D cannot edit authoritative snapshots');
     let dynamicMeshes = 0;
@@ -161,9 +167,10 @@ test('an authentic guardian defeat opens BOTH world-space doors and its distinct
       'the same genuine HP loss physically draws additional load-bearing cable');
     assert.equal(leftWeight.position.y,rightWeight.position.y,
       'the pair cannot disagree on authoritative gate progress');
-    assert.ok(conduit.scale.z > 2.25 && conduit.scale.z < 4.2,
-      'real guardian damage must reveal a growing physical link to the gate');
-    assert.ok(conduit.position.z + conduit.scale.z * .5 + 21.8 < 27.18,
+    assert.ok(conduit.scale.z > 1.2 && conduit.scale.z < 1.5,
+      'real guardian damage grows the core-visible conduit across the supported cap');
+    const { GUARDIAN_CAP_CORRIDOR: corridor } = await import(coordsUrl);
+    assert.ok(conduit.position.z + conduit.scale.z * .5 + corridor.visibleSealRadius < corridor.deckMax,
       'the source-linked conduit must never overshoot the real outer cap rim');
     assert.equal(world.diagnostics().guardianGates[0].unlocked, false,
       'damaging an active enemy cannot claim the guardian gate is cleared');
@@ -181,8 +188,8 @@ test('an authentic guardian defeat opens BOTH world-space doors and its distinct
     assert.ok(Math.abs(cableScale.y-2.89)<1e-5,
       'only an observed authentic defeat fully draws the physical cable');
     assert.equal(world.diagnostics().guardianGates[0].unlocked, true);
-    assert.ok(conduit.scale.z > 4.6 && conduit.scale.z < 4.8,
-      'authentic defeated guardians illuminate the full outer-lane passage');
+    assert.ok(conduit.scale.z > 2.25 && conduit.scale.z < 2.3,
+      'authentic defeated guardians complete the supported cap-to-threshold conduit');
     assert.equal(JSON.stringify(release), before, 'the observed source remains immutable');
     world.update(frame({ active: true }), .05, 2, { quality: 'low' });
     assert.equal(world.diagnostics().guardianGates[0].unlocked, false);
