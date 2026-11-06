@@ -1,12 +1,31 @@
 {
   "updatedAt": "2026-11-06",
-  "status": "T1 BUILDING / original four-shore forest + 58 hanging ivy roots bound to real sculpted island/ruins (STAGED UNREFERENCED) / PR 118d Actions queued / strict original 7/17 HARD RED / draft only",
-  "detail": "Nov 6 exact-source stage 959b361d -> world 9524a2de and original new native test 375fcbe6: original 4-shore shrubs, fern/flower sites and 58 unchanged hanging ivy strands now attach to physically sculpted coastal coping, side masonry and front carved frieze, not obsolete rectangular coordinates. 8x8/28x16/40x24 original 13 static batches, 33 draw objects, 4 textures and 4045/7390/8661 instances; same RNG draws, gameplay public cells, hazards/food/portals and deterministic authority. New RED exact staged source 0/1 -> GREEN 1/1; integrated guard 2/2, selected native 14/14; TS build and 900-tick recovery/privacy/restart PASS. Draft PR head remains 118d5599, its browser 42138784396, CI 42138784540 and offline 42138784592 are still queued. No candidate authentic WebGL imagery, 45–90s film, physical device present p95/FPS or independent critic. Last complete original 1s strict WebGL 7 actual submissions / required >=17 at 751x415 HARD RED. No merge/deploy/force push; T0 unsigned T1 BUILDING T2/T3 unaccepted T4 hard red.",
+  "status": "T1 BUILDING / connected four-shore island + curved ruins + all flora in source-exact candidate; 118d strict 14/17 HARD RED; 62/95 browser, 686/722 native; DRAFT only",
+  "detail": "Completed 118d source-exact Chromium #42138784396: strict 14/17 genuine full desktop WebGL in 1004.8ms at 751x415 actual buffer, 61 RAF not draws, 248 GPU queue skips. 62/95 Chromium; current 118d native #42138784540 686/722 36 red. Authentic 1920 self-reviewed and REJECTED: obvious central rectangular court, pale bank marks and small hero, rich outer forest. Exact 118d descendant candidate f5433eb2 (world blob 9524a2de) physically connects four shores/seven headlands, curved rear/front ruins and all existing flowers/ferns and 58 ivy groups, preserves original 13 static world batches, 33 draw objects, 4 textures and all gameplay. Reproduced from exact source artifact with candidate blob overlays: TypeScript PASS, 11/11 proportional native, focused 3/3 and 900-tick privacy/recovery PASS. No new candidate authentic Chromium before/after, 55s film, strict >=17, physical device FPS/p95, full CI, 40+ body soak or independent critic. T0 unsigned, T1 BUILDING, T2/T3 unaccepted, T4 HARD RED. Never merge/deploy.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Current 67f true browser 7/17 original strict completed full-desktop WebGL; staged T1 rooted-bank source correction is NOT accepted or benchmark proven.",
+  "latestCaption": "Last completed authentic 118d full-scene overview SELF-REJECTED; original strict 14/17 real complete WebGL submissions, current T1 connected-coast candidate visual verdict pending.",
   "reviews": [
-    {"area":"Nov 6 exact staged T1 complete island and native planted four-shore masonry","verdict":"BUILDING, native new guard RED->GREEN 1/1, affected 14/14, TS and 900 tick authority PASS; no browser whole-game acceptance; strict prior 7/17 HARD RED","sourceHead":"118d55990a80b3d89caad901081943a0dc53a8f7","branchAdvanced":false,"gap":"New 3D source staged off branch; source-matched true Chromium overview/detail/portrait and uninterrupted real film, strict >=17/1s, real display presents, long soak and independent criticism pending"},
-    {"area":"Nov 6 T1 real scenic four-shore plus rear limestone-bedrock/front ornament architecture","verdict":"BUILDING; staged off branch, source-native 1/1 new RED->GREEN, coast 4/4, TypeScript+900 authority pass, whole-scene visual/performance NOT ACCEPTED","sourceHead":"118d55990a80b3d89caad901081943a0dc53a8f7","branchAdvanced":false,"gap":"118d Actions queued; no staged candidate full-game WebGL due administrator block; original strict prior 7/17, source-matched 1920/mobile/film and independent critic required"},
+    {
+      "area": "Nov 6 complete exact-head 118d WebGL review and integrated four-shore coastal island candidate",
+      "sourceHead": "118d55990a80b3d89caad901081943a0dc53a8f7",
+      "candidateBase": "f5433eb2a7b75d2889a936779b135bdc3e392886",
+      "verdict": "Actual Chromium 62/95, original strict 14/17 complete desktop WebGL submitted frames; CI 686/722. Current real 1920 self-rejected. Integrated candidate native TypeScript, 11/11 selected and 900-tick recovery pass; candidate authentic browser/performance/independent acceptance NOT YET VERIFIED.",
+      "gap": "Must reach >=17 actual complete desktop WebGL in three independent useful-raster runs plus full visual review, 40+ body soak, clean CI, real-device present FPS/p95, independent whole-game critic. T0 UNSIGNED/T1 BUILDING/T2 T3 unaccepted/T4 RED; open draft only."
+    },
+    {
+      "area": "Nov 6 exact staged T1 complete island and native planted four-shore masonry",
+      "verdict": "BUILDING, native new guard RED->GREEN 1/1, affected 14/14, TS and 900 tick authority PASS; no browser whole-game acceptance; strict prior 7/17 HARD RED",
+      "sourceHead": "118d55990a80b3d89caad901081943a0dc53a8f7",
+      "branchAdvanced": false,
+      "gap": "New 3D source staged off branch; source-matched true Chromium overview/detail/portrait and uninterrupted real film, strict >=17/1s, real display presents, long soak and independent criticism pending"
+    },
+    {
+      "area": "Nov 6 T1 real scenic four-shore plus rear limestone-bedrock/front ornament architecture",
+      "verdict": "BUILDING; staged off branch, source-native 1/1 new RED->GREEN, coast 4/4, TypeScript+900 authority pass, whole-scene visual/performance NOT ACCEPTED",
+      "sourceHead": "118d55990a80b3d89caad901081943a0dc53a8f7",
+      "branchAdvanced": false,
+      "gap": "118d Actions queued; no staged candidate full-game WebGL due administrator block; original strict prior 7/17, source-matched 1920/mobile/film and independent critic required"
+    },
     {
       "area": "Nov 6 connected four-shore original 3D island + battered masonry candidate on 118d source",
       "verdict": "UNREFERENCED candidate native 4/4 coastal checks and TypeScript/900-tick self-test PASS; 3 inherited RED in 15 selected; no authentic candidate Chromium/visual independent acceptance; full desktop strict last real 7/17 HARD RED",
