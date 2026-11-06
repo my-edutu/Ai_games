@@ -44,6 +44,33 @@ export function observedGuardianPassage(previous, next) {
 // The defeated guardian and the current source cap authorize the unlocked
 // doorway BEFORE floor advance. An inactive zero-HP enemy is not evidence
 // of a completed run, only of an earned physical exit still to traverse.
+// Only the opt-in PUBLIC source guardian can energize the actual cap lock.
+ // Historical floors never publish guardianExitX. A missing enemy, stale
+ // floor, dead body or renderer clock cannot create a blocking barrier.
+export function observedLockedGuardianCap(snapshot) {
+  if (!snapshot || snapshot.lifecycle !== 'running' ||
+      !Number.isSafeInteger(snapshot.tick) ||
+      !Number.isSafeInteger(snapshot.floor) ||
+      typeof snapshot.runToken !== 'string' || !snapshot.runToken ||
+      !Number.isFinite(snapshot.chunkBaseY) ||
+      !Number.isFinite(snapshot.worldWidth) || snapshot.worldWidth <= 0 ||
+      !snapshot.player || !Number.isFinite(snapshot.player.health) ||
+      snapshot.player.health <= 0) return null;
+  const cap = snapshot.platforms?.find(platform =>
+    platform.id === 'f' + snapshot.floor + ':cap' &&
+    [platform.x,platform.y,platform.width,platform.height].every(Number.isFinite) &&
+    platform.width > 0 && platform.height > 0);
+  if (!cap || snapshot.guardianExitX !==
+      cap.x + Math.floor(cap.width * .76)) return null;
+  const guardian = snapshot.enemies?.find(enemy =>
+    enemy.kind === 'guardian' && enemy.active === true &&
+    (!Number.isSafeInteger(enemy.floor) || enemy.floor === snapshot.floor) &&
+    typeof enemy.id === 'string' && !!enemy.id &&
+    Number.isFinite(enemy.health) && enemy.health > 0);
+  return guardian ? {runToken:snapshot.runToken, floor:snapshot.floor,
+    tick:snapshot.tick, cap, guardian} : null;
+}
+
 export function observedUnlockedGuardianCap(snapshot) {
   if (!snapshot || snapshot.lifecycle !== 'running' ||
     !Number.isSafeInteger(snapshot.tick) ||
@@ -184,7 +211,38 @@ export function createTowerGuardianPassage(THREE) {
   thresholdLeaves.receiveShadow = false;
   thresholdLeaves.frustumCulled = false;
   thresholdLeaves.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-  threshold.add(thresholdStones,thresholdLeaves);
+  // The same source cap lock is SOLID in the 20-Hz simulation until its
+  // guardian really dies. Show its 14-world-unit energy lattice while active:
+  // low bronze leaves alone could misleadingly suggest an airborne bypass.
+  // Five bounded instanced panes/rails; no independent animation clock,
+  // extra physics body, new collision authority or new light source.
+  const sealMaterial = new THREE.MeshBasicMaterial({
+    color: 0x86eadc, transparent: true, opacity: .23, depthWrite: false,
+    depthTest: true, side: THREE.DoubleSide, toneMapped: false,
+  });
+  ownedMaterials.push(sealMaterial);
+  const sealedLattice = new THREE.InstancedMesh(box, sealMaterial, 5);
+  sealedLattice.name = 'SourceLockedGuardianVerticalEnergyLattice';
+  sealedLattice.visible = false;
+  sealedLattice.castShadow = false;
+  sealedLattice.receiveShadow = false;
+  sealedLattice.frustumCulled = false;
+  const latticeShapes = [
+    [0,7,0,6,14,.045],
+    [-3.2,7,0,.18,14,.18],
+    [3.2,7,0,.18,14,.18],
+    [0,6.2,0,6.2,.13,.13],
+    [0,11.3,0,6.2,.13,.13],
+  ];
+  latticeShapes.forEach(([x,y,z,sx,sy,sz],index) => {
+    thresholdPose.position.set(x,y,z);
+    thresholdPose.rotation.set(0,0,0);
+    thresholdPose.scale.set(sx,sy,sz);
+    thresholdPose.updateMatrix();
+    sealedLattice.setMatrixAt(index,thresholdPose.matrix);
+  });
+  sealedLattice.instanceMatrix.needsUpdate = true;
+  threshold.add(thresholdStones,thresholdLeaves,sealedLattice);
   group.add(threshold);
   const thresholdLeafPose = new THREE.Object3D();
   let lastWalkableOpening = -1;
@@ -444,6 +502,9 @@ export function createTowerGuardianPassage(THREE) {
     age = 0;
     defeatAge = 0;
     approachOpen = 0;
+    sealedLattice.visible = false;
+    arc.visible = true;
+    ring.visible = true;
     stage = 'none';
   }
   // Make the defeated guardian physically crumble WHILE the player walks
@@ -477,6 +538,35 @@ export function createTowerGuardianPassage(THREE) {
       powerDirection.clone().normalize());
     poseFallenArmor(0,false);
     posePowerBreak(0,false);
+  }
+  function lock(source, anchor) {
+    const observed = observedLockedGuardianCap(source);
+    if (!observed || disposed || !anchor ||
+        ![anchor.x,anchor.y,anchor.z,anchor.angle].every(Number.isFinite))
+      return false;
+    const thresholdFocus = observedWalkablePassageFocus(anchor);
+    if (!thresholdFocus) return false;
+    if (stage === 'guardian-locked' && group.visible &&
+        runToken === source.runToken && floor === source.floor) {
+      if (source.tick > sourceTick) sourceTick = source.tick;
+      return true;
+    }
+    // Real source-only living guardian, not a new scripted encounter. The
+    // identical arch will retract after zero HP; none of these meshes collides.
+    clear();
+    group.position.set(anchor.x, anchor.y, anchor.z);
+    group.rotation.y = anchor.angle;
+    focusPosition.set(thresholdFocus.x,thresholdFocus.y,thresholdFocus.z);
+    runToken = source.runToken;
+    floor = source.floor;
+    sourceTick = source.tick;
+    stage = 'guardian-locked';
+    group.visible = true;
+    sealedLattice.visible = true;
+    arc.visible = false;
+    ring.visible = false;
+    poseWalkableLeaves(0);
+    return true;
   }
   function unlock(source, anchor) {
     const earned = observedUnlockedGuardianCap(source);
@@ -513,6 +603,9 @@ export function createTowerGuardianPassage(THREE) {
     floor = source.floor;
     sourceTick = source.tick;
     stage = 'earned-open';
+    sealedLattice.visible = false;
+    arc.visible = true;
+    ring.visible = true;
     lastWalkableOpening = -1;
     approachOpen = observedPassageApproach(source, earned);
     age = 0;
@@ -546,6 +639,9 @@ export function createTowerGuardianPassage(THREE) {
     floor = source.floor;
     sourceTick = source.tick;
     stage = 'handoff';
+    sealedLattice.visible = false;
+    arc.visible = true;
+    ring.visible = true;
     lastWalkableOpening = -1;
     approachOpen = carryOpen ? 1 : 0;
     // The real door already opened during the hero's grounded walk. Do
@@ -570,10 +666,11 @@ export function createTowerGuardianPassage(THREE) {
     poseFallenArmor(defeatAge, still);
     poseDefeatWake(defeatAge, still);
     posePowerBreak(defeatAge, still);
-    const opened = still ? 1 : Math.max(approachOpen,
+    const locked = stage === 'guardian-locked';
+    const opened = locked ? 0 : still ? 1 : Math.max(approachOpen,
       1 - Math.pow(1 - clamp(age / .95), 3));
     poseWalkableLeaves(opened);
-    const fade = stage === 'earned-open' ? 1 :
+    const fade = stage === 'earned-open' || locked ? 1 :
       1 - .9 * clamp((age - 1.75) / (duration - 1.75));
     for (const { side, wing } of wings) {
       // The actual bronze gate is no longer in this floor's world; these
@@ -596,7 +693,7 @@ export function createTowerGuardianPassage(THREE) {
     glow.opacity = .65 * fade;
   }
   function cameraWeight() {
-    return !group.visible ? 0 : stage === 'earned-open'
+    return !group.visible || stage === 'guardian-locked' ? 0 : stage === 'earned-open'
       ? Math.max(.55 * clamp(1 - age / 2.4), .32 * approachOpen)
       : clamp(1 - age / 1.35);
   }
@@ -631,7 +728,9 @@ export function createTowerGuardianPassage(THREE) {
         originalExteriorLockRadius: GUARDIAN_PASSAGE_RADII.lock,
         gateOpen: Number(Math.max(0,lastWalkableOpening).toFixed(4)),
         archInstances: thresholdStones.count, retractingLeaves: thresholdLeaves.count,
-        extraDraws: 2, collider: false,
+        extraDraws: stage === 'guardian-locked' ? 3 : 2,
+        collider: false, sourceSimulationSealActive: stage === 'guardian-locked',
+        verticalLatticeVisible: sealedLattice.visible,
         focusPosition: focusPosition.toArray(),
         proof: 'World-space inner deck doorway mirrors actual source-earned exterior unlock; raster/collision quality NOT verified',
       } : null,
@@ -663,5 +762,5 @@ export function createTowerGuardianPassage(THREE) {
     for (const geometry of ownedGeometry) geometry.dispose();
     for (const material of ownedMaterials) material.dispose();
   }
-  return { group, unlock, begin, update, clear, cameraWeight, focusPoint, diagnostics, dispose };
+  return { group, lock, unlock, begin, update, clear, cameraWeight, focusPoint, diagnostics, dispose };
 }
