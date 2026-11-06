@@ -4174,7 +4174,7 @@
       "nextAction": "Run npm run build and node --test tests/phase3/tower-earned-cap-reacquisition.test.cjs on exact HEAD; run two original 3200-tick campaigns and inspect firstMissing in source audit; obtain normal-speed source-pinned 960x600 and 390x844 footage of post-victory recovery, guardian/crusher -> true gate -> floor-nine deck -> outcome/restart. Fix largest actual filmed defect before P1."
     }
   },
-  "roadmapStage": "P0 OPEN — physically clear return-lane planner and intervening one-way collision veto committed; source campaign/video and independent preference still NOT EVALUATED",
+  "roadmapStage": "P0 OPEN — source-earned core-safe guardian doorway camera implemented but runtime/capture and independent acceptance NOT EVALUATED",
   "latestP0GatewayVisibility20261106": {
     "stage": "P0 OPEN",
     "verdict": "NOT EVALUATED",
@@ -4204,5 +4204,34 @@
     "sourceCampaign": "NOT EVALUATED",
     "currentHeadFullMotion": "NOT EVALUATED",
     "nextHighestImpactAction": "Unblock queued GitHub runners, run exact-source gameplay witness and real 60s+ capture in desktop/portrait, watch unedited gateway and frame-safe hero through floor9 and restart; repair largest observed gameplay defect before P1."
+  },
+  "latestP0CoreSafeGatewayDolly20261106": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "transformationVerdict": "NOT EVALUATED",
+    "currentObservedHeadBeforeEvidenceCommit": "9313085934ee02cae306136f62dd2c8153cd07e4",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "implementationShas": [
+      "4fb4d815a954abc8cf6b1c673498971514247d7c",
+      "eb71078b3d16ade32b50fe0fb0859cae148ad0dc",
+      "d314deaeedd520841b29c7be97fa3dd146425ce6"
+    ],
+    "reviewedIssue": "Existing source-earned portrait camera shrank its radial goal without solid-tower-core LOS verification; could obscure source-legal climber/inner gateway despite a later gaze veto. Historical 8fd9018f film shows tiny portrait actor and unclear earned crossing but is not footage of this source; current-source defect not yet film-confirmed.",
+    "implemented": "A 12-sample core-safe dolly uses the original real climber and authoritative source-unlocked inner doorway. Rejects any intermediate angle/radius hiding either. Uses the actual inner passage, not transient defeat-memorial focus; no altered physics, AI, authority, camera count, freeze or draw call.",
+    "localSanity": "Seven isolated Node22 geometric assertions passed on a manually copied helper; committed repository Node tests, TS build, source campaign and WebGL not executed; this is not a gameplay/visual quality score.",
+    "codingWorkspace": "BLOCKED: connected development tunnel reported NOT_FOUND, tunnel-client absent >300 seconds on 2026-11-06.",
+    "priorSourcePinnedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42263555773 — queued source SHA 44efc0b5; not this head",
+    "priorQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42263555891 — queued source SHA 44efc0b5; not this head",
+    "currentExactHeadCapture": "NOT EVALUATED — no exact-head artifacts or 60+ second event-matched video available",
+    "sourceCampaign": "NOT EVALUATED — no 3,200-tick original runtime or same-episode victory/restart chain run this execution",
+    "blindIndependentReviews": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "actualDeviceP50P95P99Memory": "NOT EVALUATED",
+    "latestReviewPath": "docs/reviews/2026-11-06-tower-pr68-occlusion-safe-earned-gateway-camera.md",
+    "biggestObservedFootageDefect": "Only older candidate 8fd9018f portrait: undersized upper-cap hero and unclear grounded gateway; no current-source video to validate this fix.",
+    "nextHighestImpactAction": "Run exact-head committed camera test, quality/build and two genuine 3,200-tick campaigns; watch 60s+ 960x600 and 390x844 event-matched normal-speed source films of ascent, crusher/guardian victory, grounded inner crossing, floor-nine onward and outcome/restart. If core-safe camera still shrinks actor or occludes gate, rebuild the exterior orbit/composition based on full motion. Keep P0 OPEN.",
+    "safety": "PR68 same open DRAFT branch; PR58 left untouched. Frozen baseline preserved, no merge/deploy/force-push or invented verdict."
   }
 }
