@@ -20,6 +20,7 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    const g=window.__tinyKingdom;
    const worldBefore=JSON.stringify(g.exportSnapshot());
    const gateway=g.getMarketGatewayAudit();
+   const street=g.getHighStreetStats();
    const terrain=g.getTerrainHeight;
    const x=gateway.x,z=gateway.z;
    // A physical ray aimed at an actual edge support MUST detect that post;
@@ -30,7 +31,7 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    const centre=g.getMarketStructuralSightline(
     [x,terrain(x,z+2.5)+1.65,z+2.5],
     [x,terrain(x,z-2.5)+1.35,z-2.5]);
-   return {gateway,post,centre,
+   return {gateway,street,post,centre,
     worldIdentical:worldBefore===JSON.stringify(g.exportSnapshot()),
     citizens:g.metrics().citizens,city:g.metrics().buildings,
     triangles:g.renderStats().lastFrameTriangles,
@@ -46,6 +47,9 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(actual.gateway.postHeight).toBeGreaterThanOrEqual(3.5);
   expect(actual.gateway.openClearWidth).toBeGreaterThan(5);
   expect(actual.gateway.hasRealStonePlinths).toBe(true);
+  expect(actual.street.surfacePattern).toBe('original-worn-clay-wheelway-and-stone-margins');
+  expect(actual.street.pavingStones).toBeGreaterThanOrEqual(180);
+  expect(actual.street.pavingStones).toBeLessThanOrEqual(260);
   expect(actual.gateway.ornamentalOnly).toBe(true);
   expect(actual.post.modelledPosts).toBe(18);
   expect(actual.post.postsInFrame).toBeGreaterThan(0);
