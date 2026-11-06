@@ -106,7 +106,7 @@
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
     "state": "P0 OPEN — hosted capture/quality jobs queued; same-run guardian/crusher → grounded threshold → floor nine → genuine outcome/restart not filmed/verified",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Get a functioning exact-SHA Node22/Chromium runner, execute real guardian dual-campaign audit plus nine-job baseline/candidate film; inspect unedited normal-speed moving deck arrival, guardian/crusher duel, real threshold, floor-nine onwards, terminal/restart. Repair biggest current footage-proven gameplay defect before P1; follow with device p50/p95/p99/memory and 5 genuine independent blind critics per pillar.",
+    "nextDecision": "Run npm ci, npm run build, original-runtime cap-reacquisition fixtures and 3200-tick paired full-game witness in an authenticated Node22 checkout; inspect the original 960x600/390x844 normal-speed boss-to-grounded-door-to-floor-nine-to-outcome/restart WebM, correct largest video-observed defect, then actual-device metrics and genuine blind critics.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
     "biggestRemainingExperienceGap": "Only historic candidate 8fd9018f portrait frame samples: undersized climber, guardian and physical earned crossing unclear; NOT proof of current-source camera quality. Current-source videos missing, so not verified.",
     "unverifiedImplementationBranchHead": "dfb866ed75cef2ea1d7f0d6129a5b9dee8c73e93",
@@ -190,7 +190,30 @@
         "https://github.com/my-edutu/Ai_games/actions/runs/42189740735"
       ]
     },
-    "roadmapStage": "P0 OPEN — current-source fixed-step moving-deck capture committed; exact-source source campaigns, continuous 60+s films, independent reviews and devices NOT EVALUATED"
+    "roadmapStage": "P0 OPEN — physical post-guardian cap reacquisition implemented but no authoritative campaign, new full-motion films or independent reviews",
+    "earnedCapReacquisition20261106": {
+      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+      "sourceHeadWhenInspected": "6029bc6c3416c93a79f61296e4b19d602330183d",
+      "implementationSha": "c4a7e5c2d2116c47a7ea9d89ae939a129d48d78e",
+      "regressionSourceSha": "27c5e63eb127b0ce492968fc50c25146278013e8",
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "actualSourceIssue": "At source HEAD before change, when guardian is genuinely defeated but hero is airborne or on a nearby lower support, the earned cap passage branch is not entered; normal target resolution may reuse state.ai.targetPlatformId from the living duel. This is a code-path risk, NOT an observed/current normal-speed gameplay failure.",
+      "playableChange": "Only the fully opted-in current-floor source-dead guardian now activates source-observed cap reacquisition. On adjacent reachable support, uses the ordinary grounded launch controller; while feet are at/above the real cap collision plane, uses ordinary observed air steering, legal recovery and optional earned dash. P0 danger, genuine health retreat and existing physically grounded clearance still win; no teleport, damage immunity, synthetic fight, altered guardian or source floor completion.",
+      "scopedMathSanity": "Default step p6 top 310000, cap top 344000; 34000 climb gap fits ordinary 93750-unit jump rise minus 6000 safety margin. Arithmetic alone is NOT full simulation proof.",
+      "repositoryTests": "NOT EXECUTED — four original-runtime Node regression fixtures committed; authenticated app-project checkout/tunnel unavailable, GitHub Actions runners unallocated.",
+      "sourcePinnedCampaign": "NOT EVALUATED — no new unmodified 3200-tick source campaign or outcome/restart",
+      "sourcePinnedFullMotion": "NOT EVALUATED — original 9-job run 42219485098 has 9 queued and 0 artifacts at last inspection; no new source-pinned 960x600 or 390x844 WebM",
+      "mostImportantFootageDefect": "Historically observed, not reverified: portrait hero/guardian undersized and authentic grounded door crossing visually unreadable in candidate 8fd9018f; real current-head full-motion is unavailable.",
+      "independentBlindReviews": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
+      "leadingTransformationVerdict": "NOT EVALUATED",
+      "nextHighImpactAction": "Run npm ci, npm run build, original-runtime cap-reacquisition fixtures and 3200-tick paired full-game witness in an authenticated Node22 checkout; inspect the original 960x600/390x844 normal-speed boss-to-grounded-door-to-floor-nine-to-outcome/restart WebM, correct largest video-observed defect, then actual-device metrics and genuine blind critics.",
+      "safety": "Immutable baseline unchanged, PR58 unchanged, PR68 remains open draft; no merge, deploy, branch reset or force-push."
+    }
   },
   "scenarios": [
     {
