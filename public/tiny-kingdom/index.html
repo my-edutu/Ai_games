@@ -2748,6 +2748,14 @@ function geometryAudit(){
    animated[key]+=inventory[key];
   animated.aligned=animated.aligned&&inventory.aligned;
  }
+ // Resident market doors must appear in ALL integrity checks and 160k
+ // accounting, not just in a separate FPS/driver stats counter.
+ if(gpuAvailable&&marketShutterResidentActive&&marketShutterResidentMesh){
+  const shutters=inspectMeshGeometry(marketShutterResidentMesh);
+  for(const key of ['floats','vertices','triangles','invalidComponents',
+   'invalidNormals','invalidColors','outOfBounds'])animated[key]+=shutters[key];
+  animated.aligned=animated.aligned&&shutters.aligned;
+ }
  return {static:fixed,dynamic:animated,
   totalTriangles:fixed.triangles+animated.triangles};
 }
