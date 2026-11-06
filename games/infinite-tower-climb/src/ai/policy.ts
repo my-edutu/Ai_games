@@ -678,6 +678,32 @@ function observedEarnedReturnLanding(state:TowerState,obs:TowerObservation,
       rightVelocity=Math.min(c.maxRunSpeed,rightVelocity+airAccel);
       left+=leftVelocity;right+=rightVelocity;
     }
+    // The real one-way collision engine lands on the FIRST intersected
+    // higher deck regardless of which lower shelf the AI hoped to reach.
+    // Do not advertise a lower safe landing when every legal airborne x
+    // trajectory must first contact an observed upper deck. This remains
+    // conservative for moving decks: only their PRESENT bounds are used.
+    const unavoidableUpper=obs.platforms.some(upper=>{
+      const upperTop=upper.y+upper.height;
+      if(upper.id===deck.id||upperTop<=deckTop||upperTop>feet+1)return false;
+      let crossingFeet=feet,down=p.velocity.y,contactTicks=0;
+      for(let tick=1;tick<landingTicks;tick++){
+        down=Math.max(-c.maxFallSpeed,down-c.gravity);
+        crossingFeet+=down;
+        if(down<=0&&crossingFeet<=upperTop){contactTicks=tick;break}
+      }
+      if(!contactTicks)return false;
+      let minX=p.position.x,maxX=p.position.x;
+      let minV=p.velocity.x,maxV=p.velocity.x;
+      for(let tick=0;tick<contactTicks;tick++){
+        minV=Math.max(-c.maxRunSpeed,minV-airAccel);
+        maxV=Math.min(c.maxRunSpeed,maxV+airAccel);
+        minX+=minV;maxX+=maxV;
+      }
+      return minX-state.player.halfWidth>=upper.x&&
+        maxX+state.player.halfWidth<=upper.x+upper.width;
+    });
+    if(unavoidableUpper)return null;
     const inset=Math.min(Math.floor(deck.width/2),state.player.halfWidth+2000);
     const safeLeft=deck.x+inset,safeRight=deck.x+deck.width-inset;
     if(right<safeLeft||left>safeRight)return null;
