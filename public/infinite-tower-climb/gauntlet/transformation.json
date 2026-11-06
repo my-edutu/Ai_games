@@ -18,14 +18,42 @@
     "visualGateEvidenceStatus": "NOT EVALUATED: code-verified occluded seal radius 21.8 -> 24.25 outside core 23.5, source-driven conduit kept on real supported cap; inactive positive-HP guardian can no longer visually unlock. New focused source-linked regressions committed but not executed in Node/Chromium. GitHub exact-source workflows queued at 42175504772 (capture) and 42175504850 (quality). No new footage, independent reviews or device result."
   },
   "currentTransformation": {
+    "latestEvidenceRun": {
+      "checkedOn": "2026-11-06",
+      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+      "implementationSha": "e1a2e67c380ee777f06528afe626751db123ab1b",
+      "sourceBaseSha": "7c6959d95b35a84b5936aa7c57fcf05a75853c9c",
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "sourceLinkedPlayableChange": "Opted-in 20Hz physical guardian-cap snapshot publishes exact immutable rules exit center; HP-powered 3D bronze world seal, earned inner passage and desktop/portrait following lens all use it. Guardian recoil/death no longer reanchors door from correct 76% cap exit to misleading midpoint. Legacy and missing guardian fallback preserved.",
+      "causalDefect": "Exact old-code V8 raised-defeated-guardian fixture used visual x 240000 with source/AI full-body exit x 304896: a 64896-unit, 6.4896 world-unit displacement.",
+      "checks": {
+        "initialRed": "Confirmed from exact pre-change helper code in isolated V8; 240000 !== 304896",
+        "isolatedGreen": "4 exact-source V8 helper probes: stable published source anchor, malformed fallback, passage approach, portrait lens physical exit; no repo/node/browser runner",
+        "integratedNodeTests": "NOT EVALUATED — new tests/phase3/tower-source-gateway-alignment.test.cjs committed; no executable local workspace",
+        "fullFixedStepCampaign": "NOT EVALUATED — 3200-step real game witness unavailable",
+        "ci": "NOT EVALUATED — source-pinned CI not completed",
+        "exactSourceVideo": "NOT EVALUATED — no 960x600 or 390x844 normal-speed candidate e1a2e67 clip available",
+        "oldWorkflowJobs": "42175504772: nine queued, zero artifacts; 42175504850: one queued, zero artifacts at inspection",
+        "hardwareFrameTimeAndMemory": "NOT EVALUATED",
+        "independentBlindReviews": {
+          "looks": 0,
+          "feels": 0,
+          "plays": 0
+        }
+      },
+      "leadingTransformationVerdict": "NOT EVALUATED",
+      "mostImportantObservedFootageDefect": "Historical (candidate 8fd9018f, not current source): portrait climber/guardian/gateway undersized and no visibly legible grounded floor-eight gate crossing in 390x844 normal-speed footage.",
+      "nextHighImpactAction": "Unblock GitHub hosted runners / acquire real source-pinned Chromium 960x600 and 390x844 recordings; run 20Hz guardian/crusher -> grounded full-body threshold -> actual floor-nine onward deck -> result/intermission/restart. Compare event-matched baseline; inspect continuous film and correct the largest remaining actual action/sightline defect before P1.",
+      "safety": "No merge, deploy, force push, baseline movement, PR58 edit or PR68 draft conversion."
+    },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
-    "state": "P0 OPEN — guardian seal core occlusion and false-visual-unlock corrected in actual 3D source, but full loop, normal-speed current-source video and device performance are NOT EVALUATED.",
+    "state": "P0 OPEN — source-authentic moving guardian HP gate, inner threshold and live camera share exact source exit even through vertical recoil/death; full loop/footage/device/blind acceptance NOT EVALUATED.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Get source-pinned nine-job WebM capture and full quality runner execution for exact gameplay SHA 95a5deac (baseline frozen 1731b380); inspect unedited 960x600 and 390x844 clips and align same-run guardian + crusher, genuine zero-HP defeat, full-body grounded threshold, floor-nine onward deck, terminal and restart. If camera/gate remain obscured or source witness fails, fix that systemic defect, not a minor score. Independent blind LOOKS/FEELS/PLAYS are 0/5 each; hardware frame times/memory not measured.",
+    "nextDecision": "Check source e1a2e67 exact-head test/capture readiness; run real 3200-tick campaign and paired normal-speed 960x600 + 390x844 WebMs against frozen 1731b380, with same episode crusher/guardian defeat -> full-body earned threshold -> floor-nine onward -> real outcome/restart. Then correct most significant visible failure. Independent LOOKS/FEELS/PLAYS each 0/5 and hardware metrics NOT EVALUATED.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Most consequential *source-observed* scene issue: world guardian seal radius 21.8 sat inside solid tower core occlusion radius 23.5, so normal exterior views could hide the HP-operated victory door. Fixed world seal mount + bounded source conduit in 82d3ebeb; strengthened zero-HP gate truth in 95a5deac. Historical 8fd portrait footage still shows tiny climber and indistinct crossing; no current candidate full-motion clip exists, so effectiveness is NOT EVALUATED. GitHub Actions exact-head jobs remain queued without artifacts.",
-    "unverifiedImplementationBranchHead": "95a5deac5fc9e4ae9b0d0daf397d86635a07e52c",
-    "currentVerticalSlice": "Coherent real upper-cap guardian encounter and earned exit: the living guardian's 3D HP-coupled seal now occupies the actual exterior-visible supported cap corridor (radius 24.25, outside core 23.5); the skinned walker and earned walk-through threshold use radius 25. A positive-HP inactive guardian cannot falsely open this seal. Previous source-authentic cap physics, gateway/camera and floor-nine progression unchanged. Visual impact NOT YET VERIFIED on current SHA footage.",
+    "biggestRemainingExperienceGap": "History: portrait video candidate 8fd shows tiny climber and an unrecognizable gate crossing. Latest source e1a binds lock, passage and lens to rules exit after recoil, correcting an isolated 64896-unit source/visual misalignment. No new full motion exists; real visual/gameplay effect NOT EVALUATED.",
+    "unverifiedImplementationBranchHead": "e1a2e67c380ee777f06528afe626751db123ab1b",
+    "currentVerticalSlice": "Connected 20Hz source→three.js physical guardian cap exit: opt-in snapshot publishes rule-owned guardianArenaExitX, HP bronze gate, earned threshold and following lens use same grounded source exit through live/dying guardian motion; do not modify physics, combat or progression.",
     "biggestGap": "GitHub Actions runs 42157788943 (nine queued jobs, no artifacts) and 42158025950 (one queued, no artifacts) remained unstarted when inspected 2026-11-06. Real current source game/video and device measurements absent. P0 truth witness previously could accept idle floor-nine tick, technical/operator terminal, and no observed near-cap crusher; corrected in 503fbc4a but new game logic untested in full Node or 3200-tick campaign. Historical portrait camera dwarfing hero and unreadable gate remain greatest film-observed weakness, NOT latest-head assessment.",
     "p0SourceContract": {
       "sourceSha": "503fbc4ad41fad84c9003710b80361d6706cabda",
