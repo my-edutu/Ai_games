@@ -20,6 +20,36 @@ permissions:
   contents: read
 
 jobs:
+  # W75: all actual finished-job props persist exactly within the
+  # authoritative 1.5h evidence window, with an honest bounded fallback.
+  w75-recorded-production-residency:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: W75 real completed production persists with equal 1024px/390px triangles
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w75-recorded-work-residency.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w75-real-completed-work-residency
+          path: |
+            artifacts/tiny-kingdom-w75/
+            test-results/
+          retention-days: 14
   # W74: genuine selected courier through the actual market uprights,
   # preserving fixed-step economy, all houses/people and 390px controls.
   w74-real-market-camera-repair:
