@@ -6190,6 +6190,8 @@ const FARM_MARKET_STREET_DESTINATION=Object.freeze([-1,10.2]);
 let farmMarketStreetStats={source:'walkable-granary-to-real-receiving-market-street',
  connected:false,waypoints:0,sections:0,trackLength:0,rutBands:0,
  mudBaseStrips:0,shoulderStrips:0,fieldstoneEdges:0,unsafeSamples:0,
+ granaryPorchPosts:0,granaryRoofPanels:0,granaryPorchClearWidth:0,
+ granaryTradeEntranceUnblocked:false,
  totalTriangles:0,realOrigin:FARM_MARKET_STREET_ORIGIN.slice(),
  realDestination:FARM_MARKET_STREET_DESTINATION.slice(),
  inventedDeliveries:0,changesNavigation:false,authorityModified:false};
@@ -6201,6 +6203,8 @@ function farmMarketStreet(){
  farmMarketStreetStats={source:'walkable-granary-to-real-receiving-market-street',
   connected:false,waypoints:0,sections:0,trackLength:0,rutBands:0,
   mudBaseStrips:0,shoulderStrips:0,fieldstoneEdges:0,unsafeSamples:0,
+ granaryPorchPosts:0,granaryRoofPanels:0,granaryPorchClearWidth:0,
+ granaryTradeEntranceUnblocked:false,
   totalTriangles:0,realOrigin:FARM_MARKET_STREET_ORIGIN.slice(),
   realDestination:FARM_MARKET_STREET_DESTINATION.slice(),
   inventedDeliveries:0,changesNavigation:false,authorityModified:false};
@@ -6281,6 +6285,64 @@ function farmMarketStreet(){
     curbTones[i%curbTones.length]);
   }
  });
+ // A complete original, naturally sheltered GRANARY LOADING PORCH.
+ // The authentic storehouse's existing north-facing door and the real
+ // traversable service street share the same loading apron and roofline.
+ // Its two supports are off the true courier line; they never collide with
+ // workers, obscure an economic receipt, or alter the navigation footprint.
+ const [storeX,storeZ]=FARMSTEAD.granary,
+  storeY=terrain(storeX,storeZ),front=storeZ-3.95*.52,
+  porchEnd=front-2.42,postOffset=1.60,
+  porchEave=storeY+2.62,porchRidge=porchEave+.49;
+ const oak=rgb(0x69503b),bleachedOak=rgb(0xa38c6c),
+  foundation=rgb(0x9a9080);
+ materialScope(MATERIAL.STONE,()=>{
+  for(const side of [-1,1]){
+   const px=storeX+side*postOffset,py=terrain(px,porchEnd);
+   box(px,py-.02,porchEnd,.39,.26,.39,foundation);
+  }
+ });
+ materialScope(MATERIAL.WOOD,()=>{
+  for(const side of [-1,1]){
+   const px=storeX+side*postOffset,py=terrain(px,porchEnd);
+   box(px,py+.19,porchEnd,.18,porchEave-py-.19,.18,oak);
+   limbSegment([px,porchEave-.63,porchEnd],
+    [px-side*.43,porchEave-.08,porchEnd],.070,bleachedOak,5);
+   box(px,porchEave-.14,porchEnd,.31,.10,.27,bleachedOak);
+   farmMarketStreetStats.granaryPorchPosts++;
+  }
+  box(storeX,porchEave-.09,porchEnd,3.41,.16,.20,oak);
+  box(storeX,porchEave-.14,front,3.52,.14,.17,oak);
+  for(const side of [-1,1])
+   limbSegment([storeX+side*1.53,porchEave-.13,porchEnd],
+    [storeX+side*1.53,porchEave-.09,front],.065,bleachedOak,4);
+ });
+ const roofDyes=[rgb(0x92654c),rgb(0xa17a5c),rgb(0x806048),
+  rgb(0xa18a70)];
+ materialScope(MATERIAL.ROOF,()=>{
+  for(const side of [-1,1])for(let course=0;course<4;course++){
+   const z0=porchEnd-.18+(front-porchEnd+.35)*course/4,
+    z1=porchEnd-.18+(front-porchEnd+.35)*(course+1)/4,
+    edgeX=storeX+side*1.75,
+    e0=[edgeX,porchEave,z0],e1=[edgeX,porchEave,z1],
+    r0=[storeX,porchRidge,z0],r1=[storeX,porchRidge,z1];
+   const color=roofDyes[(course+side+5)%roofDyes.length];
+   if(side<0)quad(e1,r1,r0,e0,color);
+   else quad(e0,r0,r1,e1,color);
+   farmMarketStreetStats.granaryRoofPanels++;
+  }
+ });
+ // A real doorway sill, not an invented sack/merchant or new economic item.
+ materialScope(MATERIAL.STONE,()=>{
+  box(storeX,terrain(storeX,front-.18)+.019,front-.18,
+   1.20,.083,.44,rgb(0xb4a58c));
+ });
+ audit.granaryPorchClearWidth=postOffset*2-.18;
+ audit.granaryTradeEntranceUnblocked=
+  walkable(...FARM_MARKET_STREET_ORIGIN)&&
+  Math.abs(FARM_MARKET_STREET_ORIGIN[0]-storeX)<.1&&
+  FARM_MARKET_STREET_ORIGIN[1]-porchEnd>1.3&&
+  audit.granaryPorchClearWidth>2.6;
  audit.totalTriangles=(data.length-first)/30;
 }
 // W07: founding families frame the square along its north/east/west lanes,
