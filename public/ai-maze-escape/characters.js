@@ -49,7 +49,17 @@ function rig(name, { balanced = false } = {}) {
     m.castShadow = true; m.receiveShadow = true; parent.add(m); return m;
   }
   const ball = (p, m, pos, scale) => mesh(p, geometry('sphere', () => new THREE.SphereGeometry(1, sphereWidth, sphereHeight)), m, pos, scale);
-  const tube = (p, m, pos, radius, length, top = radius) => mesh(p, geometry(`c${radius},${length},${top}`, () => new THREE.CylinderGeometry(top,radius,length,radial)), m, pos);
+  // Physical rod length is a mesh transform, not a distinct GPU buffer.
+  // Sharing identical tapered primitives between differently long braces
+  // retains the exact posed silhouette and correct normal matrix while
+  // reducing renderer geometry pressure over six run transitions. Every
+  // real articulation pivot and public-only animation remains unchanged.
+  const tube = (p, m, pos, radius, length, top = radius) => {
+    const shape = geometry(`c${radius},${top}`, () => new THREE.CylinderGeometry(top,radius,1,radial));
+    const object = mesh(p, shape, m, pos);
+    object.scale.y = length;
+    return object;
+  };
   const ring = (p, m, pos, radius, thickness) => mesh(p, geometry(`t${radius},${thickness}`, () => new THREE.TorusGeometry(radius,thickness,ringRadial,ringLength)), m, pos);
   function rounded(p, m, pos, dimensions, radius = .04) {
     const [w,h,d] = dimensions, r = Math.min(radius,w/2,h/2,d/2);

@@ -1,3 +1,9 @@
+### Pass185 — physically identical length-pooled character rods; strict resource gate pending (2026-11-06 UTC)
+
+- **Builder candidate:** original Pip/Thornback `tube` and `bar` primitives now share immutable unit-height Three cylinders by real top/bottom radius, with physical height via object Y-scale. All existing articulated pivots and world transforms remain; no gameplay authority, stage geometry, map privacy, camera or HUD changes. This directly targets previously measured six-run WebGL geometry count 102 versus **unchanged <100**.
+- **Regression candidate:** installed-Three test compares actual vertex coordinates/normals for old/new surfaces at multiple lengths/tapers/resolutions, creates both actors in both modes, animates and verifies last-owner release. **Not locally executable** while shared coding workspace tunnel is disconnected. Full CI, source-bound browser six-run and new-head screenshots are still required; not a numerical/resource win and not a Nintendo benchmark win.
+- [Complete dated review](./maze-3d/pass-185-unit-length-actor-geometry-pooling-2026-11-06.md). Draft PR #53 remains open. No merge/deploy.
+
 ### Pass184 — pressure actuation continuity across legitimate public discovery rebuilds (2026-11-06 UTC)
 
 - **Source-level physical gameplay defect corrected:** every new disclosed cell or real key/door change rebuilt all pressure models and discarded the 1.25s currently witnessed three-beat clock; the actual shutter/piston sequence could keep restarting during natural autonomous movement. Rebuild now preserves ONLY same-run clock age on a previously AND currently publicly visible pressure cell, with hidden-between-updates/new-run/retreat/clock-rollback resets unchanged. No AI, collision, privacy, GPU class or HUD content change. Added installed-Three regression requiring true physical later beats across a real public object rebuild, plus hidden interim snapshot and new-run safeguards.
