@@ -2012,6 +2012,40 @@ function sceneChunkInFrustum(b,planes){
 // SwiftShader opts out unless explicitly enabled by the test harness.
 const SCENIC_BRIDGE_MAX_TRIANGLES=384;
 let staticBatchBridgeOverride=null;
+// W86 Phase 1: batch *actual resident scenery* draw ranges at the driver
+// boundary, with optional WebGL multi-draw only on supporting hardware.
+// No terrain/citizen/home is removed and no extra triangles are submitted.
+const SCENIC_MULTI_DRAW_MAX_RUNS=2048;
+const scenicMultiDrawExtension=gpuAvailable&&!swiftGpu?
+ gl.getExtension('WEBGL_multi_draw'):null;
+const scenicMultiDrawSupported=Boolean(scenicMultiDrawExtension&&
+ typeof scenicMultiDrawExtension.multiDrawArraysWEBGL==='function');
+const scenicMultiDrawFirsts=new Int32Array(SCENIC_MULTI_DRAW_MAX_RUNS);
+const scenicMultiDrawCounts=new Int32Array(SCENIC_MULTI_DRAW_MAX_RUNS);
+let scenicMultiDrawOverride=null,scenicMultiDrawBatches=0;
+let scenicMultiDrawRanges=0,scenicMultiDrawFallbacks=0;
+let scenicMultiDrawDriverCalls=0,scenicLegacyDriverCalls=0;
+function setScenicMultiDrawForTesting(value){
+ if(value!==null&&value!==true&&value!==false)
+  throw Error('W86 invalid optional scenic multi-draw override');
+ scenicMultiDrawOverride=value;
+ lastFrozenFrameKey=null;presentationEpoch++;
+ return scenicMultiDrawSupported&&value!==false;
+}
+function getScenicMultiDrawAudit(){
+ return {source:'resident-static-scene-driver-submission',
+  extension:'WEBGL_multi_draw',supported:scenicMultiDrawSupported,
+  enabled:scenicMultiDrawSupported&&scenicMultiDrawOverride!==false,
+  softwareFallback:swiftGpu||!gpuAvailable,maxRunsPerBatch:SCENIC_MULTI_DRAW_MAX_RUNS,
+  allocatedScratchInt32:scenicMultiDrawFirsts.length+scenicMultiDrawCounts.length,
+  batches:scenicMultiDrawBatches,rangesBatched:scenicMultiDrawRanges,
+  fallbacks:scenicMultiDrawFallbacks,
+  totalStaticDriverCalls:scenicMultiDrawDriverCalls,
+  legacyDriverCalls:scenicLegacyDriverCalls,
+  noGeometryDropped:true,authorityChanged:false,
+  measurement:'WebGL driver call counts only, not GPU time or sustained FPS'};
+}
+
 function setStaticBatchBridgingForTesting(value){
  if(value!==true&&value!==false&&value!==null)
   throw Error('Invalid scenic batching override');
@@ -2074,9 +2108,30 @@ function planVisibleStaticDraws(ranges,planes,allowBridge){
 function drawVisibleStaticChunks(target,ranges,planes){
  const bridge=staticBatchBridgeOverride===null?!swiftGpu:staticBatchBridgeOverride;
  const {runs,...audit}=planVisibleStaticDraws(ranges,planes,bridge);
+ // Identical visibility and exact vertex ranges on both paths. The optional
+ // native multi-draw call reduces repeated JS->driver calls on supported GPUs.
+ // Unsupported devices and oversized batches submit every original run.
+ const multi=Boolean(scenicMultiDrawSupported&&scenicMultiDrawOverride!==false&&
+  runs.length>1&&runs.length<=SCENIC_MULTI_DRAW_MAX_RUNS);
  bindGeometry(target);
- for(const run of runs)gl.drawArrays(gl.TRIANGLES,run.first,run.count);
- return audit;
+ if(multi){
+  for(let i=0;i<runs.length;i++){
+   scenicMultiDrawFirsts[i]=runs[i].first;
+   scenicMultiDrawCounts[i]=runs[i].count;
+  }
+  scenicMultiDrawExtension.multiDrawArraysWEBGL(gl.TRIANGLES,
+   scenicMultiDrawFirsts,0,scenicMultiDrawCounts,0,runs.length);
+  scenicMultiDrawBatches++;
+  scenicMultiDrawRanges+=runs.length;
+ }else{
+  for(const run of runs)gl.drawArrays(gl.TRIANGLES,run.first,run.count);
+  scenicLegacyDriverCalls+=runs.length;
+  if(runs.length>1)scenicMultiDrawFallbacks++;
+ }
+ const driverCalls=multi?1:runs.length;
+ scenicMultiDrawDriverCalls+=driverCalls;
+ return {...audit,driverCalls,multiDrawBatches:multi?1:0,
+  multiDrawRanges:multi?runs.length:0};
 }
 
 // Gauntlet 027 — atmospheric sky. A separate full-screen GPU render pass creates
@@ -3428,7 +3483,8 @@ function drawHomeClusters(planes){
  }
  const fields=['totalChunks','visibleChunks','visibleTriangles','culledTriangles',
   'drawCalls','strictDrawCalls','bridgedTriangles','bridgedChunks',
-  'issuedTriangles','savedDrawCalls','invalidRanges'];
+  'issuedTriangles','savedDrawCalls','invalidRanges','driverCalls',
+  'multiDrawBatches','multiDrawRanges'];
  const total=Object.fromEntries(fields.map(key=>
   [key,audits.reduce((sum,item)=>sum+(item[key]||0),0)]));
  return {...total,maxBridgeTriangles:SCENIC_BRIDGE_MAX_TRIANGLES};
@@ -13887,6 +13943,12 @@ if(gpuAvailable){
  scenicVisibilityStats.totalDrawCalls=scenicVisibilityStats.landscape.drawCalls+
   scenicVisibilityStats.settlement.drawCalls+scenicVisibilityStats.civic.drawCalls+
   scenicVisibilityStats.homes.drawCalls;
+ scenicVisibilityStats.totalDriverCalls=scenicVisibilityStats.landscape.driverCalls+
+  scenicVisibilityStats.settlement.driverCalls+scenicVisibilityStats.civic.driverCalls+
+  scenicVisibilityStats.homes.driverCalls;
+ scenicVisibilityStats.totalMultiDrawBatches=scenicVisibilityStats.landscape.multiDrawBatches+
+  scenicVisibilityStats.settlement.multiDrawBatches+scenicVisibilityStats.civic.multiDrawBatches+
+  scenicVisibilityStats.homes.multiDrawBatches;
  scenicVisibilityStats.totalBridgedTriangles=
   scenicVisibilityStats.landscape.bridgedTriangles+
   scenicVisibilityStats.settlement.bridgedTriangles+
@@ -13975,12 +14037,14 @@ getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStr
  totalSubmittedTriangles:scenicVisibilityStats.totalSubmittedTriangles,
  totalCulledTriangles:scenicVisibilityStats.totalCulledTriangles,
  totalDrawCalls:scenicVisibilityStats.totalDrawCalls,
+ totalDriverCalls:scenicVisibilityStats.totalDriverCalls,
+ totalMultiDrawBatches:scenicVisibilityStats.totalMultiDrawBatches,
  totalIssuedTriangles:scenicVisibilityStats.totalIssuedTriangles,
  totalBridgedTriangles:scenicVisibilityStats.totalBridgedTriangles,
  totalSavedDrawCalls:scenicVisibilityStats.totalSavedDrawCalls,
  batchMode:scenicVisibilityStats.batchMode,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,setStaticBatchBridgingForTesting,getCourierPostCameraAudit,evaluateCourierPostRepairPolicy,getDaybreakReturnAudit,getCameraDynamicCacheStats,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,setStaticBatchBridgingForTesting,getScenicMultiDrawAudit,setScenicMultiDrawForTesting,getCourierPostCameraAudit,evaluateCourierPostRepairPolicy,getDaybreakReturnAudit,getCameraDynamicCacheStats,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
  if(streetWalk)setStreetWalk(false);
 if(follow)setCitizenFollow(false);cinematic=false;document.getElementById('camera').classList.remove('active');
 yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2&&o.focus.every(Number.isFinite))focusPoint=o.focus.slice(0,2)}};

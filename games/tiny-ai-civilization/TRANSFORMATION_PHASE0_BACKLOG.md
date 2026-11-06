@@ -1,3 +1,20 @@
+# Tiny Kingdom — persistent transformation backlog (W86; Phase 1 ACTIVE)
+
+**One continuous authentic scenario, not new tiny workstreams:** original farmer harvesting → real escrowed load courier → market unloading and inventory receipt → occupied home, including Day-120 and mobile. Exclusive [open Draft PR #64](https://github.com/my-edutu/Ai_games/pull/64); baseline `2f6deb43feb1a1557848d44def53a6109deb1ab1`. No merge, main/PR43/59/62 edits or invented milestone.
+
+**W86 actual source work:** Optional driver-level WebGL multi-draw for precisely the SAME original resident landscape/settlement/market/civic and housing visible ranges, preserving all existing geometry. Bounded typed arrays and exact original per-range fallback on unsupported hardware/software. Separate instrumentation of logical ranges vs actual driver submissions. Desktop + 390px browser safety/equivalence contract registered, but no W86 browser/real GPU/video/independent critic has completed. Historical W85 exact-source runs were queued: [W85 exact-head GPU/browser queued](https://github.com/my-edutu/Ai_games/actions/runs/42200991300) · [120-day queued](https://github.com/my-edutu/Ai_games/actions/runs/42200991245) · [matched running video queued](https://github.com/my-edutu/Ai_games/actions/runs/42200991438). Do not extrapolate hardware FPS.
+
+**Five active blockers with Phase 1 owner and measurable done conditions:**
+1. **Rendering-spine driver and static stalls (P0)**: W68 last verified CPU p95 314 ms / p99 820 ms and software ~3.31 FPS; current physical GPU split UNKNOWN. W86 targets fewer physical GPU calls without removing visual content. DONE only source-matched real GPU desktop + mobile 30+ sustained FPS, CPU/driver/GPU p50/p95/p99 and p95 frame <=33.3ms under real workday + Day-120 scenes.
+2. **Growth triangle/resource safety (P0)**: historical Day-120 160,092 triangles > strict <160k; W86 current exact-head UNKNOWN. DONE only original 120-day replay/save, all actors/homes and <160k on all cameras, bounded memory/GL validity with no hidden omissions.
+3. **Real trade visibility (P0)**: W68 actual worker unloading partly concealed; W82 physical receipt uncut source film pending. DONE only authentic actual worker harvest → loaded walk → contact → credit and uninterrupted receipt recording, including inventories identical on replay.
+4. **Cohesive lived medieval world (P1)**: granary, road and market edits exist but settlement still low-poly; full original environment and character craftsmanship not proven. DONE only matched cinematic-quality *running gameplay* and independent fresh-context blinded substantial LOOK/PLAY critique versus G088, and separate Manor Lords reference score.
+5. **Mobile & continuous camera (P1)**: historical 390px homecoming cuts overhead, slow frames impair input; current source unknown. DONE only measured genuine 390px touch/accessible UI, uninterrupted camera-worker interaction, no errors, replay and sustained physical mobile frame gate.
+
+**Next exact step:** inspect queued W85/W86 action terminal states and completed artifact movies (not source claims), profile true hardware optional extension support and driver calls, verify Day-120 triangle safety and continuous courier, then push the SAME Phase 1 rendering/camera workstream toward Phase 2 integrated environmental transformation. Gate A LOOK NOT PROVEN / FEEL FAIL / PLAY NOT PROVEN. Gate B Manor Lords commercial FAIL.
+
+---
+
 # Tiny Kingdom — persistent transformation backlog (W84)
 
 **One active playable vertical slice; Phase 1 STILL OPEN:** true farmer harvest → escrowed courier/cargo → physically receiving market inventory → occupied house; W83 real service route/porch and W84 original raised/ventilated granary are parts of the SAME continuous workstream. Draft [PR #64](https://github.com/my-edutu/Ai_games/pull/64) only. Baseline `2f6deb43feb1a1557848d44def53a6109deb1ab1` immutable. No main/PR43/59/62 integration, no merge or new percent. A LOOK **NOT PROVEN** / FEEL **FAIL** / PLAY **NOT PROVEN**. B Manor Lords-quality **FAIL**.
