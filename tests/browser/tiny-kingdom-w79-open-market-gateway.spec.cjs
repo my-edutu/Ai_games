@@ -79,9 +79,13 @@ test('W79 grown original village remains complete and inside safety budget',asyn
   for(let i=0;i<120*24*30;i++)g.step(1/30);
   return {before,after:g.metrics(),snapshot:JSON.stringify(g.exportSnapshot())};
  });
- await page.waitForFunction(()=>window.__tinyKingdom.renderStats().lastFrameTriangles>0 &&
-  window.__tinyKingdom.getMarketGatewayAudit().pavingStones>200,
-  null,{timeout:115000});
+ // Wait for a REAL drawn grown-world frame, not the already-present Day-1
+ // frame. The exact original burgage material audit counts actual city lots.
+ await page.waitForFunction(()=>{
+  const g=window.__tinyKingdom;
+  return g.getMarketGatewayAudit().pavingStones>200 &&
+   g.getBurgageMaterialAudit().homes===g.metrics().buildings-2;
+ },null,{timeout:115000});
  const rendered=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
   return {metrics:g.metrics(),snapshot:JSON.stringify(g.exportSnapshot()),
