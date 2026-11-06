@@ -31,6 +31,7 @@ jobs:
         with: {node-version: '22', cache: 'npm'}
       - run: npm ci
       - run: npm run build
+      - run: node --test tests/foundation/dungeon-m1-ordered-feed.test.cjs
       - run: npm run dungeon:assets:strict
       - run: npx playwright install --with-deps chromium
       - name: Record actual entire journey and original opt-in sound

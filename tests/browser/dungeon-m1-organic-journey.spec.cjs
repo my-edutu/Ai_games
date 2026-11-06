@@ -2,6 +2,7 @@
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs');
 const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
+const {createOrderedReplayFeed}=require('./dungeon-m1-ordered-feed.cjs');
 const BASELINE='281735d0910c6b2443648af976003d50412ee324',SEED='gauntlet-corpus-v1-0';
 const VIEW=process.env.DUNGEON_M1_VIEWPORT==='mobile'?'mobile':'desktop';
 const SIZE=VIEW==='mobile'?{width:390,height:844}:{width:1440,height:832};
@@ -82,37 +83,49 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
  for(const [a,b] of [['entry','combat'],['combat','warden'],['warden','floor'],['floor','defeat'],['defeat','restart']])
   expect(milestones[a],'Natural chronology: '+a+' before '+b).toBeLessThan(milestones[b]);
  const errors=[],observations=[],milestoneFrameProof=[];page.on('pageerror',e=>errors.push(String(e)));
- let served=snapshots[0];
- await page.route('**/dungeon/state',route=>route.fulfill({json:served}));
+ // An independent 240ms host loop could overwrite unread game states.
+ // Instead each actual spectator fetch consumes one true DungeonRuntime step.
+ const feed=createOrderedReplayFeed(snapshots);
+ await page.route('**/dungeon/state',route=>route.fulfill({json:feed.pull().snapshot}));
  await page.setViewportSize(SIZE);await page.goto('/dungeon');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.webgl===true),{timeout:90000}).toBe(true);
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame||0),{timeout:90000}).toBeGreaterThan(3);
- await page.locator('#audio-toggle').click(); // real opt-in gesture; may be unavailable
+ await page.locator('#audio-toggle').click(); // genuine spectator opt-in
  const audioOptedIn=(await page.locator('#audio-toggle').getAttribute('aria-pressed'))==='true';
  const recording=await beginRecording(page),started=Date.now();
- for(let i=1;i<snapshots.length;i++){
-  served=snapshots[i];await page.waitForTimeout(240); // all real states, 240ms source cadence
-  // Do not mistake a server-side stage for a filmed stage. Every decisive
-  // moment must be consumed by the real browser and a fresh rendered frame.
-  if(Object.values(milestones).includes(i)){
-   await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.checksum),
-    {timeout:60000}).toBe(snapshots[i].checksum);
-   const frameBefore=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame||0);
-   await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame||0),
-    {timeout:60000}).toBeGreaterThan(frameBefore);
-   milestoneFrameProof.push({index:i,checksum:snapshots[i].checksum,
-    frame:await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame||0)});
-  }
-  if(i%24===0||Object.values(milestones).includes(i))
-   observations.push(await page.evaluate(()=>{
-    const s=window.__DUNGEON_PUBLIC_STATE__,d=window.__DUNGEON_RENDER_DIAGNOSTICS__;
-    return {run:s?.run,tick:s?.tick,floor:s?.floor,phase:s?.phase,checksum:s?.checksum,frame:d?.frame,
-     composition:d?.composition,visibility:d?.visibility,frameDelivery:d?.frameDelivery,
-     triangles:d?.triangles,soundstage:d?.soundstage};
-   }));
+ for(const stage of ['combat','warden','floor','defeat','restart']){
+  const index=milestones[stage],expected=snapshots[index];
+  feed.allowThrough(index);
+  // The *rendered frame's* checksum must match the source milestone.
+  // An unrelated next frame is NOT evidence of a recorded Warden contact.
+  await expect.poll(()=>page.evaluate(()=>
+   window.__DUNGEON_RENDER_DIAGNOSTICS__?.renderedState?.checksum??null
+  ),{timeout:420000,intervals:[300,750,1200]}).toBe(expected.checksum);
+  const proof=await page.evaluate(()=>{
+   const d=window.__DUNGEON_RENDER_DIAGNOSTICS__,s=window.__DUNGEON_PUBLIC_STATE__;
+   return {frame:d?.frame??0,renderedState:d?.renderedState??null,
+    publicChecksum:s?.checksum??null,composition:d?.composition,
+    visibility:d?.visibility,frameDelivery:d?.frameDelivery,
+    triangles:d?.triangles,soundstage:d?.soundstage};
+  });
+  expect(proof.frame,'real rendered frame for '+stage).toBeGreaterThan(0);
+  expect(proof.renderedState?.checksum,'rendered truth '+stage).toBe(expected.checksum);
+  expect(proof.publicChecksum,'consumed truth '+stage).toBe(expected.checksum);
+  const screenshot='artifacts/dungeon-m1-organic-journey-'+VIEW+'-'+stage+'-actual-canvas.png';
+  await page.locator('#world').screenshot({path:screenshot,timeout:90000});
+  milestoneFrameProof.push({stage,index,checksum:expected.checksum,frame:proof.frame,
+   renderedState:proof.renderedState,screenshot});
+  observations.push({stage,run:proof.renderedState.run,tick:proof.renderedState.tick,
+   floor:proof.renderedState.floor,phase:expected.phase,
+   checksum:proof.publicChecksum,frame:proof.frame,composition:proof.composition,
+   visibility:proof.visibility,frameDelivery:proof.frameDelivery,
+   triangles:proof.triangles,soundstage:proof.soundstage});
+  // A review-playback hold of the unchanged real snapshot, not a staged win.
+  await page.waitForTimeout(420);
  }
- await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.run),{timeout:15000})
-  .toBe(snapshots.at(-1).run);
+ const feedMetrics=feed.metrics();
+ expect(feedMetrics.uniqueDelivered,'every authentic authority tick delivered').toBe(snapshots.length);
+ expect(feedMetrics.lastDeliveredIndex,'natural restart delivered').toBe(snapshots.length-1);
  const film=recording.status==='RECORDING'?await stopRecording(page):recording;
  const receipt={schemaVersion:1,sourceSha:require('node:child_process').execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),
   baselineSha:BASELINE,baselineArtifact:'https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898',
@@ -121,7 +134,7 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
   milestones:Object.fromEntries(Object.entries(milestones).map(([name,index])=>
    [name,{index,run:snapshots[index].run,tick:snapshots[index].tick,floor:snapshots[index].floor,
     checksum:snapshots[index].checksum}])),
-  elapsedMs:Date.now()-started,intervalMs:240,audioGestureOptIn:audioOptedIn,
+  elapsedMs:Date.now()-started,playbackCadence:'browser polling, held real milestone frames, not original live cadence',orderedFeed:feedMetrics,audioGestureOptIn:audioOptedIn,
   recorder:{status:film.status,reason:film.reason,bytes:film.bytes||0,mime:film.mime,
    audioTracks:film.audioTracks||0,videoTracks:film.videoTracks||0},
   originalAudioTrackPresent:film.status==='RECORDED'&&film.audioTracks>0,
