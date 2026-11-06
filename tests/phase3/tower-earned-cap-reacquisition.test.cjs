@@ -101,6 +101,12 @@ test('a real post-defeat fall BELOW the cap plane reacquires an interceptable lo
 test('falling return shelf must be physically interceptable, not merely on the upward graph',()=>{
   const {state,cap}=episode();
   const shelf=state.chunks[0].platforms.find(p=>p.id==='f8:p6');
+  // Force ALL return ledges into a far-left fixture. The guardian cap itself
+  // stays authentic, but this falling body cannot intercept any lower shelf
+  // before gravity passes their tops, even with maximum legal air steering.
+  for(const deck of state.chunks[0].platforms)if(deck.id!==cap.id){
+    deck.x=12000;deck.width=80000;
+  }
   state.player.position={x:state.config.worldWidth-state.player.halfWidth,
     y:cap.y+cap.height-6000+state.player.halfHeight};
   state.player.velocity={x:0,y:-12000};
