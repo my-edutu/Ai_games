@@ -5,6 +5,8 @@
 const {TowerRuntime}=require('../dist/games/infinite-tower-climb/src/runtime/run.js');
 const {STREAM_CONFIG}=require('./serve-tower-stream.cjs');
 const {observedHazardChargeTicks}=require('../dist/games/infinite-tower-climb/src/presentation/snapshot.js');
+const {createTowerCausalWitness}=require('./tower-causal-playthrough.cjs');
+const causal=createTowerCausalWitness();
 const run=TowerRuntime.create({...STREAM_CONFIG,launchFloor:8},
   'tower-transformation-capture-v1',{policy:'autonomous'});
 const out={kind:'source-only-guardian-campaign',quality:'NOT EVALUATED',
@@ -51,13 +53,15 @@ for(let i=0;i<out.steps;i++){
     }
   }
   run.step();
+  const stepEvents=run.drainEvents();
+  causal.observe(before,run.state,stepEvents);
   // Only count legitimate SOURCE grounded -> airborne jumps actually chosen
   // during the living shield-phase duel. This is diagnostic instrumentation,
   // neither a rendered-frame assertion nor an experience-quality score.
   if(before.player.grounded&&run.state.ai.mode==='bracing-guardian-shield'&&
     !run.state.player.grounded&&run.state.stats.jumps>before.stats.jumps)
     out.sourceGuardianShieldVaults++;
-  for(const e of run.drainEvents()){
+  for(const e of stepEvents){
     if(e.type==='enemy-defeated'&&e.data?.kind==='guardian')out.guardianDefeats++;
     if(e.type==='melee-hit'){out.sourceMeleeHits++;if(e.data?.coreBonus)out.sourceCoreHits++;}
     if(e.type==='guardian-windup-interrupted'&&e.data?.counter==='melee')
@@ -87,4 +91,5 @@ for(let i=0;i<out.steps;i++){
 out.maxFloor=Math.max(out.maxFloor,run.state.floor);
 out.remainingLifecycle=run.state.lifecycle;
 out.caveat='Source-only deterministic observation; does not prove rendered action, full-motion improvements, general win rate, accessibility or supported hardware performance.';
+out.causalEpisodeProof=causal.summary();
 process.stdout.write(JSON.stringify(out)+'\n');

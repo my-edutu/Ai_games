@@ -35,6 +35,7 @@ export function observedGuardianPassage(previous, next) {
   // advancements; an absent/unknown foe never fabricates this victory.
   return Array.isArray(previous.enemies) &&
     previous.enemies.some(enemy => enemy.kind === 'guardian' &&
+      (!Number.isSafeInteger(enemy.floor) || enemy.floor === previous.floor) &&
       (enemy.active === true ||
         (enemy.active === false && Number.isFinite(enemy.health) && enemy.health <= 0)));
 }
@@ -57,6 +58,7 @@ export function observedUnlockedGuardianCap(snapshot) {
       .every(Number.isFinite) && platform.width > 0 && platform.height > 0);
   const guardian = snapshot.enemies?.find(enemy =>
     enemy.kind === 'guardian' && enemy.active === false &&
+    (!Number.isSafeInteger(enemy.floor) || enemy.floor === snapshot.floor) &&
     typeof enemy.id === 'string' && !!enemy.id &&
     [enemy.x, enemy.y, enemy.halfHeight, enemy.health].every(Number.isFinite) &&
     enemy.health <= 0 && enemy.halfHeight > 0);

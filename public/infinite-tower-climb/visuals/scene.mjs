@@ -3426,8 +3426,8 @@ export function createTowerScene(canvas, settings = {}) {
     // gate through the grounded post-guardian walk. An already safe body and
     // exterior sightline are vetoes; no invented victory or camera cut.
     earnedGatewayEscortLastGain = 0;
-    const earnedStage = !overview && !options.stale && !!liveExit &&
-      snapshot.floor === 8 ? passage.diagnostics() : null;
+    const earnedStage = !overview && !options.stale && !!liveExit
+      ? passage.diagnostics() : null;
     const gatewayEarned = !!earnedStage?.active &&
       earnedStage.stage === 'earned-open' &&
       earnedStage.runToken === snapshot.runToken &&
