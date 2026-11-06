@@ -1,0 +1,24 @@
+# Infinite Tower Climb PR68 — old real-film threshold readability and current two-viewport correction (2026-11-06)
+
+**Active:** P0 evidence and game-loop truth; still OPEN. **Gameplay/presentation commit:** [f6049e4ece1a5d67a398a6ca5677bf4780d3a2e8](https://github.com/my-edutu/Ai_games/commit/f6049e4ece1a5d67a398a6ca5677bf4780d3a2e8). **Frozen baseline remains:** `1731b380851162741761c5569e2bc152a0869ca9`. **Leading verdict: NOT EVALUATED.** Genuinely independent LOOKS / FEELS / PLAYS: **0/5**, **0/5**, **0/5**.
+
+## What I actually inspected
+
+Retrieved actual original-source browser-native WebM recordings and source sidecars from the completed [9-job source-pinned workflow 42104896643](https://github.com/my-edutu/Ai_games/actions/runs/42104896643). Inspected candidate **8fd9018fbe53196c34f41f3e9260b2d6fa1b459e** and immutable source baseline **1731b380851162741761c5569e2bc152a0869ca9**, danger and outcome, in both desktop 960×600 and portrait 390×844. Relevant original artifact IDs: candidate danger 13463847830; baseline danger 13464172568; candidate outcome 13463963615; baseline outcome 13464665652. These are historical, NOT current-head footage and NOT event-matched fair blind comparisons.
+
+**Main older-footage defect:** in portrait candidate normal-speed danger, a visible substantial living guardian encounter is around video 28s; by roughly 35s the climber is moving near a large tower/cap with no unambiguous bronze walkable gateway crossing in sampled frames, even though onward floor-nine appears around 42s. The giant world machinery dominates shot attention on desktop as well; the climber, battle and physically earned gateway can be very small. The candidate outcome recordings do show actual result/intermission and subsequent cycles, but baseline and candidate episodes differ. This is a film-observed **historical** readability weakness, not a verified current-head defect or independent assessor judgment.
+
+## Connected actual 3D implementation
+
+The live game's existing `scene.mjs` already added a source-gated camera look at the real inner bronze guardian doorway and foreground machinery yielding **only for portrait**. Extended **the same physical source-earned threshold** to desktop and portrait with a lower max camera correction budget on desktop (.11 versus portrait .20); the same full climber projected bounds, real tower core sightline vetoes, hazard/landing priority, safe original camera rollback, reduced-motion and real source/run/floor gate checks remain. No teleport, altered AI, hidden seed, new geometry or draw call.
+
+The real source-bound gateway-projection diagnostic formerly had a leftover `floor === 8` restriction even though the renderer and original physical guardian cap now allow real later-floor gateways; remove that inconsistent diagnostic restriction without inventing floor-nine confirmation. Added source-owned **`earnedGatewayEscortResponse`** pure function plus cross-viewport and adverse-sightline tests.
+
+## Verification, evidence gaps and next largest action
+
+- The exact `guardian-gateway-framing.mjs` file copied into an isolated Node 22 harness has Git blob SHA **8608a534ce75057f20ab53d50a6bd4e2c60a7373**, matching the newly committed remote file, and **5/5 focused helper/crop/desktop/portrait veto checks passed**. This is **not** the full checked-out repository `node --test` suite, native gameplay, current exact-head CI or an independent playtest.
+- As inspected, prior exact-head quality workflow [42145524226](https://github.com/my-edutu/Ai_games/actions/runs/42145524226) had one queued job; 9-job source-pinned capture [42145114594](https://github.com/my-edutu/Ai_games/actions/runs/42145114594), still pinned to **older 67840a3**, had all nine jobs queued and **zero artifacts**. The live local browser/app workspace is disconnected. The new implementation's capture/test links and results must be rechecked at its exact SHA.
+- Must still inspect **current-source** normal-speed complete desktop and portrait films with source-matched guardian defeat, visible inner bronze threshold, authentic grounded full-body 8→9 clearance, floor-nine movement and genuine outcome/restart in one episode; no fabricated independent LOOKS/FEELS/PLAYS reviewers or native hardware p50/p95/p99/frame-memory claims.
+- **Precise next action:** obtain latest nine-job WebMs and source 20 Hz witness. If both actor and physical inner threshold still are not readable in continuous victory footage, correct whole boss/gateway action composition rather than adding cosmetic patches. Align true same-episode video moments with frozen baseline, then solicit five genuinely independent randomized fresh-context critics for EACH LOOKS/FEELS/PLAYS and measure target devices.
+
+**Controls:** Draft PR #68 remains open on `feat/tower-transformation-gauntlet-20261101`; PR #58 untouched; no merge/deploy/force push; frozen baseline unchanged. No transformation victory is claimed.
