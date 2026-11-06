@@ -1,5 +1,5 @@
 import type{TowerAction,TowerPlatform,TowerState}from'../state/types';
-import{TOWER_GUARDIAN_PATROL_SPEED}from'../combat/step';import{chooseTowerUpgrade}from'../progression/builds';import{nextTowerPlatform,nextTowerTacticalPlatform}from'./graph';import{guardianArenaClearanceX}from'../generation/chunks';import type{TowerObservation}from'./observation';import{detectTowerStuck}from'./stuck';
+import{TOWER_GUARDIAN_PATROL_SPEED}from'../combat/step';import{chooseTowerUpgrade}from'../progression/builds';import{nextTowerPlatform,nextTowerTacticalPlatform,nextTowerEarnedCapHop}from'./graph';import{guardianArenaClearanceX}from'../generation/chunks';import type{TowerObservation}from'./observation';import{detectTowerStuck}from'./stuck';
 export interface TowerIntent{mode:'choosing-upgrade'|'evading-projectile'|'evading-hazard'|'evading-telegraph'|'bracing-telegraph'|'bracing-guardian-shield'|'engaging-enemy'|'recovering'|'collecting-resource'|'aligning'|'jumping'|'air-control'|'settling-landing'|'settling-launch'|'waiting';summary:string;confidence:number;fallbackUsed:boolean;targetPlatformId?:string}
 export interface TowerDecision{action:TowerAction;intent:TowerIntent}
 function action(move:TowerAction['move']=0,extra:Partial<TowerAction>={}):TowerAction{return{move,jump:false,dash:false,attack:false,ability:false,...extra}}
@@ -654,18 +654,23 @@ function observedEarnedCapReacquisition(state:TowerState,obs:TowerObservation,
     if(p.groundedPlatformId===cap.id)return null;
     const support=currentPlatform(obs,p.groundedPlatformId);
     if(!support)return null;
-    // A deck far beneath the cap must follow the original multi-step climb;
-    // never ask the grounded controller to jump through several solid floors.
-    const rise=Math.floor(state.config.jumpImpulse*state.config.jumpImpulse/
-      (2*state.config.gravity));
-    const gain=top-(support.y+support.height);
-    if(gain<=0||gain>rise-6000)return null;
-    const launch=observedLaunchSteering(state,obs,support,cap);
+    // A post-fight knockback can strand the hero several decks below the
+    // cap. Follow a present-source, reachability-checked upward hop toward
+    // the earned passage instead of reusing a stale combat platform or
+    // asking for an impossible direct jump through intermediate floors.
+    const next=nextTowerEarnedCapHop(obs,state.config,support.id,cap.id,
+      state.ai.targetPlatformId);
+    if(!next)return null;
+    const launch=observedLaunchSteering(state,obs,support,next);
+    const finalHop=next.id===cap.id;
     return {action:action(launch.move,{jump:launch.jump}),
       intent:{mode:launch.jump?'jumping':launch.settling?'settling-launch':'aligning',
-        summary:launch.jump?'Rejoining the earned guardian exit by a real cap jump':
-          'Aligning a physical return to the cleared guardian cap',
-        confidence:.96,fallbackUsed:false,targetPlatformId:cap.id}};
+        summary:finalHop?
+          launch.jump?'Rejoining the earned guardian exit by a real cap jump':
+            'Aligning a physical return to the cleared guardian cap':
+          launch.jump?'Ascending a reachable deck toward the earned guardian exit':
+            'Rebuilding the physical ascent route to the cleared guardian cap',
+        confidence:.96,fallbackUsed:false,targetPlatformId:next.id}};
   }
   // Once the real feet have already fallen BELOW the collision plane,
   // aiming at the cap is fictional. Leave normal air-recovery and lower

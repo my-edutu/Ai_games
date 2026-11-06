@@ -7,6 +7,8 @@ const assert=require('node:assert/strict');
 const {TowerRuntime}=require('../../dist/games/infinite-tower-climb/src/runtime/run.js');
 const {createTowerObservation}=require('../../dist/games/infinite-tower-climb/src/ai/observation.js');
 const {chooseTowerAction}=require('../../dist/games/infinite-tower-climb/src/ai/policy.js');
+const {nextTowerEarnedCapHop,buildTowerPlatformGraph}=
+  require('../../dist/games/infinite-tower-climb/src/ai/graph.js');
 const {stepTowerPhysics}=require('../../dist/games/infinite-tower-climb/src/physics/step.js');
 const {STREAM_CONFIG}=require('../../scripts/serve-tower-stream.cjs');
 
@@ -104,4 +106,58 @@ test('far beneath the cap follows ordinary intermediate route, and grounded cap 
   assert.equal(passage.intent.targetPlatformId,cap.id);
   assert.match(passage.intent.summary,/Crossing the earned physical guardian passage/);
   assert.equal(passage.action.jump,false);
+});
+
+test('genuine post-guardian fall from a mid-tower deck climbs an observed multi-hop route',()=>{
+  const {state,cap}=episode();
+  const mid=state.chunks[0].platforms.find(p=>p.id==='f8:p3');
+  assert.ok(mid);
+  state.player.position={x:mid.x+Math.floor(mid.width/2),
+    y:mid.y+mid.height+state.player.halfHeight};
+  state.player.velocity={x:0,y:0};
+  state.player.grounded=true;
+  state.player.groundedPlatformId=mid.id;
+  const observation=createTowerObservation(state,{includeHazardWindup:true});
+  const before=JSON.stringify(observation);
+  const graph=buildTowerPlatformGraph(observation,state.config);
+  const nodes=new Map(graph.map(p=>[p.id,p]));
+  let current=mid.id;
+  const route=[];
+  for(let i=0;i<graph.length&&current!==cap.id;i++){
+    const next=nextTowerEarnedCapHop(observation,state.config,current,cap.id);
+    assert.ok(next,'a real upward route should be available from '+current);
+    assert.ok(nodes.get(current).neighbors.includes(next.id),
+      'each selected launch must satisfy the real movement envelope');
+    assert.ok(next.y+next.height>nodes.get(current).y+nodes.get(current).height);
+    route.push(next.id);current=next.id;
+  }
+  assert.equal(current,cap.id);
+  assert.ok(route.length>=2,'a mid-tower knockback cannot jump straight to the cap');
+  const decision=choose(state);
+  assert.equal(decision.intent.targetPlatformId,route[0],
+    'the controller should take the first earned real platform hop, not stale p2');
+  assert.equal(decision.action.dash,false);
+  assert.equal(decision.action.ability,false);
+  assert.match(decision.intent.summary,/guardian exit|guardian cap/);
+  assert.equal(JSON.stringify(observation),before,'route reads immutable observation');
+  assert.deepEqual(nextTowerEarnedCapHop(observation,state.config,mid.id,cap.id),
+    nextTowerEarnedCapHop(observation,state.config,mid.id,cap.id));
+});
+
+test('guardian cap route refuses invented edges and preserves historical policy',()=>{
+  const {state,cap}=episode();
+  const mid=state.chunks[0].platforms.find(p=>p.id==='f8:p3');
+  state.player.position={x:mid.x+mid.width/2,
+    y:mid.y+mid.height+state.player.halfHeight};
+  state.player.grounded=true;state.player.groundedPlatformId=mid.id;
+  const observation=createTowerObservation(state,{includeHazardWindup:true});
+  const unreachable={...observation,platforms:observation.platforms.map(p=>
+    p.id===cap.id?{...p,x:5000000}:p)};
+  assert.equal(nextTowerEarnedCapHop(unreachable,state.config,mid.id,cap.id),
+    undefined,'no fictional cap jump beyond physics');
+  assert.equal(nextTowerEarnedCapHop(observation,state.config,'missing',cap.id),
+    undefined,'a ghost support cannot generate a route');
+  state.config={...state.config,guardianArenaHazards:false};
+  const legacy=choose(state);
+  assert.doesNotMatch(legacy.intent.summary,/Rebuilding the physical ascent route/);
 });

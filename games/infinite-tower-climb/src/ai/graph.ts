@@ -88,3 +88,43 @@ export function nextTowerTacticalPlatform(
       a.node.id.localeCompare(b.node.id));
   return clear[0]?.node??first.node;
 }
+
+// Once a real guardian has fallen, a climber knocked onto a lower deck still
+// needs a PHYSICAL route back to the earned cap. Search the observed upward
+// platform graph backwards from the cap; each edge uses the existing movement
+// envelope and the live positions of moving decks. A stale combat target can
+// never send a post-victory pilot into a lower-platform loop.
+// This is navigation only: no collision, stamina, teleports or floor changes.
+export function nextTowerEarnedCapHop(
+  observation:TowerObservation,config:TowerConfig,
+  groundedId:string,capId:string,previousTargetId?:string
+):TowerGraphNode|undefined{
+  const graph=buildTowerPlatformGraph(observation,config);
+  const byId=new Map(graph.map(n=>[n.id,n]));
+  const current=byId.get(groundedId),cap=byId.get(capId);
+  if(!current||!cap||current.id===cap.id)return undefined;
+  const hops=new Map<string,number>([[cap.id,0]]);
+  const queue=[cap.id];
+  for(let index=0;index<queue.length;index++){
+    const destination=queue[index],distance=hops.get(destination)!;
+    // Reverse traversable edges. All edges rise, so this is finite and
+    // requires no guess about where a moving platform will be next tick.
+    for(const node of graph){
+      if(hops.has(node.id)||!node.neighbors.includes(destination))continue;
+      hops.set(node.id,distance+1);
+      queue.push(node.id);
+    }
+  }
+  if(!hops.has(current.id))return undefined;
+  const options=current.neighbors.map(id=>byId.get(id))
+    .filter((node):node is TowerGraphNode=>node!==undefined&&hops.has(node.id))
+    .sort((a,b)=>hops.get(a.id)!-hops.get(b.id)!||
+      (b.y+b.height)-(a.y+a.height)||a.id.localeCompare(b.id));
+  const best=options[0];
+  if(!best)return undefined;
+  // Keep an equally short prior route stable if moving-deck geometry makes
+  // two possible hops look similar on alternating 50 ms observations.
+  const committed=options.find(n=>n.id===previousTargetId&&
+    hops.get(n.id)===hops.get(best.id));
+  return committed??best;
+}
