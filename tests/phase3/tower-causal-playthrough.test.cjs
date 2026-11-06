@@ -2,12 +2,16 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const {createTowerCausalWitness}=require('../../scripts/tower-causal-playthrough.cjs');
 const cap={id:'f8:cap',x:100,width:200,height:5,y:50};
+// Source-published live crusher interval, directly beside the cap-standing
+// body. No mock cinematic, inferred offscreen encounter or disabled collider.
+const shutter={id:'f8:guardian-shutter',kind:'crusher',x:125,y:55,
+ width:20,height:9,activeFromTick:0,activeEvery:72,activeFor:9};
 const state=(runId,tick,floor=8,changes={})=>({
- runId,tick,floor,lifecycle:'running',chunks:[{floor:8,platforms:[cap]}],
+ runId,tick,floor,lifecycle:'running',chunks:[{floor:8,platforms:[cap],hazards:[shutter]}],
  enemies:[{id:'f8:guardian',floor:8,kind:'guardian',active:true,health:2}],
- player:{grounded:true,groundedPlatformId:cap.id,position:{x:130}},...changes});
+ player:{health:5,halfWidth:9,halfHeight:14,grounded:true,groundedPlatformId:cap.id,position:{x:130,y:69}},...changes});
 const dead={id:'f8:guardian',floor:8,kind:'guardian',active:false,health:0};
-function progression(w,run='one') {
+function progression(w,run='one',landedOnward=true) {
  const live=state(run,1),killed=state(run,2,8,{enemies:[dead]});
  w.observe(live,killed,[{type:'enemy-defeated',data:{kind:'guardian',id:'f8:guardian'}}]);
  w.observe(killed,state(run,3,8,{enemies:[dead],player:{...killed.player,position:{x:160}}}),[]);
@@ -19,7 +23,10 @@ function progression(w,run='one') {
    fromFloor:8,capId:'f8:cap',guardianId:'f8:guardian',
    groundedPlatformId:'f8:cap',exitX:180,clearanceX:190,crossingX:200
  }}}]);
- w.observe(state(run,5,9,{enemies:[]}),state(run,6,9,{enemies:[]}),[]);
+ w.observe(state(run,5,9,{enemies:[]}),
+  state(run,6,9,{enemies:[],player:landedOnward?{
+   health:5,grounded:true,groundedPlatformId:'f9:p1',position:{x:95000,y:175},
+  }:{health:5,grounded:false,position:{x:10,y:100}}}),[]);
 }
 test('one authentic episode links guardian, grounded cap, floor nine, result and restart',()=>{
  const w=createTowerCausalWitness();progression(w);
@@ -34,6 +41,10 @@ test('one authentic episode links guardian, grounded cap, floor nine, result and
  assert.equal(record.episodes[0].markers.floorNineContinues.tick,6,
   'floor-nine continuation requires a later real fixed-step tick, not just the exit teleport');
  assert.equal(record.episodes[0].markers.earnedFloorNine.capId,'f8:cap');
+ assert.equal(record.episodes[0].markers.crusherPressureSurvived.hazardId,
+   'f8:guardian-shutter','only observed close-body source pressure counts');
+ assert.equal(record.episodes[0].markers.floorNineContinues.floor,9);
+ assert.equal(record.episodes[0].markers.sourceResult.kind,'game');
  assert.equal(record.episodes[0].markers.earnedFloorNine.observedActualCrossingX,200);
 });
 test('different lives cannot splice defeat, result, or restart together',()=>{
@@ -61,6 +72,43 @@ test('a floor advance without a real source crossing payload cannot be counted',
  w.observe(state('x',3,8,{enemies:[dead],player:{...killed.player,position:{x:160}}}),
    state('x',4,9,{enemies:[]}),[{type:'floor-complete',data:{floor:9}}]);
  assert.equal(w.summary().episodes[0].markers.earnedFloorNine,undefined);
+});
+test('spawn idle ticks do not count as a real floor-nine climb',()=>{
+ const w=createTowerCausalWitness();progression(w,'idle',false);
+ const report=w.summary();
+ assert.equal(report.fullSourceChainObserved,false);
+ assert.equal(report.episodes[0].firstMissing,'floorNineContinues');
+ assert.equal(report.episodes[0].markers.earnedFloorNine.floor,9,
+   'a real threshold without onward deck traversal is incomplete');
+});
+test('technical failures and operator stops cannot stand in for a playable outcome',()=>{
+ for(const kind of ['technical','operator']){
+  const w=createTowerCausalWitness();progression(w);
+  const result=state('one',7,9,{lifecycle:'result',
+   result:{kind,reason:kind==='technical'?'integrity-quarantine':'operator-abort'}});
+  w.observe(state('one',6,9),result,[{type:'technical-terminal'}]);
+  const inter=state('one',8,9,{lifecycle:'intermission',result:result.result});
+  w.observe(result,inter,[{type:'intermission'}]);
+  w.observe(inter,state('two',0),[{type:'restart'}]);
+  assert.equal(w.summary().fullSourceChainObserved,false);
+  assert.equal(w.summary().episodes[0].firstMissing,'sourceResult');
+ }
+});
+test('a distant shutter, absent shutter or already-dead climber does not manufacture a crusher encounter',()=>{
+ const live=state('no-pressure',1);
+ const deadGuardianState=state('no-pressure',2,8,{enemies:[dead]});
+ for(const variant of [
+   s=>({...s,chunks:[{floor:8,platforms:[cap],hazards:[]}]}),
+   s=>({...s,chunks:[{floor:8,platforms:[cap],hazards:[{...shutter,x:300000}]}]}),
+   s=>({...s,player:{...s.player,health:0}})
+ ]){
+   const w=createTowerCausalWitness();
+   w.observe(variant(live),variant(deadGuardianState),
+     [{type:'enemy-defeated',data:{kind:'guardian',id:'f8:guardian'}}]);
+   const record=w.summary();
+   assert.equal(record.episodes[0].markers.crusherPressureSurvived,undefined);
+   assert.equal(record.fullSourceChainObserved,false);
+ }
 });
 test('source observer rejects a previous-floor corpse for a newly earned portal',async()=>{
  const {observedUnlockedGuardianCap,observedGuardianPassage} =
