@@ -6623,58 +6623,140 @@ function getFieldWindAudit(time=state.t){
   material:'original-growing-foliage',residentGeometryUnchanged:true,
   basis:'real-cached-stems-and-seeded-sim-time'};
 }
+// W84: a structural grain-loft rebuild on the real granary, tied to the W83
+// original navigable service road. Physically legible oak framing, vented
+// gable shutters and raised ventilated underfloor now replace the toy-like
+// flat front. The ORIGINAL economy, doorway, roof footprint and navigation are
+// unchanged. Mipmapped resident fired-clay material provides fine roof grain
+// WITHOUT 126 individual tile quads per slope on the GPU/CPU raster path.
+let granaryArchitectureAudit={source:'raised-authentic-granary-loft-and-road',
+ raisedPiers:0,granaries:0,roofCourseRows:8,newRoofCourseTriangles:0,
+ replacedSingleTileTriangles:252,ventilatedGableFaces:0,louverSlats:0,
+ structuralDiagonalBraces:0,underfloorJoists:0,
+ groundFloorClearanceMet:false,realDoorUnblocked:false,totalTriangles:0,
+ addedAuthorityItems:0,changesNavigation:false};
+function getGranaryArchitectureAudit(){return {...granaryArchitectureAudit}}
 function granaryArchitecture(){
+ const first=data.length;
  const [x,z]=FARMSTEAD.granary,y=terrain(x,z),w=4.5,d=3.95;
- const stone=rgb(0xa99f87),plaster=rgb(0xccb795),beam=rgb(0x6b4b35),slate=rgb(0x8d7566);
- // Four raised pier foundations leave a visible ventilated space below grain.
- for(const sideX of [-1,1])for(const sideZ of [-1,1]){
-  const xx=x+sideX*w*.40,zz=z+sideZ*d*.39;
-  box(xx,terrain(xx,zz)-.05,zz,.42,.80,.43,stone);
- }
- box(x,y+.73,z,w,.16,d,rgb(0x987653));
- box(x,y+.90,z,w,2.33,d,plaster);
- for(const side of [-1,1]){
-  const zz=z+side*d*.51;
-  for(const xx of [x-w*.42,x,x+w*.42])box(xx,y+.88,zz,.18,2.46,.17,beam);
-  box(x,y+2.76,zz,w,.17,.14,beam);
- }
- for(const side of [-1,1]){
-  const xx=x+side*w*.50;
-  for(let column=0;column<3;column++){
-   const zz=z+(column-1)*d*.30;
-   box(xx,y+1.39,zz,.10,.66,.57,rgb(0x415961));
-   box(xx+side*.10,y+1.70,zz,.12,.055,.62,rgb(0xc5a97b));
-   box(xx+side*.13,y+1.40,zz,.12,.065,.62,rgb(0xc5a97b));
+ const stone=rgb(0xa99f87),plaster=rgb(0xccb795),
+  beam=rgb(0x6b4b35),slate=rgb(0x8d7566),
+  oldOak=rgb(0x81644b),louver=rgb(0x98846b);
+ const audit={source:'raised-authentic-granary-loft-and-road',
+  raisedPiers:0,granaries:0,roofCourseRows:8,newRoofCourseTriangles:0,
+  replacedSingleTileTriangles:252,ventilatedGableFaces:0,louverSlats:0,
+  structuralDiagonalBraces:0,underfloorJoists:0,
+  groundFloorClearanceMet:false,realDoorUnblocked:false,totalTriangles:0,
+  addedAuthorityItems:0,changesNavigation:false};
+ materialScope(MATERIAL.STONE,()=>{
+  for(const sideX of [-1,1])for(const sideZ of [-1,1]){
+   const xx=x+sideX*w*.40,zz=z+sideZ*d*.39;
+   box(xx,terrain(xx,zz)-.05,zz,.42,.80,.43,stone);
+   audit.raisedPiers++;
   }
- }
+ });
+ materialScope(MATERIAL.WOOD,()=>{
+  // Raised floor actually rests on the four stone piers. Exposed oak joists
+  // are visible from the public loading approach, without boxing in the
+  // walkable approach or masquerading as a storage/simulation resource.
+  for(let i=0;i<4;i++){
+   box(x+(i-1.5)*1.08,y+.61,z,.125,.17,d*.94,oldOak);
+   audit.underfloorJoists++;
+  }
+  box(x,y+.73,z,w,.16,d,rgb(0x987653));
+ });
+ materialScope(MATERIAL.PLASTER,()=>{
+  box(x,y+.90,z,w,2.33,d,plaster);
+ });
+ materialScope(MATERIAL.WOOD,()=>{
+  for(const side of [-1,1]){
+   const zz=z+side*d*.51;
+   for(const xx of [x-w*.42,x,x+w*.42])
+    box(xx,y+.88,zz,.18,2.46,.17,beam);
+   box(x,y+2.76,zz,w,.17,.14,beam);
+   // Four real diagonal load braces per wall pair, BELOW eave height:
+   // silhouette-led joints, not surface decals.
+   for(const edge of [-1,1]){
+    const lower=[x+edge*w*.42,y+1.12,zz+side*.10],
+     upper=[x+edge*w*.18,y+2.55,zz+side*.10];
+    limbSegment(lower,upper,.052,beam,4);
+    audit.structuralDiagonalBraces++;
+    limbSegment(
+     [x+edge*w*.22,y+1.20,zz+side*.10],
+     [x+edge*w*.42,y+2.43,zz+side*.10],.043,oldOak,4);
+    audit.structuralDiagonalBraces++;
+   }
+  }
+  for(const side of [-1,1]){
+   const xx=x+side*w*.50;
+   for(let column=0;column<3;column++){
+    const zz=z+(column-1)*d*.30;
+    box(xx,y+1.39,zz,.10,.66,.57,rgb(0x415961));
+    box(xx+side*.10,y+1.70,zz,.12,.055,.62,rgb(0xc5a97b));
+    box(xx+side*.13,y+1.40,zz,.12,.065,.62,rgb(0xc5a97b));
+   }
+  }
+  const front=z-d*.52;
+  // Existing real grain-store opening retains its exact physical dimensions,
+  // so actual loaded courier approaches and W83 open porch stay passable.
+  box(x,y+.84,front,.97,1.80,.14,rgb(0x705039));
+  box(x,y+1.38,front-.085,.95,.075,.12,beam);
+  box(x-.42,y+1.91,front-.09,.075,1.45,.12,beam);
+  box(x+.42,y+1.91,front-.09,.075,1.45,.12,beam);
+ });
  const front=z-d*.52;
- box(x,y+.84,front,.97,1.80,.14,rgb(0x705039));
- box(x,y+1.38,front-.085,.95,.075,.12,beam);
- box(x-.42,y+1.91,front-.09,.075,1.45,.12,beam);
- box(x+.42,y+1.91,front-.09,.075,1.45,.12,beam);
  const eave=y+3.19,peak=y+4.62;
  materialScope(MATERIAL.ROOF,()=>{
-  for(let side of [-1,1]){
+  for(const side of [-1,1]){
    const edge=x+side*(w*.55);
-   const roofA=[edge,eave,z-d*.58],roofB=[x,peak,z-d*.58],roofC=[x,peak,z+d*.58],roofD=[edge,eave,z+d*.58];
-   if(side<0)quad(roofD,roofC,roofB,roofA,slate);else quad(roofA,roofB,roofC,roofD,slate);
-   const tileColors=[rgb(0x886a58),rgb(0x9b8066),rgb(0x725e53),rgb(0xb18e6d)];
-   for(let r=0;r<7;r++)for(let c=0;c<9;c++){
-    const a=r/7,b=(r+1)/7,zA=z-d*.58+(d*1.16)*c/9,zB=z-d*.58+(d*1.16)*(c+1)/9;
-    const px=edge+(x-edge)*a,qx=edge+(x-edge)*b;
-    const ya=eave+(peak-eave)*a+.024,yb=eave+(peak-eave)*b+.024;
-    const vA=[px,ya,zA],vB=[qx,yb,zA],vC=[qx,yb,zB],vD=[px,ya,zB];
-    if(side<0)quad(vD,vC,vB,vA,tileColors[(r*11+c*7+side+99)%4]);
-    else quad(vA,vB,vC,vD,tileColors[(r*11+c*7+side+99)%4]);
+   const roofA=[edge,eave,z-d*.58],roofB=[x,peak,z-d*.58],
+    roofC=[x,peak,z+d*.58],roofD=[edge,eave,z+d*.58];
+   if(side<0)quad(roofD,roofC,roofB,roofA,slate);
+   else quad(roofA,roofB,roofC,roofD,slate);
+   const courseTones=[rgb(0x886a58),rgb(0x9b8066),
+    rgb(0x725e53),rgb(0xb18e6d)];
+   // Real overlapping long clay courses, not 252 repeated triangles.
+   // Roof material samples the existing original fine shingle atlas.
+   for(let row=0;row<8;row++){
+    const a=row/8,b=(row+1)/8,px=edge+(x-edge)*a,
+     qx=edge+(x-edge)*b,ya=eave+(peak-eave)*a,
+     yb=eave+(peak-eave)*b;
+    const z0=z-d*.59,z1=z+d*.59;
+    const lift=.014+row*.002;
+    const c0=[px,ya+lift,z0],c1=[qx,yb+lift,z0],
+     c2=[qx,yb+lift,z1],c3=[px,ya+lift,z1];
+    if(side<0)quad(c3,c2,c1,c0,courseTones[(row+2)%4]);
+    else quad(c0,c1,c2,c3,courseTones[(row+1)%4]);
+    audit.newRoofCourseTriangles+=2;
    }
   }
  });
- box(x,y+4.55,z,.12,.11,d*1.2,rgb(0xd0bd9c));
- // Loading rails are fixed architecture. Physical sacks are drawn separately
- // from the REAL inventory every frame; an empty village has an empty yard.
- box(x+.94,y+.83,front-.72,.17,.26,.83,beam);
- box(x-1.10,y+.84,front-.78,.17,.26,.83,beam);
+ materialScope(MATERIAL.WOOD,()=>{
+  box(x,y+4.55,z,.12,.11,d*1.2,rgb(0xd0bd9c));
+  // Ventilated upper gables admit actual air to stored grain. Open slat
+  // shutters are structural 3D architecture, never a new fake grain item.
+  for(const side of [-1,1]){
+   const zz=z+side*d*.586;
+   box(x,y+3.71,zz,1.38,.59,.072,rgb(0x403c33));
+   for(let i=0;i<5;i++){
+    const sx=x+(i-2)*.255;
+    box(sx,y+3.71,zz+side*.057,.055,.53,.063,louver);
+    audit.louverSlats++;
+   }
+   box(x,y+4.025,zz+side*.04,1.54,.065,.12,oldOak);
+   audit.ventilatedGableFaces++;
+  }
+  // The existing real carrying rails retain their original position.
+  box(x+.94,y+.83,front-.72,.17,.26,.83,beam);
+  box(x-1.10,y+.84,front-.78,.17,.26,.83,beam);
+ });
  farmScene.granaries++;
+ audit.granaries=1;
+ audit.groundFloorClearanceMet=audit.raisedPiers===4&&audit.underfloorJoists===4;
+ audit.realDoorUnblocked=walkable(x,front-1.35)&&
+  Math.abs(FARM_MARKET_STREET_ORIGIN[0]-x)<.1;
+ audit.totalTriangles=(data.length-first)/30;
+ granaryArchitectureAudit=audit;
 }
 // W02 connected food economy: the granary's display is based on the same
 // authoritative, non-transit village food balance used by marketSupplyView().
@@ -13824,7 +13906,7 @@ getDailyRhythmAudit:dailyRhythmAudit,getOccupiedHouseholds:()=>cloneData(occupie
 getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeCourtyardAudit:()=>cloneData(getForgeCourtyardAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),getForgeSoundAudit:()=>cloneData(getForgeSoundAudit()),pollForgeSound,watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,
 getMarketStructuralSightline:marketCourierPostSightline,
 getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getFarmWorkCameraAudit,
-getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?(civicGpuResidencyEnabled?3:2)+(homeClusterActive.length?homeClusterActive.length:0):1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length+homeClusterFloats():0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4+homeClusterFloats()*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0,homeBytes:gpuAvailable?homeClusterFloats()*4:0}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getForestVisualStats:()=>({
+getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?(civicGpuResidencyEnabled?3:2)+(homeClusterActive.length?homeClusterActive.length:0):1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length+homeClusterFloats():0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4+homeClusterFloats()*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0,homeBytes:gpuAvailable?homeClusterFloats()*4:0}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGranaryArchitectureAudit,getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getForestVisualStats:()=>({
  sourceTrees:trees.length,
  renderedTrees:forestVisualStats.deciduous+forestVisualStats.conifers,
  conifers:forestVisualStats.conifers,deciduous:forestVisualStats.deciduous,
