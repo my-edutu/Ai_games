@@ -129,3 +129,42 @@ test('rendered physical facades and camera share the same real-actor cutaway ban
  assert.match(environment,/const reveal=forceFacades\?\.has\(i\)\?'sightline':projected\?'sightline':coarse/, 'actual source Raycaster facade hits take priority over approximate projection and retain existing band fallbacks');
  assert.match(app,/facadeReveal:world\.userData\.dressing\?\.facadeReveal/);
 });
+
+test('real portrait combat camera orbits a drawn front pillar that masks the acting lane despite clear body rays',async()=>{
+ const {planPortraitShotClutter,createPhysicalCameraDirector}=await load();
+ const live=Object.freeze({x:0,z:0,kind:'vanguard',visibleActor:true});
+ const camera=Object.freeze({x:0,y:6.2,z:7}),look=Object.freeze({x:0,y:1,z:0});
+ // Not directly across the central head/body ray; the true tall stone
+ // occupies the phone's right-hand sword/evade lane in real camera space.
+ const pillar=Object.freeze([.6,0,2.45,1.1,2.6,2.85]);
+ const portrait={width:390,height:844,fov:48};
+ const obstruction=planPortraitShotClutter(camera,look,[live],[pillar],portrait);
+ assert.equal(obstruction.props,1);
+ assert.ok(obstruction.penalty>2.3,'nearby adult-height foreground prop occupies a meaningful phone fraction');
+ assert.deepEqual(planPortraitShotClutter(camera,look,[live],[pillar],{width:1440,height:832,fov:48}),
+  {penalty:0,props:0},'desktop composition is not unnecessarily changed');
+ assert.deepEqual(planPortraitShotClutter(camera,look,[{...live,visibleActor:false}],[pillar],portrait),
+  {penalty:0,props:0},'not an arbitrary scenic-point x-ray');
+ assert.deepEqual(planPortraitShotClutter(camera,look,[live],[[-.2,0,-2.85,.2,2.6,-2.45]],portrait),
+  {penalty:0,props:0},'rear landmark remains visible');
+ assert.deepEqual(planPortraitShotClutter(camera,look,[live],[[2,0,2.45,2.4,2.6,2.85]],portrait),
+  {penalty:0,props:0},'off-axis architecture remains');
+ assert.deepEqual(planPortraitShotClutter(camera,look,[live],[pillar],{width:390,height:844,fov:48}),
+  obstruction,'same seed and camera must not add frame entropy');
+ const before=snap();
+ const initial={look:{x:0,z:0},position:{...camera}};
+ const options={subjects:[live],wallPositions:[],wallHeights:[],propVolumes:[pillar],
+  reveal:()=> 'none',width:390,height:844,fov:48,lookY:1};
+ const director=createPhysicalCameraDirector();
+ const shot=director.resolve(before,initial,options);
+ assert.ok(shot,'a genuine unhidden actor deserves a bounded camera orbit for its obscured acting lane');
+ assert.equal(shot.occlusion.blockedBefore,0,'previous skull/chest/boot rays reported a falsely clear scene');
+ assert.equal(shot.occlusion.croppedAfter,0,'camera cannot trade foreground for a cropped fighter');
+ assert.equal(shot.occlusion.fullyVisibleAfter,shot.occlusion.fullyVisibleBefore);
+ assert.ok(shot.occlusion.foregroundPenaltyBefore>2.3);
+ assert.equal(shot.occlusion.foregroundPropsAfter,0,'new camera leaves the actual pillar out of the acting window');
+ assert.ok(Math.hypot(shot.position.x,shot.position.z)<9,'still inside the original physical dungeon');
+ assert.deepEqual(director.resolve(before,initial,options),shot,'same authority tick holds the chosen camera');
+ assert.deepEqual(before,snap(),'camera cannot change run/seed/floor/tick/HP');
+ assert.deepEqual(initial,{look:{x:0,z:0},position:{...camera}});
+});

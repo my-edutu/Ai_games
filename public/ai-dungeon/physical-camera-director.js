@@ -63,6 +63,71 @@ function projected(cam,look,point,aspect,fov){
  return Math.abs(sx)<.92&&Math.abs(sy)<.91;
 }
 
+
+/**
+ * Project only ACTUALLY DRAWN tall foreground architecture onto the portrait
+ * acting lane. Real WebGL captures showed a massive opaque pillar on the
+ * right of a 390px frame while skull/chest/boot rays still said "clear".
+ * This does not hide any geometry or alter collision, AI, hit, camera input,
+ * simulation, replay, audio or accessibility mode; it grades eligible shots.
+ */
+function projectScreen(cam,look,point,aspect,fov){
+ const aimY=finite(look.y)?look.y:1.05;
+ const fx=look.x-cam.x,fy=aimY-cam.y,fz=look.z-cam.z;
+ const fl=Math.hypot(fx,fy,fz);if(fl<.1)return null;
+ const rightLen=Math.hypot(fx,fz);if(rightLen<.01)return null;
+ const dx=point.x-cam.x,dy=point.y-cam.y,dz=point.z-cam.z;
+ const forward=[fx/fl,fy/fl,fz/fl],right=[-fz/rightLen,0,fx/rightLen];
+ const up=[-right[2]*forward[1],right[2]*forward[0]-right[0]*forward[2],right[0]*forward[1]];
+ const depth=dx*forward[0]+dy*forward[1]+dz*forward[2];
+ if(depth<=.15)return null;
+ const h=depth*Math.tan(fov*FOV/2);
+ if(h<=.01)return null;
+ return {x:(dx*right[0]+dz*right[2])/(h*aspect),
+  y:(dx*up[0]+dy*up[1]+dz*up[2])/h,depth};
+}
+export function planPortraitShotClutter(cam,look,subjects,boxes,viewport){
+ const aspect=viewport?.width/viewport?.height;
+ if(!finite(aspect)||aspect<.35||aspect>=.86||
+    !Array.isArray(subjects)||subjects.length>5||!Array.isArray(boxes)||boxes.length>160||
+    ![cam?.x,cam?.y,cam?.z,look?.x,look?.z,viewport?.fov].every(finite))
+  return {penalty:0,props:0};
+ let penalty=0,props=0;
+ for(const box of boxes){
+  if(!Array.isArray(box)||box.length!==6||!box.every(finite)||
+     box[3]-box[0]<.12||box[4]-box[1]<1.2||box[5]-box[2]<.12||
+     box[3]-box[0]>8||box[4]-box[1]>8||box[5]-box[2]>8)continue;
+  const cx=(box[0]+box[3])*.5,cz=(box[2]+box[5])*.5;
+  for(const actor of subjects){
+   if(actor?.visibleActor!==true||![actor?.x,actor?.z].every(finite)||
+      Math.hypot(cx-actor.x,cz-actor.z)>5.5)continue;
+   const dx=actor.x-cam.x,dz=actor.z-cam.z,dist=Math.hypot(dx,dz);
+   if(dist<.8||dist>30||(cx-actor.x)*dx+(cz-actor.z)*dz>.20*dist)continue;
+   const focus=projectScreen(cam,look,{x:actor.x,y:actor.kind==='warden'?1.5:1.05,z:actor.z},aspect,viewport.fov);
+   if(!focus||Math.abs(focus.x)>1.06||Math.abs(focus.y)>1.06)continue;
+   let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity,near=Infinity;
+   for(const x of [box[0],box[3]])for(const y of [box[1],box[4]])for(const z of [box[2],box[5]]){
+    const p=projectScreen(cam,look,{x,y,z},aspect,viewport.fov);
+    if(!p)continue;
+    minX=Math.min(minX,p.x);maxX=Math.max(maxX,p.x);
+    minY=Math.min(minY,p.y);maxY=Math.max(maxY,p.y);near=Math.min(near,p.depth);
+   }
+   if(!finite(minX)||near>=focus.depth-.12)continue;
+   const fullWidth=Math.min(1,maxX)-Math.max(-1,minX);
+   const fullHeight=Math.min(1,maxY)-Math.max(-1,minY);
+   const overlapX=Math.min(maxX,focus.x+.62)-Math.max(minX,focus.x-.62);
+   const overlapY=Math.min(maxY,focus.y+.78)-Math.max(minY,focus.y-.70);
+   if(fullWidth<.16||fullHeight<.24||overlapX<.12||overlapY<.22)continue;
+   // At most two significant physically frontmost props contribute. A
+   // contained camera orbit is better than clearing a whole Gothic chamber.
+   penalty+=Math.min(5.5,1.8+Math.min(.9,overlapX)*2.1+Math.min(1.4,overlapY)*.8);
+   props++;break;
+  }
+  if(props>=2)break;
+ }
+ return {penalty:Number(penalty.toFixed(3)),props};
+}
+
 function blockedByStone(cam,subject,y,grid,size,eyes,reveal,pad){
  // Sample the actual camera-to-body ray through solid, grid-aligned wall
  // columns. A tall distant wall obscures faces; a low ruined parapet can
@@ -158,7 +223,10 @@ function grade(cam,look,eyes,grid,size,viewport,reveal,pad,facades,facadeReveal,
   !planPortraitStageClearance(box,eyes,cam,view));
  const aspect=viewport.width/viewport.height;
  const fov=clamp(viewport.fov,32,66);
- let score=0,blocked=0,cropped=0,fullyVisible=0;
+ // grade() already excludes props hidden by the renderer's real live-body
+ // clearance policies. Never penalize a stone object the game did not draw.
+ const foreground=planPortraitShotClutter(cam,look,eyes,propVolumes,viewport);
+ let score=-foreground.penalty,blocked=0,cropped=0,fullyVisible=0;
  for(const p of eyes){
   let bodyVisible=0;
   const length=Math.max(.1,Math.hypot(p.x-cam.x,p.z-cam.z));
@@ -184,7 +252,7 @@ function grade(cam,look,eyes,grid,size,viewport,reveal,pad,facades,facadeReveal,
  }
  const origin=(size-1)/2,cx=Math.round(cam.x+origin),cz=Math.round(cam.z+origin);
  if(cx>=0&&cz>=0&&cx<size&&cz<size&&grid[cz*size+cx]>0)score-=2.5;
- return {score,blocked,cropped,fullyVisible};
+ return {score,blocked,cropped,fullyVisible,foregroundProps:foreground.props,foregroundPenalty:foreground.penalty};
 }
 
 export function createPhysicalCameraDirector(){
@@ -225,7 +293,7 @@ export function createPhysicalCameraDirector(){
   }
   checks++;
   const baseline=candidates[0];
-  if(baseline.blocked+baseline.cropped===0){choice=0;last={selected:0,reason:'clear',blocked:0,cropped:0,candidates:candidates.length};return null;}
+  if(baseline.blocked+baseline.cropped===0&&baseline.foregroundProps===0){choice=0;last={selected:0,reason:'clear',blocked:0,cropped:0,candidates:candidates.length};return null;}
   // No orbit just for variety or a material colour change. Reject an orbit
   // that turns one visible member into an off-screen invisible one.
   let best=candidates[0];
@@ -234,14 +302,17 @@ export function createPhysicalCameraDirector(){
   const held=candidates[choice];
   if(choice!==0&&held&&held.value>=best.value-.85&&held.cropped<=baseline.cropped)best=held;
   const meaningful=best.index!==0&&best.value-baseline.value>2.3&&
-   (best.blocked<baseline.blocked||best.cropped<baseline.cropped);
+   (best.blocked<baseline.blocked||best.cropped<baseline.cropped||
+    best.foregroundPenalty<baseline.foregroundPenalty-2.2);
   if(!meaningful){choice=0;last={selected:0,reason:'insufficient-visibility-gain',baseline:baseline.score,after:best.score,blocked:baseline.blocked,cropped:baseline.cropped,candidates:candidates.length};return null;}
   if(choice!==best.index){switches++;choice=best.index;}
   improvements++;
   last={selected:choice,reason:'real-body-visibility',baseline:Number(baseline.score.toFixed(3)),
    after:Number(best.score.toFixed(3)),blockedBefore:baseline.blocked,blockedAfter:best.blocked,
    croppedBefore:baseline.cropped,croppedAfter:best.cropped,fullyVisibleBefore:baseline.fullyVisible,
-   fullyVisibleAfter:best.fullyVisible,candidates:candidates.length};
+   fullyVisibleAfter:best.fullyVisible,foregroundPropsBefore:baseline.foregroundProps,
+   foregroundPropsAfter:best.foregroundProps,foregroundPenaltyBefore:baseline.foregroundPenalty,
+   foregroundPenaltyAfter:best.foregroundPenalty,candidates:candidates.length};
   return {...base,position:best.camera,occlusion:last};
  }
  return Object.freeze({resolve,reset,metrics:()=>Object.freeze({...last,checks,switches,improvements})});

@@ -40,6 +40,12 @@ function presentation({nestedFailure=false,fixture=null}={}){
  const evasion=fs.readFileSync(path.join(ROOT,'public/ai-dungeon/evasion-performance-plan.js'),'utf8')
   .replace(/^export /gm,'');
  context.planEvasionPerformance=vm.runInContext('(function(){\n'+evasion+'\nreturn planEvasionPerformance;})()',context);
+ // The VM strips browser imports, so execute the genuine shared native
+ // one-shot clock planner rather than leaving four presentation tests broken
+ // or masking it with a fake no-op.
+ const native=fs.readFileSync(path.join(ROOT,'public/ai-dungeon/native-duel-performance.js'),'utf8')
+  .replace(/^export /gm,'');
+ context.planNativeOneShotSpeed=vm.runInContext('(function(){\n'+native+'\nreturn planNativeOneShotSpeed;})()',context);
  vm.runInContext(text,context);return context;
 }
 function actor(action='attack',tick=11){

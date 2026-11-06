@@ -2505,7 +2505,7 @@
       "latestRealPreviousHead": "Original Chromium desktop 1440 + mobile 390 screenshots artifact https://github.com/my-edutu/Ai_games/actions/runs/42090636357/artifacts/13447062976; actual toy-like figures and opaque major front pillar; preceding-head only, NO new after evidence."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Convincing source-character anatomy and genuine readable blade-to-body contact in an unobstructed mobile/Desktop Warden duel, demonstrated via actual moving footage.",
+    "biggestRemainingGap": "Genuine 390px visible mobile pillar shielding sword/boot acting lane despite clear center rays; native adult-scale Warden/Vanguard melee still no verified matched audiovisual motion.",
     "currentWork": "Continuing M1: 22504a2 candidate integrates actual earned Warden counterstrike close shot with native physical duel camera, fight-to-fight continuity and identical renderer/camera foreground cutaways; 48e0300 predecessor had 27/28 Chromium with real counter-frame misclassification. No accepted A/B or new-head moving evidence yet.",
     "candidateCommit": "4a599c56500bd3db4064808536b219748338d5c3",
     "candidateArtifactUrl": null,
@@ -5649,10 +5649,10 @@
       "actualAudio": "UNVERIFIED",
       "exactNewHeadBrowser": "QUEUED / UNVERIFIED"
     },
-    "lastCandidateSha": "4a599c56500bd3db4064808536b219748338d5c3",
-    "experienceVerdict": "IN PROGRESS — NOT TRANSFORMED; LOOKS/FEELS/PLAYS UNVERIFIED; 0/3 blinded critics.",
+    "lastCandidateSha": "0fb23004fe7e7b91f327392b1da5ce4b82682fb7",
+    "experienceVerdict": "IN PROGRESS — NOT TRANSFORMED; LOOKS/FEELS/PLAYS UNVERIFIED; 0/3 independent masked critics.",
     "criticReadiness": "0/3; original fully matched desktop/mobile moving audiovisual journey not captured; source-only candidate.",
-    "nextImplementationTask": "Acquire running exact-new-head 1440px and 390px same-seed real full-body combat clips/audio; inspect forewall clearing and 48-wall cap, repair if scene flattened, then materially improve original adult rig/arena and organic five-stage progression.",
+    "nextImplementationTask": "Exact-new-head real 1440px/390px seeded Chromium audiovisual battle + compare pinned baseline; verify no new occlusion/camera jitter, then original adult-scale native rig/Warden melee integration and five-stage organic reel.",
     "integrationReview": {
       "at": "2026-11-05",
       "sourceHead": "fe61765a43fda660f75ab5004688113517fcbd78",
@@ -5686,6 +5686,22 @@
       "feels": "UNVERIFIED",
       "plays": "UNVERIFIED",
       "next": "Acquire running exact-new-head 1440px and 390px same-seed real full-body combat clips/audio; inspect forewall clearing and 48-wall cap, repair if scene flattened, then materially improve original adult rig/arena and organic five-stage progression."
+    },
+    "m1PortraitClutterCandidate": {
+      "date": "2026-11-06",
+      "predecessorHead": "0fb23004fe7e7b91f327392b1da5ce4b82682fb7",
+      "originalBaseline": "281735d0910c6b2443648af976003d50412ee324",
+      "realBrowserReview": "Exact-head 42134013527 SUCCESS, 13473193686 shows mobile foreground pillar masking right battle lane despite 3/3 central body rays",
+      "integration": "Read-only mobile camera grading for actual rendered foreground prop in native actor acting window; bounded orbit excludes giant pillar while keeping real environment, authority and existing cutaways; isolated VM imports original one-shot planner to unblock CI",
+      "localPurePlanTest": "Passed with real source modules in connector V8 using synthetic physically projected source camera/prop; not a Chrome video or Node suite",
+      "exactNewHeadBrowser": "NOT RUN",
+      "audio": "UNVERIFIED",
+      "performance": "UNVERIFIED",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "next": "Exact-new-head real 1440px/390px seeded Chromium audiovisual battle + compare pinned baseline; verify no new occlusion/camera jitter, then original adult-scale native rig/Warden melee integration and five-stage organic reel."
     }
   }
 }
