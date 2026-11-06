@@ -838,6 +838,7 @@ body[data-village-documentary="on"] #world-actor-tag{display:none!important}
  background:#a9ba91;color:#193629;padding:7px 9px;min-height:40px;
  font:700 11px/1.25 system-ui;cursor:pointer}
 @media(max-width:520px){
+ #world-ribbon .world-identity{display:none}
  #world-trace-toggle{min-width:42px;min-height:42px;padding:7px 8px}
  #world-supply-trail{grid-template-columns:repeat(2,minmax(0,1fr));
  gap:5px;padding-top:6px}
@@ -13389,7 +13390,7 @@ function updateDeliveryHUD(){
  const status=document.getElementById('workday-activity');
  if(status.textContent!==label)status.textContent=label;
 }
-function watchDelivery(){
+function watchDelivery(requestedId=null){
  if(document.body.dataset.workday==='homecoming')stopWorkdayWatch();
  const eligible=people.map((p,i)=>({person:p,index:i})).filter(row=>row.person.delivery);
  if(!eligible.length){
@@ -13400,7 +13401,9 @@ function watchDelivery(){
  // then cycle other bona-fide couriers. Never synthesize a delivery for film.
  const unloading=eligible.filter(row=>isMarketUnloading(row.person));
  const after=eligible.find(row=>row.index>selectedCitizen);
- const selected=unloading[0]||after||eligible[0],p=selected.person;
+ const requested=requestedId===null?null:
+  eligible.find(row=>row.person.delivery?.id===requestedId);
+ const selected=requested||unloading[0]||after||eligible[0],p=selected.person;
  if(liveWorkday)stopWorkdayWatch();
  selectedCitizen=selected.index;
  actionCameraZoom=null;actionCameraPitch=null;
@@ -13553,7 +13556,7 @@ function updateWorldRibbon(){
  updateSupplyTrail();
 }
 
-let supplyTrailOpen=false;
+let supplyTrailOpen=false,supplyTrailLastEpoch=-1,supplyTrailLastWall=0;
 // Only read real farmers, the serialized physical load escrow, confirmed
 // market receipts and genuinely occupied homes. NEVER advance steps here,
 // invent a citizen, move cargo or credit inventory for presentation.
@@ -13585,8 +13588,12 @@ function getSupplyTrailSnapshot(){
   noSyntheticActors:true,noSyntheticTransactions:true
  };
 }
-function updateSupplyTrail(){
+function updateSupplyTrail(force=false){
  if(!supplyTrailOpen)return;
+ const wall=performance.now();
+ if(!force&&(supplyTrailLastEpoch===presentationEpoch||
+  wall-supplyTrailLastWall<220))return;
+ supplyTrailLastWall=wall;supplyTrailLastEpoch=presentationEpoch;
  const flow=getSupplyTrailSnapshot(),cargo=flow.cargo,r=flow.latestReceipt;
  const field=flow.farmer?'Harvest: '+flow.farmer.citizen:'No active harvest';
  const carried=cargo?cargo.amount.toFixed(1)+' '+cargo.resource+' · '+
@@ -13613,7 +13620,7 @@ function toggleSupplyTrail(){
  document.getElementById('world-supply-trail').hidden=!supplyTrailOpen;
  document.getElementById('world-trace-toggle')
   .setAttribute('aria-expanded',String(supplyTrailOpen));
- updateSupplyTrail();
+ updateSupplyTrail(true);
  return supplyTrailOpen;
 }
 
@@ -13729,10 +13736,10 @@ document.body.dataset.command='world';
  button('world-trace-toggle',toggleSupplyTrail);
  button('world-trace-follow',()=>{
   const flow=getSupplyTrailSnapshot();
-  if(flow.cargo)watchDelivery();
+  if(flow.cargo)watchDelivery(flow.cargo.id);
   else if(flow.farmer)watchHarvestShift();
   else watchVillageLife();
-  updateSupplyTrail();
+  updateSupplyTrail(true);
  });
  button('world-open-command',()=>setCommandView('command','user'));
 button('workday-watch',watchLatestWork);
@@ -14819,6 +14826,9 @@ if(gpuAvailable&&actorStreamSplitEnabled&&actorFrameData.length){
 }
  if(gpuAvailable)drawResidentWeather(atmosphere);
  endGpuFrameTimer(frameGpuQuery);refreshPickedCitizenCaption();if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal();updateWorldRibbon()}
+ // Track real unloading on every drawn software frame (rather than waiting
+ // 14 frames at ~1.7 FPS). Cap hardware DOM updates to 220ms and changed ticks.
+ if(supplyTrailOpen)updateSupplyTrail();
  // These are synchronous CPU wall phases and may include WebGL driver stalls;
  // they are not GPU elapsed queries, frame presentation timestamps or FPS.
  const frameProfileEnd=performance.now();
