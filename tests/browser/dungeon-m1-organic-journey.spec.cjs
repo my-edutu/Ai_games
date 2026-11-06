@@ -81,7 +81,7 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
   expect(milestones[key],'Missing organic milestone: '+key).not.toBeNull();
  for(const [a,b] of [['entry','combat'],['combat','warden'],['warden','floor'],['floor','defeat'],['defeat','restart']])
   expect(milestones[a],'Natural chronology: '+a+' before '+b).toBeLessThan(milestones[b]);
- const errors=[],observations=[];page.on('pageerror',e=>errors.push(String(e)));
+ const errors=[],observations=[],milestoneFrameProof=[];page.on('pageerror',e=>errors.push(String(e)));
  let served=snapshots[0];
  await page.route('**/dungeon/state',route=>route.fulfill({json:served}));
  await page.setViewportSize(SIZE);await page.goto('/dungeon');
@@ -92,6 +92,17 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
  const recording=await beginRecording(page),started=Date.now();
  for(let i=1;i<snapshots.length;i++){
   served=snapshots[i];await page.waitForTimeout(240); // all real states, 240ms source cadence
+  // Do not mistake a server-side stage for a filmed stage. Every decisive
+  // moment must be consumed by the real browser and a fresh rendered frame.
+  if(Object.values(milestones).includes(i)){
+   await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.checksum),
+    {timeout:60000}).toBe(snapshots[i].checksum);
+   const frameBefore=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame||0);
+   await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame||0),
+    {timeout:60000}).toBeGreaterThan(frameBefore);
+   milestoneFrameProof.push({index:i,checksum:snapshots[i].checksum,
+    frame:await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame||0)});
+  }
   if(i%24===0||Object.values(milestones).includes(i))
    observations.push(await page.evaluate(()=>{
     const s=window.__DUNGEON_PUBLIC_STATE__,d=window.__DUNGEON_RENDER_DIAGNOSTICS__;
@@ -103,7 +114,7 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.run),{timeout:15000})
   .toBe(snapshots.at(-1).run);
  const film=recording.status==='RECORDING'?await stopRecording(page):recording;
- const receipt={schemaVersion:1,sourceSha:process.env.GITHUB_SHA||'LOCAL_HEAD_UNVERIFIED',
+ const receipt={schemaVersion:1,sourceSha:require('node:child_process').execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),
   baselineSha:BASELINE,baselineArtifact:'https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898',
   view:VIEW,viewport:SIZE,seed:SEED,source:'actual DungeonRuntime.step to real Chromium WebGL',
   scriptedStateChanges:false,authoritySnapshots:snapshots.length,
@@ -116,7 +127,7 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
   originalAudioTrackPresent:film.status==='RECORDED'&&film.audioTracks>0,
   audibleSynchronizedSound:'UNVERIFIED: real track requires decoded channel/PCM analysis',
   matchedLockedBaseline:false,blindCritics:0,looks:'UNVERIFIED',feels:'UNVERIFIED',plays:'UNVERIFIED',
-  observations,pageErrors:errors};
+  milestoneFrameProof,observations,pageErrors:errors};
  const stem='artifacts/dungeon-m1-organic-journey-'+VIEW;
  fs.writeFileSync(stem+'.json',JSON.stringify(receipt,null,2));
  if(film.status==='RECORDED'&&film.base64)fs.writeFileSync(stem+'.webm',Buffer.from(film.base64,'base64'));
