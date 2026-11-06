@@ -20,7 +20,7 @@ import { createTowerGuardianShotStage } from './guardian-shot-stage.mjs';
 import { createObservedGuardianGuardStage } from './guardian-guard-stage.mjs';
 import { witnessedAirbornePulse, witnessedGuardianCounterPulse } from './airborne-pulse.mjs';
 import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue } from './guardian-camera-safety.mjs';
-import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse } from './guardian-gateway-framing.mjs';
+import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot } from './guardian-gateway-framing.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { guardedJointShotGain, observedJointBodyPressure } from './joint-shot.mjs';
 import { createObservedMovingDeckRide } from './moving-deck-ride.mjs';
@@ -2905,8 +2905,30 @@ export function createTowerScene(canvas, settings = {}) {
     const liveExit = !overview && !options.stale &&
       snapshot.lifecycle === 'running' && p.health > 0
       ? observedUnlockedGuardianCap(snapshot) : null;
+    const earnedPassageStage = liveExit ? passage.diagnostics() : null;
+    const sourceEarnedWalk = !overview && !options.reducedMotion &&
+      !options.stale && liveExit &&
+      earnedPassageStage?.active &&
+      earnedPassageStage.stage === 'earned-open' &&
+      earnedPassageStage.runToken === snapshot.runToken &&
+      earnedPassageStage.floor === snapshot.floor
+      ? observedGroundedGatewayShot(snapshot, liveExit, camera.aspect, zoom) : null;
+    // Preserve the SAME physical 3D cap, hero and camera; during the last
+    // authentic grounded approach shorten only its exterior-orbit radius.
+    // This makes the protagonist visibly grow as the unlocked doorway nears.
+    // The normal actor/core/gateway projection vetoes remain downstream.
+    if (sourceEarnedWalk) {
+      const currentRadius = Math.hypot(destination.x, destination.z);
+      if (currentRadius > sourceEarnedWalk.radius) {
+        const contraction = sourceEarnedWalk.radius / currentRadius;
+        destination.x *= contraction;
+        destination.z *= contraction;
+      }
+      const actualGateway = passage.focusPoint();
+      if (actualGateway) focus.lerp(actualGateway, sourceEarnedWalk.focusWeight);
+    }
     const arrivalFraming = liveExit &&
-      passage.diagnostics().stage === 'earned-open'
+      earnedPassageStage?.stage === 'earned-open'
       ? observedPassageApproach(snapshot, liveExit) : 0;
     // A gateway that first appears after defeating the guardian is not
     // enough: the genuine cap crossing must remain readable through the
@@ -2983,6 +3005,8 @@ export function createTowerScene(canvas, settings = {}) {
     // alters simulation time or overrides the actor/guardian safety checks.
     if (arrivalFraming > 0 && !options.reducedMotion)
       cameraRate = Math.max(cameraRate, 3.8 + arrivalFraming * 2.4);
+    if (sourceEarnedWalk)
+      cameraRate = Math.max(cameraRate, 4.3 + 2.1 * sourceEarnedWalk.approach);
     if (!overview && !options.reducedMotion && initialized) {
       // Project the real current climber into the camera image from the
       // previous submitted pose. This catches a fast dash, launch or new-floor
