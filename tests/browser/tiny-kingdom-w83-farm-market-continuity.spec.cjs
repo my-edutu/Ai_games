@@ -38,6 +38,10 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]) {
   expect(a.rutBands).toBe(a.sections*2);
   expect(a.mudBaseStrips).toBe(a.sections);
   expect(a.totalTriangles).toBeGreaterThan(200);
+  expect(a.granaryPorchPosts).toBe(2);
+  expect(a.granaryRoofPanels).toBe(8);
+  expect(a.granaryPorchClearWidth).toBeGreaterThan(2.6);
+  expect(a.granaryTradeEntranceUnblocked).toBe(true);
   expect(a.totalTriangles).toBeLessThan(2500);
   expect(a.unsafeSamples).toBe(0);
   expect(a.realOrigin).toEqual([29,-7.6]);
