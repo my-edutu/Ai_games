@@ -50,7 +50,10 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(camera.audit.source).toBe('real-courier-market-post-repair');
   expect(camera.audit.readOnly).toBe(true);
   expect(camera.audit.actor).toBeTruthy();
-  expect(camera.audit.marketPhysicalPosts).toBe(16);
+  // W79's ACTUAL rebuilt gateway adds two real oak uprights to the prior
+  // 16 original market posts. The camera must track all 18, not ignore the
+  // same two foreground columns that hid the courier in W68's moving film.
+  expect(camera.audit.marketPhysicalPosts).toBe(18);
   expect(Number.isFinite(camera.audit.presentPostCover)).toBe(true);
   expect(camera.audit.presentPostCover).toBeGreaterThanOrEqual(0);
   expect(camera.audit.presentPostCover).toBeLessThanOrEqual(1);
