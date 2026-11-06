@@ -21,7 +21,8 @@ function observedLandingCorridor(state:TowerState,obs:TowerObservation,target:To
   const margin=Math.max(halfWidth+4000,Math.min(18000,Math.floor(target.width/8)));
   const left=target.x+margin,right=target.x+target.width-margin;
   const unclutteredX=left<=right?Math.max(left,Math.min(right,p.position.x)):target.x+target.width/2;
-  if(left>=right)return {landingX:unclutteredX,hazardRoute:false};
+  if(left>=right)return {landingX:unclutteredX,hazardRoute:false,
+    safeLanes:[] as {left:number;right:number}[]};
   const top=target.y+target.height;
   let lanes=[{left,right}];
   for(const hazard of obs.hazards){
@@ -66,7 +67,7 @@ function observedLandingCorridor(state:TowerState,obs:TowerObservation,target:To
   }
   // When no genuinely safe lane exists, do not fabricate one. The ordinary
   // physical deck remains the target and upstream hazard/enemy actions still act.
-  if(!lanes.length)return {landingX:unclutteredX,hazardRoute:false};
+  if(!lanes.length)return {landingX:unclutteredX,hazardRoute:false,safeLanes:lanes};
   let best=lanes[0],bestX=Math.max(best.left,Math.min(best.right,p.position.x));
   for(const lane of lanes.slice(1)){
     const x=Math.max(lane.left,Math.min(lane.right,p.position.x));
@@ -74,7 +75,7 @@ function observedLandingCorridor(state:TowerState,obs:TowerObservation,target:To
     if(distance<bestDistance||(distance===bestDistance&&
       lane.right-lane.left>best.right-best.left)){best=lane;bestX=x}
   }
-  return {landingX:bestX,hazardRoute:bestX!==unclutteredX};
+  return {landingX:bestX,hazardRoute:bestX!==unclutteredX,safeLanes:lanes};
 }
 // Estimate ONLY the climber's deterministic present-state flight envelope
 // against the CURRENT observed deck height. This is not an oracle for future
@@ -140,12 +141,19 @@ function observedEarnedAirRecovery(state:TowerState,obs:TowerObservation,
   const reach=observedFlightTravel(state,obs,target,direction);
   return feet<top||Math.abs(delta)>reach.travel+state.player.halfWidth+4000;
 }
-function observedLandingSteering(state:TowerState,obs:TowerObservation,target:TowerObservation['platforms'][number]){
+function observedLandingSteering(state:TowerState,obs:TowerObservation,
+  target:TowerObservation['platforms'][number],preferredLandingX?:number){
   const p=obs.player;
   const acceleration=Math.max(1,Math.round(state.config.moveAcceleration*state.build.airControlPermille/1000));
   const velocity=p.velocity.x;
   const lane=observedLandingCorridor(state,obs,target);
-  const delta=lane.landingX-p.position.x;
+  // An emergency falling-return plan may select a farther reachable SAFE
+  // portion of this deck. Preserve that source-observed landing target while
+  // braking; ordinary jumps keep their pre-existing nearest-lane policy.
+  const preferredIsSafe=preferredLandingX!==undefined&&Number.isFinite(preferredLandingX)&&
+    lane.safeLanes.some(l=>preferredLandingX>=l.left&&preferredLandingX<=l.right);
+  const landingX=preferredIsSafe?preferredLandingX!:lane.landingX;
+  const delta=landingX-p.position.x;
   const safeBand=Math.max(1500,acceleration);
   const desiredVelocity=Math.sign(delta)*Math.min(state.config.maxRunSpeed,
     Math.round(Math.sqrt(2*acceleration*Math.abs(delta))));
@@ -155,7 +163,7 @@ function observedLandingSteering(state:TowerState,obs:TowerObservation,target:To
       ? 0 : speedError>0?1:-1;
   const settling=move!==0&&velocity!==0&&move===-Math.sign(velocity)
     &&Math.abs(velocity)>acceleration;
-  return {move,settling,...lane};
+  return {move,settling,...lane,landingX};
 }
 // Tactical grounded launch now works with the SAME observed control authority
 // as air braking. It slows down *before* a real takeoff point rather than
@@ -673,16 +681,39 @@ function observedEarnedReturnLanding(state:TowerState,obs:TowerObservation,
     const inset=Math.min(Math.floor(deck.width/2),state.player.halfWidth+2000);
     const safeLeft=deck.x+inset,safeRight=deck.x+deck.width-inset;
     if(right<safeLeft||left>safeRight)return null;
-    return {deck,top:deckTop,ticks:landingTicks};
-  }).filter((row):row is {deck:TowerObservation['platforms'][number];top:number;ticks:number}=>row!==null)
+    // A platform's raw bounding box is NOT an acceptable emergency landing:
+    // the only physically reachable interval might be occupied by a LIVE
+    // crusher jaw or enemy body. Intersect the same observed clear lanes used
+    // by ordinary air control with the current maximum-acceleration envelope.
+    // Never inspect future hazard phases or predict a moving deck's position.
+    const clear=observedLandingCorridor(state,obs,deck).safeLanes
+      .map(lane=>({left:Math.max(left,safeLeft,lane.left),
+        right:Math.min(right,safeRight,lane.right)}))
+      .filter(lane=>lane.right>=lane.left)
+      .sort((a,b)=>Math.abs(Math.max(a.left,Math.min(a.right,p.position.x))-p.position.x)-
+        Math.abs(Math.max(b.left,Math.min(b.right,p.position.x))-p.position.x)||
+        b.right-b.left-(a.right-a.left)||a.left-b.left);
+    const bestClear=clear[0];
+    const landingX=bestClear?
+      Math.max(bestClear.left,Math.min(bestClear.right,p.position.x)):
+      Math.max(safeLeft,Math.min(safeRight,p.position.x));
+    return {deck,top:deckTop,ticks:landingTicks,clear:!!bestClear,landingX};
+  }).filter((row):row is {deck:TowerObservation['platforms'][number];
+    top:number;ticks:number;clear:boolean;landingX:number}=>row!==null)
     .sort((a,b)=>b.top-a.top||a.ticks-b.ticks||a.deck.id.localeCompare(b.deck.id));
-  const best=decks[0];
+  // Prioritize a PHYSICALLY INTERCEPTABLE CLEAR landing, even when it is one
+  // shelf lower. An upper deck fully occupied by an active crusher is not a
+  // safe return just because it is higher. If every reachable route is
+  // obstructed, retain a best-effort target rather than fabricating safety.
+  const safelyReachable=decks.filter(row=>row.clear);
+  const options=safelyReachable.length?safelyReachable:decks;
+  const best=options[0];
   if(!best)return undefined;
   // Hold an already committed equally high reachable shelf through minor
-  // moving-deck shifts instead of inducing 20-Hz left/right route jitter.
-  const committed=decks.find(row=>row.deck.id===state.ai.targetPlatformId&&
+  // moving-deck shifts, but never retain an unsafe choice over a clear one.
+  const committed=options.find(row=>row.deck.id===state.ai.targetPlatformId&&
     row.top>=best.top-4000&&row.ticks<=best.ticks+2);
-  return (committed??best).deck;
+  return committed??best;
 }
 
 // After an actually defeated opt-in guardian, the objective is still its
@@ -725,12 +756,16 @@ function observedEarnedCapReacquisition(state:TowerState,obs:TowerObservation,
   if(p.position.y-state.player.halfHeight<top-1){
     const shelf=observedEarnedReturnLanding(state,obs,cap);
     if(!shelf)return null;
-    const landing=observedLandingSteering(state,obs,shelf);
+    const landing=observedLandingSteering(state,obs,shelf.deck,
+      shelf.clear?shelf.landingX:undefined);
     return {action:action(landing.move),
       intent:{mode:landing.settling?'settling-landing':'air-control',
-        summary:landing.settling?'Braking onto a real return deck below the earned gate':
-          'Steering the actual fall onto a reachable return deck',
-        confidence:.94,fallbackUsed:false,targetPlatformId:shelf.id}};
+        summary:!shelf.clear?
+          'Steering toward a reachable return shelf with no presently clear landing':
+          landing.settling?'Braking onto a clear physical return deck below the earned gate':
+          'Steering the actual fall into a reachable clear return lane',
+        confidence:shelf.clear?.94:.7,fallbackUsed:false,
+        targetPlatformId:shelf.deck.id}};
   }
   const landing=observedLandingSteering(state,obs,cap);
   const boost=observedSafeAirBoost(state,obs,cap,landing);
