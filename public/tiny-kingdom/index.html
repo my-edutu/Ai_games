@@ -11442,6 +11442,16 @@ function getFarmWorkCameraAudit(){
   }:null,authorityMutated:false};
 }
 
+// W80: the very SAME real courier must retain the physically surveyed
+// market/dock lens when Live Shift becomes a hauling/unloading/receipt story.
+// Previously only the separate Delivery button used the post-clearance lens;
+// a farmer followed from harvest silently lost it upon obtaining a real load.
+// Never mistake an unrelated old receipt for an active worker's current job.
+function isObservedRealCourier(citizen){
+ if(!citizen||!(document.body.dataset.workday==='delivery'||liveWorkday))return false;
+ if(!citizen.delivery&&isWorkingAtSite(citizen))return false;
+ return Boolean(citizen.delivery||recentObservedCourierReceipt(citizen));
+}
 function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const realWork=isWorkingAtSite(citizen);
  const realFarmWork=realWork&&citizen.job==='farmer'&&
@@ -11449,8 +11459,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
    citizen.x>=x0-.7&&citizen.x<=x1+.7&&
    citizen.z>=z0-.7&&citizen.z<=z1+.7);
  const realReceipt=recentObservedCourierReceipt(citizen);
- const marketStory=document.body.dataset.workday==='delivery'&&
-  Boolean(citizen.delivery||realReceipt);
+ const marketStory=isObservedRealCourier(citizen);
  const working=Boolean(forceWorkday||liveWorkday||
   document.body.dataset.citizenInspect==='on'||marketStory);
  const unloading=Boolean(marketStory&&
@@ -11835,8 +11844,7 @@ function observedWorkdayCameraPlan(citizen,preferredYaw){
   .find(d=>d.citizen===citizen.name):null;
  const homecomingEntryBand=doorEntry?Math.round(doorEntry.swing*8):0;
  const receipt=recentObservedCourierReceipt(citizen);
- const observeDelivery=document.body.dataset.workday==='delivery'&&
-  Boolean(citizen.delivery||receipt);
+ const observeDelivery=isObservedRealCourier(citizen);
  const observeWorkday=liveWorkday&&isWorkingAtSite(citizen);
  if(!observeHome&&!observeDelivery&&!observeWorkday){
   liveShotPlanCache=null;
@@ -11875,8 +11883,7 @@ function observedWorkdayCameraPlan(citizen,preferredYaw){
 }
 function getCourierDocumentaryCameraAudit(){
  const p=people[selectedCitizen],receipt=recentObservedCourierReceipt(p);
- const active=Boolean(follow&&p&&document.body.dataset.workday==='delivery'&&
-  (p.delivery||receipt));
+ const active=Boolean(follow&&isObservedRealCourier(p));
  const shot=active?observedWorkdayCameraPlan(p,yaw):null;
  return {source:'real-authoritative-delivery-documentary',active,
   citizen:p?.name||null,deliveryId:p?.delivery?.id||receipt?.id||null,
@@ -11891,8 +11898,7 @@ function getCourierDocumentaryCameraAudit(){
 }
 function getCourierPostCameraAudit(){
  const actor=people[selectedCitizen],receipt=recentObservedCourierReceipt(actor),
-  active=Boolean(follow&&actor&&document.body.dataset.workday==='delivery'&&
-    (actor.delivery||receipt));
+  active=Boolean(follow&&isObservedRealCourier(actor));
  const shot=active?lastFollowShot:null;
  const radius=Math.cos(pitch)*zoom;
  const eye=[focusPoint[0]+Math.sin(yaw)*radius,
