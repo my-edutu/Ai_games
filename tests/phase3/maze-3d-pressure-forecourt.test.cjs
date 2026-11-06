@@ -21,7 +21,7 @@ const blocked={cell:25,blocked:true,neighbors:[]};
 const trap={cell:24,trap:true,blocked:false,neighbors:[]};
 
 test('physical pressure court cuts opaque public masonry without inventing traversability',async()=>{
-  const {createMazeWorld,cellPosition}=await modulePromise;
+  const {createMazeWorld,cellPosition,cellHeight}=await modulePromise;
   const {Matrix4,Vector3,Quaternion}=await import(three);
   const world=createMazeWorld({balanced:true});
   const budget=world.stats();
@@ -38,7 +38,9 @@ test('physical pressure court cuts opaque public masonry without inventing trave
           top=Math.max(top,p.y+scale.y/2);
       }
     }
-    return top;
+    // Terrain instances contain the public terrace altitude already; compare
+    // local masonry height, not absolute world Y on the middle court.
+    return top-cellHeight(25,7,9);
   }
   const ordinary=publicFrame([{cell:24,neighbors:[]},blocked]);
   const original=JSON.stringify(ordinary);
