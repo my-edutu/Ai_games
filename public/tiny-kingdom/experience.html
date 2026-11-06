@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Tiny Kingdom — Experience Transformation Scorecard W91</title>
+<title>Tiny Kingdom — Experience Transformation Scorecard W92</title>
 <style>
 :root{color-scheme:dark;--ink:#101a18;--paper:#eee3cc;--muted:#bdb9a8;--gold:#dcb879}*{box-sizing:border-box}body{margin:0;background:#111b18;color:#eee9d9;font:16px/1.6 system-ui,-apple-system,Segoe UI,sans-serif}main{max-width:1040px;margin:auto;padding:clamp(18px,4vw,52px)}header{border-bottom:1px solid #8d765255;padding-bottom:24px;margin-bottom:28px}.eyebrow{letter-spacing:.17em;text-transform:uppercase;color:var(--gold);font-size:12px;font-weight:700}h1{font:clamp(30px,5vw,54px)/1.1 Georgia,serif;letter-spacing:-.025em;margin:8px 0}h2{font:29px Georgia,serif;margin:0 0 12px}h3{margin:6px 0;font-size:17px;color:#f3dfb9}p{margin:8px 0 16px}a{color:#ebc98d;text-underline-offset:3px}nav{display:flex;flex-wrap:wrap;gap:14px;margin-top:20px}.lead{max-width:800px;color:#e3dfd0;font-size:17px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 30px}article{border:1px solid #bfa98042;background:#20302b;border-radius:13px;padding:18px;min-width:0}article p{color:#c7d0c5;font-size:14px}.status{color:#f3d39b;font-size:12px;font-weight:800;letter-spacing:.09em}.failure{color:#f1ad96}section{margin:28px 0}.compare{display:grid;grid-template-columns:1fr 1fr;gap:14px}.compare article{background:#1c2924}.meta{color:#b7baae;font-size:13px}.data{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:560px}th,td{border-bottom:1px solid #a4b5a431;padding:11px;text-align:left}th{color:var(--gold);font-weight:600}strong{color:#f4e5c8}code{overflow-wrap:anywhere;font-size:.85em;color:#e2c897}footer{border-top:1px solid #917a5055;margin-top:38px;padding-top:20px;color:#bfc6b9;font-size:13px}@media(max-width:700px){.grid,.compare{grid-template-columns:1fr}}
 </style></head><body><main>
-<header><div class="eyebrow">Living Valley · independent experience scorecards · W89</div>
+<header><div class="eyebrow">Living Valley · independent experience scorecards · W92</div>
 <h1>Is the running game substantially better?</h1>
 <p class="lead">Technical correctness is the floor, not the finish line. The existing autonomous medieval village is being rebuilt as a believable lived-in world. No graphics, animation or commercial-quality milestone is awarded without complete real-game comparisons.</p>
 <nav aria-label="Related pages"><a href="index.html">Play Tiny Kingdom</a><a href="progress.html">Chronological Gauntlet history</a><a href="https://github.com/my-edutu/Ai_games/pull/64">Open draft PR #64</a></nav></header>
@@ -13,6 +13,23 @@
 
 
 
+
+<section id="w92" style="border-top:4px solid #d5ad68;padding-top:24px" aria-label="W92 active independent experience scorecard">
+<p class="eyebrow">CURRENT · W92 · 6 November 2026 · SAME Phase 1 rendering spine · genuine farm → loaded courier → market receipt → inhabited home</p>
+<h2>Retained worksite fixtures while real labor remains animated — actual experience NOT PROVEN</h2>
+<p><strong>Exact changed playable source:</strong> <a href="https://github.com/my-edutu/Ai_games/commit/d2214999ababff024dbd3fe0a0998fcda87a0e95"><code>d2214999ababff024dbd3fe0a0998fcda87a0e95</code></a>. The original farmer's fixed harvest table, forester's block, merchant's counter, carpenter's stock, craftsperson's station and gatherer's tray are now held in one bounded (96,000 float maximum) WebGL buffer on hardware, keyed to actual worker coordinates and working orientation. The actual moving grain, impact, worker hands, goods and deliveries remain in the animated mesh. Missing hardware residency falls back to fully emitted original geometry. A 1024px and 390px test was written first and added to the existing GPU workflow. <strong>Its browser execution is NOT YET VERIFIED.</strong> V8 parsed the entire inline game script; a separate source-extracted six-profession mock primitive comparison returned exactly 27 matching primitive calls (not real WebGL or visual parity).</p>
+<div class="compare">
+<article><h3>BEFORE · locked G088 original game</h3><p>Source <code>2f6deb43feb1a1557848d44def53a6109deb1ab1</code> · <a href="https://github.com/my-edutu/Ai_games/actions/runs/41301740489/artifacts/13081531738">actual original village screenshots</a> · <a href="https://github.com/my-edutu/Ai_games/actions/runs/41301740495/artifacts/13081222556">actual Day-120 evidence</a>. Historical software SwiftShader 1.709 FPS remains a diagnostic, not a real GPU baseline. All old visual flaws remain comparison targets.</p></article>
+<article><h3>AFTER · W92 candidate</h3><p><strong>NO COMPLETE W92 RUNNING FOOTAGE.</strong> No source-matched, uncut Day-1 village → active worker handoff → Day-120 grown settlement and 390px mobile capture was available. A stationary workstation GPU buffer changes how the authentic scene is drawn, not demonstrated image quality; physical GPU FPS, frame-time p95, long-soak and independent blind reviewers remain missing. Do not infer a visual milestone from source-level tests.</p></article>
+</div>
+<div class="data"><table><thead><tr><th>Independent gate</th><th>Verdict</th><th>Evidence and biggest blocker</th></tr></thead><tbody>
+<tr><td>A · LOOK substantially better than G088</td><td>NOT PROVEN</td><td>No matched candidate moving-game screenshots; authentic building material, street and person fidelity remain below reference</td></tr>
+<tr><td>A · FEEL / response and sustained performance</td><td>FAIL</td><td>Unresolved software stalls and no documented 30+ sustained hardware FPS or p95 below 33.3 ms</td></tr>
+<tr><td>A · PLAY / understandable original economy</td><td>NOT PROVEN</td><td>Actual authoritative jobs and market credit preserved in source; no uninterrupted video confirming contact and camera on desktop/mobile</td></tr>
+<tr><td>B · ultimate commercial-reference quality</td><td>FAIL</td><td>Not remotely comparable to official Manor Lords running visuals; no 4/5 independent critic consensus</td></tr>
+<tr><td>Technical 120-day &lt;160,000 geometry + replay</td><td>NOT PROVEN</td><td>Old 160,092-triangle overrun unresolved on this exact source; CI/browser evidence pending</td></tr>
+</tbody></table></div>
+<p><strong>Next SAME workstream:</strong> obtain source-matched real-frame traces and uncut W92 video, verify unchanged visible fixed/moving workstation mesh after Day-120 growth, remove the dominant citizen-geometry and WebGL driver stalls, then rebuild one continuous, believable field → granary → market → occupied home scene with readable worker choreography. No independent critic available. Draft PR #64 stays unmerged.</p></section>
 
 <section id="w91" style="border-top:4px solid #d5ad68;padding-top:24px" aria-label="W91 active independent experience scorecard">
 <p class="eyebrow">CURRENT · W91 · 6 November 2026 · SAME active Phase 1 · actual farmer → loaded courier → receiving market → inhabited house</p>
