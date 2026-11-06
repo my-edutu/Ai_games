@@ -2667,6 +2667,12 @@ function geometryAudit(){
   fixed.aligned=fixed.aligned&&resident.aligned;
  }
  const animated=inspectMeshGeometry(data);
+ if(gpuAvailable&&worksiteFixtureActive&&worksiteFixtureMesh){
+  const fixtures=inspectMeshGeometry(worksiteFixtureMesh);
+  for(const key of ['floats','vertices','triangles','invalidComponents',
+   'invalidNormals','invalidColors','outOfBounds'])animated[key]+=fixtures[key];
+  animated.aligned=animated.aligned&&fixtures.aligned;
+ }
  if(gpuAvailable&&recordedWorkActive&&recordedWorkMesh){
   const traces=inspectMeshGeometry(recordedWorkMesh);
   for(const key of ['floats','vertices','triangles','invalidComponents',
@@ -8775,6 +8781,146 @@ function getRecordedWorkResidencyAudit(){
   authorityModified:false,
   fallback:'original completed-job props remain in moving world mesh'};
 }
+// W92 one coherent rendering-spine workstream. The genuine working
+// citizen's stationary sawbuck, bench, stump, baskets and material staging
+// belong in ONE resident WebGL mesh, not a regenerated JS array every tick.
+// Real animated arm tools, crop contacts, forging sparks and job progress
+// remain fully live in the dynamic buffer. The same code generates the
+// original complete fallback scene; nobody or any prop is silently culled.
+const WORKSITE_FIXTURE_FLOAT_BUDGET=96000;
+let worksiteFixtureBuffer=null,worksiteFixtureMesh=null,worksiteFixtureKey='';
+let worksiteFixtureCapacity=0,worksiteFixtureActive=false,worksiteFixtureOverride=null;
+let worksiteFixtureBuilds=0,worksiteFixtureUploads=0,worksiteFixtureReuses=0;
+let worksiteFixtureDisposals=0,worksiteFixtureOverBudget=0,worksiteFixtureDrawCalls=0;
+function worksiteFixtureResidencyRequested(){
+ return Boolean(gpuAvailable&&
+  (worksiteFixtureOverride===null?!swiftGpu:worksiteFixtureOverride));
+}
+function disposeWorksiteFixtureMesh(){
+ if(worksiteFixtureBuffer&&gpuAvailable){
+  gl.deleteBuffer(worksiteFixtureBuffer);worksiteFixtureDisposals++;
+ }
+ worksiteFixtureBuffer=null;worksiteFixtureMesh=null;worksiteFixtureKey='';
+ worksiteFixtureCapacity=0;worksiteFixtureActive=false;
+}
+// Exact unrounded worksite positions/angles are the key: a citizen walking,
+// changing occupation, leaving a shift, or changing a physical facing ALWAYS
+// invalidates the old resident geometry, even on a 390px live-follow camera.
+function worksiteFixtureSignature(sites){
+ return sites.map(w=>{
+  const station=workerLocalWorksite(w);
+  return station&&!worksInsideOriginalForgeYard(w)?
+   [w.citizen,w.job,w.x,w.z,station.angle,station.localX,
+    station.localZ,station.groundHeight].join(':'):
+   [w.citizen,w.job,'forge-owned-or-absent'].join(':');
+ }).join('|');
+}
+function emitFixedWorkstation(w,station){
+ const x=station.localX,z=station.localZ,y=station.groundHeight;
+ if(w.job==='forester'){
+  cylinder(x,y,z,.22,.38,rgb(0x94683f),7);
+  box(x,y+.32,z,.43,.09,.40,rgb(0x70492f));
+ }else if(w.job==='farmer'){
+  box(x,y+.055,z,.57,.12,.36,rgb(0x866744));
+ }else if(w.job==='builder'){
+  for(let i=0;i<3;i++)
+   box(x+.78,y+.06+i*.095,z-.48,.45,.12,.28,rgb(0xb2a180));
+  box(x+.52,y+.38,z-.49,.09,.29,.09,rgb(0x816447));
+ }else if(w.job==='merchant'){
+  box(x,y+.08,z,.70,.17,.45,rgb(0x8c684b));
+  box(x-.17,y+.22,z,.25,.25,.30,rgb(0xad8255));
+  box(x+.18,y+.18,z,.22,.17,.27,rgb(0xc59b61));
+ }else if(w.job==='craftsperson'){
+  box(x,y+.09,z,.68,.20,.43,rgb(0x795c4b));
+  box(x,y+.28,z,.36,.17,.26,rgb(0x777b77));
+ }else if(w.job==='gatherer'){
+  box(x,y+.09,z,.48,.20,.38,rgb(0x94734d));
+  for(let i=-1;i<=1;i++)
+   cone(x+i*.12,y+.22,z,.07,.24,rgb(0x688354),5);
+ }
+}
+function emitMovingWorkstation(w,station,pulse){
+ const x=station.localX,z=station.localZ,y=station.groundHeight;
+ if(w.job==='forester'){
+  box(x+.22+pulse*.018,y+.055,z+.20,.12,.08,.26,rgb(0xbd9b67));
+ }else if(w.job==='farmer'){
+  for(let i=-1;i<=1;i++)
+   cone(x+i*.16,y+.1,z,.074,.44+Math.abs(pulse)*.03,rgb(0xc9ad64),5);
+ }else if(w.job==='craftsperson'){
+  box(x+.26,y+.34+pulse*.035,z,.08,.20,.09,rgb(0xb3a180));
+ }
+}
+function renderFixedWorkstations(sites){
+ materialScope(MATERIAL.WOOD,()=>{
+  for(const w of sites){
+   const station=workerLocalWorksite(w);
+   if(!station||worksInsideOriginalForgeYard(w))continue;
+   const first=data.length;
+   emitFixedWorkstation(w,station);
+   rotateWorksiteVertices(first,w.x,w.z,station.angle);
+  }
+ });
+}
+function prepareWorksiteFixtureResidentMesh(sites){
+ worksiteFixtureActive=false;
+ if(!worksiteFixtureResidencyRequested())return false;
+ if(!sites.length)return true;
+ const key=worksiteFixtureSignature(sites);
+ if(worksiteFixtureMesh&&worksiteFixtureBuffer&&worksiteFixtureKey===key){
+  worksiteFixtureActive=true;worksiteFixtureReuses++;return true;
+ }
+ const previousData=data,previousMaterial=currentMaterial;
+ let mesh;
+ data=[];
+ try{
+  renderFixedWorkstations(sites);
+  mesh=new Float32Array(data);
+ }finally{
+  data=previousData;currentMaterial=previousMaterial;
+ }
+ if(mesh.length%30)throw Error('W92 worksite fixed-triangle stride mismatch');
+ if(mesh.length>WORKSITE_FIXTURE_FLOAT_BUDGET){
+  worksiteFixtureOverBudget++;disposeWorksiteFixtureMesh();
+  return false;
+ }
+ if(!worksiteFixtureBuffer)worksiteFixtureBuffer=gl.createBuffer();
+ if(!worksiteFixtureBuffer)throw Error('W92 worksite resident GPU buffer allocation failed');
+ bindGeometry(worksiteFixtureBuffer);
+ if(mesh.length>worksiteFixtureCapacity){
+  worksiteFixtureCapacity=Math.ceil(Math.max(1,mesh.length)/8192)*8192;
+  gl.bufferData(gl.ARRAY_BUFFER,worksiteFixtureCapacity*4,gl.DYNAMIC_DRAW);
+ }
+ if(mesh.length)gl.bufferSubData(gl.ARRAY_BUFFER,0,mesh);
+ worksiteFixtureMesh=mesh;worksiteFixtureKey=key;
+ worksiteFixtureBuilds++;worksiteFixtureUploads++;worksiteFixtureActive=true;
+ return true;
+}
+function drawWorksiteFixtureResidentMesh(){
+ if(!worksiteFixtureActive||!worksiteFixtureBuffer||!worksiteFixtureMesh?.length)return;
+ bindGeometry(worksiteFixtureBuffer);
+ gl.drawArrays(gl.TRIANGLES,0,worksiteFixtureMesh.length/10);
+ worksiteFixtureDrawCalls++;
+}
+function setWorksiteFixtureResidencyForTesting(value){
+ if(value!==true&&value!==false&&value!==null)
+  throw Error('Invalid presentation-only worksite residency override');
+ worksiteFixtureOverride=value;disposeWorksiteFixtureMesh();
+ cameraDynamicCache=null;cameraDynamicKey='';lastFrozenFrameKey=null;
+ presentationEpoch++;
+}
+function getWorksiteFixtureResidencyAudit(){
+ return {source:'real-autonomous-worker-fixed-workstation-geometry',
+  enabled:worksiteFixtureResidencyRequested(),active:worksiteFixtureActive,
+  buffers:worksiteFixtureBuffer?1:0,maxBuffers:1,
+  meshFloats:worksiteFixtureMesh?.length||0,
+  capacityFloats:worksiteFixtureCapacity,floatBudget:WORKSITE_FIXTURE_FLOAT_BUDGET,
+  uploads:worksiteFixtureUploads,builds:worksiteFixtureBuilds,
+  reuses:worksiteFixtureReuses,drawCalls:worksiteFixtureDrawCalls,
+  disposals:worksiteFixtureDisposals,overBudgetFallbacks:worksiteFixtureOverBudget,
+  actualWorkstations:workdayRenderStats.activeWorksites,
+  preservesAnimatedHumanJobs:true,authorityModified:false,
+  performance:'resident CPU geometry / uploads only; hardware FPS not established'};
+}
 function renderWorkdayTraces(){
  const completed=visibleRecordedWorkdayEvents();
  recordedWorkVisibleEvents=completed.length;
@@ -8782,62 +8928,31 @@ function renderWorkdayTraces(){
  workdayRenderStats.integratedForgeWorkcells=0;
  workdayRenderStats.duplicateForgeStations=0;
  if(!prepareRecordedWorkResidentMesh(completed))renderRecordedWorkdayProps(completed);
- // G091: physical working props persist through each genuine job timer;
- // bounded to eight visible sites. This is visual-only geometry — the
- // authoritative output continues to come from work(), never here.
  const active=visibleActualWorksites();
  workdayRenderStats.activeWorksites=active.length;
- const triangleStart=data.length;
+ const first=data.length;
+ const fixturesResident=prepareWorksiteFixtureResidentMesh(active);
+ if(!fixturesResident)renderFixedWorkstations(active);
+ // Only moving actual work is rebuilt. A farmer's grain bends under the
+ // real occupational performance clock; a courier's cargo is never staged
+ // in a fake fixed workbench, and original forge ownership is respected.
  materialScope(MATERIAL.WOOD,()=>{
   for(const w of active){
-   // G123: all occupational stations (farm, forge, stall, sawbuck, basket)
-   // now use their worker's local forward frame. Previously all non-builders
-   // were stuck at +[.62,.34] in WORLD axes irrespective of actor facing.
    const station=workerLocalWorksite(w);
    if(!station)continue;
-   // W45: one real foundry, one real anvil. The old all-profession stage
-   // created a SECOND generic anvil and wooden block right in front of
-   // every smith, including the forge courier's actual hammer. Keep all
-   // other occupational stations, but let the original guild courtyard and
-   // physical iron billet stage the smith whose route actually reaches it.
    if(worksInsideOriginalForgeYard(w)){
     workdayRenderStats.integratedForgeWorkcells++;
     continue;
    }
-   const x=station.localX,z=station.localZ;
-   const y=station.groundHeight,siteStart=data.length;
-   // One performance clock drives wrist and prop impacts, so chips, tools
-  // and work surfaces react together to the actual worker's bodily action.
-  const pulse=w.impact*2-1;
-   if(w.job==='forester'){
-    cylinder(x,y,z,.22,.38,rgb(0x94683f),7);
-    box(x,y+.32,z,.43,.09,.40,rgb(0x70492f));
-    box(x+.22+pulse*.018,y+.055,z+.20,.12,.08,.26,rgb(0xbd9b67));
-   }else if(w.job==='farmer'){
-    box(x,y+.055,z,.57,.12,.36,rgb(0x866744));
-    for(let i=-1;i<=1;i++)cone(x+i*.16,y+.1,z,.074,.44+Math.abs(pulse)*.03,rgb(0xc9ad64),5);
-   }else if(w.job==='builder'){
-    // Completed timber stacks queue to the side, never across the face.
-    for(let i=0;i<3;i++)box(x+.78,y+.06+i*.095,z-.48,.45,.12,.28,rgb(0xb2a180));
-    box(x+.52,y+.38,z-.49,.09,.29,.09,rgb(0x816447));
-   }else if(w.job==='merchant'){
-    box(x,y+.08,z,.70,.17,.45,rgb(0x8c684b));
-    box(x-.17,y+.22,z,.25,.25,.30,rgb(0xad8255));
-    box(x+.18,y+.18,z,.22,.17,.27,rgb(0xc59b61));
-    }else if(w.job==='craftsperson'){
-    if(worksInsideOriginalForgeYard(w))workdayRenderStats.duplicateForgeStations++;
-    box(x,y+.09,z,.68,.20,.43,rgb(0x795c4b));
-    box(x,y+.28,z,.36,.17,.26,rgb(0x777b77));
-    box(x+.26,y+.34+pulse*.035,z,.08,.20,.09,rgb(0xb3a180));
-   }else if(w.job==='gatherer'){
-    box(x,y+.09,z,.48,.20,.38,rgb(0x94734d));
-    for(let i=-1;i<=1;i++)cone(x+i*.12,y+.22,z,.07,.24,rgb(0x688354),5);
-   }
+   const x=station.localX,z=station.localZ,y=station.groundHeight;
+   const start=data.length,pulse=w.impact*2-1;
+   emitMovingWorkstation(w,station,pulse);
    appendActiveWorksiteDressing(w,x,y,z,pulse);
-   rotateWorksiteVertices(siteStart,w.x,w.z,station.angle);
+   rotateWorksiteVertices(start,w.x,w.z,station.angle);
   }
  });
- workdayRenderStats.activeTriangles=(data.length-triangleStart)/30;
+ workdayRenderStats.activeTriangles=(data.length-first)/30+
+  (worksiteFixtureActive?worksiteFixtureMesh.length/30:0);
 }
 /* G097 inhabited-high-street: evidence-backed belongings for real workers.
  * The only witnesses are positive, actually committed production entries in
@@ -14296,6 +14411,7 @@ lastFrameTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.lengt
  activeCivicMesh().length+homeClusterFloats()+data.length+
  (economyResidentActive?economyResidentMesh?.length||0:0)+
  (recordedWorkActive?recordedWorkMesh?.length||0:0)+
+ (worksiteFixtureActive?worksiteFixtureMesh?.length||0:0)+
  (solarShadowActive?.buffer?solarShadowActive.vertices.length:0):data.length)/30+
  (gpuAvailable?(atmosphere.climate.weather==='rain'?200:
   atmosphere.climate.weather==='snow'?240:0):0);
@@ -14348,6 +14464,7 @@ if(gpuAvailable){
 const gpuUploadStart=performance.now();
 drawEconomyResidentMesh();
 drawRecordedWorkResidentMesh();
+drawWorksiteFixtureResidentMesh();
 bindGeometry(selectDynamicGpuBuffer(cameraMeshReused,data.length));
 if(gpuAvailable){
  if(!cameraMeshReused&&data.length){
@@ -14422,7 +14539,9 @@ getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:
  totalSavedDrawCalls:scenicVisibilityStats.totalSavedDrawCalls,
  batchMode:scenicVisibilityStats.batchMode,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,setStaticBatchBridgingForTesting,getScenicMultiDrawAudit,setScenicMultiDrawForTesting,getCourierPostCameraAudit,evaluateCourierPostRepairPolicy,getDaybreakReturnAudit,getCameraDynamicCacheStats,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
+ getWorksiteFixtureResidencyAudit,setWorksiteFixtureResidencyForTesting,
+ setStaticBatchBridgingForTesting,getScenicMultiDrawAudit,setScenicMultiDrawForTesting,getCourierPostCameraAudit,evaluateCourierPostRepairPolicy,getDaybreakReturnAudit,getCameraDynamicCacheStats,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
  if(streetWalk)setStreetWalk(false);
 if(follow)setCitizenFollow(false);cinematic=false;document.getElementById('camera').classList.remove('active');
 yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2&&o.focus.every(Number.isFinite))focusPoint=o.focus.slice(0,2)}};
