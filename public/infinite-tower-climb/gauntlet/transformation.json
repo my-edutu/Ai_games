@@ -20,24 +20,24 @@
   "currentTransformation": {
     "latestEvidenceRun": {
       "checkedOn": "2026-11-06",
-      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN; authentic rising post-guardian counter-vault must retain earned-cap destination rather than stale combat route",
-      "implementationSha": "44efc0b58c426e93a0524cd9de620235843e488f",
-      "sourceBaseSha": "1aa6d085657938d54327b69208384961c8e12d30",
+      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN; legal short-rig guardian passage can now evaluate physically earned grounded cap crossing below vertical exitY",
+      "implementationSha": "d7461372a86bf1a28f763ea242211591987219a5",
+      "sourceBaseSha": "79e4f021d4e404ab1403950f2eacb8e678d4b97d",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-      "sourceLinkedPlayableChange": "On a genuinely defeated opt-in guardian cap, when the climber is airborne and RISING from below the one-way cap, keep the earned-return objective instead of dropping back to stale combat navigation. The present-tick controller tests actual jump-apex and air-control reach, current safe landing lanes, and existing upward platform graph, then steers toward the highest physically reachable deck (cap itself if legal). Fixed-step collision alone awards landings and floor progress; no extra dash/jump/teleport; historical policy unchanged.",
-      "causalDefect": "Source inspection: observedEarnedReturnLanding returned undefined when vertical velocity > 0. The prior below-cap branch therefore returned null to general policy just as a legitimate post-defeat counter-vault began rising, risking loss of the earned return target. Current original gameplay footage and full runtime regression NOT EXECUTED.",
-      "sourcePinnedCaptureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42263555773",
-      "sourcePinnedCaptureStatus": "9/9 QUEUED at inspection for exact implementation SHA 44efc0b5, zero artifact files, no native 960x600 or 390x844 before/after WebM inspected.",
-      "sourcePinnedQualityRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42263555891",
-      "sourcePinnedQualityStatus": "QUEUED for exact implementation SHA 44efc0b5. Newly committed three original-source runtime regression tests unexecuted; green CI not an experience score.",
+      "sourceLinkedPlayableChange": "Fixed a genuine legal-config deadlock: the existing opted-in guardian gate now evaluates real cap-grounded, source-defeated horizontal trailing-edge clearance even if a short character's supported center is below exitY. All remaining defeat, support, x-clearance and physics gates still apply; unflagged frozen history unchanged. The change is source-derived, not currently filmed.",
+      "causalDefect": "The cap top is baseY+chunkHeight-16000, exitY is baseY+chunkHeight-8000; valid playerHalfHeight 5000..7999 produces a cap-grounded player center below exitY, so the old vertical-only rule could never admit a legitimate grounded guardian threshold crossing. Isolated source geometry proves the boundary; actual 20Hz runtime NOT EXECUTED.",
+      "sourcePinnedCaptureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42281114266",
+      "sourcePinnedCaptureStatus": "QUEUED for gameplay source implementation d7461372; no candidate/baseline full-motion WebM or event-matched full loop inspected in this execution.",
+      "sourcePinnedQualityRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42281114269",
+      "sourcePinnedQualityStatus": "QUEUED for gameplay source implementation d7461372; two added Node runtime regressions and whole repository build NOT EXECUTED.",
       "sourcePinnedSnapshotRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42263556057",
       "sourcePinnedSnapshotStatus": "PENDING at inspection for exact implementation SHA 44efc0b5, not an original gameplay recording.",
       "checks": {
-        "initialRed": "Source-level fault traced in the currently committed policy: rising hero below cap returned null from falling-only emergency landing selector, letting stale combat-route steering win. Full checked-out red test NOT EXECUTED.",
-        "isolatedGreen": "NOT EVALUATED — code-reviewed new rising route with pure existing observed-flight and safe-lane helpers; no simulation evidence of successful recovery.",
-        "repositoryTests": "NOT EVALUATED — three focused original TowerRuntime tests committed to tests/phase3/tower-earned-cap-reacquisition.test.cjs; Node/npm build and tests could not execute because remote workspace tunnel unavailable and GitHub CI queued.",
-        "fullFixedStepCampaign": "NOT EVALUATED — no original 3,200-tick real source run/replay audit from code SHA 44efc0b5.",
-        "sourcePinnedNormalSpeedVideo": "NOT EVALUATED — nine source-pinned jobs queued and zero files at run 42263555773.",
+        "initialRed": "Not executed: actual Node red state unavailable due missing remote tunnel. Verified source predicate and fixed-step cap/exitY/rig geometry by inspection.",
+        "isolatedGreen": "Only scalar sanity: halfHeight 5000 gives supported center 349000 < exitY 352000; halfHeight 7999 gives 351999 < 352000, halfHeight 8000 reaches 352000. Not a runtime test or full gameplay.",
+        "repositoryTests": "NOT EVALUATED — two new original-source TowerRuntime regressions committed in tests/phase2/tower-guardian-earned-exit.test.cjs at aae46a77; host tunnel disconnected and CI queued.",
+        "fullFixedStepCampaign": "NOT EVALUATED — no authentic pair of source 3200-tick campaigns executed at implementation d7461372.",
+        "sourcePinnedNormalSpeedVideo": "NOT EVALUATED — 9-job source-pinned gameplay capture 42281114266 queued, no current-source native desktop/portrait film inspected.",
         "hardwareFrameTimeAndMemory": "NOT EVALUATED",
         "independentBlindReviews": {
           "looks": 0,
@@ -50,9 +50,9 @@
         "earnedCapMultiHop": "Three source files committed at 49153d82. Repository runtime regressions and actual 20Hz game were NOT EXECUTED; no source-only scenario is counted as a quality pass."
       },
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "mostImportantObservedFootageDefect": "HISTORICAL authentic but OLD 8fd9018f portrait danger film: guardian/climber too small among scene machinery, earned walk-through gateway not legible in motion. This cannot certify the new rising-return controller or current source visuals.",
-      "nextHighImpactAction": "Run exact SHA 44efc0b5 npm build, focused earned-cap runtime tests and two 3,200-tick original 20Hz guardian source campaigns; verify recovered rising/falling navigation and unbroken guardian/crusher -> grounded threshold -> landed floor-nine -> outcome/restart same episode. Watch full native matched 960x600 desktop and 390x844 portrait 60+s real-time WebMs; fix the largest footage-proven cause of poor readability before P1. Hardware p50/p95/p99, memory, accessibility and truly independent 5-reviewer blind LOOKS/FEELS/PLAYS still required.",
-      "safety": "Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 unchanged; PR58 not edited, PR68 still open draft; no merge, deploy, force-push or promoted verdict.",
+      "mostImportantObservedFootageDefect": "HISTORICAL ONLY: old 8fd9018f portrait danger shows hero/guardian undersized against monumental tower and unclear actual doorway crossing; no current-source continuous footage yet for new code.",
+      "nextHighImpactAction": "Restore an exact source Node22/Chromium runner, run npm build and real low-rig gateway red/green tests plus paired original 3200-tick 20Hz campaigns, inspect exact matched baseline/candidate 60+s native 960x600 and 390x844 videos through guardian/crusher -> real grounded clearance -> landed floor-nine -> outcome/restart. If actual clips still hide hero or gateway, rebuild encounter/crossing composition (not another micro camera tweak). Get supported-device p50/p95/p99/memory and truly independent 5 blind reviewers for each LOOKS, FEELS, PLAYS.",
+      "safety": "Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 unchanged; PR58 not edited, PR68 open draft; no merge, deploy, force-push or promotion.",
       "runnerUnblockerSha": "345d7f15f01cacc8bfd343b327b517949f1717c0",
       "runnerUnblockerReviewSha": "71534d369ad2a01b5479ab9cd3ffa400d929c358",
       "runnerUnblockerChange": "Created source-pinned offline detached-worktree Chromium capture fallback for actual frozen baseline versus explicit exact candidate; source game, stream host and renderer are SHA-verified and remain original; preserves 8 paired desktop/portrait 60s+ scenario recordings, event indexes and logs when a local runner is available. This is an EXECUTABLE capture route, not a video or gameplay fix.",
@@ -110,13 +110,13 @@
       ],
       "sourceRunReviewPath": "docs/reviews/2026-11-06-tower-pr68-clear-return-lane-and-occluding-deck.md",
       "sourceRunReviewSha": "5454a5500f6fac87583a24c51b6adb9bb2c47076",
-      "biggestFootageDefect": "HISTORICAL authentic but OLD 8fd9018f portrait danger film: guardian/climber too small among scene machinery, earned walk-through gateway not legible in motion. This cannot certify the new rising-return controller or current source visuals.",
+      "biggestFootageDefect": "HISTORICAL ONLY: old 8fd9018f portrait danger shows hero/guardian undersized against monumental tower and unclear actual doorway crossing; no current-source continuous footage yet for new code.",
       "independentBlindReviewCounts": {
         "looks": 0,
         "feels": 0,
         "plays": 0
       },
-      "hardwareStatus": "NOT EVALUATED — no physical-device p50/p95/p99 or memory measurements.",
+      "hardwareStatus": "NOT EVALUATED — no measured real supported-device frame-time percentiles or memory.",
       "sourceRiskAwareReturn20261106": {
         "gameplayCommits": [
           "3422fe049fe140bc8074e59d9a8e7e4c47461295",
@@ -157,6 +157,26 @@
         "actualDeviceMetrics": "NOT EVALUATED",
         "transformationVerdict": "NOT EVALUATED",
         "nextAction": "Execute exact-source 3,200-tick campaign plus desktop/portrait WebM, inspect real guardian crossing and revise largest actual footage defect."
+      },
+      "supportedCapExitDeadlock20261106": {
+        "stage": "P0 OPEN",
+        "defect": "Valid halfHeight 5000–7999 actor is physically grounded on guardian cap below current.exitY; prior vertical-only floor gate could never accept source-earned horizontal crossing without becoming airborne.",
+        "redTestCommit": "aae46a77bc277dec4cf3a9ed6d7d5c5f872e43e3",
+        "gameplaySourceCommit": "d7461372a86bf1a28f763ea242211591987219a5",
+        "reviewPath": "docs/reviews/2026-11-06-tower-pr68-supported-cap-exit-deadlock.md",
+        "reviewCommit": "5e3f9f8c970b985adafe63e5200c4ddc70951d5c",
+        "changedScope": "games/infinite-tower-climb/src/rules/step.ts and tests/phase2/tower-guardian-earned-exit.test.cjs only; new review and ledger",
+        "sourceBehavior": "Only opted-in cap-grounded, defeated-guardian route can evaluate clearance below exitY; existing real 20Hz grounded+cap+whole-body X test still awards floor9.",
+        "checks": "Scalar source-geometry sanity ONLY; original full Node runtime/regressions/build unexecuted due disconnected remote workspace; CI queued, no video.",
+        "captureRun": "https://github.com/my-edutu/Ai_games/actions/runs/42281114266",
+        "qualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/42281114269",
+        "blindReviews": {
+          "looks": 0,
+          "feels": 0,
+          "plays": 0
+        },
+        "device": "NOT EVALUATED",
+        "verdict": "NOT EVALUATED"
       }
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
