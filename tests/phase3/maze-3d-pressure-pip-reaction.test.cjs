@@ -41,16 +41,20 @@ test('full-body physical Pip acts, neutral/guardian/terminal clears, zero new me
     const lantern=pip.group.getObjectByName('swinging lantern');
     const geometries=[];pip.group.traverse(o=>{if(o.isMesh)geometries.push(o.geometry)});
     for(const reducedMotion of [false,true]){
-      const opts={heading:0,time:0,delta:0,reducedMotion,
-        pressureHeading:Math.PI/2,pressureStrength:1};
+      const neutral={heading:0,time:0,delta:0,reducedMotion};
+      pip.update(neutral);
+      const idleHeadYaw=head.rotation.y, idleBodyY=body.position.y;
+      const opts={...neutral,pressureHeading:Math.PI/2,pressureStrength:1};
       pip.update(opts);
       assert.ok(body.position.y<.72,'Pip crouches as pressure opens');
       assert.ok(head.rotation.y>.5,'eyes face the real device');
       assert.ok(knee.rotation.x>.25,'leg is planted');
       assert.ok(lantern.rotation.y>.3,'actual attached lantern answers');
-      pip.update({heading:0,time:0,delta:0,reducedMotion});
-      assert.equal(head.rotation.y,0);
-      assert.equal(body.position.y,.78);
+      pip.update(neutral);
+      // Full-motion idle contains a deliberate natural eye/head wander; a
+      // cleared pressure cue restores that authentic baseline, not zero yaw.
+      assert.equal(head.rotation.y,idleHeadYaw);
+      assert.equal(body.position.y,idleBodyY);
       assert.equal(knee.rotation.x,0);
       assert.equal(lantern.rotation.y,0);
       const guardian={...opts,attentionHeading:Math.PI/2,attentionStrength:1};
