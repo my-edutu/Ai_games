@@ -40,17 +40,18 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npx playwright install --with-deps chromium
-      - name: W83 actual terrain-through-trade street, granary structure and growing-world safety
+      - name: W83/W84 true service street plus credible ventilated grain-loft, desktop and 390px
         env:
           CI: '1'
           LIBGL_ALWAYS_SOFTWARE: '1'
-        run: npx playwright test tests/browser/tiny-kingdom-w83-farm-market-continuity.spec.cjs --workers=1
+        run: npx playwright test tests/browser/tiny-kingdom-w83-farm-market-continuity.spec.cjs tests/browser/tiny-kingdom-w84-granary-loft.spec.cjs --workers=1
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: tiny-kingdom-w83-original-granary-to-market-world
           path: |
             artifacts/tiny-kingdom-w83/
+            artifacts/tiny-kingdom-w84/
             test-results/
           retention-days: 14
   # W81: real 120-day town roof reconstruction must reclaim triangles without
