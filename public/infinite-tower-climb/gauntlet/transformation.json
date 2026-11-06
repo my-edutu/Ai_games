@@ -21,23 +21,23 @@
     "latestEvidenceRun": {
       "checkedOn": "2026-11-06",
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
-      "implementationSha": "e1a2e67c380ee777f06528afe626751db123ab1b",
-      "sourcePinnedCaptureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42184249435",
-      "sourcePinnedCaptureStatus": "QUEUED, no verified complete video or artifacts",
-      "sourcePinnedQualityRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42184249653",
-      "sourcePinnedQualityStatus": "QUEUED, not an experience-quality verdict",
-      "sourceBaseSha": "7c6959d95b35a84b5936aa7c57fcf05a75853c9c",
+      "implementationSha": "dfb866ed75cef2ea1d7f0d6129a5b9dee8c73e93",
+      "sourceBaseSha": "576a7e53ab45b03ef63220fc7c27a7b062a90933",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-      "sourceLinkedPlayableChange": "Opted-in 20Hz physical guardian-cap snapshot publishes exact immutable rules exit center; HP-powered 3D bronze world seal, earned inner passage and desktop/portrait following lens all use it. Guardian recoil/death no longer reanchors door from correct 76% cap exit to misleading midpoint. Legacy and missing guardian fallback preserved.",
-      "causalDefect": "Exact old-code V8 raised-defeated-guardian fixture used visual x 240000 with source/AI full-body exit x 304896: a 64896-unit, 6.4896 world-unit displacement.",
+      "sourceLinkedPlayableChange": "Opt-in fixed-step guardian route now releases a genuine player-damage/hurt pose after five 50ms ticks onto observed grounded standing or airborne motion, preserving the remaining real invulnerability. New live-only snapshot foot-contact fields let the actual 3D guardian doorway shot follow a still-hurt but physically supported climber without granting a camera transition to a floating or wrong-platform body.",
+      "causalDefect": "Live injured hero previously remained in state 'hurt' indefinitely until a jump/dash; 3D animation suppressed locomotion and the source-earned gateway camera rejected even a real grounded cap walk, an especially important visibility problem after combat.",
+      "sourcePinnedCaptureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42189740735",
+      "sourcePinnedCaptureStatus": "9/9 jobs queued, zero artifacts; no normal-speed current-source desktop/portrait video exists",
+      "sourcePinnedQualityRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42189740850",
+      "sourcePinnedQualityStatus": "QUEUED, no complete exact-head CI verdict",
+      "sourcePinnedSnapshotRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42189740768",
+      "sourcePinnedSnapshotStatus": "PENDING; source capture evidence not available",
       "checks": {
-        "initialRed": "Confirmed from exact pre-change helper code in isolated V8; 240000 !== 304896",
-        "isolatedGreen": "4 exact-source V8 helper probes: stable published source anchor, malformed fallback, passage approach, portrait lens physical exit; no repo/node/browser runner",
-        "integratedNodeTests": "NOT EVALUATED — new tests/phase3/tower-source-gateway-alignment.test.cjs committed; no executable local workspace",
-        "fullFixedStepCampaign": "NOT EVALUATED — 3200-step real game witness unavailable",
-        "ci": "NOT EVALUATED — source-pinned CI not completed",
-        "exactSourceVideo": "NOT EVALUATED — no 960x600 or 390x844 normal-speed candidate e1a2e67 clip available",
-        "oldWorkflowJobs": "42175504772: nine queued, zero artifacts; 42175504850: one queued, zero artifacts at inspection",
+        "initialRed": "Executed the exact pre-change helper from source in isolated V8: real footed cap player with state='hurt' returned null, while standing returned a camera escort.",
+        "isolatedGreen": "3/3 executed exact modified JavaScript helper probes in isolated V8: grounded hurt eligible, airborne rejected, wrong-deck rejected.",
+        "repositoryTests": "NOT EVALUATED — new tests/phase2/tower-guardian-hurt-recovery.test.cjs, expanded tests/phase4/tower-gateway-walk-lens.test.cjs and adapted tests/phase3/tower-source-gateway-alignment.test.cjs committed, not executed in a checked-out repo.",
+        "fullFixedStepCampaign": "NOT EVALUATED — 3200 tick campaign not executed; GitHub jobs have not started.",
+        "sourcePinnedNormalSpeedVideo": "NOT EVALUATED — no authentic desktop 960x600 or portrait 390x844 current-head WebM",
         "hardwareFrameTimeAndMemory": "NOT EVALUATED",
         "independentBlindReviews": {
           "looks": 0,
@@ -46,18 +46,18 @@
         }
       },
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "mostImportantObservedFootageDefect": "Historical (candidate 8fd9018f, not current source): portrait climber/guardian/gateway undersized and no visibly legible grounded floor-eight gate crossing in 390x844 normal-speed footage.",
-      "nextHighImpactAction": "Unblock GitHub hosted runners / acquire real source-pinned Chromium 960x600 and 390x844 recordings; run 20Hz guardian/crusher -> grounded full-body threshold -> actual floor-nine onward deck -> result/intermission/restart. Compare event-matched baseline; inspect continuous film and correct the largest remaining actual action/sightline defect before P1.",
-      "safety": "No merge, deploy, force push, baseline movement, PR58 edit or PR68 draft conversion."
+      "mostImportantObservedFootageDefect": "Historical 8fd9018f candidate portrait: tiny climber/guardian/threshold and no legible cap crossing. Latest dfb866ed source visual improvement NOT checked on authentic film.",
+      "nextHighImpactAction": "Unblock queued GitHub Actions runners or obtain an authenticated checked-out repo/Chromium host; run focused Node/TypeScript and actual 3200-tick source campaign first, then record current SHA at desktop 960x600 and portrait 390x844 for >=60 seconds and visually inspect real damage recovery, crusher+guardian victory, whole-body doorway crossing, floor-nine onward and actual outcome/restart. Correct the largest seen footage regression; keep P0 until verified.",
+      "safety": "Preserved frozen SHA; no PR58 mutation, PR68 draft change, merge, deploy or force push."
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
-    "state": "P0 OPEN — source-authentic moving guardian HP gate, inner threshold and live camera share exact source exit even through vertical recoil/death; full loop/footage/device/blind acceptance NOT EVALUATED.",
+    "state": "P0 OPEN — live source-grounded damage recovery and portal shot implemented; fixed-step/browser/capture acceptance NOT EVALUATED.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Check source e1a2e67 exact-head test/capture readiness; run real 3200-tick campaign and paired normal-speed 960x600 + 390x844 WebMs against frozen 1731b380, with same episode crusher/guardian defeat -> full-body earned threshold -> floor-nine onward -> real outcome/restart. Then correct most significant visible failure. Independent LOOKS/FEELS/PLAYS each 0/5 and hardware metrics NOT EVALUATED.",
+    "nextDecision": "Keep P0 until exact-source 3200-tick guardian campaign, current 960x600 + 390x844 >=60s gameplay for ascent/danger/outcome/restart and matched baseline events. Confirm no prolonged hurt pose, cap/door framing or support regression before progressing.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "History: portrait video candidate 8fd shows tiny climber and an unrecognizable gate crossing. Latest source e1a binds lock, passage and lens to rules exit after recoil, correcting an isolated 64896-unit source/visual misalignment. No new full motion exists; real visual/gameplay effect NOT EVALUATED.",
-    "unverifiedImplementationBranchHead": "e1a2e67c380ee777f06528afe626751db123ab1b",
-    "currentVerticalSlice": "Connected 20Hz source→three.js physical guardian cap exit: opt-in snapshot publishes rule-owned guardianArenaExitX, HP bronze gate, earned threshold and following lens use same grounded source exit through live/dying guardian motion; do not modify physics, combat or progression.",
+    "biggestRemainingExperienceGap": "Runner queues remain unstarted; zero current-source continuous footage proving damage recovery, physically walkable bronze exit, guardian/crusher victory, floor-nine onwards, result and restart. Prior 8fd historical portrait undersized hero and obscured doorway remain the main FILM-OBSERVED weakness, not a confirmed current defect.",
+    "unverifiedImplementationBranchHead": "dfb866ed75cef2ea1d7f0d6129a5b9dee8c73e93",
+    "currentVerticalSlice": "Complete guardian-to-floor-nine chain: real hit → five-tick readable recoil → physical cap locomotion and grounded gateway follow → earned full-body crossing. Implemented, not yet quality-verified.",
     "biggestGap": "GitHub Actions runs 42157788943 (nine queued jobs, no artifacts) and 42158025950 (one queued, no artifacts) remained unstarted when inspected 2026-11-06. Real current source game/video and device measurements absent. P0 truth witness previously could accept idle floor-nine tick, technical/operator terminal, and no observed near-cap crusher; corrected in 503fbc4a but new game logic untested in full Node or 3200-tick campaign. Historical portrait camera dwarfing hero and unreadable gate remain greatest film-observed weakness, NOT latest-head assessment.",
     "p0SourceContract": {
       "sourceSha": "503fbc4ad41fad84c9003710b80361d6706cabda",
@@ -94,6 +94,20 @@
         "https://github.com/my-edutu/Ai_games/actions/runs/42170006059"
       ],
       "exactNextAction": "Inspect both authentic same-source full WebM streams at normal speed; compare source events and fix if real visible gateway or actor is cropped; run actual guardian/crusher-through-restart and measure device p50/p95/p99/memory."
+    },
+    "p0GroundedRecoverySlice": {
+      "stage": "P0 OPEN",
+      "implementationSha": "dfb866ed75cef2ea1d7f0d6129a5b9dee8c73e93",
+      "rationale": "After damage in the real upper-cap fight the authoritative pose remains 'hurt' forever without another jump/dash, suppressing run cycle and the new gateway camera. Rejoin real motion after 250ms, keep source immunity, and bind camera eligibility to real published cap contact.",
+      "implementation": "Only when guardianArenaHazards and guardianSecondWind are both true; stepTowerPhysics transitions hurt -> standing/airborne after 5 damage ticks. Snapshot exposes gated grounded + groundedPlatformId. Grounded physical doorway lens accepts a hurt player supported by the actual cap and rejects airborne or wrong-deck actors.",
+      "executableEvidence": "3/3 isolated V8 source helper checks green; integration Node/TypeScript/Playwright NOT EVALUATED",
+      "videoEvidence": "NOT EVALUATED — exact commit WebMs unavailable",
+      "independentBlindReviews": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "nextHighImpactAction": "Run source fixed-step/replay tests and inspect actual guardian-exit footage before claiming visual or gameplay improvement."
     }
   },
   "scenarios": [
@@ -134,11 +148,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "NOT EVALUATED for source 5997c76b: exact-head 42170006059 quality remains queued; 42170006093 nine-job capture also queued; old capture 42157788943 nine jobs queued and zero artifacts. New four phase4 repository-integrated camera fixtures not executed. 3/3 local pure JavaScript cloned-rule scenarios passed; not full Node test, typecheck, game campaign, WebM or performance.",
-    "replay": "No physics/AI/authority code changed in this run; frozen baseline preserved. Diagnostic observer now requires a real same-run crusher warning/activation near living cap climber survived, a later genuine grounded floor-nine deck landing (not idle spawn), a game-kind result (not technical/operator), and genuine restart. Actual fixed-step 3200-tick campaign at 503fbc4a not executed; source replay/stability NOT EVALUATED.",
-    "accessibility": "New gateway promenade lens bypasses reduced-motion mode, overview and manual zoom >1.1; no HUD or input changes. Screen-reader, keyboard, mobile-control/restart and actual portrait browser acceptance NOT EVALUATED.",
-    "performance": "Camera implementation 5997c76b reuses existing Three.js camera and source-enabled lens/gaze, adds no geometry, shader, light, render pass or gameplay authority. No native GPU frame-time p50/p95/p99 or memory measurements (NOT EVALUATED).",
-    "stability": "Grounded gate shot is a pure candidate driven by existing source earned gate and true cap feet/position; local 3/3 copied-helper cases passed. Exact repository Node suite, WebGL/browser continuity, source fixed-step campaign and valid replay NOT EVALUATED, since queued runners have no jobs completed."
+    "ci": "NOT EVALUATED: source dfb866ed exact-head quality run 42189740850 queued. Source-only helper 3/3 in V8 is not TS build, repository Node suite or WebGL film.",
+    "replay": "NOT EVALUATED on actual source. Opt-in guardian route now intentionally changes 20Hz hurt-state recovery after 5 ticks; frozen unflagged configs preserve old states and public snapshot shape in source conditions. Full replay/campaign still required.",
+    "accessibility": "NOT EVALUATED — earned gateway camera requires actual source cap grounded contact; historical/y-only guesses cannot authorize shot. Reduced-motion, mobile screen reader and physical controls need real browser testing.",
+    "performance": "No new geometry/shader/render pass authored by hero damage recovery or snapshot camera gate. CPU/GPU p50/p95/p99 and memory on devices remain NOT EVALUATED.",
+    "stability": "NOT EVALUATED — no actual browser, checked-out repository, source campaign or hardware measurements. Damage recovery is fixed-step and opt-in."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {

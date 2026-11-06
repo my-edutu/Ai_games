@@ -18,7 +18,7 @@ function sample({raised=0,active=true,exit=exitX}={}){
     enemies:[{id:'f8:guardian',kind:'guardian',active,
       health:active?4:0,halfHeight:18000,
       y:cap.y+cap.height+18000+raised,x:220000}],
-    player:{state:'standing',health:4,x:exitX-8000,
+    player:{state:'standing',grounded:true,groundedPlatformId:cap.id,health:4,x:exitX-8000,
       y:cap.y+cap.height+18000,halfHeight:18000}};
 }
 test('published source exit never drifts after live guardian recoil or death',async()=>{
