@@ -20,6 +20,36 @@ permissions:
   contents: read
 
 jobs:
+  # W73: compact physical draw ranges on the original resident valley.
+  # A GPU raster cost saving remains unproven until matching actual workdays.
+  w73-conservative-original-scenery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: W73 actual town static WebGL draw batching and 390px completeness
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w73-conservative-scenic-batching.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w73-bounded-scenic-submissions
+          path: |
+            artifacts/tiny-kingdom-w73/
+            test-results/
+          retention-days: 14
   # W72: filmed W68 homecoming abruptly cut to aerial at morning; ensure the
   # real selected person returns via eased physical camera, no staged actor
   # or altered fixed-step autonomous world.
