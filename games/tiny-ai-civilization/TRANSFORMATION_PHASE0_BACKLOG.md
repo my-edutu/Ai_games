@@ -1,4 +1,4 @@
-# Tiny Kingdom — single persistent transformation backlog (W76)
+# Tiny Kingdom — single persistent transformation backlog (W77)
 
 Status: **ACTIVE — WORK IN PROGRESS, NOT AN EXPERIENCE MILESTONE**.
 Repository: `my-edutu/Ai_games`; **open draft PR #64 only**, branch `feat/tiny-kingdom-post-main-gauntlet-20261031`.
@@ -12,6 +12,17 @@ G088 baseline: `2f6deb43feb1a1557848d44def53a6109deb1ab1`.
 - Latest **inspected** real comparative workday: [W67 same-seed real moving captures](https://github.com/my-edutu/Ai_games/actions/runs/42101461674/artifacts/13452738968). Do not substitute current W69 stills or render probes for a live comparison.
 - W67 [real 120-day soak](https://github.com/my-edutu/Ai_games/actions/runs/42101461741/artifacts/13453456462): 28 real people, 37 structures, 150,155 triangles in sampled view, byte-identical seeded replay and zero reported page/GL errors. Ubuntu **SwiftShader software** 36 frames / 8.42s = 4.28 observed FPS; CPU static p95 112.5ms, dynamic p95 40.7ms, total p95 144.8ms. Samples are workload-specific, NOT a hardware-GPU performance result or causal improvement.
 - W68 source-matched GPU, soak and matched video jobs were still QUEUED when checked on 2026-11-05. The W68 city-materiality/camera effects are NOT independently verified. Never infer their result from W67.
+
+## W77 — in-place genuine housing GPU construction (6 November 2026, same Phase 1)
+
+**The one unchanged live goal:** genuine farmer → actual physically laden courier → real market inventory handoff → original occupied home; maintain full Day-1/Day-120 village and 390px. This is **not** a new milestone or proof of visual improvement.
+
+- **Test first:** [W77 1024px/390px real 120-day growth regression](https://github.com/my-edutu/Ai_games/commit/7718edbb26b118376403d5d87a7e322f9071dd47) observes authoritative growth at four checkpoints, full original house count, <160k triangles, GL integrity and no lost citizens. Browser execution RED/GREEN **NOT YET OBSERVED**.
+- **Actual playable renderer:** [source `055c4a418e3728b9c4e75adaa2a8e339babb6c61`](https://github.com/my-edutu/Ai_games/commit/055c4a418e3728b9c4e75adaa2a8e339babb6c61) continues W76's COMPLETE actual original house spatial groups. On genuine same-cell construction in the same climate, the new physical cluster now takes the obsolete cluster's GPU handle, preserves the newly packed original roof/masonry/timber mesh and updates the original complete material vertices with `gl.bufferSubData` if within its 12.5% capacity headroom. All unchanged neighbour groups keep their original buffer. New-season shapes get separate bounded resident storage; no fake/omitted homes, economy or RNG. Counters explicitly expose `reusedGpuHandles`, `subDataUploads`, `storageAllocations` and `reservedGpuFloats`. Strict bounding now tests reserved GPU allocation bytes, not only physical mesh length; stale buffers are evicted, original fallback still exists for SwiftShader.
+- **Narrow local verification only:** full current inline game JS V8 syntax passed. A source-extracted, simulated WebGL contract constructed two actual-home-shaped physical groups; a repeat render returned the exact same two buffers; adding another home to an existing original cell retained the matching buffer handle and used subdata without a new storage allocation; changing climate allocated a fresh separate buffer. This is **not a real WebGL screenshot, performance result, seeded replay or real fresh-context criticism**.
+- [Registered W77 exact-source workflow](https://github.com/my-edutu/Ai_games/actions/runs/42154274387) is **QUEUED** as of inspection (so are matching [120-day run](https://github.com/my-edutu/Ai_games/actions/runs/42154273832) and [same-seed film](https://github.com/my-edutu/Ai_games/actions/runs/42154274381)). W76 GPU/soak/film runs at source `ce4cfd0c` also remained QUEUED. No exact W77 frame-time, mobile, 120-day correctness or rendered motion verification claimed.
+- **Critical path remains unchanged:** compare actual 30+ FPS on documented desktop/mobile hardware under the SAME Day-1/Day-120 workload, no stagnant market/worker/camera experience, especially last verified W68 software CPU static p95 272 ms / total p95 314 ms, 3.31 SWIFTShader-only FPS. If resident clusters increase draw calls/driver stalls on real devices, disable the new path and revert or restructure. Recover frame budget before large contiguous settlement rebuild.
+- **Acceptance A:** LOOK NOT PROVEN, FEEL FAIL, PLAY NOT PROVEN. **Reference B:** Manor Lords commercial quality FAIL. Pinned G088 baseline remains `2f6deb43feb1a1557848d44def53a6109deb1ab1`. No % promotion. Draft PR #64 stays unmerged.
 
 ## W76 — separate genuine inhabited home clusters (6 November 2026, same Phase 1)
 
