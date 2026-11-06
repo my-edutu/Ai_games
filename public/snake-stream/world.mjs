@@ -418,6 +418,48 @@ export function sculptCopeStone(width, height, edge, along) {
   };
 }
 
+/**
+ * The original complete coastal planting must grow FROM the physically
+ * sculpted ruin/limestone edges, not float along obsolete rectangular rails.
+ * Reuse the existing 4-shore coping, 3-tier side ruins and carved front frieze
+ * as actual world-space anchors for EVERY preserved root/ivy and plant clump.
+ * Static display-only positions; no gameplay geometry or random draw changes.
+ */
+export function sculptGardenEdgePlanting(width,height,side,along,kind='foliage') {
+  if (!Number.isInteger(width) || !Number.isInteger(height) || width<2 || height<2
+      || !Number.isInteger(side) || side<0 || side>3
+      || !Number.isFinite(along) || !['foliage','ivy'].includes(kind))
+    throw new RangeError('Real shore planting requires a valid board, edge, span and layer');
+  const W=width/2,H=height/2,horizontal=side<2;
+  const localAlong=along+(horizontal?W:H);
+  if (kind==='ivy') {
+    if (side===1) {
+      const stone=sculptFrontFrieze(width,height,along);
+      return {x:stone.x,y:-.27,z:stone.z};
+    }
+    if (side===0) {
+      const stone=sculptRearCauseway(width,height,along,'limestone');
+      return {x:stone.x,y:-.27,z:stone.z};
+    }
+    const stone=sculptCoastCourse(width,height,side,0,localAlong+.2);
+    return {x:stone.x,y:-.27,z:stone.z};
+  }
+  // The original entire perimeter flower/fern clumps keep their count, size,
+  // optical depth and playable-cell clearance. A softly meandering planting
+  // line now follows each REAL existing native capstone rather than a rigid
+  // featureless square an entire metre away from the eroded rock.
+  const stone=sculptCopeStone(width,height,side,localAlong);
+  const offset=.59+.065*Math.sin(along*.86+side*1.6);
+  const outside=horizontal?Math.abs(stone.z)-H:Math.abs(stone.x)-W;
+  const rim=Math.max(.99,outside+offset);
+  const drift=.075*Math.sin(along*.71+side*1.43);
+  return {
+    x:horizontal?along+drift:(side===2?-W-rim:W+rim),
+    y:-.14,
+    z:horizontal?(side===0?-H-rim:H+rim):along+drift,
+  };
+}
+
 export function createWorld(THREE, {width, height}) {
   if (!Number.isInteger(width) || !Number.isInteger(height) || width < 2 || height < 2) throw new Error('World requires integer board dimensions');
   const group = new THREE.Group(); group.name = 'Verdant ruins';
@@ -1094,7 +1136,8 @@ export function createWorld(THREE, {width, height}) {
   for(let side=0;side<4;side++){
     const horizontal=side<2,len=horizontal?width:height;
     for(let i=-len/2+.4;i<len/2;i+=1.05){
-      const x=horizontal?i:(side===2?-W-1.05:W+1.05),z=horizontal?(side===0?-H-1.03:H+1.03):i;
+      const foliageSite=sculptGardenEdgePlanting(width,height,side,i,'foliage');
+      const x=foliageSite.x,z=foliageSite.z;
       if(side===1&&Math.abs(i)<width*.33)continue;
       rosette(x,-.14,z,.40+random()*.35);
       if(random()>.6)fern(x,-.13,z,.36+random()*.25,random()*6.28);
@@ -1103,7 +1146,10 @@ export function createWorld(THREE, {width, height}) {
   }
   // Ivy travels down the stone strata and makes the vertical surface feel inhabited.
   for(let i=0;i<58;i++){
-    const front=i<32,x=front?(random()-.5)*(width+1):(i%2?-W-1.45:W+1.45),z=front?H+1.46:(random()-.5)*height;
+    const front=i<32,side=front?1:(i%2?2:3);
+    const along=(random()-.5)*(front?width+1:height);
+    const ivySite=sculptGardenEdgePlanting(width,height,side,along,'ivy');
+    const x=ivySite.x,z=ivySite.z;
     const length=.55+random()*2.4;
     for(let p=0;p<length;p+=.22){const sway=Math.sin(p*2+i)*.14;add(leaf,p%1>.5?leafDark:leafMat,x+(front?sway:0),-.27-p,z+(front?0:sway),.38,.40,.4,front?2.8:2.6,front?0:Math.PI/2,(random()-.5)*1.4);}
   }
