@@ -22,6 +22,7 @@ on:
       - scripts/tower-event-alignment.cjs
       - scripts/tower-event-pairing.cjs
       - scripts/serve-tower-stream.cjs
+      - tests/phase3/tower-moving-fixed-step-source-trace.test.cjs
       - tests/phase2/tower-guardian-earned-exit.test.cjs
       - tests/phase3/tower-causal-playthrough.test.cjs
       - tests/phase3/tower-event-alignment.test.cjs
@@ -64,6 +65,8 @@ jobs:
             node scripts/tower-guardian-source-witness.cjs > "$dir/replay-${replay}.json" 2>"$dir/replay-${replay}.stderr"
           done
           node scripts/tower-campaign-audit.cjs "$dir/replay-1.json" "$dir/replay-2.json" "$dir/audit.json" "$GITHUB_SHA"
+      - name: Verify actual candidate 20Hz moving-deck source trace before film
+        run: node --test tests/phase3/tower-moving-fixed-step-source-trace.test.cjs
       - name: Visual resources and geometry safety (not a quality score)
         run: node --test tests/phase3/tower-transformation-sanctuary.test.cjs tests/phase3/tower-vista-environment.test.cjs tests/phase3/tower-world-geometry.test.cjs tests/phase3/tower-earned-gateway-frame.test.cjs
       - run: npx playwright install --with-deps chromium

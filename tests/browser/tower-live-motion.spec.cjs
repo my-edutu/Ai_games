@@ -477,7 +477,20 @@ for (const viewport of viewports) {
   const observedMovingPositions = sourceMovingSamples.flatMap(o =>
     o.sourceMovingDecks.map(platform =>
       String(o.runToken) + ':' + platform.id + ':' + platform.x + ':' + platform.y));
+  // Candidate host supplies genuine per-fixed-step coordinates for the
+  // moving scenario; the frozen baseline MUST keep its original host and
+  // therefore only has equivalent passive public-state observations.
+  // Do not use this asymmetric diagnostic as an A/B preference vote.
+  const fixedStepMovingTicks = sourceTicks.filter(t => Array.isArray(t.movingDecks) &&
+    t.movingDecks.some(deck => typeof deck.id === 'string' &&
+      Number.isSafeInteger(deck.x) && Number.isSafeInteger(deck.y)));
+  const fixedStepMovingPositions = new Set(fixedStepMovingTicks.flatMap(t =>
+    t.movingDecks.map(deck => t.runToken + ':' + deck.id + ':' + deck.x + ':' + deck.y)));
   const sourceMovingSummary = {
+    hostFixedStepMovingTraceAvailable: !!trace && fixedStepMovingTicks.length > 1,
+    hostFixedStepMovingTicks: fixedStepMovingTicks.length,
+    hostFixedStepDistinctMovingPositions: fixedStepMovingPositions.size,
+    hostTraceParityCaveat: 'Candidate-only optional host diagnostics; baseline original host is unchanged. Both versions keep identical passive public-state observation for event pairing. Neither source positions nor sample counts establish filmed contact or movement feel.',
     sourceFramesWithMovingDeck: sourceMovingSamples.length,
     sourceWitnessedPhysicalContactSamples: observations.filter(o =>
       o.observedPhysicalTouchdown?.physicalDeckContact === true).length,

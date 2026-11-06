@@ -44,6 +44,15 @@ function advance(session) {
       guardian: publicSnapshot.enemies.filter(e => e.active && e.kind === 'guardian')
         .map(e => ({ health: e.health, maxHealth: e.maxHealth })),
       routeTarget: publicSnapshot.intent.targetPlatformId || null,
+      // Fixed 50ms authoritative moving-deck positions for the real floor-7
+      // scene. Previous moving captures had NO host trace endpoint, so an
+      // asynchronous browser poll could miss every brief source contact.
+      // Observe public geometry only; do not expose seed/private state,
+      // change physics, infer landings, or grade rendered motion from ticks.
+      movingDecks: publicSnapshot.platforms.filter(deck =>
+        deck.kind === 'moving' && typeof deck.id === 'string' &&
+        Number.isSafeInteger(deck.x) && Number.isSafeInteger(deck.y))
+        .slice(0, 8).map(deck => ({ id: deck.id, x: deck.x, y: deck.y })),
       // CI-only provenance: a real authored hazard must actually be charging
       // before a 3D jaw animation can count as a source-backed observation.
       // No seed, private rule state or speculative future events are exposed.
@@ -140,7 +149,7 @@ function createTowerStreamServer(options = {}) {
   // CI-only, bounded, source-authentic diagnostics. Never expose production
   // telemetry, unfiltered authority objects or the capture seed.
   const captureEnabled = process.env.CI === 'true' &&
-    ['ascent', 'danger', 'outcome'].includes(process.env.TOWER_MOTION_SCENARIO);
+    ['ascent', 'danger', 'moving', 'outcome'].includes(process.env.TOWER_MOTION_SCENARIO);
   if (captureEnabled) session.captureTrace = [];
   let lastStepAt = Date.now(), simulationFault = false;
   const interval = setInterval(() => {
