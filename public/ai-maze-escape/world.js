@@ -2042,13 +2042,30 @@ export function createMazeWorld(options = {}) {
     animations.push({ type: 'halo', object: halo, baseY: 1.18, phase: cell });
     animations.push({ type: 'crystal', object: gem, baseY: 0, phase: cell });
   }
-  function rebuildObjects(s) {
+  function rebuildObjects(s, previouslyVisibleCells) {
+    // Public discovery, key pickup and door updates rebuild these physical
+    // props while the REAL explorer is still near a disclosed pressure tile.
+    // Keep a currently witnessed presentation timeline across that rebuild;
+    // otherwise a new cell resets the shutters/piston every tick and the
+    // three distinct physical beats may never finish in normal gameplay.
+    // Only carry the already-published same-run hazard, visible both before
+    // and after the update. Unknown, hidden and newly revealed traps cannot
+    // inherit an old mechanical animation or private state.
+    const pressureClocks = new Map(trapSignals
+      .filter(signal => previouslyVisibleCells.has(signal.cell))
+      .map(({cell, pressureSince, pressureLastTime}) =>
+        [cell, {pressureSince, pressureLastTime}]));
+    const nowVisible = new Set(s.visibleCells);
     publicClosedSockets.clear(); retractingGates.clear();
     clear(objects); animations = []; trapJaws = []; trapSignals = [];
     for (const key of s.keys) keyProp(key, s);
     for (const door of s.doors) doorProp(door, s);
     for (const c of s.cells) {
-      if (c.trap) trapProp(c, s);
+      if (c.trap) {
+        trapProp(c, s);
+        const prior = nowVisible.has(c.cell) ? pressureClocks.get(c.cell) : null;
+        if (prior) Object.assign(trapSignals[trapSignals.length - 1], prior);
+      }
       if (c.checkpoint) checkpointProp(c, s);
       if (c.clue) clueProp(c, s);
     }
@@ -2081,6 +2098,7 @@ export function createMazeWorld(options = {}) {
       .map(door => doorEdgeId(door.a, door.b)));
     for (const edge of gateOpeningAt.keys())
       if (!currentOpen.has(edge)) gateOpeningAt.delete(edge);
+    const previouslyVisibleCells = new Set(snapshot?.visibleCells || []);
     snapshot = s;
     // Read ONLY the published explorer cell. True smooth interpolation, when
     // available, is supplied by scene.js as a cosmetic render-frame input.
@@ -2121,7 +2139,7 @@ export function createMazeWorld(options = {}) {
       + '#' + gateKey + '#relic:' + knownKeyRelicCells + ':' + disclosedExitRelicCell;
     if (terrainKey !== terrainSignature) { rebuildTerrain(s); terrainSignature = terrainKey; }
     const objectKey = JSON.stringify([s.keys, s.doors, s.inventory, s.exitCell, s.cells.map(c => [c.cell, c.trap, c.checkpoint, c.clue])]);
-    if (objectKey !== objectSignature) { rebuildObjects(s); objectSignature = objectKey; }
+    if (objectKey !== objectSignature) { rebuildObjects(s, previouslyVisibleCells); objectSignature = objectKey; }
     refreshVisibility(s);
   }
   // Actual carved socket, only for a publicly matching carried key on a closed gate.

@@ -111,3 +111,43 @@ test('remembered-only, hidden and reset pressure hazards never animate or leave 
     assert.equal(world.stats().responsiveTrapSignals,0,'new run releases all old trap props');
   } finally {world.dispose();cleanup()}
 });
+
+test('pressure warning, shutters and piston survive same-run public discovery rebuilds without hidden-state carryover',async()=>{
+  const {THREE,game,world,cleanup}=await build();
+  try {
+    const base=publicState(),pos=game.cellPosition(4,3,3);
+    const center=new THREE.Vector3(pos.x,0,pos.z);
+    const safe5={cell:5,neighbors:[],blocked:false,trap:false,checkpoint:false,clue:false};
+    const safe6={cell:6,neighbors:[],blocked:false,trap:false,checkpoint:false,clue:false};
+    world.update(base);
+    world.animate(0,{explorerPosition:center,reducedMotion:false});
+    world.animate(.35,{explorerPosition:center,reducedMotion:false});
+    const previousShutter=world.group.getObjectByName('Published tide-shear floor shutter -1');
+    assert.ok(previousShutter && Math.abs(previousShutter.rotation.z)>.20,
+      'actual witnessed first shutter beat is underway before a new cell is disclosed');
+    const expanded={...base,tick:2,cells:[...base.cells,safe5],visibleCells:[4,5]};
+    world.update(expanded);
+    const shutter=world.group.getObjectByName('Published tide-shear floor shutter -1');
+    const carriage=world.group.getObjectByName('Published tide-shear rising carriage');
+    assert.ok(shutter && shutter!==previousShutter,'public knowledge legitimately rebuilds the physical props');
+    world.animate(.8,{explorerPosition:center,reducedMotion:false});
+    assert.ok(Math.abs(shutter.rotation.z)>.95,
+      'the existing real shutter timeline finishes instead of restarting after discovery');
+    assert.ok(carriage.position.y>.20 && carriage.position.y<.44,
+      'the actual piston has reached its later physical beat despite the rebuild');
+    world.animate(1.35,{explorerPosition:center,reducedMotion:false});
+    near(carriage.position.y,.44,'fully completed same-run third beat');
+    // A hidden interim public snapshot MUST invalidate that old timeline even
+    // if the renderer does not draw before the next known-cell object rebuild.
+    world.update({...expanded,tick:3,visibleCells:[5]});
+    world.update({...expanded,tick:4,cells:[...expanded.cells,safe6],visibleCells:[4,5]});
+    const newlyRevealedCarriage=world.group.getObjectByName('Published tide-shear rising carriage');
+    world.animate(1.4,{explorerPosition:center,reducedMotion:false});
+    near(newlyRevealedCarriage.position.y,.16,
+      'unseen then re-visible pressure cannot resurrect an old actuation');
+    world.update({...base,runToken:'different-run',tick:1});
+    world.animate(1.5,{explorerPosition:center,reducedMotion:false});
+    near(world.group.getObjectByName('Published tide-shear rising carriage').position.y,.16,
+      'a new run cannot inherit the previous run pressure timeline');
+  } finally {world.dispose();cleanup()}
+});
