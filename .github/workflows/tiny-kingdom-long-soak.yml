@@ -11,6 +11,12 @@ on:
 permissions:
   contents: read
 
+# Only the latest exact-head evidence matters. Superseded hourly captures
+# must not accumulate unbounded queued GPU/browser jobs.
+concurrency:
+  group: tiny-kingdom-soak-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   deterministic-soak:
     runs-on: ubuntu-latest
