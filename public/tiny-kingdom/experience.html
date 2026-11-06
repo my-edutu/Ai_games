@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Tiny Kingdom — Experience Transformation Scorecard W93</title>
+<title>Tiny Kingdom — Experience Transformation Scorecard W94</title>
 <style>
 :root{color-scheme:dark;--ink:#101a18;--paper:#eee3cc;--muted:#bdb9a8;--gold:#dcb879}*{box-sizing:border-box}body{margin:0;background:#111b18;color:#eee9d9;font:16px/1.6 system-ui,-apple-system,Segoe UI,sans-serif}main{max-width:1040px;margin:auto;padding:clamp(18px,4vw,52px)}header{border-bottom:1px solid #8d765255;padding-bottom:24px;margin-bottom:28px}.eyebrow{letter-spacing:.17em;text-transform:uppercase;color:var(--gold);font-size:12px;font-weight:700}h1{font:clamp(30px,5vw,54px)/1.1 Georgia,serif;letter-spacing:-.025em;margin:8px 0}h2{font:29px Georgia,serif;margin:0 0 12px}h3{margin:6px 0;font-size:17px;color:#f3dfb9}p{margin:8px 0 16px}a{color:#ebc98d;text-underline-offset:3px}nav{display:flex;flex-wrap:wrap;gap:14px;margin-top:20px}.lead{max-width:800px;color:#e3dfd0;font-size:17px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 30px}article{border:1px solid #bfa98042;background:#20302b;border-radius:13px;padding:18px;min-width:0}article p{color:#c7d0c5;font-size:14px}.status{color:#f3d39b;font-size:12px;font-weight:800;letter-spacing:.09em}.failure{color:#f1ad96}section{margin:28px 0}.compare{display:grid;grid-template-columns:1fr 1fr;gap:14px}.compare article{background:#1c2924}.meta{color:#b7baae;font-size:13px}.data{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:560px}th,td{border-bottom:1px solid #a4b5a431;padding:11px;text-align:left}th{color:var(--gold);font-weight:600}strong{color:#f4e5c8}code{overflow-wrap:anywhere;font-size:.85em;color:#e2c897}footer{border-top:1px solid #917a5055;margin-top:38px;padding-top:20px;color:#bfc6b9;font-size:13px}@media(max-width:700px){.grid,.compare{grid-template-columns:1fr}}
 </style></head><body><main>
-<header><div class="eyebrow">Living Valley · independent experience scorecards · W93</div>
+<header><div class="eyebrow">Living Valley · independent experience scorecards · W94</div>
 <h1>Is the running game substantially better?</h1>
 <p class="lead">Technical correctness is the floor, not the finish line. The existing autonomous medieval village is being rebuilt as a believable lived-in world. No graphics, animation or commercial-quality milestone is awarded without complete real-game comparisons.</p>
 <nav aria-label="Related pages"><a href="index.html">Play Tiny Kingdom</a><a href="progress.html">Chronological Gauntlet history</a><a href="https://github.com/my-edutu/Ai_games/pull/64">Open draft PR #64</a></nav></header>
@@ -13,6 +13,26 @@
 
 
 
+
+<section id="w94" style="border-top:4px solid #d5ad68;padding-top:24px" aria-label="W94 actual runtime crash investigation and scorecards">
+<p class="eyebrow">CURRENT · W94 · 6 NOVEMBER 2026 · PHASE 1 rendering safety gate · original farmer → loaded courier → credited market → occupied home</p>
+<h2>Actual browser failure discovered; source-level startup repaired — transformation NOT PROVEN</h2>
+<p><strong>New real failure evidence:</strong> <a href="https://github.com/my-edutu/Ai_games/actions/runs/42173219539">completed failed matched A/B film job</a> and <a href="https://github.com/my-edutu/Ai_games/actions/runs/42173219539/artifacts/13525798893">its original downloadable evidence.json</a> (6 November 2026) report <code>candidate: Cannot access 'courierPostRepairCount' before initialization</code>, followed by 90-second waiting for first rendered frame. We inspected the actual artifact, not only a queued CI badge. It identifies a top-level <code>let</code> temporal-dead-zone bug in pre-W94 candidate scene initialization; V8 syntax-only tests never caught it.</p>
+<p><strong>Exact real playable-source repair:</strong> <a href="https://github.com/my-edutu/Ai_games/commit/b14be8975238f757a23da9fd1a5a8b53719cf6d6"><code>b14be8975238f757a23da9fd1a5a8b53719cf6d6</code></a>. Existing live courier-camera counters now initialize before the game's first <code>start()</code>; all authoritative jobs and economic rules, real worker 3D meshes, delivery escrow, camera decisions and replay logic remain identical. An authored source boot-order contract failed against prior source and passed after repair; full embedded game JavaScript still compiles. W94 additionally adds <a href="https://github.com/my-edutu/Ai_games/blob/feat/tiny-kingdom-post-main-gauntlet-20261031/tests/browser/tiny-kingdom-w94-first-frame.spec.cjs">actual desktop and 390px browser first-frame/camera checks</a> and a fail-fast preflight to the <a href="https://github.com/my-edutu/Ai_games/actions/workflows/tiny-kingdom-gpu-evidence.yml">GPU workflow</a>. Browser and WebGL execution of the repaired exact source remain UNVERIFIED; no false FPS, screenshot or recovered page PASS.</p>
+<div class="compare">
+<article><h3>BEFORE · pinned G088 actual gameplay</h3><p>Immutable <code>2f6deb43feb1a1557848d44def53a6109deb1ab1</code>, <a href="https://github.com/my-edutu/Ai_games/actions/runs/41301740489/artifacts/13081531738">archived real Day-1 gameplay</a>, <a href="https://github.com/my-edutu/Ai_games/actions/runs/41301740495/artifacts/13081222556">Day-120 gameplay</a>. Historic software 1.709 FPS is NOT real GPU performance.</p></article>
+<article><h3>AFTER · W94 source, NO matched footage yet</h3><p>Critical previously observed startup exception addressed in code, but no same-seed source-matched worker-hand/market inventory/occupied-home/Day-120/390px live recorded session. Cannot award a visual or gameplay milestone from syntax and source order alone.</p></article>
+</div>
+<div class="data"><table><thead><tr><th>Independent gate</th><th>Verdict</th><th>Actual evidence and next action</th></tr></thead><tbody>
+<tr><td>A LOOK</td><td>NOT PROVEN</td><td>No current running film; continue actual coherent medieval environment rebuild after boot verification</td></tr>
+<tr><td>A FEEL / 30+ documented physical FPS and 33.3ms p95</td><td>FAIL</td><td>Real desktop/mobile hardware timings still absent; historical software stalls unresolved</td></tr>
+<tr><td>A PLAY, farmer → courier → receipt → house</td><td>NOT PROVEN</td><td>Real simulation code preserved; end-to-end actual session cannot yet be examined</td></tr>
+<tr><td>Technical first frame / GL / 120-day geometry / save</td><td>FAIL</td><td>Confirmed old runtime crash; W94 source fix compiled but no repaired page, Day-120 or 390px pass</td></tr>
+<tr><td>Independent blinded visual critics</td><td>NOT PROVEN</td><td>Separate agents unavailable; no invented reviews</td></tr>
+<tr><td>B commercial Manor Lords reference</td><td>FAIL</td><td>Visual richness, architecture, citizen motion, frame delivery not comparable</td></tr>
+</tbody></table></div>
+<p><strong>Active Phase 1 next:</strong> verify W94 real startup, first 3D frame and both screen widths; obtain complete source-matched G088/W94 film, actual courier handoff and uninterrupted Day-120, CPU/driver/GPU traces, memory bounds; repair failures before the same integrated full visual rebuilding. Draft <a href="https://github.com/my-edutu/Ai_games/pull/64">PR #64</a> remains unmerged.</p>
+</section>
 
 <section id="w93" style="border-top:4px solid #d5ad68;padding-top:24px" aria-label="W93 active independent experience scorecard">
 <p class="eyebrow">CURRENT · W93 · 6 November 2026 · SAME Phase 1 · farmer → loaded courier → credited market → inhabited cottage</p>
