@@ -906,6 +906,35 @@ const CAMERA_DYNAMIC_FLOAT_BUDGET=960000;
 let cameraDynamicCache=null,cameraDynamicKey='',cameraDynamicBuilds=0,
  cameraDynamicReuses=0,cameraDynamicSkippedUploads=0;
 let liveMotionCacheBuilds=0,liveMotionCacheReuses=0;
+// W93: complete REAL citizens have their own WebGL vertex stream, separate
+// from actual worksite/economy props. Never change their pose or save data.
+const ACTOR_GPU_RING_SLOTS=3;
+let actorStreamSplitEnabled=true,actorDynamicVertexScratch=[],
+ actorFrameData=[],cameraActorCache=null,actorFrameCitizens=0;
+const actorFrameGpuBuffers=[null,null,null],actorFrameStorage=[0,0,0];
+let actorGpuStaging=null,actorGpuCapacityFloats=0,
+ actorGpuAllocations=0,actorGpuUploads=0,actorGpuDrawCalls=0;
+function setActorStreamSplitForTesting(enabled){
+ if(enabled!==true&&enabled!==false)throw Error('Invalid W93 actor stream mode');
+ actorStreamSplitEnabled=enabled;
+ cameraDynamicCache=null;cameraActorCache=null;cameraDynamicKey='';
+ lastFrozenFrameKey=null;presentationEpoch++;
+}
+function getActorResidencyAudit(){
+ return {source:'complete-real-citizen-independent-webgl-stream',
+  enabled:gpuAvailable&&actorStreamSplitEnabled,
+  actorFloats:actorStreamSplitEnabled&&gpuAvailable?actorFrameData.length:0,
+  worldFloats:data.length,totalFloats:data.length+
+   (actorStreamSplitEnabled&&gpuAvailable?actorFrameData.length:0),
+  floatBudget:CAMERA_DYNAMIC_FLOAT_BUDGET,cachedActors:actorFrameCitizens,
+  bufferCount:actorFrameGpuBuffers.filter(Boolean).length,
+  maxBufferCount:ACTOR_GPU_RING_SLOTS,
+  capacityFloats:actorFrameStorage.slice(),
+  totalCapacityFloats:actorFrameStorage.reduce((a,b)=>a+b,0),
+  allocations:actorGpuAllocations,uploads:actorGpuUploads,
+  drawCalls:actorGpuDrawCalls,authorityModified:false,
+  note:'GPU FPS and visual parity require actual browser evidence'};
+}
 // W69: one reusable WebGL numeric vertex stream for the entire REAL moving
 // village. The former path allocated another ~0.8–1M-element JS Array on
 // almost every simulation step, then promoted it into a GPU staging buffer.
@@ -928,7 +957,7 @@ function acquireDynamicVertexStream(){
 function finishDynamicVertexStream(){
  if(!gpuAvailable||data!==dynamicVertexScratch)return;
  dynamicVertexPeakFloats=Math.max(dynamicVertexPeakFloats,data.length);
- if(data.length>CAMERA_DYNAMIC_FLOAT_BUDGET){
+ if(data.length+actorFrameData.length>CAMERA_DYNAMIC_FLOAT_BUDGET){
   // Do not retain a pathological world beyond the existing cache budget.
   // The CURRENT geometry still renders; only the next frame reallocates.
   dynamicVertexScratch=null;
@@ -939,8 +968,8 @@ function getDynamicVertexPoolAudit(){
  return {
   kind:'bounded-reusable-world-vertices',allocations:dynamicVertexPoolAllocations,
   reusedBuilds:dynamicVertexPoolReusedBuilds,
-  maxLiveArrays:dynamicVertexScratch?1:0,
-  currentFloats:dynamicVertexScratch?.length||0,
+  maxLiveArrays:dynamicVertexScratch?(gpuAvailable&&actorStreamSplitEnabled?2:1):0,
+  currentFloats:(dynamicVertexScratch?.length||0)+(gpuAvailable&&actorStreamSplitEnabled?actorFrameData.length:0),
   peakFloats:dynamicVertexPeakFloats,
   budgetFloats:CAMERA_DYNAMIC_FLOAT_BUDGET,
   overBudgetReleases:dynamicVertexOverBudgetReleases,
@@ -950,8 +979,8 @@ function getDynamicVertexPoolAudit(){
 }
 function getCameraDynamicCacheStats(){
  return {entries:cameraDynamicCache?1:0,
-  cachedFloats:cameraDynamicCache?.length||0,
-  estimatedBytes:(cameraDynamicCache?.length||0)*8,
+  cachedFloats:(cameraDynamicCache?.length||0)+(cameraActorCache?.length||0),
+  estimatedBytes:((cameraDynamicCache?.length||0)+(cameraActorCache?.length||0))*8,
   floatBudget:CAMERA_DYNAMIC_FLOAT_BUDGET,
   builds:cameraDynamicBuilds,reuses:cameraDynamicReuses,
   liveBuilds:liveMotionCacheBuilds,liveReuses:liveMotionCacheReuses,
@@ -2667,6 +2696,13 @@ function geometryAudit(){
   fixed.aligned=fixed.aligned&&resident.aligned;
  }
  const animated=inspectMeshGeometry(data);
+ // Every authentic actor stays in the total scene integrity/triangle audit.
+ if(gpuAvailable&&actorStreamSplitEnabled&&actorFrameData.length){
+  const actors=inspectMeshGeometry(actorFrameData);
+  for(const key of ['floats','vertices','triangles','invalidComponents',
+   'invalidNormals','invalidColors','outOfBounds'])animated[key]+=actors[key];
+  animated.aligned=animated.aligned&&actors.aligned;
+ }
  if(gpuAvailable&&worksiteFixtureActive&&worksiteFixtureMesh){
   const fixtures=inspectMeshGeometry(worksiteFixtureMesh);
   for(const key of ['floats','vertices','triangles','invalidComponents',
@@ -2701,7 +2737,9 @@ function materialSwatchAudit(){
   {general:0,stone:0,roof:0,plaster:0,total:0}]));
  // Canvas2D fallback holds the static mesh inside data, whereas WebGL keeps
  // static and dynamic buffers separate; never count static triangles twice.
- const meshes=gpuAvailable?[landscapeMeshCache||[],activeCivicMesh(),scenicMeshCache||[],data,...(economyResidentActive&&economyResidentMesh?[economyResidentMesh]:[])]:[data];
+ const meshes=gpuAvailable?[landscapeMeshCache||[],activeCivicMesh(),scenicMeshCache||[],
+ data,...(actorStreamSplitEnabled?[actorFrameData]:[]),
+ ...(economyResidentActive&&economyResidentMesh?[economyResidentMesh]:[])]:[data];
  for(const mesh of meshes)for(let i=0;i<mesh.length;i+=30){
   const rgbHex=(Math.round(mesh[i+6]*255)<<16)|
    (Math.round(mesh[i+7]*255)<<8)|Math.round(mesh[i+8]*255);
@@ -14285,6 +14323,8 @@ const cameraMeshReused=Boolean(candidateCameraDynamicKey&&
  cameraDynamicCache&&candidateCameraDynamicKey===cameraDynamicKey);
 if(cameraMeshReused){
  data=cameraDynamicCache;
+ actorFrameData=cameraActorCache||[];
+ actorFrameCitizens=people.length;
  cameraDynamicReuses++;
  if(!frozen&&speed>0)liveMotionCacheReuses++;
 }else{
@@ -14357,20 +14397,34 @@ villageVisualLod.compactFacingCount=0;villageVisualLod.compactTurnedCitizens=0;v
  villageClothStats={compactResidents:0,detailedResidents:0,compactHemPanels:0,
   workAprons:0,geometryTriangles:0,roles:new Set()};
 const citizenGeometryStart=performance.now();
+// Keep genuine person, gait, tool, loaded cart and physical hand generation
+// EXACTLY as before. Only change which GPU buffer owns those same triangles.
+const worldPropsStream=data;
+if(gpuAvailable&&actorStreamSplitEnabled){
+ actorDynamicVertexScratch.length=0;
+ data=actorDynamicVertexScratch;
+}
 for(let i=0;i<people.length;i++){
  if(nearPeople.has(i)){villager(people[i]);villageVisualLod.detailedCitizens++}
  else{compactVillager(people[i]);villageVisualLod.compactCitizens++}
 }
+actorFrameCitizens=people.length;
+if(gpuAvailable&&actorStreamSplitEnabled){
+ actorFrameData=data;
+ data=worldPropsStream;
+}else actorFrameData=[];
 dynamicPhaseTimes.citizenGeometry=performance.now()-citizenGeometryStart;
 const weatherGeometryStart=performance.now();
 currentMaterial=MATERIAL.GENERAL;if(!gpuAvailable)weatherParticles(atmosphere);
 dynamicPhaseTimes.weatherGeometry=performance.now()-weatherGeometryStart;
 finishDynamicVertexStream();
-if(candidateCameraDynamicKey&&data.length<=CAMERA_DYNAMIC_FLOAT_BUDGET){
- cameraDynamicCache=data;cameraDynamicKey=candidateCameraDynamicKey;
+if(candidateCameraDynamicKey&&
+ data.length+actorFrameData.length<=CAMERA_DYNAMIC_FLOAT_BUDGET){
+ cameraDynamicCache=data;cameraActorCache=actorFrameData;
+ cameraDynamicKey=candidateCameraDynamicKey;
  cameraDynamicBuilds++;
 }else{
- cameraDynamicCache=null;cameraDynamicKey='';
+ cameraDynamicCache=null;cameraActorCache=null;cameraDynamicKey='';
 }
 } // End uncached animation and occupation-geometry generation.
 const frameSubmitStart=performance.now();
@@ -14410,6 +14464,7 @@ if(gpuAvailable){
 }
 lastFrameTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.length+
  activeCivicMesh().length+homeClusterFloats()+data.length+
+  (gpuAvailable&&actorStreamSplitEnabled?actorFrameData.length:0)+
  (economyResidentActive?economyResidentMesh?.length||0:0)+
  (recordedWorkActive?recordedWorkMesh?.length||0:0)+
  (worksiteFixtureActive?worksiteFixtureMesh?.length||0:0)+
@@ -14493,6 +14548,36 @@ if(gpuAvailable){
 }
 dynamicPhaseTimes.gpuUpload=performance.now()-gpuUploadStart;
 gl.drawArrays(gl.TRIANGLES,0,data.length/10);
+// The genuine actor rig now has an independent bounded 3-slot GPU ring.
+// Both original render paths are testable, same materials and world positions.
+if(gpuAvailable&&actorStreamSplitEnabled&&actorFrameData.length){
+ const slot=swiftGpu?0:dynamicFrameActive;
+ if(!actorFrameGpuBuffers[slot]){
+  actorFrameGpuBuffers[slot]=gl.createBuffer();
+  if(!actorFrameGpuBuffers[slot])
+   throw Error('W93 unable to allocate authentic actor GPU stream');
+ }
+ bindGeometry(actorFrameGpuBuffers[slot]);
+ if(!cameraMeshReused){
+  const required=Math.ceil(actorFrameData.length/65536)*65536;
+  if(required>actorFrameStorage[slot]){
+   actorFrameStorage[slot]=required;
+   gl.bufferData(gl.ARRAY_BUFFER,required*Float32Array.BYTES_PER_ELEMENT,
+    gl.DYNAMIC_DRAW);
+   actorGpuAllocations++;
+  }
+  if(required>actorGpuCapacityFloats){
+   actorGpuCapacityFloats=required;
+   actorGpuStaging=new Float32Array(required);
+  }
+  actorGpuStaging.set(actorFrameData,0);
+  gl.bufferSubData(gl.ARRAY_BUFFER,0,
+   actorGpuStaging.subarray(0,actorFrameData.length));
+  actorGpuUploads++;
+ }
+ gl.drawArrays(gl.TRIANGLES,0,actorFrameData.length/10);
+ actorGpuDrawCalls++;
+}
  if(gpuAvailable)drawResidentWeather(atmosphere);
  endGpuFrameTimer(frameGpuQuery);refreshPickedCitizenCaption();if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal();updateWorldRibbon()}
  // These are synchronous CPU wall phases and may include WebGL driver stalls;
@@ -14542,6 +14627,7 @@ getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
 renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
  getWorksiteFixtureResidencyAudit,setWorksiteFixtureResidencyForTesting,
+ getActorResidencyAudit,setActorStreamSplitForTesting,
  setStaticBatchBridgingForTesting,getScenicMultiDrawAudit,setScenicMultiDrawForTesting,getCourierPostCameraAudit,evaluateCourierPostRepairPolicy,getDaybreakReturnAudit,getCameraDynamicCacheStats,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
  if(streetWalk)setStreetWalk(false);
 if(follow)setCitizenFollow(false);cinematic=false;document.getElementById('camera').classList.remove('active');
