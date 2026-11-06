@@ -12,7 +12,19 @@ export function applyTowerAction(input:TowerState,actionInput:Partial<TowerActio
   if(state.pendingUpgradeOffers.length){const offer=state.pendingUpgradeOffers.find(x=>x.id===action.upgradeChoice);if(!offer)return{state,events,accepted:false,reason:'upgrade-choice-required'};const applied=applyTowerUpgrade(state,offer);if(!applied.applied)return{state,events,accepted:false,reason:applied.reason};state=applied.state;events.push({tick:state.tick,type:'upgrade-applied',data:{id:offer.id,family:offer.family}});action={move:0,jump:false,dash:false,attack:false,ability:false}}
   const physics=stepTowerPhysics(state,action);state=physics.state;if(physics.integrityFailure){state=makeTowerTerminal(state,'integrity-quarantine','technical');events.push({tick:state.tick,type:'technical-terminal',data:{reason:physics.integrityFailure}});return{state,events,accepted:true}}
   const combat=stepTowerCombat(state,action,rng);state=combat.state;events.push(...combat.events);for(const contact of physics.contacts){events.push({tick:state.tick,type:`contact-${contact.kind}`,data:{entityId:contact.entityId}});if(contact.kind==='hazard')damageFromHazard(state,contact.entityId,events)}state.tick++;
-  const current=state.chunks.find(c=>c.floor===state.floor)??state.chunks[state.chunks.length-1];if(state.player.health<=0){state=makeTowerTerminal(state,'health-depleted');events.push({tick:state.tick,type:'game-terminal',data:{reason:'health-depleted'}})}else if(state.player.position.y<current.baseY-state.config.killDepth){state.stats.falls++;state=makeTowerTerminal(state,'fall');events.push({tick:state.tick,type:'game-terminal',data:{reason:'fall'}})}else if(state.player.position.y>=current.exitY){const guardianAlive=state.enemies.some(e=>e.active&&e.floor===state.floor&&e.kind==='guardian');
+  const current=state.chunks.find(c=>c.floor===state.floor)??state.chunks[state.chunks.length-1];if(state.player.health<=0){state=makeTowerTerminal(state,'health-depleted');events.push({tick:state.tick,type:'game-terminal',data:{reason:'health-depleted'}})}else if(state.player.position.y<current.baseY-state.config.killDepth){state.stats.falls++;state=makeTowerTerminal(state,'fall');events.push({tick:state.tick,type:'game-terminal',data:{reason:'fall'}})}else if(state.player.position.y>=current.exitY ||
+  // A legal short climber can stand on the REAL cap and clear its doorway
+  // with its center below exitY (cap top is ceiling-16k, exitY ceiling-8k).
+  // Only opt-in physically supported, genuinely defeated guardian runs may
+  // evaluate that horizontal exit; the existing clearance and grounded
+  // checks below still govern whether floor nine is actually earned.
+  (state.config.guardianArenaHazards===true &&
+    state.config.guardianSecondWind===true && current.guardian &&
+    state.player.grounded &&
+    state.player.groundedPlatformId===`f${state.floor}:cap` &&
+    current.platforms.some(p=>p.id===state.player.groundedPlatformId) &&
+    state.enemies.some(e=>e.floor===state.floor &&
+      e.kind==='guardian'&&!e.active&&e.health<=0))){const guardianAlive=state.enemies.some(e=>e.active&&e.floor===state.floor&&e.kind==='guardian');
   const cap=current.platforms.find(p=>p.id===`f${state.floor}:cap`);
   const physicalPassage=state.config.guardianArenaHazards===true&&
     state.config.guardianSecondWind===true&&current.guardian&&cap!==undefined;
