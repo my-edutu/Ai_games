@@ -1,3 +1,5 @@
+import { sculptRuinedGateway } from './world.mjs';
+
 const normalize = v => {
   const length = Math.hypot(v.x, v.y, v.z);
   return { x: v.x / length, y: v.y / length, z: v.z / length };
@@ -145,7 +147,14 @@ export function cameraComposition({ width, height, aspect, mode = 'overview', he
         for (const y of [-2.2, 0.7]) bounds.push({ x, y: y - target.y, z });
       }
     }
-    // The authored trees and arch stand behind the board, not at its front corners.
+    // Real full-scene composition: include the now genuinely board-scaled
+    // original 3D gateway and its piers in the safe board overview. No camera
+    // cut or cropped foliage masquerades as a better world; the entire true
+    // playable grid remains visible on both wide and 390px portrait output.
+    const gateway = sculptRuinedGateway(width, height);
+    bounds.push({ x: gateway.centre, y: gateway.apexY + .50 - target.y, z: gateway.z });
+    for (const pier of gateway.columns)
+      bounds.push({ x: pier.x, y: pier.height + .75 - target.y, z: gateway.z });
     for (const x of [-width * 0.46, width * 0.46]) bounds.push({ x, y: 5.5 - target.y, z: -height / 2 - 2.1 });
     for (const point of bounds) distance = Math.max(distance, dot(point, outward) + Math.max(Math.abs(dot(point, right)) / (tan * aspect), Math.abs(dot(point, up)) / tan));
     distance *= 1.04;

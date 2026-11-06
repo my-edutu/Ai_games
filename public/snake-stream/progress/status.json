@@ -1,10 +1,18 @@
 {
   "updatedAt": "2026-11-06",
-  "status": "T1 BUILDING / connected four-shore island + curved ruins + all flora in source-exact candidate; 118d strict 14/17 HARD RED; 62/95 browser, 686/722 native; DRAFT only",
-  "detail": "Completed 118d source-exact Chromium #42138784396: strict 14/17 genuine full desktop WebGL in 1004.8ms at 751x415 actual buffer, 61 RAF not draws, 248 GPU queue skips. 62/95 Chromium; current 118d native #42138784540 686/722 36 red. Authentic 1920 self-reviewed and REJECTED: obvious central rectangular court, pale bank marks and small hero, rich outer forest. Exact 118d descendant candidate f5433eb2 (world blob 9524a2de) physically connects four shores/seven headlands, curved rear/front ruins and all existing flowers/ferns and 58 ivy groups, preserves original 13 static world batches, 33 draw objects, 4 textures and all gameplay. Reproduced from exact source artifact with candidate blob overlays: TypeScript PASS, 11/11 proportional native, focused 3/3 and 900-tick privacy/recovery PASS. No new candidate authentic Chromium before/after, 55s film, strict >=17, physical device FPS/p95, full CI, 40+ body soak or independent critic. T0 unsigned, T1 BUILDING, T2/T3 unaccepted, T4 HARD RED. Never merge/deploy.",
+  "status": "T1 BUILDING / original continuous coastal island + native scaled rear gateway and safe camera candidate; last real older-head 14/17 strict WebGL HARD RED; no current-head browser acceptance; DRAFT",
+  "detail": "November 6 exact open DRAFT parent 0aece92a native structural world+camera T1 candidate: original 2 piers, 11 real stones and 7 planted arch groups rebuilt to responsive 4.4-11.4 unit arch behind all playable boards, honest original 16:9 and portrait overview camera bounds. Exact parent RED 0/1 -> candidate GREEN 1/1, selected 17/17, TS build PASS, real 900 tick restart/recovery/privacy PASS. Existing world instance count, 13 batches, four textures and public game authority unchanged. Last completed true WebGL older-head 118d strict 14/17 at actual 751x415, browser 62/95, native CI 686/722; full game previous-head visually SELF-REJECTED. Live 0ae had no same-head Actions yet; candidate real Chromium blocked by ERR_BLOCKED_BY_ADMINISTRATOR and no genuine full-head 1920/detail/portrait or 55s video, strict gate, device presents, full CI, soak or independent critic. T0 unsigned; T1 BUILDING, T2/T3 unaccepted, T4 HARD RED. Never merge/deploy.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Last completed authentic 118d full-scene overview SELF-REJECTED; original strict 14/17 real complete WebGL submissions, current T1 connected-coast candidate visual verdict pending.",
+  "latestCaption": "Last completed genuine 118d overview was SELF-REJECTED; current 0ae gateway/camera candidate native checks pass but whole-game Chromium visual verdict and strict >=17 gate PENDING.",
   "reviews": [
+    {
+      "area": "November 6 T1 responsive 3D stone gateway and whole-scene overview (live 0ae descendant)",
+      "sourceHead": "0aece92a9517c2ad2510f642b8ff5cb6fb49a1fb",
+      "candidateWorldBlob": "baf756e485d0d02353533996cae205acdab861f9",
+      "candidateCameraBlob": "a91f976df606c72b0d2fa051b919454d868c03c7",
+      "verdict": "Candidate native strict geometry/camera RED exact parent -> GREEN 1/1, related 17/17, TypeScript and real 900-tick authority PASS. Genuine same-candidate Chromium/visual and independent review NOT DONE.",
+      "gap": "Current-head Actions absent; local Chromium ERR_BLOCKED_BY_ADMINISTRATOR. Last genuine older-head full-scene 14/17 <17 hard RED and 62/95 browser; 0ae+candidate full-frame acceptance, device present FPS/p95, long 40+ soak, fresh independent critic pending. T1 BUILDING; open draft only."
+    },
     {
       "area": "Nov 6 complete exact-head 118d WebGL review and integrated four-shore coastal island candidate",
       "sourceHead": "118d55990a80b3d89caad901081943a0dc53a8f7",

@@ -195,6 +195,42 @@ export function stageHeadlandAnchors(width, height) {
   ];
 }
 
+/**
+ * T1 full-world stone landmark: one responsive ruined gateway gives all real
+ * garden sizes a coherent background focal point, rather than the same narrow
+ * six-unit arch floating beside a 40-cell board. Exact original TWO piers,
+ * ELEVEN stones and SEVEN planted groups; the existing materials/batches,
+ * shadow atlas, forest, public grid and AI authority are untouched.
+ * The arch is behind the playable north shore, including its stone radius.
+ */
+export function sculptRuinedGateway(width, height) {
+  if (!Number.isInteger(width) || !Number.isInteger(height) || width < 2 || height < 2)
+    throw new RangeError('Gateway requires a real positive integer board');
+  const span=Math.max(4.4,Math.min(11.4,width*.38));
+  const centre=-.34,half=span/2,z=-height/2-2.05;
+  const heightOfColumn=2.7+Math.min(1.3,Math.sqrt(width)*.23);
+  const rise=1.35+span*.105;
+  const apexY=heightOfColumn+.18+rise;
+  const columns=[{x:centre-half,z,height:heightOfColumn,lean:.006},
+    {x:centre+half,z,height:heightOfColumn,lean:-.008}];
+  const arch=Array.from({length:11},(_,j)=>{
+    const a=Math.PI*j/10;
+    // Uneven limestone joints break the ideal mathematical semicircle without
+    // removing any stone or leaving disconnected decorative masonry.
+    const grit=.065*Math.sin(a*3.1)*Math.sin(a*2);
+    return {x:centre+Math.cos(a)*half,y:heightOfColumn+.18+Math.sin(a)*rise+grit,
+      z,sx:Math.max(.40,span*.086),sy:.56+.055*Math.sin(a),sz:1.09,
+      rz:a-Math.PI/2+.025*Math.sin(a*4.5)};
+  });
+  const plantings=Array.from({length:7},(_,j)=>{
+    const a=.2+(Math.PI-.4)*j/6;
+    return {x:centre+Math.cos(a)*half*.96,
+      y:heightOfColumn+.18+Math.sin(a)*rise+.36,
+      z,scale:.36+.04*Math.sin(a)};
+  });
+  return {centre,z,span,columns,arch,plantings,apexY};
+}
+
 /** Original procedural verdant-ruins diorama. No simulation state is retained or changed. */
 /**
  * T1 - authentic original continuous eroded island strata, beneath the unchanged
@@ -1159,22 +1195,28 @@ export function createWorld(THREE, {width, height}) {
     markCameraOccluder(x+lean,1.25,z,1.05);
     markCameraOccluder(x+h/.56*lean,h+.43,z,.87);
     add(cube,stone,x,.13,z,1.7,.42,1.65);
-    for(let j=0;j<Math.ceil(h/.57);j++)add(cube,j%3?stone:darkStone,x+j*lean,.5+j*.56,z,1.05+(j%2)*.07,.54,1.05,0,j%2*.035,lean);
+    const courses=h<2.5?4:6; // exact original 6+6+4 complete masonry units
+    const courseRise=(h-.45)/(courses-1);
+    for(let j=0;j<courses;j++)add(cube,j%3?stone:darkStone,
+      x+j*lean,.5+j*courseRise,z,1.05+(j%2)*.07,courseRise+.055,1.05,
+      0,j%2*.035,lean);
     add(cube,stone,x+h/.56*lean,h+.43,z,1.48,.32,1.43);
     add(cube,moss,x+h/.56*lean,h+.62,z,1.42,.1,1.36);
     // Recessed relief plaques and small metallic insets.
     add(cube,darkStone,x,h*.52,z+.544,.53,.78,.035);add(ring,gold,x,h*.52,z+.58,.55,.55,.55,0,0,0);
     for(let p=0;p<8;p++)add(leaf,leafDark,x+.42*Math.sin(p),h+.65-p*.24,z+.69,.5,.65,.6,2.8,0,Math.sin(p)*.6);
   }
-  const rz=-H-2.05;
-  column(-4.8,rz,3.05,.006);column(1.4,rz,3.05,-.008);
-  // A real voussoir arch, with a broken upper silhouette rather than a flat lintel.
-  for(let j=0;j<11;j++){
-    const a=Math.PI*j/10,x=-1.7+Math.cos(a)*3.1,y=3.2+Math.sin(a)*1.62;
-    add(cube,stone,x,y,rz,.88,.67,1.05,0,0,a-Math.PI/2);
-    markCameraOccluder(x,y,rz,.65);
+  // The original landmark is now art-directed as one grounded, scaled
+  // stone gateway with planted coping, not fixed-width pieces on all maps.
+  const gateway=sculptRuinedGateway(width,height);
+  for(const pier of gateway.columns)column(pier.x,pier.z,pier.height,pier.lean);
+  for(const archStone of gateway.arch){
+    add(cube,stone,archStone.x,archStone.y,archStone.z,
+      archStone.sx,archStone.sy,archStone.sz,0,0,archStone.rz);
+    markCameraOccluder(archStone.x,archStone.y,archStone.z,.65);
   }
-  for(let j=0;j<7;j++)rosette(-4.3+j*.83,3.7+Math.sin(j/6*Math.PI)*1.1,rz,.37);
+  for(const planting of gateway.plantings)
+    rosette(planting.x,planting.y,planting.z,planting.scale);
   column(W+1.7,-H+.5,2.1,.05);
   add(cube,stone,-W-1.8,-.2,H-1.7,1.6,.67,2.1,0,.25,.1);
   add(cube,stone,-W-1.9,.2,H-1.9,.9,.45,1.3,0,.4,-.1);
