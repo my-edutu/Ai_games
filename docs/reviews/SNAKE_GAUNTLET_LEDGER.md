@@ -1,3 +1,10 @@
+## November 6 — source-native full-width limestone/bedrock causeway and front frieze, staged off-branch
+
+Source parent: unreferenced cae04826 based on still-open DRAFT PR #52 live head 118d5599; source-head browser 42138784396, CI 42138784540, offline reproduction 42138784592 QUEUED, so NO BRANCH UPDATE. New world exports sculptRearCauseway and sculptFrontFrieze position every original existing rear two-layer stone and front stone/ring/brass ruin instance on a physically winding tidal terrace OUTSIDE playable cells. Keeps original procedural geology, seven woodland headlands, every original asset, seed/RNG calls and 13 static batches/33 draw objects/4 textures/4045-7390-8661 instances; no dynamic new meshes/collider/hazard/portal/path changes.
+
+New test RED 0/1 on immutable parent, GREEN 1/1; previously staged coast 4/4, additional native 12/15 with all 3 archival RED also present on unchanged 118d; TypeScript and 900-tick headless authority/restart/recovery/privacy PASS. Chromium 144 navigation to localhost blocked by administrator (not bypassed); no matching WebGL screenshot/video, original true rendered frames, physical-device p95 or independent comparison. Prior strict full-scene genuine desktop 7/17, T4 HARD RED. T0 UNSIGNED, T1 BUILDING/whole-scene quality acceptance pending, T2/T3 UNACCEPTED. Do not advance branch while CI collects, merge, deploy, force or claim complete.
+
+---
 ## November 6 — native continuous island-and-ruins geometry staged, whole-game T1 STILL BUILDING
 
 - Live GitHub **open draft PR #52 HEAD** `118d55990a80b3d89caad901081943a0dc53a8f7` remains unchanged while same-head [Chromium #42138784396](https://github.com/my-edutu/Ai_games/actions/runs/42138784396), [native CI #42138784540](https://github.com/my-edutu/Ai_games/actions/runs/42138784540), and offline bundle #42138784592 were **QUEUED** at inspection. This stage is **unreferenced and NOT branch-integrated** to avoid cancelling genuine evidence.

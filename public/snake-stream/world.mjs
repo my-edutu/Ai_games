@@ -350,6 +350,54 @@ export function sculptCoastCourse(width, height, edge, tier, along) {
   };
 }
 
+/**
+ * Original T1 rear-causeway terrace: the EXISTING two limestone/bedrock
+ * courses bend around a single broad shore rather than drawing ruler-straight
+ * rails behind the arch. Each returned instance replaces one original cube,
+ * so the whole authored ruin is retained in the SAME static material batches.
+ * Heights stay well below gameplay, the stone arch and public hazard cues.
+ */
+export function sculptRearCauseway(width,height,along,layer) {
+  if (![width,height,along].every(Number.isFinite) || width<2 || height<2
+      || (layer!=='limestone' && layer!=='bedrock'))
+    throw new RangeError('Rear causeway needs bounded board and stone layer');
+  const W=width/2,H=height/2,u=(along+W)/width;
+  const bay=Math.sin(u*12.1+.42*Math.sin(u*5.3)+.38);
+  const tidal=.50*Math.sin(u*8.4-.31)+.24*Math.sin(u*19.2+.86);
+  const wave=.63*bay+.37*tidal;
+  const oldRuin=.5+.5*Math.sin(u*23.4+layer.length*.21);
+  const low=layer==='bedrock';
+  return {
+    x:along+.12*Math.sin(u*15.3+.6),
+    y:(low?-1.50:-.60)+.16*wave+(low?.045:-.026)*oldRuin,
+    z:-H-4.3+(low?.15:0)+.78*wave+.13*oldRuin,
+    sx:1.7*(.93+.09*oldRuin),
+    sy:(low?.92:.75)*(.95+.09*oldRuin),
+    sz:(low?.8:.7)*(.90+.13*(1-oldRuin)),
+    ry:.13*wave,
+    rz:.065*Math.sin(u*10.1+.9),
+  };
+}
+
+/**
+ * Front ruins inherit the original ring-and-plaque count but follow a gentle
+ * exposed sandstone tidal shelf. The group is always OUTSIDE the playable
+ * floor: no simulated route, hazard, portal, snake or cue is repositioned.
+ */
+export function sculptFrontFrieze(width,height,along) {
+  if (![width,height,along].every(Number.isFinite) || width<2 || height<2)
+    throw new RangeError('Front frieze requires genuine board dimensions');
+  const u=(along+width/2)/width;
+  const inlet=Math.sin(u*10.7+.48*Math.sin(u*4.8));
+  const rough=.5+.5*Math.sin(u*19.1-.2);
+  return {
+    x:along+.08*Math.sin(u*13.7),
+    y:-1.48+.095*inlet+.042*rough,
+    z:height/2+1.53+.25*inlet+.08*rough,
+    ry:.07*Math.cos(u*10.7+.48*Math.sin(u*4.8)),
+  };
+}
+
 /** A worn safe exterior coping: board corners remain legible, rail is no longer uniform. */
 export function sculptCopeStone(width, height, edge, along) {
   const W = width / 2, H = height / 2, horizontal = edge < 2;
@@ -979,9 +1027,16 @@ export function createWorld(THREE, {width, height}) {
   // behind the grid and beneath the existing real arch and forest roots.
   add(rock,cliff,-W*.25,-1.45,-H-3.1,width*.36,1.5,2.4,0,.23,-.09);
   add(rock,moss,W*.22,-.62,-H-3.05,width*.41,.65,2.3,0,-.19,.08);
+  // Original complete rear ruin remains, but its two real 3D stone/bedrock
+  // strata now curve behind the arch as a living coastal causeway. Still two
+  // cubes per prior placement and the same two seeded jitter samples.
   for(let x=-W;x<=W;x+=1.8) {
-    add(cube,stone,x,-.6,-H-4.3,1.7,.75,.7,0,(random()-.5)*.05,0);
-    add(cube,cliff,x,-1.5,-H-4.15,1.7,.92,.8,0,(random()-.5)*.04,0);
+    const upper=sculptRearCauseway(width,height,x,'limestone');
+    const lower=sculptRearCauseway(width,height,x,'bedrock');
+    add(cube,stone,upper.x,upper.y,upper.z,upper.sx,upper.sy,upper.sz,
+      0,upper.ry+(random()-.5)*.05,upper.rz);
+    add(cube,cliff,lower.x,lower.y,lower.z,lower.sx,lower.sy,lower.sz,
+      0,lower.ry+(random()-.5)*.04,lower.rz);
   }
   // The old continuous rectangular masonry courses also overpainted the
   // native organic cliff. Keep their entire original stone count/materials,
@@ -1005,9 +1060,12 @@ export function createWorld(THREE, {width, height}) {
   }
   // An eroded ornamental frieze rewards closer views of the island's front.
   for(let x=-W+1;x<W;x+=2.6){
-    add(cube,darkStone,x,-1.48,H+1.53,.65,.63,.045);
-    add(ring,stone,x,-1.48,H+1.57,.58,.58,.35,0,0,Math.PI/4);
-    add(cube,gold,x,-1.48,H+1.6,.08,.23,.04,0,0,.65);
+    const frieze=sculptFrontFrieze(width,height,x);
+    // Keep every original carved ring and brass plaque attached to its stone
+    // rather than splintering the original decorative motif while meandering.
+    add(cube,darkStone,frieze.x,frieze.y,frieze.z,.65,.63,.045,0,frieze.ry,0);
+    add(ring,stone,frieze.x,frieze.y,frieze.z+.04,.58,.58,.35,0,frieze.ry,Math.PI/4);
+    add(cube,gold,frieze.x,frieze.y,frieze.z+.07,.08,.23,.04,0,frieze.ry,.65);
   }
   // Preserve the same one-stone-per-cell visual board boundary, with a
   // battered coastal contour instead of four brilliant straight parallel bars.
