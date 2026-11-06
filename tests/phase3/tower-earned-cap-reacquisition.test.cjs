@@ -215,3 +215,74 @@ test('guardian cap route refuses invented edges and preserves historical policy'
   const legacy=choose(state);
   assert.doesNotMatch(legacy.intent.summary,/Rebuilding the physical ascent route/);
 });
+
+test('an imminent upper crusher cannot lure the falling post-victory climber away from a lower clear return shelf',()=>{
+  const {state,cap}=episode();
+  const upper=state.chunks[0].platforms.find(p=>p.id==='f8:p6');
+  const lower=state.chunks[0].platforms.find(p=>p.id==='f8:p5');
+  assert.ok(upper&&lower);
+  // Keep a real upward return edge while making the lower shelf physically
+  // interceptable in the same observed air corridor. Source physics still
+  // decides both the initial landing and the subsequent jumps.
+  lower.x=upper.x;lower.width=upper.width;
+  const upperTop=upper.y+upper.height;
+  state.chunks[0].hazards.push({
+    id:'f8:rescue-shutter',kind:'crusher',x:upper.x,
+    y:upperTop,width:upper.width,height:12000,
+    activeFromTick:state.tick+2,activeEvery:72,activeFor:9,damage:1
+  });
+  state.player.position={x:upper.x+Math.floor(upper.width/2),
+    y:cap.y+cap.height-6000+state.player.halfHeight};
+  state.player.velocity={x:0,y:-5000};
+  state.player.grounded=false;
+  state.player.groundedPlatformId=undefined;
+  state.player.jumpCharges=0;
+  const observation=createTowerObservation(state,{includeHazardWindup:true});
+  const jaw=observation.hazards.find(h=>h.id==='f8:rescue-shutter');
+  assert.ok(jaw&&!jaw.active&&jaw.chargeTicksRemaining>0&&jaw.chargeTicksRemaining<=6,
+    'real source-published crusher countdown must be imminent, not future knowledge');
+  assert.ok(nextTowerEarnedCapHop(observation,state.config,lower.id,cap.id),
+    'the lower alternate must still lead back to the authentic guardian cap');
+  const before=JSON.stringify(state.player),decision=chooseTowerAction(state,observation,{tactical:true});
+  assert.equal(decision.intent.targetPlatformId,lower.id,
+    'visible imminent jaw consumes the entire upper landing, so a reachable clear lower shelf wins');
+  assert.match(decision.intent.summary,/clear return lane|clear physical return deck/);
+  assert.equal(decision.action.jump,false);
+  assert.equal(decision.action.dash,false);
+  assert.equal(decision.action.attack,false);
+  assert.equal(decision.action.ability,false);
+  assert.equal(JSON.stringify(state.player),before,
+    'policy only asks for ordinary source air control and never teleports');
+  const next=stepTowerPhysics(state,decision.action).state;
+  assert.ok(next.player.position.y<state.player.position.y,
+    'the actual 20Hz source physics still owns descent');
+});
+
+test('when every reachable return shelf has no observed clear lane, the pilot reports risk rather than inventing safe touchdown',()=>{
+  const {state,cap}=episode();
+  const shelves=state.chunks[0].platforms.filter(p=>p.id!==cap.id);
+  state.player.position={x:cap.x+Math.floor(cap.width/2),
+    y:cap.y+cap.height-6000+state.player.halfHeight};
+  state.player.velocity={x:0,y:-5000};
+  state.player.grounded=false;state.player.groundedPlatformId=undefined;
+  state.player.jumpCharges=0;
+  // A wide active body would preempt the emergency policy before it can
+  // select the shelf; use the genuinely published two-tick warning instead.
+  for(const platform of shelves){
+    state.chunks[0].hazards.push({
+      id:platform.id+':warning',kind:'crusher',x:platform.x,
+      y:platform.y+platform.height,width:platform.width,height:12000,
+      activeFromTick:state.tick+2,activeEvery:72,activeFor:9,damage:1
+    });
+  }
+  const observed=createTowerObservation(state,{includeHazardWindup:true});
+  const decision=chooseTowerAction(state,observed,{tactical:true});
+  if(/reachable return shelf/.test(decision.intent.summary)){
+    assert.match(decision.intent.summary,/no presently clear landing/,
+      'unsafe last-resort target may not be called safe');
+    assert.equal(decision.action.jump,false);
+  }else{
+    assert.doesNotMatch(decision.intent.summary,/clear return lane|clear physical return deck/,
+      'if no physical shelf is interceptable, do not fabricate a safe route');
+  }
+});
