@@ -69,6 +69,54 @@ test('after a real victory, a nearby lower deck yields an ordinary source-legal 
   assert.equal(state.player.groundedPlatformId,lower.id,'no invented teleport');
 });
 
+
+test('a real post-defeat fall BELOW the cap plane reacquires an interceptable lower shelf',()=>{
+  const {state,cap}=episode();
+  const shelf=state.chunks[0].platforms.find(p=>p.id==='f8:p6');
+  assert.ok(shelf);
+  // The player's real soles have fallen through the one-way cap. Simply
+  // targeting the old cap at this point would falsely promise a landing.
+  const capTop=cap.y+cap.height,shelfTop=shelf.y+shelf.height;
+  assert.ok(shelfTop<capTop-20000);
+  state.player.position={x:shelf.x+Math.floor(shelf.width/2),
+    y:capTop-6000+state.player.halfHeight};
+  state.player.velocity={x:0,y:-5000};
+  state.player.grounded=false;
+  state.player.groundedPlatformId=undefined;
+  state.ai.targetPlatformId='f8:p2'; // Stale combat target, not a safe landing.
+  const before={...state.player.position},decision=choose(state);
+  assert.equal(decision.intent.targetPlatformId,shelf.id,
+    'descending actor should reacquire actual reachable shelf, not the stale lower fight target');
+  assert.match(decision.intent.summary,/real return deck|reachable return deck/);
+  assert.equal(decision.action.jump,false,'no invented mid-air recovery jump');
+  assert.equal(decision.action.dash,false,'fall steering never grants a free dash');
+  assert.equal(decision.action.ability,false);
+  assert.equal(decision.action.attack,false);
+  assert.deepEqual(state.player.position,before,'policy cannot teleport');
+  const next=stepTowerPhysics(state,decision.action).state;
+  assert.equal(next.floor,8);
+  assert.ok(next.player.position.y<before.y,'source gravity still moves the falling hero');
+});
+
+test('falling return shelf must be physically interceptable, not merely on the upward graph',()=>{
+  const {state,cap}=episode();
+  const shelf=state.chunks[0].platforms.find(p=>p.id==='f8:p6');
+  state.player.position={x:state.config.worldWidth-state.player.halfWidth,
+    y:cap.y+cap.height-6000+state.player.halfHeight};
+  state.player.velocity={x:0,y:-12000};
+  state.player.grounded=false;state.player.groundedPlatformId=undefined;
+  state.ai.targetPlatformId='f8:p2';
+  const observed=createTowerObservation(state,{includeHazardWindup:true});
+  // At this downward speed and far offset, the actual lower landing is
+  // outside the remaining bounded air-control travel, even if the planner
+  // knows it can be jumped FROM once safely standing on it.
+  assert.ok(shelf.x+shelf.width+60000<state.player.position.x);
+  const choice=chooseTowerAction(state,observed,{tactical:true});
+  assert.notEqual(choice.intent.targetPlatformId,shelf.id,
+    'no made-up post-victory shelf when physical interception is impossible');
+  assert.doesNotMatch(choice.intent.summary,/reachable return deck|real return deck/);
+});
+
 test('living guardian, unflagged replay and a missed airborne collision plane cannot claim cleared-cap recovery',()=>{
   const {state,cap,guardian}=episode();
   state.player.position={x:cap.x+15000,
