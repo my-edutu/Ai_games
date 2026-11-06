@@ -20,11 +20,12 @@ permissions:
   contents: read
 
 jobs:
-  # W79: authentic reconstructed market court and street/worker sightlines.
+  # W79/W80: authentic original market court, real courier camera continuity
+  # and stage-to-receipt witness on desktop + 390px.
   # Source-only geometry checks are not a look/feel/play acceptance pass.
   w79-open-market:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
         with:
@@ -37,17 +38,18 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npx playwright install --with-deps chromium
-      - name: W79 true medieval courier gateway, 390px WebGL and Day-120 original-world budget
+      - name: W79/W80 actual market and uninterrupted genuine 390px delivery-to-receipt
         env:
           CI: '1'
           LIBGL_ALWAYS_SOFTWARE: '1'
-        run: npx playwright test tests/browser/tiny-kingdom-w79-open-market-gateway.spec.cjs --workers=1
+        run: npx playwright test tests/browser/tiny-kingdom-w79-open-market-gateway.spec.cjs tests/browser/tiny-kingdom-w80-continuous-market-journey.spec.cjs --workers=1
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: tiny-kingdom-w79-real-market-construction
           path: |
             artifacts/tiny-kingdom-w79/
+            artifacts/tiny-kingdom-w80/
             test-results/
           retention-days: 14
   # W78: original stationary civic/farm/market is retained while real grown
