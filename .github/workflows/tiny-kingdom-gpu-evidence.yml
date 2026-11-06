@@ -20,6 +20,36 @@ permissions:
   contents: read
 
 jobs:
+  # W74: genuine selected courier through the actual market uprights,
+  # preserving fixed-step economy, all houses/people and 390px controls.
+  w74-real-market-camera-repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: W74 full real courier and market sightline on desktop and portrait
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w74-live-market-post-repair.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w74-authentic-post-free-courier
+          path: |
+            artifacts/tiny-kingdom-w74/
+            test-results/
+          retention-days: 14
   # W73: compact physical draw ranges on the original resident valley.
   # A GPU raster cost saving remains unproven until matching actual workdays.
   w73-conservative-original-scenery:
