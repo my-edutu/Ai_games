@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-06T04:41:05.000Z",
+  "updatedAt": "2026-11-06T11:06:53.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass185 (2026-11-06) source candidate: share exact physical unit-height cylinder geometry between differently long articulated Pip/Thornback rods. World-space geometry and normal equivalence covered by new installed-Three regression candidate, which has NOT run while workspace tunnel is disconnected. Actual six-reset GPU count <100 remains UNVERIFIED; source-bound screenshots, CI and independent Nintendo comparison PENDING. Prior measured count was 102; no acceptance thresholds weakened. PR #53 draft, unmerged/undeployed."
+    "summary": "Pass186 (2026-11-06) physical pressure encounter source fix: a hidden public tick now revokes in-flight warning/shutter/piston animation even without a render frame or object rebuild. New installed-Three regression would catch stale full-open piston on re-visibility; NOT executed due disconnected workspace. Head-matched CI, native WebGL, independent Nintendo comparison and strict <100 six-run geometry limit (previous measured 102) remain UNVERIFIED. Fixed official benchmark NOT MET, PR #53 open draft/unmerged/undeployed."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass186 (2026-11-06): reset physical pressure actuation upon every incoming hidden public tick, preventing phantom full-open piston on re-visibility when no render frame or object rebuild occurred. Added real Three object-identity/three-beat/resource regression candidate; workspace disconnected, exact-head CI/WebGL and <100 six-run gate unverified. See dated Pass186 review; draft PR no merge/deploy.",
     "Pass184 2026-11-06: fixed genuine continuity defect in full Three pressure encounter: real public cell discovery/keys/doors cause object re-creation, previously resetting the 1.25s visible three-phase shutter/piston actuation before completion. Keep old visual clock only for same-run trap visible in both old/new public snapshots; hidden interim and run reset restore new clock. Installed-Three test added for actual physical shutter and piston across rebuild, hidden intermediate and run change. Source syntax check only; renderer/CI and independent reference verdict remain UNVERIFIED; strict six-reset geometry <100 gate unresolved. See docs/reviews/maze-3d/pass-184-public-pressure-continuity-across-discovery-candidate-2026-11-06.md.",
     "Pass183 2026-11-06: authored actual temporal 3-stage presentation of publicly observed near pressure encounter, separating bronze warning lever, ivory floor shutters and linked rising piston using render-frame-limited visual clock. Immediate reset/retreat/unseen, no private data or new AI/physics mechanics, no per-frame GPU allocations. Added pure phase math and installed Three source tests; isolated arithmetic verified but full runtime/new exact-source native WebGL acceptance unavailable as shared coding tunnel disconnected. Prior Pass179 authenticated frames still fail fixed Nintendo bar; Pass181 jobs 42138122642/42138122731 queued, previous six-reset 102 vs strict <100 unproven fixed. Keep low-text HUD, 44px and strict no-crop. See dated Pass183 review; PR open draft, no merge or deploy.",
     "Pass179 2026-11-05: changed genuine publicly disclosed one-cell pressure stage NONPASSAGE walls to physical continuous low parapet with original end stops, no hidden route assumptions or altered AI/collision; separate pressureStageParapets metric. Prior native 37/37 source-bound images fail Nintendo bar. Most recent prior head WebGL 42095372176 success, full CI 42095371823 cancelled, earlier six-reset 102 vs <100 unresolved. NO new renders approved, no subagents/Ultracode due disconnected workspace, no merge/deploy. See docs/reviews/maze-3d/pass-179-public-pressure-forecourt-sightline-candidate-2026-11-05.md.",

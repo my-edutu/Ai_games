@@ -2099,6 +2099,16 @@ export function createMazeWorld(options = {}) {
     for (const edge of gateOpeningAt.keys())
       if (!currentOpen.has(edge)) gateOpeningAt.delete(edge);
     const previouslyVisibleCells = new Set(snapshot?.visibleCells || []);
+    // A hidden published snapshot revokes the in-flight physical pressure
+    // encounter immediately, even if no render frame or object rebuild runs.
+    // Otherwise a newly visible trap could inherit its old raised piston.
+    // The ONLY authority here is the sanitized PUBLIC visibility list.
+    const currentlyVisibleCells = new Set(Array.isArray(s.visibleCells) ? s.visibleCells : []);
+    for (const signal of trapSignals) {
+      if (currentlyVisibleCells.has(signal.cell)) continue;
+      signal.pressureSince = null;
+      signal.pressureLastTime = null;
+    }
     snapshot = s;
     // Read ONLY the published explorer cell. True smooth interpolation, when
     // available, is supplied by scene.js as a cosmetic render-frame input.

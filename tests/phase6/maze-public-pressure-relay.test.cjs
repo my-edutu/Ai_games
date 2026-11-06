@@ -151,3 +151,36 @@ test('pressure warning, shutters and piston survive same-run public discovery re
       'a new run cannot inherit the previous run pressure timeline');
   } finally {world.dispose();cleanup()}
 });
+
+
+test('a hidden public tick resets a full pressure encounter without a render frame or object rebuild',async()=>{
+  const {THREE,game,world,cleanup}=await build();
+  try {
+    const base=publicState(),cell=game.cellPosition(4,3,3);
+    const center=new THREE.Vector3(cell.x,0,cell.z);
+    world.update(base);
+    const carriage=world.group.getObjectByName('Published tide-shear rising carriage');
+    const shutter=world.group.getObjectByName('Published tide-shear floor shutter -1');
+    const budget=world.stats();
+    world.animate(0,{explorerPosition:center,reducedMotion:false});
+    world.animate(1.5,{explorerPosition:center,reducedMotion:false});
+    near(carriage.position.y,.44,'genuinely witnessed piston extends completely');
+    assert.ok(Math.abs(shutter.rotation.z)>1.1,'real ivory shutter is open');
+    // These public ticks do not change any object-cache key. No render occurs
+    // between them: the old code mistakenly retained a finished piston pose.
+    world.update({...base,tick:2,visibleCells:[]});
+    world.update({...base,tick:3,visibleCells:[4]});
+    assert.equal(world.group.getObjectByName('Published tide-shear rising carriage'),carriage,
+      'same physical object survives both public updates without rebuilding');
+    world.animate(1.6,{explorerPosition:center,reducedMotion:false});
+    near(carriage.position.y,.16,'re-visible hazard restarts at warning, not stale open piston');
+    near(Math.abs(shutter.rotation.z),.03,'re-visible hazard cannot skip ivory shutter opening');
+    world.animate(3.0,{explorerPosition:center,reducedMotion:false});
+    near(carriage.position.y,.44,'newly witnessed sustained pressure completes its real third beat');
+    world.update({...base,tick:4,visibleCells:[]});
+    world.animate(3.1,{explorerPosition:center,reducedMotion:false});
+    near(carriage.position.y,.16,'hidden pressure rests immediately on next physical render');
+    for(const key of ['geometryCount','materialCount','textureCount','instances'])
+      assert.equal(world.stats()[key],budget[key],'public visibility changes allocate no GPU resources');
+  } finally {world.dispose();cleanup()}
+});

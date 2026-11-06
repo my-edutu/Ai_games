@@ -1,3 +1,9 @@
+### Pass186 — public hidden-tick pressure invalidation on nonrendered updates (2026-11-06 UTC)
+
+- **Genuine encounter integrity fix:** an unseen public tick could leave the pressure piston/shutters fully extended if the object cache never rebuilt and the browser skipped that render frame. In `world.update()`, every published loss of visibility now clears both pressure timestamps immediately, so renewed exposure starts a truthful three-stage physical sequence; continuously visible hazards preserve their witnessed clock.
+- **Regression candidate:** added installed-Three test for real physical full-open shutter/piston, hidden→visible ticks with no intermediate rendering or object rebuild, fresh warning pose, renewed complete actuation and unchanged GPU resources. **Not executed:** shared workspace tunnel disconnected; HEAD CI/screenshots/independent Nintendo verdict pending; six-run <100 geometry guard not yet measured.
+- [Full dated review](./maze-3d/pass-186-hidden-interim-pressure-clock-reset-2026-11-06.md). Benchmark unmet; PR #53 remains open draft without merge/deploy.
+
 ### Pass185 — physically identical length-pooled character rods; strict resource gate pending (2026-11-06 UTC)
 
 - **Builder candidate:** original Pip/Thornback `tube` and `bar` primitives now share immutable unit-height Three cylinders by real top/bottom radius, with physical height via object Y-scale. All existing articulated pivots and world transforms remain; no gameplay authority, stage geometry, map privacy, camera or HUD changes. This directly targets previously measured six-run WebGL geometry count 102 versus **unchanged <100**.
