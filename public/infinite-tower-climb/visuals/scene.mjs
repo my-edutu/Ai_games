@@ -20,7 +20,7 @@ import { createTowerGuardianShotStage } from './guardian-shot-stage.mjs';
 import { createObservedGuardianGuardStage } from './guardian-guard-stage.mjs';
 import { witnessedAirbornePulse, witnessedGuardianCounterPulse } from './airborne-pulse.mjs';
 import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue } from './guardian-camera-safety.mjs';
-import { gatewayScreenError, acceptEarnedGatewayEscort } from './guardian-gateway-framing.mjs';
+import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse } from './guardian-gateway-framing.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { guardedJointShotGain, observedJointBodyPressure } from './joint-shot.mjs';
 import { createObservedMovingDeckRide } from './moving-deck-ride.mjs';
@@ -3420,11 +3420,12 @@ export function createTowerScene(canvas, settings = {}) {
         }
       }
     }
-    // The source-earned bronze doorway is a real walkable threshold, but
-    // portrait views can frame the climber while its route disappears behind
-    // a decorative clock or the screen edge. Escort that very same physical
-    // gate through the grounded post-guardian walk. An already safe body and
-    // exterior sightline are vetoes; no invented victory or camera cut.
+    // The earned inner bronze doorway must be readable at the REAL cap
+    // for desktop and portrait alike. Earlier source-pinned 960x600 and
+    // 390x844 film often showed a guardian victory with no legible walkable
+    // gateway. Escort only this actual source-unlocked threshold; the full
+    // climber and both real tower-core sightlines retain an absolute veto.
+    // No invented victory, camera cut, authoritative motion or new draw call.
     earnedGatewayEscortLastGain = 0;
     const earnedStage = !overview && !options.stale && !!liveExit
       ? passage.diagnostics() : null;
@@ -3438,7 +3439,7 @@ export function createTowerScene(canvas, settings = {}) {
     if (gatewayEarned) earnedGatewayFocus.set(...earnedStage.focusPosition);
     if (gatewayEarned && !options.reducedMotion &&
         options.camera === 'follow' && p.state === 'standing' &&
-        camera.aspect > 0 && camera.aspect < .85 &&
+        camera.aspect > 0 && camera.aspect < 2.5 &&
         Number.isFinite(dt) && dt > 0 && zoom <= 1.1 &&
         (arrivalFraming > .16 || sourceWalkProgress > .24)) {
       actorFramePoint.copy(climber.group.position);
@@ -3462,8 +3463,9 @@ export function createTowerScene(canvas, settings = {}) {
           measureDuelBodyNdc(actorFramePoint, p.halfHeight / SCALE,
             camera, duelTop, duelBottom, earnedGatewayActorBefore);
           earnedGatewayPreviousFocus.copy(lookAt);
-          const response = Math.min(.2,
-            1 - Math.exp(-Math.min(dt, .06) * 8));
+          // Desktop has a wider action corridor and needs less correction;
+          // portrait keeps the proven safe body-first correction budget.
+          const response = earnedGatewayEscortResponse(camera.aspect, dt);
           const sx = clamp(earnedGatewayBefore[0] -
               clamp(earnedGatewayBefore[0], -.66, .66), -1.25, 1.25) *
             depth * tangent * camera.aspect * response;
@@ -3742,7 +3744,7 @@ export function createTowerScene(canvas, settings = {}) {
     // Source-bound actual projected doorway, NEVER proof of visible WebM
     // pixels, collision/crossing or hardware frame-time.
     let earnedGatewayCamera = null;
-    const earnedSource = snapshot?.floor === 8 && !options.stale &&
+    const earnedSource = !options.stale &&
       snapshot?.lifecycle === 'running' && snapshot?.player?.health > 0
       ? observedUnlockedGuardianCap(snapshot) : null;
     const earnedProof = earnedSource ? passage.diagnostics() : null;

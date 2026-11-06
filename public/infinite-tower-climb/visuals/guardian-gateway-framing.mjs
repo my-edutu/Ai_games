@@ -25,3 +25,15 @@ export function acceptEarnedGatewayEscort({
       before <= .035 || after > before - .018) return 0;
   return before - after;
 }
+
+// Deterministic per-frame budget for the SAME unlocked physical doorway.
+// Source-earned state and actor/core projections, not this helper, determine
+// whether any correction may be applied. Wider desktop uses a gentler lens;
+// portrait stays body-safe with the existing post-correction veto.
+export function earnedGatewayEscortResponse(aspect, dt) {
+  if (!Number.isFinite(aspect) || aspect <= 0 || aspect >= 2.5 ||
+      !Number.isFinite(dt) || dt <= 0) return 0;
+  const portrait = aspect < .85;
+  return Math.min(portrait ? .20 : .11,
+    1 - Math.exp(-Math.min(dt, .06) * (portrait ? 8 : 5)));
+}
