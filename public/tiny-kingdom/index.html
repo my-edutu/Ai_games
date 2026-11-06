@@ -6753,7 +6753,7 @@ function granaryArchitecture(){
  farmScene.granaries++;
  audit.granaries=1;
  audit.groundFloorClearanceMet=audit.raisedPiers===4&&audit.underfloorJoists===4;
- audit.realDoorUnblocked=walkable(x,front-1.35)&&
+ audit.realDoorUnblocked=walkable(...FARM_MARKET_STREET_ORIGIN)&&
   Math.abs(FARM_MARKET_STREET_ORIGIN[0]-x)<.1;
  audit.totalTriangles=(data.length-first)/30;
  granaryArchitectureAudit=audit;
