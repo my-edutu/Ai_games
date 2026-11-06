@@ -638,6 +638,51 @@ function observedProjectileCrusherEscape(state:TowerState,obs:TowerObservation,
     ?escape:undefined;
 }
 
+// After an actually defeated opt-in guardian, the objective is still its
+// PHYSICAL upper-cap exit, not whatever ascent target the pilot remembered
+// during combat. Reclaim the deck by ordinary jumps/steering if currently
+// reachable; do not snap the body to the gate or fabricate a floor transition.
+// Projectile, active jaw, wound pickup and telegraph reactions still outrank
+// this route because the caller invokes it after those observed responses.
+function observedEarnedCapReacquisition(state:TowerState,obs:TowerObservation,
+  cap:TowerObservation['platforms'][number]):TowerDecision|null {
+  if(state.config.guardianArenaHazards!==true||
+     state.config.guardianSecondWind!==true||obs.player.health<=0||
+     !obs.enemies.some(e=>e.kind==='guardian'&&!e.active&&e.health<=0))return null;
+  const p=obs.player,top=cap.y+cap.height;
+  if(p.grounded){
+    if(p.groundedPlatformId===cap.id)return null;
+    const support=currentPlatform(obs,p.groundedPlatformId);
+    if(!support)return null;
+    // A deck far beneath the cap must follow the original multi-step climb;
+    // never ask the grounded controller to jump through several solid floors.
+    const rise=Math.floor(state.config.jumpImpulse*state.config.jumpImpulse/
+      (2*state.config.gravity));
+    const gain=top-(support.y+support.height);
+    if(gain<=0||gain>rise-6000)return null;
+    const launch=observedLaunchSteering(state,obs,support,cap);
+    return {action:action(launch.move,{jump:launch.jump}),
+      intent:{mode:launch.jump?'jumping':launch.settling?'settling-launch':'aligning',
+        summary:launch.jump?'Rejoining the earned guardian exit by a real cap jump':
+          'Aligning a physical return to the cleared guardian cap',
+        confidence:.96,fallbackUsed:false,targetPlatformId:cap.id}};
+  }
+  // Once the real feet have already fallen BELOW the collision plane,
+  // aiming at the cap is fictional. Leave normal air-recovery and lower
+  // platform navigation in control rather than drawing an impossible route.
+  if(p.position.y-state.player.halfHeight<top-1)return null;
+  const landing=observedLandingSteering(state,obs,cap);
+  const boost=observedSafeAirBoost(state,obs,cap,landing);
+  const recovery=boost===0&&
+    observedEarnedAirRecovery(state,obs,cap,landing.landingX);
+  return {action:action(boost||landing.move,{dash:boost!==0,jump:recovery}),
+    intent:{mode:landing.settling?'settling-landing':'air-control',
+      summary:recovery?'Recovering a real jump to the cleared guardian deck':
+        boost?'Boosting toward the physically earned exit cap':
+        landing.settling?'Braking for a physical guardian-cap landing':
+        'Steering back toward the cleared guardian cap',
+      confidence:.96,fallbackUsed:false,targetPlatformId:cap.id}};
+}
 // Tactical v2 is the live policy. Historical v1 is retained for pinned replay
 // evidence; it is never silently substituted into a new live expedition.
 export function chooseTowerAction(state:TowerState,observation:TowerObservation,options:{tactical?:boolean}={}):TowerDecision{
@@ -845,6 +890,9 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
   const cap=observation.platforms.find(p=>p.id===`f${observation.floor}:cap`);
   const guardian=observation.enemies.find(e=>e.active&&e.kind==='guardian');
   const defeatedGuardian=observation.enemies.find(e=>e.kind==='guardian'&&!e.active&&e.health<=0);
+  const capRecovery=tactical&&cap&&defeatedGuardian
+    ?observedEarnedCapReacquisition(state,observation,cap):null;
+  if(capRecovery)return capRecovery;
   if(tactical&&state.config.guardianArenaHazards===true&&
     state.config.guardianSecondWind===true&&cap&&defeatedGuardian&&
     observation.player.grounded&&observation.player.groundedPlatformId===cap.id&&
