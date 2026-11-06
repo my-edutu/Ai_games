@@ -51,13 +51,61 @@ function nativeViewport(m){
  if(v?.width===390&&v?.height===844)return 'portrait';
  return null;
 }
+// A 60-second file can still contain the WRONG gameplay: a floor-eight
+// danger capture may begin on floor ten after an unrelated restart. Check
+// that source-observed beats occur in the SAME real episode, in order.
+// This is evidence COVERAGE, never a video-visibility or gameplay-quality PASS.
+function sourceStoryCoverage(record,scenario,source){
+ const events=Array.isArray(record?.index?.events)?record.index.events:[];
+ const relevant=events.filter(e=>signature(e)&&Number.isFinite(e.atMs)&&
+   Number.isSafeInteger(e.observedEpisode)&&e.observedEpisode>=0);
+ const ordered=scenario==='danger'
+   ? source==='candidate'
+     ? ['guardian-present','guardian-hp-decrease','guardian-source-defeated',
+        'source-supported-gate-approach','guardian-earned-floor-nine-handoff',
+        'guardian-source-physical-threshold']
+     : ['guardian-present','guardian-hp-decrease']
+   :scenario==='outcome'?['source-result-phase','source-run-token-change']
+   :scenario==='moving'?['observed-moving-deck-position-change']
+   :['route-selection'];
+ const valid=(e,kind)=>e.kind===kind&&
+   (scenario!=='danger'||(kind==='guardian-earned-floor-nine-handoff'||
+     kind==='guardian-source-physical-threshold'?e.floor===9&&
+     e.fromFloor===8&&e.toFloor===9:e.floor===8))&&
+   (scenario!=='moving'||e.floor===7)&&
+   (scenario!=='ascent'||e.floor===0)&&
+   (kind!=='source-result-phase'||e.resultKind==='game');
+ const missing=ordered.filter(kind=>!relevant.some(e=>valid(e,kind)));
+ const episodes=[...new Set(relevant.map(e=>e.observedEpisode))];
+ let completedEpisode=null;
+ for(const episode of episodes){
+   let previousAt=-Infinity,success=true;
+   for(let index=0;index<ordered.length;index++){
+     const kind=ordered[index];
+     // A genuine restart changes the run token, so its indexed episode
+     // must advance exactly once from the preceding game result episode.
+     const requiredEpisode=episode+(scenario==='outcome'&&index===1?1:0);
+     const match=relevant.find(e=>e.observedEpisode===requiredEpisode&&
+       valid(e,kind)&&e.atMs>=previousAt);
+     if(!match){success=false;break;}
+     previousAt=match.atMs;
+   }
+   if(success){completedEpisode=episode;break;}
+ }
+ return {requiredSourceBeats:ordered,missingObservedBeats:missing,
+   sameEpisodeSourceSequenceObserved:completedEpisode!==null,
+   observedEpisode:completedEpisode,
+   evidenceStatus:completedEpisode!==null?'SOURCE_SEQUENCE_OBSERVED_NOT_FILM_VERIFIED':
+     'MISSING_OR_SPLIT_SOURCE_EPISODE_NOT_EVALUATED',
+   caveat:'50ms read-only sampling can miss real ticks. Missing markers mean missing evidence, NOT proven missing gameplay. A source sequence cannot establish visible pixels or independent approval.'};
+}
 function auditPairs(recordings,candidateSha){
  const result={schemaVersion:1,stage:'P0 evidence authenticity',frozenBaselineSha:FROZEN,
   candidateSha:candidateSha||null,verdict:'NOT EVALUATED',
   independentlyReviewed:false,videoTimecodesCalibrated:false,
   fullMotionPaired:false,hardwareBenchmarks:'NOT EVALUATED',
   caveat:'Source-only event-order index. Different elapsed seconds, multiple run episodes, renderer occlusion and lost short ticks preclude a certified A/B. Inspect original full WebM at normal speed; independently match film frames and gather blind votes and actual-device measurements.',
-  recordingsFound:recordings.length,comparisons:[],missingPairs:[],provenanceDefects:[]};
+  recordingsFound:recordings.length,comparisons:[],missingPairs:[],provenanceDefects:[],sourceStoryDefects:[]};
  for(const scenario of SCENARIOS)for(const viewport of VIEWPORTS){
   const get=source=>recordings.filter(r=>r.source===source&&r.scenario===scenario&&r.viewport===viewport);
   const b=get('baseline'),c=get('candidate');
@@ -100,7 +148,19 @@ function auditPairs(recordings,candidateSha){
     missingBaselineSearchEvents:expected.filter(k=>!baselineObserved.has(k)),
     exactFilmMatchVerified:false,
     caveat:'50ms passive source observer can skip real events; no event proves a frame was displayed or that a physical crossing was filmed'};
-  result.comparisons.push({scenario,viewport,provenanceVerified:faults.length===0,faults,sourceStory,
+  const candidateStory=sourceStoryCoverage(after,scenario,'candidate');
+  const baselineStory=sourceStoryCoverage(before,scenario,'baseline');
+  if(!candidateStory.sameEpisodeSourceSequenceObserved||
+     !baselineStory.sameEpisodeSourceSequenceObserved)
+    result.sourceStoryDefects.push({scenario,viewport,
+      candidateEvidenceStatus:candidateStory.evidenceStatus,
+      baselineEvidenceStatus:baselineStory.evidenceStatus,
+      candidateMissingBeats:candidateStory.missingObservedBeats,
+      baselineMissingBeats:baselineStory.missingObservedBeats});
+  result.comparisons.push({scenario,viewport,provenanceVerified:faults.length===0,
+   sourceStorySequenceObserved:candidateStory.sameEpisodeSourceSequenceObserved&&
+     baselineStory.sameEpisodeSourceSequenceObserved,
+   sourceStoryEpisodes:{baseline:baselineStory,candidate:candidateStory},faults,sourceStory,
    baselineArtifact:before.artifact,candidateArtifact:after.artifact,
    baselineVideo:before.videoPath,candidateVideo:after.videoPath,
    sourceEventPairs:aligned.pairs,missingFromBaseline:aligned.missingFromBaseline,
@@ -145,7 +205,9 @@ if(require.main===module){
  process.stdout.write('Tower original-footage event index: '+manifest.comparisons.length+
   '/8 paired source timelines; '+manifest.missingPairs.length+
   ' missing pairs, '+manifest.provenanceDefects.length+
-  ' integrity defects. Quality NOT EVALUATED.\n');
- if(manifest.missingPairs.length||manifest.provenanceDefects.length)process.exitCode=1;
+  ' integrity defects; '+manifest.sourceStoryDefects.length+
+  ' missing/split authentic source stories. Quality NOT EVALUATED.\n');
+ if(manifest.missingPairs.length||manifest.provenanceDefects.length||
+    manifest.sourceStoryDefects.length)process.exitCode=1;
 }
-module.exports={FROZEN,signature,matchSourceEvents,auditPairs,collect};
+module.exports={FROZEN,signature,matchSourceEvents,sourceStoryCoverage,auditPairs,collect};
