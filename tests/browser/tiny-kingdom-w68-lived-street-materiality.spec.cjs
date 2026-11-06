@@ -23,8 +23,14 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    for(let i=0;i<120*24*30;i++)g.step(1/30);
    return JSON.stringify(g.exportSnapshot());
   });
-  await page.waitForFunction(()=>window.__tinyKingdom.getBurgageMaterialAudit().homes>=
-   window.__tinyKingdom.metrics().buildings,null,{timeout:95000});
+  // metrics().buildings includes the guildhall and farm; the burgage audit
+  // counts only actual cottages in city[]. Require exact housing equality,
+  // not an unreachable cottage count inflated by two civic structures.
+  await page.waitForFunction(()=>{
+   const g=window.__tinyKingdom;
+   return g.getBurgageMaterialAudit().homes===g.getVillageVisualLod().homes&&
+    g.getVillageVisualLod().homes===g.metrics().buildings-2;
+  },null,{timeout:95000});
   const actual=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
    return {audit:g.getBurgageMaterialAudit(),lod:g.getVillageVisualLod(),
