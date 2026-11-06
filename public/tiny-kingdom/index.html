@@ -5920,11 +5920,21 @@ const HIGHSTREET_LANES=Object.freeze([
 ]);
 let highStreetStats={connectedLanes:0,pavingStones:0,shopfronts:0,
  houseYards:0,washLines:0,stackedGoods:0,stallYards:0,
+ wheelwaySegments:0,
+ surfacePattern:'original-worn-clay-wheelway-and-stone-margins',
  totalTriangles:0,cached:false};
 function highStreetLane(points,width=1.55){
- const earth=rgb(0x7c715f),joint=rgb(0x928674),
-  stones=[rgb(0xb8ab91),rgb(0x93887c),rgb(0xb2a28c),
-   rgb(0x897d70),rgb(0xc5b498),rgb(0xaaa18c)];
+ // W79 original inhabited market-to-house lanes: the historical straight
+ // road was 3 rows of heavy rectangular paving across EVERY metre. In the
+ // real G088/W68 moving shot this reads as a checkerboard. Keep authentic
+ // terrain-following clay connected for all four original lanes, lay two
+ // worn offset STONE margins, let the centre remain a visibly trampled,
+ // unobstructed passage for the existing genuine courier and citizens.
+ // This removes 120 central paving quads (240 world triangles) without
+ // altering a single route, house footprint, actual actor or economy step.
+ const earth=rgb(0x776a5c),joint=rgb(0x827562),
+  stones=[rgb(0xada08b),rgb(0x93887a),rgb(0xb5a58e),
+   rgb(0x8d8173),rgb(0xb9ad94),rgb(0xa69b89)];
  materialScope(MATERIAL.ROAD,()=>{
   for(let part=0;part<points.length-1;part++){
    const a=points[part],b=points[part+1],dx=b[0]-a[0],dz=b[1]-a[1];
@@ -5933,26 +5943,28 @@ function highStreetLane(points,width=1.55){
    const sample=(x,z,height)=>[x,terrain(x,z)+height,z];
    for(let row=0;row<n;row++){
     const t0=row/n,t1=(row+1)/n;
-    const ax=a[0]+dx*t0,az=a[1]+dz*t0,bx=a[0]+dx*t1,bz=a[1]+dz*t1;
-    // Continuous packed clay, then three individually set, uneven stones.
-    // The underlay avoids the glaring grass seams seen in the earlier square.
+    const ax=a[0]+dx*t0,az=a[1]+dz*t0,
+     bx=a[0]+dx*t1,bz=a[1]+dz*t1;
+    // Connected packed ground between visible stone margins, with two
+    // mild soil tones that do not fake muddy inventory or new roads.
     quad(sample(ax+nx*width*.51,az+nz*width*.51,.045),
-      sample(bx+nx*width*.51,bz+nz*width*.51,.045),
-      sample(bx-nx*width*.51,bz-nz*width*.51,.045),
-      sample(ax-nx*width*.51,az-nz*width*.51,.045),
-      row%3===0?earth:joint);
-    for(let col=0;col<3;col++){
-     const jitter=.035*Math.sin(row*7.7+part*13.2+col*5.9);
-     const off=(col-1)*width*.315+jitter;
-     const left=off-width*.137,right=off+width*.137;
-     const start=(row+.07)/n,end=(row+.90)/n;
+     sample(bx+nx*width*.51,bz+nz*width*.51,.045),
+     sample(bx-nx*width*.51,bz-nz*width*.51,.045),
+     sample(ax-nx*width*.51,az-nz*width*.51,.045),
+     row%3===0?earth:joint);
+    highStreetStats.wheelwaySegments++;
+    for(const side of [-1,1]){
+     const jitter=.035*Math.sin(row*7.7+part*13.2+side*5.9);
+     const off=side*width*.30+jitter;
+     const left=off-width*.145,right=off+width*.145;
+     const start=(row+.06)/n,end=(row+.91)/n;
      const x0=a[0]+dx*start,z0=a[1]+dz*start;
      const x1=a[0]+dx*end,z1=a[1]+dz*end;
      quad(sample(x0+nx*left,z0+nz*left,.071),
-       sample(x1+nx*left,z1+nz*left,.071),
-       sample(x1+nx*right,z1+nz*right,.071),
-       sample(x0+nx*right,z0+nz*right,.071),
-       stones[(part*7+row*11+col*3)%stones.length]);
+      sample(x1+nx*left,z1+nz*left,.071),
+      sample(x1+nx*right,z1+nz*right,.071),
+      sample(x0+nx*right,z0+nz*right,.071),
+      stones[(part*7+row*11+(side+1)*3)%stones.length]);
      highStreetStats.pavingStones++;
     }
    }
@@ -6098,6 +6110,8 @@ function highStreetCraftShop(x,z,variant){
 function inhabitedHighStreet(){
  highStreetStats={connectedLanes:0,pavingStones:0,shopfronts:0,
   houseYards:0,washLines:0,stackedGoods:0,stallYards:0,
+  wheelwaySegments:0,
+  surfacePattern:'original-worn-clay-wheelway-and-stone-margins',
   totalTriangles:0,cached:false};
  const first=data.length;
  for(const lane of HIGHSTREET_LANES)highStreetLane(lane);
