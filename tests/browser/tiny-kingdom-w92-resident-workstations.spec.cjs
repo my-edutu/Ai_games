@@ -53,6 +53,7 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   });
   expect(resident.audit.buffers).toBe(1);
   expect(resident.audit.meshFloats).toBeLessThanOrEqual(resident.audit.floatBudget);
+  expect(resident.audit.capacityFloats).toBeLessThanOrEqual(resident.audit.floatBudget);
   expect(resident.audit.authorityModified).toBe(false);
   expect(resident.audit.active).toBe(true);
   expect(resident.tri).toBe(original.tri);
