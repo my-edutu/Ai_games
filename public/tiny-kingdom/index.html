@@ -9406,24 +9406,55 @@ let liveWorkerPresentedAt=0;
 const DAYBREAK_RETURN_MS=4200;
 let daybreakReturn=null,daybreakReturnCompleted=0;
 function getDaybreakReturnAudit(){
- const active=Boolean(daybreakReturn);
- const elapsed=active?Math.max(0,performance.now()-daybreakReturn.since):0;
+ const active=Boolean(daybreakReturn),elapsed=active?Math.max(0,performance.now()-daybreakReturn.since):0;
+ const p=daybreakReturn?.physical,f=daybreakReturn?.frame;
  return {source:'real-citizen-daybreak-continuity',
   mode:'real-daybreak-camera-return',active,
   citizen:daybreakReturn?.citizen||null,durationMs:DAYBREAK_RETURN_MS,
   progress:active?Math.min(1,elapsed/DAYBREAK_RETURN_MS):0,
   completed:daybreakReturnCompleted,authorityChanged:false,
-  noFalseWork:true,noFalseResident:true,
-  presentationOnly:true};
+  noFalseWork:true,noFalseResident:true,presentationOnly:true,
+  physicalShot:active&&p&&f?{source:'real-doorway-world-camera-shared-by-webgl-and-lod',
+   fromThreshold:p.fromThreshold,startEye:p.fromEye.slice(),startTarget:p.fromTarget.slice(),
+   endEye:p.toEye.slice(),endTarget:p.toTarget.slice(),eye:f.eye.slice(),
+   target:f.target.slice(),progress:f.progress,eased:f.eased}:null};
 }
+// W90: the occupied-home doorway is an off-axis camera, not the orbit
+// implied by yaw/pitch/zoom. Transition the identical WebGL + LOD eye/aim
+// to the original saved overview; never invent actors or travel events.
+function daybreakWorldCameraAt(path,progress){
+ const t=Math.max(0,Math.min(1,Number.isFinite(progress)?progress:0));
+ const eased=t*t*(3-2*t),mix=(a,b)=>a+(b-a)*eased;
+ const eye=path.fromEye.map((v,i)=>mix(v,path.toEye[i]));
+ const target=path.fromTarget.map((v,i)=>mix(v,path.toTarget[i]));
+ if(t>0&&t<1)eye[1]+=Math.sin(Math.PI*t)*.65;
+ return {eye,target,progress:t,eased,fromThreshold:path.fromThreshold};
+}
+function daybreakReturnPhysicalShot(){return daybreakReturn?.frame||null}
 function beginDaybreakReturn(citizen){
  if(daybreakReturn||!follow||!citizen)return false;
  const prior=previousFollowCamera;
- daybreakReturn={citizen:citizen.name,since:performance.now(),
-  from:{yaw,pitch,zoom,focus:focusPoint.slice()},
-  to:prior?{yaw:prior.yaw,pitch:prior.pitch,zoom:prior.zoom,
-   focus:prior.focus.slice()}:
-   {yaw:.85,pitch:.52,zoom:23,focus:[0,0]}};
+ const from={yaw,pitch,zoom,focus:focusPoint.slice()};
+ const to=prior?{yaw:prior.yaw,pitch:prior.pitch,zoom:prior.zoom,focus:prior.focus.slice()}:
+  {yaw:.85,pitch:.52,zoom:23,focus:[0,0]};
+ // Snapshot the genuine rendered doorstep before changing workday mode.
+ const witness=actualHomecomingWitnessShot();
+ const fromEye=witness?witness.eye.slice():[
+  from.focus[0]+Math.sin(from.yaw)*Math.cos(from.pitch)*from.zoom,
+  terrain(from.focus[0],from.focus[1])+1.02+Math.sin(from.pitch)*from.zoom,
+  from.focus[1]+Math.cos(from.yaw)*Math.cos(from.pitch)*from.zoom];
+ const fromTarget=witness?witness.target.slice():[
+  from.focus[0],terrain(from.focus[0],from.focus[1])+1.02,from.focus[1]];
+ const toEye=[
+  to.focus[0]+Math.sin(to.yaw)*Math.cos(to.pitch)*to.zoom,
+  .25+Math.sin(to.pitch)*to.zoom,
+  to.focus[1]+Math.cos(to.yaw)*Math.cos(to.pitch)*to.zoom];
+ const toTarget=[to.focus[0],.25,to.focus[1]];
+ const physical={fromEye,fromTarget,toEye,toTarget,fromThreshold:Boolean(witness)};
+ if(![...fromEye,...fromTarget,...toEye,...toTarget].every(Number.isFinite))
+  throw Error('Nonfinite real daybreak camera point');
+ daybreakReturn={citizen:citizen.name,since:performance.now(),from,to,physical,
+  frame:daybreakWorldCameraAt(physical,0)};
  document.body.dataset.workday='daybreak-return';
  const label=document.getElementById('workday-activity');
  if(label)label.textContent='Daybreak · '+citizen.name+
@@ -9444,6 +9475,7 @@ function advanceDaybreakReturn(){
  focusPoint=[
   view.from.focus[0]+(view.to.focus[0]-view.from.focus[0])*ease,
   view.from.focus[1]+(view.to.focus[1]-view.from.focus[1])*ease];
+ view.frame=daybreakWorldCameraAt(view.physical,fraction);
  if(fraction>=1){
   daybreakReturnCompleted++;
   daybreakReturn=null;
@@ -13508,9 +13540,10 @@ function citizenDetailCameraFrame(){
  // W60: near-character LOD must use the same physically surveyed view
  // as the actual WebGL picture, not a separate synthetic orbit.
  const threshold=actualHomecomingWitnessShot();
+ const retreat=daybreakReturnPhysicalShot();
  const eye=streetWalk?
   [streetPosition[0],terrain(...streetPosition)+streetEyeHeight,streetPosition[1]]:
-  threshold?threshold.eye.slice():
+  retreat?retreat.eye.slice():threshold?threshold.eye.slice():
   [focusPoint[0]+Math.sin(yaw)*radius,
    (follow?terrain(focusPoint[0],focusPoint[1])+1.02:.25)+Math.sin(pitch)*zoom,
    focusPoint[1]+Math.cos(yaw)*radius];
@@ -13518,7 +13551,7 @@ function citizenDetailCameraFrame(){
   [eye[0]+Math.sin(streetYaw)*Math.cos(streetTilt)*8,
    eye[1]+Math.sin(streetTilt)*8,
    eye[2]+Math.cos(streetYaw)*Math.cos(streetTilt)*8]:
-  threshold?threshold.target.slice():
+  retreat?retreat.target.slice():threshold?threshold.target.slice():
   [focusPoint[0],follow?terrain(focusPoint[0],focusPoint[1])+1.02:.25,
    focusPoint[1]];
  const diff=target.map((v,i)=>v-eye[i]);
@@ -14117,8 +14150,9 @@ if(candidateCameraDynamicKey&&data.length<=CAMERA_DYNAMIC_FLOAT_BUDGET){
 const frameSubmitStart=performance.now();
 const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,focusHeight=follow?terrain(focusPoint[0],focusPoint[1])+1.02:.25;
  const threshold=actualHomecomingWitnessShot();
+ const retreat=daybreakReturnPhysicalShot();
  const eye=streetWalk?[streetPosition[0],terrain(...streetPosition)+streetEyeHeight,streetPosition[1]]:
-  threshold?threshold.eye.slice():
+  retreat?retreat.eye.slice():threshold?threshold.eye.slice():
   [focusPoint[0]+Math.sin(yaw)*rad,elevation+focusHeight,focusPoint[1]+Math.cos(yaw)*rad];
  // Use the real worker's reachable bench as the actual WebGL view target,
  // not just as a goal in the orbit planner. Camera movement remains cosmetic.
@@ -14134,9 +14168,9 @@ const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,focusHeight=follow
   eye[0]+Math.sin(streetYaw)*Math.cos(streetTilt)*8,
   eye[1]+Math.sin(streetTilt)*8,
   eye[2]+Math.cos(streetYaw)*Math.cos(streetTilt)*8
- ]:threshold?threshold.target.slice():workTarget;
+ ]:retreat?retreat.target.slice():threshold?threshold.target.slice():workTarget;
  const lens=cameraLensProfile(w,h);
- let m=mat4multiply(perspective(lens.verticalRadians,w/h,.1,190),lookAt(eye,cameraTarget,[0,1,0]));lastCitizenPickFrame={matrix:m,eye:eye.slice(),width:w,height:h};updateWorldActorTag(m);gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);const radiance=lightingProfile(state.t);gl.uniform1f(uniforms.sunStrength,radiance.solar);gl.uniform1f(uniforms.ambientBlend,radiance.ambientBlend);gl.uniform1f(uniforms.worldTime,state.t);gl.uniform1f(uniforms.weatherWetness,climateMaterialProfile(state.t).precipitation);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));const activeLight=observedWorkLightProfile();gl.uniform3f(uniforms.workLightPosition,activeLight.x,activeLight.y,activeLight.z);gl.uniform1f(uniforms.workLightStrength,activeLight.strength);
+ let m=mat4multiply(perspective(lens.verticalRadians,w/h,.1,190),lookAt(eye,cameraTarget,[0,1,0]));lastCitizenPickFrame={matrix:m,eye:eye.slice(),target:cameraTarget.slice(),width:w,height:h};updateWorldActorTag(m);gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);const radiance=lightingProfile(state.t);gl.uniform1f(uniforms.sunStrength,radiance.solar);gl.uniform1f(uniforms.ambientBlend,radiance.ambientBlend);gl.uniform1f(uniforms.worldTime,state.t);gl.uniform1f(uniforms.weatherWetness,climateMaterialProfile(state.t).precipitation);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));const activeLight=observedWorkLightProfile();gl.uniform3f(uniforms.workLightPosition,activeLight.x,activeLight.y,activeLight.z);gl.uniform1f(uniforms.workLightStrength,activeLight.strength);
 const farmContact=getHarvestInteractionAudit();
 // Canvas2D fallback implements only the original uniform1f/3f shims.
 if(gpuAvailable){
@@ -14251,7 +14285,7 @@ requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON
 getDailyRhythmAudit:dailyRhythmAudit,getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getCottageHomecomingAudit,getCottageDoorRenderAudit:()=>({...cottageDoorRenderAudit}),getSoftwareResolutionAudit,getSimulationFrameDelta:simulationFrameDelta,getHouseholdLightAudit:()=>({...householdLightAudit}),getOccupiedHearthCount:()=>occupiedHearths,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,
 getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeCourtyardAudit:()=>cloneData(getForgeCourtyardAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),getForgeSoundAudit:()=>cloneData(getForgeSoundAudit()),pollForgeSound,watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,
 getMarketStructuralSightline:marketCourierPostSightline,
-getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getFarmWorkCameraAudit,
+getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getFarmWorkCameraAudit,
 getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?(civicGpuResidencyEnabled?3:2)+(homeClusterActive.length?homeClusterActive.length:0):1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length+homeClusterFloats():0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4+homeClusterFloats()*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0,homeBytes:gpuAvailable?homeClusterFloats()*4:0}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGranaryArchitectureAudit,getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getForestVisualStats:()=>({
  sourceTrees:trees.length,
  renderedTrees:forestVisualStats.deciduous+forestVisualStats.conifers,
