@@ -39,6 +39,44 @@ export function earnedGatewayEscortResponse(aspect, dt) {
 }
 
  
+
+// The old portrait approach multiplied camera radius without checking that
+// the *new* sightlines still passed outside the opaque clockwork tower core.
+// A larger climber is not an improvement if the machine hides the actual
+// actor or hard-earned walkable gateway. This source-agnostic geometric
+// limiter only authorizes an exterior-orbit dolly; it does not shift players,
+// alter the encounter, create cameras, or make a capture-quality claim.
+// Sample the whole proposed radial path, not just the final camera point,
+// so a dangerous intermediate contraction is not crossed by interpolation.
+export function safeEarnedGatewayDollyRadius(camera, requestedRadius, actor,
+  gateway, coreRadius = 23.5) {
+  const points = [camera,actor,gateway];
+  if (!points.every(point=>point &&
+      [point.x,point.y,point.z].every(Number.isFinite)) ||
+      !Number.isFinite(requestedRadius) || requestedRadius<=0 ||
+      !Number.isFinite(coreRadius) || coreRadius<=0) return null;
+  const radius=Math.hypot(camera.x,camera.z);
+  if (!Number.isFinite(radius) || radius<=coreRadius+1 ||
+      requestedRadius<=coreRadius+1) return null;
+  if (requestedRadius>=radius) return radius;
+  const clear = (x,z,subject)=>{
+    const dx=subject.x-x,dz=subject.z-z,denom=dx*dx+dz*dz;
+    const t=denom>1e-8 ?
+      Math.max(0,Math.min(1,-(x*dx+z*dz)/denom)) : 0;
+    return Math.hypot(x+t*dx,z+t*dz)>=coreRadius;
+  };
+  if (!clear(camera.x,camera.z,actor) ||
+      !clear(camera.x,camera.z,gateway)) return radius;
+  let approved=radius;
+  for (let step=1;step<=12;step++) {
+    const proposed=radius+(requestedRadius-radius)*step/12;
+    const scale=proposed/radius,x=camera.x*scale,z=camera.z*scale;
+    if (!clear(x,z,actor) || !clear(x,z,gateway)) break;
+    approved=proposed;
+  }
+  return approved;
+}
+
 // Source-earned grounded cap procession. Presentation-only: this cannot
 // unlock doors, move the hero, award a victory or change fixed-step authority.
 // The panoramic arrival yields to a closer continuous exterior-orbit shot
