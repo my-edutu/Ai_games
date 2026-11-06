@@ -9,20 +9,20 @@
   },
   "candidate": {
     "sha": null,
-    "title": "OPEN SAME original 3D Tower ascent → live guardian/crusher → source-earned actual grounded inner-deck doorway → floor nine and restart; portrait gate+actor readability repair ungraded",
-    "implementationSha": "8620d9150776f9d4a84161620aa9a4dedabae40f",
-    "implementationEvidenceStatus": "NOT EVALUATED. Source 8620d9150776f9d4a84161620aa9a4dedabae40f adds one source-gated, full-body-guarded mobile follow camera escort for the ACTUAL physically walkable defeated-guardian doorway, reuses the existing renderer's gear sightline fading to protect the threshold while guardian and landing retain priority, and records the post-defeat threshold's actual projected camera position in neutral desktop/portrait footage sidecars. No authority, collider, AI, RNG, extra renderer or camera cut. Pure helper local Node tests: 4/4, NOT browser or final game proof. Source exact gate CI https://github.com/my-edutu/Ai_games/actions/runs/42139392027 pending; source exact 9-job full-motion capture https://github.com/my-edutu/Ai_games/actions/runs/42139392049 pending/no inspected films. Earlier 42130752551 capture queued and old 42126700099 cancelled with zero artifacts. No video claim, no genuine independent LOOKS/FEELS/PLAYS vote (each 0/5), no hardware p50/p95/p99 or memory. Frozen baseline unchanged."
+    "title": "OPEN source-earned 3D Tower ascent, physical guardian threshold, onward cap framing and causal run-episode observer; candidate full-motion still ungraded",
+    "implementationSha": "ded2da47fe3b2bda797388b66b02be8b057a143c",
+    "implementationEvidenceStatus": "NOT EVALUATED: P0 source code ded2da47fe3b2bda797388b66b02be8b057a143c prevents an old-floor guardian corpse from authorizing a new cap exit, removes floor-eight-only portrait earned-door camera gating for authentic later guardians, and adds bounded 20Hz same-episode source witness (living boss -> defeat -> grounded cap walk -> earned floor 9 -> a later floor-nine tick -> authentic result/intermission -> restart). Isolated fixture tests for causal helper 3/3 locally, NOT exact source game execution or browser proof; new repository tests and CI unverified. Browser workspace is unavailable; GitHub source-pinned current capture 42139392049 still has 0 jobs and 0 artifacts at inspection (old source 8620d915, NOT current code). Earlier authentic portrait danger guardian appeared 5/13 and gateway 0/13 relevant sampled observations; current source has no reviewed WebM. LOOKS/FEELS/PLAYS independent 0/5 each; target-device frame-time and memory not measured. Frozen baseline preserved."
   },
   "currentTransformation": {
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
-    "state": "P0 OPEN — integrated portrait post-guardian physical-gateway subject framing + decorative clockwork sightline safety alongside existing source-real ascent/encounter; not evaluated from normal-speed current-source gameplay.",
+    "state": "P0 OPEN — built a bounded causal authority witness and removed later-floor guardian-gateway framing inconsistency; neither current exact-source gameplay nor video acceptance evaluated.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "P0 FIRST: run and WATCH source-identical normal-speed 960×600 and 390×844 WebM of current 8620d915 9-job capture; verify source guardian defeat, gate projection AND actual raster-visible bronze doorway, hero walking across the door, same-run floor 8→9, outcome/intermission/restart. Align complete >=60s episodes to frozen 1731b380; fix greatest raster-visible defect; obtain independent randomized blind critics (5 each pillar) and native-device frame times/memory. Pending CI/capture must not become acceptance.",
+    "nextDecision": "P0 FIRST: run actual current ded2da47fe3b2bda797388b66b02be8b057a143c fixed-step source campaign and inspect full-motion exact-SHA 960×600 / 390×844 videos with the same frozen 1731b380851162741761c5569e2bc152a0869ca9 seed/tier. Require witnessed same-run source boss defeat, grounded cap advance, 8→9, a distinct floor-nine tick, result/intermission/restart, and WATCH full video for readable hero/bronze door crossing. Fix highest observed raster/gameplay defect. Evaluate event-matched clips, 5 independent fresh blind critics in EACH LOOKS/FEELS/PLAYS, and hardware p50/p95/p99/memory. Do not mistake synthetic fixtures for an actual source replay or film.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Previous authentic portrait danger samples at older source framed live guardian 5/13 and original exterior gate 0/13. New source-earned doorway camera/clockwork correction is implemented but NOT filmed, so cannot claim improvement. Current 9-job exact-sha capture pending; 60+s matched footage, authentic full gateway crossing and complete outcome/restart, unbiased 5× LOOKS/FEELS/PLAYS, device p50/p95/p99/memory unverified.",
-    "unverifiedImplementationBranchHead": "8620d9150776f9d4a84161620aa9a4dedabae40f",
-    "currentVerticalSlice": "Original articulated hero, source-velocity jump/deck presentation, living boss telegraph/counterfire and HP-driven door now share a camera that guards source-earned grounded gate departure. Portrait camera only adjusts GAZE if current gateway cropped and real full-body + exterior sightlines improve; after live danger and selected landing, foreground clockwork fades along genuine unlocked threshold. Film quality and victory crossing remain unverified.",
-    "biggestGap": "Full-motion current source footage is not yet inspected or event-aligned against immutable frozen baseline. New post-boss gate escort may improve readability but could regress mobile body/landing composition or fail when source presents an extremely short terminal gate window. Independent critics, restart acceptance and real-device performance remain unavailable."
+    "biggestRemainingExperienceGap": "Current source-pinned nine-job recordings have not been produced or inspected: GitHub Actions runner has zero jobs/artifacts for older 42139392049; new head may queue too. The source chain instrumentation is not yet executed on the built game. Actual post-guardian cap crossing and later-floor portrait composition remain UNGRADED; original clips showed guardian 5/13 and gateway 0/13 portrait samples. No independent reviewers or hardware benchmarks.",
+    "unverifiedImplementationBranchHead": "ded2da47fe3b2bda797388b66b02be8b057a143c",
+    "currentVerticalSlice": "One source-authoritative full game loop: existing earned upper cap walk/bronze leaves → genuine floor 9 and later guardian caps now share unlocked physical doorway framing, with bounded source-episode causal diagnostic in the original 20 Hz source witness. This is correctness/instrumentation work, not a cinematic-quality verdict.",
+    "biggestGap": "Current exact source has no normal-speed, matching unedited desktop/portrait WebM or independent evidence that the source guardian actually crossed its real raster-visible doorway and continued into a fresh floor-nine tick, result and restart. Source witness has not run on actual build."
   },
   "scenarios": [
     {
@@ -62,10 +62,10 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "2026-11-06 P0 code 8620d915: 4 pure gateway-screen veto cases passed in local isolated Node 22 module harness, NOT complete repository Node/build/Playwright. Exact-source quality https://github.com/my-edutu/Ai_games/actions/runs/42139392027 PENDING. Exact-source native desktop+portrait baseline/candidate https://github.com/my-edutu/Ai_games/actions/runs/42139392049 PENDING. Earlier original 42130752551 9 capture jobs queued; old 42126700099 capture cancelled without jobs or artifacts. CI remains a veto only.",
-    "replay": "The new gate escort reads immutable live fixed-step source earned cap and the existing physical passage's matching run/floor; presentation-only camera GAZE and decorative gear translucency, never a future collision or synthesized victory. Crossfire/landing/guardian camera safety preserves priority. Exact-source deterministic full-loop replay has NOT been rerun for 8620d915.",
+    "ci": "P0 code ded2da47fe3b2bda797388b66b02be8b057a143c: 3/3 pure causal helper fixture tests executed in isolated local Node; 2 additional repository tests and full Node/build/Playwright exact-head NOT EXECUTED; existing current-source capture https://github.com/my-edutu/Ai_games/actions/runs/42139392049 had zero jobs/artifacts and was pinned to older 8620d915, cannot validate new head. Test passes are veto hygiene, never a quality score.",
+    "replay": "The new gate escort reads immutable live fixed-step source earned cap and the existing physical passage's matching run/floor; presentation-only camera GAZE and decorative gear translucency, never a future collision or synthesized victory. Crossfire/landing/guardian camera safety preserves priority. Exact-source deterministic full-loop replay has NOT been rerun for 8620d915. P0 ded2da47fe3b2bda797388b66b02be8b057a143c adds bounded read-only episode-based 20 Hz observer to existing fixed-step source witness (no mutating simulation/config/RNG) and enforces match of defeated enemy floor to physical cap when provided; complete actual-source replay still NOT RUN.",
     "accessibility": "Reduced motion bypasses reactive gaze escort; full-body camera-acceptance veto, core obstruction check, no new HUD or forced zoom, existing focus controls and mute behavior unchanged. Original clockwork corridor can immediately clear actual gate sightline. Real portrait accessible playthrough and user testing NOT EVALUATED.",
-    "performance": "No added lights, render passes, camera, textures, geometry or draw calls; one existing foreground-gear sightline target reused after guardian defeat, plus bounded projections only while physically earned door active. Exact real-device p50/p95/p99 GPU frame time/memory NOT MEASURED.",
+    "performance": "No added lights, render passes, camera, textures, geometry or draw calls; one existing foreground-gear sightline target reused after guardian defeat, plus bounded projections only while physically earned door active. Exact real-device p50/p95/p99 GPU frame time/memory NOT MEASURED. New source-only witness is off the gameplay render loop; game rendering adds no geometry/light/render pass, only generalized source-earned camera choice on later authentic guardian caps. Supported native-device p50/p95/p99/memory still NOT MEASURED.",
     "stability": "Full gateway escort source-matched to same run/floor live cleared guardian and actual cap; reuses bounded projection vectors, rolls back unsafe gaze corrections, no colliders or AI touched. Neutral capture adds a diagnostic independent of video-pixel verification. Browser play, graphics recovery, exact-head quality and freeze-frame raster remain unverified; draft/non-force branch, frozen baseline unchanged."
   },
   "unresolvedCriticalIssues": 3,
@@ -3713,7 +3713,37 @@
       "filmEventMatched": false,
       "reviewPath": "docs/reviews/2026-11-06-tower-pr68-source-earned-doorway-portrait-escort.md",
       "nextHighestImpact": "Review 9-job current exact-SHA real WebM guardian+gate+floor9+outcome in both sizes; fix largest observed picture-level fault."
+    },
+    "latestCausalTowerSource20261106": {
+      "stage": "P0 OPEN",
+      "implementationSha": "ded2da47fe3b2bda797388b66b02be8b057a143c",
+      "files": [
+        "scripts/tower-causal-playthrough.cjs",
+        "scripts/tower-guardian-source-witness.cjs",
+        "tests/phase3/tower-causal-playthrough.test.cjs",
+        "public/infinite-tower-climb/visuals/guardian-passage.mjs",
+        "public/infinite-tower-climb/visuals/scene.mjs"
+      ],
+      "genuineGameRun": "NOT EXECUTED: GitHub Actions new exact-head run not completed; live browser/worker unavailable",
+      "localChecks": "3/3 isolated Node causal helper fixtures passed; includes rejected cross-run splice and fake cap-crossing; new complete repository tests 0 executed locally",
+      "previousCapture": {
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42139392049",
+        "sourceSha": "8620d9150776f9d4a84161620aa9a4dedabae40f",
+        "jobsAtInspection": 0,
+        "artifactsAtInspection": 0
+      },
+      "strongestHistoricalObservedDefect": "Old authentic candidate portrait danger: guardian 5 of 13 relevant observations, gate 0 of 13; unfilmed current gate changes NOT confirmed improved",
+      "matchedRealWebMs": 0,
+      "videoFrameInspection": "NOT EVALUATED",
+      "independentReviews": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "nativeDeviceFrameTimes": "NOT MEASURED",
+      "verdict": "NOT EVALUATED",
+      "nextAction": "Run and review exact-source fixed-step witness and native capture jobs; authenticate continuous crossing, floor nine, outcome/restart; then correct largest filmed defect."
     }
   },
-  "roadmapStage": "P0 — evidence + game-loop truth (OPEN; source-backed portrait gateway readability implemented but no current exact-head game-film verification)"
+  "roadmapStage": "P0 — evidence + game-loop truth (OPEN; causal source-chain observer and onward guardian-door continuity unverified in actual current-source film)"
 }
