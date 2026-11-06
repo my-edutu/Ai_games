@@ -1,6 +1,6 @@
 import{checksum}from'../../../../packages/replay/src/index';
 import type{TowerState}from'../state/types';
-import{platformAtTick,guardianArenaExitX}from'../generation/chunks';
+import{platformAtTick,guardianArenaExitX,guardianArenaSealHeight}from'../generation/chunks';
 
 function deepFreeze<T>(value:T):Readonly<T>{
   if(value&&typeof value==='object'&&!Object.isFrozen(value)){
@@ -24,6 +24,8 @@ export interface TowerRenderSnapshot{
   player:{x:number;y:number;vx:number;vy:number;halfWidth:number;halfHeight:number;facing:-1|1;health:number;maxHealth:number;stamina:number;maxStamina:number;shieldCharges:number;state:string;score:number;attacking:boolean;grounded?:boolean;groundedPlatformId?:string};
   // Published only for the opt-in physical cap guardian. Same source exit as AI and rules.
   guardianExitX?:number;
+  // Live-only source geometry: a legal double jump cannot clear the living seal.
+  guardianSealHeight?:number;
   platforms:Array<{id:string;kind:string;x:number;y:number;width:number;height:number}>;
   hazards:Array<{id:string;kind:string;x:number;y:number;width:number;height:number;active:boolean;chargeTicksRemaining?:number}>;
   enemies:Array<{id:string;kind:string;x:number;y:number;halfWidth:number;halfHeight:number;health:number;maxHealth:number;active:boolean;telegraph:boolean;telegraphTicksRemaining?:number;telegraphTotalTicks?:number;staggerTicksRemaining?:number;facing:-1|1;attackCooldown:number}>;
@@ -92,7 +94,8 @@ export function createTowerRenderSnapshot(state:TowerState,options:{includeWindu
     progress:{height:state.stats.maxHeight,floorProgressPermille:floorProgress,nextGuardianFloor,recordDelta:state.stats.maxHeight-state.config.launchFloor*state.config.chunkHeight,floorsCleared:state.stats.floorsCleared},
     dangerPermille:dangerousProjectile||dangerousHazard?1000:dangerousEnemy?750:state.player.health<=2?650:150,
     result:state.result?{reason:state.result.reason,kind:state.result.kind}:undefined,
-    ...(guardianExitX!==undefined?{guardianExitX}:{}),
+    ...(guardianExitX!==undefined?{
+      guardianExitX,guardianSealHeight:guardianArenaSealHeight(state.config)}:{}),
     authorityChecksum:checksum({tick:state.tick,floor:state.floor,player:state.player,enemies:state.enemies,projectiles:state.projectiles,pickups:state.pickups,build:state.build,result:state.result})
   };
   const snapshot={...base,publicChecksum:checksum(base)};

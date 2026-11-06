@@ -12,6 +12,17 @@ export function guardianArenaExitX(cap:Pick<TowerPlatform,'x'|'width'>):number{
 // 4,000 source units make the passage legible instead of teleporting while
 // the body still straddles its threshold. Existing source/legacy arenas keep
 // guardianArenaExitX, but only opted-in arenas require this full clearance.
+// A living guardian owns the complete walkable cap threshold, not a low
+// fence that a legitimate second jump can clear. Each source jump resets
+// vertical velocity to jumpImpulse; two maximal rises are bounded above by
+// impulse^2 / gravity (continuous upper envelope; fixed ticks lose height).
+// Add the whole body and a 16k safety lip. Only opt-in arena physics uses this
+// height, and renderer reads the SAME source-published value.
+export function guardianArenaSealHeight(
+  config:Pick<TowerConfig,'jumpImpulse'|'gravity'|'playerHalfHeight'>):number{
+  const maximumTwoJumpRise=Math.ceil(config.jumpImpulse*config.jumpImpulse/config.gravity);
+  return Math.max(140000,maximumTwoJumpRise+2*config.playerHalfHeight+16000);
+}
 export function guardianArenaClearanceX(
   cap:Pick<TowerPlatform,'x'|'width'>,playerHalfWidth:number):number{
   if(!Number.isSafeInteger(playerHalfWidth)||playerHalfWidth<0)

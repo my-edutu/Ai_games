@@ -5,7 +5,7 @@ const {test}=require('node:test'),assert=require('node:assert/strict');
 const {TowerRuntime}=require('../../dist/games/infinite-tower-climb/src/runtime/run.js');
 const {createTowerObservation}=require('../../dist/games/infinite-tower-climb/src/ai/observation.js');
 const {chooseTowerAction}=require('../../dist/games/infinite-tower-climb/src/ai/policy.js');
-const {guardianArenaExitX,guardianArenaClearanceX}=require('../../dist/games/infinite-tower-climb/src/generation/chunks.js');
+const {guardianArenaExitX,guardianArenaClearanceX,guardianArenaSealHeight}=require('../../dist/games/infinite-tower-climb/src/generation/chunks.js');
 const {STREAM_CONFIG}=require('../../scripts/serve-tower-stream.cjs');
 const {pathToFileURL}=require('node:url');
 const path=require('node:path');
@@ -416,4 +416,50 @@ test('swept guardian lock does not invent a below-cap wall or rewrite legacy jum
     }
     assert.ok(!result.contacts.some(c=>c.entityId==='f8:guardian-seal'));
   }
+});
+
+test('real maximum double-jump cannot vault a still-living guardian energy gate',()=>{
+  const {stepTowerPhysics}=require('../../dist/games/infinite-tower-climb/src/physics/step.js');
+  let {runtime,cap}=arena();
+  const guardian=runtime.state.enemies.find(e=>e.kind==='guardian');
+  guardian.active=true;guardian.health=4;
+  const stop=guardianArenaExitX(cap)-runtime.state.player.halfWidth;
+  runtime.state.player.position.x=stop-1200;
+  let state=runtime.state,secondJump=false,highestHead=-Infinity;
+  for(let i=0;i<42;i++){
+    const leap=i===0||(!secondJump&&!state.player.grounded&&state.player.velocity.y<=0);
+    if(leap&&i>0)secondJump=true;
+    const out=stepTowerPhysics(state,{move:0,jump:leap,dash:false,attack:false,ability:false});
+    state=out.state;state.tick++;
+    highestHead=Math.max(highestHead,state.player.position.y+state.player.halfHeight);
+  }
+  assert.ok(secondJump,'the test must use the real airborne second jump');
+  const capTop=cap.y+cap.height;
+  assert.ok(highestHead>capTop+140000,
+    'the former fixed-size seal was genuinely vaultable');
+  assert.ok(highestHead<capTop+guardianArenaSealHeight(state.config),
+    'new source-authoritative seal must cover the actual maximum jump envelope');
+  // An already-airborne climber at its source-observed apex cannot cross
+  // with an ordinary run/dash: collision and visual seal height agree.
+  state.player.position.y=highestHead-state.player.halfHeight;
+  state.player.position.x=stop-1200;
+  state.player.velocity.x=6500;
+  const blocked=stepTowerPhysics(state,{move:1,jump:false,dash:false,attack:false,ability:false});
+  assert.equal(blocked.state.player.position.x,stop);
+  assert.ok(blocked.contacts.some(c=>c.entityId==='f8:guardian-seal'));
+  const snapshot=require('../../dist/games/infinite-tower-climb/src/presentation/snapshot.js')
+    .createTowerRenderSnapshot(state);
+  assert.equal(snapshot.guardianSealHeight,guardianArenaSealHeight(state.config));
+  const legacy=arena({guardianArenaHazards:false});
+  assert.equal(require('../../dist/games/infinite-tower-climb/src/presentation/snapshot.js')
+    .createTowerRenderSnapshot(legacy.runtime.state).guardianSealHeight,undefined);
+});
+
+test('guardian seal scales safely with the full legal jump configuration',()=>{
+  const normal=arena();
+  const high=arena({jumpImpulse:40000,gravity:100,playerHalfHeight:40000});
+  const sourceHeight=guardianArenaSealHeight(normal.runtime.state.config);
+  assert.ok(sourceHeight>140000);
+  assert.ok(guardianArenaSealHeight(high.runtime.state.config)>sourceHeight);
+  assert.ok(Number.isSafeInteger(guardianArenaSealHeight(high.runtime.state.config)));
 });

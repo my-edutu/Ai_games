@@ -1,4 +1,4 @@
-import{platformAtTick,guardianArenaExitX}from'../generation/chunks';import type{PhysicsContact,TowerAction,TowerPlatform,TowerState}from'../state/types';
+import{platformAtTick,guardianArenaExitX,guardianArenaSealHeight}from'../generation/chunks';import type{PhysicsContact,TowerAction,TowerPlatform,TowerState}from'../state/types';
 function clamp(v:number,min:number,max:number){return Math.max(min,Math.min(max,v))}
 function overlap1(a0:number,a1:number,b0:number,b1:number){return a0<b1&&a1>b0}
 function platforms(state:TowerState,tick:number){return state.chunks.flatMap(c=>c.platforms.map(p=>platformAtTick(p,tick))).sort((a,b)=>a.id.localeCompare(b.id))}
@@ -43,7 +43,8 @@ export function stepTowerPhysics(input:TowerState,action:TowerAction):{state:Tow
       const nextY=p.position.y+p.velocity.y;
       const sweptBottom=Math.min(p.position.y,nextY)-p.halfHeight;
       const sweptTop=Math.max(p.position.y,nextY)+p.halfHeight;
-      const entersLockHeight=sweptTop>top&&sweptBottom<top+140000;
+      const entersLockHeight=sweptTop>top&&
+        sweptBottom<top+guardianArenaSealHeight(c);
       // An already-overlapping body must not continue pushing through the
       // bronze while the guardian lives. Backing away stays free, and a
       // completely past-the-plane state is never teleported by this guard.

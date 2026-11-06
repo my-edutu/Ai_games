@@ -1,4 +1,4 @@
-import { pointFor, GUARDIAN_CAP_CORRIDOR } from './coordinates.mjs';
+import { pointFor, SCALE, GUARDIAN_CAP_CORRIDOR } from './coordinates.mjs';
 
 // The original bronze guardian lock is an OUTSIDE mechanism at radius 27.78,
 // while the skinned grounded climber walks at radius 25 on the actual cap deck
@@ -227,21 +227,31 @@ export function createTowerGuardianPassage(THREE) {
   sealedLattice.castShadow = false;
   sealedLattice.receiveShadow = false;
   sealedLattice.frustumCulled = false;
-  const latticeShapes = [
-    [0,7,0,6,14,.045],
-    [-3.2,7,0,.18,14,.18],
-    [3.2,7,0,.18,14,.18],
-    [0,6.2,0,6.2,.13,.13],
-    [0,11.3,0,6.2,.13,.13],
-  ];
-  latticeShapes.forEach(([x,y,z,sx,sy,sz],index) => {
-    thresholdPose.position.set(x,y,z);
-    thresholdPose.rotation.set(0,0,0);
-    thresholdPose.scale.set(sx,sy,sz);
-    thresholdPose.updateMatrix();
-    sealedLattice.setMatrixAt(index,thresholdPose.matrix);
-  });
-  sealedLattice.instanceMatrix.needsUpdate = true;
+  // Size the exact SAME 3D seal from the authoritative two-jump envelope;
+  // a fixed 14-unit cosmetic fence let an actual double jump visually clear
+  // a source-solid guardian doorway. Keep the same five mesh instances.
+  let displayedSealHeight = 140000;
+  function poseSourceSealHeight(sourceHeight) {
+    displayedSealHeight = Number.isSafeInteger(sourceHeight) && sourceHeight >= 140000
+      ? sourceHeight : 140000;
+    const h = displayedSealHeight / SCALE;
+    const latticeShapes = [
+      [0,h/2,0,6,h,.045],
+      [-3.2,h/2,0,.18,h,.18],
+      [3.2,h/2,0,.18,h,.18],
+      [0,h*.44,0,6.2,.13,.13],
+      [0,h*.81,0,6.2,.13,.13],
+    ];
+    latticeShapes.forEach(([x,y,z,sx,sy,sz],index) => {
+      thresholdPose.position.set(x,y,z);
+      thresholdPose.rotation.set(0,0,0);
+      thresholdPose.scale.set(sx,sy,sz);
+      thresholdPose.updateMatrix();
+      sealedLattice.setMatrixAt(index,thresholdPose.matrix);
+    });
+    sealedLattice.instanceMatrix.needsUpdate = true;
+  }
+  poseSourceSealHeight(140000);
   threshold.add(thresholdStones,thresholdLeaves,sealedLattice);
   group.add(threshold);
   const thresholdLeafPose = new THREE.Object3D();
@@ -503,6 +513,7 @@ export function createTowerGuardianPassage(THREE) {
     defeatAge = 0;
     approachOpen = 0;
     sealedLattice.visible = false;
+    displayedSealHeight = 140000;
     arc.visible = true;
     ring.visible = true;
     stage = 'none';
@@ -562,6 +573,7 @@ export function createTowerGuardianPassage(THREE) {
     sourceTick = source.tick;
     stage = 'guardian-locked';
     group.visible = true;
+    poseSourceSealHeight(source.guardianSealHeight);
     sealedLattice.visible = true;
     arc.visible = false;
     ring.visible = false;
@@ -731,6 +743,7 @@ export function createTowerGuardianPassage(THREE) {
         extraDraws: stage === 'guardian-locked' ? 3 : 2,
         collider: false, sourceSimulationSealActive: stage === 'guardian-locked',
         verticalLatticeVisible: sealedLattice.visible,
+        sourceLatticeHeight: displayedSealHeight,
         focusPosition: focusPosition.toArray(),
         proof: 'World-space inner deck doorway mirrors actual source-earned exterior unlock; raster/collision quality NOT verified',
       } : null,
