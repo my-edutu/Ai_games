@@ -101,8 +101,9 @@ test('remembered-only, hidden and reset pressure hazards never animate or leave 
     near(relay.rotation.z,.05,'reduced motion cannot leak remembered hazard action');
     world.update(publicState({visibleCells:[4]}));
     world.animate(8,{explorerPosition:center,reducedMotion:false});
-    assert.ok(relay.rotation.z>.40 && relay.rotation.z<.70,
-      'revealed close hazard begins at observable warning, not instant full lift');
+    near(relay.rotation.z,.70,'near contact fully raises only the early bronze warning');
+    const carriage=world.group.getObjectByName('Published tide-shear rising carriage');
+    near(carriage.position.y,.16,'newly visible pressure cannot skip to final piston pose');
     world.animate(9.4,{explorerPosition:center,reducedMotion:false});
     near(relay.rotation.z,.70,'visible pressure actuates after staged presentation time');
     world.update(publicState({runToken:'next-run',cells:[],visibleCells:[],privateTrapCells:[4]}));
