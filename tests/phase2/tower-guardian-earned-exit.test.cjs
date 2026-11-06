@@ -176,3 +176,57 @@ test('defeated guardian opens the source-authentic 3D doorway before earned floo
   assert.deepEqual(passage.observedUnlockedGuardianCap(base),unlock,
     'same immutable source snapshot creates a deterministic stage');
 });
+
+test('short supported climber can earn floor nine while its real cap center is below the old vertical exitY', () => {
+  // The legal minimum player half-height is 5,000. The cap top is only
+  // 16,000 below chunk ceiling, whereas exitY is 8,000 below ceiling.
+  // A physically grounded 5,000-high center remains 3,000 below exitY:
+  // an unconditional Y gate made whole-body doorway clearance impossible.
+  const { runtime, cap } = arena({ playerHalfHeight: 5000 });
+  const p = runtime.state.player;
+  const clearance = guardianArenaClearanceX(cap, p.halfWidth);
+  assert.ok(cap.y + cap.height + p.halfHeight < runtime.state.chunks[0].exitY,
+    'reproduce a source-supported yet vertically unreachable legitimate exit');
+  p.position.x = clearance - 1000;
+  const before = runtime.step({ move: 0 });
+  assert.equal(before.floor, 8, 'standing short of the actual trailing-edge clearance never wins');
+  assert.equal(before.player.groundedPlatformId, cap.id);
+  runtime.state.player.position.x = clearance;
+  runtime.state.player.velocity.x = 0;
+  const after = runtime.step({ move: 0 });
+  assert.equal(after.floor, 9, 'grounded physical crossing must advance independently of actor height');
+  const event = runtime.drainEvents().find(e => e.type === 'floor-complete');
+  assert.equal(event?.data?.guardianPassage?.capId, cap.id);
+  assert.equal(event?.data?.guardianPassage?.crossingX, clearance);
+  assert.equal(event?.data?.guardianPassage?.groundedPlatformId, cap.id);
+});
+
+test('short-rig physical exit never bypasses living, missing or airborne guardian gate', () => {
+  const clearanceOf = data => guardianArenaClearanceX(data.cap, data.runtime.state.player.halfWidth);
+  const alive = arena({ playerHalfHeight: 5000 });
+  alive.runtime.state.player.position.x = clearanceOf(alive);
+  const guardian = alive.runtime.state.enemies.find(e => e.kind === 'guardian');
+  guardian.active = true;
+  guardian.health = 4;
+  assert.equal(alive.runtime.step({ move: 0 }).floor, 8,
+    'a living guardian must still lock the low-centered cap');
+  const absent = arena({ playerHalfHeight: 5000 });
+  absent.runtime.state.player.position.x = clearanceOf(absent);
+  absent.runtime.state.enemies = [];
+  assert.equal(absent.runtime.step({ move: 0 }).floor, 8,
+    'an absent guardian is not a defeated guardian');
+  const airborne = arena({ playerHalfHeight: 5000 });
+  const p = airborne.runtime.state.player;
+  p.position.x = clearanceOf(airborne);
+  p.position.y += 50000;
+  p.velocity.y = 2000;
+  p.grounded = false;
+  p.groundedPlatformId = undefined;
+  assert.equal(airborne.runtime.step({ move: 0 }).floor, 8,
+    'even an above-exitY body cannot win before source-grounded passage');
+  const legacy = arena({ playerHalfHeight: 5000, guardianArenaHazards: false });
+  legacy.runtime.state.player.position.x = clearanceOf(legacy);
+  assert.ok(legacy.runtime.state.player.position.y < legacy.runtime.state.chunks[0].exitY);
+  assert.equal(legacy.runtime.step({ move: 0 }).floor, 8,
+    'the frozen unflagged vertical exit requirement is not changed');
+});
