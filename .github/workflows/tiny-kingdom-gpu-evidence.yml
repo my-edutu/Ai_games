@@ -20,6 +20,37 @@ permissions:
   contents: read
 
 jobs:
+  # W76: actual original cottage meshes reside in independently bounded
+  # spatial blocks. Verify the SAME 1024px / 390px world before/after forced
+  # alternative renderer, no hidden villagers, no triangle or replay changes.
+  w76-real-inhabited-home-clusters:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: W76 exact complete cottage clusters across desktop and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w76-home-cluster-residency.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w76-physical-home-cluster-integrity
+          path: |
+            artifacts/tiny-kingdom-w76/
+            test-results/
+          retention-days: 14
   # W75: all actual finished-job props persist exactly within the
   # authoritative 1.5h evidence window, with an honest bounded fallback.
   w75-recorded-production-residency:
