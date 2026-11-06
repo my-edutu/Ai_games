@@ -20,6 +20,39 @@ permissions:
   contents: read
 
 jobs:
+  # W83: source-following original granary-to-market medieval carriageway
+  # and the real barn loading porch, with NO added citizen or navigation edge.
+  # Verify rendered desktop and 390px WebGL, full real Day-120 growth,
+  # snapshots, GL, every real building/citizen and strict triangle budget.
+  # This is a safety floor, never an experience-look/feel/play proof.
+  w83-real-farm-market-street:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: W83 actual terrain-through-trade street, granary structure and growing-world safety
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w83-farm-market-continuity.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w83-original-granary-to-market-world
+          path: |
+            artifacts/tiny-kingdom-w83/
+            test-results/
+          retention-days: 14
   # W81: real 120-day town roof reconstruction must reclaim triangles without
   # hiding original houses, workers or receipts, at 1024px and mobile 390px.
   # Software WebGL performance is diagnostic only, never hardware FPS.
