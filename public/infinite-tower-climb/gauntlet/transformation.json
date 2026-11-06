@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updated": "2026-11-06",
+  "updated": "2026-11-07",
   "mode": "transformation-first",
   "baseline": {
     "sha": "1731b380851162741761c5569e2bc152a0869ca9",
@@ -44,7 +44,7 @@
         "sourcePinnedGameplayCaptureUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42290154229",
         "reviewHeadQualityUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42290626576"
       },
-      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN; source-authoritative double-jump guardian seal authored but not runtime/film validated",
+      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN; historical native danger footage shows missed scene and multiple episodes; candidate same-episode source evidence gate authored but original runner NOT EVALUATED",
       "implementationSha": "74bbe242228120de04f5ec1b1a867dc48b3600f1",
       "sourceBaseSha": "40d3d64d2bd4338bab2efafba949623d6fc0fd3e",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
@@ -223,6 +223,44 @@
         "leadingTransformationVerdict": "NOT EVALUATED",
         "nextHighImpactAction": "Restore actual source Node22/Chromium; run npm build and phase2 guardian earned exit tests, source-only dual unmodified 3200-tick campaigns and full event audit; inspect new matched normal-speed 960x600/390x844 60+s baseline/candidate WebMs for tall gate camera clarity, real guardian/crusher victory, grounded physical passage, floor-nine onwards, result/restart. Resolve largest footage defect before P1; independent critics and supported-device frame-time tails remain outstanding.",
         "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9"
+      },
+      "sourceEpisodeIntegrity20261107": {
+        "stage": "P0 OPEN — truthful source-episode capture gating, NOT EXPERIENCE PASS",
+        "previousSourceHead": "0f19aac8823b3fcebc38fc10dfcad1e4fe47c228",
+        "implementationSha": "cefbefae8e0ced26c9417e6228265a85c4043e94",
+        "regressionSha": "04d1d818b4e5c158ac211653bf5b09fcf4e3e96d",
+        "reviewSha": "bb72393338e60673161a17827fe97f760107ad5d",
+        "reviewPath": "docs/reviews/2026-11-07-tower-pr68-capture-source-episode-integrity.md",
+        "sourceChange": "Original footage pairing audit now rejects missing or split authentic source episode coverage despite valid SHA, native viewport and 60+ second WebM. Danger needs living floor-eight guardian -> HP reduction -> defeat -> supported gateway -> floor-nine handoff -> fixed-step grounded threshold, all in same ordered observed episode; outcome requires genuine game result and next episode restart. No video visibility inferred.",
+        "historicalFootage": {
+          "sourceRun": "https://github.com/my-edutu/Ai_games/actions/runs/42104896643",
+          "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+          "historicCandidateSha": "8fd9018fbe53196c34f41f3e9260b2d6fa1b459e",
+          "baselineDangerArtifactId": 13464172568,
+          "candidateDangerArtifactId": 13463847830,
+          "observedDefect": "Full-motion historical portrait danger starts on floor ten in both recordings and alternates run episodes; small hero/guardian and unclear actual gateway crossing. Both portrait sidecars report zero observed close guardian/crusher crossfire witnesses. This evidence DOES NOT assess the current PR68 HEAD."
+        },
+        "checks": {
+          "sourceFileAndTestsFetchedAtExactHead": true,
+          "isolatedJSV8AuthoredSourceAndTestExecution": "11/11 synchronous source-event pairing fixtures passed in isolated V8 using test/assert compatibility shims; NOT original Node22/test runner",
+          "originalNode22RepositorySuite": "NOT EVALUATED — connected development tunnel unavailable",
+          "authentic3200TickCampaigns": "NOT EVALUATED — no source runner",
+          "sourceMatchedCurrentVideo": "NOT EVALUATED — workflow jobs queued without current-source artifacts",
+          "independentBlindReviews": {
+            "looks": 0,
+            "feels": 0,
+            "plays": 0
+          },
+          "actualDeviceFrameTimesAndMemory": "NOT EVALUATED"
+        },
+        "sourcePinnedCaptureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42306258180",
+        "sourcePinnedCaptureStatus": "9/9 queued; zero artifacts at last inspection",
+        "sourcePinnedQualityRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42306515806",
+        "sourcePinnedQualityStatus": "Queued; no passed exact-head quality result",
+        "biggestSystemicExperienceGap": "No authentic continuous event-matched, full guardian/crusher victory -> physical gateway -> floor nine onward -> true result/restart and readable portrait action filmed at current source",
+        "nextHighestImpactAction": "Recover exact-head Node22 and Chromium runner, execute both authentic 3200-tick campaigns and real browser recordings at frozen baseline/current immutable candidate SHA for 960x600 and 390x844; inspect full motion, source-event alignment and passage visibility. Fix largest proven action/visual defect before P1; then collect supported hardware and independent blind LOOKS/FEELS/PLAYS.",
+        "leadingVerdict": "NOT EVALUATED",
+        "safeChangeScope": "Only Tower evidence pairing, paired regression fixtures, review and transformation evidence; baseline SHA, PR58 and PR68 draft state preserved; no merge, deploy, force-push."
       }
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
