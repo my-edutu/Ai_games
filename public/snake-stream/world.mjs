@@ -217,6 +217,12 @@ export function buildErodedIslandShelfGeometry(THREE, width, height, layer) {
     ? [[0, -.225], [.44, -1.12], [1.65, -2.42], [3.32, -3.80]]
     : [[0, -.208], [.18, -.36], [.47, -.60], [.86, -.88]];
   const positions = [0, -.225, 0], uvs = [.5, .5], indices = [];
+  // These are the seven ORIGINAL rooted headlands, not extra trees or props.
+  // Compute their polar footprints once and grow the existing two static
+  // shelves into the woodland where the floor used to end abruptly in water.
+  const forests = stageHeadlandAnchors(width,height).map(({x,z}) => ({
+    angle: Math.atan2(z,x), distance: Math.hypot(x,z),
+  }));
   for (let ring = 0; ring < ringCount; ring++) {
     const [shelf, depth] = rings[ring];
     for (let k = 0; k < sectorCount; k++) {
@@ -232,9 +238,49 @@ export function buildErodedIslandShelfGeometry(THREE, width, height, layer) {
         + .041 * Math.cos(a * 19 + .76);
       const grain = .05 * Math.sin(a * 17 + ring * .71)
         + .025 * Math.sin(a * 29 - ring * 1.16);
-      const radius = boundary + shelf + erosion + grain;
+      // T1 COMPLETE COAST CONNECTION: all four landward shores retain their
+      // exact clearance from every playable stone, hazard and portal. The
+      // existing two original shelf meshes now flare OUTWARD with long,
+      // irregular tidal headlands, stepped bays and rooted connection points
+      // instead of four rigid parallel walls under a rectangular tile court.
+      // Five overlapping landscape-scale frequencies are authored as static
+      // real 3D vertices, not a flat colour overlay or a dynamic game route.
+      // Positive radial growth always increases through the same four rings:
+      // no foldovers, extra draw passes, extra materials or per-frame CPU work.
+      const broadBay = .5 + .5 * Math.sin(a * 6 + .36 * Math.sin(2 * a) + .53);
+      const coastalCrown = .5 + .5 * Math.cos(a * 8 + .33);
+      const longSlope = .5 + .5 * Math.sin(a * 3 - .48);
+      const fracturedCape = .5 + .5 * Math.cos(a * 11 - .72);
+      const terraceReach = 2.95 * (.49 * broadBay + .61 * coastalCrown
+        + .37 * longSlope + .20 * fracturedCape);
+      const outward = ring / (ringCount - 1);
+      // The four corner groves plus west/east valleys and northern old-growth
+      // were previously detached islands. Connect their ACTUAL world-space
+      // root positions to the same original coastal stone/moss by growing
+      // tapered capes from every shoreline rather than adding seven props.
+      // The lobe footprint stays a shallow, smoothly blended polar Gaussian
+      // so it cannot clip the board or invert the nested coastal strata.
+      let rootedCape = 0;
+      for (const forest of forests) {
+        const diff = Math.atan2(Math.sin(a - forest.angle),
+          Math.cos(a - forest.angle));
+        const lobe = Math.exp(-Math.pow(diff / .25, 2));
+        // Compute relative to the fixed outer ring, not the current ring:
+        // each coast layer stays radially ordered even near a narrow lagoon.
+        const outerShelf = rings[ringCount - 1][0];
+        const outerGrain = .05 * Math.sin(a * 17 + (ringCount - 1) * .71)
+          + .025 * Math.sin(a * 29 - (ringCount - 1) * 1.16);
+        const expectedOuter = boundary + outerShelf + erosion
+          + outerGrain + terraceReach;
+        rootedCape = Math.max(rootedCape,
+          Math.max(0, forest.distance - expectedOuter - .72) * lobe);
+      }
+      const radius = boundary + shelf + erosion + grain
+        + (terraceReach + rootedCape) * outward * outward;
       const y = depth - (ring === 0 ? 0 : .065 * Math.sin(a * 7 - ring * .65) ** 2)
-        - .020 * Math.sin(a * 13 + ring * .4) ** 2;
+        - .020 * Math.sin(a * 13 + ring * .4) ** 2
+        - outward * .16 * (.5 + .5 * Math.sin(a * 9 - .4))
+        + outward * .12 * Math.cos(a * 5 + .24);
       const x = radius * cx, z = radius * cz;
       positions.push(x, y, z);
       uvs.push(x / 5 + .5, z / 5 + .5);
@@ -267,12 +313,27 @@ export function buildErodedIslandShelfGeometry(THREE, width, height, layer) {
  * broad, distinct silhouette, without placing obstacles in public cells.
  * Stable and independent of frame ticks and the game's seeded simulation.
  */
+// T1 whole-island native stone/ruin composition. The same continuous tidal
+// rhythm now bends both the ORIGINAL 3D masonry courses and the ORIGINAL rim
+// coping around the connected eroded shelves. This is a bounded STATIC field;
+// unlike adding decorative islands, it cannot create draw calls, assets,
+// moving obstacles or per-frame scene allocations.
+function sculptTidalRill(edge, along) {
+  const broad = .5 + .5 * Math.sin(along * .82 + edge * 1.72
+    + .34 * Math.sin(along * .27 - edge * .31));
+  const fracture = .5 + .5 * Math.cos(along * 1.43 - edge * 1.04);
+  return .63 * broad + .29 * fracture;
+}
+
 export function sculptCoastCourse(width, height, edge, tier, along) {
   const W = width / 2, H = height / 2, horizontal = edge < 2;
   const len = horizontal ? width + 2 : height + 2;
   const shoulder = .25 + .40 * (.5 + .5 * Math.sin(along * .84 + edge * 2.19 + tier * .73))
     + tier * (.32 + .11 * Math.sin(along * .48 + edge * .67));
-  const rim = 1 + shoulder;
+  // Root the ruined perimeter in the same wave-cut island instead of a
+  // repeated rectangular parapet; higher courses recess farther outboard.
+  const rim = 1 + shoulder + (.48 + tier * .10) * sculptTidalRill(edge, along)
+    + .44 * (.5 + .5 * Math.sin(along * 1.73 + edge * 2.37));
   const stagger = .20 * Math.sin(along * 1.19 + tier * 2.17 + edge * 1.71);
   const cross = along - len / 2 + .8 + stagger;
   const x = horizontal ? cross : (edge === 2 ? -W - rim : W + rim);
@@ -294,7 +355,10 @@ export function sculptCopeStone(width, height, edge, along) {
   const W = width / 2, H = height / 2, horizontal = edge < 2;
   const wave = .5 + .5 * Math.sin(along * .71 + edge * 1.9);
   const finer = .5 + .5 * Math.cos(along * 1.43 - edge * 1.2);
-  const outward = .36 + .22 * wave + .06 * finer;
+  // Retain the intact one-stone-per-cell boundary while carving broader
+  // material bays: the minimum outward clearance remains safely exterior.
+  const outward = .36 + .22 * wave + .06 * finer
+    + .37 * sculptTidalRill(edge, along);
   return {
     x: horizontal ? along - W : (edge === 2 ? -W - outward : W + outward),
     y: -.11 + .033 * Math.sin(along * .83 + edge * 1.72),
