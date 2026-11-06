@@ -11,18 +11,33 @@
     "sha": null,
     "title": "OPEN 3D Tower: real earned threshold cannot be bypassed by absent guardian; exact fixed-step grounded body clearance is recorded before real floor-nine spawn. Neither this source change nor film is quality-approved.",
     "implementationSha": "7238708471828dec3a0100a7534e5c0ad863cb8e",
-    "implementationEvidenceStatus": "NOT EVALUATED: game rules still at gameplay implementation 7238708471828dec3a0100a7534e5c0ad863cb8e. 2026-11-06 P0 diagnosed repeatedly cancelled/zero-job source capture runs (e.g. 42130752551: nine cancelled jobs; more recent 42154966516 and 42155378252 still pending, no artifacts at last inspection). GitHub concurrency with group per branch allows later pending pushes to replace earlier pending runs even when cancel-in-progress=false. Fixed the 9-job visual workflow and full quality workflow concurrency grouping by immutable github.sha on PR68 at commits 7480dee106 and 6cb1d2aaac, respectively. No current exact-source video or 3200-tick campaign result was produced in this execution. Sampled real frame imagery from historic original-host 42104896643 candidate 8fd9018f (NOT current game source) shows portrait floor-eight climber tiny amid machinery at ~21-24s and floor-nine at ~39s without a clearly legible grounded doorway crossing. This older evidence cannot establish the latest guardian/camera fix or current quality. Independent LOOKS/FEELS/PLAYS critics 0/5 each; device performance not evaluated."
+    "implementationEvidenceStatus": "NOT EVALUATED: game rules still at gameplay implementation 7238708471828dec3a0100a7534e5c0ad863cb8e. 2026-11-06 P0 diagnosed repeatedly cancelled/zero-job source capture runs (e.g. 42130752551: nine cancelled jobs; more recent 42154966516 and 42155378252 still pending, no artifacts at last inspection). GitHub concurrency with group per branch allows later pending pushes to replace earlier pending runs even when cancel-in-progress=false. Fixed the 9-job visual workflow and full quality workflow concurrency grouping by immutable github.sha on PR68 at commits 7480dee106 and 6cb1d2aaac, respectively. No current exact-source video or 3200-tick campaign result was produced in this execution. Sampled real frame imagery from historic original-host 42104896643 candidate 8fd9018f (NOT current game source) shows portrait floor-eight climber tiny amid machinery at ~21-24s and floor-nine at ~39s without a clearly legible grounded doorway crossing. This older evidence cannot establish the latest guardian/camera fix or current quality. Independent LOOKS/FEELS/PLAYS critics 0/5 each; device performance not evaluated. 2026-11-06 P0 evidence-only continuation 503fbc4ad41fad84c9003710b80361d6706cabda (7/7 sourced simulated Node fixture adapters at fb67205f; no gameplay or visual change): real same-run crusher pressure, landed onward floor-nine route and playable game terminal are now mandatory for complete source chain. Current source-run result remains unexecuted; not a quality PASS."
   },
   "currentTransformation": {
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
-    "state": "P0 OPEN — source crossing rule exists, but exact-head original-host full-loop film, earned floor-nine witness, complete result/restart and actual-device checks remain NOT EVALUATED. Source-pinned capture queue starvation investigated; concurrency isolated by SHA, without modifying game authority.",
+    "state": "P0 OPEN — source-owned guardian/crusher/passages diagnostic now rejects no-crusher, idle floor-nine and technical/operator false full loops; exact original-game WebMs, actual complete live source campaign and verified mobile action readability still NOT EVALUATED.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Check 9-job visual workflow triggered by commit 7480dee106 (group keyed by that exact source SHA), and quality workflow at 6cb1d2aaac; download authentic paired baseline/candidate WebM, source trace and 3200-tick guardian witness. Watch complete floor8 guardian/crusher→grounded visible threshold→floor9 onward→outcome/restart in 960x600 and 390x844; identify and implement highest-impact real gameplay/scene fix if missing. Run full CI and real hardware measurements. Don't grade blind acceptance on historic 8fd footage.",
+    "nextDecision": "Resolve persistent GitHub runner queue (capture run 42157788943 all nine jobs still queued; quality run 42158025950 also queued), then run exact SHA 503fbc4a source witness and source-pinned 9-job desktop/portrait capture. Inspect authentic complete guardian+crusher pressure, earned doorway physical body crossing, a later grounded floor-nine route, outcome/restart; match events to frozen original-host clips; rebuild largest film-observed mobile composition/gameplay defect. Never score isolated fixtures as improved game.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
     "biggestRemainingExperienceGap": "Inspected historical original-host sampled real portrait video frames (candidate 8fd9018f, source-pinned run 42104896643): at 21-24s the floor-eight hero is tiny below a much larger mechanical tower and opponent; by 39s a floor-nine handoff occurs without a plainly legible grounded threshold crossing. These frames are historical and not an assessment of current live camera/doorway implementation 723870847. Need fresh full-motion native WebM, source event correspondence and actual-device performance.",
     "unverifiedImplementationBranchHead": "6cb1d2aaac90b71661fe607ab1d0054d2578f020",
     "currentVerticalSlice": "Real locked guardian upper cap: requires source-dead guardian and physical grounded body passage; source floor-complete guardianPassage event preserves exact exit/clearance/crossing coordinates before the real next-floor respawn. Same-run causal observer and unedited-video source-event index check this claim. Actual films not independently seen.",
-    "biggestGap": "Current SHA exact-source browser footage remains absent; verify the queued per-SHA nine-job authentic capture and 3200-tick guardian source campaign first. Old filmed portrait shows poor action-scale hierarchy and illegible earned gateway; retest latest source before modifying scene or claiming fix. No independent critics or device frame-time/memory data."
+    "biggestGap": "GitHub Actions runs 42157788943 (nine queued jobs, no artifacts) and 42158025950 (one queued, no artifacts) remained unstarted when inspected 2026-11-06. Real current source game/video and device measurements absent. P0 truth witness previously could accept idle floor-nine tick, technical/operator terminal, and no observed near-cap crusher; corrected in 503fbc4a but new game logic untested in full Node or 3200-tick campaign. Historical portrait camera dwarfing hero and unreadable gate remain greatest film-observed weakness, NOT latest-head assessment.",
+    "p0SourceContract": {
+      "sourceSha": "503fbc4ad41fad84c9003710b80361d6706cabda",
+      "testsSha": "fb67205f356025b0d931eeffbfa66e6ea02cfd85",
+      "reviewSha": "31c57b32d71ed1d830f8c2f47124a6a89e738133",
+      "sourceOnlyFixtureResults": "7/7 in-scope authored tests executed using exact branch CJS via V8 adapters; 4 direct V8 scenario probes; NOT full Node, CI, gameplay or browser tests",
+      "completionCriteria": "one actual run: living guardian; close real shutter warning or active crusher survived; guardian defeated; grounded real cap walking with x advance; authoritative exact crossing; later physically grounded floor-nine onward deck or higher floor; game-kind result; intermission; new run restart",
+      "sourceCampaign": "NOT EVALUATED — actual 3200-tick fixed-step guardian witness unavailable while GH jobs queued",
+      "capture": "NOT EVALUATED — no new exact-head current source WebM; historical 8fd footage only",
+      "blindIndependentReviews": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED"
+    }
   },
   "scenarios": [
     {
@@ -62,11 +77,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "NOT EVALUATED for latest PR68 head. Previous 4/4 isolated V8 fixtures at gameplay SHA 723870847 are only local-focused checks. 2026-11-06 fixed GitHub capture/quality pending-run supersession by using immutable SHA concurrency group. Earlier run 42130752551 all 9 jobs cancelled; 42154966516 and 42155378252 have zero jobs at latest check; no current full npm build, tests, Playwright, source witness or current source WebM results. CI is safety veto only.",
-    "replay": "Existing 20 Hz fixed-step source remains authoritative; guardian cap now refuses unlock when no dead guardian entity, and floor-complete event preserves true previous-grounded physical crossing coordinates before floor9 spawn. Extra CI-only source trace is passive. Baseline unchanged; actual deterministic full campaign/replay not yet executed at SHA 7238708471828dec3a0100a7534e5c0ad863cb8e.",
+    "ci": "NOT EVALUATED for current PR68 head. P0 evidence source commit 503fbc4a, fixture commit fb67205f and review 31c57b32. Seven authored CJS fixtures with exact helper executed in isolated V8 adapters (not full node:test); four standalone simulated causal paths passed. Source original-host capture run 42157788943 still queued with nine queued jobs/zero artifacts at inspection, source quality run 42158025950 queued with one job/zero verdict. Full build, npm test, live source 3200-tick campaign, Playwright and hardware pending. CI is veto, never quality score.",
+    "replay": "No physics/AI/authority code changed in this run; frozen baseline preserved. Diagnostic observer now requires a real same-run crusher warning/activation near living cap climber survived, a later genuine grounded floor-nine deck landing (not idle spawn), a game-kind result (not technical/operator), and genuine restart. Actual fixed-step 3200-tick campaign at 503fbc4a not executed; source replay/stability NOT EVALUATED.",
     "accessibility": "Source rule/event and capture workflows only this run; previous reduced-motion and current gameplay HUD unchanged. Portrait device/keyboard/screen-reader/restart acceptance NOT EVALUATED.",
     "performance": "No new 3D draw calls, geometry or shader with this source-level fix; event data adds bounded integers to terminal floor-complete. Actual mobile/desktop GPU frame-time p50/p95/p99 and memory NOT EVALUATED.",
-    "stability": "No gameplay authority, rendering or deploy code changed by 2026-11-06 P0 infrastructure fix; static workflow group strings read back from GitHub and GitHub recorded fast-forward commit parent chain. Exact-head 3200 tick source game and 8 genuine baseline/candidate scenario recordings not yet produced, so complete real guardian→crossing→floor9→restart is unverified."
+    "stability": "New read-only diagnostic cannot mutate source game; 7/7 isolated source CJS fixtures passed. No exact-head Node/build, browser, game campaign, captured source WebM or original-hardware stability verification. Prior nine queued capture jobs still unstarted at inspection. Remains NOT EVALUATED."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -3813,6 +3828,21 @@
       },
       "actualHardwarePerformance": "NOT EVALUATED",
       "next": "Wait for already-triggered per-SHA source workflow to produce real source-pinned full-motion footage; inspect event-matched guardian/crusher→gateway→floor nine and result/restart; correct largest visible systemic defect."
+    },
+    "currentP0Verification": {
+      "sourceSha": "503fbc4ad41fad84c9003710b80361d6706cabda",
+      "testsSha": "fb67205f356025b0d931eeffbfa66e6ea02cfd85",
+      "reviewSha": "31c57b32d71ed1d830f8c2f47124a6a89e738133",
+      "sourceOnlyFixtureResults": "7/7 in-scope authored tests executed using exact branch CJS via V8 adapters; 4 direct V8 scenario probes; NOT full Node, CI, gameplay or browser tests",
+      "completionCriteria": "one actual run: living guardian; close real shutter warning or active crusher survived; guardian defeated; grounded real cap walking with x advance; authoritative exact crossing; later physically grounded floor-nine onward deck or higher floor; game-kind result; intermission; new run restart",
+      "sourceCampaign": "NOT EVALUATED — actual 3200-tick fixed-step guardian witness unavailable while GH jobs queued",
+      "capture": "NOT EVALUATED — no new exact-head current source WebM; historical 8fd footage only",
+      "blindIndependentReviews": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED"
     }
   },
   "roadmapStage": "P0 OPEN — exact-source complete loop and film not evaluated. Capture queue starvation remediation in GitHub workflows at commits 7480dee1065692f684b445b3a8920ffb66825d5e and 6cb1d2aaac90b71661fe607ab1d0054d2578f020; this is evidence infrastructure, not a playable transformation acceptance."
