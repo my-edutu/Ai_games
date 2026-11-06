@@ -1,4 +1,4 @@
-# Tiny Kingdom — single persistent transformation backlog (W74)
+# Tiny Kingdom — single persistent transformation backlog (W75)
 
 Status: **ACTIVE — WORK IN PROGRESS, NOT AN EXPERIENCE MILESTONE**.
 Repository: `my-edutu/Ai_games`; **open draft PR #64 only**, branch `feat/tiny-kingdom-post-main-gauntlet-20261031`.
@@ -12,6 +12,14 @@ G088 baseline: `2f6deb43feb1a1557848d44def53a6109deb1ab1`.
 - Latest **inspected** real comparative workday: [W67 same-seed real moving captures](https://github.com/my-edutu/Ai_games/actions/runs/42101461674/artifacts/13452738968). Do not substitute current W69 stills or render probes for a live comparison.
 - W67 [real 120-day soak](https://github.com/my-edutu/Ai_games/actions/runs/42101461741/artifacts/13453456462): 28 real people, 37 structures, 150,155 triangles in sampled view, byte-identical seeded replay and zero reported page/GL errors. Ubuntu **SwiftShader software** 36 frames / 8.42s = 4.28 observed FPS; CPU static p95 112.5ms, dynamic p95 40.7ms, total p95 144.8ms. Samples are workload-specific, NOT a hardware-GPU performance result or causal improvement.
 - W68 source-matched GPU, soak and matched video jobs were still QUEUED when checked on 2026-11-05. The W68 city-materiality/camera effects are NOT independently verified. Never infer their result from W67.
+
+## W75 — actual completed production becomes retained physical 3D evidence (6 November 2026)
+
+**Same milestone, not a fresh target:** observed farmer work → genuine freight → market credit → inhabited cottage. The W68 independently captured market-post obstruction, low software frame rate and abrupt homecoming remain live blockers. The pinned G088 source and reference films never move.
+
+- **Playable change:** [exact W75 real-game source `e5e786e`](https://github.com/my-edutu/Ai_games/commit/e5e786e4984cc7f79ea185527f6d0f85f08e2a51) moves the ORIGINAL physical trace props for up to 12 actually completed, recorded professional work events into ONE bounded 48,000-float resident WebGL buffer. Original produce/debris materials, shape, location and 1.5-hour age remain identical. The real moving worker, tool impacts, parcels, granary and market inventory still animate and react to fixed-step authority. Buffer is invalidated when genuine event membership changes; never a fake prop or resource. Memory is deleted when all records expire and on reset/save restore; strict SwiftShader retains the old path unless specifically tested.
+- **Technical safety:** exact source [W75 desktop + 390px browser test](https://github.com/my-edutu/Ai_games/blob/feat/tiny-kingdom-post-main-gauntlet-20261031/tests/browser/tiny-kingdom-w75-recorded-work-residency.spec.cjs) was committed before implementation, though red execution was NOT witnessed. [Dedicated registered GPU CI](https://github.com/my-edutu/Ai_games/actions/workflows/tiny-kingdom-gpu-evidence.yml) compares resident versus original real-world triangle totals, actual work event identities, unchanged state checksum, GL errors and mobile overflow. Complete inline JS parsed in V8. A narrow extracted-source simulated-GL check matched 210 resident/original vertex floats for two genuine-shape event examples, observed one cache reuse/draw and deletion on expiration; **NOT a running-browser GREEN**. No speedup/visual PASS assigned.
+- **Remaining hard gate:** exact-head desktop/390px browser and seed-replay runs, uncut producer→market→home movie, real frame p95 and hardware 30+ FPS, then independent fresh-context blinded A/B. Source `e5e786e` code and narrow probes do NOT prove a frame-time win. No merge.
 
 ## W73–W74 continued actual playable rendering spine and courier observation — 6 November 2026
 
