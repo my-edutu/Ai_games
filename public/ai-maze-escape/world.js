@@ -1150,9 +1150,18 @@ export function createMazeWorld(options = {}) {
         // Only an authentic, disclosed NONPASSAGE edge beside a published
         // pressure trap can earn a lower solid wall. Never use unresolved
         // neighbors, public gate edges or the engine's private route graph.
-        const pressureParapet = !publicParapet && pressureStageCells.has(c.cell)
-          && !c.blocked && n >= 0 && knownByCell.has(n)
-          && !knownByCell.get(n).blocked && !gateEdges.has(key);
+        // In a fully disclosed pressure court, an adjacent TRUE blocked
+        // tile may also have a low, continuous boundary, but only when its
+        // raised, solid replacement masonry below is present. This restores
+        // a sightline past the previously opaque wall to the physical jaws.
+        // No undisclosed edge, real gate or collision rule is changed; the
+        // cutaway is symmetric regardless of public cell iteration order.
+        const pressureParapet = !publicParapet && n >= 0
+          && knownByCell.has(n) && !gateEdges.has(key)
+          && (pressureStageCells.has(c.cell) || pressureStageCells.has(n))
+          && ((!c.blocked && !knownByCell.get(n).blocked)
+            || (pressureSightlines.has(c.cell) && pressureSightlines.has(n)
+              && !!c.blocked !== !!knownByCell.get(n).blocked));
         const fossilStageEdge = fossilSide && fossilSide.n === n;
         if (publicParapet || pressureParapet)
           gateForecourtParapet(x + dx * 1.2, z + dz * 1.2, !!dz, c.cell, pressureParapet);
@@ -1237,6 +1246,26 @@ export function createMazeWorld(options = {}) {
         }
       }
       if (c.blocked) {
+        // Original pressure-court cutaway: the old 2.7-unit pavilions and
+        // towers hid Pip's real relay/shutters/piston in source-bound phone
+        // views. Only an ALREADY DISCLOSED blocked tile within the visible
+        // pressure court gets a sealed, low carved tide-ledge instead.
+        // Real impassability is explicit in a solid raised stone cap and
+        // cross-rib masonry. Do not imply a passage, movable platform,
+        // treasure, new trigger, key or AI action. Every mesh is batched in
+        // existing shared geometry/material pools; no render-time allocation.
+        if (pressureSightline) {
+          block(deepStone, x, .19, z, 2.06, .38, 2.06, c.cell);
+          block(jade, x, .413, z, 1.88, .066, 1.88, c.cell);
+          block(stone, x, .48, z, 1.45, .12, .45, c.cell, Math.PI / 4);
+          block(seaGlass, x, .565, z, 1.28, .065, .28, c.cell, -Math.PI / 4);
+          for (const side of [-1, 1]) {
+            block(deepStone, x + side * .63, .50, z - side * .46,
+              .44, .30, .45, c.cell, side * .13);
+            block(lightStone, x + side * .63, .677, z - side * .46,
+              .45, .054, .45, c.cell, side * .13);
+          }
+        } else {
         // Three original silhouettes occupy ONLY publicly disclosed, truly
         // blocked cells. Never infer a wall from a hidden or missing neighbor;
         // scenery must not announce secret routes, keys, hazards or AI moves.
@@ -1304,6 +1333,7 @@ export function createMazeWorld(options = {}) {
               x + side * .40, 2.28, z, .73, .17, 1.20,
               c.cell, 0, 0, -side * .47);
           add(cone, darkJade, x, 2.66, z, .28, .70, .28, c.cell);
+        }
         }
       }
     }

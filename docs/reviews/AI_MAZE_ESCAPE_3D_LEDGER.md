@@ -1,3 +1,8 @@
+### Pass188 — source-bound pressure court blocked masonry cutaway candidate (2026-11-06 UTC)
+
+- **Substantive 3D scene candidate:** the existing public pressure sightline still left 2.7-unit blocked-cell pavilions/windcatchers and tall nonpassage walls hiding actual Pip-to-piston action in original native 320/390 criticism. Only confirmed disclosed blocked tiles near a public trap now receive a solid low tide-ledge; the corresponding confirmed impassable boundary gets a continuous stone parapet. Unknown and real gate edges remain tall/intact, real collision/AI/visibility/HUD/camera unchanged, reused pooled 3D geometry/material only.
+- **New strict physical regression candidate:** installed-Three instanced matrix height compares actual disclosed blocked tile, ordered/unordered snapshots, public trap absent/present, actual guardian jaw, source immutability and zero resource growth across updates/reset/dispose. **Not executed** with disconnected coding tunnel. Native exact-HEAD screenshots, strict six-run <100 resource guard (prior 102), CI, original Nintendo comparison **UNVERIFIED**. [Dated review](./maze-3d/pass-188-disclosed-pressure-blocked-masonry-cutaway-2026-11-06.md). PR #53 stays OPEN DRAFT, unmerged, undeployed; fixed reference NOT MET.
+
 ### Pass187 — live-step-paced physical pressure encounter candidate (2026-11-06 UTC)
 
 - **Player-visible pacing gap:** the public autonomous step is typically 360ms, but the three-stage pressure scene previously required 1.25s of uninterrupted close contact. A moving Pip can leave before the real linked piston completes. This is a source-grounded diagnosis, not a new native screenshot.
