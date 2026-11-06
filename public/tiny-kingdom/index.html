@@ -2053,19 +2053,105 @@ function setStaticBatchBridgingForTesting(value){
  lastFrozenFrameKey=null;presentationEpoch++;
  return value;
 }
+// W88 Phase 1: coarse resident AABB acceleration for the THREE original
+// landscape, civic and settlement chunk classes. An immutable range array
+// owns its own group tree; growth or season changes replace that array and
+// construct fresh conservative envelopes. The WeakMap never retains retired
+// GPU geometry. Every frustum-visible original triangle remains drawable.
+const SCENIC_VISIBILITY_GROUP_EDGE=16;
+const scenicVisibilityGroupCache=new WeakMap();
+const scenicVisibilityGroupStats={
+ groupsBuilt:0,rangeSetsBuilt:0,groupTests:0,coarseRejectedGroups:0,
+ coarseRejectedChunks:0,individualTests:0
+};
+function getScenicVisibilityGroups(ranges){
+ let groups=scenicVisibilityGroupCache.get(ranges);
+ if(groups)return groups;
+ groups=[];
+ for(let start=0;start<ranges.length;start+=SCENIC_VISIBILITY_GROUP_EDGE){
+  const end=Math.min(ranges.length,start+SCENIC_VISIBILITY_GROUP_EDGE);
+  const group={start,end,minX:Infinity,minY:Infinity,minZ:Infinity,
+   maxX:-Infinity,maxY:-Infinity,maxZ:-Infinity};
+  for(let i=start;i<end;i++){
+   const b=ranges[i];
+   group.minX=Math.min(group.minX,b.minX);
+   group.minY=Math.min(group.minY,b.minY);
+   group.minZ=Math.min(group.minZ,b.minZ);
+   group.maxX=Math.max(group.maxX,b.maxX);
+   group.maxY=Math.max(group.maxY,b.maxY);
+   group.maxZ=Math.max(group.maxZ,b.maxZ);
+  }
+  groups.push(group);
+ }
+ scenicVisibilityGroupCache.set(ranges,groups);
+ scenicVisibilityGroupStats.groupsBuilt+=groups.length;
+ scenicVisibilityGroupStats.rangeSetsBuilt++;
+ return groups;
+}
+function getScenicCullHierarchyAudit(){
+ return {source:'resident-static-spatial-aabb-hierarchy',
+  groupEdge:SCENIC_VISIBILITY_GROUP_EDGE,...scenicVisibilityGroupStats,
+  authorityChanged:false,drawsAltered:false,housingVisibilityUnchanged:true,
+  requirement:'exact source-chunk visibility; never prune real citizens or homes',
+  measurement:'conservative hierarchy counts, NOT hardware FPS'};
+}
+// Expensive read-only reference comparison is intentionally TEST-ONLY.
+// It compares EACH real source chunk at the actual last camera view against
+// the pre-W88 primitive; a group can reject only if its enclosing AABB lies
+// outside the same plane, so reference-visible geometry must never vanish.
+function getScenicCullReferenceAudit(){
+ if(!lastCitizenPickFrame?.matrix)
+  return {checkedChunks:0,missingChunks:0,falseVisibleChunks:0,unavailable:true};
+ const planes=sceneFrustumPlanes(lastCitizenPickFrame.matrix);
+ let checkedChunks=0,missingChunks=0,falseVisibleChunks=0,groupsChecked=0;
+ const sizes={};
+ for(const [name,ranges] of [
+  ['landscape',landscapeChunkRanges],
+  ['settlement',settlementChunkRanges],['civic',civicChunkRanges]]){
+  sizes[name]=ranges.length;
+  for(const group of getScenicVisibilityGroups(ranges)){
+   const envelopeVisible=sceneChunkInFrustum(group,planes);
+   groupsChecked++;
+   for(let i=group.start;i<group.end;i++){
+    const original=sceneChunkInFrustum(ranges[i],planes);
+    const candidate=envelopeVisible&&original;
+    if(original&&!candidate)missingChunks++;
+    if(!original&&candidate)falseVisibleChunks++;
+    checkedChunks++;
+   }
+  }
+ }
+ return {source:'same-camera-original-frustum-reference',
+  checkedChunks,groupsChecked,missingChunks,falseVisibleChunks,
+  classes:sizes,housingClassUnchanged:true,authorityChanged:false};
+}
 function planVisibleStaticDraws(ranges,planes,allowBridge){
  const runs=[];
  let run=null,pendingChunks=0,pendingVertices=0,pendingTriangles=0,
   visibleTriangles=0,culledTriangles=0,visibleChunks=0,
   bridgedTriangles=0,bridgedChunks=0,strictDrawCalls=0,
   lastRangeEnd=null,lastWasVisible=false,invalidRanges=0;
- for(const chunk of ranges){
+ const groups=getScenicVisibilityGroups(ranges);
+ let groupIndex=-1,nextGroupEnd=0,groupVisible=true;
+ for(let index=0;index<ranges.length;index++){
+  if(index===nextGroupEnd){
+   const group=groups[++groupIndex];
+   groupVisible=sceneChunkInFrustum(group,planes);
+   nextGroupEnd=group.end;
+   scenicVisibilityGroupStats.groupTests++;
+   if(!groupVisible){
+    scenicVisibilityGroupStats.coarseRejectedGroups++;
+    scenicVisibilityGroupStats.coarseRejectedChunks+=group.end-group.start;
+   }
+  }
+  const chunk=ranges[index];
   if(!Number.isInteger(chunk.first)||!Number.isInteger(chunk.count)||
    chunk.first<0||chunk.count<0||chunk.count%3!==0)
    throw Error('W73 invalid scenery range');
   const contiguous=lastRangeEnd===null||lastRangeEnd===chunk.first;
   if(!contiguous)invalidRanges++;
-  const visible=sceneChunkInFrustum(chunk,planes);
+  const visible=groupVisible&&sceneChunkInFrustum(chunk,planes);
+  if(groupVisible)scenicVisibilityGroupStats.individualTests++;
   if(visible){
    visibleTriangles+=chunk.count/3;visibleChunks++;
    if(!lastWasVisible||!contiguous)strictDrawCalls++;
@@ -5887,6 +5973,7 @@ function marketStall(s,index){
 }
 function marketQuarter(){
  marketQuarterStats={stalls:0,pavingStones:0,mortarTriangles:0,signboards:0,
+  reworkedBooths:0,tileRoofs:0,canvasRoofs:0,timberBraces:0,
   carts:0,coveredArcades:0,canopyPanels:0,receivingBays:0,
   entryArchZ:MARKET_ENTRY_ARCH.z,entryPathStones:0,totalTriangles:0,cached:false};
  const begin=data.length;
@@ -14126,7 +14213,8 @@ getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStr
  branchTriangles:forestVisualStats.branchTriangles,
  broadleafLobes:forestVisualStats.broadleafLobes,microCrownLobes:forestVisualStats.microCrownLobes,rimLeafSprays:forestVisualStats.rimLeafSprays,individualLeaves:forestVisualStats.individualLeaves,broadleafSpecies:forestVisualStats.broadleafSpecies.slice(),broadleafAddedTriangles:forestVisualStats.broadleafAddedTriangles,
  crownColors:forestVisualStats.crownPalette.size
-}),getGuildhallVisualStats:()=>({...guildhallVisualStats}),getStreetMorphologyStats:()=>({...streetMorphologyStats,archetypes:streetMorphologyStats.archetypes.slice()}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),getHearthSmokeAudit,getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:{...scenicVisibilityStats.landscape},
+}),getGuildhallVisualStats:()=>({...guildhallVisualStats}),getStreetMorphologyStats:()=>({...streetMorphologyStats,archetypes:streetMorphologyStats.archetypes.slice()}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),getHearthSmokeAudit,getScenicCullReferenceAudit,getScenicCullHierarchyAudit,
+getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:{...scenicVisibilityStats.landscape},
  settlement:{...scenicVisibilityStats.settlement},
  civic:{...scenicVisibilityStats.civic},
  totalSubmittedTriangles:scenicVisibilityStats.totalSubmittedTriangles,
