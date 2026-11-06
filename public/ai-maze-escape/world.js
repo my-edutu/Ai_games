@@ -1,5 +1,5 @@
 import * as THREE from './vendor/three.module.js';
-import { GATE_RETRACTION_SECONDS, observedGateOpenings, gateRetractionPose } from './gate-moment.mjs';
+import { GATE_RETRACTION_SECONDS, observedGateOpenings, gateRetractionPose, observedPressureProgress } from './gate-moment.mjs';
 import { publicKeyCollectionMoment } from './map-view.mjs';
 
 export const CELL_SIZE = 2.4;
@@ -1902,7 +1902,7 @@ export function createMazeWorld(options = {}) {
       mesh(relay, bevel, danger, -side * .37, .21, .10, .20, .12, .12);
       relays.push({object: relay, side});
     }
-    trapSignals.push({carriage, diaphragms, shutters, relays, cell: c.cell, x: p.position.x, z: p.position.z});
+    trapSignals.push({carriage, diaphragms, shutters, relays, cell: c.cell, x: p.position.x, z: p.position.z, pressureSince: null, pressureLastTime: null});
     // Connected pivots and broad ceramic silhouettes, not emissive billboards.
     // They unfold in response to Pip's ACTUAL published presentation position
     // near this disclosed hazard; they never modify the authoritative engine.
@@ -2208,26 +2208,48 @@ export function createMazeWorld(options = {}) {
       // already visible hazard and REAL public Pip pose can actuate it.
       // All transforms are absolute per frame, so retreat/reset/reconnect
       // are deterministic and never accumulate a false animation.
-      const earlyRelay = visible ? Math.min(1, opening * 4) : 0;
-      const pistonRelay = visible ? Math.min(1, Math.max(0, (opening - .32) / .68)) : 0;
+      // An adjacent PUBLIC encounter must remain visibly staged even when
+      // Pip advances a whole maze cell between consecutive public snapshots.
+      // Real close approach starts a visual-only timeline on the existing
+      // render-frame-limited gate clock. Diagonal observation warns with
+      // bronze relays; shutters cannot open before a witnessed near approach.
+      // Retreat, lost public visibility and clock rollback immediately reset
+      // the stage: never imply a hazard is still open or reveal hidden state.
+      const nearContact = visible && opening >= .75;
+      if (!nearContact || (signal.pressureLastTime !== null
+        && presentationTime < signal.pressureLastTime)) signal.pressureSince = null;
+      if (nearContact && signal.pressureSince === null)
+        signal.pressureSince = presentationTime;
+      signal.pressureLastTime = presentationTime;
+      const age = nearContact && signal.pressureSince !== null
+        ? Math.max(0, presentationTime - signal.pressureSince) : 0;
+      const stagedPressure = !visible ? 0 : nearContact
+        ? observedPressureProgress(opening, age) : Math.min(opening, .20);
+      // Three distinct physical phases, never a synthetic engine action:
+      // relay warning → two ceramic floor leaves → elevated piston/diaphragm.
+      // Source-limited visual clock avoids one positional tick skipping all
+      // three stages; exact transforms depend only on disclosed input/time.
+      const earlyRelay = Math.min(1, stagedPressure / .17);
+      const shutterBeat = Math.min(1, Math.max(0, (stagedPressure - .34) / .36));
+      const pistonRelay = Math.min(1, Math.max(0, (stagedPressure - .76) / .24));
       for (const relay of signal.relays) {
         relay.object.rotation.z = -relay.side * (reduced && visible ? .40 : .05 + .65 * earlyRelay);
         relay.object.position.y = .28 + (reduced && visible ? .04 : .15 * pistonRelay);
       }
-      signal.carriage.position.y = reduced && visible ? .29 : .16 + .28 * opening;
+      signal.carriage.position.y = reduced && visible ? .29 : .16 + .28 * pistonRelay;
       for (const leaf of signal.diaphragms)
-        leaf.object.rotation.z = -leaf.side * (reduced && visible ? .34 : .08 + .70 * opening);
+        leaf.object.rotation.z = -leaf.side * (reduced && visible ? .34 : .08 + .70 * pistonRelay);
       // Physical, source-bound open/close beat: these are connected floor
       // shutters, not a CSS flash or a simulated engine state. Their centres
       // spread out while their inner edges rise; a retreat or lost public
       // visibility restores the exact resting pose in the same render tick.
       for (const shutter of signal.shutters) {
-        shutter.object.position.x = shutter.side * (.52 + (reduced && visible ? .09 : .18 * opening));
+        shutter.object.position.x = shutter.side * (.52 + (reduced && visible ? .09 : .18 * shutterBeat));
         // The original .81rad opening still looked almost flat under the
         // real elevated camera. A stronger 1.11rad physical hinge and ivory
         // face create a distinct adjacent-cell visual beat, without expanding
         // the known tile footprint, changing Pip, or inventing a new hazard.
-        shutter.object.rotation.z = -shutter.side * (reduced && visible ? .24 : .03 + 1.08 * opening);
+        shutter.object.rotation.z = -shutter.side * (reduced && visible ? .24 : .03 + 1.08 * shutterBeat);
       }
     }
     for (const relic of fossilSails) {

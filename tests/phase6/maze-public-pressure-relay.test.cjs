@@ -29,41 +29,61 @@ const publicState = (overrides={}) => ({
 const near=(value,expected,label)=>assert.ok(Math.abs(value-expected)<1e-8,
   label+': '+value+' vs '+expected);
 
-test('public pressure mast has two rooted mechanically staged low-profile levers',async()=>{
+test('public pressure mast has real ordered warning, shutter and piston on render time',async()=>{
   const {THREE,game,world,cleanup}=await build();
   try {
     const state=publicState(),frozen=JSON.stringify(state);
     world.update(state);
     const mast=world.group.getObjectByName('Published tide-shear pressure mast 4');
     const relays=[-1,1].map(side=>world.group.getObjectByName('Published tide-shear staged relay 4 '+side));
-    assert.ok(mast?.isGroup && relays.every(r=>r?.isGroup && r.parent===mast),
-      'relay hardware must attach to the actual already published trap');
-    assert.ok(relays.every(r=>r.children.filter(p=>p.isMesh).length===3),
-      'bronze pivot, bright lever and warm warning face are physical geometry');
+    const shutter=world.group.getObjectByName('Published tide-shear floor shutter -1');
+    const carriage=world.group.getObjectByName('Published tide-shear rising carriage');
+    assert.ok(mast?.isGroup && relays.every(r=>r?.isGroup && r.parent===mast));
+    assert.ok(shutter?.isGroup && carriage?.isGroup);
+    assert.ok(relays.every(r=>r.children.filter(p=>p.isMesh).length===3));
     const budget=world.stats(),pos=game.cellPosition(4,3,3);
     const far=new THREE.Vector3(pos.x+40,0,pos.z+40);
+    const diagonal=new THREE.Vector3(pos.x+game.CELL_SIZE,0,pos.z+game.CELL_SIZE);
     const center=new THREE.Vector3(pos.x,0,pos.z);
     world.animate(0,{explorerPosition:far,reducedMotion:false});
-    near(relays[0].rotation.z,.05,'left resting relay');
-    near(relays[1].rotation.z,-.05,'right resting relay');
-    near(relays[0].position.y,.28,'resting linkage');
-    world.animate(0,{explorerPosition:new THREE.Vector3(pos.x+game.CELL_SIZE,0,pos.z+game.CELL_SIZE),reducedMotion:false});
-    assert.ok(Math.abs(relays[0].rotation.z)>.15 && Math.abs(relays[0].rotation.z)<.40,
-      'actual visible diagonal approach first rotates warning lever');
-    near(relays[0].position.y,.28,'early warning precedes piston linkage lift');
-    world.animate(0,{explorerPosition:center,reducedMotion:false});
-    near(relays[0].rotation.z,.70,'full witnessed pressure relay opens');
-    near(relays[1].rotation.z,-.70,'mirrored hinge');
-    near(relays[0].position.y,.43,'pressure piston lifts linked relay');
+    near(relays[0].rotation.z,.05,'resting bronze relay');
+    near(carriage.position.y,.16,'resting piston');
+    world.animate(0,{explorerPosition:diagonal,reducedMotion:false});
+    assert.ok(relays[0].rotation.z>.15 && relays[0].rotation.z<.40,
+      'real observed diagonal approach warns through relay alone');
+    near(carriage.position.y,.16,'diagonal approach does not raise piston');
+    near(Math.abs(shutter.rotation.z),.03,'diagonal approach leaves ivory shutter closed');
+    world.animate(.05,{explorerPosition:center,reducedMotion:false});
+    near(relays[0].rotation.z,.70,'near-contact bronze warning becomes fully readable');
+    near(carriage.position.y,.16,'first witnessed contact still precedes piston lift');
+    near(Math.abs(shutter.rotation.z),.03,'first witnessed contact still precedes shutter lift');
+    world.animate(.30,{explorerPosition:center,reducedMotion:false});
+    assert.ok(Math.abs(shutter.rotation.z)>.08 && Math.abs(shutter.rotation.z)<.60,
+      'shutter now physically opens after the relay but before the piston');
+    near(carriage.position.y,.16,'shutter phase cannot prematurely raise piston');
+    world.animate(.65,{explorerPosition:center,reducedMotion:false});
+    assert.ok(Math.abs(shutter.rotation.z)>.95,'ceramic leaves open strongly by middle beat');
+    near(carriage.position.y,.16,'piston waits for genuinely separate third phase');
+    world.animate(.95,{explorerPosition:center,reducedMotion:false});
+    assert.ok(carriage.position.y>.20 && carriage.position.y<.44,
+      'third phase raises the physically linked carriage after shutter action');
+    world.animate(1.35,{explorerPosition:center,reducedMotion:false});
+    near(relays[0].rotation.z,.70,'full left public lever');
+    near(relays[1].rotation.z,-.70,'full mirrored public lever');
+    near(relays[0].position.y,.43,'full connected relay piston');
+    near(carriage.position.y,.44,'full piston elevation');
+    near(Math.abs(shutter.rotation.z),1.11,'fully opened public shutter');
     world.animate(7,{explorerPosition:far,reducedMotion:false});
-    near(relays[0].rotation.z,.05,'retreat returns to rest');
-    near(relays[0].position.y,.28,'retreat lowers relay');
+    near(relays[0].rotation.z,.05,'retreat returns to rest immediately');
+    near(relays[0].position.y,.28,'retreat lowers linkage');
+    near(carriage.position.y,.16,'retreat lowers piston immediately');
+    near(Math.abs(shutter.rotation.z),.03,'retreat closes shutters immediately');
     world.animate(8,{explorerPosition:center,reducedMotion:true});
-    near(relays[0].rotation.z,.40,'reduced motion holds a calm readable pose');
+    near(relays[0].rotation.z,.40,'reduced motion holds calm visible pose');
     near(relays[0].position.y,.32,'reduced motion holds without ticking');
     for(const key of ['geometryCount','materialCount','textureCount','instances'])
       assert.equal(world.stats()[key],budget[key],'motion must allocate no GPU resources');
-    assert.equal(JSON.stringify(state),frozen,'source-knowledge and AI authority stay unchanged');
+    assert.equal(JSON.stringify(state),frozen,'public knowledge and engine authority unchanged');
   } finally {world.dispose();cleanup()}
 });
 
@@ -81,7 +101,10 @@ test('remembered-only, hidden and reset pressure hazards never animate or leave 
     near(relay.rotation.z,.05,'reduced motion cannot leak remembered hazard action');
     world.update(publicState({visibleCells:[4]}));
     world.animate(8,{explorerPosition:center,reducedMotion:false});
-    near(relay.rotation.z,.70,'truly visible public pressure can actuate');
+    assert.ok(relay.rotation.z>.40 && relay.rotation.z<.70,
+      'revealed close hazard begins at observable warning, not instant full lift');
+    world.animate(9.4,{explorerPosition:center,reducedMotion:false});
+    near(relay.rotation.z,.70,'visible pressure actuates after staged presentation time');
     world.update(publicState({runToken:'next-run',cells:[],visibleCells:[],privateTrapCells:[4]}));
     assert.equal(world.group.getObjectByName('Published tide-shear staged relay 4 -1'),undefined);
     assert.equal(world.stats().responsiveTrapSignals,0,'new run releases all old trap props');

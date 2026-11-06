@@ -1,0 +1,30 @@
+'use strict';
+const {test} = require('node:test');
+const assert = require('node:assert/strict');
+const {pathToFileURL} = require('node:url');
+const path = require('node:path');
+const moduleURL = pathToFileURL(path.resolve(__dirname,'../../public/ai-maze-escape/gate-moment.mjs')).href;
+
+test('public pressure staging preserves three observable physical phases and finite bounds',async()=>{
+  const {observedPressureProgress: pose} = await import(moduleURL);
+  const relay = p => Math.min(1,p/.17);
+  const shutter = p => Math.min(1,Math.max(0,(p-.34)/.36));
+  const piston = p => Math.min(1,Math.max(0,(p-.76)/.24));
+  const warn=pose(1,0),middle=pose(1,.35),late=pose(1,.80),full=pose(1,1.2);
+  assert.equal(warn,.20);
+  assert.equal(relay(warn),1);
+  assert.equal(shutter(warn),0);
+  assert.equal(piston(warn),0);
+  assert.ok(shutter(middle)>.3 && shutter(middle)<.6);
+  assert.equal(piston(middle),0,'first shutter movement does not also raise piston');
+  assert.equal(shutter(late),1,'shutter opening precedes full piston');
+  assert.ok(piston(late)>0 && piston(late)<1);
+  assert.equal(full,1);
+  assert.equal(piston(full),1);
+  assert.equal(pose(.079,10),.079,'published diagonal approach cannot invent contact');
+  assert.equal(pose(0,10),0,'withdrawal/rest immediately closes');
+  assert.equal(pose(-1,10),0);
+  assert.equal(pose(NaN,10),0);
+  assert.equal(pose(1,-4),.20,'rollback never skips a stage');
+  assert.equal(pose(1,Infinity),.20,'invalid visual time never skips a stage');
+});

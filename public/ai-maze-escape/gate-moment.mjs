@@ -10,6 +10,16 @@ export const PUBLIC_PICKUP_VISUAL_SECONDS = 2.4;
 // Visual-only pacing: if software graphics stalls, don't skip the physical lift.
 // Authoritative time, AI, countdown and route motion remain untouched.
 export const MAX_GATE_VISUAL_FRAME_SECONDS = 0.035;
+// A disclosed pressure mechanism is presentation, never game authority.
+// A public near-contact first displays its full relay warning; its ivory
+// shutters and rising carriage then receive distinct visible time windows.
+// Pure scalar maths: no per-frame objects, hidden map, RNG or game clock.
+export const PUBLIC_PRESSURE_VISUAL_SECONDS = 1.25;
+export function observedPressureProgress(target, elapsedSeconds) {
+  if (!Number.isFinite(target) || target <= 0) return 0;
+  const seconds = Number.isFinite(elapsedSeconds) && elapsedSeconds > 0 ? elapsedSeconds : 0;
+  return Math.min(1, target, .20 + seconds / PUBLIC_PRESSURE_VISUAL_SECONDS);
+}
 export function advanceGateVisualClock(previous, frameSeconds) {
   if (!Number.isFinite(previous) || previous < 0) return 0;
   if (!Number.isFinite(frameSeconds) || frameSeconds <= 0) return previous;
