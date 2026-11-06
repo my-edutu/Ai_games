@@ -29,6 +29,9 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(ready.after).toBe(ready.before);
   await page.waitForFunction(()=>window.__tinyKingdom.getCourierPostCameraAudit()?.active,
    null,{timeout:110000});
+  // Wait for the real GPU frame to include the genuine selected cart and
+  // physically placed uprights, not the scene rendered before the 44k ticks.
+  await page.waitForTimeout(750);
   const camera=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
    const audit=g.getCourierPostCameraAudit();
