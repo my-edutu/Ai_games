@@ -20,7 +20,7 @@
   "currentTransformation": {
     "latestEvidenceRun": {
       "checkedOn": "2026-11-06",
-      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN, offline replay/source-chain audit (not executed)",
+      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN, hosted causal campaign audit wired but not executed",
       "implementationSha": "dfb866ed75cef2ea1d7f0d6129a5b9dee8c73e93",
       "sourceBaseSha": "576a7e53ab45b03ef63220fc7c27a7b062a90933",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
@@ -28,8 +28,8 @@
       "causalDefect": "Live injured hero previously remained in state 'hurt' indefinitely until a jump/dash; 3D animation suppressed locomotion and the source-earned gateway camera rejected even a real grounded cap walk, an especially important visibility problem after combat.",
       "sourcePinnedCaptureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42189740735",
       "sourcePinnedCaptureStatus": "NOT EVALUATED — 9/9 original-host jobs queued, zero current-source WebM artifacts at last check.",
-      "sourcePinnedQualityRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42203656486",
-      "sourcePinnedQualityStatus": "NOT EVALUATED — implementation-head CI queued; no completed exact-head build, actual campaign, or browser result.",
+      "sourcePinnedQualityRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42204025495",
+      "sourcePinnedQualityStatus": "NOT EVALUATED — exact pre-change HEAD quality job queued, zero completed CI proof.",
       "sourcePinnedSnapshotRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42189740768",
       "sourcePinnedSnapshotStatus": "PENDING; source capture evidence not available",
       "checks": {
@@ -45,11 +45,12 @@
           "plays": 0
         },
         "offlineCaptureFallback": "COMMITTED, NOT EXECUTED — scripts/tower-offline-evidence.sh: exact commit worktrees, unmodified original host checks, paired 60s+ native desktop/portrait Chromium WebMs and original source event-pair manifest. No connected checkout/runner/Chromium currently available.",
-        "offlineSourceReplayAudit": "4/4 local pure helper audit fixtures passed on Node 22; checked-in repository test, original candidate 3200-tick pair, unaltered browser and hardware NOT EXECUTED"
+        "offlineSourceReplayAudit": "4/4 local pure helper audit fixtures passed on Node 22; checked-in repository test, original candidate 3200-tick pair, unaltered browser and hardware NOT EXECUTED",
+        "hostedSourceChainAudit": "WIRED, NOT EXECUTED — the existing authentic-ledge capture job now runs two unmodified 3,200-tick 20Hz guardian campaigns, checks exact replay and same-run source markers, preserves run JSON/audit.json as artifacts, and continues browser capture even if source audit fails. GitHub job remains queued."
       },
       "leadingTransformationVerdict": "NOT EVALUATED",
       "mostImportantObservedFootageDefect": "Historical old 8fd9018f portrait WebM: climber appears undersized in the monumental cap; guardian/gateway action and real physical threshold crossing are not clearly legible. No full-motion latest-source video available to confirm improvement.",
-      "nextHighImpactAction": "Restore original source checkout/runner and execute bash scripts/tower-offline-evidence.sh <EXACT current PR68 SHA>; inspect candidate-source-campaign-audit.json and original 60+s 960x600/390x844 WebMs with event-matched same-run guardian/crusher victory, real threshold, f9 onward, outcome/restart. Correct largest currently filmed gameplay/camera defect, then perform actual-device metrics and five independent blind reviews per pillar.",
+      "nextHighImpactAction": "Run existing nine-job source workflow when runners allocate or use detached-worktree local fallback; inspect original candidate source-campaign/audit.json first, plus untouched full-motion 960x600/390x844 WebMs and matched events. Repair largest film-proven defect before P1; get real-device perf and five independent randomized blind critics per pillar.",
       "safety": "Baseline 1731b380851162741761c5569e2bc152a0869ca9 preserved; no PR58 mutation, PR68 draft change, merge, deployment or force-push.",
       "runnerUnblockerSha": "345d7f15f01cacc8bfd343b327b517949f1717c0",
       "runnerUnblockerReviewSha": "71534d369ad2a01b5479ab9cd3ffa400d929c358",
@@ -80,11 +81,11 @@
       "offlineCaptureFallback": "COMMITTED AND EXTENDED, NOT EXECUTED — original frozen/candidate worktrees, two actual candidate source campaigns + exact replay audit + paired desktop/portrait native Chromium WebMs and original event-pair manifest. No connected authenticated worktree or browser."
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
-    "state": "P0 OPEN — offline deterministic same-source full-loop audit and Chromium evidence route committed but not executed; no current-source film, independent critics or hardware validation.",
+    "state": "P0 OPEN — hosted source-chain audit integrated with nine-job browser capture, NOT EXECUTED; no current-source film, game-loop proof, independent critics, or hardware validation.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Remain in P0. First acquire and watch actual unmodified source-matched film with source episode and deterministic replay audit; then fix the largest observed playable defect. No transformation acceptance without independent quality and devices.",
+    "nextDecision": "Stay P0. Recover an executing Node/Chromium source runner, check same-run audit artifacts and real unmodified film before changing game or advancing stages.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "No source-authentic normal-speed current-head portrait/desktop film: nine GitHub capture jobs remain queued with no artifact and alternate terminal is disconnected. Historical undersized hero and unclear physical guardian gateway crossing remain the largest observed visual deficit, NOT verified on latest code.",
+    "biggestRemainingExperienceGap": "Real latest-head gameplay remains unavailable: all nine capture jobs and exact-head quality job are queued, zero current-source WebM/artifacts, and remote development tunnel disconnected. Historical sampled portrait shows small hero and unclear real guardian gateway crossing; latest source cannot be judged yet.",
     "unverifiedImplementationBranchHead": "dfb866ed75cef2ea1d7f0d6129a5b9dee8c73e93",
     "currentVerticalSlice": "Complete guardian-to-floor-nine chain: real hit → five-tick readable recoil → physical cap locomotion and grounded gateway follow → earned full-body crossing. Implemented, not yet quality-verified.",
     "biggestGap": "GitHub Actions runs 42157788943 (nine queued jobs, no artifacts) and 42158025950 (one queued, no artifacts) remained unstarted when inspected 2026-11-06. Real current source game/video and device measurements absent. P0 truth witness previously could accept idle floor-nine tick, technical/operator terminal, and no observed near-cap crusher; corrected in 503fbc4a but new game logic untested in full Node or 3200-tick campaign. Historical portrait camera dwarfing hero and unreadable gate remain greatest film-observed weakness, NOT latest-head assessment.",
@@ -205,11 +206,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "NOT EVALUATED — ca6a1989321395b5033af6ee66c7569dc5113901 source-integrity implementation quality workflow 42203656486 queued. 4/4 isolated pure audit checks are not checked-out repository suite or game/browser proof.",
-    "replay": "NOT EVALUATED on actual TowerRuntime — deterministic two-replica exact-result audit committed but not run on real campaign. Original game fixed-step code was not modified this execution.",
+    "ci": "NOT EVALUATED — exact-head quality workflow 42204025495 queued, 1/1 job unstarted; hosted capture authentic-ledge now integrates source replay audit but is also unstarted; successful checked-in syntax is not CI pass.",
+    "replay": "NOT EVALUATED on actual TowerRuntime — hosted and offline two-replica 3200-tick source replay audits are authored; neither executed on an accessible machine this run.",
     "accessibility": "NOT EVALUATED — earned gateway camera requires actual source cap grounded contact; historical/y-only guesses cannot authorize shot. Reduced-motion, mobile screen reader and physical controls need real browser testing.",
     "performance": "No new geometry/shader/render pass authored by hero damage recovery or snapshot camera gate. CPU/GPU p50/p95/p99 and memory on devices remain NOT EVALUATED.",
-    "stability": "NOT EVALUATED — no original browser, authenticated repo checkout, source campaign or physical hardware. Source audit correctly refuses incomplete game-loop or divergent replay."
+    "stability": "NOT EVALUATED — GitHub nine capture jobs queued, no WebM or audit artifacts; remote terminal tunnel returned NOT_FOUND. Source chain step will preserve failure diagnostics and allow normal-speed filming if runner becomes available."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -3971,9 +3972,33 @@
         "plays": 0
       },
       "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED"
+    },
+    "p0HostedChainEvidenceContinuation20261106": {
+      "stage": "P0 OPEN",
+      "verdict": "NOT EVALUATED",
+      "previousHeadSha": "c93dfca1c187c67c647eb72f3be5a15602f5a13f",
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "scope": "Only existing .github/workflows/tower-transformation-visual-evidence.yml, current transformation ledger and existing P0 review; no original game/AI/physics/renderer/stream host mutation",
+      "change": "Replace unarchived one-off stdout source witness with two original source 3200-tick campaigns and deterministic same-episode causal audit in authentic-ledge job; upload full source JSON and audit alongside actual original-host browser visuals, even on failure. Mark missing/incomplete source as a failed step while continuing film.",
+      "auditArtifact": "tower-transformation-ledge-${{ github.sha }} / artifacts/tower-ledge-contact/source-campaign/audit.json",
+      "replaySource": "scripts/tower-guardian-source-witness.cjs + scripts/tower-campaign-audit.cjs",
+      "actualSourceCampaign": "NOT EXECUTED — GitHub Actions all jobs queued; local worker tunnel NOT_FOUND",
+      "captureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42189740735",
+      "captureJobStatus": "9/9 queued, 0 artifacts as checked on 2026-11-06",
+      "qualityRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42204025495",
+      "qualityJobStatus": "queued, not checked-off",
+      "historicalFootageDefect": "Old candidate 8fd9018f portrait: tiny upper-cap hero, unclear source guardian and physical gateway crossing, not a latest-source verdict",
+      "actualDeviceMetrics": "NOT EVALUATED",
+      "independentBlindReviews": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "exactNextAction": "Inspect audit and exact-source native 60s videos once a runner executes; verify same-run guardian/crusher defeat -> grounded gate -> f9 onward -> genuine outcome/restart. Fix strongest *observed current* gameplay/shot defect, then P1 only after P0 playback truth, device and review gates.",
+      "safety": "FROZEN baseline preserved, PR58 untouched, existing PR68 remains DRAFT/open; never merge/deploy/force push."
     }
   },
-  "roadmapStage": "P0 OPEN — real-source guardian/crusher→grounded threshold→floor-nine→outcome/restart event-matched video NOT EVALUATED. PR68 now corrects a code-visible core-occluded live gate and a potentially false visual-unlock state; impact on real gameplay image remains unverified because GitHub workflows have no artifacts.",
+  "roadmapStage": "P0 OPEN — original fixed-step campaign plus source-pinned 60s desktop/portrait game film NOT EVALUATED. The existing nine-job GitHub capture now includes a two-replica source-causal audit with saved original outputs and a non-blocking failed-step record; all jobs currently queued, no new artifacts.",
   "latestP0GatewayVisibility20261106": {
     "stage": "P0 OPEN",
     "verdict": "NOT EVALUATED",

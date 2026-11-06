@@ -17,6 +17,8 @@ on:
       - scripts/tower-motion-evidence.cjs
       - scripts/tower-causal-playthrough.cjs
       - scripts/tower-guardian-source-witness.cjs
+      - scripts/tower-campaign-audit.cjs
+      - tests/phase3/tower-campaign-audit.test.cjs
       - scripts/tower-event-alignment.cjs
       - scripts/tower-event-pairing.cjs
       - scripts/serve-tower-stream.cjs
@@ -44,8 +46,24 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npm run build
-      - name: Report original fixed-step guardian progress without awarding game quality
-        run: node scripts/tower-guardian-source-witness.cjs
+      # Use the actual candidate runtime, unmodified 20-Hz steps, and the
+      # identical guardian seed/config used by the danger film. Failed or
+      # incomplete causal evidence remains a visible failed step and saved
+      # source artifact. Do NOT prevent subsequent real browser recording:
+      # a missing source episode is a P0 blocker, not a reason to lose film.
+      - name: Audit two original same-run guardian/crusher-to-restart source campaigns
+        id: source-chain
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir=artifacts/tower-ledge-contact/source-campaign
+          mkdir -p "$dir"
+          git rev-parse HEAD > "$dir/source-sha.txt"
+          for replay in 1 2; do
+            node scripts/tower-guardian-source-witness.cjs > "$dir/replay-${replay}.json" 2>"$dir/replay-${replay}.stderr"
+          done
+          node scripts/tower-campaign-audit.cjs "$dir/replay-1.json" "$dir/replay-2.json" "$dir/audit.json" "$GITHUB_SHA"
       - name: Visual resources and geometry safety (not a quality score)
         run: node --test tests/phase3/tower-transformation-sanctuary.test.cjs tests/phase3/tower-vista-environment.test.cjs tests/phase3/tower-world-geometry.test.cjs tests/phase3/tower-earned-gateway-frame.test.cjs
       - run: npx playwright install --with-deps chromium
