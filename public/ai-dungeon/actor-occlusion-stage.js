@@ -7,7 +7,9 @@
  * Never changes authoritative navigation, tactics, damage, map, RNG or replay.
  */
 const valid=n=>typeof n==='number'&&Number.isFinite(n);
-const MAX_ACTORS=5,MAX_POINTS=5,MAX_HITS_PER_RAY=3,MAX_WALLS=48;
+const MAX_ACTORS=5,MAX_POINTS=6,MAX_HITS_PER_RAY=3,MAX_WALLS=48;
+// This band is real foreground masonry, not permission to erase the far vault.
+const MAX_FRONT_WALL_DISTANCE=6.5;
 export function createActorOcclusionStage(T){
  const origin=new T.Vector3(),direction=new T.Vector3(),target=new T.Vector3();
  const raycaster=new T.Raycaster();
@@ -23,8 +25,9 @@ export function createActorOcclusionStage(T){
   const native=Array.isArray(subject.bodyPoints)&&subject.bodyPoints.length>=3&&subject.bodyPoints.length<=8?
    subject.bodyPoints.filter(p=>[p?.x,p?.y,p?.z].every(valid)):[];
   if(native.length>=3){
-   // Skull, upper body, pelvis, shoulder and a lower leg from the actual rig.
-   const indexes=[0,1,2,3,native.length-1];
+   // A visible skull is not a visible fight. Check both independently animated
+   // lower legs, not just the right calf. Keep the true chest and shoulders.
+   const indexes=[0,1,2,3,native.length-2,native.length-1];
    return [...new Set(indexes)].map(i=>native[i]).filter(Boolean).slice(0,MAX_POINTS);
   }
   const s=subject.kind==='warden'?1.3:1;
@@ -33,7 +36,7 @@ export function createActorOcclusionStage(T){
  function staysInFront(entry,subjects,camera){
   for(const s of subjects){
    const dx=entry.x-s.x,dz=entry.z-s.z,rad=Math.hypot(dx,dz);
-   if(rad>3.75)continue;
+   if(rad>MAX_FRONT_WALL_DISTANCE+.3)continue;
    const vx=camera.x-s.x,vz=camera.z-s.z,len=Math.hypot(vx,vz);
    if(len>.3&&(dx*vx+dz*vz)/len>=-.75)return true;
   }
@@ -59,7 +62,13 @@ export function createActorOcclusionStage(T){
    if(accepted>=MAX_HITS_PER_RAY||entries.size>=MAX_WALLS)break;
    const index=hit?.instanceId;
    if(!Number.isSafeInteger(index)||index<0||index>=mesh.count||!hit.point)continue;
-   if(Math.hypot(hit.point.x-subject.x,hit.point.z-subject.z)>4.15)continue;
+   // Real screenshots showed full-height foreground walls masking planted boots
+   // beyond the old 4.15m radius, while the old skull-only audit said clear.
+   // Accept only true ray intersections between this camera and this fighter;
+   // bound clearance by real camera distance and the forward 6.5m band.
+   const cameraReach=Math.hypot(origin.x-subject.x,origin.z-subject.z);
+   if(Math.hypot(hit.point.x-subject.x,hit.point.z-subject.z)>
+      Math.min(MAX_FRONT_WALL_DISTANCE,Math.max(4.15,cameraReach-.5)))continue;
    entries.set(index,{x:hit.point.x,z:hit.point.z,expires:now+.42});
    accepted++;verified++;
   }

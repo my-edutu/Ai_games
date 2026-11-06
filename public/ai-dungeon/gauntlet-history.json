@@ -5652,7 +5652,7 @@
     "lastCandidateSha": "4a599c56500bd3db4064808536b219748338d5c3",
     "experienceVerdict": "IN PROGRESS — NOT TRANSFORMED; LOOKS/FEELS/PLAYS UNVERIFIED; 0/3 blinded critics.",
     "criticReadiness": "0/3; original fully matched desktop/mobile moving audiovisual journey not captured; source-only candidate.",
-    "nextImplementationTask": "Inspect exact 4a599c5 desktop/mobile native GLB duels with actual original sound and p95 timing; reject deformation or clip jerk, improve original anatomy/body silhouettes, then collect five-stage pinned original BEFORE/AFTER and >=3 blind critics.",
+    "nextImplementationTask": "Acquire running exact-new-head 1440px and 390px same-seed real full-body combat clips/audio; inspect forewall clearing and 48-wall cap, repair if scene flattened, then materially improve original adult rig/arena and organic five-stage progression.",
     "integrationReview": {
       "at": "2026-11-05",
       "sourceHead": "fe61765a43fda660f75ab5004688113517fcbd78",
@@ -5667,6 +5667,25 @@
         "plays": "UNVERIFIED"
       },
       "critics": 0
+    },
+    "m1ForewallCandidate": {
+      "sourceParentSha": "5e013d2a40fa9b371b4be1a9abe6d2016b87a101",
+      "target": "Actual instanced foreground wall clearance protects real head, chest, both shoulders and BOTH lower-leg bones during original skinned battle; verified original screenshots showed hidden legs despite 3/3 center-ray audit.",
+      "files": [
+        "public/ai-dungeon/actor-occlusion-stage.js",
+        "tests/foundation/dungeon-actor-occlusion-stage.test.cjs"
+      ],
+      "sourceChanges": "6 source-bone rays per actor and <=6.5m real occlusion hit range, view-distance bounded; preserves 48 wall IDs, 5Hz scans, all authority, replay and save.",
+      "status": "SOURCE_CANDIDATE_UNVERIFIED",
+      "environmentBlocker": "Tunnel-client has not been seen for 300 seconds",
+      "exactSourceHeadBrowser": "UNVERIFIED: queued prechange workflows 42119009183 / 42119009227 / 42119009328 have zero artifacts; no new source footage",
+      "originalMotionAudio": "UNVERIFIED",
+      "performance": "UNVERIFIED; proportional source ray budget 50 -> 60 max per scan",
+      "criticCount": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "next": "Acquire running exact-new-head 1440px and 390px same-seed real full-body combat clips/audio; inspect forewall clearing and 48-wall cap, repair if scene flattened, then materially improve original adult rig/arena and organic five-stage progression."
     }
   }
 }

@@ -36,15 +36,40 @@ test('finite five-actor ray budget, held stage and no authority mutation',async(
  const cam={position:{x:6,y:8,z:0}},mesh={isInstancedMesh:true,count:1000,id:2,hit:true};
  const live=Array.from({length:30},(_,i)=>({x:0,z:i%2,visibleActor:true}));
  stage.resolve('a',cam,live,mesh,mesh,1);
- const first=stage.metrics().rays;assert.ok(first<=50);
+ const first=stage.metrics().rays;assert.ok(first<=60);
  stage.resolve('a',cam,live,mesh,mesh,1.1);
  assert.equal(stage.metrics().rays,first,'no unbounded per-frame recasting');
  stage.resolve('a',cam,live,mesh,mesh,1.3);
- assert.ok(stage.metrics().rays<=100);
+ assert.ok(stage.metrics().rays<=120);
  assert.equal(stage.metrics().authorityChanged,false);
  const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
  const dressing=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
  assert.match(app,/actorOcclusionStage\.resolve\(/);
  assert.match(app,/forceWalls\?\.has\(i\)/);
  assert.match(dressing,/forceFacades\?\.has\(i\)/);
+});
+
+test('both real lower-leg source points clear genuine mid-foreground masonry, but never rear background or non-fighters',async()=>{
+ const {createActorOcclusionStage}=await load();
+ class Ray extends rig().Raycaster{
+  intersectObject(mesh){return mesh.hit?[{instanceId:mesh.id,point:{x:mesh.x??0,y:1,z:mesh.z}}]:[]}
+ }
+ const stage=createActorOcclusionStage({...rig(),Raycaster:Ray});
+ const camera={position:{x:0,y:4,z:8}};
+ const source={x:0,z:0,visibleActor:true,bodyPoints:[
+  {x:0,y:1.7,z:0},{x:0,y:1.15,z:0},
+  {x:-.32,y:1.2,z:0},{x:.32,y:1.2,z:0},
+  {x:-.23,y:.35,z:0},{x:.23,y:.35,z:0}
+ ]};
+ const front={isInstancedMesh:true,visible:true,count:12,id:5,hit:true,z:5.5};
+ const back={isInstancedMesh:true,visible:true,count:12,id:6,hit:true,z:7.2};
+ const selected=stage.resolve('run-floor',camera,[source],front,back,0);
+ assert.deepEqual([...selected.walls],[5],'full-body occluded forewall must clear even outside old 4.15m radius');
+ assert.equal(selected.facades.size,0,'too-distant architectural stone must remain');
+ assert.equal(stage.metrics().rays,12,'both source calves are sampled within the finite actor budget');
+ assert.equal(stage.metrics().maxPoints,6);
+ front.hit=false;
+ assert.deepEqual([...stage.resolve('run-floor',camera,[source],front,back,.7).walls],[5],'held wall must not flicker mid-duel');
+ assert.equal(stage.resolve('next-floor',camera,[source],front,back,.8).walls.size,0,'old arena geometry cannot follow a new floor');
+ assert.equal(stage.resolve('next-floor',camera,[{...source,visibleActor:false}],front,back,1.1).walls.size,0);
 });
