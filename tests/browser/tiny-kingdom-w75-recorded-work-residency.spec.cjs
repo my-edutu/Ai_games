@@ -54,6 +54,7 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(on.audit.authorityModified).toBe(false);
   expect(on.glError).toBe(0);
   expect(on.snapshot).toBe(before.snapshot);
+  fs.mkdirSync('artifacts/tiny-kingdom-w75',{recursive:true});
   await page.screenshot({path:'artifacts/tiny-kingdom-w75/'+viewport.width+'-resident-work.png'});
   await page.evaluate(()=>window.__tinyKingdom.setRecordedWorkResidencyForTesting(false));
   await page.waitForFunction(()=>!window.__tinyKingdom.getRecordedWorkResidencyAudit().active,
