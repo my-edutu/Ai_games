@@ -11,18 +11,18 @@
     "sha": null,
     "title": "OPEN 3D Tower: real earned threshold cannot be bypassed by absent guardian; exact fixed-step grounded body clearance is recorded before real floor-nine spawn. Neither this source change nor film is quality-approved.",
     "implementationSha": "7238708471828dec3a0100a7534e5c0ad863cb8e",
-    "implementationEvidenceStatus": "NOT EVALUATED: implementation 7238708471828dec3a0100a7534e5c0ad863cb8e changes real cap rule and exposes rule-tick grounded whole-body crossingX/clearanceX on real floor-complete event before respawn; autonomous causal witness now requires that same-run evidence. Four isolated V8 fixtures of witness and event index PASSED (not full Node/TypeScript/Playwright). New exact-source 8 baseline/candidate scenario capture plus ledge workflow 42154966516 and quality workflow 42154966521 pending/queued; no new clips retrieved or reviewed. Last inspected historic real browser 9-job capture 42104896643 is at different candidate SHA 8fd9018fbe53196c34f41f3e9260b2d6fa1b459e and cannot grade this implementation. LOOKS/FEELS/PLAYS independent reviewers 0/5 each; device performance NOT EVALUATED."
+    "implementationEvidenceStatus": "NOT EVALUATED: game rules still at gameplay implementation 7238708471828dec3a0100a7534e5c0ad863cb8e. 2026-11-06 P0 diagnosed repeatedly cancelled/zero-job source capture runs (e.g. 42130752551: nine cancelled jobs; more recent 42154966516 and 42155378252 still pending, no artifacts at last inspection). GitHub concurrency with group per branch allows later pending pushes to replace earlier pending runs even when cancel-in-progress=false. Fixed the 9-job visual workflow and full quality workflow concurrency grouping by immutable github.sha on PR68 at commits 7480dee106 and 6cb1d2aaac, respectively. No current exact-source video or 3200-tick campaign result was produced in this execution. Sampled real frame imagery from historic original-host 42104896643 candidate 8fd9018f (NOT current game source) shows portrait floor-eight climber tiny amid machinery at ~21-24s and floor-nine at ~39s without a clearly legible grounded doorway crossing. This older evidence cannot establish the latest guardian/camera fix or current quality. Independent LOOKS/FEELS/PLAYS critics 0/5 each; device performance not evaluated."
   },
   "currentTransformation": {
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
-    "state": "P0 OPEN — authentic earned guardian gateway: fixed-step source rule now records actual grounded trailing-edge passage into floor nine, with missing-defeated-guardian bypass prevented. Current exact-head recorded and independently watched game loop NOT EVALUATED.",
+    "state": "P0 OPEN — source crossing rule exists, but exact-head original-host full-loop film, earned floor-nine witness, complete result/restart and actual-device checks remain NOT EVALUATED. Source-pinned capture queue starvation investigated; concurrency isolated by SHA, without modifying game authority.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "P0: Inspect workflow 42154966516 jobs, 8 source-pinned original WebMs, real tick-level grounded passage event, honest same-episode source witness from workflow 42154966521, and actual full-motion guardian→threshold→floor9→outcome/restart at both sizes. If 9-job run cancels/fails, diagnose exact job/log blocker before another presentation change. Fix largest observed scene/game defect. Do not advance to P1 or blind acceptance until genuine P0 film story and source campaign succeed.",
+    "nextDecision": "Check 9-job visual workflow triggered by commit 7480dee106 (group keyed by that exact source SHA), and quality workflow at 6cb1d2aaac; download authentic paired baseline/candidate WebM, source trace and 3200-tick guardian witness. Watch complete floor8 guardian/crusher→grounded visible threshold→floor9 onward→outcome/restart in 960x600 and 390x844; identify and implement highest-impact real gameplay/scene fix if missing. Run full CI and real hardware measurements. Don't grade blind acceptance on historic 8fd footage.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Earlier original-host 390x844 portrait video showed guardian and cap but no clearly legible real gateway, while desktop gate/action was tiny next to giant machinery. The current source-authentic floor-nine passage and outcome/restart have not been watched at exact new SHA in both viewports. Historical clip source 8fd9018f does not prove improvement at 7238708471.",
-    "unverifiedImplementationBranchHead": "7238708471828dec3a0100a7534e5c0ad863cb8e",
+    "biggestRemainingExperienceGap": "Inspected historical original-host sampled real portrait video frames (candidate 8fd9018f, source-pinned run 42104896643): at 21-24s the floor-eight hero is tiny below a much larger mechanical tower and opponent; by 39s a floor-nine handoff occurs without a plainly legible grounded threshold crossing. These frames are historical and not an assessment of current live camera/doorway implementation 723870847. Need fresh full-motion native WebM, source event correspondence and actual-device performance.",
+    "unverifiedImplementationBranchHead": "6cb1d2aaac90b71661fe607ab1d0054d2578f020",
     "currentVerticalSlice": "Real locked guardian upper cap: requires source-dead guardian and physical grounded body passage; source floor-complete guardianPassage event preserves exact exit/clearance/crossing coordinates before the real next-floor respawn. Same-run causal observer and unedited-video source-event index check this claim. Actual films not independently seen.",
-    "biggestGap": "Obtain latest exact-SHA 60+s normal-speed original-host desktop 960x600 and portrait 390x844 ascending, moving, danger/guardian, and outcome/restart WebM plus event index. Watch the real guardian/crusher victory through full grounded gateway crossing and one continued floor-nine episode. Missing independent critics/device frame-time and memory."
+    "biggestGap": "Current SHA exact-source browser footage remains absent; verify the queued per-SHA nine-job authentic capture and 3200-tick guardian source campaign first. Old filmed portrait shows poor action-scale hierarchy and illegible earned gateway; retest latest source before modifying scene or claiming fix. No independent critics or device frame-time/memory data."
   },
   "scenarios": [
     {
@@ -62,11 +62,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "At implementation 7238708471828dec3a0100a7534e5c0ad863cb8e: isolated V8 witness/index fixtures 4/4 PASS, not repository CI. Exact-source GitHub quality run 42154966521 and 9-job evidence workflow 42154966516 pending at check. No current exact-source completed native captures or built Node/Playwright result. CI is safety veto, not game-quality evidence.",
+    "ci": "NOT EVALUATED for latest PR68 head. Previous 4/4 isolated V8 fixtures at gameplay SHA 723870847 are only local-focused checks. 2026-11-06 fixed GitHub capture/quality pending-run supersession by using immutable SHA concurrency group. Earlier run 42130752551 all 9 jobs cancelled; 42154966516 and 42155378252 have zero jobs at latest check; no current full npm build, tests, Playwright, source witness or current source WebM results. CI is safety veto only.",
     "replay": "Existing 20 Hz fixed-step source remains authoritative; guardian cap now refuses unlock when no dead guardian entity, and floor-complete event preserves true previous-grounded physical crossing coordinates before floor9 spawn. Extra CI-only source trace is passive. Baseline unchanged; actual deterministic full campaign/replay not yet executed at SHA 7238708471828dec3a0100a7534e5c0ad863cb8e.",
     "accessibility": "Source rule/event and capture workflows only this run; previous reduced-motion and current gameplay HUD unchanged. Portrait device/keyboard/screen-reader/restart acceptance NOT EVALUATED.",
     "performance": "No new 3D draw calls, geometry or shader with this source-level fix; event data adds bounded integers to terminal floor-complete. Actual mobile/desktop GPU frame-time p50/p95/p99 and memory NOT EVALUATED.",
-    "stability": "Only V8 JS fixtures 4 PASS in this execution; actual source game live 3200 tick campaign and 8 source-pinned Chromium captures pending; no claim of complete floor-nine→outcome/restart real playthrough yet."
+    "stability": "No gameplay authority, rendering or deploy code changed by 2026-11-06 P0 infrastructure fix; static workflow group strings read back from GitHub and GitHub recorded fast-forward commit parent chain. Exact-head 3200 tick source game and 8 genuine baseline/candidate scenario recordings not yet produced, so complete real guardian→crossing→floor9→restart is unverified."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -3784,7 +3784,36 @@
       "realDeviceFrameTimeMemory": "NOT EVALUATED",
       "verdict": "NOT EVALUATED",
       "nextAction": "Inspect exact new-source quality witness and 8 native 60s+ WebMs; inspect unedited guardian+crusher, physical gateway, floor9 and outcome/restart; event-align with frozen SHA and correct the biggest full-motion gameplay defect"
+    },
+    "latestCaptureQueueUnblocker20261106": {
+      "stage": "P0 OPEN",
+      "verdict": "NOT EVALUATED",
+      "implementationGameplaySha": "7238708471828dec3a0100a7534e5c0ad863cb8e",
+      "workflowCommits": [
+        "7480dee1065692f684b445b3a8920ffb66825d5e",
+        "6cb1d2aaac90b71661fe607ab1d0054d2578f020"
+      ],
+      "blocker": "Pending per-branch GitHub Actions concurrency groups were vulnerable to supersession by subsequent pending push runs; earlier 9-job 42130752551 reached nine cancelled jobs without video artifacts, current 42154966516 at last read had zero jobs.",
+      "change": "Switch per-branch visual and quality workflow concurrency keys to exact immutable github.sha; prevent independent source commits from replacing pending source captures. GitHub runners and artifact completion remain unverified.",
+      "evidence": [
+        "https://github.com/my-edutu/Ai_games/actions/runs/42130752551",
+        "https://github.com/my-edutu/Ai_games/actions/runs/42154966516",
+        "https://github.com/my-edutu/Ai_games/actions/runs/42155378252",
+        "https://github.com/my-edutu/Ai_games/actions/runs/42104896643"
+      ],
+      "originalHostHistoricCandidateSha": "8fd9018fbe53196c34f41f3e9260b2d6fa1b459e",
+      "historicFilmReview": "Sampled native portrait frames at ~21-24s show climber and guardian separated across oversized machinery; at ~39s the source advances to floor nine but a readable body crossing of a physical doorway is not discernible. Historical source only; never a new-source quality score.",
+      "newCaptureArtifacts": [],
+      "sourceWitness": "NOT EVALUATED",
+      "fullMotionCurrentSha": "NOT EVALUATED",
+      "blindIndependentReviews": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "actualHardwarePerformance": "NOT EVALUATED",
+      "next": "Wait for already-triggered per-SHA source workflow to produce real source-pinned full-motion footage; inspect event-matched guardian/crusher→gateway→floor nine and result/restart; correct largest visible systemic defect."
     }
   },
-  "roadmapStage": "P0 — evidence + complete game-loop truth: OPEN. Exact-source full-body gateway event implementation exists at 7238708471828dec3a0100a7534e5c0ad863cb8e; current footage, source campaign and device acceptance NOT EVALUATED."
+  "roadmapStage": "P0 OPEN — exact-source complete loop and film not evaluated. Capture queue starvation remediation in GitHub workflows at commits 7480dee1065692f684b445b3a8920ffb66825d5e and 6cb1d2aaac90b71661fe607ab1d0054d2578f020; this is evidence infrastructure, not a playable transformation acceptance."
 }
