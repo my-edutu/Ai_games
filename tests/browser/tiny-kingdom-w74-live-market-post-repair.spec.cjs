@@ -13,9 +13,9 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   await page.setViewportSize(viewport);await page.setContent(html);
   await page.waitForFunction(()=>window.__tinyKingdom?.renderStats()?.lastFrameTriangles>0,null,{timeout:110000});
   const ready=await page.evaluate(()=>{
-   const g=window.__tinyKingdom;g.setSpeed(0);
+   const g=window.__tinyKingdom;g.reset();g.setSpeed(0);
    let actual=g.getActiveDeliveries();
-   for(let i=0;i<24*30*5&&!actual.length;i++){
+   for(let i=0;i<44000&&!actual.length;i++){
     g.step(1/30);
     if(i%6===0)actual=g.getActiveDeliveries();
    }
