@@ -914,3 +914,37 @@ export function drawMinimap(canvas, snapshot, highContrast = false) {
   context.fillStyle = '#f5ba61'; context.strokeStyle = '#173a36'; context.lineWidth = 1.8 * ratio;
   context.beginPath(); context.arc(current.x, current.y, Math.max(3 * ratio, unit * .55), 0, Math.PI * 2); context.fill(); context.stroke();
 }
+
+
+// Only a currently visible PUBLISHED pressure mechanism may cause Pip to
+// physically brace. Remembered, unseen, blocked, invalid or terminal cells
+// cannot. All calculations use the real interpolated PUBLIC position only;
+// this is a cosmetic character cue, never an AI order or hidden-map hint.
+export function publicObservedPressureReaction(snapshot, hero, cellSize) {
+  if (!snapshot || snapshot.result || !Array.isArray(snapshot.cells)
+    || !Array.isArray(snapshot.visibleCells)
+    || !Number.isSafeInteger(snapshot.width) || snapshot.width < 2
+    || !Number.isSafeInteger(snapshot.height) || snapshot.height < 2
+    || !(Number.isFinite(cellSize) && cellSize > 0)
+    || !(Number.isFinite(hero?.x) && Number.isFinite(hero?.z))) return null;
+  const visible = new Set(snapshot.visibleCells);
+  let closest = null;
+  for (const cell of snapshot.cells) {
+    const id = cell?.cell;
+    if (cell?.trap !== true || cell.blocked === true
+      || !Number.isSafeInteger(id) || id < 0
+      || id >= snapshot.width * snapshot.height || !visible.has(id)) continue;
+    const x = (id % snapshot.width - (snapshot.width - 1) / 2) * cellSize;
+    const z = (Math.floor(id / snapshot.width) - (snapshot.height - 1) / 2) * cellSize;
+    const distance = Math.hypot(x - hero.x, z - hero.z);
+    if (distance >= cellSize * 1.45 || (closest
+      && (distance > closest.distance
+        || (distance === closest.distance && id >= closest.cell)))) continue;
+    closest = {cell:id, x, z, distance};
+  }
+  if (!closest) return null;
+  // One-cell encounter -> full brace, visible diagonal -> light anticipation.
+  const strength = Math.max(0, Math.min(1,
+    (1.45 - closest.distance / cellSize) / .45));
+  return {...closest, strength};
+}

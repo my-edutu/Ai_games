@@ -4,7 +4,7 @@ import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZ
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianEncounterBeat } from './public-lantern-encounter.mjs';
-import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicKeyedPressureStageHalfHeight, publicCameraSettleRate, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
+import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicCameraSettleRate, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -494,6 +494,10 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // the disclosed stage can earn this small connected head/lantern gesture.
     // No solver state, unknown tile, gameplay movement or fabricated event.
     const fossilCue=!result ? world.publicFossilAttention(explorer.group.position) : null;
+    // The actual visible public pressure mechanism now has an animated
+    // explorer-side cause/effect, never another HUD panel or fake AI action.
+    const pressureCue=!result && !closestThreat?.strength
+      ? publicObservedPressureReaction(s,pose,CELL_SIZE) : null;
     explorer.update({
       time:elapsed,delta,moving:pose.moving&&!result,heading,
       attentionHeading:closestThreat?Math.atan2(closestThreat.x-pose.x,closestThreat.z-pose.z):undefined,
@@ -504,6 +508,9 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       fossilHeading:fossilCue
         ? Math.atan2(fossilCue.x-pose.x,fossilCue.z-pose.z) : undefined,
       fossilStrength:fossilCue?.strength??0,
+      pressureHeading:pressureCue
+        ? Math.atan2(pressureCue.x-pose.x,pressureCue.z-pose.z) : undefined,
+      pressureStrength:pressureCue?.strength??0,
       keyTarget,
       keyCameraPosition: camera.position,
       danger:s.dangerPermille/1000,result,reducedMotion:settings.reducedMotion,
