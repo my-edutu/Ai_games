@@ -16,15 +16,18 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   const found=await page.evaluate(()=>{
    const g=window.__tinyKingdom;g.setSpeed(0);
    for(let i=0;i<12000;i++){
-    if(g.getActiveWorksites().length)return true;
+    const worker=g.getActiveWorksites().find(w=>
+     ['farmer','forester','builder','merchant','gatherer'].includes(w.job));
+    if(worker){g.setCamera({focus:[worker.x,worker.z],zoom:15,yaw:.65,pitch:.49});return true;}
     g.step(1/30);
    }
    return false;
   });
   expect(found).toBe(true);
+  const initialFrames=await page.evaluate(()=>window.__tinyKingdom.getFrameProfile().totalFrames);
   await page.evaluate(()=>window.__tinyKingdom.setWorksiteFixtureResidencyForTesting(false));
-  await page.waitForFunction(()=>window.__tinyKingdom.getFrameProfile().totalFrames>1,
-   null,{timeout:110000});
+  await page.waitForFunction(previous=>window.__tinyKingdom.getFrameProfile().totalFrames>previous,
+   initialFrames,{timeout:110000});
   const original=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
    return {snap:JSON.stringify(g.exportSnapshot()),
