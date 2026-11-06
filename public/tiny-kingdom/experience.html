@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Tiny Kingdom — Experience Transformation Scorecard W86</title>
+<title>Tiny Kingdom — Experience Transformation Scorecard W87</title>
 <style>
 :root{color-scheme:dark;--ink:#101a18;--paper:#eee3cc;--muted:#bdb9a8;--gold:#dcb879}*{box-sizing:border-box}body{margin:0;background:#111b18;color:#eee9d9;font:16px/1.6 system-ui,-apple-system,Segoe UI,sans-serif}main{max-width:1040px;margin:auto;padding:clamp(18px,4vw,52px)}header{border-bottom:1px solid #8d765255;padding-bottom:24px;margin-bottom:28px}.eyebrow{letter-spacing:.17em;text-transform:uppercase;color:var(--gold);font-size:12px;font-weight:700}h1{font:clamp(30px,5vw,54px)/1.1 Georgia,serif;letter-spacing:-.025em;margin:8px 0}h2{font:29px Georgia,serif;margin:0 0 12px}h3{margin:6px 0;font-size:17px;color:#f3dfb9}p{margin:8px 0 16px}a{color:#ebc98d;text-underline-offset:3px}nav{display:flex;flex-wrap:wrap;gap:14px;margin-top:20px}.lead{max-width:800px;color:#e3dfd0;font-size:17px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 30px}article{border:1px solid #bfa98042;background:#20302b;border-radius:13px;padding:18px;min-width:0}article p{color:#c7d0c5;font-size:14px}.status{color:#f3d39b;font-size:12px;font-weight:800;letter-spacing:.09em}.failure{color:#f1ad96}section{margin:28px 0}.compare{display:grid;grid-template-columns:1fr 1fr;gap:14px}.compare article{background:#1c2924}.meta{color:#b7baae;font-size:13px}.data{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:560px}th,td{border-bottom:1px solid #a4b5a431;padding:11px;text-align:left}th{color:var(--gold);font-weight:600}strong{color:#f4e5c8}code{overflow-wrap:anywhere;font-size:.85em;color:#e2c897}footer{border-top:1px solid #917a5055;margin-top:38px;padding-top:20px;color:#bfc6b9;font-size:13px}@media(max-width:700px){.grid,.compare{grid-template-columns:1fr}}
 </style></head><body><main>
-<header><div class="eyebrow">Living Valley · independent experience scorecards · W86</div>
+<header><div class="eyebrow">Living Valley · independent experience scorecards · W87</div>
 <h1>Is the running game substantially better?</h1>
 <p class="lead">Technical correctness is the floor, not the finish line. The existing autonomous medieval village is being rebuilt as a believable lived-in world. No graphics, animation or commercial-quality milestone is awarded without complete real-game comparisons.</p>
 <nav aria-label="Related pages"><a href="index.html">Play Tiny Kingdom</a><a href="progress.html">Chronological Gauntlet history</a><a href="https://github.com/my-edutu/Ai_games/pull/64">Open draft PR #64</a></nav></header>
@@ -12,6 +12,21 @@
 
 
 
+
+<section id="w87" style="border-top:3px solid #d5ad68;padding-top:24px">
+<p class="eyebrow">LATEST · W87 · 6 November 2026 · continuing Phase 1 · same genuine crop → loaded courier → receiving market → real assigned household</p>
+<h2>Original artisan-square rebuild and connected resident home threshold: actual experience NOT PROVEN</h2>
+<p><strong>Exact game-source commit:</strong> <a href="https://github.com/my-edutu/Ai_games/commit/a86014ec486bbc76e1e7452f8da7c634917a21b0"><code>a86014ec486bbc76e1e7452f8da7c634917a21b0</code></a>. Four actual original stalls now differ by real pitched clay-tile versus dyed woven roofs, braced oak framing, low rear trade screens and stone foundations. Source-nav-connected stone-and-earth footway leads from the real receiving market to a real named citizen's existing home destination. Dynamic citizen work/market escrow/receipts, collisions, seeded randomness and save-state authority are unchanged by design. Static geometry belongs in the existing GPU-resident civic scene and has no new per-frame mesh generation. This is a visible-architecture attempt, not a verified visual win.</p>
+<div class="compare"><article><h3>BEFORE · pinned original G088</h3><p>Exact baseline SHA <code>2f6deb43feb1a1557848d44def53a6109deb1ab1</code>, <a href="https://github.com/my-edutu/Ai_games/actions/runs/41301740489/artifacts/13081531738">Day-1</a>, <a href="https://github.com/my-edutu/Ai_games/actions/runs/41301740495/artifacts/13081222556">Day-120</a>. Historic <a href="https://github.com/my-edutu/Ai_games/actions/runs/42111123333/artifacts/13461870950">W68 genuine Day-1/workday/Day-120/mobile footage</a> show a toy-like village, small distant workers and obstructed unloading.</p></article><article><h3>AFTER · W87 exact game</h3><p>Live source changed; TEST-FIRST desktop/390px browser regression is registered; <strong>finished source-matched uncropped Day-1, uninterrupted workday, Day-120 and mobile recordings NOT YET AVAILABLE</strong>. Do not use historic W68 footage as W87 proof.</p></article></div>
+<div class="data"><table><thead><tr><th>Independent experience / technical criterion</th><th>Verdict</th><th>Evidence and biggest remaining blocker</th></tr></thead><tbody>
+<tr><td>A · LOOK compared with G088</td><td>NOT PROVEN</td><td>Four existing trade silhouettes and assigned-household footway are actual source changes; no independent before/after runtime evaluation</td></tr>
+<tr><td>A · FEEL / sustained hardware FPS</td><td>FAIL</td><td>Historical W68 SwiftShader 3.31 SOFTWARE FPS / CPU p95 314ms; W87 physical desktop/mobile timing unknown</td></tr>
+<tr><td>A · PLAY / truthful economy</td><td>NOT PROVEN</td><td>No complete source-matched actual farmer, courier handoff, credited inventory, lived home and 390px interaction film</td></tr>
+<tr><td>Day-120 scene under 160,000 triangles</td><td>NOT PROVEN</td><td>Prior source exceeded with 160,092 triangles; W87 CI queued, not passed</td></tr>
+<tr><td>Independent blinded visual/gameplay critics</td><td>NOT PROVEN</td><td>Worker tunnel unavailable; no invented reviews</td></tr>
+<tr><td>B · Manor Lords commercial reference</td><td>FAIL</td><td>Still simplified environment, human action/pose and rendering quality; no AAA claim</td></tr>
+</tbody></table></div>
+<p><strong>Exact W87 checks as of 6 Nov:</strong> <a href="https://github.com/my-edutu/Ai_games/actions/runs/42216341457">GPU/browser</a>, <a href="https://github.com/my-edutu/Ai_games/actions/runs/42216341171">120-day soak</a>, <a href="https://github.com/my-edutu/Ai_games/actions/runs/42216341236">matched recording</a> — all QUEUED at last inspection. Inline game JavaScript and new Playwright spec passed syntax compilation, not browser execution. <strong>Next step:</strong> verify complete moving footage, true worker action and camera route, Day-120 resources, CPU/driver/GPU timing on actual hardware before advancing the active milestone. No merge.</p></section>
 
 <section id="w86" style="border-top:3px solid #d5ad68;padding-top:24px">
 <p class="eyebrow">CURRENT · W86 · 6 November 2026 · Phase 1 rendering spine · ONE true farm → courier → market → occupied home</p>
