@@ -1884,7 +1884,25 @@ export function createMazeWorld(options = {}) {
         .28, .075, .10);
       shutters.push({object: shutter, side});
     }
-    trapSignals.push({carriage, diaphragms, shutters, cell: c.cell, x: p.position.x, z: p.position.z});
+    // Connected bronze relay levers turn FIRST as a visible pressure plate
+    // responds, BEFORE the taller piston completes its rise. Two genuinely
+    // rooted, low-profile mechanical linkages give the on-camera shutter
+    // action a readable cause and effect at portrait scale. These are
+    // presentation-only parts of this already PUBLIC hazard; there is no
+    // new trigger, AI command, collision or undisclosed hazard knowledge.
+    // Reuse the original pooled shapes/materials: zero new GPU geometries.
+    const relays = [];
+    for (const side of [-1, 1]) {
+      const relay = new THREE.Group();
+      relay.name = 'Published tide-shear staged relay ' + c.cell + ' ' + side;
+      relay.position.set(side * .33, .28, .35);
+      pressureMast.add(relay);
+      mesh(relay, cylinder, darkMetal, 0, .02, 0, .18, .16, .18);
+      mesh(relay, bevel, gold, -side * .19, .14, .02, .39, .13, .16, 0, 0, side * .13);
+      mesh(relay, bevel, danger, -side * .37, .21, .10, .20, .12, .12);
+      relays.push({object: relay, side});
+    }
+    trapSignals.push({carriage, diaphragms, shutters, relays, cell: c.cell, x: p.position.x, z: p.position.z});
     // Connected pivots and broad ceramic silhouettes, not emissive billboards.
     // They unfold in response to Pip's ACTUAL published presentation position
     // near this disclosed hazard; they never modify the authoritative engine.
@@ -2184,6 +2202,18 @@ export function createMazeWorld(options = {}) {
       // Reduced motion holds the readable pose ONLY for a currently visible
       // hazard. A remembered-only trap must remain at rest even if motion
       // reduction is enabled; public visibility is the sole gate.
+      // An original three-beat physical sequence, not another HUD indicator:
+      // (1) bronze relays warn early, (2) ivory floor plates spread, then
+      // (3) the linked piston reaches its full extension. Only the same
+      // already visible hazard and REAL public Pip pose can actuate it.
+      // All transforms are absolute per frame, so retreat/reset/reconnect
+      // are deterministic and never accumulate a false animation.
+      const earlyRelay = visible ? Math.min(1, opening * 4) : 0;
+      const pistonRelay = visible ? Math.min(1, Math.max(0, (opening - .32) / .68)) : 0;
+      for (const relay of signal.relays) {
+        relay.object.rotation.z = -relay.side * (reduced && visible ? .40 : .05 + .65 * earlyRelay);
+        relay.object.position.y = .28 + (reduced && visible ? .04 : .15 * pistonRelay);
+      }
       signal.carriage.position.y = reduced && visible ? .29 : .16 + .28 * opening;
       for (const leaf of signal.diaphragms)
         leaf.object.rotation.z = -leaf.side * (reduced && visible ? .34 : .08 + .70 * opening);
