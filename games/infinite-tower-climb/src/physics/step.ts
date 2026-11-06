@@ -1,4 +1,4 @@
-import{platformAtTick}from'../generation/chunks';import type{PhysicsContact,TowerAction,TowerPlatform,TowerState}from'../state/types';
+import{platformAtTick,guardianArenaExitX}from'../generation/chunks';import type{PhysicsContact,TowerAction,TowerPlatform,TowerState}from'../state/types';
 function clamp(v:number,min:number,max:number){return Math.max(min,Math.min(max,v))}
 function overlap1(a0:number,a1:number,b0:number,b1:number){return a0<b1&&a1>b0}
 function platforms(state:TowerState,tick:number){return state.chunks.flatMap(c=>c.platforms.map(p=>platformAtTick(p,tick))).sort((a,b)=>a.id.localeCompare(b.id))}
@@ -19,6 +19,33 @@ export function stepTowerPhysics(input:TowerState,action:TowerAction):{state:Tow
     const oldL=p.position.x-p.halfWidth,oldR=p.position.x+p.halfWidth,newL=newX-p.halfWidth,newR=newX+p.halfWidth;
     if(p.velocity.x>0&&oldR<=platform.x&&newR>=platform.x){newX=platform.x-p.halfWidth;p.velocity.x=0;contacts.push({kind:'wall',entityId:platform.id,normal:{x:-1,y:0}})}
     else if(p.velocity.x<0&&oldL>=platform.x+platform.width&&newL<=platform.x+platform.width){newX=platform.x+platform.width+p.halfWidth;p.velocity.x=0;contacts.push({kind:'wall',entityId:platform.id,normal:{x:1,y:0}})}
+  }
+  // The opt-in guardian's bronze threshold is a REAL collision plane while
+  // the source guardian is alive. A cap sprint, dash or rising double-jump
+  // cannot enter the apparently sealed doorway and camp on its far side.
+  // Use a swept whole-body front edge against the cap-anchored, visible
+  // vertical lock lattice. No RNG, future state, auxiliary physics tick or
+  // renderer-side collider; legacy/unflagged replay retains its exact path.
+  const activeChunk=state.chunks.find(ch=>ch.floor===state.floor);
+  if(c.guardianArenaHazards===true&&c.guardianSecondWind===true&&
+    activeChunk?.guardian&&p.velocity.x>0&&
+    state.enemies.some(enemy=>enemy.floor===state.floor&&
+      enemy.kind==='guardian'&&enemy.active&&enemy.health>0)){
+    const cap=activeChunk.platforms.find(platform=>
+      platform.id===`f${state.floor}:cap`);
+    if(cap){
+      const plane=guardianArenaExitX(cap),top=cap.y+cap.height;
+      const nearVertical=p.position.y+p.halfHeight>top&&
+        p.position.y-p.halfHeight<top+140000;
+      const oldFront=p.position.x+p.halfWidth;
+      const proposedFront=newX+p.halfWidth;
+      if(nearVertical&&oldFront<=plane&&proposedFront>plane){
+        newX=plane-p.halfWidth;
+        p.velocity.x=0;
+        contacts.push({kind:'wall',entityId:`f${state.floor}:guardian-seal`,
+          normal:{x:-1,y:0}});
+      }
+    }
   }
   p.position.x=clamp(newX,p.halfWidth,c.worldWidth-p.halfWidth);if(p.position.x!==newX){p.velocity.x=0;contacts.push({kind:'wall',entityId:'world-boundary',normal:{x:newX<0?1:-1,y:0}})}
   const targetY=p.position.y+p.velocity.y;let newY=targetY,landed:TowerPlatform|undefined;
