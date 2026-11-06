@@ -10,11 +10,13 @@ const inline=html.match(/<script>([\s\S]*?)<\/script>/);
 assert(inline,'Expected original complete inline 3D game script');
 new vm.Script(inline[1],{filename:'tiny-kingdom-inline-game.js'});
 const source=inline[1];
-const boot=source.indexOf('start();const mat4multiply=');
+const boot=source.indexOf('queueMicrotask(start);const mat4multiply=');
+assert(!source.includes('start();const mat4multiply='),
+ 'Synchronous early start would expose later camera bindings to the TDZ');
 const counter=source.indexOf('let courierPostRepairCount=0,courierPostRepairLast=null;');
 assert(boot>=0&&counter>=0,'Missing the authentic game boot or courier camera repair counters');
 assert(counter<boot,
- 'Browser TDZ: courierPostRepairCount is uninitialized when the genuine game start() resets it');
+ 'Browser TDZ: courierPostRepairCount must be initialized before the deferred genuine game start()');
 assert(source.includes('courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null'),
  'World reset must clear the camera repair state without changing simulation');
 console.log('W94 startup SOURCE contract PASS (real browser tests still required)');
