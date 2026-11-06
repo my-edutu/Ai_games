@@ -3818,11 +3818,26 @@ function compactHouse(x,z,variant){
  villageVisualLod.compactRoofPaletteCounts[roofStyle]++;
  const plaster=rgb(variant%2?0xe0c7aa:0xd1bc97);
  const timber=rgb(0x634e3c),roof=rgb(palette[0]);
- const eave=y+h,peak=eave+roofPitch,halfW=w/2+.15;
- const roofFront=z-d/2-.13,roofBack=z+d/2+.13;
+ // W98 integrated town-growth architecture: the ORIGINAL tall inhabited
+ // house has a COMPLETE upper room (four real walls and roof contact), not
+ // the prior paper-thin extra facade pasted over a one-storey solid box.
+ // The projecting room starts above head height; pedestrian footprint,
+ // collisions, rooms, home IDs, deterministic AI and save data do not move.
+ const jettyRoom=h>2.5,jettySill=1.55;
+ const eave=y+h,peak=eave+roofPitch,
+  halfW=w/2+(jettyRoom?.30:.15);
+ const roofFront=z-d/2-(jettyRoom?.33:.13),
+  roofBack=z+d/2+(jettyRoom?.33:.13);
  materialScope(MATERIAL.STONE,()=>box(x,y-.05,z,w+.12,.23,d+.12,rgb(0x918977)));
  materialScope(MATERIAL.PLASTER,()=>{
-  box(x,y+.18,z,w,h-.18,d,plaster);
+  if(jettyRoom){
+   // Lower room keeps the original window and doorway plane. Above 1.55m,
+   // 28cm wider and 36cm deeper wall mass is genuinely inhabited volume.
+   // It REPLACES the old 12-triangle fake front-only upper-room box in
+   // medievalStreetMorphology; total structural room-box triangles stay equal.
+   box(x,y+.18,z,w,jettySill-.18,d,plaster);
+   box(x,y+jettySill,z,w+.28,h-jettySill,d+.36,plaster);
+  }else box(x,y+.18,z,w,h-.18,d,plaster);
   tri([x-halfW,eave,roofFront],[x+halfW,eave,roofFront],[x,peak,roofFront],plaster);
   tri([x+halfW,eave,roofBack],[x-halfW,eave,roofBack],[x,peak,roofBack],plaster);
  });
@@ -4173,17 +4188,16 @@ function medievalStreetMorphology(x,z,variant,index,isCompact){
        [xx-side*.19,y+1.70,front],lit);
   }
  });
- // Tall houses are complete upper rooms, not blank elongated cottage walls.
- // The projecting floor starts above a citizen's existing route clearance.
+ // W98: the original raised COMPLETE upper floor now belongs to compactHouse.
+ // Do not overlay another opaque 12-triangle paper-thin pseudo-room; use
+ // this existing joinery as the outboard floor beam and roof-edge fascia.
  if(h>2.5){
-  materialScope(MATERIAL.PLASTER,()=>{
-   box(x,y+1.55,front-.06,w*.82,h-1.62,.24,plaster);
-  });
   materialScope(MATERIAL.WOOD,()=>{
    box(x,y+1.48,front-.10,w*.94,.14,.35,timber);
    box(x,y+h-.16,front-.10,w*.94,.13,.32,timber);
   });
-  const windowY=y+Math.min(h-.43,2.25),zz=front-.205;
+  // Upper casements meet the actual jetty wall, not the old shallow prop.
+  const windowY=y+Math.min(h-.43,2.25),zz=z-d*.5-.205;
   materialScope(MATERIAL.WINDOW_GLOW,()=>{
    for(const side of [-1,1]){
     const wx=x+side*w*.22;
