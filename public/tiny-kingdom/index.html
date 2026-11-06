@@ -1497,6 +1497,53 @@ const uniforms={viewProjection:gl.getUniformLocation(program,'viewProjection'),f
 // G067: reuse both driver-side storage and CPU staging for the changing
 // citizen/effects VBO; only grow in bounded 65536-float chunks when needed.
 let dynamicGpuCapacityFloats=0,dynamicGpuAllocations=0,dynamicGpuUploads=0,dynamicGpuStaging=null;
+// W85: changing REAL workers, shutters, homecoming and deliveries must not
+// block a physical GPU by rewriting the VBO it is still reading.
+// Rotate three bounded resident VBOs on hardware, but retain one original
+// VBO on SwiftShader/Canvas2D. Never omit geometry or transactions.
+// Over-budget animation retains full geometry on the original VBO.
+const DYNAMIC_GPU_RING_SLOTS=3,DYNAMIC_GPU_RING_MAX_NORMAL_FLOATS=
+ Math.ceil(CAMERA_DYNAMIC_FLOAT_BUDGET/65536)*65536;
+const dynamicFrameBuffers=[buffer,null,null],dynamicFrameStorage=[0,0,0];
+let dynamicFrameActive=0,dynamicFrameRotations=0,dynamicFrameOverflow=0;
+function planDynamicGpuRing(previousSlot,reused,requestedFloats){
+ const normal=Number.isFinite(requestedFloats)&&requestedFloats>=0&&
+  requestedFloats<=CAMERA_DYNAMIC_FLOAT_BUDGET;
+ return {slot:normal?(reused?previousSlot:
+  (previousSlot+1)%DYNAMIC_GPU_RING_SLOTS):0,ringEligible:normal};
+}
+function selectDynamicGpuBuffer(reused,requestedFloats){
+ if(!gpuAvailable||swiftGpu)return buffer;
+ const plan=planDynamicGpuRing(dynamicFrameActive,reused,requestedFloats);
+ if(!plan.ringEligible)dynamicFrameOverflow++;
+ if(!reused&&plan.slot!==dynamicFrameActive)dynamicFrameRotations++;
+ dynamicFrameActive=plan.slot;
+ if(!dynamicFrameBuffers[dynamicFrameActive]){
+  const created=gl.createBuffer();
+  if(!created)throw Error('W85 unable to allocate bounded animated world VBO');
+  dynamicFrameBuffers[dynamicFrameActive]=created;
+ }
+ return dynamicFrameBuffers[dynamicFrameActive];
+}
+function getDynamicGpuRingAudit(){
+ const totalCapacityFloats=dynamicFrameStorage.reduce((a,b)=>a+b,0);
+ return {source:'original-dynamic-worker-mesh-hardware-buffer-ring',
+  enabled:gpuAvailable&&!swiftGpu,maxSlots:DYNAMIC_GPU_RING_SLOTS,
+  maxBuffers:DYNAMIC_GPU_RING_SLOTS,
+  residentBuffers:dynamicFrameBuffers.filter(Boolean).length,
+  activeSlot:dynamicFrameActive,rotations:dynamicFrameRotations,
+  normalFloats:CAMERA_DYNAMIC_FLOAT_BUDGET,
+  maxNormalFloats:DYNAMIC_GPU_RING_MAX_NORMAL_FLOATS,
+  perSlotCapacityFloats:dynamicFrameStorage.slice(),
+  totalCapacityFloats,
+  overflowFloats:Math.max(0,dynamicFrameStorage[0]-
+   DYNAMIC_GPU_RING_MAX_NORMAL_FLOATS),
+  overflowFallbacks:dynamicFrameOverflow,
+  stagingFloats:dynamicGpuCapacityFloats,
+  allocations:dynamicGpuAllocations,uploads:dynamicGpuUploads,
+  preservesWorldGeometry:true,authoritativeStateChanged:false,
+  measurement:'buffer capacity and upload counts only; no FPS claim'};
+}
 const stride=40,attributes=[['position',3,0],['normal',3,12],['color',3,24],['materialId',1,36]].map(([name,size,offset])=>({loc:gl.getAttribLocation(program,name),size,offset}));
 function bindGeometry(target){gl.bindBuffer(gl.ARRAY_BUFFER,target);for(const {loc,size,offset} of attributes){if(loc<0)continue;gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,size,gl.FLOAT,false,stride,offset)}}
 bindGeometry(buffer);
@@ -13863,13 +13910,20 @@ if(gpuAvailable){
 const gpuUploadStart=performance.now();
 drawEconomyResidentMesh();
 drawRecordedWorkResidentMesh();
-bindGeometry(buffer);
+bindGeometry(selectDynamicGpuBuffer(cameraMeshReused,data.length));
 if(gpuAvailable){
  if(!cameraMeshReused&&data.length){
+  // One reusable CPU staging allocation is shared across the GPU ring;
+  // each live VBO has independent capacity and reuses its own storage.
   if(data.length>dynamicGpuCapacityFloats){
    dynamicGpuCapacityFloats=Math.ceil(data.length/65536)*65536;
    dynamicGpuStaging=new Float32Array(dynamicGpuCapacityFloats);
-   gl.bufferData(gl.ARRAY_BUFFER,dynamicGpuStaging.byteLength,gl.DYNAMIC_DRAW);
+  }
+  if(data.length>dynamicFrameStorage[dynamicFrameActive]){
+   dynamicFrameStorage[dynamicFrameActive]=dynamicGpuCapacityFloats;
+   gl.bufferData(gl.ARRAY_BUFFER,
+    dynamicFrameStorage[dynamicFrameActive]*Float32Array.BYTES_PER_ELEMENT,
+    gl.DYNAMIC_DRAW);
    dynamicGpuAllocations++;
   }
   dynamicGpuStaging.set(data,0);
@@ -13926,7 +13980,7 @@ getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStr
  totalSavedDrawCalls:scenicVisibilityStats.totalSavedDrawCalls,
  batchMode:scenicVisibilityStats.batchMode,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable}),getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,setStaticBatchBridgingForTesting,getCourierPostCameraAudit,evaluateCourierPostRepairPolicy,getDaybreakReturnAudit,getCameraDynamicCacheStats,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,setStaticBatchBridgingForTesting,getCourierPostCameraAudit,evaluateCourierPostRepairPolicy,getDaybreakReturnAudit,getCameraDynamicCacheStats,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
  if(streetWalk)setStreetWalk(false);
 if(follow)setCitizenFollow(false);cinematic=false;document.getElementById('camera').classList.remove('active');
 yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2&&o.focus.every(Number.isFinite))focusPoint=o.focus.slice(0,2)}};
