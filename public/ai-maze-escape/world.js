@@ -2138,6 +2138,7 @@ export function createMazeWorld(options = {}) {
       if (currentlyVisibleCells.has(signal.cell)) continue;
       signal.pressureSince = null;
       signal.pressureLastTime = null;
+      signal.publicProgress = 0;
     }
     snapshot = s;
     // Read ONLY the published explorer cell. True smooth interpolation, when
@@ -2293,6 +2294,9 @@ export function createMazeWorld(options = {}) {
       // relay warning → two ceramic floor leaves → elevated piston/diaphragm.
       // Source-limited visual clock avoids one positional tick skipping all
       // three stages; exact transforms depend only on disclosed input/time.
+      // Pip witnesses the SAME physical relay/shutter/piston clock, never a second timer.
+      // A stale or hidden cell cannot lend its old phase to the explorer.
+      signal.publicProgress = stagedPressure;
       const earlyRelay = Math.min(1, stagedPressure / .17);
       const shutterBeat = Math.min(1, Math.max(0, (stagedPressure - .34) / .36));
       const pistonRelay = Math.min(1, Math.max(0, (stagedPressure - .76) / .24));
@@ -2414,6 +2418,14 @@ export function createMazeWorld(options = {}) {
     return {x: nearest.x, z: nearest.z,
       strength: Math.min(1, (1 - nearest.distance / 3.6) * 2)};
   }
+  function publicPressureProgress(cell) {
+    if (disposed || !snapshot || snapshot.result || !Number.isSafeInteger(cell)
+      || !Array.isArray(snapshot.visibleCells)
+      || !snapshot.visibleCells.includes(cell)) return 0;
+    const physical = trapSignals.find(signal => signal.cell === cell);
+    return Number.isFinite(physical?.publicProgress)
+      ? Math.max(0, Math.min(1, physical.publicProgress)) : 0;
+  }
   function stats() {
     let meshes = 0, instances = 0;
     group.traverse(item => { if (item.isMesh) meshes++; if (item.isInstancedMesh) instances += item.count; });
@@ -2430,5 +2442,5 @@ export function createMazeWorld(options = {}) {
         ? sail.object.rotation.x : sail.object.rotation.z))) : 0;
     return { fossilMotionMaxRadians, renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), stairBalustrades, tideFossilGroves, tideFossilAlcoves, fossilGalleryEdges, undercroftButtresses, hangingFacadeGardens, closedTideMedallions, responsiveFossilSails: fossilSails.length, responsiveFossilOrgans: fossilOrgans.length, responsiveTrapJaws: trapJaws.length, responsiveTrapSignals: trapSignals.length, trapJawOpenMaxRadians: trapJaws.length ? Math.max(...trapJaws.map(jaw => Math.abs(jaw.object.rotation.z))) : 0, coastalGardens, wallGardens, coastCanopies, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, windcatcherTowers, wallWindcatchers, gateForecourtParapets, pressureStageParapets, gateCourtRosettes, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
   }
-  return { group, update, animate, dispose, stats, matchingPublicSocket, publicFossilAttention };
+  return { group, update, animate, dispose, stats, matchingPublicSocket, publicFossilAttention, publicPressureProgress };
 }

@@ -1,3 +1,8 @@
+### Pass190 — physically synchronized pressure encounter and original Pip acting (2026-11-06 UTC)
+
+- **Production candidate:** source-real bronze relay → ivory shutter → piston progress is now the same physical timeline that actuates Pip's attached gaze, knees, torso and lantern in one render frame. Zero second fake timer, GPU mesh/material class, hidden map, AI/collision authority, UI panel or camera change. Public hidden/retreat/reset/read-only and action priority preserved.
+- **Verification boundary:** source-level exact-contract tests authored for installed Three.js model/world; isolated scalar cadence smoke only executed. Current-head WebGL, full CI, six-run <100 geometry (prior 102), source-hashed uncropped 320/390/844/1280 and independent official Nintendo comparison **NOT verified** due disconnected coding worker and queued CI. [Dated source and independent-image gate](./maze-3d/pass-190-physical-pip-pressure-same-clock-candidate-2026-11-06.md). Fixed bar UNMET, PR OPEN DRAFT, no merge/deploy.
+
 ### Pass189 — witnessed pressure mechanism evokes original Pip full-body acting (2026-11-06 UTC)
 
 - **Production change:** only currently visible PUBLIC nonblocked pressure near real rendered Pip drives planted knees, braced torso, helmet gaze and original connected lantern. Never uses hidden/disclosed-but-not-visible traps, private AI or future route; real guardian, key, gate, pickup and terminal outcomes take priority. No new geometry, materials, camera, HUD or gameplay authority.

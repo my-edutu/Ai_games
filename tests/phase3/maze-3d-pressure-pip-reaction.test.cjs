@@ -70,3 +70,40 @@ test('full-body physical Pip acts, neutral/guardian/terminal clears, zero new me
   }
   assert.deepEqual(rigPrimitiveResourceStats(),base);
 });
+
+test('Pip witnesses real pressure phases in order: gaze, rooted brace, linked lantern climax',async()=>{
+  const {createExplorer,rigPrimitiveResourceStats}=await rigs;
+  const baseline=rigPrimitiveResourceStats();
+  for(const balanced of [false,true]){
+    const pip=createExplorer({balanced});
+    const head=pip.group.getObjectByName('curious head');
+    const body=pip.group.getObjectByName('breathing torso');
+    const knee=pip.group.getObjectByName('knee -1');
+    const lamp=pip.group.getObjectByName('lantern cage');
+    const opts={time:0,delta:0,heading:0,pressureHeading:Math.PI/2,pressureStrength:1};
+    const geometry=[];pip.group.traverse(o=>{if(o.isMesh)geometry.push(o.geometry)});
+    pip.update({...opts,pressureProgress:.20});
+    const warned={head:head.rotation.y,body:body.position.y,knee:knee.rotation.x,lamp:lamp.scale.x};
+    assert.ok(warned.head>.5,'published bronze relay draws actual eyes first');
+    assert.equal(warned.knee,0,'early warning cannot invent bracing before shutters open');
+    pip.update({...opts,pressureProgress:.55});
+    assert.ok(body.position.y<warned.body && knee.rotation.x>.15,'knees and torso answer ivory shutter motion');
+    assert.equal(lamp.scale.x,warned.lamp,'piston has not reached lantern climax yet');
+    pip.update({...opts,pressureProgress:1});
+    assert.ok(knee.rotation.x>.29 && lamp.scale.x>warned.lamp+.08,'physical piston finishes full connected acting');
+    pip.update({...opts,pressureProgress:.20,reducedMotion:true});
+    const staticKnee=knee.rotation.x,staticLamp=lamp.scale.x;
+    pip.update({...opts,pressureProgress:1,reducedMotion:true});
+    assert.equal(knee.rotation.x,staticKnee,'reduced motion must retain one stable brace');
+    assert.equal(lamp.scale.x,staticLamp);
+    pip.update({...opts,pressureProgress:1,pressureStrength:0,reducedMotion:false});
+    assert.equal(knee.rotation.x,0,'public withdrawal clears actual leg');
+    assert.equal(lamp.scale.x,1,'public withdrawal clears actual lantern');
+    const after=[];pip.group.traverse(o=>{if(o.isMesh)after.push(o.geometry)});
+    assert.deepEqual(after,geometry,'no new source-rendered geometry from acting');
+    pip.dispose();
+  }
+  assert.deepEqual(rigPrimitiveResourceStats(),baseline,'all shared buffers released');
+  assert.match(sceneSource,/world\.animate\(elapsed,[\s\S]*?pressureProgress=pressureCue/);
+  assert.match(sceneSource,/pressureProgress,/);
+});

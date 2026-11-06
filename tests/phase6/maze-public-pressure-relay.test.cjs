@@ -225,3 +225,36 @@ test('real 360ms public step completes connected 3D pressure mechanism before re
     assert.equal(JSON.stringify(state),frozen,'engine authority and public data untouched');
   } finally {world.dispose();cleanup()}
 });
+
+test('Pip receives ONLY actual same-frame public pressure geometry phase, with privacy/reset',async()=>{
+  const {THREE,game,world,cleanup}=await build();
+  try{
+    const original=publicState(),unchanged=JSON.stringify(original);
+    world.update(original);
+    const p=game.cellPosition(4,3,3);
+    const center=new THREE.Vector3(p.x,0,p.z),far=new THREE.Vector3(p.x+40,0,p.z+40);
+    const contact={explorerPosition:center,reducedMotion:false,stepDurationMs:360};
+    const budget=world.stats();
+    assert.equal(world.publicPressureProgress(4),0);
+    world.animate(0,contact);
+    near(world.publicPressureProgress(4),.20,'public initial bronze warning');
+    world.animate(.15,contact);
+    assert.ok(world.publicPressureProgress(4)>.34 && world.publicPressureProgress(4)<.76,
+      'ivory shutter movement reaches Pip before piston');
+    world.animate(.36,contact);
+    near(world.publicPressureProgress(4),1,'published piston and Pip climax together');
+    world.animate(.37,{...contact,explorerPosition:far});
+    near(world.publicPressureProgress(4),0,'retreat clears pressure state immediately');
+    world.update({...original,tick:2,visibleCells:[]});
+    assert.equal(world.publicPressureProgress(4),0,'hidden public tick revokes phase without rendering');
+    world.update({...original,tick:3,visibleCells:[4]});
+    assert.equal(world.publicPressureProgress(4),0,'reappearance never inherits elapsed hidden phase');
+    world.animate(.40,contact);
+    near(world.publicPressureProgress(4),.20,'new witnessed contact restarts with warning');
+    world.update({...original,runToken:'second',tick:1,cells:[],visibleCells:[],privateTrapCells:[4]});
+    assert.equal(world.publicPressureProgress(4),0,'next run and private map cannot leak phase');
+    for(const key of ['geometryCount','materialCount','textureCount'])
+      assert.equal(world.stats()[key],budget[key],'no new GPU resource classes across staging/reset');
+    assert.equal(JSON.stringify(original),unchanged,'published snapshot unchanged');
+  }finally{world.dispose();cleanup()}
+});

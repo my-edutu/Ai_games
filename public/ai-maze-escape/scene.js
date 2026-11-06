@@ -498,6 +498,12 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // explorer-side cause/effect, never another HUD panel or fake AI action.
     const pressureCue=!result && !closestThreat?.strength
       ? publicObservedPressureReaction(s,pose,CELL_SIZE) : null;
+    // Read the connected physical shutter/piston pose BEFORE updating Pip's
+    // full-body rig in this same native render frame, not one frame later.
+    world.animate(elapsed, {...settings, gateTime:gateVisualTime,
+      stepDurationMs:frame.stepDurationMs, explorerPosition:explorer.group.position});
+    const pressureProgress=pressureCue
+      ? world.publicPressureProgress(pressureCue.cell) : 0;
     explorer.update({
       time:elapsed,delta,moving:pose.moving&&!result,heading,
       attentionHeading:closestThreat?Math.atan2(closestThreat.x-pose.x,closestThreat.z-pose.z):undefined,
@@ -511,6 +517,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       pressureHeading:pressureCue
         ? Math.atan2(pressureCue.x-pose.x,pressureCue.z-pose.z) : undefined,
       pressureStrength:pressureCue?.strength??0,
+      pressureProgress,
       keyTarget,
       keyCameraPosition: camera.position,
       danger:s.dangerPermille/1000,result,reducedMotion:settings.reducedMotion,
@@ -519,8 +526,6 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // No hidden map, authoritative AI input or extra animation clock.
     // Share the public AI movement cadence with the connected 3D pressure
     // mechanism so its physical beats finish during real visible contact.
-    world.animate(elapsed, {...settings, gateTime:gateVisualTime,
-      stepDurationMs:frame.stepDurationMs, explorerPosition:explorer.group.position});
     // A physical release needs visible dwell, not a one-frame flash. Real CI
     // 41445025939 verified KEY FOUND but failed the *after screenshot* shard
     // presence because .82 s of visual time elapsed during CPU-rendered PNG.
