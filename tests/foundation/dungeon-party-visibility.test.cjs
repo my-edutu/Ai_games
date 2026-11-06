@@ -566,3 +566,37 @@ test('portrait camera clears only significant actual foreground props across the
  assert.match(app,/planPortraitStageClearance\(world\.userData\.foregroundPropVolumes/);
  assert.doesNotMatch(app,/\\n  world\.userData\.portraitStage/);
 });
+
+test('organic portrait approach clears a dominating close pillar without erasing modest travel landmarks or rear masonry',async()=>{
+ const {planPortraitStageClearance}=await load();
+ const camera=Object.freeze({x:0,y:5,z:8});
+ const portrait=Object.freeze({look:{x:0,y:1,z:0},fov:48,aspect:390/844});
+ const actor=Object.freeze({x:0,z:0,kind:'vanguard',visibleActor:true,combatRecess:false});
+ // This is the actual failure class in Nov 6 genuine 390px browser footage:
+ // a broad right-hand pillar hides the upcoming play space while the hero's
+ // skull/chest rays remain clear and no authored attack has fired yet.
+ const large=Object.freeze([.6,0,2.45,1.1,2.6,2.85]);
+ const modest=Object.freeze([-.18,0,2.45,.18,2.35,2.85]);
+ const rear=Object.freeze([-.55,0,-2.85,.55,2.6,-2.45]);
+ const distantSide=Object.freeze([3.75,0,2.45,4.1,2.6,2.85]);
+ const original=JSON.stringify([camera,portrait,actor,large,modest,rear,distantSide]);
+ assert.equal(planPortraitStageClearance(large,[actor],camera,portrait),true,
+  'the oversized real foreground stage blocker must clear during organic approach, not only after a hit');
+ assert.equal(planPortraitStageClearance(modest,[actor],camera,portrait),false,
+  'ordinary small props keep the dungeon authored and recognizably physical');
+ assert.equal(planPortraitStageClearance(rear,[actor],camera,portrait),false,
+  'far/rear carved architecture never disappears');
+ assert.equal(planPortraitStageClearance(distantSide,[actor],camera,portrait),false,
+  'unrelated side scenery must not disappear');
+ assert.equal(planPortraitStageClearance(large,[{...actor,visibleActor:false}],camera,portrait),false,
+  'a simulated scenic marker does not authorize cutaway');
+ assert.equal(planPortraitStageClearance(large,[actor],camera,{...portrait,aspect:1440/832}),false,
+  'desktop camera keeps the original physical composition');
+ assert.equal(planPortraitStageClearance(large,Array(6).fill(actor),camera,portrait),false,
+  'the per-frame actor budget is never lifted');
+ assert.equal(JSON.stringify([camera,portrait,actor,large,modest,rear,distantSide]),original,
+  'render composition cannot mutate source state');
+ const physicalCamera=fs.readFileSync(path.join(root,'public/ai-dungeon/physical-camera-director.js'),'utf8');
+ assert.match(physicalCamera,/planPortraitStageClearance\(box,eyes,cam,view\)/,
+  'camera scoring must agree with actual rendered foreground removal');
+});

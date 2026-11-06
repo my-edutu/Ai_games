@@ -454,7 +454,7 @@ export function planPortraitStageClearance(box,subjects,camera,view){
  const cx=(box[0]+box[3])*.5,cz=(box[2]+box[5])*.5;
  let prop=null;
  for(const actor of subjects){
-  if(actor?.visibleActor!==true||actor?.combatRecess!==true||
+  if(actor?.visibleActor!==true||
      ![actor.x,actor.z].every(Number.isFinite)||
      Math.hypot(actor.x-cx,actor.z-cz)>7.1)continue;
   const dx=actor.x-camera.x,dz=actor.z-camera.z;
@@ -482,6 +482,22 @@ export function planPortraitStageClearance(box,subjects,camera,view){
    if((maxX-minX)<.065||(maxY-minY)<.075)return false;
   }
   if(prop.near>=focus.depth-.1)continue;
+  // Actual phone Chromium shows that an opaque near-camera Gothic column can
+  // swallow a quarter of the fighting frame BEFORE an attack flag exists.
+  // Keep modest stones during travel, but clear only a truly large, physically
+  // frontmost prop overlapping a real rooted hero's portrait acting stage.
+  // This is the same renderer-visible policy the physical camera grades;
+  // it cannot remove walls, rear vaults, enemy cover or gameplay collision.
+  if(actor.combatRecess!==true){
+   const width=Math.max(0,Math.min(1,prop.maxX)-Math.max(-1,prop.minX));
+   const height=Math.max(0,Math.min(1,prop.maxY)-Math.max(-1,prop.minY));
+   const left=Math.max(-.84,focus.x-.70),right=Math.min(.84,focus.x+.70);
+   const actingWidth=Math.max(0,Math.min(prop.maxX,right)-Math.max(prop.minX,left));
+   const actingHeight=Math.max(0,Math.min(prop.maxY,.88)-Math.max(prop.minY,-.80));
+   if(Math.hypot(actor.x-cx,actor.z-cz)<=5.5&&width>=.44&&
+      height>=.74&&actingWidth>=.24&&actingHeight>=.50)return true;
+   continue;
+  }
   const sideX=-dz/distance,sideZ=dx/distance;
   const scale=actor.kind==='warden'?1.32:1;
   const native=Array.isArray(actor.bodyPoints)&&actor.bodyPoints.length>=3&&actor.bodyPoints.length<=8?

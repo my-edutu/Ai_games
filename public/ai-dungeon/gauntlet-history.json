@@ -5696,8 +5696,8 @@
       "plays": "UNVERIFIED",
       "next": "Exact-new-head real 1440px/390px seeded Chromium audiovisual battle + compare pinned baseline; verify no new occlusion/camera jitter, then original adult-scale native rig/Warden melee integration and five-stage organic reel."
     },
-    "currentStage": "A — browser-paced five-stage original-audio evidence UNVERIFIED",
-    "executableNextTask": "Inspect actual desktop/mobile organic recordings, true checksum-matched stage frames and audio; reject missing milestones, then implement cohesive adult-scale native Warden/Vanguard combat transformation on this PR.",
+    "currentStage": "A — true same-seed real-browser desktop/mobile moving verification still incomplete",
+    "executableNextTask": "Inspect exact-head 1440/390 genuine five-stage WebM and stage/checksum manifests; measure dominant foreground/pillar, camera jitter, actual native boots and sword contact, original opt-in PCM and frame p95. Reject/revert renderer candidate if it removes rear scene. Then adult-scale B/C full-body exemplar and matched baseline.",
     "phasePlan": [
       {
         "phase": "A",
@@ -5735,6 +5735,29 @@
       "plays": "UNVERIFIED",
       "critics": 0,
       "next": "Inspect organic 1440/390 recordings + true rendered checksum + original audio; fix visible character/contact/occlusion; continue same-seed baseline A/B, three independent critics"
+    },
+    "m1PortraitApproachCandidate": {
+      "date": "2026-11-06",
+      "predecessorHead": "b670be7d04aaa2220e73d71502efa5b67b12a514",
+      "stage": "A",
+      "genuinePriorSourceSha": "0fb23004fe7e7b91f327392b1da5ce4b82682fb7",
+      "genuinePriorArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42134013527/artifacts/13473193686",
+      "defect": "A wide original Gothic pillar consumes a live 390px viewport even when the helmet/body ray reports clear, including autonomous approach before attack flag",
+      "candidate": "Live rooted original 3D actor earns limited removal of only dominant physically nearer portrait prop; shared camera grading uses the same visible-scene policy. No changes to authority, collision, replay or saves.",
+      "files": [
+        "public/ai-dungeon/party-visibility-plan.js",
+        "tests/foundation/dungeon-party-visibility.test.cjs"
+      ],
+      "sourceValidation": "Code and focused test added; exact branch head Node/Chromium not run",
+      "realAfter": "NOT_OBSERVED",
+      "audio": "UNVERIFIED",
+      "performance": "UNVERIFIED",
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "critics": 0,
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "next": "Inspect exact-head mobile/desktop organic frames and audio; verify no giant prop or camera instability and no Gothic depth loss; repair observed regression, then adult-scale native-rig Warden melee slice"
     }
   }
 }
