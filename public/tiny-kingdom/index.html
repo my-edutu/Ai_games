@@ -13401,8 +13401,10 @@ function watchDelivery(requestedId=null){
  // then cycle other bona-fide couriers. Never synthesize a delivery for film.
  const unloading=eligible.filter(row=>isMarketUnloading(row.person));
  const after=eligible.find(row=>row.index>selectedCitizen);
- const requested=requestedId===null?null:
-  eligible.find(row=>row.person.delivery?.id===requestedId);
+ // Existing button passes a click Event; only a verified parcel ID may
+ // override the original cycle-through-real-couriers behaviour.
+ const requested=typeof requestedId==='string'?
+  eligible.find(row=>row.person.delivery?.id===requestedId):null;
  const selected=requested||unloading[0]||after||eligible[0],p=selected.person;
  if(liveWorkday)stopWorkdayWatch();
  selectedCitizen=selected.index;
