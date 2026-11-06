@@ -1131,6 +1131,33 @@ void main(){
  // G064: deterministic GPU foliage drift, with no static-mesh rebuild.
  // Structural timber, stone, ground and citizens retain original positions.
  vec3 world=position;
+ vec3 surfaceNormal=normal;
+ float surfaceMaterial=materialId;
+ // W96: the same eight real market shutters now live in ONE durable GPU
+ // mesh. Each ID decodes its original stall, hinge side and orientation.
+ // The authoritative simulation clock determines the opening exactly as
+ // the legacy CPU formula; no mesh regeneration or fake market action.
+ if(materialId>14.0&&materialId<14.5){
+  float leaf=floor(fract(materialId)*32.0+0.5)-1.0;
+  float stall=floor(leaf*0.5);
+  float side=mod(leaf,2.0)*2.0-1.0;
+  vec2 center=stall<0.5?vec2(-5.4,2.25):
+   stall<1.5?vec2(4.45,2.95):
+   stall<2.5?vec2(4.30,8.50):vec2(-5.75,8.70);
+  float face=stall<1.5?1.0:-1.0;
+  vec2 pivot=center+vec2(side*1.21,face*.96);
+  float hour=mod(worldTime,24.0);
+  float opening=clamp(min((hour-5.75)/1.25,
+   (21.75-hour)/1.25),0.0,1.0);
+  opening=floor(opening*1000.0+0.5)/1000.0;
+  float angle=-side*face*opening*1.48;
+  float cs=cos(angle),sn=sin(angle);
+  vec2 rel=position.xz-pivot;
+  world.xz=pivot+vec2(cs*rel.x-sn*rel.y,sn*rel.x+cs*rel.y);
+  surfaceNormal.xz=vec2(cs*normal.x-sn*normal.z,
+   sn*normal.x+cs*normal.z);
+  surfaceMaterial=6.0; // same original timber material and atlas
+ }
  // W91 static real four-sail windmill and deterministic rain/snow vertex motion.
  // Their complete, unpruned geometry stays resident across real workday ticks.
  if(materialId>10.5&&materialId<11.5){
@@ -1197,7 +1224,7 @@ void main(){
   world.y=mix(world.y,min(world.y,floorY+.17),cut*.95);
  }
  vec4 p=viewProjection*vec4(world,1.);gl_Position=p;
- vec3 n=normalize(normal);vec3 sun=normalize(sunDirection);
+ vec3 n=normalize(surfaceNormal);vec3 sun=normalize(sunDirection);
  float lit=max(dot(n,sun),0.);float hemi=.5+.5*n.y;
  float bounce=max(dot(n,normalize(vec3(-sun.x,.28,-sun.z))),0.);
  // G045: night and dawn ground radiance follow the same solar cycle as
@@ -1211,7 +1238,7 @@ void main(){
  // This only changes presentation, never paths or authoritative resource use.
  float upperFace=clamp(.5+.5*n.y,0.,1.);
  float formShade=mix(.835,1.,upperFace);
- if(materialId>4.5&&materialId<8.5){
+ if(surfaceMaterial>4.5&&surfaceMaterial<8.5){
   float foundation=1.-smoothstep(.16,1.58,world.y);
   formShade*=1.-foundation*.09;
  }
@@ -1232,7 +1259,7 @@ void main(){
   vec3 warmGlass=materialId<9.5?vec3(.98,.88,.47):vec3(.98,.90,.44);
   vColor=mix(vColor,warmGlass,afterDusk);
  }
- vWorld=world;vNormal=n;vMaterial=materialId;vFog=clamp((p.w-31.)/121.,0.,.70);
+ vWorld=world;vNormal=n;vMaterial=surfaceMaterial;vFog=clamp((p.w-31.)/121.,0.,.70);
 }`;
 // Gauntlet 023 — world-space GPU materials. Original procedural detail; not full PBR.
 const fs=`precision mediump float;
@@ -6129,8 +6156,9 @@ function marketOperatingAudit(time=state.t){
   activeMerchantNames,realCitizenNames:people.map(p=>p.name),
   resources:{...supply.resources},inTransit:{...supply.inTransit}};
 }
-function renderMarketOperatingShutters(){
- const profile=marketOperatingAudit(),opening=profile.openFraction,first=data.length;
+function renderMarketOperatingShutters(openingOverride=null,tagForResident=false){
+ const profile=marketOperatingAudit(),opening=openingOverride===null?
+  profile.openFraction:openingOverride,first=data.length;
  for(let stallIndex=0;stallIndex<MARKET_STALLS.length;stallIndex++){
   const s=MARKET_STALLS[stallIndex],y=terrain(s.x,s.z),
    plank=rgb(stallIndex%2?0x71543d:0x644832),
@@ -6138,7 +6166,11 @@ function renderMarketOperatingShutters(){
   for(const side of [-1,1]){
    const pivotX=s.x+side*1.21,pivotZ=s.z+s.face*.96;
    const centreX=pivotX-side*.595,begin=data.length;
-   materialScope(MATERIAL.WOOD,()=>{
+   // W96: each ORIGINAL door leaf receives only a reversible shader tag
+   // when baked at zero opening into the persistent market-front GPU VBO.
+   // The legacy software/dynamic path retains ordinary timber material.
+   const leafTag=14+(stallIndex*2+(side===1?1:0)+1)/32;
+   materialScope(tagForResident?leafTag:MATERIAL.WOOD,()=>{
     box(centreX,y+.99,pivotZ,1.17,.70,.085,plank);
     for(let row=0;row<3;row++)
      box(centreX,y+1.07+row*.245,pivotZ+s.face*.060,1.15,.038,.042,rail);
@@ -6161,6 +6193,71 @@ function renderMarketOperatingShutters(){
  marketOperatingRenderStats.doorLeaves=MARKET_STALLS.length*2;
  marketOperatingRenderStats.triangles=(data.length-first)/30;
  marketOperatingRenderStats.openFraction=opening;
+}
+
+
+// W96 Phase 1 — one persistent real-market shutter stream. Only the eight
+// actual timber leaves leave per-frame CPU regeneration. Real inventory,
+// genuine merchants, market handoffs and actors stay live and independent.
+const MARKET_SHUTTER_MAX_FLOATS=48000;
+let marketShutterResidentBuffer=null,marketShutterResidentMesh=null;
+let marketShutterResidentOverride=null,marketShutterResidentActive=false;
+let marketShutterResidentBuilds=0,marketShutterResidentUploads=0;
+let marketShutterResidentDrawCalls=0,marketShutterResidentFallbacks=0;
+function marketShutterResidencyRequested(){
+ return Boolean(gpuAvailable&&(marketShutterResidentOverride===null?
+  !swiftGpu:marketShutterResidentOverride));
+}
+function prepareResidentMarketShutters(){
+ marketShutterResidentActive=false;
+ if(!marketShutterResidencyRequested())return false;
+ if(marketShutterResidentBuffer){
+  marketShutterResidentActive=true;return true;
+ }
+ const previousData=data,previousMaterial=currentMaterial;
+ let mesh;
+ try{
+  data=[];
+  renderMarketOperatingShutters(0,true);
+  mesh=new Float32Array(data);
+ }finally{data=previousData;currentMaterial=previousMaterial;}
+ if(mesh.length===0||mesh.length%30||mesh.length>MARKET_SHUTTER_MAX_FLOATS){
+  marketShutterResidentFallbacks++;return false;
+ }
+ const resident=gl.createBuffer();
+ if(!resident){marketShutterResidentFallbacks++;return false;}
+ bindGeometry(resident);
+ gl.bufferData(gl.ARRAY_BUFFER,mesh,gl.STATIC_DRAW);
+ marketShutterResidentBuffer=resident;
+ marketShutterResidentMesh=mesh;
+ marketShutterResidentBuilds++;marketShutterResidentUploads++;
+ marketShutterResidentActive=true;return true;
+}
+function drawResidentMarketShutters(){
+ if(!marketShutterResidentActive||!marketShutterResidentBuffer)return;
+ bindGeometry(marketShutterResidentBuffer);
+ gl.drawArrays(gl.TRIANGLES,0,marketShutterResidentMesh.length/10);
+ marketShutterResidentDrawCalls++;
+}
+function setMarketShutterResidencyForTesting(value){
+ if(value!==null&&value!==true&&value!==false)
+  throw Error('W96 invalid original market shutter residency override');
+ marketShutterResidentOverride=value;
+ cameraDynamicCache=null;cameraActorCache=null;cameraDynamicKey='';
+ lastFrozenFrameKey=null;presentationEpoch++;
+}
+function getMarketShutterResidencyAudit(){
+ return {source:'eight-original-timed-market-shutters-one-persistent-vbo',
+  requested:marketShutterResidencyRequested(),
+  active:marketShutterResidentActive,
+  buffers:marketShutterResidentBuffer?1:0,maxBuffers:1,
+  triangles:marketShutterResidentMesh?.length/30||0,
+  meshFloats:marketShutterResidentMesh?.length||0,
+  floatBudget:MARKET_SHUTTER_MAX_FLOATS,
+  builds:marketShutterResidentBuilds,uploads:marketShutterResidentUploads,
+  draws:marketShutterResidentDrawCalls,fallbacks:marketShutterResidentFallbacks,
+  opening:marketOperatingAudit().openFraction,clock:state.t,
+  authorityModified:false};
 }
 
 // W10 — a physically situated, original market: authentic goods live ON
@@ -14353,7 +14450,13 @@ const residentEconomyStart=performance.now();
 const residentInventoryReady=prepareEconomyResidentMesh();
 dynamicPhaseTimes.residentEconomyGeometry=performance.now()-residentEconomyStart;
 if(!residentInventoryReady){renderMarketStock();renderGranaryStores();}
-renderMarketOperatingShutters();
+if(!prepareResidentMarketShutters())renderMarketOperatingShutters();
+else{
+ // The original inventory and market-opening signal remain authoritative.
+ marketOperatingRenderStats.doorLeaves=MARKET_STALLS.length*2;
+ marketOperatingRenderStats.triangles=marketShutterResidentMesh.length/30;
+ marketOperatingRenderStats.openFraction=marketOperatingAudit().openFraction;
+}
 renderDeliveryReceipts();
 renderMarketHandoffs();
 renderObservedWorkLight(observedWorkLightProfile());
@@ -14479,6 +14582,7 @@ lastFrameTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.lengt
  (economyResidentActive?economyResidentMesh?.length||0:0)+
  (recordedWorkActive?recordedWorkMesh?.length||0:0)+
  (worksiteFixtureActive?worksiteFixtureMesh?.length||0:0)+
+ (marketShutterResidentActive?marketShutterResidentMesh?.length||0:0)+
  (solarShadowActive?.buffer?solarShadowActive.vertices.length:0):data.length)/30+
  (gpuAvailable?(atmosphere.climate.weather==='rain'?200:
   atmosphere.climate.weather==='snow'?240:0):0);
@@ -14532,6 +14636,7 @@ const gpuUploadStart=performance.now();
 drawEconomyResidentMesh();
 drawRecordedWorkResidentMesh();
 drawWorksiteFixtureResidentMesh();
+drawResidentMarketShutters();
 bindGeometry(selectDynamicGpuBuffer(cameraMeshReused,data.length));
 if(gpuAvailable){
  if(!cameraMeshReused&&data.length){
@@ -14612,7 +14717,7 @@ requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON
 getDailyRhythmAudit:dailyRhythmAudit,getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getCottageHomecomingAudit,getCottageDoorRenderAudit:()=>({...cottageDoorRenderAudit}),getSoftwareResolutionAudit,getSimulationFrameDelta:simulationFrameDelta,getHouseholdLightAudit:()=>({...householdLightAudit}),getOccupiedHearthCount:()=>occupiedHearths,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,
 getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeCourtyardAudit:()=>cloneData(getForgeCourtyardAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),getForgeSoundAudit:()=>cloneData(getForgeSoundAudit()),pollForgeSound,watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,
 getMarketStructuralSightline:marketCourierPostSightline,
-getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getFarmWorkCameraAudit,
+getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketShutterResidencyAudit,setMarketShutterResidencyForTesting,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getFarmWorkCameraAudit,
 getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?(civicGpuResidencyEnabled?3:2)+(homeClusterActive.length?homeClusterActive.length:0):1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length+homeClusterFloats():0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4+homeClusterFloats()*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0,homeBytes:gpuAvailable?homeClusterFloats()*4:0}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGranaryArchitectureAudit,getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getForestVisualStats:()=>({
  sourceTrees:trees.length,
  renderedTrees:forestVisualStats.deciduous+forestVisualStats.conifers,
