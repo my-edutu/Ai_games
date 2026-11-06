@@ -8,6 +8,7 @@ function indexTowerCaptureEvents(sourceTicks, browserObservations, options = {})
   const events = [], counts = Object.create(null), lastMotion = new Map();
   let previous = null, valid = 0, malformed = 0, missingTicks = 0, repeated = 0;
   let invalidOrder = 0, distinctRuns = 0;
+  const episodeByRun = new Map();
   const CAP = 400, PER_KIND_CAP = 72;
   const validSample = s => s && Number.isFinite(s.atMs) &&
     Number.isSafeInteger(s.tick) && s.tick >= 0 &&
@@ -74,6 +75,7 @@ function indexTowerCaptureEvents(sourceTicks, browserObservations, options = {})
     } else if (previous && s.tick > previous.tick + 1) {
       missingTicks += s.tick - previous.tick - 1;
     }
+    episodeByRun.set(s.runToken,observedEpisode);
     if (sameRun && s.floor !== previous.floor) {
       record('floor-transition', s, {
         fromFloor: previous.floor, toFloor: s.floor,
@@ -159,6 +161,29 @@ function indexTowerCaptureEvents(sourceTicks, browserObservations, options = {})
       }
     }
     previous = s;
+  }
+  // Candidate-only source trace (frozen baseline lacks this endpoint).
+  // Retain the real step-emitted threshold without pretending to see pixels.
+  const recordedCrossings=new Set();
+  for(const s of Array.isArray(options.authoritativeTrace)?options.authoritativeTrace:[]){
+    if(!validSample(s)||!episodeByRun.has(s.runToken))continue;
+    for(const event of Array.isArray(s.sourceEvents)?s.sourceEvents:[]){
+      const c=event?.guardianPassage;
+      if(event?.type!=='floor-complete'||event.floor!==9||s.floor!==9||
+        c?.fromFloor!==8||c.capId!=='f8:cap'||
+        c.groundedPlatformId!==c.capId||c.guardianId!=='f8:guardian'||
+        ![c.exitX,c.clearanceX,c.crossingX].every(Number.isSafeInteger)||
+        c.clearanceX<=c.exitX||c.crossingX<c.clearanceX)continue;
+      const key=[s.runToken,s.tick,c.guardianId].join(':');
+      if(recordedCrossings.has(key))continue;
+      recordedCrossings.add(key);
+      record('guardian-source-physical-threshold',s,{
+        observedEpisode:episodeByRun.get(s.runToken),fromFloor:8,toFloor:9,
+        capId:c.capId,guardianId:c.guardianId,
+        physicalCrossingX:c.crossingX,sourceClearanceX:c.clearanceX,
+        interpretation:'fixed-step real grounded trailing-edge crossing; NOT proof this event appeared in unedited video',
+      });
+    }
   }
   // Renderer/contact telemetry has a different sampling rate and can be
   // stale. Keep it explicitly separate from genuine source transitions.

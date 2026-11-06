@@ -113,3 +113,22 @@ test('alive guardian, unsupported body, or different episode cannot invent earne
  assert.equal(r.events.some(e=>e.kind==='source-supported-gate-approach'),false);
  assert.equal(r.events.find(e=>e.kind==='source-run-token-change').observedEpisode,1);
 });
+
+test('candidate source crossing is indexed without inventing visible video proof',()=>{
+ const c={fromFloor:8,capId:'f8:cap',groundedPlatformId:'f8:cap',
+   guardianId:'f8:guardian',exitX:252000,clearanceX:268000,crossingX:269000};
+ const trace=source(42,{floor:9,sourceEvents:[
+   {type:'floor-complete',floor:9,guardianPassage:c}]});
+ const a=indexTowerCaptureEvents([source(41),source(42,{floor:9,guardians:[]})],[],
+   {authoritativeTrace:[trace]});
+ const crossing=a.events.find(e=>e.kind==='guardian-source-physical-threshold');
+ assert.ok(crossing);
+ assert.equal(crossing.physicalCrossingX,269000);
+ assert.equal(crossing.observedEpisode,0);
+ assert.match(crossing.interpretation,/NOT proof/);
+ const b=indexTowerCaptureEvents([source(41),source(42,{floor:9})],[],
+   {authoritativeTrace:[source(42,{floor:9,sourceEvents:[
+     {type:'floor-complete',floor:9,guardianPassage:{...c,crossingX:267999}}
+   ]})]});
+ assert.equal(b.eventCounts['guardian-source-physical-threshold']||0,0);
+});

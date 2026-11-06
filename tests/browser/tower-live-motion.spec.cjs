@@ -466,7 +466,7 @@ for (const viewport of viewports) {
     observations, {
       sourceSha:process.env.TOWER_CAPTURE_SOURCE_SHA||process.env.GITHUB_SHA||null,
       scenario, viewport, seed:process.env.TOWER_SEED||'tower-stream-reference',
-      quality:'low',
+      quality:'low', authoritativeTrace:sourceTicks,
     });
   eventIndex.passiveSampleDrops = passiveSourceTicks.dropped;
   eventIndex.hostFixedStepTraceAvailable = !!trace;

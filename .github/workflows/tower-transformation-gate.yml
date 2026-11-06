@@ -8,7 +8,7 @@ permissions:
   contents: read
 concurrency:
   group: tower-transformation-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   integrity-not-quality:
     runs-on: ubuntu-latest
@@ -28,7 +28,17 @@ jobs:
       - name: Test transformation verdict gate
         run: node --test tests/phase3/tower-transformation-acceptance.test.cjs
       - name: Observe actual 3200-tick guardian survival, pickups and progress (not quality)
-        run: node scripts/tower-guardian-source-witness.cjs
+        run: |
+          mkdir -p artifacts/tower-source-chain
+          git rev-parse HEAD > artifacts/tower-source-chain/source-sha.txt
+          node scripts/tower-guardian-source-witness.cjs | tee artifacts/tower-source-chain/causal-witness.json
+      - name: Preserve ungraded exact-source guardian/game-loop chain
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tower-source-chain-${{ github.sha }}
+          path: artifacts/tower-source-chain/
+          retention-days: 7
       - name: Verify full repository logic (guardrail only)
         run: npm test
       - name: Verify Tower authority (guardrail only)

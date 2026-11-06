@@ -7,11 +7,12 @@ const SCENARIOS=['ascent','danger','moving','outcome'],VIEWPORTS=['desktop','por
 const KINDS=new Set(['route-selection','guardian-present','guardian-hp-decrease',
  'guardian-source-defeated','floor-transition','hazard-charge-begin',
  'observed-moving-deck-position-change','source-result-phase','source-run-token-change',
- 'source-supported-gate-approach','guardian-earned-floor-nine-handoff']);
+ 'source-supported-gate-approach','guardian-earned-floor-nine-handoff',
+ 'guardian-source-physical-threshold']);
 function signature(e){
  if(!e||!KINDS.has(e.kind)||!Number.isSafeInteger(e.floor))return null;
  const parts=[e.kind,e.floor];
- if(e.kind==='floor-transition'||e.kind==='guardian-earned-floor-nine-handoff')parts.push(e.fromFloor,e.toFloor);
+ if(e.kind==='floor-transition'||(e.kind==='guardian-earned-floor-nine-handoff'||e.kind==='guardian-source-physical-threshold'))parts.push(e.fromFloor,e.toFloor);
  if(e.kind==='route-selection')parts.push(e.selectedPlatformId);
  if(e.kind==='hazard-charge-begin')parts.push(e.hazardId);
  if(e.kind==='observed-moving-deck-position-change')parts.push(e.platformId);
@@ -88,7 +89,8 @@ function auditPairs(recordings,candidateSha){
   const sourceKinds=record=>new Set((record.index?.events||[]).map(e=>e.kind));
   const expected=scenario==='danger'
     ?['guardian-present','guardian-hp-decrease','guardian-source-defeated',
-      'source-supported-gate-approach','guardian-earned-floor-nine-handoff']
+      'source-supported-gate-approach','guardian-earned-floor-nine-handoff',
+      'guardian-source-physical-threshold']
     :scenario==='moving'?['observed-moving-deck-position-change']
     :scenario==='outcome'?['source-result-phase','source-run-token-change']
     :['route-selection'];

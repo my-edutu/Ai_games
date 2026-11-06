@@ -35,6 +35,12 @@ function advance(session) {
       lifecycle: publicSnapshot.lifecycle,
       result: publicSnapshot.result || null,
       checksum: publicSnapshot.publicChecksum,
+      // Captures real rule-emitted crossing before floor spawn erases the
+      // position. CI-only immutable event data, no game or clock mutation.
+      sourceEvents: events.filter(e=>e.type==='floor-complete'&&
+        e.data?.guardianPassage).map(e=>({
+        type:e.type,floor:e.data.floor,guardianPassage:e.data.guardianPassage,
+      })),
       guardian: publicSnapshot.enemies.filter(e => e.active && e.kind === 'guardian')
         .map(e => ({ health: e.health, maxHealth: e.maxHealth })),
       routeTarget: publicSnapshot.intent.targetPlatformId || null,

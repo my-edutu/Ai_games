@@ -43,7 +43,14 @@ function createTowerCausalWitness(limit = 16) {
         record(ep, 'advancedOnCap', after, { x: after.player.position.x });
     }
     const priorCap = capFor(before);
-    if (sameRun && ep.guardianDefeated && ep.groundedEarnedWalk &&
+    const earned=events.find(e=>e.type==='floor-complete'&&
+      e.data?.floor===9)?.data?.guardianPassage;
+    const crossed=earned&&priorCap&&earned.fromFloor===8&&
+      earned.capId===priorCap.id&&earned.groundedPlatformId===priorCap.id&&
+      earned.guardianId==='f8:guardian'&&
+      [earned.exitX,earned.clearanceX,earned.crossingX].every(Number.isSafeInteger)&&
+      earned.clearanceX>earned.exitX&&earned.crossingX>=earned.clearanceX;
+    if (sameRun && ep.guardianDefeated && ep.groundedEarnedWalk && crossed &&
         before.floor === 8 && after.floor === 9 &&
         before.player?.grounded === true && priorCap &&
         before.player.groundedPlatformId === priorCap.id &&
@@ -51,7 +58,9 @@ function createTowerCausalWitness(limit = 16) {
         hasEvent(events, 'floor-complete', d => d.floor === 9))
       record(ep, 'earnedFloorNine', after, {
         priorGroundedX: before.player.position.x, capId: priorCap.id,
-        physicalFullBodyClearance: 'AUTHORITY RULE ONLY: requires source rule and replay inspection',
+        observedActualCrossingX: earned.crossingX,
+        clearanceX: earned.clearanceX, guardianId: earned.guardianId,
+        physicalFullBodyClearance: 'AUTHORITATIVE tick event, not proof of a painted video frame',
       });
     if (sameRun && ep.earnedFloorNine && before.floor >= 9 &&
         after.tick > ep.earnedFloorNine.tick && floorNine(after))

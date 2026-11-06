@@ -16,6 +16,8 @@ export function applyTowerAction(input:TowerState,actionInput:Partial<TowerActio
   const cap=current.platforms.find(p=>p.id===`f${state.floor}:cap`);
   const physicalPassage=state.config.guardianArenaHazards===true&&
     state.config.guardianSecondWind===true&&current.guardian&&cap!==undefined;
+  const defeatedGuardian=state.enemies.find(e=>e.floor===state.floor&&
+    e.kind==='guardian'&&!e.active&&e.health<=0);
   if(guardianAlive){
   // A cap-standing climber is already above exitY. The old guardian gate
   // therefore reset velocity, height and grounded state EVERY 20-Hz tick,
@@ -29,7 +31,7 @@ export function applyTowerAction(input:TowerState,actionInput:Partial<TowerActio
         data:{floor:state.floor,reason:'guardian-alive'}});
   }else holdAtGuardian(state,events)
 }else if(physicalPassage&&cap&&
-  (!state.player.grounded||state.player.groundedPlatformId!==cap.id||
+  (!defeatedGuardian||!state.player.grounded||state.player.groundedPlatformId!==cap.id||
     state.player.position.x<guardianArenaClearanceX(cap,state.player.halfWidth))){
   // The real body, including its trailing edge, must pass the inner
   // gateway's center before the next floor loads. The prior symmetric
@@ -41,5 +43,15 @@ export function applyTowerAction(input:TowerState,actionInput:Partial<TowerActio
   if(input.enemies.some(e=>e.floor===state.floor&&e.kind==='guardian'&&e.active))
     events.push({tick:state.tick,type:'guardian-passage-unlocked',
       data:{floor:state.floor,exitX:guardianArenaExitX(cap)}});
-}else{const nextFloor=state.floor+1;let next=generateTowerChunk(state.config,state.seed,nextFloor,rng);if(state.influence.modifiers.nextTheme){const{checksum:_,...base}=next;next={...base,theme:state.influence.modifiers.nextTheme,checksum:checksum({...base,theme:state.influence.modifiers.nextTheme})};state.influence.modifiers.nextTheme=undefined}const validation=validateTowerChunk(next,state.config);if(!validation.valid){state=makeTowerTerminal(state,'integrity-quarantine','technical');events.push({tick:state.tick,type:'technical-terminal',data:{reason:'invalid-generated-chunk',issues:validation.issues}})}else{const content=generateTowerContent(next,state.config,state.seed,rng);if(next.guardian&&state.influence.modifiers.guardianHealthBonus>0&&state.influence.modifiers.guardianModifierUntilFloor>=nextFloor){for(const enemy of content.enemies)if(enemy.kind==='guardian'){enemy.health+=state.influence.modifiers.guardianHealthBonus;enemy.maxHealth+=state.influence.modifiers.guardianHealthBonus}state.influence.modifiers.guardianHealthBonus=0;state.influence.modifiers.guardianModifierUntilFloor=0}state.floor=nextFloor;state.stats.floorsCleared++;state.stats.checkpoints++;state.player.position={...next.spawn};state.player.velocity={x:0,y:0};state.player.grounded=false;state.player.groundedPlatformId=undefined;state.player.checkpoint={...next.spawn};state.player.checkpointFloor=nextFloor;state.player.health=Math.min(state.player.maxHealth,state.player.health+1);state.player.invulnerableTicks=12;state.chunks.push(next);state.chunks=state.chunks.filter(c=>c.floor>=nextFloor-state.config.visibleChunkCount+1);state.enemies=content.enemies;state.pickups=content.pickups;state.projectiles=[];state.ai.targetPlatformId=undefined;state.meaningfulEventTick=state.tick;if(nextFloor%state.config.upgradeInterval===0)state.pendingUpgradeOffers=offerTowerUpgrades(state,rng,nextFloor);events.push({tick:state.tick,type:'floor-complete',data:{floor:nextFloor,theme:next.theme,guardian:next.guardian,upgradeOffers:state.pendingUpgradeOffers.map(x=>x.id)}})}}}
+ }else{
+  // Preserve genuine whole-body crossing coordinates BEFORE the authentic
+  // floor-nine spawn replaces the guardian cap and player position.
+  const guardianPassage=physicalPassage&&cap&&defeatedGuardian ? {
+    fromFloor:state.floor,capId:cap.id,guardianId:defeatedGuardian.id,
+    exitX:guardianArenaExitX(cap),
+    clearanceX:guardianArenaClearanceX(cap,state.player.halfWidth),
+    crossingX:state.player.position.x,
+    groundedPlatformId:state.player.groundedPlatformId
+  } : undefined;
+  const nextFloor=state.floor+1;let next=generateTowerChunk(state.config,state.seed,nextFloor,rng);if(state.influence.modifiers.nextTheme){const{checksum:_,...base}=next;next={...base,theme:state.influence.modifiers.nextTheme,checksum:checksum({...base,theme:state.influence.modifiers.nextTheme})};state.influence.modifiers.nextTheme=undefined}const validation=validateTowerChunk(next,state.config);if(!validation.valid){state=makeTowerTerminal(state,'integrity-quarantine','technical');events.push({tick:state.tick,type:'technical-terminal',data:{reason:'invalid-generated-chunk',issues:validation.issues}})}else{const content=generateTowerContent(next,state.config,state.seed,rng);if(next.guardian&&state.influence.modifiers.guardianHealthBonus>0&&state.influence.modifiers.guardianModifierUntilFloor>=nextFloor){for(const enemy of content.enemies)if(enemy.kind==='guardian'){enemy.health+=state.influence.modifiers.guardianHealthBonus;enemy.maxHealth+=state.influence.modifiers.guardianHealthBonus}state.influence.modifiers.guardianHealthBonus=0;state.influence.modifiers.guardianModifierUntilFloor=0}state.floor=nextFloor;state.stats.floorsCleared++;state.stats.checkpoints++;state.player.position={...next.spawn};state.player.velocity={x:0,y:0};state.player.grounded=false;state.player.groundedPlatformId=undefined;state.player.checkpoint={...next.spawn};state.player.checkpointFloor=nextFloor;state.player.health=Math.min(state.player.maxHealth,state.player.health+1);state.player.invulnerableTicks=12;state.chunks.push(next);state.chunks=state.chunks.filter(c=>c.floor>=nextFloor-state.config.visibleChunkCount+1);state.enemies=content.enemies;state.pickups=content.pickups;state.projectiles=[];state.ai.targetPlatformId=undefined;state.meaningfulEventTick=state.tick;if(nextFloor%state.config.upgradeInterval===0)state.pendingUpgradeOffers=offerTowerUpgrades(state,rng,nextFloor);events.push({tick:state.tick,type:'floor-complete',data:{floor:nextFloor,theme:next.theme,guardian:next.guardian,upgradeOffers:state.pendingUpgradeOffers.map(x=>x.id),...(guardianPassage?{guardianPassage}:{})}})}}}
   return{state,events,accepted:true}}

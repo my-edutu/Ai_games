@@ -48,6 +48,21 @@ test('earned gate cannot teleport a hero standing anywhere above exitY',()=>{
   const win=runtime.step({move:0});
   assert.equal(win.floor,9);
   assert.equal(win.stats.floorsCleared,1);
+  const event=runtime.drainEvents().find(e=>e.type==='floor-complete');
+  assert.deepEqual(event.data.guardianPassage,{
+    fromFloor:8,capId:cap.id,guardianId:'f8:guardian',
+    exitX:guardianArenaExitX(cap),clearanceX:clearance,
+    crossingX:clearance,groundedPlatformId:cap.id
+  });
+});
+test('missing defeated guardian cannot bypass the physically locked cap',()=>{
+  const {runtime,cap}=arena();
+  runtime.state.player.position.x=guardianArenaClearanceX(cap,runtime.state.player.halfWidth);
+  runtime.state.enemies=[];
+  const blocked=runtime.step({move:0});
+  assert.equal(blocked.floor,8);
+  assert.equal(blocked.stats.floorsCleared,0);
+  assert.equal(runtime.drainEvents().filter(e=>e.type==='floor-complete').length,0);
 });
 test('full-body guardian clearance is always inside the real platform footprint',()=>{
   const {state,cap}=arena();
@@ -94,6 +109,8 @@ test('autonomous guardian victory requires a grounded real full-silhouette cross
   const events=runtime.drainEvents().filter(event=>event.type==='floor-complete');
   assert.equal(events.length,1);
   assert.equal(events[0].data.floor,9);
+  assert.ok(events[0].data.guardianPassage?.crossingX>=clearance);
+  assert.equal(events[0].data.guardianPassage?.groundedPlatformId,cap.id);
   assert.ok(clearance>guardianArenaExitX(cap));
 });
 test('historical gates, non-guardian floors and airborne players do not receive a free source exit',()=>{

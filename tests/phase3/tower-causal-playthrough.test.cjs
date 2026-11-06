@@ -15,7 +15,10 @@ function progression(w,run='one') {
   state(run,4,8,{enemies:[dead],player:{...killed.player,position:{x:200}}}),[]);
  w.observe(state(run,4,8,{enemies:[dead],player:{...killed.player,position:{x:200}}}),
   state(run,5,9,{enemies:[],player:{grounded:false,position:{x:10}}}),
-  [{type:'floor-complete',data:{floor:9}}]);
+  [{type:'floor-complete',data:{floor:9,guardianPassage:{
+   fromFloor:8,capId:'f8:cap',guardianId:'f8:guardian',
+   groundedPlatformId:'f8:cap',exitX:180,clearanceX:190,crossingX:200
+ }}}]);
  w.observe(state(run,5,9,{enemies:[]}),state(run,6,9,{enemies:[]}),[]);
 }
 test('one authentic episode links guardian, grounded cap, floor nine, result and restart',()=>{
@@ -31,6 +34,7 @@ test('one authentic episode links guardian, grounded cap, floor nine, result and
  assert.equal(record.episodes[0].markers.floorNineContinues.tick,6,
   'floor-nine continuation requires a later real fixed-step tick, not just the exit teleport');
  assert.equal(record.episodes[0].markers.earnedFloorNine.capId,'f8:cap');
+ assert.equal(record.episodes[0].markers.earnedFloorNine.observedActualCrossingX,200);
 });
 test('different lives cannot splice defeat, result, or restart together',()=>{
  const w=createTowerCausalWitness();progression(w);
@@ -47,6 +51,15 @@ test('a fabricated next floor without earned physical cap footing is not a gatew
  w.observe(killed,state('x',3,8,{enemies:[dead]}),[]);
  w.observe(state('x',3,8,{enemies:[dead],player:{grounded:false,position:{x:190}}}),
   state('x',4,9),[{type:'floor-complete',data:{floor:9}}]);
+ assert.equal(w.summary().episodes[0].markers.earnedFloorNine,undefined);
+});
+test('a floor advance without a real source crossing payload cannot be counted',()=>{
+ const w=createTowerCausalWitness(),live=state('x',1),
+   killed=state('x',2,8,{enemies:[dead]});
+ w.observe(live,killed,[{type:'enemy-defeated',data:{kind:'guardian',id:'f8:guardian'}}]);
+ w.observe(killed,state('x',3,8,{enemies:[dead],player:{...killed.player,position:{x:160}}}),[]);
+ w.observe(state('x',3,8,{enemies:[dead],player:{...killed.player,position:{x:160}}}),
+   state('x',4,9,{enemies:[]}),[{type:'floor-complete',data:{floor:9}}]);
  assert.equal(w.summary().episodes[0].markers.earnedFloorNine,undefined);
 });
 test('source observer rejects a previous-floor corpse for a newly earned portal',async()=>{

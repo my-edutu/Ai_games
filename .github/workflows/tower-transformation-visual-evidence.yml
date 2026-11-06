@@ -15,6 +15,15 @@ on:
       - tests/phase3/tower-transformation-sanctuary.test.cjs
       - tests/phase3/tower-earned-gateway-frame.test.cjs
       - scripts/tower-motion-evidence.cjs
+      - scripts/tower-causal-playthrough.cjs
+      - scripts/tower-guardian-source-witness.cjs
+      - scripts/tower-event-alignment.cjs
+      - scripts/tower-event-pairing.cjs
+      - scripts/serve-tower-stream.cjs
+      - tests/phase2/tower-guardian-earned-exit.test.cjs
+      - tests/phase3/tower-causal-playthrough.test.cjs
+      - tests/phase3/tower-event-alignment.test.cjs
+      - tests/phase3/tower-event-pairing.test.cjs
   workflow_dispatch:
 permissions:
   contents: read
