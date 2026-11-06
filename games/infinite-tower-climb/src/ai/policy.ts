@@ -742,6 +742,38 @@ function observedEarnedReturnLanding(state:TowerState,obs:TowerObservation,
   return committed??best;
 }
 
+// A real counter-vault can send the climber UPWARD from beneath the cleared
+// one-way cap. Falling-only recovery previously discarded this exact phase
+// and let the old combat route steer the rising player into empty space.
+// Evaluate the PRESENT legal flight apex, air-control reach, clear contact
+// lane and platform graph. The actual fixed-step landing remains authoritative;
+// future moving-deck positions and hazard phases are not predicted.
+function observedEarnedRisingReturn(state:TowerState,obs:TowerObservation,
+  cap:TowerObservation['platforms'][number]){
+  const p=obs.player,feet=p.position.y-state.player.halfHeight;
+  if(p.grounded||p.velocity.y<=0||feet>=cap.y+cap.height)return undefined;
+  const candidates=obs.platforms.map(deck=>{
+    if(deck.id!==cap.id&&
+       !nextTowerEarnedCapHop(obs,state.config,deck.id,cap.id))return null;
+    const lane=observedLandingCorridor(state,obs,deck);
+    if(!lane.safeLanes.length)return null;
+    const landingX=lane.landingX;
+    const direction:TowerAction['move']=landingX<p.position.x?-1:1;
+    const flight=observedFlightTravel(state,obs,deck,direction);
+    const top=deck.y+deck.height;
+    if(flight.maxFeet<top+1||
+       Math.abs(landingX-p.position.x)>
+         flight.travel+state.player.halfWidth+4000)return null;
+    return {deck,landingX,top};
+  }).filter((entry):entry is {
+    deck:TowerObservation['platforms'][number];landingX:number;top:number
+  }=>entry!==null)
+    .sort((a,b)=>b.top-a.top||a.deck.id.localeCompare(b.deck.id));
+  // The highest physically reachable present landing is the next return
+  // objective. If none exists, do not claim a rescued jump or invented deck.
+  return candidates[0];
+}
+
 // After an actually defeated opt-in guardian, the objective is still its
 // PHYSICAL upper-cap exit, not whatever ascent target the pilot remembered
 // during combat. Reclaim the deck by ordinary jumps/steering if currently
@@ -780,6 +812,18 @@ function observedEarnedCapReacquisition(state:TowerState,obs:TowerObservation,
   // return shelf takes priority over an obsolete combat target; actual landing
   // and the later multi-hop ascent remain subject to source collisions.
   if(p.position.y-state.player.halfHeight<top-1){
+    if(p.velocity.y>0){
+      const rising=observedEarnedRisingReturn(state,obs,cap);
+      if(!rising)return null;
+      const steering=observedLandingSteering(state,obs,rising.deck,rising.landingX);
+      return {action:action(steering.move),
+        intent:{mode:steering.settling?'settling-landing':'air-control',
+          summary:rising.deck.id===cap.id?
+            'Steering a real rising counter-vault back onto the cleared guardian cap':
+            'Steering a legal rising return onto an observed recovery deck',
+          confidence:.94,fallbackUsed:false,
+          targetPlatformId:rising.deck.id}};
+    }
     const shelf=observedEarnedReturnLanding(state,obs,cap);
     if(!shelf)return null;
     const landing=observedLandingSteering(state,obs,shelf.deck,

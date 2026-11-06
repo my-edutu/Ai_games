@@ -311,3 +311,55 @@ test('an imminent partial crusher preserves a physics-reachable clear upper lane
   assert.equal(d.action.jump,false);assert.equal(d.action.dash,false);
   assert.equal(JSON.stringify(state.player),before);
 });
+
+test('an authentic rising counter-vault beneath the cleared one-way cap stays on the earned route',()=>{
+  const {state,cap}=episode();
+  const capTop=cap.y+cap.height;
+  state.player.position={x:cap.x+Math.floor(cap.width/2),
+    y:capTop-6000+state.player.halfHeight};
+  state.player.velocity={x:0,y:state.config.jumpImpulse};
+  state.player.grounded=false;state.player.groundedPlatformId=undefined;
+  state.player.jumpCharges=0;
+  const before={...state.player.position},decision=choose(state);
+  assert.equal(decision.intent.targetPlatformId,cap.id,
+    'the real current jump apex can clear the cap, so no stale combat target');
+  assert.match(decision.intent.summary,/rising counter-vault/);
+  assert.equal(decision.action.jump,false,'no free midair jump');
+  assert.equal(decision.action.dash,false,'no artificial dash');
+  assert.equal(decision.action.attack,false);
+  assert.deepEqual(state.player.position,before,'no teleport or game-state mutation');
+  const next=stepTowerPhysics(state,decision.action).state;
+  assert.equal(next.floor,8);
+  assert.ok(next.player.position.y>before.y,'source 20Hz upward momentum remains real');
+});
+
+test('a low-energy upward recovery uses the next observable lower deck, not an impossible cap flight',()=>{
+  const {state,cap,lower}=episode();
+  const capTop=cap.y+cap.height;
+  state.player.position={x:lower.x+Math.floor(lower.width/2),
+    y:capTop-12000+state.player.halfHeight};
+  state.player.velocity={x:0,y:1000};
+  state.player.grounded=false;state.player.groundedPlatformId=undefined;
+  state.player.jumpCharges=0;
+  const observation=createTowerObservation(state,{includeHazardWindup:true});
+  const decision=chooseTowerAction(state,observation,{tactical:true});
+  assert.equal(decision.intent.targetPlatformId,lower.id,
+    'the shallow upward arc cannot regain the cap but can physically settle on p6');
+  assert.match(decision.intent.summary,/rising return/);
+  assert.equal(decision.action.jump,false);
+  assert.equal(decision.action.dash,false);
+  assert.equal(state.floor,8,'no made-up floor-nine victory');
+});
+
+test('a living guardian and an unflagged pilot cannot use defeated-guardian rising recovery',()=>{
+  const {state,cap,guardian}=episode();
+  state.player.position={x:cap.x+cap.width/2,
+    y:cap.y+cap.height-6000+state.player.halfHeight};
+  state.player.velocity={x:0,y:state.config.jumpImpulse};
+  state.player.grounded=false;state.player.groundedPlatformId=undefined;
+  guardian.active=true;guardian.health=guardian.maxHealth;
+  assert.doesNotMatch(choose(state).intent.summary,/rising counter-vault|legal rising return/);
+  guardian.active=false;guardian.health=0;
+  state.config={...state.config,guardianSecondWind:false};
+  assert.doesNotMatch(choose(state).intent.summary,/rising counter-vault|legal rising return/);
+});
