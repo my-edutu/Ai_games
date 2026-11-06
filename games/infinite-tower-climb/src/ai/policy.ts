@@ -638,6 +638,53 @@ function observedProjectileCrusherEscape(state:TowerState,obs:TowerObservation,
     ?escape:undefined;
 }
 
+// A defeated guardian does not make the climber immune to falling. If the
+// authentic soles have ALREADY dropped through the cap's one-way collision
+// plane, steer toward a physically interceptable lower deck that still has a
+// source-reachable upward route to the earned exit. Otherwise the stale
+// fight-time AI target can pull a falling hero away from every real landing.
+// This uses only currently observed decks and the existing fixed-step
+// acceleration/gravity caps; it neither predicts future platform positions
+// nor grants a jump, immunity, landing or floor transition.
+function observedEarnedReturnLanding(state:TowerState,obs:TowerObservation,
+  cap:TowerObservation['platforms'][number]){
+  const p=obs.player,c=state.config,feet=p.position.y-state.player.halfHeight;
+  if(p.grounded||p.velocity.y>0||feet>=cap.y+cap.height-1)return undefined;
+  const airAccel=Math.max(1,Math.round(c.moveAcceleration*state.build.airControlPermille/1000));
+  const decks=obs.platforms.map(deck=>{
+    const deckTop=deck.y+deck.height;
+    if(deck.id===cap.id||deckTop>feet+1||
+       !nextTowerEarnedCapHop(obs,c,deck.id,cap.id))return null;
+    let sole=feet,vertical=p.velocity.y,landingTicks=0;
+    // Conservative fixed-step downward contact, not a frame-time estimate.
+    for(let tick=1;tick<=48;tick++){
+      vertical=Math.max(-c.maxFallSpeed,vertical-c.gravity);
+      sole+=vertical;
+      if(vertical<=0&&sole<=deckTop){landingTicks=tick;break}
+    }
+    if(!landingTicks)return null;
+    let left=p.position.x,right=p.position.x;
+    let leftVelocity=p.velocity.x,rightVelocity=p.velocity.x;
+    for(let tick=0;tick<landingTicks;tick++){
+      leftVelocity=Math.max(-c.maxRunSpeed,leftVelocity-airAccel);
+      rightVelocity=Math.min(c.maxRunSpeed,rightVelocity+airAccel);
+      left+=leftVelocity;right+=rightVelocity;
+    }
+    const inset=Math.min(Math.floor(deck.width/2),state.player.halfWidth+2000);
+    const safeLeft=deck.x+inset,safeRight=deck.x+deck.width-inset;
+    if(right<safeLeft||left>safeRight)return null;
+    return {deck,top:deckTop,ticks:landingTicks};
+  }).filter((row):row is {deck:TowerObservation['platforms'][number];top:number;ticks:number}=>row!==null)
+    .sort((a,b)=>b.top-a.top||a.ticks-b.ticks||a.deck.id.localeCompare(b.deck.id));
+  const best=decks[0];
+  if(!best)return undefined;
+  // Hold an already committed equally high reachable shelf through minor
+  // moving-deck shifts instead of inducing 20-Hz left/right route jitter.
+  const committed=decks.find(row=>row.deck.id===state.ai.targetPlatformId&&
+    row.top>=best.top-4000&&row.ticks<=best.ticks+2);
+  return (committed??best).deck;
+}
+
 // After an actually defeated opt-in guardian, the objective is still its
 // PHYSICAL upper-cap exit, not whatever ascent target the pilot remembered
 // during combat. Reclaim the deck by ordinary jumps/steering if currently
@@ -672,10 +719,19 @@ function observedEarnedCapReacquisition(state:TowerState,obs:TowerObservation,
             'Rebuilding the physical ascent route to the cleared guardian cap',
         confidence:.96,fallbackUsed:false,targetPlatformId:next.id}};
   }
-  // Once the real feet have already fallen BELOW the collision plane,
-  // aiming at the cap is fictional. Leave normal air-recovery and lower
-  // platform navigation in control rather than drawing an impossible route.
-  if(p.position.y-state.player.halfHeight<top-1)return null;
+  // The cap itself is now above the real body. A fresh physics-reachable
+  // return shelf takes priority over an obsolete combat target; actual landing
+  // and the later multi-hop ascent remain subject to source collisions.
+  if(p.position.y-state.player.halfHeight<top-1){
+    const shelf=observedEarnedReturnLanding(state,obs,cap);
+    if(!shelf)return null;
+    const landing=observedLandingSteering(state,obs,shelf);
+    return {action:action(landing.move),
+      intent:{mode:landing.settling?'settling-landing':'air-control',
+        summary:landing.settling?'Braking onto a real return deck below the earned gate':
+          'Steering the actual fall onto a reachable return deck',
+        confidence:.94,fallbackUsed:false,targetPlatformId:shelf.id}};
+  }
   const landing=observedLandingSteering(state,obs,cap);
   const boost=observedSafeAirBoost(state,obs,cap,landing);
   const recovery=boost===0&&
