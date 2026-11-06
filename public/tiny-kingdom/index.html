@@ -3150,6 +3150,10 @@ const homeClusterCache=new Map();
 let homeClusterActive=[],homeClusterOverride=null,homeClusterCachedFloats=0;
 let homeClusterBuilds=0,homeClusterHits=0,homeClusterUploads=0;
 let homeClusterDisposals=0,homeClusterEvictions=0,homeClusterStaleDrawn=0;
+// W77: account for the ACTUAL GPU allocation, including reserved growth room,
+// not merely the original uncompressed 3D material geometry length.
+let homeClusterReservedFloats=0,homeClusterReusedGpuHandles=0;
+let homeClusterSubDataUploads=0,homeClusterStorageAllocations=0;
 function homeClustersEnabled(){
  return Boolean(gpuAvailable&&(homeClusterOverride===null?!swiftGpu:homeClusterOverride));
 }
@@ -3160,7 +3164,8 @@ function clearHomeClusterCache(){
  if(gpuAvailable)for(const entry of homeClusterCache.values()){
   gl.deleteBuffer(entry.buffer);homeClusterDisposals++;
  }
- homeClusterCache.clear();homeClusterCachedFloats=0;homeClusterActive=[];
+ homeClusterCache.clear();homeClusterCachedFloats=0;
+ homeClusterReservedFloats=0;homeClusterActive=[];
 }
 function getHomePartitionAudit(){
  const keys=new Set(homeClusterActive.map(entry=>entry.key));
@@ -3169,6 +3174,11 @@ function getHomePartitionAudit(){
   activeParts:homeClusterActive.length,
   triangles:homeClusterFloats()/30,
   cachedFloats:homeClusterCachedFloats,
+  reservedGpuFloats:homeClusterReservedFloats,
+  reservedGpuBytes:homeClusterReservedFloats*Float32Array.BYTES_PER_ELEMENT,
+  reusedGpuHandles:homeClusterReusedGpuHandles,
+  subDataUploads:homeClusterSubDataUploads,
+  storageAllocations:homeClusterStorageAllocations,
   floatBudget:HOME_CLUSTER_FLOAT_BUDGET,
   entries:homeClusterCache.size,maxEntries:HOME_CLUSTER_MAX_ENTRIES,
   builds:homeClusterBuilds,hits:homeClusterHits,
@@ -3203,6 +3213,29 @@ function homeClusterGroups(fullHomes,climateKey){
    homes.map(h=>[h.index,h.x,h.z,h.k,h.compact?1:0].join(':')).join(';')
  }));
 }
+// Prefer reclaiming the GPU allocation of an OUTDATED topology of the SAME
+// physical 16-metre cell in the SAME climate. A new genuine cottage does
+// not require a newly created WebGL buffer for every construction event.
+// Never borrow an active unchanged neighbouring cell or a different season.
+// The older topology's settlement key is invalidated by uploadGrowingSettlement;
+// stale partition recall checks are still strict.
+function takeStaleHomeClusterForGrowth(group,climateKey,requiredFloats){
+ const prefix=climateKey+'|'+group.cell+'|';
+ let bestKey=null,best=null,bestFit=Infinity;
+ for(const [key,entry] of homeClusterCache){
+  if(key===group.key||!key.startsWith(prefix))continue;
+  const capacity=entry.capacityFloats||entry.mesh.length;
+  const fit=capacity>=requiredFloats?
+   capacity-requiredFloats:requiredFloats-capacity+HOME_CLUSTER_FLOAT_BUDGET;
+  if(fit<bestFit){bestFit=fit;bestKey=key;best=entry}
+ }
+ if(!best)return null;
+ homeClusterCache.delete(bestKey);
+ homeClusterCachedFloats-=best.mesh.length;
+ homeClusterReservedFloats-=(best.capacityFloats||best.mesh.length);
+ homeClusterReusedGpuHandles++;
+ return best;
+}
 function buildHomeClusters(fullHomes,climateKey){
  homeClusterActive=[];
  const groups=homeClusterGroups(fullHomes,climateKey);
@@ -3229,14 +3262,30 @@ function buildHomeClusters(fullHomes,climateKey){
    if(mesh.length>HOME_CLUSTER_FLOAT_BUDGET)
     throw Error('W76 real home block exceeds bounded VBO budget');
    const packed=packSpatialScenery(mesh);
-   const buffer=gl.createBuffer();
-   if(!buffer)throw Error('W76 unable to retain original home GPU geometry');
+   const obsolete=takeStaleHomeClusterForGrowth(group,climateKey,
+    packed.vertices.length);
+   const buffer=obsolete?.buffer||gl.createBuffer();
+   if(!buffer)throw Error('W77 unable to retain original home GPU geometry');
    bindGeometry(buffer);
-   gl.bufferData(gl.ARRAY_BUFFER,packed.vertices,gl.STATIC_DRAW);
-   resident={key:group.key,cell:group.cell,mesh,buffer,
+   let capacityFloats=obsolete?.capacityFloats||0;
+   // 12.5% slack is reserved for an ACTUAL next home in this exact block.
+   // No limits are relaxed: active and inactive GPU bytes share the old
+   // global cache bound, and a huge block still fails instead of disappearing.
+   if(capacityFloats<packed.vertices.length){
+    capacityFloats=Math.min(HOME_CLUSTER_FLOAT_BUDGET,
+     Math.ceil(packed.vertices.length*1.125/300)*300);
+    if(capacityFloats<packed.vertices.length)
+     throw Error('W77 inhabited home GPU reserve is insufficient');
+    gl.bufferData(gl.ARRAY_BUFFER,
+     capacityFloats*Float32Array.BYTES_PER_ELEMENT,gl.DYNAMIC_DRAW);
+    homeClusterStorageAllocations++;
+   }else if(obsolete)homeClusterSubDataUploads++;
+   gl.bufferSubData(gl.ARRAY_BUFFER,0,packed.vertices);
+   resident={key:group.key,cell:group.cell,mesh,buffer,capacityFloats,
     ranges:packed.ranges,homes:group.homes.length,counters,finalMaterial};
    homeClusterCache.set(group.key,resident);
    homeClusterCachedFloats+=mesh.length;
+   homeClusterReservedFloats+=capacityFloats;
    homeClusterBuilds++;homeClusterUploads++;
   }
   homeClusterActive.push(resident);
@@ -3245,14 +3294,17 @@ function buildHomeClusters(fullHomes,climateKey){
  const protectedKeys=new Set(homeClusterActive.map(entry=>entry.key));
  for(const [key,entry] of homeClusterCache){
   if(homeClusterCache.size<=HOME_CLUSTER_MAX_ENTRIES&&
-     homeClusterCachedFloats<=HOME_CLUSTER_FLOAT_BUDGET)break;
+     homeClusterCachedFloats<=HOME_CLUSTER_FLOAT_BUDGET&&
+     homeClusterReservedFloats<=HOME_CLUSTER_FLOAT_BUDGET)break;
   if(protectedKeys.has(key))continue;
   homeClusterCache.delete(key);
   homeClusterCachedFloats-=entry.mesh.length;
+  homeClusterReservedFloats-=(entry.capacityFloats||entry.mesh.length);
   gl.deleteBuffer(entry.buffer);homeClusterDisposals++;homeClusterEvictions++;
  }
- if(homeClusterCachedFloats>HOME_CLUSTER_FLOAT_BUDGET)
-  throw Error('W76 active town exceeds GPU budget; do not hide existing homes');
+ if(homeClusterCachedFloats>HOME_CLUSTER_FLOAT_BUDGET||
+    homeClusterReservedFloats>HOME_CLUSTER_FLOAT_BUDGET)
+  throw Error('W77 real occupied town exceeds GPU memory budget; do not hide homes');
  if(homeClusterActive.reduce((n,e)=>n+e.homes,0)!==city.length)
   throw Error('W76 dropped a real inhabited cottage');
 }
