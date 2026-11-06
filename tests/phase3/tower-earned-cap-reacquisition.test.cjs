@@ -216,7 +216,7 @@ test('guardian cap route refuses invented edges and preserves historical policy'
   assert.doesNotMatch(legacy.intent.summary,/Rebuilding the physical ascent route/);
 });
 
-test('an imminent upper crusher cannot lure the falling post-victory climber away from a lower clear return shelf',()=>{
+test('the pilot does not invent a clear lower shelf through unavoidable upper one-way collision',()=>{
   const {state,cap}=episode();
   const upper=state.chunks[0].platforms.find(p=>p.id==='f8:p6');
   const lower=state.chunks[0].platforms.find(p=>p.id==='f8:p5');
@@ -244,9 +244,10 @@ test('an imminent upper crusher cannot lure the falling post-victory climber awa
   assert.ok(nextTowerEarnedCapHop(observation,state.config,lower.id,cap.id),
     'the lower alternate must still lead back to the authentic guardian cap');
   const before=JSON.stringify(state.player),decision=chooseTowerAction(state,observation,{tactical:true});
-  assert.equal(decision.intent.targetPlatformId,lower.id,
-    'visible imminent jaw consumes the entire upper landing, so a reachable clear lower shelf wins');
-  assert.match(decision.intent.summary,/clear return lane|clear physical return deck/);
+  assert.equal(decision.intent.targetPlatformId,upper.id,
+    'the upper physical platform intercepts ALL legal fall trajectories before the lower shelf');
+  assert.match(decision.intent.summary,/no presently clear landing/,
+    'unsafe unavoidable collision must not be presented as a safe return');
   assert.equal(decision.action.jump,false);
   assert.equal(decision.action.dash,false);
   assert.equal(decision.action.attack,false);
@@ -285,4 +286,28 @@ test('when every reachable return shelf has no observed clear lane, the pilot re
     assert.doesNotMatch(decision.intent.summary,/clear return lane|clear physical return deck/,
       'if no physical shelf is interceptable, do not fabricate a safe route');
   }
+});
+
+test('an imminent partial crusher preserves a physics-reachable clear upper lane and brakes lateral drift',()=>{
+  const {state,cap}=episode();
+  const upper=state.chunks[0].platforms.find(p=>p.id==='f8:p6');
+  assert.ok(upper);
+  const center=upper.x+Math.floor(upper.width/2);
+  state.chunks[0].hazards.push({
+    id:'f8:partial-warning',kind:'crusher',x:center-7000,
+    y:upper.y+upper.height,width:14000,height:12000,
+    activeFromTick:state.tick+2,activeEvery:72,activeFor:9,damage:1
+  });
+  state.player.position={x:center-24000,
+    y:cap.y+cap.height-6000+state.player.halfHeight};
+  state.player.velocity={x:2000,y:-5000};
+  state.player.grounded=false;state.player.groundedPlatformId=undefined;
+  const before=JSON.stringify(state.player);
+  const observed=createTowerObservation(state,{includeHazardWindup:true});
+  const d=chooseTowerAction(state,observed,{tactical:true});
+  assert.equal(d.intent.targetPlatformId,upper.id);
+  assert.match(d.intent.summary,/reachable clear return lane|clear physical return deck/);
+  assert.equal(d.action.move,-1,'brake real rightward velocity before it carries the body into the crusher');
+  assert.equal(d.action.jump,false);assert.equal(d.action.dash,false);
+  assert.equal(JSON.stringify(state.player),before);
 });
