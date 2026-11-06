@@ -69,3 +69,82 @@ test('danger source story discloses absent earned gate in original clips without
  assert.ok(a.comparisons[0].sourceStory.missingBaselineSearchEvents.includes('source-supported-gate-approach'));
  assert.equal(a.comparisons[0].verdict.startsWith('NOT EVALUATED'),true);
 });
+
+function witness(kind, floor, atMs, observedEpisode=0, detail={}) {
+ return {kind, floor, atMs, observedEpisode, ...detail};
+}
+function dangerWitnesses() {
+ return [
+  witness('guardian-present',8,1000),
+  witness('guardian-hp-decrease',8,2000),
+  witness('guardian-source-defeated',8,3000),
+  witness('source-supported-gate-approach',8,4000),
+  witness('guardian-earned-floor-nine-handoff',9,5000,0,{fromFloor:8,toFloor:9}),
+  witness('guardian-source-physical-threshold',9,5000,0,{fromFloor:8,toFloor:9}),
+ ];
+}
+test('source event comparison requires ordered, same-episode earned guardian passage',()=>{
+ const baseline=rec('baseline'),candidate=rec('candidate');
+ baseline.index.events=dangerWitnesses().slice(0,2);
+ candidate.index.events=dangerWitnesses();
+ const result=auditPairs([baseline,candidate],'c'.repeat(40));
+ assert.equal(result.provenanceDefects.length,0);
+ assert.deepEqual(result.sourceStoryDefects,[]);
+ assert.equal(result.comparisons[0].sourceStorySequenceObserved,true);
+ assert.equal(result.comparisons[0].sourceStoryEpisodes.candidate.observedEpisode,0);
+ assert.equal(result.comparisons[0].verdict.startsWith('NOT EVALUATED'),true);
+});
+test('full-length native danger WebM with a split guardian episode is NOT source matched',()=>{
+ const baseline=rec('baseline'),candidate=rec('candidate');
+ baseline.index.events=dangerWitnesses().slice(0,2);
+ candidate.index.events=dangerWitnesses();
+ candidate.index.events[2].observedEpisode=1;
+ candidate.motion.actualWallSeconds=132;
+ const report=auditPairs([baseline,candidate],'c'.repeat(40));
+ assert.equal(report.provenanceDefects.length,0);
+ assert.equal(report.sourceStoryDefects.length,1);
+ assert.equal(report.comparisons[0].sourceStorySequenceObserved,false);
+ assert.deepEqual(report.sourceStoryDefects[0].candidateMissingBeats,[]);
+ assert.equal(report.verdict,'NOT EVALUATED');
+});
+test('portrait danger recording of floor ten instead of floor-eight duel lacks coverage',()=>{
+ const baseline=rec('baseline'),candidate=rec('candidate');
+ baseline.index.events=[witness('route-selection',10,1000,0,{selectedPlatformId:'f10:p1'})];
+ candidate.index.events=[witness('source-result-phase',10,1000,0,{phase:'result',resultKind:'game'})];
+ const report=auditPairs([baseline,candidate],'c'.repeat(40));
+ assert.equal(report.provenanceDefects.length,0);
+ assert.equal(report.sourceStoryDefects.length,1);
+ assert.ok(report.sourceStoryDefects[0].candidateMissingBeats.includes('guardian-present'));
+ assert.equal(report.comparisons[0].sourceStorySequenceObserved,false);
+});
+test('outcome requires game result then NEXT episode restart, not technical or same episode',()=>{
+ const base=rec('baseline','outcome');
+ const current=rec('candidate','outcome');
+ const completed=[
+  witness('source-result-phase',8,6000,0,{phase:'result',resultKind:'game',reason:'fall'}),
+  witness('source-run-token-change',8,9000,1),
+ ];
+ base.index.events=completed.map(e=>({...e}));
+ current.index.events=completed.map(e=>({...e}));
+ assert.deepEqual(auditPairs([base,current],'c'.repeat(40)).sourceStoryDefects,[]);
+ current.index.events[1].observedEpisode=0;
+ assert.equal(auditPairs([base,current],'c'.repeat(40)).sourceStoryDefects.length,1);
+ current.index.events[1].observedEpisode=1;
+ current.index.events[0].resultKind='technical';
+ assert.equal(auditPairs([base,current],'c'.repeat(40)).sourceStoryDefects.length,1);
+});
+test('moving and ascent witnesses must originate on their requested floors',()=>{
+ for(const [scenario,kind,wrongFloor] of [
+  ['moving','observed-moving-deck-position-change',8],
+  ['ascent','route-selection',1]
+ ]) {
+  const base=rec('baseline',scenario),current=rec('candidate',scenario);
+  base.index.events=[witness(kind,scenario==='moving'?7:0,1000,0,
+    scenario==='moving'?{platformId:'f7:p3'}:{selectedPlatformId:'f0:p1'})];
+  current.index.events=[witness(kind,wrongFloor,1000,0,
+    scenario==='moving'?{platformId:'f8:p3'}:{selectedPlatformId:'f1:p1'})];
+  const report=auditPairs([base,current],'c'.repeat(40));
+  assert.equal(report.provenanceDefects.length,0);
+  assert.equal(report.sourceStoryDefects.length,1);
+ }
+});
