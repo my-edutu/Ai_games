@@ -13,6 +13,7 @@ on:
       - 'tests/browser/tiny-kingdom*.spec.cjs'
       - 'scripts/tiny-kingdom-gpu-evidence.cjs'
       - 'scripts/tiny-kingdom-g154-scene-packer-contract.cjs'
+      - 'scripts/tiny-kingdom-w95-boot-order-contract.cjs'
       - '.github/workflows/tiny-kingdom-gpu-evidence.yml'
   workflow_dispatch:
 
@@ -37,8 +38,8 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-      - name: W94 check real game boot binding before costly GPU setup
-        run: node scripts/tiny-kingdom-w94-boot-contract.cjs
+      - name: W94/W95 check genuine first-frame boot order before costly GPU setup
+        run: node scripts/tiny-kingdom-w94-boot-contract.cjs && node scripts/tiny-kingdom-w95-boot-order-contract.cjs
       - run: npm ci
       - run: npm run build
       - run: npx playwright install --with-deps chromium
