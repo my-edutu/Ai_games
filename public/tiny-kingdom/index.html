@@ -909,7 +909,7 @@ let liveMotionCacheBuilds=0,liveMotionCacheReuses=0;
 // W93: complete REAL citizens have their own WebGL vertex stream, separate
 // from actual worksite/economy props. Never change their pose or save data.
 const ACTOR_GPU_RING_SLOTS=3;
-let actorStreamSplitEnabled=true,actorDynamicVertexScratch=[],
+let actorStreamSplitEnabled=gpuAvailable&&!swiftGpu,actorDynamicVertexScratch=[],
  actorFrameData=[],cameraActorCache=null,actorFrameCitizens=0;
 const actorFrameGpuBuffers=[null,null,null],actorFrameStorage=[0,0,0];
 let actorGpuStaging=null,actorGpuCapacityFloats=0,
