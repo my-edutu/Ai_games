@@ -24,6 +24,20 @@ function arena(overrides={}){
   return {runtime,state,cap};
 }
 test('living upper-cap guardian physically seals the authored walkway until genuine defeat',()=>{
+test('source reachability terminates on real cap support for a short climber, not a fictional earlier exit', () => {
+  const { analyzeTowerReachability } = require('../../dist/games/infinite-tower-climb/src/generation/solver.js');
+  for (const enabled of [true, false]) {
+    const { runtime, cap } = arena({ playerHalfHeight: 5000, guardianArenaHazards: enabled });
+    const chunk = runtime.state.chunks[0];
+    const route = analyzeTowerReachability(chunk, runtime.state.config);
+    assert.equal(route.routePlatformIds?.at(-1), cap.id,
+      'a supported cap is a reachable exit; the route cannot stop at p5 or p6');
+    assert.ok(cap.y + cap.height + runtime.state.player.halfHeight < chunk.exitY,
+      'this configuration genuinely needs either a cap jump or earned horizontal exit');
+    assert.ok(route.reachablePlatformIds.includes(cap.id));
+  }
+});
+
   const {runtime,cap}=arena();
   const guardian=runtime.state.enemies.find(e=>e.kind==='guardian');
   guardian.active=true;guardian.health=4;
@@ -403,7 +417,7 @@ test('swept guardian lock does not invent a below-cap wall or rewrite legacy jum
     p.position.y=cap.y+cap.height-p.halfHeight-800;
     p.velocity.y=0;p.jumpCharges=1;
     const result=stepTowerPhysics(runtime.state,{
-      move:1,jump:!legacy,dash:false,attack:false,ability:false
+      move:1,jump:false,dash:false,attack:false,ability:false
     });
     if (legacy) {
       assert.ok(result.state.player.position.x>stop,
