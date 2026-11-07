@@ -42,6 +42,32 @@ export function generateTowerChunk(config:TowerConfig,seed:string,floor:number,r
     if(kind==='moving')platform.motion={axis:'x',range:35000,speed:2500,phase:rng.nextInt(`tower:motion:${floor}:${i}`,28)};
     platforms.push(platform);
   }
+  // The earned floor-eight guardian exit delivers the body on the RIGHT of
+  // the NEXT floor's full-width ground. Its ordinary p1 is on the far LEFT.
+  // Before this physical branch, preserving the genuine gate crossing X
+  // still sent the climber backwards across ~250k of bare ground. Place a
+  // source-authored FIRST climb above the actual prior gateway, connected to
+  // the existing right-side p2. It is an ordinary solidly supported one-way
+  // platform: real jumps, collision, danger and AI route selection still
+  // apply. No new spawn, phantom floor award or forced landing. Never alter
+  // the frozen/unflagged world or exceed an explicitly configured budget.
+  if(config.guardianArenaHazards===true&&
+     config.guardianSecondWind===true&&floor>1&&
+     (floor-1)%config.guardianInterval===0&&
+     platforms.length+2<=config.maxPlatformsPerChunk){
+    const previousCap={x:Math.floor(config.worldWidth*.24),
+      width:Math.floor(config.worldWidth*.52)};
+    const crossingX=guardianArenaClearanceX(previousCap,config.playerHalfWidth);
+    // Invalid extreme body sizes cannot earn the old cap clearance: avoid
+    // constructing a misleading next-floor approach for such a route.
+    if(crossingX+config.playerHalfWidth<=previousCap.x+previousCap.width){
+      const width=Math.min(115000,Math.floor(config.worldWidth*.26));
+      const x=Math.max(0,Math.min(config.worldWidth-width,
+        crossingX-Math.floor(width/2)));
+      platforms.push({id:`f${floor}:gateway-step`,kind:'oneway',
+        x,y:baseY+stepHeight,width,height:10000});
+    }
+  }
   const capY=baseY+config.chunkHeight-28000;
   platforms.push({id:`f${floor}:cap`,kind:'oneway',x:Math.floor(config.worldWidth*.24),y:capY,width:Math.floor(config.worldWidth*.52),height:12000});
   const hazards:TowerHazard[]=[];
