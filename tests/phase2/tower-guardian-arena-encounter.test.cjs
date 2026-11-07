@@ -387,8 +387,10 @@ test('opt-in living cap guardian locks floor without zeroing authentic 20Hz jump
   fallen.active=false;fallen.health=0;
   const open=runtime.step({move:0});
   assert.equal(open.floor,8,'the unlocked gate still requires real grounded traversal');
-  const {guardianArenaExitX}=require('../../dist/games/infinite-tower-climb/src/generation/chunks.js');
-  runtime.state.player.position.x=guardianArenaExitX(cap);
+  // The unlock plane is not the finish: the WHOLE trailing edge must clear
+  // the real inner doorway before the physically grounded floor handoff.
+  const {guardianArenaClearanceX}=require('../../dist/games/infinite-tower-climb/src/generation/chunks.js');
+  runtime.state.player.position.x=guardianArenaClearanceX(cap,runtime.state.player.halfWidth);
   runtime.state.player.position.y=cap.y+cap.height+runtime.state.player.halfHeight;
   runtime.state.player.grounded=true;
   runtime.state.player.groundedPlatformId=cap.id;
