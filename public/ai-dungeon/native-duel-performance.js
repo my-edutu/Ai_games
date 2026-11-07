@@ -69,6 +69,16 @@ export function planNativeDuelPose(kind,action,age=0,{targetId=null,distance=nul
  // thigh loads in anticipation; lead knee and ankle visibly absorb contact
  // while the source-hand blade follows through at the same 215 ms landmark.
  // Joint angles stay bounded and never alter reach, targets or hitboxes.
+ // ONE attached native rig now makes a visible, grounded step *within* its
+ // original authoritative tile. Existing actor yaw turns local -Z toward the
+ // actual adjacent living opponent; the blade, wrists, pelvis and boots travel
+ // together in that local frame. This is not a movement tick or a damage cue.
+ // A rear-foot load gives way to a 16–23cm sword drive at the existing 215ms
+ // contact landmark, then an elastic heel recovery returns the exact same
+ // imported skeleton almost to its rest placement before the next action.
+ // No root displacement exists for stale, distant, dead or reduced-motion duels.
+ const drive=release*(1-.85*settle);
+ const heelRecovery=.04*settle;
  const leadUpper=foot*(-.088*wind+.172*release);
  const rearUpper=foot*(.129*wind-.126*release);
  const lead={upper:round(leadUpper),lower:round(foot*(.093*wind+.177*release)),foot:round(foot*(-.078*wind-.121*release))};
@@ -88,7 +98,8 @@ export function planNativeDuelPose(kind,action,age=0,{targetId=null,distance=nul
   },
   forearms:{left:round(w*(.046*wind-.035*release)),right:round(w*(.096*wind-.113*release))},
   legs,
-  root:{x:round(s*(.009*wind+.011*release)),y:round(-.027*foot*wind+.010*release),
-   z:round(.021*wind-.028*foot*release)}
+  root:{x:round(s*(.018*wind+.014*drive)),
+   y:round(-.042*foot*wind-.026*release+.012*settle),
+   z:round(.023*wind-.20*foot*drive+heelRecovery)}
  };
 }

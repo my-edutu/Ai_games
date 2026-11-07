@@ -5696,8 +5696,8 @@
       "plays": "UNVERIFIED",
       "next": "Exact-new-head real 1440px/390px seeded Chromium audiovisual battle + compare pinned baseline; verify no new occlusion/camera jitter, then original adult-scale native rig/Warden melee integration and five-stage organic reel."
     },
-    "currentStage": "A — exact-new-head original five-stage audiovisual and baseline comparison incomplete",
-    "executableNextTask": "Inspect exact new-head live 1440/390 Warden movement WebM/WAV and verify body/weapon and warning crop, wall clearance, camera easing; revert if worse; complete source-true five-stage organic defeat/restart, same-seed locked baseline and three blind critics.",
+    "currentStage": "A_INCOMPLETE",
+    "executableNextTask": "Verify exact-head 1440/390 original skinned sword drive/boots/recoil and real damage, while retaining Warden telegraphs; resolve software-browser 0.5fps capture without skipping ticks; full natural five stages, same-seed immutable baseline and 3 independent blind critics.",
     "phasePlan": [
       {
         "phase": "A",
@@ -5907,6 +5907,37 @@
       "feels": "UNVERIFIED",
       "plays": "UNVERIFIED",
       "next": "Inspect exact new-head genuine original desktop/mobile WebM/WAV/checksums and planted source rig, measure warning crop/occlusion/fps; repair faults; finish natural five-stage same-seed baseline A/B and >=3 blinded critics."
+    },
+    "m1PlantedOriginalBladeContactCandidate": {
+      "date": "2026-11-07",
+      "stage": "A_INCOMPLETE_BC_VERTICAL_SLICE_CANDIDATE",
+      "lockedBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "sourceParentSha": "049d0fa371e065c51ee85822e41cab13b216a51e",
+      "trueDesktopArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42399915646/artifacts/13586196314",
+      "trueMobileArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42399915646/artifacts/13585454741",
+      "observedGap": "Original authentic Warden duel remains miniature and native planted contact almost invisible; organic WebM is ~0.5 fps and stops before natural defeat/restart.",
+      "realCaptureMeasurements": {
+        "desktopFrames": 320,
+        "desktopDurationSec": 603,
+        "desktopObservedFps": 0.531,
+        "desktopInterframeP95Ms": 4663,
+        "mobileFrames": 252,
+        "mobileDurationSec": 512,
+        "mobileObservedFps": 0.493,
+        "mobileInterframeP95Ms": 5875,
+        "authenticStagesCaptured": 3,
+        "requiredStages": 5,
+        "originalWav": "NOT_FINALIZED",
+        "audioImpactSync": "UNVERIFIED"
+      },
+      "integration": "Original imported skinned 3D Vanguard/Revenant/Warden now drives coherent pelvis, planted limbs, wrists and blade forward 16-23cm in legal adjacent melee and elastically recovers before next attack; presentation only, no authority or damage change, reduced-motion safe.",
+      "validation": "Test-first physical drive RED then GREEN; native focused 7/7, combined Warden/native 16/16, dungeon:test 329/329 plus build. Repo-wide npm test did not finish in local budget; fixed source-brittle camera assertion and fixture self-mutation. Chromium local ERR_BLOCKED_BY_ADMINISTRATOR; independent-worker tunnel unavailable.",
+      "actualNewHeadBrowser": "NOT_OBSERVED",
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "independentCritics": 0,
+      "next": "Verify exact-head 1440/390 original skinned sword drive/boots/recoil and real damage, while retaining Warden telegraphs; resolve software-browser 0.5fps capture without skipping ticks; full natural five stages, same-seed immutable baseline and 3 independent blind critics."
     }
   }
 }

@@ -22,9 +22,13 @@ test('true Warden counter transforms the body silhouette and restores tactical w
  assert.ok(recovery.dip>.18&&recovery.torsoPitch>.27&&recovery.shoulderPitch>.23,'earned counter needs a visibly lowered guard');
  assert.equal(planWardenExposurePose({remaining:3},false,true).weight,0,'danger takes priority');
  assert.equal(planWardenExposurePose({remaining:3},true,false).weight,0,'bound ward remains sealed');
- const camera=read('public/ai-dungeon/cinematic-chapter-plan.js');
- assert.match(camera,/'warden-warning':\s*Object\.freeze\(\{radius:9\.05,height:10\.55/);
- assert.match(camera,/'warden-exposed':Object\.freeze\(\{radius:6\.85,height:6\.65/);
+ const {planReadableExpeditionLens}=await load('public/ai-dungeon/cinematic-chapter-plan.js');
+ const warning=planReadableExpeditionLens({mode:'warden-warning',offsets:[6,10,6],subjects:['warden','vanguard']});
+ const exposed=planReadableExpeditionLens({mode:'warden-exposed',offsets:[6,8,6],subjects:['vanguard','warden']});
+ assert.ok(warning.dangerPriority&&!exposed.dangerPriority,'only actual Warden warning keeps danger-priority view');
+ assert.ok(Math.hypot(warning.offsets[0],warning.offsets[2])>Math.hypot(exposed.offsets[0],exposed.offsets[2])+2,
+  'real telegraph opens the readable escape lane rather than keeping the close counter lens');
+ assert.ok(warning.offsets[1]>exposed.offsets[1]+3,'real tactical warning uses a higher camera than an earned exposed guard');
 });
 test('the live spectator has ONE boss identity and a clear physical arena, not two overlapping health banners',()=>{
  const overlay=read('public/ai-dungeon/combat-overlay.js');

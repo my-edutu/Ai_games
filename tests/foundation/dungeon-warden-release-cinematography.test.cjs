@@ -96,7 +96,7 @@ test('actual Warden approach tracks living-body proximity while preserving dange
   close.bossWarning={attackTick:close.tick+1,shape:'NOVA',cells:[{x:12,z:9}]};
   const danger=planReadableExpeditionLens(planCinematicShot(close),view);
   assert.equal(danger.mode,'warden-warning');assert.equal(danger.dangerPriority,true);
-  delete close.bossWarning;
+  close.bossWarning=null;
  }
  assert.equal(JSON.stringify(close),before,'camera cannot mutate authoritative state');
 });

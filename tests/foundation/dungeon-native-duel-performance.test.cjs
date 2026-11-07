@@ -30,7 +30,8 @@ test('poses are finite, reversible, bounded and never invent target contact',asy
  for(const kind of ['vanguard','revenant','warden'])for(const t of [0,.055,.1,.135,.185,.215,.275,.355,.42,.57,.619]){
   const p=pose(kind,'attack',t,opponent);
   assert.deepEqual(p,pose(kind,'attack',t,opponent));
-  const numbers=[p.contactWeight,p.strength,...Object.values(p.head),...Object.values(p.hips),
+  assert.ok(p.contactWeight>=0&&p.contactWeight<=1&&p.strength>=0&&p.strength<=1,'weights are normalized rather than joint rotations');
+  const numbers=[...Object.values(p.head),...Object.values(p.hips),
    ...Object.values(p.spine),...Object.values(p.wrist),...Object.values(p.arms.left),
    ...Object.values(p.arms.right),...Object.values(p.forearms),
    ...Object.values(p.legs.left),...Object.values(p.legs.right),...Object.values(p.root)];
@@ -100,4 +101,27 @@ test('truth-gated adult planted impact transfers readable source-rig weight with
  }
  const assets=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(assets,/Math\.abs\(contact\+nativeContact\)/,'actual native plant must be observed by WebGL diagnostics');
+});
+
+test('one living adjacent target earns a substantial planted forward drive, true sword contact and recovered stance',async()=>{
+ const {planNativeDuelPose:pose,NATIVE_CONTACT_TIME,NATIVE_DUEL_DURATION}=await load();
+ for(const kind of ['vanguard','revenant','warden']){
+  const setup=pose(kind,'attack',.07,opponent);
+  const impact=pose(kind,'attack',NATIVE_CONTACT_TIME,opponent);
+  const release=pose(kind,'attack',.355,opponent);
+  const recovery=pose(kind,'attack',.52,opponent);
+  assert.equal(impact.phase,'impact');
+  assert.ok(impact.root.z<-.14,kind+' source-skinned swordsman must actually close physical reach on the genuine adjacent enemy');
+  assert.ok(impact.root.z<setup.root.z-.12,kind+' the contact drive should visibly follow anticipation');
+  assert.ok(release.root.z>impact.root.z+.10,kind+' standing recovery must recoil out of the confirmed contact pose');
+  assert.ok(Math.abs(recovery.root.z)<.04,kind+' feet and pelvis must finish near their unchanged legal tile');
+  assert.equal(pose(kind,'attack',NATIVE_CONTACT_TIME,{...opponent,distance:2}).mode,'rest');
+  assert.equal(pose(kind,'attack',NATIVE_CONTACT_TIME,{...opponent,reducedMotion:true}).mode,'rest');
+  let previous=null;
+  for(let t=0;t<NATIVE_DUEL_DURATION;t+=.01){
+   const frame=pose(kind,'attack',t,opponent);
+   if(previous)assert.ok(Math.abs(frame.root.z-previous.root.z)<.055,kind+': physical sword drive must not teleport between 10ms authored samples');
+   previous=frame;
+  }
+ }
 });
