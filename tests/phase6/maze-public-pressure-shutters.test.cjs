@@ -72,8 +72,10 @@ test('published pressure cell owns two physically distinct, rooted hinged floor 
     }
     close(shutters[0].rotation.z,-shutters[1].rotation.z,'symmetric completed opening');
     world.animate(.65,{explorerPosition:new THREE.Vector3(point.x+game.CELL_SIZE,0,point.z),reducedMotion:false});
-    assert.ok(Math.abs(shutters[0].rotation.z)>1.08 && Math.abs(shutters[0].rotation.z)<1.11,
-      'continued witnessed one-cell approach retains the open physical shutter');
+    // This authored mesh reaches exactly 1.11rad: excluding that endpoint
+    // would wrongly reject the correct completed physical shutter beat.
+    close(Math.abs(shutters[0].rotation.z),1.11,
+      'continued witnessed one-cell approach retains the fully open physical shutter');
     world.animate(.65,{explorerPosition:new THREE.Vector3(point.x+game.CELL_SIZE,0,point.z+game.CELL_SIZE),reducedMotion:false});
     close(Math.abs(shutters[0].rotation.z),.03,
       'diagonal observation warns via the bronze relay, without prematurely opening the floor');

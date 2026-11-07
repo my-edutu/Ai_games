@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-07T07:06:21.000Z",
+  "updatedAt": "2026-11-07T14:29:46.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass191 (2026-11-07): source-confirmed terminal gameplay truth candidate: physically grounded 3D bronze relay, ivory shutters and piston now return to rest after a public run result, even if the hazard remains disclosed and no intervening render/object rebuild occurs. Added installed-Three regression for the actual terminal meshes; NOT executed. Source syntax + five scalar visibility cases checked only. Coding workspace and independent worker disconnected; exact-HEAD CI/WebGL pending, strict six-run <100 (prior 102), uncropped 320/390/844/1280 and official Nintendo comparison UNVERIFIED. PR #53 remains draft, active, unmerged/undeployed."
+    "summary": "Pass192 2026-11-07: actual completed source-HEAD WebGL job passed 86 model/stream checks but Chromium install failed on ubuntu-26.04 with Playwright 1.55.0, yielding zero current screenshots. Whole CI passed 693/694: existing physical shutter test wrongly disallowed the exact correct 1.11rad final shutter angle. Pinned both CI and visual workflows to ubuntu-24.04, ensured CI checks out exact PR source SHA, replaced test with stricter exact real-mesh check. No production art/gameplay changes. New full CI/native WebGL, six-run geometry <100 and original Nintendo comparison PENDING. PR draft active, never merge/deploy."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass192 2026-11-07: current-head CI ACTUALLY failed: whole repo 693 pass/1 shutter test incorrect endpoint; WebGL 86 pass then Playwright unsupported ubuntu-26.04. Repair: precise 1.11rad physical shutter check and ubuntu-24.04 on both workflows plus CI exact-source checkout. No production edits or relaxed budget. New renders and six-run <100 still pending; Nintendo reference unmet; PR open draft.",
     "Pass191 2026-11-07: terminal public result immediately resets witnessed pressure clock and returns actual world-side trap jaws, bronze relays, ivory shutters and piston to real resting transforms in normal/reduced motion. Installed-Three regression authored, NOT run; isolated source syntax and five scalar terminal gates checked. No native source-bound WebGL, current-head CI, six-run <100 or independent Nintendo approval. See dated Pass191 review; PR OPEN DRAFT, no merge/deploy.",
     "Pass190 2026-11-06: Physically connect Pip's actual gaze→knee/torso→lantern climax to the SAME real published pressure mechanism timeline; no private data, AI authority, new geometry, extra HUD or separate event clock. Strict source-bound installed-Three tests authored but not executed. Exact-head native WebGL/CI queued, six-run <100 unverified, official Nintendo bar NOT MET; keep draft active, no merge/deploy. See Pass190 dated review.",
     "Pass189 2026-11-06: original Pip responds physically to a currently visible, publicly disclosed pressure mechanism with braced knees/torso, gaze and raised attached lantern, respects genuine event priorities and visibility. No additional model/AI/camera/HUD resources. Pure/syntax checked; installed Three, exact-head WebGL and six-run <100 not yet verified. See dated Pass189 review; PR draft active, no merge/deploy.",
