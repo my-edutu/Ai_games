@@ -6,6 +6,9 @@ const { test, expect } = require('@playwright/test');
 const { assessTowerMotion } = require('../../scripts/tower-motion-evidence.cjs');
 const { summarizeTowerCrossfire } = require('../../scripts/tower-crossfire-evidence.cjs');
 const { indexTowerCaptureEvents } = require('../../scripts/tower-event-alignment.cjs');
+const { FROZEN, sourceStoryCoverage } = require('../../scripts/tower-event-pairing.cjs');
+const { MIN_CAPTURE_MS, captureWindowDecision, nextCaptureObservation } =
+  require('../../scripts/tower-capture-window.cjs');
 
 // No intercepted snapshots, replay scrubbing, virtual time, time acceleration or
 // post-processed poses: this visits the live, seeded 20 Hz expedition host.
@@ -20,7 +23,7 @@ const viewports = [
 ];
 for (const viewport of viewports) {
   test('normal-speed Tower motion ' + viewport.name, async ({ browser }, testInfo) => {
-  test.setTimeout(240000);
+  test.setTimeout(420000);
   // Playwright forbids a describe-scoped video override because it changes
   // worker isolation. Create a dedicated context per viewport instead, with
   // recorder dimensions declared BEFORE the first page exists. This same
@@ -389,25 +392,55 @@ for (const viewport of viewports) {
           Number.isFinite(p.y)).slice(0,8)
           .map(p=>({id:p.id,x:p.x,y:p.y})),
       });
-      if (samples.length > 2200) {
+      if (samples.length > 4400) {
         samples.shift();
         window.__TOWER_CAPTURE_PUBLIC_TICK_DROPS__++;
       }
     }, 50);
   });
   await sample(0);
-  // The frozen baseline can have a one-tick terminal phase; an authentic
-  // frame still may not be present in composited video. Do not imply a visible
-  // terminal result from a run-token change alone. Sample danger more densely
-  // to observe any genuine guardian HP split and next-floor passage.
-  // Every scenario still records >=68s of uninterrupted host play at native
-  // wall-clock speed (nominal 20 fixed-step authority ticks per second).
-  // No mocked state, accelerated page clock or replay scrubbing.
+  // Keep ONE uninterrupted original-source native WebM. The former
+  // 68 x wait(1s) + software-GL diagnostics produced historical 132.8s
+  // footage despite a nominal 68s capture. Absolute real-wall deadlines
+  // prevent cumulative screenshot overhead; source physics is never changed.
+  // Continue beyond 68s only when the matching authentic episode is absent.
+  // Even complete source markers do NOT verify film visibility or quality.
   const cadenceMs = ['outcome', 'danger', 'moving'].includes(scenario) ? 1000 : 2000;
-  const intervals = 68000 / cadenceMs;
-  for (let i = 1; i <= intervals; i++) {
-    await page.waitForTimeout(cadenceMs);
-    await sample(i);
+  const sourceSha = process.env.TOWER_CAPTURE_SOURCE_SHA ||
+    process.env.GITHUB_SHA || null;
+  const sourceLabel = sourceSha === FROZEN ? 'baseline' : 'candidate';
+  const recordingStartedAt = Date.now();
+  let lastSampleIndex = 0, nextSourceProbeMs = MIN_CAPTURE_MS;
+  let sourceSequenceObserved = false, liveStoryCoverage = null;
+  while (true) {
+    const decision = captureWindowDecision(scenario,
+      Date.now() - recordingStartedAt, sourceSequenceObserved);
+    if (!decision.continueRecording) break;
+    const scheduled = nextCaptureObservation(recordingStartedAt,
+      Date.now(), cadenceMs, lastSampleIndex);
+    const remainingMs = Math.max(0, decision.maximumMs -
+      (Date.now() - recordingStartedAt));
+    if (scheduled.delayMs > 0 && remainingMs > 0)
+      await page.waitForTimeout(Math.min(scheduled.delayMs, remainingMs));
+    if (Date.now() - recordingStartedAt >= decision.maximumMs) continue;
+    lastSampleIndex = scheduled.index;
+    await sample(lastSampleIndex);
+    const observedMs = Date.now() - recordingStartedAt;
+    if (observedMs < MIN_CAPTURE_MS || observedMs < nextSourceProbeMs) continue;
+    const passive = await page.evaluate(() =>
+      [...(window.__TOWER_CAPTURE_PUBLIC_TICKS__ || [])]);
+    const traceResponse = await page.request.get('/tower/capture-trace',
+      { timeout: 5000 }).catch(() => null);
+    const trace = traceResponse?.ok() ? await traceResponse.json() : null;
+    const provisional = indexTowerCaptureEvents(passive, [], {
+      sourceSha, scenario, viewport, seed:process.env.TOWER_SEED ||
+        'tower-stream-reference', quality:'low',
+      authoritativeTrace:Array.isArray(trace?.ticks) ? trace.ticks : [],
+    });
+    liveStoryCoverage = sourceStoryCoverage(
+      {index:provisional}, scenario, sourceLabel);
+    sourceSequenceObserved = liveStoryCoverage.sameEpisodeSourceSequenceObserved;
+    nextSourceProbeMs = Date.now() - recordingStartedAt + 5000;
   }
   const passiveSourceTicks = await page.evaluate(() => {
     clearInterval(window.__TOWER_CAPTURE_PUBLIC_TICK_TIMER__);
@@ -470,6 +503,8 @@ for (const viewport of viewports) {
     });
   eventIndex.passiveSampleDrops = passiveSourceTicks.dropped;
   eventIndex.hostFixedStepTraceAvailable = !!trace;
+  const sourceStory = sourceStoryCoverage(
+    {index:eventIndex}, scenario, sourceLabel);
   fs.writeFileSync(path.join(dir,'event-index.json'),
     JSON.stringify(eventIndex,null,2));
 
@@ -543,6 +578,15 @@ for (const viewport of viewports) {
     videoGeometry: { width: viewport.width, height: viewport.height,
       fixture: 'playwright-context-created-with-native-viewport-and-recording-size' },
     actualWallSeconds: assessment.wallMs / 1000, minimumRequiredSeconds: 60,
+    sourceStory,
+    captureWindow: {
+      ...captureWindowDecision(scenario,
+        Date.now() - recordingStartedAt, sourceStory.sameEpisodeSourceSequenceObserved),
+      sourceType: sourceLabel,
+      windowMethod: 'absolute real-wall deadlines; native uncut source footage',
+      provisionalStoryAtLastProbe: liveStoryCoverage,
+      caveat: 'Real source milestones are NOT timecode-calibrated WebM pixels, playability or independent verdicts.',
+    },
     outcomeCapture: scenario === 'outcome' ? {
       maxTicks: 900, noProgressTicks: 850, intermissionTicks: 100,
       note: 'Identical public scenario settings applied through neutral capture server; source game host not modified.',
@@ -569,5 +613,8 @@ for (const viewport of viewports) {
   expect(errors, 'real browser and WebGL errors must remain visible').toEqual([]);
   expect(assessment.blockers, 'capture integrity: ' + JSON.stringify(assessment)).toEqual([]);
   expect(assessment.scopedPass).toBe(true);
+  expect(sourceStory.sameEpisodeSourceSequenceObserved,
+    'wrong or missing authentic source episode; original WebM and source index retained for P0 diagnosis, NOT a quality pass')
+    .toBe(true);
   });
 }
