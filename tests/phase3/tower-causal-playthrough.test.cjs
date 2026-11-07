@@ -126,3 +126,34 @@ test('real physically earned door escort is not restricted to first floor-eight 
  const scene=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
  assert.match(scene,/const earnedStage = !overview && !options\.stale && !!liveExit\s*\? passage\.diagnostics\(\) : null;/);
 });
+
+test('crusher pressure after guardian death is not a living-guardian encounter',()=>{
+ const w=createTowerCausalWitness(),live=state('post-defeat',1);
+ const killed=state('post-defeat',2,8,{enemies:[dead]});
+ w.observe(live,killed,[{type:'enemy-defeated',
+   data:{id:'f8:guardian',kind:'guardian'}}]);
+ w.observe(killed,state('post-defeat',3,8,{enemies:[dead]}),[]);
+ const proof=w.summary();
+ assert.equal(proof.episodes[0].markers.guardianDefeated.tick,2);
+ assert.equal(proof.episodes[0].markers.crusherPressureSurvived,undefined,
+   'a lingering jaw phase cannot be counted as pre-defeat counterplay');
+ assert.equal(proof.fullSourceChainObserved,false);
+});
+test('floor-nine clearance event without previously witnessed cap advance is not a full chain',()=>{
+ const w=createTowerCausalWitness(),live=state('no-walk',1),
+  killed=state('no-walk',2,8,{enemies:[dead]});
+ w.observe(live,killed,[{type:'enemy-defeated',
+   data:{id:'f8:guardian',kind:'guardian'}}]);
+ const still=state('no-walk',3,8,{enemies:[dead]});
+ w.observe(killed,still,[]);
+ w.observe(still,state('no-walk',4,9,{enemies:[]}),
+  [{type:'floor-complete',data:{floor:9,guardianPassage:{
+    fromFloor:8,capId:'f8:cap',guardianId:'f8:guardian',
+    groundedPlatformId:'f8:cap',exitX:180,clearanceX:190,crossingX:200
+  }}}]);
+ const proof=w.summary();
+ assert.ok(proof.episodes[0].markers.groundedEarnedWalk);
+ assert.equal(proof.episodes[0].markers.advancedOnCap,undefined);
+ assert.equal(proof.episodes[0].markers.earnedFloorNine,undefined);
+ assert.equal(proof.fullSourceChainObserved,false);
+});
