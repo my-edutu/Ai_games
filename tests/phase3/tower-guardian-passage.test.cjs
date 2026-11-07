@@ -138,7 +138,46 @@ test('stale transport and reduced motion cannot animate fake progress; context r
   effect.dispose();
   assert.equal(effect.diagnostics().disposed, true);
   assert.equal(effect.group.children.length, 0);
-  assert.equal(new Set(disposed).size, 6, 'all owned geometries including guardian armor are released');
+  assert.equal(new Set(disposed).size, 7, 'all owned geometries including the machined source gate and guardian armor are released');
+});
+
+
+test('real floor-eight victory-to-nine passage leaves the actor visible through open machined bronze slots', async () => {
+  const [THREE, { createTowerGuardianPassage, createMachinedGuardianLeafGeometry }] = await loaded;
+  const originalLeaf = createMachinedGuardianLeafGeometry(THREE);
+  try {
+    assert.equal(originalLeaf.type, 'ExtrudeGeometry');
+    assert.equal(originalLeaf.parameters.shapes.holes.length, 3,
+      'the arch needs actual depth-through windows, not transparency-painted holes');
+    originalLeaf.computeBoundingBox();
+    assert.ok(originalLeaf.boundingBox.min.z < 0 && originalLeaf.boundingBox.max.z > 0);
+  } finally { originalLeaf.dispose(); }
+  const effect = createTowerGuardianPassage(THREE);
+  const { previous, next } = frames();
+  const inputBefore = JSON.stringify({ previous, next });
+  try {
+    assert.equal(effect.begin(previous, next, anchor), true,
+      'no decorative floor-nine victory without the actual source guardian');
+    effect.update(.06);
+    const outer = effect.group.getObjectByName('ClearedPassageBronzeLeaf');
+    const inner = effect.group.getObjectByName('WalkableSourceCapRetractingBronzeLeaves');
+    const gate = effect.diagnostics().physicallyWalkableThreshold;
+    assert.ok(outer?.isMesh && inner?.isInstancedMesh);
+    assert.equal(outer.geometry, inner.geometry, 'outer and grounded doors use one machined geometry');
+    assert.equal(outer.geometry.parameters.shapes.holes.length, 3);
+    assert.equal(outer.material, inner.material, 'both display layers share source-driven opacity');
+    assert.ok(outer.material.transparent && !outer.material.depthWrite);
+    assert.ok(outer.material.opacity <= .26 && outer.material.opacity > 0,
+      'real handoff must not revive a solid portrait-sized bronze slab');
+    assert.equal(gate.originalThroughCutLeafWindows, 3);
+    assert.equal(gate.collider, false);
+    assert.equal(gate.sourceSimulationSealActive, false);
+    assert.equal(JSON.stringify({ previous, next }), inputBefore,
+      'decorative passage cannot rewrite authoritative snapshots');
+    effect.update(0, { stale: true });
+    assert.equal(outer.material.opacity, gate.gatewayLeafAlpha,
+      'stale presentation cannot animate a second floor clearance');
+  } finally { effect.dispose(); }
 });
 
 test('the authentic guardian release stays aligned with the exposed source HP lock and skinned handoff', () => {
