@@ -176,3 +176,60 @@ test('pure screen-stage policy fades only visible foreground machinery BETWEEN a
   assert.equal(observedStageCorridorOpacity({...scene,to:scene.from}),1,
     'a single center point is not an observed two-subject story');
 });
+
+
+test('a 390x844 clockwork action frame protects the complete post-batch dial, not detached pre-batch scenery',async()=>{
+  const [THREE,{createTowerWorld}]=await loaded;
+  const world=createTowerWorld();
+  try{
+    const snapshot=sourceFrame('clockwork',8), prior=JSON.stringify(snapshot);
+    world.update(snapshot,.016,0,{quality:'low'});
+    const clockMeshes=[];
+    world.group.traverse(object=>{
+      if(object.isMesh&&object.material?.name==='SightlineResponsiveClockFace')
+        clockMeshes.push(object);
+    });
+    assert.ok(clockMeshes.length>=3,'the original three clock cases survived static batching');
+    assert.equal(world.diagnostics().clockFaceRayMeshes,clockMeshes.length,
+      'all camera raycast clock cases are the meshes actually submitted by Three.js, not stale pre-batch handles');
+    assert.ok(clockMeshes.every(mesh=>mesh.parent && world.group.getObjectById(mesh.id)===mesh),
+      'every raycast dial must still be attached to the rendered tower world');
+    const gear=gearRoot(world);
+    assert.ok(gear,'world must retain the original clockwork wheel');
+    world.group.updateMatrixWorld(true,true);
+    const actor=gear.localToWorld(new THREE.Vector3(0,3.4,-10));
+    const camera=new THREE.PerspectiveCamera(42,390/844,.2,1200);
+    camera.position.copy(gear.localToWorld(new THREE.Vector3(0,3.4,22)));
+    camera.lookAt(actor);
+    for(let i=0;i<12;i++)
+      world.protectRouteSightlines(camera,actor,null,null,.05,{quality:'low'});
+    const state=world.diagnostics();
+    assert.ok(state.occludedForegroundGears>=1 && state.occludedForegroundClockFaces>=1);
+    assert.ok(clockMeshes.some(mesh=>mesh.material.opacity<.2 && mesh.material.depthWrite===false),
+      'wheel AND actual merged dial yield enough pixel coverage for the real hero body to read');
+    assert.equal(JSON.stringify(snapshot),prior,'presentation cannot change authoritative source data');
+    world.protectRouteSightlines(camera,null,null,null,.05,{stale:true});
+    assert.ok(clockMeshes.every(mesh=>mesh.material.opacity===1 && mesh.material.depthWrite),
+      'disconnected/stale feed must restore actual clock cases to fully opaque depth-writing metal');
+  }finally{world.dispose();}
+});
+
+test('projected oversize phone wheel cannot evade the action-visibility rule; layered alpha has a bounded composite',async()=>{
+  const [,{observedPortraitGearDominance,observedLayeredSceneryOpacity}]=await loaded;
+  const input={aspect:390/844,
+    gear:{x:0,y:0,z:.2}, radius:3.8,gearDepth:12,
+    actor:{x:.12,y:.14,z:.35},actorDepth:40};
+  const opacity=observedPortraitGearDominance(input);
+  assert.ok(opacity<=.2,'genuinely giant near-phone rotor has not disappeared through a radius cutoff');
+  assert.equal(observedPortraitGearDominance({...input,aspect:960/600}),1,
+    'desktop never activates portrait dominance');
+  assert.equal(observedPortraitGearDominance({...input,gearDepth:44}),1,
+    'scenery behind an actor cannot be falsely removed as foreground');
+  const layers=6,perLayer=observedLayeredSceneryOpacity(.42,layers);
+  assert.ok(perLayer<.1 && perLayer>0);
+  assert.ok(Math.abs(1-Math.pow(1-perLayer,layers)-.42)<1e-10,
+    'stacked semi-transparent faces must be budgeted as one visual curtain');
+  assert.equal(observedLayeredSceneryOpacity(1,6),1);
+  assert.equal(observedLayeredSceneryOpacity(.42,0),1,
+    'invalid layer count fails closed instead of hiding level architecture');
+});
