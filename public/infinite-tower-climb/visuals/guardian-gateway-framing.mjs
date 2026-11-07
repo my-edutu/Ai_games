@@ -118,3 +118,46 @@ export function observedGroundedGatewayShot(snapshot, earned, aspect, zoom = 1) 
     focusWeight: Math.min(.42, approach * (portrait ? .42 : .34)),
     approach, exitX };
 }
+
+
+// Final living-guardian approach is a REAL source beat, not an early unlock.
+// The recorded portrait duel lets the boss fight remain readable but often
+// shrinks the hero and earned doorway during the 1-HP final aerial exchanges.
+// Prepare the same exterior orbital shot WHILE the real lock is still closed,
+// rather than asking the camera to converge during a ~0.4s post-defeat walk.
+// Every projection/core/actor safety veto remains in scene.mjs. No game
+// authority, scene clock, simulated win, floor, or camera cut is changed.
+export function observedLiveGuardianLastStandShot(snapshot, lock, aspect, zoom = 1) {
+  const p = snapshot?.player, cap = lock?.cap, guardian = lock?.guardian;
+  if (snapshot?.stale || snapshot?.lifecycle !== 'running' ||
+      lock?.runToken !== snapshot.runToken || lock?.floor !== snapshot.floor ||
+      cap?.id !== ('f' + snapshot.floor + ':cap') ||
+      guardian?.active !== true || !(guardian?.health > 0) ||
+      !(guardian?.maxHealth > 0) ||
+      guardian.health > Math.max(1, Math.ceil(guardian.maxHealth * .25)) ||
+      (p?.state !== 'standing' && p?.state !== 'hurt' && p?.state !== 'airborne') ||
+      !(p?.health > 0) ||
+      ![aspect, zoom, p?.x, p?.y, p?.halfHeight,
+        cap?.x, cap?.y, cap?.width, cap?.height].every(Number.isFinite) ||
+      aspect <= 0 || aspect >= 2.5 || zoom <= 0 || zoom > 1.1 ||
+      p.halfHeight <= 0 || cap.width <= 0 || cap.height <= 0 ||
+      p.x < cap.x || p.x > cap.x + cap.width ||
+      (p.grounded && p.groundedPlatformId !== cap.id)) return null;
+  const feet = p.y - p.halfHeight;
+  const roof = cap.y + cap.height;
+  // Keep this near the physically witnessed cap: no arbitrary off-deck,
+  // high-altitude or stale post-fight camera invitation.
+  if (feet < roof - 8000 || feet > roof + 110000) return null;
+  const exitX = cap.x + Math.floor(cap.width * .76);
+  const distance = Math.abs(exitX - p.x);
+  const window = Math.min(125000, cap.width * .48);
+  if (window <= 10000 || distance >= window) return null;
+  const approach = 1 - distance / window;
+  const portrait = aspect < .85;
+  const farRadius = portrait ? 59 : 52;
+  const nearRadius = portrait ? 46 : 40;
+  const radius = Math.max(30, (farRadius - (farRadius-nearRadius)*approach) *
+    Math.min(1.25, Math.max(.85, zoom)));
+  return { sourceTick:snapshot.tick, radius,
+    focusWeight:Math.min(.24, .1 + approach * .14), approach, exitX };
+}
