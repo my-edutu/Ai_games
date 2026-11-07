@@ -13042,6 +13042,22 @@ function isObservedRealCourier(citizen){
  if(!citizen.delivery&&isWorkingAtSite(citizen))return false;
  return Boolean(citizen.delivery||recentObservedCourierReceipt(citizen));
 }
+// W104 · photograph-the-real-world camera discipline. The W58 uncut
+// 390px homecoming video showed a real resident eclipsed by a huge tree.
+// A roof-clear head ray alone is not a readable encounter. Both the
+// moving homeward orbit and the actual doorstep witness use this same
+// deterministic, budgeted presentation-only acceptance rule.
+function isReadableHomecomingShot(shot,portrait=false,doorway=false){
+ if(!shot)return false;
+ const canopyLimit=doorway?.22:.28;
+ const sceneLimit=doorway?.24:.31;
+ const bodyMinimum=doorway?(portrait?.14:.12):(portrait?.12:.10);
+ return shot.blockers===0&&(!doorway||shot.doorRayBlockers===0)&&
+  shot.vegetationFaceBlockers===0&&
+  shot.foregroundVegetationCover<canopyLimit&&
+  shot.foregroundSceneCover<sceneLimit&&
+  shot.projectedWorkerHeightFraction>=bodyMinimum;
+}
 function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const realWork=isWorkingAtSite(citizen);
  const realFarmWork=realWork&&citizen.job==='farmer'&&
@@ -13075,7 +13091,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const roofs=followCameraRoofs();
  // The portrait lens is a genuine different field of view, not a CSS crop
  // of the desktop worksite camera. Frame both worker and real surroundings.
- const portraitLens=Boolean(working&&realWork&&canvas.clientWidth>0&&
+ const portraitLens=Boolean(((working&&realWork)||journeyCamera)&&canvas.clientWidth>0&&
   canvas.clientWidth<500);
  const normalPitch=journeyCamera?.34:unloading?(actionCameraPitch??.29):
   working?(actionCameraPitch??(liveWorkday?(portraitLens?.27:.20):.24)):.76;
@@ -13086,7 +13102,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   const eye=[citizen.x+Math.sin(angle)*radius,
    terrain(citizen.x,citizen.z)+1.02+elevation,
    citizen.z+Math.cos(angle)*radius];
-  const scenic=working?foregroundSceneProjection(eye,target,roofs):
+  const scenic=(working||journeyCamera)?foregroundSceneProjection(eye,target,roofs):
    {cover:0,largest:0,volumes:0};
   const marketPostSightline=unloading?marketCourierPostSightline(eye,target):null;
   return {yaw:angle,pitch,zoom,eye,target,
@@ -13160,6 +13176,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  let readableBest=null,readableScore=Infinity,readableFraming=null;
  let usableFrontBest=null,usableFrontScore=Infinity,usableFrontFraming=null;
  let clearFrontCandidates=0,readableFrontCandidates=0;
+ let clearHomewardBest=null,clearHomewardFraming=null,clearHomewardScore=Infinity,
+  clearHomewardCandidates=0;
  // W19: real G135 Day-120 footage failed because the 56 cheapest survey
  // candidates all faced away from their worker (measured alignment -0.5).
  // Reserve the SAME bounded camera-probe budget on desktop AND 390px for
@@ -13184,7 +13202,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   if(!probes.includes(option))probes.push(option);
  }
  for(const {shot,coarse,alignment} of probes){
-  const canopy=working&&realWork?foregroundVegetationProjection(shot.eye,target):
+  const canopy=((working&&realWork)||journeyCamera)?foregroundVegetationProjection(shot.eye,target):
    {cover:0,largest:0,volumes:0,faceBlockers:0};
   shot.foregroundVegetationCover=canopy.cover;
   shot.foregroundVegetationLargest=canopy.largest;
@@ -13204,6 +13222,18 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
    framing.foregroundSceneCover*(portraitLens?1100:working?700:0)+
    shot.foregroundCargoCover*(portraitLens?1200:650)+
    canopy.cover*(portraitLens?1650:850)+canopy.faceBlockers*550;
+  // Rank genuine street-level homeward sightlines by physical greenery,
+  // structural faces and projected living human size. Never remove a tree
+  // or move the real sleeper to manufacture an unobstructed camera shot.
+  if(homecoming&&isReadableHomecomingShot(shot,portraitLens,false)&&
+    framing.blockedBodyRays<=2&&
+    framing.cameraProximityWarnings===0){
+   clearHomewardCandidates++;
+   if(score<clearHomewardScore){
+    clearHomewardBest=shot;clearHomewardFraming=framing;
+    clearHomewardScore=score;
+   }
+  }
   if(score<bestScore){best=shot;bestScore=score;bestFraming=framing;}
   const clearFront=working&&realWork&&
    (!crop||(!crop.cameraInsideField&&!crop.cropFaceBlockers))&&alignment>.12&&
@@ -13262,18 +13292,18 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
     readableFraming=framing;}
   }
  }
- const chosen=frontBest||readableBest||usableFrontBest||best,
-  framing=frontBest?frontFraming:readableBest?readableFraming:
-   usableFrontBest?usableFrontFraming:bestFraming;
+ const chosen=clearHomewardBest||frontBest||readableBest||usableFrontBest||best,
+  framing=clearHomewardBest?clearHomewardFraming:frontBest?frontFraming:
+   readableBest?readableFraming:usableFrontBest?usableFrontFraming:bestFraming;
  return {...chosen,...framing,
-  compositionScore:frontBest?frontScore:readableBest?readableScore:
-   usableFrontBest?usableFrontScore:bestScore,
-  workFacingMode:frontBest?'clear-front':readableBest?'face-and-hands':
+  compositionScore:clearHomewardBest?clearHomewardScore:frontBest?frontScore:
+   readableBest?readableScore:usableFrontBest?usableFrontScore:bestScore,
+  workFacingMode:clearHomewardBest?'clear-homeward-path':frontBest?'clear-front':readableBest?'face-and-hands':
    usableFrontBest?'visible-front':'obstructed',
   readableFrontCandidates,
   facingAlignment:realWork?Math.cos(chosen.yaw-facing):null,
   walkingFacingAlignment:homecoming?Math.cos(chosen.yaw-facing):null,
-  clearFrontCandidates,workFacing:facing,portraitLens,
+  clearFrontCandidates,clearHomewardCandidates,workFacing:facing,portraitLens,
   viewportAspect:canvas.clientWidth/Math.max(1,canvas.clientHeight),
   originalBlockers:original.blockers};
 }
@@ -13298,7 +13328,7 @@ function planHomecomingThresholdCamera(citizen,entry){
  ];
  const normalYaw=Math.atan2(entry.nx,entry.nz);
  const portrait=canvas.clientWidth>0&&canvas.clientWidth<500;
- let best=null,bestCost=Infinity,checked=0,clearShots=0;
+ let best=null,bestCost=Infinity,checked=0,clearShots=0,readableShots=0;
  // Bounded 60-shot exterior survey, at most once per ~1 second for one
  // real moving arrival. Do not survey the rest of the settlement.
  for(const pitch of [portrait?.16:.12,.20,.28]){
@@ -13324,9 +13354,7 @@ function planHomecomingThresholdCamera(citizen,entry){
      Math.max(0,(portrait?.25:.20)-workerFraction)*950+
      Math.abs(offset)*18+Math.abs(zoom-4.9)*9+
      Math.abs(pitch-.20)*55;
-    if(cost<bestCost){
-     bestCost=cost;
-     best={yaw:angle,pitch,zoom,eye,target,
+    const sightline={yaw:angle,pitch,zoom,eye,target,
       blockers:0,doorRayBlockers:0,outsideDoor:true,
       doorSwing:entry.swing,homeIndex:entry.homeIndex,
       foregroundSceneCover:scenic.cover,
@@ -13337,11 +13365,16 @@ function planHomecomingThresholdCamera(citizen,entry){
       workFacingMode:'real-threshold-witness',
       witnessMode:citizen.activity==='Resting at home'?'resting-threshold':'threshold',
       portraitLens:portrait};
-    }
+    // A clear ROOF ray is insufficient: the archived mobile witness had
+    // a giant conifer covering the real resident and doorway. Do not pick
+    // a blocked view even if it costs less than every physical alternative.
+    if(!isReadableHomecomingShot(sightline,portrait,true))continue;
+    readableShots++;
+    if(cost<bestCost){bestCost=cost;best=sightline;}
    }
   }
  }
- return best?{...best,clearShots,checkedShots:checked}:null;
+ return best?{...best,clearShots,readableShots,checkedShots:checked}:null;
 }
 // W59: keep one genuinely clear exterior witness while the SAME resident
 // finishes entering a REAL cottage. In W58's uncut mobile film the shot was
@@ -13385,8 +13418,7 @@ function continuousHomecomingWitness(citizen,entry,now){
    planHomecomingThresholdCamera(citizen,entry);
  // If an actual roof or canopy obstructs every genuine exterior position,
  // report the shot as unavailable; never hide the tree or wall.
- if(!shot||shot.vegetationFaceBlockers>0||
-    shot.foregroundVegetationCover>=.30||shot.foregroundSceneCover>=.30)
+ if(!isReadableHomecomingShot(shot,canvas.clientWidth>0&&canvas.clientWidth<500,true))
   return null;
  if(!safe)hold.shot=shot;
  return {...shot,witnessMode:'resting-threshold',doorSwing:0,
@@ -13414,6 +13446,8 @@ function getHomecomingThresholdCameraAudit(){
   camera:active?{yaw:shot.yaw,pitch:shot.pitch,zoom:shot.zoom,
    outsideDoor:shot.outsideDoor,doorRayBlockers:shot.doorRayBlockers,
    visibleAlternativeShots:shot.clearShots,
+   trulyReadableDoorwayShots:shot.readableShots??null,
+   physicalReadability:isReadableHomecomingShot(shot,canvas.clientWidth>0&&canvas.clientWidth<500,true),
    projectedWorkerHeightFraction:shot.projectedWorkerHeightFraction,
    foregroundSceneCover:shot.foregroundSceneCover,
    foregroundVegetationCover:shot.foregroundVegetationCover,

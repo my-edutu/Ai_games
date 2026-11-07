@@ -20,6 +20,7 @@ on:
       - 'scripts/tiny-kingdom-w101-cottage-residency-contract.cjs'
       - 'scripts/tiny-kingdom-w102-social-articulation-contract.cjs'
       - 'scripts/tiny-kingdom-w103-corridor-camera-contract.cjs'
+      - 'scripts/tiny-kingdom-w104-homecoming-camera-contract.cjs'
       - '.github/workflows/tiny-kingdom-gpu-evidence.yml'
   workflow_dispatch:
 
@@ -33,6 +34,18 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  w104-real-homecoming-first-frame-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: W104 full-playable-JS syntax and truthful physical camera selection
+        run: node scripts/tiny-kingdom-w104-homecoming-camera-contract.cjs
   # W83: source-following original granary-to-market medieval carriageway
   # and the real barn loading porch, with NO added citizen or navigation edge.
   # Verify rendered desktop and 390px WebGL, full real Day-120 growth,
