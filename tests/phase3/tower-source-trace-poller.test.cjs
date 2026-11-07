@@ -18,6 +18,7 @@ test('continuous polling retains the real opening through a 180s video despite a
     callback();
     await new Promise(resolve=>setImmediate(resolve));
   }
+  latest=3600; // the authoritative 20Hz source stops at the same final tick
   const report=await poller.finish();
   assert.equal(report.available,true);
   assert.equal(report.unsupported,false);
