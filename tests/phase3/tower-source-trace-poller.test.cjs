@@ -14,7 +14,10 @@ test('continuous polling retains the real opening through a 180s video despite a
   // polling clock must still cover all 3600 authentic 20Hz ticks.
   const stalledScreenshot=new Promise(()=>{});
   void stalledScreenshot;
-  for(latest=200;latest<=3600;latest+=100)await callback();
+  for(latest=200;latest<=3600;latest+=100){
+    callback();
+    await new Promise(resolve=>setImmediate(resolve));
+  }
   const report=await poller.finish();
   assert.equal(report.available,true);
   assert.equal(report.unsupported,false);
