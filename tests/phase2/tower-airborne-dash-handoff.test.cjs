@@ -102,3 +102,54 @@ test('no non-earned dash transition occurs in a live flight without a dash impul
     assert.equal(live.player.dashCooldown, 0);
   }
 });
+
+
+test('live player steering holds a genuinely three-tick dash burst before responsive airborne control', () => {
+  let { live, frozen } = pairedAirborneSource();
+  const duration = Math.max(6, 20 - live.build.dashCooldownReduction);
+  const dashSpeed = live.config.dashSpeed;
+  const cruiseSpeed = live.config.maxRunSpeed;
+  assert.ok(dashSpeed > cruiseSpeed, 'fixture needs a materially faster burst');
+  let accumulatedGain = 0;
+  for (let tick = 0; tick < 6; tick++) {
+    const move = { ...input(tick === 0), move: 1 };
+    const liveStep = stepTowerPhysics(live, move);
+    const frozenStep = stepTowerPhysics(frozen, move);
+    assert.equal(liveStep.integrityFailure, undefined);
+    assert.equal(frozenStep.integrityFailure, undefined);
+    live = liveStep.state;
+    frozen = frozenStep.state;
+    const liveV = tick < 3 ? dashSpeed : cruiseSpeed;
+    const historicV = tick === 0 ? dashSpeed : cruiseSpeed;
+    assert.equal(live.player.velocity.x, liveV,
+      'live burst must actually move as fast as its three-tick dash pose');
+    assert.equal(frozen.player.velocity.x, historicV,
+      'frozen/unflagged replay retains original one-tick dash physics');
+    assert.equal(live.player.dashCooldown, duration - tick);
+    assert.equal(live.player.state, tick < 3 ? 'dashing' : 'airborne');
+    assert.equal(frozen.player.state, 'dashing');
+    accumulatedGain += liveV - historicV;
+    assert.equal(live.player.position.x - frozen.player.position.x, accumulatedGain);
+    assert.equal(live.player.position.y, frozen.player.position.y);
+    assert.equal(live.player.velocity.y, frozen.player.velocity.y);
+    assert.equal(live.player.stamina, frozen.player.stamina);
+    assert.equal(live.player.health, frozen.player.health);
+    assert.equal(live.player.jumpCharges, frozen.player.jumpCharges);
+  }
+  assert.equal(accumulatedGain, 2 * (dashSpeed - cruiseSpeed));
+});
+
+test('real world wall cancels boosted velocity without a dash-phase penetration', () => {
+  let { live } = pairedAirborneSource();
+  const rightEdge = live.config.worldWidth - live.player.halfWidth;
+  live.player.position.x = rightEdge - Math.floor(live.config.dashSpeed / 2);
+  for (let tick = 0; tick < 4; tick++) {
+    const result = stepTowerPhysics(live, { ...input(tick === 0), move: 1 });
+    assert.equal(result.integrityFailure, undefined);
+    live = result.state;
+    assert.equal(live.player.position.x, rightEdge,
+      'whole-body world clamp holds throughout the physical dash burst');
+    assert.equal(live.player.velocity.x, 0,
+      'solid boundary cancels the boosted motion rather than tunnelling');
+  }
+});
