@@ -70,6 +70,13 @@ function createTowerCausalWitness(limit = 16) {
     }
     if (!ep) return;
     const sameRun = before.runId === after.runId;
+    // Register the living guardian BEFORE evaluating same-tick crusher
+    // pressure. A legitimate surviving final blow may end the duel on
+    // exactly the source tick whose jaw warning it survived.
+    if (before.lifecycle === 'running' && before.floor === 8 &&
+        before.enemies?.some(e => e.kind === 'guardian' && e.floor === 8 &&
+          e.active && e.health > 0))
+      record(ep, 'liveGuardian', before);
     // A post-victory jaw timer is not proof that the climber faced the
     // crusher WHILE fighting a living upper-cap guardian. Require a live,
     // positive-health guardian on the observed source step, and preserve
@@ -81,9 +88,6 @@ function createTowerCausalWitness(limit = 16) {
         e.active === true && e.health > 0);
     const exposed = livingDuel ? sourceCrusherPressure(before) : null;
     if (exposed) record(ep, 'crusherPressureSurvived', after, exposed);
-    if (before.lifecycle === 'running' && before.floor === 8 &&
-        before.enemies?.some(e => e.kind === 'guardian' && e.floor === 8 && e.active))
-      record(ep, 'liveGuardian', before);
     if (sameRun && hasEvent(events, 'enemy-defeated', d => d.kind === 'guardian' &&
       typeof d.id === 'string' && d.id.startsWith('f8:')) && ep.liveGuardian)
       record(ep, 'guardianDefeated', after);
