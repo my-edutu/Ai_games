@@ -81,3 +81,45 @@ test('private-only trap data cannot change the disclosed 3D sightline',async()=>
     assert.equal(JSON.stringify(state),frozen);
   }finally{world.dispose();cleanup();}
 });
+
+test('a real disclosed two-cell pressure nonpassage gets a low solid cutaway; an unknown edge cannot',async()=>{
+  const {world,cleanup}=await loadWorld();
+  try {
+    // The public hazard is cell 40. Cell 42 is two Manhattan steps away,
+    // while cell 43 is three steps away. Their 42/43 edge is a CONFIRMED
+    // nonpassage only when both endpoints are published, not a secret route.
+    const near=published({pressure:true});
+    const nearOriginal=JSON.stringify(near);
+    world.update(near);
+    const prior=world.stats();
+    assert.equal(JSON.stringify(near),nearOriginal);
+
+    const withPublishedEdge={
+      ...near,visibleCells:[...near.visibleCells,43],
+      cells:[...near.cells,{
+        cell:43,neighbors:[],blocked:false,trap:false,checkpoint:false,clue:false
+      }],
+    };
+    const edgeOriginal=JSON.stringify(withPublishedEdge);
+    world.update(withPublishedEdge);
+    const publicCourt=world.stats();
+    assert.ok(publicCourt.pressureStageParapets>prior.pressureStageParapets,
+      'one genuinely disclosed two-ring NONPASSAGE loses its blocking high wall');
+    assert.equal(publicCourt.responsiveTrapSignals,1,
+      'the original physical pressure hazard must remain present');
+    assert.equal(publicCourt.geometryCount,prior.geometryCount,
+      'public two-ring cutaway must use existing pooled GPU geometry');
+    assert.equal(JSON.stringify(withPublishedEdge),edgeOriginal,
+      'the real published map and collision authority are immutable');
+
+    const privateOnly={
+      ...withPublishedEdge,runToken:'only-private-pressure',
+      cells:withPublishedEdge.cells.map(c=>({...c,trap:false})),
+      privateTrapCells:[40],
+    };
+    world.update(privateOnly);
+    assert.equal(world.stats().pressureStageParapets,0,
+      'a private-only hazard cannot lower even a fully disclosed nonpassage');
+    assert.equal(world.stats().responsiveTrapSignals,0);
+  }finally{world.dispose();cleanup();}
+});

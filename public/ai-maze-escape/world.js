@@ -782,7 +782,6 @@ export function createMazeWorld(options = {}) {
     // published cell/trap flags, not unknown neighbors, routes or private AI.
     // Keep every real wall, stair, gate, terrain foundation and collision.
     const pressureSightlines = new Set();
-    const pressureStageCells = new Set();
     for (const known of s.cells) {
       if (!known.trap || known.blocked) continue;
       // Real, unchanged 390px WebGL proved the first adjacent-cell pass
@@ -795,7 +794,6 @@ export function createMazeWorld(options = {}) {
         const gridDistance = Math.abs(trapCol - other.cell % s.width)
           + Math.abs(trapRow - Math.floor(other.cell / s.width));
         if (gridDistance <= 2) pressureSightlines.add(other.cell);
-        if (gridDistance <= 1) pressureStageCells.add(other.cell);
       }
     }
     for (const door of Array.isArray(s.doors) ? s.doors : []) {
@@ -1150,15 +1148,17 @@ export function createMazeWorld(options = {}) {
         // Only an authentic, disclosed NONPASSAGE edge beside a published
         // pressure trap can earn a lower solid wall. Never use unresolved
         // neighbors, public gate edges or the engine's private route graph.
-        // In a fully disclosed pressure court, an adjacent TRUE blocked
-        // tile may also have a low, continuous boundary, but only when its
-        // raised, solid replacement masonry below is present. This restores
-        // a sightline past the previously opaque wall to the physical jaws.
-        // No undisclosed edge, real gate or collision rule is changed; the
-        // cutaway is symmetric regardless of public cell iteration order.
+        // Authentic source-bound 320/390px pressure frames show that tall
+        // walls TWO public tiles out still dominate the visible mechanism.
+        // Extend the existing LOW, SOLID cutaway to confirmed nonpassage
+        // edges touching the already-disclosed two-cell pressure court.
+        // BOTH endpoints must actually be published. Unknown-side edges,
+        // real gates, collision/navigation and unseen map tiles keep their
+        // existing walls. A blocked public tile keeps its solid stone cap.
+        // The cutaway is symmetric regardless of public cell iteration order.
         const pressureParapet = !publicParapet && n >= 0
           && knownByCell.has(n) && !gateEdges.has(key)
-          && (pressureStageCells.has(c.cell) || pressureStageCells.has(n))
+          && (pressureSightlines.has(c.cell) || pressureSightlines.has(n))
           && ((!c.blocked && !knownByCell.get(n).blocked)
             || (pressureSightlines.has(c.cell) && pressureSightlines.has(n)
               && !!c.blocked !== !!knownByCell.get(n).blocked));

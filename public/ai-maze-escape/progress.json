@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-07T14:29:46.000Z",
+  "updatedAt": "2026-11-07T17:55:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass192 2026-11-07: actual completed source-HEAD WebGL job passed 86 model/stream checks but Chromium install failed on ubuntu-26.04 with Playwright 1.55.0, yielding zero current screenshots. Whole CI passed 693/694: existing physical shutter test wrongly disallowed the exact correct 1.11rad final shutter angle. Pinned both CI and visual workflows to ubuntu-24.04, ensured CI checks out exact PR source SHA, replaced test with stricter exact real-mesh check. No production art/gameplay changes. New full CI/native WebGL, six-run geometry <100 and original Nintendo comparison PENDING. PR draft active, never merge/deploy."
+    "summary": "Pass195 2026-11-07: original Pass194 HEAD 37/37 full WebGL PNG hashes verified; 320/390 pressure remains crowded by tall confirmed nonpassage walls. Source candidate extends only already-public two-ring pressure-court low solid parapets, with installed-Three public/private regression; exact-head native verdict PENDING. Six-run geometry starts 37,37,42,41,46,45 spread 9 FAILED against unchanged <=8 even though all counts <100, world pooled geometry classes stable at 9. Whole CI stopped at missing unrelated tiny stream script. Official Nintendo benchmark unmet, PR open draft unmerged/undeployed."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass195 2026-11-07: original Pass194 HEAD 37/37 full WebGL PNG hashes verified; 320/390 pressure remains crowded by tall confirmed nonpassage walls. Source candidate extends only already-public two-ring pressure-court low solid parapets, with installed-Three public/private regression; exact-head native verdict PENDING. Six-run geometry starts 37,37,42,41,46,45 spread 9 FAILED against unchanged <=8 even though all counts <100, world pooled geometry classes stable at 9. Whole CI stopped at missing unrelated tiny stream script. Official Nintendo benchmark unmet, PR open draft unmerged/undeployed.",
     "Pass192 2026-11-07: current-head CI ACTUALLY failed: whole repo 693 pass/1 shutter test incorrect endpoint; WebGL 86 pass then Playwright unsupported ubuntu-26.04. Repair: precise 1.11rad physical shutter check and ubuntu-24.04 on both workflows plus CI exact-source checkout. No production edits or relaxed budget. New renders and six-run <100 still pending; Nintendo reference unmet; PR open draft.",
     "Pass191 2026-11-07: terminal public result immediately resets witnessed pressure clock and returns actual world-side trap jaws, bronze relays, ivory shutters and piston to real resting transforms in normal/reduced motion. Installed-Three regression authored, NOT run; isolated source syntax and five scalar terminal gates checked. No native source-bound WebGL, current-head CI, six-run <100 or independent Nintendo approval. See dated Pass191 review; PR OPEN DRAFT, no merge/deploy.",
     "Pass190 2026-11-06: Physically connect Pip's actual gaze→knee/torso→lantern climax to the SAME real published pressure mechanism timeline; no private data, AI authority, new geometry, extra HUD or separate event clock. Strict source-bound installed-Three tests authored but not executed. Exact-head native WebGL/CI queued, six-run <100 unverified, official Nintendo bar NOT MET; keep draft active, no merge/deploy. See Pass190 dated review.",
@@ -267,6 +268,7 @@
     "Fourteenth pass: the original disclosed closed gate's coral crossed brace and gold lock now sit on the camera-facing side of its physical bars, for both door orientations; open or undisclosed barriers remain absent. Exact-source CI passed 523 Node and 25 browser checks. Real same-seed/tick21 1280×900 screenshot at 2026-10-31T05:04:37.546Z (SHA256 3ef0814c04f38a2465687b7feded50c6d8b7dc24c3da6ed2278de74f356ef668) shows the X clearly but gate is small at the far left and Pip partly obscured. Nintendo remains stronger; no independent critic or GPU performance claim."
   ],
   "nextGaps": [
+    "Pass195 next: confirm exact-head new two-ring public pressure sightline from unaltered full-frame native 320/390/844/1280 WebGL, verify 37+ screenshot SHA256; reject if hardware clipped (strict ±.95 / withdrawal >=.70), a known wall incorrectly opens, or the trap still loses visual hierarchy. Separately diagnose strict six-run geometry spread 9 vs unchanged <=8 from exact public resource inventories without altering budgets. Whole CI still blocked by unrelated missing tiny:stream:self-test; do not claim green. Independent Nintendo comparison remains open.",
     "Pass183 first accept exact-source native WebGL 320/390/844/1280 same-run pressure stage to show warning, shutter, piston, retreat each independently, with real 320 +0.95 no-crop and 390 withdrawal >0.70, strict 6-run <100 geometry and installed-Three privacy/reduced-motion regressions. Reject as improvement until direct original Nintendo full-resolution visual comparison and independent critic; correct genuine failures without weakening gates.",
     "Pass175 next strict critic: retrieve new SOURCE HEAD's genuine dated 320/390/844/1280 WebGL artifact, verify every original full PNG SHA-256 and the same-run public pressure beat at 390; directly judge whether the new *ivory, 1.11rad* floor shutters are visibly lifted, in-frame and NOT fake navigation while Pip stays fully visible. Check unchanged 320 +0.95 hazard crop, 390 withdrawal width >0.70, 44px controls, low-text full viewport, goal/keys/danger captions, keyboard/focus, high contrast and all reduced-motion *remembered-only* privacy cases. Inspect full CI after strict installed-Three tests. No artistic win until independent fresh-context official Nintendo image critic approves; then proceed to richer originally authored world choreography instead of tiny decorative changes.",
     "Pass159 exact-head review: fetch original 41973459366 source-bound artifact PNGs, match SHA sidecars, view native un-cropped 390 recognition→middle brace→shell-release and actual 320, 390, 844, 1280 Follow/Detail actor physical bounds. If new shoulder plate obscures guardian mask/Pip or crop exceeds unchanged 0.95, fix real production character/camera geometry rather than relaxing thresholds. Also validate keyboard/captions/high contrast/reduced motion, public autonomy and key/gate consequence. Separate independent blind critic remains unavailable; then address original environment variety and authored gameplay interaction.",
@@ -298,6 +300,13 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass195 · source-bound native pressure screenshot critique and two-ring public wall candidate (2026-11-07)",
+      "reviewer": "Lead original unaltered-image inspection; independent fresh-context critic unavailable",
+      "verdict": "Original Pass194 gameplay REJECTS Nintendo parity; new source candidate unrendered; six-run spread gate FAILED",
+      "date": "2026-11-07T17:55:00.000Z",
+      "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-195-authentic-pressure-wall-composition-candidate-2026-11-07.md"
+    },
     {
       "title": "Pass188 · known blocked pressure forecourt physical cutaway source candidate (2026-11-06)",
       "reviewer": "Source-grounded scene critic; independent current-head WebGL pending",
@@ -787,6 +796,13 @@
     }
   ],
   "verification": [
+    {
+      "name": "Pass195 two-ring published nonpassage cutaway",
+      "status": "SOURCE CANDIDATE; focused installed-Three and exact-HEAD WebGL PENDING; six-run spread 9 FAIL; Nintendo benchmark FAILED",
+      "detail": "Original prior source 73007077 actual 37 PNG SHA256 verified from focused run 42392082336, artifact 13583284967. New cutaway must preserve real two-published-endpoint solid nonpassage, blocked tiles, all public AI/collision, no extra GPU classes, unchanged camera and accessibility; run exact-source native captures and strict resource checks.",
+      "sourceCommit": "candidate pending atomic commit",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/pull/53"
+    },
     {
       "name": "Pass183 actual separately timed public pressure hardware",
       "status": "SOURCE CANDIDATE; pure staging arithmetic checked; installed-Three, exact HEAD WebGL and full six-reset CI PENDING; fixed Nintendo bar FAILED",
