@@ -12,5 +12,8 @@ module.exports = defineConfig({
     {command:'node scripts/serve-ant-colony-stream.cjs',url:'http://127.0.0.1:4175/ant/health',timeout:60000,reuseExistingServer:false,stdout:'pipe',stderr:'pipe'},
     {command:'node scripts/serve-tower-stream.cjs --port=4176',url:'http://127.0.0.1:4176/tower/health',timeout:60000,reuseExistingServer:false,stdout:'pipe',stderr:'pipe'}
   ],
+  // All Dungeon browser specs are isolated on port 4181. Running any of them in the
+  // catalogue-wide 4173 suite misroutes /dungeon requests to Snake and fails.
+  testIgnore:'**/dungeon-*.spec.cjs',
   reporter:[['list']]
 });

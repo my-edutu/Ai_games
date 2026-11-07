@@ -1,0 +1,34 @@
+'use strict';
+const {test,expect}=require('@playwright/test');
+const fs=require('node:fs');
+const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
+fs.mkdirSync('artifacts',{recursive:true});
+const sample=()=>{const game=DungeonRuntime.create('dungeon-ui-round17');for(let i=0;i<18;i++)game.step();return game.publicState()};
+test('Round 33: real WebGL scene gains sculpted floor pavers and damp surfaces without covering the actual heroes',async({page,request})=>{
+ test.setTimeout(120000);
+ for(const path of ['/dungeon/floor-ruins-plan.js','/dungeon/floor-ruins.js'])expect((await request.get(path)).status()).toBe(200);
+ const state=sample();await page.route('**/dungeon/state',route=>route.fulfill({json:state}));
+ const errors=[];page.on('pageerror',err=>errors.push(err.message));await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.floorRuins?.pavers??0),{timeout:35000}).toBeGreaterThanOrEqual(20);
+ const diag=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ expect(diag.floorRuins.dampPatches).toBeGreaterThanOrEqual(1);
+ expect(diag.floorRuins.drawCalls).toBeLessThanOrEqual(2);
+ expect(diag.floorRuins.collisionEffects).toBe(0);
+ expect(diag.floorRuins.maxElevation).toBeLessThan(.08);
+ expect(diag.composition.visibleHeroes).toBeGreaterThan(0);
+ expect(diag.visibility.unoccludedHeroes).toBeGreaterThan(0);
+ expect(diag.drawCalls).toBeLessThan(1600);
+ expect(errors).toEqual([]);
+ await page.locator('.arena').evaluate(el=>el.classList.add('world-only-audit'));
+ await page.locator('#world').screenshot({path:'artifacts/dungeon-floor33-world-only.png',timeout:45000});
+ await test.info().attach('real-floor-stone-diagnostics',{body:Buffer.from(JSON.stringify({seed:'dungeon-ui-round17',floor:state.floor,tick:state.tick,metrics:diag.floorRuins,composition:diag.composition,visibility:diag.visibility,drawCalls:diag.drawCalls,triangles:diag.triangles},null,2)),contentType:'application/json'});
+});
+test('Round 33: mobile floor masonry keeps a genuine protagonist onscreen without scroll overflow',async({page})=>{
+ test.setTimeout(120000);
+ await page.setViewportSize({width:390,height:844});const state=sample();
+ await page.route('**/dungeon/state',route=>route.fulfill({json:state}));await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.floorRuins?.pavers??0),{timeout:35000}).toBeGreaterThan(20);
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.composition?.visibleHeroes??0),{timeout:30000}).toBeGreaterThan(0);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+ await page.screenshot({path:'artifacts/dungeon-floor33-mobile.png',fullPage:false,timeout:45000});
+});

@@ -17,6 +17,10 @@ This monorepo builds a catalogue of autonomous games for uninterrupted YouTube a
 11. AI City Traffic Experiment
 12. AI Ant Colony / Ecosystem
 
+## AI Dungeon 3D development candidate
+
+An executable 3D vertical slice is available in [`games/ai-dungeon`](games/ai-dungeon/README.md), with a locally served Three.js stream, autonomous procedural RPG rules, seed/replay checks, Chromium screenshot tests, and a live Gauntlet progress page. Run `npm run dungeon:stream` and open `/dungeon`, or `npm run dungeon:gauntlet` for headless evidence. **Not yet AAA, R5, or production-ready.** This candidate does not change other games' readiness.
+
 ## Shared platform
 
 ```text

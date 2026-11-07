@@ -27,6 +27,8 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Install locked toolchain
         run: npm ci --no-audit --no-fund
+      - name: Verify pinned Dungeon CC0 model fixtures
+        run: npm run dungeon:assets:strict
       - name: Build and test
         run: npm test
       - name: Snake stream host self-test

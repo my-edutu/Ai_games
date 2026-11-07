@@ -1,0 +1,236 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-05",
+  "status": "IN PROGRESS — NOT TRANSFORMED (native GLB full-body duel implementation; new-head motion and masked A/B unverified)",
+  "reference": "Diablo IV dungeon presentation / No Rest for the Wicked sculpted worlds / Path of Exile 2 attack clarity; no matched baseline A/B or official fidelity score",
+  "metrics": {
+    "sample_seeds": 24,
+    "ticks_per_seed": 900,
+    "verified_seed_runs": 24,
+    "determinism_failures": 0,
+    "highest_floor_seen": 10,
+    "total_floor_advances": 174,
+    "total_restarts": 4,
+    "max_seed_elapsed_ms": 1169
+  },
+  "failures": [],
+  "runs": [
+    {
+      "seed": "gauntlet-corpus-v1-0",
+      "highestFloor": 8,
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 78,
+      "elapsedMs": 1169
+    },
+    {
+      "seed": "gauntlet-corpus-v1-1",
+      "highestFloor": 8,
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 73,
+      "elapsedMs": 952
+    },
+    {
+      "seed": "gauntlet-corpus-v1-2",
+      "highestFloor": 8,
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 78,
+      "elapsedMs": 970
+    },
+    {
+      "seed": "gauntlet-corpus-v1-3",
+      "highestFloor": 5,
+      "deaths": 1,
+      "floorsAdvanced": 7,
+      "kills": 23,
+      "elapsedMs": 957
+    },
+    {
+      "seed": "gauntlet-corpus-v1-4",
+      "highestFloor": 5,
+      "deaths": 1,
+      "floorsAdvanced": 6,
+      "kills": 17,
+      "elapsedMs": 826
+    },
+    {
+      "seed": "gauntlet-corpus-v1-5",
+      "highestFloor": 9,
+      "deaths": 0,
+      "floorsAdvanced": 8,
+      "kills": 89,
+      "elapsedMs": 897
+    },
+    {
+      "seed": "gauntlet-corpus-v1-6",
+      "highestFloor": 8,
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 78,
+      "elapsedMs": 846
+    },
+    {
+      "seed": "gauntlet-corpus-v1-7",
+      "highestFloor": 10,
+      "deaths": 0,
+      "floorsAdvanced": 9,
+      "kills": 100,
+      "elapsedMs": 900
+    },
+    {
+      "seed": "gauntlet-corpus-v1-8",
+      "highestFloor": 9,
+      "deaths": 0,
+      "floorsAdvanced": 8,
+      "kills": 85,
+      "elapsedMs": 824
+    },
+    {
+      "seed": "gauntlet-corpus-v1-9",
+      "highestFloor": 8,
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 77,
+      "elapsedMs": 849
+    },
+    {
+      "seed": "gauntlet-corpus-v1-10",
+      "highestFloor": 8,
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 78,
+      "elapsedMs": 871
+    },
+    {
+      "seed": "gauntlet-corpus-v1-11",
+      "highestFloor": 1,
+      "deaths": 0,
+      "floorsAdvanced": 0,
+      "kills": 5,
+      "elapsedMs": 655
+    },
+    {
+      "seed": "gauntlet-corpus-v1-12",
+      "highestFloor": 9,
+      "deaths": 0,
+      "floorsAdvanced": 8,
+      "kills": 89,
+      "elapsedMs": 867
+    },
+    {
+      "seed": "gauntlet-corpus-v1-13",
+      "highestFloor": 7,
+      "deaths": 0,
+      "floorsAdvanced": 6,
+      "kills": 67,
+      "elapsedMs": 861
+    },
+    {
+      "seed": "gauntlet-corpus-v1-14",
+      "highestFloor": 8,
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 80,
+      "elapsedMs": 868
+    },
+    {
+      "seed": "gauntlet-corpus-v1-15",
+      "highestFloor": 9,
+      "deaths": 0,
+      "floorsAdvanced": 8,
+      "kills": 89,
+      "elapsedMs": 868
+    },
+    {
+      "seed": "gauntlet-corpus-v1-16",
+      "highestFloor": 9,
+      "deaths": 0,
+      "floorsAdvanced": 8,
+      "kills": 89,
+      "elapsedMs": 839
+    },
+    {
+      "seed": "gauntlet-corpus-v1-17",
+      "highestFloor": 9,
+      "deaths": 0,
+      "floorsAdvanced": 8,
+      "kills": 88,
+      "elapsedMs": 831
+    },
+    {
+      "seed": "gauntlet-corpus-v1-18",
+      "highestFloor": 8,
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 68,
+      "elapsedMs": 782
+    },
+    {
+      "seed": "gauntlet-corpus-v1-19",
+      "highestFloor": 8,
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 78,
+      "elapsedMs": 802
+    },
+    {
+      "seed": "gauntlet-corpus-v1-20",
+      "highestFloor": 10,
+      "deaths": 0,
+      "floorsAdvanced": 9,
+      "kills": 92,
+      "elapsedMs": 918
+    },
+    {
+      "seed": "gauntlet-corpus-v1-21",
+      "highestFloor": 6,
+      "deaths": 1,
+      "floorsAdvanced": 9,
+      "kills": 26,
+      "elapsedMs": 801
+    },
+    {
+      "seed": "gauntlet-corpus-v1-22",
+      "highestFloor": 6,
+      "deaths": 1,
+      "floorsAdvanced": 8,
+      "kills": 23,
+      "elapsedMs": 797
+    },
+    {
+      "seed": "gauntlet-corpus-v1-23",
+      "highestFloor": 10,
+      "deaths": 0,
+      "floorsAdvanced": 9,
+      "kills": 96,
+      "elapsedMs": 818
+    }
+  ],
+  "visualVerdict": "UNVERIFIED: actual new-head 74/78svh mobile battle/column cutaway, continuous audiovisual film, same-seed baseline A/B and blinded critic preference absent.",
+  "productionReady": false,
+  "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
+  "candidateCommit": "4a599c56500bd3db4064808536b219748338d5c3",
+  "metricsProvenance": "Local current-source 9af59bc npm run dungeon:test 309/309, npm run dungeon:gauntlet 24 seeds ×900 ticks: 174 advances, 4 restarts, 0 determinism mismatches. No claim for visual quality.",
+  "transformation": {
+    "milestoneId": "DUNGEON-TRANSFORMATION-01",
+    "status": "IN_PROGRESS",
+    "verdict": "NOT_TRANSFORMED",
+    "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+    "candidateCodeCommit": "4a599c56500bd3db4064808536b219748338d5c3",
+    "looks": "UNVERIFIED",
+    "feels": "UNVERIFIED",
+    "plays": "UNVERIFIED",
+    "critics": 0,
+    "originalAudioMotion": "UNVERIFIED",
+    "afterBrowser": "UNVERIFIED",
+    "nextTask": "Inspect 4a599c5 exact desktop/390px moving melee and Warden footage with original audio, reject deformations/frame regressions, then significantly advance native model geometry/materials and capture full five-stage matched A/B with 3 independent critics."
+  },
+  "acceptanceStatus": "NOT TRANSFORMED — 0/3 blind independent critics; no matched continuous desktop/mobile audiovisual 5-stage adventure.",
+  "latestCandidateSha": "4a599c56500bd3db4064808536b219748338d5c3",
+  "latestImplementation": "Single genuine adjacent-melee source-rig performance stages role-specific head, hips, torso, both arms, wrist, lead/rear feet plus tightly bounded body centre through windup → 215ms contact → recovery; imported GLB one-shot speed normalized. Source-only candidate, AFTER not captured.",
+  "biggestRemainingGap": "Original character quality and truthful moving sword-to-body contact in dense Gothic combat, especially Warden and mobile; no verified new-head audiovisual improvement.",
+  "nextImplementationTask": "Inspect 4a599c5 exact desktop/390px moving melee and Warden footage with original audio, reject deformations/frame regressions, then significantly advance native model geometry/materials and capture full five-stage matched A/B with 3 independent critics.",
+  "candidateSafety": "Direct pure-source pose/syntax smoke passed (3 roles, bounded age, valid adjacent targets, reduced motion). New exact-head authority/browser, catalogue, replay, performance and original audio still QUEUED/UNVERIFIED; no experience win."
+}

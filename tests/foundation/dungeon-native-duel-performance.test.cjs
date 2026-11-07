@@ -1,0 +1,86 @@
+'use strict';
+const {test}=require('node:test'),assert=require('node:assert/strict');
+const fs=require('node:fs'),path=require('node:path');
+const root=path.resolve(__dirname,'../..');
+const source=path.join(root,'public/ai-dungeon/native-duel-performance.js');
+const load=()=>import('data:text/javascript;base64,'+Buffer.from(fs.readFileSync(source,'utf8')).toString('base64'));
+const opponent=Object.freeze({targetId:'living-foe',distance:1,alive:true});
+
+test('real Vanguard, Revenant and Warden perform distinct full-body sword-to-contact choreography',async()=>{
+ const {planNativeDuelPose:pose,NATIVE_CONTACT_TIME,NATIVE_DUEL_DURATION}=await load();
+ const hits=[];
+ for(const kind of ['vanguard','revenant','warden']){
+  const prep=pose(kind,'attack',.10,opponent),hit=pose(kind,'attack',NATIVE_CONTACT_TIME,opponent);
+  const finish=pose(kind,'attack',.52,opponent),rest=pose(kind,'attack',NATIVE_DUEL_DURATION,opponent);
+  assert.equal(prep.phase,'windup');assert.equal(hit.phase,'impact');assert.equal(finish.phase,'recovery');
+  assert.equal(rest.mode,'rest');assert.ok(hit.contactWeight>.65);
+  assert.ok(Math.abs(hit.spine.yaw)>.025&&Math.abs(hit.wrist.pitch)>.04);
+  assert.ok(Math.abs(hit.hips.yaw)>.018&&Math.abs(hit.head.yaw)>.01);
+  assert.ok(Math.abs(prep.legs.left.upper)+Math.abs(prep.legs.right.upper)>.05);
+  assert.ok(Math.abs(hit.legs.left.lower)+Math.abs(hit.legs.right.lower)>.06);
+  assert.ok(Math.abs(prep.arms.right.pitch)>Math.abs(prep.arms.left.pitch));
+  assert.ok(Math.abs(finish.root.z)<.04);hits.push(hit);
+ }
+ assert.notDeepEqual(hits[0].spine,hits[1].spine);
+ assert.notDeepEqual(hits[1].legs,hits[2].legs);
+});
+
+test('poses are finite, reversible, bounded and never invent target contact',async()=>{
+ const {planNativeDuelPose:pose}=await load();
+ for(const kind of ['vanguard','revenant','warden'])for(const t of [0,.055,.1,.135,.185,.215,.275,.355,.42,.57,.619]){
+  const p=pose(kind,'attack',t,opponent);
+  assert.deepEqual(p,pose(kind,'attack',t,opponent));
+  const numbers=[p.contactWeight,p.strength,...Object.values(p.head),...Object.values(p.hips),
+   ...Object.values(p.spine),...Object.values(p.wrist),...Object.values(p.arms.left),
+   ...Object.values(p.arms.right),...Object.values(p.forearms),
+   ...Object.values(p.legs.left),...Object.values(p.legs.right),...Object.values(p.root)];
+  assert.ok(numbers.every(x=>Number.isFinite(x)&&Math.abs(x)<.4),kind+':'+t);
+ }
+ for(const invalid of [
+  {...opponent,targetId:null},{...opponent,targetId:'  '},{...opponent,distance:0},
+  {...opponent,distance:2},{...opponent,alive:false},{...opponent,reducedMotion:true}
+ ])assert.equal(pose('vanguard','attack',.215,invalid).mode,'rest');
+ for(const action of ['idle','move','guard','cast','hurt'])
+  assert.equal(pose('warden',action,.215,opponent).mode,'rest');
+ for(const t of [-1,NaN,Infinity,-Infinity,.62,5])
+  assert.equal(pose('vanguard','attack',t,opponent).mode,'rest');
+ assert.equal(pose('ranger','attack',.215,opponent).mode,'rest');
+ const code=fs.readFileSync(source,'utf8');
+ assert.doesNotMatch(code,/Math\.random|Date\.now|DungeonRuntime|fetch\(|performance\.now/);
+});
+
+test('source animation one-shots are normalized without changing simulation cadence',async()=>{
+ const {planNativeOneShotSpeed:speed}=await load();
+ assert.equal(speed('attack',1.24),2);
+ assert.equal(speed('cast',.64),1);assert.equal(speed('hurt',.38),1);
+ assert.equal(speed('idle',4),1);
+ for(const age of [0,.2,.4,.6,1,3,5,12,Infinity,NaN,-1]){
+  const v=speed('attack',age);
+  assert.ok(Number.isFinite(v)&&v>=.55&&v<=2.6);
+ }
+});
+
+test('actual skinned rig mixer integrates head, hips, arms, blade, feet and diagnostics',()=>{
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const server=fs.readFileSync(path.join(root,'scripts/serve-dungeon-stream.cjs'),'utf8');
+ assert.match(model,/planNativeDuelPose/);assert.match(model,/planNativeOneShotSpeed\(action,clip\.duration\)/);
+ for(const token of [
+  'nativeDuel?.head','nativeDuel?.hips','nativeDuel?.arms','nativeDuel?.forearms',
+  'nativeDuel?.legs','nativeDuel?.[mount.part]','nativeDuel?.root',
+  'nativeDuelContactFrames','restoreRigLegsBeforeMixer','restoreRigMeleeBeforeMixer'
+ ])assert.ok(model.includes(token),'missing native rig stage: '+token);
+ assert.ok(server.includes("['/dungeon/native-duel-performance.js','native-duel-performance.js']"));
+});
+
+test('native source-skinned attack owns one coherent bone/root layer, not three simultaneous legacy strikes',()=>{
+ const source=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(source,/nativeMelee\?RIG_ZERO:pose\[mount\.part\]/);
+ assert.match(source,/nativeMelee\?RIG_ZERO:\(actor\.performanceBeat\?\.\[mount\.part\]/);
+ assert.match(source,/nativeMelee\?RIG_ZERO:pose\[mount\.side\]/);
+ assert.match(source,/nativeMelee\?NATIVE_MELEE_NO_BRACE:planRigContactBrace/);
+ assert.match(source,/nativeMelee\?NATIVE_MELEE_NO_ROOT:\s*planAuthoredMotion/);
+ assert.match(source,/nativeMelee\?NATIVE_MELEE_NO_ROOT:actor\.performanceBeat\.root/);
+ assert.match(source,/actor\.nativeDuel\?\.forearms/);
+ assert.match(source,/actor\.nativeDuel\?\.legs/);
+ assert.match(source,/restoreRigArmsBeforeMixer[\s\S]*?actor\.mixer\.update[\s\S]*?stageRigMeleeAfterMixer/);
+});

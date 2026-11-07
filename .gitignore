@@ -1,0 +1,11 @@
+# Local/CI-generated build output and runtime state
+node_modules/
+dist/
+runtime/
+artifacts/
+test-results/
+playwright-report/
+*.log
+.env
+.env.*
+!.env.example
