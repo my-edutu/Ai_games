@@ -89,6 +89,38 @@ test('ground-level crusher or hazard remains physically mounted on the moved rea
   assert.ok(matched>0,'seeded generation must exercise a genuine floor-nine ground-level obstacle');
 });
 
+test('actual floor-nine runtime seeds validate real ground-mounted hazards and reject unsupported ones',()=>{
+  // These TWO original 20Hz source seeds were the exact failed cap handoffs:
+  // both generate a real slot-one hazard on the successor's lowered roof.
+  // A valid landed continuation must not be quarantined as malformed scenery.
+  for(const runSeed of ['tower-transformation-capture-v1','tower-real-cap-gate-flight']){
+    const runtime=TowerRuntime.create(config,runSeed,{policy:'autonomous'});
+    const next=generateTowerChunk(config,runSeed,9,runtime.rng);
+    const ground=next.platforms.find(p=>p.id==='f9:ground');
+    assert.ok(ground);
+    const groundTop=ground.y+ground.height;
+    assert.equal(groundTop,next.baseY-16000);
+    const groundHazard=next.hazards.find(h=>h.y===groundTop);
+    assert.ok(groundHazard,'the real generated hazard must be on the successor roof');
+    const original=validateTowerChunk(next,config);
+    assert.equal(original.valid,true,
+      'the actual floor-nine successor cannot invalidate its supported hazard: '+
+      original.issues.join(','));
+
+    const unsupported=structuredClone(next);
+    unsupported.hazards.find(h=>h.id===groundHazard.id).y=groundTop-1;
+    assert.ok(validateTowerChunk(unsupported,config).issues.includes(
+      `hazard-bounds:${groundHazard.id}`),
+      'a hazard below the true successor roof remains a safety violation');
+
+    const unaligned=structuredClone(next);
+    unaligned.platforms.find(p=>p.id===ground.id).y+=1000;
+    assert.ok(validateTowerChunk(unaligned,config).issues.includes(
+      'guardian-successor-ground'),
+      'the physically continuous guardian cap-to-floor-nine roof is mandatory');
+  }
+});
+
 test('only the opted-in successor of a guardian acquires the lowered source ground',()=>{
   const ordinary=parseTowerConfig({guardianSecondWind:false,guardianArenaHazards:false,guardianInterval:8});
   const optIn9=generateTowerChunk(config,seed,9);
