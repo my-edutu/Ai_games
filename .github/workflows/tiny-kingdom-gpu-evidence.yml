@@ -21,6 +21,7 @@ on:
       - 'scripts/tiny-kingdom-w102-social-articulation-contract.cjs'
       - 'scripts/tiny-kingdom-w103-corridor-camera-contract.cjs'
       - 'scripts/tiny-kingdom-w104-homecoming-camera-contract.cjs'
+      - 'scripts/tiny-kingdom-w105-draw-cadence-contract.cjs'
       - '.github/workflows/tiny-kingdom-gpu-evidence.yml'
   workflow_dispatch:
 
@@ -45,7 +46,7 @@ jobs:
         with:
           node-version: '22'
       - name: W104 full-playable-JS syntax and truthful physical camera selection
-        run: node scripts/tiny-kingdom-w104-homecoming-camera-contract.cjs
+        run: node scripts/tiny-kingdom-w104-homecoming-camera-contract.cjs && node scripts/tiny-kingdom-w105-draw-cadence-contract.cjs
   # W83: source-following original granary-to-market medieval carriageway
   # and the real barn loading porch, with NO added citizen or navigation edge.
   # Verify rendered desktop and 390px WebGL, full real Day-120 growth,
