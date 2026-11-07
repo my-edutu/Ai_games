@@ -1022,6 +1022,130 @@ const ACTOR_GPU_RING_SLOTS=3;
 let actorStreamSplitEnabled=gpuAvailable&&!swiftGpu,actorDynamicVertexScratch=[],
  actorFrameData=[],cameraActorCache=null,actorFrameCitizens=0;
 const actorFrameGpuBuffers=[null,null,null],actorFrameStorage=[0,0,0];
+
+// W118 Phase 1: one bounded GPU-owned mesh for authentic COMPACT citizens
+// who are physically stationary and truly resting at home. Work, moving feet,
+// visible detailed citizens, hand contact and escrowed cargo always use the
+// original live two-bone rig on EVERY advancing authority frame.
+// This is not crowd culling: the resting residents remain drawn/audited.
+// At the next genuine activity/position/target/LOD change they immediately
+// rejoin live geometry. The cache refreshes at 30-minute world-clock cadence,
+// so resting facial/gait micro-poses cannot stay stale for an entire night.
+const RESTING_ACTOR_FLOAT_BUDGET=CAMERA_DYNAMIC_FLOAT_BUDGET;
+let restingActorBuffer=null,restingActorCapacity=0,restingActorMesh=new Float32Array(0),
+ restingActorKey='',restingActorVisible=false,restingActorCitizens=0,
+ restingActorBuilds=0,restingActorReuses=0,restingActorDrawCalls=0,
+ restingActorOverflowFallbacks=0,restingActorGpuUploads=0,
+ restingActorMetricDelta=null;
+function isResidentRestingCandidate(p,i,fullDetail){
+ if(!gpuAvailable||fullDetail.has(i)||p.activity!=='Resting at home'||
+    p.delivery||isWorkingAtSite(p)||isMarketUnloading(p))return false;
+ const destination=p.path?.length?p.path[0]:p.target;
+ return Boolean(destination&&Number.isFinite(destination[0])&&
+  Number.isFinite(destination[1])&&p.path?.length===0&&
+  Math.hypot(p.x-destination[0],p.z-destination[1])<=.24);
+}
+function residentRestingKey(entries){
+ return [Math.floor(state.t*2),entries.map(({p,i})=>[
+  i,p.name,p.job,p.x,p.z,p.activity,
+  p.target?.[0],p.target?.[1],
+  Math.floor((p.energy||0)/10),Math.floor((p.hunger||0)/10)
+ ].join(':')).join('|')].join(';');
+}
+function restingActorCounters(){
+ const numeric=(obj)=>Object.fromEntries(Object.entries(obj)
+  .filter(([,v])=>typeof v==='number'));
+ return {motion:numeric(compactCitizenAnimation),
+  facing:numeric(villageVisualLod),cloth:numeric(villageClothStats),
+  roles:{...compactCitizenAnimation.roleCounts},
+  clothRoles:new Set(villageClothStats.roles)};
+}
+function restingActorDifference(a,b){
+ const diff=(left,right)=>Object.fromEntries(Object.keys(right)
+  .map(key=>[key,(right[key]||0)-(left[key]||0)]));
+ return {motion:diff(a.motion,b.motion),facing:diff(a.facing,b.facing),
+  cloth:diff(a.cloth,b.cloth),roles:{...b.roles},
+  clothRoles:[...b.clothRoles].filter(role=>!a.clothRoles.has(role))};
+}
+function applyRestingActorMetrics(delta){
+ if(!delta)return;
+ for(const [key,value] of Object.entries(delta.motion))
+  compactCitizenAnimation[key]+=value;
+ for(const [key,value] of Object.entries(delta.facing))
+  villageVisualLod[key]+=value;
+ for(const [key,value] of Object.entries(delta.cloth))
+  villageClothStats[key]+=value;
+ for(const [role,count] of Object.entries(delta.roles))
+  compactCitizenAnimation.roleCounts[role]=
+   (compactCitizenAnimation.roleCounts[role]||0)+count;
+ for(const role of delta.clothRoles)villageClothStats.roles.add(role);
+}
+function resetRestingActorMetrics(snapshot){
+ Object.assign(compactCitizenAnimation,snapshot.motion);
+ compactCitizenAnimation.roleCounts={...snapshot.roles};
+ Object.assign(villageVisualLod,snapshot.facing);
+ Object.assign(villageClothStats,snapshot.cloth);
+ villageClothStats.roles=new Set(snapshot.clothRoles);
+}
+function prepareRestingActorMesh(rows){
+ restingActorVisible=false;
+ if(!gpuAvailable||!rows.length){restingActorKey='';restingActorCitizens=0;return false}
+ const key=residentRestingKey(rows);
+ if(key===restingActorKey&&restingActorBuffer&&restingActorMesh.length){
+  restingActorVisible=true;restingActorCitizens=rows.length;
+  restingActorReuses++;
+  applyRestingActorMetrics(restingActorMetricDelta);
+  return true;
+ }
+ const prior=data,before=restingActorCounters();
+ data=[];
+ try{
+  for(const {p} of rows)compactVillager(p);
+  const fresh=new Float32Array(data);
+  data=prior;
+  if(fresh.length>RESTING_ACTOR_FLOAT_BUDGET||fresh.length%30!==0){
+   restingActorOverflowFallbacks++;
+   resetRestingActorMetrics(before);
+   restingActorKey='';restingActorCitizens=0;
+   return false; // original full live rig is drawn below for EVERY citizen
+  }
+  restingActorMetricDelta=restingActorDifference(before,restingActorCounters());
+  if(!restingActorBuffer){
+   restingActorBuffer=gl.createBuffer();
+   if(!restingActorBuffer)throw Error('W118 resting citizen GPU buffer unavailable');
+  }
+  gl.bindBuffer(gl.ARRAY_BUFFER,restingActorBuffer);
+  if(fresh.length>restingActorCapacity){
+   restingActorCapacity=Math.ceil(fresh.length/65536)*65536;
+   gl.bufferData(gl.ARRAY_BUFFER,restingActorCapacity*4,gl.DYNAMIC_DRAW);
+  }
+  gl.bufferSubData(gl.ARRAY_BUFFER,0,fresh);
+  restingActorGpuUploads++;restingActorMesh=fresh;
+  restingActorKey=key;restingActorCitizens=rows.length;
+  restingActorBuilds++;restingActorVisible=true;
+  return true;
+ }finally{data=prior}
+}
+function drawRestingActorMesh(){
+ if(!gpuAvailable||!restingActorVisible||!restingActorBuffer)return;
+ bindGeometry(restingActorBuffer);
+ gl.drawArrays(gl.TRIANGLES,0,restingActorMesh.length/10);
+ restingActorDrawCalls++;
+}
+function getRestingActorResidencyAudit(){
+ return {source:'true-stationary-resting-citizens-retained-webgl-vbo',
+  actualCitizens:restingActorVisible?restingActorCitizens:0,
+  floats:restingActorVisible?restingActorMesh.length:0,
+  triangles:restingActorVisible?restingActorMesh.length/30:0,
+  maxFloats:RESTING_ACTOR_FLOAT_BUDGET,
+  bufferCount:restingActorBuffer?1:0,capacityFloats:restingActorCapacity,
+  builds:restingActorBuilds,reuses:restingActorReuses,
+  uploads:restingActorGpuUploads,drawCalls:restingActorDrawCalls,
+  overflowFallbacks:restingActorOverflowFallbacks,
+  realWorkingAndMovingActorsAlwaysLive:true,
+  preservesAllCitizensAndAuthority:true,hardwareFpsUnmeasured:true};
+}
+
 let actorGpuStaging=null,actorGpuCapacityFloats=0,
  actorGpuAllocations=0,actorGpuUploads=0,actorGpuDrawCalls=0;
 function setActorStreamSplitForTesting(enabled){
@@ -2932,6 +3056,14 @@ function geometryAudit(){
   fixed.aligned=fixed.aligned&&living.aligned;
  }
  const animated=inspectMeshGeometry(data);
+ // Count every actually submitted resting citizen mesh, including material
+ // and normal validation. A resident VBO never escapes the 160k audit.
+ if(gpuAvailable&&restingActorVisible&&restingActorMesh.length){
+  const residents=inspectMeshGeometry(restingActorMesh);
+  for(const key of ['floats','vertices','triangles','invalidComponents',
+   'invalidNormals','invalidColors','outOfBounds'])animated[key]+=residents[key];
+  animated.aligned=animated.aligned&&residents.aligned;
+ }
  // Every authentic actor stays in the total scene integrity/triangle audit.
  if(gpuAvailable&&actorStreamSplitEnabled&&actorFrameData.length){
   const actors=inspectMeshGeometry(actorFrameData);
@@ -11469,7 +11601,7 @@ function renderStories(){const feed=document.getElementById('feed');feed.replace
 function uniqueCitizenName(index){const given=names[index%names.length];const generation=Math.floor(index/names.length);return generation?given+' '+(generation===1?'II':String(generation+1)):given}
 function report(s){stories.unshift({day:Math.floor(state.t/24)+1,text:s});stories=stories.slice(0,6);renderStories()}
 let courierPostRepairCount=0,courierPostRepairLast=null;
-function start(){disposeLivingVillageMotion();disposeNightHomesResidentMesh();clearHomeClusterCache();disposeRecordedWorkResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;disposeEconomyResidentMesh();villageDocumentary=null;document.body.dataset.villageDocumentary='off';clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');presentationEpoch++;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();clearLandscapeSeasonCache();landscapeMeshCache=null;landscapeMeshKey='';seed=83127;accumulator=0;selectedCitizen=0;routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;city.splice(12);state={t:7,food:180,wood:90,gold:42,homes:city.length,buildCount:city.length+2,happiness:78,lastStory:0};people=names.slice(0,12).map((name,i)=>({name,job:jobs[i%jobs.length],trait:['patient','curious','bold','generous','resourceful','loyal'][i%6],x:(rand()-.5)*14,z:(rand()-.5)*11,target:[(rand()-.5)*24,(rand()-.5)*20],phase:rand()*8,friend:null,bonds:{},energy:60+rand()*40,hunger:rand()*20,activity:'Exploring the valley',workTimer:0,friendshipRecorded:false}));for(const p of people){if(!walkable(p.x,p.z)){const spot=navSnap(p.x,p.z);if(spot)[p.x,p.z]=navPoint(...spot)}choose(p)}stories=[];report('The first families arrive in a lush and untamed valley.');report('A new settlement is born beneath the old mountain ridge.');updateUI()}
+function start(){restingActorKey='';restingActorVisible=false;restingActorCitizens=0;disposeLivingVillageMotion();disposeNightHomesResidentMesh();clearHomeClusterCache();disposeRecordedWorkResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;disposeEconomyResidentMesh();villageDocumentary=null;document.body.dataset.villageDocumentary='off';clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');presentationEpoch++;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();clearLandscapeSeasonCache();landscapeMeshCache=null;landscapeMeshKey='';seed=83127;accumulator=0;selectedCitizen=0;routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;city.splice(12);state={t:7,food:180,wood:90,gold:42,homes:city.length,buildCount:city.length+2,happiness:78,lastStory:0};people=names.slice(0,12).map((name,i)=>({name,job:jobs[i%jobs.length],trait:['patient','curious','bold','generous','resourceful','loyal'][i%6],x:(rand()-.5)*14,z:(rand()-.5)*11,target:[(rand()-.5)*24,(rand()-.5)*20],phase:rand()*8,friend:null,bonds:{},energy:60+rand()*40,hunger:rand()*20,activity:'Exploring the valley',workTimer:0,friendshipRecorded:false}));for(const p of people){if(!walkable(p.x,p.z)){const spot=navSnap(p.x,p.z);if(spot)[p.x,p.z]=navPoint(...spot)}choose(p)}stories=[];report('The first families arrive in a lush and untamed valley.');report('A new settlement is born beneath the old mountain ridge.');updateUI()}
 // Walkable navigation is separate from decorative geometry. Deterministic bounded A*
 // prevents villagers crossing house interiors or swimming through the river.
 const NAV_LIMIT=40,NAV_BUDGET=3200,NAV_SPACING=1.15;
@@ -15994,8 +16126,15 @@ villageVisualLod.compactFacingCount=0;villageVisualLod.compactTurnedCitizens=0;v
  villageClothStats={compactResidents:0,detailedResidents:0,compactHemPanels:0,
   workAprons:0,geometryTriangles:0,roles:new Set()};
 const citizenGeometryStart=performance.now();
+// A truly resting, stationary distant human can retain the SAME original
+// compact mesh on the GPU while the genuinely moving and working citizens
+// continue rebuilding live IK/held-tool geometry every authoritative step.
+const restingRows=gpuAvailable?people.map((p,i)=>({p,i}))
+ .filter(({p,i})=>isResidentRestingCandidate(p,i,nearPeople)):[];
+const restingReady=prepareRestingActorMesh(restingRows);
+const restingIndices=restingReady?new Set(restingRows.map(row=>row.i)):new Set();
 // Keep genuine person, gait, tool, loaded cart and physical hand generation
-// EXACTLY as before. Only change which GPU buffer owns those same triangles.
+// EXACTLY as before for every active or visible detailed human.
 const worldPropsStream=data;
 if(gpuAvailable&&actorStreamSplitEnabled){
  actorDynamicVertexScratch.length=0;
@@ -16003,7 +16142,10 @@ if(gpuAvailable&&actorStreamSplitEnabled){
 }
 for(let i=0;i<people.length;i++){
  if(nearPeople.has(i)){villager(people[i]);villageVisualLod.detailedCitizens++}
- else{compactVillager(people[i]);villageVisualLod.compactCitizens++}
+ else{
+  if(!restingIndices.has(i))compactVillager(people[i]);
+  villageVisualLod.compactCitizens++;
+ }
 }
 actorFrameCitizens=people.length;
 if(gpuAvailable&&actorStreamSplitEnabled){
@@ -16082,7 +16224,8 @@ lastFrameTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.lengt
  (cottageDoorResidentActive?cottageDoorResidentMesh?.length||0:0)+
  (solarShadowActive?.buffer?solarShadowActive.vertices.length:0)+
  (livingVillageActive?livingVillageMesh?.length||0:0)+
- (nightHomesActive?nightHomesMesh?.length||0:0):data.length)/30+
+ (nightHomesActive?nightHomesMesh?.length||0:0)+
+ (restingActorVisible?restingActorMesh.length:0):data.length)/30+
  (gpuAvailable?(atmosphere.climate.weather==='rain'?200:
   atmosphere.climate.weather==='snow'?240:0):0);
 if(gpuAvailable){
@@ -16197,6 +16340,9 @@ if(gpuAvailable&&actorStreamSplitEnabled&&actorFrameData.length){
  gl.drawArrays(gl.TRIANGLES,0,actorFrameData.length/10);
  actorGpuDrawCalls++;
 }
+// The authentic resting actors remain in the actual presented WebGL frame.
+// They are not counted as culled, hidden or removed from society.
+drawRestingActorMesh();
  if(gpuAvailable)drawResidentWeather(atmosphere);
  endGpuFrameTimer(frameGpuQuery);refreshPickedCitizenCaption();if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal();updateWorldRibbon()}
  // Track real unloading on every drawn software frame (rather than waiting
@@ -16235,6 +16381,7 @@ if(gpuAvailable&&actorStreamSplitEnabled&&actorFrameData.length){
 }
 requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getCitizenAnatomy,getCitizenEmbodiment,getEllipsoidShellAudit,getPopulationMotionAudit,getVillageClothAudit,getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getCitizenGaitAudit:(index=0)=>cloneData(getCitizenGaitAudit(index)),
  getCitizenRigCacheAudit:()=>({...getCitizenRigCacheAudit()}),
+ getRestingActorResidencyAudit,
  getSocialEncounterAudit:()=>cloneData(getSocialEncounterAudit()),getFieldWindAudit:(time=state.t)=>cloneData(getFieldWindAudit(time)),getAmbientGpuResidencyAudit:()=>({...getAmbientGpuResidencyAudit()}),getWeatherVertexMotionProbe,getOccupationalPerformance:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData({citizen:people[index].name,job:people[index].job,...occupationalPerformance(people[index])}):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getSelectedCitizenTaskAudit,getCitizenPickCandidates,getCitizenOrbitAudit,getCitizenPickAudit:()=>({...citizenPickAudit}),getWorkdayEvents:()=>cloneData(workdayEvents),getStreetCargoWitnesses:()=>cloneData(streetCargoWitnesses()),getActiveDeliveries:()=>cloneData(getActiveDeliveries()),getSupplyTrailSnapshot:()=>cloneData(getSupplyTrailSnapshot()),getPhysicalMarketParcelAudit:id=>cloneData(getPhysicalMarketParcelAudit(id)),getCourierLoadPresentation:workerName=>cloneData(getCourierLoadPresentation(workerName)),getCourierTransferMotion:workerName=>cloneData(courierTransferMotion(workerName)),getCourierTrailAudit,getCourierTrailResidencyAudit,
  setCourierTrailResidencyForTesting,getDeliveryEconomyAudit:()=>cloneData(getDeliveryEconomyAudit()),getDeliveryReceipts:()=>cloneData(getDeliveryReceipts()),getMarketHandoffs:()=>cloneData(getMarketHandoffs()),getMarketParcelDeliveryPose:id=>cloneData(getMarketParcelDeliveryPose(id)),getCourierHandContact:person=>cloneData(courierWorldHandContact(person)),getMarketHandoffRenderStats:()=>({...marketHandoffRenderStats}),watchDelivery,watchHomecoming,getHomecomingView,getHomecomingThresholdCameraAudit,getWorkdayView,getActiveWorksites,watchHarvestShift,getHarvestInteractionAudit,getHarvestVisibilityAudit,getHarvestAftermathAudit,getCitizenActingAudit,
 getDailyRhythmAudit:dailyRhythmAudit,getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getCottageHomecomingAudit,getCottageDoorRenderAudit:()=>({...cottageDoorRenderAudit}),
