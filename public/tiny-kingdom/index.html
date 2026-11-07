@@ -1289,7 +1289,7 @@ uniform vec2 windmillRotor;
 uniform vec3 workLightPosition;uniform float workLightStrength;
 // G148 crop contact from an existing worker; no authority or VBO changes.
 uniform vec4 harvestContact;uniform vec4 completedHarvestA;uniform vec4 completedHarvestB;
-uniform float harvestProgress;uniform float harvestFloor;
+uniform float harvestProgress;uniform float harvestFloor;uniform float villageSmokeDensity;
 varying vec3 vColor;varying vec3 vWorld;varying vec3 vNormal;varying float vFog;varying float vMaterial;
 void main(){
  // G064: deterministic GPU foliage drift, with no static-mesh rebuild.
@@ -1321,6 +1321,25 @@ void main(){
   surfaceNormal.xz=vec2(cs*normal.x-sn*normal.z,
    sn*normal.x+cs*normal.z);
   surfaceMaterial=6.0; // same original timber material and atlas
+ }
+
+ // W113: true household chimney plumes and the original four civic flags
+ // animate from world time in ONE retained mesh, not rebuilt every tick.
+ if(materialId>17.0&&materialId<18.0){
+  float puff=floor(fract(materialId)*16.0);
+  float p=fract(worldTime*.062+puff/max(villageSmokeDensity,1.0));
+  world.x+=(sin(worldTime*.031+position.x*.13)*.30+
+   .09*sin(p*7.0+puff+position.x))*p;
+  world.z+=p*.34+.06*cos(p*9.0+position.z)*p;
+  world.y+=p*1.8;
+  surfaceMaterial=0.0;
+ }
+ if(materialId>18.0&&materialId<19.0){
+  float flag=floor(fract(materialId)*16.0);
+  float x=flag<.5?-14.0:flag<1.5?13.0:flag<2.5?-8.0:10.0;
+  float t=clamp((position.x-x-.05)/1.13,0.0,1.0);
+  world.z+=sin(worldTime*.7+flag)*.16*t;
+  surfaceMaterial=0.0;
  }
  // W91 static real four-sail windmill and deterministic rain/snow vertex motion.
  // Their complete, unpruned geometry stays resident across real workday ticks.
@@ -1728,7 +1747,7 @@ const materialFragmentSource=swiftGpu?
 if(swiftGpu&&materialFragmentSource===fs)
  throw Error('Software architectural material compilation did not activate');
 const program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vs));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,materialFragmentSource));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));gl.useProgram(program);
-const uniforms={viewProjection:gl.getUniformLocation(program,'viewProjection'),fogColor:gl.getUniformLocation(program,'fogColor'),sunDirection:gl.getUniformLocation(program,'sunDirection'),sunTint:gl.getUniformLocation(program,'sunTint'),sunStrength:gl.getUniformLocation(program,'sunStrength'),ambientBlend:gl.getUniformLocation(program,'ambientBlend'),worldTime:gl.getUniformLocation(program,'worldTime'),windmillRotor:gl.getUniformLocation(program,'windmillRotor'),weatherWetness:gl.getUniformLocation(program,'weatherWetness'),eyePosition:gl.getUniformLocation(program,'eyePosition'),groundAtlas:gl.getUniformLocation(program,'groundAtlas'),architectureAtlas:gl.getUniformLocation(program,'architectureAtlas'),groundAtlasFast:gl.getUniformLocation(program,'groundAtlasFast'),workLightPosition:gl.getUniformLocation(program,'workLightPosition'),workLightStrength:gl.getUniformLocation(program,'workLightStrength'),harvestContact:gl.getUniformLocation(program,'harvestContact'),harvestProgress:gl.getUniformLocation(program,'harvestProgress'),harvestFloor:gl.getUniformLocation(program,'harvestFloor'),completedHarvestA:gl.getUniformLocation(program,'completedHarvestA'),completedHarvestB:gl.getUniformLocation(program,'completedHarvestB')};const buffer=gl.createBuffer();let settlementBuffer=null,landscapeBuffer=null;let staticGpuUploads=0,landscapeGpuUploads=0;
+const uniforms={viewProjection:gl.getUniformLocation(program,'viewProjection'),fogColor:gl.getUniformLocation(program,'fogColor'),sunDirection:gl.getUniformLocation(program,'sunDirection'),sunTint:gl.getUniformLocation(program,'sunTint'),sunStrength:gl.getUniformLocation(program,'sunStrength'),ambientBlend:gl.getUniformLocation(program,'ambientBlend'),worldTime:gl.getUniformLocation(program,'worldTime'),windmillRotor:gl.getUniformLocation(program,'windmillRotor'),weatherWetness:gl.getUniformLocation(program,'weatherWetness'),eyePosition:gl.getUniformLocation(program,'eyePosition'),groundAtlas:gl.getUniformLocation(program,'groundAtlas'),architectureAtlas:gl.getUniformLocation(program,'architectureAtlas'),groundAtlasFast:gl.getUniformLocation(program,'groundAtlasFast'),workLightPosition:gl.getUniformLocation(program,'workLightPosition'),workLightStrength:gl.getUniformLocation(program,'workLightStrength'),harvestContact:gl.getUniformLocation(program,'harvestContact'),harvestProgress:gl.getUniformLocation(program,'harvestProgress'),harvestFloor:gl.getUniformLocation(program,'harvestFloor'),completedHarvestA:gl.getUniformLocation(program,'completedHarvestA'),completedHarvestB:gl.getUniformLocation(program,'completedHarvestB'),villageSmokeDensity:gl.getUniformLocation(program,'villageSmokeDensity')};const buffer=gl.createBuffer();let settlementBuffer=null,landscapeBuffer=null;let staticGpuUploads=0,landscapeGpuUploads=0;
 // G067: reuse both driver-side storage and CPU staging for the changing
 // citizen/effects VBO; only grow in bounded 65536-float chunks when needed.
 let dynamicGpuCapacityFloats=0,dynamicGpuAllocations=0,dynamicGpuUploads=0,dynamicGpuStaging=null;
@@ -2893,6 +2912,11 @@ function geometryAudit(){
   for(const key of ['floats','vertices','triangles','invalidComponents',
    'invalidNormals','invalidColors','outOfBounds'])fixed[key]+=resident[key];
   fixed.aligned=fixed.aligned&&resident.aligned;
+ }
+ if(gpuAvailable&&livingVillageActive&&livingVillageMesh){
+  const living=inspectMeshGeometry(livingVillageMesh);
+  for(const key of ['floats','vertices','triangles','invalidComponents','invalidNormals','invalidColors','outOfBounds'])fixed[key]+=living[key];
+  fixed.aligned=fixed.aligned&&living.aligned;
  }
  const animated=inspectMeshGeometry(data);
  // Every authentic actor stays in the total scene integrity/triangle audit.
@@ -7517,12 +7541,13 @@ function meadowTuft(p,index){
 function wildflower(p){const x=p.x,z=p.z,size=p.size,y=terrain(x,z),leaf=rgb(0x52865c),leaf2=rgb(0x75ad5f);for(let j=0;j<3;j++){const a=j*2.094,b=.18+.08*j;tri([x,y+.02,z],[x+Math.cos(a)*.35*size,y+.12*size,z+Math.sin(a)*.35*size],[x+Math.cos(a+b)*.31*size,y+.43*size,z+Math.sin(a+b)*.31*size],j%2?leaf:leaf2)}const hue=[0xfde2a0,0xf5b6d1,0xc7c0f9,0xf5ce72,0xb7e9ed][p.color];cylinder(x,y+.05,z,.019*size,.43*size,rgb(0x6ba46d),4);cone(x,y+.47*size,z,.12*size,.15*size,rgb(hue),5)}
 
 /* Gauntlet 018: physical coloured scenery and planting, deterministic and simulation-independent. */
-function festivalBanner(x,z,color,index=0){
+function festivalBanner(x,z,color,index=0,resident=false){
  const y=terrain(x,z),pole=rgb(0x765d45),silk=rgb(color),trim=rgb(0xfce6b1);
  materialScope(MATERIAL.WOOD,()=>cylinder(x,y,z,.075,3.9,pole,7));
+ const clothStart=data.length;
  materialScope(MATERIAL.GENERAL,()=>{
   cylinder(x,y+3.67,z,.13,.25,trim,8);
-  const flutter=Math.sin(state.t*.7+index)*.16;
+  const flutter=resident?0:Math.sin(state.t*.7+index)*.16;
   quad([x+.05,y+3.45,z],[x+1.18,y+3.42,z+flutter],
        [x+1.18,y+2.53,z+flutter+.06],[x+.05,y+2.55,z],silk);
   box(x+.55,y+3.45,z,.95,.05,.07,trim);
@@ -7530,6 +7555,7 @@ function festivalBanner(x,z,color,index=0){
    tri([x+.16+j*.3,y+2.55,z],[x+.31+j*.3,y+2.25-.06*(j%2),z+.06],
        [x+.46+j*.3,y+2.55,z],silk);
  });
+ if(resident)for(let v=clothStart;v<data.length;v+=10)data[v+9]=18+(index+.5)/16;
 }
 function royalPlaza(x,z,r=3.9){
  const paved=[rgb(0xcbb895),rgb(0xe3d1ab),rgb(0xaa9e84),rgb(0xbaa68a)];
@@ -8456,6 +8482,99 @@ function chimneySmoke(x,z,variant,time,scale=1,compact=false){
  }
 }
 
+/* W113 single original village motion spine. True resting households drive
+ * occupied smoke. The FOUR pre-existing flags always exist; no fake actors,
+ * transactions or simulation RNG. A season/home-owned VBO survives camera
+ * moves, and full original CPU materiality survives fallback. */
+const LIVING_VILLAGE_MAX_FLOATS=60000;
+const VILLAGE_PENNANTS=Object.freeze([
+ Object.freeze([-14,-5,0xffc56a,0]),
+ Object.freeze([13,-5,0x64ccdf,1]),
+ Object.freeze([-8,12,0xd67e76,2]),
+ Object.freeze([10,11,0xe3c37c,3])
+]);
+let livingVillageBuffer=null,livingVillageMesh=null,livingVillageKey='';
+let livingVillageActive=false,livingVillageBuilds=0,livingVillageReuses=0;
+let livingVillageUploads=0,livingVillageDisposals=0,livingVillageFallbacks=0;
+let livingVillageDrawCalls=0;
+function livingVillagePlan(){
+ const full=detailedHomeSet(),season=climateAt(state.t).season;
+ const homes=occupiedHouseholds().slice(0,14).filter(h=>
+  Math.abs(h.lot[0])<=33&&Math.abs(h.lot[1])<=33);
+ return {homes,full,season,density:season===3?4:3,
+  key:season+'|'+homes.map(h=>
+   [h.homeIndex,...h.lot,full.has(h.homeIndex)?1:0].join(',')).join(';')};
+}
+function disposeLivingVillageMotion(){
+ if(livingVillageBuffer&&gpuAvailable){
+  gl.deleteBuffer(livingVillageBuffer);livingVillageDisposals++;
+ }
+ livingVillageBuffer=null;livingVillageMesh=null;
+ livingVillageKey='';livingVillageActive=false;
+}
+function prepareLivingVillageMotion(plan){
+ livingVillageActive=false;
+ if(!gpuAvailable)return false;
+ if(livingVillageBuffer&&livingVillageMesh&&livingVillageKey===plan.key){
+  livingVillageReuses++;livingVillageActive=true;return true;
+ }
+ const prior=data,material=currentMaterial;let next;
+ data=[];
+ try{
+  for(const [x,z,color,i] of VILLAGE_PENNANTS)
+   festivalBanner(x,z,color,i,true);
+  for(const home of plan.homes){
+   const [x,z,k]=home.lot,y=terrain(x,z),w=2.4+k*.42,d=2.1+k*.18;
+   const compact=!plan.full.has(home.homeIndex);
+   const style=compactHouseArchetype(x,z,k);
+   const h=compact?COMPACT_HOUSE_HEIGHTS[style]:1.9;
+   const cx=x+(k%2?-.24:.24)*w,cz=z+d*.22;
+   const slope=(compact?COMPACT_HOUSE_PITCHES[style]:1.25)*
+    (1-Math.min(1,2*Math.abs(cx-x)/w));
+   const top=y+h+slope+1.06,tint=rgb(0x989c93);
+   for(let i=0;i<plan.density;i++){
+    const first=data.length;
+    materialScope(MATERIAL.GENERAL,()=>{
+     taperedBranch([cx,top+.12,cz],[cx,top+.35,cz+.055],
+      .035,.022,tint,5);
+     taperedBranch([cx,top+.35,cz+.055],
+      [cx,top+.60,cz+.105],.022,.006,tint,5);
+    });
+    for(let v=first;v<data.length;v+=10)data[v+9]=17+(i+.5)/16;
+   }
+  }
+  next=new Float32Array(data);
+ }finally{data=prior;currentMaterial=material;}
+ if(next.length%30||next.length>LIVING_VILLAGE_MAX_FLOATS){
+  livingVillageFallbacks++;return false;
+ }
+ if(!livingVillageBuffer)livingVillageBuffer=gl.createBuffer();
+ if(!livingVillageBuffer){livingVillageFallbacks++;return false}
+ bindGeometry(livingVillageBuffer);
+ gl.bufferData(gl.ARRAY_BUFFER,next,gl.STATIC_DRAW);
+ livingVillageMesh=next;livingVillageKey=plan.key;
+ livingVillageBuilds++;livingVillageUploads++;
+ livingVillageActive=true;return true;
+}
+function drawLivingVillageMotion(){
+ if(!livingVillageActive||!livingVillageMesh?.length)return;
+ bindGeometry(livingVillageBuffer);
+ gl.drawArrays(gl.TRIANGLES,0,livingVillageMesh.length/10);
+ livingVillageDrawCalls++;
+}
+function getLivingVillageMotionAudit(){
+ return {source:'real-resting-hearth-smoke-plus-four-existing-flags',
+  active:livingVillageActive,buffers:livingVillageBuffer?1:0,maxBuffers:1,
+  floats:livingVillageMesh?.length||0,budget:LIVING_VILLAGE_MAX_FLOATS,
+  triangles:(livingVillageMesh?.length||0)/30,
+  builds:livingVillageBuilds,reuses:livingVillageReuses,
+  uploads:livingVillageUploads,disposals:livingVillageDisposals,
+  fallbacks:livingVillageFallbacks,draws:livingVillageDrawCalls,
+  homeIndices:hearthSmokeAudit.homeIndices.slice(),realPuffs:smokePuffs,
+  realSmokeTriangles:smokeTriangles,flagCount:VILLAGE_PENNANTS.length,
+  authorityChanged:false,hardwareFPS:'NOT MEASURED',
+  fallback:'complete original CPU smoke and pennants'};
+}
 
 /* Gauntlet 043: blacksmith workshop, cart and trade yard.
    Original, authored-in-code architecture, not a UI illustration. The 3D scene
@@ -11166,7 +11285,7 @@ function renderStories(){const feed=document.getElementById('feed');feed.replace
 function uniqueCitizenName(index){const given=names[index%names.length];const generation=Math.floor(index/names.length);return generation?given+' '+(generation===1?'II':String(generation+1)):given}
 function report(s){stories.unshift({day:Math.floor(state.t/24)+1,text:s});stories=stories.slice(0,6);renderStories()}
 let courierPostRepairCount=0,courierPostRepairLast=null;
-function start(){clearHomeClusterCache();disposeRecordedWorkResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;disposeEconomyResidentMesh();villageDocumentary=null;document.body.dataset.villageDocumentary='off';clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');presentationEpoch++;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();clearLandscapeSeasonCache();landscapeMeshCache=null;landscapeMeshKey='';seed=83127;accumulator=0;selectedCitizen=0;routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;city.splice(12);state={t:7,food:180,wood:90,gold:42,homes:city.length,buildCount:city.length+2,happiness:78,lastStory:0};people=names.slice(0,12).map((name,i)=>({name,job:jobs[i%jobs.length],trait:['patient','curious','bold','generous','resourceful','loyal'][i%6],x:(rand()-.5)*14,z:(rand()-.5)*11,target:[(rand()-.5)*24,(rand()-.5)*20],phase:rand()*8,friend:null,bonds:{},energy:60+rand()*40,hunger:rand()*20,activity:'Exploring the valley',workTimer:0,friendshipRecorded:false}));for(const p of people){if(!walkable(p.x,p.z)){const spot=navSnap(p.x,p.z);if(spot)[p.x,p.z]=navPoint(...spot)}choose(p)}stories=[];report('The first families arrive in a lush and untamed valley.');report('A new settlement is born beneath the old mountain ridge.');updateUI()}
+function start(){disposeLivingVillageMotion();clearHomeClusterCache();disposeRecordedWorkResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;disposeEconomyResidentMesh();villageDocumentary=null;document.body.dataset.villageDocumentary='off';clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');presentationEpoch++;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();clearLandscapeSeasonCache();landscapeMeshCache=null;landscapeMeshKey='';seed=83127;accumulator=0;selectedCitizen=0;routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;city.splice(12);state={t:7,food:180,wood:90,gold:42,homes:city.length,buildCount:city.length+2,happiness:78,lastStory:0};people=names.slice(0,12).map((name,i)=>({name,job:jobs[i%jobs.length],trait:['patient','curious','bold','generous','resourceful','loyal'][i%6],x:(rand()-.5)*14,z:(rand()-.5)*11,target:[(rand()-.5)*24,(rand()-.5)*20],phase:rand()*8,friend:null,bonds:{},energy:60+rand()*40,hunger:rand()*20,activity:'Exploring the valley',workTimer:0,friendshipRecorded:false}));for(const p of people){if(!walkable(p.x,p.z)){const spot=navSnap(p.x,p.z);if(spot)[p.x,p.z]=navPoint(...spot)}choose(p)}stories=[];report('The first families arrive in a lush and untamed valley.');report('A new settlement is born beneath the old mountain ridge.');updateUI()}
 // Walkable navigation is separate from decorative geometry. Deterministic bounded A*
 // prevents villagers crossing house interiors or swimming through the river.
 const NAV_LIMIT=40,NAV_BUDGET=3200,NAV_SPACING=1.15;
@@ -11465,7 +11584,7 @@ function validateSnapshot(snapshot){
  }))throw Error('Save contains invalid citizens');
  if(!Array.isArray(q.stories)||q.stories.length>6||!q.stories.every(e=>e&&Number.isInteger(e.day)&&e.day>0&&validText(e.text,240)))throw Error('Save contains invalid chronicles');
 }
-function restoreSnapshot(snapshot){validateSnapshot(snapshot);clearHomeClusterCache();disposeRecordedWorkResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;disposeEconomyResidentMesh();clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');uiHistory.length=0;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();landscapeMeshCache=null;landscapeMeshKey='';const q=cloneData(snapshot.payload);selectedCitizen=Math.min(selectedCitizen,q.people.length-1);routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;seed=q.seed>>>0;state=q.state;city.splice(0,city.length,...q.city);people=q.people;stories=q.stories;accumulator=0;renderStories();updateUI();presentationEpoch++;return true}
+function restoreSnapshot(snapshot){validateSnapshot(snapshot);disposeLivingVillageMotion();clearHomeClusterCache();disposeRecordedWorkResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;disposeEconomyResidentMesh();clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');uiHistory.length=0;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();landscapeMeshCache=null;landscapeMeshKey='';const q=cloneData(snapshot.payload);selectedCitizen=Math.min(selectedCitizen,q.people.length-1);routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;seed=q.seed>>>0;state=q.state;city.splice(0,city.length,...q.city);people=q.people;stories=q.stories;accumulator=0;renderStories();updateUI();presentationEpoch++;return true}
 function saveWorld(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(exportSnapshot()));showToast('World saved — Day '+(Math.floor(state.t/24)+1))}catch(error){showToast('Save unavailable: '+error.message)}}
 function restoreWorld(){try{const stored=localStorage.getItem(SAVE_KEY);if(!stored)throw Error('No stored civilization yet');restoreSnapshot(JSON.parse(stored));showToast('The valley has been restored')}catch(error){showToast(error.message)}}
 function showToast(message){const node=document.getElementById('toast');node.textContent=message;node.style.opacity='1';clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>node.style.opacity='0',3600)}
@@ -15653,22 +15772,25 @@ activeChimneys=0;smokePuffs=0;smokeTriangles=0;smokeMaxRadius=0;
 hearthSmokeAudit.visibleHomes=0;hearthSmokeAudit.homeIndices=[];
 hearthSmokeAudit.smokePuffs=0;hearthSmokeAudit.smokeTriangles=0;
 {
- // World-state authority already identifies residents genuinely at home.
- // Use the same first 14 occupied homes as their warm 3D hearth windows:
- // an empty cottage emits nothing, and daytime work extinguishes the fire.
- // Individual animated plumes still follow deterministic simulation time.
- const smokeFull=detailedHomeSet();
- const occupied=occupiedHouseholds().slice(0,14);
- for(const home of occupied){
-  const [x,z,k]=home.lot,before=activeChimneys;
-  chimneySmoke(x,z,k,state.t,1,!smokeFull.has(home.homeIndex));
-  if(activeChimneys>before)hearthSmokeAudit.homeIndices.push(home.homeIndex);
+ const plan=livingVillagePlan();
+ if(prepareLivingVillageMotion(plan)){
+  activeChimneys=plan.homes.length;
+  smokePuffs=activeChimneys*plan.density;
+  smokeTriangles=smokePuffs*20;
+  smokeMaxRadius=activeChimneys?.05:0;
+  hearthSmokeAudit.homeIndices=plan.homes.map(h=>h.homeIndex);
+ }else{
+  for(const home of occupiedHouseholds().slice(0,14)){
+   const [x,z,k]=home.lot,before=activeChimneys;
+   chimneySmoke(x,z,k,state.t,1,!plan.full.has(home.homeIndex));
+   if(activeChimneys>before)hearthSmokeAudit.homeIndices.push(home.homeIndex);
+  }
+  villageFestival();
  }
  hearthSmokeAudit.visibleHomes=hearthSmokeAudit.homeIndices.length;
  hearthSmokeAudit.smokePuffs=smokePuffs;
  hearthSmokeAudit.smokeTriangles=smokeTriangles;
 }
-villageFestival();
 currentMaterial=MATERIAL.WOOD;
 homecomingLanternRenderStats.carriers=0;homecomingLanternRenderStats.triangles=0;
 citizenDetailPolicy={mode:detailPlan.mode,budget:detailPlan.budget,
@@ -15749,7 +15871,7 @@ const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,focusHeight=follow
   eye[2]+Math.cos(streetYaw)*Math.cos(streetTilt)*8
  ]:retreat?retreat.target.slice():threshold?threshold.target.slice():workTarget;
  const lens=cameraLensProfile(w,h);
- let m=mat4multiply(perspective(lens.verticalRadians,w/h,.1,190),lookAt(eye,cameraTarget,[0,1,0]));lastCitizenPickFrame={matrix:m,eye:eye.slice(),target:cameraTarget.slice(),width:w,height:h};updateWorldActorTag(m);gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);const radiance=lightingProfile(state.t);gl.uniform1f(uniforms.sunStrength,radiance.solar);gl.uniform1f(uniforms.ambientBlend,radiance.ambientBlend);gl.uniform1f(uniforms.worldTime,state.t);if(gpuAvailable)gl.uniform2f(uniforms.windmillRotor,-27,terrain(-27,-18)+4.25);gl.uniform1f(uniforms.weatherWetness,climateMaterialProfile(state.t).precipitation);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));const activeLight=observedWorkLightProfile();gl.uniform3f(uniforms.workLightPosition,activeLight.x,activeLight.y,activeLight.z);gl.uniform1f(uniforms.workLightStrength,activeLight.strength);
+ let m=mat4multiply(perspective(lens.verticalRadians,w/h,.1,190),lookAt(eye,cameraTarget,[0,1,0]));lastCitizenPickFrame={matrix:m,eye:eye.slice(),target:cameraTarget.slice(),width:w,height:h};updateWorldActorTag(m);gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);const radiance=lightingProfile(state.t);gl.uniform1f(uniforms.sunStrength,radiance.solar);gl.uniform1f(uniforms.ambientBlend,radiance.ambientBlend);gl.uniform1f(uniforms.worldTime,state.t);if(gpuAvailable)gl.uniform1f(uniforms.villageSmokeDensity,climateAt(state.t).season===3?4:3);if(gpuAvailable)gl.uniform2f(uniforms.windmillRotor,-27,terrain(-27,-18)+4.25);gl.uniform1f(uniforms.weatherWetness,climateMaterialProfile(state.t).precipitation);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));const activeLight=observedWorkLightProfile();gl.uniform3f(uniforms.workLightPosition,activeLight.x,activeLight.y,activeLight.z);gl.uniform1f(uniforms.workLightStrength,activeLight.strength);
 const farmContact=getHarvestInteractionAudit();
 // Canvas2D fallback implements only the original uniform1f/3f shims.
 if(gpuAvailable){
@@ -15775,7 +15897,8 @@ lastFrameTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.lengt
  (courierTrailResidentActive?courierTrailResidentMesh?.length||0:0)+
  (marketShutterResidentActive?marketShutterResidentMesh?.length||0:0)+
  (cottageDoorResidentActive?cottageDoorResidentMesh?.length||0:0)+
- (solarShadowActive?.buffer?solarShadowActive.vertices.length:0):data.length)/30+
+ (solarShadowActive?.buffer?solarShadowActive.vertices.length:0)+
+ (livingVillageActive?livingVillageMesh?.length||0:0):data.length)/30+
  (gpuAvailable?(atmosphere.climate.weather==='rain'?200:
   atmosphere.climate.weather==='snow'?240:0):0);
 if(gpuAvailable){
@@ -15831,6 +15954,7 @@ drawWorksiteFixtureResidentMesh();
 drawCourierTrailResidentMesh();
 drawResidentMarketShutters();
 drawResidentCottageDoors();
+drawLivingVillageMotion();
 bindGeometry(selectDynamicGpuBuffer(cameraMeshReused,data.length));
 if(gpuAvailable){
  if(!cameraMeshReused&&data.length){
@@ -15942,7 +16066,7 @@ getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStr
  branchTriangles:forestVisualStats.branchTriangles,
  broadleafLobes:forestVisualStats.broadleafLobes,microCrownLobes:forestVisualStats.microCrownLobes,rimLeafSprays:forestVisualStats.rimLeafSprays,individualLeaves:forestVisualStats.individualLeaves,broadleafSpecies:forestVisualStats.broadleafSpecies.slice(),broadleafAddedTriangles:forestVisualStats.broadleafAddedTriangles,
  crownColors:forestVisualStats.crownPalette.size
-}),getGuildhallVisualStats:()=>({...guildhallVisualStats}),getStreetMorphologyStats:()=>({...streetMorphologyStats,archetypes:streetMorphologyStats.archetypes.slice()}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),getHearthSmokeAudit,getScenicCullReferenceAudit,getScenicCullHierarchyAudit,
+}),getGuildhallVisualStats:()=>({...guildhallVisualStats}),getStreetMorphologyStats:()=>({...streetMorphologyStats,archetypes:streetMorphologyStats.archetypes.slice()}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),getHearthSmokeAudit,getLivingVillageMotionAudit,getScenicCullReferenceAudit,getScenicCullHierarchyAudit,
 getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:{...scenicVisibilityStats.landscape},
  settlement:{...scenicVisibilityStats.settlement},
  civic:{...scenicVisibilityStats.civic},
