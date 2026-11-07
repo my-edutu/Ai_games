@@ -1,10 +1,20 @@
 {
   "updatedAt": "2026-11-07",
-  "status": "T0 UNSIGNED / T1 BUILDING: full-game physical multi-cell court and atlas staged; candidate visual acceptance pending; e7 exact strict original 8/17 HARD RED; OPEN DRAFT, never merge/deploy",
-  "detail": "Parent e7a2fa3442f5c443bcf50e8f4ac96f9c274fc263 verified; world candidate blob c074c606890c844d9606523f138c34f1a46403b1 coalesces 448 standard board stones to 125 native multi-cell masonry and removes phantom internal atlas cell seams, retaining all real cell centres and original 13 static batches/four textures. Exact parent RED to candidate GREEN native geometry/atlas tests; 6 selected focused green, TypeScript, original authority/recovery 900 ticks, 10k seeded ticks pass. Historical exact-hash fixture failing on parent; full integration/browser not accepted. 2026-11-06 e7 Chromium Actions 42173863092: 8/17 genuine complete original one-second renderer draws at real 751x415 GPU buffer, 37 browser failures. No candidate-matched footage or independent review, maintain T1 BUILDING.",
+  "status": "T0 UNSIGNED / T1 BUILDING / T2 NATIVE UNACCEPTED / T3 UNACCEPTED / T4 HARD RED: original 8/17, current-head browser blocked by Playwright Ubuntu 26.04 incompatibility; open DRAFT, never merge/deploy",
+  "detail": "November 7 2026 verified exact live 8f26fffb: original Chromium #42319515332 failed BEFORE Playwright browser on ubuntu26.04-x64, unsupported by locked Playwright 1.55; no actual current-head WebGL captures or strict performance numbers. Same-head native CI #42319515111 683/730 passed, 47 failed; reproduction #42319515156 passed. Both browser-relevant Actions jobs pinned to supported ubuntu-24.04 with source-exact runner contract RED->GREEN, actual repaired Actions verdict pending. T2 real interpolated turn-head and travelling swallow remain native-only off-branch; 7/7 focused Three.js, 900 host ticks, TS green but no authentic candidate 45-90s visual acceptance. Strict most recent older-head 8 genuine complete renderer submissions vs >=17 at 751x415; 3 independent useful-raster runs, >=30 device displayed FPS/p95, full regression and independent critique missing. No scene/authority/strict benchmark relaxation.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Last completed genuine 118d overview was SELF-REJECTED; current 0ae gateway/camera candidate native checks pass but whole-game Chromium visual verdict and strict >=17 gate PENDING.",
   "reviews": [
+    {
+      "area": "November 7 exact current-head Actions unblock, T2 offbranch native candidate (not visually accepted)",
+      "sourceHead": "8f26fffb35ecf82fce9dad2cfcf50a6d6c2f59b6",
+      "browser": "GitHub #42319515332 failed before chromium: ubuntu26.04-x64 unsupported by locked Playwright 1.55.0; no genuine current-head screenshots/video/strict frame evidence",
+      "nativeCI": "GitHub #42319515111 683/730 passed, 47 failed; still red",
+      "reproduction": "GitHub #42319515156 succeeded",
+      "runnerCorrection": "Two browser workflows pinned to ubuntu-24.04; dedicated native exact-registry RED->GREEN contract; repaired browser workflow not yet verified",
+      "t2Candidate": "Native same-head serpent blended turn orientation plus travelling swallow 7/7 Three.js articulation, TS and 900 host authority pass; selected 25/27 with two historical source-identity failures; not pushed or visual accepted",
+      "verdict": "T0 UNSIGNED / T1 BUILDING / T2 NATIVE UNACCEPTED / T3 UNACCEPTED / T4 HARD RED (last real older-source original strict 8/17 at 751x415); no merge/deploy"
+    },
     {
       "area": "November 6 T1 responsive 3D stone gateway and whole-scene overview (live 0ae descendant)",
       "sourceHead": "0aece92a9517c2ad2510f642b8ff5cb6fb49a1fb",

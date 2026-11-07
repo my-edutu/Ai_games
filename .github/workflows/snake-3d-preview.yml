@@ -17,7 +17,9 @@ permissions:
 
 jobs:
   snake-browser:
-    runs-on: ubuntu-latest
+    # Pinned to a Playwright 1.55.0-supported runner: ubuntu-latest has
+    # migrated to Ubuntu 26.04 and fails before Chromium is installed.
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
       # PR merge refs are synthetic and can contain concurrent main changes.
