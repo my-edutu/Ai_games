@@ -71,6 +71,24 @@ test('earned real cap crossing retains whole body Y, grounded support, forward X
   assert.equal(snapshotBefore.floor,8,'the real old source context is retained for provenance');
 });
 
+test('ground-level crusher or hazard remains physically mounted on the moved real roof',()=>{
+  let matched=0;
+  for(let i=0;i<80;i++){
+    const chunk=generateTowerChunk(config,`guardian-arrival-hazard-${i}`,9);
+    const ground=chunk.platforms.find(p=>p.id==='f9:ground');
+    const groundTop=ground.y+ground.height;
+    for(const h of chunk.hazards){
+      if(h.y===groundTop) matched++;
+      // Original hazards may live on the taller ascending shelves; the
+      // ground hazard cannot hover at the old higher baseY plane.
+      assert.ok(h.y!==chunk.baseY+12000,
+        'new low ground must not leave an obstacle floating 28k overhead');
+    }
+    assert.equal(groundTop,chunk.baseY-16000);
+  }
+  assert.ok(matched>0,'seeded generation must exercise a genuine floor-nine ground-level obstacle');
+});
+
 test('only the opted-in successor of a guardian acquires the lowered source ground',()=>{
   const ordinary=parseTowerConfig({guardianSecondWind:false,guardianArenaHazards:false,guardianInterval:8});
   const optIn9=generateTowerChunk(config,seed,9);
