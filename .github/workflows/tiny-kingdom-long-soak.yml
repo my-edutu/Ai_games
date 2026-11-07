@@ -41,9 +41,11 @@ jobs:
         run: node scripts/tiny-kingdom-w117-primitive-parity-contract.cjs
       - name: W118 authentic stationary resident mesh and live-worker safety contract
         run: node scripts/tiny-kingdom-w118-resting-actor-contract.cjs
-      - name: W119 genuine moving commuter GPU presentation and authority guards
-        run: node scripts/tiny-kingdom-w119-real-commuter-contract.cjs
+      - name: W119–W121 resident rendering and honest scene integrity
+        run: |
+          node scripts/tiny-kingdom-w119-real-commuter-contract.cjs
           node scripts/tiny-kingdom-w120-scene-integrity-contract.cjs
+          node scripts/tiny-kingdom-w121-working-resident-contract.cjs
       - run: npx playwright install --with-deps chromium
       - name: Real WebGL 120-day settlement and replay soak
         env:
