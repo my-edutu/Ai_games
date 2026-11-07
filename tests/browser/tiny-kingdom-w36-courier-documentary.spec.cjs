@@ -53,6 +53,8 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
     }
    }
    return {loaded,selected,travelA,travelB,unload,unloadAudit,
+    physicalPosts:g.getMarketGatewayAudit().structuralPosts+
+     g.getTradeCorridorCameraAudit().marketPosts,
     receipt,receivedAudit,unloadSnapshot,receivedSnapshot,
     readOnly:cameraBefore===cameraAfter,
     width:document.documentElement.scrollWidth};
@@ -73,11 +75,12 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(sample.unloadAudit?.camera?.zoom).toBeLessThanOrEqual(7.2);
   // W37 RED contract: no winning courier shot may place the physical original
   // market stall columns/lamps across the central work-and-receipt view.
-  // Camera-only; all 16 timber uprights, both lanterns and citizens remain.
+  // The actual 16 stalls, two gateway posts and four real receiving-hall posts
+  // must all be surveyed. The W100 hall was not present in W36's old count.
   expect(sample.unloadAudit?.camera?.marketPostSightline?.source)
-   .toBe('original-market-uprights-and-lanterns');
+   .toBe('original-stalls-gateway-and-real-receiving-hall-posts');
   expect(sample.unloadAudit?.camera?.marketPostSightline?.modelledPosts)
-   .toBeGreaterThanOrEqual(16);
+   .toBe(sample.physicalPosts);
   expect(sample.unloadAudit?.camera?.marketPostSightline?.modelledLanterns)
    .toBe(2);
   expect(sample.unloadAudit?.camera?.marketPostSightline?.centerCover)
