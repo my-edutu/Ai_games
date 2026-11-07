@@ -21,96 +21,91 @@
     "cameraAirborneImplementationSha": "e821006f8c3b8756939740b6e5b2e1de783d4d55",
     "cameraAirborneEvidenceStatus": "NOT EVALUATED: source-authenticated near-cap airborne/dashing camera continuity and source-priority decorative sightline scene committed at e821006f, not yet replayed/captured or reviewed in exact-source original game. Two unrelated existing P0 original runtime cap clearance assertions still failing.",
     "groundHazardValidatorImplementationSha": "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
-    "groundHazardValidatorEvidenceStatus": "NOT EVALUATED: source-exact NamedRng arithmetic matches the 2 original-runtime cap-handoff failures (both floor-nine hazard slot 1); opt-in floor-nine validator code and original-runtime regression tests committed, but exact SHA full suite, 3200-tick campaigns and native film have not executed. Latest code workflow queued at 42404054865, 9-job capture queued at 42404054915."
+    "groundHazardValidatorEvidenceStatus": "Source-only 3200-tick same-run guardian/crusher -> physical floor9 -> genuine restart CONFIRMED by exact-game SHA dc3c3108 in run 42404054865. Original full repository suite at same SHA failed two obsolete camera-code regex tests (1209/1211), addressed in test-only commits 8241f8bd and 6abd124c but NOT RERUN. Native candidate+frozen baseline WebM recovered in 42404054915; giant opaque wheel in candidate portrait around 17-19s; film timecode calibration, independent review, physical device quality remain NOT EVALUATED."
   },
   "currentTransformation": {
     "latestEvidenceRun": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "assessedAt": "2026-11-07",
-      "sourceHeadAtInspection": "e82cb4d2d3603e44d2cd939e7997b298b5f73f49",
+      "sourceHeadAtInspection": "57f1928b25d88338165bff3e67b13b75956a8634",
       "sourceImplementationSha": "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "frozenBaselineMoved": false,
-      "authoritativeGameplayChangedThisExecution": true,
+      "authoritativeGameplayChangedThisExecution": false,
       "renderedGameplayExperienceChangedThisExecution": false,
-      "implementation": "Identified deterministic game-loop rejection at the floor-eight guardian gateway: opt-in successor floor nine mounts real hazard on lowered ground at baseY-16000, but authoritative validator prohibited any hazard below baseY. Both failing original-runtime seeds deterministically select slot-one hazard there. Added real-runtime seed, malformed support and undersurface safety regressions; corrected only opt-in successor bound while requiring exact physical ground continuity. Source still requires defeated living guardian, authentic grounded crossing and real clear body. Gameplay acceptance NOT YET VERIFIED.",
+      "implementation": "Recovered exact game-source original 3200-tick witness and authentic normal-speed baseline/candidate WebM; found giant wheel occluding guardian/hero in latest candidate portrait ~17-19s. Completed exact-source quality job confirmed 1209/1211 pass, with both failures from obsolete static source-assertion regexes excluding now-existing genuine airborne cap camera. Replaced those regexes with semantic execution of submitted camera ordering under 10 grounded/airborne/locked/urgent-hazard cases. No source-game, camera, world or physics edits this execution; awaiting original-runtime rerun and real-motion camera acceptance.",
       "concreteCommits": [
-        "828070b0c11876ee8f7b49c4f338681c02bb242b",
-        "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
-        "e82cb4d2d3603e44d2cd939e7997b298b5f73f49"
+        "8241f8bdd873878da213a3c59c3ea4e7badf9363",
+        "6abd124cf20d9ddfb68244f59e0762208ba9c451",
+        "57f1928b25d88338165bff3e67b13b75956a8634"
       ],
       "modifiedFiles": [
-        "tests/phase3/tower-seamless-guardian-floor-handoff.test.cjs",
-        "games/infinite-tower-climb/src/generation/validator.ts",
-        "docs/reviews/2026-11-07-tower-pr68-floor-nine-ground-hazard-source-validation.md",
+        "tests/phase3/tower-foreground-sightline.test.cjs",
+        "tests/phase4/tower-gateway-walk-lens.test.cjs",
+        "docs/reviews/2026-11-07-tower-pr68-current-film-and-source-integrity-veto.md",
         "public/infinite-tower-climb/gauntlet/transformation.json"
       ],
       "currentExactHeadQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42404054865",
-      "currentExactHeadQualityStatus": "QUEUED at code SHA dc3c3108; prior completed 42397136322 had 1206/1208 pass, 2 real cap handoff fail. No new CI pass claim.",
-      "diagnosticWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42401877940",
-      "diagnosticWorkflowStatus": "QUEUED at inspection: no runtime diagnostic values yet, must NOT claim source test fixed.",
+      "currentExactHeadQualityStatus": "COMPLETED FAILURE at gameplay SHA dc3c3108: build/sourced witness passed, original Node suite 1209 passed/2 failed of 1211, both obsolete presentation regex assertions. New test-only commits have NOT been rerun by exact-head quality workflow; no post-fix success is claimed.",
       "currentCodePinnedCaptureWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42404054915",
-      "currentCodePinnedCaptureStatus": "QUEUED at code SHA dc3c3108; no new exact-source film artifacts yet.",
+      "currentCodePinnedCaptureStatus": "COMPLETED nine-job source-pinned WebM capture and pairing; 8/8 source-timeline pairs with no missing/split stories. Real video/event PTS alignment NOT CALIBRATED and NOT visual-quality approved.",
       "downloadedArtifactIds": {
-        "candidateDanger": 13584783814,
-        "baselineDanger": 13585632087
+        "candidateDanger": 13587187059,
+        "baselineDanger": 13587695209,
+        "eventPairs": 13587359588,
+        "originalSourceChain": 13586403461
       },
       "nativeFilmInspected": {
-        "candidateSourceSha": "ee9a223e7764df98e21514edd83c5cc9cc986a72",
+        "candidateSourceSha": "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
+        "baselineSourceSha": "1731b380851162741761c5569e2bc152a0869ca9",
         "candidatePortrait": {
           "width": 390,
           "height": 844,
-          "durationSeconds": 98.92
+          "durationSeconds": 72.64
         },
         "candidateDesktop": {
           "width": 960,
           "height": 600,
-          "durationSeconds": 98.96
+          "durationSeconds": 74.92
         },
         "baselinePortraitDurationSeconds": 71.48,
-        "baselineDesktopDurationSeconds": 73.8,
-        "observedPortraitTimeRangeSeconds": [
-          92,
-          98.5
+        "baselineDesktopDurationSeconds": 71.2,
+        "observedPortraitForegroundWheelSeconds": [
+          17,
+          19
         ],
-        "worstVisualOcclusionSeconds": [
-          94.5,
-          97
+        "gatewayAndFloorNineSampleSeconds": [
+          26,
+          29
         ],
-        "videoPinterTimeCodes": "Native WebM PTS sampled directly; source tick/PTS timecode mapping NOT independently calibrated",
-        "lastCandidateEvents": "Source candidate episode floor-eight guardian defeated tick354, floor-nine advanced tick362; source proof is not a film visual pass."
+        "realVideoPTSMapping": "NOT CALIBRATED to actual 20Hz game event ticks",
+        "majorDefect": "Giant opaque foreground wheel intermittently hides hero, guardian and onward action line; snapshot inspection cannot establish uninterrupted physical walk through gate."
       },
-      "original3200TickCampaigns": "NOT EXECUTED at new validator/gameplay SHA dc3c3108. Previously recorded full source witness at older c2a784bb cannot verify corrected runtime, scene, crossing or current film.",
-      "currentOriginalRepositoryTests": "New original-runtime ground hazard validator tests and prior two cap-handoff tests NOT EXECUTED at current correction SHA; prior completed full suite FAILED 2/1208.",
-      "eventCalibratedFullMotionReview": "NOT EVALUATED. Old ee9a223e normal-speed portrait film showed foreground clockwork occlusion at 94.5-97 seconds. Latest aerial camera plus validator have not been filmed in exact matched 960x600/390x844 runtime at dc3c3108.",
-      "hardwareFrameTimeMemory": "NOT EVALUATED: no actual devices p50/p95/p99, memory, low/high graphics or accessibility results.",
+      "original3200TickCampaigns": "EXECUTED at gameplay SHA dc3c3108: source-only 3200-tick witness, 3 completed runs, floor 13 reached, episode0 same-run live guardian tick0 -> crusher survived tick163 -> guardian defeated tick441 -> grounded cap walk tick443 -> truly earned floor9 tick451 -> actual onward floor9 tick515 -> result tick845 -> new-run restart. Source is NOT film.",
+      "currentOriginalRepositoryTests": "Last completed original full suite FAILED 2/1211 at gameplay SHA dc3c3108. Both obsolete camera source regex checks corrected in subsequent commits but original Node tests NOT YET RERUN. Two older original floor9 logic failures no longer reported in that completed suite.",
+      "eventCalibratedFullMotionReview": "NOT EVALUATED: genuine WebM sampled/inspected, native event timecodes uncalibrated; giant foreground occlusion portrait 17-19s, doorway ~26-27s, floor9 ~27-29s, but uninterrupted body-through-doorway footage not independently assessed.",
+      "hardwareFrameTimeMemory": "NOT EVALUATED: no supported actual-device p50/p95/p99, memory, low/high graphics, reduced-motion, keyboard or screen-reader results.",
       "independentBlindReviews": {
         "looks": 0,
         "feels": 0,
         "plays": 0
       },
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "biggestExperienceGap": "The source-guaranteed floor-nine arrival can still be quarantined until exact-head runtime validates corrected roof hazard; most recent filmed portrait encounter still has massive clockwork occlusion and no evidence-accepted full-motion grounded crossing/outcome.",
-      "nextHighImpactAction": "Execute exact-head original-repository tests and both unmodified 3200-tick source campaigns. Verify prior two cap-crossing failures no longer end in technical-terminal, inspect generated next-floor hazards/support and real floor-complete/guardianPassage events. Then download event-matched exact-SHA baseline/candidate normal-speed desktop and portrait films and inspect the whole live guardian/crusher -> defeat -> walkable gate -> floor9 -> outcome/restart before P1. If test still fails, diagnose original-runtime state and correct actual cause, not test expectations.",
-      "reviewUrl": "https://github.com/my-edutu/Ai_games/blob/feat/tower-transformation-gauntlet-20261101/docs/reviews/2026-11-07-tower-pr68-floor-nine-ground-hazard-source-validation.md",
-      "restrictions": "Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 preserved; PR68 same open draft branch only; no PR58 edits, no force-push/merge/deploy.",
-      "exactNewAirborneGameplayCaptureWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42402792332",
-      "exactNewAirborneGameplayCaptureStatus": "QUEUED at latest check, source SHA e821006f8c3b8756939740b6e5b2e1de783d4d55; 9-job real film has no verified new-SHA artifacts/results yet.",
-      "exactNewAirborneQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42402792411",
-      "exactNewAirborneQualityStatus": "QUEUED at latest check, source SHA e821006f8c3b8756939740b6e5b2e1de783d4d55; committed original-runtime and camera tests NOT EXECUTED yet.",
-      "exactEvidenceHeadQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42403073400",
-      "exactEvidenceHeadQualityStatus": "QUEUED at latest check, evidence head e04531a4c3d46e41dc022c0107302e5983aed4d2; no test claims.",
-      "isolatedShippedHelperCheck": "10 original 3D-camera exported helper cases invoked directly from GitHub-fetched shipped function in V8; current source returned expected earned bounded lens and null on stale/wrong floor/restart/dead/grounded/off-route variants. This is NOT the original Node test suite nor real camera film."
+      "biggestExperienceGap": "Foreground clockwork/large machinery still visibly blocks portrait hero/guardian action near the real gate, while video event timecodes are uncalibrated; camera changes must be demonstrated in continuous normal-speed identical-source film before P1.",
+      "nextHighImpactAction": "Run original Node repository and camera tests at the latest test-only head and check exact CI. Use authentic 390x844 and 960x600 full-motion film to identify the actual giant wheel object/camera occlusion, not merely registry clockwork gear; fix the largest 3D scene/camera action-clarity defect without fading gameplay collision. Recapture both immutable game source SHAs under matched conditions, align film events, verify grounded doorway/floor9/outcome/restart and continue P0 until accepted.",
+      "reviewUrl": "https://github.com/my-edutu/Ai_games/blob/feat/tower-transformation-gauntlet-20261101/docs/reviews/2026-11-07-tower-pr68-current-film-and-source-integrity-veto.md",
+      "restrictions": "Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 untouched, branch PR68 remains draft, PR58 left alone; no force-push, merge, deployment or moved baseline.",
+      "isolatedShippedHelperCheck": "Both modified test files parse in isolated V8. Extracted current 3D scene camera/gate source expressions ran 5 gate, 3 lens, 2 stage-selection semantic checks; this is not the original Node suite and cannot clear CI veto."
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
-    "state": "P0 OPEN — corrected source floor-nine physically grounded hazard validation; original suite, campaigns, event-matched latest 3D film and independent acceptance remain NOT EVALUATED",
+    "state": "P0 OPEN — source-authentic 3200-tick floor-nine full episode recovered, exact-game CI still failed 2 obsolete source-pattern assertions, real portrait clockwork occlusion and video-event calibration remain unaccepted.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Execute exact-head original-repository tests and both unmodified 3200-tick source campaigns. Verify prior two cap-crossing failures no longer end in technical-terminal, inspect generated next-floor hazards/support and real floor-complete/guardianPassage events. Then download event-matched exact-SHA baseline/candidate normal-speed desktop and portrait films and inspect the whole live guardian/crusher -> defeat -> walkable gate -> floor9 -> outcome/restart before P1. If test still fails, diagnose original-runtime state and correct actual cause, not test expectations.",
+    "nextDecision": "Run original Node repository and camera tests at the latest test-only head and check exact CI. Use authentic 390x844 and 960x600 full-motion film to identify the actual giant wheel object/camera occlusion, not merely registry clockwork gear; fix the largest 3D scene/camera action-clarity defect without fading gameplay collision. Recapture both immutable game source SHAs under matched conditions, align film events, verify grounded doorway/floor9/outcome/restart and continue P0 until accepted.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "The source-guaranteed floor-nine arrival can still be quarantined until exact-head runtime validates corrected roof hazard; most recent filmed portrait encounter still has massive clockwork occlusion and no evidence-accepted full-motion grounded crossing/outcome.",
+    "biggestRemainingExperienceGap": "Foreground clockwork/large machinery still visibly blocks portrait hero/guardian action near the real gate, while video event timecodes are uncalibrated; camera changes must be demonstrated in continuous normal-speed identical-source film before P1.",
     "unverifiedImplementationBranchHead": "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
     "currentVerticalSlice": "Physically earned ascent → guardian/crusher victory → full-body cap crossing → same-X grounded floor-nine arrival → playable onward route and true outcome/restart. No experience acceptance yet.",
-    "biggestGap": "The source-guaranteed floor-nine arrival can still be quarantined until exact-head runtime validates corrected roof hazard; most recent filmed portrait encounter still has massive clockwork occlusion and no evidence-accepted full-motion grounded crossing/outcome.",
+    "biggestGap": "Foreground clockwork/large machinery still visibly blocks portrait hero/guardian action near the real gate, while video event timecodes are uncalibrated; camera changes must be demonstrated in continuous normal-speed identical-source film before P1.",
     "p0SourceContract": {
       "sourceSha": "503fbc4ad41fad84c9003710b80361d6706cabda",
       "testsSha": "fb67205f356025b0d931eeffbfa66e6ea02cfd85",
@@ -943,14 +938,133 @@
       "sourceCorrectedBound": "opted-in successor only: min hazardY = floor9.baseY -16000; require actual ground top to equal same roof",
       "codeQualityRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42404054865",
       "codeCaptureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42404054915",
-      "qualityStatus": "QUEUED — NOT EVALUATED",
-      "captureStatus": "QUEUED — NOT EVALUATED",
+      "qualityStatus": "COMPLETED at gameplay SHA dc3c3108; original 2 floor-nine source-handoff failures no longer observed, but full suite failed 2 stale camera regex tests. Post-fix original Node suite pending.",
+      "captureStatus": "COMPLETED nine-job original source videos/pairs; 8/8 source timelines but native event PTS calibration and visual acceptance NOT EVALUATED.",
       "independentReviews": {
         "looks": 0,
         "feels": 0,
         "plays": 0
       },
       "leadingVerdict": "NOT EVALUATED"
+    },
+    "p0PriorGroundHazardEvidenceBefore20261107CurrentFilm": {
+      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+      "assessedAt": "2026-11-07",
+      "sourceHeadAtInspection": "e82cb4d2d3603e44d2cd939e7997b298b5f73f49",
+      "sourceImplementationSha": "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "frozenBaselineMoved": false,
+      "authoritativeGameplayChangedThisExecution": true,
+      "renderedGameplayExperienceChangedThisExecution": false,
+      "implementation": "Identified deterministic game-loop rejection at the floor-eight guardian gateway: opt-in successor floor nine mounts real hazard on lowered ground at baseY-16000, but authoritative validator prohibited any hazard below baseY. Both failing original-runtime seeds deterministically select slot-one hazard there. Added real-runtime seed, malformed support and undersurface safety regressions; corrected only opt-in successor bound while requiring exact physical ground continuity. Source still requires defeated living guardian, authentic grounded crossing and real clear body. Gameplay acceptance NOT YET VERIFIED.",
+      "concreteCommits": [
+        "828070b0c11876ee8f7b49c4f338681c02bb242b",
+        "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
+        "e82cb4d2d3603e44d2cd939e7997b298b5f73f49"
+      ],
+      "modifiedFiles": [
+        "tests/phase3/tower-seamless-guardian-floor-handoff.test.cjs",
+        "games/infinite-tower-climb/src/generation/validator.ts",
+        "docs/reviews/2026-11-07-tower-pr68-floor-nine-ground-hazard-source-validation.md",
+        "public/infinite-tower-climb/gauntlet/transformation.json"
+      ],
+      "currentExactHeadQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42404054865",
+      "currentExactHeadQualityStatus": "QUEUED at code SHA dc3c3108; prior completed 42397136322 had 1206/1208 pass, 2 real cap handoff fail. No new CI pass claim.",
+      "diagnosticWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42401877940",
+      "diagnosticWorkflowStatus": "QUEUED at inspection: no runtime diagnostic values yet, must NOT claim source test fixed.",
+      "currentCodePinnedCaptureWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42404054915",
+      "currentCodePinnedCaptureStatus": "QUEUED at code SHA dc3c3108; no new exact-source film artifacts yet.",
+      "downloadedArtifactIds": {
+        "candidateDanger": 13584783814,
+        "baselineDanger": 13585632087
+      },
+      "nativeFilmInspected": {
+        "candidateSourceSha": "ee9a223e7764df98e21514edd83c5cc9cc986a72",
+        "candidatePortrait": {
+          "width": 390,
+          "height": 844,
+          "durationSeconds": 98.92
+        },
+        "candidateDesktop": {
+          "width": 960,
+          "height": 600,
+          "durationSeconds": 98.96
+        },
+        "baselinePortraitDurationSeconds": 71.48,
+        "baselineDesktopDurationSeconds": 73.8,
+        "observedPortraitTimeRangeSeconds": [
+          92,
+          98.5
+        ],
+        "worstVisualOcclusionSeconds": [
+          94.5,
+          97
+        ],
+        "videoPinterTimeCodes": "Native WebM PTS sampled directly; source tick/PTS timecode mapping NOT independently calibrated",
+        "lastCandidateEvents": "Source candidate episode floor-eight guardian defeated tick354, floor-nine advanced tick362; source proof is not a film visual pass."
+      },
+      "original3200TickCampaigns": "NOT EXECUTED at new validator/gameplay SHA dc3c3108. Previously recorded full source witness at older c2a784bb cannot verify corrected runtime, scene, crossing or current film.",
+      "currentOriginalRepositoryTests": "New original-runtime ground hazard validator tests and prior two cap-handoff tests NOT EXECUTED at current correction SHA; prior completed full suite FAILED 2/1208.",
+      "eventCalibratedFullMotionReview": "NOT EVALUATED. Old ee9a223e normal-speed portrait film showed foreground clockwork occlusion at 94.5-97 seconds. Latest aerial camera plus validator have not been filmed in exact matched 960x600/390x844 runtime at dc3c3108.",
+      "hardwareFrameTimeMemory": "NOT EVALUATED: no actual devices p50/p95/p99, memory, low/high graphics or accessibility results.",
+      "independentBlindReviews": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "leadingTransformationVerdict": "NOT EVALUATED",
+      "biggestExperienceGap": "The source-guaranteed floor-nine arrival can still be quarantined until exact-head runtime validates corrected roof hazard; most recent filmed portrait encounter still has massive clockwork occlusion and no evidence-accepted full-motion grounded crossing/outcome.",
+      "nextHighImpactAction": "Execute exact-head original-repository tests and both unmodified 3200-tick source campaigns. Verify prior two cap-crossing failures no longer end in technical-terminal, inspect generated next-floor hazards/support and real floor-complete/guardianPassage events. Then download event-matched exact-SHA baseline/candidate normal-speed desktop and portrait films and inspect the whole live guardian/crusher -> defeat -> walkable gate -> floor9 -> outcome/restart before P1. If test still fails, diagnose original-runtime state and correct actual cause, not test expectations.",
+      "reviewUrl": "https://github.com/my-edutu/Ai_games/blob/feat/tower-transformation-gauntlet-20261101/docs/reviews/2026-11-07-tower-pr68-floor-nine-ground-hazard-source-validation.md",
+      "restrictions": "Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 preserved; PR68 same open draft branch only; no PR58 edits, no force-push/merge/deploy.",
+      "exactNewAirborneGameplayCaptureWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42402792332",
+      "exactNewAirborneGameplayCaptureStatus": "QUEUED at latest check, source SHA e821006f8c3b8756939740b6e5b2e1de783d4d55; 9-job real film has no verified new-SHA artifacts/results yet.",
+      "exactNewAirborneQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42402792411",
+      "exactNewAirborneQualityStatus": "QUEUED at latest check, source SHA e821006f8c3b8756939740b6e5b2e1de783d4d55; committed original-runtime and camera tests NOT EXECUTED yet.",
+      "exactEvidenceHeadQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42403073400",
+      "exactEvidenceHeadQualityStatus": "QUEUED at latest check, evidence head e04531a4c3d46e41dc022c0107302e5983aed4d2; no test claims.",
+      "isolatedShippedHelperCheck": "10 original 3D-camera exported helper cases invoked directly from GitHub-fetched shipped function in V8; current source returned expected earned bounded lens and null on stale/wrong floor/restart/dead/grounded/off-route variants. This is NOT the original Node test suite nor real camera film."
+    },
+    "p0CurrentFilmSourceIntegrity20261107": {
+      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+      "gameplaySourceSha": "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
+      "commits": [
+        "8241f8bdd873878da213a3c59c3ea4e7badf9363",
+        "6abd124cf20d9ddfb68244f59e0762208ba9c451",
+        "57f1928b25d88338165bff3e67b13b75956a8634"
+      ],
+      "sourceWitness": "EXECUTED at gameplay SHA dc3c3108: source-only 3200-tick witness, 3 completed runs, floor 13 reached, episode0 same-run live guardian tick0 -> crusher survived tick163 -> guardian defeated tick441 -> grounded cap walk tick443 -> truly earned floor9 tick451 -> actual onward floor9 tick515 -> result tick845 -> new-run restart. Source is NOT film.",
+      "tests": "Last completed original full suite FAILED 2/1211 at gameplay SHA dc3c3108. Both obsolete camera source regex checks corrected in subsequent commits but original Node tests NOT YET RERUN. Two older original floor9 logic failures no longer reported in that completed suite.",
+      "capture": "COMPLETED nine-job source-pinned WebM capture and pairing; 8/8 source-timeline pairs with no missing/split stories. Real video/event PTS alignment NOT CALIBRATED and NOT visual-quality approved.",
+      "nativeFilm": {
+        "candidateSourceSha": "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
+        "baselineSourceSha": "1731b380851162741761c5569e2bc152a0869ca9",
+        "candidatePortrait": {
+          "width": 390,
+          "height": 844,
+          "durationSeconds": 72.64
+        },
+        "candidateDesktop": {
+          "width": 960,
+          "height": 600,
+          "durationSeconds": 74.92
+        },
+        "baselinePortraitDurationSeconds": 71.48,
+        "baselineDesktopDurationSeconds": 71.2,
+        "observedPortraitForegroundWheelSeconds": [
+          17,
+          19
+        ],
+        "gatewayAndFloorNineSampleSeconds": [
+          26,
+          29
+        ],
+        "realVideoPTSMapping": "NOT CALIBRATED to actual 20Hz game event ticks",
+        "majorDefect": "Giant opaque foreground wheel intermittently hides hero, guardian and onward action line; snapshot inspection cannot establish uninterrupted physical walk through gate."
+      },
+      "unresolved": "Foreground clockwork/large machinery still visibly blocks portrait hero/guardian action near the real gate, while video event timecodes are uncalibrated; camera changes must be demonstrated in continuous normal-speed identical-source film before P1.",
+      "reviewUrl": "https://github.com/my-edutu/Ai_games/blob/feat/tower-transformation-gauntlet-20261101/docs/reviews/2026-11-07-tower-pr68-current-film-and-source-integrity-veto.md",
+      "acceptance": "NOT EVALUATED"
     }
   },
   "scenarios": [
@@ -991,11 +1105,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "NOT EVALUATED — seven original-runtime test cases authored but not run; exact-head current CI none returned and older nine-job video capture 9 queued/0 artifacts.",
-    "replay": "NOT EVALUATED — historical unflagged solver preserved; compiled original replay/campaigns unexecuted.",
+    "ci": "FAILED (most recent completed exact-game CI 42404054865: 1209/1211 passed, 2 obsolete camera source-regex tests failed). Test-only fixes 8241f8bd and 6abd124c unexecuted in original Node suite; no green CI claim.",
+    "replay": "Original fixed-step source 3200-tick witness at gameplay SHA dc3c3108 shows physical same-run guardian/crusher victory, floor9 onward and restart; broader deterministic replay gate and production devices still NOT EVALUATED.",
     "accessibility": "NOT EVALUATED — earned gateway camera requires actual source cap grounded contact; historical/y-only guesses cannot authorize shot. Reduced-motion, mobile screen reader and physical controls need real browser testing.",
-    "performance": "NOT EVALUATED — extra O(n) source deck crossing scan in opted-in mode; real-device frame p50/p95/p99/memory not measured.",
-    "stability": "NOT EVALUATED — original source gameplay unavailable and active GitHub Actions runner still queued."
+    "performance": "NOT EVALUATED — no supported hardware frame-time p50/p95/p99 or memory.",
+    "stability": "NOT EVALUATED — original source game-loop witness executed, but original Node CI still fails, exact-video PTS not calibrated, no supported hardware stability tests."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
