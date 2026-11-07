@@ -85,3 +85,60 @@ test('no unsafe or malformed earned-camera radius can enter the 3D lens',async()
   assert.equal(safeEarnedGatewayDollyRadius(camera,44,{...actor,x:NaN},gate),null);
   assert.equal(safeEarnedGatewayDollyRadius(camera,0,actor,gate),null);
 });
+
+
+test('guardian final-health camera stays on the REAL locked cap during the last playable aerial exchange',async()=>{
+  const {observedLiveGuardianLastStandShot:lens}=await modulePromise;
+  const cap={id:'f8:cap',x:115200,y:3212000,width:249600,height:12000};
+  const source={runToken:'episode-8',floor:8,tick:430,lifecycle:'running',
+    player:{x:285000,y:3238000,halfHeight:14000,state:'airborne',
+      health:5,grounded:false}};
+  const lock={runToken:'episode-8',floor:8,cap,
+    guardian:{kind:'guardian',active:true,health:1,maxHealth:8}};
+  const portrait=lens(source,lock,390/844);
+  const desktop=lens(source,lock,960/600);
+  assert.ok(portrait?.radius>=30 && portrait?.radius<=59);
+  assert.ok(desktop?.radius>0 && portrait.radius>desktop.radius,
+    'one physical final duel, responsive lens budget');
+  assert.ok(portrait.focusWeight>.1,'start framing the REAL still-locked doorway before the short source-earned crossing');
+  assert.equal(portrait.exitX,304896);
+  const approaching=lens({...source,player:{...source.player,x:301000}},lock,390/844);
+  assert.ok(approaching.radius<portrait.radius,'actual closer source position increases readable hero scale');
+});
+test('final duel camera cannot invent a kill or frame another floor or remote unsupported body',async()=>{
+  const {observedLiveGuardianLastStandShot:lens}=await modulePromise;
+  const cap={id:'f8:cap',x:115200,y:3212000,width:249600,height:12000};
+  const source={runToken:'episode-8',floor:8,tick:430,lifecycle:'running',
+    player:{x:285000,y:3238000,halfHeight:14000,state:'airborne',
+      health:5,grounded:false}};
+  const lock={runToken:'episode-8',floor:8,cap,
+    guardian:{active:true,health:1,maxHealth:8}};
+  const attempt=(s=source,l=lock)=>lens(s,l,390/844);
+  assert.ok(attempt());
+  assert.equal(attempt(source,{...lock,guardian:{...lock.guardian,health:4}}),null,
+    'the 4-HP normal fight cannot trigger a final stand lens');
+  assert.equal(attempt(source,{...lock,guardian:{...lock.guardian,health:0,active:false}}),null,
+    'defeat uses its separate source-earned doorway lens');
+  assert.equal(attempt({...source,runToken:'another-run'}),null);
+  assert.equal(attempt({...source,floor:9}),null);
+  assert.equal(attempt({...source,stale:true}),null);
+  assert.equal(attempt({...source,lifecycle:'result'}),null);
+  assert.equal(attempt({...source,player:{...source.player,health:0}}),null);
+  assert.equal(attempt({...source,player:{...source.player,y:3400000}}),null,
+    'an airborne actor high above the real cap cannot trigger a fake close view');
+  assert.equal(attempt({...source,player:{...source.player,grounded:true,groundedPlatformId:'f8:p6'}}),null,
+    'only source cap support admits grounded final stand');
+  assert.equal(attempt({...source,player:{...source.player,x:45000}}),null,
+    'only actual near-door travel may tighten the camera');
+  assert.equal(lens(source,lock,NaN),null);
+  assert.equal(lens(source,lock,390/844,1.25),null);
+});
+test('source-lived last stand stages the camera before the REAL gate unlock, with no extra authoritative scene',()=>{
+  const fs=require('node:fs');
+  const scene=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+  assert.match(scene,/observedLockedGuardianCap\(snapshot\)/);
+  assert.match(scene,/observedLiveGuardianLastStandShot\(snapshot, liveLastStand, camera\.aspect, zoom\)/);
+  assert.match(scene,/const realCapLens = sourceEarnedWalk \|\| sourceLastStand/);
+  assert.match(scene,/safeEarnedGatewayDollyRadius\(destination,/);
+  assert.match(scene,/towerCoreSightlineClear\(camera\.position,/);
+});
