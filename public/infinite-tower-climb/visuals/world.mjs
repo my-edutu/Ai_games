@@ -877,16 +877,43 @@ export function createTowerWorld(){
     const vanes=[];for(let i=0;i<5;i++)vanes.push({p:[-4+i*2,3.8,.1],s:[.35,2.8,1.6],r:[0,0,.1]});instanced(mast,bevel(),materials.edge,vanes);
     mesh(mast,cone(),materials.glow,[0,11,0],[.2,2,.2]);
   }
+  // Authored clockwork clock CASES are now open portal frames rather than
+  // world-sized opaque plates. Actual 390x844 source-pinned guardian footage
+  // at 100b67fd, native 17-19s, showed the upper satellite's steel rim and
+  // solid brown backing burying the skinned climber, despite gear-alpha rays.
+  // These supports are purely decorative and carry no physics/colliders.
+  // Keep rotating gears, the complete monumental silhouettes, and their
+  // post-batch camera-sightline-owned materials, but restore empty space so
+  // real combat can be read BETWEEN the physical ribs.
+  function openClockCase(parent,width,height) {
+    const horizontal=width*.11,vertical=height*.095;
+    for(const side of [-1,1]){
+      block(parent,materials.dark,[side*(width-horizontal)*.5,0,-.7],
+        [horizontal,height,1.1]);
+      block(parent,materials.dark,[0,side*(height-vertical)*.5,-.7],
+        [width,vertical,1.1]);
+      block(parent,materials.edge,[side*(width*.46),0,-.06],
+        [.10,height*.72,.12]);
+    }
+  }
   function buildClockwork(height){
-    const clock=new THREE.Group();radial(clock,.05,18.6,20);floorGroup.add(clock);
-    block(clock,materials.dark,[0,0,-.8],[14,16,3]).userData.structural=true;
+    // Two tower shoulders flank the actual ±1.1-radian climbing route; the
+    // dial and upper side wheel no longer stand in the active guardian's
+    // central camera corridor. Unlike a fade-only workaround, this changes
+    // the ORIGINAL rendered architecture in every real clockwork biome.
+    const clock=new THREE.Group();radial(clock,-1.43,22.15,20);
+    clock.name='clockwork-monumental-left-shoulder';
+    floorGroup.add(clock);
+    openClockCase(clock,14,16);
     mesh(clock,own(new THREE.TorusGeometry(6.4,.45,8,48)),materials.copper,[0,0,.9]);
     mesh(clock,own(new THREE.TorusGeometry(5.8,.11,5,48)),materials.edge,[0,0,1]);
     const markers=[];for(let i=0;i<12;i++){const a=i/12*TAU;markers.push({p:[Math.sin(a)*5.45,Math.cos(a)*5.45,1],s:[.2,.65,.16],r:[0,0,-a]});}instanced(clock,bevel(),materials.edge,markers);
     const main=gear(clock,4.8,.45,materials.copper);main.position.z=1.2;rotors.push({o:main,speed:.045});
-    for(const [a,y,size,speed]of [[-.66,7,3.6,-.11],[.75,31,3.1,.15]]){
-      const root=new THREE.Group();radial(root,a,21.3,y);floorGroup.add(root);const g=gear(root,size,.42,materials.copper);rotors.push({o:g,speed});
-      block(root,materials.dark,[0,0,-.6],[size*1.9,size*2.1,1.1]);
+    for(const [a,y,size,speed]of [[-1.47,7,3.6,-.11],[1.47,31,3.1,.15]]){
+      const root=new THREE.Group();radial(root,a,22.15,y);floorGroup.add(root);
+      root.name=y>height*.6?'clockwork-upper-right-shoulder':'clockwork-lower-left-shoulder';
+      const g=gear(root,size,.42,materials.copper);rotors.push({o:g,speed});
+      openClockCase(root,size*1.9,size*2.1);
       linkClockFaceScenery(foregroundGears.find(entry => entry.root===g),root,floorMaterials);
     }
     const rack=new THREE.Group();radial(rack,-.32,20.4,15);floorGroup.add(rack);
