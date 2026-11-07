@@ -24,8 +24,8 @@
     "groundHazardValidatorEvidenceStatus": "Source-only 3200-tick same-run guardian/crusher -> physical floor9 -> genuine restart CONFIRMED by exact-game SHA dc3c3108 in run 42404054865. Original full repository suite at same SHA failed two obsolete camera-code regex tests (1209/1211), addressed in test-only commits 8241f8bd and 6abd124c but NOT RERUN. Native candidate+frozen baseline WebM recovered in 42404054915; giant opaque wheel in candidate portrait around 17-19s; film timecode calibration, independent review, physical device quality remain NOT EVALUATED.",
     "renderedClockFaceImplementationSha": "100b67fd98205c9f71a1d070fed7e9c3a0d68877",
     "renderedClockFaceEvidenceStatus": "NOT EVALUATED: newly recovered original-source live candidate WebM at renderer SHA 100b67fd98205c9f71a1d070fed7e9c3a0d68877 (run 42411547156; candidate danger artifact 13589387721; frozen baseline danger 13589708448) still shows a massive foreground clockwork wheel/backplate masking the climber and guardian near native portrait seconds 17–19 despite post-batch geometry/alpha repair. Native PTS-to-20Hz-source event alignment is not calibrated, full continuous grounded gateway crossing not visually accepted. Original repository Node 22 quality recovered to 1213/1213 at exact test SHA 54b87b8846f408ef1b198d785eb94ba71b196476, run 42416314533, but this is only a safety guardrail; no render/gameplay improvement made in this execution, no genuine critics, no device metrics.",
-    "openClockworkImplementationSha": "ef292410583fc3e8c722e512d786ffafa9133545",
-    "openClockworkEvidenceStatus": "NOT EVALUATED: current 390x844 source-pinned candidate VP8 WebM at old render SHA 100b67fd proves large silver rim + opaque rectangular clock backing over the climber/guardian at native 17–19s. New authentic open flanking clock cases and relocated upper/lower gears at ef292410 were committed; exact-code original-runtime quality and nine-job full-motion recording had not completed at evidence time. No footage improvement or device/critic acceptance claimed."
+    "openClockworkImplementationSha": "01ccf675281c5697e1e8e2153b0642f7b535c071",
+    "openClockworkEvidenceStatus": "NOT EVALUATED: preliminary open clockwork at ef292410 failed actual quality route clearance (radius24.355903>23.4); corrected actual art geometry by 01ccf675 main radial18.6 and satellite21.3, maintaining flanking angles and open frames. Exact-code quality 42421786685 IN PROGRESS and source capture 42421786723 QUEUED. Do not present as quality-verified."
   },
   "currentTransformation": {
     "latestEvidenceRun": {
@@ -35,14 +35,16 @@
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "frozenBaselineMoved": false,
       "gameplayImplementationSha": "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
-      "lastRenderImplementationSha": "ef292410583fc3e8c722e512d786ffafa9133545",
+      "lastRenderImplementationSha": "01ccf675281c5697e1e8e2153b0642f7b535c071",
       "authoritativeGameplayChangedThisExecution": false,
       "renderedGameplayExperienceChangedThisExecution": true,
-      "implementation": "From the genuinely source-pinned 100b67fd 390x844 WebM at 17–19s, inspected a live skinned climber buried beneath a huge grey clock rim, multiple moving teeth and an opaque brown clock-case backplate; compared the matching native timestamps from the frozen 1731b380 film WITHOUT claiming matched gameplay events. Rebuilt all three original clockwork scenic clocks as large open frames, relocated giant central and two satellite gear monuments beyond the real ±1.1-radian traverse to flanking tower shoulders. Actual guardians, crushers, platforms, AI, collision, progression, fixed-step and restart remain untouched. Geometry staging was altered but no experience verdict is available until exact new film.",
+      "implementation": "From the genuinely source-pinned 100b67fd 390x844 WebM at 17–19s, inspected a live skinned climber buried beneath a huge grey clock rim, multiple moving teeth and an opaque brown clock-case backplate; compared the matching native timestamps from the frozen 1731b380 film WITHOUT claiming matched gameplay events. Rebuilt all three original clockwork scenic clocks as large open frames, relocated giant central and two satellite gear monuments beyond the real ±1.1-radian traverse to flanking tower shoulders. Actual guardians, crushers, platforms, AI, collision, progression, fixed-step and restart remain untouched. Geometry staging was altered but no experience verdict is available until exact new film. Original CI veto found the first main clock built at radius22.15 intruded to radius24.3559 inside player annulus; second ordinary rendering commit 01ccf675 restores original radius18.6 main and21.3 satellites while preserving open flanking geometry. No safe result or film acceptance yet.",
       "concreteCommits": [
         "8c575a8c845b27a87cb2708f60f91220b663418a",
         "ef292410583fc3e8c722e512d786ffafa9133545",
-        "e892376289e82a517c5186efc527ed8926977939"
+        "e892376289e82a517c5186efc527ed8926977939",
+        "01ccf675281c5697e1e8e2153b0642f7b535c071",
+        "6132c9caa49704382f26140f85dcb9a61cd16ce9"
       ],
       "modifiedFiles": [
         "tests/phase3/tower-foreground-sightline.test.cjs",
@@ -60,7 +62,15 @@
         "candidateSourceSha": "ef292410583fc3e8c722e512d786ffafa9133545",
         "candidateQualityRunId": 42421331786,
         "candidateQualityRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42421331786",
-        "candidateQualityStatus": "IN PROGRESS at inspection — NOT YET A PASSED GATE"
+        "candidateQualityStatus": "FAILURE at first construction; 1213 passed, one genuine route clearance safety violation, corrected by restoring original radial anchors but new candidate not yet passed",
+        "unsafeFirstLayoutSourceSha": "ef292410583fc3e8c722e512d786ffafa9133545",
+        "unsafeFirstLayoutRunId": 42421331786,
+        "unsafeFirstLayoutRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42421331786",
+        "unsafeFirstLayoutResult": "FAILED 1/1214: original tower-world-geometry test detected real decorative geometry radius 24.35590320747612 entering forbidden >23.4 cylindrical traversal corridor. Keep safety veto.",
+        "correctedSourceSha": "01ccf675281c5697e1e8e2153b0642f7b535c071",
+        "correctedOriginalQualityRunId": 42421786685,
+        "correctedOriginalQualityRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42421786685",
+        "correctedOriginalQualityStatus": "IN PROGRESS at inspection; unverified"
       },
       "capture": {
         "inspectedPriorRunId": 42411547156,
@@ -70,10 +80,10 @@
         "priorCandidateDangerArtifactId": 13589387721,
         "priorBaselineDangerArtifactId": 13589708448,
         "authenticPortraitVideo": "390x844, VP8, 25fps, 71.36s; actual native frame examination at 12,14,16–30 and 32 seconds",
-        "candidateCaptureRunId": 42421331788,
-        "candidateCaptureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42421331788",
-        "newCandidateSourceSha": "ef292410583fc3e8c722e512d786ffafa9133545",
-        "newCandidateCaptureStatus": "QUEUED at inspection — NOT EVALUATED",
+        "candidateCaptureRunId": 42421786723,
+        "candidateCaptureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42421786723",
+        "newCandidateSourceSha": "01ccf675281c5697e1e8e2153b0642f7b535c071",
+        "newCandidateCaptureStatus": "QUEUED at inspection; zero accepted current-source clips",
         "videoEventClock": "NOT EVALUATED; native WebM PTS has not been calibrated to source tick 441 guardian defeat / 451 grounded door crossing",
         "fullMotionAcceptance": "NOT EVALUATED; source-pinned new world video and genuinely independent critics not yet available"
       },
@@ -86,16 +96,16 @@
       },
       "hardwareFrameTimeMemory": "NOT EVALUATED p50/p95/p99/memory on supported devices",
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "nextHighImpactAction": "Review exact candidate quality 42421331786; retrieve the new nine-job 42421331788 baseline/candidate 960x600 and 390x844 motion and calibrate event times to native PTS. Review guardian crusher/hit/defeat and genuine walkable threshold→floor-nine→outcome/restart uninterrupted; if any oversized structure still hides hero or readable counterplay, repair verified remaining mesh/camera staging before P1. No blind grading without 5 independent critics and actual device budgets.",
+      "nextHighImpactAction": "Clear original 1214-test safety gate on exact fixed geometry SHA 01ccf675 (run 42421786685); then consume new nine-job 42421786723 full-motion source-pinned 960x600/390x844 film, align actual event ticks with native video PTS, verify guardian/crusher→earned cap crossing→floor9→outcome/restart and assess true actor visibility. Remain P0; if radius safety fails, fix actual mesh not test.",
       "reviewUrl": "https://github.com/my-edutu/Ai_games/blob/feat/tower-transformation-gauntlet-20261101/docs/reviews/2026-11-07-tower-pr68-current-film-and-source-integrity-veto.md",
       "restrictions": "PR68 draft/open, PR58 untouched; no baseline move, merge, deploy, force push."
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
     "state": "P0 OPEN — witnessed genuine source loop earlier; new in-world open flanking clockwork changes now require exact-source CI and motion acceptance, especially mobile guardian screen",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Capture exact ef292410 original game in desktop and portrait, inspect full-motion guardian/crusher→real gateway→floor 9→outcome/restart and event alignment before advancing P0.",
+    "nextDecision": "Clear original 1214-test safety gate on exact fixed geometry SHA 01ccf675 (run 42421786685); then consume new nine-job 42421786723 full-motion source-pinned 960x600/390x844 film, align actual event ticks with native video PTS, verify guardian/crusher→earned cap crossing→floor9→outcome/restart and assess true actor visibility. Remain P0; if radius safety fails, fix actual mesh not test.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Old 100b67fd source-pinned portrait guardian film shows a giant ring/backplate obscuring hero near native 17–19s; new ef292410 open-world staging not yet filmed, video-to-event alignment and independent reviews missing.",
+    "biggestRemainingExperienceGap": "Prior authentic 100b67fd portrait guardian footage obscured by giant clock ring and backing. First open flanking art ef292410 failed actual original route-clearance invariant (radius24.3559>23.4); corrective radial placement 01ccf675 is awaiting original runtime checks and exact gameplay footage; independent critics and device budgets absent.",
     "unverifiedImplementationBranchHead": "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
     "currentVerticalSlice": "Physically earned ascent → guardian/crusher victory → full-body cap crossing → same-X grounded floor-nine arrival → playable onward route and true outcome/restart. No experience acceptance yet.",
     "biggestGap": "Unverified source-new 3D wheel/case clearance in normal-speed portrait guardian/cap crossing; previously giant foreground rotor at ~17-19s, event/video PTS uncalibrated; gateway floor9/outcome/restart visual sequence still not independently inspected.",
@@ -921,7 +931,7 @@
       "reviewUrl": "https://github.com/my-edutu/Ai_games/blob/feat/tower-transformation-gauntlet-20261101/docs/reviews/2026-11-07-tower-pr68-portrait-clockwork-frame-dominance.md",
       "restrictions": "Base SHA 1731b380851162741761c5569e2bc152a0869ca9 preserved; PR68 open/draft; PR58 unmodified; no merge/deploy/force push."
     },
-    "biggestExperienceGap": "Old 100b67fd source-pinned portrait guardian film shows a giant ring/backplate obscuring hero near native 17–19s; new ef292410 open-world staging not yet filmed, video-to-event alignment and independent reviews missing.",
+    "biggestExperienceGap": "Prior authentic 100b67fd portrait guardian footage obscured by giant clock ring and backing. First open flanking art ef292410 failed actual original route-clearance invariant (radius24.3559>23.4); corrective radial placement 01ccf675 is awaiting original runtime checks and exact gameplay footage; independent critics and device budgets absent.",
     "p0GroundHazardValidation20261107": {
       "validatorImplementationSha": "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
       "originalRuntimeTestCommitSha": "828070b0c11876ee8f7b49c4f338681c02bb242b",
@@ -1131,14 +1141,16 @@
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "frozenBaselineMoved": false,
       "gameplayImplementationSha": "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
-      "lastRenderImplementationSha": "ef292410583fc3e8c722e512d786ffafa9133545",
+      "lastRenderImplementationSha": "01ccf675281c5697e1e8e2153b0642f7b535c071",
       "authoritativeGameplayChangedThisExecution": false,
       "renderedGameplayExperienceChangedThisExecution": true,
-      "implementation": "From the genuinely source-pinned 100b67fd 390x844 WebM at 17–19s, inspected a live skinned climber buried beneath a huge grey clock rim, multiple moving teeth and an opaque brown clock-case backplate; compared the matching native timestamps from the frozen 1731b380 film WITHOUT claiming matched gameplay events. Rebuilt all three original clockwork scenic clocks as large open frames, relocated giant central and two satellite gear monuments beyond the real ±1.1-radian traverse to flanking tower shoulders. Actual guardians, crushers, platforms, AI, collision, progression, fixed-step and restart remain untouched. Geometry staging was altered but no experience verdict is available until exact new film.",
+      "implementation": "From the genuinely source-pinned 100b67fd 390x844 WebM at 17–19s, inspected a live skinned climber buried beneath a huge grey clock rim, multiple moving teeth and an opaque brown clock-case backplate; compared the matching native timestamps from the frozen 1731b380 film WITHOUT claiming matched gameplay events. Rebuilt all three original clockwork scenic clocks as large open frames, relocated giant central and two satellite gear monuments beyond the real ±1.1-radian traverse to flanking tower shoulders. Actual guardians, crushers, platforms, AI, collision, progression, fixed-step and restart remain untouched. Geometry staging was altered but no experience verdict is available until exact new film. Original CI veto found the first main clock built at radius22.15 intruded to radius24.3559 inside player annulus; second ordinary rendering commit 01ccf675 restores original radius18.6 main and21.3 satellites while preserving open flanking geometry. No safe result or film acceptance yet.",
       "concreteCommits": [
         "8c575a8c845b27a87cb2708f60f91220b663418a",
         "ef292410583fc3e8c722e512d786ffafa9133545",
-        "e892376289e82a517c5186efc527ed8926977939"
+        "e892376289e82a517c5186efc527ed8926977939",
+        "01ccf675281c5697e1e8e2153b0642f7b535c071",
+        "6132c9caa49704382f26140f85dcb9a61cd16ce9"
       ],
       "modifiedFiles": [
         "tests/phase3/tower-foreground-sightline.test.cjs",
@@ -1156,7 +1168,15 @@
         "candidateSourceSha": "ef292410583fc3e8c722e512d786ffafa9133545",
         "candidateQualityRunId": 42421331786,
         "candidateQualityRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42421331786",
-        "candidateQualityStatus": "IN PROGRESS at inspection — NOT YET A PASSED GATE"
+        "candidateQualityStatus": "FAILURE at first construction; 1213 passed, one genuine route clearance safety violation, corrected by restoring original radial anchors but new candidate not yet passed",
+        "unsafeFirstLayoutSourceSha": "ef292410583fc3e8c722e512d786ffafa9133545",
+        "unsafeFirstLayoutRunId": 42421331786,
+        "unsafeFirstLayoutRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42421331786",
+        "unsafeFirstLayoutResult": "FAILED 1/1214: original tower-world-geometry test detected real decorative geometry radius 24.35590320747612 entering forbidden >23.4 cylindrical traversal corridor. Keep safety veto.",
+        "correctedSourceSha": "01ccf675281c5697e1e8e2153b0642f7b535c071",
+        "correctedOriginalQualityRunId": 42421786685,
+        "correctedOriginalQualityRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42421786685",
+        "correctedOriginalQualityStatus": "IN PROGRESS at inspection; unverified"
       },
       "capture": {
         "inspectedPriorRunId": 42411547156,
@@ -1166,10 +1186,10 @@
         "priorCandidateDangerArtifactId": 13589387721,
         "priorBaselineDangerArtifactId": 13589708448,
         "authenticPortraitVideo": "390x844, VP8, 25fps, 71.36s; actual native frame examination at 12,14,16–30 and 32 seconds",
-        "candidateCaptureRunId": 42421331788,
-        "candidateCaptureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42421331788",
-        "newCandidateSourceSha": "ef292410583fc3e8c722e512d786ffafa9133545",
-        "newCandidateCaptureStatus": "QUEUED at inspection — NOT EVALUATED",
+        "candidateCaptureRunId": 42421786723,
+        "candidateCaptureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42421786723",
+        "newCandidateSourceSha": "01ccf675281c5697e1e8e2153b0642f7b535c071",
+        "newCandidateCaptureStatus": "QUEUED at inspection; zero accepted current-source clips",
         "videoEventClock": "NOT EVALUATED; native WebM PTS has not been calibrated to source tick 441 guardian defeat / 451 grounded door crossing",
         "fullMotionAcceptance": "NOT EVALUATED; source-pinned new world video and genuinely independent critics not yet available"
       },
@@ -1182,11 +1202,11 @@
       },
       "hardwareFrameTimeMemory": "NOT EVALUATED p50/p95/p99/memory on supported devices",
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "nextHighImpactAction": "Review exact candidate quality 42421331786; retrieve the new nine-job 42421331788 baseline/candidate 960x600 and 390x844 motion and calibrate event times to native PTS. Review guardian crusher/hit/defeat and genuine walkable threshold→floor-nine→outcome/restart uninterrupted; if any oversized structure still hides hero or readable counterplay, repair verified remaining mesh/camera staging before P1. No blind grading without 5 independent critics and actual device budgets.",
+      "nextHighImpactAction": "Clear original 1214-test safety gate on exact fixed geometry SHA 01ccf675 (run 42421786685); then consume new nine-job 42421786723 full-motion source-pinned 960x600/390x844 film, align actual event ticks with native video PTS, verify guardian/crusher→earned cap crossing→floor9→outcome/restart and assess true actor visibility. Remain P0; if radius safety fails, fix actual mesh not test.",
       "reviewUrl": "https://github.com/my-edutu/Ai_games/blob/feat/tower-transformation-gauntlet-20261101/docs/reviews/2026-11-07-tower-pr68-current-film-and-source-integrity-veto.md",
       "restrictions": "PR68 draft/open, PR58 untouched; no baseline move, merge, deploy, force push."
     },
-    "lastRenderImplementationSha": "ef292410583fc3e8c722e512d786ffafa9133545"
+    "lastRenderImplementationSha": "01ccf675281c5697e1e8e2153b0642f7b535c071"
   },
   "scenarios": [
     {
