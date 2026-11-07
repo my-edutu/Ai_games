@@ -40,7 +40,29 @@ test('the second architectural doorway is a real-world instanced gate with no au
   const source = fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/guardian-passage.mjs'), 'utf8');
   assert.match(source, /ObservedWalkableGuardianThreshold/);
   assert.match(source, /new THREE\.InstancedMesh\(box, stone, 6\)/);
-  assert.match(source, /new THREE\.InstancedMesh\(box, bronze, 2\)/);
+  // The original solid bronze BoxGeometry contract is obsolete. Inspect the
+  // REAL Three.js geometry/instance on the source-held gateway instead: no
+  // decorative depth hole or opened gate can grant collision clearance.
+  const THREE = await import('../../node_modules/three/build/three.module.js');
+  const { createTowerGuardianPassage } = await modulePromise;
+  const effect = createTowerGuardianPassage(THREE);
+  try {
+    const arch = effect.group.getObjectByName('WalkableSourceCapArchAndBraces');
+    const leaves = effect.group.getObjectByName('WalkableSourceCapRetractingBronzeLeaves');
+    const outer = effect.group.getObjectByName('ClearedPassageBronzeLeaf');
+    assert.equal(arch?.isInstancedMesh, true);
+    assert.equal(arch.count, 6);
+    assert.equal(leaves?.isInstancedMesh, true);
+    assert.equal(leaves.count, 2);
+    assert.equal(leaves.geometry, outer.geometry,
+      'the inner source-grounded doorway and exterior lock share real original leaf geometry');
+    assert.equal(leaves.geometry.parameters.shapes.holes.length, 3,
+      'a machined portal remains physically open in depth instead of filling the action frame');
+    assert.equal(leaves.userData.collider, undefined);
+    assert.equal(leaves.castShadow, false);
+    assert.equal(effect.group.getObjectByName('SourceLockedGuardianVerticalEnergyLattice')?.isInstancedMesh, true,
+      'visible source-locked simulation clearance remains independent of presentation-only leaves');
+  } finally { effect.dispose(); }
   assert.match(source, /poseWalkableLeaves\(opened\)/);
   assert.match(source, /threshold\.position\.set\(0, -2, GUARDIAN_PASSAGE_RADII\.deck - GUARDIAN_PASSAGE_RADII\.lock\)/);
   assert.match(source, /const locked = stage === 'guardian-locked'/);
