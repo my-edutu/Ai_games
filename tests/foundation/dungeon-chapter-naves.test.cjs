@@ -8,7 +8,9 @@ const map=Array.from({length:19},(_,z)=>Array.from({length:19},(_,x)=>{
  if(x>0&&z>0&&x<18&&z<18&&((x>=3&&x<=8&&z>=3&&z<=8)||(x>=10&&x<=16&&z>=10&&z<=16)))return '.';
  return '#';
 }).join(''));
-const exit={x:14,z:14};
+// Real exit remains in the second court, leaving another chamber genuinely
+// outside the separate boss four-cell scenic exclusion.
+const exit={x:16,z:16};
 test('real walkable chambers become deterministic, bounded sculpted chapters',async()=>{
  const {planChapterNaves}=await load(),before=JSON.stringify(map);
  const a=planChapterNaves(map,exit,2),b=planChapterNaves(map,exit,2);

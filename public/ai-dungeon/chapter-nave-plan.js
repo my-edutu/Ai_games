@@ -15,7 +15,10 @@ export function planChapterNaves(map,exit,floor,encounterUnits=[]){
  const open=(x,z)=>map[z]?.[x]==='.';
  const candidates=[];
  for(let z=2;z<n-2;z++)for(let x=2;x<n-2;x++){
-  if(!open(x,z))continue;
+  // Keep chapter arches and rosettes OUTSIDE the authored Warden Court.
+  // The court's real 7x7 walkable fighting lane plus its masonry perimeter
+  // belongs to the living boss, allied silhouettes and genuine telegraphs.
+  if(!open(x,z)||Math.max(Math.abs(x-exit.x),Math.abs(z-exit.z))<=4)continue;
   let count=0;
   for(let dz=-1;dz<=1;dz++)for(let dx=-1;dx<=1;dx++)if(open(x+dx,z+dz))count++;
   if(count===9)candidates.push({x,z,distance:dist({x,z},exit),grain:hash(x,z,floor)});
@@ -50,8 +53,8 @@ export function planChapterNaves(map,exit,floor,encounterUnits=[]){
    chosen.push(court);
  }
  // No live ordinary foe? Keep the original deterministic architectural tour.
- // A near-Warden room stays a legitimate final chapter when there are fewer
- // than three actual minor engagements on the floor.
+ // Even without a living ordinary foe, retain genuine remote architecture,
+ // never a duplicate chapter rosette inside the genuine Warden sightline.
  if(candidates.length&&!chosen.length)chosen.push(candidates[0]);
  const remote=candidates.slice().sort((a,b)=>b.distance-a.distance||
   a.grain-b.grain||a.z-b.z||a.x-b.x);
@@ -73,7 +76,7 @@ export function planChapterNaves(map,exit,floor,encounterUnits=[]){
   const faces=[];
   for(let z=Math.max(1,room.z-4);z<=Math.min(n-2,room.z+4);z++)
    for(let x=Math.max(1,room.x-4);x<=Math.min(n-2,room.x+4);x++){
-    if(map[z][x]!=='#')continue;
+    if(map[z][x]!=='#'||Math.max(Math.abs(x-exit.x),Math.abs(z-exit.z))<=4)continue;
     for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1]]){
      if(!open(x+dx,z+dz))continue;
      const key=x+':'+z+':'+dx+':'+dz;

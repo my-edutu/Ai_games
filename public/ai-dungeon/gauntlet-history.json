@@ -5989,6 +5989,34 @@
       "plays": "UNVERIFIED",
       "independentCritics": 0,
       "next": "Profile source-render and ordered-feed throughput without skipping authority; recover true five-stage desktop/mobile WebM + original synchronized WAV; correct largest observed miniature original Warden/Vanguard sword/boot scene, validate warning protection, compare same seed baseline and 3 blind critics"
+    },
+    "m1WardenCourtSceneSightlineClearance": {
+      "date": "2026-11-07",
+      "stage": "A_INCOMPLETE_SCENE_INTEGRATION_CANDIDATE",
+      "lockedBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "inspectedParentSha": "cabf3d200cd55aa3c44e3a9ced58bdc8f2e494a8",
+      "sourceGameplayParentSha": "baf619bc65ad57593837681c1cca23875a9525dd",
+      "newSourceHead": "COMMIT_SHA_IN_COMMIT_METADATA",
+      "verifiedRealPreviews": {
+        "desktop": "https://github.com/my-edutu/Ai_games/actions/runs/42414245785/artifacts/13590709599",
+        "mobile": "https://github.com/my-edutu/Ai_games/actions/runs/42414245785/artifacts/13590164144",
+        "organicStages": 3,
+        "totalRequired": 5,
+        "organicJobResult": "FAIL_EXPECTED_NATURAL_DEFEAT_CHECKSUM_7ad0fe45",
+        "naturalDefeatAndRestart": "NOT_CAPTURED",
+        "originalImpactPcm": "UNVERIFIED"
+      },
+      "sceneChange": "Keep real seven-cell Warden fighting room and four-cell masonry perimeter clear of unrelated chapter rosettes/reliefs and wall-mounted showcase niches; keep incidental floor pavers/puddles out of three-cell core; true enemy/hero/boss and genuine warnings remain",
+      "sourcePlannerCheck": "In-memory genuine production module V8 evaluation on 19x19 decorated legal grid: 7->0 intruding chapter/reliefs, 3->0 niches, 24->0 pavers, leaving 13 remote chapters/reliefs, 7 remote niches, 126 remote pavers; not browser evidence",
+      "afterRealGameplay": "NOT_OBSERVED",
+      "nodeTests": "NOT_EXECUTED_LOCAL_TUNNEL_UNAVAILABLE",
+      "browserTests": "PENDING_NEW_HEAD",
+      "criticCount": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "acceptance": "IN_PROGRESS_NOT_TRANSFORMED",
+      "next": "Inspect real new-head 1440/390 WebGL after footage and reduced clutter, then profile GPU/CPU raster delivery and scene passes, recover real five-stage original WebM/WAV and same-seed locked BEFORE, obtain >=3 blind independent critics without changing gameplay truth"
     }
   }
 }

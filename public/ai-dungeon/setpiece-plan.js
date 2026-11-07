@@ -16,7 +16,10 @@ export function planDungeonSetpieces(map,floor,exit,maximum=8){
  for(let z=2;z<size-2;z++)for(let x=2;x<size-2;x++){
   if(map[z][x]!=='.')continue;
   if(Math.abs(x-1)+Math.abs(z-1)<=4)continue;
-  if(exit&&Math.abs(x-exit.x)+Math.abs(z-exit.z)<=3)continue;
+  // Wall-side display niches can be as large as the visible actors. Keep
+  // their actual physical silhouette beyond the Warden Court perimeter.
+  if(Number.isInteger(exit?.x)&&Number.isInteger(exit?.z)&&
+   Math.max(Math.abs(x-exit.x),Math.abs(z-exit.z))<=4)continue;
   const nearby=DIRECTIONS.filter(([dx,dz])=>map[z+dz]?.[x+dx]==='.').length;
   if(nearby<2)continue;
   const walls=DIRECTIONS.filter(([dx,dz])=>map[z+dz]?.[x+dx]==='#');

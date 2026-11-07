@@ -21,7 +21,9 @@ export function planFloorRuins(map,floor,exit,{maxPavers=144,maxPuddles=22}={}){
  for(let z=1;z<n-1;z++)for(let x=1;x<n-1;x++){
   if(map[z][x]!=='.')continue;
   if(Math.abs(x-1)+Math.abs(z-1)<=3)continue;
-  if(hasExit&&Math.abs(x-exit.x)+Math.abs(z-exit.z)<=2)continue;
+  // The already authored ceremonial court floor, actor boots and hazard
+  // warnings must not compete with random pebble reliefs or specular pools.
+  if(hasExit&&Math.max(Math.abs(x-exit.x),Math.abs(z-exit.z))<=3)continue;
   const h=hash(x,z,floor);
   const offsetX=(((h>>>5)%13)-6)*.036,offsetZ=(((h>>>12)%13)-6)*.036;
   const base={gridX:x,gridZ:z,x:x-center+offsetX,z:z-center+offsetZ,theme};
