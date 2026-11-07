@@ -30,6 +30,7 @@ on:
       - 'scripts/tiny-kingdom-w116-real-market-handoff-contract.cjs'
       - 'tests/browser/tiny-kingdom-w112-spatial-crop.spec.cjs'
       - 'tests/browser/tiny-kingdom-w114-resident-night-homes.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w123-foreground-resident.spec.cjs'
       - '.github/workflows/tiny-kingdom-gpu-evidence.yml'
   workflow_dispatch:
 
@@ -1759,3 +1760,32 @@ jobs:
         run: |
           npm run build
           npx playwright test tests/browser/tiny-kingdom-g066-compact-houses.spec.cjs tests/browser/tiny-kingdom-g067-dynamic-gpu-buffer.spec.cjs tests/browser/tiny-kingdom-g068-camera-lock.spec.cjs tests/browser/tiny-kingdom-g069-render-profile.spec.cjs tests/browser/tiny-kingdom-g070-festival-static.spec.cjs tests/browser/tiny-kingdom-g071-sunrise-emission.spec.cjs tests/browser/tiny-kingdom-g072-triangle-writer.spec.cjs tests/browser/tiny-kingdom-g073-ellipsoid-emission.spec.cjs tests/browser/tiny-kingdom-g074-static-typed-cache.spec.cjs tests/browser/tiny-kingdom-g075-shadow-gradient.spec.cjs tests/browser/tiny-kingdom-g076-box-corners.spec.cjs tests/browser/tiny-kingdom-g077-landscape-cache.spec.cjs tests/browser/tiny-kingdom-g078-landscape-buffer.spec.cjs tests/browser/tiny-kingdom-g079-gamma-pass.spec.cjs tests/browser/tiny-kingdom-g080-grass-distance.spec.cjs tests/browser/tiny-kingdom-g081-compact-side-windows.spec.cjs tests/browser/tiny-kingdom-g082-shingle-stagger.spec.cjs tests/browser/tiny-kingdom-g083-reference-capture.spec.cjs tests/browser/tiny-kingdom-g084-compact-half-timber.spec.cjs tests/browser/tiny-kingdom-g085-meadow-noise-lod.spec.cjs tests/browser/tiny-kingdom-g086-compact-facing.spec.cjs tests/browser/tiny-kingdom-g087-roof-dormers.spec.cjs tests/browser/tiny-kingdom-g088-roof-palette.spec.cjs tests/browser/tiny-kingdom-g089-meadow-farfield.spec.cjs tests/browser/tiny-kingdom-g089-forest-budget.spec.cjs tests/browser/tiny-kingdom-g090-lived-workday.spec.cjs tests/browser/tiny-kingdom-g091-active-labor.spec.cjs tests/browser/tiny-kingdom-g092-live-shift.spec.cjs tests/browser/tiny-kingdom-g093-occupational-cinema.spec.cjs tests/browser/tiny-kingdom-g094-inhabited-street.spec.cjs tests/browser/tiny-kingdom-g095-market-quarter.spec.cjs tests/browser/tiny-kingdom-g096-lived-highstreet.spec.cjs tests/browser/tiny-kingdom-g097-market-carriers.spec.cjs tests/browser/tiny-kingdom-g098-supply-delivery.spec.cjs tests/browser/tiny-kingdom-g099-market-handoff.spec.cjs tests/browser/tiny-kingdom-g105-scenic-visibility.spec.cjs tests/browser/tiny-kingdom-g106-cinematic-visibility.spec.cjs tests/browser/tiny-kingdom-g107-guildhall-district.spec.cjs tests/browser/tiny-kingdom-g108-street-morphology.spec.cjs tests/browser/tiny-kingdom-g109-lived-cinema.spec.cjs tests/browser/tiny-kingdom-g111-ground-surface.spec.cjs tests/browser/tiny-kingdom-g112-live-lighting.spec.cjs tests/browser/tiny-kingdom-g113-street-walk.spec.cjs tests/browser/tiny-kingdom-g114-street-visibility.spec.cjs tests/browser/tiny-kingdom-g115-street-encounter.spec.cjs tests/browser/tiny-kingdom-g116-street-crowd.spec.cjs tests/browser/tiny-kingdom-g117-visible-worksites.spec.cjs tests/browser/tiny-kingdom-g118-human-proportions.spec.cjs tests/browser/tiny-kingdom-g119-worksite-choreography.spec.cjs tests/browser/tiny-kingdom-g121-builder-stage.spec.cjs tests/browser/tiny-kingdom-g122-facing-work.spec.cjs tests/browser/tiny-kingdom-g123-oriented-society.spec.cjs tests/browser/tiny-kingdom-g124-seasonal-landscape-residency.spec.cjs tests/browser/tiny-kingdom-g125-physical-reach.spec.cjs tests/browser/tiny-kingdom-g126-day120-facing.spec.cjs tests/browser/tiny-kingdom-g127-open-worksite.spec.cjs tests/browser/tiny-kingdom-g128-architectural-materials.spec.cjs tests/browser/tiny-kingdom-g129-baked-software-tier.spec.cjs tests/browser/tiny-kingdom-g130-mobile-worldview.spec.cjs tests/browser/tiny-kingdom-g131-camera-lod.spec.cjs tests/browser/tiny-kingdom-g132-worksite-director.spec.cjs tests/browser/tiny-kingdom-g134-civic-residency.spec.cjs tests/browser/tiny-kingdom-g135-visible-workday-camera.spec.cjs tests/browser/tiny-kingdom-g140-settlement-residency.spec.cjs tests/browser/tiny-kingdom-g141-day-night-society.spec.cjs tests/browser/tiny-kingdom-g142-physical-homecoming.spec.cjs tests/browser/tiny-kingdom-g143-homecoming-lanterns.spec.cjs tests/browser/tiny-kingdom-g144-grounded-homecoming.spec.cjs tests/browser/tiny-kingdom-g149-market-life.spec.cjs --workers=1
+
+  # W123 exact original populated world, no-staged-person GPU parity at both widths.
+  w123-foreground-detailed-actor-parity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Original 3D near-citizen geometry parity on desktop and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w123-foreground-resident.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w123-real-foreground-parity
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w123/
+          if-no-files-found: warn
+          retention-days: 14
