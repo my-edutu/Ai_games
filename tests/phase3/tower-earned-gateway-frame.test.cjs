@@ -55,3 +55,52 @@ test('shipped 3D follow camera and source diagnostics support later guardian cap
   assert.match(scene,/const earnedSource = !options\.stale &&/);
   assert.doesNotMatch(scene,/const earnedSource = snapshot\?\.floor === 8/);
 });
+
+ 
+test('earned near-roof airborne cap transit keeps the real doorway in the same safe exterior lens',async()=>{
+  const {observedAirborneGatewayShot,observedGroundedGatewayShot}=await helper;
+  const cap={id:'f8:cap',x:115200,y:3212000,width:249600,height:12000};
+  const source={lifecycle:'running',stale:false,runToken:'earned-episode-1',
+    floor:8,tick:362,worldWidth:480000,
+    player:{state:'airborne',grounded:false,health:4,
+      x:310000,y:cap.y+cap.height+14000+18000,
+      halfWidth:9000,halfHeight:14000}};
+  const earned={runToken:source.runToken,floor:8,cap};
+  const phone=observedAirborneGatewayShot(source,earned,390/844);
+  const wide=observedAirborneGatewayShot(source,earned,960/600);
+  assert.ok(phone?.realAirborneCap && wide?.realAirborneCap);
+  assert.equal(phone.sourceTick,source.tick);
+  assert.ok(phone.radius>=30&&phone.radius<=60);
+  assert.ok(wide.radius>=30&&wide.radius<=53);
+  assert.ok(phone.focusWeight>0&&phone.focusWeight<=.29);
+  assert.ok(0<phone.approach&&phone.approach<1);
+  assert.equal(observedGroundedGatewayShot(source,earned,390/844),null,
+    'airborne camera must not fabricate grounded contact');
+  for(const variant of [
+    {...source,stale:true},{...source,floor:9},
+    {...source,runToken:'post-restart'},
+    {...source,player:{...source.player,health:0}},
+    {...source,player:{...source.player,grounded:true}},
+    {...source,player:{...source.player,state:'standing'}},
+    {...source,player:{...source.player,y:cap.y+cap.height+14000+90000}},
+    {...source,player:{...source.player,y:cap.y+cap.height+14000-7000}},
+    {...source,player:{...source.player,x:cap.x+cap.width+10000}},
+    {...source,player:{...source.player,x:cap.x+10000}},
+  ])assert.equal(observedAirborneGatewayShot(variant,earned,390/844),null,
+    'false episode, dead body, unsupported position or unearned route must not activate');
+  assert.ok(observedAirborneGatewayShot({...source,
+    player:{...source.player,state:'dashing'}},earned,390/844));
+  assert.equal(observedAirborneGatewayShot(source,{...earned,cap:{...cap,id:'f7:cap'}},390/844),null);
+  assert.equal(observedAirborneGatewayShot(source,null,390/844),null);
+  assert.equal(observedAirborneGatewayShot(source,earned,0),null);
+  assert.equal(observedAirborneGatewayShot(source,earned,390/844,1.4),null);
+});
+test('actual native 3D follow rig extends both physically earned lens and foreground corridor through airborne crossing',()=>{
+  const fs=require('node:fs');
+  const source=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+  assert.match(source,/observedAirborneGatewayShot\(snapshot, liveExit, camera\.aspect, zoom\)/);
+  assert.match(source,/sourceEarnedWalk \|\| sourceAirborneWalk \|\| sourceLastStand/);
+  assert.match(source,/!!sourceAirborneWalk\?\.realAirborneCap/);
+  assert.match(source,/gatewayEarned && sourceAirborneWalk && actionStage\?\.kind !== 'hazard'/);
+  assert.match(source,/\(!protectArrival \|\| !!sourceAirborneWalk\)/);
+});
