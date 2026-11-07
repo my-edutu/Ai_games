@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "benchmark": "Captain Toad: Treasure Tracker — fixed Game 2 Gauntlet references",
+  "primaryPage": "https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/",
+  "verifiedAt": "2026-10-30T20:51:58Z",
+  "verificationMethod": "Recovered each imageUrl from an ImageObject contentUrl in the official product page, downloaded the CDN response, and verified byte-for-byte identity by SHA-256 against the previously reviewed local JPEG. Independently decoded both images to verify dimensions. Repeated retrieval with Accept: image/jpeg and confirmed the same hashes.",
+  "requestHeaders": {
+    "Accept": "image/jpeg"
+  },
+  "identityPolicy": "Both listed SHA-256 hashes and dimensions are fixed. A failed download or any hash or dimension mismatch blocks a valid benchmark comparison; do not substitute another frame, re-encode the reference, change its expected hash, or lower the quality bar.",
+  "storagePolicy": "Retrieve reference images into temporary storage outside the repository. Commit only this provenance metadata, never the Nintendo image bytes or derivatives containing those bytes.",
+  "references": [
+    {
+      "id": "toad-scene",
+      "filename": "toad-scene.jpg",
+      "imageUrl": "https://assets.nintendo.com/image/upload/q_auto/f_auto/dpr_2.0/store/software/switch/70010000002722/72a7b70a3161a757d40571a9264444e307bdcd83a851978510ed8fa31e762a6d",
+      "sha256": "b33003efa5e943e27ddc9daa9d1c9a396313d5f0ee7bd836c731c4cbfc286d9b",
+      "dimensions": {
+        "width": 1280,
+        "height": 720
+      },
+      "byteLength": 159099,
+      "mediaType": "image/jpeg",
+      "sceneDescription": "Golden sandstone miniature temple with blue ladders, two upper archways, large green stone blocks, expressive spiked block enemies, pressure switches, a star at upper left, and Toadette on the right ladder. The HUD shows 27 coins.",
+      "verificationStatus": "verified-byte-identical"
+    },
+    {
+      "id": "toad-maze",
+      "filename": "toad-maze.jpg",
+      "imageUrl": "https://assets.nintendo.com/image/upload/q_auto/f_auto/dpr_2.0/store/software/switch/70010000002722/bc357ae2086f43bbcaf6cef34a8caad0ddfcd739d0ea25db236a0a4b71bc81a8",
+      "sha256": "4c6a3e171ebd4125cf16de29db54f22089f1ba6f3ae85cd5d6059f30f262e8b7",
+      "dimensions": {
+        "width": 1280,
+        "height": 720
+      },
+      "byteLength": 159400,
+      "mediaType": "image/jpeg",
+      "sceneDescription": "Captain Toad stands on a low stone platform in a reflective turquoise water channel beside grassy banks and a sandstone tower doorway, under an orange sky. Three large gold coins rise above the foreground-right platform. The HUD shows 10 coins and one filled gem slot.",
+      "verificationStatus": "verified-byte-identical"
+    }
+  ]
+}

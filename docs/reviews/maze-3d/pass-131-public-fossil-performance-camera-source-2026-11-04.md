@@ -1,0 +1,26 @@
+# Pass131 — public physical fossil/Pip performance camera (source-built, rendering review pending)
+
+**UTC date:** 2026-11-04. **Branch:** `feat/maze-3d-gauntlet`. **PR:** [#53](https://github.com/my-edutu/Ai_games/pull/53) (must remain DRAFT, unmerged, undeployed).
+
+## Real baseline and frozen reference
+
+- Previous actual original screenshot critic: [Pass130 repaired WebGL 41769194310](https://github.com/my-edutu/Ai_games/actions/runs/41769194310), artifact `13294346922`, with 25/25 original 1280/390/320/844 and gate PNG SHA-256 confirmations recorded in [Pass130 review](./pass-130-public-fossil-pip-acting-2026-11-04.md). This is **the preceding candidate, not evidence that Pass131 renders better**.
+- Fixed artistic bar: real gameplay images in [Nintendo's Captain Toad: Treasure Tracker](https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/). It demonstrates compact authored scenes, strong readable actor/world cause-and-effect, clear vertical levels and extremely economical HUD. Supporting references remain Luigi's Mansion 3 and ASTRO BOT. The original benchmark is **NOT MET**.
+- Largest remaining on-camera gap in actual Pass130 evidence: the character's **real** sculptural reaction is legible only on close inspection, against substantial blank sea and generic foundation surfaces. Do not add descriptive HUD cards instead of fixing the 3D shot.
+
+## Independently judgeable slice built
+
+1. [Camera geometry `56e2ad0`](https://github.com/my-edutu/Ai_games/commit/56e2ad0660b40db2165f09c5e89d9c315bd081b1): pure `publicFossilPerformanceHalfHeight` reads only physically modeled publicly published hero/organ coordinates, strength, viewport aspect and camera focus. It refuses portrait, invalid, low-attention or unsafe close-ups and bounds the **full physical outlines** at both ends of actual camera easing. Max requested closer stage is 18%, not an arbitrary macro crop.
+2. [Real scene integration `050f30c`](https://github.com/my-edutu/Ai_games/commit/050f30c2917e2c064b061b4e491ba157ecbdee3c): integrates that camera **only** while a real published modeled organ is attracting the actual Pip. The camera gently includes the physical organ in the 1280/landscape composition. Real guardian, sealed/opening gate, collected key burst, keyed lock, near public goal, terminal state, overview/detail, reduced-motion and narrow phone framing retain higher priority. The actual browser diagnostic exposes `fossilPerformanceShot` in genuine WebGL sidecars (not a HUD claim). No AI movement, secret cell, fake interaction, extra three.js mesh, source authority, or public feed layout changes.
+3. [Independent-path source test `952ab19`](https://github.com/my-edutu/Ai_games/commit/952ab19d3817deab18a65bbcd112d5632db6fee5): validates both physical silhouette envelopes during camera easing, strength falloff, near/far and portrait/invalid refusal, non-mutating public actor coordinates and actual source precedence guards. This test is an acceptance guard, **not** an art or gameplay win.
+
+## Strict exact-source test and render gates (PENDING, not passed)
+
+- [Pass131 original production WebGL workflow 41771895203](https://github.com/my-edutu/Ai_games/actions/runs/41771895203) and [whole monorepo CI 41771895353](https://github.com/my-edutu/Ai_games/actions/runs/41771895353) were **QUEUED** at the source checkpoint. Never imply that source validation or full CI passed before job conclusion.
+- From the **new** successful actual-source Playwright artifact, recover original full-resolution `public-fossil-alcove-1280.png`, `public-fossil-alcove-390.png`, actual 320/844 guardian, real gate BEFORE/MID/AFTER and key pickup, with their UTC source/tick/seed/camera/physical body diagnostic JSON. Independently recalculate every original PNG SHA-256. Strict same seed/aspect pixel comparison with Pass130: hero face/head/lantern and organ both legible, no occlusion or fake new event, less empty sea, no full-body crop.
+- Confirm `fossilPerformanceShot` actually activated in original 1280 WebGL; **if not, do not claim the new camera is visible**. Native portrait is intentionally unchanged: it must retain actual whole Pip/Thornback/gate and 44px controls.
+- Separate builder/source critic **was not a detached fresh-context independent artist**. The shared coding workspace returned `Tunnel-client has not been seen for 300 seconds` on this run. Fresh-context agents and Ultracode could not be started; independent blind A/B is **PENDING**. Image container returned `redis.exceptions.ResponseError`, so new native PNG cannot be artistically inspected in this run; a green workflow alone is insufficient.
+- CPU-throttled GitHub SwiftShader is software-rendered timing, not a product defect unless verified separately and **not** evidence of hardware-GPU FPS.
+- If actual 1280/390 image comparison loses to Pass130 or crops any actor/organ, revert/refine this exact camera change rather than weakening tests.
+
+**Status:** unverified new source candidate, overall Nintendo bar NOT MET, draft PR must stay open without merge/deploy. Next large gap after this camera review: richer original puzzle/environment silhouettes and sustained physical interaction; not dashboard prose.
