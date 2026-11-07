@@ -5938,6 +5938,57 @@
       "plays": "UNVERIFIED",
       "independentCritics": 0,
       "next": "Verify exact-head 1440/390 original skinned sword drive/boots/recoil and real damage, while retaining Warden telegraphs; resolve software-browser 0.5fps capture without skipping ticks; full natural five stages, same-seed immutable baseline and 3 independent blind critics."
+    },
+    "m1BafAuthenticMotionAudit": {
+      "date": "2026-11-07",
+      "stage": "A_INCOMPLETE",
+      "sourceSha": "baf619bc65ad57593837681c1cca23875a9525dd",
+      "immutableBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "desktopArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42410350604/artifacts/13589772273",
+      "mobileArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42410350604/artifacts/13589057802",
+      "realStagesObserved": [
+        "combat",
+        "warden hp loss",
+        "floor advancement"
+      ],
+      "missingStages": [
+        "natural defeat",
+        "restart"
+      ],
+      "sourceGameplayEffect": "RUNNING_3_STAGES_OBSERVED",
+      "lungeBenefit": "UNVERIFIED_BECAUSE_MOTION_SPARSE",
+      "headlessCapture": {
+        "desktopFrames": 304,
+        "desktopDurationSeconds": 598.5,
+        "desktopFps": 0.508,
+        "mobileFrames": 243,
+        "mobileDurationSeconds": 508.1,
+        "mobileFps": 0.478,
+        "originalOpusAudio": "AUDIBLE_NON_SILENT",
+        "desktopMeanDb": -42,
+        "mobileMeanDb": -43.1,
+        "synchronizedImpact": "UNVERIFIED",
+        "separatePcmWav": "NOT_FINALIZED",
+        "devicePerformance": "UNVERIFIED"
+      },
+      "checks": {
+        "localDungeonTests": "329/329 PASS",
+        "authority": "PASS",
+        "browser": "2/3 shards PASS; shard2 27 PASS 1 progress-timeout FAIL",
+        "visualReview": "PASS",
+        "catalogueCi": "FAIL"
+      },
+      "sourceChanges": "NONE_AUDIOVISUAL_EVIDENCE_AUDIT_ONLY",
+      "blockers": [
+        "local coding and independent-worker tunnel unavailable",
+        "localhost Chromium blocked by administrator",
+        "software-WebGL 0.5 fps / 420-second checksum gate"
+      ],
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "independentCritics": 0,
+      "next": "Profile source-render and ordered-feed throughput without skipping authority; recover true five-stage desktop/mobile WebM + original synchronized WAV; correct largest observed miniature original Warden/Vanguard sword/boot scene, validate warning protection, compare same seed baseline and 3 blind critics"
     }
   }
 }
