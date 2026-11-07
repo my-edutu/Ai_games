@@ -1,6 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const vm = require('node:vm');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const modulePromise = import(pathToFileURL(path.join(__dirname,
@@ -138,7 +139,29 @@ test('source-lived last stand stages the camera before the REAL gate unlock, wit
   const scene=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
   assert.match(scene,/observedLockedGuardianCap\(snapshot\)/);
   assert.match(scene,/observedLiveGuardianLastStandShot\(snapshot, liveLastStand, camera\.aspect, zoom\)/);
-  assert.match(scene,/const realCapLens = sourceEarnedWalk \|\| sourceLastStand/);
+  // Evaluate the submitted lens-selection policy: an earned walking camera,
+  // then its physically source-qualified AIRBORNE continuation, then the
+  // still-locked living guardian last stand. No standalone cosmetic gate.
+  const lensSource=scene.match(/\\bconst realCapLens\\s*=\\s*([^;]+);/);
+  const stageSource=scene.match(/\\bconst realCapStage\\s*=\\s*([\\s\\S]*?);/);
+  assert.ok(lensSource&&stageSource,'the real scene must select both shot and stage');
+  const select=(sourceEarnedWalk,sourceAirborneWalk,sourceLastStand)=>{
+    const context={sourceEarnedWalk,sourceAirborneWalk,sourceLastStand,
+      earnedPassageStage:{id:'true-cap'},passage:{diagnostics:()=>({id:'locked-cap'})}};
+    return {
+      lens:vm.runInNewContext('('+lensSource[1]+')',context,{timeout:50}),
+      stage:vm.runInNewContext('('+stageSource[1]+')',context,{timeout:50}),
+    };
+  };
+  assert.equal(select(null,null,null).lens,null,'no authority -> no invented shot');
+  assert.equal(select(null,null,'live-guardian').stage.id,'locked-cap',
+    'living guardian still uses the real still-locked encounter');
+  assert.equal(select(null,'earned-airborne','live-guardian').lens,'earned-airborne');
+  assert.equal(select(null,'earned-airborne','live-guardian').stage.id,'true-cap',
+    'real cap airborne traversal uses the same genuinely earned door');
+  assert.equal(select('earned-grounded','earned-airborne','live-guardian').lens,'earned-grounded',
+    'physical grounded crossing remains first priority');
+  assert.equal(select('earned-grounded',null,null).stage.id,'true-cap');
   assert.match(scene,/safeEarnedGatewayDollyRadius\(destination,/);
   assert.match(scene,/towerCoreSightlineClear\(camera\.position,/);
 });
