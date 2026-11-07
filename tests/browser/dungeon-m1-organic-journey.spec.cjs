@@ -31,37 +31,57 @@ function organicExpedition(){
 }
 // The only film inputs are the actual canvas and the spectator's original,
 // user-opted-in WebAudio bus. No synthetic soundtrack or rendered mock scene.
-async function beginRecording(page){
- return page.evaluate(()=>{
+// Capture full-motion original WebGL/opt-in WebAudio in timestamp-ordered
+// bounded chunks. The previous 8fps/480kbps and final in-page base64
+// accumulation could not review natural sword/camera motion reliably.
+async function beginRecording(page,isDesktop){
+ return page.evaluate((desktop)=>{
   try{
    const canvas=document.getElementById('world');
    const mime=['video/webm;codecs=vp8,opus','video/webm'].find(t=>window.MediaRecorder?.isTypeSupported(t));
-   if(!canvas?.captureStream||!mime)return {status:'UNAVAILABLE',reason:'WebGL MediaRecorder unsupported'};
-   const video=canvas.captureStream(8),audio=window.__DUNGEON_CAPTURE_SOUND__?.();
+   if(!canvas?.captureStream||!mime||typeof window.__M1_MEDIA_CHUNK__!=='function')
+    return {status:'UNAVAILABLE',reason:'WebGL MediaRecorder or bounded disk sink unavailable'};
+   const requestedFps=24,videoBitrate=desktop?2400000:1100000;
+   const video=canvas.captureStream(requestedFps),audio=window.__DUNGEON_CAPTURE_SOUND__?.();
    const v=video.getVideoTracks(),a=audio?.getAudioTracks()||[];
    if(v.length!==1)return {status:'UNAVAILABLE',reason:'No WebGL video track'};
-   const stream=new MediaStream([...v,...a]),recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:480000});
-   const chunks=[];
+   const stream=new MediaStream([...v,...a]);
+   const recorder=new MediaRecorder(stream,{mimeType:mime,
+    videoBitsPerSecond:videoBitrate,audioBitsPerSecond:112000});
+   let sequence=Promise.resolve(),bytes=0,parts=0,failure=null;
    window.__M1_RECORD__={recorder,stream,video};
    window.__M1_RESULT__=new Promise(resolve=>{
-    recorder.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data)};
-    recorder.onerror=e=>resolve({status:'UNAVAILABLE',reason:String(e.error)});
+    recorder.ondataavailable=e=>{
+     if(!e.data?.size)return;
+     const chunk=e.data;
+     // Preserve exact WebM chunk order, even if converting the next Blob
+     // finishes sooner. Never hold the entire film inside the page.
+     sequence=sequence.then(async()=>{
+      const u=new Uint8Array(await chunk.arrayBuffer());
+      let binary='';
+      for(let i=0;i<u.length;i+=16384)
+       binary+=String.fromCharCode(...u.subarray(i,i+16384));
+      await window.__M1_MEDIA_CHUNK__(btoa(binary));
+      bytes+=u.length;parts++;
+     }).catch(err=>{failure=String(err)});
+    };
+    recorder.onerror=e=>{failure=String(e.error||e)};
     recorder.onstop=async()=>{
      try{
-      const blob=new Blob(chunks,{type:mime}),array=new Uint8Array(await blob.arrayBuffer());
-      let binary='';
-      for(let i=0;i<array.length;i+=16384)binary+=String.fromCharCode(...array.subarray(i,i+16384));
-      resolve({status:blob.size>2048?'RECORDED':'UNAVAILABLE',bytes:blob.size,
-       reason:blob.size>2048?undefined:'Empty WebGL film',mime,base64:btoa(binary),
-       audioTracks:a.length,videoTracks:v.length});
-     }catch(e){resolve({status:'UNAVAILABLE',reason:String(e)})}
+      await sequence;
+      resolve({status:bytes>2048&&parts>0&&!failure?'RECORDED':'UNAVAILABLE',
+       reason:failure||(bytes>2048?undefined:'Empty WebGL film'),bytes,
+       chunks:parts,mime,audioTracks:a.length,videoTracks:v.length,
+       requestedFps,videoBitrate,audioBitrate:112000});
+     }catch(e){resolve({status:'UNAVAILABLE',reason:String(e),bytes,chunks:parts})}
      finally{stream.getTracks().forEach(t=>t.stop());video.getTracks().forEach(t=>t.stop())}
     };
    });
-   recorder.start(4000);
-   return {status:'RECORDING',mime,audioTracks:a.length,videoTracks:v.length};
+   recorder.start(1600);
+   return {status:'RECORDING',mime,audioTracks:a.length,videoTracks:v.length,
+    requestedFps,videoBitrate,audioBitrate:112000};
   }catch(e){return {status:'UNAVAILABLE',reason:String(e)}}
- });
+ },isDesktop);
 }
 async function stopRecording(page){
  let timer;
@@ -92,7 +112,24 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame||0),{timeout:90000}).toBeGreaterThan(3);
  await page.locator('#audio-toggle').click(); // genuine spectator opt-in
  const audioOptedIn=(await page.locator('#audio-toggle').getAttribute('aria-pressed'))==='true';
- const recording=await beginRecording(page),started=Date.now();
+ const stem='artifacts/dungeon-m1-organic-journey-'+VIEW;
+ const filmPath=stem+'.webm';
+ const filmOutput=fs.createWriteStream(filmPath,{flags:'w'});
+ let savedBytes=0,savedChunks=0,sinkError=null;
+ filmOutput.on('error',err=>{sinkError=String(err)});
+ await page.exposeBinding('__M1_MEDIA_CHUNK__',async(_,encoded)=>{
+  if(sinkError)throw Error(sinkError);
+  if(typeof encoded!=='string'||encoded.length>16*1024*1024)
+   throw Error('Unbounded or invalid WebM recording chunk');
+  const data=Buffer.from(encoded,'base64');
+  if(data.length===0)return;
+  if(!filmOutput.write(data))
+   await new Promise((resolve,reject)=>{
+    filmOutput.once('drain',resolve);filmOutput.once('error',reject);
+   });
+  savedBytes+=data.length;savedChunks++;
+ });
+ const recording=await beginRecording(page,VIEW==='desktop'),started=Date.now();
  // Preserve independent live original PCM signal evidence, not just WebM
  // track count (which cannot establish actual audible or synchronized sound).
  let pcmRequested=false;
@@ -150,6 +187,13 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
  expect(feedMetrics.uniqueDelivered,'every authentic authority tick delivered').toBe(snapshots.length);
  expect(feedMetrics.lastDeliveredIndex,'natural restart delivered').toBe(snapshots.length-1);
  const film=recording.status==='RECORDING'?await stopRecording(page):recording;
+ await new Promise((resolve,reject)=>{
+  if(sinkError)return reject(Error(sinkError));
+  filmOutput.once('error',reject);filmOutput.end(resolve);
+ });
+ if(film.status==='RECORDED'&&(savedBytes!==film.bytes||savedChunks!==film.chunks))
+  throw Error('WebM integrity mismatch between true MediaRecorder and streamed disk chunks');
+ if(film.status!=='RECORDED')fs.rmSync(filmPath,{force:true});
  const pcm=pcmRequested?await page.evaluate(async()=>{
   const recorded=await window.__M1_PCM_CAPTURE__;
   const {wav,...meta}=recorded||{status:'UNAVAILABLE',reason:'Missing PCM result'};
@@ -171,6 +215,11 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
     checksum:snapshots[index].checksum}])),
   elapsedMs:Date.now()-started,playbackCadence:'browser polling, held real milestone frames, not original live cadence',orderedFeed:feedMetrics,audioGestureOptIn:audioOptedIn,
   recorder:{status:film.status,reason:film.reason,bytes:film.bytes||0,mime:film.mime,
+   requestedFps:film.requestedFps||recording.requestedFps||0,
+   videoBitrate:film.videoBitrate||recording.videoBitrate||0,
+   audioBitrate:film.audioBitrate||recording.audioBitrate||0,
+   chunks:film.chunks||0,bytesOnDisk:savedBytes,chunksOnDisk:savedChunks,
+   cadenceVerified:'UNVERIFIED until decoded frames/timestamps inspected',
    audioTracks:film.audioTracks||0,videoTracks:film.videoTracks||0},
   originalAudioTrackPresent:film.status==='RECORDED'&&film.audioTracks>0,
   originalAudioPcm:{...pcmFacts,
@@ -181,9 +230,7 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
   audibleSynchronizedSound:'UNVERIFIED: decode WebM and align hit timestamp with original PCM',
   matchedLockedBaseline:false,blindCritics:0,looks:'UNVERIFIED',feels:'UNVERIFIED',plays:'UNVERIFIED',
   milestoneFrameProof,observations,pageErrors:errors};
- const stem='artifacts/dungeon-m1-organic-journey-'+VIEW;
  fs.writeFileSync(stem+'.json',JSON.stringify(receipt,null,2));
- if(film.status==='RECORDED'&&film.base64)fs.writeFileSync(stem+'.webm',Buffer.from(film.base64,'base64'));
  await page.locator('#world').screenshot({path:stem+'-real-restart.png',timeout:90000});
  expect(errors).toEqual([]);
  expect(observations.some(o=>o.frame>0)).toBe(true);
