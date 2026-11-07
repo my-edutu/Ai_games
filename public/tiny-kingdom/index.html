@@ -1041,6 +1041,54 @@ function getEllipsoidShellAudit(){
 }
 // G069: fixed-size CPU phase timings for actual presented frames, not fake GPU
 // timestamps. Sampling never touches authoritative state or named RNG streams.
+// W105: actual completed-draw cadence across the SAME real-game scene. This
+// measures intervals between completed JavaScript/WebGL draw submissions,
+// including software driver stalls, NOT compositor presentation timestamps
+// or physical GPU elapsed time. Never mix Day-1 and Day-120 samples.
+const DRAW_CADENCE_LIMIT=120;
+let drawCadenceScene=null,drawCadenceLastCompletion=null;
+let drawCadenceSamples=[],drawCadenceTotal=0,drawCadenceResets=0;
+function drawCadenceSceneKey(day,mode,width,height,scale){
+ if(![day,width,height,scale].every(Number.isFinite)||!mode)
+  throw Error('Invalid draw cadence scenario');
+ return [Math.floor(day),mode,Math.round(width),Math.round(height),
+  Math.round(scale*1000)].join('|');
+}
+function summarizeDrawCadence(samples){
+ const valid=samples.filter(v=>Number.isFinite(v)&&v>=0).sort((a,b)=>a-b);
+ const at=p=>valid.length?valid[Math.ceil(valid.length*p)-1]:null;
+ return {samples:valid.length,p50Ms:at(.5),p95Ms:at(.95),
+  p99Ms:at(.99),worstMs:valid.length?valid[valid.length-1]:null};
+}
+function noteDrawCompletion(endMs,scenario,wasFrozenIdle=false){
+ if(!Number.isFinite(endMs)||typeof scenario!=='string'||!scenario)
+  throw Error('Invalid actual draw completion');
+ if(drawCadenceScene!==scenario||wasFrozenIdle){
+  drawCadenceScene=scenario;drawCadenceLastCompletion=null;
+  drawCadenceSamples=[];drawCadenceTotal=0;drawCadenceResets++;
+ }
+ if(drawCadenceLastCompletion!==null){
+  const interval=endMs-drawCadenceLastCompletion;
+  // A non-monotone clock or suspended tab begins a new measurement session.
+  if(interval>=0&&interval<=300000){
+   drawCadenceSamples.push(interval);drawCadenceTotal++;
+   if(drawCadenceSamples.length>DRAW_CADENCE_LIMIT)drawCadenceSamples.shift();
+  }else{drawCadenceSamples=[];drawCadenceTotal=0;drawCadenceResets++}
+ }
+ drawCadenceLastCompletion=endMs;
+}
+function getDrawCadenceAudit(){
+ return {kind:'completed-draw-wall-cadence',unit:'milliseconds',
+  renderer:gpuName,softwareRenderer:swiftGpu,scene:drawCadenceScene,
+  viewport:[canvas.clientWidth,canvas.clientHeight],
+  backingPixels:[canvas.width,canvas.height],
+  maxSamples:DRAW_CADENCE_LIMIT,totalIntervals:drawCadenceTotal,
+  sessions:drawCadenceResets,
+  ...summarizeDrawCadence(drawCadenceSamples),
+  excludesFrozenIdle:true,notHardwareGpuTimer:true,
+  notGuaranteedCompositorPresent:true,authorityUnmodified:true};
+}
+
 const FRAME_PROFILE_LIMIT=48,frameProfileSamples=[];
 const FRAME_PROFILE_KEYS=['simulationAndSky','staticGeometry','dynamicGeometry','drawSubmission','total','worksiteGeometry','residentWorkGeometry','householdGeometry','economyGeometry','residentEconomyGeometry','ambientGeometry','citizenGeometry','weatherGeometry','gpuUpload'];
 let frameProfileCount=0;
@@ -15423,6 +15471,14 @@ if(gpuAvailable&&actorStreamSplitEnabled&&actorFrameData.length){
  if(frameProfileSamples.length>FRAME_PROFILE_LIMIT)frameProfileSamples.shift();
  updateSoftwareResolution(frameProfileEnd-frameSubmitStart,frameProfileEnd-frameProfileStart);
  frameProfileCount++;
+ // Pin real day, camera mode, actual backing scale and viewport together.
+ // Frozen idle time must not masquerade as sluggish active gameplay.
+ const drawScenario=drawCadenceSceneKey(Math.floor(state.t/24)+1,
+  (frozen?'paused:':'active:')+
+   (streetWalk?'walking':follow?'real-citizen':cinematic?'cinema':'town'),
+  canvas.clientWidth,canvas.clientHeight,renderQuality().scale);
+ noteDrawCompletion(frameProfileEnd,drawScenario,idleFrames>0);
+ idleFrames=0;
  // Only a completed presentation may become the reusable frozen frame.
  lastFrozenFrameKey=frozenViewKey;
 }
@@ -15458,7 +15514,7 @@ getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:
  totalSavedDrawCalls:scenicVisibilityStats.totalSavedDrawCalls,
  batchMode:scenicVisibilityStats.batchMode,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
  getWorksiteFixtureResidencyAudit,setWorksiteFixtureResidencyForTesting,
  getActorResidencyAudit,setActorStreamSplitForTesting,
  setStaticBatchBridgingForTesting,getScenicMultiDrawAudit,setScenicMultiDrawForTesting,getCourierPostCameraAudit,evaluateCourierPostRepairPolicy,getDaybreakReturnAudit,getCameraDynamicCacheStats,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
