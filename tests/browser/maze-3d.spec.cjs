@@ -201,7 +201,19 @@ test('six real run transitions release old character resources and keep the expl
     expect(sample.world.renderedCells).toEqual(frame.snapshot.cells.map(cell => cell.cell));
   }
   const starts = samples.filter((_, index) => index % 2 === 0);
-  expect(Math.max(...starts.map(s => s.geometries)) - Math.min(...starts.map(s => s.geometries))).toBeLessThanOrEqual(8);
+  // These are six different public procedural layouts, not identical levels.
+  // Keep the strict cross-run <=8 guard. When it fails, preserve the actual
+  // published geometry/character/terrain inventory so a resource leak is not
+  // confused with a legitimately visible Thornback or discovered masonry.
+  const startEvidence = starts.map((sample, run) => ({
+    run, geometries: sample.geometries, characters: sample.characterCount,
+    worldGeometries: sample.world.geometryCount,
+    worldMeshes: sample.world.meshes,
+    disclosedCells: sample.world.renderedCells.length,
+    textures: sample.textures,
+  }));
+  const startSpread = Math.max(...starts.map(s => s.geometries)) - Math.min(...starts.map(s => s.geometries));
+  expect(startSpread, `Public six-run geometry spread: ${JSON.stringify(startEvidence)}`).toBeLessThanOrEqual(8);
   expect(errors).toEqual([]);
 });
 
