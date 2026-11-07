@@ -32,6 +32,7 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
     [x,terrain(x,z+2.5)+1.65,z+2.5],
     [x,terrain(x,z-2.5)+1.35,z-2.5]);
    return {gateway,street,post,centre,
+    realReceivingPosts:g.getTradeCorridorCameraAudit().marketPosts,
     worldIdentical:worldBefore===JSON.stringify(g.exportSnapshot()),
     citizens:g.metrics().citizens,city:g.metrics().buildings,
     triangles:g.renderStats().lastFrameTriangles,
@@ -51,7 +52,9 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(actual.street.pavingStones).toBeGreaterThanOrEqual(180);
   expect(actual.street.pavingStones).toBeLessThanOrEqual(260);
   expect(actual.gateway.ornamentalOnly).toBe(true);
-  expect(actual.post.modelledPosts).toBe(18);
+  // The authentic receiving hall added four supported posts since W79.
+  // Camera witness must include all physical objects, not stale constants.
+  expect(actual.post.modelledPosts).toBe(actual.gateway.structuralPosts+actual.realReceivingPosts);
   expect(actual.post.postsInFrame).toBeGreaterThan(0);
   expect(actual.post.centerCover).toBeGreaterThan(actual.centre.centerCover);
   expect(actual.centre.centerCover).toBeLessThan(.08);
