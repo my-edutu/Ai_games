@@ -22,6 +22,19 @@ jobs:
     steps:
       - name: Checkout exact PR source
         uses: actions/checkout@v6
+        with:
+          # pull_request defaults to refs/pull/*/merge, not the source PR HEAD.
+          # The screenshot and geometry gates must test this exact authored SHA.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Assert checkout matches the source-bound evidence SHA
+        env:
+          EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          checked_out="$(git rev-parse HEAD)"
+          if [ "$checked_out" != "$EXPECTED_HEAD_SHA" ]; then
+            echo "::error::Evidence checkout $checked_out differs from expected PR source $EXPECTED_HEAD_SHA"
+            exit 1
+          fi
       - name: Set up Node
         uses: actions/setup-node@v6
         with:
