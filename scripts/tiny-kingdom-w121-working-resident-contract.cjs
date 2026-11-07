@@ -26,8 +26,8 @@ check('!workingIndices.has(i))compactVillager(people[i]);','fallback renders eac
 check('drawWorkingResidentMesh();','real GPU draw issued in current frame');
 check('addSceneGeometryStats(animated,workingResidentMesh);','worker geometry audited with material and bounds');
 check('getWorkingResidentAudit,','published exact-render worker telemetry');
-check('resetWorkingResidents();restingActorKey=', 'reset invalidates old retained workers');
-check("resetResidentCommuters();resetWorkingResidents();restingActorVisible=false;",'save restore invalidates retained workers');
+check('resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();restingActorKey=', 'reset invalidates every resident actor cache');
+check("resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();restingActorVisible=false;",'save restore invalidates retained workers');
 check('(workingResidentVisible.length?workingResidentMesh.length:0)','complete frame triangle count');
 assert(!code.includes('Math.random('),'render pose cache never generates authority randomness');
 

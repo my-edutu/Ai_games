@@ -9,6 +9,7 @@ on:
       - 'scripts/tiny-kingdom-w122-worker-vbo-contract.cjs'
       - 'scripts/tiny-kingdom-w122-workday-supply-contract.cjs'
       - 'scripts/tiny-kingdom-w123-foreground-resident-contract.cjs'
+      - 'scripts/tiny-kingdom-w121-working-resident-contract.cjs'
       - 'scripts/tiny-kingdom-w118-resting-actor-contract.cjs'
       - '.github/workflows/tiny-kingdom-long-soak.yml'
   workflow_dispatch:
