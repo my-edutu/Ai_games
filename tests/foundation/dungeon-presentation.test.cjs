@@ -46,6 +46,8 @@ function presentation({nestedFailure=false,fixture=null}={}){
  const native=fs.readFileSync(path.join(ROOT,'public/ai-dungeon/native-duel-performance.js'),'utf8')
   .replace(/^export /gm,'');
  context.planNativeOneShotSpeed=vm.runInContext('(function(){\n'+native+'\nreturn planNativeOneShotSpeed;})()',context);
+ // Reuse the imported figure's actual read-only choreography, not a no-op.
+ context.planNativeDuelPose=vm.runInContext('(function(){\n'+native+'\nreturn planNativeDuelPose;})()',context);
  vm.runInContext(text,context);return context;
 }
 function actor(action='attack',tick=11){
@@ -54,6 +56,19 @@ function actor(action='attack',tick=11){
  const active={reset(){calls.reset++;return this},setEffectiveTimeScale(){return this},setEffectiveWeight(){return this},setLoop(mode){calls.loops.push(mode);return this},play(){calls.play++;return this},crossFadeFrom(){calls.crossFade++;return this}};
  return {calls,value:{authored:true,u:{id:'vanguard',kind:'vanguard',action,actionTick:tick},availableClips:[clip],currentAction:'',mixer:{clipAction(){return active},update(){calls.update++}}}};
 }
+test('native duel follows genuine adjacent contact without granting invented damage',()=>{
+ const api=presentation(),target={targetId:'revenant-1',distance:1,alive:true};
+ const wind=api.planNativeDuelPose('vanguard','attack',.09,target);
+ const strike=api.planNativeDuelPose('vanguard','attack',.225,target);
+ const recover=api.planNativeDuelPose('vanguard','attack',.51,target);
+ assert.equal(wind.phase,'windup');
+ assert.equal(strike.phase,'impact');
+ assert.ok(strike.contactWeight>.65,'strike occurs in the real imported one-shot');
+ assert.equal(recover.phase,'recovery');
+ assert.equal(api.planNativeDuelPose('vanguard','attack',.225,{...target,distance:2}).mode,'rest');
+ assert.equal(api.planNativeDuelPose('vanguard','attack',.225,{...target,reducedMotion:true}).mode,'rest');
+ assert.equal(api.planNativeDuelPose('vanguard','attack',.225,{...target,alive:false}).mode,'rest');
+});
 test('a new same-type attack tick replays the animation; a rerender does not',()=>{
  const api=presentation(),a=actor();
  api.updateActor(a.value,.016);api.updateActor(a.value,.016);

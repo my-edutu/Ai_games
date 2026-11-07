@@ -5697,7 +5697,7 @@
       "next": "Exact-new-head real 1440px/390px seeded Chromium audiovisual battle + compare pinned baseline; verify no new occlusion/camera jitter, then original adult-scale native rig/Warden melee integration and five-stage organic reel."
     },
     "currentStage": "A — exact-head original moving desktop/mobile video/audio and comparison not yet verified",
-    "executableNextTask": "Inspect exact-head 1440/390 original stage/checksum WebM/WAV, measure pillar clearance and visual popping, reject artefacts, continue adult-scale native duel+true contact and 5-stage same-seed original baseline A/B and three blind critics.",
+    "executableNextTask": "Inspect recovery-head original 1440/390 Chromium WebM/WAV and stage/checksum, measure actual pillar recession and skinned weapon/boot motion and fps; repair greatest real defect, compare immutable baseline and run three blind critics.",
     "phasePlan": [
       {
         "phase": "A",
@@ -5817,6 +5817,29 @@
       "performance": "UNVERIFIED",
       "independentCritics": 0,
       "next": "Inspect exact-head 1440/390 original stage/checksum WebM/WAV, measure pillar clearance and visual popping, reject artefacts, continue adult-scale native duel+true contact and 5-stage same-seed original baseline A/B and three blind critics."
+    },
+    "m1BrowserRunnerRecoveryCandidate": {
+      "date": "2026-11-07",
+      "stage": "A",
+      "sourceParentSha": "31cae715c212a6e7ec3dcfbcc999f7a13603ad5b",
+      "lockedBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "authenticFailureRuns": [
+        "https://github.com/my-edutu/Ai_games/actions/runs/42337068056",
+        "https://github.com/my-edutu/Ai_games/actions/runs/42337068092",
+        "https://github.com/my-edutu/Ai_games/actions/runs/42337068227"
+      ],
+      "observedBlocker": "GitHub ubuntu-latest resolved to Ubuntu 26.04.1; pinned Playwright 1.55.0 did not support chromium on ubuntu26.04-x64",
+      "sourceChange": "Pin Game 9 Chromium workflows to ubuntu-24.04; execute authentic imported native-duel pose planner in presentation VM and test real staged phases plus reduced motion/invalid distance",
+      "priorChecks": "Build, full dungeon:test, strict CC0 model asset SHA verification and ordered feed passed in original workflow; 4 isolated presentation tests failed on missing VM import",
+      "browserAfter": "UNVERIFIED",
+      "observedGameplay": "NOT OBSERVED",
+      "originalAudio": "UNVERIFIED",
+      "framePerformance": "UNVERIFIED",
+      "criticCount": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "next": "Inspect recovery-head original 1440/390 Chromium WebM/WAV and stage/checksum, measure actual pillar recession and skinned weapon/boot motion and fps; repair greatest real defect, compare immutable baseline and run three blind critics."
     }
   }
 }

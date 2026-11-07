@@ -17,7 +17,8 @@ concurrency:
   cancel-in-progress: true
 jobs:
   authority:
-    runs-on: ubuntu-latest
+    # Playwright 1.55 requires a supported runner OS; ubuntu-latest resolved to unsupported 26.04.
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -39,7 +40,8 @@ jobs:
       fail-fast: false
       matrix:
         shard: [1, 2, 3]
-    runs-on: ubuntu-latest
+    # Playwright 1.55 requires a supported runner OS; ubuntu-latest resolved to unsupported 26.04.
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
