@@ -31,10 +31,48 @@ export function stepTowerPhysics(input:TowerState,action:TowerAction):{state:Tow
   if(action.dash&&p.dashCooldown===0&&p.stamina>=state.build.dashCost){p.velocity.x=p.facing*c.dashSpeed;p.dashCooldown=Math.max(6,20-state.build.dashCooldownReduction);p.stamina-=state.build.dashCost;p.state='dashing';state.stats.dashes++}
   p.velocity.y=clamp(p.velocity.y-c.gravity,-c.maxFallSpeed,c.jumpImpulse);
   const targetX=p.position.x+p.velocity.x;let newX=targetX;
-  for(const platform of nextPlatforms){if(platform.kind==='oneway')continue;const pb=p.position.y-p.halfHeight,pt=p.position.y+p.halfHeight;if(!overlap1(pb,pt,platform.y,platform.y+platform.height))continue;
-    const oldL=p.position.x-p.halfWidth,oldR=p.position.x+p.halfWidth,newL=newX-p.halfWidth,newR=newX+p.halfWidth;
-    if(p.velocity.x>0&&oldR<=platform.x&&newR>=platform.x){newX=platform.x-p.halfWidth;p.velocity.x=0;contacts.push({kind:'wall',entityId:platform.id,normal:{x:-1,y:0}})}
-    else if(p.velocity.x<0&&oldL>=platform.x+platform.width&&newL<=platform.x+platform.width){newX=platform.x+platform.width+p.halfWidth;p.velocity.x=0;contacts.push({kind:'wall',entityId:platform.id,normal:{x:1,y:0}})}
+  // The opt-in live 3D game can cross several solid faces during one real
+  // 50ms dash. The original ID-ordered loop stopped at whichever ID was
+  // visited first, not the FIRST physical wall, allowing the climber's body
+  // to pass through the nearer wall and embed inside it. Resolve all source
+  // geometry against the SAME initial swept step, choose nearest contact,
+  // then change velocity once. Historical/unflagged replay stays untouched.
+  const coherentSourceContacts=c.guardianArenaHazards===true&&
+    c.guardianSecondWind===true;
+  if(coherentSourceContacts){
+    let firstWall:TowerPlatform|undefined;
+    let firstWallX=targetX;
+    for(const platform of nextPlatforms){
+      if(platform.kind==='oneway')continue;
+      const bottom=p.position.y-p.halfHeight,top=p.position.y+p.halfHeight;
+      if(!overlap1(bottom,top,platform.y,platform.y+platform.height))continue;
+      const oldLeft=p.position.x-p.halfWidth,oldRight=p.position.x+p.halfWidth;
+      const proposedLeft=targetX-p.halfWidth,proposedRight=targetX+p.halfWidth;
+      if(p.velocity.x>0&&oldRight<=platform.x&&proposedRight>=platform.x){
+        const contactX=platform.x-p.halfWidth;
+        if(!firstWall||contactX<firstWallX){
+          firstWall=platform;firstWallX=contactX;
+        }
+      }else if(p.velocity.x<0&&oldLeft>=platform.x+platform.width&&
+        proposedLeft<=platform.x+platform.width){
+        const contactX=platform.x+platform.width+p.halfWidth;
+        if(!firstWall||contactX>firstWallX){
+          firstWall=platform;firstWallX=contactX;
+        }
+      }
+    }
+    if(firstWall){
+      newX=firstWallX;
+      const heading=p.velocity.x>0?-1:1;
+      p.velocity.x=0;
+      contacts.push({kind:'wall',entityId:firstWall.id,normal:{x:heading,y:0}});
+    }
+  }else{
+    for(const platform of nextPlatforms){if(platform.kind==='oneway')continue;const pb=p.position.y-p.halfHeight,pt=p.position.y+p.halfHeight;if(!overlap1(pb,pt,platform.y,platform.y+platform.height))continue;
+      const oldL=p.position.x-p.halfWidth,oldR=p.position.x+p.halfWidth,newL=newX-p.halfWidth,newR=newX+p.halfWidth;
+      if(p.velocity.x>0&&oldR<=platform.x&&newR>=platform.x){newX=platform.x-p.halfWidth;p.velocity.x=0;contacts.push({kind:'wall',entityId:platform.id,normal:{x:-1,y:0}})}
+      else if(p.velocity.x<0&&oldL>=platform.x+platform.width&&newL<=platform.x+platform.width){newX=platform.x+platform.width+p.halfWidth;p.velocity.x=0;contacts.push({kind:'wall',entityId:platform.id,normal:{x:1,y:0}})}
+    }
   }
   // The opt-in guardian's bronze threshold is a REAL collision plane while
   // the source guardian is alive. A cap sprint, dash or rising double-jump
@@ -77,10 +115,49 @@ export function stepTowerPhysics(input:TowerState,action:TowerAction):{state:Tow
   }
   p.position.x=clamp(newX,p.halfWidth,c.worldWidth-p.halfWidth);if(p.position.x!==newX){p.velocity.x=0;contacts.push({kind:'wall',entityId:'world-boundary',normal:{x:newX<0?1:-1,y:0}})}
   const targetY=p.position.y+p.velocity.y;let newY=targetY,landed:TowerPlatform|undefined;
-  for(const platform of nextPlatforms){const left=p.position.x-p.halfWidth,right=p.position.x+p.halfWidth;if(!overlap1(left,right,platform.x,platform.x+platform.width))continue;
-    const oldB=p.position.y-p.halfHeight,oldT=p.position.y+p.halfHeight,newB=newY-p.halfHeight,newT=newY+p.halfHeight,top=platform.y+platform.height;
-    if(p.velocity.y<=0&&oldB>=top-1&&newB<=top){newY=top+p.halfHeight;p.velocity.y=0;landed=platform;contacts.push({kind:'land',entityId:platform.id,normal:{x:0,y:1}})}
-    else if(p.velocity.y>0&&platform.kind!=='oneway'&&oldT<=platform.y&&newT>=platform.y){newY=platform.y-p.halfHeight;p.velocity.y=0;contacts.push({kind:'head',entityId:platform.id,normal:{x:0,y:-1}})}
+  if(coherentSourceContacts){
+    // In the same fixed step the climber can fall across two deck tops or
+    // rise across two solid undersides. Sorting by entity ID must not choose
+    // a lower landing or a higher ceiling after an earlier impact. Select
+    // the nearest genuinely crossed horizontal face from original Y and
+    // ACTUAL next-tick moving-platform positions; no teleport or new physics.
+    let firstFace:TowerPlatform|undefined;
+    let firstContactY=targetY;
+    let firstKind:'land'|'head'|undefined;
+    for(const platform of nextPlatforms){
+      const left=p.position.x-p.halfWidth,right=p.position.x+p.halfWidth;
+      if(!overlap1(left,right,platform.x,platform.x+platform.width))continue;
+      const oldBottom=p.position.y-p.halfHeight;
+      const oldTop=p.position.y+p.halfHeight;
+      const newBottom=targetY-p.halfHeight;
+      const newTop=targetY+p.halfHeight;
+      const top=platform.y+platform.height;
+      if(p.velocity.y<=0&&oldBottom>=top-1&&newBottom<=top){
+        const contactY=top+p.halfHeight;
+        if(!firstFace||contactY>firstContactY){
+          firstFace=platform;firstContactY=contactY;firstKind='land';
+        }
+      }else if(p.velocity.y>0&&platform.kind!=='oneway'&&
+        oldTop<=platform.y&&newTop>=platform.y){
+        const contactY=platform.y-p.halfHeight;
+        if(!firstFace||contactY<firstContactY){
+          firstFace=platform;firstContactY=contactY;firstKind='head';
+        }
+      }
+    }
+    if(firstFace&&firstKind){
+      newY=firstContactY;
+      p.velocity.y=0;
+      if(firstKind==='land')landed=firstFace;
+      contacts.push({kind:firstKind,entityId:firstFace.id,
+        normal:{x:0,y:firstKind==='land'?1:-1}});
+    }
+  }else{
+    for(const platform of nextPlatforms){const left=p.position.x-p.halfWidth,right=p.position.x+p.halfWidth;if(!overlap1(left,right,platform.x,platform.x+platform.width))continue;
+      const oldB=p.position.y-p.halfHeight,oldT=p.position.y+p.halfHeight,newB=newY-p.halfHeight,newT=newY+p.halfHeight,top=platform.y+platform.height;
+      if(p.velocity.y<=0&&oldB>=top-1&&newB<=top){newY=top+p.halfHeight;p.velocity.y=0;landed=platform;contacts.push({kind:'land',entityId:platform.id,normal:{x:0,y:1}})}
+      else if(p.velocity.y>0&&platform.kind!=='oneway'&&oldT<=platform.y&&newT>=platform.y){newY=platform.y-p.halfHeight;p.velocity.y=0;contacts.push({kind:'head',entityId:platform.id,normal:{x:0,y:-1}})}
+    }
   }
   p.position.y=newY;p.grounded=Boolean(landed);p.groundedPlatformId=landed?.id;
   // New opt-in 20Hz guardian route: a real hit interrupts for five ticks
