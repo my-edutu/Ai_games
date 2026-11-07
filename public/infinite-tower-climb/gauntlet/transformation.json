@@ -19,39 +19,39 @@
   },
   "currentTransformation": {
     "latestEvidenceRun": {
-      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN (authentic dash impulse → airborne journey)",
+      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN (real three-step dash momentum needs authentic moving-deck/guardian evidence)",
       "assessedAt": "2026-11-07",
-      "sourceBaseSha": "6ddf3c0a22c7fa9b97d8fb7fb3fe2b41137f6534",
-      "implementationSha": "cf327403bb56cd4168195f6cd021599ed98e0d80",
-      "sourceHeadAtInspection": "e08db64319012c86f3001742e6590c7daa0cedc3",
-      "sourceChange": "A true source 20Hz dash impulse no longer holds the skinned climber in 'dashing' for the entire airborne jump. Live opt-in guardian/second-wind gameplay keeps three true fixed-step burst frames (150ms) then publishes 'airborne' so the existing actual 3D climbing/apex/landing brace, shared air kinetics and physically observed wide-landing camera can follow the real velocity. No changed position, velocity, platform collision, stamina, AI, new asset, synthetic win, renderer clock or baseline/unflagged replay.",
-      "evidenceDefect": "Source-proven real dash-to-airborne state contract bug: while ungrounded after dash, authoritative player.state stayed 'dashing' all the way to touchdown; scene, rig, landing-shot-span and traversal kinetics require 'airborne'. Historical portrait danger video (NOT this source) had an undersized hero in clockwork panoramas and incomplete guardian/gate continuity.",
-      "focusedTests": "New three-case original-runtime phase2 Tower test at ac5c3a35 authored red-first but NOT run in real repo; CJS JavaScript parser SUCCESS and source opt-in/no-velocity-edit static inspection succeeded. Remote development tunnel NOT_FOUND for >300 seconds. Original TypeScript build, full Node suite, original gameplay campaigns and WebGL browser tests NOT EXECUTED.",
-      "captureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42330014076",
-      "captureStatus": "OLDER NON-MATCHING source candidate SHA 7f41fb84, all 9 jobs QUEUED and ZERO artifacts at 2026-11-07 inspection; current implementation SHA cf327403 current-source capture run/artifacts NOT VERIFIED.",
-      "qualityRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42330170579",
-      "qualityStatus": "PREVIOUS SHA quality status was queued; no exact SHA cf327403 full source build/test result verified.",
-      "sourceVerifiedFilm": "NOT EVALUATED — no immutable current cf327403 full-motion desktop 960x600 and portrait 390x844 60s matched baseline/candidate video.",
-      "mostImportantFootageDefect": "HISTORICAL only: floor-eight and onward footage hops among independent episodes and the actual climber is tiny relative to the cap/machinery; continuous same-run guardian+crusher victory/open physically walked gateway/floor9/result/restart is not visibly established. New source must be filmed before judging whether state handoff fixes actor/camera continuity.",
-      "real3200StepCampaigns": "NOT EVALUATED — actual dual unmodified source 3200-step guardian/crusher campaigns unexecuted; offline development worker.",
-      "actualDevicePerformance": "NOT EVALUATED — supported actual device frame-time p50/p95/p99, memory, portrait controls and stability absent.",
+      "sourceBaseSha": "badb7d37a53fac7c199a81d7584196fc2cf4328b",
+      "implementationSha": "98b31bf239940ca31f94cce5ce94465d35121987",
+      "sourceHeadAtInspection": "badb7d37a53fac7c199a81d7584196fc2cf4328b",
+      "sourceChange": "On live opt-in guardian-run only, the original earned dash X speed remains physically active while the three true 20Hz 'dashing' state ticks run; steering input no longer clamps 17k to 9k on the very next step. Fixed-step wall/guardian collision can still cancel it; ordinary airborne steering resumes at step four. Historical/unflagged runs stay unchanged. This intentionally adds up to 16k legitimate travel on an actively steering dash, not an unearned new action.",
+      "evidenceDefect": "Code-verified previous live dash state 'dashing' persisted three ticks after cf327403 but the ordinary AI move branch clamped the real horizontal speed from 17k to 9k after just one tick. Real motion contradicts dash/animation and landing anticipation. Historic candidate portrait at ~20s has tiny climber on floor 8, and ~50s floor 10; it is not current-source proof.",
+      "focusedTests": "Original-runtime fixture augmented at 0f5d65ac (two new physics-steering/world-edge tests), but full Node+TypeScript tests NOT EXECUTED. Isolated V8 run of exact fetched source steering snippet passes six source-step tick checks and collision-cancel probe; authored CJS syntax parsed. Worker tunnel NOT_FOUND >300s and local container cannot DNS github.com.",
+      "captureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42339547219",
+      "captureStatus": "Older nonmatching candidate cf327403: nine queued jobs, zero artifacts at current inspection. No real capture run for new physics 98b31bf verified.",
+      "qualityRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42339696777",
+      "qualityStatus": "Quality job queued at previous badb7d37 HEAD; no exact 98b31bf full original-source quality run completed.",
+      "sourceVerifiedFilm": "NOT EVALUATED: No normal-speed immutable new 98b31bf desktop 960x600 / portrait 390x844 matched 60+ second baseline/candidate clips; historical 390x844 WebMs are from old source.",
+      "mostImportantFootageDefect": "HISTORIC portrait candidate 390x844, floor 8 at ~20s, floor 10 at ~50s: the action hero is tiny against clockwork tower machinery; no visually continuous same-run guardian/crusher defeat -> earned gateway -> floor9 -> authentic outcome/restart. No claim that new source fixes this.",
+      "real3200StepCampaigns": "NOT EVALUATED: Original dual immutable 3200-step source campaigns not executed.",
+      "actualDevicePerformance": "NOT EVALUATED: real supported devices, p50/p95/p99 frame-time, memory and portrait control measurements absent.",
       "independentBlindReviews": {
         "looks": 0,
         "feels": 0,
         "plays": 0
       },
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "nextHighImpactAction": "On an immutable working Node22/Chromium worker run the committed real dash regression, existing replay/physics suites and two unchanged original 3200-step guardian/crusher campaigns. Record matched 60+ second normal-speed 960x600 and 390x844 frozen baseline vs exact candidate; inspect airborne transition and moving-deck camera continuity as well as SAME RUN guardian/crusher -> physically opened walk-through -> floor nine -> outcome/restart. Fix largest demonstrated issue and retain P0 until then. Recruit truly independent randomized critics and measure real supported devices.",
-      "safety": "Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 preserved; PR58 HEAD 5343c491 not edited; PR68 remains open/draft; no merge/deploy/force push.",
-      "implementationReviewUrl": "https://github.com/my-edutu/Ai_games/blob/e08db64319012c86f3001742e6590c7daa0cedc3/docs/reviews/2026-11-07-tower-pr68-real-airborne-dash-state-handoff.md",
-      "focusedTestSourceUrl": "https://github.com/my-edutu/Ai_games/blob/ac5c3a35275bf0c236dd7bc16877e2d663426659/tests/phase2/tower-airborne-dash-handoff.test.cjs"
+      "nextHighImpactAction": "Run exact 98b31bf Node22 original-runtime tests and dual 3200-tick campaigns on an available checkout; capture source-pinned baseline 1731b380 against new candidate in identical 960x600 and 390x844 normal-speed 60s scenes. Inspect actual 3-tick impulse into moving-platform landing (overshoot risk) and same-run cap guardian/crusher defeat, unlocked grounded doorway, floor9, outcome/restart; fix biggest displayed issue, then recruit 5 genuinely independent blind critics per LOOKS/FEELS/PLAYS.",
+      "safety": "Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 preserved; changes only to PR68; PR58 not edited; PR68 open/draft; no merge, deploy or force push.",
+      "implementationReviewUrl": "https://github.com/my-edutu/Ai_games/blob/80a36dffbbef72a64488888501ae8220e2357e34/docs/reviews/2026-11-07-tower-pr68-source-three-tick-dash-impulse.md",
+      "focusedTestSourceUrl": "https://github.com/my-edutu/Ai_games/blob/0f5d65ac4cdaadcd35d7c05f29715dd33f6934da/tests/phase2/tower-airborne-dash-handoff.test.cjs"
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
-    "state": "P0 OPEN — corrected stale live dash-flight source state; complete source gameplay and visual motion remain NOT EVALUATED",
+    "state": "P0 OPEN — source dash motion and hero pose now share the same three-tick burst, NOT quality-verified",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Do not leave P0: film exact physical dash→apex→landing and full guardian/crusher→walkable gateway→floor nine→outcome/restart from fixed SHAs, assess actual motion and user experience, then correct largest evidenced defect.",
+    "nextDecision": "Do not advance P0: run exact original gameplay and event-matched full-motion source SHA captures to inspect increased dash travel and authentic guardian-to-floor-nine-to-restart, then address largest witnessed defect.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "No current-source full-motion proving dash-to-real-flight camera/animation and unbroken guardian/crusher defeat, earned physical gateway crossing, floor-nine continuation and restarted outcome; historical phone hero was small.",
+    "biggestRemainingExperienceGap": "No exact-head browser film or real 3200-tick playthrough proves safe dash/moving-deck traversal and continuous guardian defeat, earned gateway, floor9 and restart; prior portrait hero/gateway were undersized.",
     "unverifiedImplementationBranchHead": "74bbe242228120de04f5ec1b1a867dc48b3600f1",
     "currentVerticalSlice": "Complete guardian-to-floor-nine chain: real hit → five-tick readable recoil → physical cap locomotion and grounded gateway follow → earned full-body crossing. Implemented, not yet quality-verified.",
     "biggestGap": "Original current-source browser film + full physical game-loop and independent visual inspection remain unavailable; historical portrait hero too small and crossing not legible",
@@ -133,7 +133,7 @@
         "https://github.com/my-edutu/Ai_games/actions/runs/42189740735"
       ]
     },
-    "roadmapStage": "P0 — OPEN (real dash-to-flight source state authored; matched full-motion evidence blocked)",
+    "roadmapStage": "P0 — OPEN (three-tick live dash now physically consistent; full-motion proof and real campaigns blocked)",
     "earnedCapReacquisition20261106": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "sourceHeadWhenInspected": "6029bc6c3416c93a79f61296e4b19d602330183d",
@@ -539,6 +539,26 @@
       "safety": "Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 preserved; PR58 untouched, PR68 stays draft/open; no force push/merge/deployment.",
       "implementationReviewUrl": "https://github.com/my-edutu/Ai_games/blob/db6208980e8bd2c9d01244c6f0f7374ddf17af3d/docs/reviews/2026-11-07-tower-pr68-earned-airborne-landing-camera-continuation.md",
       "focusedTestSourceUrl": "https://github.com/my-edutu/Ai_games/blob/a06fb2d2f2afaed49d657c2b25be7250a4515017/tests/phase3/tower-observed-landing-shot-span.test.cjs"
+    },
+    "p0LiveDashMomentum20261107": {
+      "stage": "P0 OPEN",
+      "inspectedHeadSha": "badb7d37a53fac7c199a81d7584196fc2cf4328b",
+      "testSha": "0f5d65ac4cdaadcd35d7c05f29715dd33f6934da",
+      "implementationSha": "98b31bf239940ca31f94cce5ce94465d35121987",
+      "reviewSha": "80a36dffbbef72a64488888501ae8220e2357e34",
+      "realChange": "Opt-in real dash momentum stays at source dashSpeed through same 3 authoritative 20Hz 'dashing' steps, rather than clamping after first normal AI steering action. Source collision still cancels velocity; ordinary air control on step four; frozen default path unchanged.",
+      "localIsolatedEvidence": "Exact extracted source steering branch V8 checks passed for 6-step live versus legacy state and post-wall zero-velocity probe; committed CJS parsed; not original Node source build/campaign",
+      "originalRepositoryTests": "NOT EXECUTED — /app-projects tunnel disconnected; local /mnt/data has historical clips but no repo clone; container git cannot resolve github.com",
+      "currentSourceCapture": "NOT EVALUATED; nonmatching previous 9-job run 42339547219 queued, 0 artifacts",
+      "historicalVisualDefect": "Old portrait floor8 at 20s, floor10 at 50s; too-small hero and no continuous full guardian-to-gateway-to-result story",
+      "blind": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "device": "NOT EVALUATED",
+      "assessor": "NOT EVALUATED",
+      "next": "Execute actual source suite/campaign; inspect three-tick dash movement and cap combat/threshold/restart in matched long normal-speed 960x600 and 390x844 old-vs-new films; repair largest observed regression, especially overshooting moving decks."
     }
   },
   "scenarios": [
