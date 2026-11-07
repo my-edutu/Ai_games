@@ -120,6 +120,53 @@ export function observedGroundedGatewayShot(snapshot, earned, aspect, zoom = 1) 
 }
 
 
+
+ 
+// Real earned-cap AIRBORNE continuation of the same walkable guardian threshold.
+// Matched 390x844 gameplay at ee9a223e showed the climber jump/dash in front
+// of an enormous clockwork dial just as the source released the gateway. The
+// grounded-only escort stopped at takeoff, allowing the actual threshold to
+// disappear from the phone composition while the body remained on the cap
+// approach. Keep the existing physical roof, source defeat, immutable run and
+// whole-body footprint as mandatory gates; the camera may never create a
+// landing, move the body or open the door. This is a gentler exterior-orbit
+// request than the supported walking shot; scene.mjs still vets both sightlines.
+export function observedAirborneGatewayShot(snapshot, earned, aspect, zoom = 1) {
+  const p = snapshot?.player, cap = earned?.cap;
+  if (snapshot?.lifecycle !== 'running' || snapshot?.stale ||
+      earned?.runToken !== snapshot?.runToken ||
+      earned?.floor !== snapshot?.floor ||
+      cap?.id !== ('f' + snapshot.floor + ':cap') ||
+      !['airborne','dashing'].includes(p?.state) || p?.grounded !== false ||
+      !(p?.health > 0) ||
+      ![aspect,zoom,snapshot.tick,snapshot.worldWidth,p?.x,p?.y,
+        p?.halfWidth,p?.halfHeight,cap?.x,cap?.y,cap?.width,cap?.height]
+        .every(Number.isFinite) ||
+      aspect <= 0 || aspect >= 2.5 || zoom <= 0 || zoom > 1.1 ||
+      cap.width <= 0 || cap.height <= 0 || p.halfWidth <= 0 ||
+      p.halfHeight <= 0 || snapshot.worldWidth <= 0) return null;
+  const roof = cap.y + cap.height;
+  const feet = p.y - p.halfHeight;
+  // Only a real near-roof trajectory along the physical cap. A falling hero,
+  // remote combat or an already-advanced floor must not borrow the camera.
+  if (feet < roof - 6000 || feet > roof + 62000 ||
+      p.x-p.halfWidth < cap.x ||
+      p.x+p.halfWidth > cap.x+cap.width) return null;
+  const exitX = cap.x + Math.floor(cap.width * .76);
+  const distance = Math.abs(exitX - p.x);
+  const window = Math.min(90000, cap.width * .36);
+  if (window <= 12000 || distance >= window) return null;
+  const approach = 1 - distance / window;
+  const portrait = aspect < .85;
+  const far = portrait ? 60 : 53;
+  const near = portrait ? 47 : 42;
+  const radius = Math.max(30, (far - (far-near)*approach) *
+    Math.min(1.25,Math.max(.85,zoom)));
+  return {sourceTick:snapshot.tick, radius,
+    focusWeight:Math.min(.29,.10+approach*(portrait?.19:.15)),
+    approach,exitX,realAirborneCap:true};
+}
+
 // Final living-guardian approach is a REAL source beat, not an early unlock.
 // The recorded portrait duel lets the boss fight remain readable but often
 // shrinks the hero and earned doorway during the 1-HP final aerial exchanges.
