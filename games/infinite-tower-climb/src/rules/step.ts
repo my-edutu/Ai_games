@@ -73,15 +73,19 @@ export function applyTowerAction(input:TowerState,actionInput:Partial<TowerActio
 const gatewayArrivalX=guardianPassage?Math.max(state.player.halfWidth,
   Math.min(state.config.worldWidth-state.player.halfWidth,
     guardianPassage.crossingX)):next.spawn.x;
+const gatewayArrivalY=guardianPassage?state.player.position.y:next.spawn.y;
 const entryGround=guardianPassage?next.platforms.find(p=>
   p.id===`f${nextFloor}:ground`):undefined;
 const groundedGatewayArrival=Boolean(entryGround&&
-  next.spawn.y-state.player.halfHeight===entryGround.y+entryGround.height&&
+  gatewayArrivalY-state.player.halfHeight===entryGround.y+entryGround.height&&
   gatewayArrivalX-state.player.halfWidth>=entryGround.x&&
   gatewayArrivalX+state.player.halfWidth<=entryGround.x+entryGround.width);
 const gatewayForwardVelocity=guardianPassage?
   Math.min(state.config.maxRunSpeed,Math.max(0,state.player.velocity.x)):0;
-state.player.position={...next.spawn,x:gatewayArrivalX};
+// Preserve BOTH actual body coordinates from the walked threshold. The
+// new source-authored successor ground meets the old cap roof; grounding
+// is granted only if the true physical next-floor deck supports the body.
+state.player.position={x:gatewayArrivalX,y:gatewayArrivalY};
 state.player.velocity={x:gatewayForwardVelocity,y:0};
 state.player.grounded=groundedGatewayArrival;
 state.player.groundedPlatformId=groundedGatewayArrival?entryGround!.id:undefined;
