@@ -26,10 +26,50 @@ function auditTowerCampaigns(a, b, candidateSha) {
     if (chain.fullSourceChainObserved !== (completed.length > 0))
       issues.push(name + ': claimed source chain disagrees with episode markers');
     for (const ep of completed) {
+      const m = ep.markers;
       if (ep.firstFloor !== 8 || typeof ep.runId !== 'string' || !ep.runId ||
-        !ep.markers || !REQUIRED.every(key => ep.markers[key] &&
-          Number.isSafeInteger(ep.markers[key].tick)))
-        issues.push(name + ': incomplete or unrelated claimed same-run markers');
+        !m || !REQUIRED.every(key => m[key] &&
+          Number.isSafeInteger(m[key].tick) && m[key].tick >= 0 &&
+          Number.isSafeInteger(m[key].floor)))
+        { issues.push(name + ': incomplete or unrelated claimed same-run markers'); continue; }
+      // The source campaign witness now requires actual living-guardian
+      // crusher pressure followed by defeat, earned cap walking, crossing,
+      // real floor-nine movement and a playable result. A forged/reordered
+      // marker array must never produce a green source-episode audit.
+      const beforeRestart = REQUIRED.slice(0, -1);
+      if (beforeRestart.some((key, i) => i > 0 &&
+        m[key].tick < m[beforeRestart[i - 1]].tick))
+        issues.push(name + ': out-of-order same-run gameplay milestones');
+      const lowerFloor = ['liveGuardian', 'crusherPressureSurvived',
+        'guardianDefeated', 'groundedEarnedWalk', 'advancedOnCap'];
+      if (lowerFloor.some(key => m[key].floor !== 8) ||
+          m.earnedFloorNine.floor !== 9 ||
+          ['floorNineContinues', 'sourceResult', 'intermission']
+            .some(key => m[key].floor < 9) || m.restarted.floor !== 8)
+        issues.push(name + ': source milestones assigned to the wrong floor');
+      if (m.crusherPressureSurvived.hazardId !== 'f8:guardian-shutter' ||
+          !Number.isSafeInteger(m.crusherPressureSurvived.warningTicks) ||
+          m.crusherPressureSurvived.warningTicks < 0 ||
+          m.crusherPressureSurvived.warningTicks > 12 ||
+          m.crusherPressureSurvived.tick > m.guardianDefeated.tick)
+        issues.push(name + ': crusher not witnessed before guardian defeat');
+      if (!Number.isSafeInteger(m.groundedEarnedWalk.x) ||
+          !Number.isSafeInteger(m.advancedOnCap.x) ||
+          m.advancedOnCap.x <= m.groundedEarnedWalk.x ||
+          m.groundedEarnedWalk.capId !== 'f8:cap')
+        issues.push(name + ': missing genuine forward cap walking');
+      if (m.earnedFloorNine.capId !== 'f8:cap' ||
+          m.earnedFloorNine.guardianId !== 'f8:guardian' ||
+          !Number.isSafeInteger(m.earnedFloorNine.clearanceX) ||
+          !Number.isSafeInteger(m.earnedFloorNine.observedActualCrossingX) ||
+          m.earnedFloorNine.observedActualCrossingX <
+            m.earnedFloorNine.clearanceX)
+        issues.push(name + ': missing physically earned guardian gateway clearance');
+      if (m.sourceResult.kind !== 'game' ||
+          typeof m.restarted.nextRunId !== 'string' ||
+          !m.restarted.nextRunId ||
+          m.restarted.nextRunId === ep.runId)
+        issues.push(name + ': no legitimate game outcome and distinct restarted run');
     }
   }
   const exactReplay = JSON.stringify(a) === JSON.stringify(b);
