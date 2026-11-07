@@ -4709,8 +4709,9 @@ function coniferNeedleSpray(root,tip,width,dark,light){
    articulated leaf blades. All shape variation is derived only from position. */
 // G050: small offset leaf clusters give each crown a tiered, broken silhouette.
 // Real 3D geometry is bounded and derived from tree positions, not simulation RNG.
-function crownLobe(cx,cy,cz,rx,ry,rz,col,seed,fine=false,countAsForest=true){
- const segments=fine?6:9,latitudes=(fine?[.32,.74]:[.23,.54,.81]).map(t=>t*Math.PI),rings=[];
+function crownLobe(cx,cy,cz,rx,ry,rz,col,seed,fine=false,countAsForest=true,coarse=false){
+ const segments=fine?6:coarse?7:9,
+  latitudes=(fine?[.32,.74]:coarse?[.29,.76]:[.23,.54,.81]).map(t=>t*Math.PI),rings=[];
  const pt=(lat,i)=>{
   const az=i*Math.PI*2/segments,ripple=1+.13*Math.sin(3*az+seed)+.07*Math.cos(5*az-seed*.7);
   return [cx+Math.sin(lat)*Math.cos(az)*rx*ripple,
@@ -4778,6 +4779,8 @@ function tree(x,z,s=1){
    [[0x547f50,0x688e55,0x718c58],[0x567f5a,0x608f62,0x769765],[0x6b8b58,0x819764,0x86a875]][style];
   const startFloats=data.length;
   const lobeCount=style===1?5:style===2?3:4;
+  // Preserve every actual far tree and 3D canopy, use 28 vs 54 triangles per main lobe.
+  if(detailTier==='far')forestLodStats.reclaimedTriangles+=(lobeCount+1)*26;
   for(let i=0;i<lobeCount;i++){
    const angle=i*2.39996+signature*.36,reach=(.75+.12*Math.sin(x*.81+i))*speciesWidth*s;
    const lift=(.42+.14*i)*speciesHeight*s;
@@ -4787,7 +4790,8 @@ function tree(x,z,s=1){
    const radius=(style===2?.56:.70)*s*(.89+.10*Math.sin(signature+i));
    materialScope(MATERIAL.FOLIAGE,()=>{
     crownLobe(center[0],center[1],center[2],radius*.89*speciesWidth,
-     (.55+.058*i)*s*speciesHeight,radius*.90, rgb(leafPalette[i%3]),x*.31+z*.19+i*2.1);
+     (.55+.058*i)*s*speciesHeight,radius*.90, rgb(leafPalette[i%3]),x*.31+z*.19+i*2.1,
+     false,true,detailTier==='far');
     // Smaller outlying crowns are attached to branch tips. The position,
     // material and orientation are derived only from persistent coordinates.
     for(let rim=0;rim<(detailTier==='far'?1:2);rim++){
@@ -4822,7 +4826,8 @@ function tree(x,z,s=1){
   }
   // The central crown binds the irregular secondary masses into one tree.
   materialScope(MATERIAL.FOLIAGE,()=>crownLobe(fork[0],fork[1]+.61*s*speciesHeight,fork[2],
-    .62*s*speciesWidth,.69*s*speciesHeight,.67*s,rgb(leafPalette[(style+1)%3]),x*.71-z*.13));
+    .62*s*speciesWidth,.69*s*speciesHeight,.67*s,rgb(leafPalette[(style+1)%3]),x*.71-z*.13,
+   false,true,detailTier==='far'));
   forestVisualStats.broadleafAddedTriangles+=(data.length-startFloats)/30;
  }else{
   forestVisualStats.conifers++;
@@ -4865,20 +4870,46 @@ function tree(x,z,s=1){
   }
  }
 }
-function path(points,width=1){for(let i=0;i<points.length-1;i++){
- const a=points[i],b=points[i+1],dx=b[0]-a[0],dz=b[1]-a[1],length=Math.hypot(dx,dz);
- if(length<.001)continue;
- const nx=dz/length*width*.5,nz=-dx/length*width*.5;
- // Short terrain-following road strips avoid the huge near-camera triangles that
- // made paths cut through buildings in software and hover over sloping land in WebGL.
- const n=Math.ceil(length/.9),road=rgb(0xb09d7a);
- for(let j=0;j<n;j++){
-  const t=j/n,u=(j+1)/n,x0=a[0]+dx*t,z0=a[1]+dz*t,x1=a[0]+dx*u,z1=a[1]+dz*u;
-  const p=[x0+nx,terrain(x0+nx,z0+nz)+.028,z0+nz],q=[x0-nx,terrain(x0-nx,z0-nz)+.028,z0-nz];
-  const r=[x1-nx,terrain(x1-nx,z1-nz)+.028,z1-nz],v=[x1+nx,terrain(x1+nx,z1+nz)+.028,z1+nz];
-  quad(p,q,r,v,road);
+// W110: one original terrain-bound village road, continuous and unblocked.
+function path(points,width=1){
+ const clay=[rgb(0x8d8068),rgb(0x857660),rgb(0x94836b)];
+ const rut=[rgb(0x6c614e),rgb(0x756551)];
+ const verge=[rgb(0x75815c),rgb(0x87906a),rgb(0x777953)];
+ const stone=[rgb(0x999183),rgb(0xa9a18d),rgb(0x888578)];
+ for(let section=0;section<points.length-1;section++){
+  const a=points[section],b=points[section+1],dx=b[0]-a[0],
+   dz=b[1]-a[1],length=Math.hypot(dx,dz);
+  if(length<.001)continue;
+  const nx=dz/length,nz=-dx/length,half=width*.5;
+  const count=Math.ceil(length/.70);
+  const at=(t,across,lift)=>{
+   const x=a[0]+dx*t+nx*across,z=a[1]+dz*t+nz*across;
+   return [x,terrain(x,z)+lift,z];
+  };
+  const strip=(t,u,left,right,height,col)=>quad(
+   at(t,right,height),at(t,left,height),
+   at(u,left,height),at(u,right,height),col);
+  for(let j=0;j<count;j++){
+   const t=j/count,u=(j+1)/count,k=section*131+j;
+   // Worn clay carriageway with genuine low, traversable wagon wear.
+   strip(t,u,-half,half,.036,clay[k%clay.length]);
+   for(const sign of [-1,1]){
+    const track=sign*half*.55;
+    strip(t,u,track-.075,track+.075,.045,rut[(k+(sign+1)/2)%2]);
+    const left=sign<0?-half-.23:half;
+    const right=sign<0?-half:half+.23;
+    strip(t,u,left,right,.027,verge[(k+section+1)%verge.length]);
+   }
+   // Flush, sparse stone repairs, not a fake uniform pavement grid.
+   if(k%6===2){
+    const side=k%2===0?1:-1;
+    const left=side<0?-half-.14:half-.02;
+    const right=side<0?-half+.02:half+.14;
+    strip(t+.09/count,u-.13/count,left,right,.052,stone[k%3]);
+   }
+  }
  }
-}}
+}
 function wheat(x,z){let y=terrain(x,z);for(let i=0;i<6;i++)for(let j=0;j<5;j++){let xx=x+(i-2.5)*.43,zz=z+(j-2)*.48,yy=terrain(xx,zz);cylinder(xx,yy,zz,.022,.6,rgb(0xbc9c56),4);cone(xx,yy+.39,zz,.12,.34,rgb([0x82b45b,0xe4c47c,0xcca45c,0xc2c9b9][climateAt(state.t).season]),4)}}
 /* Gauntlet 020: render-only deterministic joint hierarchy. */
 // Gauntlet 036: bounded human gait, shorter anatomically plausible stride,
