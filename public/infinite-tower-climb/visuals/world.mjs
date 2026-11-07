@@ -59,7 +59,7 @@ export function observedPortraitGearDominance({
   aspect, gear, radius, gearDepth, actor, actorDepth,
 }) {
   if (![aspect,radius,gearDepth,actorDepth].every(Number.isFinite) ||
-      aspect <= 0 || aspect >= .85 || radius < .48 || radius > 3 ||
+      aspect <= 0 || aspect >= .85 || radius < .48 || radius > 12 ||
       gearDepth <= 0 || gearDepth + .35 >= actorDepth ||
       ![gear,actor].every(point => point &&
         [point.x,point.y,point.z].every(Number.isFinite)) ||
@@ -70,7 +70,18 @@ export function observedPortraitGearDominance({
   const center = Math.hypot(gear.x * aspect, gear.y);
   const separation = Math.hypot((gear.x - actor.x) * aspect, gear.y - actor.y);
   if (center > radius + .15 || separation > radius + .25) return 1;
-  return Math.max(.42, 1 - .58 * Math.min(1, (radius - .48) / .62));
+  return Math.max(.18, 1 - .82 * Math.min(1, (radius - .48) / .62));
+}
+
+// A decorative clock face is a STACK of overlapping wheel, spindle, dial,
+// plate and bezel surfaces. Giving every surface 42% alpha can still leave a
+// nearly opaque curtain across the tiny live actor. Bound the combined opacity
+// of the entire decorative stack; use the measured mesh stack size from the
+// post-batch scene, never from an imagined or future gameplay event.
+export function observedLayeredSceneryOpacity(composite, layers) {
+  if (!Number.isFinite(composite) || composite < 0 || composite > 1 ||
+      !Number.isSafeInteger(layers) || layers < 1 || layers > 12) return 1;
+  return 1 - Math.pow(1 - composite, 1 / layers);
 }
 
 // A physical clock face can cover the same narrow PHONE corridor as the
@@ -344,7 +355,8 @@ export function createTowerWorld(){
   const canopyRay = new THREE.Raycaster(), canopyDirection = new THREE.Vector3();
   // Reuse all projection scratch on the render path.
   const screenGearWorld = new THREE.Vector3(), screenGearCenter = new THREE.Vector3();
-  const screenGearRight = new THREE.Vector3(), screenFocus = new THREE.Vector3();
+  const screenGearRight = new THREE.Vector3(), screenGearTop = new THREE.Vector3();
+  const screenFocus = new THREE.Vector3();
   const silhouettePoint = new THREE.Vector3();
   const corridorFrom = new THREE.Vector3();
   const corridorTo = [new THREE.Vector3(), new THREE.Vector3()];
@@ -456,6 +468,28 @@ export function createTowerWorld(){
       const o=mesh(root,g,b.material);o.name='rigid-material-batch';o.castShadow=b.cast;o.receiveShadow=b.receive;
     }
     for(const o of retired){o.removeFromParent();if(o.isInstancedMesh)o.dispose();}
+  }
+  // batchRigid removes the ORIGINAL clock-case meshes and replaces them with
+  // merged rigid-material meshes. A clock face registered before batching
+  // otherwise raycasts DETACHED objects while the actual opaque dial still
+  // renders across the guardian. Rebind to the rendered, post-batch geometry
+  // by its private, clock-owned materials. No collider, new draw or shader.
+  function bindRenderedClockFaceRayMeshes(){
+    if(!floorGroup)return 0;
+    floorGroup.updateWorldMatrix(true,true);
+    const faces=new Map();
+    for(const entry of foregroundGears){
+      if(!entry.sceneryMaterials?.length)continue;
+      entry.sceneryMeshes=[];
+      for(const material of entry.sceneryMaterials)faces.set(material,entry);
+    }
+    floorGroup.traverse(object=>{
+      if(!object.isMesh||Array.isArray(object.material))return;
+      const entry=faces.get(object.material);
+      if(entry)entry.sceneryMeshes.push(object);
+    });
+    return [...foregroundGears].reduce((count,entry)=>
+      count+(entry.sceneryMeshes?.length||0),0);
   }
   function finishBatches(){
     const boundaries=new Set([particles,vistaGroup,...platforms.values()].map(e=>e?.root||e).filter(Boolean));
@@ -1319,6 +1353,7 @@ export function createTowerWorld(){
       if(o.isMesh && o!==h.indicator)o.castShadow=true;
     });
     finishBatches();
+    bindRenderedClockFaceRayMeshes();
     key=`${snapshot.runToken}:${snapshot.floor}:${snapshot.theme}:${quality}`;
   }
   function update(snapshot,dt=0,time=0,options={}){
@@ -1587,14 +1622,18 @@ export function createTowerWorld(){
         else entry.root.updateWorldMatrix(true,true);
         entry.root.getWorldPosition(screenGearWorld);
         screenGearCenter.copy(screenGearWorld).project(camera);
-        const right=camera.matrixWorld.elements;
-        screenGearRight.set(
-          screenGearWorld.x+right[0]*entry.radius,
-          screenGearWorld.y+right[1]*entry.radius,
-          screenGearWorld.z+right[2]*entry.radius).project(camera);
-        const radius=Math.hypot(
-          (screenGearRight.x-screenGearCenter.x)*camera.aspect,
-          screenGearRight.y-screenGearCenter.y);
+        // Project the wheel's REAL local horizontal and vertical rim. The
+        // old camera-right approximation could undercount an oblique giant
+        // wheel's screen footprint (especially while orbiting on portrait).
+        screenGearRight.set(entry.radius,0,0)
+          .applyMatrix4(entry.root.matrixWorld).project(camera);
+        screenGearTop.set(0,entry.radius,0)
+          .applyMatrix4(entry.root.matrixWorld).project(camera);
+        const radius=Math.max(
+          Math.hypot((screenGearRight.x-screenGearCenter.x)*camera.aspect,
+            screenGearRight.y-screenGearCenter.y),
+          Math.hypot((screenGearTop.x-screenGearCenter.x)*camera.aspect,
+            screenGearTop.y-screenGearCenter.y));
         const gearDepth=camera.position.distanceTo(screenGearWorld);
         // This is a genuine projected scenic footprint, not a synthetic
         // actor marker. Prevent a giant FRONT wheel from monopolizing portrait
@@ -1662,6 +1701,12 @@ export function createTowerWorld(){
           }
         }
       }
+      // Multiple transparent dial surfaces composite back to opacity. Limit
+      // their total contribution instead of fading only one gear mesh while
+      // the merged clock-case still hides the climber. This only affects
+      // decor whose CURRENT source actor/corridor was proven obstructed.
+      if(requiredOpacity<1)requiredOpacity=observedLayeredSceneryOpacity(
+        requiredOpacity,Math.min(8,2+entry.sceneryMeshes.length));
       const strength=options.reducedMotion||!enabled?1:
         Math.max(0,Math.min(1,(Number.isFinite(dt)?dt:0)*10));
       entry.alloy.opacity+=(requiredOpacity-entry.alloy.opacity)*strength;
@@ -1710,7 +1755,7 @@ export function createTowerWorld(){
     }
     occludedGuardianCaps=faded;
   }
-  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,activeHazardPressureFins:[...hazards.values()].reduce((n,h)=>n+(h.indicator.userData.activePressureTeeth||0),0),observedMovingDeckCranks:[...platforms.values()].filter(p=>p.traveler).length,observedMovingDeckDriveStages:[...platforms.values()].filter(p=>p.countergear&&p.actuator).length,observedMovingDeckGearBatches:[...platforms.values()].filter(p=>p.gearVisual?.count===2).length,observedMovingDeckDriveLastTick:[...platforms.values()].reduce((latest,p)=>Math.max(latest,p.motionSourceTick??-1),-1),ambientParticles:particles?.visible?48:0,sceneHierarchy:{sourceBound:true,kind:sceneFocusKind,decorativeFocus:Number(sceneFocus.toFixed(4)),addsDraws:0,physicsUnchanged:true},floor:lastSnapshot?.floor??null,theme,quality,disposed,guardianGates:[...platforms.entries()].filter(([,p])=>p.guardianGate).map(([id,p])=>({id,unlocked:p.guardianGate.unlocked,opening:p.guardianGate.progress,conduitReach:p.guardianGate.conduit.scale.z,anchorX:p.guardianGate.anchorX})),occludedGuardianCaps,occludedForegroundGears,occludedForegroundScreenGears,occludedForegroundCorridorGears,occludedForegroundClockFaces,decorativeSightlineGears:foregroundGears.length,ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
+  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,activeHazardPressureFins:[...hazards.values()].reduce((n,h)=>n+(h.indicator.userData.activePressureTeeth||0),0),observedMovingDeckCranks:[...platforms.values()].filter(p=>p.traveler).length,observedMovingDeckDriveStages:[...platforms.values()].filter(p=>p.countergear&&p.actuator).length,observedMovingDeckGearBatches:[...platforms.values()].filter(p=>p.gearVisual?.count===2).length,observedMovingDeckDriveLastTick:[...platforms.values()].reduce((latest,p)=>Math.max(latest,p.motionSourceTick??-1),-1),ambientParticles:particles?.visible?48:0,sceneHierarchy:{sourceBound:true,kind:sceneFocusKind,decorativeFocus:Number(sceneFocus.toFixed(4)),addsDraws:0,physicsUnchanged:true},floor:lastSnapshot?.floor??null,theme,quality,disposed,guardianGates:[...platforms.entries()].filter(([,p])=>p.guardianGate).map(([id,p])=>({id,unlocked:p.guardianGate.unlocked,opening:p.guardianGate.progress,conduitReach:p.guardianGate.conduit.scale.z,anchorX:p.guardianGate.anchorX})),occludedGuardianCaps,occludedForegroundGears,occludedForegroundScreenGears,occludedForegroundCorridorGears,occludedForegroundClockFaces,decorativeSightlineGears:foregroundGears.length,clockFaceRayMeshes:foregroundGears.reduce((n,gear)=>n+gear.sceneryMeshes.length,0),ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;clearFloor();for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
   return{group,update,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics};
 }
