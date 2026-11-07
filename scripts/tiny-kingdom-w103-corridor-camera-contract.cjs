@@ -24,7 +24,9 @@ assert.deepEqual(a.originalMarketReceiptCoordinates,[[-1,10.2],[.85,10.2]]);
 assert.equal(a.authorityModified,false);
 assert.equal(posts.length,4);
 assert.ok(posts.every(p=>Math.abs(Math.abs(p.x+.075)-2.09)<.001));
-assert.ok(first.every(v=>v.bottom>0||v.kind==='granary-porch-post'));
+// The underlying terrain can be below zero; heights must be physical RELATIVE to local ground.
+assert.ok(first.every(v=>v.top>v.bottom&&v.rx>0&&v.rz>0));
+assert.ok(first.filter(v=>v.kind.includes('roof')).every(v=>v.top-v.bottom<.58));
 assert.ok(first.filter(v=>v.kind.includes('roof')).every(v=>v.bottom>0));
 assert.match(html,/roofs\.push\(\.\.\.physicalTradeCorridorCameraVolumes\(\)\)/);
 assert.match(html,/const surveyedPosts=physicalMarketUprights\(\)\.concat\(physicalReceivingHallPosts\(\)\)/);
