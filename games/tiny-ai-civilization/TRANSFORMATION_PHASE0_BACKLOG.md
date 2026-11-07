@@ -1,3 +1,7 @@
+# W107 · 7 November 2026 · SAME PHASE 1 · NO EXPERIENCE PASS
+
+Same five durable P0/P1 blocker owners and measurable acceptance conditions below. W107 actual source [`3bd803ea115e7cf4504597118f0e9acc8ddbbb87`](https://github.com/my-edutu/Ai_games/commit/3bd803ea115e7cf4504597118f0e9acc8ddbbb87) shows all authentic homes' lower-side structural joinery, minus 28 **isolated side-wall** triangles each after outward normal+nondegenerate geometry repair. Four family window boxes, original residents and deterministic economy preserved. Still NO source-matched real browser/390px/Day120 or hardware p95; old 1.709 SwiftShader FPS/160,092 triangle breach remain historical blockers. A LOOK NOT PROVEN, FEEL FAIL/not remeasured, PLAY NOT PROVEN; B commercial FAIL; no phase/percent/merge. Continue exactly the integrated authentic real farmer→loaded courier→receiving market→lived-in home scenario; recheck source-matched footage and GPU/CPU timing next.
+
 # W102 · 7 November 2026 — SAME Phase 1 rendering spine · NO measured transformation PASS
 
 **Only branch** `feat/tiny-kingdom-post-main-gauntlet-20261031` via [open DRAFT PR #64](https://github.com/my-edutu/Ai_games/pull/64). No merge/main/#43/#59/#62. Immutable old G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`. ONE integrated scene: actual farmer grain work → authentic escrowed loaded courier cart and terrain-linked road → accessible covered real receiving-market and inventory receipt → physically occupied original house; same Day-120 and 390px world.
