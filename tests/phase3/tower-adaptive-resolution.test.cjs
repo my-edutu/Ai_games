@@ -7,6 +7,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const { pathToFileURL } = require('node:url');
+const { shippedSceneNamedBindings, fillMissingBindings } = require('./tower-scene-vm-bindings.cjs');
 const ROOT = path.resolve(__dirname, '../..');
 const sceneSource = fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/scene.mjs'), 'utf8');
 
@@ -90,6 +91,7 @@ test('the real Tower scene uses adaptive backing resolution without downgrading 
     addEventListener() {}, removeEventListener() {}, ResizeObserver: class { observe() {} disconnect() {} },
     requestAnimationFrame: fn => { scheduled = fn; return 1; }, cancelAnimationFrame() {}, console: { warn() {}, error() {} },
   };
+  fillMissingBindings(context, await shippedSceneNamedBindings(sceneSource));
   vm.runInNewContext(sceneSource.replace(/^import .*;\n/gm, '').replace('export function createTowerScene', 'function createTowerScene'), context);
   const canvas = { dataset: {}, getBoundingClientRect: () => ({ width: 1920, height: 1080 }), addEventListener() {}, removeEventListener() {} };
   const view = context.createTowerScene(canvas, { quality: 'low', reducedMotion: true });
