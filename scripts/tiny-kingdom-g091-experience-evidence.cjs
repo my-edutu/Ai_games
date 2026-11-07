@@ -467,7 +467,10 @@ async function motion(browser,html,snapshot,label,live=false,camera=labor,delive
   // shift while Chromium executes camera surveys before the assertion.
   // Freeze only the witness setup; continuous footage below resumes real
   // autonomous simulation without synthetic delivery or staged animation.
-  if(delivery)await page.locator('#pause').click();
+  // The genuine worker was advanced past their shift by slow software frames
+  // between snapshot restoration and the observer's Live Work click. Freeze
+  // ONLY camera/witness setup, never the actual uninterrupted recording.
+  if(delivery||live)await page.locator('#pause').click();
   await page.evaluate(({snapshot,camera})=>{
    const g=window.__tinyKingdom;
    g.restoreSnapshot(snapshot);
@@ -482,6 +485,9 @@ async function motion(browser,html,snapshot,label,live=false,camera=labor,delive
    });
    assert(work.view.active,'Supplemental clip did not follow a genuine shift');
    assert(work.camera.zoom<11,'Supplemental real worker is too distant');
+   // Resume before starting the original uncut WebM and real user inputs.
+   // Do not manufacture or hold an actor in a job during the film.
+   await page.locator('#pause').click();
   }
   if(delivery){
    await page.locator('#delivery-follow').click();
