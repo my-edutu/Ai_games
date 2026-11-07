@@ -32,6 +32,7 @@ export function stepTowerPhysics(input:TowerState,action:TowerAction):{state:Tow
   if(action.jump&&(p.grounded||p.jumpCharges>0)){if(!p.grounded)p.jumpCharges--;p.velocity.y=c.jumpImpulse;p.grounded=false;p.groundedPlatformId=undefined;p.state='airborne';state.stats.jumps++}
   if(action.dash&&p.dashCooldown===0&&p.stamina>=state.build.dashCost){p.velocity.x=p.facing*c.dashSpeed;p.dashCooldown=Math.max(6,20-state.build.dashCooldownReduction);p.stamina-=state.build.dashCost;p.state='dashing';state.stats.dashes++}
   p.velocity.y=clamp(p.velocity.y-c.gravity,-c.maxFallSpeed,c.jumpImpulse);
+  const travelStartX=p.position.x;
   const targetX=p.position.x+p.velocity.x,targetY=p.position.y+p.velocity.y;let newX=targetX;
   // The opt-in live 3D game can cross several solid faces during one real
   // 50ms dash. The original ID-ordered loop stopped at whichever ID was
@@ -134,7 +135,7 @@ export function stepTowerPhysics(input:TowerState,action:TowerAction):{state:Tow
     for(const platform of nextPlatforms){
       const prior=startById.get(platform.id)??platform;
       const hit=sweptVerticalContact({
-        fromX:p.position.x,toX:newX,fromY:p.position.y,toY:targetY,
+        fromX:travelStartX,toX:p.position.x,fromY:p.position.y,toY:targetY,
         halfWidth:p.halfWidth,halfHeight:p.halfHeight,
         platformStartX:prior.x,platformEndX:platform.x,
         platformStartY:prior.y,platformEndY:platform.y,
