@@ -21,7 +21,7 @@ import { createTowerGuardianShotStage } from './guardian-shot-stage.mjs';
 import { createObservedGuardianGuardStage } from './guardian-guard-stage.mjs';
 import { witnessedAirbornePulse, witnessedGuardianCounterPulse } from './airborne-pulse.mjs';
 import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue } from './guardian-camera-safety.mjs';
-import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedLiveGuardianLastStandShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
+import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { guardedJointShotGain, observedJointBodyPressure } from './joint-shot.mjs';
 import { createObservedMovingDeckRide } from './moving-deck-ride.mjs';
@@ -2940,6 +2940,18 @@ export function createTowerScene(canvas, settings = {}) {
       earnedPassageStage.runToken === snapshot.runToken &&
       earnedPassageStage.floor === snapshot.floor
       ? observedGroundedGatewayShot(snapshot, liveExit, camera.aspect, zoom) : null;
+    // The same SOURCE-EARNED gate remains physically ahead of a real airborne
+    // step or dash. The grounded-only cinematic ceased at takeoff in exact
+    // portrait film; the giant dial then occupied the frame while the hero
+    // and live threshold left the action sightline. The airborne helper is
+    // strict about current-run defeat, cap geometry, whole-body footprint and
+    // true height above the source roof. It cannot grant progression.
+    const sourceAirborneWalk = !overview && !options.reducedMotion &&
+      !options.stale && liveExit && earnedPassageStage?.active &&
+      earnedPassageStage.stage === 'earned-open' &&
+      earnedPassageStage.runToken === snapshot.runToken &&
+      earnedPassageStage.floor === snapshot.floor
+      ? observedAirborneGatewayShot(snapshot, liveExit, camera.aspect, zoom) : null;
     // Genuine portrait footage at f812 (guardian 1HP before tick 441, physical
     // floor-nine crossing at tick 451) left too little post-defeat wall-time
     // for the camera to find the real inner doorway. Build the SAME exterior
@@ -2954,9 +2966,9 @@ export function createTowerScene(canvas, settings = {}) {
       passage.diagnostics().stage === 'guardian-locked'
       ? observedLiveGuardianLastStandShot(snapshot, liveLastStand, camera.aspect, zoom)
       : null;
-    const realCapLens = sourceEarnedWalk || sourceLastStand;
-    const realCapStage = sourceEarnedWalk ? earnedPassageStage
-      : sourceLastStand ? passage.diagnostics() : null;
+    const realCapLens = sourceEarnedWalk || sourceAirborneWalk || sourceLastStand;
+    const realCapStage = sourceEarnedWalk || sourceAirborneWalk
+      ? earnedPassageStage : sourceLastStand ? passage.diagnostics() : null;
     // Keep the SAME real camera, with a source-first cap position and radius:
     // no extra scene, invented time window, generated floor or camera cut.
     if (realCapLens && Array.isArray(realCapStage?.focusPosition) &&
@@ -3515,10 +3527,12 @@ export function createTowerScene(canvas, settings = {}) {
       earnedStage.focusPosition.every(Number.isFinite);
     if (gatewayEarned) earnedGatewayFocus.set(...earnedStage.focusPosition);
     if (gatewayEarned && !options.reducedMotion &&
-        options.camera === 'follow' && p.state === 'standing' &&
+        options.camera === 'follow' &&
+        (p.state === 'standing' || !!sourceAirborneWalk?.realAirborneCap) &&
         camera.aspect > 0 && camera.aspect < 2.5 &&
         Number.isFinite(dt) && dt > 0 && zoom <= 1.1 &&
-        (arrivalFraming > .16 || sourceWalkProgress > .24)) {
+        (arrivalFraming > .16 || sourceWalkProgress > .24 ||
+          (sourceAirborneWalk?.approach ?? 0) > .16)) {
       actorFramePoint.copy(climber.group.position);
       actorFramePoint.y += p.halfHeight / SCALE;
       camera.lookAt(lookAt); camera.updateMatrixWorld(true);
@@ -3595,7 +3609,12 @@ export function createTowerScene(canvas, settings = {}) {
           snapshot.chunkBaseY,snapshot.worldWidth,27.15);
         guardianRescuePoint.set(observed.x,observed.y,observed.z);
       }
-      if(targetPlatform&&landingApproach.diagnostics().visible){
+      // Actual gate takes precedence over a distant future landing ONLY
+      // during the near-roof earned airborne crossing. Crusher warnings and
+      // the source-driven enemy still retain their safety priority.
+      if (gatewayEarned && sourceAirborneWalk && actionStage?.kind !== 'hazard') {
+        actorOrbitTarget.copy(earnedGatewayFocus);
+      } else if(targetPlatform&&landingApproach.diagnostics().visible){
         const landing=pointFor(observedSourceLandingX(snapshot,targetPlatform),
           targetPlatform.y+targetPlatform.height,snapshot.chunkBaseY,
           snapshot.worldWidth,26.7);
@@ -3615,7 +3634,8 @@ export function createTowerScene(canvas, settings = {}) {
     }
     const protectArrival=!!targetPlatform&&landingApproach.diagnostics().visible;
     const protectImmediateTrap=actionStage?.kind==='hazard';
-    const protectEarnedGate=gatewayEarned&&!protectArrival&&!protectImmediateTrap;
+    const protectEarnedGate=gatewayEarned&&!protectImmediateTrap&&
+      (!protectArrival || !!sourceAirborneWalk);
     world.protectRouteSightlines(camera,
       protectLiveRoute?actorFramePoint:null,
       protectLiveRoute&&sourceGuardian?guardianRescuePoint:null,
