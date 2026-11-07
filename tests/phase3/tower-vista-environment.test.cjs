@@ -101,8 +101,8 @@ test('portrait giant foreground clockwork is subordinated to the real climber wh
     actor:{x:.1,y:.1,z:0},actorDepth:70
   };
   const near=observedPortraitGearDominance(witnessed);
-  assert.ok(near>=.42-1e-9 && near<=.43,
-    'oversized foreground dial must not dominate the mobile actor image');
+  assert.ok(near>=.18-1e-9 && near<=.20,
+    'source-front giant dial must yield to hero with the new stronger full-stack opacity budget');
   const middle=observedPortraitGearDominance({...witnessed,radius:.8});
   assert.ok(middle>near&&middle<1,
     'fade smoothly with actual apparent perspective size');
