@@ -9397,8 +9397,9 @@ function getMarketParcelDeliveryPose(deliveryId){
  const actor=people.find(p=>p.delivery?.id===deliveryId);
  if(!h||!evidence||evidence.stage!=='unloading'||!actor)return null;
  const count=evidence.bundleCount,moved=evidence.transferredButEscrowed;
- const contact=courierWorldHandContact(actor);
- const wrist=contact.wrist;
+ const workerFrame=courierWorldHandContact(actor);
+ if(!workerFrame)return null; // A physical handoff needs the authentic unloading worker.
+ const wrist=workerFrame.wrist;
  const clamp=v=>Math.max(0,Math.min(1,v));
  const ease=t=>{const u=clamp(t);return u*u*(3-2*u)};
  const mix=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*t);
@@ -9407,29 +9408,29 @@ function getMarketParcelDeliveryPose(deliveryId){
   const phase=clamp(h.progress*(count+1)-(j+1));
   const shelfHeight=terrain(h.destination[0],h.destination[1])+
    (h.resource==='wood'?.37:.55);
-  const origin=courierCartParcelPoint(actor,j,count,contact);
+  const origin=courierCartParcelPoint(actor,j,count,workerFrame);
   const dock=[h.destination[0]+.28+(j-(count-1)/2)*.26,
    shelfHeight,h.destination[1]+.72+(j%2)*.12];
-  let position,contact;
+  let position,parcelContact;
   if(phase<.22){
-   position=mix(origin,wrist,ease(phase/.22));contact='cart-to-hand';
+   position=mix(origin,wrist,ease(phase/.22));parcelContact='cart-to-hand';
   }else if(phase<.76){
    const t=ease((phase-.22)/.54);
    position=mix(wrist,dock,t);
    position[1]+=.105*Math.sin(Math.PI*t);
-   contact='wrist-to-dock';
+   parcelContact='wrist-to-dock';
   }else{
-   position=dock.slice();contact='receiving-shelf';
+   position=dock.slice();parcelContact='receiving-shelf';
   }
-  parcels.push({id:h.id,index:j,phase,contact,position,
+  parcels.push({id:h.id,index:j,phase,contact:parcelContact,position,
    dock,wrist:wrist.slice(),origin,credited:false});
  }
  return {source:'real-courier-cart-hand-receiving-dock',active:true,
   id:h.id,citizen:h.citizen,resource:h.resource,amount:h.amount,
   escrowed:actor.delivery.escrowed===true,
   bundleCount:count,visibleOnCart:evidence.visibleOnCart,
-  wrist:wrist.slice(),cartOrigin:contact.cartPoint.slice(),
-  citizenFacingRadians:contact.facingRadians,contactLod:contact.lod,
+  wrist:wrist.slice(),cartOrigin:workerFrame.cartPoint.slice(),
+  citizenFacingRadians:workerFrame.facingRadians,contactLod:workerFrame.lod,
   parcels,altersAuthority:false};
 }
 const marketHandoffRenderStats={active:0,triangles:0};
