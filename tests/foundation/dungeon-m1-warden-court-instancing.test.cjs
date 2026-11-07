@@ -1,0 +1,76 @@
+'use strict';
+const {test}=require('node:test'),assert=require('node:assert/strict');
+const fs=require('node:fs'),path=require('node:path'),{pathToFileURL}=require('node:url');
+const THREE=require('three');
+const base=path.resolve(__dirname,'../../public/ai-dungeon');
+function code(name){return fs.readFileSync(path.join(base,name),'utf8')}
+const asUrl=source=>'data:text/javascript;base64,'+Buffer.from(source).toString('base64');
+async function loadRitual(){
+ let src=code('warden-ritual.js').replace("'/dungeon/vendor/three.module.js'",JSON.stringify(pathToFileURL(path.join(path.dirname(require.resolve('three')),'three.module.js')).href));
+ src=src.replace("'/dungeon/warden-chapter-plan.js'",JSON.stringify(asUrl(code('warden-chapter-plan.js'))));
+ src=src.replace("'/dungeon/warden-tell-plan.js'",JSON.stringify(asUrl(code('warden-tell-plan.js'))));
+ return import(asUrl(src));
+}
+function world(){return new THREE.Group()}
+function totalCalls(root){let count=0;root.traverse(node=>{if(node.isMesh&&node.visible)count++});return count}
+const map=Array.from({length:19},(_,z)=>Array.from({length:19},(_,x)=>x>0&&x<18&&z>0&&z<18?'.':'#').join(''));
+const exit={x:9,z:9};
+function boss(guard){return {tick:1,map,units:[{id:'warden',kind:'warden',faction:'enemy',hp:100,maxHp:100,x:9,z:9,action:'idle',actionTick:0}],guardianWard:guard,bossPhase:'SENTINEL',bossWarning:null,bossRecovery:null}}
+test('M1 living Warden ceremony uses six dynamic 3D instance batches and keeps truthful guardian retreat',async()=>{
+ const {createWardenRitual}=await loadRitual(),scene=world(),r=createWardenRitual(scene,exit,{map,reducedMotion:true});
+ const court=scene.children.find(x=>x.name==='Original immovable Warden cathedral');
+ const piles=court.children.filter(x=>/^Warden ceremonial /.test(x.name));
+ assert.equal(piles.length,4,'four original material/geometry batches replace 24 stand-alone draw calls');
+ assert.ok(piles.every(x=>x.isInstancedMesh&&x.count===6));
+ const parts=[{y:.12,z:0,scale:[1,1,1],roll:false,turn:0},
+  {y:.49,z:0,scale:[1,.72,1],roll:false,turn:0},
+  {y:.85,z:0,scale:[1,1,1],roll:true,turn:0},
+  {y:.53,z:-.128,scale:[.7,.7,.7],roll:false,turn:Math.PI/2}];
+ for(let i=0;i<6;i++){
+  const angle=i*Math.PI/3+.18,original=new THREE.Object3D();
+  original.position.set(Math.cos(angle)*2.5,0,Math.sin(angle)*2.5);
+  original.rotation.y=-angle;original.updateMatrix();
+  for(let j=0;j<parts.length;j++){
+   const spec=parts[j],child=new THREE.Object3D(),got=new THREE.Matrix4(),expect=new THREE.Matrix4();
+   child.position.set(0,spec.y,spec.z);
+   child.rotation.set(0,spec.turn,spec.roll?(i%2?-.06:.06):0);
+   child.scale.set(...spec.scale);child.updateMatrix();
+   expect.multiplyMatrices(original.matrix,child.matrix);piles[j].getMatrixAt(i,got);
+   for(let k=0;k<16;k++)assert.ok(Math.abs(got.elements[k]-expect.elements[k])<1e-6,
+    `same original Warden pylon authored transform ${i}/${j}/${k}`);
+  }
+ }
+ const reveal=piles[0],p0=new THREE.Matrix4(),p1=new THREE.Matrix4();
+ r.accept(boss(true));r.animate(0,.016);reveal.getMatrixAt(0,p0);assert.equal(r.metrics().retractedPlinths,0);
+ r.accept({...boss(false),tick:2});r.animate(.1,.016);reveal.getMatrixAt(0,p1);
+ assert.ok(p1.elements[13]<p0.elements[13]-.8,'real guardian ward drop moves original six 3D pylons');
+ assert.equal(r.metrics().retractedPlinths,6);
+ const before=p1.clone();r.setSightlines([{x:1.7,z:.5}],new THREE.Vector3(4.9,5,.5));r.animate(.2,.016);
+ reveal.getMatrixAt(0,p1);
+ assert.ok(r.metrics().hiddenPlinths>=1,'real sightline hides a near-side court pylon');
+ assert.ok(Math.abs(p1.elements[0])<Math.abs(before.elements[0])*.001,'concealed geometry is scaled out without new draw calls');
+ assert.equal(r.metrics().fixedCeremonialPlinths,6);
+ assert.ok(court.children.every(x=>!/^Ritual plinth /.test(x.name)));
+ assert.ok(totalCalls(scene)<75,'retain full physical ritual without dozens of repeated static meshes');
+ r.dispose();assert.equal(scene.children.length,0);
+});
+test('M1 original 12 paired carved floor inlays share two real scene draw calls, not loose meshes',async()=>{
+ const {createWardenRitual}=await loadRitual(),scene=world(),r=createWardenRitual(scene,exit,{map,reducedMotion:true});
+ const tiles=scene.children[0].children.filter(x=>/^Warden concentric /.test(x.name));
+ assert.equal(tiles.length,2);
+ assert.ok(tiles.every(x=>x.isInstancedMesh&&x.count===12));
+ assert.equal(r.metrics().originalBasaltReliefs,12);
+ r.dispose();
+});
+test('M1 ordinary-motion guardian transitions stay smooth, with Warden warning tiles and safe scene teardown',async()=>{
+ const {createWardenRitual}=await loadRitual(),scene=world(),r=createWardenRitual(scene,exit,{map,reducedMotion:false});
+ r.accept(boss(true));r.animate(.05,.016);assert.equal(r.metrics().retractedPlinths,0);
+ r.accept({...boss(false),tick:2,bossWarning:{warning:true,shape:'NOVA',turnsUntilImpact:2,attackTick:4,cells:[{x:9,z:9},{x:10,z:9}]}});
+ for(let step=0;step<12;step++)r.animate(step*.016,.05);
+ assert.ok(r.metrics().retractedPlinths>0,'real ward opening gradually clears original fighting lane');
+ assert.equal(r.metrics().warningTiles,2,'all genuine danger remains, not downgraded for rendering');
+ r.accept({...boss(true),tick:3,bossWarning:null});
+ for(let step=0;step<48;step++)r.animate(step*.016,.05);
+ assert.equal(r.metrics().retractedPlinths,0,'closing authentic guardian ward restores the actual same plinths');
+ r.dispose();assert.equal(scene.children.length,0);
+});

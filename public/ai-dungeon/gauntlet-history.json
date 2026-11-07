@@ -2505,7 +2505,7 @@
       "latestRealPreviousHead": "Original Chromium desktop 1440 + mobile 390 screenshots artifact https://github.com/my-edutu/Ai_games/actions/runs/42090636357/artifacts/13447062976; actual toy-like figures and opaque major front pillar; preceding-head only, NO new after evidence."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Genuine 390px visible mobile pillar shielding sword/boot acting lane despite clear center rays; native adult-scale Warden/Vanguard melee still no verified matched audiovisual motion.",
+    "biggestRemainingGap": "Authentic Warden combat looks miniature and cluttered at ~0.5fps software-Chromium recording; natural defeat/restart footage and original hit-synchronized sound unverified.",
     "currentWork": "Continuing M1: 22504a2 candidate integrates actual earned Warden counterstrike close shot with native physical duel camera, fight-to-fight continuity and identical renderer/camera foreground cutaways; 48e0300 predecessor had 27/28 Chromium with real counter-frame misclassification. No accepted A/B or new-head moving evidence yet.",
     "candidateCommit": "4a599c56500bd3db4064808536b219748338d5c3",
     "candidateArtifactUrl": null,
@@ -5697,7 +5697,7 @@
       "next": "Exact-new-head real 1440px/390px seeded Chromium audiovisual battle + compare pinned baseline; verify no new occlusion/camera jitter, then original adult-scale native rig/Warden melee integration and five-stage organic reel."
     },
     "currentStage": "A_INCOMPLETE",
-    "executableNextTask": "Verify exact-head 1440/390 original skinned sword drive/boots/recoil and real damage, while retaining Warden telegraphs; resolve software-browser 0.5fps capture without skipping ticks; full natural five stages, same-seed immutable baseline and 3 independent blind critics.",
+    "executableNextTask": "Inspect new-head original 1440/390 Warden Court batching, actual draw calls/fps/occlusion and uncut warnings; then five-stage audio/video, same-seed locked baseline and 3 blind critics.",
     "phasePlan": [
       {
         "phase": "A",
@@ -6017,6 +6017,29 @@
       "plays": "UNVERIFIED",
       "acceptance": "IN_PROGRESS_NOT_TRANSFORMED",
       "next": "Inspect real new-head 1440/390 WebGL after footage and reduced clutter, then profile GPU/CPU raster delivery and scene passes, recover real five-stage original WebM/WAV and same-seed locked BEFORE, obtain >=3 blind independent critics without changing gameplay truth"
+    },
+    "m1WardenCourtSceneBatchCandidate": {
+      "date": "2026-11-07",
+      "stage": "A_INCOMPLETE_RENDER_PERFORMANCE_CANDIDATE",
+      "sourceParentSha": "c6202396e569f68d039636b5a73514837d941c93",
+      "lockedBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "preDesktopArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42418882903/artifacts/13592903235",
+      "preMobileArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42418882903/artifacts/13593175839",
+      "genuinePreviousStages": "3/5: real combat, Warden damage, floor progression; no naturally filmed defeat/restart",
+      "sourceIntegration": "Six original guardian-release and camera-recessed Warden pylons (4 parts per pylon) and 12 original concentric basalt/iron pairs integrated into 4+2 Three.js instance batches; no authority/physics changes; opt-in sound and danger preserved",
+      "measuredSourceFacts": "48 previous individual physical mesh draws represented in six instanced groups, theoretical 42 court draw reduction; no claim of observed rendered speed or improved looks",
+      "testEvidence": "Test-first RED then GREEN; new original THREE matrix/live phase tests 3/3, dungeon:test 332/332, all dungeon foundation 537/537, build PASS, 24*900 seeded authority 0 mismatches and 191 advances",
+      "afterRealBrowser": "NOT_OBSERVED",
+      "devicePerformance": "UNVERIFIED",
+      "audioImpactSync": "UNVERIFIED",
+      "naturallyFilmedFiveStages": "UNVERIFIED",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "currentBlocker": "Local Chromium localhost net::ERR_BLOCKED_BY_ADMINISTRATOR; new exact-head GitHub Actions audiovisual capture needed",
+      "next": "Inspect full-body original Warden and warning parity with exact-head 1440/390 WebM+Opus and p95 draw/render/frame probes; fix deficits; recover complete five organic stages and matched baseline before 3 independent critics."
     }
   }
 }

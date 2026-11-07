@@ -22,28 +22,71 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
  // giant translucent effect that can hide real combat or block navigation.
  const plinth=new THREE.CylinderGeometry(.23,.30,.24,8),column=new THREE.CylinderGeometry(.085,.19,.82,7);
  const crest=new THREE.ConeGeometry(.20,.37,7),emblem=new THREE.TorusGeometry(.15,.019,5,24);
+ // Reuse the six ORIGINAL ceremonial pylons and their exact authored poses,
+ // but render their four parts as four real GPU batches rather than 24 draws.
+ // This is scene-only: guardian ward, camera cutaway and source map are intact.
  const plinths=[];
  for(let i=0;i<6;i++){
-  const angle=i*Math.PI/3+.18,pylon=new THREE.Group();
+  const angle=i*Math.PI/3+.18,pylon=new THREE.Object3D();
   pylon.name='Ritual plinth '+i;pylon.position.set(Math.cos(angle)*2.50,0,Math.sin(angle)*2.50);pylon.rotation.y=-angle;
-  put(pylon,plinth,stone,0,.12,0);put(pylon,column,metal,0,.49,0,1,.72,1);
-  put(pylon,crest,stone,0,.85,0).rotation.z=i%2?-.06:.06;
-  put(pylon,emblem,glyph,0,.53,-.128,.7,.7,.7).rotation.y=Math.PI/2;fixedCourt.add(pylon);plinths.push(pylon);
+  plinths.push(pylon);
  }
+ const ceremonialParts=[
+  {name:'Warden ceremonial plinth stones',geometry:plinth,material:stone,y:.12},
+  {name:'Warden ceremonial forged shafts',geometry:column,material:metal,y:.49,sy:.72},
+  {name:'Warden ceremonial pointed capitals',geometry:crest,material:stone,y:.85,tilt:true},
+  {name:'Warden ceremonial engraved badges',geometry:emblem,material:glyph,y:.53,z:-.128,sx:.7,sy:.7,sz:.7,turn:Math.PI/2}
+ ];
+ const ceremonialBatches=ceremonialParts.map(part=>{
+  const mesh=new THREE.InstancedMesh(part.geometry,part.material,plinths.length);
+  mesh.name=part.name;mesh.frustumCulled=false;mesh.castShadow=false;mesh.receiveShadow=false;
+  fixedCourt.add(mesh);return mesh;
+ });
+ const plinthUploadState=plinths.map(()=>({y:NaN,visible:null}));
+ const anchor=new THREE.Object3D(),component=new THREE.Object3D(),instanceMatrix=new THREE.Matrix4();
+ function uploadCeremonialPlinths(){
+  let dirty=false;
+  for(let i=0;i<plinths.length;i++){
+   const pylon=plinths[i],state=plinthUploadState[i];
+   if(Math.abs(pylon.position.y-state.y)<.000001&&state.visible===pylon.visible)continue;
+   pylon.updateMatrix();state.y=pylon.position.y;state.visible=pylon.visible;dirty=true;
+   for(let k=0;k<ceremonialParts.length;k++){
+    const part=ceremonialParts[k];
+    component.position.set(0,part.y,part.z||0);
+    component.rotation.set(0,part.turn||0,part.tilt?(i%2?-.06:.06):0);
+    component.scale.set(part.sx||1,part.sy||1,part.sz||1);component.updateMatrix();
+    instanceMatrix.multiplyMatrices(pylon.matrix,component.matrix);
+    if(!pylon.visible)instanceMatrix.scale(new THREE.Vector3(.00001,.00001,.00001));
+    ceremonialBatches[k].setMatrixAt(i,instanceMatrix);
+   }
+  }
+  if(dirty)for(const mesh of ceremonialBatches)mesh.instanceMatrix.needsUpdate=true;
+ }
+ uploadCeremonialPlinths();
  // Original low-profile sculpted basalt court: a visually continuous combat
  // stage that remains beneath feet. Unlike towering copies of corridor props,
  // radial relief stones give the Warden chamber its own material grammar without
  // covering autonomous actors or their real shockwave warning.
  const slabGeo=new THREE.BoxGeometry(.47,.048,.23),inciseGeo=new THREE.BoxGeometry(.32,.012,.020);
  const basalt=new THREE.MeshStandardMaterial({color:'#312c37',roughness:.94,metalness:.06});
- for(let i=0;i<12;i++){
-  const angle=i*Math.PI/6,radius=i%2?1.26:1.34,x=Math.cos(angle)*radius,z=Math.sin(angle)*radius;
-  const slab=put(group,slabGeo,basalt,x,.014,z);
-  slab.rotation.y=-angle;
-  const cut=put(group,inciseGeo,metal,x,.047,z);
-  cut.rotation.y=-angle;
- }
-
+ // Exact twelve original concentric basalt stones and engraved iron cuts,
+ // sharing two batches rather than 24 separate meshes on the duel floor.
+ const concentricLayers=[
+  {name:'Warden concentric basalt stepping stones',geometry:slabGeo,material:basalt,y:.014},
+  {name:'Warden concentric iron cuts',geometry:inciseGeo,material:metal,y:.047}
+ ];
+ const concentricBatches=concentricLayers.map(part=>{
+  const mesh=new THREE.InstancedMesh(part.geometry,part.material,12);
+  mesh.name=part.name;mesh.frustumCulled=false;mesh.castShadow=false;mesh.receiveShadow=false;
+  const pose=new THREE.Object3D();
+  for(let i=0;i<12;i++){
+   const angle=i*Math.PI/6,radius=i%2?1.26:1.34;
+   pose.position.set(Math.cos(angle)*radius,part.y,Math.sin(angle)*radius);
+   pose.rotation.set(0,-angle,0);pose.scale.set(1,1,1);pose.updateMatrix();
+   mesh.setMatrixAt(i,pose.matrix);
+  }
+  mesh.instanceMatrix.needsUpdate=true;group.add(mesh);return mesh;
+ });
  // M1 Warden chapter: an original low, sculptural, traversable stone roundel.
  // All ornament lies below boots; gameplay collision and dangerous floor cells
  // remain solely the authority's. Batched original relief, no proprietary art.
@@ -159,6 +202,7 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
     if(blocks){if(props===wallProps)hiddenWallProps++;else hiddenPlinths++;}
    }
   }
+  uploadCeremonialPlinths();
  }
  const rings=[];
  for(const [r,y] of [[1.04,.27],[.86,.85],[.67,1.41]]){
@@ -342,6 +386,7 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
    const target=ward?0:-.91;
    pillar.position.y=reducedMotion?target:pillar.position.y+(target-pillar.position.y)*Math.min(1,step*5.2);
   }
+  uploadCeremonialPlinths();
   const goal=chapterTarget.openness;
   chapterOpenness=reducedMotion?goal:chapterOpenness+(goal-chapterOpenness)*Math.min(1,step*2.6);
   if(Math.abs(chapterOpenness-chapterRendered)>.0007){
@@ -414,5 +459,17 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
    }
   }else for(const shard of shards)shard.visible=false;
  }
- return {accept,animate,setSightlines,metrics:()=>({sculptedCourtSlabs:courtSlabCount,originalEngravings:cutCount,cathedralWallButtresses:wallProps.length,phaseFractureSegments:faultVoidMesh.visible?WARDEN_RIFT_SEGMENTS:0,chapterOpenness:Math.round(chapterOpenness*1000)/1000,chapterTransitions,hiddenWallButtresses:hiddenWallProps,fixedCeremonialPlinths:plinths.length,hiddenPlinths,retractedPlinths:plinths.filter(p=>p.position.y<-.55).length,phaseRelief:phase,visible,shieldActive:ward,exposedCounterWindow:exposed,phase,activeDefenders:defenders,activeTethers:linkCount,shattering:breakAge<SHATTER_TIME,maxTethers:LIMIT,originalBasaltReliefs:12,warningTiles:warningCount,warningEdgedTiles:0,warningBoundaryEdges,warningIncisions:warningIncisions.count,warningTellProgress:warningStage.progress,warningShape,warningStoneLift,warningStoneGeometry:'bevelled-original-basalt',impactReliefFrames,impactActive:impactAge>0})};
+ // Teardown releases the runtime's original scene-owned geometries/materials.
+ function dispose(){
+  group.removeFromParent();fixedCourt.removeFromParent();
+  const allGeometry=new Set(),allMaterials=new Set();
+  for(const parent of [group,fixedCourt])parent.traverse(node=>{
+   if(node.geometry)allGeometry.add(node.geometry);
+   for(const mat of Array.isArray(node.material)?node.material:node.material?[node.material]:[])allMaterials.add(mat);
+  });
+  for(const geometry of allGeometry)geometry.dispose();
+  for(const material of allMaterials)material.dispose();
+ }
+ return {accept,animate,setSightlines,dispose,metrics:()=>({ceremonialDrawBatches:ceremonialBatches.length,
+  concentricDrawBatches:concentricBatches.length,sculptedCourtSlabs:courtSlabCount,originalEngravings:cutCount,cathedralWallButtresses:wallProps.length,phaseFractureSegments:faultVoidMesh.visible?WARDEN_RIFT_SEGMENTS:0,chapterOpenness:Math.round(chapterOpenness*1000)/1000,chapterTransitions,hiddenWallButtresses:hiddenWallProps,fixedCeremonialPlinths:plinths.length,hiddenPlinths,retractedPlinths:plinths.filter(p=>p.position.y<-.55).length,phaseRelief:phase,visible,shieldActive:ward,exposedCounterWindow:exposed,phase,activeDefenders:defenders,activeTethers:linkCount,shattering:breakAge<SHATTER_TIME,maxTethers:LIMIT,originalBasaltReliefs:12,warningTiles:warningCount,warningEdgedTiles:0,warningBoundaryEdges,warningIncisions:warningIncisions.count,warningTellProgress:warningStage.progress,warningShape,warningStoneLift,warningStoneGeometry:'bevelled-original-basalt',impactReliefFrames,impactActive:impactAge>0})};
 }
