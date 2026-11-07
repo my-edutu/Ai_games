@@ -4179,7 +4179,7 @@ function renderLivedBurgageSideMateriality(x,z,variant,index,isCompact){
     // glass; no wall billboard or replacement of original house geometry.
     const a=[face+side*.007,y+.38,ra],b=[face+side*.007,y+.38,rb],
      c=[face+side*.007,y+.59,rb],d0=[face+side*.007,y+.59,ra];
-    if(side>0)quad(a,b,c,d0,pale);else quad(d0,c,b,a,pale);
+    if(side>0)quad(d0,c,b,a,pale);else quad(a,b,c,d0,pale);
    }
   });
   materialScope(MATERIAL.WOOD,()=>{
@@ -4207,8 +4207,8 @@ function renderLivedBurgageSideMateriality(x,z,variant,index,isCompact){
    const panel=(y0,z0,y1,z1,halfWidth,color)=>{
     const a=[surface,y0,z0-halfWidth],b=[surface,y0,z0+halfWidth];
     const c=[surface,y1,z1+halfWidth],d0=[surface,y1,z1-halfWidth];
-    if(side>0)quad(a,b,c,d0,color);
-    else quad(d0,c,b,a,color);
+    if((side>0)===(y1>y0))quad(d0,c,b,a,color);
+    else quad(a,b,c,d0,color);
    };
    for(const slot of [-1,1]){
     const center=z+slot*d*.26;
@@ -4216,7 +4216,7 @@ function renderLivedBurgageSideMateriality(x,z,variant,index,isCompact){
     panel(y+.20,center-.255,y+.65,center+.195,.038,brace);
     panel(y+.65,center-.255,y+.20,center+.195,.038,timber);
    }
-   panel(y+.16,z-d*.435,y+.16,z+d*.435,.033,timber);
+   panel(y+.16,z-d*.435,y+.235,z+d*.435,.033,timber);
   });
  }
  villageVisualLod.burgageMaterialHomes++;
