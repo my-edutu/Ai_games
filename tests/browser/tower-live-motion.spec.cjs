@@ -400,7 +400,6 @@ for (const viewport of viewports) {
       }
     }, 50);
   });
-  await sample(0);
   // Keep ONE uninterrupted original-source native WebM. The former
   // 68 x wait(1s) + software-GL diagnostics produced historical 132.8s
   // footage despite a nominal 68s capture. Absolute real-wall deadlines
@@ -426,6 +425,9 @@ for (const viewport of viewports) {
     return response?.ok()?response.json():null;
   },{cadenceMs:5000});
   await sourceTraceObserver.start();
+  // Do not let the first potentially 90s WebGL screenshot delay source
+  // collection. The native browser recorder was already running.
+  await sample(0);
   while (true) {
     const decision = captureWindowDecision(scenario,
       Date.now() - recordingStartedAt, sourceSequenceObserved);
