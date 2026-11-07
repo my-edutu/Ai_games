@@ -212,11 +212,14 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
  const aspect=clip(Number.isFinite(width)&&Number.isFinite(height)&&height>0?width/height:1.73,.35,3);
  const portrait=aspect<.85?.18:0;
  const zoom=clip(1+margin+portrait,.86,2.3);
+ // Only a true living hero's un-warned approach to the physical Warden
+ // can earn near-camera tracking. Warning and cast release remain wide.
+ const duelDistance=mode==='warden-approach'&&boss&&closeBoss?distance(closeBoss,boss):null;
  return Object.freeze({
   mode,x:round(position.x),z:round(position.z),lookY,
   oathguard:oathguard?Object.freeze({guardianId:oathguard.guardianId,allyId:oathguard.allyId}):null,
   offsets:Object.freeze(offsets.map(v=>round(v*zoom))),
-  subjects:Object.freeze(subjects),spread:round(spread),
+  subjects:Object.freeze(subjects),spread:round(spread),duelDistance,
   warning:!!warning||mode==='breach-warning',
   remainingTurns:warning?s.bossWarning.attackTick-s.tick:
    mode==='breach-warning'?revenantWarning.mark.impactTick-s.tick:null
@@ -257,13 +260,18 @@ export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMo
  const aspect=Number.isFinite(width)&&Number.isFinite(height)&&height>0?width/height:1.73;
  const portrait=aspect<.88,warning=shot.mode==='warden-warning'||shot.mode==='breach-warning';
  const closeDuel=shot.mode==='warden-counter'||shot.mode==='warden-contact'||shot.mode==='warden-exposed';
+ // Let original skinned combatants fill the frame while truly closing
+ // range, not only at HP loss. Existing camera following smooths transitions.
+ // Reduced motion preserves the established stable, wide approach.
+ const approachNear=!reducedMotion&&shot.mode==='warden-approach'&&Number.isFinite(shot.duelDistance)?
+  clip((5-shot.duelDistance)/3,0,1):0;
  // Real current-head WebGL shows physically valid Warden contact from a toy-scale
  // overhead lens. Use a closer real camera after earned counter/contact,
  // but never compress a genuine telegraph, cast or strike hazard.
  const stretch=portrait?(warning?1.24:closeDuel?1.045:1.10):1;
  const terminal=shot.mode==='last-stand';
- const radius=(terminal?clip(policy.radius+Math.max(0,shot.spread||0)*.68,4.65,7.15):policy.radius)*stretch;
- const y=(policy.height+(terminal?Math.min(.85,Math.max(0,shot.spread||0)*.21):0))*
+ const radius=(terminal?clip(policy.radius+Math.max(0,shot.spread||0)*.68,4.65,7.15):policy.radius-1.5*approachNear)*stretch;
+ const y=(policy.height-1.35*approachNear+(terminal?Math.min(.85,Math.max(0,shot.spread||0)*.21):0))*
   (portrait?(warning?1.17:closeDuel?1.04:1.07):1);
  const offsets=Object.freeze([
   round(shot.offsets[0]/horizontal*radius),

@@ -77,3 +77,26 @@ test('verified boss release keeps physical anatomy/weapon clearance and camera f
  const app=read('public/ai-dungeon/app.js');
  assert.match(app,/'warden-contact','warden-counter','warden-approach','warden-exposed','warden-warning','warden-release'\]\.includes\(cinematicShot\.mode\)/);
 });
+
+test('actual Warden approach tracks living-body proximity while preserving danger and reduced motion',async()=>{
+ const {planCinematicShot,planReadableExpeditionLens}=await load('public/ai-dungeon/cinematic-chapter-plan.js');
+ const close=fixture();close.units[2].action='idle';close.bossRecovery=null;
+ const before=JSON.stringify(close),far=JSON.parse(JSON.stringify(close));far.units[2].x=15;
+ const nearShot=planCinematicShot(close),farShot=planCinematicShot(far);
+ assert.equal(nearShot.mode,'warden-approach');assert.equal(farShot.mode,'warden-approach');
+ assert.equal(nearShot.duelDistance,2);assert.equal(farShot.duelDistance,5);
+ const radius=l=>Math.hypot(l.offsets[0],l.offsets[2]);
+ for(const view of [{width:1440,height:832},{width:390,height:844}]){
+  const near=planReadableExpeditionLens(nearShot,view),distant=planReadableExpeditionLens(farShot,view);
+  assert.ok(radius(near)<radius(distant)-1.4,'true proximity must earn a materially closer physical view');
+  assert.ok(near.offsets[1]<distant.offsets[1]-1.2,'avoid distant toy-scale overhead shot');
+  assert.equal(near.fov,distant.fov,'keep original lens visibility');
+  const reduced=planReadableExpeditionLens(nearShot,{...view,reducedMotion:true});
+  assert.ok(Math.abs(radius(reduced)-radius(distant))<.01,'reduced-motion preserves stable wide view');
+  close.bossWarning={attackTick:close.tick+1,shape:'NOVA',cells:[{x:12,z:9}]};
+  const danger=planReadableExpeditionLens(planCinematicShot(close),view);
+  assert.equal(danger.mode,'warden-warning');assert.equal(danger.dangerPriority,true);
+  delete close.bossWarning;
+ }
+ assert.equal(JSON.stringify(close),before,'camera cannot mutate authoritative state');
+});
