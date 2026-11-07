@@ -89,3 +89,36 @@ test('floor-owned vista renders as one shadow-free depth-tested draw, outside co
   }finally{world.dispose();}
   assert.equal(world.diagnostics().vistaLayers,0,'complete teardown retires the panorama');
 });
+
+// Real-frame portrait readability regression, not a transform quality vote.
+// The clock case and its gear share the same already-existing private alloy
+// opacity so this protection includes the backing, not merely open spokes.
+test('portrait giant foreground clockwork is subordinated to the real climber while gameplay geometry remains opaque',async()=>{
+  const [,{observedPortraitGearDominance}]=await loaded;
+  const witnessed={
+    aspect:390/844,
+    gear:{x:.1,y:.15,z:0}, radius:1.25,gearDepth:35,
+    actor:{x:.1,y:.1,z:0},actorDepth:70
+  };
+  const near=observedPortraitGearDominance(witnessed);
+  assert.ok(near>=.42-1e-9 && near<=.43,
+    'oversized foreground dial must not dominate the mobile actor image');
+  const middle=observedPortraitGearDominance({...witnessed,radius:.8});
+  assert.ok(middle>near&&middle<1,
+    'fade smoothly with actual apparent perspective size');
+  assert.equal(observedPortraitGearDominance({...witnessed,aspect:960/600}),1,
+    'keep desktop clockwork staging and depth materials');
+  assert.equal(observedPortraitGearDominance({...witnessed,gearDepth:80}),1,
+    'do not erase decor which lies BEHIND the player');
+  assert.equal(observedPortraitGearDominance({
+    ...witnessed,gear:{x:7,y:.1,z:0}
+  }),1,'do not erase peripheral architecture');
+  assert.equal(observedPortraitGearDominance({...witnessed,radius:.22}),1,
+    'retain small detail that does not visually overwhelm');
+  assert.equal(observedPortraitGearDominance({...witnessed,actorDepth:NaN}),1,
+    'stale/corrupt projections may not unlock a synthetic fade');
+  assert.match(raw,/const dominance=observedPortraitGearDominance\(/,
+    'the shipped scene must consume the composition contract');
+  assert.match(raw,/const protectedClockFace=syncClockFaceSightline\(entry\)/,
+    'both gear teeth and decorative backing must share the actual fade');
+});

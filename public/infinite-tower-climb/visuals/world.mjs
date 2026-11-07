@@ -46,6 +46,33 @@ export function observedStageCorridorOpacity({
   return guardian ? .42 : .58;
 }
 
+// Native portrait guardian film showed a large CLOCKWORK wheel holding the
+// center of the screen while the playable climber became a speck. Exact body
+// rays are necessary but insufficient: a near-camera wheel can dominate the
+// entire action composition without intersecting the body's thin center ray.
+// Fade only a source-irrelevant decorative foreground wheel that covers the
+// central phone image and lies IN FRONT of the current observed actor. Never
+// fade gameplay machinery, a far/background wheel or anything on desktop.
+// Returned value is the allowed decorative alloy/clock-case opacity, not a
+// gameplay event, visibility verdict or reviewer score.
+export function observedPortraitGearDominance({
+  aspect, gear, radius, gearDepth, actor, actorDepth,
+}) {
+  if (![aspect,radius,gearDepth,actorDepth].every(Number.isFinite) ||
+      aspect <= 0 || aspect >= .85 || radius < .48 || radius > 3 ||
+      gearDepth <= 0 || gearDepth + .35 >= actorDepth ||
+      ![gear,actor].every(point => point &&
+        [point.x,point.y,point.z].every(Number.isFinite)) ||
+      gear.z < -1 || gear.z > 1 || actor.z < -1 || actor.z > 1 ||
+      Math.abs(actor.x) > .88 || Math.abs(actor.y) > .86) return 1;
+  // Same aspect-compensated metric as the real actor/guardian corridor test.
+  // radius is the wheel's genuine current projected perspective footprint.
+  const center = Math.hypot(gear.x * aspect, gear.y);
+  const separation = Math.hypot((gear.x - actor.x) * aspect, gear.y - actor.y);
+  if (center > radius + .15 || separation > radius + .25) return 1;
+  return Math.max(.42, 1 - .58 * Math.min(1, (radius - .48) / .62));
+}
+
 // A physical clock face can cover the same narrow PHONE corridor as the
 // guardian even after its rotating gear teeth fade. Its rigid dial, posts and
 // backing are decorative only: they have no authored collider or gameplay
@@ -1569,6 +1596,18 @@ export function createTowerWorld(){
           (screenGearRight.x-screenGearCenter.x)*camera.aspect,
           screenGearRight.y-screenGearCenter.y);
         const gearDepth=camera.position.distanceTo(screenGearWorld);
+        // This is a genuine projected scenic footprint, not a synthetic
+        // actor marker. Prevent a giant FRONT wheel from monopolizing portrait
+        // gameplay before the player crosses the authentic guardian doorway.
+        // Existing full-body rays and camera/core safety remain independent.
+        const dominance=observedPortraitGearDominance({
+          aspect:camera.aspect,gear:screenGearCenter,radius,gearDepth,
+          actor:corridorFrom,actorDepth,
+        });
+        if (dominance < requiredOpacity) {
+          requiredOpacity=dominance;
+          softByProjection=true;
+        }
         for(let index=0;index<corridorCount;index++){
           const corridorOpacity=observedStageCorridorOpacity({
             aspect:camera.aspect,gear:screenGearCenter,radius,gearDepth,
