@@ -1,0 +1,29 @@
+# Infinite Tower Climb PR68 — P0 current-source film and integrity veto
+
+**Stage:** P0 EVIDENCE + GAME-LOOP TRUTH, OPEN. **Leading verdict:** NOT EVALUATED. The immutable baseline stays `1731b380851162741761c5569e2bc152a0869ca9`; the real candidate GAME code filmed below is `dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d`. No new mechanics or rendered-world changes are claimed by this review or the two regression edits.
+
+## A genuine end-to-end source witness, but not visual acceptance
+
+The previously queued [quality run 42404054865](https://github.com/my-edutu/Ai_games/actions/runs/42404054865) actually executed the original 3,200-tick guardian witness at the gameplay SHA above. Its source-only trace has three completed runs and max floor 13. Episode zero includes a living floor-eight guardian (tick 0), real crusher pressure survived (tick 163), guardian defeat (441), physical grounded cap walk (443), actual full-body source gateway crossing into floor nine (451), onward floor-nine traversal (515), game result (845) and a genuine new run-token restart. This is authoritative source evidence, **not** verified video timecode, commercial feel or device performance. The other two run episodes do not individually satisfy the same-run crusher witness.
+
+The [nine-job motion capture run 42404054915](https://github.com/my-edutu/Ai_games/actions/runs/42404054915) has now completed all original source-pinned baseline/candidate scene captures and the source-timeline pairing job. The pairing audit reports 8/8 ungraded source timelines with zero split/missing stories; it explicitly does **not** certify visibility or calibrated native video event times. **Do not report 8/8 as 8 visually matched recordings.**
+
+Authentic downloaded `danger` artifacts inspected in this execution:
+- Baseline `tower-motion-baseline-danger-42404054915`, artifact 13587695209, game SHA `1731b380851162741761c5569e2bc152a0869ca9`. Normal-speed portrait 390x844 ~71.48s and desktop 960x600 ~71.20s.
+- Candidate `tower-motion-candidate-danger-42404054915`, artifact 13587187059, game SHA `dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d`. Normal-speed portrait 390x844 ~72.64s and desktop 960x600 ~74.92s.
+
+Frames were sampled from actual WebM, not recreated illustrations. The most consequential visible defect in candidate portrait is the **giant opaque foreground wheel at roughly native-video 17–19 seconds**, at times hiding almost the entire skinned climber, guardian and onward action line; related wheel and machinery intrusions recur near the gateway. Around 26–27 seconds the glowing doorway and transition become visible, but the body-in-doorway continuous grounded crossing is not independently legible from sampled frames. Desktop also has intrusive wheels, though the wide framing is often better. Floor-nine visuals appear afterward; neither that observation nor successful CI is evidence of attractive uninterrupted motion. Full-motion event-PTS calibration, blinded original-vs-candidate critique and camera-occlusion remedy are still OPEN. Note that the decorative-gear fade registry in `visuals/world.mjs` is constructed by the Clockwork biome's `gear()`; do not assume it protects the captured floor-eight foreground mechanics without checking the actual world object and screen rays. Preserve colliding/deck/guardian geometry.
+
+## Real CI failure, corrected at test contract rather than gameplay authority
+
+The same exact gameplay quality run built successfully and completed the 3,200-tick witness, but the full repository test gate **FAILED: 1209 passed, 2 failed, 1211 tests**. Both observed failures were *obsolete static regular-expression assertions* expecting old source in the real 3D camera, not the earlier two failing floor-nine source-handoff regressions. The failing tests were:
+1. `tests/phase3/tower-foreground-sightline.test.cjs`: old assertion demanded earned gate always lose to a landing. Actual source intentionally permits a real unlocked airborne cap shot to persist through the arrival cue while an observed hazard always has priority.
+2. `tests/phase4/tower-gateway-walk-lens.test.cjs`: old assertion excluded `sourceAirborneWalk` from the live cap lens, although source-authentic airborne walking has since been implemented.
+
+Two ordinary PR68 test-only commits `8241f8bdd873878da213a3c59c3ea4e7badf9363` and `6abd124cf20d9ddfb68244f59e0762208ba9c451` now evaluate the actual submitted camera-selection expressions under multiple true/false source situations (without changing player, physics, visual, camera or PR58 files). Both files parsed successfully in isolated V8; independently extracted source expressions passed 5 real gate-priority probes, 3 lens ordering probes and 2 stage selection probes. **The original Node repository suite has NOT been rerun at those test-only commits.** No new CI green claim, no fabricated captured improvement.
+
+## P0 decision
+
+The new source-only witness resolves the previous technical-floor-nine doubt for one run, but **P0 stays OPEN**: exact-footage frame coverage and calibrated event timing are not accepted, and the massive portrait foreground wheel is a major 3D action-clarity regression. Next highest-impact action: execute exact-HEAD Node quality and Tower camera tests; inspect complete native 960x600 and 390x844 motion for the real frame timing and occluder's object identity. Redesign scene staging/camera obstruction without fading gameplay collision or scripted outcomes; recapture both immutable SHAs under matched capture conditions and compare true progression/outcome/restart before P1. If the tests still fail, diagnose actual source rather than loosening safety policies.
+
+Independent blind votes: LOOKS **0/5**, FEELS **0/5**, PLAYS **0/5**. Real-device frame-time p50/p95/p99, memory, low/high/reduced-motion/keyboard and accessibility: **NOT EVALUATED**. No merge, deployment, force-push, baseline movement, parent PR58 edit or draft-status change.
