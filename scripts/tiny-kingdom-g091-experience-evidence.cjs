@@ -84,7 +84,9 @@ async function cameraAndScreenshot(page,camera,filename,cinema=true){
   return {snapshot:g.exportSnapshot(),camera:g.getCamera(),
     triangles:g.renderStats().lastFrameTriangles,profile:g.getFrameProfile(),
     worksites:typeof g.getActiveWorksites==='function'?g.getActiveWorksites():null,
-    glError:gl?.getError()??-1,quality:g.renderQuality(),completedDrawCadence:g.getDrawCadenceAudit()};
+    glError:gl?.getError()??-1,quality:g.renderQuality(),
+    // G088 predates W105's recorder API. NULL means unavailable, never zero FPS.
+    completedDrawCadence:typeof g.getDrawCadenceAudit==='function'?g.getDrawCadenceAudit():null};
  });
  assert.equal(record.glError,0,filename+' WebGL error');
  assert(record.triangles>0&&record.triangles<160000,filename+' triangle budget');

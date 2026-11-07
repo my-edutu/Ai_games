@@ -2868,11 +2868,24 @@ const riverWaterTint=rgb(0x658c82);
 // W101: exact shader-only tags for the eight genuine timber market leaves.
 // Material integrity must reject malformed IDs but accept 14+leaf/32 exactly.
 function validMaterialTag(material){
+ // W115: whitelist shader-encoded IDs of the EIGHT real market shutters
+ // and the existing smoke/flag vertices. Never accept arbitrary fractional IDs.
  const max=Math.max(...Object.values(MATERIAL));
  if(Number.isInteger(material)&&material>=0&&material<=max)return true;
- if(!Number.isFinite(material)||material<=14||material>=14.5)return false;
- const leaf=Math.round((material-14)*32);
- return leaf>=1&&leaf<=8&&Math.abs((material-14)*32-leaf)<.00005;
+ if(!Number.isFinite(material))return false;
+ if(material>14&&material<14.5){
+  const leaf=Math.round((material-14)*32);
+  return leaf>=1&&leaf<=8&&Math.abs((material-14)*32-leaf)<.00005;
+ }
+ // W113 originals: smoke puff 17+(i+.5)/16, i=0..3;
+ // four historic town pennants 18+(index+.5)/16, index=0..3.
+ // These are *rendering tags*, not new inventory/material resources.
+ if((material>17&&material<18)||(material>18&&material<19)){
+  const base=Math.floor(material),value=(material-base)*16;
+  const index=Math.round(value-.5);
+  return index>=0&&index<4&&Math.abs(value-(index+.5))<.00005;
+ }
+ return false;
 }
 function inspectMeshGeometry(vertices){
  const stride=10,aligned=vertices.length%(stride*3)===0;

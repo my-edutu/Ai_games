@@ -33,6 +33,8 @@ jobs:
           node-version: '22.16.0'
           cache: npm
       - run: npm ci --no-audit --no-fund
+      - name: W115 exact source GPU material residency contract
+        run: node scripts/tiny-kingdom-w115-material-residency-contract.cjs
       - run: npx playwright install --with-deps chromium
       - name: Real WebGL 120-day settlement and replay soak
         env:
