@@ -32,7 +32,20 @@ export function guardianArenaClearanceX(
 export function generateTowerChunk(config:TowerConfig,seed:string,floor:number,rng=NamedRng.fromSeed(`${seed}:floor:${floor}`)):TowerChunk{
   if(!Number.isInteger(floor)||floor<0)throw new RangeError('floor');
   const baseY=floor*config.chunkHeight,groundHeight=12000,stepHeight=Math.floor((config.chunkHeight-60000)/6);
-  const platforms:TowerPlatform[]=[{id:`f${floor}:ground`,kind:'solid',x:0,y:baseY,width:config.worldWidth,height:groundHeight}];
+  // The real defeated guardian's cap roof ends at previous baseY +
+  // chunkHeight - 28k + 12k. The old successor ground began 28k ABOVE
+  // that roof, making floor-nine a vertical teleport even after the
+  // horizontal gateway crossing was preserved. For the opt-in live route,
+  // build the actual full-width successor ground at precisely the previous
+  // cap's physical top. This is real collidable floor geometry, not a
+  // screen effect, artificial landing or changed simulation clock.
+  // Frozen legacy / non-guardian floors retain their original ground.
+  const guardianSuccessorGround = config.guardianArenaHazards===true &&
+    config.guardianSecondWind===true && floor>1 &&
+    (floor-1)%config.guardianInterval===0;
+  const groundY=baseY-(guardianSuccessorGround?28000:0);
+  const platforms:TowerPlatform[]=[{id:`f${floor}:ground`,kind:'solid',
+    x:0,y:groundY,width:config.worldWidth,height:groundHeight}];
   for(let i=1;i<=6;i++){
     const side=(i+floor)%2,baseX=side?Math.floor(config.worldWidth*.56):Math.floor(config.worldWidth*.10);
     const jitter=rng.nextInt(`tower:platform:${floor}:${i}`,30001)-15000;
@@ -124,7 +137,10 @@ export function generateTowerChunk(config:TowerConfig,seed:string,floor:number,r
       else hazards[hazards.length-1] = shutter;
     }
   }
-  const spawn={x:42000,y:baseY+groundHeight+config.playerHalfHeight};
+  // Spawn and the actual collision roof agree, including on a resumed
+  // guardian-successor floor. A stale higher spawn would simply reintroduce
+  // the same 28k discontinuity through rules/step.
+  const spawn={x:42000,y:groundY+groundHeight+config.playerHalfHeight};
   const checkpoint={x:Math.floor(config.worldWidth/2),y:capY+12000+config.playerHalfHeight};
   const base={id:`tower:${seed}:floor:${floor}`,floor,theme:themeFor(floor),baseY,height:config.chunkHeight,spawn,exitY:baseY+config.chunkHeight-8000,platforms,hazards,checkpoint,guardian:floor>0&&floor%config.guardianInterval===0};
   return{...base,checksum:checksum(base)};
