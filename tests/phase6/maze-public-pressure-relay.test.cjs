@@ -258,3 +258,39 @@ test('Pip receives ONLY actual same-frame public pressure geometry phase, with p
     assert.equal(JSON.stringify(original),unchanged,'published snapshot unchanged');
   }finally{world.dispose();cleanup()}
 });
+
+test('terminal public result closes witnessed pressure stage without any false post-run actuation',async()=>{
+  const {THREE,game,world,cleanup}=await build();
+  try {
+    const state=publicState(),p=game.cellPosition(4,3,3);
+    const hero=new THREE.Vector3(p.x,0,p.z);
+    const options={explorerPosition:hero,reducedMotion:false,stepDurationMs:360};
+    world.update(state);
+    const relay=world.group.getObjectByName('Published tide-shear staged relay 4 -1');
+    const shutter=world.group.getObjectByName('Published tide-shear floor shutter -1');
+    const carriage=world.group.getObjectByName('Published tide-shear rising carriage');
+    const budget=world.stats(),frozen=JSON.stringify(state);
+    world.animate(0,options);
+    world.animate(.36,options);
+    near(carriage.position.y,.44,'real ongoing encounter reached the fully raised piston');
+    assert.ok(Math.abs(shutter.rotation.z)>1.1,'physical shutters actually opened');
+    // Result may arrive without any object rebuild or intermediate render.
+    // An ended run must not leave a live pressure warning around Pip.
+    const ended={...state,tick:2,result:{reason:'capture'}};
+    const endedFrozen=JSON.stringify(ended);
+    world.update(ended);
+    assert.equal(world.publicPressureProgress(4),0,'terminal scene cannot lend Pip a pressure reaction');
+    world.animate(.39,options);
+    near(relay.rotation.z,.05,'terminal public result returns bronze relay to rest');
+    near(carriage.position.y,.16,'terminal result grounds the physical piston in the next frame');
+    near(Math.abs(shutter.rotation.z),.03,'terminal result closes the actual ivory shutters');
+    world.animate(.42,{...options,reducedMotion:true});
+    near(relay.rotation.z,.05,'reduced motion cannot reopen a finished encounter');
+    near(carriage.position.y,.16,'reduced motion cannot raise the terminal piston');
+    near(Math.abs(shutter.rotation.z),.03,'reduced motion cannot reopen terminal floor');
+    for(const key of ['geometryCount','materialCount','textureCount','instances'])
+      assert.equal(world.stats()[key],budget[key],key+' remains unchanged by terminal cleanup');
+    assert.equal(JSON.stringify(state),frozen,'running public frame was never mutated');
+    assert.equal(JSON.stringify(ended),endedFrozen,'terminal public frame was never mutated');
+  } finally {world.dispose();cleanup()}
+});

@@ -1,3 +1,8 @@
+### Pass191 — terminal pressure mechanism truth candidate (2026-11-07 UTC)
+
+- **Actual production source fix:** terminal PUBLIC result now closes the previously witnessed bronze relay, moving ivory shutters and raised piston rather than allowing public visibility alone to keep these physical pieces acting after Pip's run ended. Resets pressure clocks even with no intervening render/object rebuild, and keeps already authored reduced-motion, AI privacy, deterministic gameplay, framing, resource budgets and HUD unchanged. No cosmetic-only edit.
+- **New exact physical regression:** installed-Three suite now builds and opens real meshes at published 360ms action pace, publishes capture result and checks rest in the next normal/reduced render with immutable state and unchanged resources. **Not executed** with coding tunnel disconnected; isolated syntax and five terminal scalar gates only. Exact-head CI/WebGL queued, six-run <100 and native evidence still required. **No independently rendered verdict** or Nintendo win. [Dated source/evidence review](./maze-3d/pass-191-terminal-pressure-truth-candidate-2026-11-07.md). PR #53 remains draft, no merge/deploy.
+
 ### Pass190 — physically synchronized pressure encounter and original Pip acting (2026-11-06 UTC)
 
 - **Production candidate:** source-real bronze relay → ivory shutter → piston progress is now the same physical timeline that actuates Pip's attached gaze, knees, torso and lantern in one render frame. Zero second fake timer, GPU mesh/material class, hidden map, AI/collision authority, UI panel or camera change. Public hidden/retreat/reset/read-only and action priority preserved.

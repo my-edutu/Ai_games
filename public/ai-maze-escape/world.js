@@ -2129,13 +2129,13 @@ export function createMazeWorld(options = {}) {
     for (const edge of gateOpeningAt.keys())
       if (!currentOpen.has(edge)) gateOpeningAt.delete(edge);
     const previouslyVisibleCells = new Set(snapshot?.visibleCells || []);
-    // A hidden published snapshot revokes the in-flight physical pressure
+    // A hidden or terminal published snapshot revokes the in-flight physical pressure
     // encounter immediately, even if no render frame or object rebuild runs.
     // Otherwise a newly visible trap could inherit its old raised piston.
     // The ONLY authority here is the sanitized PUBLIC visibility list.
     const currentlyVisibleCells = new Set(Array.isArray(s.visibleCells) ? s.visibleCells : []);
     for (const signal of trapSignals) {
-      if (currentlyVisibleCells.has(signal.cell)) continue;
+      if (!s.result && currentlyVisibleCells.has(signal.cell)) continue;
       signal.pressureSince = null;
       signal.pressureLastTime = null;
       signal.publicProgress = 0;
@@ -2237,7 +2237,7 @@ export function createMazeWorld(options = {}) {
     // not animate. Reduced motion gives both jaws a stable, recognizable pose.
     // All objects were allocated at rebuild time; this loop creates nothing.
     for (const jaw of trapJaws) {
-      const visible = Array.isArray(snapshot?.visibleCells)
+      const visible = !snapshot?.result && Array.isArray(snapshot?.visibleCells)
         && snapshot.visibleCells.includes(jaw.cell);
       const distance = Math.hypot(hx - jaw.x, hz - jaw.z);
       const near = visible ? Math.max(0, 1 - distance / (CELL_SIZE * 1.2)) : 0;
@@ -2254,7 +2254,7 @@ export function createMazeWorld(options = {}) {
       ? publicPressureSequenceSeconds(options.stepDurationMs)
       : PUBLIC_PRESSURE_VISUAL_SECONDS;
     for (const signal of trapSignals) {
-      const visible = Array.isArray(snapshot?.visibleCells)
+      const visible = !snapshot?.result && Array.isArray(snapshot?.visibleCells)
         && snapshot.visibleCells.includes(signal.cell);
       const distance = Math.hypot(hx - signal.x, hz - signal.z);
       // At the real adjacent-cell encounter the old broad falloff opened the
