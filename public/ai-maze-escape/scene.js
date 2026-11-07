@@ -128,6 +128,12 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   scene.add(pickupBurst);
   const matchingKeySocket=new THREE.Vector3();
   const wardens = new Map();
+  // Reuse one actually observed Thornback's physical rig between autonomous
+  // runs. A dormant rig is DETACHED from the scene and cannot render, convey
+  // an undisclosed threat, or retain any previous encounter pose. Avoiding
+  // repeated GPU registration is also a visible encounter hitch reduction.
+  const idleWardens = [];
+  const MAX_IDLE_WARDENS = 1;
   const guideMaterial = new THREE.LineDashedMaterial({ color: '#ffdd92', transparent: true, opacity: .62, dashSize: .14, gapSize: .13, depthWrite: false });
   const guide = new THREE.LineSegments(new THREE.BufferGeometry(), guideMaterial);
   guide.name = 'Observed planned route'; scene.add(guide);
@@ -214,7 +220,26 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   };
   const removeWarden = entry => {
     scene.remove(entry.model.group, entry.contact);
-    entry.model.dispose();
+    entry.model.group.visible = false;
+    entry.contact.visible = false;
+    entry.model.reset();
+    if (idleWardens.length < MAX_IDLE_WARDENS) idleWardens.push(entry);
+    else entry.model.dispose();
+  };
+  const acquireWarden = threat => {
+    const saved = idleWardens.pop();
+    const model = saved?.model ?? createWarden({balanced});
+    const contact = saved?.contact ?? createWardenContact();
+    if (saved) {
+      // A fresh public run never inherits a previous Thornback's warning,
+      // orientation, gait, alert clock or contact position.
+      model.reset();
+      model.group.visible = true;
+      contact.visible = true;
+      scene.add(model.group, contact);
+    } else scene.add(model.group);
+    return {model, contact, cell:threat.cell, cells:[threat.cell],
+      progress:0, heading:0, encounterStart:null, encounterBeat:0};
   };
 
   let settings = { ...initialSettings };
@@ -377,7 +402,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     }
     for (const threat of snapshot.threats) {
       let entry = wardens.get(threat.id);
-      if (!entry) { entry = { model: createWarden({ balanced }), contact: createWardenContact(), cell: threat.cell, cells: [threat.cell], progress: 0, heading: 0, encounterStart: null, encounterBeat: 0 }; wardens.set(threat.id, entry); scene.add(entry.model.group); }
+      if (!entry) { entry = acquireWarden(threat); wardens.set(threat.id, entry); }
       const p = cellPosition(threat.cell, snapshot.width, snapshot.height);
       const old = cellPosition(entry.cell, snapshot.width, snapshot.height);
       if (old.x !== p.x || old.z !== p.z) entry.heading = Math.atan2(p.x - old.x, p.z - old.z);
@@ -1265,7 +1290,11 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     scene.remove(pickupBurst); pickupGeometry.dispose(); pickupMaterial.dispose(); pickupBurst.clear();
     scene.remove(lanternBeam); lanternBeamGeometry.dispose(); lanternBeamMaterial.dispose();
     for (const entry of wardens.values()) removeWarden(entry);
-    wardens.clear(); guide.geometry.dispose(); guideMaterial.dispose(); markerGeometry.dispose(); markerMaterial.dispose();
+    wardens.clear();
+    // Fully release the deliberately bounded dormant GPU rig on final teardown.
+    for (const entry of idleWardens) entry.model.dispose();
+    idleWardens.length = 0;
+    guide.geometry.dispose(); guideMaterial.dispose(); markerGeometry.dispose(); markerMaterial.dispose();
     arrowGeometry.dispose(); plannedArrowMaterial.dispose(); knownArrowMaterial.dispose();
     keyGoalArrowMaterial.dispose(); exitGoalArrowMaterial.dispose();
     // beaconGemGeometry aliases pickupGeometry, already disposed above once.

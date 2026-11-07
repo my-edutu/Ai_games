@@ -728,7 +728,17 @@ export function createWarden(options = {}) {
     legs.push({hip,knee,side,index:i,pincer});
   }
   r.finish(); let gait=0, stride=0;
-  return {group,dispose:r.dispose,update(options={}) {
+  return {group,dispose:r.dispose,
+    reset() {
+      if (r.isDisposed()) return;
+      gait = 0; stride = 0; group.rotation.set(0, 0, 0);
+      // A reused, formerly observed guardian must not display a previous
+      // run's disclosed threat pose, terminal expression or private bearing.
+      // This is strictly a deterministic cosmetic reset of the same rig.
+      this.update({heading:0, time:0, delta:0, moving:false, danger:0,
+        attentionStrength:0, reducedMotion:true});
+    },
+    update(options={}) {
     if (r.isDisposed()) return;
     const s=motionState(options), amount=s.reduced?0:1;
     face(group,options.heading,s.delta,s.reduced);

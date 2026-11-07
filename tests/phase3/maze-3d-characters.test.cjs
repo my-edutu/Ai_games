@@ -30,6 +30,40 @@ test('both character detail levels react to every actual production loss', async
   }
 });
 
+test('a publicly observed Thornback rig resets its whole physical performance for reuse without reallocating meshes', async () => {
+  const {createWarden, rigPrimitiveResourceStats} = await modulePromise;
+  for (const balanced of [false, true]) {
+    const baseline = rigPrimitiveResourceStats();
+    const warden = createWarden({balanced});
+    const materials = new Set(), shapes = new Set();
+    warden.group.traverse(object => {
+      if (object.geometry) shapes.add(object.geometry);
+      if (object.material) materials.add(object.material);
+    });
+    const spines = warden.group.getObjectByName('activated warden spines');
+    const mask = warden.group.getObjectByName('warden mask');
+    assert.ok(spines && mask);
+    for (let run = 0; run < 6; run++) {
+      warden.update({heading:1.7,attentionHeading:1.7,attentionStrength:1,
+        encounterBeat:.94,danger:1,moving:true,time:run+.5,delta:.1});
+      assert.equal(spines.visible,true,'a genuinely witnessed threat performs');
+      warden.reset();
+      assert.equal(spines.visible,false,'a detached rig cannot preserve a prior warning');
+      assert.equal(mask.rotation.y,0,'the prior target bearing is not remembered');
+      assert.equal(warden.group.rotation.y,0,'the former guardian orientation resets');
+      const afterShapes = new Set(), afterMaterials = new Set();
+      warden.group.traverse(object => {
+        if (object.geometry) afterShapes.add(object.geometry);
+        if (object.material) afterMaterials.add(object.material);
+      });
+      assert.deepEqual(afterShapes,shapes,'all six lives reuse the physical mesh buffers');
+      assert.deepEqual(afterMaterials,materials,'no hidden per-reset material allocation');
+    }
+    warden.dispose();
+    assert.deepEqual(rigPrimitiveResourceStats(),baseline,'final teardown restores shared primitive references');
+  }
+});
+
 test('balanced character meshes retain all articulation while reducing vertex cost', async () => {
   const { createExplorer, createWarden } = await modulePromise;
   for (const create of [createExplorer, createWarden]) {
