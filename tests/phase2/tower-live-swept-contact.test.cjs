@@ -95,3 +95,59 @@ test('historical and unflagged physics retain their old collision algorithm',()=
   assert.equal(out.state.player.velocity.x,0);
   assert.equal(out.state.player.position.x,275000-s.player.halfWidth);
 });
+
+test('diagonal descent contacts the REAL vertical side rather than phantom-landing through its corner',()=>{
+  const wall={id:'f0:corner',kind:'solid',x:248000,y:195000,width:12000,height:10000};
+  const s=sourceState([wall],{position:{x:230000,y:224000},
+    velocity:{x:17000,y:-19000},state:'dashing',dashCooldown:19,facing:1});
+  const out=stepTowerPhysics(s,still);
+  assert.equal(out.integrityFailure,undefined);
+  assert.equal(out.state.player.position.x,wall.x-s.player.halfWidth);
+  assert.equal(out.state.player.position.y,203800,'a side impact must not invent a top landing');
+  assert.equal(out.state.player.grounded,false);
+  assert.deepEqual(out.contacts.filter(c=>c.kind==='wall').map(c=>c.entityId),[wall.id]);
+  assert.equal(out.contacts.some(c=>c.kind==='land'),false);
+});
+test('reaching the side BEFORE descending to the top permits an earned physical landing',()=>{
+  const deck={id:'f0:early-lane',kind:'solid',x:242000,y:195000,width:20000,height:10000};
+  const s=sourceState([deck],{position:{x:230000,y:224000},
+    velocity:{x:17000,y:-19000},state:'dashing',dashCooldown:19,facing:1});
+  const out=stepTowerPhysics(s,still);
+  assert.equal(out.integrityFailure,undefined);
+  assert.equal(out.state.player.groundedPlatformId,deck.id);
+  assert.equal(out.state.player.position.y,205000+s.player.halfHeight);
+  assert.equal(out.contacts.some(c=>c.kind==='wall'),false);
+});
+test('diagonal upward crossing hits the side if the ceiling was crossed first',()=>{
+  const roof={id:'f0:late-ceiling',kind:'solid',x:254000,y:200000,width:12000,height:10000};
+  const s=sourceState([roof],{position:{x:230000,y:174000},
+    velocity:{x:17000,y:15000},state:'dashing',dashCooldown:19,facing:1});
+  const out=stepTowerPhysics(s,still);
+  assert.equal(out.integrityFailure,undefined);
+  assert.equal(out.state.player.position.x,roof.x-s.player.halfWidth);
+  assert.equal(out.state.player.position.y,187800);
+  assert.equal(out.contacts.some(c=>c.kind==='head'),false);
+  assert.equal(out.contacts.filter(c=>c.kind==='wall').length,1);
+});
+test('entering the ceiling lane BEFORE reaching its underside yields a real head contact',()=>{
+  const roof={id:'f0:early-ceiling',kind:'solid',x:245000,y:200000,width:12000,height:10000};
+  const s=sourceState([roof],{position:{x:230000,y:174000},
+    velocity:{x:17000,y:15000},state:'dashing',dashCooldown:19,facing:1});
+  const out=stepTowerPhysics(s,still);
+  assert.equal(out.integrityFailure,undefined);
+  assert.equal(out.state.player.position.y,roof.y-s.player.halfHeight);
+  assert.deepEqual(out.contacts.filter(c=>c.kind==='head').map(c=>c.entityId),[roof.id]);
+  assert.equal(out.contacts.some(c=>c.kind==='wall'),false);
+});
+test('real moving solid deck face pushes an exposed stationary body without a future prediction',()=>{
+  const wall={id:'f0:moving-wall',kind:'moving',x:220000,y:195000,
+    width:12000,height:10000,
+    motion:{axis:'x',range:35000,speed:2500,phase:15}};
+  const s=sourceState([wall],{position:{x:242000,y:200000},
+    velocity:{x:0,y:0},state:'airborne',dashCooldown:0,facing:1});
+  const out=stepTowerPhysics(s,still);
+  assert.equal(out.integrityFailure,undefined);
+  assert.equal(out.state.player.position.x,241000);
+  assert.deepEqual(out.contacts.filter(c=>c.kind==='wall').map(c=>c.entityId),[wall.id]);
+  assert.equal(out.contacts.some(c=>c.kind==='land'),false);
+});

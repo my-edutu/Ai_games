@@ -1,4 +1,5 @@
 import{platformAtTick,guardianArenaExitX,guardianArenaSealHeight}from'../generation/chunks';import type{PhysicsContact,TowerAction,TowerPlatform,TowerState}from'../state/types';
+import{sweptWallContact}from'./swept-wall-contact';
 function clamp(v:number,min:number,max:number){return Math.max(min,Math.min(max,v))}
 function overlap1(a0:number,a1:number,b0:number,b1:number){return a0<b1&&a1>b0}
 function platforms(state:TowerState,tick:number){return state.chunks.flatMap(c=>c.platforms.map(p=>platformAtTick(p,tick))).sort((a,b)=>a.id.localeCompare(b.id))}
@@ -30,7 +31,7 @@ export function stepTowerPhysics(input:TowerState,action:TowerAction):{state:Tow
   if(action.jump&&(p.grounded||p.jumpCharges>0)){if(!p.grounded)p.jumpCharges--;p.velocity.y=c.jumpImpulse;p.grounded=false;p.groundedPlatformId=undefined;p.state='airborne';state.stats.jumps++}
   if(action.dash&&p.dashCooldown===0&&p.stamina>=state.build.dashCost){p.velocity.x=p.facing*c.dashSpeed;p.dashCooldown=Math.max(6,20-state.build.dashCooldownReduction);p.stamina-=state.build.dashCost;p.state='dashing';state.stats.dashes++}
   p.velocity.y=clamp(p.velocity.y-c.gravity,-c.maxFallSpeed,c.jumpImpulse);
-  const targetX=p.position.x+p.velocity.x;let newX=targetX;
+  const targetX=p.position.x+p.velocity.x,targetY=p.position.y+p.velocity.y;let newX=targetX;
   // The opt-in live 3D game can cross several solid faces during one real
   // 50ms dash. The original ID-ordered loop stopped at whichever ID was
   // visited first, not the FIRST physical wall, allowing the climber's body
@@ -40,32 +41,40 @@ export function stepTowerPhysics(input:TowerState,action:TowerAction):{state:Tow
   const coherentSourceContacts=c.guardianArenaHazards===true&&
     c.guardianSecondWind===true;
   if(coherentSourceContacts){
-    let firstWall:TowerPlatform|undefined;
-    let firstWallX=targetX;
+    // Resolve the earliest actual 2-D side encounter, not alphabetical wall
+    // ID, and not a wall whose Y slab the climber enters only AFTER passing
+    // the horizontal face. This also handles a real moving deck side sweeping
+    // into a stationary climber, using two actual fixed-step deck poses.
+    const nowById=new Map(nowPlatforms.map(platform=>[platform.id,platform]));
+    let firstWall:TowerPlatform|undefined,firstWallTime=Infinity;
+    let firstWallX=targetX,firstDirection:-1|1=1;
     for(const platform of nextPlatforms){
       if(platform.kind==='oneway')continue;
-      const bottom=p.position.y-p.halfHeight,top=p.position.y+p.halfHeight;
-      if(!overlap1(bottom,top,platform.y,platform.y+platform.height))continue;
-      const oldLeft=p.position.x-p.halfWidth,oldRight=p.position.x+p.halfWidth;
-      const proposedLeft=targetX-p.halfWidth,proposedRight=targetX+p.halfWidth;
-      if(p.velocity.x>0&&oldRight<=platform.x&&proposedRight>=platform.x){
-        const contactX=platform.x-p.halfWidth;
-        if(!firstWall||contactX<firstWallX){
-          firstWall=platform;firstWallX=contactX;
-        }
-      }else if(p.velocity.x<0&&oldLeft>=platform.x+platform.width&&
-        proposedLeft<=platform.x+platform.width){
-        const contactX=platform.x+platform.width+p.halfWidth;
-        if(!firstWall||contactX>firstWallX){
-          firstWall=platform;firstWallX=contactX;
-        }
+      const prior=nowById.get(platform.id)??platform;
+      const relativeMotion=(targetX-p.position.x)-(platform.x-prior.x);
+      const direction: -1|1|0=relativeMotion>0?1:relativeMotion<0?-1:0;
+      if(direction===0)continue;
+      const hit=sweptWallContact({
+        fromX:p.position.x,toX:targetX,
+        fromY:p.position.y,toY:targetY,
+        halfWidth:p.halfWidth,halfHeight:p.halfHeight,
+        wallStartX:prior.x,wallEndX:platform.x,
+        wallStartY:prior.y,wallEndY:platform.y,
+        wallWidth:platform.width,wallHeight:platform.height,
+        direction,
+      });
+      if(hit&&(hit.time<firstWallTime||
+        (hit.time===firstWallTime&&
+          (!firstWall||platform.id.localeCompare(firstWall.id)<0)))){
+        firstWall=platform;firstWallTime=hit.time;
+        firstWallX=hit.contactX;firstDirection=direction;
       }
     }
     if(firstWall){
       newX=firstWallX;
-      const heading=p.velocity.x>0?-1:1;
       p.velocity.x=0;
-      contacts.push({kind:'wall',entityId:firstWall.id,normal:{x:heading,y:0}});
+      contacts.push({kind:'wall',entityId:firstWall.id,
+        normal:{x:-firstDirection,y:0}});
     }
   }else{
     for(const platform of nextPlatforms){if(platform.kind==='oneway')continue;const pb=p.position.y-p.halfHeight,pt=p.position.y+p.halfHeight;if(!overlap1(pb,pt,platform.y,platform.y+platform.height))continue;
@@ -114,7 +123,7 @@ export function stepTowerPhysics(input:TowerState,action:TowerAction):{state:Tow
     }
   }
   p.position.x=clamp(newX,p.halfWidth,c.worldWidth-p.halfWidth);if(p.position.x!==newX){p.velocity.x=0;contacts.push({kind:'wall',entityId:'world-boundary',normal:{x:newX<0?1:-1,y:0}})}
-  const targetY=p.position.y+p.velocity.y;let newY=targetY,landed:TowerPlatform|undefined;
+  let newY=targetY,landed:TowerPlatform|undefined;
   // The existing vertical loop already compares the UPDATED clipped newY
   // against each later deck, so it resolves the nearest crossed support
   // without depending on platform ID order. Preserve that proven contract.
