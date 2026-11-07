@@ -23,7 +23,7 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
     const rest=positions.filter(p=>p.activity==='Resting at home'&&
      Array.isArray(p.target)&&!(p.path?.length)&&
      Math.hypot(p.position[0]-p.target[0],p.position[1]-p.target[1])<=.24);
-    if(g.metrics().citizens>12&&rest.length){
+    if(g.metrics().citizens>12&&rest.length>=5){
      witness={names:rest.map(p=>p.name),day:g.metrics().day,
       citizens:g.metrics().citizens};break;
     }
