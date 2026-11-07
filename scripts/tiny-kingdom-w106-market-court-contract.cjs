@@ -51,6 +51,22 @@ assert.equal(stats.receivingDrainSegments,14);
 assert.equal(stats.surfaceTriangles+stats.receivingCourtTriangles,data.length/30);
 assert.ok(points.every(p=>p[1]<.30&&p[1]>-.30),'public court must remain ground level');
 assert.ok(data.length/30<900,'market-ground geometry budget');
+// RED: the first W106 west clay plane was wound downwards and therefore
+// invisible from the actual top-down game camera with BACK culling enabled.
+// GREEN: west reverses vertex order, east stays unchanged; roof is visible
+// from above on both real sides, without double-sided GPU overdraw.
+assert.match(exchange,/if\(side<0\)quad\(edge1,ridge1,ridge0,edge0,tone\)/);
+assert.match(exchange,/else quad\(edge0,ridge0,ridge1,edge1,tone\)/);
+function roofUpNormal(side,reverse){
+ const e0=[side*1.58,2.35,-1.16],r0=[0,3.14,-1.16],
+  r1=[0,3.14,1.16],e1=[side*1.58,2.35,1.16];
+ const p=reverse?[e1,r1,r0,e0]:[e0,r0,r1,e1];
+ const a=p[0],b=p[1],c=p[2];
+ return (b[2]-a[2])*(c[0]-a[0])-(b[0]-a[0])*(c[2]-a[2]);
+}
+assert.ok(roofUpNormal(-1,false)<0,'historical west roof was back-facing');
+assert.ok(roofUpNormal(-1,true)>0,'western clay slope faces upwards');
+assert.ok(roofUpNormal(1,false)>0,'eastern clay slope faces upwards');
 console.log('W106 PASS full inline game JS parses; '+JSON.stringify({
  source:'actual-original-market',pavingStones:stats.pavingStones,
  groundTriangles:data.length/30,marketWheelPassages:stats.marketWheelPassages,
