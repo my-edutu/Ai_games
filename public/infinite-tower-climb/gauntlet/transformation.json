@@ -4495,12 +4495,12 @@
     "verdict": "NOT EVALUATED",
     "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
     "inspectedHeadSha": "a3d166480f481d4e91fd1efdbacace44d4e9ccc8",
-    "latestSourceAndTestSha": "47bbeadd8dfae86cce5a6dc90d9b50d9a8f46502",
-    "reviewCommitSha": "5efaedf3975284da11abb37499f84127f8772994",
+    "latestSourceAndTestSha": "cec49cddab1e6726c33048adaf48103e1908f196",
+    "reviewCommitSha": "fd6dda83ec5c5475fc0a92209adf4f029e00f7a0",
     "reviewPath": "docs/reviews/2026-11-07-tower-pr68-living-duel-source-episode-integrity.md",
     "sourceTruthDefect": "Causal witness formerly accepted crusher pressure after source guardian death and physical passage without previously witnessed cap x advance; audit could accept physically impossible/reordered claimed complete source markers.",
-    "implemented": "Read-only same-episode source witness now requires living positive-HP guardian during actual close crusher survival before defeat, observed forward cap walk before earned exit, and independent campaign validation of milestone order, floor identity, crusher, actual crossing, game result and distinct restart.",
-    "tests": "Actual modified CJS executed through isolated V8 evaluation: 6/6 authored audit tests with Node test/assert shims, 2/2 new causal negative probes, plus living/post-death positive-negative witness probes; original repository Node22/TS, unchanged source campaigns and Chromium NOT RUN.",
+    "implemented": "Read-only same-episode witness registers living positive-HP guardian before same-tick survived close-crusher tell, rejects later post-defeat-only pressure, requires independently observed grounded forward cap walk before an earned actual threshold event; independent audit validates event order/floor/guardian-crusher identity/clearance/game result/distinct restart.",
+    "tests": "Exact modified CJS source evaluated through restricted V8 Node-test/assert shims: 6/6 campaign audit authored test cases, 10/10 source causal witness authored test cases; 2 external-module/import-dependent causal tests SKIPPED, not executed. Separate same-tick positive-HP guardian/crusher final-blow and post-death negative probes PASS. Original Node22 repository suite, TypeScript build, dual 3200-tick source campaigns and native Chromium WebM NOT RUN.",
     "nineJobCaptureUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42347544979",
     "captureSourceSha": "68d48b5ad10a94d6dc1e65a33ddf20b518c41ea7",
     "captureStatus": "9/9 jobs QUEUED, zero verified artifacts at inspection; capture source predates changes in this run",
@@ -4514,6 +4514,7 @@
     },
     "biggestHistoricallyObservedFootageDefect": "Older 8fd9018f portrait clip: undersized character against large tower machinery and no readable physical guardian door crossing; NOT footage of current source",
     "nextHighestImpactAction": "Restore Node22/Chromium or GitHub Actions runners; execute 2 unchanged original 3200-tick campaigns, analyze first missing exact same-run guardian/crusher -> forward cap -> grounded gate -> floor9 -> outcome/restart; watch 960x600 and 390x844 original-host clips, then fix largest source-authentic playable/visual problem before advancing to P1",
-    "safety": "PR68 remains open/draft, PR58 untouched; frozen baseline preserved; no merge, deploy, force-push or unrelated game edits."
+    "safety": "PR68 remains open/draft, PR58 untouched; frozen baseline preserved; no merge, deploy, force-push or unrelated game edits.",
+    "latestVerification": "No completed current-source motion films or source campaign evidence. PR68 open/draft; last earlier 9-job capture all queued. No 4/5 critic verdicts, supported device metrics or quality completion."
   }
 }
