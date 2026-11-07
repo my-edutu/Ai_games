@@ -142,8 +142,8 @@ test('source-lived last stand stages the camera before the REAL gate unlock, wit
   // Evaluate the submitted lens-selection policy: an earned walking camera,
   // then its physically source-qualified AIRBORNE continuation, then the
   // still-locked living guardian last stand. No standalone cosmetic gate.
-  const lensSource=scene.match(/\\bconst realCapLens\\s*=\\s*([^;]+);/);
-  const stageSource=scene.match(/\\bconst realCapStage\\s*=\\s*([\\s\\S]*?);/);
+  const lensSource=scene.match(/\bconst realCapLens\s*=\s*([^;]+);/);
+  const stageSource=scene.match(/\bconst realCapStage\s*=\s*([\s\S]*?);/);
   assert.ok(lensSource&&stageSource,'the real scene must select both shot and stage');
   const select=(sourceEarnedWalk,sourceAirborneWalk,sourceLastStand)=>{
     const context={sourceEarnedWalk,sourceAirborneWalk,sourceLastStand,
