@@ -9,8 +9,8 @@ const { indexTowerCaptureEvents } = require('../../scripts/tower-event-alignment
 const { FROZEN, sourceStoryCoverage } = require('../../scripts/tower-event-pairing.cjs');
 const { MIN_CAPTURE_MS, captureWindowDecision, nextCaptureObservation } =
   require('../../scripts/tower-capture-window.cjs');
-const { createTowerFixedStepTraceCollector } =
-  require('../../scripts/tower-fixed-step-trace.cjs');
+const { createTowerSourceTracePoller } =
+  require('../../scripts/tower-source-trace-poller.cjs');
 
 // No intercepted snapshots, replay scrubbing, virtual time, time acceleration or
 // post-processed poses: this visits the live, seeded 20 Hz expedition host.
@@ -414,18 +414,18 @@ for (const viewport of viewports) {
   const recordingStartedAt = Date.now();
   let lastSampleIndex = 0, nextSourceProbeMs = MIN_CAPTURE_MS;
   let sourceSequenceObserved = false, liveStoryCoverage = null;
-  const hostTrace=createTowerFixedStepTraceCollector();
-  let hostTraceAvailable=false;
-  async function captureHostSourceTicks() {
+  // Start before the first screenshot/68s minimum. The actual original host
+  // discards ticks older than 2200; a slow Chromium frame must not prevent
+  // independent polling of the still-running, unmodified 20Hz authority.
+  // Frozen baseline has no endpoint: detect 404 once and preserve its original
+  // passive public-state evidence instead of injecting a candidate host.
+  const sourceTraceObserver=createTowerSourceTracePoller(async()=>{
     const response=await page.request.get('/tower/capture-trace',
       {timeout:5000}).catch(()=>null);
-    const payload=response?.ok()?await response.json():null;
-    if(Array.isArray(payload?.ticks)){
-      hostTraceAvailable=true;
-      hostTrace.add(payload.ticks);
-    }
-    return payload;
-  }
+    if(response?.status()===404)return {unsupported:true};
+    return response?.ok()?response.json():null;
+  },{cadenceMs:5000});
+  await sourceTraceObserver.start();
   while (true) {
     const decision = captureWindowDecision(scenario,
       Date.now() - recordingStartedAt, sourceSequenceObserved);
@@ -443,11 +443,10 @@ for (const viewport of viewports) {
     if (observedMs < MIN_CAPTURE_MS || observedMs < nextSourceProbeMs) continue;
     const passive = await page.evaluate(() =>
       [...(window.__TOWER_CAPTURE_PUBLIC_TICKS__ || [])]);
-    await captureHostSourceTicks();
     const provisional = indexTowerCaptureEvents(passive, [], {
       sourceSha, scenario, viewport, seed:process.env.TOWER_SEED ||
         'tower-stream-reference', quality:'low',
-      authoritativeTrace:hostTrace.snapshot(),
+      authoritativeTrace:sourceTraceObserver.snapshot(),
     });
     liveStoryCoverage = sourceStoryCoverage(
       {index:provisional}, scenario, sourceLabel);
@@ -498,9 +497,10 @@ for (const viewport of viewports) {
   // including the frozen baseline's 50ms result. This trace is comparison
   // context and source provenance, NOT proof the image was actually rendered
   // or captured in the unedited normal-speed WebM.
-  const trace=await captureHostSourceTicks();
-  const sourceTicks=hostTrace.snapshot();
-  const traceIntegrity=hostTrace.status();
+  const trace=await sourceTraceObserver.finish();
+  const sourceTicks=sourceTraceObserver.snapshot();
+  const traceIntegrity=trace.sourceCollector;
+  const hostTraceAvailable=trace.available;
   if(hostTraceAvailable)fs.writeFileSync(path.join(dir,'source-trace.json'),
     JSON.stringify({method:trace?.method||'original-host-fixed-step-public',
       ticks:sourceTicks,collection:traceIntegrity},null,2));
@@ -568,6 +568,9 @@ for (const viewport of viewports) {
   const sourcePhaseSummary = {
     available: hostTraceAvailable, method: trace?.method || null,
     collection:traceIntegrity,
+    polling:{attempts:trace.attempts,acceptedPages:trace.acceptedPages,
+      failures:trace.failures,endpointUnavailable:trace.unsupported,
+      lastError:trace.lastError},
     resultTicks: sourceTicks.filter(t => t.lifecycle === 'result').length,
     intermissionTicks: sourceTicks.filter(t => t.lifecycle === 'intermission').length,
     sourceRunTransitions: sourceTicks.reduce((count, item, index) =>
@@ -597,7 +600,7 @@ for (const viewport of viewports) {
       ...captureWindowDecision(scenario,
         Date.now() - recordingStartedAt, sourceStory.sameEpisodeSourceSequenceObserved),
       sourceType: sourceLabel,
-      windowMethod: 'absolute real-wall deadlines; native uncut source footage',
+      windowMethod: 'absolute real-wall deadlines; source polled independently from screenshot stalls; native uncut footage',
       provisionalStoryAtLastProbe: liveStoryCoverage,
       caveat: 'Real source milestones are NOT timecode-calibrated WebM pixels, playability or independent verdicts.',
     },
