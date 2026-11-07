@@ -235,13 +235,13 @@ const DIRECTOR_LENS=Object.freeze({
  journey:          Object.freeze({radius:5.38,height:4.62,fov:43,aim:.72,follow:5.2,key:1.08}),
  'skirmish-approach':Object.freeze({radius:5.28,height:4.87,fov:41,aim:.81,follow:6.0,key:1.11}),
  contact:          Object.freeze({radius:4.96,height:4.70,fov:40,aim:.93,follow:7.5,key:1.16}),
- 'warden-contact': Object.freeze({radius:6.75,height:6.45,fov:44,aim:.88,follow:7.5,key:1.15}),
+ 'warden-contact': Object.freeze({radius:5.55,height:5.35,fov:42,aim:1.00,follow:7.5,key:1.22}),
  // Reward a real 3D counter blow with readable full-body weapon contact.
- 'warden-counter': Object.freeze({radius:6.35,height:6.2,fov:44,aim:1.02,follow:8.5,key:1.25}),
+ 'warden-counter': Object.freeze({radius:4.50,height:4.50,fov:39,aim:1.12,follow:8.5,key:1.30}),
  'oathguard-cover':Object.freeze({radius:5.7,height:6.9,fov:44,aim:.86,follow:7.4,key:1.20}),
  'warden-approach':Object.freeze({radius:7.90,height:7.10,fov:45,aim:.84,follow:6.2,key:1.11}),
  'warden-release': Object.freeze({radius:8.02,height:8.12,fov:47,aim:.71,follow:8.2,key:1.18}),
- 'warden-exposed':Object.freeze({radius:6.85,height:6.65,fov:46,aim:1.08,follow:7.6,key:1.23}),
+ 'warden-exposed':Object.freeze({radius:5.60,height:5.40,fov:43,aim:1.10,follow:7.6,key:1.27}),
  'warden-warning': Object.freeze({radius:9.05,height:10.55,fov:51,aim:.35,follow:10.0,key:.92}),
  'breach-warning': Object.freeze({radius:6.55,height:7.5,fov:46,aim:.45,follow:8.0,key:1.04}),
  descent:          Object.freeze({radius:5.4,height:6.45,fov:45,aim:.65,follow:4.8,key:.91}),
@@ -256,11 +256,15 @@ export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMo
  if(horizontal<.05)return null;
  const aspect=Number.isFinite(width)&&Number.isFinite(height)&&height>0?width/height:1.73;
  const portrait=aspect<.88,warning=shot.mode==='warden-warning'||shot.mode==='breach-warning';
- const stretch=portrait?(warning?1.24:1.10):1;
+ const closeDuel=shot.mode==='warden-counter'||shot.mode==='warden-contact'||shot.mode==='warden-exposed';
+ // Real current-head WebGL shows physically valid Warden contact from a toy-scale
+ // overhead lens. Use a closer real camera after earned counter/contact,
+ // but never compress a genuine telegraph, cast or strike hazard.
+ const stretch=portrait?(warning?1.24:closeDuel?1.045:1.10):1;
  const terminal=shot.mode==='last-stand';
  const radius=(terminal?clip(policy.radius+Math.max(0,shot.spread||0)*.68,4.65,7.15):policy.radius)*stretch;
  const y=(policy.height+(terminal?Math.min(.85,Math.max(0,shot.spread||0)*.21):0))*
-  (portrait?(warning?1.17:1.07):1);
+  (portrait?(warning?1.17:closeDuel?1.04:1.07):1);
  const offsets=Object.freeze([
   round(shot.offsets[0]/horizontal*radius),
   round(y),
@@ -268,7 +272,7 @@ export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMo
  ]);
  return Object.freeze({
   mode:shot.mode,offsets,
-  fov:policy.fov+(portrait?(warning?6:4):0),
+  fov:policy.fov+(portrait?(warning?6:closeDuel?2:4):0),
   lookY:policy.aim,
   following:reducedMotion?1:policy.follow,
   keyScale:policy.key,

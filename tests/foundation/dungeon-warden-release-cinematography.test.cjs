@@ -75,5 +75,5 @@ test('verified boss release keeps physical anatomy/weapon clearance and camera f
  const stale=planCinematicSilhouetteRecess(s,base);
  assert.ok(!stale.some(p=>p.x===4&&p.z===0&&p.combatRecess===true),'stale cast cannot forge a near-weapon chapter');
  const app=read('public/ai-dungeon/app.js');
- assert.match(app,/'warden-contact','warden-approach','warden-exposed','warden-warning','warden-release'\]\.includes\(cinematicShot\.mode\)/);
+ assert.match(app,/'warden-contact','warden-counter','warden-approach','warden-exposed','warden-warning','warden-release'\]\.includes\(cinematicShot\.mode\)/);
 });

@@ -35,3 +35,29 @@ test('hero-scale journey and contact keep Warden warning tactically wide',async(
  assert.ok(w.offsets[1]>c.offsets[1]+4);
  assert.ok(Math.hypot(w.offsets[0],w.offsets[2])>Math.hypot(c.offsets[0],c.offsets[2])+3);
 });
+
+
+test('authentic Warden counter earns a visible adult-body duel on desktop/mobile without shrinking the real warning',async()=>{
+ const {planReadableExpeditionLens:plan}=await load('cinematic-chapter-plan.js');
+ const original={mode:'warden-counter',offsets:[5,8,5],subjects:['vanguard','warden']};
+ const originalJSON=JSON.stringify(original);
+ const pixels=(lens,height)=>{
+  const distance=Math.hypot(Math.hypot(lens.offsets[0],lens.offsets[2]),lens.offsets[1]-lens.lookY);
+  return 1.8*height/(2*distance*Math.tan(lens.fov*Math.PI/360));
+ };
+ for(const view of [{width:1440,height:832},{width:390,height:844}]){
+  const lens=mode=>plan({...original,mode},view);
+  const counter=lens('warden-counter'),contact=lens('warden-contact'),
+   exposed=lens('warden-exposed'),warning=lens('warden-warning'),release=lens('warden-release');
+  assert.ok(pixels(counter,view.height)>=1.27*pixels(contact,view.height),
+   'actual counter must show a materially larger physical performer and blade');
+  assert.ok(pixels(exposed,view.height)>pixels(release,view.height)*1.22,
+   'recovery should be readable after a true wide release');
+  assert.ok(pixels(warning,view.height)<pixels(counter,view.height)*.67,
+   'a real Warden telegraph must still show the wide tactical danger floor');
+  assert.ok(warning.offsets[1]>counter.offsets[1]+4,'telegraph must retain high camera');
+  assert.ok([counter,contact,exposed,warning,release].every(x=>x.offsets.every(Number.isFinite)&&Number.isFinite(x.fov)));
+ }
+ assert.equal(JSON.stringify(original),originalJSON,'render plan must never mutate public game state');
+ assert.equal(plan(original,{width:390,height:844,reducedMotion:true}).following,1);
+});
