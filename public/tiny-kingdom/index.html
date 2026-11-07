@@ -3205,6 +3205,29 @@ function inspectMeshGeometry(vertices){
   triangles:vertices.length/(stride*3),aligned,invalidComponents,
   invalidNormals,invalidColors,outOfBounds};
 }
+// W120: only actual visible farm ranges submitted by the resident crop VBOs
+// contribute to integrity; neither offscreen plots nor unused LOD tiers count.
+// Never alter production, workers, farming state, or real renderer selection.
+function drawnFarmFieldGeometry(){
+ if(!gpuAvailable||!farmFieldNear||!farmFieldFar)return [];
+ return farmFieldLastDrawnPlots.map(row=>{
+  const asset=row.mode==='near'?farmFieldNear:farmFieldFar;
+  const range=asset.ranges?.[row.plot];
+  if(!range||!Number.isInteger(range.first)||!Number.isInteger(range.count)||
+     range.first<0||range.count<0||range.count%3!==0||
+     range.count/3!==row.triangles||
+     (range.first+range.count)*10>asset.mesh.length)
+    throw Error('Real submitted farm geometry differs from its audited draw range');
+  return asset.mesh.subarray(range.first*10,(range.first+range.count)*10);
+ });
+}
+function addSceneGeometryStats(target,mesh){
+ const part=inspectMeshGeometry(mesh);
+ for(const key of ['floats','vertices','triangles','invalidComponents',
+  'invalidNormals','invalidColors','outOfBounds'])target[key]+=part[key];
+ target.aligned=target.aligned&&part.aligned;
+ return part.triangles;
+}
 function geometryAudit(){
  const fixed=inspectMeshGeometry(scenicMeshCache||[]);
  // W76 complete real cottage GPU meshes are included in every integrity,
@@ -3228,6 +3251,10 @@ function geometryAudit(){
   for(const key of ['floats','vertices','triangles','invalidComponents','invalidNormals','invalidColors','outOfBounds'])fixed[key]+=living[key];
   fixed.aligned=fixed.aligned&&living.aligned;
  }
+ // The actual 668 real rooted crop stems were submitted by separate GPU
+ // buffers but omitted from W119 material and triangle integrity checks.
+ if(gpuAvailable)for(const portion of drawnFarmFieldGeometry())
+  addSceneGeometryStats(fixed,portion);
  const animated=inspectMeshGeometry(data);
  // Count every actually submitted resting citizen mesh, including material
  // and normal validation. A resident VBO never escapes the 160k audit.
@@ -3288,8 +3315,30 @@ function geometryAudit(){
    'invalidNormals','invalidColors','outOfBounds'])animated[key]+=shutters[key];
   animated.aligned=animated.aligned&&shutters.aligned;
  }
+ // Genuine occupied-home night lights are also submitted GPU geometry.
+ // Audit their material, normals, coordinates and <160k budget honestly.
+ if(gpuAvailable&&nightHomesActive&&nightHomesMesh?.length)
+  addSceneGeometryStats(animated,nightHomesMesh);
  return {static:fixed,dynamic:animated,
   totalTriangles:fixed.triangles+animated.triangles};
+}
+// Separate GPU atmosphere from normal-validated vertex meshes in the ledger.
+function getSceneTriangleReconciliation(){
+ const audited=geometryAudit();
+ const weather=gpuAvailable?
+  (climateAt(state.t).weather==='rain'?200:
+   climateAt(state.t).weather==='snow'?240:0):0;
+ return {source:'real-seasonal-farm-and-occupied-home-integrity',
+  auditedTriangles:audited.totalTriangles,lastFrameTriangles,
+  weatherTrianglesEstimated:weather,
+  unaccountedTriangles:lastFrameTriangles-weather-audited.totalTriangles,
+  currentDrawnFieldTriangles:farmFieldLastTriangles,
+  fieldPlots:farmFieldLastDrawnPlots.map(({plot,mode,triangles})=>({plot,mode,triangles})),
+  actualNightHomeTriangles:nightHomesActive?(nightHomesMesh?.length||0)/30:0,
+  invalidComponents:audited.static.invalidComponents+audited.dynamic.invalidComponents,
+  geometryIntegrityAligned:audited.static.aligned&&audited.dynamic.aligned,
+  countsFullSceneNotJustFrustum:true,authorityModified:false,
+  noHardwareFpsClaim:true};
 }
 // G054b: exact read-only triangle audit of live vertex material IDs, not
 // unverified labels. This is intentionally not evaluated in the render loop.
@@ -12079,7 +12128,7 @@ function validateSnapshot(snapshot){
  }))throw Error('Save contains invalid citizens');
  if(!Array.isArray(q.stories)||q.stories.length>6||!q.stories.every(e=>e&&Number.isInteger(e.day)&&e.day>0&&validText(e.text,240)))throw Error('Save contains invalid chronicles');
 }
-function restoreSnapshot(snapshot){validateSnapshot(snapshot);resetResidentCommuters();restingActorKey='';restingActorVisible=false;restingActorCitizens=0;disposeLivingVillageMotion();disposeNightHomesResidentMesh();clearHomeClusterCache();disposeRecordedWorkResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;disposeEconomyResidentMesh();clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');uiHistory.length=0;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();landscapeMeshCache=null;landscapeMeshKey='';const q=cloneData(snapshot.payload);selectedCitizen=Math.min(selectedCitizen,q.people.length-1);routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;seed=q.seed>>>0;state=q.state;city.splice(0,city.length,...q.city);people=q.people;stories=q.stories;accumulator=0;renderStories();updateUI();presentationEpoch++;return true}
+function restoreSnapshot(snapshot){validateSnapshot(snapshot);restingActorKey='';resetResidentCommuters();restingActorVisible=false;restingActorCitizens=0;disposeLivingVillageMotion();disposeNightHomesResidentMesh();clearHomeClusterCache();disposeRecordedWorkResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;disposeEconomyResidentMesh();clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');uiHistory.length=0;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();landscapeMeshCache=null;landscapeMeshKey='';const q=cloneData(snapshot.payload);selectedCitizen=Math.min(selectedCitizen,q.people.length-1);routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;seed=q.seed>>>0;state=q.state;city.splice(0,city.length,...q.city);people=q.people;stories=q.stories;accumulator=0;renderStories();updateUI();presentationEpoch++;return true}
 function saveWorld(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(exportSnapshot()));showToast('World saved — Day '+(Math.floor(state.t/24)+1))}catch(error){showToast('Save unavailable: '+error.message)}}
 function restoreWorld(){try{const stored=localStorage.getItem(SAVE_KEY);if(!stored)throw Error('No stored civilization yet');restoreSnapshot(JSON.parse(stored));showToast('The valley has been restored')}catch(error){showToast(error.message)}}
 function showToast(message){const node=document.getElementById('toast');node.textContent=message;node.style.opacity='1';clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>node.style.opacity='0',3600)}
@@ -16579,7 +16628,7 @@ getDailyRhythmAudit:dailyRhythmAudit,getOccupiedHouseholds:()=>cloneData(occupie
 getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeCourtyardAudit:()=>cloneData(getForgeCourtyardAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),getForgeSoundAudit:()=>cloneData(getForgeSoundAudit()),pollForgeSound,watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,getMarketReceivingHallAudit,getTradeCorridorCameraAudit,
 getMarketStructuralSightline:marketCourierPostSightline,
 getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCentralExchangeAudit:()=>({...centralExchangeStats}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketShutterResidencyAudit,setMarketShutterResidencyForTesting,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getFarmWorkCameraAudit,
-getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?(civicGpuResidencyEnabled?3:2)+(homeClusterActive.length?homeClusterActive.length:0):1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length+homeClusterFloats():0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4+homeClusterFloats()*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0,homeBytes:gpuAvailable?homeClusterFloats()*4:0}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGranaryArchitectureAudit,getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getForestVisualStats:()=>({
+getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?(civicGpuResidencyEnabled?3:2)+(homeClusterActive.length?homeClusterActive.length:0):1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length+homeClusterFloats():0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4+homeClusterFloats()*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0,homeBytes:gpuAvailable?homeClusterFloats()*4:0}),getGeometryAudit:geometryAudit,getSceneTriangleReconciliation,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGranaryArchitectureAudit,getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getForestVisualStats:()=>({
  sourceTrees:trees.length,
  renderedTrees:forestVisualStats.deciduous+forestVisualStats.conifers,
  conifers:forestVisualStats.conifers,deciduous:forestVisualStats.deciduous,

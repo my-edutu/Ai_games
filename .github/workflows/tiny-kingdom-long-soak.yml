@@ -43,6 +43,7 @@ jobs:
         run: node scripts/tiny-kingdom-w118-resting-actor-contract.cjs
       - name: W119 genuine moving commuter GPU presentation and authority guards
         run: node scripts/tiny-kingdom-w119-real-commuter-contract.cjs
+          node scripts/tiny-kingdom-w120-scene-integrity-contract.cjs
       - run: npx playwright install --with-deps chromium
       - name: Real WebGL 120-day settlement and replay soak
         env:
