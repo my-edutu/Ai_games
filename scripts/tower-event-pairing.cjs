@@ -128,6 +128,21 @@ function auditPairs(recordings,candidateSha){
    faults.push('recording setup mismatch');
   if(!(before.motion?.actualWallSeconds>=60&&after.motion?.actualWallSeconds>=60))
    faults.push('insufficient observed wall-time');
+  // A previous two-viewport Playwright invocation reused the exact SAME live
+  // host. Portrait recording began hundreds of ticks later, sometimes on
+  // floor ten while the requested danger episode was floor eight.
+  // Detect this BEFORE source-event name matching. Floor/tick are read-only
+  // source provenance, never fabricated matching WebM frame timecodes.
+  const launchFloor=scenario==='danger'?8:scenario==='moving'?7:0;
+  const firstScene=record=>record.motion?.startScene;
+  const startValid=s=>s&&s.floor===launchFloor&&
+    Number.isSafeInteger(s.tick)&&s.tick>=0&&s.tick<=250&&
+    typeof s.runToken==='string'&&s.runToken.length>0;
+  const bStart=firstScene(before),cStart=firstScene(after);
+  if(!startValid(bStart)||!startValid(cStart))
+    faults.push('missing, late, or wrong-floor initial source episode');
+  else if(Math.abs(bStart.tick-cStart.tick)>60)
+    faults.push('initial source ticks differ by over 3 seconds');
   if(!before.videoPresent||!after.videoPresent)faults.push('native WebM missing');
   if(!(before.index?.sourceTicksObserved>1&&after.index?.sourceTicksObserved>1))
    faults.push('missing passive source ticks');
