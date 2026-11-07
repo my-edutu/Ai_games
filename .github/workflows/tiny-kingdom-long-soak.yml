@@ -35,6 +35,8 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: W115 exact source GPU material residency contract
         run: node scripts/tiny-kingdom-w115-material-residency-contract.cjs
+      - name: W116 original worker cart-to-wrist-to-receiving-shelf contract
+        run: node scripts/tiny-kingdom-w116-real-market-handoff-contract.cjs
       - run: npx playwright install --with-deps chromium
       - name: Real WebGL 120-day settlement and replay soak
         env:
