@@ -6035,16 +6035,11 @@ function marketReceivingDock(){
   });
   materialScope(MATERIAL.WOOD,()=>{
    box(x,y+.17,z+.72,1.31,.12,.93,rgb(0x926d47));
-   for(let k=0;k<4;k++)
-    box(x-.49+k*.33,y+.25,z+.72,.075,.05,.84,
+   for(let k=0;k<3;k++)
+    box(x-.34+k*.34,y+.25,z+.72,.075,.05,.84,
      rgb(k%2?0xbd9260:0x65462f));
-   // Staggered tongue-and-groove facing replaces the old waist-high rail
-   // that visibly covered the citizen's hands in the receiving viewpoint.
-   for(let k=0;k<3;k++){
-    const px=x-.40+k*.40;
-    box(px,y+.19,z+1.13,.32,.18,.045,
-     rgb((k+index)%2?0x8b6548:0xa5805a));
-   }
+   // The freight shelf remains open all the way to the real worker's hands.
+   // The old blocking waist-height rails are not recreated.
   });
   marketQuarterStats.receivingBays++;
  }
@@ -6080,11 +6075,8 @@ function marketReceivingDock(){
    const z=end<0?site.frontZ+.12:site.backZ-.12;
    box(cx,ground+2.14,z,site.halfWidth*2-.15,.15,.15,tie);
   }
-  for(const side of [-1,1]){
-   const x=cx+side*(site.halfWidth-.13);
-   box(x,ground+2.13,(site.frontZ+site.backZ)/2,
-    .14,.12,site.backZ-site.frontZ-.12,dark);
-  }
+  // Keeping the four load-bearing posts, both transverse eave beams and
+  // central ridge is enough; omit redundant side timbers for Day-120 budget.
   // Real ridge, exposed eave and one timber tie at the back. No hard
   // horizontal beam crosses the worker's face or the courier camera below.
   box(cx,ground+3.17,(site.frontZ+site.backZ)/2,
