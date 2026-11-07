@@ -66,6 +66,7 @@ test('source contract exports the real rules exit only in opt-in cap encounters'
   assert.match(snapshot,/guardianSealHeight:guardianArenaSealHeight\(state\.config\)/,
     'the rendered seal height must derive from the same authoritative jump envelope');
   assert.match(snapshot,/state\.config\.guardianArenaHazards===true&&[\s\S]*?state\.config\.guardianSecondWind===true&&chunk\.guardian/);
-  assert.match(snapshot,/guardianExitX\(arenaCap\)/);
+  assert.match(snapshot,/guardianArenaExitX\(arenaCap\)/,
+    'the rendered earned exit must be the same authoritative cap exit used by rules and AI');
   assert.match(snapshot,/guardianExitX!==undefined\?\{guardianExitX\}:\{\}/);
 });
