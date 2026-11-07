@@ -107,6 +107,21 @@ function rig(name, { balanced = false } = {}) {
       }
     });
   }
+  // A witnessed guardian can retain its ORIGINAL CPU mesh graph while dormant,
+  // without retaining WebGL registrations for a character not in the scene.
+  // BufferGeometry.dispose() releases GPU allocations/listeners, NOT the CPU
+  // vertex arrays: Three automatically reuploads these SAME buffers on the
+  // next actual public appearance. Never evict geometry still used by Pip or
+  // another live rig, and never suspend a group that is still attached.
+  function suspendGpuBuffers() {
+    if (disposed || group.parent) return false;
+    for (const g of geometries) g.dispose();
+    for (const key of sharedKeys) {
+      const entry = sharedRigPrimitives.get(key);
+      if (entry?.refs === 1) entry.shape.dispose();
+    }
+    return true;
+  }
   function dispose() {
     if (disposed) return; disposed = true;
     group.removeFromParent(); group.clear();
@@ -122,7 +137,7 @@ function rig(name, { balanced = false } = {}) {
     for (const m of materials) m.dispose();
     geometries.clear(); materials.clear(); cache.clear(); sharedKeys.clear();
   }
-  return {group,material,ball,tube,ring,rounded,pivot,bar,finish,dispose,isDisposed:()=>disposed};
+  return {group,material,ball,tube,ring,rounded,pivot,bar,finish,dispose,suspendGpuBuffers,isDisposed:()=>disposed};
 }
 function motionState(options) {
   const result = typeof options.result === 'string' ? options.result : options.result?.reason ?? options.result?.status ?? options.result?.outcome;
@@ -728,7 +743,7 @@ export function createWarden(options = {}) {
     legs.push({hip,knee,side,index:i,pincer});
   }
   r.finish(); let gait=0, stride=0;
-  return {group,dispose:r.dispose,
+  return {group,dispose:r.dispose,suspendGpuBuffers:r.suspendGpuBuffers,
     reset() {
       if (r.isDisposed()) return;
       gait = 0; stride = 0; group.rotation.set(0, 0, 0);

@@ -223,8 +223,13 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     entry.model.group.visible = false;
     entry.contact.visible = false;
     entry.model.reset();
-    if (idleWardens.length < MAX_IDLE_WARDENS) idleWardens.push(entry);
-    else entry.model.dispose();
+    if (idleWardens.length < MAX_IDLE_WARDENS) {
+      // Pass200: an off-stage model must not hold 50+ old GPU geometry
+      // registrations across six autonomous resets. Retain CPU animation
+      // pivots and immutable buffers; on redisclosure, WebGL reuploads them.
+      entry.model.suspendGpuBuffers();
+      idleWardens.push(entry);
+    } else entry.model.dispose();
   };
   const acquireWarden = threat => {
     const saved = idleWardens.pop();

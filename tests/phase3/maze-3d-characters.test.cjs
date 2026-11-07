@@ -64,6 +64,43 @@ test('a publicly observed Thornback rig resets its whole physical performance fo
   }
 });
 
+test('dormant public Thornback releases its WebGL registrations but preserves CPU rig and Pip buffers', async () => {
+  const {createExplorer, createWarden, rigPrimitiveResourceStats} = await modulePromise;
+  const {Scene} = await import(three);
+  for (const balanced of [false, true]) {
+    const baseline = rigPrimitiveResourceStats();
+    const pip = createExplorer({balanced}), warden = createWarden({balanced});
+    const pipGeometry = new Set(), wardenGeometry = new Set();
+    pip.group.traverse(object => {if (object.geometry) pipGeometry.add(object.geometry);});
+    warden.group.traverse(object => {if (object.geometry) wardenGeometry.add(object.geometry);});
+    const privateShapes = [...wardenGeometry].filter(g => !pipGeometry.has(g));
+    const sharedShapes = [...wardenGeometry].filter(g => pipGeometry.has(g));
+    assert.ok(privateShapes.length > 0, 'a full articulated guardian has private rigid geometry');
+    const releases = new Map([...wardenGeometry].map(g => [g, 0]));
+    for (const g of wardenGeometry) g.addEventListener('dispose', () => releases.set(g, releases.get(g) + 1));
+    const stage = new Scene();
+    stage.add(warden.group);
+    assert.equal(warden.suspendGpuBuffers(), false, 'never release an attached public enemy');
+    assert.ok([...releases.values()].every(count => count === 0));
+    stage.remove(warden.group);
+    assert.equal(warden.suspendGpuBuffers(), true, 'detached witnessed enemy releases GPU registrations');
+    assert.ok(privateShapes.some(g => releases.get(g) === 1),
+      'owned rigid geometry can no longer inflate the renderer after withdrawal');
+    assert.ok(sharedShapes.every(g => releases.get(g) === 0),
+      'Pip-shared resources must not be evicted during guardian withdrawal');
+    warden.reset();
+    stage.add(warden.group);
+    const recovered = new Set();
+    warden.group.traverse(object => {if (object.geometry) recovered.add(object.geometry);});
+    assert.deepEqual(recovered, wardenGeometry,
+      'a later true public encounter reuses the same authored CPU meshes and geometry IDs');
+    assert.equal(warden.suspendGpuBuffers(), false, 'cannot suspend redisclosed living enemy');
+    stage.remove(warden.group);
+    pip.dispose(); warden.dispose();
+    assert.deepEqual(rigPrimitiveResourceStats(), baseline, 'final scene teardown releases both owners');
+  }
+});
+
 test('balanced character meshes retain all articulation while reducing vertex cost', async () => {
   const { createExplorer, createWarden } = await modulePromise;
   for (const create of [createExplorer, createWarden]) {
