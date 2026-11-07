@@ -226,6 +226,7 @@ const assert=require('node:assert/strict');
   // The latest 48 completed frames may include earlier camera shots; it is
   // deliberately not marketed as isolated Day-121 GPU p95 or hardware FPS.
   evidence.cpuFramePhases=await page.evaluate(()=>window.__tinyKingdom.getFrameProfile());
+  evidence.completedDrawCadence=await page.evaluate(()=>window.__tinyKingdom.getDrawCadenceAudit());
   assert.equal(evidence.cpuFramePhases.kind,'cpu-wall-submission');
   assert(evidence.cpuFramePhases.samples>=1&&evidence.cpuFramePhases.samples<=48);
   assert(evidence.cpuFramePhases.stages.total.p95>=0);
