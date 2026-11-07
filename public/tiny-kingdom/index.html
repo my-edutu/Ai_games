@@ -1317,7 +1317,10 @@ let workingResidentCache=new Map(),workingResidentVisible=[],
  workingResidentMesh=new Float32Array(0),workingResidentKey='',
  workingResidentPoseBuilds=0,workingResidentReuses=0,
  workingResidentUploads=0,workingResidentDrawCalls=0,
- workingResidentFallbacks=0,workingResidentPoseRefreshes=0;
+ workingResidentFallbacks=0,workingResidentPoseRefreshes=0,
+ workingResidentLayoutKey='',workingResidentFullUploads=0,
+ workingResidentPartialUploads=0,workingResidentUploadBytes=0,
+ workingResidentRootDrawCalls=0,workingResidentBatchDrawCalls=0;
 function isResidentWorkingCandidate(p,i,nearPeople,frame){
  if(!gpuAvailable||!p||nearPeople.has(i)||p.delivery||
     isMarketUnloading(p)||!isWorkingAtSite(p)||
@@ -1328,39 +1331,55 @@ function isResidentWorkingCandidate(p,i,nearPeople,frame){
  const projected=projectRealCitizenDetail(p,frame);
  return !projected.visible||projected.heightFraction<.075;
 }
+// W122 real worksite geometry: root motion belongs on GPU, not in
+// per-frame JavaScript triangle reconstruction. Always rebuild the authentic
+// worksite IK once hands/feet have moved outside physical contact limits.
+const WORKER_ROOT_CONTACT_METERS=.18,WORKER_ROOT_CONTACT_RADIANS=.08;
+function realWorkerFacing(p){
+ const focus=occupationalPerformance(p).focus;
+ return focus?Math.atan2(focus[0]-p.x,focus[1]-p.z):0;
+}
 function realWorkerPoseKey(p,i){
- // Quantized authentic phase/keyframe of the original IK rig; intermediate
- // authority updates can reuse an existing distant silhouette but the actual
- // actor is rebuilt at the next pose stage or real world-state transition.
- return [i,p.name,p.job,p.activity,p.x,p.z,
+ // The worker's legitimate time/occupation/IK beat define bone topology.
+ // Tiny changes to world-space x/z are applied by the original root shader.
+ return [i,p.name,p.job,p.activity,
   p.target?.[0],p.target?.[1],
   Math.floor(p.phase/.75),Math.floor(p.workTimer/.55),
   Math.floor(p.energy/12),Math.floor(p.hunger/12),
   climateAt(state.t).season].join(':');
 }
+function realWorkerPoseStale(entry,p,key,angle){
+ if(!entry||entry.key!==key)return true;
+ const turn=Math.atan2(Math.sin(angle-entry.angle),
+  Math.cos(angle-entry.angle));
+ return Math.hypot(p.x-entry.x,p.z-entry.z)>WORKER_ROOT_CONTACT_METERS||
+  Math.abs(turn)>WORKER_ROOT_CONTACT_RADIANS;
+}
 function prepareWorkingResidents(rows){
  workingResidentVisible=[];
  if(!gpuAvailable||!rows.length){
   workingResidentCache.clear();workingResidentKey='';
+  workingResidentLayoutKey='';
   workingResidentMesh=new Float32Array(0);return false;
  }
  const beforeAll=restingActorCounters();
  const next=new Map(),selected=[],limited=rows.slice(0,WORKING_RESIDENT_MAX);
  let total=0;
  for(const {p,i} of limited){
-  const key=realWorkerPoseKey(p,i);
-  let entry=workingResidentCache.get(i);
-  if(!entry||entry.key!==key){
+  const key=realWorkerPoseKey(p,i),angle=realWorkerFacing(p);
+  let entry=workingResidentCache.get(i),fresh=false;
+  if(realWorkerPoseStale(entry,p,key,angle)){
    const prior=data,materialBefore=currentMaterial,before=restingActorCounters();
    data=[];
    try{
-    compactVillager(p); // the SAME actual worker wrist, tool, coat and feet
+    compactVillager(p); // ORIGINAL worksite hand/tool/boot IK
     const mesh=new Float32Array(data),after=restingActorCounters();
     const delta=restingActorDifference(before,after);
     delta.roles=Object.fromEntries(Object.keys(after.roles)
      .map(role=>[role,(after.roles[role]||0)-(before.roles[role]||0)]));
-    entry={key,mesh,delta,revision:++workingResidentPoseBuilds};
-    workingResidentPoseRefreshes++;
+    entry={key,x:p.x,z:p.z,ground:terrain(p.x,p.z),angle,
+     mesh,delta,revision:++workingResidentPoseBuilds};
+    workingResidentPoseRefreshes++;fresh=true;
    }finally{data=prior;currentMaterial=materialBefore}
   }else{
    applyRestingActorMetrics(entry.delta);
@@ -1369,44 +1388,83 @@ function prepareWorkingResidents(rows){
   total+=entry.mesh.length;
   if(total>WORKING_RESIDENT_FLOAT_BUDGET||
      !entry.mesh.length||entry.mesh.length%30!==0){
-   // Budget/invalid geometry: emit original workers LIVE through caller.
+   // All real people return to the original per-frame renderer on overflow.
    resetRestingActorMetrics(beforeAll);
    workingResidentVisible=[];workingResidentKey='';
-   workingResidentFallbacks++;
-   return false;
-  }
-  next.set(i,entry);selected.push({p,i,entry});
- }
- const key=selected.map(({i,entry})=>i+':'+entry.revision).join('|');
- if(key!==workingResidentKey||!workingResidentBuffer){
-  const packed=new Float32Array(total);
-  let offset=0;
-  for(const {entry} of selected){
-   packed.set(entry.mesh,offset);offset+=entry.mesh.length;
-  }
-  if(!workingResidentBuffer)workingResidentBuffer=gl.createBuffer();
-  if(!workingResidentBuffer){
-   resetRestingActorMetrics(beforeAll);
-   workingResidentVisible=[];workingResidentKey='';
+   workingResidentLayoutKey='';workingResidentMesh=new Float32Array(0);
    workingResidentFallbacks++;return false;
   }
-  bindGeometry(workingResidentBuffer);
+  next.set(i,entry);selected.push({p,i,entry,fresh});
+ }
+ let offset=0;
+ for(const row of selected){
+  row.offset=offset/10;row.count=row.entry.mesh.length/10;
+  offset+=row.entry.mesh.length;
+ }
+ // Membership and true geometry lengths control layout. A hand moving in
+ // its existing rig never repacks/uploads all other real workers.
+ const layoutKey=selected.map(({i,entry})=>i+':'+entry.mesh.length).join('|');
+ const wholeUpload=layoutKey!==workingResidentLayoutKey||
+  !workingResidentBuffer||workingResidentMesh.length!==total;
+ if(!workingResidentBuffer)workingResidentBuffer=gl.createBuffer();
+ if(!workingResidentBuffer){
+  resetRestingActorMetrics(beforeAll);
+  workingResidentVisible=[];workingResidentKey='';
+  workingResidentLayoutKey='';workingResidentMesh=new Float32Array(0);
+  workingResidentFallbacks++;return false;
+ }
+ bindGeometry(workingResidentBuffer);
+ if(wholeUpload){
+  const packed=new Float32Array(total);
+  for(const row of selected)packed.set(row.entry.mesh,row.offset*10);
   if(total>workingResidentCapacity){
    workingResidentCapacity=Math.ceil(total/65536)*65536;
    gl.bufferData(gl.ARRAY_BUFFER,workingResidentCapacity*4,gl.DYNAMIC_DRAW);
   }
   gl.bufferSubData(gl.ARRAY_BUFFER,0,packed);
-  workingResidentMesh=packed;workingResidentKey=key;
-  workingResidentUploads++;
+  workingResidentMesh=packed;
+  workingResidentUploads++;workingResidentFullUploads++;
+  workingResidentUploadBytes+=total*4;
+ }else{
+  for(const row of selected){
+   if(!row.fresh)continue;
+   gl.bufferSubData(gl.ARRAY_BUFFER,row.offset*40,row.entry.mesh);
+   workingResidentMesh.set(row.entry.mesh,row.offset*10);
+   workingResidentUploads++;workingResidentPartialUploads++;
+   workingResidentUploadBytes+=row.entry.mesh.length*4;
+  }
  }
+ workingResidentLayoutKey=layoutKey;
+ workingResidentKey=selected.map(({i,entry})=>i+':'+entry.revision).join('|');
  workingResidentCache=next;workingResidentVisible=selected;
  return true;
 }
 function drawWorkingResidentMesh(){
  if(!gpuAvailable||!workingResidentVisible.length||!workingResidentBuffer)return;
  bindGeometry(workingResidentBuffer);
- gl.drawArrays(gl.TRIANGLES,0,workingResidentMesh.length/10);
- workingResidentDrawCalls++;
+ // Physical stationary workers remain ONE draw. Original moving/turning
+ // residents use exact per-agent world roots from authoritative snapshots.
+ const drift=workingResidentVisible.some(({p,entry})=>
+  Math.hypot(p.x-entry.x,p.z-entry.z)>1e-5||
+  Math.abs(Math.atan2(Math.sin(realWorkerFacing(p)-entry.angle),
+   Math.cos(realWorkerFacing(p)-entry.angle)))>1e-5);
+ if(!drift){
+  gl.drawArrays(gl.TRIANGLES,0,workingResidentMesh.length/10);
+  workingResidentDrawCalls++;workingResidentBatchDrawCalls++;return;
+ }
+ gl.uniform1f(uniforms.commuterEnabled,1);
+ try{
+  for(const {p,entry,offset,count} of workingResidentVisible){
+   const facing=realWorkerFacing(p);
+   const yaw=Math.atan2(Math.sin(facing-entry.angle),
+    Math.cos(facing-entry.angle));
+   gl.uniform3f(uniforms.commuterOrigin,entry.x,entry.ground,entry.z);
+   gl.uniform4f(uniforms.commuterMotion,p.x,p.z,
+    terrain(p.x,p.z)-entry.ground,yaw);
+   gl.drawArrays(gl.TRIANGLES,offset,count);
+   workingResidentDrawCalls++;workingResidentRootDrawCalls++;
+  }
+ }finally{gl.uniform1f(uniforms.commuterEnabled,0)}
 }
 function getWorkingResidentAudit(){
  return {source:'actual-distant-profession-IK-retained-webgl-workday',
@@ -1418,13 +1476,17 @@ function getWorkingResidentAudit(){
   maxActors:WORKING_RESIDENT_MAX,maxFloats:WORKING_RESIDENT_FLOAT_BUDGET,
   poseBuilds:workingResidentPoseBuilds,poseRefreshes:workingResidentPoseRefreshes,
   reuses:workingResidentReuses,uploads:workingResidentUploads,
+  fullUploads:workingResidentFullUploads,partialUploads:workingResidentPartialUploads,
+  uploadedBytes:workingResidentUploadBytes,layoutKey:workingResidentLayoutKey,
+  rootDrawCalls:workingResidentRootDrawCalls,singleBatchDrawCalls:workingResidentBatchDrawCalls,
+  contactLimitMeters:WORKER_ROOT_CONTACT_METERS,contactLimitRadians:WORKER_ROOT_CONTACT_RADIANS,
   drawCalls:workingResidentDrawCalls,fallbacks:workingResidentFallbacks,
   foregroundProfessionHandsLive:true,deliveryCartAndUnloadLive:true,
   authorityModified:false,physicalGpuFpsNotMeasured:true};
 }
 function resetWorkingResidents(){
  workingResidentCache.clear();workingResidentVisible=[];
- workingResidentMesh=new Float32Array(0);workingResidentKey='';
+ workingResidentMesh=new Float32Array(0);workingResidentKey='';workingResidentLayoutKey='';
  // Retain one bounded GPU allocation; never preserve old authoritative people.
 }
 

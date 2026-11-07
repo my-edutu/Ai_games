@@ -73,8 +73,8 @@ assert.notEqual(key,signature({...working,workTimer:3.7},3),
  'real workTimer phase invalidates worker pose');
 assert.notEqual(key,signature({...working,activity:'Constructing cottages'},3),
  'real job activity changes invalidate worker pose');
-assert.notEqual(key,signature({...working,x:18.1},3),
- 'physical movement invalidates worker pose');
+assert.equal(key,signature({...working,x:18.1},3),
+ 'worker world position is transformed by GPU without rebuilding all body geometry');
 clock.t=240;
 assert.notEqual(key,signature(working,3),
  'season changes invalidate original working poses');
