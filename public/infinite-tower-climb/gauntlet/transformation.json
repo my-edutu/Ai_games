@@ -44,7 +44,7 @@
         "sourcePinnedGameplayCaptureUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42290154229",
         "reviewHeadQualityUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42290626576"
       },
-      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN; historical native danger footage shows missed scene and multiple episodes; candidate same-episode source evidence gate authored but original runner NOT EVALUATED",
+      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN; historical footage shows missing same-episode action; native source-story-aware capture authored, not executed",
       "implementationSha": "74bbe242228120de04f5ec1b1a867dc48b3600f1",
       "sourceBaseSha": "40d3d64d2bd4338bab2efafba949623d6fc0fd3e",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
@@ -75,7 +75,7 @@
       },
       "leadingTransformationVerdict": "NOT EVALUATED",
       "mostImportantObservedFootageDefect": "HISTORICAL ONLY: old 8fd9018f portrait danger shows hero/guardian undersized against monumental tower and unclear actual doorway crossing; no current-source continuous footage yet for new code.",
-      "nextHighImpactAction": "Restore actual source Node22/Chromium; run npm build and phase2 guardian earned exit tests, source-only dual unmodified 3200-tick campaigns and full event audit; inspect new matched normal-speed 960x600/390x844 60+s baseline/candidate WebMs for tall gate camera clarity, real guardian/crusher victory, grounded physical passage, floor-nine onwards, result/restart. Resolve largest footage defect before P1; independent critics and supported-device frame-time tails remain outstanding.",
+      "nextHighImpactAction": "Execute newly source-story-aware native browser capture and untouched twin 3200-tick campaigns from exact HEAD; inspect same-episode guardian/crusher defeat -> physical threshold -> floor-nine -> result/restart in 960x600 and 390x844 film. If absent, fix gameplay/systemic camera issue rather than claiming acceptance. Gather hardware p50/p95/p99 and independent 5 each only after legitimate film.",
       "safety": "Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 unchanged; PR58 not edited, PR68 open draft; no merge, deploy, force-push or promotion.",
       "runnerUnblockerSha": "345d7f15f01cacc8bfd343b327b517949f1717c0",
       "runnerUnblockerReviewSha": "71534d369ad2a01b5479ab9cd3ffa400d929c358",
@@ -261,6 +261,30 @@
         "nextHighestImpactAction": "Recover exact-head Node22 and Chromium runner, execute both authentic 3200-tick campaigns and real browser recordings at frozen baseline/current immutable candidate SHA for 960x600 and 390x844; inspect full motion, source-event alignment and passage visibility. Fix largest proven action/visual defect before P1; then collect supported hardware and independent blind LOOKS/FEELS/PLAYS.",
         "leadingVerdict": "NOT EVALUATED",
         "safeChangeScope": "Only Tower evidence pairing, paired regression fixtures, review and transformation evidence; baseline SHA, PR58 and PR68 draft state preserved; no merge, deploy, force-push."
+      },
+      "sourceStoryCapture20261107": {
+        "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN; original gameplay source UNMODIFIED",
+        "sourceParentSha": "e231feb86d236b83b093198ccc7beaaba5c290fd",
+        "captureImplementationSha": "21f973b63720062e9a4cd9571d94b9d27ae82e8f",
+        "reviewPath": "docs/reviews/2026-11-07-tower-pr68-source-story-native-capture-window.md",
+        "actualChange": "Original-source desktop/portrait recorder now uses absolute real-wall sampling deadlines instead of accumulating 68 waits plus expensive screenshot overhead. It records >=68s native unedited film; retains recording up to a bounded 84/90/180/120s (ascent/moving/danger/outcome) if the appropriate real same-episode source-story milestones have not been observed. On missing story the exact-source browser test fails while preserving WebM and sidecars for inspection; no game edits, artificial ticks, replay splicing or scripted floor award.",
+        "observedHistoricalFootage": "Historical ONLY: 42104896643 baseline danger portrait 390x844 WebM 104.64s; historic candidate 8fd9018f danger portrait WebM 132.80s. Sampled candidate at t=5s floor ten, t=20s floor eight, t=50s floor ten; these recordings fail to demonstrate one guardian/crusher -> grounded threshold -> floor-nine episode and do not represent current PR68.",
+        "localValidation": "4/4 isolated Node22 capture-window policy fixtures executed in standalone scratch; exact committed capture-window helper parsed/evaluated with 11/11 isolated V8 source/wiring assertions. Original repository Node22 suite, Playwright and live game NOT EXECUTED due disconnected development tunnel; these checks do not prove filmed action or source progression.",
+        "sourcePinnedCaptureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42319036457",
+        "sourcePinnedCaptureRunState": "QUEUED, no current native video yet verified",
+        "exactHeadQualityRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42319036455",
+        "exactHeadQualityState": "QUEUED, not treated as passing",
+        "sourceCampaigns3200Ticks": "NOT EVALUATED — original runtime unavailable",
+        "independentBlindReviews": {
+          "looks": 0,
+          "feels": 0,
+          "plays": 0
+        },
+        "actualDeviceFrameTimeAndMemory": "NOT EVALUATED",
+        "leadingTransformationVerdict": "NOT EVALUATED",
+        "mostImportantObservedFootageDefect": "Historical native danger film does not show the required continuous same-episode gateway victory; portrait actor/action sometimes too small. Source currently unfilmed.",
+        "nextHighestImpactAction": "Obtain runnable original Node22/Chromium (local tunnel or Actions runners), execute exact-head 3200-tick dual guardian campaigns and source-pinned native 960x600 and 390x844 videos; watch and event-align full motion, inspect any missing guardian defeat/door crossing/floor-nine/result restart before touching visuals/mechanics again. Then device benchmarks and fresh independent blind critics.",
+        "safety": "Frozen baseline unchanged, PR58 untouched, PR68 draft/open, no merge/deploy/force push."
       }
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
