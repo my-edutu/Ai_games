@@ -1,4 +1,5 @@
 import type{TowerAction,TowerPlatform,TowerState}from'../state/types';
+import{observedDashArrivalSafe}from'./dash-arrival';
 import{TOWER_GUARDIAN_PATROL_SPEED}from'../combat/step';import{chooseTowerUpgrade}from'../progression/builds';import{nextTowerPlatform,nextTowerTacticalPlatform,nextTowerEarnedCapHop}from'./graph';import{guardianArenaClearanceX}from'../generation/chunks';import type{TowerObservation}from'./observation';import{detectTowerStuck}from'./stuck';
 export interface TowerIntent{mode:'choosing-upgrade'|'evading-projectile'|'evading-hazard'|'evading-telegraph'|'bracing-telegraph'|'bracing-guardian-shield'|'engaging-enemy'|'recovering'|'collecting-resource'|'aligning'|'jumping'|'air-control'|'settling-landing'|'settling-launch'|'waiting';summary:string;confidence:number;fallbackUsed:boolean;targetPlatformId?:string}
 export interface TowerDecision{action:TowerAction;intent:TowerIntent}
@@ -88,16 +89,16 @@ function observedFlightTravel(state:TowerState,obs:TowerObservation,
   const p=obs.player,c=state.config;
   const acceleration=Math.max(1,Math.round(c.moveAcceleration*state.build.airControlPermille/1000));
   let feet=p.position.y-state.player.halfHeight,vertical=p.velocity.y;
-  let speed=p.velocity.x*direction,travel=0,maxFeet=feet;
+  let speed=p.velocity.x*direction,travel=0,maxFeet=feet,ticksToContact=40;
   for(let tick=0;tick<40;tick++){
     vertical=Math.max(-c.maxFallSpeed,vertical-c.gravity);
     feet+=vertical;
     speed=Math.min(c.maxRunSpeed,speed+acceleration);
     travel+=Math.max(0,speed);
     maxFeet=Math.max(maxFeet,feet);
-    if(vertical<=0&&feet<=target.y+target.height)break;
+    if(vertical<=0&&feet<=target.y+target.height){ticksToContact=tick+1;break}
   }
-  return {travel,maxFeet};
+  return {travel,maxFeet,ticksToContact};
 }
 // A boost is a committed source-authentic traversal move, not a teleport.
 // The older fixed 165k cutoff accidentally prohibited ALL boosts on some
@@ -108,7 +109,8 @@ function observedFlightTravel(state:TowerState,obs:TowerObservation,
 // opposing momentum or burn stamina for a collision-safe imminent landing.
 function observedSafeAirBoost(state:TowerState,obs:TowerObservation,
   target:TowerObservation['platforms'][number],landing:{
-  move:TowerAction['move'];landingX:number}):TowerAction['move']{
+  move:TowerAction['move'];landingX:number;
+  safeLanes:{left:number;right:number}[]}):TowerAction['move']{
   const p=obs.player;
   if(p.velocity.y<=0||p.dashCooldown!==0||p.stamina<state.build.dashCost)return 0;
   const delta=landing.landingX-p.position.x;
@@ -119,6 +121,29 @@ function observedSafeAirBoost(state:TowerState,obs:TowerObservation,
   const reach=observedFlightTravel(state,obs,target,direction);
   if(reach.maxFeet<target.y+target.height||
     Math.abs(delta)<=reach.travel+state.player.halfWidth+4000)return 0;
+  // The live guardian-run physics now commits to a real THREE-tick full
+  // speed dash, not a one-tick cosmetic impulse. Before spending stamina,
+  // verify that even the *shortest* legal full-braking travel does not leave
+  // the current observed collision-safe landing lane before contact. Without
+  // this, a boost judged against ordinary 9k running control can sail across
+  // the narrow safe pocket of a moving/trapped deck at 17k for three ticks.
+  // The lane is an observed present-tense clearance, not a future guarantee:
+  // collisions/actual moving-platform motion remain authoritative. Frozen
+  // historical/unflagged tactical decisions retain their existing behavior.
+  if(state.config.guardianArenaHazards===true&&
+     state.config.guardianSecondWind===true){
+    const lane=landing.safeLanes.find(l=>landing.landingX>=l.left&&
+      landing.landingX<=l.right);
+    if(!lane||!observedDashArrivalSafe({
+      positionX:p.position.x,halfWidth:state.player.halfWidth,
+      direction,laneLeft:lane.left-state.player.halfWidth,
+      laneRight:lane.right+state.player.halfWidth,
+      landingTicks:reach.ticksToContact,
+      airAcceleration:Math.max(1,Math.round(state.config.moveAcceleration*
+        state.build.airControlPermille/1000)),
+      maxRunSpeed:state.config.maxRunSpeed,dashSpeed:state.config.dashSpeed,
+    }))return 0;
+  }
   return direction;
 }
 // The physics already supports ONE earned mid-air jump after takeoff. Use it
