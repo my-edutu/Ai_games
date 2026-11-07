@@ -1,5 +1,6 @@
 import type{TowerConfig}from'../config/schema';
 import type{TowerChunk,TowerPlatform}from'../state/types';
+import{guardianArenaClearanceX}from'./chunks';
 
 export interface TowerMovementEnvelope{maxRise:number;airTicks:number;maxHorizontalGap:number}
 export interface TowerReachability{startPlatformId?:string;reachablePlatformIds:string[];routePlatformIds:string[]|null;envelope:TowerMovementEnvelope}
@@ -43,7 +44,22 @@ export function analyzeTowerReachability(chunk:TowerChunk,config:TowerConfig):To
   let goal:TowerPlatform|undefined;
   while(queue.length){
     const current=queue.shift()!;
-    if(top(current)+config.playerHalfHeight>=chunk.exitY){goal=current;break}
+    // A route terminates only at a physically reachable exit. The centre of
+    // a short legal climber may remain BELOW exitY while standing on cap:
+    // ordinary floors can still earn the exit with a source-legal cap jump;
+    // opt-in guardian floors instead allow a supported, full-body horizontal
+    // crossing after the actual defeat. Do not invent an early shortcut from
+    // p5/p6, and do not rewrite frozen runtime physics or any result state.
+    const cap=current.id===`f${chunk.floor}:cap`;
+    const centerAtRest=top(current)+config.playerHalfHeight;
+    const realCapJump=cap&&centerAtRest+envelope.maxRise>=chunk.exitY;
+    const realGuardianWalkway=cap&&chunk.guardian&&
+      config.guardianArenaHazards===true&&config.guardianSecondWind===true&&
+      guardianArenaClearanceX(current,config.playerHalfWidth)+
+        config.playerHalfWidth<=current.x+current.width;
+    if(centerAtRest>=chunk.exitY||realCapJump||realGuardianWalkway){
+      goal=current;break;
+    }
     for(const candidate of platforms){
       if(previous.has(candidate.id)||!canTraversePlatformEdge(current,candidate,envelope))continue;
       previous.set(candidate.id,current.id);queue.push(candidate);
