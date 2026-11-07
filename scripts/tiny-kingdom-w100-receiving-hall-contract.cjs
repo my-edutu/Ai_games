@@ -1,0 +1,18 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
+const code=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].at(-1)?.[1];
+assert.ok(code,'inline playable game code missing');
+new vm.Script(code,{filename:'tiny-kingdom-w100-playable.js'});
+assert.match(code,/function marketReceivingDock\(\)/);
+assert.match(code,/function getMarketReceivingHallAudit\(\)/);
+assert.match(code,/marketQuarterStats\.receivingHallRoofPanels\+\+/);
+assert.match(code,/marketQuarterStats\.receivingHallPosts\+\+/);
+assert.match(code,/marketQuarterStats\.rearShopGables\+\+/);
+assert.match(code,/materialScope\(MATERIAL\.ROOF,\(\)=>\{/);
+assert.match(code,/unobstructedCourierAisle:/);
+assert.match(code,/\[\[-1\.0,10\.2\],\[\.85,10\.2\]\]/);
+assert.match(code,/getMarketReceivingHallAudit,/);
+console.log('W100 original real two-bay open-front receiving arcade source/syntax PASS (not browser visual evidence)');

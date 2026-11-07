@@ -16,6 +16,7 @@ on:
       - 'scripts/tiny-kingdom-w95-boot-order-contract.cjs'
       - 'scripts/tiny-kingdom-w98-upper-room-contract.cjs'
       - 'scripts/tiny-kingdom-w99-freight-road-contract.cjs'
+      - 'scripts/tiny-kingdom-w100-receiving-hall-contract.cjs'
       - '.github/workflows/tiny-kingdom-gpu-evidence.yml'
   workflow_dispatch:
 
@@ -47,7 +48,7 @@ jobs:
           node-version: '22'
           cache: npm
       - name: W94/W95 check genuine first-frame boot order before costly GPU setup
-        run: node scripts/tiny-kingdom-w94-boot-contract.cjs && node scripts/tiny-kingdom-w95-boot-order-contract.cjs && node scripts/tiny-kingdom-w96-market-shutters-contract.cjs && node scripts/tiny-kingdom-w98-upper-room-contract.cjs && node scripts/tiny-kingdom-w99-freight-road-contract.cjs
+        run: node scripts/tiny-kingdom-w94-boot-contract.cjs && node scripts/tiny-kingdom-w95-boot-order-contract.cjs && node scripts/tiny-kingdom-w96-market-shutters-contract.cjs && node scripts/tiny-kingdom-w98-upper-room-contract.cjs && node scripts/tiny-kingdom-w99-freight-road-contract.cjs && node scripts/tiny-kingdom-w100-receiving-hall-contract.cjs
       - run: npm ci
       - run: npm run build
       - run: npx playwright install --with-deps chromium
@@ -55,7 +56,7 @@ jobs:
         env:
           CI: '1'
           LIBGL_ALWAYS_SOFTWARE: '1'
-        run: npx playwright test tests/browser/tiny-kingdom-w83-farm-market-continuity.spec.cjs tests/browser/tiny-kingdom-w84-granary-loft.spec.cjs tests/browser/tiny-kingdom-w85-gpu-dynamic-ring.spec.cjs tests/browser/tiny-kingdom-w86-resident-multi-draw.spec.cjs tests/browser/tiny-kingdom-w87-market-to-home.spec.cjs tests/browser/tiny-kingdom-w88-conservative-culling.spec.cjs tests/browser/tiny-kingdom-w89-physical-courier-contact.spec.cjs tests/browser/tiny-kingdom-w90-physical-daybreak-flight.spec.cjs tests/browser/tiny-kingdom-w91-resident-ambient-animation.spec.cjs tests/browser/tiny-kingdom-w92-resident-workstations.spec.cjs tests/browser/tiny-kingdom-w93-independent-actor-stream.spec.cjs tests/browser/tiny-kingdom-w94-first-frame.spec.cjs tests/browser/tiny-kingdom-w96-resident-market-shutters.spec.cjs tests/browser/tiny-kingdom-w97-true-supply-trail.spec.cjs tests/browser/tiny-kingdom-w98-lived-jetty.spec.cjs tests/browser/tiny-kingdom-w99-freight-road-residency.spec.cjs --workers=1
+        run: npx playwright test tests/browser/tiny-kingdom-w83-farm-market-continuity.spec.cjs tests/browser/tiny-kingdom-w84-granary-loft.spec.cjs tests/browser/tiny-kingdom-w85-gpu-dynamic-ring.spec.cjs tests/browser/tiny-kingdom-w86-resident-multi-draw.spec.cjs tests/browser/tiny-kingdom-w87-market-to-home.spec.cjs tests/browser/tiny-kingdom-w88-conservative-culling.spec.cjs tests/browser/tiny-kingdom-w89-physical-courier-contact.spec.cjs tests/browser/tiny-kingdom-w90-physical-daybreak-flight.spec.cjs tests/browser/tiny-kingdom-w91-resident-ambient-animation.spec.cjs tests/browser/tiny-kingdom-w92-resident-workstations.spec.cjs tests/browser/tiny-kingdom-w93-independent-actor-stream.spec.cjs tests/browser/tiny-kingdom-w94-first-frame.spec.cjs tests/browser/tiny-kingdom-w96-resident-market-shutters.spec.cjs tests/browser/tiny-kingdom-w97-true-supply-trail.spec.cjs tests/browser/tiny-kingdom-w98-lived-jetty.spec.cjs tests/browser/tiny-kingdom-w99-freight-road-residency.spec.cjs tests/browser/tiny-kingdom-w100-receiving-arcade.spec.cjs --workers=1
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -69,6 +70,7 @@ jobs:
             artifacts/tiny-kingdom-w88/
             artifacts/tiny-kingdom-w98/
             artifacts/tiny-kingdom-w99/
+            artifacts/tiny-kingdom-w100/
             test-results/
           retention-days: 14
   # W81: real 120-day town roof reconstruction must reclaim triangles without
