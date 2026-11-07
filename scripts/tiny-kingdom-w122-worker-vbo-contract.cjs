@@ -8,24 +8,24 @@ new Function(html.slice(beg+8,end));
 const between=(a,b)=>{const i=html.indexOf(a),j=html.indexOf(b,i+a.length);
  assert(i>=0&&j>i,'missing source '+a);return html.slice(i,j);};
 const moduleSrc=between('const WORKER_ROOT_CONTACT_METERS=','function prepareWorkingResidents(');
-const module=new Function('state','climateAt','occupationalPerformance',
+const workerApi=new Function('state','climateAt','occupationalPerformance',
  moduleSrc+';return {realWorkerPoseKey,realWorkerPoseStale,realWorkerFacing};')(
  {t:40},t=>({season:Math.floor(t/120)}),
  p=>({focus:[p.x+.62,p.z+.34]}));
 const p={name:'Original farmer',job:'farmer',activity:'Harvesting grain',
  x:18,z:1,phase:.6,workTimer:1.2,energy:74,hunger:18,target:[18,1],path:[]};
-const before=JSON.stringify(p),key=module.realWorkerPoseKey(p,3),angle=module.realWorkerFacing(p);
+const before=JSON.stringify(p),key=workerApi.realWorkerPoseKey(p,3),angle=workerApi.realWorkerFacing(p);
 const e={key,x:p.x,z:p.z,angle};
-assert(!module.realWorkerPoseStale(e,p,key,angle),'same authentic IK pose reuses buffer');
-assert.equal(key,module.realWorkerPoseKey({...p,x:18.07,z:1.05},3),
+assert(!workerApi.realWorkerPoseStale(e,p,key,angle),'same authentic IK pose reuses buffer');
+assert.equal(key,workerApi.realWorkerPoseKey({...p,x:18.07,z:1.05},3),
  'small movement is shader root motion');
-assert(!module.realWorkerPoseStale(e,{...p,x:18.07,z:1.05},key,angle),
+assert(!workerApi.realWorkerPoseStale(e,{...p,x:18.07,z:1.05},key,angle),
  'conservative sub-contact displacement reuses original pose');
-assert(module.realWorkerPoseStale(e,{...p,x:18.38},key,angle),
+assert(workerApi.realWorkerPoseStale(e,{...p,x:18.38},key,angle),
  'actual worker must rebuild after large worksite displacement');
-assert(module.realWorkerPoseStale(e,p,key,angle+.2),
+assert(workerApi.realWorkerPoseStale(e,p,key,angle+.2),
  'actual turn past contact limit rebuilds');
-assert.notEqual(key,module.realWorkerPoseKey({...p,workTimer:2.8},3),
+assert.notEqual(key,workerApi.realWorkerPoseKey({...p,workTimer:2.8},3),
  'real occupational action phase rebuilds');
 assert.equal(before,JSON.stringify(p),'read-only original authority');
 const prepare=between('function prepareWorkingResidents(','function drawWorkingResidentMesh(');
