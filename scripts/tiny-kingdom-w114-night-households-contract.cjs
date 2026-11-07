@@ -3,7 +3,7 @@
 // behavior contract, not a claim of hardware FPS or running-browser footage.
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
-const inline=html.match(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/)?.[1];
+const inline=html.match(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/)?.[1];
 assert.ok(inline,'Playable inline game JS exists');
 new vm.Script(inline,{filename:'tiny-kingdom.js'});
 const a=html.indexOf('const NIGHT_HOMES_RESIDENT_MAX_FLOATS=');
