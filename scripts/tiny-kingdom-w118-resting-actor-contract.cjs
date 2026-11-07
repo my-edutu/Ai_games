@@ -43,12 +43,12 @@ state.t=23.7;assert.notEqual(key,signature([{p,i:3}]),
  'original clock refreshes resting mesh at bounded interval');
 for(const required of [
  'const commuterReady=prepareResidentCommuters(commuterRows);',
- 'if(!restingIndices.has(i)&&!commuterIndices.has(i))compactVillager(people[i])',
+ 'if(!restingIndices.has(i)&&!commuterIndices.has(i)&&!workingIndices.has(i))compactVillager(people[i])',
  "function restoreSnapshot(snapshot){validateSnapshot(snapshot);restingActorKey='';",
  'drawRestingActorMesh();',
  'const residents=inspectMeshGeometry(restingActorMesh);',
  '(restingActorVisible?restingActorMesh.length:0)',
- 'if(!restingIndices.has(i)&&!commuterIndices.has(i))compactVillager(people[i])',
+ 'if(!restingIndices.has(i)&&!commuterIndices.has(i)&&!workingIndices.has(i))compactVillager(people[i])',
  'const commuterIndices=commuterReady?',
  'restingActorOverflowFallbacks++',
  'getRestingActorResidencyAudit,'

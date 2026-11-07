@@ -30,4 +30,53 @@ check('resetWorkingResidents();restingActorKey=', 'reset invalidates old retaine
 check("resetResidentCommuters();resetWorkingResidents();restingActorVisible=false;",'save restore invalidates retained workers');
 check('(workingResidentVisible.length?workingResidentMesh.length:0)','complete frame triangle count');
 assert(!code.includes('Math.random('),'render pose cache never generates authority randomness');
+
+const eligibleSrc=html.slice(startWorker,html.indexOf('function realWorkerPoseKey(',startWorker));
+const keySrc=html.slice(html.indexOf('function realWorkerPoseKey(',startWorker),
+ html.indexOf('function prepareWorkingResidents(',startWorker));
+const make=(enabled=true,following=false)=>
+ new Function('gpuAvailable','isWorkingAtSite','isMarketUnloading',
+  'follow','liveWorkday','selectedCitizen','projectRealCitizenDetail',
+  eligibleSrc+'; return isResidentWorkingCandidate;')(
+  enabled,p=>!!p.trueWork,p=>!!p.unloading,
+  following,false,5,
+  p=>({visible:p.visible!==false,heightFraction:p.screenHeight??.025}));
+const working={name:'Real farmer',job:'farmer',activity:'Harvesting grain',
+ x:18,z:1,phase:.62,workTimer:1.5,energy:72,hunger:18,
+ target:[18,1],path:[],delivery:null,trueWork:true,visible:true,screenHeight:.03};
+const before=JSON.stringify(working);
+assert.equal(make()(working,3,new Set(),{}),true,'actual small working farmer must qualify');
+assert.equal(make(false)(working,3,new Set(),{}),false,'Canvas2D preserves original live worker');
+assert.equal(make()(working,3,new Set([3]),{}),false,'original detail worker always live');
+assert.equal(make()(working,3,new Set(),{}),true,'repeated lens selection deterministic');
+assert.equal(make()({...working,screenHeight:.19},3,new Set(),{}),false,
+ 'foreground harvest hands always live, even when compact');
+assert.equal(make()({...working,trueWork:false},3,new Set(),{}),false,
+ 'no imaginary worker enters retained work group');
+assert.equal(make()({...working,delivery:{id:'actual-escrow'}},3,new Set(),{}),false,
+ 'real loaded courier cargo always live');
+assert.equal(make()({...working,unloading:true},3,new Set(),{}),false,
+ 'original market handoff IK always live');
+assert.equal(make(true,true)(working,5,new Set(),{}),false,
+ 'focused workday citizen cannot have coarse cached hands');
+assert.equal(JSON.stringify(working),before,
+ 'eligibility must never mutate authority');
+const clock={t:22};
+const signature=new Function('state','climateAt',
+ keySrc+';return realWorkerPoseKey;')(
+ clock,t=>({season:Math.floor(t/120)}));
+const key=signature(working,3);
+assert.equal(key,signature(working,3),'same actual source state reuses worker pose');
+assert.notEqual(key,signature({...working,phase:2.12},3),
+ 'true gait phase invalidates worker pose');
+assert.notEqual(key,signature({...working,workTimer:3.7},3),
+ 'real workTimer phase invalidates worker pose');
+assert.notEqual(key,signature({...working,activity:'Constructing cottages'},3),
+ 'real job activity changes invalidate worker pose');
+assert.notEqual(key,signature({...working,x:18.1},3),
+ 'physical movement invalidates worker pose');
+clock.t=240;
+assert.notEqual(key,signature(working,3),
+ 'season changes invalidate original working poses');
+
 console.log('W121 source contract PASS: real work-only bounded GPU meshes, verified fallback, count, restore; browser+hardware evidence separate.');
