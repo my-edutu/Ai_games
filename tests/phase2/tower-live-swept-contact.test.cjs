@@ -40,6 +40,20 @@ test('one full-speed airborne dash stops at the FIRST actual wall, not the first
   assert.equal(out.contacts.find(c=>c.kind==='wall')?.entityId,'f0:z-near');
   assert.equal(out.state.player.grounded,false,'hitting a vertical face is not a landing');
 });
+test('leftward full-speed dash obeys nearest physical wall instead of alphabetical order',()=>{
+  const walls=[
+    {id:'f0:a-far-left',kind:'solid',x:270000,y:145000,width:10000,height:20000},
+    {id:'f0:z-near-left',kind:'solid',x:275000,y:145000,width:10000,height:20000},
+  ];
+  const s=sourceState(walls,{position:{x:300000,y:150000},
+    velocity:{x:-17000,y:0},state:'dashing',dashCooldown:19,facing:-1});
+  const out=stepTowerPhysics(s,{...still,move:-1});
+  assert.equal(out.integrityFailure,undefined);
+  assert.equal(out.state.player.position.x,285000+s.player.halfWidth);
+  assert.equal(out.state.player.velocity.x,0);
+  assert.deepEqual(out.contacts.filter(c=>c.kind==='wall').map(c=>c.entityId),
+    ['f0:z-near-left']);
+});
 test('descending across stacked tops lands on the first upper support independent of IDs',()=>{
   const surfaces=[
     {id:'f0:a-upper',kind:'solid',x:240000,y:195000,width:40000,height:10000},
