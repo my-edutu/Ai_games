@@ -11,11 +11,12 @@ on:
 permissions:
   contents: read
 
-# Only the latest exact-head evidence matters. Superseded hourly captures
-# must not accumulate unbounded queued GPU/browser jobs.
+# W105: an already-running exact-source evidence capture/soak must FINISH
+# even when a later hourly commit arrives. Pending jobs can still be replaced;
+# every artifact remains tied to its precise head SHA.
 concurrency:
   group: tiny-kingdom-soak-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deterministic-soak:
