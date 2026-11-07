@@ -35,6 +35,20 @@ function advance(session) {
       lifecycle: publicSnapshot.lifecycle,
       result: publicSnapshot.result || null,
       checksum: publicSnapshot.publicChecksum,
+      // CI-only source-truth geometry copied from the SAME immutable
+      // public snapshot; no private authority object or gameplay mutation.
+      player:{x:publicSnapshot.player.x,y:publicSnapshot.player.y,
+        halfWidth:publicSnapshot.player.halfWidth,
+        halfHeight:publicSnapshot.player.halfHeight,
+        health:publicSnapshot.player.health},
+      cap:(()=>{
+        const p=publicSnapshot.platforms.find(p=>
+          p.id==='f'+publicSnapshot.floor+':cap');
+        return p?{id:p.id,x:p.x,y:p.y,width:p.width,height:p.height}:null;
+      })(),
+      guardians:publicSnapshot.enemies.filter(e=>e.kind==='guardian')
+        .map(e=>({id:e.id,active:e.active,health:e.health,
+          maxHealth:e.maxHealth})),
       // Captures real rule-emitted crossing before floor spawn erases the
       // position. CI-only immutable event data, no game or clock mutation.
       sourceEvents: events.filter(e=>e.type==='floor-complete'&&

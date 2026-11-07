@@ -9,6 +9,8 @@ const { indexTowerCaptureEvents } = require('../../scripts/tower-event-alignment
 const { FROZEN, sourceStoryCoverage } = require('../../scripts/tower-event-pairing.cjs');
 const { MIN_CAPTURE_MS, captureWindowDecision, nextCaptureObservation } =
   require('../../scripts/tower-capture-window.cjs');
+const { createTowerFixedStepTraceCollector } =
+  require('../../scripts/tower-fixed-step-trace.cjs');
 
 // No intercepted snapshots, replay scrubbing, virtual time, time acceleration or
 // post-processed poses: this visits the live, seeded 20 Hz expedition host.
@@ -412,6 +414,18 @@ for (const viewport of viewports) {
   const recordingStartedAt = Date.now();
   let lastSampleIndex = 0, nextSourceProbeMs = MIN_CAPTURE_MS;
   let sourceSequenceObserved = false, liveStoryCoverage = null;
+  const hostTrace=createTowerFixedStepTraceCollector();
+  let hostTraceAvailable=false;
+  async function captureHostSourceTicks() {
+    const response=await page.request.get('/tower/capture-trace',
+      {timeout:5000}).catch(()=>null);
+    const payload=response?.ok()?await response.json():null;
+    if(Array.isArray(payload?.ticks)){
+      hostTraceAvailable=true;
+      hostTrace.add(payload.ticks);
+    }
+    return payload;
+  }
   while (true) {
     const decision = captureWindowDecision(scenario,
       Date.now() - recordingStartedAt, sourceSequenceObserved);
@@ -429,13 +443,11 @@ for (const viewport of viewports) {
     if (observedMs < MIN_CAPTURE_MS || observedMs < nextSourceProbeMs) continue;
     const passive = await page.evaluate(() =>
       [...(window.__TOWER_CAPTURE_PUBLIC_TICKS__ || [])]);
-    const traceResponse = await page.request.get('/tower/capture-trace',
-      { timeout: 5000 }).catch(() => null);
-    const trace = traceResponse?.ok() ? await traceResponse.json() : null;
+    await captureHostSourceTicks();
     const provisional = indexTowerCaptureEvents(passive, [], {
       sourceSha, scenario, viewport, seed:process.env.TOWER_SEED ||
         'tower-stream-reference', quality:'low',
-      authoritativeTrace:Array.isArray(trace?.ticks) ? trace.ticks : [],
+      authoritativeTrace:hostTrace.snapshot(),
     });
     liveStoryCoverage = sourceStoryCoverage(
       {index:provisional}, scenario, sourceLabel);
@@ -486,12 +498,12 @@ for (const viewport of viewports) {
   // including the frozen baseline's 50ms result. This trace is comparison
   // context and source provenance, NOT proof the image was actually rendered
   // or captured in the unedited normal-speed WebM.
-  const traceResponse = await page.request.get('/tower/capture-trace',
-    { timeout: 5000 }).catch(() => null);
-  const trace = traceResponse?.ok() ? await traceResponse.json() : null;
-  if (trace) fs.writeFileSync(path.join(dir, 'source-trace.json'),
-    JSON.stringify(trace, null, 2));
-  const sourceTicks = Array.isArray(trace?.ticks) ? trace.ticks : [];
+  const trace=await captureHostSourceTicks();
+  const sourceTicks=hostTrace.snapshot();
+  const traceIntegrity=hostTrace.status();
+  if(hostTraceAvailable)fs.writeFileSync(path.join(dir,'source-trace.json'),
+    JSON.stringify({method:trace?.method||'original-host-fixed-step-public',
+      ticks:sourceTicks,collection:traceIntegrity},null,2));
   // Same passive public-state method for BOTH builds: the frozen source host
   // cannot supply the newer candidate-only /tower/capture-trace endpoint.
   // Source event offsets are search handles, NOT calibrated WebM timecodes.
@@ -502,7 +514,8 @@ for (const viewport of viewports) {
       quality:'low', authoritativeTrace:sourceTicks,
     });
   eventIndex.passiveSampleDrops = passiveSourceTicks.dropped;
-  eventIndex.hostFixedStepTraceAvailable = !!trace;
+  eventIndex.hostFixedStepTraceAvailable = hostTraceAvailable;
+  eventIndex.hostFixedStepTraceIntegrity = traceIntegrity;
   const sourceStory = sourceStoryCoverage(
     {index:eventIndex}, scenario, sourceLabel);
   fs.writeFileSync(path.join(dir,'event-index.json'),
@@ -522,7 +535,7 @@ for (const viewport of viewports) {
   const fixedStepMovingPositions = new Set(fixedStepMovingTicks.flatMap(t =>
     t.movingDecks.map(deck => t.runToken + ':' + deck.id + ':' + deck.x + ':' + deck.y)));
   const sourceMovingSummary = {
-    hostFixedStepMovingTraceAvailable: !!trace && fixedStepMovingTicks.length > 1,
+    hostFixedStepMovingTraceAvailable: hostTraceAvailable && fixedStepMovingTicks.length > 1,
     hostFixedStepMovingTicks: fixedStepMovingTicks.length,
     hostFixedStepDistinctMovingPositions: fixedStepMovingPositions.size,
     hostTraceParityCaveat: 'Candidate-only optional host diagnostics; baseline original host is unchanged. Both versions keep identical passive public-state observation for event pairing. Neither source positions nor sample counts establish filmed contact or movement feel.',
@@ -553,7 +566,8 @@ for (const viewport of viewports) {
     note: 'Read-only source/scene samples only. A zero captured chassis or landing-fragment sample is NOT proof that no real touchdown occurred: the authentic 12-tick spring and <650ms physical debris can fall between samples. Evaluate untouched source-pinned WebM at normal speed for real impact, readable motion and deck occlusion; these diagnostics give no supported-device FPS or blind critic score.',
   };
   const sourcePhaseSummary = {
-    available: !!trace, method: trace?.method || null,
+    available: hostTraceAvailable, method: trace?.method || null,
+    collection:traceIntegrity,
     resultTicks: sourceTicks.filter(t => t.lifecycle === 'result').length,
     intermissionTicks: sourceTicks.filter(t => t.lifecycle === 'intermission').length,
     sourceRunTransitions: sourceTicks.reduce((count, item, index) =>

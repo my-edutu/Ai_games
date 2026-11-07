@@ -2,7 +2,19 @@
 // Passive, source-authentic event locator shared by frozen baseline and candidate.
 // These are timeline search handles, NOT certified video frame times or wins.
 function indexTowerCaptureEvents(sourceTicks, browserObservations, options = {}) {
-  const ticks = Array.isArray(sourceTicks) ? sourceTicks : [];
+  const trace=Array.isArray(options.authoritativeTrace)?
+    options.authoritativeTrace:[];
+  // Candidate fixed-step source has dead guardian and cap geometry; asynchronous
+  // baseline/browser polling can miss a short earned event. Never modify
+  // the original frozen source to equalize the supplemental diagnostic.
+  const fixedStepWitness=trace.length>1&&trace.every(s=>s&&
+    Number.isFinite(s.atMs)&&Number.isSafeInteger(s.tick)&&
+    Number.isSafeInteger(s.floor)&&typeof s.runToken==='string'&&
+    s.runToken.length>0&&typeof s.lifecycle==='string'&&
+    Array.isArray(s.guardians)&&Object.hasOwn(s,'player')&&
+    Object.hasOwn(s,'cap'));
+  const ticks=fixedStepWitness?trace:
+    (Array.isArray(sourceTicks)?sourceTicks:[]);
   const observations = Array.isArray(browserObservations) ? browserObservations : [];
   const videoAnchor = observations.find(s => Number.isFinite(s?.atMs))?.atMs ?? null;
   const events = [], counts = Object.create(null), lastMotion = new Map();
@@ -206,7 +218,11 @@ function indexTowerCaptureEvents(sourceTicks, browserObservations, options = {})
     schemaVersion: 1, sourceSha: options.sourceSha || null,
     scenario: options.scenario || null, viewport: options.viewport || null,
     seed: options.seed || null, recordingQuality: options.quality || null,
-    source: 'read-only 50ms browser witness of immutable public game state; identical baseline/candidate capture observer',
+    source:fixedStepWitness?
+      'candidate original-host fixed-step public source; frozen baseline uses passive browser observer':
+      'read-only 50ms browser witness of immutable public game state; identical baseline/candidate capture observer',
+    sourceWitnessMode:fixedStepWitness?'original-host-fixed-step':'passive-browser-poll',
+    hostSourceTicksUsed:fixedStepWitness?trace.length:0,
     fixedStepTraceCompleteness: 'NOT GUARANTEED: async browser samples may skip source ticks',
     videoClockCalibration: 'NOT EVALUATED: event offsets are relative to first browser observation, not certified WebM timecodes',
     baselineCandidateEventMatched: false, verdict: 'NOT EVALUATED',

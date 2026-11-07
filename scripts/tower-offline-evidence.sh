@@ -54,6 +54,8 @@ HARNESS_FILES=(
   scripts/tower-event-alignment.cjs
   scripts/tower-event-pairing.cjs
   scripts/tower-capture-window.cjs
+  scripts/tower-fixed-step-trace.cjs
+  tests/phase3/tower-fixed-step-trace.test.cjs
   tests/phase3/tower-event-alignment.test.cjs
   tests/phase3/tower-capture-window.test.cjs
   scripts/tower-source-capture-server.cjs
@@ -76,7 +78,7 @@ for source in baseline candidate; do
   printf '%s\n' "$SHA" > "$OUTPUT/$source-source-sha.txt"
   printf '%s\n' "$ORIGIN_HOST" > "$OUTPUT/$source-original-host-blob.txt"
   echo "Installing/building the unmodified $source gameplay at $SHA"
-  INTEGRITY_TESTS=(tests/phase3/tower-motion-evidence.test.cjs tests/phase3/tower-event-alignment.test.cjs tests/phase3/tower-capture-window.test.cjs)
+  INTEGRITY_TESTS=(tests/phase3/tower-motion-evidence.test.cjs tests/phase3/tower-event-alignment.test.cjs tests/phase3/tower-capture-window.test.cjs tests/phase3/tower-fixed-step-trace.test.cjs)
   if [[ "$source" == candidate ]]; then INTEGRITY_TESTS+=(tests/phase3/tower-campaign-audit.test.cjs); fi
   (cd "$DIR" && npm ci --no-audit --no-fund && npm run build &&
     node --test "${INTEGRITY_TESTS[@]}") \

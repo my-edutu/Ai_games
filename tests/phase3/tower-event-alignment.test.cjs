@@ -132,3 +132,29 @@ test('candidate source crossing is indexed without inventing visible video proof
    ]})]});
  assert.equal(b.eventCounts['guardian-source-physical-threshold']||0,0);
 });
+
+test('source-authentic guardian/cap chain survives sparse browser polling',()=>{
+ const cap={id:'f8:cap',x:100000,y:700000,width:400000,height:16000};
+ const player=x=>({x,y:734000,halfWidth:12000,halfHeight:18000,health:5});
+ const trace=[
+  source(1,{player:player(380000),cap}),
+  source(2,{player:player(380000),cap,guardians:[{id:'f8:guardian',active:true,health:6}]}),
+  source(3,{player:player(380000),cap,guardians:[{id:'f8:guardian',active:false,health:0}]}),
+  source(4,{player:player(400000),cap,guardians:[{id:'f8:guardian',active:false,health:0}]}),
+  source(5,{player:player(413000),cap,guardians:[{id:'f8:guardian',active:false,health:0}]}),
+  source(6,{floor:9,player:player(0),cap:null,guardians:[],sourceEvents:[{
+   type:'floor-complete',floor:9,guardianPassage:{
+    fromFloor:8,capId:'f8:cap',groundedPlatformId:'f8:cap',
+    guardianId:'f8:guardian',exitX:404000,clearanceX:420000,crossingX:421000}}]})
+ ];
+ const sparse=[trace[0],trace[5]];
+ const before=indexTowerCaptureEvents(sparse,[],{authoritativeTrace:[]});
+ assert.equal(before.events.some(e=>e.kind==='guardian-source-defeated'),false);
+ const after=indexTowerCaptureEvents(sparse,[],{authoritativeTrace:trace});
+ for(const kind of ['guardian-hp-decrease','guardian-source-defeated',
+   'source-supported-gate-approach','guardian-earned-floor-nine-handoff',
+   'guardian-source-physical-threshold'])
+    assert.ok(after.events.some(e=>e.kind===kind),kind);
+ assert.equal(after.sourceWitnessMode,'original-host-fixed-step');
+ assert.equal(after.verdict,'NOT EVALUATED');
+});
