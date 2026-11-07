@@ -19,39 +19,39 @@
   },
   "currentTransformation": {
     "latestEvidenceRun": {
-      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN (physical landing-lane action framing)",
+      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN (authentic dash impulse → airborne journey)",
       "assessedAt": "2026-11-07",
-      "sourceBaseSha": "293435de1c1d5a24e2f894ea78afaa684aa6b61a",
-      "implementationSha": "a06fb2d2f2afaed49d657c2b25be7250a4515017",
-      "sourceHeadAtInspection": "db6208980e8bd2c9d01244c6f0f7374ddf17af3d",
-      "sourceChange": "Real Tower 3D composeFollowView now fits wide airborne destination camera to the source-declared/observed landing-braking lane rather than the entire panoramic cap, ONLY for currently running healthy airborne climber, exact target ID, known air-control/brake summary, >=140k source-width deck and in-deck source landing. Camera-only source presentation; existing full-deck unknown/short/grounded views, guardian duel and all physics/AI/hazards/replay unchanged. No certified experiential gain.",
-      "evidenceDefect": "Historical 2026-11-05 source 8fd9018f portrait danger film (NOT this source HEAD) presented a tiny climber in a huge machinery panorama without independently legible full guardian/crusher-to-grounded threshold. Source inspection finds wide-deck perspective hard-fit spans full target edges despite already-observed air-control lane. This run addresses the camera composition root, not a demonstrated current-source footage defect.",
-      "focusedTests": "8 source-shaped standalone Node22 helper invariants passed locally; new five-case original-repo node:test fixture committed but NOT executed because the remote terminal tunnel is offline. Full build, integration, 3200-tick campaigns, current-source videos and native hardware NOT EXECUTED. Narrowed 280k example cap hard-fit to 92k (numerical camera bounds only, not pixels or quality).",
+      "sourceBaseSha": "6ddf3c0a22c7fa9b97d8fb7fb3fe2b41137f6534",
+      "implementationSha": "cf327403bb56cd4168195f6cd021599ed98e0d80",
+      "sourceHeadAtInspection": "e08db64319012c86f3001742e6590c7daa0cedc3",
+      "sourceChange": "A true source 20Hz dash impulse no longer holds the skinned climber in 'dashing' for the entire airborne jump. Live opt-in guardian/second-wind gameplay keeps three true fixed-step burst frames (150ms) then publishes 'airborne' so the existing actual 3D climbing/apex/landing brace, shared air kinetics and physically observed wide-landing camera can follow the real velocity. No changed position, velocity, platform collision, stamina, AI, new asset, synthetic win, renderer clock or baseline/unflagged replay.",
+      "evidenceDefect": "Source-proven real dash-to-airborne state contract bug: while ungrounded after dash, authoritative player.state stayed 'dashing' all the way to touchdown; scene, rig, landing-shot-span and traversal kinetics require 'airborne'. Historical portrait danger video (NOT this source) had an undersized hero in clockwork panoramas and incomplete guardian/gate continuity.",
+      "focusedTests": "New three-case original-runtime phase2 Tower test at ac5c3a35 authored red-first but NOT run in real repo; CJS JavaScript parser SUCCESS and source opt-in/no-velocity-edit static inspection succeeded. Remote development tunnel NOT_FOUND for >300 seconds. Original TypeScript build, full Node suite, original gameplay campaigns and WebGL browser tests NOT EXECUTED.",
       "captureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42330014076",
-      "captureStatus": "HISTORICAL PRIOR-COMMIT run 42330014076 at 7f41fb still 9 QUEUED jobs, zero artifacts on 2026-11-07 inspection; NOT new implementation a06fb. New current-source capture run/artifacts NOT VERIFIED.",
+      "captureStatus": "OLDER NON-MATCHING source candidate SHA 7f41fb84, all 9 jobs QUEUED and ZERO artifacts at 2026-11-07 inspection; current implementation SHA cf327403 current-source capture run/artifacts NOT VERIFIED.",
       "qualityRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42330170579",
-      "qualityStatus": "Prior-commit 42330170579 QUEUED; exact implementation and evidence HEAD original repo CI unexecuted/unverified.",
-      "sourceVerifiedFilm": "NOT EVALUATED — no current a06fb baseline/candidate matched 60s normal-speed 960x600 and 390x844 films",
-      "mostImportantFootageDefect": "HISTORICAL only: portrait giant cap/rotor panorama shrinks actual climber during floor-eight danger and does not visibly establish full same-episode guardian/crusher defeat -> opened gate -> grounded cap crossing; cannot infer current camera correction.",
-      "real3200StepCampaigns": "NOT EVALUATED — no original fixed-step campaign on current implementation (remote terminal unavailable, Actions queued)",
-      "actualDevicePerformance": "NOT EVALUATED — no actual supported device p50/p95/p99 or memory",
+      "qualityStatus": "PREVIOUS SHA quality status was queued; no exact SHA cf327403 full source build/test result verified.",
+      "sourceVerifiedFilm": "NOT EVALUATED — no immutable current cf327403 full-motion desktop 960x600 and portrait 390x844 60s matched baseline/candidate video.",
+      "mostImportantFootageDefect": "HISTORICAL only: floor-eight and onward footage hops among independent episodes and the actual climber is tiny relative to the cap/machinery; continuous same-run guardian+crusher victory/open physically walked gateway/floor9/result/restart is not visibly established. New source must be filmed before judging whether state handoff fixes actor/camera continuity.",
+      "real3200StepCampaigns": "NOT EVALUATED — actual dual unmodified source 3200-step guardian/crusher campaigns unexecuted; offline development worker.",
+      "actualDevicePerformance": "NOT EVALUATED — supported actual device frame-time p50/p95/p99, memory, portrait controls and stability absent.",
       "independentBlindReviews": {
         "looks": 0,
         "feels": 0,
         "plays": 0
       },
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "nextHighImpactAction": "Execute actual 3200-step dual source campaigns and immutable full-motion baseline vs candidate 960x600/390x844 real browser capture. Inspect real same-episode guardian+crusher through grounded threshold/floor9/restart; visually inspect full moving-deck/air-control arrival after physical landing shot versus original panorama and fix any lost hazard/landing/camera continuity. Get real devices and five independent randomized anonymous critics for each pillar. Keep P0 OPEN.",
-      "safety": "Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 preserved; PR58 untouched, PR68 stays draft/open; no force push/merge/deployment.",
-      "implementationReviewUrl": "https://github.com/my-edutu/Ai_games/blob/db6208980e8bd2c9d01244c6f0f7374ddf17af3d/docs/reviews/2026-11-07-tower-pr68-earned-airborne-landing-camera-continuation.md",
-      "focusedTestSourceUrl": "https://github.com/my-edutu/Ai_games/blob/a06fb2d2f2afaed49d657c2b25be7250a4515017/tests/phase3/tower-observed-landing-shot-span.test.cjs"
+      "nextHighImpactAction": "On an immutable working Node22/Chromium worker run the committed real dash regression, existing replay/physics suites and two unchanged original 3200-step guardian/crusher campaigns. Record matched 60+ second normal-speed 960x600 and 390x844 frozen baseline vs exact candidate; inspect airborne transition and moving-deck camera continuity as well as SAME RUN guardian/crusher -> physically opened walk-through -> floor nine -> outcome/restart. Fix largest demonstrated issue and retain P0 until then. Recruit truly independent randomized critics and measure real supported devices.",
+      "safety": "Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 preserved; PR58 HEAD 5343c491 not edited; PR68 remains open/draft; no merge/deploy/force push.",
+      "implementationReviewUrl": "https://github.com/my-edutu/Ai_games/blob/e08db64319012c86f3001742e6590c7daa0cedc3/docs/reviews/2026-11-07-tower-pr68-real-airborne-dash-state-handoff.md",
+      "focusedTestSourceUrl": "https://github.com/my-edutu/Ai_games/blob/ac5c3a35275bf0c236dd7bc16877e2d663426659/tests/phase2/tower-airborne-dash-handoff.test.cjs"
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
-    "state": "P0 OPEN — source-declared wide-platform physical arrival camera improvement authored; no verified current-source full-loop gameplay/video",
+    "state": "P0 OPEN — corrected stale live dash-flight source state; complete source gameplay and visual motion remain NOT EVALUATED",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "First run exact-source uncut desktop/portrait films and the unaltered dual guardian/crusher campaigns; reject any smaller hero/hidden hazard/wrong gateway and fix the largest demonstrated defect. Do not advance by commits or CI alone.",
+    "nextDecision": "Do not leave P0: film exact physical dash→apex→landing and full guardian/crusher→walkable gateway→floor nine→outcome/restart from fixed SHAs, assess actual motion and user experience, then correct largest evidenced defect.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "P0 has no current-source same-episode guardian+crusher → earned grounded doorway → floor-nine onward → game outcome/restart film. Historical phone footage shows small hero/unclear gate; new landing framing is source-authored but still NOT EVALUATED.",
+    "biggestRemainingExperienceGap": "No current-source full-motion proving dash-to-real-flight camera/animation and unbroken guardian/crusher defeat, earned physical gateway crossing, floor-nine continuation and restarted outcome; historical phone hero was small.",
     "unverifiedImplementationBranchHead": "74bbe242228120de04f5ec1b1a867dc48b3600f1",
     "currentVerticalSlice": "Complete guardian-to-floor-nine chain: real hit → five-tick readable recoil → physical cap locomotion and grounded gateway follow → earned full-body crossing. Implemented, not yet quality-verified.",
     "biggestGap": "Original current-source browser film + full physical game-loop and independent visual inspection remain unavailable; historical portrait hero too small and crossing not legible",
@@ -133,7 +133,7 @@
         "https://github.com/my-edutu/Ai_games/actions/runs/42189740735"
       ]
     },
-    "roadmapStage": "P0 — OPEN (source-story evidence unresolved)",
+    "roadmapStage": "P0 — OPEN (real dash-to-flight source state authored; matched full-motion evidence blocked)",
     "earnedCapReacquisition20261106": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "sourceHeadWhenInspected": "6029bc6c3416c93a79f61296e4b19d602330183d",
@@ -511,6 +511,34 @@
       "leadingTransformationVerdict": "NOT EVALUATED",
       "nextHighImpactAction": "Obtain an actual exact-SHA Node22/Chromium worker; run untouched dual 3200-step guardian campaigns and nine-job matched 60s+ desktop/portrait source films. Check full same-episode guardian/crusher to grounded door, floor-nine onward, result/restart at normal speed, then rebuild the biggest visually observed gameplay/hero-scale defect; independently measure device p50/p95/p99/memory and obtain 5 fresh blind critics each pillar.",
       "safety": "Frozen baseline unchanged, PR58 not edited, PR68 stays open draft, no merge, deploy or force push."
+    },
+    "priorEvidenceRunBeforeDashFlightTruth20261107": {
+      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN (physical landing-lane action framing)",
+      "assessedAt": "2026-11-07",
+      "sourceBaseSha": "293435de1c1d5a24e2f894ea78afaa684aa6b61a",
+      "implementationSha": "a06fb2d2f2afaed49d657c2b25be7250a4515017",
+      "sourceHeadAtInspection": "db6208980e8bd2c9d01244c6f0f7374ddf17af3d",
+      "sourceChange": "Real Tower 3D composeFollowView now fits wide airborne destination camera to the source-declared/observed landing-braking lane rather than the entire panoramic cap, ONLY for currently running healthy airborne climber, exact target ID, known air-control/brake summary, >=140k source-width deck and in-deck source landing. Camera-only source presentation; existing full-deck unknown/short/grounded views, guardian duel and all physics/AI/hazards/replay unchanged. No certified experiential gain.",
+      "evidenceDefect": "Historical 2026-11-05 source 8fd9018f portrait danger film (NOT this source HEAD) presented a tiny climber in a huge machinery panorama without independently legible full guardian/crusher-to-grounded threshold. Source inspection finds wide-deck perspective hard-fit spans full target edges despite already-observed air-control lane. This run addresses the camera composition root, not a demonstrated current-source footage defect.",
+      "focusedTests": "8 source-shaped standalone Node22 helper invariants passed locally; new five-case original-repo node:test fixture committed but NOT executed because the remote terminal tunnel is offline. Full build, integration, 3200-tick campaigns, current-source videos and native hardware NOT EXECUTED. Narrowed 280k example cap hard-fit to 92k (numerical camera bounds only, not pixels or quality).",
+      "captureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42330014076",
+      "captureStatus": "HISTORICAL PRIOR-COMMIT run 42330014076 at 7f41fb still 9 QUEUED jobs, zero artifacts on 2026-11-07 inspection; NOT new implementation a06fb. New current-source capture run/artifacts NOT VERIFIED.",
+      "qualityRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42330170579",
+      "qualityStatus": "Prior-commit 42330170579 QUEUED; exact implementation and evidence HEAD original repo CI unexecuted/unverified.",
+      "sourceVerifiedFilm": "NOT EVALUATED — no current a06fb baseline/candidate matched 60s normal-speed 960x600 and 390x844 films",
+      "mostImportantFootageDefect": "HISTORICAL only: portrait giant cap/rotor panorama shrinks actual climber during floor-eight danger and does not visibly establish full same-episode guardian/crusher defeat -> opened gate -> grounded cap crossing; cannot infer current camera correction.",
+      "real3200StepCampaigns": "NOT EVALUATED — no original fixed-step campaign on current implementation (remote terminal unavailable, Actions queued)",
+      "actualDevicePerformance": "NOT EVALUATED — no actual supported device p50/p95/p99 or memory",
+      "independentBlindReviews": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "leadingTransformationVerdict": "NOT EVALUATED",
+      "nextHighImpactAction": "Execute actual 3200-step dual source campaigns and immutable full-motion baseline vs candidate 960x600/390x844 real browser capture. Inspect real same-episode guardian+crusher through grounded threshold/floor9/restart; visually inspect full moving-deck/air-control arrival after physical landing shot versus original panorama and fix any lost hazard/landing/camera continuity. Get real devices and five independent randomized anonymous critics for each pillar. Keep P0 OPEN.",
+      "safety": "Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 preserved; PR58 untouched, PR68 stays draft/open; no force push/merge/deployment.",
+      "implementationReviewUrl": "https://github.com/my-edutu/Ai_games/blob/db6208980e8bd2c9d01244c6f0f7374ddf17af3d/docs/reviews/2026-11-07-tower-pr68-earned-airborne-landing-camera-continuation.md",
+      "focusedTestSourceUrl": "https://github.com/my-edutu/Ai_games/blob/a06fb2d2f2afaed49d657c2b25be7250a4515017/tests/phase3/tower-observed-landing-shot-span.test.cjs"
     }
   },
   "scenarios": [
@@ -551,11 +579,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "NOT EVALUATED — original-runtime earned-cap regressions committed at e95e273b; exact-head workflow 42254400689 queued; npm build/tests unexecuted.",
-    "replay": "NOT EVALUATED — frozen historical-v1 logic untouched in source; new fixed-step deterministic source campaign/replay not executed.",
+    "ci": "NOT EVALUATED — real-runtime regression newly committed at ac5c3a35 and physics at cf327403; Node/TS build/CI unexecuted in disconnected worker; old nine-job workflow queued.",
+    "replay": "NOT EVALUATED — source opt-in guard keeps frozen unflagged dash transitions untouched; actual full original replay and dual 3200-tick campaigns still unexecuted.",
     "accessibility": "NOT EVALUATED — earned gateway camera requires actual source cap grounded contact; historical/y-only guesses cannot authorize shot. Reduced-motion, mobile screen reader and physical controls need real browser testing.",
-    "performance": "New CPU-only bounded observed return-lane/one-way checks; no new 3D draw or shader passes. Actual device p50/p95/p99, memory and live frame pacing NOT EVALUATED.",
-    "stability": "NOT EVALUATED — exact-source capture 42254240903 queued with zero new inspected original WebM footage, runner root cause unconfirmed."
+    "performance": "NOT EVALUATED — source-state-only change adds zero new meshes, texture, lights, draw calls or extra physics steps; no measured supported hardware p50/p95/p99 or memory.",
+    "stability": "NOT EVALUATED — older capture #42330014076 nine jobs queued/zero artifacts and current exact-source real WebM unverified; worker tunnel disconnected."
   },
   "unresolvedCriticalIssues": 3,
   "benchmark": {
@@ -4356,7 +4384,7 @@
       "nextAction": "Run npm run build and node --test tests/phase3/tower-earned-cap-reacquisition.test.cjs on exact HEAD; run two original 3200-tick campaigns and inspect firstMissing in source audit; obtain normal-speed source-pinned 960x600 and 390x844 footage of post-victory recovery, guardian/crusher -> true gate -> floor-nine deck -> outcome/restart. Fix largest actual filmed defect before P1."
     }
   },
-  "roadmapStage": "P0 OPEN — exact-source continuous-Y guardian seal authored at 54b4606f; original runtime, matched motion/video and independent acceptance NOT EVALUATED",
+  "roadmapStage": "P0 OPEN — real opt-in source dash now releases to airborne after three fixed steps at cf327403; full-game campaigns/video, exact-source CI, devices and independent acceptance NOT EVALUATED",
   "latestP0GatewayVisibility20261106": {
     "stage": "P0 OPEN",
     "verdict": "NOT EVALUATED",
