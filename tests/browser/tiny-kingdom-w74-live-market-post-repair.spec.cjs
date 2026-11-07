@@ -41,7 +41,9 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
     noClearShot:g.evaluateCourierPostRepairPolicy(.18,.16,.20),
     alreadyClear:g.evaluateCourierPostRepairPolicy(.02,.01,.04)
    };
-   return {audit,policy,snapshot:JSON.stringify(original),
+   return {audit,policy,realMarketPosts:g.getMarketGatewayAudit().structuralPosts+
+    g.getTradeCorridorCameraAudit().marketPosts,
+    snapshot:JSON.stringify(original),
     triangles:g.renderStats().lastFrameTriangles,
     citizenCount:g.metrics().citizens,
     errors:g.getGeometryAudit(),overflow:document.documentElement.scrollWidth-innerWidth,
@@ -50,10 +52,9 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(camera.audit.source).toBe('real-courier-market-post-repair');
   expect(camera.audit.readOnly).toBe(true);
   expect(camera.audit.actor).toBeTruthy();
-  // W79's ACTUAL rebuilt gateway adds two real oak uprights to the prior
-  // 16 original market posts. The camera must track all 18, not ignore the
-  // same two foreground columns that hid the courier in W68's moving film.
-  expect(camera.audit.marketPhysicalPosts).toBe(18);
+  // Original stalls, rebuilt gateway AND real receiving-hall pillars are all
+  // camera-physical. Compare against the actual scene rather than stale 18.
+  expect(camera.audit.marketPhysicalPosts).toBe(camera.realMarketPosts);
   expect(Number.isFinite(camera.audit.presentPostCover)).toBe(true);
   expect(camera.audit.presentPostCover).toBeGreaterThanOrEqual(0);
   expect(camera.audit.presentPostCover).toBeLessThanOrEqual(1);
