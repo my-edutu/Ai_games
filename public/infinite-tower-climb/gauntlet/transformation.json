@@ -21,21 +21,22 @@
     "latestEvidenceRun": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "assessedAt": "2026-11-07",
-      "sourceHeadAtInspection": "fbc02150e6c9709224886f663657197f1f85b644",
-      "implementationSha": "6fdaefde025cdc79cf02d4506fb1c6a67b982bb1",
-      "correctedSourceSha": "6febe63532c7c7f58bc16d42468b1aa795dcf09f",
-      "reviewCommitSha": "fcdabcfeb821ffb814960dded66ba2e171ed6fc3",
+      "sourceHeadAtInspection": "5f5a2eb5b64e94b2f09a35652249a17b87a8f2f7",
+      "implementationSha": "3177a74f813f6549f528ccead60a5b975adac0c7",
+      "testCommitSha": "3318688d3fd4e0ec4b505ff16a6414a3c03f4ae5",
+      "reviewCommitSha": "2438fa7404d7e9c9837f47c8d63f41afea4a9876",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-      "sourceDefect": "On ordinary one-way and moving decks, end-of-tick horizontal overlap could award a phantom landing even if a 17k diagonal dash entered the support lane only AFTER falling through the roof. A dash off a short edge could remain grounded. Source-geometry diagnosis, NOT current-source footage.",
-      "implemented": "Opt-in true 20-Hz vertical-plane collision tests actual platform tick/tick+1 poses and body coordinates at same crossing time; landing requires support then AND at tick end. Resolve earliest vertical land/head. Historical unflagged solver intact. Seven original-runtime test fixtures authored; all seven NOT EXECUTED.",
-      "focusedChecks": "10/10 static source wiring assertions against exact GitHub-fetched committed files; 9/9 independent fixed-step mathematical probes equivalent to helper arithmetic. NOT original runtime, TS build or actual continuous gameplay.",
-      "originalRuntime": "NOT EVALUATED — development tunnel disconnected; container github.com DNS failed.",
-      "twoOriginal3200TickCampaigns": "NOT EVALUATED — no runnable original checkout or functioning GitHub Actions runner.",
-      "olderCaptureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42360524651",
-      "olderCaptureStatus": "9/9 QUEUED, zero artifacts when checked; predates new source.",
-      "currentSourceWorkflow": "No commit-associated workflow runs returned for 6febe635 at inspection.",
+      "sourceDefect": "On the actual 2500 source-unit/tick horizontal moving-deck route, player was displaced on the takeoff tick but failed to inherit deck velocity after a genuine jump, creating a sudden midair stall. Source code finding, NOT a validated latest-build video.",
+      "implemented": "Coherent opt-in 20Hz gameplay substitutes real horizontal platform displacement into grounded jump velocity rather than also carrying player X, avoiding doubled takeoff translation; ordinary idle platform ride and frozen legacy physics unchanged.",
+      "focusedChecks": "13/13 isolated Node22 reproduction assertions plus CJS syntax check, NOT original game runtime or build.",
+      "originalRuntime": "NOT EVALUATED — five committed original runtime fixtures, npm build and phase2 suite cannot run with disconnected development tunnel and container github DNS failure.",
+      "twoOriginal3200TickCampaigns": "NOT EVALUATED",
+      "sourcePinnedCaptureWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42368724802",
+      "sourcePinnedCaptureState": "QUEUED at inspection; no new WebM, original-source event sidecars or artifacts verified.",
+      "exactHeadQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42368724834",
+      "exactHeadQualityState": "QUEUED at inspection",
+      "mostImportantKnownFootageDefect": "Historical 390x844 clip shows tiny/inconsistent climber scale and no clear continuous guardian and crusher victory to physical gateway crossing, floor-nine onward and real restart. NOT reverified at this SHA.",
       "sourceVerifiedFullMotionFilm": "NOT EVALUATED",
-      "mostImportantKnownFootageDefect": "Historical unrelated portrait film shows undersized actor and no clearly authenticated single uninterrupted boss/shutter win, door crossing, floor-nine progression and restart.",
       "actualDeviceP50P95P99AndMemory": "NOT EVALUATED",
       "independentBlindReviews": {
         "looks": 0,
@@ -43,20 +44,20 @@
         "plays": 0
       },
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "biggestExperienceGap": "No current-source unbroken guardian/crusher defeat → real cap walk/gateway crossing → floor nine onward → outcome/restart footage or original 3,200-tick game campaigns. Old portrait film has small/inconsistently framed actor, not evidence of this new landing solver.",
-      "nextHighImpactAction": "Reconnect original Node22+Chromium workspace or functioning GitHub runner; run npm run test:tower:phase2 including seven new swept-vertical and prior swept-wall regressions, both unchanged 3,200-tick campaigns, and >=60s matched 960x600 + 390x844 source-SHA-pinned normal-speed baseline/candidate footage with authentic aligned events. Inspect moving-deck landing, camera and guardian/cap cycle; fix largest evidenced gameplay defect before P1.",
-      "reviewUrl": "https://github.com/my-edutu/Ai_games/blob/feat/tower-transformation-gauntlet-20261101/docs/reviews/2026-11-07-tower-pr68-true-moving-deck-touchdown.md",
-      "safety": "PR68 open/draft, PR58 untouched, frozen baseline unchanged, no merge/deploy/force-push."
+      "biggestExperienceGap": "No exact-current-source continuous guardian/crusher victory, grounded physical gateway crossing, floor-nine onward, outcome/restart, or aligned desktop/portrait video; historical portrait actor was undersized. New moving-platform launch needs original runtime and film to rule out overshoot.",
+      "nextHighImpactAction": "Restore executable Node22+Chromium GitHub runner or local original checkout; first run npm run test:tower:phase2 including 5 new moving-deck launch tests and prior swept wall/vertical cases, then both unchanged 3,200-tick causal campaigns and >=60s matched SHA-pinned desktop 960x600 + portrait 390x844 normal-speed baseline/candidate film. Align guardian/crusher/cap/floor-nine/outcome/restart source events, watch moving takeoff/mid-air momentum and landing overshoot; fix biggest evidenced P0 defect.",
+      "reviewUrl": "https://github.com/my-edutu/Ai_games/blob/feat/tower-transformation-gauntlet-20261101/docs/reviews/2026-11-07-tower-pr68-moving-platform-takeoff-inertia.md",
+      "safety": "PR68 open/draft, PR58 untouched, immutable baseline unchanged, no merge/deploy/force-push."
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
-    "state": "P0 OPEN — real moving-deck touchdown source corrected, original gameplay and film remain unverified",
+    "state": "P0 OPEN — source-moving-platform takeoff continuous, original source runtime and full-motion experience unverified",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Reconnect original Node22+Chromium workspace or functioning GitHub runner; run npm run test:tower:phase2 including seven new swept-vertical and prior swept-wall regressions, both unchanged 3,200-tick campaigns, and >=60s matched 960x600 + 390x844 source-SHA-pinned normal-speed baseline/candidate footage with authentic aligned events. Inspect moving-deck landing, camera and guardian/cap cycle; fix largest evidenced gameplay defect before P1.",
+    "nextDecision": "Restore executable Node22+Chromium GitHub runner or local original checkout; first run npm run test:tower:phase2 including 5 new moving-deck launch tests and prior swept wall/vertical cases, then both unchanged 3,200-tick causal campaigns and >=60s matched SHA-pinned desktop 960x600 + portrait 390x844 normal-speed baseline/candidate film. Align guardian/crusher/cap/floor-nine/outcome/restart source events, watch moving takeoff/mid-air momentum and landing overshoot; fix biggest evidenced P0 defect.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "No current-source unbroken guardian/crusher defeat → real cap walk/gateway crossing → floor nine onward → outcome/restart footage or original 3,200-tick game campaigns. Old portrait film has small/inconsistently framed actor, not evidence of this new landing solver.",
-    "unverifiedImplementationBranchHead": "6febe63532c7c7f58bc16d42468b1aa795dcf09f",
+    "biggestRemainingExperienceGap": "No exact-current-source continuous guardian/crusher victory, grounded physical gateway crossing, floor-nine onward, outcome/restart, or aligned desktop/portrait video; historical portrait actor was undersized. New moving-platform launch needs original runtime and film to rule out overshoot.",
+    "unverifiedImplementationBranchHead": "3177a74f813f6549f528ccead60a5b975adac0c7",
     "currentVerticalSlice": "Authoritative moving/one-way deck touch → reliable ascent → guardian/crusher win → earned grounded gateway and floor-nine progression → outcome/restart. This source landing increment has NOT passed experience acceptance.",
-    "biggestGap": "No current-source unbroken guardian/crusher defeat → real cap walk/gateway crossing → floor nine onward → outcome/restart footage or original 3,200-tick game campaigns. Old portrait film has small/inconsistently framed actor, not evidence of this new landing solver.",
+    "biggestGap": "No exact-current-source continuous guardian/crusher victory, grounded physical gateway crossing, floor-nine onward, outcome/restart, or aligned desktop/portrait video; historical portrait actor was undersized. New moving-platform launch needs original runtime and film to rule out overshoot.",
     "p0SourceContract": {
       "sourceSha": "503fbc4ad41fad84c9003710b80361d6706cabda",
       "testsSha": "fb67205f356025b0d931eeffbfa66e6ea02cfd85",
@@ -135,7 +136,7 @@
         "https://github.com/my-edutu/Ai_games/actions/runs/42189740735"
       ]
     },
-    "roadmapStage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN (diagonal moving-wall source collision; genuine playthrough unproven)",
+    "roadmapStage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN (moving-platform launch inertia; full authentic game unproven)",
     "earnedCapReacquisition20261106": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "sourceHeadWhenInspected": "6029bc6c3416c93a79f61296e4b19d602330183d",
@@ -652,7 +653,25 @@
         "implementationReviewUrl": "https://github.com/my-edutu/Ai_games/blob/feat/tower-transformation-gauntlet-20261101/docs/reviews/2026-11-07-tower-pr68-diagonal-moving-wall-contact.md",
         "safety": "Frozen baseline untouched; feature-flagged source physics only in PR68, PR58 untouched, draft open, no merge/deploy/force-push."
       }
-    ]
+    ],
+    "p0MovingLaunchInertia20261107": {
+      "stage": "P0 OPEN",
+      "sourceCommitSha": "3177a74f813f6549f528ccead60a5b975adac0c7",
+      "testCommitSha": "3318688d3fd4e0ec4b505ff16a6414a3c03f4ae5",
+      "reviewCommitSha": "2438fa7404d7e9c9837f47c8d63f41afea4a9876",
+      "verifiedSourceDefect": "On the actual 2500 source-unit/tick horizontal moving-deck route, player was displaced on the takeoff tick but failed to inherit deck velocity after a genuine jump, creating a sudden midair stall. Source code finding, NOT a validated latest-build video.",
+      "playableChange": "Coherent opt-in 20Hz gameplay substitutes real horizontal platform displacement into grounded jump velocity rather than also carrying player X, avoiding doubled takeoff translation; ordinary idle platform ride and frozen legacy physics unchanged.",
+      "isolatedLocalChecks": "13/13 isolated Node22 reproduction assertions plus CJS syntax check, NOT original game runtime or build.",
+      "originalRuntime": "NOT EVALUATED — five committed original runtime fixtures, npm build and phase2 suite cannot run with disconnected development tunnel and container github DNS failure.",
+      "fullLoopCapture": "NOT EVALUATED",
+      "blindIndependentReviews": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "actualDeviceFrameTimeAndMemory": "NOT EVALUATED",
+      "nextHighImpactAction": "Restore executable Node22+Chromium GitHub runner or local original checkout; first run npm run test:tower:phase2 including 5 new moving-deck launch tests and prior swept wall/vertical cases, then both unchanged 3,200-tick causal campaigns and >=60s matched SHA-pinned desktop 960x600 + portrait 390x844 normal-speed baseline/candidate film. Align guardian/crusher/cap/floor-nine/outcome/restart source events, watch moving takeoff/mid-air momentum and landing overshoot; fix biggest evidenced P0 defect."
+    }
   },
   "scenarios": [
     {
