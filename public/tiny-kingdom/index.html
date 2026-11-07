@@ -903,6 +903,74 @@ let qualityOverride=null,framesDrawn=0,framesSkipped=0,frameGateTime=0;
 const SOFTWARE_SCALE_MIN=.45,SOFTWARE_SCALE_MAX=.65;
 let softwareAutoScale=.65,softwareScaleDownshifts=0,
  softwareScaleUpshifts=0,softwareSubmissionSamples=[],softwareLastP75=0;
+
+// W109 Phase 1: adapt real hardware raster load from asynchronous GPU timing,
+// never from software FPS or a mixed CPU wall-frame proxy. The actual society,
+// authoritative ticks, buildings, all people, jobs and triangle geometry remain.
+// HUD and touch targets stay DOM-native at their original display resolution.
+const HARDWARE_GPU_WINDOW=24,HARDWARE_SCALE_DESKTOP_MIN=.82,
+ HARDWARE_SCALE_PHONE_MIN=.84;
+let hardwareAutoScale=1,hardwareGpuScene=null,hardwareGpuSamples=[],
+ hardwareDownshifts=0,hardwareUpshifts=0,hardwareSceneResets=0,
+ hardwareLastP75=null,hardwareLastDecision='not-measured';
+function planHardwareRenderScale(samples,scale,mobile){
+ if(!Array.isArray(samples)||!Number.isFinite(scale)||scale<.35||scale>1.5)
+  throw Error('Invalid hardware rendering pressure');
+ const minimum=mobile?HARDWARE_SCALE_PHONE_MIN:HARDWARE_SCALE_DESKTOP_MIN;
+ if(samples.length<HARDWARE_GPU_WINDOW)
+  return {scale,decision:'insufficient-same-scene-gpu-samples',p75Ms:null};
+ if(samples.some(value=>!Number.isFinite(value)||value<0))
+  throw Error('Invalid GPU timer sample');
+ const sorted=samples.slice().sort((a,b)=>a-b);
+ const p75=sorted[Math.ceil(sorted.length*.75)-1];
+ const rounded=value=>Math.round(value*100)/100;
+ if(p75>29.5&&scale>minimum)
+  return {scale:Math.max(minimum,rounded(scale-.05)),
+   decision:'gpu-bound-downshift',p75Ms:p75};
+ if(p75<14&&scale<1)
+  return {scale:Math.min(1,rounded(scale+.025)),
+   decision:'gpu-headroom-upshift',p75Ms:p75};
+ return {scale,decision:'stable-or-capped',p75Ms:p75};
+}
+function hardwareGpuSceneKey(){
+ const mode=(frozen?'paused:':'active:')+
+  (streetWalk?'walking':follow?'real-citizen':cinematic?'cinema':'town');
+ return drawCadenceSceneKey(Math.floor(state.t/24)+1,mode,
+  canvas.clientWidth,canvas.clientHeight,renderQuality().scale);
+}
+function updateHardwareResolution(scene,gpuMs,mobile){
+ if(!gpuAvailable||swiftGpu||qualityOverride!==null)return;
+ if(typeof scene!=='string'||!scene||!Number.isFinite(gpuMs)||gpuMs<0)return;
+ if(hardwareGpuScene!==scene){
+  hardwareGpuSamples.length=0;
+  hardwareGpuScene=scene;
+  hardwareSceneResets++;
+ }
+ hardwareGpuSamples.push(gpuMs);
+ if(hardwareGpuSamples.length<HARDWARE_GPU_WINDOW)return;
+ const result=planHardwareRenderScale(hardwareGpuSamples,
+  hardwareAutoScale,mobile);
+ hardwareGpuSamples.length=0;
+ hardwareLastP75=result.p75Ms;
+ hardwareLastDecision=result.decision;
+ if(result.scale<hardwareAutoScale)hardwareDownshifts++;
+ if(result.scale>hardwareAutoScale)hardwareUpshifts++;
+ hardwareAutoScale=result.scale;
+}
+function getHardwareResolutionAudit(){
+ return {source:'same-scene-asynchronous-gpu-timer-only',
+  supported:gpuAvailable&&!swiftGpu&&Boolean(gpuTimerExtension),
+  active:gpuAvailable&&!swiftGpu&&Boolean(gpuTimerExtension)&&
+   qualityOverride===null,
+  scale:hardwareAutoScale,minimumDesktop:HARDWARE_SCALE_DESKTOP_MIN,
+  minimum390px:HARDWARE_SCALE_PHONE_MIN,maximum:1,
+  window:HARDWARE_GPU_WINDOW,pendingSamples:hardwareGpuSamples.length,
+  scene:hardwareGpuScene,sceneResets:hardwareSceneResets,
+  downshifts:hardwareDownshifts,upshifts:hardwareUpshifts,
+  p75GpuMs:hardwareLastP75,lastDecision:hardwareLastDecision,
+  noGpuQueryMeansNoQualityGuess:true,allCitizensAndBuildingsVisible:true,
+  gpuTimersAreNotDisplayPresentFps:true,authorityModified:false};
+}
 function updateSoftwareResolution(drawMs,totalMs){
  if(!swiftGpu||qualityOverride!==null)return;
  softwareSubmissionSamples.push({draw:drawMs,total:totalMs});
@@ -1124,8 +1192,8 @@ let gpuTimerDisabled=false,gpuTimerDropped=0,gpuTimerDisjoints=0,
 function abandonGpuTimerQueries(){
  if(!gpuTimerExtension)return;
  while(gpuTimerPending.length){
-  const query=gpuTimerPending.pop();
-  try{gpuTimerExtension.deleteQueryEXT(query)}catch(_){}
+  const pending=gpuTimerPending.pop();
+  try{gpuTimerExtension.deleteQueryEXT(pending.query)}catch(_){}
  }
 }
 function pollGpuFrameTimer(){
@@ -1137,7 +1205,7 @@ function pollGpuFrameTimer(){
    return;
   }
   while(gpuTimerPending.length){
-   const query=gpuTimerPending[0];
+   const pending=gpuTimerPending[0],query=pending.query;
    if(!gpuTimerExtension.getQueryObjectEXT(query,
      gpuTimerExtension.QUERY_RESULT_AVAILABLE_EXT))break;
    gpuTimerPending.shift();
@@ -1149,6 +1217,10 @@ function pollGpuFrameTimer(){
     gpuTimerSamples.push(ms);
     if(gpuTimerSamples.length>GPU_TIMER_SAMPLE_MAX)gpuTimerSamples.shift();
     gpuTimerCompleted++;
+     // Old queries from another day, view, phone or quality level must not
+     // drive the present viewport's GPU-bound resolution controller.
+     if(pending.scene===hardwareGpuSceneKey())
+      updateHardwareResolution(pending.scene,ms,canvas.clientWidth<=480);
    }
   }
  }catch(_){
@@ -1171,7 +1243,7 @@ function endGpuFrameTimer(query){
  if(!query)return;
  try{
   gpuTimerExtension.endQueryEXT(gpuTimerExtension.TIME_ELAPSED_EXT);
-  gpuTimerPending.push(query);
+  gpuTimerPending.push({query,scene:hardwareGpuSceneKey()});
  }catch(_){
   gpuTimerFailures++;gpuTimerDisabled=true;
   try{gpuTimerExtension.deleteQueryEXT(query)}catch(_){}
@@ -1195,7 +1267,7 @@ function getGpuFrameTimerAudit(){
   lastGpuMs:gpuTimerSamples.length?gpuTimerSamples[gpuTimerSamples.length-1]:null,
   blockingRead:false,cpuWallFpsClaim:false,hardwareFpsClaim:false};
 }
-function renderQuality(){const automated=swiftGpu||!gpuAvailable;return {tier:graphicsTier,renderer:gpuName,scale:qualityOverride??(swiftGpu?softwareAutoScale:automated?.65:1),targetFps:automated?12:60,materialNoise:swiftGpu?'projected-bilinear-software':'volumetric-trilinear',architectureTier:swiftGpu?'architectural-atlas-fast':'hardware-layered-original',framesDrawn,framesSkipped,idleFrames}}
+function renderQuality(){const automated=swiftGpu||!gpuAvailable;return {tier:graphicsTier,renderer:gpuName,scale:qualityOverride??(swiftGpu?softwareAutoScale:automated?.65:hardwareAutoScale),targetFps:automated?12:30,materialNoise:swiftGpu?'projected-bilinear-software':'volumetric-trilinear',architectureTier:swiftGpu?'architectural-atlas-fast':'hardware-layered-original',framesDrawn,framesSkipped,idleFrames}}
 function setRenderQuality(scale){if(!Number.isFinite(scale)||scale<.35||scale>1.5)throw Error('Render scale must be between 0.35 and 1.5');qualityOverride=scale;return renderQuality()}
 
 // Accessible no-WebGL preview for constrained machines. Real browsers use the WebGL path.
@@ -15624,7 +15696,7 @@ requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON
  getSocialEncounterAudit:()=>cloneData(getSocialEncounterAudit()),getFieldWindAudit:(time=state.t)=>cloneData(getFieldWindAudit(time)),getAmbientGpuResidencyAudit:()=>({...getAmbientGpuResidencyAudit()}),getWeatherVertexMotionProbe,getOccupationalPerformance:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData({citizen:people[index].name,job:people[index].job,...occupationalPerformance(people[index])}):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getSelectedCitizenTaskAudit,getCitizenPickCandidates,getCitizenOrbitAudit,getCitizenPickAudit:()=>({...citizenPickAudit}),getWorkdayEvents:()=>cloneData(workdayEvents),getStreetCargoWitnesses:()=>cloneData(streetCargoWitnesses()),getActiveDeliveries:()=>cloneData(getActiveDeliveries()),getSupplyTrailSnapshot:()=>cloneData(getSupplyTrailSnapshot()),getPhysicalMarketParcelAudit:id=>cloneData(getPhysicalMarketParcelAudit(id)),getCourierLoadPresentation:workerName=>cloneData(getCourierLoadPresentation(workerName)),getCourierTransferMotion:workerName=>cloneData(courierTransferMotion(workerName)),getCourierTrailAudit,getCourierTrailResidencyAudit,
  setCourierTrailResidencyForTesting,getDeliveryEconomyAudit:()=>cloneData(getDeliveryEconomyAudit()),getDeliveryReceipts:()=>cloneData(getDeliveryReceipts()),getMarketHandoffs:()=>cloneData(getMarketHandoffs()),getMarketParcelDeliveryPose:id=>cloneData(getMarketParcelDeliveryPose(id)),getCourierHandContact:person=>cloneData(courierWorldHandContact(person)),getMarketHandoffRenderStats:()=>({...marketHandoffRenderStats}),watchDelivery,watchHomecoming,getHomecomingView,getHomecomingThresholdCameraAudit,getWorkdayView,getActiveWorksites,watchHarvestShift,getHarvestInteractionAudit,getHarvestVisibilityAudit,getHarvestAftermathAudit,getCitizenActingAudit,
 getDailyRhythmAudit:dailyRhythmAudit,getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getCottageHomecomingAudit,getCottageDoorRenderAudit:()=>({...cottageDoorRenderAudit}),
- getCottageDoorResidencyAudit,setCottageDoorResidencyForTesting,getSoftwareResolutionAudit,getSimulationFrameDelta:simulationFrameDelta,getHouseholdLightAudit:()=>({...householdLightAudit}),getOccupiedHearthCount:()=>occupiedHearths,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,
+ getCottageDoorResidencyAudit,setCottageDoorResidencyForTesting,getSoftwareResolutionAudit,getHardwareResolutionAudit,getSimulationFrameDelta:simulationFrameDelta,getHouseholdLightAudit:()=>({...householdLightAudit}),getOccupiedHearthCount:()=>occupiedHearths,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,
 getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeCourtyardAudit:()=>cloneData(getForgeCourtyardAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),getForgeSoundAudit:()=>cloneData(getForgeSoundAudit()),pollForgeSound,watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,getMarketReceivingHallAudit,getTradeCorridorCameraAudit,
 getMarketStructuralSightline:marketCourierPostSightline,
 getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCentralExchangeAudit:()=>({...centralExchangeStats}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketShutterResidencyAudit,setMarketShutterResidencyForTesting,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getFarmWorkCameraAudit,
