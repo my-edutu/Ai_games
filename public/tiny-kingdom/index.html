@@ -8026,12 +8026,17 @@ function farmIrrigation(){
 // on WebGL, independent of the persistent granary/market/civic mesh. Camera
 // movement only selects an existing VBO; no per-frame wheat mesh rebuild.
 // Canvas2D and unavailable GPU allocations preserve the original full field.
+// W112: two complete quality VBOs, but each authentic plot has its own
+// conservative vertex bounds and draw range. The market and home camera
+// need not rasterize fields that are physically outside the view.
 const FARM_FIELD_MESH_FLOAT_LIMIT=650000,FARM_FIELD_MESH_MAX_BUFFERS=2;
 let farmFieldResidentSeason=-1,farmFieldNear=null,farmFieldFar=null,
  farmFieldResidentDisabled=false,farmFieldLod='far',
  farmFieldDrawCalls=0,farmFieldBuilds=0,farmFieldUploads=0,
  farmFieldDisposals=0,farmFieldFailures=0,farmFieldLastTriangles=0,
  farmFieldLastDistance=null;
+// Per-plot decisions are presentation-only; they never write a harvest result.
+let farmFieldPlotLods=[],farmFieldLastDrawnPlots=[],farmFieldCulledPlots=0;
 function farmFieldLodChoice(distance,previous='far'){
  if(!Number.isFinite(distance)||distance<0||!['near','far'].includes(previous))
   throw Error('W111 invalid actual crop camera distance or LOD');
@@ -8044,18 +8049,45 @@ function disposeResidentFarmFields(){
  }
  farmFieldNear=null;farmFieldFar=null;farmFieldResidentSeason=-1;
  farmFieldLastTriangles=0;farmFieldLastDistance=null;
+ farmFieldPlotLods=[];farmFieldLastDrawnPlots=[];farmFieldCulledPlots=0;
 }
 function buildOriginalCropMesh(season,compact){
  const previousData=data,previousMaterial=currentMaterial;
  let mesh;
+ const plotRanges=[];
  try{
   data=[];
-  for(let i=0;i<FARMSTEAD.fields.length;i++)
-   ripeningField(FARMSTEAD.fields[i],i,season,compact);
+  for(let i=0;i<FARMSTEAD.fields.length;i++){
+   const start=data.length,field=FARMSTEAD.fields[i];
+   // All furrows and every genuine seeded grain stem retain the exact
+   // W111 source order. Pack each original contiguous plot as a draw range.
+   ripeningField(field,i,season,compact);
+   if((data.length-start)%30||data.length===start)
+    throw Error('W112 empty or malformed original plot');
+   let minX=Infinity,minY=Infinity,minZ=Infinity;
+   let maxX=-Infinity,maxY=-Infinity,maxZ=-Infinity;
+   for(let offset=start;offset<data.length;offset+=10){
+    const x=data[offset],y=data[offset+1],z=data[offset+2];
+    if(![x,y,z].every(Number.isFinite))
+     throw Error('W112 nonfinite original crop vertex');
+    minX=Math.min(minX,x);minY=Math.min(minY,y);minZ=Math.min(minZ,z);
+    maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);maxZ=Math.max(maxZ,z);
+   }
+   // The shader may bend standing grain. The expanded AABB encloses that
+   // movement and is then checked by the same conservative scene frustum
+   // as houses and roads: visible crops are never silently eliminated.
+   const margin=.65;
+   plotRanges.push({plot:i,first:start/10,count:(data.length-start)/10,
+    minX:minX-margin,minY:minY-margin,minZ:minZ-margin,
+    maxX:maxX+margin,maxY:maxY+margin,maxZ:maxZ+margin,
+    stems:2*field[4]*field[5]});
+  }
   mesh=new Float32Array(data);
+  mesh.plotRanges=plotRanges;
  }finally{data=previousData;currentMaterial=previousMaterial}
- if(mesh.length%30||mesh.length>FARM_FIELD_MESH_FLOAT_LIMIT)
-  throw Error('W111 field mesh exceeds bounded storage');
+ if(mesh.length%30||mesh.length>FARM_FIELD_MESH_FLOAT_LIMIT||
+   plotRanges.reduce((n,p)=>n+p.count,0)!==mesh.length/10)
+  throw Error('W112 field mesh exceeds bounded complete storage');
  return mesh;
 }
 function prepareResidentFarmFields(season){
@@ -8070,45 +8102,75 @@ function prepareResidentFarmFields(season){
   const far=buildOriginalCropMesh(season,true);
   Object.assign(farmScene,nearCounters);
   if(!near.length||!far.length||far.length>near.length||
-    (far.length===near.length&&season!==3))
-   throw Error('W111 invalid authentic field tiers');
+    (far.length===near.length&&season!==3)||
+    near.plotRanges.length!==FARMSTEAD.fields.length||
+    far.plotRanges.length!==FARMSTEAD.fields.length)
+   throw Error('W112 invalid authentic plot tiers');
   for(const mesh of [near,far]){
    const buffer=gl.createBuffer();
-   if(!buffer)throw Error('W111 field GPU buffer unavailable');
+   if(!buffer)throw Error('W112 field GPU buffer unavailable');
    created.push(buffer);bindGeometry(buffer);
    gl.bufferData(gl.ARRAY_BUFFER,mesh,gl.STATIC_DRAW);
    farmFieldUploads++;
   }
-  farmFieldNear={mesh:near,buffer:created[0]};
-  farmFieldFar={mesh:far,buffer:created[1]};
+  farmFieldNear={mesh:near,buffer:created[0],ranges:near.plotRanges};
+  farmFieldFar={mesh:far,buffer:created[1],ranges:far.plotRanges};
   farmFieldResidentSeason=season;farmFieldBuilds++;
+  farmFieldPlotLods=FARMSTEAD.fields.map(()=>'far');
+  farmFieldLastDrawnPlots=[];farmFieldCulledPlots=0;
   farmFieldLod='far';return true;
  }catch(error){
   for(const buffer of created){gl.deleteBuffer(buffer);farmFieldDisposals++}
   Object.assign(farmScene,before);
   farmFieldNear=null;farmFieldFar=null;farmFieldResidentDisabled=true;
   farmFieldFailures++;
-  // At initial build, farmstead() now renders every original wheat stalk
-  // through the intact civic path. Never silently skip the harvest.
+  // The original CPU crop path remains the complete visual fallback.
   return false;
  }
 }
-function drawResidentFarmFields(eye){
+function drawResidentFarmFields(eye,planes=null){
  if(!gpuAvailable||!farmFieldNear||!farmFieldFar)
-  return {drawCalls:0,triangles:0,mode:'complete-civic-fallback'};
- const height=terrain(24,1)+.8;
- const distance=Math.hypot(eye[0]-24,eye[2]-1,(eye[1]-height)*.75);
- farmFieldLod=farmFieldLodChoice(distance,farmFieldLod);
- const mesh=farmFieldLod==='near'?farmFieldNear:farmFieldFar;
- bindGeometry(mesh.buffer);gl.drawArrays(gl.TRIANGLES,0,mesh.mesh.length/10);
- farmFieldDrawCalls++;farmFieldLastDistance=distance;
- farmFieldLastTriangles=mesh.mesh.length/30;
- return {drawCalls:1,triangles:farmFieldLastTriangles,
-  mode:farmFieldLod,distance};
+  return {drawCalls:0,triangles:0,mode:'complete-civic-fallback',
+   visiblePlots:0,culledPlots:0};
+ let drawCalls=0,triangles=0,culledPlots=0,closest=Infinity;
+ let atLeastOneNear=false;
+ const drawn=[];
+ for(let i=0;i<FARMSTEAD.fields.length;i++){
+  const nearRange=farmFieldNear.ranges[i],farRange=farmFieldFar.ranges[i];
+  // Every plot has independent LOD; a courier close to the second field
+  // must not inherit a distant first-field quality decision.
+  const centerX=(nearRange.minX+nearRange.maxX)*.5,
+   centerY=(nearRange.minY+nearRange.maxY)*.5,
+   centerZ=(nearRange.minZ+nearRange.maxZ)*.5;
+  const distance=Math.hypot(eye[0]-centerX,eye[2]-centerZ,
+   (eye[1]-centerY)*.75);
+  closest=Math.min(closest,distance);
+  const mode=farmFieldLodChoice(distance,farmFieldPlotLods[i]||'far');
+  farmFieldPlotLods[i]=mode;
+  if(mode==='near')atLeastOneNear=true;
+  const mesh=mode==='near'?farmFieldNear:farmFieldFar;
+  const range=mode==='near'?nearRange:farRange;
+  // Conservative whole-plot AABB: no partial harvest or missing row.
+  // Offscreen plots remain allocated and are immediately visible on orbit.
+  if(planes&&!sceneChunkInFrustum(range,planes)){
+   culledPlots++;continue;
+  }
+  bindGeometry(mesh.buffer);
+  gl.drawArrays(gl.TRIANGLES,range.first,range.count);
+  farmFieldDrawCalls++;drawCalls++;triangles+=range.count/3;
+  drawn.push({plot:i,mode,triangles:range.count/3,stems:range.stems,
+   distance});
+ }
+ farmFieldLod=atLeastOneNear?'near':'far';
+ farmFieldLastDistance=closest;
+ farmFieldLastTriangles=triangles;
+ farmFieldLastDrawnPlots=drawn;farmFieldCulledPlots=culledPlots;
+ return {drawCalls,triangles,mode:farmFieldLod,distance:closest,
+  visiblePlots:drawn.length,culledPlots,drawnPlots:drawn};
 }
 function getFarmFieldResidencyAudit(){
  const plantedStems=FARMSTEAD.fields.reduce((n,field)=>n+2*field[4]*field[5],0);
- return {source:'original-seeded-668-root-seasonal-field-vbos',
+ return {source:'original-668-roots-per-plot-frustum-and-seasonal-residency',
   enabled:gpuAvailable&&!farmFieldResidentDisabled,
   active:Boolean(farmFieldNear&&farmFieldFar),
   season:farmFieldResidentSeason,mode:farmFieldLod,
@@ -8119,6 +8181,13 @@ function getFarmFieldResidencyAudit(){
   maxBuffers:FARM_FIELD_MESH_MAX_BUFFERS,
   residentBytes:((farmFieldNear?.mesh.length||0)+(farmFieldFar?.mesh.length||0))*4,
   perMeshFloatLimit:FARM_FIELD_MESH_FLOAT_LIMIT,plantedStems,
+  originalPlotCount:FARMSTEAD.fields.length,
+  plottedStems:(farmFieldNear?.ranges||[]).reduce((n,p)=>n+p.stems,0),
+  plotRanges:(farmFieldNear?.ranges||[]).map(p=>({plot:p.plot,
+   first:p.first,count:p.count,stems:p.stems})),
+  plotLods:farmFieldPlotLods.slice(),
+  drawnPlots:farmFieldLastDrawnPlots.map(p=>({...p})),
+  visiblePlots:farmFieldLastDrawnPlots.length,culledPlots:farmFieldCulledPlots,
   allOriginalRoots:true,nearAndFarStems:plantedStems,
   builds:farmFieldBuilds,uploads:farmFieldUploads,drawCalls:farmFieldDrawCalls,
   disposals:farmFieldDisposals,failures:farmFieldFailures,
@@ -15694,7 +15763,8 @@ if(gpuAvailable){
 }
 // Count the actual currently chosen crop LOD in THIS frame's 160k gate,
 // not the previously presented camera's field mesh.
-const fieldLodDraw=gpuAvailable?drawResidentFarmFields(eye):
+const planes=gpuAvailable?sceneFrustumPlanes(m):null;
+const fieldLodDraw=gpuAvailable?drawResidentFarmFields(eye,planes):
  {drawCalls:0,triangles:0,mode:'complete-civic-fallback'};
 lastFrameTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.length+
  activeCivicMesh().length+homeClusterFloats()+farmFieldLastTriangles*30+data.length+
@@ -15709,7 +15779,6 @@ lastFrameTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.lengt
  (gpuAvailable?(atmosphere.climate.weather==='rain'?200:
   atmosphere.climate.weather==='snow'?240:0):0);
 if(gpuAvailable){
- const planes=sceneFrustumPlanes(m);
  scenicVisibilityStats.farmFields=fieldLodDraw;
  scenicVisibilityStats.landscape=drawVisibleStaticChunks(landscapeBuffer,landscapeChunkRanges,planes);
  scenicVisibilityStats.settlement=drawVisibleStaticChunks(settlementBuffer,settlementChunkRanges,planes);
