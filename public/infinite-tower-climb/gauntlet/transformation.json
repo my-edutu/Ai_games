@@ -27,10 +27,10 @@
       "sourceChange": "On live opt-in guardian-run only, the original earned dash X speed remains physically active while the three true 20Hz 'dashing' state ticks run; steering input no longer clamps 17k to 9k on the very next step. Fixed-step wall/guardian collision can still cancel it; ordinary airborne steering resumes at step four. Historical/unflagged runs stay unchanged. This intentionally adds up to 16k legitimate travel on an actively steering dash, not an unearned new action.",
       "evidenceDefect": "Code-verified previous live dash state 'dashing' persisted three ticks after cf327403 but the ordinary AI move branch clamped the real horizontal speed from 17k to 9k after just one tick. Real motion contradicts dash/animation and landing anticipation. Historic candidate portrait at ~20s has tiny climber on floor 8, and ~50s floor 10; it is not current-source proof.",
       "focusedTests": "Original-runtime fixture augmented at 0f5d65ac (two new physics-steering/world-edge tests), but full Node+TypeScript tests NOT EXECUTED. Isolated V8 run of exact fetched source steering snippet passes six source-step tick checks and collision-cancel probe; authored CJS syntax parsed. Worker tunnel NOT_FOUND >300s and local container cannot DNS github.com.",
-      "captureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42339547219",
-      "captureStatus": "Older nonmatching candidate cf327403: nine queued jobs, zero artifacts at current inspection. No real capture run for new physics 98b31bf verified.",
-      "qualityRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42339696777",
-      "qualityStatus": "Quality job queued at previous badb7d37 HEAD; no exact 98b31bf full original-source quality run completed.",
+      "captureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42343111746",
+      "captureStatus": "Exactly source-pinned candidate 98b31bf paired with unchanged frozen baseline 1731b380 in nine recording jobs; all 9 QUEUED and zero artifacts at 2026-11-07 inspection. No authentic clips/campaign result yet.",
+      "qualityRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42343329598",
+      "qualityStatus": "Latest PR68 evidence HEAD 5dc0371c full quality workflow QUEUED; original implementation 98b31bf quality run 42343111762 also QUEUED. No passing original-source tests or gameplay proof.",
       "sourceVerifiedFilm": "NOT EVALUATED: No normal-speed immutable new 98b31bf desktop 960x600 / portrait 390x844 matched 60+ second baseline/candidate clips; historical 390x844 WebMs are from old source.",
       "mostImportantFootageDefect": "HISTORIC portrait candidate 390x844, floor 8 at ~20s, floor 10 at ~50s: the action hero is tiny against clockwork tower machinery; no visually continuous same-run guardian/crusher defeat -> earned gateway -> floor9 -> authentic outcome/restart. No claim that new source fixes this.",
       "real3200StepCampaigns": "NOT EVALUATED: Original dual immutable 3200-step source campaigns not executed.",
@@ -549,7 +549,7 @@
       "realChange": "Opt-in real dash momentum stays at source dashSpeed through same 3 authoritative 20Hz 'dashing' steps, rather than clamping after first normal AI steering action. Source collision still cancels velocity; ordinary air control on step four; frozen default path unchanged.",
       "localIsolatedEvidence": "Exact extracted source steering branch V8 checks passed for 6-step live versus legacy state and post-wall zero-velocity probe; committed CJS parsed; not original Node source build/campaign",
       "originalRepositoryTests": "NOT EXECUTED — /app-projects tunnel disconnected; local /mnt/data has historical clips but no repo clone; container git cannot resolve github.com",
-      "currentSourceCapture": "NOT EVALUATED; nonmatching previous 9-job run 42339547219 queued, 0 artifacts",
+      "currentSourceCapture": "Exact source 98b31bf nine-job capture run 42343111746 queued (9/9), zero artifacts; no actual WebM.",
       "historicalVisualDefect": "Old portrait floor8 at 20s, floor10 at 50s; too-small hero and no continuous full guardian-to-gateway-to-result story",
       "blind": {
         "looks": 0,
@@ -558,7 +558,9 @@
       },
       "device": "NOT EVALUATED",
       "assessor": "NOT EVALUATED",
-      "next": "Execute actual source suite/campaign; inspect three-tick dash movement and cap combat/threshold/restart in matched long normal-speed 960x600 and 390x844 old-vs-new films; repair largest observed regression, especially overshooting moving decks."
+      "next": "Execute actual source suite/campaign; inspect three-tick dash movement and cap combat/threshold/restart in matched long normal-speed 960x600 and 390x844 old-vs-new films; repair largest observed regression, especially overshooting moving decks.",
+      "currentSourceCaptureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42343111746",
+      "latestQueuedQualityUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42343329598"
     }
   },
   "scenarios": [
