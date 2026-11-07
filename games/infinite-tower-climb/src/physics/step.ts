@@ -1,5 +1,6 @@
 import{platformAtTick,guardianArenaExitX,guardianArenaSealHeight}from'../generation/chunks';import type{PhysicsContact,TowerAction,TowerPlatform,TowerState}from'../state/types';
 import{sweptWallContact}from'./swept-wall-contact';
+import{sweptVerticalContact}from'./swept-vertical-contact';
 function clamp(v:number,min:number,max:number){return Math.max(min,Math.min(max,v))}
 function overlap1(a0:number,a1:number,b0:number,b1:number){return a0<b1&&a1>b0}
 function platforms(state:TowerState,tick:number){return state.chunks.flatMap(c=>c.platforms.map(p=>platformAtTick(p,tick))).sort((a,b)=>a.id.localeCompare(b.id))}
@@ -124,13 +125,45 @@ export function stepTowerPhysics(input:TowerState,action:TowerAction):{state:Tow
   }
   p.position.x=clamp(newX,p.halfWidth,c.worldWidth-p.halfWidth);if(p.position.x!==newX){p.velocity.x=0;contacts.push({kind:'wall',entityId:'world-boundary',normal:{x:newX<0?1:-1,y:0}})}
   let newY=targetY,landed:TowerPlatform|undefined;
-  // The existing vertical loop already compares the UPDATED clipped newY
-  // against each later deck, so it resolves the nearest crossed support
-  // without depending on platform ID order. Preserve that proven contract.
-  for(const platform of nextPlatforms){const left=p.position.x-p.halfWidth,right=p.position.x+p.halfWidth;if(!overlap1(left,right,platform.x,platform.x+platform.width))continue;
-    const oldB=p.position.y-p.halfHeight,oldT=p.position.y+p.halfHeight,newB=newY-p.halfHeight,newT=newY+p.halfHeight,top=platform.y+platform.height;
-    if(p.velocity.y<=0&&oldB>=top-1&&newB<=top){newY=top+p.halfHeight;p.velocity.y=0;landed=platform;contacts.push({kind:'land',entityId:platform.id,normal:{x:0,y:1}})}
-    else if(p.velocity.y>0&&platform.kind!=='oneway'&&oldT<=platform.y&&newT>=platform.y){newY=platform.y-p.halfHeight;p.velocity.y=0;contacts.push({kind:'head',entityId:platform.id,normal:{x:0,y:-1}})}
+  if(coherentSourceContacts){
+    // One-way decks have no side colliders: endpoint-only overlap can
+    // manufacture a landing when a dash enters the lane AFTER crossing the
+    // roof. Sample both bodies at the actual vertical-plane crossing.
+    const startById=new Map(nowPlatforms.map(platform=>[platform.id,platform]));
+    let first:{platform:TowerPlatform;kind:'land'|'head';time:number}|undefined;
+    for(const platform of nextPlatforms){
+      const prior=startById.get(platform.id)??platform;
+      const hit=sweptVerticalContact({
+        fromX:p.position.x,toX:newX,fromY:p.position.y,toY:targetY,
+        halfWidth:p.halfWidth,halfHeight:p.halfHeight,
+        platformStartX:prior.x,platformEndX:platform.x,
+        platformStartY:prior.y,platformEndY:platform.y,
+        platformWidth:platform.width,platformHeight:platform.height,
+        oneway:platform.kind==='oneway',
+      });
+      if(hit&&(!first||hit.time<first.time||
+        (hit.time===first.time&&platform.id.localeCompare(first.platform.id)<0)))
+        first={platform,kind:hit.kind,time:hit.time};
+    }
+    if(first){
+      const {platform,kind}=first;
+      p.velocity.y=0;
+      if(kind==='land'){
+        newY=platform.y+platform.height+p.halfHeight;
+        landed=platform;
+        contacts.push({kind:'land',entityId:platform.id,normal:{x:0,y:1}});
+      }else{
+        newY=platform.y-p.halfHeight;
+        contacts.push({kind:'head',entityId:platform.id,normal:{x:0,y:-1}});
+      }
+    }
+  }else{
+    // Frozen historical and unflagged replays retain their original solver.
+    for(const platform of nextPlatforms){const left=p.position.x-p.halfWidth,right=p.position.x+p.halfWidth;if(!overlap1(left,right,platform.x,platform.x+platform.width))continue;
+      const oldB=p.position.y-p.halfHeight,oldT=p.position.y+p.halfHeight,newB=newY-p.halfHeight,newT=newY+p.halfHeight,top=platform.y+platform.height;
+      if(p.velocity.y<=0&&oldB>=top-1&&newB<=top){newY=top+p.halfHeight;p.velocity.y=0;landed=platform;contacts.push({kind:'land',entityId:platform.id,normal:{x:0,y:1}})}
+      else if(p.velocity.y>0&&platform.kind!=='oneway'&&oldT<=platform.y&&newT>=platform.y){newY=platform.y-p.halfHeight;p.velocity.y=0;contacts.push({kind:'head',entityId:platform.id,normal:{x:0,y:-1}})}
+    }
   }
   p.position.y=newY;p.grounded=Boolean(landed);p.groundedPlatformId=landed?.id;
   // New opt-in 20Hz guardian route: a real hit interrupts for five ticks
