@@ -9,7 +9,23 @@ export function stepTowerPhysics(input:TowerState,action:TowerAction):{state:Tow
   const nowPlatforms=platforms(state,state.tick),nextPlatforms=platforms(state,state.tick+1);
   if(p.grounded&&p.groundedPlatformId){const a=nowPlatforms.find(x=>x.id===p.groundedPlatformId),b=nextPlatforms.find(x=>x.id===p.groundedPlatformId);if(a&&b){p.position.x+=b.x-a.x;p.position.y+=b.y-a.y}}
   if(!p.grounded&&state.influence.modifiers.windUntilTick>state.tick)p.velocity.x=clamp(p.velocity.x+state.influence.modifiers.windDirection*260,-c.dashSpeed,c.dashSpeed);
-  if(action.move!==0){p.facing=action.move;const control=p.grounded?1000:state.build.airControlPermille;p.velocity.x=clamp(p.velocity.x+Math.round(action.move*c.moveAcceleration*control/1000),-c.maxRunSpeed,c.maxRunSpeed)}
+  // Dash is an authored 150ms PHYSICAL burst, not just a three-frame pose.
+  // Previously an AI steering command on the next 20Hz step immediately
+  // clamped 17k dash velocity back to 9k running speed while the source
+  // animation still declared 'dashing' for two more steps. Preserve the
+  // already-earned velocity and facing for those two steps; collision may
+  // still stop the body, and normal air steering resumes on step four.
+  // Historical/unflagged replays deliberately keep their original clamp.
+  const liveDashMomentum=c.guardianArenaHazards===true&&
+    c.guardianSecondWind===true&&!p.grounded&&p.state==='dashing'&&
+    p.dashCooldown>Math.max(6,20-state.build.dashCooldownReduction)-3;
+  if(action.move!==0){
+    if(!liveDashMomentum){
+      p.facing=action.move;
+      const control=p.grounded?1000:state.build.airControlPermille;
+      p.velocity.x=clamp(p.velocity.x+Math.round(action.move*c.moveAcceleration*control/1000),-c.maxRunSpeed,c.maxRunSpeed);
+    }
+  }
   else if(p.grounded){const f=Math.min(Math.abs(p.velocity.x),c.groundFriction);p.velocity.x-=Math.sign(p.velocity.x)*f}
   if(action.jump&&(p.grounded||p.jumpCharges>0)){if(!p.grounded)p.jumpCharges--;p.velocity.y=c.jumpImpulse;p.grounded=false;p.groundedPlatformId=undefined;p.state='airborne';state.stats.jumps++}
   if(action.dash&&p.dashCooldown===0&&p.stamina>=state.build.dashCost){p.velocity.x=p.facing*c.dashSpeed;p.dashCooldown=Math.max(6,20-state.build.dashCooldownReduction);p.stamina-=state.build.dashCost;p.state='dashing';state.stats.dashes++}
