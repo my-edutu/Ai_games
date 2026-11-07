@@ -600,3 +600,32 @@ test('organic portrait approach clears a dominating close pillar without erasing
  assert.match(physicalCamera,/planPortraitStageClearance\(box,eyes,cam,view\)/,
   'camera scoring must agree with actual rendered foreground removal');
 });
+
+test('original physical foreground recedes below stone and returns without one-frame geometry pop',async()=>{
+ const src=fs.readFileSync(path.join(root,'public/ai-dungeon/foreground-recession.js'),'utf8');
+ const {applyForegroundRecession}=await import('data:text/javascript;base64,'+Buffer.from(src).toString('base64'));
+ const g={position:{x:4,y:1,z:2},visible:true,userData:{}},box=[3,0,1,5,2.5,3];
+ assert.equal(applyForegroundRecession(g,true,.04,false,box),true);
+ assert.equal(g.visible,false);
+ assert.ok(g.position.y<0);
+ applyForegroundRecession(g,false,.05,false,box);
+ assert.ok(g.visible&&g.position.y<1&&g.position.y> -2);
+ for(let i=0;i<5;i++)applyForegroundRecession(g,false,.05,false,box);
+ assert.equal(g.position.y,1);
+ assert.equal(g.position.x,4);
+ assert.equal(g.position.z,2);
+ for(let i=0;i<3;i++)applyForegroundRecession(g,true,.05,false,box);
+ assert.equal(g.visible,false);
+ applyForegroundRecession(g,false,.05,true,box);
+ assert.equal(g.position.y,1);
+ applyForegroundRecession(g,true,.05,true,box);
+ assert.equal(g.visible,false);
+ assert.equal(applyForegroundRecession(null,true,.05),false);
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ const env=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
+ const server=fs.readFileSync(path.join(root,'scripts/serve-dungeon-stream.cjs'),'utf8');
+ assert.match(app,/applyForegroundRecession\(group,hidden\|\|portrait,frameDt,reduced/);
+ assert.match(app,/applyForegroundRecession\(prop,blocked,dt,reduced/);
+ assert.match(env,/applyForegroundRecession\(group,blocked\|\|portrait,frameDt,reducedMotion/);
+ assert.ok(server.includes("['/dungeon/foreground-recession.js','foreground-recession.js']"));
+});

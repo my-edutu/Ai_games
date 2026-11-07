@@ -33,6 +33,7 @@ import {createActorOcclusionStage} from '/dungeon/actor-occlusion-stage.js';
 import {planEncounterViewport} from '/dungeon/encounter-viewport-plan.js';
 import {planWardenTacticalCue} from '/dungeon/warden-tactical-ux-plan.js';
 import {captureForegroundVolumes,planForegroundBodyClearance} from '/dungeon/foreground-sightline-plan.js';
+import {applyForegroundRecession} from '/dungeon/foreground-recession.js';
 import {createDungeonSoundstage} from '/dungeon/soundstage.js';
 import {createWardenRitual} from '/dungeon/warden-ritual.js';
 import {createWardenImpactScars} from '/dungeon/warden-impact-scars.js';
@@ -236,7 +237,7 @@ const cachedVec=new THREE.Vector3(),cachedQuat=new THREE.Quaternion(),cachedScal
 function sightlineClearance(x,z,subjects,cameraPosition,pad=2.1){
  return planPartyWallReveal(x,z,subjects,cameraPosition,pad)!=='none';
 }
-function cutawayWalls(target,subjects,wallPad=2.1,view=null,forceWalls=null){
+function cutawayWalls(target,subjects,wallPad=2.1,view=null,forceWalls=null,frameDt=0){
  const positions=world.userData.wallPositions,mesh=world.userData.walls;
  if(!mesh||!positions)return;
  // Every frame is intentional: a rounded key previously skipped critical
@@ -324,7 +325,7 @@ function cutawayWalls(target,subjects,wallPad=2.1,view=null,forceWalls=null){
    planForegroundBodyClearance(world.userData.foregroundPropVolumes?.[i],subjects,camera.position)||
    planProjectedBodyAperture(world.userData.foregroundPropVolumes?.[i],subjects,camera.position,view);
   const portrait=planPortraitStageClearance(world.userData.foregroundPropVolumes?.[i],subjects,camera.position,view);
-  group.visible=!(hidden||portrait);
+  applyForegroundRecession(group,hidden||portrait,frameDt,reduced,world.userData.foregroundPropVolumes?.[i]);
   if(hidden||portrait)removed++;
   if(portrait&&!hidden)portraitCleared++;
  }
@@ -1311,18 +1312,19 @@ function animate(t){
  // Gothic facades and weathered dressing without any x-ray hero rendering.
  const physicalStage=actorOcclusionStage.resolve(worldFloor,camera,partySightlines,
   world.userData.walls,world.userData.dressing?.occluders?.[0],time);
- cutawayWalls(target,partySightlines,storyStage?.wallPad??2.1,renderedBodyView,physicalStage.walls);
+ cutawayWalls(target,partySightlines,storyStage?.wallPad??2.1,renderedBodyView,physicalStage.walls,dt);
  world.userData.dressing?.cutaway(partySightlines,camera.position,storyStage?.wallPad??2.1,
-  renderedBodyView,physicalStage.facades);
+  renderedBodyView,physicalStage.facades,dt,reduced);
   world.userData.chapterNaves?.cutaway(partySightlines,camera.position,storyStage?.wallPad??2.1);
   world.userData.wardenRitual?.setSightlines(partySightlines,camera.position);
  let portraitAuthoredCleared=0;
  if(world.userData.authoredProps?.group){
   for(const [i,prop] of world.userData.authoredProps.group.children.entries()){
    const portrait=planPortraitStageClearance(world.userData.authoredPropVolumes?.[i],partySightlines,camera.position,renderedBodyView);
-   prop.visible=!(sightlineClearance(prop.position.x,prop.position.z,partySightlines,camera.position,2.4)||
+   const blocked=sightlineClearance(prop.position.x,prop.position.z,partySightlines,camera.position,2.4)||
     planForegroundBodyClearance(world.userData.authoredPropVolumes?.[i],partySightlines,camera.position)||
-    planProjectedBodyAperture(world.userData.authoredPropVolumes?.[i],partySightlines,camera.position,renderedBodyView)||portrait);
+    planProjectedBodyAperture(world.userData.authoredPropVolumes?.[i],partySightlines,camera.position,renderedBodyView)||portrait;
+   applyForegroundRecession(prop,blocked,dt,reduced,world.userData.authoredPropVolumes?.[i]);
    if(portrait)portraitAuthoredCleared++;
   }
  }

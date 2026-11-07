@@ -7,6 +7,7 @@ import {planDungeonWallProfiles,planLegibleWallMass} from '/dungeon/wall-profile
 import {createWardenCourt} from '/dungeon/warden-court.js';
 import {planWardenCourtNegativeSpace} from '/dungeon/warden-court-plan.js';
 import {captureForegroundVolumes,planForegroundBodyClearance} from '/dungeon/foreground-sightline-plan.js';
+import {applyForegroundRecession} from '/dungeon/foreground-recession.js';
 
 // Purely cosmetic, reproducible procedural dressing. This code never touches game authority.
 // All geometry is batched or tightly budgeted so a streaming run can regenerate indefinitely.
@@ -343,7 +344,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
   return coarse==='sightline'||planLiveFacadeBodyReveal(face,eyes,camera,coarse)?
    'sightline':coarse;
  };
- function cutaway(subjects,camera,wallPad=2.1,view=null,forceFacades=null){
+ function cutaway(subjects,camera,wallPad=2.1,view=null,forceFacades=null,frameDt=0,reducedMotion=false){
   if(!facadeMesh)return;
   // World cladding, banners, stained-glass windows and statuary share the
   // multi-hero camera clearance, instead of tracking only the focus actor.
@@ -429,7 +430,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
     planForegroundBodyClearance(foregroundVolumes[i],eyes,camera)||
     planProjectedBodyAperture(foregroundVolumes[i],eyes,camera,view);
    const portrait=planPortraitStageClearance(foregroundVolumes[i],eyes,camera,view);
-    group.visible=!(blocked||portrait);
+    applyForegroundRecession(group,blocked||portrait,frameDt,reducedMotion,foregroundVolumes[i]);
     if(blocked||portrait)cleared++;
     if(portrait&&!blocked)portraitCleared++;
   }
