@@ -26,6 +26,8 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    expect(first.audit.buffers).toBe(2);
    expect(first.audit.farTriangles).toBeLessThan(first.audit.nearTriangles);
    expect(first.audit.nearTriangles-first.audit.farTriangles).toBeGreaterThan(5000);
+   expect(first.audit.buffers).toBeLessThanOrEqual(first.audit.maxBuffers);
+   expect(first.audit.nearTriangles-first.audit.farTriangles).toBeGreaterThan(5000);
    await page.evaluate(()=>window.__tinyKingdom.setCamera({focus:[23,1],pitch:.52,yaw:0,zoom:13}));
    await page.waitForFunction(()=>window.__tinyKingdom.getFarmFieldResidencyAudit().mode==='near',
     null,{timeout:25000});

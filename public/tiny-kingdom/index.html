@@ -8069,7 +8069,8 @@ function prepareResidentFarmFields(season){
   Object.assign(farmScene,before);
   const far=buildOriginalCropMesh(season,true);
   Object.assign(farmScene,nearCounters);
-  if(!near.length||!far.length||far.length>=near.length)
+  if(!near.length||!far.length||far.length>near.length||
+    (far.length===near.length&&season!==3))
    throw Error('W111 invalid authentic field tiers');
   for(const mesh of [near,far]){
    const buffer=gl.createBuffer();
@@ -15691,6 +15692,10 @@ if(gpuAvailable){
  gl.uniform4f(uniforms.completedHarvestA,...(a?[a.x,a.z,a.floor,a.strength]:none));
  gl.uniform4f(uniforms.completedHarvestB,...(b?[b.x,b.z,b.floor,b.strength]:none));
 }
+// Count the actual currently chosen crop LOD in THIS frame's 160k gate,
+// not the previously presented camera's field mesh.
+const fieldLodDraw=gpuAvailable?drawResidentFarmFields(eye):
+ {drawCalls:0,triangles:0,mode:'complete-civic-fallback'};
 lastFrameTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.length+
  activeCivicMesh().length+homeClusterFloats()+farmFieldLastTriangles*30+data.length+
   (gpuAvailable&&actorStreamSplitEnabled?actorFrameData.length:0)+
@@ -15704,7 +15709,6 @@ lastFrameTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.lengt
  (gpuAvailable?(atmosphere.climate.weather==='rain'?200:
   atmosphere.climate.weather==='snow'?240:0):0);
 if(gpuAvailable){
- const fieldLodDraw=drawResidentFarmFields(eye);
  const planes=sceneFrustumPlanes(m);
  scenicVisibilityStats.farmFields=fieldLodDraw;
  scenicVisibilityStats.landscape=drawVisibleStaticChunks(landscapeBuffer,landscapeChunkRanges,planes);
