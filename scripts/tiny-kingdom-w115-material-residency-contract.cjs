@@ -22,7 +22,8 @@ const flags=Array.from({length:4},(_,i)=>18+(i+.5)/16);
 for(const tag of [...floats,...historicShutters,...smoke,...flags]){
  const gpuTag=Math.fround(tag);
  assert.equal(context.valid(gpuTag),true,'Expected valid real shader tag '+tag);
- const vertices=new Float32Array(90);
+ // One valid triangle is 3 vertices x 10 floats, not three triangles.
+ const vertices=new Float32Array(30);
  for(let i=0;i<3;i++){
   vertices[i*10+4]=1;
   vertices[i*10+6]=.5;vertices[i*10+7]=.5;vertices[i*10+8]=.5;
