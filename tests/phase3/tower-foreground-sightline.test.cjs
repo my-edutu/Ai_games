@@ -233,3 +233,36 @@ test('projected oversize phone wheel cannot evade the action-visibility rule; la
   assert.equal(observedLayeredSceneryOpacity(.42,0),1,
     'invalid layer count fails closed instead of hiding level architecture');
 });
+
+
+test('authentic clockwork upper-cap spectacle is flanked outside the playable guardian arc and has no wall-sized closed clock backs',async()=>{
+  const [THREE,{createTowerWorld}]=await loaded;
+  const world=createTowerWorld();
+  try {
+    const source=sourceFrame('clockwork',8);
+    world.update(source,.016,0,{quality:'low'});
+    world.group.updateWorldMatrix(true,true);
+    const centers=[];
+    world.group.traverse(object=>{
+      if(object.name!=='CameraResponsiveDecorativeGear')return;
+      const at=new THREE.Vector3();
+      object.getWorldPosition(at);
+      centers.push({angle:Math.atan2(at.x,at.z),y:at.y,radial:Math.hypot(at.x,at.z)});
+    });
+    assert.equal(centers.length,3,'retain one major clock and two smaller source-independent rotors');
+    assert.ok(centers.every(center=>Math.abs(center.angle)>1.32 && center.radial>18),
+      'no giant decorative clock group may stand inside the ±1.1-radian real cap climbing corridor');
+    assert.ok(centers.some(center=>center.angle>1.32) &&
+      centers.some(center=>center.angle< -1.32),
+      'flank real ascent from both distant tower shoulders rather than stacking the boss camera foreground');
+    assert.ok(centers.some(center=>Math.abs(center.y-31)<.2),
+      'keep a high clock silhouette as a world-owned landmark instead of deleting the mechanical biome');
+    const owned=[];
+    world.group.traverse(object=>{
+      if(object.isMesh && object.material?.name==='SightlineResponsiveClockFace')owned.push(object);
+    });
+    assert.ok(owned.length>=3,'opened surrounds still participate in actual post-batch occlusion recovery');
+    assert.equal(world.diagnostics().decorativeSightlineGears,3);
+    assert.equal(source.floor,8,'art direction cannot mutate fixed-step source truth');
+  }finally{world.dispose();}
+});
