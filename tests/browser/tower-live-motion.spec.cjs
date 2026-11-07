@@ -618,6 +618,15 @@ for (const viewport of viewports) {
     } : null,
     sampledActorOffscreen: observations.filter(item => item.observedActor?.inPicture === false).length,
     sampledActorUnsafe: observations.filter(item => item.observedActor?.inSafeFrame === false).length,
+    // First *rendered* source observation, not a WebM frame-zero timestamp.
+    // A late floor-10 portrait host must be rejected even when it records 60s.
+    // Run tokens cannot be compared across different immutable source SHAs.
+    startScene: { floor:observations[0]?.floor??null,
+      tick:observations[0]?.tick??null,
+      runToken:observations[0]?.runToken??null,
+      lifecycle:observations[0]?.scene??null,
+      atMs:observations[0]?.atMs??null,
+      timing: 'first browser-observed live source frame, NOT calibrated native WebM zero' },
     capturedAt: new Date().toISOString(), observations, assessment,
     sourcePhaseSummary, sourceMovingSummary, outcomeWitness,
     eventIndexSummary: {sourceTicksObserved:eventIndex.sourceTicksObserved,
@@ -635,6 +644,17 @@ for (const viewport of viewports) {
   await page.close();
   await context.close();
   if (video) await video.saveAs(path.join(dir, 'live.webm'));
+  // Keep the unedited film AND sidecars even when the initial scene is wrong.
+  // CI vetoes an unrepresentative episode instead of certifying a complete
+  // guardian run merely because the observer eventually found event names.
+  const expectedFloor=Number(process.env.TOWER_LAUNCH_FLOOR||'0');
+  expect(observations[0]?.floor,
+    'first filmed source observation must still be on the requested launch floor')
+    .toBe(expectedFloor);
+  expect(Number.isSafeInteger(observations[0]?.tick) &&
+    observations[0].tick>=0 && observations[0].tick<=250,
+    'source host has already advanced beyond 12.5s before browser observation')
+    .toBe(true);
   expect(errors, 'real browser and WebGL errors must remain visible').toEqual([]);
   expect(assessment.blockers, 'capture integrity: ' + JSON.stringify(assessment)).toEqual([]);
   expect(assessment.scopedPass).toBe(true);
