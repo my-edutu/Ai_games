@@ -76,10 +76,23 @@ export function stepTowerPhysics(input:TowerState,action:TowerAction):{state:Tow
   const recoveredFromImpact=c.guardianArenaHazards===true&&
     c.guardianSecondWind===true&&p.state==='hurt'&&
     p.health>0&&p.invulnerableTicks<=15;
+  // A dash is one real 20Hz horizontal impulse, not an indefinitely held
+  // aerial animation. Without this handoff, the source player stays 'dashing'
+  // for the ENTIRE remaining jump: the actual 3D climber never reaches its
+  // apex/landing brace, the source-driven airborne atmosphere falls silent,
+  // and the real observed landing-lane camera reverts to a tiny panorama.
+  // In the opt-in live guardian run only, keep three genuine 20Hz dash ticks
+  // (150ms), then publish 'airborne' while the same velocity, gravity,
+  // collision, stamina and cooldown continue untouched. The frozen unflagged
+  // game/replay retains its old dash state progression exactly.
+  const liveDashFinished=c.guardianArenaHazards===true&&
+    c.guardianSecondWind===true&&p.state==='dashing'&&
+    p.dashCooldown<=Math.max(6,20-state.build.dashCooldownReduction)-3;
   if(landed){
     p.jumpCharges=1;
     if(p.state!=='hurt'||recoveredFromImpact)p.state='standing';
-  }else if((p.state!=='dashing'&&p.state!=='hurt')||recoveredFromImpact)
+  }else if((p.state!=='dashing'&&p.state!=='hurt')||
+    recoveredFromImpact||liveDashFinished)
     p.state='airborne';
   const currentChunk=state.chunks.find(ch=>ch.floor===state.floor)??state.chunks[state.chunks.length-1];
   for(const h of currentChunk.hazards){if(!activeHazard(h,state.tick))continue;const l=p.position.x-p.halfWidth,r=p.position.x+p.halfWidth,b=p.position.y-p.halfHeight,t=p.position.y+p.halfHeight;if(overlap1(l,r,h.x,h.x+h.width)&&overlap1(b,t,h.y,h.y+h.height))contacts.push({kind:'hazard',entityId:h.id,normal:{x:0,y:1}})}
