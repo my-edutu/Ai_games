@@ -27,13 +27,13 @@
     "openClockworkImplementationSha": "01ccf675281c5697e1e8e2153b0642f7b535c071",
     "openClockworkEvidenceStatus": "NOT EVALUATED: preliminary open clockwork at ef292410 failed actual quality route clearance (radius24.355903>23.4); corrected actual art geometry by 01ccf675 main radial18.6 and satellite21.3, maintaining flanking angles and open frames. Exact-code quality 42421786685 IN PROGRESS and source capture 42421786723 QUEUED. Do not present as quality-verified.",
     "machinedGuardianPassageImplementationSha": "faa29eaf4f84628057783c6b27f72bc1de9be111",
-    "machinedGuardianPassageEvidenceStatus": "NOT EVALUATED: authentic PRIOR open-clockwork source 01ccf675 normal-speed 390x844 footage 42421786723 shows large bronze/brown foreground slab near portal switch native 24-26s, three true-hole real geometry implementation faa29eaf + test 69113494. CI found only stale existing tests: 42423754786 FAIL 2/1214; 42423757193 FAIL 1/1215; updated Phase5 original Three.js contract 95e35dec now quality 42424125412 QUEUED. New real gameplay capture 42423754924 IN PROGRESS. No before/after source-timecode alignment, genuine reviewer votes or device data."
+    "machinedGuardianPassageEvidenceStatus": "P0 OPEN: actual original 390x844 normal-speed WebM 70.96 seconds retrieved at render SHA faa29eaf (workflow 42423754924, artifact 13594284754), sampled native frames show skinned climber visible through source-earned floor9 bronze at ~25.5s, where previous 01ccf675 film showed a solid brown/bronze slab; only bounded visible frame improvement NOT full-motion event-matched acceptance. Source event index expressly has videoClockCalibration NOT EVALUATED. Remaining giant rim during guardian 15-16s, small actor, biome change and PORTRAIT and desktop full comparison. Full corrected CI 42424125412 queued at inspection, prior stale Phase5 regex failure addressed at 95e35dec. No independent critic or real-device data."
   },
   "currentTransformation": {
     "latestEvidenceRun": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "assessedAt": "2026-11-07",
-      "sourceHeadAtInspection": "8be4415094cdc68bcc67376a4c8854351ead0d2a",
+      "sourceHeadAtInspection": "004eadfec33c9abe6b978947e9ac7e8f7fa02627",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "frozenBaselineMoved": false,
       "gameplayImplementationSha": "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
@@ -46,7 +46,8 @@
         "69113494c358b16b0a28a1efb320bb1d88f21c72",
         "95e35decfbb9c3b82e588e3cff151cc99c27ebb5",
         "4b4e1223a8270d59a4d85c2768ba386ae8280311",
-        "8be4415094cdc68bcc67376a4c8854351ead0d2a"
+        "8be4415094cdc68bcc67376a4c8854351ead0d2a",
+        "004eadfec33c9abe6b978947e9ac7e8f7fa02627"
       ],
       "modifiedFiles": [
         "public/infinite-tower-climb/visuals/guardian-passage.mjs",
@@ -81,11 +82,15 @@
         "candidateCaptureRunId": 42423754924,
         "candidateCaptureRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42423754924",
         "newCandidateSourceSha": "faa29eaf4f84628057783c6b27f72bc1de9be111",
-        "newCandidateCaptureStatus": "QUEUED at first inspection; no new-render accepted footage",
+        "newCandidateCaptureStatus": "Original candidate danger/moving/ascent jobs success, result/outcome and authentic ledge awaiting full workflow at inspection; run 42423754924 not accepted as complete",
         "videoEventClock": "NOT EVALUATED: native video presentation timestamp not calibrated against authoritative 20Hz guardian defeat tick441 / gate crossing tick451",
-        "fullMotionAcceptance": "NOT EVALUATED: no independent reviewers or device, no source-event matched complete video acceptance"
+        "fullMotionAcceptance": "NOT EVALUATED: no independent reviewers or device, no source-event matched complete video acceptance",
+        "newCandidateDangerArtifactId": 13594284754,
+        "newCandidateDangerArtifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42423754924/artifacts/13594284754",
+        "newCandidateDangerNativeWebM": "Original immutable render/gameplay source faa29eaf, 390x844 VP8 25fps 70.96sec, full continuous recording retrieved; native sampled image frames 14-29sec inspected. No source-to-PTS calibration or independent film critic.",
+        "nativeFrameCrossingObservation": "At native ~25.5s prior 01ccf675 solid bronze rectangle partially blocks white skinned actor on floor9 arrival; new faa29eaf open 3D bronze case and genuine three-hole leaves let actor be seen through at ~25.5s. 25s source-earned green threshold and 26-27s onward violet floor9 seen. A limited frame-level legibility improvement, not P0 visual gate acceptance or event-matched full-motion proof."
       },
-      "biggestFootageDefect": "At prior actual original-clockwork candidate SHA 01ccf675, portrait hero more visible during guardian near ~17–19s but large rim still intrudes near 15–16s; during source-earned cap to floor9 near native 24–26s, large bronze/brown slab occupies portrait foreground and biome change is abrupt. New perforated door source SHA faa29eaf unverified by video.",
+      "biggestFootageDefect": "Perforated source-earned gateway improves one frame-level physical floor9 entry near 25.5s (actual game VP8 from faa29eaf), but residual giant foreground wheel/rim near 15-16s, small hero, abrupt biome boundary and native event clock mismatches remain. Need fully trace real actor crossing and outcome/restart at equal source events in both viewports.",
       "original3200TickSourceWitness": "Prior dc3c3108 quality run 42404054865 witnessed authentic single-run guardian/crusher→guardian defeat tick 441→physical grounded cap crossing tick 451→floor-nine onward→result/restart; not re-executed at new render SHA.",
       "independentBlindReviews": {
         "looks": 0,
@@ -94,16 +99,16 @@
       },
       "hardwareFrameTimeMemory": "NOT EVALUATED p50/p95/p99/memory on supported devices",
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "nextHighImpactAction": "Clear exact-source Node/Three quality with corrective Phase5 mesh test at SHA 95e35dec (workflow 42424125412), inspect completed nine-job actual new 3D perforated gate film at SHA faa29eaf run 42423754924 (390x844 and 960x600); align original fixed-step event ticks to native video timestamps for guardian defeat→real cap walk→floor9 onward→outcome/restart. If panel persists, identify actual occluding mesh rather than weaken combat authority. P0 stays open.",
+      "nextHighImpactAction": "Inspect completed full new 9-job run 42423754924 plus exact post-corrective test quality run 42424125412; if new bronze gateway still obscures actor during genuine crossing, pinpoint actual original mesh, resolve physical threshold/camera staging across old/new floor while preserving guardian/crusher logic. Align source ticks to native video PTS for matching 960x600 and 390x844 ascent, guardian and outcome scenes. Remain P0.",
       "reviewUrl": "https://github.com/my-edutu/Ai_games/blob/feat/tower-transformation-gauntlet-20261101/docs/reviews/2026-11-07-tower-pr68-current-film-and-source-integrity-veto.md",
       "restrictions": "PR68 draft/open, PR58 untouched; no baseline move, merge, deploy or force-push."
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
-    "state": "P0 OPEN — new machined source-earned gateway leaf must pass exact-source original runtime and visual crossing evidence; blind acceptance NOT EVALUATED",
+    "state": "P0 OPEN — authentic 3D perforated guardian gateway shows bounded before/after portrait frame improvement, but original suite latest corrected HEAD and full video/source-event alignment NOT EVALUATED",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Clear exact-source Node/Three quality with corrective Phase5 mesh test at SHA 95e35dec (workflow 42424125412), inspect completed nine-job actual new 3D perforated gate film at SHA faa29eaf run 42423754924 (390x844 and 960x600); align original fixed-step event ticks to native video timestamps for guardian defeat→real cap walk→floor9 onward→outcome/restart. If panel persists, identify actual occluding mesh rather than weaken combat authority. P0 stays open.",
+    "nextDecision": "Inspect completed full new 9-job run 42423754924 plus exact post-corrective test quality run 42424125412; if new bronze gateway still obscures actor during genuine crossing, pinpoint actual original mesh, resolve physical threshold/camera staging across old/new floor while preserving guardian/crusher logic. Align source ticks to native video PTS for matching 960x600 and 390x844 ascent, guardian and outcome scenes. Remain P0.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "At prior actual original-clockwork candidate SHA 01ccf675, portrait hero more visible during guardian near ~17–19s but large rim still intrudes near 15–16s; during source-earned cap to floor9 near native 24–26s, large bronze/brown slab occupies portrait foreground and biome change is abrupt. New perforated door source SHA faa29eaf unverified by video.",
+    "biggestRemainingExperienceGap": "Perforated source-earned gateway improves one frame-level physical floor9 entry near 25.5s (actual game VP8 from faa29eaf), but residual giant foreground wheel/rim near 15-16s, small hero, abrupt biome boundary and native event clock mismatches remain. Need fully trace real actor crossing and outcome/restart at equal source events in both viewports.",
     "unverifiedImplementationBranchHead": "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
     "currentVerticalSlice": "Physically earned ascent → guardian/crusher victory → full-body cap crossing → same-X grounded floor-nine arrival → playable onward route and true outcome/restart. No experience acceptance yet.",
     "biggestGap": "Unverified source-new 3D wheel/case clearance in normal-speed portrait guardian/cap crossing; previously giant foreground rotor at ~17-19s, event/video PTS uncalibrated; gateway floor9/outcome/restart visual sequence still not independently inspected.",
