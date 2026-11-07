@@ -180,6 +180,28 @@ export function sculptForestMosaicTile(x,z,width,height) {
  * scene silhouettes into near/mid-ground stage space rather than losing them
  * in distance fog; keep each headland safely outside ALL playable cells.
  */
+/**
+ * One stable physical 3D masonry plan drives both the world-space limestone
+ * atlas and the actual playable top mesh. Cells never become obstacles.
+ * Deterministic, no simulation RNG or network-dependent assets.
+ */
+export function planCohesiveRuinsPaving(width,height){
+ if(!Number.isInteger(width)||!Number.isInteger(height)||width<2||height<2)
+   throw new RangeError('Bounded positive physical masonry dimensions required');
+ const hash=(x,z,s)=>{const n=Math.sin((x+s)*127.1+(z+s)*311.7)*43758.5453;return n-Math.floor(n);};
+ const used=new Uint8Array(width*height),plan=[];
+ for(let z=0;z<height;z++)for(let x=0;x<width;x++){
+   if(used[z*width+x])continue;
+   let w=Math.min(width-x,2+Math.floor(hash(x,z,29)*2));
+   while(w>1&&Array.from({length:w},(_,i)=>used[z*width+x+i]).some(Boolean))w--;
+   let h=height-z>1&&hash(x,z,73)>.24?2:1;
+   if(h===2)for(let xx=x;xx<x+w;xx++)if(used[(z+1)*width+xx])h=1;
+   for(let zz=z;zz<z+h;zz++)for(let xx=x;xx<x+w;xx++)used[zz*width+xx]=1;
+   plan.push({x,z,w,h});
+ }
+ return plan;
+}
+
 export function stageHeadlandAnchors(width, height) {
   if (!Number.isInteger(width) || !Number.isInteger(height) || width < 2 || height < 2)
     throw new RangeError('Shoreline stage requires genuine integer board dimensions');
@@ -537,6 +559,14 @@ export function createWorld(THREE, {width, height}) {
   }
   const stoneMap=stoneTexture(), mossMap=stoneTexture(true);
   const stone=material({color:0xb5bba0,map:stoneMap,roughness:.93});
+  // T1: One original deterministic slab partition owns both material seams
+  // and 3D courtyard mass. Every canonical gameplay cell remains covered.
+  const paving=planCohesiveRuinsPaving(width,height);
+  const regionByCell=new Int32Array(width*height);
+  paving.forEach((slab,i)=>{
+    for(let z=slab.z;z<slab.z+slab.h;z++)for(let x=slab.x;x<slab.x+slab.w;x++)
+      regionByCell[z*width+x]=i;
+  });
   const fieldMap=fieldTexture();
   const tileMat=material({color:0xc3c4ad,map:fieldMap,roughness:.94});
   // Field UVs are baked in world coordinates when static geometry is merged below.
@@ -545,9 +575,9 @@ export function createWorld(THREE, {width, height}) {
     // Each original slab has a fixed quarry tone plus one optional incised
     // mineral fracture. This is generated once in the existing field map;
     // no new geometry, textures, fragment work or mutable gameplay state.
-    const slabTones=new Float32Array(width*height*5);
-    for(let z=0;z<height;z++)for(let x=0;x<width;x++){
-      const i=(z*width+x)*5;
+    const slabTones=new Float32Array(paving.length*5);
+    for(const [region,{x,z}] of paving.entries()){
+      const i=region*5;
       // Correlated quarry tones prevent a random checkerboard of pale/dark cells.
       slabTones[i]=(noise(x+41,z+37)-.5)*.075+(smoothNoise(x*.54+11,z*.54+9)-.5)*.16;
       slabTones[i+1]=(smoothNoise(x*.5+117,z*.5+53)-.5)*.09+(noise(x+117,z+53)-.5)*.025;
@@ -556,17 +586,20 @@ export function createWorld(THREE, {width, height}) {
       slabTones[i+4]=(noise(x+81,z+20)-.5)*.28;
     }
     for(let y=0;y<h;y++)for(let x=0;x<w;x++){
-      const gx=(x+.5)/w*width,gz=(y+.5)/h*height,cx=Math.floor(gx),cz=Math.floor(gz),u=gx-cx,v=gz-cz;
-      const edge=Math.min(u,1-u,v,1-v),border=Math.min(gx,width-gx,gz,height-gz);
+      const gx=(x+.5)/w*width,gz=(y+.5)/h*height,cx=Math.floor(gx),cz=Math.floor(gz);
+      const region=regionByCell[cz*width+cx],slab=paving[region];
+      const u=(gx-slab.x)/slab.w,v=(gz-slab.z)/slab.h;
+      const edge=Math.min(gx-slab.x,slab.x+slab.w-gx,gz-slab.z,slab.z+slab.h-gz);
+      const border=Math.min(gx,width-gx,gz,height-gz);
       // Warm/cool slabs share a broad mineral field, keeping color variation
       // larger than grain without implying a different playable elevation.
-      const toneIndex=(cz*width+cx)*5,cloud=smoothNoise(gx*.19+5,gz*.20+17);
+      const toneIndex=region*5,cloud=smoothNoise(gx*.19+5,gz*.20+17);
       const mineral=smoothNoise(gx*2.8+23,gz*2.8+41),warmth=slabTones[toneIndex+1];
       // River-polished limestone has alternating raised and broken seams.
       // This one-time original atlas relief follows quarry cell provenance;
       // each seam is interrupted by local mineral patches rather than a
       // continuous black graph-paper grid in the real whole-stage overview.
-      const jointWear=.45+.55*noise(cx+121,cz+89);
+      const jointWear=.45+.55*noise(slab.x+121,slab.z+89);
       const recess=(1-fade(.006,.054,edge))*(.087+.058*jointWear);
       const chalk=(fade(.018,.05,edge)-fade(.05,.095,edge))*(.012+fade(.35,.7,mineral)*.03);
       const patina=(1-fade(.25,2,border))*(.025+smoothNoise(gx*.8+60,gz*.8+80)*.055);
@@ -988,9 +1021,9 @@ export function createWorld(THREE, {width, height}) {
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(vs,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(indices);g.computeVertexNormals();return g;
   }
   const batches=new Map(), obj=new THREE.Object3D(), color=new THREE.Color();
-  function add(g,m,x,y,z,sx=1,sy=sx,sz=sx,rx=0,ry=0,rz=0,tint=null){
+  function add(g,m,x,y,z,sx=1,sy=sx,sz=sx,rx=0,ry=0,rz=0,tint=null,region=null){
     const key=g.uuid+m.uuid;let b=batches.get(key);if(!b){b={g,m,items:[]};batches.set(key,b);}
-    obj.position.set(x,y,z);obj.rotation.set(rx,ry,rz);obj.scale.set(sx,sy,sz);obj.updateMatrix();b.items.push({matrix:obj.matrix.clone(),tint});
+    obj.position.set(x,y,z);obj.rotation.set(rx,ry,rz);obj.scale.set(sx,sy,sz);obj.updateMatrix();b.items.push({matrix:obj.matrix.clone(),tint,region});
   }
   function branch(a,b,r1=.13){
     const d=new THREE.Vector3().subVectors(b,a);obj.position.copy(a).add(b).multiplyScalar(.5);obj.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.clone().normalize());obj.scale.set(r1,d.length(),r1);obj.updateMatrix();
@@ -1012,6 +1045,7 @@ export function createWorld(THREE, {width, height}) {
   // and fades into the existing coastal walls. No geometry/cell movement,
   // new texture, material, branch, shader, per-frame cost or fake obstacle.
   const gardenCourses=[-.57,.02,.59];
+  const regionTints=paving.map(()=>({r:0,g:0,b:0,count:0}));
   for(let z=0;z<height;z++)for(let x=0;x<width;x++){
     const nx=(x+.5)/width*2-1,nz=(z+.5)/height*2-1;
     const basinDistance=sampleGardenWatershed(nx,nz,width,height).distance;
@@ -1088,9 +1122,19 @@ export function createWorld(THREE, {width, height}) {
       +(.34+leafShadow*.035)*leafFall+limestoneLift*.69;
     color.b=(color.b*(1-forestBlend)+rootedB*forestBlend)*(1-leafFall)
       +(.19+leafShadow*.035)*leafFall+limestoneLift*.37;
-    const mosaic=sculptForestMosaicTile(x,z,width,height);
-    add(tile,tileMat,x-(width-1)/2,-.105,z-(height-1)/2,
-      mosaic.scale,.21,mosaic.scale,0,mosaic.rotation,0,color.clone());
+    const tint=regionTints[regionByCell[z*width+x]];
+    tint.r+=color.r;tint.g+=color.g;tint.b+=color.b;tint.count++;
+  }
+  // Genuine larger weathered ruin masses, rather than hundreds of 1x1 boxes.
+  // The original geometry/material batch and every cell's stone-height support
+  // are preserved, with a smaller genuine triangle budget at scene creation.
+  for(const slab of paving){
+    const tint=regionTints[regionByCell[slab.z*width+slab.x]];
+    const paint=new THREE.Color().setRGB(tint.r/tint.count,tint.g/tint.count,tint.b/tint.count);
+    add(tile,tileMat,
+      slab.x+(slab.w-1)/2-(width-1)/2,-.105,
+      slab.z+(slab.h-1)/2-(height-1)/2,
+      slab.w-.09,.21,slab.h-.09,0,0,0,paint,slab);
   }
   // T1 physical island silhouette. Reuse BOTH original static cliff/moss
   // batches and original stone/moss materials: no additional WebGL pass,
@@ -1316,7 +1360,7 @@ export function createWorld(THREE, {width, height}) {
           // Presentation only: break the straight mortar at selected stone
           // corners without moving the public board, food or hazard anchors.
           // Keep every top rim inside its original cell and use no game RNG.
-          if (sourceMaterial === tileMat && p.getY(v) > .499) {
+          if (sourceMaterial === tileMat && item.region?.w===1 && item.region?.h===1 && p.getY(v) > .499) {
             const cellX = Math.round(item.matrix.elements[12] + W - .5);
             const cellZ = Math.round(item.matrix.elements[14] + H - .5);
             const localX = p.getX(v), localZ = p.getZ(v);

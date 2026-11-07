@@ -1,7 +1,7 @@
 {
-  "updatedAt": "2026-11-06",
-  "status": "T1 BUILDING / original continuous coastal island + native scaled rear gateway and safe camera candidate; last real older-head 14/17 strict WebGL HARD RED; no current-head browser acceptance; DRAFT",
-  "detail": "November 6 exact open DRAFT parent 0aece92a native structural world+camera T1 candidate: original 2 piers, 11 real stones and 7 planted arch groups rebuilt to responsive 4.4-11.4 unit arch behind all playable boards, honest original 16:9 and portrait overview camera bounds. Exact parent RED 0/1 -> candidate GREEN 1/1, selected 17/17, TS build PASS, real 900 tick restart/recovery/privacy PASS. Existing world instance count, 13 batches, four textures and public game authority unchanged. Last completed true WebGL older-head 118d strict 14/17 at actual 751x415, browser 62/95, native CI 686/722; full game previous-head visually SELF-REJECTED. Live 0ae had no same-head Actions yet; candidate real Chromium blocked by ERR_BLOCKED_BY_ADMINISTRATOR and no genuine full-head 1920/detail/portrait or 55s video, strict gate, device presents, full CI, soak or independent critic. T0 unsigned; T1 BUILDING, T2/T3 unaccepted, T4 HARD RED. Never merge/deploy.",
+  "updatedAt": "2026-11-07",
+  "status": "T0 UNSIGNED / T1 BUILDING: full-game physical multi-cell court and atlas staged; candidate visual acceptance pending; e7 exact strict original 8/17 HARD RED; OPEN DRAFT, never merge/deploy",
+  "detail": "Parent e7a2fa3442f5c443bcf50e8f4ac96f9c274fc263 verified; world candidate blob c074c606890c844d9606523f138c34f1a46403b1 coalesces 448 standard board stones to 125 native multi-cell masonry and removes phantom internal atlas cell seams, retaining all real cell centres and original 13 static batches/four textures. Exact parent RED to candidate GREEN native geometry/atlas tests; 6 selected focused green, TypeScript, original authority/recovery 900 ticks, 10k seeded ticks pass. Historical exact-hash fixture failing on parent; full integration/browser not accepted. 2026-11-06 e7 Chromium Actions 42173863092: 8/17 genuine complete original one-second renderer draws at real 751x415 GPU buffer, 37 browser failures. No candidate-matched footage or independent review, maintain T1 BUILDING.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Last completed genuine 118d overview was SELF-REJECTED; current 0ae gateway/camera candidate native checks pass but whole-game Chromium visual verdict and strict >=17 gate PENDING.",
   "reviews": [
@@ -603,6 +603,11 @@
       "area": "Frame delivery and reliability",
       "verdict": "FAILED unchanged 17-actual-render submission threshold in both Round25 CI runs",
       "gap": "Current focused 7 real submissions/1007.1ms and general 9/1015.6ms vs required >=17, despite 554/554 Node and broad browser regressions green. RAF/WebM fps not real drawing/display-present FPS. Real-device soak, R5 signoff and independent visual approval unavailable."
+    },
+    {
+      "area": "T1 physical entire-court paving and registered atlas; 2026-11-07",
+      "verdict": "BUILDING / NATIVE PASS / REAL CHROMIUM & INDEPENDENT ACCEPTANCE PENDING",
+      "gap": "No authentic source-matched candidate 1920/portrait/detail/45-90s recording or required original 3×17 WebGL complete draws; last e7 8/17 hard red. Parent 37 browser and 37 CI failures; historical hash fixture unchanged. No whole-game quality win claimed."
     }
   ],
   "rounds": [
@@ -1213,13 +1218,13 @@
     "firstImplementationPlan": "docs/superpowers/plans/2026-11-01-autonomous-snake-transformation.md",
     "acceptance": "An independently evidenced, visibly substantial upgrade of the full running game in environment, character, animation, materials, game feel and sustainable frame delivery; CI is necessary but never sufficient.",
     "overall": "NOT ACCEPTED",
-    "milestone": "T0 UNSIGNED / T1 BUILDING, last 4e real whole-frame SELF-REJECTED / T2 grounded native-only candidate, expressive animation incomplete / T3 unaccepted / T4 HARD RED strict 8 of 17 actual",
+    "milestone": "T0 UNSIGNED / T1 BUILDING integrated physical courtyard and matching atlas / T2-T3 unaccepted / T4 HARD RED 8 of required 17 genuine original one-second WebGL renders",
     "milestoneStatus": "BUILDING",
-    "latestKnownStrictBrowser": "4e exact Chromium run 42018478565: original full-desktop 1s 8 genuine complete WebGL renders of strict 17, 1001.8ms, drawing buffer 751x415, 61 RAF callbacks NOT completed renders, 528 GPU queue skips; full scene self-rejected. New T1 four-habitat candidate only native-tested; exact-head browser pending, no physical display presents.",
+    "latestKnownStrictBrowser": "Exact current parent e7a2fa34 Chromium #42173863092 completed on 2026-11-06: original unchanged 1s full desktop 8 genuine full WebGL renderer submissions of required 17; GPU raster 751x415; 61 RAF callbacks and 416 GPU queue skips do not count. Browser 58/95. Candidate WebGL and physical-device displayed present FPS/p95 pending.",
     "pillars": [
       {
         "name": "Living 3D world",
-        "status": "T1 BUILDING. Native current-head broad woodland/glade contrast candidate, exact real browser not yet accepted.",
+        "status": "T1 BUILDING: real multi-cell 3D courtyard reconstructed; forest/ruins/lake retained; candidate whole-game source-matched Chromium imagery pending.",
         "criterion": "Clearly transformed coherent original garden architecture/biomes/scene depth in matching real-game captures."
       },
       {
@@ -1229,21 +1234,21 @@
       },
       {
         "name": "Materials and lighting",
-        "status": "T1 BUILDING: coordinated original 3D limestone/fern materials via physically used stone texture; native tests recovered, exact source WebGL still pending.",
+        "status": "T1 BUILDING: actual material atlas joints now use the same physical 1–3×1–2 slab partition; only native registered light/geometry evidence, authentic whole-game visual acceptance pending.",
         "criterion": "Convincing stone, vegetation, water, scales, contact lighting and atmospheric staging across full frames."
       },
       {
         "name": "Play feel and frame delivery",
-        "status": "T4 HARD RED: last completed cfc WebGL 5/17 genuine original one-second full-desktop draws at 751x415. Current exact-head Chrome / physical displayed p95 still pending.",
+        "status": "T4 HARD RED: e7 original strict test 8 genuine complete desktop 1s renderer submissions/17 at 751×415; no new candidate strict runs or real-device displayed-p95 proof.",
         "criterion": "Readable responsive gameplay/UX, real continuous autonomous video, repeatable >=17 actual browser draws and real-device smoothness evidence."
       }
     ],
     "baselineHead": "108e2e439aab1f3fe4cf49019c1aa9fe5630feb6",
-    "candidate": "Exact-source d1b parent; old real rooted garden and original 1024x512 owned stone atlas / 3D cell material coordinated into broad shaded forest, sunward native limestone terraces and dark loam, preserve 40/130/71 fern clumps for 8x8/28x16/40x24. Native interior material deep/warm/green .627/.100/.660 -> .401/.328/.378, no new passes/assets or changed authority. NATIVE ONLY.",
-    "candidateProof": "New exact-source 3-board material composition test RED parent -> GREEN candidate; selected native landscape checks 7/8 (one authentic historic hash failure unresolved), TypeScript build PASS, 900 authority ticks/restart/recovery PASS with best body 63. Full CI, browser source-exact actual photos/movie, strict full-render gate and independent review not yet verified.",
-    "review": "SELF REVIEW / ACCEPTANCE PENDING: 32a9 current-head browser blocked by legitimate exact-source mismatch in test fixture; corrected provenance/skin candidate native 4/4 and TS build only. Previous visually inspected 92ee SELF-REJECTED vs Snake Pass, strict 8/17. No independent critic, no device display FPS. Draft. Never merge/deploy."
+    "candidate": "T1 whole-garden real coalesced limestone and registered actual physical joint atlas: world Git blob c074c606890c844d9606523f138c34f1a46403b1, parent e7a2fa3442f5c443bcf50e8f4ac96f9c274fc263; 17/125/256 slab masses versus 64/448/960 individual cells.",
+    "candidateProof": "Exact parent RED geometry/atlas 0/2; candidate GREEN 2/2 new; six selected native checks pass, real raycast 1472/1472 cell centres and 496/496 shore body-radius contact points, resource contract 13 batches/4 textures, TypeScript/900-tick authority/10,000 ticks pass. Browser/local ERR_BLOCKED_BY_ADMINISTRATOR, true new-head footage, three untouched strict 17 submissions and real device display presents UNVERIFIED. Full suite failing historical fixtures, no independent acceptance.",
+    "review": "SELF REVIEW / INDEPENDENT ACCEPTANCE PENDING. Last authentic running e7 whole-game Chromium images visually SELF-REJECTED for large rectangular court and tiny serpent. Latest strict e7 WebGL 8/17 genuine complete one-second renders at 751×415. Candidate runtime images not verified; no Gauntlet achieved."
   },
-  "candidate": "Shared deterministic forest-to-limestone physical ecotone across unchanged actual quarry stones, one world-owned 1024x512 atlas, final restored embedded courtyard, and old physical stone seam geometry. Original original native ecology one mesh no extra textures/triangles/draw passes, real gameplay cells public cues remain safe. Native source-only candidate, NOT accepted.",
-  "candidateProof": "Exact a421 parent checks 2 RED; candidate new focused 2/2 GREEN plus original flagstone mean seam guard and deep-forest + earthy-stage physical native assertions, with historical original byte-lock provenance failure open. Real native Three.js across 8x8/28x16/40x24: green vertices 84.38/85.27/85.52%, final ecology-owned atlas green 78.05/75.98/76.18%, original central warm stone intact, geometric tile scale .96063/.96395/.96411. TypeScript PASS; 900 authoritative simulation/recovery/restart PASS. Native broad selection not complete before local timeout, Chrome candidate not verified. Previous actual a421 strict 7/17.",
-  "review": "SELF-REJECT previous actual current-head a421 whole game: giant flat checkerboard, pale ribbons, small angular protagonist vs official Snake Pass. Current integrated T1 native-only candidate must pass real next-head screenshot/movie and original strict gate before milestone acceptance. Independent quality/real device unavailable. T1 BUILDING T4 HARD RED, draft never merge/deploy."
+  "candidate": "T1 whole-garden real coalesced limestone and registered actual physical joint atlas: world Git blob c074c606890c844d9606523f138c34f1a46403b1, parent e7a2fa3442f5c443bcf50e8f4ac96f9c274fc263; 17/125/256 slab masses versus 64/448/960 individual cells.",
+  "candidateProof": "Exact parent RED geometry/atlas 0/2; candidate GREEN 2/2 new; six selected native checks pass, real raycast 1472/1472 cell centres and 496/496 shore body-radius contact points, resource contract 13 batches/4 textures, TypeScript/900-tick authority/10,000 ticks pass. Browser/local ERR_BLOCKED_BY_ADMINISTRATOR, true new-head footage, three untouched strict 17 submissions and real device display presents UNVERIFIED. Full suite failing historical fixtures, no independent acceptance.",
+  "review": "SELF REVIEW / INDEPENDENT ACCEPTANCE PENDING. Last authentic running e7 whole-game Chromium images visually SELF-REJECTED for large rectangular court and tiny serpent. Latest strict e7 WebGL 8/17 genuine complete one-second renders at 751×415. Candidate runtime images not verified; no Gauntlet achieved."
 }

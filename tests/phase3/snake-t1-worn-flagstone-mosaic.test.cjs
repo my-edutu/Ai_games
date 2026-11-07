@@ -20,7 +20,7 @@ test('T1 original court is an independently identified pre-mosaic source, not a 
 
 test('T1 physically breaks the repeated bright grid at true cell centres without losing native visual resources or cues', async () => {
   const THREE = await import('three');
-  const { createWorld, sculptForestMosaicTile } = await import('../../public/snake-stream/world.mjs');
+  const { createWorld, sculptForestMosaicTile, planCohesiveRuinsPaving } = await import('../../public/snake-stream/world.mjs');
   const before = await import('data:text/javascript;base64,' + Buffer.from(fs.readFileSync(
     path.join(root, 'tests/fixtures/snake-t1-before-forest-mosaic-3c48.mjs'), 'utf8'
   )).toString('base64'));
@@ -30,7 +30,9 @@ test('T1 physically breaks the repeated bright grid at true cell centres without
       const a=previous.stats(),b=candidate.stats();
       for(const key of ['staticMeshes','drawObjects','geometries','materials','textures'])
         assert.equal(b[key],a[key],`retain old GPU materials, geometry and draw batches ${width}x${height} ${key}`);
-      assert.equal(b.staticInstances,a.staticInstances,'no deleted greenery, stone, tree or coastal sculpture');
+      const actualSlabs=planCohesiveRuinsPaving(width,height).length;
+      assert.equal(b.staticInstances,a.staticInstances-(width*height-actualSlabs),
+        'all non-paving trees, forest, coastal sculpture and cues remain; only duplicate per-cell stone pieces become cohesive masses');
       const scales=[],angles=[],chips=[];
       for(let z=0;z<height;z++)for(let x=0;x<width;x++) {
         const stone=sculptForestMosaicTile(x,z,width,height);
@@ -57,8 +59,10 @@ test('T1 physically breaks the repeated bright grid at true cell centres without
       const previousField= previous.group.children.find(mesh => mesh.isMesh && mesh.userData.staticWorld
         && mesh.material?.map?.image?.width===1024);
       assert.ok(field && previousField,'true indexed GPU traversable field exists in original static batch');
-      assert.equal(field.geometry.index.count,previousField.geometry.index.count,'same complete original triangles');
-      assert.equal(field.geometry.attributes.position.count,previousField.geometry.attributes.position.count,'same original geometry budget');
+      assert.ok(field.geometry.index.count<previousField.geometry.index.count,
+        'genuine complete courtyard triangle reduction, not shader-only cosmetic change');
+      assert.ok(field.geometry.attributes.position.count<previousField.geometry.attributes.position.count,
+        'retain complete safe cell coverage using fewer native top vertices');
       assert.notDeepEqual(Array.from(field.geometry.attributes.position.array.slice(0,100)),
         Array.from(previousField.geometry.attributes.position.array.slice(0,100)),
         'existing rendered world field actually changes its 3D geometry, not only a tiny pixel recolor');
