@@ -21,48 +21,47 @@
     "latestEvidenceRun": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "assessedAt": "2026-11-07",
-      "sourceHeadAtInspection": "f812db1a06c1ca2df2dbfb0ba8dd97d4a1bde4e2",
+      "sourceHeadAtInspection": "ddc89938006763264c192893fd2eadf6242cb055",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "sourceGameplayChangedThisExecution": false,
-      "implementation": "Fixed principal source-authentic A/B capture comparability blocker: previously one Playwright invocation ran desktop and portrait sequentially against the SAME continuously advancing original 20Hz Tower host. Split desktop/portrait into separately seeded original-source host lifetimes, record the first browser-observed floor/tick/runToken after genuine rendering, reject wrong-floor/late captures only AFTER saving genuine WebM/sidecars, and veto initial baseline/candidate start tick differences >60 ticks before any event-name pairing. No gameplay/visual art changes; no source clock or frozen baseline manipulation.",
+      "implementation": "Actual original GitHub artifact WebM and sidecar analysis uncovered real portrait 1-HP-guardian-to-door readability defect: f812 danger portrait source guardian death tick441, grounded gate approach443, real floor-nine451 (~10 ticks/0.5s), image sampled at ~20–26s shows enormous foreground gear and undersized hero before hard biome handoff. Implemented source-bound still-LIVING final-quarter-HP 3D cap camera staging in existing follow orbit, leading into original source-earned grounded gateway shot, with unchanged authority and existing hero/core sightline vetoes. No verified current-commit film improvement claimed.",
       "concreteCommits": [
-        "fdcf6dc02ac0646ca6491d52391357c09e19fb33",
-        "360fd6b62440752292fbb9f3e7b7a600a9585bc8",
-        "cf7ee540a34e5eb2fbc1e05dabfc99ff5dd72c9f",
-        "f812db1a06c1ca2df2dbfb0ba8dd97d4a1bde4e2",
-        "58b8abce4065a7ec86505af37d2e53c682e710a4"
+        "4e8d6d5a44a027ebda2970dbbcc32132e1a4882f",
+        "0d133aa8b5c7476a935a90427b3ca10303fa0f41",
+        "80ee3e953cf73ecf5e6b749e068fbd72bf8fe151",
+        "ddc89938006763264c192893fd2eadf6242cb055"
       ],
-      "actualExecutedCi": "Last pre-change original source quality workflow 42388132657 at 062d6162 completed SUCCESS (including npm test, Tower self-test, source guardian witness and desktop/phone UI checks). Latest evidence-harness code f812 has NOT completed original GitHub checks yet. New original Node/browser tests committed, not locally executed. The previous green workflow is a safety observation, NOT film quality or proof that this change works.",
-      "lastCompletedQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42388132657",
-      "currentExactHeadQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42390010700",
-      "currentExactHeadQualityStatus": "QUEUED at inspection for implementation SHA f812; no post-implementation PASS. Docs-only head 58b8 quality run 42390221860 also queued.",
-      "priorSourcePinnedCaptureWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42382932723",
-      "currentCodePinnedCaptureWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42390010627",
-      "currentCodePinnedCaptureStatus": "QUEUED at inspection; no new matched original WebM, source-event sidecars or picture evidence.",
-      "priorCapturedCandidateSha": "7a97b054f12a8548a1c1fb01cdaf538aea65d534",
+      "actualExecutedCi": "Source f812 integrity-only original GitHub job completed SUCCESS on previous capture's immutable source; 9-job source film matrix completed eight baseline/candidate jobs plus authentic-ledge success. Pair-source-events job still QUEUED. Three new source/scene/test commits at 80ee have not been executed in original repository Node/Chromium. No CI or film positive verdict is inferred.",
+      "lastCompletedQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42390010700",
+      "currentExactHeadQualityWorkflow": null,
+      "currentExactHeadQualityStatus": "NOT EVALUATED: no confirmed completed exact implementation SHA 80ee workflow, docs+evidence head later; previous integrity-only job is not entire test/quality gate.",
+      "priorSourcePinnedCaptureWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42390010627",
+      "currentCodePinnedCaptureWorkflow": null,
+      "currentCodePinnedCaptureStatus": "NOT EVALUATED: current camera code 80ee has no verified gameplay WebM; 42390010627 is original 60+s captured at old pre-camera candidate f812.",
+      "priorCapturedCandidateSha": "f812db1a06c1ca2df2dbfb0ba8dd97d4a1bde4e2",
       "priorCapturedBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-      "sourcePinnedFilmAssessment": "Earlier original source WebM baseline/candidate pairs (70s+) had unmatchable starting episodes: portrait frozen baseline first floor8/tick467 versus candidate first floor10/tick632; desktop first floor8/tick71 vs candidate floor8/tick80. Previously both viewports were recorded serially on one host per matrix job; this new code fixes the identified lifecycle flaw but exact-current-source recapture is queued. Prior guardian/gateway in portrait could leave camera; no full-motion or pixel-timecode confirmation.",
-      "sourceStoryEvidence": "Old fixed-step and passive source traces have asymmetric completeness, baselineCandidateEventMatched=false and videoClockCalibration NOT EVALUATED. New harness tracks first observed source scene and source-start compatibility, but still cannot certify native video-frame event timecode, matched full motion or comparative visual quality.",
-      "twoOriginal3200TickCampaigns": "Two historical 3200-tick candidate campaigns at old 7a97b; latest original source quality 42388132657 at 062d passed one guardian source witness. Two current implementation-SHA 3200-tick campaigns not verified.",
-      "mostImportantFootageDefect": "Desktop then portrait reused one original source webServer: portrait guardian recording often began on a different FLOOR/EPISODE (baseline floor8/tick467, candidate floor10/tick632), invalidating action-to-action comparison. New capture process isolation must still be verified from original runner artifacts. Secondary unresolved portrait issue: climber/guardian/gateway action scale and physical passage can leave view.",
-      "hardwareFrameTimeMemory": "NOT EVALUATED: no supported physical device p50/p95/p99 or memory.",
+      "sourcePinnedFilmAssessment": "Recovered 9 artifacts on 42390010627: all eight matched-configuration original WebMs from fresh separate desktop/portrait hosts plus genuine ledge. Danger first source floor/tick baseline vs candidate desktop 8/79 vs 8/52; portrait 8/72 vs 8/50. Candidate original danger portrait ~71.72 seconds. Pixel sampling around 20–26s reveals large foreground wheel and tiny hero, physical inner door not clearly readable; source event names not synced to native WebM timecodes. Current code has not been filmed.",
+      "sourceStoryEvidence": "At pre-change f812 candidate source on same episode: living guardian HP to zero tick441; supported cap approach tick443; earned physical threshold/floor nine tick451; floor ten tick601, game result tick834, distinct restart. This is authoritative source narrative but not independently pixel-synced physical gateway video. Baseline clips have different gameplay route/events, so matching starting episode does not prove visual event pairing.",
+      "twoOriginal3200TickCampaigns": "Existing historical campaigns on earlier source only; current implementation SHA's unchanged dual 3200-tick campaigns NOT EVALUATED.",
+      "mostImportantFootageDefect": "Original native 390x844 candidate danger video: boss is killed but giant exterior wheel dominates and tiny hero/earned inner doorway cannot be tracked continuously during fast ~0.5s source window from defeat tick441 to floor-nine451. Source-video clock calibration also missing; video crop witness not accepted yet. New pre-unlock source-living last-stand camera staging requires captured re-evaluation.",
+      "hardwareFrameTimeMemory": "NOT EVALUATED: physical supported-device frame-time p50/p95/p99 and memory not measured.",
       "independentBlindReviews": {
         "looks": 0,
         "feels": 0,
         "plays": 0
       },
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "biggestExperienceGap": "No verified current-source normal-speed identical-start desktop/portrait full-motion A/B with calibrated event-to-WebM timecodes; portrait boss/gateway framing remains unproved. Independent reviewers and physical-device guards outstanding.",
-      "nextHighImpactAction": "Inspect exact f812 Node22 quality and 9-job capture results; verify per-viewport first-source floor/tick compatibility in new motion.json and authentic uninterrupted 60+s baseline/candidate WebM; align observed guardian/crusher→grounded gateway→floor-nine→outcome/restart events to actual film frames. If portrait hero/guardian/threshold still offscreen, correct scene/camera as the highest-impact playable transformation before moving beyond P0.",
-      "reviewUrl": "https://github.com/my-edutu/Ai_games/blob/feat/tower-transformation-gauntlet-20261101/docs/reviews/2026-11-07-tower-pr68-fresh-native-viewport-evidence-hosts.md",
-      "restrictions": "Frozen baseline unchanged at 1731b380851162741761c5569e2bc152a0869ca9; PR68 open/draft; PR58 untouched; no force push, merge, deploy, or baseline move."
+      "biggestExperienceGap": "New actual-game camera modification has no complete exact-SHA original normal-speed film. Source-authentic guardian-to-walkable-door physical pixel continuity, event-to-WebM calibration, independent reviewers and supported-device safeguards remain unproven.",
+      "nextHighImpactAction": "Run original Node22 tower-gateway-walk-lens regressions and exact-head full Tower quality; capture same-seed/tier original 960x600/390x844 60+s original real game at camera SHA80ee and immutable frozen baseline, using separate source hosts; inspect full-motion living guardian 1HP, defeat, crusher, grounded opened door/floor-nine onward, result/restart; calibrate WebM event offsets; if actor/door occluded or undersized rebuild scene/world sightline (do not advance P0).",
+      "reviewUrl": "https://github.com/my-edutu/Ai_games/blob/feat/tower-transformation-gauntlet-20261101/docs/reviews/2026-11-07-tower-pr68-recovered-original-film-final-duel-camera.md",
+      "restrictions": "Frozen baseline unchanged at 1731b380851162741761c5569e2bc152a0869ca9; PR68 remains open/draft, PR58 untouched, no force push, merge, deploy, or baseline move."
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
-    "state": "P0 OPEN — fresh native-viewport source host isolation committed; exact-code source film, matched video events and independent acceptance remain unverified",
+    "state": "P0 OPEN — earlier original source film identifies short guardian-to-door visual unreadability; new source-locked final duel camera unverified in exact-SHA game",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Inspect exact f812 Node22 quality and 9-job capture results; verify per-viewport first-source floor/tick compatibility in new motion.json and authentic uninterrupted 60+s baseline/candidate WebM; align observed guardian/crusher→grounded gateway→floor-nine→outcome/restart events to actual film frames. If portrait hero/guardian/threshold still offscreen, correct scene/camera as the highest-impact playable transformation before moving beyond P0.",
+    "nextDecision": "Run original Node22 tower-gateway-walk-lens regressions and exact-head full Tower quality; capture same-seed/tier original 960x600/390x844 60+s original real game at camera SHA80ee and immutable frozen baseline, using separate source hosts; inspect full-motion living guardian 1HP, defeat, crusher, grounded opened door/floor-nine onward, result/restart; calibrate WebM event offsets; if actor/door occluded or undersized rebuild scene/world sightline (do not advance P0).",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "No verified current-source normal-speed identical-start desktop/portrait full-motion A/B with calibrated event-to-WebM timecodes; portrait boss/gateway framing remains unproved. Independent reviewers and physical-device guards outstanding.",
+    "biggestRemainingExperienceGap": "New actual-game camera modification has no complete exact-SHA original normal-speed film. Source-authentic guardian-to-walkable-door physical pixel continuity, event-to-WebM calibration, independent reviewers and supported-device safeguards remain unproven.",
     "unverifiedImplementationBranchHead": "08ba7881d244e9edc8c801827bc802e1f6827e08",
     "currentVerticalSlice": "Physically earned ascent → guardian/crusher victory → full-body cap crossing → same-X grounded floor-nine arrival → playable onward route and true outcome/restart. No experience acceptance yet.",
     "biggestGap": "Current-source full-loop and 60+ second matched film remain unavailable. Historical portrait actor looked undersized and physical passage was unclear. The now-grounded floor-nine handoff formerly led back across ~250k of ground to the left first step; a new right-hand physical platform route is source-written but NOT proven by actual replay/film.",
@@ -144,7 +143,7 @@
         "https://github.com/my-edutu/Ai_games/actions/runs/42189740735"
       ]
     },
-    "roadmapStage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN (source A/B portrait session isolation implemented, NOT proven by current WebM)",
+    "roadmapStage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN (real old-SHA film inspected; source-living final-duel camera implemented, NOT yet captured/accepted)",
     "earnedCapReacquisition20261106": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "sourceHeadWhenInspected": "6029bc6c3416c93a79f61296e4b19d602330183d",
@@ -791,6 +790,24 @@
       "nextHighImpactAction": "Triage and actually fix 16 source CI failures prioritizing genuine guardian-cap/short-rig and beneath-cap physics; then establish event-to-native-WebM timecode correspondences for current exact 7a97b source matched with frozen baseline and inspect continuous footage. Rebuild systemically weak portrait guardian/gateway action framing and diminutive climber. Retest 3200-tick source chains, 9-job film, desktop/portrait, supported-device frame p50/p95/p99 memory, accessibility, and 5 truly independent blind reviewers per pillar.",
       "reviewUrl": "https://github.com/my-edutu/Ai_games/blob/feat/tower-transformation-gauntlet-20261101/docs/reviews/2026-11-07-tower-pr68-recovered-authentic-gameplay-capture.md",
       "safety": "Frozen baseline unchanged; PR68 open/draft, PR58 untouched; no merge/deploy/force-push."
+    },
+    "p0LivingFinalStandCamera20261107": {
+      "stage": "P0 OPEN",
+      "sourceGameplayShaAtStart": "435af26366fb424ca0a3935434e1ab195ae95c58",
+      "cameraImplementationSha": "80ee3e953cf73ecf5e6b749e068fbd72bf8fe151",
+      "exactCodeValidation": "NOT EVALUATED — actual original Node/browser suite and complete current-game capture unavailable at inspection (terminal tunnel disconnected).",
+      "evidenceReviewed": "GitHub 42390010627: nine artifact ZIPs exist, candidate danger 13581730693, frozen baseline danger 13581661255, outcome+moving artifacts. Source first tick pairs desktop baseline/candidate79/52, portrait72/50. Video source f812, not current. Sampled true native WebM picture at 20–26s shows wheel occlusion and tiny character; authentic guardian death tick441 -> floor9 tick451.",
+      "physicalImprovementProposed": "Stage one existing camera at real living final 25% guardian HP and cap/door proximity, instead of only after guardian defeat; do not mutate authority or fabricate a doorway passage.",
+      "nativeFilmAfterChange": "NOT EVALUATED",
+      "independentBlindReviews": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "physicalHardwareFrameTimeMemory": "NOT EVALUATED",
+      "nextHighImpactAction": "Run original Node22 tower-gateway-walk-lens regressions and exact-head full Tower quality; capture same-seed/tier original 960x600/390x844 60+s original real game at camera SHA80ee and immutable frozen baseline, using separate source hosts; inspect full-motion living guardian 1HP, defeat, crusher, grounded opened door/floor-nine onward, result/restart; calibrate WebM event offsets; if actor/door occluded or undersized rebuild scene/world sightline (do not advance P0).",
+      "reviewUrl": "https://github.com/my-edutu/Ai_games/blob/feat/tower-transformation-gauntlet-20261101/docs/reviews/2026-11-07-tower-pr68-recovered-original-film-final-duel-camera.md",
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9"
     }
   },
   "scenarios": [
