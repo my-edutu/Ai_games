@@ -27,13 +27,13 @@
     "openClockworkImplementationSha": "01ccf675281c5697e1e8e2153b0642f7b535c071",
     "openClockworkEvidenceStatus": "NOT EVALUATED: preliminary open clockwork at ef292410 failed actual quality route clearance (radius24.355903>23.4); corrected actual art geometry by 01ccf675 main radial18.6 and satellite21.3, maintaining flanking angles and open frames. Exact-code quality 42421786685 IN PROGRESS and source capture 42421786723 QUEUED. Do not present as quality-verified.",
     "machinedGuardianPassageImplementationSha": "faa29eaf4f84628057783c6b27f72bc1de9be111",
-    "machinedGuardianPassageEvidenceStatus": "NOT EVALUATED: real open clockwork prior source SHA 01ccf675 authentic portrait candidate danger at 42421786723 artifact 13593972523 still exhibits brown/bronze foreground panel and near-instant visual biome handoff circa native 24-26s. New actual 3D source-earned bronze gate geometry at faa29eaf has literal windows and bounded handoff opacity; test at 69113494. Exact-head new quality 42423757193 in progress and source-film 42423754924 queued when inspected. No current new-game camera/video or independent acceptance yet."
+    "machinedGuardianPassageEvidenceStatus": "NOT EVALUATED: authentic PRIOR open-clockwork source 01ccf675 normal-speed 390x844 footage 42421786723 shows large bronze/brown foreground slab near portal switch native 24-26s, three true-hole real geometry implementation faa29eaf + test 69113494. CI found only stale existing tests: 42423754786 FAIL 2/1214; 42423757193 FAIL 1/1215; updated Phase5 original Three.js contract 95e35dec now quality 42424125412 QUEUED. New real gameplay capture 42423754924 IN PROGRESS. No before/after source-timecode alignment, genuine reviewer votes or device data."
   },
   "currentTransformation": {
     "latestEvidenceRun": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "assessedAt": "2026-11-07",
-      "sourceHeadAtInspection": "4b4e1223a8270d59a4d85c2768ba386ae8280311",
+      "sourceHeadAtInspection": "8be4415094cdc68bcc67376a4c8854351ead0d2a",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "frozenBaselineMoved": false,
       "gameplayImplementationSha": "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
@@ -44,23 +44,30 @@
       "concreteCommits": [
         "faa29eaf4f84628057783c6b27f72bc1de9be111",
         "69113494c358b16b0a28a1efb320bb1d88f21c72",
-        "4b4e1223a8270d59a4d85c2768ba386ae8280311"
+        "95e35decfbb9c3b82e588e3cff151cc99c27ebb5",
+        "4b4e1223a8270d59a4d85c2768ba386ae8280311",
+        "8be4415094cdc68bcc67376a4c8854351ead0d2a"
       ],
       "modifiedFiles": [
         "public/infinite-tower-climb/visuals/guardian-passage.mjs",
         "tests/phase3/tower-guardian-passage.test.cjs",
+        "tests/phase5/tower-guardian-walkable-threshold.test.cjs",
         "docs/reviews/2026-11-07-tower-pr68-current-film-and-source-integrity-veto.md",
         "public/infinite-tower-climb/gauntlet/transformation.json"
       ],
       "originalRepositoryQuality": {
-        "priorAcceptedSafetyRunId": 42421786685,
-        "priorAcceptedSafetyRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42421786685",
-        "priorAcceptedRenderSha": "01ccf675281c5697e1e8e2153b0642f7b535c071",
-        "priorAcceptedResult": "SUCCESS original Node quality contract; technical only",
-        "newTestHeadSha": "69113494c358b16b0a28a1efb320bb1d88f21c72",
-        "newOriginalQualityRunId": 42423757193,
-        "newOriginalQualityUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42423757193",
-        "newOriginalQualityStatus": "IN PROGRESS at inspection; unverified"
+        "priorPassedQualityRunId": 42421786685,
+        "priorPassedQualitySha": "01ccf675281c5697e1e8e2153b0642f7b535c071",
+        "priorPassedStatus": "SUCCESS old clockwork render only",
+        "firstNewQualityRunId": 42423754786,
+        "firstNewQualityStatus": "FAIL 2/1214 (obsolete disposal count plus old bronze box-geometry regex)",
+        "secondNewQualityRunId": 42423757193,
+        "secondNewQualityStatus": "FAIL 1/1215 (remaining obsolete Phase 5 gate slab static regex)",
+        "correctiveSourceTestSha": "95e35decfbb9c3b82e588e3cff151cc99c27ebb5",
+        "correctiveSourceTest": "replaced static old-bronze-box regex with actual original Three.js installed gateway mesh/three full-depth holes/lock-lattice invariants",
+        "newOriginalQualityRunId": 42424125412,
+        "newOriginalQualityUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42424125412",
+        "newOriginalQualityStatus": "QUEUED at inspection; no exact corrective-test PASS yet"
       },
       "capture": {
         "inspectedPriorRunId": 42421786723,
@@ -87,14 +94,14 @@
       },
       "hardwareFrameTimeMemory": "NOT EVALUATED p50/p95/p99/memory on supported devices",
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "nextHighImpactAction": "Reread exact-source Node/Three quality 42423757193 and capture 42423754924, inspect new post-change portrait 390x844 and desktop 960x600 authentic full-motion defeat→body-through-door→floor9→outcome/restart; align event PTS/source ticks and identify the actual occluding mesh if a slab remains. Stay P0 and do not score CI as quality.",
+      "nextHighImpactAction": "Clear exact-source Node/Three quality with corrective Phase5 mesh test at SHA 95e35dec (workflow 42424125412), inspect completed nine-job actual new 3D perforated gate film at SHA faa29eaf run 42423754924 (390x844 and 960x600); align original fixed-step event ticks to native video timestamps for guardian defeat→real cap walk→floor9 onward→outcome/restart. If panel persists, identify actual occluding mesh rather than weaken combat authority. P0 stays open.",
       "reviewUrl": "https://github.com/my-edutu/Ai_games/blob/feat/tower-transformation-gauntlet-20261101/docs/reviews/2026-11-07-tower-pr68-current-film-and-source-integrity-veto.md",
       "restrictions": "PR68 draft/open, PR58 untouched; no baseline move, merge, deploy or force-push."
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
     "state": "P0 OPEN — new machined source-earned gateway leaf must pass exact-source original runtime and visual crossing evidence; blind acceptance NOT EVALUATED",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Reread exact-source Node/Three quality 42423757193 and capture 42423754924, inspect new post-change portrait 390x844 and desktop 960x600 authentic full-motion defeat→body-through-door→floor9→outcome/restart; align event PTS/source ticks and identify the actual occluding mesh if a slab remains. Stay P0 and do not score CI as quality.",
+    "nextDecision": "Clear exact-source Node/Three quality with corrective Phase5 mesh test at SHA 95e35dec (workflow 42424125412), inspect completed nine-job actual new 3D perforated gate film at SHA faa29eaf run 42423754924 (390x844 and 960x600); align original fixed-step event ticks to native video timestamps for guardian defeat→real cap walk→floor9 onward→outcome/restart. If panel persists, identify actual occluding mesh rather than weaken combat authority. P0 stays open.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
     "biggestRemainingExperienceGap": "At prior actual original-clockwork candidate SHA 01ccf675, portrait hero more visible during guardian near ~17–19s but large rim still intrudes near 15–16s; during source-earned cap to floor9 near native 24–26s, large bronze/brown slab occupies portrait foreground and biome change is abrupt. New perforated door source SHA faa29eaf unverified by video.",
     "unverifiedImplementationBranchHead": "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
