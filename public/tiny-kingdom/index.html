@@ -1090,7 +1090,8 @@ function getDrawCadenceAudit(){
 }
 
 const FRAME_PROFILE_LIMIT=48,frameProfileSamples=[];
-const FRAME_PROFILE_KEYS=['simulationAndSky','staticGeometry','dynamicGeometry','drawSubmission','total','worksiteGeometry','residentWorkGeometry','householdGeometry','economyGeometry','residentEconomyGeometry','ambientGeometry','citizenGeometry','weatherGeometry','gpuUpload'];
+let frameProfileScene=null,frameProfileSceneResets=0;
+const FRAME_PROFILE_KEYS=['simulationAndSky','staticGeometry','dynamicGeometry','drawSubmission','total','worksiteGeometry','residentWorkGeometry','householdGeometry','economyGeometry','residentEconomyGeometry','ambientGeometry','citizenGeometry','weatherGeometry','citizenDetailSelection','gpuUpload'];
 let frameProfileCount=0;
 function getFrameProfile(){
  const stages={};
@@ -1100,6 +1101,7 @@ function getFrameProfile(){
   stages[key]={p50:at(.5),p95:at(.95),p99:at(.99),worst:sorted.length?sorted[sorted.length-1]:0};
  }
  return {kind:'cpu-wall-submission',units:'ms',sampleLimit:FRAME_PROFILE_LIMIT,
+  scene:frameProfileScene,sceneResets:frameProfileSceneResets,
   totalFrames:frameProfileCount,samples:frameProfileSamples.length,
   latest:frameProfileSamples.length?{...frameProfileSamples[frameProfileSamples.length-1]}:null,stages};
 }
@@ -14804,6 +14806,17 @@ function projectRealCitizenDetail(p,frame){
   Math.abs(screenY)<1.12+heightFraction*.55;
  return {visible,depth,heightFraction,screenX,screenY};
 }
+// W108 Phase 1: one bounded real-camera/authoritative-tick citizen plan.
+// All citizens/real delivery parcels remain; this is read-only, not a sim.
+let citizenProjectionCache=null,citizenProjectionBuilds=0,
+ citizenProjectionHits=0,citizenProjectionActorsLast=0;
+function citizenProjectionCacheAudit(){return {
+ source:'same-real-camera-and-world-epoch-worker-detail',
+ entries:citizenProjectionCache?1:0,maxEntries:1,
+ builds:citizenProjectionBuilds,hits:citizenProjectionHits,
+ projectedActorsLast:citizenProjectionActorsLast,
+ cachedActors:citizenProjectionCache?.plan?.audit.population||0,
+ noOmittedCitizens:true,noNewPeople:true,authorityModified:false};}
 function selectVisibleCitizenDetail(){
  const n=people.length;
  const mode=n<=12?'all':streetWalk?'street':follow?'follow':
@@ -14818,6 +14831,16 @@ function selectVisibleCitizenDetail(){
   people.findIndex(p=>p.name===streetEncounterName):-1;
  const anchorIndex=activeIndex>=0?activeIndex:Math.min(selectedCitizen,n-1);
  const frame=citizenDetailCameraFrame();
+ // Use the exact physical camera eye and lens, even for 390px or actual
+ // homecoming; a real authoritative tick changes presentationEpoch.
+ const sceneKey=[presentationEpoch,state.t,n,selectedCitizen,mode,
+  frame.lens.viewportWidth,frame.lens.viewportHeight,
+  frame.tanVertical,frame.tanHorizontal,...frame.eye,...frame.forward,
+  ...frame.right,...frame.up].join('|');
+ if(citizenProjectionCache?.key===sceneKey&&
+    citizenProjectionCache.people===people){
+  citizenProjectionHits++;return citizenProjectionCache.plan;
+ }
  const projected=people.map((p,i)=>({i,...projectRealCitizenDetail(p,frame)}));
  const onScreen=projected.filter(row=>row.visible)
   .sort((a,b)=>b.heightFraction-a.heightFraction||
@@ -14847,7 +14870,10 @@ function selectVisibleCitizenDetail(){
    horizontalDegrees:frame.lens.horizontalDegrees},
   proof:'all original citizens have real detailed or articulated compact meshes; no authoritative changes'
  };
- return {indices,mode,budget,anchorIndex,audit};
+ const plan={indices,mode,budget,anchorIndex,audit};
+ citizenProjectionCache={key:sceneKey,people,plan};
+ citizenProjectionBuilds++;citizenProjectionActorsLast=n;
+ return plan;
 }
 // W24 Living Valley camera: a portrait phone using the desktop vertical
 // field of view sees only ~27 degrees of road horizontally, so an original
@@ -15259,7 +15285,9 @@ const dynamicPhaseTimes={
  worksiteGeometry:0,residentWorkGeometry:0,householdGeometry:0,economyGeometry:0,
  residentEconomyGeometry:0,ambientGeometry:0,citizenGeometry:0,weatherGeometry:0,gpuUpload:0
 };
+const citizenDetailStarted=performance.now();
 const detailPlan=selectVisibleCitizenDetail(),nearPeople=detailPlan.indices;
+dynamicPhaseTimes.citizenDetailSelection=performance.now()-citizenDetailStarted;
 // W14 Living Valley motion architecture: camera frames outnumber simulation
 // ticks on capable GPUs. Rebuild articulated citizens, actual carts, labor
 // tools and market receipts ONLY after a real fixed-step world change or a
@@ -15563,6 +15591,15 @@ if(gpuAvailable&&actorStreamSplitEnabled&&actorFrameData.length){
  // These are synchronous CPU wall phases and may include WebGL driver stalls;
  // they are not GPU elapsed queries, frame presentation timestamps or FPS.
  const frameProfileEnd=performance.now();
+ // Scene-aware actual CPU frame samples: never pool Day1 / Day120 / mobile.
+ const frameProfileScenario=drawCadenceSceneKey(Math.floor(state.t/24)+1,
+  (frozen?'paused:':'active:')+
+   (streetWalk?'walking':follow?'real-citizen':cinematic?'cinema':'town'),
+  canvas.clientWidth,canvas.clientHeight,renderQuality().scale);
+ if(frameProfileScene!==frameProfileScenario){
+  frameProfileSamples.length=0;frameProfileScene=frameProfileScenario;
+  frameProfileSceneResets++;
+ }
  frameProfileSamples.push({
   ...dynamicPhaseTimes,
   simulationAndSky:Math.max(0,frameStaticStart-frameProfileStart),
@@ -15576,10 +15613,7 @@ if(gpuAvailable&&actorStreamSplitEnabled&&actorFrameData.length){
  frameProfileCount++;
  // Pin real day, camera mode, actual backing scale and viewport together.
  // Frozen idle time must not masquerade as sluggish active gameplay.
- const drawScenario=drawCadenceSceneKey(Math.floor(state.t/24)+1,
-  (frozen?'paused:':'active:')+
-   (streetWalk?'walking':follow?'real-citizen':cinematic?'cinema':'town'),
-  canvas.clientWidth,canvas.clientHeight,renderQuality().scale);
+ const drawScenario=frameProfileScenario;
  noteDrawCompletion(frameProfileEnd,drawScenario,idleFrames>0);
  idleFrames=0;
  // Only a completed presentation may become the reusable frozen frame.
@@ -15617,7 +15651,7 @@ getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:
  totalSavedDrawCalls:scenicVisibilityStats.totalSavedDrawCalls,
  batchMode:scenicVisibilityStats.batchMode,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
  getWorksiteFixtureResidencyAudit,setWorksiteFixtureResidencyForTesting,
  getActorResidencyAudit,setActorStreamSplitForTesting,
  setStaticBatchBridgingForTesting,getScenicMultiDrawAudit,setScenicMultiDrawForTesting,getCourierPostCameraAudit,evaluateCourierPostRepairPolicy,getDaybreakReturnAudit,getCameraDynamicCacheStats,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.

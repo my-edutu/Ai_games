@@ -15,7 +15,7 @@ permissions:
 # even when a later hourly commit arrives. Pending jobs can still be replaced;
 # every artifact remains tied to its precise head SHA.
 concurrency:
-  group: tiny-kingdom-soak-${{ github.event.pull_request.number || github.ref }}
+  group: tiny-kingdom-soak-${{ github.event.pull_request.head.sha || github.sha }}
   cancel-in-progress: false
 
 jobs:
