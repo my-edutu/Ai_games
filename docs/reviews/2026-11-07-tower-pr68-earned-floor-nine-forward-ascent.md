@@ -1,0 +1,28 @@
+# Infinite Tower Climb PR68 — earned guardian gateway to a real forward ascent (P0 OPEN)
+
+**2026-11-07 · Stage P0 EVIDENCE + GAME-LOOP TRUTH · Verdict: NOT EVALUATED**
+
+## Investigation / user-visible experience defect
+The previous source correction preserved the actual earned guardian exit X on floor nine, instead of snapping from approximately X=318k to the standard X=42k spawn. That corrected a spatial discontinuity, but it exposed an adjacent route discontinuity: on an ordinary floor-nine world, the generated first climb (p1) starts on the opposite, LEFT side of a 480k-wide floor while the earned gate arrives on the RIGHT. The live autonomous pilot would have to reverse across roughly a quarter-million units of otherwise empty ground before its first authentic floor-nine climb. This is a **source geometry / route-coherence diagnosis**, NOT a confirmed newly recorded visual defect.
+
+## Changes on the existing draft PR68 branch
+- Test-first commit: `a934196af256eab4fec766d955da3095dfcadba5`; three original-runtime tests require a source-earned floor-nine first climb, no change to frozen/unflagged generation, and respecting the configured platform budget.
+- Gameplay source commit: `08ba7881d244e9edc8c801827bc802e1f6827e08` in `games/infinite-tower-climb/src/generation/chunks.ts`.
+- Only for opt-in real guardian runs, on a floor immediately after an actual guardian interval, and with capacity for a ninth platform, generator includes a physically collidable first `gateway-step` above the **real prior gate clearance X**. The existing left p1 and right p2 remain: this is a visible alternative first ascent, not an invisible AI shortcut.
+- Gateway defeat, cap-body clearance, flooring change, grounded arrival, player physics, hazards, enemy damage, AI planning and restart continue to be owned by the ordinary source. This does not add a fake victory, forced jump, scripted teleport, new source event, altered replay seed, or a new hazard immunity.
+- The frozen baseline SHA `1731b380851162741761c5569e2bc152a0869ca9` and base PR58 are not modified.
+
+## Feasible checks and known limits
+Authenticated GitHub returned the unchanged PR base SHA and draft/open status; fetched committed source and new runtime test after writes. Independent **arithmetic-only** structural probes using the exact default dimensions show: guardian clearance X=317,896; entry step X=260,396..375,396 with Y at the first +50,000 climb; existing p2 near X=268,800; original left p1 near X=48,000 plus deterministic jitter. At the default movement envelope, the gateway step is graph-reachable from the ground and connects to p2. A narrow 240k-by-240k bounds probe likewise connected the step. These are **not** actual Node repository tests or full replay proof. A 960k-by-720k envelope was already too tall for default 15k jump impulses, so it must not be presented as validated full-map reachability.
+
+**Tool blocker:** live development tunnel reported `Tunnel-client has not been seen for 300 seconds`; original Node22, npm build, two 3,200-step campaigns and Chromium recording could not be executed. GitHub Actions returned **no workflows for exact gameplay source SHA 08ba7881** at inspection; preceding nine-job run [42368724802](https://github.com/my-edutu/Ai_games/actions/runs/42368724802) remained queued with zero video artifacts; quality run [42368724834](https://github.com/my-edutu/Ai_games/actions/runs/42368724834) had zero artifacts. No exact-head source replay, continuous film, device performance, or independent reviewers have been witnessed this run.
+
+## Review: specification and quality
+- **Specification:** preserves frozen baseline, only Tower source/test/review/evidence; opt-in stage; one first physical climb; no false acceptance.
+- **Quality:** the new first-step platform can reduce a long post-gate backtrack, but this must be proven by a **normal-speed source-pinned film** and a causal full-game progression run. A structural graph connection does not demonstrate the actor completing the jump, picking an interesting route, or surviving the guardian-to-restart cycle. The additional platform has geometry/render cost and must be measured on actual devices; layout and visual differentiation remain open.
+- **Most important previously inspected footage defect:** historical portrait 390×844 footage shows a climber undersized amid monumental machinery and lacks a legible continuous guardian/crusher → earned doorway → floor-nine → outcome/restart sequence. There is **no new video** to rank its current severity.
+
+## Next highest-impact execution
+Restore the real Node22/Chromium worker; run `npm run build`, `node --test tests/phase2/tower-guardian-next-floor-route.test.cjs tests/phase2/tower-guardian-grounded-next-floor-continuity.test.cjs`, full Tower suite, and two untouched source-witness campaigns of 3,200 ticks. Require the same earned episode to progress from actual floor-eight live guardian/crusher pressure through physical clearance to **grounded first-step and onward floor-nine action**, then a true outcome and restart. Obtain baseline/candidate 60+ second matched normal-speed recordings at 960×600 and 390×844 with aligned source events. Fix any reproduced navigation or framing flaw; then collect native hardware p50/p95/p99/memory and genuinely independent anonymized 5× LOOKS/FEELS/PLAYS preferences. No stage promotion until P0 proves the complete chain.
+
+**Assessment:** NOT EVALUATED · independent LOOKS 0/5, FEELS 0/5, PLAYS 0/5 · device performance NOT EVALUATED · no merge, deploy, force push, PR status change or baseline move.
