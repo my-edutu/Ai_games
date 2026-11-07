@@ -4779,6 +4779,20 @@
       "fullMotionPaired": false,
       "independentReviewed": false,
       "sourceShaCurrent": false,
+      "priorCandidateTwo3200TickCampaigns": {
+        "artifactId": 13578611927,
+        "runId": 42382932723,
+        "sourceSha": "7a97b054f12a8548a1c1fb01cdaf538aea65d534",
+        "sourceEvidenceStatus": "COMPLETE_SOURCE_EPISODE_ONLY",
+        "deterministicExactReplay": true,
+        "fullSameRunSourceChainObserved": true,
+        "stepsPerCampaign": 3200,
+        "maxFloor": 10,
+        "guardianDefeats": 4,
+        "crusherDamage": 2,
+        "sourceCloseCrossfireTicks": 40,
+        "caveat": "Original two same-input campaigns matched exactly and the source auditor passed; this is from a PRIOR immutable candidate, not this commit, not visually matched film or a genuine acceptance review."
+      },
       "qualityVerdict": "NOT EVALUATED — retrieved native WebMs and event index, frame-sampled not full-motion blind-judged"
     },
     "biggestObservedFootageDefect": "Five-second frame sampling of original candidate portrait danger WebM: scale/staging jump from distant mechanical floor-eight exterior at about 25s to close floor-nine purple interior at about 30s. No clear continuously watched physical doorway passage; must inspect native motion before marking a current-camera defect.",
