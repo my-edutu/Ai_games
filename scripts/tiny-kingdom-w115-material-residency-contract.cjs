@@ -7,14 +7,14 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
-const material=html.match(/const MATERIAL=Object\\.freeze\\(\\{[^;]+\\}\\);/);
+const material=html.match(/const MATERIAL=Object\.freeze\(\{[^;]+\}\);/);
 assert(material,'Actual MATERIAL palette must exist');
 const start=html.indexOf('function validMaterialTag(material){');
 const end=html.indexOf('function geometryAudit(){',start);
 assert(start>=0&&end>start,'Actual resident material/mesh audit functions must exist');
 const context={Float32Array};
-vm.runInNewContext(material[0]+'\\n'+html.slice(start,end)+
- '\\nthis.valid=validMaterialTag;this.audit=inspectMeshGeometry;',context,{timeout:3000});
+vm.runInNewContext(material[0]+'\n'+html.slice(start,end)+
+ '\nthis.valid=validMaterialTag;this.audit=inspectMeshGeometry;',context,{timeout:3000});
 const floats=[0,1,4,7,9,10,13];
 const historicShutters=Array.from({length:8},(_,i)=>14+(i+1)/32);
 const smoke=Array.from({length:4},(_,i)=>17+(i+.5)/16);
