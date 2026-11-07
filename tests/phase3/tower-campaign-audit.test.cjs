@@ -4,7 +4,16 @@ const assert=require('node:assert/strict');
 const {REQUIRED,auditTowerCampaigns}=require('../../scripts/tower-campaign-audit.cjs');
 const SHA='a'.repeat(40);
 function witness(complete=true){
- const markers=Object.fromEntries(REQUIRED.map((key,i)=>[key,{tick:i+1,floor:i<6?8:9}]));
+ const markers=Object.fromEntries(REQUIRED.map((key,i)=>[
+   key,{tick:key==='restarted'?0:i+1,floor:i<5?8:i<9?9:8}]));
+ Object.assign(markers.crusherPressureSurvived,
+   {hazardId:'f8:guardian-shutter',warningTicks:3});
+ Object.assign(markers.groundedEarnedWalk,{capId:'f8:cap',x:100000});
+ Object.assign(markers.advancedOnCap,{x:120000});
+ Object.assign(markers.earnedFloorNine,{capId:'f8:cap',guardianId:'f8:guardian',
+   clearanceX:130000,observedActualCrossingX:135000});
+ Object.assign(markers.sourceResult,{kind:'game'});
+ Object.assign(markers.restarted,{nextRunId:'real-run-b'});
  return {kind:'source-only-guardian-campaign',fixedStepHz:20,steps:3200,launchFloor:8,
   guardianDefeats:1,causalEpisodeProof:{kind:'unmodified-fixed-step-source-episode-chain',
    fullSourceChainObserved:complete,
@@ -36,4 +45,32 @@ test('wrong campaign config and unpinned input never certify a source chain',()=
  const result=auditTowerCampaigns(a,structuredClone(a),'HEAD');
  assert.equal(result.fullSameRunSourceChainObserved,false);
  assert.equal(result.issues.length,3);
+});
+
+test('counterfeit complete episodes cannot pass with out-of-order beats or wrong floors',()=>{
+ for(const tamper of [
+  m=>{m.advancedOnCap.tick=m.groundedEarnedWalk.tick-1},
+  m=>{m.crusherPressureSurvived.tick=m.guardianDefeated.tick+1},
+  m=>{m.guardianDefeated.floor=9},
+  m=>{m.earnedFloorNine.floor=8}
+ ]){
+  const a=witness();tamper(a.causalEpisodeProof.episodes[0].markers);
+  const r=auditTowerCampaigns(a,structuredClone(a),SHA);
+  assert.equal(r.fullSameRunSourceChainObserved,false);
+  assert.equal(r.sourceEvidenceStatus,'INVALID_OR_NONDETERMINISTIC_SOURCE_EVIDENCE');
+ }
+});
+test('source gateway and restarting need actual geometry, pressure and game result',()=>{
+ for(const tamper of [
+  m=>{m.earnedFloorNine.observedActualCrossingX=m.earnedFloorNine.clearanceX-1},
+  m=>{m.advancedOnCap.x=m.groundedEarnedWalk.x},
+  m=>{m.crusherPressureSurvived.hazardId='f9:guardian-shutter'},
+  m=>{m.sourceResult.kind='technical'},
+  m=>{m.restarted.nextRunId='real-run-a'}
+ ]){
+  const a=witness();tamper(a.causalEpisodeProof.episodes[0].markers);
+  const r=auditTowerCampaigns(a,structuredClone(a),SHA);
+  assert.equal(r.fullSameRunSourceChainObserved,false);
+  assert.equal(r.sourceEvidenceStatus,'INVALID_OR_NONDETERMINISTIC_SOURCE_EVIDENCE');
+ }
 });
