@@ -7590,7 +7590,7 @@ function farmSoil(x0,x1,z0,z1,rowIndex){
 }
 // W55 original inhabited grain field: physically bending three-dimensional
 // cereals from existing deterministic planted coordinates, not new inventory.
-function farmStalk(x,z,index,season){
+function farmStalk(x,z,index,season,compact=false){
  const first=data.length,base=terrain(x,z)+.077;
  const sig=biomeHash(index*7+64),sig2=biomeHash(index*11+413);
  const sig3=biomeHash(index*17+271),sig4=biomeHash(index*19+577);
@@ -7606,6 +7606,23 @@ function farmStalk(x,z,index,season){
  quad([bottom[0],bottom[1],bottom[2]-w],[bottom[0],bottom[1],bottom[2]+w],
   [upper[0],upper[1],upper[2]+w*.47],[upper[0],upper[1],upper[2]-w*.47],stalk);
  if(season!==3){
+  // Complete original 3D stems remain in both seasonal meshes. The compact
+  // far camera retains two leaves and three tapered ear rows; the close
+  // farmer still sees the full original hand-built cereal silhouette.
+  if(compact){
+   for(const side of [-1,1]){
+    const attach=at(side===1?.35:.53),reach=(.15+sig4*.07)*side;
+    tri(attach,[attach[0]+reach*.53,attach[1]+h*.12,attach[2]+side*.04],
+     [attach[0]+reach,attach[1]+h*.16,attach[2]+side*.085],leaf);
+   }
+   for(let g=0;g<3;g++){
+    const p=at(.76+g*.078),kernel=(.074-g*.013)*(.86+sig3*.25);
+    for(const side of [-1,1])
+     tri([p[0],p[1]-.017,p[2]],
+      [p[0]+side*kernel,p[1]+.022,p[2]+side*.012],
+      [p[0]+side*.010,p[1]+.087,p[2]],head);
+   }
+  }else{
   for(const side of [-1,1]){
    const attach=at(side===1?.35:.53),reach=(.13+sig4*.08)*side;
    const mid=[attach[0]+reach*.55,attach[1]+h*.10,attach[2]+side*.04];
@@ -7626,6 +7643,7 @@ function farmStalk(x,z,index,season){
      [p[0],p[1]+.082,p[2]+side*.006],head);
    }
   }
+  }
   const awn=season===0?.105:.14;
   for(const side of [-1,1]){
    tri([tip[0]+side*.009,tip[1]-.055,tip[2]],
@@ -7637,7 +7655,7 @@ function farmStalk(x,z,index,season){
  farmScene.stalks++;
  farmScene.stalkTriangles+=(data.length-first)/30;
 }
-function ripeningField(bounds,plotIndex,season){
+function ripeningField(bounds,plotIndex,season,compact=false){
  const [x0,x1,z0,z1,rows,columns]=bounds,span=(z1-z0)/rows;
  for(let row=0;row<rows;row++){
   const zz=z0+(row+.5)*span;
@@ -7648,11 +7666,11 @@ function ripeningField(bounds,plotIndex,season){
     const jitterX=(biomeHash(id+79)-.5)*.22,jitterZ=(biomeHash(id+883)-.5)*span*.45;
     const x=x0+(col+.5)*(x1-x0)/columns+jitterX,z=zz+jitterZ;
     // Two staggered stems per planted clump; no grid of identical wheat icons.
-    farmStalk(x,z,id*2,season);
+    farmStalk(x,z,id*2,season,compact);
     // Still exactly two original real stems per planted clump; uneven
     // sowing softens the old rectilinear prototype look without extra mesh.
     const spacing=.09+biomeHash(id*31+19)*.19;
-    farmStalk(x+spacing,z-.06-biomeHash(id*41+3)*.13,id*2+1,season);
+    farmStalk(x+spacing,z-.06-biomeHash(id*41+3)*.13,id*2+1,season,compact);
    }
   });
  }
@@ -8003,12 +8021,115 @@ function farmIrrigation(){
   farmScene.waterSegments++;
  }
 }
+// W111 Phase 1: original 668 rooted wheat stems and every original soil
+// furrow survive all camera tiers. Two complete seasonal meshes are resident
+// on WebGL, independent of the persistent granary/market/civic mesh. Camera
+// movement only selects an existing VBO; no per-frame wheat mesh rebuild.
+// Canvas2D and unavailable GPU allocations preserve the original full field.
+const FARM_FIELD_MESH_FLOAT_LIMIT=650000,FARM_FIELD_MESH_MAX_BUFFERS=2;
+let farmFieldResidentSeason=-1,farmFieldNear=null,farmFieldFar=null,
+ farmFieldResidentDisabled=false,farmFieldLod='far',
+ farmFieldDrawCalls=0,farmFieldBuilds=0,farmFieldUploads=0,
+ farmFieldDisposals=0,farmFieldFailures=0,farmFieldLastTriangles=0,
+ farmFieldLastDistance=null;
+function farmFieldLodChoice(distance,previous='far'){
+ if(!Number.isFinite(distance)||distance<0||!['near','far'].includes(previous))
+  throw Error('W111 invalid actual crop camera distance or LOD');
+ // The 4 metre hysteresis avoids a full mesh-size flip while orbiting.
+ return distance<(previous==='near'?31:27)?'near':'far';
+}
+function disposeResidentFarmFields(){
+ if(gpuAvailable)for(const entry of [farmFieldNear,farmFieldFar]){
+  if(entry?.buffer){gl.deleteBuffer(entry.buffer);farmFieldDisposals++}
+ }
+ farmFieldNear=null;farmFieldFar=null;farmFieldResidentSeason=-1;
+ farmFieldLastTriangles=0;farmFieldLastDistance=null;
+}
+function buildOriginalCropMesh(season,compact){
+ const previousData=data,previousMaterial=currentMaterial;
+ let mesh;
+ try{
+  data=[];
+  for(let i=0;i<FARMSTEAD.fields.length;i++)
+   ripeningField(FARMSTEAD.fields[i],i,season,compact);
+  mesh=new Float32Array(data);
+ }finally{data=previousData;currentMaterial=previousMaterial}
+ if(mesh.length%30||mesh.length>FARM_FIELD_MESH_FLOAT_LIMIT)
+  throw Error('W111 field mesh exceeds bounded storage');
+ return mesh;
+}
+function prepareResidentFarmFields(season){
+ if(!gpuAvailable||farmFieldResidentDisabled)return false;
+ if(season===farmFieldResidentSeason&&farmFieldNear&&farmFieldFar)return true;
+ disposeResidentFarmFields();
+ const before={...farmScene},created=[];
+ try{
+  const near=buildOriginalCropMesh(season,false);
+  const nearCounters={...farmScene};
+  Object.assign(farmScene,before);
+  const far=buildOriginalCropMesh(season,true);
+  Object.assign(farmScene,nearCounters);
+  if(!near.length||!far.length||far.length>=near.length)
+   throw Error('W111 invalid authentic field tiers');
+  for(const mesh of [near,far]){
+   const buffer=gl.createBuffer();
+   if(!buffer)throw Error('W111 field GPU buffer unavailable');
+   created.push(buffer);bindGeometry(buffer);
+   gl.bufferData(gl.ARRAY_BUFFER,mesh,gl.STATIC_DRAW);
+   farmFieldUploads++;
+  }
+  farmFieldNear={mesh:near,buffer:created[0]};
+  farmFieldFar={mesh:far,buffer:created[1]};
+  farmFieldResidentSeason=season;farmFieldBuilds++;
+  farmFieldLod='far';return true;
+ }catch(error){
+  for(const buffer of created){gl.deleteBuffer(buffer);farmFieldDisposals++}
+  Object.assign(farmScene,before);
+  farmFieldNear=null;farmFieldFar=null;farmFieldResidentDisabled=true;
+  farmFieldFailures++;
+  // At initial build, farmstead() now renders every original wheat stalk
+  // through the intact civic path. Never silently skip the harvest.
+  return false;
+ }
+}
+function drawResidentFarmFields(eye){
+ if(!gpuAvailable||!farmFieldNear||!farmFieldFar)
+  return {drawCalls:0,triangles:0,mode:'complete-civic-fallback'};
+ const height=terrain(24,1)+.8;
+ const distance=Math.hypot(eye[0]-24,eye[2]-1,(eye[1]-height)*.75);
+ farmFieldLod=farmFieldLodChoice(distance,farmFieldLod);
+ const mesh=farmFieldLod==='near'?farmFieldNear:farmFieldFar;
+ bindGeometry(mesh.buffer);gl.drawArrays(gl.TRIANGLES,0,mesh.mesh.length/10);
+ farmFieldDrawCalls++;farmFieldLastDistance=distance;
+ farmFieldLastTriangles=mesh.mesh.length/30;
+ return {drawCalls:1,triangles:farmFieldLastTriangles,
+  mode:farmFieldLod,distance};
+}
+function getFarmFieldResidencyAudit(){
+ const plantedStems=FARMSTEAD.fields.reduce((n,field)=>n+2*field[4]*field[5],0);
+ return {source:'original-seeded-668-root-seasonal-field-vbos',
+  enabled:gpuAvailable&&!farmFieldResidentDisabled,
+  active:Boolean(farmFieldNear&&farmFieldFar),
+  season:farmFieldResidentSeason,mode:farmFieldLod,
+  eyeDistance:farmFieldLastDistance,drawnTriangles:farmFieldLastTriangles,
+  nearTriangles:(farmFieldNear?.mesh.length||0)/30,
+  farTriangles:(farmFieldFar?.mesh.length||0)/30,
+  buffers:Number(Boolean(farmFieldNear?.buffer))+Number(Boolean(farmFieldFar?.buffer)),
+  maxBuffers:FARM_FIELD_MESH_MAX_BUFFERS,
+  residentBytes:((farmFieldNear?.mesh.length||0)+(farmFieldFar?.mesh.length||0))*4,
+  perMeshFloatLimit:FARM_FIELD_MESH_FLOAT_LIMIT,plantedStems,
+  allOriginalRoots:true,nearAndFarStems:plantedStems,
+  builds:farmFieldBuilds,uploads:farmFieldUploads,drawCalls:farmFieldDrawCalls,
+  disposals:farmFieldDisposals,failures:farmFieldFailures,
+  authorityModified:false,saveModified:false,originalGranaryRetained:true};
+}
 function farmstead(){
  const season=climateAt(state.t).season;
- farmScene={rows:0,stalks:0,seedHeads:0,stalkTriangles:0,stalkVisualModel:'w55-tapered-crossed-stems-grain-ears',bundles:0,granaries:0,waterSegments:0};
- for(let i=0;i<FARMSTEAD.fields.length;i++)ripeningField(FARMSTEAD.fields[i],i,season);
- granaryArchitecture();
- grainShocks();fieldScarecrow();farmIrrigation();
+ farmScene={rows:0,stalks:0,seedHeads:0,stalkTriangles:0,stalkVisualModel:'w111-two-complete-seasonal-crop-tiers',bundles:0,granaries:0,waterSegments:0};
+ if(!prepareResidentFarmFields(season))
+  for(let i=0;i<FARMSTEAD.fields.length;i++)
+   ripeningField(FARMSTEAD.fields[i],i,season,false);
+ granaryArchitecture();grainShocks();fieldScarecrow();farmIrrigation();
 }
 
 // Original orchard: independently budgeted forks, twigs and seasonal foliage.
@@ -15344,6 +15465,12 @@ const civicKey=nextTerrainKey+':'+(gpuAvailable?'shader-light':daylightStage)+
 civicActiveKey=civicKey;
 const residentCivic=civicSceneryCache.get(civicKey);
 if(residentCivic&&(!civicGpuResidencyEnabled||residentCivic.buffer)){
+ // The static civic cache may be recalled after a genuine seasonal transition.
+ // Rebuild the exact-season field VBO before drawing the cached town. On GPU
+ // allocation failure we invalidate the cached civic and let the complete
+ // original CPU field fallback be rebuilt on the next scene frame.
+ if(gpuAvailable&&farmFieldResidentSeason!==groundClimate.season&&
+   !farmFieldResidentDisabled)prepareResidentFarmFields(groundClimate.season);
  if(civicGpuResidencyEnabled){
   civicBuffer=residentCivic.buffer;civicChunkRanges=residentCivic.ranges;
  }else appendCivicCachedVertices(residentCivic.vertices);
@@ -15565,7 +15692,7 @@ if(gpuAvailable){
  gl.uniform4f(uniforms.completedHarvestB,...(b?[b.x,b.z,b.floor,b.strength]:none));
 }
 lastFrameTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.length+
- activeCivicMesh().length+homeClusterFloats()+data.length+
+ activeCivicMesh().length+homeClusterFloats()+farmFieldLastTriangles*30+data.length+
   (gpuAvailable&&actorStreamSplitEnabled?actorFrameData.length:0)+
  (economyResidentActive?economyResidentMesh?.length||0:0)+
  (recordedWorkActive?recordedWorkMesh?.length||0:0)+
@@ -15577,7 +15704,9 @@ lastFrameTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.lengt
  (gpuAvailable?(atmosphere.climate.weather==='rain'?200:
   atmosphere.climate.weather==='snow'?240:0):0);
 if(gpuAvailable){
+ const fieldLodDraw=drawResidentFarmFields(eye);
  const planes=sceneFrustumPlanes(m);
+ scenicVisibilityStats.farmFields=fieldLodDraw;
  scenicVisibilityStats.landscape=drawVisibleStaticChunks(landscapeBuffer,landscapeChunkRanges,planes);
  scenicVisibilityStats.settlement=drawVisibleStaticChunks(settlementBuffer,settlementChunkRanges,planes);
  scenicVisibilityStats.homes=drawHomeClusters(planes);
@@ -15589,16 +15718,16 @@ if(gpuAvailable){
     invalidRanges:0};
  scenicVisibilityStats.totalSubmittedTriangles=scenicVisibilityStats.landscape.visibleTriangles+
   scenicVisibilityStats.settlement.visibleTriangles+scenicVisibilityStats.civic.visibleTriangles+
-  scenicVisibilityStats.homes.visibleTriangles;
+  scenicVisibilityStats.homes.visibleTriangles+fieldLodDraw.triangles;
  scenicVisibilityStats.totalCulledTriangles=scenicVisibilityStats.landscape.culledTriangles+
   scenicVisibilityStats.settlement.culledTriangles+scenicVisibilityStats.civic.culledTriangles+
   scenicVisibilityStats.homes.culledTriangles;
  scenicVisibilityStats.totalDrawCalls=scenicVisibilityStats.landscape.drawCalls+
   scenicVisibilityStats.settlement.drawCalls+scenicVisibilityStats.civic.drawCalls+
-  scenicVisibilityStats.homes.drawCalls;
+  scenicVisibilityStats.homes.drawCalls+fieldLodDraw.drawCalls;
  scenicVisibilityStats.totalDriverCalls=scenicVisibilityStats.landscape.driverCalls+
   scenicVisibilityStats.settlement.driverCalls+scenicVisibilityStats.civic.driverCalls+
-  scenicVisibilityStats.homes.driverCalls;
+  scenicVisibilityStats.homes.driverCalls+fieldLodDraw.drawCalls;
  scenicVisibilityStats.totalMultiDrawBatches=scenicVisibilityStats.landscape.multiDrawBatches+
   scenicVisibilityStats.settlement.multiDrawBatches+scenicVisibilityStats.civic.multiDrawBatches+
   scenicVisibilityStats.homes.multiDrawBatches;
@@ -15754,7 +15883,7 @@ getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:
  totalSavedDrawCalls:scenicVisibilityStats.totalSavedDrawCalls,
  batchMode:scenicVisibilityStats.batchMode,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getFarmFieldResidencyAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
  getWorksiteFixtureResidencyAudit,setWorksiteFixtureResidencyForTesting,
  getActorResidencyAudit,setActorStreamSplitForTesting,
  setStaticBatchBridgingForTesting,getScenicMultiDrawAudit,setScenicMultiDrawForTesting,getCourierPostCameraAudit,evaluateCourierPostRepairPolicy,getDaybreakReturnAudit,getCameraDynamicCacheStats,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
