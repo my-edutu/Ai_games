@@ -13,6 +13,7 @@ import { createTowerMovingDeckSuspension } from './moving-deck-suspension.mjs';
 import { createTowerHazardPressure, observedConcurrentHazardCluster } from './hazard-pressure.mjs';
 import { observedActionStage, guardedCrossfireAimGain } from './action-staging.mjs';
 import { observedTraversalKinetics } from './traversal-kinetics.mjs';
+import { observedLandingShotSpan } from './landing-shot-span.mjs';
 import { observedHealthRecovery, createTowerRecoveryTransfer } from './recovery-transfer.mjs';
 import { createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianRelayStage, observedGuardianPowerSpineStage } from './guardian-circuit.mjs';
 import { createTowerAtmosphere } from './atmosphere.mjs';
@@ -1228,16 +1229,27 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
       const touchdownX = observedSourceLandingX(snapshot, target);
       const halfFootprint = Math.min(target.width * .45,
         Math.max((player.halfWidth || 9000) * 1.35, 9000));
+      // When the actual autonomous pilot has declared its current airborne
+      // braking lane, do not turn a giant cap into a compulsory panorama.
+      // Preserve the complete physical deck and all real hazard/actor bounds;
+      // fit the SOURCE-OBSERVED landing corridor only on unusually wide
+      // targets. The existing guardian-airborne framing wins during a duel.
+      // Scene VM fixtures without ESM helpers retain the old full-deck view.
+      const landingShot = !airdrop &&
+        typeof observedLandingShotSpan === 'function'
+        ? observedLandingShotSpan(snapshot, target, touchdownX) : null;
       const left = airdrop ? clamp(touchdownX - halfFootprint,
-        target.x, target.x + target.width) : target.x;
+        target.x, target.x + target.width) : (landingShot?.left ?? target.x);
       const right = airdrop ? clamp(touchdownX + halfFootprint,
-        target.x, target.x + target.width) : target.x + target.width;
+        target.x, target.x + target.width) :
+        (landingShot?.right ?? target.x + target.width);
       for (const x of [left, right]) {
         const edge = pointFor(x, target.y + target.height,
           snapshot.chunkBaseY, snapshot.worldWidth, 26.7);
         points.push(edge, { ...edge, y: edge.y + .4 }); sightlines.push(edge);
       }
-      points.push(pointFor(airdrop ? touchdownX : target.x + target.width / 2,
+      points.push(pointFor(airdrop ? touchdownX :
+        (landingShot?.x ?? target.x + target.width / 2),
         target.y + target.height, snapshot.chunkBaseY, snapshot.worldWidth, 24.4));
     }
   }
