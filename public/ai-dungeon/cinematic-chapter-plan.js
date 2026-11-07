@@ -270,8 +270,13 @@ export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMo
  // but never compress a genuine telegraph, cast or strike hazard.
  const stretch=portrait?(warning?1.24:closeDuel?1.045:1.10):1;
  const terminal=shot.mode==='last-stand';
- const radius=(terminal?clip(policy.radius+Math.max(0,shot.spread||0)*.68,4.65,7.15):policy.radius-1.5*approachNear)*stretch;
- const y=(policy.height-1.35*approachNear+(terminal?Math.min(.85,Math.max(0,shot.spread||0)*.21):0))*
+ // At a real one- or two-cell Warden approach the prior high orbit made
+ // original adult-scale skinned actors read like tabletop pieces in Chromium.
+ // Lower the physical camera with the advancing hero and real boss. The
+ // existing subject-fit gate will widen FOV if a danger cell or body is cut.
+ // Warden warnings and cast releases never enter this closer approach.
+ const radius=(terminal?clip(policy.radius+Math.max(0,shot.spread||0)*.68,4.65,7.15):policy.radius-2.5*approachNear)*stretch;
+ const y=(policy.height-2.25*approachNear+(terminal?Math.min(.85,Math.max(0,shot.spread||0)*.21):0))*
   (portrait?(warning?1.17:closeDuel?1.04:1.07):1);
  const offsets=Object.freeze([
   round(shot.offsets[0]/horizontal*radius),
@@ -281,8 +286,8 @@ export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMo
  return Object.freeze({
   mode:shot.mode,offsets,
   fov:policy.fov+(portrait?(warning?6:closeDuel?2:4):0),
-  lookY:policy.aim,
-  following:reducedMotion?1:policy.follow,
+  lookY:policy.aim+(approachNear*.18),
+  following:reducedMotion?1:policy.follow+(approachNear*1.2),
   keyScale:policy.key,
   portrait,dangerPriority:warning,
   primarySubject:Array.isArray(shot.subjects)?shot.subjects[0]??null:null

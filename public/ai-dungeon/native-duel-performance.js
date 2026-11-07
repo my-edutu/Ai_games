@@ -65,18 +65,22 @@ export function planNativeDuelPose(kind,action,age=0,{targetId=null,distance=nul
  const settle=t<=NATIVE_CONTACT_TIME?0:t<.355?
   ease((t-NATIVE_CONTACT_TIME)/(.355-NATIVE_CONTACT_TIME)):
   1-ease((t-.355)/(NATIVE_DUEL_DURATION-.355));
- const leadUpper=foot*(-.060*wind+.105*release);
- const rearUpper=foot*(.085*wind-.075*release);
- const lead={upper:round(leadUpper),lower:round(foot*(.068*wind+.11*release)),foot:round(foot*(-.052*wind-.081*release))};
- const rear={upper:round(rearUpper),lower:round(foot*(.032*wind+.046*release)),foot:round(foot*(-.048*wind+.06*release))};
+ // One source-skinned planted stance spans the real attack clip. The back
+ // thigh loads in anticipation; lead knee and ankle visibly absorb contact
+ // while the source-hand blade follows through at the same 215 ms landmark.
+ // Joint angles stay bounded and never alter reach, targets or hitboxes.
+ const leadUpper=foot*(-.088*wind+.172*release);
+ const rearUpper=foot*(.129*wind-.126*release);
+ const lead={upper:round(leadUpper),lower:round(foot*(.093*wind+.177*release)),foot:round(foot*(-.078*wind-.121*release))};
+ const rear={upper:round(rearUpper),lower:round(foot*(.054*wind+.080*release)),foot:round(foot*(-.076*wind+.109*release))};
  const legs=s>0?{left:lead,right:rear}:{left:rear,right:lead};
  return {
   mode:p.style,phase:t<NATIVE_CONTACT_TIME?'windup':t<.355?'impact':'recovery',
   contactWeight:round(release*(1-.32*settle)),
   strength:round(clamp(.55*wind+.8*release)),
   head:{pitch:round(w*(-.047*wind+.030*release)),yaw:round(s*w*(.060*wind-.07*release)),roll:round(-s*w*.022*settle)},
-  hips:{pitch:round(w*(.052*wind-.043*release)),yaw:round(s*w*(-.071*wind+.090*release)),roll:round(s*w*(.026*wind-.031*release))},
-  spine:{pitch:round(w*(.051*wind-.079*release)),yaw:round(s*w*(-.087*wind+.122*release)),roll:round(s*w*(.048*wind-.049*release))},
+  hips:{pitch:round(w*(.069*wind-.082*release)),yaw:round(s*w*(-.091*wind+.117*release)),roll:round(s*w*(.032*wind-.038*release))},
+  spine:{pitch:round(w*(.067*wind-.117*release)),yaw:round(s*w*(-.107*wind+.155*release)),roll:round(s*w*(.056*wind-.060*release))},
   wrist:{pitch:round(w*(-.082*wind+.153*release)),yaw:round(s*w*(.061*wind-.08*release)),roll:round(s*w*(-.068*wind+.102*release))},
   arms:{
    left:{pitch:round(w*(-.074*wind+.068*release)),roll:round(s*w*(.057*wind-.029*release))},

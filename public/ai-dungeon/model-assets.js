@@ -770,8 +770,13 @@ function stageRigLegsAfterMixer(actor,since,reducedMotion){
   const releaseBrace=actor.u.kind==='warden'&&!reducedMotion?(actor.wardenStrikePose?.brace??0):0;
   const plant=(warningBrace+releaseBrace)*(mount.part==='upper'?(mount.side==='left'?.72:1):
    mount.part==='lower'?-1.05:.28);
-  const angle=Math.max(-.30,Math.min(.30,pose[mount.side][mount.part]+contact+plant+(actor.nativeDuel?.legs?.[mount.side]?.[mount.part]??0)+(actor.evasionFrame?.legs?.[mount.side]?.[mount.part]??0)));
-  actor.rigContactBracePeak=Math.max(actor.rigContactBracePeak||0,Math.abs(contact));
+  const nativeContact=actor.nativeDuel?.legs?.[mount.side]?.[mount.part]??0;
+  const angle=Math.max(-.30,Math.min(.30,pose[mount.side][mount.part]+contact+plant+nativeContact+(actor.evasionFrame?.legs?.[mount.side]?.[mount.part]??0)));
+  // The previous real Chromium native-brace diagnostic reported 0 because
+  // it measured only the intentionally suppressed LEGACY contact brace.
+  // Measure the actual imported source-rig plant as well, without stacking
+  // another strike or fabricating authoritative damage.
+  actor.rigContactBracePeak=Math.max(actor.rigContactBracePeak||0,Math.abs(contact+nativeContact));
   mount.next.setFromEuler(mount.euler.set(angle,0,0,'XYZ'));
   mount.bone.quaternion.multiply(mount.next);
   mount.last.copy(mount.next);

@@ -100,3 +100,23 @@ test('actual Warden approach tracks living-body proximity while preserving dange
  }
  assert.equal(JSON.stringify(close),before,'camera cannot mutate authoritative state');
 });
+
+test('authentic close-body Warden approach gains physical scale in BOTH viewports without stealing warning coverage',async()=>{
+ const {planCinematicShot,planReadableExpeditionLens}=await load('public/ai-dungeon/cinematic-chapter-plan.js');
+ const s=fixture();s.units[2].action='idle';s.units[2].actionTick=12;s.bossRecovery=null;
+ const before=JSON.stringify(s),shot=planCinematicShot(s);
+ assert.equal(shot.mode,'warden-approach');assert.equal(shot.duelDistance,2);
+ for(const view of [{width:1440,height:832},{width:390,height:844}]){
+  const lens=planReadableExpeditionLens(shot,view);
+  const radius=Math.hypot(lens.offsets[0],lens.offsets[2]);
+  assert.ok(radius<(view.width===390?6.0:5.6),'close Warden must not read like miniature');
+  assert.ok(lens.offsets[1]<(view.width===390?5.4:5.05),'physical body-height camera is essential');
+  const stable=planReadableExpeditionLens(shot,{...view,reducedMotion:true});
+  assert.ok(Math.hypot(stable.offsets[0],stable.offsets[2])>radius+1,'reduced-motion retains stable wide view');
+  s.bossWarning={attackTick:s.tick+1,shape:'NOVA',cells:[{x:12,z:9}]};
+  const danger=planReadableExpeditionLens(planCinematicShot(s),view);
+  assert.equal(danger.mode,'warden-warning');assert.equal(danger.dangerPriority,true);
+  s.bossWarning=null;
+ }
+ assert.equal(JSON.stringify(s),before,'optical camera cannot modify game authority');
+});
