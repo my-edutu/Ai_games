@@ -7,6 +7,7 @@ on:
       - 'public/ai-maze-escape/**'
       - 'games/ai-maze-escape/**'
       - 'tests/browser/maze-review.spec.cjs'
+      - 'tests/browser/maze-3d.spec.cjs'
       - 'tests/phase3/maze-*.test.cjs'
       - 'scripts/capture-maze-3d.cjs'
       - '.github/workflows/maze-visual-evidence.yml'
@@ -54,6 +55,11 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Capture source-bound Maze browser evidence
         run: npx playwright test tests/browser/maze-review.spec.cjs --workers=1 --reporter=list
+      # The full monorepo CI can stop at an unrelated game before reaching
+      # the Maze browser stage. Exercise the unchanged six-run physical GPU
+      # budget here too, after authentic image capture, on this exact PR HEAD.
+      - name: Verify six real Maze run resets and strict geometry budget
+        run: npx playwright test tests/browser/maze-3d.spec.cjs --grep 'six real run transitions' --workers=1 --reporter=list
       - name: Preserve dated actual screenshots and source hashes
         if: always()
         uses: actions/upload-artifact@v7
