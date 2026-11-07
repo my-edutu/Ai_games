@@ -32,9 +32,9 @@
       "originalRuntime": "NOT EVALUATED — live workspace rejected command with tunnel-client not seen for 300 seconds. No exact-source Node22/Chromium execution.",
       "twoOriginal3200TickCampaigns": "NOT EVALUATED",
       "sourcePinnedCaptureWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42368724802",
-      "sourcePinnedCaptureState": "OLDER candidate 3177a74 nine jobs QUEUED, zero artifacts at inspection. No workflow returned by exact-08ba source lookup.",
+      "sourcePinnedCaptureState": "OLDER captured candidate 3177a74 run 42368724802 had nine queued jobs, zero artifacts. PR-trigger-only commit workflow lookup returns no exact-08ba runs; push-triggered CI status cannot be established from that lookup.",
       "exactHeadQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42368724834",
-      "exactHeadQualityState": "OLDER run had zero artifacts; no exact-08ba workflow returned at inspection.",
+      "exactHeadQualityState": "OLDER run 42368724834 had zero artifacts at inspection. PR-trigger-only commit workflow lookup cannot establish whether the new push-triggered quality run exists or passed.",
       "mostImportantKnownFootageDefect": "Historical 390x844 footage had an undersized actor and no legible continuous guardian/crusher defeat, grounded gateway, floor nine, true outcome and restart. This is NOT new current footage; no current-source clips were available.",
       "sourceVerifiedFullMotionFilm": "NOT EVALUATED",
       "actualDeviceP50P95P99AndMemory": "NOT EVALUATED",
@@ -714,13 +714,14 @@
       "reviewCommitSha": "97f0bb5271e70e1b694897d6d8a6f51623cb4585",
       "authoredNewRoute": "f9:gateway-step is original generation under opted-in guardian interval with >=9 platform budget; physical first climb from right-hand gate, existing left p1 and right p2 intact",
       "sourceAndVisualProof": "NOT EVALUATED: no actual checkout, campaign, browser film or supported-device result",
-      "exactHeadWorkflows": "None returned for gameplay implementation SHA at inspection",
+      "exactHeadWorkflows": "NOT VERIFIED — connector commit-run query filters to pull-request workflows, while these Tower workflows use push. Prior referenced 9-job run still queued.",
       "independentReviews": {
         "looks": 0,
         "feels": 0,
         "plays": 0
       },
-      "nextAction": "Reconnect original Node22/Chromium runner and run npm build, new phase2 guardian-next-floor-route plus grounded-continuity regression, full Tower suite and two unchanged 3200-tick source campaigns. Verify floor-eight live guardian/crusher victory, earned physical door walk, grounded floor-nine arrival, actual jump/landing on gateway-step, further floor-nine traversal, outcome and restart. Pin matched 60+s normal-speed baseline/candidate desktop 960x600 and portrait 390x844 with aligned event sidecars. Inspect actor scale/route/guardian, fix largest defect, then device p50/p95/p99/memory and five genuinely independent blind reviewers per pillar."
+      "nextAction": "Reconnect original Node22/Chromium runner and run npm build, new phase2 guardian-next-floor-route plus grounded-continuity regression, full Tower suite and two unchanged 3200-tick source campaigns. Verify floor-eight live guardian/crusher victory, earned physical door walk, grounded floor-nine arrival, actual jump/landing on gateway-step, further floor-nine traversal, outcome and restart. Pin matched 60+s normal-speed baseline/candidate desktop 960x600 and portrait 390x844 with aligned event sidecars. Inspect actor scale/route/guardian, fix largest defect, then device p50/p95/p99/memory and five genuinely independent blind reviewers per pillar.",
+      "reviewRevisionSha": "e5f9d196bd63b96b27dabd12d59df6485e01ff7f"
     }
   },
   "scenarios": [
