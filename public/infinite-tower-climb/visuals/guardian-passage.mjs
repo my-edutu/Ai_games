@@ -115,6 +115,37 @@ export function observedPassageApproach(source, earned) {
     (cap.width * .36 - gap) / (cap.width * .24)));
 }
 
+// A source-earned gateway should not become a full-screen bronze slab when
+// the climber physically crosses it. Original machined depth-through windows
+// keep the actor/next floor legible without hiding collision or making a HUD.
+export function createMachinedGuardianLeafGeometry(THREE) {
+  const shape = new THREE.Shape();
+  shape.moveTo(-.5, -.5);
+  shape.lineTo(.5, -.5);
+  shape.lineTo(.5, .5);
+  shape.lineTo(-.5, .5);
+  shape.closePath();
+  for (const [left, bottom, right, top] of [
+    [-.385, -.365, -.075, .27],
+    [.075, -.365, .385, .27],
+    [-.135, .335, .135, .43],
+  ]) {
+    const slot = new THREE.Path();
+    slot.moveTo(left, bottom);
+    slot.lineTo(right, bottom);
+    slot.lineTo(right, top);
+    slot.lineTo(left, top);
+    slot.closePath();
+    shape.holes.push(slot);
+  }
+  const metal = new THREE.ExtrudeGeometry(shape, {
+    depth: .72, steps: 1, bevelEnabled: false, curveSegments: 2,
+  });
+  metal.translate(0, 0, -.36);
+  metal.name = 'OriginalMachinedGuardianOpenLeaf';
+  return metal;
+}
+
 export function createTowerGuardianPassage(THREE) {
   const group = new THREE.Group();
   group.name = 'ObservedGuardianPassage';
@@ -132,6 +163,13 @@ export function createTowerGuardianPassage(THREE) {
     depthTest: true, side: THREE.DoubleSide, toneMapped: false,
   });
   const box = new THREE.BoxGeometry(1, 1, 1);
+  const machinedLeaf = createMachinedGuardianLeafGeometry(THREE);
+  const leafMaterial = new THREE.MeshStandardMaterial({
+    color: 0xb98450, metalness: .78, roughness: .38,
+    transparent: true, opacity: .86, depthTest: true,
+    depthWrite: false, side: THREE.DoubleSide,
+  });
+  leafMaterial.name = 'GuardianSourceEarnedOpenLeaf';
   const crownGeometry = new THREE.OctahedronGeometry(.48, 0);
   // On a witnessed decisive guardian hit, a tiny instanced lock fractures.
   // Decorative fragments never create a collider or change the fixed-step run.
@@ -146,8 +184,8 @@ export function createTowerGuardianPassage(THREE) {
     color: 0xb58d6b, metalness: .66, roughness: .48,
     transparent: true, opacity: .88, depthTest: true, depthWrite: false,
   });
-  const ownedGeometry = [box, crownGeometry, openingGeometry, groundGeometry, shardGeometry, fallenGeometry];
-  const ownedMaterials = [stone, bronze, glow, fallenMaterial];
+  const ownedGeometry = [box, crownGeometry, openingGeometry, groundGeometry, shardGeometry, fallenGeometry, machinedLeaf];
+  const ownedMaterials = [stone, bronze, glow, fallenMaterial, leafMaterial];
   const add = (name, geometry, material, position, scale, parent = group) => {
     const object = new THREE.Mesh(geometry, material);
     object.name = name;
@@ -168,7 +206,7 @@ export function createTowerGuardianPassage(THREE) {
     const wing = new THREE.Group();
     wing.name = side < 0 ? 'ClearedPassageLeftLeaf' : 'ClearedPassageRightLeaf';
     group.add(wing);
-    add('ClearedPassageBronzeLeaf', box, bronze, [0, 2.12, .15], [2.87, 4.13, .22], wing);
+    add('ClearedPassageBronzeLeaf', machinedLeaf, leafMaterial, [0, 2.12, .15], [2.87, 4.13, .22], wing);
     add('ClearedPassageRib', box, stone, [side * 1.19, 2.1, .32], [.11, 3.66, .07], wing);
     wings.push({ side, wing });
   }
@@ -205,7 +243,7 @@ export function createTowerGuardianPassage(THREE) {
     thresholdStones.setMatrixAt(index,thresholdPose.matrix);
   });
   thresholdStones.instanceMatrix.needsUpdate = true;
-  const thresholdLeaves = new THREE.InstancedMesh(box, bronze, 2);
+  const thresholdLeaves = new THREE.InstancedMesh(machinedLeaf, leafMaterial, 2);
   thresholdLeaves.name = 'WalkableSourceCapRetractingBronzeLeaves';
   thresholdLeaves.castShadow = false;
   thresholdLeaves.receiveShadow = false;
@@ -702,6 +740,11 @@ export function createTowerGuardianPassage(THREE) {
     ring.scale.setScalar(still ? 1 : .65 + opened * .55);
     stone.opacity = .82 * fade;
     bronze.opacity = .9 * fade;
+    // Retain the ACTUAL opened passage after the source-verified floor change
+    // without re-covering the skinned actor in overlapping solid plates. The
+    // source-locked vertical energy lattice remains fully independent.
+    leafMaterial.opacity = locked ? .88 :
+      stage === 'handoff' ? .26 * fade : .74 * fade;
     glow.opacity = .65 * fade;
   }
   function cameraWeight() {
@@ -739,6 +782,8 @@ export function createTowerGuardianPassage(THREE) {
         capDeckRadialBand: [GUARDIAN_PASSAGE_RADII.deckMin, GUARDIAN_PASSAGE_RADII.deckMax],
         originalExteriorLockRadius: GUARDIAN_PASSAGE_RADII.lock,
         gateOpen: Number(Math.max(0,lastWalkableOpening).toFixed(4)),
+        originalThroughCutLeafWindows: machinedLeaf.parameters.shapes.holes.length,
+        gatewayLeafAlpha: Number(leafMaterial.opacity.toFixed(4)),
         archInstances: thresholdStones.count, retractingLeaves: thresholdLeaves.count,
         extraDraws: stage === 'guardian-locked' ? 3 : 2,
         collider: false, sourceSimulationSealActive: stage === 'guardian-locked',
