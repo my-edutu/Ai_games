@@ -99,7 +99,9 @@ test('the real event creates a separated 3D bronze passage with bounded resource
       assert.equal(object.receiveShadow, false);
       assert.equal(object.userData.collider, undefined);
     });
-    assert.equal(meshCount, 19, 'the source-grounded cap inlay plus walkable threshold stone and bronze meshes are bounded and non-colliding');
+    assert.ok(effect.group.getObjectByName('ObservedWalkableGuardianThreshold'),
+      'an added physical doorway must be present on the same actual grounded cap lane');
+    assert.equal(meshCount, 20, 'the source-grounded inlay and threshold meshes must remain exactly bounded and non-colliding');
     assert.equal(effect.diagnostics().fragmentInstances, 8);
     assert.ok(effect.focusPoint()?.y > anchor.y + .5);
     assert.equal(effect.diagnostics().shadows, 0);

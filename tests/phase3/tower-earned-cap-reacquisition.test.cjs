@@ -87,7 +87,7 @@ test('a real post-defeat fall BELOW the cap plane reacquires an interceptable lo
   const before={...state.player.position},decision=choose(state);
   assert.equal(decision.intent.targetPlatformId,shelf.id,
     'descending actor should reacquire actual reachable shelf, not the stale lower fight target');
-  assert.match(decision.intent.summary,/real return deck|reachable return deck/);
+  assert.match(decision.intent.summary,/real return deck|reachable return deck|reachable clear return lane/);
   assert.equal(decision.action.jump,false,'no invented mid-air recovery jump');
   assert.equal(decision.action.dash,false,'fall steering never grants a free dash');
   assert.equal(decision.action.ability,false);

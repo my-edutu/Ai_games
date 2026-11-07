@@ -2,6 +2,7 @@
 const test=require('node:test'), assert=require('node:assert/strict');
 const fs=require('node:fs'), path=require('node:path'), vm=require('node:vm');
 const {createSession,advance}=require('../../scripts/serve-tower-stream.cjs');
+const FROZEN_STREAM_CONFIG=require('./tower-frozen-stream-config.cjs');
 const scene=fs.readFileSync(path.resolve(__dirname,'../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
 function shipped(name,args){
   const match=scene.match(new RegExp('^function '+name+'\\('+args+'\\) \\{[\\s\\S]*?^\\}','m'));
@@ -11,7 +12,7 @@ function shipped(name,args){
 const landing=shipped('intendedLanding','snapshot');
 const approach=shipped('climbApproachRadius','snapshot, platform');
 const frameSeries=()=>{
-  const session=createSession('tower-stream-reference',undefined,'historical-v1'),observations=[];
+  const session=createSession('tower-stream-reference',FROZEN_STREAM_CONFIG,'historical-v1'),observations=[];
   for(let i=0;i<320;i++){
     const frame=session.controller.frame(390,844,{reducedMotion:true,muted:true});
     const snap=frame.snapshot;
@@ -78,7 +79,7 @@ test('release is driven only by immutable actual target height and remains bound
 
 test('authentic upper-deck ascent receives a bounded source-derived mantle keyframe, never a phantom grip',()=>{
   const mantle=shipped('ledgeMantlePose','snapshot, platform');
-  const session=createSession('tower-stream-reference',undefined,'historical-v1'),sample=new Map();
+  const session=createSession('tower-stream-reference',FROZEN_STREAM_CONFIG,'historical-v1'),sample=new Map();
   for(let i=0;i<=310;i++){
     const frame=session.controller.frame(390,844,{reducedMotion:true,muted:true});
     const snapshot=frame.snapshot, before=JSON.stringify(snapshot);

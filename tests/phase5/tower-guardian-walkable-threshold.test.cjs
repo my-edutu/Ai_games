@@ -43,6 +43,7 @@ test('the second architectural doorway is a real-world instanced gate with no au
   assert.match(source, /new THREE\.InstancedMesh\(box, bronze, 2\)/);
   assert.match(source, /poseWalkableLeaves\(opened\)/);
   assert.match(source, /threshold\.position\.set\(0, -2, GUARDIAN_PASSAGE_RADII\.deck - GUARDIAN_PASSAGE_RADII\.lock\)/);
-  assert.match(source, /opened = still \? 1 : Math\.max\(approachOpen,/,
-    'the real source-earned approach retains physical opening priority');
+  assert.match(source, /const locked = stage === 'guardian-locked'/);
+  assert.match(source, /const opened = locked \? 0 : still \? 1 : Math\.max\(approachOpen,/,
+    'the live lock must remain shut, while only the earned approach can physically open it');
 });

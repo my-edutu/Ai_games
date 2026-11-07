@@ -62,7 +62,9 @@ test('source contract exports the real rules exit only in opt-in cap encounters'
   const rules=fs.readFileSync(path.join(here,'games/infinite-tower-climb/src/generation/chunks.ts'),'utf8');
   const snapshot=fs.readFileSync(path.join(here,'games/infinite-tower-climb/src/presentation/snapshot.ts'),'utf8');
   assert.match(rules,/export function guardianArenaExitX\(/);
-  assert.match(snapshot,/import\{platformAtTick,guardianArenaExitX\}from'\.\.\/generation\/chunks'/);
+  assert.match(snapshot,/import\{platformAtTick,guardianArenaExitX,guardianArenaSealHeight\}from'\.\.\/generation\/chunks'/);
+  assert.match(snapshot,/guardianSealHeight:guardianArenaSealHeight\(state\.config\)/,
+    'the rendered seal height must derive from the same authoritative jump envelope');
   assert.match(snapshot,/state\.config\.guardianArenaHazards===true&&[\s\S]*?state\.config\.guardianSecondWind===true&&chunk\.guardian/);
   assert.match(snapshot,/guardianExitX\(arenaCap\)/);
   assert.match(snapshot,/guardianExitX!==undefined\?\{guardianExitX\}:\{\}/);

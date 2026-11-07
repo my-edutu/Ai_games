@@ -95,7 +95,8 @@ test('the submitted follow camera stages source-observed foreground clarity afte
   assert.match(scene,/protectLiveRoute&&sourceGuardian\?guardianRescuePoint:null/);
   assert.match(scene,/const protectArrival=!!targetPlatform&&landingApproach\.diagnostics\(\)\.visible/);
   assert.match(scene,/const protectImmediateTrap=actionStage\?\.kind==='hazard'/);
-  assert.match(scene,/protectLiveRoute&&\(protectArrival\|\|protectImmediateTrap\)\?actorOrbitTarget:null/);
+  assert.match(scene,/const protectEarnedGate=gatewayEarned&&!protectArrival&&!protectImmediateTrap/);
+  assert.match(scene,/protectLiveRoute&&\(protectArrival\|\|protectImmediateTrap\|\|protectEarnedGate\)\?actorOrbitTarget:null/);
   assert.ok(scene.indexOf('const protectArrival=') <
     scene.indexOf('const protectImmediateTrap='),
     'an already visible real landing keeps precedence over decorative shielding');
