@@ -3042,25 +3042,70 @@ function quad(a,b,c,d,col){tri(a,b,c,col);tri(a,c,d,col)}
 // six faces. The previous implementation allocated 24 separate point arrays
 // for the same eight positions per box, including in frequent animated meshes.
 // Face winding, normals (computed by tri) and 10-float vertex order are exact.
+// W117: one allocation-free flat-face vertex writer shared by genuine
+// medieval worker rigs, occupation props and built environment. No lost
+// polygons, actor state, mesh winding or changed ten-float shader contract.
+function packedFlatTriangle(ax,ay,az,bx,by,bz,cx,cy,cz,col){
+ const ux=bx-ax,uy=by-ay,uz=bz-az,vx=cx-ax,vy=cy-ay,vz=cz-az;
+ const nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx,
+  len=Math.hypot(nx,ny,nz)||1,r=col[0],g=col[1],b=col[2],
+  n0=nx/len,n1=ny/len,n2=nz/len,m=currentMaterial;
+ data.push(ax,ay,az,n0,n1,n2,r,g,b,m,
+  bx,by,bz,n0,n1,n2,r,g,b,m,
+  cx,cy,cz,n0,n1,n2,r,g,b,m);
+}
+function packedFlatQuad(ax,ay,az,bx,by,bz,cx,cy,cz,dx,dy,dz,col){
+ const ux=bx-ax,uy=by-ay,uz=bz-az,vx=cx-ax,vy=cy-ay,vz=cz-az;
+ const nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx,
+  len=Math.hypot(nx,ny,nz)||1,r=col[0],g=col[1],b=col[2],
+  n0=nx/len,n1=ny/len,n2=nz/len,m=currentMaterial;
+ data.push(ax,ay,az,n0,n1,n2,r,g,b,m,
+  bx,by,bz,n0,n1,n2,r,g,b,m,
+  cx,cy,cz,n0,n1,n2,r,g,b,m,
+  ax,ay,az,n0,n1,n2,r,g,b,m,
+  cx,cy,cz,n0,n1,n2,r,g,b,m,
+  dx,dy,dz,n0,n1,n2,r,g,b,m);
+}
+const PACKED_RING_MAX=24,packedRingCache=new Map();
+function packedRing(sides){
+ if(!Number.isInteger(sides)||sides<1||sides>PACKED_RING_MAX)return null;
+ let ring=packedRingCache.get(sides);if(ring)return ring;
+ ring=new Float64Array((sides+1)*2);
+ for(let i=0;i<=sides;i++){const a=i*Math.PI*2/sides;
+  ring[i*2]=Math.cos(a);ring[i*2+1]=Math.sin(a);}
+ packedRingCache.set(sides,ring);
+ if(packedRingCache.size>16)packedRingCache.delete(packedRingCache.keys().next().value);
+ return ring;
+}
 function box(x,y,z,w,h,d,col){
  const xa=x-w/2,xb=x+w/2,za=z-d/2,zb=z+d/2,ya=y,yb=y+h;
- const p000=[xa,ya,za];
- const p010=[xa,yb,za];
- const p110=[xb,yb,za];
- const p100=[xb,ya,za];
- const p101=[xb,ya,zb];
- const p111=[xb,yb,zb];
- const p011=[xa,yb,zb];
- const p001=[xa,ya,zb];
- quad(p000,p010,p110,p100,col);
- quad(p101,p111,p011,p001,col);
- quad(p001,p011,p010,p000,col);
- quad(p100,p110,p111,p101,col);
- quad(p010,p011,p111,p110,col);
- quad(p001,p000,p100,p101,col);
+ packedFlatQuad(xa,ya,za,xa,yb,za,xb,yb,za,xb,ya,za,col);
+ packedFlatQuad(xb,ya,zb,xb,yb,zb,xa,yb,zb,xa,ya,zb,col);
+ packedFlatQuad(xa,ya,zb,xa,yb,zb,xa,yb,za,xa,ya,za,col);
+ packedFlatQuad(xb,ya,za,xb,yb,za,xb,yb,zb,xb,ya,zb,col);
+ packedFlatQuad(xa,yb,za,xa,yb,zb,xb,yb,zb,xb,yb,za,col);
+ packedFlatQuad(xa,ya,zb,xa,ya,za,xb,ya,za,xb,ya,zb,col);
 }
-function cylinder(x,y,z,r,h,col,sides=8){for(let i=0;i<sides;i++){let a=i*Math.PI*2/sides,b=(i+1)*Math.PI*2/sides;let v=[x+Math.cos(a)*r,y,z+Math.sin(a)*r],w=[x+Math.cos(b)*r,y,z+Math.sin(b)*r],vv=[v[0],y+h,v[2]],ww=[w[0],y+h,w[2]];quad(v,w,ww,vv,col);tri([x,y+h,z],vv,ww,col)}}
-function cone(x,y,z,r,h,col,sides=9){for(let i=0;i<sides;i++){let a=i*Math.PI*2/sides,b=(i+1)*Math.PI*2/sides;tri([x+Math.cos(a)*r,y,z+Math.sin(a)*r],[x+Math.cos(b)*r,y,z+Math.sin(b)*r],[x,y+h,z],col)}}
+function cylinder(x,y,z,r,h,col,sides=8){
+ const ring=packedRing(sides);
+ for(let i=0;i<sides;i++){
+  const a=i*Math.PI*2/sides,b=(i+1)*Math.PI*2/sides;
+  const co=ring?ring[i*2]:Math.cos(a),si=ring?ring[i*2+1]:Math.sin(a),
+   cn=ring?ring[(i+1)*2]:Math.cos(b),sn=ring?ring[(i+1)*2+1]:Math.sin(b);
+  const ax=x+co*r,az=z+si*r,bx=x+cn*r,bz=z+sn*r;
+  packedFlatQuad(ax,y,az,bx,y,bz,bx,y+h,bz,ax,y+h,az,col);
+  packedFlatTriangle(x,y+h,z,ax,y+h,az,bx,y+h,bz,col);
+ }
+}
+function cone(x,y,z,r,h,col,sides=9){
+ const ring=packedRing(sides);
+ for(let i=0;i<sides;i++){
+  const a=i*Math.PI*2/sides,b=(i+1)*Math.PI*2/sides;
+  const co=ring?ring[i*2]:Math.cos(a),si=ring?ring[i*2+1]:Math.sin(a),
+   cn=ring?ring[(i+1)*2]:Math.cos(b),sn=ring?ring[(i+1)*2+1]:Math.sin(b);
+  packedFlatTriangle(x+co*r,y,z+si*r,x+cn*r,y,z+sn*r,x,y+h,z,col);
+ }
+}
 const SEASONS=['SPRING','SUMMER','AUTUMN','WINTER'];
 const YEAR_DAYS=36,SEASON_DAYS=9;
 // Deterministic day forecast; never consumes citizen RNG stream.
@@ -5323,15 +5368,29 @@ function getWorkContactAudit(){
  });
 }
 function limbSegment(a,b,radius,col,sides=7){
- const dx=b[0]-a[0],dy=b[1]-a[1],dz=b[2]-a[2],length=Math.hypot(dx,dy,dz);if(length<.00001)return;
- const d=[dx/length,dy/length,dz/length],ref=Math.abs(d[1])>.88?[1,0,0]:[0,1,0];
- let right=[d[1]*ref[2]-d[2]*ref[1],d[2]*ref[0]-d[0]*ref[2],d[0]*ref[1]-d[1]*ref[0]];
- const n=Math.hypot(...right);right=right.map(v=>v/n);
- const up=[d[1]*right[2]-d[2]*right[1],d[2]*right[0]-d[0]*right[2],d[0]*right[1]-d[1]*right[0]];
- const vertex=(origin,angle)=>origin.map((v,k)=>v+radius*(Math.cos(angle)*right[k]+Math.sin(angle)*up[k]));
- for(let i=0;i<sides;i++){const t=i*2*Math.PI/sides,u=(i+1)*2*Math.PI/sides;quad(vertex(a,t),vertex(a,u),vertex(b,u),vertex(b,t),col);}
+ const dx=b[0]-a[0],dy=b[1]-a[1],dz=b[2]-a[2],
+  length=Math.hypot(dx,dy,dz);if(length<.00001)return;
+ const ux=dx/length,uy=dy/length,uz=dz/length;
+ const rx=Math.abs(uy)>.88?0:-uz,ry=Math.abs(uy)>.88?uz:0,
+  rz=Math.abs(uy)>.88?-uy:ux,rlen=Math.hypot(rx,ry,rz);
+ const rightX=rx/rlen,rightY=ry/rlen,rightZ=rz/rlen;
+ const upX=uy*rightZ-uz*rightY,upY=uz*rightX-ux*rightZ,
+  upZ=ux*rightY-uy*rightX;
+ const ring=packedRing(sides);
+ for(let i=0;i<sides;i++){
+  const t=i*2*Math.PI/sides,u=(i+1)*2*Math.PI/sides;
+  const co=ring?ring[i*2]:Math.cos(t),si=ring?ring[i*2+1]:Math.sin(t),
+   cn=ring?ring[(i+1)*2]:Math.cos(u),sn=ring?ring[(i+1)*2+1]:Math.sin(u);
+  const ox=radius*(co*rightX+si*upX),oy=radius*(co*rightY+si*upY),
+   oz=radius*(co*rightZ+si*upZ),
+   px=radius*(cn*rightX+sn*upX),py=radius*(cn*rightY+sn*upY),
+   pz=radius*(cn*rightZ+sn*upZ);
+  packedFlatQuad(a[0]+ox,a[1]+oy,a[2]+oz,
+   a[0]+px,a[1]+py,a[2]+pz,
+   b[0]+px,b[1]+py,b[2]+pz,
+   b[0]+ox,b[1]+oy,b[2]+oz,col);
+ }
 }
-
 // Low-poly but individually proportioned citizens with articulated walk cycles, faces, tools and roles.
 // Gauntlet 032: avoid zero-area pole quads and give curved surfaces analytic
 // outward-facing normals. Fixed 10-float layout remains position/normal/RGB/material.
