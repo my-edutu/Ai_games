@@ -89,7 +89,7 @@ export function generateTowerChunk(config:TowerConfig,seed:string,floor:number,r
   for(let i=0;i<hazardCount;i++){
     const slot=1+rng.nextInt(`tower:hazard-slot:${floor}:${i}`,5),kindIndex=(floor+i)%5;
     const kinds:TowerHazard['kind'][]=['spikes','heat','crusher','lightning','void-pulse'];
-    hazards.push({id:`f${floor}:h${i}`,kind:kinds[kindIndex],x:170000+rng.nextInt(`tower:hazard-x:${floor}:${i}`,120000),y:baseY+(slot-1)*stepHeight+groundHeight,width:32000,height:9000,activeFromTick:rng.nextInt(`tower:hazard-phase:${floor}:${i}`,20),activeEvery:40,activeFor:kindIndex===0?40:16,damage:kindIndex===0?1:2});
+    hazards.push({id:`f${floor}:h${i}`,kind:kinds[kindIndex],x:170000+rng.nextInt(`tower:hazard-x:${floor}:${i}`,120000),y:(slot===1?groundY+groundHeight:baseY+(slot-1)*stepHeight+groundHeight),width:32000,height:9000,activeFromTick:rng.nextInt(`tower:hazard-phase:${floor}:${i}`,20),activeEvery:40,activeFor:kindIndex===0?40:16,damage:kindIndex===0?1:2});
   }
   // SOURCE-AUTHENTIC guardian gate pressure. Normal-speed 20Hz desktop and
   // portrait gameplay at 5c242d recorded 173/156 scheduled guardian-shutter
