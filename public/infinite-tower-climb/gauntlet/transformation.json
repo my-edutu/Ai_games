@@ -4736,5 +4736,60 @@
     "nextHighImpactAction": "Reconnect original Node22+Chromium workspace or functioning GitHub runner; run npm run test:tower:phase2 including seven new swept-vertical and prior swept-wall regressions, both unchanged 3,200-tick campaigns, and >=60s matched 960x600 + 390x844 source-SHA-pinned normal-speed baseline/candidate footage with authentic aligned events. Inspect moving-deck landing, camera and guardian/cap cycle; fix largest evidenced gameplay defect before P1.",
     "reviewUrl": "https://github.com/my-edutu/Ai_games/blob/feat/tower-transformation-gauntlet-20261101/docs/reviews/2026-11-07-tower-pr68-true-moving-deck-touchdown.md",
     "safety": "PR68 open/draft, PR58 untouched, frozen baseline unchanged, no merge/deploy/force-push."
+  },
+  "latestP0ShortBodyRouteAndRecoveredFilm20261107": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "implementationShas": [
+      "f5e11c8cb55d7a35e23143e6a5c768e016cce09f",
+      "44c0b5bf3ecf58833a08110948387affe4d28ae5",
+      "2f4dd704d275acec6a61fe05f1c9b8df984bf879"
+    ],
+    "reviewCommit": "f189d57514261a8584770070e019719ee33ee5f0",
+    "reviewPath": "docs/reviews/2026-11-07-tower-pr68-short-rig-exit-route-and-recovered-film.md",
+    "sourceDefect": "Route solver rejected a genuinely playable short-body cap escape as exit-unreachable by testing only standing center>=exitY; old test also treated unlock plane as finish and another requested a jump when intending an under-cap non-rising move.",
+    "implemented": "Source reachability now admits the genuine supported final cap with either its physical vertical jump envelope or opt-in guardian whole-body horizontal clearance; test conditions now require real clearance and genuinely non-rising traversal. No fabricated win or changed frozen physics.",
+    "priorExactHeadQuality": {
+      "sha": "5b39debc4795f72d886e5dcf6aa3dd96fca2f20c",
+      "runId": 42383456147,
+      "tests": 1190,
+      "passed": 1174,
+      "failed": 16,
+      "verdict": "FAIL — known P0 route tests plus other outstanding regressions"
+    },
+    "recoveredSourcePinnedFilm": {
+      "runId": 42382932723,
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/42382932723",
+      "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "candidateSha": "7a97b054f12a8548a1c1fb01cdaf538aea65d534",
+      "recordings": 16,
+      "recordingPairs": 8,
+      "desktop": "960x600",
+      "portrait": "390x844",
+      "durationsDangerSeconds": {
+        "baselineDesktop": 70.72,
+        "baselinePortrait": 70.96,
+        "candidateDesktop": 71.72,
+        "candidatePortrait": 73.4
+      },
+      "genuineCandidateSourceStory": "floor-8 guardian defeat tick 441, observed supported approach tick 443, earned floor-nine handoff and physical threshold tick 451, subsequent result/restart in a single source episode",
+      "sourceEventPaired": true,
+      "videoTimecodesCalibrated": false,
+      "fullMotionPaired": false,
+      "independentReviewed": false,
+      "sourceShaCurrent": false,
+      "qualityVerdict": "NOT EVALUATED — retrieved native WebMs and event index, frame-sampled not full-motion blind-judged"
+    },
+    "biggestObservedFootageDefect": "Five-second frame sampling of original candidate portrait danger WebM: scale/staging jump from distant mechanical floor-eight exterior at about 25s to close floor-nine purple interior at about 30s. No clear continuously watched physical doorway passage; must inspect native motion before marking a current-camera defect.",
+    "exactHeadTestsAndCampaigns": "NOT EVALUATED at time of evidence commit — CI runs for newer source are queued/in progress; two original 3200-tick campaigns and final end-to-end validation must be read at source SHA.",
+    "hardwareP50P95P99Memory": "NOT EVALUATED",
+    "independentBlindReviews": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "nextHighestImpactAction": "Inspect exact-current SHA quality/test logs, fix remaining source-blocking P0 geometry / guardian / renderer regressions, rerun two unchanged campaigns, and independently view/calibrate event-matched authentic 60+s normal-speed baseline/candidate WebMs at both viewports. Do not promote on screenshot source-event matches or CI alone.",
+    "safety": "PR68 remains open/draft; no PR58 edits, merge, deploy, force push or baseline move."
   }
 }
