@@ -115,49 +115,13 @@ export function stepTowerPhysics(input:TowerState,action:TowerAction):{state:Tow
   }
   p.position.x=clamp(newX,p.halfWidth,c.worldWidth-p.halfWidth);if(p.position.x!==newX){p.velocity.x=0;contacts.push({kind:'wall',entityId:'world-boundary',normal:{x:newX<0?1:-1,y:0}})}
   const targetY=p.position.y+p.velocity.y;let newY=targetY,landed:TowerPlatform|undefined;
-  if(coherentSourceContacts){
-    // In the same fixed step the climber can fall across two deck tops or
-    // rise across two solid undersides. Sorting by entity ID must not choose
-    // a lower landing or a higher ceiling after an earlier impact. Select
-    // the nearest genuinely crossed horizontal face from original Y and
-    // ACTUAL next-tick moving-platform positions; no teleport or new physics.
-    let firstFace:TowerPlatform|undefined;
-    let firstContactY=targetY;
-    let firstKind:'land'|'head'|undefined;
-    for(const platform of nextPlatforms){
-      const left=p.position.x-p.halfWidth,right=p.position.x+p.halfWidth;
-      if(!overlap1(left,right,platform.x,platform.x+platform.width))continue;
-      const oldBottom=p.position.y-p.halfHeight;
-      const oldTop=p.position.y+p.halfHeight;
-      const newBottom=targetY-p.halfHeight;
-      const newTop=targetY+p.halfHeight;
-      const top=platform.y+platform.height;
-      if(p.velocity.y<=0&&oldBottom>=top-1&&newBottom<=top){
-        const contactY=top+p.halfHeight;
-        if(!firstFace||contactY>firstContactY){
-          firstFace=platform;firstContactY=contactY;firstKind='land';
-        }
-      }else if(p.velocity.y>0&&platform.kind!=='oneway'&&
-        oldTop<=platform.y&&newTop>=platform.y){
-        const contactY=platform.y-p.halfHeight;
-        if(!firstFace||contactY<firstContactY){
-          firstFace=platform;firstContactY=contactY;firstKind='head';
-        }
-      }
-    }
-    if(firstFace&&firstKind){
-      newY=firstContactY;
-      p.velocity.y=0;
-      if(firstKind==='land')landed=firstFace;
-      contacts.push({kind:firstKind,entityId:firstFace.id,
-        normal:{x:0,y:firstKind==='land'?1:-1}});
-    }
-  }else{
-    for(const platform of nextPlatforms){const left=p.position.x-p.halfWidth,right=p.position.x+p.halfWidth;if(!overlap1(left,right,platform.x,platform.x+platform.width))continue;
-      const oldB=p.position.y-p.halfHeight,oldT=p.position.y+p.halfHeight,newB=newY-p.halfHeight,newT=newY+p.halfHeight,top=platform.y+platform.height;
-      if(p.velocity.y<=0&&oldB>=top-1&&newB<=top){newY=top+p.halfHeight;p.velocity.y=0;landed=platform;contacts.push({kind:'land',entityId:platform.id,normal:{x:0,y:1}})}
-      else if(p.velocity.y>0&&platform.kind!=='oneway'&&oldT<=platform.y&&newT>=platform.y){newY=platform.y-p.halfHeight;p.velocity.y=0;contacts.push({kind:'head',entityId:platform.id,normal:{x:0,y:-1}})}
-    }
+  // The existing vertical loop already compares the UPDATED clipped newY
+  // against each later deck, so it resolves the nearest crossed support
+  // without depending on platform ID order. Preserve that proven contract.
+  for(const platform of nextPlatforms){const left=p.position.x-p.halfWidth,right=p.position.x+p.halfWidth;if(!overlap1(left,right,platform.x,platform.x+platform.width))continue;
+    const oldB=p.position.y-p.halfHeight,oldT=p.position.y+p.halfHeight,newB=newY-p.halfHeight,newT=newY+p.halfHeight,top=platform.y+platform.height;
+    if(p.velocity.y<=0&&oldB>=top-1&&newB<=top){newY=top+p.halfHeight;p.velocity.y=0;landed=platform;contacts.push({kind:'land',entityId:platform.id,normal:{x:0,y:1}})}
+    else if(p.velocity.y>0&&platform.kind!=='oneway'&&oldT<=platform.y&&newT>=platform.y){newY=platform.y-p.halfHeight;p.velocity.y=0;contacts.push({kind:'head',entityId:platform.id,normal:{x:0,y:-1}})}
   }
   p.position.y=newY;p.grounded=Boolean(landed);p.groundedPlatformId=landed?.id;
   // New opt-in 20Hz guardian route: a real hit interrupts for five ticks
