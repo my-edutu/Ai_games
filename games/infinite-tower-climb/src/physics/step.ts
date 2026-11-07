@@ -9,7 +9,27 @@ export function stepTowerPhysics(input:TowerState,action:TowerAction):{state:Tow
   const state=structuredClone(input),p=state.player,c=state.config,contacts:PhysicsContact[]=[];const old={x:p.position.x,y:p.position.y};
   if(p.invulnerableTicks>0)p.invulnerableTicks--;if(p.dashCooldown>0)p.dashCooldown--;p.stamina=Math.min(p.maxStamina,p.stamina+1);
   const nowPlatforms=platforms(state,state.tick),nextPlatforms=platforms(state,state.tick+1);
-  if(p.grounded&&p.groundedPlatformId){const a=nowPlatforms.find(x=>x.id===p.groundedPlatformId),b=nextPlatforms.find(x=>x.id===p.groundedPlatformId);if(a&&b){p.position.x+=b.x-a.x;p.position.y+=b.y-a.y}}
+  // A moving deck transfers its OWN horizontal velocity when the climber
+  // jumps. The older carry-then-jump path moves the body with the deck for
+  // this single tick but discards that speed immediately in mid-air, creating
+  // a visible sideways stall at takeoff. For the opted-in live expedition,
+  // substitute the observed deck delta into the jump velocity INSTEAD of
+  // carrying X and then adding it again (which would double the launch).
+  // Ordinary riding and frozen/unflagged replay keep the original carry.
+  const liveMovingLaunch=c.guardianArenaHazards===true&&
+    c.guardianSecondWind===true&&action.jump&&p.grounded;
+  let launchDeckVelocityX=0;
+  if(p.grounded&&p.groundedPlatformId){
+    const a=nowPlatforms.find(x=>x.id===p.groundedPlatformId);
+    const b=nextPlatforms.find(x=>x.id===p.groundedPlatformId);
+    if(a&&b){
+      const deckDx=b.x-a.x;
+      if(liveMovingLaunch&&a.motion?.axis==='x')
+        launchDeckVelocityX=deckDx;
+      else p.position.x+=deckDx;
+      p.position.y+=b.y-a.y;
+    }
+  }
   if(!p.grounded&&state.influence.modifiers.windUntilTick>state.tick)p.velocity.x=clamp(p.velocity.x+state.influence.modifiers.windDirection*260,-c.dashSpeed,c.dashSpeed);
   // Dash is an authored 150ms PHYSICAL burst, not just a three-frame pose.
   // Previously an AI steering command on the next 20Hz step immediately
@@ -29,7 +49,13 @@ export function stepTowerPhysics(input:TowerState,action:TowerAction):{state:Tow
     }
   }
   else if(p.grounded){const f=Math.min(Math.abs(p.velocity.x),c.groundFriction);p.velocity.x-=Math.sign(p.velocity.x)*f}
-  if(action.jump&&(p.grounded||p.jumpCharges>0)){if(!p.grounded)p.jumpCharges--;p.velocity.y=c.jumpImpulse;p.grounded=false;p.groundedPlatformId=undefined;p.state='airborne';state.stats.jumps++}
+  if(action.jump&&(p.grounded||p.jumpCharges>0)){
+    if(!p.grounded)p.jumpCharges--;
+    if(liveMovingLaunch&&launchDeckVelocityX!==0)
+      p.velocity.x=clamp(p.velocity.x+launchDeckVelocityX,-c.dashSpeed,c.dashSpeed);
+    p.velocity.y=c.jumpImpulse;p.grounded=false;
+    p.groundedPlatformId=undefined;p.state='airborne';state.stats.jumps++;
+  }
   if(action.dash&&p.dashCooldown===0&&p.stamina>=state.build.dashCost){p.velocity.x=p.facing*c.dashSpeed;p.dashCooldown=Math.max(6,20-state.build.dashCooldownReduction);p.stamina-=state.build.dashCost;p.state='dashing';state.stats.dashes++}
   p.velocity.y=clamp(p.velocity.y-c.gravity,-c.maxFallSpeed,c.jumpImpulse);
   const travelStartX=p.position.x;
