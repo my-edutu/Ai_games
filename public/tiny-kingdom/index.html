@@ -4889,7 +4889,71 @@ function solveWorkArmIK(shoulder,target,side){
  const elbow=shoulder.map((v,i)=>v+direction[i]*along+sideways[i]/length*bend);
  return {elbow,wrist};
 }
+// W102: bounded single-world-epoch articulation cache. Each genuine citizen
+// has one solved two-bone pose per authoritative tick, shared by the citizen
+// mesh, real cargo handoff, footwear and spectator audits. No saved authority,
+// scene geometry, job timing, or motion is approximated or dropped.
+let citizenRigEpoch=-1,citizenRigTime=NaN,citizenRigCache=new WeakMap();
+let citizenRigEntries=0,citizenRigBuilds=0,citizenRigHits=0,citizenRigResets=0;
+function getCitizenRigCacheAudit(){
+ return {source:'same-authoritative-tick-two-bone-articulation',
+  entries:citizenRigEntries,maxEntries:people.length,
+  builds:citizenRigBuilds,hits:citizenRigHits,resets:citizenRigResets,
+  epoch:citizenRigEpoch,time:citizenRigTime,
+  allCitizensPreserved:true,altersAuthority:false};
+}
+// A passing acknowledgement requires two REAL people, existing mutually
+// recorded proximity bonds, and an actual current world-space encounter.
+// No extra people, staged travel, resources or simulated relationship ticks.
+function getPhysicalGreeting(p){
+ if(!p||!people.includes(p)||p.delivery||
+   isWorkingAtSite(p)||isMarketUnloading(p)||
+   p.activity==='Resting at home'||p.activity==='Returning home at dusk')
+  return null;
+ let closest=null,best=Infinity;
+ for(const other of people){
+  if(other===p||other.delivery||isWorkingAtSite(other)||
+     isMarketUnloading(other)||other.activity==='Resting at home'||
+     other.activity==='Returning home at dusk')continue;
+  const bond=Math.min(p.bonds?.[other.name]||0,other.bonds?.[p.name]||0);
+  if(bond<1.0)continue;
+  const distance=Math.hypot(p.x-other.x,p.z-other.z);
+  if(distance>1.30||distance>=best)continue;
+  closest={other,distance,bond};best=distance;
+ }
+ if(!closest)return null;
+ return {source:'real-mutually-bonded-citizens-in-physical-contact',
+  citizen:p.name,companion:closest.other.name,
+  x:closest.other.x,z:closest.other.z,distance:closest.distance,
+  bond:closest.bond,strength:Math.min(1,closest.bond/3)*
+   Math.max(.20,Math.min(1,(1.40-closest.distance)/.75)),
+  altersAuthority:false};
+}
+function getSocialEncounterAudit(){
+ const witnesses=people.map(getPhysicalGreeting).filter(Boolean);
+ const pairs=new Map();
+ for(const w of witnesses){
+  const key=[w.citizen,w.companion].sort().join('|');
+  if(!pairs.has(key))pairs.set(key,{citizens:[w.citizen,w.companion],
+   distance:w.distance,bond:w.bond});
+ }
+ return {source:'uninterrupted-real-citizen-proximity-and-saved-bonds',
+  worldHour:state.t,people:people.length,activePairs:[...pairs.values()],
+  activeCitizens:witnesses.length,createdActors:0,
+  createdFriendships:0,changesNavigation:false,altersAuthority:false};
+}
 function citizenRigPose(p){
+ if(citizenRigEpoch!==presentationEpoch||citizenRigTime!==state.t){
+  citizenRigCache=new WeakMap();citizenRigEntries=0;
+  citizenRigEpoch=presentationEpoch;citizenRigTime=state.t;
+  citizenRigResets++;
+ }
+ const eligible=p&&people.includes(p);
+ if(eligible){
+  const hit=citizenRigCache.get(p);
+  if(hit){citizenRigHits++;return hit}
+ }
+ const social=getPhysicalGreeting(p);
  const action=p.activity.toLowerCase();
  // Movement overrides job-name matches: 'Traveling to craftsperson work' is not crafting.
  const traveling=/travel|explor|returning home at dusk/.test(action);
@@ -4985,6 +5049,13 @@ function citizenRigPose(p){
     elbow=[side*.32,.80,.18+(primary?.07*beat:0)];
     wrist=[side*.30,.63,.39+(primary?.14*beat:.03)];
    }
+  }else if(social&&side===1){
+   // Real friends already sharing the same lane acknowledge one another.
+   // Existing elbow/wrist bones move; there is no extra mesh or invented act.
+   const wave=.5+.5*Math.sin(state.t*3.1+idx*.47);
+   const lift=social.strength*(.16+.15*wave);
+   elbow=[side*.31,.81+lift*.47,.13];
+   wrist=[side*.36,.70+lift,.27];
   }
   const shoulder=[side*.30,1.015,0];
   if(working&&!unloading){
@@ -4996,11 +5067,16 @@ function citizenRigPose(p){
   }
   return {shoulder,elbow,wrist};
  });
- return {legs,arms,working,traveling,acting,stride:Math.sin(phase)*intensity,
+ const pose={legs,arms,working,traveling,acting,social,
+  stride:Math.sin(phase)*intensity,
   laborCadence:{source:'real-working-citizen',planted:working,
    beat:acting.beat,cycle:acting.cycle,strike:acting.strike,
    primaryTarget:unloading?courierTransferMotion(p).targetRight:
     working?groundedWorkTarget(p,acting.beat):null}};
+ if(eligible){
+  citizenRigCache.set(p,pose);citizenRigEntries++;citizenRigBuilds++;
+ }
+ return pose;
 }
 // W47 real citizen footwear: rotate the ALREADY EXISTING boot mesh
 // around its sole heel/toe contact, with coherent normals and no extra faces.
@@ -5422,8 +5498,16 @@ function citizenEmbodiedPose(p,index,rig=citizenRigPose(p)){
   working?.020*Math.sin(clock):.006*Math.sin(state.t*.7+index*.31);
  const forwardLean=traveling?.019*Math.cos(phase):
   working?.029+.075*rig.acting.lean:.005*Math.sin(state.t*.5+index*.47);
- const headYaw=traveling?.092*Math.sin(phase-.36):
+ const baseHeadYaw=traveling?.092*Math.sin(phase-.36):
   working?.075*Math.sin(clock+.30):.018*Math.sin(state.t*.48+index);
+ // Genuinely nearby bonded neighbours receive an anatomically bounded
+ // head turn toward each other; locomotion and real route remain unchanged.
+ const next=p.path?.length?p.path[0]:p.target;
+ const routeYaw=next?Math.atan2(next[0]-p.x,next[1]-p.z):0;
+ const socialYaw=rig.social?Math.atan2(rig.social.x-p.x,rig.social.z-p.z):routeYaw;
+ const delta=Math.atan2(Math.sin(socialYaw-routeYaw),Math.cos(socialYaw-routeYaw));
+ const headYaw=baseHeadYaw+(rig.social?
+  Math.max(-.48,Math.min(.48,delta))*rig.social.strength:0);
  const headPitch=traveling?.017+.009*Math.abs(Math.sin(phase)):
   working?.085+.135*beat:.023;
  const rise=traveling?.019*(1-Math.abs(Math.sin(phase))):
@@ -5431,7 +5515,8 @@ function citizenEmbodiedPose(p,index,rig=citizenRigPose(p)){
  return {source:'actual-citizen-embodied-locomotion-and-labor',
   citizen:p.name,job:p.job,phase:p.phase,working,traveling,
   spineShift,forwardLean,headYaw,headPitch,rise,
-  activeAction:rig.acting.action,altersAuthority:false};
+  activeAction:rig.acting.action,
+  realSocialPartner:rig.social?.companion||null,altersAuthority:false};
 }
 function getCitizenEmbodiment(index=selectedCitizen){
  if(!Number.isInteger(index)||index<0||index>=people.length)return null;
@@ -15217,7 +15302,9 @@ if(gpuAvailable&&actorStreamSplitEnabled&&actorFrameData.length){
  // Only a completed presentation may become the reusable frozen frame.
  lastFrozenFrameKey=frozenViewKey;
 }
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getCitizenAnatomy,getCitizenEmbodiment,getEllipsoidShellAudit,getPopulationMotionAudit,getVillageClothAudit,getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getCitizenGaitAudit:(index=0)=>cloneData(getCitizenGaitAudit(index)),getFieldWindAudit:(time=state.t)=>cloneData(getFieldWindAudit(time)),getAmbientGpuResidencyAudit:()=>({...getAmbientGpuResidencyAudit()}),getWeatherVertexMotionProbe,getOccupationalPerformance:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData({citizen:people[index].name,job:people[index].job,...occupationalPerformance(people[index])}):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getSelectedCitizenTaskAudit,getCitizenPickCandidates,getCitizenOrbitAudit,getCitizenPickAudit:()=>({...citizenPickAudit}),getWorkdayEvents:()=>cloneData(workdayEvents),getStreetCargoWitnesses:()=>cloneData(streetCargoWitnesses()),getActiveDeliveries:()=>cloneData(getActiveDeliveries()),getSupplyTrailSnapshot:()=>cloneData(getSupplyTrailSnapshot()),getPhysicalMarketParcelAudit:id=>cloneData(getPhysicalMarketParcelAudit(id)),getCourierLoadPresentation:workerName=>cloneData(getCourierLoadPresentation(workerName)),getCourierTransferMotion:workerName=>cloneData(courierTransferMotion(workerName)),getCourierTrailAudit,getCourierTrailResidencyAudit,
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getCitizenAnatomy,getCitizenEmbodiment,getEllipsoidShellAudit,getPopulationMotionAudit,getVillageClothAudit,getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getCitizenGaitAudit:(index=0)=>cloneData(getCitizenGaitAudit(index)),
+ getCitizenRigCacheAudit:()=>({...getCitizenRigCacheAudit()}),
+ getSocialEncounterAudit:()=>cloneData(getSocialEncounterAudit()),getFieldWindAudit:(time=state.t)=>cloneData(getFieldWindAudit(time)),getAmbientGpuResidencyAudit:()=>({...getAmbientGpuResidencyAudit()}),getWeatherVertexMotionProbe,getOccupationalPerformance:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData({citizen:people[index].name,job:people[index].job,...occupationalPerformance(people[index])}):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getSelectedCitizenTaskAudit,getCitizenPickCandidates,getCitizenOrbitAudit,getCitizenPickAudit:()=>({...citizenPickAudit}),getWorkdayEvents:()=>cloneData(workdayEvents),getStreetCargoWitnesses:()=>cloneData(streetCargoWitnesses()),getActiveDeliveries:()=>cloneData(getActiveDeliveries()),getSupplyTrailSnapshot:()=>cloneData(getSupplyTrailSnapshot()),getPhysicalMarketParcelAudit:id=>cloneData(getPhysicalMarketParcelAudit(id)),getCourierLoadPresentation:workerName=>cloneData(getCourierLoadPresentation(workerName)),getCourierTransferMotion:workerName=>cloneData(courierTransferMotion(workerName)),getCourierTrailAudit,getCourierTrailResidencyAudit,
  setCourierTrailResidencyForTesting,getDeliveryEconomyAudit:()=>cloneData(getDeliveryEconomyAudit()),getDeliveryReceipts:()=>cloneData(getDeliveryReceipts()),getMarketHandoffs:()=>cloneData(getMarketHandoffs()),getMarketParcelDeliveryPose:id=>cloneData(getMarketParcelDeliveryPose(id)),getCourierHandContact:person=>cloneData(courierWorldHandContact(person)),getMarketHandoffRenderStats:()=>({...marketHandoffRenderStats}),watchDelivery,watchHomecoming,getHomecomingView,getHomecomingThresholdCameraAudit,getWorkdayView,getActiveWorksites,watchHarvestShift,getHarvestInteractionAudit,getHarvestVisibilityAudit,getHarvestAftermathAudit,getCitizenActingAudit,
 getDailyRhythmAudit:dailyRhythmAudit,getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getCottageHomecomingAudit,getCottageDoorRenderAudit:()=>({...cottageDoorRenderAudit}),
  getCottageDoorResidencyAudit,setCottageDoorResidencyForTesting,getSoftwareResolutionAudit,getSimulationFrameDelta:simulationFrameDelta,getHouseholdLightAudit:()=>({...householdLightAudit}),getOccupiedHearthCount:()=>occupiedHearths,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,
