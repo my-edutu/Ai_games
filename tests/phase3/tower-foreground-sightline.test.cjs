@@ -99,7 +99,7 @@ test('the submitted follow camera stages source-observed foreground clarity afte
   // Evaluate the REAL scene's source expression, not a stale copy of its
   // formatting. A physically witnessed airborne cap passage may temporarily
   // outrank a landing cue; a nearby real trap always outranks the doorway.
-  const policy=scene.match(/\\bconst protectEarnedGate\\s*=\\s*([\\s\\S]*?);/);
+  const policy=scene.match(/\bconst protectEarnedGate\s*=\s*([\s\S]*?);/);
   assert.ok(policy,'the submitted scene still declares a cap sightline policy');
   const gate=(gatewayEarned,protectArrival,protectImmediateTrap,sourceAirborneWalk)=>
     vm.runInNewContext('('+policy[1]+')',{
