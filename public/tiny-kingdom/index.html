@@ -4197,21 +4197,26 @@ function renderLivedBurgageSideMateriality(x,z,variant,index,isCompact){
    const drainX=face+side*.052,drainZ=z+d*.435;
    box(drainX,y+.27,drainZ,.085,1.32,.085,copper);
   });
-  materialScope(MATERIAL.FOLIAGE,()=>{
-   // Two restrained crossed clusters per original side casement. No extra
-   // collectible herb or crop yield: these are domestic window gardens only.
+  // W107: Convert the original inhabited side walls to genuine oak
+  // half-timbered bays, not miniature-style decorative leaf scatter.
+  // Keep both real side casements, their planted boxes and all original
+  // resident/cottage/door/road/nav/world-state identities untouched.
+  materialScope(MATERIAL.WOOD,()=>{
+   const surface=face+side*.075;
+   const brace=rgb(style%2?0x69503c:0x78583e);
+   const panel=(y0,z0,y1,z1,halfWidth,color)=>{
+    const a=[surface,y0,z0-halfWidth],b=[surface,y0,z0+halfWidth];
+    const c=[surface,y1,z1+halfWidth],d0=[surface,y1,z1-halfWidth];
+    if(side>0)quad(a,b,c,d0,color);
+    else quad(d0,c,b,a,color);
+   };
    for(const slot of [-1,1]){
-    const zz=z+slot*d*.26;
-    for(let sprig=0;sprig<3;sprig++){
-     const tz=zz+(sprig-1)*.125,
-      cx=face+side*.19,
-      base=y+.79,top=base+.17+(sprig%2)*.07;
-     quad([cx-side*.042,base,tz-.055],[cx+side*.08,top,tz-.025],
-      [cx+side*.074,top+.025,tz+.048],[cx-side*.035,base,tz+.059],leaf);
-     quad([cx+side*.028,base,tz-.078],[cx+side*.058,top+.01,tz+.075],
-      [cx+side*.060,top+.035,tz+.084],[cx+side*.028,base,tz-.055],leaf);
-    }
+    const center=z+slot*d*.26;
+    // Sub-window diagonal bracing: 100% below glass and above footing.
+    panel(y+.20,center-.255,y+.65,center+.195,.038,brace);
+    panel(y+.65,center-.255,y+.20,center+.195,.038,timber);
    }
+   panel(y+.16,z-d*.435,y+.16,z+d*.435,.033,timber);
   });
  }
  villageVisualLod.burgageMaterialHomes++;
