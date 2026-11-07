@@ -6033,16 +6033,21 @@ function market(x,z){
  materialScope(MATERIAL.ROOF,()=>{
   const eave=y+2.35,peak=y+3.14;
   for(const side of [-1,1]){
-   quad([x+side*1.58,eave,z-1.16],
-    [x,peak,z-1.16],[x,peak,z+1.16],
-    [x+side*1.58,eave,z+1.16],
-    rgb(side<0?0x876c55:0x99785a));
+   const edge0=[x+side*1.58,eave,z-1.16],
+    ridge0=[x,peak,z-1.16],ridge1=[x,peak,z+1.16],
+    edge1=[x+side*1.58,eave,z+1.16];
+   // Both clay slopes face UP under WebGL back-face culling; reversing the
+   // west slope is essential for an actual bird's-eye village overview.
+   const tone=rgb(side<0?0x876c55:0x99785a);
+   if(side<0)quad(edge1,ridge1,ridge0,edge0,tone);
+   else quad(edge0,ridge0,ridge1,edge1,tone);
    centralExchangeStats.roofPanels++;
-   // Distinct lower eave lip, no false painted commercial signs.
-   quad([x+side*1.57,eave-.03,z-1.18],
-    [x+side*1.43,eave+.07,z-1.18],
-    [x+side*1.43,eave+.07,z+1.18],
-    [x+side*1.57,eave-.03,z+1.18],rgb(0x705845));
+   const lip0=[x+side*1.57,eave-.03,z-1.18],
+    inner0=[x+side*1.43,eave+.07,z-1.18],
+    inner1=[x+side*1.43,eave+.07,z+1.18],
+    lip1=[x+side*1.57,eave-.03,z+1.18];
+   if(side<0)quad(lip1,inner1,inner0,lip0,rgb(0x705845));
+   else quad(lip0,inner0,inner1,lip1,rgb(0x705845));
   }
  });
  centralExchangeStats.triangles=(data.length-before)/30;
