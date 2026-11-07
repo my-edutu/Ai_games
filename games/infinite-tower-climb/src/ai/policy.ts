@@ -1094,7 +1094,7 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
     // No teleport, free shield, scripted floor change, hidden future enemy
     // state or extra HUD instruction. Unflagged/historical pilot is unchanged.
     const p=observation.player;
-    const clearance=guardianArenaClearanceX(cap,p.halfWidth);
+    const clearance=guardianArenaClearanceX(cap,state.player.halfWidth);
     const delta=clearance-p.position.x;
     const stopDistance=p.velocity.x*p.velocity.x/
       (2*Math.max(1,state.config.groundFriction));

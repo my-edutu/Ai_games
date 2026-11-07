@@ -41,7 +41,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   authentic-ledge:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 22
     steps:
       - uses: actions/checkout@v4
@@ -90,7 +90,7 @@ jobs:
             test-results/
           retention-days: 7
   normal-speed-play:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 28
     strategy:
       fail-fast: false
@@ -216,7 +216,7 @@ jobs:
   pair-source-events:
     needs: normal-speed-play
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
