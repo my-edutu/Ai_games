@@ -105,3 +105,47 @@ test('physical head/feet protection is bounded, ignores stale or invalid body ge
   assert.match(source,/entry\.sceneryParent\.updateWorldMatrix\(true,true\)/);
   assert.doesNotMatch(source,/source\.player\.x\s*=/);
 });
+
+test('full 3D clockwork boss corridor is clear of giant rim AND 42-unit noncolliding drive rack',async()=>{
+  const [THREE,{createTowerWorld}]=await loaded;
+  const world=createTowerWorld();
+  try{
+    const source=sourceFrame('clockwork',8), unchanged=JSON.stringify(source);
+    world.update(source,.016,0,{quality:'low'});
+    world.group.updateWorldMatrix(true,true);
+    const expected=[
+      ['clockwork-monumental-left-shoulder',8.0],
+      ['clockwork-lower-left-shoulder',5.7],
+      ['clockwork-upper-right-shoulder',5.4],
+      ['clockwork-far-shoulder-power-rack',1.65],
+    ];
+    // Each actual world-owned foreground assembly has a finite width. A
+    // center-angle-only check once allowed a giant rim inside the guarded arc.
+    // Bound the NEAREST angular edge of the actual shoulder envelope.
+    for(const [name,extent] of expected){
+      const group=world.group.getObjectByName(name);
+      assert.ok(group,'missing original clockwork world geometry: '+name);
+      const position=new THREE.Vector3();
+      group.getWorldPosition(position);
+      const angle=Math.atan2(position.x,position.z);
+      const radius=Math.hypot(position.x,position.z);
+      assert.ok(radius>18,'retain the visible, physically staged cylindrical shoulder');
+      const nearestEdge=Math.abs(angle)-Math.atan2(extent,radius);
+      assert.ok(nearestEdge>1.5,name+' still overlaps the ±1.1-radian real guardian corridor: '+nearestEdge);
+    }
+    const gears=[];
+    world.group.traverse(object=>{
+      if(object.name==='CameraResponsiveDecorativeGear')gears.push(object);
+    });
+    assert.equal(gears.length,3,'keep three rotating original decorative machines');
+    assert.ok(gears.some(g=>Math.atan2(g.getWorldPosition(new THREE.Vector3()).x,
+      g.getWorldPosition(new THREE.Vector3()).z)>2),
+      'the upper machine still reads on the opposite architectural flank');
+    assert.equal(JSON.stringify(source),unchanged,'world art never changes source state');
+    assert.ok(world.diagnostics().meshes+world.diagnostics().shadowCasterMeshes<=100,
+      'scene staging must not expand low-tier draw budget');
+    world.update(sourceFrame('void',9),.016,1,{quality:'low'});
+    assert.equal(world.group.getObjectByName('clockwork-far-shoulder-power-rack'),undefined,
+      'no stale foreground machine after real floor-nine transition');
+  }finally{world.dispose();}
+});
