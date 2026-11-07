@@ -16,7 +16,7 @@ assert(live.includes('function packedFlatQuad('),'tested real packed primitive p
 assert(live.includes('function packedRing('),'bounded reused circle topology');
 function create(source,vertices){
  return new Function('data','currentMaterial',source+';return {box,cylinder,cone,limbSegment,'+
-  '(typeof packedRingCache!=="undefined"?packedRingCache:null)};')(vertices,7);
+  'rings:(typeof packedRingCache!=="undefined"?packedRingCache:null)};')(vertices,7);
 }
 const tests=[];
 for(let n=0;n<56;n++){
@@ -44,7 +44,7 @@ for(const [method,args] of tests){
    ' actual='+a+' reference='+b);
   largest=Math.max(largest,delta);
  }
- assert(renderer[Object.keys(renderer)[4]]?.size<=16,
+ assert(renderer.rings?.size<=16,
   'ring topology cache remains bounded to 16 side variants');
  totalVertices+=actual.length/10;
 }
