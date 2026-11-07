@@ -258,10 +258,42 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         }
       }
     }
-    guide.geometry.dispose();
-    guide.geometry = new THREE.BufferGeometry();
-    guide.geometry.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
-    guide.computeLineDistances();
+    // A public plan changes frequently during a real autonomous run. Recreating
+    // a GPU BufferGeometry for every disclosure/run transition churned registered
+    // geometry identities even though the observed dashed path is the same art.
+    // Reuse its physical line buffer; allocate a larger buffer only if a later
+    // PUBLIC world or plan genuinely requires more vertices. Never truncate a
+    // discovered path or draw leftover segments from a previous run.
+    const usedVertices = points.length / 3;
+    const publicRouteCapacity = Math.max(80, Math.min(32000,
+      snapshot.width * snapshot.height * 40), usedVertices);
+    if ((guide.geometry.getAttribute('position')?.count ?? 0) < publicRouteCapacity) {
+      const previousGeometry = guide.geometry;
+      const reusable = new THREE.BufferGeometry();
+      reusable.setAttribute('position',new THREE.BufferAttribute(
+        new Float32Array(publicRouteCapacity * 3),3).setUsage(THREE.DynamicDrawUsage));
+      reusable.setAttribute('lineDistance',new THREE.BufferAttribute(
+        new Float32Array(publicRouteCapacity),1).setUsage(THREE.DynamicDrawUsage));
+      guide.geometry = reusable;
+      previousGeometry.dispose();
+    }
+    const routePositions = guide.geometry.getAttribute('position');
+    const routeDistances = guide.geometry.getAttribute('lineDistance');
+    routePositions.array.set(points);
+    let totalDistance = 0;
+    // Match Three.LineSegments.computeLineDistances() exactly, without
+    // replacing the attribute (and leaking its old WebGL buffer) each update.
+    for (let i=0; i<usedVertices; i+=2) {
+      const a=i*3, b=a+3;
+      routeDistances.array[i] = totalDistance;
+      totalDistance += Math.hypot(points[b]-points[a],
+        points[b+1]-points[a+1], points[b+2]-points[a+2]);
+      routeDistances.array[i+1] = totalDistance;
+    }
+    routePositions.needsUpdate = true;
+    routeDistances.needsUpdate = true;
+    guide.geometry.setDrawRange(0,usedVertices);
+    guide.geometry.computeBoundingSphere();
   }
 
   function updateWayfinding(snapshot) {
@@ -1087,10 +1119,22 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           separationCssPx: Math.hypot(bladeTip.xCssPx - socketCenter.xCssPx,
             bladeTip.yCssPx - socketCenter.yCssPx)};
       })() : null;
+      // Distinguish publicly referenced scene buffers from registered WebGL
+      // buffers while investigating real cross-run resource churn. Neither
+      // statistic traverses the private maze or exposes an undisclosed path.
+      const referencedGeometries = new Set();
+      scene.traverseVisible(object => {
+        if (object.geometry && (object.isMesh || object.isLine))
+          referencedGeometries.add(object.geometry.id);
+      });
       window.__MAZE_3D__ = {
         renderer: 'webgl', frames, cameraMode, runToken: s.runToken, tick: s.tick, quality: balanced ? 'balanced' : 'full',
         triangles: renderer.info.render.triangles, drawCalls: renderer.info.render.calls,
         geometries: renderer.info.memory.geometries, geometryPeak, textures: renderer.info.memory.textures,
+        referencedSceneGeometries: referencedGeometries.size,
+        publicGuideGeometryId: guide.geometry.id,
+        publicGuideVertices: guide.geometry.drawRange.count,
+        publicGuideCapacity: guide.geometry.getAttribute('position')?.count ?? 0,
         characterCount: 1 + wardens.size, renderedCells: stats.renderedCells,
         explorerInFrame: Math.abs(projected.x) < .95 && Math.abs(projected.y) < .95,
         frameP50Ms: sorted[Math.floor(sorted.length * .5)] || 0,

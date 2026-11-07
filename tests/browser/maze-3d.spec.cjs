@@ -210,9 +210,21 @@ test('six real run transitions release old character resources and keep the expl
     worldGeometries: sample.world.geometryCount,
     worldMeshes: sample.world.meshes,
     disclosedCells: sample.world.renderedCells.length,
+    referencedSceneGeometries: sample.referencedSceneGeometries,
+    guideGeometryId: sample.publicGuideGeometryId,
+    guideVertices: sample.publicGuideVertices,
+    guideCapacity: sample.publicGuideCapacity,
     textures: sample.textures,
   }));
   const startSpread = Math.max(...starts.map(s => s.geometries)) - Math.min(...starts.map(s => s.geometries));
+  // The same 11x9 public level budget must reuse one real Three line buffer
+  // across all six autonomous runs, while still drawing only the disclosed
+  // route's current vertices. This is independent of the unchanged <=8 gate.
+  expect(new Set(samples.map(s => s.publicGuideGeometryId)).size).toBe(1);
+  for (const sample of samples) {
+    expect(sample.publicGuideVertices).toBeGreaterThanOrEqual(0);
+    expect(sample.publicGuideVertices).toBeLessThanOrEqual(sample.publicGuideCapacity);
+  }
   expect(startSpread, `Public six-run geometry spread: ${JSON.stringify(startEvidence)}`).toBeLessThanOrEqual(8);
   expect(errors).toEqual([]);
 });
