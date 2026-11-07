@@ -166,7 +166,7 @@ test('diagonal moving-face contact never writes a fractional position into autho
   const atTouch=248000+(250500-248000)*right.time;
   assert.ok(right.contactX+9000<=atTouch);
   const left=sweptWallContact({
-    fromX:300000,toX:283000,fromY:224000,toY:203800,
+    fromX:285000,toX:268000,fromY:224000,toY:203800,
     halfWidth:9000,halfHeight:14000,
     wallStartX:255000,wallEndX:252500,
     wallStartY:195000,wallEndY:195000,
