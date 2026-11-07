@@ -73,10 +73,10 @@ test('historical and unflagged physics retain their old collision algorithm',()=
     {id:'f0:a-far',kind:'solid',x:275000,y:145000,width:10000,height:20000},
     {id:'f0:z-near',kind:'solid',x:270000,y:145000,width:10000,height:20000},
   ],{position:{x:260000,y:150000},velocity:{x:17000,y:0},
-    state:'dashing',dashCooldown:19,facing:1},false);
-  // Legacy 20Hz input steering deliberately cancels the dash impulse; this
-  // fixture is a checksum-scope guard, NOT an endorsement of old collision.
-  const out=stepTowerPhysics(s,{...still,move:1});
+    state:'airborne',dashCooldown:0,facing:1},false);
+  // Frozen historical one-step velocity still resolves by old ID order.
+  // This is a checksum-scope guard, NOT an endorsement of old collision.
+  const out=stepTowerPhysics(s,still);
   assert.equal(out.integrityFailure,undefined);
   assert.equal(out.state.player.velocity.x,0);
   assert.equal(out.state.player.position.x,275000-s.player.halfWidth);
