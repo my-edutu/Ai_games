@@ -59,7 +59,7 @@ test('earned real cap crossing retains whole body Y, grounded support, forward X
   const snapshotBefore=structuredClone(initial);
   runtime.step({move:0,jump:false,dash:false,attack:false,ability:false});
   const after=runtime.state;
-  assert.equal(after.floor,9,'only authentic source rules earn the floor');
+  assert.equal(after.floor,9,'only authentic source rules earn the floor: '+JSON.stringify({before:{x:snapshotBefore.player.position.x,y:snapshotBefore.player.position.y,halfWidth:snapshotBefore.player.halfWidth,halfHeight:snapshotBefore.player.halfHeight,grounded:snapshotBefore.player.grounded,platform:snapshotBefore.player.groundedPlatformId,deadGuardian:snapshotBefore.enemies.some(e=>e.kind==='guardian'&&!e.active&&e.health<=0)},after:{x:after.player.position.x,y:after.player.position.y,grounded:after.player.grounded,platform:after.player.groundedPlatformId,vy:after.player.velocity.y,lifecycle:after.lifecycle,health:after.player.health,guardian:after.enemies.filter(e=>e.kind==='guardian').map(e=>({active:e.active,health:e.health}))},cap:{x:cap.x,y:cap.y,width:cap.width,height:cap.height,clearance:guardianArenaClearanceX(cap,after.player.halfWidth)},lastEvents:runtime.events.slice(-5).map(e=>({type:e.type,data:e.data}))}));
   assert.equal(after.player.position.x,x,'the real doorway does not relocate the actor sideways');
   assert.equal(after.player.position.y,y,'the body cannot teleport vertically in the same 50ms tick');
   assert.equal(after.player.grounded,true);
