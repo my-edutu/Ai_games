@@ -84,7 +84,7 @@ async function cameraAndScreenshot(page,camera,filename,cinema=true){
   return {snapshot:g.exportSnapshot(),camera:g.getCamera(),
     triangles:g.renderStats().lastFrameTriangles,profile:g.getFrameProfile(),
     worksites:typeof g.getActiveWorksites==='function'?g.getActiveWorksites():null,
-    glError:gl?.getError()??-1,quality:g.renderQuality()};
+    glError:gl?.getError()??-1,quality:g.renderQuality(),completedDrawCadence:g.getDrawCadenceAudit()};
  });
  assert.equal(record.glError,0,filename+' WebGL error');
  assert(record.triangles>0&&record.triangles<160000,filename+' triangle budget');
@@ -94,6 +94,7 @@ async function cameraAndScreenshot(page,camera,filename,cinema=true){
  return {snapshotChecksum:record.snapshot.checksum,day:Math.floor(record.snapshot.payload.state.t/24)+1,
   simulatedHour:record.snapshot.payload.state.t,
   triangleCount:record.triangles,quality:record.quality,
+  completedDrawCadence:record.completedDrawCadence,
   // Record each MEASURED CPU stage, not only a blended total. This is
   // performance.now() wall time around frame phases on the exact renderer;
   // never label these values physical-GPU timings or sustained hardware FPS.
