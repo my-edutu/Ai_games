@@ -151,3 +151,29 @@ test('real moving solid deck face pushes an exposed stationary body without a fu
   assert.deepEqual(out.contacts.filter(c=>c.kind==='wall').map(c=>c.entityId),[wall.id]);
   assert.equal(out.contacts.some(c=>c.kind==='land'),false);
 });
+
+test('diagonal moving-face contact never writes a fractional position into authoritative replay',()=>{
+  const {sweptWallContact}=require('../../dist/games/infinite-tower-climb/src/physics/swept-wall-contact.js');
+  const right=sweptWallContact({
+    fromX:230000,toX:247000,fromY:224000,toY:203800,
+    halfWidth:9000,halfHeight:14000,
+    wallStartX:248000,wallEndX:250500,
+    wallStartY:195000,wallEndY:195000,
+    wallWidth:12000,wallHeight:10000,direction:1,
+  });
+  assert.ok(right);
+  assert.ok(Number.isSafeInteger(right.contactX));
+  const atTouch=248000+(250500-248000)*right.time;
+  assert.ok(right.contactX+9000<=atTouch);
+  const left=sweptWallContact({
+    fromX:300000,toX:283000,fromY:224000,toY:203800,
+    halfWidth:9000,halfHeight:14000,
+    wallStartX:255000,wallEndX:252500,
+    wallStartY:195000,wallEndY:195000,
+    wallWidth:12000,wallHeight:10000,direction:-1,
+  });
+  assert.ok(left);
+  assert.ok(Number.isSafeInteger(left.contactX));
+  const atTouchLeft=255000+(252500-255000)*left.time+12000;
+  assert.ok(left.contactX-9000>=atTouchLeft);
+});

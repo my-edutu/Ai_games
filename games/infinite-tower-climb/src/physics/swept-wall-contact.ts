@@ -35,5 +35,10 @@ export function sweptWallContact(p:TowerSweptWallProbe):
   // velocity rule and the independent vertical landing/head solver.
   const physicalPlane=dir===1?
     Math.min(touchingPlane,endPlane):Math.max(touchingPlane,endPlane);
-  return {time:t,contactX:physicalPlane-dir*p.halfWidth};
+  // Fixed-step simulation, replay checksums and the technical-integrity
+  // quarantine all require SAFE-INTEGER coordinates. Interpolated moving
+  // faces are fractional: round away from penetration instead of publishing
+  // a float and terminating the authentic game with 'unsafe-number'.
+  const rawX=physicalPlane-dir*p.halfWidth;
+  return {time:t,contactX:dir===1?Math.floor(rawX):Math.ceil(rawX)};
 }
