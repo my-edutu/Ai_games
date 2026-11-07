@@ -68,5 +68,6 @@ test('source contract exports the real rules exit only in opt-in cap encounters'
   assert.match(snapshot,/state\.config\.guardianArenaHazards===true&&[\s\S]*?state\.config\.guardianSecondWind===true&&chunk\.guardian/);
   assert.match(snapshot,/guardianArenaExitX\(arenaCap\)/,
     'the rendered earned exit must be the same authoritative cap exit used by rules and AI');
-  assert.match(snapshot,/guardianExitX!==undefined\?\{guardianExitX\}:\{\}/);
+  assert.match(snapshot,/guardianExitX!==undefined\?\{\s*guardianExitX,guardianSealHeight:guardianArenaSealHeight\(state\.config\)\}:\{\}/,
+    'the source publishes both earned gate geometry values only when present');
 });
