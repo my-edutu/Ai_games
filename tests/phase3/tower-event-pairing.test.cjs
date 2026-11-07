@@ -7,7 +7,9 @@ function rec(source,scenario='danger',viewport='portrait'){
   videoPath:'original/live.webm',videoPresent:true,
   motion:{sourceSha:sha,seed:'same-seed',graphicsTier:'low',reducedMotion:false,
    soundEnabled:false,actualWallSeconds:68,
-   viewport:viewport==='portrait'?{width:390,height:844}:{width:960,height:600}},
+   viewport:viewport==='portrait'?{width:390,height:844}:{width:960,height:600},
+   startScene:{floor:scenario==='danger'?8:scenario==='moving'?7:0,
+     tick:80,runToken:'seeded-run-0',lifecycle:'running',atMs:1000}},
   index:{sourceSha:sha,seed:'same-seed',scenario,sourceTicksObserved:120,events:[
    {kind:'guardian-present',floor:8,atMs:1000},
    {kind:'guardian-hp-decrease',floor:8,atMs:2000},
@@ -147,4 +149,35 @@ test('moving and ascent witnesses must originate on their requested floors',()=>
   assert.equal(report.provenanceDefects.length,0);
   assert.equal(report.sourceStoryDefects.length,1);
  }
+});
+
+test('late portrait starts on floor ten are a provenance veto, not matched footage',()=>{
+ const base=rec('baseline','danger','portrait');
+ const current=rec('candidate','danger','portrait');
+ base.motion.startScene={...base.motion.startScene,floor:8,tick:467};
+ current.motion.startScene={...current.motion.startScene,floor:10,tick:632};
+ const report=auditPairs([base,current],'c'.repeat(40));
+ assert.ok(report.comparisons[0].faults.includes(
+   'missing, late, or wrong-floor initial source episode'));
+ assert.equal(report.provenanceDefects.length,1);
+ assert.equal(report.fullMotionPaired,false);
+ assert.equal(report.verdict,'NOT EVALUATED');
+});
+test('similar source event names do not excuse a three-second start offset',()=>{
+ const base=rec('baseline','ascent','desktop');
+ const current=rec('candidate','ascent','desktop');
+ base.motion.startScene.tick=20;
+ current.motion.startScene.tick=150;
+ const report=auditPairs([base,current],'c'.repeat(40));
+ assert.ok(report.comparisons[0].faults.includes(
+   'initial source ticks differ by over 3 seconds'));
+ assert.equal(report.verdict,'NOT EVALUATED');
+});
+test('a missing first source observation cannot be silently treated as matched',()=>{
+ const base=rec('baseline','outcome','portrait');
+ const current=rec('candidate','outcome','portrait');
+ delete current.motion.startScene;
+ const report=auditPairs([base,current],'c'.repeat(40));
+ assert.equal(report.provenanceDefects.length,1);
+ assert.equal(report.comparisons[0].sourceStorySequenceObserved,false);
 });
