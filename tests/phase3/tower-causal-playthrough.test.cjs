@@ -128,13 +128,16 @@ test('real physically earned door escort is not restricted to first floor-eight 
 });
 
 test('crusher pressure after guardian death is not a living-guardian encounter',()=>{
- const w=createTowerCausalWitness(),live=state('post-defeat',1);
- const killed=state('post-defeat',2,8,{enemies:[dead]});
+ // Kill on an honest safe shutter phase (tick 10), then observe a later
+ // close jaw warning after the source guardian has already been defeated.
+ const w=createTowerCausalWitness(),live=state('post-defeat',10);
+ const killed=state('post-defeat',11,8,{enemies:[dead]});
  w.observe(live,killed,[{type:'enemy-defeated',
    data:{id:'f8:guardian',kind:'guardian'}}]);
- w.observe(killed,state('post-defeat',3,8,{enemies:[dead]}),[]);
+ w.observe(state('post-defeat',70,8,{enemies:[dead]}),
+   state('post-defeat',71,8,{enemies:[dead]}),[]);
  const proof=w.summary();
- assert.equal(proof.episodes[0].markers.guardianDefeated.tick,2);
+ assert.equal(proof.episodes[0].markers.guardianDefeated.tick,11);
  assert.equal(proof.episodes[0].markers.crusherPressureSurvived,undefined,
    'a lingering jaw phase cannot be counted as pre-defeat counterplay');
  assert.equal(proof.fullSourceChainObserved,false);
@@ -156,4 +159,15 @@ test('floor-nine clearance event without previously witnessed cap advance is not
  assert.equal(proof.episodes[0].markers.advancedOnCap,undefined);
  assert.equal(proof.episodes[0].markers.earnedFloorNine,undefined);
  assert.equal(proof.fullSourceChainObserved,false);
+});
+
+test('living guardian final blow may legitimately survive jaw pressure on that same source step',()=>{
+ const w=createTowerCausalWitness(),live=state('same-tick',1),
+  killed=state('same-tick',2,8,{enemies:[dead]});
+ w.observe(live,killed,[{type:'enemy-defeated',
+   data:{id:'f8:guardian',kind:'guardian'}}]);
+ const markers=w.summary().episodes[0].markers;
+ assert.equal(markers.liveGuardian.tick,1);
+ assert.equal(markers.crusherPressureSurvived.tick,2);
+ assert.equal(markers.guardianDefeated.tick,2);
 });
