@@ -70,9 +70,16 @@ function createTowerCausalWitness(limit = 16) {
     }
     if (!ep) return;
     const sameRun = before.runId === after.runId;
-    const exposed = sameRun && ep.liveGuardian && before.floor === 8 &&
-      after.floor === 8 && after.lifecycle === 'running' &&
-      after.player?.health > 0 ? sourceCrusherPressure(before) : null;
+    // A post-victory jaw timer is not proof that the climber faced the
+    // crusher WHILE fighting a living upper-cap guardian. Require a live,
+    // positive-health guardian on the observed source step, and preserve
+    // source-step survival before recording the encounter pressure.
+    const livingDuel = sameRun && ep.liveGuardian && !ep.guardianDefeated &&
+      before.floor === 8 && after.floor === 8 &&
+      after.lifecycle === 'running' && after.player?.health > 0 &&
+      before.enemies?.some(e => e.floor === 8 && e.kind === 'guardian' &&
+        e.active === true && e.health > 0);
+    const exposed = livingDuel ? sourceCrusherPressure(before) : null;
     if (exposed) record(ep, 'crusherPressureSurvived', after, exposed);
     if (before.lifecycle === 'running' && before.floor === 8 &&
         before.enemies?.some(e => e.kind === 'guardian' && e.floor === 8 && e.active))
@@ -98,7 +105,11 @@ function createTowerCausalWitness(limit = 16) {
       earned.guardianId==='f8:guardian'&&
       [earned.exitX,earned.clearanceX,earned.crossingX].every(Number.isSafeInteger)&&
       earned.clearanceX>earned.exitX&&earned.crossingX>=earned.clearanceX;
-    if (sameRun && ep.guardianDefeated && ep.groundedEarnedWalk && crossed &&
+    // Seeing a door event alone cannot replace a grounded, forward cap walk.
+    // The real whole-body clearance must FOLLOW independently witnessed
+    // forward movement on the source support (no replay splice or pose cue).
+    if (sameRun && ep.guardianDefeated && ep.groundedEarnedWalk &&
+        ep.advancedOnCap && crossed &&
         before.floor === 8 && after.floor === 9 &&
         before.player?.grounded === true && priorCap &&
         before.player.groundedPlatformId === priorCap.id &&
