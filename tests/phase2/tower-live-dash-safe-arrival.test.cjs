@@ -7,6 +7,7 @@ const {observedDashArrivalSafe}=require('../../dist/games/infinite-tower-climb/s
 const {TowerRuntime}=require('../../dist/games/infinite-tower-climb/src/runtime/run.js');
 const {createTowerObservation}=require('../../dist/games/infinite-tower-climb/src/ai/observation.js');
 const {chooseTowerAction}=require('../../dist/games/infinite-tower-climb/src/ai/policy.js');
+const {stepTowerPhysics}=require('../../dist/games/infinite-tower-climb/src/physics/step.js');
 
 function envelope(overrides={}){
   return {positionX:100000,halfWidth:9000,direction:1,
@@ -53,4 +54,37 @@ test('live autonomous route with an overshoot-prone narrow hazard lane declines 
   assert.equal(planned.action.dash,false,
     'a physically unsafe impulsive boost is not needed to earn a real landing');
   assert.deepEqual(s,before,'source planning must never mutate gameplay');
+  const physical=stepTowerPhysics(s,planned.action);
+  assert.equal(physical.integrityFailure,undefined);
+  assert.equal(physical.state.stats.dashes,s.stats.dashes,
+    'a rejected boost never spends genuine stamina or emits a physical dash');
+});
+
+test('live pilot still executes a necessary long-lane earned dash with real fixed-step movement',()=>{
+  const runtime=TowerRuntime.create({maxTicks:3500,noProgressTicks:1800,
+    guardianSecondWind:true,guardianArenaHazards:true},
+    'tower-long-lane-arrival',{policy:'autonomous'});
+  const s=structuredClone(runtime.state);
+  const target=s.chunks[0].platforms.find(platform=>platform.id.endsWith(':p3'));
+  assert.ok(target);
+  target.x=340000;target.width=115000;
+  s.ai.targetPlatformId=target.id;s.ai.recentHeights=[];
+  s.player.position={x:40000,
+    y:target.y+target.height+s.player.halfHeight+60000};
+  s.player.velocity={x:9000,y:9000};
+  s.player.grounded=false;s.player.groundedPlatformId=undefined;
+  s.player.facing=-1;s.player.state='airborne';
+  s.player.stamina=s.player.maxStamina;s.player.dashCooldown=0;
+  s.enemies=[];s.projectiles=[];s.pickups=[];s.chunks[0].hazards=[];
+  const before=structuredClone(s);
+  const decision=chooseTowerAction(s,createTowerObservation(s));
+  assert.equal(decision.action.dash,true,
+    'the real source route still needs and earns a long-distance boost');
+  assert.equal(decision.action.move,1);
+  assert.deepEqual(s,before,'planning cannot alter original authoritative state');
+  const live=stepTowerPhysics(s,decision.action);
+  assert.equal(live.integrityFailure,undefined);
+  assert.equal(live.state.player.velocity.x,s.config.dashSpeed);
+  assert.equal(live.state.stats.dashes,s.stats.dashes+1);
+  assert.ok(live.state.player.position.x>s.player.position.x);
 });
