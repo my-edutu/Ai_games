@@ -7,6 +7,7 @@ const assert = require('node:assert/strict');
 const { pathToFileURL } = require('node:url');
 const path = require('node:path');
 const { test } = require('node:test');
+const { shippedSceneNamedBindings, fillMissingBindings } = require('./tower-scene-vm-bindings.cjs');
 const root = path.resolve(__dirname, '../..');
 
 async function main() {
@@ -29,6 +30,7 @@ async function main() {
   const { createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage } = await import(pathToFileURL(`${root}/public/infinite-tower-climb/visuals/guardian-circuit.mjs`).href);
   const { observedGuardianPassage, observedUnlockedGuardianCap, createTowerGuardianPassage } = await import(pathToFileURL(`${root}/public/infinite-tower-climb/visuals/guardian-passage.mjs`).href);
   const source = fs.readFileSync(`${root}/public/infinite-tower-climb/visuals/scene.mjs`, 'utf8');
+  const sceneBindings = await shippedSceneNamedBindings(source);
   function events() {
     const listeners = new Map();
     return {
@@ -80,6 +82,7 @@ async function main() {
       ...events(),
     };
     context.window = context;
+    fillMissingBindings(context, sceneBindings);
     vm.runInNewContext(source.replace(/^import .*;\n/gm, '').replace('export function createTowerScene', 'function createTowerScene'), context, { filename: 'shipped-scene.mjs' });
     const view = context.createTowerScene(canvas, { quality, onStatus: (...args) => statuses.push(args) });
     const snapshot = { runToken: 'resource-review', revision: 1, publicChecksum: 'a', floor: 0, theme: 'foundry', tick: 1,
