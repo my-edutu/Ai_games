@@ -93,8 +93,31 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
  await page.locator('#audio-toggle').click(); // genuine spectator opt-in
  const audioOptedIn=(await page.locator('#audio-toggle').getAttribute('aria-pressed'))==='true';
  const recording=await beginRecording(page),started=Date.now();
+ // Preserve independent live original PCM signal evidence, not just WebM
+ // track count (which cannot establish actual audible or synchronized sound).
+ let pcmRequested=false;
  for(const stage of ['combat','warden','floor','defeat','restart']){
   const index=milestones[stage],expected=snapshots[index];
+  if(stage==='warden'){
+   // Arm the native bus before the FIRST ACTUAL Warden HP-loss checkpoint,
+   // never inventing boss damage, sound, or an accelerated authority tick.
+   const preImpact=Math.max((milestones.combat??0)+1,index-2);
+   if(preImpact<index){
+    feed.allowThrough(preImpact);
+    await expect.poll(()=>page.evaluate(()=>
+     window.__DUNGEON_RENDER_DIAGNOSTICS__?.renderedState?.checksum??null
+    ),{timeout:420000,intervals:[300,750,1200]}).toBe(snapshots[preImpact].checksum);
+   }
+   pcmRequested=await page.evaluate(()=>{
+    if(typeof window.__DUNGEON_RECORD_ORIGINAL_PCM__!=='function')return false;
+    window.__M1_PCM_CAPTURE__=Promise.race([
+     window.__DUNGEON_RECORD_ORIGINAL_PCM__(4),
+     new Promise(resolve=>setTimeout(()=>resolve(
+      {status:'UNAVAILABLE',reason:'Live PCM processor timeout'}),7000))
+    ]);
+    return true;
+   });
+  }
   feed.allowThrough(index);
   // The *rendered frame's* checksum must match the source milestone.
   // An unrelated next frame is NOT evidence of a recorded Warden contact.
@@ -127,6 +150,18 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
  expect(feedMetrics.uniqueDelivered,'every authentic authority tick delivered').toBe(snapshots.length);
  expect(feedMetrics.lastDeliveredIndex,'natural restart delivered').toBe(snapshots.length-1);
  const film=recording.status==='RECORDING'?await stopRecording(page):recording;
+ const pcm=pcmRequested?await page.evaluate(async()=>{
+  const recorded=await window.__M1_PCM_CAPTURE__;
+  const {wav,...meta}=recorded||{status:'UNAVAILABLE',reason:'Missing PCM result'};
+  if(!wav)return meta;
+  const raw=new Uint8Array(wav),parts=[];
+  for(let i=0;i<raw.length;i+=16384)
+   parts.push(String.fromCharCode(...raw.subarray(i,i+16384)));
+  return {...meta,base64:btoa(parts.join(''))};
+ }):{status:'UNAVAILABLE',reason:'Original PCM recorder unavailable'};
+ const pcmPath='artifacts/dungeon-m1-organic-journey-'+VIEW+'-original-warden.wav';
+ if(pcm.base64)fs.writeFileSync(pcmPath,Buffer.from(pcm.base64,'base64'));
+ const {base64:pcmBase64,...pcmFacts}=pcm;
  const receipt={schemaVersion:1,sourceSha:require('node:child_process').execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),
   baselineSha:BASELINE,baselineArtifact:'https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898',
   view:VIEW,viewport:SIZE,seed:SEED,source:'actual DungeonRuntime.step to real Chromium WebGL',
@@ -138,7 +173,12 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
   recorder:{status:film.status,reason:film.reason,bytes:film.bytes||0,mime:film.mime,
    audioTracks:film.audioTracks||0,videoTracks:film.videoTracks||0},
   originalAudioTrackPresent:film.status==='RECORDED'&&film.audioTracks>0,
-  audibleSynchronizedSound:'UNVERIFIED: real track requires decoded channel/PCM analysis',
+  originalAudioPcm:{...pcmFacts,
+   path:pcmBase64?pcmPath:null,source:'real original opted-in WebAudio master',
+   captureWindow:'before first actual Warden HP loss, maximum four seconds',
+   measured:'native PCM16 peak/RMS, explicit SILENT or UNAVAILABLE states',
+   synchronizedWithVideo:'UNVERIFIED until temporal media comparison'},
+  audibleSynchronizedSound:'UNVERIFIED: decode WebM and align hit timestamp with original PCM',
   matchedLockedBaseline:false,blindCritics:0,looks:'UNVERIFIED',feels:'UNVERIFIED',plays:'UNVERIFIED',
   milestoneFrameProof,observations,pageErrors:errors};
  const stem='artifacts/dungeon-m1-organic-journey-'+VIEW;

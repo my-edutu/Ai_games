@@ -5697,7 +5697,7 @@
       "next": "Exact-new-head real 1440px/390px seeded Chromium audiovisual battle + compare pinned baseline; verify no new occlusion/camera jitter, then original adult-scale native rig/Warden melee integration and five-stage organic reel."
     },
     "currentStage": "A — true same-seed real-browser desktop/mobile moving verification still incomplete",
-    "executableNextTask": "Inspect exact-head 1440/390 genuine five-stage WebM and stage/checksum manifests; measure dominant foreground/pillar, camera jitter, actual native boots and sword contact, original opt-in PCM and frame p95. Reject/revert renderer candidate if it removes rear scene. Then adult-scale B/C full-body exemplar and matched baseline.",
+    "executableNextTask": "Inspect exact-head 1440px/390px real WebM and checksums, original live Warden WAV peak/RMS and temporal hit alignment; evaluate portrait pillar, sword/boots, camera stability and frame pacing. Correct observed gameplay defect and continue adult-scale B/C exemplar.",
     "phasePlan": [
       {
         "phase": "A",
@@ -5758,6 +5758,28 @@
       "critics": 0,
       "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
       "next": "Inspect exact-head mobile/desktop organic frames and audio; verify no giant prop or camera instability and no Gothic depth loss; repair observed regression, then adult-scale native-rig Warden melee slice"
+    },
+    "m1OriginalAudioForensicsCandidate": {
+      "date": "2026-11-07",
+      "stage": "A",
+      "sourceParentSha": "f5d85b5a3f31b24ccf7a34ad6201a6fbce11f9e7",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "defect": "The opt-in master-bus PCM facility existed but original journey recording reported only WebM audio track count; prior video had no audio.",
+      "integration": "Use authentic ordered authority two-tick Warden pre-impact frame, capture existing opted-in live original WebAudio PCM16, save WAV and original signal RMS/peak/SILENT or UNAVAILABLE in desktop/mobile receipt; no synthetic or authoritative changes.",
+      "files": [
+        "tests/browser/dungeon-m1-organic-journey.spec.cjs",
+        "docs/gauntlet/AI_DUNGEON_TRANSFORMATION.md",
+        "public/ai-dungeon/gauntlet-history.json"
+      ],
+      "validated": "CommonJS syntax compile only; no latest-head Chromium, Node, replay or device metrics",
+      "originalAudio": "UNVERIFIED until real WAV playback and WebM temporal comparison",
+      "observedGameplay": "NOT_OBSERVED",
+      "performance": "UNVERIFIED",
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "critics": 0,
+      "next": "Acquire actual exact-head desktop/mobile stage/checksum+WebM+original Warden WAV. Inspect pillar clearance and native sword/boot motion; validate sync, performance, replay and real game B/C transformation against locked baseline."
     }
   }
 }
