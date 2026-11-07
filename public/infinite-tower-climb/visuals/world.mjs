@@ -899,9 +899,11 @@ export function createTowerWorld(){
   function buildClockwork(height){
     // Two tower shoulders flank the actual ±1.1-radian climbing route; the
     // dial and upper side wheel no longer stand in the active guardian's
-    // central camera corridor. Unlike a fade-only workaround, this changes
+    // central camera corridor. Preserve the original source-verified inner
+    // radii so clockwork architecture never invades the playable annulus.
+    // Unlike a fade-only workaround, this changes
     // the ORIGINAL rendered architecture in every real clockwork biome.
-    const clock=new THREE.Group();radial(clock,-1.43,22.15,20);
+    const clock=new THREE.Group();radial(clock,-1.43,18.6,20);
     clock.name='clockwork-monumental-left-shoulder';
     floorGroup.add(clock);
     openClockCase(clock,14,16);
@@ -910,7 +912,7 @@ export function createTowerWorld(){
     const markers=[];for(let i=0;i<12;i++){const a=i/12*TAU;markers.push({p:[Math.sin(a)*5.45,Math.cos(a)*5.45,1],s:[.2,.65,.16],r:[0,0,-a]});}instanced(clock,bevel(),materials.edge,markers);
     const main=gear(clock,4.8,.45,materials.copper);main.position.z=1.2;rotors.push({o:main,speed:.045});
     for(const [a,y,size,speed]of [[-1.47,7,3.6,-.11],[1.47,31,3.1,.15]]){
-      const root=new THREE.Group();radial(root,a,22.15,y);floorGroup.add(root);
+      const root=new THREE.Group();radial(root,a,21.3,y);floorGroup.add(root);
       root.name=y>height*.6?'clockwork-upper-right-shoulder':'clockwork-lower-left-shoulder';
       const g=gear(root,size,.42,materials.copper);rotors.push({o:g,speed});
       openClockCase(root,size*1.9,size*2.1);
