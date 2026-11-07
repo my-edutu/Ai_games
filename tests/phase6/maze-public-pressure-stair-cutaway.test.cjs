@@ -79,8 +79,15 @@ test('public pressure court lowers real reciprocal stair handrails while preserv
     assert.deepEqual(cleared.stairEdges,baseline.stairEdges,'stairs and public navigation unchanged');
     for (let i=0; i<2; i++) {
       assert.ok(Math.abs(low[i].x-high[i].x)<1e-8,'side clearances unchanged');
-      assert.ok(Math.abs(low[i].y-(high[i].y-.38))<1e-8,
-        'real 3D rail top lowers enough to clear pressure mechanism sightline');
+      // InstancedMesh writes its model transforms into Float32Array, so the
+      // exact 0.38-unit design drop cannot be compared with double-precision
+      // 1e-8 epsilon (2.80 -> 2.42 rounds to 0.379999876 in WebGL).
+      // Assert BOTH actual GPU matrix values exactly against the intended
+      // authored heights. This is stricter than widening an image threshold.
+      assert.equal(high[i].y, Math.fround(2.80),
+        'published normal stair has the authored high physical rail');
+      assert.equal(low[i].y, Math.fround(2.42),
+        'real pressure stair rail is exactly 0.38 lower in GPU geometry');
     }
     for (const key of ['geometryCount','materialCount','textureCount'])
       assert.equal(cleared[key],baseline[key],key+' must not grow');
