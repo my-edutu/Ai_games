@@ -1100,13 +1100,19 @@ export function createMazeWorld(options = {}) {
               // a confirmed connected stair. The existing public steps remain
               // unchanged; only this new authored landmark requires reciprocity.
               if (knownByCell.get(n).neighbors.includes(c.cell)) {
-              // A genuinely connected public elevation change now reads as a
-              // playable tideglass stair, not eight anonymous floating blocks.
-              // Twin low side balustrades join the actual sculpted steps; their
-              // stone feet stay OUTSIDE the existing 1.56-wide walkable lane.
-              // All instances use existing materials/geometry and the known
-              // reciprocal link only. No inferred bridge, collision change,
-              // new route, private map query or per-frame allocation.
+              // A genuinely connected public elevation change reads as a
+              // playable tideglass stair. In an already DISCLOSED pressure
+              // encounter the tall decorative handrails hid Pip's view of the
+              // actual moving shutters in the full 390px original WebGL.
+              // Keep the complete authoritative steps and two physical side
+              // barriers, but lower their solid decorative rails and posts.
+              // This affects ONLY publicly known, reciprocal stair endpoints
+              // within the disclosed two-cell pressure sightline, never an
+              // unknown/private trap, gate, passage or engine collision.
+              // All mesh classes, render resources and 1.56-wide stair lane
+              // remain unchanged.
+              const pressureStairCutaway = pressureSightlines.has(c.cell)
+                || pressureSightlines.has(n);
               stairBalustrades++;
               const rampLength = Math.hypot(STAIR_RUN, rise);
               const incline = Math.atan2(rise, STAIR_RUN);
@@ -1115,10 +1121,10 @@ export function createMazeWorld(options = {}) {
                 const centerX = x + dx * (STAIR_START + STAIR_RUN / 2) + sideX;
                 const centerZ = z + dz * (STAIR_START + STAIR_RUN / 2) + sideZ;
                 // Real sloping timber/ceramic grip follows the stair ascent.
-                add(box, deepStone, centerX, .70 + rise / 2, centerZ,
+                add(box, deepStone, centerX, (pressureStairCutaway ? .32 : .70) + rise / 2, centerZ,
                   dx ? rampLength : .19, .17, dz ? rampLength : .19,
                   c.cell, dz ? -incline * dz : 0, 0, dx ? incline * dx : 0);
-                add(box, seaGlass, centerX, .81 + rise / 2, centerZ,
+                add(box, seaGlass, centerX, (pressureStairCutaway ? .43 : .81) + rise / 2, centerZ,
                   dx ? rampLength * .93 : .075, .047, dz ? rampLength * .93 : .075,
                   c.cell, dz ? -incline * dz : 0, 0, dx ? incline * dx : 0);
                 // Three rooted uprights create a readable physical silhouette
@@ -1128,8 +1134,10 @@ export function createMazeWorld(options = {}) {
                   const climb = rise * Math.max(0, (distance - STAIR_START) / STAIR_RUN);
                   const px = x + dx * distance + sideX;
                   const pz = z + dz * distance + sideZ;
-                  add(box, deepStone, px, climb + .34, pz, .18, .68, .18, c.cell);
-                  add(box, lightStone, px, climb + .69, pz, .25, .12, .25, c.cell);
+                  add(box, deepStone, px, climb + (pressureStairCutaway ? .15 : .34), pz,
+                    .18, pressureStairCutaway ? .30 : .68, .18, c.cell);
+                  add(box, lightStone, px, climb + (pressureStairCutaway ? .32 : .69), pz,
+                    .25, .12, .25, c.cell);
                 }
               }
               }
