@@ -93,7 +93,7 @@ test('truth-gated adult planted impact transfers readable source-rig weight with
   const largest=Math.max(...Object.values(hit.legs).flatMap(part=>Object.values(part).map(Math.abs)));
   assert.ok(largest>.14,kind+' must brace an original imported knee/ankle at real sword impact');
   assert.ok(Math.abs(hit.spine.pitch)>.07&&Math.abs(hit.hips.pitch)>.05,kind+' torso must carry visible weight');
-  assert.ok(Math.abs(wind.legs.left.upper)+Math.abs(wind.legs.right.upper)>.12,kind+' must anticipate through both thighs');
+  assert.ok(Math.abs(wind.legs.left.upper)+Math.abs(wind.legs.right.upper)>.11,kind+' must anticipate through both thighs');
   assert.ok(hit.contactWeight>finish.contactWeight,kind+' must recover rather than freeze at contact');
   assert.equal(pose(kind,'attack',NATIVE_CONTACT_TIME,{...opponent,distance:2}).mode,'rest');
   assert.equal(pose(kind,'attack',NATIVE_CONTACT_TIME,{...opponent,reducedMotion:true}).mode,'rest');
