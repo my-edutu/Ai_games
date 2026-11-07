@@ -39,6 +39,8 @@ jobs:
         run: node scripts/tiny-kingdom-w116-real-market-handoff-contract.cjs
       - name: W117 true character and medieval geometry topology parity
         run: node scripts/tiny-kingdom-w117-primitive-parity-contract.cjs
+      - name: W118 authentic stationary resident mesh and live-worker safety contract
+        run: node scripts/tiny-kingdom-w118-resting-actor-contract.cjs
       - run: npx playwright install --with-deps chromium
       - name: Real WebGL 120-day settlement and replay soak
         env:
