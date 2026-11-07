@@ -198,9 +198,18 @@ jobs:
           git hash-object scripts/serve-tower-stream.cjs > artifacts/tower-motion/source-game-host-blob.txt
           echo "TOWER_CAPTURE_SOURCE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
           echo "${{ github.sha }}" > artifacts/tower-motion/evidence-harness-sha.txt
-      - name: Record at least 60 seconds of normal-speed autonomous WebGL gameplay
+      # Playwright's webServer is scoped to ONE invocation. A single two-test
+      # invocation reused the live 20Hz host for portrait after desktop had
+      # advanced 60-180s, so portrait started on floor 10 instead of the
+      # requested guardian floor 8. Separate invocations guarantee fresh,
+      # independently seeded ORIGINAL-source hosts for each native viewport.
+      # Do not speed up, rewind, splice, or replace either game's source.
+      - name: Record desktop 960x600 on a fresh original-source 20Hz host
         working-directory: source
-        run: npx playwright test --config=playwright.tower.config.cjs tests/browser/tower-live-motion.spec.cjs
+        run: npx playwright test --config=playwright.tower.config.cjs tests/browser/tower-live-motion.spec.cjs --grep 'normal-speed Tower motion desktop'
+      - name: Record portrait 390x844 on another fresh original-source 20Hz host
+        working-directory: source
+        run: npx playwright test --config=playwright.tower.config.cjs tests/browser/tower-live-motion.spec.cjs --grep 'normal-speed Tower motion portrait'
       - uses: actions/upload-artifact@v4
         if: always()
         with:
