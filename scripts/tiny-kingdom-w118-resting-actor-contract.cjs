@@ -42,6 +42,7 @@ assert.notEqual(key,signature([{p,i:4}]),
 state.t=23.7;assert.notEqual(key,signature([{p,i:3}]),
  'original clock refreshes resting mesh at bounded interval');
 for(const required of [
+ "function restoreSnapshot(snapshot){validateSnapshot(snapshot);restingActorKey='';",
  'drawRestingActorMesh();',
  'const residents=inspectMeshGeometry(restingActorMesh);',
  '(restingActorVisible?restingActorMesh.length:0)',
