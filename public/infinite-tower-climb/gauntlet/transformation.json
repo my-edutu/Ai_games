@@ -4796,7 +4796,17 @@
       "qualityVerdict": "NOT EVALUATED — retrieved native WebMs and event index, frame-sampled not full-motion blind-judged"
     },
     "biggestObservedFootageDefect": "Five-second frame sampling of original candidate portrait danger WebM: scale/staging jump from distant mechanical floor-eight exterior at about 25s to close floor-nine purple interior at about 30s. No clear continuously watched physical doorway passage; must inspect native motion before marking a current-camera defect.",
-    "exactHeadTestsAndCampaigns": "NOT EVALUATED at time of evidence commit — CI runs for newer source are queued/in progress; two original 3200-tick campaigns and final end-to-end validation must be read at source SHA.",
+    "latestSourceTestVeto": {
+      "sourceSha": "2f4dd704d275acec6a61fe05f1c9b8df984bf879",
+      "qualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/42384388323",
+      "tests": 1191,
+      "passed": 1179,
+      "failed": 12,
+      "conclusion": "FAIL: residual source/recovery, renderer fixture, old checksum and scene/gate contract regressions. Two earlier short-rig route rejections and corrected gateway/movement fixture expectations no longer appear as failed tests.",
+      "currentHeadExactShaQuality": "NOT EVALUATED: final df67f4bf documentation-only SHA workflow 42384790129 queued when checked",
+      "next": "Do not call these regressions green or claim a transformation; prioritize actual full-game source fidelity and accurate fixture contracts."
+    },
+    "exactHeadTestsAndCampaigns": "At gameplay/source SHA 2f4dd704 original quality ran: 1179/1191 passed, 12 failed (veto); current documentation-only HEAD quality run 42384790129 queued; source-matched current video workflow 42384388337 in progress. No fully accepted current-source matched gameplay film or independent reviews.",
     "hardwareP50P95P99Memory": "NOT EVALUATED",
     "independentBlindReviews": {
       "looks": 0,
