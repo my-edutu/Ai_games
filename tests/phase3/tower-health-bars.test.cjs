@@ -5,6 +5,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const { pathToFileURL } = require('node:url');
 const { test } = require('node:test');
+const { shippedSceneNamedBindings, fillMissingBindings } = require('./tower-scene-vm-bindings.cjs');
 const ROOT = path.resolve(__dirname, '../..');
 
 test('enemy health fill stays correctly layered and actual combat damage has a low-quality non-flashing contact cue', async () => {
@@ -46,7 +47,9 @@ test('enemy health fill stays correctly layered and actual combat damage has a l
     addEventListener() {}, removeEventListener() {}, ResizeObserver: class { observe() {} disconnect() {} },
     requestAnimationFrame: fn => { callback = fn; return 1; }, cancelAnimationFrame() {}, console: { warn() {}, error() {} },
   };
-  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/scene.mjs'), 'utf8')
+  const sceneSource = fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/scene.mjs'), 'utf8');
+  fillMissingBindings(context, await shippedSceneNamedBindings(sceneSource));
+  vm.runInNewContext(sceneSource
     .replace(/^import .*;\n/gm, '').replace('export function createTowerScene', 'function createTowerScene'), context);
   const canvas = { dataset: {}, getBoundingClientRect: () => ({ width: 960, height: 600 }), addEventListener() {}, removeEventListener() {} };
   const view = context.createTowerScene(canvas, { quality: 'low', reducedMotion: true });
