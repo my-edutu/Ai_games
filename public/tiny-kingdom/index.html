@@ -850,6 +850,44 @@ body[data-village-documentary="on"] #world-actor-tag{display:none!important}
  #world-trace-toggle,#world-trace-follow{transition:none}
 }
 
+
+/* W122 genuinely operable farm → cargo → market → homes supply trail during
+   the REAL uninterrupted worker shift. The former G119 rule hid the entire
+   #world-ribbon (and its economy button) with display:none!important.
+   Keep only this compact real-world ledger toggle during workday/homecoming;
+   no synthetic transactions, no camera cuts, and no blocked touch targets. */
+body[data-command="world"]:not([data-street="on"]):not([data-hud="cinema"]):is([data-workday="live"],[data-workday="homecoming"]) #world-ribbon{
+ display:flex!important;position:fixed!important;
+ top:auto!important;bottom:146px!important;right:10px!important;
+ left:auto!important;transform:none!important;
+ max-width:calc(100vw - 20px)!important;
+ width:min(336px,calc(100vw - 20px))!important;
+ max-height:45vh!important;overflow-x:hidden!important;
+ overflow-y:auto!important;
+ flex-wrap:wrap!important;justify-content:flex-end!important;
+ align-items:center!important;gap:5px!important;
+ padding:5px!important;z-index:30
+}
+body[data-command="world"]:not([data-street="on"]):is([data-workday="live"],[data-workday="homecoming"]) #world-ribbon > :not(#world-trace-toggle):not(#world-supply-trail){
+ display:none!important
+}
+body[data-command="world"]:not([data-street="on"]):is([data-workday="live"],[data-workday="homecoming"]) #world-trace-toggle{
+ display:inline-flex!important;align-items:center;justify-content:center;
+ flex:0 0 auto;min-width:44px;min-height:44px;
+ font:700 21px/1 system-ui
+}
+body[data-command="world"]:not([data-street="on"]):is([data-workday="live"],[data-workday="homecoming"]) #world-supply-trail:not([hidden]){
+ display:grid!important;flex:0 0 100%!important;width:100%!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:5px!important
+}
+@media(max-width:520px){
+ body[data-command="world"]:not([data-street="on"]):not([data-hud="cinema"]):is([data-workday="live"],[data-workday="homecoming"]) #world-ribbon{
+  bottom:148px!important;right:8px!important;
+  width:min(320px,calc(100vw - 16px))!important
+ }
+}
+
 </style></head><body>
 <canvas id="world" tabindex="0" aria-label="Live 3D medieval valley. Tap a visible villager to follow their real work; drag to orbit. Press Enter to select a visible citizen."></canvas><div id="citizen-pick-caption" role="status" aria-live="polite" aria-atomic="true"><span id="citizen-pick-copy"></span><progress id="citizen-pick-meter" value="0" max="100" aria-label="Observed citizen's actual shift or delivery progress" hidden></progress></div><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>

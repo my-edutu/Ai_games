@@ -7,6 +7,7 @@ on:
       - 'scripts/tiny-kingdom-soak-evidence.cjs'
       - 'scripts/tiny-kingdom-w121-working-resident-contract.cjs'
       - 'scripts/tiny-kingdom-w122-worker-vbo-contract.cjs'
+      - 'scripts/tiny-kingdom-w122-workday-supply-contract.cjs'
       - 'scripts/tiny-kingdom-w118-resting-actor-contract.cjs'
       - '.github/workflows/tiny-kingdom-long-soak.yml'
   workflow_dispatch:
@@ -50,6 +51,7 @@ jobs:
           node scripts/tiny-kingdom-w120-scene-integrity-contract.cjs
           node scripts/tiny-kingdom-w121-working-resident-contract.cjs
           node scripts/tiny-kingdom-w122-worker-vbo-contract.cjs
+          node scripts/tiny-kingdom-w122-workday-supply-contract.cjs
       - run: npx playwright install --with-deps chromium
       - name: Real WebGL 120-day settlement and replay soak
         env:
