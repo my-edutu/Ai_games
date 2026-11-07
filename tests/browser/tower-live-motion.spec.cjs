@@ -455,6 +455,12 @@ for (const viewport of viewports) {
     sourceSequenceObserved = liveStoryCoverage.sameEpisodeSourceSequenceObserved;
     nextSourceProbeMs = Date.now() - recordingStartedAt + 5000;
   }
+  // A real terminal observation is mandatory. The 68s native recording
+  // could finish after the last 60s telemetry sample, giving a false 59.99s
+  // integrity failure despite 70s of unedited real footage. Sample actual
+  // current browser state once more before closing the capture window;
+  // never infer wall time from the video file or synthesize a source tick.
+  await sample(lastSampleIndex + 1);
   const passiveSourceTicks = await page.evaluate(() => {
     clearInterval(window.__TOWER_CAPTURE_PUBLIC_TICK_TIMER__);
     return {ticks:[...(window.__TOWER_CAPTURE_PUBLIC_TICKS__||[])],
