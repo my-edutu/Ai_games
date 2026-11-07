@@ -35,6 +35,8 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(result.hall.rearShopGables).toBe(4);
   expect(result.hall.unobstructedCourierAisle).toBeGreaterThan(4);
   expect(result.hall.lowerRoofClearance).toBeGreaterThan(2.2);
+  expect(result.hall.openWorkerApproachMeters).toBeGreaterThan(.5);
+  expect(result.hall.originalShelfUnderRoof).toBe(true);
   expect(result.hall.realFreightOnly).toBe(true);
   expect(result.hall.changesNavigation).toBe(false);
   expect(result.hall.fabricatedShipments).toBe(0);

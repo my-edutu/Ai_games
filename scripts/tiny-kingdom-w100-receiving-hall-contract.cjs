@@ -13,6 +13,8 @@ assert.match(code,/marketQuarterStats\.receivingHallPosts\+\+/);
 assert.match(code,/marketQuarterStats\.rearShopGables\+\+/);
 assert.match(code,/materialScope\(MATERIAL\.ROOF,\(\)=>\{/);
 assert.match(code,/unobstructedCourierAisle:/);
+assert.match(code,/openWorkerApproachMeters:/);
+assert.match(code,/originalShelfUnderRoof:/);
 assert.match(code,/\[\[-1\.0,10\.2\],\[\.85,10\.2\]\]/);
 assert.match(code,/getMarketReceivingHallAudit,/);
 console.log('W100 original real two-bay open-front receiving arcade source/syntax PASS (not browser visual evidence)');

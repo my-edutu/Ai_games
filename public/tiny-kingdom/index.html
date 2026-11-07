@@ -6004,7 +6004,7 @@ function marketTimberCart(x,z){
 // The front is fully open, supports are outside the genuine x=-1/.85 route,
 // roof starts >2.2m above the real dock and never creates a collision wall.
 const MARKET_RECEIVING_HALL=Object.freeze({
- centerX:-.075,frontZ:10.23,backZ:12.45,
+ centerX:-.075,frontZ:10.77,backZ:12.45,
  halfWidth:2.22,eaveAboveGround:2.27,ridgeAboveGround:3.25
 });
 function getMarketReceivingHallAudit(){
@@ -6015,6 +6015,9 @@ function getMarketReceivingHallAudit(){
   rearShopGables:marketQuarterStats.rearShopGables||0,
   unobstructedCourierAisle:MARKET_RECEIVING_HALL.halfWidth*2-.20,
   lowerRoofClearance:MARKET_RECEIVING_HALL.eaveAboveGround,
+  openWorkerApproachMeters:MARKET_RECEIVING_HALL.frontZ-10.2,
+  originalShelfUnderRoof:10.2+.72>MARKET_RECEIVING_HALL.frontZ&&
+    10.2+.72<MARKET_RECEIVING_HALL.backZ,
   realFreightOnly:true,fabricatedShipments:0,
   authorityModified:false,changesNavigation:false,
   receivingPoints:[[-1.0,10.2],[.85,10.2]]};
@@ -6112,6 +6115,9 @@ function marketReceivingDock(){
    marketQuarterStats.receivingHallRoofPanels++;
   }
  });
+ // Keep the authentic courier standing OUTSIDE the eave at z=10.2,
+ // while both destination shelves at z=10.92 remain physically sheltered.
+ // The 0.57m gap protects the unobstructed follow-camera handoff.
  // Both protected end gables have actual plaster infill, not floating roof
  // polygons; raised above a genuine open-loading clearance.
  materialScope(MATERIAL.PLASTER,()=>{
