@@ -326,3 +326,73 @@ test('a genuine party attack interrupts a channelled shadow hex before it can re
  assert.equal(mystic.hp,beforeHp,'an interrupted cultist cannot deal phantom damage');
  assertDungeonState(s);
 });
+
+test('gauntlet seed 11 cannot stall a living expedition indefinitely after clearing the approach',()=>{
+ const game=DungeonRuntime.create('gauntlet-corpus-v1-11'),trace=[];
+ for(let i=0;i<900;i++){
+  const view=game.step();
+  if([300,450,600,750,899].includes(i)){
+   const boss=game.state.units.find(u=>u.kind==='warden');
+   trace.push({tick:view.tick,floor:view.floor,run:view.run,phase:view.phase,
+    boss:boss&&{hp:boss.hp,x:boss.x,z:boss.z,action:boss.action},
+    party:game.state.units.filter(u=>u.faction==='party').map(u=>({id:u.id,hp:u.hp,x:u.x,z:u.z,action:u.action,targetId:u.targetId})),
+    defenders:game.state.units.filter(u=>u.faction==='enemy'&&u.kind!=='warden'&&u.hp>0).length,
+    intent:view.intent});
+  }
+ }
+ assert.ok(game.state.floor>1||game.state.run>1,
+  '900-tick deadlock in real campaign seed 11: '+JSON.stringify(trace));
+ assertDungeonState(game.state);
+});
+
+test('squad right-of-way resolves a real one-tile passage without teleportation or ghost overlap',()=>{
+ const game=DungeonRuntime.create('right-of-way-physical-fixture'),s=game.state;
+ s.map=Array.from({length:MAP_SIZE},(_,z)=>z===1?'#'+'.'.repeat(MAP_SIZE-2)+'#':'#'.repeat(MAP_SIZE));
+ s.exit={x:17,z:1};s.relics=[];s.traps=[];s.tick=1;
+ for(const u of s.units)if(u.faction==='enemy'&&u.kind!=='warden'){
+  u.hp=0;u.x=16;u.z=1;
+ }
+ const boss=s.units.find(u=>u.kind==='warden');Object.assign(boss,{x:17,z:1});
+ const leader=s.units.find(u=>u.id==='vanguard');Object.assign(leader,{x:3,z:1});
+ const ranger=s.units.find(u=>u.id==='ranger');Object.assign(ranger,{x:4,z:1});
+ const mystic=s.units.find(u=>u.id==='mystic');Object.assign(mystic,{x:2,z:1});
+ assert.equal(s.rulesVersion,2,'new expeditions use the explicit new rules contract');
+ assertDungeonState(s);
+ const mirror=DungeonRuntime.restore(game.save());
+ let rangerProgress=false,leaderProgress=false;
+ for(let i=0;i<12;i++){
+  const before=game.state.units.filter(u=>u.hp>0).map(u=>({id:u.id,x:u.x,z:u.z}));
+  const view=game.step();
+  assert.equal(view.checksum,mirror.step().checksum,'physical route decision must survive a signed replay');
+  const units=game.state.units.filter(u=>u.hp>0);
+  assert.equal(new Set(units.map(u=>u.x+','+u.z)).size,units.length,'no living collisions');
+  for(const u of units){
+   const old=before.find(p=>p.id===u.id);
+   assert.ok(!old||Math.abs(u.x-old.x)+Math.abs(u.z-old.z)<=1,'no free extra movement');
+  }
+  rangerProgress ||= ranger.x>4;leaderProgress ||= leader.x>3;
+ }
+ assert.ok(rangerProgress&&leaderProgress,'front-line blocker must yield so both heroes progress in the same real corridor');
+ assertDungeonState(game.state);
+});
+
+test('legacy v0.5.0 signed runs retain legacy AI until an explicit new-run migration',()=>{
+ const {checksum}=require('../../dist/packages/replay/src/index.js');
+ const fresh=DungeonRuntime.create('rules-compatibility-expedition');
+ const legacy=fresh.save();delete legacy.state.rulesVersion;legacy.version='0.5.0';
+ legacy.signature=checksum({seed:legacy.seed,rng:legacy.rng,state:legacy.state});
+ const restored=DungeonRuntime.restore(legacy),mirror=DungeonRuntime.restore(legacy);
+ assert.equal(restored.state.rulesVersion,undefined,'old run must not silently switch tactical outcomes');
+ for(let i=0;i<36;i++)assert.equal(restored.step().checksum,mirror.step().checksum);
+ assert.equal(restored.save().version,'0.6.0');
+ assert.equal(restored.state.rulesVersion,undefined);
+ const expired=restored.save();expired.version='0.4.0';
+ assert.throws(()=>DungeonRuntime.restore(expired),/Unsupported dungeon gameplay version/);
+ const damaged=structuredClone(legacy);damaged.state.gold++;
+ assert.throws(()=>DungeonRuntime.restore(damaged),/checksum mismatch/);
+ // An explicitly new run is the first safe rules boundary, never an in-fight retrofit.
+ restored.state.phase='intermission';restored.state.intermission=1;
+ const next=restored.step();
+ assert.equal(next.run,2);assert.equal(restored.state.rulesVersion,2);
+ assert.equal(DungeonRuntime.restore(restored.save()).state.rulesVersion,2);
+});

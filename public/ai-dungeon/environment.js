@@ -6,6 +6,7 @@ import {planCutawayFloorBacking,planCutawayCapTransform} from '/dungeon/cutaway-
 import {planPartyWallReveal,planLiveFacadeBodyReveal,createCutawayBandCache,shouldUploadCutawayBand,planProjectedBodyAperture,planPortraitStageClearance} from '/dungeon/party-visibility-plan.js';
 import {planDungeonWallProfiles,planLegibleWallMass} from '/dungeon/wall-profile-plan.js';
 import {createWardenCourt} from '/dungeon/warden-court.js';
+import {createConnectedDungeonJourney} from '/dungeon/connected-journey.js';
 import {planWardenCourtNegativeSpace} from '/dungeon/warden-court-plan.js';
 import {captureForegroundVolumes,planForegroundBodyClearance} from '/dungeon/foreground-sightline-plan.js';
 import {applyForegroundRecession} from '/dungeon/foreground-recession.js';
@@ -113,13 +114,14 @@ function buildStatue(world,x,z,metal,stone,glow,variant){
  for(const side of [-1,1]){const horn=make(new THREE.ConeGeometry(.11,.48,7),stone,side*.14,1.96,-.02);horn.rotation.z=-side*.28}
  world.add(group);return group;
 }
-export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
+export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,encounterUnits=[]){
  // The arch cannot be a solid cube with a pretty ornament. Every selected
  // impassable tile uses a physically low facade as the Gothic gallery takes
  // over its upper volume. Source map, collision and AI stay completely intact.
  const vaultedTiles=new Set(Array.isArray(vaultedSites)?vaultedSites.map(site=>site.gridZ*map.length+site.gridX):[]);
  const N=map.length,O=(N-1)/2,biome=BIOMES[(floor-1)%BIOMES.length];
  const wardenCourt=createWardenCourt(world,map,exit,floor);
+ const connectedJourney=createConnectedDungeonJourney(world,map,floor,exit,encounterUnits);
  const masonryProfiles=planDungeonWallProfiles(map,floor);
  const masonryHeights=planLegibleWallMass(map,floor,vaultedSites);
  const claddingHeightByTile=new Map(masonryProfiles.map((p,i)=>[p.z*N+p.x,masonryHeights[i]]));
@@ -445,6 +447,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
   }
   sceneMetrics.clearedForeground=cleared;sceneMetrics.portraitStagePropsCleared=portraitCleared;
   wardenCourt.cutaway(eyes,camera,wallPad);
+  connectedJourney.cutaway(eyes,camera,wallPad);
  }
 
  // The same flames now tell the truth about the actual authoritative encounter:
@@ -464,6 +467,6 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
   p.fire.scale.y=scale;p.inner.scale.setScalar(.91+Math.sin(t+1.3)*.14);
   if(p.light)p.light.intensity=torchIntensity*(1+encounterLight)*(1+.035*Math.sin(time*2.5+p.phase));
  }};
- return {animate,accept,cutaway,facadeReveal,occlusionFaces:wallFaces,occlusionPropVolumes:foregroundVolumes.filter(Boolean),occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{wardenCourt:wardenCourt.metrics,biome:floor,vaultedFacadeOpenings:wallFaces.filter(f=>f[4]<1.2).length,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,bossCourtLooseClutterSuppressed,bossCourtTallFixturesSuppressed,wovenRugs:rugs.length,cutawayFloorBackings:backing.length,columnCapstones:columnCap.length,texturedSurfaces:floorDetails.length+wallFaces.length,environmentMaterialRoles:['floorStone','masonry','agedMetal','brass','magicInset','dampStone','hangingCloth'],environmentTorchIntensity:torchIntensity,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{wardenCourt.dispose();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
+ return {animate,accept,cutaway,facadeReveal,occlusionFaces:wallFaces,occlusionPropVolumes:foregroundVolumes.filter(Boolean),occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{wardenCourt:wardenCourt.metrics,connectedJourney:connectedJourney.metrics,biome:floor,vaultedFacadeOpenings:wallFaces.filter(f=>f[4]<1.2).length,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,bossCourtLooseClutterSuppressed,bossCourtTallFixturesSuppressed,wovenRugs:rugs.length,cutawayFloorBackings:backing.length,columnCapstones:columnCap.length,texturedSurfaces:floorDetails.length+wallFaces.length,environmentMaterialRoles:['floorStone','masonry','agedMetal','brass','magicInset','dampStone','hangingCloth'],environmentTorchIntensity:torchIntensity,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{connectedJourney.dispose();wardenCourt.dispose();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
 }
 
