@@ -11,6 +11,7 @@ on:
       - 'scripts/tiny-kingdom-w123-foreground-resident-contract.cjs'
       - 'scripts/tiny-kingdom-w126-authentic-workday-contract.cjs'
       - 'tests/browser/tiny-kingdom-w126-medieval-workday.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w126-farm-to-market-film.spec.cjs'
       - 'scripts/tiny-kingdom-w125-market-household-contract.cjs'
       - 'scripts/tiny-kingdom-w125-runtime-budget-contract.cjs'
       - 'scripts/tiny-kingdom-w126e-environment-contract.cjs'
@@ -113,6 +114,35 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: tiny-kingdom-w126-authentic-profession-evidence
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w126/
+          if-no-files-found: warn
+          retention-days: 14
+
+  w126-real-farm-market-film:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/tiny-kingdom-w126-authentic-workday-contract.cjs
+      - run: npx playwright install --with-deps chromium
+      - name: Record original farmer harvest, actual escrowed cart journey and same-id market receipt
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w126-farm-to-market-film.spec.cjs --workers=1
+      - name: Retain exact-source WebGL moving film, snapshots and evidence ledger even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w126-actual-farmer-to-market-film
           path: |
             test-results/
             artifacts/tiny-kingdom-w126/
