@@ -18305,9 +18305,31 @@ function updateSupplyTrail(force=false){
   ' food · farmer receipt '+trade.receiptId:'No traced market transfer';
  const eaten=meal?meal.citizen+' ate at home · receipt '+meal.receiptId:
   'No traced household meal';
- const labels=[['supply-field',field],['supply-cargo',carried],
+ let labels=[['supply-field',field],['supply-cargo',carried],
   ['supply-receipt',received],['supply-trade',traded],
   ['supply-meal',eaten],['supply-home',shelter]];
+ // Do not mix the newest unrelated farmer, buyer or meal into this lot.
+ if(grainJourney){
+  const t=planRealGrainJourney(grainJourney,people,deliveryReceipts,
+   state.householdTrades||[],state.householdMeals||[]);
+  const parcel=t?.deliveryId||'pending';
+  labels=[
+   ['supply-field',grainJourney.producer+' · original observed farmer'],
+   ['supply-cargo',t?.hasActualLoad?
+    'Real '+t.stage+' · parcel '+parcel:'No current load · parcel '+parcel],
+   ['supply-receipt',t?.hasActualReceipt?
+    'Verified farmer receipt · parcel '+parcel:'Matching farmer receipt not yet verified'],
+   ['supply-trade',t?.hasVerifiedTrade?
+    t.consumer+' · bought '+t.purchasedAmount.toFixed(2)+' grain · '+t.tradeId:
+    'No verified household purchase of this parcel'],
+   ['supply-meal',t?.hasVerifiedMeal?
+    t.consumer+' · ate '+t.amount.toFixed(2)+' grain at home':
+    'No verified home meal from this purchase'],
+   ['supply-home',t?.hasVerifiedMeal?
+    'Real inhabited home '+t.homeIndex+' · consumption verified':
+    t?.hasVerifiedTrade?'Following genuine recipient home':'Waiting for real household use']
+  ];
+ }
  for(const [id,value] of labels){
   const node=document.getElementById(id);
   if(node.textContent!==value)node.textContent=value;
@@ -18363,24 +18385,48 @@ document.body.dataset.command='world';
  * original farmer's parcel ID and the authority's trade/meal receipt chain.
  * A missing stage remains WAITING, not a fabricated completion. */
 function planRealGrainJourney(trace,citizens,receipts,trades,meals){
+ // One original farmer -> one credited market lot -> one named household.
+ // A coincidentally matching receiptId alone can never certify a meal.
  if(!trace||!trace.producer)return null;
  const farmer=citizens.find(p=>p.name===trace.producer&&p.job==='farmer');
  const originalLoad=farmer?.delivery?.resource==='food'?farmer.delivery:null;
  const id=trace.deliveryId||originalLoad?.id||null;
- const receipt=id?receipts.find(r=>r.id===id&&r.resource==='food'):null;
- const trade=receipt?trades.find(t=>t.receiptId===id):null;
- const meal=receipt?meals.find(m=>m.receiptId===id):null;
+ const receipt=id?receipts.find(r=>r.id===id&&r.resource==='food'&&
+  r.citizen===trace.producer&&r.job==='farmer'&&
+  r.creditedAtUnloading===true&&Number.isFinite(r.amount)&&r.amount>0&&
+  Number.isFinite(r.time)):null;
+ // One farmer lot may legitimately feed multiple families. Follow the
+ // earliest real trade and lock that recipient, never combine two houses.
+ const eligible=receipt?trades.filter(t=>t.receiptId===id&&
+  typeof t.id==='string'&&t.id&&typeof t.citizen==='string'&&
+  citizens.some(p=>p.name===t.citizen)&&
+  Number.isFinite(t.time)&&t.time>=receipt.time&&
+  Number.isFinite(t.amount)&&t.amount>0&&
+  t.amount<=receipt.amount+1e-7)
+  .sort((x,y)=>x.time-y.time||x.id.localeCompare(y.id)):[];
+ const trade=trace.tradeId?
+  eligible.find(t=>t.id===trace.tradeId)||null:
+  eligible[0]||null;
+ // The authoritative meal stores EXACTLY its issuing trade ID, resident
+ // name and actual home, with no more grain than the bought amount.
+ const meal=trade?meals.find(m=>m.id===trade.id&&
+  m.receiptId===id&&m.citizen===trade.citizen&&
+  Number.isFinite(m.time)&&m.time>=trade.time&&
+  Number.isFinite(m.amount)&&m.amount>0&&
+  m.amount<=trade.amount+1e-7&&
+  Number.isInteger(m.homeIndex)&&m.homeIndex>=0):null;
  const result=(stage,citizen,extra={})=>({
   stage,citizen,deliveryId:id,receiptId:receipt?.id||null,
   hasActualLoad:Boolean(originalLoad&&originalLoad.id===id),
-  hasActualReceipt:Boolean(receipt),linkedToReceipt:Boolean(receipt),
-  ...extra
+  hasActualReceipt:Boolean(receipt),hasVerifiedTrade:Boolean(trade),
+  hasVerifiedMeal:Boolean(meal),linkedToReceipt:Boolean(receipt),...extra
  });
  if(meal)return result('consumed',meal.citizen,{
-  amount:receipt.amount,consumer:meal.citizen,tradeId:trade?.id||null,
-  mealId:meal.id||null});
+  amount:meal.amount,purchasedAmount:trade.amount,homeIndex:meal.homeIndex,
+  consumer:meal.citizen,tradeId:trade.id,mealId:meal.id});
  if(trade)return result('provisioning',trade.citizen,{
-  amount:receipt.amount,consumer:trade.citizen,tradeId:trade.id||null});
+  amount:trade.amount,purchasedAmount:trade.amount,
+  consumer:trade.citizen,tradeId:trade.id});
  if(receipt)return result('received',receipt.citizen,{
   amount:receipt.amount,resource:receipt.resource});
  if(id){
@@ -18398,6 +18444,10 @@ function getRealGrainJourneyAudit(){
   state.householdTrades||[],state.householdMeals||[]);
  return {active:true,source:'real-grain-provenance-only',
   producer:grainJourney.producer,deliveryId:grainJourney.deliveryId,
+  lockedTradeId:grainJourney.tradeId||null,
+  verifiedTrade:Boolean(plan?.hasVerifiedTrade),
+  verifiedHomeMeal:Boolean(plan?.hasVerifiedMeal),
+  cameraTransfer:'eased-physical-follow-no-staged-teleport',
   stage:plan?.stage||'unavailable',actor:plan?.citizen||null,
   verifiedReceipt:plan?.hasActualReceipt||false,
   verifiedMeal:Boolean(plan?.mealId),stagesSeen:grainJourney.stagesSeen.slice(),
@@ -18428,7 +18478,7 @@ function watchRealGrainJourney(){
  if(liveWorkday||document.body.dataset.workday!=='off')stopWorkdayWatch();
  selectedCitizen=people.indexOf(p);
  grainJourney={producer:p.name,deliveryId:p.delivery?.resource==='food'?
-   p.delivery.id:null,stage:'starting',stagesSeen:[],subjectChanges:0};
+    p.delivery.id:null,tradeId:null,stage:'starting',stagesSeen:[],subjectChanges:0};
  document.body.dataset.workday='live';
  if(!follow)setCitizenFollow(true);
  updateFollowCamera(builderStageAngle(p));
@@ -18443,7 +18493,8 @@ function advanceRealGrainJourney(){
   state.householdTrades||[],state.householdMeals||[]);
  if(!plan)return false;
  if(plan.deliveryId&&!grainJourney.deliveryId)
-  grainJourney.deliveryId=plan.deliveryId;
+   grainJourney.deliveryId=plan.deliveryId;
+  if(plan.tradeId&&!grainJourney.tradeId)grainJourney.tradeId=plan.tradeId;
  const changed=grainJourney.stage!==plan.stage;
  if(changed){
   grainJourney.stage=plan.stage;
@@ -18457,7 +18508,8 @@ function advanceRealGrainJourney(){
  if(ix>=0&&ix!==selectedCitizen&&
     (plan.stage==='provisioning'||plan.stage==='consumed')){
   selectedCitizen=ix;grainJourney.subjectChanges++;
-  updateFollowCamera();
+   // Keep the existing physical camera position; ease to the actual buyer.
+   lastFollowShot=null;
  }
  document.body.dataset.workday=
   plan.stage==='provisioning'||plan.stage==='consumed'?'household':
@@ -18471,13 +18523,14 @@ function advanceRealGrainJourney(){
   unloading:'unloading grain at the real receiving bay',
   'awaiting-receipt':'waiting for the matching market receipt',
   received:'market accepted grain · awaiting a real household purchase',
-  provisioning:'collected grain from the verified market receipt',
-  consumed:'ate at home · verified grain receipt consumed'
+  provisioning:'bought grain from the verified market parcel',
+   consumed:'ate the verified market grain at their real home'
  }[plan.stage]||'observing the original village';
  const caption=plan.citizen+' · '+phrase+
   (plan.receiptId?' · parcel '+plan.receiptId:'');
  if(label.textContent!==caption)label.textContent=caption;
- label.dataset.storyStage=plan.stage.toUpperCase();
+  label.dataset.storyStage=plan.stage.toUpperCase();
+  if(changed)updateSupplyTrail(true);
  document.getElementById('world-trace-follow').setAttribute('aria-pressed','true');
  return changed;
 }
@@ -19118,7 +19171,7 @@ function updateWorldActorTag(cameraMatrix){
  const person=people[selectedCitizen];
  const viewMode=document.body.dataset.workday||'off';
  const observing=Boolean(person&&follow&&!streetWalk&&!cinematicHud&&
-  (viewMode==='live'||viewMode==='delivery'||
+  (viewMode==='live'||viewMode==='delivery'||viewMode==='household'||
    viewMode==='homecoming'||viewMode==='on'));
  const rect=canvas.getBoundingClientRect();
  const width=rect.width,height=rect.height;
@@ -19150,7 +19203,14 @@ function updateWorldActorTag(cameraMatrix){
  const detail=load?
   'Hauling '+load.amount+' '+load.resource+' · '+load.stage:
   person.activity;
- const title=person.name+' · '+detail;
+ const grain=grainJourney?planRealGrainJourney(grainJourney,people,
+  deliveryReceipts,state.householdTrades||[],state.householdMeals||[]):null;
+ const milestone=grain&&grain.citizen===person.name?({
+  harvesting:'cutting grain',hauling:'real cargo en route',
+  unloading:'real market unloading',received:'farmer receipt confirmed',
+  provisioning:'verified market purchase',consumed:'verified home meal'
+ }[grain.stage]||'awaiting genuine grain evidence'):null;
+ const title=person.name+' · '+detail+(milestone?' · '+milestone:'');
  if(el.textContent!==title)el.textContent=title;
  el.hidden=false;
  audit.visible=true;audit.x=sx;audit.y=sy;
