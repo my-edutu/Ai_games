@@ -1,3 +1,13 @@
+## W149 · Phase 1 durable milestone checkpoint · 8 November 2026
+
+The ONE vertical slice remains genuine farm harvest → loaded courier → market receipt → credited household provision/meal, plus original Day-120 growth and responsive 390px spectator. Exact W149 playable commit [2dc5556f](https://github.com/my-edutu/Ai_games/commit/2dc5556f640ebca13115d665c4abbd1b981235d0), source blob `d8f3da8df9c588aeaa4538f3a297cbc40c466da8`; immutable G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`. PR #64 must remain draft and never merge without new authorization.
+
+**Five blockers, same ranked owners and no phase advance:** (1) rendering/performance: resident-first seasonal landscape source avoidance is coded, but first-world static rebuild 920–968ms p95 and poor software FPS were archived W125, and exact-head CPU/driver/GPU p95 not measured; done only with real matched scene-aware frame traces and 30+ sustained physical hardware FPS, p95≤33.3ms; (2) evidence: G088/current original-world exact-checksum uncropped running Day1/workday/Day120/390px film incomplete, W147 capture fix awaiting browser; (3) environment: credible contiguous original farm/granary/market/home massing and terrain not yet visually validated; (4) authentic society: unchanged deterministic parcel, real labor and household handoff must be seen fluidly in real action; (5) safety & independent acceptance: memory, original >120-day replay, <160k triangle views, 390px accessibility, real mobile/desktop devices, no GL errors and blinded fresh-context critic approval remain unproven. No tests/commits/triangle counts counted as experience progress.
+
+W149 source-level V8 syntax and five cold/warm fixtures PASS; author-added Node test NOT EXECUTED because development tunnel unavailable. [Current A/B](https://github.com/my-edutu/Ai_games/actions/runs/42526410684), [GPU](https://github.com/my-edutu/Ai_games/actions/runs/42526410652), [film](https://github.com/my-edutu/Ai_games/actions/runs/42526410631) PENDING. Experience A LOOK NOT PROVEN / FEEL archived software FAIL, physical GPU UNKNOWN / PLAY NOT PROVEN. B commercial FAIL. Next: verify actual completed uncut footage, compare same source warm-season build stage, revert if worse, then continue the original large-area architectural reconstruction; never merge.
+
+---
+
 ## W148 · Persistent single Phase 1 milestone · 8 November 2026
 
 Original farm → actual loaded courier → market receipt → verified buyer/home/meal, grown Day120 and mobile remain the ONE vertical slice. Current candidate static-render exact terrain-residency source blob `547d8681e3174aee72cf8b73a2add5d8f6a43ccf`. Cache is bounded to 32,768 render-only samples, with an A/B override and audit; there is **no verified gameplay FPS or appearance gain**.
