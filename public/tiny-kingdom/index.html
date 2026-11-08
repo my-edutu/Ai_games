@@ -5524,12 +5524,12 @@ function grainwardMarketRoofEdges(){
  // bargeboards are above the open stalls, never across the courier aisle.
  const start=data.length;let rafters=0;
  materialScope(MATERIAL.WOOD,()=>{
-  for(const stall of MARKET_STALLS){
-   const y=terrain(stall.x,stall.z);
+  for(const [index,stall] of MARKET_STALLS.entries()){
+   const y=terrain(stall.x,stall.z),profile=marketStallProfile(index);
    for(const end of [-1,1])for(const side of [-1,1]){
     const zz=stall.z+end*1.19;
-    limbSegment([stall.x+side*1.53,y+2.03,zz],
-     [stall.x,y+2.78,zz],.047,rgb(0x7c5d42),4);
+    limbSegment([stall.x+side*1.53,y+profile.eave-.025,zz],
+     [stall.x,y+profile.peak-.045,zz],.047,rgb(0x7c5d42),4);
     rafters++;
    }
   }
@@ -8207,10 +8207,10 @@ const MARKET_ENTRY_ARCH=Object.freeze({
 });
 function physicalMarketUprights(){
  const posts=[];
- for(const stall of MARKET_STALLS)
+ for(const [index,stall] of MARKET_STALLS.entries())
   for(const sx of [-1,1])for(const sz of [-1,1])
    posts.push({x:stall.x+sx*1.23,z:stall.z+sz*.84,width:.145,
-    height:2.78,kind:'stall'});
+    height:marketStallProfile(index).postHeight,kind:'stall'});
  for(const side of [-1,1])posts.push({
   x:MARKET_ENTRY_ARCH.x+side*MARKET_ENTRY_ARCH.postOffset,
   z:MARKET_ENTRY_ARCH.z,width:MARKET_ENTRY_ARCH.postWidth,
@@ -8233,7 +8233,7 @@ function getMarketGatewayAudit(){
 }
 let marketQuarterStats={stalls:0,pavingStones:0,mortarTriangles:0,signboards:0,
    reworkedBooths:0,tileRoofs:0,canvasRoofs:0,timberBraces:0,
-   carts:0,coveredArcades:0,canopyPanels:0,receivingBays:0,receivingHallRoofPanels:0,receivingHallPosts:0,rearShopGables:0,
+   carts:0,coveredArcades:0,canopyPanels:0,structuralShopLofts:0,tallestRoof:0,receivingBays:0,receivingHallRoofPanels:0,receivingHallPosts:0,rearShopGables:0,
  entryArchZ:MARKET_ENTRY_ARCH.z,entryPathStones:0,totalTriangles:0,cached:false};
 let marketStockTriangles=0;
 // W07: an actual traversable civic common, not an aerial camera trick.
@@ -8611,8 +8611,19 @@ function marketReceivingCourt(){
 // different clay-tile versus sewn-linen canopies and full OPEN couriers' aisle.
 // The goods displayed below are still derived exclusively from real state.
 // All new geometry is stored only in the already resident civic WebGL VBO.
+// W129: two existing permanent trade stalls gain enclosed roof lofts while
+// both existing linen shelters remain open. Original trade IDs, inventory,
+// worker locations, route, seed and collision are entirely unchanged.
+function marketStallProfile(index){
+ if(!Number.isInteger(index)||index<0||index>=MARKET_STALLS.length)
+  throw Error('W129 missing actual market stall');
+ const structural=index<2;
+ return {structural,postHeight:structural?3.10:2.23,
+  eave:structural?3.00:2.16,peak:structural?4.05:2.92};
+}
 function marketStall(s,index){
  const x=s.x,z=s.z,y=terrain(x,z),w=2.85,d=2.14,face=s.face;
+ const profile=marketStallProfile(index);
  const timber=rgb(index%2?0x795a40:0x76513b),
   trim=rgb(index%2?0xd8bb84:0xe0c698),oak=rgb(0xb18b61);
  const colors=[
@@ -8627,7 +8638,7 @@ function marketStall(s,index){
  });
  materialScope(MATERIAL.WOOD,()=>{
   for(const sx of [-1,1])for(const sz of [-1,1])
-   box(x+sx*1.23,y,z+sz*.84,.145,2.11,.145,timber);
+   box(x+sx*1.23,y,z+sz*.84,.145,profile.postHeight,.145,timber);
   box(x,y+.84,z,w-.18,.12,d-.28,rgb(0x986f4d));
   box(x,y+.99,z+face*.54,w-.37,.11,.58,rgb(0xaa8059));
   box(x,y+.77,z+face*.68,w-.32,.13,.11,trim);
@@ -8640,12 +8651,36 @@ function marketStall(s,index){
    const rear=z-face*.855;
    const plaster=rgb(index%2?0xc3b39b:0xd4be9d);
    const a=[x-1.20,y+.76,rear],b=[x+1.20,y+.76,rear],
-    c=[x+1.20,y+1.99,rear],d=[x-1.20,y+1.99,rear],
-    apex=[x,y+2.68,rear];
+    c=[x+1.20,y+profile.eave-.075,rear],
+    d=[x-1.20,y+profile.eave-.075,rear],
+    apex=[x,y+profile.peak-.085,rear];
    if(face>0){quad(a,b,c,d,plaster);tri(d,c,apex,plaster);}
    else{quad(b,a,d,c,plaster);tri(c,d,apex,plaster);}
   });
   marketQuarterStats.rearShopGables++;
+  if(profile.structural){
+   // A real enclosed upper room supported inside the ORIGINAL permanent
+   // shop footprint. The authentic ground trade bay remains fully open.
+   // It contains no invented cargo, stairs, merchants or stock.
+   materialScope(MATERIAL.PLASTER,()=>{
+    box(x,y+2.075,z-face*.61,2.37,profile.eave-2.075,.58,
+     rgb(index===0?0xc9b79a:0xb9b6a8));
+   });
+   materialScope(MATERIAL.WOOD,()=>{
+    for(const side of [-1,1]){
+     const fx=x+side*1.10,front=z-face*.32;
+     box(fx,y+2.11,front,.115,profile.eave-2.11,.13,timber);
+    }
+    box(x,y+2.10,z-face*.38,2.64,.13,.18,rgb(0x705139));
+    box(x,y+profile.eave-.11,z-face*.38,2.64,.14,.17,oak);
+    for(const side of [-1,1]){
+     const wx=x+side*.55,front=z-face*.285;
+     box(wx,y+2.46,front,.36,.31,.055,rgb(0x42545a));
+     box(wx,y+2.46,front+face*.055,.045,.32,.060,trim);
+    }
+   });
+   marketQuarterStats.structuralShopLofts++;
+  }
 
   for(const sx of [-1,1]){
    box(x+sx*1.04,y+.16,z-face*.80,.09,.74,.11,oak);
@@ -8659,13 +8694,13 @@ function marketStall(s,index){
   // Lift the ridge above the original toy tent and brace both real gables.
   for(const sz of [-1,1])for(const sx of [-1,1]){
    const zz=z+sz*1.09;
-   limbSegment([x+sx*1.50,y+2.03,zz],
-    [x,y+2.73,zz],.057,timber,4);
+   limbSegment([x+sx*1.50,y+profile.eave-.04,zz],
+    [x,y+profile.peak-.03,zz],.057,timber,4);
   }
-  box(x,y+2.66,z,.12,.14,d+.20,timber);
+  box(x,y+profile.peak-.09,z,.12,.14,d+.20,timber);
  });
  materialScope(tiled?MATERIAL.ROOF:MATERIAL.GENERAL,()=>{
-  const courses=tiled?7:6,edge=1.53,eave=y+2.02,peak=y+2.76;
+  const courses=tiled?7:6,edge=1.53,eave=y+profile.eave,peak=y+profile.peak;
   for(const side of [-1,1])for(let course=0;course<courses;course++){
    const a=course/courses,b=(course+1)/courses;
    const ax=x+side*edge*(1-a),bx=x+side*edge*(1-b);
@@ -8700,13 +8735,14 @@ function marketStall(s,index){
  });
  marketQuarterStats.signboards++;marketQuarterStats.stalls++;
  marketQuarterStats.reworkedBooths++;
+ marketQuarterStats.tallestRoof=Math.max(marketQuarterStats.tallestRoof||0,profile.peak);
  if(tiled)marketQuarterStats.tileRoofs++;
  else marketQuarterStats.canvasRoofs++;
 }
 function marketQuarter(){
  marketQuarterStats={stalls:0,pavingStones:0,mortarTriangles:0,signboards:0,
   reworkedBooths:0,tileRoofs:0,canvasRoofs:0,timberBraces:0,
-  carts:0,coveredArcades:0,canopyPanels:0,receivingBays:0,receivingHallRoofPanels:0,receivingHallPosts:0,rearShopGables:0,
+  carts:0,coveredArcades:0,canopyPanels:0,structuralShopLofts:0,tallestRoof:0,receivingBays:0,receivingHallRoofPanels:0,receivingHallPosts:0,rearShopGables:0,
   entryArchZ:MARKET_ENTRY_ARCH.z,entryPathStones:0,totalTriangles:0,cached:false};
  const begin=data.length;
  marketCobblestoneSquare();
