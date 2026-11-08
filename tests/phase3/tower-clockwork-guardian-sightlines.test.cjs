@@ -359,3 +359,68 @@ test('original clockwork split rings preserve actual ray-clear structural window
     for(const part of fragments){part.geometry.dispose();part.material.dispose();}
   }
 });
+
+
+test('real original decorative rotors expose negative-space gear faces instead of broad metal discs',async()=>{
+  const [THREE,{createTowerWorld}]=await loaded;
+  const world=createTowerWorld();
+  try{
+    const frame=sourceFrame('clockwork',8),original=JSON.stringify(frame);
+    world.update(frame,.016,0,{quality:'low'});
+    world.group.updateWorldMatrix(true,true);
+    const rotors=[];
+    world.group.traverse(o=>{
+      if(o.name==='CameraResponsiveDecorativeGear')rotors.push(o);
+    });
+    assert.equal(rotors.length,3,'keep all three genuine rotating clockwork machines');
+    for(const [index,radius] of [4.8,3.6,3.1].entries()){
+      const rotor=rotors[index];
+      const face=rotor.children.find(o=>o.isMesh&&o.geometry?.type==='ExtrudeGeometry');
+      assert.ok(face,'decorative machine retains its original physical gear face');
+      const cast=(fraction)=>{
+        const angle=Math.PI/8;
+        const origin=face.localToWorld(new THREE.Vector3(
+          Math.sin(angle)*radius*fraction,Math.cos(angle)*radius*fraction,2));
+        const direction=new THREE.Vector3(0,0,-1).transformDirection(face.matrixWorld);
+        return new THREE.Raycaster(origin,direction,0,6)
+          .intersectObject(face,false).length;
+      };
+      assert.equal(cast(.60),0,
+        'a ray through the between-spoke region must actually cross empty space, not a solid disc');
+      assert.ok(cast(.82)>0,
+        'the retained toothed load ring must remain physically present');
+    }
+    assert.equal(JSON.stringify(frame),original,'decorative cutaways never mutate gameplay');
+  }finally{world.dispose();}
+});
+
+test('real clockwork power rack has a source-independent transparent structural middle',async()=>{
+  const [THREE,{createTowerWorld}]=await loaded;
+  const world=createTowerWorld();
+  try{
+    const frame=sourceFrame('clockwork',8),original=JSON.stringify(frame);
+    world.update(frame,.016,0,{quality:'low'});
+    world.group.updateWorldMatrix(true,true);
+    const rack=world.group.getObjectByName('clockwork-far-shoulder-power-rack');
+    assert.ok(rack,'the actual tall decorative mechanism is still present');
+    const instanced=[];
+    rack.traverse(o=>{if(o.isInstancedMesh)instanced.push(o);});
+    assert.ok(instanced.some(o=>o.count===2),
+      'two continuous side rails replace the previous opaque central metal spine');
+    assert.ok(instanced.some(o=>o.count>=48),
+      'retain the genuine toothed drive profile across the full-height rack');
+    const cast=(y)=>{
+      const origin=rack.localToWorld(new THREE.Vector3(0,y,4));
+      const direction=new THREE.Vector3(0,0,-1).transformDirection(rack.matrixWorld);
+      return new THREE.Raycaster(origin,direction,0,9)
+        .intersectObject(rack,true).length;
+    };
+    assert.equal(cast(0),0,
+      'the actual rendered 42-unit structure must have daylight between rack teeth');
+    assert.ok(cast(.4)>0,'physical rack teeth remain at their real source-designed pitch');
+    assert.equal(JSON.stringify(frame),original);
+    world.update(sourceFrame('void',9),.016,1,{quality:'low'});
+    assert.equal(world.group.getObjectByName('clockwork-far-shoulder-power-rack'),undefined,
+      'decorative rack retires cleanly after authentic progression');
+  }finally{world.dispose();}
+});
