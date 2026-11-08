@@ -1,0 +1,43 @@
+name: Tiny Kingdom W125 Camera UX Evidence
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'tests/browser/tiny-kingdom-w125-camera-ux.spec.cjs'
+      - 'scripts/tiny-kingdom-w125-camera-*.cjs'
+      - '.github/workflows/tiny-kingdom-w125-camera-evidence.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w125-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: false
+jobs:
+  verify-camera-ui:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 38
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: W125 camera integrity and embedded JS syntax
+        run: node scripts/tiny-kingdom-w125-camera-contract.cjs
+      - name: Chromium installation
+        run: npx playwright install --with-deps chromium
+      - name: Desktop and 390px real gesture, render and replay regression
+        run: npx playwright test tests/browser/tiny-kingdom-w125-camera-ux.spec.cjs --workers=1
+      - name: Preserve uncut desktop/mobile videos, real screenshots and traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w125-camera-ux
+          path: |
+            artifacts/tiny-kingdom-w125/
+            test-results/
+          if-no-files-found: warn
+          retention-days: 14
