@@ -240,3 +240,56 @@ test('actual floor-eight power rack owns post-batch camera-responsive materials,
       'owned rack and its materials retire at real floor-nine transition');
   } finally {world.dispose();}
 });
+
+
+test('camera forensic evidence is bounded to the actual four original decorative assemblies and source tick',async()=>{
+  const [THREE,{createTowerWorld}]=await loaded;
+  const world=createTowerWorld();
+  try{
+    const source=sourceFrame('clockwork',8), immutable=JSON.stringify(source);
+    world.update(source,.016,0,{quality:'low'});
+    const camera=new THREE.PerspectiveCamera(54,390/844,.1,300);
+    camera.position.set(0,21,57);
+    camera.lookAt(0,18,0);
+    const actor=new THREE.Vector3(0,12,25);
+    const guardian=new THREE.Vector3(0,20,25);
+    const landing=new THREE.Vector3(0,24,25);
+    assert.equal(world.diagnostics().decorativeOcclusionEvidence.length,0,
+      'no observer has yet supplied an actual view camera');
+    const result=world.protectRouteSightlines(camera,actor,guardian,landing,.016,{},1,2);
+    const evidence=world.diagnostics().decorativeOcclusionEvidence;
+    assert.equal(result.total,4);
+    assert.equal(evidence.length,4,'three original clock groups plus one power rack');
+    assert.equal(evidence.filter(s=>s.kind==='decorative-rack').length,1);
+    assert.equal(evidence.filter(s=>s.kind==='decorative-clock').length,3);
+    for(const s of evidence){
+      assert.equal(s.sourceTick,source.tick);
+      assert.equal(typeof s.name,'string');
+      assert.ok(s.name.startsWith('clockwork-'));
+      assert.ok(s.screenCoverage>=0 && s.screenCoverage<=1);
+      assert.ok(s.sourceActorDepth>0 && Number.isFinite(s.sourceActorDepth));
+      assert.ok(s.intendedAlpha>=0 && s.intendedAlpha<=1);
+      assert.ok(s.renderedAlpha>=0 && s.renderedAlpha<=1);
+      assert.ok(Number.isSafeInteger(s.rayContactCount) && s.rayContactCount>=0);
+      assert.ok(typeof s.inFrontOfActor==='boolean');
+      assert.ok(typeof s.nearPlaneCrossing==='boolean');
+    }
+    assert.equal(JSON.stringify(source),immutable,'camera diagnostics cannot rewrite authority');
+    // Repeating the same camera sampling cannot accumulate stale tick reports.
+    world.protectRouteSightlines(camera,actor,guardian,landing,.016,{},1,2);
+    assert.equal(world.diagnostics().decorativeOcclusionEvidence.length,4);
+    world.update(sourceFrame('void',9),.016,1,{quality:'low'});
+    world.protectRouteSightlines(camera,actor,guardian,landing,.016,{},1,2);
+    assert.deepEqual(world.diagnostics().decorativeOcclusionEvidence,[],
+      'former floor-eight camera evidence must disappear on real floor-nine rebuild');
+  } finally {world.dispose();}
+});
+
+test('recording harness preserves clean gameplay video while saving the separate camera-sidecar',()=>{
+  const capture=fs.readFileSync(path.join(ROOT,'tests/browser/tower-live-motion.spec.cjs'),'utf8');
+  assert.match(capture,/observedDecorativeOcclusion: Array\.isArray\(d\.world\?\.decorativeOcclusionEvidence\)/);
+  assert.match(capture,/camera-occlusion-forensics\.json/);
+  assert.match(capture,/originalGameplayVideoUnmodified:true/);
+  assert.match(capture,/videoClockCalibration:'NOT EVALUATED'/);
+  assert.match(capture,/await video\.saveAs\(path\.join\(dir, 'live\.webm'\)\)/);
+});
