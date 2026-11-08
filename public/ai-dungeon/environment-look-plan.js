@@ -24,13 +24,21 @@ export const ENVIRONMENT_SURFACE_DETAIL_BUDGET=define({
 });
 const LIGHT_PRESETS=[
  define({biome:'SUNKEN CRYPT',ambientScale:.97,moonIntensity:1.76,
-   fogDensity:.0165,exposure:1.20,torchIntensity:1.85}),
+   fogDensity:.0165,exposure:1.20,torchIntensity:1.85,
+   hemisphereSky:'#b8bdba',hemisphereGround:'#5d5547',
+   keyDirection:Object.freeze([-6,18,8])}),
  define({biome:'EMBER CATHEDRAL',ambientScale:.95,moonIntensity:1.76,
-   fogDensity:.0175,exposure:1.18,torchIntensity:1.78}),
+   fogDensity:.0175,exposure:1.18,torchIntensity:1.78,
+   hemisphereSky:'#b8aab0',hemisphereGround:'#69483d',
+   keyDirection:Object.freeze([-8,19,4])}),
  define({biome:'OBSIDIAN VAULT',ambientScale:1.02,moonIntensity:1.84,
-   fogDensity:.0145,exposure:1.23,torchIntensity:1.72}),
+   fogDensity:.0145,exposure:1.23,torchIntensity:1.72,
+   hemisphereSky:'#b0c5d4',hemisphereGround:'#44566b',
+   keyDirection:Object.freeze([7,21,6])}),
  define({biome:'HOLLOW SANCTUM',ambientScale:1.00,moonIntensity:1.78,
-   fogDensity:.0170,exposure:1.21,torchIntensity:1.78})
+   fogDensity:.0170,exposure:1.21,torchIntensity:1.78,
+   hemisphereSky:'#c0b5c8',hemisphereGround:'#544961',
+   keyDirection:Object.freeze([5,20,-7])})
 ];
 const validFloor=floor=>Number.isSafeInteger(floor)&&floor>=1;
 export function getEnvironmentMaterialRole(role){
@@ -104,4 +112,51 @@ export function makeEnvironmentDetailPixels(role,floor,size=128){
  }
  return {width:size,height:size,albedoPixels,normalPixels,roughnessPixels,
   rawBytes:3*pixels*4,role,floor};
+}
+
+/**
+ * Stone wear is painted onto existing floor instances, NOT new geometry.
+ * Inputs are the real read-only walkability grid, cosmetic floor and actual
+ * exit. Never interprets a painted seam as a hazard, passage or attack.
+ * No saved state, clock access, global RNG, or interpolated gameplay history.
+ */
+export function planEnvironmentSurfaceWear(map,floor,exit=null){
+ if(!Array.isArray(map)||map.length<3||map.length>64||
+   !map.every(row=>typeof row==='string'&&row.length===map.length))
+  throw new RangeError('Invalid dungeon floor plan');
+ if(!validFloor(floor))throw new RangeError('Invalid dungeon floor');
+ const size=map.length,tiles=Array(size*size).fill(null);
+ const open=(x,z)=>x>=0&&z>=0&&x<size&&z<size&&map[z][x]==='.';
+ const exitValid=Number.isInteger(exit?.x)&&Number.isInteger(exit?.z)&&open(exit.x,exit.z);
+ const metrics={tiles:0,damp:0,soot:0,traffic:0,dry:0,instanceColorBytes:0,
+  bleedIntoWalls:0,exitLit:exitValid};
+ const tone=n=>Math.round(clamp(n,.65,1.08)*1000)/1000;
+ for(let z=0;z<size;z++)for(let x=0;x<size;x++){
+  if(!open(x,z))continue;
+  const neighbors=[[1,0],[-1,0],[0,1],[0,-1]].reduce(
+   (n,[dx,dz])=>n+Number(open(x+dx,z+dz)),0);
+  const wallCount=4-neighbors;
+  const number=hash(x,z,floor);
+  const wet=wallCount>0&&number%7===0;
+  const soot=wallCount>=2&&number%13===0&&!wet;
+  const travelled=!wet&&!soot&&neighbors<=2&&number%4!==0;
+  const wear=wet?'damp':soot?'soot':travelled?'traffic':'dry';
+  const grain=((number>>>7)%37)/1000-.018;
+  const shadow=wallCount*.007+(wet?.085:soot?.065:0);
+  const trampled=travelled?.043:0;
+  const exitNear=exitValid&&Math.abs(exit.x-x)+Math.abs(exit.z-z)<=2;
+  const entryNear=Math.abs(1-x)+Math.abs(1-z)<=2;
+  const clarity=exitNear||entryNear;
+  const value=clamp(.93+grain-shadow+trampled,.69,1.06);
+  const v=clarity?Math.max(.94,value):value;
+  // Damp areas cool towards mineral green; soot neutralises coloured glow.
+  const rgb=wet?[tone(v*.965),tone(v*.997),tone(v*1.015)]:
+   soot?[tone(v*.98),tone(v*.967),tone(v*.958)]:
+   travelled?[tone(v*1.02),tone(v*1.005),tone(v*.985)]:
+   [tone(v),tone(v),tone(v*.991)];
+  tiles[z*size+x]=Object.freeze({x,z,r:rgb[0],g:rgb[1],b:rgb[2],wear});
+  metrics.tiles++;metrics[wear]++;
+ }
+ metrics.instanceColorBytes=metrics.tiles*3*4;
+ return Object.freeze({floor,size,tiles:Object.freeze(tiles),metrics:Object.freeze(metrics)});
 }
