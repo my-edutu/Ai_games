@@ -1088,7 +1088,9 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
  actor.evasionFrame=planEvasionPerformance(actor.u.kind,actor.evasionBeat?.age,actor.fullBody.owner.evasion?actor.evasionBeat:null,
   {reducedMotion:reducedMotion||actor.u.hp<=0,yaw:actor.root?.rotation?.y??0});
  actor.evasionPosePeak=Math.max(actor.evasionPosePeak||0,actor.evasionFrame.strength);
- actor.rigBearing=planRigBearing(actor.u.kind,actor.u.hp,actor.u.maxHp,actor.fullBody.mode,actor.fullBody.age,actor.combatFacing?.distance,reducedMotion||actor.u.hp<=0);
+ actor.rigBearing=planRigBearing(actor.u.kind,actor.u.hp,actor.u.maxHp,actor.fullBody.mode,
+   ['idle','move','guard'].includes(actor.fullBody.mode)?since:actor.fullBody.age,
+   actor.combatFacing?.distance,reducedMotion||actor.u.hp<=0);
  stageRigGroundedStride(actor,reducedMotion);
  stageRigCranialAfterMixer(actor);
  stageRigPelvisAfterMixer(actor);
