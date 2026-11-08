@@ -5126,7 +5126,7 @@ const villageVisualLod={detailedHomes:0,compactHomes:0,detailedRoofCourses:0,com
 for(const key of ['burgageMaterialHomes','burgageMaterialWallPairs',
  'burgageMaterialGardenBoxes','burgageMaterialDownspouts',
  'burgageMaterialTriangles'])villageVisualLod[key]=0;
-for(const key of ['grainwardHomes','grainwardRoofEdgeBoards','grainwardTimberBraces','grainwardRoofBayTriangles','grainwardAtticBays','grainwardGableVents','grainwardTriangles'])villageVisualLod[key]=0;
+for(const key of ['grainwardHomes','grainwardRoofEdgeBoards','grainwardTimberBraces','grainwardRoofBayTriangles','grainwardAtticBays','grainwardGableVents','grainwardTriangles','grainwardMasonryHomes','grainwardMasonryTriangles','grainwardPortalThresholds'])villageVisualLod[key]=0;
 function getBurgageMaterialAudit(){
  return {source:'original-inhabited-burgage-side-materiality',
   homes:villageVisualLod.burgageMaterialHomes,
@@ -5475,7 +5475,7 @@ function grainwardInhabitedLot(x,z,variant,index,isCompact){
    villageVisualLod.grainwardTimberBraces++;
   }
  });
- if(!(isCompact&&variant%2===1)){
+ if(!(isCompact&&variant%2===1)&&index%2===0){
   villageVisualLod.grainwardRoofBayTriangles+=grainwardGabledBay(
    x,z,y+h,y+h+pitch,half,index%2?1:-1,
    z+(index%3-1)*d*.16,Math.min(.91,d*.36),'home');
@@ -5552,11 +5552,153 @@ function getGrainwardDistrictAudit(){
   rafterEdges:villageVisualLod.grainwardRoofEdgeBoards,
   structuralCorbels:villageVisualLod.grainwardTimberBraces,
   homeTriangles:villageVisualLod.grainwardTriangles,
+  stoneFrontageHomes:villageVisualLod.grainwardMasonryHomes,
+  stoneFacingTriangles:villageVisualLod.grainwardMasonryTriangles,
+  authenticDoorThresholds:villageVisualLod.grainwardPortalThresholds,
+  marketArcadeSpans:marketQuarterStats.grainwardArcadeSpans||0,
+  marketArcadeTriangles:marketQuarterStats.grainwardArcadeTriangles||0,
+  marketArcadeNoPosts:marketQuarterStats.grainwardArcadeNoPosts===true,
   marketRoofTriangles:marketQuarterStats.grainwardRoofTriangles||0,
   grainRoofTriangles:granaryArchitectureAudit.grainwardRoofTriangles||0,
   civicRoofTriangles:guildhallVisualStats.grainwardRoofTriangles||0,
   actualHomesOnly:true,changedNavigation:false,
   changedEconomy:false,createdCitizens:0,createdDeliveries:0};
+}
+
+
+// W131 GRAINWARD STREET ASSEMBLY: structural masonry and a paired open
+// covered arcade unite the already inhabited town lots and genuine stalls.
+// Entirely author-made fixed original geometry in the existing per-home/civic
+// retained WebGL meshes. No phantom homes, trade goods or collidable posts.
+function grainwardMasonryFacing(x,z,variant,index,isCompact){
+ // These are the SAME real households selected by the established district.
+ if(x < -18.7||x>22.6||z < -14.5||z>17.7)return 0;
+ const first=data.length,y=terrain(x,z),w=2.4+variant*.42,
+  d=2.1+variant*.18,h=isCompact?
+   COMPACT_HOUSE_HEIGHTS[compactHouseArchetype(x,z,variant)]:1.90;
+ const style=(index+variant)%4,
+  stone=[rgb(0x9d9888),rgb(0xb1a48e),rgb(0xa9a18f),rgb(0x968f82)][style],
+  mortar=[rgb(0x79776d),rgb(0x8d8475),rgb(0x888378),rgb(0x77766b)][style],
+  oak=[rgb(0x674b37),rgb(0x795840),rgb(0x5a483a),rgb(0x6e513a)][style];
+ // The exposed masonry lifts only to the bottoms of EXISTING glazed
+ // casements; door planes remain completely visible and accessible.
+ const low=y+.145,cap=y+.76,doorHalf=.435;
+ materialScope(MATERIAL.STONE,()=>{
+  for(const facing of [-1,1]){
+   const face=z+facing*(d*.5+.098);
+   const wall=(a,b,lo,hi,col)=>{
+    const p=[a,lo,face],q=[b,lo,face],
+     r=[b,hi,face],t=[a,hi,face];
+    if(facing<0)quad(p,q,r,t,col);
+    else quad(t,r,q,p,col);
+   };
+   // Two uninterrupted stone-laden bays either side of the REAL door;
+   // no false new opening, no wall across the pedestrian threshold.
+   for(const edge of [-1,1]){
+    const a=edge<0?x-w*.49:x+doorHalf,
+     b=edge<0?x-doorHalf:x+w*.49;
+    if(b-a<.09)continue;
+    const split=low+.295;
+    wall(a,b,low,split,stone);
+    wall(a,b,split+.008,cap,mortar);
+   }
+   // The structural threshold belongs to the original house, not a
+   // walkable bridge. Jambs frame its existing centered physical door.
+   wall(x-doorHalf-.073,x-doorHalf-.018,y+.72,y+1.38,stone);
+   wall(x+doorHalf+.018,x+doorHalf+.073,y+.72,y+1.38,stone);
+   wall(x-doorHalf-.09,x+doorHalf+.09,y+1.34,y+1.46,mortar);
+  }
+  // Terrain-grounded long side footings: only one single rubble course,
+  // safely beneath the unchanged lower side windows and rain spouts.
+  for(const side of [-1,1]){
+   const fx=x+side*(w*.5+.078),za=z-d*.47,zb=z+d*.47;
+   const p=[fx,low,za],q=[fx,low,zb],
+    r=[fx,cap,zb],t=[fx,cap,za];
+   if(side>0)quad(t,r,q,p,stone);
+   else quad(p,q,r,t,stone);
+  }
+ });
+ // Broad upper oak tie plates create an actual timber-over-stone
+ // construction seam across the complete front and rear of every lot.
+ // They are deliberately held above casement frames, not over the glass.
+ materialScope(MATERIAL.WOOD,()=>{
+  const elevation=y+(h>2.5?1.52:Math.max(1.48,h*.79));
+  for(const facing of [-1,1]){
+   const face=z+facing*(d*.5+.125),half=w*.48;
+   const p=[x-half,elevation,face],q=[x+half,elevation,face],
+    r=[x+half,elevation+.115,face],t=[x-half,elevation+.115,face];
+   if(facing<0)quad(p,q,r,t,oak);
+   else quad(t,r,q,p,oak);
+  }
+ });
+ villageVisualLod.grainwardMasonryHomes++;
+ villageVisualLod.grainwardPortalThresholds+=2;
+ const triangles=(data.length-first)/30;
+ if(!Number.isInteger(triangles)||triangles>55||triangles<20)
+  throw Error('W131 malformed existing-cottage stone construction');
+ villageVisualLod.grainwardMasonryTriangles+=triangles;
+ return triangles;
+}
+function grainwardMarketArcadePlan(){
+ // The two sides are pairs of the FOUR ACTUAL market stalls. These links
+ // stay OUTSIDE the active central exchange and NEVER add navigation edges.
+ const pairs=[[0,3,-1],[1,2,1]];
+ return pairs.map(([a,b,sign])=>{
+  const from=MARKET_STALLS[a],to=MARKET_STALLS[b];
+  if(!from||!to)throw Error('W131 missing genuine market trading endpoint');
+  const z0=from.z+1.17,z1=to.z-1.17,mid=(from.x+to.x)*.5,
+   outerX=mid+sign*1.67,innerX=mid+sign*.78;
+  if(z1-z0<2.1)throw Error('W131 unavailable open market edge');
+  const eaveA=marketStallProfile(a).eave,
+   eaveB=marketStallProfile(b).eave,
+   ground0=terrain(outerX,z0),ground1=terrain(outerX,z1),
+   y0=Math.max(terrain(from.x,from.z)+eaveA,ground0+2.39),
+   y1=Math.max(terrain(to.x,to.z)+eaveB,ground1+2.39);
+  return {source:'real-adjacent-trading-roof-ends',realMarketEndpointA:a,
+   realMarketEndpointB:b,outerX,innerX,z0,z1,y0,y1,
+   minClearance:Math.min(y0-ground0,y1-ground1)-.13,
+   noNewGroundPosts:true};
+ });
+}
+function grainwardTradeArcade(){
+ const first=data.length,plans=grainwardMarketArcadePlan(),
+  clays=[rgb(0x967c64),rgb(0x866e59),rgb(0x796e62)],
+  oak=rgb(0x69503b),light=rgb(0xb0997b);
+ for(const plan of plans){
+  const sign=Math.sign(plan.outerX),span=plan.z1-plan.z0;
+  const at=(t,x,raise)=>{
+   const y=plan.y0+(plan.y1-plan.y0)*t;
+   return [x,y+raise,plan.z0+span*t];
+  };
+  // Continuous SHED roofs, supported by original merchant end-posts
+  // through oak bridge trusses. Market centre remains open to the sky,
+  // avoiding an opaque roof across the real courier/market worksite.
+  materialScope(MATERIAL.ROOF,()=>{
+   for(let k=0;k<4;k++){
+    const t=k/4,u=(k+1)/4;
+    const a=at(t,plan.innerX,.26),b=at(t,plan.outerX,-.08),
+     c=at(u,plan.outerX,-.08),d=at(u,plan.innerX,.26);
+    if(sign<0)quad(a,b,c,d,clays[k%3]);
+    else quad(d,c,b,a,clays[k%3]);
+   }
+  });
+  materialScope(MATERIAL.WOOD,()=>{
+   // Sloping longitudinal beams genuinely bear on the existing roofs.
+   for(const [x,rise] of [[plan.innerX,.255],[plan.outerX,-.075]])
+    limbSegment(at(0,x,rise),at(1,x,rise),.074,oak,4);
+   for(const t of [0,.5,1]){
+    limbSegment(at(t,plan.innerX,.22),at(t,plan.outerX,-.11),
+     .063,t===.5?light:oak,4);
+   }
+  });
+ }
+ const triangles=(data.length-first)/30;
+ if(!Number.isInteger(triangles)||triangles>240||triangles<35)
+  throw Error('W131 unbounded or incomplete linked market roofs');
+ marketQuarterStats.grainwardArcadeSpans=plans.length;
+ marketQuarterStats.grainwardArcadeTriangles=triangles;
+ marketQuarterStats.grainwardArcadeNoPosts=plans.every(p=>p.noNewGroundPosts);
+ return triangles;
 }
 
 function renderCachedHomeLot(x,z,k,index,isCompact,climateKey){
@@ -5580,6 +5722,7 @@ function renderCachedHomeLot(x,z,k,index,isCompact,climateKey){
  medievalStreetMorphology(x,z,k,index,isCompact);
  renderLivedBurgageSideMateriality(x,z,k,index,isCompact);
  grainwardInhabitedLot(x,z,k,index,isCompact);
+ grainwardMasonryFacing(x,z,k,index,isCompact);
  houseGeometryBuilds++;
  if(!gpuAvailable)return; // The Canvas2D fallback bakes changing daylight.
  const vertices=new Float32Array(data.slice(first));
@@ -5613,7 +5756,7 @@ villageVisualLod.compactRoofTiles=0;villageVisualLod.compactFramedWindows=0;vill
 for(const key of ['burgageMaterialHomes','burgageMaterialWallPairs',
  'burgageMaterialGardenBoxes','burgageMaterialDownspouts','burgageMaterialTriangles'])
  villageVisualLod[key]=0;
-for(const key of ['grainwardHomes','grainwardRoofEdgeBoards','grainwardTimberBraces','grainwardRoofBayTriangles','grainwardAtticBays','grainwardGableVents','grainwardTriangles'])villageVisualLod[key]=0;
+for(const key of ['grainwardHomes','grainwardRoofEdgeBoards','grainwardTimberBraces','grainwardRoofBayTriangles','grainwardAtticBays','grainwardGableVents','grainwardTriangles','grainwardMasonryHomes','grainwardMasonryTriangles','grainwardPortalThresholds'])villageVisualLod[key]=0;
 streetMorphologyStats={homes:0,highStreetFronts:0,upperJetties:0,
  crossGables:0,shopCanopies:0,framedUpperCasements:0,physicalSignboards:0,
  totalTriangles:0,archetypes:[0,0,0,0]};
@@ -8761,6 +8904,7 @@ function marketQuarter(){
  marketCobblestoneSquare();
  for(let i=0;i<MARKET_STALLS.length;i++)marketStall(MARKET_STALLS[i],i);
  grainwardMarketRoofEdges();
+ grainwardTradeArcade();
  marketTimberCart(2.45,9.90);marketReceivingDock();marketReceivingCourt();
  const gate=MARKET_ENTRY_ARCH,{x,z}=gate,y=terrain(x,z);
  // Genuine old stone pier pads and raised oak lintel. The two 18cm
