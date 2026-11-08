@@ -562,3 +562,55 @@ test('legacy signed expeditions retain their unspent-gold semantics across a nor
  assert.equal(view.units.find(u=>u.id==='ranger').hp,28);
  assert.ok(!view.events.some(e=>e.kind==='provision'));
 });
+
+test('session-7 declared holdout campaign records genuine new-rule tactical decisions and replay across eight seeds',()=>{
+ const seeds=Array.from({length:8},(_,i)=>'dungeon-s7-holdout-v2-'+i);
+ const totals={seeds:seeds.length,ticksPerSeed:600,floorAdvances:0,restarts:0,
+  warningEvents:0,healingEvents:0,interruptEvents:0,provisionEvents:0,
+  evadeEvents:0,formationEvents:0,legalMovementTicks:0};
+ const runs=[];
+ for(const seed of seeds){
+  const game=DungeonRuntime.create(seed),mirror=DungeonRuntime.create(seed);
+  let lastFloor=1,lastRun=1,localMoves=0,localWarnings=0;
+  for(let i=0;i<600;i++){
+   const previous=new Map(game.state.units.filter(u=>u.hp>0).map(u=>
+    [u.id,{x:u.x,z:u.z}]));
+   const beforeFloor=game.state.floor,beforeRun=game.state.run;
+   const result=game.step(),replay=mirror.step();
+   assert.equal(result.rulesVersion,2,'holdout trials must evaluate the new rules only');
+   assert.equal(result.checksum,replay.checksum,'seed '+seed+' tick '+result.tick);
+   if(result.floor===beforeFloor&&result.run===beforeRun){
+    const living=result.units.filter(u=>u.hp>0);
+    assert.equal(new Set(living.map(u=>u.x+','+u.z)).size,living.length,
+     'living combatants cannot occupy the same real tile in '+seed+' tick '+result.tick);
+    for(const u of living){
+     const p=previous.get(u.id);
+     if(!p)continue;
+     const moved=Math.abs(p.x-u.x)+Math.abs(p.z-u.z);
+     assert.ok(moved<=1,'no off-grid teleport '+seed+' '+u.id+' at '+result.tick);
+     if(moved===1){localMoves++;totals.legalMovementTicks++;}
+    }
+   }
+   totals.floorAdvances+=result.floor!==lastFloor&&result.floor>lastFloor?1:0;
+   totals.restarts+=result.run-lastRun;
+   lastFloor=result.floor;lastRun=result.run;
+   for(const e of result.events.filter(e=>e.tick===result.tick)){
+    if(e.kind==='telegraph'){totals.warningEvents++;localWarnings++;}
+    if(e.kind==='healing')totals.healingEvents++;
+    if(e.kind==='interrupt')totals.interruptEvents++;
+    if(e.kind==='provision')totals.provisionEvents++;
+    if(e.kind==='evade')totals.evadeEvents++;
+    if(e.kind==='formation')totals.formationEvents++;
+   }
+   if(i%120===0){
+    assertDungeonState(game.state);
+    assert.deepEqual(DungeonRuntime.restore(game.save()).save(),game.save());
+   }
+  }
+  runs.push({seed,floor:lastFloor,run:lastRun,legalMovementTicks:localMoves,
+   warningEvents:localWarnings});
+ }
+ assert.ok(totals.legalMovementTicks>0&&totals.warningEvents>0,
+  'a genuine seed cohort must include movement and Warden or elite warnings');
+ console.log('DUNGEON_S7_HOLDOUT_TRACE '+JSON.stringify({totals,runs}));
+});
