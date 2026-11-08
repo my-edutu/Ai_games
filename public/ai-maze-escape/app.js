@@ -1,4 +1,4 @@
-import { computePublicView, drawMinimap, publicObjective, publicHeldGateStatus, publicKeyCollectionMoment } from './map-view.mjs';
+import { computePublicView, drawMinimap, publicObjective, publicHeldGateStatus, publicKeyCollectionMoment, publicImmediatePressureCue } from './map-view.mjs';
 import { createMazeAudio } from './audio.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_VISUAL_SECONDS, observedGateOpenings } from './gate-moment.mjs';
 
@@ -14,7 +14,7 @@ const query=new URLSearchParams(location.search);
 const motionPreference=matchMedia('(prefers-reduced-motion: reduce)');
 const settings={quality:query.get('quality')==='high'?'high':'auto',reducedMotion:query.get('reducedMotion')==='1'||motionPreference.matches,highContrast:query.get('highContrast')==='1',muted:true,cleanFeed:query.get('cleanFeed')==='1'};
 const audio=createMazeAudio();
-let frame=null, scene=null, fallbackCanvas=null, pollTimer=0, recoveryTimer=0, requestController=null, stopped=false, raf=0, rendererState='loading',cameraMode=query.get('camera')==='overview'?'overview':query.get('camera')==='detail'?'detail':'follow', lastCaption='', lastRunToken='', captionSource='', captionUntil=0, wasInDanger=false, failedPolls=0, initialising=false, pickupMilestone=null, gateMilestone=null;
+let frame=null, scene=null, fallbackCanvas=null, pollTimer=0, recoveryTimer=0, requestController=null, stopped=false, raf=0, rendererState='loading',cameraMode=query.get('camera')==='overview'?'overview':query.get('camera')==='detail'?'detail':'follow', lastCaption='', lastRunToken='', captionSource='', captionUntil=0, wasInDanger=false, wasNearPressure=false, failedPolls=0, initialising=false, pickupMilestone=null, gateMilestone=null;
 let hudVisualTime=0, lastHudRenderNow=0;
 
 function press(id,value,label){const button=byId(id);if(!button)return;button.setAttribute('aria-pressed',String(value));if(label){button.setAttribute('aria-label',label);button.title=label}}
@@ -113,25 +113,31 @@ function update(value){
   // encounter must outrank a non-urgent landmark without pretending the AI
   // switched actions: intentMode still reports the genuine current AI intent.
   const exposedDanger=!ended && (value.scene==='danger'||snapshot.intent.mode==='evading-threat');
-  elements.broadcast.dataset.urgency=String(exposedDanger);
-  byId('run-phase').textContent=ended?(escaped?'JOURNEY COMPLETE':'ATTEMPT ENDED'):value.scene==='danger'?'WARDEN NEARBY':'LIVE EXPLORATION';
+  // Real 390px source WebGL at the public one-step pressure court still showed
+  // "Key for gate" over visibly moving jaws. Prioritise the ACTUALLY visible
+  // adjacent trap in the SAME compact mission chip. This never changes Pip's
+  // genuine autonomous intent or invents an undisclosed engine event.
+  const pressureCue=!ended && !exposedDanger ? publicImmediatePressureCue(snapshot) : null;
+  const urgent=exposedDanger||!!pressureCue;
+  elements.broadcast.dataset.urgency=String(urgent);
+  byId('run-phase').textContent=ended?(escaped?'JOURNEY COMPLETE':'ATTEMPT ENDED'):exposedDanger?'WARDEN NEARBY':pressureCue?'PRESSURE NEARBY':'LIVE EXPLORATION';
   const landmark=publicObjective(snapshot);
   // Plain-language HUD truth for an already OBSERVED matching-key gate.
   // A real public danger outranks both this gate and any nearby landmark.
-  const keyedSealedGate=!ended && !exposedDanger && !landmark && publicHeldGateStatus(snapshot);
+  const keyedSealedGate=!ended && !urgent && !landmark && publicHeldGateStatus(snapshot);
   // Danger, termination and a currently matching CLOSED lock outrank a
   // collectible celebration; AI intent continues to report its real plan.
-  const freshGate=!ended && !exposedDanger && !keyedSealedGate
+  const freshGate=!ended && !urgent && !keyedSealedGate
     && gateMilestone?.runToken===snapshot.runToken
     && hudVisualTime<gateMilestone.until;
   elements.broadcast.dataset.gateMoment=String(freshGate);
-  const freshKey=!ended && !exposedDanger && !keyedSealedGate && !freshGate
+  const freshKey=!ended && !urgent && !keyedSealedGate && !freshGate
     && pickupMilestone?.runToken===snapshot.runToken
     && hudVisualTime<pickupMilestone.until;
-  byId('goal-label').textContent=ended?'Journey result':exposedDanger?'Immediate danger':keyedSealedGate?'Known sealed gate':freshGate?'PASSAGE OPEN':freshKey?'KEY FOUND':landmark?'Discovered landmark':'Current goal';
-  byId('goal-title').textContent=ended?(escaped?'Escaped':'Run ended'):exposedDanger?'Avoid warden':keyedSealedGate?'Key for gate':freshGate?'Gate opened':freshKey?'Key collected':landmark?(landmark.kind==='key'?'Key spotted':'Exit spotted'):goals[snapshot.intent.mode]||'Find the exit';
+  byId('goal-label').textContent=ended?'Journey result':exposedDanger?'Immediate danger':pressureCue?'Visible pressure hazard':keyedSealedGate?'Known sealed gate':freshGate?'PASSAGE OPEN':freshKey?'KEY FOUND':landmark?'Discovered landmark':'Current goal';
+  byId('goal-title').textContent=ended?(escaped?'Escaped':'Run ended'):exposedDanger?'Avoid warden':pressureCue?'Pressure jaws ahead':keyedSealedGate?'Key for gate':freshGate?'Gate opened':freshKey?'Key collected':landmark?(landmark.kind==='key'?'Key spotted':'Exit spotted'):goals[snapshot.intent.mode]||'Find the exit';
   byId('intent-label').textContent=ended?'Result':'Pip';
-  byId('objective').textContent=ended?(escaped?'Exit reached':'Next run soon'):exposedDanger?'Keep clear':freshGate?'Explore onward':landmark?(landmark.steps===0?'At the landmark':`${landmark.steps} known step${landmark.steps===1?'':'s'} away`):keyedSealedGate?'Gate still closed':'Explore';
+  byId('objective').textContent=ended?(escaped?'Exit reached':'Next run soon'):exposedDanger?'Keep clear':pressureCue?'Keep clear of the jaws':freshGate?'Explore onward':landmark?(landmark.steps===0?'At the landmark':`${landmark.steps} known step${landmark.steps===1?'':'s'} away`):keyedSealedGate?'Gate still closed':'Explore';
   if(freshKey)byId('objective').textContent='Keep exploring';
   // A witnessed key pickup should not show a second visible "Find key" call
   // directly below "Key collected". Keep the original autonomous strategy
@@ -162,7 +168,9 @@ function update(value){
   }
   if(exposedDanger && !wasInDanger && Array.isArray(snapshot.threats)
     && snapshot.threats.length) eventCaption='Thornback is nearby.';
+  if(pressureCue && !wasNearPressure) eventCaption='Pip sees the pressure jaws.';
   wasInDanger=exposedDanger;
+  wasNearPressure=!!pressureCue;
   if(eventCaption){
     lastCaption=eventCaption;
     captionUntil=performance.now()+5400;

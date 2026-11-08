@@ -1,3 +1,9 @@
+### Pass203 — visible published pressure hazard takes precedence in the live mission (2026-11-08 UTC)
+
+- **Original screenshot evidence:** prior exact-source [WebGL artifact 13597475546](https://github.com/my-edutu/Ai_games/actions/runs/42429364155/artifacts/13597475546), all 37 original PNG hashes checked. Real 390×844 tick-6 pressure shows Pip one cell from visible moving jaws, but mission still foregrounds “Key for gate”; source-bound mission priority is a real gameplay-awareness error.
+- **One production/UI correction:** only the currently PUBLIC one-cell pressure jaw can temporarily outrank a known gate, key-pickup or landmark in the EXISTING minimal mission chip. Terminal and public Warden stay higher priority; true AI intent, action, camera and hidden map remain untouched. Three pure tests added for privacy, deterministic source, proximity and mission priority. No extra panel or graphics allocation.
+- **Verification PENDING:** new exact-HEAD browser WebGL, focused Node tests, unchanged geometry/framing/privacy/accessibility gates and independent Nintendo reference critic. Prior Pass202 source-HEAD workflow remained queued; disconnected coding workspace, agents/Ultracode. [Dated review](./maze-3d/pass-203-public-pressure-mission-priority-2026-11-08.md). PR remains OPEN DRAFT, never merge/deploy/force; benchmark NOT MET.
+
 ### Pass202 — make public tide-shear jaws follow the REAL relay/shutter clock (2026-11-08 UTC)
 
 - **Prior verified gate:** [exact-HEAD Maze WebGL 42429364155](https://github.com/my-edutu/Ai_games/actions/runs/42429364155) SUCCESS for previous `71857c70`: strict 6-run <100 registered geometries and spread <=8; all 37 original PNG hashes confirmed in prior review. Whole-repo CI separately fails missing Tiny Kingdom script.

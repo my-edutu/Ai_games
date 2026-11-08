@@ -532,6 +532,37 @@ export function publicWayfinding(snapshot) {
  * A known route is NOT a safe route, a guarantee that a key opens an exit,
  * or the autonomous agent's intended next move. Never consult private state.
  */
+/**
+ * A currently VISIBLE, publicly disclosed pressure mechanism within one
+ * actual map step is immediate scene danger. Keep the live mission chip
+ * truthful when an existing sealed gate and pressure court overlap.
+ * No private solver route, remembered-only trap, nearby unseen cell or
+ * interpolated/predicted future position can trigger this cue.
+ */
+export function publicImmediatePressureCue(snapshot) {
+  const {currentCell,width,height}=snapshot ?? {};
+  if (snapshot?.result || !Number.isSafeInteger(currentCell)
+    || !Number.isSafeInteger(width) || !Number.isSafeInteger(height)
+    || width < 2 || height < 2 || currentCell < 0 || currentCell >= width*height
+    || !Array.isArray(snapshot?.cells) || !Array.isArray(snapshot?.visibleCells))
+    return null;
+  const visible=new Set(snapshot.visibleCells);
+  if (!visible.has(currentCell)) return null;
+  const col=currentCell%width, row=Math.floor(currentCell/width);
+  let closest=null;
+  for (const item of snapshot.cells) {
+    const id=item?.cell;
+    if (item?.trap!==true || item.blocked===true
+      || !Number.isSafeInteger(id) || id<0 || id>=width*height || !visible.has(id))
+      continue;
+    const steps=Math.abs(id%width-col)+Math.abs(Math.floor(id/width)-row);
+    if (steps>1 || (closest && (steps>closest.steps
+      || (steps===closest.steps && id>=closest.cell)))) continue;
+    closest={cell:id,steps};
+  }
+  return closest;
+}
+
 export function publicObjective(snapshot) {
   const {currentCell, width, height} = snapshot ?? {};
   if (!Number.isInteger(currentCell) || !Number.isInteger(width) || !Number.isInteger(height)

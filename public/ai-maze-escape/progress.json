@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-08T02:10:00Z",
+  "updatedAt": "2026-11-08T03:18:00Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass202 2026-11-08: previous exact-HEAD WebGL 42429364155 PASSED six-run geometry <100 and spread <=8. Source-bound scene candidate aligns public tide-shear jaw warning/full stroke with existing bronze-relay/ivory-shutter pressure clock and Pip physical reaction; no independent new-HEAD rendered approval or Nintendo quality win yet. Workstream runner and fresh critic disconnected; whole CI still fails missing unrelated Tiny Kingdom stream script. PR #53 stays open draft; no merge/deploy/force."
+    "summary": "Pass203 2026-11-08: Verified all 37 ORIGINAL prior source WebGL screenshot hashes (artifact 13597475546). Authentic 390px pressure tick6 shows Pip one published cell from visible jaws but the primary HUD still says Key for gate. Source-only fix gives actual visible adjacent pressure priority over gate/key/landmark in the EXISTING mission chip, preserving true AI intent, privacy, accessibility and terminal/warden priority. Three Node tests authored; exact new-HEAD WebGL/render/CI and independent Nintendo-quality verdict PENDING. Pass202 jaw-clock run also queued. PR #53 open draft; no merge/deploy/force."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass203 2026-11-08: Prior source-bound 390px pressure shot (37/37 original PNG hashes verified) still showed Key for gate despite Pip one real published cell from the visible jaws. Source-only compact mission priority gives immediate public pressure hazard precedence over existing gate/key/landmark without a new panel or changing autonomous AI; terminal and warden retain precedence. Three deterministic/privacy regressions added. Exact-head Node/WebGL and independent visual gate PENDING; benchmark unmet, open draft PR unmerged/undeployed.",
     "Pass200 2026-11-07: Pass199 exact-HEAD native six-run browser recorded 37,37,42,42,98,98 GPU geometries, spread 61 > unchanged limit 8 (all <100), while referenced visible scene geometries 37; dormant witnessed Thornback held WebGL resources after undisclosure. Candidate suspends only off-stage guardian GPU buffers, preserves CPU rig and Pip-shared buffers, adds installed-Three lifecycle test; new exact-HEAD WebGL and Nintendo visual gate pending. PR #53 open draft.",
     "Pass199 2026-11-07: previous Pass198 exact-HEAD six-run WebGL still FAILED geometry spread 9 (37,37,42,42,46,46; max 8 unchanged) even with one stable route buffer, all counts <100 and no hidden public characters. Candidate retains at most one previously observed, physically neutralized Thornback rig detached from scene through run resets, avoiding resource churn and animation bearing carryover; actual tests/images/CI NOT yet verified. No changes to privacy, AI, map discovery, geometry thresholds, 44px HUD, strict framing or gameplay. Reference bar unmet, PR open draft.",
     "Pass198 2026-11-07: real exact-Pass197 native WebGL screenshots at HEAD dd277acb: 37/37 original PNG SHA verified (ZIP 672ade064d9913984ba8921f38195339aa1bc2f7e5254f66888f170626b498c6); visual critic still rejects crowded mobile pressure stage vs Nintendo. Six-run renderer starts 37/37/42/41/46/45 = 9 spread FAILED unchanged <=8, though all <100. Production candidate reuses one authentic public route LineSegments buffer and dashed distances across disclosure/reset instead of disposing/reallocating on every route update; stricter six-run buffer-identity and referenced-geometry diagnostics. New WebGL CI and original images unverified. Whole CI blocked on unrelated missing tiny stream script. Open draft, no merge/deploy/force.",
