@@ -1499,7 +1499,19 @@ export function createTowerWorld(){
     materials.tread=mat(p.dark,.4,.8,{polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1});
     floorGroup=new THREE.Group();floorGroup.name=`floor:${snapshot.floor}:${theme}`;group.add(floorGroup);
     const height=snapshot.chunkHeight/SCALE;buildTower(height);buildDistantWorld(height);buildVista(height);
-    for(const p of snapshot.platforms||[])buildPlatform(p,snapshot.worldWidth,(snapshot.enemies||[]).some(e=>e.kind==='guardian'));
+    // All 3D cap clearance machinery must share the opt-in source exit,
+    // not merely the presence of some guardian on a historic floor.
+    // No published, exact real exit means no fabricated bronze victory gate.
+    for(const p of snapshot.platforms||[]){
+      const sourceGateCap=p.id===`f${snapshot.floor}:cap` &&
+        Number.isFinite(p.x) && Number.isFinite(p.width) && p.width>0 &&
+        Number.isSafeInteger(snapshot.guardianExitX) &&
+        snapshot.guardianExitX===p.x+Math.floor(p.width*.76) &&
+        (snapshot.enemies||[]).some(e=>e.kind==='guardian' &&
+          (!Number.isSafeInteger(e.floor)||e.floor===snapshot.floor) &&
+          typeof e.id==='string' && !!e.id && Number.isFinite(e.health));
+      buildPlatform(p,snapshot.worldWidth,sourceGateCap);
+    }
     for(const h of snapshot.hazards||[])buildHazard(h,snapshot.worldWidth);
     for(const r of rotors)r.o.traverse(o=>{if(o.isMesh)o.userData.ambientDetail=true;});
     // The large structural masses cast the route shadows. Tiny bolts, foliage,

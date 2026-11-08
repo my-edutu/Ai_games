@@ -84,6 +84,12 @@ export function observedUnlockedGuardianCap(snapshot) {
     platform.id === 'f' + snapshot.floor + ':cap' &&
     [platform.x, platform.y, platform.width, platform.height]
       .every(Number.isFinite) && platform.width > 0 && platform.height > 0);
+  // A zero-HP body is not, by itself, evidence of a playable clearance.
+  // Historic floors can publish defeated guardians WITHOUT a source exit.
+  // The walkable arch, camera escort and fallen armor must require the same
+  // exact authoritative cap opt-in as the living guardian lock.
+  if (!cap || !Number.isSafeInteger(snapshot.guardianExitX) ||
+      snapshot.guardianExitX !== cap.x + Math.floor(cap.width * .76)) return null;
   const guardian = snapshot.enemies?.find(enemy =>
     enemy.kind === 'guardian' && enemy.active === false &&
     (!Number.isSafeInteger(enemy.floor) || enemy.floor === snapshot.floor) &&
@@ -108,8 +114,12 @@ export function observedPassageApproach(source, earned) {
     !Number.isFinite(earned.cap?.width) || earned.cap.width <= 0) return 0;
   const cap = earned.cap;
   const physicalExit = cap.x + Math.floor(cap.width * .76);
-  const exitX = Number.isSafeInteger(source.guardianExitX) &&
-    source.guardianExitX === physicalExit ? source.guardianExitX : physicalExit;
+  // Never light a historic, mismatched or still-locked source cap as though
+  // an earned walkable threshold existed. A mere cap-shaped deck is not proof.
+  if (!Number.isSafeInteger(source.guardianExitX) ||
+      source.guardianExitX !== physicalExit ||
+      !observedUnlockedGuardianCap(source)) return 0;
+  const exitX = source.guardianExitX;
   const gap = Math.abs(source.player.x - exitX);
   return Math.max(0, Math.min(1,
     (cap.width * .36 - gap) / (cap.width * .24)));

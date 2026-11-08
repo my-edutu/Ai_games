@@ -286,7 +286,7 @@ test('real source-defeated guardian collapses as a rig while the power connectio
   const cap={id:'f8:cap',x:115200,y:3212000,width:249600,height:12000};
   const guardian={id:'f8:guardian',kind:'guardian',active:false,
     health:0,x:176000,y:3250000,halfHeight:18000};
-  const source={runToken:'earned-break',floor:8,tick:220,lifecycle:'running',
+  const source={runToken:'earned-break',floor:8,tick:220,lifecycle:'running',guardianExitX:cap.x+Math.floor(cap.width*.76),
     worldWidth:480000,chunkBaseY:2880000,player:{health:4,x:cap.x},
     platforms:[cap],enemies:[guardian]};
   const fx=createTowerGuardianPassage(THREE);
@@ -345,7 +345,7 @@ test('earned guardian exit embeds a source-aligned 3D cap inlay which follows ac
   const cap={id:'f8:cap',x:115200,y:3212000,width:249600,height:12000};
   const guardian={id:'f8:guardian',kind:'guardian',active:false,
     health:0,x:176000,y:3250000,halfHeight:18000};
-  const source={runToken:'earned-inlay',floor:8,tick:220,lifecycle:'running',
+  const source={runToken:'earned-inlay',floor:8,tick:220,lifecycle:'running',guardianExitX:cap.x+Math.floor(cap.width*.76),
     worldWidth:480000,chunkBaseY:2880000,
     player:{health:4,x:cap.x+cap.width*.38},platforms:[cap],enemies:[guardian]};
   const fx=createTowerGuardianPassage(THREE);
@@ -414,7 +414,7 @@ test('source-earned 3D gate stays visibly open during authentic cap traversal, t
   const effect = createTowerGuardianPassage(THREE);
   const cap = { id:'f8:cap',x:115200,y:8*360000+332000,width:249600,height:12000 };
   const earned = Object.freeze({
-    runToken:'authentic-run',floor:8,tick:210,lifecycle:'running',
+    runToken:'authentic-run',floor:8,tick:210,lifecycle:'running',guardianExitX:cap.x+Math.floor(cap.width*.76),
     worldWidth:480000,chunkBaseY:8*360000,player:{health:2},
     platforms:[cap],enemies:[{id:'f8:guardian',kind:'guardian',
       active:false,health:0,x:cap.x+60000,
@@ -460,7 +460,7 @@ test('a fast source-earned cap crossing opens the physical leaves ahead of the c
   const cap = Object.freeze({id:'f8:cap',x:115200,y:3212000,width:249600,height:12000});
   const guardian = Object.freeze({id:'f8:guardian',kind:'guardian',active:false,
     health:0,x:176000,y:3250000,halfHeight:18000});
-  const far = {runToken:'earned-traverse',floor:8,tick:210,lifecycle:'running',
+  const far = {runToken:'earned-traverse',floor:8,tick:210,lifecycle:'running',guardianExitX:cap.x+Math.floor(cap.width*.76),
     worldWidth:480000,chunkBaseY:2880000,
     player:{health:2,x:cap.x},platforms:[cap],enemies:[guardian]};
   const atDoor = {...far,tick:211,player:{health:2,
@@ -522,7 +522,7 @@ test('source-defeated guardian crumbles during earned cap traversal, not after t
     health: 0, x: cap.x + 65000,
     y: cap.y + cap.height + 18000, halfHeight: 18000 };
   const source = Object.freeze({
-    runToken: 'real-armor-landing', floor: 8, tick: 214, lifecycle: 'running',
+    runToken: 'real-armor-landing', floor: 8, tick: 214, lifecycle: 'running',guardianExitX:cap.x+Math.floor(cap.width*.76),
     chunkBaseY: 8 * 360000, worldWidth: 480000,
     player: Object.freeze({ x: cap.x + 110000, health: 3 }),
     platforms: Object.freeze([Object.freeze(cap)]),
@@ -586,7 +586,7 @@ test('one continuous source-owned camera escort observes defeated body, then the
     health: 0, x: cap.x + 54000,
     y: cap.y + cap.height + 18000, halfHeight: 18000 };
   const snapshot = {
-    runToken: 'source-camera-escort', lifecycle: 'running',
+    runToken: 'source-camera-escort', lifecycle: 'running',guardianExitX:cap.x+Math.floor(cap.width*.76),
     tick: 240, floor: 8, worldWidth: 480000,
     chunkBaseY: 8 * 360000, player: {
       health: 5, x: cap.x + 90000,
@@ -614,4 +614,46 @@ test('one continuous source-owned camera escort observes defeated body, then the
     assert.equal(effect.focusPoint(), null);
     assert.equal(effect.diagnostics().sourceMeasuredDefeatFocusWeight, 0);
   } finally { effect.dispose(); }
+});
+
+test('only exact published source clearance can stage the earned 3D guardian threshold',async()=>{
+  const [THREE,{observedUnlockedGuardianCap,observedPassageApproach,
+    createTowerGuardianPassage}]=await loaded;
+  const cap={id:'f8:cap',x:115200,y:3212000,width:249600,height:12000};
+  const guardian={id:'f8:guardian',kind:'guardian',active:false,
+    health:0,x:176000,y:3250000,halfHeight:18000};
+  const legacy={runToken:'legacy-with-defeated-guardian',floor:8,tick:220,
+    lifecycle:'running',worldWidth:480000,chunkBaseY:2880000,
+    player:{health:3,x:220000},platforms:[cap],enemies:[guardian]};
+  const exactExit=cap.x+Math.floor(cap.width*.76);
+  const earned={...legacy,guardianExitX:exactExit};
+  assert.ok(observedUnlockedGuardianCap(earned),
+    'a defeated body plus the exact published source exit is a real earned opening');
+  const effect=createTowerGuardianPassage(THREE);
+  try{
+    for(const invalid of [
+      legacy,
+      {...legacy,guardianExitX:undefined},
+      {...legacy,guardianExitX:exactExit+1},
+      {...legacy,guardianExitX:NaN},
+      {...legacy,guardianExitX:exactExit+.5},
+      {...legacy,guardianExitX:exactExit,
+        platforms:[{...cap,width:cap.width+10000}]},
+      {...earned,enemies:[{...guardian,active:true,health:1}]},
+    ]){
+      const before=JSON.stringify(invalid);
+      assert.equal(observedUnlockedGuardianCap(invalid),null);
+      assert.equal(effect.unlock(invalid,anchor),false);
+      assert.equal(effect.group.visible,false);
+      assert.equal(observedPassageApproach(invalid,{
+        runToken:invalid.runToken,floor:8,cap}),0);
+      assert.equal(JSON.stringify(invalid),before,'no source mutation');
+    }
+    assert.equal(effect.unlock(earned,anchor),true);
+    assert.equal(effect.diagnostics().stage,'earned-open');
+    assert.equal(effect.group.visible,true);
+    const approaching={...earned,player:{...earned.player,x:exactExit-8000}};
+    assert.ok(observedPassageApproach(approaching,
+      observedUnlockedGuardianCap(approaching))>.5);
+  }finally{effect.dispose();}
 });

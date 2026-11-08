@@ -34,6 +34,7 @@ function frame({active = true, floor = 8, guardian = true, runToken = 'genuine-g
   const base = floor * 360000;
   return {
     runToken, floor, theme: 'ruins', worldWidth: 480000,
+    guardianExitX: guardian ? 145000 + Math.floor(190000 * .76) : undefined,
     chunkBaseY: base, chunkHeight: 360000, lifecycle: 'running',
     platforms: [{
       id: `f${floor}:cap`, kind: 'oneway', x: 145000, width: 190000,
@@ -306,4 +307,29 @@ test('the actual world gate gives earned grounded arrival a clear bronze thresho
       'a newly active guardian starts with fully closed live bronze leaves');
     assert.equal(world.diagnostics().guardianGates[0].unlocked,false);
   }finally{world.dispose();}
+});
+
+test('unflagged and mismatched old guardians cannot create a world-space victory lock',async()=>{
+  const {createTowerWorld}=await loaded;
+  const genuine=frame();
+  const cap=genuine.platforms[0];
+  const exactExit=cap.x+Math.floor(cap.width*.76);
+  assert.equal(genuine.guardianExitX,exactExit);
+  for(const [name,source,present] of [
+    ['legacy-no-source-exit',{...genuine,guardianExitX:undefined},false],
+    ['wrong-exit',{...genuine,guardianExitX:exactExit+12000},false],
+    ['absent-guardian',{...genuine,enemies:[]},false],
+    ['other-floor-guardian',{...genuine,enemies:[{...genuine.enemies[0],floor:7}]},false],
+    ['authenticated-cap-exit',genuine,true],
+  ]){
+    const before=JSON.stringify(source);
+    const world=createTowerWorld();
+    try{
+      world.update(source,.016,0,{quality:'low'});
+      assert.equal(!!named(world.group,'AuthoritativeGuardianGate'),present,
+        name+' must honor source-authenticated guardian cap gating');
+      assert.equal(world.diagnostics().guardianGates.length,present?1:0);
+      assert.equal(JSON.stringify(source),before);
+    }finally{world.dispose();}
+  }
 });
