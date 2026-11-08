@@ -11,7 +11,7 @@ function transform(html){
    throw Error('W125 source anchor not unique: '+why);
   html=html.slice(0,i)+next+html.slice(i+old.length);
  };
- const economy=String.raw\`/* W125 ECONOMY BEGIN */
+ const economy=String.raw`/* W125 ECONOMY BEGIN */
 // A real unloaded farmer receipt may reserve some of the SAME town stock.
 // The authoritative stock does not increase when these ledgers are created.
 const HOUSEHOLD_MARKET_TARGET=[-3.5,4.1];
@@ -96,33 +96,33 @@ function getFarmMarketHouseholdAudit(){
 }
 /* W125 ECONOMY END */
 
-\`;
+`;
  change('function marketSupplyView(){',economy+'function marketSupplyView(){','economic authority');
  change('  resources:{food:state.food,wood:state.wood,gold:state.gold},\n  inTransit,escrowed,creditedInTransit,',
   '  resources:{food:state.food,wood:state.wood,gold:state.gold},\n  reservedMarketFood:marketReservedFood(),inTransit,escrowed,creditedInTransit,','stocks read');
  change(' deliveryReceipts.unshift({id:d.id,citizen:p.name,job:p.job,\n  resource:d.resource,amount:d.amount,origin:d.origin.slice(),\n  destination:d.destination.slice(),time:state.t,\n  creditedAtUnloading:d.escrowed===true});\n if(deliveryReceipts.length>12)deliveryReceipts.length=12;',
-  \` const receipt={id:d.id,citizen:p.name,job:p.job,
+  ` const receipt={id:d.id,citizen:p.name,job:p.job,
   resource:d.resource,amount:d.amount,origin:d.origin.slice(),
   destination:d.destination.slice(),time:state.t,
   creditedAtUnloading:d.escrowed===true};
  deliveryReceipts.unshift(receipt);
  if(deliveryReceipts.length>12)deliveryReceipts.length=12;
- if(d.escrowed===true)recordMarketReceipt(receipt);\`,'receipt to lot credit');
+ if(d.escrowed===true)recordMarketReceipt(receipt);`,'receipt to lot credit');
  change('function choose(p){if(p.delivery){routeLoadedWorker(p);return}\n  if(!dayShiftAt(state.t)){',
-  \`function choose(p){if(p.delivery){routeLoadedWorker(p);return}
+  `function choose(p){if(p.delivery){routeLoadedWorker(p);return}
   if(p.provisions){
    p.activity='Carrying provisions home';
    p.target=citizenHomeDestination(p);routeCitizen(p);return;
   }
-  if(!dayShiftAt(state.t)){\`,'loaded resident priority');
- change('  let dest;if(p.energy<30||p.hunger>88){dest=[-3,2];p.activity=\\'Resting and gathering food\\'}else{',
-  \`  if(p.job!=='merchant'&&p.hunger>=55&&p.energy>=30&&
+  if(!dayShiftAt(state.t)){`,'loaded resident priority');
+ change('  let dest;if(p.energy<30||p.hunger>88){dest=[-3,2];p.activity=\'Resting and gathering food\'}else{',
+  `  if(p.job!=='merchant'&&p.hunger>=55&&p.energy>=30&&
    marketReservedFood()>=.85&&p.marketErrandDay!==Math.floor(state.t/24)){
     p.marketErrandDay=Math.floor(state.t/24);
     p.activity='Traveling to market for food';
     p.target=HOUSEHOLD_MARKET_TARGET.slice();routeCitizen(p);return;
   }
-  let dest;if(p.energy<30||p.hunger>88){dest=[-3,2];p.activity='Resting and gathering food'}else{\`,'market autonomy');
+  let dest;if(p.energy<30||p.hunger>88){dest=[-3,2];p.activity='Resting and gathering food'}else{`,'market autonomy');
  change("}else if(p.job==='merchant'&&state.food>people.length*5){state.food-=1.5;state.gold+=1.2}",
   "}else if(p.job==='merchant'&&state.food-marketReservedFood()>people.length*5){state.food-=1.5;state.gold+=1.2}",'merchant trade reserve');
  change("const onRoad=p.activity==='Returning home at dusk'||p.activity.startsWith('Traveling to ')||p.activity.startsWith('Traveling with ');",
@@ -130,7 +130,7 @@ function getFarmMarketHouseholdAudit(){
  change("const move=Math.min(remaining,dt*((homeward?2.25:workbound?2.35:.75)+i%4*.09));",
   "const move=Math.min(remaining,dt*((homeward?2.25:workbound?2.35:p.activity==='Carrying provisions home'?2.1:.75)+i%4*.09));",'road pace');
  change("}else if(p.activity.startsWith('Traveling to ')){\n if(p.energy<30||p.hunger>88)choose(p);",
-  \`}else if(p.activity==='Traveling to market for food'||
+  `}else if(p.activity==='Traveling to market for food'||
  p.activity==='Waiting for market merchant'){
  p.activity='Waiting for market merchant';
  if(!acquireHouseholdFood(p)&&(p.workTimer>=4||!onShift)){
@@ -140,7 +140,7 @@ function getFarmMarketHouseholdAudit(){
  if(consumeHouseholdFood(p)){p.workTimer=0;choose(p)}
  else {p.workTimer=0;choose(p)}
 }else if(p.activity.startsWith('Traveling to ')){
- if(p.energy<30||p.hunger>88)choose(p);\`,'real arrival to home meal');
+ if(p.energy<30||p.hunger>88)choose(p);`,'real arrival to home meal');
  change("state.food=Math.max(0,state.food-dt*people.length*.016);",
   "state.food=Math.max(marketReservedFood(),state.food-dt*people.length*.016);",'conserved reserved food');
  change("const payload={seed:seed>>>0,state:cloneData(state),city:cloneData(city),people:cloneData(people),stories:cloneData(stories)};return {",
@@ -149,7 +149,7 @@ function getFarmMarketHouseholdAudit(){
   "state=q.state;city.splice(0,city.length,...q.city);people=q.people;stories=q.stories;if(q.deliveryReceipts)deliveryReceipts.push(...q.deliveryReceipts);accumulator=0;",'receipt restore');
  change("getDeliveryEconomyAudit:()=>cloneData(getDeliveryEconomyAudit()),getDeliveryReceipts:",
   "getDeliveryEconomyAudit:()=>cloneData(getDeliveryEconomyAudit()),getFarmMarketHouseholdAudit:()=>cloneData(getFarmMarketHouseholdAudit()),getDeliveryReceipts:",'public audit');
- const validation=String.raw\`
+ const validation=String.raw`
  // W125 opt-in additive fields preserve pre-W125 snapshots.
  if(s.marketLots!==undefined&&(!Array.isArray(s.marketLots)||
   s.marketLots.length>MARKET_PROVISION_LOT_CAP||
@@ -183,10 +183,10 @@ function getFarmMarketHouseholdAudit(){
    !validScalar(p.provisions.amount,.001,1e5)||
    !validScalar(p.provisions.time,0,s.t)))))
   throw Error('Save contains invalid household errands');
-\`;
+`;
  change(" if(!Array.isArray(q.stories)||q.stories.length>6||!q.stories.every(e=>e&&Number.isInteger(e.day)&&e.day>0&&validText(e.text,240)))throw Error('Save contains invalid chronicles');",
  " if(!Array.isArray(q.stories)||q.stories.length>6||!q.stories.every(e=>e&&Number.isInteger(e.day)&&e.day>0&&validText(e.text,240)))throw Error('Save contains invalid chronicles');\n"+validation,'save payload validation');
- const meshes=String.raw\`/* W125: reserved market stock, authentic carried baskets and earned home
+ const meshes=String.raw`/* W125: reserved market stock, authentic carried baskets and earned home
  * meals have physical representations at their REAL world coordinates. */
 function renderMarketHouseholdEvidence(){
  const lot=(state.marketLots||[]).find(row=>row.remaining>=.85);
@@ -220,7 +220,7 @@ function renderMarketHouseholdEvidence(){
   }
  }
 }
-\`;
+`;
  change('function renderDeliveryReceipts(){',meshes+'function renderDeliveryReceipts(){','earned world geometry');
  change('renderDeliveryReceipts();\nrenderMarketHandoffs();',
   'renderDeliveryReceipts();\nrenderMarketHouseholdEvidence();\nrenderMarketHandoffs();','render world evidence');
@@ -231,7 +231,7 @@ function renderMarketHouseholdEvidence(){
   '  latestReceipt:latest?{id:latest.id,citizen:latest.citizen,\n    resource:latest.resource,amount:latest.amount,time:latest.time,\n    creditedAtUnloading:latest.creditedAtUnloading===true}:null,\n  household:getFarmMarketHouseholdAudit(),\n  homeTime:',
   'observed household ledger');
  change(" const labels=[['supply-field',field],['supply-cargo',carried],\n  ['supply-receipt',received],['supply-home',shelter]];",
- \` const trade=flow.household.latestTrade,meal=flow.household.latestMeal;
+ ` const trade=flow.household.latestTrade,meal=flow.household.latestMeal;
  const exchanged=trade?'Day '+(Math.floor(trade.time/24)+1)+': '+
   trade.citizen+' collected '+trade.amount.toFixed(1)+' food from '+trade.merchant:
   'No provisions issued';
@@ -240,7 +240,7 @@ function renderMarketHouseholdEvidence(){
   ' → '+Math.floor(meal.hungerAfter):'No meal verified';
  const labels=[['supply-field',field],['supply-cargo',carried],
   ['supply-receipt',received],['supply-trade',exchanged],
-  ['supply-meal',eaten],['supply-home',shelter]];\`,'concise genuine UI labels');
+  ['supply-meal',eaten],['supply-home',shelter]];`,'concise genuine UI labels');
  for(const token of ['/* W125 ECONOMY BEGIN */','renderMarketHouseholdEvidence();',
   'getFarmMarketHouseholdAudit:()=>cloneData(getFarmMarketHouseholdAudit())',
   'deliveryReceipts:cloneData(deliveryReceipts)','...q.deliveryReceipts',
