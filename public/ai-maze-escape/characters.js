@@ -113,12 +113,20 @@ function rig(name, { balanced = false } = {}) {
   // vertex arrays: Three automatically reuploads these SAME buffers on the
   // next actual public appearance. Never evict geometry still used by Pip or
   // another live rig, and never suspend a group that is still attached.
-  function suspendGpuBuffers() {
+  function suspendGpuBuffers(protectedGeometries = null) {
     if (disposed || group.parent) return false;
-    for (const g of geometries) g.dispose();
+    // A cached CPU primitive is not proof another rig still RENDERS its GPU
+    // shape: Pip's rigid-batched meshes often replace those input primitives.
+    // After withdrawal, protect only geometry actually used by live public
+    // meshes, preserving active Pip or any other currently disclosed Warden.
+    for (const g of geometries) {
+      if (!protectedGeometries?.has(g)) g.dispose();
+    }
     for (const key of sharedKeys) {
       const entry = sharedRigPrimitives.get(key);
-      if (entry?.refs === 1) entry.shape.dispose();
+      if (entry && (protectedGeometries
+        ? !protectedGeometries.has(entry.shape) : entry.refs === 1))
+        entry.shape.dispose();
     }
     return true;
   }

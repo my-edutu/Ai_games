@@ -227,7 +227,15 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // Pass200: an off-stage model must not hold 50+ old GPU geometry
       // registrations across six autonomous resets. Retain CPU animation
       // pivots and immutable buffers; on redisclosure, WebGL reuploads them.
-      entry.model.suspendGpuBuffers();
+      // A shared CPU-cache reference can survive Pip's rigid mesh batching
+      // even when no living mesh uses the old primitive. Releasing that
+      // guardian-only GPU registration requires actual live scene ownership.
+      const liveGeometries = new Set();
+      scene.traverseVisible(object => {
+        if (object.geometry && (object.isMesh || object.isLine))
+          liveGeometries.add(object.geometry);
+      });
+      entry.model.suspendGpuBuffers(liveGeometries);
       idleWardens.push(entry);
     } else entry.model.dispose();
   };

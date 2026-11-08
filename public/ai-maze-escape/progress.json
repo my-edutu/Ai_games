@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-07T22:51:00Z",
+  "updatedAt": "2026-11-08T00:13:00Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass200 2026-11-07: exact Pass199 commit ed23ce69 source-bound Chromium six-run resource test FAILED at 37,37,42,42,98,98 registered geometries (spread 61 versus unchanged <=8; all <100). Each start referenced only 37 visible scene geometries and one Pip; retained dormant witnessed Thornback GPU registrations are a supported root-cause candidate. Production correction now releases detached guardian GPU registrations while preserving original CPU rig and shared Pip buffers; new installed-Three ownership regression. Exact-new-HEAD WebGL/CI not yet verified. No native screenshot or independent Nintendo-level quality win, no merge/deploy/force."
+    "summary": "Pass201 2026-11-08: Pass200 exact WebGL six-run geometry 37,37,42,42,46,46 spread 9 FAILS fixed <=8, all <100 and stable 37 currently visible referenced shapes. Source candidate protects only actually live scene geometry on guardian withdrawal, rather than stale Pip CPU-cache refs from rigid batching. Full/balanced installed-Three ownership test strengthened. New-HEAD CI/WebGL screenshot and independent Nintendo comparison PENDING; whole CI separately fails missing tiny:stream:self-test. Open draft PR only; never merge/deploy/force."
   },
   "captures": [
     {

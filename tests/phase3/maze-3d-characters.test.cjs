@@ -79,13 +79,18 @@ test('dormant public Thornback releases its WebGL registrations but preserves CP
     const releases = new Map([...wardenGeometry].map(g => [g, 0]));
     for (const g of wardenGeometry) g.addEventListener('dispose', () => releases.set(g, releases.get(g) + 1));
     const stage = new Scene();
-    stage.add(warden.group);
+    stage.add(pip.group, warden.group);
     assert.equal(warden.suspendGpuBuffers(), false, 'never release an attached public enemy');
     assert.ok([...releases.values()].every(count => count === 0));
     stage.remove(warden.group);
-    assert.equal(warden.suspendGpuBuffers(), true, 'detached witnessed enemy releases GPU registrations');
-    assert.ok(privateShapes.some(g => releases.get(g) === 1),
-      'owned rigid geometry can no longer inflate the renderer after withdrawal');
+    const liveGeometries = new Set();
+    stage.traverseVisible(object => {if (object.geometry) liveGeometries.add(object.geometry);});
+    assert.deepEqual(liveGeometries, pipGeometry,
+      'the protected GPU shape set covers actual active Pip meshes, not idle CPU cache refs');
+    assert.equal(warden.suspendGpuBuffers(liveGeometries), true,
+      'detached witnessed enemy releases GPU registrations not used by live Pip');
+    assert.ok(privateShapes.every(g => releases.get(g) === 1),
+      'ALL Thornback-only render geometries release, even with surviving CPU-only cache owners');
     assert.ok(sharedShapes.every(g => releases.get(g) === 0),
       'Pip-shared resources must not be evicted during guardian withdrawal');
     warden.reset();
