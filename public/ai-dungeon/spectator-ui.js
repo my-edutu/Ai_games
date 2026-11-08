@@ -158,7 +158,8 @@ export function installSpectatorUI(doc=document){
  sync();
  return {render(s){
   if(!s)return;
-  const loading=$('loading-state');if(loading)loading.hidden=true;
+  // Loading ends only after both public-state delivery and a real rendered frame.
+  // The existing boot watchdog owns that joint readiness check.
   const terminal=s.phase==='intermission';$('run-result').hidden=!terminal;
   if(terminal){
    $('result-summary').textContent='Depth '+s.floor+' · '+s.kills+' enemies defeated · '+s.gold+' gold';
