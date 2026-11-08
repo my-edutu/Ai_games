@@ -1693,6 +1693,22 @@ export function createMazeWorld(options = {}) {
     const p = new THREE.Group(); p.name = door.open ? 'Disclosed open gate' : 'Disclosed sealed gate';
     const disclosedEnds = [door.a, door.b].filter(cell => s.cells.some(c => c.cell === cell));
     p.position.set((a.x + b.x) / 2, Math.max(...disclosedEnds.map(cell => cellHeight(cell, s.width, s.height))), (a.z + b.z) / 2); p.rotation.y = a.x === b.x ? 0 : Math.PI / 2; objects.add(p);
+    // The previously verified native portrait pressure shot had a much larger
+    // CLOSED gate ornament competing with the actual publicly disclosed jaws.
+    // Carve negative space out of ONLY the gate's external decorative wings
+    // when both gate endpoints and a nearby trap are ALREADY public. The
+    // actual crossed grille, lock, jambs, lintel and collision stay intact:
+    // this must never depict a passable gate or announce a secret hazard.
+    // Match the same two-cell disclosed pressure court as terrain cutaways.
+    // Do not depend on momentary visibility: object rebuilding is keyed to
+    // public discoveries, not each moving visibility frame.
+    const disclosedGateEnds=[door.a,door.b].every(id =>
+      s.cells.some(c=>c.cell===id && c.blocked!==true));
+    const pressureCourtGate=disclosedGateEnds && s.cells.some(c=>
+      c.trap===true && c.blocked!==true
+      && [door.a,door.b].some(end=>
+        Math.abs(c.cell%s.width-end%s.width)
+        +Math.abs(Math.floor(c.cell/s.width)-Math.floor(end/s.width))<=2));
     // Native 1280 opening evidence showed the full-height foreground gate
     // pier competing with Pip even after the lintel was slimmed. Reduce the
     // TRUE stone silhouette in both cardinal gate orientations, while keeping
@@ -1758,6 +1774,10 @@ export function createMazeWorld(options = {}) {
       const wing = new THREE.Group();
       wing.name = 'Disclosed gate folding tide-wing ' + side;
       wing.position.set(side * 1.11, 1.05, .38);
+      // A substantial REAL geometric silhouette cutaway, not transparency,
+      // a screenshot crop or an invented gate opening. The pivot remains on
+      // the actual outside stile; the same compact form opens with the grille.
+      if (pressureCourtGate) wing.scale.set(.62,.68,.85);
       drive.add(wing);
       mesh(wing, bevel, darkJade, side * .24, 0, .03, .57, 1.25, .095);
       mesh(wing, bevel, seaGlass, side * .24, 0, .12, .48, 1.12, .14);
