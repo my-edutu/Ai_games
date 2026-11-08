@@ -36,7 +36,7 @@ test('true displacement drives torso/pelvis/shoulders and native knees with boun
   assert.ok(planRigLegGesture(Math.PI/2,1).right.lower>.05);
  }
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
- assert.match(model,/stageRigGroundedStride\(actor,reducedMotion\);[\s\S]*stageRigPelvisAfterMixer\(actor\)/);
+ assert.match(model,/stageRigGroundedStride\(actor,reducedMotion,dt\);[\s\S]*stageRigPelvisAfterMixer\(actor\)/);
  assert.match(model,/rigFullBodyStridePeakRad:/);
  assert.doesNotMatch(source,/Math\.random|performance\.now|DungeonRuntime|fetch\(/);
 });
