@@ -1198,7 +1198,7 @@ function animate(t){
   encounterFrame?[4.75+margin*.5,7.65+margin*.85,5.25+margin*.58]:
   [5.45+margin*.57,9.05+margin,6.2+margin*.68];
  const boss=state?.units.find(u=>u.kind==='warden'&&u.hp>0),bossDistance=boss&&state?.units.some(u=>u.faction==='party'&&u.hp>0&&Math.abs(u.x-boss.x)+Math.abs(u.z-boss.z)<=5);
- const shot=encounterTarget(target,boss,state?.map.length??19,Boolean(bossDistance&&cameraType==='cinematic'));
+ const shot=encounterTarget(target,boss,state?.map.length??19,Boolean(bossDistance&&cameraType==='cinematic'&&autoDirector));
  const look=new THREE.Vector3(shot.x,0,shot.z);
  // Frame the actual encounter midpoint, not a fabricated nine-tile offset that pushes the boss and heroes offscreen.
  // encounterTarget already converted the boss grid coordinates to world space.
