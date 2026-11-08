@@ -106,3 +106,20 @@ Cherry-pick/review this branch as an independent animation candidate after CI an
 **Execution evidence:** At exact candidate-source inspection, 13 standalone controller/integration logical checks passed and five changed JavaScript files passed syntax checks. **These are not running-game or source-GLB deformation proofs.** The branch-scoped dedicated native-rig, video, strict-assets and organic desktop/mobile actions were queued/pending at last inspection. The connected local coding/browser tunnel reported `Tunnel-client has not been seen for 300 seconds`; this session cannot claim inspected new-head actual animation videos or blind critic acceptance. The global transformation ledger remains under the PR #49 Gauntlet owner; this independent session does not mark it passed or reset the frozen baseline.
 
 **Remaining:** exact-head test results; confirm no pre-contact illusion; GLB deformation/weapon grip/foot penetration in true moving footage; check no new animation stalls at low FPS; combine with Session 02 cast; compare the full original five-stage desktop/mobile journey against frozen baseline; require independent majority preference in LOOKS, FEELS and PLAYS. Preserve this PR draft and avoid main deployment/merge until independently verified.
+
+## Session 03 — live source-skeleton deformation gate
+
+The next measurable risk is whether imported skinned limbs remain anatomically connected **in the actual moving dungeon**, not merely whether animation functions return nonzero angles. This matters before Session 02 supplies new character assets.
+
+**Implemented in this isolated draft:**
+
+- `native-rig-deformation-plan.js` adds pure finite-length and quaternion/matrix contracts for actual source forearm/hand and thigh/calf/ankle chains, distinguishing detached hierarchies and limb stretch from legal whole-body movement.
+- The `model-assets.js` adapter samples only SkeletonUtils-cloned source bones already selected by the rig contract. It caps inspection at 12 source actors and 128 bones per actor, records at most eight linked limb segments per actor, and stores a per-clone reference pose in a WeakMap. No joint/mesh/authority transforms are changed by the audit.
+- The renderer exposes explicit read-only `window.__DUNGEON_SOURCE_RIG_DEFORMATION__()`; the audit is **on demand**, not a per-frame animation or GPU expense.
+- Foundation tests check intact original chains, rigid movement invariance, deliberately disconnected limbs, physical segment stretch, malformed quaternions/matrices and invalid numerical input.
+- Genuine-authority WebGL walking and sword tests now compare before/after ORIGINAL source-bone measurements. The organic desktop/390px five-stage tests audit the actual entry, ordinary combat, Warden, floor, defeat and restart frames. Evidence goes into existing exact-source screenshots/JSON/recording artifacts.
+- Dedicated Session 3 GitHub Actions and the foundation npm suite include the new tests.
+
+**Verification level:** Eight isolated pure-contract logic checks and JavaScript syntax validation of seven changed files passed. These are not real GLB deformation passes. GitHub Actions and real moving-game captures were still queued/uninspected when this update was written; the local coding/browser tunnel was disconnected. Do NOT assert delivered audiovisual proof, world-space sole locking, weapon contact quality, improved animation fidelity or finished Gauntlet.
+
+**Required next:** inspect exact-head 1440px and 390px WebM, check source weapon-hand and foot-to-stone continuity, repeat real Warden strike/recovery/defeat from multiple directions, reject visible mesh/skin distortion, verify interruption after reconnect/restart, then compare with permanently pinned baseline and request independent LOOK and FEEL reviews. Global LOOK/FEEL/PLAY is owned by PR #49 and remains unverified.
