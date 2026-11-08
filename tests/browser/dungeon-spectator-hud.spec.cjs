@@ -79,3 +79,31 @@ test('a genuinely advancing stream generates an unmodified 390px running-game ca
  await expect(page.locator('#spectator-quickbar button')).toHaveCount(3);
  await page.screenshot({path:'artifacts/dungeon-spectator-mobile-live.png',fullPage:true});
 });
+
+test('real Warden warning stays visible on 390px even when ordinary objective is suppressed',async({page})=>{
+ const game=DungeonRuntime.create('warden-counterwindow-browser-M1'),s=game.state;
+ const boss=s.units.find(u=>u.kind==='warden'),hero=s.units.find(u=>u.id==='vanguard');
+ expect(boss).toBeTruthy();expect(hero).toBeTruthy();
+ // Controlled setup; the snapshot is still computed by the real DungeonRuntime,
+ // not a fabricated UI state or fake attack message.
+ for(const u of s.units)if(u.faction==='enemy'&&u!==boss||u.faction==='party'&&u!==hero)u.hp=0;
+ hero.x=boss.x+1;hero.z=boss.z;s.tick=5;
+ expect(s.map[hero.z][hero.x]).toBe('.');
+ const snapshot=game.publicState();
+ expect(snapshot.bossWarning?.cells.length).toBeGreaterThan(0);
+ await page.setViewportSize({width:390,height:844});
+ await page.route('**/dungeon/state',route=>route.fulfill({json:snapshot}));
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick??0),{timeout:30000}).toBe(5);
+ await expect(page.locator('body')).toHaveAttribute('data-warden-focus','true');
+ await expect(page.locator('.arena-lower')).toBeHidden();
+ await expect(page.locator('#danger-readout')).toBeVisible();
+ await expect(page.locator('#danger-title')).toHaveText('WARDEN WARNING');
+ await expect(page.locator('#danger-detail')).toContainText('impact in 1 turn');
+ const stage=await page.locator('.arena').boundingBox();
+ const notice=await page.locator('#danger-readout').boundingBox();
+ expect(notice.y).toBeGreaterThan(stage.y+150);
+ expect(notice.x+notice.width).toBeLessThanOrEqual(stage.x+stage.width);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+ await page.screenshot({path:'artifacts/dungeon-spectator-warden-mobile-real.png',fullPage:true});
+});
