@@ -976,6 +976,21 @@ body[data-command="world"][data-supply="open"] #world-supply-trail:not([hidden])
  body[data-command="world"] #world-watch-life{min-height:44px!important}
  body[data-street="on"][data-command="world"] #street-walk-controls .street-keys button{min-width:44px!important}
 }
+/* W143: accessible, non-reenacted real meal household witness. */
+#world-trace-home[hidden]{display:none!important}
+#world-trace-home{grid-column:2/-1;min-height:40px;border:1px solid #d7b985;
+ border-radius:9px;background:#264f43;color:#fff0cb;padding:7px 10px;
+ font:700 11px/1.3 system-ui;cursor:pointer}
+#world-trace-home:focus-visible{outline:3px solid #f1d59a;outline-offset:3px}
+#world-trace-home[aria-pressed="true"]{background:#d7b985;color:#17352a}
+body[data-workday="household"] #workday-activity{
+ display:block;bottom:107px;max-width:min(90vw,620px);white-space:normal}
+@media(max-width:520px){
+ #world-trace-home{grid-column:1/-1;min-height:44px}
+ body[data-workday="household"] #workday-activity{
+  bottom:104px;max-width:calc(100vw - 20px);
+  font-size:11px;line-height:1.4;padding:7px 9px}
+}
 </style></head><body>
 <canvas id="world" tabindex="0" aria-label="Live 3D medieval valley. Tap a visible villager to follow genuine work. Drag to orbit, Shift-drag or two-finger drag to pan, pinch or scroll to zoom. Home returns to village, F follows a citizen, V walks the streets; Enter selects a visible citizen."></canvas><div id="citizen-pick-caption" role="status" aria-live="polite" aria-atomic="true"><span id="citizen-pick-copy"></span><progress id="citizen-pick-meter" value="0" max="100" aria-label="Observed citizen's actual shift or delivery progress" hidden></progress></div><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
@@ -1012,6 +1027,8 @@ body[data-command="world"][data-supply="open"] #world-supply-trail:not([hidden])
   <div class="supply-stage"><small>Resident meal</small><output id="supply-meal">No traced household meal</output></div>
   <div class="supply-stage"><small>Households</small><output id="supply-home">Waiting for residents</output></div>
   <button id="world-trace-follow" type="button" aria-label="Follow a real producer or loaded courier">Follow real work</button>
+  <button id="world-trace-home" type="button" aria-pressed="false"
+   aria-label="Inspect the real cottage of this verified household meal" hidden>Inspect recorded meal home</button>
  </div>
  <button id="world-open-command" type="button" aria-label="Open complete kingdom command interface">▤ Command desk</button>
 </section>
@@ -17823,6 +17840,16 @@ function getFreeCameraCollisionAudit(){
 }
 function applyPlayerCamera(a,t,z){
  freeCameraReturn=null;
+ if(follow&&grainJourney?.homeWitness){
+  const home=getRealGrainHomeWitness();
+  if(home){
+   const v=safeFreeOrbit(a,t,z,[home.x,home.z]);if(!v)return false;
+   yaw=v.yaw;pitch=v.pitch;zoom=v.zoom;
+   grainJourney.homeLens={yaw,pitch,zoom,citySize:city.length,
+    viewportWidth:canvas.clientWidth,viewportHeight:canvas.clientHeight};
+   presentationEpoch++;return true;
+  }
+ }
  if(follow){
   const v=constrainSelectedCitizenOrbit(a,clampPlayerCamera(t,.18,1.24),
    clampPlayerCamera(z,4.5,13.5));
@@ -18334,6 +18361,12 @@ function updateSupplyTrail(force=false){
   const node=document.getElementById(id);
   if(node.textContent!==value)node.textContent=value;
  }
+ const actualHome=grainJourney?getRealGrainHomeWitness():null;
+ const homeAction=document.getElementById('world-trace-home');
+ homeAction.hidden=!actualHome;homeAction.disabled=!actualHome;
+ homeAction.setAttribute('aria-pressed',String(Boolean(actualHome&&grainJourney?.homeWitness)));
+ homeAction.textContent=grainJourney?.homeWitness?
+  'Follow real resident':'Inspect recorded meal home';
  const action=document.getElementById('world-trace-follow');
  action.textContent=grainJourney?'Stop tracking this grain':
   flow.farmer||cargo?.resource==='food'?'Track real grain journey':
@@ -18438,11 +18471,63 @@ function planRealGrainJourney(trace,citizens,receipts,trades,meals){
  return result(farmer?.activity==='Harvesting grain'?'harvesting':'awaiting-harvest',
   trace.producer);
 }
+// W143: this is a physical witness to a historic ORIGINAL meal, not a staged event.
+function planRealGrainHomeWitness(plan,citizens,homes){
+ if(!plan||plan.stage!=='consumed'||!plan.hasVerifiedMeal||
+    !Number.isInteger(plan.homeIndex)||plan.homeIndex<0||
+    !Array.isArray(homes)||plan.homeIndex>=homes.length||
+    typeof plan.consumer!=='string')return null;
+ const lot=homes[plan.homeIndex],resident=Array.isArray(citizens)?
+  citizens.find(p=>p&&p.name===plan.consumer):null;
+ if(!Array.isArray(lot)||lot.length<2||
+    !Number.isFinite(lot[0])||!Number.isFinite(lot[1])||
+    !resident||!Number.isFinite(resident.x)||
+    !Number.isFinite(resident.z))return null;
+ const atHome=resident.activity==='Resting at home'&&
+  Math.hypot(resident.x-lot[0],resident.z-lot[1])<=4.5;
+ return {homeIndex:plan.homeIndex,x:lot[0],z:lot[1],resident:resident.name,
+  atHome,mealId:plan.mealId,source:'verified-original-home-record-not-a-reenactment'};
+}
+function getRealGrainHomeWitness(){
+ if(!grainJourney)return null;
+ const plan=planRealGrainJourney(grainJourney,people,deliveryReceipts,
+  state.householdTrades||[],state.householdMeals||[]);
+ return planRealGrainHomeWitness(plan,people,city);
+}
+function chooseRealGrainHomeLens(home){
+ if(!home)return null;
+ const shot=safeFreeOrbit(yaw,.76,11.5,[home.x,home.z]);
+ if(!shot||!Array.isArray(shot.focus)||
+    Math.hypot(shot.focus[0]-home.x,shot.focus[1]-home.z)>.05)return null;
+ return {yaw:shot.yaw,pitch:shot.pitch,zoom:shot.zoom,
+  citySize:city.length,viewportWidth:canvas.clientWidth,
+  viewportHeight:canvas.clientHeight};
+}
+function toggleRealGrainHomeWitness(){
+ if(!grainJourney)return false;
+ const home=getRealGrainHomeWitness();
+ if(!home)return false;
+ if(grainJourney.homeWitness){
+  grainJourney.homeWitness=false;grainJourney.homeLens=null;
+ }else{
+  const lens=chooseRealGrainHomeLens(home);
+  if(!lens){showToast('Recorded cottage has no safe visible camera angle');return false;}
+  grainJourney.homeWitness=true;grainJourney.homeLens=lens;
+ }
+ lastFollowShot=null;liveShotPlanCache=null;
+ updateSupplyTrail(true);
+ return grainJourney.homeWitness;
+}
 function getRealGrainJourneyAudit(){
  if(!grainJourney)return {active:false,source:'real-grain-provenance-only'};
  const plan=planRealGrainJourney(grainJourney,people,deliveryReceipts,
   state.householdTrades||[],state.householdMeals||[]);
+ const home=planRealGrainHomeWitness(plan,people,city);
  return {active:true,source:'real-grain-provenance-only',
+  realMealHomeIndex:home?.homeIndex??null,
+  residentPhysicallyHome:home?.atHome??null,
+  homeCameraActive:Boolean(home&&grainJourney.homeWitness),
+  historicalMealNotReenacted:true,
   producer:grainJourney.producer,deliveryId:grainJourney.deliveryId,
   lockedTradeId:grainJourney.tradeId||null,
   verifiedTrade:Boolean(plan?.hasVerifiedTrade),
@@ -18478,7 +18563,8 @@ function watchRealGrainJourney(){
  if(liveWorkday||document.body.dataset.workday!=='off')stopWorkdayWatch();
  selectedCitizen=people.indexOf(p);
  grainJourney={producer:p.name,deliveryId:p.delivery?.resource==='food'?
-    p.delivery.id:null,tradeId:null,stage:'starting',stagesSeen:[],subjectChanges:0};
+    p.delivery.id:null,tradeId:null,stage:'starting',stagesSeen:[],subjectChanges:0,
+    homeWitness:false,homeLens:null};
  document.body.dataset.workday='live';
  if(!follow)setCitizenFollow(true);
  updateFollowCamera(builderStageAngle(p));
@@ -18501,6 +18587,24 @@ function advanceRealGrainJourney(){
   if(!grainJourney.stagesSeen.includes(plan.stage))
    grainJourney.stagesSeen.push(plan.stage);
   if(grainJourney.stagesSeen.length>8)grainJourney.stagesSeen.shift();
+ }
+ // A verified recorded meal can reveal only its ACTUAL physical cottage.
+ const realHome=planRealGrainHomeWitness(plan,people,city);
+ if(!realHome&&grainJourney.homeWitness){
+  grainJourney.homeWitness=false;grainJourney.homeLens=null;
+ }
+ if(realHome&&changed&&plan.stage==='consumed'){
+  const lens=chooseRealGrainHomeLens(realHome);
+  if(lens){grainJourney.homeWitness=true;grainJourney.homeLens=lens;
+   lastFollowShot=null;liveShotPlanCache=null;}
+ }
+ if(realHome&&grainJourney.homeWitness&&
+   (grainJourney.homeLens?.citySize!==city.length||
+    grainJourney.homeLens?.viewportWidth!==canvas.clientWidth||
+    grainJourney.homeLens?.viewportHeight!==canvas.clientHeight)){
+  const lens=chooseRealGrainHomeLens(realHome);
+  if(lens)grainJourney.homeLens=lens;
+  else{grainJourney.homeWitness=false;grainJourney.homeLens=null;}
  }
  // A change of observed actor is allowed only after a REAL authority-recorded
  // household trade/meal matching the exact delivered grain receipt.
@@ -18527,6 +18631,7 @@ function advanceRealGrainJourney(){
    consumed:'ate the verified market grain at their real home'
  }[plan.stage]||'observing the original village';
  const caption=plan.citizen+' · '+phrase+
+  (realHome?(realHome.atHome?' · resident is here now':' · historical event; resident has left'):'')+
   (plan.receiptId?' · parcel '+plan.receiptId:'');
  if(label.textContent!==caption)label.textContent=caption;
   label.dataset.storyStage=plan.stage.toUpperCase();
@@ -18656,6 +18761,7 @@ function getVillageDocumentaryAudit(){
   else watchVillageLife();
   updateSupplyTrail(true);
  });
+ button('world-trace-home',toggleRealGrainHomeWitness);
  button('world-open-command',()=>setCommandView('command','user'));
  button('camera-home',requestSettlementOverview);
  button('camera-near',()=>zoomPlayerCamera(.79));
@@ -19297,6 +19403,17 @@ function render(now){requestAnimationFrame(render);
   }
  }
  if(follow){
+ const home=grainJourney?.homeWitness?getRealGrainHomeWitness():null;
+ if(home&&grainJourney.homeLens){
+  const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ease=reduceMotion?1:cameraWallEase(wallDt,5.4);
+  focusPoint[0]+=(home.x-focusPoint[0])*ease;
+  focusPoint[1]+=(home.z-focusPoint[1])*ease;
+  const lens=grainJourney.homeLens;
+  yaw+=Math.atan2(Math.sin(lens.yaw-yaw),Math.cos(lens.yaw-yaw))*ease;
+  pitch+=(lens.pitch-pitch)*ease;zoom+=(lens.zoom-zoom)*ease;
+  lastFollowShot=null;
+ }else{
  const citizen=people[Math.min(selectedCitizen,people.length-1)];
  const observingAction=Boolean(grainJourney||liveWorkday||document.body.dataset.workday==='homecoming'||
   (document.body.dataset.workday==='delivery'&&
@@ -19370,6 +19487,7 @@ function render(now){requestAnimationFrame(render);
    }
   }else{yaw=nextYaw;pitch=nextPitch;zoom=nextZoom}
   lastFollowShot=plan;
+ }
  }
 }advanceDaybreakReturn();if(liveWorkday)updateLiveWorkdayUI();else if(document.body.dataset.workday==='homecoming')updateHomecomingUI();else if(!grainJourney)updateDeliveryHUD();advanceVillageDocumentary();if(cinematic)yaw+=wallDt*.05;progressCameraReturn(wallDt);const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(window.devicePixelRatio||1,1.6)*renderQuality().scale;if(canvas.width!==Math.floor(w*dpr)||canvas.height!==Math.floor(h*dpr)){canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);gl.viewport(0,0,canvas.width,canvas.height)}gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);drawAtmosphere(atmosphere);const frameStaticStart=performance.now();
 // Cache seasonal ground geometry: camera and citizens cannot change it.
