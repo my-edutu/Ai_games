@@ -27,6 +27,9 @@ if [[ "$NODE_MAJOR" -lt 22 ]]; then
 fi
 command -v npm >/dev/null
 command -v npx >/dev/null
+# Native PTS calibration needs both codecs even when a frozen baseline is filmed.
+command -v ffmpeg >/dev/null
+command -v ffprobe >/dev/null
 RUN_ID=$(date -u +%s)
 OUTPUT="$REPO/artifacts/tower-offline-$RUN_ID-${CANDIDATE:0:12}"
 if [[ -e "$OUTPUT" ]]; then echo "Output exists: $OUTPUT" >&2; exit 2; fi
@@ -53,6 +56,10 @@ HARNESS_FILES=(
   scripts/tower-crossfire-evidence.cjs
   scripts/tower-event-alignment.cjs
   scripts/tower-event-pairing.cjs
+  scripts/tower-video-timebase.cjs
+  scripts/tower-harness-dependency-check.cjs
+  tests/phase3/tower-video-timebase.test.cjs
+  tests/phase3/tower-harness-dependency-check.test.cjs
   scripts/tower-capture-window.cjs
   scripts/tower-fixed-step-trace.cjs
   scripts/tower-source-trace-poller.cjs
@@ -77,10 +84,20 @@ for source in baseline candidate; do
   if [[ -n "$(git -C "$DIR" diff --name-only -- games/infinite-tower-climb/src public/infinite-tower-climb/visuals scripts/serve-tower-stream.cjs)" ]]; then
     echo "$source gameplay or renderer differs from pinned checkout" >&2; exit 3
   fi
+  # Old frozen checkouts predate the current browser recorder's native-video
+  # clock module. Fail BEFORE npm install or a 70-second capture if any static
+  # relative dependency in the neutral evidence harness is absent. Only the
+  # allowed observational files were copied; game code stays source-authentic.
+  node "$DIR/scripts/tower-harness-dependency-check.cjs" "$DIR" \
+    tests/browser/tower-live-motion.spec.cjs scripts/tower-event-pairing.cjs \
+    > "$OUTPUT/$source-harness-dependencies.json" || {
+      echo "$source neutral capture harness has missing local imports; see $OUTPUT/$source-harness-dependencies.json" >&2
+      exit 3
+    }
   printf '%s\n' "$SHA" > "$OUTPUT/$source-source-sha.txt"
   printf '%s\n' "$ORIGIN_HOST" > "$OUTPUT/$source-original-host-blob.txt"
   echo "Installing/building the unmodified $source gameplay at $SHA"
-  INTEGRITY_TESTS=(tests/phase3/tower-motion-evidence.test.cjs tests/phase3/tower-event-alignment.test.cjs tests/phase3/tower-capture-window.test.cjs tests/phase3/tower-fixed-step-trace.test.cjs tests/phase3/tower-source-trace-poller.test.cjs)
+  INTEGRITY_TESTS=(tests/phase3/tower-motion-evidence.test.cjs tests/phase3/tower-event-alignment.test.cjs tests/phase3/tower-capture-window.test.cjs tests/phase3/tower-fixed-step-trace.test.cjs tests/phase3/tower-source-trace-poller.test.cjs tests/phase3/tower-video-timebase.test.cjs tests/phase3/tower-harness-dependency-check.test.cjs)
   if [[ "$source" == candidate ]]; then INTEGRITY_TESTS+=(tests/phase3/tower-campaign-audit.test.cjs); fi
   (cd "$DIR" && npm ci --no-audit --no-fund && npm run build &&
     node --test "${INTEGRITY_TESTS[@]}") \
