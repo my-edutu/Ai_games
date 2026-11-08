@@ -22,7 +22,9 @@ for(const name of ['tagWorkSkinRange','workSkinPoint','workSkinSegments',
 assert(html.includes('attribute float skinJoint;'));
 assert(html.includes('uniform mat4 workBone[13];'));
 assert(html.includes('uniform float workSkinActive;'));
-assert(html.includes('surfaceNormal=normalize(mat3(pose)*surfaceNormal);'));
+assert(html.includes('surfaceNormal=normalize(mat3(pose)*correctedNormal);'));
+assert(html.includes('pose[0].w-1.0'));
+assert(html.includes('pose[1].w,pose[2].w,pose[3].w'));
 assert(html.includes('gl.vertexAttribPointer(skinJointAttribute,1,gl.FLOAT,false,4,0)'));
 assert(html.includes('gl.disableVertexAttribArray(skinJointAttribute)'));
 assert(html.includes('gl.uniformMatrix4fv(uniforms.workBone,false,workSkinMatrices(entry,p))'));
