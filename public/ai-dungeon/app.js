@@ -1162,7 +1162,7 @@ function animate(t){
   oathguardImpactRing.scale.setScalar(.72+impactProgress*.63);
  }
  // Pose every live rig before sampling its skinned weapon hand for effects.
- if(physicalFeedback)physicalFeedback.advance(dt);
+ if(physicalFeedback)physicalFeedback.advance(dt,frameInterval);
  else combatDirector.animate(dt);
  soundstage?.advanceVisualFrame(dt);
  if(world.userData.portal&&!reduced)world.userData.portal.rotation.y=time*.26;

@@ -6,7 +6,7 @@
  * loss alone earns a small deterministic fracture. Does not touch animations,
  * camera, lights, damage, authority time, scene geometry, or renderer policies.
  */
-import {planMeasuredHandTrail} from './measured-weapon-trail.js';
+import {planMeasuredHandTrail,MEASURED_HAND_TRAIL_MAX_FRAME_SECONDS} from './measured-weapon-trail.js';
 export const PHYSICAL_FEEDBACK_POOL_LIMITS=Object.freeze({
  trail:8,hit:48,block:8,dust:12,signal:8,projectile:10,spell:8
 });
@@ -240,7 +240,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   }
   pose.updateMatrix();return pose.matrix;
  }
- function advance(frameSeconds){
+ function advance(frameSeconds,actualFrameSeconds=frameSeconds){
   if(disposed)return;
   const dt=clamp(frameSeconds,0,.05);
   for(const pool of pools.values()){
@@ -255,10 +255,21 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
      const hand=anchor(slot.cue,'trail');
      if(!hand){slot.lastHand=null;slot.measuredPath=null}
      else{
-      const segment=slot.lastHand?planMeasuredHandTrail(slot.lastHand,hand,dt):null;
+      // The game's normal one-shot animation dt is capped at 50ms, but its
+      // ACTUAL browser frame may have stalled for seconds. Never join two
+      // stale wrist samples just because their presentation clocks were capped.
+      const freshFrame=Number.isFinite(actualFrameSeconds)&&actualFrameSeconds>0&&
+       actualFrameSeconds<=MEASURED_HAND_TRAIL_MAX_FRAME_SECONDS;
+      const segment=freshFrame&&slot.lastHand?
+       planMeasuredHandTrail(slot.lastHand,hand,actualFrameSeconds):null;
       slot.lastHand={...hand};
-      if(segment){slot.measuredPath=segment;slot.lastMeasuredAge=slot.age;measuredTrailFrames++}
-      else{
+      if(!freshFrame){
+       // Suppress even the old ribbon after any stalled frame. The next fresh
+       // frame starts from this new actual pose, not from before the stall.
+       slot.measuredPath=null;slot.lastMeasuredAge=-Infinity;unmeasuredTrailFrames++;
+      }else if(segment){
+       slot.measuredPath=segment;slot.lastMeasuredAge=slot.age;measuredTrailFrames++;
+      }else{
        unmeasuredTrailFrames++;
        if(slot.age-slot.lastMeasuredAge>.055)slot.measuredPath=null;
       }

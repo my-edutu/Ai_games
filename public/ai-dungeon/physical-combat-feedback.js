@@ -135,12 +135,12 @@ export function createPhysicalCombatFeedback({
   }
   popDue(0);return cues.length;
  }
- function advance(frameSeconds){
+ function advance(frameSeconds,actualFrameSeconds=frameSeconds){
   if(disposed)return 0;
   const dt=clamp(frameSeconds,0,.05);
   renderedSeconds+=dt;
   const before=pending.length;
-  popDue(dt);safeCall(()=>visuals?.advance?.(dt));safeCall(()=>foley?.cleanup?.());
+  popDue(dt);safeCall(()=>visuals?.advance?.(dt,actualFrameSeconds));safeCall(()=>foley?.cleanup?.());
   return Math.max(0,before-pending.length);
  }
  function attachAudioContext(context,{output=null}={}){
