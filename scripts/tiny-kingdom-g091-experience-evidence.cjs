@@ -11,6 +11,7 @@ const fs=require('node:fs'),path=require('node:path');
 const cp=require('node:child_process');
 const assert=require('node:assert/strict');
 const {chromium}=require('playwright');
+const {assessWorldComparability}=require('./tiny-kingdom-gauntlet-comparability.cjs');
 
 const BASE='2f6deb43feb1a1557848d44def53a6109deb1ab1';
 const DIR=path.resolve('artifacts/tiny-kingdom-experience');
@@ -887,30 +888,8 @@ async function streetMotion(browser,html,snapshot){
    'G149 matched night market view must use identical hour and seed');
   assert.equal(c.result.overnight.simulatedHour,b.result.overnight.simulatedHour,
    '04:00 occupied-home A/B must use identical real simulation time');
-  // W126: a seed, camera and hour are insufficient for a matched-world review.
-  // The original and transformed game may run different authoritative jobs.
-  // Record the actual exported-state checksums without normalizing divergences.
-  const matchedPhases=['day1','marketDay1','labor','day120',
-   'marketDay120','marketNight','night','overnight','mobile','marketMobile'];
-  const framePairs=Object.fromEntries(matchedPhases.map(name=>{
-   const old=b.result[name],now=c.result[name];
-   const originalChecksum=old?.snapshotChecksum||null;
-   const candidateChecksum=now?.snapshotChecksum||null;
-   return [name,{
-    sameSimulationHour:Boolean(Number.isFinite(old?.simulatedHour)&&
-     old.simulatedHour===now?.simulatedHour),
-    originalChecksum,candidateChecksum,
-    authorityChecksumEqual:Boolean(originalChecksum&&candidateChecksum&&
-     originalChecksum===candidateChecksum)
-   }];
-  }));
-  evidence.comparability={
-   source:'real-exportSnapshot-checksum',
-   strictWorldStatePairProven:matchedPhases.every(name=>
-    framePairs[name].sameSimulationHour&&framePairs[name].authorityChecksumEqual),
-   frames:framePairs,
-   limitation:'Aligned seed and clock do not prove equivalent citizens, inventories, work or growth.'
-  };
+  // Compare the REAL staged snapshot checksums, not merely the camera/time.
+  evidence.comparability=assessWorldComparability(b.result,c.result);
   // Real, unedited matched-hour gameplay. Recreate read-only staged snapshots
   // inside newly recording contexts; no clock stepping during footage.
   const cSnapshot=await regenerateSnapshot(browser,candidate,c.ticks);
