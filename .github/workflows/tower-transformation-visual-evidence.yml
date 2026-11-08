@@ -203,6 +203,7 @@ jobs:
         working-directory: source
         run: npx playwright install --with-deps chromium
       - name: Pin provenance and capture full-motion authentic desktop and phone play
+        id: pin_source
         working-directory: source
         run: |
           mkdir -p artifacts/tower-motion
@@ -211,25 +212,69 @@ jobs:
           git hash-object scripts/serve-tower-stream.cjs > artifacts/tower-motion/source-game-host-blob.txt
           echo "TOWER_CAPTURE_SOURCE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
           echo "${{ github.sha }}" > artifacts/tower-motion/evidence-harness-sha.txt
-      # Playwright's webServer is scoped to ONE invocation. A single two-test
-      # invocation reused the live 20Hz host for portrait after desktop had
-      # advanced 60-180s, so portrait started on floor 10 instead of the
-      # requested guardian floor 8. Separate invocations guarantee fresh,
-      # independently seeded ORIGINAL-source hosts for each native viewport.
-      # Do not speed up, rewind, splice, or replace either game's source.
+      # Both independent original 20Hz source hosts MUST be attempted even if
+      # desktop recording fails. Otherwise the CI artifact cannot diagnose
+      # whether phone footage is independently valid. Continue-on-error is ONLY
+      # a collection mechanism: the final gate uses step OUTCOME, not
+      # conclusion (which is masked by continue-on-error), and vetoes the job.
+      # Never reuse one server between viewports or alter original source time.
       - name: Record desktop 960x600 on a fresh original-source 20Hz host
+        id: record_desktop
+        if: always() && steps.pin_source.outcome == 'success'
+        continue-on-error: true
         working-directory: source
         run: npx playwright test --config=playwright.tower.config.cjs tests/browser/tower-live-motion.spec.cjs --grep 'normal-speed Tower motion desktop'
+      - name: Retain desktop test failure diagnostics before Playwright clears them
+        if: always() && steps.pin_source.outcome == 'success'
+        working-directory: source
+        run: |
+          if [ -d test-results ]; then
+            mkdir -p artifacts/tower-motion/test-results-desktop
+            cp -a test-results/. artifacts/tower-motion/test-results-desktop/
+          fi
       - name: Record portrait 390x844 on another fresh original-source 20Hz host
+        id: record_portrait
+        if: always() && steps.pin_source.outcome == 'success'
+        continue-on-error: true
         working-directory: source
         run: npx playwright test --config=playwright.tower.config.cjs tests/browser/tower-live-motion.spec.cjs --grep 'normal-speed Tower motion portrait'
+      - name: Retain portrait test failure diagnostics separately
+        if: always() && steps.pin_source.outcome == 'success'
+        working-directory: source
+        run: |
+          if [ -d test-results ]; then
+            mkdir -p artifacts/tower-motion/test-results-portrait
+            cp -a test-results/. artifacts/tower-motion/test-results-portrait/
+          fi
       - name: Audit ACTUAL native WebM dimensions, decoded PTS span and source sidecars
+        id: audit_original_webm
+        if: always() && steps.pin_source.outcome == 'success'
+        continue-on-error: true
         working-directory: source
         run: |
           node scripts/tower-native-film-integrity.cjs \
             "artifacts/tower-motion/${{ matrix.scenario }}" \
             "$TOWER_CAPTURE_SOURCE_SHA" "${{ matrix.scenario }}" \
             > "artifacts/tower-motion/${{ matrix.scenario }}/native-film-integrity.json"
+      - name: Preserve both viewport outcomes and veto failed capture
+        if: always() && steps.pin_source.outcome == 'success'
+        working-directory: source
+        shell: bash
+        env:
+          DESKTOP_OUTCOME: ${{ steps.record_desktop.outcome }}
+          PORTRAIT_OUTCOME: ${{ steps.record_portrait.outcome }}
+          WEBM_OUTCOME: ${{ steps.audit_original_webm.outcome }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/tower-motion
+          printf 'desktop=%s\nportrait=%s\nnative-webm-integrity=%s\n' \
+            "$DESKTOP_OUTCOME" "$PORTRAIT_OUTCOME" "$WEBM_OUTCOME" \
+            > artifacts/tower-motion/capture-step-outcomes.txt
+          if [[ "$DESKTOP_OUTCOME" != success || "$PORTRAIT_OUTCOME" != success ||
+                "$WEBM_OUTCOME" != success ]]; then
+            echo 'Original-source capture incomplete. All available native clips, sidecars and per-viewport failure traces are retained; P0 remains NOT EVALUATED.' >&2
+            exit 1
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
