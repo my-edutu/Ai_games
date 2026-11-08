@@ -1,4 +1,5 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
+import {getEnvironmentMaterialRole,planEnvironmentLightPreset} from '/dungeon/environment-look-plan.js';
 import {addDungeonWindows} from '/dungeon/architecture.js';
 import {planStoneRelief} from '/dungeon/stone-relief-plan.js';
 import {planCutawayFloorBacking,planCutawayCapTransform} from '/dungeon/cutaway-floor-plan.js';
@@ -135,18 +136,26 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
   const depth=grout?40:grain,i=(y*256+x)*4;pix[i]=depth;pix[i+1]=depth;pix[i+2]=depth;pix[i+3]=255;
  }
  rc.putImageData(image,0,0);const reliefTex=new THREE.CanvasTexture(relief);reliefTex.wrapS=reliefTex.wrapT=THREE.RepeatWrapping;textures.push(reliefTex);
+ // Existing geometry remains intact. Every environment material opts into a
+ // named physical role also usable by the independently built architecture.
+ const surface=(role,params)=>{
+  const spec=getEnvironmentMaterialRole(role);
+  const mat=new THREE.MeshStandardMaterial({...params,roughness:spec.roughness,metalness:spec.metalness});
+  mat.userData.environmentMaterialRole=role;return mat;
+ };
  const cryptGrade=(floor-1)%4===0;
- const floorSurface=new THREE.MeshStandardMaterial({map:floorTex,bumpMap:reliefTex,bumpScale:.07,color:cryptGrade?'#f3e5d1':'#e4efff',roughness:.84,metalness:.11});
- const wallSurface=new THREE.MeshStandardMaterial({map:wallTex,bumpMap:reliefTex,bumpScale:.14,color:cryptGrade?'#f0e2cf':'#dcecff',roughness:.9,metalness:.07});
- const chrome=new THREE.MeshStandardMaterial({color:biome.edge,roughness:.38,metalness:.72});
- const brass=new THREE.MeshStandardMaterial({color:'#efbb76',roughness:.33,metalness:.68});
- const jade=new THREE.MeshStandardMaterial({color:biome.glow,emissive:biome.glow,emissiveIntensity:2.0,roughness:.20,metalness:.08});
- const moss=new THREE.MeshStandardMaterial({color:biome.foliage,roughness:1});
+ const floorSurface=surface('floorStone',{map:floorTex,bumpMap:reliefTex,bumpScale:.045,color:cryptGrade?'#f3e5d1':'#e4efff'});
+ const wallSurface=surface('masonry',{map:wallTex,bumpMap:reliefTex,bumpScale:.075,color:cryptGrade?'#f0e2cf':'#dcecff'});
+ const chrome=surface('agedMetal',{color:biome.edge});
+ const brass=surface('brass',{color:'#d0a879'});
+ const jade=surface('magicInset',{color:biome.glow,emissive:biome.glow,emissiveIntensity:getEnvironmentMaterialRole('magicInset').emissiveIntensity});
+ const moss=surface('dampStone',{color:biome.foliage,roughness:1});
+ const torchIntensity=planEnvironmentLightPreset(floor).torchIntensity;
  // Warm candlelight against cold enchanted stone creates shape and depth;
  // earlier genuine captures were 98% cyan/blue and read as monotonous.
  const warmPalette=['#ffb96b','#ff8749','#ffce8e','#ffb3db'];
  const warmTorch=warmPalette[(floor-1)%4];
- const flameMaterial=new THREE.MeshStandardMaterial({color:warmTorch,emissive:warmTorch,emissiveIntensity:2.4,roughness:.3,metalness:0});
+ const flameMaterial=new THREE.MeshStandardMaterial({color:warmTorch,emissive:warmTorch,emissiveIntensity:1.60,roughness:.75,metalness:0});
  materials.push(flameMaterial);
  const bannerCanvas=document.createElement('canvas');bannerCanvas.width=128;bannerCanvas.height=256;
  const bc=bannerCanvas.getContext('2d'),bannerGrad=bc.createLinearGradient(0,0,0,256);
@@ -156,7 +165,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
  bc.fillStyle='#172f50';bc.font='64px Georgia';bc.textAlign='center';bc.fillText(['✦','✧','◆','♜'][(floor-1)%4],64,119);
  bc.lineWidth=2;bc.strokeStyle='#4d627e';for(let i=0;i<5;i++){bc.beginPath();bc.moveTo(26,166+i*12);bc.lineTo(102,166+i*12);bc.stroke()}
  const bannerTexture=new THREE.CanvasTexture(bannerCanvas);bannerTexture.colorSpace=THREE.SRGBColorSpace;textures.push(bannerTexture);
- const cloth=new THREE.MeshStandardMaterial({map:bannerTexture,color:biome.banner,roughness:.87,side:THREE.DoubleSide});
+ const cloth=surface('hangingCloth',{map:bannerTexture,color:biome.banner,side:THREE.DoubleSide});
  materials.push(floorSurface,wallSurface,chrome,brass,jade,moss,cloth);geometries.push(box,blade,ring);
  const floorDetails=[],wallFaces=[],columnCap=[],columnCapParents=[],mossPatches=[],runeInlays=[],rubble=[],brazierBases=[],vases=[];
  const rugs=[],rugCandidates=[];
@@ -207,7 +216,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
  // at a glance, even during fast autonomous combat.
  if(!rugs.length&&rugCandidates.length)rugs.push(rugCandidates[0]);
  const rugTexture=weaveTexture(floor);textures.push(rugTexture);
- const rugMaterial=new THREE.MeshStandardMaterial({map:rugTexture,roughness:.94,metalness:0,side:THREE.DoubleSide,emissive:'#21161c',emissiveIntensity:.15});
+ const rugMaterial=surface('hangingCloth',{map:rugTexture,side:THREE.DoubleSide,emissive:'#21161c',emissiveIntensity:.07});
  materials.push(rugMaterial);
  const rugGeometry=new THREE.PlaneGeometry(.88,1.34);geometries.push(rugGeometry);
  for(const [px,pz,h] of rugs){
@@ -265,7 +274,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
   world.add(group);foregroundGroups.push(group);
   let light=null;
   if(flames.length<5){
-   light=new THREE.PointLight(warmTorch,2.1,7.2,2);
+   light=new THREE.PointLight(warmTorch,torchIntensity,7.2,2);
    light.position.set(0,2.04,.12);group.add(light);
   }
   // Torch visibility and its actual light now obey the SAME cinematic cutaway.
@@ -448,13 +457,13 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
    (Array.isArray(s?.bossWarning?.cells)&&s.bossWarning.cells.length>0)?0.34:
    s?.bossRecovery?.remaining?-0.12:0;
   sceneMetrics.encounterTorchMood=encounterLight;
-  for(const p of flames)if(p.light)p.light.intensity=2.1*(1+encounterLight);
+  for(const p of flames)if(p.light)p.light.intensity=torchIntensity*(1+encounterLight);
  };
  const animate=time=>{wardenCourt.animate(time);for(const p of flames){
   const t=time*5+p.phase,scale=1+Math.sin(t)*.13;
   p.fire.scale.y=scale;p.inner.scale.setScalar(.91+Math.sin(t+1.3)*.14);
-  if(p.light)p.light.intensity=2.1*(1+encounterLight)*(1+.035*Math.sin(time*2.5+p.phase));
+  if(p.light)p.light.intensity=torchIntensity*(1+encounterLight)*(1+.035*Math.sin(time*2.5+p.phase));
  }};
- return {animate,accept,cutaway,facadeReveal,occlusionFaces:wallFaces,occlusionPropVolumes:foregroundVolumes.filter(Boolean),occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{wardenCourt:wardenCourt.metrics,biome:floor,vaultedFacadeOpenings:wallFaces.filter(f=>f[4]<1.2).length,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,bossCourtLooseClutterSuppressed,bossCourtTallFixturesSuppressed,wovenRugs:rugs.length,cutawayFloorBackings:backing.length,columnCapstones:columnCap.length,texturedSurfaces:floorDetails.length+wallFaces.length,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{wardenCourt.dispose();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
+ return {animate,accept,cutaway,facadeReveal,occlusionFaces:wallFaces,occlusionPropVolumes:foregroundVolumes.filter(Boolean),occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{wardenCourt:wardenCourt.metrics,biome:floor,vaultedFacadeOpenings:wallFaces.filter(f=>f[4]<1.2).length,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,bossCourtLooseClutterSuppressed,bossCourtTallFixturesSuppressed,wovenRugs:rugs.length,cutawayFloorBackings:backing.length,columnCapstones:columnCap.length,texturedSurfaces:floorDetails.length+wallFaces.length,environmentMaterialRoles:['floorStone','masonry','agedMetal','brass','magicInset','dampStone','hangingCloth'],environmentTorchIntensity:torchIntensity,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{wardenCourt.dispose();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
 }
 
