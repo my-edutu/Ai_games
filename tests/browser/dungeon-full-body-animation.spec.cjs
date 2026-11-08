@@ -83,3 +83,58 @@ test('real authority movement drives bounded support on original leg bones witho
   settlingActors:d.authored3D.fullBodySettlingActors,owners:d.authored3D.fullBodyModes
  },null,2))});
 });
+
+/** The next 350ms authority tick may be idle even though the original 620ms
+ * source animation has not finished. Capture a real, adjacent, two-tick fight.
+ * Never manufacture a target, public action, hp or grid coordinate. */
+async function witnessedSourceRecovery(){
+ const path=require('node:path');
+ const source=fs.readFileSync(path.join(__dirname,'../../public/ai-dungeon/facing-plan.js'),'utf8');
+ const {planCombatFacing}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+ for(const seed of ['visual-room-art-18','gauntlet-corpus-v1-0','gauntlet-corpus-v1-1']){
+  const game=DungeonRuntime.create(seed);
+  let before=game.publicState();
+  for(let i=0;i<1350;i++){
+   const after=game.step();
+   const fighter=after.units.find(u=>u.hp>0&&['vanguard','revenant','warden'].includes(u.kind)&&
+    u.action==='attack'&&typeof u.targetId==='string'&&
+    planCombatFacing(u,after.units,after.map)?.distance===1);
+   if(fighter){
+    const idle=game.step();
+    const updated=idle.units.find(u=>u.id===fighter.id);
+    if(updated?.hp>0&&updated.action==='idle'&&updated.actionTick===idle.tick)
+     return {seed,before,attack:after,idle,actorId:fighter.id};
+    before=idle;
+   }else before=after;
+  }
+ }
+ throw Error('No legal adjacent melee -> next idle tick in the declared real seed corpus');
+}
+test('genuine adjacent strike preserves skinned attack follow-through into the next authoritative idle tick',async({page,request})=>{
+ test.setTimeout(120000);
+ expect((await request.get('/dungeon/full-body-animation-controller.js')).status()).toBe(200);
+ const sequence=await witnessedSourceRecovery();
+ const stage=await loadStage(page,sequence.before);
+ stage.set(sequence.attack);
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.fullBodyModes?.attack??0),
+  {timeout:25000,intervals:[70,90,120]}).toBeGreaterThan(0);
+ stage.set(sequence.idle);
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.fullBodyVerifiedContactRecoveryFrames??0),
+  {timeout:25000,intervals:[70,90,120]}).toBeGreaterThan(0);
+ const d=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ expect(d.authored3D.fullBodyHeldRecoveryFrames).toBeGreaterThan(0);
+ expect(d.authored3D.fullBodyVerifiedContactRecoveryFrames).toBeLessThanOrEqual(d.authored3D.fullBodyHeldRecoveryFrames);
+ expect(d.authored3D.missingAssets).toBe(0);
+ expect(d.authored3D.nativeContinuousActors).toBeGreaterThanOrEqual(3);
+ expect(stage.errors).toEqual([]);
+ await page.locator('.arena').evaluate(node=>node.classList.add('world-only-audit'));
+ await page.locator('#world').screenshot({path:'artifacts/dungeon-full-body-real-source-recovery.png',timeout:60000});
+ await test.info().attach('authentic-adjacent-attack-to-idle-recovery',{contentType:'application/json',body:Buffer.from(JSON.stringify({
+  seed:sequence.seed,actorId:sequence.actorId,
+  source:'actual consecutive DungeonRuntime.step snapshots; no simulated attack or target',
+  ticks:[sequence.before.tick,sequence.attack.tick,sequence.idle.tick],
+  recoveryFrames:d.authored3D.fullBodyHeldRecoveryFrames,
+  contactRecoveryFrames:d.authored3D.fullBodyVerifiedContactRecoveryFrames,
+  ownerModes:d.authored3D.fullBodyModes
+ },null,2))});
+});
