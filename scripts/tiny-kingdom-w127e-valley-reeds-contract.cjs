@@ -86,11 +86,13 @@ for(const season of [0,1,2,3]){
   tri:(a,b,c,col)=>{
    for(const p of [a,b,c])assert(p.length===3&&p.every(Number.isFinite));
    assert(col.length===3&&col.every(v=>v>=0&&v<=1&&Number.isFinite(v)));
-   points.push(...a,...b,...c,...col);
+   // Mirror the renderer's complete 10-float vertex layout, not a
+   // shortened position/color spy that would corrupt triangle accounting.
+   for(const v of [a,b,c])points.push(...v,0,1,0,...col,4);
   }
  });
- assert.equal(points.length,audit.triangles*12,
-  'the isolated triangle spy captures 9 coordinates and 3 RGB values per triangle');
+ assert.equal(points.length,audit.triangles*30,
+  'the isolated triangle spy records all three 10-float renderer vertices');
  assert.equal(audit.clusters,69);
  assert.equal(audit.stems,207);
  assert.equal(audit.triangles,1242);
