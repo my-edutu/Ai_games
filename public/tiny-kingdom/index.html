@@ -13448,7 +13448,8 @@ function registerFarmerReceipt(receipt){
  return true;
 }
 function issueReceiptGrain(p,amount){
- if(!p||p.provisionReceiptId||!Number.isFinite(amount)||amount<=0)return null;
+ if(!p||p.provisionReceiptId||(p.provisions||0)>.0001||
+  !Number.isFinite(amount)||amount<=0)return null;
  const lot=(state.receiptGrainLots||[]).find(row=>row.remaining+1e-7>=amount);
  if(!lot||state.food+1e-7<amount)return null;
  const issued=Math.round(amount*1000)/1000;
@@ -13477,7 +13478,7 @@ function receiptHouseholdAudit(){
 function shouldCollectHouseholdProvisions(p){
  const day=Math.floor(state.t/24),hour=((state.t%24)+24)%24;
  if(!dayShiftAt(state.t)||hour<8||hour>=18||
-    p.lastProvisionAttemptDay===day||(p.provisions||0)>.1||
+    p.lastProvisionAttemptDay===day||(p.provisions||0)>.0001||
     p.energy<40||p.hunger>78||
     state.food<people.length*4+HOUSEHOLD_GRAIN_UNITS)return false;
  // Market-based traders and local gatherers have a physically reachable
@@ -13685,6 +13686,13 @@ for(const person of people){
     ...(state.householdMeals||[])].slice(0,RECEIPT_HOUSEHOLD_EVENT_CAP);
   }
   person.provisions=Math.max(0,person.provisions-stock);
+  if(person.provisions<.0001){
+   person.provisions=0;
+   // The immutable transaction/meal logs keep their origin. A depleted
+   // personal basket must not block a later independent farmer receipt.
+   delete person.provisionReceiptId;
+   delete person.provisionMealRecorded;
+  }
  }
  communityConsumption+=use-stock;
 }
