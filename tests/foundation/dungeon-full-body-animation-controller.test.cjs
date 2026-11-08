@@ -585,6 +585,29 @@ test('genuine slow visible frames advance the SAME authentic attack/cast event c
  const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
  assert.match(model,/planImportedLivingSourceStep\(originalStep\)/);
  assert.match(model,/frameInterval:sourceFrameInterval,visible:sourceFrameVisible/);
- assert.match(app,/planFullBodyVisibleFrameStep\(\{mode:a\.u\.action/);
+ assert.match(app,/advanceFullBodyVisibleActionAge\(since,\{[\s\S]*?mode:a\.u\.action/);
  assert.match(model,/actor\.mixer\.update\(sourceStep\)/);
+});
+
+test('actor action age must not double-clamp its witnessed 280ms native-rig step',async()=>{
+ const {advanceFullBodyVisibleActionAge:advanceAge,
+  planFullBodyVisibleFrameStep:visibleStep}=await load();
+ const slow={mode:'attack',frameDelta:.05,frameInterval:1,visible:true};
+ assert.equal(visibleStep(slow),.28);
+ assert.equal(advanceAge(0,slow),.28,'licensed attack must progress past 50ms per sparse frame');
+ assert.equal(advanceAge(.28,slow),.56);
+ assert.equal(advanceAge(.56,slow),.84,'620ms attack completes across four samples');
+ assert.equal(advanceAge(.3,{...slow,mode:'cast'}),.58);
+ assert.equal(advanceAge(.4,{...slow,mode:'hurt'}),.45,'real HP-loss hurt clock unchanged');
+ assert.equal(advanceAge(.1,{...slow,mode:'guard'}),.15);
+ assert.equal(advanceAge(.1,{...slow,visible:false}),.15);
+ assert.equal(advanceAge(.1,{...slow,reducedMotion:true}),.15);
+ assert.equal(advanceAge(.1,{...slow,frameInterval:-1}),.15);
+ assert.equal(advanceAge(.1,{...slow,frameInterval:NaN}),.15);
+ assert.equal(advanceAge(.1,{...slow,frameDelta:.016,frameInterval:.016}),.116);
+ assert.equal(advanceAge(4.9,slow),5);
+ assert.equal(advanceAge(NaN,slow),.28);
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ assert.match(app,/a\.visualActionAge=advanceFullBodyVisibleActionAge\(since,\{/);
+ assert.doesNotMatch(app,/advancePresentationActionAge\(since,\s*planFullBodyVisibleFrameStep/);
 });

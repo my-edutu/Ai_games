@@ -255,6 +255,16 @@ export function planFullBodyVisibleFrameStep({mode='idle',frameDelta=0,
 }
 
 /**
+ * Apply the actual imported-rig attack/cast visual step once. The generic
+ * action-age function re-clamps its delta to 50ms, undoing this clock's
+ * bounded slow-frame correction. Injury and accessibility retain 50ms.
+ */
+export function advanceFullBodyVisibleActionAge(elapsed,options={}){
+ const prior=finite(elapsed)?clamp(elapsed,0,5):0;
+ return Math.min(5,prior+planFullBodyVisibleFrameStep(options));
+}
+
+/**
  * Advance the original GLB only toward the SAME witnessed visual event age.
  * On a delayed first sample preserve original anticipation; on later samples
  * catch up in bounded steps. The source clock never moves backwards.
