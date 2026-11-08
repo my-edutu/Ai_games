@@ -1,0 +1,45 @@
+name: AI Dungeon — Session 03 Full-Body Animation Evidence
+on:
+  push:
+    branches:
+      - feat/dungeon-fullbody-animation-session-20261108
+  workflow_dispatch:
+concurrency:
+  group: dungeon-fullbody-animation-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  native-rig-and-truth:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Verify genuine controller, clips, source bones and deterministic combat
+        run: node --test tests/foundation/dungeon-full-body-animation-controller.test.cjs tests/foundation/dungeon-native-duel-performance.test.cjs tests/foundation/dungeon-grounded-performance.test.cjs tests/foundation/dungeon-evasion-performance.test.cjs tests/foundation/dungeon-rig-attachments.test.cjs tests/foundation/dungeon-m1-native-continuity.test.cjs
+      - name: Deterministic authoritative dungeon campaign
+        run: npm run dungeon:gauntlet
+      - run: npm run dungeon:assets:strict
+      - run: npx playwright install --with-deps chromium
+      - name: Capture real imported rig travel, combat, skin and defeat
+        run: npx playwright test -c tests/browser/dungeon.playwright.config.cjs tests/browser/dungeon-full-body-animation.spec.cjs tests/browser/dungeon-authored-motion.spec.cjs tests/browser/dungeon-rig-attachments.spec.cjs tests/browser/dungeon-endgame-epilogue.spec.cjs
+        env:
+          DUNGEON_REQUIRE_MODELS: '1'
+      - name: Preserve authentic screenshots, video, JSON and errors
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dungeon-session-03-source-rig-${{ github.sha }}
+          path: |
+            artifacts/dungeon-full-body-*
+            artifacts/dungeon-*
+            test-results/**
+            evidence/dungeon/gauntlet-latest.json
+          if-no-files-found: warn
+          retention-days: 14
