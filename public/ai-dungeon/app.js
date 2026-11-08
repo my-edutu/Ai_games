@@ -220,6 +220,9 @@ const heroKey=new THREE.PointLight('#ffdfbc',2.65,6.8,2);heroKey.position.set(1,
 const lightStep=new THREE.Vector3();
 const ground=new THREE.Mesh(new THREE.PlaneGeometry(150,150),new THREE.MeshStandardMaterial({color:'#080e17',roughness:1}));ground.rotation.x=-Math.PI/2;ground.position.y=-.17;scene.add(ground);
 const actors=new Map(),world=new THREE.Group();scene.add(world);
+// Explicit, read-only source-GLB test hook. It does not sample every rendered
+// frame and cannot alter actor authority, physical coordinates or source art.
+window.__DUNGEON_SOURCE_RIG_DEFORMATION__=()=>inspectSourceRigDeformation(actors);
 let crowdedStageActors=0,lastStagePositions=Object.create(null);
 const combatOverlay=createCombatOverlay($('battle-overlay'));
 const combatDirector=createCombatDirector(scene,{reducedMotion:reduced,actorById:id=>actors.get(id)});
