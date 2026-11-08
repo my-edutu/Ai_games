@@ -9582,8 +9582,21 @@ function granaryArchitecture(){
   }
   box(x,y+.73,z,w,.16,d,rgb(0x987653));
  });
+ // W126: a COMPLETE, projecting oak-framed grain-storage upper floor
+ // resting on original masonry and piers. The authentic door, loaded courier
+ // route, ground collision and stock ledger remain untouched. Retained VBO.
  materialScope(MATERIAL.PLASTER,()=>{
-  box(x,y+.90,z,w,2.33,d,plaster);
+  box(x,y+.90,z,w,1.53,d,plaster);
+ });
+ materialScope(MATERIAL.WOOD,()=>{
+  const upperOak=rgb(0x806449),tieOak=rgb(0x594536);
+  box(x,y+2.43,z,w+.18,.80,d+.14,upperOak);
+  for(const side of [-1,1]){
+   const zz=z+side*(d*.5+.105);
+   box(x,y+2.43,zz,w+.26,.12,.14,tieOak);
+   for(const xx of [-w*.41,w*.41])
+    box(x+xx,y+2.47,zz,.13,.72,.13,tieOak);
+  }
  });
  materialScope(MATERIAL.WOOD,()=>{
   for(const side of [-1,1]){
@@ -9670,6 +9683,7 @@ function granaryArchitecture(){
  const grainRoof=grainwardGranaryRoof(x,z,eave,peak,w*.55);
  audit.grainwardRoofBays=grainRoof.roofBays;
  audit.grainwardRoofTriangles=grainRoof.triangles;
+ audit.grainwardUpperStorey=true;
  farmScene.granaries++;
  audit.granaries=1;
  audit.groundFloorClearanceMet=audit.raisedPiers===4&&audit.underfloorJoists===4;
