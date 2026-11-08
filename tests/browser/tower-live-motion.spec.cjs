@@ -11,6 +11,7 @@ const { MIN_CAPTURE_MS, captureWindowDecision, nextCaptureObservation } =
   require('../../scripts/tower-capture-window.cjs');
 const { createTowerSourceTracePoller } =
   require('../../scripts/tower-source-trace-poller.cjs');
+const { calibrateOriginalVideo } = require('../../scripts/tower-video-timebase.cjs');
 
 // No intercepted snapshots, replay scrubbing, virtual time, time acceleration or
 // post-processed poses: this visits the live, seeded 20 Hz expedition host.
@@ -170,8 +171,17 @@ for (const viewport of viewports) {
       const file = 'canvas-' + String(index).padStart(2, '0') + '.png';
       const png = await canvas.screenshot({ path: path.join(dir, file), timeout: 90000 });
       observation.canvasHash = createHash('sha256').update(png).digest('hex');
-      if (index === 0 || index === 20) await page.screenshot({
-        path: path.join(dir, 'full-' + String(index).padStart(2, '0') + '.png'), timeout: 90000 });
+      // Original unmodified full-viewport screenshot anchors: match against
+      // the native WebM frame pixels, never a guessed start/PTS offset. Capture
+      // actual start/end wall clock bounds because slow screenshots cannot
+      // safely be treated as instantaneous.
+      if (index === 0 || (index > 0 && index <= 70 && index % 10 === 0)) {
+        const name = 'full-' + String(index).padStart(2, '0') + '.png';
+        const startAtMs = Date.now();
+        await page.screenshot({ path: path.join(dir, name), timeout: 90000 });
+        observation.nativeFrameAnchor = { file: name, startAtMs,
+          endAtMs: Date.now() };
+      }
     }
     // Real screenshot of the same LIVE and unmodified viewport at a genuine
     // terminal observation. Capture no more than two such frames per outcome
@@ -673,6 +683,22 @@ for (const viewport of viewports) {
   await page.close();
   await context.close();
   if (video) await video.saveAs(path.join(dir, 'live.webm'));
+  // Native PTS is NOT Date.now() - recordingStartedAt: Chromium's recorder
+  // starts before the first source observation, and screenshots can block.
+  // A separate optional offline tool pixel-matches genuine viewport stills
+  // against original WebM frames and rejects missing/ambiguous clock anchors.
+  // No extra overlay, video edit, altered source, fake event or accelerated tick.
+  const anchors = observations.filter(o => o.nativeFrameAnchor)
+    .map(o => ({...o.nativeFrameAnchor,
+      file: path.join(dir, o.nativeFrameAnchor.file)}));
+  const nativeVideoTimebase = calibrateOriginalVideo({
+    video:path.join(dir, 'live.webm'), anchors,
+    sourceTicks:passiveSourceTicks.ticks,
+  });
+  fs.writeFileSync(path.join(dir, 'native-video-clock.json'),
+    JSON.stringify({sourceSha,scenario,viewport,seed:process.env.TOWER_SEED ||
+      'tower-stream-reference',graphicsTier:'low',
+      ...nativeVideoTimebase},null,2));
   // Keep the unedited film AND sidecars even when the initial scene is wrong.
   // CI vetoes an unrepresentative episode instead of certifying a complete
   // guardian run merely because the observer eventually found event names.
