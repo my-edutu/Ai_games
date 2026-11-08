@@ -1,13 +1,58 @@
 'use strict';
 // Safety contract for PRESENT camera-responsive non-colliding clockwork scenery.
 // This is not a gameplay-video judgment or LOOKS/FEELS/PLAYS Gauntlet vote.
-const { test } = require('node:test');
+const { test, after } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const os = require('node:os');
+const { pathToFileURL } = require('node:url');
 const vm = require('node:vm');
 const source = fs.readFileSync(path.resolve(__dirname,
   '../../public/infinite-tower-climb/visuals/world.mjs'), 'utf8');
+
+// The actual shipped Three.js world is a browser ESM module. Resolve only its
+// browser import URLs to the installed Node modules; never stub the world or
+// invent the geometry being inspected. The previous regression referenced an
+// undefined "loaded" promise and never exercised the renderer in CI.
+const ROOT = path.resolve(__dirname, '../..');
+const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'tower-clockwork-sightline-'));
+const threeURL = pathToFileURL(path.join(ROOT, 'node_modules/three/build/three.module.js')).href;
+const importedWorld = path.join(scratch, 'world.mjs');
+const importURLs = {
+  "'/tower/vendor/three.module.js'": threeURL,
+  "'./coordinates.mjs'": pathToFileURL(path.join(ROOT,
+    'public/infinite-tower-climb/visuals/coordinates.mjs')).href,
+  "'./world-surface.mjs'": pathToFileURL(path.join(ROOT,
+    'public/infinite-tower-climb/visuals/world-surface.mjs')).href,
+  "'./scene-hierarchy.mjs'": pathToFileURL(path.join(ROOT,
+    'public/infinite-tower-climb/visuals/scene-hierarchy.mjs')).href,
+};
+let installedWorld = source;
+for (const [browserImport, nativeURL] of Object.entries(importURLs)) {
+  assert.ok(installedWorld.includes(browserImport),
+    'shipped world import has moved: ' + browserImport);
+  installedWorld = installedWorld.replace(browserImport, JSON.stringify(nativeURL));
+}
+fs.writeFileSync(importedWorld, installedWorld);
+const loaded = Promise.all([
+  import(threeURL),
+  import(pathToFileURL(importedWorld).href),
+]);
+after(() => fs.rmSync(scratch, { recursive: true, force: true }));
+
+// Real source-scale floor snapshots: the camera test must construct exactly
+// the same 3D objects the browser constructs, not inspect author-side regex.
+function sourceFrame(theme, floor) {
+  const chunkBaseY = floor * 360000;
+  return Object.freeze({
+    runToken: 'clockwork-real-world-fixture', floor, theme,
+    tick: floor * 100 + 1, lifecycle: 'running',
+    worldWidth: 480000, chunkBaseY, chunkHeight: 360000,
+    platforms: Object.freeze([]), hazards: Object.freeze([]),
+    enemies: Object.freeze([]),
+  });
+}
 
 // Exercise the actual pure world helper without constructing the WebGL engine
 // (world.mjs is browser-imported through the /tower/vendor path).
