@@ -1095,7 +1095,7 @@ function animate(t){
     planWardenTrueStrikeRelease(a.wardenPriorThreat,a.u,since,reduced):null;
   a.wardenExposure=a.u.kind==='warden'&&a.u.hp>0?
    planWardenExposurePose(state?.bossRecovery,state?.guardianWard,Boolean(state?.bossWarning)):null;
-  if(!a.authored)a.detail?.update(time,a.u.action||'idle');a.ground?.update(time,a.u.action||'idle',a.u.hp>0);a.defeatIntermission=Boolean(state?.phase==='intermission'&&a.u.faction==='party'&&a.u.hp===0);updateActor(a,dt,since,reduced);
+  if(!a.authored)a.detail?.update(time,a.u.action||'idle');a.ground?.update(time,a.u.action||'idle',a.u.hp>0);a.defeatIntermission=Boolean(state?.phase==='intermission'&&a.u.faction==='party'&&a.u.hp===0);updateActor(a,dt,since,reduced,frameInterval,!document.hidden);
   // One shared read-only pivot brings the complete skinned rig, armour,
   // accessories and the procedural fallback through the SAME real hit beat.
   if(state?.phase==='intermission'&&a.u.faction==='party'&&a.u.hp===0){

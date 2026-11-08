@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,shouldRestartImportedOneShot,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,shouldRestartImportedOneShot,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -1055,7 +1055,7 @@ function stageSkinnedDefeatAfterMixer(actor,reducedMotion){
   apply(mount,pose.spine.pitch,pose.spine.roll);
 }
 
-function updateActor(actor,dt,since=0,reducedMotion=false){
+function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt,sourceFrameVisible=true){
  if(!actor.authored||!actor.mixer)return;
  // Do not loop walk clips when the authoritative move has already settled.
  actor.fullBody=advanceFullBodyController(actor.fullBody,{
@@ -1092,8 +1092,14 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
  restoreRigPelvisBeforeMixer(actor);
  // Align source GLB to the same witnessed action-age clock as original
  // skinned hip, torso, shoulder, wrist, ankle and reactive fabric layers.
- const sourceStep=freezeSource?0:Math.min(.05,Math.max(0,dt));
  const sourceClip=actor.activeClip?.getClip?.();
+ const sourceStep=freezeSource?0:planImportedDeathSourceStep({
+  mode:actor.fullBody.mode,sourceTime:actor.activeClip?.time??0,
+  sourceDuration:sourceClip?.duration??0,
+  effectiveSpeed:actor.activeClip?.getEffectiveTimeScale?.()??1,
+  frameDelta:dt,frameInterval:sourceFrameInterval,
+  reducedMotion,visible:sourceFrameVisible
+ });
  const sourceSync=!freezeSource&&sourceClip?planImportedOneShotPhase({
   mode:actor.fullBody.mode,actionTick:actor.fullBody.actionTick,age:poseAge,
   sourceTime:actor.activeClip.time,sourceDuration:sourceClip.duration,

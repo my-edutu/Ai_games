@@ -368,7 +368,7 @@ test('genuine HP-zero source skeleton freezes its living mixer while preserving 
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(model,/const freezeSource=actor\.fullBody\.owner\.defeat&&\(!genuineDeath\|\|deathFinished\)/);
  assert.match(model,/if\(!freezeSource\)changeAction\(actor,actor\.fullBody\.clipAction,actor\.fullBody\.restarted\)/);
- assert.match(model,/const sourceStep=freezeSource\?0:Math\.min\(/);
+ assert.match(model,/const sourceStep=freezeSource\?0:planImportedDeathSourceStep\(/);
  assert.match(model,/actor\.mixer\.update\(sourceStep\)/);
  assert.match(model,/stageSkinnedDefeatAfterMixer\(actor,reducedMotion\)/);
  assert.match(model,/fullBodyFrozenSourceActors:/);
@@ -395,6 +395,37 @@ test('real renderer consumes exactly one arbiter before imported mixer and prese
  assert.match(model,/actor\.fullBody\?\.owner\.warning/,'Warden warnings must release joint ownership on damage and evasion');
  assert.ok(server.includes("['/dungeon/full-body-animation-controller.js','full-body-animation-controller.js']"));
  assert.doesNotMatch(code,/Math\.random|Date\.now|DungeonRuntime|fetch\(|performance\.now/);
+});
+
+test('authentic Death_A completes across three bounded native frames under true render stalls',async()=>{
+ const {planImportedDeathSourceStep:advance}=await load();
+ const duration=.792;
+ assert.equal(Math.ceil(duration/.05),16,'former source mixer stretches death to 16 rendered frames');
+ let sourceTime=0,frames=0;const observed=[0];
+ while(sourceTime<duration-1e-9&&frames<20){
+  const dt=advance({mode:'defeat',sourceTime,sourceDuration:duration,
+   effectiveSpeed:1,frameDelta:.05,frameInterval:2,visible:true});
+  assert.ok(dt>=0&&dt<=.28);
+  sourceTime=Math.min(duration,sourceTime+dt);observed.push(sourceTime);frames++;
+ }
+ assert.equal(frames,3);assert.ok(Math.abs(sourceTime-duration)<1e-9);
+ assert.ok(observed[1]>0&&observed[1]<observed[2]&&observed[2]<duration);
+ assert.equal(advance({mode:'defeat',sourceTime:.45,sourceDuration:duration,
+  frameDelta:.016,frameInterval:.016}),.016);
+ assert.equal(advance({mode:'defeat',sourceTime:duration,sourceDuration:duration,
+  frameDelta:.05,frameInterval:2}),0);
+ for(const mode of ['idle','move','guard','attack','cast','hurt','evade'])
+  assert.equal(advance({mode,sourceTime:0,sourceDuration:duration,
+   frameDelta:.05,frameInterval:2}),.05);
+ for(const invalid of [{visible:false},{reducedMotion:true},{sourceTime:-1},
+  {frameInterval:-1},{sourceDuration:NaN},{effectiveSpeed:0}])
+  assert.equal(advance({mode:'defeat',sourceTime:0,sourceDuration:duration,
+   frameDelta:.05,frameInterval:2,...invalid}),.05);
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.ok(app.includes('updateActor(a,dt,since,reduced,frameInterval,!document.hidden)'));
+ assert.ok(model.includes('planImportedDeathSourceStep({'));
+ assert.ok(model.includes('frameDelta:dt,frameInterval:sourceFrameInterval'));
 });
 
 test('licensed GLB clip recovers source time lost to slow frames, with bounded hand/sole correction',async()=>{

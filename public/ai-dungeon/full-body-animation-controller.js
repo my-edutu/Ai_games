@@ -234,6 +234,24 @@ export function planImportedOneShotEntry({mode='idle',age=0,sourceDuration=0,
 }
 
 /**
+ * The original 0.792s Death_A must not require 16 frames to finish when a
+ * software WebGL capture yields only one visible frame per second.
+ * Cap catch-up to 280ms to keep 3 distinct sampled native joint poses.
+ * All nonterminal actions keep their former 50ms/frame behaviour.
+ */
+export function planImportedDeathSourceStep({mode='idle',sourceTime=0,
+ sourceDuration=0,effectiveSpeed=1,frameDelta=0,frameInterval=0,
+ reducedMotion=false,visible=true}={}){
+ const ordinary=finite(frameDelta)?clamp(frameDelta,0,.05):0;
+ if(mode!=='defeat'||reducedMotion||visible!==true||
+  ![sourceTime,sourceDuration,effectiveSpeed,frameInterval].every(finite)||
+  sourceDuration<=0||sourceTime<0||effectiveSpeed<=.001||frameInterval<0)
+  return ordinary;
+ const remaining=Math.max(0,(sourceDuration-sourceTime)/effectiveSpeed);
+ return Math.min(remaining,Math.max(ordinary,clamp(frameInterval,0,.28)));
+}
+
+/**
  * Imported skinned source clips and reversible native full-body overlays must
  * share one witnessed clock. Slow browser frames can advance mixer time by
  * only 50ms even while the real event has moved into recovery. This bounded
