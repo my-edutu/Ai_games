@@ -143,7 +143,7 @@ test('a genuine recent authority outcome is shown as a small history note, not a
  let snapshot,event;
  for(let i=0;i<750;i++){
   snapshot=game.step();
-  event=snapshot.events.find(e=>e.tick===snapshot.tick&&kinds.has(e.kind));
+  event=[...snapshot.events].reverse().find(e=>e.tick===snapshot.tick&&kinds.has(e.kind));
   if(event)break;
  }
  expect(event,'actual deterministic authority produced a meaningful event').toBeTruthy();
