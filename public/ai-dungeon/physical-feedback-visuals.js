@@ -6,6 +6,7 @@
  * loss alone earns a small deterministic fracture. Does not touch animations,
  * camera, lights, damage, authority time, scene geometry, or renderer policies.
  */
+import {planMeasuredHandTrail} from './measured-weapon-trail.js';
 export const PHYSICAL_FEEDBACK_POOL_LIMITS=Object.freeze({
  trail:8,hit:48,block:8,dust:12,signal:8,projectile:10,spell:8
 });
@@ -18,16 +19,17 @@ const clamp=(n,lo,hi)=>Number.isFinite(n)?Math.min(hi,Math.max(lo,n)):lo;
 const cell=p=>p&&Number.isInteger(p.x)&&Number.isInteger(p.z)&&
  p.x>=0&&p.z>=0&&p.x<256&&p.z<256;
 const finite3=p=>p&&[p.x,p.y,p.z].every(Number.isFinite);
-/** A hand-sized, tapered authored blade afterimage. Not a complete glowing ring. */
+/** A tiny straight, tapered ribbon: the real moving hand defines its world pose.
+ * The old swept crescent was generated even when the actual wrist stayed still.
+ * Keeping one shared geometry and one retained instanced pool avoids per-hit meshes.
+ */
 export function createOriginalBladeStreakGeometry(THREE){
  const vertices=[],indices=[],uvs=[],segments=16;
  for(let i=0;i<=segments;i++){
-  const t=i/segments,angle=-.94+1.91*t;
-  const width=.008+.072*Math.pow(Math.sin(Math.PI*t),1.5);
-  const radius=.39+.023*Math.sin(Math.PI*t);
+  const t=i/segments;
+  const width=.003+.027*Math.pow(Math.sin(Math.PI*t),1.5);
   for(const side of [-1,1]){
-   const r=radius+side*width;
-   vertices.push(Math.sin(angle)*r,Math.cos(angle)*r*.72,.015*Math.sin(3*t));
+   vertices.push(side*width,t-.5,0);
    uvs.push(t,(side+1)/2);
   }
   if(i<segments){const k=i*2;indices.push(k,k+2,k+1,k+1,k+2,k+3)}
@@ -56,7 +58,8 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  const pose=new THREE.Object3D(),up=new THREE.Vector3(0,1,0),dir=new THREE.Vector3(),
   sampled=new THREE.Vector3();
  const pools=new Map();let active=0,peak=0,spawned=0,suppressed=0,
-  preempted=0,confirmedFragments=0,disposed=false;
+  preempted=0,confirmedFragments=0,measuredTrailFrames=0,
+  unmeasuredTrailFrames=0,disposed=false;
  const world=(p,y)=>({x:p.x-9,y,z:p.z-9});
  function hideMatrix(){
   pose.position.set(0,-500,0);pose.rotation.set(0,0,0);
@@ -84,7 +87,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  make('spell',new THREE.IcosahedronGeometry(.09,0),{metalness:0,opacity:reducedFlash?.17:.31});
  // Rig sampling is read-only. Stale animated bodies are not used as evidence
  // to attach a weapon to a different map cell or floor.
- function sampleActor(id,at,{hand=false,chest=false}={}){
+ function sampleActor(id,at,{hand=false,chest=false,requireBone=false}={}){
   if(typeof id!=='string'||!cell(at)||typeof actorById!=='function')return null;
   let actor=null;
   try{actor=actorById(id)}catch{return null}
@@ -99,9 +102,11 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
     const bound=hand?2.8:3.1;
     if(finite3(sampled)&&sampled.y>=.34&&sampled.y<=bound&&
       Math.hypot(sampled.x-root.x,sampled.z-root.z)<=(hand?.84:.72))
-     return {x:sampled.x,y:sampled.y,z:sampled.z,yaw:actor.root.rotation?.y??0};
+     return {x:sampled.x,y:sampled.y,z:sampled.z,yaw:actor.root.rotation?.y??0,
+      rootX:root.x,rootY:root.y,rootZ:root.z};
    }catch{}
   }
+  if(requireBone)return null; // Never counterfeit a moving sword hand from a static root.
   return {x:root.x,y:root.y+(hand?1.20:chest?1.12:1.00),
    z:root.z,yaw:actor.root.rotation?.y??0};
  }
@@ -120,8 +125,14 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   // show a neutral body-height shard at the authoritative cell instead.
   let actor=null;
   try{actor=typeof actorById==='function'?actorById(id):null}catch{}
-  const sampledPoint=sampleActor(id,at,{hand:type==='trail'||type==='projectile'||type==='spell',chest:victim});
+  // The sword streak must come from the current actually animated right-hand
+  // bone on this witnessed swing. An idle or stale reused actor is not a blade.
+  if(type==='trail'&&(!actor?.authored||actor.u?.action!=='attack'||
+    actor.u?.actionTick!==cue.tick||!actor.rigHandBone))return null;
+  const sampledPoint=sampleActor(id,at,{hand:type==='trail'||type==='projectile'||type==='spell',
+   chest:victim,requireBone:type==='trail'});
   if(sampledPoint)return sampledPoint;
+  if(type==='trail')return null;
   if(actor)return null; // Stale/wrong-cell actor: suppress disconnected art.
   if(victim)return world(at,1.07);
   // For warning/release without a loaded actor, the public world cell remains
@@ -153,6 +164,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   const type=category(cue),pool=pools.get(type);
   if(!pool)return false;
   if(type==='hit'&&cue.proof!=='observed-hp-drop')return false;
+  if(type==='trail'&&(cue.kind!=='swing'||cue.proof!=='authority-attempt-not-hit'))return false;
   if(cue.kind==='counter'&&cue.proof!=='authority-counter-and-HP')return false;
   if(type==='block'&&cue.proof!=='authority-block-unique-guarded-hp')return false;
   if((type==='projectile'||type==='spell')&&(!cue.targetId||!cell(cue.to)))return false;
@@ -172,8 +184,12 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    const speed=type==='hit'||type==='dust'?spray(cue.id,i):null;
    pool.slots[index]={cue,age:0,life:reducedMotion?Math.min(.13,length):length,
     origin:{...start},end:cell(cue.to)?world(cue.to,type==='spell'?1.23:1.19):null,
-    priority:cue.priority??1,severity,fragment:speed,index,ordinal:i};
-   pool.mesh.visible=true;created++;spawned++;
+    priority:cue.priority??1,severity,fragment:speed,index,ordinal:i,
+    lastHand:type==='trail'?{...start}:null,
+    measuredPath:null,lastMeasuredAge:-Infinity};
+   // No fabricated arc is drawn at emission; first sample has no motion.
+   if(type!=='trail')pool.mesh.visible=true;
+   created++;spawned++;
   }
   if(type==='hit')confirmedFragments+=created;
   peak=Math.max(peak,active);
@@ -185,13 +201,12 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   pose.quaternion.identity();
   const p=pool.name;
   if(p==='trail'){
-   const hand=anchor(cue,'trail');
-   if(hand)pose.position.set(hand.x,hand.y,hand.z);
-   const yaw=cell(cue.from)&&cell(cue.to)?
-    Math.atan2(cue.to.x-cue.from.x,cue.to.z-cue.from.z):origin.yaw??0;
-   pose.rotation.y=yaw;
-   pose.rotation.z=-.46+t*1.04;
-   pose.scale.setScalar(.81*fade+.007);
+   if(!slot.measuredPath)return hideMatrix();
+   const measured=slot.measuredPath;
+   pose.position.set(measured.center.x,measured.center.y,measured.center.z);
+   dir.set(measured.direction.x,measured.direction.y,measured.direction.z);
+   pose.quaternion.setFromUnitVectors(up,dir.normalize());
+   pose.scale.set(.82*fade+.01,measured.length*(.65*fade+.34),.82);
   }else if(p==='hit'||p==='dust'){
    // Stable ballistic micro-fragments; gravity and tumble stay cosmetic.
    // An unknown source never becomes a flying sword or fake attack direction.
@@ -229,16 +244,31 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   if(disposed)return;
   const dt=clamp(frameSeconds,0,.05);
   for(const pool of pools.values()){
-   let dirty=false;
+   let dirty=false,visibleSlots=0;
    for(let i=0;i<pool.max;i++){
     const slot=pool.slots[i];if(!slot)continue;
     slot.age+=dt;dirty=true;
     if(slot.age>=slot.life){
-     pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());active--;
-    }else pool.mesh.setMatrixAt(i,transform(pool,slot));
+     pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());active--;continue;
+    }
+    if(pool.name==='trail'){
+     const hand=anchor(slot.cue,'trail');
+     if(!hand){slot.lastHand=null;slot.measuredPath=null}
+     else{
+      const segment=slot.lastHand?planMeasuredHandTrail(slot.lastHand,hand,dt):null;
+      slot.lastHand={...hand};
+      if(segment){slot.measuredPath=segment;slot.lastMeasuredAge=slot.age;measuredTrailFrames++}
+      else{
+       unmeasuredTrailFrames++;
+       if(slot.age-slot.lastMeasuredAge>.055)slot.measuredPath=null;
+      }
+     }
+    }
+    pool.mesh.setMatrixAt(i,transform(pool,slot));
+    if(pool.name!=='trail'||slot.measuredPath)visibleSlots++;
    }
    if(dirty)pool.mesh.instanceMatrix.needsUpdate=true;
-   if(dirty&&!pool.slots.some(Boolean))pool.mesh.visible=false;
+   if(dirty)pool.mesh.visible=visibleSlots>0;
   }
  }
  function reset(){
@@ -259,7 +289,8 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   pools.clear();
  }
  function stats(){return Object.freeze({
-  active,peak,spawned,suppressed,preempted,confirmedFragments,disposed,
+  active,peak,spawned,suppressed,preempted,confirmedFragments,
+  measuredTrailFrames,unmeasuredTrailFrames,disposed,
   reservedInstances:TOTAL,drawCalls:pools.size,
   activeDrawCalls:[...pools.values()].filter(p=>p.mesh.visible).length,
   geometryCount:pools.size,materialCount:pools.size,reducedMotion,reducedFlash,

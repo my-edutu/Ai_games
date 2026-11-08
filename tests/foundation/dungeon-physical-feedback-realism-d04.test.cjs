@@ -10,7 +10,7 @@ function three(){
  class Vec{constructor(x=0,y=0,z=0){this.set(x,y,z)}set(x,y,z){this.x=x;this.y=y;this.z=z;return this}lengthSq(){return this.x*this.x+this.y*this.y+this.z*this.z}normalize(){const d=Math.sqrt(this.lengthSq())||1;this.x/=d;this.y/=d;this.z/=d;return this}}
  class Geo{constructor(){created.geos++;this.attributes={}}setAttribute(n,v){this.attributes[n]=v;return this}setIndex(v){this.indices=v;return this}computeVertexNormals(){}dispose(){created.geoDisposed++}}
  class Mat{constructor(o={}){created.mats++;Object.assign(this,o)}dispose(){created.matDisposed++}}
- class Obj{constructor(){this.position=new Vec();this.rotation={x:0,y:0,z:0,set(x,y,z){this.x=x;this.y=y;this.z=z}};this.quaternion={identity(){},setFromUnitVectors(){}};this.scale={setScalar(x){this.x=x;this.y=x;this.z=x}};this.matrix={};}updateMatrix() {}}
+ class Obj{constructor(){this.position=new Vec();this.rotation={x:0,y:0,z:0,set(x,y,z){this.x=x;this.y=y;this.z=z}};this.quaternion={identity(){},setFromUnitVectors(){}};this.scale={setScalar(x){this.x=x;this.y=x;this.z=x},set(x,y,z){this.x=x;this.y=y;this.z=z}};this.matrix={};}updateMatrix() {}}
  class Mesh{constructor(geo,mat,cap){created.meshes.push(this);this.geometry=geo;this.material=mat;this.count=cap;this.visible=false;this.matrices=[];this.instanceMatrix={setUsage(){},needsUpdate:false}}
  setMatrixAt(i,m){this.matrices[i]={...m}}}
  const T={Object3D:Obj,Vector3:Vec,BufferGeometry:Geo,
@@ -50,7 +50,7 @@ test('new physical blade streak geometry is tapered, bounded and shared; actual 
  assert.ok(trail,'a generated tapered blade geometry, not a glowing torus');
  const vert=trail.geometry.attributes.position.array;
  assert.ok(vert.length>=90 && vert.length<=360,'bounded ribbon vertices');
- assert.ok(Math.max(...vert)>0 && Math.min(...vert)<0,'ribbon should curve through a genuine 3D span');
+ assert.ok(Math.max(...vert)>0 && Math.min(...vert)<0,'thin ribbon should straddle the origin without a synthetic swept crescent');
  assert.equal(stage.emit(cue()),true);
  assert.ok(stage.stats().active>=4,'real injury should produce a small physical chip fan');
  assert.equal(stage.stats().activeDrawCalls,1,'all fracture pieces are one instanced draw call');
@@ -63,11 +63,21 @@ test('new physical blade streak geometry is tapered, bounded and shared; actual 
 test('visual effect groups physically distinguish guided arrow, magic orb, rooted blade, dodge grit and measured impact',async()=>{
  const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
  const {T,scene}=three();
- const actors=new Map();const a=(id,x,z)=>({u:{id},root:{visible:true,position:{x:x-9,y:0,z:z-9},rotation:{y:.4}}});
+ const actors=new Map();const a=(id,x,z)=>({
+  u:{id,action:'attack',actionTick:11},authored:id==='vanguard',
+  rigHandBone:id==='vanguard'?{world:{x:x-9+.15,y:1.1,z:z-9},
+   updateWorldMatrix(){},getWorldPosition(out){return out.set(this.world.x,this.world.y,this.world.z)}}:null,
+  root:{visible:true,position:{x:x-9,y:0,z:z-9},rotation:{y:.4}}
+ });
  actors.set('vanguard',a('vanguard',2,2));actors.set('revenant',a('revenant',3,2));
  actors.set('ranger',a('ranger',2,2));actors.set('mystic',a('mystic',2,2));
  const stage=createPhysicalFeedbackVisuals(T,scene,{actorById:id=>actors.get(id)});
  assert.equal(stage.emit(cue({kind:'swing',visual:'trail',proof:'authority-attempt-not-hit',actorId:'vanguard',targetId:null,from:{x:2,z:2},to:null})),true);
+ assert.equal(stage.stats().activeDrawCalls,0,'stationary sword hand cannot draw an invented arc');
+ actors.get('vanguard').rigHandBone.world.x+=.12;
+ stage.advance(.016);
+ assert.equal(stage.stats().activeDrawCalls,1,'actual animated hand displacement produces a single measured ribbon draw');
+ assert.ok(stage.stats().measuredTrailFrames>=1);
  assert.equal(stage.emit(cue({kind:'ranged-release',visual:'launch',actorId:'ranger',targetId:'revenant',from:{x:2,z:2},to:{x:3,z:2}})),true);
  assert.equal(stage.emit(cue({kind:'spell-release',visual:'cast',actorId:'mystic',targetId:'revenant',from:{x:2,z:2},to:{x:3,z:2}})),true);
  assert.equal(stage.emit(cue({kind:'evade',visual:'evade',actorId:'vanguard',targetId:null,from:{x:2,z:2},to:{x:2,z:3}})),true);
