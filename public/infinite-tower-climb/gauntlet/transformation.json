@@ -45,60 +45,45 @@
     "latestEvidenceRun": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "assessedAt": "2026-11-08",
-      "sourceHeadAtInspection": "b0694e12aefe5fb6ac916256e6709a14fbf24ee3",
-      "codeImplementationSha": "b0694e12aefe5fb6ac916256e6709a14fbf24ee3",
+      "sourceHeadAtInspection": "07363b95b02b0f12e953f347ac6e88707ad63774",
       "actualRenderedGameSourceSha": "f1fe522ec6a4da8d0a33cd620ca2c85357a04d6a",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "frozenBaselineMoved": false,
       "authoritativeGameplayChangedThisExecution": false,
       "renderedGameplayExperienceChangedThisExecution": false,
-      "instrumentationChangedThisExecution": true,
-      "experienceChangeVerifiedInVideo": false,
-      "primaryVerifiedCaptureGap": "Historical original WebMs have screenshot-observation/video PTS offset spreads of 1.7-2.3 seconds; old screenshot wall timestamps precede screenshot completion, so this is variable capture latency evidence rather than a certified physical clock drift or valid event timecode. The previous single-offset approach can misplace source event searches or reject asynchronously recorded film.",
-      "implementation": "Bounded piecewise-monotone native original-WebM timebase, requiring >=3 unambiguous 15+ second visual anchors, local 0.75-1.25 slopes, strict no extrapolation, explicit event search uncertainty and source-to-raster NOT EVALUATED. Keeps legacy constant offset for older test callers and original media unmodified.",
-      "concreteCommits": [
-        "b0694e12aefe5fb6ac916256e6709a14fbf24ee3"
-      ],
-      "modifiedFiles": [
-        "scripts/tower-video-timebase.cjs",
-        "tests/phase3/tower-video-timebase.test.cjs",
-        "public/infinite-tower-climb/gauntlet/transformation.json",
-        "docs/reviews/2026-11-07-tower-pr68-current-film-and-source-integrity-veto.md"
-      ],
-      "verifiedOldSourceFilm": {
-        "runId": 42426089449,
-        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42426089449",
-        "frozenSourceSha": "1731b380851162741761c5569e2bc152a0869ca9",
-        "historicalCandidateSourceSha": "e0fe77294359c32c84cdcff3c0698ba0c7e3a067",
-        "originalVideoCount": 4,
-        "baselinePortraitSHA256": "21021dc435bb42c155bb9e1da1ff7f2fd279bff3009c45f7ddc16676a6c74824",
-        "candidatePortraitSHA256": "4b20860ac990e4af4a310a6c78192367f113ba9cae876cee9177adbd5a2b1b53",
-        "screenshotObservationOffsetSpreadsMs": {
-          "baselinePortrait": 2304,
-          "baselineDesktop": 1702,
-          "candidatePortrait": 1726,
-          "candidateDesktop": 1983
+      "instrumentationChangedThisExecution": false,
+      "completedOutcome": "Verified the exact current PR68 branch, immutable baseline, earlier authentic source/film history, and the precise availability of candidate test/capture execution. No source, camera or rendered-game change was made: repeated unfilmed geometry tweaks would be speculative. Dedicated project shell remains disconnected and the newest nine capture jobs plus quality job have zero assigned runners.",
+      "verifiedBlocker": {
+        "developmentWorkspace": "NOT_FOUND: Tunnel-client has not been seen for 300 seconds (direct authorized execution attempt in this run)",
+        "capture": {
+          "runId": 42486349301,
+          "url": "https://github.com/my-edutu/Ai_games/actions/runs/42486349301",
+          "sourceSha": "b0694e12aefe5fb6ac916256e6709a14fbf24ee3",
+          "status": "queued",
+          "jobs": 9,
+          "assignedRunners": 0
         },
-        "imageAnchorTimecodeStatus": "NOT EVALUATED: legacy original screenshots lack begin/end capture bounds",
-        "visualFinding": "Frozen baseline portrait guardian/climber more visible at 16-18s than historical candidate; giant wheel obscures candidate at ~17-19s. Current f1fe522e physical cutaway still unfilmed."
+        "quality": {
+          "runId": 42486349402,
+          "url": "https://github.com/my-edutu/Ai_games/actions/runs/42486349402",
+          "sourceSha": "b0694e12aefe5fb6ac916256e6709a14fbf24ee3",
+          "status": "queued",
+          "jobs": 1,
+          "assignedRunners": 0
+        },
+        "branchQueuedRuns": 70,
+        "repositoryRunnerCause": "NOT EVALUATED: no permission-backed diagnosis of billing, global capacity or entitlement; queued is not a test failure",
+        "lastObservedCompletedSuccess": {
+          "runId": 42430308217,
+          "sourceSha": "52a80f54e3fd3b34c40e67544d9c3f0e2fb4175d",
+          "at": "2026-11-08T00:36:30Z",
+          "note": "Older source only; does not verify current candidate"
+        }
       },
-      "sourceRedGreen": "Exact fetched original CommonJS isolated-V8 probes passed constant clock, smooth 850ms residual drift, 24.15s local event interpolation, reverse and abrupt jump veto, no extrapolation. Three new original Node test fixtures authored but full repo Node/Three and authentic FFmpeg capture NOT EXECUTED.",
-      "currentExactCodeQuality": {
-        "sha": "b0694e12aefe5fb6ac916256e6709a14fbf24ee3",
-        "status": "NOT EVALUATED: connected original checkout unavailable; GitHub jobs queued",
-        "olderQueuedRunId": 42478473700,
-        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42478473700"
-      },
-      "currentNineJobCapture": {
-        "status": "NOT EVALUATED: nine jobs queued at last inspection; no current-source normal-speed film",
-        "olderQueuedRunId": 42478473694,
-        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42478473694",
-        "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-        "candidateRuntimeSourceSha": "f1fe522ec6a4da8d0a33cd620ca2c85357a04d6a"
-      },
-      "primaryExecutionBlocker": "Authenticated original project tunnel unavailable and current exact-source GitHub runner jobs queued; no new Node/Three/FFmpeg/Chromium full run, independent critics or hardware measurements.",
-      "videoEventAlignment": "NOT EVALUATED for current head. This correction supplies bounded potential source-event PTS search handles, never claims events appeared on screen.",
-      "largestObservedGap": "Historical candidate portrait giant clock wheel/case hides climber and guardian near 17-19 seconds, unlike frozen baseline. Current renderer cutaways and complete gateway-to-floor9-to-outcome remain unverified.",
+      "currentSourceVideo": "NOT EVALUATED: no full-motion capture of present f1fe522e cutaway renderer, no event-matched current original WebM",
+      "largestObservedGap": "Last previously inspected genuine historical candidate e0fe7729 native 390x844 film has a large foreground clockwork wheel shielding the climber/guardian near video second 17-19. Current physical cutaways are not filmed; floor-nine, outcome and restart are not visually certified.",
+      "testsAndCapturesProducedThisExecution": [],
+      "newSourcePinnedCaptureLinks": [],
       "independentBlindReviews": {
         "looks": 0,
         "feels": 0,
@@ -106,9 +91,8 @@
       },
       "hardwareFrameTimeMemory": "NOT EVALUATED",
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "nextHighImpactAction": "Execute current source-pinned quality/9-job recordings from original checkout and review all original WebMs with bounded actual native-PTS calibration; directly correct any remaining foreground obstructions while proving floor8 guardian/crusher -> physical floor9 -> game result/intermission/restart, then independently test actual devices and obtain genuine 5-per-pillar fresh-context blind reviews.",
-      "restrictions": "Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 and PR58 unchanged; PR68 open and draft; no merge, deployment, force-push or baseline move.",
-      "newSourcePinnedCaptureLinks": []
+      "nextHighImpactAction": "Recover runner assignment or authenticated full local checkout; execute the already prepared offline capture from the exact candidate immutable source, run actual Node/Three + 3200-tick causal witness, then watch original baseline/candidate portrait and desktop WebM in full motion with bounded event-to-PTS search. Repair the largest current filmed fault rather than changing unverified clockwork again. Do not advance P1, count synthetic critics or promote CI as quality.",
+      "restrictions": "No change to PR58, frozen baseline, PR68 draft state, deployment or merge; no force push."
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
     "state": "P0 OPEN — source-earned game-loop witness exists at earlier SHA; current camera cutaway and native full motion remain NOT EVALUATED",
@@ -1387,6 +1371,58 @@
       },
       "realDeviceMetrics": "NOT EVALUATED",
       "leadingVerdict": "NOT EVALUATED"
+    },
+    "p0RunnerAssignmentTriage20261108": {
+      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+      "assessedAt": "2026-11-08",
+      "sourceHeadAtInspection": "07363b95b02b0f12e953f347ac6e88707ad63774",
+      "actualRenderedGameSourceSha": "f1fe522ec6a4da8d0a33cd620ca2c85357a04d6a",
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "frozenBaselineMoved": false,
+      "authoritativeGameplayChangedThisExecution": false,
+      "renderedGameplayExperienceChangedThisExecution": false,
+      "instrumentationChangedThisExecution": false,
+      "completedOutcome": "Verified the exact current PR68 branch, immutable baseline, earlier authentic source/film history, and the precise availability of candidate test/capture execution. No source, camera or rendered-game change was made: repeated unfilmed geometry tweaks would be speculative. Dedicated project shell remains disconnected and the newest nine capture jobs plus quality job have zero assigned runners.",
+      "verifiedBlocker": {
+        "developmentWorkspace": "NOT_FOUND: Tunnel-client has not been seen for 300 seconds (direct authorized execution attempt in this run)",
+        "capture": {
+          "runId": 42486349301,
+          "url": "https://github.com/my-edutu/Ai_games/actions/runs/42486349301",
+          "sourceSha": "b0694e12aefe5fb6ac916256e6709a14fbf24ee3",
+          "status": "queued",
+          "jobs": 9,
+          "assignedRunners": 0
+        },
+        "quality": {
+          "runId": 42486349402,
+          "url": "https://github.com/my-edutu/Ai_games/actions/runs/42486349402",
+          "sourceSha": "b0694e12aefe5fb6ac916256e6709a14fbf24ee3",
+          "status": "queued",
+          "jobs": 1,
+          "assignedRunners": 0
+        },
+        "branchQueuedRuns": 70,
+        "repositoryRunnerCause": "NOT EVALUATED: no permission-backed diagnosis of billing, global capacity or entitlement; queued is not a test failure",
+        "lastObservedCompletedSuccess": {
+          "runId": 42430308217,
+          "sourceSha": "52a80f54e3fd3b34c40e67544d9c3f0e2fb4175d",
+          "at": "2026-11-08T00:36:30Z",
+          "note": "Older source only; does not verify current candidate"
+        }
+      },
+      "currentSourceVideo": "NOT EVALUATED: no full-motion capture of present f1fe522e cutaway renderer, no event-matched current original WebM",
+      "largestObservedGap": "Last previously inspected genuine historical candidate e0fe7729 native 390x844 film has a large foreground clockwork wheel shielding the climber/guardian near video second 17-19. Current physical cutaways are not filmed; floor-nine, outcome and restart are not visually certified.",
+      "testsAndCapturesProducedThisExecution": [],
+      "newSourcePinnedCaptureLinks": [],
+      "independentBlindReviews": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "hardwareFrameTimeMemory": "NOT EVALUATED",
+      "leadingTransformationVerdict": "NOT EVALUATED",
+      "nextHighImpactAction": "Recover runner assignment or authenticated full local checkout; execute the already prepared offline capture from the exact candidate immutable source, run actual Node/Three + 3200-tick causal witness, then watch original baseline/candidate portrait and desktop WebM in full motion with bounded event-to-PTS search. Repair the largest current filmed fault rather than changing unverified clockwork again. Do not advance P1, count synthetic critics or promote CI as quality.",
+      "restrictions": "No change to PR58, frozen baseline, PR68 draft state, deployment or merge; no force push."
     }
   },
   "scenarios": [
