@@ -18,6 +18,7 @@ on:
       - 'scripts/tiny-kingdom-w127e-valley-reeds-contract.cjs'
       - 'scripts/tiny-kingdom-w128-visible-road-contract.cjs'
       - 'scripts/tiny-kingdom-w132-field-service-contract.cjs'
+      - 'scripts/tiny-kingdom-w133-solar-spine-contract.cjs'
       - 'tests/browser/tiny-kingdom-w128-visible-road.spec.cjs'
       - 'tests/browser/tiny-kingdom-w126e-environment.spec.cjs'
       - 'scripts/tiny-kingdom-w125-gpu-skin-contract.cjs'
@@ -84,6 +85,8 @@ jobs:
         run: node scripts/tiny-kingdom-w128-detailed-workskin-contract.cjs
       - name: W129 bounded original 13-bone palette retention and exact contact transforms
         run: node scripts/tiny-kingdom-w129-retained-worker-palette-contract.cjs
+      - name: W133 original half-hour sun residency and exact live-worker camera LOD contract
+        run: node scripts/tiny-kingdom-w133-solar-spine-contract.cjs
       - name: W126 exact four-profession inventory, contact and clock contract
         run: node scripts/tiny-kingdom-w126-authentic-workday-contract.cjs
       - run: npx playwright install --with-deps chromium
