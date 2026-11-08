@@ -124,6 +124,18 @@ export function observedStackedDecorativeOpacity(composite, ownLayers, companion
   return 1-Math.pow(1-composite,1/(ownLayers*(companions+1)));
 }
 
+// Explicit structural openings in the giant non-colliding face are more
+// trustworthy than making an opaque wheel disappear after the camera moves.
+// Both concentric load-bearing rings use the SAME angular gaps. This pure
+// design contract can be checked before any WebGL runner is available.
+export function observedClockworkRimApertures() {
+  const quadrants=4,window=.62,step=Math.PI*2/quadrants;
+  return Array.from({length:quadrants},(_,index)=>({
+    start:index*step+window*.5,
+    arc:step-window,
+  }));
+}
+
 // A physical clock face can cover the same narrow PHONE corridor as the
 // guardian even after its rotating gear teeth fade. Its rigid dial, posts and
 // backing are decorative only: they have no authored collider or gameplay
@@ -940,12 +952,10 @@ export function createTowerWorld(){
   // shared by BOTH concentric structural rings. No collider, hazard or
   // source-authoritative geometry is changed by these decorative surfaces.
   function openClockRim(parent,radius,tube,material,depth) {
-    const quadrants=4,window=.62,arc=TAU/quadrants-window;
-    for(let quadrant=0;quadrant<quadrants;quadrant++){
-      const start=quadrant*TAU/quadrants+window*.5;
+    for(const section of observedClockworkRimApertures()){
       const fragment=mesh(parent,
-        own(new THREE.TorusGeometry(radius,tube,7,20,arc)),
-        material,[0,0,depth],[1,1,1],[0,0,start]);
+        own(new THREE.TorusGeometry(radius,tube,7,20,section.arc)),
+        material,[0,0,depth],[1,1,1],[0,0,section.start]);
       fragment.name='clockwork-open-rim-fragment';
       fragment.userData.ambientDetail=true;
       fragment.castShadow=false;
