@@ -197,7 +197,7 @@ body[data-epilogue=true] .run-result h2{font-size:21px;margin:5px 0 10px}
 /* At 320–359px seven 44px controls cannot fit in one row. A deliberate
    two-row toolbar is preferable to horizontal scroll or shrinking targets. */
 @media(max-width:359px){
- .masthead{height:153px}
+ .masthead{height:158px}
  .top-actions{
   display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
   width:100%;max-width:none;gap:4px
@@ -205,6 +205,6 @@ body[data-epilogue=true] .run-result h2{font-size:21px;margin:5px 0 10px}
  .top-actions .icon-button{width:100%;padding:0 3px;min-width:44px}
  .top-actions .icon-button span{display:none}
  .layout{min-height:0}
- body[data-hud=clean] .arena{height:calc(100svh - 153px)}
+ body[data-hud=clean] .arena{height:calc(100svh - 158px)}
 }
 body[data-hud=clean] .danger-readout{display:none}
