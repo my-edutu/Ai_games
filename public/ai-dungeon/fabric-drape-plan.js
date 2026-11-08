@@ -52,7 +52,8 @@ export function drapePoseKey(action,elapsed=0,reducedMotion=false){
  if(action==='cast'&&t>=.68)return 'rest';
  if(action==='hurt'&&t>=.42)return 'rest';
  if(action==='guard'&&t>=.48)return 'rest';
- if(!['idle','move','attack','cast','hurt','guard'].includes(action))return 'rest';
+ if(action==='evade'&&t>=.58)return 'rest';
+ if(!['idle','move','attack','cast','hurt','guard','evade'].includes(action))return 'rest';
  return action+':'+t;
 }
 
@@ -80,6 +81,11 @@ export function planDrapeSwing(action,elapsed=0,reducedMotion=false){
   if(t>=.45)return STILL;
   return {pitch:.035*Math.sin(Math.PI*t/.45),roll:0};
  }
+ if(action==='evade'){
+  if(t>=.58)return STILL;
+  const p=Math.sin(Math.PI*t/.58);
+  return {pitch:.13*p,roll:.08*p};
+ }
  return STILL;
 }
 
@@ -103,6 +109,7 @@ export function planDrapeVertexBend(row,column,action,elapsed=0,reducedMotion=fa
   case 'cast':amplitude=t<.68?-.098*Math.sin(Math.PI*t/.68):0;frequency=5;break;
   case 'hurt':amplitude=t<.42?-.118*Math.sin(Math.PI*t/.42):0;frequency=9;break;
   case 'guard':amplitude=t<.48?.039*Math.sin(Math.PI*t/.48):0;frequency=4;break;
+  case 'evade':amplitude=t<.58?.13*Math.sin(Math.PI*t/.58):0;frequency=8;break;
   default:return REST_BEND;
  }
  if(amplitude===0)return REST_BEND;
