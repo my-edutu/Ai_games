@@ -379,6 +379,11 @@ export function createExplorer(options = {}) {
     const pressureReaction=!s.win&&!s.lose&&alert<.1&&keyReach<.1
       &&gateCelebrate<.1&&pickupCelebrate<.1
       &&Number.isFinite(options.pressureHeading)
+      // Reduced-motion must not make Pip brace at a distant diagonal tile
+      // while the physical joints are closed. Only the SAME publicly modeled
+      // static contact pose (from world.publicPressureProgress) may cue it.
+      &&(!s.reduced || Number.isFinite(options.pressureProgress)
+        && options.pressureProgress >= .99)
       ? Math.max(0,Math.min(1,finite(options.pressureStrength))) : 0;
     const pressureYaw=pressureReaction>0
       ? Math.max(-.75,Math.min(.75,Math.atan2(

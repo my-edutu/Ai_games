@@ -2299,12 +2299,16 @@ export function createMazeWorld(options = {}) {
       // three stages; exact transforms depend only on disclosed input/time.
       // Pip witnesses the SAME physical relay/shutter/piston clock, never a second timer.
       // A stale or hidden cell cannot lend its old phase to the explorer.
-      signal.publicProgress = stagedPressure;
       // Static reduced-motion contact is earned by Pip's currently observed
       // near approach, NOT mere visibility of a known trap across the room.
       // Recompute every frame; retreat, terminal and hidden states clear it.
       const reducedContact = reduced && nearContact;
       signal.reducedContact = reducedContact;
+      // Pip and the actual moving joints must tell the SAME physical story.
+      // In reduced motion the machine is binary (closed or contact-static),
+      // so publish that exact modeled pose to Pip instead of the discarded
+      // diagonal animation phase. Normal-motion chronology is unchanged.
+      signal.publicProgress = reduced ? (reducedContact ? 1 : 0) : stagedPressure;
       // Reduced motion is TWO static contact states, never a partly animated
       // diagonal/far warning. Suppress the continuous visual clock entirely
       // until contact; the still near-contact pose is handled below.

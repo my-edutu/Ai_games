@@ -1,3 +1,9 @@
+### Pass206 — Pip and Tide-Shear reduced-motion choreography now share the actual modeled contact (2026-11-08 UTC)
+
+- **Player-visible physical contradiction repaired in source:** Pass205 settled distant/diagonal reduced-motion pressure joints but Pip still fully braced at any diagonal pressure strength. One real, publicly visible near-contact flag now yields binary pressure progress in reduced motion; Pip's physical torso/head respond only to that same modeled output. Normal-motion three-stage relay/shutter/jaw sequence remains unchanged.
+- **Installed Three regression authored:** true world + true Pip rig at visible far/diagonal/adjacent/retreat/hidden/terminal, source immutability and existing resource-budget assertion. [Dated review](./maze-3d/pass-206-reduced-pressure-physical-pip-sync-2026-11-08.md). No hidden hazard, rule, camera, UI, NDC limit, geometry or performance claim change.
+- **Native new-HEAD verification PENDING:** prior real 37-frame WebGL artifact 13597475546 rechecked (35 individual hashes, 2 gate manifest). Previous Pass205 workflows still queued, independent workspace/critic disconnected. Official Nintendo visual bar **NOT MET**; maintain open draft PR and active hourly Gauntlet.
+
 ### Pass205 — reduced-motion pressure requires actual public contact (2026-11-08 UTC)
 
 - **Player-visible semantic defect:** a disclosed but distant trap wrongly held the same active reduced-motion pose as near Pip across relay, shutter, piston, diaphragm and both jaws. One current publicly visible near-contact flag now drives all five, so an unrelated visible pressure tile stays closed until an authentic approach; retreat, diagonal, terminal and remembered-only state restore rest. No extra geometry or engine authority.

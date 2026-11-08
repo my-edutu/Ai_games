@@ -11,13 +11,14 @@ async function loadWorld(){
   try{
     fs.mkdirSync(path.join(temp,'vendor'));
     fs.writeFileSync(path.join(temp,'package.json'),'{"type":"module"}');
-    for(const file of ['world.js','map-view.mjs','gate-moment.mjs'])
+    for(const file of ['world.js','map-view.mjs','gate-moment.mjs','characters.js'])
       fs.copyFileSync(path.join(root,'public/ai-maze-escape',file),path.join(temp,file));
     for(const file of ['three.module.js','three.core.js'])
       fs.copyFileSync(path.join(root,'node_modules/three/build',file),path.join(temp,'vendor',file));
     const THREE=await import(pathToFileURL(path.join(temp,'vendor/three.module.js')).href);
     const source=await import(pathToFileURL(path.join(temp,'world.js')).href);
-    return {THREE,source,world:source.createMazeWorld({balanced:true}),
+    const characters=await import(pathToFileURL(path.join(temp,'characters.js')).href);
+    return {THREE,source,characters,world:source.createMazeWorld({balanced:true}),
       cleanup:()=>fs.rmSync(temp,{recursive:true,force:true})};
   }catch(error){fs.rmSync(temp,{recursive:true,force:true});throw error}
 }
@@ -31,7 +32,7 @@ const close=(actual,expected,label)=>assert.ok(Math.abs(actual-expected)<1e-8,
   label+': expected '+expected+', got '+actual);
 
 test('reduced-motion pressure is a true public contact state, not every known visible trap firing',async()=>{
-  const {THREE,source,world,cleanup}=await loadWorld();
+  const {THREE,source,characters,world,cleanup}=await loadWorld();
   try{
     const published=state(),untouched=JSON.stringify(published);
     world.update(published);
@@ -59,12 +60,33 @@ test('reduced-motion pressure is a true public contact state, not every known vi
         close(Math.abs(jaws[i].rotation.z),.06,label+' jaw closed');
       }
     };
-    world.animate(1,{explorerPosition:far,reducedMotion:true});
-    rest('visible but far:');
-    world.animate(2,{explorerPosition:diagonal,reducedMotion:true});
-    rest('visible diagonal, not yet contact:');
-    world.animate(3,{explorerPosition:near,reducedMotion:true});
-    close(carriage.position.y,.29,'true visible one-cell contact lifts static piston');
+    const pip=characters.createExplorer({balanced:true});
+    try{
+      const face=pip.group.getObjectByName('curious head');
+      const torso=pip.group.getObjectByName('breathing torso');
+      assert.ok(face&&torso,'actual full-body Pip character joints exist');
+      const act=(progress,strength=1)=>{
+        pip.update({time:0,reducedMotion:true,pressureHeading:0,
+          pressureStrength:strength,pressureProgress:progress});
+        return {torsoY:torso.position.y,headX:face.rotation.x};
+      };
+      world.animate(1,{explorerPosition:far,reducedMotion:true});
+      rest('visible but far:');
+      close(world.publicPressureProgress(4),0,'visible distant physical signal');
+      const neutral=act(world.publicPressureProgress(4));
+      world.animate(2,{explorerPosition:diagonal,reducedMotion:true});
+      rest('visible diagonal, not yet contact:');
+      close(world.publicPressureProgress(4),0,'visible diagonal mechanism is closed');
+      const diagonalPip=act(world.publicPressureProgress(4),.7);
+      close(diagonalPip.torsoY,neutral.torsoY,'Pip cannot falsely brace at closed diagonal mechanism');
+      close(diagonalPip.headX,neutral.headX,'Pip gaze remains truthful without physical contact');
+      world.animate(3,{explorerPosition:near,reducedMotion:true});
+      close(world.publicPressureProgress(4),1,'true public contact publishes static physical pose');
+      const contactPip=act(world.publicPressureProgress(4));
+      assert.ok(contactPip.torsoY < neutral.torsoY-.05
+        && contactPip.headX > neutral.headX+.10,
+        'real near contact must physically plant Pip and lift its head');
+      close(carriage.position.y,.29,'true visible one-cell contact lifts static piston');
     for(let i=0;i<2;i++){
       const side=i===0?-1:1;
       close(relays[i].rotation.z,-side*.40,'true near warning relay');
@@ -74,14 +96,19 @@ test('reduced-motion pressure is a true public contact state, not every known vi
       close(Math.abs(shutters[i].rotation.z),.24,'true near stationary shutter');
       close(Math.abs(jaws[i].rotation.z),.24,'true near paired warning jaws');
     }
-    world.animate(4,{explorerPosition:far,reducedMotion:true});
-    rest('retreat:');
-    world.update(state({visibleCells:[]}));
-    world.animate(5,{explorerPosition:near,reducedMotion:true});
-    rest('remembered-only hazard:');
-    world.update(state({result:{reason:'capture'}}));
-    world.animate(6,{explorerPosition:near,reducedMotion:true});
-    rest('terminal hazard:');
+      world.animate(4,{explorerPosition:far,reducedMotion:true});
+      rest('retreat:');
+      close(world.publicPressureProgress(4),0,'retreat immediately resets Pip mechanical cue');
+      close(act(world.publicPressureProgress(4)).torsoY,neutral.torsoY,'Pip released after retreat');
+      world.update(state({visibleCells:[]}));
+      world.animate(5,{explorerPosition:near,reducedMotion:true});
+      rest('remembered-only hazard:');
+      close(world.publicPressureProgress(4),0,'hidden pressure cannot cue Pip');
+      world.update(state({result:{reason:'capture'}}));
+      world.animate(6,{explorerPosition:near,reducedMotion:true});
+      rest('terminal hazard:');
+      close(world.publicPressureProgress(4),0,'terminal pressure cannot cue Pip');
+    } finally {pip.dispose();}
     for(const metric of ['geometryCount','materialCount','textureCount'])
       assert.equal(world.stats()[metric],budget[metric],
         'render-frame contact cannot allocate new GPU resources');

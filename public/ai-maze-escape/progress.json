@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-08T06:16:08.794Z",
+  "updatedAt": "2026-11-08T07:43:56.491Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass205 2026-11-08 source candidate: Reduced-motion formerly showed a partially activated Tide-Shear pressure mechanism merely because its trap tile was visible, even when Pip was distant. Production now requires actually visible near contact for static relays, shutters, piston, diaphragms and both jaws; retreat/diagonal/terminal/hidden remain at rest. Installed-Three regressions authored and old instant-open jaw assertions migrated to the stricter three-beat contract. Exact-head browser/Node/CI and fresh independent visual critic PENDING due queued GitHub workflows and disconnected coding workspace. Official Nintendo quality bar not met; draft PR #53 unmerged/undeployed."
+    "summary": "Pass206 2026-11-08 production candidate: Reduced-motion Pip previously braced at diagonally visible pressure while the real Tide-Shear joints remained closed. Both now consume a single current public contact truth: world publishes 0 at far/diagonal/withdrawn/hidden/terminal and 1 at actual near contact, and Pip's full-body gesture is gated to that modeled pose. Normal 3-phase choreography and AI, privacy, accessibility, strict resource/camera gates unchanged. Installed-Three world+Pip regression authored, NOT executed: coding workspace and independent critics disconnected; previous WebGL and whole CI queued. Old-source 37 full WebGL PNGs verified 35 sidecars plus two manifest hashes, not new-head proof. Nintendo benchmark not met; draft PR #53 stays unmerged/undeployed."
   },
   "captures": [
     {
