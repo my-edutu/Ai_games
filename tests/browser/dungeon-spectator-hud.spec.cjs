@@ -115,6 +115,11 @@ test('actual public snapshot provides exact floor enemies, active traps and exit
  const traps=s.traps.filter(t=>t.active&&!t.disarmed).length;
  await expect(page.locator('#hostiles-left')).toHaveText(String(foes));
  await expect(page.locator('#hazards-active')).toHaveText(String(traps));
+ const mystic=s.units.find(u=>u.kind==='mystic');
+ if(Number.isInteger(mystic?.focus)){
+  await expect(page.locator('.hero-card[data-hero-id="mystic"] .hero-heading small'))
+   .toContainText('Focus '+mystic.focus+'/'+(mystic.maxFocus??5));
+ }
  await expect(page.locator('#portal-status')).toHaveText(foes?'PORTAL SEALED':'PORTAL AVAILABLE');
  await expect(page.locator('#expedition-objective')).toHaveText(
   foes?'Defeat remaining enemies':'Reach the portal to descend'
