@@ -5654,7 +5654,7 @@ function grainwardMarketArcadePlan(){
    ground0=terrain(outerX,z0),ground1=terrain(outerX,z1),
    y0=Math.max(terrain(from.x,from.z)+eaveA,ground0+2.39),
    y1=Math.max(terrain(to.x,to.z)+eaveB,ground1+2.39);
-  return {source:'real-adjacent-trading-roof-ends',realMarketEndpointA:a,
+  return {source:'W131-two-actual-market-stall-arcades',realMarketEndpointA:a,
    realMarketEndpointB:b,outerX,innerX,z0,z1,y0,y1,
    minClearance:Math.min(y0-ground0,y1-ground1)-.13,
    noNewGroundPosts:true};
