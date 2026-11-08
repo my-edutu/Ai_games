@@ -231,3 +231,45 @@ test('actual world renderer uses surface mutation arbitration and exposes resize
  assert.match(app,/surfaceResizes:\{renderer:surfaceRendererResizes/);
  assert.doesNotMatch(app,/canvas\.width!==Math\.round\(w\*renderer\.getPixelRatio\(\)\)/);
 });
+
+
+test('software delivery governor retains full resolution on fast or isolated slow frames',async()=>{
+ const {createSoftwareDeliveryBudgetGovernor}=await load(),gate=createSoftwareDeliveryBudgetGovernor();
+ for(let i=0;i<120;i++){
+  const d=gate.observe({intervalMs:16.7,renderMs:8,pixelCap:650000});
+  assert.equal(d.maxPixels,650000);assert.equal(d.change,false);
+ }
+ for(const gap of [1600,1700,1800])
+  assert.equal(gate.observe({intervalMs:gap,renderMs:10,pixelCap:650000}).maxPixels,650000);
+});
+test('four continuous real foreground stalls trial lower software pixels, six improved frames retain it',async()=>{
+ const {createSoftwareDeliveryBudgetGovernor}=await load(),gate=createSoftwareDeliveryBudgetGovernor();
+ let cap=650000,d;
+ for(const gap of [1800,1900,1700,1800]){
+  d=gate.observe({intervalMs:gap,renderMs:10,pixelCap:cap});cap=d.maxPixels;
+ }
+ assert.equal(cap,520000);assert.equal(d.status,'testing');
+ for(let i=0;i<6;i++){d=gate.observe({intervalMs:900,renderMs:12,pixelCap:cap});cap=d.maxPixels;}
+ assert.equal(d.status,'validated');assert.equal(cap,520000);
+ assert.equal(gate.stats().successfulTrials,1);
+});
+test('unimproved software capture automatically restores image quality and never oscillates',async()=>{
+ const {createSoftwareDeliveryBudgetGovernor}=await load(),gate=createSoftwareDeliveryBudgetGovernor();
+ let cap=650000,d;
+ for(let i=0;i<4;i++){d=gate.observe({intervalMs:1800,renderMs:10,pixelCap:cap});cap=d.maxPixels;}
+ assert.equal(cap,520000);
+ for(let i=0;i<6;i++){d=gate.observe({intervalMs:1850,renderMs:10,pixelCap:cap});cap=d.maxPixels;}
+ assert.equal(d.status,'restored');assert.equal(cap,650000);
+ for(let i=0;i<40;i++){d=gate.observe({intervalMs:2000,renderMs:10,pixelCap:cap});cap=d.maxPixels;}
+ assert.equal(cap,650000);assert.equal(d.status,'locked');
+ assert.equal(gate.stats().rejectedTrials,1);
+});
+test('hidden, invalid and synchronous render-bound events are not delivery optimization evidence',async()=>{
+ const {createSoftwareDeliveryBudgetGovernor}=await load(),gate=createSoftwareDeliveryBudgetGovernor();
+ for(let i=0;i<3;i++)gate.observe({intervalMs:1800,renderMs:10,pixelCap:650000});
+ assert.equal(gate.observe({intervalMs:30000,renderMs:10,pixelCap:650000,visible:false}).status,'hidden');
+ for(let i=0;i<2;i++)assert.equal(gate.observe({intervalMs:1800,renderMs:10,pixelCap:650000}).change,false);
+ assert.equal(gate.observe({intervalMs:3000,renderMs:700,pixelCap:650000}).status,'render-bound');
+ assert.equal(gate.observe({intervalMs:NaN,renderMs:10,pixelCap:650000}).status,'invalid');
+ gate.reset();assert.equal(gate.stats().trialActive,false);
+});

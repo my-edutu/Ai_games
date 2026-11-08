@@ -6167,6 +6167,30 @@
       "animationSession": "PR72 is a candidate only; not integrated",
       "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
       "next": "Inspect actual exact-head 1440px/390px surfaceResizes versus frames, directRenderMs, p95 delivery, bodies and hazards; confirm no scene regression; then fix next measured bottleneck and integrate independently validated animation with safe concurrency"
-    }
+    },
+    "integratedMilestoneSlices": [
+      {
+        "date": "2026-11-08",
+        "sourceParent": "69d62090237f8992a277f90ebd90c8798db96a1e",
+        "stage": "A",
+        "candidate": "software-only reversible compositor-delivery pixel trial, exact-head AFTER pending",
+        "objective": "Test whether recorded browser RAF stalls improve when actual CPU WebGL framebuffer work falls 20%; auto restore if six delivered frames fail 20% median improvement",
+        "sourceFiles": [
+          "public/ai-dungeon/postfx-budget.js",
+          "public/ai-dungeon/app.js",
+          "tests/foundation/dungeon-postfx-budget.test.cjs"
+        ],
+        "testEvidence": "7/7 standalone behavioral prototype checks executed, 4 new integrated foundation tests added but unexecuted",
+        "actualDesktop": "UNVERIFIED",
+        "actualMobile": "UNVERIFIED",
+        "originalAudioImpact": "UNVERIFIED",
+        "fiveStage": "UNVERIFIED",
+        "criticCount": 0,
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "next": "Inspect exact SHA original desktop/mobile WebM source-truth diagnostics and keep/reject reversible trial; complete organic natural defeat/restart and independently verified full-body handoff without overriding PR72"
+      }
+    ]
   }
 }

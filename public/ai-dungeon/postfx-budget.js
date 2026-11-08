@@ -144,3 +144,50 @@ export function planRenderSurfaceUpdate({
   updateProjection:sizeChanged,expectedWidth,expectedHeight,
   backingMismatch,sizeChanged,ratioChanged});
 }
+
+/**
+ * Evaluate software-renderer *delivery* separately from synchronous render.
+ * Four sustained foreground stalls permit one reversible 20% pixel trial.
+ * Keep the reduction only if SIX genuinely delivered subsequent RAF intervals
+ * show at least 20% improvement; otherwise restore full detail and lock.
+ * This is presentation-only: no simulation ticks, actor data or sounds change.
+ */
+export function createSoftwareDeliveryBudgetGovernor(){
+ const MIN=320000,MAX=650000;
+ const median=s=>{const a=[...s].sort((x,y)=>x-y);return (a[(a.length-1)>>1]+a[a.length>>1])/2};
+ let slow=0,history=[],trial=null,rejected=false,successfulTrials=0,rejectedTrials=0,sourceCap=null;
+ const reset=()=>{slow=0;history=[];trial=null;rejected=false;sourceCap=null};
+ function observe({intervalMs,renderMs,pixelCap,visible=true}={}){
+  if(!visible){slow=0;history=[];if(trial)trial.after=[];return {maxPixels:pixelCap,change:false,status:'hidden'}}
+  const valid=Number.isFinite(intervalMs)&&intervalMs>0&&Number.isFinite(renderMs)&&renderMs>0&&
+   Number.isSafeInteger(pixelCap)&&pixelCap>=MIN&&pixelCap<=MAX;
+  if(!valid)return {maxPixels:pixelCap,change:false,status:'invalid'};
+  if(sourceCap!==null&&pixelCap!==sourceCap){slow=0;history=[];trial=null;rejected=false;}
+  sourceCap=pixelCap;
+  if(renderMs>350){slow=0;history=[];trial=null;return {maxPixels:pixelCap,change:false,status:'render-bound'};}
+  if(trial){
+   trial.after.push(Math.min(intervalMs,60000));
+   if(trial.after.length<6)return {maxPixels:pixelCap,change:false,status:'testing'};
+   if(median(trial.after)<=trial.beforeMedian*.8){
+    successfulTrials++;trial=null;slow=0;history=[];
+    return {maxPixels:pixelCap,change:false,status:'validated'};
+   }
+   const original=trial.originalCap;
+   rejectedTrials++;rejected=true;trial=null;slow=0;history=[];sourceCap=original;
+   return {maxPixels:original,change:pixelCap!==original,status:'restored'};
+  }
+  history.push(Math.min(intervalMs,60000));if(history.length>8)history.shift();
+  slow=intervalMs>=1200?Math.min(4,slow+1):0;
+  if(!rejected&&slow===4&&pixelCap>MIN){
+   const proposed=Math.max(MIN,Math.floor(pixelCap*.8/1000)*1000);
+   if(proposed<pixelCap){
+    trial={originalCap:pixelCap,beforeMedian:median(history.slice(-4)),after:[]};
+    slow=0;sourceCap=proposed;
+    return {maxPixels:proposed,change:true,status:'testing'};
+   }
+  }
+  return {maxPixels:pixelCap,change:false,status:rejected?'locked':'stable'};
+ }
+ return {observe,reset,stats:()=>({trialActive:!!trial,rejected,successfulTrials,rejectedTrials})};
+}
+
