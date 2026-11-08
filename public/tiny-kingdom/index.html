@@ -7684,9 +7684,12 @@ function marketTimberCart(x,z){
 // grain and timber docks still receive the SAME authoritative cargo/receipts.
 // The front is fully open, supports are outside the genuine x=-1/.85 route,
 // roof starts >2.2m above the real dock and never creates a collision wall.
+// W125: physically widen both receiving-hall roof and real support pairs
+// to clear the direct delivery-centre sightline, without moving actual
+// courier receipt coordinates, changing navigation, or hiding geometry.
 const MARKET_RECEIVING_HALL=Object.freeze({
  centerX:-.075,frontZ:10.77,backZ:12.45,
- halfWidth:2.22,eaveAboveGround:2.27,ridgeAboveGround:3.25
+ halfWidth:2.62,eaveAboveGround:2.27,ridgeAboveGround:3.25
 });
 // W103: W83 granary porch and W100 receiving hall were real rendered roofs
 // but missing from the citizen camera's physical occlusion geometry. These
@@ -17398,7 +17401,7 @@ if(gpuAvailable){
   {totalChunks:0,visibleChunks:0,visibleTriangles:0,culledTriangles:0,
     drawCalls:0,strictDrawCalls:0,bridgedTriangles:0,bridgedChunks:0,
     issuedTriangles:0,savedDrawCalls:0,maxBridgeTriangles:SCENIC_BRIDGE_MAX_TRIANGLES,
-    invalidRanges:0};
+    invalidRanges:0,driverCalls:0,multiDrawBatches:0,multiDrawRanges:0};
  scenicVisibilityStats.totalSubmittedTriangles=scenicVisibilityStats.landscape.visibleTriangles+
   scenicVisibilityStats.settlement.visibleTriangles+scenicVisibilityStats.civic.visibleTriangles+
   scenicVisibilityStats.homes.visibleTriangles+fieldLodDraw.triangles;
