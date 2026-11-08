@@ -1,5 +1,5 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
-import {getEnvironmentMaterialRole,planEnvironmentLightPreset,planEnvironmentSurfaceWear,makeFacadeMasonryPixels,makeFacadeMasonryReliefPixels} from '/dungeon/environment-look-plan.js';
+import {getEnvironmentMaterialRole,planEnvironmentLightPreset,planEnvironmentSurfaceWear,makeFacadeMasonryPixels,makeFacadeMasonryReliefPixels,makeFacadeMasonryAtlas} from '/dungeon/environment-look-plan.js';
 import {addDungeonWindows} from '/dungeon/architecture.js';
 import {planStoneRelief} from '/dungeon/stone-relief-plan.js';
 import {planCutawayFloorBacking,planCutawayCapTransform} from '/dungeon/cutaway-floor-plan.js';
@@ -23,12 +23,12 @@ const BIOMES=[
 ];
 function hash(a,b,c){let n=Math.imul(a+37,374761393)^Math.imul(b+93,668265263)^Math.imul(c+17,1442695041);n=Math.imul(n^(n>>>13),1274126177);return(n^(n>>>16))>>>0}
 function rand(a,b,c){return hash(a,b,c)/4294967296}
-function texture(floor,kind,biome){
+function texture(floor,kind,biome,surfaceAtlas=null){
  // Rebuild the existing two 256px CanvasTextures with coherent original
  // chipped mineral courses instead of repeated rectangular highlights.
  const canvas=document.createElement('canvas');canvas.width=256;canvas.height=256;
  const context=canvas.getContext('2d'),image=context.createImageData(256,256);
- image.data.set(makeFacadeMasonryPixels(floor,kind,256,biome));
+ image.data.set(surfaceAtlas?(kind==='wall'?surfaceAtlas.wallPixels:surfaceAtlas.floorPixels):makeFacadeMasonryPixels(floor,kind,256,biome));
  context.putImageData(image,0,0);
  const t=new THREE.CanvasTexture(canvas);t.wrapS=t.wrapT=THREE.RepeatWrapping;
  t.anisotropy=4;t.colorSpace=THREE.SRGBColorSpace;return t;
@@ -126,11 +126,14 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
  const claddingHeightByTile=new Map(masonryProfiles.map((p,i)=>[p.z*N+p.x,masonryHeights[i]]));
  const geometries=[],materials=[],textures=[],flames=[];
  const box=new THREE.BoxGeometry(1,1,1),blade=new THREE.OctahedronGeometry(1,0),ring=new THREE.TorusGeometry(.36,.055,8,24);
- const floorTex=texture(floor,'floor',biome),wallTex=texture(floor,'wall',biome);textures.push(floorTex,wallTex);
+ // Produce original floor/wall albedos and relief from ONE sampled mineral
+ // field. Keep existing texture owners and floor-change disposal unchanged.
+ const surfaceAtlas=makeFacadeMasonryAtlas(floor,256,biome);
+ const floorTex=texture(floor,'floor',biome,surfaceAtlas),wallTex=texture(floor,'wall',biome,surfaceAtlas);textures.push(floorTex,wallTex);
  // Generated masonry relief yields real physically based surface response rather than flat colour tiles.
  const relief=document.createElement('canvas');relief.width=256;relief.height=256;const rc=relief.getContext('2d');
  const image=rc.createImageData(256,256);
- image.data.set(makeFacadeMasonryReliefPixels(floor,256));
+ image.data.set(surfaceAtlas.reliefPixels??makeFacadeMasonryReliefPixels(floor,256));
  rc.putImageData(image,0,0);const reliefTex=new THREE.CanvasTexture(relief);reliefTex.wrapS=reliefTex.wrapT=THREE.RepeatWrapping;textures.push(reliefTex);
  const cryptGrade=(floor-1)%4===0;
  const floorSurface=surface('floorStone',{map:floorTex,bumpMap:reliefTex,bumpScale:.045,color:cryptGrade?'#f3e5d1':'#e4efff'});
