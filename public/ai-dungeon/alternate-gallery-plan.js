@@ -74,7 +74,10 @@ export function planAlternateDungeonGallery(map,floor,exit,main,units=[],traps=[
  for(let i=2;i<route.length-5;i+=stride){
   if(cheb(route[i],exit)<=4)continue;
   for(let j=i+3;j<=Math.min(i+12,route.length-3);j++){
-   if(cheb(route[j],exit)<=4||route[i].x===route[j].x&&route[i].z===route[j].z)continue;
+   if(cheb(route[j],exit)<=4||route[i].x===route[j].x&&route[i].z===route[j].z||
+    // Architectural branch and rejoin must not appear to bypass a genuine
+    // ordinary encounter; both anchors remain on the same side of its cell.
+    (middle>=0&&i<middle&&j>middle))continue;
    const blocked=new Set(primary);
    blocked.delete(K(route[i].x,route[i].z,n));
    blocked.delete(K(route[j].x,route[j].z,n));
@@ -144,8 +147,8 @@ export function planAlternateDungeonGallery(map,floor,exit,main,units=[],traps=[
   drawHeight:.021,collisionHeight:0,role:'true-lateral-route-paving',index:i
  }));
  const bounds=facades.map(f=>({kind:'real-wall-buttress',role:'alternate-cloister',
-  minX:f.x-.52,maxX:f.x+.52,minY:0,maxY:3.34,
-  minZ:f.z-.52,maxZ:f.z+.52,supportCell:[f.gridX,f.gridZ]}));
+  minX:f.x-.56,maxX:f.x+.56,minY:0,maxY:3.34,
+  minZ:f.z-.56,maxZ:f.z+.56,supportCell:[f.gridX,f.gridZ]}));
  const palette=[
   ['#877967','#242421','#a18b73'],['#8b736e','#281d21','#af9a81'],
   ['#708092','#1c2634','#a0b0bd'],['#80758e','#252032','#ad9fb8']
