@@ -45,16 +45,16 @@
     "latestEvidenceRun": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "assessedAt": "2026-11-08",
-      "sourceHeadAtInspection": "fcf98aa21bda724f354f53ca048432eb48341537",
+      "sourceHeadAtInspection": "9e30989a495b46c4d723e624c13d4fb943eb070b",
       "actualRenderedGameSourceSha": "f1fe522ec6a4da8d0a33cd620ca2c85357a04d6a",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "frozenBaselineMoved": false,
       "authoritativeGameplayChangedThisExecution": false,
       "renderedGameplayExperienceChangedThisExecution": false,
       "instrumentationChangedThisExecution": true,
-      "completedOutcome": "Recovered current draft PR68 and original 3D source/read-only P0 evidence contracts. Repaired the production capture workflow so one failed desktop recorder cannot suppress the independently seeded portrait attempt or erase its Playwright failure traces; the original unedited WebM integrity audit also executes after either viewport fails. Both failures are preserved in source-pinned artifacts and a final outcome-based safety gate still FAILS rather than passing via continue-on-error. Workflow committed at fcf98aa21bda724f354f53ca048432eb48341537; no gameplay, camera, visual or baseline code changed. GitHub runners still cannot run the workflow.",
+      "completedOutcome": "Verified that every ordinary PR68 code push queues eight source-pinned browser recordings plus a ledge task, despite zero runners assigned to latest capture/quality jobs. Made this heavyweight workflow explicit-request-only via GitHub workflow_dispatch or deliberate capture-request.json change. Baseline, gameplay, renderer, tests, matrix, host and original film remain untouched. Existing queued runs persist; this does not repair worker assignment or prove any game experience improvement.",
       "verifiedBlocker": {
-        "developmentWorkspace": "Container available for static scripts but has no repository checkout or GitHub network DNS; authenticated original development shell remains unavailable from prior inspections. Current run used GitHub connector reads/writes.",
+        "developmentWorkspace": "Authorized app-project command returned NOT_FOUND: tunnel-client has not been seen for 300 seconds. Local container has no repository checkout; git ls-remote cannot resolve github.com. GitHub connector authenticated source operations remain available.",
         "capture": {
           "runId": 42490211469,
           "url": "https://github.com/my-edutu/Ai_games/actions/runs/42490211469",
@@ -72,7 +72,7 @@
           "assignedRunners": 0
         },
         "branchQueuedRuns": 70,
-        "repositoryRunnerCause": "NOT EVALUATED: runner assignment absent; no permission-backed diagnosis of billing, account capacity or entitlement. Queue does not establish test failure.",
+        "repositoryRunnerCause": "NOT EVALUATED: assignment absent, underlying capacity/billing/permissions cause unknown. New workflow admission reduces future pressure but cannot assign or cancel existing jobs.",
         "lastObservedCompletedSuccess": {
           "runId": 42430308217,
           "sourceSha": "52a80f54e3fd3b34c40e67544d9c3f0e2fb4175d",
@@ -80,12 +80,13 @@
           "note": "Older source only; does not verify current candidate"
         }
       },
-      "currentSourceVideo": "NOT EVALUATED: no full-motion WebM at clockwork cutaway renderer f1fe522e or present workflow HEAD; new nine-job capture queued with zero runners.",
-      "largestObservedGap": "Historical original-source 390x844 candidate film at renderer e0fe7729 shows the giant foreground clockwork wheel masking climber/guardian around 17–19s. Later physical cutaways remain unfilmed, and floor-nine transition/outcome/restart are not current video-certified.",
+      "currentSourceVideo": "NOT EVALUATED: no current-renderer continuous 60+s native WebM with validated guardian/crusher victory, gateway crossing, floor-nine continuation and real outcome/restart.",
+      "largestObservedGap": "Previous genuine candidate portrait WebM at old e0fe7729 renderer shows large near-field clock face obscuring living guardian/climber around native 17–19s; later f1fe522e physical cutaways have not been filmed, so visual improvement is NOT EVALUATED.",
       "testsAndCapturesProducedThisExecution": [
-        "GitHub connector exact source/provenance readback, immutable baseline SHA check and draft PR status",
-        "Static safety contract checked for original-source independent 960x600/390x844 attempts, per-viewport failure isolation, native-WebM audit and outcome-based veto",
-        "No Node/Three.js/browser tests or new WebM: GitHub Actions jobs still queued without assigned runners"
+        "Read actual open/draft PR68 head/base, frozen baseline and source-bound evidence workflow",
+        "Read latest native capture 42490211469 (nine queued jobs, zero runners) and quality 42490211058 (one queued job, zero runners)",
+        "Static source admission check: only deliberate capture-request.json push or workflow_dispatch may schedule nine-job evidence; 8-scenario matrix and frozen baseline SHA unchanged",
+        "No original Node/Three.js/Chromium capture, actual-device performance or real blind reviewers: executable checkout and GitHub workers unavailable"
       ],
       "newSourcePinnedCaptureLinks": [],
       "independentBlindReviews": {
@@ -95,8 +96,8 @@
       },
       "hardwareFrameTimeMemory": "NOT EVALUATED",
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "nextHighImpactAction": "Acquire an executable complete authorized checkout or assigned GitHub runner. At exact immutable candidate SHA, execute both independent genuine viewports even on partial capture failures, inspect full-motion camera/clockwork and native event pointers, prove earned guardian-crusher victory, physical floor-nine threshold, result/intermission/restart. Only then choose a substantive observed 3D/gameplay correction; P0 stays open.",
-      "restrictions": "No PR58 changes, baseline edits, draft conversion, deploy, merge, force-push or fake critics."
+      "nextHighImpactAction": "Once runner capacity or authorized checkout is recovered, deliberately trigger source-pinned PR68 film through Actions workflow_dispatch or a dedicated capture-request.json commit. Run genuine original Node/Three tests and full 960x600/390x844 baseline/candidate game recordings; inspect actual clockwork occlusion in motion and earned guardian/crusher-to-grounded-threshold-to-floor-nine-to-result/intermission/restart. Fix largest newly filmed systemic defect; no P1 or independent scoring until evidence.",
+      "restrictions": "Frozen 1731b380... baseline immutable; no PR58/main edits, merge, deployment, force push, draft conversion, invented critics or evidence."
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
     "state": "P0 OPEN — source-earned game-loop witness exists at earlier SHA; current camera cutaway and native full motion remain NOT EVALUATED",
