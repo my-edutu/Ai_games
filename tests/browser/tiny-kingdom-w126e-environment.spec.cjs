@@ -16,6 +16,7 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    return {state:JSON.stringify(g.exportSnapshot()),
     names:g.getState().people.map(p=>p.name),
     ecology:g.getEcotoneVisualStats(),
+    valley:g.getValleySurfaceBuildAudit(),reeds:g.getRiverReedVisualAudit(),
     ground:g.getGroundSurfaceStats(),
     geometry:g.getGeometryAudit(),
     profile:g.getFrameProfile(),
@@ -27,6 +28,12 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(source.ecology.fieldMarginClumps).toBeGreaterThan(20);
   expect(source.ecology.triangles).toBeLessThan(1500);
   expect(source.ecology.extraBuffers).toBe(0);
+  expect(source.valley.tiles).toBe(1681);
+  expect(source.valley.triangles).toBe(6724);
+  expect(source.valley.uniqueSamples).toBe(3445);
+  expect(source.reeds.stems).toBe(207);
+  expect(source.reeds.triangles).toBe(1242);
+  expect(source.reeds.extraBuffers).toBe(0);
   expect(source.ground.roadSegments).toBeGreaterThan(0);
   expect(source.geometry.totalTriangles).toBeLessThan(160000);
   expect(source.glError).toBe(0);
@@ -50,11 +57,14 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
     state:JSON.stringify(g.exportSnapshot()),
     names:g.getState().people.map(p=>p.name),
     ecology:g.getEcotoneVisualStats(),
+    valley:g.getValleySurfaceBuildAudit(),reeds:g.getRiverReedVisualAudit(),
     glError:document.getElementById('world').getContext('webgl')?.getError()??null};
   });
   expect(after.state).toBe(source.state);
   expect(after.names).toEqual(source.names);
   expect(after.ecology).toEqual(source.ecology);
+  expect(after.valley).toEqual(source.valley);
+  expect(after.reeds).toEqual(source.reeds);
   expect(after.glError).toBe(0);
   expect(errors).toEqual([]);
   await info.attach('W126E-environment-audit-'+viewport.width,

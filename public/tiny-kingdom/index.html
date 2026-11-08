@@ -4394,6 +4394,58 @@ function turfColor(x,z){const moss=Math.sin(x*.17+z*.065)*Math.cos(z*.23)*.045+M
  return snowy?[.63+moss*.3,.68+moss*.3,.69+moss*.3]:[(.305+moss+ridge)*(season===2?1.22:scale),(.425+moss*1.05+ridge)*scale,(.291+moss*.8+ridge)*(season===3?.90:scale)]}
 function turfTri(a,b,c){for(const v of [a,b,c]){const x=v[0],z=v[2],dx=(terrain(x+.15,z)-terrain(x-.15,z))/.3,dz=(terrain(x,z+.15)-terrain(x,z-.15))/.3,L=Math.hypot(dx,1,dz);data.push(...v,-dx/L,1/L,-dz/L,...turfColor(x,z),MATERIAL.GRASS)}}
 function turfQuad(a,b,c,d){turfTri(a,b,c);turfTri(a,c,d)}
+// W127E: exact authored valley surface, with shared corner and tile-centre
+// shading rather than re-evaluating terrain height/normals/season 3x per
+// triangle. The original 41x41 tile grid, four-facet order, true terrain(),
+// 10-float material, seam vertices, and authoritative navigation are intact.
+// Intermediate arrays die at season build; only the original scene VBO stays.
+let valleySurfaceBuildStats={tiles:0,triangles:0,uniqueSamples:0,
+ legacyRepeatedSamples:0,avoidedRepeatedSamples:0,shadedFloats:0,
+ extraBuffers:0,changesNavigation:false,changesAuthority:false};
+function shadeValleySurfaceVertex(x,z){
+ const y=terrain(x,z)-.09,
+  dx=(terrain(x+.15,z)-terrain(x-.15,z))/.3,
+  dz=(terrain(x,z+.15)-terrain(x,z-.15))/.3,
+  L=Math.hypot(dx,1,dz);
+ return [x,y,z,-dx/L,1/L,-dz/L,...turfColor(x,z),MATERIAL.GRASS];
+}
+function buildValleySurface(){
+ const first=data.length;
+ // Advance the axis by the SAME repeated 2.1m addition as the old nested
+ // loops: no float drift between neighbouring cells or the old border.
+ const axis=[],step=HORIZON_STEP;
+ let pos=HORIZON_MIN;
+ for(let i=0;i<=HORIZON_SEGMENTS;i++){axis.push(pos);pos+=step}
+ const n=HORIZON_SEGMENTS,corner=[];
+ let corners=0,centres=0;
+ for(let ix=0;ix<=n;ix++){
+  const row=[];
+  for(let iz=0;iz<=n;iz++){
+   row.push(shadeValleySurfaceVertex(axis[ix],axis[iz]));
+   corners++;
+  }
+  corner.push(row);
+ }
+ const emit=(a,b,c)=>data.push(...a,...b,...c);
+ for(let ix=0;ix<n;ix++)for(let iz=0;iz<n;iz++){
+  const a=corner[ix][iz],d=corner[ix][iz+1],
+   c=corner[ix+1][iz+1],b=corner[ix+1][iz],
+   mid=shadeValleySurfaceVertex(axis[ix]+step*.5,axis[iz]+step*.5);
+  centres++;
+  // Same original winding, normals, four facets and material per vertex.
+  emit(a,d,mid);emit(d,c,mid);emit(c,b,mid);emit(b,a,mid);
+ }
+ valleySurfaceBuildStats={
+  tiles:n*n,triangles:(data.length-first)/30,
+  uniqueSamples:corners+centres,cornerSamples:corners,centreSamples:centres,
+  legacyRepeatedSamples:n*n*4*3,
+  avoidedRepeatedSamples:n*n*4*3-corners-centres,
+  shadedFloats:data.length-first,
+  extraBuffers:0,changesNavigation:false,changesAuthority:false,
+  sharedWorldEdges:true,seasonalMeshResident:true};
+}
+function getValleySurfaceBuildAudit(){return {...valleySurfaceBuildStats}}
+
 // Gauntlet 052: seamless low-LOD terrain halo beyond walkable map boundary.
 // The playable 86x86 valley stays untouched. 2 surrounding rings cost 656
 // triangles and cover ±92 world units so scenic cameras do not see a hard
@@ -10119,15 +10171,71 @@ function orchardTrees(){
   ellipsoid(x,y+.57,z,.21,.20,.18,rgb(0xffb553),6);
  }
 }
+// W127E: the same river's occupied banks, rebuilt as bent rooted reeds
+// and broken seed silhouettes. Thin crossed leaf faces replace 216 costly
+// toy cylinders. They are original season-resident foliage, not a new water
+// course, collider, production resource or independently submitted draw call.
+let riverReedVisualStats={clusters:0,stems:0,triangles:0,
+ skippedCrossings:0,maxHeight:0,season:null};
 function riverReeds(){
- const leaf=rgb(0x709a57),seedhead=rgb(0xb7a079);
- for(let i=0;i<72;i++){
-  const x=-39+i*1.08,z=20+Math.sin(x*.13)*3+(i%2?2.25:-2.2),h=.58+(i%4)*.13,y=terrain(x,z);
-  for(let j=0;j<3;j++){const xx=x+(j-1)*.18,zz=z+Math.sin(i*2.7+j)*.19;
-   cylinder(xx,y,zz,.03,h,leaf,5);
-   cone(xx,y+h*.72,zz,.085,.27,seedhead,5);
+ const first=data.length,season=climateAt(state.t).season;
+ const palettes=season===3?[0x7d897f,0x929a8d,0xa2a498]:
+  season===2?[0x897e5e,0xa18c67,0xb6a27a]:
+  season===0?[0x64886d,0x829777,0x9fa585]:
+   [0x657e62,0x849275,0x9ba187];
+ const seeds=season===3?[0x898d83,0xa6a396]:
+  season===2?[0xa49375,0xc0aa86]:[0xa6a086,0xb9ab83];
+ let clusters=0,stems=0,skippedCrossings=0,maxHeight=0;
+ materialScope(MATERIAL.FOLIAGE,()=>{
+  for(let i=0;i<87;i++){
+   const x=-39+i*.93+.24*(biomeHash(i*17+9)-.5),
+    center=20+3*Math.sin(x*.13);
+   // Avoid the AUTHENTIC bridge and its existing two public ford mouths.
+   if(Math.abs(x-SCENIC_SITES.bridge.x)<3.3||
+      Math.abs(x+17)<2.3||Math.abs(x-10)<2.3){
+    skippedCrossings++;continue;
+   }
+   const bank=i%4<2?-1:1;
+   const z=center+bank*(2.38+.48*biomeHash(9000+i*13));
+   clusters++;
+   for(let j=0;j<3;j++){
+    const xx=x+(j-1)*(.12+.08*biomeHash(i*29+j*7)),
+     zz=z+(.5-biomeHash(i*37+j*11))*.30,
+     y=terrain(xx,zz)+.018,
+     h=(.42+.42*biomeHash(1200+i*9+j*41))*(season===3?.64:1),
+     angle=2.399963*j+6.2831853*biomeHash(3300+i*31+j),
+     dx=Math.cos(angle),dz=Math.sin(angle),
+     tilt=.08+.14*biomeHash(4400+i*7+j*19),
+     tip=[xx+dx*tilt,y+h,zz+dz*tilt],
+     width=.040+.021*biomeHash(5500+i*17+j*23),
+     col=rgb(palettes[(i+j)%palettes.length]),
+     shade=col.map(v=>v*.80),
+     head=rgb(seeds[(i+j)%seeds.length]);
+    // Crossed, double-sided vegetation reads from aerial and foot level.
+    for(let leaf=0;leaf<2;leaf++){
+     const nx=leaf===0?-dz:dx,nz=leaf===0?dx:dz;
+     const a=[xx-nx*width,y,zz-nz*width],
+      b=[xx+nx*width,y,zz+nz*width];
+     tri(a,b,tip,col);tri(b,a,tip,shade);
+    }
+    // Small uneven dry tops; no huge cones or neon billboard foliage.
+    const up=[tip[0]+dx*.026,tip[1]+.12,tip[2]+dz*.026],
+     left=[tip[0]-dz*.036,tip[1]-.045,tip[2]+dx*.036],
+     right=[tip[0]+dz*.036,tip[1]-.045,tip[2]-dx*.036];
+    tri(left,right,up,head);tri(right,left,up,head);
+    maxHeight=Math.max(maxHeight,h+.12);
+    stems++;
+   }
   }
- }
+ });
+ riverReedVisualStats={clusters,stems,triangles:(data.length-first)/30,
+  skippedCrossings,maxHeight,season};
+}
+function getRiverReedVisualAudit(){
+ return {...riverReedVisualStats,
+  source:'real-banks-and-original-river-crossings',
+  formerCylinderTriangles:4320,extraBuffers:0,
+  authoritativeWaterUnchanged:true,changesNavigation:false};
 }
 function vibrantMarket(x,z){
  const y=terrain(x,z),blue=rgb(0x37b8bc),coral=rgb(0xee8f71),lemon=rgb(0xffd18b),ivory=rgb(0xffe5bf);
@@ -18040,18 +18148,7 @@ if(gpuAvailable&&(groundAtlasHomes!==city.length||
 const nextTerrainKey=groundClimate.season+':'+(groundClimate.season===3&&groundClimate.weather==='snow'?1:0);
 if(!terrainCache||nextTerrainKey!==terrainCacheKey){
   data=[];
-  for(let x=-43;x<43;x+=2.1)for(let z=-43;z<43;z+=2.1){
-    // Natural vertex relief at the real height function, not a new
-    // navigable hill or visual-only displaced crop bed. Shared edges
-    // stay identical to the original grid and never form T-junctions.
-    const a=[x,terrain(x,z)-.09,z],
-     b=[x+2.1,terrain(x+2.1,z)-.09,z],
-     c=[x+2.1,terrain(x+2.1,z+2.1)-.09,z+2.1],
-     d=[x,terrain(x,z+2.1)-.09,z+2.1],
-     mx=x+1.05,mz=z+1.05,m=[mx,terrain(mx,mz)-.09,mz];
-    turfTri(a,d,m);turfTri(d,c,m);
-    turfTri(c,b,m);turfTri(b,a,m);
-  }
+  buildValleySurface();
   const valleyCenterTriangles=data.length/30;
   generateHorizonTerrain();
   terrainCache=data.slice();
@@ -18642,7 +18739,7 @@ getDailyRhythmAudit:dailyRhythmAudit,getHouseholdProvisionAudit:()=>cloneData(ho
 getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeCourtyardAudit:()=>cloneData(getForgeCourtyardAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),getForgeSoundAudit:()=>cloneData(getForgeSoundAudit()),pollForgeSound,watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,getMarketReceivingHallAudit,getTradeCorridorCameraAudit,
 getMarketStructuralSightline:marketCourierPostSightline,
 getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCentralExchangeAudit:()=>({...centralExchangeStats}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketShutterResidencyAudit,setMarketShutterResidencyForTesting,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getCameraNavigationAudit,getFreeCameraCollisionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getFarmWorkCameraAudit,
-getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?(civicGpuResidencyEnabled?3:2)+(homeClusterActive.length?homeClusterActive.length:0):1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length+homeClusterFloats():0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4+homeClusterFloats()*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0,homeBytes:gpuAvailable?homeClusterFloats()*4:0}),getGeometryAudit:geometryAudit,getSceneTriangleReconciliation,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGranaryArchitectureAudit,getGrainwardDistrictAudit:getGrainwardDistrictAudit,getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getEcotoneVisualStats,getForestVisualStats:()=>({
+getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?(civicGpuResidencyEnabled?3:2)+(homeClusterActive.length?homeClusterActive.length:0):1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length+homeClusterFloats():0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4+homeClusterFloats()*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0,homeBytes:gpuAvailable?homeClusterFloats()*4:0}),getGeometryAudit:geometryAudit,getSceneTriangleReconciliation,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGranaryArchitectureAudit,getGrainwardDistrictAudit:getGrainwardDistrictAudit,getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getEcotoneVisualStats,getValleySurfaceBuildAudit,getRiverReedVisualAudit,getForestVisualStats:()=>({
  sourceTrees:trees.length,
  renderedTrees:forestVisualStats.deciduous+forestVisualStats.conifers,
  conifers:forestVisualStats.conifers,deciduous:forestVisualStats.deciduous,
