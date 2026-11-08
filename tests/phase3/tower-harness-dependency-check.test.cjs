@@ -31,3 +31,15 @@ test('rejects imports escaping an immutable source checkout',()=>fixture((root,w
   assert.equal(result.ok,false);
   assert.match(result.faults.join(' '),/escapes checkout/);
 }));
+
+test('offline baseline and candidate recordings use fresh original-source host for EACH viewport',()=>{
+  const offline=fs.readFileSync(path.join(__dirname,'../../scripts/tower-offline-evidence.sh'),'utf8');
+  assert.match(offline,/for viewport in desktop portrait; do/,
+    'a combined two-test invocation reuses the 20Hz server after desktop and shifts portrait to a later floor');
+  assert.match(offline,/--grep 'normal-speed Tower motion \$viewport'/,
+    'each Playwright invocation must select exactly one native viewport');
+  assert.match(offline,/capture-\$viewport\.log/,
+    'preserve separate errors from each independently seeded original host');
+  assert.match(offline,/test-results-\$viewport/,
+    'preserve both native viewport failure artifacts');
+});
