@@ -29,6 +29,10 @@ test('a different, real side route reconnects twice without turning wall cells i
  assert.equal(p.status,'ready');
  assert.ok(p.metrics.branchOnlyCells>=3,'not just a renamed main corridor');
  assert.ok(p.metrics.rejoinIndex>p.metrics.branchIndex+2);
+ const encounterIndex=primary.route.findIndex(q=>q.gridX===8&&q.gridZ===1);
+ assert.equal(p.metrics.branchIndex<encounterIndex&&
+  p.metrics.rejoinIndex>encounterIndex,false,
+  'secondary architecture must not suggest skipping the real ordinary combat stage');
  const primarySet=new Set(primary.route.map(k));
  assert.equal(k(p.detour[0]),k(primary.route[p.metrics.branchIndex]));
  assert.equal(k(p.detour.at(-1)),k(primary.route[p.metrics.rejoinIndex]));
@@ -81,6 +85,8 @@ test('a legitimate path may contain hazards, but side-gallery route must declare
   assert.ok(marked.metrics.activeHazardCells>=1);
   assert.equal(marked.metrics.hazardFree,false);
  }else assert.equal(marked.metrics.activeHazardCells,0);
+ assert.equal(marked.inlays.some(p=>p.gridX===trap.x&&p.gridZ===trap.z),false,
+  'shallow new paving may not hide a real active floor trap');
  assert.equal(marked.metrics.navigationEdits,0);
 });
 test('single-corridor or invalid topology does not create a fictitious loop',async()=>{
