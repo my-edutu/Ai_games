@@ -194,3 +194,49 @@ test('full 3D clockwork boss corridor is clear of giant rim AND 42-unit noncolli
       'no stale foreground machine after real floor-nine transition');
   }finally{world.dispose();}
 });
+
+test('portrait world-envelope protects actor even if a huge clock centre is outside the image', () => {
+  const envelope=helper('observedPortraitDecorativeEnvelope');
+  const current={aspect:390/844, minX:-1.2,maxX:1.15,
+    minY:-1.1,maxY:.98,nearestDepth:6,actorDepth:16};
+  assert.equal(envelope(current),.14,
+    'a foreground rim covering the live phone frame must yield regardless of its centre');
+  assert.equal(envelope({...current,minX:-.2,maxX:.22,minY:-.4,maxY:.42}),.36,
+    'a partial image intrusion softens without removing the architecture');
+  assert.equal(envelope({...current,nearestDepth:18}),1,
+    'background decoration behind the source actor remains opaque');
+  assert.equal(envelope({...current,aspect:960/600}),1,
+    'wide desktop staging must not inherit the portrait clearing');
+  assert.equal(envelope({...current,minX:1.2,maxX:4}),1,
+    'fully offscreen architecture retains its original material');
+  assert.equal(envelope({...current,minX:NaN}),1);
+});
+
+test('actual floor-eight power rack owns post-batch camera-responsive materials, not hazard materials',async()=>{
+  const [THREE,{createTowerWorld}]=await loaded;
+  const world=createTowerWorld();
+  try{
+    const frame=sourceFrame('clockwork',8),unchanged=JSON.stringify(frame);
+    world.update(frame,.016,0,{quality:'low'});
+    const rack=world.group.getObjectByName('clockwork-far-shoulder-power-rack');
+    assert.ok(rack,'retained rack scene group must remain present after rigid batching');
+    const names=new Set(),pieces=[];
+    rack.traverse(object=>{
+      if(!object.isMesh)return;
+      pieces.push(object);
+      names.add(object.material?.name);
+      assert.equal(object.material.transparent,true);
+      assert.equal(object.material.depthWrite,true);
+    });
+    assert.ok(pieces.length>=2,'solid spine and rack teeth remain visible');
+    assert.ok([...names].every(name=>name==='SightlineResponsivePowerRack'),
+      'decorative rack materials are private, not shared with active hazards');
+    const stats=world.diagnostics();
+    assert.equal(stats.decorativeSightlineRacks,1);
+    assert.equal(stats.decorativeSightlineGears,3,'all rotating original gears survive');
+    assert.equal(JSON.stringify(frame),unchanged,'camera art never edits authority');
+    world.update(sourceFrame('void',9),.016,1,{quality:'low'});
+    assert.equal(world.group.getObjectByName('clockwork-far-shoulder-power-rack'),undefined,
+      'owned rack and its materials retire at real floor-nine transition');
+  } finally {world.dispose();}
+});
