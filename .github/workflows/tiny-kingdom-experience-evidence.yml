@@ -38,7 +38,7 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - name: W116 authentic courier handoff source integrity
-        run: node scripts/tiny-kingdom-w116-real-market-handoff-contract.cjs
+        run: node scripts/tiny-kingdom-w116-real-market-handoff-contract.cjs && node scripts/tiny-kingdom-w125-medieval-population-contract.cjs
       - run: npx playwright install --with-deps chromium
       - name: Matched G088 vs candidate real-WebGL screenshots and continuous game recordings
         env:

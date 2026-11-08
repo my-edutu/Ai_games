@@ -6354,7 +6354,15 @@ function citizenRigPose(p){
 // around its sole heel/toe contact, with coherent normals and no extra faces.
 function renderRollingBoot(cx,cy,cz,width,height,depth,col,leg){
  const first=data.length;
- box(cx,cy,cz,width,height,depth,col);
+ materialScope(MATERIAL.GENERAL,()=>{
+  box(cx,cy,cz,width,height,depth,col);
+  // Soft, narrow medieval toe cap above the existing planted sole.
+  const shade=col.map(v=>v*.83);
+  quad([cx-width*.46,cy-height*.13,cz+depth*.29],
+   [cx+width*.46,cy-height*.13,cz+depth*.29],
+   [cx+width*.36,cy-height*.27,cz+depth*.52],
+   [cx-width*.36,cy-height*.27,cz+depth*.52],shade);
+ });
  const roll=leg.rollRadians||0;
  if(!roll)return;
  const co=Math.cos(roll),si=Math.sin(roll),floor=cy-height*.5;
@@ -6508,15 +6516,36 @@ function ellipsoid(x,y,z,rx,ry,rz,col,segments=9){
 }
 // Gauntlet 040: authored, five-ring medieval coat; procedural but not a box torso.
 // The only inputs are a stable citizen identity and read-only render gait.
+// W125 — original medieval clothing grammar for the REAL six job populations.
+// Pure presentation: identity follows the existing citizen index and job,
+// never seeded authority, saved resources, gameplay decisions or fake actors.
+const MEDIEVAL_WARDROBE=Object.freeze({
+ farmer:Object.freeze({name:'field linen and cropped wool',wool:[0x756b4d,0x826c52,0x656b4b],shoulder:-.006,hem:-.024,waist:-.010,linen:0xb8ad8e,leather:0x665039,trim:0xc4ad80}),
+ forester:Object.freeze({name:'weathered woodland cloak',wool:[0x4f6454,0x5b6450,0x50665c],shoulder:.013,hem:.025,waist:.012,linen:0x9f9b83,leather:0x5b4435,trim:0x9f9770}),
+ builder:Object.freeze({name:'broad-shouldered joiner workcoat',wool:[0x886d52,0x796951,0x76644a],shoulder:.035,hem:-.018,waist:.024,linen:0xb6a184,leather:0x624830,trim:0xbba080}),
+ merchant:Object.freeze({name:'long tailored wool and mantle',wool:[0x53667a,0x665b74,0x5a6c59],shoulder:.011,hem:.060,waist:-.005,linen:0xc4bbaa,leather:0x574334,trim:0xc9ae7f}),
+ craftsperson:Object.freeze({name:'rolled-sleeve leather apron',wool:[0x705b60,0x6c6857,0x6e5a4d],shoulder:.018,hem:-.030,waist:.012,linen:0xafa18b,leather:0x705039,trim:0xba9f7f}),
+ gatherer:Object.freeze({name:'hooded field shawl and gathering basket',wool:[0x76775b,0x82775b,0x65705b],shoulder:.007,hem:.028,waist:-.003,linen:0xb7ad91,leather:0x6d543b,trim:0xa5a07b})
+});
+function medievalCitizenIdentity(p,index){
+ const role=MEDIEVAL_WARDROBE[p.job]||MEDIEVAL_WARDROBE.farmer;
+ const variant=((index%3)+3)%3;
+ return {job:p.job,name:role.name,variant,
+  wool:rgb(role.wool[variant]),linen:rgb(role.linen),
+  leather:rgb(role.leather),trim:rgb(role.trim),
+  shoulder:role.shoulder,hem:role.hem,waist:role.waist};
+}
 function garmentProfile(p,idx,rig){
- const shoulder=.277+(idx%3)*.012+(p.job==='builder'?.023:0);
- const waist=.216+(idx%4)*.008;
- const hem=.318+(idx%3)*.013+(p.job==='merchant'?.018:0);
- const sway=Math.max(-.025,Math.min(.025,rig.stride*.027));
- return {style:p.job==='merchant'?'merchant coat':p.job==='builder'?'workcoat':'village tunic',
+ const identity=medievalCitizenIdentity(p,idx);
+ const shoulder=.277+(idx%3)*.012+identity.shoulder;
+ const waist=.216+(idx%4)*.008+identity.waist;
+ const hem=.318+(idx%3)*.013+identity.hem;
+ const sway=Math.max(-.035,Math.min(.035,
+  rig.stride*.027+(rig.working?rig.acting.lean*.014:0)));
+ return {style:identity.name,
   panelCount:8,surfaceTriangles:104,hemSway:sway,
   rings:[
-   {y:.42,rx:hem,rz:.255+(idx%3)*.008,z:sway},
+   {y:p.job==='merchant'?.36:.42,rx:hem,rz:.255+(idx%3)*.008,z:sway},
    {y:.62,rx:waist+.022,rz:.201,z:sway*.55},
    {y:.79,rx:waist,rz:.188,z:sway*.25},
    {y:1.02,rx:shoulder,rz:.205,z:0},
@@ -6562,6 +6591,145 @@ function tailoredGarment(x,y,z,size,cloth,trim,profile){
 // apron without spawning citizens, inventing jobs or drawing simulation RNG.
 let villageClothStats={compactResidents:0,detailedResidents:0,compactHemPanels:0,
  workAprons:0,geometryTriangles:0,roles:new Set()};
+// Near and middle LODs keep the SAME real rig. A tapered surface connects
+// existing two-bone joints without 224+ spherical knee/elbow triangles per
+// detailed person. Caps are buried by tunic/hand/boot and never used for IK.
+function taperedMedievalLimb(a,b,r0,r1,col,sides=6){
+ const dx=b[0]-a[0],dy=b[1]-a[1],dz=b[2]-a[2];
+ const length=Math.hypot(dx,dy,dz);if(length<.00001)return;
+ const ux=dx/length,uy=dy/length,uz=dz/length;
+ const rx=Math.abs(uy)>.85?-uy:uz,ry=Math.abs(uy)>.85?ux:0,
+  rz=Math.abs(uy)>.85?0:-ux;
+ const rl=Math.hypot(rx,ry,rz)||1;
+ const right=[rx/rl,ry/rl,rz/rl];
+ const up=[uy*right[2]-uz*right[1],uz*right[0]-ux*right[2],
+  ux*right[1]-uy*right[0]];
+ const circle=packedRing(sides);
+ for(let i=0;i<sides;i++){
+  const t=i*2*Math.PI/sides,n=(i+1)*2*Math.PI/sides;
+  const c=circle?circle[i*2]:Math.cos(t),v=circle?circle[i*2+1]:Math.sin(t);
+  const d=circle?circle[(i+1)*2]:Math.cos(n),w=circle?circle[(i+1)*2+1]:Math.sin(n);
+  const point=(root,r,cs,sn)=>[root[0]+r*(cs*right[0]+sn*up[0]),
+   root[1]+r*(cs*right[1]+sn*up[1]),
+   root[2]+r*(cs*right[2]+sn*up[2])];
+  const p0=point(a,r0,c,v),p1=point(a,r0,d,w),
+   p2=point(b,r1,d,w),p3=point(b,r1,c,v);
+  packedFlatQuad(...p0,...p1,...p2,...p3,col);
+ }
+}
+function renderArticulatedHand(wrist,size,skin,side){
+ // Original planted/job wrist IK remains authoritative for hand placement.
+ // Narrow palm plus thumb/finger groups replace the old ball-like fists.
+ materialScope(MATERIAL.GENERAL,()=>{
+  const x=wrist[0],y=wrist[1],z=wrist[2];
+  box(x,y-.008*size,z+.013*size,.115*size,.103*size,.108*size,skin);
+  taperedMedievalLimb([x+side*.045*size,y-.005*size,z+.053*size],
+   [x+side*.095*size,y-.055*size,z+.095*size],
+   .025*size,.014*size,skin,4);
+  taperedMedievalLimb([x-side*.026*size,y-.041*size,z+.045*size],
+   [x-side*.026*size,y-.089*size,z+.063*size],
+   .027*size,.012*size,skin,4);
+ });
+}
+// A few intentional, large forms outperform tiny decorative surfaces:
+// distinct workcoat/field apron, hood/cape, merchant mantle and real arm
+// silhouettes read from the actual game at close and middle distance.
+function renderMedievalWardrobe(p,index,x,y,z,s,rig,lod){
+ if(lod==='far')return;
+ const d=medievalCitizenIdentity(p,index),isNear=lod==='near';
+ const sway=Math.max(-.040,Math.min(.040,
+  (rig.traveling?Math.sin(p.phase*2.7)*.024:0)+
+  (rig.working?rig.acting.lean*.026:0)));
+ const pt=(a,b,c)=>[x+a*s,y+b*s,z+(c+sway*(1-b))*s];
+ const shade=(col,f)=>col.map(v=>Math.max(0,Math.min(1,v*f)));
+ materialScope(MATERIAL.GENERAL,()=>{
+  // Dull cinched leather belt, visible side silhouette in every mid rig.
+  box(x,y+.735*s,z+.225*s,.43*s,.068*s,.065*s,d.leather);
+  box(x,y+.745*s,z+.264*s,.070*s,.078*s,.028*s,d.trim);
+  if(p.job==='merchant'){
+   // Open coat tails, folded wool lapels and mantle, not an invented bag.
+   for(const side of [-1,1]){
+    quad(pt(side*.055,.68,.248),pt(side*.235,.70,.224),
+     pt(side*.315,.35,.282),pt(side*.040,.38,.310),d.wool);
+    quad(pt(side*.07,1.12,.210),pt(side*.225,1.045,.233),
+     pt(side*.112,.81,.260),pt(side*.025,.91,.286),d.linen);
+   }
+   box(x,y+1.065*s,z-.174*s,.60*s,.125*s,.14*s,d.leather);
+  }else if(p.job==='forester'){
+   // Split rear cape with actual gait sway, avoiding rigid flat rectangles.
+   for(const side of [-1,1])
+    quad(pt(side*.10,1.07,-.145),pt(side*.33,1.01,-.126),
+     pt(side*(.37+.025*sway),.43,-.245),pt(side*.035,.50,-.250),
+     shade(d.wool,.73));
+   box(x,y+.91*s,z-.182*s,.57*s,.10*s,.12*s,d.leather);
+  }else if(p.job==='gatherer'){
+   for(const side of [-1,1])
+    quad(pt(0,1.10,-.145),pt(side*.32,.99,-.129),
+     pt(side*.35,.73,-.226),pt(side*.05,.83,-.242),
+     shade(d.linen,.78));
+   // The original actual gathering basket remains in role gear.
+   quad(pt(-.12,.97,.230),pt(-.07,1.02,.240),
+    pt(.235,.49,.285),pt(.18,.45,.280),d.leather);
+  }else if(p.job==='builder'){
+   for(const side of [-1,1]){
+    box(x+side*.29*s,y+.986*s,z,.185*s,.155*s,.27*s,d.leather);
+    box(x+side*.28*s,y+.76*s,z+.025*s,.12*s,.075*s,.27*s,d.trim);
+   }
+   box(x+.29*s,y+.46*s,z+.12*s,.20*s,.26*s,.16*s,d.leather);
+  }else if(p.job==='craftsperson'){
+   box(x,y+.925*s,z+.262*s,.32*s,.22*s,.052*s,d.leather);
+   for(const side of [-1,1])
+    box(x+side*.31*s,y+.735*s,z+.065*s,.13*s,.10*s,.21*s,d.linen);
+   box(x,y+.765*s,z+.306*s,.31*s,.038*s,.032*s,d.trim);
+  }else if(p.job==='farmer'){
+   for(const side of [-1,1])
+    quad(pt(side*.05,1.01,.218),pt(side*.27,.96,.209),
+     pt(side*.23,.78,.257),pt(side*.08,.83,.281),shade(d.linen,.86));
+   box(x-.25*s,y+.60*s,z+.08*s,.11*s,.19*s,.12*s,d.leather);
+  }
+  if(isNear){
+   // Tunic front's physically moving central fold and restrained hand stitch.
+   const seam=d.trim.map(v=>v*.78);
+   taperedMedievalLimb(pt(0,.86,.294),pt(.025,.47,.317),
+    .012*s,.008*s,seam,4);
+   for(const side of [-1,1])
+    taperedMedievalLimb(pt(side*.15,.71,.288),
+     pt(side*.19,.52,.302),.009*s,.005*s,seam,4);
+  }
+ });
+}
+function renderMedievalHairline(p,index,x,y,z,s,hair,pose){
+ const first=data.length;
+ materialScope(MATERIAL.GENERAL,()=>{
+  // Local skull pieces are rescaled and yaw/pitch-rotated with the same
+  // real animated head. No gender assumptions or additional character RNG.
+  if(index%4===0){
+   taperedMedievalLimb([x+.170*s,y+1.58*s,z-.123*s],
+    [x+.189*s,y+1.245*s,z-.134*s],.065*s,.033*s,hair,5);
+  }else if(index%4===1){
+   taperedMedievalLimb([x-.179*s,y+1.61*s,z+.096*s],
+    [x-.163*s,y+1.39*s,z+.112*s],.065*s,.025*s,hair,5);
+  }else if(index%4===2){
+   quad([x-.152*s,y+1.63*s,z+.141*s],[x+.145*s,y+1.64*s,z+.141*s],
+    [x+.105*s,y+1.57*s,z+.177*s],[x-.17*s,y+1.54*s,z+.16*s],hair);
+  }else{
+   ellipsoid(x+.12*s,y+1.54*s,z-.17*s,.113*s,.095*s,.112*s,hair,6);
+  }
+ });
+ rescaleCitizenHead(first,data.length,x,y,z,s);
+ turnCitizenHead(first,data.length,x,y,z,s,pose);
+}
+function getMedievalPopulationAudit(){
+ const roster=people.map((p,i)=>({name:p.name,job:p.job,
+  wardrobe:medievalCitizenIdentity(p,i).name,variation:i%3}));
+ const near=citizenDetailPolicy.shown||0,mid=citizenDetailPolicy.middle||0;
+ return {source:'w125-real-medieval-identity-three-tier-actor-rigs',
+  roster,roles:Array.from(new Set(roster.map(row=>row.job))).sort(),
+  population:people.length,near,mid,far:Math.max(0,people.length-near-mid),
+  preservesExistingWorkHandIK:true,preservesActualGaitAndFootContact:true,
+  consumesWorldRandomness:false,createsActors:false,changesAuthority:false};
+}
+
 function renderRealVillageWorkwear(p,index,x,y,z,size,rig,cloth,compact){
  const first=data.length;
  const sway=Math.max(-.075,Math.min(.075,
@@ -6569,10 +6737,11 @@ function renderRealVillageWorkwear(p,index,x,y,z,size,rig,cloth,compact){
   (rig.working?(rig.acting.lean||0)*.065:0)));
  const shade=(color,factor)=>color.map(v=>Math.max(0,Math.min(1,v*factor)));
  if(compact){
+  const style=medievalCitizenIdentity(p,index);
   const rings=[
-   {y:.39,rx:.303+(index%3)*.009,rz:.240,d:sway},
-   {y:.61,rx:.226,rz:.211,d:sway*.53},
-   {y:.98,rx:.273,rz:.208,d:sway*.12},
+   {y:.39,rx:.303+(index%3)*.009+style.hem,rz:.240,d:sway},
+   {y:.61,rx:.226+style.waist,rz:.211,d:sway*.53},
+   {y:.98,rx:.273+style.shoulder,rz:.208,d:sway*.12},
    {y:1.17,rx:.157,rz:.146,d:0}
   ];
   // W66: resolve authentic compact wool rings once for the entire shift.
@@ -6947,11 +7116,12 @@ function renderCompactOccupationGear(p,x,y,z,s){
   }
  });
 }
+let citizenMidVisualIndices=new Set();
 function compactVillager(p){
  const vertexStart=data.length;
  const i=Math.max(0,people.indexOf(p)),s=.92+(i%5)*.045,
   x=p.x,z=p.z,y=terrain(x,z),
-  cloth=colors[jobs.indexOf(p.job)]||colors[0],
+  cloth=medievalCitizenIdentity(p,i).wool,
   skin=rgb([0xd5a781,0x95654b,0xefc19c,0xbe8968,0x9a6a48][(i+names.length)%5]),
   hair=rgb([0x4c3228,0x342f29,0x8b633f,0x664b36,0xa18b65][(i+4)%5]),
   rig=citizenRigPose(p),embodiment=citizenEmbodiedPose(p,i,rig);
@@ -6996,6 +7166,8 @@ function compactVillager(p){
   box(x,y+.40*s,z+.22*s,.22*s,.29*s,.06*s,rgb(0x785b43));
  });
  renderCompactOccupationGear(p,x,y,z,s);
+ renderMedievalWardrobe(p,i,x,y,z,s,rig,
+  citizenMidVisualIndices.has(i)?'mid':'far');
  compactCitizenAnimation.lastRoleSilhouettes++;
  compactCitizenAnimation.roleCounts[p.job]=
   (compactCitizenAnimation.roleCounts[p.job]||0)+1;
@@ -7064,27 +7236,31 @@ function compactVillager(p){
  if(rig.traveling)compactCitizenAnimation.lastTraveling++;
  compactCitizenAnimation.lastMotionTriangles+=(data.length-vertexStart)/30;
 }
-function villager(p){const vertexStart=data.length;let x=p.x,z=p.z,y=terrain(x,z),u=p.phase,idx=Math.max(0,people.indexOf(p)),size=.92+(idx%5)*.045;let c=colors[jobs.indexOf(p.job)]||colors[0],skin=rgb([0xd5a781,0x95654b,0xefc19c,0xbe8968,0x9a6a48][(idx+names.length)%5]),hair=rgb([0x4c3228,0x342f29,0x8b633f,0x664b36,0xa18b65][(idx+4)%5]);const busy=isWorkingAtSite(p)||isMarketUnloading(p);let pace=p.activity.includes('Traveling')||p.activity.includes('Explor')||p.activity==='Returning home at dusk'?1:.23,step=Math.sin(u*2.7)*.21*pace;
+function villager(p){const vertexStart=data.length;let x=p.x,z=p.z,y=terrain(x,z),u=p.phase,idx=Math.max(0,people.indexOf(p)),size=.92+(idx%5)*.045;let c=medievalCitizenIdentity(p,idx).wool,skin=rgb([0xd5a781,0x95654b,0xefc19c,0xbe8968,0x9a6a48][(idx+names.length)%5]),hair=rgb([0x4c3228,0x342f29,0x8b633f,0x664b36,0xa18b65][(idx+4)%5]);const busy=isWorkingAtSite(p)||isMarketUnloading(p);let pace=p.activity.includes('Traveling')||p.activity.includes('Explor')||p.activity==='Returning home at dusk'?1:.23,step=Math.sin(u*2.7)*.21*pace;
 // Individual fitted wool coats: flared hem, waist, chest, collar, gait sway.
 const rig=citizenRigPose(p),embodiment=citizenEmbodiedPose(p,idx,rig);
 const outfitTrim=[0xf2cb79,0x82b5b2,0xf0b9a0,0xe1d3a3,0xaac6d1,0xd7a9c8].map(rgb);
 const trim=outfitTrim[idx%outfitTrim.length];
 tailoredGarment(x,y,z,size,c,trim,garmentProfile(p,idx,rig));
  renderRealVillageWorkwear(p,idx,x,y,z,size,rig,c,false);
+renderMedievalWardrobe(p,idx,x,y,z,size,rig,'near');
 box(x,y+.685*size,z+.211*size,.078*size,.082*size,.026*size,rgb(0xd9c091));
 // Individual gait, boots, hands, long sleeves and silhouettes.
 const worldJoint=q=>[x+q[0]*size,y+q[1]*size,z+q[2]*size];
 for(let sideIndex=0;sideIndex<2;sideIndex++){
  const leg=rig.legs[sideIndex],arm=rig.arms[sideIndex];
- limbSegment(worldJoint(leg.hip),worldJoint(leg.knee),.091*size,rgb(0x534637));
- limbSegment(worldJoint(leg.knee),worldJoint(leg.ankle),.076*size,rgb(0x534637));
- ellipsoid(...worldJoint(leg.knee),.096*size,.094*size,.097*size,rgb(0x534637),7);
+ const trouser=rgb(0x534637);
+ taperedMedievalLimb(worldJoint(leg.hip),worldJoint(leg.knee),
+  .108*size,.088*size,trouser,6);
+ taperedMedievalLimb(worldJoint(leg.knee),worldJoint(leg.ankle),
+  .088*size,.061*size,trouser,6);
  const foot=worldJoint(leg.ankle);renderRollingBoot(foot[0],foot[1]+.015*size,foot[2]+.095*size,
    .19*size,.12*size,.30*size,rgb(0x40382e),leg);
- limbSegment(worldJoint(arm.shoulder),worldJoint(arm.elbow),.091*size,c);
- limbSegment(worldJoint(arm.elbow),worldJoint(arm.wrist),.077*size,c);
- ellipsoid(...worldJoint(arm.elbow),.084*size,.084*size,.084*size,c,7);
- ellipsoid(...worldJoint(arm.wrist),.09*size,.095*size,.085*size,skin,7);
+ taperedMedievalLimb(worldJoint(arm.shoulder),worldJoint(arm.elbow),
+  .115*size,.084*size,c,6);
+ taperedMedievalLimb(worldJoint(arm.elbow),worldJoint(arm.wrist),
+  .084*size,.061*size,c,6);
+ renderArticulatedHand(worldJoint(arm.wrist),size,skin,sideIndex===0?-1:1);
 }
 // Sculpted neck and head with a real facial front (positive Z).
 const headMeshStart=data.length;
@@ -7120,6 +7296,7 @@ if(idx%4===0){
 }
 rescaleCitizenHead(hairMeshStart,data.length,x,y,z,size);
 turnCitizenHead(hairMeshStart,data.length,x,y,z,size,embodiment);
+renderMedievalHairline(p,idx,x,y,z,size,hair,embodiment);
 // Leather satchel with buckles is unique to odd-index citizens.
 if(idx%2===1){
  box(x+.255*size,y+.37*size,z-.12*size,.24*size,.28*size,.15*size,rgb(0x805534));
@@ -16523,11 +16700,14 @@ function selectVisibleCitizenDetail(){
  // figures, matching the established Day-1 authored visual baseline.
  if(n<=12)for(let i=0;i<n;i++)if(!selected.includes(i))selected.push(i);
  const indices=new Set(selected);
+ const midIndices=new Set(onScreen.filter(row=>!indices.has(row.i)&&
+   row.heightFraction>=.036).slice(0,Math.min(8,n-indices.size)).map(row=>row.i));
  const offscreenFullDetail=selected.filter(i=>!projected[i]?.visible).length;
  const audit={
   source:'real-viewport-actor-detail',mode,
   population:n,budget,fullDetailCount:indices.size,
-  compactCount:n-indices.size,anchorIndex,
+  compactCount:n-indices.size,middleCount:midIndices.size,
+  farCount:n-indices.size-midIndices.size,anchorIndex,
   anchorDetailed:anchorIndex<0||indices.has(anchorIndex),
   visibleCandidates:onScreen.length,
   detailedNames:selected.map(i=>people[i].name),
@@ -16537,7 +16717,7 @@ function selectVisibleCitizenDetail(){
    horizontalDegrees:frame.lens.horizontalDegrees},
   proof:'all original citizens have real detailed or articulated compact meshes; no authoritative changes'
  };
- const plan={indices,mode,budget,anchorIndex,audit};
+ const plan={indices,midIndices,mode,budget,anchorIndex,audit};
  citizenProjectionCache={key:sceneKey,people,plan};
  citizenProjectionBuilds++;citizenProjectionActorsLast=n;
  return plan;
@@ -16967,6 +17147,7 @@ const dynamicPhaseTimes={
 };
 const citizenDetailStarted=performance.now();
 const detailPlan=selectVisibleCitizenDetail(),nearPeople=detailPlan.indices;
+citizenMidVisualIndices=detailPlan.midIndices;
 dynamicPhaseTimes.citizenDetailSelection=performance.now()-citizenDetailStarted;
 // W14 Living Valley motion architecture: camera frames outnumber simulation
 // ticks on capable GPUs. Rebuild articulated citizens, actual carts, labor
@@ -16979,7 +17160,8 @@ dynamicPhaseTimes.citizenDetailSelection=performance.now()-citizenDetailStarted;
 // from the camera's current focus, while near-human LOD follows the viewpoint.
 const candidateCameraDynamicKey=gpuAvailable?[
  presentationEpoch,state.t,city.length,scenicMeshKey,detailPlan.mode,
- [...nearPeople].sort((a,b)=>a-b).join(','),selectedCitizen,
+ [...nearPeople].sort((a,b)=>a-b).join(','),
+ [...citizenMidVisualIndices].sort((a,b)=>a-b).join(','),selectedCitizen,
  follow?1:0,visibleActualWorksites().map(w=>w.citizen).join(','),
  document.body.dataset.workday||'off',liveWorkday?1:0,
  streetWalk?1:0,streetEncounterName||'',workdayEvents.length,
@@ -17055,7 +17237,8 @@ currentMaterial=MATERIAL.WOOD;
 homecomingLanternRenderStats.carriers=0;homecomingLanternRenderStats.triangles=0;
 citizenDetailPolicy={mode:detailPlan.mode,budget:detailPlan.budget,
  anchorIncluded:detailPlan.anchorIndex<0||nearPeople.has(detailPlan.anchorIndex),
- shown:nearPeople.size,population:people.length};
+ shown:nearPeople.size,middle:citizenMidVisualIndices.size,
+ population:people.length};
 villageVisualLod.detailedCitizens=0;villageVisualLod.compactCitizens=0;
  compactCitizenAnimation.lastRenderedCompact=0;compactCitizenAnimation.lastRenderedArticulated=0;
  compactCitizenAnimation.lastWorking=0;compactCitizenAnimation.lastTraveling=0;
@@ -17359,7 +17542,7 @@ drawForegroundResidentMesh();
  // Only a completed presentation may become the reusable frozen frame.
  lastFrozenFrameKey=frozenViewKey;
 }
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getCitizenAnatomy,getCitizenEmbodiment,getEllipsoidShellAudit,getPopulationMotionAudit,getVillageClothAudit,getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getCitizenGaitAudit:(index=0)=>cloneData(getCitizenGaitAudit(index)),
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getCitizenAnatomy,getCitizenEmbodiment,getEllipsoidShellAudit,getPopulationMotionAudit,getVillageClothAudit,getMedievalPopulationAudit,getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getCitizenGaitAudit:(index=0)=>cloneData(getCitizenGaitAudit(index)),
  getCitizenRigCacheAudit:()=>({...getCitizenRigCacheAudit()}),
  getFaceTopologyCacheAudit,getSimulationTickDebtAudit,
  getRestingActorResidencyAudit,getResidentCommuterAudit,getWorkingResidentAudit,
