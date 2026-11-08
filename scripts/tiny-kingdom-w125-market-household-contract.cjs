@@ -40,6 +40,8 @@ const resident={name:'Real Resident',provisions:0};
 assert.equal(a.issueReceiptGrain(resident,.8),courierReceipt.id);
 assert.equal(resident.provisions,.8);
 assert.equal(resident.provisionReceiptId,courierReceipt.id);
+assert.equal(resident.provisionTradeId,a.receiptHouseholdAudit().latestVerifiedTrade.id,
+ 'Meal must carry unique original market transaction ID, not only original lot ID');
 assert.equal(state.food,30.2,'Original town inventory debited exactly once');
 assert.equal(a.receiptReservedFood(),2);
 assert.equal(a.issueReceiptGrain(resident,.8),null,'Cannot hand a second parcel to the same holder');
@@ -50,6 +52,8 @@ assert.match(src,/state\.food=Math\.max\(receiptReservedFood\(\),state\.food-com
  'Market receipt food must be conserved during background consumption');
 assert.match(src,/if\(stock>0\)\{\s*\/\/ Only a resident actually resting/,
  'Household meal must be earned by real in-home stock consumption');
+assert.match(src,/state\.householdMeals=\[\{id:person\.provisionTradeId\|\|/,
+ 'Meal is keyed to the unique original market transfer');
 assert.match(src,/registerFarmerReceipt\(receipt\)/,
  'Only original real courier unload may introduce provenance');
 assert.match(src,/const staffed=people\.some/,
