@@ -627,3 +627,25 @@ test('session-7 declared holdout campaign records genuine new-rule tactical deci
   'a genuine seed cohort must include movement and Warden or elite warnings');
  console.log('DUNGEON_S7_HOLDOUT_TRACE '+JSON.stringify({totals,runs}));
 });
+
+test('public replay checksum distinguishes identical positions running different deterministic rule versions',()=>{
+ const {checksum}=require('../../dist/packages/replay/src/index.js');
+ const next=DungeonRuntime.create('v2-public-checksum-rule-contract');
+ const previous=next.save();
+ delete previous.state.rulesVersion;
+ previous.version='0.5.0';
+ previous.signature=checksum({seed:previous.seed,rng:previous.rng,state:previous.state});
+ const legacy=DungeonRuntime.restore(previous),v2=DungeonRuntime.restore(next.save());
+ assert.equal(legacy.state.rulesVersion,undefined);
+ assert.equal(v2.state.rulesVersion,2);
+ const a=v2.publicState(),b=legacy.publicState();
+ assert.equal(a.tick,b.tick);
+ assert.deepEqual(a.units,b.units,'initial world and bodies are intentionally identical');
+ assert.notEqual(a.checksum,b.checksum,
+  'different authoritative rules must never publish identical replay identity');
+ assert.equal(legacy.publicState().checksum,b.checksum,'older public checksums remain stable');
+ for(let i=0;i<24;i++){
+  const latest=DungeonRuntime.restore(v2.save());
+  assert.equal(v2.step().checksum,latest.step().checksum);
+ }
+});
