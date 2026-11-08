@@ -4,7 +4,7 @@ import {planPartyWallReveal} from '/dungeon/party-visibility-plan.js';
 
 /**
  * Original, structurally connected entry / ordinary chamber / Warden court.
- * Five capped GPU batches, a shared material-role family and dirty cutaways.
+ * Eleven capped role-specific GPU batches, three shared material roles and dirty cutaways.
  * Threshold uprights are anchored to real blocked flank cells. The 2.25m+
  * arch spans are overhead only, so every actual fighting lane stays open.
  */

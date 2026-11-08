@@ -24,8 +24,10 @@ test('connected entry, encounter and Warden masonry survives live traversal and 
  expect(firstScene.source).toBe('actual-authority-map-exit-and-live-enemy-placements');
  expect(firstScene.thresholds).toBeLessThanOrEqual(3);
  expect(firstScene.facades).toBeLessThanOrEqual(18);
- expect(firstScene.drawCalls).toBeLessThanOrEqual(5);
+ expect(firstScene.drawCalls).toBeLessThanOrEqual(11);
  expect(firstScene.textureCount).toBe(0);
+ expect(firstScene.distinctProfiles).toBeTruthy();
+ expect(Object.keys(firstScene.distinctProfiles).length).toBeGreaterThan(0);
  expect(firstScene.dynamicLights).toBe(0);
  expect(firstScene.allocatedBytes).toBeLessThan(200000);
  expect(firstScene.collisionEffects).toBe(0);
@@ -54,14 +56,14 @@ test('connected entry, encounter and Warden masonry survives live traversal and 
   {timeout:55000}).toBe(true);
  const mobile=await diagnostic();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
- expect(mobile.dressing.connectedJourney.drawCalls).toBeLessThanOrEqual(5);
+ expect(mobile.dressing.connectedJourney.drawCalls).toBeLessThanOrEqual(11);
  await page.locator('#world').screenshot({
   path:'artifacts/dungeon-connected-journey-mobile.png',timeout:65000});
  expect(errors).toEqual([]);
  const evidence={source:'live autonomous server, actual map and WebGL camera controls',
   noFabricatedCombat:true,original,mobile:{state:mobile.renderedState,
    connected:mobile.dressing.connectedJourney},viewpoints:captions,
-  limits:{geometry:'five retained batches',navigation:'unchanged authority'},
+  limits:{geometry:'at most eleven retained role-specific batches',navigation:'unchanged authority'},
   gate:'IN PROGRESS / NOT TRANSFORMED; this is not a blind reference comparison'};
  fs.writeFileSync('artifacts/dungeon-connected-journey-evidence.json',
   JSON.stringify(evidence,null,2));
