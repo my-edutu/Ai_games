@@ -129,11 +129,14 @@ function metalwork(style){
 }
 export function createVaultedWallGallery(world,sites,wallIndices,floor){
  const count=Math.min(MAX_BAYS,Array.isArray(sites)?sites.length:0),theme=THEMES[((floor-1)%4+4)%4];
+ const masonry=getEnvironmentMaterialRole('masonry'),aged=getEnvironmentMaterialRole('agedMetal');
  const materials=[
-  new THREE.MeshStandardMaterial({color:theme.stone,...((({roughness,metalness})=>({roughness,metalness}))(getEnvironmentMaterialRole('masonry'))),side:THREE.DoubleSide,flatShading:true}),
+  new THREE.MeshStandardMaterial({color:theme.stone,roughness:masonry.roughness,metalness:masonry.metalness,side:THREE.DoubleSide,flatShading:true}),
   new THREE.MeshStandardMaterial({color:theme.shadow,roughness:1,metalness:0,side:THREE.DoubleSide}),
-  new THREE.MeshStandardMaterial({color:theme.metal,...((({roughness,metalness})=>({roughness,metalness}))(getEnvironmentMaterialRole('agedMetal'))),side:THREE.DoubleSide,flatShading:true})
+  new THREE.MeshStandardMaterial({color:theme.metal,roughness:aged.roughness,metalness:aged.metalness,side:THREE.DoubleSide,flatShading:true})
  ];
+ materials[0].userData.environmentMaterialRole='masonry';
+ materials[2].userData.environmentMaterialRole='agedMetal';
  const groups=[],geometries=[],allMeshes=[];
  for(let style=0;style<4;style++){
   const indices=Array.from({length:count},(_,i)=>i).filter(i=>(sites[i]?.style&3)===style);
