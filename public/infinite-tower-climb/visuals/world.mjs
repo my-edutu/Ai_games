@@ -367,6 +367,8 @@ export function createTowerWorld(){
   let materials={}, floorGeometries=new Set(),floorMaterials=new Set();
   const primitives=new Map(),platforms=new Map(),hazards=new Map(),rotors=[],floaters=[],foregroundGears=[];
   const foregroundRacks=[],decorativeSightlines=[];
+  // Passive, bounded current-camera forensic samples; NEVER a video quality verdict.
+  const decorativeOcclusionEvidence=[];
   // Source-observed semantic emphasis; decorative scenery yields to the actors.
   let sceneFocus=0, sceneFocusKind='ascent';
   let particles=null,vistaGroup=null,quality='normal',occludedGuardianCaps=0,occludedForegroundGears=0,occludedForegroundScreenGears=0,occludedForegroundCorridorGears=0,occludedForegroundClockFaces=0,ruinsPortalVoussoirs=0,ruinsGateLeaves=0;
@@ -1381,7 +1383,7 @@ export function createTowerWorld(){
   function clearFloor(){
     if(floorGroup){group.remove(floorGroup);floorGroup.traverse(o=>{if(o.isInstancedMesh)o.dispose();});}
     for(const g of floorGeometries)g.dispose();for(const m of floorMaterials)m.dispose();
-    floorGeometries.clear();floorMaterials.clear();platforms.clear();hazards.clear();rotors.length=0;floaters.length=0;foregroundGears.length=0;foregroundRacks.length=0;decorativeSightlines.length=0;particles=null;vistaGroup=null;floorGroup=null;occludedGuardianCaps=0;occludedForegroundGears=0;occludedForegroundScreenGears=0;occludedForegroundCorridorGears=0;occludedForegroundClockFaces=0;ruinsPortalVoussoirs=0;ruinsGateLeaves=0;
+    floorGeometries.clear();floorMaterials.clear();platforms.clear();hazards.clear();rotors.length=0;floaters.length=0;foregroundGears.length=0;foregroundRacks.length=0;decorativeSightlines.length=0;decorativeOcclusionEvidence.length=0;particles=null;vistaGroup=null;floorGroup=null;occludedGuardianCaps=0;occludedForegroundGears=0;occludedForegroundScreenGears=0;occludedForegroundCorridorGears=0;occludedForegroundClockFaces=0;ruinsPortalVoussoirs=0;ruinsGateLeaves=0;
     ruinsSanctuaryArches=0;ruinsSanctuaryPlants=0;ruinsSanctuaryCascadePanels=0;
     sceneFocus=0;sceneFocusKind='ascent';
   }
@@ -1656,6 +1658,7 @@ export function createTowerWorld(){
   function protectRouteSightlines(camera, actor=null, guardian=null, landing=null, dt=0, options={},
       actorHalfHeight=0, guardianHalfHeight=0) {
     if(disposed)return {total:0,softened:0};
+    decorativeOcclusionEvidence.length=0;
     if(!decorativeSightlines.length){
       occludedForegroundGears=0;occludedForegroundScreenGears=0;occludedForegroundCorridorGears=0;occludedForegroundClockFaces=0;
       return {total:0,softened:0};
@@ -1684,6 +1687,8 @@ export function createTowerWorld(){
     }
     for(const entry of decorativeSightlines){
       let requiredOpacity=1, softByProjection=false, softByCorridor=false;
+      let projectedScreenCoverage=0, sceneFrontDepth=null, rayContactCount=0,
+        projectedNearPlane=false, projectedActorFront=false;
       if(enabled){
         // Sibling clock backings share the gear's sightline, but not its
         // scene subtree. Refresh their matrices before authentic ray queries.
@@ -1730,9 +1735,14 @@ export function createTowerWorld(){
           // even when its centre is behind or outside the screen frustum.
           if(nearClipped){left=Math.min(left,-1);right=Math.max(right,1);
             bottom=Math.min(bottom,-1);top=Math.max(top,1);}
+          projectedNearPlane=nearClipped;
+          projectedScreenCoverage=Math.max(0,Math.min(1,right)-Math.max(-1,left))*
+            Math.max(0,Math.min(1,top)-Math.max(-1,bottom))*.25;
+          sceneFrontDepth=decoratedBounds.distanceToPoint(camera.position);
+          projectedActorFront=sceneFrontDepth+.25<actorDepth;
           const envelope=observedPortraitDecorativeEnvelope({
             aspect:camera.aspect,minX:left,maxX:right,minY:bottom,maxY:top,
-            nearestDepth:decoratedBounds.distanceToPoint(camera.position),actorDepth,
+            nearestDepth:sceneFrontDepth,actorDepth,
           });
           if(envelope<requiredOpacity){requiredOpacity=envelope;softByProjection=true;}
         }
@@ -1782,6 +1792,7 @@ export function createTowerWorld(){
             const caseHit=!gearHit&&entry.sceneryMeshes?.length>0&&
               canopyRay.intersectObjects(entry.sceneryMeshes,false).length>0;
             if(gearHit||caseHit){
+              rayContactCount++;
               requiredOpacity=Math.min(requiredOpacity,index===2?.48:.24);
             }else if(gearDepth+.4<length&&radius>0&&Number.isFinite(radius)&&
               screenGearCenter.z>=-1&&screenGearCenter.z<=1){
@@ -1818,6 +1829,25 @@ export function createTowerWorld(){
       entry.trim.opacity=entry.alloy.opacity;
       entry.trim.depthWrite=solid;
       const protectedClockFace=syncClockFaceSightline(entry);
+      if(enabled){
+        // Source ticks identify the observed episode; native video PTS remains uncalibrated.
+        decorativeOcclusionEvidence.push({
+          name:entry.sceneryParent?.name||entry.root.parent?.name||entry.root.name,
+          kind:foregroundRacks.includes(entry)?'decorative-rack':'decorative-clock',
+          sourceTick:Number.isSafeInteger(lastSnapshot?.tick)?lastSnapshot.tick:null,
+          screenCoverage:Number(projectedScreenCoverage.toFixed(4)),
+          nearestWorldDepth:sceneFrontDepth===null?null:Number(sceneFrontDepth.toFixed(2)),
+          sourceActorDepth:Number(actorDepth.toFixed(2)),
+          inFrontOfActor:projectedActorFront,
+          nearPlaneCrossing:projectedNearPlane,
+          rayContactCount,
+          cameraProjectionSoftened:softByProjection,
+          actionCorridorSoftened:softByCorridor,
+          intendedAlpha:Number(requiredOpacity.toFixed(4)),
+          renderedAlpha:Number(entry.alloy.opacity.toFixed(4)),
+          clockCaseMeshes:entry.sceneryMeshes.length,
+        });
+      }
       if(protectedClockFace)clockFacesSoftened++;
       if(!solid)softened++;
       if(softByProjection)screenSoftened++;
@@ -1856,7 +1886,9 @@ export function createTowerWorld(){
     }
     occludedGuardianCaps=faded;
   }
-  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,activeHazardPressureFins:[...hazards.values()].reduce((n,h)=>n+(h.indicator.userData.activePressureTeeth||0),0),observedMovingDeckCranks:[...platforms.values()].filter(p=>p.traveler).length,observedMovingDeckDriveStages:[...platforms.values()].filter(p=>p.countergear&&p.actuator).length,observedMovingDeckGearBatches:[...platforms.values()].filter(p=>p.gearVisual?.count===2).length,observedMovingDeckDriveLastTick:[...platforms.values()].reduce((latest,p)=>Math.max(latest,p.motionSourceTick??-1),-1),ambientParticles:particles?.visible?48:0,sceneHierarchy:{sourceBound:true,kind:sceneFocusKind,decorativeFocus:Number(sceneFocus.toFixed(4)),addsDraws:0,physicsUnchanged:true},floor:lastSnapshot?.floor??null,theme,quality,disposed,guardianGates:[...platforms.entries()].filter(([,p])=>p.guardianGate).map(([id,p])=>({id,unlocked:p.guardianGate.unlocked,opening:p.guardianGate.progress,conduitReach:p.guardianGate.conduit.scale.z,anchorX:p.guardianGate.anchorX})),occludedGuardianCaps,occludedForegroundGears,occludedForegroundScreenGears,occludedForegroundCorridorGears,occludedForegroundClockFaces,decorativeSightlineGears:foregroundGears.length,decorativeSightlineRacks:foregroundRacks.length,clockFaceRayMeshes:foregroundGears.reduce((n,gear)=>n+gear.sceneryMeshes.length,0),ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
+  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,activeHazardPressureFins:[...hazards.values()].reduce((n,h)=>n+(h.indicator.userData.activePressureTeeth||0),0),observedMovingDeckCranks:[...platforms.values()].filter(p=>p.traveler).length,observedMovingDeckDriveStages:[...platforms.values()].filter(p=>p.countergear&&p.actuator).length,observedMovingDeckGearBatches:[...platforms.values()].filter(p=>p.gearVisual?.count===2).length,observedMovingDeckDriveLastTick:[...platforms.values()].reduce((latest,p)=>Math.max(latest,p.motionSourceTick??-1),-1),ambientParticles:particles?.visible?48:0,sceneHierarchy:{sourceBound:true,kind:sceneFocusKind,decorativeFocus:Number(sceneFocus.toFixed(4)),addsDraws:0,physicsUnchanged:true},floor:lastSnapshot?.floor??null,theme,quality,disposed,guardianGates:[...platforms.entries()].filter(([,p])=>p.guardianGate).map(([id,p])=>({id,unlocked:p.guardianGate.unlocked,opening:p.guardianGate.progress,conduitReach:p.guardianGate.conduit.scale.z,anchorX:p.guardianGate.anchorX})),occludedGuardianCaps,occludedForegroundGears,occludedForegroundScreenGears,occludedForegroundCorridorGears,occludedForegroundClockFaces,
+    decorativeOcclusionEvidence:decorativeOcclusionEvidence.map(item=>({...item})),
+    decorativeSightlineGears:foregroundGears.length,decorativeSightlineRacks:foregroundRacks.length,clockFaceRayMeshes:foregroundGears.reduce((n,gear)=>n+gear.sceneryMeshes.length,0),ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;clearFloor();for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
   return{group,update,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics};
 }
