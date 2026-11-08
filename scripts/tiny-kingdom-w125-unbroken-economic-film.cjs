@@ -34,7 +34,7 @@ const manifest={
   'No actor insertion, manual inventory changes, time travel, seed edits or forced purchases',
   'Camera observes active citizens; camera attention does not alter economics',
   'This is not uninterrupted 30Hz video of every simulated frame',
-  'A PASS requires one exact farmer receipt ID at load, unload, receipt, staffed trade and home meal'
+  'A PASS requires one matching real positive farmer harvest, loaded road journey, unload, receipt, staffed market transfer and home meal'
  ]
 };
 function write(){fs.writeFileSync(path.join(out,'evidence.json'),JSON.stringify(manifest,null,2)+'\n')}
@@ -93,6 +93,14 @@ async function film(browser,profile){
    result.checkedTicks+=n;
    assert(!observed.negative,'Authoritative resource below zero');
    for(const d of observed.loads)if(d.job==='farmer'&&d.resource==='food'){
+    // Tie the SAME cargo ID to the genuine positive farmer work() event
+    // that immediately preceded startActualDelivery; do not infer a harvest
+    // from decorative field meshes or a scripted actor.
+    const source=observed.work.find(e=>e.job==='farmer'&&
+     e.citizen===d.citizen&&e.delta.food>0&&
+     Math.abs(e.time-d.started)<.00001);
+    if(source)recordEvent(byId,d.id,'harvest',{citizen:source.citizen,
+     time:source.time,amount:source.delta.food,at:[source.x,source.z]});
     recordEvent(byId,d.id,'load',{citizen:d.citizen,amount:d.amount,
      time:d.started,position:[d.x,d.z],stage:d.stage});
     if(d.stage==='unloading')recordEvent(byId,d.id,'unload',{
@@ -120,9 +128,12 @@ async function film(browser,profile){
     citizen:m.citizen,amount:m.amount,time:m.time,
     homeIndex:m.homeIndex,id:m.id});
    const complete=[...byId.values()].find(x=>
-    ['load','unload','receipt','trade','meal'].every(k=>x.events[k]));
+    ['harvest','load','unload','receipt','trade','meal'].every(k=>x.events[k]));
    if(complete){
     const e=complete.events;
+    assert(e.harvest.time<=e.load.time+1e-7,'Load precedes actual harvest');
+    assert(e.load.time<=e.unload.time+1e-7,'Unloading predates origin');
+    assert(e.unload.time<=e.receipt.time+1e-7,'Receipt predates unloading');
     assert(e.load.time<=e.receipt.time+1e-7,'Receipt predates load');
     assert(e.receipt.time<=e.trade.time+1e-7,'Market sale predates receipt');
     assert(e.trade.time<=e.meal.time+1e-7,'Meal predates purchase');
