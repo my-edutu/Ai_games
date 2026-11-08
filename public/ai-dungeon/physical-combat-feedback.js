@@ -30,7 +30,8 @@ export function createPhysicalCombatFeedback({
  const preference=createCombatMutePreference(storage);
  let previous=null,sceneId=null,disposed=false,optedIn=false,
   queued=0,played=0,adapterFailures=0,duplicates=0,overflow=0,sceneResets=0,
-  visualAccepted=0,audioAccepted=0,renderedSeconds=0,
+  visualAccepted=0,audioAccepted=0,renderedSeconds=0,observedSeconds=0,
+  unverifiedFrameInterval=false,expiredQueuedCues=0,invalidFrameIntervals=0,
   framesAcknowledged=0,staleAudioDropped=0,lastPresentedFrame=null;
  const pending=[],awaitingPresentation=[],seen=new Set(),receipts=[];
  function safeCall(fn){try{return fn()}catch{adapterFailures++;return null}}
@@ -62,7 +63,7 @@ export function createPhysicalCombatFeedback({
     }
     awaitingPresentation.splice(weakest,1);staleAudioDropped++;
    }
-   awaitingPresentation.push({cue,visual,at:renderedSeconds,sceneId});
+   awaitingPresentation.push({cue,visual,at:observedSeconds,sceneId});
   }else{
    const audio=optedIn?!!safeCall(()=>foley?.emit?.(cue)):false;
    if(audio)audioAccepted++;
@@ -76,7 +77,7 @@ export function createPhysicalCombatFeedback({
   * proof that pixels were displayed, encoded or audible samples delivered.
   * It must never be called from a timer, synthetic recorder or state poll.
   */
- function acknowledgePresentedFrame(frameId){
+ function acknowledgePresentedFrame(frameId,renderSubmissionSeconds=0){
   if(disposed||!requirePresentedFrame||!optedIn||
    !(typeof frameId==='string'&&frameId.length>0&&frameId.length<=128||
      Number.isSafeInteger(frameId)&&frameId>=0)||
@@ -85,7 +86,9 @@ export function createPhysicalCombatFeedback({
   let released=0;
   for(const item of awaitingPresentation.splice(0)){
    if(item.sceneId!==sceneId||
-    renderedSeconds-item.at>MAX_AUDIO_VISUAL_STALENESS_SECONDS){
+    unverifiedFrameInterval||!Number.isFinite(renderSubmissionSeconds)||
+    renderSubmissionSeconds<0||
+    observedSeconds+renderSubmissionSeconds-item.at>MAX_AUDIO_VISUAL_STALENESS_SECONDS){
     staleAudioDropped++;retainReceipt(item.cue,item.visual,false,frameId);continue;
    }
    const audible=!!safeCall(()=>foley?.emit?.(item.cue));
@@ -96,7 +99,14 @@ export function createPhysicalCombatFeedback({
  }
  function popDue(dt){
   if(!pending.length)return;
-  for(const item of pending)item.remaining-=dt;
+  for(const item of [...pending]){
+   // Never render or play a queued swing after a long real browser/GPU stall.
+   if(observedSeconds-item.queuedAt>MAX_AUDIO_VISUAL_STALENESS_SECONDS){
+    pending.splice(pending.indexOf(item),1);expiredQueuedCues++;
+    retainReceipt(item.cue,false,false);continue;
+   }
+   item.remaining-=dt;
+  }
   const due=pending.filter(x=>x.remaining<=0).sort((a,b)=>
    b.cue.priority-a.cue.priority||a.cue.tick-b.cue.tick||
    a.cue.id.localeCompare(b.cue.id,'en'));
@@ -131,7 +141,7 @@ export function createPhysicalCombatFeedback({
     if(pending[weakest].cue.priority>=cue.priority){overflow++;continue}
     pending.splice(weakest,1);overflow++;
    }
-   pending.push({cue,remaining:clamp(cue.delay,0,.5)});queued++;
+   pending.push({cue,remaining:clamp(cue.delay,0,.5),queuedAt:observedSeconds});queued++;
   }
   popDue(0);return cues.length;
  }
@@ -139,6 +149,12 @@ export function createPhysicalCombatFeedback({
   if(disposed)return 0;
   const dt=clamp(frameSeconds,0,.05);
   renderedSeconds+=dt;
+  // Raw browser time, not the 50ms animation cap, determines late audio.
+  // An invalid frame interval cannot certify a timely delivered sound.
+  unverifiedFrameInterval=!(Number.isFinite(actualFrameSeconds)&&actualFrameSeconds>0);
+  if(unverifiedFrameInterval)invalidFrameIntervals++;
+  observedSeconds+=unverifiedFrameInterval?
+   MAX_AUDIO_VISUAL_STALENESS_SECONDS+.01:Math.min(actualFrameSeconds,3600);
   const before=pending.length;
   popDue(dt);safeCall(()=>visuals?.advance?.(dt,actualFrameSeconds));safeCall(()=>foley?.cleanup?.());
   return Math.max(0,before-pending.length);
@@ -170,6 +186,7 @@ export function createPhysicalCombatFeedback({
   audioOptedIn:optedIn,preferredMuted:preferredMuted(),
   pending:pending.length,queued,emitted:played,visualAccepted,audioAccepted,
   awaitingPresentation:awaitingPresentation.length,framesAcknowledged,
+  expiredQueuedCues,invalidFrameIntervals,observedFrameMs:Math.round(observedSeconds*1000),
   staleAudioDropped,requirePresentedFrame,
   recentDeliveryReceipts:[...receipts],duplicateCues:duplicates,
   pendingOverflow:overflow,adapterFailures,sceneResets,

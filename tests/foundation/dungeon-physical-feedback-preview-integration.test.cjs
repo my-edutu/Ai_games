@@ -12,7 +12,7 @@ test('D04 preview is explicitly opt-in; default game retains legacy rendering an
  assert.match(app,/const physicalFeedback=D04_PREVIEW\?createPhysicalCombatFeedback\(/);
  assert.match(app,/if\(physicalFeedback\)physicalFeedback\.acceptSnapshot\(s\);/);
  assert.match(app,/else\{combatDirector\.accept\(s,camera\.position\);/);
- assert.match(app,/if\(physicalFeedback\)physicalFeedback\.advance\(dt\);/);
+ assert.match(app,/if\(physicalFeedback\)physicalFeedback\.advance\(dt,frameInterval\);/);
  assert.match(app,/else combatDirector\.animate\(dt\);/);
  assert.match(app,/createDungeonSoundstage\(ambience,\{reducedMotion:reduced\}\)/,
   'default path must preserve the previously tested legacy audio constructor');
@@ -45,7 +45,9 @@ test('only a successful real renderer submission acknowledges presented visual b
  const app=read('public/ai-dungeon/app.js');
  const controller=read('public/ai-dungeon/physical-combat-feedback.js');
  assert.match(app,/requirePresentedFrame:true/);
- assert.match(app,/physicalFeedback\?\.acknowledgePresentedFrame\(\+\+d04PresentedFrameSerial\)/);
+ assert.match(app,/physicalFeedback\?\.acknowledgePresentedFrame\(\+\+d04PresentedFrameSerial,/);
+ assert.match(app,/d04RenderSubmissionStartedAt=physicalFeedback\?performance\.now\(\):0/);
+ assert.match(app,/\(performance\.now\(\)-d04RenderSubmissionStartedAt\)\/1000/);
  assert.ok(app.indexOf('physicalFeedback?.acknowledgePresentedFrame(')>app.indexOf('renderer.render(scene,camera);'));
  assert.match(controller,/MAX_AUDIO_VISUAL_STALENESS_SECONDS=/);
  assert.match(controller,/awaitingPresentation\.length>=MAX_AUDIO_AWAITING_FRAME/);
