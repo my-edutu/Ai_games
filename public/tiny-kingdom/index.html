@@ -2540,6 +2540,9 @@ function foliageWindProbe(x,y,z,time){
 const workingSkinShaderDispatch=Array.from({length:13},(_,i)=>
  (i?'else ':'')+'if(skinJoint<'+(i+.5)+')pose=workBone['+i+'];').join('\n');
 const vs=`attribute vec3 position;attribute vec3 normal;attribute vec3 color;attribute float materialId;attribute float skinJoint;
+// W134: morph only original solar-shadow geometry between retained physical stages.
+attribute vec3 shadowPrevPosition;attribute vec3 shadowPrevColor;
+uniform float shadowTransition;
 uniform mat4 viewProjection;uniform vec3 sunDirection;uniform vec3 sunTint;
 uniform float sunStrength;uniform float ambientBlend;uniform highp float worldTime;
 uniform vec2 windmillRotor;
@@ -2557,6 +2560,7 @@ void main(){
  // Structural timber, stone, ground and citizens retain original positions.
  vec3 world=position;
  vec3 surfaceNormal=normal;
+ vec3 surfaceColor=color;
  float surfaceMaterial=materialId;
  // Per-worksite GPU joint transforms from authoritative two-bone IK.
  if(workSkinActive>.5){
@@ -2692,6 +2696,12 @@ void main(){
   float floorY=cutA>=cutB?completedHarvestA.z:completedHarvestB.z;
   world.y=mix(world.y,min(world.y,floorY+.17),cut*.95);
  }
+ // W134: both shadow endpoints have authentic terrain-fitted coordinates.
+ // All other world geometry has transition 0 and its original vertex data.
+ if(shadowTransition>.00001){
+  world=mix(world,shadowPrevPosition,shadowTransition);
+  surfaceColor=mix(surfaceColor,shadowPrevColor,shadowTransition);
+ }
  vec4 p=viewProjection*vec4(world,1.);gl_Position=p;
  vec3 n=normalize(surfaceNormal);vec3 sun=normalize(sunDirection);
  float lit=max(dot(n,sun),0.);float hemi=.5+.5*n.y;
@@ -2705,7 +2715,7 @@ void main(){
  vec3 ambient=mix(moonAmbient,noonAmbient,ambientBlend);
  vec3 direct=lit*.76*sunTint*sunStrength;
  vec3 coolBounce=vec3(.085,.108,.124)*bounce*sunStrength;
- vColor=color*(ambient+direct+coolBounce);
+ vColor=surfaceColor*(ambient+direct+coolBounce);
  // Art-direction: an inexpensive form shadow separates plaster walls, eaves,
  // stone bases and roofs without adding geometry or another lighting pass.
  // This only changes presentation, never paths or authoritative resource use.
@@ -2721,7 +2731,7 @@ void main(){
   float range=length(world.xz-workLightPosition.xz);
   float f=clamp(1.-range/5.5,0.,1.);
   float h=clamp(1.-abs(world.y-workLightPosition.y)/4.3,0.,1.);
-  vColor+=color*vec3(.65,.39,.16)*f*f*h*workLightStrength;
+  vColor+=surfaceColor*vec3(.65,.39,.16)*f*f*h*workLightStrength;
  }
  // G071: emissive building glass and street lanterns follow the same
  // solar-day cutoff as the former static-mesh variant, without recoloring
@@ -3039,7 +3049,7 @@ const materialFragmentSource=swiftGpu?
 if(swiftGpu&&materialFragmentSource===fs)
  throw Error('Software architectural material compilation did not activate');
 const program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vs));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,materialFragmentSource));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));gl.useProgram(program);
-const uniforms={viewProjection:gl.getUniformLocation(program,'viewProjection'),fogColor:gl.getUniformLocation(program,'fogColor'),sunDirection:gl.getUniformLocation(program,'sunDirection'),sunTint:gl.getUniformLocation(program,'sunTint'),sunStrength:gl.getUniformLocation(program,'sunStrength'),ambientBlend:gl.getUniformLocation(program,'ambientBlend'),worldTime:gl.getUniformLocation(program,'worldTime'),windmillRotor:gl.getUniformLocation(program,'windmillRotor'),weatherWetness:gl.getUniformLocation(program,'weatherWetness'),eyePosition:gl.getUniformLocation(program,'eyePosition'),groundAtlas:gl.getUniformLocation(program,'groundAtlas'),architectureAtlas:gl.getUniformLocation(program,'architectureAtlas'),groundAtlasFast:gl.getUniformLocation(program,'groundAtlasFast'),workLightPosition:gl.getUniformLocation(program,'workLightPosition'),workLightStrength:gl.getUniformLocation(program,'workLightStrength'),harvestContact:gl.getUniformLocation(program,'harvestContact'),harvestProgress:gl.getUniformLocation(program,'harvestProgress'),harvestFloor:gl.getUniformLocation(program,'harvestFloor'),completedHarvestA:gl.getUniformLocation(program,'completedHarvestA'),completedHarvestB:gl.getUniformLocation(program,'completedHarvestB'),villageSmokeDensity:gl.getUniformLocation(program,'villageSmokeDensity'),commuterEnabled:gl.getUniformLocation(program,'commuterEnabled'),commuterOrigin:gl.getUniformLocation(program,'commuterOrigin'),commuterMotion:gl.getUniformLocation(program,'commuterMotion'),workSkinActive:gl.getUniformLocation(program,'workSkinActive'),workBone:gl.getUniformLocation(program,'workBone[0]')};const skinJointAttribute=gl.getAttribLocation(program,'skinJoint');const workingSkinSupported=gpuAvailable&&skinJointAttribute>=0&&uniforms.workSkinActive!==null&&uniforms.workBone!==null;let workingSkinCapable=workingSkinSupported;const buffer=gl.createBuffer();let settlementBuffer=null,landscapeBuffer=null;let staticGpuUploads=0,landscapeGpuUploads=0;
+const uniforms={viewProjection:gl.getUniformLocation(program,'viewProjection'),fogColor:gl.getUniformLocation(program,'fogColor'),sunDirection:gl.getUniformLocation(program,'sunDirection'),sunTint:gl.getUniformLocation(program,'sunTint'),sunStrength:gl.getUniformLocation(program,'sunStrength'),ambientBlend:gl.getUniformLocation(program,'ambientBlend'),worldTime:gl.getUniformLocation(program,'worldTime'),windmillRotor:gl.getUniformLocation(program,'windmillRotor'),weatherWetness:gl.getUniformLocation(program,'weatherWetness'),eyePosition:gl.getUniformLocation(program,'eyePosition'),groundAtlas:gl.getUniformLocation(program,'groundAtlas'),architectureAtlas:gl.getUniformLocation(program,'architectureAtlas'),groundAtlasFast:gl.getUniformLocation(program,'groundAtlasFast'),workLightPosition:gl.getUniformLocation(program,'workLightPosition'),workLightStrength:gl.getUniformLocation(program,'workLightStrength'),harvestContact:gl.getUniformLocation(program,'harvestContact'),harvestProgress:gl.getUniformLocation(program,'harvestProgress'),harvestFloor:gl.getUniformLocation(program,'harvestFloor'),completedHarvestA:gl.getUniformLocation(program,'completedHarvestA'),completedHarvestB:gl.getUniformLocation(program,'completedHarvestB'),villageSmokeDensity:gl.getUniformLocation(program,'villageSmokeDensity'),commuterEnabled:gl.getUniformLocation(program,'commuterEnabled'),commuterOrigin:gl.getUniformLocation(program,'commuterOrigin'),commuterMotion:gl.getUniformLocation(program,'commuterMotion'),workSkinActive:gl.getUniformLocation(program,'workSkinActive'),workBone:gl.getUniformLocation(program,'workBone[0]'),shadowTransition:gl.getUniformLocation(program,'shadowTransition')};const shadowPrevPositionLoc=gl.getAttribLocation(program,'shadowPrevPosition'),shadowPrevColorLoc=gl.getAttribLocation(program,'shadowPrevColor');const skinJointAttribute=gl.getAttribLocation(program,'skinJoint');const workingSkinSupported=gpuAvailable&&skinJointAttribute>=0&&uniforms.workSkinActive!==null&&uniforms.workBone!==null;let workingSkinCapable=workingSkinSupported;const buffer=gl.createBuffer();let settlementBuffer=null,landscapeBuffer=null;let staticGpuUploads=0,landscapeGpuUploads=0;
 // G067: reuse both driver-side storage and CPU staging for the changing
 // citizen/effects VBO; only grow in bounded 65536-float chunks when needed.
 let dynamicGpuCapacityFloats=0,dynamicGpuAllocations=0,dynamicGpuUploads=0,dynamicGpuStaging=null;
@@ -4813,6 +4823,14 @@ function shadowPatch(cx,cz,radiusX,radiusZ,height,sun,isDense=false,sectorCount=
 // W133 Phase 1: keep the authentic medieval roofs/trees solar silhouettes
 // resident across half-hour stages; real citizens retain live contact shadows.
 const SOLAR_SHADOW_STEP_HOURS=.5;
+// W134: shift between two existing bounded resident stages for 7.2 minutes
+// after each authentic solar stage boundary, with no new draw or vertex upload.
+const SOLAR_SHADOW_TRANSITION_HOURS=.12;
+function solarShadowTransitionWeight(time,stage){
+ const hour=((time%24)+24)%24;
+ const elapsed=Math.max(0,hour-stage.bucket*SOLAR_SHADOW_STEP_HOURS);
+ return Math.max(0,Math.min(1,1-elapsed/SOLAR_SHADOW_TRANSITION_HOURS));
+}
 function solarShadowStage(time){
  if(!Number.isFinite(time))throw Error('Invalid shadow stage time');
  const day=Math.floor(time/24),hour=time-day*24;
@@ -4834,13 +4852,16 @@ let solarShadowLiveCitizenFrames=0;
 // Static real tree/house solar shadows remain in bounded resident GPU buffers.
 // Every authoritative moving citizen retains a fresh dynamic footprint.
 let solarShadowActive=null,solarShadowGpuUploads=0,solarShadowGpuDrawCalls=0;
+let solarShadowPrior=null,solarShadowTransition=0,solarShadowBlendedFrames=0;
+let solarShadowBlendSkips=0;
 let solarShadowGpuDisposals=0,solarShadowDynamicStaticCopies=0;
 let solarShadowGpuCreations=0,solarShadowGpuHandleReuses=0;
 function clearStaticShadowCache(){
  if(gpuAvailable)for(const entry of solarShadowCache.values())
   if(entry.buffer){gl.deleteBuffer(entry.buffer);solarShadowGpuDisposals++;}
  solarShadowCache.clear();solarShadowCachedFloats=0;
- solarShadowActive=null;solarShadowInvalidations++;
+ solarShadowActive=null;solarShadowPrior=null;solarShadowTransition=0;
+ solarShadowInvalidations++;
 }
 function getShadowCacheAudit(){
  return {kind:'static-mesh-solar-buckets',
@@ -4858,14 +4879,19 @@ function getShadowCacheAudit(){
   gpuBufferHandleReuses:solarShadowGpuHandleReuses,
   solarStepHours:SOLAR_SHADOW_STEP_HOURS,
   activeBucket:solarShadowStage(state.t).bucket,
+  morphWindowHours:SOLAR_SHADOW_TRANSITION_HOURS,
+  currentMorphWeight:solarShadowTransition,
+  blendedFrames:solarShadowBlendedFrames,skippedMorphFrames:solarShadowBlendSkips,
+  priorResidentTriangles:solarShadowPrior?.triangles||0,
   dynamicStaticCopies:solarShadowDynamicStaticCopies,
   citizenShadowsLive:true,sceneAuthorityUnchanged:true,
   approximation:'half-hour resident static samples; moving citizen contacts and real lighting remain live'};
 }
 function directionalCastShadows(time){
  const sun=sunShadow(time);castShadowTriangles=0;castShadowStart=data.length;
+ const previouslyRenderedShadow=solarShadowActive;
  solarShadowActive=null;
- if(sun.strength<=.01)return;
+ if(sun.strength<=.01){solarShadowPrior=null;solarShadowTransition=0;return;}
  const old=currentMaterial;currentMaterial=MATERIAL.GRASS;
  try{
   const climate=climateAt(time);
@@ -4937,7 +4963,8 @@ function directionalCastShadows(time){
       solarShadowGpuUploads++;
      }
     }
-    const entry={vertices,triangles:len/30,buffer,capacityFloats};
+    const entry={vertices,triangles:len/30,buffer,capacityFloats,
+     stageBucket:stage.bucket,cacheKey:key};
     if(buffer){
      solarShadowActive=entry;
      // Real moving-citizen contact shadows remain in the dynamic stream.
@@ -4946,6 +4973,23 @@ function directionalCastShadows(time){
     solarShadowCache.set(key,entry);solarShadowCachedFloats+=len;
    }
   }
+  // W134: blend two real cached solar meshes only when unchanged topology,
+  // vertex ordering and GPU handles are proven; never invent silhouettes.
+  if(gpuAvailable&&solarShadowActive?.buffer){
+   if(previouslyRenderedShadow?.buffer&&
+      previouslyRenderedShadow!==solarShadowActive&&
+      previouslyRenderedShadow.stageBucket===stage.bucket-1&&
+      previouslyRenderedShadow.vertices.length===solarShadowActive.vertices.length&&
+      solarShadowCache.get(previouslyRenderedShadow.cacheKey)===previouslyRenderedShadow)
+     solarShadowPrior=previouslyRenderedShadow;
+   const residentPrevious=solarShadowPrior&&
+      solarShadowPrior.stageBucket===stage.bucket-1&&
+      solarShadowPrior.vertices.length===solarShadowActive.vertices.length&&
+      solarShadowCache.get(solarShadowPrior.cacheKey)===solarShadowPrior;
+   solarShadowTransition=residentPrevious?
+      solarShadowTransitionWeight(time,stage):0;
+   if(!residentPrevious||solarShadowTransition<=0)solarShadowPrior=null;
+  }else{solarShadowPrior=null;solarShadowTransition=0;}
   // Render EVERY real citizen's current physical footprint even when the
   // immutable town geometry hits cache. Six low-radius penumbra sectors are
   // more than enough for a .20m contact footprint on a 390px device; large
@@ -19274,8 +19318,26 @@ if(gpuAvailable){
   staticBatchBridgeOverride)?'conservative':'strict';
  if(solarShadowActive?.buffer){
   bindGeometry(solarShadowActive.buffer);
+  const canMorph=solarShadowTransition>0&&solarShadowPrior?.buffer&&
+    shadowPrevPositionLoc>=0&&shadowPrevColorLoc>=0;
+  if(canMorph){
+   // Existing attribute pointers remain bound to the current shadow;
+   // only the two morph endpoints read the preserved previous shadow VBO.
+   gl.bindBuffer(gl.ARRAY_BUFFER,solarShadowPrior.buffer);
+   gl.enableVertexAttribArray(shadowPrevPositionLoc);
+   gl.vertexAttribPointer(shadowPrevPositionLoc,3,gl.FLOAT,false,stride,0);
+   gl.enableVertexAttribArray(shadowPrevColorLoc);
+   gl.vertexAttribPointer(shadowPrevColorLoc,3,gl.FLOAT,false,stride,24);
+   gl.uniform1f(uniforms.shadowTransition,solarShadowTransition);
+   solarShadowBlendedFrames++;
+  }else if(solarShadowTransition>0)solarShadowBlendSkips++;
   gl.drawArrays(gl.TRIANGLES,0,solarShadowActive.triangles*3);
   solarShadowGpuDrawCalls++;
+  if(canMorph){
+   gl.uniform1f(uniforms.shadowTransition,0);
+   gl.disableVertexAttribArray(shadowPrevPositionLoc);
+   gl.disableVertexAttribArray(shadowPrevColorLoc);
+  }
  }
 }
 const gpuUploadStart=performance.now();
