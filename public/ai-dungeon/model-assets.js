@@ -952,6 +952,12 @@ function changeAction(actor,action,forceRestart=false){
   next.setLoop(oneShot?THREE.LoopOnce:THREE.LoopRepeat,oneShot?1:Infinity);
   next.clampWhenFinished=oneShot;
   next.play();
+  // A verified injury or escape temporarily owns the rig without altering the
+  // original authority tick. Resuming the same legal one-shot must not replay
+  // an impossible second windup while its target has already been attacked.
+  if(oneShot&&!newEvent&&previous&&previous!==next&&actor.fullBody?.interrupted&&
+   actor.fullBody?.mode===action&&Number.isFinite(actor.fullBody.age)&&clip.duration>0)
+   next.time=Math.min(Math.max(0,actor.fullBody.age*clipSpeed),Math.max(0,clip.duration-.001));
   if(previous&&previous!==next)next.crossFadeFrom(previous,actor.fullBody?.interrupted ? .09 : (oneShot ? .12 : .23),true);
   actor.activeClip=next;
  }
