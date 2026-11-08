@@ -52,7 +52,7 @@ export function auditImportedAnimationClips(clips=[]){
 
 /** Classify a real visual frame without relying on wall-clock time. */
 export function advanceFullBodyController(previous=null,{
- unit={},grounded=null,damageBeat=null,evasionBeat=null,
+ unit={},grounded=null,damageBeat=null,evasionBeat=null,combatFacing=null,
  actionAge=0,frameDelta=0,reducedMotion=false
 }={}){
  const raw=unit?.action;
@@ -123,13 +123,25 @@ export function advanceFullBodyController(previous=null,{
   // The real Warden warning is a genuine separate authority-backed telegraph.
   warning:alive&&!['hurt','evade'].includes(mode)
  });
+ // This is a pose-only latch from a real, validated combat-facing result
+ // and the SAME explicit authority target. It permits a finishing planted
+ // stance when the next idle tick erases targetId. It never schedules a hit,
+ // adds a damage cue, or selects a different nearby enemy.
+ const confirmedAtSource=mode==='attack'&&!holding&&authorityAction==='attack'&&
+  Number.isSafeInteger(actionTick)&&typeof unit?.targetId==='string'&&
+  unit.targetId.trim().length>0&&unit.targetId.length<=96&&
+  combatFacing?.targetId===unit.targetId&&combatFacing?.distance===1&&
+  finite(combatFacing?.yaw)?
+  Object.freeze({targetId:unit.targetId,distance:1,actionTick}):null;
+ const confirmedContact=holding&&previous?.confirmedContact?.actionTick===visualActionTick?
+  previous.confirmedContact:confirmedAtSource;
  const phase=mode==='attack'?age<.12?'anticipation':age<.28?'contact':age<.62?'recovery':'settled':
   mode==='cast'?age<.16?'anticipation':age<.48?'release':'recovery':
   mode==='hurt'?age<.12?'impact':'recovery':
   mode==='evade'?age<.16?'departure':'recovery':
   mode==='defeat'?'down':mode==='move'?'stride':mode;
  return Object.freeze({mode,phase,age,actionTick:visualActionTick,authorityAction,clipAction,
-  holding,completed,changed,restarted,interrupted,transition,owner,
+  holding,completed,confirmedContact,changed,restarted,interrupted,transition,owner,
   reducedMotion:Boolean(reducedMotion)});
 }
 
