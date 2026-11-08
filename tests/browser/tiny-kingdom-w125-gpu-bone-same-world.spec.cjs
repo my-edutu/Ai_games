@@ -90,7 +90,13 @@ for(const viewport of scenes){
   expect(candidate.skin.active).toBe(true);
   expect(candidate.skin.jointBuffers).toBeLessThanOrEqual(1);
   expect(candidate.skin.jointFloats).toBeLessThanOrEqual(candidate.skin.maxJointFloats);
-  expect(candidate.skin.gpuRigDraws).toBeGreaterThanOrEqual(0);
+  // A green screenshot with NO real worker on the GPU proves nothing:
+  // demand an actual authoritative worksite and at least one rig draw.
+  expect(candidate.worker.authenticWorkers).toBeGreaterThan(0);
+  expect(candidate.skin.realWorkers).toBe(candidate.worker.authenticWorkers);
+  expect(candidate.skin.gpuRigDraws).toBeGreaterThan(0);
+  expect(candidate.skin.paletteUpdates).toBeGreaterThanOrEqual(
+   candidate.skin.gpuRigDraws);
   expect(candidate.skin.cachedActors).toBeLessThanOrEqual(24);
   expect(candidate.worker.foregroundProfessionHandsLive).toBe(true);
   expect(candidate.worker.deliveryCartAndUnloadLive).toBe(true);
