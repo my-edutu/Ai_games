@@ -1,0 +1,184 @@
+'use strict';
+// Controlled W125 before/after browser comparison: same seed, workloads,
+// viewport, SwiftShader and original authoritative step() on two exact source
+// commits. Not physical-device desktop/mobile GPU FPS or a visual quality PASS.
+const assert=require('node:assert/strict');
+const fs=require('node:fs'),path=require('node:path');
+const {chromium}=require('playwright');
+const dir=path.resolve('artifacts/tiny-kingdom-w125-comparison');
+fs.mkdirSync(dir,{recursive:true});
+const cases=[
+ ['before',path.resolve('artifacts/w125-before.html')],
+ ['after',path.resolve('artifacts/w125-after.html')]
+];
+const originalCamera={focus:[0,0],yaw:.85,pitch:.52,zoom:23};
+const evidence={schema:'tiny-kingdom-w125-controlled-software-v1',
+ browser:'Chromium SwiftShader',physicalHardwareGpuFps:'NOT_PROVEN',
+ old:'c891aec28067a15e0778b94526c02f33048ecac9^',
+ new:'c891aec28067a15e0778b94526c02f33048ecac9',
+ limitations:['Software-rendered p95/p99 are not physical desktop/mobile GPU',
+  '390px is an emulated viewport, not a real phone',
+  'Short captures are exploratory; no causal FPS claim without adequate samples',
+  'In-process comparison is subject to browser temperature and caching'],
+ cases:{},errors:[],status:'INCOMPLETE'};
+const save=()=>fs.writeFileSync(path.join(dir,'evidence.json'),
+ JSON.stringify(evidence,null,2)+'\n');
+(async()=>{
+ let browser;
+ try{
+  browser=await chromium.launch({headless:true,args:[
+   '--enable-webgl','--use-gl=angle','--use-angle=swiftshader',
+   '--enable-unsafe-swiftshader','--disable-dev-shm-usage',
+   '--enable-precise-memory-info']});
+  const page=await browser.newPage({viewport:{width:1024,height:640}});
+  page.setDefaultTimeout(120000);
+  let currentCase='bootstrap';
+  page.on('pageerror',error=>evidence.errors.push({
+   case:currentCase,message:String(error.message)}));
+  page.on('console',message=>{
+   if(message.type()==='error')evidence.errors.push({
+    case:currentCase,message:message.text().slice(0,500)});
+  });
+  async function sample(label,viewport,snapshot,{workday=false}={}){
+   const original=JSON.stringify(snapshot);
+   await page.setViewportSize(viewport);
+   const real=await page.evaluate(({workday,camera})=>{
+    const g=window.__tinyKingdom;
+    if(workday){
+     if(!g.getActiveWorksites().length)return {eligible:false};
+     const following=g.watchLiveWorkday();
+     return {eligible:true,following,worksites:g.getActiveWorksites()};
+    }
+    g.setCamera(camera);
+    return {eligible:true};
+   },{workday,camera:originalCamera});
+   if(!real.eligible)return {status:'NO_ACTUAL_WORKSITE'};
+   await page.waitForTimeout(450);
+   const prev=await page.evaluate(()=>({
+    frames:window.__tinyKingdom.renderQuality().framesDrawn,
+    memory:performance.memory?.usedJSHeapSize??null}));
+   const start=Date.now();
+   await page.locator('#pause').click();
+   await page.waitForTimeout(6000);
+   await page.locator('#pause').click();
+   const snapshotStats=await page.evaluate(()=>{
+    const g=window.__tinyKingdom,gl=document.getElementById('world').getContext('webgl');
+    return {renderer:g.renderQuality(),scene:g.renderStats(),
+     cpu:g.getFrameProfile(),cadence:g.getDrawCadenceAudit(),
+     gpu:g.getGpuFrameTimerAudit(),
+     geometry:g.getGeometryAudit(),
+     ledger:g.getSceneTriangleReconciliation(),
+     commuter:g.getResidentCommuterAudit(),
+     actor:g.getActorResidencyAudit(),
+     population:g.metrics().citizens,
+     structures:g.metrics().buildings,
+     day:g.metrics().day,
+     checksum:g.exportSnapshot().checksum,
+     browserMemory:performance.memory?.usedJSHeapSize??null,
+     viewport:[document.documentElement.clientWidth,
+      document.documentElement.clientHeight],
+     scrollWidth:document.documentElement.scrollWidth,
+     glError:gl.getError()};
+   });
+   const duration=(Date.now()-start)/1000;
+   const result={status:'RECORDED',label,viewport,witness:real,
+    softwareOnly:true,elapsedSeconds:duration,
+    frames:snapshotStats.renderer.framesDrawn-prev.frames,
+    observedSoftwareFps:(snapshotStats.renderer.framesDrawn-prev.frames)/duration,
+    beforeHeapBytes:prev.memory,...snapshotStats};
+   await page.screenshot({path:path.join(dir,currentCase+'-'+label+'.png')});
+   assert.equal(result.glError,0,'GL error '+currentCase+' '+label);
+   assert(result.frames>0,'No real frame '+currentCase+' '+label);
+   assert(result.geometry.totalTriangles<160000,'Complete triangle budget '+label);
+   assert.equal(result.cpu.kind,'cpu-wall-submission');
+   await page.evaluate(s=>window.__tinyKingdom.restoreSnapshot(s),snapshot);
+   assert.equal(JSON.stringify(await page.evaluate(()=>window.__tinyKingdom.exportSnapshot())),
+    original,'Profiling mutated original replay '+label);
+   await page.setViewportSize({width:1024,height:640});
+   await page.evaluate(camera=>window.__tinyKingdom.setCamera(camera),originalCamera);
+   return result;
+  }
+  for(const [name,file] of cases){
+   currentCase=name;
+   const html=fs.readFileSync(file,'utf8');
+   const errCount=evidence.errors.length;
+   await page.setViewportSize({width:1024,height:640});
+   await page.setContent(html,{waitUntil:'load'});
+   await page.waitForFunction(()=>
+    window.__tinyKingdom?.renderStats().lastFrameTriangles>0);
+   await page.locator('#pause').click();
+   const seed=await page.evaluate(()=>{
+    const g=window.__tinyKingdom;
+    g.reset();const first=g.exportSnapshot();
+    g.reset();const second=g.exportSnapshot();
+    return {first,second};
+   });
+   assert.equal(JSON.stringify(seed.first),JSON.stringify(seed.second),
+    'Reset original village seed must be deterministic');
+   const row={startChecksum:seed.first.checksum,startMetrics:await page.evaluate(
+    ()=>window.__tinyKingdom.metrics()),samples:{},checkpoints:[]};
+   row.samples.day1=await sample('day1',{width:1024,height:640},seed.first);
+   const early=await page.evaluate(()=>{
+    const g=window.__tinyKingdom;let steps=0;
+    for(;steps<12*30&&!g.getActiveWorksites().length;steps++)g.step(1/30);
+    return {steps,realWorksites:g.getActiveWorksites(),checksum:g.exportSnapshot().checksum,
+     snapshot:g.exportSnapshot()};
+   });
+   row.authenticWorkdaySearch={steps:early.steps,worksites:early.realWorksites,
+    checksum:early.checksum};
+   row.samples.workday=early.realWorksites.length?
+    await sample('workday',{width:1024,height:640},early.snapshot,{workday:true}):
+    {status:'NO_ACTUAL_WORKSITE',noStagedActors:true};
+   await page.evaluate(s=>window.__tinyKingdom.restoreSnapshot(s),seed.first);
+   for(let day=10;day<=120;day+=10){
+    const part=await page.evaluate(()=>{
+     const g=window.__tinyKingdom;
+     for(let i=0;i<7200;i++)g.step(1/30);
+     return {snapshot:g.exportSnapshot(),metrics:g.metrics()};
+    });
+    row.checkpoints.push({simulatedDay:day,checksum:part.snapshot.checksum,
+     population:part.metrics.citizens,structures:part.metrics.buildings,
+     day:part.metrics.day});
+    await page.waitForTimeout(150);
+   }
+   const grown=await page.evaluate(()=>window.__tinyKingdom.exportSnapshot());
+   row.grownChecksum=grown.checksum;
+   row.grownMetrics=await page.evaluate(()=>window.__tinyKingdom.metrics());
+   assert.equal(row.grownMetrics.citizens,28,'Real Day120 population changed');
+   assert(row.grownMetrics.buildings>=37,'Real town growth regressed');
+   row.samples.day120=await sample('day120',{width:1024,height:640},grown);
+   row.samples.mobile390=await sample('mobile390',{width:390,height:844},grown);
+   assert.equal(evidence.errors.length,errCount,
+    'Browser exceptions detected in '+name+' original village');
+   evidence.cases[name]=row;save();
+  }
+  const a=evidence.cases.before,b=evidence.cases.after;
+  assert.equal(a.startChecksum,b.startChecksum,
+   'Controlled variants began from different authoritative worlds');
+  assert.equal(a.grownChecksum,b.grownChecksum,
+   'W125 changed authoritative day120 replay');
+  assert.deepEqual(a.checkpoints,b.checkpoints,
+   'W125 changed any original 10-day checkpoint');
+  evidence.comparison=Object.fromEntries(['day1','workday','day120','mobile390']
+   .map(label=>{
+    const old=a.samples[label],newer=b.samples[label];
+    const enough=old.cpu?.samples>=15&&newer.cpu?.samples>=15;
+    return [label,{paired:old.status==='RECORDED'&&newer.status==='RECORDED',
+     enoughForExploratoryP95:enough,
+     priorCpuP95Ms:old.cpu?.stages.total.p95??null,
+     candidateCpuP95Ms:newer.cpu?.stages.total.p95??null,
+     priorCitizenP95Ms:old.cpu?.stages.citizenGeometry.p95??null,
+     candidateCitizenP95Ms:newer.cpu?.stages.citizenGeometry.p95??null,
+     priorSoftwareFps:old.observedSoftwareFps??null,
+     candidateSoftwareFps:newer.observedSoftwareFps??null,
+     GPUHardwareGain:'NOT_PROVEN',
+     conclusion:enough?'EXPLORATORY_SOFTWARE_ONLY':'INSUFFICIENT_FRAME_SAMPLES'}];
+   }));
+  evidence.status='SOURCE_MATCHED_SOFTWARE_CAPTURE_ONLY';
+ }catch(err){
+  evidence.status='FAIL';
+  evidence.failure=String(err&&err.stack||err);throw err;
+ }finally{
+  save();if(browser)await browser.close();
+ }
+})().catch(err=>{console.error(err);process.exitCode=1});
