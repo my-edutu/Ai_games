@@ -611,7 +611,12 @@ export function createTowerWorld(){
     alloy.depthWrite=true;
     floorMaterials.add(alloy);
     const shape=new THREE.Shape(),teeth=14;for(let i=0;i<teeth*4;i++){const a=i/teeth/4*TAU,rad=r*(i%4===0||i%4===3?.84:1);const x=Math.sin(a)*rad,y=Math.cos(a)*rad;if(i===0)shape.moveTo(x,y);else shape.lineTo(x,y);}shape.closePath();
-    const hole=new THREE.Path();hole.absarc(0,0,r*.49,0,TAU,true);shape.holes.push(hole);
+    // An opaque annular plate in each real rotor could still fill the guardian
+    // shot even after the outer giant rim was given actual daylight gaps.
+    // The four retained alloy crossarms now carry a thinner toothed ring:
+    // open sightline at radius .60r, real load ring still present at .82r.
+    // All three original decorative machines keep their genuine rotation.
+    const hole=new THREE.Path();hole.absarc(0,0,r*.72,0,TAU,true);shape.holes.push(hole);
     const g=own(new THREE.ExtrudeGeometry(shape,{depth:thickness,bevelEnabled:true,bevelSize:.06,bevelThickness:.04,bevelSegments:1,steps:1,curveSegments:18}));
     const root=new THREE.Group();root.name='CameraResponsiveDecorativeGear';parent.add(root);
     mesh(root,g,alloy,[0,0,-thickness/2]);
@@ -1014,7 +1019,14 @@ export function createTowerWorld(){
       m.name='SightlineResponsivePowerRack';m.transparent=true;
       m.opacity=1;m.depthWrite=true;floorMaterials.add(m);
     }
-    block(rack,rackFace,[0,0,-.2],[1.1,42,1.2]);
+    // Retain a continuous forty-two-unit high toothed mechanism without a
+    // solid central steel slab covering the playable portrait corridor.
+    // Two braced side rails, one INSTANCED material/draw and the existing
+    // real-pitch teeth leave genuine gaps when the camera orbits this tower.
+    instanced(rack,box(),rackFace,[
+      {p:[-.69,0,-.2],s:[.22,42,.78]},
+      {p:[ .69,0,-.2],s:[.22,42,.78]},
+    ]);
     const teeth=[];for(let y=-20;y<22;y+=.85)teeth.push({p:[0,y,.5],s:[1.65,.3,.45]});instanced(rack,box(),rackTeeth,teeth);
     rack.traverse(o=>{if(o.isMesh){o.userData.ambientDetail=true;o.castShadow=false;}});
     const rackEntry={root:rack,alloy:rackFace,trim:rackTeeth,radius:22,
