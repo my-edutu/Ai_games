@@ -11,6 +11,12 @@ const DIMENSIONS = Object.freeze({
   portrait: Object.freeze({width:390,height:844}),
 });
 const MIN_DURATION = 60;
+// More than half a second without a recorded picture or sustained <12 fps
+// cannot support honest normal-speed FEELS/PLAYS comparison, even when the
+// WebM container claims 60+ seconds. These are film-transport vetoes, NOT
+// device FPS budgets or a positive quality review.
+const MIN_RECORDED_FPS = 12;
+const MAX_FRAME_GAP_SECONDS = .5;
 function inspectFilmMetadata(probe, motion, index, expected) {
   const problems = [], warnings = [];
   const target = DIMENSIONS[expected.viewport];
@@ -31,16 +37,26 @@ function inspectFilmMetadata(probe, motion, index, expected) {
   // support a 60+ second assessment. A long header with 8s of pictures fails.
   if (!Number.isFinite(duration) || duration < MIN_DURATION)
     problems.push('native-container-shorter-than-60s');
-  if (!allPtsValid || last - first < MIN_DURATION - 1)
+  if (!allPtsValid || last - first < MIN_DURATION)
     problems.push('decoded-video-frames-do-not-span-60s');
+  // A long recording with an empty opening or trailing encoded blackout
+  // cannot be interpreted as an uninterrupted source-matched first scene.
+  if (allPtsValid && first > 1)
+    problems.push('native-film-missing-opening-gameplay');
+  if (allPtsValid && Number.isFinite(duration) && duration-last > 1.5)
+    problems.push('native-film-trailing-picture-gap');
   const gaps = allPtsValid ? pts.slice(1).map((v,i) => v - pts[i]) : [];
   const maxFrameGapSeconds = gaps.length ? Math.max(...gaps) : null;
   const presentedFramesPerSecond = allPtsValid && duration > 0
     ? pts.length / duration : null;
-  if (maxFrameGapSeconds !== null && maxFrameGapSeconds > 1.5)
-    warnings.push('original-film-has-over-1.5s-without-a-video-frame');
-  if (presentedFramesPerSecond !== null && presentedFramesPerSecond < 8)
-    warnings.push('original-film-too-sparse-for-reliable-motion-judgement');
+  if (maxFrameGapSeconds !== null && maxFrameGapSeconds > MAX_FRAME_GAP_SECONDS)
+    problems.push('original-film-has-over-0.5s-without-a-video-frame');
+  else if (maxFrameGapSeconds !== null && maxFrameGapSeconds > .20)
+    warnings.push('original-film-has-visible-cadence-gaps');
+  if (presentedFramesPerSecond !== null && presentedFramesPerSecond < MIN_RECORDED_FPS)
+    problems.push('original-film-too-sparse-for-reliable-motion-judgement');
+  else if (presentedFramesPerSecond !== null && presentedFramesPerSecond < 20)
+    warnings.push('original-film-has-low-motion-sampling');
   if (motion?.sourceSha !== expected.sourceSha || index?.sourceSha !== expected.sourceSha)
     problems.push('source-sidecar-SHA-mismatch');
   if (motion?.scenario !== expected.scenario || index?.scenario !== expected.scenario)
@@ -55,9 +71,18 @@ function inspectFilmMetadata(probe, motion, index, expected) {
   if (motion?.seed !== 'tower-transformation-capture-v1' ||
       index?.seed !== motion?.seed)
     problems.push('recording-seed-mismatch');
+  // Do not compare 60 seconds of a different graphics/reduced-motion mode
+  // under the same source SHA. These are the declared CI capture settings;
+  // native hardware and non-muted audio remain separate acceptance tasks.
+  if (motion?.graphicsTier !== 'low' || index?.recordingQuality !== 'low' ||
+      motion?.reducedMotion !== false || motion?.soundEnabled !== false)
+    problems.push('recording-conditions-not-matched');
+  if (Array.isArray(motion?.errors) && motion.errors.length)
+    problems.push('original-browser-reported-errors');
   const requiredFloor = expected.scenario === 'danger' ? 8 :
     expected.scenario === 'moving' ? 7 : 0;
-  if (motion?.startScene?.floor !== requiredFloor ||
+  if (motion?.launchFloor !== String(requiredFloor) ||
+      motion?.startScene?.floor !== requiredFloor ||
       !Number.isSafeInteger(motion?.startScene?.tick) ||
       motion.startScene.tick < 0 || motion.startScene.tick > 250 ||
       typeof motion?.startScene?.runToken !== 'string' ||
@@ -66,7 +91,10 @@ function inspectFilmMetadata(probe, motion, index, expected) {
   if (!Number.isFinite(motion?.actualWallSeconds) ||
       motion.actualWallSeconds < MIN_DURATION)
     problems.push('browser-observation-shorter-than-60s');
-  const sourceStoryStatus = motion?.sourceStory?.sameEpisodeSourceSequenceObserved === true
+  const sourceEpisodeObserved = motion?.sourceStory?.sameEpisodeSourceSequenceObserved === true;
+  if (!sourceEpisodeObserved)
+    problems.push('required-source-authentic-episode-not-observed');
+  const sourceStoryStatus = sourceEpisodeObserved
     ? 'SOURCE_EPISODE_OBSERVED_NOT_VIDEO_VERIFIED' : 'NOT EVALUATED';
   return {
     status: problems.length ? 'BLOCKED' : 'SOURCE_VIDEO_TRANSPORT_ONLY',
@@ -77,7 +105,7 @@ function inspectFilmMetadata(probe, motion, index, expected) {
       codec:stream?.codec_name ?? null,containerDurationSeconds:Number.isFinite(duration)?duration:null,
       decodedFrameCount:pts.length,firstPtsSeconds:first,lastPtsSeconds:last,
       maxFrameGapSeconds,presentedFramesPerSecond},
-    motionReviewability: warnings.length ? 'NOT EVALUATED: original footage too sparse; inspect and recapture' :
+    motionReviewability: warnings.length ? 'NOT EVALUATED: original footage has cadence warnings; inspect at normal speed' :
       'NOT EVALUATED: no full-motion independent human inspection',
     sourceStoryStatus, visibleGameplayEvents:'NOT EVALUATED',
     independentBlindReviews:'NOT EVALUATED', realDevicePerformance:'NOT EVALUATED',
