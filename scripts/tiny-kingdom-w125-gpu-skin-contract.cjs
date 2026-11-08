@@ -110,6 +110,33 @@ for(let joint=0;joint<13;joint++){
   'Original worker joint '+joint+' endpoint MUST remain physically attached');
 }
 
+// Validate the WebGL vertex normal correction as actual math, not only a
+// source substring. A longitudinally stretched leg must retain a properly
+// perpendicular surface normal without shading/material distortion.
+function unit(v){const len=Math.hypot(...v);return v.map(x=>x/len);}
+for(let joint=0;joint<13;joint++){
+ const origin=oldSegments[joint],target=movedSegments[joint];
+ const m=math.workSkinRigidMatrix(origin,target);
+ const source=unit(origin[1].map((x,i)=>x-origin[0][i]));
+ const destiny=unit(target[1].map((x,i)=>x-target[0][i]));
+ assert(close([m[7],m[11],m[15]],source),
+  'GPU bone must encode original axis in unused homogeneous W row');
+ const scale=Math.hypot(...origin[1].map((x,i)=>x-origin[0][i]))/
+  Math.hypot(...target[1].map((x,i)=>x-target[0][i]));
+ assert(Math.abs(m[3]-scale)<1e-7,'Exact inverse axial stretch needed for normals');
+ const side=Math.abs(source[1])<.85?[0,1,0]:[1,0,0];
+ const projection=source.reduce((sum,x,i)=>sum+x*side[i],0);
+ const n=unit(side.map((x,i)=>x-projection*source[i]));
+ const axial=n.reduce((sum,x,i)=>sum+x*source[i],0);
+ const compensated=n.map((x,i)=>x+source[i]*axial*(m[3]-1));
+ const rotated=unit([
+  m[0]*compensated[0]+m[4]*compensated[1]+m[8]*compensated[2],
+  m[1]*compensated[0]+m[5]*compensated[1]+m[9]*compensated[2],
+  m[2]*compensated[0]+m[6]*compensated[1]+m[10]*compensated[2]
+ ]);
+ assert(Math.abs(rotated.reduce((sum,x,i)=>sum+x*destiny[i],0))<.00005,
+  'Physical surface normal must stay perpendicular to the changing real bone');
+}
 assert.equal(oldSegments.length,13);
 assert.equal(newSegments.length,13);
 console.log('W125 source+CPU bone math PASS: original real workers, 13 joint tags, exact endpoint transforms, bounded VBO, fallback; real GL and FPS separately gated.');
