@@ -225,6 +225,23 @@ function clearTacticalLane(s:Pick<DungeonState,'map'|'units'>,
  }
  return true;
 }
+/** The Starweaver can heal herself, or a living teammate within a real
+ * unobstructed three-cell channel. This rule consumes the same authoritative
+ * line-of-sight and body positions as tactical spell targeting. Neither walls
+ * nor distance may be bypassed by presentation-only action cues.
+ */
+export const MYSTIC_HEAL_RANGE=3;
+export function planMysticHealingLane(
+ s:Pick<DungeonState,'map'|'units'>,healer:Unit,patient:Unit
+):boolean{
+ if(!s||!Array.isArray(s.map)||!Array.isArray(s.units)||
+  healer?.kind!=='mystic'||healer.faction!=='party'||healer.hp<=0||
+  patient?.faction!=='party'||patient.hp<=0||
+  !walkable(s.map,healer.x,healer.z)||!walkable(s.map,patient.x,patient.z))return false;
+ return healer.id===patient.id||
+  (dist(healer,patient)<=MYSTIC_HEAL_RANGE&&
+   clearTacticalLane(s,healer,patient,healer.id));
+}
 // Each ranged hero searches no more than 81 candidate tiles with bounded BFS.
 function approachFiringLane(s:DungeonState,hero:Unit,enemy:Unit,range:number){
  if(range<=1)return shortestPath(s.map,hero,enemy);
@@ -862,17 +879,34 @@ export class DungeonRuntime {
    if(hero.kind==='mystic'){
     const urgent=party.some(u=>u.hp>0&&u.hp<=u.maxHp*.35);
     const focus=hero.focus??0;
-    // Save scarce healing focus for mortal danger after the first three
-    // charges. Restores only from genuine dungeon relics and new floors.
-    const threshold=focus<=2?.48:.70;
-    const wounded=focus>0&&(urgent?s.tick%3===0:s.tick%6===0)?
+    // Spend real finite healing focus, earned through relics and new floors.
+    // Legacy signed runs preserve their historical unlimited-range choice.
+    const threshold=focus<=2?.48:.70,due=urgent?s.tick%3===0:s.tick%6===0;
+    const wounded=focus>0?
      party.filter(u=>u.hp>0&&u.hp<u.maxHp*threshold)
       .sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp||a.id.localeCompare(b.id))[0]:null;
     if(wounded){
-     hero.focus=focus-1;
-     wounded.hp=Math.min(wounded.maxHp,wounded.hp+15+s.level);
-     hero.action='cast';s.intent='Starweaver spends healing focus to restore '+wounded.kind;
-     push(s,'healing','Starweaver healed '+wounded.kind+' · '+hero.focus+' focus left');continue;
+     const legal=s.rulesVersion!==2||planMysticHealingLane(s,hero,wounded);
+     if(due&&legal){
+      hero.focus=focus-1;
+      wounded.hp=Math.min(wounded.maxHp,wounded.hp+15+s.level);
+      hero.action='cast';hero.targetId=wounded.id;
+      s.intent='Starweaver spends healing focus to restore '+wounded.kind;
+      push(s,'healing','Starweaver healed '+wounded.kind+' · '+hero.focus+' focus left');
+      continue;
+     }
+     if(s.rulesVersion===2&&urgent&&!legal&&wounded.id!==hero.id){
+      // One normal turn of lawful movement toward a healing position,
+      // without remote HP gain, extra action or fake successful cast.
+      const step=planTacticalStep(s,hero,wounded,'engage');
+      if(step&&!s.traps.some(t=>t.active&&!t.disarmed&&t.x===step.x&&t.z===step.z)){
+       hero.x=step.x;hero.z=step.z;hero.action='move';
+       hero.targetId=wounded.id;
+       s.intent='Starweaver opening a real healing lane to '+wounded.kind;
+       if(s.tick%3===0)push(s,'reposition','Starweaver closing to heal wounded '+wounded.kind);
+       continue;
+      }
+     }
     }
    }
    // Choose the nearest actual visible hostile instead of a wall-blocked nearest one.
