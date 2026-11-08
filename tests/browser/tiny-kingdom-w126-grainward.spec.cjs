@@ -44,6 +44,15 @@ async function assertAndCapture(page,label,cam){
  expect(result.world.trueMarketDestination).toEqual([-1,10.2]);
  expect(result.world.marketStalls).toBe(4);
  expect(result.world.marketRoofFrames).toBe(16);
+ // W131: the same true buildings frame one connected, original open market.
+ expect(result.world.stoneFrontageHomes).toBe(result.world.architecturalHomes);
+ expect(result.world.stoneFacingTriangles).toBeGreaterThan(350);
+ expect(result.world.authenticDoorThresholds).toBe(result.world.stoneFrontageHomes*2);
+ expect(result.world.marketArcadeSpans).toBe(2);
+ expect(result.world.marketArcadeTriangles).toBeGreaterThanOrEqual(70);
+ expect(result.world.marketArcadeTriangles).toBeLessThan(240);
+ expect(result.world.marketArcadeNoPosts).toBe(true);
+ expect(result.world.atticBays).toBeLessThan(result.world.stoneFrontageHomes);
  expect(result.world.grainLoftBays).toBe(2);
  expect(result.world.civicHallBays).toBe(2);
  expect(result.world.actualHomesOnly).toBe(true);
@@ -95,6 +104,12 @@ test('W126 real 120-day inhabited growth, valid street and replay round-trip',as
   return {snapshot:g.exportSnapshot(),metrics:g.metrics()};
  });
  const audit=await assertAndCapture(page,'1024-day120',cameras.overview);
+ // Inspect the SAME advanced, actual world at 390px; do not advance it again.
+ await page.setViewportSize({width:390,height:844});
+ const portrait=await assertAndCapture(page,'390-day120',cameras.market);
+ expect(portrait.city.buildings).toBe(audit.city.buildings);
+ expect(portrait.city.citizens).toBe(audit.city.citizens);
+ expect(portrait.world.stoneFrontageHomes).toBe(audit.world.stoneFrontageHomes);
  expect(audit.city.citizens).toBeGreaterThanOrEqual(start.citizens);
  expect(audit.city.buildings).toBeGreaterThan(start.buildings);
  expect(audit.world.architecturalHomes).toBeGreaterThanOrEqual(9);
