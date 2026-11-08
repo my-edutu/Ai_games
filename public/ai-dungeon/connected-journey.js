@@ -218,33 +218,48 @@ export function createConnectedDungeonJourney(world,map,floor,exit,units=[]){
   meshes.reduce((sum,m)=>sum+m.instanceMatrix.array.byteLength+
    (m.instanceColor?.array.byteLength||0),0);
  const metrics={source:plan.metrics.source,reachable:plan.metrics.reachable,
-  routeCells:plan.metrics.routeCells||0,actualOrdinaryEnemy:plan.metrics.actualOrdinaryEnemy||false,
+  routeCells:plan.metrics.routeCells||0,
+  actualOrdinaryEnemy:plan.metrics.actualOrdinaryEnemy||false,
   chapters:plan.chapters.map(c=>({role:c.role,gridX:c.gridX,gridZ:c.gridZ,source:c.source})),
   thresholds:plan.thresholds.length,facades:plan.facades.length,
   drawCalls:meshes.length,triangles:triangleCount,allocatedBytes,
+  memoryAccounting:'static vertex, index, normal and instancing arrays; excludes WebGL driver overhead',
+  distinctProfiles:Object.freeze({...profiles}),
   geometryCount:geometries.length,materialCount:materials.length,
   textureCount:0,dynamicLights:0,collisionEffects:0,walkableGroundObstacles:0,
   occluderBounds:plan.occluderBounds.length,hiddenForSightlines:0,matrixWrites:0};
- const stageGroups=[{sites:plan.facades,states:facadeState,meshes:batches.slice(0,3)},
-  {sites:plan.thresholds,states:thresholdState,meshes:batches.slice(3)}];
  function cutaway(eyes,camera,wallPad=2.1){
-  const subjects=Array.isArray(eyes)?eyes:[eyes];let hidden=0,writes=0;
-  for(const group of stageGroups){
-   const touched=new Set();
-   for(let i=0;i<group.sites.length;i++){
-    const site=group.sites[i],
+  const subjects=Array.isArray(eyes)?eyes:[eyes];
+  const changed={facade:new Uint8Array(plan.facades.length),
+   threshold:new Uint8Array(plan.thresholds.length)};
+  let hidden=0,writes=0;
+  for(const [family,sites,states] of [
+   ['facade',plan.facades,facadeState],
+   ['threshold',plan.thresholds,thresholdState]
+  ]){
+   for(let i=0;i<sites.length;i++){
+    const site=sites[i],
      reveal=planPartyWallReveal(site.x,site.z,subjects,camera,wallPad);
-    const conceal=reveal==='sightline'||group===stageGroups[0]&&reveal==='nearby';
+    const conceal=reveal==='sightline'||family==='facade'&&reveal==='nearby';
     if(conceal)hidden++;
     const band=Number(conceal);
-    if(group.states[i]===band)continue;
-    group.states[i]=band;writes++;
-    for(const batch of group.meshes){
-     if(!batch.mesh)continue;
-     transform(batch.mesh,i,site,conceal);touched.add(batch.mesh);
-    }
+    if(states[i]===band)continue;
+    states[i]=band;changed[family][i]=1;writes++;
    }
-   for(const mesh of touched)mesh.instanceMatrix.needsUpdate=true;
+  }
+  // The three sculpted chapter profiles use different instance index lists.
+  // Translate the SAME site-band changes to each draw, never address an
+  // entry mesh with an unrelated global Warden-face index.
+  for(const batch of batches){
+   if(!batch.mesh)continue;let dirty=false;
+   for(let local=0;local<batch.indices.length;local++){
+    const global= batch.indices[local];
+    if(changed[batch.family][global]!==1)continue;
+    transform(batch.mesh,local,batch.sites[local],
+     Boolean(batch.family==='facade'?facadeState[global]:thresholdState[global]));
+    dirty=true;
+   }
+   if(dirty)batch.mesh.instanceMatrix.needsUpdate=true;
   }
   metrics.hiddenForSightlines=hidden;metrics.matrixWrites=writes;
  }
