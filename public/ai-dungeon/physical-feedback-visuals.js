@@ -194,7 +194,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    let map=null;
    try{map=getFloorMap()}catch{}
    const terminal=planUnconfirmedFlight(start,flightDestination,1)?.position;
-   limitedFlight=terminal?planMapFlightClearance(start,terminal,map):null;
+   limitedFlight=terminal?planMapFlightClearance(start,terminal,map,type):null;
    // Invalid map, adjacent wall, and off-floor hand all suppress the
    // rendered projectile; the authentic release remains sound-only.
    if(!limitedFlight){suppressed++;blockedFlights++;return false}

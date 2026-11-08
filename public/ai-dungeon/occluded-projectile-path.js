@@ -9,6 +9,9 @@ export const D04_MIN_VISIBLE_FLIGHT_METERS=.20;
 // The existing projectile cylinder has a .024m maximum radius. Leave a small
 // .011m tolerance for visual scale and grazing edges; do not create geometry.
 export const D04_PROJECTILE_HALF_WIDTH_METERS=.035;
+// Actual D04 spell geometry is a .09m icosahedron scaled by at most .78*.84.
+// Its .059m displayed radius needs more clearance than the .024m arrow.
+export const D04_SPELL_HALF_WIDTH_METERS=.075;
 const finite=p=>p&&[p.x,p.y,p.z].every(Number.isFinite);
 function validMap(map){
  const n=map?.length;
@@ -32,11 +35,13 @@ function entryFraction(start,dx,dz,left,right,near,far){
  }
  return enter;
 }
-export function planMapFlightClearance(start,terminal,map){
+export function planMapFlightClearance(start,terminal,map,effect='projectile'){
+ // Reject unknown mesh shapes rather than misrepresenting them as thin arrows.
+ if(effect!=='projectile'&&effect!=='spell')return null;
  if(!finite(start)||!finite(terminal)||!validMap(map))return null;
  const dx=terminal.x-start.x,dz=terminal.z-start.z,
   distance=Math.hypot(dx,dz),n=map.length,offset=(n-1)/2,
-  width=D04_PROJECTILE_HALF_WIDTH_METERS;
+  width=effect==='spell'?D04_SPELL_HALF_WIDTH_METERS:D04_PROJECTILE_HALF_WIDTH_METERS;
  if(!Number.isFinite(distance)||distance<D04_MIN_VISIBLE_FLIGHT_METERS)return null;
  // A tracked hand outside the current floor cannot certify a masonry path.
  const inner=-offset-.5+width,outer=offset+.5-width;
