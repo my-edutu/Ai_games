@@ -1,3 +1,9 @@
+### Pass211 — require an actual per-cell pressure opening/release in continuous WebGL evidence (2026-11-08 UTC)
+
+- **Phase-0 blocker:** Pass210's continuous camera/canvas test could still capture the first un-opened warning render; the world diagnostic previously exposed only the largest hinge angle across ALL public traps, so one mechanism could impersonate another.
+- **Source-only acceptance repair:** report real pressure progress and actual modeled jaw radians for each CURRENTLY visible public trap, never hidden/remembered/terminal. New native chronology gate for the same published cell: pressure progress >=.68 and physical hinge >=.60 radians; approach/withdrawal <=.20 progress and <=.21 hinge. Preserve all existing strict native physical bounds, scale, 44px, source SHA, whole-page PNG and continuous-canvas assertions. No geometry, AI authority, hidden state, HUD or design change.
+- **Pending:** Pass210 exact-HEAD WebGL and whole-repo Actions queued; coding workspace/independent critic tunnels disconnected. Source parsing alone is NOT a browser run, a hardware performance result, or Nintendo parity. [Dated review](./maze-3d/pass-211-source-bound-specific-pressure-action-evidence-2026-11-08.md). Existing PR #53 remains OPEN DRAFT; no merge/deploy/force; hourly Gauntlet stays active.
+
 ### Pass210 — preserve a continuous live renderer across genuine pressure encounters (2026-11-08 UTC)
 
 - **Acceptance evidence blocker, not a cosmetic pass:** The existing source-bound pressure chronology navigated and re-created the WebGL world for each public approach, contact and withdrawal tick. This reset the pressure mechanism's render-time clock, so three SHA-verified stills did **not** establish one continuous physical action despite authentic public snapshots.

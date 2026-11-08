@@ -2496,7 +2496,21 @@ export function createMazeWorld(options = {}) {
     const fossilMotionMaxRadians = fossilSails.length
       ? Math.max(...fossilSails.map(sail => Math.abs(sail.dx
         ? sail.object.rotation.x : sail.object.rotation.z))) : 0;
-    return { fossilMotionMaxRadians, renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), stairBalustrades, tideFossilGroves, tideFossilAlcoves, fossilGalleryEdges, undercroftButtresses, hangingFacadeGardens, closedTideMedallions, responsiveFossilSails: fossilSails.length, responsiveFossilOrgans: fossilOrgans.length, responsiveTrapJaws: trapJaws.length, responsiveTrapSignals: trapSignals.length, trapJawOpenMaxRadians: trapJaws.length ? Math.max(...trapJaws.map(jaw => Math.abs(jaw.object.rotation.z))) : 0, coastalGardens, wallGardens, coastCanopies, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, windcatcherTowers, wallWindcatchers, gateForecourtParapets, pressureStageParapets, gateCourtRosettes, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
+    // Diagnostic witness for ONLY currently visible public hazards. Keep the
+    // actual connected hinge pose paired with its public pressure clock;
+    // a global maximum could belong to another disclosed hazard and falsely
+    // certify this encounter. Never serialize remembered/hidden trap cells.
+    const publicVisiblePressure = new Set(!snapshot?.result
+      && Array.isArray(snapshot?.visibleCells) ? snapshot.visibleCells : []);
+    const witnessedPressureMechanisms = trapSignals
+      .filter(signal => publicVisiblePressure.has(signal.cell))
+      .map(signal => {
+        const hinges = trapJaws.filter(jaw => jaw.cell === signal.cell);
+        return {cell: signal.cell, progress: publicPressureProgress(signal.cell),
+          jawRadians: hinges.length
+            ? Math.max(...hinges.map(jaw => Math.abs(jaw.object.rotation.z))) : 0};
+      });
+    return { witnessedPressureMechanisms, fossilMotionMaxRadians, renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), stairBalustrades, tideFossilGroves, tideFossilAlcoves, fossilGalleryEdges, undercroftButtresses, hangingFacadeGardens, closedTideMedallions, responsiveFossilSails: fossilSails.length, responsiveFossilOrgans: fossilOrgans.length, responsiveTrapJaws: trapJaws.length, responsiveTrapSignals: trapSignals.length, trapJawOpenMaxRadians: trapJaws.length ? Math.max(...trapJaws.map(jaw => Math.abs(jaw.object.rotation.z))) : 0, coastalGardens, wallGardens, coastCanopies, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, windcatcherTowers, wallWindcatchers, gateForecourtParapets, pressureStageParapets, gateCourtRosettes, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
   }
   return { group, update, animate, dispose, stats, matchingPublicSocket, publicFossilAttention, publicPressureProgress };
 }

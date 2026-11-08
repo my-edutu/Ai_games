@@ -1670,15 +1670,24 @@ test('a real close public encounter frames both autonomous actors and saves date
         const previousFrames=await page.evaluate(()=>window.__MAZE_3D__?.frames??0);
         activeFrame=entry.sample.frame;
         const state=activeFrame.snapshot;
-        await page.waitForFunction(({tick,token,cell,aspect,previousFrames})=>{
+        await page.waitForFunction(({tick,token,cell,aspect,previousFrames,phase})=>{
           const d=window.__MAZE_3D__;
+          // Frame advancement alone is not a demonstrated mechanism beat.
+          // Witness this SAME disclosed cell's real original hinge, not the
+          // largest angle of some other hazard elsewhere in the scene.
+          const joint=d?.world?.witnessedPressureMechanisms
+            ?.find(value=>value.cell===cell);
+          const beat=phase==='pressure'
+            ? joint?.progress>=.68&&joint?.jawRadians>=.60
+            : joint?.progress<=.20&&joint?.jawRadians<=.21;
           return d?.renderer==='webgl'&&d.frames>=3&&d.frames>previousFrames
             &&d.tick===tick&&d.runToken===token
             &&d.cameraMode==='follow'
             &&Math.abs(d.cameraAspect-aspect)<.01
-            &&d.observedTrapPhysicalBounds?.some(v=>v.cell===cell);
+            &&d.observedTrapPhysicalBounds?.some(v=>v.cell===cell)
+            &&beat;
         },{tick:state.tick,token:chronology.runToken,
-          cell:chronology.publicTrapCell,aspect:nativeWidth/nativeHeight,previousFrames},
+          cell:chronology.publicTrapCell,aspect:nativeWidth/nativeHeight,previousFrames,phase},
         {timeout:45000});
         expect(await page.evaluate(()=>performance.timeOrigin),
           'same-viewport pressure phases must never reload their live browser scene').toBe(browserOrigin);
@@ -1701,6 +1710,8 @@ test('a real close public encounter frames both autonomous actors and saves date
         }));
         const bound=native.diagnostic.observedTrapPhysicalBounds
           .find(v=>v.cell===chronology.publicTrapCell);
+        const physicalBeat=native.diagnostic.world.witnessedPressureMechanisms
+          .find(v=>v.cell===chronology.publicTrapCell);
         const filename='public-tide-shear-'+phase+'-'+nativeWidth+'.png';
         const image=path.join(dir,filename);
         await page.screenshot({path:image,fullPage:true});
@@ -1712,6 +1723,7 @@ test('a real close public encounter frames both autonomous actors and saves date
           image:filename,imageSha256:hash(image),sourceSha256:nativeSourceHashes,
           continuousBrowserOrigin:browserOrigin,sourceRendererFrames,
           physicalHazardBounds:bound,
+          observedPhysicalPressureBeat:physicalBeat,
           observedPhysicalHingeRadians:native.diagnostic.world?.trapJawOpenMaxRadians,
           explorerPhysicalBounds:native.diagnostic.explorerPhysicalBounds,
           diagnostic:native.diagnostic,
@@ -1721,6 +1733,17 @@ test('a real close public encounter frames both autonomous actors and saves date
         fs.writeFileSync(path.join(dir,filename.replace('.png','.json')),
           JSON.stringify(observation,null,2));
         records.push(observation);
+        if(phase==='pressure'){
+          expect(physicalBeat.progress,
+            'selected PUBLIC tide-shear must complete its visible pressure beat').toBeGreaterThanOrEqual(.68);
+          expect(physicalBeat.jawRadians,
+            'selected original jaw must physically open, not a different hazard').toBeGreaterThanOrEqual(.60);
+        }else{
+          expect(physicalBeat.progress,
+            'approach/withdrawal must show the real mechanism releasing').toBeLessThanOrEqual(.20);
+          expect(physicalBeat.jawRadians,
+            'approach/withdrawal must return to a low real hinge angle').toBeLessThanOrEqual(.21);
+        }
         expect(native.diagnostic.explorerModelFullyInFrame,
           phase+' real Pip must remain fully in native portrait').toBe(true);
         expect(bound?.fullyInFrame,
@@ -1751,9 +1774,11 @@ test('a real close public encounter frames both autonomous actors and saves date
       originalChronologicalTicks:chronologicalTicks,
       sourceSha256:nativeSourceHashes,
       images:records.map(({phase,tick,viewport,image,imageSha256,
-        publicDistanceCells,observedPhysicalHingeRadians,physicalHazardBounds})=>({
+        publicDistanceCells,observedPhysicalHingeRadians,physicalHazardBounds,
+        observedPhysicalPressureBeat})=>({
           phase,tick,viewport,image,imageSha256,
-          publicDistanceCells,observedPhysicalHingeRadians,physicalHazardBounds
+          publicDistanceCells,observedPhysicalHingeRadians,physicalHazardBounds,
+          observedPhysicalPressureBeat
         })),
       verdict:'Native chronology candidate for independent full-frame visual critique; NOT a Nintendo benchmark win'
     },null,2));
