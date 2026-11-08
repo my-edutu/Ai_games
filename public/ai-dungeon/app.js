@@ -588,7 +588,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
   hazard.userData={charge,ring,active:t.active};world.add(hazard);hazardMeshes.set(t.id,hazard);
  }
  world.userData.hazardMeshes=hazardMeshes;
- world.userData.dressing=enrichEnvironment(world,s.map,s.floor,vaultedSites,s.exit);
+ world.userData.dressing=enrichEnvironment(world,s.map,s.floor,vaultedSites,s.exit,s.units);
  world.userData.chapterNaves=createChapterNaves(world,s.map,s.exit,s.floor,{
   reducedMotion:reduced,encounterUnits:s.units
  });
