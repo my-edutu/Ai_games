@@ -30,11 +30,12 @@ export function createPhysicalCombatFeedback({
   {actorById,reducedMotion,reducedFlash,getFloorMap:()=>previous?.map}):null);
  let foley=audioAdapter??(ctx?createOriginalCombatFoley(ctx):null);
  const preference=createCombatMutePreference(storage);
- let sceneId=null,disposed=false,optedIn=false,
+ let sceneId=null,disposed=false,optedIn=false,audioEpoch=0,
   queued=0,played=0,adapterFailures=0,duplicates=0,overflow=0,sceneResets=0,
   visualAccepted=0,audioAccepted=0,renderedSeconds=0,observedSeconds=0,
   unverifiedFrameInterval=false,expiredQueuedCues=0,invalidFrameIntervals=0,
   framesAcknowledged=0,staleAudioDropped=0,expiredVisualAudioDropped=0,
+  retroactiveAudioSuppressed=0,
    unverifiedVisualLiveness=0,lastPresentedFrame=null;
  const pending=[],awaitingPresentation=[],seen=new Set(),receipts=[];
  function safeCall(fn){try{return fn()}catch{adapterFailures++;return null}}
@@ -50,13 +51,16 @@ export function createPhysicalCombatFeedback({
   receipts.push(receipt);
   if(receipts.length>MAX_PHYSICAL_RECEIPTS)receipts.shift();
  }
- function emit(cue){
+ function emit(cue,plannedAudioEpoch=null){
   if(disposed)return;
+  // A gesture authorizes only cues planned during that enabled session.
+  // Delayed cues accepted before opt-in (or before mute/re-enable) stay silent.
+  const soundEligible=optedIn&&plannedAudioEpoch!==null&&plannedAudioEpoch===audioEpoch;
   const visual=!!safeCall(()=>visuals?.emit?.(cue));
   if(visual)visualAccepted++;
   // The integrator can require evidence of a real renderer submission before
   // launching a combat transient. No guessing a frame from a time delay.
-  if(optedIn&&requirePresentedFrame){
+  if(soundEligible&&requirePresentedFrame){
    if(awaitingPresentation.length>=MAX_AUDIO_AWAITING_FRAME){
     let weakest=0;
     for(let i=1;i<awaitingPresentation.length;i++)
@@ -68,9 +72,11 @@ export function createPhysicalCombatFeedback({
    }
    awaitingPresentation.push({cue,visual,at:observedSeconds,sceneId});
   }else{
-   const audio=optedIn?!!safeCall(()=>foley?.emit?.(cue)):false;
+   const audio=soundEligible?!!safeCall(()=>foley?.emit?.(cue)):false;
    if(audio)audioAccepted++;
-   retainReceipt(cue,visual,audio);
+   if(optedIn&&!soundEligible)retroactiveAudioSuppressed++;
+   retainReceipt(cue,visual,audio,null,
+    optedIn&&!soundEligible?'audio-opt-in-epoch-mismatch':null);
   }
   played++;
  }
@@ -138,7 +144,7 @@ export function createPhysicalCombatFeedback({
    a.cue.id.localeCompare(b.cue.id,'en'));
   for(const item of due){
    const at=pending.indexOf(item);
-   if(at!==-1){pending.splice(at,1);emit(item.cue)}
+   if(at!==-1){pending.splice(at,1);emit(item.cue,item.audioEpoch)}
   }
  }
  function acceptSnapshot(snapshot){
@@ -167,7 +173,8 @@ export function createPhysicalCombatFeedback({
     if(pending[weakest].cue.priority>=cue.priority){overflow++;continue}
     pending.splice(weakest,1);overflow++;
    }
-   pending.push({cue,remaining:clamp(cue.delay,0,.5),queuedAt:observedSeconds});queued++;
+   pending.push({cue,remaining:clamp(cue.delay,0,.5),queuedAt:observedSeconds,
+    audioEpoch:optedIn?audioEpoch:null});queued++;
   }
   // In the submission-gated D04 preview, a zero-delay HP injury may arrive
   // between animation frames. Do not give that unsubmitted art a 300ms
@@ -202,6 +209,7 @@ export function createPhysicalCombatFeedback({
  }
  function enableAudioFromGesture(){
   if(disposed||!safeCall(()=>foley?.enable?.()))return false;
+  if(!optedIn)audioEpoch++;
   optedIn=true;preference.write(false);return true;
  }
  function muteAudio(){
@@ -223,7 +231,8 @@ export function createPhysicalCombatFeedback({
   pending:pending.length,queued,emitted:played,visualAccepted,audioAccepted,
   awaitingPresentation:awaitingPresentation.length,framesAcknowledged,
   expiredQueuedCues,invalidFrameIntervals,observedFrameMs:Math.round(observedSeconds*1000),
-  staleAudioDropped,expiredVisualAudioDropped,unverifiedVisualLiveness,
+  staleAudioDropped,expiredVisualAudioDropped,retroactiveAudioSuppressed,
+  unverifiedVisualLiveness,
    requirePresentedFrame,
   recentDeliveryReceipts:[...receipts],duplicateCues:duplicates,
   pendingOverflow:overflow,adapterFailures,sceneResets,
