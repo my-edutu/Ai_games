@@ -37,3 +37,19 @@ test('D04 never creates an apparent wrist sweep when the GLB hand identity chang
  assert.ok(planMeasuredHandTrail(before,same,.016),
   'genuine displacement on one stable skinned wrist remains visible');
 });
+
+test('D04 keeps slow wrist drift from generating a cosmetic blade stroke at low frame rates',async()=>{
+ const {planMeasuredHandTrail,MEASURED_HAND_TRAIL_MIN_METERS_PER_SECOND}=await load();
+ assert.equal(MEASURED_HAND_TRAIL_MIN_METERS_PER_SECOND,.9);
+ const start=hand(0,1,0);
+ assert.equal(planMeasuredHandTrail(start,hand(.05,1,0),.06),null,
+  'five centimetres over 60ms is slow drift, not a physical sword streak');
+ assert.equal(planMeasuredHandTrail(start,hand(.025,1,0),.05),null,
+  'the old absolute-distance-only filter allowed a slow hand twitch');
+ assert.ok(planMeasuredHandTrail(start,hand(.05,1,0),.016),
+  'the same actual displacement at normal frame rate is a quick gesture');
+ assert.ok(planMeasuredHandTrail(start,hand(.12,1,0),.06),
+  'a deliberate longer real hand stroke at 60ms remains readable');
+ assert.equal(planMeasuredHandTrail(start,hand(.12,1,0,.12,0,0),.016),null,
+  'rigid body travel must never invent a wrist stroke');
+});

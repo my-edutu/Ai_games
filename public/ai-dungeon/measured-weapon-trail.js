@@ -4,6 +4,9 @@
  * This is a hand proxy, NOT a verified GLB sword-tip measurement or a hit.
  */
 export const MEASURED_HAND_TRAIL_MIN_METERS=.025;
+// A 25mm drift over 60ms is not a readable sword passage. Filter by
+// measured local wrist speed as well as displacement; still only a hand proxy.
+export const MEASURED_HAND_TRAIL_MIN_METERS_PER_SECOND=.9;
 export const MEASURED_HAND_TRAIL_MAX_METERS=.38;
 export const MEASURED_HAND_TRAIL_MAX_FRAME_SECONDS=.06;
 const finite=p=>p&&['x','y','z','rootX','rootY','rootZ'].every(k=>Number.isFinite(p[k]))&&
@@ -48,7 +51,8 @@ export function planMeasuredHandTrail(previous,current,frameSeconds){
   dy=(current.y-current.rootY)-(previous.y-previous.rootY),
   length=Math.hypot(dxLocal,dy,dzLocal);
  if(!Number.isFinite(length)||length<MEASURED_HAND_TRAIL_MIN_METERS||
-  length>MEASURED_HAND_TRAIL_MAX_METERS)return null;
+  length>MEASURED_HAND_TRAIL_MAX_METERS||
+  length/frameSeconds<MEASURED_HAND_TRAIL_MIN_METERS_PER_SECOND)return null;
  // Draw at the CURRENT world-space bone using the measured local limb motion
  // rotated through its current root, never a prerecorded/synthetic blade arc.
  const dx=dxLocal*cc+dzLocal*cs,dz=-dxLocal*cs+dzLocal*cc;
