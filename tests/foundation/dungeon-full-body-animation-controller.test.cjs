@@ -140,6 +140,9 @@ test('real renderer consumes exactly one arbiter before imported mixer and prese
  assert.match(model,/actor\.fullBody\.owner\.duel\?'attack':'idle'/);
  assert.match(model,/fullBodyInterruptions:/);
  assert.match(model,/sourceClipAudits:/);
+ assert.match(model,/next\.time=Math\.min\(Math\.max\(0,actor\.fullBody\.age\*clipSpeed\)/,
+  'legal interrupted one-shots must resume at their current imported-clip age');
+ assert.match(model,/actor\.fullBody\?\.owner\.warning/,'Warden warnings must release joint ownership on damage and evasion');
  assert.ok(server.includes("['/dungeon/full-body-animation-controller.js','full-body-animation-controller.js']"));
  assert.doesNotMatch(code,/Math\.random|Date\.now|DungeonRuntime|fetch\(|performance\.now/);
 });
