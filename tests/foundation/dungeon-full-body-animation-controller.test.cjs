@@ -256,6 +256,46 @@ test('elapsed one-shots settle into idle and cannot restart from a stale authori
  assert.equal(second.owner.duel,false);
 });
 
+test('a witnessed adjacent melee target remains a *visual* recovery anchor, never a new hit',async()=>{
+ const {advanceFullBodyController:step}=await load();
+ const attacking={...hero('attack',80),targetId:'real-revenant'};
+ const shown=step(null,frame(attacking,{actionAge:.215,combatFacing:{
+  targetId:'real-revenant',distance:1,yaw:.35}}));
+ assert.deepEqual(shown.confirmedContact,{targetId:'real-revenant',distance:1,actionTick:80});
+ const held=step(shown,frame(hero('idle',81),{frameDelta:.04,actionAge:0,combatFacing:null}));
+ assert.equal(held.holding,true);assert.equal(held.mode,'attack');
+ assert.deepEqual(held.confirmedContact,shown.confirmedContact,
+  'a valid completed strike retains its source pose, not its damage authority');
+ assert.equal(held.actionTick,80);
+ const neutral=step(held,frame(hero('idle',81),{frameDelta:.05,actionAge:0}));
+ assert.deepEqual(neutral.confirmedContact,shown.confirmedContact);
+ const newFight=step(held,frame({...hero('attack',81),targetId:'other-foe'},{
+  actionAge:0,combatFacing:{targetId:'other-foe',distance:1,yaw:-.3}}));
+ assert.deepEqual(newFight.confirmedContact,{targetId:'other-foe',distance:1,actionTick:81});
+ const guard=step(shown,frame(hero('guard',81)));
+ assert.equal(guard.confirmedContact,null);
+ const wounded=step(shown,frame(hero('idle',81,24),{damageBeat:{
+  id:'hero-1',kind:'vanguard',damage:6,maxHp:30,age:.1,fatal:false}}));
+ assert.equal(wounded.confirmedContact,null);
+});
+
+test('an ambiguous or out-of-range target never authorizes planted contact during recovery',async()=>{
+ const {advanceFullBodyController:step}=await load();
+ const unit={...hero('attack',90),targetId:'foe'};
+ for(const details of [null,{targetId:'foe',distance:2},{targetId:'different',distance:1},
+  {targetId:'foe',distance:1,yaw:NaN},{targetId:'foe',distance:1,yaw:Infinity}]){
+  const attack=step(null,frame(unit,{combatFacing:details}));
+  assert.equal(attack.confirmedContact,null);
+  const idle=step(attack,frame(hero('idle',91),{frameDelta:.04}));
+  assert.equal(idle.confirmedContact,null);
+ }
+ const good=step(null,frame(unit,{combatFacing:{targetId:'foe',distance:1,yaw:1}}));
+ assert.ok(good.confirmedContact);
+ assert.equal(step(good,frame(hero('idle',93))).confirmedContact,null,
+  'a skipped authority tick releases the old contact');
+ assert.equal(step(good,frame(hero('idle',91),{reducedMotion:true})).confirmedContact,null);
+});
+
 test('source AnimationMixer uses captured visual tick and single controller pose clock',()=>{
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(model,/const tick=actor\.fullBody\?\.actionTick\?\?actor\.u\.actionTick/,
