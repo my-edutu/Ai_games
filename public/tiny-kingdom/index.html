@@ -8263,30 +8263,43 @@ function marketCobblestoneSquare(){
  marketQuarterStats.marketWheelPassages=0;
  marketQuarterStats.marketDrainSegments=0;
  marketQuarterStats.raisedStoneDetails=0;
- const earth=[rgb(0x756b5d),rgb(0x73695b),rgb(0x786f5e)];
- const stones=[0xa89e8b,0x938978,0xb3a38d,0x9f957f,
-  0xb9a992,0x847e70,0xa39b8c,0xaaa38f];
+ const earth=[rgb(0x7f7768),rgb(0x7d7566),rgb(0x817a6b)];
+ const stones=[0x9a9081,0x948b7b,0xaaa08f,0x9e9485,
+  0xaca08c,0x918879,0x9e9383,0xaca18d];
  const sample=(x,z,h)=>[x,terrain(x,z)+h,z];
  materialScope(MATERIAL.ROAD,()=>{
-  for(let n=0;n<64;n++){
-   const a=n*Math.PI/32,b=(n+1)*Math.PI/32;
-   const edge=t=>{
-    const wobble=1+.017*Math.sin(t*7)+.012*Math.cos(t*13);
-    const x=cx+Math.cos(t)*rx*.985*wobble,z=cz+Math.sin(t)*rz*.985*wobble;
-    return sample(x,z,.066);
-   };
-   tri(sample(cx,cz,.066),edge(b),edge(a),earth[n%3]);
+  // W129: the old 7-metre centre-to-edge triangle fan pierced the
+  // non-planar terrain and created large broken, dark foreground wedges.
+  // Four short terrain-following bands close the SAME original walkable
+  // civic square. Each sample uses the real terrain height; cached once.
+  const bands=4,sectors=32;
+  const ring=(band,angle)=>{
+   const wobble=1+.012*Math.sin(angle*7)+.009*Math.cos(angle*13);
+   const f=band/bands;
+   const px=cx+Math.cos(angle)*rx*.985*f*wobble;
+   const pz=cz+Math.sin(angle)*rz*.985*f*wobble;
+   return sample(px,pz,.064);
+  };
+  for(let seg=0;seg<sectors;seg++){
+   const a=seg*Math.PI*2/sectors,b=(seg+1)*Math.PI*2/sectors;
+   tri(ring(0,a),ring(1,b),ring(1,a),earth[seg%3]);
    marketQuarterStats.mortarTriangles++;
+   for(let band=1;band<bands;band++){
+    const c=ring(band,a),d=ring(band,b),
+     e=ring(band+1,b),f=ring(band+1,a);
+    quad(c,d,e,f,earth[(seg+band)%3]);
+    marketQuarterStats.mortarTriangles+=2;
+   }
   }
   for(let row=0;row<15;row++)for(let col=0;col<19;col++){
    const key=col*83+row*1137;
-   const x=cx-7.25+(col+.5)*.78+(row%2)*.18+
-    (biomeHash(key+31)-.5)*.105;
-   const z=cz-6.50+(row+.5)*.86+(biomeHash(key+21)-.5)*.100;
+   const x=cx-7.25+(col+.5)*.78+(row%2)*.28+
+    (biomeHash(key+31)-.5)*.045;
+   const z=cz-6.50+(row+.5)*.86+(biomeHash(key+21)-.5)*.045;
    if(((x-cx)/rx)**2+((z-cz)/rz)**2>.88)continue;
    const chip=biomeHash(key+71),worn=biomeHash(key+47);
-   const width=.57+.17*biomeHash(key+7),depth=.56+.19*biomeHash(key+9);
-   const skew=(biomeHash(key+23)-.5)*.22;
+   const width=.705+.035*biomeHash(key+7),depth=.755+.040*biomeHash(key+9);
+   const skew=(biomeHash(key+23)-.5)*.055;
    const left=x-width*.5,right=x+width*.5;
    const front=z-depth*.5,back=z+depth*.5;
    const lift=.075+.012*worn;
