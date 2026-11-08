@@ -6,6 +6,7 @@ on:
       - 'public/tiny-kingdom/index.html'
       - 'scripts/tiny-kingdom-w106-market-court-contract.cjs'
       - 'scripts/tiny-kingdom-w129-lived-market-contract.cjs'
+      - 'scripts/tiny-kingdom-w129-ground-contact-contract.cjs'
       - 'tests/browser/tiny-kingdom-w129-market-architecture.spec.cjs'
       - '.github/workflows/tiny-kingdom-w129-market.yml'
   workflow_dispatch:
@@ -34,6 +35,7 @@ jobs:
         run: |
           node scripts/tiny-kingdom-w129-lived-market-contract.cjs
           node scripts/tiny-kingdom-w106-market-court-contract.cjs
+          node scripts/tiny-kingdom-w129-ground-contact-contract.cjs
 
   original-market-webgl:
     needs: original-market-source
