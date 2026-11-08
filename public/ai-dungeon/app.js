@@ -755,8 +755,8 @@ function renderDashboard(s){
   tactical?.mode==='release'?'WARDEN STRIKE RELEASED':
   tactical?.mode==='counter'?'WARDEN RECOVERING':
   tactical?.floor??(foes.length?'ENEMIES REMAIN':'PORTAL AVAILABLE');
- const remaining=s.units.filter(u=>u.faction==='enemy'&&u.hp>0).length;
- $('depth-fill').style.width=Math.max(8,Math.min(100,100-(remaining/(s.units.filter(u=>u.faction==='enemy').length||1)*92)))+'%';
+ // Source-truth enemy/trap/exit counts are projected in spectator-ui.js.
+ // No fictitious percentage is computed for an endless, summoning dungeon.
  const bossStrip=$('boss-strip');bossStrip.hidden=!nearBoss;
  document.body.dataset.wardenFocus=nearBoss?'true':'false';
  if(boss){const percent=Math.max(0,Math.round(boss.hp/boss.maxHp*100));$('boss-hp').textContent=percent+'%';$('boss-bar').style.width=percent+'%';
