@@ -50,7 +50,7 @@ test('W125 desktop free orbit, keyboard, collision-aware zoom and smooth overvie
  const selected=await page.evaluate(()=>window.__tinyKingdom.getSelectedCitizen());
  await page.keyboard.press('Home');
  await expect.poll(async()=>page.evaluate(()=>window.__tinyKingdom.getCamera().follow)).toBe(false);
- await page.waitForTimeout(1450);
+ await expect.poll(async()=>page.evaluate(()=>window.__tinyKingdom.getCameraNavigationAudit().transitionActive),{timeout:20000}).toBe(false);
  const audit=await page.evaluate(()=>window.__tinyKingdom.getCameraNavigationAudit());
  expect(audit.transitionActive).toBe(false);
  expect(audit.overviewReturns).toBeGreaterThan(0);
