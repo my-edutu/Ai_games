@@ -102,6 +102,10 @@ const save=()=>fs.writeFileSync(path.join(dir,'evidence.json'),
    currentCase=name;
    const html=fs.readFileSync(file,'utf8');
    const errCount=evidence.errors.length;
+   // A real document navigation terminates the preceding source build's
+   // requestAnimationFrame loop. document.write alone can retain callbacks
+   // and contaminate this otherwise controlled before/after measurement.
+   await page.goto('about:blank');
    await page.setViewportSize({width:1024,height:640});
    await page.setContent(html,{waitUntil:'load'});
    await page.waitForFunction(()=>
