@@ -5,6 +5,7 @@ on:
       - 'public/tiny-kingdom/index.html'
       - 'scripts/tiny-kingdom-w126-household-contract.cjs'
       - 'tests/browser/tiny-kingdom-w126-lived-household.spec.cjs'
+      - 'tests/browser/tiny-kingdom-standalone.config.cjs'
       - '.github/workflows/tiny-kingdom-w126-household.yml'
   workflow_dispatch:
 permissions:
@@ -32,7 +33,7 @@ jobs:
         env:
           CI: '1'
           LIBGL_ALWAYS_SOFTWARE: '1'
-        run: npx playwright test tests/browser/tiny-kingdom-w126-lived-household.spec.cjs --workers=1
+        run: npx playwright test tests/browser/tiny-kingdom-w126-lived-household.spec.cjs --workers=1 --config=tests/browser/tiny-kingdom-standalone.config.cjs
       - name: Upload real evidence even when tests fail
         if: always()
         uses: actions/upload-artifact@v4
