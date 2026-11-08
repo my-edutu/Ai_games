@@ -18,7 +18,7 @@ import {planAnatomicalKit,planAnatomicalDrawGroups} from '/dungeon/anatomical-ki
 import {createForgedArmorForms,planForgedArmor,planForgedFinishes,planAuthoredBodyShape} from '/dungeon/forged-armor.js';
 import {planNativeFigureSculpt,sculptNativeFigureGeometry} from '/dungeon/native-figure-sculpt.js';
 import {planDrapePanels,planDrapeSwing,planDrapeVertexBend,drapePoseKey,DRAPE_ROWS,DRAPE_COLUMNS} from '/dungeon/fabric-drape-plan.js';
-import {rigWeaponParts,selectHandBone,rigGripAnchor,boundedGripOffset,selectUpperArmBone,planRigArmGesture,selectForearmBone,planRigForearmGesture,selectLegBone,advanceRigGait,planRigLegGesture,planRigFullBodyStride,planRigContactBrace,selectCranialBone,planCranialRatio,restoreCranialProportion,stageCranialProportion,selectCombatTorsoBone,planRigMeleeFollowThrough,selectPelvisBone,planRigBearing} from '/dungeon/rig-attachment-plan.js';
+import {rigWeaponParts,selectHandBone,rigGripAnchor,boundedGripOffset,selectUpperArmBone,planRigArmGesture,selectForearmBone,planRigForearmGesture,selectLegBone,advanceRigGait,alignRigFootfallPhase,planRigLegGesture,planRigFullBodyStride,planRigContactBrace,selectCranialBone,planCranialRatio,restoreCranialProportion,stageCranialProportion,selectCombatTorsoBone,planRigMeleeFollowThrough,selectPelvisBone,planRigBearing} from '/dungeon/rig-attachment-plan.js';
 
 // Optional locally vendored CC0 characters. Offline / missing-asset fallback is the
 // fully autonomous procedural 3D rig, not a blank screen. No third-party runtime calls.
@@ -563,7 +563,7 @@ function bindRigArmGestures(actor){
   bone:cranialBone,ratio:planCranialRatio(actor.u.kind),applied:false,bearingLast:new THREE.Quaternion(),bearingInverse:new THREE.Quaternion(),bearingNext:new THREE.Quaternion(),bearingEuler:new THREE.Euler()
  }:null;
  actor.rigGaitPosition=actor.root?.position?.clone?.()??null;
- actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;
+ actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitSettling=false;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;
 }
 function restoreRigCranialBeforeMixer(actor){
  const m=actor.rigCranial;
@@ -734,21 +734,26 @@ function stageRigForearmsAfterMixer(actor,since,reducedMotion){
 
 // One actual rendered displacement sample feeds every native skeletal layer
 // before posing, avoiding one-frame-late hips and invented footfalls.
-function stageRigGroundedStride(actor,reducedMotion){
- // Real skinned gait requires real imported leg bones. Unauthored or partial
- // GLB rigs cannot acquire imagined feet or run a presentation-only clock.
- // This retains the original no-rig fallback during studio/VM playback too.
- if(!actor.rigGaitBones?.length){actor.rigLegStride=null;actor.rigFullBodyStride=null;return;}
+function stageRigGroundedStride(actor,reducedMotion,dt){
+ // Every footstep stamp, cloth bob and real skinned leg now shares the single
+ // distance-derived cadence reported by groundedPerformance. A legal move
+ // settling to idle fades the last planted stance rather than snapping it off.
+ // Interrupted, dead, teleported and reduced-motion actors clear immediately.
+ if(!actor.rigGaitBones?.length){actor.rigLegStride=null;actor.rigFullBodyStride=null;actor.rigGaitSettling=false;return;}
  const current=actor.root?.position,previous=actor.rigGaitPosition;
  const travel=current&&previous?Math.hypot(current.x-previous.x,current.z-previous.z):0;
  if(current&&previous)previous.copy(current);
- const combat=['attack','cast','hurt','guard'].includes(actor.groundedPerformance?.clipAction);
- const stopped=reducedMotion||actor.u.hp<=0||combat||!actor.fullBody?.owner.locomotion;
+ const mode=actor.fullBody?.mode||'idle';
+ const walking=actor.fullBody?.owner.locomotion===true;
+ const hardStop=reducedMotion||actor.u.hp<=0||actor.locomotionTeleport||
+  ['attack','cast','hurt','guard','evade','defeat'].includes(mode);
  const gait=advanceRigGait(actor.rigGaitPhase,actor.rigGaitWeight,
-  actor.locomotionTeleport?Infinity:stopped?0:Math.min(travel,.30),stopped);
- actor.rigGaitPhase=gait.phase;actor.rigGaitWeight=gait.weight;
- actor.rigLegStride=planRigLegGesture(gait.phase,gait.weight,stopped);
- actor.rigFullBodyStride=planRigFullBodyStride(actor.u.kind,gait.phase,gait.weight,stopped);
+  walking&&!hardStop?Math.min(travel,.30):0,hardStop,dt);
+ const phase=alignRigFootfallPhase(gait.phase,actor.groundedPerformance?.footPhase,walking,Boolean(hardStop));
+ actor.rigGaitPhase=phase;actor.rigGaitWeight=gait.weight;
+ actor.rigGaitSettling=!walking&&!hardStop&&gait.weight>.001;
+ actor.rigLegStride=planRigLegGesture(phase,gait.weight,hardStop);
+ actor.rigFullBodyStride=planRigFullBodyStride(actor.u.kind,phase,gait.weight,hardStop);
  actor.rigFullBodyStridePeak=Math.max(actor.rigFullBodyStridePeak||0,
   Math.abs(actor.rigFullBodyStride.hips.yaw),Math.abs(actor.rigFullBodyStride.chest.yaw));
 }
@@ -756,7 +761,7 @@ function stageRigLegsAfterMixer(actor,since,reducedMotion){
  if(!actor.rigGaitBones?.length)return;
  const pose=actor.rigLegStride||planRigLegGesture(0,0,true);
   const footSupport=planConstrainedFootSupport(actor.rigGaitPhase,actor.rigGaitWeight,{
-   moving:Boolean(actor.fullBody?.owner.locomotion),teleport:Boolean(actor.locomotionTeleport),
+   moving:Boolean(actor.fullBody?.owner.locomotion||actor.rigGaitSettling),teleport:Boolean(actor.locomotionTeleport),
    reducedMotion:reducedMotion||actor.u.hp<=0
   });
  // Never invent a melee target: the app supplies only a grid-validated,
@@ -872,7 +877,7 @@ function attachCharacter(actor){
    instance.position.set(-center.x*fitX,-bounds.min.y*sourceScale,-center.z*fitZ);
   }
   const pivot=new THREE.Group();(actor.impactPivot||actor.root).add(pivot);pivot.add(instance);
-  actor.visualPivot=pivot;actor.nativeDuel=null;actor.nativeDuelPeak=0;actor.nativeDuelContactFrames=0;actor.motionPeak=0;actor.evasionFrame=null;actor.evasionPosePeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.anatomicalParts=0;actor.anatomicalJointParts=0;actor.anatomicalDetailMeshes=0;actor.anatomicalStaticMergedParts=0;actor.sculptedArmorProfile=null;actor.sculptedArmorVertices=0;actor.rigBoundAccessoryParts=0;actor.cinematicFigure=null;actor.rigWardrobeParts=0;actor.anatomicalStaticMountedCount=0;actor.nativeArmourRoot=null;actor.nativeArmourMounts=[];actor.nativeArmourInverse=null;actor.rigHandBoneName=null;actor.rigHandBone=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigCranial=null;actor.rigPelvisBone=null;actor.rigPelvisBearing=null;actor.rigBearing=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.wardenChargeShoulderPeak=0;actor.wardenCharge=null;actor.rigForearms=[];actor.rigForearmPeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;actor.rigMeleeBones=[];actor.rigMeleePeak=0;actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;actor.rigRangedActive=false;actor.rigRangedPeak=0;actor.skinnedHitWeight=0;actor.skinnedHitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.draperyPoseKey=null;actor.draperyFramesSkipped=0;actor.draperyNormalRebuilds=0;actor.draperyVertexUploads=0;
+  actor.visualPivot=pivot;actor.nativeDuel=null;actor.nativeDuelPeak=0;actor.nativeDuelContactFrames=0;actor.motionPeak=0;actor.evasionFrame=null;actor.evasionPosePeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.anatomicalParts=0;actor.anatomicalJointParts=0;actor.anatomicalDetailMeshes=0;actor.anatomicalStaticMergedParts=0;actor.sculptedArmorProfile=null;actor.sculptedArmorVertices=0;actor.rigBoundAccessoryParts=0;actor.cinematicFigure=null;actor.rigWardrobeParts=0;actor.anatomicalStaticMountedCount=0;actor.nativeArmourRoot=null;actor.nativeArmourMounts=[];actor.nativeArmourInverse=null;actor.rigHandBoneName=null;actor.rigHandBone=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigCranial=null;actor.rigPelvisBone=null;actor.rigPelvisBearing=null;actor.rigBearing=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.wardenChargeShoulderPeak=0;actor.wardenCharge=null;actor.rigForearms=[];actor.rigForearmPeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitSettling=false;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;actor.rigMeleeBones=[];actor.rigMeleePeak=0;actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;actor.rigRangedActive=false;actor.rigRangedPeak=0;actor.skinnedHitWeight=0;actor.skinnedHitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.draperyPoseKey=null;actor.draperyFramesSkipped=0;actor.draperyNormalRebuilds=0;actor.draperyVertexUploads=0;
   actor.nativeFigureSculpt=fitOriginalNativeFigure(actor);
   actor.body.visible=false;actor.authored=true;actor.detail?.setAuthored?.(true);actor.mixer=new THREE.AnimationMixer(instance);
   actor.availableClips=gltf.animations||[];actor.currentAction='';actor.currentActionTick=null;
@@ -1092,7 +1097,7 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
  actor.rigBearing=planRigBearing(actor.u.kind,actor.u.hp,actor.u.maxHp,actor.fullBody.mode,
    ['idle','move','guard'].includes(actor.fullBody.mode)?since:actor.fullBody.age,
    actor.combatFacing?.distance,reducedMotion||actor.u.hp<=0);
- stageRigGroundedStride(actor,reducedMotion);
+ stageRigGroundedStride(actor,reducedMotion,dt);
  stageRigCranialAfterMixer(actor);
  stageRigPelvisAfterMixer(actor);
  stageRigArmsAfterMixer(actor,poseAge,reducedMotion);
@@ -1179,7 +1184,7 @@ function disposeActorAsset(actor){
  else if(actor.assetRoot){actor.root.remove(actor.assetRoot)}
  for(const m of actor.assetMaterials||[])m.dispose();
  for(const g of actor.assetGeometries||[])g.dispose();
- actor.fullBody=null;actor.importedClipAudit=null;actor.fullBodyInterruptions=0;actor.fullBodyRestarts=0;actor.footSupportPeak=0;actor.mixer=null;actor.assetRoot=null;actor.visualPivot=null;actor.motionPeak=0;actor.evasionFrame=null;actor.evasionPosePeak=0;actor.assetMaterials=[];actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.anatomicalParts=0;actor.anatomicalJointParts=0;actor.anatomicalDetailMeshes=0;actor.anatomicalStaticMergedParts=0;actor.sculptedArmorProfile=null;actor.sculptedArmorVertices=0;actor.rigBoundAccessoryParts=0;actor.cinematicFigure=null;actor.rigWardrobeParts=0;actor.anatomicalStaticMountedCount=0;actor.nativeArmourRoot=null;actor.nativeArmourMounts=[];actor.nativeArmourInverse=null;actor.rigHandBoneName=null;actor.rigHandBone=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigCranial=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.wardenChargeShoulderPeak=0;actor.wardenCharge=null;actor.rigForearms=[];actor.rigForearmPeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;actor.rigMeleeBones=[];actor.rigMeleePeak=0;actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;actor.rigRangedActive=false;actor.rigRangedPeak=0;actor.skinnedHitWeight=0;actor.skinnedHitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.draperyPoseKey=null;actor.draperyFramesSkipped=0;actor.draperyNormalRebuilds=0;actor.draperyVertexUploads=0;actor.nativeFigureSculpt=null;actor.authored=false;actor.textureReadiness=null;
+ actor.fullBody=null;actor.importedClipAudit=null;actor.fullBodyInterruptions=0;actor.fullBodyRestarts=0;actor.footSupportPeak=0;actor.mixer=null;actor.assetRoot=null;actor.visualPivot=null;actor.motionPeak=0;actor.evasionFrame=null;actor.evasionPosePeak=0;actor.assetMaterials=[];actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.anatomicalParts=0;actor.anatomicalJointParts=0;actor.anatomicalDetailMeshes=0;actor.anatomicalStaticMergedParts=0;actor.sculptedArmorProfile=null;actor.sculptedArmorVertices=0;actor.rigBoundAccessoryParts=0;actor.cinematicFigure=null;actor.rigWardrobeParts=0;actor.anatomicalStaticMountedCount=0;actor.nativeArmourRoot=null;actor.nativeArmourMounts=[];actor.nativeArmourInverse=null;actor.rigHandBoneName=null;actor.rigHandBone=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigCranial=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.wardenChargeShoulderPeak=0;actor.wardenCharge=null;actor.rigForearms=[];actor.rigForearmPeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitSettling=false;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;actor.rigMeleeBones=[];actor.rigMeleePeak=0;actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;actor.rigRangedActive=false;actor.rigRangedPeak=0;actor.skinnedHitWeight=0;actor.skinnedHitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.draperyPoseKey=null;actor.draperyFramesSkipped=0;actor.draperyNormalRebuilds=0;actor.draperyVertexUploads=0;actor.nativeFigureSculpt=null;actor.authored=false;actor.textureReadiness=null;
 }
 function putEnvironment(world,sceneKey,map,onAssetReady=null){
  // Authored GLB masonry and prop dressing complements the instanced procedural
@@ -1225,6 +1230,10 @@ function stats(actors){
    fullBodyInterruptions:authored.reduce((n,a)=>n+(a.fullBodyInterruptions||0),0),
    fullBodyRestarts:authored.reduce((n,a)=>n+(a.fullBodyRestarts||0),0),
    fullBodyFootSupportPeakRad:Math.max(0,...authored.map(a=>a.footSupportPeak||0)),
+   fullBodySettlingActors:authored.filter(a=>a.rigGaitSettling).length,
+   fullBodyFootfallPhaseErrorRad:Math.max(0,...authored.filter(a=>a.fullBody?.owner.locomotion&&a.rigGaitWeight>0)
+    .map(a=>Math.abs(Math.atan2(Math.sin(a.rigGaitPhase-2*Math.PI*a.groundedPerformance.footPhase),
+      Math.cos(a.rigGaitPhase-2*Math.PI*a.groundedPerformance.footPhase))))),
    sourceClipAudits:authored.slice(0,6).map(a=>({kind:a.u.kind,clips:a.importedClipAudit?.clips||[],rootMotionTracks:a.importedClipAudit?.rootMotionTracks||[]})),
    nativeContinuousActors:authored.filter(a=>a.nativePresentation?.complete).length,
   nativeDuelActiveActors:authored.filter(a=>a.nativeDuel&&a.nativeDuel.mode!=='rest').length,
