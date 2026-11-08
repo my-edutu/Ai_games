@@ -1327,8 +1327,12 @@ function prepareResidentCommuters(rows){
  // commuter's gait-only pose change otherwise uploads JUST that actor's
  // original mesh into its stable VBO range; other citizens never churn.
  const layoutKey=selected.map(({i,entry})=>i+':'+entry.mesh.length).join('|');
+ const dirtyActors=selected.reduce((n,row)=>n+(row.fresh?1:0),0);
+ const dirtyFloats=selected.reduce((n,row)=>
+  n+(row.fresh?row.entry.mesh.length:0),0);
+ const coalesce=shouldCoalesceResidentGpuUploads(total,dirtyActors,dirtyFloats);
  const wholeUpload=layoutKey!==commuterResidentLayoutKey||
-  !commuterResidentBuffer||commuterResidentMesh.length!==total;
+  !commuterResidentBuffer||commuterResidentMesh.length!==total||coalesce;
  if(!commuterResidentBuffer)commuterResidentBuffer=gl.createBuffer();
  if(!commuterResidentBuffer){
   resetRestingActorMetrics(beforeAll);
@@ -1399,6 +1403,15 @@ function resetResidentCommuters(){
  commuterResidentLayoutKey='';
  commuterResidentVisible=[];commuterResidentMesh=new Float32Array(0);
  // Reuse one bounded allocation across resets; never keep old citizen data.
+}
+
+// W125 adaptive GPU submission: a few changed actors use exact dirty
+// bufferSubData ranges, but many fresh poses should be coalesced into ONE
+// retained-buffer upload to avoid driver-call storms on packed workdays.
+// Pure presentation scheduling; identical mesh, draw order and authority.
+function shouldCoalesceResidentGpuUploads(totalFloats,changedActors,dirtyFloats){
+ return totalFloats>0&&(changedActors>=7||
+  (changedActors>=3&&dirtyFloats*2>=totalFloats));
 }
 
 // W121 Phase 1: the REAL compact residents performing actual paid work, but
@@ -1637,8 +1650,12 @@ function prepareWorkingResidents(rows){
  // Membership and true geometry lengths control layout. A hand moving in
  // its existing rig never repacks/uploads all other real workers.
  const layoutKey=selected.map(({i,entry})=>i+':'+entry.mesh.length).join('|');
+ const dirtyActors=selected.reduce((n,row)=>n+(row.fresh?1:0),0);
+ const dirtyFloats=selected.reduce((n,row)=>
+  n+(row.fresh?row.entry.mesh.length:0),0);
+ const coalesce=shouldCoalesceResidentGpuUploads(total,dirtyActors,dirtyFloats);
  const wholeUpload=layoutKey!==workingResidentLayoutKey||
-  !workingResidentBuffer||workingResidentMesh.length!==total;
+  !workingResidentBuffer||workingResidentMesh.length!==total||coalesce;
  if(!workingResidentBuffer)workingResidentBuffer=gl.createBuffer();
  if(workingSkinCapable&&!workingResidentJointBuffer)
   workingResidentJointBuffer=gl.createBuffer();
@@ -1904,8 +1921,12 @@ function prepareForegroundResidents(rows){
   foregroundResidentFallbacks++;return false;
  }
  bindGeometry(foregroundResidentBuffer);
+ const dirtyActors=selected.reduce((n,row)=>n+(row.fresh?1:0),0);
+ const dirtyFloats=selected.reduce((n,row)=>
+  n+(row.fresh?row.entry.mesh.length:0),0);
+ const coalesce=shouldCoalesceResidentGpuUploads(total,dirtyActors,dirtyFloats);
  if(layoutKey!==foregroundResidentLayoutKey||
-    foregroundResidentMesh.length!==total){
+    foregroundResidentMesh.length!==total||coalesce){
   const packed=new Float32Array(total);
   for(const row of selected)packed.set(row.entry.mesh,row.offset*10);
   if(total>foregroundResidentCapacity){
