@@ -133,3 +133,16 @@ body[data-epilogue=true] .run-result h2{font-size:21px;margin:5px 0 10px}
  body[data-hud=clean] .spectator-quickbar{display:none}
 }
 @media(prefers-reduced-motion:reduce){.quick-fill{transition:none}}
+
+/* Independently anchored from the ordinary objective: Warden mode suppresses
+   .arena-lower but cannot suppress truthful danger. */
+.danger-readout{
+ position:absolute;left:44px;top:180px;z-index:5;
+ width:min(310px,calc(100% - 88px));margin:0
+}
+@media(max-width:759px){
+ .danger-readout{
+  left:16px;top:185px;width:min(260px,calc(100% - 32px));max-width:260px;margin:0
+ }
+ body[data-warden-focus=true] .danger-readout{top:188px}
+}
