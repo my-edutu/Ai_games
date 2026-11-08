@@ -4,6 +4,7 @@ on:
     paths:
       - 'public/tiny-kingdom/index.html'
       - 'scripts/tiny-kingdom-w126-grainward-contract.cjs'
+      - 'scripts/tiny-kingdom-w131-grainward-street-assembly-contract.cjs'
       - 'tests/browser/tiny-kingdom-w126-grainward.spec.cjs'
       - '.github/workflows/tiny-kingdom-w126-grainward.yml'
   workflow_dispatch:
@@ -26,7 +27,9 @@ jobs:
         with:
           node-version: '22'
       - name: V8 playable parse and real per-home/civic RED-GREEN contract
-        run: node scripts/tiny-kingdom-w126-grainward-contract.cjs
+        run: |
+          node scripts/tiny-kingdom-w126-grainward-contract.cjs
+          node scripts/tiny-kingdom-w131-grainward-street-assembly-contract.cjs
   grainward-real-webgl:
     needs: grainward-source-safety
     runs-on: ubuntu-24.04
@@ -41,6 +44,9 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci --no-audit --no-fund
+      # Playwright's configured local server imports compiled replay modules;
+      # without build, browser tests fail BEFORE any genuine WebGL executes.
+      - run: npm run build
       - run: npx playwright install --with-deps chromium
       - name: Authentic 1024/390 overview, farm workday, original market, Day120 and save/replay
         env:
