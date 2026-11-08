@@ -171,6 +171,17 @@ export function createTowerFinale(THREE) {
     stones.instanceMatrix.needsUpdate = true;
     fragments.instanceMatrix.needsUpdate = true;
   }
+  // The result/intermission sculpture follows the actual ended-run body.
+  // Its two physical earned-floor rows extend outward from that body; expose
+  // their CURRENT 3D midpoint to the existing decorative-clock sightline
+  // guard. The same group matrix used by the five actual meshes owns this
+  // point. No future floor, invented win, teleport or alternate camera.
+  function sightlineAnchor(target) {
+    if (disposed || !group.visible || !target?.set || !target?.applyMatrix4)
+      return null;
+    group.updateWorldMatrix(true, false);
+    return target.set(0, 2.1, 2.2).applyMatrix4(group.matrixWorld);
+  }
   function diagnostics() {
     return { sourceBound: true, active: group.visible, lifecycle: phase,
       runToken: group.visible ? run : null, tick: sourceTick,
@@ -188,5 +199,5 @@ export function createTowerFinale(THREE) {
     for (const geometry of [ringGeometry, crownGeometry, fragmentGeometry, stoneGeometry]) geometry.dispose();
     for (const material of [ringMaterial, crownMaterial, shardMaterial, stoneMaterial, rungMaterial]) material.dispose();
   }
-  return { group, update, diagnostics, dispose };
+  return { group, update, sightlineAnchor, diagnostics, dispose };
 }

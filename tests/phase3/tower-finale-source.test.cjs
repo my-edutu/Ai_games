@@ -147,3 +147,27 @@ test('real recorded health-loss memorial uses physically shaded debris, not brig
     assert.equal(stage.diagnostics().resultReason,'health-depleted');
   } finally {stage.dispose();}
 });
+
+test('authentic outcome keeps the real 3D memorial sightline beside the ended-run body through intermission, never across restart', async () => {
+  const [THREE, { createTowerFinale }] = await loaded;
+  const stage = createTowerFinale(THREE);
+  const target = new THREE.Vector3();
+  try {
+    const hero = new THREE.Vector3(22, 100, 17);
+    stage.update(state('running','run-a',800),hero,0);
+    assert.equal(stage.sightlineAnchor(target),null,
+      'ordinary ascent must not manufacture a terminal target');
+    stage.update(state('result','run-a',800,{kind:'game',reason:'health-depleted'}),hero,1);
+    const anchor = stage.sightlineAnchor(target);
+    assert.equal(anchor,target,'reuse the camera target without allocating a second world entity');
+    const expected = new THREE.Vector3(0,2.1,2.2).applyMatrix4(stage.group.matrixWorld);
+    assert.ok(anchor.distanceTo(expected)<1e-8,
+      'target must be the real memorial group transform, not a screen-space fake');
+    assert.ok(anchor.distanceTo(hero)<5,'target remains near the original actor');
+    stage.update(state('intermission','run-a',800,{kind:'game',reason:'health-depleted'}),hero,2);
+    assert.equal(stage.sightlineAnchor(target),target);
+    stage.update(state('running','run-b',0),hero,3);
+    assert.equal(stage.sightlineAnchor(target),null,'new run must restore ordinary world opacity');
+  } finally { stage.dispose(); }
+  assert.equal(stage.sightlineAnchor(target),null,'disposed scene cannot retain an outcome mask');
+});

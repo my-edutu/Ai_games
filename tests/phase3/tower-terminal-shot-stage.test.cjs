@@ -79,3 +79,13 @@ test('missing/nonfinite result geometry cannot create a false camera stage',()=>
   assert.equal(shot(hero,.46,1,0,-100).stageProgress,0);
   assert.equal(shot(hero,.46,1,0,100).stageProgress,1);
 });
+
+test('real source-authenticated terminal camera protects the fallen body AND the anchored 3D earned-rung memorial from decorative clockwork',()=>{
+  assert.match(source,/const protectTerminalScene=terminalStaged && !options\.stale &&/);
+  assert.match(source,/!!finale\.sightlineAnchor\(actorOrbitTarget\)/);
+  assert.match(source,/if\(protectLiveRoute \|\| protectTerminalScene\)/);
+  assert.match(source,/protectTerminalScene\?actorOrbitTarget:/);
+  assert.match(source,/\(protectLiveRoute\|\|protectTerminalScene\)\?actorFramePoint:null/);
+  assert.match(source,/\(protectLiveRoute\|\|protectTerminalScene\)\?p\.halfHeight\/SCALE:0/);
+  assert.match(source,/protectLiveRoute&&sourceGuardian\?guardianRescuePoint:null/);
+});

@@ -3601,9 +3601,17 @@ export function createTowerScene(canvas, settings = {}) {
     // before the tower's atmospheric gears. Nothing touches gameplay state.
     const protectLiveRoute=!options.stale&&snapshot.lifecycle==='running'&&
       p.health>0&&options.camera==='follow';
-    if(protectLiveRoute){
+    // The authenticated outcome camera previously disabled ALL decorative
+    // clockwork sightline protection, including for the actual fallen climber.
+    // Keep the hero and the 3D earned-floor memorial visible during both real
+    // result and intermission; their present world coordinates come only from
+    // the already source-gated finale group, never a simulated victory.
+    const protectTerminalScene=terminalStaged && !options.stale &&
+      options.camera==='follow' && !!finale.sightlineAnchor(actorOrbitTarget);
+    if(protectLiveRoute || protectTerminalScene){
       actorFramePoint.copy(climber.group.position);
       actorFramePoint.y+=p.halfHeight/SCALE;
+      if(protectLiveRoute){
       if(sourceGuardian){
         const observed=pointFor(sourceGuardian.x,sourceGuardian.y,
           snapshot.chunkBaseY,snapshot.worldWidth,27.15);
@@ -3631,17 +3639,19 @@ export function createTowerScene(canvas, settings = {}) {
         // real deck threshold after enemy, landing and hazard protection.
         actorOrbitTarget.copy(earnedGatewayFocus);
       }
+      }
     }
     const protectArrival=!!targetPlatform&&landingApproach.diagnostics().visible;
     const protectImmediateTrap=actionStage?.kind==='hazard';
     const protectEarnedGate=gatewayEarned&&!protectImmediateTrap&&
       (!protectArrival || !!sourceAirborneWalk);
     world.protectRouteSightlines(camera,
-      protectLiveRoute?actorFramePoint:null,
+      (protectLiveRoute||protectTerminalScene)?actorFramePoint:null,
       protectLiveRoute&&sourceGuardian?guardianRescuePoint:null,
-      protectLiveRoute&&(protectArrival||protectImmediateTrap||protectEarnedGate)?actorOrbitTarget:null,
+      protectTerminalScene?actorOrbitTarget:
+        protectLiveRoute&&(protectArrival||protectImmediateTrap||protectEarnedGate)?actorOrbitTarget:null,
       dt,options,
-      protectLiveRoute?p.halfHeight/SCALE:0,
+      (protectLiveRoute||protectTerminalScene)?p.halfHeight/SCALE:0,
       protectLiveRoute&&sourceGuardian&&Number.isFinite(sourceGuardian.halfHeight)
         ?sourceGuardian.halfHeight/SCALE:0);
     updateLandingBeacon(landingBeacon, targetPlatform, snapshot, camera);
