@@ -14264,6 +14264,7 @@ function getLiveWorkdayView(){
 let realWorkdaySelectionAudit=null;
 // Read-only W13 film progression; never part of world save or seeded rules.
 let villageDocumentary=null;
+let grainJourney=null;
 function chooseFilmableWorker(rows,excluded=-1){
  const eligible=rows.filter(row=>row.index!==excluded&&isWorkingAtSite(row.person));
  if(!eligible.length)return null;
@@ -17571,6 +17572,10 @@ function workdayCameraCompositionAudit(){
   cameraSurveyReuses:liveShotPlanReuses};
 }
 function setCitizenFollow(enabled){
+ if(!enabled&&grainJourney){
+  grainJourney=null;
+  document.getElementById('world-trace-follow').setAttribute('aria-pressed','false');
+ }
  if(enabled&&!follow){
   previousFollowCamera={yaw,pitch,zoom,focus:focusPoint.slice(),cinematic};
   follow=true;cinematic=false;updateFollowCamera();
@@ -17987,6 +17992,8 @@ function setReferenceCapture(enabled){
 }
 
 function stopWorkdayWatch(){
+ grainJourney=null;
+ document.getElementById('world-trace-follow').setAttribute('aria-pressed','false');
  daybreakReturn=null;homecomingWitnessHold=null;
  villageDocumentary=null;document.body.dataset.villageDocumentary='off';
  document.getElementById('workday-activity').removeAttribute('data-story-stage');
@@ -18062,6 +18069,7 @@ function updateDeliveryHUD(){
  if(status.textContent!==label)status.textContent=label;
 }
 function watchDelivery(requestedId=null){
+ if(grainJourney)stopWorkdayWatch();
  if(document.body.dataset.workday==='homecoming')stopWorkdayWatch();
  const eligible=people.map((p,i)=>({person:p,index:i})).filter(row=>row.person.delivery);
  if(!eligible.length){
@@ -18125,6 +18133,7 @@ function anchorSelectedWorkdayCamera(row){
  return true;
 }
 function watchLiveWorkday(){
+ if(grainJourney)stopWorkdayWatch();
  if(forgeWitness||document.body.dataset.workday==='homecoming')stopWorkdayWatch();
  const eligible=people.map((p,i)=>({person:p,index:i})).filter(row=>isWorkingAtSite(row.person));
  const alternatives=liveWorkday&&eligible.length>1?
@@ -18304,7 +18313,9 @@ function updateSupplyTrail(force=false){
   if(node.textContent!==value)node.textContent=value;
  }
  const action=document.getElementById('world-trace-follow');
- action.textContent=cargo?'Follow loaded courier':
+ action.textContent=grainJourney?'Stop tracking this grain':
+  flow.farmer||cargo?.resource==='food'?'Track real grain journey':
+  cargo?'Follow loaded courier':
   flow.provisions.carrying?'Follow grain home':
   flow.provisions.collecting?'Follow market pickup':
   flow.farmer?'Follow real farmer':'Watch village work';
@@ -18346,7 +18357,132 @@ document.body.dataset.command='world';
  // W13: follow the SAME real citizen from work to loaded physical travel,
  // market unloading and an authority-issued receipt. The director may watch
  // a different genuine worker only when the old worker has no delivery.
- function getVillageDocumentaryAudit(){
+ 
+/* W141 — one real, inspectable farm -> receiving market -> household
+ * documentary. Unlike a scripted tour, every stage is derived from the
+ * original farmer's parcel ID and the authority's trade/meal receipt chain.
+ * A missing stage remains WAITING, not a fabricated completion. */
+function planRealGrainJourney(trace,citizens,receipts,trades,meals){
+ if(!trace||!trace.producer)return null;
+ const farmer=citizens.find(p=>p.name===trace.producer&&p.job==='farmer');
+ const originalLoad=farmer?.delivery?.resource==='food'?farmer.delivery:null;
+ const id=trace.deliveryId||originalLoad?.id||null;
+ const receipt=id?receipts.find(r=>r.id===id&&r.resource==='food'):null;
+ const trade=receipt?trades.find(t=>t.receiptId===id):null;
+ const meal=receipt?meals.find(m=>m.receiptId===id):null;
+ const result=(stage,citizen,extra={})=>({
+  stage,citizen,deliveryId:id,receiptId:receipt?.id||null,
+  hasActualLoad:Boolean(originalLoad&&originalLoad.id===id),
+  hasActualReceipt:Boolean(receipt),linkedToReceipt:Boolean(receipt),
+  ...extra
+ });
+ if(meal)return result('consumed',meal.citizen,{
+  amount:receipt.amount,consumer:meal.citizen,tradeId:trade?.id||null,
+  mealId:meal.id||null});
+ if(trade)return result('provisioning',trade.citizen,{
+  amount:receipt.amount,consumer:trade.citizen,tradeId:trade.id||null});
+ if(receipt)return result('received',receipt.citizen,{
+  amount:receipt.amount,resource:receipt.resource});
+ if(id){
+  if(originalLoad?.id===id)return result(
+   originalLoad.stage==='unloading'?'unloading':'hauling',farmer.name,
+   {amount:originalLoad.amount,resource:originalLoad.resource});
+  return result('awaiting-receipt',trace.producer);
+ }
+ return result(farmer?.activity==='Harvesting grain'?'harvesting':'awaiting-harvest',
+  trace.producer);
+}
+function getRealGrainJourneyAudit(){
+ if(!grainJourney)return {active:false,source:'real-grain-provenance-only'};
+ const plan=planRealGrainJourney(grainJourney,people,deliveryReceipts,
+  state.householdTrades||[],state.householdMeals||[]);
+ return {active:true,source:'real-grain-provenance-only',
+  producer:grainJourney.producer,deliveryId:grainJourney.deliveryId,
+  stage:plan?.stage||'unavailable',actor:plan?.citizen||null,
+  verifiedReceipt:plan?.hasActualReceipt||false,
+  verifiedMeal:Boolean(plan?.mealId),stagesSeen:grainJourney.stagesSeen.slice(),
+  cameraSubjectChanges:grainJourney.subjectChanges,
+  noCreatedActors:true,noCreatedTransactions:true,authorityUnmodified:true};
+}
+function stopRealGrainJourney(){
+ if(!grainJourney)return false;
+ grainJourney=null;
+ document.getElementById('world-trace-follow').setAttribute('aria-pressed','false');
+ stopWorkdayWatch();
+ if(follow)setCitizenFollow(false);
+ updateSupplyTrail(true);
+ return true;
+}
+function watchRealGrainJourney(){
+ if(grainJourney)return stopRealGrainJourney();
+ // A watch request never creates production, a delivery or a test-only citizen.
+ const candidates=people.filter(p=>p.job==='farmer'&&
+  (p.activity==='Harvesting grain'||p.delivery?.resource==='food'));
+ const p=candidates.find(row=>row.activity==='Harvesting grain')||
+  candidates.find(row=>row.delivery?.resource==='food');
+ if(!p){
+  showToast('No real grain harvest or loaded farmer to track yet');
+  return null;
+ }
+ if(streetWalk)setStreetWalk(false);
+ if(liveWorkday||document.body.dataset.workday!=='off')stopWorkdayWatch();
+ selectedCitizen=people.indexOf(p);
+ grainJourney={producer:p.name,deliveryId:p.delivery?.resource==='food'?
+   p.delivery.id:null,stage:'starting',stagesSeen:[],subjectChanges:0};
+ document.body.dataset.workday='live';
+ if(!follow)setCitizenFollow(true);
+ updateFollowCamera(builderStageAngle(p));
+ setCommandView('world');updateUI();advanceRealGrainJourney();
+ updateSupplyTrail(true);
+ return getRealGrainJourneyAudit();
+}
+function advanceRealGrainJourney(){
+ if(!grainJourney)return false;
+ if(!follow){grainJourney=null;return false}
+ const plan=planRealGrainJourney(grainJourney,people,deliveryReceipts,
+  state.householdTrades||[],state.householdMeals||[]);
+ if(!plan)return false;
+ if(plan.deliveryId&&!grainJourney.deliveryId)
+  grainJourney.deliveryId=plan.deliveryId;
+ const changed=grainJourney.stage!==plan.stage;
+ if(changed){
+  grainJourney.stage=plan.stage;
+  if(!grainJourney.stagesSeen.includes(plan.stage))
+   grainJourney.stagesSeen.push(plan.stage);
+  if(grainJourney.stagesSeen.length>8)grainJourney.stagesSeen.shift();
+ }
+ // A change of observed actor is allowed only after a REAL authority-recorded
+ // household trade/meal matching the exact delivered grain receipt.
+ const ix=people.findIndex(p=>p.name===plan.citizen);
+ if(ix>=0&&ix!==selectedCitizen&&
+    (plan.stage==='provisioning'||plan.stage==='consumed')){
+  selectedCitizen=ix;grainJourney.subjectChanges++;
+  updateFollowCamera();
+ }
+ document.body.dataset.workday=
+  plan.stage==='provisioning'||plan.stage==='consumed'?'household':
+  plan.stage==='hauling'||plan.stage==='unloading'||
+  plan.stage==='received'||plan.stage==='awaiting-receipt'?'delivery':'live';
+ const label=document.getElementById('workday-activity');
+ const phrase={
+  harvesting:'harvesting real grain',
+  'awaiting-harvest':'waiting for an actual harvest',
+  hauling:'carrying the verified grain load',
+  unloading:'unloading grain at the real receiving bay',
+  'awaiting-receipt':'waiting for the matching market receipt',
+  received:'market accepted grain · awaiting a real household purchase',
+  provisioning:'collected grain from the verified market receipt',
+  consumed:'ate at home · verified grain receipt consumed'
+ }[plan.stage]||'observing the original village';
+ const caption=plan.citizen+' · '+phrase+
+  (plan.receiptId?' · parcel '+plan.receiptId:'');
+ if(label.textContent!==caption)label.textContent=caption;
+ label.dataset.storyStage=plan.stage.toUpperCase();
+ document.getElementById('world-trace-follow').setAttribute('aria-pressed','true');
+ return changed;
+}
+
+function getVillageDocumentaryAudit(){
   if(!villageDocumentary)return {
    active:false,stage:'off',source:'observed-authoritative-production-and-market-receipts'};
   const p=people[selectedCitizen],d=p?.delivery;
@@ -18456,6 +18592,11 @@ document.body.dataset.command='world';
 
  button('world-trace-follow',()=>{
   const flow=getSupplyTrailSnapshot();
+  if(grainJourney){stopRealGrainJourney();return;}
+  if(flow.farmer||flow.cargo?.resource==='food'){
+   const tracked=watchRealGrainJourney();
+   if(tracked)return;
+  }
   if(flow.cargo)watchDelivery(flow.cargo.id);
   else if(flow.provisions.collecting+flow.provisions.carrying)watchHouseholdErrand();
   else if(flow.farmer)watchHarvestShift();
@@ -19078,7 +19219,8 @@ function render(now){requestAnimationFrame(render);
   if(drained.pendingTicks)renderBacklogFrames++;
  }
  // Continue an actual workday across real occupations after a shift ends.
- if(follow&&liveWorkday)advanceLiveWorkdayDirector();
+ if(follow&&liveWorkday&&!grainJourney)advanceLiveWorkdayDirector();
+ if(grainJourney)advanceRealGrainJourney();
  pollForgeSound();
  // The recorded W58 movie ended with the observer still following a former
  // homecomer back to their daytime job, behind vegetation. End the genuine
@@ -19096,7 +19238,7 @@ function render(now){requestAnimationFrame(render);
  }
  if(follow){
  const citizen=people[Math.min(selectedCitizen,people.length-1)];
- const observingAction=Boolean(liveWorkday||document.body.dataset.workday==='homecoming'||
+ const observingAction=Boolean(grainJourney||liveWorkday||document.body.dataset.workday==='homecoming'||
   (document.body.dataset.workday==='delivery'&&
    (citizen.delivery||recentObservedCourierReceipt(citizen))));
  const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -19169,7 +19311,7 @@ function render(now){requestAnimationFrame(render);
   }else{yaw=nextYaw;pitch=nextPitch;zoom=nextZoom}
   lastFollowShot=plan;
  }
-}advanceDaybreakReturn();if(liveWorkday)updateLiveWorkdayUI();else if(document.body.dataset.workday==='homecoming')updateHomecomingUI();else updateDeliveryHUD();advanceVillageDocumentary();if(cinematic)yaw+=wallDt*.05;progressCameraReturn(wallDt);const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(window.devicePixelRatio||1,1.6)*renderQuality().scale;if(canvas.width!==Math.floor(w*dpr)||canvas.height!==Math.floor(h*dpr)){canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);gl.viewport(0,0,canvas.width,canvas.height)}gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);drawAtmosphere(atmosphere);const frameStaticStart=performance.now();
+}advanceDaybreakReturn();if(liveWorkday)updateLiveWorkdayUI();else if(document.body.dataset.workday==='homecoming')updateHomecomingUI();else if(!grainJourney)updateDeliveryHUD();advanceVillageDocumentary();if(cinematic)yaw+=wallDt*.05;progressCameraReturn(wallDt);const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(window.devicePixelRatio||1,1.6)*renderQuality().scale;if(canvas.width!==Math.floor(w*dpr)||canvas.height!==Math.floor(h*dpr)){canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);gl.viewport(0,0,canvas.width,canvas.height)}gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);drawAtmosphere(atmosphere);const frameStaticStart=performance.now();
 // Cache seasonal ground geometry: camera and citizens cannot change it.
 // Winter snow affects colour; ordinary rain does not.
 const groundClimate=climateAt(state.t);
@@ -19787,7 +19929,8 @@ requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON
  setCourierTrailResidencyForTesting,getDeliveryEconomyAudit:()=>cloneData(getDeliveryEconomyAudit()),getDeliveryReceipts:()=>cloneData(getDeliveryReceipts()),getMarketHandoffs:()=>cloneData(getMarketHandoffs()),getMarketParcelDeliveryPose:id=>cloneData(getMarketParcelDeliveryPose(id)),getCourierHandContact:person=>cloneData(courierWorldHandContact(person)),getMarketHandoffRenderStats:()=>({...marketHandoffRenderStats}),watchDelivery,watchHomecoming,getHomecomingView,getHomecomingThresholdCameraAudit,getWorkdayView,getActiveWorksites,watchHarvestShift,getHarvestInteractionAudit,getHarvestVisibilityAudit,getHarvestAftermathAudit,getCitizenActingAudit,
 getDailyRhythmAudit:dailyRhythmAudit,getHouseholdProvisionAudit:()=>cloneData(householdProvisionAudit()),getReceiptHouseholdAudit:()=>cloneData(receiptHouseholdAudit()),getVerifiedEconomyRenderStats:()=>({...verifiedEconomyRenderStats}),getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getCottageHomecomingAudit,getCottageDoorRenderAudit:()=>({...cottageDoorRenderAudit}),
  getCottageDoorResidencyAudit,setCottageDoorResidencyForTesting,getSoftwareResolutionAudit,getHardwareResolutionAudit,getSimulationFrameDelta:simulationFrameDelta,getHouseholdLightAudit:()=>({...householdLightAudit}),getNightHomesResidencyAudit,setNightHomesResidencyForTesting,getOccupiedHearthCount:()=>occupiedHearths,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,
-getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeCourtyardAudit:()=>cloneData(getForgeCourtyardAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),getForgeSoundAudit:()=>cloneData(getForgeSoundAudit()),pollForgeSound,watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,getMarketReceivingHallAudit,getTradeCorridorCameraAudit,
+getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeCourtyardAudit:()=>cloneData(getForgeCourtyardAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),getForgeSoundAudit:()=>cloneData(getForgeSoundAudit()),pollForgeSound,watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,
+ getRealGrainJourneyAudit,watchRealGrainJourney,stopRealGrainJourney,planRealGrainJourney,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,getMarketReceivingHallAudit,getTradeCorridorCameraAudit,
 getMarketStructuralSightline:marketCourierPostSightline,
 getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCentralExchangeAudit:()=>({...centralExchangeStats}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketShutterResidencyAudit,setMarketShutterResidencyForTesting,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,getRealRoadscapeAudit,getFieldToGranaryFootwayAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getCameraNavigationAudit,getFreeCameraCollisionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getFarmWorkCameraAudit,
 getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?(civicGpuResidencyEnabled?3:2)+(homeClusterActive.length?homeClusterActive.length:0):1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length+homeClusterFloats():0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4+homeClusterFloats()*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0,homeBytes:gpuAvailable?homeClusterFloats()*4:0}),getGeometryAudit:geometryAudit,getSceneTriangleReconciliation,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGranaryArchitectureAudit,getGrainwardDistrictAudit:getGrainwardDistrictAudit,getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getEcotoneVisualStats,getValleySurfaceBuildAudit,getRiverReedVisualAudit,getForestVisualStats:()=>({

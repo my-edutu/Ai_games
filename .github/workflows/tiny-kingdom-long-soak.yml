@@ -26,6 +26,8 @@ on:
       - 'scripts/tiny-kingdom-w137-original-workskin-residency-contract.cjs'
       - 'scripts/tiny-kingdom-w139-bvh-contract.cjs'
       - 'scripts/tiny-kingdom-w140-vao-contract.cjs'
+      - 'scripts/tiny-kingdom-w141-real-provenance-contract.cjs'
+      - 'tests/browser/tiny-kingdom-w141-real-grain-journey.spec.cjs'
       - 'tests/browser/tiny-kingdom-w140-resident-vao.spec.cjs'
       - 'tests/browser/tiny-kingdom-w138-real-grown-home.spec.cjs'
       - 'tests/browser/tiny-kingdom-w136-scene-hud.spec.cjs'
@@ -110,6 +112,8 @@ jobs:
         run: node scripts/tiny-kingdom-w139-bvh-contract.cjs
       - name: W140 original real-geometry bounded VAO lifecycle and software fallbacks
         run: node scripts/tiny-kingdom-w140-vao-contract.cjs
+      - name: W141 one authentic grain receipt through one real household
+        run: node scripts/tiny-kingdom-w141-real-provenance-contract.cjs
       - name: W126 exact four-profession inventory, contact and clock contract
         run: node scripts/tiny-kingdom-w126-authentic-workday-contract.cjs
       - run: npx playwright install --with-deps chromium
@@ -133,6 +137,10 @@ jobs:
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
         run: npx playwright test tests/browser/tiny-kingdom-w140-resident-vao.spec.cjs --workers=1
+      - name: W141 real desktop and 390px source-linked grain workday documentary
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w141-real-grain-journey.spec.cjs --workers=1
       - name: Real WebGL 120-day settlement and replay soak
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
