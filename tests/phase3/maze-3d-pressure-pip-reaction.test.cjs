@@ -123,13 +123,13 @@ test('pressure warning, shutter brace and piston recoil are three independent so
       const get=name=>{const joint=pip.group.getObjectByName(name);assert.ok(joint,name);return joint};
       const torso=get('breathing torso'),head=get('curious head'),knee=get('knee -1');
       const rightShoulder=get('shoulder 1'),leftShoulder=get('shoulder -1');
-      const rightElbow=get('elbow 1'),leftHip=get('hip -1'),lamp=get('lantern cage');
+      const rightElbow=get('elbow 1'),rightHip=get('hip 1'),leftHip=get('hip -1'),lamp=get('lantern cage');
       const opts={time:0,delta:0,heading:0,pressureHeading:Math.PI/2,pressureStrength:1};
       const resourceShape=[];
       pip.group.traverse(o=>{if(o.isMesh)resourceShape.push(o.geometry)});
       pip.update({...opts,pressureStrength:0,pressureProgress:0});
       const rest={right:rightShoulder.rotation.x,left:leftShoulder.rotation.x,
-        hip:leftHip.rotation.z,elbow:rightElbow.rotation.x,headX:head.rotation.x};
+        rightHip:rightHip.rotation.z,leftHip:leftHip.rotation.z,elbow:rightElbow.rotation.x,headX:head.rotation.x};
       pip.update({...opts,pressureProgress:.20});
       const warning={right:rightShoulder.rotation.x,headX:head.rotation.x,
         torsoY:torso.position.y,lamp:lamp.scale.x};
@@ -140,7 +140,8 @@ test('pressure warning, shutter brace and piston recoil are three independent so
       pip.update({...opts,pressureProgress:.55});
       assert.ok(knee.rotation.x>.25 && torso.position.y<warning.torsoY-.04,
         'the actual ivory shutter opening plants both legs and crouches Pip');
-      assert.ok(leftHip.rotation.z>rest.hip+.1,'real physical feet separate during the shutter brace');
+      assert.ok(rightHip.rotation.z>rest.rightHip+.1 && leftHip.rotation.z<rest.leftHip-.1,
+        'both real feet plant outward as the published shutters open');
       assert.ok(leftShoulder.rotation.x<rest.left-.20,'free arm joins the defensive posture');
       assert.equal(lamp.scale.x,1,'no premature piston climax');
       const midElbow=rightElbow.rotation.x;
@@ -152,6 +153,8 @@ test('pressure warning, shutter brace and piston recoil are three independent so
       assert.equal(rightShoulder.rotation.x,rest.right,'withdrawal clears warning arm');
       assert.equal(leftShoulder.rotation.x,rest.left,'withdrawal clears guarding arm');
       assert.equal(knee.rotation.x,0,'withdrawal releases foot');
+      assert.equal(rightHip.rotation.z,rest.rightHip,'withdrawal returns the right planted hip');
+      assert.equal(leftHip.rotation.z,rest.leftHip,'withdrawal returns the left planted hip');
       assert.equal(rightElbow.rotation.x,rest.elbow,'withdrawal restores attached elbow');
       assert.equal(lamp.scale.x,1,'withdrawal restores same caged lantern');
       const guardian={...opts,pressureProgress:1,attentionHeading:Math.PI/2,attentionStrength:1};

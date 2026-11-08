@@ -1,3 +1,9 @@
+### Pass209 — source-corrected two-foot pressure-brace regression (2026-11-08 UTC)
+
+- **Real Phase-0 test blocker:** Pass208's new installed-Three test asserted positive left-hip rotation even though the existing real mirrored rig yields right +.14 / left -.14 rad at shutter phase .55. It would fail in both balanced and regular modes despite physically correct planted feet.
+- **Strict repair:** require both signed hip magnitudes >.10 radians and exact restoration of both on witnessed pressure withdrawal. No production actor, camera, geometry, gameplay, security/privacy, resource, accessibility or acceptance-threshold changes. A test unblock, not a player-visible win.
+- **Unverified:** no connected coding workspace/critic; GitHub exact-HEAD WebGL and whole-repo Actions queued. No newly run installed-Three tests, current-SHA 320/390/844/1280 native PNGs, independent Nintendo approval, or FPS claim. Next: visual evidence for Pass204/207/208. [Review](./maze-3d/pass-209-bilateral-pressure-stance-ci-contract-2026-11-08.md). PR #53 OPEN DRAFT, no merge/deploy/force, hourly Gauntlet active.
+
 ### Pass208 — Pip's real pressure warning, rooted brace and lantern release (2026-11-08 UTC)
 
 - **Largest still-unverified visual gap:** actual 320/390 pressure captures from prior SHA-verified Pass201 show Pip and the tide-shear device too small/crowded against the closed gate. Pass204 camera and Pass207 geometric cutaway await NEW genuine images. This work does **not** certify those shots or attempt a camera/crop adjustment.
