@@ -1,0 +1,21 @@
+{
+  "input": "GitHub Actions artifact 13083021022, dungeon-authored-motion-ac-fb71e-t-on-a-real-adjacent-strike/video.webm",
+  "encodedWidth": 800,
+  "encodedHeight": 500,
+  "nominalEncodedFrameRate": "25/1",
+  "encodedDurationSeconds": 13.72,
+  "decodedFrames": 343,
+  "adjacentPairs": 342,
+  "nearStaticPairs": 324,
+  "visibleChangePairs": 18,
+  "strongChangePairs": 14,
+  "visualChangeFraction": 0.0526,
+  "grayscaleDownsample": [
+    160,
+    90
+  ],
+  "differenceThreshold": 0.45,
+  "attribution": "Adjacent visual-change heuristic only. Static camera/scene, lossy encoding and subtle motion affect this metric. It cannot identify how many source frames were rendered.",
+  "sourceCommit": "ebf79ead8c1e988c816d7f17e64e7d8a4d81b256",
+  "workflowRun": 41304068008
+}
