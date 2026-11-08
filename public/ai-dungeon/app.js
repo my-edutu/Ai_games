@@ -22,6 +22,7 @@ import {planAuthorityDamageBeats,planDamageReaction,resolveImpactSide,planDefeat
 import {planAuthorityEvasions,EVASION_BEAT_DURATION} from '/dungeon/evasion-performance-plan.js';
 import {planPostFXBudget,adaptPostFXPixelCap,postFXStallAction,isSoftwareWebGLRenderer,createFrameIntervalProbe,planDirectRenderBudget,adaptDirectRenderPixelCap} from '/dungeon/postfx-budget.js';
 import {planRendererAntialias} from '/dungeon/render-context-plan.js';
+import {planEventVisualPriority} from '/dungeon/event-visual-priority-plan.js';
 import {planCombatFacing,planMovementFacing,approachCharacterYaw,shortestYawDelta} from '/dungeon/facing-plan.js';
 import {enrichCharacter} from '/dungeon/characters.js';
 import {createBiomeAtmosphere} from '/dungeon/biome-atmosphere.js';
@@ -340,37 +341,36 @@ function cutawayWalls(target,subjects,wallPad=2.1,view=null,forceWalls=null,fram
 }
 
 const particles=[],MAX_PARTICLES=72;const seenEventIds=new Set();
-const effects=[],MAX_EFFECTS=12,ringGeometry=new THREE.RingGeometry(.92,1,56),shockGeometry=new THREE.RingGeometry(2.5,2.7,64);
+const effects=[],MAX_EFFECTS=12,
+ ringGeometry=new THREE.RingGeometry(.66,.76,40),
+ shockGeometry=new THREE.RingGeometry(1.12,1.24,48);
 let shakeStrength=0;
 function genuineWardenGroundEvent(event){
  return (event?.kind==='danger'||event?.kind==='evade')&&
   typeof event.text==='string'&&
   /^The Warden (nova|rift cross|eclipse sweep) shockwave struck \d+ hero(?:es)?$/.test(event.text);
 }
-function pulseFX(event,s){
- if(reduced)return;
- let origin,theme='#51fff0',big=false;
- if(event.kind==='phase'||event.kind==='unseal'||event.kind==='telegraph'||genuineWardenGroundEvent(event)){
-  origin=s.units.find(u=>u.kind==='warden');theme=event.kind==='unseal'?'#ffe7a1':event.kind==='phase'?'#e19aff':genuineWardenGroundEvent(event)?'#d39472':'#ffba70';big=true;shakeStrength=genuineWardenGroundEvent(event)?.12:shakeStrength;
- }else if(event.kind==='kill'&&event.text?.startsWith('WARDEN DEFEATED')){
-  // Only the genuine boss death and its public kill event anchor this
-  // physical stone-level original 3D ring. No made-up target or fake hit.
-  origin=s.units.find(u=>u.kind==='warden'&&u.hp===0);
-  if(origin){theme='#f0c887';big=true;}
- }else if(event.kind==='healing'||event.kind==='loot'){origin=s.units.find(u=>u.id==='mystic')||s.units[0];theme='#5fffe4'}
- else if(event.kind==='kill'){origin=s.units.find(u=>u.faction==='enemy'&&u.hp<=0);theme='#ffd27d'}
+function pulseFX(plan,s){
+ const p=plan.pulse;if(!p)return;
+ const origin=s.units.find(u=>u.id===p.targetId);
  if(!origin)return;
- if(effects.length>=MAX_EFFECTS){const oldest=effects.shift();scene.remove(oldest.mesh);oldest.mesh.material.dispose()}
- const material=new THREE.MeshBasicMaterial({color:theme,transparent:true,opacity:.72,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending});
- const mesh=new THREE.Mesh(big?shockGeometry:ringGeometry,material);
- mesh.rotation.x=-Math.PI/2;mesh.position.set(origin.x-9,.08,origin.z-9);mesh.scale.setScalar(big?.2:.14);
- scene.add(mesh);effects.push({mesh,life:0,duration:big?.8:.55,large:big});
+ if(effects.length>=MAX_EFFECTS){
+  const oldest=effects.shift();scene.remove(oldest.mesh);oldest.mesh.material.dispose();
+ }
+ const material=new THREE.MeshBasicMaterial({color:p.theme,transparent:true,
+  opacity:.55,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending});
+ const mesh=new THREE.Mesh(p.kind==='chapter'?shockGeometry:ringGeometry,material);
+ mesh.rotation.x=-Math.PI/2;mesh.position.set(origin.x-9,.068,origin.z-9);
+ mesh.scale.setScalar(p.from);scene.add(mesh);
+ effects.push({mesh,life:0,duration:p.duration,from:p.from,to:p.to});
 }
 const particleGeo=new THREE.OctahedronGeometry(.07,0);
 function disposeParticle(p){scene.remove(p.mesh);p.mesh.material.dispose()}
 function cue(event,s){
  if(reduced)return;
- pulseFX(event,s);
+ const visualPlan=planEventVisualPriority(event,s);
+ pulseFX(visualPlan,s);
+ if(visualPlan.particleCount===0)return;
  const colors={unseal:'#ffe7a1',kill:'#ffe3a0',combat:'#e99159',danger:'#ef5864',phase:'#efb7ff',guard:'#72ffdf',evade:'#88b9ff',block:'#92eaff',trap:'#ff646c',disarm:'#74f8be',telegraph:'#ffb77b',healing:'#58ebba',loot:'#66d7e5',floor:'#d7bbff'};
  const color=colors[event.kind];if(!color)return;
  const bossFall=event.kind==='kill'&&event.text?.startsWith('WARDEN DEFEATED');
@@ -381,7 +381,7 @@ function cue(event,s){
   event.kind==='kill'?s.units.find(u=>u.faction==='enemy'&&u.hp===0):
   s.units.find(u=>u.id==='mystic')||s.units[0];
  const x=(target?.x??s.exit.x)-9,z=(target?.z??s.exit.z)-9;
- const count=event.kind==='floor'||bossFall?15:8;
+ const count=visualPlan.particleCount;
  for(let i=0;i<count;i++){if(particles.length>=MAX_PARTICLES)disposeParticle(particles.shift());
   const angle=i*2.399963+event.tick*.25,velocity=.4+(i%4)*.15;
   const material=new THREE.MeshBasicMaterial({color,transparent:true,opacity:.8,depthWrite:false});
@@ -996,7 +996,7 @@ function animate(t){
  if(lightInjury){lightInjury.age=advancePresentationActionAge(lightInjury.age,dt);if(lightInjury.age>=.36)lightInjury=null;}
  for(let i=effects.length-1;i>=0;i--){const e=effects[i];e.life+=dt;
   if(e.life>=e.duration){scene.remove(e.mesh);e.mesh.material.dispose();effects.splice(i,1);continue}
-  const progression=e.life/e.duration;e.mesh.scale.setScalar((e.large?.2:.13)+progression*(e.large?1.1:.80));e.mesh.material.opacity=.60*(1-progression);
+  const progression=e.life/e.duration;e.mesh.scale.setScalar(e.from+(e.to-e.from)*progression);e.mesh.material.opacity=.55*(1-progression);
  }
  shakeStrength=Math.max(0,shakeStrength-dt*.25);
  for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.life+=dt;if(p.life>=p.duration){disposeParticle(p);particles.splice(i,1);continue}
