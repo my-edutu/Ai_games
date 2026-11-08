@@ -2530,8 +2530,8 @@ void main(){
   world.xz=commuterMotion.xy+
    vec2(co*local.x+si*local.y,-si*local.x+co*local.y);
   world.y+=commuterMotion.z;
-  surfaceNormal.xz=vec2(co*normal.x+si*normal.z,
-   -si*normal.x+co*normal.z);
+  surfaceNormal.xz=vec2(co*surfaceNormal.x+si*surfaceNormal.z,
+   -si*surfaceNormal.x+co*surfaceNormal.z);
  }
  // W96: the same eight real market shutters now live in ONE durable GPU
  // mesh. Each ID decodes its original stall, hinge side and orientation.
@@ -7931,12 +7931,14 @@ if(p.job==='farmer'||p.job==='gatherer'){
  cone(x,y+1.66*size,z,.19*size,.19*size,rgb(0xc4a36c),8);
  rescaleCitizenHead(brimStart,data.length,x,y,z,size);
 turnCitizenHead(brimStart,data.length,x,y,z,size,embodiment);
+tagWorkSkinRange(11,brimStart);
 }
 if(p.job==='forester'){
  const capStart=data.length;
  cone(x,y+1.65*size,z,.255*size,.25*size,rgb(0x526a49),8);
  rescaleCitizenHead(capStart,data.length,x,y,z,size);
  turnCitizenHead(capStart,data.length,x,y,z,size,embodiment);
+ tagWorkSkinRange(11,capStart);
  box(x+.35*size,y+.48*size,z+.03,.05*size,.52*size,.06*size,rgb(0x826449));
  box(x+.35*size,y+.83*size,z+.03,.24*size,.14*size,.045*size,rgb(0xa5a6a0));
 }
@@ -7945,6 +7947,7 @@ if(p.job==='builder'){
  box(x,y+1.73*size,z,.48*size,.10*size,.43*size,rgb(0xa78a5e));
  rescaleCitizenHead(brimStart,data.length,x,y,z,size);
  turnCitizenHead(brimStart,data.length,x,y,z,size,embodiment);
+ tagWorkSkinRange(11,brimStart);
  box(x-.37*size,y+.54*size,z,.12*size,.28*size,.17*size,rgb(0x9b7850));
 }
 if(p.job==='merchant'){box(x-.31*size,y+.55*size,z+.13,.20*size,.36*size,.18*size,rgb(0x7d5433));box(x-.31*size,y+.86*size,z+.13,.13*size,.045*size,.16*size,rgb(0xe0be74))}
