@@ -36,7 +36,7 @@ test('offline baseline and candidate recordings use fresh original-source host f
   const offline=fs.readFileSync(path.join(__dirname,'../../scripts/tower-offline-evidence.sh'),'utf8');
   assert.match(offline,/for viewport in desktop portrait; do/,
     'a combined two-test invocation reuses the 20Hz server after desktop and shifts portrait to a later floor');
-  assert.match(offline,/--grep 'normal-speed Tower motion \$viewport'/,
+  assert.match(offline,/--grep "normal-speed Tower motion \$viewport"/,
     'each Playwright invocation must select exactly one native viewport');
   assert.match(offline,/capture-\$viewport\.log/,
     'preserve separate errors from each independently seeded original host');
