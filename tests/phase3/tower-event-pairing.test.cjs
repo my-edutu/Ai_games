@@ -17,6 +17,48 @@ function rec(source,scenario='danger',viewport='portrait'){
    {kind:'floor-transition',floor:9,fromFloor:8,toFloor:9,atMs:4000}
   ]}};
 }
+// Calibrated search handles never become a human-confirmed action by code.
+function withOriginalFilmClock(record) {
+ record.videoClock={sourceSha:record.sourceSha,scenario:record.scenario,
+   viewport:record.motion.viewport,seed:record.motion.seed,
+   graphicsTier:record.motion.graphicsTier,status:'CALIBRATED',
+   calibration:{status:'CALIBRATED',offsetMs:-1000,maxResidualMs:20},
+   originalVideoDurationSeconds:75,
+   sourceEventTimecodes:record.index.events.map(e=>({...e,
+     nativeVideoSeconds:(e.atMs-1000)/1000,inOriginalVideo:true,
+     eventVisibleInVideo:'NOT EVALUATED'}))};
+ return record;
+}
+test('calibrated event-index clocks yield honest event-relative film search handles',()=>{
+ const before=withOriginalFilmClock(rec('baseline'));
+ const after=withOriginalFilmClock(rec('candidate'));
+ const report=auditPairs([before,after],'c'.repeat(40));
+ assert.equal(report.calibratedTimebasePairs,1);
+ assert.equal(report.videoTimecodesCalibrated,false);
+ const comparison=report.comparisons[0];
+ assert.equal(comparison.nativeSourceVideoTimebase.baseline,'CALIBRATED');
+ assert.equal(comparison.nativeSourceVideoTimebase.candidate,'CALIBRATED');
+ assert.equal(comparison.nativeSourceVideoTimebase.calibratedSourceEventPairSearchHandles,4);
+ assert.equal(comparison.sourceEventPairs[1].calibratedSourceEventSearch.baseline.nativeVideoSeconds,1);
+ assert.equal(comparison.sourceEventPairs[1].calibratedSourceEventSearch.bothInOriginalVideo,true);
+ assert.equal(comparison.sourceEventPairs[1].calibratedSourceEventSearch.eventVisibleInBothVideos,false);
+ assert.equal(comparison.sourceEventPairs[1].visuallyMatched,false);
+ assert.equal(report.fullMotionPaired,false);
+ assert.equal(report.verdict,'NOT EVALUATED');
+});
+test('stale, tampered or absent clock cannot create an event-matched film claim',()=>{
+ const before=withOriginalFilmClock(rec('baseline'));
+ const after=withOriginalFilmClock(rec('candidate'));
+ after.videoClock.sourceSha='unexpected-sha';
+ const report=auditPairs([before,after],'c'.repeat(40));
+ assert.equal(report.comparisons[0].nativeSourceVideoTimebase.candidate,'NOT EVALUATED');
+ assert.equal(report.comparisons[0].nativeSourceVideoTimebase.calibratedSourceEventPairSearchHandles,0);
+ assert.equal(report.fullMotionPaired,false);
+ delete after.videoClock;
+ const missing=auditPairs([before,after],'c'.repeat(40));
+ assert.equal(missing.comparisons[0].nativeSourceVideoTimebase.candidate,'NOT EVALUATED');
+ assert.equal(missing.videoTimecodesCalibrated,false);
+});
 test('same-floor combat and onward source events pair IN ORDER but cannot claim video visibility',()=>{
  const b=rec('baseline').index.events,c=rec('candidate').index.events;
  c.splice(1,0,{kind:'hazard-charge-begin',floor:8,hazardId:'crusher',atMs:1500});
