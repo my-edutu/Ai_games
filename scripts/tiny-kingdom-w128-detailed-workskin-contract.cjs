@@ -24,7 +24,10 @@ for(const snippet of [
  'tagWorkSkinRange(j+4,from);',
  'tagWorkSkinRange(11,headMeshStart);',
  'tagWorkSkinRange(12,toolStart);',
- 'getForegroundSkinAudit'
+ 'getForegroundSkinAudit',
+ 'surfaceNormal.xz=vec2(co*surfaceNormal.x+si*surfaceNormal.z,',
+ 'tagWorkSkinRange(11,brimStart);',
+ 'tagWorkSkinRange(11,capStart);'
 ])expect(snippet);
 const detailed=src.slice(src.indexOf('function villager(p)'),
  src.indexOf('function stoneBoulder('));
