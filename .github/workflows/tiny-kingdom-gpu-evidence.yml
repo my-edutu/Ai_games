@@ -1774,6 +1774,9 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
+      # Playwright's shared webServer imports compiled replay from dist.
+      # Without this the visual parity test never reaches a browser.
+      - run: npm run build
       - run: npx playwright install --with-deps chromium
       - name: Original 3D near-citizen geometry parity on desktop and 390px
         env:
