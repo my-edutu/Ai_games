@@ -620,8 +620,25 @@ export function createTowerWorld(){
     const g=own(new THREE.ExtrudeGeometry(shape,{depth:thickness,bevelEnabled:true,bevelSize:.06,bevelThickness:.04,bevelSegments:1,steps:1,curveSegments:18}));
     const root=new THREE.Group();root.name='CameraResponsiveDecorativeGear';parent.add(root);
     mesh(root,g,alloy,[0,0,-thickness/2]);
-    mesh(root,cylinder(),trim,[0,0,0],[r*.16,thickness*1.6,r*.16],[Math.PI/2,0,0]);
-    for(let i=0;i<4;i++)block(root,alloy,[0,0,0],[r*1.42,r*.13,thickness],[0,0,i*Math.PI/4]);
+    // The previous four diameter-spanning crossbars ran through the hollow
+    // centre of every rotor. A real portrait camera could still find an
+    // opaque bar across the climber even though the extruded ring had a hole.
+    // Make this a supported ANNULAR drive instead: eight short alloy shoes
+    // transfer torque at the load ring, with four perimeter bearing rollers.
+    // No rotating material enters the central .72r daylight aperture.
+    // All parts retain their original 3D animation and owned sightline alpha.
+    for(let i=0;i<8;i++){
+      const angle=i*TAU/8;
+      block(root,alloy,
+        [Math.cos(angle)*r*.87,Math.sin(angle)*r*.87,0],
+        [r*.24,r*.105,thickness],[0,0,angle]);
+    }
+    for(let i=0;i<4;i++){
+      const angle=(i+.5)*TAU/4;
+      mesh(root,cylinder(),trim,
+        [Math.cos(angle)*r*.90,Math.sin(angle)*r*.90,0],
+        [r*.095,thickness*1.6,r*.095],[Math.PI/2,0,0]);
+    }
     const entry={root,alloy,trim,radius:r*1.55,
       sceneryMaterials:[],sceneryMeshes:[],sceneryParent:null};
     foregroundGears.push(entry);decorativeSightlines.push(entry);

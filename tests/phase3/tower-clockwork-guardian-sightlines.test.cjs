@@ -399,6 +399,45 @@ test('real original decorative rotors expose negative-space gear faces instead o
   }finally{world.dispose();}
 });
 
+test('all three live clockwork rotors keep the COMPLETE centre aperture clear at every spoke angle',async()=>{
+  const [THREE,{createTowerWorld}]=await loaded;
+  const world=createTowerWorld();
+  try{
+    const snapshot=sourceFrame('clockwork',8),original=JSON.stringify(snapshot);
+    world.update(snapshot,.016,0,{quality:'low'});
+    world.group.updateWorldMatrix(true,true);
+    const rotors=[];
+    world.group.traverse(object=>{
+      if(object.name==='CameraResponsiveDecorativeGear')rotors.push(object);
+    });
+    assert.equal(rotors.length,3,'retain all three physical animated clock mechanisms');
+    for(const [index,radius] of [4.8,3.6,3.1].entries()){
+      const rotor=rotors[index];
+      const mesh=rotor.children.find(object=>object.isMesh&&
+        object.material?.name==='SightlineResponsiveDecorativeAlloy');
+      assert.ok(mesh,'test the real post-batch running gear geometry');
+      const rendered=rotor.children.filter(object=>object.isMesh);
+      assert.ok(rendered.length>0,'the ring is still drawn in genuine 3D');
+      for(let angle=0;angle<Math.PI;angle+=Math.PI/8){
+        for(const fraction of [.35,.60]){
+          const origin=mesh.localToWorld(new THREE.Vector3(
+            Math.cos(angle)*radius*fraction,
+            Math.sin(angle)*radius*fraction,2));
+          const direction=new THREE.Vector3(0,0,-1)
+            .transformDirection(mesh.matrixWorld);
+          const hits=new THREE.Raycaster(origin,direction,0,6)
+            .intersectObjects(rendered,false);
+          assert.equal(hits.length,0,
+            'every inner spoke angle must admit actual world daylight: '+
+            index+'/'+angle+'/'+fraction);
+        }
+      }
+    }
+    assert.equal(JSON.stringify(snapshot),original,
+      'decorative clockwork never changes source-owned combat/progression');
+  }finally{world.dispose();}
+});
+
 test('real clockwork power rack has a source-independent transparent structural middle',async()=>{
   const [THREE,{createTowerWorld}]=await loaded;
   const world=createTowerWorld();
