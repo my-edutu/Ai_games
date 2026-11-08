@@ -24,11 +24,12 @@ export function createPhysicalCombatFeedback({
  resolveContact=()=>null,deriveDamageBeats=null,verifiedMeleeDelay=null,
  visualAdapter=null,audioAdapter=null,requirePresentedFrame=false
 }={}){
+ let previous=null;
  const visuals=visualAdapter??(THREE&&scene?createPhysicalFeedbackVisuals(THREE,scene,
-  {actorById,reducedMotion,reducedFlash}):null);
+  {actorById,reducedMotion,reducedFlash,getFloorMap:()=>previous?.map}):null);
  let foley=audioAdapter??(ctx?createOriginalCombatFoley(ctx):null);
  const preference=createCombatMutePreference(storage);
- let previous=null,sceneId=null,disposed=false,optedIn=false,
+ let sceneId=null,disposed=false,optedIn=false,
   queued=0,played=0,adapterFailures=0,duplicates=0,overflow=0,sceneResets=0,
   visualAccepted=0,audioAccepted=0,renderedSeconds=0,observedSeconds=0,
   unverifiedFrameInterval=false,expiredQueuedCues=0,invalidFrameIntervals=0,

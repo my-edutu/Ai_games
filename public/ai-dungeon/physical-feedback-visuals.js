@@ -8,6 +8,7 @@
  */
 import {planMeasuredHandTrail,MEASURED_HAND_TRAIL_MAX_FRAME_SECONDS,selectObservedWeaponHandBone} from './measured-weapon-trail.js';
 import {planUnconfirmedFlight} from './unconfirmed-projectile-flight.js';
+import {planMapFlightClearance} from './occluded-projectile-path.js';
 export const PHYSICAL_FEEDBACK_POOL_LIMITS=Object.freeze({
  trail:8,hit:48,block:8,dust:12,signal:8,projectile:10,spell:8
 });
@@ -53,14 +54,14 @@ function spray(id,index){
   spin:(((h>>>4)%997)/997-.5)*6};
 }
 export function createPhysicalFeedbackVisuals(THREE,scene,{
- actorById=()=>null,reducedMotion=false,reducedFlash=false
+ actorById=()=>null,reducedMotion=false,reducedFlash=false,getFloorMap=null
 }={}){
  if(!THREE||!scene||typeof scene.add!=='function')return null;
  const pose=new THREE.Object3D(),up=new THREE.Vector3(0,1,0),dir=new THREE.Vector3(),
   sampled=new THREE.Vector3();
  const pools=new Map();let active=0,peak=0,spawned=0,suppressed=0,
   preempted=0,confirmedFragments=0,measuredTrailFrames=0,
-  unmeasuredTrailFrames=0,disposed=false;
+  unmeasuredTrailFrames=0,occludedFlights=0,blockedFlights=0,disposed=false;
  const world=(p,y)=>({x:p.x-9,y,z:p.z-9});
  function hideMatrix(){
   pose.position.set(0,-500,0);pose.rotation.set(0,0,0);
@@ -180,11 +181,25 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    world(cue.to,type==='spell'?1.23:1.19):null;
   const flightProbe=flightDestination?planUnconfirmedFlight(start,flightDestination,0):null;
   if((type==='projectile'||type==='spell')&&!flightProbe){suppressed++;return false}
+  // Preview-only authoritative masonry clip. An actor target proves intent,
+  // not a physically unobstructed flight from the ACTUAL animated hand.
+  // Resolve this once at emission; never raymarch per animation frame.
+  let limitedFlight=flightProbe?{fraction:1,travelMeters:flightProbe.travelMeters,clipped:false}:null;
+  if(flightProbe&&typeof getFloorMap==='function'){
+   let map=null;
+   try{map=getFloorMap()}catch{}
+   const terminal=planUnconfirmedFlight(start,flightDestination,1)?.position;
+   limitedFlight=terminal?planMapFlightClearance(start,terminal,map):null;
+   // Invalid map, adjacent wall, and off-floor hand all suppress the
+   // rendered projectile; the authentic release remains sound-only.
+   if(!limitedFlight){suppressed++;blockedFlights++;return false}
+   if(limitedFlight.clipped)occludedFlights++;
+  }
   const n=type==='hit'?Math.max(4,Math.min(6,4+Math.floor(clamp(cue.severity,0,1)*2))):
     type==='dust'?2:1;
   const length=clamp(cue.duration,.10,.70),severity=clamp(cue.severity,0,1);
   // Keep the arrow kinetic at short ranges without inventing an impact frame.
-  const flightLife=flightProbe?clamp(flightProbe.travelMeters/(type==='projectile'?7:6),
+  const flightLife=limitedFlight?clamp(limitedFlight.travelMeters/(type==='projectile'?7:6),
    type==='projectile'?.10:.16,type==='projectile'?.30:.31):length;
   let created=0;
   for(let i=0;i<n;i++){
@@ -195,6 +210,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    pool.slots[index]={cue,age:0,life:reducedMotion?Math.min(.13,flightLife):flightLife,
     origin:{...start},end:flightDestination??(cell(cue.to)?world(cue.to,type==='spell'?1.23:1.19):null),
     priority:cue.priority??1,severity,fragment:speed,index,ordinal:i,
+    flightFraction:limitedFlight?.fraction??1,
     lastHand:type==='trail'?{...start}:null,
     measuredPath:null,lastMeasuredAge:-Infinity};
    // No fabricated arc is drawn at emission; first sample has no motion.
@@ -229,7 +245,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    pose.scale.setScalar(Math.max(.0001,initial*Math.pow(fade,1.25)));
   }else if(p==='projectile'||p==='spell'){
    const end=slot.end;
-   const flight=end?planUnconfirmedFlight(origin,end,t):null;
+   const flight=end?planUnconfirmedFlight(origin,end,t*slot.flightFraction):null;
    if(!flight)return hideMatrix();
    pose.position.set(flight.position.x,flight.position.y,flight.position.z);
    // Cosmetic flight lift never claims a collision or an actor's damage.
@@ -310,7 +326,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  }
  function stats(){return Object.freeze({
   active,peak,spawned,suppressed,preempted,confirmedFragments,
-  measuredTrailFrames,unmeasuredTrailFrames,disposed,
+  measuredTrailFrames,unmeasuredTrailFrames,occludedFlights,blockedFlights,disposed,
   reservedInstances:TOTAL,drawCalls:pools.size,
   activeDrawCalls:[...pools.values()].filter(p=>p.mesh.visible).length,
   geometryCount:pools.size,materialCount:pools.size,reducedMotion,reducedFlash,

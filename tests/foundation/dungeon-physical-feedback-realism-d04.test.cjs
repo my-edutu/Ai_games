@@ -244,3 +244,27 @@ test('earned Warden counter receives actual victim-anchored restrained VFX with 
   'unattributed block events must be sound-only');
  stage.reset();assert.equal(stage.stats().active,0);stage.dispose();
 });
+
+test('map-backed D04 preview clips projectiles at true stone and suppresses adjacent-wall bolts without invented hits',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ let map=Array.from({length:19},()=>'.'.repeat(19)),reads=0;
+ const block=(x,z)=>{map=map.map((row,i)=>i===z?row.slice(0,x)+'#'+row.slice(x+1):row)};
+ block(4,2);
+ const stage=createPhysicalFeedbackVisuals(T,scene,{getFloorMap:()=>{reads++;return map}});
+ const shot=cue({kind:'ranged-release',visual:'launch',audio:'ranged-release',
+  proof:'authority-action-not-hit',actorId:'ranger',targetId:'revenant',
+  from:{x:2,z:2},to:{x:7,z:2}});
+ assert.equal(stage.emit(shot),true);
+ assert.equal(stage.stats().occludedFlights,1);
+ assert.equal(stage.stats().instancesByPool.projectile,1);
+ for(let i=0;i<8;i++)stage.advance(.016);
+ assert.equal(reads,1,'public wall map is read only once per release, never raymarched each frame');
+ assert.equal(stage.stats().instancesByPool.hit,0);
+ stage.reset();
+ map=Array.from({length:19},()=>'.'.repeat(19));block(3,2);
+ assert.equal(stage.emit({...shot,id:shot.id+':adjacent'}),false);
+ assert.equal(stage.stats().blockedFlights,1);
+ assert.equal(stage.stats().instancesByPool.hit,0,'no wall crossing may synthesize an impact');
+ stage.dispose();
+});

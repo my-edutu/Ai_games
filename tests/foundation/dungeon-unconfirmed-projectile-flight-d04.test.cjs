@@ -47,6 +47,7 @@ test('opt-in visual stage uses non-contact planner rather than arrival-at-target
  const source=fs.readFileSync(path.join(root,'physical-feedback-visuals.js'),'utf8');
  assert.match(source,/import \{planUnconfirmedFlight\} from '\.\/unconfirmed-projectile-flight\.js';/);
  assert.match(source,/planUnconfirmedFlight\(start,flightDestination,0\)/);
- assert.match(source,/planUnconfirmedFlight\(origin,end,t\)/);
+ assert.match(source,/planUnconfirmedFlight\(origin,end,t\*slot\.flightFraction\)/);
+ assert.match(source,/planMapFlightClearance\(start,terminal,map\)/);
  assert.doesNotMatch(source,/const speed=t\*t\*\(3-2\*t\)/);
 });

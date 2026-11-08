@@ -42,6 +42,7 @@ function serve(port=Number(process.env.PORT||4181)){
    ['/dungeon/physical-feedback-visuals.js','physical-feedback-visuals.js'],
    ['/dungeon/measured-weapon-trail.js','measured-weapon-trail.js'],
    ['/dungeon/unconfirmed-projectile-flight.js','unconfirmed-projectile-flight.js'],
+   ['/dungeon/occluded-projectile-path.js','occluded-projectile-path.js'],
    ['/dungeon/original-combat-foley.js','original-combat-foley.js'],
    ['/dungeon/physical-combat-feedback.js','physical-combat-feedback.js'],['/dungeon/soundstage-plan.js','soundstage-plan.js'],['/dungeon/soundstage.js','soundstage.js'],['/dungeon/material-foley.js','material-foley.js'],['/dungeon/warden-tell-plan.js','warden-tell-plan.js'],['/dungeon/warden-ritual.js','warden-ritual.js'],['/dungeon/warden-impact-plan.js','warden-impact-plan.js'],['/dungeon/warden-impact-scars.js','warden-impact-scars.js'],['/dungeon/chapter-nave-plan.js','chapter-nave-plan.js'],['/dungeon/chapter-nave.js','chapter-nave.js'],['/dungeon/warden-court.js','warden-court.js'],['/dungeon/warden-court-plan.js','warden-court-plan.js'],['/dungeon/living-world.js','living-world.js'],['/dungeon/boot-watchdog.js','boot-watchdog.js'],['/dungeon/cinematic-figure.js','cinematic-figure.js'],['/dungeon/model-assets.js','model-assets.js'],['/dungeon/styles.css','styles.css'],['/dungeon/gauntlet','gauntlet.html'],['/dungeon/gauntlet.html','gauntlet.html'],['/dungeon/gauntlet.js','gauntlet.js'],['/dungeon/gauntlet.css','gauntlet.css']]);
  const server=http.createServer((req,res)=>{try{
