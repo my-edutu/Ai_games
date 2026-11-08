@@ -30,7 +30,7 @@ const evidence={
  baselineSha:BASE,candidateSha:null,baselineBlob:null,candidateBlob:null,
  renderer:'UNVERIFIED',status:'INCOMPLETE',workdayTicks:null,
  camera:{wide,labor,grown,marketView},viewport,
- scenarios:{},videos:{},errors:[],
+ scenarios:{},videos:{},errors:[],comparability:null,
  limitations:[
   'SwiftShader is a software renderer; observed recording FPS is not hardware FPS.',
   'Accelerated deterministic staging is not actual real-time work or an unattended soak.',
@@ -529,7 +529,11 @@ async function motion(browser,html,snapshot,label,live=false,camera=labor,delive
    cameraAfter:end.camera,videoFile:label+'.webm',
    realLiveWorker:live?start.active:null,
    realCameraSamples:live?{start:start.realCamera,end:end.realCamera}:null,
-   realDelivery:delivery?start.delivery:null,matchedPair:!live&&!delivery,
+   realDelivery:delivery?start.delivery:null,
+   // Matching clock/camera is NOT enough to prove an equal authoritative world.
+   matchedCameraAndClock:!live&&!delivery,
+   matchedPair:!live&&!delivery&&
+    evidence.comparability?.strictWorldStatePairProven===true,
    isSoftware:true,uninterruptedRealTime:true,scriptedUserCameraInput:true};
  }finally{
   await context.close();
@@ -883,6 +887,30 @@ async function streetMotion(browser,html,snapshot){
    'G149 matched night market view must use identical hour and seed');
   assert.equal(c.result.overnight.simulatedHour,b.result.overnight.simulatedHour,
    '04:00 occupied-home A/B must use identical real simulation time');
+  // W126: a seed, camera and hour are insufficient for a matched-world review.
+  // The original and transformed game may run different authoritative jobs.
+  // Record the actual exported-state checksums without normalizing divergences.
+  const matchedPhases=['day1','marketDay1','labor','day120',
+   'marketDay120','marketNight','night','overnight','mobile','marketMobile'];
+  const framePairs=Object.fromEntries(matchedPhases.map(name=>{
+   const old=b.result[name],now=c.result[name];
+   const originalChecksum=old?.snapshotChecksum||null;
+   const candidateChecksum=now?.snapshotChecksum||null;
+   return [name,{
+    sameSimulationHour:Boolean(Number.isFinite(old?.simulatedHour)&&
+     old.simulatedHour===now?.simulatedHour),
+    originalChecksum,candidateChecksum,
+    authorityChecksumEqual:Boolean(originalChecksum&&candidateChecksum&&
+     originalChecksum===candidateChecksum)
+   }];
+  }));
+  evidence.comparability={
+   source:'real-exportSnapshot-checksum',
+   strictWorldStatePairProven:matchedPhases.every(name=>
+    framePairs[name].sameSimulationHour&&framePairs[name].authorityChecksumEqual),
+   frames:framePairs,
+   limitation:'Aligned seed and clock do not prove equivalent citizens, inventories, work or growth.'
+  };
   // Real, unedited matched-hour gameplay. Recreate read-only staged snapshots
   // inside newly recording contexts; no clock stepping during footage.
   const cSnapshot=await regenerateSnapshot(browser,candidate,c.ticks);
