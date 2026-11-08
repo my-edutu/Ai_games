@@ -22,6 +22,11 @@ export const ENVIRONMENT_SURFACE_DETAIL_BUDGET=define({
  rawBytes:5*128*128*4,maxMipmappedBytes:440000,
  colorMapsAreSRGB:true,dataMapsAreLinear:true,shadowMapsAdded:0,lightSourcesAdded:0
 });
+export const ENVIRONMENT_SETPIECE_DETAIL_BUDGET=define({
+ size:128,textureCount:7,rawBytes:7*128*128*4,maxMipmappedBytes:620000,
+ roles:Object.freeze(['timber','agedMetal','hangingCloth']),
+ extraLights:0,extraGeometry:0,extraRenderPasses:0
+});
 const LIGHT_PRESETS=[
  define({biome:'SUNKEN CRYPT',ambientScale:.97,moonIntensity:1.76,
    fogDensity:.0165,exposure:1.20,torchIntensity:1.85,
