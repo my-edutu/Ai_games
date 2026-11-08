@@ -29,35 +29,45 @@ export function createDungeonSetpieces(world,map,floor,exit,{surfaceDetailEnable
  const metal=material(palette.metal,'agedMetal'),cloth=material(palette.cloth,'hangingCloth');
  const ink=material('#171d27','soot'),timberMaterial=material('#77614e','timber');
  const magic=material(palette.core,'magicInset',.36);
- // Original source-generated PBR microdetail enhances the actual wall-mounted
- // desk, forged fixtures and cloth dressing. All seven images are shared
- // across setpieces in this biome, not multiplied by mesh count.
- // Software rasterizers retain scalar PBR to avoid slowing gameplay delivery.
- if(surfaceDetailEnabled){
-  const size=ENVIRONMENT_SETPIECE_DETAIL_BUDGET.size;
-  const data=(pixels,kind)=>{
-   const texture=new THREE.DataTexture(pixels,size,size,THREE.RGBAFormat,THREE.UnsignedByteType);
-   texture.name='original-setpiece-'+kind;
-   texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
-   texture.anisotropy=2;texture.generateMipmaps=true;
-   if(kind.endsWith('albedo'))texture.colorSpace=THREE.SRGBColorSpace;
-   texture.needsUpdate=true;detailTextures.push(texture);return texture;
-  };
-  const timber=makeEnvironmentDetailPixels('timber',floor,size);
-  const aged=makeEnvironmentDetailPixels('agedMetal',floor,size);
-  const drape=makeEnvironmentDetailPixels('hangingCloth',floor,size);
-  timber && (()=>{
-   const color=data(timber.albedoPixels,'timber-albedo');
-   const normal=data(timber.normalPixels,'timber-normal');
-   const rough=data(timber.roughnessPixels,'timber-roughness');
-   timberMaterial.map=color;timberMaterial.normalMap=normal;timberMaterial.roughnessMap=rough;
-   timberMaterial.normalScale.set(getEnvironmentMaterialRole('timber').normalScale,getEnvironmentMaterialRole('timber').normalScale);
-  })();
-  metal.map=data(aged.albedoPixels,'metal-albedo');
-  metal.roughnessMap=data(aged.roughnessPixels,'metal-roughness');
-  cloth.map=data(drape.albedoPixels,'cloth-albedo');
-  cloth.normalMap=data(drape.normalPixels,'cloth-normal');
-  cloth.normalScale.set(getEnvironmentMaterialRole('hangingCloth').normalScale,getEnvironmentMaterialRole('hangingCloth').normalScale);
+ // Original PBR microdetail is allocated for ACTUALLY present art, never
+ // the other biome's unused desk/cloth. Metal exists in every landmark;
+ // the scriptorium alone uses timber and fabric. Reuse maps across meshes.
+ // The software rasterizer deliberately stays on the scalar fallback.
+ if(surfaceDetailEnabled&&placements.length){
+  try{
+   const size=ENVIRONMENT_SETPIECE_DETAIL_BUDGET.size;
+   const data=(pixels,kind)=>{
+    const texture=new THREE.DataTexture(pixels,size,size,THREE.RGBAFormat,THREE.UnsignedByteType);
+    texture.name='original-setpiece-'+kind;
+    texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
+    texture.anisotropy=2;texture.generateMipmaps=true;
+    if(kind.endsWith('albedo'))texture.colorSpace=THREE.SRGBColorSpace;
+    texture.needsUpdate=true;detailTextures.push(texture);return texture;
+   };
+   const aged=makeEnvironmentDetailPixels('agedMetal',floor,size);
+   metal.map=data(aged.albedoPixels,'metal-albedo');
+   metal.roughnessMap=data(aged.roughnessPixels,'metal-roughness');
+   if(placements.some(p=>p.motif==='scriptorium')){
+    const timber=makeEnvironmentDetailPixels('timber',floor,size);
+    timberMaterial.map=data(timber.albedoPixels,'timber-albedo');
+    timberMaterial.normalMap=data(timber.normalPixels,'timber-normal');
+    timberMaterial.roughnessMap=data(timber.roughnessPixels,'timber-roughness');
+    timberMaterial.normalScale.set(getEnvironmentMaterialRole('timber').normalScale,getEnvironmentMaterialRole('timber').normalScale);
+    const drape=makeEnvironmentDetailPixels('hangingCloth',floor,size);
+    cloth.map=data(drape.albedoPixels,'cloth-albedo');
+    cloth.normalMap=data(drape.normalPixels,'cloth-normal');
+    cloth.normalScale.set(getEnvironmentMaterialRole('hangingCloth').normalScale,getEnvironmentMaterialRole('hangingCloth').normalScale);
+   }
+  }catch(error){
+   // These maps are optional art. A failed GPU allocation must never stop the
+   // autonomous expedition or leave partially owned textures in the scene.
+   for(const texture of detailTextures)texture.dispose();
+   detailTextures.length=0;
+   for(const item of [metal,timberMaterial,cloth]){
+    item.map=null;item.normalMap=null;item.roughnessMap=null;item.needsUpdate=true;
+   }
+   console.warn('[DUNGEON] optional setpiece surface atlas unavailable:',String(error));
+  }
  }
  const box=geometry(new THREE.BoxGeometry(1,1,1));
  const oval=geometry(new THREE.SphereGeometry(1,10,7));
@@ -151,7 +161,7 @@ export function createDungeonSetpieces(world,map,floor,exit,{surfaceDetailEnable
   uniqueSculptureFamilies:4,meshBudget:placements.length*21,
   materialRoles:['masonry','carvedStone','agedMetal','hangingCloth','soot','timber','magicInset'],
   materialDetailMaps:detailTextures.length,materialDetailRawBytes:detailTextures.length*ENVIRONMENT_SETPIECE_DETAIL_BUDGET.size**2*4,
-  materialDetailFallback:!surfaceDetailEnabled};
+  materialDetailFallback:detailTextures.length===0};
  return{metrics,update(time){
   for(const move of movables){
    if(move.kind==='wheel')move.object.rotation.y=time*.19+move.phase*.25;
