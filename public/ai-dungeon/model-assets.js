@@ -1131,10 +1131,12 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
    Math.abs(pose.y+contact.y),Math.abs(pose.z+contact.z));
  }
  if(actor.draperyPanels?.length){
-  const poseKey=drapePoseKey(actor.u.action||'idle',since,reducedMotion);
+  const clothAction=actor.fullBody?.mode??actor.u.action??'idle';
+   const clothAge=actor.fullBody?.owner.injury||actor.fullBody?.owner.evasion?actor.fullBody.age:since;
+   const poseKey=drapePoseKey(clothAction,clothAge,reducedMotion);
   if(poseKey!==actor.draperyPoseKey){
    actor.draperyPoseKey=poseKey;
-   const sway=planDrapeSwing(actor.u.action||'idle',since,reducedMotion);
+   const sway=planDrapeSwing(clothAction,clothAge,reducedMotion);
    actor.draperyPeakDeformationMeters=0;
    for(const p of actor.draperyPanels){
     p.mesh.rotation.x=sway.pitch;p.mesh.rotation.z=sway.roll*p.side;
@@ -1144,7 +1146,7 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
     const position=p.mesh.geometry.getAttribute('position');
     for(let row=0;row<=DRAPE_ROWS;row++)for(let col=0;col<=DRAPE_COLUMNS;col++){
      const index=row*(DRAPE_COLUMNS+1)+col,offset=index*3;
-     const bend=planDrapeVertexBend(row/DRAPE_ROWS,col/DRAPE_COLUMNS,actor.u.action||'idle',since,reducedMotion);
+     const bend=planDrapeVertexBend(row/DRAPE_ROWS,col/DRAPE_COLUMNS,clothAction,clothAge,reducedMotion);
      position.setXYZ(index,p.restPositions[offset]+bend.x*p.side,
       p.restPositions[offset+1]+bend.y,p.restPositions[offset+2]+bend.z);
      actor.draperyPeakDeformationMeters=Math.max(actor.draperyPeakDeformationMeters,
