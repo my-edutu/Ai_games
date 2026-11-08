@@ -890,7 +890,7 @@ export class DungeonRuntime {
      if(due&&legal){
       hero.focus=focus-1;
       wounded.hp=Math.min(wounded.maxHp,wounded.hp+15+s.level);
-      hero.action='cast';hero.targetId=wounded.id;
+      hero.action='cast';
       s.intent='Starweaver spends healing focus to restore '+wounded.kind;
       push(s,'healing','Starweaver healed '+wounded.kind+' · '+hero.focus+' focus left');
       continue;
@@ -901,7 +901,6 @@ export class DungeonRuntime {
       const step=planTacticalStep(s,hero,wounded,'engage');
       if(step&&!s.traps.some(t=>t.active&&!t.disarmed&&t.x===step.x&&t.z===step.z)){
        hero.x=step.x;hero.z=step.z;hero.action='move';
-       hero.targetId=wounded.id;
        s.intent='Starweaver opening a real healing lane to '+wounded.kind;
        if(s.tick%3===0)push(s,'reposition','Starweaver closing to heal wounded '+wounded.kind);
        continue;
