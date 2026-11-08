@@ -137,6 +137,68 @@ export function makeEnvironmentDetailPixels(role,floor,size=128){
 }
 
 /**
+ * Original 256px wall and floor façade albedo. A mortar grid repeats cleanly
+ * across both image edges (8 courses, 4 half-staggered stones per row), with
+ * a bounded mineral/pitted face; no generic rectangular highlights, random
+ * runtime calls, downloads, or decoration occupying the fighting lane.
+ * Palette values are existing biome colours. Albedo is sRGB RGBA8.
+ */
+function facadePalette(palette){
+ if(!palette||!['mortar','stone','edge'].every(k=>typeof palette[k]==='string'&&/^#[0-9a-f]{6}$/i.test(palette[k])))
+  throw new RangeError('Invalid masonry palette');
+ const rgb=hex=>[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16));
+ return {mortar:rgb(palette.mortar),stone:rgb(palette.stone),edge:rgb(palette.edge)};
+}
+function facadeSample(floor,x,y,size){
+ const courseHeight=size/8,blockWidth=size/4;
+ const course=Math.floor(y/courseHeight);
+ const shifted=x+(course%2)*blockWidth/2;
+ const bx=shifted%blockWidth,by=y%courseHeight;
+ const border=Math.min(bx,blockWidth-bx,by,courseHeight-by);
+ const mortar=border<2;
+ const brickIndex=Math.floor(shifted/blockWidth);
+ const block=(hash(brickIndex,course,floor+99)%31-15)/240;
+ const strata=smoothPeriodicNoise(x,y,size,8,floor+61);
+ const pores=smoothPeriodicNoise(x,y,size,32,floor+83);
+ const hairline=(hash(x>>2,y>>2,floor+12)%31===0)&&((x+y)%5<2);
+ const chipped=border<6&&hash(x>>1,y>>1,floor+23)%19===0;
+ return {mortar,border,strata,pores,hairline,chipped,block};
+}
+export function makeFacadeMasonryPixels(floor,kind,size=256,palette){
+ if(!validFloor(floor)||size!==256||!['wall','floor'].includes(kind))
+  throw new RangeError('Invalid façade texture specification');
+ const rgb=facadePalette(palette),out=new Uint8Array(size*size*4);
+ for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+  const p=facadeSample(floor,x,y,size),idx=(y*size+x)*4;
+  const wet=kind==='floor'&&p.border<9&&p.strata<-.16;
+  const soot=kind==='wall'&&p.strata>.53&&p.pores<-.28;
+  const strain=(p.strata*.10+p.pores*.045+p.block)+(p.chipped?-.13:0)+(p.hairline?-.10:0);
+  const exposed=p.border>2&&p.border<6;
+  const mul=p.mortar?.79:kind==='floor'?1.035:1.0;
+  const tone=clamp(mul*(1+strain+(exposed?.065:0)-(wet?.10:0)-(soot?.08:0)),.55,1.18);
+  const blockColor=p.mortar?rgb.mortar:rgb.stone;
+  const edgeMix=p.mortar?0:clamp(.12+p.block*.6+(p.chipped?.27:0),0,.4);
+  for(let c=0;c<3;c++){
+   const original=blockColor[c]*(1-edgeMix)+rgb.edge[c]*edgeMix;
+   out[idx+c]=Math.round(clamp(original*tone,6,248));
+  }
+  out[idx+3]=255;
+ }
+ return out;
+}
+/** Bump height from exactly the same stone joints, chips and seed as albedo. */
+export function makeFacadeMasonryReliefPixels(floor,size=256){
+ if(!validFloor(floor)||size!==256)throw new RangeError('Invalid façade relief specification');
+ const out=new Uint8Array(size*size*4);
+ for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+  const p=facadeSample(floor,x,y,size),i=(y*size+x)*4;
+  const depth=p.mortar?39:clamp(Math.round(155+p.strata*22+p.pores*11+p.block*70-(p.chipped?46:0)-(p.hairline?21:0)),64,218);
+  out[i]=out[i+1]=out[i+2]=depth;out[i+3]=255;
+ }
+ return out;
+}
+
+/**
  * Stone wear is painted onto existing floor instances, NOT new geometry.
  * Inputs are the real read-only walkability grid, cosmetic floor and actual
  * exit. Never interprets a painted seam as a hazard, passage or attack.
