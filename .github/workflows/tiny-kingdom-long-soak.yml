@@ -16,6 +16,8 @@ on:
       - 'scripts/tiny-kingdom-w125-runtime-budget-contract.cjs'
       - 'scripts/tiny-kingdom-w126e-environment-contract.cjs'
       - 'scripts/tiny-kingdom-w127e-valley-reeds-contract.cjs'
+      - 'scripts/tiny-kingdom-w128-visible-road-contract.cjs'
+      - 'tests/browser/tiny-kingdom-w128-visible-road.spec.cjs'
       - 'tests/browser/tiny-kingdom-w126e-environment.spec.cjs'
       - 'scripts/tiny-kingdom-w125-gpu-skin-contract.cjs'
       - 'scripts/tiny-kingdom-w128-detailed-workskin-contract.cjs'
@@ -69,6 +71,7 @@ jobs:
           node scripts/tiny-kingdom-w123-foreground-resident-contract.cjs
           node scripts/tiny-kingdom-w126e-environment-contract.cjs
           node scripts/tiny-kingdom-w127e-valley-reeds-contract.cjs
+          node scripts/tiny-kingdom-w128-visible-road-contract.cjs
           node scripts/tiny-kingdom-w125-market-household-contract.cjs
           node scripts/tiny-kingdom-w125-medieval-population-contract.cjs
       - name: W125 exact-source real ticks, bounded commuter GPU writes and face topology
@@ -155,5 +158,34 @@ jobs:
           path: |
             test-results/
             artifacts/tiny-kingdom-w126/
+          if-no-files-found: warn
+          retention-days: 14
+
+  w128-visible-freight-road:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 17
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: W128 exact 3D travel-winding and routed roadside source
+        run: node scripts/tiny-kingdom-w128-visible-road-contract.cjs
+      - run: npx playwright install --with-deps chromium
+      - name: Real 1024px and 390px WebGL farm -> market -> home road
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w128-visible-road.spec.cjs --workers=1
+      - name: Preserve actual rendered images and integrity reports, even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w128-roadscape-original-webgl
+          path: |
+            test-results/
           if-no-files-found: warn
           retention-days: 14
