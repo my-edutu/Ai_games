@@ -1,3 +1,15 @@
+## W146 · 8 November 2026 · Verified CURRENT at-home eating is now an actual 3D wrist action · Phase 1 / NOT PROVEN
+
+**Approved scope:** only OPEN DRAFT PR #64 branch `feat/tiny-kingdom-post-main-gauntlet-20261031`, exact parent `2816308b4866525a3cc9d3b18751b568a0364f40`, immutable G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`. No merges or divergent PR changes.
+
+**Real original playable increment:** After an original farmer's credited food unload, one real merchant/gatherer buyer purchases the actual tracked receipt and returns physically to their real home. A *current, active* original resident consuming that same provisioned lot now brings the already-rigged right hand and a bounded 3D bread piece to their mouth; the scene follows actual first-bite ledger, purchase ID, citizen/home identity, original credited farmer receipt, nonzero remaining provisions and actual physically reached home. If a receipt/trade/meal is old, cross-family, fabricated, exhausted or the actor is elsewhere, the gesture and bread do not appear. This changes original same-source worker anatomy/visible home life, not food, AI decisions, time, route, save fields or random streams. No extra GPU buffer or static scene build. No separate imaginary household actor. Source test contract W146 added.
+
+**Actually verified:** the full 1.08MB playable inline JavaScript passed V8 syntax parsing; isolated valid and foreign-person execution fixtures passed before commit. The authored Node original-source contract exercises the real W146 helper and 13 negative provenance/physical cases, but Node and Playwright cannot run from the disconnected shared development tunnel. The exact-parent [A/B 42504598272](https://github.com/my-edutu/Ai_games/actions/runs/42504598272) and [GPU 42504598318](https://github.com/my-edutu/Ai_games/actions/runs/42504598318) remained PENDING, with zero A/B artifacts on inspection. No W146 running footage, same-seed Day1/workday/Day120/390px, frame FPS, GL/triangle/soak or blind independent critic evidence. Do not claim appearance pass for source V8 or draw geometry.
+
+**Experience A:** LOOK NOT PROVEN / FEEL FAIL versus historical SwiftShader ~1.709 FPS (hardware unknown) / PLAY NOT PROVEN. **Commercial B:** FAIL vs original Manor Lords, Foundation and Farthest Frontier. **Phase 1 remains active.** Physical eating is an incremental part of one continuous same-lot farm → courier → market → provisions → lived-in home, not an experience milestone. **Next:** complete uninterrupted real-game film, current-head matched p95 CPU/driver/GPU, Day120 deterministic mobile 390px, 160k triangle safety and genuinely separate blinded reviews. If false eating or visual detachment is seen, remove/rework. Never merge without new user permission.
+
+---
+
 ## W145 · 8 November 2026 · Real physically carried market-to-home grain · Phase 1 / NOT PROVEN
 
 **Scope:** OPEN DRAFT PR #64 approved branch `feat/tiny-kingdom-post-main-gauntlet-20261031` only; original G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`. **Exact W145 playable HTML blob** `a344e7f1b6febe3a0678bbcd707dc2e161181a05`. No merges or divergent PRs.
