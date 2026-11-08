@@ -178,7 +178,9 @@ export function createConnectedDungeonJourney(world,map,floor,exit,units=[]){
   }
   metrics.hiddenForSightlines=hidden;metrics.matrixWrites=writes;
  }
- return {plan,metrics,occluderBounds:plan.occluderBounds,cutaway,
+ const occluderVolumes=Object.freeze(plan.occluderBounds.map(b=>Object.freeze([
+  b.minX,b.minY,b.minZ,b.maxX,b.maxY,b.maxZ])));
+ return {plan,metrics,occluderBounds:plan.occluderBounds,occluderVolumes,cutaway,
   dispose(){
    for(const mesh of meshes){world.remove(mesh);mesh.dispose();}
    for(const g of geometries)g.dispose();
