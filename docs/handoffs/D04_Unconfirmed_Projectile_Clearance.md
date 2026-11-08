@@ -17,7 +17,7 @@ The original D04 opt-in arrows and spells used `t*t*(3-2*t)` to ease a visual pr
 
 ## Verification and pending acceptance
 
-Four pure Node 22 behavioral contracts were observed failing against the old center-arrival implementation, then **4/4 passed locally** after implementing the bounded flight helper. A fifth source-integration assertion is committed for the full repository runner, **not claimed to have run** while the shared coding/browser tunnel is disconnected. No npm build, browser canvas, real opt-in PCM track, mobile render, CI or 20-minute soak was available. One unchanged original WebAudio audition from an earlier session does not verify live synchronization here.
+Four pure Node 22 behavioral contracts failed against a deliberately minimal test double reproducing the old center-arrival behavior (not the live repository), then **4/4 passed locally** when run against the exact new pure flight helper. This is behavioral contract evidence, not a real Three.js or audio test. A fifth source-integration assertion is committed for the full repository runner, **not claimed to have run** while the shared coding/browser tunnel is disconnected. No npm build, browser canvas, real opt-in PCM track, mobile render, CI or 20-minute soak was available. One unchanged original WebAudio audition from an earlier session does not verify live synchronization here.
 
 Run on isolated branch:
 ```sh
