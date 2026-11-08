@@ -933,13 +933,36 @@ export function createTowerWorld(){
   // Keep rotating gears, the complete monumental silhouettes, and their
   // post-batch camera-sightline-owned materials, but restore empty space so
   // real combat can be read BETWEEN the physical ribs.
+  // The source-pinned portrait guardian film showed a near-camera steel
+  // wheel/case covering the real climber. Transparency alone cannot make a
+  // continuous metal circumference into a reliable action sightline. Retain
+  // the monumental silhouette but use four real radial daylight apertures,
+  // shared by BOTH concentric structural rings. No collider, hazard or
+  // source-authoritative geometry is changed by these decorative surfaces.
+  function openClockRim(parent,radius,tube,material,depth) {
+    const quadrants=4,window=.62,arc=TAU/quadrants-window;
+    for(let quadrant=0;quadrant<quadrants;quadrant++){
+      const start=quadrant*TAU/quadrants+window*.5;
+      const fragment=mesh(parent,
+        own(new THREE.TorusGeometry(radius,tube,7,20,arc)),
+        material,[0,0,depth],[1,1,1],[0,0,start]);
+      fragment.name='clockwork-open-rim-fragment';
+      fragment.userData.ambientDetail=true;
+      fragment.castShadow=false;
+    }
+  }
   function openClockCase(parent,width,height) {
-    const horizontal=width*.11,vertical=height*.095;
+    const postWidth=width*.11,railHeight=height*.095;
     for(const side of [-1,1]){
-      block(parent,materials.dark,[side*(width-horizontal)*.5,0,-.7],
-        [horizontal,height,1.1]);
-      block(parent,materials.dark,[0,side*(height-vertical)*.5,-.7],
-        [width,vertical,1.1]);
+      // The side columns physically frame an OPEN view of the same rotating
+      // mechanism; braces stop short of the live central action aperture.
+      block(parent,materials.dark,[side*(width-postWidth)*.5,0,-.7],
+        [postWidth,height,1.1]);
+      for(const level of [-1,1]){
+        block(parent,materials.dark,
+          [side*width*.32,level*(height-railHeight)*.5,-.7],
+          [width*.36,railHeight,1.1]);
+      }
       block(parent,materials.edge,[side*(width*.46),0,-.06],
         [.10,height*.72,.12]);
     }
@@ -959,8 +982,10 @@ export function createTowerWorld(){
     clock.name='clockwork-monumental-left-shoulder';
     floorGroup.add(clock);
     openClockCase(clock,14,16);
-    mesh(clock,own(new THREE.TorusGeometry(6.4,.45,8,48)),materials.copper,[0,0,.9]);
-    mesh(clock,own(new THREE.TorusGeometry(5.8,.11,5,48)),materials.edge,[0,0,1]);
+    // Interrupted load-bearing rings share genuine gaps; do not re-cover the
+    // climber by offsetting one continuous ring across another's openings.
+    openClockRim(clock,6.4,.45,materials.copper,.9);
+    openClockRim(clock,5.8,.11,materials.edge,1);
     const markers=[];for(let i=0;i<12;i++){const a=i/12*TAU;markers.push({p:[Math.sin(a)*5.45,Math.cos(a)*5.45,1],s:[.2,.65,.16],r:[0,0,-a]});}instanced(clock,bevel(),materials.edge,markers);
     const main=gear(clock,4.8,.45,materials.copper);main.position.z=1.2;rotors.push({o:main,speed:.045});
     for(const [a,y,size,speed]of [[-2.38,7,3.6,-.11],[2.34,31,3.1,.15]]){
