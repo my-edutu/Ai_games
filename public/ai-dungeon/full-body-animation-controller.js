@@ -208,6 +208,8 @@ export function planConstrainedFootSupport(phase=0,weight=0,{
  * share one witnessed clock. Slow browser frames can advance mixer time by
  * only 50ms even while the real event has moved into recovery. This bounded
  * source-time correction cannot change a hit, target, authority tick or grip.
+ * It may catch up to a witnessed action age, but must never scrub an
+ * unbroken imported clip backwards: only a new legal action can reset it.
  */
 export function planImportedOneShotPhase({mode='idle',actionTick=null,age=0,sourceTime=0,
  sourceDuration=0,effectiveSpeed=1,frameDelta=0,reducedMotion=false}={}){
@@ -221,8 +223,11 @@ export function planImportedOneShotPhase({mode='idle',actionTick=null,age=0,sour
  const target=Math.min(ceiling,age*effectiveSpeed);
  const projected=Math.min(ceiling,sourceTime+advance);
  const driftSeconds=(target-projected)/effectiveSpeed;
- const align=Math.abs(driftSeconds)>.028;
- const correctionSeconds=align?Math.max(-.055,Math.min(.125,driftSeconds)):0;
+ // Rewinding an active mixer creates abrupt reverse wrist/weapon/foot poses.
+ // New legal events already reset their clip in changeAction; ordinary
+ // source-age drift may only advance an uninterrupted clip.
+ const align=driftSeconds>.028;
+ const correctionSeconds=align?Math.min(.125,driftSeconds):0;
  const startTime=Math.max(0,Math.min(ceiling,sourceTime+correctionSeconds*effectiveSpeed));
  const remainingSeconds=(target-Math.min(ceiling,startTime+advance))/effectiveSpeed;
  return {valid:true,align,startTime,driftSeconds,remainingSeconds};

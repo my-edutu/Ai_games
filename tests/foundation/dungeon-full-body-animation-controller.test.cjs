@@ -361,13 +361,41 @@ test('licensed GLB clip recovers source time lost to slow frames, with bounded h
  const inPhase=plan({mode:'attack',actionTick:40,age:.26,sourceTime:.245,
   sourceDuration:.95,effectiveSpeed:1,frameDelta:.016});
  assert.equal(inPhase.align,false);
- const rewind=plan({mode:'cast',actionTick:41,age:.14,sourceTime:.37,
+ const ahead=plan({mode:'cast',actionTick:41,age:.14,sourceTime:.37,
   sourceDuration:1,effectiveSpeed:1,frameDelta:.016});
- assert.ok(rewind.align&&.37-rewind.startTime<=.05500001);
+ assert.equal(ahead.align,false,'unbroken original clip cannot be scrubbed backwards');
+ assert.equal(ahead.startTime,.37);
+ assert.ok(ahead.remainingSeconds<0,'ahead phase remains measurable in pure diagnostics');
  const recovery=plan({mode:'attack',actionTick:70,age:.5,sourceTime:.21,
   sourceDuration:.9,effectiveSpeed:1.4,frameDelta:.05});
  assert.ok(recovery.align&&recovery.startTime>.21);
 });
+test('genuine imported one-shot mixer clock stays monotonic when source is ahead of its visual owner',async()=>{
+ const {planImportedOneShotPhase:plan}=await load();
+ let checked=0;
+ for(const mode of ['attack','cast','hurt'])for(const speed of [1,1.35,1.68])
+  for(const ahead of [.03,.09,.18,.30]){
+   const age=.12,sourceTime=age*speed+ahead,step=.016;
+   const result=plan({mode,actionTick:9,age,sourceTime,
+    sourceDuration:1.042,effectiveSpeed:speed,frameDelta:step});
+   assert.equal(result.valid,true);
+   assert.equal(result.align,false,'only forward source corrections may seek');
+   assert.ok(result.startTime>=sourceTime-1e-9,
+    mode+' source-time rewind at speed '+speed+' ahead '+ahead);
+   assert.ok(Math.min(1.042,result.startTime+step*speed)>=sourceTime-1e-9);
+   checked++;
+  }
+ assert.equal(checked,36);
+ let sourceTime=.37,age=.14;
+ for(let frameIndex=0;frameIndex<7;frameIndex++){
+  const planned=plan({mode:'cast',actionTick:41,age,sourceTime,
+   sourceDuration:1,effectiveSpeed:1,frameDelta:.016});
+  const next=Math.min(1,planned.startTime+.016);
+  assert.ok(next>=sourceTime-1e-9,'cast source clip must not reverse at frame '+frameIndex);
+  sourceTime=next;age+=.016;
+ }
+});
+
 test('clock correction cannot alter dead/idle/evasion/unknown or reduced-motion import clips',async()=>{
  const {planImportedOneShotPhase:plan}=await load();
  const base={mode:'attack',actionTick:55,age:.2,sourceTime:.02,
