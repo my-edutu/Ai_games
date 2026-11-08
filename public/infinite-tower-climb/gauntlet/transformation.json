@@ -47,22 +47,23 @@
     "latestEvidenceRun": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "assessedAt": "2026-11-08",
-      "sourceHeadAtInspection": "cef477b47f286c1523fdd1daa3537bf6243028c2",
-      "actualRenderedGameSourceSha": "cef477b47f286c1523fdd1daa3537bf6243028c2",
+      "sourceHeadAtInspection": "b6c9719c38bc0dab4c8a04e7434bf9de38bba894",
+      "actualRenderedGameSourceSha": "b6c9719c38bc0dab4c8a04e7434bf9de38bba894",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "frozenBaselineMoved": false,
       "authoritativeGameplayChangedThisExecution": false,
       "renderedGameplayExperienceChangedThisExecution": true,
-      "completedOutcome": "All three original animated 3D clockwork rotors reconstructed as perimeter-driven annular gears. Four old diameter-spanning bars and solid centre hub physically crossed a purported .72r daylight aperture, blocking the climber on certain camera spoke angles. Eight short load-ring shoes and four perimeter bearings per gear now preserve a full open centre with metal retained at the toothed outer annulus. Source 3D geometry changed but NO actual normal-speed film inspected. No authoritative gameplay, physics, guardian, crusher, exit or restart changes.",
+      "completedOutcome": "Source-authenticated upper-cap exit is now mandatory through the complete 3D victory presentation contract. Prior source code created an earned-open grounded guardian passage, animated fallen armor and source-path camera escort from a zero-HP guardian even with ABSENT or WRONG authoritative guardianExitX; world scene built a source-claiming bronze guardian gate on any historical cap containing a guardian. Passage, approach lighting and world cap architecture now all require the exact opt-in guardianExitX published by the real fixed-step source for the same cap; a living or unflagged guardian cannot manufacture the visual gate. Existing source-authoritative rules, cap collision, floor-nine, guardian AI and baseline remain unchanged. Integrated new regression cases and updated positive fixtures, but original Three/Node and real film were not run.",
       "verifiedBlocker": {
-        "developmentWorkspace": "Authorized chat_on_steriod terminal NOT_FOUND: tunnel-client absent 300 seconds; local container GitHub DNS unavailable",
-        "githubActions": "Quality run https://github.com/my-edutu/Ai_games/actions/runs/42520611172 queued; no assigned runner or current new film",
+        "developmentWorkspace": "Authorized chat_on_steriod exec_command NOT_FOUND: tunnel-client has not been seen for 300 seconds; original Node22/Three/Chromium/FFmpeg checkout inaccessible.",
+        "githubActions": "New exact-code quality run https://github.com/my-edutu/Ai_games/actions/runs/42526831908 QUEUED; no completed Node/Three or video validation at this source.",
         "runnerRootCause": "unknown"
       },
       "testsAndCapturesProducedThisExecution": [
-        "Source-inspected old bars: 1.42r wide diameter crossarms block .60r centre rays when aligned; previous ray test only sampled between-spoke angle.",
-        "Committed three-groups annular redesign and original Three post-batch multi-angle raycast test in cef477b47f286c1523fdd1daa3537bf6243028c2.",
-        "Source-readback and design math: shoe inner .75r, roller inner .805r, open center .72r. No original Three, Node, WebM or device testing executed."
+        "Reproduced RED from exact original guardian-passage.mjs SHA 650b55a8: dead guardian on a cap with missing guardianExitX incorrectly yielded earned-open=true; wrong exit also true.",
+        "Executed five isolated exact pure-source V8 guard checks on candidate patch: missing, mismatched, NaN, living guardian all rejected; exact published exit plus zero-HP guardian accepted. These do NOT execute Three.js or browser gameplay.",
+        "Committed source change and original Node/Three test cases in b6c9719c38bc0dab4c8a04e7434bf9de38bba894. Tests await executable runner.",
+        "No 960x600/390x844 WebM or new 3200-tick campaign, genuine gameplay inspection, FFprobe timebase, hardware measurements or independent blind critics produced."
       ],
       "newSourcePinnedCaptureLinks": [],
       "independentBlindReviews": {
@@ -72,26 +73,26 @@
       },
       "hardwareFrameTimeMemory": "NOT EVALUATED",
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "largestObservedGap": "Old authentic 390x844 e0fe7729 footage around 16–18 seconds shows huge foreground clock hiding climber/guardian; latest physical rotor redesign and prior cutaways remain NOT VERIFIED in new full-motion footage.",
-      "nextHighImpactAction": "Restore original Node22/Three/Chromium/FFmpeg checkout or assigned GitHub runners, run exact-source full test suite (including new post-batch multi-angle gear raycast) and two 3200-tick campaigns. Capture genuine unedited matched 60+s 960x600 and 390x844 source-pinned baseline/current WebMs with native integrity/PTS audit, inspect current full-motion guardian/crusher, grounded gate, floor nine, result/intermission/restart. Fix largest verified gameplay-frame defect; secure hardware p50/p95/p99/memory and 5 independently blind reviewers per pillar before acceptance.",
-      "restrictions": "Baseline unchanged, PR58 and main untouched, PR68 open/draft; no merge, force push, deployment, invented frame metrics or critics.",
-      "sourceGuardrailImplementationCommitSha": "cef477b47f286c1523fdd1daa3537bf6243028c2",
-      "sourceGuardrailCommitUrl": "https://github.com/my-edutu/Ai_games/commit/cef477b47f286c1523fdd1daa3537bf6243028c2",
+      "largestObservedGap": "Old original 390x844 game footage from e0fe7729 shows oversized foreground clockwork hiding climber and guardian around native 16–18 seconds. Newer annular architecture, camera protection and this source-authenticated guardian gate remain NOT VERIFIED in exact-current full-motion footage.",
+      "nextHighImpactAction": "Run full original Node22/Three.js checks including new source-authenticated world/passage tests and two deterministic 3200-tick guardian/crusher→source-earned grounded threshold→floor-nine→outcome/intermission/restart campaigns. Recover assigned GitHub runners or executable checkout for source-pinned full 60+s 960x600 and 390x844 baseline/current WebMs with native PTS and matching events. Inspect largest observed obstruction, fix current-film gameplay weakness, then real device p50/p95/p99/memory and 5 genuine independent randomized blind reviewers per LOOKS/FEELS/PLAYS.",
+      "restrictions": "Frozen baseline unchanged; PR58/main and other games untouched. PR68 open/draft, no merge, force push, deployment, invented full-motion evidence, blind critics or device FPS.",
+      "sourceGuardrailImplementationCommitSha": "b6c9719c38bc0dab4c8a04e7434bf9de38bba894",
+      "sourceGuardrailCommitUrl": "https://github.com/my-edutu/Ai_games/commit/b6c9719c38bc0dab4c8a04e7434bf9de38bba894",
       "newExactSourceQuality": {
-        "runId": 42520611172,
-        "sha": "cef477b47f286c1523fdd1daa3537bf6243028c2",
+        "runId": 42526831908,
+        "sha": "b6c9719c38bc0dab4c8a04e7434bf9de38bba894",
         "status": "queued",
-        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42520611172",
-        "note": "No original Node/Three/film acceptance"
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42526831908",
+        "note": "No original Node/Three/film acceptance; no assigned job evidence yet."
       },
       "currentSourceVideo": "NOT EVALUATED"
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
     "state": "P0 OPEN — source-earned game-loop witness exists at earlier SHA; current camera cutaway and native full motion remain NOT EVALUATED",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Restore original Node22/Three/Chromium/FFmpeg checkout or assigned GitHub runners, run exact-source full test suite (including new post-batch multi-angle gear raycast) and two 3200-tick campaigns. Capture genuine unedited matched 60+s 960x600 and 390x844 source-pinned baseline/current WebMs with native integrity/PTS audit, inspect current full-motion guardian/crusher, grounded gate, floor nine, result/intermission/restart. Fix largest verified gameplay-frame defect; secure hardware p50/p95/p99/memory and 5 independently blind reviewers per pillar before acceptance.",
+    "nextDecision": "Run full original Node22/Three.js checks including new source-authenticated world/passage tests and two deterministic 3200-tick guardian/crusher→source-earned grounded threshold→floor-nine→outcome/intermission/restart campaigns. Recover assigned GitHub runners or executable checkout for source-pinned full 60+s 960x600 and 390x844 baseline/current WebMs with native PTS and matching events. Inspect largest observed obstruction, fix current-film gameplay weakness, then real device p50/p95/p99/memory and 5 genuine independent randomized blind reviewers per LOOKS/FEELS/PLAYS.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Last authentic portrait candidate at older renderer e0fe7729 shows giant foreground clockwork wheel obscuring climber and guardian near native 16–18s; newer f1fe522e physical cutaways and this terminal rescue are not yet validated in uncut current gameplay.",
+    "biggestRemainingExperienceGap": "Old original 390x844 game footage from e0fe7729 shows oversized foreground clockwork hiding climber and guardian around native 16–18 seconds. Newer annular architecture, camera protection and this source-authenticated guardian gate remain NOT VERIFIED in exact-current full-motion footage.",
     "unverifiedImplementationBranchHead": "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
     "currentVerticalSlice": "Physically earned ascent → guardian/crusher victory → full-body cap crossing → same-X grounded floor-nine arrival → playable onward route and true outcome/restart. No experience acceptance yet.",
     "biggestGap": "Previous authentic 390x844 boss footage showed large foreground clock machinery blocking the climber and guardian near native 16–18s. Existing outer ring apertures alone still lacked verified footage. New physical negative-space gear and power-rack geometry reduces the actual solid middle in source, but current film is NOT EVALUATED.",
@@ -1469,6 +1470,24 @@
       },
       "transformationVerdict": "NOT EVALUATED",
       "nextAction": "Capture/source-audit exact immutable 8071970d candidate against unchanged 1731b380; verify outcome view and guardian wheel in desktop+phone before any quality claim."
+    },
+    "p0SourceEarnedGuardianVisualGate20261108": {
+      "stage": "P0 OPEN",
+      "verdict": "NOT EVALUATED",
+      "implementationSha": "b6c9719c38bc0dab4c8a04e7434bf9de38bba894",
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "verifiedSourceDefect": "Exact original helper accepted unflagged or mismatched guardian cap as earned-open with dead guardian; world built corresponding physical gate without source exit.",
+      "codeOutcome": "Exact source guardianExitX at real cap fraction .76 required for living/defeated cap architecture, real passage unlock and inlay approach; no simulation or collision mutation.",
+      "isolatedEvidence": "Source-only V8 functional guard 5/5 checked; original Node/Three/WebM and deterministic 3200-tick campaign NOT EXECUTED.",
+      "exactQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/42526831908",
+      "genuineCurrentVideo": "NOT EVALUATED",
+      "blindIndependentCritics": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "supportedDeviceMetrics": "NOT EVALUATED",
+      "nextAction": "Run full original Node22/Three.js checks including new source-authenticated world/passage tests and two deterministic 3200-tick guardian/crusher→source-earned grounded threshold→floor-nine→outcome/intermission/restart campaigns. Recover assigned GitHub runners or executable checkout for source-pinned full 60+s 960x600 and 390x844 baseline/current WebMs with native PTS and matching events. Inspect largest observed obstruction, fix current-film gameplay weakness, then real device p50/p95/p99/memory and 5 genuine independent randomized blind reviewers per LOOKS/FEELS/PLAYS."
     }
   },
   "scenarios": [
