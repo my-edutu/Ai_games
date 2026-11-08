@@ -389,3 +389,26 @@ test('clock correction cannot alter dead/idle/evasion/unknown or reduced-motion 
  assert.ok(model.includes('fullBodySourceClockCorrectedFrames:'));
  assert.match(model,/next\.crossFadeFrom\(previous,[^\n]+,false\)/);
 });
+
+
+test('actual licensed Ranger chooses original native ranged release, not horizontal sword swing',async()=>{
+ const {chooseImportedSourceClip:pick}=await load();
+ // All six pinned CC0 source GLBs contain these original names (41 joints, 123 tracks per clip).
+ const clips=['1H_Melee_Attack_Slice_Horizontal','2H_Ranged_Shoot','Death_A',
+  'Hit_A','Idle','Spellcast_Shoot','Walking_A'].map(name=>({name,duration:1.042}));
+ assert.equal(pick(clips,'attack','ranger')?.name,'2H_Ranged_Shoot');
+ for(const kind of ['vanguard','revenant','warden'])
+  assert.equal(pick(clips,'attack',kind)?.name,'1H_Melee_Attack_Slice_Horizontal');
+ for(const kind of ['mystic','cultist'])
+  assert.equal(pick(clips,'cast',kind)?.name,'Spellcast_Shoot');
+ assert.equal(pick(clips,'move','ranger')?.name,'Walking_A');
+ assert.equal(pick(clips,'hurt','ranger')?.name,'Hit_A');
+ assert.equal(pick(clips,'idle','ranger')?.name,'Idle');
+ assert.equal(pick(clips.filter(c=>c.name!=='2H_Ranged_Shoot'),'attack','ranger')?.name,
+  '1H_Melee_Attack_Slice_Horizontal','missing optional clip preserves explicit old fallback');
+ assert.equal(pick(null,'attack','ranger'),null);
+ assert.equal(pick([],'attack','ranger'),null);
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/chooseImportedSourceClip\(actor\.availableClips,action,actor\.u\.kind\)/);
+ assert.match(model,/sourceClipBindings:/);
+});

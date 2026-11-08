@@ -23,6 +23,38 @@ const safeAge=(n,max=5)=>finite(n)?clamp(n,0,max):0;
 const MODES=Object.freeze(['idle','move','guard','cast','attack','evade','hurt','defeat']);
 export const FULL_BODY_ANIMATION_MODES=MODES;
 
+/**
+ * Actual pinned TacticalSlash rigs contain both a horizontal melee clip
+ * and a distinct 41-joint two-handed ranged release. Selecting the generic
+ * first "attack" clip for a Ranger wrongly performs sword-body mechanics.
+ * This is presentation-only and does not authorize an arrow or a hit.
+ */
+const SOURCE_CLIP_PREFERENCES=Object.freeze({
+ idle:[/\bidle\b/i,/idle/i,/stand/i],
+ move:[/run/i,/walk/i,/move/i],
+ attack:[/attack/i,/melee/i,/slash/i,/shoot/i],
+ cast:[/cast/i,/spell/i,/magic/i,/attack/i],
+ hurt:[/hit/i,/hurt/i,/damage/i,/impact/i],
+ guard:[/block/i,/shield/i,/defend/i,/idle/i]
+});
+const RANGER_SOURCE_RELEASE=/(?:ranged|bow|archer)[_\s-]*(?:shoot|attack|release)/i;
+export function chooseImportedSourceClip(available=[],action='idle',kind=''){
+ if(!Array.isArray(available))return null;
+ if(kind==='ranger'&&action==='attack'){
+  const ranged=available.find(clip=>typeof clip?.name==='string'&&
+   RANGER_SOURCE_RELEASE.test(clip.name));
+  if(ranged)return ranged;
+ }
+ const prefer=SOURCE_CLIP_PREFERENCES[action]||SOURCE_CLIP_PREFERENCES.idle;
+ for(const regex of prefer){
+  const found=available.find(clip=>typeof clip?.name==='string'&&regex.test(clip.name));
+  if(found)return found;
+ }
+ return available.find(clip=>typeof clip?.name==='string'&&/idle/i.test(clip.name))||
+  available[0]||null;
+}
+
+
 export function auditImportedAnimationClips(clips=[]){
  const entries=[],names=new Set(),rootMotionTracks=[];
  let invalidClips=0,invalidTracks=0;

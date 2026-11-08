@@ -137,3 +137,51 @@ Tests: new pure controller contract for HP-zero persistence and legal restoratio
 **Animation-only candidate:** `planImportedOneShotPhase()` connects current imported source pose time to the same actor's real one-shot event age; correction requires >28ms phase error, with bounded +125ms forward / 55ms backward changes each frame. Original `AnimationMixer` still evaluates one native source skeleton with valid crossfades; crossfade warping no longer overrides explicit licensed clip retiming. No fabricated hits, enemy targets, footsteps or combat events. Terminal HP-zero, ordinary locomotion, guard, evasion, invalid clocks and accessibility reduced motion cannot seek clips. Runtime counters measure phase correction/peak error; on-demand genuine source-rig output includes action duration, time, speed and remaining phase difference. No new geometry, skin, draw calls, GPU resources, authority or simulation mutations.
 
 **Validation status:** Seven isolated pure-helper Node.js contracts passed in an offline scratch harness. Repository-wide tests and rendered original GLB playback remain UNVERIFIED while the connected local coding/browser tunnel is unavailable. The previous exact-head run for `774c6a9089829404fe211922f72601a4b13b9042` was queued, with 36 prior Session 3 Actions runs cancelled. This follow-on commit must receive a new exact-SHA build, full foundation/gauntlet/strict-assets run, and original 1440px + 390px WebM with entry → ordinary combat → Warden → floor → natural defeat/restart. Inspect real melee/cast clip retiming, original hand–weapon coupling, sole-to-stone sliding, source skin deformation, interruptions and browser FPS before accepting. Compare to immutable `281735d0910c6b2443648af976003d50412ee324`; request independent critics; do not integrate PR #49 or mark global TRANSFORMED_VERIFIED.
+
+## 8 November — verified original GLB Ranger source clip and selected-release correction
+
+**Reproduced source-level defect (not yet a latest-head visual verdict):** The previous
+generic first-/attack/ clip lookup chooses
+`1H_Melee_Attack_Slice_Horizontal` for a Ranger's *real ranged attack*,
+despite the original 41-joint archer rig containing its
+`2H_Ranged_Shoot` whole-body release. A red local test reproduced the
+mismatch on the exact licensed clip inventory. The new pure selector
+uses the real ranged release on Ranger attacks, retaining existing
+Vanguard/Revenant/Warden melee and Mystic/Cultist cast selection. The
+three-dimensional source skeleton, timing authority, hand attachment,
+actual projectiles/damage and all non-animation systems remain unchanged.
+
+**Original rig evidence:** Unpacked immutable-baseline GitHub Actions run
+`41302939553`, artifact `13082028432`. The six CC0 GLB binary Git
+hashes exactly equal the current asset manifest values. Each asset has
+one skin, **41 named source joints**, and seven genuine clips with
+123 channels each (41 translations, 41 rotations, 41 scales):
+`1H_Melee_Attack_Slice_Horizontal` 1.042 s,
+`2H_Ranged_Shoot` 1.042 s, `Death_A` 0.792 s,
+`Hit_A` 0.667 s, `Idle` 1.042 s,
+`Spellcast_Shoot` 0.917 s, `Walking_A` 1.042 s.
+Both feet/toes and right hand/handslot are present, as are source
+root positional tracks; **world-space foot planting remains unverified**.
+
+**New acceptance contracts:** Pure regression checks preserve all six actor
+role choices, legal missing-clip fallback and the actual model-selection
+integration. A new Playwright browser test uses the unmodified
+`DungeonRuntime.step()` observed Ranger action, proves
+`2H_Ranged_Shoot` is selected and reports the source tick, original
+bone integrity and authentic WebGL frame. The read-only per-actor
+`sourceClipBindings` diagnostic exposes role/action/selected clip/tick.
+
+**Verification boundaries:** GLB inspection and the old selector's
+failure are confirmed offline. New exact-branch tests, strict assets,
+24×900 deterministic campaign and real desktop/mobile WebM
+are **pending**, not passed. The coding/browser tunnel was disconnected;
+Session 03 had 37 earlier CI runs cancelled by rapid pushes and the
+latest repository Actions sample had 98 of 100 runs queued.
+Do not claim that the new source release looks better, is contact-synchronised,
+or passes blinded LOOK/FEEL/PLAY until exact-HEAD video and critics
+are inspected. Leave PR #72 draft, protect PR #49, and do not merge.
+
+**Next executable gate:** inspect new exact-SHA CI without additional
+push-churn, then compare genuine moving ranged draws and recovery,
+source skin/hand continuity and real 390px/desktop Warden journey
+against frozen `281735d0910c6b2443648af976003d50412ee324`.

@@ -179,3 +179,31 @@ test('genuine adjacent strike preserves skinned attack follow-through into the n
   ownerModes:d.authored3D.fullBodyModes
  },null,2))});
 });
+
+
+test('Ranger witnessed arrow action selects native 41-joint ranged release in actual WebGL',async({page})=>{
+ test.setTimeout(120000);
+ const event=witness((u,before)=>u.kind==='ranger'&&u.hp>0&&u.action==='attack'&&
+  before.units.some(old=>old.id===u.id&&old.actionTick!==u.actionTick));
+ const stage=await loadStage(page,event.before);
+ stage.set(event.after);
+ await expect.poll(()=>page.evaluate(()=>
+  window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.sourceClipBindings?.
+   find(b=>b.kind==='ranger'&&b.action==='attack')?.clipName??null
+ ),{timeout:18000,intervals:[70,90,120,180]}).toBe('2H_Ranged_Shoot');
+ const d=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ const binding=d.authored3D.sourceClipBindings.find(b=>b.kind==='ranger');
+ expect(binding.clipName).toBe('2H_Ranged_Shoot');
+ expect(binding.sourceTick).toBe(event.actor.actionTick);
+ expect(d.authored3D.sourceClipAudits.some(x=>x.kind==='ranger'&&
+  x.clips.some(c=>c.name==='2H_Ranged_Shoot'&&c.rotation>0))).toBe(true);
+ const rig=await nativeRigProof(page);
+ expect(rig.summary.invalidMatrixCount).toBe(0);
+ expect(stage.errors).toEqual([]);
+ await page.locator('#world').screenshot({path:'artifacts/dungeon-full-body-real-ranger-release.png',timeout:60000});
+ await test.info().attach('genuine-ranger-source-release',{contentType:'application/json',
+  body:Buffer.from(JSON.stringify({seed:event.seed,sourceTick:event.actor.actionTick,
+   realActor:event.actor.id,clip:binding.clipName,source:'unmodified DungeonRuntime.step()',
+   deformation:rig.summary,clipAudits:d.authored3D.sourceClipAudits,
+   frame:d.frame,sourceSha:process.env.GITHUB_SHA??null},null,2))});
+});

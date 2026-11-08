@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase} from '/dungeon/full-body-animation-controller.js';
+import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -32,14 +32,6 @@ const selection={
  revenant:'enemy/enemy_swordsman.glb',
  cultist:'enemy/enemy_priest.glb',
  warden:'enemy/enemy_swordsman.glb'
-};
-const clips={
- idle:[/\bidle\b/i,/idle/i,/stand/i],
- move:[/run/i,/walk/i,/move/i],
- attack:[/attack/i,/melee/i,/slash/i,/shoot/i],
- cast:[/cast/i,/spell/i,/magic/i,/attack/i],
- hurt:[/hit/i,/hurt/i,/damage/i,/impact/i],
- guard:[/block/i,/shield/i,/defend/i,/idle/i]
 };
 const assetUrl=path=>'/dungeon/assets/'+path;
 function inspectTextures(gltf){
@@ -79,11 +71,6 @@ function load(path){
   }));
  }
  return cache.get(path);
-}
-function chooseClip(available,action){
- const prefer=clips[action]||clips.idle;
- for(const regex of prefer){const found=available.find(clip=>regex.test(clip.name));if(found)return found}
- return available.find(c=>/idle/i.test(c.name))||available[0]||null;
 }
 function configure(mesh,kind,owned){
  // A unified desaturated PBR source layer stops glowing KayKit base colours
@@ -881,7 +868,7 @@ function attachCharacter(actor){
   actor.visualPivot=pivot;actor.nativeDuel=null;actor.nativeDuelPeak=0;actor.nativeDuelContactFrames=0;actor.motionPeak=0;actor.evasionFrame=null;actor.evasionPosePeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.anatomicalParts=0;actor.anatomicalJointParts=0;actor.anatomicalDetailMeshes=0;actor.anatomicalStaticMergedParts=0;actor.sculptedArmorProfile=null;actor.sculptedArmorVertices=0;actor.rigBoundAccessoryParts=0;actor.cinematicFigure=null;actor.rigWardrobeParts=0;actor.anatomicalStaticMountedCount=0;actor.nativeArmourRoot=null;actor.nativeArmourMounts=[];actor.nativeArmourInverse=null;actor.rigHandBoneName=null;actor.rigHandBone=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigCranial=null;actor.rigPelvisBone=null;actor.rigPelvisBearing=null;actor.rigBearing=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.wardenChargeShoulderPeak=0;actor.wardenCharge=null;actor.rigForearms=[];actor.rigForearmPeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitSettling=false;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;actor.rigMeleeBones=[];actor.rigMeleePeak=0;actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;actor.rigRangedActive=false;actor.rigRangedPeak=0;actor.skinnedHitWeight=0;actor.skinnedHitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.draperyPoseKey=null;actor.draperyFramesSkipped=0;actor.draperyNormalRebuilds=0;actor.draperyVertexUploads=0;
   actor.nativeFigureSculpt=fitOriginalNativeFigure(actor);
   actor.body.visible=false;actor.authored=true;actor.detail?.setAuthored?.(true);actor.mixer=new THREE.AnimationMixer(instance);
-  actor.availableClips=gltf.animations||[];actor.currentAction='';actor.currentActionTick=null;
+  actor.availableClips=gltf.animations||[];actor.currentAction='';actor.currentActionTick=null;actor.activeImportedClipName=null;
    actor.importedClipAudit=auditImportedAnimationClips(actor.availableClips);
    actor.fullBody=null;actor.animationFacing=null;actor.fullBodyFrozenFrames=0;actor.fullBodyHeldFrames=0;actor.fullBodyContactRecoveryFrames=0;actor.fullBodyInterruptions=0;actor.fullBodyRestarts=0;actor.footSupportPeak=0;actor.sourceClockCorrectedFrames=0;actor.sourceClockDriftPeakSeconds=0;actor.sourceClockRemainingSeconds=0;actor.sourceClockMode=null;
   actor.textureReadiness=textureReadiness.get(gltf);
@@ -944,7 +931,7 @@ function changeAction(actor,action,forceRestart=false){
   if(action==='move'&&actor.activeClip)actor.activeClip.setEffectiveTimeScale(clipSpeed);
   return;
  }
- const clip=chooseClip(actor.availableClips,action);
+ const clip=chooseImportedSourceClip(actor.availableClips,action,actor.u.kind);
  if(!clip)return;
  // Retiming the genuine imported one-shot matches the original sword/audio
  // contact envelope instead of each asset independently completing its clip.
@@ -966,6 +953,7 @@ function changeAction(actor,action,forceRestart=false){
    next.time=Math.min(Math.max(0,actor.fullBody.age*clipSpeed),Math.max(0,clip.duration-.001));
   if(previous&&previous!==next)next.crossFadeFrom(previous,actor.fullBody?.interrupted ? .09 : (oneShot ? .12 : .23),false);
   actor.activeClip=next;
+  actor.activeImportedClipName=clip.name;
  }
  actor.currentAction=action;actor.currentActionTick=tick;
 }
@@ -1369,6 +1357,7 @@ function stats(actors){
     .map(a=>Math.abs(Math.atan2(Math.sin(a.rigGaitPhase-2*Math.PI*a.groundedPerformance.footPhase),
       Math.cos(a.rigGaitPhase-2*Math.PI*a.groundedPerformance.footPhase))))),
    sourceClipAudits:authored.slice(0,6).map(a=>({kind:a.u.kind,clips:a.importedClipAudit?.clips||[],rootMotionTracks:a.importedClipAudit?.rootMotionTracks||[]})),
+   sourceClipBindings:authored.slice(0,6).map(a=>({kind:a.u.kind,action:a.currentAction,clipName:a.activeImportedClipName??null,sourceTick:a.currentActionTick})),
    nativeContinuousActors:authored.filter(a=>a.nativePresentation?.complete).length,
   nativeDuelActiveActors:authored.filter(a=>a.nativeDuel&&a.nativeDuel.mode!=='rest').length,
   nativeDuelPeak:Math.max(0,...authored.map(a=>a.nativeDuelPeak||0)),
