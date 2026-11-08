@@ -11089,6 +11089,42 @@ function appendActiveWorksiteDressing(w,x,y,z,pulse){
 /* G090: genuine work evidence becomes short-lived 3D materials at the actual
    world coordinates of each completed job. This is never fake production. */
 // Real unloads linger briefly at the destination as physical scene events.
+/* W125 earned market and household 3D micro-scenes. Two small static-like
+ * items appear ONLY after a real attributable trade or consumption; all
+ * coordinates belong to the live market and original home lots. No RNG,
+ * fake farmer, fake stock, screen-space text or authoritative mutations. */
+let verifiedEconomyRenderStats={exchange:0,homeMeal:0,triangles:0};
+function renderVerifiedEconomicMilestones(){
+ const first=data.length,now=state.t;
+ verifiedEconomyRenderStats.exchange=0;
+ verifiedEconomyRenderStats.homeMeal=0;
+ const transfer=(state.householdTrades||[])[0];
+ if(transfer&&now>=transfer.time&&now-transfer.time<1.3){
+  const resident=people.find(p=>p.name===transfer.citizen);
+  if(resident&&Math.hypot(resident.x-DELIVERY_MARKET.food[0],
+   resident.z-DELIVERY_MARKET.food[1])<3.4){
+   const [mx,mz]=DELIVERY_MARKET.food,y=terrain(mx,mz);
+   materialScope(MATERIAL.GENERAL,()=>{
+    box(mx-.72,y+.075,mz-.44,.43,.11,.32,rgb(0x846849));
+    ellipsoid(mx-.72,y+.24,mz-.44,.19,.17,.17,rgb(0xc6ae7d),6);
+   });
+   verifiedEconomyRenderStats.exchange=1;
+  }
+ }
+ const meal=(state.householdMeals||[])[0];
+ if(meal&&now>=meal.time&&now-meal.time<2.4){
+  const lot=city[meal.homeIndex];
+  if(lot){
+   const x=lot[0]+1.31,z=lot[1]+1.58,y=terrain(x,z);
+   materialScope(MATERIAL.WOOD,()=>{
+    box(x,y+.065,z,.38,.12,.30,rgb(0x745039));
+    cylinder(x,y+.14,z,.155,.10,rgb(0xb69c72),7);
+   });
+   verifiedEconomyRenderStats.homeMeal=1;
+  }
+ }
+ verifiedEconomyRenderStats.triangles=(data.length-first)/30;
+}
 function renderDeliveryReceipts(){
  const now=state.t;
  materialScope(MATERIAL.WOOD,()=>{
@@ -18150,6 +18186,7 @@ else{
  marketOperatingRenderStats.openFraction=marketOperatingAudit().openFraction;
 }
 renderDeliveryReceipts();
+renderVerifiedEconomicMilestones();
 renderMarketHandoffs();
 renderObservedWorkLight(observedWorkLightProfile());
 dynamicPhaseTimes.economyGeometry=performance.now()-economyGeometryStart;
@@ -18500,7 +18537,7 @@ requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON
  getForegroundResidentAudit,setForegroundResidentEnabledForTesting,
  getSocialEncounterAudit:()=>cloneData(getSocialEncounterAudit()),getFieldWindAudit:(time=state.t)=>cloneData(getFieldWindAudit(time)),getAmbientGpuResidencyAudit:()=>({...getAmbientGpuResidencyAudit()}),getWeatherVertexMotionProbe,getOccupationalPerformance:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData({citizen:people[index].name,job:people[index].job,...occupationalPerformance(people[index])}):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getSelectedCitizenTaskAudit,getCitizenPickCandidates,getCitizenOrbitAudit,getCitizenPickAudit:()=>({...citizenPickAudit}),getWorkdayEvents:()=>cloneData(workdayEvents),getStreetCargoWitnesses:()=>cloneData(streetCargoWitnesses()),getActiveDeliveries:()=>cloneData(getActiveDeliveries()),getSupplyTrailSnapshot:()=>cloneData(getSupplyTrailSnapshot()),getPhysicalMarketParcelAudit:id=>cloneData(getPhysicalMarketParcelAudit(id)),getCourierLoadPresentation:workerName=>cloneData(getCourierLoadPresentation(workerName)),getCourierTransferMotion:workerName=>cloneData(courierTransferMotion(workerName)),getCourierTrailAudit,getCourierTrailResidencyAudit,
  setCourierTrailResidencyForTesting,getDeliveryEconomyAudit:()=>cloneData(getDeliveryEconomyAudit()),getDeliveryReceipts:()=>cloneData(getDeliveryReceipts()),getMarketHandoffs:()=>cloneData(getMarketHandoffs()),getMarketParcelDeliveryPose:id=>cloneData(getMarketParcelDeliveryPose(id)),getCourierHandContact:person=>cloneData(courierWorldHandContact(person)),getMarketHandoffRenderStats:()=>({...marketHandoffRenderStats}),watchDelivery,watchHomecoming,getHomecomingView,getHomecomingThresholdCameraAudit,getWorkdayView,getActiveWorksites,watchHarvestShift,getHarvestInteractionAudit,getHarvestVisibilityAudit,getHarvestAftermathAudit,getCitizenActingAudit,
-getDailyRhythmAudit:dailyRhythmAudit,getHouseholdProvisionAudit:()=>cloneData(householdProvisionAudit()),getReceiptHouseholdAudit:()=>cloneData(receiptHouseholdAudit()),getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getCottageHomecomingAudit,getCottageDoorRenderAudit:()=>({...cottageDoorRenderAudit}),
+getDailyRhythmAudit:dailyRhythmAudit,getHouseholdProvisionAudit:()=>cloneData(householdProvisionAudit()),getReceiptHouseholdAudit:()=>cloneData(receiptHouseholdAudit()),getVerifiedEconomyRenderStats:()=>({...verifiedEconomyRenderStats}),getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getCottageHomecomingAudit,getCottageDoorRenderAudit:()=>({...cottageDoorRenderAudit}),
  getCottageDoorResidencyAudit,setCottageDoorResidencyForTesting,getSoftwareResolutionAudit,getHardwareResolutionAudit,getSimulationFrameDelta:simulationFrameDelta,getHouseholdLightAudit:()=>({...householdLightAudit}),getNightHomesResidencyAudit,setNightHomesResidencyForTesting,getOccupiedHearthCount:()=>occupiedHearths,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,
 getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeCourtyardAudit:()=>cloneData(getForgeCourtyardAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),getForgeSoundAudit:()=>cloneData(getForgeSoundAudit()),pollForgeSound,watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,getMarketReceivingHallAudit,getTradeCorridorCameraAudit,
 getMarketStructuralSightline:marketCourierPostSightline,
