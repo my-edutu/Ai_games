@@ -13476,6 +13476,7 @@ function issueReceiptGrain(p,amount){
  p.provisionMealRecorded=false;
  const transfer={id:p.name+':'+Math.floor(state.t*30),citizen:p.name,
   receiptId:lot.id,amount:issued,time:state.t};
+ p.provisionTradeId=transfer.id;
  state.householdTrades=[transfer,...(state.householdTrades||[])]
   .slice(0,RECEIPT_HOUSEHOLD_EVENT_CAP);
  return lot.id;
@@ -13525,6 +13526,7 @@ function finishHouseholdProvisions(p){
   state.food-=HOUSEHOLD_GRAIN_UNITS;
   p.provisions=(p.provisions||0)+HOUSEHOLD_GRAIN_UNITS;
   delete p.provisionReceiptId;
+  delete p.provisionTradeId;
   delete p.provisionMealRecorded;
  }
  // A recorded, escrowed, physically reached farmer receipt is necessary
@@ -13695,7 +13697,7 @@ for(const person of people){
   // Only a resident actually resting at their reached home can consume.
   if(person.provisionReceiptId&&!person.provisionMealRecorded){
    person.provisionMealRecorded=true;
-   state.householdMeals=[{id:person.name+':'+person.provisionReceiptId,
+   state.householdMeals=[{id:person.provisionTradeId||person.name+':'+person.provisionReceiptId,
     citizen:person.name,receiptId:person.provisionReceiptId,
     homeIndex:citizenHomeIndex(person),time:state.t,
     amount:stock,remainingBefore:person.provisions},
@@ -13707,6 +13709,7 @@ for(const person of people){
    // The immutable transaction/meal logs keep their origin. A depleted
    // personal basket must not block a later independent farmer receipt.
    delete person.provisionReceiptId;
+   delete person.provisionTradeId;
    delete person.provisionMealRecorded;
   }
  }
@@ -13812,6 +13815,7 @@ function validateSnapshot(snapshot){
   throw Error('Save contains invalid delivery receipts');
  if(q.people.some(p=>
   (p.provisionReceiptId!==undefined&&!validText(p.provisionReceiptId,100))||
+  (p.provisionTradeId!==undefined&&!validText(p.provisionTradeId,120))||
   (p.provisionMealRecorded!==undefined&&
    typeof p.provisionMealRecorded!=='boolean')))
   throw Error('Save contains invalid resident provisioning');
