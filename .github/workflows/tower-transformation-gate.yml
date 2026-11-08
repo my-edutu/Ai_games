@@ -3,6 +3,23 @@ on:
   push:
     branches:
       - feat/tower-transformation-gauntlet-20261101
+    # Source/test edits must still receive an exact-code veto. Evidence-journal
+    # commits change no shipped game and must not add runners to the already
+    # backlogged Actions queue. Keep manual exact-SHA dispatch available.
+    paths:
+      - .github/workflows/tower-transformation-gate.yml
+      - .github/workflows/tower-transformation-visual-evidence.yml
+      - package.json
+      - package-lock.json
+      - playwright.tower.config.cjs
+      - games/infinite-tower-climb/**
+      - packages/**
+      - public/infinite-tower-climb/**
+      - '!public/infinite-tower-climb/gauntlet/transformation.json'
+      - '!public/infinite-tower-climb/gauntlet/progress.json'
+      - scripts/tower-*
+      - tests/phase*/tower-*
+      - tests/browser/tower-*
   workflow_dispatch:
 permissions:
   contents: read
