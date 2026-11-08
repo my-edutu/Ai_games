@@ -49,8 +49,80 @@ for(const marker of ['faceNormalCache','FACE_NORMAL_CACHE_MAX'])
  assert(field.includes(marker),'face normals must be bounded by actual identity profile');
 assert(html.includes('getFaceTopologyCacheAudit'),'normal cache is not observable');
 assert(html.includes('getSimulationTickDebtAudit'),'real sim backlog is not observable');
-for(const original of ['if(!commuterIndices.has(i)&&!workingIndices.has(i))',
+for(const original of ['!commuterIndices.has(i)&&!workingIndices.has(i)',
  'drawResidentCommuters();','drawWorkingResidentMesh();','drawForegroundResidentMesh();',
  'getSceneTriangleReconciliation','getFrameProfile'])
  assert(html.includes(original),'authentic citizen/geometry audit removed '+original);
+
+// Execute the actual authoritative commuter VBO packer against an instrumented
+// GL facade: a single changed citizen may NOT upload its neighbours again.
+const writes=[],allocations=[];
+const gl={ARRAY_BUFFER:34962,DYNAMIC_DRAW:35048,
+ createBuffer:()=>({id:1}),bufferData:(_,bytes)=>allocations.push(bytes),
+ bufferSubData:(_,offset,bytes)=>writes.push({offset,bytes:bytes.byteLength})};
+const state={
+ gpuAvailable:true,COMMUTER_RESIDENT_MAX:32,COMMUTER_RESIDENT_FLOAT_BUDGET:900000,
+ commuterResidentCache:new Map(),commuterResidentVisible:[],commuterResidentBuffer:null,
+ commuterResidentCapacity:0,commuterResidentMesh:new Float32Array(0),
+ commuterResidentKey:'',commuterResidentLayoutKey:'',
+ commuterResidentBuilds:0,commuterResidentReuses:0,commuterResidentUploads:0,
+ commuterResidentFullUploads:0,commuterResidentPartialUploads:0,
+ commuterResidentUploadBytes:0,commuterResidentRebuilds:0,commuterResidentFallbacks:0,
+ data:[],gl,terrain:()=>0,bindGeometry:()=>{},
+ realCommuterFacing:()=>0,
+ commuterPoseStale:(entry,p)=>!entry||entry.phase!==p.phase,
+ compactVillager:p=>{state.data.push(...new Array(p.floats).fill(p.phase))},
+ restingActorCounters:()=>({roles:{}}),
+ restingActorDifference:()=>({roles:{}}),
+ applyRestingActorMetrics:()=>{},resetRestingActorMetrics:()=>{}
+};
+const prepare=vm.runInNewContext(named('prepareResidentCommuters')+
+ ';prepareResidentCommuters',state);
+const a={name:'Real A',job:'farmer',activity:'Traveling to work',
+ phase:1,x:0,z:0,energy:80,hunger:5,floats:30};
+const b={...a,name:'Real B',x:3};
+assert.equal(prepare([{p:a,i:0},{p:b,i:1}]),true);
+assert.deepEqual(writes,[{offset:0,bytes:240}]);
+assert.equal(state.commuterResidentFullUploads,1);
+assert.equal(prepare([{p:a,i:0},{p:b,i:1}]),true);
+assert.equal(writes.length,1,'unchanged true citizen poses are never reuploaded');
+a.phase=2;
+assert.equal(prepare([{p:a,i:0},{p:b,i:1}]),true);
+assert.deepEqual(writes[1],{offset:0,bytes:120},
+ 'only first changed commuter pose uploads');
+assert.equal(state.commuterResidentPartialUploads,1);
+b.phase=2;
+assert.equal(prepare([{p:a,i:0},{p:b,i:1}]),true);
+assert.deepEqual(writes[2],{offset:120,bytes:120},
+ 'only second changed commuter pose uploads');
+assert.equal(state.commuterResidentPartialUploads,2);
+assert.equal(state.commuterResidentUploadBytes,480);
+assert.equal(prepare([{p:b,i:1}]),true);
+assert.deepEqual(writes[3],{offset:0,bytes:120},
+ 'a real membership change repacks the compact grouped VBO');
+assert.equal(state.commuterResidentFullUploads,2);
+assert(allocations.length===1&&allocations[0]===65536*4,
+ 'the resident VBO retains one bounded capacity allocation');
+// The face cache must be keyed by genuine profile geometry, not mutable
+// character indexes or changing animation time.
+const faceCacheSrc=html.slice(html.indexOf('const FACE_NORMAL_CACHE_MAX='),
+ html.indexOf('// G148: facial acting'));
+const normals=vm.runInNewContext(faceCacheSrc+
+ ';({faceNormalField,getFaceTopologyCacheAudit})');
+const faceProfile={segments:12,rings:[
+ {y:1.1,rx:.1,rz:.09,z:0},{y:1.4,rx:.16,rz:.17,z:.01},
+ {y:1.7,rx:.12,rz:.12,z:-.01}]};
+const n1=normals.faceNormalField(faceProfile);
+const n2=normals.faceNormalField(faceProfile);
+assert.strictEqual(n1,n2,'unchanged true original morphology reuses normals');
+faceProfile.rings[1].rx+=.01;
+const n3=normals.faceNormalField(faceProfile);
+assert.notStrictEqual(n3,n2,'mutated morphology invalidates normals');
+for(let i=0;i<30;i++){
+ faceProfile.rings[1].rx=.10+i*.001;
+ normals.faceNormalField(faceProfile);
+}
+const audit=normals.getFaceTopologyCacheAudit();
+assert(audit.entries<=24&&audit.maxEntries===24&&audit.hits>=1);
+
 console.log('W125 runtime/performance source contract PASS; hardware FPS is NOT asserted');
