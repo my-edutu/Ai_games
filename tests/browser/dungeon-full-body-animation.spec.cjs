@@ -32,6 +32,26 @@ async function loadStage(page,snapshot){
  return {set(next){state=next},errors};
 }
 
+
+/**
+ * The source-rig inspector is sampled explicitly, never on every game frame.
+ * It reads genuine imported-bone world transforms after the live Three.js
+ * AnimationMixer and reversible joint overlays have already been applied.
+ */
+async function nativeRigProof(page){
+ const audit=await page.evaluate(()=>window.__DUNGEON_SOURCE_RIG_DEFORMATION__?.()??null);
+ expect(audit?.schemaVersion).toBe(1);
+ expect(audit.summary.sourceActors).toBeGreaterThanOrEqual(3);
+ expect(audit.summary.sampledSegments).toBeGreaterThanOrEqual(12);
+ expect(audit.summary.disconnectedSegments).toBe(0);
+ expect(audit.summary.invalidSegments).toBe(0);
+ expect(audit.summary.invalidQuaternionCount).toBe(0);
+ expect(audit.summary.invalidMatrixCount).toBe(0);
+ expect(audit.summary.maxQuaternionError).toBeLessThan(.015);
+ expect(audit.actors.every(a=>a.skinnedMeshes>0&&a.validSegments>=4)).toBe(true);
+ return audit;
+}
+
 test('real imported rig attack has one named action owner and source-clip audit',async({page,request})=>{
  test.setTimeout(120000);
  expect((await request.get('/dungeon/full-body-animation-controller.js')).status()).toBe(200);
@@ -39,6 +59,7 @@ test('real imported rig attack has one named action owner and source-clip audit'
  const original=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
  expect(original.authored3D.sourceClipAudits.length).toBeGreaterThanOrEqual(3);
  expect(original.authored3D.sourceClipAudits.some(a=>a.clips.length>0)).toBe(true);
+ const beforeRig=await nativeRigProof(page);
  stage.set(event.after);
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.fullBodyModes?.attack??0),
   {timeout:18000,intervals:[70,90,120,180]}).toBeGreaterThanOrEqual(1);
@@ -46,6 +67,12 @@ test('real imported rig attack has one named action owner and source-clip audit'
  expect(d.authored3D.fullBodyInterruptions).toBeGreaterThanOrEqual(0);
  expect(d.authored3D.fullBodyRestarts).toBeGreaterThanOrEqual(0);
  expect(d.authored3D.rigMeleeBones).toBeGreaterThanOrEqual(2);
+ const attackedRig=await nativeRigProof(page);
+ expect(attackedRig.summary.maxStretchFraction).toBeLessThanOrEqual(.20);
+ const actorBefore=beforeRig.actors.find(a=>a.id===event.actor.id),
+  actorAfter=attackedRig.actors.find(a=>a.id===event.actor.id);
+ expect(actorBefore?.validSegments).toBeGreaterThanOrEqual(4);
+ expect(actorAfter?.maxStretchFraction).toBeLessThanOrEqual(.20);
  expect(d.authored3D.missingAssets).toBe(0);
  expect(d.composition.visibleHeroes).toBeGreaterThan(0);
  expect(stage.errors).toEqual([]);
@@ -55,13 +82,15 @@ test('real imported rig attack has one named action owner and source-clip audit'
   seed:event.seed,tick:event.after.tick,actorId:event.actor.id,
   source:'unmodified DungeonRuntime publicState',headSha:process.env.GITHUB_SHA??null,
   owners:d.authored3D.fullBodyModes,clipAudits:d.authored3D.sourceClipAudits,
-  interruptions:d.authored3D.fullBodyInterruptions,restarts:d.authored3D.fullBodyRestarts
+  interruptions:d.authored3D.fullBodyInterruptions,restarts:d.authored3D.fullBodyRestarts,
+  beforeRig,attackedRig
  },null,2))});
 });
 
 test('real authority movement drives bounded support on original leg bones without fake combat',async({page})=>{
  test.setTimeout(120000);
  const event=travel(),stage=await loadStage(page,event.before);
+ const beforeRig=await nativeRigProof(page);
  stage.set(event.after);
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.fullBodyFootSupportPeakRad??0),
   {timeout:22000,intervals:[70,90,110,140]}).toBeGreaterThan(.003);
@@ -72,6 +101,9 @@ test('real authority movement drives bounded support on original leg bones witho
  expect(d.authored3D.fullBodyFootfallPhaseErrorRad).toBeLessThanOrEqual(.002);
  expect(d.authored3D.fullBodySettlingActors).toBeGreaterThanOrEqual(0);
  expect(d.authored3D.rigGaitBones).toBeGreaterThanOrEqual(4);
+ const walkingRig=await nativeRigProof(page);
+ expect(walkingRig.summary.maxStretchFraction).toBeLessThanOrEqual(.20);
+ expect(beforeRig.summary.sourceActors).toBeGreaterThanOrEqual(3);
  expect(d.authored3D.missingAssets).toBe(0);
  expect(d.webgl).toBe(true);expect(stage.errors).toEqual([]);
  await page.locator('.arena').evaluate(node=>node.classList.add('world-only-audit'));
@@ -80,7 +112,8 @@ test('real authority movement drives bounded support on original leg bones witho
   seed:event.seed,tick:event.after.tick,actorId:event.actor.id,
   source:'unmodified DungeonRuntime publicState',supportPeak:d.authored3D.fullBodyFootSupportPeakRad,
   gaitBones:d.authored3D.rigGaitBones,phaseErrorRad:d.authored3D.fullBodyFootfallPhaseErrorRad,
-  settlingActors:d.authored3D.fullBodySettlingActors,owners:d.authored3D.fullBodyModes
+  settlingActors:d.authored3D.fullBodySettlingActors,owners:d.authored3D.fullBodyModes,
+  beforeRig,walkingRig
  },null,2))});
 });
 
