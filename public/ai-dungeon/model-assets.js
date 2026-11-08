@@ -641,7 +641,7 @@ function stageRigMeleeAfterMixer(actor,since,reducedMotion){
   const dodge=mount.part==='spine'?(actor.evasionFrame?.spine||RIG_ZERO):RIG_ZERO;
   const bearing=mount.part==='spine'?(actor.rigBearing?.chest||RIG_ZERO):RIG_ZERO;
   const stride=mount.part==='spine'?(actor.rigFullBodyStride?.chest||RIG_ZERO):RIG_ZERO;
-  const threat=actor.u.kind==='warden'&&actor.u.hp>0&&!reducedMotion&&mount.part==='spine'?
+  const threat=actor.u.kind==='warden'&&actor.u.hp>0&&!reducedMotion&&actor.fullBody?.owner.warning&&mount.part==='spine'?
    actor.wardenCharge?.threatPerformance:null;
   const strike=mount.part==='spine'&&!reducedMotion?actor.wardenStrikePose?.spine:null;
   mount.next.setFromEuler(mount.euler.set(
