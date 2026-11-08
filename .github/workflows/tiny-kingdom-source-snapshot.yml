@@ -14,6 +14,11 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+# Preserve running exact-source evidence; replace only obsolete pending PR runs.
+concurrency:
+  group: tiny-kingdom-source-snapshot-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
 jobs:
   snapshot:
     if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feat/tiny-kingdom-post-main-gauntlet-20261031' }}

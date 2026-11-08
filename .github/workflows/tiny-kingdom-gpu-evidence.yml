@@ -41,7 +41,8 @@ permissions:
 # rather than indefinitely queueing 30 parallel GPU installations per edit.
 concurrency:
   # A later branch commit must not cancel an already running exact-SHA film.
-  group: tiny-kingdom-gpu-${{ github.event.pull_request.head.sha || github.sha }}
+  # A stable PR number bounds future pending captures without cancelling a running one.
+  group: tiny-kingdom-gpu-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: false
 
 # W115: Playwright 1.55 rejects GitHub ubuntu-latest (26.04); pin supported 24.04.

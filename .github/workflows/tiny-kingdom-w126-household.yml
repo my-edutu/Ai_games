@@ -11,7 +11,8 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: tiny-kingdom-w126-${{ github.event.pull_request.head.sha || github.sha }}
+  # A stable PR number bounds future pending captures without cancelling a running one.
+  group: tiny-kingdom-w126-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: false
 jobs:
   real-society:

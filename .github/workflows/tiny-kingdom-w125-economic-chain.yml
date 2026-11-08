@@ -10,7 +10,8 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: tiny-w125-real-economic-chain-${{ github.event.pull_request.head.sha || github.sha }}
+  # A stable PR number bounds future pending captures without cancelling a running one.
+  group: tiny-w125-real-economic-chain-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: false
 jobs:
   complete-uncut-economic-chain:

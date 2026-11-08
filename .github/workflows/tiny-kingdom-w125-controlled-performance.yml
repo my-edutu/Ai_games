@@ -13,7 +13,8 @@ permissions:
 
 # Preserve exact head SHA evidence, even with concurrent draft-branch commits.
 concurrency:
-  group: tiny-kingdom-w125-ab-${{ github.event.pull_request.head.sha || github.sha }}
+  # A stable PR number bounds future pending captures without cancelling a running one.
+  group: tiny-kingdom-w125-ab-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: false
 
 jobs:

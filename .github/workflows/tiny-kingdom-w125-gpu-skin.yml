@@ -16,7 +16,8 @@ permissions:
 
 # Every exact-source workflow keeps its own evidence when concurrent edits land.
 concurrency:
-  group: tiny-kingdom-w125-skin-${{ github.event.pull_request.head.sha || github.sha }}
+  # A stable PR number bounds future pending captures without cancelling a running one.
+  group: tiny-kingdom-w125-skin-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: false
 
 jobs:

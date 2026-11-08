@@ -51,7 +51,8 @@ permissions:
 # even when a later hourly commit arrives. Pending jobs can still be replaced;
 # every artifact remains tied to its precise head SHA.
 concurrency:
-  group: tiny-kingdom-soak-${{ github.event.pull_request.head.sha || github.sha }}
+  # A stable PR number bounds future pending captures without cancelling a running one.
+  group: tiny-kingdom-soak-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: false
 
 # W115: Playwright 1.55 rejects GitHub ubuntu-latest (26.04); pin supported 24.04.
