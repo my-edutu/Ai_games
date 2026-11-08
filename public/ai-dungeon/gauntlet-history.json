@@ -5707,7 +5707,7 @@
       "next": "Exact-new-head real 1440px/390px seeded Chromium audiovisual battle + compare pinned baseline; verify no new occlusion/camera jitter, then original adult-scale native rig/Warden melee integration and five-stage organic reel."
     },
     "currentStage": "A_INCOMPLETE",
-    "executableNextTask": "Measure source-verified single-sample software rendering actual WebGL output on 1440px and 390px equivalent seeded Warden duel; if capture cadence still poor, profile next dominant measured cost and preserve full organic five stages.",
+    "executableNextTask": "Inspect exact-head real 1440/390 moving WebGL and original-audio evidence, measure true camera/ray versus WebGL/rAF/video costs and Warden visibility; safely integrate verified PR72 animation only after original browser footage and compatibility",
     "phasePlan": [
       {
         "phase": "A",
@@ -6201,6 +6201,35 @@
         "plays": "UNVERIFIED",
         "next": "Inspect exact SHA original desktop/mobile WebM source-truth diagnostics and keep/reject reversible trial; complete organic natural defeat/restart and independently verified full-body handoff without overriding PR72"
       }
-    ]
+    ],
+    "m1PhysicalOcclusionRayAcceleration": {
+      "date": "2026-11-08",
+      "stage": "A_INCOMPLETE",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "parentSha": "ca835e6160f394bcd49c9badf5ee7e17cc328bdd",
+      "source": "public/ai-dungeon/actor-occlusion-stage.js",
+      "implementation": "Exact original Three.js stone triangle raycast narrowed by conservative per-instance world bounding sphere, 4096-instance bound and native fallback; real cutaways/hysteresis and authority preserved",
+      "sourceFixture": {
+        "wallInstances": 101,
+        "bodyRays": 6,
+        "originalExaminedInstances": 606,
+        "candidateExactRaycasts": 6,
+        "conservativelyRejected": 600,
+        "frontWallId": 0,
+        "nextFloorWallMovedAway": true,
+        "invalidBoundsNativeFallback": true
+      },
+      "validation": "Isolated executable V8 source-contract RED/GREEN; repository Node contract committed, NOT EXECUTED; Chromium browser evidence queued",
+      "actualAfterMotion": "NOT_OBSERVED",
+      "realAudioSync": "UNVERIFIED",
+      "devicePerformance": "UNVERIFIED",
+      "organicFiveStages": "UNVERIFIED",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "next": "Inspect exact-head real 1440/390 moving WebGL and original-audio evidence, measure true camera/ray versus WebGL/rAF/video costs and Warden visibility; safely integrate verified PR72 animation only after original browser footage and compatibility"
+    }
   }
 }

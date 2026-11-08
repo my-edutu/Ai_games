@@ -15,7 +15,7 @@ export function createActorOcclusionStage(T){
  const raycaster=new T.Raycaster();
  const wall=new Map(),facade=new Map();
  let scene=null,nextScan=-Infinity,scans=0,rays=0,verified=0,evictions=0;
- function reset(){wall.clear();facade.clear();scene=null;nextScan=-Infinity;}
+ function reset(){wall.clear();facade.clear();accelerated=new WeakMap();scene=null;nextScan=-Infinity;}
  const physical=(subject,camera,point)=>{
   const dx=point.x-camera.x,dy=point.y-camera.y,dz=point.z-camera.z;
   const len=Math.hypot(dx,dy,dz);
@@ -48,7 +48,74 @@ export function createActorOcclusionStage(T){
    else if(entry.expires<=now)entries.delete(index);
   }
  }
- function trace(mesh,entries,subject,point,now){
+
+ // These are conservative physical bounds for genuine original masonry,
+ // rebuilt once per scheduled occlusion scan, never invented hit proxies.
+ // The exact native THREE.Mesh.raycast still makes the final hit decision.
+ const MAX_ACCEL_INSTANCES=4096;
+ let accelerated=new WeakMap(),broadphaseBuilds=0,broadphaseRejected=0;
+ let narrowphaseTests=0,legacyRaycasts=0;
+ function instanceBounds(mesh){
+  if(!mesh?.isInstancedMesh||!mesh.geometry||!mesh.matrixWorld||
+     !Number.isSafeInteger(mesh.count)||mesh.count<1||mesh.count>MAX_ACCEL_INSTANCES||
+     typeof mesh.getMatrixAt!=='function'||typeof T.Mesh!=='function'||
+     typeof T.Matrix4!=='function'||typeof T.Vector3!=='function')return null;
+  const geometry=mesh.geometry;
+  try{
+   if(!geometry.boundingSphere)geometry.computeBoundingSphere?.();
+   const sphere=geometry.boundingSphere;
+   if(!sphere||!Number.isFinite(sphere.radius)||sphere.radius<0||!sphere.center)return null;
+   let cache=accelerated.get(mesh);
+   if(!cache){
+    cache={proxy:new T.Mesh(geometry,mesh.material),local:new T.Matrix4(),
+     world:new T.Matrix4(),center:new T.Vector3(),items:[]};
+    cache.proxy.matrixAutoUpdate=false;
+    accelerated.set(mesh,cache);
+   }
+   cache.proxy.geometry=geometry;cache.proxy.material=mesh.material;
+   cache.items.length=mesh.count;
+   for(let i=0;i<mesh.count;i++){
+    mesh.getMatrixAt(i,cache.local);
+    cache.world.multiplyMatrices(mesh.matrixWorld,cache.local);
+    cache.center.copy(sphere.center).applyMatrix4(cache.world);
+    const radius=sphere.radius*cache.world.getMaxScaleOnAxis();
+    if(![cache.center.x,cache.center.z,radius].every(Number.isFinite)||radius<0)
+     return null; // no invalid bound may accidentally erase a real wall
+    const b=cache.items[i]||{};
+    b.x=cache.center.x;b.z=cache.center.z;b.radius=radius;
+    cache.items[i]=b;
+   }
+   broadphaseBuilds++;
+   return cache;
+  }catch{return null;} // unsupported geometry falls back to exact native ray
+ }
+ function exactInstancedIntersections(mesh,cache){
+  if(!cache){legacyRaycasts++;return raycaster.intersectObject(mesh,false);}
+  const hits=[],dx=target.x-origin.x,dz=target.z-origin.z,denom=dx*dx+dz*dz;
+  for(let i=0;i<cache.items.length;i++){
+   const b=cache.items[i];
+   const ratio=denom>1e-10?Math.max(0,Math.min(1,
+    ((b.x-origin.x)*dx+(b.z-origin.z)*dz)/denom)):0;
+   const ex=b.x-(origin.x+ratio*dx),ez=b.z-(origin.z+ratio*dz);
+   // Any actual 3D ray/triangle intersection must lie within the 2D
+   // projection of its world-space bounding sphere. Conservative on slopes.
+   if(ex*ex+ez*ez>(b.radius+.0001)*(b.radius+.0001)){
+    broadphaseRejected++;continue;
+   }
+   mesh.getMatrixAt(i,cache.local);
+   cache.proxy.matrixWorld.multiplyMatrices(mesh.matrixWorld,cache.local);
+   const first=hits.length;
+   cache.proxy.raycast(raycaster,hits);
+   narrowphaseTests++;
+   for(let j=first;j<hits.length;j++){
+    hits[j].instanceId=i;hits[j].object=mesh;
+   }
+  }
+  hits.sort((a,b)=>a.distance-b.distance);
+  return hits;
+ }
+
+ function trace(mesh,entries,subject,point,now,bounds){
   if(!mesh?.isInstancedMesh||mesh.visible===false||entries.size>=MAX_WALLS)return;
   target.set(point.x,point.y,point.z);
   direction.subVectors(target,origin);
@@ -56,7 +123,7 @@ export function createActorOcclusionStage(T){
   raycaster.set(origin,direction.multiplyScalar(1/distance));
   raycaster.near=.035;raycaster.far=distance-.16;
   rays++;
-  const hits=raycaster.intersectObject(mesh,false);
+  const hits=exactInstancedIntersections(mesh,bounds);
   let accepted=0;
   for(const hit of hits){
    if(accepted>=MAX_HITS_PER_RAY||entries.size>=MAX_WALLS)break;
@@ -88,10 +155,12 @@ export function createActorOcclusionStage(T){
    wallMesh?.updateWorldMatrix?.(true,false);
    facadeMesh?.updateWorldMatrix?.(true,false);
    origin.set(cam.x,cam.y,cam.z);
+   const wallBounds=instanceBounds(wallMesh);
+   const facadeBounds=facadeMesh===wallMesh?wallBounds:instanceBounds(facadeMesh);
    for(const actor of live)for(const point of points(actor)){
     if(!physical(actor,cam,point))continue;
-    trace(wallMesh,wall,actor,point,now);
-    trace(facadeMesh,facade,actor,point,now);
+    trace(wallMesh,wall,actor,point,now,wallBounds);
+    trace(facadeMesh,facade,actor,point,now,facadeBounds);
    }
   }
   const before=wall.size+facade.size;
@@ -101,5 +170,7 @@ export function createActorOcclusionStage(T){
  }
  return Object.freeze({resolve,reset,metrics:()=>Object.freeze({scans,rays,verified,evictions,
   heldWalls:wall.size,heldFacades:facade.size,maxActors:MAX_ACTORS,maxPoints:MAX_POINTS,
-  kind:'real-ThreeJS-instanced-raycast-with-hysteresis',authorityChanged:false})});
+  kind:'conservative-world-sphere-broadphase-and-original-triangle-raycast',
+  broadphaseBuilds,broadphaseRejected,narrowphaseTests,legacyRaycasts,
+  authorityChanged:false})});
 }

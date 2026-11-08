@@ -73,3 +73,53 @@ test('both real lower-leg source points clear genuine mid-foreground masonry, bu
  assert.equal(stage.resolve('next-floor',camera,[source],front,back,.8).walls.size,0,'old arena geometry cannot follow a new floor');
  assert.equal(stage.resolve('next-floor',camera,[{...source,visibleActor:false}],front,back,1.1).walls.size,0);
 });
+
+test('original instanced stone exact ray acceleration preserves true foreground hits, excludes off-ray meshes and resets with a new floor',async()=>{
+ const {createActorOcclusionStage}=await load();
+ let precise=0,legacy=0;
+ class Vec{
+  constructor(x=0,y=0,z=0){this.set(x,y,z)}
+  set(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z;return this}
+  copy(v){return this.set(v.x,v.y,v.z)}
+  applyMatrix4(m){this.x+=m.x||0;this.y+=m.y||0;this.z+=m.z||0;return this}
+  subVectors(a,b){return this.set(a.x-b.x,a.y-b.y,a.z-b.z)}
+  length(){return Math.hypot(this.x,this.y,this.z)}
+  multiplyScalar(s){this.x*=s;this.y*=s;this.z*=s;return this}
+ }
+ class Matrix{
+  multiplyMatrices(a,b){this.x=(a.x||0)+(b.x||0);this.y=(a.y||0)+(b.y||0);this.z=(a.z||0)+(b.z||0);return this}
+  getMaxScaleOnAxis(){return 1}
+ }
+ class Mesh{
+  constructor(geometry,material){this.geometry=geometry;this.material=material;this.matrixWorld=new Matrix()}
+  raycast(ray,hits){precise++;if(Math.abs(this.matrixWorld.x)<.2&&Math.abs(this.matrixWorld.z-5)<.2)
+   hits.push({point:{x:0,y:1,z:5},distance:5})}
+ }
+ class Raycaster{
+  set(){}
+  intersectObject(mesh){legacy++;return [{instanceId:0,point:{x:0,y:1,z:5},distance:5}]}
+ }
+ const positions=Array.from({length:101},(_,i)=>i?{x:9+(i%10),z:4+Math.floor(i/10)}:{x:0,z:5});
+ const mesh={isInstancedMesh:true,visible:true,count:101,geometry:{
+  boundingSphere:{center:{x:0,y:0,z:0},radius:.42}},material:{},matrixWorld:{x:0,y:0,z:0},
+  getMatrixAt(i,m){Object.assign(m,positions[i])},updateWorldMatrix(){}};
+ const hero={x:0,z:0,visibleActor:true,bodyPoints:[
+  {x:0,y:.2,z:0},{x:0,y:.6,z:0},{x:0,y:1.1,z:0},
+  {x:0,y:1.5,z:0},{x:0,y:1.7,z:0},{x:0,y:1.9,z:0}
+ ]};
+ const stage=createActorOcclusionStage({Vector3:Vec,Matrix4:Matrix,Mesh,Raycaster});
+ const camera={position:{x:0,y:5,z:8},updateMatrixWorld(){}};
+ const first=stage.resolve('floor-1',camera,[hero],mesh,null,0);
+ assert.deepEqual([...first.walls],[0],'physical original wall must clear');
+ assert.equal(precise,6,'one exact triangle candidate per anatomical ray');
+ assert.equal(legacy,0,'full instance geometry may be avoided only with valid geometry');
+ assert.equal(stage.metrics().broadphaseRejected,600,'off-ray stone is still physically present');
+ positions[0].x=15;
+ const next=stage.resolve('floor-2',camera,[hero],mesh,null,.5);
+ assert.equal(next.walls.size,0,'fresh floor/moved masonry cannot use previous wall clearance');
+ assert.equal(precise,6,'off-ray geometry is rejected after a floor change');
+ mesh.geometry={};
+ stage.resolve('floor-3',camera,[hero],mesh,null,1);
+ assert.equal(legacy,6,'invalid or absent geometry returns to original complete raycast');
+ assert.equal(stage.metrics().authorityChanged,false);
+});
