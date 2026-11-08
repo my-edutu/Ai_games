@@ -70,7 +70,7 @@ const combatShotContinuity=createCombatShotContinuity();
 const physicalCameraDirector=createPhysicalCameraDirector();
 const adventureCameraDirector=createAdventureCameraDirector({
  continuity:combatShotContinuity,
- physical:{resolve(state,base,options){return physicalCameraDirector.resolve(state,base,options)},
+ physical:{resolve(state,basePlannedCamera,options){return physicalCameraDirector.resolve(state,basePlannedCamera,options)},
   reset(){physicalCameraDirector.reset();}}
 });
 const actorOcclusionStage=createActorOcclusionStage(THREE);
@@ -1275,7 +1275,8 @@ function animate(t){
    initialized:Boolean(camera.userData.dungeonInitialized&&camera.userData.aimInitialized)}
  );
  if(cameraPose){
-  if(Math.abs(camera.fov-cameraPose.fov)>.015){camera.fov=cameraPose.fov;camera.updateProjectionMatrix();}
+  const nextFov=cameraPose.fov;
+  if(Math.abs(camera.fov-nextFov)>.015){camera.fov=nextFov;camera.updateProjectionMatrix();}
   camera.position.set(cameraPose.position.x,cameraPose.position.y,cameraPose.position.z);
   cameraAim.set(cameraPose.aim.x,cameraPose.aim.y,cameraPose.aim.z);
   camera.userData.dungeonInitialized=true;camera.userData.aimInitialized=true;
