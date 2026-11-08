@@ -16,6 +16,7 @@
  */
 const ACTIONS=new Set(['idle','move','attack','cast','hurt','guard']);
 const ONESHOTS=new Set(['attack','cast','hurt']);
+const ONE_SHOT_RECOVERY=Object.freeze({attack:.62,cast:.64,hurt:.55});
 const finite=Number.isFinite;
 const clamp=(n,min,max)=>Math.min(max,Math.max(min,n));
 const safeAge=(n,max=5)=>finite(n)?clamp(n,0,max):0;
@@ -70,21 +71,42 @@ export function advanceFullBodyController(previous=null,{
  // Never animate a "move" that has no actual rendered displacement.
  const walking=alive&&grounded?.moving===true&&grounded?.clipAction==='move'&&
   !reducedMotion;
+ const requestedAge=safeAge(actionAge);
+ const requestedOneShot=Object.hasOwn(ONE_SHOT_RECOVERY,authorityAction)&&
+  authorityAction!=='hurt'&&requestedAge<ONE_SHOT_RECOVERY[authorityAction];
+ // Each fixed authoritative tick resets the unit action and actionTick, but
+ // an imported sword/spell one-shot lasts longer than the 350ms server tick.
+ // Preserve only RECOVERY of a previously witnessed event, and only during
+ // one subsequent idle tick with no new walking, hit, evade or guard. A skipped
+ // tick, new combat event or defeat must not resurrect stale visual damage.
+ const priorOneShot=previous?.mode==='attack'||previous?.mode==='cast'?
+  previous.mode:null;
+ const delta=finite(frameDelta)?clamp(frameDelta,0,.05):0;
+ const eligibleHold=Boolean(alive&&!injury&&!evasion&&!reducedMotion&&
+  authorityAction==='idle'&&!walking&&priorOneShot&&
+  Number.isSafeInteger(previous?.actionTick)&&Number.isSafeInteger(actionTick)&&
+  actionTick>=previous.actionTick&&actionTick-previous.actionTick<=1&&
+  finite(previous.age)&&previous.age>=0);
+ const inheritedAge=eligibleHold?Math.min(5,previous.age+delta):0;
+ const holding=Boolean(eligibleHold&&inheritedAge<ONE_SHOT_RECOVERY[priorOneShot]);
  const mode=!alive?'defeat':injury?'hurt':evasion?'evade':
-  authorityAction==='attack'?'attack':authorityAction==='cast'?'cast':
-  authorityAction==='hurt'?'idle':authorityAction==='guard'?'guard':
-  walking?'move':'idle';
+  requestedOneShot?authorityAction:holding?priorOneShot:
+  authorityAction==='guard'?'guard':walking?'move':'idle';
+ const visualActionTick=holding?previous.actionTick:actionTick;
  const clipAction=mode==='evade'||mode==='defeat'?'idle':mode;
  const beatAge=mode==='hurt'&&injury?damageBeat.age:
-  mode==='evade'?evasionBeat.age:safeAge(actionAge);
+  mode==='evade'?evasionBeat.age:holding?inheritedAge:requestedAge;
  const age=safeAge(beatAge);
  const same=previous?.mode===mode;
- const tickChanged=ONESHOTS.has(mode)&&previous?.actionTick!==actionTick;
+ const tickChanged=ONESHOTS.has(mode)&&previous?.actionTick!==visualActionTick;
  const beatRestart=same&&(mode==='evade'||(mode==='hurt'&&injury))&&
   finite(previous?.age)&&age+.025<previous.age;
  const changed=!same||tickChanged||Boolean(beatRestart);
  const restarted=same&&Boolean(tickChanged||beatRestart);
- const interrupted=Boolean(previous&&ONESHOTS.has(previous.mode)&&
+ const completed=Boolean(previous&&ONESHOTS.has(previous.mode)&&mode==='idle'&&
+  (previous.age>=(ONE_SHOT_RECOVERY[previous.mode]??.55)-.05||
+   (authorityAction===previous.mode&&requestedAge>=(ONE_SHOT_RECOVERY[previous.mode]??.55))));
+ const interrupted=Boolean(previous&&ONESHOTS.has(previous.mode)&&!completed&&
   (previous.mode!==mode||tickChanged||beatRestart));
  const transition=changed?0:clamp((finite(previous?.transition)?previous.transition:0)+
   (finite(frameDelta)?clamp(frameDelta,0,.05):0),0,1);
@@ -106,8 +128,9 @@ export function advanceFullBodyController(previous=null,{
   mode==='hurt'?age<.12?'impact':'recovery':
   mode==='evade'?age<.16?'departure':'recovery':
   mode==='defeat'?'down':mode==='move'?'stride':mode;
- return Object.freeze({mode,phase,age,actionTick,authorityAction,clipAction,
-  changed,restarted,interrupted,transition,owner,reducedMotion:Boolean(reducedMotion)});
+ return Object.freeze({mode,phase,age,actionTick:visualActionTick,authorityAction,clipAction,
+  holding,completed,changed,restarted,interrupted,transition,owner,
+  reducedMotion:Boolean(reducedMotion)});
 }
 
 /**
