@@ -29,4 +29,27 @@ for(const a of arcs){
  assert(a.realMarketEndpointA>=0&&a.realMarketEndpointB>=0);
 }
 assert(arcs[0].outerX<0&&arcs[1].outerX>0);
+const masonStart=game.indexOf('function grainwardMasonryFacing(');
+const masonEnd=game.indexOf('function grainwardMarketArcadePlan(',masonStart);
+assert(masonStart>=0&&masonEnd>masonStart,'real house facade geometry');
+const wallTriangles=[],mesh=[],lod={grainwardMasonryHomes:0,grainwardPortalThresholds:0,grainwardMasonryTriangles:0};
+const quad=(a,b,c,d)=>{
+ const v=b.map((n,i)=>n-a[i]),w=c.map((n,i)=>n-a[i]);
+ const n=[v[1]*w[2]-v[2]*w[1],v[2]*w[0]-v[0]*w[2],v[0]*w[1]-v[1]*w[0]];
+ assert([a,b,c,d,n].flat().every(Number.isFinite),'nonfinite original wall surface');
+ assert(Math.hypot(...n)>1e-7,'degenerate hand-laid masonry');
+ wallTriangles.push({a,n});for(let k=0;k<60;k++)mesh.push(0);
+};
+const make=new Function('data','terrain','COMPACT_HOUSE_HEIGHTS','compactHouseArchetype','rgb','materialScope','MATERIAL','quad','villageVisualLod',game.slice(masonStart,masonEnd)+';return grainwardMasonryFacing');
+const mason=make(mesh,()=>.3,[2.08,2.94,2.47,3.16],()=>0,c=>[c,c,c],(m,f)=>f(),{STONE:5,WOOD:6},quad,lod);
+assert.equal(mason(-10,-7,0,0,false),36,'real household has bounded credible masonry');
+assert.equal(lod.grainwardPortalThresholds,2,'one genuine door each side');
+assert.equal(mesh.length%30,0,'real triangle stride');
+for(const t of wallTriangles){
+ if(Math.abs(t.n[2])>1e-7){
+  const side=Math.sign(t.a[2]-(-7));
+  assert(t.n[2]*side>1e-7,'outward-facin gable / masonry, not invisible inside faces');
+ }
+}
+
 console.log('W131 original market corridor plan and full executable game parse PASS; actual WebGL/day120 evidence separate');
