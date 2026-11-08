@@ -13,10 +13,11 @@ function launch(){
  let now=0,nextTimer=1,prevented=false;
  const intervals=new Map(),events=new Map();
  const recovery={hidden:true,textContent:'',append(){}};
+ const loading={hidden:false};
  const canvas={addEventListener(type,callback){events.set(type,callback)}};
  const document={
   hidden:false,body:{dataset:{}},
-  getElementById(id){return id==='world'?canvas:id==='recovery'?recovery:null},
+  getElementById(id){return id==='world'?canvas:id==='recovery'?recovery:id==='loading-state'?loading:null},
   createElement(){return {textContent:'',className:'',type:'',addEventListener(){}}}
  };
  const window={
@@ -44,7 +45,7 @@ function launch(){
   now=end;
  }
  return {
-  advance,document,recovery,window,
+  advance,document,recovery,loading,window,
   lose(){const event={preventDefault(){prevented=true}};events.get('webglcontextlost')(event)},
   restore(){events.get('webglcontextrestored')()},
   get prevented(){return prevented}
@@ -171,4 +172,26 @@ test('every live entry-module import is whitelisted for the actual dungeon HTTP 
   assert.ok(fs.existsSync(path.join(root,'public/ai-dungeon',file)),url+' has no real source file');
   assert.ok(server.includes("['"+url+"','"+file+"']"),url+' is not served: this breaks all 3D browser gameplay');
  }
+});
+
+test('startup loading stays until BOTH real state and actual 3D frames exist',()=>{
+ const h=launch();
+ h.advance(1000);assert.equal(h.loading.hidden,false,'a blank scene is still loading');
+ h.window.__DUNGEON_RENDER_DIAGNOSTICS__.frame=5;h.advance(500);
+ assert.equal(h.loading.hidden,false,'frames alone are not a verified expedition');
+ h.window.__DUNGEON_PUBLIC_STATE__.tick=2;h.advance(500);
+ assert.equal(h.loading.hidden,true,'both verified signals remove the loading veil');
+ assert.equal(h.document.body.dataset.rendererStatus,'ready');
+});
+
+test('a genuine graphics failure replaces loading with a recovery state',()=>{
+ const h=launch();h.lose();
+ assert.equal(h.loading.hidden,true);
+ assert.equal(h.recovery.hidden,false);
+ assert.equal(h.document.body.dataset.rendererStatus,'context-lost');
+});
+
+test('public error UI never exposes raw module failures or internal URLs',()=>{
+ assert.doesNotMatch(source,/detail\.textContent=errors\./);
+ assert.match(source,/check browser graphics support and the stream connection/);
 });
