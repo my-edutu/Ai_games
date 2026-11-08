@@ -22,7 +22,7 @@ const second={id:'Dara:1380',citizen:'Dara',receiptId:'Amin:5',amount:1,time:46}
 const firstMeal={id:first.id,citizen:'Hala',receiptId:'Amin:5',amount:.2,time:48,homeIndex:1};
 const secondMeal={id:second.id,citizen:'Dara',receiptId:'Amin:5',amount:.2,time:47,homeIndex:2};
 const same=plan(trace,actors,[receipt],[second,first],[secondMeal]);
-assert.equal(same.stage,'provisioning','a different family's meal is not the first buyer\'s');
+assert.equal(same.stage,'provisioning',"a different family\'s meal is not the first buyer\'s");
 assert.equal(same.citizen,'Hala');
 assert.equal(same.tradeId,first.id);
 const completed=plan({...trace,tradeId:first.id},actors,[receipt],[second,first],[secondMeal,firstMeal]);
