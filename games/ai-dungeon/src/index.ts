@@ -57,6 +57,29 @@ export function planDungeonRespite(nextFloor:number):number{
  if(!Number.isSafeInteger(nextFloor)||nextFloor<2)return 0;
  return Math.max(6,Math.ceil(26/Math.ceil(nextFloor/2)));
 }
+/** A genuinely earned, optional use for previously score-only gold:
+ * once at each real cleared portal, a gravely weakened ally can receive
+ * medicine purchased with spoils actually held by the squad. The decision
+ * is pure, deterministic, never grants money, and never converts spectator
+ * interaction into combat authority. Former signed runs keep all their gold.
+ */
+export const EXPEDITION_MEDICINE_COST=60;
+export const EXPEDITION_MEDICINE_HEAL=22;
+export function planExpeditionProvision(
+ s:Pick<DungeonState,'rulesVersion'|'floor'|'gold'|'units'>
+):{recipientId:string;goldCost:number;heal:number}|null{
+ if(!s||s.rulesVersion!==2||!Number.isSafeInteger(s.floor)||s.floor<2||
+  !Number.isSafeInteger(s.gold)||s.gold<EXPEDITION_MEDICINE_COST||
+  !Array.isArray(s.units))return null;
+ const candidates=s.units.filter(u=>u.faction==='party'&&
+   Number.isSafeInteger(u.hp)&&Number.isSafeInteger(u.maxHp)&&
+   u.maxHp>0&&u.hp>0&&u.hp<=Math.floor(u.maxHp*.55)&&
+   u.maxHp-u.hp>=12)
+  .sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp||a.id.localeCompare(b.id));
+ const patient=candidates[0];
+ return patient?{recipientId:patient.id,goldCost:EXPEDITION_MEDICINE_COST,
+  heal:Math.min(EXPEDITION_MEDICINE_HEAL,patient.maxHp-patient.hp)}:null;
+}
 export function planWardenRecovery(s:Pick<DungeonState,'tick'|'units'>,boss?:Unit){
  const until=boss?.recoveryUntilTick;
  if(!boss||boss.kind!=='warden'||boss.hp<=0||!Number.isSafeInteger(s?.tick)||
@@ -1185,7 +1208,17 @@ export class DungeonRuntime {
    const nextFloor=s.floor+1;const next=createFloor(this.seed,nextFloor,this.rng,s.run,s);
    const respite=planDungeonRespite(nextFloor);
    next.units.filter(u=>u.faction==='party').forEach(u=>u.hp=Math.min(u.maxHp,u.hp+respite));
+   // A single between-floor choice uses only verified earned gold and actual
+   // missing HP. Never purchase during combat or bypass a live guardian.
+   const medicine=planExpeditionProvision(next);
+   if(medicine){
+    const patient=next.units.find(u=>u.id===medicine.recipientId)!;
+    patient.hp+=medicine.heal;next.gold-=medicine.goldCost;
+   }
    this.state=next;push(next,'floor','FLOOR '+nextFloor+' · '+next.theme);
+   if(medicine)push(next,'provision','Expedition spent '+medicine.goldCost+
+    ' earned gold on medical supplies for '+medicine.recipientId+
+    ' · +'+medicine.heal+' HP');
   }
   assertDungeonState(this.state);return this.publicState();
  }
