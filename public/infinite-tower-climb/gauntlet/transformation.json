@@ -35,62 +35,58 @@
     "latestEvidenceRun": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "assessedAt": "2026-11-08",
-      "sourceHeadAtInspection": "2fe0c7fcc0be4564693dc5389f7c7be1b3ed15b4",
-      "actualRenderedGameSourceSha": "e0fe77294359c32c84cdcff3c0698ba0c7e3a067",
+      "sourceHeadAtInspection": "f65bacdf1e2dbf6d122c8ac0223503226a12bab7",
+      "actualRenderedGameSourceSha": "be3e49491fdb0305dce165e7abc4e59c58416fe9",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "frozenBaselineMoved": false,
       "authoritativeGameplayChangedThisExecution": false,
-      "renderedGameplayExperienceChangedThisExecution": false,
-      "largestObservedGap": "Actual new candidate 390x844 original WebM still shows a massive rigid-backed gear/case obstructing skinned hero and guardian at native 16-18 seconds after static shoulder relocation; around 25.5s floor9 appears abruptly without calibrated continuous body crossing.",
-      "primaryRootCauseFound": "The static angular exclusion regression did not model the actual rotating third-person camera frustum; this is demonstrated by authentic video. Separately exact-HEAD CI test had undefined loaded and sourceFrame runtime fixtures, vetoing geometry verification.",
-      "implementation": "Fixed only the blocking original Node/Three world-test harness: bridge actual world.mjs browser ESM import paths to installed native modules, construct frozen source-scale floor snapshots, retain original geometry/clearance/draw-budget/disposal checks. No art, physics or camera change this execution.",
+      "renderedGameplayExperienceChangedThisExecution": true,
+      "experienceChangeVerifiedInVideo": false,
+      "largestObservedGap": "Prior true portrait candidate film ~16–18 seconds still shows giant clock rim/backing and unprotected power rack dominating the climber/guardian; no post-change film inspected.",
+      "primaryRootCauseFound": "3 rotor-centre projections cannot cover camera-relative post-batch case/rack extents; 42-unit rack absent from sightline registry.",
+      "implementation": "Render-only: project full real clock-case bounds, depth-gate to source actor, and privately material-own and register the original noncolliding 42-unit power rack, preserving the three live decorative rotors and all gameplay hazards.",
       "concreteCommits": [
-        "2fe0c7fcc0be4564693dc5389f7c7be1b3ed15b4"
+        "be3e49491fdb0305dce165e7abc4e59c58416fe9",
+        "f65bacdf1e2dbf6d122c8ac0223503226a12bab7"
       ],
       "modifiedFiles": [
+        "public/infinite-tower-climb/visuals/world.mjs",
         "tests/phase3/tower-clockwork-guardian-sightlines.test.cjs",
         "docs/reviews/2026-11-07-tower-pr68-current-film-and-source-integrity-veto.md",
         "public/infinite-tower-climb/gauntlet/transformation.json"
       ],
+      "isolatedSourceChecks": "5/5 exact-source pure-helper boundary cases pass; not original Three.js or gameplay acceptance",
       "currentExactCodeQuality": {
-        "sha": "2fe0c7fcc0be4564693dc5389f7c7be1b3ed15b4",
-        "runId": 42429981553,
-        "status": "IN PROGRESS on initial inspection; not accepted",
-        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42429981553"
-      },
-      "priorExactCodeQuality": {
-        "sha": "f9bb975f871a1ab43097e3c01beacc01cfca6d52",
-        "runId": 42426205457,
-        "status": "FAILED: 1215 pass, 1 failure, 1216 total; ReferenceError loaded not defined in actual 3D geometry test",
-        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42426205457"
+        "sha": "f65bacdf1e2dbf6d122c8ac0223503226a12bab7",
+        "runId": 42434742879,
+        "status": "QUEUED; NOT EVALUATED",
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42434742879"
       },
       "currentNineJobCapture": {
-        "candidateSourceSha": "e0fe77294359c32c84cdcff3c0698ba0c7e3a067",
+        "candidateSourceSha": "be3e49491fdb0305dce165e7abc4e59c58416fe9",
         "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-        "runId": 42426089449,
-        "status": "SUCCESS nine jobs, original native WebM retrieved; film acceptance NOT EVALUATED",
-        "candidateDangerArtifactId": 13594459833,
-        "baselineDangerArtifactId": 13594988657,
-        "candidateOutcomeArtifactId": 13595751090,
-        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42426089449"
+        "runId": 42434680765,
+        "status": "QUEUED; NOT EVALUATED",
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42434680765"
       },
-      "sourceEventVideoClock": "NOT EVALUATED: browser event index explicitly baselineCandidateEventMatched=false, native WebM PTS calibration absent",
+      "videoEventAlignment": "NOT EVALUATED: current native candidate/baseline WebM and genuine source PTS mapping unavailable",
       "independentBlindReviews": {
         "looks": 0,
         "feels": 0,
         "plays": 0
       },
-      "hardwareFrameTimeMemory": "NOT EVALUATED: physical supported-device p50/p95/p99, memory, portrait controls missing",
+      "hardwareFrameTimeMemory": "NOT EVALUATED: no actual supported device results",
+      "developmentWorkspace": "UNAVAILABLE: tunnel-client not seen for 300 seconds",
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "nextHighImpactAction": "Repair CAMERA-RELATIVE actual 3D wheel/case/rack occlusion against current skinned hero and real guardian in both viewports; retain hazards; run original tests and 9-job matched capture, map WebM PTS to source beats for grounded floor9 threshold/outcome/restart, then independent blind acceptance.",
-      "restrictions": "No baseline move, PR58 edits, merge, deploy, force-push, draft conversion."
+      "nextHighImpactAction": "Inspect exact test CI and native 960x600 + 390x844 real-game source-pinned films at SHA be3e4949; verify giant wheel/rack visibility and any new overfade; calibrate event PTS against guardian, crusher, grounded gateway, floor-nine and restart; repair largest authentic filmed defect and validate actual-device performance.",
+      "restrictions": "Baseline frozen; PR58 untouched; PR68 remains draft; no merge/deploy/force-push."
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
-    "state": "P0 OPEN — true camera-relative occlusion unresolved in actual current 390x844 film; CI verification of newly fixed world geometry test pending; no event-aligned blind acceptance.",
+    "state": "P0 OPEN — current camera-relative clockwork/rack renderer implementation unverified by exact-source film; P0 progression/recording, event PTS, blind reviews and hardware gates still unmet.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Repair CAMERA-RELATIVE actual 3D wheel/case/rack occlusion against current skinned hero and real guardian in both viewports; retain hazards; run original tests and 9-job matched capture, map WebM PTS to source beats for grounded floor9 threshold/outcome/restart, then independent blind acceptance.",
+    "nextDecision": "Inspect exact test CI and native 960x600 + 390x844 real-game source-pinned films at SHA be3e4949; verify giant wheel/rack visibility and any new overfade; calibrate event PTS against guardian, crusher, grounded gateway, floor-nine and restart; repair largest authentic filmed defect and validate actual-device performance.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Actual new candidate 390x844 original WebM still shows a massive rigid-backed gear/case obstructing skinned hero and guardian at native 16-18 seconds after static shoulder relocation; around 25.5s floor9 appears abruptly without calibrated continuous body crossing.",
+    "biggestRemainingExperienceGap": "Prior true portrait candidate film ~16–18 seconds still shows giant clock rim/backing and unprotected power rack dominating the climber/guardian; no post-change film inspected.",
     "unverifiedImplementationBranchHead": "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
     "currentVerticalSlice": "Physically earned ascent → guardian/crusher victory → full-body cap crossing → same-X grounded floor-nine arrival → playable onward route and true outcome/restart. No experience acceptance yet.",
     "biggestGap": "Unverified source-new 3D wheel/case clearance in normal-speed portrait guardian/cap crossing; previously giant foreground rotor at ~17-19s, event/video PTS uncalibrated; gateway floor9/outcome/restart visual sequence still not independently inspected.",
