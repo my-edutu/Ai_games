@@ -69,6 +69,11 @@ test('real imported rig attack has one named action owner and source-clip audit'
  expect(d.authored3D.rigMeleeBones).toBeGreaterThanOrEqual(2);
  const attackedRig=await nativeRigProof(page);
  expect(attackedRig.summary.maxStretchFraction).toBeLessThanOrEqual(.20);
+ expect(Number.isFinite(d.authored3D.fullBodySourceClockMaxRemainingSeconds)).toBe(true);
+ expect(d.authored3D.fullBodySourceClockCorrectedFrames).toBeGreaterThanOrEqual(0);
+ expect(attackedRig.actors.every(a=>!a.sourceClock||
+  (Number.isFinite(a.sourceClock.sourceTime)&&a.sourceClock.sourceTime>=0&&
+   Number.isFinite(a.sourceClock.duration)&&a.sourceClock.duration>0))).toBe(true);
  const actorBefore=beforeRig.actors.find(a=>a.id===event.actor.id),
   actorAfter=attackedRig.actors.find(a=>a.id===event.actor.id);
  expect(actorBefore?.validSegments).toBeGreaterThanOrEqual(4);
@@ -83,6 +88,9 @@ test('real imported rig attack has one named action owner and source-clip audit'
   source:'unmodified DungeonRuntime publicState',headSha:process.env.GITHUB_SHA??null,
   owners:d.authored3D.fullBodyModes,clipAudits:d.authored3D.sourceClipAudits,
   interruptions:d.authored3D.fullBodyInterruptions,restarts:d.authored3D.fullBodyRestarts,
+  sourceClockCorrectedFrames:d.authored3D.fullBodySourceClockCorrectedFrames,
+  sourceClockPeakDriftSeconds:d.authored3D.fullBodySourceClockPeakDriftSeconds,
+  sourceClockMaxRemainingSeconds:d.authored3D.fullBodySourceClockMaxRemainingSeconds,
   beforeRig,attackedRig
  },null,2))});
 });

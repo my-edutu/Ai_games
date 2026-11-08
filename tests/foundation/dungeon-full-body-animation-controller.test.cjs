@@ -324,7 +324,8 @@ test('genuine HP-zero source skeleton freezes its living mixer while preserving 
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(model,/const freezeSource=actor\.fullBody\.owner\.defeat/);
  assert.match(model,/if\(!freezeSource\)changeAction\(actor,actor\.fullBody\.clipAction,actor\.fullBody\.restarted\)/);
- assert.match(model,/actor\.mixer\.update\(freezeSource\?0:Math\.min\(/);
+ assert.match(model,/const sourceStep=freezeSource\?0:Math\.min\(/);
+ assert.match(model,/actor\.mixer\.update\(sourceStep\)/);
  assert.match(model,/stageSkinnedDefeatAfterMixer\(actor,reducedMotion\)/);
  assert.match(model,/fullBodyFrozenSourceActors:/);
  assert.match(model,/fullBodyFrozenSourceFrames:/);
@@ -348,4 +349,43 @@ test('real renderer consumes exactly one arbiter before imported mixer and prese
  assert.match(model,/actor\.fullBody\?\.owner\.warning/,'Warden warnings must release joint ownership on damage and evasion');
  assert.ok(server.includes("['/dungeon/full-body-animation-controller.js','full-body-animation-controller.js']"));
  assert.doesNotMatch(code,/Math\.random|Date\.now|DungeonRuntime|fetch\(|performance\.now/);
+});
+
+test('licensed GLB clip recovers source time lost to slow frames, with bounded hand/sole correction',async()=>{
+ const {planImportedOneShotPhase:plan}=await load();
+ const lag=plan({mode:'attack',actionTick:40,age:.35,sourceTime:.03,
+  sourceDuration:.9,effectiveSpeed:1.45,frameDelta:.05});
+ assert.equal(lag.valid,true);assert.equal(lag.align,true);
+ assert.ok(lag.startTime>.03&&lag.startTime-.03<=.125*1.45+1e-9);
+ assert.ok(Math.abs(lag.remainingSeconds)<Math.abs(lag.driftSeconds));
+ const inPhase=plan({mode:'attack',actionTick:40,age:.26,sourceTime:.245,
+  sourceDuration:.95,effectiveSpeed:1,frameDelta:.016});
+ assert.equal(inPhase.align,false);
+ const rewind=plan({mode:'cast',actionTick:41,age:.14,sourceTime:.37,
+  sourceDuration:1,effectiveSpeed:1,frameDelta:.016});
+ assert.ok(rewind.align&&.37-rewind.startTime<=.05500001);
+ const recovery=plan({mode:'attack',actionTick:70,age:.5,sourceTime:.21,
+  sourceDuration:.9,effectiveSpeed:1.4,frameDelta:.05});
+ assert.ok(recovery.align&&recovery.startTime>.21);
+});
+test('clock correction cannot alter dead/idle/evasion/unknown or reduced-motion import clips',async()=>{
+ const {planImportedOneShotPhase:plan}=await load();
+ const base={mode:'attack',actionTick:55,age:.2,sourceTime:.02,
+  sourceDuration:.8,effectiveSpeed:1.4,frameDelta:.05};
+ for(const item of [{mode:'idle'},{mode:'move'},{mode:'evade'},{mode:'defeat'},
+  {actionTick:null},{age:NaN},{sourceDuration:0},
+  {sourceTime:Infinity},{reducedMotion:true}]){
+  assert.equal(plan({...base,...item}).align,false,JSON.stringify(item));
+ }
+ for(let age=0;age<.65;age+=.05){
+  const result=plan({...base,mode:'cast',age,sourceTime:Math.min(age*.6,.8)});
+  assert.ok(result.valid&&result.startTime>=0&&result.startTime<.8);
+  assert.ok(Number.isFinite(result.remainingSeconds));
+ }
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.ok(model.includes('planImportedOneShotPhase({'));
+ assert.ok(model.includes('actor.activeClip.time=sourceSync.startTime'));
+ assert.ok(model.includes('actor.mixer.update(sourceStep)'));
+ assert.ok(model.includes('fullBodySourceClockCorrectedFrames:'));
+ assert.match(model,/next\.crossFadeFrom\(previous,[^\n]+,false\)/);
 });

@@ -170,3 +170,28 @@ export function planConstrainedFootSupport(phase=0,weight=0,{
   right:{upper:-.011*right,lower:.034*right,foot:-.062*right}
  };
 }
+
+/**
+ * Imported skinned source clips and reversible native full-body overlays must
+ * share one witnessed clock. Slow browser frames can advance mixer time by
+ * only 50ms even while the real event has moved into recovery. This bounded
+ * source-time correction cannot change a hit, target, authority tick or grip.
+ */
+export function planImportedOneShotPhase({mode='idle',actionTick=null,age=0,sourceTime=0,
+ sourceDuration=0,effectiveSpeed=1,frameDelta=0,reducedMotion=false}={}){
+ const invalid=Object.freeze({valid:false,align:false,startTime:0,driftSeconds:0,remainingSeconds:0});
+ if(reducedMotion||!['attack','cast','hurt'].includes(mode)||
+  !Number.isSafeInteger(actionTick)||actionTick<0||
+  ![age,sourceTime,sourceDuration,effectiveSpeed,frameDelta].every(Number.isFinite)||
+  age<0||sourceTime<0||sourceDuration<=.002||effectiveSpeed<=.001||frameDelta<0)return invalid;
+ const ceiling=Math.max(0,sourceDuration-.002);
+ const step=Math.min(.05,frameDelta),advance=step*effectiveSpeed;
+ const target=Math.min(ceiling,age*effectiveSpeed);
+ const projected=Math.min(ceiling,sourceTime+advance);
+ const driftSeconds=(target-projected)/effectiveSpeed;
+ const align=Math.abs(driftSeconds)>.028;
+ const correctionSeconds=align?Math.max(-.055,Math.min(.125,driftSeconds)):0;
+ const startTime=Math.max(0,Math.min(ceiling,sourceTime+correctionSeconds*effectiveSpeed));
+ const remainingSeconds=(target-Math.min(ceiling,startTime+advance))/effectiveSpeed;
+ return {valid:true,align,startTime,driftSeconds,remainingSeconds};
+}
