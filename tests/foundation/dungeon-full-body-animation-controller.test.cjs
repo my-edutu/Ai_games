@@ -130,6 +130,29 @@ test('source clips are auditable by native track without altering original GLBs'
  assert.deepEqual(audit([]).clips,[]);
  assert.deepEqual(clip.tracks[0],{name:'Spine.quaternion'});
 });
+test('one verified evade owns a finite cloth lag and injury/defeat cannot keep an attack hem swinging',async()=>{
+ const pathToDrape=path.join(root,'public/ai-dungeon/fabric-drape-plan.js');
+ const drape=await import('data:text/javascript;base64,'+
+  Buffer.from(fs.readFileSync(pathToDrape,'utf8')).toString('base64'));
+ const early=drape.planDrapeSwing('evade',.20);
+ assert.ok(early.pitch>.08&&early.roll>.04);
+ assert.deepEqual(drape.planDrapeSwing('evade',.58),{pitch:0,roll:0});
+ assert.deepEqual(drape.planDrapeSwing('evade',.20,true),{pitch:0,roll:0});
+ assert.equal(drape.drapePoseKey('defeat',.20),'rest');
+ assert.equal(drape.drapePoseKey('evade',.8),'rest');
+ assert.ok(drape.planDrapeVertexBend(1,.5,'evade',.25).z>.01);
+ for(const action of ['evade','hurt','defeat']){
+  for(const t of [0,.08,.20,.45,.58,1,NaN,Infinity]){
+   const p=drape.planDrapeVertexBend(1,.5,action,t);
+   assert.ok(Object.values(p).every(v=>Number.isFinite(v)&&Math.abs(v)<.15));
+  }
+ }
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/const clothAction=actor\.fullBody\?\.mode/);
+ assert.match(model,/const clothAge=actor\.fullBody\?\.owner\.injury\|\|actor\.fullBody\?\.owner\.evasion/);
+ assert.match(model,/planDrapeSwing\(clothAction,clothAge,reducedMotion\)/);
+});
+
 test('real renderer consumes exactly one arbiter before imported mixer and preserves reversible bones',()=>{
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  const server=fs.readFileSync(path.join(root,'scripts/serve-dungeon-stream.cjs'),'utf8');
