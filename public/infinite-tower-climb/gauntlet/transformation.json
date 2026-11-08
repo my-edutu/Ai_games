@@ -70,13 +70,36 @@
         "public/infinite-tower-climb/gauntlet/transformation.json",
         "docs/reviews/2026-11-07-tower-pr68-current-film-and-source-integrity-veto.md"
       ],
-      "isolatedSourceChecks": "Exact GitHub branch-file readback verified ffprobe and source/viewport guards, four authored regression fixtures, offline CLI after both viewport source captures, hosted baseline observational-copy and both pinned viewport audit before artifact upload. Original Node22 tests/Bash/ffprobe on generated WebM NOT EXECUTED due disconnected workspace and unassigned Actions runner. Static checks are not a test PASS.",
+      "isolatedSourceChecks": "Exact GitHub branch-file readback verified ffprobe and source/viewport guards, four authored regression fixtures, offline CLI after both viewport source captures, hosted baseline observational-copy and both pinned viewport audit before artifact upload. Original Node22 tests/Bash/ffprobe on generated WebM NOT EXECUTED due disconnected workspace and unassigned Actions runner. Static checks are not a test PASS. Successfully executed local FFprobe against genuine recovered *older* original-source desktop and portrait WebMs; both native dimensions true and decoded 71s video with 0.04s maximum frame gaps. This validates prior artifact transport only, NOT authored new CLI, latest PR68 experience or blind full-motion verdict.",
       "recoveredAuthenticPriorCapture": {
         "artifactId": 13594459833,
-        "sha": "e0fe77294359c32c84cdcff3c0698ba0c7e3a067",
+        "sourceSha": "e0fe77294359c32c84cdcff3c0698ba0c7e3a067",
         "workflowId": 42426089449,
-        "sourceTruth": "Original candidate danger 960x600 and 390x844 WebM + source traces extracted and inspected. Portrait sampled at 16 and 18s still shows a giant obstructing rotor/frame; floor 9 visible around 26-28s. This is not footage of newly authored geometry and not a blinded full-motion verdict.",
-        "sourceEventToNativePts": "NOT EVALUATED: old artifact predates anchored WebM native-clock sidecars"
+        "measuredFrom": "Actually recovered original original-source candidate danger artifact and ran local ffprobe directly on BOTH untouched older WebMs in this run. This is historic renderer footage, NOT current-head video, NOT execution of the new auditor module.",
+        "desktop": {
+          "videoDimensions": "960x600",
+          "videoCodec": "vp8",
+          "containerSeconds": 71.2,
+          "decodedFrames": 1780,
+          "decodedPtsSpanSeconds": 71.16,
+          "maxFrameGapSeconds": 0.04,
+          "sha256": "f32f92c89cf11b7dc618e3183bebbe41fef879f717f0cc2c8251e89eeded5458",
+          "sourceLaunchFloor": 8,
+          "sourceStartTick": 63
+        },
+        "portrait": {
+          "videoDimensions": "390x844",
+          "videoCodec": "vp8",
+          "containerSeconds": 71.12,
+          "decodedFrames": 1778,
+          "decodedPtsSpanSeconds": 71.08,
+          "maxFrameGapSeconds": 0.04,
+          "sha256": "4b20860ac990e4af4a310a6c78192367f113ba9cae876cee9177adbd5a2b1b53",
+          "sourceLaunchFloor": 8,
+          "sourceStartTick": 47
+        },
+        "videoDefect": "Actually sampled original native portrait seconds 17.2 and 27.0 in this run. At 17.2s foreground ring/rack strongly masks standing climber and central fighting line; at 27s HUD shows floor 9 with climber and deck visible. This is older e0fe game code only; authentic source-event markers do not visually certify filmed guardian death/grounded threshold/restart.",
+        "filmVisibilityGate": "NOT EVALUATED for new PR68 geometry; prior original source film proves transport is native 390x844 rather than a letterboxed 960x600, but movement/action quality requires normal-speed uninterrupted human critique."
       },
       "currentExactCodeQuality": {
         "sha": "ff3dc0369ebbade26bbc7169dd2e58580fe07e98",
@@ -1355,7 +1378,8 @@
       "branchChecks": "Readback only; original Node/test and current browser run pending",
       "leadVerdict": "NOT EVALUATED",
       "ciQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/42476738709",
-      "ciCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/42476738867"
+      "ciCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/42476738867",
+      "actualHistoricalVideoInspection": "Recovered older candidate danger ZIP artifact 13594459833. Genuine original WebM file FFprobe: desktop 960x600 71.20s/1780 frames, portrait 390x844 71.12s/1778 frames, max gap 0.04s each. Source e0fe7729 old. Sampled portrait 17.2s obstructed, 27.0s floor9; not new source. The NEW audit's full original Node tests remain unexecuted."
     }
   },
   "scenarios": [
