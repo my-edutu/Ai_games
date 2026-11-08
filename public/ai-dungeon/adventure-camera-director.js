@@ -71,12 +71,15 @@ const mix=(a,b,t)=>({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t,z:a.z+(b.z-a.z)*t});
  * bound under delayed software WebGL. Hazard FOV widens immediately, never
  * concealing a genuinely imminent floor warning while a pan is easing.
  */
-export function createAdventureCameraDirector({continuity=null,physical=null}={}){
+export function createAdventureCameraDirector({continuity=null,physical=null,threat=null,collision=null}={}){
  let scene=null,beat='manual',onset=false,automatic=false;
  let frames=0,modeChanges=0,urgentTurns=0,resets=0,orbits=0,physicalAccepted=0,manualEntries=0;
+ let threatChecks=0,threatImprovements=0,threatCapped=0,lastThreat=null;
+ let collisionChecks=0,collisionCorrections=0,collisionHolds=0,lastCollisionMode=null;
  function clearHelpers(){
   continuity?.reset?.();
   physical?.reset?.();
+  lastThreat=null;
  }
  function reset(){
   clearHelpers();scene=null;beat='manual';automatic=false;onset=false;resets++;
@@ -118,7 +121,37 @@ export function createAdventureCameraDirector({continuity=null,physical=null}={}
   }
   return base;
  }
- function transition(actual,desired,dt=0,{following=null,reducedMotion=false,initialized=true}={}){
+ /** The only authority allowed to request warning coverage correction is the
+  * active AUTO cinematic Warden-warning beat; manual mode stays untouchable.
+  * Geometry proposal is pure and delivered by the physical specialist.
+  */
+ function frameThreat(s,base,options={}){
+  if(!automatic||beat!=='warning'||!threat?.plan)return null;
+  const planned=threat.plan(s,base,options);
+  if(!planned||!vector(planned.camera?.position)||!planned.camera?.look||
+     ![planned.camera.look.x,planned.camera.look.z,planned.fov].every(finite))return null;
+  threatChecks++;
+  if(planned.changed)threatImprovements++;
+  if(planned.coverage?.capped)threatCapped++;
+  lastThreat=Object.freeze({reason:planned.reason,requiredFov:planned.coverage?.requiredFov,
+   fov:planned.fov,cells:planned.coverage?.cells,capped:planned.coverage?.capped});
+  return planned;
+ }
+ /** Guard the actual interpolated camera ray against already-rendered Gothic
+  * wall/facade/prop volumes. Manual focus and camera mode remain sovereign;
+  * the submitted proposal is read-only and cannot alter physical game lanes.
+  */
+ function protectWorld(actual,desired,options={}){
+  if(!automatic||!collision?.plan)return null;
+  const result=collision.plan(actual,desired,options);
+  if(!result||!vector(result.position))return null;
+  collisionChecks++;
+  if(result.corrected)collisionCorrections++;
+  if(result.mode==='held-at-physical-wall')collisionHolds++;
+  lastCollisionMode=result.mode;
+  return result;
+ }
+ function transition(actual,desired,dt=0,{following=null,reducedMotion=false,initialized=true,warningState=null,warningViewport=null}={}){
   if(!vector(desired?.position)||!vector(desired?.aim)||!finite(desired.fov)||
      desired.fov<25||desired.fov>105)return null;
   if(!initialized||reducedMotion||!vector(actual?.position)||!vector(actual?.aim)||!finite(actual?.fov)){
@@ -143,12 +176,30 @@ export function createAdventureCameraDirector({continuity=null,physical=null}={}
   }
   onset=false;
   const fov=clamp(actual.fov+(desired.fov-actual.fov)*lensAlpha,25,105);
-  return Object.freeze({position:mix(actual.position,desired.position,alpha),
-   aim:mix(actual.aim,desired.aim,aimAlpha),fov,beat,alpha});
+  let targetPose={position:mix(actual.position,desired.position,alpha),
+   aim:mix(actual.aim,desired.aim,aimAlpha),fov,beat,alpha};
+  // Do not let the usual pleasant cinematic easing consume the entire
+  // warning while its genuine outer danger tiles are still off-camera.
+  // The specialist may advance the same transition (never a new subject)
+  // only when a bounded partial movement measurably improves coverage.
+  if(beat==='warning'&&warningState&&warningViewport&&threat?.refine){
+   const guarded=threat.refine(warningState,actual,targetPose,desired,warningViewport);
+   if(guarded){
+    if(guarded.changed)targetPose={...targetPose,
+     position:guarded.pose.position,aim:guarded.pose.aim,fov:guarded.pose.fov};
+    lastThreat=Object.freeze({...lastThreat,
+     transition:Object.freeze({reason:guarded.reason,changed:guarded.changed,
+      fraction:guarded.fraction,requiredFov:guarded.coverage?.requiredFov,
+      covered:guarded.coverage?.covered})});
+   }
+  }
+  return Object.freeze(targetPose);
  }
  function metrics(){
   return Object.freeze({scene,beat,frames,modeChanges,urgentTurns,resets,orbits,
-   physicalAccepted,manualEntries});
+   physicalAccepted,manualEntries,threatChecks,threatImprovements,threatCapped,lastThreat,
+   collision:Object.freeze({checks:collisionChecks,corrected:collisionCorrections,
+    held:collisionHolds,lastMode:lastCollisionMode})});
  }
- return Object.freeze({begin,selectPhysical,transition,reset,metrics});
+ return Object.freeze({begin,selectPhysical,frameThreat,protectWorld,transition,reset,metrics});
 }
