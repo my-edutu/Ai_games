@@ -911,7 +911,7 @@ document.addEventListener('visibilitychange',()=>frameDeliveryProbe.resetClock()
 // Actual 3D subject framing metrics, independent from overlay/card brightness.
 const compositionHead=new THREE.Vector3(),compositionFoot=new THREE.Vector3();
 const bodyPointSample=new THREE.Vector3();
-const raycaster=new THREE.Raycaster(),rayStart=new THREE.Vector3(),rayEnd=new THREE.Vector3(),rayDirection=new THREE.Vector3();
+const rayStart=new THREE.Vector3(),rayEnd=new THREE.Vector3();
 let lastRayAuditAt=-Infinity,rayAudit={testedHeroes:0,unoccludedHeroes:0,occludedHeroes:0,testedBosses:0,unoccludedBosses:0,occludedBosses:0,samples:0};
 function actualHeroVisibility(s,at){
  if(at-lastRayAuditAt<1.25)return rayAudit;
@@ -924,6 +924,8 @@ function actualHeroVisibility(s,at){
  ].filter(o=>o?.visible!==false);
  let tested=0,clear=0,blocked=0,bosses=0,clearBosses=0,blockedBosses=0,samples=0;
  let fullBodyHeroes=0,partiallyVisibleHeroes=0,fullBodyBosses=0,bodySamples=0;
+ const blockedByWorld=actorOcclusionStage.createDiagnosticSampler(obstacles);
+ const auditStarted=performance.now();
  camera.getWorldPosition(rayStart);
  for(const hero of s.units.filter(u=>u.hp>0&&(u.faction==='party'||u.kind==='warden'))){
   const actor=actors.get(hero.id);if(!actor||actor.root.visible===false)continue;
@@ -934,12 +936,9 @@ function actualHeroVisibility(s,at){
   let visibleBodyPoints=0;
   for(const y of [.30,.76,1.22,hero.kind==='warden'?2.28:1.78]){
    actor.root.getWorldPosition(rayEnd);rayEnd.y+=y*(actor.root.scale.y||1);
-   rayDirection.subVectors(rayEnd,rayStart);const distance=rayDirection.length();
-   if(distance<.25){visibleBodyPoints++;continue}
-   raycaster.set(rayStart,rayDirection.multiplyScalar(1/distance));raycaster.near=.1;raycaster.far=Math.max(.2,distance-.33);
+   if(rayStart.distanceTo(rayEnd)<.25){visibleBodyPoints++;continue}
    samples++;bodySamples++;
-   const hits=raycaster.intersectObjects(obstacles,true);
-   if(!hits.length)visibleBodyPoints++;
+   if(!blockedByWorld(rayStart,rayEnd))visibleBodyPoints++;
   }
   const good=visibleBodyPoints>0;
   if(hero.kind==='warden'){
@@ -953,6 +952,7 @@ function actualHeroVisibility(s,at){
  }
  rayAudit={testedHeroes:tested,unoccludedHeroes:clear,occludedHeroes:blocked,testedBosses:bosses,unoccludedBosses:clearBosses,occludedBosses:blockedBosses,samples,
   fullBodyHeroes,partiallyVisibleHeroes,fullBodyBosses,bodySamples,
+  auditDurationMs:Math.round((performance.now()-auditStarted)*100)/100,
   bodyVisibilityMethod:'four anatomical 3D rays; not a pixel or blinded quality grade'};
  return rayAudit;
 }

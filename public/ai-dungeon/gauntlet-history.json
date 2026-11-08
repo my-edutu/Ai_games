@@ -6230,6 +6230,31 @@
       "plays": "UNVERIFIED",
       "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
       "next": "Inspect exact-head real 1440/390 moving WebGL and original-audio evidence, measure true camera/ray versus WebGL/rAF/video costs and Warden visibility; safely integrate verified PR72 animation only after original browser footage and compatibility"
+    },
+    "m1BodyAuditPhysicalRayCandidate": {
+      "date": "2026-11-08",
+      "stage": "A_INCOMPLETE",
+      "parentSha": "6ea9e7216981e505f941c0b24c57950314eff839",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "implementation": "Real four-point anatomical visibility metric shares exact masonry broadphase, once per audit, with original Three.js narrowphase and native fallback for unsupported geometry and ordinary props",
+      "touched": [
+        "public/ai-dungeon/actor-occlusion-stage.js",
+        "public/ai-dungeon/app.js",
+        "tests/foundation/dungeon-actor-occlusion-stage.test.cjs"
+      ],
+      "fixture": "101 original-matrix-style stones, four body rays, 400 rejected, four exact geometric candidates; moved wall and malformed geometry fallback; isolated Node pass",
+      "newHeadRealMotion": "NOT_OBSERVED",
+      "ci": "NOT_EXECUTED",
+      "originalAudioSync": "UNVERIFIED",
+      "desktopMobileEvidence": "UNVERIFIED",
+      "organicFiveStages": "UNVERIFIED",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "pr72": "NOT_INTEGRATED",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "next": "Inspect exact-head actual desktop/mobile video audio auditDurationMs directRenderMs frameDelivery under same seed; accept only real motion improvements with preserved Warden threats; then compatible animation and natural five-stage evidence"
     }
   }
 }

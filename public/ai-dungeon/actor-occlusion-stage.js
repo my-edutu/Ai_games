@@ -54,7 +54,7 @@ export function createActorOcclusionStage(T){
  // The exact native THREE.Mesh.raycast still makes the final hit decision.
  const MAX_ACCEL_INSTANCES=4096;
  let accelerated=new WeakMap(),broadphaseBuilds=0,broadphaseRejected=0;
- let narrowphaseTests=0,legacyRaycasts=0;
+ let narrowphaseTests=0,legacyRaycasts=0,diagnosticRays=0,diagnosticBlocked=0;
  function instanceBounds(mesh){
   if(!mesh?.isInstancedMesh||!mesh.geometry||!mesh.matrixWorld||
      !Number.isSafeInteger(mesh.count)||mesh.count<1||mesh.count>MAX_ACCEL_INSTANCES||
@@ -140,6 +140,36 @@ export function createActorOcclusionStage(T){
    accepted++;verified++;
   }
  }
+
+ // Diagnostics must not repeat full original instanced-wall raycasts for
+ // every helmet/chest/boot sample. Prepare CURRENT actual stone matrices once
+ // per audit, after cutaways; make exact original Three.js hits authoritative.
+ function createDiagnosticSampler(obstacles){
+  const prepared=(Array.isArray(obstacles)?obstacles:[])
+   .filter(mesh=>mesh&&mesh.visible!==false)
+   .map(mesh=>{
+    if(mesh.isInstancedMesh)mesh.updateWorldMatrix?.(true,false);
+    return {mesh,bounds:mesh.isInstancedMesh?instanceBounds(mesh):null};
+   });
+  return (from,to)=>{
+   if(!from||!to||![from.x,from.y,from.z,to.x,to.y,to.z].every(valid))return false;
+   origin.set(from.x,from.y,from.z);target.set(to.x,to.y,to.z);
+   direction.subVectors(target,origin);
+   const distance=direction.length();
+   if(distance<.25)return false;
+   raycaster.set(origin,direction.multiplyScalar(1/distance));
+   raycaster.near=.1;raycaster.far=Math.max(.2,distance-.33);
+   diagnosticRays++;
+   for(const {mesh,bounds} of prepared){
+    // Unrecognized instances use complete native geometry, never proxies.
+    const hits=mesh.isInstancedMesh?
+     exactInstancedIntersections(mesh,bounds):raycaster.intersectObject(mesh,true);
+    if(hits.length){diagnosticBlocked++;return true;}
+   }
+   return false;
+  };
+ }
+
  function resolve(key,camera,subjects,wallMesh,facadeMesh,now){
   if(key!==scene){reset();scene=key;}
   const live=(Array.isArray(subjects)?subjects:[]).filter(s=>s?.visibleActor===true&&
@@ -168,7 +198,7 @@ export function createActorOcclusionStage(T){
   evictions+=before-wall.size-facade.size;
   return {walls:new Set(wall.keys()),facades:new Set(facade.keys()),scanned:true};
  }
- return Object.freeze({resolve,reset,metrics:()=>Object.freeze({scans,rays,verified,evictions,
+ return Object.freeze({resolve,reset,createDiagnosticSampler,metrics:()=>Object.freeze({scans,rays,verified,evictions,diagnosticRays,diagnosticBlocked,
   heldWalls:wall.size,heldFacades:facade.size,maxActors:MAX_ACTORS,maxPoints:MAX_POINTS,
   kind:'conservative-world-sphere-broadphase-and-original-triangle-raycast',
   broadphaseBuilds,broadphaseRejected,narrowphaseTests,legacyRaycasts,

@@ -123,3 +123,56 @@ test('original instanced stone exact ray acceleration preserves true foreground 
  assert.equal(legacy,6,'invalid or absent geometry returns to original complete raycast');
  assert.equal(stage.metrics().authorityChanged,false);
 });
+
+
+test('true four-body-point visibility reuses exact original masonry bounds without hiding foreground stone',async()=>{
+ const {createActorOcclusionStage}=await load();
+ let exact=0,native=0;
+ class Vec{
+  constructor(x=0,y=0,z=0){this.set(x,y,z)}
+  set(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z;return this}
+  copy(v){return this.set(v.x,v.y,v.z)}
+  applyMatrix4(m){this.x+=m.x||0;this.y+=m.y||0;this.z+=m.z||0;return this}
+  subVectors(a,b){return this.set(a.x-b.x,a.y-b.y,a.z-b.z)}
+  length(){return Math.hypot(this.x,this.y,this.z)}
+  multiplyScalar(n){this.x*=n;this.y*=n;this.z*=n;return this}
+ }
+ class Matrix{
+  multiplyMatrices(a,b){this.x=(a.x||0)+(b.x||0);this.y=(a.y||0)+(b.y||0);this.z=(a.z||0);return this}
+  getMaxScaleOnAxis(){return 1}
+ }
+ class Mesh{
+  constructor(geometry,material){this.geometry=geometry;this.material=material;this.matrixWorld=new Matrix()}
+  raycast(ray,hits){exact++;if(Math.abs(this.matrixWorld.x)<.2&&Math.abs(this.matrixWorld.z-5)<.2)
+   hits.push({distance:3,point:{x:0,y:1,z:5}})}
+ }
+ class Raycaster{
+  set(){}
+  intersectObject(mesh){native++;return mesh.hit?[{distance:3,point:{x:0,y:1,z:5}}]:[]}
+ }
+ const stage=createActorOcclusionStage({Vector3:Vec,Matrix4:Matrix,Mesh,Raycaster});
+ const positions=Array.from({length:101},(_,i)=>i?{x:9+i%10,z:4+Math.floor(i/10)}:{x:0,z:5});
+ const masonry={isInstancedMesh:true,visible:true,count:101,
+  geometry:{boundingSphere:{center:{x:0,y:0,z:0},radius:.42}},material:{},matrixWorld:{},
+  updateWorldMatrix(){},getMatrixAt(i,m){Object.assign(m,positions[i])}};
+ const from={x:0,y:1,z:8},to={x:0,y:1,z:0};
+ const sample=stage.createDiagnosticSampler([masonry]);
+ for(let i=0;i<4;i++)assert.equal(sample(from,to),true);
+ assert.equal(exact,4,'four real-ray original triangular candidates');
+ assert.equal(native,0);
+ assert.equal(stage.metrics().broadphaseRejected,400);
+ assert.equal(stage.metrics().broadphaseBuilds,1,'build current world spheres once per audit');
+ positions[0].x=15;
+ assert.equal(stage.createDiagnosticSampler([masonry])(from,to),false,'new matrix clears old obstruction');
+ assert.equal(exact,4);
+ masonry.geometry={};masonry.hit=true;
+ const unsupported=stage.createDiagnosticSampler([masonry]);
+ assert.equal(unsupported(from,to),true,'invalid geometry retains native original raycast');
+ assert.equal(native,1);
+ assert.equal(unsupported(from,{x:NaN,y:1,z:0}),false,'malformed body point cannot corrupt audit');
+ assert.equal(stage.metrics().diagnosticRays,6);
+ assert.equal(stage.metrics().diagnosticBlocked,5);
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ assert.match(app,/actorOcclusionStage\.createDiagnosticSampler\(obstacles\)/);
+ assert.match(app,/auditDurationMs:/);
+});
