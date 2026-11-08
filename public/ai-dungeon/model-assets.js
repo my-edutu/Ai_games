@@ -643,7 +643,7 @@ function stageRigMeleeAfterMixer(actor,since,reducedMotion){
   const stride=mount.part==='spine'?(actor.rigFullBodyStride?.chest||RIG_ZERO):RIG_ZERO;
   const threat=actor.u.kind==='warden'&&actor.u.hp>0&&!reducedMotion&&actor.fullBody?.owner.warning&&mount.part==='spine'?
    actor.wardenCharge?.threatPerformance:null;
-  const strike=mount.part==='spine'&&!reducedMotion?actor.wardenStrikePose?.spine:null;
+  const strike=mount.part==='spine'&&!reducedMotion&&actor.fullBody?.owner.warning?actor.wardenStrikePose?.spine:null;
   mount.next.setFromEuler(mount.euler.set(
    Math.max(-.55,Math.min(.55,joint.pitch+extra.pitch+native.pitch+dodge.pitch+bearing.pitch+stride.pitch+(strike?.pitch??0))),
    Math.max(-.48,Math.min(.48,joint.yaw+extra.yaw+native.yaw+dodge.yaw+bearing.yaw+stride.yaw+(threat?.torsoYaw??0)+(strike?.yaw??0))),
@@ -683,12 +683,12 @@ function stageRigArmsAfterMixer(actor,since,reducedMotion){
  const pose=planRigArmGesture(actor.u.kind,['hurt','defeat','evade'].includes(actor.fullBody?.mode)?'idle':actor.u.action||'idle',since,reducedMotion);
  // Real Warden warnings articulate the original imported shoulders in three
  // distinct attack silhouettes. All deltas are reversed before the next mixer frame.
- const warningLift=actor.u.kind==='warden'&&actor.u.hp>0&&!reducedMotion&&
+ const warningLift=actor.u.kind==='warden'&&actor.u.hp>0&&!reducedMotion&&actor.fullBody?.owner.warning&&
   Number.isFinite(actor.wardenCharge?.armRaise)?
   Math.max(-.64,Math.min(0,actor.wardenCharge.armRaise)):0;
- const exposure=actor.u.kind==='warden'&&actor.u.hp>0?actor.wardenExposure:null;
+ const exposure=actor.u.kind==='warden'&&actor.u.hp>0&&actor.fullBody?.owner.warning?actor.wardenExposure:null;
  const stagger=exposure?.shoulderPitch??0;
- const threat=actor.u.kind==='warden'&&actor.u.hp>0&&!reducedMotion?
+ const threat=actor.u.kind==='warden'&&actor.u.hp>0&&!reducedMotion&&actor.fullBody?.owner.warning?
   actor.wardenCharge?.threatPerformance:null;
  actor.wardenChargeShoulderPeak=Math.max(actor.wardenChargeShoulderPeak||0,
   Math.abs(threat?.shoulders?.left?.pitch??warningLift),
@@ -700,7 +700,7 @@ function stageRigArmsAfterMixer(actor,since,reducedMotion){
   const native=actor.nativeDuel?.arms?.[mount.side]||RIG_ZERO;
   const stride=actor.rigFullBodyStride?.arms?.[mount.side];
   const physicalTell=threat?.shoulders?.[mount.side];
-  const strike=actor.wardenStrikePose?.shoulders?.[mount.side];
+  const strike=actor.fullBody?.owner.warning?actor.wardenStrikePose?.shoulders?.[mount.side]:null;
   mount.next.setFromEuler(mount.euler.set(
    Math.max(-.62,Math.min(.62,joint.pitch+(physicalTell?.pitch??warningLift)+(strike?.pitch??0)+stagger+extra.pitch+native.pitch+(stride?.pitch??0)+(actor.evasionFrame?.arms?.[mount.side]?.pitch??0))),0,
    Math.max(-.38,Math.min(.38,joint.roll+(physicalTell?.roll??0)+(strike?.roll??0)+extra.roll+native.roll+(stride?.roll??0)+(mount.side==='left'?-1:1)*(exposure?.shoulderRoll??0)+(actor.evasionFrame?.arms?.[mount.side]?.roll??0))),'XYZ'));
@@ -718,11 +718,11 @@ function stageRigForearmsAfterMixer(actor,since,reducedMotion){
   // One anatomical elbow has a single mechanical envelope. Two truthful
   // visual cues (authored clip and contact beat) must not accidentally stack
   // into a rubber-jointed arm or fool the browser diagnostic with a raw sum.
-  const threat=actor.u.kind==='warden'&&actor.u.hp>0&&!reducedMotion?
+  const threat=actor.u.kind==='warden'&&actor.u.hp>0&&!reducedMotion&&actor.fullBody?.owner.warning?
    (actor.wardenCharge?.threatPerformance?.forearms?.[mount.side]??0):0;
   const nativeMelee=actor.nativeDuel?.mode&&actor.nativeDuel.mode!=='rest';
   const angle=Math.max(-.445,Math.min(.445,
-   (nativeMelee?0:pose[mount.side])+threat+(actor.wardenStrikePose?.forearms?.[mount.side]??0)+
+   (nativeMelee?0:pose[mount.side])+threat+(actor.fullBody?.owner.warning?(actor.wardenStrikePose?.forearms?.[mount.side]??0):0)+
    (nativeMelee?0:(actor.performanceBeat?.elbows?.[mount.side]||0))+
    (actor.nativeDuel?.forearms?.[mount.side]??0)+(actor.evasionFrame?.elbows?.[mount.side]??0)));
   mount.next.setFromEuler(mount.euler.set(angle,0,0,'XYZ'));
@@ -768,11 +768,11 @@ function stageRigLegsAfterMixer(actor,since,reducedMotion){
   actor.combatFacing?.distance,reducedMotion||actor.u.hp<=0);
  // The actual 3-beat public NOVA plants genuine imported leg bones, without
  // additional grid steps or persistent changes to the animation mixer.
- const warningBrace=actor.u.kind==='warden'&&actor.u.hp>0&&!reducedMotion?
+ const warningBrace=actor.u.kind==='warden'&&actor.u.hp>0&&!reducedMotion&&actor.fullBody?.owner.warning?
   Math.max(0,Math.min(.24,actor.wardenCharge?.brace??0)):0;
  for(const mount of actor.rigGaitBones){
   const contact=brace[mount.side][mount.part];
-  const releaseBrace=actor.u.kind==='warden'&&!reducedMotion?(actor.wardenStrikePose?.brace??0):0;
+  const releaseBrace=actor.u.kind==='warden'&&!reducedMotion&&actor.fullBody?.owner.warning?(actor.wardenStrikePose?.brace??0):0;
   const plant=(warningBrace+releaseBrace)*(mount.part==='upper'?(mount.side==='left'?.72:1):
    mount.part==='lower'?-1.05:.28);
   const nativeContact=actor.nativeDuel?.legs?.[mount.side]?.[mount.part]??0;
