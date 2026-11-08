@@ -196,3 +196,23 @@ test('original facade maps are produced once per floor with existing CanvasTextu
  assert.match(env,/textures\.push\(floorTex,wallTex\)/);
  assert.match(env,/textures\.push\(reliefTex\)/);
 });
+
+
+test('single original façade atlas supplies both albedos and exactly aligned relief without triple work',async()=>{
+ const {makeFacadeMasonryAtlas:build,makeFacadeMasonryPixels:color,makeFacadeMasonryReliefPixels:height}=await load();
+ const palette={mortar:'#292721',stone:'#776a59',edge:'#af977a'};
+ const atlas=build(1,256,palette);
+ assert.equal(atlas.wallPixels.length,256*256*4);
+ assert.equal(atlas.floorPixels.length,256*256*4);
+ assert.equal(atlas.reliefPixels.length,256*256*4);
+ assert.equal(atlas.rawBytes,3*256*256*4);
+ assert.deepEqual(atlas.wallPixels,color(1,'wall',256,palette));
+ assert.deepEqual(atlas.floorPixels,color(1,'floor',256,palette));
+ assert.deepEqual(atlas.reliefPixels,height(1,256));
+ assert.deepEqual(atlas.wallPixels,build(1,256,palette).wallPixels);
+ assert.throws(()=>build(1,2048,palette),RangeError);
+ const env=read('environment.js');
+ assert.match(env,/makeFacadeMasonryAtlas\(floor,256,biome\)/);
+ assert.match(env,/surfaceAtlas\.reliefPixels/);
+ assert.match(env,/texture\(floor,'floor',biome,surfaceAtlas\)/);
+});
