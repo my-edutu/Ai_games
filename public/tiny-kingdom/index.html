@@ -5179,6 +5179,63 @@ function grainwardInhabitedLot(x,z,variant,index,isCompact){
  villageVisualLod.grainwardTriangles+=(data.length-start)/30;
 }
 
+
+// W126 same roof grammar, tied to the existing guildhall and authentic
+// ventilated granary volumes; two-sided street approaches never get false
+// loading obstacles or duplicated economic props.
+function grainwardCivicHallRoof(x,z,eave,peak,halfRoof){
+ const start=data.length;
+ grainwardGabledBay(x,z,eave,peak,halfRoof,1,z+1.50,1.12,'civic');
+ grainwardGabledBay(x,z,eave,peak,halfRoof,-1,z+1.50,1.12,'civic');
+ guildhallVisualStats.grainwardRoofBays=2;
+ guildhallVisualStats.grainwardRoofTriangles=(data.length-start)/30;
+}
+function grainwardGranaryRoof(x,z,eave,peak,halfRoof){
+ const start=data.length;
+ grainwardGabledBay(x,z,eave,peak,halfRoof,1,z+.22,.74,'grain');
+ grainwardGabledBay(x,z,eave,peak,halfRoof,-1,z+.22,.74,'grain');
+ return {roofBays:2,triangles:(data.length-start)/30};
+}
+function grainwardMarketRoofEdges(){
+ // Four genuinely trading shelters, their original roofs and uprights;
+ // bargeboards are above the open stalls, never across the courier aisle.
+ const start=data.length;let rafters=0;
+ materialScope(MATERIAL.WOOD,()=>{
+  for(const stall of MARKET_STALLS){
+   const y=terrain(stall.x,stall.z);
+   for(const end of [-1,1])for(const side of [-1,1]){
+    const zz=stall.z+end*1.19;
+    limbSegment([stall.x+side*1.53,y+2.03,zz],
+     [stall.x,y+2.78,zz],.047,rgb(0x7c5d42),4);
+    rafters++;
+   }
+  }
+ });
+ marketQuarterStats.grainwardRoofFrames=rafters;
+ marketQuarterStats.grainwardRoofTriangles=(data.length-start)/30;
+}
+function getGrainwardDistrictAudit(){
+ return {source:'W126-one-existing-farm-market-inhabited-district',
+  connected:farmMarketStreetStats.connected,
+  sourceStreetOrigin:farmMarketStreetStats.realOrigin.slice(),
+  trueMarketDestination:farmMarketStreetStats.realDestination.slice(),
+  marketStalls:marketQuarterStats.stalls,
+  marketRoofFrames:marketQuarterStats.grainwardRoofFrames||0,
+  grainLoftBays:granaryArchitectureAudit.grainwardRoofBays||0,
+  civicHallBays:guildhallVisualStats.grainwardRoofBays||0,
+  existingHomes:city.length,architecturalHomes:villageVisualLod.grainwardHomes,
+  atticBays:villageVisualLod.grainwardAtticBays,
+  frontAndRearGableVents:villageVisualLod.grainwardGableVents,
+  rafterEdges:villageVisualLod.grainwardRoofEdgeBoards,
+  structuralCorbels:villageVisualLod.grainwardTimberBraces,
+  homeTriangles:villageVisualLod.grainwardTriangles,
+  marketRoofTriangles:marketQuarterStats.grainwardRoofTriangles||0,
+  grainRoofTriangles:granaryArchitectureAudit.grainwardRoofTriangles||0,
+  civicRoofTriangles:guildhallVisualStats.grainwardRoofTriangles||0,
+  actualHomesOnly:true,changedNavigation:false,
+  changedEconomy:false,createdCitizens:0,createdDeliveries:0};
+}
+
 function renderCachedHomeLot(x,z,k,index,isCompact,climateKey){
  const key=[x,z,k,index,isCompact?1:0,climateKey].join('|');
  const cached=gpuAvailable?houseGeometryCache.get(key):null;
@@ -5984,6 +6041,7 @@ function hall(x,z){
   box(x+2.82,y+2.15,z+d*.5+.20,.48,.77,.07,rgb(0x713e43));
   box(x+2.82,y+2.78,z+d*.5+.23,.52,.07,.08,rgb(0xc4a46e));
  });
+ grainwardCivicHallRoof(x,z,eave,peak,halfRoof);
  guildhallVisualStats.belfries=1;
  guildhallVisualStats.triangles=(data.length-start)/30;
 }
@@ -8307,6 +8365,7 @@ function marketQuarter(){
  const begin=data.length;
  marketCobblestoneSquare();
  for(let i=0;i<MARKET_STALLS.length;i++)marketStall(MARKET_STALLS[i],i);
+ grainwardMarketRoofEdges();
  marketTimberCart(2.45,9.90);marketReceivingDock();marketReceivingCourt();
  const gate=MARKET_ENTRY_ARCH,{x,z}=gate,y=terrain(x,z);
  // Genuine old stone pier pads and raised oak lintel. The two 18cm
@@ -9515,6 +9574,9 @@ function granaryArchitecture(){
   box(x+.94,y+.83,front-.72,.17,.26,.83,beam);
   box(x-1.10,y+.84,front-.78,.17,.26,.83,beam);
  });
+ const grainRoof=grainwardGranaryRoof(x,z,eave,peak,w*.55);
+ audit.grainwardRoofBays=grainRoof.roofBays;
+ audit.grainwardRoofTriangles=grainRoof.triangles;
  farmScene.granaries++;
  audit.granaries=1;
  audit.groundFloorClearanceMet=audit.raisedPiers===4&&audit.underfloorJoists===4;
@@ -18262,7 +18324,7 @@ getDailyRhythmAudit:dailyRhythmAudit,getHouseholdProvisionAudit:()=>cloneData(ho
 getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeCourtyardAudit:()=>cloneData(getForgeCourtyardAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),getForgeSoundAudit:()=>cloneData(getForgeSoundAudit()),pollForgeSound,watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,getMarketReceivingHallAudit,getTradeCorridorCameraAudit,
 getMarketStructuralSightline:marketCourierPostSightline,
 getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCentralExchangeAudit:()=>({...centralExchangeStats}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketShutterResidencyAudit,setMarketShutterResidencyForTesting,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getCameraNavigationAudit,getFreeCameraCollisionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getFarmWorkCameraAudit,
-getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?(civicGpuResidencyEnabled?3:2)+(homeClusterActive.length?homeClusterActive.length:0):1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length+homeClusterFloats():0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4+homeClusterFloats()*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0,homeBytes:gpuAvailable?homeClusterFloats()*4:0}),getGeometryAudit:geometryAudit,getSceneTriangleReconciliation,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGranaryArchitectureAudit,getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getEcotoneVisualStats,getForestVisualStats:()=>({
+getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?(civicGpuResidencyEnabled?3:2)+(homeClusterActive.length?homeClusterActive.length:0):1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length+homeClusterFloats():0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4+homeClusterFloats()*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0,homeBytes:gpuAvailable?homeClusterFloats()*4:0}),getGeometryAudit:geometryAudit,getSceneTriangleReconciliation,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGranaryArchitectureAudit,getGrainwardDistrictAudit:getGrainwardDistrictAudit,getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getEcotoneVisualStats,getForestVisualStats:()=>({
  sourceTrees:trees.length,
  renderedTrees:forestVisualStats.deciduous+forestVisualStats.conifers,
  conifers:forestVisualStats.conifers,deciduous:forestVisualStats.deciduous,
