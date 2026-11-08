@@ -146,3 +146,50 @@ body[data-epilogue=true] .run-result h2{font-size:21px;margin:5px 0 10px}
  }
  body[data-warden-focus=true] .danger-readout{top:188px}
 }
+
+/* Session 9, continuation: evidence-backed floor status, never a fabricated
+   percentage of completion. The portal itself is the authoritative threshold. */
+.depth-track{display:none}
+.encounter-metrics{
+ display:grid;grid-template-columns:1fr 1fr;column-gap:10px;row-gap:7px;
+ padding:2px 0 9px;border-bottom:1px solid #c9b48a33;
+ font-size:11px;line-height:1.35;color:#d8d4c6;font-variant-numeric:tabular-nums
+}
+.encounter-metrics>span{white-space:nowrap}
+.encounter-metrics>span b{color:#f0d19c;font-size:13px}
+.encounter-metrics strong{
+ grid-column:1/-1;font-size:10px;letter-spacing:1.15px;color:#e6ba85
+}
+.encounter-metrics strong[data-state=available]{color:#a9e4bd}
+.encounter-metrics strong[data-state="next run"]{color:#b8cbd9}
+.expedition-objective{
+ margin:8px 0 12px;font-size:11px;line-height:1.5;color:#d9d2bd
+}
+.quick-outcome{display:none}
+.visually-hidden{
+ position:absolute!important;width:1px!important;height:1px!important;
+ padding:0!important;margin:-1px!important;overflow:hidden!important;
+ clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important
+}
+@media(max-width:759px){
+ .chapter{order:3}
+ .map-panel{order:2}
+ .quick-outcome{
+  display:block;order:1;min-width:0;margin:0 14px 14px;
+  padding:10px 12px;border-left:2px solid #c8a777;
+  background:#1b241ecf;color:#e9dfc8;border-radius:2px;
+ }
+ .quick-outcome>span{display:block;color:#e8ca92;font-size:10px;letter-spacing:.8px;font-weight:700}
+ .quick-outcome p{
+  margin:5px 0 0;font-size:12px;line-height:1.5;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+  overflow:hidden;overflow-wrap:anywhere
+ }
+ .encounter-metrics{font-size:12px}
+ .encounter-metrics strong{font-size:11px}
+ .expedition-objective{font-size:12px}
+}
+@media(max-width:360px){
+ .quick-name{font-size:11px}
+ .quick-hp{font-size:10px}
+}
