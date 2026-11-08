@@ -57,6 +57,12 @@ test('real seeded alternate cloister topology survives genuine WebGL camera pers
  expect(gallery.geometryCount).toBeLessThanOrEqual(3);
  expect(gallery.materialCount).toBeLessThanOrEqual(3);
  expect(gallery.dynamicLights).toBe(0);
+ expect(gallery.materialRoles).toEqual([
+  'bearing-service-stone','blind-iron-seal','worn-service-paving']);
+ expect(gallery.occluderBounds).toBe(alternate.facades.length);
+ expect(gallery.activeHazardCells).toBe(alternate.metrics.activeHazardCells);
+ expect(gallery.hazardFree).toBe(alternate.metrics.hazardFree);
+ expect(gallery.allocatedBytes).toBeLessThan(100000);
  expect(gallery.collisionEffects).toBe(0);
  expect(gallery.navigationEdits).toBe(0);
  expect(gallery.combatEdits).toBe(0);
