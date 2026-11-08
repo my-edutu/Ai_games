@@ -14,6 +14,25 @@ const distance=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.z-b.z);
 const mean=(a,b)=>({x:(a.x+b.x)/2,z:(a.z+b.z)/2});
 // Bias boss counter framing toward the real surviving hero without moving an actor.
 const heroLed=(hero,boss)=>({x:hero.x*.81+boss.x*.19,z:hero.z*.81+boss.z*.19});
+/**
+ * Measure the REAL threatened floor, not a generic boss-intensity flag.
+ * The Warden warning remains tactical for a broad authentic hazard but can
+ * drop to human-height 3D framing for a compact actual strike footprint.
+ * The renderer's subsequent live 3D subject-fit still includes EVERY
+ * threatened cell and the actual hero/boss, widening FOV if needed.
+ * No scene position, hit, navigation, attack or authoritative clock changes.
+ */
+export function planWardenWarningFocus(s,hero,boss){
+ const map=s?.map,cells=s?.bossWarning?.cells,n=Array.isArray(map)?map.length:0;
+ if(n<5||n>64||!valid(hero,n)||!valid(boss,n)||
+  !Array.isArray(cells)||cells.length<1||cells.length>64||
+  !cells.every(c=>Number.isInteger(c?.x)&&Number.isInteger(c?.z)&&
+   c.x>=0&&c.z>=0&&c.x<n&&c.z<n&&map[c.z]?.[c.x]==='.'))return null;
+ const cx=(hero.x+boss.x)/2,cz=(hero.z+boss.z)/2;
+ const extent=Math.max(...[hero,boss,...cells].map(c=>Math.hypot(c.x-cx,c.z-cz)));
+ return Object.freeze({extent:round(extent),cells:cells.length,
+  closeness:round(clip((6.5-extent)/4,0,1))});
+}
 const round=n=>Number(n.toFixed(3));
 /**
  * Stage a real duel across the screen rather than stacking a giant foreground
@@ -114,6 +133,7 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
  // A true Warden ritual strike is a distinct filmed chapter between a
  // warned floor and the earned counterattack. Never promote a generic cast,
  // old action tick or out-of-range boss into this release chapter.
+ const warningFocus=warning?planWardenWarningFocus(s,closeBoss,boss):null;
  const bossRelease=Boolean(boss&&closeBoss&&distance(closeBoss,boss)<=5&&
   Number.isSafeInteger(s.tick)&&boss.action==='cast'&&boss.actionTick===s.tick);
  const revenantWarning=Array.isArray(s.revenantWarnings)?s.revenantWarnings.slice(0,8)
@@ -219,7 +239,7 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
   mode,x:round(position.x),z:round(position.z),lookY,
   oathguard:oathguard?Object.freeze({guardianId:oathguard.guardianId,allyId:oathguard.allyId}):null,
   offsets:Object.freeze(offsets.map(v=>round(v*zoom))),
-  subjects:Object.freeze(subjects),spread:round(spread),duelDistance,
+  subjects:Object.freeze(subjects),spread:round(spread),duelDistance,warningFocus,
   warning:!!warning||mode==='breach-warning',
   remainingTurns:warning?s.bossWarning.attackTick-s.tick:
    mode==='breach-warning'?revenantWarning.mark.impactTick-s.tick:null
@@ -269,14 +289,22 @@ export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMo
  // overhead lens. Use a closer real camera after earned counter/contact,
  // but never compress a genuine telegraph, cast or strike hazard.
  const stretch=portrait?(warning?1.24:closeDuel?1.045:1.10):1;
+ // For compact REAL Warden hazards, keep the true skinned boss and defender
+ // large enough to read the strike. Wide shapes and reduced-motion retain
+ // their original overview; app.js independently fits every danger tile.
+ const threatCloser=!reducedMotion&&shot.mode==='warden-warning'&&
+  Number.isFinite(shot.warningFocus?.closeness)?clip(shot.warningFocus.closeness,0,1):0;
+ const threatScale=portrait?.74:1;
  const terminal=shot.mode==='last-stand';
  // At a real one- or two-cell Warden approach the prior high orbit made
  // original adult-scale skinned actors read like tabletop pieces in Chromium.
  // Lower the physical camera with the advancing hero and real boss. The
  // existing subject-fit gate will widen FOV if a danger cell or body is cut.
  // Warden warnings and cast releases never enter this closer approach.
- const radius=(terminal?clip(policy.radius+Math.max(0,shot.spread||0)*.68,4.65,7.15):policy.radius-2.5*approachNear)*stretch;
- const y=(policy.height-2.25*approachNear+(terminal?Math.min(.85,Math.max(0,shot.spread||0)*.21):0))*
+ const radius=(terminal?clip(policy.radius+Math.max(0,shot.spread||0)*.68,4.65,7.15):
+  policy.radius-2.5*approachNear-2.4*threatCloser*threatScale)*stretch;
+ const y=(policy.height-2.25*approachNear-2.2*threatCloser*threatScale+
+  (terminal?Math.min(.85,Math.max(0,shot.spread||0)*.21):0))*
   (portrait?(warning?1.17:closeDuel?1.04:1.07):1);
  const offsets=Object.freeze([
   round(shot.offsets[0]/horizontal*radius),
@@ -286,7 +314,7 @@ export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMo
  return Object.freeze({
   mode:shot.mode,offsets,
   fov:policy.fov+(portrait?(warning?6:closeDuel?2:4):0),
-  lookY:policy.aim+(approachNear*.18),
+  lookY:policy.aim+(approachNear*.18)+.15*threatCloser,
   following:reducedMotion?1:policy.follow+(approachNear*1.2),
   keyScale:policy.key,
   portrait,dangerPriority:warning,

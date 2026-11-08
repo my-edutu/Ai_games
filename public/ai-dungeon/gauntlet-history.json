@@ -5645,7 +5645,7 @@
     "lastCandidateSha": "0fb23004fe7e7b91f327392b1da5ce4b82682fb7",
     "experienceVerdict": "IN PROGRESS — NOT TRANSFORMED; LOOKS/FEELS/PLAYS UNVERIFIED; 0/3 independent masked critics.",
     "criticReadiness": "0/3; original fully matched desktop/mobile moving audiovisual journey not captured; source-only candidate.",
-    "nextImplementationTask": "Exact-new-head real 1440px/390px seeded Chromium audiovisual battle + compare pinned baseline; verify no new occlusion/camera jitter, then original adult-scale native rig/Warden melee integration and five-stage organic reel.",
+    "nextImplementationTask": "Inspect authentic exact new-head 1440/390 Warden warning orbit, critical danger-cell fit, skinned boot/blade visibility and camera easing; measure p50/p95/p99 true raster; finish 5 organic stages and matched baseline before any acceptance.",
     "integrationReview": {
       "at": "2026-11-05",
       "sourceHead": "fe61765a43fda660f75ab5004688113517fcbd78",
@@ -5697,7 +5697,7 @@
       "next": "Exact-new-head real 1440px/390px seeded Chromium audiovisual battle + compare pinned baseline; verify no new occlusion/camera jitter, then original adult-scale native rig/Warden melee integration and five-stage organic reel."
     },
     "currentStage": "A_INCOMPLETE",
-    "executableNextTask": "Inspect new-head original 1440/390 Warden Court batching, actual draw calls/fps/occlusion and uncut warnings; then five-stage audio/video, same-seed locked baseline and 3 blind critics.",
+    "executableNextTask": "Inspect authentic exact new-head 1440/390 Warden warning orbit, critical danger-cell fit, skinned boot/blade visibility and camera easing; measure p50/p95/p99 true raster; finish 5 organic stages and matched baseline before any acceptance.",
     "phasePlan": [
       {
         "phase": "A",
@@ -6040,6 +6040,55 @@
       "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
       "currentBlocker": "Local Chromium localhost net::ERR_BLOCKED_BY_ADMINISTRATOR; new exact-head GitHub Actions audiovisual capture needed",
       "next": "Inspect full-body original Warden and warning parity with exact-head 1440/390 WebM+Opus and p95 draw/render/frame probes; fix deficits; recover complete five organic stages and matched baseline before 3 independent critics."
+    },
+    "m1TrueHazardThreatCameraCandidate": {
+      "date": "2026-11-08",
+      "stage": "A_INCOMPLETE",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "parentSha": "2a10a812358fd2085d8fa22d77d224728e351826",
+      "genuineDesktop": "https://github.com/my-edutu/Ai_games/actions/runs/42423956982/artifacts/13594239356",
+      "genuineMobile": "https://github.com/my-edutu/Ai_games/actions/runs/42423956982/artifacts/13595007417",
+      "verifiedFoundation": "https://github.com/my-edutu/Ai_games/actions/runs/42423956953",
+      "verifiedVisualReview": "https://github.com/my-edutu/Ai_games/actions/runs/42423956923",
+      "authenticRecordedStages": [
+        "combat",
+        "warden hp loss",
+        "floor progression"
+      ],
+      "missingStages": [
+        "natural defeat",
+        "restart"
+      ],
+      "genuineFrameEvidence": {
+        "desktopFrames": 315,
+        "desktopDurationSeconds": 592,
+        "desktopFps": 0.532,
+        "desktopP50Ms": 2215,
+        "desktopP95Ms": 4685,
+        "desktopP99Ms": 5475,
+        "mobileFrames": 426,
+        "mobileDurationSeconds": 492.2,
+        "mobileFps": 0.865,
+        "mobileP50Ms": 830,
+        "mobileP95Ms": 3863,
+        "mobileP99Ms": 4825
+      },
+      "observedGap": "Genuine 1440/390 Warden warning shows very small native skinned combatants despite unobscured sampled sightlines; tall generic tactical camera during smaller attacks loses original full-body readability",
+      "candidate": "Use true public hero, Warden and warned ground-cell footprint to proportion original physical warning camera into lower/near human-scale orbit for compact danger; retain broad original view, all hazard cells, critical fit, reduced motion and authority",
+      "sourceFiles": [
+        "public/ai-dungeon/cinematic-chapter-plan.js",
+        "tests/foundation/dungeon-warden-release-cinematography.test.cjs"
+      ],
+      "newHeadRealGameplay": "NOT_OBSERVED",
+      "originalAudioImpactSync": "UNVERIFIED",
+      "devicePerformance": "UNVERIFIED",
+      "exactNewHeadCi": "PENDING",
+      "independentCritics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "next": "Inspect authentic exact new-head 1440/390 Warden warning orbit, critical danger-cell fit, skinned boot/blade visibility and camera easing; measure p50/p95/p99 true raster; finish 5 organic stages and matched baseline before any acceptance."
     }
   }
 }

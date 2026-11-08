@@ -120,3 +120,34 @@ test('authentic close-body Warden approach gains physical scale in BOTH viewport
  }
  assert.equal(JSON.stringify(s),before,'optical camera cannot modify game authority');
 });
+
+test('authentic compact Warden danger gets grounded physical 3D framing; broad hazard remains safe',async()=>{
+ const {planCinematicShot,planReadableExpeditionLens,planWardenWarningFocus}=await load('public/ai-dungeon/cinematic-chapter-plan.js');
+ const compact=fixture();compact.units[2].action='idle';compact.bossRecovery=null;
+ compact.bossWarning={attackTick:compact.tick+1,shape:'RIFT_CROSS',
+  cells:[{x:11,z:9},{x:12,z:9},{x:12,z:8},{x:12,z:10}]};
+ const preserved=JSON.stringify(compact),close=planCinematicShot(compact);
+ assert.equal(close.mode,'warden-warning');assert.equal(close.dangerPriority,undefined);
+ assert.ok(close.warningFocus?.closeness>.6,'true compact danger creates a meaningful camera decision');
+ const wide=JSON.parse(JSON.stringify(compact));wide.bossWarning.cells=[
+  {x:2,z:2},{x:16,z:2},{x:2,z:16},{x:16,z:16}];
+ const wideShot=planCinematicShot(wide);
+ assert.equal(wideShot.mode,'warden-warning');
+ assert.equal(wideShot.warningFocus?.closeness,0,'true broad warning must keep the overview');
+ const distance=l=>Math.hypot(l.offsets[0],l.offsets[2]);
+ for(const view of [{width:1440,height:832},{width:390,height:844}]){
+  const closeLens=planReadableExpeditionLens(close,view);
+  const wideLens=planReadableExpeditionLens(wideShot,view);
+  assert.ok(distance(closeLens)<distance(wideLens)-1.1,'skinned Warden and frontline must have larger screen presence');
+  assert.ok(closeLens.offsets[1]<wideLens.offsets[1]-1,'true hero-eye height instead of toy-like overhead');
+  assert.equal(closeLens.fov,wideLens.fov,'do not delete the original threat field of view');
+  assert.equal(closeLens.dangerPriority,true,'critical threat always remains highest priority');
+  const stable=planReadableExpeditionLens(close,{...view,reducedMotion:true});
+  assert.equal(distance(stable),distance(wideLens),'reduced-motion retains the stable original wide radius');
+  assert.equal(stable.offsets[1],wideLens.offsets[1],'reduced-motion maintains established height');
+ }
+ assert.equal(JSON.stringify(compact),preserved,'planner cannot mutate the original game state');
+ const malformed=JSON.parse(JSON.stringify(compact));malformed.bossWarning.cells.push({x:99,z:99});
+ assert.equal(planWardenWarningFocus(malformed,malformed.units[1],malformed.units[2]),null,'invalid warning cannot claim compact framing');
+ assert.equal(planCinematicShot(malformed).warningFocus,null,'invalid threat falls back to the stable lens');
+});
