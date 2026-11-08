@@ -55,10 +55,12 @@ const path = require('node:path');
       return program?gl.getAttribLocation(program,'materialId'):-1;
     });
     if(evidence.webglVerified&&evidence.materialVertexAttribute<0)throw Error('GPU material attribute was optimized away or omitted');
-    // G071: preserve the original nine IDs/stride and assert both new emissive
-    // glass classes; fixed length nine would reject a valid additive material.
+    // Exact runtime material layout, including real windmill, rain and snow
+    // vertex classes. Reject reordered/dropped IDs; never silently omit a
+    // physically rendered class to make the GPU contract appear green.
     const expectedMaterials=['GENERAL','GRASS','WATER','ROAD','FOLIAGE','STONE',
-      'WOOD','ROOF','PLASTER','WINDOW_GLOW','LANTERN_GLOW'];
+      'WOOD','ROOF','PLASTER','WINDOW_GLOW','LANTERN_GLOW',
+      'WINDMILL_BLADE','RAIN','SNOW'];
     if(evidence.materials.vertexStride!==10||
        JSON.stringify(evidence.materials.materials)!==JSON.stringify(expectedMaterials))
       throw Error('GPU material layout mismatch: '+JSON.stringify(evidence.materials));
