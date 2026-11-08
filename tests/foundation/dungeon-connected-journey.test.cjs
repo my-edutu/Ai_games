@@ -116,7 +116,7 @@ test('eleven capped role-specific instances, no new lights and explicit disposal
  assert.match(host,/connectedJourney\.cutaway\(eyes,camera,wallPad\)/);
  assert.match(host,/connectedJourney\.dispose\(\)/);
  assert.match(host,/connectedJourney\.occluderVolumes/);
- assert.match(app,/enrichEnvironment\(world,s\.map,s\.floor,vaultedSites,s\.exit,s\.units\)/);
+ assert.match(app,/enrichEnvironment\(world,s\.map,s\.floor,vaultedSites,s\.exit,s\.units,s\.traps\)/);
  for(const code of [source,renderer]){
   assert.doesNotMatch(code,/Math\.random\(|Date\.now\(|fetch\(|localStorage/);
  }
