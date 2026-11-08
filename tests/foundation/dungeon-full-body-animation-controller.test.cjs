@@ -344,9 +344,9 @@ test('real renderer consumes exactly one arbiter before imported mixer and prese
  assert.match(model,/actor\.fullBody\.owner\.duel\?'attack':'idle'/);
  assert.match(model,/fullBodyInterruptions:/);
  assert.match(model,/sourceClipAudits:/);
- assert.match(model,/const sourceEntry=planImportedOneShotEntry\\(\\{/,
+ assert.ok(model.includes('const sourceEntry=planImportedOneShotEntry({'),
   'a new legal action must match the original source pose age');
- assert.match(model,/if\\(sourceEntry!==null\\)next\\.time=sourceEntry;/,
+ assert.ok(model.includes('if(sourceEntry!==null)next.time=sourceEntry;'),
   'only source action transitions can align the first imported pose');
  assert.match(model,/actor\.fullBody\?\.owner\.warning/,'Warden warnings must release joint ownership on damage and evasion');
  assert.ok(server.includes("['/dungeon/full-body-animation-controller.js','full-body-animation-controller.js']"));
@@ -469,7 +469,7 @@ test('ongoing clips, stale events, defeat and reduced motion cannot phase-seek o
   assert.equal(enter({...base,...changes}),null,JSON.stringify(changes));
  }
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
- assert.match(model,/legalTransition:Boolean\\(newEvent\\|\\|actor\\.currentAction!==action\\)/);
- assert.match(model,/age:actor\\.fullBody\\?\\.mode===action\\?actor\\.fullBody\\.age:NaN/);
- assert.match(model,/reducedMotion:Boolean\\(actor\\.fullBody\\?\\.reducedMotion\\)/);
+ assert.ok(model.includes('legalTransition:Boolean(newEvent||actor.currentAction!==action)'));
+ assert.ok(model.includes('age:actor.fullBody?.mode===action?actor.fullBody.age:NaN'));
+ assert.ok(model.includes('reducedMotion:Boolean(actor.fullBody?.reducedMotion)'));
 });
