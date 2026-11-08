@@ -6216,11 +6216,15 @@ function groundedWorkTarget(p,beat){
  const station=actualForgeHandTarget(p);
  if(station){
   const t=Math.max(0,Math.min(1,beat));
-  return [station.local[0]+.036*(2*t-1),
-   station.local[1]+.06*Math.sin(t*Math.PI),
+   const phase=getAuthenticWorkGesture(p).stage;
+   const lower=phase==='stoking'?.12:phase==='quenching'?.20:0;
+   return [station.local[0]+.036*(2*t-1),
+    station.local[1]-lower+.06*Math.sin(t*Math.PI),
    station.local[2]+.012*(1-t)];
  }
- const a=OCCUPATIONAL_REACH_POSES[p.job]||[.22,.54,.12,.51];
+ const harvestStage=p.job==='farmer'?getAuthenticWorkGesture(p).stage:null;
+  const a=harvestStage==='gathering'||harvestStage==='tying'?
+   [.20,.53,.17,.40]:OCCUPATIONAL_REACH_POSES[p.job]||[.22,.54,.12,.51];
  const sweep=OCCUPATIONAL_REACH_SWEEPS[p.job]||[.06,.05,.05];
  const t=Math.max(0,Math.min(1,beat)),rise=Math.sin(t*Math.PI);
  // Anticipation: reach toward the actual station; impact: descend and pull
@@ -6322,11 +6326,12 @@ function citizenRigPose(p){
  // Movement overrides job-name matches: 'Traveling to craftsperson work' is not crafting.
  const traveling=/travel|explor|returning home at dusk/.test(action);
  // G091: repeated strokes are visible during an actual sustained job phase.
- const unloading=isMarketUnloading(p),working=isWorkingAtSite(p)||unloading;
+ const unloading=isMarketUnloading(p),working=isWorkingAtSite(p)||unloading,
+   hauling=isLoadedCourierOnRoad(p);
  const acting=occupationalPerformance(p);
  // Workers plant their feet before harvesting/chopping; travelling remains
  // a genuine alternating stride, not a running-in-place animation.
- const intensity=traveling?.72:working?0:.11;
+ const intensity=traveling?.72:working||hauling?0:.11;
  const phase=p.phase*2.7;
  // The two bones have fixed lengths; each foot follows the actual terrain
  // under its forward-facing boot rather than floating at the pelvis height.
@@ -6351,10 +6356,10 @@ function citizenRigPose(p){
   const stanceMetres=stepMeters*stanceFraction;
   const strideT=grounded?unit/stanceFraction:
    (unit-stanceFraction)/(1-stanceFraction);
-  const footZ=working?(side<0?-.075:.085):
+  const footZ=(working||hauling&&!traveling)?(side<0?-.075:.085):
    traveling?(strideT-.5)*stanceMetres*(grounded?-1:1):
    Math.sin(cycle)*intensity*.34;
-  const lift=working?0:traveling?
+  const lift=(working||hauling&&!traveling)?0:traveling?
    (grounded?0:Math.sin(Math.PI*strideT)*.135):
    Math.max(0,Math.cos(cycle))*.115*intensity;
   const footX=side*.125,bootZ=footZ+.095;
@@ -6379,7 +6384,7 @@ function citizenRigPose(p){
   const uz=dz/(distance||1),uy=dy/(distance||1);
   const knee=[footX,hip[1]+uy*along+uz*bend,hip[2]+uz*along-uy*bend];
   return {hip,knee,ankle,lift,groundOffset,rollRadians,
-   contact:working?'stance':traveling?(grounded?'stance':'swing'):'idle',
+   contact:working||hauling&&!traveling?'stance':traveling?(grounded?'stance':'swing'):'idle',
    stridePhase:unit,stanceMetres:traveling?stanceMetres:0};
  });
  const arms=[-1,1].map(side=>{
@@ -6394,7 +6399,12 @@ function citizenRigPose(p){
    const motion=courierTransferMotion(p);
    ({elbow,wrist}=solveWorkArmIK([side*.30,1.015,0],
     side===1?motion.targetRight:motion.targetLeft,side));
-  }else if(working){
+   }else if(hauling){
+    // Both wrists physically grip the original cart's real, local-world
+    // shaft ends; only the already-planned route moves feet and wheels.
+    ({elbow,wrist}=solveWorkArmIK([side*.30,1.015,0],
+     courierCartGripTarget(side),side));
+   }else if(working){
    const beat=acting.beat,primary=side===1;
    if(p.job==='forester'){
     elbow=[side*.29,.76+(primary?.29*beat:.06),.18-(primary?.11*beat:0)];
@@ -6431,12 +6441,13 @@ function citizenRigPose(p){
   }
   return {shoulder,elbow,wrist};
  });
- const pose={legs,arms,working,traveling,acting,social,
+ const pose={legs,arms,working,traveling,hauling,acting,social,
   stride:Math.sin(phase)*intensity,
   laborCadence:{source:'real-working-citizen',planted:working,
-   beat:acting.beat,cycle:acting.cycle,strike:acting.strike,
-   primaryTarget:unloading?courierTransferMotion(p).targetRight:
-    working?groundedWorkTarget(p,acting.beat):null}};
+   beat:acting.beat,cycle:acting.cycle,strike:acting.strike,stage:acting.stage,
+    primaryTarget:unloading?courierTransferMotion(p).targetRight:
+     hauling?courierCartGripTarget(1):
+     working?groundedWorkTarget(p,acting.beat):null}};
  if(eligible){
   citizenRigCache.set(p,pose);citizenRigEntries++;citizenRigBuilds++;
  }
@@ -7277,7 +7288,7 @@ function compactVillager(p){
  // actual terrain. Deform citizen body and wrist tool before adding a cart:
  // a leather delivery cart cannot flex like the human torso pulling it.
  const bodyEnd=data.length;
- if(rig.working){
+  if(rig.working||rig.hauling){
   const pivot=y+.27*s,lean=rig.acting.lean*.42,crouch=rig.acting.crouch*.65;
   for(let v=vertexStart;v<bodyEnd;v+=10){
    const rise=Math.max(0,Math.min(1.45*s,data[v+1]-pivot));
@@ -7328,7 +7339,7 @@ function compactVillager(p){
  if(rig.traveling)compactCitizenAnimation.lastTraveling++;
  compactCitizenAnimation.lastMotionTriangles+=(data.length-vertexStart)/30;
 }
-function villager(p){const vertexStart=data.length;let x=p.x,z=p.z,y=terrain(x,z),u=p.phase,idx=Math.max(0,people.indexOf(p)),size=.92+(idx%5)*.045;let c=medievalCitizenIdentity(p,idx).wool,skin=rgb([0xd5a781,0x95654b,0xefc19c,0xbe8968,0x9a6a48][(idx+names.length)%5]),hair=rgb([0x4c3228,0x342f29,0x8b633f,0x664b36,0xa18b65][(idx+4)%5]);const busy=isWorkingAtSite(p)||isMarketUnloading(p);let pace=p.activity.includes('Traveling')||p.activity.includes('Explor')||p.activity==='Returning home at dusk'?1:.23,step=Math.sin(u*2.7)*.21*pace;
+function villager(p){const vertexStart=data.length;let x=p.x,z=p.z,y=terrain(x,z),u=p.phase,idx=Math.max(0,people.indexOf(p)),size=.92+(idx%5)*.045;let c=medievalCitizenIdentity(p,idx).wool,skin=rgb([0xd5a781,0x95654b,0xefc19c,0xbe8968,0x9a6a48][(idx+names.length)%5]),hair=rgb([0x4c3228,0x342f29,0x8b633f,0x664b36,0xa18b65][(idx+4)%5]);const busy=isWorkingAtSite(p)||isMarketUnloading(p)||isLoadedCourierOnRoad(p);let pace=p.activity.includes('Traveling')||p.activity.includes('Explor')||p.activity==='Returning home at dusk'?1:.23,step=Math.sin(u*2.7)*.21*pace;
 // Individual fitted wool coats: flared hem, waist, chest, collar, gait sway.
 const rig=citizenRigPose(p),embodiment=citizenEmbodiedPose(p,idx,rig);
 const outfitTrim=[0xf2cb79,0x82b5b2,0xf0b9a0,0xe1d3a3,0xaac6d1,0xd7a9c8].map(rgb);
@@ -7428,8 +7439,9 @@ renderCommuterLantern(p,x,y,z,size,rig);
 // shear the complete torso/head/arms from the hip while the boots stay rooted.
 // Update normals using inverse transpose of the local shearing transform.
 if(busy){
- const pivot=y+.44*size,lean=rig.acting.lean,crouch=rig.acting.crouch;
- for(let i=vertexStart;i<data.length;i+=10){
+  const pivot=y+.44*size,lean=rig.acting.lean,crouch=rig.acting.crouch;
+  // Real escrowed handcart geometry is rigid, never sheared with the spine.
+  for(let i=vertexStart;i<bodyEnd;i+=10){
   const rise=Math.max(0,Math.min(1.55*size,data[i+1]-pivot));
   if(rise<=0)continue;
   data[i+2]+=rise*lean;
@@ -11736,8 +11748,9 @@ function emitStreetCargo(p,x,y,z,size){
   materialScope(MATERIAL.WOOD,()=>{
    box(x,cy,cz,.63*size,.11*size,.70*size,wood);
    for(const side of [-1,1]){
-    const xx=x+side*.29*size;
-    limbSegment([xx,y+.45*size,z-.20*size],
+    const xx=x+side*COURIER_CART_GRIP.lateral*size;
+     limbSegment([xx,y+COURIER_CART_GRIP.height*size,
+       z+COURIER_CART_GRIP.back*size],
       [xx,cy+.08*size,cz-.25*size],.022*size,wood,5);
     const wx=x+side*.40*size,wz=cz-.09*size,wy=y+.22*size;
     const travelled=courierWheelTrails.get(p.delivery.id)?.distance||0;
