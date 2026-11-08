@@ -279,7 +279,12 @@ export function planImportedLivingSourceStep({mode='idle',age=0,sourceTime=0,
   frameInterval<0)return ordinary;
  const ceiling=Math.max(0,sourceDuration-.002);
  const deficit=Math.max(0,Math.min(ceiling/effectiveSpeed,age)-sourceTime/effectiveSpeed);
- return Math.max(ordinary,Math.min(.28,frameInterval,deficit+ordinary));
+ // The first legitimate pose still shows anticipation; subsequent samples
+ // move the licensed mixer only as far as the SAME full-body owner clock.
+ // Adding an unconditional extra 50ms used to put wrist, weapon and soles
+ // one sampled frame AHEAD of the owning pelvis/shoulder performance.
+ if(age===0&&sourceTime===0)return ordinary;
+ return Math.min(.28,frameInterval,deficit);
 }
 
 export function planImportedDeathSourceStep({mode='idle',sourceTime=0,
@@ -317,8 +322,11 @@ export function planImportedOneShotPhase({mode='idle',actionTick=null,age=0,sour
  // Rewinding an active mixer creates abrupt reverse wrist/weapon/foot poses.
  // New legal events already reset their clip in changeAction; ordinary
  // source-age drift may only advance an uninterrupted clip.
- const align=driftSeconds>.028;
- const correctionSeconds=align?Math.min(.125,driftSeconds):0;
+ // A phase seek and the mixer step share ONE total visible-frame budget:
+ // neither may sneak a second 125ms jump past the 280ms source-pose cap.
+ const spareBudget=Math.max(0,.28-step);
+ const align=driftSeconds>.028&&spareBudget>0;
+ const correctionSeconds=align?Math.min(.125,driftSeconds,spareBudget):0;
  const startTime=Math.max(0,Math.min(ceiling,sourceTime+correctionSeconds*effectiveSpeed));
  const remainingSeconds=(target-Math.min(ceiling,startTime+advance))/effectiveSpeed;
  return {valid:true,align,startTime,driftSeconds,remainingSeconds};

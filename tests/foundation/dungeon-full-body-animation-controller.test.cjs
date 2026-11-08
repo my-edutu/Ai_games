@@ -574,7 +574,8 @@ test('genuine slow visible frames advance the SAME authentic attack/cast event c
   effectiveSpeed:1.68,frameDelta:.05,frameInterval:1};
  assert.equal(sourceStep(sample),.05,'first legal imported pose retains anticipation');
  const next=sourceStep({...sample,age:.28,sourceTime:.084});
- assert.ok(next>.25&&next<=.28,'subsequent actual samples catch up without source snapback');
+ assert.ok(Math.abs(next-.23)<1e-9,
+  'subsequent samples must reach the owning body phase without 50ms extra lead');
  for(const params of [{mode:'idle',age:.45},{mode:'hurt',age:.45},
   {visible:false,age:.45},{reducedMotion:true,age:.45},{sourceDuration:0,age:.45},
   {sourceTime:NaN,age:.45},{age:-1},{frameInterval:-1}])
@@ -612,4 +613,51 @@ test('actor action age must not double-clamp its witnessed 280ms native-rig step
  const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
  assert.match(app,/a\.visualActionAge=advanceFullBodyVisibleActionAge\(since,\{/);
  assert.doesNotMatch(app,/advancePresentationActionAge\(since,\s*planFullBodyVisibleFrameStep/);
+});
+
+test('the authentic GLB hand/sole clock cannot outrun its owned full-body stroke on sparse frames',async()=>{
+ const {planImportedLivingSourceStep:step,planImportedOneShotPhase:phase}=await load();
+ const speed=1.68,duration=1.042;
+ const slow={mode:'attack',sourceDuration:duration,effectiveSpeed:speed,
+  frameDelta:.05,frameInterval:1,visible:true};
+ const close=(actual,expected,why)=>assert.ok(Math.abs(actual-expected)<1e-9,
+  why+': expected '+expected+', got '+actual);
+ // RED on previous implementation: second frame was .28s, placing the
+ // licensed source blade 50ms ahead of native hips/shoulders.
+ let played=0;
+ const first=step({...slow,age:0,sourceTime:0});
+ close(first,.05,'fresh legal event preserves the original anticipatory frame');
+ played+=first;
+ const second=step({...slow,age:.28,sourceTime:played*speed});
+ close(second,.23,'one observed 1s stall cannot add a spare 50ms source lead');
+ played+=second;
+ close(played,.28,'original source and overlay now own the same action age');
+ const third=step({...slow,age:.56,sourceTime:played*speed});
+ close(third,.28,'third genuine visible frame advances within source budget');
+ played+=third;
+ close(played,.56,'original attack stays in phase with owned recovery');
+ close(step({...slow,age:.12,sourceTime:.33*speed}),0,
+  'an already-ahead licensed clip must not drift farther forward or rewind');
+ close(step({...slow,mode:'hurt',age:.28,sourceTime:.05*speed}),.05,
+  'true positive-HP-loss hurt timing retains its existing presentation contract');
+ close(step({...slow,reducedMotion:true,age:.28,sourceTime:.05*speed}),.05,
+  'reduced motion remains on its existing ordinary clock');
+ // RED on previous implementation: a 280ms mixer update plus a 125ms
+ // forward phase seek skipped 405ms of authentic source keyframes.
+ const overdue=phase({mode:'attack',actionTick:17,age:.58,sourceTime:.03,
+  sourceDuration:duration,effectiveSpeed:speed,frameDelta:.28});
+ assert.equal(overdue.valid,true);
+ assert.equal(overdue.align,false,'no budget remains for a second forward seek');
+ close(overdue.startTime,.03,'full mixer step must not acquire another source jump');
+ const modest=phase({mode:'attack',actionTick:17,age:.58,sourceTime:.03,
+  sourceDuration:duration,effectiveSpeed:speed,frameDelta:.05});
+ assert.equal(modest.align,true,'smaller mixer steps may correct genuine source lag');
+ assert.ok((modest.startTime-.03)/speed+.05<=.28+1e-9,
+  'source seek plus mixer update never exceed 280ms of original playback');
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/planImportedLivingSourceStep\(originalStep\)/);
+ assert.match(model,/actor\.activeClip\.time=sourceSync\.startTime/);
+ assert.match(model,/actor\.mixer\.update\(sourceStep\)/);
+ assert.match(app,/updateActor\(a,dt,since,reduced,frameInterval,!document\.hidden\)/);
 });
