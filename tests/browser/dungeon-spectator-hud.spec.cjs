@@ -107,3 +107,51 @@ test('real Warden warning stays visible on 390px even when ordinary objective is
  expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
  await page.screenshot({path:'artifacts/dungeon-spectator-warden-mobile-real.png',fullPage:true});
 });
+
+test('actual public snapshot provides exact floor enemies, active traps and exit availability',async({page})=>{
+ const s=await pinRealRun(page);
+ const foes=s.units.filter(u=>u.faction==='enemy'&&u.hp>0).length;
+ const traps=s.traps.filter(t=>t.active&&!t.disarmed).length;
+ await expect(page.locator('#hostiles-left')).toHaveText(String(foes));
+ await expect(page.locator('#hazards-active')).toHaveText(String(traps));
+ await expect(page.locator('#portal-status')).toHaveText(foes?'PORTAL SEALED':'PORTAL AVAILABLE');
+ await expect(page.locator('#expedition-objective')).toHaveText(
+  foes?'Defeat remaining enemies':'Reach the portal to descend'
+ );
+ // Numeric counts remain available even when the minimap is closed.
+ await expect(page.locator('.map-panel')).toBeHidden();
+ await expect(page.locator('.depth-track')).toBeHidden();
+});
+
+test('keyboard H preserves focus from a selected mobile hero',async({page})=>{
+ await pinRealRun(page);
+ const follow=page.locator('#spectator-quickbar [data-hero-id="ranger"]');
+ await follow.focus();
+ await expect(follow).toBeFocused();
+ await page.keyboard.press('h');
+ await expect(page.locator('body')).toHaveAttribute('data-hud','clean');
+ await expect(page.locator('#hud-toggle')).toBeFocused();
+ await page.keyboard.press('h');
+ await expect(page.locator('body')).toHaveAttribute('data-hud','visible');
+ await expect(page.locator('#spectator-quickbar')).toBeVisible();
+});
+
+test('a genuine recent authority outcome is shown as a small history note, not a false tactical alert',async({page})=>{
+ const game=DungeonRuntime.create('dungeon-ui-round17');
+ const kinds=new Set(['floor','defeat','kill','loot','healing','phase','cover','block','interrupt','disarm','trap','danger','opening','summon','restart']);
+ let snapshot,event;
+ for(let i=0;i<750;i++){
+  snapshot=game.step();
+  event=snapshot.events.find(e=>e.tick===snapshot.tick&&kinds.has(e.kind));
+  if(event)break;
+ }
+ expect(event,'actual deterministic authority produced a meaningful event').toBeTruthy();
+ await page.setViewportSize({width:390,height:844});
+ await page.route('**/dungeon/state',route=>route.fulfill({json:snapshot}));
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick??-1),{timeout:30000}).toBe(snapshot.tick);
+ await expect(page.locator('#quick-outcome')).toBeVisible();
+ await expect(page.locator('#outcome-text')).toContainText(event.text.slice(0,40));
+ await expect(page.locator('#assistive-announcement')).toBeEmpty();
+ await page.screenshot({path:'artifacts/dungeon-spectator-recent-outcome-mobile.png',fullPage:true});
+});
