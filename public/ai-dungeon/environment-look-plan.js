@@ -187,16 +187,19 @@ export function makeFacadeMasonryAtlas(floor,size=256,palette){
    const exposed=border>2&&border<6;
    const blockColor=mortar?rgb.mortar:rgb.stone;
    const edgeMix=mortar?0:clamp(.12+block*.6+(chipped?.27:0),0,.4);
-   const mixed=[0,1,2].map(k=>blockColor[k]*(1-edgeMix)+rgb.edge[k]*edgeMix);
-   for(const [kind,out] of [['wall',wallPixels],['floor',floorPixels]]){
-    const wet=kind==='floor'&&border<9&&strata<-.16;
-    const soot=kind==='wall'&&strata>.53&&pores<-.28;
-    const multiplier=mortar?.79:kind==='floor'?1.035:1;
+   const mixedR=blockColor[0]*(1-edgeMix)+rgb.edge[0]*edgeMix;
+   const mixedG=blockColor[1]*(1-edgeMix)+rgb.edge[1]*edgeMix;
+   const mixedB=blockColor[2]*(1-edgeMix)+rgb.edge[2]*edgeMix;
+   for(let pass=0;pass<2;pass++){
+    const isFloor=pass===1,out=isFloor?floorPixels:wallPixels;
+    const wet=isFloor&&border<9&&strata<-.16;
+    const soot=!isFloor&&strata>.53&&pores<-.28;
+    const multiplier=mortar?.79:isFloor?1.035:1;
     const tint=clamp(multiplier*(1+strain+(exposed?.065:0)-
      (wet?.10:0)-(soot?.08:0)),.55,1.18);
-    out[j]=Math.round(clamp(mixed[0]*tint,6,248));
-    out[j+1]=Math.round(clamp(mixed[1]*tint,6,248));
-    out[j+2]=Math.round(clamp(mixed[2]*tint,6,248));
+    out[j]=Math.round(clamp(mixedR*tint,6,248));
+    out[j+1]=Math.round(clamp(mixedG*tint,6,248));
+    out[j+2]=Math.round(clamp(mixedB*tint,6,248));
     out[j+3]=255;
    }
   }
