@@ -45,54 +45,53 @@
     "latestEvidenceRun": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "assessedAt": "2026-11-08",
-      "sourceHeadAtInspection": "88361aa0193d20fd17c6a6fa8b08a691b43ff826",
+      "sourceHeadAtInspection": "2975e4a4e802b4455107e45437d2834e8c2340d6",
       "actualRenderedGameSourceSha": "f1fe522ec6a4da8d0a33cd620ca2c85357a04d6a",
-      "actualWorldVisualBehaviorLastChangedSha": "f1fe522ec6a4da8d0a33cd620ca2c85357a04d6a",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "frozenBaselineMoved": false,
       "authoritativeGameplayChangedThisExecution": false,
-      "renderedGameplayExperienceChangedThisExecution": true,
-      "instrumentationChangedThisExecution": false,
+      "renderedGameplayExperienceChangedThisExecution": false,
+      "instrumentationChangedThisExecution": true,
       "experienceChangeVerifiedInVideo": false,
-      "largestObservedGap": "Previous authentic 390x844 boss footage showed large foreground clock machinery blocking the climber and guardian near native 16–18s. Existing outer ring apertures alone still lacked verified footage. New physical negative-space gear and power-rack geometry reduces the actual solid middle in source, but current film is NOT EVALUATED.",
-      "primaryVerifiedBlocker": "The coding workspace tool responds tunnel-client NOT_FOUND. Repository-wide GitHub Actions queue includes numerous games, not just Tower: this SHA's original-runtime quality 42459977022 and 9-job real gameplay capture 42459862584 have no executed evidence. Source-only exact checks cannot prove actual Three.js runtime or video improvement.",
-      "implementation": "Real 3D cutaway of ALL three decorative clock gear faces: physical toothed ring begins at .72r instead of .49r, retaining four radial load-bearing spokes and all original motion/material ownership. Replaced 42-unit solid power-rack spine with two physical side rails batched under the same private material; preserved existing source-pitch toothed drive, THREE final rigid batching, raycast/opacity ownership and all authoritative collision/AI/progression. New regression tests inspect genuine POST-BATCH rendered geometry, source not mutated and clean floor-nine disposal.",
+      "largestObservedGap": "Older genuine 390x844 source-pinned guardian film shows the wheel/case obscuring the climber near 16–18s; newer open-rim, negative-space rotor and open rack geometry have NO executed exact-source full-motion acceptance.",
+      "primaryVerifiedBlocker": "GitHub Actions repository queue: 1816 queued workflows, 5 in progress at 2026-11-08 ~08:34 UTC. Tower original-runtime and 9-job capture jobs still QUEUED with no runner; local app-projects tool returned NOT_FOUND tunnel disconnected. Repo billing/hosted-runner capacity is not readable through available GitHub connector. No source-pinned new WebM or Node/Three test can be claimed.",
+      "implementation": "Evidence execution unblocker: scoped Tower quality workflow to source/tests/runtime changes, explicitly excluding only transformation.json and progress.json evidence journals, while preserving workflow_dispatch for deliberate exact-head execution. Fixed Tower capture workflow path filters to include the actual app.js/index.html entry points and tower-crossfire-evidence.cjs capture module; film still uses immutable baseline and unaltered original runtime. These changes reduce future docs-only CI queue pollution and prevent missing actual app/capture edits; they do not start existing queued jobs or improve rendered gameplay.",
       "concreteCommits": [
-        "3643b7e25909e8b61cc513be8043e2e5010b630c",
-        "f1fe522ec6a4da8d0a33cd620ca2c85357a04d6a",
-        "88361aa0193d20fd17c6a6fa8b08a691b43ff826"
+        "e961f3e9e87f99cb77df7ccec8f908034adbb99e",
+        "2975e4a4e802b4455107e45437d2834e8c2340d6"
       ],
       "modifiedFiles": [
-        "public/infinite-tower-climb/visuals/world.mjs",
-        "tests/phase3/tower-clockwork-guardian-sightlines.test.cjs",
-        "docs/reviews/2026-11-07-tower-pr68-current-film-and-source-integrity-veto.md",
-        "public/infinite-tower-climb/gauntlet/transformation.json"
+        ".github/workflows/tower-transformation-gate.yml",
+        ".github/workflows/tower-transformation-visual-evidence.yml",
+        "public/infinite-tower-climb/gauntlet/transformation.json",
+        "docs/reviews/2026-11-07-tower-pr68-current-film-and-source-integrity-veto.md"
       ],
-      "isolatedSourceChecks": "READ-ONLY source math at exact code/test SHAs: THREE shape hole .72r leaves .60r inside the center aperture; .82r stays inside real metal tooth rim (<.84r notch); split side-rail x±.69 width .22 leaves center x0 empty; actual authored teeth y=-20+.85n have clear y0 and occupied y≈.4. 3 original rotor registrations remain. Original Three runtime raycasts, browser capture, actual GPU memory/FPS and full test suite NOT EXECUTED.",
+      "isolatedSourceChecks": "GitHub readback verified both workflow definitions and PR #68 draft/base; source/test/workflow path changes explicitly listed, only evidence-journal files excluded from automatic quality checks. GitHub Actions YAML execution and Node/Three/browser tests remain NOT EXECUTED.",
       "currentExactCodeQuality": {
-        "sha": "88361aa0193d20fd17c6a6fa8b08a691b43ff826",
-        "runId": 42459977022,
-        "status": "QUEUED, no runner-confirmed result at inspection",
-        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42459977022"
+        "sha": "2975e4a4e802b4455107e45437d2834e8c2340d6",
+        "runId": 42463522918,
+        "status": "QUEUED, no hosted runner assigned",
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42463522918"
       },
       "currentNineJobCapture": {
-        "candidateSourceSha": "f1fe522ec6a4da8d0a33cd620ca2c85357a04d6a",
+        "candidateSourceSha": "2975e4a4e802b4455107e45437d2834e8c2340d6",
+        "renderedWorldLastChangedSha": "f1fe522ec6a4da8d0a33cd620ca2c85357a04d6a",
         "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-        "runId": 42459862584,
-        "status": "QUEUED 9-job original gameplay, no completed new WebM/artifact inspected",
-        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42459862584"
+        "runId": 42463522898,
+        "status": "QUEUED; no new current-source full-motion or event-paired WebM",
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42463522898"
       },
-      "videoEventAlignment": "NOT EVALUATED for f1fe522e new open-rack source: no new original WebM or native-PTS-to-authority event calibration executed.",
+      "videoEventAlignment": "NOT EVALUATED: no new source/video native-PTS correspondence since physical clockwork cutaways.",
       "independentBlindReviews": {
         "looks": 0,
         "feels": 0,
         "plays": 0
       },
-      "hardwareFrameTimeMemory": "NOT EVALUATED: no supported-device p50/p95/p99 or memory",
-      "developmentWorkspace": "UNAVAILABLE: app-projects tunnel client NOT_FOUND; GitHub connector source file read/write is operational; container network cannot clone private repo",
+      "hardwareFrameTimeMemory": "NOT EVALUATED: no supported-device frame-time p50/p95/p99 or memory.",
+      "developmentWorkspace": "UNAVAILABLE: app-projects remote command returned tunnel-client NOT_FOUND; GitHub connector read/write remains functional.",
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "nextHighImpactAction": "Recover executing runner; run original Three.js post-batch raycast tests and repository suite, then inspect 960x600 and 390x844 f1fe522e normal-speed candidate alongside immutable 1731b380 baseline. Verify new gear/rack actually clear source actor/guardian without over-fading original world; align earned defeat, grounded crossing, floor-nine onward and restart to native PTS. If still obstructed, correct actual camera-relative geometry at P0. Then complete device and independent blinded gates.",
-      "restrictions": "Frozen baseline unchanged; PR58 untouched; PR68 open draft, no merge/deploy/force-push/rebase/baseline movement."
+      "nextHighImpactAction": "Restore an executing runner or coding workspace and inspect workflow 42463522898; execute actual THREE post-batch raycasts and event-pinned continuous 960x600/390x844 candidate/baseline film. Determine whether open rings/rotors/rack really solve portrait foreground obstruction; inspect grounded gateway body crossing, floor-nine, outcome/restart. Obtain five genuine blind independent LOOKS/FEELS/PLAYS critics and supported-device performance before P0 acceptance. Do not spend another run speculatively hollowing gear surfaces while current render is unfilmed.",
+      "restrictions": "Frozen baseline SHA unchanged, PR58 untouched, PR68 OPEN DRAFT. No merge, deploy, force-push, rebase, baseline movement or hidden gameplay modifications."
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
     "state": "P0 OPEN — original three real gear faces and tall decorative rack physically cut through in source; original post-batch Three runtime tests and current gameplay film remain QUEUED/NOT EVALUATED.",
@@ -697,6 +696,19 @@
         "nextHighImpactAction": "Restore an authenticated Node22+Chromium checkout or functioning GitHub runner; execute npm run test:tower:phase2 (especially six added swept-side/corner regressions), both unchanged 3200-tick campaigns, then inspect exact immutable-source baseline/candidate 960x600 + 390x844 normal-speed ≥60s clips and event alignment. Correct largest observed playable/visual defect, then independently assess LOOKS/FEELS/PLAYS and actual-device frame p50/p95/p99/memory before stage advance.",
         "implementationReviewUrl": "https://github.com/my-edutu/Ai_games/blob/feat/tower-transformation-gauntlet-20261101/docs/reviews/2026-11-07-tower-pr68-diagonal-moving-wall-contact.md",
         "safety": "Frozen baseline untouched; feature-flagged source physics only in PR68, PR58 untouched, draft open, no merge/deploy/force-push."
+      },
+      {
+        "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+        "sourceHeadAtInspection": "88361aa0193d20fd17c6a6fa8b08a691b43ff826",
+        "actualRenderedGameSourceSha": "f1fe522ec6a4da8d0a33cd620ca2c85357a04d6a",
+        "primaryVerifiedBlocker": "The coding workspace tool responds tunnel-client NOT_FOUND. Repository-wide GitHub Actions queue includes numerous games, not just Tower: this SHA's original-runtime quality 42459977022 and 9-job real gameplay capture 42459862584 have no executed evidence. Source-only exact checks cannot prove actual Three.js runtime or video improvement.",
+        "leadingTransformationVerdict": "NOT EVALUATED",
+        "modifiedFiles": [
+          "public/infinite-tower-climb/visuals/world.mjs",
+          "tests/phase3/tower-clockwork-guardian-sightlines.test.cjs",
+          "docs/reviews/2026-11-07-tower-pr68-current-film-and-source-integrity-veto.md",
+          "public/infinite-tower-climb/gauntlet/transformation.json"
+        ]
       }
     ],
     "p0MovingLaunchInertia20261107": {
@@ -925,7 +937,7 @@
       "reviewUrl": "https://github.com/my-edutu/Ai_games/blob/feat/tower-transformation-gauntlet-20261101/docs/reviews/2026-11-07-tower-pr68-portrait-clockwork-frame-dominance.md",
       "restrictions": "Base SHA 1731b380851162741761c5569e2bc152a0869ca9 preserved; PR68 open/draft; PR58 unmodified; no merge/deploy/force push."
     },
-    "biggestExperienceGap": "Prior authentic 100b67fd portrait guardian footage obscured by giant clock ring and backing. First open flanking art ef292410 failed actual original route-clearance invariant (radius24.3559>23.4); corrective radial placement 01ccf675 is awaiting original runtime checks and exact gameplay footage; independent critics and device budgets absent.",
+    "biggestExperienceGap": "P0 live source-pinned portrait camera/guardian occlusion and unverified physical gateway clip; GitHub Actions 1816 queued workflows/5 in progress; no runner and coding tunnel unavailable.",
     "p0GroundHazardValidation20261107": {
       "validatorImplementationSha": "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
       "originalRuntimeTestCommitSha": "828070b0c11876ee8f7b49c4f338681c02bb242b",
@@ -1291,6 +1303,21 @@
       "actualDeviceFrameTimeMemory": "NOT EVALUATED",
       "nextHighestImpactAction": "Run original real Three.js test and source-pinned capture; inspect actual camera forensic intended/rendered alpha and baseline/candidate 390x844 and 960x600 full motion; correct dominant remaining visible obstruction or overfade, then prove floor9 and outcome/restart.",
       "limits": "No win claims: standalone policy is not real game rendering. No merges/deploys/force push. Frozen baseline and PR58 remain unchanged."
+    },
+    "p0RunnerBackpressure20261108": {
+      "gameplayChanged": false,
+      "workflowCommits": [
+        "e961f3e9e87f99cb77df7ccec8f908034adbb99e",
+        "2975e4a4e802b4455107e45437d2834e8c2340d6"
+      ],
+      "jobsQueued": 1816,
+      "jobsInProgress": 5,
+      "observed": "2026-11-08 ~08:34 UTC",
+      "qualityRun": 42463522918,
+      "captureRun": 42463522898,
+      "rootCause": "UNKNOWN (GitHub billing/hosted-runner entitlement not readable)",
+      "mitigation": "Stop quality triggers for evidence-only journals, add missing entry-point/crossfire capture paths; queued jobs remain blocked",
+      "completion": "P0 OPEN / NOT EVALUATED"
     }
   },
   "scenarios": [
