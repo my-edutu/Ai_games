@@ -171,15 +171,25 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
   expect(proof.frame,'real rendered frame for '+stage).toBeGreaterThan(0);
   expect(proof.renderedState?.checksum,'rendered truth '+stage).toBe(expected.checksum);
   expect(proof.publicChecksum,'consumed truth '+stage).toBe(expected.checksum);
+  // Sample the genuine imported skeleton ONCE at each real five-stage chapter;
+  // never animate a fake actor, alter authority or add per-frame GPU work.
+  const sourceRig=await page.evaluate(()=>
+   window.__DUNGEON_SOURCE_RIG_DEFORMATION__?.()??null);
+  expect(sourceRig?.schemaVersion,'native source rig at '+stage).toBe(1);
+  expect(sourceRig.summary.invalidQuaternionCount,'bone quaternion at '+stage).toBe(0);
+  expect(sourceRig.summary.invalidMatrixCount,'source bone matrix at '+stage).toBe(0);
+  expect(sourceRig.summary.disconnectedSegments,'joint hierarchy at '+stage).toBe(0);
+  expect(sourceRig.summary.invalidSegments,'finite limb length at '+stage).toBe(0);
+  expect(sourceRig.summary.maxStretchFraction,'limb stretch at '+stage).toBeLessThanOrEqual(.20);
   const screenshot='artifacts/dungeon-m1-organic-journey-'+VIEW+'-'+stage+'-actual-canvas.png';
   await page.locator('#world').screenshot({path:screenshot,timeout:90000});
   milestoneFrameProof.push({stage,index,checksum:expected.checksum,frame:proof.frame,
-   renderedState:proof.renderedState,screenshot});
+   renderedState:proof.renderedState,screenshot,sourceRig:sourceRig.summary});
   observations.push({stage,run:proof.renderedState.run,tick:proof.renderedState.tick,
    floor:proof.renderedState.floor,phase:expected.phase,
    checksum:proof.publicChecksum,frame:proof.frame,composition:proof.composition,
    visibility:proof.visibility,frameDelivery:proof.frameDelivery,
-   triangles:proof.triangles,soundstage:proof.soundstage});
+   triangles:proof.triangles,soundstage:proof.soundstage,sourceRig:sourceRig.summary});
   // A review-playback hold of the unchanged real snapshot, not a staged win.
   await page.waitForTimeout(420);
  }
