@@ -1592,7 +1592,7 @@ function workSkinSegments(rig,body,bind,point=workSkinPoint){
   2*wrist[0]-elbow[0],2*wrist[1]-elbow[1],2*wrist[2]-elbow[2]])];
  return segments;
 }
-function workSkinRigidMatrix(from,to){
+function workSkinRigidMatrix(from,to,out=null,offset=0){
  const a=from[0],b=from[1],c=to[0],d=to[1];
  const v=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],
   u=[d[0]-c[0],d[1]-c[1],d[2]-c[2]];
@@ -1632,26 +1632,76 @@ function workSkinRigidMatrix(from,to){
   b22=a22+stretch*u[2]*v[2];
  // Shader uses position XYZ only. The otherwise-unused last row stores
  // inverse axial scale and original unit axis for correct lighting normals.
- return [b00,b10,b20,vl/ul,b01,b11,b21,v[0],b02,b12,b22,v[1],
-  c[0]-b00*a[0]-b01*a[1]-b02*a[2],
-  c[1]-b10*a[0]-b11*a[1]-b12*a[2],
-  c[2]-b20*a[0]-b21*a[1]-b22*a[2],v[2]];
+ // W129: WebGL uploads copy this palette synchronously. Write directly
+ // into a worker-owned Float32Array when available; preserve the original
+ // Array return and exact mathematical values for all standalone callers.
+ if(out!==null&&(!(out instanceof Float32Array)||
+    !Number.isInteger(offset)||offset<0||offset+16>out.length))
+  throw Error('W129 invalid bounded GPU joint palette destination');
+ const dst=out===null?new Array(16):out,at=out===null?0:offset;
+ dst[at]=b00;dst[at+1]=b10;dst[at+2]=b20;dst[at+3]=vl/ul;
+ dst[at+4]=b01;dst[at+5]=b11;dst[at+6]=b21;dst[at+7]=v[0];
+ dst[at+8]=b02;dst[at+9]=b12;dst[at+10]=b22;dst[at+11]=v[1];
+ dst[at+12]=c[0]-b00*a[0]-b01*a[1]-b02*a[2];
+ dst[at+13]=c[1]-b10*a[0]-b11*a[1]-b12*a[2];
+ dst[at+14]=c[2]-b20*a[0]-b21*a[1]-b22*a[2];
+ dst[at+15]=v[2];
+ return dst;
+}
+// W129: a worker keeps at most one original compact and one original
+// full-body palette. The real joint deltas update EVERY draw; only scratch
+// allocations are eliminated. The source rig, 13 true body parts, boot/tool
+// contact, root shader and authoritatively advanced frame remain unchanged.
+const WORK_SKIN_PALETTE_FLOATS=13*16;
+let workSkinPaletteAllocations=0,workSkinPaletteReuses=0,
+ workSkinPaletteFills=0;
+function retainWorkerSkinPalette(entry,segments,slot){
+ if(!entry||!Array.isArray(entry.bindSegments)||
+    entry.bindSegments.length!==13||!Array.isArray(segments)||
+    segments.length!==13||
+    (slot!=='compactBonePalette'&&slot!=='detailedBonePalette'))
+  throw Error('W129 invalid genuine worker skin palette');
+ let palette=entry[slot];
+ if(!(palette instanceof Float32Array)||
+    palette.length!==WORK_SKIN_PALETTE_FLOATS){
+  palette=new Float32Array(WORK_SKIN_PALETTE_FLOATS);
+  entry[slot]=palette;
+  workSkinPaletteAllocations++;
+ }else workSkinPaletteReuses++;
+ for(let k=0;k<13;k++)
+  workSkinRigidMatrix(entry.bindSegments[k],segments[k],palette,k*16);
+ workSkinPaletteFills++;
+ return palette;
+}
+function getWorkSkinPaletteAudit(){
+ let slots=0;
+ // Both caches remain strictly population-bounded. Detached entries can
+ // be garbage collected immediately when workers change eligibility.
+ for(const cache of [workingResidentCache,foregroundResidentCache]){
+  for(const entry of cache.values())
+   for(const slot of ['compactBonePalette','detailedBonePalette'])
+    if(entry[slot] instanceof Float32Array)slots++;
+ }
+ return {source:'retained-original-thirteen-joint-real-worker-palette',
+  maxWorkers:WORKING_RESIDENT_MAX+FOREGROUND_RESIDENT_MAX,
+  floatsPerPalette:WORK_SKIN_PALETTE_FLOATS,
+  activePalettes:slots,activeBytes:slots*WORK_SKIN_PALETTE_FLOATS*4,
+  maximumBytes:(WORKING_RESIDENT_MAX+FOREGROUND_RESIDENT_MAX)*2*
+   WORK_SKIN_PALETTE_FLOATS*4,
+  allocations:workSkinPaletteAllocations,reuses:workSkinPaletteReuses,
+  poseUpdates:workSkinPaletteFills,extraGpuBuffers:0,
+  originalBonesAndTools:true,authorityChanged:false,
+  hardwareFrameRate:'NOT MEASURED'};
 }
 function workSkinMatrices(entry,p){
  const i=Math.max(0,people.indexOf(p)),rig=citizenRigPose(p);
  const current=workSkinSegments(rig,citizenEmbodiedPose(p,i,rig),entry);
- const matrices=new Float32Array(13*16);
- for(let k=0;k<13;k++)
-  matrices.set(workSkinRigidMatrix(entry.bindSegments[k],current[k]),k*16);
- return matrices;
+ return retainWorkerSkinPalette(entry,current,'compactBonePalette');
 }
 function workSkinDetailedMatrices(entry,p){
  const i=Math.max(0,people.indexOf(p)),rig=citizenRigPose(p);
  const current=workSkinSegments(rig,citizenEmbodiedPose(p,i,rig),entry,workSkinDetailedPoint);
- const matrices=new Float32Array(13*16);
- for(let k=0;k<13;k++)
-  matrices.set(workSkinRigidMatrix(entry.bindSegments[k],current[k]),k*16);
- return matrices;
+ return retainWorkerSkinPalette(entry,current,'detailedBonePalette');
 }
 function workSkinTags(vertices,parts){
  const labels=new Float32Array(vertices);
@@ -18881,7 +18931,7 @@ requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON
   cloneData(getAuthenticWorkGesture(people[index])):null,
  getFaceTopologyCacheAudit,getSimulationTickDebtAudit,
  getRestingActorResidencyAudit,getResidentCommuterAudit,getWorkingResidentAudit,
- getWorkingSkinAudit,setWorkingSkinEnabledForTesting,
+ getWorkingSkinAudit,getWorkSkinPaletteAudit,setWorkingSkinEnabledForTesting,
  getForegroundResidentAudit,getForegroundSkinAudit,setForegroundResidentEnabledForTesting,
  getSocialEncounterAudit:()=>cloneData(getSocialEncounterAudit()),getFieldWindAudit:(time=state.t)=>cloneData(getFieldWindAudit(time)),getAmbientGpuResidencyAudit:()=>({...getAmbientGpuResidencyAudit()}),getWeatherVertexMotionProbe,getOccupationalPerformance:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData({citizen:people[index].name,job:people[index].job,...occupationalPerformance(people[index])}):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getSelectedCitizenTaskAudit,getCitizenPickCandidates,getCitizenOrbitAudit,getCitizenPickAudit:()=>({...citizenPickAudit}),getWorkdayEvents:()=>cloneData(workdayEvents),getStreetCargoWitnesses:()=>cloneData(streetCargoWitnesses()),getActiveDeliveries:()=>cloneData(getActiveDeliveries()),getSupplyTrailSnapshot:()=>cloneData(getSupplyTrailSnapshot()),getPhysicalMarketParcelAudit:id=>cloneData(getPhysicalMarketParcelAudit(id)),getCourierLoadPresentation:workerName=>cloneData(getCourierLoadPresentation(workerName)),getCourierTransferMotion:workerName=>cloneData(courierTransferMotion(workerName)),getCourierTrailAudit,getCourierTrailResidencyAudit,
  setCourierTrailResidencyForTesting,getDeliveryEconomyAudit:()=>cloneData(getDeliveryEconomyAudit()),getDeliveryReceipts:()=>cloneData(getDeliveryReceipts()),getMarketHandoffs:()=>cloneData(getMarketHandoffs()),getMarketParcelDeliveryPose:id=>cloneData(getMarketParcelDeliveryPose(id)),getCourierHandContact:person=>cloneData(courierWorldHandContact(person)),getMarketHandoffRenderStats:()=>({...marketHandoffRenderStats}),watchDelivery,watchHomecoming,getHomecomingView,getHomecomingThresholdCameraAudit,getWorkdayView,getActiveWorksites,watchHarvestShift,getHarvestInteractionAudit,getHarvestVisibilityAudit,getHarvestAftermathAudit,getCitizenActingAudit,

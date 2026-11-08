@@ -19,6 +19,7 @@ on:
       - 'tests/browser/tiny-kingdom-w126e-environment.spec.cjs'
       - 'scripts/tiny-kingdom-w125-gpu-skin-contract.cjs'
       - 'scripts/tiny-kingdom-w128-detailed-workskin-contract.cjs'
+      - 'scripts/tiny-kingdom-w129-retained-worker-palette-contract.cjs'
       - 'tests/browser/tiny-kingdom-w128-detailed-workskin.spec.cjs'
       - 'scripts/tiny-kingdom-w121-working-resident-contract.cjs'
       - 'scripts/tiny-kingdom-w118-resting-actor-contract.cjs'
@@ -76,6 +77,8 @@ jobs:
         run: node scripts/tiny-kingdom-w125-gpu-skin-contract.cjs
       - name: W128 real full-detail worker joint map and GPU resident buffer contract
         run: node scripts/tiny-kingdom-w128-detailed-workskin-contract.cjs
+      - name: W129 bounded original 13-bone palette retention and exact contact transforms
+        run: node scripts/tiny-kingdom-w129-retained-worker-palette-contract.cjs
       - name: W126 exact four-profession inventory, contact and clock contract
         run: node scripts/tiny-kingdom-w126-authentic-workday-contract.cjs
       - run: npx playwright install --with-deps chromium
