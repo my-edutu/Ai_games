@@ -164,7 +164,7 @@ export function planConnectedDungeonJourney(map,floor,exit,units=[]){
    minZ:t.z-(t.axis==='x'?1.18:.40),maxZ:t.z+(t.axis==='x'?1.18:.40)});
  }
  for(const f of facades)bounds.push({role:f.role,kind:'blocked-cell-blind-recess',
-  minX:f.x-.54,maxX:f.x+.54,minY:0,maxY:3.56,
+  minX:f.x-.54,maxX:f.x+.54,minY:0,maxY:4.05,
   minZ:f.z-.54,maxZ:f.z+.54,supportCell:[f.gridX,f.gridZ]});
  const colors=[
   ['#918475','#292725','#8c7158'],['#866e65','#281e21','#b18b72'],
