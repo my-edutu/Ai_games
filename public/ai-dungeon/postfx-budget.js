@@ -114,3 +114,25 @@ export function adaptDirectRenderPixelCap(currentCap,renderMs,previousSlow=0){
  const maxPixels=reduce?Math.max(MIN_CPU_DIRECT_PIXELS,Math.floor(cap*.65/1000)*1000):cap;
  return {maxPixels,slowStreak,downshift:maxPixels<cap};
 }
+
+/**
+ * Pure WebGL presentation-surface transition. Three.js 0.186.0 floors
+ * width * DPR when setting the backing canvas; do not compare that size to
+ * Math.round(width * DPR) or reallocate the backing canvas every frame.
+ *
+ * Store the last successfully applied CSS size and DPR separately from the
+ * WebGL canvas. No camera, gameplay, or authority state participates.
+ */
+export function planRenderSurfaceChange(previous, cssWidth, cssHeight, pixelRatio) {
+ const valid=Number.isFinite(cssWidth)&&cssWidth>0&&cssWidth<=16384&&
+  Number.isFinite(cssHeight)&&cssHeight>0&&cssHeight<=16384&&
+  Number.isFinite(pixelRatio)&&pixelRatio>=.001&&pixelRatio<=4;
+ if(!valid)return {valid:false,resized:false,sizeChanged:false,ratioChanged:false,
+  framebufferWidth:0,framebufferHeight:0};
+ const sizeChanged=previous?.width!==cssWidth||previous?.height!==cssHeight;
+ const ratioChanged=previous?.pixelRatio!==pixelRatio;
+ return {valid:true,resized:sizeChanged||ratioChanged,sizeChanged,ratioChanged,
+  width:cssWidth,height:cssHeight,pixelRatio,
+  framebufferWidth:Math.max(1,Math.floor(cssWidth*pixelRatio)),
+  framebufferHeight:Math.max(1,Math.floor(cssHeight*pixelRatio))};
+}
