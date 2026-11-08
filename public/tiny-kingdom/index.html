@@ -10603,20 +10603,31 @@ function appendActiveWorksiteDressing(w,x,y,z,pulse){
     [x+.12+i*.14,y+.27+fall,z+.20],rgb(0xd4b58d));
   }
  }else if(w.job==='farmer'){
-  // Harvest sheaves tied together beside actual worked rows.
-  for(let i=0;i<4;i++)
-   cone(x-.34+i*.19,y+.04,z+.49,.065,.31+(i%2)*.10,
-    rgb(i%2?0xc4a258:0xd9b96f),5);
+  const harvesting=w.activity==='Harvesting grain';
+  // Before a real crop-cutting task, stems must remain standing. During
+  // the original work timer, short stubble replaces just the cut row.
+  // Temporary sheaves carry no stock: work() commits the ONLY food credit.
   box(x+.05,y+.06,z-.46,.49,.20,.35,rgb(0x9d7d50));
   box(x+.05,y+.24,z-.46,.48,.045,.37,rgb(0xc6aa6e));
-  // Grain bunches accumulate VISUALLY along this true harvest shift.
-  // They are work-in-progress, not credited food until work() resolves.
-  for(let i=0;i<Math.floor(cue.progress*4);i++){
-   const sx=x-.25+i*.17;
-   cone(sx,y+.07,z-.47,.095,.37,rgb(i%2?0xceb067:0xdfc482),6);
-   box(sx,y+.26,z-.47,.18,.045,.15,rgb(0x947044));
+  if(harvesting){
+   const cut=Math.max(0,Math.min(6,Math.floor((cue.progress-.12)/.8*7)));
+   for(let i=0;i<6;i++){
+    const sx=x-.43+i*.17,short=i<cut;
+    cone(sx,y+.035,z+.50,.055,short?.09:.48,
+     rgb(short?0xa08450:i%2?0xc4a258:0xd9b96f),5);
+   }
+   for(let i=0;i<Math.min(3,Math.floor(cut/2));i++){
+    const sx=x-.17+i*.17;
+    cone(sx,y+.07,z-.47,.095,.32,rgb(i%2?0xceb067:0xdfc482),6);
+    box(sx,y+.22,z-.47,.18,.045,.15,rgb(0x947044));
+   }
+  }else{
+   // A real winter task means working the store, never cutting living grain.
+   box(x,y+.23,z-.42,.40,.19,.25,rgb(0x92764e));
   }
  }else if(w.job==='builder'){
+  const actor=people.find(p=>p.name===w.citizen&&p.job==='builder');
+  const construction=actor?getBuilderConstructionIntent(actor):null;
   const assembly=builderAssemblyState(w.progress);
   // G120: frame behind the REAL worker. A previous waist/eye-line crossing
   // obscured the builder in exact-head G119 moving gameplay evidence.
@@ -10624,6 +10635,8 @@ function appendActiveWorksiteDressing(w,x,y,z,pulse){
   // instead of layering posts directly over a real carpenter's face.
   const rise=cue.frameRise,oak=rgb(0xc19b62),rear=z+cue.staging.frameRear,
    frameX=x+cue.staging.frameSide;
+  // Timber cannot assemble a new home when the saved economy cannot do so.
+  if(construction?.canBuild){
   for(const side of [-1,1]){
    const xx=frameX+side*.46;
    limbSegment([xx,y+.04,rear],[xx,y+rise,rear],.065,rgb(0x916742),6);
@@ -10659,6 +10672,7 @@ function appendActiveWorksiteDressing(w,x,y,z,pulse){
   box(frameX,hoistY,rear,.62,.10,.17,rgb(0xad8052));
   limbSegment([frameX-.25,hoistY+.03,rear],
    [frameX-.25,y+rise+.07,rear],.012,rgb(0xcfb589),5);
+  }
   // Lower, narrow forward bench follows the actual joint work; hand, mallet,
   // tenon and chips are staged at the same world-facing workstation.
   const front=z+cue.staging.benchFront,benchY=y+cue.staging.benchHeight,
@@ -12551,7 +12565,7 @@ let completedHarvestRenderStats={sites:0,triangles:0,rows:0,stubble:0,sheaves:0}
 function completedHarvestVisuals(time=state.t){
  if(!Number.isFinite(time))throw Error('Invalid harvest observation time');
  return workdayEvents.filter(e=>
-  e.job==='farmer'&&e.delta.food>0&&
+  e.job==='farmer'&&e.activity==='Harvesting grain'&&e.delta.food>0&&
   Number.isFinite(e.x)&&Number.isFinite(e.z)&&
   time>=e.time&&time-e.time<COMPLETED_HARVEST_VISUAL_HOURS&&
   FARMSTEAD.fields.some(([x0,x1,z0,z1])=>
