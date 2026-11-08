@@ -1,6 +1,6 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
 import {planDungeonSetpieces} from '/dungeon/setpiece-plan.js';
-import {getEnvironmentMaterialRole} from '/dungeon/environment-look-plan.js';
+import {getEnvironmentMaterialRole,makeEnvironmentDetailPixels,ENVIRONMENT_SETPIECE_DETAIL_BUDGET} from '/dungeon/environment-look-plan.js';
 
 // A small original sculptural vocabulary replaces repeated neon obelisks.
 // Decoration is anchored against solid walls; the collision grid is NEVER modified.
@@ -11,10 +11,10 @@ const PALETTES=[
  {stone:'#3d5277',rim:'#8facc8',metal:'#9d998e',cloth:'#293d62',core:'#71b9d8'},
  {stone:'#55446a',rim:'#b1a0c1',metal:'#bba28f',cloth:'#45355f',core:'#b08bcf'}
 ];
-export function createDungeonSetpieces(world,map,floor,exit){
+export function createDungeonSetpieces(world,map,floor,exit,{surfaceDetailEnabled=false}={}){
  const placements=planDungeonSetpieces(map,floor,exit,8),palette=PALETTES[(floor-1)%4];
  const root=new THREE.Group();root.name='Dungeon biomes: original setpieces';world.add(root);
- const geos=[],mats=[],movables=[];
+ const geos=[],mats=[],movables=[],detailTextures=[];
  const geometry=g=>{geos.push(g);return g};
  // Setpiece material identities remain stable even as Session 5 replaces
  // architecture meshes. Authoring belongs here; geometry stays unchanged.
@@ -27,8 +27,38 @@ export function createDungeonSetpieces(world,map,floor,exit){
  };
  const stone=material(palette.stone,'masonry'),edge=material(palette.rim,'carvedStone');
  const metal=material(palette.metal,'agedMetal'),cloth=material(palette.cloth,'hangingCloth');
- const ink=material('#171d27','soot'),timber=material('#77614e','timber');
+ const ink=material('#171d27','soot'),timberMaterial=material('#77614e','timber');
  const magic=material(palette.core,'magicInset',.36);
+ // Original source-generated PBR microdetail enhances the actual wall-mounted
+ // desk, forged fixtures and cloth dressing. All seven images are shared
+ // across setpieces in this biome, not multiplied by mesh count.
+ // Software rasterizers retain scalar PBR to avoid slowing gameplay delivery.
+ if(surfaceDetailEnabled){
+  const size=ENVIRONMENT_SETPIECE_DETAIL_BUDGET.size;
+  const data=(pixels,kind)=>{
+   const texture=new THREE.DataTexture(pixels,size,size,THREE.RGBAFormat,THREE.UnsignedByteType);
+   texture.name='original-setpiece-'+kind;
+   texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
+   texture.anisotropy=2;texture.generateMipmaps=true;
+   if(kind.endsWith('albedo'))texture.colorSpace=THREE.SRGBColorSpace;
+   texture.needsUpdate=true;detailTextures.push(texture);return texture;
+  };
+  const timber=makeEnvironmentDetailPixels('timber',floor,size);
+  const aged=makeEnvironmentDetailPixels('agedMetal',floor,size);
+  const drape=makeEnvironmentDetailPixels('hangingCloth',floor,size);
+  timber && (()=>{
+   const color=data(timber.albedoPixels,'timber-albedo');
+   const normal=data(timber.normalPixels,'timber-normal');
+   const rough=data(timber.roughnessPixels,'timber-roughness');
+   timberMaterial.map=color;timberMaterial.normalMap=normal;timberMaterial.roughnessMap=rough;
+   timberMaterial.normalScale.set(getEnvironmentMaterialRole('timber').normalScale,getEnvironmentMaterialRole('timber').normalScale);
+  })();
+  metal.map=data(aged.albedoPixels,'metal-albedo');
+  metal.roughnessMap=data(aged.roughnessPixels,'metal-roughness');
+  cloth.map=data(drape.albedoPixels,'cloth-albedo');
+  cloth.normalMap=data(drape.normalPixels,'cloth-normal');
+  cloth.normalScale.set(getEnvironmentMaterialRole('hangingCloth').normalScale,getEnvironmentMaterialRole('hangingCloth').normalScale);
+ }
  const box=geometry(new THREE.BoxGeometry(1,1,1));
  const oval=geometry(new THREE.SphereGeometry(1,10,7));
  const cylinder=geometry(new THREE.CylinderGeometry(.5,.5,1,10));
@@ -94,7 +124,7 @@ export function createDungeonSetpieces(world,map,floor,exit){
  function scriptorium(g,variant){
   // A reading desk with a genuinely open two-page codex and a restrained spectral seal.
   inPlace(g,box,stone,0,.38,-.19,.42,.39,.32);
-  const desk=inPlace(g,box,timber,0,.62,-.26,.63,.075,.37);desk.rotation.x=-.18;
+  const desk=inPlace(g,box,timberMaterial,0,.62,-.26,.63,.075,.37);desk.rotation.x=-.18;
   const left=inPlace(g,box,cloth,-.14,.69,-.29,.29,.026,.23);left.rotation.z=-.10;
   const right=inPlace(g,box,cloth,.14,.69,-.29,.29,.026,.23);right.rotation.z=.10;
   inPlace(g,box,metal,0,.70,-.30,.018,.028,.27);
@@ -119,11 +149,13 @@ export function createDungeonSetpieces(world,map,floor,exit){
  const metrics={landmarks:placements.length,wallReliefs:placements.length,
   motif:placements[0]?.motif??'none',animatedSetpieces:movables.length,
   uniqueSculptureFamilies:4,meshBudget:placements.length*21,
-  materialRoles:['masonry','carvedStone','agedMetal','hangingCloth','soot','timber','magicInset']};
+  materialRoles:['masonry','carvedStone','agedMetal','hangingCloth','soot','timber','magicInset'],
+  materialDetailMaps:detailTextures.length,materialDetailRawBytes:detailTextures.length*ENVIRONMENT_SETPIECE_DETAIL_BUDGET.size**2*4,
+  materialDetailFallback:!surfaceDetailEnabled};
  return{metrics,update(time){
   for(const move of movables){
    if(move.kind==='wheel')move.object.rotation.y=time*.19+move.phase*.25;
    else move.object.scale.y=1+Math.sin(time*4.2+move.phase)*.07;
   }
- },dispose(){root.parent?.remove(root);for(const m of mats)m.dispose();for(const g of geos)g.dispose()}};
+ },dispose(){root.parent?.remove(root);for(const m of mats)m.dispose();for(const g of geos)g.dispose();for(const texture of detailTextures)texture.dispose()}};
 }
