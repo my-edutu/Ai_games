@@ -46,7 +46,15 @@ test('structural foundations stay in solid cells; elevated thresholds alone span
  for(const seed of ['visual-room-art-18','dungeon-ui-round17','warden-combat-m1']){
   const s=DungeonRuntime.create(seed).publicState(),p=plan(s.map,s.floor,s.exit,s.units);
   assert.ok(p.thresholds.length<=3&&p.facades.length<=18);
-  assert.equal(p.occluderBounds.length,p.thresholds.length+p.facades.length);
+  assert.equal(p.occluderBounds.length,p.thresholds.length*3+p.facades.length);
+  for(const box of p.occluderBounds){
+   if(box.kind==='solid-blocked-support'||box.kind==='blocked-cell-blind-recess'){
+    const [x,z]=box.supportCell;
+    assert.equal(s.map[z]?.[x],'#','solid occluder is a real impassable cell');
+   }
+   if(box.kind==='overhead-vault-crown')
+    assert.ok(box.minY>=2.25,'the center of a real corridor is not a fake opaque slab');
+  }
   for(const arch of p.thresholds){
    assert.ok(legal(s.map,arch.gridX,arch.gridZ),'only a real corridor gets an elevated arch');
    assert.ok(arch.clearance>=2.25);
@@ -103,6 +111,7 @@ test('five capped instanced draws, zero new lights and explicit floor disposal a
  assert.match(host,/createConnectedDungeonJourney\(world,map,floor,exit,encounterUnits\)/);
  assert.match(host,/connectedJourney\.cutaway\(eyes,camera,wallPad\)/);
  assert.match(host,/connectedJourney\.dispose\(\)/);
+ assert.match(host,/connectedJourney\.occluderVolumes/);
  assert.match(app,/enrichEnvironment\(world,s\.map,s\.floor,vaultedSites,s\.exit,s\.units\)/);
  for(const code of [source,renderer]){
   assert.doesNotMatch(code,/Math\.random\(|Date\.now\(|fetch\(|localStorage/);
