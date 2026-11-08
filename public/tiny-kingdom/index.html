@@ -1551,10 +1551,24 @@ function workSkinRigidMatrix(from,to){
  const a00=1-2*(yy+zz),a01=2*(xy-zw),a02=2*(xz+yw),
   a10=2*(xy+zw),a11=1-2*(xx+zz),a12=2*(yz-xw),
   a20=2*(xz-yw),a21=2*(yz+xw),a22=1-2*(xx+yy);
- return [a00,a10,a20,0,a01,a11,a21,0,a02,a12,a22,0,
-  c[0]-a00*a[0]-a01*a[1]-a02*a[2],
-  c[1]-a10*a[0]-a11*a[1]-a12*a[2],
-  c[2]-a20*a[0]-a21*a[1]-a22*a[2],1];
+ // W125 direct red-test repair: source->target work bones change rendered
+ // length during genuine reach/crouch. A rigid map left real wrists and work
+ // tools 1–12cm away from their actual authoritative IK endpoints.
+ // M = R + (target/source length -1)*unitTarget*unitSource^T.
+ // This stretches ALONG the bone without changing cloth/tool circumference.
+ const stretch=ul/vl-1;
+ const b00=a00+stretch*u[0]*v[0],b01=a01+stretch*u[0]*v[1],
+  b02=a02+stretch*u[0]*v[2],
+  b10=a10+stretch*u[1]*v[0],b11=a11+stretch*u[1]*v[1],
+  b12=a12+stretch*u[1]*v[2],
+  b20=a20+stretch*u[2]*v[0],b21=a21+stretch*u[2]*v[1],
+  b22=a22+stretch*u[2]*v[2];
+ // Shader uses position XYZ only. The otherwise-unused last row stores
+ // inverse axial scale and original unit axis for correct lighting normals.
+ return [b00,b10,b20,vl/ul,b01,b11,b21,v[0],b02,b12,b22,v[1],
+  c[0]-b00*a[0]-b01*a[1]-b02*a[2],
+  c[1]-b10*a[0]-b11*a[1]-b12*a[2],
+  c[2]-b20*a[0]-b21*a[1]-b22*a[2],v[2]];
 }
 function workSkinMatrices(entry,p){
  const i=Math.max(0,people.indexOf(p)),rig=citizenRigPose(p);
@@ -2321,7 +2335,13 @@ void main(){
   mat4 pose=workBone[0];
   ${workingSkinShaderDispatch}
   world=(pose*vec4(world,1.0)).xyz;
-  surfaceNormal=normalize(mat3(pose)*surfaceNormal);
+  // The matrix's unused homogeneous W row holds the source axis and
+  // inverse axial scale. Undo only longitudinal stretch for true lighting
+  // normals; the original sculpted cloth and tools retain their girth.
+  vec3 bindAxis=vec3(pose[1].w,pose[2].w,pose[3].w);
+  vec3 correctedNormal=surfaceNormal+bindAxis*
+   dot(bindAxis,surfaceNormal)*(pose[0].w-1.0);
+  surfaceNormal=normalize(mat3(pose)*correctedNormal);
  }
  // Preserve one genuinely generated compact pose as real small commuters
  // traverse their original route. Position/yaw are read from ACTUAL agent
