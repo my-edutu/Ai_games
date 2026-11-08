@@ -185,3 +185,9 @@ are inspected. Leave PR #72 draft, protect PR #49, and do not merge.
 push-churn, then compare genuine moving ranged draws and recovery,
 source skin/hand continuity and real 390px/desktop Warden journey
 against frozen `281735d0910c6b2443648af976003d50412ee324`.
+
+## 8 November — independent original GLB inverse-bind deformation reference (Session 03)
+
+**Evidence-integrity repair, not a visual-quality claim:** The prior deformation checker used the first observed animated pose as the limb reference, guaranteeing a potentially false first-frame zero. The on-demand probe now caches limb lengths from the imported SkeletonUtils-cloned GLB's `skeleton.boneInverses`, transformed into its fitted world space, without posing or altering source joints. It rejects nonfinite/singular matrices and exposes a `bindReferenceComplete` flag rather than silently accepting incomplete bind data. New unit and exact WebGL desktop/390px tests require all eight original arm/forearm/thigh/calf references before using stretch metrics. Resource ceiling: at most 128 original-joint inversions once on the first inspected clone, no animation-frame work or GPU draws.
+
+**Evidence pending:** Full Node suite, actual GLB bind-space compatibility, 24×900 deterministic campaign and genuine mobile/desktop five-stage WebM remain unverified until the new exact-head Actions job executes. An invalid fit or incomplete source boneInverses will now cause a visible strict-test failure, not a false clean bill. This is not world-space sole locking, weapon-to-hand evidence or final animation approval. Original-source art, combat authority, other sessions, PR #49 and main are untouched; do not mark global Gauntlet verified.

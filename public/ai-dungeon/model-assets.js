@@ -1250,7 +1250,8 @@ function putEnvironment(world,sceneKey,map,onAssetReady=null){
  * Called only by the browser test/diagnostic hook: never in the animation
  * frame loop, so there is no added per-frame GPU or pose evaluation cost.
  *
- * Each source SkeletonUtils-cloned assetRoot owns its weak reference baseline.
+ * Each source SkeletonUtils-cloned assetRoot owns a reference recovered from
+ * the ORIGINAL GLB skin inverse-bind matrices, never an already animated frame.
  * This makes limb LENGTH invariant to legitimate actor walking and turning,
  * while detecting broken source hierarchy, NaN quaternions, scaling/skin drift
  * and detached hand chains. Does not inspect or alter collision or combat.
@@ -1261,12 +1262,23 @@ function inspectSourceRigDeformation(actors){
  for(const actor of actors.values()){
   if(!actor.authored||!actor.assetRoot||!actor.u||actor.detached)continue;
   actor.assetRoot.updateWorldMatrix(true,true);
-  const bones=[],seen=new Set();let skinnedMeshes=0;
+  const bones=[],seen=new Set(),bindPositions=new Map();let skinnedMeshes=0;
   actor.assetRoot.traverse(o=>{
    if(!o.isSkinnedMesh||!o.skeleton)return;
    skinnedMeshes++;
-   for(const b of o.skeleton.bones||[]){
-    if(b?.isBone&&!seen.has(b)&&bones.length<128){seen.add(b);bones.push(b)}
+   for(const [index,b] of (o.skeleton.bones||[]).entries()){
+    if(!b?.isBone)continue;
+    if(!seen.has(b)&&bones.length<128){seen.add(b);bones.push(b)}
+    // Original inverse-bind skin contract; never use an already posed frame.
+    const inverse=o.skeleton.boneInverses?.[index];
+    if(bindPositions.has(b)||!inverse?.isMatrix4||
+     !inverse.elements.every(Number.isFinite))continue;
+    const determinant=inverse.determinant();
+    if(!Number.isFinite(determinant)||Math.abs(determinant)<1e-12)continue;
+    const bindWorld=new THREE.Vector3().setFromMatrixPosition(inverse.clone().invert())
+     .applyMatrix4(actor.assetRoot.matrixWorld);
+    if([bindWorld.x,bindWorld.y,bindWorld.z].every(Number.isFinite))
+     bindPositions.set(b,bindWorld);
    }
   });
   const pick=(items,side,part)=>items.find(item=>item?.side===side&&
@@ -1277,7 +1289,7 @@ function inspectSourceRigDeformation(actors){
    thighs={left:pick(actor.rigGaitBones,'left','upper'),right:pick(actor.rigGaitBones,'right','upper')},
    calves={left:pick(actor.rigGaitBones,'left','lower'),right:pick(actor.rigGaitBones,'right','lower')},
    feet={left:pick(actor.rigGaitBones,'left','foot'),right:pick(actor.rigGaitBones,'right','foot')};
-  const v1=new THREE.Vector3(),v2=new THREE.Vector3(),segments=[];
+  const v1=new THREE.Vector3(),v2=new THREE.Vector3(),segments=[],bindSegments=[];
   const connected=(base,child)=>{
    for(let parent=child?.parent,steps=0;parent&&steps<24;parent=parent.parent,steps++){
     if(parent===base)return true;
@@ -1287,8 +1299,11 @@ function inspectSourceRigDeformation(actors){
   const add=(name,base,child)=>{
    if(!base||!child)return;
    base.getWorldPosition(v1);child.getWorldPosition(v2);
-   segments.push({name,from:v1.toArray(),to:v2.toArray(),
-    connected:connected(base,child)});
+   const linked=connected(base,child);
+   segments.push({name,from:v1.toArray(),to:v2.toArray(),connected:linked});
+   const bindFrom=bindPositions.get(base),bindTo=bindPositions.get(child);
+   if(bindFrom&&bindTo)bindSegments.push({name,
+    from:bindFrom.toArray(),to:bindTo.toArray(),connected:linked});
   };
   for(const side of ['left','right']){
    add(side+'-arm',arms[side],forearms[side]);
@@ -1303,15 +1318,19 @@ function inspectSourceRigDeformation(actors){
     matrix:Array.from(b.matrixWorld.elements)
    }))
   };
-  // Keep only the first REAL inspected pose for each cloned rig, and never
-  // allow its replacements or other characters to inherit the measurements.
+  // Frozen per-clone source bind reference: never learn from animation.
+  // Invalid/missing inverse-binds must fail the evidence gate explicitly.
   let baseline=sourceRigDeformationBaselines.get(actor.assetRoot);
   if(!baseline){
-   baseline=measureSourceRigDeformation(sample);
+   baseline=measureSourceRigDeformation({segments:bindSegments,bones:[],skinnedMeshes});
    sourceRigDeformationBaselines.set(actor.assetRoot,baseline);
   }
-  const result=measureSourceRigDeformation(sample,baseline);
+  const bindReferenceComplete=segments.length===8&&baseline.validSegments===8&&
+   baseline.segments.length===segments.length;
+  const result=measureSourceRigDeformation(sample,bindReferenceComplete?baseline:null);
   actorsOut.push({id:actor.u.id,kind:actor.u.kind,mode:actor.fullBody?.mode||'idle',
+   bindReferenceSource:'original-inverse-bind-matrices',
+   bindReferenceSegments:baseline.segments.length,bindReferenceComplete,
    sourceMeshCount:actor.nativePresentation?.skinnedMeshes||0,
    sourceHandName:actor.rigHandBoneName||null,
    sourceClock:actor.sourceClockMode?{mode:actor.sourceClockMode,
@@ -1329,6 +1348,8 @@ function inspectSourceRigDeformation(actors){
   summary:{
    sourceActors:actorsOut.length,
    sampledSegments:actorsOut.reduce((n,a)=>n+a.segments.length,0),
+   bindReferenceComplete:actorsOut.length>0&&actorsOut.every(a=>a.bindReferenceComplete),
+   bindReferenceMissingActors:actorsOut.filter(a=>!a.bindReferenceComplete).length,
    disconnectedSegments:actorsOut.reduce((n,a)=>n+a.disconnectedSegments,0),
    invalidSegments:actorsOut.reduce((n,a)=>n+a.invalidSegments,0),
    invalidQuaternionCount:actorsOut.reduce((n,a)=>n+a.invalidQuaternionCount,0),

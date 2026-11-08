@@ -93,3 +93,14 @@ test('real GLB deformation audit is explicitly sampled, bounded, and joined to a
  assert.doesNotMatch(model,/requestAnimationFrame\([\s\S]*?inspectSourceRigDeformation\(/,
   'the expensive segment scan must be demand driven only');
 });
+
+
+test('live deformation reference comes from original inverse-bind matrices, never first moving pose',()=>{
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/o\.skeleton\.boneInverses/);
+ assert.match(model,/inverse\.clone\(\)\.invert\(\)/);
+ assert.match(model,/baseline=measureSourceRigDeformation\(\{segments:bindSegments/);
+ assert.doesNotMatch(model,/baseline=measureSourceRigDeformation\(sample\)/);
+ assert.match(model,/bindReferenceComplete:actorsOut\.length>0&&actorsOut\.every/);
+ assert.match(model,/sourceRigDeformationBaselines\.set\(actor\.assetRoot,baseline\)/);
+});

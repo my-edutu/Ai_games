@@ -47,6 +47,8 @@ async function nativeRigProof(page){
  expect(audit.summary.invalidSegments).toBe(0);
  expect(audit.summary.invalidQuaternionCount).toBe(0);
  expect(audit.summary.invalidMatrixCount).toBe(0);
+ expect(audit.summary.bindReferenceComplete,'original inverse-bind reference').toBe(true);
+ expect(audit.summary.bindReferenceMissingActors).toBe(0);
  expect(audit.summary.maxQuaternionError).toBeLessThan(.015);
  expect(audit.actors.every(a=>a.skinnedMeshes>0&&a.validSegments>=4)).toBe(true);
  return audit;

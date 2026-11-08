@@ -180,6 +180,8 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
   expect(sourceRig.summary.invalidMatrixCount,'source bone matrix at '+stage).toBe(0);
   expect(sourceRig.summary.disconnectedSegments,'joint hierarchy at '+stage).toBe(0);
   expect(sourceRig.summary.invalidSegments,'finite limb length at '+stage).toBe(0);
+  expect(sourceRig.summary.bindReferenceComplete,'original GLB inverse-bind at '+stage).toBe(true);
+  expect(sourceRig.summary.bindReferenceMissingActors).toBe(0);
   expect(sourceRig.summary.maxStretchFraction,'limb stretch at '+stage).toBeLessThanOrEqual(.20);
   const screenshot='artifacts/dungeon-m1-organic-journey-'+VIEW+'-'+stage+'-actual-canvas.png';
   await page.locator('#world').screenshot({path:screenshot,timeout:90000});
