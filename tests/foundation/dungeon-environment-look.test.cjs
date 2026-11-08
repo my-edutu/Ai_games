@@ -162,3 +162,37 @@ test('original aged metal, timber and cloth detail is bounded and opt-out on sof
  assert.match(atmosphere,/createDungeonSetpieces\(root,map,floor,exit,\{surfaceDetailEnabled\}\)/);
  assert.match(app,/createBiomeAtmosphere\(world,s\.map,s\.floor,s\.exit,\{surfaceDetailEnabled:!softwareWebGL\}\)/);
 });
+
+
+test('original facade albedo and height relief share the same mortar geometry and seeded wear',async()=>{
+ const {makeFacadeMasonryPixels:color,makeFacadeMasonryReliefPixels:relief}=await load();
+ const palette={mortar:'#292721',stone:'#776a59',edge:'#af977a'};
+ const wall=color(1,'wall',256,palette),floor=color(1,'floor',256,palette);
+ const height=relief(1,256);
+ for(const arr of [wall,floor,height]){
+  assert.equal(arr.length,256*256*4);
+  for(let i=3;i<arr.length;i+=4)assert.equal(arr[i],255,'opaque environmental surface');
+ }
+ assert.deepEqual(wall,color(1,'wall',256,palette));
+ assert.deepEqual(height,relief(1,256));
+ assert.notDeepEqual(wall,floor,'floor and wall need distinct mineral wear');
+ assert.notDeepEqual(wall,color(2,'wall',256,palette),'floors age differently');
+ const at=(arr,x,y,channel=0)=>arr[(y*256+x)*4+channel];
+ for(const arr of [wall,floor]){
+  assert.ok(at(arr,0,0)<at(arr,16,15),'mortar is physically darker than open stone face');
+ }
+ assert.ok(at(height,0,0)<at(height,16,15),'the visible mortar is recessed in the SAME atlas grid');
+ const distinct=new Set(wall.filter((_,i)=>i%4===0)).size;
+ assert.ok(distinct>50,'weathered stone contains real albedo range, not flat coloured rectangles');
+ assert.throws(()=>color(1,'wall',2048,palette),RangeError);
+ assert.throws(()=>color(1,'metal',256,palette),RangeError);
+ assert.throws(()=>relief(0,256),RangeError);
+});
+test('original facade maps are produced once per floor with existing CanvasTexture ownership',()=>{
+ const env=read('environment.js');
+ assert.match(env,/makeFacadeMasonryPixels\(floor,kind,256,biome\)/);
+ assert.match(env,/makeFacadeMasonryReliefPixels\(floor,256\)/);
+ assert.match(env,/const reliefTex=new THREE\.CanvasTexture\(relief\)/);
+ assert.match(env,/textures\.push\(floorTex,wallTex\)/);
+ assert.match(env,/textures\.push\(reliefTex\)/);
+});
