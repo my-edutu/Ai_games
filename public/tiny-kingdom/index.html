@@ -16689,8 +16689,9 @@ function followCameraRoofs(){
     pitch=COMPACT_HOUSE_PITCHES[style];
    roofHeight=Math.max(3.5,height+pitch+.24);
   }
+  const base=terrain(x,z);
   return {x,z,rx:(2.4+k*.42)*.5+.35,rz:(2.1+k*.18)*.5+.35,
-   top:terrain(x,z)+roofHeight,kind:'home',tall:roofHeight>3.6};
+   bottom:base-.22,top:base+roofHeight,kind:'home',tall:roofHeight>3.6};
  });
  roofs.push({x:0,z:-1,rx:3.6,rz:3.15,top:terrain(0,-1)+6.8,kind:'hall'});
  // The open timber belfry extends above that broad civic roof, but occupies
@@ -16810,6 +16811,15 @@ function physicalCitizenForegroundBlockers(eye,subject,hands=[]){
  }
  return obscured;
 }
+// W151: real settlement buildings belong to the camera's physical
+// foreground, not just narrow face rays and market stall envelopes.
+const WORKDAY_SOLID_BUILDING_KINDS=new Set(['home','hall','craft-district','granary','belfry']);
+const WORKDAY_OPAQUE_SCENE_KINDS=new Set([
+ 'market-stall','village-market','arcade','street-shop',
+ 'market-cart','courier-cart','receiving-dock','receiving-hall-roof',
+ 'receiving-hall-post','granary-porch-roof','granary-porch-post',
+ ...WORKDAY_SOLID_BUILDING_KINDS
+]);
 // G145: perspective-frame coverage of REAL foreground market objects.
 // In actual Day-120 mobile footage a stall filled the screen while a clear
 // single face/hand ray was incorrectly accepted as a readable worker view.
@@ -16822,18 +16832,23 @@ function foregroundSceneProjection(eye,target,roofs){
   right[2]*f[0]-right[0]*f[2],right[0]*f[1]-right[1]*f[0]];
  const {aspect,tanVertical:tanHalf}=physicalCameraProjection();
  let cover=0,largest=0,volumes=0,cargoCover=0,cargoVolumes=0;
+ let buildingCover=0,buildingVolumes=0,behindWorkerRejected=0;
  for(const roof of roofs){
-  if(!['market-stall','village-market','arcade','street-shop',
-    'market-cart','courier-cart','receiving-dock','receiving-hall-roof',
-    'receiving-hall-post','granary-porch-roof','granary-porch-post']
-    .includes(roof.kind))continue;
+  if(!WORKDAY_OPAQUE_SCENE_KINDS.has(roof.kind))continue;
   const bottom=roof.visualBottom??roof.bottom??(terrain(roof.x,roof.z)-.1);
+  // Only real foreground volumes may hide original moving workers.
+  const mid=(bottom+roof.top)*.5;
+  const depth=(roof.x-eye[0])*f[0]+(mid-eye[1])*f[1]+(roof.z-eye[2])*f[2];
+  const span=Math.abs(f[0])*roof.rx+Math.abs(f[1])*(roof.top-bottom)*.5+Math.abs(f[2])*roof.rz;
+  if(depth-span>=len-.12){behindWorkerRejected++;continue;}
+  if(depth+span<=.20)continue;
   let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
   let behind=0,visible=0;
   for(const sx of [-1,1])for(const y of [bottom,roof.top])for(const sz of [-1,1]){
    const v=[roof.x+sx*roof.rx-eye[0],y-eye[1],roof.z+sz*roof.rz-eye[2]];
    const d=v[0]*f[0]+v[1]*f[1]+v[2]*f[2];
    if(d<=.20){behind++;continue;}
+   if(d>=len-.12)continue; // Behind the real worker.
    const px=(v[0]*right[0]+v[2]*right[2])/(d*tanHalf*aspect);
    const py=(v[0]*up[0]+v[1]*up[1]+v[2]*up[2])/(d*tanHalf);
    minX=Math.min(minX,px);maxX=Math.max(maxX,px);
@@ -16847,6 +16862,9 @@ function foregroundSceneProjection(eye,target,roofs){
   const area=width*height/4;
   if(area>.001){volumes++;largest=Math.max(largest,area);
    cover=Math.min(1,cover+area*.88);
+   if(WORKDAY_SOLID_BUILDING_KINDS.has(roof.kind)){
+    buildingCover=Math.min(1,buildingCover+area*.88);buildingVolumes++;
+   }
    if(roof.kind==='market-cart'||roof.kind==='courier-cart'||
       roof.kind==='receiving-dock'){
     cargoCover=Math.min(1,cargoCover+area*.88);cargoVolumes++;
@@ -16855,7 +16873,9 @@ function foregroundSceneProjection(eye,target,roofs){
  }
  return {cover:Math.round(cover*1000)/1000,
   largest:Math.round(largest*1000)/1000,volumes,
-  cargoCover:Math.round(cargoCover*1000)/1000,cargoVolumes};
+  cargoCover:Math.round(cargoCover*1000)/1000,cargoVolumes,
+  buildingCover:Math.round(buildingCover*1000)/1000,buildingVolumes,
+  behindWorkerRejected};
 }
 // G148: real forest and orchard crowns can obscure a portrait face even when
 // a market/building ray is clear. Conservative render-only volumes follow
@@ -17246,6 +17266,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   return {yaw:angle,pitch,zoom,eye,target,
    projectedWorkerHeightFraction:projectedWorkerBodyFraction(eye,target,citizen),
    foregroundSceneCover:scenic.cover,
+   foregroundBuildingCover:scenic.buildingCover||0,
    foregroundCargoCover:scenic.cargoCover||0,
    foregroundSceneLargest:scenic.largest,
    foregroundSceneVolumes:scenic.volumes,
@@ -17665,6 +17686,7 @@ function getCourierDocumentaryCameraAudit(){
   builds:liveShotPlanBuilds,reuses:liveShotPlanReuses,
   camera:shot?{yaw:shot.yaw,pitch:shot.pitch,zoom:shot.zoom,
    blockers:shot.blockers,foregroundCover:shot.foregroundSceneCover,
+   foregroundBuildingCover:shot.foregroundBuildingCover||0,
    marketPostSightline:shot.marketPostSightline||null,
    courierRouteCamera:shot.courierRouteCamera===true,
    routeHeading:shot.routeHeading??null,
