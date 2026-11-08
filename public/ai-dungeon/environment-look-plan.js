@@ -60,6 +60,18 @@ function hash(x,y,z){
  n=Math.imul(n^(n>>>16),0x7feb352d);return(n^(n>>>15))>>>0;
 }
 const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
+const smoothstep=t=>t*t*(3-2*t);
+// Periodic, interpolated low-frequency noise. Unlike independent white-noise
+// pixels, this avoids aliasing in live camera movement and is seamless at
+// the image boundary. Evaluated only at floor creation, not every frame.
+function smoothPeriodicNoise(x,y,size,cells,seed){
+ const gx=x*cells/size,gy=y*cells/size,ix=Math.floor(gx),iy=Math.floor(gy);
+ const tx=smoothstep(gx-ix),ty=smoothstep(gy-iy);
+ const v=(a,b)=>((hash((a+cells)%cells,(b+cells)%cells,seed)&65535)/65535)*2-1;
+ const top=v(ix,iy)*(1-tx)+v(ix+1,iy)*tx;
+ const bottom=v(ix,iy+1)*(1-tx)+v(ix+1,iy+1)*tx;
+ return top*(1-ty)+bottom*ty;
+}
 /**
  * Make tileable, original color/roughness/tangent-normal textures. Height is
  * regenerated from the SAME deterministic stone courses as its normal map;
@@ -88,16 +100,21 @@ export function makeEnvironmentDetailPixels(role,floor,size=128){
   const tiledX=x+(row%2)*stagger,ax=tiledX%brickWidth,ay=y%courseHeight;
   const seam=stone&&(ax<2||ay<2);
   const fiber=wood&&((x+Math.floor(Math.sin(y*.11)*2))%8<1);
-  const weave=cloth&&((x+y)%6===0);
-  const grain=(hash(x,y,floor)%45)-22;
+  const weave=cloth&&(x%7===0||y%7===0);
+  const low=smoothPeriodicNoise(x,y,size,8,floor+41);
+  const high=smoothPeriodicNoise(x,y,size,32,floor+71);
+  const grain=Math.round(low*18+high*8);
   const chip=hash(x>>1,y>>1,floor+29)%73===0;
   const stain=hash(Math.floor(x/8),Math.floor(y/8),floor+13)%13===0;
   const damp=role==='dampStone'&&stain;
-  const base=wood?168:metal?151:cloth?171:role==='soot'?92:stone?221:193;
+  const oxide=metal&&hash(x>>3,y>>3,floor+77)%9===0;
+  const base=wood?168:metal?168:cloth?171:role==='soot'?92:stone?221:193;
   const dark=seam?-.56:chip?-.22:damp?-.27:stain?-.09:0;
-  const shade=clamp(Math.round(base*(1+dark)+grain*.43+(fiber?-15:0)),12,240);
-  albedoPixels[j]=shade;albedoPixels[j+1]=clamp(shade+(wood?6:cloth?4:0),0,255);
-  albedoPixels[j+2]=clamp(shade+(metal?7:0),0,255);albedoPixels[j+3]=255;
+  const shade=clamp(Math.round(base*(1+dark)+grain*.50+(fiber?-15:0)-(oxide?17:0)),12,240);
+  albedoPixels[j]=clamp(shade+(oxide?11:0),0,255);
+  albedoPixels[j+1]=clamp(shade+(wood?6:cloth?4:0)-(oxide?5:0),0,255);
+  albedoPixels[j+2]=clamp(shade+(metal&&!oxide?7:0)-(oxide?12:0),0,255);
+  albedoPixels[j+3]=255;
   height[i]=clamp(Math.round((seam?38:wood?144:metal?164:cloth?130:171)+grain*.62-
     (chip?43:0)-(weave?14:0)-(fiber?22:0)),18,220);
   const rough=clamp(Math.round(255*(spec.roughness*.94+
