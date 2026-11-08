@@ -58,7 +58,8 @@ test('actual renderer binds grounded clip, pelvis and procedural legs to the sam
  assert.match(app,/a\.groundedPerformance=planGroundedAnimation/);
  assert.match(app,/a\.footstepIndex\?\?0/);
  assert.match(app,/a\.ground\?\.stamp/);
- assert.match(model,/groundedPerformance\?\.clipAction/);
+ assert.match(model,/actor\.fullBody=advanceFullBodyController\(actor\.fullBody/);
+ assert.match(model,/changeAction\(actor,actor\.fullBody\.clipAction/);
  assert.match(model,/setEffectiveTimeScale\(clipSpeed\)/);
  assert.match(model,/ground\?\.bodyLift/);
  assert.match(model,/groundedTravelActors:/);
