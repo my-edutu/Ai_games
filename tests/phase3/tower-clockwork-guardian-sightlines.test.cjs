@@ -375,8 +375,13 @@ test('real original decorative rotors expose negative-space gear faces instead o
     assert.equal(rotors.length,3,'keep all three genuine rotating clockwork machines');
     for(const [index,radius] of [4.8,3.6,3.1].entries()){
       const rotor=rotors[index];
-      const face=rotor.children.find(o=>o.isMesh&&o.geometry?.type==='ExtrudeGeometry');
-      assert.ok(face,'decorative machine retains its original physical gear face');
+      // finishBatches() correctly merges the original ExtrudeGeometry and
+      // alloy arms into the final real rendered, raycastable BufferGeometry.
+      // Inspect that CURRENT mesh, never detached authoring geometry.
+      const face=rotor.children.find(o=>o.isMesh&&
+        o.material?.name==='SightlineResponsiveDecorativeAlloy');
+      assert.ok(face&&face.geometry?.type==='BufferGeometry',
+        'raycast the post-batch physical rotor, including its retained arms');
       const cast=(fraction)=>{
         const angle=Math.PI/8;
         const origin=face.localToWorld(new THREE.Vector3(
@@ -403,12 +408,16 @@ test('real clockwork power rack has a source-independent transparent structural 
     world.group.updateWorldMatrix(true,true);
     const rack=world.group.getObjectByName('clockwork-far-shoulder-power-rack');
     assert.ok(rack,'the actual tall decorative mechanism is still present');
-    const instanced=[];
-    rack.traverse(o=>{if(o.isInstancedMesh)instanced.push(o);});
-    assert.ok(instanced.some(o=>o.count===2),
-      'two continuous side rails replace the previous opaque central metal spine');
-    assert.ok(instanced.some(o=>o.count>=48),
-      'retain the genuine toothed drive profile across the full-height rack');
+    // This rack also runs through batchRigid(). The original side-rail
+    // instances are intentionally retired, leaving two material-owned
+    // BUFFER meshes submitted by the real world scene.
+    const rendered=[];
+    rack.traverse(o=>{if(o.isMesh)rendered.push(o);});
+    assert.equal(rendered.length,2,
+      'retain exactly two bounded real draws: structural rails and rack teeth');
+    assert.ok(rendered.every(o=>o.geometry?.type==='BufferGeometry'&&
+      o.material?.name==='SightlineResponsivePowerRack'),
+      'test the actual rigid-batched geometry and owned materials');
     const cast=(y)=>{
       const origin=rack.localToWorld(new THREE.Vector3(0,y,4));
       const direction=new THREE.Vector3(0,0,-1).transformDirection(rack.matrixWorld);
