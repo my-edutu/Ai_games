@@ -30,7 +30,7 @@ const manifest={
  recordings:{},overall:'UNVERIFIED',
  limitations:[
   'One continuous unedited browser video per viewport, including load pre-roll',
-  'Time-lapse: 30Hz genuine rules advanced in bounded batches between actual rendered frames',
+  'Time-lapse: 30Hz genuine rules advanced in <=1h batches (<=0.5h on an active transfer) between actual rendered frames',
   'No actor insertion, manual inventory changes, time travel, seed edits or forced purchases',
   'Camera observes active citizens; camera attention does not alter economics',
   'This is not uninterrupted 30Hz video of every simulated frame',
@@ -75,7 +75,9 @@ async function film(browser,profile){
   const totalSteps=LIMIT_DAYS*DAY_STEPS;
   while(result.checkedTicks<totalSteps){
    const busy=stage==='courier'||stage==='unload'||stage==='trade';
-   const n=Math.min(busy?15:90,totalSteps-result.checkedTicks);
+   // Keep every original farmer work event in the bounded 12-entry workday
+   // log even in a 28-resident mature village: sample no slower than 1h.
+   const n=Math.min(busy?15:30,totalSteps-result.checkedTicks);
    const observed=await page.evaluate(n=>{
     const g=window.__tinyKingdom;
     for(let i=0;i<n;i++)g.step(1/30);
