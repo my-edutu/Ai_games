@@ -15885,6 +15885,11 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
    citizen.z>=z0-.7&&citizen.z<=z1+.7);
  const realReceipt=recentObservedCourierReceipt(citizen);
  const marketStory=isObservedRealCourier(citizen);
+ const actualWorkStage=realWork?getAuthenticWorkGesture(citizen).stage:'off';
+ // A player's lens follows the real cutting wrist and sheaf, not empty air.
+ const workFocusHeight=citizen.job==='farmer'?
+  actualWorkStage==='cutting'?.72:actualWorkStage==='gathering'?.78:.86:
+  citizen.job==='builder'?.86:citizen.job==='craftsperson'?.91:.94;
  const working=Boolean(forceWorkday||liveWorkday||
   document.body.dataset.citizenInspect==='on'||marketStory);
  const unloading=Boolean(marketStory&&
@@ -15904,7 +15909,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   Math.max(-.25,Math.min(.25,(yard[1]-citizen.z)*.22))]:[0,0];
  const target=[citizen.x+(unloading?centre[0]:
    working&&realWork?Math.sin(facing)*.19:0),
-  terrain(citizen.x,citizen.z)+(unloading?.77:working&&realWork?.94:1.02),
+  terrain(citizen.x,citizen.z)+(unloading?.77:working&&realWork?workFocusHeight:1.02),
   citizen.z+(unloading?centre[1]:
    working&&realWork?Math.cos(facing)*.19:0)];
  const roofs=followCameraRoofs();
@@ -15912,9 +15917,9 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  // of the desktop worksite camera. Frame both worker and real surroundings.
  const portraitLens=Boolean(((working&&realWork)||journeyCamera)&&canvas.clientWidth>0&&
   canvas.clientWidth<500);
- const normalPitch=journeyCamera?.34:unloading?(actionCameraPitch??.29):
+ const normalPitch=unloading?(actionCameraPitch??.29):journeyCamera?.34:
   working?(actionCameraPitch??(liveWorkday?(portraitLens?.27:.20):.24)):.76;
- const normalZoom=journeyCamera?7.6:unloading?(actionCameraZoom??5.7):
+ const normalZoom=unloading?(actionCameraZoom??5.7):journeyCamera?7.6:
   working?(actionCameraZoom??(liveWorkday?(portraitLens?6.05:4.85):6.2)):12.8;
  const candidate=(angle,pitch=normalPitch,zoom=normalZoom)=>{
   const radius=Math.cos(pitch)*zoom,elevation=Math.sin(pitch)*zoom;
@@ -15945,13 +15950,13 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  if(working&&realWork)angles.push(preferredYaw);
  const pitches=realFarmWork&&actionCameraPitch===null?
   (portraitLens?[.14,.23,.32,.42]:[.13,.21,.32,.43]):
-  journeyCamera?[.26,.34,.43]:unloading?[.21,.29,.38]:
+  unloading?[.21,.29,.38]:journeyCamera?[.26,.34,.43]:
   working?(actionCameraPitch===null?(portraitLens?[.12,.19,.26,.34,.42]:[.18,.24,.31,.42]):
   [normalPitch,Math.max(.16,normalPitch-.08),
    Math.min(.55,normalPitch+.08)]):[.76];
  const zooms=realFarmWork&&actionCameraZoom===null?
   (portraitLens?[3.9,4.5,5.2,6.0]:[3.8,4.4,5.0,5.9]):
-  journeyCamera?[6.5,7.6,8.8]:unloading?[5.1,5.7,6.8]:
+  unloading?[5.1,5.7,6.8]:journeyCamera?[6.5,7.6,8.8]:
   working?(portraitLens&&actionCameraZoom===null?
   [normalZoom,3.8,4.25,4.85,5.35,7.1]:[normalZoom,Math.max(4.5,normalZoom-.7),
   Math.max(4.5,normalZoom-1.7),Math.min(13,normalZoom+1.1),
