@@ -118,6 +118,64 @@ test('only authentic indexed events receive calibrated original-film search wind
  assert.equal(mapObservedEventTimecodes(indexed,cal,NaN).length,0);
 });
 
+
+test('genuine slow-recorder wall/video drift uses bounded local film anchors, not a fabricated constant offset',()=>{
+ const anchors=[
+   anchor(110000,10),anchor(120000,19.4),
+   anchor(130000,28.9),anchor(140000,38.5),
+ ];
+ const clock=assessVideoTimebase(anchors);
+ assert.equal(clock.status,'CALIBRATED');
+ assert.equal(clock.anchorsAccepted,4);
+ assert.ok(clock.maxResidualMs>350);
+ assert.equal(clock.anchorTimeline.length,4);
+ assert.match(clock.method,/piecewise/);
+ const source=[
+   {kind:'guardian-hp-decrease',atMs:125000,sourceTick:201,
+     floor:8,observedRunToken:'run-a'},
+   {kind:'guardian-source-defeated',atMs:130000,sourceTick:441,
+     floor:8,observedRunToken:'run-a'},
+ ];
+ const mapped=mapObservedEventTimecodes(source,clock,71);
+ assert.equal(mapped.length,2);
+ assert.ok(Math.abs(mapped[0].nativeVideoSeconds-24.15)<.001);
+ assert.ok(Math.abs(mapped[1].nativeVideoSeconds-28.9)<.001);
+ assert.equal(mapped[0].eventVisibleInVideo,'NOT EVALUATED');
+ assert.ok(mapped[0].clockUncertaintyMs>=200);
+ assert.match(mapped[0].matchingMethod,/piecewise/);
+});
+test('piecewise timebase refuses abrupt or reversed video matches rather than laundering a jump',()=>{
+ const abrupt=assessVideoTimebase([
+  anchor(110000,10),anchor(120000,20),anchor(130000,33),anchor(140000,43),
+ ]);
+ assert.equal(abrupt.status,'NOT EVALUATED');
+ assert.match(abrupt.reason,/abrupt/);
+ const reverse=assessVideoTimebase([
+  anchor(110000,10),anchor(120000,9),anchor(130000,19),
+ ]);
+ assert.equal(reverse.status,'NOT EVALUATED');
+ const outlier=assessVideoTimebase([
+  anchor(110000,10),anchor(120000,19.4),
+  anchor(130000,28.9,{imageDifference:80}),anchor(140000,38.5),
+ ]);
+ assert.equal(outlier.status,'CALIBRATED');
+ assert.equal(outlier.anchorsAccepted,3);
+});
+test('no screenshot coverage means no source-event film timecode, even if the source event exists',()=>{
+ const clock=assessVideoTimebase([
+  anchor(110000,10),anchor(120000,20),anchor(130000,30),anchor(140000,40),
+ ]);
+ const e=t=>({kind:'source-result-phase',atMs:t,sourceTick:8,
+   floor:0,observedRunToken:'run-a'});
+ const mapped=mapObservedEventTimecodes([e(109999),e(115000),
+   e(140001)],clock,70);
+ assert.equal(mapped.length,1);
+ assert.equal(mapped[0].atMs,115000);
+ assert.equal(mapped[0].nativeVideoSeconds,15);
+ assert.equal(mapped[0].inOriginalVideo,true);
+ assert.equal(mapped[0].eventVisibleInVideo,'NOT EVALUATED');
+});
+
 test('capture and CI use the same neutral original-video calibration for both frozen and candidate',()=>{
   const capture=fs.readFileSync(path.resolve(__dirname,
     '../browser/tower-live-motion.spec.cjs'),'utf8');

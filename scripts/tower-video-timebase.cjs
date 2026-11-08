@@ -32,18 +32,46 @@ function assessVideoTimebase(anchors) {
     if(!separated.length||anchor.wallAtMs-separated.at(-1).wallAtMs>=3000)
       separated.push(anchor);
   if(separated.length<MIN_ANCHORS)
-    return {status:'NOT EVALUATED',reason:'Fewer than three distinct, unambiguous native-frame visual anchors',anchorsAccepted:separated.length};
+    return {status:'NOT EVALUATED',
+      reason:'Fewer than three distinct, unambiguous native-frame visual anchors',
+      anchorsAccepted:separated.length};
+  if(separated.at(-1).wallAtMs-separated[0].wallAtMs<15000)
+    return {status:'NOT EVALUATED',
+      reason:'Calibrated anchors do not span enough original gameplay',
+      anchorsAccepted:separated.length};
   const offsets=separated.map(a=>a.videoPtsSeconds*1000-a.wallAtMs);
   const offsetMs=median(offsets);
   const residuals=offsets.map(v=>Math.abs(v-offsetMs));
   const maxResidualMs=Math.max(...residuals);
-  if(maxResidualMs>350)
-    return {status:'NOT EVALUATED',reason:'Native video frame anchors disagree with the wall-clock source observer',anchorsAccepted:separated.length,maxResidualMs};
-  if(separated.at(-1).wallAtMs-separated[0].wallAtMs<15000)
-    return {status:'NOT EVALUATED',reason:'Calibrated anchors do not span enough original gameplay',anchorsAccepted:separated.length};
-  return {status:'CALIBRATED',method:'full-frame-original-WebM-to-unmodified-viewport-screenshot',
+  const anchorTimeline=separated.map(a=>({
+    wallAtMs:a.wallAtMs,videoPtsSeconds:a.videoPtsSeconds,
+    captureSpanMs:a.captureSpanMs,
+  }));
+  const slopes=[];
+  for(let i=1;i<anchorTimeline.length;i++){
+    const prev=anchorTimeline[i-1],next=anchorTimeline[i];
+    const slope=(next.videoPtsSeconds-prev.videoPtsSeconds)*1000/
+      (next.wallAtMs-prev.wallAtMs);
+    if(!Number.isFinite(slope)||slope<.75||slope>1.25)
+      return {status:'NOT EVALUATED',
+        reason:'Native video frame anchors disagree: abrupt, reversed or implausible wall/video timebase',
+        anchorsAccepted:separated.length,maxResidualMs,
+        invalidSegment:i-1,observedVideoToWallSlope:slope};
+    slopes.push(slope);
+  }
+  // Original WebM PTS and wall time can drift smoothly while screenshots,
+  // software WebGL and encoder submissions contend. A single median offset
+  // makes real source events miss their frames by seconds. Never paper over a
+  // sudden jump: permit only bounded monotone drift between real matched
+  // unmodified full-viewport screenshots, and never extrapolate.
+  return {status:'CALIBRATED',
+    method:maxResidualMs>350?'bounded-piecewise-original-WebM-visual-anchors':
+      'full-frame-original-WebM-to-unmodified-viewport-screenshot',
     anchorsAccepted:separated.length,offsetMs,maxResidualMs,
-    caveat:'Frame-to-wall mapping only; source events may precede the displayed render. A mapped timecode does not establish on-screen action visibility or blind preference.'};
+    anchorTimeline,
+    minVideoToWallSlope:Math.min(...slopes),
+    maxVideoToWallSlope:Math.max(...slopes),
+    caveat:'Bounded native-video timecode SEARCH only between visually matched original full-viewport anchors. Source-to-GPU latency and frame-visible actions are NOT established; no on-screen or blind-review acceptance.'};
 }
 
 function distance(frame, anchor) {
@@ -137,24 +165,50 @@ function meaningfulSourceEvents(ticks) {
 // source wall clock and native recording timebase must be separately measured.
 function mapObservedEventTimecodes(events,calibration,durationSeconds) {
   if(calibration?.status!=='CALIBRATED'||
-     !Number.isFinite(calibration.offsetMs)||
      !Number.isFinite(durationSeconds)||durationSeconds<0)return [];
-  return (Array.isArray(events)?events:[]).filter(event=>
+  const timeline=Array.isArray(calibration.anchorTimeline)&&
+    calibration.anchorTimeline.length>=MIN_ANCHORS
+      ? calibration.anchorTimeline : null;
+  if(!timeline && !Number.isFinite(calibration.offsetMs))return [];
+  // A piecewise clock is only trustworthy between its observed screenshots.
+  // Do NOT extend a screenshot-derived slope into unseen video before the
+  // opening anchor or after the last anchor; those source events have no
+  // calibrated native search position and must remain NOT EVALUATED.
+  const source=(Array.isArray(events)?events:[]).filter(event=>
     event&&typeof event.kind==='string'&&event.kind.length>0&&
     Number.isFinite(event.atMs)&&Number.isSafeInteger(event.floor)&&
     Number.isSafeInteger(event.sourceTick??event.tick)&&
     typeof (event.observedRunToken??event.runToken)==='string'&&
-    (event.observedRunToken??event.runToken).length>0)
-    .slice(0,400).map(event=>{
-      const nativeVideoSeconds=(event.atMs+calibration.offsetMs)/1000;
-      return {...event,nativeVideoSeconds,
-        inOriginalVideo:nativeVideoSeconds>=0&&nativeVideoSeconds<=durationSeconds,
-        matchingMethod:'calibrated-wall-to-native-PTS-event-search',
-        eventVisibleInVideo:'NOT EVALUATED',
-        // The observer does not synchronize to GPU submission. Residuals
-        // measure anchor agreement, not the source-to-raster presentation lag.
-        sourceToPresentedFrameLatency:'NOT EVALUATED'};
-    });
+    (event.observedRunToken??event.runToken).length>0).slice(0,400);
+  return source.flatMap(event=>{
+    let nativeVideoSeconds,clockUncertaintyMs=null;
+    if(timeline){
+      const j=timeline.findIndex((anchor,i)=>i<timeline.length-1 &&
+        event.atMs>=anchor.wallAtMs&&event.atMs<=timeline[i+1].wallAtMs);
+      if(j<0)return [];
+      const a=timeline[j],b=timeline[j+1];
+      if(!Number.isFinite(a.wallAtMs)||!Number.isFinite(b.wallAtMs)||
+        !Number.isFinite(a.videoPtsSeconds)||!Number.isFinite(b.videoPtsSeconds)||
+        b.wallAtMs<=a.wallAtMs||b.videoPtsSeconds<=a.videoPtsSeconds)
+        return [];
+      const fraction=(event.atMs-a.wallAtMs)/(b.wallAtMs-a.wallAtMs);
+      nativeVideoSeconds=a.videoPtsSeconds+
+        fraction*(b.videoPtsSeconds-a.videoPtsSeconds);
+      clockUncertaintyMs=Math.max(200,
+        (Math.max(a.captureSpanMs||0,b.captureSpanMs||0)/2)+120);
+    } else {
+      // Historical standalone consumers supply only a genuinely calibrated
+      // constant offset. New original captures always include anchorTimeline.
+      nativeVideoSeconds=(event.atMs+calibration.offsetMs)/1000;
+    }
+    return [{...event,nativeVideoSeconds,
+      inOriginalVideo:nativeVideoSeconds>=0&&nativeVideoSeconds<=durationSeconds,
+      clockUncertaintyMs,
+      matchingMethod:timeline?'bounded-piecewise-source-to-native-PTS-search':
+        'calibrated-wall-to-native-PTS-event-search',
+      eventVisibleInVideo:'NOT EVALUATED',
+      sourceToPresentedFrameLatency:'NOT EVALUATED'}];
+  });
 }
 
 function calibrateOriginalVideo({video,anchors,sourceTicks,sourceEvents}) {
