@@ -162,15 +162,32 @@ export function createConnectedDungeonJourney(world,map,floor,exit,units=[]){
  const stone=ownMaterial('bearing-stone-and-foundation'),
   shadow=ownMaterial('solid-blind-recess'),
   iron=ownMaterial('aged-iron-fittings');
- const shapes=[ownGeometry(facadeStone),ownGeometry(facadeShadow),
-  ownGeometry(facadeIron),ownGeometry(thresholdStone),ownGeometry(thresholdIron)];
- const batches=[
-  {name:'carved-court-and-chamber-bays',sites:plan.facades,geo:shapes[0],material:stone},
-  {name:'solid-blind-masonry-recesses',sites:plan.facades,geo:shapes[1],material:shadow},
-  {name:'forged-masonry-fittings',sites:plan.facades,geo:shapes[2],material:iron},
-  {name:'complete-route-threshold-arches',sites:plan.thresholds,geo:shapes[3],material:stone},
-  {name:'threshold-iron-ribs',sites:plan.thresholds,geo:shapes[4],material:iron}
- ];
+ // Three independent architectural profiles, three material roles, two
+ // overhead threshold profiles: no more than ELEVEN instanced draws/floor.
+ const batches=[],profiles={};
+ for(const role of ['entry','ordinary','warden']){
+  const indices=plan.facades.flatMap((site,i)=>site.role===role?[i]:[]);
+  if(!indices.length)continue;
+  const sites=indices.map(i=>plan.facades[i]);
+  const shapes=[ownGeometry(()=>facadeStone(role)),
+   ownGeometry(()=>facadeShadow(role)),ownGeometry(()=>facadeIron(role))];
+  const materialsByPart=[stone,shadow,iron];
+  const names=['bearing-piers-and-crown','solid-blind-stone-recess',
+   'original-ironwork-and-heraldry'];
+  profiles[role]=shapes.reduce((n,g)=>n+(g.index?.count||0)/3,0);
+  for(let part=0;part<3;part++)batches.push({
+   family:'facade',indices,sites,name:role+'-'+names[part],
+   geo:shapes[part],material:materialsByPart[part]
+  });
+ }
+ if(plan.thresholds.length){
+  const indices=plan.thresholds.map((_,i)=>i);
+  const archStone=ownGeometry(thresholdStone),archIron=ownGeometry(thresholdIron);
+  batches.push({family:'threshold',indices,sites:plan.thresholds,
+   name:'load-bearing-complete-vaulted-threshold',geo:archStone,material:stone});
+  batches.push({family:'threshold',indices,sites:plan.thresholds,
+   name:'aged-iron-vault-ribs',geo:archIron,material:iron});
+ }
  const facadeState=new Uint8Array(plan.facades.length).fill(255),
   thresholdState=new Uint8Array(plan.thresholds.length).fill(255);
  function transform(mesh,index,site,hidden){
