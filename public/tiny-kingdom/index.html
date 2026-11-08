@@ -888,8 +888,37 @@ body[data-command="world"]:not([data-street="on"]):is([data-workday="live"],[dat
  }
 }
 
+
+/* W125: unobtrusive touch-safe in-world camera navigation. */
+#world{touch-action:none;overscroll-behavior:contain}
+#camera-tools{position:fixed;z-index:17;top:96px;left:50%;
+ transform:translateX(-50%);display:flex;gap:5px;padding:5px;
+ background:rgba(20,40,34,.92);border:1px solid #d9c49eaa;
+ border-radius:12px;box-shadow:0 5px 20px #08171477;max-width:calc(100vw - 20px)}
+#camera-tools button{display:inline-flex;align-items:center;justify-content:center;
+ gap:4px;min-width:48px;min-height:44px;padding:9px 10px;border:1px solid transparent;
+ border-radius:8px;background:#30483f;color:#fff1d6;font:650 12px/1.1 system-ui;
+ white-space:nowrap;cursor:pointer}
+#camera-tools button:hover,#camera-tools button:focus-visible{
+ background:#e5cca0;color:#18382b;outline:3px solid #ffdd99;outline-offset:2px}
+#camera-tools button[aria-pressed="true"]{background:#dfc392;color:#18382b}
+body[data-hud="cinema"] #camera-tools{display:none!important}
+body[data-street="on"] #camera-tools > :not(#camera-home):not(#camera-street){display:none}
+@media(max-width:790px){
+ #camera-tools{top:120px;right:8px;left:auto;transform:none;flex-direction:column}
+ #camera-tools button{width:54px;height:46px;min-width:46px;min-height:46px;
+ padding:5px;font-size:11px;white-space:normal;text-align:center}
+}
+@media(max-width:520px){
+ #camera-tools{top:120px;right:7px;gap:5px;padding:4px}
+ #camera-tools button{width:48px;height:46px;min-width:48px;min-height:46px;
+ padding:4px;font-size:11px}
+ #camera-tools #camera-home{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){#camera-tools button{transition:none;animation:none}}
+
 </style></head><body>
-<canvas id="world" tabindex="0" aria-label="Live 3D medieval valley. Tap a visible villager to follow their real work; drag to orbit. Press Enter to select a visible citizen."></canvas><div id="citizen-pick-caption" role="status" aria-live="polite" aria-atomic="true"><span id="citizen-pick-copy"></span><progress id="citizen-pick-meter" value="0" max="100" aria-label="Observed citizen's actual shift or delivery progress" hidden></progress></div><div class="vignette"></div>
+<canvas id="world" tabindex="0" aria-label="Live 3D medieval valley. Tap a visible villager to follow genuine work. Drag to orbit, Shift-drag or two-finger drag to pan, pinch or scroll to zoom. Home returns to village, F follows a citizen, V walks the streets; Enter selects a visible citizen."></canvas><div id="citizen-pick-caption" role="status" aria-live="polite" aria-atomic="true"><span id="citizen-pick-copy"></span><progress id="citizen-pick-meter" value="0" max="100" aria-label="Observed citizen's actual shift or delivery progress" hidden></progress></div><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
 <div class="sidebar"><div class="panel"><h2>✧ Kingdom overview</h2><div class="stats"><div class="stat"><strong id="population">12</strong><label>Villagers</label></div><div class="stat"><strong id="buildings">9</strong><label>Buildings</label></div><div class="stat"><strong id="happiness">78%</strong><label>Happiness</label></div><div class="stat"><strong id="year">01</strong><label>Year</label></div></div><div style="margin-top:18px;color:#b4c8b8;font-size:11px">Civilization progress</div><div class="meter"><span id="progress" style="width:23%"></span></div><div style="font-size:10px;color:#8fac99">The valley is growing on its own.</div></div><div class="panel"><h2>◈ Village resources</h2><div class="resource"><span>🌾 Food stores</span><b id="food">180</b></div><div class="resource"><span>🪵 Timber</span><b id="wood">90</b></div><div class="resource"><span>🪙 Treasury</span><b id="gold">42</b></div><div class="resource"><span>⚒ At work sites</span><b id="working">0</b></div>
 <div id="economic-observatory" aria-label="Daily food, timber and gold trends">
@@ -904,7 +933,7 @@ body[data-command="world"]:not([data-street="on"]):is([data-workday="live"],[dat
 <div class="panel" id="citizen-card"><h2>☼ Citizen spotlight</h2><button class="btn" id="cycleCitizen" style="font-size:10px;margin:-8px 0 12px;padding:6px 10px;border:1px solid #bdc8a850;border-radius:9px;background:#23382f;color:#dfcfad;cursor:pointer">↻ Next citizen</button><div style="font-family:Georgia,serif;font-size:20px" id="citizen-name">Alina</div><div style="color:#b7c7b8;font-size:12px;line-height:1.7;margin-top:6px" id="citizen-detail">Farmer · tending the fields</div><div style="font-size:10px;color:#d9c08a;margin-top:9px" id="citizen-bond">Every citizen has a story.</div></div></div>
 <div class="feed panel"><h2>✦ Stories unfolding</h2><div id="feed"></div></div>
 <div class="hint">DRAG TO ORBIT · SCROLL TO ZOOM<br>EVERY CITIZEN HAS A NAME AND PURPOSE<br><a href="experience.html">VIEW EXPERIENCE SCORECARD ↗</a> · <a href="progress.html">HISTORY ↗</a></div>
-<aside class="atlas" aria-label="Interactive kingdom map"><div class="atlas-heading"><span>◈ THE KINGDOM ATLAS</span><b>LIVE</b></div><canvas id="atlas-map" width="460" height="330" aria-label="Map of homes and moving villagers; click to move camera"></canvas><div class="atlas-footer"><span id="atlas-season">✧ SEASONAL LANDSCAPE</span><em>↗ PAN CAMERA</em></div><div class="atlas-legend"><span><i style="background:#ffe29b"></i>Village</span><span><i style="background:#f9fce8"></i>People</span><span><i style="background:#7be5f9"></i>River</span></div></aside><div class="bottom"><button id="pause" class="btn active">Ⅱ Pause</button><span class="divider"></span><button class="btn active" id="speed1">1× Real time</button><button class="btn" id="speed4">4×</button><button class="btn" id="speed16">16×</button><span class="divider"></span><button class="btn" id="focus">◎ Follow villager</button><button class="btn" id="camera">◈ Cinematic</button><button class="btn" id="command-toggle" type="button" aria-pressed="false" aria-controls="world-ribbon" aria-keyshortcuts="U">◉ World view</button><button class="btn" id="hud-toggle" aria-pressed="false">⌗ Clear HUD</button><button class="btn" id="save">↓ Save world</button><button class="btn" id="restore">↑ Restore world</button><button class="btn" id="restart">↻ New world</button></div><div class="toast" id="toast"></div><div id="world-actor-tag" role="status" aria-live="off" hidden></div><button id="cinema-exit" type="button" aria-label="Restore game interface">✧ Restore interface · H</button>
+<aside class="atlas" aria-label="Interactive kingdom map"><div class="atlas-heading"><span>◈ THE KINGDOM ATLAS</span><b>LIVE</b></div><canvas id="atlas-map" width="460" height="330" aria-label="Map of homes and moving villagers; click to move camera"></canvas><div class="atlas-footer"><span id="atlas-season">✧ SEASONAL LANDSCAPE</span><em>↗ PAN CAMERA</em></div><div class="atlas-legend"><span><i style="background:#ffe29b"></i>Village</span><span><i style="background:#f9fce8"></i>People</span><span><i style="background:#7be5f9"></i>River</span></div></aside><div class="bottom"><button id="pause" class="btn active">Ⅱ Pause</button><span class="divider"></span><button class="btn active" id="speed1">1× Real time</button><button class="btn" id="speed4">4×</button><button class="btn" id="speed16">16×</button><span class="divider"></span><button class="btn" id="focus">◎ Follow villager</button><button class="btn" id="camera">◈ Cinematic</button><button class="btn" id="command-toggle" type="button" aria-pressed="false" aria-controls="world-ribbon" aria-keyshortcuts="U">◉ World view</button><button class="btn" id="hud-toggle" aria-pressed="false">⌗ Clear HUD</button><button class="btn" id="save">↓ Save world</button><button class="btn" id="restore">↑ Restore world</button><button class="btn" id="restart">↻ New world</button></div><nav id="camera-tools" role="group" aria-label="3D world camera navigation"><button type="button" id="camera-home" aria-label="Return to settlement overview" aria-keyshortcuts="Home">⌂ Village</button><button type="button" id="camera-near" aria-label="Zoom closer to the village" aria-keyshortcuts="Equal">＋ Near</button><button type="button" id="camera-far" aria-label="Zoom farther from the village" aria-keyshortcuts="Minus">− Far</button><button type="button" id="camera-street" aria-label="Enter or exit real street-level view" aria-pressed="false" aria-keyshortcuts="V">♙ Walk</button></nav><div class="toast" id="toast"></div><div id="world-actor-tag" role="status" aria-live="off" hidden></div><button id="cinema-exit" type="button" aria-label="Restore game interface">✧ Restore interface · H</button>
 <div class="world-tour" role="group" aria-label="Explore scenic village camera viewpoints"><small>EXPLORE<br>THE VALLEY</small><button class="tour-btn" type="button" id="forge-follow" aria-pressed="false" aria-label="Follow a genuine craftsperson to the guild forge and watch their actual shift">⚒ Watch smith</button><button class="tour-btn" type="button" id="harvest-follow" aria-pressed="false" aria-label="Follow a real farmer cutting wheat at the original field">🌾 Watch farmer</button><button class="tour-btn" type="button" id="forge-sound" aria-pressed="false" aria-label="Turn on optional sound from real blacksmith strikes">♫ Sound off</button><button class="tour-btn" type="button" id="homecoming-follow" aria-pressed="false" aria-label="Follow a real resident returning to an occupied cottage at dusk">⌂ Homecoming</button><button class="tour-btn" type="button" id="workday-live" aria-pressed="false" aria-label="Watch a villager currently working; select the next live shift">☼ Live shift</button><button class="tour-btn" type="button" id="workday-watch" aria-pressed="false" aria-label="Follow a villager who actually completed work">⚒ Workday</button><button class="tour-btn" type="button" id="delivery-follow" aria-label="Follow a villager carrying real goods to the market">▣ Delivery</button><button class="tour-btn" data-scenic="valley" aria-pressed="true">✦ Village</button><button class="tour-btn" data-scenic="market" aria-pressed="false">◈ Market</button><button class="tour-btn" data-scenic="forge" aria-pressed="false" aria-label="Visit the original outdoor guild forge">⚒ Forge</button><button class="tour-btn" data-scenic="mill" aria-pressed="false">✧ Windmill</button><button class="tour-btn" data-scenic="orchard" aria-pressed="false">❀ Orchard</button><button class="tour-btn" data-scenic="farm" aria-pressed="false" aria-label="Inspect real farm work and village food stores at the granary">✺ Farmland</button><button class="tour-btn" data-scenic="river" aria-pressed="false">≈ Riverside</button><button class="tour-btn" data-scenic="sanctuary" aria-pressed="false">♜ Sanctuary</button><a class="tour-btn" href="experience.html" aria-label="View the latest look, feel, play and commercial reference scorecards">⚑ Scorecard</a></div>
 <div id="workday-activity" role="status" aria-live="polite" aria-atomic="true"></div><progress id="workday-progress" max="100" value="0" aria-label="Progress through the selected villager's actual working shift"></progress><div class="realm-signal" id="realm-signal" role="status" aria-live="off"><i></i><b id="realm-title">A LIVING KINGDOM</b><span id="realm-detail">Every villager shapes the valley</span></div>
 <section id="world-ribbon" role="group" aria-label="World-first kingdom overview">
@@ -14396,6 +14425,8 @@ function setStreetWalk(enabled){
  }
  document.body.dataset.street=streetWalk?'on':'off';
  document.getElementById('street-walk').setAttribute('aria-pressed',String(streetWalk));
+ document.getElementById('camera-street').setAttribute('aria-pressed',String(streetWalk));
+ document.getElementById('camera-street').textContent=streetWalk?'Exit walk':'♙ Walk';
  if(streetWalk)streetCaption();
  presentationEpoch++;
  return getStreetWalkState();
@@ -15828,19 +15859,175 @@ function getCitizenOrbitAudit(){
   rule:'physical-occlusion-never-hide-buildings-or-move-authoritative-citizen'};
 }
 
+
+/* W125 player camera authority: presentation-only real-world navigation.
+   Nothing changes residents, market stock, jobs, RNG or snapshots. */
+const freeOrbitPointers=new Map();
+let freeTouchGesture=null,freeCameraReturn=null,freeCameraPan=false;
+let freeCameraLastClear=null;
+const cameraNavigationStats={orbitMoves:0,panMoves:0,pinchGestures:0,
+ zoomInputs:0,keyboardInputs:0,overviewReturns:0,rejectedViews:0};
+function clampPlayerCamera(x,min,max){return Math.max(min,Math.min(max,x))}
+function freeCameraEye(angle,tilt,range,focus=focusPoint){
+ const r=Math.cos(tilt)*range;
+ return [focus[0]+Math.sin(angle)*r,.25+Math.sin(tilt)*range,
+  focus[1]+Math.cos(angle)*r];
+}
+function freeCameraEyeClear(eye,volumes){
+ if(!eye.every(Number.isFinite)||eye[1]<terrain(eye[0],eye[2])+.78)return false;
+ for(const block of volumes){
+  const low=block.bottom??terrain(block.x,block.z)-.22;
+  if(Math.abs(eye[0]-block.x)<block.rx+.38&&
+     Math.abs(eye[2]-block.z)<block.rz+.38&&
+     eye[1]>low-.32&&eye[1]<block.top+.54)return false;
+ }
+ return true;
+}
+function safeFreeOrbit(a,t,z,f=focusPoint){
+ const volumes=followCameraRoofs();
+ const point=[clampPlayerCamera(f[0],-40,40),clampPlayerCamera(f[1],-40,40)];
+ const target={yaw:a,pitch:clampPlayerCamera(t,.22,1.38),
+  zoom:clampPlayerCamera(z,7.5,85),focus:point};
+ // Survey only on input, not for each expensive citizen-rendering frame.
+ for(const [da,dp,dz] of [[0,0,0],[0,.10,0],[0,.23,0],
+  [-.14,.08,0],[.14,.08,0],[0,.16,2.5],[0,.30,4.5],
+  [-.28,.18,2.5],[.28,.18,2.5]]){
+  const v={...target,yaw:target.yaw+da,
+   pitch:clampPlayerCamera(target.pitch+dp,.22,1.38),
+   zoom:clampPlayerCamera(target.zoom+dz,7.5,85)};
+  if(freeCameraEyeClear(freeCameraEye(v.yaw,v.pitch,v.zoom,v.focus),volumes)){
+   freeCameraLastClear=v;return v;
+  }
+ }
+ cameraNavigationStats.rejectedViews++;
+ return freeCameraLastClear&&freeCameraEyeClear(
+  freeCameraEye(freeCameraLastClear.yaw,freeCameraLastClear.pitch,
+   freeCameraLastClear.zoom,freeCameraLastClear.focus),volumes)?
+  freeCameraLastClear:null;
+}
+function getFreeCameraCollisionAudit(){
+ const eye=freeCameraEye(yaw,pitch,zoom),volumes=followCameraRoofs();
+ return {source:'real-world-camera-and-physical-roof-volume',
+  eye,eyeClear:freeCameraEyeClear(eye,volumes),volumes:volumes.length,
+  rejectedViews:cameraNavigationStats.rejectedViews,
+  worldHidden:false,authoritativeChanges:false};
+}
+function applyPlayerCamera(a,t,z){
+ freeCameraReturn=null;
+ if(follow){
+  const v=constrainSelectedCitizenOrbit(a,clampPlayerCamera(t,.18,1.24),
+   clampPlayerCamera(z,4.5,13.5));
+  yaw=v.yaw;pitch=v.pitch;zoom=v.zoom;
+  if(watchingRealAction()){
+   actionCameraPitch=pitch;actionCameraZoom=zoom;liveShotPlanCache=null;
+  }
+ }else{
+  const v=safeFreeOrbit(a,t,z);if(!v)return false;
+  yaw=v.yaw;pitch=v.pitch;zoom=v.zoom;focusPoint=v.focus.slice();
+ }
+ presentationEpoch++;return true;
+}
+function zoomPlayerCamera(factor){
+ cameraNavigationStats.zoomInputs++;return applyPlayerCamera(yaw,pitch,zoom*factor);
+}
+function panPlayerCamera(dx,dy){
+ if(follow||streetWalk)return false;
+ const k=clampPlayerCamera(zoom*.0025,.016,.22);
+ const f=[focusPoint[0]+(-dx*Math.cos(yaw)+dy*Math.sin(yaw))*k,
+  focusPoint[1]+(dx*Math.sin(yaw)+dy*Math.cos(yaw))*k];
+ const v=safeFreeOrbit(yaw,pitch,zoom,f);if(!v)return false;
+ freeCameraReturn=null;yaw=v.yaw;pitch=v.pitch;zoom=v.zoom;
+ focusPoint=v.focus.slice();cameraNavigationStats.panMoves++;
+ presentationEpoch++;return true;
+}
+function requestSettlementOverview(){
+ const from={yaw,pitch,zoom,focus:focusPoint.slice()};
+ const before=follow&&previousFollowCamera?previousFollowCamera:null;
+ const target=before?{yaw:before.yaw,pitch:before.pitch,zoom:before.zoom,
+  focus:before.focus.slice()}:{yaw:.7,pitch:.88,zoom:43,focus:[0,0]};
+ if(streetWalk)setStreetWalk(false);
+ if(liveWorkday||document.body.dataset.workday!=='off')stopWorkdayWatch();
+ if(follow)setCitizenFollow(false);
+ cinematic=false;document.getElementById('camera').classList.remove('active');
+ const safe=safeFreeOrbit(target.yaw,target.pitch,target.zoom,target.focus)||target;
+ cameraNavigationStats.overviewReturns++;
+ if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+  yaw=safe.yaw;pitch=safe.pitch;zoom=safe.zoom;focusPoint=safe.focus.slice();
+  freeCameraReturn=null;
+ }else{
+  yaw=from.yaw;pitch=from.pitch;zoom=from.zoom;focusPoint=from.focus.slice();
+  freeCameraReturn={from,to:{...safe,focus:safe.focus.slice()},elapsed:0,duration:1.05};
+ }
+ setCommandView('world','user');presentationEpoch++;
+ return getCameraNavigationAudit();
+}
+function progressCameraReturn(wallDt){
+ if(!freeCameraReturn)return;
+ const r=freeCameraReturn;
+ r.elapsed+=Math.max(0,Math.min(.2,wallDt));
+ const t=clampPlayerCamera(r.elapsed/r.duration,0,1),mix=t*t*(3-2*t);
+ const delta=Math.atan2(Math.sin(r.to.yaw-r.from.yaw),Math.cos(r.to.yaw-r.from.yaw));
+ const f=[r.from.focus[0]+(r.to.focus[0]-r.from.focus[0])*mix,
+  r.from.focus[1]+(r.to.focus[1]-r.from.focus[1])*mix];
+ const v=safeFreeOrbit(r.from.yaw+delta*mix,
+  r.from.pitch+(r.to.pitch-r.from.pitch)*mix,
+  Math.exp(Math.log(Math.max(1,r.from.zoom))*(1-mix)+
+   Math.log(Math.max(1,r.to.zoom))*mix),f);
+ if(v){yaw=v.yaw;pitch=v.pitch;zoom=v.zoom;focusPoint=v.focus.slice();}
+ if(t>=1){yaw=r.to.yaw;pitch=r.to.pitch;zoom=r.to.zoom;
+  focusPoint=r.to.focus.slice();freeCameraReturn=null;}
+ presentationEpoch++;
+}
+function getCameraNavigationAudit(){
+ return {...cameraNavigationStats,source:'real-world-camera-input',
+  transitionActive:Boolean(freeCameraReturn),activeTouchPointers:freeOrbitPointers.size,
+  selectedCitizen:people[selectedCitizen]?.name||null,
+  follow,streetWalk,authoritativeChanges:false};
+}
+function updateTouchGesture(){
+ if(freeOrbitPointers.size<2){freeTouchGesture=null;return;}
+ const [a,b]=Array.from(freeOrbitPointers.values());
+ const x=(a.x+b.x)/2,y=(a.y+b.y)/2;
+ const distance=Math.max(12,Math.hypot(a.x-b.x,a.y-b.y));
+ if(freeTouchGesture){
+  panPlayerCamera(x-freeTouchGesture.x,y-freeTouchGesture.y);
+  if(Math.abs(distance-freeTouchGesture.distance)>1){
+   zoomPlayerCamera(clampPlayerCamera(freeTouchGesture.distance/distance,.75,1.33));
+   cameraNavigationStats.pinchGestures++;
+  }
+ }
+ freeTouchGesture={x,y,distance};
+}
+
 let worldPressPoint=null;
+canvas.addEventListener('contextmenu',e=>e.preventDefault());
 canvas.addEventListener('pointerdown',e=>{
-  worldPressPoint={x:e.clientX,y:e.clientY,pointerId:e.pointerId};
-  dragging=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture(e.pointerId)
+ freeOrbitPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(freeOrbitPointers.size>=2){
+  worldPressPoint=null;freeCameraPan=false;freeTouchGesture=null;updateTouchGesture();
+ }else{
+  freeCameraPan=e.shiftKey||e.button===1||e.button===2;
+  worldPressPoint=!freeCameraPan&&e.button===0?
+   {x:e.clientX,y:e.clientY,pointerId:e.pointerId}:null;
+ }
+ dragging=true;lastX=e.clientX;lastY=e.clientY;
+ if(canvas.setPointerCapture)canvas.setPointerCapture(e.pointerId);
 });
 canvas.addEventListener('pointerup',e=>{
- const down=worldPressPoint;worldPressPoint=null;dragging=false;
- if(!down||e.pointerId!==down.pointerId||e.button!==0)return;
- if(Math.hypot(e.clientX-down.x,e.clientY-down.y)>8)return;
- const rect=canvas.getBoundingClientRect();
- inspectCitizenScreenPoint(e.clientX-rect.left,e.clientY-rect.top,'pointer');
+ const down=worldPressPoint,picked=down&&e.pointerId===down.pointerId&&
+  e.button===0&&Math.hypot(e.clientX-down.x,e.clientY-down.y)<=8&&
+  freeOrbitPointers.size===1;
+ freeOrbitPointers.delete(e.pointerId);
+ worldPressPoint=null;freeTouchGesture=null;dragging=freeOrbitPointers.size>0;
+ if(dragging){const last=Array.from(freeOrbitPointers.values())[0];
+  lastX=last.x;lastY=last.y;}
+ if(picked){const rect=canvas.getBoundingClientRect();
+  inspectCitizenScreenPoint(e.clientX-rect.left,e.clientY-rect.top,'pointer');}
 });
-canvas.addEventListener('pointercancel',()=>{worldPressPoint=null;dragging=false});
+canvas.addEventListener('pointercancel',e=>{
+ freeOrbitPointers.delete(e.pointerId);
+ worldPressPoint=null;freeTouchGesture=null;dragging=freeOrbitPointers.size>0;
+});
 canvas.addEventListener('keydown',e=>{
  if(streetWalk||(e.key!=='Enter'&&e.key!==' '))return;
  const choices=getCitizenPickCandidates().filter(c=>c.visible);
@@ -15850,32 +16037,27 @@ canvas.addEventListener('keydown',e=>{
  e.preventDefault();
 });
 canvas.addEventListener('pointermove',e=>{
- if(!dragging)return;
- const close=watchingRealAction();
- const inspecting=follow&&document.body.dataset.citizenInspect==='on';
- const requestedYaw=yaw+(e.clientX-lastX)*.006;
- const requestedPitch=Math.max(close?.16:inspecting?.19:.33,
-  Math.min(close?.55:inspecting?1.2:1.38,pitch+(e.clientY-lastY)*.005));
- if(inspecting){
-  const safe=constrainSelectedCitizenOrbit(requestedYaw,requestedPitch,zoom);
-  yaw=safe.yaw;pitch=safe.pitch;zoom=safe.zoom;
- }else{yaw=requestedYaw;pitch=requestedPitch}
- if(close)actionCameraPitch=pitch;
+ if(!dragging||!freeOrbitPointers.has(e.pointerId)||streetWalk)return;
+ freeOrbitPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(freeOrbitPointers.size>=2){updateTouchGesture();return;}
+ if(freeCameraPan&&!follow){
+  panPlayerCamera(e.clientX-lastX,e.clientY-lastY);
+ }else{
+  const close=watchingRealAction(),inspecting=follow&&
+   document.body.dataset.citizenInspect==='on';
+  const a=yaw+(e.clientX-lastX)*.006,t=clampPlayerCamera(
+   pitch+(e.clientY-lastY)*.005,close?.16:inspecting?.19:.22,
+   close?.55:inspecting?1.2:1.38);
+  if(applyPlayerCamera(a,t,zoom))cameraNavigationStats.orbitMoves++;
+  if(close)actionCameraPitch=pitch;
+ }
  lastX=e.clientX;lastY=e.clientY;cinematic=false;
 });
 canvas.addEventListener('wheel',e=>{
- const close=watchingRealAction();
- const inspecting=follow&&document.body.dataset.citizenInspect==='on';
- // Direct citizen selection must retain its 3D human-scale view on scroll,
- // rather than jumping from 8m to the 16m settlement-overview minimum.
- const newZoom=Math.min(close?13:inspecting?13.5:85,
-  Math.max(close||inspecting?4.5:16,zoom+e.deltaY*.035));
- if(inspecting){
-  const safe=constrainSelectedCitizenOrbit(yaw,pitch,newZoom);
-  yaw=safe.yaw;pitch=safe.pitch;zoom=safe.zoom;
- }else zoom=newZoom;
- if(close)actionCameraZoom=zoom;
- e.preventDefault()
+ if(streetWalk)return;
+ const units=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?canvas.clientHeight:1);
+ zoomPlayerCamera(Math.exp(clampPlayerCamera(units,-240,240)*.0015));
+ e.preventDefault();
 },{passive:false});
 function button(id,fn){document.getElementById(id).onclick=fn}
 let cinematicHud=false;
@@ -16329,6 +16511,10 @@ document.body.dataset.command='world';
   updateSupplyTrail(true);
  });
  button('world-open-command',()=>setCommandView('command','user'));
+ button('camera-home',requestSettlementOverview);
+ button('camera-near',()=>zoomPlayerCamera(.79));
+ button('camera-far',()=>zoomPlayerCamera(1.27));
+ button('camera-street',()=>setStreetWalk(!streetWalk));
 button('workday-watch',watchLatestWork);
 button('workday-live',watchLiveWorkday);
 button('forge-follow',watchForgeShift);
@@ -16350,6 +16536,26 @@ document.addEventListener('keydown',e=>{
  }else if(e.key==='Escape'&&cinematicHud)setCinematicHud(false);
  else if(e.key==='Escape'&&commandView==='world')setCommandView('command','user');
 });
+
+document.addEventListener('keydown',e=>{
+ const editing=/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName||'')||
+  document.activeElement?.isContentEditable;
+ if(editing||e.ctrlKey||e.metaKey||e.altKey||streetWalk||cinematicHud)return;
+ if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-','_','Home','f','F'].includes(e.key)){
+  cameraNavigationStats.keyboardInputs++;
+  switch(e.key){
+   case 'ArrowLeft':applyPlayerCamera(yaw-.13,pitch,zoom);break;
+   case 'ArrowRight':applyPlayerCamera(yaw+.13,pitch,zoom);break;
+   case 'ArrowUp':applyPlayerCamera(yaw,pitch-.095,zoom);break;
+   case 'ArrowDown':applyPlayerCamera(yaw,pitch+.095,zoom);break;
+   case '+':case '=':zoomPlayerCamera(.82);break;
+   case '-':case '_':zoomPlayerCamera(1.22);break;
+   case 'Home':requestSettlementOverview();break;
+   case 'f':case 'F':document.getElementById('focus').click();break;
+  }
+  e.preventDefault();e.stopPropagation();
+ }
+},true);
 button('pause',()=>{frozen=!frozen;document.getElementById('pause').textContent=frozen?'▶ Resume':'Ⅱ Pause'});for(let v of [1,4,16])button('speed'+v,()=>{speed=v;for(let n of [1,4,16])document.getElementById('speed'+n).classList.toggle('active',n===v)});button('focus',()=>{if(follow&&(document.body.dataset.workday==='on'||document.body.dataset.workday==='homecoming'))stopWorkdayWatch();setCitizenFollow(!follow)});button('camera',()=>{cinematic=!cinematic;document.getElementById('camera').classList.toggle('active',cinematic)});button('restart',()=>{city.splice(12);start()});
 
 /* W44 — The Forge Witness follows ONE actual autonomous craftsperson
@@ -16851,7 +17057,7 @@ function render(now){requestAnimationFrame(render);
  // after Pause in Canvas2D and SwiftShader, starving camera-button input in CI.
  // Snapshot generation is read-only; only camera, viewport, quality and
  // authoritative state changes invalidate a frozen presentation.
- const staticView=frozen&&!cinematic&&!follow&&(!streetWalk||(streetHeld.size===0&&!dragging));
+ const staticView=frozen&&!cinematic&&!follow&&!freeCameraReturn&&(!streetWalk||(streetHeld.size===0&&!dragging));
  const frozenViewKey=staticView?[
   presentationEpoch,state.t,focusPoint[0],focusPoint[1],yaw,pitch,zoom,
    streetWalk?1:0,streetPosition[0],streetPosition[1],streetYaw,streetTilt,
@@ -16972,7 +17178,7 @@ function render(now){requestAnimationFrame(render);
   }else{yaw=nextYaw;pitch=nextPitch;zoom=nextZoom}
   lastFollowShot=plan;
  }
-}advanceDaybreakReturn();if(liveWorkday)updateLiveWorkdayUI();else if(document.body.dataset.workday==='homecoming')updateHomecomingUI();else updateDeliveryHUD();advanceVillageDocumentary();if(cinematic)yaw+=wallDt*.05;const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(window.devicePixelRatio||1,1.6)*renderQuality().scale;if(canvas.width!==Math.floor(w*dpr)||canvas.height!==Math.floor(h*dpr)){canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);gl.viewport(0,0,canvas.width,canvas.height)}gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);drawAtmosphere(atmosphere);const frameStaticStart=performance.now();
+}advanceDaybreakReturn();if(liveWorkday)updateLiveWorkdayUI();else if(document.body.dataset.workday==='homecoming')updateHomecomingUI();else updateDeliveryHUD();advanceVillageDocumentary();if(cinematic)yaw+=wallDt*.05;progressCameraReturn(wallDt);const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(window.devicePixelRatio||1,1.6)*renderQuality().scale;if(canvas.width!==Math.floor(w*dpr)||canvas.height!==Math.floor(h*dpr)){canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);gl.viewport(0,0,canvas.width,canvas.height)}gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);drawAtmosphere(atmosphere);const frameStaticStart=performance.now();
 // Cache seasonal ground geometry: camera and citizens cannot change it.
 // Winter snow affects colour; ordinary rain does not.
 const groundClimate=climateAt(state.t);
@@ -17568,7 +17774,7 @@ getDailyRhythmAudit:dailyRhythmAudit,getOccupiedHouseholds:()=>cloneData(occupie
  getCottageDoorResidencyAudit,setCottageDoorResidencyForTesting,getSoftwareResolutionAudit,getHardwareResolutionAudit,getSimulationFrameDelta:simulationFrameDelta,getHouseholdLightAudit:()=>({...householdLightAudit}),getNightHomesResidencyAudit,setNightHomesResidencyForTesting,getOccupiedHearthCount:()=>occupiedHearths,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,
 getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeCourtyardAudit:()=>cloneData(getForgeCourtyardAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),getForgeSoundAudit:()=>cloneData(getForgeSoundAudit()),pollForgeSound,watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,getMarketReceivingHallAudit,getTradeCorridorCameraAudit,
 getMarketStructuralSightline:marketCourierPostSightline,
-getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCentralExchangeAudit:()=>({...centralExchangeStats}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketShutterResidencyAudit,setMarketShutterResidencyForTesting,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getFarmWorkCameraAudit,
+getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCentralExchangeAudit:()=>({...centralExchangeStats}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketShutterResidencyAudit,setMarketShutterResidencyForTesting,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getCameraNavigationAudit,getFreeCameraCollisionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getFarmWorkCameraAudit,
 getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?(civicGpuResidencyEnabled?3:2)+(homeClusterActive.length?homeClusterActive.length:0):1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length+homeClusterFloats():0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4+homeClusterFloats()*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0,homeBytes:gpuAvailable?homeClusterFloats()*4:0}),getGeometryAudit:geometryAudit,getSceneTriangleReconciliation,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGranaryArchitectureAudit,getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getForestVisualStats:()=>({
  sourceTrees:trees.length,
  renderedTrees:forestVisualStats.deciduous+forestVisualStats.conifers,
@@ -17596,6 +17802,7 @@ renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainH
  getWorksiteFixtureResidencyAudit,setWorksiteFixtureResidencyForTesting,
  getActorResidencyAudit,setActorStreamSplitForTesting,
  setStaticBatchBridgingForTesting,getScenicMultiDrawAudit,setScenicMultiDrawForTesting,getCourierPostCameraAudit,evaluateCourierPostRepairPolicy,getDaybreakReturnAudit,getCameraDynamicCacheStats,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
+ freeCameraReturn=null;
  if(streetWalk)setStreetWalk(false);
 if(follow)setCitizenFollow(false);cinematic=false;document.getElementById('camera').classList.remove('active');
 yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2&&o.focus.every(Number.isFinite))focusPoint=o.focus.slice(0,2)}};
