@@ -1,3 +1,17 @@
+## W145 · 8 November 2026 · Real physically carried market-to-home grain · Phase 1 / NOT PROVEN
+
+**Scope:** OPEN DRAFT PR #64 approved branch `feat/tiny-kingdom-post-main-gauntlet-20261031` only; original G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`. **Exact W145 playable HTML blob** `a344e7f1b6febe3a0678bbcd707dc2e161181a05`. No merges or divergent PRs.
+
+**Actual original playable change:** A real provisioned citizen's previously world-axis, detached grocery bag now uses the identical authoritative moving resident's wrist position, heading from actual next path waypoint, torso motion and physical gait used by full and compact 3D characters. The existing buyer carries one modeled tied, folded grain sack with a connected grasp and orientation-following seam. The bundle appears only when real `p.provisions>0` and real `Traveling home with provisions`; it can expose genuine receipt/trade ID without guessing origins. Frame-local counters track actually drawn parcels; no new world pass, simulated food, receipt, citizen, AI job, route, replay field or seeded randomness.
+
+**Verification achieved here:** RED inspected original missing orientation; GREEN full 1.08MB original playable inline JS parsed in isolated V8; four numeric heading fixtures, real moving wrist, same-source mock parcel mesh and inactive/foreign/missing-food rejection executed in isolated V8. Added Node exact-game contract but Node, Chromium, running-game videos, Day120 replay, GL/160k budget, hardware FPS and independent critics **NOT executed/NOT PROVEN**. The connected workspace tunnel is down and GitHub runner pressure persists. Earlier-head [A/B 42498203937](https://github.com/my-edutu/Ai_games/actions/runs/42498203937) and [GPU 42498203926](https://github.com/my-edutu/Ai_games/actions/runs/42498203926) were pending; [soak 42498199503](https://github.com/my-edutu/Ai_games/actions/runs/42498199503) failed with no executed job. These are not W145 results.
+
+**A experience:** LOOK NOT PROVEN / FEEL FAIL against historical software ~1.709 FPS and physical GPU UNKNOWN / PLAY NOT PROVEN. **B commercial:** FAIL vs official Manor Lords and secondary references. This is a concrete same-slice visible physical-contact correction, NOT experience milestone PASS.
+
+**Active Phase 1 next:** uncut same-seed real farmer -> escorted courier unload -> exactly credited market -> actual consumer walking with attached sack -> existing inhabited cottage; Day1, Day120 and 390px, camera/UI interactions, same-source hardware CPU/driver/GPU p50/p95/p99, <160k triangles, long deterministic save/restore soak and truly separate blind critics. Reject if physical wrist remains visually detached. Continue architecturally rebuilding complete farm-market-home district with recovered and measured frame budget. PR stays DRAFT/UNMERGED.
+
+---
+
 ## W144 · 8 November 2026 · Bound future PR evidence pressure; running game NOT YET RECERTIFIED · PHASE 1 / NOT PROVEN
 
 **Approval boundary:** OPEN DRAFT [PR #64](https://github.com/my-edutu/Ai_games/pull/64), approved branch only. Exact unchanged playable HTML blob `c2a199d8451e218f549425f9017c0d3f1237072e`; immutable original G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`. Actual workflow repair source commit [9ff530bd](https://github.com/my-edutu/Ai_games/commit/9ff530bd1ab3cc570d72d01b692ca9adf6a02a30). No merge or main/#43/#59/#62 changes.
