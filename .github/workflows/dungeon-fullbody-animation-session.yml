@@ -43,3 +43,41 @@ jobs:
             evidence/dungeon/gauntlet-latest.json
           if-no-files-found: warn
           retention-days: 14
+
+  original-journey:
+    # Distinct from isolated proof frames: unchanged DungeonRuntime.step()
+    # drives authentic entry, ordinary combat, Warden, floor, defeat/restart.
+    strategy:
+      fail-fast: false
+      matrix:
+        viewport: [desktop, mobile]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 33
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: node --test tests/foundation/dungeon-m1-ordered-feed.test.cjs
+      - run: npm run dungeon:assets:strict
+      - run: npx playwright install --with-deps chromium
+      - name: Capture unaltered complete gameplay with source rigs
+        run: npx playwright test -c tests/browser/dungeon-m1-journey.playwright.config.cjs
+        env:
+          DUNGEON_REQUIRE_MODELS: '1'
+          DUNGEON_M1_VIEWPORT: ${{ matrix.viewport }}
+      - name: Preserve exact-sha original world, video and source-tick proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dungeon-session-03-organic-${{ matrix.viewport }}-${{ github.sha }}
+          path: |
+            artifacts/dungeon-m1-organic-journey-${{ matrix.viewport }}*
+            test-results/**
+          if-no-files-found: warn
+          retention-days: 14
