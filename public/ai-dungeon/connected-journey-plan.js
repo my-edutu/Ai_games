@@ -150,13 +150,22 @@ export function planConnectedDungeonJourney(map,floor,exit,units=[]){
   {x:chapter.gridX,z:chapter.gridZ},chapter.role,exit,floor,occupiedFaces,route));
  const bounds=[];
  for(const t of thresholds){
-  bounds.push({role:t.role,kind:'overhead-threshold',minX:t.x-1.18,maxX:t.x+1.18,
-   minY:0,maxY:3.55,minZ:t.z-1.18,maxZ:t.z+1.18,
-   supportCells:t.supportCells});
+  // Camera volumes may NEVER fill the open arch: two separate real blocked
+  // foundation piers plus one vault HIGH above the navigable threshold.
+  for(const support of t.supportCells){
+   const px=support[0]-half,pz=support[1]-half;
+   bounds.push({role:t.role,kind:'solid-blocked-support',
+    minX:px-.20,maxX:px+.20,minY:0,maxY:2.49,
+    minZ:pz-.20,maxZ:pz+.20,supportCell:support});
+  }
+  bounds.push({role:t.role,kind:'overhead-vault-crown',
+   minX:t.x-(t.axis==='x'?.40:1.18),maxX:t.x+(t.axis==='x'?.40:1.18),
+   minY:2.27,maxY:3.85,
+   minZ:t.z-(t.axis==='x'?1.18:.40),maxZ:t.z+(t.axis==='x'?1.18:.40)});
  }
  for(const f of facades)bounds.push({role:f.role,kind:'blocked-cell-blind-recess',
-  minX:f.x-.49,maxX:f.x+.49,minY:0,maxY:3.32,
-  minZ:f.z-.49,maxZ:f.z+.49,supportCell:[f.gridX,f.gridZ]});
+  minX:f.x-.54,maxX:f.x+.54,minY:0,maxY:3.56,
+  minZ:f.z-.54,maxZ:f.z+.54,supportCell:[f.gridX,f.gridZ]});
  const colors=[
   ['#918475','#292725','#8c7158'],['#866e65','#281e21','#b18b72'],
   ['#788394','#202c3d','#9da9b7'],['#85778d','#28232f','#a58e9b']
