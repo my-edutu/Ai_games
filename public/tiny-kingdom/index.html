@@ -15895,7 +15895,13 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const unloading=Boolean(marketStory&&
   (citizen.delivery?.stage==='unloading'||realReceipt));
  const homecoming=document.body.dataset.workday==='homecoming';
- const journeyCamera=homecoming||Boolean(liveWorkday&&citizen.delivery);
+ // W127 filmed freight: a manual Delivery button stops Live Shift but must
+ // still use the real loaded courier's MOVING route-facing physical camera.
+ // An actual unloading/receipt stays on its close market handoff lens.
+ const filmedLoadedCourier=Boolean(citizen.delivery&&
+  citizen.delivery.stage==='travel'&&
+  (liveWorkday||document.body.dataset.workday==='delivery'));
+ const journeyCamera=homecoming||filmedLoadedCourier;
  const waypoint=citizen.path?.length?citizen.path[0]:citizen.target;
  const walkingFace=waypoint?Math.atan2(waypoint[0]-citizen.x,waypoint[1]-citizen.z):preferredYaw;
  const facing=realWork?builderStageAngle(citizen):journeyCamera?walkingFace:null;
@@ -15917,9 +15923,10 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  // of the desktop worksite camera. Frame both worker and real surroundings.
  const portraitLens=Boolean(((working&&realWork)||journeyCamera)&&canvas.clientWidth>0&&
   canvas.clientWidth<500);
- const normalPitch=unloading?(actionCameraPitch??.29):journeyCamera?.34:
+ const normalPitch=unloading?(actionCameraPitch??.29):filmedLoadedCourier?.24:journeyCamera?.34:
   working?(actionCameraPitch??(liveWorkday?(portraitLens?.27:.20):.24)):.76;
- const normalZoom=unloading?(actionCameraZoom??5.7):journeyCamera?7.6:
+ const normalZoom=unloading?(actionCameraZoom??5.7):
+  filmedLoadedCourier?(canvas.clientWidth<500?5.25:5.7):journeyCamera?7.6:
   working?(actionCameraZoom??(liveWorkday?(portraitLens?6.05:4.85):6.2)):12.8;
  const candidate=(angle,pitch=normalPitch,zoom=normalZoom)=>{
   const radius=Math.cos(pitch)*zoom,elevation=Math.sin(pitch)*zoom;
@@ -15950,13 +15957,17 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  if(working&&realWork)angles.push(preferredYaw);
  const pitches=realFarmWork&&actionCameraPitch===null?
   (portraitLens?[.14,.23,.32,.42]:[.13,.21,.32,.43]):
-  unloading?[.21,.29,.38]:journeyCamera?[.26,.34,.43]:
+  unloading?[.21,.29,.38]:
+  filmedLoadedCourier?(portraitLens?[.15,.23,.32,.40]:[.16,.24,.32,.40]):
+  journeyCamera?[.26,.34,.43]:
   working?(actionCameraPitch===null?(portraitLens?[.12,.19,.26,.34,.42]:[.18,.24,.31,.42]):
   [normalPitch,Math.max(.16,normalPitch-.08),
    Math.min(.55,normalPitch+.08)]):[.76];
  const zooms=realFarmWork&&actionCameraZoom===null?
   (portraitLens?[3.9,4.5,5.2,6.0]:[3.8,4.4,5.0,5.9]):
-  unloading?[5.1,5.7,6.8]:journeyCamera?[6.5,7.6,8.8]:
+  unloading?[5.1,5.7,6.8]:
+  filmedLoadedCourier?(portraitLens?[4.2,5.0,5.8,6.5]:[4.6,5.4,6.2,7.1]):
+  journeyCamera?[6.5,7.6,8.8]:
   working?(portraitLens&&actionCameraZoom===null?
   [normalZoom,3.8,4.25,4.85,5.35,7.1]:[normalZoom,Math.max(4.5,normalZoom-.7),
   Math.max(4.5,normalZoom-1.7),Math.min(13,normalZoom+1.1),
@@ -15981,13 +15992,17 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   // across the full orbit (without accepting roof or hand occlusion).
   const sizePenalty=working&&realWork?
    Math.max(0,(portraitLens?.27:.29)-shot.projectedWorkerHeightFraction)*5200:0;
-  // Avoid physically standing the observer inside dense ripe wheat when a
+  // Do not choose a physically clear EMPTY road over the genuine
+   // escrowed courier. Favor the actual projected actor and real cargo.
+   const routeSizePenalty=filmedLoadedCourier?
+    Math.max(0,(portraitLens?.15:.19)-shot.projectedWorkerHeightFraction)*3600:0;
+   // Avoid physically standing the observer inside dense ripe wheat when a
   // genuinely clear exterior camera can see the same working hands.
   const cropEye=realFarmWork&&FARMSTEAD.fields.some(([x0,x1,z0,z1])=>
    shot.eye[0]>=x0&&shot.eye[0]<=x1&&shot.eye[2]>=z0&&shot.eye[2]<=z1);
   const coarse=shot.blockers*1000+oppositeYard+rearPenalty+crowd*325+
    (cropEye?650:0)+
-   (shot.marketPostSightline?.centerCover||0)*6400+sizePenalty+
+   (shot.marketPostSightline?.centerCover||0)*6400+sizePenalty+routeSizePenalty+
    shot.foregroundSceneCover*(portraitLens?2400:working?1500:0)+
    shot.foregroundCargoCover*(portraitLens?1900:1100)+
    Math.abs(delta)*.9+Math.abs(z-normalZoom)*.35+
@@ -16120,6 +16135,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   framing=clearHomewardBest?clearHomewardFraming:frontBest?frontFraming:
    readableBest?readableFraming:usableFrontBest?usableFrontFraming:bestFraming;
  return {...chosen,...framing,
+  courierRouteCamera:filmedLoadedCourier,
+  routeHeading:filmedLoadedCourier?walkingFace:null,
   compositionScore:clearHomewardBest?clearHomewardScore:frontBest?frontScore:
    readableBest?readableScore:usableFrontBest?usableFrontScore:bestScore,
   workFacingMode:clearHomewardBest?'clear-homeward-path':frontBest?'clear-front':readableBest?'face-and-hands':
@@ -16341,7 +16358,12 @@ function getCourierDocumentaryCameraAudit(){
   builds:liveShotPlanBuilds,reuses:liveShotPlanReuses,
   camera:shot?{yaw:shot.yaw,pitch:shot.pitch,zoom:shot.zoom,
    blockers:shot.blockers,foregroundCover:shot.foregroundSceneCover,
-   marketPostSightline:shot.marketPostSightline||null}:null,
+   marketPostSightline:shot.marketPostSightline||null,
+   courierRouteCamera:shot.courierRouteCamera===true,
+   routeHeading:shot.routeHeading??null,
+   projectedWorkerHeightFraction:shot.projectedWorkerHeightFraction,
+   facingAlignment:shot.routeHeading===null||shot.routeHeading===undefined?
+    null:Math.cos(shot.yaw-shot.routeHeading)}:null,
   authorityMutated:false};
 }
 function getCourierPostCameraAudit(){
