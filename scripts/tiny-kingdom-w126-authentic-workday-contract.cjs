@@ -123,6 +123,7 @@ const stageFixture=new Function('job','activity','fraction','wood',[
  "const state={t:100,wood},city=Array.from({length:12},(_,i)=>[-i,9,i%3]),",
  " people=[p],DELIVERY_UNLOAD_HOURS=1;",
  "const isMarketUnloading=()=>false,isWorkingAtSite=()=>true,workDuration=()=>2;",
+ extract('isLoadedCourierOnRoad'),
  extract('getBuilderConstructionIntent'),extract('getAuthenticWorkGesture'),
  "const before=JSON.stringify({state,city,people});",
  "const result=getAuthenticWorkGesture(p);",
