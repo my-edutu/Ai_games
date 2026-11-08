@@ -145,21 +145,30 @@ for scenario in ascent danger outcome moving; do
     mkdir -p "$DEST/$scenario"
     printf '%s\n' "$SHA" > "$DEST/source-sha.txt"
     printf '%s\n' "$CANDIDATE" > "$DEST/evidence-harness-sha.txt"
-    echo "Recording $source / $scenario / $SHA — desktop and portrait at real time"
-    if ! (cd "$DIR" &&
-      env CI=true TOWER_CAPTURE_UNALTERED_SOURCE=1 TOWER_SOFTWARE_GL=1 \
-        TOWER_LAUNCH_FLOOR="$FLOOR" TOWER_MOTION_SCENARIO="$scenario" \
-        TOWER_SEED=tower-transformation-capture-v1 TOWER_CAPTURE_SOURCE_SHA="$SHA" \
-        npx playwright test --config=playwright.tower.config.cjs tests/browser/tower-live-motion.spec.cjs) \
-        > "$DEST/capture.log" 2>&1; then
-      echo "Capture failed: $ARTIFACT (retaining any authentic files)" >&2
-      FAILED=1
-    fi
+    # One Playwright invocation = one freshly seeded ORIGINAL 20Hz source host.
+    # Reusing a single webServer for both tests lets desktop advance the run,
+    # so portrait can start on floor 9/10 instead of its declared floor 8.
+    # Browser/WebM size, speed, source SHA, game/host files and seed stay fixed.
+    for viewport in desktop portrait; do
+      echo "Recording $source / $scenario / $viewport / $SHA — native real time"
+      if ! (cd "$DIR" &&
+        env CI=true TOWER_CAPTURE_UNALTERED_SOURCE=1 TOWER_SOFTWARE_GL=1 \
+          TOWER_LAUNCH_FLOOR="$FLOOR" TOWER_MOTION_SCENARIO="$scenario" \
+          TOWER_SEED=tower-transformation-capture-v1 TOWER_CAPTURE_SOURCE_SHA="$SHA" \
+          npx playwright test --config=playwright.tower.config.cjs tests/browser/tower-live-motion.spec.cjs \
+            --grep "normal-speed Tower motion $viewport") \
+          > "$DEST/capture-$viewport.log" 2>&1; then
+        echo "Capture failed: $ARTIFACT/$viewport (retaining authentic files)" >&2
+        FAILED=1
+      fi
+      # Playwright clears test-results between invocations; retain each
+      # viewport's failure evidence rather than only the last browser run.
+      if [[ -d "$DIR/test-results" ]]; then
+        cp -a "$DIR/test-results" "$DEST/test-results-$viewport"
+      fi
+    done
     if [[ -d "$DIR/artifacts/tower-motion/$scenario" ]]; then
       cp -a "$DIR/artifacts/tower-motion/$scenario/." "$DEST/$scenario/"
-    fi
-    if [[ -d "$DIR/test-results" ]]; then
-      cp -a "$DIR/test-results" "$DEST/test-results"
     fi
     if [[ "$(git hash-object "$DIR/scripts/serve-tower-stream.cjs")" != "$(git rev-parse "$SHA:scripts/serve-tower-stream.cjs")" ]]; then
       echo "Host changed during recording; provenance invalid." >&2; exit 5
