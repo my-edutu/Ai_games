@@ -83,6 +83,17 @@ test('W125 390px touch buttons, two-finger dolly/pan, reduced motion, and real s
  await expect(page.locator('#world-trace-toggle')).toContainText('Supply');
  await page.locator('#world-trace-toggle').click();
  await expect(page.locator('#world-supply-trail')).toBeVisible();
+ const ledgerVisibility=await page.locator('#world-ribbon').evaluate(el=>{
+  const css=getComputedStyle(el);
+  return {height:el.getBoundingClientRect().height,
+   overflowY:css.overflowY,scrollHeight:el.scrollHeight,
+   clientHeight:el.clientHeight,
+   trailText:el.querySelector('#world-supply-trail')?.textContent||''};
+ });
+ expect(ledgerVisibility.height).toBeGreaterThan(54);
+ expect(['auto','scroll']).toContain(ledgerVisibility.overflowY);
+ expect(ledgerVisibility.trailText).toContain('Market receipt');
+ expect(ledgerVisibility.trailText).toContain('Resident meal');
  const actualSupply=await page.evaluate(()=>window.__tinyKingdom.getSupplyTrailSnapshot());
  expect(actualSupply.noSyntheticActors).toBe(true);
  expect(actualSupply.noSyntheticTransactions).toBe(true);
