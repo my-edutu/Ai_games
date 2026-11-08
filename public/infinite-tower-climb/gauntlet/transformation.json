@@ -45,7 +45,7 @@
     "latestEvidenceRun": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "assessedAt": "2026-11-08",
-      "sourceHeadAtInspection": "2975e4a4e802b4455107e45437d2834e8c2340d6",
+      "sourceHeadAtInspection": "d935ee0df5456fc021839f0a7d78dd3ee970e86d",
       "actualRenderedGameSourceSha": "f1fe522ec6a4da8d0a33cd620ca2c85357a04d6a",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "frozenBaselineMoved": false,
@@ -53,45 +53,50 @@
       "renderedGameplayExperienceChangedThisExecution": false,
       "instrumentationChangedThisExecution": true,
       "experienceChangeVerifiedInVideo": false,
-      "largestObservedGap": "Older genuine 390x844 source-pinned guardian film shows the wheel/case obscuring the climber near 16–18s; newer open-rim, negative-space rotor and open rack geometry have NO executed exact-source full-motion acceptance.",
-      "primaryVerifiedBlocker": "GitHub Actions repository queue: 1816 queued workflows, 5 in progress at 2026-11-08 ~08:34 UTC. Tower original-runtime and 9-job capture jobs still QUEUED with no runner; local app-projects tool returned NOT_FOUND tunnel disconnected. Repo billing/hosted-runner capacity is not readable through available GitHub connector. No source-pinned new WebM or Node/Three test can be claimed.",
-      "implementation": "Evidence execution unblocker: scoped Tower quality workflow to source/tests/runtime changes, explicitly excluding only transformation.json and progress.json evidence journals, while preserving workflow_dispatch for deliberate exact-head execution. Fixed Tower capture workflow path filters to include the actual app.js/index.html entry points and tower-crossfire-evidence.cjs capture module; film still uses immutable baseline and unaltered original runtime. These changes reduce future docs-only CI queue pollution and prevent missing actual app/capture edits; they do not start existing queued jobs or improve rendered gameplay.",
+      "largestObservedGap": "Last available source-pinned 390x844 candidate film e0fe7729 still shows large clockwork foreground obstruction of the climber/guardian at native seconds 16–18. Subsequent open rims, rotor apertures and rack cutaways remain unfilmed at exact current source; physical gateway in moving film and full restart acceptance are still open.",
+      "primaryVerifiedBlocker": "GitHub Actions backlog: 1784 queued workflow runs and 5 in progress at inspection; all 9 jobs in Tower source capture 42463522898 remain queued without assigned ubuntu-24.04 runners. Local /app-projects development tunnel returned NOT_FOUND. Exact underlying runner/billing cause not proven. The alternate offline detached-worktree evidence script had a separate verifiable module-closure defect: its copied current capture test imports scripts/tower-video-timebase.cjs, absent from the baseline and omitted from the script's copy list.",
+      "implementation": "Unblocked the portable exact-SHA baseline/candidate offline evidence path: copy neutral native-video-timebase module and tests into frozen baseline without changing game or stream host; add an offline static transitive require-closure preflight to fail early when copy manifests drift; require ffmpeg/ffprobe and run the new checks before capture. Source renderer and gameplay unchanged. This path still requires a real repository clone and browser environment to execute end-to-end.",
       "concreteCommits": [
-        "e961f3e9e87f99cb77df7ccec8f908034adbb99e",
-        "2975e4a4e802b4455107e45437d2834e8c2340d6"
+        "d935ee0df5456fc021839f0a7d78dd3ee970e86d"
       ],
       "modifiedFiles": [
-        ".github/workflows/tower-transformation-gate.yml",
-        ".github/workflows/tower-transformation-visual-evidence.yml",
+        "scripts/tower-offline-evidence.sh",
+        "scripts/tower-harness-dependency-check.cjs",
+        "tests/phase3/tower-harness-dependency-check.test.cjs",
         "public/infinite-tower-climb/gauntlet/transformation.json",
         "docs/reviews/2026-11-07-tower-pr68-current-film-and-source-integrity-veto.md"
       ],
-      "isolatedSourceChecks": "GitHub readback verified both workflow definitions and PR #68 draft/base; source/test/workflow path changes explicitly listed, only evidence-journal files excluded from automatic quality checks. GitHub Actions YAML execution and Node/Three/browser tests remain NOT EXECUTED.",
+      "isolatedSourceChecks": "Isolated Node 22 CJS verifier fixture 3/3 passed locally: missing transitive native-video dependency rejected; complete relative require closure accepted; escaping checkout rejected. Exact GitHub code readback confirmed the current seven direct relative recorder imports all have copied neutral modules. Original repository Node/Three, full offline capture, and exact-head hosted quality NOT EXECUTED.",
+      "recoveredAuthenticPriorCapture": {
+        "artifactId": 13594459833,
+        "sha": "e0fe77294359c32c84cdcff3c0698ba0c7e3a067",
+        "workflowId": 42426089449,
+        "sourceTruth": "Original candidate danger 960x600 and 390x844 WebM + source traces extracted and inspected. Portrait sampled at 16 and 18s still shows a giant obstructing rotor/frame; floor 9 visible around 26-28s. This is not footage of newly authored geometry and not a blinded full-motion verdict.",
+        "sourceEventToNativePts": "NOT EVALUATED: old artifact predates anchored WebM native-clock sidecars"
+      },
       "currentExactCodeQuality": {
-        "sha": "2975e4a4e802b4455107e45437d2834e8c2340d6",
-        "runId": 42463522918,
-        "status": "QUEUED, no hosted runner assigned",
-        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42463522918"
+        "sha": "d935ee0df5456fc021839f0a7d78dd3ee970e86d",
+        "status": "NOT EVALUATED: hosted runner queued; https://github.com/my-edutu/Ai_games/actions/runs/42463522918 remains a prior-head queued run"
       },
       "currentNineJobCapture": {
         "candidateSourceSha": "2975e4a4e802b4455107e45437d2834e8c2340d6",
         "renderedWorldLastChangedSha": "f1fe522ec6a4da8d0a33cd620ca2c85357a04d6a",
         "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
         "runId": 42463522898,
-        "status": "QUEUED; no new current-source full-motion or event-paired WebM",
+        "status": "9 jobs queued without assigned runners; no current-source footage",
         "url": "https://github.com/my-edutu/Ai_games/actions/runs/42463522898"
       },
-      "videoEventAlignment": "NOT EVALUATED: no new source/video native-PTS correspondence since physical clockwork cutaways.",
+      "videoEventAlignment": "NOT EVALUATED: last source-authentic original WebM predates full frame/native PTS mapping; latest code has not been recaptured.",
       "independentBlindReviews": {
         "looks": 0,
         "feels": 0,
         "plays": 0
       },
-      "hardwareFrameTimeMemory": "NOT EVALUATED: no supported-device frame-time p50/p95/p99 or memory.",
-      "developmentWorkspace": "UNAVAILABLE: app-projects remote command returned tunnel-client NOT_FOUND; GitHub connector read/write remains functional.",
+      "hardwareFrameTimeMemory": "NOT EVALUATED: no actual supported-device p50/p95/p99 or memory.",
+      "developmentWorkspace": "UNAVAILABLE: app-projects returned NOT_FOUND tunnel-client disconnected; browser and ffmpeg available in isolated local analysis environment, but entire candidate Git checkout and its dependencies are not.",
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "nextHighImpactAction": "Restore an executing runner or coding workspace and inspect workflow 42463522898; execute actual THREE post-batch raycasts and event-pinned continuous 960x600/390x844 candidate/baseline film. Determine whether open rings/rotors/rack really solve portrait foreground obstruction; inspect grounded gateway body crossing, floor-nine, outcome/restart. Obtain five genuine blind independent LOOKS/FEELS/PLAYS critics and supported-device performance before P0 acceptance. Do not spend another run speculatively hollowing gear surfaces while current render is unfilmed.",
-      "restrictions": "Frozen baseline SHA unchanged, PR58 untouched, PR68 OPEN DRAFT. No merge, deploy, force-push, rebase, baseline movement or hidden gameplay modifications."
+      "nextHighImpactAction": "Run bash scripts/tower-offline-evidence.sh d935ee0df5456fc021839f0a7d78dd3ee970e86d in a full checkout with Node 22, npm, Playwright Chromium and both exact commits; or restore GitHub runners. Collect source-pinned original WebM including new physical cutaways, calibrate event PTS and independently judge guardian visibility, real cap crossing, floor-nine continuation, outcome/restart at both viewports. If visual failure remains, change verified actual on-screen obstruction, not speculative more holes.",
+      "restrictions": "Frozen baseline unchanged; PR58 untouched; PR68 OPEN DRAFT. No merge/deploy/force-push or base change."
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
     "state": "P0 OPEN — original three real gear faces and tall decorative rack physically cut through in source; original post-batch Three runtime tests and current gameplay film remain QUEUED/NOT EVALUATED.",
@@ -1318,6 +1323,22 @@
       "rootCause": "UNKNOWN (GitHub billing/hosted-runner entitlement not readable)",
       "mitigation": "Stop quality triggers for evidence-only journals, add missing entry-point/crossfire capture paths; queued jobs remain blocked",
       "completion": "P0 OPEN / NOT EVALUATED"
+    },
+    "p0OfflineHarnessDependencyRecovery20261108": {
+      "stage": "P0 OPEN",
+      "sourceHead": "d935ee0df5456fc021839f0a7d78dd3ee970e86d",
+      "previousEvidenceHead": "2975e4a4e802b4455107e45437d2834e8c2340d6",
+      "capturedArtifactSha": "e0fe77294359c32c84cdcff3c0698ba0c7e3a067",
+      "dependencyRootCause": "Frozen 2026-11-01 repo lacks scripts/tower-video-timebase.cjs while new browser recorder imports it. CI baseline job copies this neutral module, but disconnected-runner fallback script did not.",
+      "fixedBy": "d935ee0df5456fc021839f0a7d78dd3ee970e86d",
+      "localPureRegression": "3/3 Node22 isolated dependency checker fixture tests passed; full checkout/browser test not run",
+      "visualResult": "NOT EVALUATED",
+      "blindCritics": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "hardware": "NOT EVALUATED"
     }
   },
   "scenarios": [
