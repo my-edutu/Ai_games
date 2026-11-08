@@ -17,6 +17,7 @@ on:
       - 'scripts/tiny-kingdom-w126e-environment-contract.cjs'
       - 'scripts/tiny-kingdom-w127e-valley-reeds-contract.cjs'
       - 'scripts/tiny-kingdom-w128-visible-road-contract.cjs'
+      - 'scripts/tiny-kingdom-w132-field-service-contract.cjs'
       - 'tests/browser/tiny-kingdom-w128-visible-road.spec.cjs'
       - 'tests/browser/tiny-kingdom-w126e-environment.spec.cjs'
       - 'scripts/tiny-kingdom-w125-gpu-skin-contract.cjs'
@@ -72,6 +73,7 @@ jobs:
           node scripts/tiny-kingdom-w126e-environment-contract.cjs
           node scripts/tiny-kingdom-w127e-valley-reeds-contract.cjs
           node scripts/tiny-kingdom-w128-visible-road-contract.cjs
+          node scripts/tiny-kingdom-w132-field-service-contract.cjs
           node scripts/tiny-kingdom-w125-market-household-contract.cjs
           node scripts/tiny-kingdom-w125-medieval-population-contract.cjs
       - name: W125 exact-source real ticks, bounded commuter GPU writes and face topology
