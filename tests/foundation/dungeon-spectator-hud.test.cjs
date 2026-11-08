@@ -48,3 +48,50 @@ test('spell and breach markers originate in real typed warnings, not event guess
  assert.equal(describe(state({units:withoutBoss,cultistWarnings:[{x:8,z:9,impactTick:8}]})),null);
  assert.equal(describe(state({units:withoutBoss,events:[{kind:'danger',text:'Unknown damage'}]})),null);
 });
+
+test('floor conditions use exact public state, without a misleading progress percent',async()=>{
+ const {describeExpeditionProgress:describe}=await load();
+ const source=state({units:[hero,boss,{id:'revenant',kind:'revenant',faction:'enemy',hp:0}],traps:[
+  {id:'t1',active:true,disarmed:false},{id:'t2',active:true,disarmed:true},
+  {id:'t3',active:false,disarmed:false}
+ ]});
+ const frozen=JSON.stringify(source);
+ assert.deepEqual(describe(source),{
+  hostiles:1,alive:1,total:1,traps:1,portal:'SEALED',
+  objective:'Defeat remaining enemies'
+ });
+ assert.equal(JSON.stringify(source),frozen,'read-only UI planning must not mutate any snapshot');
+ const cleared=describe({...source,units:[hero,{...boss,hp:0}]});
+ assert.equal(cleared.portal,'AVAILABLE');
+ assert.equal(cleared.objective,'Reach the portal to descend');
+ const lost=describe({...source,phase:'intermission'});
+ assert.equal(lost.portal,'NEXT RUN');
+ assert.equal(lost.objective,'Party defeated · new expedition forming');
+ assert.equal(describe(null),null);
+});
+
+test('recent story note is bounded, genuine and never treats stale history as live danger',async()=>{
+ const {recentExpeditionOutcome:recent}=await load();
+ const events=[{kind:'loot',tick:9,text:'Relic found'},{kind:'danger',tick:10,text:'Warden hit knight'},
+   {kind:'phase',tick:11,text:'The boss entered the second phase'}];
+ assert.deepEqual(recent({tick:12,events}),{
+  kind:'PHASE',text:'The boss entered the second phase',tick:11
+ });
+ assert.equal(recent({tick:27,events}),null,'stale events are not new live alerts');
+ assert.equal(recent({tick:10,events:[{kind:'combat',tick:10,text:'A confusing raw trace'}]}),null);
+ assert.equal(recent({tick:10,events:[{kind:'loot',tick:11,text:'Future event'}]}),null);
+ assert.equal(recent({tick:10,events:[{kind:'loot',tick:10,text:'x'.repeat(240)}]}).text.length<=110,true);
+});
+
+test('mobile progress and danger controls are scoped to spectator DOM without camera/simulation imports',()=>{
+ const html=fs.readFileSync(path.resolve(__dirname,'../../public/ai-dungeon/index.html'),'utf8');
+ const css=fs.readFileSync(path.resolve(__dirname,'../../public/ai-dungeon/styles.css'),'utf8');
+ assert.match(html,/id="hostiles-left"/);
+ assert.match(html,/id="hazards-active"/);
+ assert.match(html,/id="portal-status"/);
+ assert.match(html,/id="quick-outcome"/);
+ assert.match(html,/id="assistive-announcement"/);
+ assert.match(css,/\.depth-track\{display:none\}/,'arbitrary progress bar must not imply a percent');
+ assert.match(css,/\.visually-hidden/);
+ assert.doesNotMatch(source,/fetch\(|Math\.random|localStorage\.setItem\('authoritative/);
+});
