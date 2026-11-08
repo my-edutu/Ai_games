@@ -67,7 +67,8 @@ test('true Warden shockwave opens visible desktop/mobile tactical counterplay an
  expect(current.events.some(e=>e.kind==='opening')).toBe(true);
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick),{timeout:25000}).toBe(current.tick);
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wardenRitual?.exposedCounterWindow),{timeout:20000}).toBe(true);
- await expect(page.locator('#boss-phase')).toContainText('EXPOSED');
+ // The release tick is not proof of contact; the later recovery assertion stays intact.
+ await expect(page.locator('#boss-phase')).toHaveText('STRIKE RELEASED');
  await expect(page.locator('#boss-strip')).toHaveAttribute('data-recovery','true');
  // Real browser reconstruction: the current living defender must occupy the
  // camera-facing side of the Warden while the actual vulnerable boss lowers

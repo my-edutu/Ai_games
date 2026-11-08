@@ -53,7 +53,12 @@ test('real Warden source camera, stage, body clearance, original lights and sema
  assert.match(camera,/boss\.action==='cast'&&boss\.actionTick===s\.tick/);
  assert.match(camera,/planDuelCameraOffset\(closeBoss,boss,8\.9,7\.95/);
  assert.match(app,/planWardenTacticalCue\(s,\{nearBoss\}\)/);
- assert.match(app,/boss-phase'\)\.textContent=tactical\?\.label\?\?phase/);
+ // The HUD must consume the verified spectator cue, not issue player commands
+ // or claim that a released ritual necessarily hit a target.
+ assert.match(app,/const verifiedCue=nearBoss\?describeSpectatorDanger\(s\):null/);
+ assert.match(app,/boss-phase'\)\.textContent=verifiedCue\?\.kind==='warning'/);
+ assert.match(app,/verifiedCue\?\.kind==='release'\?'STRIKE RELEASED'/);
+ assert.doesNotMatch(app,/boss-phase'\)\.textContent=tactical\?\.label/);
  assert.match(app,/bossStrip\.dataset\.striking=String\(wardenRelease\)/);
  assert.match(app,/storyStage\?\.wallPad/);
 });
