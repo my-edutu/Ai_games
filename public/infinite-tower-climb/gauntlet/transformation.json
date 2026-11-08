@@ -1448,6 +1448,27 @@
       "evidenceStatus": "VERIFIED CODE/CONTROL-PLANE BLOCKER; NO film, gameplay or quality evidence",
       "officialDocs": "https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_dispatch",
       "next": "Recover executor capacity, then commit a deliberate request file on PR68 or run offline evidence. Do not copy workflow to main without authorization."
+    },
+    "p0NativeFilmTransportSeal20261108": {
+      "stage": "P0 OPEN — original native WebM admission tied to source-event comparison",
+      "sourceImplementationSha": "dabc77615bf52cd3b823d92fb0f2477471be3131",
+      "verifiedOriginalDefect": "Reproduced exact prior branch CJS in isolated V8: a matched source episode with nativeFilmAudit missing returned provenanceVerified:true and no provenance faults. This could label an unaudited or truncated film as provenance-verified even though acceptance remained NOT EVALUATED.",
+      "implementation": "Both baseline and candidate pairing now require matching ffprobe native-film-integrity status, exact per-viewport source/scenario, no reported film defects, original WebM SHA-256 and byte count rehashed from the captured file; failed or missing seals veto provenance and native source-clock search handles. Collector supports CI scenario-root and earlier offline artifact-root audit paths. No gameplay, world, renderer or original film pixels altered.",
+      "sourceLinkedTests": "18/18 committed tower-event-pairing.test.cjs tests passed in an isolated V8 CJS executor against fetched exact source (node:fs/path/crypto stubbed); NOT equivalent to Node repository tests or real files/browser/ffprobe. Red defect reproduced against previous source before patch.",
+      "exactHEADRuntime": "NOT EVALUATED — authorized chat-on-steriod workspace tunnel disconnected; GH hosted job 42495536337 and 9-job capture 42490211469 still queued at inspection. No new original current-renderer normal-speed footage.",
+      "originalVisualDefect": "Previous exact old e0fe7729 original 390x844 danger film at 16–18s contains oversized foreground clockwork obscuring climber and guardian; new f1fe522e openings not assessed in fresh WebM.",
+      "capturesProduced": [],
+      "independentBlindReviews": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "supportedDeviceFrameTimeMemory": "NOT EVALUATED",
+      "leadingTransformationVerdict": "NOT EVALUATED",
+      "nextAction": "Recover original Node22/Three/Chromium/ffprobe runner or authenticated checkout; execute new source-event-pairing tests and 9-job audit with native original films at exact frozen and candidate SHAs. Inspect both portrait/desktop uninterrupted guardian→grounded threshold→floor-nine→outcome/intermission/restart and fix actual highest-impact current experience gap. Do not launch new capture while runners remain unassigned.",
+      "frozenBaselineMoved": false,
+      "pr58Changed": false,
+      "mergedOrDeployed": false
     }
   },
   "scenarios": [
@@ -5607,5 +5628,26 @@
     },
     "actualDevicePerformance": "NOT EVALUATED",
     "nextAction": "Execute original full checks and source-pinned full-motion video, verify visible intermission and gateway, address actual large wheel obstruction."
+  },
+  "p0NativeFilmTransportSeal20261108": {
+    "stage": "P0 OPEN — original native WebM admission tied to source-event comparison",
+    "sourceImplementationSha": "dabc77615bf52cd3b823d92fb0f2477471be3131",
+    "verifiedOriginalDefect": "Reproduced exact prior branch CJS in isolated V8: a matched source episode with nativeFilmAudit missing returned provenanceVerified:true and no provenance faults. This could label an unaudited or truncated film as provenance-verified even though acceptance remained NOT EVALUATED.",
+    "implementation": "Both baseline and candidate pairing now require matching ffprobe native-film-integrity status, exact per-viewport source/scenario, no reported film defects, original WebM SHA-256 and byte count rehashed from the captured file; failed or missing seals veto provenance and native source-clock search handles. Collector supports CI scenario-root and earlier offline artifact-root audit paths. No gameplay, world, renderer or original film pixels altered.",
+    "sourceLinkedTests": "18/18 committed tower-event-pairing.test.cjs tests passed in an isolated V8 CJS executor against fetched exact source (node:fs/path/crypto stubbed); NOT equivalent to Node repository tests or real files/browser/ffprobe. Red defect reproduced against previous source before patch.",
+    "exactHEADRuntime": "NOT EVALUATED — authorized chat-on-steriod workspace tunnel disconnected; GH hosted job 42495536337 and 9-job capture 42490211469 still queued at inspection. No new original current-renderer normal-speed footage.",
+    "originalVisualDefect": "Previous exact old e0fe7729 original 390x844 danger film at 16–18s contains oversized foreground clockwork obscuring climber and guardian; new f1fe522e openings not assessed in fresh WebM.",
+    "capturesProduced": [],
+    "independentBlindReviews": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "supportedDeviceFrameTimeMemory": "NOT EVALUATED",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "nextAction": "Recover original Node22/Three/Chromium/ffprobe runner or authenticated checkout; execute new source-event-pairing tests and 9-job audit with native original films at exact frozen and candidate SHAs. Inspect both portrait/desktop uninterrupted guardian→grounded threshold→floor-nine→outcome/intermission/restart and fix actual highest-impact current experience gap. Do not launch new capture while runners remain unassigned.",
+    "frozenBaselineMoved": false,
+    "pr58Changed": false,
+    "mergedOrDeployed": false
   }
 }
