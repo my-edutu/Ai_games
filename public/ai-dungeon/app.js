@@ -698,7 +698,13 @@ const settleAudio=(promise,timeout=1400)=>new Promise((resolve,reject)=>{
 });
 $('audio-toggle').addEventListener('click',async()=>{
  const button=$('audio-toggle'),label=button.querySelector('span');
- const setEnabled=enabled=>{button.setAttribute('aria-pressed',String(enabled));label.textContent=enabled?'Sound on':'Sound off'};
+ // Audio remains opt-in each visit; persist explicit mute only, never autoplay.
+ const setEnabled=enabled=>{
+  button.setAttribute('aria-pressed',String(enabled));
+  button.setAttribute('aria-label',enabled?'Mute original dungeon audio':'Enable original dungeon audio');
+  label.textContent=enabled?'Sound on':'Sound off';
+  try{window.localStorage.setItem('edutu-dungeon-audio-muted',String(!enabled))}catch{}
+ };
  if(!ambience){
   const Audio=window.AudioContext||window.webkitAudioContext;
   if(!Audio){setEnabled(false);button.title='Audio unavailable in this browser';return}
@@ -822,7 +828,6 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
  if(!['context-lost','recovering','stalled','failed'].includes(document.body.dataset.rendererStatus))$('recovery').hidden=true;
  const selected=s.units.find(u=>u.id===focusedHeroId&&u.hp>0);
  if(!selected){const survivor=s.units.find(u=>u.faction==='party'&&u.hp>0);if(survivor)focusedHeroId=survivor.id;}
- spectatorUI.render(s);
  for(const e of s.events){const id=s.run+':'+e.tick+':'+e.kind+':'+e.text;if(!seenEventIds.has(id)){seenEventIds.add(id);if(seenEventIds.size>150)seenEventIds.delete(seenEventIds.values().next().value);if(!firstSnapshot){cue(e,s);notifyDungeon(e)}}}
  if(sceneChanged){combatShotContinuity.reset();physicalCameraDirector.reset();impactCameraHold=null;lightInjury=null;buildWorld(s);camera.userData.dungeonInitialized=false;camera.userData.aimInitialized=false;lastRayAuditAt=-Infinity;}
  // Only the authoritative Warden attack which follows its previous public
@@ -896,6 +901,8 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
  document.body.dataset.epilogue=s.phase==='intermission'?'true':'false';
  directCamera(s);
  renderDashboard(s);
+ // A keyed, accessible quick-focus bar mirrors the final real hero-card state.
+ spectatorUI.render(s);
  window.__DUNGEON_PUBLIC_STATE__=s;
 }
 let lastFrameTime=0;
