@@ -139,3 +139,26 @@ test('surface-weathering hooks target only existing floor instances and their or
  assert.match(environment,/batched\(world,box,floorSurface,floorDetails,\{variation:true,floor,wear/);
  assert.doesNotMatch(app,/\.bossHP\s*=/);
 });
+
+
+test('original aged metal, timber and cloth detail is bounded and opt-out on software WebGL',async()=>{
+ const {ENVIRONMENT_SETPIECE_DETAIL_BUDGET:budget,makeEnvironmentDetailPixels:make}=await load();
+ assert.equal(budget.size,128);
+ assert.equal(budget.textureCount,7);
+ assert.equal(budget.rawBytes,7*128*128*4);
+ assert.ok(budget.maxMipmappedBytes<=620000);
+ assert.deepEqual(budget.roles,['timber','agedMetal','hangingCloth']);
+ for(const role of budget.roles){
+  const a=make(role,1),b=make(role,1);
+  assert.deepEqual(a.albedoPixels,b.albedoPixels,'stable procedural material '+role);
+  assert.ok(new Set(a.albedoPixels.filter((_,i)=>i%4===0)).size>=20);
+ }
+ const source=read('dungeon-setpieces.js');
+ const atmosphere=read('biome-atmosphere.js');
+ const app=read('app.js');
+ assert.match(source,/if\(surfaceDetailEnabled\)\{/);
+ assert.match(source,/materialDetailMaps/);
+ assert.match(source,/for\(const texture of detailTextures\)texture\.dispose\(\)/);
+ assert.match(atmosphere,/createDungeonSetpieces\(root,map,floor,exit,\{surfaceDetailEnabled\}\)/);
+ assert.match(app,/createBiomeAtmosphere\(world,s\.map,s\.floor,s\.exit,\{surfaceDetailEnabled:!softwareWebGL\}\)/);
+});
