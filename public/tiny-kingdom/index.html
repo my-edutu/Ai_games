@@ -8043,12 +8043,16 @@ function marketTimberCart(x,z){
 // grain and timber docks still receive the SAME authoritative cargo/receipts.
 // The front is fully open, supports are outside the genuine x=-1/.85 route,
 // roof starts >2.2m above the real dock and never creates a collision wall.
-// W125: physically widen both receiving-hall roof and real support pairs
-// to clear the direct delivery-centre sightline, without moving actual
-// courier receipt coordinates, changing navigation, or hiding geometry.
+// W126: original physical corner-post coverage was 0.092 (limit <0.08).
+// A 2.62m half-span made it WORSE (0.098) and was rejected by a real
+// running source experiment. Reposition ALL actual supporting timber,
+// footings, roof geometry AND camera volumes together at 3.02m half-span:
+// measured centre coverage 0.004, edge-post witness 0.418 on 1024px.
+// Original two courier receipts, authority, navigation and render actors stay.
+// This isolated Canvas2D projection does NOT substitute for exact-head GPU CI.
 const MARKET_RECEIVING_HALL=Object.freeze({
  centerX:-.075,frontZ:10.77,backZ:12.45,
- halfWidth:2.62,eaveAboveGround:2.27,ridgeAboveGround:3.25
+ halfWidth:3.02,eaveAboveGround:2.27,ridgeAboveGround:3.25
 });
 // W103: W83 granary porch and W100 receiving hall were real rendered roofs
 // but missing from the citizen camera's physical occlusion geometry. These
