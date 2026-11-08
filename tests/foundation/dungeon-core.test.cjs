@@ -512,3 +512,53 @@ test('legacy restored Mystic retains old in-run healing rules while v2 restricts
  assert.equal(s.rulesVersion,undefined);
  assert.deepEqual(game.save(),replay.save());
 });
+
+function provisionedPortalFixture({gold=82,rangerHp=2,legacy=false}={}){
+ const game=DungeonRuntime.create('v2-earned-respite-supplies'),s=game.state;
+ const vanguard=s.units.find(u=>u.id==='vanguard');
+ const ranger=s.units.find(u=>u.id==='ranger');
+ for(const foe of s.units.filter(u=>u.faction==='enemy'))foe.hp=0;
+ Object.assign(vanguard,{x:s.exit.x+1,z:s.exit.z,hp:vanguard.maxHp});
+ Object.assign(ranger,{x:s.exit.x,z:s.exit.z,hp:rangerHp});
+ s.relics=[];s.gold=gold;s.tick=3;
+ if(legacy)delete s.rulesVersion;
+ assertDungeonState(s);
+ return {game,s,ranger};
+}
+
+test('earned gold becomes one real bounded automatic medical supply decision at a cleared portal',()=>{
+ const {game,ranger}=provisionedPortalFixture();
+ const saved=game.save(),mirror=DungeonRuntime.restore(saved);
+ const view=game.step();
+ assert.equal(view.checksum,mirror.step().checksum);
+ assert.equal(view.floor,2);
+ assert.equal(view.rulesVersion,2);
+ assert.equal(view.gold,22,'60 actually earned gold must be deducted from the signed expedition');
+ assert.equal(view.units.find(u=>u.id==='ranger').hp,50,
+  'actual 26 HP respite plus 22 paid HP, not a free full heal');
+ assert.ok(view.events.some(e=>e.tick===view.tick&&e.kind==='provision'&&e.text.includes('ranger')),
+  'the choice and its cost must be visible in actual authoritative events');
+ assertDungeonState(game.state);
+});
+
+test('expedition supplies cannot be fabricated when gold is short or no health is needed',()=>{
+ for(const settings of [{gold:59,rangerHp:2},{gold:82,rangerHp:65}]){
+  const {game}=provisionedPortalFixture(settings),start=game.state.gold;
+  const view=game.step();
+  assert.equal(view.floor,2);
+  assert.equal(view.gold,start);
+  assert.ok(!view.events.some(e=>e.tick===view.tick&&e.kind==='provision'));
+  assertDungeonState(game.state);
+ }
+});
+
+test('legacy signed expeditions retain their unspent-gold semantics across a normal floor',()=>{
+ const {game}=provisionedPortalFixture({legacy:true});
+ const copy=DungeonRuntime.restore(game.save()),view=game.step();
+ assert.equal(view.checksum,copy.step().checksum);
+ assert.equal(view.rulesVersion,1);
+ assert.equal(view.floor,2);
+ assert.equal(view.gold,82);
+ assert.equal(view.units.find(u=>u.id==='ranger').hp,28);
+ assert.ok(!view.events.some(e=>e.kind==='provision'));
+});
