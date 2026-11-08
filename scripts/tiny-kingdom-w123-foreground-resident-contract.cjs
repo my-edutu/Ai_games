@@ -17,7 +17,9 @@ for(const n of ['isForegroundResidentCandidate','realForegroundPoseStale',
  'getForegroundResidentAudit'])assert(fn(n).length>100);
 const code=fn('isForegroundResidentCandidate')+';'+fn('realForegroundPoseStale')+
  ';({isForegroundResidentCandidate,realForegroundPoseStale})';
-const ctx={gpuAvailable:true,foregroundResidentEnabled:true,follow:true,liveWorkday:false,selectedCitizen:0,
+const ctx={gpuAvailable:true,foregroundResidentEnabled:true,
+ FOREGROUND_ROOT_METERS:.045,FOREGROUND_ROOT_RADIANS:.035,
+ follow:true,liveWorkday:false,selectedCitizen:0,
  isMarketUnloading:p=>p.activity==='unloading',
  isWorkingAtSite:p=>p.activity==='harvesting'};
 const {isForegroundResidentCandidate:eligible,realForegroundPoseStale:stale}=
