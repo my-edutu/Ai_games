@@ -86,8 +86,8 @@ test('without a genuine ordinary foe the visual chapter does not invent combat',
 test('disconnected or malformed map is fail-closed, never fabricates walkability',async()=>{
  const {planConnectedDungeonJourney:plan}=await load();
  const malformed=['#########','#.#######','#########','#########',
-  '#########','#########','#########','#########','#########'];
- for(const x of [plan([],1,{x:4,z:4}),plan(malformed,1,{x:1,z:1}),
+  '#########','#########','#######.#','#########','#########'];
+ for(const x of [plan([],1,{x:4,z:4}),plan(malformed,1,{x:7,z:6}),
   plan(['#'],1,{x:0,z:0})]){
   assert.equal(x.status,'invalid-or-unreachable');assert.equal(x.thresholds.length,0);
   assert.equal(x.facades.length,0);assert.equal(x.metrics.collisionEffects,0);
