@@ -4,6 +4,7 @@ import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
 import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport} from '/dungeon/full-body-animation-controller.js';
+import {measureSourceRigDeformation} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
 import {planEvasionPerformance} from '/dungeon/evasion-performance-plan.js';
@@ -1229,6 +1230,93 @@ function putEnvironment(world,sceneKey,map,onAssetReady=null){
  })}
  return{group,count:placements.length};
 }
+/**
+ * Explicit, on-demand live deformation probe for the genuine imported GLBs.
+ * Called only by the browser test/diagnostic hook: never in the animation
+ * frame loop, so there is no added per-frame GPU or pose evaluation cost.
+ *
+ * Each source SkeletonUtils-cloned assetRoot owns its weak reference baseline.
+ * This makes limb LENGTH invariant to legitimate actor walking and turning,
+ * while detecting broken source hierarchy, NaN quaternions, scaling/skin drift
+ * and detached hand chains. Does not inspect or alter collision or combat.
+ */
+const sourceRigDeformationBaselines=new WeakMap();
+function inspectSourceRigDeformation(actors){
+ const actorsOut=[];
+ for(const actor of actors.values()){
+  if(!actor.authored||!actor.assetRoot||!actor.u||actor.detached)continue;
+  actor.assetRoot.updateWorldMatrix(true,true);
+  const bones=[],seen=new Set();let skinnedMeshes=0;
+  actor.assetRoot.traverse(o=>{
+   if(!o.isSkinnedMesh||!o.skeleton)return;
+   skinnedMeshes++;
+   for(const b of o.skeleton.bones||[]){
+    if(b?.isBone&&!seen.has(b)&&bones.length<128){seen.add(b);bones.push(b)}
+   }
+  });
+  const pick=(items,side,part)=>items.find(item=>item?.side===side&&
+   (!part||item.part===part))?.bone||null;
+  const arms={left:pick(actor.rigUpperArms,'left'),right:pick(actor.rigUpperArms,'right')},
+   forearms={left:pick(actor.rigForearms,'left'),right:pick(actor.rigForearms,'right')},
+   hands={left:selectHandBone(bones,'left'),right:selectHandBone(bones,'right')},
+   thighs={left:pick(actor.rigGaitBones,'left','upper'),right:pick(actor.rigGaitBones,'right','upper')},
+   calves={left:pick(actor.rigGaitBones,'left','lower'),right:pick(actor.rigGaitBones,'right','lower')},
+   feet={left:pick(actor.rigGaitBones,'left','foot'),right:pick(actor.rigGaitBones,'right','foot')};
+  const v1=new THREE.Vector3(),v2=new THREE.Vector3(),segments=[];
+  const connected=(base,child)=>{
+   for(let parent=child?.parent,steps=0;parent&&steps<24;parent=parent.parent,steps++){
+    if(parent===base)return true;
+   }
+   return false;
+  };
+  const add=(name,base,child)=>{
+   if(!base||!child)return;
+   base.getWorldPosition(v1);child.getWorldPosition(v2);
+   segments.push({name,from:v1.toArray(),to:v2.toArray(),
+    connected:connected(base,child)});
+  };
+  for(const side of ['left','right']){
+   add(side+'-arm',arms[side],forearms[side]);
+   add(side+'-forearm',forearms[side],hands[side]);
+   add(side+'-thigh',thighs[side],calves[side]);
+   add(side+'-calf',calves[side],feet[side]);
+  }
+  const sample={
+   skinnedMeshes,segments,
+   bones:bones.map(b=>({
+    quaternion:b.quaternion.toArray(),
+    matrix:Array.from(b.matrixWorld.elements)
+   }))
+  };
+  // Keep only the first REAL inspected pose for each cloned rig, and never
+  // allow its replacements or other characters to inherit the measurements.
+  let baseline=sourceRigDeformationBaselines.get(actor.assetRoot);
+  if(!baseline){
+   baseline=measureSourceRigDeformation(sample);
+   sourceRigDeformationBaselines.set(actor.assetRoot,baseline);
+  }
+  const result=measureSourceRigDeformation(sample,baseline);
+  actorsOut.push({id:actor.u.id,kind:actor.u.kind,mode:actor.fullBody?.mode||'idle',
+   sourceMeshCount:actor.nativePresentation?.skinnedMeshes||0,
+   sourceHandName:actor.rigHandBoneName||null,
+   ...result});
+  if(actorsOut.length>=12)break;
+ }
+ return {
+  schemaVersion:1,
+  actors:actorsOut,
+  summary:{
+   sourceActors:actorsOut.length,
+   sampledSegments:actorsOut.reduce((n,a)=>n+a.segments.length,0),
+   disconnectedSegments:actorsOut.reduce((n,a)=>n+a.disconnectedSegments,0),
+   invalidSegments:actorsOut.reduce((n,a)=>n+a.invalidSegments,0),
+   invalidQuaternionCount:actorsOut.reduce((n,a)=>n+a.invalidQuaternionCount,0),
+   invalidMatrixCount:actorsOut.reduce((n,a)=>n+a.invalidMatrixCount,0),
+   maxQuaternionError:Math.max(0,...actorsOut.map(a=>a.maxQuaternionError)),
+   maxStretchFraction:Math.max(0,...actorsOut.map(a=>a.maxStretchFraction))
+  }
+ };
+}
 function stats(actors){
  const all=[...actors.values()],authored=all.filter(a=>a.authored);
  return{
@@ -1279,4 +1367,4 @@ function stats(actors){
  hiddenFallbackOrnamentActors:authored.filter(a=>(a.detail?.hiddenProceduralOrnamentCount||0)>0).length,
  hiddenFallbackOrnamentMeshes:authored.reduce((n,a)=>n+(a.detail?.hiddenProceduralOrnamentCount||0),0),rigGripAlignedActors:authored.filter(a=>a.rigGripAligned).length,rigGripMaxShiftMeters:Math.max(0,...authored.map(a=>a.rigGripShiftMeters||0)),rigGripCandidates:authored.filter(a=>a.rigGripCandidateMeters!==null).map(a=>({kind:a.u.kind,meters:a.rigGripCandidateMeters})).slice(0,3),rigHandBoneNames:authored.filter(a=>a.rigHandBoneName).map(a=>a.rigHandBoneName).slice(0,8),skinnedHitActors:authored.filter(a=>(a.skinnedHitWeight||0)>.02).length,skinnedHitPeak:Math.max(0,...authored.map(a=>a.skinnedHitPeak||0)),skinnedDefeatActors:authored.filter(a=>a.skinnedDefeatWeight>.02).length,forgedMicrotextures:forgedMicrotextureCache.size,authoredCharacters:authored.length,proceduralFallbacks:all.length-authored.length,uniqueAssets:cache.size,missingAssets:failures.size,incompleteAssets:incompleteAssets.size,texturedCharacters:authored.filter(a=>a.textureReadiness?.decodedColorMaps>0).length,decodedColorMaps:authored.reduce((n,a)=>n+(a.textureReadiness?.decodedColorMaps||0),0)};
 }
-export {attachCharacter,updateActor,disposeActorAsset,putEnvironment,stats};
+export {attachCharacter,updateActor,disposeActorAsset,putEnvironment,stats,inspectSourceRigDeformation};
