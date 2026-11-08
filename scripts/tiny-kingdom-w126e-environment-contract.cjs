@@ -13,7 +13,8 @@ assert(source.includes('emit(a,d,mid);emit(d,c,mid);'));
 assert(source.includes('shadeValleySurfaceVertex(axis[ix]+step*.5,axis[iz]+step*.5)'));
 assert(source.includes('const realFreightRoad=routeBetween('));
 assert(source.includes('renderEcotonePlanting();'));
-assert(source.includes('getEcotoneVisualStats,getForestVisualStats'));
+assert(source.includes('getEcotoneVisualStats,getValleySurfaceBuildAudit,getRiverReedVisualAudit,getForestVisualStats'));
+// Both old and new environment probes remain visible in the real browser.
 const start=source.indexOf('let ecotoneVisualStats=');
 const end=source.indexOf('function wildflower(',start);
 assert(start>=0&&end>start);
