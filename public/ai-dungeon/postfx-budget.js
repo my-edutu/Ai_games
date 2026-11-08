@@ -156,15 +156,26 @@ export function createSoftwareDeliveryBudgetGovernor(){
  const MIN=320000,MAX=650000;
  const median=s=>{const a=[...s].sort((x,y)=>x-y);return (a[(a.length-1)>>1]+a[a.length>>1])/2};
  let slow=0,history=[],trial=null,rejected=false,successfulTrials=0,rejectedTrials=0,sourceCap=null;
- const reset=()=>{slow=0;history=[];trial=null;rejected=false;sourceCap=null};
+ // Reset means a new viewport/capture period; never strand an unvalidated
+ // reduced-resolution experiment when source context changes.
+ const reset=()=>{
+  const restore=trial?.originalCap??null;
+  slow=0;history=[];trial=null;rejected=false;sourceCap=null;
+  return restore;
+ };
+ function abortTrial(pixelCap){
+  const original=trial.originalCap;
+  rejectedTrials++;rejected=true;trial=null;slow=0;history=[];sourceCap=original;
+  return {maxPixels:original,change:pixelCap!==original,status:'restored'};
+ }
  function observe({intervalMs,renderMs,pixelCap,visible=true}={}){
-  if(!visible){slow=0;history=[];if(trial)trial.after=[];return {maxPixels:pixelCap,change:false,status:'hidden'}}
+  if(!visible){if(trial)return abortTrial(pixelCap);slow=0;history=[];return {maxPixels:pixelCap,change:false,status:'hidden'}}
   const valid=Number.isFinite(intervalMs)&&intervalMs>0&&Number.isFinite(renderMs)&&renderMs>0&&
    Number.isSafeInteger(pixelCap)&&pixelCap>=MIN&&pixelCap<=MAX;
-  if(!valid)return {maxPixels:pixelCap,change:false,status:'invalid'};
+  if(!valid)return trial?abortTrial(pixelCap):{maxPixels:pixelCap,change:false,status:'invalid'};
   if(sourceCap!==null&&pixelCap!==sourceCap){slow=0;history=[];trial=null;rejected=false;}
   sourceCap=pixelCap;
-  if(renderMs>350){slow=0;history=[];trial=null;return {maxPixels:pixelCap,change:false,status:'render-bound'};}
+  if(renderMs>350){if(trial)return abortTrial(pixelCap);slow=0;history=[];return {maxPixels:pixelCap,change:false,status:'render-bound'};}
   if(trial){
    trial.after.push(Math.min(intervalMs,60000));
    if(trial.after.length<6)return {maxPixels:pixelCap,change:false,status:'testing'};
@@ -172,9 +183,7 @@ export function createSoftwareDeliveryBudgetGovernor(){
     successfulTrials++;trial=null;slow=0;history=[];
     return {maxPixels:pixelCap,change:false,status:'validated'};
    }
-   const original=trial.originalCap;
-   rejectedTrials++;rejected=true;trial=null;slow=0;history=[];sourceCap=original;
-   return {maxPixels:original,change:pixelCap!==original,status:'restored'};
+   return abortTrial(pixelCap);
   }
   history.push(Math.min(intervalMs,60000));if(history.length>8)history.shift();
   slow=intervalMs>=1200?Math.min(4,slow+1):0;

@@ -273,3 +273,43 @@ test('hidden, invalid and synchronous render-bound events are not delivery optim
  assert.equal(gate.observe({intervalMs:NaN,renderMs:10,pixelCap:650000}).status,'invalid');
  gate.reset();assert.equal(gate.stats().trialActive,false);
 });
+
+
+test('aborted software capture trial restores true image quality when synchronous drawing becomes slow',async()=>{
+ const {createSoftwareDeliveryBudgetGovernor}=await load(),gate=createSoftwareDeliveryBudgetGovernor();
+ let cap=650000,d;
+ for(let i=0;i<4;i++){d=gate.observe({intervalMs:1800,renderMs:12,pixelCap:cap});cap=d.maxPixels}
+ assert.equal(cap,520000,'four genuine RAF gaps begin one bounded trial');
+ d=gate.observe({intervalMs:2100,renderMs:470,pixelCap:cap});
+ assert.equal(d.maxPixels,650000,'an unvalidated trial must never strand visual degradation');
+ assert.equal(d.change,true);assert.equal(d.status,'restored');
+ assert.equal(gate.stats().trialActive,false);
+ assert.equal(gate.stats().rejectedTrials,1);
+});
+test('tab suspension aborts unverified software resolution trial instead of resuming indefinitely degraded',async()=>{
+ const {createSoftwareDeliveryBudgetGovernor}=await load(),gate=createSoftwareDeliveryBudgetGovernor();
+ let cap=650000;
+ for(let i=0;i<4;i++)cap=gate.observe({intervalMs:1800,renderMs:12,pixelCap:cap}).maxPixels;
+ const d=gate.observe({intervalMs:8000,renderMs:8,pixelCap:cap,visible:false});
+ assert.equal(d.maxPixels,650000);assert.equal(d.change,true);
+ assert.equal(gate.stats().trialActive,false);
+});
+test('invalid benchmark evidence aborts unverified quality reduction and does not fabricate success',async()=>{
+ const {createSoftwareDeliveryBudgetGovernor}=await load(),gate=createSoftwareDeliveryBudgetGovernor();
+ let cap=650000;
+ for(let i=0;i<4;i++)cap=gate.observe({intervalMs:1800,renderMs:12,pixelCap:cap}).maxPixels;
+ const d=gate.observe({intervalMs:NaN,renderMs:8,pixelCap:cap});
+ assert.equal(d.maxPixels,650000);assert.equal(d.change,true);
+ assert.equal(gate.stats().successfulTrials,0);assert.equal(gate.stats().rejectedTrials,1);
+});
+test('viewport reset restores original cap only for unverified trial, not accepted or unrelated software budget',async()=>{
+ const {createSoftwareDeliveryBudgetGovernor}=await load();
+ const gate=createSoftwareDeliveryBudgetGovernor();
+ assert.equal(gate.reset(),null,'no active trial cannot inject arbitrary resolution');
+ let cap=650000;
+ for(let i=0;i<4;i++)cap=gate.observe({intervalMs:1800,renderMs:12,pixelCap:cap}).maxPixels;
+ assert.equal(cap,520000);
+ assert.equal(gate.reset(),650000);
+ assert.equal(gate.stats().trialActive,false);
+ assert.equal(gate.reset(),null);
+});

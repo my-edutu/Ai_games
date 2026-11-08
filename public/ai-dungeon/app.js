@@ -1020,7 +1020,14 @@ function animate(t){
   // setPixelRatio itself resizes the existing CSS canvas in Three.js.
   // A stable 0.736 DPR at 1440 CSS px produces 1059 backing pixels,
   // not the 1060 pixels expected by the former Math.round check.
-  if(surfaceUpdate.sizeChanged)directDeliveryGovernor.reset();
+  if(surfaceUpdate.sizeChanged){
+   // Any unverified software-resolution trial belongs to the former
+   // physical viewport. Restore its source cap; redraw at that cap on
+   // the next frame rather than retaining degraded quality by accident.
+   const restoreCap=directDeliveryGovernor.reset();
+   if(Number.isSafeInteger(restoreCap)&&restoreCap>=320000)
+    directRenderPixelCap=restoreCap;
+  }
   if(surfaceUpdate.setPixelRatio){renderer.setPixelRatio(nextDirectBudget.pixelRatio);surfaceDprChanges++}
   if(surfaceUpdate.setSize){renderer.setSize(w,h,false);surfaceRendererResizes++}
   if(composer&&surfaceUpdate.resizeComposer){
