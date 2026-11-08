@@ -6,7 +6,7 @@
  * loss alone earns a small deterministic fracture. Does not touch animations,
  * camera, lights, damage, authority time, scene geometry, or renderer policies.
  */
-import {planMeasuredHandTrail,MEASURED_HAND_TRAIL_MAX_FRAME_SECONDS} from './measured-weapon-trail.js';
+import {planMeasuredHandTrail,MEASURED_HAND_TRAIL_MAX_FRAME_SECONDS,selectObservedWeaponHandBone} from './measured-weapon-trail.js';
 export const PHYSICAL_FEEDBACK_POOL_LIMITS=Object.freeze({
  trail:8,hit:48,block:8,dust:12,signal:8,projectile:10,spell:8
 });
@@ -94,7 +94,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   if(!actor||actor.u?.id!==id||!actor.root?.visible||!finite3(actor.root.position))return null;
   const root=actor.root.position;
   if(Math.hypot(root.x-(at.x-9),root.z-(at.z-9))>.58)return null;
-  const bone=hand&&actor.authored?actor.rigHandBone:
+  const bone=hand&&actor.authored?selectObservedWeaponHandBone(actor):
    chest&&actor.authored?actor.rigMeleeBones?.find(b=>b.part==='spine')?.bone:null;
   if(bone){
    try{
@@ -128,7 +128,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   // The sword streak must come from the current actually animated right-hand
   // bone on this witnessed swing. An idle or stale reused actor is not a blade.
   if(type==='trail'&&(!actor?.authored||actor.u?.action!=='attack'||
-    actor.u?.actionTick!==cue.tick||!actor.rigHandBone))return null;
+    actor.u?.actionTick!==cue.tick||!selectObservedWeaponHandBone(actor)))return null;
   const sampledPoint=sampleActor(id,at,{hand:type==='trail'||type==='projectile'||type==='spell',
    chest:victim,requireBone:type==='trail'});
   if(sampledPoint)return sampledPoint;

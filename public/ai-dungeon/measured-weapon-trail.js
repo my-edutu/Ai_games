@@ -8,6 +8,25 @@ export const MEASURED_HAND_TRAIL_MAX_METERS=.38;
 export const MEASURED_HAND_TRAIL_MAX_FRAME_SECONDS=.06;
 const finite=p=>p&&['x','y','z','rootX','rootY','rootZ'].every(k=>Number.isFinite(p[k]))&&
  (p.yaw===undefined||Number.isFinite(p.yaw));
+/**
+ * Read the visual joints the character-art pipeline ALREADY bound, without
+ * changing skeletons or attaching any mesh. Melee swords are represented by
+ * rigMeleeBones.wrist; rigHandBone belongs to ranger/mystic grip accessories.
+ * No fallback to an invented root-point or a generic unrelated hand.
+ */
+export function selectObservedWeaponHandBone(actor){
+ if(!actor?.authored||!actor.assetRoot)return null;
+ const kind=actor.u?.kind;
+ if(kind==='vanguard'||kind==='revenant'||kind==='warden'){
+  const matches=Array.isArray(actor.rigMeleeBones)?
+   actor.rigMeleeBones.filter(entry=>entry?.part==='wrist'&&entry.bone?.isBone):[];
+  return matches.length===1?matches[0].bone:null;
+ }
+ if(kind==='ranger'||kind==='mystic')
+  return actor.rigHandBone?.isBone?actor.rigHandBone:null;
+ return null;
+}
+
 export function planMeasuredHandTrail(previous,current,frameSeconds){
  if(!finite(previous)||!finite(current)||!Number.isFinite(frameSeconds)||
   frameSeconds<=0||frameSeconds>MEASURED_HAND_TRAIL_MAX_FRAME_SECONDS)return null;
