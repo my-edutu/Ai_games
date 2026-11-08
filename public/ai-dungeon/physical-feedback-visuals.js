@@ -7,6 +7,7 @@
  * camera, lights, damage, authority time, scene geometry, or renderer policies.
  */
 import {planMeasuredHandTrail,MEASURED_HAND_TRAIL_MAX_FRAME_SECONDS,selectObservedWeaponHandBone} from './measured-weapon-trail.js';
+import {planUnconfirmedFlight} from './unconfirmed-projectile-flight.js';
 export const PHYSICAL_FEEDBACK_POOL_LIMITS=Object.freeze({
  trail:8,hit:48,block:8,dust:12,signal:8,projectile:10,spell:8
 });
@@ -173,17 +174,26 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   if(reducedMotion&&['trail','dust'].includes(type))return false;
   const start=anchor(cue,type);
   if(!start){suppressed++;return false}
+  // An aimed target is NOT proof the missile connected. Shorten the rendered
+  // flight so an unconfirmed projectile never pierces a target body volume.
+  const flightDestination=(type==='projectile'||type==='spell')&&cell(cue.to)?
+   world(cue.to,type==='spell'?1.23:1.19):null;
+  const flightProbe=flightDestination?planUnconfirmedFlight(start,flightDestination,0):null;
+  if((type==='projectile'||type==='spell')&&!flightProbe){suppressed++;return false}
   const n=type==='hit'?Math.max(4,Math.min(6,4+Math.floor(clamp(cue.severity,0,1)*2))):
     type==='dust'?2:1;
   const length=clamp(cue.duration,.10,.70),severity=clamp(cue.severity,0,1);
+  // Keep the arrow kinetic at short ranges without inventing an impact frame.
+  const flightLife=flightProbe?clamp(flightProbe.travelMeters/(type==='projectile'?7:6),
+   type==='projectile'?.10:.16,type==='projectile'?.30:.31):length;
   let created=0;
   for(let i=0;i<n;i++){
    const index=allocate(pool,clamp(cue.priority,0,10));
    if(index<0){suppressed++;break}
    if(!pool.slots[index])active++;
    const speed=type==='hit'||type==='dust'?spray(cue.id,i):null;
-   pool.slots[index]={cue,age:0,life:reducedMotion?Math.min(.13,length):length,
-    origin:{...start},end:cell(cue.to)?world(cue.to,type==='spell'?1.23:1.19):null,
+   pool.slots[index]={cue,age:0,life:reducedMotion?Math.min(.13,flightLife):flightLife,
+    origin:{...start},end:flightDestination??(cell(cue.to)?world(cue.to,type==='spell'?1.23:1.19):null),
     priority:cue.priority??1,severity,fragment:speed,index,ordinal:i,
     lastHand:type==='trail'?{...start}:null,
     measuredPath:null,lastMeasuredAge:-Infinity};
@@ -219,16 +229,15 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    pose.scale.setScalar(Math.max(.0001,initial*Math.pow(fade,1.25)));
   }else if(p==='projectile'||p==='spell'){
    const end=slot.end;
-   if(end){
-    const speed=t*t*(3-2*t),flight=Math.sin(Math.PI*t);
-    pose.position.set(origin.x+(end.x-origin.x)*speed,
-     origin.y+(end.y-origin.y)*speed+(p==='spell'?.11:.035)*flight,
-     origin.z+(end.z-origin.z)*speed);
-    dir.set(end.x-origin.x,end.y-origin.y,end.z-origin.z);
-    if(dir.lengthSq()>.0001)pose.quaternion.setFromUnitVectors(up,dir.normalize());
-   }
-   // A projectile may visibly arrive without ever authorizing a hit effect.
-   pose.scale.setScalar((p==='spell'?.78:1.0)*(fade*.47+.43));
+   const flight=end?planUnconfirmedFlight(origin,end,t):null;
+   if(!flight)return hideMatrix();
+   pose.position.set(flight.position.x,flight.position.y,flight.position.z);
+   // Cosmetic flight lift never claims a collision or an actor's damage.
+   pose.position.y+=(p==='spell'?.11:.035)*Math.sin(Math.PI*t);
+   dir.set(flight.direction.x,flight.direction.y,flight.direction.z);
+   pose.quaternion.setFromUnitVectors(up,dir);
+   // The projectile dissipates in open air before the target clearance shell.
+   pose.scale.setScalar((p==='spell'?.78:1.0)*Math.max(.0001,fade*.84));
   }else if(p==='block'){
    pose.rotation.y=origin.yaw??0;
    pose.rotation.z=-.15+t*.35;
