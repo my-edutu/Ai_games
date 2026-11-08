@@ -344,7 +344,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
   return coarse==='sightline'||planLiveFacadeBodyReveal(face,eyes,camera,coarse)?
    'sightline':coarse;
  };
- function cutaway(subjects,camera,wallPad=2.1,view=null,forceFacades=null,frameDt=0,reducedMotion=false){
+ function cutaway(subjects,camera,wallPad=2.1,view=null,forceFacades=null,frameDt=0,reducedMotion=false,slowFrame=false){
   if(!facadeMesh)return;
   // World cladding, banners, stained-glass windows and statuary share the
   // multi-hero camera clearance, instead of tracking only the focus actor.
@@ -430,7 +430,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
     planForegroundBodyClearance(foregroundVolumes[i],eyes,camera)||
     planProjectedBodyAperture(foregroundVolumes[i],eyes,camera,view);
    const portrait=planPortraitStageClearance(foregroundVolumes[i],eyes,camera,view);
-    applyForegroundRecession(group,blocked||portrait,frameDt,reducedMotion,foregroundVolumes[i]);
+    applyForegroundRecession(group,blocked||portrait,frameDt,reducedMotion,foregroundVolumes[i],slowFrame);
     if(blocked||portrait)cleared++;
     if(portrait&&!blocked)portraitCleared++;
   }
