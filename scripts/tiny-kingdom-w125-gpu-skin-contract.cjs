@@ -37,12 +37,13 @@ for(const important of ['p.delivery','isMarketUnloading(p)','isWorkingAtSite(p)'
  'nearPeople.has(i)','projectRealCitizenDetail(p,frame)'])
  assert(auth.includes(important),'retain fully live close/actual delivery worker: '+important);
 const compact=extract('compactVillager');
-for(const tag of [1,2,3,4,5,6,7,8,9,10,11,12])
- assert(compact.includes(tag===11?'tagWorkSkinRange(11,headStart)':
-  tag===12?'tagWorkSkinRange(12,toolStart)':
-  tag%5===1?'tagWorkSkinRange(j,from)':
-  'tagWorkSkinRange(j+'+(tag%5-1)+',from)'),
-  'all original limbs/boots/head/tools retain their own joint labels');
+for(const marker of [
+ 'tagWorkSkinRange(j,from)','tagWorkSkinRange(j+1,from)',
+ 'tagWorkSkinRange(j+2,from)','tagWorkSkinRange(j+3,from)',
+ 'tagWorkSkinRange(j+4,from)','tagWorkSkinRange(11,headStart)',
+ 'tagWorkSkinRange(12,toolStart)'
+])assert(compact.includes(marker),
+ 'all original limbs, boots, head and worktools retain joint labels: '+marker);
 const math=new Function([
  extract('workSkinRigidMatrix'),extract('workSkinPoint'),
  extract('workSkinSegments'),extract('workSkinTags')
