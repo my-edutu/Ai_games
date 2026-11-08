@@ -217,3 +217,10 @@ body[data-hud=clean] .danger-readout{display:none}
  .hero-sub b{font-size:10px}
  .life{height:5px}
 }
+
+@media(max-width:759px){
+ .flag-label{font-size:10px}
+ .mission-chip small{font-size:10px;letter-spacing:1.1px}
+ .boss-overline{font-size:10px;letter-spacing:1px}
+ .boss-title>span:last-child{font-size:12px}
+}
