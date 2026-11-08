@@ -49,18 +49,53 @@ export function describeSpectatorDanger(s){
  }
  return null;
 }
+/**
+ * No fictional percentage: a floor is either still defended or its exit is
+ * available. Counts are live facts, not a progress estimate that can regress
+ * when the Warden summons another enemy.
+ */
+export function describeExpeditionProgress(s){
+ if(!s||!Array.isArray(s.units))return null;
+ const hostiles=s.units.filter(u=>u.faction==='enemy'&&u.hp>0).length;
+ const alive=s.units.filter(u=>u.faction==='party'&&u.hp>0).length;
+ const total=s.units.filter(u=>u.faction==='party').length;
+ const traps=Array.isArray(s.traps)?s.traps.filter(t=>t.active&&!t.disarmed).length:0;
+ const terminal=s.phase==='intermission';
+ return {
+  hostiles,alive,total,traps,
+  portal:terminal?'NEXT RUN':hostiles?'SEALED':'AVAILABLE',
+  objective:terminal?'Party defeated · new expedition forming':
+   hostiles?'Defeat remaining enemies':'Reach the portal to descend'
+ };
+}
 const clip=(s,max=180)=>typeof s==='string'?(s.length>max?s.slice(0,max-1)+'…':s):'';
+/** A short, non-live historical note; stale events never masquerade as alerts. */
+export function recentExpeditionOutcome(s){
+ if(!s||!Array.isArray(s.events)||!Number.isSafeInteger(s.tick))return null;
+ const accepted=new Set(['floor','defeat','kill','loot','healing','phase','cover',
+  'block','interrupt','disarm','trap','danger','opening','summon','restart']);
+ const event=[...s.events].reverse().find(e=>Number.isSafeInteger(e?.tick)&&
+  e.tick<=s.tick&&s.tick-e.tick<=6&&accepted.has(e.kind)&&typeof e.text==='string');
+ return event?{kind:clip(event.kind.toUpperCase(),22),text:clip(event.text,110),tick:event.tick}:null;
+}
 const heroName={vanguard:'Vanguard',ranger:'Ranger',mystic:'Mystic'};
 /** Focus controls only delegate to the existing real hero-card selection. */
 export function installSpectatorUI(doc=document){
  const $=id=>doc.getElementById(id),body=doc.body;
  const hud=$('hud-toggle'),map=$('map-toggle'),journal=$('journal-dialog'),open=$('journal-toggle');
- const quickbar=$('spectator-quickbar'),danger=$('danger-readout');
- let clean=false,mapOpen=doc.defaultView?.matchMedia?.('(min-width: 760px)')?.matches??true,lastEvents='';
+ const quickbar=$('spectator-quickbar'),danger=$('danger-readout'),outcome=$('quick-outcome');
+ let clean=false,mapOpen=doc.defaultView?.matchMedia?.('(min-width: 760px)')?.matches??true,lastEvents='',lastScene='',lastAnnouncedTick=null;
  function sync(){
   body.dataset.hud=clean?'clean':'visible';body.dataset.map=mapOpen?'open':'closed';
   hud.setAttribute('aria-pressed',String(clean));hud.setAttribute('aria-label',clean?'Show interface (H)':'Hide interface (H)');
   hud.querySelector('span').textContent=clean?'Show interface':'Clean view';map.setAttribute('aria-expanded',String(mapOpen));
+  // H may be invoked while keyboard focus is inside a soon-to-be-hidden hero.
+  // Move it to an always-visible control instead of stranding keyboard users.
+  if(clean){
+   const active=doc.activeElement;
+   if($('game-hud')?.contains(active)||quickbar?.contains(active))
+    hud.focus({preventScroll:true});
+  }
  }
  hud.addEventListener('click',()=>{clean=!clean;sync()});
  map.addEventListener('click',()=>{mapOpen=!mapOpen;if(mapOpen)clean=false;sync()});
@@ -115,6 +150,7 @@ export function installSpectatorUI(doc=document){
    button.dataset.condition=hp<=0?'fallen':total&&hp/total<=.25?'critical':'healthy';
    button.setAttribute('aria-disabled',String(hp<=0));
    button.setAttribute('aria-label',name+', '+hp+' of '+total+' health. '+(hp>0?'Follow hero':'Fallen; following unavailable'));
+   button.title=hp>0?'Follow '+name+' (or press '+(i+1)+')':name+' has fallen';
    if(quickbar.children[i]!==button)quickbar.insertBefore(button,quickbar.children[i]||null);
   }
   syncQuickFocus();
@@ -129,11 +165,41 @@ export function installSpectatorUI(doc=document){
    const restart=$('restart-status');
    if(restart)restart.textContent='Automatic restart in '+Math.max(0,s.intermission)+' simulation turns';
   }
+  const progress=describeExpeditionProgress(s);
+  if(progress){
+   const hostiles=$('hostiles-left'),hazards=$('hazards-active'),portal=$('portal-status');
+   if(hostiles)hostiles.textContent=String(progress.hostiles);
+   if(hazards)hazards.textContent=String(progress.traps);
+   if(portal){portal.textContent='PORTAL '+progress.portal;portal.dataset.state=progress.portal.toLowerCase();}
+   const objective=$('expedition-objective');
+   if(objective)objective.textContent=progress.objective;
+  }
+  const recent=recentExpeditionOutcome(s);
+  if(outcome){
+   outcome.hidden=!recent;
+   if(recent){
+    $('outcome-kind').textContent=recent.kind+' · T+'+recent.tick;
+    $('outcome-text').textContent=recent.text;
+   }
+  }
   const cue=describeSpectatorDanger(s);
   if(danger){
    danger.hidden=!cue;
    if(cue){danger.dataset.kind=cue.kind;$('danger-title').textContent=cue.title;$('danger-detail').textContent=cue.detail;}
   }
+  // Announce only a new verified danger or actual phase change, not the
+  // changing per-turn countdown that would otherwise overwhelm readers.
+  const sceneKey=s.run+':'+s.floor+':'+(cue?.kind||'clear')+':'+
+   (s.bossWarning?.attackTick||Math.min(Infinity,...[
+    ...(s.cultistWarnings||[]),...(s.revenantWarnings||[])
+   ].map(m=>m.impactTick||Infinity)));
+  const announce=$('assistive-announcement');
+  if(announce&&lastAnnouncedTick!==null&&s.tick>lastAnnouncedTick&&
+     sceneKey!==lastScene&&(cue?.kind==='warning'||cue?.kind==='release'||
+       cue?.kind==='counter'||cue?.kind==='hex'||cue?.kind==='breach'))
+   announce.textContent=cue.title+'. '+cue.detail;
+  if(lastScene!==sceneKey)lastScene=sceneKey;
+  lastAnnouncedTick=s.tick;
   renderQuickbar(s);
   const events=Array.isArray(s.events)?s.events:[];
   const signature=s.run+':'+JSON.stringify(events);
