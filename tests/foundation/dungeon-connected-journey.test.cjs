@@ -101,8 +101,12 @@ test('disconnected or malformed map is fail-closed, never fabricates walkability
   assert.equal(x.facades.length,0);assert.equal(x.metrics.collisionEffects,0);
  }
 });
-test('five capped instanced draws, zero new lights and explicit floor disposal are integrated into production',()=>{
+test('eleven capped role-specific instances, no new lights and explicit disposal are integrated',()=>{
  assert.match(renderer,/new THREE\.InstancedMesh/);
+ assert.match(renderer,/facadeStone\(role\)/);
+ assert.match(renderer,/facadeShadow\(role\)/);
+ assert.match(renderer,/facadeIron\(role\)/);
+ assert.match(renderer,/const global= batch\.indices\[local\]/);
  assert.match(renderer,/mesh\.instanceMatrix\.setUsage\(THREE\.DynamicDrawUsage\)/);
  assert.match(renderer,/const batches=\[/);
  assert.match(renderer,/for\(const mesh of meshes\)\{world\.remove\(mesh\);mesh\.dispose\(\);\}/);
